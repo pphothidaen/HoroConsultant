@@ -449,6 +449,31 @@ def run_training_pipeline(
         except Exception as patch_err:
             logger.warning(f"   ⚠️ Could not apply PEFT patch ({patch_err}). Training may still fail on T4.")
 
+    # Patch Transformers Trainer._get_num_items_in_batch to perform label mask calculation on CPU
+    # Prevents `torch.AcceleratorError: CUDA error: no kernel image is available` at line 5210
+    try:
+        import transformers.trainer as _tf_trainer
+        def _safe_get_num_items_in_batch(self, batch_samples, device=None):
+            total = 0
+            for batch in batch_samples:
+                if isinstance(batch, dict) and "labels" in batch:
+                    try:
+                        labels = batch["labels"]
+                        if hasattr(labels, "detach"):
+                            labels = labels.detach().cpu()
+                        total += int((labels != -100).sum().item())
+                    except Exception:
+                        if "input_ids" in batch:
+                            total += len(batch["input_ids"])
+                elif isinstance(batch, dict) and "input_ids" in batch:
+                    total += len(batch["input_ids"])
+            return max(total, 1)
+
+        _tf_trainer.Trainer._get_num_items_in_batch = _safe_get_num_items_in_batch
+        logger.info("   ✅ Applied Transformers Trainer._get_num_items_in_batch CPU-safe patch (prevents line 5210 GPU crash).")
+    except Exception as tr_patch_err:
+        logger.warning(f"   ⚠️ Could not apply Trainer._get_num_items_in_batch patch ({tr_patch_err}).")
+
     try:
         peft_config = LoraConfig(
             r=16,
