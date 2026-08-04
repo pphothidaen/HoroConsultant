@@ -98,6 +98,54 @@ def pull_output_log(username: str, key: str) -> bool:
         return False
 
 
+def send_notification(title: str, message: str, status: str = "info") -> None:
+    """Send notification via Webhook (Discord / LINE / Webhook URL) and macOS Desktop Alert."""
+    emoji = {"complete": "✅", "error": "❌", "info": "ℹ️"}.get(status, "📢")
+    full_text = f"{emoji} [{title}] {message}"
+    logger.info(f"[NOTIFY] {full_text}")
+
+    # 1. macOS Desktop Notification
+    try:
+        if sys.platform == "darwin":
+            clean_title = title.replace('"', '\\"').replace("'", "\\'")
+            clean_msg = message.replace('"', '\\"').replace("'", "\\'")
+            script = f'display notification "{clean_msg}" with title "{clean_title}"'
+            subprocess.run(["osascript", "-e", script], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except Exception as e:
+        logger.debug(f"macOS desktop notification skipped: {e}")
+
+    # 2. Discord / Generic Webhook
+    webhook_url = os.getenv("WEBHOOK_URL") or os.getenv("DISCORD_WEBHOOK_URL")
+    if webhook_url:
+        try:
+            payload = {
+                "username": "HoroConsultant Kaggle Bot",
+                "content": full_text,
+                "embeds": [
+                    {
+                        "title": title,
+                        "description": message,
+                        "color": 65280 if status == "complete" else 16711680,
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    }
+                ],
+            }
+            requests.post(webhook_url, json=payload, timeout=10)
+            logger.info("   [OK] Webhook notification sent successfully.")
+        except Exception as e:
+            logger.warning(f"   [WARNING] Webhook notification failed: {e}")
+
+    # 3. LINE Notify
+    line_token = os.getenv("LINE_NOTIFY_TOKEN")
+    if line_token:
+        try:
+            headers = {"Authorization": f"Bearer {line_token}"}
+            requests.post("https://notify-api.line.me/api/notify", headers=headers, data={"message": full_text}, timeout=10)
+            logger.info("   [OK] LINE Notify notification sent successfully.")
+        except Exception as e:
+            logger.warning(f"   [WARNING] LINE Notify failed: {e}")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Monitor Kaggle kernel execution")
     parser.add_argument("--watch", action="store_true", help="Poll until kernel finishes")
@@ -141,16 +189,25 @@ def main():
                 if status == "complete":
                     logger.info("🎉 Kernel completed successfully! Pulling output logs...")
                     pull_output_log(username, key)
-                    # Git commit the pulled logs
                     import subprocess
                     subprocess.run(["git", "add", "project/kaggle_kernel/"], cwd=ROOT_DIR, check=False)
                     subprocess.run(
-                        ["git", "commit", "-m", f"feat(kaggle): sync v28 output logs (status: {status})"],
+                        ["git", "commit", "-m", f"feat(kaggle): sync output logs (status: {status})"],
                         cwd=ROOT_DIR, check=False
                     )
-                elif status == "error":
-                    logger.error(f"❌ Kernel failed! Pulling error logs...")
+                    send_notification(
+                        "Kaggle Fine-Tuning Complete 100%",
+                        f"Kernel {KERNEL_SLUG} completed successfully (Exit Code 0). Outputs downloaded to project/kaggle_kernel/",
+                        status="complete",
+                    )
+                elif status in ("error", "cancelled"):
+                    logger.error(f"❌ Kernel ended with status {status}! Pulling logs...")
                     pull_output_log(username, key)
+                    send_notification(
+                        f"Kaggle Execution {status.upper()}",
+                        f"Kernel {KERNEL_SLUG} ended with status: {status}. Failure msg: {fail_msg or 'N/A'}",
+                        status="error",
+                    )
                 break
 
         except Exception as e:
