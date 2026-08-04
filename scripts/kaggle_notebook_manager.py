@@ -156,7 +156,14 @@ def create_kernel_files() -> None:
             }
         ],
         "metadata": {
-            "language_info": {"name": "python"}
+            "kernelspec": {
+                "display_name": "Python 3",
+                "language": "python",
+                "name": "python3"
+            },
+            "language_info": {
+                "name": "python"
+            }
         },
         "nbformat": 4,
         "nbformat_minor": 2
