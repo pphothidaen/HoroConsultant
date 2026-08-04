@@ -172,6 +172,29 @@ def create_kernel_files() -> None:
     logger.info(f"📓 Created Jupyter Notebook file at '{NOTEBOOK_FILE}'")
 
 
+def git_auto_commit_and_push(message: str) -> bool:
+    """Auto-stage, commit, and push updated repository files to GitHub."""
+    logger.info(f"🐙 Auto-syncing repository changes to GitHub: '{message}'...")
+    try:
+        subprocess.run(["git", "add", "."], cwd=ROOT_DIR, check=False)
+        res = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT_DIR, capture_output=True, text=True)
+        if not res.stdout.strip():
+            logger.info("ℹ️ No uncommitted git changes detected.")
+            return True
+        
+        subprocess.run(["git", "commit", "-m", message], cwd=ROOT_DIR, check=False)
+        push_res = subprocess.run(["git", "push", "origin", "main"], cwd=ROOT_DIR, capture_output=True, text=True)
+        if push_res.returncode == 0:
+            logger.info("🎉 Successfully pushed latest changes to GitHub repository!")
+            return True
+        else:
+            logger.warning(f"⚠️ Git push notice: {push_res.stderr.strip()}")
+            return False
+    except Exception as e:
+        logger.error(f"❌ Git auto-push failed: {e}")
+        return False
+
+
 def run_kaggle_cmd(args_list: list[str]) -> bool:
     """Run kaggle CLI command."""
     cmd = ["kaggle"] + args_list
@@ -209,6 +232,8 @@ def main():
         setup_kaggle_credentials()
         if not METADATA_FILE.exists():
             create_kernel_files()
+        # Auto-commit and push code updates to GitHub first so Kaggle git clone gets latest code
+        git_auto_commit_and_push("feat(kaggle): auto-commit updated notebook & scripts before pushing to Kaggle")
         run_kaggle_cmd(["kernels", "push", "-p", str(KERNEL_DIR)])
 
     if args.status:
@@ -221,7 +246,9 @@ def main():
         setup_kaggle_credentials()
         username = os.getenv("KAGGLE_USERNAME", "pphothidaen")
         kernel_id = f"{username}/horoconsultant-finetune-pipeline"
-        run_kaggle_cmd(["kernels", "pull", kernel_id, "-p", str(KERNEL_DIR), "-m"])
+        success = run_kaggle_cmd(["kernels", "pull", kernel_id, "-p", str(KERNEL_DIR), "-m"])
+        if success:
+            git_auto_commit_and_push("feat(kaggle): sync pulled notebook outputs & metadata from Kaggle")
 
 
 if __name__ == "__main__":
