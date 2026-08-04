@@ -1,146 +1,251 @@
-[{"stream_name":"stderr","time":6.12720062,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":6.127273168,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":6.127277691,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":6.127280166,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stderr","time":6.679651221,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":6.67967646,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":6.6796798509999995,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":6.679682428,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stdout","time":7.8739977660000005,"data":"[OK] CUDA stability environment variables set (T4/sm_75 compatible)\n"}
-,{"stream_name":"stdout","time":7.874042431,"data":"[INFO] Kaggle Secret note (HF_TOKEN): Connection error trying to communicate with service.\n"}
-,{"stream_name":"stderr","time":8.100256701,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stdout","time":8.110217614,"data":"[INFO] Kaggle Secret note (APP_SUPABASE_URL): Connection error trying to communicate with service.\n"}
-,{"stream_name":"stdout","time":8.110235529,"data":"[INFO] Kaggle Secret note (APP_SUPABASE_KEY): Connection error trying to communicate with service.\n"}
-,{"stream_name":"stdout","time":8.110246393,"data":"[INFO] Kaggle Secret note (GH_TOKEN): Connection error trying to communicate with service.\n"}
-,{"stream_name":"stdout","time":8.110249717,"data":"[MODEL] Cloning HoroConsultant repository...\n"}
-,{"stream_name":"stderr","time":8.303239846,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stderr","time":8.303270121,"data":"\n"}
-,{"stream_name":"stderr","time":8.303276597,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stdout","time":9.3141437,"data":"[CHECK] Checking pre-installed PyTorch \u0026 CUDA status...\n"}
-,{"stream_name":"stdout","time":13.012182651,"data":"[CUDA] Kaggle PyTorch version: 2.10.0+cu128, CUDA available: True\n"}
-,{"stream_name":"stdout","time":13.012223531,"data":"[CUDA] Detected GPU: Tesla P100-PCIE-16GB (sm_60)\n"}
-,{"stream_name":"stdout","time":13.012228423,"data":"[WARNING] Kaggle allocated Tesla P100 (sm_60). Installing PyTorch 2.2.0+cu121 compatibility wheel with native sm_60 Pascal support...\n"}
-,{"stream_name":"stderr","time":13.029449477,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.029475038,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
-,{"stream_name":"stderr","time":13.029481384,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
-,{"stream_name":"stderr","time":13.029496814,"data":"    (7.0) - (12.0)\n"}
-,{"stream_name":"stderr","time":13.029501589,"data":"    \n"}
-,{"stream_name":"stderr","time":13.029505805,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":13.029510041,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.029514692,"data":"    Please install PyTorch with a following CUDA\n"}
-,{"stream_name":"stderr","time":13.029519095,"data":"    configurations:  12.6 following instructions at\n"}
-,{"stream_name":"stderr","time":13.029540435,"data":"    https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":13.029544428,"data":"    \n"}
-,{"stream_name":"stderr","time":13.029547675,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":13.029550917,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.029554438,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
-,{"stream_name":"stderr","time":13.029558134,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
-,{"stream_name":"stderr","time":13.029561812,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":13.02956549,"data":"\n"}
-,{"stream_name":"stderr","time":13.029568898,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":13.029572265,"data":"\n"}
-,{"stream_name":"stderr","time":13.029575628,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.029579232,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
-,{"stream_name":"stderr","time":13.029582735,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
-,{"stream_name":"stderr","time":13.029602664,"data":"    (7.0) - (12.0)\n"}
-,{"stream_name":"stderr","time":13.029608751,"data":"    \n"}
-,{"stream_name":"stderr","time":13.029612105,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":13.029615432,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.029618965,"data":"    Please install PyTorch with a following CUDA\n"}
-,{"stream_name":"stderr","time":13.029622555,"data":"    configurations:  12.6 following instructions at\n"}
-,{"stream_name":"stderr","time":13.02962609,"data":"    https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":13.029629583,"data":"    \n"}
-,{"stream_name":"stderr","time":13.029632767,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":13.029636138,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.029639548,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
-,{"stream_name":"stderr","time":13.029643122,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
-,{"stream_name":"stderr","time":13.029656784,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":13.029660625,"data":"\n"}
-,{"stream_name":"stderr","time":13.029663908,"data":"  queued_call()\n"}
-,{"stream_name":"stdout","time":22.116348926,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.2/757.2 MB 2.4 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":22.318261607,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.2/757.2 MB 2.4 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":25.055626055,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.0/7.0 MB 117.3 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":25.257517094,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.0/7.0 MB 117.3 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":60.227108393,"data":"[MODEL] Removing incompatible torchao/torchvision \u0026 installing fine-tuning packages...\n"}
-,{"stream_name":"stdout","time":60.802326349,"data":"Found existing installation: torchao 0.10.0\n"}
-,{"stream_name":"stdout","time":60.881836343,"data":"Uninstalling torchao-0.10.0:\n"}
-,{"stream_name":"stdout","time":61.004517673,"data":"Found existing installation: torchao 0.10.0\n"}
-,{"stream_name":"stdout","time":61.004541527,"data":"Uninstalling torchao-0.10.0:\n"}
-,{"stream_name":"stdout","time":61.185373309,"data":"  Successfully uninstalled torchao-0.10.0\n"}
-,{"stream_name":"stdout","time":61.211543543,"data":"Found existing installation: torchvision 0.17.0+cu121\n"}
-,{"stream_name":"stdout","time":61.227792963,"data":"Uninstalling torchvision-0.17.0+cu121:\n"}
-,{"stream_name":"stdout","time":61.231458925,"data":"  Successfully uninstalled torchvision-0.17.0+cu121\n"}
-,{"stream_name":"stdout","time":61.387628839,"data":"  Successfully uninstalled torchao-0.10.0\n"}
-,{"stream_name":"stdout","time":61.387661822,"data":"Found existing installation: torchvision 0.17.0+cu121\n"}
-,{"stream_name":"stdout","time":61.387666403,"data":"Uninstalling torchvision-0.17.0+cu121:\n"}
-,{"stream_name":"stdout","time":61.387670149,"data":"  Successfully uninstalled torchvision-0.17.0+cu121\n"}
-,{"stream_name":"stderr","time":80.021444285,"data":"Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128_nocublaslt.so')\n"}
-,{"stream_name":"stderr","time":80.021482997,"data":"\n"}
-,{"stream_name":"stderr","time":80.021497077,"data":"Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128_nocublaslt.so')\n"}
-,{"stream_name":"stderr","time":80.02231935,"data":"The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
-,{"stream_name":"stderr","time":80.022341683,"data":"\n"}
-,{"stream_name":"stderr","time":80.022346798,"data":"The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
-,{"stream_name":"stderr","time":85.305084193,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":85.305183608,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":85.305194452,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
-,{"stream_name":"stderr","time":85.305279856,"data":"    raise_for_execution_errors(nb, output_path)\n"}
-,{"stream_name":"stderr","time":85.305349982,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
-,{"stream_name":"stderr","time":85.305495702,"data":"    raise error\n"}
-,{"stream_name":"stderr","time":85.305834847,"data":"papermill.exceptions.PapermillExecutionError: \n"}
-,{"stream_name":"stderr","time":85.305849947,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":85.30585569,"data":"Exception encountered at \"In [1]\":\n"}
-,{"stream_name":"stderr","time":85.305860313,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":85.305876102,"data":"ModuleNotFoundError                       Traceback (most recent call last)\n"}
-,{"stream_name":"stderr","time":85.305880521,"data":"/tmp/ipykernel_22/3562537722.py in \u003ccell line: 0\u003e()\n"}
-,{"stream_name":"stderr","time":85.305884973,"data":"     78 except Exception as bnb_e:\n"}
-,{"stream_name":"stderr","time":85.305888549,"data":"     79     bnb_ver = f'bypassed ({bnb_e})'\n"}
-,{"stream_name":"stderr","time":85.305893151,"data":"---\u003e 80 import transformers, peft, trl, datasets, accelerate\n"}
-,{"stream_name":"stderr","time":85.305896553,"data":"     81 print(f'[OK] Fail-Fast Import Verified: transformers={transformers.__version__}, peft={peft.__version__}, trl={trl.__version__}, accelerate={accelerate.__version__}, bitsandbytes={bnb_ver}')\n"}
-,{"stream_name":"stderr","time":85.305901243,"data":"     82 \n"}
-,{"stream_name":"stderr","time":85.305904773,"data":"\n"}
-,{"stream_name":"stderr","time":85.305908093,"data":"/usr/local/lib/python3.12/dist-packages/datasets/__init__.py in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":85.305911838,"data":"     16 __version__ = \"2.18.0\"\n"}
-,{"stream_name":"stderr","time":85.305915021,"data":"     17 \n"}
-,{"stream_name":"stderr","time":85.305918503,"data":"---\u003e 18 from .arrow_dataset import Dataset\n"}
-,{"stream_name":"stderr","time":85.305922441,"data":"     19 from .arrow_reader import ReadInstruction\n"}
-,{"stream_name":"stderr","time":85.305925883,"data":"     20 from .builder import ArrowBasedBuilder, BeamBasedBuilder, BuilderConfig, DatasetBuilder, GeneratorBasedBuilder\n"}
-,{"stream_name":"stderr","time":85.305930026,"data":"\n"}
-,{"stream_name":"stderr","time":85.305933537,"data":"/usr/local/lib/python3.12/dist-packages/datasets/arrow_dataset.py in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":85.305937249,"data":"     66 from . import config\n"}
-,{"stream_name":"stderr","time":85.30594039,"data":"     67 from .arrow_reader import ArrowReader\n"}
-,{"stream_name":"stderr","time":85.305943332,"data":"---\u003e 68 from .arrow_writer import ArrowWriter, OptimizedTypedSequence\n"}
-,{"stream_name":"stderr","time":85.30594665,"data":"     69 from .data_files import sanitize_patterns\n"}
-,{"stream_name":"stderr","time":85.305950283,"data":"     70 from .download.streaming_download_manager import xgetsize\n"}
-,{"stream_name":"stderr","time":85.305953706,"data":"\n"}
-,{"stream_name":"stderr","time":85.305956813,"data":"/usr/local/lib/python3.12/dist-packages/datasets/arrow_writer.py in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":85.305960186,"data":"     27 \n"}
-,{"stream_name":"stderr","time":85.305963226,"data":"     28 from . import config\n"}
-,{"stream_name":"stderr","time":85.305966955,"data":"---\u003e 29 from .features import Features, Image, Value\n"}
-,{"stream_name":"stderr","time":85.305970525,"data":"     30 from .features.features import (\n"}
-,{"stream_name":"stderr","time":85.30597381,"data":"     31     FeatureType,\n"}
-,{"stream_name":"stderr","time":85.305977073,"data":"\n"}
-,{"stream_name":"stderr","time":85.30598025,"data":"/usr/local/lib/python3.12/dist-packages/datasets/features/__init__.py in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":85.305983705,"data":"     16 ]\n"}
-,{"stream_name":"stderr","time":85.305987546,"data":"     17 from .audio import Audio\n"}
-,{"stream_name":"stderr","time":85.30599109,"data":"---\u003e 18 from .features import Array2D, Array3D, Array4D, Array5D, ClassLabel, Features, Sequence, Value\n"}
-,{"stream_name":"stderr","time":85.305994691,"data":"     19 from .image import Image\n"}
-,{"stream_name":"stderr","time":85.306002161,"data":"     20 from .translation import Translation, TranslationVariableLanguages\n"}
-,{"stream_name":"stderr","time":85.306005971,"data":"\n"}
-,{"stream_name":"stderr","time":85.306009181,"data":"/usr/local/lib/python3.12/dist-packages/datasets/features/features.py in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":85.306013836,"data":"     33 import pyarrow.compute as pc\n"}
-,{"stream_name":"stderr","time":85.306017238,"data":"     34 import pyarrow.types\n"}
-,{"stream_name":"stderr","time":85.30602042,"data":"---\u003e 35 import pyarrow_hotfix  # noqa: F401  # to fix vulnerability on pyarrow\u003c14.0.1\n"}
-,{"stream_name":"stderr","time":85.306023835,"data":"     36 from pandas.api.extensions import ExtensionArray as PandasExtensionArray\n"}
-,{"stream_name":"stderr","time":85.306027481,"data":"     37 from pandas.api.extensions import ExtensionDtype as PandasExtensionDtype\n"}
-,{"stream_name":"stderr","time":85.306031026,"data":"\n"}
-,{"stream_name":"stderr","time":85.306034521,"data":"ModuleNotFoundError: No module named 'pyarrow_hotfix'\n"}
-,{"stream_name":"stderr","time":85.306038017,"data":"\n"}
-,{"stream_name":"stderr","time":87.350365071,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
-,{"stream_name":"stderr","time":87.350396224,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
-,{"stream_name":"stderr","time":87.500056862,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
-,{"stream_name":"stderr","time":87.50008385,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
-,{"stream_name":"stderr","time":88.088246017,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
-,{"stream_name":"stderr","time":88.381521786,"data":"[NbConvertApp] Writing 19957 bytes to __notebook__.ipynb\n"}
-,{"stream_name":"stderr","time":90.708325872,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
-,{"stream_name":"stderr","time":91.546851341,"data":"[NbConvertApp] Writing 311314 bytes to __results__.html\n"}
+[{"stream_name":"stderr","time":7.135352612,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.135429546,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.135433665,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.135436232,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":7.757147699,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.757185135,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.757190113,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.757195781,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":9.070617981,"data":"[OK] CUDA stability environment variables set (T4/sm_75 compatible)\n"}
+,{"stream_name":"stdout","time":9.333652427,"data":"[INFO] Kaggle Secret note (HF_TOKEN): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stdout","time":9.646646206,"data":"[INFO] Kaggle Secret note (APP_SUPABASE_URL): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stdout","time":9.917582636,"data":"[INFO] Kaggle Secret note (APP_SUPABASE_KEY): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stderr","time":10.815523698,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stdout","time":10.995788059,"data":"[INFO] Kaggle Secret note (GH_TOKEN): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stdout","time":10.995847871,"data":"[MODEL] Cloning HoroConsultant repository...\n"}
+,{"stream_name":"stderr","time":11.017524964,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stderr","time":11.017558276,"data":"\n"}
+,{"stream_name":"stderr","time":11.017562543,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stdout","time":12.623452593,"data":"[CHECK] Checking pre-installed PyTorch \u0026 CUDA status...\n"}
+,{"stream_name":"stdout","time":16.770246314,"data":"[CUDA] Kaggle PyTorch version: 2.10.0+cu128, CUDA available: True\n"}
+,{"stream_name":"stdout","time":16.770282238,"data":"[CUDA] Detected GPU: Tesla P100-PCIE-16GB (sm_60)\n"}
+,{"stream_name":"stdout","time":16.770287578,"data":"[WARNING] Kaggle allocated Tesla P100 (sm_60). Installing PyTorch 2.2.0+cu121 compatibility wheel with native sm_60 Pascal support...\n"}
+,{"stream_name":"stderr","time":16.787740459,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":16.78777061,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
+,{"stream_name":"stderr","time":16.787775314,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
+,{"stream_name":"stderr","time":16.787778979,"data":"    (7.0) - (12.0)\n"}
+,{"stream_name":"stderr","time":16.787782802,"data":"    \n"}
+,{"stream_name":"stderr","time":16.787786766,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":16.787790858,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":16.787794859999998,"data":"    Please install PyTorch with a following CUDA\n"}
+,{"stream_name":"stderr","time":16.787798422,"data":"    configurations:  12.6 following instructions at\n"}
+,{"stream_name":"stderr","time":16.787815877,"data":"    https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":16.787819693,"data":"    \n"}
+,{"stream_name":"stderr","time":16.787823011,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":16.787826743,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":16.787830813,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
+,{"stream_name":"stderr","time":16.787834266,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
+,{"stream_name":"stderr","time":16.787837959,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":16.787841613,"data":"\n"}
+,{"stream_name":"stderr","time":16.787844964,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":16.787848736,"data":"\n"}
+,{"stream_name":"stderr","time":16.787852003,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":16.787871295,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
+,{"stream_name":"stderr","time":16.787875755,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
+,{"stream_name":"stderr","time":16.787879918,"data":"    (7.0) - (12.0)\n"}
+,{"stream_name":"stderr","time":16.787886092,"data":"    \n"}
+,{"stream_name":"stderr","time":16.787889739,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":16.787893612,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":16.787897017,"data":"    Please install PyTorch with a following CUDA\n"}
+,{"stream_name":"stderr","time":16.787900484,"data":"    configurations:  12.6 following instructions at\n"}
+,{"stream_name":"stderr","time":16.787903712,"data":"    https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":16.78790732,"data":"    \n"}
+,{"stream_name":"stderr","time":16.787910467,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":16.787913602,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":16.787916894,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
+,{"stream_name":"stderr","time":16.787920134,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
+,{"stream_name":"stderr","time":16.787923544999998,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":16.787927062,"data":"\n"}
+,{"stream_name":"stderr","time":16.787930165,"data":"  queued_call()\n"}
+,{"stream_name":"stdout","time":27.000517371,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.2/757.2 MB 2.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":27.20282531,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 757.2/757.2 MB 2.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":29.791749313,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.0/7.0 MB 110.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":29.994520105,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.0/7.0 MB 110.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":65.929996965,"data":"[MODEL] Removing incompatible torchao/torchvision \u0026 installing fine-tuning packages...\n"}
+,{"stream_name":"stdout","time":66.507523575,"data":"Found existing installation: torchao 0.10.0\n"}
+,{"stream_name":"stdout","time":66.57123236300001,"data":"Uninstalling torchao-0.10.0:\n"}
+,{"stream_name":"stdout","time":66.710098235,"data":"Found existing installation: torchao 0.10.0\n"}
+,{"stream_name":"stdout","time":66.710132557,"data":"Uninstalling torchao-0.10.0:\n"}
+,{"stream_name":"stdout","time":66.885528118,"data":"  Successfully uninstalled torchao-0.10.0\n"}
+,{"stream_name":"stdout","time":66.910978075,"data":"Found existing installation: torchvision 0.17.0+cu121\n"}
+,{"stream_name":"stdout","time":66.928268786,"data":"Uninstalling torchvision-0.17.0+cu121:\n"}
+,{"stream_name":"stdout","time":66.931981027,"data":"  Successfully uninstalled torchvision-0.17.0+cu121\n"}
+,{"stream_name":"stdout","time":67.088027168,"data":"  Successfully uninstalled torchao-0.10.0\n"}
+,{"stream_name":"stdout","time":67.088075041,"data":"Found existing installation: torchvision 0.17.0+cu121\n"}
+,{"stream_name":"stdout","time":67.08811566,"data":"Uninstalling torchvision-0.17.0+cu121:\n"}
+,{"stream_name":"stdout","time":67.0881218,"data":"  Successfully uninstalled torchvision-0.17.0+cu121\n"}
+,{"stream_name":"stderr","time":90.477261772,"data":"Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128_nocublaslt.so')\n"}
+,{"stream_name":"stderr","time":90.477294614,"data":"\n"}
+,{"stream_name":"stderr","time":90.477300322,"data":"Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128_nocublaslt.so')\n"}
+,{"stream_name":"stderr","time":90.478125085,"data":"The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
+,{"stream_name":"stderr","time":90.478146837,"data":"\n"}
+,{"stream_name":"stderr","time":90.478152043,"data":"The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
+,{"stream_name":"stderr","time":93.804129114,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7f95b12778e0\u003e\u003e)\n"}
+,{"stream_name":"stderr","time":93.804167068,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":93.804172849,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
+,{"stream_name":"stderr","time":93.804177794,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":93.804182368,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":93.804186855,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 179-180: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":93.804191589,"data":"\n"}
+,{"stream_name":"stderr","time":93.804196067,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":93.804200589,"data":"\n"}
+,{"stream_name":"stderr","time":93.80420477,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":93.804223606,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
+,{"stream_name":"stderr","time":93.804227927,"data":"    ret = callback()\n"}
+,{"stream_name":"stderr","time":93.804231237,"data":"          ^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":93.804234667,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
+,{"stream_name":"stderr","time":93.804238969,"data":"    self.session.send(\n"}
+,{"stream_name":"stderr","time":93.804242896,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
+,{"stream_name":"stderr","time":93.804246855,"data":"    to_send = self.serialize(msg, ident)\n"}
+,{"stream_name":"stderr","time":93.804250474,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":93.804253827,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
+,{"stream_name":"stderr","time":93.804257489,"data":"    content = self.pack(content)\n"}
+,{"stream_name":"stderr","time":93.804260873,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":93.804264184,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
+,{"stream_name":"stderr","time":93.804267894,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":93.804271572,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":93.804275097,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 179-180: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":94.008451565,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7f95b12778e0\u003e\u003e)\n"}
+,{"stream_name":"stderr","time":94.008500383,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":94.008505167,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
+,{"stream_name":"stderr","time":94.008510078,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":94.008513903,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":94.008518279,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 179-180: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":94.008522242,"data":"\n"}
+,{"stream_name":"stderr","time":94.008525983,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":94.008529561,"data":"\n"}
+,{"stream_name":"stderr","time":94.008533717,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":94.008537222,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
+,{"stream_name":"stderr","time":94.008541498,"data":"    ret = callback()\n"}
+,{"stream_name":"stderr","time":94.008544897,"data":"          ^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":94.008549206,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
+,{"stream_name":"stderr","time":94.00855295,"data":"    self.session.send(\n"}
+,{"stream_name":"stderr","time":94.008557151,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
+,{"stream_name":"stderr","time":94.008573738,"data":"    to_send = self.serialize(msg, ident)\n"}
+,{"stream_name":"stderr","time":94.008577322,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":94.008581304,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
+,{"stream_name":"stderr","time":94.008585058,"data":"    content = self.pack(content)\n"}
+,{"stream_name":"stderr","time":94.008589106,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":94.008592607,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
+,{"stream_name":"stderr","time":94.00859701,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":94.008600559,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":94.00860478,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 179-180: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":94.008608496,"data":"\n"}
+,{"stream_name":"stderr","time":94.008612529,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7f95b12778e0\u003e\u003e)\n"}
+,{"stream_name":"stderr","time":94.008616608,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":94.008620527,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
+,{"stream_name":"stderr","time":94.008624215,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":94.008628038,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":94.008631453,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 179-180: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":94.008635524,"data":"\n"}
+,{"stream_name":"stderr","time":94.008638813,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":94.008642858,"data":"\n"}
+,{"stream_name":"stderr","time":94.008647622,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":94.008651961,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
+,{"stream_name":"stderr","time":94.008656027,"data":"    ret = callback()\n"}
+,{"stream_name":"stderr","time":94.008659732,"data":"          ^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":94.008663365,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
+,{"stream_name":"stderr","time":94.008667438,"data":"    self.session.send(\n"}
+,{"stream_name":"stderr","time":94.008671212,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
+,{"stream_name":"stderr","time":94.008675213,"data":"    to_send = self.serialize(msg, ident)\n"}
+,{"stream_name":"stderr","time":94.00867896,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":94.008682681,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
+,{"stream_name":"stderr","time":94.008686823,"data":"    content = self.pack(content)\n"}
+,{"stream_name":"stderr","time":94.008690493,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":94.008694234,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
+,{"stream_name":"stderr","time":94.008701389,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":94.008705413,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":94.00870915,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 179-180: surrogates not allowed\n"}
+,{"stream_name":"stdout","time":94.156173062,"data":"2026-08-04 11:37:32,177 [INFO] [DATA] Checking dataset source...\n"}
+,{"stream_name":"stdout","time":94.156206687,"data":"2026-08-04 11:37:32,177 [INFO] [DATA] Checking dataset source...\n"}
+,{"stream_name":"stdout","time":94.156212296,"data":"2026-08-04 11:37:32,178 [INFO] [INFO] Supabase not available/empty. Using local dataset '/kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl'\n"}
+,{"stream_name":"stdout","time":94.15621694,"data":"2026-08-04 11:37:32,178 [INFO] [INFO] Supabase not available/empty. Using local dataset '/kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl'\n"}
+,{"stream_name":"stdout","time":94.156221157,"data":"2026-08-04 11:37:32,178 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE_T4X2]...\n"}
+,{"stream_name":"stdout","time":94.156225072,"data":"2026-08-04 11:37:32,178 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE_T4X2]...\n"}
+,{"stream_name":"stdout","time":94.156228762,"data":"2026-08-04 11:37:32,178 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
+,{"stream_name":"stdout","time":94.156232356,"data":"2026-08-04 11:37:32,178 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
+,{"stream_name":"stdout","time":94.156235719,"data":"2026-08-04 11:37:32,178 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl\n"}
+,{"stream_name":"stdout","time":94.156239447,"data":"2026-08-04 11:37:32,178 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl\n"}
+,{"stream_name":"stdout","time":94.156243327,"data":"2026-08-04 11:37:32,178 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
+,{"stream_name":"stdout","time":94.15624693,"data":"2026-08-04 11:37:32,178 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
+,{"stream_name":"stdout","time":94.156250475,"data":"2026-08-04 11:37:32,178 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...\n"}
+,{"stream_name":"stdout","time":94.156253981,"data":"2026-08-04 11:37:32,178 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...\n"}
+,{"stream_name":"stdout","time":94.156257619,"data":"2026-08-04 11:37:32,189 [ERROR]    [ERROR] PyTorch Import Error: libcudnn.so.8: cannot open shared object file: No such file or directory\n"}
+,{"stream_name":"stdout","time":94.156261842,"data":"2026-08-04 11:37:32,189 [ERROR]    [ERROR] PyTorch Import Error: libcudnn.so.8: cannot open shared object file: No such file or directory\n"}
+,{"stream_name":"stdout","time":94.449370603,"data":"2026-08-04 11:37:32,569 [ERROR]    [ERROR] PEFT Config Error: libcudnn.so.8: cannot open shared object file: No such file or directory\n"}
+,{"stream_name":"stdout","time":94.449402983,"data":"2026-08-04 11:37:32,569 [ERROR]    [ERROR] PEFT Config Error: libcudnn.so.8: cannot open shared object file: No such file or directory\n"}
+,{"stream_name":"stdout","time":94.449408232,"data":"2026-08-04 11:37:32,578 [INFO]    [INFO] TRL SFTConfig Check Note: Failed to import trl.trainer.sft_config because of the following error (look up to see its traceback):\n"}
+,{"stream_name":"stdout","time":94.449412586,"data":"libcudnn.so.8: cannot open shared object file: No such file or directory\n"}
+,{"stream_name":"stdout","time":94.449416876,"data":"2026-08-04 11:37:32,578 [INFO]    [INFO] TRL SFTConfig Check Note: Failed to import trl.trainer.sft_config because of the following error (look up to see its traceback):\n"}
+,{"stream_name":"stdout","time":94.449434084,"data":"libcudnn.so.8: cannot open shared object file: No such file or directory\n"}
+,{"stream_name":"stdout","time":94.449438058,"data":"2026-08-04 11:37:32,578 [ERROR] [ERROR] CUDA pre-flight execution test failed. Aborting training pipeline to prevent GPU crash.\n"}
+,{"stream_name":"stdout","time":94.449441687,"data":"2026-08-04 11:37:32,578 [ERROR] [ERROR] CUDA pre-flight execution test failed. Aborting training pipeline to prevent GPU crash.\n"}
+,{"stream_name":"stdout","time":94.449445419,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stdout","time":94.449448806,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 742, in \u003cmodule\u003e\n"}
+,{"stream_name":"stdout","time":94.449453922,"data":"    main()\n"}
+,{"stream_name":"stdout","time":94.449457382,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 728, in main\n"}
+,{"stream_name":"stdout","time":94.449461851,"data":"    success = run_training_pipeline(\n"}
+,{"stream_name":"stdout","time":94.449465346,"data":"              ^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stdout","time":94.449468931,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 321, in run_training_pipeline\n"}
+,{"stream_name":"stdout","time":94.44947258,"data":"    raise RuntimeError(\"[ERROR] CUDA environment audit failed: no valid CUDA kernel execution image available.\")\n"}
+,{"stream_name":"stdout","time":94.449476745,"data":"RuntimeError: [ERROR] CUDA environment audit failed: no valid CUDA kernel execution image available.\n"}
+,{"stream_name":"stderr","time":97.352846949,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":97.352906887,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":97.352922778,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":97.353077031,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":97.353093567,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":97.353275227,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":97.353403125,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":97.353425463,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":97.353431801,"data":"Exception encountered at \"In [1]\":\n"}
+,{"stream_name":"stderr","time":97.35343738,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":97.353443327,"data":"RuntimeError                              Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":97.353448436,"data":"/tmp/ipykernel_23/2719308185.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":97.353454299,"data":"    103         except Exception:\n"}
+,{"stream_name":"stderr","time":97.353459302,"data":"    104             pass\n"}
+,{"stream_name":"stderr","time":97.353463908,"data":"--\u003e 105     raise RuntimeError(f'\\u274c Training orchestrator failed (exit code {proc.returncode}).\\n--- Tail of train_execution.log ---\\n{log_tail}')\n"}
+,{"stream_name":"stderr","time":97.353468728,"data":"    106 print('\\ud83c\\udf89 Training pipeline completed successfully!')\n"}
+,{"stream_name":"stderr","time":97.353484842,"data":"\n"}
+,{"stream_name":"stderr","time":97.353488272,"data":"RuntimeError: ❌ Training orchestrator failed (exit code 1).\n"}
+,{"stream_name":"stderr","time":97.353492487,"data":"--- Tail of train_execution.log ---\n"}
+,{"stream_name":"stderr","time":97.353496309,"data":"2026-08-04 11:37:32,178 [INFO] [INFO] Supabase not available/empty. Using local dataset '/kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl'\n"}
+,{"stream_name":"stderr","time":97.353499828,"data":"2026-08-04 11:37:32,178 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE_T4X2]...\n"}
+,{"stream_name":"stderr","time":97.353503525,"data":"2026-08-04 11:37:32,178 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE_T4X2]...\n"}
+,{"stream_name":"stderr","time":97.353507128,"data":"2026-08-04 11:37:32,178 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
+,{"stream_name":"stderr","time":97.353510987,"data":"2026-08-04 11:37:32,178 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
+,{"stream_name":"stderr","time":97.353514381,"data":"2026-08-04 11:37:32,178 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl\n"}
+,{"stream_name":"stderr","time":97.353517823,"data":"2026-08-04 11:37:32,178 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl\n"}
+,{"stream_name":"stderr","time":97.353521313,"data":"2026-08-04 11:37:32,178 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
+,{"stream_name":"stderr","time":97.353525041,"data":"2026-08-04 11:37:32,178 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
+,{"stream_name":"stderr","time":97.353528462,"data":"2026-08-04 11:37:32,178 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...\n"}
+,{"stream_name":"stderr","time":97.35353212,"data":"2026-08-04 11:37:32,178 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...\n"}
+,{"stream_name":"stderr","time":97.353535507,"data":"2026-08-04 11:37:32,189 [ERROR]    [ERROR] PyTorch Import Error: libcudnn.so.8: cannot open shared object file: No such file or directory\n"}
+,{"stream_name":"stderr","time":97.353540367,"data":"2026-08-04 11:37:32,189 [ERROR]    [ERROR] PyTorch Import Error: libcudnn.so.8: cannot open shared object file: No such file or directory\n"}
+,{"stream_name":"stderr","time":97.353544313,"data":"2026-08-04 11:37:32,569 [ERROR]    [ERROR] PEFT Config Error: libcudnn.so.8: cannot open shared object file: No such file or directory\n"}
+,{"stream_name":"stderr","time":97.353548012,"data":"2026-08-04 11:37:32,569 [ERROR]    [ERROR] PEFT Config Error: libcudnn.so.8: cannot open shared object file: No such file or directory\n"}
+,{"stream_name":"stderr","time":97.353551631,"data":"2026-08-04 11:37:32,578 [INFO]    [INFO] TRL SFTConfig Check Note: Failed to import trl.trainer.sft_config because of the following error (look up to see its traceback):\n"}
+,{"stream_name":"stderr","time":97.353555645,"data":"libcudnn.so.8: cannot open shared object file: No such file or directory\n"}
+,{"stream_name":"stderr","time":97.353560191,"data":"2026-08-04 11:37:32,578 [INFO]    [INFO] TRL SFTConfig Check Note: Failed to import trl.trainer.sft_config because of the following error (look up to see its traceback):\n"}
+,{"stream_name":"stderr","time":97.35356396,"data":"libcudnn.so.8: cannot open shared object file: No such file or directory\n"}
+,{"stream_name":"stderr","time":97.353567844,"data":"2026-08-04 11:37:32,578 [ERROR] [ERROR] CUDA pre-flight execution test failed. Aborting training pipeline to prevent GPU crash.\n"}
+,{"stream_name":"stderr","time":97.353571411,"data":"2026-08-04 11:37:32,578 [ERROR] [ERROR] CUDA pre-flight execution test failed. Aborting training pipeline to prevent GPU crash.\n"}
+,{"stream_name":"stderr","time":97.353578965,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":97.353582483,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 742, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":97.353586713,"data":"    main()\n"}
+,{"stream_name":"stderr","time":97.353590371,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 728, in main\n"}
+,{"stream_name":"stderr","time":97.353594715,"data":"    success = run_training_pipeline(\n"}
+,{"stream_name":"stderr","time":97.353598181,"data":"              ^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":97.353601951,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 321, in run_training_pipeline\n"}
+,{"stream_name":"stderr","time":97.353605881,"data":"    raise RuntimeError(\"[ERROR] CUDA environment audit failed: no valid CUDA kernel execution image available.\")\n"}
+,{"stream_name":"stderr","time":97.353609944,"data":"RuntimeError: [ERROR] CUDA environment audit failed: no valid CUDA kernel execution image available.\n"}
+,{"stream_name":"stderr","time":97.353613755,"data":"\n"}
+,{"stream_name":"stderr","time":97.353617404,"data":"\n"}
+,{"stream_name":"stderr","time":99.71489883,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":99.71495357,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":99.874478846,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":99.874522811,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":100.502051835,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":100.826564387,"data":"[NbConvertApp] Writing 24951 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":103.508132117,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":104.403280622,"data":"[NbConvertApp] Writing 313208 bytes to __results__.html\n"}
 ]

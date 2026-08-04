@@ -33,7 +33,7 @@ from project.core.config import Config
 from project.core.supabase_db import SupabaseDB
 
 # Force UTF-8 and replace invalid unicode surrogates to prevent ipykernel UnicodeEncodeError
-os.environ["PYTHONIOENCODING"] = "utf-8:surrogateescape"
+os.environ["PYTHONIOENCODING"] = "utf-8"
 os.environ["PYTHONUTF8"] = "1"
 os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
 os.environ["TRANSFORMERS_VERBOSITY"] = "error"
