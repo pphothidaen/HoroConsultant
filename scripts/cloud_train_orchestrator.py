@@ -32,6 +32,20 @@ sys.path.insert(0, str(ROOT_DIR))
 from project.core.config import Config
 from project.core.supabase_db import SupabaseDB
 
+# Force UTF-8 and replace invalid unicode surrogates to prevent ipykernel UnicodeEncodeError
+os.environ["PYTHONIOENCODING"] = "utf-8:surrogateescape"
+os.environ["PYTHONUTF8"] = "1"
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+if hasattr(sys.stderr, "reconfigure"):
+    try:
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("cloud_train")
 
