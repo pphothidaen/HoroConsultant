@@ -87,11 +87,14 @@ def create_kernel_files() -> None:
         "kernel_type": "notebook",
         "is_private": True,
         "enable_gpu": True,
+        "enable_tpu": False,
         "enable_internet": True,
         "dataset_sources": [],
         "competition_sources": [],
-        "kernel_sources": []
+        "kernel_sources": [],
+        "accelerator": "nvidiaTeslaT4"
     }
+
     METADATA_FILE.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     logger.info(f"📄 Created metadata file at '{METADATA_FILE}'")
 
@@ -137,8 +140,9 @@ def create_kernel_files() -> None:
                     "    print('📦 Cloning HoroConsultant repository...')\n",
                     "    subprocess.run(['git', 'clone', 'https://github.com/pphothidaen/HoroConsultant.git', target_dir], check=True)\n",
                     "else:\n",
-                    "    print('🔄 Pulling latest updates...')\n",
-                    "    subprocess.run(['git', '-C', target_dir, 'pull'], check=True)\n",
+                    "    print('🔄 Resetting and pulling latest updates...')\n",
+                    "    subprocess.run(['git', '-C', target_dir, 'fetch', 'origin', 'main'], check=True)\n",
+                    "    subprocess.run(['git', '-C', target_dir, 'reset', '--hard', 'origin/main'], check=True)\n",
                     "\n",
                     "os.chdir(target_dir)\n",
                     "if target_dir not in sys.path:\n",
@@ -152,7 +156,6 @@ def create_kernel_files() -> None:
                     "# 4. Run Cloud Training Orchestrator with execution logging\n",
                     "print('🚀 Launching Cloud Training Orchestrator...')\n",
                     "log_path = '/kaggle/working/train_execution.log'\n",
-
                     "proc = subprocess.Popen([sys.executable, 'scripts/cloud_train_orchestrator.py', '--platform', 'KAGGLE_T4', '--base-model', 'Qwen/Qwen2.5-7B-Instruct', '--epochs', '3'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)\n",
                     "with open(log_path, 'w', encoding='utf-8') as log_f:\n",
                     "    for line in iter(proc.stdout.readline, ''):\n",
@@ -166,6 +169,8 @@ def create_kernel_files() -> None:
             }
         ],
         "metadata": {
+            "accelerator": "nvidiaTeslaT4",
+            "gpuType": "nvidiaTeslaT4",
             "kernelspec": {
                 "display_name": "Python 3",
                 "language": "python",
@@ -179,6 +184,7 @@ def create_kernel_files() -> None:
         "nbformat_minor": 2
     }
     NOTEBOOK_FILE.write_text(json.dumps(notebook, indent=2), encoding="utf-8")
+
     logger.info(f"📓 Created Jupyter Notebook file at '{NOTEBOOK_FILE}'")
 
 
