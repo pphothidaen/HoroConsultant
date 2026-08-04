@@ -118,7 +118,6 @@ def create_kernel_files() -> None:
                     "os.environ['PYDEVD_DISABLE_FILE_VALIDATION'] = '1'\n",
                     "os.environ['PYTHONWARNINGS'] = 'ignore'\n",
                     "os.environ['CUDA_MODULE_LOADING'] = 'LAZY'\n",
-                    "os.environ['BNB_CUDA_VERSION'] = '121'\n",
                     "os.environ['TORCH_CUDA_ARCH_LIST'] = '7.5;8.0;8.6'\n",
                     "\n",
                     "# 1. Load Secrets safely from Kaggle Secrets (individual try-except per key)\n",
@@ -153,7 +152,8 @@ def create_kernel_files() -> None:
                     "# 3. Install Fine-Tuning Dependencies safely without overwriting pre-installed Kaggle CUDA PyTorch\n",
                     "print('📦 Installing dependencies...')\n",
                     "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--prefer-binary', '-r', 'requirements.txt'], check=True)\n",
-                    "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--prefer-binary', 'transformers>=4.40.0', 'peft>=0.10.0', 'bitsandbytes>=0.43.3', 'datasets>=2.18.0', 'trl>=0.8.0', 'huggingface_hub', 'accelerate'], check=True)\n",
+                    "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--prefer-binary', 'torchao>=0.16.0', 'transformers>=4.40.0', 'peft>=0.10.0', 'bitsandbytes>=0.43.3', 'datasets>=2.18.0', 'trl>=0.12.0', 'huggingface_hub', 'accelerate'], check=True)\n",
+
                     "\n",
                     "# 4. Run Cloud Training Orchestrator with execution logging\n",
                     "print('🚀 Launching Cloud Training Orchestrator...')\n",

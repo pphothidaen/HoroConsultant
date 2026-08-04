@@ -80,11 +80,9 @@ def run_training_pipeline(
         import torch
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
         os.environ["CUDA_MODULE_LOADING"] = "LAZY"
-        if hasattr(torch, "version") and getattr(torch.version, "cuda", None):
-            cuda_ver = torch.version.cuda.replace(".", "")[:3]
-            os.environ["BNB_CUDA_VERSION"] = cuda_ver
 
         from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, TrainingArguments
+
         from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
         from datasets import load_dataset
         from trl import SFTTrainer
