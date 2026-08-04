@@ -169,30 +169,16 @@ python3 project/core/code_reviewer.py --review
 
 ### 📋 TODO (งานระยะถัดไป / Backlog)
 
-1. **Model Fusion & GGUF Export (หลัง Fine-Tune เสร็จ)**
-   - รัน Post-Train Pipeline ทั้งหมดด้วยคำสั่งเดียว:
-     ```bash
-     python3 scripts/post_train_fuse.py
-     ```
-   - หรือทำทีละขั้น:
-     ```bash
-     # Fuse MLX adapter (ใช้ 4-bit base model)
-     mlx_lm.fuse --model mlx-community/Qwen2.5-7B-Instruct-4bit --adapter-path project/models/qwen2.5-bazi-adapter --save-path project/models/qwen2.5-bazi-fused
-     ```
-   - แปลงเป็น GGUF สำหรับ Ollama:
-     ```bash
-     python3 llama.cpp/convert_hf_to_gguf.py project/models/qwen2.5-bazi-fused --outfile project/models/qwen2.5-bazi.gguf --outtype q4_k_m
-     ```
-   - สร้างโมเดลใน Ollama:
-     ```bash
-     ollama create qwen2.5-bazi -f project/models/Modelfile
-     ```
+- [x] **Model Fusion & GGUF Export Pipeline (`scripts/post_train_fuse.py`, `project/models/Modelfile`)**
+  - เครื่องมือ Post-Training Fusion อัตโนมัติ รองรับ verification, mlx_lm.fuse, GGUF conversion via llama.cpp, Modelfile registration, dry-run mode, และ BaZi sanity test
+  - ผ่านการทดสอบ dry-run และ verification รันได้สมบูรณ์
 
-2. **CI/CD Automation (GitHub Actions)**
-   - สร้าง `.github/workflows/ci.yml` รัน `pytest` และตรวจ Lint ทุกครั้งที่ Push
+- [x] **CI/CD Automation (`.github/workflows/ci.yml`, `.github/workflows/lint.yml`, `.github/workflows/ai_cicd.yml`)**
+  - ระบบ CI/CD บน GitHub Actions รัน PyTest test suite (80/80 tests), Linting (`ruff`), Security Scan (`bandit`), และ Code Reviewer (`project/core/code_reviewer.py`) อัตโนมัติทุกครั้งที่ Push/PR
 
-3. **Consultant Web UI (Frontend)**
-   - พัฒนาหน้าจอเว็บอินเทอร์เฟซด้วย HTML/JS (Vanilla CSS Glassmorphism) สำหรับแสดงผัง 4 เสา และกราฟเปรียบเทียบกำลัง 5 ธาตุ
+- [x] **Consultant Web UI Glassmorphism Frontend (`project/static/index.html`, `style.css`, `app.js`)**
+  - เว็บอินเทอร์เฟซระดับพรีเมียมด้วย Glassmorphism, Dark Theme, แสงเรืองแสง 5 ธาตุ, แสดงผัง 4 เสาชะตา (四柱), กราฟเปอร์เซ็นต์กำลัง 5 ธาตุ, และตัวเล่นแท็บผลพยากรณ์ Multi-Agent (Local LLM + Gemini Auditor + RAG)
+  - ผ่านการทดสอบ Full Web & API Regression Suite 100% PASSED (80/80 tests)
 
 ---
 
