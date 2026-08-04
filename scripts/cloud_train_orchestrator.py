@@ -74,13 +74,22 @@ def _setup_cuda_environment_for_device() -> dict:
     is_sm75 = (cap[0] == 7 and cap[1] == 5)
     info["is_sm75"] = is_sm75
 
+    # Inspect PyTorch binary compiled CUDA arch list
+    arch_list = torch.cuda.get_arch_list() if hasattr(torch.cuda, "get_arch_list") else []
+    target_sm = f"sm_{cap[0]}{cap[1]}"
+    arch_match = any(target_sm in a or f"{cap[0]}.{cap[1]}" in a for a in arch_list) if arch_list else True
+    info["arch_list"] = arch_list
+    info["arch_match"] = arch_match
+
+    if arch_list:
+        logger.info(f"   📋 PyTorch Compiled Arch List: {arch_list}")
+        if not arch_match:
+            logger.warning(f"   ⚠️ WARNING: PyTorch wheel does NOT contain compiled binary for {target_sm} ({device_name})!")
+
     if is_sm75:
         logger.info(f"   🎯 GPU Architecture: sm_75 ({device_name}) — Applying T4-specific stability settings.")
-        # Force CUDA Arch List for bitsandbytes compatibility
         os.environ.setdefault("TORCH_CUDA_ARCH_LIST", "7.5")
-        # Use CUDA 12.1 ABI-compatible BNB ops (prevents cudaErrorNoKernelImageForDevice)
         os.environ.setdefault("BNB_CUDA_VERSION", "121")
-        # Lazy CUDA module loading avoids JIT compilation errors at import time
         os.environ.setdefault("CUDA_MODULE_LOADING", "LAZY")
         logger.info("   ✅ Set TORCH_CUDA_ARCH_LIST=7.5, BNB_CUDA_VERSION=121, CUDA_MODULE_LOADING=LAZY")
     else:
