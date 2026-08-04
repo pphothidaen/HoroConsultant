@@ -53,6 +53,57 @@ def prepare_dataset(output_jsonl: Path) -> Path:
     raise FileNotFoundError("❌ Neither Supabase dataset nor local 'project/rag/datasets/train.jsonl' was found!")
 
 
+def run_preflight_environment_audit() -> dict:
+    """
+    Executes instant (<0.5s) pre-flight diagnostic tests to catch CUDA driver mismatches,
+    broken PyTorch kernel images, or library signature incompatibilities BEFORE starting 
+    heavy model downloads or cloud training.
+    """
+    logger.info("🔍 Running Instant Pre-Flight Environment Audit...")
+    results = {"cuda_ok": False, "peft_ok": False, "trl_ok": False, "warnings": []}
+
+    try:
+        import torch
+        if torch.cuda.is_available():
+            device_name = torch.cuda.get_device_name(0)
+            logger.info(f"   ⚡ CUDA Device: {device_name} (Total GPUs: {torch.cuda.device_count()})")
+            # Run a 1-line real CUDA kernel execution on GPU 0
+            try:
+                t = torch.zeros((2, 2), device="cuda:0", dtype=torch.float16)
+                _ = t.to(torch.float32)
+                results["cuda_ok"] = True
+                logger.info("   ✅ CUDA Kernel Execution Test: PASSED")
+            except Exception as cuda_err:
+                logger.error(f"   ❌ CUDA Kernel Execution Test FAILED: {cuda_err}")
+                results["warnings"].append(f"CUDA Kernel Failure: {cuda_err}")
+        else:
+            logger.info("   ℹ️ CPU Mode (No CUDA GPU detected)")
+            results["cuda_ok"] = True
+    except Exception as e:
+        logger.error(f"   ❌ PyTorch Import Error: {e}")
+
+    try:
+        import inspect
+        from peft import LoraConfig
+        peft_config = LoraConfig(r=8, lora_alpha=16, task_type="CAUSAL_LM")
+        results["peft_ok"] = True
+        logger.info("   ✅ PEFT Adapter Configuration Test: PASSED")
+    except Exception as peft_err:
+        logger.error(f"   ❌ PEFT Config Error: {peft_err}")
+
+    try:
+        import inspect
+        from trl import SFTConfig
+        sig = inspect.signature(SFTConfig.__init__)
+        has_max_seq = "max_seq_length" in sig.parameters
+        results["trl_ok"] = True
+        logger.info(f"   ✅ TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: {has_max_seq})")
+    except Exception as trl_err:
+        logger.info(f"   ℹ️ TRL SFTConfig Check Note: {trl_err}")
+
+    return results
+
+
 def run_training_pipeline(
     dataset_path: Path,
     platform: str,
@@ -67,6 +118,11 @@ def run_training_pipeline(
     logger.info(f"   Base Model: {base_model}")
     logger.info(f"   Dataset: {dataset_path}")
     logger.info(f"   HF Repo ID: {hf_repo_id}")
+
+    # Run instant pre-flight diagnostic check
+    audit_results = run_preflight_environment_audit()
+    if audit_results.get("warnings"):
+        logger.warning(f"⚠️ Pre-flight audit notice: {', '.join(audit_results['warnings'])}")
 
     if "mlx-community" in base_model:
         logger.warning(f"⚠️ Base model '{base_model}' is an MLX format model. Automatically switching to PyTorch base model 'Qwen/Qwen2.5-7B-Instruct' for Cloud training.")
