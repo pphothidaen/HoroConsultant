@@ -490,3 +490,13 @@ async def download_grayzone_finetune():
         media_type="application/jsonl",
         filename="grayzone_finetune.jsonl",
     )
+
+
+@admin_router.get("/code-review", summary="Run pre-deployment code review and safety audit")
+async def run_pre_deployment_code_review():
+    """Run automated code reviewer & safety audit before pushing to production."""
+    from project.core.code_reviewer import CodeReviewer
+    reviewer = CodeReviewer()
+    report = reviewer.run_full_review()
+    return JSONResponse(content=report)
+
