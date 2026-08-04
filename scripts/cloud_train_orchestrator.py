@@ -112,17 +112,18 @@ def _setup_cuda_environment_for_device() -> dict:
         if not arch_match:
             logger.warning(f"   [WARNING] WARNING: PyTorch wheel does NOT contain compiled binary for {target_sm} ({device_name})!")
 
+    # Unset any forced BNB_CUDA_VERSION override to let bitsandbytes load native CUDA library cleanly
+    os.environ.pop("BNB_CUDA_VERSION", None)
+
     if is_sm75:
         logger.info(f"   [TARGET] GPU Architecture: sm_75 ({device_name}) — Applying T4-specific stability settings.")
         os.environ.setdefault("TORCH_CUDA_ARCH_LIST", "7.5")
-        os.environ.setdefault("BNB_CUDA_VERSION", "121")
         os.environ.setdefault("CUDA_MODULE_LOADING", "LAZY")
-        logger.info("   [OK] Set TORCH_CUDA_ARCH_LIST=7.5, BNB_CUDA_VERSION=121, CUDA_MODULE_LOADING=LAZY")
+        logger.info("   [OK] Set TORCH_CUDA_ARCH_LIST=7.5, CUDA_MODULE_LOADING=LAZY")
     else:
         sm_str = f"{cap[0]}{cap[1]}"
         logger.info(f"   [TARGET] GPU Architecture: sm_{sm_str} ({device_name})")
         os.environ.setdefault("TORCH_CUDA_ARCH_LIST", f"{cap[0]}.{cap[1]}")
-        os.environ.setdefault("BNB_CUDA_VERSION", "121")
         os.environ.setdefault("CUDA_MODULE_LOADING", "LAZY")
 
     return info
