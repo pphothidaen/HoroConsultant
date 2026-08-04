@@ -78,6 +78,12 @@ def run_training_pipeline(
 
     try:
         import torch
+        os.environ["TOKENIZERS_PARALLELISM"] = "false"
+        os.environ["CUDA_MODULE_LOADING"] = "LAZY"
+        if hasattr(torch, "version") and getattr(torch.version, "cuda", None):
+            cuda_ver = torch.version.cuda.replace(".", "")[:3]
+            os.environ["BNB_CUDA_VERSION"] = cuda_ver
+
         from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, TrainingArguments
         from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
         from datasets import load_dataset
@@ -86,8 +92,6 @@ def run_training_pipeline(
         logger.error(f"❌ Missing required PyTorch/Transformers packages: {e}")
         logger.error("Run: pip install transformers peft bitsandbytes datasets trl huggingface_hub accelerate")
         return False
-
-    os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
     # 1. Quantization Config (4-bit BitsAndBytes)
     use_cuda = torch.cuda.is_available()
@@ -115,15 +119,36 @@ def run_training_pipeline(
     else:
         device_map = "auto"
 
-    model = AutoModelForCausalLM.from_pretrained(
-        base_model,
-        quantization_config=bnb_config,
-        torch_dtype=compute_dtype,
-        device_map=device_map,
-        low_cpu_mem_usage=True,
-        trust_remote_code=True,
-    )
-    model = prepare_model_for_kbit_training(model)
+    model = None
+    if use_cuda:
+        try:
+            logger.info("⚡ Attempting 4-bit BitsAndBytes quantization model load...")
+            model = AutoModelForCausalLM.from_pretrained(
+                base_model,
+                quantization_config=bnb_config,
+                torch_dtype=compute_dtype,
+                device_map=device_map,
+                low_cpu_mem_usage=True,
+                trust_remote_code=True,
+            )
+            model = prepare_model_for_kbit_training(model)
+            logger.info("✅ Successfully loaded 4-bit quantized model.")
+        except Exception as e:
+            logger.warning(f"⚠️ 4-bit BitsAndBytes quantization load failed ({e}). Falling back to standard precision loading...")
+            model = None
+
+    if model is None:
+        dtype = torch.bfloat16 if (use_cuda and hasattr(torch.cuda, "is_bf16_supported") and torch.cuda.is_bf16_supported()) else (torch.float16 if use_cuda else torch.float32)
+        logger.info(f"📦 Loading base model in standard precision ({dtype})...")
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model,
+            torch_dtype=dtype,
+            device_map=device_map,
+            low_cpu_mem_usage=True,
+            trust_remote_code=True,
+        )
+        logger.info(f"✅ Successfully loaded model with precision {dtype}.")
+
 
     # 2. LoRA Config
     peft_config = LoraConfig(

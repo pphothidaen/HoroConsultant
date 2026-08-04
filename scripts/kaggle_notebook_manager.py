@@ -109,9 +109,12 @@ def create_kernel_files() -> None:
                     "import sys\n",
                     "import subprocess\n",
                     "\n",
-                    "# Suppress PyDev / frozen modules debugger warnings on Kaggle\n",
+                    "# Suppress PyDev / frozen modules debugger warnings and configure CUDA compatibility for bitsandbytes\n",
                     "os.environ['PYDEVD_DISABLE_FILE_VALIDATION'] = '1'\n",
                     "os.environ['PYTHONWARNINGS'] = 'ignore'\n",
+                    "os.environ['CUDA_MODULE_LOADING'] = 'LAZY'\n",
+                    "os.environ['BNB_CUDA_VERSION'] = '121'\n",
+                    "os.environ['TORCH_CUDA_ARCH_LIST'] = '7.5;8.0;8.6'\n",
                     "\n",
                     "# 1. Load Secrets safely from Kaggle Secrets (individual try-except per key)\n",
                     "try:\n",
@@ -143,12 +146,13 @@ def create_kernel_files() -> None:
                     "\n",
                     "# 3. Install Fine-Tuning Dependencies safely without overwriting pre-installed Kaggle CUDA PyTorch\n",
                     "print('📦 Installing dependencies...')\n",
-                    "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '-r', 'requirements.txt'], check=True)\n",
-                    "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', 'transformers>=4.40.0', 'peft>=0.10.0', 'bitsandbytes>=0.43.0', 'datasets>=2.18.0', 'trl>=0.8.0', 'huggingface_hub', 'accelerate'], check=True)\n",
+                    "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--prefer-binary', '-r', 'requirements.txt'], check=True)\n",
+                    "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--prefer-binary', 'transformers>=4.40.0', 'peft>=0.10.0', 'bitsandbytes>=0.43.3', 'datasets>=2.18.0', 'trl>=0.8.0', 'huggingface_hub', 'accelerate'], check=True)\n",
                     "\n",
                     "# 4. Run Cloud Training Orchestrator with execution logging\n",
                     "print('🚀 Launching Cloud Training Orchestrator...')\n",
                     "log_path = '/kaggle/working/train_execution.log'\n",
+
                     "proc = subprocess.Popen([sys.executable, 'scripts/cloud_train_orchestrator.py', '--platform', 'KAGGLE_T4', '--base-model', 'Qwen/Qwen2.5-7B-Instruct', '--epochs', '3'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)\n",
                     "with open(log_path, 'w', encoding='utf-8') as log_f:\n",
                     "    for line in iter(proc.stdout.readline, ''):\n",
@@ -224,10 +228,12 @@ def main():
     parser.add_argument("--push", action="store_true", help="Push & trigger notebook execution on Kaggle GPU")
     parser.add_argument("--status", action="store_true", help="Check notebook execution status on Kaggle")
     parser.add_argument("--pull", action="store_true", help="Pull latest notebook, outputs, and metadata down from Kaggle")
+    parser.add_argument("--output", action="store_true", help="Pull kernel output files specifically via 'kaggle kernels output'")
+    parser.add_argument("--dest", default=str(KERNEL_DIR), help="Destination directory for output files (default: project/kaggle_kernel)")
 
     args = parser.parse_args()
 
-    if not any([args.setup, args.push, args.status, args.pull]):
+    if not any([args.setup, args.push, args.status, args.pull, args.output]):
         args.setup = True
 
     if args.setup:
@@ -248,14 +254,24 @@ def main():
         kernel_id = f"{username}/horoconsultant-finetune-pipeline"
         run_kaggle_cmd(["kernels", "status", kernel_id])
 
+    if args.output:
+        setup_kaggle_credentials()
+        username = os.getenv("KAGGLE_USERNAME", "pphothidaen")
+        kernel_id = f"{username}/horoconsultant-finetune-pipeline"
+        dest_dir = Path(args.dest)
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        run_kaggle_cmd(["kernels", "output", kernel_id, "-p", str(dest_dir)])
+
     if args.pull:
         setup_kaggle_credentials()
         username = os.getenv("KAGGLE_USERNAME", "pphothidaen")
         kernel_id = f"{username}/horoconsultant-finetune-pipeline"
+        dest_dir = Path(args.dest)
+        dest_dir.mkdir(parents=True, exist_ok=True)
         # 1. Pull notebook & metadata
-        pull_success = run_kaggle_cmd(["kernels", "pull", kernel_id, "-p", str(KERNEL_DIR), "-m"])
+        pull_success = run_kaggle_cmd(["kernels", "pull", kernel_id, "-p", str(dest_dir), "-m"])
         # 2. Pull output files (train_execution.log, summaries, adapters)
-        output_success = run_kaggle_cmd(["kernels", "output", kernel_id, "-p", str(KERNEL_DIR)])
+        output_success = run_kaggle_cmd(["kernels", "output", kernel_id, "-p", str(dest_dir)])
         if pull_success or output_success:
             git_auto_commit_and_push("feat(kaggle): sync pulled notebook outputs & metadata from Kaggle")
 
