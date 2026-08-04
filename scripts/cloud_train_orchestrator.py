@@ -105,7 +105,15 @@ def run_training_pipeline(
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    device_map = {"": 0} if use_cuda else "auto"
+    if use_cuda:
+        num_gpus = torch.cuda.device_count()
+        if num_gpus > 1:
+            logger.info(f"⚡ Multi-GPU detected ({num_gpus} GPUs available). Distributing model with device_map='auto'.")
+            device_map = "auto"
+        else:
+            device_map = {"": 0}
+    else:
+        device_map = "auto"
 
     model = AutoModelForCausalLM.from_pretrained(
         base_model,
