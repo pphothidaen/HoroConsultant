@@ -71,13 +71,27 @@ def setup_kaggle_credentials() -> bool:
     return True
 
 
-def create_kernel_files() -> None:
-    """Generate project/kaggle_kernel/ metadata and notebook.ipynb."""
+def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4") -> None:
+    """Generate project/kaggle_kernel/ metadata and notebook.ipynb for specified GPU type (P100, T4, T4x2)."""
     KERNEL_DIR.mkdir(parents=True, exist_ok=True)
 
     username = os.getenv("KAGGLE_USERNAME", "pphothidaen")
     slug = "horoconsultant-finetune-pipeline"
     kernel_id = f"{username}/{slug}"
+
+    acc_lower = accelerator_type.lower()
+    if "p100" in acc_lower:
+        accelerator = "nvidiaTeslaP100"
+        machine_shape = "NvidiaTeslaP100"
+        platform_arg = "KAGGLE_P100"
+    elif "t4x2" in acc_lower or "2" in acc_lower:
+        accelerator = "nvidiaTeslaT4x2"
+        machine_shape = "NvidiaTeslaT4x2"
+        platform_arg = "KAGGLE_T4X2"
+    else:
+        accelerator = "nvidiaTeslaT4"
+        machine_shape = "NvidiaTeslaT4"
+        platform_arg = "KAGGLE_T4"
 
     metadata = {
         "id": kernel_id,
@@ -92,13 +106,13 @@ def create_kernel_files() -> None:
         "dataset_sources": [],
         "competition_sources": [],
         "kernel_sources": [],
-        "accelerator": "nvidiaTeslaT4",
-        "machine_shape": "NvidiaTeslaT4"
+        "accelerator": accelerator,
+        "machine_shape": machine_shape
     }
 
 
     METADATA_FILE.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-    logger.info(f"📄 Created metadata file at '{METADATA_FILE}'")
+    logger.info(f"📄 Created metadata file at '{METADATA_FILE}' for accelerator [{accelerator}]")
 
     # Generate notebook structure with clean execution code
     notebook = {
@@ -153,20 +167,18 @@ def create_kernel_files() -> None:
                     "import torch\n",
                     "print(f'⚡ Kaggle PyTorch version: {torch.__version__}, CUDA available: {torch.cuda.is_available()}')\n",
                     "if torch.cuda.is_available():\n",
-                    "    print(f'   Device 0: {torch.cuda.get_device_name(0)}')\n",
+                    "    print(f'   Device Count: {torch.cuda.device_count()}, Device 0: {torch.cuda.get_device_name(0)}')\n",
                     "print('📦 Installing fine-tuning packages...')\n",
                     "subprocess.run([sys.executable, '-m', 'pip', 'uninstall', '-y', 'torchao'], check=False)\n",
                     "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--prefer-binary', '-r', 'requirements.txt'], check=True)\n",
                     "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--prefer-binary', 'transformers>=4.40.0', 'peft>=0.10.0', 'bitsandbytes>=0.43.3', 'datasets>=2.18.0', 'trl>=0.12.0', 'huggingface_hub', 'accelerate'], check=True)\n",
                     "import torch\n",
                     "print(f'✅ Verified post-install PyTorch version: {torch.__version__}, CUDA available: {torch.cuda.is_available()}')\n",
-
-
                     "\n",
                     "# 4. Run Cloud Training Orchestrator with execution logging\n",
                     "print('🚀 Launching Cloud Training Orchestrator...')\n",
                     "log_path = '/kaggle/working/train_execution.log'\n",
-                    "proc = subprocess.Popen([sys.executable, 'scripts/cloud_train_orchestrator.py', '--platform', 'KAGGLE_T4', '--base-model', 'Qwen/Qwen2.5-7B-Instruct', '--epochs', '3'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)\n",
+                    "proc = subprocess.Popen([sys.executable, 'scripts/cloud_train_orchestrator.py', '--platform', '" + platform_arg + "', '--base-model', 'Qwen/Qwen2.5-7B-Instruct', '--epochs', '3'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)\n",
                     "with open(log_path, 'w', encoding='utf-8') as log_f:\n",
                     "    for line in iter(proc.stdout.readline, ''):\n",
                     "        sys.stdout.write(line)\n",
@@ -179,8 +191,8 @@ def create_kernel_files() -> None:
             }
         ],
         "metadata": {
-            "accelerator": "nvidiaTeslaT4",
-            "gpuType": "nvidiaTeslaT4",
+            "accelerator": accelerator,
+            "gpuType": accelerator,
             "kernelspec": {
                 "display_name": "Python 3",
                 "language": "python",
@@ -255,17 +267,14 @@ def main():
 
     if args.setup:
         setup_kaggle_credentials()
-        create_kernel_files()
+        create_kernel_files(args.accelerator)
 
     if args.push:
         setup_kaggle_credentials()
-        if not METADATA_FILE.exists():
-            create_kernel_files()
+        create_kernel_files(args.accelerator)
         # Auto-commit and push code updates to GitHub first so Kaggle git clone gets latest code
         git_auto_commit_and_push("feat(kaggle): auto-commit updated notebook & scripts before pushing to Kaggle")
         push_args = ["kernels", "push", "-p", str(KERNEL_DIR)]
-        if args.accelerator:
-            push_args.extend(["--accelerator", args.accelerator])
         run_kaggle_cmd(push_args)
 
 
