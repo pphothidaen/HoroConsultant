@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-04 00:05 (UTC+7)*
+> *Last Updated: 2026-08-04 12:10 (UTC+7)*
 
 ---
 
@@ -9,7 +9,7 @@
 ```bash
 cd /Users/kimlenglim/Project/HoroConsultant
 
-# 1. รัน Full Unit, Integration & Web Regression Test ทั้งหมด (65 tests)
+# 1. รัน Full Unit, Integration & Web Regression Test ทั้งหมด (74 tests)
 python3 -m pytest -v
 
 # 2. เริ่ม FastAPI Server & Web UI (Local-First: Qwen2.5:7b + FAISS + Glassmorphism UI)
@@ -27,23 +27,11 @@ python3 -m pytest project/tests/test_e2e_mcp_svg.py -v
 # 5. นำเข้าข้อมูลคัมภีร์ใหม่จาก project/rag/obsidian_vault/
 python3 project/rag/ingest_vault.py --export-finetune
 
-# 6. ทดสอบ Fine-Tuning Pipeline (macOS Apple Silicon)
-python3 scripts/run_mlx_finetune.py --dry-run
+# 6. รัน Kaggle Output Log Sync / Fine-Tuning Execution
+python3 scripts/kaggle_notebook_manager.py --output --dest project/kaggle_kernel
 
-# 6b. 🆕 รัน Fine-Tuning (QLoRA 4-bit, ปรับสำหรับ M4 16GB)
-python3 scripts/run_mlx_finetune.py --test
-
-# 7. 🆕 สร้าง Knowledge Source Summary Report
-python3 project/core/source_summarizer.py --report
-
-# 8. 🆕 Export Gray-Zone Question List
-python3 project/core/source_summarizer.py --export-grayzone
-
-# 9. 🆕 Build Fine-Tune JSONL จาก Answered Gray-Zone Questions
-python3 project/core/source_summarizer.py --build-finetune
-
-# 10. 🆕 Merge All Datasets → combined_train.jsonl
-python3 project/core/source_summarizer.py --merge
+# 7. 🆕 รัน Pre-Deployment Code Review & Safety Audit
+python3 project/core/code_reviewer.py --review
 ```
 
 ---
@@ -54,9 +42,9 @@ python3 project/core/source_summarizer.py --merge
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Deterministic Pure Python Core      │ • Model Fusion & GGUF Ollama Deploy  │ • GitHub Actions Continuous Deploy    │
-│ • Local-First API Router              │ • Vault Continuous Ingestion          │ • External AI Provider Integration    │
-│ • FAISS Vector Store (3,132 vectors)  │ • Answer Gray-Zone Questions (102 Qs) │   (OpenAI/Together fine-tune API)     │
+│ • Deterministic Pure Python Core      │ • Vault Continuous Ingestion          │ • Model Fusion & GGUF Ollama Deploy  │
+│ • Local-First API Router              │ • Answer Gray-Zone Questions (102 Qs) │ • External AI Provider Integration    │
+│ • FAISS Vector Store (3,132 vectors)  │                                       │   (OpenAI/Together fine-tune API)     │
 │ • 38 PDF Books Ingested (3,132 vec)   │                                       │ • Swiss Ephemeris Integration         │
 │ • Web UI Glassmorphism Dashboard      │                                       │ • Additional Source Ingestion         │
 │ • AGY + thClaws Multi-Agent Arch      │                                       │                                       │
@@ -65,11 +53,11 @@ python3 project/core/source_summarizer.py --merge
 │ • Solution 1 ShareGPT JSONL Exporter  │                                       │                                       │
 │ • Gemini Vision OCR & Quality Check   │                                       │                                       │
 │ • 74/74 Full Regression Test Suite    │                                       │                                       │
+│ 🆕 Kaggle T4 Fine-Tune Fix (ops.cu)   │                                       │                                       │
+│ 🆕 GitHub Actions AI CI/CD Pipeline   │                                       │                                       │
 │ 🆕 MLX QLoRA Fine-Tuning (600 iters)  │                                       │                                       │
 │ 🆕 Knowledge Source Catalog (46 src) │                                       │                                       │
-│ 🆕 Gray-Zone Admin Panel UI          │                                       │                                       │
-│ 🆕 Source Summarizer Engine          │                                       │                                       │
-│ 🆕 Fine-Tune Pipeline API            │                                       │                                       │
+│ 🆕 Pre-Deployment Code Reviewer       │                                       │                                       │
 │ 🆕 Rust PyO3 Core Engine (TF-IDF/BaZi)│                                       │                                       │
 │ 🆕 Supabase REST Client & Dataset Sync│                                       │                                       │
 │ 🆕 Doppler Secrets & Config Manager  │                                       │                                       │
@@ -81,6 +69,19 @@ python3 project/core/source_summarizer.py --merge
 
 ### ✅ DONE (เสร็จสมบูรณ์ 100% พร้อมใช้งาน)
 
+- [x] **Kaggle T4 Fine-Tuning Orchestrator Fix & Output Log Sync (`scripts/kaggle_notebook_manager.py`, `scripts/cloud_train_orchestrator.py`)**
+  - แก้ไขปัญหา CUDA symbol mismatch (`ops.cu:74`) และ SIGSEGV exit code -11 ใน Kaggle GPU ด้วยการตั้งค่า `CUDA_MODULE_LOADING=LAZY`, `BNB_CUDA_VERSION=121`, `TORCH_CUDA_ARCH_LIST`
+  - เพิ่มระบบ Precision Fallback (`bfloat16`/`float16`) ป้องกันกรณี 4-bit bitsandbytes quantization มีปัญหาบน cloud environment
+  - Push notebook kernel v11 ขึ้น Kaggle และดึง log ล่าสุดสิงสู่ [`project/kaggle_kernel/`](file:///Users/kimlenglim/Project/HoroConsultant/project/kaggle_kernel) สมบูรณ์
+- [x] **GitHub Actions AI CI/CD Pipeline (`.github/workflows/ai_cicd.yml`)**
+  - สร้างไปป์ไลน์ AI CI/CD อัตโนมัติ: ตรวจสอบความปลอดภัย โค้ดรีวิวด้วย `CodeReviewer`, สแกน Secret Leakage, รัน PyTest 74 ข้อ, สั่งการ Kaggle GPU Fine-Tuning และซิงก์ Output ล่าสุดกลับไปยัง GitHub
+- [x] **Pre-Deployment Code Reviewer & Safety Auditor (`project/core/code_reviewer.py`)**
+  - ระบบตรวจสอบความปลอดภัยก่อน Commit/Push (Secret Leakage Scan, Kaggle CUDA Audit, PyTest Pass Rates) ผ่านสถานะ `READY_FOR_PROD`
+- [x] **MLX QLoRA Fine-Tuning Execution & Model Fusion (macOS Host)**
+  - Model: `mlx-community/Qwen2.5-7B-Instruct-4bit` (QLoRA 4-bit)
+  - Config: batch=1, grad_accum=4, lora_rank=8, 600 iters completed (23 MB adapter)
+  - Output adapter: `project/models/qwen2.5-bazi-adapter/adapters.safetensors`
+  - Fused model: `project/models/qwen2.5-bazi-fused` (4.00 GB, 24.5 tokens/sec validated)
 - [x] **Core Math Engine (`project/core/solar_time.py`)**
   - คำนวณ True Solar Time ($TST = LMT + EoT$) อ้างอิงอัลกอริทึม NOAA Spencer 1971
   - ปรับแก้ลองจิจูด (Longitude offset) หักลบตามเวลาจริงของสถานที่เกิด
@@ -99,7 +100,7 @@ python3 project/core/source_summarizer.py --merge
 - [x] **Web UX/UI Glassmorphism Dashboard & Regression Suite (`project/static/`, `project/tests/test_web_regression.py`)**
   - ดีไซน์สวยงามระดับพรีเมียมด้วย Glassmorphism, Dark Theme, แสงเรืองแสง 5 ธาตุ (Wood, Fire, Earth, Metal, Water)
   - แสดงผังดวง 4 เสาชะตา (四柱), กราฟเปอร์เซ็นต์กำลัง 5 ธาตุ, และตัวเล่นแท็บผลพยากรณ์ Multi-Agent (Local LLM + Gemini Auditor + RAG)
-  - ผ่านการทดสอบ **Full Web & API Regression Suite 100% PASSED**
+  - ผ่านการทดสอบ **Full Web & API Regression Suite 100% PASSED** (74/74 tests)
 - [x] **AGY + thClaws Hybrid Multi-Agent Architecture (`project/mcp_server.py`, `thclaws.toml`, `scripts/run_thclaws_bridge.py`)**
   - เชื่อมต่อ **AGY Master Engine** เข้ากับ **thClaws (ThaiGPT Rust Agent Harness)** ผ่านมาตรฐาน **Model Context Protocol (MCP)**
   - แบ่งบทบาท 4 Agents เฉพาะทาง: `bazi-calculator`, `rag-scholar`, `predictor-agent`, `prediction-validator`
@@ -123,7 +124,7 @@ python3 project/core/source_summarizer.py --merge
 - [x] **Local RAG Vector Store (`project/rag/vector_store.py`)**
   - ใช้ **FAISS Index** ร่วมกับ **`nomic-embed-text:latest`** (Ollama Local Embeddings)
   - นำเข้าคัมภีร์คลาสสิก (子平真詮, 滴天髓, 窮通寶鑑) + หนังสือโหราศาสตร์ไทย 38 เล่ม
-  - **รวมดึงและฝังข้อความแล้ว 3,096 Vector Chunks** (dim=768)
+  - **รวมดึงและฝังข้อความแล้ว 3,132 Vector Chunks** (dim=768)
 - [x] **Vault Ingestion Pipeline (`project/rag/ingest_vault.py`)**
   - อ่านไฟล์ `.md` และสกัดเนื้อหาจากไฟล์ `.pdf` อัตโนมัติด้วย `pypdf`
   - สกัดคู่คำถาม-คำตอบ (Q&A) ออกเป็น ShareGPT JSONL สำหรับ Fine-Tuning
@@ -131,14 +132,12 @@ python3 project/core/source_summarizer.py --merge
   - Endpoint `/health` Check สถานะระบบ
   - Endpoint `/api/v1/bazi/calculate` คำนวณ 4 เสาและกำลังธาตุ
   - Endpoint `/api/v1/bazi/interpret` ถอดความคำพยากรณ์ด้วย Local AI + RAG
-- [x] **MLX Fine-Tune Pipeline (`scripts/run_mlx_finetune.py`)**
-  - Script ควบคุม MLX LoRA Fine-Tuning บน macOS Apple Silicon
-  - Dataset พร้อมใช้งาน 514 รายการ (`project/rag/datasets/train.jsonl`)
 - [x] **Docker Infrastructure (`Dockerfile`, `docker-compose.yml`, `docker_bootstrap.sh`)**
   - Multi-stage Ubuntu build รองรับ GPU acceleration
   - Script บูตระบบอัตโนมัติด้วยคำสั่งเดียว
-- [x] **Automated Test Suite (`tests/test_core.py`, `project/tests/test_bazi_calculator.py`)**
-  - **56/56 Unit & Integration Tests PASS** (0.03s)
+- [x] **Automated Test Suite (`tests/test_core.py`, `project/tests/test_bazi_calculator.py`, `project/tests/test_web_regression.py`)**
+  - **74/74 Unit & Integration Tests PASS** (2.6s)
+
 
 ---
 
