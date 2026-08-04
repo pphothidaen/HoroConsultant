@@ -84,14 +84,19 @@ def run_training_pipeline(
         from trl import SFTTrainer
     except ImportError as e:
         logger.error(f"❌ Missing required PyTorch/Transformers packages: {e}")
-        logger.error("Run: pip install torch transformers peft bitsandbytes datasets trl huggingface_hub")
+        logger.error("Run: pip install transformers peft bitsandbytes datasets trl huggingface_hub accelerate")
         return False
 
+    os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
     # 1. Quantization Config (4-bit BitsAndBytes)
+    use_cuda = torch.cuda.is_available()
+    compute_dtype = torch.float16 if use_cuda else torch.float32
+
     bnb_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.float16,
+        bnb_4bit_compute_dtype=compute_dtype,
         bnb_4bit_use_double_quant=True,
     )
 
@@ -100,10 +105,14 @@ def run_training_pipeline(
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
+    device_map = {"": 0} if use_cuda else "auto"
+
     model = AutoModelForCausalLM.from_pretrained(
         base_model,
         quantization_config=bnb_config,
-        device_map="auto",
+        torch_dtype=compute_dtype,
+        device_map=device_map,
+        low_cpu_mem_usage=True,
         trust_remote_code=True,
     )
     model = prepare_model_for_kbit_training(model)

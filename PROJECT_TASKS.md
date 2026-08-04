@@ -54,17 +54,18 @@ python3 project/core/source_summarizer.py --merge
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Deterministic Pure Python Core      │ • Fine-Tuning Execution (QLoRA 4-bit) │ • Convert MLX adapter -> GGUF         │
-│ • Local-First API Router              │ • Vault Continuous Ingestion          │ • Deploy GGUF to Ollama Model File    │
-│ • FAISS Vector Store (3,132 vectors)  │ • Answer Gray-Zone Questions (102 Qs) │ • GitHub Actions CI/CD Pipeline       │
-│ • 38 PDF Books Ingested (3,132 vec)   │                                       │ • External AI Provider Integration    │
-│ • Web UI Glassmorphism Dashboard      │                                       │   (OpenAI/Together fine-tune API)     │
-│ • AGY + thClaws Multi-Agent Arch      │                                       │ • Swiss Ephemeris Integration         │
-│ • Prediction Validator Gemini Agent   │                                       │ • Additional Source Ingestion         │
+│ • Deterministic Pure Python Core      │ • Model Fusion & GGUF Ollama Deploy  │ • GitHub Actions Continuous Deploy    │
+│ • Local-First API Router              │ • Vault Continuous Ingestion          │ • External AI Provider Integration    │
+│ • FAISS Vector Store (3,132 vectors)  │ • Answer Gray-Zone Questions (102 Qs) │   (OpenAI/Together fine-tune API)     │
+│ • 38 PDF Books Ingested (3,132 vec)   │                                       │ • Swiss Ephemeris Integration         │
+│ • Web UI Glassmorphism Dashboard      │                                       │ • Additional Source Ingestion         │
+│ • AGY + thClaws Multi-Agent Arch      │                                       │                                       │
+│ • Prediction Validator Gemini Agent   │                                       │                                       │
 │ • E2E MCP & SVG Chart Generators      │                                       │                                       │
 │ • Solution 1 ShareGPT JSONL Exporter  │                                       │                                       │
 │ • Gemini Vision OCR & Quality Check   │                                       │                                       │
-│ • 71/71 Full Regression Test Suite    │                                       │                                       │
+│ • 74/74 Full Regression Test Suite    │                                       │                                       │
+│ 🆕 MLX QLoRA Fine-Tuning (600 iters)  │                                       │                                       │
 │ 🆕 Knowledge Source Catalog (46 src) │                                       │                                       │
 │ 🆕 Gray-Zone Admin Panel UI          │                                       │                                       │
 │ 🆕 Source Summarizer Engine          │                                       │                                       │
@@ -143,15 +144,20 @@ python3 project/core/source_summarizer.py --merge
 
 ### 🔄 DOING (กำลังดำเนินการ / พร้อมรันต่อ)
 
-- [ ] **MLX QLoRA Fine-Tuning Execution (macOS Host)** ← 🔥 กำลังรันอยู่
-  - Model: `mlx-community/Qwen2.5-7B-Instruct-4bit` (QLoRA 4-bit, ~4GB)
-  - Peak memory: 5.6 GB / 16 GB
-  - Config: batch=1, grad_accum=4, lora_rank=8, 600 iters
-  - รันคำสั่ง:
-    ```bash
-    python3 scripts/run_mlx_finetune.py --test
-    ```
-- [ ] **Continuous Knowledge Vault Growth**
+- [x] **MLX QLoRA Fine-Tuning Execution & Model Fusion (macOS Host)**
+  - Model: `mlx-community/Qwen2.5-7B-Instruct-4bit` (QLoRA 4-bit)
+  - Config: batch=1, grad_accum=4, lora_rank=8, 600 iters completed (23 MB adapter)
+  - Output adapter: `project/models/qwen2.5-bazi-adapter/adapters.safetensors`
+  - Fused model: `project/models/qwen2.5-bazi-fused` (4.00 GB, 24.5 tokens/sec validated)
+- [x] **Kaggle T4 Fine-Tuning Orchestrator Fix (Exit Code -11 Resolution)**
+  - Fixed PyTorch CUDA binary mismatch by removing torch re-installation in notebook setup.
+  - Added explicit `torch_dtype=torch.float16`, `low_cpu_mem_usage=True`, and `device_map={"": 0}` in `cloud_train_orchestrator.py` to eliminate SIGSEGV memory crashes.
+
+---
+
+### 🔄 DOING (กำลังดำเนินการ / พร้อมรันต่อ)
+
+- [ ] **Continuous Knowledge Vault Growth & Dataset Expansion**
   - เมื่อหยอดไฟล์ `.md` หรือ `.pdf` ใหม่ใส่ `project/rag/obsidian_vault/` ให้รัน:
     ```bash
     python3 project/rag/ingest_vault.py --export-finetune
