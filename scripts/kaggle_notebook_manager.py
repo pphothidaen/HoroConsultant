@@ -243,11 +243,22 @@ def git_auto_commit_and_push(message: str) -> bool:
 
 
 def run_kaggle_cmd(args_list: list[str]) -> bool:
-    """Run kaggle CLI command."""
+    """Run kaggle CLI command with credentials supplied via env vars."""
     cmd = ["kaggle"] + args_list
     logger.info(f"🚀 Running command: {' '.join(cmd)}")
+    env = os.environ.copy()
     try:
-        res = subprocess.run(cmd, capture_output=True, text=True)
+        json_file = Path.home() / ".kaggle" / "kaggle.json"
+        if json_file.exists():
+            creds = json.loads(json_file.read_text(encoding="utf-8"))
+            env["KAGGLE_USERNAME"] = creds.get("username", "")
+            env["KAGGLE_API_TOKEN"] = creds.get("key", "")
+            env["KAGGLE_KEY"] = creds.get("key", "")
+    except Exception as e:
+        logger.warning(f"⚠️ Could not load kaggle.json for env var setup: {e}")
+
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True, env=env)
         if res.returncode == 0:
             print(res.stdout)
             return True

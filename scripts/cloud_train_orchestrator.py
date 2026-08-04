@@ -150,6 +150,97 @@ def run_preflight_environment_audit() -> dict:
     return results
 
 
+def create_sft_trainer(
+    model,
+    tokenizer,
+    train_dataset,
+    formatting_func,
+    peft_config,
+    training_args,
+    max_seq_length: int = 512,
+):
+    """
+    Safely instantiates SFTTrainer across all TRL versions (0.7.x through 0.15.x+).
+    Dynamically inspects SFTTrainer.__init__ parameters to avoid passing deprecated
+    or unknown keyword arguments like 'max_seq_length' or 'tokenizer' / 'processing_class'.
+    """
+    import inspect
+    from trl import SFTTrainer
+
+    sig = inspect.signature(SFTTrainer.__init__)
+    params = sig.parameters
+    has_var_kw = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values())
+
+    # Ensure max_seq_length is configured on training_args (SFTConfig/TrainingArguments)
+    if hasattr(training_args, "max_seq_length"):
+        try:
+            training_args.max_seq_length = max_seq_length
+        except Exception:
+            pass
+
+    kwargs = {
+        "model": model,
+        "train_dataset": train_dataset,
+        "formatting_func": formatting_func,
+        "peft_config": peft_config,
+        "args": training_args,
+    }
+
+    # Pass max_seq_length ONLY if SFTTrainer.__init__ explicitly accepts it (TRL < 0.12)
+    if "max_seq_length" in params:
+        kwargs["max_seq_length"] = max_seq_length
+
+    # Pass processing_class or tokenizer depending on what SFTTrainer.__init__ accepts
+    if "processing_class" in params:
+        kwargs["processing_class"] = tokenizer
+    elif "tokenizer" in params:
+        kwargs["tokenizer"] = tokenizer
+    else:
+        kwargs["processing_class" if has_var_kw else "tokenizer"] = tokenizer
+
+    # If VAR_KEYWORD is not present, filter kwargs strictly to accepted parameters
+    if not has_var_kw:
+        kwargs = {k: v for k, v in kwargs.items() if k in params}
+
+    logger.info(f"🛠️ Instantiating SFTTrainer with parameters: {list(kwargs.keys())}")
+
+    try:
+        return SFTTrainer(**kwargs)
+    except TypeError as te:
+        logger.warning(f"⚠️ Initial SFTTrainer call raised TypeError ({te}). Attempting version fallback...")
+
+        # Fallback Strategy 1: Try without max_seq_length if it was passed
+        kwargs.pop("max_seq_length", None)
+
+        # Fallback Strategy 2: Swap tokenizer / processing_class
+        if "processing_class" in kwargs:
+            kwargs.pop("processing_class")
+            kwargs["tokenizer"] = tokenizer
+        elif "tokenizer" in kwargs:
+            kwargs.pop("tokenizer")
+            kwargs["processing_class"] = tokenizer
+
+        try:
+            return SFTTrainer(**kwargs)
+        except TypeError as te2:
+            logger.warning(f"⚠️ Secondary SFTTrainer fallback raised ({te2}). Using minimal signature...")
+            # Fallback Strategy 3: Bare minimum required args
+            min_kwargs = {
+                "model": model,
+                "train_dataset": train_dataset,
+                "args": training_args,
+            }
+            if peft_config is not None:
+                min_kwargs["peft_config"] = peft_config
+            if formatting_func is not None:
+                min_kwargs["formatting_func"] = formatting_func
+            if "processing_class" in params:
+                min_kwargs["processing_class"] = tokenizer
+            else:
+                min_kwargs["tokenizer"] = tokenizer
+            return SFTTrainer(**min_kwargs)
+
+
 def run_training_pipeline(
     dataset_path: Path,
     platform: str,
@@ -427,26 +518,15 @@ def run_training_pipeline(
         except Exception:
             pass
 
-    trainer_kwargs = {
-        "model": model,
-        "train_dataset": raw_data["train"],
-        "formatting_func": formatting_prompts_func,
-        "peft_config": peft_config,
-        "args": training_args,
-    }
-
-    from trl import SFTTrainer
-    trainer = None
-    try:
-        trainer = SFTTrainer(processing_class=tokenizer, max_seq_length=max_seq_length, **trainer_kwargs)
-    except TypeError:
-        try:
-            trainer = SFTTrainer(tokenizer=tokenizer, max_seq_length=max_seq_length, **trainer_kwargs)
-        except TypeError:
-            try:
-                trainer = SFTTrainer(processing_class=tokenizer, **trainer_kwargs)
-            except TypeError:
-                trainer = SFTTrainer(tokenizer=tokenizer, **trainer_kwargs)
+    trainer = create_sft_trainer(
+        model=model,
+        tokenizer=tokenizer,
+        train_dataset=raw_data["train"],
+        formatting_func=formatting_prompts_func,
+        peft_config=peft_config,
+        training_args=training_args,
+        max_seq_length=max_seq_length,
+    )
 
 
 

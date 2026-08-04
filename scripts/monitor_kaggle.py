@@ -76,31 +76,25 @@ def get_kernel_info(username: str, key: str) -> dict | None:
 
 
 def pull_output_log(username: str, key: str) -> bool:
-    """Download the latest train_execution.log from Kaggle kernel output."""
-    headers = {"Authorization": f"Bearer {key}"}
-    resp = requests.get(
-        "https://www.kaggle.com/api/v1/kernels/output",
-        headers=headers,
-        params={"userName": username, "kernelSlug": KERNEL_SLUG},
-        timeout=60,
-    )
-    if resp.ok:
-        data = resp.json()
-        files = data.get("files", [])
-        logger.info(f"📦 Output contains {len(files)} file(s)")
-        for f in files:
-            name = f.get("name", "unknown")
-            url = f.get("url", "")
-            logger.info(f"  📄 {name}")
-            if url:
-                r = requests.get(url, headers=headers, timeout=60)
-                dest = KERNEL_DIR / name
-                dest.write_bytes(r.content)
-                logger.info(f"  ✅ Saved to {dest}")
-        return True
-    else:
-        # Try downloading via kaggle CLI as fallback
-        logger.warning(f"⚠️ Output API returned {resp.status_code}: {resp.text[:200]}")
+    """Download the latest train_execution.log from Kaggle kernel output via Kaggle CLI."""
+    import subprocess
+    env = os.environ.copy()
+    env["KAGGLE_USERNAME"] = username
+    env["KAGGLE_API_TOKEN"] = key
+    env["KAGGLE_KEY"] = key
+
+    cmd = ["kaggle", "kernels", "output", f"{username}/{KERNEL_SLUG}", "-p", str(KERNEL_DIR)]
+    logger.info(f"🚀 Downloading output via CLI: {' '.join(cmd)}")
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True, env=env)
+        if res.returncode == 0:
+            logger.info("✅ Output files downloaded successfully!")
+            return True
+        else:
+            logger.warning(f"⚠️ Kaggle output CLI error ({res.returncode}): {res.stderr}")
+            return False
+    except Exception as e:
+        logger.error(f"❌ Output download failed: {e}")
         return False
 
 
