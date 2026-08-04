@@ -1,384 +1,397 @@
-[{"stream_name":"stderr","time":6.880696291,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":6.880782479,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":6.880791761,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":6.880794752,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stderr","time":7.501588413,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":7.501646801,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":7.50165595,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":7.501659418,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stderr","time":8.705433028,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stderr","time":8.799862294,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7cdd26c57910\u003e\u003e)\n"}
-,{"stream_name":"stderr","time":8.799897689,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":8.799901433,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
-,{"stream_name":"stderr","time":8.799904306,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":8.799907094,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":8.799909685,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 462-463: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":8.799912259,"data":"\n"}
-,{"stream_name":"stderr","time":8.79991458,"data":"During handling of the above exception, another exception occurred:\n"}
-,{"stream_name":"stderr","time":8.799917157,"data":"\n"}
-,{"stream_name":"stderr","time":8.799934311,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":8.799938551,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
-,{"stream_name":"stderr","time":8.799942693,"data":"    ret = callback()\n"}
-,{"stream_name":"stderr","time":8.799946535,"data":"          ^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":8.799950523,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
-,{"stream_name":"stderr","time":8.799954119,"data":"    self.session.send(\n"}
-,{"stream_name":"stderr","time":8.799957942,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
-,{"stream_name":"stderr","time":8.799961917,"data":"    to_send = self.serialize(msg, ident)\n"}
-,{"stream_name":"stderr","time":8.799966015,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":8.799969746,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
-,{"stream_name":"stderr","time":8.799973923,"data":"    content = self.pack(content)\n"}
-,{"stream_name":"stderr","time":8.79997771,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":8.799981636,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
-,{"stream_name":"stderr","time":8.800005261999999,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":8.800009791,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":8.800013805,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 462-463: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":8.908274278,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stderr","time":8.908308741,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7cdd26c57910\u003e\u003e)\n"}
-,{"stream_name":"stderr","time":8.908315444,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":8.908320109,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
-,{"stream_name":"stderr","time":8.908325079,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":8.908330033,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":8.908334667,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 462-463: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":8.908339214,"data":"\n"}
-,{"stream_name":"stderr","time":8.908342922,"data":"During handling of the above exception, another exception occurred:\n"}
-,{"stream_name":"stderr","time":8.908347127,"data":"\n"}
-,{"stream_name":"stderr","time":8.908350702,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":8.9083568,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
-,{"stream_name":"stderr","time":8.908360966,"data":"    ret = callback()\n"}
-,{"stream_name":"stderr","time":8.908368952,"data":"          ^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":8.908372665,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
-,{"stream_name":"stderr","time":8.908375781,"data":"    self.session.send(\n"}
-,{"stream_name":"stderr","time":8.908378439,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
-,{"stream_name":"stderr","time":8.90838146,"data":"    to_send = self.serialize(msg, ident)\n"}
-,{"stream_name":"stderr","time":8.908384169,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":8.908387344,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
-,{"stream_name":"stderr","time":8.908412057,"data":"    content = self.pack(content)\n"}
-,{"stream_name":"stderr","time":8.908416564,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":8.908421018,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
-,{"stream_name":"stderr","time":8.908425551,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":8.90843046,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":8.908435219,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 462-463: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":8.908439563,"data":"\n"}
-,{"stream_name":"stderr","time":8.908443223999999,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stderr","time":8.908447579,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7cdd26c57910\u003e\u003e)\n"}
-,{"stream_name":"stderr","time":8.908470634,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":8.908473938,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
-,{"stream_name":"stderr","time":8.90847683,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":8.908479541,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":8.90848364,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 462-463: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":8.908486449,"data":"\n"}
-,{"stream_name":"stderr","time":8.908489086,"data":"During handling of the above exception, another exception occurred:\n"}
-,{"stream_name":"stderr","time":8.908491773,"data":"\n"}
-,{"stream_name":"stderr","time":8.908494256000001,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":8.908497856,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
-,{"stream_name":"stderr","time":8.908517757,"data":"    ret = callback()\n"}
-,{"stream_name":"stderr","time":8.908522161,"data":"          ^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":8.908526678,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
-,{"stream_name":"stderr","time":8.908531332999999,"data":"    self.session.send(\n"}
-,{"stream_name":"stderr","time":8.908535911,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
-,{"stream_name":"stderr","time":8.908540824,"data":"    to_send = self.serialize(msg, ident)\n"}
-,{"stream_name":"stderr","time":8.908544767,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":8.908548694,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
-,{"stream_name":"stderr","time":8.908552913,"data":"    content = self.pack(content)\n"}
-,{"stream_name":"stderr","time":8.908556726,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":8.908560516,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
-,{"stream_name":"stderr","time":8.908564672,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":8.908568701,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":8.90857265,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 462-463: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":9.909319456,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7cdd26c57910\u003e\u003e)\n"}
-,{"stream_name":"stderr","time":9.909356968,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":9.909362995,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
-,{"stream_name":"stderr","time":9.909367762,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":9.909372617,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":9.909376511,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":9.909390005,"data":"\n"}
-,{"stream_name":"stderr","time":9.909393575,"data":"During handling of the above exception, another exception occurred:\n"}
-,{"stream_name":"stderr","time":9.909399155,"data":"\n"}
-,{"stream_name":"stderr","time":9.909406634,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":9.909409314,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
-,{"stream_name":"stderr","time":9.909411902,"data":"    ret = callback()\n"}
-,{"stream_name":"stderr","time":9.909414231,"data":"          ^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":9.909416667,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
-,{"stream_name":"stderr","time":9.909419214,"data":"    self.session.send(\n"}
-,{"stream_name":"stderr","time":9.909421561,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
-,{"stream_name":"stderr","time":9.909424115,"data":"    to_send = self.serialize(msg, ident)\n"}
-,{"stream_name":"stderr","time":9.909518292,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":9.909524971,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
-,{"stream_name":"stderr","time":9.909529697,"data":"    content = self.pack(content)\n"}
-,{"stream_name":"stderr","time":9.909533941,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":9.909537471,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
-,{"stream_name":"stderr","time":9.909541453,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":9.909545269,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":9.909548771,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":10.161140402,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7cdd26c57910\u003e\u003e)\n"}
-,{"stream_name":"stderr","time":10.161169549,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":10.161173224,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
-,{"stream_name":"stderr","time":10.161192219,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":10.161196812,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":10.161201395,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":10.161205952,"data":"\n"}
-,{"stream_name":"stderr","time":10.161210076,"data":"During handling of the above exception, another exception occurred:\n"}
-,{"stream_name":"stderr","time":10.161228792,"data":"\n"}
-,{"stream_name":"stderr","time":10.161233269,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":10.16123698,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
-,{"stream_name":"stderr","time":10.161241342,"data":"    ret = callback()\n"}
-,{"stream_name":"stderr","time":10.161245378,"data":"          ^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":10.161249228,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
-,{"stream_name":"stderr","time":10.161271296,"data":"    self.session.send(\n"}
-,{"stream_name":"stderr","time":10.161275549,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
-,{"stream_name":"stderr","time":10.161279637,"data":"    to_send = self.serialize(msg, ident)\n"}
-,{"stream_name":"stderr","time":10.161283414,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":10.161288036,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
-,{"stream_name":"stderr","time":10.161291993,"data":"    content = self.pack(content)\n"}
-,{"stream_name":"stderr","time":10.161296135,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":10.161300304,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
-,{"stream_name":"stderr","time":10.161304625,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":10.161308943,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":10.161313104,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":10.161316917,"data":"\n"}
-,{"stream_name":"stderr","time":10.161320861,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7cdd26c57910\u003e\u003e)\n"}
-,{"stream_name":"stderr","time":10.161326284,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":10.161330801,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
-,{"stream_name":"stderr","time":10.161334953,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":10.161339286,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":10.161343368,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":10.161347922,"data":"\n"}
-,{"stream_name":"stderr","time":10.161351512,"data":"During handling of the above exception, another exception occurred:\n"}
-,{"stream_name":"stderr","time":10.161355751,"data":"\n"}
-,{"stream_name":"stderr","time":10.161361608,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":10.161365798,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
-,{"stream_name":"stderr","time":10.161370135,"data":"    ret = callback()\n"}
-,{"stream_name":"stderr","time":10.161374165,"data":"          ^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":10.161378218,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
-,{"stream_name":"stderr","time":10.161382814,"data":"    self.session.send(\n"}
-,{"stream_name":"stderr","time":10.16138648,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
-,{"stream_name":"stderr","time":10.16139055,"data":"    to_send = self.serialize(msg, ident)\n"}
-,{"stream_name":"stderr","time":10.161394448,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":10.161398502,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
-,{"stream_name":"stderr","time":10.161412013,"data":"    content = self.pack(content)\n"}
-,{"stream_name":"stderr","time":10.161415689,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":10.161419105,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
-,{"stream_name":"stderr","time":10.16142297,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":10.161428419,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":10.161435335,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
-,{"stream_name":"stdout","time":13.979930787,"data":"⚡ Kaggle PyTorch version: 2.10.0+cu128, CUDA available: True\n"}
-,{"stream_name":"stdout","time":13.97999006,"data":"   Device Count: 1, Device 0: Tesla P100-PCIE-16GB (sm_60)\n"}
-,{"stream_name":"stdout","time":13.979995329,"data":"⚠️ Pre-installed PyTorch wheel lacks binary for sm_60 (Tesla P100-PCIE-16GB). Installing cu121 PyTorch compatibility wheel...\n"}
-,{"stream_name":"stderr","time":13.999339512,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.999369168,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
-,{"stream_name":"stderr","time":13.999375123,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
-,{"stream_name":"stderr","time":13.999379915,"data":"    (7.0) - (12.0)\n"}
-,{"stream_name":"stderr","time":13.999384305,"data":"    \n"}
-,{"stream_name":"stderr","time":13.99938866,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":13.999392996,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.999397681,"data":"    Please install PyTorch with a following CUDA\n"}
-,{"stream_name":"stderr","time":13.999401968,"data":"    configurations:  12.6 following instructions at\n"}
-,{"stream_name":"stderr","time":13.9994067,"data":"    https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":13.99941108,"data":"    \n"}
-,{"stream_name":"stderr","time":13.999415295,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":13.999419777,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.999424341,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
-,{"stream_name":"stderr","time":13.999429048,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
-,{"stream_name":"stderr","time":13.999434063,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":13.999438589,"data":"\n"}
-,{"stream_name":"stderr","time":13.999442935,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":13.999447296,"data":"\n"}
-,{"stream_name":"stderr","time":13.99945146,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.999456123,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
-,{"stream_name":"stderr","time":13.999461389,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
-,{"stream_name":"stderr","time":13.999474744,"data":"    (7.0) - (12.0)\n"}
-,{"stream_name":"stderr","time":13.999489786,"data":"    \n"}
-,{"stream_name":"stderr","time":13.999493227,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":13.99949657,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.99950021,"data":"    Please install PyTorch with a following CUDA\n"}
-,{"stream_name":"stderr","time":13.999503615,"data":"    configurations:  12.6 following instructions at\n"}
-,{"stream_name":"stderr","time":13.999507027,"data":"    https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":13.99951053,"data":"    \n"}
-,{"stream_name":"stderr","time":13.999513748,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":13.999517020999999,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.999520483,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
-,{"stream_name":"stderr","time":13.99952404,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
-,{"stream_name":"stderr","time":13.999533956,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":13.999537621,"data":"\n"}
-,{"stream_name":"stderr","time":13.9995407,"data":"  queued_call()\n"}
-,{"stream_name":"stdout","time":25.463194768,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 780.9/780.9 MB 2.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":25.665264413,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 780.9/780.9 MB 2.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":28.566886682,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.7/23.7 MB 35.2 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":28.739492854,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 823.6/823.6 kB 43.8 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":28.768999268,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.7/23.7 MB 35.2 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":28.769030342,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 823.6/823.6 kB 43.8 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":28.94398977,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.1/14.1 MB 102.4 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":29.146554757,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.1/14.1 MB 102.4 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":37.094260064,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 731.7/731.7 MB 2.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":37.29618223,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 731.7/731.7 MB 2.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":45.198844795,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 410.6/410.6 MB 2.8 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":45.402881777,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 410.6/410.6 MB 2.8 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":47.705423093,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 MB 15.2 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":47.908354111,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 MB 15.2 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":49.220133273,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.5/56.5 MB 12.8 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":49.422249628,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.5/56.5 MB 12.8 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":50.656281932,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 124.2/124.2 MB 15.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":50.858460348,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 124.2/124.2 MB 15.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":53.079947986,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.0/196.0 MB 9.3 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":53.282486085,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.0/196.0 MB 9.3 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":56.130969041,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 176.2/176.2 MB 6.8 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":56.333395503,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 176.2/176.2 MB 6.8 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":56.787992881,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 99.1/99.1 kB 6.5 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":56.990232719,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 99.1/99.1 kB 6.5 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":56.99164552,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.3/7.3 MB 85.7 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":57.123616125,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.3/7.3 MB 102.0 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":57.19525906,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.3/7.3 MB 85.7 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":57.195294143,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.3/7.3 MB 102.0 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":57.258182623,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 95.0 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":57.393371162,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 96.5 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":57.462160954,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 95.0 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":57.462195134,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 96.5 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":57.527832337,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.0/7.0 MB 94.3 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":57.729817015,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.0/7.0 MB 94.3 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":57.776287252,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 84.5 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":57.858304319,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 85.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":57.939306387,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 89.4 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":57.979058916,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 84.5 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":57.979140118,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 85.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":57.979150269,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 89.4 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":58.02473403,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 79.6 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":58.187726039,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 77.8 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":58.227394821,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 79.6 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":58.227421236,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 77.8 MB/s eta 0:00:00\n"}
-,{"stream_name":"stderr","time":154.403802422,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7cdd26c57910\u003e\u003e)\n"}
-,{"stream_name":"stderr","time":154.403869023,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":154.403877353,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
-,{"stream_name":"stderr","time":154.403883628,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":154.403901974,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":154.403906428,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":154.403910429,"data":"\n"}
-,{"stream_name":"stderr","time":154.403914499,"data":"During handling of the above exception, another exception occurred:\n"}
-,{"stream_name":"stderr","time":154.403918691,"data":"\n"}
-,{"stream_name":"stderr","time":154.403922319,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":154.403926246,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
-,{"stream_name":"stderr","time":154.403930896,"data":"    ret = callback()\n"}
-,{"stream_name":"stderr","time":154.403934745,"data":"          ^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":154.403938591,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
-,{"stream_name":"stderr","time":154.40394311,"data":"    self.session.send(\n"}
-,{"stream_name":"stderr","time":154.403947132,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
-,{"stream_name":"stderr","time":154.403951576,"data":"    to_send = self.serialize(msg, ident)\n"}
-,{"stream_name":"stderr","time":154.403961169,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":154.40396516,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
-,{"stream_name":"stderr","time":154.403969549,"data":"    content = self.pack(content)\n"}
-,{"stream_name":"stderr","time":154.403973404,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":154.403977645,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
-,{"stream_name":"stderr","time":154.403982047,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":154.403986371,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":154.403990442,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":154.609031462,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7cdd26c57910\u003e\u003e)\n"}
-,{"stream_name":"stderr","time":154.609083242,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":154.609093386,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
-,{"stream_name":"stderr","time":154.609098413,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":154.609103411,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":154.609107949,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":154.609112617,"data":"\n"}
-,{"stream_name":"stderr","time":154.609116806,"data":"During handling of the above exception, another exception occurred:\n"}
-,{"stream_name":"stderr","time":154.609120801,"data":"\n"}
-,{"stream_name":"stderr","time":154.609124716,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":154.60912895,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
-,{"stream_name":"stderr","time":154.609143477,"data":"    ret = callback()\n"}
-,{"stream_name":"stderr","time":154.609147847,"data":"          ^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":154.609152284,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
-,{"stream_name":"stderr","time":154.609156254,"data":"    self.session.send(\n"}
-,{"stream_name":"stderr","time":154.609160082,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
-,{"stream_name":"stderr","time":154.609164453,"data":"    to_send = self.serialize(msg, ident)\n"}
-,{"stream_name":"stderr","time":154.609168656,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":154.609172828,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
-,{"stream_name":"stderr","time":154.609177118,"data":"    content = self.pack(content)\n"}
-,{"stream_name":"stderr","time":154.609181183,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":154.609185109,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
-,{"stream_name":"stderr","time":154.609189186,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":154.609193283,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":154.609197496,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":154.609201971,"data":"\n"}
-,{"stream_name":"stderr","time":154.609206023,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7cdd26c57910\u003e\u003e)\n"}
-,{"stream_name":"stderr","time":154.609211132,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":154.609215183,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
-,{"stream_name":"stderr","time":154.609219772,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":154.609224221,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":154.609228387,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":154.609232838,"data":"\n"}
-,{"stream_name":"stderr","time":154.609236741,"data":"During handling of the above exception, another exception occurred:\n"}
-,{"stream_name":"stderr","time":154.609241199,"data":"\n"}
-,{"stream_name":"stderr","time":154.609247658,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":154.609251858,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
-,{"stream_name":"stderr","time":154.609256285,"data":"    ret = callback()\n"}
-,{"stream_name":"stderr","time":154.60926032,"data":"          ^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":154.609264415,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
-,{"stream_name":"stderr","time":154.609269143,"data":"    self.session.send(\n"}
-,{"stream_name":"stderr","time":154.609273217,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
-,{"stream_name":"stderr","time":154.609277501,"data":"    to_send = self.serialize(msg, ident)\n"}
-,{"stream_name":"stderr","time":154.609286049,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":154.609290063,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
-,{"stream_name":"stderr","time":154.609295313,"data":"    content = self.pack(content)\n"}
-,{"stream_name":"stderr","time":154.609299624,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":154.609303412,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
-,{"stream_name":"stderr","time":154.60930862,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":154.609313271,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":154.609317187,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
-,{"stream_name":"stdout","time":155.0817492,"data":"Found existing installation: torchao 0.10.0\n"}
-,{"stream_name":"stdout","time":155.154538366,"data":"Uninstalling torchao-0.10.0:\n"}
-,{"stream_name":"stdout","time":155.284713433,"data":"Found existing installation: torchao 0.10.0\n"}
-,{"stream_name":"stdout","time":155.284793457,"data":"Uninstalling torchao-0.10.0:\n"}
-,{"stream_name":"stdout","time":155.489405165,"data":"  Successfully uninstalled torchao-0.10.0\n"}
-,{"stream_name":"stdout","time":155.691998103,"data":"  Successfully uninstalled torchao-0.10.0\n"}
-,{"stream_name":"stdout","time":158.046492143,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 18.8/18.8 MB 76.3 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":158.07969502,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 560.6/560.6 kB 35.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":158.108627467,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.0/66.0 kB 5.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":158.248960983,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 18.8/18.8 MB 76.3 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":158.248992842,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 560.6/560.6 kB 35.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":158.2490001,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.0/66.0 kB 5.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":158.622890265,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 55.0/55.0 MB 37.0 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":158.659731885,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 54.6 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":158.824949733,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 55.0/55.0 MB 37.0 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":158.824989533,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 54.6 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":164.641745098,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.7/43.7 kB 1.5 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":164.843870011,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.7/43.7 kB 1.5 MB/s eta 0:00:00\n"}
-,{"stream_name":"stderr","time":166.308489885,"data":"ERROR: Cannot install accelerate==0.33.0, peft==0.12.0 and trl==0.12.0 because these package versions have conflicting dependencies.\n"}
-,{"stream_name":"stderr","time":166.308895742,"data":"ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts\n"}
-,{"stream_name":"stderr","time":166.427927922,"data":"ERROR: Cannot install accelerate==0.33.0, peft==0.12.0 and trl==0.12.0 because these package versions have conflicting dependencies.\n"}
-,{"stream_name":"stderr","time":166.427974004,"data":"ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts\n"}
-,{"stream_name":"stderr","time":166.427980064,"data":"\n"}
-,{"stream_name":"stderr","time":166.427983956,"data":"ERROR: Cannot install accelerate==0.33.0, peft==0.12.0 and trl==0.12.0 because these package versions have conflicting dependencies.\n"}
-,{"stream_name":"stderr","time":166.427988249,"data":"ERROR: ResolutionImpossible: for help visit https://pip.pypa.io/en/latest/topics/dependency-resolution/#dealing-with-dependency-conflicts\n"}
-,{"stream_name":"stderr","time":169.118756837,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":169.118788807,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":169.118794423,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
-,{"stream_name":"stderr","time":169.11919436,"data":"    raise_for_execution_errors(nb, output_path)\n"}
-,{"stream_name":"stderr","time":169.119220634,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
-,{"stream_name":"stderr","time":169.119225646,"data":"    raise error\n"}
-,{"stream_name":"stderr","time":169.119378206,"data":"papermill.exceptions.PapermillExecutionError: \n"}
-,{"stream_name":"stderr","time":169.119398954,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":169.119404388,"data":"Exception encountered at \"In [1]\":\n"}
-,{"stream_name":"stderr","time":169.119408975,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":169.119413412,"data":"CalledProcessError                        Traceback (most recent call last)\n"}
-,{"stream_name":"stderr","time":169.11941718,"data":"/tmp/ipykernel_23/4025422587.py in \u003ccell line: 0\u003e()\n"}
-,{"stream_name":"stderr","time":169.119421314,"data":"     72 subprocess.run([sys.executable, '-m', 'pip', 'uninstall', '-y', 'torchao'], check=False)\n"}
-,{"stream_name":"stderr","time":169.11942502,"data":"     73 subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--prefer-binary', '-r', 'requirements.txt'], check=True)\n"}
-,{"stream_name":"stderr","time":169.119428828,"data":"---\u003e 74 subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--prefer-binary', 'transformers==4.44.2', 'peft==0.12.0', 'bitsandbytes==0.43.3', 'datasets==2.18.0', 'trl==0.12.0', 'huggingface_hub', 'accelerate==0.33.0'], check=True)\n"}
-,{"stream_name":"stderr","time":169.11943553,"data":"     75 import torch\n"}
-,{"stream_name":"stderr","time":169.119453443,"data":"     76 print(f'\\u2705 Verified post-install PyTorch version: {torch.__version__}, CUDA available: {torch.cuda.is_available()}')\n"}
-,{"stream_name":"stderr","time":169.119458053,"data":"\n"}
-,{"stream_name":"stderr","time":169.119461463,"data":"/usr/lib/python3.12/subprocess.py in run(input, capture_output, timeout, check, *popenargs, **kwargs)\n"}
-,{"stream_name":"stderr","time":169.119465197,"data":"    569         retcode = process.poll()\n"}
-,{"stream_name":"stderr","time":169.119468744,"data":"    570         if check and retcode:\n"}
-,{"stream_name":"stderr","time":169.119472848,"data":"--\u003e 571             raise CalledProcessError(retcode, process.args,\n"}
-,{"stream_name":"stderr","time":169.119477043,"data":"    572                                      output=stdout, stderr=stderr)\n"}
-,{"stream_name":"stderr","time":169.119481056,"data":"    573     return CompletedProcess(process.args, retcode, stdout, stderr)\n"}
-,{"stream_name":"stderr","time":169.119485055,"data":"\n"}
-,{"stream_name":"stderr","time":169.119489536,"data":"CalledProcessError: Command '['/usr/bin/python3', '-m', 'pip', 'install', '-q', '--prefer-binary', 'transformers==4.44.2', 'peft==0.12.0', 'bitsandbytes==0.43.3', 'datasets==2.18.0', 'trl==0.12.0', 'huggingface_hub', 'accelerate==0.33.0']' returned non-zero exit status 1.\n"}
-,{"stream_name":"stderr","time":169.119493904,"data":"\n"}
-,{"stream_name":"stderr","time":171.494816854,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
-,{"stream_name":"stderr","time":171.494880865,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
-,{"stream_name":"stderr","time":171.658990691,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
-,{"stream_name":"stderr","time":171.659019892,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
-,{"stream_name":"stderr","time":172.336438755,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
-,{"stream_name":"stderr","time":172.674343211,"data":"[NbConvertApp] Writing 23852 bytes to __notebook__.ipynb\n"}
-,{"stream_name":"stderr","time":175.270616457,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
-,{"stream_name":"stderr","time":176.154884499,"data":"[NbConvertApp] Writing 316165 bytes to __results__.html\n"}
+[{"stream_name":"stderr","time":6.335811406,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.335867055,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.335873752,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.335878086,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":6.913328779,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.913357545,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.913383447,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.913387622,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":8.159390639,"data":"✅ CUDA stability environment variables set (T4/sm_75 compatible)\n"}
+,{"stream_name":"stdout","time":8.401847392,"data":"ℹ️ Kaggle Secret note (HF_TOKEN): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stdout","time":8.612399433,"data":"ℹ️ Kaggle Secret note (APP_SUPABASE_URL): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stdout","time":8.833001244,"data":"ℹ️ Kaggle Secret note (APP_SUPABASE_KEY): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stderr","time":9.538147203,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stderr","time":9.723856552,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7abad6f7e560\u003e\u003e)\n"}
+,{"stream_name":"stderr","time":9.723882527,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":9.723887375,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
+,{"stream_name":"stderr","time":9.723892288,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":9.723896443,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":9.723900156,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 116-117: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":9.723904371,"data":"\n"}
+,{"stream_name":"stderr","time":9.723907642,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":9.723911281,"data":"\n"}
+,{"stream_name":"stderr","time":9.723914478,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":9.723917985,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
+,{"stream_name":"stderr","time":9.723921589,"data":"    ret = callback()\n"}
+,{"stream_name":"stderr","time":9.723924866,"data":"          ^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":9.723928068,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
+,{"stream_name":"stderr","time":9.723931645,"data":"    self.session.send(\n"}
+,{"stream_name":"stderr","time":9.72393487,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
+,{"stream_name":"stderr","time":9.723938424,"data":"    to_send = self.serialize(msg, ident)\n"}
+,{"stream_name":"stderr","time":9.723960988,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":9.723964155,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
+,{"stream_name":"stderr","time":9.723966608,"data":"    content = self.pack(content)\n"}
+,{"stream_name":"stderr","time":9.723968832,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":9.723971039,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
+,{"stream_name":"stderr","time":9.723973452,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":9.723975828,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":9.723978093,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 116-117: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":9.740629297,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stderr","time":9.740652863,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7abad6f7e560\u003e\u003e)\n"}
+,{"stream_name":"stderr","time":9.740656802,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":9.740687394,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
+,{"stream_name":"stderr","time":9.740692020000001,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":9.74069619,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":9.74070028,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 116-117: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":9.740704144,"data":"\n"}
+,{"stream_name":"stderr","time":9.740707943,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":9.740711879,"data":"\n"}
+,{"stream_name":"stderr","time":9.7407156,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":9.740718894,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
+,{"stream_name":"stderr","time":9.740722657,"data":"    ret = callback()\n"}
+,{"stream_name":"stderr","time":9.740726021,"data":"          ^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":9.740729302,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
+,{"stream_name":"stderr","time":9.740732947,"data":"    self.session.send(\n"}
+,{"stream_name":"stderr","time":9.740736317,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
+,{"stream_name":"stderr","time":9.740740148,"data":"    to_send = self.serialize(msg, ident)\n"}
+,{"stream_name":"stderr","time":9.740745249,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":9.740752243,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
+,{"stream_name":"stderr","time":9.740754713,"data":"    content = self.pack(content)\n"}
+,{"stream_name":"stderr","time":9.740756985,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":9.740759203,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
+,{"stream_name":"stderr","time":9.740761589,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":9.740772201,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":9.74077475,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 116-117: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":9.740777162,"data":"\n"}
+,{"stream_name":"stderr","time":9.740779286,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stderr","time":9.740781581,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7abad6f7e560\u003e\u003e)\n"}
+,{"stream_name":"stderr","time":9.740784228,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":9.740786473,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
+,{"stream_name":"stderr","time":9.740788821,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":9.74079115,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":9.740794225,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 116-117: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":9.740796619,"data":"\n"}
+,{"stream_name":"stderr","time":9.740798772,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":9.740801143,"data":"\n"}
+,{"stream_name":"stderr","time":9.740803233,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":9.74080546,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
+,{"stream_name":"stderr","time":9.740807843,"data":"    ret = callback()\n"}
+,{"stream_name":"stderr","time":9.740810389,"data":"          ^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":9.7408126,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
+,{"stream_name":"stderr","time":9.740814957,"data":"    self.session.send(\n"}
+,{"stream_name":"stderr","time":9.740817175,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
+,{"stream_name":"stderr","time":9.740819512,"data":"    to_send = self.serialize(msg, ident)\n"}
+,{"stream_name":"stderr","time":9.740821703,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":9.740824,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
+,{"stream_name":"stderr","time":9.740826345,"data":"    content = self.pack(content)\n"}
+,{"stream_name":"stderr","time":9.740828633,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":9.740830837,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
+,{"stream_name":"stderr","time":9.740833162,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":9.740835451,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":9.740837699,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 116-117: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":11.379828925,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7abad6f7e560\u003e\u003e)\n"}
+,{"stream_name":"stderr","time":11.379883979,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":11.3798885,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
+,{"stream_name":"stderr","time":11.379891294,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":11.379893857999999,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":11.379896202,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":11.379898578,"data":"\n"}
+,{"stream_name":"stderr","time":11.379900848,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":11.37990321,"data":"\n"}
+,{"stream_name":"stderr","time":11.379905368,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":11.379907687,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
+,{"stream_name":"stderr","time":11.379910207,"data":"    ret = callback()\n"}
+,{"stream_name":"stderr","time":11.379912446,"data":"          ^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":11.379914645,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
+,{"stream_name":"stderr","time":11.379917027,"data":"    self.session.send(\n"}
+,{"stream_name":"stderr","time":11.379919316,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
+,{"stream_name":"stderr","time":11.379921738,"data":"    to_send = self.serialize(msg, ident)\n"}
+,{"stream_name":"stderr","time":11.380314434,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":11.380335769,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
+,{"stream_name":"stderr","time":11.380340759,"data":"    content = self.pack(content)\n"}
+,{"stream_name":"stderr","time":11.380344235,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":11.380362799,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
+,{"stream_name":"stderr","time":11.380375433,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":11.380379447,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":11.380382889,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":11.614710796,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7abad6f7e560\u003e\u003e)\n"}
+,{"stream_name":"stderr","time":11.614737499,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":11.614763013,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
+,{"stream_name":"stderr","time":11.614767919,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":11.614772186,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":11.614776233,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":11.61478041,"data":"\n"}
+,{"stream_name":"stderr","time":11.614783925,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":11.614797043,"data":"\n"}
+,{"stream_name":"stderr","time":11.614800406,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":11.614803856,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
+,{"stream_name":"stderr","time":11.614807526,"data":"    ret = callback()\n"}
+,{"stream_name":"stderr","time":11.614815568000001,"data":"          ^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":11.614818042,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
+,{"stream_name":"stderr","time":11.614820475,"data":"    self.session.send(\n"}
+,{"stream_name":"stderr","time":11.614822719,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
+,{"stream_name":"stderr","time":11.614825154,"data":"    to_send = self.serialize(msg, ident)\n"}
+,{"stream_name":"stderr","time":11.614827475,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":11.614829684,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
+,{"stream_name":"stderr","time":11.614832058,"data":"    content = self.pack(content)\n"}
+,{"stream_name":"stderr","time":11.614834374,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":11.614836616,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
+,{"stream_name":"stderr","time":11.614839002,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":11.614841364,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":11.614843712,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":11.61484697,"data":"\n"}
+,{"stream_name":"stderr","time":11.614866144,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7abad6f7e560\u003e\u003e)\n"}
+,{"stream_name":"stderr","time":11.614871748,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":11.614875499,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
+,{"stream_name":"stderr","time":11.614879873,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":11.614884003,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":11.614887507,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":11.614891071,"data":"\n"}
+,{"stream_name":"stderr","time":11.614894221,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":11.614897707,"data":"\n"}
+,{"stream_name":"stderr","time":11.614902179,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":11.614905594,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
+,{"stream_name":"stderr","time":11.614909514,"data":"    ret = callback()\n"}
+,{"stream_name":"stderr","time":11.614912839,"data":"          ^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":11.614916119,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
+,{"stream_name":"stderr","time":11.614923526,"data":"    self.session.send(\n"}
+,{"stream_name":"stderr","time":11.614927086,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
+,{"stream_name":"stderr","time":11.61493246,"data":"    to_send = self.serialize(msg, ident)\n"}
+,{"stream_name":"stderr","time":11.614939291,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":11.614941711,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
+,{"stream_name":"stderr","time":11.614944091,"data":"    content = self.pack(content)\n"}
+,{"stream_name":"stderr","time":11.614946309,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":11.614948906,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
+,{"stream_name":"stderr","time":11.614968074,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":11.614972869,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":11.614976738,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
+,{"stream_name":"stdout","time":15.263710273,"data":"⚡ Kaggle PyTorch version: 2.10.0+cu128, CUDA available: True\n"}
+,{"stream_name":"stdout","time":15.263743546,"data":"   Device Count: 1, Device 0: Tesla P100-PCIE-16GB (sm_60)\n"}
+,{"stream_name":"stdout","time":15.263748364,"data":"⚠️ Pre-installed PyTorch wheel lacks binary for sm_60 (Tesla P100-PCIE-16GB). Installing cu121 PyTorch compatibility wheel...\n"}
+,{"stream_name":"stderr","time":15.283088077,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":15.283122231,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
+,{"stream_name":"stderr","time":15.283126213,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
+,{"stream_name":"stderr","time":15.283129323,"data":"    (7.0) - (12.0)\n"}
+,{"stream_name":"stderr","time":15.283131869,"data":"    \n"}
+,{"stream_name":"stderr","time":15.283134333,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":15.283136835,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":15.283139439,"data":"    Please install PyTorch with a following CUDA\n"}
+,{"stream_name":"stderr","time":15.28314186,"data":"    configurations:  12.6 following instructions at\n"}
+,{"stream_name":"stderr","time":15.283144273,"data":"    https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":15.283147357,"data":"    \n"}
+,{"stream_name":"stderr","time":15.283169235,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":15.283173549,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":15.283178635,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
+,{"stream_name":"stderr","time":15.283187615,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
+,{"stream_name":"stderr","time":15.283192078999999,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":15.283196112,"data":"\n"}
+,{"stream_name":"stderr","time":15.283199559,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":15.283216408,"data":"\n"}
+,{"stream_name":"stderr","time":15.283225455,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":15.283228591,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
+,{"stream_name":"stderr","time":15.283231051,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
+,{"stream_name":"stderr","time":15.283233528,"data":"    (7.0) - (12.0)\n"}
+,{"stream_name":"stderr","time":15.283235893,"data":"    \n"}
+,{"stream_name":"stderr","time":15.283238256,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":15.283240559,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":15.283243005,"data":"    Please install PyTorch with a following CUDA\n"}
+,{"stream_name":"stderr","time":15.283245425,"data":"    configurations:  12.6 following instructions at\n"}
+,{"stream_name":"stderr","time":15.283247884,"data":"    https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":15.283250338,"data":"    \n"}
+,{"stream_name":"stderr","time":15.283252628,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":15.283255763,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":15.283276259,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
+,{"stream_name":"stderr","time":15.283280211,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
+,{"stream_name":"stderr","time":15.283284136,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":15.283287881,"data":"\n"}
+,{"stream_name":"stderr","time":15.283291701,"data":"  queued_call()\n"}
+,{"stream_name":"stdout","time":24.488738188,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 780.9/780.9 MB 2.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":24.690727018,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 780.9/780.9 MB 2.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":27.601078302,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.7/23.7 MB 65.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":27.802982911,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.7/23.7 MB 65.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":28.269696944,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 823.6/823.6 kB 43.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":28.471570684,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 823.6/823.6 kB 43.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":28.979251935,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.1/14.1 MB 100.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":29.181205458,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.1/14.1 MB 100.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":36.987779515,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 731.7/731.7 MB 2.3 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":37.190265284,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 731.7/731.7 MB 2.3 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":43.753224832,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 410.6/410.6 MB 4.3 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":43.957985339,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 410.6/410.6 MB 4.3 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":47.004371572,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 MB 9.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":47.206276659,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 MB 9.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":48.052652869,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.5/56.5 MB 35.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":48.254689311,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.5/56.5 MB 35.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":50.542553477,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 124.2/124.2 MB 8.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":50.744879152,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 124.2/124.2 MB 8.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":53.277616123,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.0/196.0 MB 9.6 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":53.479754483,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.0/196.0 MB 9.6 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":57.968299833,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 176.2/176.2 MB 3.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":58.170114881,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 176.2/176.2 MB 3.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":59.083093293,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 99.1/99.1 kB 7.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":59.244633754,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.3/7.3 MB 103.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":59.284910612,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 99.1/99.1 kB 7.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":59.284936599,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.3/7.3 MB 103.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":59.586248527,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.3/7.3 MB 110.0 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":59.704787261999996,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 107.5 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":59.78838924,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.3/7.3 MB 110.0 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":59.788419665,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 107.5 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":60.03278257,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 112.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":60.234971463,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 112.7 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":60.773642344,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.0/7.0 MB 10.2 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":60.975502593,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.0/7.0 MB 10.2 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":61.118559377,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 93.5 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":61.320698163,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 93.5 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":61.404418799,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 98.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":61.475961455,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 100.3 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":61.544626172,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 101.0 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":61.606459131,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 98.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":61.606484724,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 100.3 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":61.606490206,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 101.0 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":61.829246134,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 91.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":62.031203793,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 91.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stderr","time":150.367144022,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7abad6f7e560\u003e\u003e)\n"}
+,{"stream_name":"stderr","time":150.36718902,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":150.367195529,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
+,{"stream_name":"stderr","time":150.367201294,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":150.367206756,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":150.367212141,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":150.367217487,"data":"\n"}
+,{"stream_name":"stderr","time":150.367222532,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":150.367227591,"data":"\n"}
+,{"stream_name":"stderr","time":150.36723238,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":150.367237504,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
+,{"stream_name":"stderr","time":150.367242825,"data":"    ret = callback()\n"}
+,{"stream_name":"stderr","time":150.367247933,"data":"          ^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":150.36725306,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
+,{"stream_name":"stderr","time":150.36725857,"data":"    self.session.send(\n"}
+,{"stream_name":"stderr","time":150.367263749,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
+,{"stream_name":"stderr","time":150.367269204,"data":"    to_send = self.serialize(msg, ident)\n"}
+,{"stream_name":"stderr","time":150.36727445,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":150.367279439,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
+,{"stream_name":"stderr","time":150.367284478,"data":"    content = self.pack(content)\n"}
+,{"stream_name":"stderr","time":150.367289586,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":150.367294749,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
+,{"stream_name":"stderr","time":150.367299995,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":150.367305223,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":150.367311052,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":150.574340388,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7abad6f7e560\u003e\u003e)\n"}
+,{"stream_name":"stderr","time":150.574438821,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":150.574445168,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
+,{"stream_name":"stderr","time":150.574487214,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":150.574492838,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":150.574512193,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":150.574515798,"data":"\n"}
+,{"stream_name":"stderr","time":150.574518909,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":150.574521984,"data":"\n"}
+,{"stream_name":"stderr","time":150.574525365,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":150.574528415,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
+,{"stream_name":"stderr","time":150.574532038,"data":"    ret = callback()\n"}
+,{"stream_name":"stderr","time":150.574535126,"data":"          ^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":150.574538368,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
+,{"stream_name":"stderr","time":150.574541889,"data":"    self.session.send(\n"}
+,{"stream_name":"stderr","time":150.574564706,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
+,{"stream_name":"stderr","time":150.574569129,"data":"    to_send = self.serialize(msg, ident)\n"}
+,{"stream_name":"stderr","time":150.574572542,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":150.574575738,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
+,{"stream_name":"stderr","time":150.574579343,"data":"    content = self.pack(content)\n"}
+,{"stream_name":"stderr","time":150.574582906,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":150.574586163,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
+,{"stream_name":"stderr","time":150.574589776,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":150.574592995,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":150.574596221,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":150.574599697,"data":"\n"}
+,{"stream_name":"stderr","time":150.574602622,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7abad6f7e560\u003e\u003e)\n"}
+,{"stream_name":"stderr","time":150.574606339,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":150.574609565,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
+,{"stream_name":"stderr","time":150.574613282,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":150.5746168,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":150.574619958,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":150.574623366,"data":"\n"}
+,{"stream_name":"stderr","time":150.574647775,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":150.574651408,"data":"\n"}
+,{"stream_name":"stderr","time":150.57465691,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":150.574659956,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
+,{"stream_name":"stderr","time":150.574668309,"data":"    ret = callback()\n"}
+,{"stream_name":"stderr","time":150.574671575,"data":"          ^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":150.574674843,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
+,{"stream_name":"stderr","time":150.574678115,"data":"    self.session.send(\n"}
+,{"stream_name":"stderr","time":150.574681138,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
+,{"stream_name":"stderr","time":150.574684573,"data":"    to_send = self.serialize(msg, ident)\n"}
+,{"stream_name":"stderr","time":150.574687959,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":150.574691108,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
+,{"stream_name":"stderr","time":150.574694789,"data":"    content = self.pack(content)\n"}
+,{"stream_name":"stderr","time":150.574697875,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":150.574701136,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
+,{"stream_name":"stderr","time":150.574704401,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":150.57472552,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":150.574729345,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 28-29: surrogates not allowed\n"}
+,{"stream_name":"stdout","time":150.963247216,"data":"Found existing installation: torchao 0.10.0\n"}
+,{"stream_name":"stdout","time":151.021607338,"data":"Uninstalling torchao-0.10.0:\n"}
+,{"stream_name":"stdout","time":151.16579888,"data":"Found existing installation: torchao 0.10.0\n"}
+,{"stream_name":"stdout","time":151.165823118,"data":"Uninstalling torchao-0.10.0:\n"}
+,{"stream_name":"stdout","time":151.30875435,"data":"  Successfully uninstalled torchao-0.10.0\n"}
+,{"stream_name":"stdout","time":151.511516749,"data":"  Successfully uninstalled torchao-0.10.0\n"}
+,{"stream_name":"stderr","time":151.721475762,"data":"\n"}
+,{"stream_name":"stderr","time":151.721506115,"data":"Usage:   \n"}
+,{"stream_name":"stderr","time":151.721510943,"data":"  /usr/bin/python3 -m pip install [options] \u003crequirement specifier\u003e [package-index-options] ...\n"}
+,{"stream_name":"stderr","time":151.72151597,"data":"  /usr/bin/python3 -m pip install [options] -r \u003crequirements file\u003e [package-index-options] ...\n"}
+,{"stream_name":"stderr","time":151.721519792,"data":"  /usr/bin/python3 -m pip install [options] [-e] \u003cvcs project url\u003e ...\n"}
+,{"stream_name":"stderr","time":151.721523422,"data":"  /usr/bin/python3 -m pip install [options] [-e] \u003clocal project path\u003e ...\n"}
+,{"stream_name":"stderr","time":151.721526817,"data":"  /usr/bin/python3 -m pip install [options] \u003carchive url/path\u003e ...\n"}
+,{"stream_name":"stderr","time":151.72153051,"data":"\n"}
+,{"stream_name":"stderr","time":151.721533904,"data":"no such option: --no-progress-bar\n"}
+,{"stream_name":"stderr","time":151.772064499,"data":"\n"}
+,{"stream_name":"stderr","time":151.772099274,"data":"Usage:   \n"}
+,{"stream_name":"stderr","time":151.772104684,"data":"  /usr/bin/python3 -m pip install [options] \u003crequirement specifier\u003e [package-index-options] ...\n"}
+,{"stream_name":"stderr","time":151.772108728,"data":"  /usr/bin/python3 -m pip install [options] -r \u003crequirements file\u003e [package-index-options] ...\n"}
+,{"stream_name":"stderr","time":151.772112504,"data":"  /usr/bin/python3 -m pip install [options] [-e] \u003cvcs project url\u003e ...\n"}
+,{"stream_name":"stderr","time":151.772128943,"data":"  /usr/bin/python3 -m pip install [options] [-e] \u003clocal project path\u003e ...\n"}
+,{"stream_name":"stderr","time":151.772133468,"data":"  /usr/bin/python3 -m pip install [options] \u003carchive url/path\u003e ...\n"}
+,{"stream_name":"stderr","time":151.772137991,"data":"\n"}
+,{"stream_name":"stderr","time":151.772141302,"data":"no such option: --no-progress-bar\n"}
+,{"stream_name":"stderr","time":151.772145691,"data":"\n"}
+,{"stream_name":"stderr","time":151.77214892,"data":"\n"}
+,{"stream_name":"stderr","time":151.772152235,"data":"Usage:   \n"}
+,{"stream_name":"stderr","time":151.772155687,"data":"  /usr/bin/python3 -m pip install [options] \u003crequirement specifier\u003e [package-index-options] ...\n"}
+,{"stream_name":"stderr","time":151.772159427,"data":"  /usr/bin/python3 -m pip install [options] -r \u003crequirements file\u003e [package-index-options] ...\n"}
+,{"stream_name":"stderr","time":151.772163351,"data":"  /usr/bin/python3 -m pip install [options] [-e] \u003cvcs project url\u003e ...\n"}
+,{"stream_name":"stderr","time":151.772166664,"data":"  /usr/bin/python3 -m pip install [options] [-e] \u003clocal project path\u003e ...\n"}
+,{"stream_name":"stderr","time":151.772170151,"data":"  /usr/bin/python3 -m pip install [options] \u003carchive url/path\u003e ...\n"}
+,{"stream_name":"stderr","time":151.772173793,"data":"\n"}
+,{"stream_name":"stderr","time":151.77217711,"data":"no such option: --no-progress-bar\n"}
+,{"stream_name":"stderr","time":153.403837655,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":153.403863913,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":153.403881805,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":153.40404406,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":153.404052997,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":153.404239312,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":153.404428985,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":153.404443033,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":153.404447255,"data":"Exception encountered at \"In [1]\":\n"}
+,{"stream_name":"stderr","time":153.404451327,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":153.404454743,"data":"CalledProcessError                        Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":153.404458198,"data":"/tmp/ipykernel_23/4109403034.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":153.404462235,"data":"     71 print('\\ud83d\\udce6 Removing incompatible torchao \u0026 installing fine-tuning packages...')\n"}
+,{"stream_name":"stderr","time":153.404465805,"data":"     72 subprocess.run([sys.executable, '-m', 'pip', 'uninstall', '-y', 'torchao'], check=False)\n"}
+,{"stream_name":"stderr","time":153.404469516,"data":"---\u003e 73 subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--no-progress-bar', '--prefer-binary', '-r', 'requirements.txt'], check=True)\n"}
+,{"stream_name":"stderr","time":153.404473806,"data":"     74 subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--no-progress-bar', '--prefer-binary', 'transformers\u003e=4.40.0,\u003c4.45.0', 'peft\u003e=0.10.0', 'bitsandbytes\u003e=0.43.3', 'datasets\u003e=2.18.0', 'trl\u003e=0.12.0', 'huggingface_hub', 'accelerate'], check=True)\n"}
+,{"stream_name":"stderr","time":153.404491715,"data":"     75 import torch\n"}
+,{"stream_name":"stderr","time":153.404495193,"data":"\n"}
+,{"stream_name":"stderr","time":153.404498752,"data":"/usr/lib/python3.12/subprocess.py in run(input, capture_output, timeout, check, *popenargs, **kwargs)\n"}
+,{"stream_name":"stderr","time":153.404502565,"data":"    569         retcode = process.poll()\n"}
+,{"stream_name":"stderr","time":153.404506135,"data":"    570         if check and retcode:\n"}
+,{"stream_name":"stderr","time":153.404510103,"data":"--\u003e 571             raise CalledProcessError(retcode, process.args,\n"}
+,{"stream_name":"stderr","time":153.404513762,"data":"    572                                      output=stdout, stderr=stderr)\n"}
+,{"stream_name":"stderr","time":153.404517373,"data":"    573     return CompletedProcess(process.args, retcode, stdout, stderr)\n"}
+,{"stream_name":"stderr","time":153.40452075,"data":"\n"}
+,{"stream_name":"stderr","time":153.404524472,"data":"CalledProcessError: Command '['/usr/bin/python3', '-m', 'pip', 'install', '-q', '--no-progress-bar', '--prefer-binary', '-r', 'requirements.txt']' returned non-zero exit status 2.\n"}
+,{"stream_name":"stderr","time":153.404529708,"data":"\n"}
+,{"stream_name":"stderr","time":155.714656978,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":155.714684499,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":155.865829037,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":155.86586022,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":157.337557454,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":157.649538404,"data":"[NbConvertApp] Writing 23996 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":159.930282712,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":160.7065275,"data":"[NbConvertApp] Writing 316631 bytes to __results__.html\n"}
 ]
