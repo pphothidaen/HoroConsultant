@@ -46,26 +46,35 @@ if hasattr(sys.stderr, "reconfigure"):
     except Exception:
         pass
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+class SafeAsciiLogFormatter(logging.Formatter):
+    """Logging formatter that automatically strips emojis and surrogate characters."""
+    def format(self, record: logging.LogRecord) -> str:
+        original = super().format(record)
+        return original.encode('ascii', errors='ignore').decode('ascii')
+
+_handler = logging.StreamHandler(sys.stdout)
+_handler.setFormatter(SafeAsciiLogFormatter("%(asctime)s [%(levelname)s] %(message)s"))
 logger = logging.getLogger("cloud_train")
+logger.setLevel(logging.INFO)
+logger.handlers = [_handler]
 
 
 def prepare_dataset(output_jsonl: Path) -> Path:
     """Fetch latest dataset from Supabase or fallback to local JSONL dataset."""
-    logger.info("📡 Checking dataset source...")
+    logger.info("[DATA] Checking dataset source...")
     db = SupabaseDB()
     if db.is_configured():
         count = db.export_verified_qa_to_jsonl(output_jsonl)
         if count > 0:
-            logger.info(f"✅ Downloaded {count} records from Supabase DB to '{output_jsonl}'")
+            logger.info(f"[OK] Downloaded {count} records from Supabase DB to '{output_jsonl}'")
             return output_jsonl
 
     fallback_dataset = ROOT_DIR / "project" / "rag" / "datasets" / "train.jsonl"
     if fallback_dataset.exists():
-        logger.info(f"ℹ️ Supabase not available/empty. Using local dataset '{fallback_dataset}'")
+        logger.info(f"[INFO] Supabase not available/empty. Using local dataset '{fallback_dataset}'")
         return fallback_dataset
 
-    raise FileNotFoundError("❌ Neither Supabase dataset nor local 'project/rag/datasets/train.jsonl' was found!")
+    raise FileNotFoundError("[ERROR] Neither Supabase dataset nor local 'project/rag/datasets/train.jsonl' was found!")
 
 
 def _setup_cuda_environment_for_device() -> dict:
@@ -96,19 +105,19 @@ def _setup_cuda_environment_for_device() -> dict:
     info["arch_match"] = arch_match
 
     if arch_list:
-        logger.info(f"   📋 PyTorch Compiled Arch List: {arch_list}")
+        logger.info(f"   [AUDIT] PyTorch Compiled Arch List: {arch_list}")
         if not arch_match:
-            logger.warning(f"   ⚠️ WARNING: PyTorch wheel does NOT contain compiled binary for {target_sm} ({device_name})!")
+            logger.warning(f"   [WARNING] WARNING: PyTorch wheel does NOT contain compiled binary for {target_sm} ({device_name})!")
 
     if is_sm75:
-        logger.info(f"   🎯 GPU Architecture: sm_75 ({device_name}) — Applying T4-specific stability settings.")
+        logger.info(f"   [TARGET] GPU Architecture: sm_75 ({device_name}) — Applying T4-specific stability settings.")
         os.environ.setdefault("TORCH_CUDA_ARCH_LIST", "7.5")
         os.environ.setdefault("BNB_CUDA_VERSION", "121")
         os.environ.setdefault("CUDA_MODULE_LOADING", "LAZY")
-        logger.info("   ✅ Set TORCH_CUDA_ARCH_LIST=7.5, BNB_CUDA_VERSION=121, CUDA_MODULE_LOADING=LAZY")
+        logger.info("   [OK] Set TORCH_CUDA_ARCH_LIST=7.5, BNB_CUDA_VERSION=121, CUDA_MODULE_LOADING=LAZY")
     else:
         sm_str = f"{cap[0]}{cap[1]}"
-        logger.info(f"   🎯 GPU Architecture: sm_{sm_str} ({device_name})")
+        logger.info(f"   [TARGET] GPU Architecture: sm_{sm_str} ({device_name})")
         os.environ.setdefault("TORCH_CUDA_ARCH_LIST", f"{cap[0]}.{cap[1]}")
         os.environ.setdefault("BNB_CUDA_VERSION", "121")
         os.environ.setdefault("CUDA_MODULE_LOADING", "LAZY")
@@ -122,7 +131,7 @@ def run_preflight_environment_audit() -> dict:
     broken PyTorch kernel images, or library signature incompatibilities BEFORE starting
     heavy model downloads or cloud training.
     """
-    logger.info("🔍 Running Instant Pre-Flight Environment Audit...")
+    logger.info("[CHECK] Running Instant Pre-Flight Environment Audit...")
     results = {"cuda_ok": False, "peft_ok": False, "trl_ok": False, "warnings": [], "gpu_info": {}}
 
     try:
@@ -132,7 +141,7 @@ def run_preflight_environment_audit() -> dict:
             gpu_info = _setup_cuda_environment_for_device()
             results["gpu_info"] = gpu_info
             device_name = gpu_info["device_name"]
-            logger.info(f"   ⚡ CUDA Device: {device_name} (Total GPUs: {torch.cuda.device_count()})")
+            logger.info(f"   [CUDA] CUDA Device: {device_name} (Total GPUs: {torch.cuda.device_count()})")
 
             # Run pure PyTorch CUDA kernel execution tests (avoids bitsandbytes)
             try:
@@ -141,7 +150,7 @@ def run_preflight_environment_audit() -> dict:
                 res32 = (t32 + t32).cpu()
                 assert res32[0, 0].item() == 2.0
                 results["cuda_ok"] = True
-                logger.info("   ✅ CUDA Kernel Execution Test (float32): PASSED")
+                logger.info("   [OK] CUDA Kernel Execution Test (float32): PASSED")
 
                 # 2. Test float16 CUDA arithmetic
                 try:
@@ -149,28 +158,28 @@ def run_preflight_environment_audit() -> dict:
                     res16 = (t16 + t16).cpu()
                     assert res16[0, 0].item() == 2.0
                     results["float16_ok"] = True
-                    logger.info("   ✅ CUDA Kernel Execution Test (float16): PASSED")
+                    logger.info("   [OK] CUDA Kernel Execution Test (float16): PASSED")
                 except Exception as fp16_err:
                     results["float16_ok"] = False
-                    logger.warning(f"   ⚠️ CUDA float16 kernel unavailable ({fp16_err}). Will use float32 fallback.")
+                    logger.warning(f"   [WARNING] CUDA float16 kernel unavailable ({fp16_err}). Will use float32 fallback.")
             except Exception as cuda_err:
-                logger.error(f"   ❌ CUDA Kernel Execution Test FAILED: {cuda_err}")
+                logger.error(f"   [ERROR] CUDA Kernel Execution Test FAILED: {cuda_err}")
                 results["warnings"].append(f"CUDA Kernel Failure: {cuda_err}")
                 results["cuda_ok"] = False
         else:
-            logger.info("   ℹ️ CPU Mode (No CUDA GPU detected)")
+            logger.info("   [INFO] CPU Mode (No CUDA GPU detected)")
             results["cuda_ok"] = True
     except Exception as e:
-        logger.error(f"   ❌ PyTorch Import Error: {e}")
+        logger.error(f"   [ERROR] PyTorch Import Error: {e}")
 
     try:
         import inspect
         from peft import LoraConfig
         peft_config = LoraConfig(r=8, lora_alpha=16, task_type="CAUSAL_LM")
         results["peft_ok"] = True
-        logger.info("   ✅ PEFT Adapter Configuration Test: PASSED")
+        logger.info("   [OK] PEFT Adapter Configuration Test: PASSED")
     except Exception as peft_err:
-        logger.error(f"   ❌ PEFT Config Error: {peft_err}")
+        logger.error(f"   [ERROR] PEFT Config Error: {peft_err}")
 
     try:
         import inspect
@@ -178,9 +187,9 @@ def run_preflight_environment_audit() -> dict:
         sig = inspect.signature(SFTConfig.__init__)
         has_max_seq = "max_seq_length" in sig.parameters
         results["trl_ok"] = True
-        logger.info(f"   ✅ TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: {has_max_seq})")
+        logger.info(f"   [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: {has_max_seq})")
     except Exception as trl_err:
-        logger.info(f"   ℹ️ TRL SFTConfig Check Note: {trl_err}")
+        logger.info(f"   [INFO] TRL SFTConfig Check Note: {trl_err}")
 
     return results
 
@@ -249,12 +258,12 @@ def create_sft_trainer(
     if not has_var_kw:
         kwargs = {k: v for k, v in kwargs.items() if k in params}
 
-    logger.info(f"🛠️ Instantiating SFTTrainer with parameters: {list(kwargs.keys())}")
+    logger.info(f"[PATCH] Instantiating SFTTrainer with parameters: {list(kwargs.keys())}")
 
     try:
         return SFTTrainer(**kwargs)
     except TypeError as te:
-        logger.warning(f"⚠️ Initial SFTTrainer call raised TypeError ({te}). Attempting version fallback...")
+        logger.warning(f"[WARNING] Initial SFTTrainer call raised TypeError ({te}). Attempting version fallback...")
 
         kwargs.pop("max_seq_length", None)
         if "processing_class" in kwargs:
@@ -267,7 +276,7 @@ def create_sft_trainer(
         try:
             return SFTTrainer(**kwargs)
         except TypeError as te2:
-            logger.warning(f"⚠️ Secondary SFTTrainer fallback raised ({te2}). Using minimal signature...")
+            logger.warning(f"[WARNING] Secondary SFTTrainer fallback raised ({te2}). Using minimal signature...")
             min_kwargs = {
                 "model": model,
                 "train_dataset": train_dataset,
@@ -292,7 +301,7 @@ def run_training_pipeline(
     dry_run: bool = False,
 ) -> bool:
     """Execute PyTorch / PEFT fine-tuning and upload to Hugging Face Hub."""
-    logger.info(f"🚀 Starting Cloud Fine-Tuning Pipeline on platform [{platform}]...")
+    logger.info(f"[START] Starting Cloud Fine-Tuning Pipeline on platform [{platform}]...")
     logger.info(f"   Base Model: {base_model}")
     logger.info(f"   Dataset: {dataset_path}")
     logger.info(f"   HF Repo ID: {hf_repo_id}")
@@ -300,19 +309,19 @@ def run_training_pipeline(
     # Run instant pre-flight diagnostic check
     audit_results = run_preflight_environment_audit()
     if audit_results.get("warnings"):
-        logger.warning(f"⚠️ Pre-flight audit notice: {', '.join(audit_results['warnings'])}")
+        logger.warning(f"[WARNING] Pre-flight audit notice: {', '.join(audit_results['warnings'])}")
 
     # Strict abort guard: Do not proceed if CUDA kernel execution failed entirely
     if not audit_results.get("cuda_ok", True):
-        logger.error("❌ CUDA pre-flight execution test failed. Aborting training pipeline to prevent GPU crash.")
-        raise RuntimeError("❌ CUDA environment audit failed: no valid CUDA kernel execution image available.")
+        logger.error("[ERROR] CUDA pre-flight execution test failed. Aborting training pipeline to prevent GPU crash.")
+        raise RuntimeError("[ERROR] CUDA environment audit failed: no valid CUDA kernel execution image available.")
 
     if "mlx-community" in base_model:
-        logger.warning(f"⚠️ Base model '{base_model}' is an MLX format model. Automatically switching to PyTorch base model 'Qwen/Qwen2.5-7B-Instruct' for Cloud training.")
+        logger.warning(f"[WARNING] Base model '{base_model}' is an MLX format model. Automatically switching to PyTorch base model 'Qwen/Qwen2.5-7B-Instruct' for Cloud training.")
         base_model = "Qwen/Qwen2.5-7B-Instruct"
 
     if dry_run:
-        logger.info("🧪 DRY RUN MODE: Validated dataset & setup cleanly. Skipping heavy GPU training.")
+        logger.info(" DRY RUN MODE: Validated dataset & setup cleanly. Skipping heavy GPU training.")
         return True
 
     try:
@@ -326,7 +335,7 @@ def run_training_pipeline(
         from datasets import load_dataset
         from trl import SFTTrainer
     except ImportError as e:
-        logger.error(f"❌ Missing required PyTorch/Transformers packages: {e}")
+        logger.error(f"[ERROR] Missing required PyTorch/Transformers packages: {e}")
         logger.error("Run: pip install transformers peft bitsandbytes datasets trl huggingface_hub accelerate")
         return False
 
@@ -351,13 +360,13 @@ def run_training_pipeline(
         cap = gpu_info.get("compute_cap", (0, 0))
         if is_sm75 or "T4" in gpu_info.get("device_name", "") or is_kaggle:
             compute_dtype = torch.float16
-            logger.info("   ℹ️ Kaggle/T4 platform detected: Forcing float16 compute dtype (sm_75 has no native bfloat16).")
+            logger.info("   [INFO] Kaggle/T4 platform detected: Forcing float16 compute dtype (sm_75 has no native bfloat16).")
         elif cap >= (8, 0) and torch.cuda.is_bf16_supported():
             compute_dtype = torch.bfloat16
-            logger.info(f"   ✅ sm_{cap[0]}{cap[1]} detected: Using bfloat16 compute dtype.")
+            logger.info(f"   [OK] sm_{cap[0]}{cap[1]} detected: Using bfloat16 compute dtype.")
         else:
             compute_dtype = torch.float16
-            logger.info("   ℹ️ Defaulting to float16 compute dtype.")
+            logger.info("   [INFO] Defaulting to float16 compute dtype.")
     else:
         compute_dtype = torch.float32
 
@@ -369,11 +378,11 @@ def run_training_pipeline(
         try:
             import bitsandbytes as bnb
             bnb_available = True
-            logger.info("   ✅ BitsAndBytes 4-bit quantization available.")
+            logger.info("   [OK] BitsAndBytes 4-bit quantization available.")
         except Exception as bnb_err:
-            logger.warning(f"⚠️ BitsAndBytes CUDA check failed ({bnb_err}). 4-bit quantization will be bypassed.")
+            logger.warning(f"[WARNING] BitsAndBytes CUDA check failed ({bnb_err}). 4-bit quantization will be bypassed.")
     elif is_kaggle or is_sm75:
-        logger.info("   ℹ️ Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.")
+        logger.info("   [INFO] Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.")
 
     bnb_config = None
     if bnb_available:
@@ -384,7 +393,7 @@ def run_training_pipeline(
             bnb_4bit_use_double_quant=True,
         )
 
-    logger.info(f"📦 Loading tokenizer and base model '{base_model}'...")
+    logger.info(f"[MODEL] Loading tokenizer and base model '{base_model}'...")
     tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -392,7 +401,7 @@ def run_training_pipeline(
     if use_cuda:
         num_gpus = torch.cuda.device_count()
         if num_gpus > 1:
-            logger.info(f"⚡ Multi-GPU detected ({num_gpus} GPUs available). Distributing model with device_map='auto'.")
+            logger.info(f"[CUDA] Multi-GPU detected ({num_gpus} GPUs available). Distributing model with device_map='auto'.")
             device_map = "auto"
         else:
             device_map = {"": 0}
@@ -402,7 +411,7 @@ def run_training_pipeline(
     model = None
     if use_cuda and bnb_config is not None:
         try:
-            logger.info("⚡ Attempting 4-bit BitsAndBytes quantization model load...")
+            logger.info("[CUDA] Attempting 4-bit BitsAndBytes quantization model load...")
             model = AutoModelForCausalLM.from_pretrained(
                 base_model,
                 quantization_config=bnb_config,
@@ -413,13 +422,13 @@ def run_training_pipeline(
                 attn_implementation="sdpa",
             )
             model = prepare_model_for_kbit_training(model)
-            logger.info("✅ Successfully loaded 4-bit quantized model.")
+            logger.info("[OK] Successfully loaded 4-bit quantized model.")
         except Exception as e:
-            logger.warning(f"⚠️ 4-bit BitsAndBytes quantization load failed ({e}). Falling back to standard precision loading...")
+            logger.warning(f"[WARNING] 4-bit BitsAndBytes quantization load failed ({e}). Falling back to standard precision loading...")
             model = None
 
     if model is None:
-        logger.info(f"📦 Loading base model in standard precision ({compute_dtype})...")
+        logger.info(f"[MODEL] Loading base model in standard precision ({compute_dtype})...")
         # Use `dtype=` (not deprecated `torch_dtype=`) for newer transformers compatibility
         try:
             model = AutoModelForCausalLM.from_pretrained(
@@ -440,7 +449,7 @@ def run_training_pipeline(
                 trust_remote_code=True,
                 attn_implementation="sdpa",
             )
-        logger.info(f"✅ Successfully loaded model with precision {compute_dtype}.")
+        logger.info(f"[OK] Successfully loaded model with precision {compute_dtype}.")
 
 
 
@@ -456,12 +465,12 @@ def run_training_pipeline(
             _original_cast = _peft_utils.cast_adapter_dtype
             def _safe_cast_adapter_dtype(model, adapter_name=None, autocast_adapter_dtype=True, **kwargs):
                 """No-op cast on sm_75 (T4) to prevent cudaErrorNoKernelImageForDevice."""
-                logger.info("   ℹ️ [sm_75 patch] Skipping cast_adapter_dtype to prevent CUDA kernel mismatch.")
+                logger.info("   [INFO] [sm_75 patch] Skipping cast_adapter_dtype to prevent CUDA kernel mismatch.")
                 return
             _peft_utils.cast_adapter_dtype = _safe_cast_adapter_dtype
-            logger.info("   ✅ Applied sm_75/T4 PEFT cast_adapter_dtype no-op patch (prevents ops.cu:74 crash).")
+            logger.info("   [OK] Applied sm_75/T4 PEFT cast_adapter_dtype no-op patch (prevents ops.cu:74 crash).")
         except Exception as patch_err:
-            logger.warning(f"   ⚠️ Could not apply PEFT patch ({patch_err}). Training may still fail on T4.")
+            logger.warning(f"   [WARNING] Could not apply PEFT patch ({patch_err}). Training may still fail on T4.")
 
     # Patch Transformers Trainer._get_num_items_in_batch to perform label mask calculation on CPU
     # Prevents `torch.AcceleratorError: CUDA error: no kernel image is available` at line 5210
@@ -484,9 +493,9 @@ def run_training_pipeline(
             return max(total, 1)
 
         _tf_trainer.Trainer._get_num_items_in_batch = _safe_get_num_items_in_batch
-        logger.info("   ✅ Applied Transformers Trainer._get_num_items_in_batch CPU-safe patch (prevents line 5210 GPU crash).")
+        logger.info("   [OK] Applied Transformers Trainer._get_num_items_in_batch CPU-safe patch (prevents line 5210 GPU crash).")
     except Exception as tr_patch_err:
-        logger.warning(f"   ⚠️ Could not apply Trainer._get_num_items_in_batch patch ({tr_patch_err}).")
+        logger.warning(f"   [WARNING] Could not apply Trainer._get_num_items_in_batch patch ({tr_patch_err}).")
 
     try:
         peft_config = LoraConfig(
@@ -510,7 +519,7 @@ def run_training_pipeline(
 
 
     # 3. Load & Pre-format Dataset into a single string 'text' column
-    logger.info(f"📖 Pre-formatting dataset from '{dataset_path}'...")
+    logger.info(f" Pre-formatting dataset from '{dataset_path}'...")
     raw_data = load_dataset("json", data_files=str(dataset_path))
 
     def format_example(example):
@@ -552,7 +561,7 @@ def run_training_pipeline(
         v_str = getattr(torchao, "__version__", "0.0.0")
         v_parts = [int(x) for x in v_str.split(".") if x.isdigit()]
         if v_parts and tuple(v_parts[:2]) < (0, 16):
-            logger.info(f"ℹ️ Pre-installed torchao version ({v_str}) is < 0.16.0. Disabling torchao integration safely.")
+            logger.info(f"[INFO] Pre-installed torchao version ({v_str}) is < 0.16.0. Disabling torchao integration safely.")
             sys.modules["torchao"] = None
     except Exception:
         pass
@@ -604,28 +613,28 @@ def run_training_pipeline(
 
 
 
-    logger.info("🏋️ Training model...")
+    logger.info("️ Training model...")
     train_result = trainer.train()
     final_loss = float(train_result.training_loss)
-    logger.info(f"✅ Training completed with Final Loss: {final_loss:.4f}")
+    logger.info(f"[OK] Training completed with Final Loss: {final_loss:.4f}")
 
     # 4. Save Adapter locally
     adapter_path = output_dir / "final_adapter"
     model.save_pretrained(str(adapter_path))
     tokenizer.save_pretrained(str(adapter_path))
-    logger.info(f"💾 Saved adapter to '{adapter_path}'")
+    logger.info(f" Saved adapter to '{adapter_path}'")
 
     # 5. Push to Hugging Face Hub
     if Config.is_hf_configured():
-        logger.info(f"🤗 Pushing LoRA Adapter to Hugging Face Hub ({hf_repo_id})...")
+        logger.info(f" Pushing LoRA Adapter to Hugging Face Hub ({hf_repo_id})...")
         try:
             model.push_to_hub(hf_repo_id, token=Config.HF_TOKEN)
             tokenizer.push_to_hub(hf_repo_id, token=Config.HF_TOKEN)
-            logger.info(f"🎉 Successfully uploaded to Hugging Face: https://huggingface.co/{hf_repo_id}")
+            logger.info(f"[SUCCESS] Successfully uploaded to Hugging Face: https://huggingface.co/{hf_repo_id}")
         except Exception as e:
-            logger.error(f"⚠️ Failed to push to Hugging Face Hub: {e}")
+            logger.error(f"[WARNING] Failed to push to Hugging Face Hub: {e}")
     else:
-        logger.warning("⚠️ HF_TOKEN not found. Skipping Hugging Face upload.")
+        logger.warning("[WARNING] HF_TOKEN not found. Skipping Hugging Face upload.")
 
     # 6. Log to Supabase DB
     db = SupabaseDB()
@@ -669,16 +678,16 @@ def sync_back_to_github_repo(
         "status": "COMPLETED",
     }
     summary_file.write_text(json.dumps(summary_data, indent=2, ensure_ascii=False), encoding="utf-8")
-    logger.info(f"📄 Saved training summary to '{summary_file}'")
+    logger.info(f"[FILE] Saved training summary to '{summary_file}'")
 
     gh_token = os.getenv("GH_TOKEN")
     if not gh_token:
-        logger.warning("⚠️ GH_TOKEN not found. Skipping auto git push to GitHub repository.")
+        logger.warning("[WARNING] GH_TOKEN not found. Skipping auto git push to GitHub repository.")
         return False
 
     repo_url = f"https://{gh_token}@github.com/pphothidaen/HoroConsultant.git"
 
-    logger.info(f"🐙 Auto-committing and pushing training artifacts back to GitHub repository [{platform}]...")
+    logger.info(f"[GIT] Auto-committing and pushing training artifacts back to GitHub repository [{platform}]...")
     try:
         subprocess.run(["git", "config", "user.name", "HoroConsultant-Bot"], check=False)
         subprocess.run(["git", "config", "user.email", "bot@horoconsultant.local"], check=False)
@@ -687,13 +696,13 @@ def sync_back_to_github_repo(
         res = subprocess.run(["git", "push", repo_url, "HEAD:main"], capture_output=True, text=True)
 
         if res.returncode == 0:
-            logger.info("🎉 Successfully pushed post-training artifacts back to GitHub repository!")
+            logger.info("[SUCCESS] Successfully pushed post-training artifacts back to GitHub repository!")
             return True
         else:
-            logger.warning(f"⚠️ Git push note: {res.stderr}")
+            logger.warning(f"[WARNING] Git push note: {res.stderr}")
             return False
     except Exception as e:
-        logger.warning(f"⚠️ Git auto-sync exception: {e}")
+        logger.warning(f"[WARNING] Git auto-sync exception: {e}")
         return False
 
 

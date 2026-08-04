@@ -57,7 +57,7 @@ def setup_kaggle_credentials() -> bool:
         token = env_secrets.get("KAGGLE_TOKEN", token)
 
     if not token or token.startswith("REPLACE"):
-        logger.error("❌ KAGGLE_TOKEN environment variable or Doppler secret not set!")
+        logger.error("[ERROR] KAGGLE_TOKEN environment variable or Doppler secret not set!")
         return False
 
     kaggle_dir = Path.home() / ".kaggle"
@@ -67,7 +67,7 @@ def setup_kaggle_credentials() -> bool:
     cred_data = {"username": username, "key": token}
     json_file.write_text(json.dumps(cred_data, indent=2), encoding="utf-8")
     os.chmod(json_file, 0o600)
-    logger.info(f"🔑 Kaggle credentials configured at '{json_file}' (User: {username})")
+    logger.info(f"[AUTH] Kaggle credentials configured at '{json_file}' (User: {username})")
     return True
 
 
@@ -108,7 +108,7 @@ def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
 
 
     METADATA_FILE.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-    logger.info(f"📄 Created metadata file at '{METADATA_FILE}' for accelerator [{accelerator}]")
+    logger.info(f"[FILE] Created metadata file at '{METADATA_FILE}' for accelerator [{accelerator}]")
 
     # Generate notebook structure with clean execution code
     notebook = {
@@ -119,7 +119,7 @@ def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
                 "metadata": {},
                 "outputs": [],
                 "source": [
-                    "# 🌌 HoroConsultant - Production Cloud Fine-Tuning Pipeline\n",
+                    "#  HoroConsultant - Production Cloud Fine-Tuning Pipeline\n",
                     "import os\n",
                     "import sys\n",
                     "import subprocess\n",
@@ -240,36 +240,36 @@ def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
     }
     NOTEBOOK_FILE.write_text(json.dumps(notebook, indent=2), encoding="utf-8")
 
-    logger.info(f"📓 Created Jupyter Notebook file at '{NOTEBOOK_FILE}'")
+    logger.info(f"[NOTEBOOK] Created Jupyter Notebook file at '{NOTEBOOK_FILE}'")
 
 
 def git_auto_commit_and_push(message: str) -> bool:
     """Auto-stage, commit, and push updated repository files to GitHub."""
-    logger.info(f"🐙 Auto-syncing repository changes to GitHub: '{message}'...")
+    logger.info(f"[GIT] Auto-syncing repository changes to GitHub: '{message}'...")
     try:
         subprocess.run(["git", "add", "."], cwd=ROOT_DIR, check=False)
         res = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT_DIR, capture_output=True, text=True)
         if not res.stdout.strip():
-            logger.info("ℹ️ No uncommitted git changes detected.")
+            logger.info("[INFO] No uncommitted git changes detected.")
             return True
         
         subprocess.run(["git", "commit", "-m", message], cwd=ROOT_DIR, check=False)
         push_res = subprocess.run(["git", "push", "origin", "main"], cwd=ROOT_DIR, capture_output=True, text=True)
         if push_res.returncode == 0:
-            logger.info("🎉 Successfully pushed latest changes to GitHub repository!")
+            logger.info("[SUCCESS] Successfully pushed latest changes to GitHub repository!")
             return True
         else:
-            logger.warning(f"⚠️ Git push notice: {push_res.stderr.strip()}")
+            logger.warning(f"[WARNING] Git push notice: {push_res.stderr.strip()}")
             return False
     except Exception as e:
-        logger.error(f"❌ Git auto-push failed: {e}")
+        logger.error(f"[ERROR] Git auto-push failed: {e}")
         return False
 
 
 def run_kaggle_cmd(args_list: list[str]) -> bool:
     """Run kaggle CLI command with credentials supplied via env vars."""
     cmd = ["kaggle"] + args_list
-    logger.info(f"🚀 Running command: {' '.join(cmd)}")
+    logger.info(f"[START] Running command: {' '.join(cmd)}")
     env = os.environ.copy()
     try:
         json_file = Path.home() / ".kaggle" / "kaggle.json"
@@ -279,7 +279,7 @@ def run_kaggle_cmd(args_list: list[str]) -> bool:
             env["KAGGLE_API_TOKEN"] = creds.get("key", "")
             env["KAGGLE_KEY"] = creds.get("key", "")
     except Exception as e:
-        logger.warning(f"⚠️ Could not load kaggle.json for env var setup: {e}")
+        logger.warning(f"[WARNING] Could not load kaggle.json for env var setup: {e}")
 
     try:
         res = subprocess.run(cmd, capture_output=True, text=True, env=env)
@@ -287,10 +287,10 @@ def run_kaggle_cmd(args_list: list[str]) -> bool:
             print(res.stdout)
             return True
         else:
-            logger.error(f"❌ Kaggle CLI Error ({res.returncode}): {res.stderr}")
+            logger.error(f"[ERROR] Kaggle CLI Error ({res.returncode}): {res.stderr}")
             return False
     except Exception as e:
-        logger.error(f"❌ Command execution error: {e}")
+        logger.error(f"[ERROR] Command execution error: {e}")
         return False
 
 
