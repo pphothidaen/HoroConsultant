@@ -230,6 +230,7 @@ def main():
     parser.add_argument("--pull", action="store_true", help="Pull latest notebook, outputs, and metadata down from Kaggle")
     parser.add_argument("--output", action="store_true", help="Pull kernel output files specifically via 'kaggle kernels output'")
     parser.add_argument("--dest", default=str(KERNEL_DIR), help="Destination directory for output files (default: project/kaggle_kernel)")
+    parser.add_argument("--accelerator", default="nvidiaTeslaT4", help="Specify Kaggle GPU accelerator (e.g. nvidiaTeslaT4, gpu, nvidiaTeslaP100)")
 
     args = parser.parse_args()
 
@@ -246,7 +247,11 @@ def main():
             create_kernel_files()
         # Auto-commit and push code updates to GitHub first so Kaggle git clone gets latest code
         git_auto_commit_and_push("feat(kaggle): auto-commit updated notebook & scripts before pushing to Kaggle")
-        run_kaggle_cmd(["kernels", "push", "-p", str(KERNEL_DIR)])
+        push_args = ["kernels", "push", "-p", str(KERNEL_DIR)]
+        if args.accelerator:
+            push_args.extend(["--accelerator", args.accelerator])
+        run_kaggle_cmd(push_args)
+
 
     if args.status:
         setup_kaggle_credentials()

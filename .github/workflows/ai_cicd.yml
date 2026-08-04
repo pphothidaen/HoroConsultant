@@ -82,10 +82,11 @@ jobs:
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
         run: |
           if [ -n "${KAGGLE_KEY}" ]; then
-            python3 scripts/kaggle_notebook_manager.py --push
+            python3 scripts/kaggle_notebook_manager.py --push --accelerator nvidiaTeslaT4
           else
             echo "ℹ️ KAGGLE_KEY secret not found. Skipping Kaggle remote trigger."
           fi
+
 
       - name: Sync Kaggle Kernel Outputs & Logs
         env:
