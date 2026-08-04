@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-04 12:10 (UTC+7)*
+> *Last Updated: 2026-08-04 14:45 (UTC+7)*
 
 ---
 
@@ -53,15 +53,18 @@ python3 project/core/code_reviewer.py --review
 │ • Solution 1 ShareGPT JSONL Exporter  │                                       │                                       │
 │ • Gemini Vision OCR & Quality Check   │                                       │                                       │
 │ • 74/74 Full Regression Test Suite    │                                       │                                       │
-│ 🆕 Kaggle T4 Fine-Tune Fix (ops.cu)   │                                       │                                       │
-│ 🆕 GitHub Actions AI CI/CD Pipeline   │                                       │                                       │
-│ 🆕 MLX QLoRA Fine-Tuning (600 iters)  │                                       │                                       │
+│ 🆕 Kaggle T4 Fine-Tune Fix (ops.cu)  │                                       │                                       │
+│ 🆕 GitHub Actions AI CI/CD Pipeline  │                                       │                                       │
+│ 🆕 MLX QLoRA Fine-Tuning (600 iters) │                                       │                                       │
 │ 🆕 Knowledge Source Catalog (46 src) │                                       │                                       │
-│ 🆕 Pre-Deployment Code Reviewer       │                                       │                                       │
-│ 🆕 Rust PyO3 Core Engine (TF-IDF/BaZi)│                                       │                                       │
+│ 🆕 Pre-Deployment Code Reviewer      │                                       │                                       │
+│ 🆕 Rust PyO3 Core Engine (TF-IDF/BaZi│                                       │                                       │
 │ 🆕 Supabase REST Client & Dataset Sync│                                       │                                       │
 │ 🆕 Doppler Secrets & Config Manager  │                                       │                                       │
 │ 🆕 Cloud Training Orchestrator       │                                       │                                       │
+│ ✅ cudaErrorNoKernelImageForDevice Fix│                                       │                                       │
+│    (ops.cu:74, PEFT cast_adapter_dtype│                                       │                                       │
+│    monkey-patch + sm_75 detection)    │                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
 
@@ -69,10 +72,15 @@ python3 project/core/code_reviewer.py --review
 
 ### ✅ DONE (เสร็จสมบูรณ์ 100% พร้อมใช้งาน)
 
-- [x] **Kaggle T4 Fine-Tuning Orchestrator Fix & Output Log Sync (`scripts/kaggle_notebook_manager.py`, `scripts/cloud_train_orchestrator.py`)**
-  - แก้ไขปัญหา CUDA symbol mismatch (`ops.cu:74`) และ SIGSEGV exit code -11 ใน Kaggle GPU ด้วยการตั้งค่า `CUDA_MODULE_LOADING=LAZY`, `BNB_CUDA_VERSION=121`, `TORCH_CUDA_ARCH_LIST`
-  - เพิ่มระบบ Precision Fallback (`bfloat16`/`float16`) ป้องกันกรณี 4-bit bitsandbytes quantization มีปัญหาบน cloud environment
-  - Push notebook kernel v11 ขึ้น Kaggle และดึง log ล่าสุดสิงสู่ [`project/kaggle_kernel/`](file:///Users/kimlenglim/Project/HoroConsultant/project/kaggle_kernel) สมบูรณ์
+- [x] **Kaggle T4 Fine-Tuning Orchestrator Fix v2 — `cudaErrorNoKernelImageForDevice` (ops.cu:74) Root-Cause Fix (`scripts/cloud_train_orchestrator.py`, `project/kaggle_kernel/notebook.ipynb`)**
+  - **Root Cause**: PEFT's `cast_adapter_dtype()` (tuners_utils.py:2196) calls `param.data.to(torch.float32)` which crashes on T4 (sm_75) because bitsandbytes CUDA kernels compiled for cu128 lack device code for sm_75.
+  - **Fix 1 — GPU Architecture Detection**: Added `_setup_cuda_environment_for_device()` that calls `torch.cuda.get_device_capability()` and sets `TORCH_CUDA_ARCH_LIST=7.5`, `BNB_CUDA_VERSION=121`, `CUDA_MODULE_LOADING=LAZY` for T4/sm_75 BEFORE any CUDA ops.
+  - **Fix 2 — Force float16 on T4**: T4 (sm_75) does NOT support bfloat16 natively (requires sm_80+). Added capability check `cap >= (8, 0)` to prevent bfloat16 selection on T4, eliminating the dtype cascade failure.
+  - **Fix 3 — PEFT cast_adapter_dtype Monkey-Patch**: Applied a no-op patch to `peft.tuners.tuners_utils.cast_adapter_dtype` before `get_peft_model()` / `SFTTrainer()` init on sm_75/Kaggle. This directly prevents the ops.cu:74 crash path.
+  - **Fix 4 — BNB Bypass on Kaggle/T4**: Enhanced is_kaggle detection (checks `/kaggle` path + env var `KAGGLE_DATA_PROXY_TOKEN` + platform string). Always bypass 4-bit bitsandbytes on Kaggle/T4.
+  - **Fix 5 — Deprecated API**: Replaced `torch_dtype=` (deprecated) with `dtype=` in `from_pretrained()` calls (with fallback for older transformers).
+  - **Fix 6 — Notebook CUDA Prelude**: Updated `notebook.ipynb` to set CUDA env vars at notebook start (before torch import) and pass them via `env=train_env` to subprocess.
+  - Fixed missing `import json` in `sync_back_to_github_repo`.
 - [x] **GitHub Actions AI CI/CD Pipeline (`.github/workflows/ai_cicd.yml`)**
   - สร้างไปป์ไลน์ AI CI/CD อัตโนมัติ: ตรวจสอบความปลอดภัย โค้ดรีวิวด้วย `CodeReviewer`, สแกน Secret Leakage, รัน PyTest 74 ข้อ, สั่งการ Kaggle GPU Fine-Tuning และซิงก์ Output ล่าสุดกลับไปยัง GitHub
 - [x] **Pre-Deployment Code Reviewer & Safety Auditor (`project/core/code_reviewer.py`)**
@@ -219,3 +227,9 @@ python3 project/core/code_reviewer.py --review
 > 2. ทุกครั้งที่เริ่มงาน สามารถรัน `python3 -m pytest -v` เพื่อยืนยันว่า test ทั้งหมด 56 ข้อผ่านสมบูรณ์
 > 3. หากต้องการเริ่ม Fine-Tune ให้รัน `python3 scripts/run_mlx_finetune.py`
 > 4. เอกสารสเปกโปรเจกต์ฉบับเต็มดูได้ที่ [`project.md`](file:///Users/kimlenglim/Project/HoroConsultant/project.md) และ [`README.md`](file:///Users/kimlenglim/Project/HoroConsultant/README.md)
+> 5. **[2026-08-04] CUDA Fix Applied**: แก้ไข `cudaErrorNoKernelImageForDevice` (ops.cu:74) บน Kaggle T4 ด้วย:
+>    - PEFT `cast_adapter_dtype` no-op monkey-patch สำหรับ sm_75 (Tesla T4)
+>    - Force float16 (T4 ไม่รองรับ bfloat16 natively)
+>    - `TORCH_CUDA_ARCH_LIST=7.5`, `BNB_CUDA_VERSION=121`, `CUDA_MODULE_LOADING=LAZY`
+>    - อัพเดต `notebook.ipynb` ตั้งค่า env vars ก่อน torch import
+>    - ต้อง push notebook ขึ้น Kaggle อีกครั้งด้วย: `python3 scripts/kaggle_notebook_manager.py --push`

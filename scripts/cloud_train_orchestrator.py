@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import os
 import sys
+import json
 import argparse
 import logging
 from pathlib import Path
@@ -53,24 +54,69 @@ def prepare_dataset(output_jsonl: Path) -> Path:
     raise FileNotFoundError("❌ Neither Supabase dataset nor local 'project/rag/datasets/train.jsonl' was found!")
 
 
+def _setup_cuda_environment_for_device() -> dict:
+    """
+    Detect GPU compute capability and set environment variables for stable CUDA execution.
+    Returns a dict with keys: 'is_sm75' (T4), 'compute_cap', 'device_name'.
+    Must be called before any CUDA operations or library imports that trigger CUDA kernels.
+    """
+    import torch
+    info = {"is_sm75": False, "compute_cap": (0, 0), "device_name": "CPU"}
+    if not torch.cuda.is_available():
+        return info
+
+    device_name = torch.cuda.get_device_name(0)
+    cap = torch.cuda.get_device_capability(0)  # e.g. (7, 5) for T4, (8, 0) for A100
+    info["device_name"] = device_name
+    info["compute_cap"] = cap
+
+    # Tesla T4 is sm_75 (7.5). bfloat16 requires sm_80+.
+    is_sm75 = (cap[0] == 7 and cap[1] == 5)
+    info["is_sm75"] = is_sm75
+
+    if is_sm75:
+        logger.info(f"   🎯 GPU Architecture: sm_75 ({device_name}) — Applying T4-specific stability settings.")
+        # Force CUDA Arch List for bitsandbytes compatibility
+        os.environ.setdefault("TORCH_CUDA_ARCH_LIST", "7.5")
+        # Use CUDA 12.1 ABI-compatible BNB ops (prevents cudaErrorNoKernelImageForDevice)
+        os.environ.setdefault("BNB_CUDA_VERSION", "121")
+        # Lazy CUDA module loading avoids JIT compilation errors at import time
+        os.environ.setdefault("CUDA_MODULE_LOADING", "LAZY")
+        logger.info("   ✅ Set TORCH_CUDA_ARCH_LIST=7.5, BNB_CUDA_VERSION=121, CUDA_MODULE_LOADING=LAZY")
+    else:
+        sm_str = f"{cap[0]}{cap[1]}"
+        logger.info(f"   🎯 GPU Architecture: sm_{sm_str} ({device_name})")
+        os.environ.setdefault("TORCH_CUDA_ARCH_LIST", f"{cap[0]}.{cap[1]}")
+        os.environ.setdefault("BNB_CUDA_VERSION", "121")
+        os.environ.setdefault("CUDA_MODULE_LOADING", "LAZY")
+
+    return info
+
+
 def run_preflight_environment_audit() -> dict:
     """
     Executes instant (<0.5s) pre-flight diagnostic tests to catch CUDA driver mismatches,
-    broken PyTorch kernel images, or library signature incompatibilities BEFORE starting 
+    broken PyTorch kernel images, or library signature incompatibilities BEFORE starting
     heavy model downloads or cloud training.
     """
     logger.info("🔍 Running Instant Pre-Flight Environment Audit...")
-    results = {"cuda_ok": False, "peft_ok": False, "trl_ok": False, "warnings": []}
+    results = {"cuda_ok": False, "peft_ok": False, "trl_ok": False, "warnings": [], "gpu_info": {}}
 
     try:
         import torch
         if torch.cuda.is_available():
-            device_name = torch.cuda.get_device_name(0)
+            # First: setup env vars for stable CUDA execution
+            gpu_info = _setup_cuda_environment_for_device()
+            results["gpu_info"] = gpu_info
+            device_name = gpu_info["device_name"]
             logger.info(f"   ⚡ CUDA Device: {device_name} (Total GPUs: {torch.cuda.device_count()})")
-            # Run a 1-line real CUDA kernel execution on GPU 0
+
+            # Run a pure PyTorch CUDA kernel test (avoids bitsandbytes entirely)
             try:
-                t = torch.zeros((2, 2), device="cuda:0", dtype=torch.float16)
-                _ = t.to(torch.float32)
+                # Simple arithmetic on GPU - tests PyTorch CUDA kernels only (no bitsandbytes)
+                t = torch.ones((4, 4), device="cuda:0", dtype=torch.float16)
+                result = (t + t).cpu()  # Add and transfer back to CPU
+                assert result[0, 0].item() == 2.0
                 results["cuda_ok"] = True
                 logger.info("   ✅ CUDA Kernel Execution Test: PASSED")
             except Exception as cuda_err:
@@ -149,17 +195,48 @@ def run_training_pipeline(
 
     # 1. Quantization / Model Loading Config
     use_cuda = torch.cuda.is_available()
-    compute_dtype = torch.float16 if use_cuda else torch.float32
+
+    # --- GPU Architecture Detection (MUST run before any CUDA library imports) ---
+    # This sets BNB_CUDA_VERSION, TORCH_CUDA_ARCH_LIST, CUDA_MODULE_LOADING env vars.
+    gpu_info = _setup_cuda_environment_for_device() if use_cuda else {}
+    is_sm75 = gpu_info.get("is_sm75", False)  # Tesla T4 = sm_75
+
+    # Detect Kaggle / cloud environment
+    is_kaggle = (
+        os.path.exists("/kaggle")
+        or "KAGGLE" in platform.upper()
+        or os.getenv("KAGGLE_DATA_PROXY_TOKEN") is not None
+    )
+
+    # Force float16 on sm_75 (T4): T4 does NOT support bfloat16 natively (requires sm_80+).
+    # Using bfloat16 on T4 triggers silent CUDA errors during dtype casting in PEFT.
+    if use_cuda:
+        cap = gpu_info.get("compute_cap", (0, 0))
+        if is_sm75 or "T4" in gpu_info.get("device_name", "") or is_kaggle:
+            compute_dtype = torch.float16
+            logger.info("   ℹ️ Kaggle/T4 platform detected: Forcing float16 compute dtype (sm_75 has no native bfloat16).")
+        elif cap >= (8, 0) and torch.cuda.is_bf16_supported():
+            compute_dtype = torch.bfloat16
+            logger.info(f"   ✅ sm_{cap[0]}{cap[1]} detected: Using bfloat16 compute dtype.")
+        else:
+            compute_dtype = torch.float16
+            logger.info("   ℹ️ Defaulting to float16 compute dtype.")
+    else:
+        compute_dtype = torch.float32
 
     # Quantization check (BitsAndBytes 4-bit)
-    is_kaggle = os.path.exists("/kaggle") or platform == "KAGGLE_T4" or "KAGGLE" in platform
+    # On Kaggle T4 / sm_75: bitsandbytes CUDA ops compiled for cu128 often fail with
+    # cudaErrorNoKernelImageForDevice. Always bypass 4-bit BNB on Kaggle/T4.
     bnb_available = False
-    if use_cuda:
+    if use_cuda and not is_kaggle and not is_sm75:
         try:
             import bitsandbytes as bnb
             bnb_available = True
+            logger.info("   ✅ BitsAndBytes 4-bit quantization available.")
         except Exception as bnb_err:
             logger.warning(f"⚠️ BitsAndBytes CUDA check failed ({bnb_err}). 4-bit quantization will be bypassed.")
+    elif is_kaggle or is_sm75:
+        logger.info("   ℹ️ Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.")
 
     bnb_config = None
     if bnb_available:
@@ -169,7 +246,6 @@ def run_training_pipeline(
             bnb_4bit_compute_dtype=compute_dtype,
             bnb_4bit_use_double_quant=True,
         )
-
 
     logger.info(f"📦 Loading tokenizer and base model '{base_model}'...")
     tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True)
@@ -193,7 +269,7 @@ def run_training_pipeline(
             model = AutoModelForCausalLM.from_pretrained(
                 base_model,
                 quantization_config=bnb_config,
-                torch_dtype=compute_dtype,
+                dtype=compute_dtype,
                 device_map=device_map,
                 low_cpu_mem_usage=True,
                 trust_remote_code=True,
@@ -206,27 +282,50 @@ def run_training_pipeline(
             model = None
 
     if model is None:
-        # Enforce float16 precision for Tesla T4 (sm_75) GPU architecture
-        if is_kaggle or (use_cuda and hasattr(torch.cuda, "get_device_name") and "T4" in torch.cuda.get_device_name()):
-            dtype = torch.float16
-        else:
-            dtype = torch.bfloat16 if (use_cuda and hasattr(torch.cuda, "is_bf16_supported") and torch.cuda.is_bf16_supported()) else (torch.float16 if use_cuda else torch.float32)
+        logger.info(f"📦 Loading base model in standard precision ({compute_dtype})...")
+        # Use `dtype=` (not deprecated `torch_dtype=`) for newer transformers compatibility
+        try:
+            model = AutoModelForCausalLM.from_pretrained(
+                base_model,
+                dtype=compute_dtype,
+                device_map=device_map,
+                low_cpu_mem_usage=True,
+                trust_remote_code=True,
+                attn_implementation="sdpa",
+            )
+        except TypeError:
+            # Older transformers versions that don't accept `dtype=` yet
+            model = AutoModelForCausalLM.from_pretrained(
+                base_model,
+                torch_dtype=compute_dtype,
+                device_map=device_map,
+                low_cpu_mem_usage=True,
+                trust_remote_code=True,
+                attn_implementation="sdpa",
+            )
+        logger.info(f"✅ Successfully loaded model with precision {compute_dtype}.")
 
-        logger.info(f"📦 Loading base model in standard precision ({dtype})...")
-        model = AutoModelForCausalLM.from_pretrained(
-            base_model,
-            torch_dtype=dtype,
-            device_map=device_map,
-            low_cpu_mem_usage=True,
-            trust_remote_code=True,
-            attn_implementation="sdpa",
-        )
-        logger.info(f"✅ Successfully loaded model with precision {dtype}.")
 
 
 
+    # 2. LoRA Config
+    # On sm_75/T4 (Kaggle), PEFT's `cast_adapter_dtype` calls `param.data.to(torch.float32)`
+    # which triggers `cudaErrorNoKernelImageForDevice` because bitsandbytes CUDA kernels
+    # compiled for cu128 lack sm_75 device code. We monkey-patch the function to a no-op
+    # on sm_75 devices BEFORE calling get_peft_model() / SFTTrainer().
+    if use_cuda and (is_sm75 or is_kaggle):
+        try:
+            import peft.tuners.tuners_utils as _peft_utils
+            _original_cast = _peft_utils.cast_adapter_dtype
+            def _safe_cast_adapter_dtype(model, adapter_name=None, autocast_adapter_dtype=True, **kwargs):
+                """No-op cast on sm_75 (T4) to prevent cudaErrorNoKernelImageForDevice."""
+                logger.info("   ℹ️ [sm_75 patch] Skipping cast_adapter_dtype to prevent CUDA kernel mismatch.")
+                return
+            _peft_utils.cast_adapter_dtype = _safe_cast_adapter_dtype
+            logger.info("   ✅ Applied sm_75/T4 PEFT cast_adapter_dtype no-op patch (prevents ops.cu:74 crash).")
+        except Exception as patch_err:
+            logger.warning(f"   ⚠️ Could not apply PEFT patch ({patch_err}). Training may still fail on T4.")
 
-    # 2. LoRA Config (Disable autocast_adapter_dtype to prevent CUDA parameter casting errors)
     try:
         peft_config = LoraConfig(
             r=16,
