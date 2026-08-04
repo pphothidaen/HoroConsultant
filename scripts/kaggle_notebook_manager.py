@@ -146,11 +146,17 @@ def create_kernel_files() -> None:
                     "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '-r', 'requirements.txt'], check=True)\n",
                     "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', 'transformers>=4.40.0', 'peft>=0.10.0', 'bitsandbytes>=0.43.0', 'datasets>=2.18.0', 'trl>=0.8.0', 'huggingface_hub', 'accelerate'], check=True)\n",
                     "\n",
-                    "# 4. Run Cloud Training Orchestrator\n",
+                    "# 4. Run Cloud Training Orchestrator with execution logging\n",
                     "print('🚀 Launching Cloud Training Orchestrator...')\n",
-                    "res = subprocess.run([sys.executable, 'scripts/cloud_train_orchestrator.py', '--platform', 'KAGGLE_T4', '--base-model', 'Qwen/Qwen2.5-7B-Instruct', '--epochs', '3'])\n",
-                    "if res.returncode != 0:\n",
-                    "    raise RuntimeError(f'❌ Training orchestrator failed with exit code {res.returncode}')\n",
+                    "log_path = '/kaggle/working/train_execution.log'\n",
+                    "proc = subprocess.Popen([sys.executable, 'scripts/cloud_train_orchestrator.py', '--platform', 'KAGGLE_T4', '--base-model', 'Qwen/Qwen2.5-7B-Instruct', '--epochs', '3'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)\n",
+                    "with open(log_path, 'w', encoding='utf-8') as log_f:\n",
+                    "    for line in iter(proc.stdout.readline, ''):\n",
+                    "        sys.stdout.write(line)\n",
+                    "        log_f.write(line)\n",
+                    "proc.wait()\n",
+                    "if proc.returncode != 0:\n",
+                    "    raise RuntimeError(f'❌ Training orchestrator failed with exit code {proc.returncode}')\n",
                     "print('🎉 Training pipeline completed successfully!')\n"
                 ]
             }
@@ -217,7 +223,7 @@ def main():
     parser.add_argument("--setup", action="store_true", help="Setup credentials and generate kernel metadata & notebook")
     parser.add_argument("--push", action="store_true", help="Push & trigger notebook execution on Kaggle GPU")
     parser.add_argument("--status", action="store_true", help="Check notebook execution status on Kaggle")
-    parser.add_argument("--pull", action="store_true", help="Pull latest notebook and metadata down from Kaggle")
+    parser.add_argument("--pull", action="store_true", help="Pull latest notebook, outputs, and metadata down from Kaggle")
 
     args = parser.parse_args()
 
@@ -246,8 +252,11 @@ def main():
         setup_kaggle_credentials()
         username = os.getenv("KAGGLE_USERNAME", "pphothidaen")
         kernel_id = f"{username}/horoconsultant-finetune-pipeline"
-        success = run_kaggle_cmd(["kernels", "pull", kernel_id, "-p", str(KERNEL_DIR), "-m"])
-        if success:
+        # 1. Pull notebook & metadata
+        pull_success = run_kaggle_cmd(["kernels", "pull", kernel_id, "-p", str(KERNEL_DIR), "-m"])
+        # 2. Pull output files (train_execution.log, summaries, adapters)
+        output_success = run_kaggle_cmd(["kernels", "output", kernel_id, "-p", str(KERNEL_DIR)])
+        if pull_success or output_success:
             git_auto_commit_and_push("feat(kaggle): sync pulled notebook outputs & metadata from Kaggle")
 
 
