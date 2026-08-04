@@ -126,7 +126,6 @@ def run_training_pipeline(
         bias="none",
         task_type="CAUSAL_LM",
     )
-    model = get_peft_model(model, peft_config)
 
     # 3. Load Dataset
     logger.info(f"📖 Formatting dataset from '{dataset_path}'...")
