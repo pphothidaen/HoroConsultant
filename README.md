@@ -11,7 +11,9 @@ HoroConsultant/
 ├── project/
 │   ├── core/
 │   │   ├── solar_time.py      # True Solar Time (TST = LMT + EoT)
-│   │   └── bazi_engine.py     # Four Pillars + Five Elements scoring
+│   │   ├── bazi_engine.py     # Four Pillars + Five Elements scoring
+│   │   ├── config.py          # Centralized Secrets & Doppler Config Manager
+│   │   └── supabase_db.py     # Supabase REST Client & Dataset Exporter
 │   ├── api_router.py          # Hybrid routing: Gemini → Ollama fallback
 │   ├── main.py                # FastAPI application
 │   └── models/
@@ -19,11 +21,16 @@ HoroConsultant/
 ├── tests/
 │   └── test_core.py           # Unit tests (pytest)
 ├── scripts/
-│   └── extract_dataset_mlx.py # MLX fine-tuning dataset preparation
+│   ├── extract_dataset_mlx.py       # MLX fine-tuning dataset preparation
+│   ├── cloud_train_orchestrator.py  # Production Cloud Training (Kaggle/Lightning AI)
+│   ├── kaggle_notebook_manager.py   # Kaggle Notebook CLI Push/Status/Pull Manager
+│   ├── add_vault_entry.py           # Add & Sync Vault knowledge entries
+│   ├── sync_doppler_secrets.py      # Doppler Secrets Management Auto-Sync
+│   └── publish_to_hf.py             # Hugging Face Hub automated upload
 ├── .antigravity/
 │   ├── agents/
-│   │   ├── sol-orchestrator.agent  # Gemini 3.6 Flash Master Planner
-│   │   └── luna-auditor.agent      # Claude Opus Thinking Auditor
+│   │   ├── sol-orchestrator.agent   # Gemini 3.6 Flash Master Planner
+│   │   └── luna-auditor.agent       # Claude Opus Thinking Auditor
 │   └── skills/
 │       ├── bazi-calculator.skill
 │       └── rag-search.skill
@@ -170,6 +177,61 @@ python convert_hf_to_gguf.py \
 cd project/models
 ollama create qwen2.5-bazi -f Modelfile
 ollama run qwen2.5-bazi
+```
+
+---
+
+## Production Cloud Fine-Tuning (Kaggle / Lightning AI)
+
+For heavy production fine-tuning on Cloud GPUs (NVIDIA T4 / L4):
+
+```bash
+# 1. Export Supabase SQL DDL Schema (Run once in Supabase SQL Editor)
+python3 -m project.core.supabase_db --show-schema
+
+# 2. Dry-run test on Kaggle / Lightning AI
+python3 scripts/cloud_train_orchestrator.py --dry-run
+
+# 3. Execute 4-bit LoRA training and push adapter to Hugging Face Hub
+python3 scripts/cloud_train_orchestrator.py --platform KAGGLE_T4 --epochs 3
+```
+
+### Direct Kaggle Notebook Management via CLI
+
+Manage, push, and monitor Kaggle fine-tuning notebooks directly from your local terminal:
+
+```bash
+# 1. Setup credentials (~/.kaggle/kaggle.json) & project/kaggle_kernel metadata
+python3 scripts/kaggle_notebook_manager.py --setup
+
+# 2. Push notebook & start execution on Kaggle GPU
+python3 scripts/kaggle_notebook_manager.py --push
+
+# 3. Check live execution status on Kaggle
+python3 scripts/kaggle_notebook_manager.py --status
+
+# 4. Pull notebook outputs & logs down locally
+python3 scripts/kaggle_notebook_manager.py --pull
+```
+
+---
+
+## Adding Knowledge Entries & Syncing to Vault
+
+To easily add new Q&A pairs or documents to Obsidian Vault, FAISS Vector Store, and Supabase DB:
+
+```bash
+# Add Q&A knowledge entry (saves to Obsidian Vault + FAISS RAG + Supabase DB)
+python3 scripts/add_vault_entry.py \
+  -q "คำถามเกี่ยวกับดวงชะตา" \
+  -a "คำตอบและบทวิเคราะห์โหราศาสตร์" \
+  -s "子平真詮"
+
+# Interactive mode (prompts for Q&A inputs)
+python3 scripts/add_vault_entry.py --interactive
+
+# Import a custom Markdown file to Obsidian Vault & FAISS Vector DB
+python3 scripts/add_vault_entry.py --file path/to/document.md
 ```
 
 ---

@@ -283,6 +283,25 @@ async def submit_grayzone_answer(req: GrayzoneAnswerRequest):
 
     save_grayzone_db(db)
 
+    # Sync to Supabase DB if configured
+    try:
+        from project.core.supabase_db import SupabaseDB
+        sdb = SupabaseDB()
+        if sdb.is_configured():
+            sdb.upsert("qa_knowledge_base", [{
+                "question": req.question,
+                "answer": req.answer,
+                "source_book": f"GrayZone:{req.source_id}",
+                "is_verified": True,
+                "system_prompt": (
+                    "คุณคือผู้เชี่ยวชาญด้านโหราศาสตร์เชิงคำนวณ (Computational Metaphysics) "
+                    "ตอบด้วยการวิเคราะห์เชิงวิชาการ อ้างอิงตำราที่ผ่านการพิสูจน์"
+                )
+            }])
+            logger.info(f"☁️ Synced Gray-Zone answer '{req.source_id}' to Supabase DB `qa_knowledge_base`")
+    except Exception as e:
+        logger.warning(f"⚠️ Supabase Gray-Zone sync note: {e}")
+
     return JSONResponse(content={
         "status":     "updated" if was_update else "created",
         "answer_key": answer_key,

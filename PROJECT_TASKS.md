@@ -70,6 +70,9 @@ python3 project/core/source_summarizer.py --merge
 │ 🆕 Source Summarizer Engine          │                                       │                                       │
 │ 🆕 Fine-Tune Pipeline API            │                                       │                                       │
 │ 🆕 Rust PyO3 Core Engine (TF-IDF/BaZi)│                                       │                                       │
+│ 🆕 Supabase REST Client & Dataset Sync│                                       │                                       │
+│ 🆕 Doppler Secrets & Config Manager  │                                       │                                       │
+│ 🆕 Cloud Training Orchestrator       │                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
 

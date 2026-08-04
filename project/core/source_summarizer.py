@@ -275,6 +275,30 @@ def build_finetune_from_grayzone(
                 clean = {"messages": e["messages"]}
                 f.write(json.dumps(clean, ensure_ascii=False) + "\n")
         log.info(f"✅ Exported {included} gray-zone Q&A entries → {gz_path}")
+
+        # Also sync to Supabase DB if configured
+        try:
+            from project.core.supabase_db import SupabaseDB
+            sdb = SupabaseDB()
+            if sdb.is_configured():
+                db_records = []
+                for entry in entries:
+                    msgs = entry["messages"]
+                    user_q = next((m["content"] for m in msgs if m["role"] == "user"), "")
+                    assistant_a = next((m["content"] for m in msgs if m["role"] == "assistant"), "")
+                    src_info = entry.get("_meta", {}).get("source_id", "GrayZone")
+                    if user_q and assistant_a:
+                        db_records.append({
+                            "question": user_q,
+                            "answer": assistant_a,
+                            "source_book": f"GrayZone:{src_info}",
+                            "is_verified": True,
+                        })
+                if db_records:
+                    sdb.upsert("qa_knowledge_base", db_records)
+                    log.info(f"☁️ Synced {len(db_records)} Gray-Zone records to Supabase DB `qa_knowledge_base`")
+        except Exception as e:
+            log.warning(f"⚠️ Supabase sync note: {e}")
     else:
         log.warning("⚠️  No answered gray-zone questions found. Use admin panel to add answers.")
 
