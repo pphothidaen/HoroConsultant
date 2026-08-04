@@ -42,8 +42,9 @@ User Delivery Complete
 - **Input**: User requirement or request.
 - **Action**:
   1. Analyze scope, architecture requirements, and security constraints.
-  2. Create or update plan document at `/plans/plan.md` (or Antigravity implementation plan).
-  3. Deconstruct job into specific sub-tasks for `developer`, `qa_tester`, and `devops`.
+  2. **Kaggle Sync Pre-Check**: Run `python3 scripts/kaggle_notebook_manager.py --status` (and `--pull` if updated) to sync latest kernel version/outputs before starting.
+  3. Create or update plan document at `/plans/plan.md` (or Antigravity implementation plan).
+  4. Deconstruct job into specific sub-tasks for `developer`, `qa_tester`, and `devops`.
 
 ### Phase 2: Feature Implementation (Developer)
 - **Model**: `Gemini 3.6 Flash` (Standard Mode) / `Gemini 3.5 Flash-Lite`
