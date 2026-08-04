@@ -97,12 +97,26 @@ def run_training_pipeline(
     use_cuda = torch.cuda.is_available()
     compute_dtype = torch.float16 if use_cuda else torch.float32
 
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=compute_dtype,
-        bnb_4bit_use_double_quant=True,
-    )
+    # Check if bitsandbytes C++ CUDA extension is compiled and functional
+    bnb_available = False
+    if use_cuda:
+        try:
+            import bitsandbytes as bnb
+            # Test if C++ CUDA ops can be loaded without crash
+            if hasattr(bnb, "cextension") and getattr(bnb.cextension, "COMPILED_WITH_CUDA", False):
+                bnb_available = True
+                logger.info("✅ BitsAndBytes CUDA C++ extension detected and verified.")
+        except Exception as bnb_err:
+            logger.warning(f"⚠️ BitsAndBytes CUDA C++ check failed ({bnb_err}). 4-bit quantization will be bypassed.")
+
+    bnb_config = None
+    if bnb_available:
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=compute_dtype,
+            bnb_4bit_use_double_quant=True,
+        )
 
     logger.info(f"📦 Loading tokenizer and base model '{base_model}'...")
     tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True)
@@ -120,7 +134,7 @@ def run_training_pipeline(
         device_map = "auto"
 
     model = None
-    if use_cuda:
+    if use_cuda and bnb_config is not None:
         try:
             logger.info("⚡ Attempting 4-bit BitsAndBytes quantization model load...")
             model = AutoModelForCausalLM.from_pretrained(
@@ -148,6 +162,7 @@ def run_training_pipeline(
             trust_remote_code=True,
         )
         logger.info(f"✅ Successfully loaded model with precision {dtype}.")
+
 
 
     # 2. LoRA Config
