@@ -71,8 +71,8 @@ def setup_kaggle_credentials() -> bool:
     return True
 
 
-def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4") -> None:
-    """Generate project/kaggle_kernel/ metadata and notebook.ipynb for specified GPU type (P100, T4, T4x2)."""
+def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
+    """Generate project/kaggle_kernel/ metadata and notebook.ipynb for specified GPU type (default: Dual T4x2)."""
     KERNEL_DIR.mkdir(parents=True, exist_ok=True)
 
     username = os.getenv("KAGGLE_USERNAME", "pphothidaen")
@@ -84,14 +84,10 @@ def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4") -> None:
         accelerator = "nvidiaTeslaP100"
         machine_shape = "NvidiaTeslaP100"
         platform_arg = "KAGGLE_P100"
-    elif "t4x2" in acc_lower or "2" in acc_lower:
+    else:
         accelerator = "nvidiaTeslaT4x2"
         machine_shape = "NvidiaTeslaT4x2"
         platform_arg = "KAGGLE_T4X2"
-    else:
-        accelerator = "nvidiaTeslaT4"
-        machine_shape = "NvidiaTeslaT4"
-        platform_arg = "KAGGLE_T4"
 
     metadata = {
         "id": kernel_id,
@@ -258,7 +254,7 @@ def main():
     parser.add_argument("--pull", action="store_true", help="Pull latest notebook, outputs, and metadata down from Kaggle")
     parser.add_argument("--output", action="store_true", help="Pull kernel output files specifically via 'kaggle kernels output'")
     parser.add_argument("--dest", default=str(KERNEL_DIR), help="Destination directory for output files (default: project/kaggle_kernel)")
-    parser.add_argument("--accelerator", default="nvidiaTeslaT4", help="Specify Kaggle GPU accelerator (e.g. nvidiaTeslaT4, gpu, nvidiaTeslaP100)")
+    parser.add_argument("--accelerator", default="nvidiaTeslaT4x2", help="Specify Kaggle GPU accelerator (default: nvidiaTeslaT4x2, optional: nvidiaTeslaP100)")
 
     args = parser.parse_args()
 
