@@ -68,6 +68,10 @@ def run_training_pipeline(
     logger.info(f"   Dataset: {dataset_path}")
     logger.info(f"   HF Repo ID: {hf_repo_id}")
 
+    if "mlx-community" in base_model:
+        logger.warning(f"⚠️ Base model '{base_model}' is an MLX format model. Automatically switching to PyTorch base model 'Qwen/Qwen2.5-7B-Instruct' for Cloud training.")
+        base_model = "Qwen/Qwen2.5-7B-Instruct"
+
     if dry_run:
         logger.info("🧪 DRY RUN MODE: Validated dataset & setup cleanly. Skipping heavy GPU training.")
         return True

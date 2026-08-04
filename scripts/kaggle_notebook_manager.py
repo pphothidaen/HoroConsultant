@@ -139,7 +139,7 @@ def create_kernel_files() -> None:
                     "!pip install -q torch transformers peft bitsandbytes datasets trl huggingface_hub\n",
                     "\n",
                     "# 4. Run Cloud Training Orchestrator\n",
-                    "!python3 /kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py --platform KAGGLE_T4 --epochs 3\n"
+                    "!python3 /kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py --platform KAGGLE_T4 --base-model Qwen/Qwen2.5-7B-Instruct --epochs 3\n"
                 ]
             }
         ],
