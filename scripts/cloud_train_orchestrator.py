@@ -111,17 +111,29 @@ def run_preflight_environment_audit() -> dict:
             device_name = gpu_info["device_name"]
             logger.info(f"   ⚡ CUDA Device: {device_name} (Total GPUs: {torch.cuda.device_count()})")
 
-            # Run a pure PyTorch CUDA kernel test (avoids bitsandbytes entirely)
+            # Run pure PyTorch CUDA kernel execution tests (avoids bitsandbytes)
             try:
-                # Simple arithmetic on GPU - tests PyTorch CUDA kernels only (no bitsandbytes)
-                t = torch.ones((4, 4), device="cuda:0", dtype=torch.float16)
-                result = (t + t).cpu()  # Add and transfer back to CPU
-                assert result[0, 0].item() == 2.0
+                # 1. Test float32 CUDA arithmetic (universal support across all CUDA drivers)
+                t32 = torch.ones((4, 4), device="cuda:0", dtype=torch.float32)
+                res32 = (t32 + t32).cpu()
+                assert res32[0, 0].item() == 2.0
                 results["cuda_ok"] = True
-                logger.info("   ✅ CUDA Kernel Execution Test: PASSED")
+                logger.info("   ✅ CUDA Kernel Execution Test (float32): PASSED")
+
+                # 2. Test float16 CUDA arithmetic
+                try:
+                    t16 = torch.ones((4, 4), device="cuda:0", dtype=torch.float16)
+                    res16 = (t16 + t16).cpu()
+                    assert res16[0, 0].item() == 2.0
+                    results["float16_ok"] = True
+                    logger.info("   ✅ CUDA Kernel Execution Test (float16): PASSED")
+                except Exception as fp16_err:
+                    results["float16_ok"] = False
+                    logger.warning(f"   ⚠️ CUDA float16 kernel unavailable ({fp16_err}). Will use float32 fallback.")
             except Exception as cuda_err:
                 logger.error(f"   ❌ CUDA Kernel Execution Test FAILED: {cuda_err}")
                 results["warnings"].append(f"CUDA Kernel Failure: {cuda_err}")
+                results["cuda_ok"] = False
         else:
             logger.info("   ℹ️ CPU Mode (No CUDA GPU detected)")
             results["cuda_ok"] = True
@@ -266,6 +278,11 @@ def run_training_pipeline(
     audit_results = run_preflight_environment_audit()
     if audit_results.get("warnings"):
         logger.warning(f"⚠️ Pre-flight audit notice: {', '.join(audit_results['warnings'])}")
+
+    # Strict abort guard: Do not proceed if CUDA kernel execution failed entirely
+    if not audit_results.get("cuda_ok", True):
+        logger.error("❌ CUDA pre-flight execution test failed. Aborting training pipeline to prevent GPU crash.")
+        raise RuntimeError("❌ CUDA environment audit failed: no valid CUDA kernel execution image available.")
 
     if "mlx-community" in base_model:
         logger.warning(f"⚠️ Base model '{base_model}' is an MLX format model. Automatically switching to PyTorch base model 'Qwen/Qwen2.5-7B-Instruct' for Cloud training.")
