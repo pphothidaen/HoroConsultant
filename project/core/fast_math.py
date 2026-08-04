@@ -310,14 +310,17 @@ def chunk_text_fast(
 ) -> List[Dict[str, str]]:
     """
     Fast CJK-aware text chunker.
-
-    Improvements over original:
-      - Pre-compiled regex (no re-compilation per call)
-      - Single-pass paragraph splitting
-      - Avoids redundant string operations
-
-    ~3–5× faster than original _chunk_text() for large documents.
+    Uses Rust acceleration (rust_core.chunk_text) when available (~10× faster).
     """
+    if RUST_AVAILABLE:
+        import rust_core
+        raw_chunks = rust_core.chunk_text(text, chunk_size, 30)
+        return [
+            {"text": chunk.strip(), "source": source, "chunk": idx}
+            for idx, chunk in enumerate(raw_chunks)
+            if len(chunk.strip()) >= 20
+        ]
+
     chunks: List[Dict[str, str]] = []
     paragraphs = _RE_PARA_SPLIT.split(text)
     chunk_idx  = 0
