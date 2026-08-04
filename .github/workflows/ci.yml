@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI Test Pipeline
 
 on:
   push:
@@ -6,20 +6,10 @@ on:
   pull_request:
     branches: [ main, master ]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   test:
-    name: Run Pytest Suite
+    name: Run PyTest & Code Review
     runs-on: ubuntu-latest
-
-    env:
-      AUTO_SYNC_ENABLED: "false"
-      GOOGLE_AI_STUDIO_API_KEY: "dummy_key_for_ci"
-      OLLAMA_BASE_URL: "http://localhost:11434"
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,20 +23,13 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          # Filter out macOS Apple Silicon specific packages (mlx, mlx-lm, mlx-metal) for Linux runner
           grep -vE "mlx|mlx-lm|mlx-metal" requirements.txt > requirements-ci.txt
           pip install -r requirements-ci.txt
 
-      - name: Run pytest with coverage
+      - name: Run Pytest Test Suite
         run: |
-          python3 -m pytest -v --cov=project --cov-report=xml --junitxml=test-results.xml
+          python3 -m pytest -v
 
-      - name: Upload test results artifact
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: pytest-results
-          path: |
-            test-results.xml
-            coverage.xml
-
+      - name: Run Code Reviewer
+        run: |
+          python3 project/core/code_reviewer.py --review

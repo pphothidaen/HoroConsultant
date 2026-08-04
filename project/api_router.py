@@ -38,6 +38,11 @@ GEMINI_BASE_URL         = "https://generativelanguage.googleapis.com/v1beta"
 GEMINI_PRIMARY_MODEL    = os.getenv("PRIMARY_MODEL",   "gemini-2.0-flash")
 GEMINI_SECONDARY_MODEL  = os.getenv("SECONDARY_MODEL", "gemini-2.0-flash-lite")
 
+OPENAI_API_KEY          = os.getenv("OPENAI_API_KEY", "")
+OPENAI_MODEL            = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+TOGETHER_API_KEY        = os.getenv("TOGETHER_API_KEY", "")
+TOGETHER_MODEL          = os.getenv("TOGETHER_MODEL", "Qwen/Qwen2.5-7B-Instruct-Turbo")
+
 TIMEOUT_LOCAL_S         = float(os.getenv("LOCAL_TIMEOUT_SECONDS", "120.0"))
 TIMEOUT_CLOUD_S         = float(os.getenv("API_TIMEOUT_SECONDS",   "8.0"))
 RETRY_DELAY_S           = 2.0
@@ -162,6 +167,69 @@ def _call_gemini(
 
 
 # ---------------------------------------------------------------------------
+# OpenAI / Together caller (cloud external providers)
+# ---------------------------------------------------------------------------
+
+def _call_openai_compatible(
+    provider_name:      str,
+    base_url:           str,
+    api_key:            str,
+    model:              str,
+    prompt:             str,
+    system_instruction: str = "",
+) -> Tuple[Optional[str], str]:
+    """Call an OpenAI-compatible API endpoint."""
+    if not api_key:
+        return None, "no_key"
+
+    url = f"{base_url}/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    messages = []
+    if system_instruction:
+        messages.append({"role": "system", "content": system_instruction})
+    messages.append({"role": "user", "content": prompt})
+
+    payload = {
+        "model": model,
+        "messages": messages,
+        "temperature": 0.2,
+        "max_tokens": 4096,
+    }
+
+    key_tag = f"...{api_key[-6:]}" if len(api_key) >= 6 else "key"
+    try:
+        with httpx.Client(timeout=TIMEOUT_CLOUD_S) as client:
+            t0 = time.monotonic()
+            res = client.post(url, json=payload, headers=headers)
+            elapsed = round((time.monotonic() - t0) * 1000)
+
+        if res.status_code == 429:
+            logger.warning(f"[{provider_name}:{model}][{key_tag}] 429 rate-limited")
+            return None, "429"
+        if res.status_code != 200:
+            logger.warning(f"[{provider_name}:{model}][{key_tag}] HTTP {res.status_code}")
+            return None, f"error:{res.status_code}"
+
+        choices = res.json().get("choices", [])
+        if not choices:
+            return None, "empty"
+
+        text = choices[0].get("message", {}).get("content", "").strip()
+        logger.info(f"[{provider_name}:{model}][{key_tag}] ✅ OK ({elapsed}ms)")
+        return text, "ok"
+
+    except httpx.TimeoutException:
+        logger.warning(f"[{provider_name}:{model}][{key_tag}] Timeout")
+        return None, "timeout"
+    except Exception as exc:
+        logger.warning(f"[{provider_name}:{model}][{key_tag}] Exception: {exc}")
+        return None, "exception"
+
+
+# ---------------------------------------------------------------------------
 # Public Router — Local-First
 # ---------------------------------------------------------------------------
 
@@ -173,7 +241,8 @@ class HybridRouter:
       LOCAL 1: qwen2.5:7b          (best Chinese/Thai/BaZi understanding)
       LOCAL 2: qwen2.5-coder:7b    (capable fallback)
       LOCAL 3: llama3:8b           (English fallback)
-      CLOUD:   Gemini models × all keys (used only if all local fail)
+      CLOUD:   Gemini models × all keys
+      CLOUD:   OpenAI & Together AI external providers
     """
 
     def _build_routes(self) -> List[Dict[str, Any]]:
@@ -187,6 +256,12 @@ class HybridRouter:
         for model in [GEMINI_PRIMARY_MODEL, GEMINI_SECONDARY_MODEL]:
             for key in _gemini_keys():
                 routes.append({"type": "gemini", "model": model, "key": key})
+
+        # External AI providers
+        if OPENAI_API_KEY:
+            routes.append({"type": "openai", "model": OPENAI_MODEL, "key": OPENAI_API_KEY})
+        if TOGETHER_API_KEY:
+            routes.append({"type": "together", "model": TOGETHER_MODEL, "key": TOGETHER_API_KEY})
 
         return routes
 
@@ -222,8 +297,14 @@ class HybridRouter:
             t0 = time.monotonic()
             if rtype == "ollama":
                 text, reason = _call_ollama(model, prompt, system_instruction)
-            else:
+            elif rtype == "gemini":
                 text, reason = _call_gemini(model, key, prompt, system_instruction)
+            elif rtype == "openai":
+                text, reason = _call_openai_compatible("OpenAI", "https://api.openai.com/v1", key, model, prompt, system_instruction)
+            elif rtype == "together":
+                text, reason = _call_openai_compatible("Together", "https://api.together.xyz/v1", key, model, prompt, system_instruction)
+            else:
+                text, reason = None, "unknown_route"
             latency_ms = round((time.monotonic() - t0) * 1000)
 
             if text is not None:

@@ -1,339 +1,297 @@
-[{"stream_name":"stderr","time":6.528089956,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":6.528173407,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":6.528179488,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":6.528183291,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stderr","time":7.109427284,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":7.109468621,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":7.109474419,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":7.109478939,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stdout","time":8.351408999,"data":"[OK] CUDA stability environment variables set (T4/sm_75 compatible)\n"}
-,{"stream_name":"stdout","time":8.600448289,"data":"[INFO] Kaggle Secret note (HF_TOKEN): Connection error trying to communicate with service.\n"}
-,{"stream_name":"stdout","time":8.82516502,"data":"[INFO] Kaggle Secret note (APP_SUPABASE_URL): Connection error trying to communicate with service.\n"}
-,{"stream_name":"stdout","time":9.686035809,"data":"[INFO] Kaggle Secret note (APP_SUPABASE_KEY): Connection error trying to communicate with service.\n"}
-,{"stream_name":"stderr","time":9.722452323,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stdout","time":9.905916025,"data":"[INFO] Kaggle Secret note (GH_TOKEN): Connection error trying to communicate with service.\n"}
-,{"stream_name":"stdout","time":9.905961175,"data":"[MODEL] Cloning HoroConsultant repository...\n"}
-,{"stream_name":"stderr","time":9.925345888,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stderr","time":9.925378651,"data":"\n"}
-,{"stream_name":"stderr","time":9.925384567,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stdout","time":11.549401706,"data":"[CHECK] Checking pre-installed PyTorch \u0026 CUDA status...\n"}
-,{"stream_name":"stdout","time":15.341845104,"data":"[CUDA] Kaggle PyTorch version: 2.10.0+cu128, CUDA available: True\n"}
-,{"stream_name":"stdout","time":15.341881801,"data":"   Device Count: 1, Device 0: Tesla P100-PCIE-16GB (sm_60)\n"}
-,{"stream_name":"stdout","time":15.341887425,"data":"[WARNING] Pre-installed PyTorch wheel lacks binary for sm_60 (Tesla P100-PCIE-16GB). Installing cu121 PyTorch compatibility wheel...\n"}
-,{"stream_name":"stderr","time":15.359207463,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":15.359239254,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
-,{"stream_name":"stderr","time":15.359244753,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
-,{"stream_name":"stderr","time":15.359249845,"data":"    (7.0) - (12.0)\n"}
-,{"stream_name":"stderr","time":15.359254286,"data":"    \n"}
-,{"stream_name":"stderr","time":15.359258361,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":15.359262411,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":15.359266626,"data":"    Please install PyTorch with a following CUDA\n"}
-,{"stream_name":"stderr","time":15.359271093,"data":"    configurations:  12.6 following instructions at\n"}
-,{"stream_name":"stderr","time":15.359288156,"data":"    https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":15.359291772,"data":"    \n"}
-,{"stream_name":"stderr","time":15.359295109,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":15.359298542,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":15.359302318,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
-,{"stream_name":"stderr","time":15.359305945,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
-,{"stream_name":"stderr","time":15.359309513,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":15.359313063,"data":"\n"}
-,{"stream_name":"stderr","time":15.359316213,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":15.359319726,"data":"\n"}
-,{"stream_name":"stderr","time":15.359322911,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":15.359326333,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
-,{"stream_name":"stderr","time":15.359329742,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
-,{"stream_name":"stderr","time":15.359333305,"data":"    (7.0) - (12.0)\n"}
-,{"stream_name":"stderr","time":15.359336599,"data":"    \n"}
-,{"stream_name":"stderr","time":15.359339749,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":15.359343059,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":15.359346748,"data":"    Please install PyTorch with a following CUDA\n"}
-,{"stream_name":"stderr","time":15.359350391,"data":"    configurations:  12.6 following instructions at\n"}
-,{"stream_name":"stderr","time":15.359353818,"data":"    https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":15.359357487,"data":"    \n"}
-,{"stream_name":"stderr","time":15.359361023,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":15.359364303,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":15.359367836,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
-,{"stream_name":"stderr","time":15.359371281,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
-,{"stream_name":"stderr","time":15.359374943,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":15.359378618,"data":"\n"}
-,{"stream_name":"stderr","time":15.359381944,"data":"  queued_call()\n"}
-,{"stream_name":"stdout","time":25.850221231,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 780.9/780.9 MB 2.2 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":26.052242465,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 780.9/780.9 MB 2.2 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":29.186280482,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.7/23.7 MB 35.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":29.388435437,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.7/23.7 MB 35.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":29.861592441,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 823.6/823.6 kB 45.5 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":30.063657807,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 823.6/823.6 kB 45.5 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":30.565765041,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.1/14.1 MB 102.9 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":30.767881372,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.1/14.1 MB 102.9 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":38.926982325,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 731.7/731.7 MB 2.4 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":39.130403263,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 731.7/731.7 MB 2.4 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":46.017058691,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 410.6/410.6 MB 4.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":46.219240559,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 410.6/410.6 MB 4.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":49.767826398,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 MB 7.4 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":49.970193629,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 MB 7.4 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":51.173253137,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.5/56.5 MB 35.0 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":51.375420659,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.5/56.5 MB 35.0 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":53.617773899,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 124.2/124.2 MB 9.9 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":53.820318295,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 124.2/124.2 MB 9.9 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":56.344005188,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.0/196.0 MB 9.6 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":56.546420121,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.0/196.0 MB 9.6 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":59.811599165,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 176.2/176.2 MB 6.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":60.013665317,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 176.2/176.2 MB 6.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":60.908100071,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 99.1/99.1 kB 6.5 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":61.068173257,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.3/7.3 MB 115.5 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":61.110042299,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 99.1/99.1 kB 6.5 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":61.110070487,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.3/7.3 MB 115.5 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":61.183018707,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.3/7.3 MB 115.3 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":61.296042846,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 115.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":61.385044577,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.3/7.3 MB 115.3 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":61.385072887,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 115.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":61.409099121,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 112.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":61.521403901,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.0/7.0 MB 112.5 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":61.61119021,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 112.1 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":61.611218622,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.0/7.0 MB 112.5 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":61.677377269,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 90.0 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":61.879670771,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 90.0 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":61.968276637,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 96.0 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":62.170934231,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 96.0 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":62.25015383,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 95.2 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":62.323088648,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 94.0 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":62.396226973,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 91.2 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":62.453803382,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 95.2 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":62.453831764,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 94.0 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":62.453847411,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 91.2 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":150.437674445,"data":"[MODEL] Removing incompatible torchao/torchvision \u0026 installing fine-tuning packages...\n"}
-,{"stream_name":"stdout","time":151.013088631,"data":"Found existing installation: torchao 0.10.0\n"}
-,{"stream_name":"stdout","time":151.072689665,"data":"Uninstalling torchao-0.10.0:\n"}
-,{"stream_name":"stdout","time":151.215334456,"data":"Found existing installation: torchao 0.10.0\n"}
-,{"stream_name":"stdout","time":151.215360684,"data":"Uninstalling torchao-0.10.0:\n"}
-,{"stream_name":"stdout","time":151.358887887,"data":"  Successfully uninstalled torchao-0.10.0\n"}
-,{"stream_name":"stdout","time":151.385468036,"data":"Found existing installation: torchvision 0.18.1+cu121\n"}
-,{"stream_name":"stdout","time":151.401434542,"data":"Uninstalling torchvision-0.18.1+cu121:\n"}
-,{"stream_name":"stdout","time":151.404809926,"data":"  Successfully uninstalled torchvision-0.18.1+cu121\n"}
-,{"stream_name":"stdout","time":151.561152411,"data":"  Successfully uninstalled torchao-0.10.0\n"}
-,{"stream_name":"stdout","time":151.561185241,"data":"Found existing installation: torchvision 0.18.1+cu121\n"}
-,{"stream_name":"stdout","time":151.561191089,"data":"Uninstalling torchvision-0.18.1+cu121:\n"}
-,{"stream_name":"stdout","time":151.561195865,"data":"  Successfully uninstalled torchvision-0.18.1+cu121\n"}
-,{"stream_name":"stderr","time":301.154653583,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
-,{"stream_name":"stderr","time":301.154695885,"data":"easyocr 1.7.2 requires torchvision\u003e=0.5, which is not installed.\n"}
-,{"stream_name":"stderr","time":301.154722487,"data":"timm 1.0.26 requires torchvision, which is not installed.\n"}
-,{"stream_name":"stderr","time":301.154729887,"data":"fastai 2.8.7 requires torchvision\u003e=0.11, which is not installed.\n"}
-,{"stream_name":"stderr","time":301.154735097,"data":"torchaudio 2.3.1+cu121 requires torch==2.3.1, but you have torch 2.13.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.15474036,"data":"libcuml-cu12 26.2.0 requires cuda-toolkit[cublas,cufft,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.154745378,"data":"cuml-cu12 26.2.0 requires cuda-toolkit[cublas,cufft,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.154749968,"data":"cuda-python 12.9.4 requires cuda-bindings~=12.9.4, but you have cuda-bindings 13.3.1 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.154779803,"data":"cudf-cu12 26.2.1 requires cuda-toolkit[nvcc,nvrtc]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.154879901,"data":"libcuvs-cu12 26.2.0 requires cuda-toolkit[cublas,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.154887725,"data":"libraft-cu12 26.2.0 requires cuda-toolkit[cublas,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.361346822,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
-,{"stream_name":"stderr","time":301.361373975,"data":"easyocr 1.7.2 requires torchvision\u003e=0.5, which is not installed.\n"}
-,{"stream_name":"stderr","time":301.36137902,"data":"timm 1.0.26 requires torchvision, which is not installed.\n"}
-,{"stream_name":"stderr","time":301.361383455,"data":"fastai 2.8.7 requires torchvision\u003e=0.11, which is not installed.\n"}
-,{"stream_name":"stderr","time":301.361387133,"data":"torchaudio 2.3.1+cu121 requires torch==2.3.1, but you have torch 2.13.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.36139088,"data":"libcuml-cu12 26.2.0 requires cuda-toolkit[cublas,cufft,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.361395717,"data":"cuml-cu12 26.2.0 requires cuda-toolkit[cublas,cufft,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.361400081,"data":"cuda-python 12.9.4 requires cuda-bindings~=12.9.4, but you have cuda-bindings 13.3.1 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.361404608,"data":"cudf-cu12 26.2.1 requires cuda-toolkit[nvcc,nvrtc]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.361408787,"data":"libcuvs-cu12 26.2.0 requires cuda-toolkit[cublas,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.361413192,"data":"libraft-cu12 26.2.0 requires cuda-toolkit[cublas,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.361417463,"data":"\n"}
-,{"stream_name":"stderr","time":301.361916789,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
-,{"stream_name":"stderr","time":301.361959659,"data":"easyocr 1.7.2 requires torchvision\u003e=0.5, which is not installed.\n"}
-,{"stream_name":"stderr","time":301.361964562,"data":"timm 1.0.26 requires torchvision, which is not installed.\n"}
-,{"stream_name":"stderr","time":301.361968945,"data":"fastai 2.8.7 requires torchvision\u003e=0.11, which is not installed.\n"}
-,{"stream_name":"stderr","time":301.361990926,"data":"torchaudio 2.3.1+cu121 requires torch==2.3.1, but you have torch 2.13.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.361995704,"data":"libcuml-cu12 26.2.0 requires cuda-toolkit[cublas,cufft,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.361999637,"data":"cuml-cu12 26.2.0 requires cuda-toolkit[cublas,cufft,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.362014137,"data":"cuda-python 12.9.4 requires cuda-bindings~=12.9.4, but you have cuda-bindings 13.3.1 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.362018298,"data":"cudf-cu12 26.2.1 requires cuda-toolkit[nvcc,nvrtc]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.3620221,"data":"libcuvs-cu12 26.2.0 requires cuda-toolkit[cublas,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":301.362026141,"data":"libraft-cu12 26.2.0 requires cuda-toolkit[cublas,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":306.553463652,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7f8776a6f910\u003e\u003e)\n"}
-,{"stream_name":"stderr","time":306.553502595,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":306.553507703,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
-,{"stream_name":"stderr","time":306.553512392,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":306.553516918,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":306.553521363,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 146-147: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":306.553526087,"data":"\n"}
-,{"stream_name":"stderr","time":306.553530519,"data":"During handling of the above exception, another exception occurred:\n"}
-,{"stream_name":"stderr","time":306.553535157,"data":"\n"}
-,{"stream_name":"stderr","time":306.55353915,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":306.5535433,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
-,{"stream_name":"stderr","time":306.553548072,"data":"    ret = callback()\n"}
-,{"stream_name":"stderr","time":306.553552237,"data":"          ^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":306.553556424,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
-,{"stream_name":"stderr","time":306.553560993,"data":"    self.session.send(\n"}
-,{"stream_name":"stderr","time":306.5535657,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
-,{"stream_name":"stderr","time":306.553570524,"data":"    to_send = self.serialize(msg, ident)\n"}
-,{"stream_name":"stderr","time":306.553678328,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":306.553686687,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
-,{"stream_name":"stderr","time":306.553691734,"data":"    content = self.pack(content)\n"}
-,{"stream_name":"stderr","time":306.553695995,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":306.553716985,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
-,{"stream_name":"stderr","time":306.553722806,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":306.553727565,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":306.553732482,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 146-147: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":306.75667259,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7f8776a6f910\u003e\u003e)\n"}
-,{"stream_name":"stderr","time":306.756739522,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":306.756748349,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
-,{"stream_name":"stderr","time":306.756753691,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":306.756758268,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":306.75676246,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 146-147: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":306.75676702,"data":"\n"}
-,{"stream_name":"stderr","time":306.756771285,"data":"During handling of the above exception, another exception occurred:\n"}
-,{"stream_name":"stderr","time":306.756775974,"data":"\n"}
-,{"stream_name":"stderr","time":306.756779842,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":306.75678374,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
-,{"stream_name":"stderr","time":306.756788208,"data":"    ret = callback()\n"}
-,{"stream_name":"stderr","time":306.756792137,"data":"          ^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":306.756796106,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
-,{"stream_name":"stderr","time":306.75680041,"data":"    self.session.send(\n"}
-,{"stream_name":"stderr","time":306.756804328,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
-,{"stream_name":"stderr","time":306.756808776,"data":"    to_send = self.serialize(msg, ident)\n"}
-,{"stream_name":"stderr","time":306.756812973,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":306.75681704,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
-,{"stream_name":"stderr","time":306.756821845,"data":"    content = self.pack(content)\n"}
-,{"stream_name":"stderr","time":306.756826763,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":306.756830816,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
-,{"stream_name":"stderr","time":306.756834974,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":306.756839194,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":306.756843457,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 146-147: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":306.75684831,"data":"\n"}
-,{"stream_name":"stderr","time":306.756852717,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x7f8776a6f910\u003e\u003e)\n"}
-,{"stream_name":"stderr","time":306.756858184,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":306.756862717,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
-,{"stream_name":"stderr","time":306.756867349,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":306.756872721,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":306.756877278,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 146-147: surrogates not allowed\n"}
-,{"stream_name":"stderr","time":306.756888628,"data":"\n"}
-,{"stream_name":"stderr","time":306.756893318,"data":"During handling of the above exception, another exception occurred:\n"}
-,{"stream_name":"stderr","time":306.756897762,"data":"\n"}
-,{"stream_name":"stderr","time":306.756903878,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":306.75690797,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
-,{"stream_name":"stderr","time":306.756912326,"data":"    ret = callback()\n"}
-,{"stream_name":"stderr","time":306.756916178,"data":"          ^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":306.756920166,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
-,{"stream_name":"stderr","time":306.756924313,"data":"    self.session.send(\n"}
-,{"stream_name":"stderr","time":306.756928395,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
-,{"stream_name":"stderr","time":306.756932734,"data":"    to_send = self.serialize(msg, ident)\n"}
-,{"stream_name":"stderr","time":306.756936818,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":306.756953863,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
-,{"stream_name":"stderr","time":306.756957811,"data":"    content = self.pack(content)\n"}
-,{"stream_name":"stderr","time":306.75696165,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":306.756965834,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
-,{"stream_name":"stderr","time":306.756969735,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
-,{"stream_name":"stderr","time":306.756973515,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":306.756977434,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 146-147: surrogates not allowed\n"}
-,{"stream_name":"stdout","time":307.085911765,"data":"2026-08-04 09:54:36,554 [INFO] [DATA] Checking dataset source...\n"}
-,{"stream_name":"stdout","time":307.085949066,"data":"2026-08-04 09:54:36,554 [INFO] [DATA] Checking dataset source...\n"}
-,{"stream_name":"stdout","time":307.085952891,"data":"2026-08-04 09:54:36,555 [INFO] [INFO] Supabase not available/empty. Using local dataset '/kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl'\n"}
-,{"stream_name":"stdout","time":307.085955699,"data":"2026-08-04 09:54:36,555 [INFO] [INFO] Supabase not available/empty. Using local dataset '/kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl'\n"}
-,{"stream_name":"stdout","time":307.085958428,"data":"2026-08-04 09:54:36,555 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE_T4X2]...\n"}
-,{"stream_name":"stdout","time":307.085960753,"data":"2026-08-04 09:54:36,555 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE_T4X2]...\n"}
-,{"stream_name":"stdout","time":307.085963072,"data":"2026-08-04 09:54:36,555 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
-,{"stream_name":"stdout","time":307.085965339,"data":"2026-08-04 09:54:36,555 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
-,{"stream_name":"stdout","time":307.085967684,"data":"2026-08-04 09:54:36,555 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl\n"}
-,{"stream_name":"stdout","time":307.085970046,"data":"2026-08-04 09:54:36,555 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl\n"}
-,{"stream_name":"stdout","time":307.085983563,"data":"2026-08-04 09:54:36,555 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
-,{"stream_name":"stdout","time":307.085986126,"data":"2026-08-04 09:54:36,555 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
-,{"stream_name":"stdout","time":307.08598843,"data":"2026-08-04 09:54:36,555 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...\n"}
-,{"stream_name":"stdout","time":307.085990724,"data":"2026-08-04 09:54:36,555 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...\n"}
-,{"stream_name":"stdout","time":309.530904866,"data":"2026-08-04 09:54:39,000 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']\n"}
-,{"stream_name":"stdout","time":309.530940002,"data":"2026-08-04 09:54:39,000 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']\n"}
-,{"stream_name":"stdout","time":309.530945807,"data":"2026-08-04 09:54:39,000 [WARNING]    [WARNING] WARNING: PyTorch wheel does NOT contain compiled binary for sm_60 (Tesla P100-PCIE-16GB)!\n"}
-,{"stream_name":"stdout","time":309.530950598,"data":"2026-08-04 09:54:39,000 [WARNING]    [WARNING] WARNING: PyTorch wheel does NOT contain compiled binary for sm_60 (Tesla P100-PCIE-16GB)!\n"}
-,{"stream_name":"stdout","time":309.53095501,"data":"2026-08-04 09:54:39,000 [INFO]    [TARGET] GPU Architecture: sm_60 (Tesla P100-PCIE-16GB)\n"}
-,{"stream_name":"stdout","time":309.530959105,"data":"2026-08-04 09:54:39,000 [INFO]    [TARGET] GPU Architecture: sm_60 (Tesla P100-PCIE-16GB)\n"}
-,{"stream_name":"stdout","time":309.530963176,"data":"2026-08-04 09:54:39,000 [INFO]    [CUDA] CUDA Device: Tesla P100-PCIE-16GB (Total GPUs: 1)\n"}
-,{"stream_name":"stdout","time":309.530967309,"data":"2026-08-04 09:54:39,000 [INFO]    [CUDA] CUDA Device: Tesla P100-PCIE-16GB (Total GPUs: 1)\n"}
-,{"stream_name":"stdout","time":309.530971271,"data":"2026-08-04 09:54:39,129 [ERROR]    [ERROR] CUDA Kernel Execution Test FAILED: CUDA error: no kernel image is available for execution on the device\n"}
-,{"stream_name":"stdout","time":309.530975255,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
-,{"stream_name":"stdout","time":309.530979035,"data":"For more detailed error information, run with CUDA_LOG_FILE=stderr\n"}
-,{"stream_name":"stdout","time":309.530982865,"data":"\n"}
-,{"stream_name":"stdout","time":309.530986567,"data":"2026-08-04 09:54:39,129 [ERROR]    [ERROR] CUDA Kernel Execution Test FAILED: CUDA error: no kernel image is available for execution on the device\n"}
-,{"stream_name":"stdout","time":309.530991147,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
-,{"stream_name":"stdout","time":309.530995539,"data":"For more detailed error information, run with CUDA_LOG_FILE=stderr\n"}
-,{"stream_name":"stdout","time":309.5309997,"data":"\n"}
-,{"stream_name":"stdout","time":310.600198599,"data":"2026-08-04 09:54:40,069 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
-,{"stream_name":"stdout","time":310.600236137,"data":"2026-08-04 09:54:40,069 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
-,{"stream_name":"stdout","time":310.600241095,"data":"2026-08-04 09:54:40,089 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
-,{"stream_name":"stdout","time":310.600244699,"data":"2026-08-04 09:54:40,089 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
-,{"stream_name":"stdout","time":310.600267194,"data":"2026-08-04 09:54:40,089 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device\n"}
-,{"stream_name":"stdout","time":310.600271069,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
-,{"stream_name":"stdout","time":310.600274291,"data":"For more detailed error information, run with CUDA_LOG_FILE=stderr\n"}
-,{"stream_name":"stdout","time":310.600277467,"data":"\n"}
-,{"stream_name":"stdout","time":310.600280766,"data":"2026-08-04 09:54:40,089 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device\n"}
-,{"stream_name":"stdout","time":310.600284437,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
-,{"stream_name":"stdout","time":310.600288094,"data":"For more detailed error information, run with CUDA_LOG_FILE=stderr\n"}
-,{"stream_name":"stdout","time":310.600291417,"data":"\n"}
-,{"stream_name":"stdout","time":310.600294631,"data":"2026-08-04 09:54:40,089 [ERROR] [ERROR] CUDA pre-flight execution test failed. Aborting training pipeline to prevent GPU crash.\n"}
-,{"stream_name":"stdout","time":310.600298275,"data":"2026-08-04 09:54:40,089 [ERROR] [ERROR] CUDA pre-flight execution test failed. Aborting training pipeline to prevent GPU crash.\n"}
-,{"stream_name":"stdout","time":310.600302124,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stdout","time":310.600305349,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 747, in \u003cmodule\u003e\n"}
-,{"stream_name":"stdout","time":310.600309218,"data":"    main()\n"}
-,{"stream_name":"stdout","time":310.600312563,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 733, in main\n"}
-,{"stream_name":"stdout","time":310.600316215,"data":"    success = run_training_pipeline(\n"}
-,{"stream_name":"stdout","time":310.600319646,"data":"              ^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stdout","time":310.600322831,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 321, in run_training_pipeline\n"}
-,{"stream_name":"stdout","time":310.600326611,"data":"    raise RuntimeError(\"[ERROR] CUDA environment audit failed: no valid CUDA kernel execution image available.\")\n"}
-,{"stream_name":"stdout","time":310.600330367,"data":"RuntimeError: [ERROR] CUDA environment audit failed: no valid CUDA kernel execution image available.\n"}
-,{"stream_name":"stderr","time":313.821260519,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":313.821293799,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":313.82130578,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
-,{"stream_name":"stderr","time":313.822204902,"data":"    raise_for_execution_errors(nb, output_path)\n"}
-,{"stream_name":"stderr","time":313.822226596,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
-,{"stream_name":"stderr","time":313.822411734,"data":"    raise error\n"}
-,{"stream_name":"stderr","time":313.822549816,"data":"papermill.exceptions.PapermillExecutionError: \n"}
-,{"stream_name":"stderr","time":313.822569829,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":313.822575222,"data":"Exception encountered at \"In [1]\":\n"}
-,{"stream_name":"stderr","time":313.822590025,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":313.822594312,"data":"RuntimeError                              Traceback (most recent call last)\n"}
-,{"stream_name":"stderr","time":313.822597874,"data":"/tmp/ipykernel_23/2744240290.py in \u003ccell line: 0\u003e()\n"}
-,{"stream_name":"stderr","time":313.822601861,"data":"    105         except Exception:\n"}
-,{"stream_name":"stderr","time":313.82260583,"data":"    106             pass\n"}
-,{"stream_name":"stderr","time":313.822609902,"data":"--\u003e 107     raise RuntimeError(f'\\u274c Training orchestrator failed (exit code {proc.returncode}).\\n--- Tail of train_execution.log ---\\n{log_tail}')\n"}
-,{"stream_name":"stderr","time":313.822613357,"data":"    108 print('\\ud83c\\udf89 Training pipeline completed successfully!')\n"}
-,{"stream_name":"stderr","time":313.822616975,"data":"\n"}
-,{"stream_name":"stderr","time":313.822620302,"data":"RuntimeError: ❌ Training orchestrator failed (exit code 1).\n"}
-,{"stream_name":"stderr","time":313.822631062,"data":"--- Tail of train_execution.log ---\n"}
-,{"stream_name":"stderr","time":313.822634497,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
-,{"stream_name":"stderr","time":313.822638237,"data":"For more detailed error information, run with CUDA_LOG_FILE=stderr\n"}
-,{"stream_name":"stderr","time":313.822641797,"data":"\n"}
-,{"stream_name":"stderr","time":313.822645095,"data":"2026-08-04 09:54:39,129 [ERROR]    [ERROR] CUDA Kernel Execution Test FAILED: CUDA error: no kernel image is available for execution on the device\n"}
-,{"stream_name":"stderr","time":313.82264889,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
-,{"stream_name":"stderr","time":313.822652618,"data":"For more detailed error information, run with CUDA_LOG_FILE=stderr\n"}
-,{"stream_name":"stderr","time":313.822655859,"data":"\n"}
-,{"stream_name":"stderr","time":313.822658923,"data":"2026-08-04 09:54:40,069 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
-,{"stream_name":"stderr","time":313.822662034,"data":"2026-08-04 09:54:40,069 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
-,{"stream_name":"stderr","time":313.822665436,"data":"2026-08-04 09:54:40,089 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
-,{"stream_name":"stderr","time":313.822668659,"data":"2026-08-04 09:54:40,089 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
-,{"stream_name":"stderr","time":313.822672349,"data":"2026-08-04 09:54:40,089 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device\n"}
-,{"stream_name":"stderr","time":313.822676594,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
-,{"stream_name":"stderr","time":313.822681185,"data":"For more detailed error information, run with CUDA_LOG_FILE=stderr\n"}
-,{"stream_name":"stderr","time":313.822684521,"data":"\n"}
-,{"stream_name":"stderr","time":313.822687631,"data":"2026-08-04 09:54:40,089 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device\n"}
-,{"stream_name":"stderr","time":313.822691681,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
-,{"stream_name":"stderr","time":313.822734937,"data":"For more detailed error information, run with CUDA_LOG_FILE=stderr\n"}
-,{"stream_name":"stderr","time":313.822742204,"data":"\n"}
-,{"stream_name":"stderr","time":313.822745853,"data":"2026-08-04 09:54:40,089 [ERROR] [ERROR] CUDA pre-flight execution test failed. Aborting training pipeline to prevent GPU crash.\n"}
-,{"stream_name":"stderr","time":313.822750005,"data":"2026-08-04 09:54:40,089 [ERROR] [ERROR] CUDA pre-flight execution test failed. Aborting training pipeline to prevent GPU crash.\n"}
-,{"stream_name":"stderr","time":313.822753789,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":313.822756907,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 747, in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":313.822761008,"data":"    main()\n"}
-,{"stream_name":"stderr","time":313.822764651,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 733, in main\n"}
-,{"stream_name":"stderr","time":313.822768367,"data":"    success = run_training_pipeline(\n"}
-,{"stream_name":"stderr","time":313.822771609,"data":"              ^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":313.822775147,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 321, in run_training_pipeline\n"}
-,{"stream_name":"stderr","time":313.822779244,"data":"    raise RuntimeError(\"[ERROR] CUDA environment audit failed: no valid CUDA kernel execution image available.\")\n"}
-,{"stream_name":"stderr","time":313.82278355,"data":"RuntimeError: [ERROR] CUDA environment audit failed: no valid CUDA kernel execution image available.\n"}
-,{"stream_name":"stderr","time":313.822787206,"data":"\n"}
-,{"stream_name":"stderr","time":313.822790559,"data":"\n"}
-,{"stream_name":"stderr","time":316.107285643,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
-,{"stream_name":"stderr","time":316.107323325,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
-,{"stream_name":"stderr","time":316.262446696,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
-,{"stream_name":"stderr","time":316.262478986,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
-,{"stream_name":"stderr","time":318.513102458,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
-,{"stream_name":"stderr","time":318.823272552,"data":"[NbConvertApp] Writing 29242 bytes to __notebook__.ipynb\n"}
-,{"stream_name":"stderr","time":321.32312718,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
-,{"stream_name":"stderr","time":322.179728871,"data":"[NbConvertApp] Writing 319480 bytes to __results__.html\n"}
+[{"stream_name":"stderr","time":6.504538749,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.504598382,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.50460213,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.504604744,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":7.064414658,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.064445124,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.064450674,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.064454408,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":8.196973395,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stdout","time":8.294045697,"data":"[OK] CUDA stability environment variables set (T4/sm_75 compatible)\n"}
+,{"stream_name":"stdout","time":8.294117723,"data":"[INFO] Kaggle Secret note (HF_TOKEN): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stdout","time":8.294122676,"data":"[INFO] Kaggle Secret note (APP_SUPABASE_URL): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stdout","time":8.294126333,"data":"[INFO] Kaggle Secret note (APP_SUPABASE_KEY): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stdout","time":8.294130014,"data":"[INFO] Kaggle Secret note (GH_TOKEN): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stdout","time":8.294133516,"data":"[MODEL] Cloning HoroConsultant repository...\n"}
+,{"stream_name":"stderr","time":8.399758905,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stderr","time":8.399788675,"data":"\n"}
+,{"stream_name":"stderr","time":8.399793369,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stdout","time":9.342335921,"data":"[CHECK] Checking pre-installed PyTorch \u0026 CUDA status...\n"}
+,{"stream_name":"stdout","time":13.151322348,"data":"[CUDA] Kaggle PyTorch version: 2.10.0+cu128, CUDA available: True\n"}
+,{"stream_name":"stdout","time":13.151364718,"data":"   Device Count: 1, Device 0: Tesla P100-PCIE-16GB (sm_60)\n"}
+,{"stream_name":"stdout","time":13.151371502,"data":"[WARNING] Pre-installed PyTorch wheel lacks binary for sm_60 (Tesla P100-PCIE-16GB). Installing cu121 PyTorch compatibility wheel...\n"}
+,{"stream_name":"stderr","time":13.168770692,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":13.168797424,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
+,{"stream_name":"stderr","time":13.168802859,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
+,{"stream_name":"stderr","time":13.168807594,"data":"    (7.0) - (12.0)\n"}
+,{"stream_name":"stderr","time":13.168811929,"data":"    \n"}
+,{"stream_name":"stderr","time":13.168816303,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":13.168821084,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":13.168826002,"data":"    Please install PyTorch with a following CUDA\n"}
+,{"stream_name":"stderr","time":13.168830628,"data":"    configurations:  12.6 following instructions at\n"}
+,{"stream_name":"stderr","time":13.168848673,"data":"    https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":13.168852492,"data":"    \n"}
+,{"stream_name":"stderr","time":13.168855884,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":13.168859244,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":13.168862759,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
+,{"stream_name":"stderr","time":13.168866587,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
+,{"stream_name":"stderr","time":13.168870293,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":13.168874119,"data":"\n"}
+,{"stream_name":"stderr","time":13.168877356,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":13.168880713,"data":"\n"}
+,{"stream_name":"stderr","time":13.168884033,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":13.168887634,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
+,{"stream_name":"stderr","time":13.168891158,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
+,{"stream_name":"stderr","time":13.168894689,"data":"    (7.0) - (12.0)\n"}
+,{"stream_name":"stderr","time":13.168898148,"data":"    \n"}
+,{"stream_name":"stderr","time":13.168901414,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":13.168904796,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":13.16890829,"data":"    Please install PyTorch with a following CUDA\n"}
+,{"stream_name":"stderr","time":13.168911739,"data":"    configurations:  12.6 following instructions at\n"}
+,{"stream_name":"stderr","time":13.168915211,"data":"    https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":13.168918656,"data":"    \n"}
+,{"stream_name":"stderr","time":13.168921973,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":13.168925412,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":13.168929003,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
+,{"stream_name":"stderr","time":13.168932618,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
+,{"stream_name":"stderr","time":13.168936265,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":13.168940067,"data":"\n"}
+,{"stream_name":"stderr","time":13.168943556,"data":"  queued_call()\n"}
+,{"stream_name":"stdout","time":23.624179561,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 780.9/780.9 MB 2.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":23.826156659,"data":"     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 780.9/780.9 MB 2.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":62.337831035,"data":"[MODEL] Removing incompatible torchao/torchvision \u0026 installing fine-tuning packages...\n"}
+,{"stream_name":"stdout","time":62.932499062,"data":"Found existing installation: torchao 0.10.0\n"}
+,{"stream_name":"stdout","time":62.997817434,"data":"Uninstalling torchao-0.10.0:\n"}
+,{"stream_name":"stdout","time":63.135004127,"data":"Found existing installation: torchao 0.10.0\n"}
+,{"stream_name":"stdout","time":63.135036969,"data":"Uninstalling torchao-0.10.0:\n"}
+,{"stream_name":"stdout","time":63.324375636,"data":"  Successfully uninstalled torchao-0.10.0\n"}
+,{"stream_name":"stdout","time":63.526861756,"data":"  Successfully uninstalled torchao-0.10.0\n"}
+,{"stream_name":"stdout","time":63.589269118,"data":"Found existing installation: torchvision 0.25.0+cu128\n"}
+,{"stream_name":"stdout","time":63.61179758,"data":"Uninstalling torchvision-0.25.0+cu128:\n"}
+,{"stream_name":"stdout","time":63.791651583,"data":"Found existing installation: torchvision 0.25.0+cu128\n"}
+,{"stream_name":"stdout","time":63.791682485,"data":"Uninstalling torchvision-0.25.0+cu128:\n"}
+,{"stream_name":"stdout","time":63.859911152,"data":"  Successfully uninstalled torchvision-0.25.0+cu128\n"}
+,{"stream_name":"stdout","time":64.062244763,"data":"  Successfully uninstalled torchvision-0.25.0+cu128\n"}
+,{"stream_name":"stderr","time":191.992002304,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stderr","time":191.992037477,"data":"easyocr 1.7.2 requires torchvision\u003e=0.5, which is not installed.\n"}
+,{"stream_name":"stderr","time":191.992043763,"data":"timm 1.0.26 requires torchvision, which is not installed.\n"}
+,{"stream_name":"stderr","time":191.992048492,"data":"fastai 2.8.7 requires torchvision\u003e=0.11, which is not installed.\n"}
+,{"stream_name":"stderr","time":191.992053213,"data":"libcuml-cu12 26.2.0 requires cuda-toolkit[cublas,cufft,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":191.992075228,"data":"cuml-cu12 26.2.0 requires cuda-toolkit[cublas,cufft,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":191.992081988,"data":"cuda-python 12.9.4 requires cuda-bindings~=12.9.4, but you have cuda-bindings 13.3.1 which is incompatible.\n"}
+,{"stream_name":"stderr","time":191.992086463,"data":"torchaudio 2.10.0+cu128 requires torch==2.10.0, but you have torch 2.13.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":191.992091468,"data":"cudf-cu12 26.2.1 requires cuda-toolkit[nvcc,nvrtc]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":191.99209608,"data":"libcuvs-cu12 26.2.0 requires cuda-toolkit[cublas,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":191.992101671,"data":"libraft-cu12 26.2.0 requires cuda-toolkit[cublas,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":192.196035409,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stderr","time":192.196077576,"data":"easyocr 1.7.2 requires torchvision\u003e=0.5, which is not installed.\n"}
+,{"stream_name":"stderr","time":192.196086071,"data":"timm 1.0.26 requires torchvision, which is not installed.\n"}
+,{"stream_name":"stderr","time":192.196091282,"data":"fastai 2.8.7 requires torchvision\u003e=0.11, which is not installed.\n"}
+,{"stream_name":"stderr","time":192.196097028,"data":"libcuml-cu12 26.2.0 requires cuda-toolkit[cublas,cufft,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":192.196125383,"data":"cuml-cu12 26.2.0 requires cuda-toolkit[cublas,cufft,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":192.196129348,"data":"cuda-python 12.9.4 requires cuda-bindings~=12.9.4, but you have cuda-bindings 13.3.1 which is incompatible.\n"}
+,{"stream_name":"stderr","time":192.196131762,"data":"torchaudio 2.10.0+cu128 requires torch==2.10.0, but you have torch 2.13.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":192.196134093,"data":"cudf-cu12 26.2.1 requires cuda-toolkit[nvcc,nvrtc]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":192.196136476,"data":"libcuvs-cu12 26.2.0 requires cuda-toolkit[cublas,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":192.196138958,"data":"libraft-cu12 26.2.0 requires cuda-toolkit[cublas,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":192.196141363,"data":"\n"}
+,{"stream_name":"stderr","time":192.196143626,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stderr","time":192.196146082,"data":"easyocr 1.7.2 requires torchvision\u003e=0.5, which is not installed.\n"}
+,{"stream_name":"stderr","time":192.196148548,"data":"timm 1.0.26 requires torchvision, which is not installed.\n"}
+,{"stream_name":"stderr","time":192.196150846,"data":"fastai 2.8.7 requires torchvision\u003e=0.11, which is not installed.\n"}
+,{"stream_name":"stderr","time":192.196153154,"data":"libcuml-cu12 26.2.0 requires cuda-toolkit[cublas,cufft,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":192.196155539,"data":"cuml-cu12 26.2.0 requires cuda-toolkit[cublas,cufft,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":192.19615803,"data":"cuda-python 12.9.4 requires cuda-bindings~=12.9.4, but you have cuda-bindings 13.3.1 which is incompatible.\n"}
+,{"stream_name":"stderr","time":192.196162034,"data":"torchaudio 2.10.0+cu128 requires torch==2.10.0, but you have torch 2.13.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":192.196164411,"data":"cudf-cu12 26.2.1 requires cuda-toolkit[nvcc,nvrtc]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":192.196166762,"data":"libcuvs-cu12 26.2.0 requires cuda-toolkit[cublas,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":192.196169249,"data":"libraft-cu12 26.2.0 requires cuda-toolkit[cublas,curand,cusolver,cusparse]==12.*, but you have cuda-toolkit 13.0.3.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":197.212316852,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x79d24c5873a0\u003e\u003e)\n"}
+,{"stream_name":"stderr","time":197.212349892,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":197.212355573,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
+,{"stream_name":"stderr","time":197.212360716,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":197.212376386,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":197.212381086,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 146-147: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":197.212385709,"data":"\n"}
+,{"stream_name":"stderr","time":197.212389924,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":197.212394745,"data":"\n"}
+,{"stream_name":"stderr","time":197.212398889,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":197.212403248,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
+,{"stream_name":"stderr","time":197.212408099,"data":"    ret = callback()\n"}
+,{"stream_name":"stderr","time":197.212412435,"data":"          ^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":197.212416792,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
+,{"stream_name":"stderr","time":197.212421541,"data":"    self.session.send(\n"}
+,{"stream_name":"stderr","time":197.212425875,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
+,{"stream_name":"stderr","time":197.212430698,"data":"    to_send = self.serialize(msg, ident)\n"}
+,{"stream_name":"stderr","time":197.212763551,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":197.212775699,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
+,{"stream_name":"stderr","time":197.21279347,"data":"    content = self.pack(content)\n"}
+,{"stream_name":"stderr","time":197.212798306,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":197.212802739,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
+,{"stream_name":"stderr","time":197.212807624,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":197.212812527,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":197.212829252,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 146-147: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":197.415260343,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x79d24c5873a0\u003e\u003e)\n"}
+,{"stream_name":"stderr","time":197.415287215,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":197.415290822,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
+,{"stream_name":"stderr","time":197.415293731,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":197.415296213,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":197.415299626,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 146-147: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":197.415314721,"data":"\n"}
+,{"stream_name":"stderr","time":197.415318954,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":197.415323016,"data":"\n"}
+,{"stream_name":"stderr","time":197.415326455,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":197.415330701,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
+,{"stream_name":"stderr","time":197.415347666,"data":"    ret = callback()\n"}
+,{"stream_name":"stderr","time":197.415351048,"data":"          ^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":197.415354371,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
+,{"stream_name":"stderr","time":197.415361551,"data":"    self.session.send(\n"}
+,{"stream_name":"stderr","time":197.415369991,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
+,{"stream_name":"stderr","time":197.415372503,"data":"    to_send = self.serialize(msg, ident)\n"}
+,{"stream_name":"stderr","time":197.415374875,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":197.415377111,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
+,{"stream_name":"stderr","time":197.415379564,"data":"    content = self.pack(content)\n"}
+,{"stream_name":"stderr","time":197.415381758,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":197.415383987,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
+,{"stream_name":"stderr","time":197.415386345,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":197.415388806,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":197.415391076,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 146-147: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":197.415393513,"data":"\n"}
+,{"stream_name":"stderr","time":197.415396267,"data":"ERROR:tornado.application:Exception in callback functools.partial(\u003cbound method OutStream._flush of \u003cipykernel.iostream.OutStream object at 0x79d24c5873a0\u003e\u003e)\n"}
+,{"stream_name":"stderr","time":197.415410555,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":197.415414589,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 104, in json_packer\n"}
+,{"stream_name":"stderr","time":197.415418781,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":197.415422918,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":197.415427085,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 146-147: surrogates not allowed\n"}
+,{"stream_name":"stderr","time":197.415430652,"data":"\n"}
+,{"stream_name":"stderr","time":197.41543386,"data":"During handling of the above exception, another exception occurred:\n"}
+,{"stream_name":"stderr","time":197.415437289,"data":"\n"}
+,{"stream_name":"stderr","time":197.415441625,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":197.415445036,"data":"  File \"/usr/local/lib/python3.12/dist-packages/tornado/ioloop.py\", line 758, in _run_callback\n"}
+,{"stream_name":"stderr","time":197.415448593,"data":"    ret = callback()\n"}
+,{"stream_name":"stderr","time":197.415451875,"data":"          ^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":197.415455139,"data":"  File \"/usr/local/lib/python3.12/dist-packages/ipykernel/iostream.py\", line 518, in _flush\n"}
+,{"stream_name":"stderr","time":197.415461921,"data":"    self.session.send(\n"}
+,{"stream_name":"stderr","time":197.415465224,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 848, in send\n"}
+,{"stream_name":"stderr","time":197.415468781,"data":"    to_send = self.serialize(msg, ident)\n"}
+,{"stream_name":"stderr","time":197.415479893,"data":"              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":197.415483341,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 718, in serialize\n"}
+,{"stream_name":"stderr","time":197.415485808,"data":"    content = self.pack(content)\n"}
+,{"stream_name":"stderr","time":197.415488131,"data":"              ^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":197.415490906,"data":"  File \"/usr/local/lib/python3.12/dist-packages/jupyter_client/session.py\", line 112, in json_packer\n"}
+,{"stream_name":"stderr","time":197.415503369,"data":"    ).encode(\"utf8\", errors=\"surrogateescape\")\n"}
+,{"stream_name":"stderr","time":197.415507603,"data":"      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":197.415511762,"data":"UnicodeEncodeError: 'utf-8' codec can't encode characters in position 146-147: surrogates not allowed\n"}
+,{"stream_name":"stdout","time":197.571229743,"data":"2026-08-04 10:02:35,936 [INFO] [DATA] Checking dataset source...\n"}
+,{"stream_name":"stdout","time":197.571263431,"data":"2026-08-04 10:02:35,936 [INFO] [DATA] Checking dataset source...\n"}
+,{"stream_name":"stdout","time":197.571275853,"data":"2026-08-04 10:02:35,936 [INFO] [INFO] Supabase not available/empty. Using local dataset '/kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl'\n"}
+,{"stream_name":"stdout","time":197.571279862,"data":"2026-08-04 10:02:35,936 [INFO] [INFO] Supabase not available/empty. Using local dataset '/kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl'\n"}
+,{"stream_name":"stdout","time":197.571283235,"data":"2026-08-04 10:02:35,936 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE_T4X2]...\n"}
+,{"stream_name":"stdout","time":197.571286449,"data":"2026-08-04 10:02:35,936 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE_T4X2]...\n"}
+,{"stream_name":"stdout","time":197.571289593,"data":"2026-08-04 10:02:35,936 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
+,{"stream_name":"stdout","time":197.57129286,"data":"2026-08-04 10:02:35,936 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
+,{"stream_name":"stdout","time":197.571295908,"data":"2026-08-04 10:02:35,936 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl\n"}
+,{"stream_name":"stdout","time":197.571299091,"data":"2026-08-04 10:02:35,936 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl\n"}
+,{"stream_name":"stdout","time":197.571302252,"data":"2026-08-04 10:02:35,936 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
+,{"stream_name":"stdout","time":197.571305287,"data":"2026-08-04 10:02:35,936 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
+,{"stream_name":"stdout","time":197.571308373,"data":"2026-08-04 10:02:35,936 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...\n"}
+,{"stream_name":"stdout","time":197.571311412,"data":"2026-08-04 10:02:35,936 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...\n"}
+,{"stream_name":"stdout","time":199.994923246,"data":"2026-08-04 10:02:38,361 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']\n"}
+,{"stream_name":"stdout","time":199.994958381,"data":"2026-08-04 10:02:38,361 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']\n"}
+,{"stream_name":"stdout","time":199.994964709,"data":"2026-08-04 10:02:38,361 [WARNING]    [WARNING] WARNING: PyTorch wheel does NOT contain compiled binary for sm_60 (Tesla P100-PCIE-16GB)!\n"}
+,{"stream_name":"stdout","time":199.994970048,"data":"2026-08-04 10:02:38,361 [WARNING]    [WARNING] WARNING: PyTorch wheel does NOT contain compiled binary for sm_60 (Tesla P100-PCIE-16GB)!\n"}
+,{"stream_name":"stdout","time":199.994989866,"data":"2026-08-04 10:02:38,361 [INFO]    [TARGET] GPU Architecture: sm_60 (Tesla P100-PCIE-16GB)\n"}
+,{"stream_name":"stdout","time":199.99499409,"data":"2026-08-04 10:02:38,361 [INFO]    [TARGET] GPU Architecture: sm_60 (Tesla P100-PCIE-16GB)\n"}
+,{"stream_name":"stdout","time":199.994997763,"data":"2026-08-04 10:02:38,361 [INFO]    [CUDA] CUDA Device: Tesla P100-PCIE-16GB (Total GPUs: 1)\n"}
+,{"stream_name":"stdout","time":199.99500161,"data":"2026-08-04 10:02:38,361 [INFO]    [CUDA] CUDA Device: Tesla P100-PCIE-16GB (Total GPUs: 1)\n"}
+,{"stream_name":"stdout","time":199.995005888,"data":"2026-08-04 10:02:38,477 [ERROR]    [ERROR] CUDA Kernel Execution Test FAILED: CUDA error: no kernel image is available for execution on the device\n"}
+,{"stream_name":"stdout","time":199.995009767,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
+,{"stream_name":"stdout","time":199.99501345,"data":"For more detailed error information, run with CUDA_LOG_FILE=stderr\n"}
+,{"stream_name":"stdout","time":199.995017014,"data":"\n"}
+,{"stream_name":"stdout","time":199.995020313,"data":"2026-08-04 10:02:38,477 [ERROR]    [ERROR] CUDA Kernel Execution Test FAILED: CUDA error: no kernel image is available for execution on the device\n"}
+,{"stream_name":"stdout","time":199.995024054,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
+,{"stream_name":"stdout","time":199.995027596,"data":"For more detailed error information, run with CUDA_LOG_FILE=stderr\n"}
+,{"stream_name":"stdout","time":199.995031101,"data":"\n"}
+,{"stream_name":"stdout","time":201.017855368,"data":"2026-08-04 10:02:39,383 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
+,{"stream_name":"stdout","time":201.017890487,"data":"2026-08-04 10:02:39,383 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
+,{"stream_name":"stdout","time":201.017895272,"data":"2026-08-04 10:02:39,404 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
+,{"stream_name":"stdout","time":201.017898835,"data":"2026-08-04 10:02:39,404 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
+,{"stream_name":"stdout","time":201.017902453,"data":"2026-08-04 10:02:39,404 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device\n"}
+,{"stream_name":"stdout","time":201.017906459,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
+,{"stream_name":"stdout","time":201.017910499,"data":"For more detailed error information, run with CUDA_LOG_FILE=stderr\n"}
+,{"stream_name":"stdout","time":201.017914362,"data":"\n"}
+,{"stream_name":"stdout","time":201.01791769,"data":"2026-08-04 10:02:39,404 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device\n"}
+,{"stream_name":"stdout","time":201.017921437,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
+,{"stream_name":"stdout","time":201.017925481,"data":"For more detailed error information, run with CUDA_LOG_FILE=stderr\n"}
+,{"stream_name":"stdout","time":201.017928939,"data":"\n"}
+,{"stream_name":"stdout","time":201.017932444,"data":"2026-08-04 10:02:39,404 [ERROR] [ERROR] CUDA pre-flight execution test failed. Aborting training pipeline to prevent GPU crash.\n"}
+,{"stream_name":"stdout","time":201.017954689,"data":"2026-08-04 10:02:39,404 [ERROR] [ERROR] CUDA pre-flight execution test failed. Aborting training pipeline to prevent GPU crash.\n"}
+,{"stream_name":"stdout","time":201.017958785,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stdout","time":201.017962399,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 747, in \u003cmodule\u003e\n"}
+,{"stream_name":"stdout","time":201.017966625,"data":"    main()\n"}
+,{"stream_name":"stdout","time":201.017973552,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 733, in main\n"}
+,{"stream_name":"stdout","time":201.01797704,"data":"    success = run_training_pipeline(\n"}
+,{"stream_name":"stdout","time":201.01798052,"data":"              ^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stdout","time":201.017983822,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 321, in run_training_pipeline\n"}
+,{"stream_name":"stdout","time":201.017987381,"data":"    raise RuntimeError(\"[ERROR] CUDA environment audit failed: no valid CUDA kernel execution image available.\")\n"}
+,{"stream_name":"stdout","time":201.017990917,"data":"RuntimeError: [ERROR] CUDA environment audit failed: no valid CUDA kernel execution image available.\n"}
+,{"stream_name":"stderr","time":204.739714751,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":204.739761872,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":204.739769387,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":204.740662661,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":204.74067691,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":204.74083908,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":204.740944926,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":204.740965574,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":204.740971486,"data":"Exception encountered at \"In [1]\":\n"}
+,{"stream_name":"stderr","time":204.740976921,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":204.740981931,"data":"RuntimeError                              Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":204.740986937,"data":"/tmp/ipykernel_23/1753784196.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":204.74099174,"data":"    105         except Exception:\n"}
+,{"stream_name":"stderr","time":204.740996336,"data":"    106             pass\n"}
+,{"stream_name":"stderr","time":204.741001078,"data":"--\u003e 107     raise RuntimeError(f'\\u274c Training orchestrator failed (exit code {proc.returncode}).\\n--- Tail of train_execution.log ---\\n{log_tail}')\n"}
+,{"stream_name":"stderr","time":204.741006582,"data":"    108 print('\\ud83c\\udf89 Training pipeline completed successfully!')\n"}
+,{"stream_name":"stderr","time":204.741011476,"data":"\n"}
+,{"stream_name":"stderr","time":204.7410162,"data":"RuntimeError: ❌ Training orchestrator failed (exit code 1).\n"}
+,{"stream_name":"stderr","time":204.741022654,"data":"--- Tail of train_execution.log ---\n"}
+,{"stream_name":"stderr","time":204.741028031,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
+,{"stream_name":"stderr","time":204.741044166,"data":"For more detailed error information, run with CUDA_LOG_FILE=stderr\n"}
+,{"stream_name":"stderr","time":204.741048064,"data":"\n"}
+,{"stream_name":"stderr","time":204.741051163,"data":"2026-08-04 10:02:38,477 [ERROR]    [ERROR] CUDA Kernel Execution Test FAILED: CUDA error: no kernel image is available for execution on the device\n"}
+,{"stream_name":"stderr","time":204.74105491,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
+,{"stream_name":"stderr","time":204.741074654,"data":"For more detailed error information, run with CUDA_LOG_FILE=stderr\n"}
+,{"stream_name":"stderr","time":204.7410791,"data":"\n"}
+,{"stream_name":"stderr","time":204.741082458,"data":"2026-08-04 10:02:39,383 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
+,{"stream_name":"stderr","time":204.741089007,"data":"2026-08-04 10:02:39,383 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
+,{"stream_name":"stderr","time":204.741093103,"data":"2026-08-04 10:02:39,404 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
+,{"stream_name":"stderr","time":204.741096818,"data":"2026-08-04 10:02:39,404 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
+,{"stream_name":"stderr","time":204.741100816,"data":"2026-08-04 10:02:39,404 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device\n"}
+,{"stream_name":"stderr","time":204.74110444,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
+,{"stream_name":"stderr","time":204.74110933,"data":"For more detailed error information, run with CUDA_LOG_FILE=stderr\n"}
+,{"stream_name":"stderr","time":204.74111266,"data":"\n"}
+,{"stream_name":"stderr","time":204.741115918,"data":"2026-08-04 10:02:39,404 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device\n"}
+,{"stream_name":"stderr","time":204.741119679,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
+,{"stream_name":"stderr","time":204.741123123,"data":"For more detailed error information, run with CUDA_LOG_FILE=stderr\n"}
+,{"stream_name":"stderr","time":204.741126462,"data":"\n"}
+,{"stream_name":"stderr","time":204.741129645,"data":"2026-08-04 10:02:39,404 [ERROR] [ERROR] CUDA pre-flight execution test failed. Aborting training pipeline to prevent GPU crash.\n"}
+,{"stream_name":"stderr","time":204.741133371,"data":"2026-08-04 10:02:39,404 [ERROR] [ERROR] CUDA pre-flight execution test failed. Aborting training pipeline to prevent GPU crash.\n"}
+,{"stream_name":"stderr","time":204.74113704,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":204.741140512,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 747, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":204.741144488,"data":"    main()\n"}
+,{"stream_name":"stderr","time":204.741148074,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 733, in main\n"}
+,{"stream_name":"stderr","time":204.741152042,"data":"    success = run_training_pipeline(\n"}
+,{"stream_name":"stderr","time":204.741155938,"data":"              ^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":204.741159644,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 321, in run_training_pipeline\n"}
+,{"stream_name":"stderr","time":204.741168814,"data":"    raise RuntimeError(\"[ERROR] CUDA environment audit failed: no valid CUDA kernel execution image available.\")\n"}
+,{"stream_name":"stderr","time":204.74117301,"data":"RuntimeError: [ERROR] CUDA environment audit failed: no valid CUDA kernel execution image available.\n"}
+,{"stream_name":"stderr","time":204.74117664,"data":"\n"}
+,{"stream_name":"stderr","time":204.741179866,"data":"\n"}
+,{"stream_name":"stderr","time":206.894297149,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":206.894327296,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":207.046545,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":207.046569733,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":207.666730688,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":207.963465321,"data":"[NbConvertApp] Writing 27333 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":210.301206707,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":211.125788126,"data":"[NbConvertApp] Writing 317802 bytes to __results__.html\n"}
 ]
