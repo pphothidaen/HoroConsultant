@@ -11,6 +11,6 @@
   "dataset_sources": [],
   "competition_sources": [],
   "kernel_sources": [],
-  "accelerator": "nvidiaTeslaT4x2",
+  "accelerator": "gpu",
   "machine_shape": "NvidiaTeslaT4x2"
 }

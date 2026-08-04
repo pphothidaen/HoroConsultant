@@ -81,11 +81,9 @@ def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
 
     acc_lower = accelerator_type.lower()
     if "p100" in acc_lower:
-        accelerator = "nvidiaTeslaP100"
         machine_shape = "NvidiaTeslaP100"
         platform_arg = "KAGGLE_P100"
     else:
-        accelerator = "nvidiaTeslaT4x2"
         machine_shape = "NvidiaTeslaT4x2"
         platform_arg = "KAGGLE_T4X2"
 
@@ -102,13 +100,13 @@ def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
         "dataset_sources": [],
         "competition_sources": [],
         "kernel_sources": [],
-        "accelerator": accelerator,
+        "accelerator": "gpu",
         "machine_shape": machine_shape
     }
 
 
     METADATA_FILE.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-    logger.info(f"[FILE] Created metadata file at '{METADATA_FILE}' for accelerator [{accelerator}]")
+    logger.info(f"[FILE] Created metadata file at '{METADATA_FILE}' for accelerator [gpu / {machine_shape}]")
 
     # Generate notebook structure with clean execution code
     notebook = {
@@ -225,8 +223,8 @@ def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
             }
         ],
         "metadata": {
-            "accelerator": accelerator,
-            "gpuType": accelerator,
+            "accelerator": "gpu",
+            "gpuType": "gpu",
             "kernelspec": {
                 "display_name": "Python 3",
                 "language": "python",
