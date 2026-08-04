@@ -188,7 +188,7 @@ def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
                     "    arch_list = torch.cuda.get_arch_list() if hasattr(torch.cuda, 'get_arch_list') else []\n",
                     "    if arch_list and not any(target_sm in a or f'{cap[0]}.{cap[1]}' in a for a in arch_list):\n",
                     "        print(f'[WARNING] Pre-installed PyTorch wheel lacks binary for {target_sm} ({dev_name}). Installing cu121 PyTorch compatibility wheel...')\n",
-                    "        subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--prefer-binary', 'torch==2.3.1', 'torchvision', 'torchaudio', '--index-url', 'https://download.pytorch.org/whl/cu121'], check=False)\n",
+                    "        subprocess.run([sys.executable, '-m', 'pip', 'install', '--force-reinstall', '--no-deps', '-q', '--prefer-binary', 'torch==2.3.1', '--index-url', 'https://download.pytorch.org/whl/cu121'], check=False)\n",
                     "    elif cap == (7, 5):\n",
                     "        print('[INFO] Tesla T4 (sm_75) detected: float16 training, bitsandbytes 4-bit bypassed.')\n",
                     "print('[MODEL] Removing incompatible torchao/torchvision & installing fine-tuning packages...')\n",
