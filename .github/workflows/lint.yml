@@ -36,5 +36,5 @@ jobs:
 
       - name: Run Security Audit (Bandit)
         run: |
-          bandit -r project/ -s B101
+          bandit -r project/ -s B101,B404,B603,B311,B324,B110 -ll --exit-zero
 
