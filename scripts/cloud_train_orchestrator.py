@@ -213,8 +213,21 @@ def run_training_pipeline(
                 output_texts.append(text)
         return output_texts
 
+    # Disable incompatible pre-installed torchao (<0.16.0) on Kaggle/cloud to prevent PEFT ImportError
+    try:
+        import torchao
+        v_str = getattr(torchao, "__version__", "0.0.0")
+        v_parts = [int(x) for x in v_str.split(".") if x.isdigit()]
+        if v_parts and tuple(v_parts[:2]) < (0, 16):
+            logger.info(f"ℹ️ Pre-installed torchao version ({v_str}) is < 0.16.0. Disabling torchao integration safely.")
+            sys.modules["torchao"] = None
+    except Exception:
+        pass
+
     # 4. Training Arguments & SFTTrainer (Ultra-Robust Compatibility for all TRL versions)
     from trl import SFTTrainer
+    trainer = None
+
     try:
         from trl import SFTConfig
         try:
@@ -258,7 +271,7 @@ def run_training_pipeline(
         except TypeError:
             trainer = SFTTrainer(tokenizer=tokenizer, **trainer_kwargs)
 
-    except (ImportError, TypeError, AttributeError) as e:
+    except Exception as e:
         logger.info(f"ℹ️ Falling back to standard TrainingArguments + SFTTrainer: {e}")
         from transformers import TrainingArguments
         training_args = TrainingArguments(
@@ -282,15 +295,16 @@ def run_training_pipeline(
             "args": training_args,
         }
         try:
-            trainer = SFTTrainer(tokenizer=tokenizer, **trainer_kwargs)
-        except TypeError:
             trainer = SFTTrainer(processing_class=tokenizer, **trainer_kwargs)
+        except TypeError:
+            trainer = SFTTrainer(tokenizer=tokenizer, **trainer_kwargs)
 
-    if hasattr(trainer, "max_seq_length"):
+    if trainer is not None and hasattr(trainer, "max_seq_length"):
         try:
             trainer.max_seq_length = 1024
         except Exception:
             pass
+
 
 
 

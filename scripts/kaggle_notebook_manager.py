@@ -151,8 +151,10 @@ def create_kernel_files() -> None:
                     "\n",
                     "# 3. Install Fine-Tuning Dependencies safely without overwriting pre-installed Kaggle CUDA PyTorch\n",
                     "print('📦 Installing dependencies...')\n",
+                    "subprocess.run([sys.executable, '-m', 'pip', 'uninstall', '-y', 'torchao'], check=False)\n",
                     "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--prefer-binary', '-r', 'requirements.txt'], check=True)\n",
                     "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--prefer-binary', 'torchao>=0.16.0', 'transformers>=4.40.0', 'peft>=0.10.0', 'bitsandbytes>=0.43.3', 'datasets>=2.18.0', 'trl>=0.12.0', 'huggingface_hub', 'accelerate'], check=True)\n",
+
 
                     "\n",
                     "# 4. Run Cloud Training Orchestrator with execution logging\n",
