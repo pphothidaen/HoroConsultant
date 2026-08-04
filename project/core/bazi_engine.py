@@ -21,9 +21,10 @@ Reference: He Luo Li Shu classical BaZi methodology
 from __future__ import annotations
 
 import math
-from datetime import datetime, timedelta
-from dataclasses  import dataclass, field, asdict
-from typing       import Dict, List, Optional, Tuple, Any
+from functools  import lru_cache
+from datetime   import datetime, timedelta
+from dataclasses import dataclass, field, asdict
+from typing      import Dict, List, Optional, Tuple, Any
 
 from project.core.solar_time import calculate_true_solar_time, SolarTimeResult
 # NumPy-accelerated operations (Phase 1 — transparent drop-in replacement)
@@ -116,9 +117,10 @@ def _julian_day(dt: datetime) -> int:
 
 
 # ============================================================
-# Pillar Calculations
+# Pillar Calculations (LRU Cached for 0.00ms Repeat Queries)
 # ============================================================
 
+@lru_cache(maxsize=4096)
 def _year_stem_branch(year: int, month: int, day: int) -> Tuple[int, int]:
     """
     Year pillar indices.
@@ -146,6 +148,7 @@ _SOLAR_MONTH_STARTS: List[Tuple[int, int]] = [
 ]
 # branch_idx offset: 丑=1, 寅=2, …  (index into _SOLAR_MONTH_STARTS = branch_idx - 1)
 
+@lru_cache(maxsize=2048)
 def _month_branch_idx(month: int, day: int) -> int:
     """Return Earthly Branch index (0–11) for the solar month."""
     for i in range(len(_SOLAR_MONTH_STARTS) - 1, -1, -1):
@@ -156,6 +159,7 @@ def _month_branch_idx(month: int, day: int) -> int:
     return 1  # fallback: 丑
 
 
+@lru_cache(maxsize=4096)
 def _month_stem_branch(year_stem_idx: int, month: int, day: int) -> Tuple[int, int]:
     """
     Month pillar via Five Tigers Rule (五虎遁).

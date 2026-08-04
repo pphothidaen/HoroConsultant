@@ -62,9 +62,15 @@ async def lifespan(app: FastAPI):
                 replace_existing=True,
             )
             scheduler.start()
-            logger.info(f"⏰ Midnight Auto-Sync Scheduler active: cron='{cron_expr}'")
         except Exception as e:
             logger.error(f"❌ Failed to start auto-sync scheduler: {e}")
+
+    # 3. Vector DB & FAISS Index Warmup (eliminates cold-start latency)
+    try:
+        logger.info("⚡ Pre-warming FAISS Vector Store & Rust Search Index...")
+        asyncio.create_task(asyncio.to_thread(get_vector_store))
+    except Exception as e:
+        logger.warning(f"Vector store warmup note: {e}")
 
     yield
 
