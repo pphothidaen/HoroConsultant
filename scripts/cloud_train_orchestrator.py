@@ -154,9 +154,10 @@ def create_sft_trainer(
     model,
     tokenizer,
     train_dataset,
-    formatting_func,
     peft_config,
     training_args,
+    dataset_text_field: str = "text",
+    formatting_func = None,
     max_seq_length: int = 512,
 ):
     """
@@ -178,13 +179,24 @@ def create_sft_trainer(
         except Exception:
             pass
 
+    if hasattr(training_args, "dataset_text_field"):
+        try:
+            training_args.dataset_text_field = dataset_text_field
+        except Exception:
+            pass
+
     kwargs = {
         "model": model,
         "train_dataset": train_dataset,
-        "formatting_func": formatting_func,
         "peft_config": peft_config,
         "args": training_args,
     }
+
+    if "dataset_text_field" in params:
+        kwargs["dataset_text_field"] = dataset_text_field
+
+    if formatting_func is not None and "formatting_func" in params:
+        kwargs["formatting_func"] = formatting_func
 
     # Pass max_seq_length ONLY if SFTTrainer.__init__ explicitly accepts it (TRL < 0.12)
     if "max_seq_length" in params:
@@ -209,10 +221,7 @@ def create_sft_trainer(
     except TypeError as te:
         logger.warning(f"⚠️ Initial SFTTrainer call raised TypeError ({te}). Attempting version fallback...")
 
-        # Fallback Strategy 1: Try without max_seq_length if it was passed
         kwargs.pop("max_seq_length", None)
-
-        # Fallback Strategy 2: Swap tokenizer / processing_class
         if "processing_class" in kwargs:
             kwargs.pop("processing_class")
             kwargs["tokenizer"] = tokenizer
@@ -224,7 +233,6 @@ def create_sft_trainer(
             return SFTTrainer(**kwargs)
         except TypeError as te2:
             logger.warning(f"⚠️ Secondary SFTTrainer fallback raised ({te2}). Using minimal signature...")
-            # Fallback Strategy 3: Bare minimum required args
             min_kwargs = {
                 "model": model,
                 "train_dataset": train_dataset,
@@ -232,8 +240,6 @@ def create_sft_trainer(
             }
             if peft_config is not None:
                 min_kwargs["peft_config"] = peft_config
-            if formatting_func is not None:
-                min_kwargs["formatting_func"] = formatting_func
             if "processing_class" in params:
                 min_kwargs["processing_class"] = tokenizer
             else:
@@ -438,41 +444,42 @@ def run_training_pipeline(
         )
 
 
-    # 3. Load Dataset
-    logger.info(f"📖 Formatting dataset from '{dataset_path}'...")
+    # 3. Load & Pre-format Dataset into a single string 'text' column
+    logger.info(f"📖 Pre-formatting dataset from '{dataset_path}'...")
     raw_data = load_dataset("json", data_files=str(dataset_path))
 
-    def formatting_prompts_func(example):
-        output_texts = []
-        # Support single items or list of conversation items
+    def format_example(example):
         items = example.get("conversations") or example.get("messages") or []
-        if isinstance(items, list) and len(items) > 0 and isinstance(items[0], dict):
-            items = [items]
-        
-        for conversations in items:
-            if not isinstance(conversations, list):
-                continue
-            formatted_convs = []
-            for msg in conversations:
-                if not isinstance(msg, dict):
-                    continue
-                role = msg.get("role", "")
-                if role in ("human", "user"):
-                    role = "user"
-                elif role in ("gpt", "assistant"):
-                    role = "assistant"
-                elif role == "system":
-                    role = "system"
-                content = msg.get("value") or msg.get("content", "")
-                if content:
-                    formatted_convs.append({"role": role, "content": content})
-            if formatted_convs:
-                try:
-                    text = tokenizer.apply_chat_template(formatted_convs, tokenize=False)
-                except Exception:
-                    text = "\n".join([f"<|im_start|>{m['role']}\n{m['content']}<|im_end|>" for m in formatted_convs])
-                output_texts.append(text)
-        return output_texts
+        formatted_convs = []
+        if isinstance(items, list):
+            for msg in items:
+                if isinstance(msg, dict):
+                    role = msg.get("role", "")
+                    if role in ("human", "user"):
+                        role = "user"
+                    elif role in ("gpt", "assistant"):
+                        role = "assistant"
+                    elif role == "system":
+                        role = "system"
+                    content = msg.get("value") or msg.get("content", "")
+                    if content:
+                        formatted_convs.append({"role": role, "content": content})
+        if formatted_convs:
+            try:
+                text = tokenizer.apply_chat_template(formatted_convs, tokenize=False)
+            except Exception:
+                text = "\n".join([f"<|im_start|>{m['role']}\n{m['content']}<|im_end|>" for m in formatted_convs])
+        else:
+            raw_text = example.get("text", "")
+            text = raw_text if isinstance(raw_text, str) else str(raw_text)
+
+        return {"text": text}
+
+    train_ds = raw_data["train"].map(
+        format_example,
+        remove_columns=raw_data["train"].column_names,
+        desc="Formatting dataset rows into single string 'text' column",
+    )
 
     # Disable incompatible pre-installed torchao (<0.16.0) on Kaggle/cloud to prevent PEFT ImportError
     try:
@@ -499,6 +506,7 @@ def run_training_pipeline(
         "fp16": use_cuda,
         "report_to": "none",
         "gradient_checkpointing": True,
+        "dataset_text_field": "text",
     }
 
     training_args = None
@@ -521,10 +529,10 @@ def run_training_pipeline(
     trainer = create_sft_trainer(
         model=model,
         tokenizer=tokenizer,
-        train_dataset=raw_data["train"],
-        formatting_func=formatting_prompts_func,
+        train_dataset=train_ds,
         peft_config=peft_config,
         training_args=training_args,
+        dataset_text_field="text",
         max_seq_length=max_seq_length,
     )
 
