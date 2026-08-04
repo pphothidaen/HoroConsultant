@@ -95,20 +95,15 @@ def run_training_pipeline(
     use_cuda = torch.cuda.is_available()
     compute_dtype = torch.float16 if use_cuda else torch.float32
 
-    # Disable bitsandbytes 4-bit on Kaggle platform to prevent C++ ops.cu symbol errors (exit code -11)
+    # Quantization check (BitsAndBytes 4-bit)
     is_kaggle = os.path.exists("/kaggle") or platform == "KAGGLE_T4" or "KAGGLE" in platform
-    if is_kaggle:
-        logger.info("ℹ️ Kaggle platform detected: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.")
-        bnb_available = False
-    else:
-        bnb_available = False
-        if use_cuda:
-            try:
-                import bitsandbytes as bnb
-                if hasattr(bnb, "cextension") and getattr(bnb.cextension, "COMPILED_WITH_CUDA", False):
-                    bnb_available = True
-            except Exception as bnb_err:
-                logger.warning(f"⚠️ BitsAndBytes CUDA C++ check failed ({bnb_err}). 4-bit quantization will be bypassed.")
+    bnb_available = False
+    if use_cuda:
+        try:
+            import bitsandbytes as bnb
+            bnb_available = True
+        except Exception as bnb_err:
+            logger.warning(f"⚠️ BitsAndBytes CUDA check failed ({bnb_err}). 4-bit quantization will be bypassed.")
 
     bnb_config = None
     if bnb_available:
@@ -245,85 +240,58 @@ def run_training_pipeline(
         pass
 
     # 4. Training Arguments & SFTTrainer (Ultra-Robust Compatibility for all TRL versions)
-    from trl import SFTTrainer
-    trainer = None
+    max_seq_length = 1024
+    sft_kwargs = {
+        "output_dir": str(output_dir),
+        "num_train_epochs": epochs,
+        "per_device_train_batch_size": 2,
+        "gradient_accumulation_steps": 4,
+        "warmup_steps": 10,
+        "logging_steps": 10,
+        "save_strategy": "epoch",
+        "learning_rate": 2e-4,
+        "fp16": use_cuda,
+        "report_to": "none",
+        "gradient_checkpointing": True,
+    }
 
+    training_args = None
     try:
         from trl import SFTConfig
         try:
-            training_args = SFTConfig(
-                output_dir=str(output_dir),
-                num_train_epochs=epochs,
-                per_device_train_batch_size=2,
-                gradient_accumulation_steps=4,
-                warmup_steps=10,
-                logging_steps=10,
-                save_strategy="epoch",
-                learning_rate=2e-4,
-                fp16=True,
-                max_seq_length=1024,
-                report_to="none",
-            )
+            training_args = SFTConfig(max_seq_length=max_seq_length, **sft_kwargs)
         except TypeError:
-            logger.info("ℹ️ SFTConfig does not accept max_seq_length in __init__, initializing standard SFTConfig...")
-            training_args = SFTConfig(
-                output_dir=str(output_dir),
-                num_train_epochs=epochs,
-                per_device_train_batch_size=2,
-                gradient_accumulation_steps=4,
-                warmup_steps=10,
-                logging_steps=10,
-                save_strategy="epoch",
-                learning_rate=2e-4,
-                fp16=True,
-                report_to="none",
-            )
-
-        trainer_kwargs = {
-            "model": model,
-            "train_dataset": raw_data["train"],
-            "formatting_func": formatting_prompts_func,
-            "peft_config": peft_config,
-            "args": training_args,
-        }
-        try:
-            trainer = SFTTrainer(processing_class=tokenizer, **trainer_kwargs)
-        except TypeError:
-            trainer = SFTTrainer(tokenizer=tokenizer, **trainer_kwargs)
-
-    except Exception as e:
-        logger.info(f"ℹ️ Falling back to standard TrainingArguments + SFTTrainer: {e}")
+            training_args = SFTConfig(**sft_kwargs)
+    except ImportError:
         from transformers import TrainingArguments
-        training_args = TrainingArguments(
-            output_dir=str(output_dir),
-            num_train_epochs=epochs,
-            per_device_train_batch_size=2,
-            gradient_accumulation_steps=4,
-            warmup_steps=10,
-            logging_steps=10,
-            save_strategy="epoch",
-            learning_rate=2e-4,
-            fp16=True,
-            optim="paged_adamw_8bit",
-            report_to="none",
-        )
-        trainer_kwargs = {
-            "model": model,
-            "train_dataset": raw_data["train"],
-            "formatting_func": formatting_prompts_func,
-            "peft_config": peft_config,
-            "args": training_args,
-        }
-        try:
-            trainer = SFTTrainer(processing_class=tokenizer, **trainer_kwargs)
-        except TypeError:
-            trainer = SFTTrainer(tokenizer=tokenizer, **trainer_kwargs)
+        training_args = TrainingArguments(**sft_kwargs)
 
-    if trainer is not None and hasattr(trainer, "max_seq_length"):
+    if hasattr(training_args, "max_seq_length") and getattr(training_args, "max_seq_length", None) is None:
         try:
-            trainer.max_seq_length = 1024
+            training_args.max_seq_length = max_seq_length
         except Exception:
             pass
+
+    trainer_kwargs = {
+        "model": model,
+        "train_dataset": raw_data["train"],
+        "formatting_func": formatting_prompts_func,
+        "peft_config": peft_config,
+        "args": training_args,
+    }
+
+    from trl import SFTTrainer
+    trainer = None
+    try:
+        trainer = SFTTrainer(processing_class=tokenizer, max_seq_length=max_seq_length, **trainer_kwargs)
+    except TypeError:
+        try:
+            trainer = SFTTrainer(tokenizer=tokenizer, max_seq_length=max_seq_length, **trainer_kwargs)
+        except TypeError:
+            try:
+                trainer = SFTTrainer(processing_class=tokenizer, **trainer_kwargs)
+            except TypeError:
+                trainer = SFTTrainer(tokenizer=tokenizer, **trainer_kwargs)
 
 
 
