@@ -1,256 +1,102 @@
-[{"stream_name":"stderr","time":6.368925921,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":6.368977137,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":6.368999874,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":6.3690028309999995,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stderr","time":6.925286465,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":6.925314691,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":6.9253196599999995,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":6.925324891,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stdout","time":8.136907819,"data":"[OK] CUDA stability environment variables set (T4/sm_75 compatible)\n"}
-,{"stream_name":"stdout","time":8.136938138,"data":"[INFO] Kaggle Secret note (HF_TOKEN): Connection error trying to communicate with service.\n"}
-,{"stream_name":"stderr","time":8.326677707,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stdout","time":8.349505005,"data":"[INFO] Kaggle Secret note (APP_SUPABASE_URL): Connection error trying to communicate with service.\n"}
-,{"stream_name":"stdout","time":8.349525394,"data":"[INFO] Kaggle Secret note (APP_SUPABASE_KEY): Connection error trying to communicate with service.\n"}
-,{"stream_name":"stdout","time":8.349530355,"data":"[INFO] Kaggle Secret note (GH_TOKEN): Connection error trying to communicate with service.\n"}
-,{"stream_name":"stdout","time":8.349539377,"data":"[MODEL] Cloning HoroConsultant repository...\n"}
-,{"stream_name":"stderr","time":8.529400909,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stderr","time":8.529426381,"data":"\n"}
-,{"stream_name":"stderr","time":8.529431319,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stdout","time":9.651635369,"data":"[CHECK] Checking pre-installed PyTorch \u0026 CUDA status...\n"}
-,{"stream_name":"stdout","time":13.395570375,"data":"[CUDA] Kaggle PyTorch version: 2.10.0+cu128, CUDA available: True\n"}
-,{"stream_name":"stdout","time":13.395605052,"data":"   Device Count: 1, Device 0: Tesla P100-PCIE-16GB (sm_60)\n"}
-,{"stream_name":"stdout","time":13.395611833,"data":"[MODEL] Removing incompatible torchao/torchvision \u0026 installing fine-tuning packages...\n"}
-,{"stream_name":"stderr","time":13.412887799,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.412931032,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
-,{"stream_name":"stderr","time":13.412937641,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
-,{"stream_name":"stderr","time":13.412942519,"data":"    (7.0) - (12.0)\n"}
-,{"stream_name":"stderr","time":13.412946859,"data":"    \n"}
-,{"stream_name":"stderr","time":13.412951179,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":13.412955512,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.412962072,"data":"    Please install PyTorch with a following CUDA\n"}
-,{"stream_name":"stderr","time":13.412969759,"data":"    configurations:  12.6 following instructions at\n"}
-,{"stream_name":"stderr","time":13.412983751,"data":"    https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":13.412986301,"data":"    \n"}
-,{"stream_name":"stderr","time":13.412988469,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":13.412990666,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.412993036,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
-,{"stream_name":"stderr","time":13.412995352,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
-,{"stream_name":"stderr","time":13.412997794,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":13.413000201,"data":"\n"}
-,{"stream_name":"stderr","time":13.413002397,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":13.413004556,"data":"\n"}
-,{"stream_name":"stderr","time":13.413006683,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.413009081,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
-,{"stream_name":"stderr","time":13.413011397,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
-,{"stream_name":"stderr","time":13.413013704,"data":"    (7.0) - (12.0)\n"}
-,{"stream_name":"stderr","time":13.413015892,"data":"    \n"}
-,{"stream_name":"stderr","time":13.413018023,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":13.413020251,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.413022503,"data":"    Please install PyTorch with a following CUDA\n"}
-,{"stream_name":"stderr","time":13.413024717,"data":"    configurations:  12.6 following instructions at\n"}
-,{"stream_name":"stderr","time":13.413026914,"data":"    https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":13.413029186,"data":"    \n"}
-,{"stream_name":"stderr","time":13.413031284,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":13.413033414,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":13.413035715,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
-,{"stream_name":"stderr","time":13.41303802,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
-,{"stream_name":"stderr","time":13.413040354,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":13.413042748,"data":"\n"}
-,{"stream_name":"stderr","time":13.413044926,"data":"  queued_call()\n"}
-,{"stream_name":"stdout","time":14.387077394,"data":"Found existing installation: torchao 0.10.0\n"}
-,{"stream_name":"stdout","time":14.452966076,"data":"Uninstalling torchao-0.10.0:\n"}
-,{"stream_name":"stdout","time":14.5896427,"data":"Found existing installation: torchao 0.10.0\n"}
-,{"stream_name":"stdout","time":14.589668369,"data":"Uninstalling torchao-0.10.0:\n"}
-,{"stream_name":"stdout","time":14.738493351,"data":"  Successfully uninstalled torchao-0.10.0\n"}
-,{"stream_name":"stdout","time":14.940558892,"data":"  Successfully uninstalled torchao-0.10.0\n"}
-,{"stream_name":"stdout","time":15.15383176,"data":"Found existing installation: torchvision 0.25.0+cu128\n"}
-,{"stream_name":"stdout","time":15.174968214,"data":"Uninstalling torchvision-0.25.0+cu128:\n"}
-,{"stream_name":"stdout","time":15.356312315,"data":"Found existing installation: torchvision 0.25.0+cu128\n"}
-,{"stream_name":"stdout","time":15.356334762,"data":"Uninstalling torchvision-0.25.0+cu128:\n"}
-,{"stream_name":"stdout","time":15.372859,"data":"  Successfully uninstalled torchvision-0.25.0+cu128\n"}
-,{"stream_name":"stdout","time":15.575394751,"data":"  Successfully uninstalled torchvision-0.25.0+cu128\n"}
-,{"stream_name":"stderr","time":47.852214743,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
-,{"stream_name":"stderr","time":47.852250576,"data":"easyocr 1.7.2 requires torchvision\u003e=0.5, which is not installed.\n"}
-,{"stream_name":"stderr","time":47.852257437,"data":"bigframes 2.39.0 requires google-cloud-bigquery-storage\u003c3.0.0,\u003e=2.30.0, which is not installed.\n"}
-,{"stream_name":"stderr","time":47.852262663,"data":"timm 1.0.26 requires torchvision, which is not installed.\n"}
-,{"stream_name":"stderr","time":47.852267755,"data":"fastai 2.8.7 requires torchvision\u003e=0.11, which is not installed.\n"}
-,{"stream_name":"stderr","time":47.85227263,"data":"timezonefinder 8.2.5 requires numpy\u003e=2, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852278011,"data":"kaggle-environments 1.29.3 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852282789,"data":"tpot 1.1.0 requires dill\u003e=0.3.9, but you have dill 0.3.8 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852287601,"data":"cesium 0.12.4 requires numpy\u003c3.0,\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852292908,"data":"google-colab 1.0.0 requires jupyter-server==2.14.0, but you have jupyter-server 2.12.5 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852298579,"data":"google-colab 1.0.0 requires pandas==2.2.2, but you have pandas 2.3.3 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852303657,"data":"dopamine-rl 4.1.2 requires gym\u003c=0.25.2, but you have gym 0.26.2 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852308749,"data":"jaxlib 0.7.2 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852313517,"data":"cupy-cuda12x 14.0.1 requires numpy\u003c2.6,\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852318115,"data":"moviepy 1.0.3 requires decorator\u003c5.0,\u003e=4.0.2, but you have decorator 5.3.1 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852323212,"data":"opencv-python 4.13.0.92 requires numpy\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852328899,"data":"tobler 0.14.0 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852334111,"data":"diffusers 0.37.1 requires huggingface-hub\u003c2.0,\u003e=0.34.0, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852339409,"data":"jax 0.7.2 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852344777,"data":"opencv-python-headless 4.13.0.92 requires numpy\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852361531,"data":"rasterio 1.5.0 requires numpy\u003e=2, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852451332,"data":"pytensor 2.38.2 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852469037,"data":"xarray-einstats 0.10.0 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852472253,"data":"tifffile 2026.4.11 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.85247495,"data":"opencv-contrib-python 4.13.0.92 requires numpy\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852478065,"data":"shap 0.51.0 requires numpy\u003e=2, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.85248058,"data":"gcsfs 2025.3.0 requires fsspec==2025.3.0, but you have fsspec 2024.2.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":47.852483173,"data":"gradio 5.50.0 requires huggingface-hub\u003c2.0,\u003e=0.33.5, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057210596,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
-,{"stream_name":"stderr","time":48.057237548,"data":"easyocr 1.7.2 requires torchvision\u003e=0.5, which is not installed.\n"}
-,{"stream_name":"stderr","time":48.057242601,"data":"bigframes 2.39.0 requires google-cloud-bigquery-storage\u003c3.0.0,\u003e=2.30.0, which is not installed.\n"}
-,{"stream_name":"stderr","time":48.057252123,"data":"timm 1.0.26 requires torchvision, which is not installed.\n"}
-,{"stream_name":"stderr","time":48.057269877,"data":"fastai 2.8.7 requires torchvision\u003e=0.11, which is not installed.\n"}
-,{"stream_name":"stderr","time":48.057274783,"data":"timezonefinder 8.2.5 requires numpy\u003e=2, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057279412,"data":"kaggle-environments 1.29.3 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057283905,"data":"tpot 1.1.0 requires dill\u003e=0.3.9, but you have dill 0.3.8 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057288369,"data":"cesium 0.12.4 requires numpy\u003c3.0,\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057292886,"data":"google-colab 1.0.0 requires jupyter-server==2.14.0, but you have jupyter-server 2.12.5 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057296685,"data":"google-colab 1.0.0 requires pandas==2.2.2, but you have pandas 2.3.3 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057300354,"data":"dopamine-rl 4.1.2 requires gym\u003c=0.25.2, but you have gym 0.26.2 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057304293,"data":"jaxlib 0.7.2 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.05730807,"data":"cupy-cuda12x 14.0.1 requires numpy\u003c2.6,\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057311917,"data":"moviepy 1.0.3 requires decorator\u003c5.0,\u003e=4.0.2, but you have decorator 5.3.1 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.05731573,"data":"opencv-python 4.13.0.92 requires numpy\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057328949,"data":"tobler 0.14.0 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057332863,"data":"diffusers 0.37.1 requires huggingface-hub\u003c2.0,\u003e=0.34.0, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057336811,"data":"jax 0.7.2 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057340585,"data":"opencv-python-headless 4.13.0.92 requires numpy\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057344701,"data":"rasterio 1.5.0 requires numpy\u003e=2, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057372617,"data":"pytensor 2.38.2 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057377716,"data":"xarray-einstats 0.10.0 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057382167,"data":"tifffile 2026.4.11 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057386738,"data":"opencv-contrib-python 4.13.0.92 requires numpy\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057391242,"data":"shap 0.51.0 requires numpy\u003e=2, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057394994,"data":"gcsfs 2025.3.0 requires fsspec==2025.3.0, but you have fsspec 2024.2.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057398821,"data":"gradio 5.50.0 requires huggingface-hub\u003c2.0,\u003e=0.33.5, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057402766,"data":"\n"}
-,{"stream_name":"stderr","time":48.057406187,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
-,{"stream_name":"stderr","time":48.057410109,"data":"easyocr 1.7.2 requires torchvision\u003e=0.5, which is not installed.\n"}
-,{"stream_name":"stderr","time":48.057413804,"data":"bigframes 2.39.0 requires google-cloud-bigquery-storage\u003c3.0.0,\u003e=2.30.0, which is not installed.\n"}
-,{"stream_name":"stderr","time":48.05741765,"data":"timm 1.0.26 requires torchvision, which is not installed.\n"}
-,{"stream_name":"stderr","time":48.05742131,"data":"fastai 2.8.7 requires torchvision\u003e=0.11, which is not installed.\n"}
-,{"stream_name":"stderr","time":48.057424945,"data":"timezonefinder 8.2.5 requires numpy\u003e=2, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057428687,"data":"kaggle-environments 1.29.3 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057432409,"data":"tpot 1.1.0 requires dill\u003e=0.3.9, but you have dill 0.3.8 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.0574362,"data":"cesium 0.12.4 requires numpy\u003c3.0,\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057440016,"data":"google-colab 1.0.0 requires jupyter-server==2.14.0, but you have jupyter-server 2.12.5 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057443791,"data":"google-colab 1.0.0 requires pandas==2.2.2, but you have pandas 2.3.3 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057474596,"data":"dopamine-rl 4.1.2 requires gym\u003c=0.25.2, but you have gym 0.26.2 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057484239,"data":"jaxlib 0.7.2 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057488969,"data":"cupy-cuda12x 14.0.1 requires numpy\u003c2.6,\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057492837,"data":"moviepy 1.0.3 requires decorator\u003c5.0,\u003e=4.0.2, but you have decorator 5.3.1 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057497316,"data":"opencv-python 4.13.0.92 requires numpy\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057501311,"data":"tobler 0.14.0 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057505022,"data":"diffusers 0.37.1 requires huggingface-hub\u003c2.0,\u003e=0.34.0, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057508899,"data":"jax 0.7.2 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057512563,"data":"opencv-python-headless 4.13.0.92 requires numpy\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057516486,"data":"rasterio 1.5.0 requires numpy\u003e=2, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.05752028,"data":"pytensor 2.38.2 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057523955,"data":"xarray-einstats 0.10.0 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057527703,"data":"tifffile 2026.4.11 requires numpy\u003e=2.0, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057531397,"data":"opencv-contrib-python 4.13.0.92 requires numpy\u003e=2; python_version \u003e= \"3.9\", but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057535367,"data":"shap 0.51.0 requires numpy\u003e=2, but you have numpy 1.26.4 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057539057,"data":"gcsfs 2025.3.0 requires fsspec==2025.3.0, but you have fsspec 2024.2.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.057544629,"data":"gradio 5.50.0 requires huggingface-hub\u003c2.0,\u003e=0.33.5, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
-,{"stream_name":"stderr","time":48.058795266,"data":"Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128_nocublaslt.so')\n"}
-,{"stream_name":"stderr","time":48.058813235,"data":"\n"}
-,{"stream_name":"stderr","time":48.05881763,"data":"Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128_nocublaslt.so')\n"}
-,{"stream_name":"stderr","time":48.061317397,"data":"The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
-,{"stream_name":"stderr","time":48.061331878,"data":"\n"}
-,{"stream_name":"stderr","time":48.061336194,"data":"The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
-,{"stream_name":"stderr","time":52.543003481,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":52.543031119,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":52.543073704,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
-,{"stream_name":"stderr","time":52.543135803,"data":"    raise_for_execution_errors(nb, output_path)\n"}
-,{"stream_name":"stderr","time":52.543195951,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
-,{"stream_name":"stderr","time":52.543376372,"data":"    raise error\n"}
-,{"stream_name":"stderr","time":52.543678013,"data":"papermill.exceptions.PapermillExecutionError: \n"}
-,{"stream_name":"stderr","time":52.54368369,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":52.543686336,"data":"Exception encountered at \"In [1]\":\n"}
-,{"stream_name":"stderr","time":52.543688808,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":52.543691506,"data":"ValueError                                Traceback (most recent call last)\n"}
-,{"stream_name":"stderr","time":52.543693882,"data":"/tmp/ipykernel_23/3204190591.py in \u003ccell line: 0\u003e()\n"}
-,{"stream_name":"stderr","time":52.543696474,"data":"     74 except Exception as bnb_e:\n"}
-,{"stream_name":"stderr","time":52.543698634,"data":"     75     bnb_ver = f'bypassed ({bnb_e})'\n"}
-,{"stream_name":"stderr","time":52.543700891,"data":"---\u003e 76 import transformers, peft, trl, datasets, accelerate\n"}
-,{"stream_name":"stderr","time":52.543703256,"data":"     77 print(f'[OK] Fail-Fast Import Verified: transformers={transformers.__version__}, peft={peft.__version__}, trl={trl.__version__}, accelerate={accelerate.__version__}, bitsandbytes={bnb_ver}')\n"}
-,{"stream_name":"stderr","time":52.543707599,"data":"     78 \n"}
-,{"stream_name":"stderr","time":52.543709759,"data":"\n"}
-,{"stream_name":"stderr","time":52.543711945,"data":"/usr/local/lib/python3.12/dist-packages/datasets/__init__.py in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":52.54371426,"data":"     16 __version__ = \"2.18.0\"\n"}
-,{"stream_name":"stderr","time":52.543716506,"data":"     17 \n"}
-,{"stream_name":"stderr","time":52.543718633,"data":"---\u003e 18 from .arrow_dataset import Dataset\n"}
-,{"stream_name":"stderr","time":52.543721649,"data":"     19 from .arrow_reader import ReadInstruction\n"}
-,{"stream_name":"stderr","time":52.543738237,"data":"     20 from .builder import ArrowBasedBuilder, BeamBasedBuilder, BuilderConfig, DatasetBuilder, GeneratorBasedBuilder\n"}
-,{"stream_name":"stderr","time":52.543742918,"data":"\n"}
-,{"stream_name":"stderr","time":52.543746593,"data":"/usr/local/lib/python3.12/dist-packages/datasets/arrow_dataset.py in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":52.543767956,"data":"     57 import fsspec\n"}
-,{"stream_name":"stderr","time":52.543771902,"data":"     58 import numpy as np\n"}
-,{"stream_name":"stderr","time":52.543776036,"data":"---\u003e 59 import pandas as pd\n"}
-,{"stream_name":"stderr","time":52.543780321,"data":"     60 import pyarrow as pa\n"}
-,{"stream_name":"stderr","time":52.543784429,"data":"     61 import pyarrow.compute as pc\n"}
-,{"stream_name":"stderr","time":52.543851871,"data":"\n"}
-,{"stream_name":"stderr","time":52.54385613,"data":"/usr/local/lib/python3.12/dist-packages/pandas/__init__.py in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":52.543861478,"data":"     35     ) from _err\n"}
-,{"stream_name":"stderr","time":52.543867325,"data":"     36 \n"}
-,{"stream_name":"stderr","time":52.543869606,"data":"---\u003e 37 from pandas._config import (\n"}
-,{"stream_name":"stderr","time":52.543878406,"data":"     38     get_option,\n"}
-,{"stream_name":"stderr","time":52.543880767,"data":"     39     set_option,\n"}
-,{"stream_name":"stderr","time":52.543883107,"data":"\n"}
-,{"stream_name":"stderr","time":52.543885231,"data":"/usr/local/lib/python3.12/dist-packages/pandas/_config/__init__.py in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":52.543887568,"data":"     18     \"warn_copy_on_write\",\n"}
-,{"stream_name":"stderr","time":52.543889914,"data":"     19 ]\n"}
-,{"stream_name":"stderr","time":52.543892143,"data":"---\u003e 20 from pandas._config import config\n"}
-,{"stream_name":"stderr","time":52.543894401,"data":"     21 from pandas._config import dates  # pyright: ignore[reportUnusedImport]  # noqa: F401\n"}
-,{"stream_name":"stderr","time":52.543896794,"data":"     22 from pandas._config.config import (\n"}
-,{"stream_name":"stderr","time":52.543899363,"data":"\n"}
-,{"stream_name":"stderr","time":52.543901939,"data":"/usr/local/lib/python3.12/dist-packages/pandas/_config/config.py in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":52.543904327,"data":"     66 import warnings\n"}
-,{"stream_name":"stderr","time":52.543906574,"data":"     67 \n"}
-,{"stream_name":"stderr","time":52.543908697,"data":"---\u003e 68 from pandas._typing import (\n"}
-,{"stream_name":"stderr","time":52.543910928,"data":"     69     F,\n"}
-,{"stream_name":"stderr","time":52.543913075,"data":"     70     T,\n"}
-,{"stream_name":"stderr","time":52.543915269,"data":"\n"}
-,{"stream_name":"stderr","time":52.543917381,"data":"/usr/local/lib/python3.12/dist-packages/pandas/_typing.py in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":52.543919695,"data":"    196     int,\n"}
-,{"stream_name":"stderr","time":52.543921882,"data":"    197     np.ndarray,\n"}
-,{"stream_name":"stderr","time":52.543925066,"data":"--\u003e 198     np.random.Generator,\n"}
-,{"stream_name":"stderr","time":52.543927339,"data":"    199     np.random.BitGenerator,\n"}
-,{"stream_name":"stderr","time":52.543929546,"data":"    200     np.random.RandomState,\n"}
-,{"stream_name":"stderr","time":52.543931746,"data":"\n"}
-,{"stream_name":"stderr","time":52.543933935,"data":"/usr/local/lib/python3.12/dist-packages/numpy/__init__.py in __getattr__(attr)\n"}
-,{"stream_name":"stderr","time":52.543936213,"data":"    335 \n"}
-,{"stream_name":"stderr","time":52.543938348,"data":"    336     def __dir__():\n"}
-,{"stream_name":"stderr","time":52.543940591,"data":"--\u003e 337         public_symbols = globals().keys() | {'testing'}\n"}
-,{"stream_name":"stderr","time":52.543942842999996,"data":"    338         public_symbols -= {\n"}
-,{"stream_name":"stderr","time":52.543945036,"data":"    339             \"core\", \"matrixlib\",\n"}
-,{"stream_name":"stderr","time":52.543947433,"data":"\n"}
-,{"stream_name":"stderr","time":52.54394954,"data":"/usr/local/lib/python3.12/dist-packages/numpy/random/__init__.py in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":52.543951904,"data":"    178 \n"}
-,{"stream_name":"stderr","time":52.543954054,"data":"    179 # add these for module-freeze analysis (like PyInstaller)\n"}
-,{"stream_name":"stderr","time":52.543956361,"data":"--\u003e 180 from . import _pickle\n"}
-,{"stream_name":"stderr","time":52.543958557,"data":"    181 from . import _common\n"}
-,{"stream_name":"stderr","time":52.543960767,"data":"    182 from . import _bounded_integers\n"}
-,{"stream_name":"stderr","time":52.543962956,"data":"\n"}
-,{"stream_name":"stderr","time":52.543965059,"data":"/usr/local/lib/python3.12/dist-packages/numpy/random/_pickle.py in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":52.543969809000004,"data":"----\u003e 1 from .mtrand import RandomState\n"}
-,{"stream_name":"stderr","time":52.543972188,"data":"      2 from ._philox import Philox\n"}
-,{"stream_name":"stderr","time":52.543974388,"data":"      3 from ._pcg64 import PCG64, PCG64DXSM\n"}
-,{"stream_name":"stderr","time":52.543976626,"data":"      4 from ._sfc64 import SFC64\n"}
-,{"stream_name":"stderr","time":52.543978829,"data":"      5 \n"}
-,{"stream_name":"stderr","time":52.543980959,"data":"\n"}
-,{"stream_name":"stderr","time":52.543983038,"data":"numpy/random/mtrand.pyx in init numpy.random.mtrand()\n"}
-,{"stream_name":"stderr","time":52.54398528,"data":"\n"}
-,{"stream_name":"stderr","time":52.543987418,"data":"ValueError: numpy.dtype size changed, may indicate binary incompatibility. Expected 96 from C header, got 88 from PyObject\n"}
-,{"stream_name":"stderr","time":52.543989814,"data":"\n"}
-,{"stream_name":"stderr","time":54.680498887,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
-,{"stream_name":"stderr","time":54.680533837,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
-,{"stream_name":"stderr","time":54.820534917,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
-,{"stream_name":"stderr","time":54.820571144,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
-,{"stream_name":"stderr","time":55.435659648,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
-,{"stream_name":"stderr","time":55.732547843,"data":"[NbConvertApp] Writing 24820 bytes to __notebook__.ipynb\n"}
-,{"stream_name":"stderr","time":58.099501839,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
-,{"stream_name":"stderr","time":58.891305128,"data":"[NbConvertApp] Writing 315597 bytes to __results__.html\n"}
+[{"stream_name":"stderr","time":6.201871277,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.201931551,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.201938159,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.201958369,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":6.77088585,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.7709229440000005,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.770926618,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.770929341,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":7.987090455,"data":"[OK] CUDA stability environment variables set (T4/sm_75 compatible)\n"}
+,{"stream_name":"stdout","time":7.98714248,"data":"[INFO] Kaggle Secret note (HF_TOKEN): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stdout","time":8.312374949,"data":"[INFO] Kaggle Secret note (APP_SUPABASE_URL): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stdout","time":8.312432142,"data":"[INFO] Kaggle Secret note (APP_SUPABASE_KEY): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stdout","time":8.312437665,"data":"[INFO] Kaggle Secret note (GH_TOKEN): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stdout","time":8.312441622,"data":"[MODEL] Cloning HoroConsultant repository...\n"}
+,{"stream_name":"stderr","time":8.327511698,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stderr","time":8.529596145,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stderr","time":8.529628623,"data":"\n"}
+,{"stream_name":"stderr","time":8.529633807,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stdout","time":9.544169153,"data":"[CHECK] Checking pre-installed PyTorch \u0026 CUDA status...\n"}
+,{"stream_name":"stdout","time":13.248833634,"data":"[CUDA] Kaggle PyTorch version: 2.10.0+cu128, CUDA available: True\n"}
+,{"stream_name":"stdout","time":13.248865549,"data":"[CUDA] Detected GPU: Tesla P100-PCIE-16GB (sm_60)\n"}
+,{"stream_name":"stdout","time":13.248870502,"data":"[WARNING] Kaggle allocated Tesla P100 (sm_60). Installing PyTorch 2.1.2+cu121 compatibility wheel with native sm_60 Pascal support...\n"}
+,{"stream_name":"stderr","time":13.268119016,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":13.268147094,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
+,{"stream_name":"stderr","time":13.268150791,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
+,{"stream_name":"stderr","time":13.268153232,"data":"    (7.0) - (12.0)\n"}
+,{"stream_name":"stderr","time":13.268156094,"data":"    \n"}
+,{"stream_name":"stderr","time":13.268172631,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":13.268176959,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":13.268202262,"data":"    Please install PyTorch with a following CUDA\n"}
+,{"stream_name":"stderr","time":13.268206418,"data":"    configurations:  12.6 following instructions at\n"}
+,{"stream_name":"stderr","time":13.268224368,"data":"    https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":13.268230596,"data":"    \n"}
+,{"stream_name":"stderr","time":13.268233206,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":13.268235403,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":13.268237725,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
+,{"stream_name":"stderr","time":13.268240112,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
+,{"stream_name":"stderr","time":13.268242522,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":13.268244884,"data":"\n"}
+,{"stream_name":"stderr","time":13.268246992,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":13.268249142,"data":"\n"}
+,{"stream_name":"stderr","time":13.268251275,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":13.268253503,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
+,{"stream_name":"stderr","time":13.268255696,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
+,{"stream_name":"stderr","time":13.268258053,"data":"    (7.0) - (12.0)\n"}
+,{"stream_name":"stderr","time":13.26826019,"data":"    \n"}
+,{"stream_name":"stderr","time":13.26826286,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":13.268278878,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":13.268282863,"data":"    Please install PyTorch with a following CUDA\n"}
+,{"stream_name":"stderr","time":13.268286808,"data":"    configurations:  12.6 following instructions at\n"}
+,{"stream_name":"stderr","time":13.268290596,"data":"    https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":13.268294605,"data":"    \n"}
+,{"stream_name":"stderr","time":13.268298264,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":13.268301457,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":13.268304817,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
+,{"stream_name":"stderr","time":13.268308322,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
+,{"stream_name":"stderr","time":13.26831182,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":13.268315436,"data":"\n"}
+,{"stream_name":"stderr","time":13.268318594,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":14.966554313,"data":"ERROR: Could not find a version that satisfies the requirement torch==2.1.2 (from versions: 2.2.0+cu121, 2.2.1+cu121, 2.2.2+cu121, 2.3.0+cu121, 2.3.1+cu121, 2.4.0+cu121, 2.4.1+cu121, 2.5.0+cu121, 2.5.1+cu121)\n"}
+,{"stream_name":"stderr","time":14.966841529,"data":"ERROR: No matching distribution found for torch==2.1.2\n"}
+,{"stream_name":"stderr","time":15.042199264,"data":"ERROR: Could not find a version that satisfies the requirement torch==2.1.2 (from versions: 2.2.0+cu121, 2.2.1+cu121, 2.2.2+cu121, 2.3.0+cu121, 2.3.1+cu121, 2.4.0+cu121, 2.4.1+cu121, 2.5.0+cu121, 2.5.1+cu121)\n"}
+,{"stream_name":"stderr","time":15.042252539,"data":"ERROR: No matching distribution found for torch==2.1.2\n"}
+,{"stream_name":"stderr","time":15.042258874,"data":"\n"}
+,{"stream_name":"stderr","time":15.04226286,"data":"ERROR: Could not find a version that satisfies the requirement torch==2.1.2 (from versions: 2.2.0+cu121, 2.2.1+cu121, 2.2.2+cu121, 2.3.0+cu121, 2.3.1+cu121, 2.4.0+cu121, 2.4.1+cu121, 2.5.0+cu121, 2.5.1+cu121)\n"}
+,{"stream_name":"stderr","time":15.042267104,"data":"ERROR: No matching distribution found for torch==2.1.2\n"}
+,{"stream_name":"stderr","time":17.354411444,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":17.354442642,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":17.354447726,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":17.354451466,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":17.354455487,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":17.354742046,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":17.354754171,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":17.354758572,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":17.354762307,"data":"Exception encountered at \"In [1]\":\n"}
+,{"stream_name":"stderr","time":17.354766363,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":17.354770805,"data":"CalledProcessError                        Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":17.354774611,"data":"/tmp/ipykernel_23/2145623743.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":17.354779087,"data":"     67     if cap == (6, 0):\n"}
+,{"stream_name":"stderr","time":17.354783383,"data":"     68         print('[WARNING] Kaggle allocated Tesla P100 (sm_60). Installing PyTorch 2.1.2+cu121 compatibility wheel with native sm_60 Pascal support...')\n"}
+,{"stream_name":"stderr","time":17.354788193,"data":"---\u003e 69         subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--prefer-binary', 'torch==2.1.2', '--index-url', 'https://download.pytorch.org/whl/cu121'], check=True)\n"}
+,{"stream_name":"stderr","time":17.35479306,"data":"     70     else:\n"}
+,{"stream_name":"stderr","time":17.354797065,"data":"     71         print(f'[OK] {dev_name} ({target_sm}) fully supported by native PyTorch.')\n"}
+,{"stream_name":"stderr","time":17.354801485,"data":"\n"}
+,{"stream_name":"stderr","time":17.354804951,"data":"/usr/lib/python3.12/subprocess.py in run(input, capture_output, timeout, check, *popenargs, **kwargs)\n"}
+,{"stream_name":"stderr","time":17.354808806,"data":"    569         retcode = process.poll()\n"}
+,{"stream_name":"stderr","time":17.354812305,"data":"    570         if check and retcode:\n"}
+,{"stream_name":"stderr","time":17.354815955,"data":"--\u003e 571             raise CalledProcessError(retcode, process.args,\n"}
+,{"stream_name":"stderr","time":17.354819627,"data":"    572                                      output=stdout, stderr=stderr)\n"}
+,{"stream_name":"stderr","time":17.354823384,"data":"    573     return CompletedProcess(process.args, retcode, stdout, stderr)\n"}
+,{"stream_name":"stderr","time":17.354832964,"data":"\n"}
+,{"stream_name":"stderr","time":17.354835812,"data":"CalledProcessError: Command '['/usr/bin/python3', '-m', 'pip', 'install', '-q', '--prefer-binary', 'torch==2.1.2', '--index-url', 'https://download.pytorch.org/whl/cu121']' returned non-zero exit status 1.\n"}
+,{"stream_name":"stderr","time":17.354849591,"data":"\n"}
+,{"stream_name":"stderr","time":19.603314477,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":19.603349209,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":19.750322977,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":19.750350695,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":20.328696986,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":20.636291005,"data":"[NbConvertApp] Writing 15051 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":23.05272068,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":23.858962205,"data":"[NbConvertApp] Writing 307571 bytes to __results__.html\n"}
 ]

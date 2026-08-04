@@ -49,12 +49,21 @@ RETRY_DELAY_S           = 2.0
 
 
 def _gemini_keys() -> List[str]:
-    """Return all valid Gemini API keys from env."""
+    """Return all unique, non-empty Gemini API keys from env."""
     raw = [
         os.getenv("GOOGLE_AI_STUDIO_API_KEY",  ""),
         os.getenv("GOOGLE_AI_STUDIO_API_KEY2", ""),
+        os.getenv("GEMINI_API_KEY", ""),
+        os.getenv("GEMINI_API_KEY2", ""),
     ]
-    return [k for k in raw if k and not k.startswith("REPLACE")]
+    seen = set()
+    valid = []
+    for k in raw:
+        k = k.strip()
+        if k and not k.startswith("REPLACE") and k not in seen:
+            seen.add(k)
+            valid.append(k)
+    return valid
 
 
 # ---------------------------------------------------------------------------
