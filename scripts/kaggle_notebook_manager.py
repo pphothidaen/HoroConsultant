@@ -192,7 +192,7 @@ def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
                     "print('\\ud83d\\udce6 Removing incompatible torchao & installing fine-tuning packages...')\n",
                     "subprocess.run([sys.executable, '-m', 'pip', 'uninstall', '-y', 'torchao'], check=False)\n",
                     "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--prefer-binary', '-r', 'requirements.txt'], check=True)\n",
-                    "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--prefer-binary', 'transformers>=4.40.0', 'peft>=0.10.0', 'bitsandbytes>=0.43.3', 'datasets>=2.18.0', 'trl>=0.12.0', 'huggingface_hub', 'accelerate'], check=True)\n",
+                    "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--prefer-binary', 'transformers==4.44.2', 'peft==0.12.0', 'bitsandbytes==0.43.3', 'datasets==2.18.0', 'trl==0.12.0', 'huggingface_hub', 'accelerate==0.33.0'], check=True)\n",
                     "import torch\n",
                     "print(f'\\u2705 Verified post-install PyTorch version: {torch.__version__}, CUDA available: {torch.cuda.is_available()}')\n",
                     "\n",
