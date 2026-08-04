@@ -93,21 +93,24 @@ def run_training_pipeline(
         logger.error("Run: pip install transformers peft bitsandbytes datasets trl huggingface_hub accelerate")
         return False
 
-    # 1. Quantization Config (4-bit BitsAndBytes)
+    # 1. Quantization / Model Loading Config
     use_cuda = torch.cuda.is_available()
     compute_dtype = torch.float16 if use_cuda else torch.float32
 
-    # Check if bitsandbytes C++ CUDA extension is compiled and functional
-    bnb_available = False
-    if use_cuda:
-        try:
-            import bitsandbytes as bnb
-            # Test if C++ CUDA ops can be loaded without crash
-            if hasattr(bnb, "cextension") and getattr(bnb.cextension, "COMPILED_WITH_CUDA", False):
-                bnb_available = True
-                logger.info("✅ BitsAndBytes CUDA C++ extension detected and verified.")
-        except Exception as bnb_err:
-            logger.warning(f"⚠️ BitsAndBytes CUDA C++ check failed ({bnb_err}). 4-bit quantization will be bypassed.")
+    # Disable bitsandbytes 4-bit on Kaggle platform to prevent C++ ops.cu symbol errors (exit code -11)
+    is_kaggle = os.path.exists("/kaggle") or platform == "KAGGLE_T4" or "KAGGLE" in platform
+    if is_kaggle:
+        logger.info("ℹ️ Kaggle platform detected: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.")
+        bnb_available = False
+    else:
+        bnb_available = False
+        if use_cuda:
+            try:
+                import bitsandbytes as bnb
+                if hasattr(bnb, "cextension") and getattr(bnb.cextension, "COMPILED_WITH_CUDA", False):
+                    bnb_available = True
+            except Exception as bnb_err:
+                logger.warning(f"⚠️ BitsAndBytes CUDA C++ check failed ({bnb_err}). 4-bit quantization will be bypassed.")
 
     bnb_config = None
     if bnb_available:
@@ -117,6 +120,7 @@ def run_training_pipeline(
             bnb_4bit_compute_dtype=compute_dtype,
             bnb_4bit_use_double_quant=True,
         )
+
 
     logger.info(f"📦 Loading tokenizer and base model '{base_model}'...")
     tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True)

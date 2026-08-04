@@ -1,128 +1,134 @@
-[{"stream_name":"stderr","time":6.254495419,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":6.254555111,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":6.254561378,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":6.254565411,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stderr","time":6.821648872,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":6.821696377,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":6.821701566,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":6.821705572,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stdout","time":8.272638496,"data":"ℹ️ Kaggle Secret note (HF_TOKEN): Connection error trying to communicate with service.\n"}
-,{"stream_name":"stdout","time":8.500141048,"data":"ℹ️ Kaggle Secret note (APP_SUPABASE_URL): Connection error trying to communicate with service.\n"}
-,{"stream_name":"stdout","time":9.372141218,"data":"ℹ️ Kaggle Secret note (APP_SUPABASE_KEY): Connection error trying to communicate with service.\n"}
-,{"stream_name":"stderr","time":10.048830118,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stdout","time":10.231926602,"data":"ℹ️ Kaggle Secret note (GH_TOKEN): Connection error trying to communicate with service.\n"}
-,{"stream_name":"stdout","time":10.231968566,"data":"📦 Cloning HoroConsultant repository...\n"}
-,{"stream_name":"stderr","time":10.251296004,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stderr","time":10.251318688,"data":"\n"}
-,{"stream_name":"stderr","time":10.251324755,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stdout","time":11.438854434,"data":"📦 Installing dependencies...\n"}
-,{"stream_name":"stdout","time":18.254419983,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 18.8/18.8 MB 21.9 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":18.419508773,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 560.6/560.6 kB 33.8 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":18.456211734,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 18.8/18.8 MB 21.9 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":18.456233959,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 560.6/560.6 kB 33.8 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":18.581050901,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.0/66.0 kB 4.4 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":18.782897548,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.0/66.0 kB 4.4 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":21.011082881,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 55.0/55.0 MB 15.8 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":21.184397308,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 46.2 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":21.212931791,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 55.0/55.0 MB 15.8 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":21.212957936,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 46.2 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":28.227648768,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.9/40.9 MB 36.2 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":28.304545295,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 889.0/889.0 kB 43.8 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":28.42955211,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.9/40.9 MB 36.2 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":28.429584296,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 889.0/889.0 kB 43.8 MB/s eta 0:00:00\n"}
-,{"stream_name":"stdout","time":31.887360403,"data":"🚀 Launching Cloud Training Orchestrator...\n"}
-,{"stream_name":"stdout","time":32.222233169,"data":"2026-08-04 04:58:00,549 [INFO] 📡 Checking dataset source...\n"}
-,{"stream_name":"stdout","time":32.222276392,"data":"2026-08-04 04:58:00,549 [INFO] ℹ️ Supabase not available/empty. Using local dataset '/kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl'\n"}
-,{"stream_name":"stdout","time":32.222284543,"data":"2026-08-04 04:58:00,549 [INFO] 🚀 Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE_T4]...\n"}
-,{"stream_name":"stdout","time":32.222291631,"data":"2026-08-04 04:58:00,549 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
-,{"stream_name":"stdout","time":32.222298521,"data":"2026-08-04 04:58:00,549 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl\n"}
-,{"stream_name":"stdout","time":32.222304993,"data":"2026-08-04 04:58:00,549 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
-,{"stream_name":"stdout","time":52.68761579,"data":"2026-08-04 04:58:21,012 [INFO] NumExpr defaulting to 4 threads.\n"}
-,{"stream_name":"stdout","time":55.588693428,"data":"2026-08-04 04:58:23,916 [INFO] TensorFlow version 2.20.0 available.\n"}
-,{"stream_name":"stdout","time":55.588723661,"data":"2026-08-04 04:58:23,919 [INFO] JAX version 0.7.2 available.\n"}
-,{"stream_name":"stdout","time":61.459879678,"data":"2026-08-04 04:58:29,788 [INFO] 📦 Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...\n"}
-,{"stream_name":"stdout","time":61.718198148,"data":"2026-08-04 04:58:30,046 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/config.json \"HTTP/1.1 307 Temporary Redirect\"\n"}
-,{"stream_name":"stdout","time":61.718234638,"data":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
-,{"stream_name":"stdout","time":61.718241866,"data":"2026-08-04 04:58:30,047 [WARNING] Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
-,{"stream_name":"stdout","time":61.718246932,"data":"2026-08-04 04:58:30,053 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/config.json \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":61.718273395,"data":"2026-08-04 04:58:30,064 [INFO] HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/config.json \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":61.939459696,"data":"2026-08-04 04:58:30,267 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/tokenizer_config.json \"HTTP/1.1 307 Temporary Redirect\"\n"}
-,{"stream_name":"stdout","time":61.939499904,"data":"2026-08-04 04:58:30,274 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/tokenizer_config.json \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":61.939504469,"data":"2026-08-04 04:58:30,281 [INFO] HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/tokenizer_config.json \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":62.15805666,"data":"2026-08-04 04:58:30,486 [INFO] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-7B-Instruct/tree/main/additional_chat_templates?recursive=false\u0026expand=false \"HTTP/1.1 404 Not Found\"\n"}
-,{"stream_name":"stdout","time":62.360987683,"data":"2026-08-04 04:58:30,689 [INFO] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-7B-Instruct/tree/main?recursive=true\u0026expand=false \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":62.562316098,"data":"2026-08-04 04:58:30,890 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/vocab.json \"HTTP/1.1 307 Temporary Redirect\"\n"}
-,{"stream_name":"stdout","time":62.56235206,"data":"2026-08-04 04:58:30,897 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/vocab.json \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":62.562356092,"data":"2026-08-04 04:58:30,904 [INFO] HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/vocab.json \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":62.799929424,"data":"2026-08-04 04:58:31,128 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/merges.txt \"HTTP/1.1 307 Temporary Redirect\"\n"}
-,{"stream_name":"stdout","time":62.799973262,"data":"2026-08-04 04:58:31,135 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/merges.txt \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":62.799978999,"data":"2026-08-04 04:58:31,142 [INFO] HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/merges.txt \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":63.030071779,"data":"2026-08-04 04:58:31,358 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/tokenizer.json \"HTTP/1.1 307 Temporary Redirect\"\n"}
-,{"stream_name":"stdout","time":63.030111481,"data":"2026-08-04 04:58:31,364 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/tokenizer.json \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":63.030116031,"data":"2026-08-04 04:58:31,372 [INFO] HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/tokenizer.json \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":63.29758246,"data":"2026-08-04 04:58:31,625 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/added_tokens.json \"HTTP/1.1 404 Not Found\"\n"}
-,{"stream_name":"stdout","time":63.29763356,"data":"2026-08-04 04:58:31,820 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/special_tokens_map.json \"HTTP/1.1 404 Not Found\"\n"}
-,{"stream_name":"stdout","time":63.688327558,"data":"2026-08-04 04:58:32,016 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/chat_template.jinja \"HTTP/1.1 404 Not Found\"\n"}
-,{"stream_name":"stdout","time":64.75005993,"data":"2026-08-04 04:58:33,078 [INFO] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-7B-Instruct \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":64.965789775,"data":"2026-08-04 04:58:33,294 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/config.json \"HTTP/1.1 307 Temporary Redirect\"\n"}
-,{"stream_name":"stdout","time":64.965825174,"data":"2026-08-04 04:58:33,300 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/config.json \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":65.175142986,"data":"2026-08-04 04:58:33,503 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/adapter_config.json \"HTTP/1.1 404 Not Found\"\n"}
-,{"stream_name":"stdout","time":65.175189763,"data":"`torch_dtype` is deprecated! Use `dtype` instead!\n"}
-,{"stream_name":"stdout","time":65.382653074,"data":"2026-08-04 04:58:33,711 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/config.json \"HTTP/1.1 307 Temporary Redirect\"\n"}
-,{"stream_name":"stdout","time":65.382677159,"data":"2026-08-04 04:58:33,717 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/config.json \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":68.646015823,"data":"2026-08-04 04:58:36,974 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/model.safetensors \"HTTP/1.1 404 Not Found\"\n"}
-,{"stream_name":"stdout","time":68.646060555,"data":"2026-08-04 04:58:37,172 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/model.safetensors.index.json \"HTTP/1.1 307 Temporary Redirect\"\n"}
-,{"stream_name":"stdout","time":68.851130733,"data":"2026-08-04 04:58:37,179 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/model.safetensors.index.json \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":68.851160885,"data":"2026-08-04 04:58:37,186 [INFO] HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/model.safetensors.index.json \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":69.060453559,"data":"2026-08-04 04:58:37,388 [INFO] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-7B-Instruct/revision/main \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":69.060492573,"data":"\n"}
-,{"stream_name":"stdout","time":69.263061234,"data":"Fetching 4 files:   0%|          | 0/4 [00:00\u003c?, ?it/s]2026-08-04 04:58:37,591 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/a09a35458c702b33eeacc393d103063234e8bc28/model-00001-of-00004.safetensors \"HTTP/1.1 302 Found\"\n"}
-,{"stream_name":"stdout","time":69.263101561,"data":"2026-08-04 04:58:37,620 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/a09a35458c702b33eeacc393d103063234e8bc28/model-00002-of-00004.safetensors \"HTTP/1.1 302 Found\"\n"}
-,{"stream_name":"stdout","time":69.263106128,"data":"2026-08-04 04:58:37,621 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/a09a35458c702b33eeacc393d103063234e8bc28/model-00004-of-00004.safetensors \"HTTP/1.1 302 Found\"\n"}
-,{"stream_name":"stdout","time":69.263126293,"data":"2026-08-04 04:58:37,636 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/a09a35458c702b33eeacc393d103063234e8bc28/model-00003-of-00004.safetensors \"HTTP/1.1 302 Found\"\n"}
-,{"stream_name":"stdout","time":69.50295578,"data":"2026-08-04 04:58:37,831 [INFO] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-7B-Instruct/xet-read-token/a09a35458c702b33eeacc393d103063234e8bc28 \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":69.503004818,"data":"2026-08-04 04:58:37,834 [INFO] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-7B-Instruct/xet-read-token/a09a35458c702b33eeacc393d103063234e8bc28 \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":69.503010822,"data":"2026-08-04 04:58:37,835 [INFO] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-7B-Instruct/xet-read-token/a09a35458c702b33eeacc393d103063234e8bc28 \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":69.503015853,"data":"2026-08-04 04:58:37,836 [INFO] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-7B-Instruct/xet-read-token/a09a35458c702b33eeacc393d103063234e8bc28 \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":137.954661059,"data":"\n"}
-,{"stream_name":"stdout","time":137.954724631,"data":"Fetching 4 files:  25%|██▌       | 1/4 [01:08\u003c03:26, 68.88s/it]\n"}
-,{"stream_name":"stdout","time":137.954733793,"data":"Fetching 4 files: 100%|██████████| 4/4 [01:08\u003c00:00, 17.22s/it]\n"}
-,{"stream_name":"stdout","time":138.353305476,"data":"\n"}
-,{"stream_name":"stdout","time":138.353355634,"data":"Loading weights:   0%|          | 0/339 [00:00\u003c?, ?it/s]\n"}
-,{"stream_name":"stdout","time":138.353363476,"data":"Loading weights:   0%|          | 1/339 [00:00\u003c00:00, 8701.88it/s, Materializing param=lm_head.weight]\n"}
-,{"stream_name":"stdout","time":143.272471429,"data":"Loading weights:   0%|          | 1/339 [00:00\u003c00:00, 3533.53it/s, Materializing param=lm_head.weight]\n"}
-,{"stream_name":"stdout","time":143.272510116,"data":"Loading weights:   1%|          | 2/339 [00:04\u003c13:48,  2.46s/it, Materializing param=lm_head.weight]  \n"}
-,{"stream_name":"stdout","time":143.272515984,"data":"Loading weights:   1%|          | 2/339 [00:04\u003c13:48,  2.46s/it, Materializing param=model.embed_tokens.weight]\n"}
-,{"stream_name":"stdout","time":143.272521449,"data":"Loading weights:   1%|          | 2/339 [00:04\u003c13:48,  2.46s/it, Materializing param=model.embed_tokens.weight]\n"}
-,{"stream_name":"stdout","time":143.272526523,"data":"Loading weights:   1%|          | 3/339 [00:04\u003c13:46,  2.46s/it, Materializing param=model.layers.0.input_layernorm.weight]\n"}
-,{"stream_name":"stdout","time":143.272531786,"data":"Loading weights:   1%|          | 3/339 [00:04\u003c13:46,  2.46s/it, Materializing param=model.layers.0.input_layernorm.weight]\n"}
-,{"stream_name":"stdout","time":143.27253716,"data":"Loading weights:   1%|          | 4/339 [00:04\u003c13:43,  2.46s/it, Materializing param=model.layers.0.mlp.down_proj.weight]  \n"}
-,{"stream_name":"stdout","time":143.489078098,"data":"Loading weights:   1%|          | 4/339 [00:04\u003c13:43,  2.46s/it, Materializing param=model.layers.0.mlp.down_proj.weight]Error named symbol not found at line 74 in file /src/csrc/ops.cu\n"}
-,{"stream_name":"stderr","time":144.02399582,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":144.024037251,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":144.024044328,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
-,{"stream_name":"stderr","time":144.024599007,"data":"    raise_for_execution_errors(nb, output_path)\n"}
-,{"stream_name":"stderr","time":144.024631773,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
-,{"stream_name":"stderr","time":144.024826894,"data":"    raise error\n"}
-,{"stream_name":"stderr","time":144.024966493,"data":"papermill.exceptions.PapermillExecutionError: \n"}
-,{"stream_name":"stderr","time":144.024974118,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":144.024978597,"data":"Exception encountered at \"In [1]\":\n"}
-,{"stream_name":"stderr","time":144.024982629,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":144.024986774,"data":"RuntimeError                              Traceback (most recent call last)\n"}
-,{"stream_name":"stderr","time":144.024990306,"data":"/tmp/ipykernel_24/1629831515.py in \u003ccell line: 0\u003e()\n"}
-,{"stream_name":"stderr","time":144.024994028,"data":"     51 proc.wait()\n"}
-,{"stream_name":"stderr","time":144.024997324,"data":"     52 if proc.returncode != 0:\n"}
-,{"stream_name":"stderr","time":144.025000693,"data":"---\u003e 53     raise RuntimeError(f'❌ Training orchestrator failed with exit code {proc.returncode}')\n"}
-,{"stream_name":"stderr","time":144.025005562,"data":"     54 print('🎉 Training pipeline completed successfully!')\n"}
-,{"stream_name":"stderr","time":144.025009885,"data":"\n"}
-,{"stream_name":"stderr","time":144.025013724,"data":"RuntimeError: ❌ Training orchestrator failed with exit code -11\n"}
-,{"stream_name":"stderr","time":144.025018222,"data":"\n"}
-,{"stream_name":"stderr","time":146.64100353,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
-,{"stream_name":"stderr","time":146.641031126,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
-,{"stream_name":"stderr","time":146.797379741,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
-,{"stream_name":"stderr","time":146.797406892,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
-,{"stream_name":"stderr","time":147.381447686,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
-,{"stream_name":"stderr","time":147.675249548,"data":"[NbConvertApp] Writing 17866 bytes to __notebook__.ipynb\n"}
-,{"stream_name":"stderr","time":149.974396002,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
-,{"stream_name":"stderr","time":150.756785324,"data":"[NbConvertApp] Writing 297265 bytes to __results__.html\n"}
+[{"stream_name":"stderr","time":6.518748052,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.519398103,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.519405136,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.519409273,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":7.133570782,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.133608235,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.133614246,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.133619546,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":8.544678036,"data":"ℹ️ Kaggle Secret note (HF_TOKEN): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stdout","time":8.544746031,"data":"ℹ️ Kaggle Secret note (APP_SUPABASE_URL): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stdout","time":8.544753168,"data":"ℹ️ Kaggle Secret note (APP_SUPABASE_KEY): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stderr","time":8.658231698,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stdout","time":8.840016204,"data":"ℹ️ Kaggle Secret note (GH_TOKEN): Connection error trying to communicate with service.\n"}
+,{"stream_name":"stdout","time":8.840050957999999,"data":"📦 Cloning HoroConsultant repository...\n"}
+,{"stream_name":"stderr","time":8.861625189,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stderr","time":8.86167663,"data":"\n"}
+,{"stream_name":"stderr","time":8.861682247,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stdout","time":9.566805922,"data":"📦 Installing dependencies...\n"}
+,{"stream_name":"stdout","time":12.500996993,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 18.8/18.8 MB 64.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":12.530684423,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 560.6/560.6 kB 33.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":12.556590114,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.0/66.0 kB 4.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":12.703670255,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 18.8/18.8 MB 64.1 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":12.70371607,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 560.6/560.6 kB 33.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":12.703721449,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.0/66.0 kB 4.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":13.106134819,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 55.0/55.0 MB 35.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":13.140550525,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 54.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":13.308846027,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 55.0/55.0 MB 35.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":13.308914622,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 54.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":19.442558741,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.9/40.9 MB 49.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":19.473253121,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 889.0/889.0 kB 49.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":19.64459091,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.9/40.9 MB 49.4 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":19.644625556,"data":"   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 889.0/889.0 kB 49.8 MB/s eta 0:00:00\n"}
+,{"stream_name":"stdout","time":23.208566729,"data":"🚀 Launching Cloud Training Orchestrator...\n"}
+,{"stream_name":"stdout","time":23.558200195,"data":"2026-08-04 05:12:51,624 [INFO] 📡 Checking dataset source...\n"}
+,{"stream_name":"stdout","time":23.558240641,"data":"2026-08-04 05:12:51,625 [INFO] ℹ️ Supabase not available/empty. Using local dataset '/kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl'\n"}
+,{"stream_name":"stdout","time":23.558245379,"data":"2026-08-04 05:12:51,625 [INFO] 🚀 Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE_T4]...\n"}
+,{"stream_name":"stdout","time":23.558248894,"data":"2026-08-04 05:12:51,625 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
+,{"stream_name":"stdout","time":23.558251962,"data":"2026-08-04 05:12:51,625 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl\n"}
+,{"stream_name":"stdout","time":23.558255135,"data":"2026-08-04 05:12:51,625 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
+,{"stream_name":"stdout","time":45.05158144,"data":"2026-08-04 05:13:13,115 [INFO] NumExpr defaulting to 4 threads.\n"}
+,{"stream_name":"stdout","time":48.18402303,"data":"2026-08-04 05:13:16,250 [INFO] TensorFlow version 2.20.0 available.\n"}
+,{"stream_name":"stdout","time":48.18405615,"data":"2026-08-04 05:13:16,253 [INFO] JAX version 0.7.2 available.\n"}
+,{"stream_name":"stdout","time":54.592888319,"data":"2026-08-04 05:13:22,659 [INFO] 📦 Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...\n"}
+,{"stream_name":"stdout","time":54.592928225,"data":"2026-08-04 05:13:22,822 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/config.json \"HTTP/1.1 307 Temporary Redirect\"\n"}
+,{"stream_name":"stdout","time":54.592935072,"data":"Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stdout","time":54.592940507,"data":"2026-08-04 05:13:22,823 [WARNING] Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\n"}
+,{"stream_name":"stdout","time":54.592945916,"data":"2026-08-04 05:13:22,835 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/config.json \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":54.592976476,"data":"2026-08-04 05:13:22,846 [INFO] HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/config.json \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":54.863294212,"data":"2026-08-04 05:13:22,930 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/tokenizer_config.json \"HTTP/1.1 307 Temporary Redirect\"\n"}
+,{"stream_name":"stdout","time":54.863339818,"data":"2026-08-04 05:13:22,940 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/tokenizer_config.json \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":54.863344315,"data":"2026-08-04 05:13:22,950 [INFO] HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/tokenizer_config.json \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":54.863347125,"data":"2026-08-04 05:13:23,034 [INFO] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-7B-Instruct/tree/main/additional_chat_templates?recursive=false\u0026expand=false \"HTTP/1.1 404 Not Found\"\n"}
+,{"stream_name":"stdout","time":54.863350175,"data":"2026-08-04 05:13:23,119 [INFO] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-7B-Instruct/tree/main?recursive=true\u0026expand=false \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":55.13169228,"data":"2026-08-04 05:13:23,198 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/vocab.json \"HTTP/1.1 307 Temporary Redirect\"\n"}
+,{"stream_name":"stdout","time":55.131732555,"data":"2026-08-04 05:13:23,208 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/vocab.json \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":55.131738217,"data":"2026-08-04 05:13:23,221 [INFO] HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/vocab.json \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":55.131741337,"data":"2026-08-04 05:13:23,336 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/merges.txt \"HTTP/1.1 307 Temporary Redirect\"\n"}
+,{"stream_name":"stdout","time":55.131744264,"data":"2026-08-04 05:13:23,346 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/merges.txt \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":55.131747131,"data":"2026-08-04 05:13:23,359 [INFO] HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/merges.txt \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":55.383900843,"data":"2026-08-04 05:13:23,450 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/tokenizer.json \"HTTP/1.1 307 Temporary Redirect\"\n"}
+,{"stream_name":"stdout","time":55.383939296,"data":"2026-08-04 05:13:23,462 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/tokenizer.json \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":55.38394327,"data":"2026-08-04 05:13:23,475 [INFO] HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/tokenizer.json \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":55.383946148,"data":"2026-08-04 05:13:23,603 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/added_tokens.json \"HTTP/1.1 404 Not Found\"\n"}
+,{"stream_name":"stdout","time":55.616847925,"data":"2026-08-04 05:13:23,683 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/special_tokens_map.json \"HTTP/1.1 404 Not Found\"\n"}
+,{"stream_name":"stdout","time":55.616892881,"data":"2026-08-04 05:13:23,762 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/chat_template.jinja \"HTTP/1.1 404 Not Found\"\n"}
+,{"stream_name":"stdout","time":56.68865692,"data":"2026-08-04 05:13:24,755 [INFO] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-7B-Instruct \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":56.688708559,"data":"2026-08-04 05:13:24,777 [INFO] ⚡ Attempting 4-bit BitsAndBytes quantization model load...\n"}
+,{"stream_name":"stdout","time":56.688715303,"data":"2026-08-04 05:13:24,855 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/config.json \"HTTP/1.1 307 Temporary Redirect\"\n"}
+,{"stream_name":"stdout","time":56.688720212,"data":"2026-08-04 05:13:24,865 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/config.json \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":56.688727065,"data":"2026-08-04 05:13:24,943 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/adapter_config.json \"HTTP/1.1 404 Not Found\"\n"}
+,{"stream_name":"stdout","time":56.688731494,"data":"`torch_dtype` is deprecated! Use `dtype` instead!\n"}
+,{"stream_name":"stdout","time":56.965788085,"data":"2026-08-04 05:13:25,032 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/config.json \"HTTP/1.1 307 Temporary Redirect\"\n"}
+,{"stream_name":"stdout","time":56.965824389,"data":"2026-08-04 05:13:25,043 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/config.json \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":56.965831091,"data":"2026-08-04 05:13:25,083 [WARNING] WARNING: BNB_CUDA_VERSION=128 environment variable detected; loading libbitsandbytes_cuda128.so.\n"}
+,{"stream_name":"stdout","time":56.965840091,"data":"This overrides automatic CUDA version selection.\n"}
+,{"stream_name":"stdout","time":56.965843368,"data":"If this was unintended clear the variable and retry: unset BNB_CUDA_VERSION\n"}
+,{"stream_name":"stdout","time":56.965859971,"data":"\n"}
+,{"stream_name":"stdout","time":60.203928699,"data":"2026-08-04 05:13:28,271 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/model.safetensors \"HTTP/1.1 404 Not Found\"\n"}
+,{"stream_name":"stdout","time":60.203990338,"data":"2026-08-04 05:13:28,354 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/main/model.safetensors.index.json \"HTTP/1.1 307 Temporary Redirect\"\n"}
+,{"stream_name":"stdout","time":60.203998529,"data":"2026-08-04 05:13:28,366 [INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/model.safetensors.index.json \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":60.204004507,"data":"2026-08-04 05:13:28,378 [INFO] HTTP Request: GET https://huggingface.co/api/resolve-cache/models/Qwen/Qwen2.5-7B-Instruct/a09a35458c702b33eeacc393d103063234e8bc28/model.safetensors.index.json \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":60.204009909,"data":"2026-08-04 05:13:28,460 [INFO] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-7B-Instruct/revision/main \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":60.204015495,"data":"\n"}
+,{"stream_name":"stdout","time":60.510829925,"data":"Fetching 4 files:   0%|          | 0/4 [00:00\u003c?, ?it/s]2026-08-04 05:13:28,577 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/a09a35458c702b33eeacc393d103063234e8bc28/model-00002-of-00004.safetensors \"HTTP/1.1 302 Found\"\n"}
+,{"stream_name":"stdout","time":60.51086865,"data":"2026-08-04 05:13:28,591 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/a09a35458c702b33eeacc393d103063234e8bc28/model-00004-of-00004.safetensors \"HTTP/1.1 302 Found\"\n"}
+,{"stream_name":"stdout","time":60.510872356,"data":"2026-08-04 05:13:28,591 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/a09a35458c702b33eeacc393d103063234e8bc28/model-00003-of-00004.safetensors \"HTTP/1.1 302 Found\"\n"}
+,{"stream_name":"stdout","time":60.510875147,"data":"2026-08-04 05:13:28,622 [INFO] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/resolve/a09a35458c702b33eeacc393d103063234e8bc28/model-00001-of-00004.safetensors \"HTTP/1.1 302 Found\"\n"}
+,{"stream_name":"stdout","time":60.510878,"data":"2026-08-04 05:13:28,698 [INFO] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-7B-Instruct/xet-read-token/a09a35458c702b33eeacc393d103063234e8bc28 \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":60.510898225,"data":"2026-08-04 05:13:28,701 [INFO] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-7B-Instruct/xet-read-token/a09a35458c702b33eeacc393d103063234e8bc28 \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":60.510902496,"data":"2026-08-04 05:13:28,702 [INFO] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-7B-Instruct/xet-read-token/a09a35458c702b33eeacc393d103063234e8bc28 \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":60.510907002,"data":"2026-08-04 05:13:28,703 [INFO] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen2.5-7B-Instruct/xet-read-token/a09a35458c702b33eeacc393d103063234e8bc28 \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":123.086327717,"data":"\n"}
+,{"stream_name":"stdout","time":123.086400094,"data":"Fetching 4 files:  25%|██▌       | 1/4 [01:02\u003c03:08, 62.68s/it]\n"}
+,{"stream_name":"stdout","time":123.08640738,"data":"Fetching 4 files: 100%|██████████| 4/4 [01:02\u003c00:00, 15.67s/it]\n"}
+,{"stream_name":"stdout","time":123.511085542,"data":"\n"}
+,{"stream_name":"stdout","time":123.511128502,"data":"Loading weights:   0%|          | 0/339 [00:00\u003c?, ?it/s]\n"}
+,{"stream_name":"stdout","time":123.511136144,"data":"Loading weights:   0%|          | 1/339 [00:00\u003c00:00, 9554.22it/s, Materializing param=lm_head.weight]\n"}
+,{"stream_name":"stdout","time":128.36437886,"data":"Loading weights:   0%|          | 1/339 [00:00\u003c00:00, 1446.81it/s, Materializing param=lm_head.weight]\n"}
+,{"stream_name":"stdout","time":128.364452142,"data":"Loading weights:   1%|          | 2/339 [00:04\u003c13:38,  2.43s/it, Materializing param=lm_head.weight]  \n"}
+,{"stream_name":"stdout","time":128.36446127,"data":"Loading weights:   1%|          | 2/339 [00:04\u003c13:38,  2.43s/it, Materializing param=model.embed_tokens.weight]\n"}
+,{"stream_name":"stdout","time":128.624942418,"data":"Loading weights:   1%|          | 2/339 [00:04\u003c13:38,  2.43s/it, Materializing param=model.embed_tokens.weight]\n"}
+,{"stream_name":"stdout","time":128.624988563,"data":"Loading weights:   1%|          | 3/339 [00:05\u003c08:32,  1.52s/it, Materializing param=model.embed_tokens.weight]\n"}
+,{"stream_name":"stdout","time":128.624996229,"data":"Loading weights:   1%|          | 3/339 [00:05\u003c08:32,  1.52s/it, Materializing param=model.layers.0.input_layernorm.weight]\n"}
+,{"stream_name":"stdout","time":128.625003079,"data":"Loading weights:   1%|          | 3/339 [00:05\u003c08:32,  1.52s/it, Materializing param=model.layers.0.input_layernorm.weight]\n"}
+,{"stream_name":"stdout","time":128.625033483,"data":"Loading weights:   1%|          | 4/339 [00:05\u003c08:30,  1.52s/it, Materializing param=model.layers.0.mlp.down_proj.weight]  \n"}
+,{"stream_name":"stdout","time":128.625039101,"data":"Loading weights:   1%|          | 4/339 [00:05\u003c08:30,  1.52s/it, Materializing param=model.layers.0.mlp.down_proj.weight]Error named symbol not found at line 74 in file /src/csrc/ops.cu\n"}
+,{"stream_name":"stderr","time":129.349721028,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":129.349792078,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":129.34979737,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":129.3505827,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":129.350629188,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":129.35087892,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":129.351041471,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":129.35105774,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":129.351062598,"data":"Exception encountered at \"In [1]\":\n"}
+,{"stream_name":"stderr","time":129.351067394,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":129.351093611,"data":"RuntimeError                              Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":129.351098165,"data":"/tmp/ipykernel_23/1659562815.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":129.351102479,"data":"     54 proc.wait()\n"}
+,{"stream_name":"stderr","time":129.351106426,"data":"     55 if proc.returncode != 0:\n"}
+,{"stream_name":"stderr","time":129.351110559,"data":"---\u003e 56     raise RuntimeError(f'❌ Training orchestrator failed with exit code {proc.returncode}')\n"}
+,{"stream_name":"stderr","time":129.351115509,"data":"     57 print('🎉 Training pipeline completed successfully!')\n"}
+,{"stream_name":"stderr","time":129.351119971,"data":"\n"}
+,{"stream_name":"stderr","time":129.351123763,"data":"RuntimeError: ❌ Training orchestrator failed with exit code -11\n"}
+,{"stream_name":"stderr","time":129.351127767,"data":"\n"}
+,{"stream_name":"stderr","time":132.450163524,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":132.450209299,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":132.685656227,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":132.685704284,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":136.510054894,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":136.82783476,"data":"[NbConvertApp] Writing 18628 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":139.367106858,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":140.245738975,"data":"[NbConvertApp] Writing 298654 bytes to __results__.html\n"}
 ]
