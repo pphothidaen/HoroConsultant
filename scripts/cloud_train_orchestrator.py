@@ -215,29 +215,56 @@ def run_training_pipeline(
                 output_texts.append(text)
         return output_texts
 
-    training_args = TrainingArguments(
-        output_dir=str(output_dir),
-        num_train_epochs=epochs,
-        per_device_train_batch_size=2,
-        gradient_accumulation_steps=4,
-        warmup_steps=10,
-        logging_steps=10,
-        save_strategy="epoch",
-        learning_rate=2e-4,
-        fp16=True,
-        optim="paged_adamw_8bit",
-        report_to="none",
-    )
+    # 4. Training Arguments & SFTTrainer (Compatible with all TRL versions)
+    try:
+        from trl import SFTConfig, SFTTrainer
+        training_args = SFTConfig(
+            output_dir=str(output_dir),
+            num_train_epochs=epochs,
+            per_device_train_batch_size=2,
+            gradient_accumulation_steps=4,
+            warmup_steps=10,
+            logging_steps=10,
+            save_strategy="epoch",
+            learning_rate=2e-4,
+            fp16=True,
+            max_seq_length=1024,
+            report_to="none",
+        )
+        trainer = SFTTrainer(
+            model=model,
+            train_dataset=raw_data["train"],
+            formatting_func=formatting_prompts_func,
+            peft_config=peft_config,
+            processing_class=tokenizer,
+            args=training_args,
+        )
+    except (ImportError, TypeError, AttributeError) as e:
+        logger.info(f"ℹ️ Falling back to standard SFTTrainer initialization: {e}")
+        from trl import SFTTrainer
+        from transformers import TrainingArguments
+        training_args = TrainingArguments(
+            output_dir=str(output_dir),
+            num_train_epochs=epochs,
+            per_device_train_batch_size=2,
+            gradient_accumulation_steps=4,
+            warmup_steps=10,
+            logging_steps=10,
+            save_strategy="epoch",
+            learning_rate=2e-4,
+            fp16=True,
+            optim="paged_adamw_8bit",
+            report_to="none",
+        )
+        trainer = SFTTrainer(
+            model=model,
+            train_dataset=raw_data["train"],
+            formatting_func=formatting_prompts_func,
+            peft_config=peft_config,
+            tokenizer=tokenizer,
+            args=training_args,
+        )
 
-    trainer = SFTTrainer(
-        model=model,
-        train_dataset=raw_data["train"],
-        formatting_func=formatting_prompts_func,
-        peft_config=peft_config,
-        max_seq_length=1024,
-        tokenizer=tokenizer,
-        args=training_args,
-    )
 
     logger.info("🏋️ Training model...")
     train_result = trainer.train()
