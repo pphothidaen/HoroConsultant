@@ -72,6 +72,12 @@ python3 project/core/code_reviewer.py --review
 
 ### ✅ DONE (เสร็จสมบูรณ์ 100% พร้อมใช้งาน)
 
+- [x] **Agent Rulebook & Mandatory Operational Standards (`.agent_rules.md`)**
+  - **Pip Options Rule**: Explicitly forbidden `--no-progress-bar`. Always use `--progress-bar off` with `-q --prefer-binary`.
+  - **BNB Auto-Detection Rule**: Removed `BNB_CUDA_VERSION=121` override; let bitsandbytes load native `libbitsandbytes_cuda128.so` automatically.
+  - **Dependency Matrix Standard**: Locked compatible versions (`transformers==4.44.2`, `peft==0.12.0`, `trl==0.11.0`, `accelerate==0.33.0`).
+  - **Pure ASCII Logging Rule**: Converted loggers to pure ASCII bracketed tags (`[OK]`, `[ERROR]`, `[CUDA]`) to prevent `UnicodeEncodeError` in Jupyter `ipykernel` / Tornado.
+  - **Fail-Fast Guard**: Implemented import check before heavy weight downloads.
 - [x] **TRL SFTTrainer Version Compatibility Fix — `TypeError: max_seq_length` (`scripts/cloud_train_orchestrator.py`)**
   - **Root Cause**: In TRL 0.12+, `max_seq_length` was removed from `SFTTrainer.__init__()` and moved exclusively into `SFTConfig`. Explicitly passing `max_seq_length` to `SFTTrainer` caused a `TypeError`.
   - **Fix — `create_sft_trainer()` Helper**: Implemented dynamic parameter inspection via `inspect.signature(SFTTrainer.__init__)`. Passes `max_seq_length` to `SFTTrainer` only if accepted by the TRL version in use, configures `training_args.max_seq_length`, detects `processing_class` vs `tokenizer`, and provides fallback strategies for older and newer TRL releases.
