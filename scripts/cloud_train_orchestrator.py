@@ -173,15 +173,27 @@ def run_training_pipeline(
 
 
 
-    # 2. LoRA Config
-    peft_config = LoraConfig(
-        r=16,
-        lora_alpha=32,
-        target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
-        lora_dropout=0.05,
-        bias="none",
-        task_type="CAUSAL_LM",
-    )
+    # 2. LoRA Config (Disable autocast_adapter_dtype to prevent CUDA parameter casting errors)
+    try:
+        peft_config = LoraConfig(
+            r=16,
+            lora_alpha=32,
+            target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+            lora_dropout=0.05,
+            bias="none",
+            task_type="CAUSAL_LM",
+            autocast_adapter_dtype=False,
+        )
+    except TypeError:
+        peft_config = LoraConfig(
+            r=16,
+            lora_alpha=32,
+            target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+            lora_dropout=0.05,
+            bias="none",
+            task_type="CAUSAL_LM",
+        )
+
 
     # 3. Load Dataset
     logger.info(f"📖 Formatting dataset from '{dataset_path}'...")
