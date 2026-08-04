@@ -190,7 +190,7 @@ def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
                     "        print(f'[OK] {dev_name} ({target_sm}) fully supported by native PyTorch.')\n",
                     "print('[MODEL] Removing incompatible torchao/torchvision & installing fine-tuning packages...')\n",
                     "subprocess.run([sys.executable, '-m', 'pip', 'uninstall', '-y', 'torchao', 'torchvision'], check=False)\n",
-                    "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--progress-bar', 'off', '--prefer-binary', '--no-deps', 'transformers==4.44.2', 'peft==0.12.0', 'trl==0.11.0', 'accelerate==0.33.0', 'bitsandbytes==0.43.3', 'datasets==2.18.0', 'huggingface_hub==0.25.1'], check=True)\n",
+                    "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--progress-bar', 'off', '--prefer-binary', '--no-deps', 'transformers==4.44.2', 'tokenizers==0.19.1', 'peft==0.12.0', 'trl==0.11.0', 'accelerate==0.33.0', 'bitsandbytes==0.43.3', 'datasets==2.18.0', 'huggingface_hub==0.25.1'], check=True)\n",
                     "try:\n",
                     "    import bitsandbytes\n",
                     "    bnb_ver = getattr(bitsandbytes, '__version__', 'unknown')\n",
