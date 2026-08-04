@@ -215,33 +215,53 @@ def run_training_pipeline(
                 output_texts.append(text)
         return output_texts
 
-    # 4. Training Arguments & SFTTrainer (Compatible with all TRL versions)
+    # 4. Training Arguments & SFTTrainer (Ultra-Robust Compatibility for all TRL versions)
+    from trl import SFTTrainer
     try:
-        from trl import SFTConfig, SFTTrainer
-        training_args = SFTConfig(
-            output_dir=str(output_dir),
-            num_train_epochs=epochs,
-            per_device_train_batch_size=2,
-            gradient_accumulation_steps=4,
-            warmup_steps=10,
-            logging_steps=10,
-            save_strategy="epoch",
-            learning_rate=2e-4,
-            fp16=True,
-            max_seq_length=1024,
-            report_to="none",
-        )
-        trainer = SFTTrainer(
-            model=model,
-            train_dataset=raw_data["train"],
-            formatting_func=formatting_prompts_func,
-            peft_config=peft_config,
-            processing_class=tokenizer,
-            args=training_args,
-        )
+        from trl import SFTConfig
+        try:
+            training_args = SFTConfig(
+                output_dir=str(output_dir),
+                num_train_epochs=epochs,
+                per_device_train_batch_size=2,
+                gradient_accumulation_steps=4,
+                warmup_steps=10,
+                logging_steps=10,
+                save_strategy="epoch",
+                learning_rate=2e-4,
+                fp16=True,
+                max_seq_length=1024,
+                report_to="none",
+            )
+        except TypeError:
+            logger.info("ℹ️ SFTConfig does not accept max_seq_length in __init__, initializing standard SFTConfig...")
+            training_args = SFTConfig(
+                output_dir=str(output_dir),
+                num_train_epochs=epochs,
+                per_device_train_batch_size=2,
+                gradient_accumulation_steps=4,
+                warmup_steps=10,
+                logging_steps=10,
+                save_strategy="epoch",
+                learning_rate=2e-4,
+                fp16=True,
+                report_to="none",
+            )
+
+        trainer_kwargs = {
+            "model": model,
+            "train_dataset": raw_data["train"],
+            "formatting_func": formatting_prompts_func,
+            "peft_config": peft_config,
+            "args": training_args,
+        }
+        try:
+            trainer = SFTTrainer(processing_class=tokenizer, **trainer_kwargs)
+        except TypeError:
+            trainer = SFTTrainer(tokenizer=tokenizer, **trainer_kwargs)
+
     except (ImportError, TypeError, AttributeError) as e:
-        logger.info(f"ℹ️ Falling back to standard SFTTrainer initialization: {e}")
-        from trl import SFTTrainer
+        logger.info(f"ℹ️ Falling back to standard TrainingArguments + SFTTrainer: {e}")
         from transformers import TrainingArguments
         training_args = TrainingArguments(
             output_dir=str(output_dir),
@@ -256,14 +276,24 @@ def run_training_pipeline(
             optim="paged_adamw_8bit",
             report_to="none",
         )
-        trainer = SFTTrainer(
-            model=model,
-            train_dataset=raw_data["train"],
-            formatting_func=formatting_prompts_func,
-            peft_config=peft_config,
-            tokenizer=tokenizer,
-            args=training_args,
-        )
+        trainer_kwargs = {
+            "model": model,
+            "train_dataset": raw_data["train"],
+            "formatting_func": formatting_prompts_func,
+            "peft_config": peft_config,
+            "args": training_args,
+        }
+        try:
+            trainer = SFTTrainer(tokenizer=tokenizer, **trainer_kwargs)
+        except TypeError:
+            trainer = SFTTrainer(processing_class=tokenizer, **trainer_kwargs)
+
+    if hasattr(trainer, "max_seq_length"):
+        try:
+            trainer.max_seq_length = 1024
+        except Exception:
+            pass
+
 
 
     logger.info("🏋️ Training model...")
