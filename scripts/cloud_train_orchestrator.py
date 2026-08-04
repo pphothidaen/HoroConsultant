@@ -119,6 +119,38 @@ def run_training_pipeline(
     logger.info(f"📖 Formatting dataset from '{dataset_path}'...")
     raw_data = load_dataset("json", data_files=str(dataset_path))
 
+    def formatting_prompts_func(example):
+        output_texts = []
+        # Support single items or list of conversation items
+        items = example.get("conversations") or example.get("messages") or []
+        if isinstance(items, list) and len(items) > 0 and isinstance(items[0], dict):
+            items = [items]
+        
+        for conversations in items:
+            if not isinstance(conversations, list):
+                continue
+            formatted_convs = []
+            for msg in conversations:
+                if not isinstance(msg, dict):
+                    continue
+                role = msg.get("role", "")
+                if role in ("human", "user"):
+                    role = "user"
+                elif role in ("gpt", "assistant"):
+                    role = "assistant"
+                elif role == "system":
+                    role = "system"
+                content = msg.get("value") or msg.get("content", "")
+                if content:
+                    formatted_convs.append({"role": role, "content": content})
+            if formatted_convs:
+                try:
+                    text = tokenizer.apply_chat_template(formatted_convs, tokenize=False)
+                except Exception:
+                    text = "\n".join([f"<|im_start|>{m['role']}\n{m['content']}<|im_end|>" for m in formatted_convs])
+                output_texts.append(text)
+        return output_texts
+
     training_args = TrainingArguments(
         output_dir=str(output_dir),
         num_train_epochs=epochs,
@@ -136,6 +168,7 @@ def run_training_pipeline(
     trainer = SFTTrainer(
         model=model,
         train_dataset=raw_data["train"],
+        formatting_func=formatting_prompts_func,
         peft_config=peft_config,
         max_seq_length=1024,
         tokenizer=tokenizer,

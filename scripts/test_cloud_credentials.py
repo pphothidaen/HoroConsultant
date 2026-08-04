@@ -29,7 +29,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger("test_cloud")
 
 
-def test_huggingface_credentials() -> bool:
+def check_huggingface_credentials() -> bool:
     """Verify Hugging Face token and account status."""
     token = Config.HF_TOKEN
     if not token:
@@ -55,7 +55,7 @@ def test_huggingface_credentials() -> bool:
         return False
 
 
-def test_lightning_credentials() -> bool:
+def check_lightning_credentials() -> bool:
     """Verify Lightning AI API keys and credentials."""
     api_key = os.getenv("LIGHTNING_API_KEY") or os.getenv("LIGHTNING_PROD_API_KEY")
     teamspace = os.getenv("LIGHTNING_TEAMSPACE", "deploy-model-project")
@@ -68,7 +68,7 @@ def test_lightning_credentials() -> bool:
     return True
 
 
-def test_kaggle_credentials() -> bool:
+def check_kaggle_credentials() -> bool:
     """Verify Kaggle Username and Token."""
     username = os.getenv("KAGGLE_USERNAME", "pphothidaen")
     token = os.getenv("KAGGLE_TOKEN")
@@ -81,12 +81,24 @@ def test_kaggle_credentials() -> bool:
     return True
 
 
+def test_huggingface_credentials():
+    assert check_huggingface_credentials() is True or not Config.HF_TOKEN
+
+
+def test_lightning_credentials():
+    assert check_lightning_credentials() is True or not (os.getenv("LIGHTNING_API_KEY") or os.getenv("LIGHTNING_PROD_API_KEY"))
+
+
+def test_kaggle_credentials():
+    assert check_kaggle_credentials() is True or not os.getenv("KAGGLE_TOKEN")
+
+
 def main():
     logger.info("🧪 --- Testing Case 3: Cloud GPU Platform Credentials & Infrastructure ---")
     
-    hf_ok = test_huggingface_credentials()
-    lit_ok = test_lightning_credentials()
-    kag_ok = test_kaggle_credentials()
+    hf_ok = check_huggingface_credentials()
+    lit_ok = check_lightning_credentials()
+    kag_ok = check_kaggle_credentials()
 
     db = SupabaseDB()
     db_ok = db.is_configured()
