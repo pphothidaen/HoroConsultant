@@ -1,0 +1,23 @@
+# MLX LoRA Fine-Tuning Config for Qwen2.5-7B-Instruct
+# Optimized for MacBook Pro M4 (16GB RAM)
+# ---
+# QLoRA note: MLX automatically uses QLoRA when loading a quantized model.
+# To fine-tune in QLoRA mode, load a quantized model variant (e.g., from mlx-community).
+
+# LoRA adapter parameters
+lora_parameters:
+  rank: 8
+  scale: 20.0       # equivalent to alpha=16 when rank=8 → scale = alpha/rank * default_scale
+  dropout: 0.0
+
+# Training parameters are set via CLI args or overridden here:
+# fine_tune_type: lora
+# num_layers: 8
+# batch_size: 1
+# iters: 600
+# learning_rate: 2e-5
+# grad_checkpoint: true
+# grad_accumulation_steps: 4
+# max_seq_length: 1024
+# save_every: 100
+# mask_prompt: false

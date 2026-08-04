@@ -1,0 +1,745 @@
+{
+  "report_version": "2.0.0",
+  "generated_at": "2026-08-04T00:03:35.352714",
+  "overall_stats": {
+    "total_sources": 46,
+    "total_vector_chunks": 4325,
+    "finetune_ready": 9,
+    "gray_zone_sources": 37,
+    "gray_zone_questions_total": 102,
+    "completion_pct": 19.6
+  },
+  "by_category": {
+    "chinese_metaphysics": {
+      "sources": 17,
+      "ingested_complete": 5,
+      "partial": 6,
+      "missing": 6,
+      "total_chunks": 2180,
+      "gray_zone_questions": 34
+    },
+    "vedic_astrology": {
+      "sources": 7,
+      "ingested_complete": 0,
+      "partial": 3,
+      "missing": 4,
+      "total_chunks": 299,
+      "gray_zone_questions": 22
+    },
+    "thai_astrology": {
+      "sources": 10,
+      "ingested_complete": 2,
+      "partial": 7,
+      "missing": 1,
+      "total_chunks": 1203,
+      "gray_zone_questions": 21
+    },
+    "astrophysics_math": {
+      "sources": 6,
+      "ingested_complete": 3,
+      "partial": 3,
+      "missing": 0,
+      "total_chunks": 230,
+      "gray_zone_questions": 9
+    },
+    "western_scientific": {
+      "sources": 6,
+      "ingested_complete": 0,
+      "partial": 5,
+      "missing": 1,
+      "total_chunks": 413,
+      "gray_zone_questions": 16
+    }
+  },
+  "gray_zone_summary": [
+    {
+      "id": "CM-BZ-004",
+      "title": "หยวนไห่ซือผิง — มหาสมุทรลึกแห่งวิชาซือผิง",
+      "category": "chinese_metaphysics",
+      "coverage_pct": 45,
+      "question_count": 3,
+      "questions": [
+        "อธิบายหลักการ 格局 (Ge Ju / Chart Pattern) ทั้ง 8 แบบหลักตาม 淵海子平",
+        "สรุปกฎ 六親 (Liù Qīn / Six Relationships) และวิธีการตีความ",
+        "หลักการ 神殺 (Shen Sha / Auxiliary Stars) ที่สำคัญที่สุด 10 อย่างแรก"
+      ]
+    },
+    {
+      "id": "CM-BZ-005",
+      "title": "ซานมิ่งทงฮุ่ย — การรวบรวมชะตา 3 ประการ",
+      "category": "chinese_metaphysics",
+      "coverage_pct": 0,
+      "question_count": 3,
+      "questions": [
+        "อธิบายหลักการ 三命 (三命 = 胎命, 本命, 用命) ตาม 三命通會",
+        "สรุประบบ 神殺 (Shen Sha) ที่ครอบคลุมที่สุดในตำรา 三命通會",
+        "หลักการ 納音五行 (Nayin Five Elements) — การคำนวณธาตุเสียงและการนำมาใช้"
+      ]
+    },
+    {
+      "id": "CM-BZ-006",
+      "title": "มิ่งหลี่เยว่หยาน — คำย่อแห่งชะตากรรม",
+      "category": "chinese_metaphysics",
+      "coverage_pct": 0,
+      "question_count": 2,
+      "questions": [
+        "สรุปหลักการหลัก 10 ประการในตำรา 命理約言",
+        "อธิบายวิธีการดู 月令 (Month Branch) เป็น Pivot ของชาร์ตตามตำรานี้"
+      ]
+    },
+    {
+      "id": "CM-PH-001",
+      "title": "อี้จิง — คัมภีร์แห่งการเปลี่ยนแปลง",
+      "category": "chinese_metaphysics",
+      "coverage_pct": 40,
+      "question_count": 3,
+      "questions": [
+        "อธิบายความสัมพันธ์ระหว่าง 八卦 (Ba Gua / 8 Trigrams) กับ 五行 (Five Elements) ในบริบท BaZi",
+        "หลักการ 先天八卦 (Xian Tian) vs 後天八卦 (Hou Tian) และการประยุกต์ใช้ในโหราศาสตร์",
+        "อธิบายแนวคิด 太極 (Taiji), 兩儀 (Liangyi) และ 四象 (Si Xiang) เชิงปรัชญา"
+      ]
+    },
+    {
+      "id": "CM-MC-001",
+      "title": "หวู่ยวิ่นหลิวชี่ — ห้าการเคลื่อนที่และหกพลัง",
+      "category": "chinese_metaphysics",
+      "coverage_pct": 30,
+      "question_count": 3,
+      "questions": [
+        "อธิบายระบบ 五運 (Wu Yun / 5 Celestial Movements) และความสัมพันธ์กับ 10 Heavenly Stems",
+        "อธิบายระบบ 六氣 (Liu Qi / 6 Climatic Energies) และความสัมพันธ์กับ 12 Earthly Branches",
+        "วิธีการคำนวณ 運氣曆法 (Yun Qi Calendar) สำหรับปีใดปีหนึ่ง"
+      ]
+    },
+    {
+      "id": "CM-MC-002",
+      "title": "ฮวงตี้เน่ยจิง — คัมภีร์ภายในของจักรพรรดิเหลือง",
+      "category": "chinese_metaphysics",
+      "coverage_pct": 0,
+      "question_count": 3,
+      "questions": [
+        "สรุปความสัมพันธ์ระหว่าง 五臟 (Five Viscera) กับ 五行 (Five Elements) ในบริบทโหราศาสตร์",
+        "อธิบายทฤษฎี 經絡 (Meridian System) และความเชื่อมโยงกับพลังธาตุ",
+        "หลักการ 藏象學說 (Zang-Xiang Theory) — การสะท้อนภายในสู่ภายนอก"
+      ]
+    },
+    {
+      "id": "CM-MC-003",
+      "title": "ทฤษฎีฮุ่น-โผ่ว — จิตวิญญาณและดวงชีพ",
+      "category": "chinese_metaphysics",
+      "coverage_pct": 55,
+      "question_count": 3,
+      "questions": [
+        "อธิบาย 三魂七魄 (Three Hun & Seven Po) และหน้าที่แต่ละประการ",
+        "ความสัมพันธ์ระหว่าง 幽精 (Youjing) กับสภาวะเบญจธาตุในดวงชะตา",
+        "วิธีการประเมิน Hun-Po Balance จากชาร์ต BaZi"
+      ]
+    },
+    {
+      "id": "CM-MC-004",
+      "title": "ระบบเทพยดาและดาวร้าย — Auspicious & Inauspicious Stars",
+      "category": "chinese_metaphysics",
+      "coverage_pct": 60,
+      "question_count": 4,
+      "questions": [
+        "สรุปรายชื่อ Shen Sha ที่สำคัญที่สุด 20 อย่างพร้อมวิธีคำนวณแต่ละดาว",
+        "อธิบาย 天乙貴人 (Tian Yi Gui Ren / Nobleman Star) — วิธีหา และผลลัพธ์",
+        "อธิบาย 驛馬 (Yi Ma / Travelling Horse) วิธีคำนวณและการตีความ",
+        "อธิบาย 桃花 (Tao Hua / Peach Blossom / Romance Star) วิธีหาและผล"
+      ]
+    },
+    {
+      "id": "CM-MC-005",
+      "title": "นาหยินเบญจธาตุ — ธาตุเสียง",
+      "category": "chinese_metaphysics",
+      "coverage_pct": 0,
+      "question_count": 2,
+      "questions": [
+        "อธิบายระบบ 納音五行 และ 60 Jiazi Nayin table ทั้งหมด",
+        "วิธีการนำ Nayin Element มาใช้ประกอบกับ BaZi Modern Analysis"
+      ]
+    },
+    {
+      "id": "CM-OM-001",
+      "title": "ฉีเหมิงตุ้นเจี่ย — ประตูมหัศจรรย์แห่งการหลบเลี่ยง",
+      "category": "chinese_metaphysics",
+      "coverage_pct": 0,
+      "question_count": 3,
+      "questions": [
+        "อธิบายโครงสร้างพื้นฐานของ Qi Men Dun Jia — 9 Palaces, 8 Gates, 9 Stars, 8 Deities",
+        "วิธีการ Plot Qi Men Chart สำหรับวันและชั่วโมงที่กำหนด",
+        "ความสัมพันธ์ระหว่าง Qi Men กับ BaZi ในเชิงการทำนาย"
+      ]
+    },
+    {
+      "id": "CM-OM-002",
+      "title": "จื่อเหว่ยโต่วซู่ — ดาวจักรพรรดิแห่งการนับ",
+      "category": "chinese_metaphysics",
+      "coverage_pct": 25,
+      "question_count": 3,
+      "questions": [
+        "สรุปโครงสร้าง Zi Wei Dou Shu — 12 Palaces, 14 Major Stars",
+        "อธิบาย 紫微星 (Zi Wei / Emperor Star) ลักษณะและการตีความ",
+        "เปรียบเทียบ Zi Wei กับ BaZi ในด้านวิธีการและจุดแข็ง-จุดอ่อน"
+      ]
+    },
+    {
+      "id": "CM-OM-003",
+      "title": "หลิวเหริน — การพยากรณ์ 6 壬",
+      "category": "chinese_metaphysics",
+      "coverage_pct": 0,
+      "question_count": 2,
+      "questions": [
+        "อธิบายหลักการพื้นฐานของ Liu Ren และความแตกต่างจาก BaZi และ Qi Men",
+        "วิธีการสร้าง 課式 (Ke Shi / Liu Ren Chart)"
+      ]
+    },
+    {
+      "id": "VA-001",
+      "title": "บฤหัตปราศรโหราศาสตร์",
+      "category": "vedic_astrology",
+      "coverage_pct": 40,
+      "question_count": 5,
+      "questions": [
+        "สรุประบบ Rashi (12 Signs) และ Graha (9 Planets) ตาม BPHS",
+        "อธิบายระบบ Bhava (12 Houses) และ Bhava Karaka (House Significators)",
+        "อธิบาย Vimshottari Dasha System — การคำนวณและการตีความ",
+        "สรุปหลักการ Yoga ที่สำคัญที่สุด 20 อย่างแรกใน BPHS",
+        "อธิบาย Navamsa (D-9 Chart) — วิธีคำนวณและการใช้งาน"
+      ]
+    },
+    {
+      "id": "VA-002",
+      "title": "ชัยมินีสูตร",
+      "category": "vedic_astrology",
+      "coverage_pct": 30,
+      "question_count": 3,
+      "questions": [
+        "อธิบาย Chara Karaka System ใน Jaimini — การคำนวณ 8 Karakas",
+        "อธิบาย Jaimini Aspects (Rashi Drishti) ที่แตกต่างจาก Parashari",
+        "สรุป Jaimini Dasha Systems — Chara, Sthira, Navamsa Dasha"
+      ]
+    },
+    {
+      "id": "VA-003",
+      "title": "ผลทีปิกา",
+      "category": "vedic_astrology",
+      "coverage_pct": 35,
+      "question_count": 3,
+      "questions": [
+        "สรุปหลักการ Planet Strength (Shadbala) ตาม Phaladeepika",
+        "อธิบายผลของ Planet placements ใน Houses ตาม Phaladeepika",
+        "สรุป Raja Yoga ที่สำคัญตาม Phaladeepika"
+      ]
+    },
+    {
+      "id": "VA-004",
+      "title": "สารวลี",
+      "category": "vedic_astrology",
+      "coverage_pct": 0,
+      "question_count": 2,
+      "questions": [
+        "สรุปหลักการหลักของ Saravali ที่แตกต่างจาก BPHS",
+        "อธิบาย Planet combinations (Graha Yoga) ที่โดดเด่นใน Saravali"
+      ]
+    },
+    {
+      "id": "VA-005",
+      "title": "บฤหัตชาตก",
+      "category": "vedic_astrology",
+      "coverage_pct": 0,
+      "question_count": 3,
+      "questions": [
+        "สรุประบบ Drekana (Decanate) ตาม Brihat Jataka",
+        "อธิบายหลักการ Drekkana Chart และการนำมาใช้ในการทำนาย",
+        "สรุปหลักการ Ayurdaya (Life span calculation) ตาม Varahamihira"
+      ]
+    },
+    {
+      "id": "VA-006",
+      "title": "อุตตระกาลามฤต",
+      "category": "vedic_astrology",
+      "coverage_pct": 0,
+      "question_count": 3,
+      "questions": [
+        "สรุปหลักการ Karakamsha ใน Uttara Kalamrita",
+        "อธิบาย Arudha Lagna System ตาม Uttara Kalamrita",
+        "สรุป Yogas สำหรับการพยากรณ์อาชีพและความมั่งคั่ง"
+      ]
+    },
+    {
+      "id": "VA-007",
+      "title": "มุหูรตจินตามณี",
+      "category": "vedic_astrology",
+      "coverage_pct": 0,
+      "question_count": 3,
+      "questions": [
+        "สรุปหลักการ Muhurta — การเลือกเวลามงคลตามโหราศาสตร์เวท",
+        "อธิบาย Tithi, Nakshatra, Vara, Yoga, Karana — Panchanga Elements",
+        "หลักการ Chandra Bala และ Tara Bala ในการเลือก Muhurta"
+      ]
+    },
+    {
+      "id": "TH-001",
+      "title": "คัมภีร์สุริยยาตร์ — The Solar Trajectory Treatise",
+      "category": "thai_astrology",
+      "coverage_pct": 70,
+      "question_count": 3,
+      "questions": [
+        "อธิบายระบบ สุริยยาตร์ ในฐานะแบบจำลองตำแหน่งดาวเฉลี่ย (Mean Model) และข้อจำกัดเชิงดาราศาสตร์ฟิสิกส์",
+        "เปรียบเทียบค่า Delta-T แบบ Fixed Precession ใน สุริยยาตร์ กับระบบ Dynamic IERS สมัยใหม่",
+        "สรุปสูตรคำนวณหลักของ สุริยยาตร์ สำหรับการหาตำแหน่งดาวอาทิตย์"
+      ]
+    },
+    {
+      "id": "TH-002",
+      "title": "คัมภีร์มานัต — The Ephemeris of Measure",
+      "category": "thai_astrology",
+      "coverage_pct": 55,
+      "question_count": 2,
+      "questions": [
+        "สรุประบบ มานัต — ตารางค่าดาวเคราะห์และวิธีการใช้งาน",
+        "อธิบายความแตกต่างระหว่าง สุริยยาตร์ กับ มานัต ในการคำนวณ"
+      ]
+    },
+    {
+      "id": "TH-003",
+      "title": "คัมภีร์ดวงพิชัยสงคราม — The Victory in War Horoscope",
+      "category": "thai_astrology",
+      "coverage_pct": 40,
+      "question_count": 3,
+      "questions": [
+        "สรุปหลักการดูดวงพิชัยสงคราม — ฤกษ์, ยาม, ตำแหน่งดาวที่เป็นมงคล",
+        "อธิบายการเลือกฤกษ์งามยามดีสำหรับการออกศึก/การตัดสินใจสำคัญ",
+        "ความสัมพันธ์ระหว่างดวงพิชัยสงครามกับระบบ Thai Horoscope Houses"
+      ]
+    },
+    {
+      "id": "TH-005",
+      "title": "ตำราไสยเวทอีสาน — Isan Sacred Magic Texts",
+      "category": "thai_astrology",
+      "coverage_pct": 35,
+      "question_count": 2,
+      "questions": [
+        "สรุปหลักการไสยเวทอีสาน — ความเชื่อ พิธีกรรม และระบบสัญลักษณ์หลัก",
+        "อธิบายความสัมพันธ์ระหว่างไสยเวทอีสานกับโหราศาสตร์ไทยมาตรฐาน"
+      ]
+    },
+    {
+      "id": "TH-006",
+      "title": "สูตรการลงยันต์แบบขอมผสมไทยโบราณ — Khmer-Thai Yantra Scripts",
+      "category": "thai_astrology",
+      "coverage_pct": 20,
+      "question_count": 2,
+      "questions": [
+        "สรุประบบยันต์หลัก — ประเภท, ความหมาย, และการลงยันต์ที่ถูกต้อง",
+        "อธิบายความสัมพันธ์ระหว่างยันต์กับระบบดาวและธาตุ"
+      ]
+    },
+    {
+      "id": "TH-007",
+      "title": "หนังสือว่าด้วยอำนาจผี แลผีหลอก",
+      "category": "thai_astrology",
+      "coverage_pct": 0,
+      "question_count": 2,
+      "questions": [
+        "สรุปการจัดหมวดหมู่ผีและวิญญาณในตำราไทยโบราณ",
+        "อธิบายความเชื่อเรื่องการปฏิสัมพันธ์ระหว่างดวงชะตาและอิทธิพลของวิญญาณ"
+      ]
+    },
+    {
+      "id": "TH-008",
+      "title": "โหงวเฮ้ง — Face Reading (Five Senses Reading)",
+      "category": "thai_astrology",
+      "coverage_pct": 50,
+      "question_count": 3,
+      "questions": [
+        "สรุปหลักการโหงวเฮ้ง — การอ่านลักษณะใบหน้าและร่างกายตาม 5 ส่วนหลัก",
+        "อธิบายความสัมพันธ์ระหว่างลักษณะใบหน้ากับ 五行 (Five Elements)",
+        "สรุปการอ่านลักษณะ นัยน์ตา, จมูก, ปาก, หู และหน้าผาก ตามโหงวเฮ้ง"
+      ]
+    },
+    {
+      "id": "TH-009",
+      "title": "โหรกับชีวิตประจำวัน",
+      "category": "thai_astrology",
+      "coverage_pct": 45,
+      "question_count": 2,
+      "questions": [
+        "สรุปหลักการโหราศาสตร์ไทยสำหรับชีวิตประจำวัน — ฤกษ์, ยาม, ดิถี",
+        "อธิบายการเลือกวันมงคลตามระบบโหราศาสตร์ไทย"
+      ]
+    },
+    {
+      "id": "TH-010",
+      "title": "โหราวิทยา เล่ม ๗ — Astrology Volume 7",
+      "category": "thai_astrology",
+      "coverage_pct": 40,
+      "question_count": 2,
+      "questions": [
+        "สรุปเนื้อหาหลักของโหราวิทยา เล่ม ๗ — หัวข้อสำคัญที่แตกต่างจากเล่มอื่น",
+        "อธิบายเทคนิคขั้นสูงในเล่มนี้ที่ไม่มีในตำราทั่วไป"
+      ]
+    },
+    {
+      "id": "AP-AE-002",
+      "title": "กรอบอ้างอิงพิกัดสากล ICRF3 และการสอบเทียบ VLBI",
+      "category": "astrophysics_math",
+      "coverage_pct": 45,
+      "question_count": 3,
+      "questions": [
+        "อธิบาย ICRF3 (International Celestial Reference Frame 3) — คืออะไรและทำไมสำคัญสำหรับโหราศาสตร์",
+        "อธิบาย VLBI Astrometric Calibration และการปรับค่าพิกัดดาว",
+        "วิธีการแปลง Ecliptic Coordinates เป็น ICRF3 สำหรับการคำนวณโหราศาสตร์"
+      ]
+    },
+    {
+      "id": "AP-AE-003",
+      "title": "แบบจำลอง IAU 2006 — การสะท้อนเชิงสัมพัทธภาพและการแกว่งพลวัต",
+      "category": "astrophysics_math",
+      "coverage_pct": 40,
+      "question_count": 3,
+      "questions": [
+        "อธิบาย Annual Aberration และ Diurnal Aberration ที่ต้องแก้ไขในการคำนวณตำแหน่งดาว",
+        "อธิบาย IAU 2006 Precession-Nutation Model — ความสำคัญและวิธีการใช้",
+        "อธิบาย Gravitational Deflection of Light (GR correction) ในบริบทโหราศาสตร์"
+      ]
+    },
+    {
+      "id": "AP-MS-001",
+      "title": "การวิเคราะห์อนุกรมเวลาและแบบจำลอง NARDL (Non-linear Autoregressive Distributed Lag)",
+      "category": "astrophysics_math",
+      "coverage_pct": 35,
+      "question_count": 3,
+      "questions": [
+        "อธิบาย NARDL Model และการประยุกต์ใช้กับข้อมูลโหราศาสตร์เชิงประจักษ์",
+        "วิธีการทดสอบ Non-linear Cointegration ระหว่างตำแหน่งดาวเคราะห์กับผลลัพธ์ชีวิต",
+        "อธิบาย Asymmetric Effects ใน NARDL และการตีความในบริบทโหราศาสตร์"
+      ]
+    },
+    {
+      "id": "WS-WT-001",
+      "title": "เทมา มุนดี — แผนผังกำเนิดจักรวาล (Hellenistic Astrology)",
+      "category": "western_scientific",
+      "coverage_pct": 50,
+      "question_count": 3,
+      "questions": [
+        "อธิบาย Thema Mundi — Chart ของการกำเนิดจักรวาล และโครงสร้างทางทฤษฎี",
+        "อธิบายบทบาทของ Thema Mundi ในการกำหนด Essential Dignities ของดาวเคราะห์",
+        "เปรียบเทียบ Thema Mundi กับแนวคิดจักรวาลวิทยาใน Yi Jing และ Vedic Astrology"
+      ]
+    },
+    {
+      "id": "WS-WT-002",
+      "title": "ทฤษฎีรอยต่อราศี — Zodiac Cusp Theory",
+      "category": "western_scientific",
+      "coverage_pct": 60,
+      "question_count": 2,
+      "questions": [
+        "อธิบายข้อถกเถียงเรื่อง Cusp Dates — ราศีมีรอยต่อจริงหรือไม่ตามทางดาราศาสตร์",
+        "เปรียบเทียบ Tropical Zodiac กับ Sidereal Zodiac และผลต่าง Ayanamsa"
+      ]
+    },
+    {
+      "id": "WS-WT-003",
+      "title": "เทตราบิบลอส — Claudius Ptolemy",
+      "category": "western_scientific",
+      "coverage_pct": 0,
+      "question_count": 2,
+      "questions": [
+        "สรุปหลักการหลักของ Tetrabiblos ที่ยังมีผลต่อโหราศาสตร์ปัจจุบัน",
+        "อธิบาย Ptolemy's Essential Dignities — Domicile, Exaltation, Triplicity, Term, Face"
+      ]
+    },
+    {
+      "id": "WS-ES-001",
+      "title": "ปรากฏการณ์ดาวอังคารของโกเกแลง — Gauquelin's Mars Effect",
+      "category": "western_scientific",
+      "coverage_pct": 65,
+      "question_count": 3,
+      "questions": [
+        "สรุปการค้นพบ Mars Effect ของ Gauquelin — สถิติ, ระเบียบวิธี และข้อถกเถียง",
+        "อธิบายการทดสอบซ้ำโดยนักวิทยาศาสตร์อิสระและผลที่ได้",
+        "วิพากษ์วิจารณ์ระเบียบวิธีวิจัย Mars Effect — Confirmation Bias และ Data Selection"
+      ]
+    },
+    {
+      "id": "WS-ES-002",
+      "title": "Genovese (2014) — งานวิจัยสถิติตรวจสอบโหราศาสตร์",
+      "category": "western_scientific",
+      "coverage_pct": 45,
+      "question_count": 3,
+      "questions": [
+        "สรุปผลการวิจัยของ Genovese (2014) เกี่ยวกับโหราศาสตร์และหลักฐานเชิงประจักษ์",
+        "อธิบาย False Discovery Rate (FDR) และความเกี่ยวข้องกับการวิจัยโหราศาสตร์",
+        "สรุปข้อสรุปเชิงนโยบายการวิจัยที่ได้จาก Genovese 2014"
+      ]
+    },
+    {
+      "id": "WS-ES-003",
+      "title": "การทดสอบสมมติฐานพหุคูณในโหราศาสตร์ทางการแพทย์",
+      "category": "western_scientific",
+      "coverage_pct": 50,
+      "question_count": 3,
+      "questions": [
+        "อธิบาย Multiple Comparison Problem และผลต่อการวิจัยโหราศาสตร์",
+        "วิธีการ Bonferroni Correction และ Benjamini-Hochberg Procedure ในบริบทโหราศาสตร์",
+        "อธิบาย P-hacking และ Publication Bias ในงานวิจัยโหราศาสตร์"
+      ]
+    }
+  ],
+  "action_required": [
+    {
+      "id": "CM-BZ-004",
+      "title": "หยวนไห่ซือผิง — มหาสมุทรลึกแห่งวิชาซือผิง",
+      "status": "partial",
+      "coverage_pct": 45,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "CM-BZ-005",
+      "title": "ซานมิ่งทงฮุ่ย — การรวบรวมชะตา 3 ประการ",
+      "status": "missing",
+      "coverage_pct": 0,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "CM-BZ-006",
+      "title": "มิ่งหลี่เยว่หยาน — คำย่อแห่งชะตากรรม",
+      "status": "missing",
+      "coverage_pct": 0,
+      "unanswered_questions": 2
+    },
+    {
+      "id": "CM-PH-001",
+      "title": "อี้จิง — คัมภีร์แห่งการเปลี่ยนแปลง",
+      "status": "partial",
+      "coverage_pct": 40,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "CM-MC-001",
+      "title": "หวู่ยวิ่นหลิวชี่ — ห้าการเคลื่อนที่และหกพลัง",
+      "status": "partial",
+      "coverage_pct": 30,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "CM-MC-002",
+      "title": "ฮวงตี้เน่ยจิง — คัมภีร์ภายในของจักรพรรดิเหลือง",
+      "status": "missing",
+      "coverage_pct": 0,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "CM-MC-003",
+      "title": "ทฤษฎีฮุ่น-โผ่ว — จิตวิญญาณและดวงชีพ",
+      "status": "partial",
+      "coverage_pct": 55,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "CM-MC-004",
+      "title": "ระบบเทพยดาและดาวร้าย — Auspicious & Inauspicious Stars",
+      "status": "partial",
+      "coverage_pct": 60,
+      "unanswered_questions": 4
+    },
+    {
+      "id": "CM-MC-005",
+      "title": "นาหยินเบญจธาตุ — ธาตุเสียง",
+      "status": "missing",
+      "coverage_pct": 0,
+      "unanswered_questions": 2
+    },
+    {
+      "id": "CM-OM-001",
+      "title": "ฉีเหมิงตุ้นเจี่ย — ประตูมหัศจรรย์แห่งการหลบเลี่ยง",
+      "status": "missing",
+      "coverage_pct": 0,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "CM-OM-002",
+      "title": "จื่อเหว่ยโต่วซู่ — ดาวจักรพรรดิแห่งการนับ",
+      "status": "partial",
+      "coverage_pct": 25,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "CM-OM-003",
+      "title": "หลิวเหริน — การพยากรณ์ 6 壬",
+      "status": "missing",
+      "coverage_pct": 0,
+      "unanswered_questions": 2
+    },
+    {
+      "id": "VA-001",
+      "title": "บฤหัตปราศรโหราศาสตร์",
+      "status": "partial",
+      "coverage_pct": 40,
+      "unanswered_questions": 5
+    },
+    {
+      "id": "VA-002",
+      "title": "ชัยมินีสูตร",
+      "status": "partial",
+      "coverage_pct": 30,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "VA-003",
+      "title": "ผลทีปิกา",
+      "status": "partial",
+      "coverage_pct": 35,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "VA-004",
+      "title": "สารวลี",
+      "status": "missing",
+      "coverage_pct": 0,
+      "unanswered_questions": 2
+    },
+    {
+      "id": "VA-005",
+      "title": "บฤหัตชาตก",
+      "status": "missing",
+      "coverage_pct": 0,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "VA-006",
+      "title": "อุตตระกาลามฤต",
+      "status": "missing",
+      "coverage_pct": 0,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "VA-007",
+      "title": "มุหูรตจินตามณี",
+      "status": "missing",
+      "coverage_pct": 0,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "TH-002",
+      "title": "คัมภีร์มานัต — The Ephemeris of Measure",
+      "status": "partial",
+      "coverage_pct": 55,
+      "unanswered_questions": 2
+    },
+    {
+      "id": "TH-003",
+      "title": "คัมภีร์ดวงพิชัยสงคราม — The Victory in War Horoscope",
+      "status": "partial",
+      "coverage_pct": 40,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "TH-005",
+      "title": "ตำราไสยเวทอีสาน — Isan Sacred Magic Texts",
+      "status": "partial",
+      "coverage_pct": 35,
+      "unanswered_questions": 2
+    },
+    {
+      "id": "TH-006",
+      "title": "สูตรการลงยันต์แบบขอมผสมไทยโบราณ — Khmer-Thai Yantra Scripts",
+      "status": "partial",
+      "coverage_pct": 20,
+      "unanswered_questions": 2
+    },
+    {
+      "id": "TH-007",
+      "title": "หนังสือว่าด้วยอำนาจผี แลผีหลอก",
+      "status": "missing",
+      "coverage_pct": 0,
+      "unanswered_questions": 2
+    },
+    {
+      "id": "TH-008",
+      "title": "โหงวเฮ้ง — Face Reading (Five Senses Reading)",
+      "status": "partial",
+      "coverage_pct": 50,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "TH-009",
+      "title": "โหรกับชีวิตประจำวัน",
+      "status": "partial",
+      "coverage_pct": 45,
+      "unanswered_questions": 2
+    },
+    {
+      "id": "TH-010",
+      "title": "โหราวิทยา เล่ม ๗ — Astrology Volume 7",
+      "status": "partial",
+      "coverage_pct": 40,
+      "unanswered_questions": 2
+    },
+    {
+      "id": "AP-AE-002",
+      "title": "กรอบอ้างอิงพิกัดสากล ICRF3 และการสอบเทียบ VLBI",
+      "status": "partial",
+      "coverage_pct": 45,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "AP-AE-003",
+      "title": "แบบจำลอง IAU 2006 — การสะท้อนเชิงสัมพัทธภาพและการแกว่งพลวัต",
+      "status": "partial",
+      "coverage_pct": 40,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "AP-MS-001",
+      "title": "การวิเคราะห์อนุกรมเวลาและแบบจำลอง NARDL (Non-linear Autoregressive Distributed Lag)",
+      "status": "partial",
+      "coverage_pct": 35,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "WS-WT-001",
+      "title": "เทมา มุนดี — แผนผังกำเนิดจักรวาล (Hellenistic Astrology)",
+      "status": "partial",
+      "coverage_pct": 50,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "WS-WT-002",
+      "title": "ทฤษฎีรอยต่อราศี — Zodiac Cusp Theory",
+      "status": "partial",
+      "coverage_pct": 60,
+      "unanswered_questions": 2
+    },
+    {
+      "id": "WS-WT-003",
+      "title": "เทตราบิบลอส — Claudius Ptolemy",
+      "status": "missing",
+      "coverage_pct": 0,
+      "unanswered_questions": 2
+    },
+    {
+      "id": "WS-ES-001",
+      "title": "ปรากฏการณ์ดาวอังคารของโกเกแลง — Gauquelin's Mars Effect",
+      "status": "partial",
+      "coverage_pct": 65,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "WS-ES-002",
+      "title": "Genovese (2014) — งานวิจัยสถิติตรวจสอบโหราศาสตร์",
+      "status": "partial",
+      "coverage_pct": 45,
+      "unanswered_questions": 3
+    },
+    {
+      "id": "WS-ES-003",
+      "title": "การทดสอบสมมติฐานพหุคูณในโหราศาสตร์ทางการแพทย์",
+      "status": "partial",
+      "coverage_pct": 50,
+      "unanswered_questions": 3
+    }
+  ]
+}

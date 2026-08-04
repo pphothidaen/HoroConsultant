@@ -1,0 +1,66 @@
+name: bazi-calculator
+description: >
+  Skill that wraps the Deterministic BaZi Python engine.
+  Accepts birth data and returns a fully-structured Four Pillars chart
+  including True Solar Time adjustment and Five Elements scoring.
+
+version: "1.0.0"
+
+instructions: |
+  ## BaZi Calculator Skill
+
+  ### Purpose
+  Compute the Four Pillars of Destiny (四柱命理) chart for a given birth
+  date/time and location, with True Solar Time (TST) adjustment.
+
+  ### Input Schema
+  ```json
+  {
+    "birth_datetime":    "YYYY-MM-DD HH:MM:SS",
+    "longitude":         100.4930,
+    "utc_offset_hours":  7.0,
+    "unknown_hour":      false
+  }
+  ```
+
+  ### Execution Steps
+  1. Parse `birth_datetime` into a Python `datetime` object
+  2. Call `project.core.bazi_engine.BaZiEngine().calculate()`
+  3. If `unknown_hour=true`, use Probabilistic Scenario Matrix mode
+
+  ### Output
+  Returns complete BaZi JSON including:
+  - `solar_time_info`: EoT, LMT, TST details
+  - `day_master`: stem, element, polarity
+  - `pillars`: year / month / day / hour with hidden stems
+  - `five_elements`: scores, percentages, dominant, weakest
+  - `is_probabilistic` + `probabilistic_matrix` (if unknown_hour)
+
+  ### CLI Invocation
+  ```bash
+  python -m project.core.bazi_engine \
+    --dt "1990-05-15 14:30:00" \
+    --longitude 100.493 \
+    --utc 7.0
+  ```
+
+  ### Boundary Handling
+  - Near Lichun (Feb 4): engine switches year pillar correctly
+  - Near solar term month boundaries: uses fixed-day approximation
+  - Unknown hour: returns 12-scenario probabilistic matrix
+  - Western hemisphere: negative longitude supported
+
+examples:
+  - name: Bangkok birth, known time
+    input:
+      birth_datetime: "1990-05-15 14:30:00"
+      longitude: 100.4930
+      utc_offset_hours: 7.0
+      unknown_hour: false
+
+  - name: Unknown hour – probabilistic mode
+    input:
+      birth_datetime: "1990-05-15 00:00:00"
+      longitude: 100.4930
+      utc_offset_hours: 7.0
+      unknown_hour: true

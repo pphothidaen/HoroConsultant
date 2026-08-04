@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HITL Review Studio — Computational Metaphysics Engine</title>
+<meta name="description" content="Human-in-the-Loop review interface for fine-tuning AI models with expert knowledge corrections">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep:      #04080f;
+  --bg-mid:       #080f1c;
+  --bg-surface:   rgba(8,15,28,0.92);
+  --glass-light:  rgba(255,255,255,0.04);
+  --glass-med:    rgba(255,255,255,0.07);
+  --glass-hover:  rgba(255,255,255,0.09);
+  --border:       rgba(255,255,255,0.07);
+  --border-focus: rgba(99,179,237,0.4);
+
+  /* Accent palette */
+  --blue:    #63b3ed;
+  --purple:  #b794f4;
+  --gold:    #f6d860;
+  --green:   #68d391;
+  --red:     #fc8181;
+  --orange:  #f6ad55;
+  --teal:    #4fd1c5;
+  --pink:    #f687b3;
+
+  /* Confidence heat colors */
+  --conf-high:   #68d391;
+  --conf-med:    #f6d860;
+  --conf-low:    #f6ad55;
+  --conf-xlow:   #fc8181;
+
+  --text-1: #e8f0fe;
+  --text-2: #94a3b8;
+  --text-3: #5a7494;
+
+  --topbar-h:  52px;
+  --queue-w:   300px;
+  --panel-gap: 12px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:'Inter','Noto Sans Thai',sans-serif;
+  background:var(--bg-deep);
+  color:var(--text-1);
+  height:100vh;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
+
+/* Ambient bg */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 30%,rgba(99,179,237,0.06) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 70%,rgba(183,148,244,0.06) 0%,transparent 70%),
+    radial-gradient(ellipse 40% 30% at 50% 10%,rgba(246,216,96,0.03) 0%,transparent 70%);
+}
+
+/* ======================== TOPBAR ======================== */
+.topbar{
+  height:var(--topbar-h);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;
+  background:rgba(4,8,15,0.95);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+  position:relative;z-index:100;
+}
+
+.topbar-left{display:flex;align-items:center;gap:14px}
+
+.topbar-logo{
+  width:30px;height:30px;border-radius:7px;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+}
+
+.topbar-title{
+  font-size:14px;font-weight:700;
+  background:linear-gradient(90deg,var(--blue),var(--purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+
+.topbar-pill{
+  padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.6px;
+}
+
+.pill-hitl{
+  background:rgba(246,216,96,0.15);
+  border:1px solid rgba(246,216,96,0.3);
+  color:var(--gold);
+}
+
+.topbar-right{display:flex;align-items:center;gap:10px}
+
+/* Progress ribbon */
+.progress-ribbon{
+  display:flex;align-items:center;gap:8px;
+  padding:5px 14px;
+  background:var(--glass-light);
+  border:1px solid var(--border);
+  border-radius:20px;
+}
+
+.ribbon-dot{
+  width:6px;height:6px;border-radius:50%;flex-shrink:0;
+}
+
+.ribbon-label{font-size:10px;color:var(--text-3);font-weight:600}
+.ribbon-val{font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace}
+
+/* ======================== WORKSPACE ======================== */
+.workspace{
+  flex:1;display:grid;
+  grid-template-columns:var(--queue-w) 1fr 1fr;
+  grid-template-rows:1fr;
+  min-height:0;
+  position:relative;z-index:1;
+}
+
+/* ======================== QUEUE PANEL ======================== */
+.queue-panel{
+  background:rgba(4,8,15,0.9);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+
+.panel-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 14px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+
+.panel-hdr-title{
+  font-size:11px;font-weight:700;
+  color:var(--text-2);text-transform:uppercase;letter-spacing:0.8px;
+}
+
+.queue-filters{
+  display:flex;gap:4px;padding:10px 10px 8px;flex-shrink:0;flex-wrap:wrap;
+}
+
+.filter-btn{
+  padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;
+  cursor:pointer;border:1px solid var(--border);
+  background:transparent;color:var(--text-3);
+  transition:all 0.15s;
+}
+.filter-btn:hover{background:var(--glass-hover);color:var(--text-2)}
+.filter-btn.active-all     {background:rgba(99,179,237,0.15);border-color:var(--blue);color:var(--blue)}
+.filter-btn.active-pending {background:rgba(246,173,85,0.15);border-color:var(--orange);color:var(--orange)}
+.filter-btn.active-approve {background:rgba(104,211,145,0.15);border-color:var(--green);color:var(--green)}
+.filter-btn.active-reject  {background:rgba(252,129,129,0.15);border-color:var(--red);color:var(--red)}
+
+.queue-search{
+  padding:0 10px 8px;flex-shrink:0;
+}
+.queue-search input{
+  width:100%;
+  background:rgba(0,0,0,0.4);
+  border:1px solid var(--border);
+  border-radius:7px;
+  padding:6px 10px;
+  font-size:11px;color:var(--text-1);
+  font-family:inherit;
+}
+.queue-search input:focus{outline:none;border-color:var(--blue)}
+.queue-search input::placeholder{color:var(--text-3)}
+
+.queue-list{
+  flex:1;overflow-y:auto;
+  padding:4px 6px 12px;
+}
+
+.queue-item{
+  padding:10px 10px;border-radius:8px;cursor:pointer;
+  margin-bottom:3px;
+  border:1px solid transparent;
+  transition:all 0.15s;
+}
+.queue-item:hover{background:var(--glass-hover);border-color:var(--border)}
+.queue-item.active{
+  background:rgba(99,179,237,0.1);
+  border-color:rgba(99,179,237,0.25);
+}
+
+.qi-header{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+
+.qi-status{
+  width:7px;height:7px;border-radius:50%;flex-shrink:0;
+}
+.s-pending {background:var(--orange)}
+.s-approve {background:var(--green)}
+.s-edit    {background:var(--blue)}
+.s-reject  {background:var(--red)}
+
+.qi-id{
+  font-size:9px;font-weight:700;
+  font-family:'JetBrains Mono',monospace;
+  color:var(--teal);
+}
+
+.qi-question{
+  font-size:11px;color:var(--text-2);
+  line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+
+.qi-cat{
+  font-size:9px;color:var(--text-3);margin-top:3px;
+}
+
+.qi-draft-badge{
+  margin-left:auto;font-size:8px;font-weight:700;
+  padding:1px 5px;border-radius:3px;
+  background:rgba(99,179,237,0.15);color:var(--blue);
+  flex-shrink:0;
+}
+
+/* ======================== AI OUTPUT PANEL ======================== */
+.ai-panel{
+  display:flex;flex-direction:column;
+  border-right:1px solid var(--border);
+  overflow:hidden;
+}
+
+.ai-panel-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;
+  background:rgba(99,179,237,0.04);
+  border-bottom:1px solid rgba(99,179,237,0.12);
+  flex-shrink:0;
+}
+
+.panel-label{
+  display:flex;align-items:center;gap:7px;
+  font-size:11px;font-weight:700;color:var(--text-2);
+  text-transform:uppercase;letter-spacing:0.7px;
+}
+
+.panel-label-dot{
+  width:8px;height:8px;border-radius:50%;
+}
+
+.ai-content{
+  flex:1;overflow-y:auto;
+  padding:16px;
+}
+
+/* Question card */
+.question-card{
+  background:var(--glass-light);
+  border:1px solid rgba(99,179,237,0.15);
+  border-radius:10px;
+  padding:12px 14px;
+  margin-bottom:16px;
+}
+
+.question-label{
+  font-size:9px;font-weight:700;
+  color:var(--blue);text-transform:uppercase;letter-spacing:0.8px;
+  margin-bottom:6px;
+}
+
+.question-text{
+  font-size:13px;line-height:1.6;color:var(--text-1);
+}
+
+.source-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  margin-top:8px;
+  padding:3px 8px;border-radius:4px;
+  background:rgba(79,209,197,0.1);border:1px solid rgba(79,209,197,0.2);
+  font-size:9px;font-weight:700;color:var(--teal);
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* Model info bar */
+.model-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 10px;
+  background:rgba(0,0,0,0.3);border-radius:6px;
+  margin-bottom:12px;
+  font-size:10px;color:var(--text-3);
+}
+.model-name{color:var(--purple);font-weight:600;font-family:'JetBrains Mono',monospace}
+
+/* Confidence heatmap text */
+.heatmap-container{
+  line-height:1.9;
+  font-size:13px;
+}
+
+.conf-seg{
+  display:inline;
+  border-radius:3px;
+  padding:1px 0;
+  cursor:help;
+  position:relative;
+  transition:filter 0.15s;
+}
+.conf-seg:hover{filter:brightness(1.2)}
+
+.conf-high {background:rgba(104,211,145,0.15);border-bottom:2px solid rgba(104,211,145,0.6)}
+.conf-med  {background:rgba(246,216,96,0.12);border-bottom:2px solid rgba(246,216,96,0.5)}
+.conf-low  {background:rgba(246,173,85,0.15);border-bottom:2px solid rgba(246,173,85,0.6)}
+.conf-xlow {background:rgba(252,129,129,0.2);border-bottom:2px solid rgba(252,129,129,0.7)}
+
+/* Tooltip */
+.conf-tooltip{
+  position:absolute;bottom:calc(100% + 6px);left:0;
+  background:#111;border:1px solid var(--border);
+  border-radius:5px;padding:4px 8px;
+  font-size:9px;font-weight:700;white-space:nowrap;
+  pointer-events:none;z-index:200;
+  display:none;
+}
+.conf-seg:hover .conf-tooltip{display:block}
+
+/* Confidence legend */
+.conf-legend{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;
+  background:rgba(0,0,0,0.3);border-radius:6px;
+  margin-top:14px;
+  font-size:9px;color:var(--text-3);
+}
+.legend-item{display:flex;align-items:center;gap:4px}
+.legend-dot{width:10px;height:4px;border-radius:2px}
+
+/* Empty states */
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;color:var(--text-3);text-align:center;padding:20px;
+}
+.empty-icon{font-size:40px;margin-bottom:12px;opacity:0.5}
+.empty-text{font-size:13px}
+.empty-sub{font-size:11px;margin-top:6px;opacity:0.7}
+
+/* Generate draft button */
+.draft-gen-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 20px;border-radius:10px;
+  background:linear-gradient(135deg,rgba(99,179,237,0.2),rgba(183,148,244,0.2));
+  border:1px solid rgba(99,179,237,0.3);
+  color:var(--blue);font-size:13px;font-weight:600;
+  cursor:pointer;margin-top:16px;
+  transition:all 0.2s;
+  width:100%;
+}
+.draft-gen-btn:hover{
+  background:linear-gradient(135deg,rgba(99,179,237,0.3),rgba(183,148,244,0.3));
+  transform:translateY(-1px);
+  box-shadow:0 4px 20px rgba(99,179,237,0.2);
+}
+
+/* ======================== HUMAN WORKSPACE PANEL ======================== */
+.human-panel{
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+
+.human-panel-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;
+  background:rgba(104,211,145,0.04);
+  border-bottom:1px solid rgba(104,211,145,0.12);
+  flex-shrink:0;
+}
+
+.human-content{
+  flex:1;overflow-y:auto;
+  padding:16px;
+  display:flex;flex-direction:column;gap:12px;
+}
+
+/* Editor */
+.editor-wrap{
+  flex:1;min-height:0;
+  display:flex;flex-direction:column;
+}
+
+.editor-toolbar{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 10px;
+  background:rgba(0,0,0,0.3);
+  border:1px solid var(--border);
+  border-bottom:none;
+  border-radius:8px 8px 0 0;
+}
+
+.tb-btn{
+  padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;
+  cursor:pointer;border:1px solid var(--border);
+  background:var(--glass-light);color:var(--text-2);
+  transition:all 0.15s;
+}
+.tb-btn:hover{background:var(--glass-hover);color:var(--text-1)}
+
+.editor-area{
+  flex:1;
+  background:rgba(0,0,0,0.4);
+  border:1px solid var(--border);
+  border-radius:0 0 8px 8px;
+  padding:14px;
+  font-size:13px;color:var(--text-1);
+  font-family:'Inter','Noto Sans Thai',sans-serif;
+  line-height:1.75;
+  resize:none;
+  outline:none;
+  min-height:220px;
+  transition:border-color 0.2s;
+}
+.editor-area:focus{border-color:var(--border-focus);box-shadow:0 0 0 2px rgba(99,179,237,0.08)}
+
+.editor-area[contenteditable="true"]{
+  overflow-y:auto;
+  white-space:pre-wrap;word-break:break-word;
+}
+
+.char-counter{
+  font-size:9px;color:var(--text-3);text-align:right;margin-top:4px;
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* Tags grid */
+.tags-section{flex-shrink:0}
+
+.tags-label{
+  font-size:9px;font-weight:700;color:var(--text-3);
+  text-transform:uppercase;letter-spacing:0.8px;
+  margin-bottom:7px;
+}
+
+.tags-grid{
+  display:flex;flex-wrap:wrap;gap:5px;
+}
+
+.tag-chip{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 11px;border-radius:20px;
+  font-size:10px;font-weight:700;
+  cursor:pointer;border:1px solid;
+  transition:all 0.15s;user-select:none;
+}
+
+.tag-correct      {border-color:rgba(104,211,145,0.35);color:var(--green);background:transparent}
+.tag-needs-rewrite{border-color:rgba(99,179,237,0.35);color:var(--blue);background:transparent}
+.tag-factually-wrong{border-color:rgba(252,129,129,0.35);color:var(--red);background:transparent}
+.tag-hallucination{border-color:rgba(246,173,85,0.35);color:var(--orange);background:transparent}
+.tag-bad-tone     {border-color:rgba(246,87,179,0.35);color:var(--pink);background:transparent}
+.tag-incomplete   {border-color:rgba(183,148,244,0.35);color:var(--purple);background:transparent}
+.tag-excellent    {border-color:rgba(246,216,96,0.35);color:var(--gold);background:transparent}
+
+.tag-chip.selected.tag-correct      {background:rgba(104,211,145,0.15)}
+.tag-chip.selected.tag-needs-rewrite{background:rgba(99,179,237,0.15)}
+.tag-chip.selected.tag-factually-wrong{background:rgba(252,129,129,0.15)}
+.tag-chip.selected.tag-hallucination{background:rgba(246,173,85,0.15)}
+.tag-chip.selected.tag-bad-tone     {background:rgba(246,87,179,0.15)}
+.tag-chip.selected.tag-incomplete   {background:rgba(183,148,244,0.15)}
+.tag-chip.selected.tag-excellent    {background:rgba(246,216,96,0.15)}
+
+/* Confidence rating */
+.conf-rating{
+  display:flex;align-items:center;gap:8px;flex-shrink:0;
+}
+.conf-rating-label{font-size:9px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:0.6px}
+.stars{display:flex;gap:3px}
+.star{
+  font-size:16px;cursor:pointer;
+  opacity:0.3;transition:opacity 0.15s,transform 0.1s;
+}
+.star:hover,.star.active{opacity:1;transform:scale(1.15)}
+
+/* Reject reason */
+.reject-section{
+  background:rgba(252,129,129,0.05);
+  border:1px solid rgba(252,129,129,0.15);
+  border-radius:8px;padding:12px;
+}
+.reject-label{font-size:9px;font-weight:700;color:var(--red);margin-bottom:6px;text-transform:uppercase}
+.reject-input{
+  width:100%;background:rgba(0,0,0,0.3);
+  border:1px solid rgba(252,129,129,0.2);
+  border-radius:6px;padding:7px 10px;
+  font-size:12px;color:var(--text-1);font-family:inherit;
+}
+.reject-input:focus{outline:none;border-color:rgba(252,129,129,0.5)}
+
+/* ======================== ACTION BAR ======================== */
+.action-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 16px;
+  background:rgba(4,8,15,0.95);
+  border-top:1px solid var(--border);
+  flex-shrink:0;
+}
+
+.action-bar-section{
+  grid-column:2 / -1;
+  display:contents;
+}
+
+/* 3-column action bar spanning columns 2+3 */
+.action-bar-container{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;
+  padding:10px 16px;
+  background:rgba(4,8,15,0.95);
+  border-top:1px solid var(--border);
+  grid-column:2 / -1;
+  position:relative;z-index:10;
+}
+
+.action-btns{display:flex;gap:8px}
+
+.btn-approve{
+  display:flex;align-items:center;gap:7px;
+  padding:9px 20px;border-radius:8px;
+  background:linear-gradient(135deg,rgba(104,211,145,0.25),rgba(104,211,145,0.15));
+  border:1px solid rgba(104,211,145,0.4);
+  color:var(--green);font-size:12px;font-weight:700;
+  cursor:pointer;transition:all 0.2s;
+}
+.btn-approve:hover{background:linear-gradient(135deg,rgba(104,211,145,0.35),rgba(104,211,145,0.25));transform:translateY(-1px);box-shadow:0 4px 16px rgba(104,211,145,0.2)}
+
+.btn-edit-save{
+  display:flex;align-items:center;gap:7px;
+  padding:9px 20px;border-radius:8px;
+  background:linear-gradient(135deg,rgba(99,179,237,0.25),rgba(99,179,237,0.15));
+  border:1px solid rgba(99,179,237,0.4);
+  color:var(--blue);font-size:12px;font-weight:700;
+  cursor:pointer;transition:all 0.2s;
+}
+.btn-edit-save:hover{background:linear-gradient(135deg,rgba(99,179,237,0.35),rgba(99,179,237,0.25));transform:translateY(-1px);box-shadow:0 4px 16px rgba(99,179,237,0.2)}
+
+.btn-reject{
+  display:flex;align-items:center;gap:7px;
+  padding:9px 20px;border-radius:8px;
+  background:rgba(252,129,129,0.1);
+  border:1px solid rgba(252,129,129,0.3);
+  color:var(--red);font-size:12px;font-weight:700;
+  cursor:pointer;transition:all 0.2s;
+}
+.btn-reject:hover{background:rgba(252,129,129,0.2);transform:translateY(-1px)}
+
+.btn-undo{
+  padding:9px 14px;border-radius:8px;
+  background:var(--glass-light);border:1px solid var(--border);
+  color:var(--text-3);font-size:11px;cursor:pointer;transition:all 0.15s;
+}
+.btn-undo:hover{background:var(--glass-hover);color:var(--text-2)}
+
+.btn-next{
+  display:flex;align-items:center;gap:6px;
+  padding:9px 16px;border-radius:8px;
+  background:linear-gradient(135deg,rgba(183,148,244,0.2),rgba(183,148,244,0.1));
+  border:1px solid rgba(183,148,244,0.3);
+  color:var(--purple);font-size:12px;font-weight:700;
+  cursor:pointer;transition:all 0.2s;
+  margin-left:auto;
+}
+.btn-next:hover{background:linear-gradient(135deg,rgba(183,148,244,0.3),rgba(183,148,244,0.2));transform:translateY(-1px)}
+
+/* Reviewer field */
+.reviewer-field{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 10px;
+  background:var(--glass-light);border:1px solid var(--border);
+  border-radius:6px;
+}
+.reviewer-field input{
+  background:none;border:none;outline:none;
+  font-size:11px;color:var(--text-1);font-family:inherit;width:120px;
+}
+.reviewer-field input::placeholder{color:var(--text-3)}
+.reviewer-icon{font-size:12px;color:var(--text-3)}
+
+/* Decision badge */
+.decision-badge{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:6px;
+  font-size:11px;font-weight:700;
+}
+.db-approve {background:rgba(104,211,145,0.15);border:1px solid rgba(104,211,145,0.3);color:var(--green)}
+.db-edit    {background:rgba(99,179,237,0.15);border:1px solid rgba(99,179,237,0.3);color:var(--blue)}
+.db-reject  {background:rgba(252,129,129,0.15);border:1px solid rgba(252,129,129,0.3);color:var(--red)}
+
+/* Navigation indicator */
+.nav-indicator{
+  display:flex;align-items:center;gap:8px;
+  font-size:10px;color:var(--text-3);
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* ======================== SCROLLBAR ======================== */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.18)}
+
+/* ======================== TOAST ======================== */
+.toast-container{
+  position:fixed;bottom:70px;right:16px;z-index:9999;
+  display:flex;flex-direction:column;gap:6px;
+}
+.toast{
+  padding:10px 16px;border-radius:8px;font-size:12px;
+  backdrop-filter:blur(16px);
+  animation:slideIn 0.25s ease;
+  display:flex;align-items:center;gap:8px;max-width:300px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+.toast.success{background:rgba(104,211,145,0.15);border:1px solid rgba(104,211,145,0.3);color:var(--green)}
+.toast.error  {background:rgba(252,129,129,0.15);border:1px solid rgba(252,129,129,0.3);color:var(--red)}
+.toast.info   {background:rgba(99,179,237,0.15);border:1px solid rgba(99,179,237,0.3);color:var(--blue)}
+.toast.warning{background:rgba(246,173,85,0.15);border:1px solid rgba(246,173,85,0.3);color:var(--orange)}
+
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* Spinner */
+.spin{animation:spinR 0.6s linear infinite;display:inline-block}
+@keyframes spinR{to{transform:rotate(360deg)}}
+
+/* Diff highlight */
+.diff-added  {background:rgba(104,211,145,0.15);border-left:2px solid var(--green);padding-left:4px}
+.diff-removed{background:rgba(252,129,129,0.1);text-decoration:line-through;opacity:0.6}
+
+/* Batch draft panel */
+.batch-panel{
+  position:fixed;bottom:70px;left:50%;transform:translateX(-50%);
+  background:var(--bg-mid);border:1px solid rgba(183,148,244,0.3);
+  border-radius:12px;padding:16px 20px;z-index:500;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  font-size:12px;
+}
+.hidden{display:none!important}
+
+/* Copy-from-AI button */
+.copy-ai-btn{
+  padding:5px 12px;border-radius:6px;font-size:10px;font-weight:700;
+  background:rgba(99,179,237,0.12);border:1px solid rgba(99,179,237,0.25);
+  color:var(--blue);cursor:pointer;transition:all 0.15s;
+}
+.copy-ai-btn:hover{background:rgba(99,179,237,0.2)}
+</style>
+</head>
+<body>
+
+<!-- ======================== TOPBAR ======================== -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">🔬</div>
+    <div>
+      <div class="topbar-title">HITL Review Studio</div>
+    </div>
+    <span class="topbar-pill pill-hitl">Human-in-the-Loop</span>
+    <a href="/admin" style="padding:4px 10px;border-radius:6px;font-size:10px;font-weight:600;color:var(--text-3);border:1px solid var(--border);text-decoration:none;transition:all 0.15s" onmouseover="this.style.color='var(--text-2)'" onmouseout="this.style.color='var(--text-3)'">← Admin</a>
+  </div>
+  <div class="topbar-right">
+    <div class="progress-ribbon">
+      <div class="ribbon-dot" style="background:var(--orange)" id="r-pending-dot"></div>
+      <span class="ribbon-label">Pending</span>
+      <span class="ribbon-val" id="r-pending">—</span>
+    </div>
+    <div class="progress-ribbon">
+      <div class="ribbon-dot" style="background:var(--green)"></div>
+      <span class="ribbon-label">Approved</span>
+      <span class="ribbon-val" id="r-approved">—</span>
+    </div>
+    <div class="progress-ribbon">
+      <div class="ribbon-dot" style="background:var(--blue)"></div>
+      <span class="ribbon-label">Edited</span>
+      <span class="ribbon-val" id="r-edited">—</span>
+    </div>
+    <div class="progress-ribbon">
+      <div class="ribbon-dot" style="background:var(--red)"></div>
+      <span class="ribbon-label">Rejected</span>
+      <span class="ribbon-val" id="r-rejected">—</span>
+    </div>
+    <button onclick="batchGenerateDrafts()" style="padding:5px 12px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(183,148,244,0.15);border:1px solid rgba(183,148,244,0.3);color:var(--purple);cursor:pointer" id="btn-batch">
+      ⚡ Batch Draft
+    </button>
+    <button onclick="exportHITL()" style="padding:5px 12px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(104,211,145,0.15);border:1px solid rgba(104,211,145,0.3);color:var(--green);cursor:pointer">
+      ⬇ Export JSONL
+    </button>
+  </div>
+</header>
+
+<!-- ======================== WORKSPACE ======================== -->
+<div class="workspace" style="display:grid;grid-template-columns:var(--queue-w) 1fr 1fr;grid-template-rows:1fr auto;min-height:0">
+
+  <!-- QUEUE PANEL -->
+  <div class="queue-panel" style="grid-row:1/3">
+    <div class="panel-hdr">
+      <span class="panel-hdr-title">📋 Review Queue</span>
+      <span id="queue-count" style="font-size:10px;color:var(--text-3);font-family:'JetBrains Mono',monospace">—</span>
+    </div>
+    <div class="queue-filters">
+      <button class="filter-btn active-all" onclick="setQueueFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setQueueFilter('pending',this)">⚠ Pending</button>
+      <button class="filter-btn" onclick="setQueueFilter('approve',this)">✅ Done</button>
+      <button class="filter-btn" onclick="setQueueFilter('reject',this)">❌ Rejected</button>
+    </div>
+    <div class="queue-search">
+      <input placeholder="🔍 Search questions..." oninput="filterQueue(this.value)" id="queue-search-input">
+    </div>
+    <div class="queue-list" id="queue-list">
+      <div style="text-align:center;padding:20px;color:var(--text-3);font-size:11px">Loading queue...</div>
+    </div>
+  </div>
+
+  <!-- AI OUTPUT PANEL -->
+  <div class="ai-panel">
+    <div class="ai-panel-hdr">
+      <div class="panel-label">
+        <div class="panel-label-dot" style="background:var(--blue)"></div>
+        AI Output + Confidence Heatmap
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div id="ai-model-badge" style="font-size:9px;color:var(--text-3);font-family:'JetBrains Mono',monospace"></div>
+        <button class="copy-ai-btn" onclick="copyAItoHuman()" title="Copy AI output to Human Workspace">📋 Use as Base</button>
+        <button onclick="generateDraftForCurrent(this)" id="btn-gen-draft"
+          style="padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(99,179,237,0.15);border:1px solid rgba(99,179,237,0.25);color:var(--blue);cursor:pointer">
+          <span id="gen-label">⚡ Generate Draft</span>
+        </button>
+      </div>
+    </div>
+    <div class="ai-content" id="ai-content">
+      <div class="empty-state">
+        <div class="empty-icon">🤖</div>
+        <div class="empty-text">Select an item from the queue</div>
+        <div class="empty-sub">AI output will appear here with confidence heatmap</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HUMAN WORKSPACE PANEL -->
+  <div class="human-panel">
+    <div class="human-panel-hdr">
+      <div class="panel-label">
+        <div class="panel-label-dot" style="background:var(--green)"></div>
+        Human Workspace
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div id="decision-badge"></div>
+        <div class="conf-rating">
+          <span class="conf-rating-label">Quality:</span>
+          <div class="stars" id="stars">
+            <span class="star" data-v="1" onclick="setStars(1)">★</span>
+            <span class="star" data-v="2" onclick="setStars(2)">★</span>
+            <span class="star" data-v="3" onclick="setStars(3)">★</span>
+            <span class="star" data-v="4" onclick="setStars(4)">★</span>
+            <span class="star" data-v="5" onclick="setStars(5)">★</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="human-content" id="human-content">
+      <div class="empty-state">
+        <div class="empty-icon">✍️</div>
+        <div class="empty-text">Your review workspace</div>
+        <div class="empty-sub">Edit, correct and annotate the AI output</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTION BAR (spans AI + Human panels) -->
+  <div class="action-bar-container">
+    <div class="action-btns">
+      <button class="btn-approve" onclick="submitDecision('approve')" id="btn-approve">
+        <span>✅</span><span>Approve</span>
+      </button>
+      <button class="btn-edit-save" onclick="submitDecision('edit')" id="btn-edit">
+        <span>💾</span><span>Edit &amp; Save</span>
+      </button>
+      <button class="btn-reject" onclick="showRejectPanel()" id="btn-reject">
+        <span>🚩</span><span>Reject / Flag</span>
+      </button>
+      <button class="btn-undo" onclick="undoDecision()" id="btn-undo">↩ Undo</button>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="reviewer-field">
+        <span class="reviewer-icon">👤</span>
+        <input type="text" id="reviewer-input" placeholder="Reviewer name..." value="">
+      </div>
+      <div class="nav-indicator">
+        <span id="nav-pos">—</span>/<span id="nav-total">—</span>
+      </div>
+      <button class="btn-next" onclick="goNext()" id="btn-next">
+        Next →
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- Reject Modal -->
+<div id="reject-modal" class="hidden" style="
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);
+  z-index:9000;display:flex;align-items:center;justify-content:center;
+">
+  <div style="background:var(--bg-mid);border:1px solid rgba(252,129,129,0.3);border-radius:14px;padding:24px;max-width:480px;width:90%">
+    <div style="font-size:15px;font-weight:700;margin-bottom:16px;color:var(--red)">🚩 Reject & Flag</div>
+    <div style="font-size:12px;color:var(--text-2);margin-bottom:10px">Select error type(s):</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
+      <span class="tag-chip tag-hallucination" data-tag="hallucination" onclick="toggleModalTag(this)">🌀 Hallucination</span>
+      <span class="tag-chip tag-factually-wrong" data-tag="factually_wrong" onclick="toggleModalTag(this)">❌ Factually Wrong</span>
+      <span class="tag-chip tag-bad-tone" data-tag="bad_tone" onclick="toggleModalTag(this)">💬 Bad Tone</span>
+      <span class="tag-chip tag-incomplete" data-tag="incomplete" onclick="toggleModalTag(this)">📝 Incomplete</span>
+      <span class="tag-chip tag-needs-rewrite" data-tag="needs_rewrite" onclick="toggleModalTag(this)">✏️ Needs Rewrite</span>
+    </div>
+    <div class="reject-section">
+      <div class="reject-label">Rejection Reason</div>
+      <input class="reject-input" id="reject-reason-input" placeholder="Describe what's wrong with this response...">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button onclick="confirmReject()" style="flex:1;padding:9px;border-radius:8px;background:rgba(252,129,129,0.2);border:1px solid rgba(252,129,129,0.4);color:var(--red);font-size:12px;font-weight:700;cursor:pointer">Confirm Reject</button>
+      <button onclick="document.getElementById('reject-modal').classList.add('hidden')" style="padding:9px 16px;border-radius:8px;background:var(--glass-light);border:1px solid var(--border);color:var(--text-2);font-size:12px;cursor:pointer">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== STATE ===================== */
+const S = {
+  queue:         [],
+  filteredQueue: [],
+  currentIdx:    -1,
+  currentItem:   null,
+  stars:         0,
+  selectedTags:  new Set(),
+  modalTags:     new Set(),
+  queueFilter:   'all',
+  queueSearch:   '',
+  generating:    false,
+};
+
+const CAT_EMOJI = {
+  chinese_metaphysics: '☯️',
+  vedic_astrology:     '🕉️',
+  thai_astrology:      '🐘',
+  astrophysics_math:   '🔭',
+  western_scientific:  '⚗️',
+};
+
+/* ===================== INIT ===================== */
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadQueue();
+  // Load saved reviewer from localStorage
+  const saved = localStorage.getItem('hitl-reviewer');
+  if (saved) document.getElementById('reviewer-input').value = saved;
+  document.getElementById('reviewer-input').addEventListener('input', e => {
+    localStorage.setItem('hitl-reviewer', e.target.value);
+  });
+});
+
+/* ===================== API ===================== */
+async function api(method, path, body) {
+  const opts = { method, headers: {'Content-Type':'application/json'} };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(path, opts);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({detail: res.statusText}));
+    throw new Error(err.detail || res.statusText);
+  }
+  return res.json();
+}
+
+/* ===================== QUEUE ===================== */
+async function loadQueue() {
+  try {
+    const data = await api('GET', '/hitl/queue?limit=200');
+    S.queue = data.items || [];
+    updateRibbon(data);
+    applyQueueFilter();
+  } catch(e) { toast('error', '❌ ' + e.message); }
+}
+
+function updateRibbon(data) {
+  document.getElementById('r-pending').textContent  = data.pending  || 0;
+  document.getElementById('r-approved').textContent = data.approved || 0;
+  document.getElementById('r-edited').textContent   = data.edited   || 0;
+  document.getElementById('r-rejected').textContent = data.rejected || 0;
+}
+
+function setQueueFilter(f, btn) {
+  S.queueFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.className = 'filter-btn';
+  });
+  if (f === 'all')     btn.classList.add('active-all');
+  else if (f === 'pending') btn.classList.add('active-pending');
+  else if (f === 'approve') btn.classList.add('active-approve');
+  else if (f === 'reject')  btn.classList.add('active-reject');
+  applyQueueFilter();
+}
+
+function filterQueue(val) {
+  S.queueSearch = val.toLowerCase();
+  applyQueueFilter();
+}
+
+function applyQueueFilter() {
+  S.filteredQueue = S.queue.filter(item => {
+    const mf = S.queueFilter === 'all' || item.status === S.queueFilter;
+    const ms = !S.queueSearch ||
+      item.question.toLowerCase().includes(S.queueSearch) ||
+      item.source_title.toLowerCase().includes(S.queueSearch) ||
+      item.source_id.toLowerCase().includes(S.queueSearch);
+    return mf && ms;
+  });
+  renderQueueList();
+}
+
+function renderQueueList() {
+  const el = document.getElementById('queue-list');
+  document.getElementById('queue-count').textContent = S.filteredQueue.length;
+
+  if (!S.filteredQueue.length) {
+    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text-3);font-size:11px">No items found</div>';
+    return;
+  }
+
+  el.innerHTML = S.filteredQueue.map((item, idx) => {
+    const sClass = {pending:'s-pending',approve:'s-approve',edit:'s-edit',reject:'s-reject'}[item.status] || 's-pending';
+    const isActive = S.currentItem && S.currentItem.item_id === item.item_id;
+    return `
+      <div class="queue-item ${isActive ? 'active' : ''}" onclick="selectItem(${idx})">
+        <div class="qi-header">
+          <div class="qi-status ${sClass}"></div>
+          <span class="qi-id">${item.source_id}</span>
+          ${item.has_draft ? '<span class="qi-draft-badge">AI✓</span>' : ''}
+        </div>
+        <div class="qi-question">${escHtml(item.question)}</div>
+        <div class="qi-cat">${CAT_EMOJI[item.category] || ''} ${item.category.replace(/_/g,' ')}</div>
+      </div>`;
+  }).join('');
+}
+
+async function selectItem(idx) {
+  S.currentIdx   = idx;
+  S.currentItem  = S.filteredQueue[idx];
+  S.selectedTags = new Set();
+  S.stars        = 0;
+
+  // Update queue visual
+  renderQueueList();
+
+  // Update nav
+  document.getElementById('nav-pos').textContent   = idx + 1;
+  document.getElementById('nav-total').textContent = S.filteredQueue.length;
+
+  // Reset stars
+  setStars(0);
+
+  // Render AI panel
+  renderAIPanel(S.currentItem);
+
+  // Render Human workspace
+  renderHumanWorkspace(S.currentItem);
+}
+
+/* ===================== AI PANEL ===================== */
+function renderAIPanel(item) {
+  const el = document.getElementById('ai-content');
+
+  let html = `
+    <div class="question-card">
+      <div class="question-label">📌 Question</div>
+      <div class="question-text">${escHtml(item.question)}</div>
+      <div class="source-chip">${item.source_id} · ${escHtml(item.source_title)}</div>
+    </div>`;
+
+  if (item.ai_draft && item.ai_confidence && item.ai_confidence.length) {
+    // Model bar
+    html += `<div class="model-bar">
+      <span>🤖</span>
+      <span class="model-name">${item.ai_draft ? (item.ai_draft.model_used || 'AI') : '—'}</span>
+      <span style="margin-left:auto;font-size:9px">Confidence Heatmap</span>
+    </div>`;
+
+    // Heatmap rendering
+    html += '<div class="heatmap-container">';
+    (item.ai_confidence || []).forEach(seg => {
+      const c = seg.confidence;
+      const cls = c >= 0.8 ? 'conf-high' : c >= 0.6 ? 'conf-med' : c >= 0.4 ? 'conf-low' : 'conf-xlow';
+      const pct = Math.round(c * 100);
+      html += `<span class="conf-seg ${cls}" title="${pct}% confidence">
+        ${escHtml(seg.text)}&nbsp;
+        <span class="conf-tooltip">${pct}% confidence</span>
+      </span>`;
+    });
+    html += '</div>';
+
+    // Legend
+    html += `<div class="conf-legend">
+      <span style="font-weight:700;margin-right:4px">Confidence:</span>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--conf-high)"></div> ≥80%</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--conf-med)"></div> 60–79%</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--conf-low)"></div> 40–59%</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--conf-xlow)"></div> &lt;40%</div>
+    </div>`;
+  } else {
+    // No draft yet
+    html += `<div style="text-align:center;padding:30px 20px">
+      <div style="font-size:32px;margin-bottom:12px;opacity:0.5">🤖</div>
+      <div style="font-size:12px;color:var(--text-3)">No AI draft yet</div>
+      <button class="draft-gen-btn" onclick="generateDraftForCurrent(this)">
+        <span>⚡ Generate AI Draft</span>
+      </button>
+    </div>`;
+  }
+
+  el.innerHTML = html;
+  document.getElementById('ai-model-badge').textContent = item.ai_draft ? '' : '';
+}
+
+async function generateDraftForCurrent(btn) {
+  if (!S.currentItem) { toast('warning', 'Select an item first'); return; }
+  if (S.generating) return;
+  S.generating = true;
+
+  const label = document.getElementById('gen-label');
+  if (label) label.textContent = '⏳ Generating...';
+  if (btn) btn.disabled = true;
+
+  try {
+    const res = await api('POST', `/hitl/draft/${S.currentItem.item_id}`);
+    toast('success', '✅ AI draft generated!');
+
+    // Update local state
+    const qi = S.filteredQueue[S.currentIdx];
+    if (qi) {
+      qi.has_draft     = true;
+      qi.ai_draft      = res.draft.answer;
+      qi.ai_confidence = res.draft.confidence_scores;
+      S.currentItem    = qi;
+    }
+
+    renderAIPanel(S.currentItem);
+    renderQueueList();
+  } catch(e) {
+    toast('error', '❌ ' + e.message);
+  } finally {
+    S.generating = false;
+    if (label) label.textContent = '⚡ Generate Draft';
+    if (btn) btn.disabled = false;
+  }
+}
+
+function copyAItoHuman() {
+  if (!S.currentItem?.ai_draft) { toast('warning', 'No AI draft to copy'); return; }
+  const editor = document.getElementById('human-editor');
+  if (editor) {
+    const text = (S.currentItem.ai_confidence || []).map(s => s.text).join(' ') || S.currentItem.ai_draft;
+    editor.value = text;
+    updateCharCount();
+    toast('info', '📋 Copied AI draft to workspace');
+  }
+}
+
+/* ===================== HUMAN WORKSPACE ===================== */
+function renderHumanWorkspace(item) {
+  const el = document.getElementById('human-content');
+
+  // Pre-fill with existing human answer if any
+  let existingAnswer = '';
+  if (item.review) {
+    existingAnswer = item.review.final_answer || '';
+    // Show decision badge
+    const dbEl = document.getElementById('decision-badge');
+    const dec = item.review.decision;
+    dbEl.innerHTML = `<div class="decision-badge db-${dec}">${dec === 'approve' ? '✅ Approved' : dec === 'edit' ? '💾 Edited' : '🚩 Rejected'}</div>`;
+
+    // Restore stars
+    if (item.review.confidence_rating) setStars(item.review.confidence_rating);
+
+    // Restore tags
+    S.selectedTags = new Set(item.review.tags || []);
+  } else {
+    document.getElementById('decision-badge').innerHTML = '';
+    S.selectedTags = new Set();
+  }
+
+  el.innerHTML = `
+    <div class="editor-wrap">
+      <div class="editor-toolbar">
+        <span style="font-size:9px;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:0.6px">Expert Answer</span>
+        <div style="margin-left:auto;display:flex;gap:4px">
+          <button class="tb-btn" onclick="clearEditor()">✕ Clear</button>
+          <button class="tb-btn" onclick="copyAItoHuman()">📋 Use AI</button>
+        </div>
+      </div>
+      <textarea class="editor-area" id="human-editor" placeholder="Write or paste the expert answer here...
+• อ้างอิงตำราหรือแหล่งข้อมูลที่เกี่ยวข้อง
+• ตอบด้วยความถูกต้องทางวิชาการ
+• ระบุขอบเขตและข้อจำกัดของคำตอบ" oninput="updateCharCount()">${escHtml(existingAnswer)}</textarea>
+      <div class="char-counter" id="char-counter">${existingAnswer.length} chars</div>
+    </div>
+
+    <div class="tags-section">
+      <div class="tags-label">📌 Feedback Tags</div>
+      <div class="tags-grid">
+        <span class="tag-chip tag-excellent ${S.selectedTags.has('excellent')?'selected':''}" data-tag="excellent" onclick="toggleTag(this)">⭐ Excellent</span>
+        <span class="tag-chip tag-correct ${S.selectedTags.has('correct')?'selected':''}" data-tag="correct" onclick="toggleTag(this)">✅ Correct</span>
+        <span class="tag-chip tag-needs-rewrite ${S.selectedTags.has('needs_rewrite')?'selected':''}" data-tag="needs_rewrite" onclick="toggleTag(this)">✏️ Needs Rewrite</span>
+        <span class="tag-chip tag-factually-wrong ${S.selectedTags.has('factually_wrong')?'selected':''}" data-tag="factually_wrong" onclick="toggleTag(this)">❌ Factually Wrong</span>
+        <span class="tag-chip tag-hallucination ${S.selectedTags.has('hallucination')?'selected':''}" data-tag="hallucination" onclick="toggleTag(this)">🌀 Hallucination</span>
+        <span class="tag-chip tag-bad-tone ${S.selectedTags.has('bad_tone')?'selected':''}" data-tag="bad_tone" onclick="toggleTag(this)">💬 Bad Tone</span>
+        <span class="tag-chip tag-incomplete ${S.selectedTags.has('incomplete')?'selected':''}" data-tag="incomplete" onclick="toggleTag(this)">📝 Incomplete</span>
+      </div>
+    </div>`;
+
+  // Diff view if there was a previous answer
+  if (existingAnswer && item.ai_draft) {
+    // Could add diff view here in a future version
+  }
+}
+
+function clearEditor() {
+  const ed = document.getElementById('human-editor');
+  if (ed) { ed.value = ''; updateCharCount(); }
+}
+
+function updateCharCount() {
+  const ed = document.getElementById('human-editor');
+  const cc = document.getElementById('char-counter');
+  if (ed && cc) cc.textContent = ed.value.length + ' chars';
+}
+
+function toggleTag(el) {
+  const tag = el.dataset.tag;
+  if (S.selectedTags.has(tag)) {
+    S.selectedTags.delete(tag);
+    el.classList.remove('selected');
+  } else {
+    S.selectedTags.add(tag);
+    el.classList.add('selected');
+  }
+}
+
+/* ===================== STARS ===================== */
+function setStars(n) {
+  S.stars = n;
+  document.querySelectorAll('.star').forEach(s => {
+    s.classList.toggle('active', parseInt(s.dataset.v) <= n);
+  });
+}
+
+/* ===================== DECISIONS ===================== */
+async function submitDecision(decision) {
+  if (!S.currentItem) { toast('warning', 'No item selected'); return; }
+
+  const editor   = document.getElementById('human-editor');
+  const reviewer = document.getElementById('reviewer-input')?.value || 'human';
+  const answer   = editor ? editor.value.trim() : '';
+
+  if (decision === 'edit' && !answer) {
+    toast('warning', '✏️ Please write your corrected answer first');
+    editor?.focus();
+    return;
+  }
+
+  try {
+    await api('POST', `/hitl/review/${S.currentItem.item_id}`, {
+      decision,
+      human_answer:       answer || undefined,
+      tags:               [...S.selectedTags],
+      confidence_rating:  S.stars || undefined,
+      reviewer,
+      notes:              undefined,
+    });
+
+    // Update local state
+    S.currentItem.status  = decision;
+    S.currentItem.review  = { decision, final_answer: answer, tags: [...S.selectedTags], confidence_rating: S.stars, reviewed_at: new Date().toISOString() };
+    S.filteredQueue[S.currentIdx] = S.currentItem;
+
+    // Update queue item in main queue
+    const mainIdx = S.queue.findIndex(i => i.item_id === S.currentItem.item_id);
+    if (mainIdx >= 0) S.queue[mainIdx] = S.currentItem;
+
+    const msgs = { approve: '✅ Approved!', edit: '💾 Saved!', reject: '🚩 Rejected!' };
+    toast(decision === 'reject' ? 'warning' : 'success', msgs[decision]);
+
+    // Update badge
+    document.getElementById('decision-badge').innerHTML =
+      `<div class="decision-badge db-${decision}">${decision === 'approve' ? '✅ Approved' : decision === 'edit' ? '💾 Edited' : '🚩 Rejected'}</div>`;
+
+    renderQueueList();
+
+    // Update ribbon
+    const approved = S.queue.filter(i=>i.status==='approve').length;
+    const edited   = S.queue.filter(i=>i.status==='edit').length;
+    const rejected = S.queue.filter(i=>i.status==='reject').length;
+    const pending  = S.queue.filter(i=>i.status==='pending').length;
+    document.getElementById('r-pending').textContent  = pending;
+    document.getElementById('r-approved').textContent = approved;
+    document.getElementById('r-edited').textContent   = edited;
+    document.getElementById('r-rejected').textContent = rejected;
+
+    // Auto-advance after short delay
+    setTimeout(() => goNext(), 600);
+  } catch(e) { toast('error', '❌ ' + e.message); }
+}
+
+async function undoDecision() {
+  if (!S.currentItem || S.currentItem.status === 'pending') { toast('info', 'Nothing to undo'); return; }
+  try {
+    await api('DELETE', `/hitl/review/${S.currentItem.item_id}`);
+    S.currentItem.status  = 'pending';
+    S.currentItem.review  = null;
+    S.filteredQueue[S.currentIdx] = S.currentItem;
+    const mainIdx = S.queue.findIndex(i => i.item_id === S.currentItem.item_id);
+    if (mainIdx >= 0) S.queue[mainIdx] = S.currentItem;
+    toast('info', '↩ Decision undone');
+    document.getElementById('decision-badge').innerHTML = '';
+    renderQueueList();
+  } catch(e) { toast('error', '❌ ' + e.message); }
+}
+
+/* ===================== REJECT MODAL ===================== */
+function showRejectPanel() {
+  if (!S.currentItem) { toast('warning', 'Select an item first'); return; }
+  document.getElementById('reject-modal').classList.remove('hidden');
+  document.getElementById('reject-reason-input').value = '';
+  S.modalTags = new Set();
+  document.querySelectorAll('#reject-modal .tag-chip').forEach(t => t.classList.remove('selected'));
+}
+
+function toggleModalTag(el) {
+  const tag = el.dataset.tag;
+  if (S.modalTags.has(tag)) { S.modalTags.delete(tag); el.classList.remove('selected'); }
+  else                       { S.modalTags.add(tag);    el.classList.add('selected');    }
+}
+
+async function confirmReject() {
+  document.getElementById('reject-modal').classList.add('hidden');
+  const reason = document.getElementById('reject-reason-input').value.trim();
+  const allTags = [...new Set([...S.selectedTags, ...S.modalTags])];
+
+  if (!S.currentItem) return;
+  const reviewer = document.getElementById('reviewer-input')?.value || 'human';
+
+  try {
+    await api('POST', `/hitl/review/${S.currentItem.item_id}`, {
+      decision: 'reject',
+      reject_reason: reason,
+      tags: allTags,
+      reviewer,
+    });
+    S.currentItem.status = 'reject';
+    S.currentItem.review = { decision: 'reject', tags: allTags, reject_reason: reason, reviewed_at: new Date().toISOString() };
+    S.filteredQueue[S.currentIdx] = S.currentItem;
+    const mainIdx = S.queue.findIndex(i => i.item_id === S.currentItem.item_id);
+    if (mainIdx >= 0) S.queue[mainIdx] = S.currentItem;
+    toast('warning', '🚩 Rejected & flagged');
+    document.getElementById('decision-badge').innerHTML = `<div class="decision-badge db-reject">🚩 Rejected</div>`;
+    renderQueueList();
+    setTimeout(() => goNext(), 600);
+  } catch(e) { toast('error', '❌ ' + e.message); }
+}
+
+/* ===================== NAVIGATION ===================== */
+function goNext() {
+  if (S.filteredQueue.length === 0) return;
+  // Find next pending item
+  let nextIdx = -1;
+  for (let i = S.currentIdx + 1; i < S.filteredQueue.length; i++) {
+    if (S.filteredQueue[i].status === 'pending') { nextIdx = i; break; }
+  }
+  // Wrap around
+  if (nextIdx === -1) {
+    for (let i = 0; i < S.currentIdx; i++) {
+      if (S.filteredQueue[i].status === 'pending') { nextIdx = i; break; }
+    }
+  }
+  if (nextIdx === -1) nextIdx = (S.currentIdx + 1) % S.filteredQueue.length;
+  selectItem(nextIdx);
+
+  // Scroll queue item into view
+  setTimeout(() => {
+    const qList = document.getElementById('queue-list');
+    const items = qList.querySelectorAll('.queue-item');
+    if (items[nextIdx]) items[nextIdx].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }, 50);
+}
+
+/* ===================== BATCH DRAFT ===================== */
+async function batchGenerateDrafts() {
+  const btn = document.getElementById('btn-batch');
+  btn.textContent = '⏳ Drafting...';
+  btn.disabled = true;
+  try {
+    const res = await api('POST', '/hitl/batch-draft', { limit: 20 });
+    toast('info', `⚡ Generating drafts for ${res.queued} items in background`);
+    setTimeout(() => loadQueue(), 3000);
+  } catch(e) { toast('error', '❌ ' + e.message); }
+  finally {
+    setTimeout(() => { btn.textContent = '⚡ Batch Draft'; btn.disabled = false; }, 2000);
+  }
+}
+
+/* ===================== EXPORT ===================== */
+async function exportHITL() {
+  try {
+    const res = await api('GET', '/hitl/export');
+    toast('success', `✅ Exported ${res.entries} HITL-approved pairs`);
+    setTimeout(() => { window.open('/hitl/export?download=true', '_blank'); }, 300);
+  } catch(e) { toast('error', '❌ ' + e.message); }
+}
+
+/* ===================== UTILS ===================== */
+function toast(type, msg) {
+  const c = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight' || e.key === 'n') goNext();
+  if (e.key === 'a') submitDecision('approve');
+  if (e.key === 's') submitDecision('edit');
+  if (e.key === 'r') showRejectPanel();
+  if (e.key === 'u') undoDecision();
+  if (e.key === 'g') generateDraftForCurrent(null);
+});
+</script>
+</body>
+</html>

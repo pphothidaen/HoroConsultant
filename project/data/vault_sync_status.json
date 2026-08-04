@@ -1,0 +1,43 @@
+{
+  "last_sync_timestamp": "2026-08-03T19:33:56.818107",
+  "total_files_in_vault": 40,
+  "pdf_count": 38,
+  "md_count": 2,
+  "indexed_vectors_count": 3096,
+  "new_files_added_this_run": 0,
+  "gdrive_folders_configured": [
+    {
+      "id": "1uxm8knVltHHlGQAlREUBgLfrATlowH2E",
+      "name": "Main Vault Folder 1 (โหราศาสตร์ & คัมภีร์)",
+      "url": "https://drive.google.com/drive/folders/1uxm8knVltHHlGQAlREUBgLfrATlowH2E",
+      "target_subfolder": "folder_1"
+    },
+    {
+      "id": "1RWY9PS63rCpdFOj7edrnjF9fE44Hhs3I",
+      "name": "Main Vault Folder 2 (ดวง & ตำราทำนาย)",
+      "url": "https://drive.google.com/drive/folders/1RWY9PS63rCpdFOj7edrnjF9fE44Hhs3I",
+      "target_subfolder": "folder_2"
+    },
+    {
+      "id": "1ZemhmY8s1Ka5-AsUTXn8PL5WMmQQnKFV",
+      "name": "Original Shared Vault (พิธีกรรม & พระเวท)",
+      "url": "https://drive.google.com/drive/folders/1ZemhmY8s1Ka5-AsUTXn8PL5WMmQQnKFV",
+      "target_subfolder": "folder_orig"
+    }
+  ],
+  "download_status": [
+    {
+      "folder": "Main Vault Folder 1 (โหราศาสตร์ & คัมภีร์)",
+      "success": true
+    },
+    {
+      "folder": "Main Vault Folder 2 (ดวง & ตำราทำนาย)",
+      "success": true
+    },
+    {
+      "folder": "Original Shared Vault (พิธีกรรม & พระเวท)",
+      "success": true
+    }
+  ],
+  "ingestion_triggered": true
+}

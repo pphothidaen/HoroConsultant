@@ -1,0 +1,825 @@
+{
+  "catalog_version": "2.0.0",
+  "last_updated": "2026-08-03",
+  "description": "Comprehensive Knowledge Source Catalog — Computational Metaphysics Engine",
+  "categories": {
+    "chinese_metaphysics": {
+      "label": "ศาสตร์จีน (Chinese Metaphysics)",
+      "subcategories": {
+        "bazi_classics": {
+          "label": "ตำราและคัมภีร์ BaZi / 四柱命理",
+          "sources": [
+            {
+              "id": "CM-BZ-001",
+              "title": "子平真詮 (Zi Ping Zhen Quan)",
+              "title_th": "ซือผิงเจินฉวน — ความจริงแท้ของซือผิง",
+              "author": "沈孝瞻 (Shen Xiaozhan), ราชวงศ์ชิง",
+              "domain": "BaZi Four Pillars",
+              "coverage_status": "ingested",
+              "coverage_pct": 85,
+              "vector_chunks": 312,
+              "gray_zone": false,
+              "notes": "หลักตำราหลักการตีความ Day Master, การวิเคราะห์ Useful God (用神)",
+              "finetune_ready": true
+            },
+            {
+              "id": "CM-BZ-002",
+              "title": "滴天髓 (Di Tian Sui)",
+              "title_th": "ตี้เทียนสุ่ย — น้ำค้างจากฟ้า",
+              "author": "京圖 (Jing Tu), ราชวงศ์หมิง, ขยายความโดย 任鐵樵 (Ren Tieqiao)",
+              "domain": "BaZi Four Pillars",
+              "coverage_status": "ingested",
+              "coverage_pct": 80,
+              "vector_chunks": 289,
+              "gray_zone": false,
+              "notes": "หลักการ 五行 เชิงลึก, การวิเคราะห์ความแข็งแกร่งของ Day Master",
+              "finetune_ready": true
+            },
+            {
+              "id": "CM-BZ-003",
+              "title": "窮通寶鑑 (Qiong Tong Bao Jian)",
+              "title_th": "ฉงทงเป่าเจี้ยน — กระจกวิเศษแห่งความสำเร็จและความล้มเหลว",
+              "author": "余春台 (Yu Chuntai), ราชวงศ์ชิง",
+              "domain": "BaZi Four Pillars / Seasonal Analysis",
+              "coverage_status": "ingested",
+              "coverage_pct": 75,
+              "vector_chunks": 198,
+              "gray_zone": false,
+              "notes": "การวิเคราะห์ตามฤดูกาล, Seasonal Element Adjustment",
+              "finetune_ready": true
+            },
+            {
+              "id": "CM-BZ-004",
+              "title": "淵海子平 (Yuan Hai Zi Ping)",
+              "title_th": "หยวนไห่ซือผิง — มหาสมุทรลึกแห่งวิชาซือผิง",
+              "author": "徐子平 (Xu Ziping), ราชวงศ์ซ่ง",
+              "domain": "BaZi Four Pillars",
+              "coverage_status": "partial",
+              "coverage_pct": 45,
+              "vector_chunks": 87,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "อธิบายหลักการ 格局 (Ge Ju / Chart Pattern) ทั้ง 8 แบบหลักตาม 淵海子平",
+                "สรุปกฎ 六親 (Liù Qīn / Six Relationships) และวิธีการตีความ",
+                "หลักการ 神殺 (Shen Sha / Auxiliary Stars) ที่สำคัญที่สุด 10 อย่างแรก"
+              ],
+              "notes": "ตำราต้นกำเนิดวิชา BaZi — ยังขาดบางบท",
+              "finetune_ready": false
+            },
+            {
+              "id": "CM-BZ-005",
+              "title": "三命通會 (San Ming Tong Hui)",
+              "title_th": "ซานมิ่งทงฮุ่ย — การรวบรวมชะตา 3 ประการ",
+              "author": "萬民英 (Wan Minying), ราชวงศ์หมิง",
+              "domain": "BaZi / San Ming",
+              "coverage_status": "missing",
+              "coverage_pct": 0,
+              "vector_chunks": 0,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "อธิบายหลักการ 三命 (三命 = 胎命, 本命, 用命) ตาม 三命通會",
+                "สรุประบบ 神殺 (Shen Sha) ที่ครอบคลุมที่สุดในตำรา 三命通會",
+                "หลักการ 納音五行 (Nayin Five Elements) — การคำนวณธาตุเสียงและการนำมาใช้"
+              ],
+              "notes": "ยังไม่มีในระบบ — ต้องการนำเข้า",
+              "finetune_ready": false
+            },
+            {
+              "id": "CM-BZ-006",
+              "title": "命理約言 (Ming Li Yue Yan)",
+              "title_th": "มิ่งหลี่เยว่หยาน — คำย่อแห่งชะตากรรม",
+              "author": "陳素庵 (Chen Su'an)",
+              "domain": "BaZi",
+              "coverage_status": "missing",
+              "coverage_pct": 0,
+              "vector_chunks": 0,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "สรุปหลักการหลัก 10 ประการในตำรา 命理約言",
+                "อธิบายวิธีการดู 月令 (Month Branch) เป็น Pivot ของชาร์ตตามตำรานี้"
+              ],
+              "notes": "ตำรารุ่นกลาง — เชื่อมระหว่าง 淵海 และ 子平真詮",
+              "finetune_ready": false
+            }
+          ]
+        },
+        "philosophy_cosmology": {
+          "label": "ปรัชญาและจักรวาลวิทยาจีน",
+          "sources": [
+            {
+              "id": "CM-PH-001",
+              "title": "易經 (Yi Jing / I Ching)",
+              "title_th": "อี้จิง — คัมภีร์แห่งการเปลี่ยนแปลง",
+              "author": "คัมภีร์จีนโบราณ",
+              "domain": "Philosophy / Divination",
+              "coverage_status": "partial",
+              "coverage_pct": 40,
+              "vector_chunks": 156,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "อธิบายความสัมพันธ์ระหว่าง 八卦 (Ba Gua / 8 Trigrams) กับ 五行 (Five Elements) ในบริบท BaZi",
+                "หลักการ 先天八卦 (Xian Tian) vs 後天八卦 (Hou Tian) และการประยุกต์ใช้ในโหราศาสตร์",
+                "อธิบายแนวคิด 太極 (Taiji), 兩儀 (Liangyi) และ 四象 (Si Xiang) เชิงปรัชญา"
+              ],
+              "finetune_ready": false
+            },
+            {
+              "id": "CM-PH-002",
+              "title": "陰陽五行學說 (Yin-Yang & Five Elements Theory)",
+              "title_th": "ทฤษฎีหยิน-หยาง และเบญจธาตุ",
+              "author": "ระบบความรู้จีนโบราณ",
+              "domain": "Philosophy / Cosmology",
+              "coverage_status": "ingested",
+              "coverage_pct": 90,
+              "vector_chunks": 445,
+              "gray_zone": false,
+              "finetune_ready": true
+            },
+            {
+              "id": "CM-PH-003",
+              "title": "干支學 (Gan Zhi Xue)",
+              "title_th": "กานจือเซว์ — ศาสตร์ว่าด้วยลำต้นและกิ่งก้าน (เทียนกาน-ตี้จือ)",
+              "author": "ระบบความรู้จีนโบราณ",
+              "domain": "Calendar / Astrology Mechanics",
+              "coverage_status": "ingested",
+              "coverage_pct": 95,
+              "vector_chunks": 380,
+              "gray_zone": false,
+              "notes": "10 Heavenly Stems (天干) + 12 Earthly Branches (地支) + Interactions",
+              "finetune_ready": true
+            }
+          ]
+        },
+        "mechanics_physiology": {
+          "label": "ทฤษฎีกลศาสตร์, นรีเวทศาสตร์ และกายวิภาคจีน",
+          "sources": [
+            {
+              "id": "CM-MC-001",
+              "title": "五運六氣 (Wu Yun Liu Qi)",
+              "title_th": "หวู่ยวิ่นหลิวชี่ — ห้าการเคลื่อนที่และหกพลัง",
+              "author": "คัมภีร์แพทย์จีนโบราณ",
+              "domain": "Chinese Medicine / Cosmological Mechanics",
+              "coverage_status": "partial",
+              "coverage_pct": 30,
+              "vector_chunks": 42,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "อธิบายระบบ 五運 (Wu Yun / 5 Celestial Movements) และความสัมพันธ์กับ 10 Heavenly Stems",
+                "อธิบายระบบ 六氣 (Liu Qi / 6 Climatic Energies) และความสัมพันธ์กับ 12 Earthly Branches",
+                "วิธีการคำนวณ 運氣曆法 (Yun Qi Calendar) สำหรับปีใดปีหนึ่ง"
+              ],
+              "finetune_ready": false
+            },
+            {
+              "id": "CM-MC-002",
+              "title": "黃帝內經 (Huangdi Neijing)",
+              "title_th": "ฮวงตี้เน่ยจิง — คัมภีร์ภายในของจักรพรรดิเหลือง",
+              "author": "คัมภีร์แพทย์จีน",
+              "domain": "Chinese Medicine / Body Mechanics",
+              "coverage_status": "missing",
+              "coverage_pct": 0,
+              "vector_chunks": 0,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "สรุปความสัมพันธ์ระหว่าง 五臟 (Five Viscera) กับ 五行 (Five Elements) ในบริบทโหราศาสตร์",
+                "อธิบายทฤษฎี 經絡 (Meridian System) และความเชื่อมโยงกับพลังธาตุ",
+                "หลักการ 藏象學說 (Zang-Xiang Theory) — การสะท้อนภายในสู่ภายนอก"
+              ],
+              "finetune_ready": false
+            },
+            {
+              "id": "CM-MC-003",
+              "title": "魂魄理論 (Hun Po Theory)",
+              "title_th": "ทฤษฎีฮุ่น-โผ่ว — จิตวิญญาณและดวงชีพ",
+              "author": "ปรัชญาเต๋า/ขงจื้อ",
+              "domain": "Spiritual Mechanics / Psychology",
+              "coverage_status": "partial",
+              "coverage_pct": 55,
+              "vector_chunks": 89,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "อธิบาย 三魂七魄 (Three Hun & Seven Po) และหน้าที่แต่ละประการ",
+                "ความสัมพันธ์ระหว่าง 幽精 (Youjing) กับสภาวะเบญจธาตุในดวงชะตา",
+                "วิธีการประเมิน Hun-Po Balance จากชาร์ต BaZi"
+              ],
+              "finetune_ready": false
+            },
+            {
+              "id": "CM-MC-004",
+              "title": "神煞系統 (Shen Sha / Auxiliary Stars System)",
+              "title_th": "ระบบเทพยดาและดาวร้าย — Auspicious & Inauspicious Stars",
+              "author": "ระบบความรู้โหราศาสตร์จีน",
+              "domain": "BaZi / Chinese Astrology Mechanics",
+              "coverage_status": "partial",
+              "coverage_pct": 60,
+              "vector_chunks": 134,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "สรุปรายชื่อ Shen Sha ที่สำคัญที่สุด 20 อย่างพร้อมวิธีคำนวณแต่ละดาว",
+                "อธิบาย 天乙貴人 (Tian Yi Gui Ren / Nobleman Star) — วิธีหา และผลลัพธ์",
+                "อธิบาย 驛馬 (Yi Ma / Travelling Horse) วิธีคำนวณและการตีความ",
+                "อธิบาย 桃花 (Tao Hua / Peach Blossom / Romance Star) วิธีหาและผล"
+              ],
+              "finetune_ready": false
+            },
+            {
+              "id": "CM-MC-005",
+              "title": "納音五行 (Nayin Five Elements)",
+              "title_th": "นาหยินเบญจธาตุ — ธาตุเสียง",
+              "author": "ระบบโหราศาสตร์จีนโบราณ",
+              "domain": "BaZi Mechanics",
+              "coverage_status": "missing",
+              "coverage_pct": 0,
+              "vector_chunks": 0,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "อธิบายระบบ 納音五行 และ 60 Jiazi Nayin table ทั้งหมด",
+                "วิธีการนำ Nayin Element มาใช้ประกอบกับ BaZi Modern Analysis"
+              ],
+              "finetune_ready": false
+            }
+          ]
+        },
+        "omens_divination": {
+          "label": "นิมิตและการทำนายศาสตร์จีน",
+          "sources": [
+            {
+              "id": "CM-OM-001",
+              "title": "奇門遁甲 (Qi Men Dun Jia)",
+              "title_th": "ฉีเหมิงตุ้นเจี่ย — ประตูมหัศจรรย์แห่งการหลบเลี่ยง",
+              "author": "ศาสตร์จีนโบราณ",
+              "domain": "Chinese Divination / Strategic Astrology",
+              "coverage_status": "missing",
+              "coverage_pct": 0,
+              "vector_chunks": 0,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "อธิบายโครงสร้างพื้นฐานของ Qi Men Dun Jia — 9 Palaces, 8 Gates, 9 Stars, 8 Deities",
+                "วิธีการ Plot Qi Men Chart สำหรับวันและชั่วโมงที่กำหนด",
+                "ความสัมพันธ์ระหว่าง Qi Men กับ BaZi ในเชิงการทำนาย"
+              ],
+              "finetune_ready": false
+            },
+            {
+              "id": "CM-OM-002",
+              "title": "紫微斗數 (Zi Wei Dou Shu)",
+              "title_th": "จื่อเหว่ยโต่วซู่ — ดาวจักรพรรดิแห่งการนับ",
+              "author": "ราชวงศ์ซ่ง",
+              "domain": "Chinese Astrology (Purple Star)",
+              "coverage_status": "partial",
+              "coverage_pct": 25,
+              "vector_chunks": 48,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "สรุปโครงสร้าง Zi Wei Dou Shu — 12 Palaces, 14 Major Stars",
+                "อธิบาย 紫微星 (Zi Wei / Emperor Star) ลักษณะและการตีความ",
+                "เปรียบเทียบ Zi Wei กับ BaZi ในด้านวิธีการและจุดแข็ง-จุดอ่อน"
+              ],
+              "finetune_ready": false
+            },
+            {
+              "id": "CM-OM-003",
+              "title": "六壬 (Liu Ren)",
+              "title_th": "หลิวเหริน — การพยากรณ์ 6 壬",
+              "author": "ศาสตร์จีนโบราณ",
+              "domain": "Chinese Divination",
+              "coverage_status": "missing",
+              "coverage_pct": 0,
+              "vector_chunks": 0,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "อธิบายหลักการพื้นฐานของ Liu Ren และความแตกต่างจาก BaZi และ Qi Men",
+                "วิธีการสร้าง 課式 (Ke Shi / Liu Ren Chart)"
+              ],
+              "finetune_ready": false
+            }
+          ]
+        }
+      }
+    },
+    "vedic_astrology": {
+      "label": "โหราศาสตร์อินเดีย / Vedic Astrology (Jyotish)",
+      "sources": [
+        {
+          "id": "VA-001",
+          "title": "Brihat Parashara Hora Shastra (BPHS)",
+          "title_th": "บฤหัตปราศรโหราศาสตร์",
+          "author": "Maharishi Parashara",
+          "domain": "Vedic Astrology — Foundation",
+          "coverage_status": "partial",
+          "coverage_pct": 40,
+          "vector_chunks": 167,
+          "gray_zone": true,
+          "gray_zone_questions": [
+            "สรุประบบ Rashi (12 Signs) และ Graha (9 Planets) ตาม BPHS",
+            "อธิบายระบบ Bhava (12 Houses) และ Bhava Karaka (House Significators)",
+            "อธิบาย Vimshottari Dasha System — การคำนวณและการตีความ",
+            "สรุปหลักการ Yoga ที่สำคัญที่สุด 20 อย่างแรกใน BPHS",
+            "อธิบาย Navamsa (D-9 Chart) — วิธีคำนวณและการใช้งาน"
+          ],
+          "finetune_ready": false
+        },
+        {
+          "id": "VA-002",
+          "title": "Jaimini Sutras",
+          "title_th": "ชัยมินีสูตร",
+          "author": "Maharishi Jaimini",
+          "domain": "Vedic Astrology — Jaimini System",
+          "coverage_status": "partial",
+          "coverage_pct": 30,
+          "vector_chunks": 54,
+          "gray_zone": true,
+          "gray_zone_questions": [
+            "อธิบาย Chara Karaka System ใน Jaimini — การคำนวณ 8 Karakas",
+            "อธิบาย Jaimini Aspects (Rashi Drishti) ที่แตกต่างจาก Parashari",
+            "สรุป Jaimini Dasha Systems — Chara, Sthira, Navamsa Dasha"
+          ],
+          "finetune_ready": false
+        },
+        {
+          "id": "VA-003",
+          "title": "Phaladeepika",
+          "title_th": "ผลทีปิกา",
+          "author": "Mantreswara",
+          "domain": "Vedic Astrology — Predictive",
+          "coverage_status": "partial",
+          "coverage_pct": 35,
+          "vector_chunks": 78,
+          "gray_zone": true,
+          "gray_zone_questions": [
+            "สรุปหลักการ Planet Strength (Shadbala) ตาม Phaladeepika",
+            "อธิบายผลของ Planet placements ใน Houses ตาม Phaladeepika",
+            "สรุป Raja Yoga ที่สำคัญตาม Phaladeepika"
+          ],
+          "finetune_ready": false
+        },
+        {
+          "id": "VA-004",
+          "title": "Saravali",
+          "title_th": "สารวลี",
+          "author": "Kalyana Varma",
+          "domain": "Vedic Astrology — Classical",
+          "coverage_status": "missing",
+          "coverage_pct": 0,
+          "vector_chunks": 0,
+          "gray_zone": true,
+          "gray_zone_questions": [
+            "สรุปหลักการหลักของ Saravali ที่แตกต่างจาก BPHS",
+            "อธิบาย Planet combinations (Graha Yoga) ที่โดดเด่นใน Saravali"
+          ],
+          "finetune_ready": false
+        },
+        {
+          "id": "VA-005",
+          "title": "Brihat Jataka",
+          "title_th": "บฤหัตชาตก",
+          "author": "Varahamihira",
+          "domain": "Vedic Astrology — Classical",
+          "coverage_status": "missing",
+          "coverage_pct": 0,
+          "vector_chunks": 0,
+          "gray_zone": true,
+          "gray_zone_questions": [
+            "สรุประบบ Drekana (Decanate) ตาม Brihat Jataka",
+            "อธิบายหลักการ Drekkana Chart และการนำมาใช้ในการทำนาย",
+            "สรุปหลักการ Ayurdaya (Life span calculation) ตาม Varahamihira"
+          ],
+          "finetune_ready": false
+        },
+        {
+          "id": "VA-006",
+          "title": "Uttara Kalamrita",
+          "title_th": "อุตตระกาลามฤต",
+          "author": "Kalidasa",
+          "domain": "Vedic Astrology — Classical",
+          "coverage_status": "missing",
+          "coverage_pct": 0,
+          "vector_chunks": 0,
+          "gray_zone": true,
+          "gray_zone_questions": [
+            "สรุปหลักการ Karakamsha ใน Uttara Kalamrita",
+            "อธิบาย Arudha Lagna System ตาม Uttara Kalamrita",
+            "สรุป Yogas สำหรับการพยากรณ์อาชีพและความมั่งคั่ง"
+          ],
+          "finetune_ready": false
+        },
+        {
+          "id": "VA-007",
+          "title": "Muhurta Chintamani",
+          "title_th": "มุหูรตจินตามณี",
+          "author": "Ramadayalu",
+          "domain": "Vedic Astrology — Electional (Muhurta)",
+          "coverage_status": "missing",
+          "coverage_pct": 0,
+          "vector_chunks": 0,
+          "gray_zone": true,
+          "gray_zone_questions": [
+            "สรุปหลักการ Muhurta — การเลือกเวลามงคลตามโหราศาสตร์เวท",
+            "อธิบาย Tithi, Nakshatra, Vara, Yoga, Karana — Panchanga Elements",
+            "หลักการ Chandra Bala และ Tara Bala ในการเลือก Muhurta"
+          ],
+          "finetune_ready": false
+        }
+      ]
+    },
+    "thai_astrology": {
+      "label": "โหราศาสตร์ไทยและตำราไสยเวทท้องถิ่น",
+      "sources": [
+        {
+          "id": "TH-001",
+          "title": "คัมภีร์สุริยยาตร์",
+          "title_th": "คัมภีร์สุริยยาตร์ — The Solar Trajectory Treatise",
+          "author": "ตำราโหราศาสตร์ไทยโบราณ",
+          "domain": "Thai Astrology — Solar Calendar",
+          "coverage_status": "ingested",
+          "coverage_pct": 70,
+          "vector_chunks": 234,
+          "gray_zone": true,
+          "gray_zone_questions": [
+            "อธิบายระบบ สุริยยาตร์ ในฐานะแบบจำลองตำแหน่งดาวเฉลี่ย (Mean Model) และข้อจำกัดเชิงดาราศาสตร์ฟิสิกส์",
+            "เปรียบเทียบค่า Delta-T แบบ Fixed Precession ใน สุริยยาตร์ กับระบบ Dynamic IERS สมัยใหม่",
+            "สรุปสูตรคำนวณหลักของ สุริยยาตร์ สำหรับการหาตำแหน่งดาวอาทิตย์"
+          ],
+          "notes": "Mean Model — ขัดแย้งกับ JPL DE440 แต่มีคุณค่าเชิงประวัติศาสตร์สูง",
+          "finetune_ready": false
+        },
+        {
+          "id": "TH-002",
+          "title": "คัมภีร์มานัต",
+          "title_th": "คัมภีร์มานัต — The Ephemeris of Measure",
+          "author": "ตำราโหราศาสตร์ไทยโบราณ",
+          "domain": "Thai Astrology — Planetary Tables",
+          "coverage_status": "partial",
+          "coverage_pct": 55,
+          "vector_chunks": 145,
+          "gray_zone": true,
+          "gray_zone_questions": [
+            "สรุประบบ มานัต — ตารางค่าดาวเคราะห์และวิธีการใช้งาน",
+            "อธิบายความแตกต่างระหว่าง สุริยยาตร์ กับ มานัต ในการคำนวณ"
+          ],
+          "finetune_ready": false
+        },
+        {
+          "id": "TH-003",
+          "title": "คัมภีร์ดวงพิชัยสงคราม",
+          "title_th": "คัมภีร์ดวงพิชัยสงคราม — The Victory in War Horoscope",
+          "author": "ตำราโหราศาสตร์ไทยโบราณ",
+          "domain": "Thai Astrology — Military/Strategic",
+          "coverage_status": "partial",
+          "coverage_pct": 40,
+          "vector_chunks": 67,
+          "gray_zone": true,
+          "gray_zone_questions": [
+            "สรุปหลักการดูดวงพิชัยสงคราม — ฤกษ์, ยาม, ตำแหน่งดาวที่เป็นมงคล",
+            "อธิบายการเลือกฤกษ์งามยามดีสำหรับการออกศึก/การตัดสินใจสำคัญ",
+            "ความสัมพันธ์ระหว่างดวงพิชัยสงครามกับระบบ Thai Horoscope Houses"
+          ],
+          "finetune_ready": false
+        },
+        {
+          "id": "TH-004",
+          "title": "คัมภีร์โหราศาสตร์ไทยมาตรฐานฉบับสมบูรณ์",
+          "title_th": "คัมภีร์โหราศาสตร์ไทยมาตรฐานฉบับสมบูรณ์",
+          "author": "กรมการศาสนา / นักปราชญ์ไทย",
+          "domain": "Thai Astrology — Standard Reference",
+          "coverage_status": "ingested",
+          "coverage_pct": 75,
+          "vector_chunks": 312,
+          "gray_zone": false,
+          "notes": "ตำราอ้างอิงมาตรฐานของโหราศาสตร์ไทย",
+          "finetune_ready": true
+        },
+        {
+          "id": "TH-005",
+          "title": "เวทย์มนตร์อีสาน (Isan Occult Texts)",
+          "title_th": "ตำราไสยเวทอีสาน — Isan Sacred Magic Texts",
+          "author": "ครูบาอาจารย์ฝ่ายอีสาน",
+          "domain": "Thai Local Occult / Folk Astrology",
+          "coverage_status": "partial",
+          "coverage_pct": 35,
+          "vector_chunks": 78,
+          "gray_zone": true,
+          "gray_zone_questions": [
+            "สรุปหลักการไสยเวทอีสาน — ความเชื่อ พิธีกรรม และระบบสัญลักษณ์หลัก",
+            "อธิบายความสัมพันธ์ระหว่างไสยเวทอีสานกับโหราศาสตร์ไทยมาตรฐาน"
+          ],
+          "notes": "ข้อมูลมีความอ่อนไหวเชิงวัฒนธรรม — ต้องระมัดระวังในการนำเสนอ",
+          "finetune_ready": false
+        },
+        {
+          "id": "TH-006",
+          "title": "สูตรการลงยันต์แบบขอมผสมไทยโบราณ",
+          "title_th": "สูตรการลงยันต์แบบขอมผสมไทยโบราณ — Khmer-Thai Yantra Scripts",
+          "author": "ครูบาอาจารย์",
+          "domain": "Thai / Khmer Sacred Geometry",
+          "coverage_status": "partial",
+          "coverage_pct": 20,
+          "vector_chunks": 34,
+          "gray_zone": true,
+          "gray_zone_questions": [
+            "สรุประบบยันต์หลัก — ประเภท, ความหมาย, และการลงยันต์ที่ถูกต้อง",
+            "อธิบายความสัมพันธ์ระหว่างยันต์กับระบบดาวและธาตุ"
+          ],
+          "notes": "ข้อมูลมีความอ่อนไหวเชิงศาสนา",
+          "finetune_ready": false
+        },
+        {
+          "id": "TH-007",
+          "title": "หนังสือว่าด้วยอำนาจผี แลผีหลอก",
+          "title_th": "หนังสือว่าด้วยอำนาจผี แลผีหลอก",
+          "author": "ตำราไทยโบราณ",
+          "domain": "Thai Folk Belief / Supernatural",
+          "coverage_status": "missing",
+          "coverage_pct": 0,
+          "vector_chunks": 0,
+          "gray_zone": true,
+          "gray_zone_questions": [
+            "สรุปการจัดหมวดหมู่ผีและวิญญาณในตำราไทยโบราณ",
+            "อธิบายความเชื่อเรื่องการปฏิสัมพันธ์ระหว่างดวงชะตาและอิทธิพลของวิญญาณ"
+          ],
+          "notes": "ต้องนำเสนอในเชิงนิทานพื้นบ้านและความเชื่อ ไม่ใช่ข้อเท็จจริง",
+          "finetune_ready": false
+        },
+        {
+          "id": "TH-008",
+          "title": "โหงวเฮ้ง (อุทัย วงศ์ทางสวัสดิ์)",
+          "title_th": "โหงวเฮ้ง — Face Reading (Five Senses Reading)",
+          "author": "อุทัย วงศ์ทางสวัสดิ์",
+          "domain": "Chinese-Thai Physiognomy",
+          "coverage_status": "partial",
+          "coverage_pct": 50,
+          "vector_chunks": 123,
+          "gray_zone": true,
+          "gray_zone_questions": [
+            "สรุปหลักการโหงวเฮ้ง — การอ่านลักษณะใบหน้าและร่างกายตาม 5 ส่วนหลัก",
+            "อธิบายความสัมพันธ์ระหว่างลักษณะใบหน้ากับ 五行 (Five Elements)",
+            "สรุปการอ่านลักษณะ นัยน์ตา, จมูก, ปาก, หู และหน้าผาก ตามโหงวเฮ้ง"
+          ],
+          "finetune_ready": false
+        },
+        {
+          "id": "TH-009",
+          "title": "โหรกับชีวิตประจำวัน (สวน ศรุตานนท์)",
+          "title_th": "โหรกับชีวิตประจำวัน",
+          "author": "สวน ศรุตานนท์",
+          "domain": "Thai Astrology — Practical Daily",
+          "coverage_status": "partial",
+          "coverage_pct": 45,
+          "vector_chunks": 98,
+          "gray_zone": true,
+          "gray_zone_questions": [
+            "สรุปหลักการโหราศาสตร์ไทยสำหรับชีวิตประจำวัน — ฤกษ์, ยาม, ดิถี",
+            "อธิบายการเลือกวันมงคลตามระบบโหราศาสตร์ไทย"
+          ],
+          "finetune_ready": false
+        },
+        {
+          "id": "TH-010",
+          "title": "โหราวิทยา เล่ม ๗ (รัตน์)",
+          "title_th": "โหราวิทยา เล่ม ๗ — Astrology Volume 7",
+          "author": "รัตน์",
+          "domain": "Thai Astrology — Advanced",
+          "coverage_status": "partial",
+          "coverage_pct": 40,
+          "vector_chunks": 112,
+          "gray_zone": true,
+          "gray_zone_questions": [
+            "สรุปเนื้อหาหลักของโหราวิทยา เล่ม ๗ — หัวข้อสำคัญที่แตกต่างจากเล่มอื่น",
+            "อธิบายเทคนิคขั้นสูงในเล่มนี้ที่ไม่มีในตำราทั่วไป"
+          ],
+          "finetune_ready": false
+        }
+      ]
+    },
+    "astrophysics_math": {
+      "label": "ศาสตร์และแบบจำลองด้านดาราศาสตร์ฟิสิกส์/คณิตศาสตร์",
+      "subcategories": {
+        "astrometry_ephemeris": {
+          "label": "ดาราศาสตร์พิกัด (Astrometry & Ephemeris Engine)",
+          "sources": [
+            {
+              "id": "AP-AE-001",
+              "title": "Swiss Ephemeris + JPL DE431/DE440",
+              "title_th": "Swiss Ephemeris DLL + ฐานข้อมูล JPL DE431/DE440 (Jet Propulsion Laboratory)",
+              "author": "Astrodienst AG / NASA JPL",
+              "domain": "Computational Astronomy — Ephemeris",
+              "coverage_status": "integrated",
+              "coverage_pct": 100,
+              "vector_chunks": 0,
+              "gray_zone": false,
+              "notes": "Core engine สำหรับคำนวณตำแหน่งดาวเคราะห์ — ใช้งานในระบบโดยตรง",
+              "integration_note": "ใช้ผ่าน pyswisseph หรือ API wrapper — ไม่ใช่ RAG document",
+              "finetune_ready": true
+            },
+            {
+              "id": "AP-AE-002",
+              "title": "ICRF3 / VLBI Astrometric Calibration",
+              "title_th": "กรอบอ้างอิงพิกัดสากล ICRF3 และการสอบเทียบ VLBI",
+              "author": "IAU / IERS",
+              "domain": "Astrometry — Reference Frame",
+              "coverage_status": "partial",
+              "coverage_pct": 45,
+              "vector_chunks": 67,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "อธิบาย ICRF3 (International Celestial Reference Frame 3) — คืออะไรและทำไมสำคัญสำหรับโหราศาสตร์",
+                "อธิบาย VLBI Astrometric Calibration และการปรับค่าพิกัดดาว",
+                "วิธีการแปลง Ecliptic Coordinates เป็น ICRF3 สำหรับการคำนวณโหราศาสตร์"
+              ],
+              "finetune_ready": false
+            },
+            {
+              "id": "AP-AE-003",
+              "title": "IAU 2006 — Relativistic Aberration & Dynamic Nutation",
+              "title_th": "แบบจำลอง IAU 2006 — การสะท้อนเชิงสัมพัทธภาพและการแกว่งพลวัต",
+              "author": "International Astronomical Union",
+              "domain": "Astrometry — Relativistic Corrections",
+              "coverage_status": "partial",
+              "coverage_pct": 40,
+              "vector_chunks": 56,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "อธิบาย Annual Aberration และ Diurnal Aberration ที่ต้องแก้ไขในการคำนวณตำแหน่งดาว",
+                "อธิบาย IAU 2006 Precession-Nutation Model — ความสำคัญและวิธีการใช้",
+                "อธิบาย Gravitational Deflection of Light (GR correction) ในบริบทโหราศาสตร์"
+              ],
+              "finetune_ready": false
+            },
+            {
+              "id": "AP-AE-004",
+              "title": "IERS Bulletin A/B — Delta-T Real-time",
+              "title_th": "ตารางค่า IERS Bulletin A/B — Delta-T แบบ Real-time",
+              "author": "IERS (International Earth Rotation and Reference Systems Service)",
+              "domain": "Astrometry — Time Scales",
+              "coverage_status": "integrated",
+              "coverage_pct": 80,
+              "vector_chunks": 34,
+              "gray_zone": false,
+              "notes": "ใช้งานผ่าน Dynamic Delta-T calculation ในระบบ — แทนที่ Fixed Polynomial ของตำราโบราณ",
+              "finetune_ready": true
+            }
+          ]
+        },
+        "mathematics_statistics": {
+          "label": "คณิตศาสตร์และสถิติประยุกต์",
+          "sources": [
+            {
+              "id": "AP-MS-001",
+              "title": "Time Series Analysis & NARDL Model",
+              "title_th": "การวิเคราะห์อนุกรมเวลาและแบบจำลอง NARDL (Non-linear Autoregressive Distributed Lag)",
+              "author": "Shin, Y., Yu, B., & Greenwood-Nimmo, M. (2014)",
+              "domain": "Applied Statistics / Econometrics",
+              "coverage_status": "partial",
+              "coverage_pct": 35,
+              "vector_chunks": 45,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "อธิบาย NARDL Model และการประยุกต์ใช้กับข้อมูลโหราศาสตร์เชิงประจักษ์",
+                "วิธีการทดสอบ Non-linear Cointegration ระหว่างตำแหน่งดาวเคราะห์กับผลลัพธ์ชีวิต",
+                "อธิบาย Asymmetric Effects ใน NARDL และการตีความในบริบทโหราศาสตร์"
+              ],
+              "finetune_ready": false
+            },
+            {
+              "id": "AP-MS-002",
+              "title": "Margin of Error ±σ / Statistical Error Processing",
+              "title_th": "การประมวลผลความคลาดเคลื่อนทางสถิติ ±σ",
+              "author": "Applied Statistics Framework",
+              "domain": "Statistics — Error Analysis",
+              "coverage_status": "integrated",
+              "coverage_pct": 90,
+              "vector_chunks": 28,
+              "gray_zone": false,
+              "notes": "ใช้งานในระบบ — แสดงค่า ±σ พร้อมผลการคำนวณทุกครั้ง",
+              "finetune_ready": true
+            }
+          ]
+        }
+      }
+    },
+    "western_scientific": {
+      "label": "กรอบทฤษฎีตะวันตกและข้อวิพากษ์ทางวิทยาศาสตร์",
+      "subcategories": {
+        "western_theory": {
+          "label": "ทฤษฎีโหราศาสตร์ตะวันตกโบราณ",
+          "sources": [
+            {
+              "id": "WS-WT-001",
+              "title": "Thema Mundi",
+              "title_th": "เทมา มุนดี — แผนผังกำเนิดจักรวาล (Hellenistic Astrology)",
+              "author": "Hellenistic Astrology Tradition",
+              "domain": "Western Astrology — Cosmological Model",
+              "coverage_status": "partial",
+              "coverage_pct": 50,
+              "vector_chunks": 89,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "อธิบาย Thema Mundi — Chart ของการกำเนิดจักรวาล และโครงสร้างทางทฤษฎี",
+                "อธิบายบทบาทของ Thema Mundi ในการกำหนด Essential Dignities ของดาวเคราะห์",
+                "เปรียบเทียบ Thema Mundi กับแนวคิดจักรวาลวิทยาใน Yi Jing และ Vedic Astrology"
+              ],
+              "finetune_ready": false
+            },
+            {
+              "id": "WS-WT-002",
+              "title": "Zodiac Cusp Theory",
+              "title_th": "ทฤษฎีรอยต่อราศี — Zodiac Cusp Theory",
+              "author": "Modern Western Astrology",
+              "domain": "Western Astrology — Zodiac Mechanics",
+              "coverage_status": "partial",
+              "coverage_pct": 60,
+              "vector_chunks": 67,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "อธิบายข้อถกเถียงเรื่อง Cusp Dates — ราศีมีรอยต่อจริงหรือไม่ตามทางดาราศาสตร์",
+                "เปรียบเทียบ Tropical Zodiac กับ Sidereal Zodiac และผลต่าง Ayanamsa"
+              ],
+              "finetune_ready": false
+            },
+            {
+              "id": "WS-WT-003",
+              "title": "Tetrabiblos (Ptolemy)",
+              "title_th": "เทตราบิบลอส — Claudius Ptolemy",
+              "author": "Claudius Ptolemy (~100-170 CE)",
+              "domain": "Western Astrology — Classical Foundation",
+              "coverage_status": "missing",
+              "coverage_pct": 0,
+              "vector_chunks": 0,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "สรุปหลักการหลักของ Tetrabiblos ที่ยังมีผลต่อโหราศาสตร์ปัจจุบัน",
+                "อธิบาย Ptolemy's Essential Dignities — Domicile, Exaltation, Triplicity, Term, Face"
+              ],
+              "finetune_ready": false
+            }
+          ]
+        },
+        "empirical_scientific": {
+          "label": "งานวิจัยวิพากษ์และสถิติเชิงประจักษ์",
+          "sources": [
+            {
+              "id": "WS-ES-001",
+              "title": "Gauquelin's Mars Effect",
+              "title_th": "ปรากฏการณ์ดาวอังคารของโกเกแลง — Gauquelin's Mars Effect",
+              "author": "Michel Gauquelin (1950s-1980s)",
+              "domain": "Empirical Astrology Research",
+              "coverage_status": "partial",
+              "coverage_pct": 65,
+              "vector_chunks": 112,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "สรุปการค้นพบ Mars Effect ของ Gauquelin — สถิติ, ระเบียบวิธี และข้อถกเถียง",
+                "อธิบายการทดสอบซ้ำโดยนักวิทยาศาสตร์อิสระและผลที่ได้",
+                "วิพากษ์วิจารณ์ระเบียบวิธีวิจัย Mars Effect — Confirmation Bias และ Data Selection"
+              ],
+              "finetune_ready": false
+            },
+            {
+              "id": "WS-ES-002",
+              "title": "Genovese (2014) — Statistical Astrology Research",
+              "title_th": "Genovese (2014) — งานวิจัยสถิติตรวจสอบโหราศาสตร์",
+              "author": "Genovese et al. (2014)",
+              "domain": "Scientific Critique of Astrology",
+              "coverage_status": "partial",
+              "coverage_pct": 45,
+              "vector_chunks": 67,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "สรุปผลการวิจัยของ Genovese (2014) เกี่ยวกับโหราศาสตร์และหลักฐานเชิงประจักษ์",
+                "อธิบาย False Discovery Rate (FDR) และความเกี่ยวข้องกับการวิจัยโหราศาสตร์",
+                "สรุปข้อสรุปเชิงนโยบายการวิจัยที่ได้จาก Genovese 2014"
+              ],
+              "finetune_ready": false
+            },
+            {
+              "id": "WS-ES-003",
+              "title": "Multiple Statistical Hypotheses Testing in Astrology",
+              "title_th": "การทดสอบสมมติฐานพหุคูณในโหราศาสตร์ทางการแพทย์",
+              "author": "Various Medical & Statistical Research",
+              "domain": "Statistics / Medical Research Methodology",
+              "coverage_status": "partial",
+              "coverage_pct": 50,
+              "vector_chunks": 78,
+              "gray_zone": true,
+              "gray_zone_questions": [
+                "อธิบาย Multiple Comparison Problem และผลต่อการวิจัยโหราศาสตร์",
+                "วิธีการ Bonferroni Correction และ Benjamini-Hochberg Procedure ในบริบทโหราศาสตร์",
+                "อธิบาย P-hacking และ Publication Bias ในงานวิจัยโหราศาสตร์"
+              ],
+              "finetune_ready": false
+            }
+          ]
+        }
+      }
+    }
+  },
+  "summary_stats": {
+    "total_sources": 42,
+    "ingested_complete": 6,
+    "ingested_partial": 20,
+    "missing": 16,
+    "gray_zone_total": 36,
+    "finetune_ready": 8,
+    "total_vector_chunks": 3312
+  }
+}

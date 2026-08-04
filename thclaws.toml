@@ -1,0 +1,55 @@
+# thclaws.toml — thClaws (ThaiGPT) Multi-Agent Workspace Harness
+# ===========================================================================
+# Hybrid AGY + thClaws Multi-Agent Configuration
+# ===========================================================================
+
+[workspace]
+name = "horo-consultant-thclaws"
+version = "1.0.0"
+description = "Computational Metaphysics & BaZi Harness bridging AGY Master Engine and thClaws Local Agent Team"
+
+[harness]
+boot_timeout_ms = 200
+log_level = "info"
+local_first = true
+
+# ---------------------------------------------------------------------------
+# MCP Server Integration (AGY Master Engine)
+# ---------------------------------------------------------------------------
+[[mcp_servers]]
+name = "agy_bazi_engine"
+command = "python3"
+args = ["project/mcp_server.py"]
+env = { PYTHONIOENCODING = "utf-8" }
+
+# ---------------------------------------------------------------------------
+# thClaws Local Agent Team Definitions
+# ---------------------------------------------------------------------------
+
+[[agents]]
+id = "bazi-calculator"
+name = "BaZi Pure Python Calculator Agent"
+role = "Calculates True Solar Time (TST), 4 Pillars, and 5 Elements scores deterministically."
+mcp_tools = ["bazi_calculate"]
+local_model = "qwen2.5:7b"
+
+[[agents]]
+id = "rag-scholar"
+name = "RAG Classical Books Scholar Agent"
+role = "Searches 3,132 FAISS vectors of ZiPing ZhenQuan, DiTianSui, and 38 Thai Astrology Books."
+mcp_tools = ["rag_search"]
+local_model = "nomic-embed-text:latest"
+
+[[agents]]
+id = "predictor-agent"
+name = "qwen2.5-bazi Prediction Agent"
+role = "Generates elegant Thai astrological readings combining chart data and RAG references."
+mcp_tools = ["bazi_interpret"]
+local_model = "qwen2.5-bazi"
+
+[[agents]]
+id = "prediction-validator"
+name = "Gemini Prediction Validator Agent"
+role = "Audits element balance (身強/身弱), stem/branch interactions, and verifies accuracy."
+mcp_tools = ["bazi_validate"]
+cloud_fallback_model = "gemini-2.0-flash"

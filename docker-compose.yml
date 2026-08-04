@@ -1,0 +1,155 @@
+version: "3.9"
+
+# ============================================================
+# Computational Metaphysics Engine — Docker Compose
+# Services:
+#   app     : FastAPI BaZi engine (Python)
+#   ollama  : Local LLM inference server
+#   redis   : Rate-limit / caching layer
+# ============================================================
+
+services:
+
+  # ----------------------------------------------------------
+  # Main Application Service
+  # ----------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app
+    container_name: bazi-engine
+    image: bazi-engine:latest
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    volumes:
+      - ./project/data:/app/project/data
+      - ./project/models:/app/project/models
+      - app-logs:/app/logs
+    depends_on:
+      ollama:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - GOOGLE_AI_STUDIO_API_KEY=${GOOGLE_AI_STUDIO_API_KEY}
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - REDIS_URL=redis://redis:6379/0
+      - APP_ENV=${APP_ENV:-production}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - metaphysics-net
+
+  # ----------------------------------------------------------
+  # Ollama Local LLM Service
+  # ----------------------------------------------------------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: bazi-ollama
+    restart: unless-stopped
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+      - ./project/models:/models
+    environment:
+      - OLLAMA_ORIGINS=*
+      - OLLAMA_HOST=0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        reservations:
+          # Uncomment if running with NVIDIA GPU on the host
+          # devices:
+          #   - driver: nvidia
+          #     count: all
+          #     capabilities: [gpu]
+          memory: 8G
+    networks:
+      - metaphysics-net
+
+  # ----------------------------------------------------------
+  # Model Loader (one-shot init container)
+  # ----------------------------------------------------------
+  model-loader:
+    image: ollama/ollama:latest
+    container_name: bazi-model-loader
+    restart: "no"
+    volumes:
+      - ollama-models:/root/.ollama
+      - ./project/models:/models
+    depends_on:
+      ollama:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Loading Qwen2.5-BaZi model into Ollama..."
+        if [ -f /models/qwen2.5-bazi.gguf ]; then
+          ollama create qwen2.5-bazi -f /models/Modelfile
+          echo "Custom model loaded successfully."
+        else
+          echo "GGUF file not found at /models/qwen2.5-bazi.gguf"
+          echo "Pulling base model as fallback..."
+          ollama pull qwen2.5:7b
+        fi
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    networks:
+      - metaphysics-net
+
+  # ----------------------------------------------------------
+  # Redis — Caching & Rate-Limit State
+  # ----------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: bazi-redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - metaphysics-net
+
+
+# ============================================================
+# Networks
+# ============================================================
+networks:
+  metaphysics-net:
+    driver: bridge
+    name: metaphysics-net
+
+
+# ============================================================
+# Volumes
+# ============================================================
+volumes:
+  ollama-models:
+    name: bazi-ollama-models
+  redis-data:
+    name: bazi-redis-data
+  app-logs:
+    name: bazi-app-logs
