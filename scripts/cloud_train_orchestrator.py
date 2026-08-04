@@ -79,9 +79,9 @@ def run_training_pipeline(
     try:
         import torch
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
-        os.environ["CUDA_MODULE_LOADING"] = "LAZY"
 
         from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, TrainingArguments
+
 
         from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
         from datasets import load_dataset
@@ -154,7 +154,12 @@ def run_training_pipeline(
             model = None
 
     if model is None:
-        dtype = torch.bfloat16 if (use_cuda and hasattr(torch.cuda, "is_bf16_supported") and torch.cuda.is_bf16_supported()) else (torch.float16 if use_cuda else torch.float32)
+        # Enforce float16 precision for Tesla T4 (sm_75) GPU architecture
+        if is_kaggle or (use_cuda and hasattr(torch.cuda, "get_device_name") and "T4" in torch.cuda.get_device_name()):
+            dtype = torch.float16
+        else:
+            dtype = torch.bfloat16 if (use_cuda and hasattr(torch.cuda, "is_bf16_supported") and torch.cuda.is_bf16_supported()) else (torch.float16 if use_cuda else torch.float32)
+
         logger.info(f"📦 Loading base model in standard precision ({dtype})...")
         model = AutoModelForCausalLM.from_pretrained(
             base_model,
@@ -164,6 +169,7 @@ def run_training_pipeline(
             trust_remote_code=True,
         )
         logger.info(f"✅ Successfully loaded model with precision {dtype}.")
+
 
 
 

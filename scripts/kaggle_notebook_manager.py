@@ -114,11 +114,10 @@ def create_kernel_files() -> None:
                     "import sys\n",
                     "import subprocess\n",
                     "\n",
-                    "# Suppress PyDev / frozen modules debugger warnings and configure CUDA compatibility for bitsandbytes\n",
+                    "# Suppress PyDev / frozen modules debugger warnings\n",
                     "os.environ['PYDEVD_DISABLE_FILE_VALIDATION'] = '1'\n",
                     "os.environ['PYTHONWARNINGS'] = 'ignore'\n",
-                    "os.environ['CUDA_MODULE_LOADING'] = 'LAZY'\n",
-                    "os.environ['TORCH_CUDA_ARCH_LIST'] = '7.5;8.0;8.6'\n",
+
                     "\n",
                     "# 1. Load Secrets safely from Kaggle Secrets (individual try-except per key)\n",
                     "try:\n",
