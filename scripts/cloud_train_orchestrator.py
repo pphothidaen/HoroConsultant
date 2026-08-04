@@ -146,6 +146,7 @@ def run_training_pipeline(
                 device_map=device_map,
                 low_cpu_mem_usage=True,
                 trust_remote_code=True,
+                attn_implementation="sdpa",
             )
             model = prepare_model_for_kbit_training(model)
             logger.info("✅ Successfully loaded 4-bit quantized model.")
@@ -167,6 +168,7 @@ def run_training_pipeline(
             device_map=device_map,
             low_cpu_mem_usage=True,
             trust_remote_code=True,
+            attn_implementation="sdpa",
         )
         logger.info(f"✅ Successfully loaded model with precision {dtype}.")
 
