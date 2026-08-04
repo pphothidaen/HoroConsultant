@@ -447,7 +447,12 @@ def sync_back_to_github_repo(
 
 def main():
     parser = argparse.ArgumentParser(description="HoroConsultant Cloud Fine-Tuning Orchestrator")
-    parser.add_argument("--platform", default="KAGGLE_T4", choices=["KAGGLE_T4", "LIGHTNING_L4", "SAGEMAKER", "COLAB"], help="Cloud platform name")
+    parser.add_argument(
+        "--platform",
+        default="KAGGLE_T4X2",
+        type=str,
+        help="Cloud platform name (e.g. KAGGLE_T4X2, KAGGLE_T4, KAGGLE_P100, LIGHTNING_L4, SAGEMAKER, COLAB)",
+    )
     parser.add_argument("--base-model", default=Config.BASE_MODEL_NAME, help="Base model identifier")
     parser.add_argument("--hf-repo", default=Config.HF_REPO_ID, help="Hugging Face Repository ID")
     parser.add_argument("--epochs", type=int, default=3, help="Number of training epochs")
