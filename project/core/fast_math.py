@@ -37,8 +37,8 @@ if _RUST_DIR.exists() and str(_RUST_DIR) not in sys.path:
 # ─── Optional Rust acceleration (Phase 2) ────────────────────────────────────
 try:
     import rust_core  # type: ignore
-    RUST_AVAILABLE = True
-except ImportError:
+    RUST_AVAILABLE = hasattr(rust_core, "equation_of_time") and hasattr(rust_core, "chunk_text")
+except (ImportError, Exception):
     RUST_AVAILABLE = False
 
 

@@ -9,8 +9,9 @@ fastapi>=0.111.0
 uvicorn[standard]>=0.30.0
 pydantic>=2.7.0
 
-# Caching
+# Caching & Scheduling
 redis>=5.0.0
+apscheduler>=3.10.0
 
 # MLX Fine-Tuning (macOS only — comment out on Linux)
 # mlx>=0.15.0

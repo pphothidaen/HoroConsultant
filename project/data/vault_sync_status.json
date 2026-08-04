@@ -1,9 +1,9 @@
 {
-  "last_sync_timestamp": "2026-08-03T19:33:56.818107",
-  "total_files_in_vault": 40,
+  "last_sync_timestamp": "2026-08-04T09:39:01.268807",
+  "total_files_in_vault": 41,
   "pdf_count": 38,
-  "md_count": 2,
-  "indexed_vectors_count": 3096,
+  "md_count": 3,
+  "indexed_vectors_count": 4017,
   "new_files_added_this_run": 0,
   "gdrive_folders_configured": [
     {
