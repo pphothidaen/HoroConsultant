@@ -360,11 +360,12 @@ def run_training_pipeline(
 
     # Force float16 on sm_75 (T4): T4 does NOT support bfloat16 natively (requires sm_80+).
     # Using bfloat16 on T4 triggers silent CUDA errors during dtype casting in PEFT.
+    cap = (0, 0)
     if use_cuda:
         cap = gpu_info.get("compute_cap", (0, 0))
-        if is_sm75 or "T4" in gpu_info.get("device_name", "") or is_kaggle:
+        if is_sm75 or "T4" in gpu_info.get("device_name", "") or is_kaggle or cap < (8, 0):
             compute_dtype = torch.float16
-            logger.info("   [INFO] Kaggle/T4 platform detected: Forcing float16 compute dtype (sm_75 has no native bfloat16).")
+            logger.info("   [INFO] Kaggle/T4/sm_60-75 platform detected: Forcing float16 compute dtype (sm_75 has no native bfloat16).")
         elif cap >= (8, 0) and torch.cuda.is_bf16_supported():
             compute_dtype = torch.bfloat16
             logger.info(f"   [OK] sm_{cap[0]}{cap[1]} detected: Using bfloat16 compute dtype.")
@@ -419,7 +420,7 @@ def run_training_pipeline(
             model = AutoModelForCausalLM.from_pretrained(
                 base_model,
                 quantization_config=bnb_config,
-                dtype=compute_dtype,
+                torch_dtype=compute_dtype,
                 device_map=device_map,
                 low_cpu_mem_usage=True,
                 trust_remote_code=True,
@@ -433,27 +434,21 @@ def run_training_pipeline(
 
     if model is None:
         logger.info(f"[MODEL] Loading base model in standard precision ({compute_dtype})...")
-        # Use `dtype=` (not deprecated `torch_dtype=`) for newer transformers compatibility
-        try:
-            model = AutoModelForCausalLM.from_pretrained(
-                base_model,
-                dtype=compute_dtype,
-                device_map=device_map,
-                low_cpu_mem_usage=True,
-                trust_remote_code=True,
-                attn_implementation="sdpa",
-            )
-        except TypeError:
-            # Older transformers versions that don't accept `dtype=` yet
-            model = AutoModelForCausalLM.from_pretrained(
-                base_model,
-                torch_dtype=compute_dtype,
-                device_map=device_map,
-                low_cpu_mem_usage=True,
-                trust_remote_code=True,
-                attn_implementation="sdpa",
-            )
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model,
+            torch_dtype=compute_dtype,
+            device_map=device_map,
+            low_cpu_mem_usage=True,
+            trust_remote_code=True,
+            attn_implementation="sdpa",
+        )
         logger.info(f"[OK] Successfully loaded model with precision {compute_dtype}.")
+
+    if use_cuda and (is_kaggle or is_sm75 or cap < (8, 0)):
+        compute_dtype = torch.float16
+        if hasattr(model, "to") and getattr(model, "dtype", None) != torch.float16:
+            logger.info(f"[CAST] Converting base model weights from {getattr(model, 'dtype', 'unknown')} to {compute_dtype} for T4/sm_75 compatibility...")
+            model = model.to(torch.float16)
 
 
 
