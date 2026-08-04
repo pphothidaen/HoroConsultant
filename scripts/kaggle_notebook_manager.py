@@ -92,8 +92,10 @@ def create_kernel_files() -> None:
         "dataset_sources": [],
         "competition_sources": [],
         "kernel_sources": [],
-        "accelerator": "nvidiaTeslaT4"
+        "accelerator": "nvidiaTeslaT4",
+        "machine_shape": "NvidiaTeslaT4"
     }
+
 
     METADATA_FILE.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     logger.info(f"📄 Created metadata file at '{METADATA_FILE}'")
