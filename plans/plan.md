@@ -1,4 +1,4 @@
-# AI SDLC Master Implementation Plan: 5-Branch Metaphysics & Vault Growth
+# AI SDLC Master Implementation Plan: Complete DOING & TODO Pipeline
 
 **Project:** HoroConsultant — Computational Metaphysics Engine  
 **Workflow:** `.agents/workflows/aisdlc.md`  
@@ -8,7 +8,10 @@
 ---
 
 ## 🎯 Objective
-Fulfill the long-running `/goal` for **Continuous Vault Knowledge Growth** and **5-Branch Metaphysics Engine Implementation** across the 5 cosmic branches of Chinese Metaphysics.
+Complete all backlog items under `DOING` and `TODO` in `PROJECT_TASKS.md` according to the user's specific execution plan:
+1. Local development of 5-Branch SVG Chart Visualizers, Multi-Branch Synthesis Agent, and Qi Zheng Si Yu Ephemeris.
+2. Direct Web UI Dashboard visualizer rendering for all 5 Metaphysics branches.
+3. Automated push to Kaggle GPU fine-tuning pipeline and post-train GGUF fusion dry-run verification.
 
 ---
 
@@ -16,15 +19,12 @@ Fulfill the long-running `/goal` for **Continuous Vault Knowledge Growth** and *
 
 | Task # | Task Description | Target Deliverable | Status |
 | :--- | :--- | :--- | :--- |
-| **Task 1** | Continuous Knowledge Vault Expansion | `project/rag/obsidian_vault/*.md`<br>`project/rag/ingest_vault.py` | ✅ VERIFIED (4,051 vectors) |
-| **Task 2** | Zi Wei Dou Shu Core Engine | `project/core/zi_wei_engine.py` | ✅ VERIFIED |
-| **Task 3** | Qi Men Dun Jia Core Engine | `project/core/qi_men_engine.py` | ✅ VERIFIED |
-| **Task 4** | Da Liu Ren Core Engine | `project/core/liu_ren_engine.py` | ✅ VERIFIED |
-| **Task 5** | I Ching & Liu Yao Core Engine | `project/core/iching_engine.py` | ✅ VERIFIED |
-| **Task 6** | Xuan Kong Flying Stars Core Engine | `project/core/xuan_kong_engine.py` | ✅ VERIFIED |
-| **Task 7** | Imperial Date Selection Core Engine | `project/core/ze_ji_engine.py` | ✅ VERIFIED |
-| **Task 8** | MCP Tools & REST Endpoints | `project/mcp_server.py`<br>`project/main.py` | ✅ VERIFIED |
-| **Task 9** | Web UI Dashboard Controls | `project/static/index.html`<br>`project/static/app.js` | ✅ VERIFIED |
+| **Task 1** | 5-Branch SVG Chart Visualizers | `project/core/svg_generator.py` | ✅ VERIFIED |
+| **Task 2** | Multi-Branch Composite Synthesis Agent | `project/core/multi_agent_debate.py` | ✅ VERIFIED |
+| **Task 3** | Qi Zheng Si Yu Ephemeris Engine | `project/core/swiss_ephemeris.py` | ✅ VERIFIED |
+| **Task 4** | Web UI Dashboard Visualizer Cards | `project/static/index.html`<br>`project/static/app.js` | ✅ VERIFIED |
+| **Task 5** | Kaggle GPU Pipeline Push | `scripts/kaggle_notebook_manager.py` | ✅ VERIFIED (v61 pushed) |
+| **Task 6** | Post-Train GGUF Fusion Pipeline | `scripts/post_train_fuse.py` | ✅ VERIFIED (Dry-run OK) |
 
 ---
 
@@ -34,19 +34,19 @@ Fulfill the long-running `/goal` for **Continuous Vault Knowledge Growth** and *
    ```bash
    python3 -m pytest -v
    ```
-   - Result: 93 / 93 tests passing (100% success rate).
+   - Result: **96 / 96 tests passing (100% success rate)**.
 
 2. **Pre-Deployment Code Reviewer & Safety Audit**:
    ```bash
    python3 project/core/code_reviewer.py --review
    ```
-   - Result: Status `READY_FOR_PROD` with zero critical leaks.
+   - Result: Status **`READY_FOR_PROD`** with zero critical leaks.
 
 ---
 
 ## 🚀 DevOps & Release Criteria
 
-- Dependencies match locked rules (`.agent_rules.md`).
+- All unit/integration tests verified passing.
 - Pure ASCII logging strictly enforced.
-- Vector database expanded to 4,051 embeddings.
-- All secrets loaded via environment variables (`.env`).
+- Version 61 pushed to Kaggle GPU fine-tuning pipeline.
+- Working tree clean and synced with remote.

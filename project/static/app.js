@@ -337,3 +337,71 @@ async function calcZeJi() {
   `;
   showBranchCard("📅 คำนวณฤกษ์擇吉 (Date Selection Visualizer)", html);
 }
+
+async function calcThaiVedic() {
+  const res = await fetch('/api/v1/thaivedic/calculate?year=1990&month=5&day=15&hour=14&day_of_week=2');
+  const data = await res.json();
+  const html = `
+    <div style="background: rgba(234, 179, 8, 0.15); border: 1px solid #facc15; padding: 1rem; border-radius: 8px;">
+      <h4 style="color: #facc15; margin-top: 0;">🐘 โหราศาสตร์ไทยสุริยยาตร์ & ภารตวิทยา (Thai & Jyotish)</h4>
+      <p><strong>ลัคนาสุริยยาตร์:</strong> ${data.thai_lagna} | <strong>ดาวกาลกิณี:</strong> <span style="color: #ef4444; font-weight: bold;">${data.kalakini_planet}</span> | <strong>ดาวศรี:</strong> <span style="color: #22c55e; font-weight: bold;">${data.sri_planet}</span></p>
+      <p><strong>นักษัตร 27 ดารา (Vedic):</strong> ${data.vedic_nakshatra.name} (นักษัตรที่ ${data.vedic_nakshatra.number}, Pada ${data.vedic_nakshatra.pada})</p>
+      <p><strong>วิมโชตตรีทศา (Vimshottari Dasha):</strong> ${data.vimshottari_dasha}</p>
+      <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
+      <p><strong>มหาทักษา 8 เทวดาเสวยอายุ:</strong></p>
+      <ul>
+        ${Object.entries(data.maha_thaksa).map(([k, v]) => `<li><strong>${k}:</strong> ${v}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+  showBranchCard("🐘 โหราศาสตร์ไทย & ภารตวิทยา (Thai & Jyotish Visualizer)", html);
+}
+
+async function calcWestern() {
+  const res = await fetch('/api/v1/western/calculate?year=1990&month=5&day=15&hour=14');
+  const data = await res.json();
+  const html = `
+    <div style="background: rgba(99, 102, 241, 0.15); border: 1px solid #818cf8; padding: 1rem; border-radius: 8px;">
+      <h4 style="color: #818cf8; margin-top: 0;">🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian)</h4>
+      <p><strong>ตำแหน่งดาวเคราะห์สากล (Tropical):</strong></p>
+      <ul>
+        ${Object.entries(data.planets_tropical).map(([p, pos]) => `<li><strong>${p}:</strong> ${pos}</li>`).join('')}
+      </ul>
+      <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
+      <p><strong>ดาวทิพย์ยูเรเนียน 8 องค์ (8 Uranian TNPs):</strong></p>
+      <ul>
+        ${Object.entries(data.uranian_tnps).map(([tnp, deg]) => `<li><strong>${tnp}:</strong> Longitude ${deg}°</li>`).join('')}
+      </ul>
+      <p><strong>จุดอิทธิพลสะท้อนศูนย์ลิขิต (Midpoint Axis):</strong> ${data.uranian_midpoint_formula.formula} → <strong>${data.uranian_midpoint_formula.zodiac_position}</strong></p>
+    </div>
+  `;
+  showBranchCard("🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian Visualizer)", html);
+}
+
+async function calcNumerology() {
+  const res = await fetch('/api/v1/numerology/calculate?text=0812345678&day_num=2&lunar_month=6&year_zodiac_num=7');
+  const data = await res.json();
+  const score = data.chaldean_score;
+  const satta = data.satta_lek;
+  const html = `
+    <div style="background: rgba(20, 184, 166, 0.15); border: 1px solid #2dd4bf; padding: 1rem; border-radius: 8px;">
+      <h4 style="color: #2dd4bf; margin-top: 0;">🔢 สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean</h4>
+      <p><strong>เลขศาสตร์ Chaldean (Input: ${score.input_text}):</strong> ผลรวม ${score.total_score} → ถอดถอดรากได้ <strong>เลข ${score.reduced_root_digit}</strong></p>
+      <p><strong>ความหมายเลข:</strong> ${score.digit_meaning}</p>
+      <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
+      <p><strong>ผัง 7 ฐาน 4 แถว (Satta-Lek Matrix):</strong></p>
+      <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; font-size: 0.8rem; text-align: center;">
+        ${satta.matrix_7_base.map(m => `
+          <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid #0d9488; padding: 4px; border-radius: 4px;">
+            <strong>${m.house_name}</strong><br>
+            วัน:${m.row1_day}<br>
+            เดือน:${m.row2_month}<br>
+            ปี:${m.row3_year}<br>
+            <span style="color: #2dd4bf; font-weight: bold;">รวม:${m.row4_sum}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  showBranchCard("🔢 สัตตเลข 7 ฐาน & เลขศาสตร์ (Numerology Visualizer)", html);
+}

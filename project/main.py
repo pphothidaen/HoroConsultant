@@ -26,6 +26,9 @@ from project.core.liu_ren_engine import LiuRenEngine
 from project.core.iching_engine import IChingEngine
 from project.core.xuan_kong_engine import XuanKongEngine
 from project.core.ze_ji_engine import ZeJiEngine
+from project.core.thai_vedic_engine import ThaiVedicEngine
+from project.core.western_uranian_engine import WesternUranianEngine
+from project.core.numerology_engine import NumerologyEngine
 from project.api_router        import HybridRouter
 
 import asyncio
@@ -48,6 +51,9 @@ liuren_engine   = LiuRenEngine()
 iching_engine   = IChingEngine()
 xuankong_engine = XuanKongEngine()
 zeji_engine     = ZeJiEngine()
+thaivedic_engine = ThaiVedicEngine()
+western_engine  = WesternUranianEngine()
+numerology_engine = NumerologyEngine()
 
 router    = HybridRouter()
 validator = PredictionValidator()
@@ -248,6 +254,26 @@ async def calculate_xuankong(facing_degree: float = 180.0, period: int = 9):
 async def calculate_zeji(year_branch: str = "午", month_branch: str = "申", day_branch: str = "寅", user_birth_branch: Optional[str] = "子"):
     """Calculate Date Selection suitability via 12 Duty Officers and Clash checks."""
     return JSONResponse(content=zeji_engine.check_suitability(year_branch, month_branch, day_branch, user_birth_branch))
+
+
+@app.get("/api/v1/thaivedic/calculate", tags=["Thai & Vedic Astrology"])
+async def calculate_thaivedic(year: int = 1990, month: int = 5, day: int = 15, hour: int = 14, day_of_week: int = 2):
+    """Calculate Thai Suriyayart 10 Lagna, Maha Thaksa, 27 Nakshatras & Vimshottari Dasha."""
+    return JSONResponse(content=thaivedic_engine.calculate_chart(year, month, day, hour, day_of_week))
+
+
+@app.get("/api/v1/western/calculate", tags=["Western & Uranian Astrology"])
+async def calculate_western(year: int = 1990, month: int = 5, day: int = 15, hour: int = 14):
+    """Calculate Western Tropical Planetary Aspects, Uranian 8 TNPs & Midpoint Formula."""
+    return JSONResponse(content=western_engine.calculate_chart(year, month, day, hour))
+
+
+@app.get("/api/v1/numerology/calculate", tags=["Numerology & Satta-Lek"])
+async def calculate_numerology(text: str = "0812345678", day_num: int = 2, lunar_month: int = 6, year_zodiac_num: int = 7):
+    """Calculate Satta-Lek 7-Base 4-Row Matrix & Chaldean Numerology Scoring."""
+    satta_lek = numerology_engine.calculate_satta_lek(day_num, lunar_month, year_zodiac_num)
+    score = numerology_engine.score_text_or_number(text)
+    return JSONResponse(content={"satta_lek": satta_lek, "chaldean_score": score})
 
 
 @app.post("/api/v1/bazi/interpret", tags=["BaZi", "AI"])

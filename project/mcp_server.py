@@ -34,6 +34,9 @@ from project.core.liu_ren_engine import LiuRenEngine
 from project.core.iching_engine import IChingEngine
 from project.core.xuan_kong_engine import XuanKongEngine
 from project.core.ze_ji_engine import ZeJiEngine
+from project.core.thai_vedic_engine import ThaiVedicEngine
+from project.core.western_uranian_engine import WesternUranianEngine
+from project.core.numerology_engine import NumerologyEngine
 from project.core.svg_generator import generate_bazi_svg, generate_zodiac_wheel_svg
 from project.api_router        import HybridRouter
 from project.validator         import PredictionValidator
@@ -49,6 +52,9 @@ liuren_engine   = LiuRenEngine()
 iching_engine   = IChingEngine()
 xuankong_engine = XuanKongEngine()
 zeji_engine     = ZeJiEngine()
+thaivedic_engine = ThaiVedicEngine()
+western_engine  = WesternUranianEngine()
+numerology_engine = NumerologyEngine()
 
 router       = HybridRouter()
 validator    = PredictionValidator()
@@ -162,6 +168,23 @@ class HoroMCPTools:
     def zeji_calculate(year_branch: str = "午", month_branch: str = "申", day_branch: str = "寅", user_birth_branch: Optional[str] = "子") -> Dict[str, Any]:
         """Compute Date Selection suitability via 12 Duty Officers."""
         return zeji_engine.check_suitability(year_branch, month_branch, day_branch, user_birth_branch)
+
+    @staticmethod
+    def thaivedic_calculate(year: int = 1990, month: int = 5, day: int = 15, hour: int = 14, day_of_week: int = 2) -> Dict[str, Any]:
+        """Compute Thai Suriyayart 10 Lagna, Maha Thaksa & Vimshottari Dasha."""
+        return thaivedic_engine.calculate_chart(year, month, day, hour, day_of_week)
+
+    @staticmethod
+    def western_calculate(year: int = 1990, month: int = 5, day: int = 15, hour: int = 14) -> Dict[str, Any]:
+        """Compute Western Tropical Aspects, Uranian 8 TNPs & Midpoints."""
+        return western_engine.calculate_chart(year, month, day, hour)
+
+    @staticmethod
+    def numerology_calculate(text: str = "0812345678", day_num: int = 2, lunar_month: int = 6, year_zodiac_num: int = 7) -> Dict[str, Any]:
+        """Compute Satta-Lek 7-Base 4-Row Matrix & Chaldean Numerology Scoring."""
+        satta_lek = numerology_engine.calculate_satta_lek(day_num, lunar_month, year_zodiac_num)
+        score = numerology_engine.score_text_or_number(text)
+        return {"satta_lek": satta_lek, "chaldean_score": score}
 
 
 def get_mcp_manifest() -> Dict[str, Any]:

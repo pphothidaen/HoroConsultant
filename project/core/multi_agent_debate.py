@@ -78,6 +78,24 @@ class MetaphysicsDebateEngine:
                 "focus": "Imperial Calendar Date Selection",
                 "analysis": "คำนวณฤกษ์ยามหลวง: วันทำการมงคลต้องหลีกเลี่ยงวันไท่ส่วยชง (歲破) และเลือกยามหลิวเหอ (六合)",
                 "canonical_citations": ["協紀辨方書"]
+            },
+            "thai_vedic_master": {
+                "branch": "โหราศาสตร์ไทย & ภารตวิทยา (Thai & Jyotish)",
+                "focus": "Thai Suriyayart 10 Lagna & Vimshottari Dasha",
+                "analysis": f"วิเคราะห์ผังสุริยยาตร์สำหรับ {birth_datetime}: วางลัคนาประจำราศี พร้อมตรวจดาวมหาทักษาและดาวเสวยอายุวิมโชตตรีทศา",
+                "canonical_citations": ["คัมภีร์สุริยยาตร์ & มาณต", "Brihat Parasara Hora Sastra"]
+            },
+            "western_astro_master": {
+                "branch": "โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian)",
+                "focus": "Tropical Aspects & Uranian 8 TNPs Midpoint Axis",
+                "analysis": "วิเคราะห์ดาวเคราะห์สากลและดาวทิพย์ยูเรเนียน: คำนวณจุดอิทธิพลสะท้อนศูนย์ลิขิต (Midpoint Axis A+B-C) เพื่อระบุเป้าหมายชะตา",
+                "canonical_citations": ["Rules for Planetary Pictures", "Tetrabiblos"]
+            },
+            "numerology_master": {
+                "branch": "สัตตเลข 7 ฐาน & เลขศาสตร์ (Numerology)",
+                "focus": "Satta-Lek 7-Base 4-Row & Chaldean Scoring",
+                "analysis": "วิเคราะห์ผัง 7 ฐาน 4 แถวและผลรวมเลขศาสตร์บริสุทธิ์: คำนวณเลขศาสตร์ประจำเบอร์โทรและชื่อ-นามสกุล (ปราศจากการสุ่ม)",
+                "canonical_citations": ["ตำราสัตตเลข ๗ ฐาน", "Chaldean Numerology"]
             }
         }
 
@@ -141,7 +159,8 @@ class MetaphysicsDebateEngine:
         except Exception:
             pass
 
-        bazi_res = BaZiEngine().calculate(dt=datetime(year, month, day, hour))
+        dt_obj = datetime(year, month, day, hour)
+        bazi_res = BaZiEngine().calculate(dt=dt_obj, longitude=100.4930, utc_offset_hours=7.0)
         ziwei_res = ZiWeiEngine().calculate_chart(year, month, day, hour)
         qimen_res = QiMenEngine().calculate_chart(year, month, day, hour)
         liuren_res = LiuRenEngine().calculate_chart("甲", "子", "正月", "午")
