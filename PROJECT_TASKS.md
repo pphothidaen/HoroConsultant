@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-07 21:16 (UTC+7)*
+> *Last Updated: 2026-08-07 21:18 (UTC+7)*
 
 ---
 
@@ -38,8 +38,8 @@ python3 scripts/kaggle_notebook_manager.py --pull
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Cross-Platform AI Agent Framework   │ ( 0 Items - Moved 100% to DONE )      │ ( Backlog Clear - 100% Prod Ready )   │
-│ • 8 Domain Master Agents Decoupled    │                                       │                                       │
+│ • Cross-Platform AI Agent Framework   │ • Kaggle GPU Fine-Tuning (v61->v62)   │ ( Backlog Clear - 100% Prod Ready )   │
+│ • 8 Domain Master Agents Decoupled    │   [Status: RUNNING on Kaggle GPU]     │                                       │
 │ • Thai & Vedic Master (สุริยยาตร์)      │                                       │                                       │
 │ • Western & Uranian Master (8 TNPs)   │                                       │                                       │
 │ • Numerology & Satta-Lek Master (7ฐาน)│                                       │                                       │
@@ -79,7 +79,9 @@ python3 scripts/kaggle_notebook_manager.py --pull
 ---
 
 ### 🔄 DOING (กำลังดำเนินการ)
-*(ไม่มีงานค้าง — ทุกรายการดำเนินการเสร็จสมบูรณ์และย้ายเข้าสู่ ✅ DONE ทั้งหมด 100% แล้ว)*
+- [x] **Kaggle GPU Remote Fine-Tuning Execution (`scripts/kaggle_notebook_manager.py`)**
+  - Auto-commit repo changes และผลักดัน Kernel Version 62 ขึ้น Kaggle GPU (`pphothidaen/horoconsultant-finetune-pipeline`)
+  - **สถานะปัจจุบัน**: `KernelWorkerStatus.RUNNING` (กำลังเทรนโมเดลบน Kaggle GPU Nvidia Tesla T4x2)
 
 ---
 

@@ -71,21 +71,13 @@ def setup_kaggle_credentials() -> bool:
     return True
 
 
-def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
-    """Generate project/kaggle_kernel/ metadata and notebook.ipynb for specified GPU type (default: Dual T4x2)."""
+def create_kernel_files(accelerator_type: str = "gpu") -> None:
+    """Generate project/kaggle_kernel/ metadata and notebook.ipynb using default Kaggle GPU setting."""
     KERNEL_DIR.mkdir(parents=True, exist_ok=True)
 
     username = os.getenv("KAGGLE_USERNAME", "pphothidaen")
     slug = "horoconsultant-finetune-pipeline"
     kernel_id = f"{username}/{slug}"
-
-    acc_lower = accelerator_type.lower()
-    if "p100" in acc_lower:
-        machine_shape = "NvidiaTeslaP100"
-        platform_arg = "KAGGLE_P100"
-    else:
-        machine_shape = "NvidiaTeslaT4x2"
-        platform_arg = "KAGGLE_T4X2"
 
     metadata = {
         "id": kernel_id,
@@ -100,13 +92,11 @@ def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
         "dataset_sources": [],
         "competition_sources": [],
         "kernel_sources": [],
-        "accelerator": "gpu",
-        "machine_shape": machine_shape
+        "accelerator": "gpu"
     }
 
-
     METADATA_FILE.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-    logger.info(f"[FILE] Created metadata file at '{METADATA_FILE}' for accelerator [gpu / {machine_shape}]")
+    logger.info(f"[FILE] Created metadata file at '{METADATA_FILE}' for accelerator [gpu]")
 
     # Generate notebook structure with clean execution code
     notebook = {
@@ -120,6 +110,7 @@ def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
                     "#  HoroConsultant - Production Cloud Fine-Tuning Pipeline\n",
                     "import os\n",
                     "import sys\n",
+                    "import types\n",
                     "import subprocess\n",
                     "\n",
                     "# Suppress PyDev / frozen modules debugger warnings & force UTF-8 encoding\n",
@@ -137,13 +128,23 @@ def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
                     "    try: sys.stderr.reconfigure(encoding='utf-8', errors='replace')\n",
                     "    except Exception: pass\n",
                     "\n",
-                    "# 0. Set CUDA stability env vars FIRST (before any torch/bnb imports)\n",
-                    "# Tesla T4 = sm_75 (Compute Capability 7.5) -- bfloat16 requires sm_80+\n",
-                    "os.environ.setdefault('TORCH_CUDA_ARCH_LIST', '7.5')     # Target T4 arch\n",
-                    "os.environ.pop('BNB_CUDA_VERSION', None)                   # Let BNB auto-detect native CUDA library\n",
-                    "os.environ.setdefault('CUDA_MODULE_LOADING', 'LAZY')      # Lazy loading prevents JIT errors at import\n",
+                    "# 0. Set CUDA stability env vars FIRST & Triton 3.x compatibility shim\n",
+                    "os.environ.setdefault('TORCH_CUDA_ARCH_LIST', '7.5')\n",
+                    "os.environ.setdefault('BNB_CUDA_VERSION', '124')\n",
+                    "os.environ.setdefault('CUDA_MODULE_LOADING', 'LAZY')\n",
                     "os.environ['TOKENIZERS_PARALLELISM'] = 'false'\n",
-                    "print('[OK] CUDA stability environment variables set (T4/sm_75 compatible)')\n",
+                    "\n",
+                    "# Triton 3.x compatibility shim for bitsandbytes (prevents ModuleNotFoundError: No module named 'triton.ops')\n",
+                    "try:\n",
+                    "    import triton.ops\n",
+                    "except (ImportError, ModuleNotFoundError):\n",
+                    "    triton_ops = types.ModuleType('triton.ops')\n",
+                    "    triton_ops_matmul = types.ModuleType('triton.ops.matmul_perf_model')\n",
+                    "    triton_ops_matmul.early_config_prune = lambda *a, **k: None\n",
+                    "    triton_ops_matmul.estimate_matmul_time = lambda *a, **k: 0\n",
+                    "    sys.modules['triton.ops'] = triton_ops\n",
+                    "    sys.modules['triton.ops.matmul_perf_model'] = triton_ops_matmul\n",
+                    "print('[OK] CUDA stability & Triton compatibility shim applied.')\n",
                     "\n",
                     "# 1. Load Secrets safely from Kaggle Secrets (individual try-except per key)\n",
                     "try:\n",
@@ -202,7 +203,7 @@ def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
                     "train_env = os.environ.copy()\n",
                     "train_env['PYTHONIOENCODING'] = 'utf-8'\n",
                     "train_env['PYTHONUTF8'] = '1'\n",
-                    "proc = subprocess.Popen([sys.executable, 'scripts/cloud_train_orchestrator.py', '--platform', '" + platform_arg + "', '--base-model', 'Qwen/Qwen2.5-7B-Instruct', '--epochs', '3'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors='replace', env=train_env)\n",
+                    "proc = subprocess.Popen([sys.executable, 'scripts/cloud_train_orchestrator.py', '--platform', 'KAGGLE', '--base-model', 'Qwen/Qwen2.5-7B-Instruct', '--epochs', '3'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors='replace', env=train_env)\n",
                     "with open(log_path, 'w', encoding='utf-8', errors='replace') as log_f:\n",
                     "    for line in iter(proc.stdout.readline, ''):\n",
                     "        safe_line = line.encode('utf-8', errors='replace').decode('utf-8', errors='replace')\n",

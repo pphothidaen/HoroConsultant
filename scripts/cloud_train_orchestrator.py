@@ -49,6 +49,18 @@ if hasattr(sys.stderr, "reconfigure"):
     except Exception:
         pass
 
+# Triton 3.x compatibility shim for bitsandbytes (prevents ModuleNotFoundError: No module named 'triton.ops')
+import types
+try:
+    import triton.ops
+except (ImportError, ModuleNotFoundError):
+    triton_ops = types.ModuleType("triton.ops")
+    triton_ops_matmul = types.ModuleType("triton.ops.matmul_perf_model")
+    triton_ops_matmul.early_config_prune = lambda *a, **k: None
+    triton_ops_matmul.estimate_matmul_time = lambda *a, **k: 0
+    sys.modules["triton.ops"] = triton_ops
+    sys.modules["triton.ops.matmul_perf_model"] = triton_ops_matmul
+
 class SafeAsciiLogFormatter(logging.Formatter):
     """Logging formatter that automatically strips emojis and surrogate characters."""
     def format(self, record: logging.LogRecord) -> str:
