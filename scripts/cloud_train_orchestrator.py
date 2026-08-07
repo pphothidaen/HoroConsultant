@@ -491,7 +491,7 @@ def run_training_pipeline(
         else:
             device_map = {"": 0}
     else:
-        device_map = "auto"
+        device_map = None
 
     model = None
     if use_cuda and bnb_config is not None:

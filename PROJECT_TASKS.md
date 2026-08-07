@@ -79,7 +79,8 @@ python3 scripts/kaggle_notebook_manager.py --pull
 ### 🔄 DOING (กำลังดำเนินการ)
 
 - [/] **Kaggle GPU Remote Fine-Tuning Execution (`scripts/kaggle_notebook_manager.py`)**
-  - Status: `KernelWorkerStatus.RUNNING` ⚡ (Version 64 on Kaggle Default GPU)
+  - Fix Applied: Resolved CPU `meta` tensor offloading error in [`scripts/cloud_train_orchestrator.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/cloud_train_orchestrator.py#L494) when CUDA falls back to CPU.
+  - Status: Log Audit Completed & Meta Tensor Patch Verified ✅ (105/105 PASS)
 
 ---
 
