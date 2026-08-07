@@ -32,13 +32,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install kaggle requests python-dotenv
 
-      - name: Configure Kaggle & Doppler Credentials
+      - name: Configure Kaggle & Credentials
         env:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_TOKEN: ${{ secrets.KAGGLE_TOKEN }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+          APP_SUPABASE_URL: ${{ secrets.APP_SUPABASE_URL }}
+          APP_SUPABASE_KEY: ${{ secrets.APP_SUPABASE_KEY }}
+          WANDB_KEY: ${{ secrets.WANDB_KEY }}
         run: |
           mkdir -p ~/.kaggle
           echo "{\"username\":\"${KAGGLE_USERNAME:-pphothidaen}\",\"key\":\"${KAGGLE_TOKEN}\"}" > ~/.kaggle/kaggle.json
@@ -52,5 +55,8 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+          APP_SUPABASE_URL: ${{ secrets.APP_SUPABASE_URL }}
+          APP_SUPABASE_KEY: ${{ secrets.APP_SUPABASE_KEY }}
+          WANDB_KEY: ${{ secrets.WANDB_KEY }}
         run: |
           python3 scripts/kaggle_notebook_manager.py --push
