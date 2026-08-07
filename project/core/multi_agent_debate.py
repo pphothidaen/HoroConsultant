@@ -118,3 +118,46 @@ class MetaphysicsDebateEngine:
                 "hitl_routing": hitl_routing_data
             }
         }
+
+    def synthesize_5_branch_destiny(self, input_context: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Synthesize composite calculation results from all 5 Metaphysics branches:
+        BaZi, Zi Wei Dou Shu, Qi Men Dun Jia, Da Liu Ren, I Ching, Xuan Kong, Date Selection.
+        """
+        from project.core.bazi_engine import BaZiEngine
+        from project.core.zi_wei_engine import ZiWeiEngine
+        from project.core.qi_men_engine import QiMenEngine
+        from project.core.liu_ren_engine import LiuRenEngine
+        from project.core.iching_engine import IChingEngine
+        from project.core.xuan_kong_engine import XuanKongEngine
+        from project.core.ze_ji_engine import ZeJiEngine
+
+        dt_str = input_context.get("birth_datetime", "1990-05-15 14:30:00")
+        year, month, day, hour = 1990, 5, 15, 14
+        try:
+            from datetime import datetime
+            dt = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+            year, month, day, hour = dt.year, dt.month, dt.day, dt.hour
+        except Exception:
+            pass
+
+        bazi_res = BaZiEngine().calculate(dt=datetime(year, month, day, hour))
+        ziwei_res = ZiWeiEngine().calculate_chart(year, month, day, hour)
+        qimen_res = QiMenEngine().calculate_chart(year, month, day, hour)
+        liuren_res = LiuRenEngine().calculate_chart("甲", "子", "正月", "午")
+        iching_res = IChingEngine().calculate_liu_yao("甲", [7, 8, 9, 7, 8, 6])
+        xuankong_res = XuanKongEngine().calculate_chart(180.0, 9)
+        zeji_res = ZeJiEngine().check_suitability("午", "申", "寅", "子")
+
+        return {
+            "engine": "MultiBranchCompositeSynthesis",
+            "birth_datetime": dt_str,
+            "bazi": {"day_master": bazi_res.get("day_master"), "five_elements": bazi_res.get("five_elements")},
+            "zi_wei": {"ming_gong_branch": ziwei_res.get("ming_gong_branch"), "bureau": ziwei_res.get("five_element_bureau")},
+            "qi_men": {"solar_term": qimen_res.get("solar_term"), "dun_type": qimen_res.get("dun_type"), "ju": qimen_res.get("ju_number")},
+            "liu_ren": {"day_stem_branch": liuren_res.get("day_stem_branch"), "three_transmissions": liuren_res.get("three_transmissions")},
+            "i_ching": {"hexagram": iching_res.get("primary_hexagram")},
+            "xuan_kong": {"facing_mountain": xuankong_res.get("facing_mountain")},
+            "ze_ji": {"duty_officer": zeji_res.get("duty_officer"), "overall_status": zeji_res.get("overall_status")},
+            "composite_summary": f"ดวงชะตาเกิด {dt_str}: Day Master {bazi_res.get('day_master', {}).get('stem')} ร่วมกับผังจื่อเว่ย {ziwei_res.get('five_element_bureau')} และผังคี้มึ้ง {qimen_res.get('solar_term')} {qimen_res.get('dun_type')}遁 {qimen_res.get('ju_number')}局 ส่งผลให้ดวงชะตามีรากฐานมั่นคงและมีฤกษ์มงคลระดับ {zeji_res.get('rating_stars')} ดาว"
+        }

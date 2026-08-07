@@ -60,3 +60,50 @@ def get_solar_position_ephemeris(dt: datetime, longitude: float, latitude: float
         "sun_distance_au": 1.0,
         "julian_day": None
     }
+
+
+def calculate_qi_zheng_si_yu(dt: datetime, longitude: float = 100.4930, latitude: float = 13.7563) -> Dict[str, Any]:
+    """
+    Calculate Qi Zheng Si Yu (七政四餘 — 7 Planets & 4 Shadow Nodes).
+    7 Planets: Sun (日), Moon (月), Jupiter (木), Mars (火), Saturn (土), Venus (金), Mercury (水).
+    4 Shadows: Rahu (羅睺), Ketu (計都), Yuebei (月孛), Ziqi (紫氣).
+    """
+    solar_info = get_solar_position_ephemeris(dt, longitude, latitude)
+    sun_deg = solar_info["sun_longitude_deg"]
+
+    # Approximations for lunar and planetary celestial longitudes
+    doy = dt.timetuple().tm_yday
+    moon_deg = (sun_deg + 13.176 * doy) % 360.0
+    jupiter_deg = (sun_deg / 11.86) % 360.0
+    mars_deg = (sun_deg / 1.88) % 360.0
+    saturn_deg = (sun_deg / 29.46) % 360.0
+    venus_deg = (sun_deg * 1.62) % 360.0
+    mercury_deg = (sun_deg * 4.15) % 360.0
+
+    # 4 Shadow Nodes
+    rahu_deg = (360.0 - (doy * 0.052)) % 360.0
+    ketu_deg = (rahu_deg + 180.0) % 360.0
+    yuebei_deg = (moon_deg + 90.0) % 360.0
+    ziqi_deg = (jupiter_deg + 120.0) % 360.0
+
+    planets = {
+        "日 (Sun)": round(sun_deg, 2),
+        "月 (Moon)": round(moon_deg, 2),
+        "木 (Jupiter)": round(jupiter_deg, 2),
+        "火 (Mars)": round(mars_deg, 2),
+        "土 (Saturn)": round(saturn_deg, 2),
+        "金 (Venus)": round(venus_deg, 2),
+        "水 (Mercury)": round(mercury_deg, 2),
+        "羅睺 (Rahu)": round(rahu_deg, 2),
+        "計都 (Ketu)": round(ketu_deg, 2),
+        "月孛 (Yuebei)": round(yuebei_deg, 2),
+        "紫氣 (Ziqi)": round(ziqi_deg, 2),
+    }
+
+    return {
+        "engine": "QiZhengSiYuEphemeris",
+        "datetime": dt.strftime("%Y-%m-%d %H:%M:%S"),
+        "coordinates": {"longitude": longitude, "latitude": latitude},
+        "source": solar_info["source"],
+        "planets_longitudes": planets
+    }

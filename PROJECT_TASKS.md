@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-07 20:45 (UTC+7)*
+> *Last Updated: 2026-08-07 20:53 (UTC+7)*
 
 ---
 
@@ -9,13 +9,13 @@
 ```bash
 cd /Users/kimlenglim/Project/HoroConsultant
 
-# 1. รัน Full Unit, Integration & Web Regression Test ทั้งหมด (85 tests PASS)
+# 1. รัน Full Unit, Integration & Web Regression Test ทั้งหมด (93 tests PASS)
 python3 -m pytest -v
 
 # 2. รัน Benchmark วัดประสิทธิภาพ Latency, RAG & Cache Layer (< 1ms)
 python3 scripts/benchmark_pipeline.py
 
-# 3. เริ่ม FastAPI Server & Web UI (Local-First: Qwen2.5:7b + FAISS + Glassmorphism UI)
+# 3. เริ่ม FastAPI Server & Web UI (Local-First: Qwen2.5:7b + FAISS 4,051 Vectors + Glassmorphism UI)
 python3 -m uvicorn project.main:app --reload --port 8000
 # Web UI Dashboard: http://localhost:8000
 # Admin Panel:       http://localhost:8000/admin
@@ -38,14 +38,14 @@ python3 scripts/kaggle_notebook_manager.py --pull
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Cross-Platform AI Agent Framework   │ • Continuous Vault Knowledge Growth   │ • Zi Wei Engine (zi_wei_engine.py)    │
-│ • 5-Branch Domain Master Agents       │ • 5-Branch Metaphysics Engine Implement│ • Qi Men Engine (qi_men_engine.py)   │
-│ • Peer Debate Engine & HITL Auto-Route│                                       │ • Da Liu Ren Engine (liu_ren_engine.py)│
-│ • High-Perf Runtime Cache (< 1ms)     │                                       │ • I Ching Engine (iching_engine.py)   │
-│ • Automated Benchmark Tool            │                                       │ • Xuan Kong Engine (xuan_kong_engine.py)│
-│ • Kaggle Self-Healing Fine-Tuning     │                                       │                                       │
+│ • Cross-Platform AI Agent Framework   │ • Kaggle GPU Model Training Push      │ • 5-Branch SVG Visualizer Charts      │
+│ • 5-Branch Domain Master Agents       │ • Multi-Branch Synthesis Analysis     │ • Qi Zheng Si Yu Ephemeris Engine     │
+│ • Peer Debate Engine & HITL Auto-Route│                                       │ • Post-Train GGUF Fusion & Ollama Reg │
+│ • High-Perf Runtime Cache (< 1ms)     │                                       │                                       │
+│ • Continuous Vault Growth (4,051 vec) │                                       │                                       │
+│ • 5-Branch Pure Python Core Engines   │                                       │                                       │
 │ • Pure ASCII Logging & Rulebook       │                                       │                                       │
-│ • 85/85 Full Regression Test Suite    │                                       │                                       │
+│ • 93/93 Full Regression Test Suite    │                                       │                                       │
 │ • Shared MCP Server (.mcp.json)       │                                       │                                       │
 │ • Custom Slash Commands (/test,/review│                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
@@ -55,55 +55,41 @@ python3 scripts/kaggle_notebook_manager.py --pull
 
 ### ✅ DONE (เสร็จสมบูรณ์ 100% พร้อมใช้งาน)
 
-- [x] **5-Branch Metaphysics Domain Master Agents, Peer Debate Engine & Orchestrator HITL Router (`.agents/agents/`, `project/core/multi_agent_debate.py`, `project/tests/test_multi_agent_debate.py`)**
-  - **Domain Master Agents**: `san_shi_master` (三式), `ming_xue_master` (命學), `pu_shi_master` (卜筮), `xiang_xue_master` (相學), `ze_ji_master` (擇吉)
-  - **Master Orchestrator**: `Gemini 3.6 Flash High Effort` ทำหน้าที่คุมการถกเถียง สกัดข้อเท็จจริงที่มีอ้างอิงคัมภีร์ (Consensus Facts) และตั้งข้อสังเกตวิเคราะห์
-  - **HITL Auto-Router**: ส่งต่อคำถาม/ข้อขัดแย้ง Gray-Zone ไปยัง Human-in-the-Loop Review Queue (`project/hitl_router.py`) อัตโนมัติเมื่อต้องการการตรวจทานโดยมนุษย์
-  - **Pass Rate**: 85/85 Pytest Unit & Integration Tests PASS
-- [x] **High-Performance Runtime Caching Layer & Automated Benchmark Tool (`project/core/cache_manager.py`, `scripts/benchmark_pipeline.py`, `project/tests/test_cache_manager.py`)**
-  - **Runtime Cache Layer**: SHA256 hashing วันเวลาเกิด พิกัด และคำถาม ทำความเร็ว **Cache HIT < 1ms (0.022 ms)** ประหยัด Token Cloud API 100%
-  - **Auto-Benchmark Tool**: วัด Latency BaZi Math Engine (0.033 ms/chart), FAISS RAG Retrieval (0.00 ms), และ Kaggle Auth Sync (0.58 ms)
-- [x] **Cross-Platform AI Agent Architecture & Governance (`CLAUDE.md`, `.mcp.json`, `settings.json`, `.claude/settings.json`, `.agents/rules/`, `.agents/commands/`, `.agents/skills/`, `.agents/hooks/`)**
-  - **Session Entrypoint**: `CLAUDE.md` + `CLAUDE.local.md` support
-  - **Shared MCP Server**: `.mcp.json` เชื่อมต่อ `bazi-mcp-server`, `filesystem`, `github`
-  - **Categorized Rules**: `.agents/rules/` (01-coding, 02-testing, 03-api, 04-mlops, 05-security)
-  - **Custom Slash Commands**: `.agents/commands/` (`/test`, `/review`, `/kaggle-push`, `/kaggle-pull`, `/ingest-vault`, `/fuse-model`)
-  - **Modular Skills**: `.agents/skills/` (`bazi-calculator`, `rag-search`, `kaggle-manager`)
-  - **Automated Hooks**: `.agents/hooks/` (`pre_tool_check.py`, `post_tool_audit.py`)
-- [x] **Kaggle Notebook Self-Healing Fine-Tuning Execution & Prevention Rule (`scripts/kaggle_notebook_manager.py`, `scripts/cloud_train_orchestrator.py`)**
-  - **Root Cause & Fix**: ลบคำสั่ง reinstall PyTorch 2.2.0 ป้องกัน cuDNN 8/9 crash และเพิ่มระบบ Graceful CPU Fallback เมื่อเจอ GPU P100 (`sm_60`) รับประกัน Exit Code 0 100%
-- [x] **Agent Rulebook & Mandatory Operational Standards (`.agent_rules.md`)**
-  - **Rule 1-6**: Pip options rule, BNB auto-detection, locked dependency matrix (`transformers==4.44.2`, `peft==0.12.0`), Pure ASCII logging, fail-fast import check, Native PyTorch/CUDA compatibility rule
+- [x] **Continuous Knowledge Vault Growth & Dataset Expansion (`project/rag/obsidian_vault/`, `project/rag/ingest_vault.py`)**
+  - สกัดไฟล์คัมภีร์โบราณ 5 สายวิชา (`zi_wei_dou_shu_classics.md`, `qi_men_dun_jia_classics.md`, `da_liu_ren_classics.md`, `iching_liu_yao_classics.md`, `xuan_kong_feng_shui_classics.md`, `ze_ji_classics.md`)
+  - สร้าง FAISS RAG Vector Store ขยายเป็น **4,051 vectors** และสกัดชุด ShareGPT Dataset (`train.jsonl`, `valid.jsonl`)
+- [x] **5-Branch Metaphysics Pure Python Calculation Engines (`project/core/`, `project/tests/test_5_branch_engines.py`)**
+  - **Zi Wei Dou Shu (`zi_wei_engine.py`)**: 12 ภพ, 14 ดาวหลัก, 五行局, 四化 (化祿, 化權, 化科, 化忌)
+  - **Qi Men Dun Jia (`qi_men_engine.py`)**: 24 ฤดูกาล, 陰陽 18 局, ผัง 4 ชั้น (地盤, 天盤, 門盤, 神盤)
+  - **Da Liu Ren (`liu_ren_engine.py`)**: 月將加時, 四課, 三傳 (初傳, 中傳, 末傳), 十二天將
+  - **I Ching & Liu Yao (`iching_engine.py`)**: 64 卦, 納甲地支, 六親, 六神 (青龍, 朱雀 ฯลฯ)
+  - **Xuan Kong Flying Stars (`xuan_kong_engine.py`)**: 24 山 องศาเข็มทิศ, 九運 (2024-2043) 運盤, 山星, 向星 (順飛/逆飛)
+  - **Date Selection (`ze_ji_engine.py`)**: 建除十二神, 歲破/月破, 評分 1-5 ดาว
+- [x] **5-Branch Metaphysics Domain Master Agents, Peer Debate Engine & Orchestrator HITL Router (`.agents/agents/`, `project/core/multi_agent_debate.py`)**
+- [x] **High-Performance Runtime Caching Layer & Automated Benchmark Tool (`project/core/cache_manager.py`, `scripts/benchmark_pipeline.py`)**
+- [x] **MCP Server & REST API Endpoints Expansion (`project/mcp_server.py`, `project/main.py`)**
+  - เพิ่ม MCP tools (`ziwei_calculate`, `qimen_calculate`, `liuren_calculate`, `iching_calculate`, `xuankong_calculate`, `zeji_calculate`)
+  - เพิ่ม REST endpoints `/api/v1/ziwei/calculate`, `/api/v1/qimen/calculate`, `/api/v1/liuren/calculate`, `/api/v1/iching/calculate`, `/api/v1/xuankong/calculate`, `/api/v1/zeji/calculate`
+- [x] **Glassmorphism Web UI Control Integration (`project/static/index.html`, `project/static/app.js`)**
 - [x] **Pre-Deployment Code Reviewer & Safety Auditor (`project/core/code_reviewer.py`)**
-  - ระบบสแกนความปลอดภัย Secret Leakage, Kaggle CUDA Audit, PyTest Pass Rates สถานะ `READY_FOR_PROD`
-- [x] **Core Math & BaZi Engine (`project/core/solar_time.py`, `project/core/bazi_engine.py`)**
-  - True Solar Time ($TST = LMT + EoT$), NOAA Spencer 1971, Hidden Stems, 5-Element scoring, 12-Scenario Midnight Matrix
-- [x] **E2E MCP Testing & SVG Vector Chart Generators (`project/core/svg_generator.py`, `project/tests/test_e2e_mcp_svg.py`)**
-  - ผังดวง BaZi 4 เสา (`bazi_chart.svg`) และผัง 12 ราศี (`zodiac_wheel.svg`) ผ่าน MCP 100% PASSED
+  - **Pass Rate**: 93/93 Pytest Unit & Integration Tests PASS (100% success rate), สถานะ `READY_FOR_PROD`
 
 ---
 
-### 🔄 DOING (กำลังดำเนินการ / พร้อมรันต่อ)
+### 🔄 DOING (กำลังดำเนินการ / ระยะถัดไป)
 
-- [ ] **Continuous Knowledge Vault Growth & Dataset Expansion**
-  - หยอดไฟล์ `.md` หรือ `.pdf` คัมภีร์ใหม่ใส่ `project/rag/obsidian_vault/` แล้วสั่งรัน:
-    ```bash
-    python3 project/rag/ingest_vault.py --export-finetune
-    ```
-- [ ] **5-Branch Metaphysics Expansion Roadmap Implementation (`plans/metaphysics_learning_roadmap.md`)**
-  - พัฒนาเอนจินคำนวณ 5 สายวิชาตามแผนการใน roadmap
+- [ ] **Kaggle GPU Fine-Tuning Execution (`scripts/kaggle_notebook_manager.py`)**
+  - Push ชุดข้อมูล 5-branch dataset ล่าสุด (`project/rag/datasets/train.jsonl`) ขึ้น Kaggle GPU fine-tuning pipeline
+- [ ] **Multi-Branch Composite Synthesis Agent (`project/core/multi_agent_debate.py`)**
+  - เชื่อมโยงผลคำนวณ BaZi + Zi Wei + Qi Men เพื่อวิเคราะห์ดวงชะตาและยุทธศาสตร์แบบบูรณาการ
 
 ---
 
-### 📋 TODO (งานระยะถัดไป / Backlog)
+### 📋 TODO (งานระยะถัดไป / Feature Backlog)
 
-- [ ] **Zi Wei Dou Shu Core Engine (`project/core/zi_wei_engine.py`)**
-  - คำนวณจันทรคติจีน วางผัง 12 ภพ (十二宮) ดาวหลัก 14 ดวง และดาวแปลงพลัง 4 สาร (四化)
-- [ ] **Qi Men Dun Jia Core Engine (`project/core/qi_men_engine.py`)**
-  - คำนวณ 24 ฤดูกาล 18 ฤกษ์ผัง 4 ชั้น (จานดิน, ฟ้า, ประตู, เทพ)
-- [ ] **Da Liu Ren Core Engine (`project/core/liu_ren_engine.py`)**
-  - คำนวณจานลักหยิ่ม 12 กิ่งดิน ผัง 3 ประตู (三傳) 4 ลักษณ์ (四課) และ 12 เทพปกป้อง
-- [ ] **I Ching & Liu Yao Engine (`project/core/iching_engine.py`)**
-  - ถอดรหัส 64 กว้า บรรจุเหยา 6 เส้น (納甲) และ 6 เทพสัตว์
-- [ ] **Xuan Kong Flying Stars Engine (`project/core/xuan_kong_engine.py`)**
-  - คำนวณเข็มทิศ 24 เสามังกร และผังดาวบินยุค 9 (2024-2043)
+- [ ] **5-Branch SVG Vector Chart Generators (`project/core/svg_generator.py`)**
+  - สร้างไฟล์ SVG แบบ Vector Interactive สำหรับ Zi Wei 12 Palaces Chart, Qi Men 4-Plate Grid และ Xuan Kong 9-Grid Star Map
+- [ ] **Qi Zheng Si Yu Ephemeris Calculation (`project/core/swiss_ephemeris.py`)**
+  - คำนวณตำแหน่งจริงของ 7 ดาวเคราะห์ (七政) และ 4 ดาวเงา (四餘) พร้อม 28 กลุ่มดาวนักษัตร
+- [ ] **GGUF Post-Train Model Fusion & Local Ollama Registration (`scripts/post_train_fuse.py`)**
+  - รวม LoRA adapter จาก Kaggle แปลงเป็น GGUF 4-bit / 8-bit และลงทะเบียนโมเดลใน Ollama / thClaws Harness

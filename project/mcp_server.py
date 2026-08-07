@@ -28,6 +28,12 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from project.core.bazi_engine import BaZiEngine
+from project.core.zi_wei_engine import ZiWeiEngine
+from project.core.qi_men_engine import QiMenEngine
+from project.core.liu_ren_engine import LiuRenEngine
+from project.core.iching_engine import IChingEngine
+from project.core.xuan_kong_engine import XuanKongEngine
+from project.core.ze_ji_engine import ZeJiEngine
 from project.core.svg_generator import generate_bazi_svg, generate_zodiac_wheel_svg
 from project.api_router        import HybridRouter
 from project.validator         import PredictionValidator
@@ -36,11 +42,18 @@ from project.rag.vector_store  import get_vector_store
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger("mcp_server")
 
-engine    = BaZiEngine()
-router    = HybridRouter()
-validator = PredictionValidator()
+engine          = BaZiEngine()
+ziwei_engine    = ZiWeiEngine()
+qimen_engine    = QiMenEngine()
+liuren_engine   = LiuRenEngine()
+iching_engine   = IChingEngine()
+xuankong_engine = XuanKongEngine()
+zeji_engine     = ZeJiEngine()
+
+router       = HybridRouter()
+validator    = PredictionValidator()
 vector_store = get_vector_store()
-CHARTS_DIR = ROOT / "project" / "static" / "charts"
+CHARTS_DIR   = ROOT / "project" / "static" / "charts"
 
 
 class HoroMCPTools:
@@ -118,6 +131,37 @@ class HoroMCPTools:
     def bazi_validate(bazi_chart: Dict[str, Any], initial_interpretation: str, query: str = "") -> Dict[str, Any]:
         """Validate astrological chart calculation and interpretation via Gemini Cloud API."""
         return validator.validate(bazi_chart=bazi_chart, initial_interpretation=initial_interpretation, user_query=query)
+
+    @staticmethod
+    def ziwei_calculate(year: int = 1990, month: int = 5, day: int = 15, hour: int = 14, gender: str = "male") -> Dict[str, Any]:
+        """Compute Zi Wei Dou Shu chart (12 Palaces, 14 Stars, Si Hua)."""
+        return ziwei_engine.calculate_chart(year, month, day, hour, gender)
+
+    @staticmethod
+    def qimen_calculate(year: int = 2026, month: int = 8, day: int = 7, hour: int = 14) -> Dict[str, Any]:
+        """Compute Qi Men Dun Jia 4-Plate chart."""
+        return qimen_engine.calculate_chart(year, month, day, hour)
+
+    @staticmethod
+    def liuren_calculate(day_stem: str = "甲", day_branch: str = "子", month_general: str = "正月", hour_branch: str = "午") -> Dict[str, Any]:
+        """Compute Da Liu Ren 3-Transmission & 4-Lesson chart."""
+        return liuren_engine.calculate_chart(day_stem, day_branch, month_general, hour_branch)
+
+    @staticmethod
+    def iching_calculate(day_stem: str = "甲", seed: Optional[int] = None) -> Dict[str, Any]:
+        """Cast I Ching Hexagram and compute Liu Yao setup."""
+        lines = iching_engine.cast_lines(seed=seed)
+        return iching_engine.calculate_liu_yao(day_stem, lines)
+
+    @staticmethod
+    def xuankong_calculate(facing_degree: float = 180.0, period: int = 9) -> Dict[str, Any]:
+        """Compute Xuan Kong Flying Stars 9-Grid chart."""
+        return xuankong_engine.calculate_chart(facing_degree, period)
+
+    @staticmethod
+    def zeji_calculate(year_branch: str = "午", month_branch: str = "申", day_branch: str = "寅", user_birth_branch: Optional[str] = "子") -> Dict[str, Any]:
+        """Compute Date Selection suitability via 12 Duty Officers."""
+        return zeji_engine.check_suitability(year_branch, month_branch, day_branch, user_birth_branch)
 
 
 def get_mcp_manifest() -> Dict[str, Any]:

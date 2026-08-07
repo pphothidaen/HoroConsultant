@@ -160,3 +160,121 @@ def generate_zodiac_wheel_svg(chart: Dict[str, Any], title: str = "ผังด�
     svg_parts.append('</svg>')
 
     return "\n".join(svg_parts)
+
+
+def generate_ziwei_svg(chart: Dict[str, Any], title: str = "ผังดวง紫微斗數 (Zi Wei Dou Shu 12 Palaces Chart)") -> str:
+    """Generate clean SVG string for Zi Wei Dou Shu 12 Palaces Chart."""
+    palaces = chart.get("palaces", [])
+    bureau = chart.get("five_element_bureau", "水二局")
+    ming_branch = chart.get("ming_gong_branch", "寅")
+    shen_branch = chart.get("shen_gong_branch", "申")
+
+    svg_parts = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">',
+        '  <rect width="800" height="800" rx="16" fill="#0c0718" stroke="#a855f7" stroke-width="2"/>',
+        f'  <text x="400" y="45" font-family="Prompt, sans-serif" font-size="22" font-weight="bold" fill="#c084fc" text-anchor="middle">🔮 {title}</text>',
+        f'  <text x="400" y="75" font-family="Prompt, sans-serif" font-size="13" fill="#e9d5ff" text-anchor="middle">五行局: {bureau} | 命宮: {ming_branch} | 身宮: {shen_branch}</text>',
+        '  <rect x="250" y="250" width="300" height="300" rx="12" fill="#180e29" stroke="#9333ea" stroke-width="2"/>',
+        '  <text x="400" y="380" font-family="sans-serif" font-size="36" font-weight="bold" fill="#c084fc" text-anchor="middle">紫微斗數</text>',
+        '  <text x="400" y="420" font-family="Prompt, sans-serif" font-size="14" fill="#a855f7" text-anchor="middle">Computational Metaphysics Engine</text>',
+        '  <g transform="translate(40, 100)">'
+    ]
+
+    grid_coords = [
+        (3, 0), (2, 0), (1, 0), (0, 0),
+        (0, 1), (0, 2), (0, 3), (1, 3),
+        (2, 3), (3, 3), (3, 2), (3, 1)
+    ]
+
+    box_w, box_h = 170, 150
+    for idx, p in enumerate(palaces[:12]):
+        col, row = grid_coords[idx % 12]
+        x = col * 180
+        y = row * 160
+
+        stroke_color = "#eab308" if p.get("is_ming_gong") else ("#ec4899" if p.get("is_shen_gong") else "#4c1d95")
+        bg_fill = "#2e1065" if p.get("is_ming_gong") else "#1e1b4b"
+
+        svg_parts.append(f'    <rect x="{x}" y="{y}" width="{box_w}" height="{box_h}" rx="8" fill="{bg_fill}" stroke="{stroke_color}" stroke-width="2"/>')
+        svg_parts.append(f'    <text x="{x+10}" y="{y+25}" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#fef08a">{p.get("palace_name","")} ({p.get("earth_branch","")})</text>')
+
+        stars = p.get("stars", [])
+        stars_str = " ".join(stars) if stars else "無主星"
+        svg_parts.append(f'    <text x="{x+10}" y="{y+65}" font-family="sans-serif" font-size="16" font-weight="bold" fill="#c084fc">{stars_str}</text>')
+
+        mutators = p.get("mutators", [])
+        if mutators:
+            mut_str = " ".join(mutators)
+            svg_parts.append(f'    <text x="{x+10}" y="{y+105}" font-family="Prompt, sans-serif" font-size="12" fill="#f43f5e">四化: {mut_str}</text>')
+
+    svg_parts.append('  </g>')
+    svg_parts.append('</svg>')
+    return "\n".join(svg_parts)
+
+
+def generate_qimen_svg(chart: Dict[str, Any], title: str = "ผังดวง奇門遁甲 (Qi Men Dun Jia 4-Plate Grid)") -> str:
+    """Generate clean SVG string for Qi Men Dun Jia 9-Grid Chart."""
+    solar_term = chart.get("solar_term", "冬至")
+    dun_type = chart.get("dun_type", "Yang")
+    ju_num = chart.get("ju_number", 1)
+    palaces = chart.get("palaces", [])
+
+    svg_parts = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%">',
+        '  <rect width="600" height="600" rx="16" fill="#09131d" stroke="#3b82f6" stroke-width="2"/>',
+        f'  <text x="300" y="40" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#60a5fa" text-anchor="middle">⚡ {title}</text>',
+        f'  <text x="300" y="65" font-family="Prompt, sans-serif" font-size="12" fill="#93c5fd" text-anchor="middle">節氣: {solar_term} | 陰陽遁: {dun_type}遁 {ju_num}局</text>',
+        '  <g transform="translate(45, 90)">'
+    ]
+
+    grid_map = {1: (1, 2), 2: (2, 0), 3: (0, 1), 4: (0, 0), 5: (1, 1), 6: (2, 2), 7: (2, 1), 8: (0, 2), 9: (1, 0)}
+
+    for p in palaces:
+        p_num = p.get("palace_number", 5)
+        col, row = grid_map.get(p_num, (1, 1))
+        x = col * 170
+        y = row * 155
+
+        svg_parts.append(f'    <rect x="{x}" y="{y}" width="160" height="145" rx="8" fill="#1e293b" stroke="#1d4ed8" stroke-width="1.5"/>')
+        svg_parts.append(f'    <text x="{x+10}" y="{y+25}" font-family="Prompt, sans-serif" font-size="13" font-weight="bold" fill="#93c5fd">宮位 {p_num}</text>')
+        svg_parts.append(f'    <text x="{x+10}" y="{y+55}" font-family="sans-serif" font-size="14" fill="#38bdf8">九星: {p.get("star","")}</text>')
+        svg_parts.append(f'    <text x="{x+10}" y="{y+85}" font-family="sans-serif" font-size="14" fill="#4ade80">八門: {p.get("door","")}</text>')
+        svg_parts.append(f'    <text x="{x+10}" y="{y+115}" font-family="sans-serif" font-size="14" fill="#fbbf24">八神: {p.get("spirit","")}</text>')
+
+    svg_parts.append('  </g>')
+    svg_parts.append('</svg>')
+    return "\n".join(svg_parts)
+
+
+def generate_xuankong_svg(chart: Dict[str, Any], title: str = "ผังดวง玄空風水 (Xuan Kong Flying Stars 9-Grid)") -> str:
+    """Generate clean SVG string for Xuan Kong Flying Stars 9-Grid Chart."""
+    period = chart.get("period", 9)
+    facing = chart.get("facing_mountain", "午")
+    sitting = chart.get("sitting_mountain", "子")
+    grid_palaces = chart.get("grid_palaces", [])
+
+    svg_parts = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%">',
+        '  <rect width="600" height="600" rx="16" fill="#1a0914" stroke="#ec4899" stroke-width="2"/>',
+        f'  <text x="300" y="40" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#f472b6" text-anchor="middle">🏯 {title}</text>',
+        f'  <text x="300" y="65" font-family="Prompt, sans-serif" font-size="12" fill="#fbcfe8" text-anchor="middle">九運: 第 {period} 運 | 向首: {facing} | 坐山: {sitting}</text>',
+        '  <g transform="translate(45, 90)">'
+    ]
+
+    grid_map = {4: (0, 0), 9: (1, 0), 2: (2, 0), 3: (0, 1), 5: (1, 1), 7: (2, 1), 8: (0, 2), 1: (1, 2), 6: (2, 2)}
+
+    for p in grid_palaces:
+        p_num = p.get("palace_number", 5)
+        col, row = grid_map.get(p_num, (1, 1))
+        x = col * 170
+        y = row * 155
+
+        svg_parts.append(f'    <rect x="{x}" y="{y}" width="160" height="145" rx="8" fill="#2d1222" stroke="#be185d" stroke-width="1.5"/>')
+        svg_parts.append(f'    <text x="{x+10}" y="{y+25}" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#fbcfe8">{p.get("direction","")} ({p.get("palace_name","")})</text>')
+        svg_parts.append(f'    <text x="{x+25}" y="{y+75}" font-family="sans-serif" font-size="32" font-weight="bold" fill="#38bdf8">{p.get("sitting_star","")}</text>')
+        svg_parts.append(f'    <text x="{x+115}" y="{y+75}" font-family="sans-serif" font-size="32" font-weight="bold" fill="#f43f5e">{p.get("facing_star","")}</text>')
+        svg_parts.append(f'    <text x="{x+70}" y="{y+120}" font-family="sans-serif" font-size="22" font-weight="bold" fill="#fbbf24">{p.get("base_star","")}</text>')
+
+    svg_parts.append('  </g>')
+    svg_parts.append('</svg>')
+    return "\n".join(svg_parts)

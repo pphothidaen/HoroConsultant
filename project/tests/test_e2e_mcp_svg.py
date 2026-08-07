@@ -71,3 +71,21 @@ class TestE2EMCPServerAndSVG:
         assert "<svg" in content
         assert "ผังดวงจักรราศี" in content
         assert "</svg>" in content
+
+    def test_5_branch_svg_generators(self):
+        from project.core.svg_generator import generate_ziwei_svg, generate_qimen_svg, generate_xuankong_svg
+        from project.core.zi_wei_engine import ZiWeiEngine
+        from project.core.qi_men_engine import QiMenEngine
+        from project.core.xuan_kong_engine import XuanKongEngine
+
+        zw_chart = ZiWeiEngine().calculate_chart(1990, 5, 15, 14)
+        zw_svg = generate_ziwei_svg(zw_chart)
+        assert "<svg" in zw_svg and "紫微斗數" in zw_svg
+
+        qm_chart = QiMenEngine().calculate_chart(2026, 8, 7, 14)
+        qm_svg = generate_qimen_svg(qm_chart)
+        assert "<svg" in qm_svg and "奇門遁甲" in qm_svg
+
+        xk_chart = XuanKongEngine().calculate_chart(180.0, 9)
+        xk_svg = generate_xuankong_svg(xk_chart)
+        assert "<svg" in xk_svg and "玄空風水" in xk_svg

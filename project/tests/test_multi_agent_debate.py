@@ -34,3 +34,14 @@ def test_peer_debate_execution():
     assert len(synthesis["consensus_facts"]) > 0
     assert len(synthesis["analytical_counter_queries"]) > 0
     assert synthesis["hitl_routing"]["status"] == "QUEUED_FOR_HUMAN_REVIEW"
+
+
+def test_synthesize_5_branch_destiny():
+    engine = MetaphysicsDebateEngine()
+    res = engine.synthesize_5_branch_destiny({"birth_datetime": "1990-05-15 14:30:00"})
+
+    assert res["engine"] == "MultiBranchCompositeSynthesis"
+    assert "bazi" in res
+    assert "zi_wei" in res
+    assert "qi_men" in res
+    assert "composite_summary" in res

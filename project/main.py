@@ -20,6 +20,12 @@ from project.admin_router import admin_router
 from project.hitl_router  import hitl_router
 
 from project.core.bazi_engine import BaZiEngine
+from project.core.zi_wei_engine import ZiWeiEngine
+from project.core.qi_men_engine import QiMenEngine
+from project.core.liu_ren_engine import LiuRenEngine
+from project.core.iching_engine import IChingEngine
+from project.core.xuan_kong_engine import XuanKongEngine
+from project.core.ze_ji_engine import ZeJiEngine
 from project.api_router        import HybridRouter
 
 import asyncio
@@ -35,7 +41,14 @@ from project.validator import PredictionValidator
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 logger = logging.getLogger("main")
 
-engine    = BaZiEngine()
+engine          = BaZiEngine()
+ziwei_engine    = ZiWeiEngine()
+qimen_engine    = QiMenEngine()
+liuren_engine   = LiuRenEngine()
+iching_engine   = IChingEngine()
+xuankong_engine = XuanKongEngine()
+zeji_engine     = ZeJiEngine()
+
 router    = HybridRouter()
 validator = PredictionValidator()
 scheduler = AsyncIOScheduler()
@@ -198,6 +211,43 @@ async def calculate_bazi(req: BaZiRequest):
     except Exception as e:
         logger.exception("BaZi calculation error")
         raise HTTPException(status_code=500, detail="Internal calculation error")
+
+
+@app.get("/api/v1/ziwei/calculate", tags=["Zi Wei Dou Shu"])
+async def calculate_ziwei(year: int = 1990, month: int = 5, day: int = 15, hour: int = 14, gender: str = "male"):
+    """Calculate Zi Wei Dou Shu birth chart (12 Palaces, 14 Main Stars, Si Hua)."""
+    return JSONResponse(content=ziwei_engine.calculate_chart(year, month, day, hour, gender))
+
+
+@app.get("/api/v1/qimen/calculate", tags=["Qi Men Dun Jia"])
+async def calculate_qimen(year: int = 2026, month: int = 8, day: int = 7, hour: int = 14):
+    """Calculate Qi Men Dun Jia 4-Plate chart (Yang/Yin Dun 18 Ju, 9 Stars, 8 Doors, 8 Spirits)."""
+    return JSONResponse(content=qimen_engine.calculate_chart(year, month, day, hour))
+
+
+@app.get("/api/v1/liuren/calculate", tags=["Da Liu Ren"])
+async def calculate_liuren(day_stem: str = "甲", day_branch: str = "子", month_general: str = "正月", hour_branch: str = "午"):
+    """Calculate Da Liu Ren chart (Earth/Heaven Plate, 4 Lessons, 3 Transmissions, 12 Generals)."""
+    return JSONResponse(content=liuren_engine.calculate_chart(day_stem, day_branch, month_general, hour_branch))
+
+
+@app.get("/api/v1/iching/calculate", tags=["I Ching"])
+async def calculate_iching(day_stem: str = "甲", seed: Optional[int] = None):
+    """Cast I Ching Hexagram and compute Liu Yao setup (6 Lines, 6 Animals, 5 Relatives)."""
+    lines = iching_engine.cast_lines(seed=seed)
+    return JSONResponse(content=iching_engine.calculate_liu_yao(day_stem, lines))
+
+
+@app.get("/api/v1/xuankong/calculate", tags=["Xuan Kong Flying Stars"])
+async def calculate_xuankong(facing_degree: float = 180.0, period: int = 9):
+    """Calculate Xuan Kong Flying Stars Period 9 9-Grid chart."""
+    return JSONResponse(content=xuankong_engine.calculate_chart(facing_degree, period))
+
+
+@app.get("/api/v1/zeji/calculate", tags=["Date Selection"])
+async def calculate_zeji(year_branch: str = "午", month_branch: str = "申", day_branch: str = "寅", user_birth_branch: Optional[str] = "子"):
+    """Calculate Date Selection suitability via 12 Duty Officers and Clash checks."""
+    return JSONResponse(content=zeji_engine.check_suitability(year_branch, month_branch, day_branch, user_birth_branch))
 
 
 @app.post("/api/v1/bazi/interpret", tags=["BaZi", "AI"])
