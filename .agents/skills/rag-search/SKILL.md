@@ -1,0 +1,15 @@
+---
+name: rag-search
+description: Local RAG Vector Store search over 3,132 ingested astrological text chunks
+---
+
+# 📚 RAG Vector Store Search Skill
+
+### Purpose
+Retrieves relevant classical astrological literature and Thai/Chinese metaphysics passages from FAISS Index using Ollama `nomic-embed-text` embeddings.
+
+### Usage
+```python
+from project.rag.vector_store import VectorStore
+results = VectorStore().search("การฮะของกิ่งฟ้ากิ่งดิน", top_k=5)
+```

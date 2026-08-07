@@ -1,0 +1,35 @@
+{
+  "mcpServers": {
+    "bazi-mcp-server": {
+      "command": "python3",
+      "args": [
+        "project/mcp_server.py"
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUTF8": "1"
+      },
+      "description": "HoroConsultant BaZi Astrological & RAG MCP Server"
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/kimlenglim/Project/HoroConsultant"
+      ],
+      "description": "Workspace File System Access Server"
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GH_TOKEN}"
+      },
+      "description": "GitHub Repository & Issue Sync Server"
+    }
+  }
+}

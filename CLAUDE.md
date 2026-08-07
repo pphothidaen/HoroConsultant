@@ -1,0 +1,100 @@
+# ☯️ HoroConsultant — Computational Metaphysics & AI Fine-Tuning Pipeline
+> **Cross-Platform AI Agent Instruction & Context Blueprint**  
+> *Supports Claude Code, Antigravity, Cursor, Windsurf, thClaws, GitHub Copilot, and Custom Agents.*
+
+---
+
+## 📌 1. Session Initialization & Project Overview
+
+**HoroConsultant** is an enterprise-grade Computational Metaphysics Engine & Fine-Tuning Pipeline. It combines deterministic astronomical algorithms (True Solar Time, NOAA Spencer 1971, Swiss Ephemeris) with a Local-First Hybrid Multi-Agent AI System (Ollama Qwen2.5:7b + FAISS RAG + Gemini Cloud Validator).
+
+### 🛠️ Core Technology Stack
+- **Core Engine**: Python 3.12 (Pure Python math, Rust PyO3 core bindings)
+- **Web & API Framework**: FastAPI, Uvicorn, HTML5/CSS3 (Glassmorphism Dark UI)
+- **Vector DB & RAG**: FAISS Index (dim=768) + `nomic-embed-text:latest` (3,132 vectors ingested)
+- **Local LLM**: Ollama (`qwen2.5:7b`, `qwen2.5-coder:7b`) / MLX QLoRA 4-bit (`mlx-community/Qwen2.5-7B-Instruct-4bit`)
+- **Cloud LLM**: Gemini 2.0 Flash (Dual Key rotation fallback & Prediction Validator Auditor)
+- **Cloud Fine-Tuning**: Kaggle GPU Automation (`pphothidaen/horoconsultant-finetune-pipeline`), Hugging Face Hub (`pphothidaen/qwen2.5-7b-bazi-instruct-4bit`)
+
+---
+
+## ⚡ 2. Primary Project Commands
+
+```bash
+# 1. Run Full Unit, Integration & Web Regression Test Suite (80/80 PASS)
+python3 -m pytest -v
+
+# 2. Start FastAPI Server & Web UI (Local-First: Qwen2.5:7b + FAISS + Glassmorphism UI)
+python3 -m uvicorn project.main:app --reload --port 8000
+# Web UI Dashboard: http://localhost:8000
+# Admin Panel:       http://localhost:8000/admin
+# API Docs:          http://localhost:8000/docs
+
+# 3. Pre-Deployment Code Review & Safety Audit
+python3 project/core/code_reviewer.py --review
+
+# 4. Ingest Obsidian Vault Books & Export ShareGPT Fine-Tuning Dataset
+python3 project/rag/ingest_vault.py --export-finetune
+
+# 5. Kaggle Fine-Tuning Automation (Status, Push, Pull)
+python3 scripts/kaggle_notebook_manager.py --status
+python3 scripts/kaggle_notebook_manager.py --push
+python3 scripts/kaggle_notebook_manager.py --pull
+
+# 6. Post-Training Model Fusion & GGUF Conversion
+python3 scripts/post_train_fuse.py --dry-run
+```
+
+---
+
+## 🏗️ 3. Architecture & Coding Standards
+
+1. **Pure ASCII Logging Guard**:
+   - All `logger` outputs and stdout must use Pure ASCII tags (`[OK]`, `[ERROR]`, `[WARNING]`, `[INFO]`, `[START]`, `[MODEL]`, `[CUDA]`, `[AUDIT]`).
+   - Avoid emojis inside subprocess/ipykernel logs to prevent `UnicodeEncodeError` surrogate crashes.
+
+2. **Locked MLOps Dependency Stack**:
+   - `transformers == 4.44.2`
+   - `peft == 0.12.0`
+   - `trl == 0.11.0`
+   - `accelerate == 0.33.0`
+   - `bitsandbytes == 0.43.3`
+   - `datasets == 2.18.0`
+   - `huggingface_hub == 0.25.1`
+
+3. **Pip Options Standard**:
+   - Forbidden: `--no-progress-bar` (causes exit code 2 error).
+   - Required: Use `--progress-bar off` with `-q --prefer-binary`.
+
+4. **Kaggle GPU & CUDA Compatibility Guard**:
+   - Never reinstall PyTorch (`pip install torch==...`) in Kaggle environment.
+   - If Kaggle allocates unsupported GPU hardware (`sm_60` / Tesla P100), `cloud_train_orchestrator.py` gracefully falls back to CPU Mode to guarantee Exit Code 0.
+
+5. **Local Override Configuration**:
+   - Developers and Agents may create `CLAUDE.local.md` or `.env` for local environment variable overrides without committing secrets to Git.
+
+---
+
+## 📁 4. Project Directory Structure
+
+```
+HoroConsultant/
+├── CLAUDE.md                    # Main Project Blueprint & Agent Guide
+├── .mcp.json                    # Model Context Protocol (MCP) Shared Config
+├── settings.json                # Tools & Agent Permissions Settings
+├── .agent_rules.md              # Mandatory Operational Commandments
+├── .agents/                     # Multi-Agent Architecture Directory
+│   ├── AGENTS.md                # Agent Role Strategy & Flow Protocol
+│   ├── rules/                   # Modular Rules (01-coding, 02-testing, etc.)
+│   ├── commands/                # Custom Slash Commands (/test, /review, etc.)
+│   ├── skills/                  # Context-aware Modular Skills
+│   ├── agents/                  # Specialized Sub-Agent Prompts & Tools
+│   └── hooks/                   # Pre/Post-tool Audit Scripts
+├── project/                     # Core Application Source Code
+│   ├── core/                    # Solar Time, BaZi Engine, SVG, Reviewer
+│   ├── rag/                     # Vector DB (FAISS), Ingestion, Exporter
+│   ├── static/                  # Glassmorphism Web UI Frontend
+│   └── main.py                  # FastAPI Application Entrypoint
+├── scripts/                     # Automation & Cloud Fine-Tuning Scripts
+└── tests/                       # Automated Pytest Test Suite
+```
