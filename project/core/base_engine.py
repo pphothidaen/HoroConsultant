@@ -8,7 +8,19 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Union
-from pydantic import BaseModel, Field
+try:
+    from pydantic import BaseModel, Field
+except ImportError:
+    # Lightweight fallback shim for setup scripts running without pydantic
+    class BaseModel:
+        def __init__(self, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+        def model_dump(self) -> dict:
+            return {k: v for k, v in self.__dict__.items() if not k.startswith("_")}
+    def Field(default=None, **kwargs):
+        return default
+
 
 
 class ElementScores(BaseModel):
