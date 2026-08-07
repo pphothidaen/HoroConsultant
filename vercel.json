@@ -1,18 +1,8 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "project/main.py",
-      "use": "@vercel/python",
-      "config": {
-        "maxDuration": 60
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "project/main.py"
+      "source": "/(.*)",
+      "destination": "project/main.py"
     }
   ]
 }
