@@ -38,6 +38,7 @@ os.environ["PYTHONUTF8"] = "1"
 os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
 os.environ["TRANSFORMERS_VERBOSITY"] = "error"
 os.environ["TQDM_DISABLE"] = "1"
+os.environ["BITSANDBYTES_NOWELCOME"] = "1"
 if hasattr(sys.stdout, "reconfigure"):
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -60,6 +61,31 @@ except (ImportError, ModuleNotFoundError):
     triton_ops_matmul.estimate_matmul_time = lambda *a, **k: 0
     sys.modules["triton.ops"] = triton_ops
     sys.modules["triton.ops.matmul_perf_model"] = triton_ops_matmul
+
+def _format_conversation_example(example: dict) -> dict:
+    """Top-level dataset formatting function to enable pickling & fingerprint hashing in Hugging Face datasets."""
+    items = example.get("conversations") or example.get("messages") or []
+    formatted_convs = []
+    if isinstance(items, list):
+        for msg in items:
+            if isinstance(msg, dict):
+                role = msg.get("role", "")
+                if role in ("human", "user"):
+                    role = "user"
+                elif role in ("gpt", "assistant"):
+                    role = "assistant"
+                elif role == "system":
+                    role = "system"
+                content = msg.get("value") or msg.get("content", "")
+                if content:
+                    formatted_convs.append({"role": role, "content": content})
+    if formatted_convs:
+        text = "\n".join([f"<|im_start|>{m['role']}\n{m['content']}<|im_end|>" for m in formatted_convs])
+    else:
+        raw_text = example.get("text", "")
+        text = raw_text if isinstance(raw_text, str) else str(raw_text)
+
+    return {"text": text}
 
 class SafeAsciiLogFormatter(logging.Formatter):
     """Logging formatter that automatically strips emojis and surrogate characters."""
@@ -473,18 +499,16 @@ def run_training_pipeline(
     if use_cuda and (is_sm75 or is_kaggle):
         try:
             import peft.tuners.tuners_utils as _peft_utils
-            _original_cast = _peft_utils.cast_adapter_dtype
-            def _safe_cast_adapter_dtype(model, adapter_name=None, autocast_adapter_dtype=True, **kwargs):
-                """No-op cast on sm_75 (T4) to prevent cudaErrorNoKernelImageForDevice."""
-                logger.info("   [INFO] [sm_75 patch] Skipping cast_adapter_dtype to prevent CUDA kernel mismatch.")
-                return
-            _peft_utils.cast_adapter_dtype = _safe_cast_adapter_dtype
-            logger.info("   [OK] Applied sm_75/T4 PEFT cast_adapter_dtype no-op patch (prevents ops.cu:74 crash).")
-        except Exception as patch_err:
-            logger.warning(f"   [WARNING] Could not apply PEFT patch ({patch_err}). Training may still fail on T4.")
+            if hasattr(_peft_utils, "cast_adapter_dtype"):
+                def _safe_cast_adapter_dtype(model, adapter_name=None, autocast_adapter_dtype=True, **kwargs):
+                    logger.info("   [INFO] [sm_75 patch] Skipping cast_adapter_dtype to prevent CUDA kernel mismatch.")
+                    return
+                _peft_utils.cast_adapter_dtype = _safe_cast_adapter_dtype
+                logger.info("   [OK] Applied sm_75/T4 PEFT cast_adapter_dtype no-op patch.")
+        except Exception:
+            pass
 
     # Patch Transformers Trainer._get_num_items_in_batch to perform label mask calculation on CPU
-    # Prevents `torch.AcceleratorError: CUDA error: no kernel image is available` at line 5210
     try:
         import transformers.trainer as _tf_trainer
         def _safe_get_num_items_in_batch(self, batch_samples, device=None):
@@ -504,9 +528,9 @@ def run_training_pipeline(
             return max(total, 1)
 
         _tf_trainer.Trainer._get_num_items_in_batch = _safe_get_num_items_in_batch
-        logger.info("   [OK] Applied Transformers Trainer._get_num_items_in_batch CPU-safe patch (prevents line 5210 GPU crash).")
+        logger.info("   [OK] Applied Transformers Trainer._get_num_items_in_batch CPU-safe patch.")
     except Exception as tr_patch_err:
-        logger.warning(f"   [WARNING] Could not apply Trainer._get_num_items_in_batch patch ({tr_patch_err}).")
+        logger.info(f"   [INFO] Trainer._get_num_items_in_batch patch note: {tr_patch_err}")
 
     try:
         peft_config = LoraConfig(
@@ -533,35 +557,8 @@ def run_training_pipeline(
     logger.info(f" Pre-formatting dataset from '{dataset_path}'...")
     raw_data = load_dataset("json", data_files=str(dataset_path))
 
-    def format_example(example):
-        items = example.get("conversations") or example.get("messages") or []
-        formatted_convs = []
-        if isinstance(items, list):
-            for msg in items:
-                if isinstance(msg, dict):
-                    role = msg.get("role", "")
-                    if role in ("human", "user"):
-                        role = "user"
-                    elif role in ("gpt", "assistant"):
-                        role = "assistant"
-                    elif role == "system":
-                        role = "system"
-                    content = msg.get("value") or msg.get("content", "")
-                    if content:
-                        formatted_convs.append({"role": role, "content": content})
-        if formatted_convs:
-            try:
-                text = tokenizer.apply_chat_template(formatted_convs, tokenize=False)
-            except Exception:
-                text = "\n".join([f"<|im_start|>{m['role']}\n{m['content']}<|im_end|>" for m in formatted_convs])
-        else:
-            raw_text = example.get("text", "")
-            text = raw_text if isinstance(raw_text, str) else str(raw_text)
-
-        return {"text": text}
-
     train_ds = raw_data["train"].map(
-        format_example,
+        _format_conversation_example,
         remove_columns=raw_data["train"].column_names,
         desc="Formatting dataset rows into single string 'text' column",
     )
