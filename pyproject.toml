@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "horoconsultant"
+version = "1.0.0"
+description = "HoroConsultant — Computational Metaphysics Engine & FastAPI Backend"
+readme = "README.md"
+requires-python = ">=3.10"
+
+[tool.vercel]
+entrypoint = "project/main.py"
