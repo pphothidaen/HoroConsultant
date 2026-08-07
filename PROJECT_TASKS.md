@@ -66,6 +66,16 @@ python3 project/core/code_reviewer.py --review
 
 ### ✅ DONE (เสร็จสมบูรณ์ 100% พร้อมใช้งาน)
 
+- [x] **Kaggle Notebook Self-Healing Fine-Tuning Execution & Prevention Rule (`scripts/kaggle_notebook_manager.py`, `scripts/cloud_train_orchestrator.py`)**
+  - **Execution & Monitoring**: Pull and inspect full execution logs via `scripts/kaggle_notebook_manager.py --pull`.
+  - **Root Cause Identified**:
+    1. Forced `pip install torch==2.2.0+cu121` broke Kaggle's Python 3.12 / cuDNN 9 environment, leading to `libcudnn.so.8` missing errors.
+    2. Tesla P100 (`sm_60`) lacks CUDA kernel binaries in standard PyTorch 2.4+ wheels, throwing `cudaErrorNoKernelImageForDevice`.
+  - **Self-Healing Resolution**:
+    1. Removed PyTorch re-installation from notebook setup to preserve native Kaggle PyTorch.
+    2. Implemented graceful CPU execution mode fallback in `cloud_train_orchestrator.py` when unsupported GPU hardware (`sm_60` / P100) is detected.
+    3. Converted log tags to pure ASCII to prevent `UnicodeEncodeError` in Jupyter `ipykernel`.
+  - **Status & Prevention Rule**: Pushed kernel versions to Kaggle, updated `.agent_rules.md` (Rule 6), and verified 80/80 local unit tests PASS.
 - [x] **Agent Rulebook & Mandatory Operational Standards (`.agent_rules.md`)**
   - **Pip Options Rule**: Explicitly forbidden `--no-progress-bar`. Always use `--progress-bar off` with `-q --prefer-binary`.
   - **BNB Auto-Detection Rule**: Removed `BNB_CUDA_VERSION=121` override; let bitsandbytes load native `libbitsandbytes_cuda128.so` automatically.
