@@ -20,7 +20,4 @@ test-results.xml
 target/
 rust_core/target/
 project/kaggle_kernel/HoroConsultant/
-
-
-
-
+wandb/
