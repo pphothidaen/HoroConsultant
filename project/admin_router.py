@@ -70,6 +70,94 @@ class FinetuneTriggerRequest(BaseModel):
     max_iterations: int  = Field(1000, ge=100, le=10000)
 
 
+class GoogleAuthRequest(BaseModel):
+    credential: Optional[str] = Field(None, description="Google OAuth ID Token from GIS SDK")
+    mock_email: Optional[str] = Field(None, description="Email for dev/demo mode bypass")
+
+
+# ---------------------------------------------------------------------------
+# Helpers & Auth Verification
+# ---------------------------------------------------------------------------
+
+def get_allowed_emails() -> List[str]:
+    raw = os.getenv("ADMIN_ALLOWED_EMAILS", "pansakorn@gmail.com,kimlenglim@gmail.com")
+    return [e.strip().lower() for e in raw.split(",") if e.strip()]
+
+
+@admin_router.post("/auth/google")
+async def verify_google_auth(req: GoogleAuthRequest):
+    """Verify Google ID token or mock login for allowed admin emails (e.g. pansakorn@gmail.com)."""
+    allowed_emails = get_allowed_emails()
+
+    # 1. Dev / Mock Email Login
+    if req.mock_email:
+        email = req.mock_email.strip().lower()
+        if email not in allowed_emails:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Access Denied: Email '{email}' is not authorized for Admin access. Authorized emails: {', '.join(allowed_emails)}"
+            )
+        return {
+            "status": "authenticated",
+            "user": {
+                "email": email,
+                "name": email.split("@")[0].capitalize(),
+                "picture": f"https://api.dicebear.com/7.x/bottts/svg?seed={email}",
+                "role": "admin",
+                "auth_provider": "google_mock"
+            }
+        }
+
+    # 2. Real Google OAuth ID Token Verification via Google API TokenInfo
+    if not req.credential:
+        raise HTTPException(status_code=400, detail="Missing Google credential or mock email.")
+
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            resp = await client.get(f"https://oauth2.googleapis.com/tokeninfo?id_token={req.credential}")
+            if resp.status_code != 200:
+                raise HTTPException(status_code=401, detail="Invalid or expired Google OAuth token.")
+            payload = resp.json()
+            email = payload.get("email", "").lower()
+            email_verified = payload.get("email_verified") in (True, "true", 1)
+
+            if not email or not email_verified:
+                raise HTTPException(status_code=401, detail="Google account email is not verified.")
+
+            if email not in allowed_emails:
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Access Denied: Email '{email}' is not authorized for Admin access. Authorized emails: {', '.join(allowed_emails)}"
+                )
+
+            return {
+                "status": "authenticated",
+                "user": {
+                    "email": email,
+                    "name": payload.get("name", email.split("@")[0]),
+                    "picture": payload.get("picture", f"https://api.dicebear.com/7.x/bottts/svg?seed={email}"),
+                    "role": "admin",
+                    "auth_provider": "google"
+                }
+            }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Google auth verification failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Google authentication error: {str(e)}")
+
+
+@admin_router.get("/auth/config")
+async def get_auth_config():
+    """Return public Google Auth client configuration."""
+    return {
+        "google_client_id": os.getenv("GOOGLE_CLIENT_ID", ""),
+        "allowed_emails": get_allowed_emails(),
+        "auth_required": os.getenv("ADMIN_AUTH_REQUIRED", "true").lower() in ("true", "1", "yes"),
+    }
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

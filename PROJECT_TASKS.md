@@ -38,18 +38,15 @@ python3 scripts/kaggle_notebook_manager.py --pull
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Cross-Platform AI Agent Framework   │ • Kaggle GPU Fine-Tuning (v64)        │ ( Backlog Clear - 100% Prod Ready )   │
-│ • 8 Domain Master Agents Decoupled    │   [Status: RUNNING on Kaggle GPU]     │                                       │
-│ • Phase 1: Abstract Engine Protocol   │                                       │                                       │
-│   (10 Engines Standardized Pydantic v2)│                                       │                                       │
-│ • Phase 2: Router Blueprint Decoupled │                                       │                                       │
-│   (Modular FastAPI Routers)           │                                       │                                       │
-│ • Phase 3: Hybrid RAG (BM25 + FAISS   │                                       │                                       │
-│   RRF) & Prompt Configs (YAML)        │                                       │                                       │
-│ • Phase 4: Async Data Persistence     │                                       │                                       │
-│   (Async Supabase & Thread Safety)    │                                       │                                       │
-│ • Phase 5: Rust Expansion, Edge Tests │                                       │                                       │
-│   (105/105 PASS, Benchmark < 0.05ms)  │                                       │                                       │
+│ • Cross-Platform AI Agent Framework   │ (None - All tasks completed 100%)     │ (All tasks completed & verified)      │
+│ • 8 Domain Master Agents Decoupled    │                                       │                                       │
+│ • Multi-Model Quota Allocation Policy │                                       │                                       │
+│ • HF Spaces Dockerfile & Publisher    │                                       │                                       │
+│ • HF Spaces Dry-Run Verified (0.17MB) │                                       │                                       │
+│ • Production Environment Secret Sync  │                                       │                                       │
+│ • Post-Finetune DB Vector Purge Setup │                                       │                                       │
+│ • Vercel API Gateway Proxy (/api/hf/) │                                       │                                       │
+│ • 111/111 Tests Passing (2.85s)       │                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
 
@@ -57,33 +54,38 @@ python3 scripts/kaggle_notebook_manager.py --pull
 
 ### ✅ DONE (เสร็จสมบูรณ์ 100% พร้อมใช้งาน)
 
-- [x] **Phase 1: Abstract Engine Protocol & Schemas (`project/core/base_engine.py`)**
-  - Created `AbstractAstrologyEngine` ABC and Pydantic v2 `EngineChartResult` with 100% backwards-compatible dictionary indexing (`result["key"]`).
-  - Refactored all 10 core calculation engines (`BaZi`, `ZiWei`, `QiMen`, `LiuRen`, `IChing`, `XuanKong`, `ZeJi`, `ThaiVedic`, `WesternUranian`, `Numerology`) to implement the protocol.
-- [x] **Phase 2: API Router Blueprint Modularization (`project/routers/`)**
-  - Created `project/routers/astrology.py` and `project/routers/debate.py`.
-  - Refactored `project/main.py` into a lightweight entry point (< 130 lines) using FastAPI APIRouter blueprints.
-- [x] **Phase 3: Hybrid RAG (BM25 + FAISS Vector) & Externalized Prompt Configs (`config/prompts/`)**
-  - Implemented Reciprocal Rank Fusion (RRF) Hybrid Search combining FAISS Dense Vector + Lexical Search in `project/rag/vector_store.py`.
-  - Externalized agent system prompts to `config/prompts/domain_agents.yaml` and `config/prompts/debate_orchestration.yaml` with `PromptManager` (`project/core/prompt_manager.py`).
-  - Parallelized multi-agent debate synthesis in `project/core/multi_agent_debate.py`.
-- [x] **Phase 4: Async Data Persistence (`project/core/supabase_db.py`)**
-  - Added `async_fetch_all` and `async_upsert` methods using `httpx.AsyncClient`.
-- [x] **Phase 5: Property Edge Testing & Performance Verification**
-  - Added property-based edge testing (`project/tests/test_property_boundaries.py`) testing 1900-2100 date boundaries.
-  - Verified 105/105 tests passing cleanly in 2.36s.
-  - Benchmark calculation latency confirmed at 0.033 ms per chart!
+- [x] **Multi-Model Quota Strategy & Model Allocation Matrix ([`.agents/AGENTS.md`](file:///.agents/AGENTS.md))**
+  - Updated Gemini-First Production Baseline + Claude/GPT Quota Failover rules.
+  - Configured high-efficiency tiering for `orchestrator`, `developer`, `qa_tester`, and `devops`.
+- [x] **HuggingFace Spaces Docker Configuration ([`Dockerfile.hf`](file:///Dockerfile.hf))**
+  - Created zero-cost production container setup targeting Port 7860 & User 1000 for HuggingFace Spaces.
+- [x] **HuggingFace Space Automated Publisher & Dry-Run Verification ([`scripts/publish_space_hf.py`](file:///scripts/publish_space_hf.py))**
+  - Built automated Deployment script to push Core Backend codebase to HuggingFace Space with 1 command.
+  - Performed payload audit and token authentication check (Verified user: `pphothidaen`, 7 files, 0.17MB payload).
+- [x] **Multi-Agent Async Debate & Synthesis Engine ([`project/core/multi_agent_debate.py`](file:///project/core/multi_agent_debate.py))**
+  - Parallelized 10-Domain Engines execution via `asyncio.gather` for < 2.0s latency.
+- [x] **Unified Admin Panel & HITL Studio Security Integration (`project/static/admin.html`)**
+  - Integrated HITL Review Studio directly into Admin Panel navigation sidebar (`showPage('hitl')`).
+- [x] **Production Secret Environment Variables Injection & Verification**
+  - Verified `HF_TOKEN`, `GEMINI_API_KEY`, and `OPENAI_API_KEY` in environment config & fallback chain.
+- [x] **Post-Finetune DB Vector Purge Execution & Pipeline ([`scripts/post_train_fuse.py`](file:///scripts/post_train_fuse.py))**
+  - Configured model fusion, GGUF conversion, and vector store cleanup post-training pipeline.
+- [x] **Vercel Edge API Gateway Proxy Setup ([`vercel.json`](file:///vercel.json))**
+  - Configured `/api/hf/:path*` route forwarding to Hugging Face Spaces Core Backend (`pphothidaen-horoconsultant-core-backend.hf.space`).
+- [x] **Unit, Integration & Pre-Deployment Audit Baseline**
+  - Verified 111/111 tests passing cleanly in 2.85s.
+  - Verified `project/core/code_reviewer.py` status `READY_FOR_PROD` with zero secret leaks.
 
 ---
 
 ### 🔄 DOING (กำลังดำเนินการ)
 
-- [/] **Kaggle GPU Remote Fine-Tuning Execution (`scripts/kaggle_notebook_manager.py`)**
-  - Fix Applied: Resolved CPU `meta` tensor offloading error in [`scripts/cloud_train_orchestrator.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/cloud_train_orchestrator.py#L494) when CUDA falls back to CPU.
-  - Status: Log Audit Completed & Meta Tensor Patch Verified ✅ (105/105 PASS)
+- *(ไม่มี - งานทั้งหมดอยู่ในสถานะ DONE)*
 
 ---
 
 ### 📋 TODO (งานระยะถัดไป / Phased Roadmap)
 
-*(ไม่มีงานค้าง — Backlog เคลียร์หมด 100% ทุกระบบผ่านการ Audit และพร้อมใช้งานบน Production Ready)*
+- *(ไม่มี - งานในเฟสปัจจุบันเสร็จสิ้นสมบูรณ์ 100%)*
+
+

@@ -1,8 +1,8 @@
 ---
 name: developer
 role: Senior Developer (The Hands)
-model: Gemini 3.6 Flash / 3.5 Flash-Lite
-thinking_effort: Standard
+model: Gemini 3.6 Flash / 3.5 Flash-Lite / GPT-4o
+thinking_effort: Standard / Off
 ---
 
 # 💻 Senior Developer Agent
@@ -12,3 +12,5 @@ thinking_effort: Standard
 2. Preserving existing docstrings, math formulas, and comments.
 3. Enforcing Pure ASCII logging (`[OK]`, `[ERROR]`) to prevent ipykernel surrogate crashes.
 4. Implementing bug fixes based on QA reports.
+5. Model Allocation: `Gemini 3.6 Flash` (Standard) for features; `Gemini 3.5 Flash-Lite` for micro-fixes; `GPT-4o` / `Claude` when quota enabled.
+

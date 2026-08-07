@@ -7,14 +7,17 @@
 
 ## 📌 Model Strategy & Cost Efficiency Matrix
 
-To achieve maximum performance at minimum token expenditure, the system utilizes a high-reasoning model only for orchestration and architecture planning, while delegating high-volume code writing, testing, and deployment operations to standard or light models.
+To achieve maximum performance at minimum token expenditure, the system utilizes a high-reasoning model for orchestration and architecture planning, while delegating high-volume code writing, testing, and deployment operations to standard or light models.
 
-| Agent Identifier | Role | Model Selection | Thinking Effort | Token Cost Profile | Primary Focus |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **`orchestrator`** | Master Orchestrator (The Brain) | `Gemini 3.6 Flash` | **High** | High (Strategic) | Requirements Analysis, Architecture Blueprinting, Spec Breakdown, Delegation, Final Code Review Gateway |
-| **`developer`** | Senior Developer (The Hands) | `Gemini 3.6 Flash` (Standard) / `Gemini 3.5 Flash-Lite` | **Standard / Off** | Mid-Low (Execution) | Full-Stack Coding, Inline Documentation, Bug Fixes based on QA reports |
-| **`qa_tester`** | QA Tester (The Guard) | `Gemini 3.5 Flash-Lite` | **Off** | Lowest (Audit) | Test Case Generation, `pytest` Test Execution, Pessimistic Bug/Vulnerability Identification |
-| **`devops`** | DevOps & Release (The Bridge) | `Gemini 3.6 Flash` (Standard) | **Standard** | Mid (Infrastructure) | Environment Verification (.env, Docker), CLI/Shell Command Approval, Packaging & Release Readiness |
+### 🎯 Multi-Model Quota Optimization Tiering
+
+| Agent Identifier | Role | Primary Baseline (Gemini-First) | Quota-Enhanced Alternative (Claude / GPT) | Thinking Effort | Token Cost Profile | Primary Focus |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`orchestrator`** | Master Orchestrator (The Brain) | `Gemini 3.6 Flash` | `Claude Sonnet 3.7 / 4.6` | **High** | High (Strategic) | Requirements Analysis, Architecture Blueprinting, Spec Breakdown, Delegation, Final Code Review Gateway |
+| **`developer`** | Senior Developer (The Hands) | `Gemini 3.6 Flash` (Standard) / `Gemini 3.5 Flash-Lite` | `Claude Sonnet 3.5` / `GPT-4o` | **Standard / Off** | Mid-Low (Execution) | Full-Stack Coding, Inline Documentation, Bug Fixes based on QA reports |
+| **`qa_tester`** | QA Tester (The Guard) | `Gemini 3.5 Flash-Lite` | `GPT-4o-mini` / `Gemini 3.5 Flash-Lite` | **Off** | Lowest (Audit) | Test Case Generation, `pytest` Test Execution, Pessimistic Bug/Vulnerability Identification |
+| **`devops`** | DevOps & Release (The Bridge) | `Gemini 3.6 Flash` (Standard) | `GPT-4o` / `Gemini 3.6 Flash` | **Standard** | Mid (Infrastructure) | Environment Verification (.env, Docker), CLI/Shell Command Approval, Packaging & Release Readiness |
+| **Domain Masters** | Metaphysics & Astro Experts | `Gemini 3.6 Flash` (Textual Reasoning) / `Gemini 3.5 Flash-Lite` (Engines) | `Claude Sonnet 3.5` (Metaphysics) / `GPT-4o` (Math) | **Standard / Off** | Low-Mid (Domain) | Canonical Text Verification, Engine Output Interpretation, Cross-Domain Consensus |
 
 ---
 
@@ -22,17 +25,28 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 
 ```mermaid
 flowchart TD
-    User([User Request]) --> Orch[Orchestrator\nGemini 3.6 Flash - High Effort]
+    User([User Request]) --> Orch[Orchestrator\nGemini 3.6 Flash - High / Claude Sonnet]
     Orch -->|1. Blueprint & Breakdown| Plan[/plans/plan.md\]
-    Orch -->|2. Delegate Sub-task| Dev[Senior Developer\nGemini 3.6 Flash / 3.5 Lite]
+    Orch -->|2. Delegate Sub-task| Dev[Senior Developer\nGemini 3.6 Flash / GPT-4o]
     Dev -->|3. Source Code & Docs| Orch
-    Orch -->|4. Request Verification| QA[QA Tester\nGemini 3.5 Flash-Lite]
+    Orch -->|4. Request Verification| QA[QA Tester\nGemini 3.5 Flash-Lite - Thinking: Off]
     QA -->|5a. Bug Report Fail| Orch
     Orch -->|5b. Bounce Back Bug Fix| Dev
     QA -->|6. Test Passed 100%| DevOps[DevOps & Release\nGemini 3.6 Flash Standard]
     DevOps -->|7. Env & Package Verified| Orch
     Orch -->|8. Final Code Review & Summary| User
 ```
+
+---
+
+## ⚡ Token Cost Efficiency Rules & Dynamic Failover
+
+1. **Gemini-First Production Standard**: Gemini 3.6 Flash and 3.5 Flash-Lite serve as the core zero-downtime workhorse models due to 2M token context windows, high execution speed, and token cost savings.
+2. **Claude & GPT Hybrid Routing**:
+   - Use **Claude Sonnet** when deep architectural synthesis or resolving complex domain paradoxes is required.
+   - Use **GPT-4o / O3-mini** when validating strict JSON/Pydantic schemas, OpenAPI specs, or fast logic verification.
+3. **Automatic API Overload & Quota Failover**: If Claude or GPT API models hit rate-limits, quota limits, or overload status, system automatically fails over to `Gemini 3.6 Flash` (High Reasoning) without halting development workflows.
+4. **Log Trimming Rule**: QA and DevOps agents MUST parse and filter log outputs (using `Gemini 3.5 Flash-Lite`) to pass concise, relevant error snippets to Developer and Orchestrator rather than dumping raw log contexts.
 
 ---
 

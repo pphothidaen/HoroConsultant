@@ -1,0 +1,49 @@
+# .vercelignore — Computational Metaphysics Engine
+# Exclude large local data, caches, model weights, and build artifacts from Vercel deployment payload.
+
+.env*
+!.env.example
+*.gguf
+*.bin
+*.safetensors
+*.pdf
+*.zip
+*.tar.gz
+*.ipynb
+
+# Python & Testing Caches
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+test-results.xml
+.coverage*
+
+# Data & Models
+project/models/
+project/data/mlx_finetune/
+project/data/vector_store/
+project/data/grayzone_answers.json
+project/data/knowledge_catalog.json
+project/data/source_summaries.json
+project/rag/datasets/
+wandb/
+
+# Native Rust & Node Builds
+target/
+rust_core/target/
+node_modules/
+
+# Agent & IDE Data
+.agents/
+.antigravity/
+.claude/
+.gemini/
+.vercel/
+
+# OS specific
+.DS_Store
+Thumbs.db

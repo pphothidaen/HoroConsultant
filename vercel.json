@@ -1,8 +1,14 @@
 {
+  "version": 2,
   "rewrites": [
+    {
+      "source": "/api/hf/:path*",
+      "destination": "https://pphothidaen-horoconsultant-core-backend.hf.space/api/:path*"
+    },
     {
       "source": "/(.*)",
       "destination": "project/main.py"
     }
   ]
 }
+

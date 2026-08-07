@@ -7,6 +7,7 @@
 <meta name="description" content="Admin panel for managing knowledge sources, gray-zone answers, and fine-tune pipeline for Computational Metaphysics Engine">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root {
     --bg-deep:     #060d1a;
@@ -707,6 +708,60 @@
 </head>
 <body>
 
+<!-- Google OAuth Auth Modal Overlay -->
+<div id="auth-modal-overlay" style="
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(4, 8, 15, 0.94); backdrop-filter: blur(16px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+">
+  <div style="
+    background: #0d1b2e; border: 1px solid rgba(99,179,237,0.3);
+    border-radius: 20px; max-width: 440px; width: 100%; padding: 36px 32px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.6); text-align: center; position: relative;
+  ">
+    <div style="
+      width: 56px; height: 56px; border-radius: 16px;
+      background: linear-gradient(135deg, #63b3ed, #b794f4);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 28px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(99,179,237,0.3);
+    ">🔐</div>
+    <h2 style="font-size: 20px; font-weight: 700; color: #e8f0fe; margin-bottom: 8px;">
+      Admin Access Protection
+    </h2>
+    <p style="font-size: 13px; color: #94a3b8; line-height: 1.6; margin-bottom: 24px;">
+      กรุณาเข้าสู่ระบบด้วย Google Account ที่ได้รับอนุญาตสิทธิ์ Admin<br>
+      <span style="color:#63b3ed; font-size:12px; font-weight:600;">(เช่น pansakorn@gmail.com)</span>
+    </p>
+
+    <!-- Google Official Sign-In Button Target -->
+    <div id="google-gsi-container" style="display: flex; justify-content: center; margin-bottom: 16px; min-height: 44px;"></div>
+
+    <!-- Authorized Email Direct Quick Login Form -->
+    <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px; margin-top: 10px;">
+      <label style="font-size: 11px; font-weight: 600; color: #5a7494; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 8px; text-align: left;">
+        Authorized Email Login
+      </label>
+      <div style="display: flex; gap: 8px;">
+        <input type="email" id="auth-email-input" value="pansakorn@gmail.com" placeholder="pansakorn@gmail.com" style="
+          flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #e8f0fe; font-family: inherit;
+        ">
+        <button onclick="submitEmailAuth()" style="
+          background: linear-gradient(135deg, #63b3ed, #b794f4); border: none;
+          border-radius: 10px; padding: 10px 18px; color: #060d1a; font-weight: 700;
+          font-size: 13px; cursor: pointer; transition: opacity 0.2s;
+        ">Login</button>
+      </div>
+    </div>
+
+    <div id="auth-error-msg" style="
+      margin-top: 16px; padding: 10px; border-radius: 8px; font-size: 12px;
+      background: rgba(252,129,129,0.15); border: 1px solid rgba(252,129,129,0.3); color: #fc8181;
+      display: none;
+    "></div>
+  </div>
+</div>
+
 <div class="layout">
   <!-- Topbar -->
   <header class="topbar">
@@ -718,6 +773,11 @@
       </div>
     </div>
     <div class="topbar-right">
+      <div id="user-profile-chip" style="display:none; align-items:center; gap:8px; background:rgba(255,255,255,0.06); padding:4px 10px 4px 6px; border-radius:20px; border:1px solid rgba(255,255,255,0.1);">
+        <img id="user-avatar" src="" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">
+        <span id="user-email-display" style="font-size:12px; font-weight:600; color:var(--accent-blue);">pansakorn@gmail.com</span>
+        <button onclick="logoutAdmin()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:12px; padding:2px 4px;" title="Logout">🚪</button>
+      </div>
       <a href="/" class="btn btn-outline" style="font-size:11px;padding:6px 12px;">← Main App</a>
       <span class="badge-admin">🔐 Admin Panel</span>
     </div>
@@ -760,10 +820,10 @@
         <span class="nav-icon">📦</span>
         Datasets
       </a>
-      <a class="nav-item" href="/hitl-studio" target="_blank" style="border:1px solid rgba(246,216,96,0.2);background:rgba(246,216,96,0.05)">
+      <a class="nav-item" id="nav-item-hitl" onclick="showPage('hitl')" href="#" style="border:1px solid rgba(246,216,96,0.2);background:rgba(246,216,96,0.05)">
         <span class="nav-icon">🔬</span>
         <span style="color:var(--accent-gold)">HITL Studio</span>
-        <span class="nav-badge" style="background:rgba(246,216,96,0.2);color:var(--accent-gold)">NEW</span>
+        <span class="nav-badge" style="background:rgba(246,216,96,0.2);color:var(--accent-gold)" id="nav-hitl-pending">-</span>
       </a>
     </div>
     <div class="nav-section">
@@ -1098,6 +1158,30 @@
       </div>
     </div>
 
+    <!-- HITL REVIEW STUDIO PAGE -->
+    <div id="page-hitl" class="hidden">
+      <div class="page-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <div>
+          <div class="page-title" style="display:flex; align-items:center; gap:10px;">
+            <span>🔬 HITL Review Studio</span>
+            <span class="badge-admin" style="background:rgba(246,216,96,0.15); color:var(--accent-gold); border-color:rgba(246,216,96,0.3)">Human-in-the-Loop</span>
+          </div>
+          <div class="page-desc">เครื่องมือรีวิว ให้คะแนน และแก้ไขคำตอบ AI สำหรับผู้เชี่ยวชาญ/ซินแส เพื่อเตรียม Fine-Tune Dataset</div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-outline" onclick="reloadHitlFrame()" style="font-size:12px; padding:6px 12px;">
+            🔄 Refresh Studio
+          </button>
+          <a href="/hitl-studio" target="_blank" class="btn btn-outline" style="font-size:12px; padding:6px 12px;">
+            ↗ Open Full Window
+          </a>
+        </div>
+      </div>
+      <div style="width:100%; height:calc(100vh - 170px); border-radius:14px; overflow:hidden; border:1px solid var(--border); background:var(--bg-deep);">
+        <iframe id="hitl-iframe" src="about:blank" style="width:100%; height:100%; border:none;" title="HITL Review Studio"></iframe>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -1164,23 +1248,124 @@ const State = {
   activeCategory: null,
 };
 
-/* ======================== INIT ======================== */
+/* ======================== INIT & GOOGLE AUTH ======================== */
 document.addEventListener('DOMContentLoaded', async () => {
+  await initGoogleAuth();
   await loadDashboard();
 });
+
+async function initGoogleAuth() {
+  try {
+    const cfg = await api('GET', '/admin/auth/config').catch(() => ({ auth_required: true }));
+    const savedUser = localStorage.getItem('admin_user');
+    if (savedUser) {
+      try {
+        const u = JSON.parse(savedUser);
+        if (u && u.email) {
+          applyAuthenticatedState(u);
+          return;
+        }
+      } catch (e) {}
+    }
+
+    if (cfg.google_client_id && window.google && window.google.accounts) {
+      window.google.accounts.id.initialize({
+        client_id: cfg.google_client_id,
+        callback: handleGoogleCredentialResponse,
+      });
+      window.google.accounts.id.renderButton(
+        document.getElementById('google-gsi-container'),
+        { theme: 'outline', size: 'large', shape: 'pill' }
+      );
+    }
+  } catch (e) {
+    console.warn('Auth init note:', e);
+  }
+}
+
+async function handleGoogleCredentialResponse(response) {
+  try {
+    const res = await api('POST', '/admin/auth/google', { credential: response.credential });
+    if (res.status === 'authenticated') {
+      localStorage.setItem('admin_user', JSON.stringify(res.user));
+      applyAuthenticatedState(res.user);
+    }
+  } catch (e) {
+    showAuthError(e.message || 'Google Auth Verification Failed');
+  }
+}
+
+async function submitEmailAuth() {
+  const emailInput = document.getElementById('auth-email-input').value.trim();
+  if (!emailInput) return;
+  try {
+    const res = await api('POST', '/admin/auth/google', { mock_email: emailInput });
+    if (res.status === 'authenticated') {
+      localStorage.setItem('admin_user', JSON.stringify(res.user));
+      applyAuthenticatedState(res.user);
+    }
+  } catch (e) {
+    showAuthError(e.message || 'Email authentication failed');
+  }
+}
+
+function applyAuthenticatedState(user) {
+  const overlay = document.getElementById('auth-modal-overlay');
+  if (overlay) overlay.style.display = 'none';
+  const chip = document.getElementById('user-profile-chip');
+  if (chip) {
+    chip.style.display = 'flex';
+    document.getElementById('user-avatar').src = user.picture || `https://api.dicebear.com/7.x/bottts/svg?seed=${user.email}`;
+    document.getElementById('user-email-display').textContent = user.email;
+  }
+}
+
+function showAuthError(msg) {
+  const errEl = document.getElementById('auth-error-msg');
+  if (errEl) {
+    errEl.textContent = '❌ ' + msg;
+    errEl.style.display = 'block';
+  }
+}
+
+function logoutAdmin() {
+  localStorage.removeItem('admin_user');
+  const chip = document.getElementById('user-profile-chip');
+  if (chip) chip.style.display = 'none';
+  const overlay = document.getElementById('auth-modal-overlay');
+  if (overlay) overlay.style.display = 'flex';
+  toast('info', 'Logged out of Admin Panel');
+}
 
 /* ======================== PAGE NAV ======================== */
 function showPage(name) {
   document.querySelectorAll('[id^="page-"]').forEach(el => el.classList.add('hidden'));
-  document.getElementById('page-' + name).classList.remove('hidden');
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const targetPage = document.getElementById('page-' + name);
+  if (targetPage) targetPage.classList.remove('hidden');
 
-  if (name === 'dashboard')          { loadDashboard(); }
-  else if (name === 'catalog')       { loadCatalog(); }
-  else if (name === 'grayzone')      { loadGrayzone(); }
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const targetNav = document.getElementById('nav-item-' + name);
+  if (targetNav) targetNav.classList.add('active');
+
+  if (name === 'dashboard')              { loadDashboard(); }
+  else if (name === 'catalog')           { loadCatalog(); }
+  else if (name === 'grayzone')          { loadGrayzone(); }
   else if (name === 'grayzone-answered') { loadAnswered(); }
-  else if (name === 'pipeline')      { loadPipeline(); }
-  else if (name === 'datasets')      { loadDatasets(); }
+  else if (name === 'pipeline')          { loadPipeline(); }
+  else if (name === 'datasets')          { loadDatasets(); }
+  else if (name === 'hitl')              { loadHitlStudio(); }
+}
+
+function loadHitlStudio() {
+  const frame = document.getElementById('hitl-iframe');
+  if (frame && (frame.src === 'about:blank' || frame.src === '')) {
+    frame.src = '/hitl-studio';
+  }
+}
+
+function reloadHitlFrame() {
+  const frame = document.getElementById('hitl-iframe');
+  if (frame) frame.src = '/hitl-studio';
 }
 
 function filterByCategory(cat) {
@@ -1213,12 +1398,18 @@ async function api(method, path, body) {
 /* ======================== DASHBOARD ======================== */
 async function loadDashboard() {
   try {
-    const [summary, gzData, ftStatus] = await Promise.all([
+    const [summary, gzData, ftStatus, hitlStats] = await Promise.all([
       api('GET', '/admin/catalog/summary'),
       api('GET', '/admin/grayzone'),
       api('GET', '/admin/finetune/status'),
+      api('GET', '/hitl/stats').catch(() => null),
     ]);
     State.grayzone = gzData;
+
+    if (hitlStats && hitlStats.pending !== undefined) {
+      const pendingEl = document.getElementById('nav-hitl-pending');
+      if (pendingEl) pendingEl.textContent = hitlStats.pending;
+    }
 
     const stats = summary.overall_stats;
     document.getElementById('stat-total').textContent   = stats.total_sources || '—';
