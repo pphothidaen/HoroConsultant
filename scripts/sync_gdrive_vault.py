@@ -8,6 +8,7 @@ Monitors configured Google Drive shared folder URLs:
   1. Main Vault Folder 1 : https://drive.google.com/drive/folders/1uxm8knVltHHlGQAlREUBgLfrATlowH2E
   2. Main Vault Folder 2 : https://drive.google.com/drive/folders/1RWY9PS63rCpdFOj7edrnjF9fE44Hhs3I
   3. Original Shared Vault: https://drive.google.com/drive/folders/1ZemhmY8s1Ka5-AsUTXn8PL5WMmQQnKFV
+  4. Additional Training Vault: https://drive.google.com/drive/folders/1e8nX-h3cKpcifUv6G2EjuJDey9DBm5b2
 
 Automated Actions:
   - Recursively downloads all files & subfolders from all configured Drive links into project/rag/obsidian_vault/
@@ -62,6 +63,12 @@ GDRIVE_FOLDERS = [
         "name": "Original Shared Vault (พิธีกรรม & พระเวท)",
         "url": "https://drive.google.com/drive/folders/1ZemhmY8s1Ka5-AsUTXn8PL5WMmQQnKFV",
         "target_subfolder": "folder_orig",
+    },
+    {
+        "id": "1e8nX-h3cKpcifUv6G2EjuJDey9DBm5b2",
+        "name": "Additional Training Vault (คัมภีร์ & ตำราเพิ่มเติม)",
+        "url": "https://drive.google.com/drive/folders/1e8nX-h3cKpcifUv6G2EjuJDey9DBm5b2?usp=sharing",
+        "target_subfolder": "folder_3",
     },
 ]
 

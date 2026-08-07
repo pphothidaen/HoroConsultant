@@ -1,9 +1,9 @@
 {
-  "last_sync_timestamp": "2026-08-04T09:39:01.268807",
-  "total_files_in_vault": 41,
+  "last_sync_timestamp": "2026-08-08T00:08:39.755044",
+  "total_files_in_vault": 48,
   "pdf_count": 38,
-  "md_count": 3,
-  "indexed_vectors_count": 4017,
+  "md_count": 10,
+  "indexed_vectors_count": 4051,
   "new_files_added_this_run": 0,
   "gdrive_folders_configured": [
     {
@@ -23,6 +23,12 @@
       "name": "Original Shared Vault (พิธีกรรม & พระเวท)",
       "url": "https://drive.google.com/drive/folders/1ZemhmY8s1Ka5-AsUTXn8PL5WMmQQnKFV",
       "target_subfolder": "folder_orig"
+    },
+    {
+      "id": "1e8nX-h3cKpcifUv6G2EjuJDey9DBm5b2",
+      "name": "Additional Training Vault (คัมภีร์ & ตำราเพิ่มเติม)",
+      "url": "https://drive.google.com/drive/folders/1e8nX-h3cKpcifUv6G2EjuJDey9DBm5b2?usp=sharing",
+      "target_subfolder": "folder_3"
     }
   ],
   "download_status": [
@@ -36,6 +42,10 @@
     },
     {
       "folder": "Original Shared Vault (พิธีกรรม & พระเวท)",
+      "success": true
+    },
+    {
+      "folder": "Additional Training Vault (คัมภีร์ & ตำราเพิ่มเติม)",
       "success": true
     }
   ],
