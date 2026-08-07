@@ -183,11 +183,7 @@ def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
                     "    dev_name = torch.cuda.get_device_name(0)\n",
                     "    target_sm = f'sm_{cap[0]}{cap[1]}'\n",
                     "    print(f'[CUDA] Detected GPU: {dev_name} ({target_sm})')\n",
-                    "    if cap == (6, 0):\n",
-                    "        print('[WARNING] Kaggle allocated Tesla P100 (sm_60). Installing PyTorch 2.2.0+cu121 compatibility wheel with native sm_60 Pascal support...')\n",
-                    "        subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--prefer-binary', '--no-deps', 'torch==2.2.0+cu121', 'torchvision==0.17.0+cu121', '--index-url', 'https://download.pytorch.org/whl/cu121'], check=True)\n",
-                    "    else:\n",
-                    "        print(f'[OK] {dev_name} ({target_sm}) fully supported by native PyTorch.')\n",
+                    "    print(f'[OK] Detected GPU {dev_name} ({target_sm}) using native Kaggle PyTorch environment.')\n",
                     "print('[MODEL] Removing incompatible torchao/torchvision & installing fine-tuning packages...')\n",
                     "subprocess.run([sys.executable, '-m', 'pip', 'uninstall', '-y', 'torchao', 'torchvision'], check=False)\n",
                     "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--progress-bar', 'off', '--prefer-binary', '--no-deps', 'transformers==4.44.2', 'tokenizers==0.19.1', 'peft==0.12.0', 'trl==0.11.0', 'accelerate==0.33.0', 'bitsandbytes==0.43.3', 'datasets==2.18.0', 'huggingface_hub==0.25.1', 'pyarrow_hotfix'], check=True)\n",
@@ -201,7 +197,7 @@ def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
                     "\n",
                     "# 4. Run Cloud Training Orchestrator with execution logging\n",
                     "# Pass the full environment (incl. CUDA stability vars) to subprocess\n",
-                    "print('\\ud83d\\ude80 Launching Cloud Training Orchestrator...')\n",
+                    "print('[START] Launching Cloud Training Orchestrator...')\n",
                     "log_path = '/kaggle/working/train_execution.log'\n",
                     "train_env = os.environ.copy()\n",
                     "train_env['PYTHONIOENCODING'] = 'utf-8'\n",
@@ -221,8 +217,8 @@ def create_kernel_files(accelerator_type: str = "nvidiaTeslaT4x2") -> None:
                     "                log_tail = ''.join(f.readlines()[-30:])\n",
                     "        except Exception:\n",
                     "            pass\n",
-                    "    raise RuntimeError(f'\\u274c Training orchestrator failed (exit code {proc.returncode}).\\n--- Tail of train_execution.log ---\\n{log_tail}')\n",
-                    "print('\\ud83c\\udf89 Training pipeline completed successfully!')\n"
+                    "    raise RuntimeError(f'[ERROR] Training orchestrator failed (exit code {proc.returncode}).\\n--- Tail of train_execution.log ---\\n{log_tail}')\n",
+                    "print('[OK] Training pipeline completed successfully!')\n"
                 ]
             }
         ],
