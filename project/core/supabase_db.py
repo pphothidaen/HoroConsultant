@@ -167,10 +167,12 @@ class SupabaseDB:
             return False
 
         endpoint = f"{self.url}/rest/v1/{table}"
+        req_headers = {**self.headers, "Prefer": "resolution=merge-duplicates,return=representation"}
+        params = {"on_conflict": on_conflict}
 
         with httpx.Client(timeout=30.0) as client:
             try:
-                resp = client.post(endpoint, headers=headers, json=records)
+                resp = client.post(endpoint, headers=req_headers, params=params, json=records)
                 if resp.status_code in (200, 201):
                     logger.info(f"Successfully upserted {len(records)} records into '{table}'")
                     return True

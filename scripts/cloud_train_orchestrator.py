@@ -616,7 +616,20 @@ def run_training_pipeline(
     except Exception:
         pass
 
-    # 4. Training Arguments & SFTTrainer (Ultra-Robust Compatibility for all TRL versions)
+    # Check WANDB_KEY for Weights & Biases live tracking
+    report_to_target = "none"
+    wandb_key = os.getenv("WANDB_KEY")
+    if wandb_key and wandb_key.strip():
+        try:
+            import wandb
+            wandb.login(key=wandb_key.strip())
+            os.environ["WANDB_PROJECT"] = os.getenv("WANDB_PROJECT", "HoroConsultant")
+            os.environ["WANDB_ENTITY"] = os.getenv("WANDB_ENTITY", "pphothidaen-")
+            report_to_target = "wandb"
+            logger.info("[OK] W&B authentication successful. Live metrics logging enabled (Project: HoroConsultant, Entity: pphothidaen-).")
+        except Exception as e:
+            logger.warning(f"[WARNING] W&B login/initialization failed ({e}). Defaulting report_to to 'none'.")
+
     max_seq_length = 1024
     sft_kwargs = {
         "output_dir": str(output_dir),
@@ -628,7 +641,7 @@ def run_training_pipeline(
         "save_strategy": "epoch",
         "learning_rate": 2e-4,
         "fp16": use_cuda,
-        "report_to": "none",
+        "report_to": report_to_target,
         "gradient_checkpointing": True,
         "dataset_text_field": "text",
     }
