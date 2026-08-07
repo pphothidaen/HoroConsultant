@@ -92,16 +92,81 @@ class SupabaseDB:
 
         return results
 
-    def upsert(self, table: str, records: list[dict[str, Any]], on_conflict: str = "id") -> bool:
-        """Upsert records into a Supabase table."""
+    async def async_fetch_all(
+        self,
+        table: str,
+        select: str = "*",
+        filters: Optional[dict[str, Any]] = None,
+        page_size: int = 1000,
+    ) -> list[dict[str, Any]]:
+        """
+        Asynchronously fetch all records from a Supabase table using Range Pagination.
+        """
+        if not self.is_configured():
+            logger.warning("Supabase is not configured. Returning empty dataset.")
+            return []
+
+        endpoint = f"{self.url}/rest/v1/{table}"
+        results: list[dict[str, Any]] = []
+        offset = 0
+
+        params = {"select": select}
+        if filters:
+            for k, v in filters.items():
+                params[k] = f"eq.{v}"
+
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            while True:
+                range_header = f"{offset}-{offset + page_size - 1}"
+                req_headers = {**self.headers, "Range": range_header}
+
+                try:
+                    resp = await client.get(endpoint, headers=req_headers, params=params)
+                    if resp.status_code not in (200, 206):
+                        logger.error(f"Supabase GET failed ({resp.status_code}): {resp.text}")
+                        break
+
+                    data = resp.json()
+                    if not data or not isinstance(data, list):
+                        break
+
+                    results.extend(data)
+                    if len(data) < page_size:
+                        break
+
+                    offset += page_size
+                except Exception as e:
+                    logger.error(f"Async network error during Supabase fetch: {e}")
+                    break
+
+        return results
+
+    async def async_upsert(self, table: str, records: list[dict[str, Any]], on_conflict: str = "id") -> bool:
+        """Asynchronously upsert records into a Supabase table."""
         if not self.is_configured() or not records:
             return False
 
         endpoint = f"{self.url}/rest/v1/{table}"
-        headers = {
-            **self.headers,
-            "Prefer": f"resolution=merge-duplicates,return=representation",
-        }
+        req_headers = {**self.headers, "Prefer": f"resolution=merge-duplicates,return=representation"}
+        params = {"on_conflict": on_conflict}
+
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            try:
+                resp = await client.post(endpoint, headers=req_headers, params=params, json=records)
+                if resp.status_code in (200, 201):
+                    return True
+                logger.error(f"Supabase Async Upsert failed ({resp.status_code}): {resp.text}")
+                return False
+            except Exception as e:
+                logger.error(f"Network error during Supabase async upsert: {e}")
+        return False
+
+    def upsert(self, table: str, records: list[dict[str, Any]], on_conflict: str = "id") -> bool:
+        """Upsert records into a Supabase table synchronously."""
+        if not self.is_configured() or not records:
+            return False
+
+        endpoint = f"{self.url}/rest/v1/{table}"
 
         with httpx.Client(timeout=30.0) as client:
             try:

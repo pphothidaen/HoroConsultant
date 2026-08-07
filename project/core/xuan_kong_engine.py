@@ -63,9 +63,20 @@ STAR_NAMES = {
     9: "九紫右弼星 (火)"
 }
 
+from typing import Dict, List, Any, Optional
+from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
-class XuanKongEngine:
+
+class XuanKongEngine(AbstractAstrologyEngine):
     """Core Xuan Kong Flying Stars engine."""
+
+    @property
+    def engine_name(self) -> str:
+        return "Xuan Kong Flying Stars Engine"
+
+    @property
+    def system_type(self) -> str:
+        return "xiang_xue"
 
     def resolve_mountain(self, degree: float) -> tuple[str, str, str]:
         """Resolve facing degree (0-360) to Mountain Name, Trigram, and Yin/Yang."""
@@ -124,7 +135,7 @@ class XuanKongEngine:
                 "facing_star_name": STAR_NAMES[facing_stars[palace_num]]
             })
 
-        return {
+        raw = {
             "engine": "XuanKongEngine",
             "period": period,
             "facing_degree": facing_degree,
@@ -132,6 +143,14 @@ class XuanKongEngine:
             "sitting_mountain": f"{sitting_name} ({sitting_trigram}卦 - {sitting_yy})",
             "grid_palaces": palaces_grid
         }
+        return EngineChartResult(
+            engine_name=self.engine_name,
+            system_type=self.system_type,
+            chart_data=raw,
+        )
+
+    def calculate(self, *args, **kwargs) -> EngineChartResult:
+        return self.calculate_chart(*args, **kwargs)
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ Deterministic calculations for:
 
 from typing import Dict, List, Any, Optional
 from datetime import datetime
+from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
 WESTERN_ZODIAC_SIGNS = [
     "Aries (เมษ)", "Taurus (พฤษภ)", "Gemini (เมถุน)", "Cancer (กรกฎ)",
@@ -36,8 +37,16 @@ ASPECT_TYPES = [
 ]
 
 
-class WesternUranianEngine:
+class WesternUranianEngine(AbstractAstrologyEngine):
     """Core Western & Uranian Astrology calculation engine."""
+
+    @property
+    def engine_name(self) -> str:
+        return "Western & Uranian Astrology Engine"
+
+    @property
+    def system_type(self) -> str:
+        return "western_astro"
 
     def resolve_zodiac_sign(self, degree: float) -> tuple[str, float]:
         """Resolve celestial longitude (0-360°) to Zodiac Sign & in-sign degree."""
@@ -128,7 +137,7 @@ class WesternUranianEngine:
         # Example Uranian Midpoint: Sun + Jupiter - Saturn (Career Target Point)
         mid_deg, mid_str = self.calculate_uranian_midpoint(sun_deg, jupiter_deg, saturn_deg)
 
-        return {
+        raw = {
             "engine": "WesternUranianEngine",
             "datetime": f"{year:04d}-{month:02d}-{day:02d} {hour:02d}:00",
             "planets_tropical": {p: f"{self.resolve_zodiac_sign(d)[0]} {self.resolve_zodiac_sign(d)[1]:.2f}°" for p, d in planets.items()},
@@ -140,6 +149,14 @@ class WesternUranianEngine:
                 "zodiac_position": mid_str
             }
         }
+        return EngineChartResult(
+            engine_name=self.engine_name,
+            system_type=self.system_type,
+            chart_data=raw,
+        )
+
+    def calculate(self, *args, **kwargs) -> EngineChartResult:
+        return self.calculate_chart(*args, **kwargs)
 
 
 if __name__ == "__main__":

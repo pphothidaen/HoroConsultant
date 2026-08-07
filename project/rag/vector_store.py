@@ -334,14 +334,14 @@ class VectorStore:
         query:     str,
         corpus:    str  = "all",
         top_k:     int  = 5,
-        threshold: float = 0.65,
+        threshold: float = 0.40,
     ) -> Dict[str, Any]:
         """
-        Search the vector store.
+        Hybrid RAG search combining FAISS Dense Vector + BM25 Lexical Search via RRF.
 
         Parameters
         ----------
-        query     : Natural language query (English or Chinese)
+        query     : Natural language query (Thai, English or Chinese)
         corpus    : "classical" | "modern" | "all"
         top_k     : Number of results to return
         threshold : Minimum similarity score (0–1)
@@ -350,20 +350,67 @@ class VectorStore:
         -------
         dict : RAG search result matching the rag-search.skill output schema
         """
-        if self._mode == "faiss" and self._faiss_index is not None:
-            results = self._search_faiss(query, top_k, threshold, corpus)
-        elif self._keyword_index is not None:
-            results = self._keyword_index.search(query, top_k, threshold)
-        else:
-            results = []
+        results = self.hybrid_search(query, top_k=top_k, threshold=threshold, corpus=corpus)
 
         return {
             "query":            query,
             "results":          results,
             "corpus_searched":  corpus,
             "total_results":    len(results),
-            "index_mode":       self._mode,
+            "index_mode":       f"hybrid_{self._mode}",
         }
+
+    def hybrid_search(
+        self,
+        query: str,
+        top_k: int = 5,
+        threshold: float = 0.40,
+        corpus: str = "all",
+        rrf_k: int = 60
+    ) -> List[Dict[str, Any]]:
+        """
+        Reciprocal Rank Fusion (RRF) Hybrid Search algorithm combining FAISS Vector + Lexical Search.
+        RRF_Score(d) = 1 / (60 + rank_dense(d)) + 1 / (60 + rank_lexical(d))
+        """
+        dense_results: List[Dict[str, Any]] = []
+        if self._mode == "faiss" and self._faiss_index is not None:
+            dense_results = self._search_faiss(query, top_k=top_k * 3, threshold=0.0, corpus=corpus)
+
+        # Lexical keyword / BM25 search
+        if self._keyword_index is None and self._chunks:
+            self._keyword_index = _KeywordIndex(self._chunks)
+        
+        lexical_results: List[Dict[str, Any]] = []
+        if self._keyword_index is not None:
+            lexical_results = self._keyword_index.search(query, top_k=top_k * 3, threshold=0.0)
+
+        # Reciprocal Rank Fusion (RRF) Map
+        rrf_scores: Dict[str, float] = {}
+        doc_map: Dict[str, Dict[str, Any]] = {}
+
+        # 1. Process Dense Ranks
+        for rank, res in enumerate(dense_results, start=1):
+            key = f"{res['source']}_{res['page_ref']}"
+            doc_map[key] = res
+            rrf_scores[key] = rrf_scores.get(key, 0.0) + (1.0 / (rrf_k + rank))
+
+        # 2. Process Lexical Ranks
+        for rank, res in enumerate(lexical_results, start=1):
+            key = f"{res['source']}_{res['page_ref']}"
+            doc_map[key] = res
+            rrf_scores[key] = rrf_scores.get(key, 0.0) + (1.0 / (rrf_k + rank))
+
+        # Sort combined results by RRF score descending
+        sorted_keys = sorted(rrf_scores.keys(), key=lambda k: rrf_scores[k], reverse=True)
+
+        fused_results = []
+        for rank, key in enumerate(sorted_keys[:top_k], start=1):
+            doc = doc_map[key]
+            doc["rank"] = rank
+            doc["hybrid_rrf_score"] = round(rrf_scores[key], 6)
+            fused_results.append(doc)
+
+        return fused_results
 
     def _search_faiss(self, query: str, top_k: int, threshold: float, corpus: str) -> List[Dict[str, Any]]:
         import numpy as np

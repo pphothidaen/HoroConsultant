@@ -7,6 +7,7 @@ Deterministic calculations for:
 """
 
 from typing import Dict, List, Any, Optional
+from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
 SATTA_LEK_HOUSES = ["อัตตา", "หินะ", "ธนัง", "ปิตา", "มาตา", "โภคา", "มัชฌิมา"]
 
@@ -40,8 +41,16 @@ NUMBER_MEANINGS = {
 }
 
 
-class NumerologyEngine:
+class NumerologyEngine(AbstractAstrologyEngine):
     """Core Numerology & Satta-Lek calculation engine."""
+
+    @property
+    def engine_name(self) -> str:
+        return "Numerology & Satta-Lek Engine"
+
+    @property
+    def system_type(self) -> str:
+        return "numerology"
 
     def calculate_satta_lek(self, day_num: int, lunar_month: int, year_zodiac_num: int) -> Dict[str, Any]:
         """
@@ -70,15 +79,20 @@ class NumerologyEngine:
                 "row4_sum": row4[i]
             })
 
-        return {
+        raw = {
             "engine": "SattaLekEngine",
             "day_num": day_num,
             "lunar_month": lunar_month,
             "year_zodiac_num": year_zodiac_num,
             "matrix_7_base": matrix
         }
+        return EngineChartResult(
+            engine_name=self.engine_name,
+            system_type=self.system_type,
+            chart_data=raw,
+        )
 
-    def score_text_or_number(self, text: str) -> Dict[str, Any]:
+    def score_text_or_number(self, text: str) -> EngineChartResult:
         """
         Score any text, name, phone number, or license plate using Chaldean Numerology.
         Sum digits/char values and reduce to single digit & root sum.
@@ -95,13 +109,23 @@ class NumerologyEngine:
 
         meaning = NUMBER_MEANINGS.get(root, "เลขมงคลสมดุล")
 
-        return {
+        raw = {
             "engine": "ChaldeanNumerologyEngine",
             "input_text": text,
             "total_score": total_sum,
             "reduced_root_digit": root,
             "digit_meaning": meaning
         }
+        return EngineChartResult(
+            engine_name=self.engine_name,
+            system_type=self.system_type,
+            chart_data=raw,
+        )
+
+    def calculate(self, *args, **kwargs) -> EngineChartResult:
+        if "text" in kwargs or (len(args) > 0 and isinstance(args[0], str)):
+            return self.score_text_or_number(*args, **kwargs)
+        return self.calculate_satta_lek(*args, **kwargs)
 
 
 if __name__ == "__main__":

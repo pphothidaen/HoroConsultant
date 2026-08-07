@@ -9,6 +9,7 @@ Deterministic calculation of Date Selection suitability:
 
 from typing import Dict, List, Any, Optional
 from datetime import datetime
+from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
 BRANCHES = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
 
@@ -39,8 +40,16 @@ BRANCH_CLASH = {
 }
 
 
-class ZeJiEngine:
+class ZeJiEngine(AbstractAstrologyEngine):
     """Core Date Selection engine."""
+
+    @property
+    def engine_name(self) -> str:
+        return "Imperial Calendar Date Selection Engine"
+
+    @property
+    def system_type(self) -> str:
+        return "ze_ji"
 
     def calculate_duty_officer(self, month_branch: str, day_branch: str) -> str:
         """
@@ -93,7 +102,7 @@ class ZeJiEngine:
             "求醫治病": "宜" if officer in ["除日", "破日"] else "平"
         }
 
-        return {
+        raw = {
             "engine": "ZeJiEngine",
             "duty_officer": officer,
             "duty_description": OFFICER_DESCRIPTIONS.get(officer, ""),
@@ -104,6 +113,14 @@ class ZeJiEngine:
             "is_user_clash": is_user_clash,
             "activities_suitability": activities
         }
+        return EngineChartResult(
+            engine_name=self.engine_name,
+            system_type=self.system_type,
+            chart_data=raw,
+        )
+
+    def calculate(self, *args, **kwargs) -> EngineChartResult:
+        return self.check_suitability(*args, **kwargs)
 
 
 if __name__ == "__main__":

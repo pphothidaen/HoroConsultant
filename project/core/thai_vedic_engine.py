@@ -9,6 +9,7 @@ Deterministic calculations for:
 
 from typing import Dict, List, Any, Optional
 from datetime import datetime
+from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
 ZODIAC_THAI_NAMES = [
     "เมษ", "พฤษภ", "เมถุน", "กรกฎ", "สิงห์", "กันย์",
@@ -30,8 +31,16 @@ NAKSHATRAS_27 = [
 ]
 
 
-class ThaiVedicEngine:
+class ThaiVedicEngine(AbstractAstrologyEngine):
     """Core Thai & Vedic Astrology calculation engine."""
+
+    @property
+    def engine_name(self) -> str:
+        return "Thai & Vedic Suriyayart Engine"
+
+    @property
+    def system_type(self) -> str:
+        return "thai_vedic"
 
     def calculate_lagna(self, birth_hour: int, birth_month: int) -> tuple[str, int]:
         """
@@ -85,7 +94,7 @@ class ThaiVedicEngine:
         dasha_planets = ["กฤตติกา (Sun)", "โรหิณี (Moon)", "มฤคศิระ (Mars)", "อาร์ทรา (Rahu)", "ปุนัพพสุ (Jupiter)", "ปุษยะ (Saturn)", "อาศเลษา (Mercury)", "มาฆะ (Ketu)", "บุรพผลคุนี (Venus)"]
         main_dasha = dasha_planets[(nak_num - 1) % 9]
 
-        return {
+        raw = {
             "engine": "ThaiVedicEngine",
             "datetime": f"{year:04d}-{month:02d}-{day:02d} {hour:02d}:00",
             "thai_lagna": f"ราศี{lagna_name} (House {lagna_idx+1})",
@@ -100,6 +109,14 @@ class ThaiVedicEngine:
             },
             "vimshottari_dasha": main_dasha
         }
+        return EngineChartResult(
+            engine_name=self.engine_name,
+            system_type=self.system_type,
+            chart_data=raw,
+        )
+
+    def calculate(self, *args, **kwargs) -> EngineChartResult:
+        return self.calculate_chart(*args, **kwargs)
 
 
 if __name__ == "__main__":

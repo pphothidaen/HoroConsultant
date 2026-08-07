@@ -11,6 +11,7 @@ Deterministic calculation of I Ching 64 Hexagrams & Liu Yao divinations:
 
 from typing import Dict, List, Any, Optional
 import random
+from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
 TRIGRAM_NAMES = ["坤", "震", "坎", "兌", "艮", "離", "巽", "乾"]
 TRIGRAM_BINARY = {
@@ -48,8 +49,16 @@ DAY_STEM_SIX_ANIMALS_START = {
 }
 
 
-class IChingEngine:
+class IChingEngine(AbstractAstrologyEngine):
     """Core I Ching & Liu Yao calculation engine."""
+
+    @property
+    def engine_name(self) -> str:
+        return "I Ching & Liu Yao Engine"
+
+    @property
+    def system_type(self) -> str:
+        return "pu_shi"
 
     def cast_lines(self, seed: Optional[int] = None) -> List[int]:
         """
@@ -106,7 +115,7 @@ class IChingEngine:
                 "animal": animal
             })
 
-        return {
+        raw = {
             "engine": "IChingEngine",
             "day_stem": day_stem,
             "raw_lines": lines,
@@ -121,6 +130,14 @@ class IChingEngine:
             },
             "six_lines": six_lines_detail
         }
+        return EngineChartResult(
+            engine_name=self.engine_name,
+            system_type=self.system_type,
+            chart_data=raw,
+        )
+
+    def calculate(self, *args, **kwargs) -> EngineChartResult:
+        return self.calculate_liu_yao(*args, **kwargs)
 
 
 if __name__ == "__main__":

@@ -9,6 +9,11 @@
     "devops": "Gemini 3.6 Flash (Standard)"
   },
   "permissions": {
+    "auto_approve": [
+      "write_to_file",
+      "replace_file_content",
+      "multi_replace_file_content"
+    ],
     "auto_approve_commands": [
       "python3 -m pytest -v",
       "python3 scripts/kaggle_notebook_manager.py --status",

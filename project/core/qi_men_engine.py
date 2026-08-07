@@ -11,6 +11,7 @@ Deterministic calculation of Qi Men Dun Jia 4-Plate charts:
 
 from typing import Dict, List, Any, Optional
 from datetime import datetime
+from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
 
 PALACE_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -48,8 +49,16 @@ SOLAR_TERM_JU_MAP = {
 }
 
 
-class QiMenEngine:
+class QiMenEngine(AbstractAstrologyEngine):
     """Core Qi Men Dun Jia engine."""
+
+    @property
+    def engine_name(self) -> str:
+        return "Qi Men Dun Jia Engine"
+
+    @property
+    def system_type(self) -> str:
+        return "san_shi"
 
     @staticmethod
     def determine_solar_term(month: int, day: int) -> str:
@@ -130,7 +139,7 @@ class QiMenEngine:
                 "spirit": spirits_plate.get(p, "值符")
             })
 
-        return {
+        raw = {
             "engine": "QiMenEngine",
             "datetime": f"{year:04d}-{month:02d}-{day:02d} {hour:02d}:00",
             "solar_term": solar_term,
@@ -138,6 +147,14 @@ class QiMenEngine:
             "ju_number": ju_number,
             "palaces": palace_details
         }
+        return EngineChartResult(
+            engine_name=self.engine_name,
+            system_type=self.system_type,
+            chart_data=raw,
+        )
+
+    def calculate(self, *args, **kwargs) -> EngineChartResult:
+        return self.calculate_chart(*args, **kwargs)
 
 
 if __name__ == "__main__":

@@ -31,19 +31,62 @@ if env_file.exists():
     load_dotenv(env_file, override=False)
 
 
-def fetch_doppler_secret_via_api(key_name: str) -> Optional[str]:
-    """Attempt fetching secret directly from Doppler API if DOPPLER_TOKEN is available."""
+_DOPPLER_CACHE: dict[str, str] = {}
+_DOPPLER_FETCHED: bool = False
+
+
+def fetch_all_doppler_secrets_via_api() -> dict[str, str]:
+    """Fetch all secrets from Doppler REST API in a single HTTP request if DOPPLER_TOKEN is available."""
+    global _DOPPLER_CACHE, _DOPPLER_FETCHED
+    if _DOPPLER_FETCHED:
+        return _DOPPLER_CACHE
+
+    _DOPPLER_FETCHED = True
     doppler_token = os.getenv("DOPPLER_TOKEN")
     if not doppler_token:
-        return None
+        return _DOPPLER_CACHE
+
     try:
-        url = f"https://api.doppler.com/v3/configs/config/secret?secret={key_name}"
+        url = "https://api.doppler.com/v3/configs/config/secrets"
         req = urllib.request.Request(url)
         req.add_header("Authorization", f"Bearer {doppler_token}")
         req.add_header("Accept", "application/json")
         with urllib.request.urlopen(req, timeout=3) as resp:
             data = json.loads(resp.read().decode("utf-8"))
-            return data.get("value", {}).get("computed")
+            secrets_map = data.get("secrets", {})
+            for k, sec_obj in secrets_map.items():
+                if isinstance(sec_obj, dict):
+                    val = sec_obj.get("computed") or sec_obj.get("raw") or ""
+                    if val:
+                        _DOPPLER_CACHE[k] = val
+                        os.environ[k] = val
+    except Exception:
+        pass
+
+    return _DOPPLER_CACHE
+
+
+def fetch_doppler_secret_via_api(key_name: str) -> Optional[str]:
+    """Attempt fetching secret directly from Doppler API if DOPPLER_TOKEN is available."""
+    cached = fetch_all_doppler_secrets_via_api()
+    if key_name in cached:
+        return cached[key_name]
+
+    doppler_token = os.getenv("DOPPLER_TOKEN")
+    if not doppler_token:
+        return None
+
+    try:
+        url = f"https://api.doppler.com/v3/configs/config/secret?name={key_name}"
+        req = urllib.request.Request(url)
+        req.add_header("Authorization", f"Bearer {doppler_token}")
+        req.add_header("Accept", "application/json")
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            val = data.get("value", {}).get("computed")
+            if val:
+                os.environ[key_name] = val
+            return val
     except Exception:
         return None
 
@@ -70,7 +113,7 @@ def get_priority_secret(key_name: str, fallback_keys: tuple[str, ...] = (), defa
 
     # --- Warning Notice if 1st Priority Doppler miss ---
     platform_name = "KAGGLE SECRETS STORE" if (os.path.exists("/kaggle") or "KAGGLE" in os.environ) else "PLATFORM SECRETS (.env / System)"
-    logger.warning(f"[WARNING] Secret '{key_name}' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority ({platform_name})...")
+    logger.warning(f"Secret '{key_name}' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority ({platform_name})...")
 
     # --- 2nd Priority: PLATFORM SECRETS (Kaggle / GitHub / Local) ---
     # 1. Try Kaggle Secrets Client if running on Kaggle
@@ -82,6 +125,8 @@ def get_priority_secret(key_name: str, fallback_keys: tuple[str, ...] = (), defa
                 val = user_secrets.get_secret(k)
                 if val:
                     logger.info(f"[OK] Secret '{k}' loaded from 2nd Priority (KAGGLE SECRETS STORE)")
+                    os.environ[k] = val
+                    os.environ[key_name] = val
                     return val
             except Exception:
                 pass
@@ -93,6 +138,8 @@ def get_priority_secret(key_name: str, fallback_keys: tuple[str, ...] = (), defa
         val = os.getenv(k)
         if val:
             logger.info(f"[OK] Secret '{k}' loaded from 2nd Priority (System Env / .env)")
+            os.environ[k] = val
+            os.environ[key_name] = val
             return val
 
     return default

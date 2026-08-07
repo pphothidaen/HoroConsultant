@@ -11,7 +11,7 @@ Deterministic calculation of Chinese Zi Wei Dou Shu birth charts:
 
 from typing import Dict, List, Any, Optional
 from datetime import datetime
-
+from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
 STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
 BRANCHES = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
@@ -45,8 +45,16 @@ SI_HUA_MATRIX = {
 }
 
 
-class ZiWeiEngine:
+class ZiWeiEngine(AbstractAstrologyEngine):
     """Core Zi Wei Dou Shu engine."""
+
+    @property
+    def engine_name(self) -> str:
+        return "Zi Wei Dou Shu Engine"
+
+    @property
+    def system_type(self) -> str:
+        return "ming_xue"
 
     @staticmethod
     def _get_year_stem_branch(year: int) -> tuple[str, str]:
@@ -200,7 +208,7 @@ class ZiWeiEngine:
                 "is_shen_gong": (branch_name == shen_branch)
             })
 
-        return {
+        raw = {
             "engine": "ZiWeiEngine",
             "birth_solar": f"{year:04d}-{month:02d}-{day:02d} {hour:02d}:00",
             "year_stem_branch": f"{year_stem}{year_branch}",
@@ -213,6 +221,14 @@ class ZiWeiEngine:
             "si_hua": si_hua,
             "palaces": palaces
         }
+        return EngineChartResult(
+            engine_name=self.engine_name,
+            system_type=self.system_type,
+            chart_data=raw,
+        )
+
+    def calculate(self, *args, **kwargs) -> EngineChartResult:
+        return self.calculate_chart(*args, **kwargs)
 
 
 # Quick CLI test
@@ -220,3 +236,4 @@ if __name__ == "__main__":
     engine = ZiWeiEngine()
     chart = engine.calculate_chart(1990, 5, 15, 14, "male")
     print(chart)
+

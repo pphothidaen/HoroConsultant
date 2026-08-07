@@ -9,6 +9,7 @@ Deterministic calculation of Da Liu Ren 3-Transmission & 4-Lesson charts:
 """
 
 from typing import Dict, List, Any, Optional
+from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
 STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
 BRANCHES = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
@@ -31,8 +32,16 @@ STEM_PARASITIC_BRANCH = {
 }
 
 
-class LiuRenEngine:
+class LiuRenEngine(AbstractAstrologyEngine):
     """Core Da Liu Ren calculation engine."""
+
+    @property
+    def engine_name(self) -> str:
+        return "Da Liu Ren Engine"
+
+    @property
+    def system_type(self) -> str:
+        return "san_shi"
 
     def calculate_heaven_plate(self, month_general_branch: str, hour_branch: str) -> Dict[str, str]:
         """
@@ -114,7 +123,7 @@ class LiuRenEngine:
         three_transmissions = self.calculate_three_transmissions(four_lessons, heaven_plate)
         generals_plate = self.calculate_generals_plate(month_general_branch, heaven_plate)
 
-        return {
+        raw = {
             "engine": "LiuRenEngine",
             "day_stem_branch": f"{day_stem}{day_branch}",
             "month_general": f"{month_general} ({month_general_branch})",
@@ -124,6 +133,14 @@ class LiuRenEngine:
             "three_transmissions": three_transmissions,
             "generals_plate": generals_plate
         }
+        return EngineChartResult(
+            engine_name=self.engine_name,
+            system_type=self.system_type,
+            chart_data=raw,
+        )
+
+    def calculate(self, *args, **kwargs) -> EngineChartResult:
+        return self.calculate_chart(*args, **kwargs)
 
 
 if __name__ == "__main__":

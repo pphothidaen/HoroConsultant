@@ -50,6 +50,11 @@ if hasattr(sys.stderr, "reconfigure"):
     except Exception:
         pass
 
+# Root Cause Fix: Suppress dataset fingerprint hashing warning for inner tokenization closures
+import warnings
+warnings.filterwarnings("ignore", message=".*couldn't be hashed properly.*")
+warnings.filterwarnings("ignore", category=UserWarning, module="datasets.*")
+
 # Triton 3.x compatibility shim for bitsandbytes (prevents ModuleNotFoundError: No module named 'triton.ops')
 import types
 try:
@@ -61,6 +66,43 @@ except (ImportError, ModuleNotFoundError):
     triton_ops_matmul.estimate_matmul_time = lambda *a, **k: 0
     sys.modules["triton.ops"] = triton_ops
     sys.modules["triton.ops.matmul_perf_model"] = triton_ops_matmul
+
+
+def _ensure_bitsandbytes_cuda_binary() -> bool:
+    """
+    Root Cause Fix for bitsandbytes CUDA binary mismatch on Kaggle / CUDA 12.x environments:
+    If PyTorch reports CUDA 12.x (e.g. 12.8) and libbitsandbytes_cuda128.so is requested
+    but missing, dynamically symlink/copy the highest available CUDA binary
+    (e.g. libbitsandbytes_cuda124.so) to libbitsandbytes_cuda128.so inside bitsandbytes folder.
+    """
+    try:
+        import torch
+        if not torch.cuda.is_available():
+            return False
+
+        import bitsandbytes as bnb
+        bnb_dir = Path(bnb.__file__).parent
+
+        cuda_ver_str = getattr(torch.version, "cuda", "") or ""
+        cuda_clean = cuda_ver_str.replace(".", "")
+        if cuda_clean:
+            target_so = bnb_dir / f"libbitsandbytes_cuda{cuda_clean}.so"
+            if not target_so.exists():
+                available = sorted(list(bnb_dir.glob("libbitsandbytes_cuda*.so")), reverse=True)
+                if available:
+                    best = available[0]
+                    try:
+                        os.symlink(best, target_so)
+                        sys.stdout.write(f"[OK] BNB CUDA Fix: Symlinked {best.name} -> {target_so.name}\n")
+                    except Exception:
+                        import shutil
+                        shutil.copy(best, target_so)
+                        sys.stdout.write(f"[OK] BNB CUDA Fix: Copied {best.name} -> {target_so.name}\n")
+                    return True
+        return True
+    except Exception:
+        return False
+
 
 def _format_conversation_example(example: dict) -> dict:
     """Top-level dataset formatting function to enable pickling & fingerprint hashing in Hugging Face datasets."""
@@ -414,17 +456,17 @@ def run_training_pipeline(
         compute_dtype = torch.float32
 
     # Quantization check (BitsAndBytes 4-bit)
-    # On Kaggle T4 / sm_75: bitsandbytes CUDA ops compiled for cu128 often fail with
-    # cudaErrorNoKernelImageForDevice. Always bypass 4-bit BNB on Kaggle/T4.
     bnb_available = False
     if use_cuda and not is_kaggle and not is_sm75:
         try:
+            _ensure_bitsandbytes_cuda_binary()
             import bitsandbytes as bnb
             bnb_available = True
             logger.info("   [OK] BitsAndBytes 4-bit quantization available.")
         except Exception as bnb_err:
-            logger.warning(f"[WARNING] BitsAndBytes CUDA check failed ({bnb_err}). 4-bit quantization will be bypassed.")
+            logger.warning(f"BitsAndBytes CUDA check failed ({bnb_err}). 4-bit quantization will be bypassed.")
     elif is_kaggle or is_sm75:
+        _ensure_bitsandbytes_cuda_binary()
         logger.info("   [INFO] Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.")
 
     bnb_config = None

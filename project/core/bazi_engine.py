@@ -27,6 +27,7 @@ from dataclasses import dataclass, field, asdict
 from typing      import Dict, List, Optional, Tuple, Any
 
 from project.core.solar_time import calculate_true_solar_time, SolarTimeResult
+from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult, ElementScores
 # NumPy-accelerated operations (Phase 1 — transparent drop-in replacement)
 from project.core.fast_math import (
     numpy_element_scores,
@@ -258,7 +259,7 @@ def _pillar_dict(stem_idx: int, branch_idx: int, label: str) -> Dict[str, Any]:
 # Main Engine
 # ============================================================
 
-class BaZiEngine:
+class BaZiEngine(AbstractAstrologyEngine):
     """
     Deterministic BaZi computation engine.
 
@@ -272,13 +273,21 @@ class BaZiEngine:
     )
     """
 
+    @property
+    def engine_name(self) -> str:
+        return "BaZi Engine"
+
+    @property
+    def system_type(self) -> str:
+        return "ming_xue"
+
     def calculate(
         self,
         dt:               datetime,
         longitude:        float,
         utc_offset_hours: float,
         unknown_hour:     bool = False,
-    ) -> Dict[str, Any]:
+    ) -> EngineChartResult:
         """
         Compute complete BaZi chart.
 
@@ -334,7 +343,7 @@ class BaZiEngine:
                 season_element,
             )
 
-            return {
+            res_dict = {
                 **base_result,
                 "pillars": {
                     "year":  year_p,
@@ -345,6 +354,12 @@ class BaZiEngine:
                 "five_elements": elem_scores,
                 "is_probabilistic": False,
             }
+            return EngineChartResult(
+                engine_name=self.engine_name,
+                system_type=self.system_type,
+                chart_data=res_dict,
+                element_scores=ElementScores(**elem_scores) if isinstance(elem_scores, dict) else None,
+            )
 
         # 3b. Vectorized Probabilistic Scenario Matrix (unknown birth hour)
         # Uses numpy_probabilistic_matrix for 8× speedup over Python loop
@@ -377,7 +392,7 @@ class BaZiEngine:
                 "five_elements":      sd["five_elements"],
             })
 
-        return {
+        res_dict = {
             **base_result,
             "pillars": {
                 "year":  year_p,
@@ -388,6 +403,11 @@ class BaZiEngine:
             "is_probabilistic":   True,
             "probabilistic_matrix": scenarios,
         }
+        return EngineChartResult(
+            engine_name=self.engine_name,
+            system_type=self.system_type,
+            chart_data=res_dict,
+        )
 
 
 # ---------------------------------------------------------------------------

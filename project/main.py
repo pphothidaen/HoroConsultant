@@ -6,57 +6,29 @@ Computational Metaphysics Engine
 from __future__ import annotations
 
 import os
-import json
 import logging
-from datetime import datetime
 from contextlib import asynccontextmanager
-from typing   import Optional
 
-from fastapi             import FastAPI, HTTPException, Query
-from fastapi.responses   import JSONResponse, FileResponse
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic            import BaseModel, Field
+
 from project.admin_router import admin_router
 from project.hitl_router  import hitl_router
-
-from project.core.bazi_engine import BaZiEngine
-from project.core.zi_wei_engine import ZiWeiEngine
-from project.core.qi_men_engine import QiMenEngine
-from project.core.liu_ren_engine import LiuRenEngine
-from project.core.iching_engine import IChingEngine
-from project.core.xuan_kong_engine import XuanKongEngine
-from project.core.ze_ji_engine import ZeJiEngine
-from project.core.thai_vedic_engine import ThaiVedicEngine
-from project.core.western_uranian_engine import WesternUranianEngine
-from project.core.numerology_engine import NumerologyEngine
-from project.api_router        import HybridRouter
+from project.routers import astrology_router, debate_router
+from project.routers.debate import router
 
 import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from project.rag.vector_store import get_vector_store
 from scripts.sync_gdrive_vault import check_and_run_if_missed, sync_all
-from project.validator import PredictionValidator
 
 # ---------------------------------------------------------------------------
-# App setup & Scheduler
+# Logging & Scheduler
 # ---------------------------------------------------------------------------
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 logger = logging.getLogger("main")
-
-engine          = BaZiEngine()
-ziwei_engine    = ZiWeiEngine()
-qimen_engine    = QiMenEngine()
-liuren_engine   = LiuRenEngine()
-iching_engine   = IChingEngine()
-xuankong_engine = XuanKongEngine()
-zeji_engine     = ZeJiEngine()
-thaivedic_engine = ThaiVedicEngine()
-western_engine  = WesternUranianEngine()
-numerology_engine = NumerologyEngine()
-
-router    = HybridRouter()
-validator = PredictionValidator()
 scheduler = AsyncIOScheduler()
 
 
@@ -100,7 +72,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title       = "Computational Metaphysics Engine",
-    description = "BaZi Four Pillars of Destiny API with True Solar Time, AI Interpretation & Gemini Validator",
+    description = "Modular 10-Domain Metaphysical Calculation, AI Debate & Multi-Agent Engine",
     version     = "1.0.0",
     docs_url    = "/docs",
     redoc_url   = "/redoc",
@@ -111,42 +83,15 @@ STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-# Register Admin Panel router
+# Register Modular Routers
 app.include_router(admin_router)
-
-# Register HITL Review Studio router
 app.include_router(hitl_router)
+app.include_router(astrology_router)
+app.include_router(debate_router)
 
 
 # ---------------------------------------------------------------------------
-# Request / Response Models
-# ---------------------------------------------------------------------------
-
-class BaZiRequest(BaseModel):
-    birth_datetime:    str   = Field(..., json_schema_extra={"example": "1990-05-15 14:30:00"},
-                                     description="Local datetime YYYY-MM-DD HH:MM:SS")
-    longitude:         float = Field(..., json_schema_extra={"example": 100.4930}, ge=-180.0, le=180.0)
-    utc_offset_hours:  float = Field(..., json_schema_extra={"example": 7.0}, ge=-12.0, le=14.0)
-    unknown_hour:      bool  = Field(False, description="Enable probabilistic matrix mode")
-
-
-class InterpretRequest(BaZiRequest):
-    query:             Optional[str] = Field(None, json_schema_extra={"example": "Analyse my Day Master strength and career prospects"})
-    enable_validation: bool          = Field(False, description="Cross-validate prediction via Gemini Validator Agent")
-
-
-class ValidateRequest(BaseModel):
-    bazi_chart:             dict         = Field(..., description="Structured BaZi chart JSON from /calculate")
-    initial_interpretation: str          = Field(..., description="Initial interpretation text to be validated")
-    query:                  Optional[str]= Field(None, description="Optional user query context")
-
-
-class LocationResolveRequest(BaseModel):
-    location: str = Field(..., description="Location string (e.g. 'บางกะปิ, กรุงเทพ')")
-
-
-# ---------------------------------------------------------------------------
-# Routes
+# UI & Core System Endpoints
 # ---------------------------------------------------------------------------
 
 @app.get("/", response_class=FileResponse, tags=["UI"])
@@ -194,207 +139,4 @@ async def health():
         "adapter_available": adapter_exists,
         "vector_store_chunks": vector_chunks,
         "cache_stats": get_cache_stats(),
-    }
-
-
-@app.post("/api/v1/bazi/calculate", tags=["BaZi"])
-async def calculate_bazi(req: BaZiRequest):
-    """
-    Compute the Four Pillars of Destiny chart.
-    Returns structured JSON with TST, pillars, hidden stems, and Five Elements scores.
-    """
-    try:
-        dt     = datetime.strptime(req.birth_datetime, "%Y-%m-%d %H:%M:%S")
-        result = engine.calculate(
-            dt               = dt,
-            longitude        = req.longitude,
-            utc_offset_hours = req.utc_offset_hours,
-            unknown_hour     = req.unknown_hour,
-        )
-        return JSONResponse(content=result)
-    except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))
-    except Exception as e:
-        logger.exception("BaZi calculation error")
-        raise HTTPException(status_code=500, detail="Internal calculation error")
-
-
-@app.get("/api/v1/ziwei/calculate", tags=["Zi Wei Dou Shu"])
-async def calculate_ziwei(year: int = 1990, month: int = 5, day: int = 15, hour: int = 14, gender: str = "male"):
-    """Calculate Zi Wei Dou Shu birth chart (12 Palaces, 14 Main Stars, Si Hua)."""
-    return JSONResponse(content=ziwei_engine.calculate_chart(year, month, day, hour, gender))
-
-
-@app.get("/api/v1/qimen/calculate", tags=["Qi Men Dun Jia"])
-async def calculate_qimen(year: int = 2026, month: int = 8, day: int = 7, hour: int = 14):
-    """Calculate Qi Men Dun Jia 4-Plate chart (Yang/Yin Dun 18 Ju, 9 Stars, 8 Doors, 8 Spirits)."""
-    return JSONResponse(content=qimen_engine.calculate_chart(year, month, day, hour))
-
-
-@app.get("/api/v1/liuren/calculate", tags=["Da Liu Ren"])
-async def calculate_liuren(day_stem: str = "甲", day_branch: str = "子", month_general: str = "正月", hour_branch: str = "午"):
-    """Calculate Da Liu Ren chart (Earth/Heaven Plate, 4 Lessons, 3 Transmissions, 12 Generals)."""
-    return JSONResponse(content=liuren_engine.calculate_chart(day_stem, day_branch, month_general, hour_branch))
-
-
-@app.get("/api/v1/iching/calculate", tags=["I Ching"])
-async def calculate_iching(day_stem: str = "甲", seed: Optional[int] = None):
-    """Cast I Ching Hexagram and compute Liu Yao setup (6 Lines, 6 Animals, 5 Relatives)."""
-    lines = iching_engine.cast_lines(seed=seed)
-    return JSONResponse(content=iching_engine.calculate_liu_yao(day_stem, lines))
-
-
-@app.get("/api/v1/xuankong/calculate", tags=["Xuan Kong Flying Stars"])
-async def calculate_xuankong(facing_degree: float = 180.0, period: int = 9):
-    """Calculate Xuan Kong Flying Stars Period 9 9-Grid chart."""
-    return JSONResponse(content=xuankong_engine.calculate_chart(facing_degree, period))
-
-
-@app.get("/api/v1/zeji/calculate", tags=["Date Selection"])
-async def calculate_zeji(year_branch: str = "午", month_branch: str = "申", day_branch: str = "寅", user_birth_branch: Optional[str] = "子"):
-    """Calculate Date Selection suitability via 12 Duty Officers and Clash checks."""
-    return JSONResponse(content=zeji_engine.check_suitability(year_branch, month_branch, day_branch, user_birth_branch))
-
-
-@app.get("/api/v1/thaivedic/calculate", tags=["Thai & Vedic Astrology"])
-async def calculate_thaivedic(year: int = 1990, month: int = 5, day: int = 15, hour: int = 14, day_of_week: int = 2):
-    """Calculate Thai Suriyayart 10 Lagna, Maha Thaksa, 27 Nakshatras & Vimshottari Dasha."""
-    return JSONResponse(content=thaivedic_engine.calculate_chart(year, month, day, hour, day_of_week))
-
-
-@app.get("/api/v1/western/calculate", tags=["Western & Uranian Astrology"])
-async def calculate_western(year: int = 1990, month: int = 5, day: int = 15, hour: int = 14):
-    """Calculate Western Tropical Planetary Aspects, Uranian 8 TNPs & Midpoint Formula."""
-    return JSONResponse(content=western_engine.calculate_chart(year, month, day, hour))
-
-
-@app.get("/api/v1/numerology/calculate", tags=["Numerology & Satta-Lek"])
-async def calculate_numerology(text: str = "0812345678", day_num: int = 2, lunar_month: int = 6, year_zodiac_num: int = 7):
-    """Calculate Satta-Lek 7-Base 4-Row Matrix & Chaldean Numerology Scoring."""
-    satta_lek = numerology_engine.calculate_satta_lek(day_num, lunar_month, year_zodiac_num)
-    score = numerology_engine.score_text_or_number(text)
-    return JSONResponse(content={"satta_lek": satta_lek, "chaldean_score": score})
-
-
-@app.post("/api/v1/bazi/interpret", tags=["BaZi", "AI"])
-async def interpret_bazi(req: InterpretRequest):
-    """
-    Calculate BaZi chart then pass to AI for natural-language interpretation.
-    Optionally cross-validates via Gemini Prediction Validator if enable_validation=True.
-    """
-    try:
-        dt     = datetime.strptime(req.birth_datetime, "%Y-%m-%d %H:%M:%S")
-        chart  = engine.calculate(
-            dt               = dt,
-            longitude        = req.longitude,
-            utc_offset_hours = req.utc_offset_hours,
-            unknown_hour     = req.unknown_hour,
-        )
-    except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))
-
-    dm   = chart["day_master"]
-    fe   = chart.get("five_elements", {})
-    pcts = fe.get("percentages", {})
-
-    prompt = (
-        f"BaZi Chart for birth: {req.birth_datetime} "
-        f"(Longitude {req.longitude}°, UTC{req.utc_offset_hours:+.1f})\n\n"
-        f"Day Master: {dm['stem']} ({dm['element']}, {dm['polarity']})\n"
-        f"Five Elements: {json.dumps(pcts, ensure_ascii=False)}\n\n"
-        f"User Query: {req.query or 'Provide a comprehensive life reading.'}"
-    )
-
-    ai_result = router.generate(
-        prompt             = prompt,
-        system_instruction = (
-            "You are a master BaZi consultant. Provide a structured, insightful "
-            "reading citing relevant classical principles. Be concise but thorough."
-        ),
-    )
-
-    initial_text = ai_result.get("text") or ""
-    validation_report = None
-
-    if req.enable_validation and initial_text:
-        logger.info("🛡️ Running Gemini Prediction Validator...")
-        validation_report = await asyncio.to_thread(
-            validator.validate,
-            bazi_chart=chart,
-            initial_interpretation=initial_text,
-            user_query=req.query or "",
-        )
-
-    return JSONResponse(content={
-        "chart":              chart,
-        "interpretation":     initial_text,
-        "model_used":         ai_result.get("model_used"),
-        "route":              ai_result.get("route"),
-        "latency_ms":         ai_result.get("latency_ms"),
-        "validation_report":  validation_report,
-    })
-
-
-@app.post("/api/v1/bazi/validate", tags=["BaZi", "AI Validation"])
-async def validate_prediction(req: ValidateRequest):
-    """
-    Cross-validate an existing BaZi calculation and interpretation using Gemini Prediction Validator Agent.
-    """
-    report = await asyncio.to_thread(
-        validator.validate,
-        bazi_chart=req.bazi_chart,
-        initial_interpretation=req.initial_interpretation,
-        user_query=req.query or "",
-    )
-    return JSONResponse(content=report)
-
-
-@app.get("/api/v1/eot", tags=["solar"])
-async def equation_of_time(
-    date: str = Query(..., examples=["2026-08-03"], description="Date YYYY-MM-DD")
-):
-    """Return Equation of Time in minutes for a given date."""
-    from project.core.solar_time import calculate_equation_of_time
-    try:
-        dt  = datetime.strptime(date, "%Y-%m-%d")
-        eot = calculate_equation_of_time(dt)
-        return {"date": date, "eot_minutes": eot}
-    except ValueError:
-        raise HTTPException(status_code=422, detail="Invalid date format, use YYYY-MM-DD")
-
-
-@app.post("/api/v1/location/resolve", tags=["location"])
-async def resolve_location(req: LocationResolveRequest):
-    """
-    Resolve a location string to longitude, latitude and UTC offset.
-    """
-    from geopy.geocoders import Nominatim
-    from timezonefinder import TimezoneFinder
-    from datetime import datetime
-    import zoneinfo
-
-    geolocator = Nominatim(user_agent="horo_consultant")
-    location_data = await asyncio.to_thread(geolocator.geocode, req.location)
-    
-    if not location_data:
-        raise HTTPException(status_code=404, detail="Location not found")
-        
-    lat = location_data.latitude
-    lon = location_data.longitude
-    
-    tf = TimezoneFinder()
-    tz_name = tf.timezone_at(lng=lon, lat=lat)
-    if not tz_name:
-        raise HTTPException(status_code=404, detail="Timezone not found for location")
-        
-    tz = zoneinfo.ZoneInfo(tz_name)
-    now = datetime.now(tz)
-    utc_offset_hours = now.utcoffset().total_seconds() / 3600.0
-    
-    return {
-        "location": location_data.address,
-        "latitude": lat,
-        "longitude": lon,
-        "timezone": tz_name,
-        "utc_offset_hours": utc_offset_hours
     }
