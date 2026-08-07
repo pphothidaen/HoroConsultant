@@ -71,32 +71,34 @@ def setup_kaggle_credentials() -> bool:
     return True
 
 
-def create_kernel_files(accelerator_type: str = "gpu") -> None:
-    """Generate project/kaggle_kernel/ metadata and notebook.ipynb using default Kaggle GPU setting."""
+def create_kernel_files(accelerator_type: str = "gpu", force_metadata: bool = False) -> None:
+    """Generate project/kaggle_kernel/ metadata and notebook.ipynb preserving user's default Kaggle GPU settings."""
     KERNEL_DIR.mkdir(parents=True, exist_ok=True)
 
     username = os.getenv("KAGGLE_USERNAME", "pphothidaen")
     slug = "horoconsultant-finetune-pipeline"
     kernel_id = f"{username}/{slug}"
 
-    metadata = {
-        "id": kernel_id,
-        "title": "HoroConsultant-FineTune-Pipeline",
-        "code_file": "notebook.ipynb",
-        "language": "python",
-        "kernel_type": "notebook",
-        "is_private": True,
-        "enable_gpu": True,
-        "enable_tpu": False,
-        "enable_internet": True,
-        "dataset_sources": [],
-        "competition_sources": [],
-        "kernel_sources": [],
-        "accelerator": "gpu"
-    }
-
-    METADATA_FILE.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-    logger.info(f"[FILE] Created metadata file at '{METADATA_FILE}' for accelerator [gpu]")
+    if METADATA_FILE.exists() and not force_metadata:
+        logger.info(f"[PRESERVE] Using existing metadata file at '{METADATA_FILE}' without modifying accelerator settings.")
+    else:
+        metadata = {
+            "id": kernel_id,
+            "title": "HoroConsultant-FineTune-Pipeline",
+            "code_file": "notebook.ipynb",
+            "language": "python",
+            "kernel_type": "notebook",
+            "is_private": True,
+            "enable_gpu": True,
+            "enable_tpu": False,
+            "enable_internet": True,
+            "dataset_sources": [],
+            "competition_sources": [],
+            "kernel_sources": [],
+            "accelerator": "gpu"
+        }
+        METADATA_FILE.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+        logger.info(f"[FILE] Created metadata file at '{METADATA_FILE}' (Accelerator locked to default: [gpu])")
 
     # Generate notebook structure with clean execution code
     notebook = {

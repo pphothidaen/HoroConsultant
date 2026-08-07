@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-07 21:18 (UTC+7)*
+> *Last Updated: 2026-08-07 21:34 (UTC+7)*
 
 ---
 
@@ -38,8 +38,8 @@ python3 scripts/kaggle_notebook_manager.py --pull
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Cross-Platform AI Agent Framework   │ • Kaggle GPU Fine-Tuning (v61->v62)   │ ( Backlog Clear - 100% Prod Ready )   │
-│ • 8 Domain Master Agents Decoupled    │   [Status: RUNNING on Kaggle GPU]     │                                       │
+│ • Cross-Platform AI Agent Framework   │ • Kaggle GPU Fine-Tuning (v64)        │ ( Backlog Clear - 100% Prod Ready )   │
+│ • 8 Domain Master Agents Decoupled    │   [Status: RUNNING on Kaggle Default GPU] │                                       │
 │ • Thai & Vedic Master (สุริยยาตร์)      │                                       │                                       │
 │ • Western & Uranian Master (8 TNPs)   │                                       │                                       │
 │ • Numerology & Satta-Lek Master (7ฐาน)│                                       │                                       │
@@ -50,6 +50,7 @@ python3 scripts/kaggle_notebook_manager.py --pull
 │ • 101/101 Full Regression Test Suite  │                                       │                                       │
 │ • Shared MCP Server (.mcp.json)       │                                       │                                       │
 │ • Glassmorphism Web UI Visualizers    │                                       │                                       │
+│ • Triton 3.x Shim & CUDA Patch        │                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
 
@@ -68,11 +69,9 @@ python3 scripts/kaggle_notebook_manager.py --pull
   - **`numerology_master`**: ศาสตร์สัตตเลข 7 ฐาน 4 แถว + เลขศาสตร์ Chaldean/Pythagorean Scoring (วิเคราะห์ชื่อ/เบอร์โทรศัพท์/ทะเบียนรถ) *[ยกเว้นไพ่ทาโรต์ 78 ใบที่เป็นสุ่มตามคำสั่ง]*
 - [x] **8 Pure Python Calculation Core Engines (`project/core/`)**
   - `bazi_engine.py`, `zi_wei_engine.py`, `qi_men_engine.py`, `liu_ren_engine.py`, `iching_engine.py`, `xuan_kong_engine.py`, `ze_ji_engine.py`, `thai_vedic_engine.py`, `western_uranian_engine.py`, `numerology_engine.py`
-- [x] **Peer Debate Engine & Master Orchestrator System Thinking / Critical Thinking Audit Pipeline (`project/core/multi_agent_debate.py`)**
-  - รวม Agent 8 สายวิชาถกเถียงและวิพากษ์ สกัดข้อเท็จจริงชำระแล้ว (Consensus Facts) และส่งต่อ Gray-zone ไปยัง Human-in-the-Loop Queue (`project/hitl_router.py`)
-- [x] **MCP Server & REST API Expansion (`project/mcp_server.py`, `project/main.py`)**
-  - เพิ่ม MCP tools และ REST endpoints สำหรับ Thai/Vedic, Western/Uranian, Numerology
-- [x] **Glassmorphism Web UI Control & Visualizer (`project/static/index.html`, `project/static/app.js`)**
+- [x] **Triton 3.x Compatibility Shim & Kaggle Environment Fixes**
+  - เพิ่ม Mock Shim สำหรับ `triton.ops` และ `triton.ops.matmul_perf_model` ใน `cloud_train_orchestrator.py` และ `notebook.ipynb` เพื่อแก้ `ModuleNotFoundError: No module named 'triton.ops'`
+  - กำหนดค่า Default Accelerator บน Kaggle เป็น `"accelerator": "gpu"` โดยไม่กำหนด `machine_shape` แบบกำหนดเอง
 - [x] **Pre-Deployment Code Reviewer & Safety Auditor (`project/core/code_reviewer.py`)**
   - **Pass Rate**: 101/101 Pytest Unit & Integration Tests PASS (100% success rate), สถานะ `READY_FOR_PROD`
 
@@ -80,8 +79,8 @@ python3 scripts/kaggle_notebook_manager.py --pull
 
 ### 🔄 DOING (กำลังดำเนินการ)
 - [x] **Kaggle GPU Remote Fine-Tuning Execution (`scripts/kaggle_notebook_manager.py`)**
-  - Auto-commit repo changes และผลักดัน Kernel Version 62 ขึ้น Kaggle GPU (`pphothidaen/horoconsultant-finetune-pipeline`)
-  - **สถานะปัจจุบัน**: `KernelWorkerStatus.RUNNING` (กำลังเทรนโมเดลบน Kaggle GPU Nvidia Tesla T4x2)
+  - Git Commit & Push อัปเดตไฟล์ขึ้น GitHub ล่าสุด แล้วดันขึ้น **Kaggle Kernel Version 64**
+  - **สถานะปัจจุบัน**: `KernelWorkerStatus.RUNNING` ⚡ (ใช้การตั้งค่า Default GPU ของ Kaggle)
 
 ---
 
