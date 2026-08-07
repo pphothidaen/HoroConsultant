@@ -52,6 +52,9 @@ IGNORE_PATTERNS = [
     "*.safetensors",
     "*.pt",
     "*.gguf",
+    "*.pdf",
+    "rag/obsidian_vault/*",
+    "obsidian_vault/*",
     ".pytest_cache/*",
     ".ruff_cache/*",
 ]
