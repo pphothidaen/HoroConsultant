@@ -174,6 +174,12 @@ python3 project/core/code_reviewer.py --review
     ```bash
     python3 project/rag/ingest_vault.py --export-finetune
     ```
+- [ ] **5-Branch Chinese Metaphysics Expansion Roadmap (`plans/metaphysics_learning_roadmap.md`)**
+  - **1. San Shi (三式)**: Tai Yi Shen Shu 《太乙金鏡式經》, Da Liu Ren 《六壬大全/指南》, Qi Men Dun Jia 《煙波釣叟歌/奇門遁甲大全》
+  - **2. Ming Xue (命學)**: BaZi 《淵海子平/滴天髓/三命通會》, Zi Wei Dou Shu 《紫微斗數全書》, Qi Zheng Si Yu 《果老星宗》
+  - **3. Pu Shi (卜筮)**: Zhou Yi 《易經》, Liu Yao 《卜筮正宗/增刪卜易》, Mei Hua Yi Shu 《梅花易數》
+  - **4. Xiang Xue (相學)**: Xuan Kong 《青囊奧語/沈氏玄空學》, San He 《地理五訣》, Mian Xiang 《麻衣神相》
+  - **5. Ze Ji Xue (擇吉學)**: Imperial Date Selection 《協紀辨方書》
 
 ---
 
