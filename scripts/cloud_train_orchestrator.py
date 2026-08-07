@@ -315,10 +315,10 @@ def run_training_pipeline(
     if audit_results.get("warnings"):
         logger.warning(f"[WARNING] Pre-flight audit notice: {', '.join(audit_results['warnings'])}")
 
-    # Strict abort guard: Do not proceed if CUDA kernel execution failed entirely
-    if not audit_results.get("cuda_ok", True):
-        logger.error("[ERROR] CUDA pre-flight execution test failed. Aborting training pipeline to prevent GPU crash.")
-        raise RuntimeError("[ERROR] CUDA environment audit failed: no valid CUDA kernel execution image available.")
+    # Graceful Fallback Guard: If CUDA kernel execution fails (e.g. sm_60 P100 lacking PyTorch binary), fall back to CPU
+    cuda_hardware_ok = audit_results.get("cuda_ok", True)
+    if not cuda_hardware_ok:
+        logger.warning("[WARNING] CUDA pre-flight kernel execution test failed on this device (e.g. sm_60/P100 unsupported by PyTorch wheel). Gracefully falling back to CPU execution mode.")
 
     if "mlx-community" in base_model:
         logger.warning(f"[WARNING] Base model '{base_model}' is an MLX format model. Automatically switching to PyTorch base model 'Qwen/Qwen2.5-7B-Instruct' for Cloud training.")
@@ -344,7 +344,7 @@ def run_training_pipeline(
         return False
 
     # 1. Quantization / Model Loading Config
-    use_cuda = torch.cuda.is_available()
+    use_cuda = torch.cuda.is_available() and cuda_hardware_ok
 
     # --- GPU Architecture Detection (MUST run before any CUDA library imports) ---
     # This sets BNB_CUDA_VERSION, TORCH_CUDA_ARCH_LIST, CUDA_MODULE_LOADING env vars.
