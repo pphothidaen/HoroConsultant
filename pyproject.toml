@@ -25,4 +25,4 @@ dependencies = [
 include = ["project*"]
 
 [tool.vercel]
-entrypoint = "project/main.py"
+entrypoint = "project.main:app"
