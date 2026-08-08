@@ -4,19 +4,28 @@ import logging
 from http.server import BaseHTTPRequestHandler
 from pathlib import Path
 
+from project.core.cors import get_cors_headers
+
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 class handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
+    def _send_json(self, payload, status=200):
+        self.send_response(status)
         self.send_header('Content-type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Credentials', 'true')
-        self.send_header('Access-Control-Allow-Methods', '*')
-        self.send_header('Access-Control-Allow-Headers', '*')
+        for key, value in get_cors_headers(self.headers.get('Origin')).items():
+            self.send_header(key, value)
         self.end_headers()
+        body = json.dumps(payload, ensure_ascii=False).encode('utf-8')
+        self.wfile.write(body)
+
+    def do_GET(self):
+        self._send_json({
+            "status": "ok",
+            "service": "Computational Metaphysics Engine",
+            "version": "1.0.0"
+        })
         res = {
             "status": "ok",
             "service": "Computational Metaphysics Engine",
@@ -105,19 +114,11 @@ class handler(BaseHTTPRequestHandler):
             ]
         }
 
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Credentials', 'true')
-        self.send_header('Access-Control-Allow-Methods', '*')
-        self.send_header('Access-Control-Allow-Headers', '*')
-        self.end_headers()
-        self.wfile.write(json.dumps(res, ensure_ascii=False).encode('utf-8'))
+        self._send_json(res)
 
     def do_OPTIONS(self):
-        self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Credentials', 'true')
-        self.send_header('Access-Control-Allow-Methods', '*')
-        self.send_header('Access-Control-Allow-Headers', '*')
+        self.send_response(204)
+        self.send_header('Content-Length', '0')
+        for key, value in get_cors_headers(self.headers.get('Origin')).items():
+            self.send_header(key, value)
         self.end_headers()

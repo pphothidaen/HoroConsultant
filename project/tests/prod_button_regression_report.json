@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-08-08 17:03:03 UTC",
+  "timestamp": "2026-08-08 17:50:08 UTC",
   "target_url": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html",
-  "elapsed_seconds": 44.74,
+  "elapsed_seconds": 46.38,
   "summary": {
-    "total_buttons": 20,
-    "passed": 20,
-    "failed": 0,
-    "pass_rate_pct": 100.0
+    "total_buttons": 22,
+    "passed": 19,
+    "failed": 3,
+    "pass_rate_pct": 86.36
   },
   "results": [
     {
@@ -18,6 +18,24 @@
       "status": "PASSED",
       "detail": "HTTP 200 - Page loaded cleanly with title 'Computational Metaphysics Engine — BaZi & True Solar Time Dashboard'",
       "screenshot": "screenshots/prod_01_dashboard_initial.png"
+    },
+    {
+      "id": "BTN-PROD-00",
+      "page": "index.html",
+      "name": "💚 Vercel Gateway Health Check (/health)",
+      "handler": "HTTP GET /health",
+      "endpoint": "GET /health",
+      "status": "FAILED",
+      "detail": "HTTP 404 - Response status ok confirmed"
+    },
+    {
+      "id": "BTN-PROD-00B",
+      "page": "index.html",
+      "name": "🔮 Direct API Gateway Endpoint (/api/v1/bazi/interpret)",
+      "handler": "HTTP POST /api/v1/bazi/interpret",
+      "endpoint": "POST /api/v1/bazi/interpret",
+      "status": "FAILED",
+      "detail": "HTTP 500 - AI Interpretation output verified (0 chars, fallback: False)"
     },
     {
       "id": "BTN-PROD-01",
@@ -161,7 +179,7 @@
       "name": "🔮 คำนวณผังดวง & ตีความด้วย AI (#btn-submit)",
       "handler": "calculateChart(event)",
       "endpoint": "POST /api/v1/bazi/interpret",
-      "status": "PASSED",
+      "status": "FAILED",
       "detail": "Calculated 4 Pillars chart & AI interpretation (185 chars). API Status: OK (Proxy/Cached)",
       "screenshot": "screenshots/prod_05_bazi_ai_result.png"
     },

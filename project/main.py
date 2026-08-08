@@ -81,6 +81,7 @@ async def lifespan(app: FastAPI):
 from project.core.config import get_git_commit_hash, get_app_version
 from project.core.observability import setup_observability_middleware
 from fastapi.middleware.cors import CORSMiddleware
+from project.core.cors import get_allowed_origins
 
 app = FastAPI(
     title       = "Computational Metaphysics Engine",
@@ -93,9 +94,10 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=get_allowed_origins(),
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
+    allow_credentials=True,
 )
 
 from fastapi import Request
@@ -104,15 +106,15 @@ from fastapi import Request
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Global unhandled exception on {request.url.path}: {exc}", exc_info=True)
     origin = request.headers.get("origin", "*")
+    headers = {"Access-Control-Allow-Credentials": "true"}
+    if origin:
+        headers["Access-Control-Allow-Origin"] = origin
+    headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
     return JSONResponse(
         status_code=500,
         content={"detail": f"Internal Server Error: {str(exc)}"},
-        headers={
-            "Access-Control-Allow-Origin": origin,
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Allow-Methods": "*",
-            "Access-Control-Allow-Headers": "*",
-        }
+        headers=headers,
     )
 
 setup_observability_middleware(app)

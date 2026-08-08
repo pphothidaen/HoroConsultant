@@ -13,6 +13,10 @@ Verifies:
 from __future__ import annotations
 
 import json
+import threading
+import urllib.request
+from contextlib import closing
+from http.server import ThreadingHTTPServer
 from pathlib import Path
 from unittest.mock import patch
 from fastapi.testclient import TestClient
@@ -20,9 +24,40 @@ from fastapi.testclient import TestClient
 from project.main import app
 from project.core.multi_agent_debate import MetaphysicsDebateEngine
 from scripts.cleanup_vector_store import audit_storage, purge_and_cleanup
+from api.main import handler
 
 ROOT = Path(__file__).resolve().parents[2]
 client = TestClient(app)
+
+
+def test_vercel_handler_supports_preflight_cors(monkeypatch):
+    """Verify the Vercel handler returns CORS headers for preflight requests."""
+    monkeypatch.setenv("CORS_ALLOWED_ORIGINS", "https://example.com")
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+
+    try:
+        port = server.server_address[1]
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/health",
+            method="OPTIONS",
+            headers={
+                "Origin": "https://example.com",
+                "Access-Control-Request-Method": "GET",
+                "Access-Control-Request-Headers": "content-type",
+            },
+        )
+        with closing(urllib.request.urlopen(req)) as response:
+            assert response.status == 204
+            assert response.headers.get("Access-Control-Allow-Origin") == "https://example.com"
+            assert response.headers.get("Access-Control-Allow-Methods")
+            assert response.headers.get("Access-Control-Allow-Headers")
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
 
 
 def test_option_1b_vercel_gateway_config():
@@ -36,6 +71,9 @@ def test_option_1b_vercel_gateway_config():
     routes = data.get("routes") or data.get("rewrites")
     has_hf_route = any("/api/hf/" in r.get("src", r.get("source", "")) for r in routes)
     assert has_hf_route, "Option 1B proxy route /api/hf/ not found in vercel.json"
+
+    function_routes = [r.get("destination") for r in routes if r.get("source") in {"/health", "/api/v1/:path*", "/api/:path*"}]
+    assert "/api/main" in function_routes, "Vercel rewrites should target the /api/main serverless function route"
 
 
 def test_option_2a_vector_purge_engine():
