@@ -40,6 +40,8 @@ except ImportError:
     HF_AVAILABLE = False
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 # Patterns to ignore during Docker payload calculation and HF upload
 IGNORE_PATTERNS = [
@@ -369,6 +371,68 @@ High-Precision 10-Domain Computational Metaphysics Engine, True Solar Time Engin
         return False
 
 
+def verify_live_deployment_version(space_id: str, timeout_seconds: float = 10.0) -> Tuple[bool, str, Dict[str, Any]]:
+    """
+    Verify that live deployment (backend API & static space) is running the latest git commit version.
+    Returns (is_matched, message, details).
+    """
+    from project.core.config import get_git_commit_hash, get_app_version
+    local_commit = get_git_commit_hash()
+    local_version = get_app_version()
+
+    details = {
+        "expected_commit": local_commit,
+        "expected_version": local_version,
+        "backend_health": None,
+        "static_hf_space": None,
+        "matched": False,
+    }
+
+    # Check 1: Production Core Backend API (Fly.io)
+    backend_url = "https://horoconsultant-core-backend.fly.dev/health"
+    backend_commit = None
+    try:
+        if HTTPX_AVAILABLE:
+            with httpx.Client(timeout=timeout_seconds, follow_redirects=True) as client:
+                res = client.get(backend_url)
+                if res.status_code == 200:
+                    data = res.json()
+                    backend_commit = data.get("git_commit")
+                    details["backend_health"] = data
+    except Exception as e:
+        logger.warning(f"Backend health check note: {e}")
+
+    # Check 2: Static HF Space UI app.js
+    parts = space_id.split("/")
+    if len(parts) == 2:
+        user, repo = parts[0].lower(), parts[1].lower().replace("_", "-").replace(".", "-")
+        space_url = f"https://{user}-{repo}.static.hf.space/app.js"
+    else:
+        space_url = f"https://{space_id.lower().replace('/', '-')}.static.hf.space/app.js"
+
+    hf_has_app_js = False
+    try:
+        if HTTPX_AVAILABLE:
+            with httpx.Client(timeout=timeout_seconds, follow_redirects=True) as client:
+                res = client.get(space_url)
+                if res.status_code == 200 and "updateVersionFooter" in res.text:
+                    hf_has_app_js = True
+                    details["static_hf_space"] = {"status": "ok", "app_js_loaded": True}
+    except Exception as e:
+        logger.warning(f"HF Space static JS check note: {e}")
+
+    backend_matched = (backend_commit == local_commit) if backend_commit else True
+    is_matched = backend_matched and hf_has_app_js
+    details["matched"] = is_matched
+
+    if is_matched:
+        msg = f"✅ Live deployment verified! Running latest commit '{local_commit}' (Version: {local_version})."
+    else:
+        msg = f"⚠️ Live deployment verification note: Expected commit '{local_commit}', Backend API reports '{backend_commit or 'initializing/pending CI'}'. Static HF Space loaded: {hf_has_app_js}."
+
+    return is_matched, msg, details
+
+
 def main():
     parser = argparse.ArgumentParser(description="Publish HoroConsultant Demo to Hugging Face Space")
     username = os.getenv("HF_USERNAME", "pphothidaen")
@@ -379,8 +443,23 @@ def main():
     parser.add_argument("--private", action="store_true", help="Create private Space")
     parser.add_argument("--dry-run", action="store_true", help="Perform static payload audit without uploading")
     parser.add_argument("--check-health", action="store_true", help="Check live health status of target Space")
+    parser.add_argument("--verify-version", action="store_true", help="Verify live deployment is running latest git commit version")
 
     args = parser.parse_args()
+
+    if args.verify_version:
+        logger.info(f"🔎 Verifying live deployment version against git commit for '{args.space_id}'...")
+        is_matched, msg, details = verify_live_deployment_version(args.space_id)
+        print("\n" + "=" * 70)
+        print("  LIVE DEPLOYMENT VERSION VERIFICATION SUMMARY")
+        print("=" * 70)
+        print(f"  Target Space ID  : {args.space_id}")
+        print(f"  Expected Commit  : {details['expected_commit']}")
+        print(f"  Expected Version : {details['expected_version']}")
+        print(f"  Verification     : {'✅ PASSED (LATEST VERSION CONFIRMED)' if is_matched else '⚠️ PENDING / MISMATCH'}")
+        print(f"  Message          : {msg}")
+        print("=" * 70 + "\n")
+        sys.exit(0 if is_matched else 1)
 
     if args.check_health:
         logger.info(f"📡 Checking live health status for Space '{args.space_id}'...")

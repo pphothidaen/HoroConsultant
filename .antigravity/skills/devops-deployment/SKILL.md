@@ -56,3 +56,10 @@ Run comprehensive pre-deployment safety audit:
 python3 project/core/code_reviewer.py --review
 ```
 *Requirement*: `overall_status: READY_FOR_PROD`.
+
+### 6. Post-Deployment Live Version Verification
+Verify that live production backend and static web UI are serving the latest Git commit version (`v1.0.0.{git_commit}`):
+```bash
+python3 scripts/publish_space_hf.py --verify-version
+```
+*Requirement*: `Verification: ✅ PASSED (LATEST VERSION CONFIRMED)`.

@@ -23,4 +23,5 @@ Role: DevOps & Release Agent (The Bridge)
 1. Environment verification (`.env`, Doppler, Docker, Kaggle Credentials).
 2. Managing Kaggle GPU fine-tuning notebook execution via `kaggle_notebook_manager.py`.
 3. Running safety audit & pre-deployment review via `code_reviewer.py`.
-4. Model Allocation: `Gemini 3.6 Flash` (Standard) for MLOps & release pipeline verification; `GPT-4o` as alternative.
+4. Post-deployment live version verification via `python3 scripts/publish_space_hf.py --verify-version` to confirm production matches latest Git commit hash.
+5. Model Allocation: `Gemini 3.6 Flash` (Standard) for MLOps & release pipeline verification; `GPT-4o` as alternative.

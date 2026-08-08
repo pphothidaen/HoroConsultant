@@ -23,7 +23,10 @@ system_prompt: 'You are the devops agent for HoroConsultant.
 
   3. Running safety audit & pre-deployment review via `code_reviewer.py`.
 
-  4. Model Allocation: `Gemini 3.6 Flash` (Standard) for MLOps & release pipeline
+  4. Post-deployment live version verification via `python3 scripts/publish_space_hf.py
+  --verify-version` to confirm production matches latest Git commit hash.
+
+  5. Model Allocation: `Gemini 3.6 Flash` (Standard) for MLOps & release pipeline
   verification; `GPT-4o` as alternative.'
 tools:
 - devops-deployment
