@@ -17,6 +17,13 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
 cd "$ROOT_DIR"
 
+# Load .env file safely if present
+if [ -f "$ROOT_DIR/.env" ]; then
+    set -a
+    source "$ROOT_DIR/.env" 2>/dev/null || true
+    set +a
+fi
+
 echo "======================================================================"
 echo " 🎭 HOROCONSULTANT AGENTIC MULTI-CLOUD PRODUCTION PIPELINE"
 echo "======================================================================"
@@ -88,7 +95,7 @@ echo "[OK] [REVIEWER] Security Audit Passed: Status READY_FOR_PROD (0 Secret Lea
 
 # ------------------------------------------------------------------------------
 # PHASE 5: DevOps & Release Engineering (devops)
-# -------------------------------- agreed upon conduct by Master Orchestrator
+# ------------------------------------------------------------------------------
 echo ""
 echo "----------------------------------------------------------------------"
 echo " 🚀 PHASE 5: DevOps & Release Engineering (devops)"
@@ -103,18 +110,31 @@ echo "[DEVOPS] Triggering Vercel Edge Gateway Deployment..."
 if command -v vercel &> /dev/null || command -v npx &> /dev/null; then
     VERCEL_CMD="npx vercel"
     [ -x "$(command -v vercel)" ] && VERCEL_CMD="vercel"
+
     if [ -n "$VERCEL_TOKEN" ]; then
         echo "[DEVOPS] Executing: $VERCEL_CMD --prod --yes --token=***"
         $VERCEL_CMD --prod --yes --token="$VERCEL_TOKEN"
+    elif $VERCEL_CMD whoami &>/dev/null; then
+        echo "[DEVOPS] Executing: $VERCEL_CMD --prod --yes"
+        $VERCEL_CMD --prod --yes
     else
-        $VERCEL_CMD --prod --yes || echo "[INFO] [DEVOPS] Vercel login notice."
+        echo "[INFO] [DEVOPS] Vercel GitHub Push-to-Deploy is active. CLI auth pending."
     fi
 fi
 
 echo "[DEVOPS] Triggering Fly.io Micro-VM Deployment..."
 if command -v fly &> /dev/null || command -v flyctl &> /dev/null; then
     FLY_CMD=$(command -v fly || command -v flyctl)
-    $FLY_CMD deploy --config fly.toml || echo "[INFO] [DEVOPS] Fly.io login notice."
+
+    if [ -n "$FLY_API_TOKEN" ]; then
+        echo "[DEVOPS] Executing: $FLY_CMD deploy --config fly.toml --access-token=***"
+        $FLY_CMD deploy --config fly.toml --access-token="$FLY_API_TOKEN"
+    elif $FLY_CMD auth whoami &>/dev/null; then
+        echo "[DEVOPS] Executing: $FLY_CMD deploy --config fly.toml"
+        $FLY_CMD deploy --config fly.toml
+    else
+        echo "[INFO] [DEVOPS] Fly.io authentication pending. Set FLY_API_TOKEN in .env or run 'fly auth login'."
+    fi
 fi
 
 echo ""

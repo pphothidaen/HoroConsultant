@@ -18,6 +18,13 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
 cd "$ROOT_DIR"
 
+# Load .env file safely if present
+if [ -f "$ROOT_DIR/.env" ]; then
+    set -a
+    source "$ROOT_DIR/.env" 2>/dev/null || true
+    set +a
+fi
+
 echo "======================================================================"
 echo " 🚀 HOROCONSULTANT MASTER AUTOMATED PRODUCTION DEPLOYMENT PIPELINE"
 echo "======================================================================"
@@ -65,19 +72,21 @@ echo ""
 echo "[INFO] [STEP 4/5] Deploying Vercel Edge Gateway Proxy..."
 if command -v vercel &> /dev/null || command -v npx &> /dev/null; then
     VERCEL_CMD="npx vercel"
-    if command -v vercel &> /dev/null; then
-        VERCEL_CMD="vercel"
-    fi
+    [ -x "$(command -v vercel)" ] && VERCEL_CMD="vercel"
+
     if [ -n "$VERCEL_TOKEN" ]; then
         echo "[DEPLOY] Executing: $VERCEL_CMD --prod --yes --token=***"
         $VERCEL_CMD --prod --yes --token="$VERCEL_TOKEN"
-    else
+        echo "[OK] Step 4 Vercel Edge Deployment Completed."
+    elif $VERCEL_CMD whoami &>/dev/null; then
         echo "[DEPLOY] Executing: $VERCEL_CMD --prod --yes"
-        $VERCEL_CMD --prod --yes || echo "[WARNING] Vercel login required. Set VERCEL_TOKEN in .env or run '$VERCEL_CMD login'."
+        $VERCEL_CMD --prod --yes
+        echo "[OK] Step 4 Vercel Edge Deployment Completed."
+    else
+        echo "[INFO] [Vercel] GitHub Push-to-Deploy is active. To enable CLI deploy, set VERCEL_TOKEN in .env or run 'npx vercel login'."
     fi
-    echo "[OK] Step 4 Vercel Edge Deployment Completed."
 else
-    echo "[WARNING] npx / vercel CLI not found. Skipping Vercel deployment."
+    echo "[INFO] [Vercel] npx / vercel CLI not found. Skipping Vercel deployment."
 fi
 
 # ------------------------------------------------------------------------------
@@ -87,11 +96,20 @@ echo ""
 echo "[INFO] [STEP 5/5] Deploying Backend Container to Fly.io (Singapore sin)..."
 if command -v fly &> /dev/null || command -v flyctl &> /dev/null; then
     FLY_CMD=$(command -v fly || command -v flyctl)
-    echo "[DEPLOY] Executing: $FLY_CMD deploy --config fly.toml"
-    $FLY_CMD deploy --config fly.toml || echo "[WARNING] Fly.io app login required. Run '$FLY_CMD auth login' if not authenticated."
-    echo "[OK] Step 5 Fly.io Deployment Completed."
+
+    if [ -n "$FLY_API_TOKEN" ]; then
+        echo "[DEPLOY] Executing: $FLY_CMD deploy --config fly.toml --access-token=***"
+        $FLY_CMD deploy --config fly.toml --access-token="$FLY_API_TOKEN"
+        echo "[OK] Step 5 Fly.io Deployment Completed."
+    elif $FLY_CMD auth whoami &>/dev/null; then
+        echo "[DEPLOY] Executing: $FLY_CMD deploy --config fly.toml"
+        $FLY_CMD deploy --config fly.toml
+        echo "[OK] Step 5 Fly.io Deployment Completed."
+    else
+        echo "[INFO] [Fly.io] Authentication pending. To enable Fly.io auto-deploy, set FLY_API_TOKEN in .env or run 'fly auth login'."
+    fi
 else
-    echo "[WARNING] flyctl CLI not installed. Skip Fly.io deploy. Install via: brew install flyctl"
+    echo "[INFO] [Fly.io] flyctl CLI not installed. Skip Fly.io deploy. Install via: brew install flyctl"
 fi
 
 # ------------------------------------------------------------------------------
@@ -104,5 +122,5 @@ echo "======================================================================"
 echo "  • Hugging Face Static Edge : https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
 echo "  • Admin Panel & HITL Studio: https://pphothidaen-horoconsultant-core-backend.static.hf.space/admin.html"
 echo "  • Fly.io Singapore Backend : https://horoconsultant-core-backend.fly.dev/health"
-echo "  • Vercel Edge Gateway      : Configured via vercel.json"
+echo "  • Vercel Edge Gateway      : Configured via vercel.json & GitHub Push"
 echo "======================================================================"

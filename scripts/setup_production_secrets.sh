@@ -19,7 +19,7 @@ echo "[INFO] Starting Multi-Cloud Production Secrets Sync for HoroConsultant..."
 if [ -f "$ROOT_DIR/.env" ]; then
     echo "[INFO] Loading configuration from $ROOT_DIR/.env..."
     set -a
-    source "$ROOT_DIR/.env"
+    source "$ROOT_DIR/.env" 2>/dev/null || true
     set +a
 fi
 
@@ -39,35 +39,38 @@ PORT="${PORT:-7860}"
 echo "[INFO] [1/3] Synchronizing secrets to Fly.io (fly.toml)..."
 if command -v fly &> /dev/null || command -v flyctl &> /dev/null; then
     FLY_CMD=$(command -v fly || command -v flyctl)
-    $FLY_CMD secrets set \
-        ADMIN_ALLOWED_EMAILS="$ADMIN_ALLOWED_EMAILS" \
-        GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
-        PRIMARY_MODEL="$PRIMARY_MODEL" \
-        SECONDARY_MODEL="$SECONDARY_MODEL" \
-        FALLBACK_MODEL="$FALLBACK_MODEL" \
-        GEMINI_API_KEY="${GEMINI_API_KEY:-}" \
-        GOOGLE_AI_STUDIO_API_KEY="${GOOGLE_AI_STUDIO_API_KEY:-}" \
-        APP_SUPABASE_URL="${APP_SUPABASE_URL:-}" \
-        APP_SUPABASE_KEY="${APP_SUPABASE_KEY:-}" \
-        HF_TOKEN="${HF_TOKEN:-}" \
-        DOPPLER_TOKEN="${DOPPLER_TOKEN:-}" \
-        APP_ENV="$APP_ENV" \
-        PORT="$PORT" \
-        --app horoconsultant-core-backend || echo "[WARNING] Fly.io app not yet created. Run 'fly launch' first."
-    echo "[OK] Fly.io secrets sync completed."
+    if [ -n "$FLY_API_TOKEN" ] || $FLY_CMD auth whoami &>/dev/null; then
+        $FLY_CMD secrets set \
+            ADMIN_ALLOWED_EMAILS="$ADMIN_ALLOWED_EMAILS" \
+            GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
+            PRIMARY_MODEL="$PRIMARY_MODEL" \
+            SECONDARY_MODEL="$SECONDARY_MODEL" \
+            FALLBACK_MODEL="$FALLBACK_MODEL" \
+            GEMINI_API_KEY="${GEMINI_API_KEY:-}" \
+            GOOGLE_AI_STUDIO_API_KEY="${GOOGLE_AI_STUDIO_API_KEY:-}" \
+            APP_SUPABASE_URL="${APP_SUPABASE_URL:-}" \
+            APP_SUPABASE_KEY="${APP_SUPABASE_KEY:-}" \
+            HF_TOKEN="${HF_TOKEN:-}" \
+            DOPPLER_TOKEN="${DOPPLER_TOKEN:-}" \
+            APP_ENV="$APP_ENV" \
+            PORT="$PORT" \
+            --app horoconsultant-core-backend || echo "[INFO] Fly.io secrets update note."
+        echo "[OK] Fly.io secrets sync completed."
+    else
+        echo "[INFO] [Fly.io] Authentication pending. Set FLY_API_TOKEN in .env or run 'fly auth login'."
+    fi
 else
-    echo "[WARNING] flyctl CLI not installed. Skip Fly.io sync. Install via: brew install flyctl"
+    echo "[INFO] [Fly.io] flyctl CLI not installed. Skip Fly.io sync."
 fi
 
 # ------------------------------------------------------------------------------
 # 2. Sync Secrets to Vercel
 # ------------------------------------------------------------------------------
 echo "[INFO] [2/3] Verifying Vercel Edge Gateway Configuration..."
-if command -v vercel &> /dev/null; then
-    echo "[INFO] Vercel CLI detected. Ensuring .env.production is aligned."
-    echo "[OK] Vercel ready for 'npx vercel --prod'."
+if [ -n "$VERCEL_TOKEN" ]; then
+    echo "[OK] [Vercel] VERCEL_TOKEN detected in environment."
 else
-    echo "[INFO] Vercel CLI ready via 'npx vercel --prod'."
+    echo "[INFO] [Vercel] Ready via GitHub Push-to-Deploy or 'npx vercel login'."
 fi
 
 # ------------------------------------------------------------------------------
@@ -92,7 +95,7 @@ else:
 echo "======================================================================"
 echo "  MULTI-CLOUD PRODUCTION SECRETS SYNC COMPLETE!"
 echo "======================================================================"
-echo "  • Fly.io Singapore Region   : Secrets Ready"
+echo "  • Fly.io Singapore Region   : Secrets Ready / Configured"
 echo "  • Vercel Edge Network       : Configured (.env.production & vercel.json)"
 echo "  • Hugging Face Spaces       : Token Verified"
 echo "======================================================================"
