@@ -13,14 +13,14 @@
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Decoupled DDD Multi-Cloud & Rust Core│ (None - All planned tasks complete)   │ (None - All roadmap tasks completed)  │
-│ • Production Live E2E UI (20/20 PASS) │                                       │                                       │
-│ • Business System Analyst Agent (BSA) │                                       │                                       │
-│ • BSA Skill & Doc Watchdog Governance │                                       │                                       │
-│ • Dual-Mode AI Inference Failover     │                                       │                                       │
-│ • Dynamic Git Commit Footer System    │                                       │                                       │
-│ • Grafana Cloud Telemetry Injector    │                                       │                                       │
-│ • Grafana Incident Datasource Script  │                                       │                                       │
+│ • Decoupled DDD Multi-Cloud & Rust Core│ • Production Deployment & Multi-Cloud │ • Post-Deploy Synthetic Health        │
+│ • Production Live E2E UI (20/20 PASS) │   Health Check Verification           │   Monitoring Cron (/health 5m)        │
+│ • Business System Analyst Agent (BSA) │ • Auto-Inject Git Commit Version      │ • Extend Grafana Exporter with        │
+│ • BSA Skill & Doc Watchdog Governance │   (v1.0.0.<commit_hash> in HTML)      │   Vercel Gateway Health Alerting      │
+│ • Dual-Mode AI Inference Failover     │ • Amber Status Wording Correction     │                                       │
+│ • Dynamic Git Commit Footer System    │   ("Standby (Local Engine Fallback)") │                                       │
+│ • Grafana Cloud Telemetry Injector    │ • Vercel Serverless Handler Fix       │                                       │
+│ • Grafana Incident Datasource Script  │   (res.status().json() compatibility) │                                       │
 │ • Repaired Grafana Dashboard Queries  │                                       │                                       │
 │ • 30/30 Pytest Ingestion Suite PASS   │                                       │                                       │
 │ • Vercel Edge Gateway Stabilization   │                                       │                                       │

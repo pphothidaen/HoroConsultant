@@ -42,18 +42,35 @@ python3 scripts/run_vercel_prod_curl_regression.py
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Decoupled DDD Multi-Cloud & Rust Core│ (None - All tasks completed 100%)     │ (None - All roadmap tasks completed)  │
-│ • Grafana Cloud Observability Engine  │                                       │                                       │
-│ • Prometheus Metrics Endpoint         │                                       │                                       │
-│   (/metrics & /api/health alias)      │                                       │                                       │
-│ • Playwright E2E Screenshots (17/17)  │                                       │                                       │
-│ • UI Button & Endpoint Suite (25/25)  │                                       │                                       │
-│ • HF Spaces Live Deploy & Audit       │                                       │                                       │
-│ • Pre-Deploy Safety Audit (PASS)      │                                       │                                       │
+│ • Decoupled DDD Multi-Cloud & Rust Core│ • Live Production CI/CD Build & Health│ • Post-Deploy Synthetic Health        │
+│ • Grafana Cloud Observability Engine  │   Status Verification                 │   Monitoring Cron (/health 5m)        │
+│ • Prometheus Metrics Endpoint         │ • Dynamic Git Commit Version Staging  │ • Extend Grafana Exporter with        │
+│   (/metrics & /api/health alias)      │   (v1.0.0.<commit_hash> in HTML)      │   Vercel Gateway Health Alerting      │
+│ • Playwright E2E Screenshots (17/17)  │ • Amber Status Wording Correction     │ • Auto-healing Gateway Health         │
+│ • UI Button & Endpoint Suite (25/25)  │   ("Standby (Local Engine Fallback)") │   Failover Switch                     │
+│ • HF Spaces Live Deploy & Audit       │ • Vercel Serverless Handler Fix       │                                       │
+│ • Pre-Deploy Safety Audit (PASS)      │   (res.status().json() compatibility) │                                       │
 │ • 169/169 Pytest Suite (100% PASS)    │                                       │                                       │
-│ • Vercel Edge Gateway Stabilization   │                                       │                                       │
+│ • Glassmorphic Responsive Footer Status│                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
+
+---
+
+### 🔄 DOING (กำลังดำเนินการ)
+
+- [ ] **Production CI/CD Build Staging & Multi-Cloud Health Status Verification ([`api/index.js`](file:///Users/kimlenglim/Project/HoroConsultant/api/index.js), [`scripts/publish_space_hf.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/publish_space_hf.py), [`project/static/app.js`](file:///Users/kimlenglim/Project/HoroConsultant/project/static/app.js))**
+  - [x] **Auto-Inject Git Commit Version Staging**: Inject exact Git commit version string (`v1.0.0.<commit_hash>`) into static `index.html` during `publish_space_hf.py` build staging.
+  - [x] **Vercel Serverless Handler Resolution**: Simplify `api/index.js` using Vercel `res.status().json()` methods to eliminate stream hanging and resolve `FUNCTION_INVOCATION_FAILED`.
+  - [x] **Amber Status Indicator Wording**: Update `#f59e0b` amber badge text to accurately state `Health: Standby (Local Engine Fallback)` when backend health check is in fallback state.
+  - [ ] **End-to-End Live Health Status Verification**: Verify HTTP 200 responses across HF Spaces Static UI, Fly.io, and Vercel Production Gateway.
+
+---
+
+### 📋 TODO (รอดำเนินการในลำดับถัดไป)
+
+- [ ] **Post-Deployment Synthetic Health Monitoring Cron**: Implement scheduled 5-minute health ping checks against `/health` and `/api/v1/health` with automated Grafana alert notifications.
+- [ ] **Extend Grafana Exporter for Gateway Telemetry**: Add gateway response latencies and HTTP status distribution (2xx/4xx/5xx) to `scripts/grafana_cloud_exporter.py`.
 
 ---
 
