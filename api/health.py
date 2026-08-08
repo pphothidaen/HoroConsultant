@@ -1,13 +1,26 @@
-import sys
-import logging
-from pathlib import Path
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-# Add project root directory to sys.path for Vercel Serverless Lambda environment
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+app = FastAPI(title="Health Check Gateway")
 
-from project.main import app
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/health")
+@app.get("/api/health")
+@app.get("/api/v1/health")
+@app.get("/")
+async def health():
+    return {
+        "status": "ok",
+        "service": "Computational Metaphysics Engine",
+        "version": "1.0.0"
+    }
 
 # Vercel handler alias
 handler = app
