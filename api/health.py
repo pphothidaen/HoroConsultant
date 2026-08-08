@@ -1,25 +1,16 @@
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from http.server import BaseHTTPRequestHandler
+import json
 
-app = FastAPI()
-
-@app.get("/{path:path}")
-@app.get("/")
-async def health(path: str = ""):
-    return JSONResponse(
-        status_code=200,
-        content={
+class handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Credentials', 'true')
+        self.end_headers()
+        response_data = {
             "status": "ok",
             "service": "Computational Metaphysics Engine",
             "version": "1.0.0"
-        },
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Credentials": "true",
-            "Access-Control-Allow-Methods": "*",
-            "Access-Control-Allow-Headers": "*",
         }
-    )
-
-handler = app
-app = app
+        self.wfile.write(json.dumps(response_data).encode('utf-8'))
