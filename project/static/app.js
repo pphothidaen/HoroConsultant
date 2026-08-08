@@ -1,7 +1,6 @@
 const BACKEND_API_HOSTS = [
   "", // Relative origin (local server / same-origin proxy)
   "https://horo-consultant-psi.vercel.app", // Vercel Production Serverless API Gateway
-  "https://horoconsultant-core-backend.fly.dev", // Fly.io Core Backend API
 ];
 
 function getApiBaseUrl() {
@@ -148,11 +147,7 @@ async function resolveLocation() {
 
 async function updateVersionFooter() {
   try {
-    const isStaticSpace = typeof window !== 'undefined' && window.location && window.location.hostname.includes('static.hf.space');
-    const healthUrl = isStaticSpace
-      ? 'https://horoconsultant-core-backend.fly.dev/health'
-      : '/health';
-
+    const healthUrl = `${getApiBaseUrl()}/health`;
     const res = await fetch(healthUrl).catch(() => null);
     if (res && res.ok) {
       const data = await res.json();

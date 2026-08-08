@@ -16,12 +16,12 @@
       "dest": "https://pphothidaen-horoconsultant-core-backend.hf.space/$1"
     },
     {
-      "src": "/api/v1/(.*)",
-      "dest": "https://pphothidaen-horoconsultant-core-backend.hf.space/api/v1/$1"
+      "src": "/api/(.*)",
+      "dest": "api/index.py"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "https://pphothidaen-horoconsultant-core-backend.hf.space/api/$1"
+      "src": "/health",
+      "dest": "api/index.py"
     },
     {
       "src": "/(.*)",
