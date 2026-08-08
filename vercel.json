@@ -13,19 +13,19 @@
     },
     {
       "src": "/health",
-      "dest": "/api/health.py"
+      "dest": "api/health"
     },
     {
       "src": "/api/v1/health",
-      "dest": "/api/health.py"
+      "dest": "api/health"
     },
     {
       "src": "/api/v1/(.*)",
-      "dest": "/api/index.py"
+      "dest": "api/index"
     },
     {
       "src": "/api/(.*)",
-      "dest": "/api/index.py"
+      "dest": "api/index"
     }
   ]
 }

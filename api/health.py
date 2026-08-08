@@ -1,12 +1,25 @@
-import sys
-from pathlib import Path
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
-# Add project root directory to sys.path for Vercel Serverless Lambda environment
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+app = FastAPI()
 
-from project.main import app
+@app.get("/{path:path}")
+@app.get("/")
+async def health(path: str = ""):
+    return JSONResponse(
+        status_code=200,
+        content={
+            "status": "ok",
+            "service": "Computational Metaphysics Engine",
+            "version": "1.0.0"
+        },
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "*",
+        }
+    )
 
-# Export FastAPI app for Vercel Serverless Function
+handler = app
 app = app
