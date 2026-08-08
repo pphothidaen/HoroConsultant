@@ -88,7 +88,16 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "*",
+        "https://pphothidaen-horoconsultant-core-backend.static.hf.space",
+        "https://pphothidaen-horoconsultant-core-backend.hf.space",
+        "https://horo-consultant-psi.vercel.app",
+        "https://horoconsultant-core-backend.fly.dev",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ],
+    allow_origin_regex=r"https://.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

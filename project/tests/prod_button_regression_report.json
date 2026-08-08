@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-08-08 16:44:55 UTC",
+  "timestamp": "2026-08-08 16:53:01 UTC",
   "target_url": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html",
-  "elapsed_seconds": 44.58,
+  "elapsed_seconds": 44.13,
   "summary": {
     "total_buttons": 20,
     "passed": 20,
@@ -26,7 +26,7 @@
       "handler": "resolveLocation()",
       "endpoint": "POST /api/v1/location/resolve",
       "status": "PASSED",
-      "detail": "Resolved location to กำลังค้นหาพิกัด... (lng: 100.4930, utc: 7.0)",
+      "detail": "Resolved location to ✅ เขตบางกะปิ, กรุงเทพมหานคร, ประเทศไทย (UTC+7) (lng: 100.6439, utc: 7)",
       "screenshot": "screenshots/prod_02_location_resolved.png"
     },
     {
