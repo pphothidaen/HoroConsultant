@@ -24,7 +24,6 @@ from fastapi.testclient import TestClient
 from project.main import app
 from project.core.multi_agent_debate import MetaphysicsDebateEngine
 from scripts.cleanup_vector_store import audit_storage, purge_and_cleanup
-from api.main import handler
 
 ROOT = Path(__file__).resolve().parents[2]
 client = TestClient(app)
