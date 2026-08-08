@@ -90,6 +90,8 @@ def _generate_fallback_reading(dm: dict, pcts: dict, query: Optional[str]) -> st
 # ---------------------------------------------------------------------------
 
 @debate_router.post("/api/v1/bazi/interpret", tags=["BaZi", "AI"])
+@debate_router.post("/v1/bazi/interpret", tags=["BaZi", "AI"])
+@debate_router.post("/bazi/interpret", tags=["BaZi", "AI"])
 async def interpret_bazi(req: InterpretRequest):
     """
     Calculate BaZi chart then pass to AI for natural-language interpretation.
