@@ -18,6 +18,7 @@
    - [1.3 การดูผังภาพกราฟิกเวกเตอร์ SVG Chart](#13-การดูผังภาพกราฟิกเวกเตอร์-svg-chart)
    - [1.4 การดูบทวิเคราะห์ AI & Gemini Audit Tabs](#14-การดูบทวิเคราะห์-ai--gemini-audit-tabs)
    - [1.5 การกดคำนวณผัง 9 ศาสตร์ย่อย (5-Branch Metaphysics)](#15-การกดคำนวณผัง-9-ศาสตร์ย่อย-5-branch-metaphysics)
+   - [1.6 การใช้งาน OpenAPI Interactive API Documentation (/docs, /redoc)](#16-การใช้งาน-openapi-interactive-api-documentation-docs-redoc)
 2. [🔐 คู่มือสำหรับ Admin & นักอภิมหาโหร (Admin & HITL Reviewer Guide)](#2-คู่มือสำหรับ-admin--นักอภิมหาโหร-admin--hitl-reviewer-guide)
    - [2.1 การใช้งาน Admin Panel & Knowledge Catalog](#21-การใช้งาน-admin-panel--knowledge-catalog)
    - [2.2 การใช้งาน HITL Review Studio & Confidence Heatmap](#22-การใช้งาน-hitl-review-studio--confidence-heatmap)
@@ -98,6 +99,14 @@
 - 🐘 **โหราศาสตร์ไทย & ภารตวิทยา:** ดูลัคนาสุริยยาตร์, ดาวศิริ/กาลกิณี, มหาทักษา 8 เทวดา และนักษัตร 27 ดารา
 - 🌌 **โหราศาสตร์สากล & ยูเรเนียน:** ดูตำแหน่งดาวเคราะห์สากล, ดาวทิพย์ 8 องค์ และจุดอิทธิพลสะท้อน (Midpoint)
 - 🔢 **สัตตเลข 7 ฐาน & เลขศาสตร์:** ดูตารางสัตตเลข 4 แถว 7 ฐาน และผลรวมเลขศาสตร์ Chaldean
+
+---
+
+### 1.6 การใช้งาน OpenAPI Interactive API Documentation (/docs, /redoc)
+ระบบรองรับเอกสารสเปก API แบบตอบโต้ได้เพื่อให้นักพัฒนาและแอปพลิเคชันภายนอกทดลองเรียกใช้งาน API:
+- **📘 Swagger UI Interactive Documentation (`http://localhost:8000/docs`):** ทดลองส่ง Request, กรอกตัวแปร JSON และรับ Response สดๆ บนเบราว์เซอร์
+- **📕 ReDoc Schema Explorer (`http://localhost:8000/redoc`):** อ่านสเปก OpenAPI Schema แบบเต็มสำหรับการนำไปสร้าง Client Code / SDK
+- **⚙️ OpenAPI JSON Specification (`http://localhost:8000/openapi.json`):** สเปก OpenAPI 3.1.0 ในรูปแบบ JSON สำหรับนำไป Import เข้า Postman หรือ Insomnia
 
 ---
 

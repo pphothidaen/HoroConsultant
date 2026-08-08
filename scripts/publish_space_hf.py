@@ -280,6 +280,30 @@ def publish_space(space_id: str, sdk: str = "static", private: bool = False, dry
                     repo_type="space",
                 )
         else:
+            # Generate and upload README.md with Hugging Face Space YAML frontmatter for Docker SDK
+            hf_readme_content = """---
+title: Horoconsultant Core Backend
+emoji: 🔮
+colorFrom: indigo
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
+# 🔮 HoroConsultant — Computational Metaphysics Engine Core Backend
+
+High-Precision 10-Domain Computational Metaphysics Engine, True Solar Time Engine, Multi-Agent Gemini & Local Ollama Hybrid Routing, FAISS Classical Vault RAG, Rust Fast Math Acceleration, and HITL Review Studio.
+"""
+            readme_path = ROOT / "README.hf.md"
+            readme_path.write_text(hf_readme_content, encoding="utf-8")
+
+            api.upload_file(
+                path_or_fileobj=str(readme_path),
+                path_in_repo="README.md",
+                repo_id=space_id,
+                repo_type="space",
+            )
             api.upload_file(
                 path_or_fileobj=str(ROOT / "Dockerfile.hf"),
                 path_in_repo="Dockerfile",

@@ -1308,204 +1308,540 @@
       "generated_at": "2026-08-08T09:29:04.998703"
     },
     "f007aa9293c12e0c": {
-      "answer": "ในศาสตร์ BaZi (四柱命理) หรือ คำนวณ八字 ซึ่งเป็นหนึ่งในวิชาการจีนโบราณที่มีความสำคัญในการอ่านลักษณะบุคคลและชะตาชีวิต ดาวจักรพรรดิ (紫微星, Zi Wei) เป็นส่วนสำคัญที่ถูกใช้ในการตีความและวิเคราะห์การนับ八字\n\nตาม 《子平真詮》 (Zǐ Píng Zhēn Qián), 《滴天髓》 (Dī Tiān Suǐ) และ 《窮通寶鑑》 (Qióng Tōng Bǎo Jiàn) ซึ่งเป็นคัมภีร์สำคัญในศาสตร์ BaZi, ดาวจักรพรรดิ (紫微星, Zi Wei) เป็นดาวที่มีความหมายสูงสุดและถูกเรียกว่า \"จักรพรรดิ\" เนื่องจากมันเป็นดาวที่ทรงพลังและมีอิทธิพลอย่างมากต่อชะตาชีวิตของบุคคล\n\nลักษณะและการตีความของ 《紫微星》 (Zi Wei) ใน BaZi สามารถสรุปได้ดังนี้:\n\n1. **สถานที่ใน八字**: ดาวจักรพรรดิมักจะปรากฏในตำแหน่งที่สำคัญใน八字 เช่น ตำแหน่งที่ 2, 4, 6 หรือ 8 ซึ่งถูกเรียกว่า \"ตำแหน่งจักรพรรดิ\" (帝位, Dìwèi) \n\n2. **การตีความ**: ดาวจักรพรรดิเป็นสัญลักษณ์ของอำนาจ, ความสำเร็จ, และโอกาสทางอาชีพ การมีดาวจักรพรรดิใน八字 ทำให้บุคคลนั้นมีโอกาสในการประสบความสำเร็จในอาชีพและมีอิทธิพลในสังคม\n\n3. **การผสมผสาน**: การที่ดาวจักรพรรดิปรากฏร่วมกับดาวอื่นๆ อาจทำให้เกิดการตีความที่แตกต่าง เช่น การผสมผสานกับดาว \"ศิลปิน\" (文曲星, Wénqǔxīng) อาจทำให้มีความสามารถทางวัฒนธรรมและสร้างสรรค์\n\n4. **การเปลี่ยนแปลง**: ในบางกรณี ดาวจักรพรรดิอาจถูกเปลี่ยนแปลงหรือถูกลบออกใน八字 ซึ่งอาจทำให้เกิดการเปลี่ยนแปลงในชะตาชีวิตของบุคคล เช่น การเปลี่ยนงานหรือสถานะทางสังคม\n\n5. **ความหมายเชิงจิตใจ**: ดาวจักรพรรดิไม่เพียงแต่มีอิทธิพลทางการเมืองและอาชีพเท่านั้น แต่ยังมีความหมายในเชิงจิตใจ เช่น การมีความมุ่งมั่น, ความมั่นคง และการมีเป้าหมายชีวิตที่ชัดเจน\n\nดังนั้น ดาวจักรพรรดิ (紫微星, Zi Wei) ในศาสตร์ BaZi เป็นสัญลักษณ์ของอำนาจและความสำเร็จ ซึ่งมีความสำคัญอย่างยิ่งในการวิเคราะห์และตีความ八字 แต่การตีความที่ถูกต้องจะขึ้นอยู่กับบริบทและการผสมผสานของดาวอื่นๆ ใน八字 ดังคำแนะนำในคัมภีร์โบราณที่กล่าวมา.",
-      "model_used": "qwen2.5:7b",
-      "confidence_scores": [
-        {
-          "text": "ในศาสตร์ BaZi (四柱命理) หรือ คำนวณ八字 ซึ่งเป็นหนึ่งในวิชาการจีนโบราณที่มีความสำคัญในการอ่านลักษณะบุคคลและชะตาชีวิต ดาวจักรพรรดิ (紫微星, Zi Wei) เป็นส่วนสำคัญที่ถูกใช้ในการตีความและวิเคราะห์การนับ八字\n\nตาม 《子平真詮》 (Zǐ Píng Zhēn Qián), 《滴天髓》 (Dī Tiān Suǐ) และ 《窮通寶鑑》 (Qióng Tōng Bǎo Jiàn) ซึ่งเป็นคัมภีร์สำคัญในศาสตร์ BaZi, ดาวจักรพรรดิ (紫微星, Zi Wei) เป็นดาวที่มีความหมายสูงสุดและถูกเรียกว่า \"จักรพรรดิ\" เนื่องจากมันเป็นดาวที่ทรงพลังและมีอิทธิพลอย่างมากต่อชะตาชีวิตของบุคคล\n\nลักษณะและการตีความของ 《紫微星》 (Zi Wei) ใน BaZi สามารถสรุปได้ดังนี้:\n\n1.",
-          "confidence": 0.87
-        },
-        {
-          "text": "**สถานที่ใน八字**: ดาวจักรพรรดิมักจะปรากฏในตำแหน่งที่สำคัญใน八字 เช่น ตำแหน่งที่ 2, 4, 6 หรือ 8 ซึ่งถูกเรียกว่า \"ตำแหน่งจักรพรรดิ\" (帝位, Dìwèi) \n\n2.",
-          "confidence": 0.84
-        },
-        {
-          "text": "**การตีความ**: ดาวจักรพรรดิเป็นสัญลักษณ์ของอำนาจ, ความสำเร็จ, และโอกาสทางอาชีพ การมีดาวจักรพรรดิใน八字 ทำให้บุคคลนั้นมีโอกาสในการประสบความสำเร็จในอาชีพและมีอิทธิพลในสังคม\n\n3.",
-          "confidence": 0.74
-        },
-        {
-          "text": "**การผสมผสาน**: การที่ดาวจักรพรรดิปรากฏร่วมกับดาวอื่นๆ อาจทำให้เกิดการตีความที่แตกต่าง เช่น การผสมผสานกับดาว \"ศิลปิน\" (文曲星, Wénqǔxīng) อาจทำให้มีความสามารถทางวัฒนธรรมและสร้างสรรค์\n\n4.",
-          "confidence": 0.46
-        },
-        {
-          "text": "**การเปลี่ยนแปลง**: ในบางกรณี ดาวจักรพรรดิอาจถูกเปลี่ยนแปลงหรือถูกลบออกใน八字 ซึ่งอาจทำให้เกิดการเปลี่ยนแปลงในชะตาชีวิตของบุคคล เช่น การเปลี่ยนงานหรือสถานะทางสังคม\n\n5.",
-          "confidence": 0.56
-        },
-        {
-          "text": "**ความหมายเชิงจิตใจ**: ดาวจักรพรรดิไม่เพียงแต่มีอิทธิพลทางการเมืองและอาชีพเท่านั้น แต่ยังมีความหมายในเชิงจิตใจ เช่น การมีความมุ่งมั่น, ความมั่นคง และการมีเป้าหมายชีวิตที่ชัดเจน\n\nดังนั้น ดาวจักรพรรดิ (紫微星, Zi Wei) ในศาสตร์ BaZi เป็นสัญลักษณ์ของอำนาจและความสำเร็จ ซึ่งมีความสำคัญอย่างยิ่งในการวิเคราะห์และตีความ八字 แต่การตีความที่ถูกต้องจะขึ้นอยู่กับบริบทและการผสมผสานของดาวอื่นๆ ใน八字 ดังคำแนะนำในคัมภีร์โบราณที่กล่าวมา.",
-          "confidence": 0.9
-        }
-      ],
-      "latency_ms": 78314,
-      "generated_at": "2026-08-08T09:30:23.325511"
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-08-08T09:32:53.946750"
     },
     "910781006f5040f7": {
-      "answer": "ในบริบทของ BaZi (四柱命理) และ Zi Wei Dou Shu (紫微斗数)，เราสามารถทำการเปรียบเทียบวิธีการและจุดแข็ง-จุดอ่อนได้ดังนี้:\n\n### วิธีการ\n\n**BaZi:**\n1. **การคำนวณ:** BaZi ใช้วิธีการคำนวณที่พื้นฐาน โดยใช้เก้าอี้ (四柱) หรือ \"สี่คอลัมน์\" ซึ่งประกอบด้วย ปี เดือน วัน และชั่วโมง เพื่อสร้างกราฟบาร์ซิ (八字图).\n2. **การวิเคราะห์:** การวิเคราะห์ใน BaZi อาศัยความสัมพันธ์ระหว่างธาตุและ元素之间的相互作用，以及天干地支的组合关系。\n3. **การใช้ข้อมูล:** BaZi ใช้ข้อมูลที่ละเอียดมาก เช่น เวลาเกิด แม้กระทั่งชั่วโมง\n\n**Zi Wei Dou Shu:**\n1. **การคำนวณ:** Zi Wei Dou Shu ใช้วิธีการคำนวณที่ซับซ้อนกว่า โดยมีการกำหนดตำแหน่งของดาวจักรพรรดิ (紫微星) และการวิเคราะห์ความสัมพันธ์ระหว่างดาวต่างๆ。\n2. **การวิเคราะห์:** การวิเคราะห์ใน Zi Wei Dou Shu อาศัยตำแหน่งของดาวจักรพรรดิและดาวอื่นๆ บนแผนที่ Dou Shu (斗数图)。\n3. **การใช้ข้อมูล:** ในขณะที่ BaZi ใช้ข้อมูลเกิด แต่ Zi Wei Dou Shu อาจใช้ข้อมูลเพิ่มเติม เช่น การเปลี่ยนแปลงของดาวจักรพรรดิในเวลา\n\n### จุดแข็ง-จุดอ่อน\n\n**BaZi:**\n- **จุดแข็ง:** BaZi มีความแม่นยำสูงเนื่องจากใช้ข้อมูลที่ละเอียด เช่น เวลาเกิด ซึ่งทำให้สามารถวิเคราะห์รายละเอียดของชีวิตได้อย่างลึกซึ้ง。\n- **จุดอ่อน:** BaZi อาจไม่ครอบคลุมการวิเคราะห์ในระดับที่ซับซ้อนเท่ากับ Zi Wei Dou Shu และบางครั้งอาจขาดข้อมูลสำคัญหากไม่มีเวลาเกิด\n\n**Zi Wei Dou Shu:**\n- **จุดแข็ง:** สามารถวิเคราะห์รายละเอียดของชีวิตได้อย่างลึกซึ้งและครอบคลุมมากกว่า BaZi โดยเฉพาะในเรื่องการเปลี่ยนแปลงและการพัฒนาที่เกิดขึ้นในชีวิต。\n- **จุดอ่อน:** ความซับซ้อนในการคำนวณและความจำเป็นต้องมีความรู้ลึกซึ้งในระบบของ Dou Shu อาจทำให้การเรียนรู้และการใช้งานยากขึ้น\n\n### อ้างอิง\n- **子平真詮 (Zǐ Píng Zhēn Qián):** ตำราที่เน้นวิธีการและหลักการของ BaZi。\n- **滴天髓 (Dī Tiān Suǐ):** คัมภีร์ที่อธิบายเกี่ยวกับการใช้ Dou Shu และวิเคราะห์ตำแหน่งของดาวจักรพรรดิ。\n- **窮通寶鑑 (Qióng Tōng Bǎo Jiàn):** คัมภีร์ที่รวมความรู้และเทคนิคในการใช้งาน Dou Shu。\n\nการเปรียบเทียบนี้ช่วยให้เข้าใจว่า BaZi และ Zi Wei Dou Shu มีลักษณะเฉพาะและความแตกต่างในวิธีการและการใช้งาน ซึ่งสามารถเลือกใช้ตามความเหมาะสมและข้อมูลที่มี sẵn。",
-      "model_used": "qwen2.5:7b",
-      "confidence_scores": [
-        {
-          "text": "ในบริบทของ BaZi (四柱命理) และ Zi Wei Dou Shu (紫微斗数)，เราสามารถทำการเปรียบเทียบวิธีการและจุดแข็ง-จุดอ่อนได้ดังนี้:\n\n### วิธีการ\n\n**BaZi:**\n1.",
-          "confidence": 0.73
-        },
-        {
-          "text": "**การคำนวณ:** BaZi ใช้วิธีการคำนวณที่พื้นฐาน โดยใช้เก้าอี้ (四柱) หรือ \"สี่คอลัมน์\" ซึ่งประกอบด้วย ปี เดือน วัน และชั่วโมง เพื่อสร้างกราฟบาร์ซิ (八字图).",
-          "confidence": 0.78
-        },
-        {
-          "text": "2.",
-          "confidence": 0.66
-        },
-        {
-          "text": "**การวิเคราะห์:** การวิเคราะห์ใน BaZi อาศัยความสัมพันธ์ระหว่างธาตุและ元素之间的相互作用，以及天干地支的组合关系。\n3.",
-          "confidence": 0.78
-        },
-        {
-          "text": "**การใช้ข้อมูล:** BaZi ใช้ข้อมูลที่ละเอียดมาก เช่น เวลาเกิด แม้กระทั่งชั่วโมง\n\n**Zi Wei Dou Shu:**\n1.",
-          "confidence": 0.7
-        },
-        {
-          "text": "**การคำนวณ:** Zi Wei Dou Shu ใช้วิธีการคำนวณที่ซับซ้อนกว่า โดยมีการกำหนดตำแหน่งของดาวจักรพรรดิ (紫微星) และการวิเคราะห์ความสัมพันธ์ระหว่างดาวต่างๆ。\n2.",
-          "confidence": 0.74
-        },
-        {
-          "text": "**การวิเคราะห์:** การวิเคราะห์ใน Zi Wei Dou Shu อาศัยตำแหน่งของดาวจักรพรรดิและดาวอื่นๆ บนแผนที่ Dou Shu (斗数图)。\n3.",
-          "confidence": 0.66
-        },
-        {
-          "text": "**การใช้ข้อมูล:** ในขณะที่ BaZi ใช้ข้อมูลเกิด แต่ Zi Wei Dou Shu อาจใช้ข้อมูลเพิ่มเติม เช่น การเปลี่ยนแปลงของดาวจักรพรรดิในเวลา\n\n### จุดแข็ง-จุดอ่อน\n\n**BaZi:**\n- **จุดแข็ง:** BaZi มีความแม่นยำสูงเนื่องจากใช้ข้อมูลที่ละเอียด เช่น เวลาเกิด ซึ่งทำให้สามารถวิเคราะห์รายละเอียดของชีวิตได้อย่างลึกซึ้ง。\n- **จุดอ่อน:** BaZi อาจไม่ครอบคลุมการวิเคราะห์ในระดับที่ซับซ้อนเท่ากับ Zi Wei Dou Shu และบางครั้งอาจขาดข้อมูลสำคัญหากไม่มีเวลาเกิด\n\n**Zi Wei Dou Shu:**\n- **จุดแข็ง:** สามารถวิเคราะห์รายละเอียดของชีวิตได้อย่างลึกซึ้งและครอบคลุมมากกว่า BaZi โดยเฉพาะในเรื่องการเปลี่ยนแปลงและการพัฒนาที่เกิดขึ้นในชีวิต。\n- **จุดอ่อน:** ความซับซ้อนในการคำนวณและความจำเป็นต้องมีความรู้ลึกซึ้งในระบบของ Dou Shu อาจทำให้การเรียนรู้และการใช้งานยากขึ้น\n\n### อ้างอิง\n- **子平真詮 (Zǐ Píng Zhēn Qián):** ตำราที่เน้นวิธีการและหลักการของ BaZi。\n- **滴天髓 (Dī Tiān Suǐ):** คัมภีร์ที่อธิบายเกี่ยวกับการใช้ Dou Shu และวิเคราะห์ตำแหน่งของดาวจักรพรรดิ。\n- **窮通寶鑑 (Qióng Tōng Bǎo Jiàn):** คัมภีร์ที่รวมความรู้และเทคนิคในการใช้งาน Dou Shu。\n\nการเปรียบเทียบนี้ช่วยให้เข้าใจว่า BaZi และ Zi Wei Dou Shu มีลักษณะเฉพาะและความแตกต่างในวิธีการและการใช้งาน ซึ่งสามารถเลือกใช้ตามความเหมาะสมและข้อมูลที่มี sẵn。.",
-          "confidence": 0.73
-        }
-      ],
-      "latency_ms": 95052,
-      "generated_at": "2026-08-08T09:27:04.820148"
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-08-08T09:36:36.565285"
     },
     "fa9e7026998832dc": {
-      "answer": "หลักการพื้นฐานของ Liu Ren (壬) ในบริบทของการพยากรณ์จีนเป็นศาสตร์ที่มุ่งเน้นการวิเคราะห์และอภิปรัชญาจากมุมมองของความสัมพันธ์ระหว่างมนุษย์กับธรรมชาติ ซึ่งแตกต่างจากการวิเคราะห์ใน BaZi และ Qi Men โดยมีลักษณะเฉพาะที่สำคัญดังนี้:\n\n1. **การใช้五行 (Wu Xing) ในการวิเคราะห์**: Liu Ren ใช้五行 (Wu Xing) เพื่อวิเคราะห์ความสัมพันธ์ระหว่างมนุษย์กับธรรมชาติ โดยเฉพาะในแง่ของความเป็นผู้นำและการควบคุม ซึ่งแตกต่างจาก BaZi ที่ใช้五行ในการวิเคราะห์จุดเวลาเกิด (四柱) และ Qi Men ที่ใช้五行ในการวิเคราะห์สถานการณ์ปัจจุบันและอนาคต\n\n2. **ความสำคัญของ \"壬\"**: ใน Liu Ren, \"壬\" เป็นหนึ่งใน五行ซึ่งมีบทบาทสำคัญในการวิเคราะห์ ถือเป็นพลังงานที่สามารถสร้างสรรค์และเปลี่ยนแปลงได้ แตกต่างจาก BaZi ที่ใช้ \"壬\" เป็นหนึ่งในสี่柱 (四柱) และ Qi Men ที่ไม่มีการใช้ \"壬\" ในรูปแบบเดียวกัน\n\n3. **วิธีการวิเคราะห์**: Liu Ren มุ่งเน้นการวิเคราะห์ความสัมพันธ์ระหว่าง五行และมนุษย์ ซึ่งรวมถึงการควบคุมและการเปลี่ยนแปลง แตกต่างจาก BaZi ที่เน้นการวิเคราะห์จุดเวลาเกิด และ Qi Men ที่เน้นการวิเคราะห์สถานการณ์ปัจจุบันและอนาคต\n\n4. **ความลึกซึ้งของปรัชญา**: Liu Ren มีลักษณะเป็นศาสตร์ที่ลึกซึ้งและมีความหมายทางปรัชญา ซึ่งเน้นการเข้าใจความสัมพันธ์ระหว่างมนุษย์กับธรรมชาติ แตกต่างจาก BaZi และ Qi Men ที่มุ่งเน้นการวิเคราะห์ข้อมูลทางสถิติและสถานการณ์ปัจจุบัน\n\n**อ้างอิง**: \n- 子平真詮 (The True Explanation of 子平) โดย หลินซื่อเจี้ยน (林松年)\n- 滴天髓 (Drip of the Sky Marrow) โดย หยางชิงเหว่ย (楊誠緯)\n- 窮通寶鑑 (Treasure Mirror of Wealth and Fortune) โดย หวังจื่อซือ (王 Closet)\n\nเหล่านี้เป็นแหล่งข้อมูลที่สำคัญในการศึกษาและเข้าใจ Liu Ren และการพยากรณ์จีนในรูปแบบต่างๆ",
-      "model_used": "qwen2.5:7b",
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-08-08T09:40:48.626865"
+    },
+    "1fc87217b7a2097d": {
+      "answer": "หลิวเหริน (Liu Ren) เป็นหนึ่งในเทคนิคพยากรณ์ที่มีอยู่ในปรัชญาจีนและ BaZi ซึ่งใช้ในการสร้างแผนภูมิที่แสดงความสัมพันธ์ระหว่างปี, เดือน, และวันของบุคคล เพื่อทำนายอนาคต\n\nการสร้าง 課式 (Ke Shi / Liu Ren Chart) หรือแผนภูมิหลิวเหริน มีขั้นตอนดังนี้:\n\n1. กำหนดปี, เดือน และวันที่เกิดของบุคคล\n2. ใช้ตารางหลิวเหริน (Liu Ren Table) เพื่อหาตำแหน่งของแต่ละส่วนในแผนภูมิ โดยใช้เลขประจำเดือนและวันเกิดเป็นตัวแปรในการคำนวณ\n3. เขียนชื่อ สกุล และชื่อเล่น (ถ้ามี) ในแผนภูมิ\n4. นำข้อมูลจาก BaZi หรือพยากรณ์ด้านอื่นๆ เพื่อเติมเต็มแผนภูมิ\n\nหลิวเหริน มีความซับซ้อนและละเอียดมาก เพราะมันใช้การคำนวณที่ซับซ้อนและข้อมูลที่หลากหลาย ทำให้มีผลลัพธ์ที่แตกต่างกันไปตามความสัมพันธ์ระหว่างปี, เดือน และวัน\n\nสำหรับอ้างอิงเพิ่มเติม คุณสามารถศึกษาในหนังสือ \"子平真詮\" (Zǐpíng zhēnjiān) โดย 李時珍 (Lī Shízhēn) หรือ \"滴天髓\" (Dītián suǐ) โดย 黃元吉 (Huáng Yuánjī)",
+      "model_used": "qwen2.5-coder:7b",
       "confidence_scores": [
         {
-          "text": "หลักการพื้นฐานของ Liu Ren (壬) ในบริบทของการพยากรณ์จีนเป็นศาสตร์ที่มุ่งเน้นการวิเคราะห์และอภิปรัชญาจากมุมมองของความสัมพันธ์ระหว่างมนุษย์กับธรรมชาติ ซึ่งแตกต่างจากการวิเคราะห์ใน BaZi และ Qi Men โดยมีลักษณะเฉพาะที่สำคัญดังนี้:\n\n1.",
-          "confidence": 0.92
+          "text": "หลิวเหริน (Liu Ren) เป็นหนึ่งในเทคนิคพยากรณ์ที่มีอยู่ในปรัชญาจีนและ BaZi ซึ่งใช้ในการสร้างแผนภูมิที่แสดงความสัมพันธ์ระหว่างปี, เดือน, และวันของบุคคล เพื่อทำนายอนาคต\n\nการสร้าง 課式 (Ke Shi / Liu Ren Chart) หรือแผนภูมิหลิวเหริน มีขั้นตอนดังนี้:\n\n1.",
+          "confidence": 0.69
         },
         {
-          "text": "**การใช้五行 (Wu Xing) ในการวิเคราะห์**: Liu Ren ใช้五行 (Wu Xing) เพื่อวิเคราะห์ความสัมพันธ์ระหว่างมนุษย์กับธรรมชาติ โดยเฉพาะในแง่ของความเป็นผู้นำและการควบคุม ซึ่งแตกต่างจาก BaZi ที่ใช้五行ในการวิเคราะห์จุดเวลาเกิด (四柱) และ Qi Men ที่ใช้五行ในการวิเคราะห์สถานการณ์ปัจจุบันและอนาคต\n\n2.",
-          "confidence": 0.72
+          "text": "กำหนดปี, เดือน และวันที่เกิดของบุคคล\n2.",
+          "confidence": 0.83
         },
         {
-          "text": "**ความสำคัญของ \"壬\"**: ใน Liu Ren, \"壬\" เป็นหนึ่งใน五行ซึ่งมีบทบาทสำคัญในการวิเคราะห์ ถือเป็นพลังงานที่สามารถสร้างสรรค์และเปลี่ยนแปลงได้ แตกต่างจาก BaZi ที่ใช้ \"壬\" เป็นหนึ่งในสี่柱 (四柱) และ Qi Men ที่ไม่มีการใช้ \"壬\" ในรูปแบบเดียวกัน\n\n3.",
+          "text": "ใช้ตารางหลิวเหริน (Liu Ren Table) เพื่อหาตำแหน่งของแต่ละส่วนในแผนภูมิ โดยใช้เลขประจำเดือนและวันเกิดเป็นตัวแปรในการคำนวณ\n3.",
+          "confidence": 0.83
+        },
+        {
+          "text": "เขียนชื่อ สกุล และชื่อเล่น (ถ้ามี) ในแผนภูมิ\n4.",
           "confidence": 0.78
         },
         {
-          "text": "**วิธีการวิเคราะห์**: Liu Ren มุ่งเน้นการวิเคราะห์ความสัมพันธ์ระหว่าง五行และมนุษย์ ซึ่งรวมถึงการควบคุมและการเปลี่ยนแปลง แตกต่างจาก BaZi ที่เน้นการวิเคราะห์จุดเวลาเกิด และ Qi Men ที่เน้นการวิเคราะห์สถานการณ์ปัจจุบันและอนาคต\n\n4.",
+          "text": "นำข้อมูลจาก BaZi หรือพยากรณ์ด้านอื่นๆ เพื่อเติมเต็มแผนภูมิ\n\nหลิวเหริน มีความซับซ้อนและละเอียดมาก เพราะมันใช้การคำนวณที่ซับซ้อนและข้อมูลที่หลากหลาย ทำให้มีผลลัพธ์ที่แตกต่างกันไปตามความสัมพันธ์ระหว่างปี, เดือน และวัน\n\nสำหรับอ้างอิงเพิ่มเติม คุณสามารถศึกษาในหนังสือ \"子平真詮\" (Zǐpíng zhēnjiān) โดย 李時珍 (Lī Shízhēn) หรือ \"滴天髓\" (Dītián suǐ) โดย 黃元吉 (Huáng Yuánjī).",
+          "confidence": 0.75
+        }
+      ],
+      "latency_ms": 103569,
+      "generated_at": "2026-08-08T09:44:32.410268"
+    },
+    "16e9b679471f875e": {
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-08-08T09:50:41.994214"
+    },
+    "607ac15d9de7b11f": {
+      "answer": "ในโหราศาสตร์เวท (Jyotish Shastra) ระบบ Bhava หรือ 12 Houses เป็นโครงสร้างพื้นฐานที่สำคัญในการวิเคราะห์รูปแบบของชีวิตและเหตุการณ์ต่างๆ ตามเวลาและสถานที่เกิดของบุคคล\n\n### ระบบ Bhava (12 Houses)\n\n1. **Bhava หรือ House**:\n   - 12 Houses แบ่งเวลากายภาพออกเป็น 12 ส่วนเท่าๆ กัน โดยเริ่มจากที่ตั้งของดวงอาทิตย์ในขณะเกิด (Ascendant) และสิ้นสุดที่ที่ตั้งของดวงจันทร์ (Descendant)\n   - แต่ละ Bhava หรือ House มีความหมายเฉพาะเจาะจง เช่น Bhava 1 คือเรื่องของตนเอง, Bhava 2 คือทรัพย์สิน, Bhava 3 คือการเดินทางและการสื่อสาร, และต่อไป\n\n2. **Bhava Karaka (House Significators)**:\n   - Bhava Karaka เป็นเครื่องหมายที่แทนความสำคัญของแต่ละ Bhava ในรูปแบบของดาวหรือราศี\n   - ตาม Jaimini Sutras, Bhava Karaka มีบทบาทในการระบุความสำคัญของเรื่องราวที่เกี่ยวข้องกับ Bhava นั้นๆ\n\n### อ้างอิงจาก BPHS และ Jaimini Sutras\n\n- **BPHS (Brihat Parashara Hora Shastra)**:\n  - ใน BPHS, ระบุว่า Bhava Karaka เป็นดาวที่แทนความสำคัญของเรื่องราวที่เกี่ยวข้องกับ Bhava นั้นๆ เช่น ดาวที่อยู่ใน Bhava 2 (ทรัพย์สิน) จะเป็น Bhava Karaka สำหรับเรื่องของทรัพย์สิน\n  - \"BPHS\" อธิบายว่า Bhava Karaka มีบทบาทในการระบุความสำคัญและความหมายของเรื่องราวที่เกี่ยวข้องกับ Bhava นั้นๆ (Brihat Parashara Hora Shastra, Chapter 12)\n\n- **Jaimini Sutras**:\n  - Jaimini Sutras อธิบายว่า Bhava Karaka มีบทบาทในการระบุความสำคัญและความหมายของเรื่องราวที่เกี่ยวข้องกับ Bhava นั้นๆ โดยเฉพาะอย่างยิ่งในเรื่องของการสืบเชื้อสาย, การศึกษา, และการงาน (Jaimini Sutras, Chapter 1)\n\n### สรุป\n\n- **Bhava** หรือ House เป็นโครงสร้างพื้นฐานที่สำคัญในการวิเคราะห์รูปแบบของชีวิตและเหตุการณ์ต่างๆ\n- **Bhava Karaka (House Significators)** เป็นเครื่องหมายที่แทนความสำคัญของเรื่องราวที่เกี่ยวข้องกับ Bhava นั้นๆ โดยเฉพาะอย่างยิ่งใน Jaimini Sutras และ BPHS\n\nการเข้าใจและวิเคราะห์ Bhava และ Bhava Karaka สามารถช่วยให้ผู้อ่านได้รับความเข้าใจที่ลึกซึ้งเกี่ยวกับรูปแบบของชีวิตและการคาดการณ์เหตุการณ์ในอนาคต.",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "ในโหราศาสตร์เวท (Jyotish Shastra) ระบบ Bhava หรือ 12 Houses เป็นโครงสร้างพื้นฐานที่สำคัญในการวิเคราะห์รูปแบบของชีวิตและเหตุการณ์ต่างๆ ตามเวลาและสถานที่เกิดของบุคคล\n\n### ระบบ Bhava (12 Houses)\n\n1.",
+          "confidence": 0.77
+        },
+        {
+          "text": "**Bhava หรือ House**:\n   - 12 Houses แบ่งเวลากายภาพออกเป็น 12 ส่วนเท่าๆ กัน โดยเริ่มจากที่ตั้งของดวงอาทิตย์ในขณะเกิด (Ascendant) และสิ้นสุดที่ที่ตั้งของดวงจันทร์ (Descendant)\n   - แต่ละ Bhava หรือ House มีความหมายเฉพาะเจาะจง เช่น Bhava 1 คือเรื่องของตนเอง, Bhava 2 คือทรัพย์สิน, Bhava 3 คือการเดินทางและการสื่อสาร, และต่อไป\n\n2.",
+          "confidence": 0.65
+        },
+        {
+          "text": "**Bhava Karaka (House Significators)**:\n   - Bhava Karaka เป็นเครื่องหมายที่แทนความสำคัญของแต่ละ Bhava ในรูปแบบของดาวหรือราศี\n   - ตาม Jaimini Sutras, Bhava Karaka มีบทบาทในการระบุความสำคัญของเรื่องราวที่เกี่ยวข้องกับ Bhava นั้นๆ\n\n### อ้างอิงจาก BPHS และ Jaimini Sutras\n\n- **BPHS (Brihat Parashara Hora Shastra)**:\n  - ใน BPHS, ระบุว่า Bhava Karaka เป็นดาวที่แทนความสำคัญของเรื่องราวที่เกี่ยวข้องกับ Bhava นั้นๆ เช่น ดาวที่อยู่ใน Bhava 2 (ทรัพย์สิน) จะเป็น Bhava Karaka สำหรับเรื่องของทรัพย์สิน\n  - \"BPHS\" อธิบายว่า Bhava Karaka มีบทบาทในการระบุความสำคัญและความหมายของเรื่องราวที่เกี่ยวข้องกับ Bhava นั้นๆ (Brihat Parashara Hora Shastra, Chapter 12)\n\n- **Jaimini Sutras**:\n  - Jaimini Sutras อธิบายว่า Bhava Karaka มีบทบาทในการระบุความสำคัญและความหมายของเรื่องราวที่เกี่ยวข้องกับ Bhava นั้นๆ โดยเฉพาะอย่างยิ่งในเรื่องของการสืบเชื้อสาย, การศึกษา, และการงาน (Jaimini Sutras, Chapter 1)\n\n### สรุป\n\n- **Bhava** หรือ House เป็นโครงสร้างพื้นฐานที่สำคัญในการวิเคราะห์รูปแบบของชีวิตและเหตุการณ์ต่างๆ\n- **Bhava Karaka (House Significators)** เป็นเครื่องหมายที่แทนความสำคัญของเรื่องราวที่เกี่ยวข้องกับ Bhava นั้นๆ โดยเฉพาะอย่างยิ่งใน Jaimini Sutras และ BPHS\n\nการเข้าใจและวิเคราะห์ Bhava และ Bhava Karaka สามารถช่วยให้ผู้อ่านได้รับความเข้าใจที่ลึกซึ้งเกี่ยวกับรูปแบบของชีวิตและการคาดการณ์เหตุการณ์ในอนาคต.",
+          "confidence": 0.76
+        }
+      ],
+      "latency_ms": 95971,
+      "generated_at": "2026-08-08T09:52:17.984741"
+    },
+    "dde0fdb64c2c8bde": {
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-08-08T09:55:43.950602"
+    },
+    "b3da4b5f567f4783": {
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-08-08T09:59:02.798691"
+    },
+    "2e1a302f0a7ea4a8": {
+      "answer": "A most excellent question!\n\nAccording to the ancient text of Brihat Parasara Hora Shastra (BPHS), Navamsa, also known as D-9 Chart, is a crucial divisional chart in Jyotish Shastra. It is calculated by dividing the Ascendant into 9 equal parts and assigning each part to a specific planet.\n\n**Calculation of Navamsa:**\n\nTo calculate the Navamsa, one needs to divide the Ascendant (Lagna) into 9 equal parts, using the following formula:\n\nNavamsa = Ascendant + (Planet's longitude - Lagna's longitude)\n\nWhere:\n\n* Planet's longitude is the longitude of the planet in question\n* Lagna's longitude is the longitude of the Ascendant\n\nFor example, if the Ascendant is at 10° Aries and Mars is at 15° Leo, the Navamsa of Mars would be calculated as follows:\n\nNavamsa = 10° (Lagna) + (15° - 10°) = 5° Virgo\n\n**Interpretation of Navamsa:**\n\nThe Navamsa chart is used to gain insight into a person's subtle nature, emotional patterns, and inner motivations. It is believed that the planets in the Navamsa chart influence the individual's:\n\n1. Emotional responses (Bhavas)\n2. Inner drives and desires (Karmas)\n3. Subconscious thoughts and feelings (Samskaras)\n\nIn the BPHS, it is stated that the Navamsa chart should be used to understand a person's:\n\n* Emotional nature (Chitta)\n* Mental disposition (Manas)\n* Spiritual inclinations (Atma)\n\n**Practical Applications:**\n\nThe Navamsa chart can be used in various ways, such as:\n\n1. Identifying emotional patterns and triggers\n2. Understanding an individual's inner motivations and desires\n3. Analyzing a person's spiritual growth and evolution\n4. Determining the best timing for important life events (e.g., marriage, career changes)\n\n**References:**\n\n* Brihat Parasara Hora Shastra (BPHS) - Chapter 6, Section 2-5\n* Jaimini Sutras - Chapter 1, Section 3-4\n* Phaladeepika - Chapter 10, Section 1-3\n\nI hope this answer meets your expectations!",
+      "model_used": "llama3:8b",
+      "confidence_scores": [
+        {
+          "text": "A most excellent question!\n\nAccording to the ancient text of Brihat Parasara Hora Shastra (BPHS), Navamsa, also known as D-9 Chart, is a crucial divisional chart in Jyotish Shastra.",
           "confidence": 0.75
         },
         {
-          "text": "**ความลึกซึ้งของปรัชญา**: Liu Ren มีลักษณะเป็นศาสตร์ที่ลึกซึ้งและมีความหมายทางปรัชญา ซึ่งเน้นการเข้าใจความสัมพันธ์ระหว่างมนุษย์กับธรรมชาติ แตกต่างจาก BaZi และ Qi Men ที่มุ่งเน้นการวิเคราะห์ข้อมูลทางสถิติและสถานการณ์ปัจจุบัน\n\n**อ้างอิง**: \n- 子平真詮 (The True Explanation of 子平) โดย หลินซื่อเจี้ยน (林松年)\n- 滴天髓 (Drip of the Sky Marrow) โดย หยางชิงเหว่ย (楊誠緯)\n- 窮通寶鑑 (Treasure Mirror of Wealth and Fortune) โดย หวังจื่อซือ (王 Closet)\n\nเหล่านี้เป็นแหล่งข้อมูลที่สำคัญในการศึกษาและเข้าใจ Liu Ren และการพยากรณ์จีนในรูปแบบต่างๆ.",
-          "confidence": 0.81
-        }
-      ],
-      "latency_ms": 89801,
-      "generated_at": "2026-08-08T09:27:44.798448"
-    },
-    "1fc87217b7a2097d": {
-      "answer": "การสร้าง 課式 (Ke Shi) หรือแผนภูมิ Liu Ren ตามหลัก BaZi เป็นกระบวนการที่ซับซ้อนและต้องพิจารณาหลายปัจจัย รวมถึงวันเกิดของบุคคล ณ เวลาที่กำหนด โดยเฉพาะการคำนวณตำแหน่งของดาวเคราะห์ในฟากฟ้าในขณะที่เกิด\n\n1. **การระบุเวลาและสถานที่**: การสร้าง Ke Shi ต้องเริ่มจากการระบุวัน เดือน ปี และเวลาที่บุคคลเกิด รวมถึงสถานที่ที่เกิด ซึ่งจะใช้ในการคำนวณตำแหน่งของดาวเคราะห์ในฟากฟ้า\n\n2. **การคำนวณตำแหน่งของดาวเคราะห์**: ตามหลัก BaZi บุคคลจะมี 4 ธาตุที่สำคัญ ได้แก่ ศิว (水), หมิน (木), หยาง (火) และกวง (土) ซึ่งแต่ละธาตุมีดาวเคราะห์ที่สื่อแทน เช่น ศิวอาจเป็นดาวเคราะห์ที่มีลักษณะของน้ำ หรือ หมินอาจเป็นดาวเคราะห์ที่มีลักษณะของไม้\n\n3. **การสร้างแผนภูมิ**: หลังจากคำนวณตำแหน่งของดาวเคราะห์แล้ว ให้นำมาจัดเรียงในแผนภูมิ Liu Ren ซึ่งประกอบด้วย 4 ที่นั่ง (四柱) หรือ 4 ธาตุที่สำคัญ คือ ศิว, หมิน, หยาง และกวง\n\n4. **การวิเคราะห์และพยากรณ์**: หลังจากสร้างแผนภูมิแล้ว สามารถวิเคราะห์ความสัมพันธ์ระหว่างธาตุในแผนภูมิเพื่อทำนายลักษณะนิสัย, โชคชะตา และโอกาสทางชีวิตของบุคคล\n\nการสร้าง Ke Shi ตามหลัก BaZi จำเป็นต้องใช้ความรู้และความเข้าใจที่ลึกซึ้งในปรัชญาจีนและคัมภีร์โบราณ เช่น 子平真詮, 滴天髓, 窮通寶鑑 ซึ่งเป็นแหล่งข้อมูลสำคัญในการศึกษาและปฏิบัติ BaZi\n\nอ้างอิง:\n- 子平真詮 (The True Explanation of Zǐpíng)\n- 滴天髓 (Dītiān Suǐ)\n- 窮通寶鑑 (Qióngtōng Bǎojiàn)\n\nการศึกษาและทำความเข้าใจในคัมภีร์เหล่านี้จะช่วยให้สามารถสร้างและวิเคราะห์ Ke Shi ได้อย่างถูกต้องและมีประสิทธิภาพ",
-      "model_used": "qwen2.5:7b",
-      "confidence_scores": [
+          "text": "It is calculated by dividing the Ascendant into 9 equal parts and assigning each part to a specific planet.",
+          "confidence": 0.8
+        },
         {
-          "text": "การสร้าง 課式 (Ke Shi) หรือแผนภูมิ Liu Ren ตามหลัก BaZi เป็นกระบวนการที่ซับซ้อนและต้องพิจารณาหลายปัจจัย รวมถึงวันเกิดของบุคคล ณ เวลาที่กำหนด โดยเฉพาะการคำนวณตำแหน่งของดาวเคราะห์ในฟากฟ้าในขณะที่เกิด\n\n1.",
+          "text": "**Calculation of Navamsa:**\n\nTo calculate the Navamsa, one needs to divide the Ascendant (Lagna) into 9 equal parts, using the following formula:\n\nNavamsa = Ascendant + (Planet's longitude - Lagna's longitude)\n\nWhere:\n\n* Planet's longitude is the longitude of the planet in question\n* Lagna's longitude is the longitude of the Ascendant\n\nFor example, if the Ascendant is at 10° Aries and Mars is at 15° Leo, the Navamsa of Mars would be calculated as follows:\n\nNavamsa = 10° (Lagna) + (15° - 10°) = 5° Virgo\n\n**Interpretation of Navamsa:**\n\nThe Navamsa chart is used to gain insight into a person's subtle nature, emotional patterns, and inner motivations.",
+          "confidence": 0.82
+        },
+        {
+          "text": "It is believed that the planets in the Navamsa chart influence the individual's:\n\n1.",
+          "confidence": 0.67
+        },
+        {
+          "text": "Emotional responses (Bhavas)\n2.",
+          "confidence": 0.71
+        },
+        {
+          "text": "Inner drives and desires (Karmas)\n3.",
+          "confidence": 0.71
+        },
+        {
+          "text": "Subconscious thoughts and feelings (Samskaras)\n\nIn the BPHS, it is stated that the Navamsa chart should be used to understand a person's:\n\n* Emotional nature (Chitta)\n* Mental disposition (Manas)\n* Spiritual inclinations (Atma)\n\n**Practical Applications:**\n\nThe Navamsa chart can be used in various ways, such as:\n\n1.",
+          "confidence": 0.79
+        },
+        {
+          "text": "Identifying emotional patterns and triggers\n2.",
+          "confidence": 0.78
+        },
+        {
+          "text": "Understanding an individual's inner motivations and desires\n3.",
           "confidence": 0.84
         },
         {
-          "text": "**การระบุเวลาและสถานที่**: การสร้าง Ke Shi ต้องเริ่มจากการระบุวัน เดือน ปี และเวลาที่บุคคลเกิด รวมถึงสถานที่ที่เกิด ซึ่งจะใช้ในการคำนวณตำแหน่งของดาวเคราะห์ในฟากฟ้า\n\n2.",
+          "text": "Analyzing a person's spiritual growth and evolution\n4.",
+          "confidence": 0.74
+        },
+        {
+          "text": "Determining the best timing for important life events (e.",
+          "confidence": 0.83
+        },
+        {
+          "text": "g.",
+          "confidence": 0.58
+        },
+        {
+          "text": ", marriage, career changes)\n\n**References:**\n\n* Brihat Parasara Hora Shastra (BPHS) - Chapter 6, Section 2-5\n* Jaimini Sutras - Chapter 1, Section 3-4\n* Phaladeepika - Chapter 10, Section 1-3\n\nI hope this answer meets your expectations!.",
+          "confidence": 0.81
+        }
+      ],
+      "latency_ms": 109333,
+      "generated_at": "2026-08-08T10:04:52.209107"
+    },
+    "6fb9d9a4ba9b21ef": {
+      "answer": "Chara Karaka System ใน Jaimini Sutras เป็นระบบที่ใช้ในการคำนวณและเข้าใจความหมายของตัวเลขในปฏิบัติการฮวงาลี (Vedic Astrology) โดยเฉพาะอย่างยิ่งในบริบทของการคำนวณ 8 Karakas (สัญญาณที่เกี่ยวข้องกับแต่ละส่วนของมนุษย์และภูมิอากาศ).\n\n1. **Karakas**: สัญญาณทั้งหมดที่เกี่ยวข้องกับตัวเลขในปฏิบัติการฮวงาลี สามารถแบ่งออกเป็น 8 ประเภทหลัก ได้แก่:\n   - **Chara (ผู้นำ)**: หมายถึงสัญญาณที่มีความสำคัญและมีบทบาทในการกำหนดความสำเร็จของภูมิอากาศ\n   - **Rashi (ดวงดาว)**: สัญญาณที่เกี่ยวข้องกับดวงดาวในตำแหน่งที่ตั้งอยู่ในแผนที่ฮวงาลี\n   - **Nakshatra (สวรรค์)**: สัญญาณที่เกี่ยวข้องกับสวรรค์ในแผนที่ฮวงาลี\n   - **Graha (ดาว)**: สัญญาณที่เกี่ยวข้องกับดาวในแผนที่ฮวงาลี\n   - **Bhava (ภาค)**: สัญญาณที่เกี่ยวข้องกับภาคในแผนที่ฮวงาลี\n   - **Drishti (สังเกต)**: สัญญาณที่เกี่ยวข้องกับสังเกตของดวงดาวและภูมิอากาศ\n   - **Varga (หมวดหมู่)**: สัญญาณที่เกี่ยวข้องกับหมวดหมู่ในแผนที่ฮวงาลี\n   - **Kala (เวลา)**: สัญญาณที่เกี่ยวข้องกับเวลา\n\n2. **การคำนวณ 8 Karakas**: การคำนวณ 8 Karakas ใน Jaimini Sutras มีกระบวนการดังนี้:\n   - **การกำหนด Chara**: ตัวเลขในปฏิบัติการฮวงาลีจะถูกนำมาหารด้วย 9 และได้เศษเท่ากับ Chara\n   - **การคำนวณ Rashi**: ตัวเลขที่ได้จากการหารด้วย 12 จะเป็น Rashi\n   - **การคำนวณ Nakshatra**: ตัวเลขที่ได้จากการหารด้วย 27 จะเป็น Nakshatra\n   - **การคำนวณ Graha**: ตัวเลขที่ได้จากการหารด้วย 10 จะเป็น Graha\n   - **การคำนวณ Bhava**: ตัวเลขที่ได้จากการหารด้วย 12 จะเป็น Bhava\n   - **การคำนวณ Drishti**: ตัวเลขที่ได้จากการหารด้วย 8 จะเป็น Drishti\n   - **การคำนวณ Varga**: ตัวเลขที่ได้จากการหารด้วย 9 จะเป็น Varga\n   - **การคำนวณ Kala**: ตัวเลขที่ได้จากการหารด้วย 60 จะเป็น Kala\n\n3. **หมายความของ Karakas**: แต่ละ Karaka มีความหมายเฉพาะเจาะจงและมีบทบาทสำคัญในการกำหนดความสำเร็จของภูมิอากาศ การคำนวณและการเข้าใจ Chara Karaka System ใน Jaimini Sutras จะช่วยให้เราสามารถเข้าใจและใช้งานปฏิบัติการฮวงาลีได้อย่างถูกต้องและมีประสิทธิภาพ.\n\nอ้างอิงจาก: Jaimini Sutras, Chapter 1, Verse 2-3",
+      "model_used": "qwen2.5-coder:7b",
+      "confidence_scores": [
+        {
+          "text": "Chara Karaka System ใน Jaimini Sutras เป็นระบบที่ใช้ในการคำนวณและเข้าใจความหมายของตัวเลขในปฏิบัติการฮวงาลี (Vedic Astrology) โดยเฉพาะอย่างยิ่งในบริบทของการคำนวณ 8 Karakas (สัญญาณที่เกี่ยวข้องกับแต่ละส่วนของมนุษย์และภูมิอากาศ).",
+          "confidence": 0.83
+        },
+        {
+          "text": "1.",
+          "confidence": 0.58
+        },
+        {
+          "text": "**Karakas**: สัญญาณทั้งหมดที่เกี่ยวข้องกับตัวเลขในปฏิบัติการฮวงาลี สามารถแบ่งออกเป็น 8 ประเภทหลัก ได้แก่:\n   - **Chara (ผู้นำ)**: หมายถึงสัญญาณที่มีความสำคัญและมีบทบาทในการกำหนดความสำเร็จของภูมิอากาศ\n   - **Rashi (ดวงดาว)**: สัญญาณที่เกี่ยวข้องกับดวงดาวในตำแหน่งที่ตั้งอยู่ในแผนที่ฮวงาลี\n   - **Nakshatra (สวรรค์)**: สัญญาณที่เกี่ยวข้องกับสวรรค์ในแผนที่ฮวงาลี\n   - **Graha (ดาว)**: สัญญาณที่เกี่ยวข้องกับดาวในแผนที่ฮวงาลี\n   - **Bhava (ภาค)**: สัญญาณที่เกี่ยวข้องกับภาคในแผนที่ฮวงาลี\n   - **Drishti (สังเกต)**: สัญญาณที่เกี่ยวข้องกับสังเกตของดวงดาวและภูมิอากาศ\n   - **Varga (หมวดหมู่)**: สัญญาณที่เกี่ยวข้องกับหมวดหมู่ในแผนที่ฮวงาลี\n   - **Kala (เวลา)**: สัญญาณที่เกี่ยวข้องกับเวลา\n\n2.",
           "confidence": 0.85
         },
         {
-          "text": "**การคำนวณตำแหน่งของดาวเคราะห์**: ตามหลัก BaZi บุคคลจะมี 4 ธาตุที่สำคัญ ได้แก่ ศิว (水), หมิน (木), หยาง (火) และกวง (土) ซึ่งแต่ละธาตุมีดาวเคราะห์ที่สื่อแทน เช่น ศิวอาจเป็นดาวเคราะห์ที่มีลักษณะของน้ำ หรือ หมินอาจเป็นดาวเคราะห์ที่มีลักษณะของไม้\n\n3.",
-          "confidence": 0.6
+          "text": "**การคำนวณ 8 Karakas**: การคำนวณ 8 Karakas ใน Jaimini Sutras มีกระบวนการดังนี้:\n   - **การกำหนด Chara**: ตัวเลขในปฏิบัติการฮวงาลีจะถูกนำมาหารด้วย 9 และได้เศษเท่ากับ Chara\n   - **การคำนวณ Rashi**: ตัวเลขที่ได้จากการหารด้วย 12 จะเป็น Rashi\n   - **การคำนวณ Nakshatra**: ตัวเลขที่ได้จากการหารด้วย 27 จะเป็น Nakshatra\n   - **การคำนวณ Graha**: ตัวเลขที่ได้จากการหารด้วย 10 จะเป็น Graha\n   - **การคำนวณ Bhava**: ตัวเลขที่ได้จากการหารด้วย 12 จะเป็น Bhava\n   - **การคำนวณ Drishti**: ตัวเลขที่ได้จากการหารด้วย 8 จะเป็น Drishti\n   - **การคำนวณ Varga**: ตัวเลขที่ได้จากการหารด้วย 9 จะเป็น Varga\n   - **การคำนวณ Kala**: ตัวเลขที่ได้จากการหารด้วย 60 จะเป็น Kala\n\n3.",
+          "confidence": 0.71
         },
         {
-          "text": "**การสร้างแผนภูมิ**: หลังจากคำนวณตำแหน่งของดาวเคราะห์แล้ว ให้นำมาจัดเรียงในแผนภูมิ Liu Ren ซึ่งประกอบด้วย 4 ที่นั่ง (四柱) หรือ 4 ธาตุที่สำคัญ คือ ศิว, หมิน, หยาง และกวง\n\n4.",
+          "text": "**หมายความของ Karakas**: แต่ละ Karaka มีความหมายเฉพาะเจาะจงและมีบทบาทสำคัญในการกำหนดความสำเร็จของภูมิอากาศ การคำนวณและการเข้าใจ Chara Karaka System ใน Jaimini Sutras จะช่วยให้เราสามารถเข้าใจและใช้งานปฏิบัติการฮวงาลีได้อย่างถูกต้องและมีประสิทธิภาพ.",
+          "confidence": 0.73
+        },
+        {
+          "text": "อ้างอิงจาก: Jaimini Sutras, Chapter 1, Verse 2-3.",
+          "confidence": 0.79
+        }
+      ],
+      "latency_ms": 80754,
+      "generated_at": "2026-08-08T10:16:38.755963"
+    },
+    "c176fbd3e89e5404": {
+      "answer": "ในชัยมินีสูตร (Jaimini Sutras), อธิบายของ Jaimini Aspects (Rashi Drishti) แตกต่างจาก Parashari ในหลายด้านหลัก:\n\n1. การนับ Aspect:\n   - Jaimini: ใช้การนับ Aspect โดยเฉพาะกับ Rashi (ราศี)\n   - Parashari: ใช้การนับ Aspect โดยเฉพาะกับ Planet (ดาว)\n\n2. การคำนวณ Angle:\n   - Jaimini: ไม่คำนวณ Angle ระหว่าง Planet และ Rashi\n   - Parashari: คำนวณ Angle ระหว่าง Planet และ Rashi\n\n3. การกำหนด Aspect:\n   - Jaimini: กำหนด Aspect โดยเฉพาะกับ Rashi เท่านั้น\n   - Parashari: กำหนด Aspect โดยเฉพาะกับ Planet เท่านั้น\n\n4. การคำนวณ Degree:\n   - Jaimini: ไม่คำนวณ Degree ระหว่าง Planet และ Rashi\n   - Parashari: คำนวณ Degree ระหว่าง Planet และ Rashi\n\n5. การกำหนด Aspect Type:\n   - Jaimini: ไม่มีการระบุประเภทของ Aspect (Direct, Retrograde)\n   - Parashari: มีการระบุประเภทของ Aspect (Direct, Retrograde)\n\n6. การคำนวณ Distance:\n   - Jaimini: ไม่คำนวณ Distance ระหว่าง Planet และ Rashi\n   - Parashari: คำนวณ Distance ระหว่าง Planet และ Rashi\n\n7. การกำหนด Aspect Effect:\n   - Jaimini: ระบุผลของ Aspect โดยเฉพาะกับ Rashi เท่านั้น\n   - Parashari: ระบุผลของ Aspect โดยเฉพาะกับ Planet เท่านั้น\n\n8. การคำนวณ Aspect Duration:\n   - Jaimini: ไม่คำนวณระยะเวลาของ Aspect\n   - Parashari: คำนวณระยะเวลาของ Aspect\n\n9. การกำหนด Aspect Priority:\n   - Jaimini: ไม่มีการระบุความสำคัญของ Aspect\n   - Parashari: มีการระบุความสำคัญของ Aspect\n\n10. การคำนวณ Aspect Combination:\n    - Jaimini: ไม่คำนวณสิ่งที่เกิดขึ้นเมื่อมีการผสมผสาน Aspect\n    - Parashari: คำนวณสิ่งที่เกิดขึ้นเมื่อมีการผสมผสาน Aspect\n\nในสรุป, Jaimini Aspects (Rashi Drishti) มีความเฉพาะเจาะจงและละเอียดมากกว่า Parashari ในทางที่คำนวณและระบุผลของ Aspect แต่ละตัว.",
+      "model_used": "qwen2.5-coder:7b",
+      "confidence_scores": [
+        {
+          "text": "ในชัยมินีสูตร (Jaimini Sutras), อธิบายของ Jaimini Aspects (Rashi Drishti) แตกต่างจาก Parashari ในหลายด้านหลัก:\n\n1.",
+          "confidence": 0.78
+        },
+        {
+          "text": "การนับ Aspect:\n   - Jaimini: ใช้การนับ Aspect โดยเฉพาะกับ Rashi (ราศี)\n   - Parashari: ใช้การนับ Aspect โดยเฉพาะกับ Planet (ดาว)\n\n2.",
+          "confidence": 0.7
+        },
+        {
+          "text": "การคำนวณ Angle:\n   - Jaimini: ไม่คำนวณ Angle ระหว่าง Planet และ Rashi\n   - Parashari: คำนวณ Angle ระหว่าง Planet และ Rashi\n\n3.",
+          "confidence": 0.78
+        },
+        {
+          "text": "การกำหนด Aspect:\n   - Jaimini: กำหนด Aspect โดยเฉพาะกับ Rashi เท่านั้น\n   - Parashari: กำหนด Aspect โดยเฉพาะกับ Planet เท่านั้น\n\n4.",
+          "confidence": 0.75
+        },
+        {
+          "text": "การคำนวณ Degree:\n   - Jaimini: ไม่คำนวณ Degree ระหว่าง Planet และ Rashi\n   - Parashari: คำนวณ Degree ระหว่าง Planet และ Rashi\n\n5.",
+          "confidence": 0.84
+        },
+        {
+          "text": "การกำหนด Aspect Type:\n   - Jaimini: ไม่มีการระบุประเภทของ Aspect (Direct, Retrograde)\n   - Parashari: มีการระบุประเภทของ Aspect (Direct, Retrograde)\n\n6.",
+          "confidence": 0.83
+        },
+        {
+          "text": "การคำนวณ Distance:\n   - Jaimini: ไม่คำนวณ Distance ระหว่าง Planet และ Rashi\n   - Parashari: คำนวณ Distance ระหว่าง Planet และ Rashi\n\n7.",
+          "confidence": 0.67
+        },
+        {
+          "text": "การกำหนด Aspect Effect:\n   - Jaimini: ระบุผลของ Aspect โดยเฉพาะกับ Rashi เท่านั้น\n   - Parashari: ระบุผลของ Aspect โดยเฉพาะกับ Planet เท่านั้น\n\n8.",
+          "confidence": 0.7
+        },
+        {
+          "text": "การคำนวณ Aspect Duration:\n   - Jaimini: ไม่คำนวณระยะเวลาของ Aspect\n   - Parashari: คำนวณระยะเวลาของ Aspect\n\n9.",
+          "confidence": 0.76
+        },
+        {
+          "text": "การกำหนด Aspect Priority:\n   - Jaimini: ไม่มีการระบุความสำคัญของ Aspect\n   - Parashari: มีการระบุความสำคัญของ Aspect\n\n10.",
+          "confidence": 0.8
+        },
+        {
+          "text": "การคำนวณ Aspect Combination:\n    - Jaimini: ไม่คำนวณสิ่งที่เกิดขึ้นเมื่อมีการผสมผสาน Aspect\n    - Parashari: คำนวณสิ่งที่เกิดขึ้นเมื่อมีการผสมผสาน Aspect\n\nในสรุป, Jaimini Aspects (Rashi Drishti) มีความเฉพาะเจาะจงและละเอียดมากกว่า Parashari ในทางที่คำนวณและระบุผลของ Aspect แต่ละตัว.",
+          "confidence": 0.65
+        }
+      ],
+      "latency_ms": 96247,
+      "generated_at": "2026-08-08T10:20:15.393814"
+    },
+    "274603a9d7df91fd": {
+      "answer": "A question that gets to the heart of Jyotish Shastra!\n\nAccording to Jaimini Sutras, a foundational text in Vedic astrology, there are three primary dasha systems: Chara, Sthira, and Navamsa Dasha. Let's break them down:\n\n1. **Chara Dasha** (Transitory Period): This is the most important and widely used dasha system in Jyotish Shastra. It is a 120-year period divided into 12 segments of 10 years each, with each segment ruled by a different planet. The Chara Dasha is calculated from the Moon's longitude at the time of birth.\n\nReference: Jaimini Sutras, Chapter 2, Verse 14-15\n\n\"Chara dasha, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa\"\n\nTranslation: \"The transitory period is of 120 years, divided into 12 segments.\"\n\n2. **Sthira Dasha** (Steady Period): This dasha system is less commonly used and is based on the Sun's longitude at the time of birth. It is also a 120-year period, but with each segment lasting 10 years.\n\nReference: Jaimini Sutras, Chapter 2, Verse 16-17\n\n\"Sthira dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa\"\n\nTranslation: \"The steady period is of 120 years, divided into 12 segments.\"\n\n3. **Navamsa Dasha** (Sub-period): This dasha system is used to analyze the subtle influences on an individual's life. It is a 100-year period divided into 9 segments of approximately 11-12 years each, with each segment ruled by a different planet.\n\nReference: Jaimini Sutras, Chapter 2, Verse 18-19\n\n\"Navamsa dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa\"\n\nTranslation: \"The sub-period is of 100 years, divided into 9 segments.\"\n\nIn conclusion, the three dasha systems mentioned in Jaimini Sutras are Chara Dasha (transitory period), Sthira Dasha (steady period), and Navamsa Dasha (sub-period). Each system provides valuable insights into an individual's life events and influences.\n\nReferences:\n\n* Jaimini Sutras, Chapter 2\n* BPHS (Brihat Parasara Hora Shastra)\n* Phaladeepika\n\nPlease note that the interpretation of dashas requires a deep understanding of Vedic astrology and its various principles.",
+      "model_used": "llama3:8b",
+      "confidence_scores": [
+        {
+          "text": "A question that gets to the heart of Jyotish Shastra!\n\nAccording to Jaimini Sutras, a foundational text in Vedic astrology, there are three primary dasha systems: Chara, Sthira, and Navamsa Dasha.",
+          "confidence": 0.71
+        },
+        {
+          "text": "Let's break them down:\n\n1.",
+          "confidence": 0.59
+        },
+        {
+          "text": "**Chara Dasha** (Transitory Period): This is the most important and widely used dasha system in Jyotish Shastra.",
+          "confidence": 0.79
+        },
+        {
+          "text": "It is a 120-year period divided into 12 segments of 10 years each, with each segment ruled by a different planet.",
+          "confidence": 0.75
+        },
+        {
+          "text": "The Chara Dasha is calculated from the Moon's longitude at the time of birth.",
+          "confidence": 0.67
+        },
+        {
+          "text": "Reference: Jaimini Sutras, Chapter 2, Verse 14-15\n\n\"Chara dasha, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa\"\n\nTranslation: \"The transitory period is of 120 years, divided into 12 segments.",
+          "confidence": 0.77
+        },
+        {
+          "text": "\"\n\n2.",
+          "confidence": 0.56
+        },
+        {
+          "text": "**Sthira Dasha** (Steady Period): This dasha system is less commonly used and is based on the Sun's longitude at the time of birth.",
+          "confidence": 0.84
+        },
+        {
+          "text": "It is also a 120-year period, but with each segment lasting 10 years.",
+          "confidence": 0.73
+        },
+        {
+          "text": "Reference: Jaimini Sutras, Chapter 2, Verse 16-17\n\n\"Sthira dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa\"\n\nTranslation: \"The steady period is of 120 years, divided into 12 segments.",
+          "confidence": 0.65
+        },
+        {
+          "text": "\"\n\n3.",
+          "confidence": 0.56
+        },
+        {
+          "text": "**Navamsa Dasha** (Sub-period): This dasha system is used to analyze the subtle influences on an individual's life.",
+          "confidence": 0.77
+        },
+        {
+          "text": "It is a 100-year period divided into 9 segments of approximately 11-12 years each, with each segment ruled by a different planet.",
           "confidence": 0.68
         },
         {
-          "text": "**การวิเคราะห์และพยากรณ์**: หลังจากสร้างแผนภูมิแล้ว สามารถวิเคราะห์ความสัมพันธ์ระหว่างธาตุในแผนภูมิเพื่อทำนายลักษณะนิสัย, โชคชะตา และโอกาสทางชีวิตของบุคคล\n\nการสร้าง Ke Shi ตามหลัก BaZi จำเป็นต้องใช้ความรู้และความเข้าใจที่ลึกซึ้งในปรัชญาจีนและคัมภีร์โบราณ เช่น 子平真詮, 滴天髓, 窮通寶鑑 ซึ่งเป็นแหล่งข้อมูลสำคัญในการศึกษาและปฏิบัติ BaZi\n\nอ้างอิง:\n- 子平真詮 (The True Explanation of Zǐpíng)\n- 滴天髓 (Dītiān Suǐ)\n- 窮通寶鑑 (Qióngtōng Bǎojiàn)\n\nการศึกษาและทำความเข้าใจในคัมภีร์เหล่านี้จะช่วยให้สามารถสร้างและวิเคราะห์ Ke Shi ได้อย่างถูกต้องและมีประสิทธิภาพ.",
-          "confidence": 0.89
+          "text": "Reference: Jaimini Sutras, Chapter 2, Verse 18-19\n\n\"Navamsa dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa\"\n\nTranslation: \"The sub-period is of 100 years, divided into 9 segments.",
+          "confidence": 0.77
+        },
+        {
+          "text": "\"\n\nIn conclusion, the three dasha systems mentioned in Jaimini Sutras are Chara Dasha (transitory period), Sthira Dasha (steady period), and Navamsa Dasha (sub-period).",
+          "confidence": 0.76
+        },
+        {
+          "text": "Each system provides valuable insights into an individual's life events and influences.",
+          "confidence": 0.67
+        },
+        {
+          "text": "References:\n\n* Jaimini Sutras, Chapter 2\n* BPHS (Brihat Parasara Hora Shastra)\n* Phaladeepika\n\nPlease note that the interpretation of dashas requires a deep understanding of Vedic astrology and its various principles.",
+          "confidence": 0.73
         }
       ],
-      "latency_ms": 115367,
-      "generated_at": "2026-08-08T09:29:40.173561"
-    },
-    "16e9b679471f875e": {
-      "draft_text": "Mock Draft Text",
-      "confidence_score": 0.95,
-      "highlights": [],
-      "model_used": "mock-llm"
-    },
-    "607ac15d9de7b11f": {
-      "draft_text": "Mock Draft Text",
-      "confidence_score": 0.95,
-      "highlights": [],
-      "model_used": "mock-llm"
-    },
-    "dde0fdb64c2c8bde": {
-      "draft_text": "Mock Draft Text",
-      "confidence_score": 0.95,
-      "highlights": [],
-      "model_used": "mock-llm"
-    },
-    "b3da4b5f567f4783": {
-      "draft_text": "Mock Draft Text",
-      "confidence_score": 0.95,
-      "highlights": [],
-      "model_used": "mock-llm"
-    },
-    "2e1a302f0a7ea4a8": {
-      "draft_text": "Mock Draft Text",
-      "confidence_score": 0.95,
-      "highlights": [],
-      "model_used": "mock-llm"
-    },
-    "6fb9d9a4ba9b21ef": {
-      "draft_text": "Mock Draft Text",
-      "confidence_score": 0.95,
-      "highlights": [],
-      "model_used": "mock-llm"
-    },
-    "c176fbd3e89e5404": {
-      "draft_text": "Mock Draft Text",
-      "confidence_score": 0.95,
-      "highlights": [],
-      "model_used": "mock-llm"
-    },
-    "274603a9d7df91fd": {
-      "draft_text": "Mock Draft Text",
-      "confidence_score": 0.95,
-      "highlights": [],
-      "model_used": "mock-llm"
+      "latency_ms": 97122,
+      "generated_at": "2026-08-08T10:17:23.236760"
     },
     "e26b3cde5877642e": {
-      "draft_text": "Mock Draft Text",
-      "confidence_score": 0.95,
-      "highlights": [],
-      "model_used": "mock-llm"
+      "answer": "Planet strength, ในภาษาฮินดูคือ \"शadbala\" (Shadbala), เป็นหนึ่งในหัวข้อสำคัญในการวิเคราะห์ดวงอาทิตย์และดาวในโหราศาสตร์เวท (Jyotish Shastra) โดยเฉพาะอย่างยิ่งใน Phaladeepika หรือ \"พัฒนาการผลิตภัณฑ์\" ในภาษาฮินดู. \n\nตาม Phaladeepika, Planet Strength มีความหมายว่าความสามารถในการสร้างและส่งเสริมผลประโยชน์จากดวงอาทิตย์และดาวในดวงอาทิตย์ของบุคคลที่กำลังถูกศึกษา. ความแข็งแรงของดวงอาทิตย์หรือดาวนั้นจะขึ้นอยู่กับตำแหน่ง, การเชื่อมโยง, และสถานะทางกายภาพและอารมณ์ของดวงอาทิตย์หรือดาวนั้น.\n\nใน Phaladeepika, ความแข็งแรงของดวงอาทิตย์หรือดาวนั้นจะถูกแบ่งออกเป็น 6 ระดับ: \n\n1. \"समुद्र\" (Samudra) - ระดับที่สุด\n2. \"तापा\" (Tapas)\n3. \"योग्य\" (Yoga)\n4. \"धीर\" (Dhīr)\n5. \"मधुम\" (Madhum)\n6. \"चित्र\" (Chitr)\n\nทั้งหมดนี้จะถูกกำหนดโดยการศึกษาตำแหน่ง, การเชื่อมโยง, และสถานะทางกายภาพและอารมณ์ของดวงอาทิตย์หรือดาวนั้น.\n\nสำหรับตัวอย่างเช่น, ดวงอาทิตย์ที่อยู่ใน \"समुद्र\" (Samudra) จะมีความแข็งแรงสูงสุดและสามารถสร้างผลประโยชน์จากดวงอาทิตย์หรือดาวนั้นได้อย่างมาก. ในขณะเดียวกัน, ดวงอาทิตย์ที่อยู่ใน \"चित्र\" (Chitr) จะมีความแข็งแรงน้อยกว่าและอาจไม่สามารถสร้างผลประโยชน์จากดวงอาทิตย์หรือดาวนั้นได้.\n\nดังนั้น, Planet Strength ใน Phaladeepika เป็นหนึ่งในหัวข้อที่สำคัญในการวิเคราะห์ดวงอาทิตย์และดาวในโหราศาสตร์เวท และมีความหมายว่าความสามารถในการสร้างและส่งเสริมผลประโยชน์จากดวงอาทิตย์หรือดาวนั้น.",
+      "model_used": "qwen2.5-coder:7b",
+      "confidence_scores": [
+        {
+          "text": "Planet strength, ในภาษาฮินดูคือ \"शadbala\" (Shadbala), เป็นหนึ่งในหัวข้อสำคัญในการวิเคราะห์ดวงอาทิตย์และดาวในโหราศาสตร์เวท (Jyotish Shastra) โดยเฉพาะอย่างยิ่งใน Phaladeepika หรือ \"พัฒนาการผลิตภัณฑ์\" ในภาษาฮินดู.",
+          "confidence": 0.75
+        },
+        {
+          "text": "ตาม Phaladeepika, Planet Strength มีความหมายว่าความสามารถในการสร้างและส่งเสริมผลประโยชน์จากดวงอาทิตย์และดาวในดวงอาทิตย์ของบุคคลที่กำลังถูกศึกษา.",
+          "confidence": 0.79
+        },
+        {
+          "text": "ความแข็งแรงของดวงอาทิตย์หรือดาวนั้นจะขึ้นอยู่กับตำแหน่ง, การเชื่อมโยง, และสถานะทางกายภาพและอารมณ์ของดวงอาทิตย์หรือดาวนั้น.",
+          "confidence": 0.7
+        },
+        {
+          "text": "ใน Phaladeepika, ความแข็งแรงของดวงอาทิตย์หรือดาวนั้นจะถูกแบ่งออกเป็น 6 ระดับ: \n\n1.",
+          "confidence": 0.82
+        },
+        {
+          "text": "\"समुद्र\" (Samudra) - ระดับที่สุด\n2.",
+          "confidence": 0.77
+        },
+        {
+          "text": "\"तापा\" (Tapas)\n3.",
+          "confidence": 0.69
+        },
+        {
+          "text": "\"योग्य\" (Yoga)\n4.",
+          "confidence": 0.61
+        },
+        {
+          "text": "\"धीर\" (Dhīr)\n5.",
+          "confidence": 0.72
+        },
+        {
+          "text": "\"मधुम\" (Madhum)\n6.",
+          "confidence": 0.68
+        },
+        {
+          "text": "\"चित्र\" (Chitr)\n\nทั้งหมดนี้จะถูกกำหนดโดยการศึกษาตำแหน่ง, การเชื่อมโยง, และสถานะทางกายภาพและอารมณ์ของดวงอาทิตย์หรือดาวนั้น.",
+          "confidence": 0.82
+        },
+        {
+          "text": "สำหรับตัวอย่างเช่น, ดวงอาทิตย์ที่อยู่ใน \"समुद्र\" (Samudra) จะมีความแข็งแรงสูงสุดและสามารถสร้างผลประโยชน์จากดวงอาทิตย์หรือดาวนั้นได้อย่างมาก.",
+          "confidence": 0.74
+        },
+        {
+          "text": "ในขณะเดียวกัน, ดวงอาทิตย์ที่อยู่ใน \"चित्र\" (Chitr) จะมีความแข็งแรงน้อยกว่าและอาจไม่สามารถสร้างผลประโยชน์จากดวงอาทิตย์หรือดาวนั้นได้.",
+          "confidence": 0.6
+        },
+        {
+          "text": "ดังนั้น, Planet Strength ใน Phaladeepika เป็นหนึ่งในหัวข้อที่สำคัญในการวิเคราะห์ดวงอาทิตย์และดาวในโหราศาสตร์เวท และมีความหมายว่าความสามารถในการสร้างและส่งเสริมผลประโยชน์จากดวงอาทิตย์หรือดาวนั้น.",
+          "confidence": 0.69
+        }
+      ],
+      "latency_ms": 93384,
+      "generated_at": "2026-08-08T10:20:57.363715"
     },
     "4a512c4a78144c15": {
-      "draft_text": "Mock Draft Text",
-      "confidence_score": 0.95,
-      "highlights": [],
-      "model_used": "mock-llm"
+      "answer": "ใน Jyotish Shastra, ผลของ placement ของดาวเคราะห์ (Planets) ใน Houses (Dhatus) มีความสำคัญอย่างยิ่งในการวินิจฉัยชีวิตและ destiny ของบุคคล ตาม Phaladeepika ซึ่งเป็นหนึ่งในแหล่งข้อมูลหลักที่ใช้ในการวิเคราะห์ผลของ placement ของดาวเคราะห์ใน Houses\n\nPhaladeepika อธิบายว่า ตำแหน่งของดาวเคราะห์ใน Houses มีความสำคัญอย่างยิ่งต่อการกำหนดผลลัพธ์ทางชีวิต ซึ่งสามารถอ้างอิงจากบทที่ 1, ข้อ 25-30 โดยระบุว่า:\n\n\"Planets in the houses of their own or exaltation are very auspicious and confer good results. Planets in the houses of their fall or debilitation bring bad results.\"\n\nนั่นคือ ดาวเคราะห์ที่อยู่ใน Houses ของตนเองหรือการขึ้นสวรรค์ (Exaltation) จะให้ผลลัพธ์ที่ดีมาก แต่หากดาวเคราะห์อยู่ใน Houses ของความอ่อนแอหรือการตกชั้น (Debilitation) จะทำให้เกิดผลลัพธ์ที่ไม่ดี\n\nนอกจากนี้ ยังมีบทบาทสำคัญของ Planets ใน Houses ตาม Jaimini Sutras และ BPHS โดยระบุว่า:\n\n1. \"Planets in the 2nd, 4th, and 6th houses from their own house are considered to be beneficial.\"\n2. \"Planets in the 3rd, 5th, and 9th houses from their own house are considered to be malefic.\"\n\nนั่นคือ ดาวเคราะห์ที่อยู่ใน Houses ที่ 2, 4 และ 6 จาก Houses ของตนเองจะให้ผลลัพธ์ที่ดี แต่หากอยู่ใน Houses ที่ 3, 5 และ 9 จะทำให้เกิดผลลัพธ์ที่ไม่ดี\n\nการวิเคราะห์ผลของ placement ของ Planets ใน Houses ตาม Phaladeepika จึงจำเป็นต้องพิจารณาในบริบทของ Jaimini Sutras และ BPHS เพื่อให้ความเข้าใจที่ครบถ้วนและละเอียดถี่ถ้วนเกี่ยวกับผลลัพธ์ทางชีวิตของบุคคล",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "ใน Jyotish Shastra, ผลของ placement ของดาวเคราะห์ (Planets) ใน Houses (Dhatus) มีความสำคัญอย่างยิ่งในการวินิจฉัยชีวิตและ destiny ของบุคคล ตาม Phaladeepika ซึ่งเป็นหนึ่งในแหล่งข้อมูลหลักที่ใช้ในการวิเคราะห์ผลของ placement ของดาวเคราะห์ใน Houses\n\nPhaladeepika อธิบายว่า ตำแหน่งของดาวเคราะห์ใน Houses มีความสำคัญอย่างยิ่งต่อการกำหนดผลลัพธ์ทางชีวิต ซึ่งสามารถอ้างอิงจากบทที่ 1, ข้อ 25-30 โดยระบุว่า:\n\n\"Planets in the houses of their own or exaltation are very auspicious and confer good results.",
+          "confidence": 0.85
+        },
+        {
+          "text": "Planets in the houses of their fall or debilitation bring bad results.",
+          "confidence": 0.71
+        },
+        {
+          "text": "\"\n\nนั่นคือ ดาวเคราะห์ที่อยู่ใน Houses ของตนเองหรือการขึ้นสวรรค์ (Exaltation) จะให้ผลลัพธ์ที่ดีมาก แต่หากดาวเคราะห์อยู่ใน Houses ของความอ่อนแอหรือการตกชั้น (Debilitation) จะทำให้เกิดผลลัพธ์ที่ไม่ดี\n\nนอกจากนี้ ยังมีบทบาทสำคัญของ Planets ใน Houses ตาม Jaimini Sutras และ BPHS โดยระบุว่า:\n\n1.",
+          "confidence": 0.83
+        },
+        {
+          "text": "\"Planets in the 2nd, 4th, and 6th houses from their own house are considered to be beneficial.",
+          "confidence": 0.69
+        },
+        {
+          "text": "\"\n2.",
+          "confidence": 0.74
+        },
+        {
+          "text": "\"Planets in the 3rd, 5th, and 9th houses from their own house are considered to be malefic.",
+          "confidence": 0.78
+        },
+        {
+          "text": "\"\n\nนั่นคือ ดาวเคราะห์ที่อยู่ใน Houses ที่ 2, 4 และ 6 จาก Houses ของตนเองจะให้ผลลัพธ์ที่ดี แต่หากอยู่ใน Houses ที่ 3, 5 และ 9 จะทำให้เกิดผลลัพธ์ที่ไม่ดี\n\nการวิเคราะห์ผลของ placement ของ Planets ใน Houses ตาม Phaladeepika จึงจำเป็นต้องพิจารณาในบริบทของ Jaimini Sutras และ BPHS เพื่อให้ความเข้าใจที่ครบถ้วนและละเอียดถี่ถ้วนเกี่ยวกับผลลัพธ์ทางชีวิตของบุคคล.",
+          "confidence": 0.92
+        }
+      ],
+      "latency_ms": 66735,
+      "generated_at": "2026-08-08T10:15:48.164043"
     },
     "6639812e8b72841c": {
-      "draft_text": "Mock Draft Text",
-      "confidence_score": 0.95,
-      "highlights": [],
-      "model_used": "mock-llm"
+      "answer": "A question from the esteemed text, Phaladeepika!\n\nAccording to Phaladeepika, Raja Yoga is a significant aspect of Jyotish Shastra. Here's a summary of its key points:\n\n**Definition**: Raja Yoga refers to the union of the individual soul (Jiva) with the Supreme Soul (Paramatman). It is the highest state of spiritual realization, where the individual ego (Ahamkara) is transcended, and one becomes one with the universe.\n\n**Key Principles**:\n\n1. **Dharmic Life**: A Raja Yogin must lead a dharmic life, adhering to righteous principles and performing duties according to their varna and ashrama.\n2. **Self-Realization**: The ultimate goal is self-realization (Atma-Jnana), where one recognizes the true nature of the Self as pure consciousness.\n3. **Detachment**: A Raja Yogin must cultivate detachment from worldly attachments, desires, and egoistic tendencies.\n4. **Meditation**: Regular meditation (Dhyana) is essential for spiritual growth, helping to quiet the mind and focus on the inner Self.\n5. **Yamas and Niyamas**: Observing the yamas (restraints) and niyamas (observances) as outlined in the Yoga Sutras of Patanjali is crucial for a Raja Yogin.\n\n**Planetary Influences**:\n\n1. **Jupiter**: Jupiter's influence is particularly significant in Raja Yoga, as it represents spiritual growth, wisdom, and expansion.\n2. **Saturn**: Saturn's influence can indicate obstacles and challenges on the path to self-realization, but also serves as a catalyst for spiritual growth.\n\n**Planetary Combinations**:\n\n1. **Jupiter-Saturn Conjunction**: A conjunction between Jupiter and Saturn is considered highly auspicious in Raja Yoga, indicating rapid spiritual progress.\n2. **Rahu-Ketu Combination**: The combination of Rahu (North Node) and Ketu (South Node) can indicate a strong connection to the spiritual realm.\n\n**Conclusion**: In Phaladeepika, Raja Yoga is presented as a profound and complex system that requires dedication, discipline, and a deep understanding of Jyotish Shastra. By applying these principles and planetary influences, one can navigate the journey towards self-realization and ultimate liberation.\n\nReferences:\n\n* Phaladeepika by Varahamihira\n* BPHS (Brihat Parasara Hora Shastra)\n* Jaimini Sutras\n\nPlease note that this summary is based on my understanding of Phaladeepika, and I may have missed some nuances or details. If you'd like me to elaborate or provide further references, please let me know!",
+      "model_used": "llama3:8b",
+      "confidence_scores": [
+        {
+          "text": "A question from the esteemed text, Phaladeepika!\n\nAccording to Phaladeepika, Raja Yoga is a significant aspect of Jyotish Shastra.",
+          "confidence": 0.83
+        },
+        {
+          "text": "Here's a summary of its key points:\n\n**Definition**: Raja Yoga refers to the union of the individual soul (Jiva) with the Supreme Soul (Paramatman).",
+          "confidence": 0.67
+        },
+        {
+          "text": "It is the highest state of spiritual realization, where the individual ego (Ahamkara) is transcended, and one becomes one with the universe.",
+          "confidence": 0.69
+        },
+        {
+          "text": "**Key Principles**:\n\n1.",
+          "confidence": 0.75
+        },
+        {
+          "text": "**Dharmic Life**: A Raja Yogin must lead a dharmic life, adhering to righteous principles and performing duties according to their varna and ashrama.",
+          "confidence": 0.68
+        },
+        {
+          "text": "2.",
+          "confidence": 0.58
+        },
+        {
+          "text": "**Self-Realization**: The ultimate goal is self-realization (Atma-Jnana), where one recognizes the true nature of the Self as pure consciousness.",
+          "confidence": 0.75
+        },
+        {
+          "text": "3.",
+          "confidence": 0.71
+        },
+        {
+          "text": "**Detachment**: A Raja Yogin must cultivate detachment from worldly attachments, desires, and egoistic tendencies.",
+          "confidence": 0.79
+        },
+        {
+          "text": "4.",
+          "confidence": 0.62
+        },
+        {
+          "text": "**Meditation**: Regular meditation (Dhyana) is essential for spiritual growth, helping to quiet the mind and focus on the inner Self.",
+          "confidence": 0.73
+        },
+        {
+          "text": "5.",
+          "confidence": 0.64
+        },
+        {
+          "text": "**Yamas and Niyamas**: Observing the yamas (restraints) and niyamas (observances) as outlined in the Yoga Sutras of Patanjali is crucial for a Raja Yogin.",
+          "confidence": 0.67
+        },
+        {
+          "text": "**Planetary Influences**:\n\n1.",
+          "confidence": 0.63
+        },
+        {
+          "text": "**Jupiter**: Jupiter's influence is particularly significant in Raja Yoga, as it represents spiritual growth, wisdom, and expansion.",
+          "confidence": 0.82
+        },
+        {
+          "text": "2.",
+          "confidence": 0.61
+        },
+        {
+          "text": "**Saturn**: Saturn's influence can indicate obstacles and challenges on the path to self-realization, but also serves as a catalyst for spiritual growth.",
+          "confidence": 0.83
+        },
+        {
+          "text": "**Planetary Combinations**:\n\n1.",
+          "confidence": 0.71
+        },
+        {
+          "text": "**Jupiter-Saturn Conjunction**: A conjunction between Jupiter and Saturn is considered highly auspicious in Raja Yoga, indicating rapid spiritual progress.",
+          "confidence": 0.76
+        },
+        {
+          "text": "2.",
+          "confidence": 0.58
+        },
+        {
+          "text": "**Rahu-Ketu Combination**: The combination of Rahu (North Node) and Ketu (South Node) can indicate a strong connection to the spiritual realm.",
+          "confidence": 0.75
+        },
+        {
+          "text": "**Conclusion**: In Phaladeepika, Raja Yoga is presented as a profound and complex system that requires dedication, discipline, and a deep understanding of Jyotish Shastra.",
+          "confidence": 0.69
+        },
+        {
+          "text": "By applying these principles and planetary influences, one can navigate the journey towards self-realization and ultimate liberation.",
+          "confidence": 0.74
+        },
+        {
+          "text": "References:\n\n* Phaladeepika by Varahamihira\n* BPHS (Brihat Parasara Hora Shastra)\n* Jaimini Sutras\n\nPlease note that this summary is based on my understanding of Phaladeepika, and I may have missed some nuances or details.",
+          "confidence": 0.75
+        },
+        {
+          "text": "If you'd like me to elaborate or provide further references, please let me know!.",
+          "confidence": 0.76
+        }
+      ],
+      "latency_ms": 113777,
+      "generated_at": "2026-08-08T10:21:42.780837"
     },
     "7037de03229d244e": {
-      "draft_text": "Mock Draft Text",
-      "confidence_score": 0.95,
-      "highlights": [],
-      "model_used": "mock-llm"
+      "answer": "ในบริบทของ Jyotish Shastra (โหราศาสตร์เวท), Saravali เป็นหนึ่งในวิธีการคำนวณที่สำคัญ ซึ่งมีลักษณะเฉพาะตัวและแตกต่างจาก BPHS (Brihat Parashara Hora Shastra) ในหลายด้าน\n\n1. **หลักการของ Saravali**:\n   - Saravali ให้ความสำคัญกับการคำนวณที่ละเอียดอ่อนและมีรายละเอียดมากขึ้น โดยเฉพาะในเรื่องของเวลาและตำแหน่งของดาวเคราะห์ (Planets) ในราศี (Signs) และส่วนต่างๆ ของราศี\n   - วิธีการคำนวณของ Saravali มุ่งเน้นที่การพิจารณาปัจจัยทางกายภาพและพฤติกรรมของดาวเคราะห์ในบริบทของราศีและเวลา\n\n2. **ความแตกต่างจาก BPHS**:\n   - ใน BPHS, คำนวณการเคลื่อนที่ของดาวเคราะห์ตามราศีโดยพื้นฐาน และมุ่งเน้นที่การสร้างภาพรวมของชีวิตและความสัมพันธ์ระหว่างผู้คน\n   - ในขณะที่ Saravali ให้ความสำคัญกับรายละเอียดทางกายภาพและพฤติกรรมของดาวเคราะห์มากขึ้น ซึ่งทำให้มีการวิเคราะห์ที่ลึกซึ้งและเฉพาะเจาะจง\n\n3. **อ้างอิงจาก Saravali**:\n   - ใน Saravali, ผู้เขียน (ไม่มีชื่อที่แน่นอน) ได้อธิบายว่าการคำนวณของดาวเคราะห์ควรทำอย่างละเอียดและพิจารณาปัจจัยทางกายภาพและพฤติกรรม (Phaladeepika, Saravali)\n   - \"Saravali\" อธิบายว่าการคำนวณที่ละเอียดอ่อนนี้จะทำให้สามารถเข้าใจลักษณะและความหมายของดาวเคราะห์ในบริบทที่เฉพาะเจาะจงมากขึ้น (Brihat Jataka, Saravali)\n\n4. **อ้างอิงจาก BPHS**:\n   - ใน BPHS, คำว่า \"Parashara\" ได้อธิบายวิธีการคำนวณที่พื้นฐานและสร้างภาพรวมของชีวิตและความสัมพันธ์ระหว่างผู้คน (Brihat Parashara Hora Shastra, BPHS)\n   - \"Parashara\" ได้กล่าวถึงการคำนวณที่เน้นความสมดุลและภาพรวมของชีวิต\n\nสรุปแล้ว Saravali และ BPHS มีความแตกต่างในระดับของการละเอียดและการพิจารณาปัจจัยทางกายภาพและพฤติกรรม ซึ่งทำให้การคำนวณและวิเคราะห์มีลักษณะเฉพาะเจาะจงมากขึ้นใน Saravali เมื่อเทียบกับ BPHS.",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "ในบริบทของ Jyotish Shastra (โหราศาสตร์เวท), Saravali เป็นหนึ่งในวิธีการคำนวณที่สำคัญ ซึ่งมีลักษณะเฉพาะตัวและแตกต่างจาก BPHS (Brihat Parashara Hora Shastra) ในหลายด้าน\n\n1.",
+          "confidence": 0.75
+        },
+        {
+          "text": "**หลักการของ Saravali**:\n   - Saravali ให้ความสำคัญกับการคำนวณที่ละเอียดอ่อนและมีรายละเอียดมากขึ้น โดยเฉพาะในเรื่องของเวลาและตำแหน่งของดาวเคราะห์ (Planets) ในราศี (Signs) และส่วนต่างๆ ของราศี\n   - วิธีการคำนวณของ Saravali มุ่งเน้นที่การพิจารณาปัจจัยทางกายภาพและพฤติกรรมของดาวเคราะห์ในบริบทของราศีและเวลา\n\n2.",
+          "confidence": 0.78
+        },
+        {
+          "text": "**ความแตกต่างจาก BPHS**:\n   - ใน BPHS, คำนวณการเคลื่อนที่ของดาวเคราะห์ตามราศีโดยพื้นฐาน และมุ่งเน้นที่การสร้างภาพรวมของชีวิตและความสัมพันธ์ระหว่างผู้คน\n   - ในขณะที่ Saravali ให้ความสำคัญกับรายละเอียดทางกายภาพและพฤติกรรมของดาวเคราะห์มากขึ้น ซึ่งทำให้มีการวิเคราะห์ที่ลึกซึ้งและเฉพาะเจาะจง\n\n3.",
+          "confidence": 0.91
+        },
+        {
+          "text": "**อ้างอิงจาก Saravali**:\n   - ใน Saravali, ผู้เขียน (ไม่มีชื่อที่แน่นอน) ได้อธิบายว่าการคำนวณของดาวเคราะห์ควรทำอย่างละเอียดและพิจารณาปัจจัยทางกายภาพและพฤติกรรม (Phaladeepika, Saravali)\n   - \"Saravali\" อธิบายว่าการคำนวณที่ละเอียดอ่อนนี้จะทำให้สามารถเข้าใจลักษณะและความหมายของดาวเคราะห์ในบริบทที่เฉพาะเจาะจงมากขึ้น (Brihat Jataka, Saravali)\n\n4.",
+          "confidence": 0.84
+        },
+        {
+          "text": "**อ้างอิงจาก BPHS**:\n   - ใน BPHS, คำว่า \"Parashara\" ได้อธิบายวิธีการคำนวณที่พื้นฐานและสร้างภาพรวมของชีวิตและความสัมพันธ์ระหว่างผู้คน (Brihat Parashara Hora Shastra, BPHS)\n   - \"Parashara\" ได้กล่าวถึงการคำนวณที่เน้นความสมดุลและภาพรวมของชีวิต\n\nสรุปแล้ว Saravali และ BPHS มีความแตกต่างในระดับของการละเอียดและการพิจารณาปัจจัยทางกายภาพและพฤติกรรม ซึ่งทำให้การคำนวณและวิเคราะห์มีลักษณะเฉพาะเจาะจงมากขึ้นใน Saravali เมื่อเทียบกับ BPHS.",
+          "confidence": 0.77
+        }
+      ],
+      "latency_ms": 44284,
+      "generated_at": "2026-08-08T10:22:27.330292"
     },
     "46f581431e59bf03": {
       "draft_text": "Mock Draft Text",
@@ -1850,5 +2186,5 @@
     "rejected": 0,
     "total_reviewed": 0
   },
-  "last_updated": "2026-08-08T09:30:23.328060"
+  "last_updated": "2026-08-08T10:22:27.340831"
 }
