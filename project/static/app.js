@@ -148,12 +148,17 @@ async function resolveLocation() {
 
 async function updateVersionFooter() {
   try {
-    const res = await fetch('/health');
-    if (res.ok) {
+    const isStaticSpace = typeof window !== 'undefined' && window.location && window.location.hostname.includes('static.hf.space');
+    const healthUrl = isStaticSpace
+      ? 'https://horoconsultant-core-backend.fly.dev/health'
+      : '/health';
+
+    const res = await fetch(healthUrl).catch(() => null);
+    if (res && res.ok) {
       const data = await res.json();
-      const versionStr = data.version || ('1.0.0.' + (data.git_commit || 'cb9b314'));
+      const versionStr = data.version || (data.git_commit ? `1.0.0.${data.git_commit}` : '');
       const footerEl = document.getElementById('footer-version-text');
-      if (footerEl) {
+      if (footerEl && versionStr) {
         footerEl.textContent = `Computational Metaphysics Engine v${versionStr} — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) & Dual Gemini API Fallback`;
       }
     }
