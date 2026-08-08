@@ -81,13 +81,19 @@
 
 ### 9. 🌐 Multi-Cloud Serverless CORS & Package Size Limit Protocol
 - **Issue Experienced**: Executing `curl` against `https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret` from origin `https://pphothidaen-horoconsultant-core-backend.static.hf.space` yielded a CORS error / `FUNCTION_INVOCATION_FAILED (500)` and `health` returned `(failed) net::ERR_CONNECTION_RESET`.
+- **Definitive Root Cause (2026-08-09 confirmed)**: `api/main.py` contained `from project.main import app as fastapi_app` at **module level** (line 12). This forced Vercel to import the entire FastAPI stack (FAISS, RAG, apscheduler, swisseph, all astrology engines) at Lambda cold-start. The heavy dependency chain crashed the Lambda → `FUNCTION_INVOCATION_FAILED (HTTP 500)`. When a Lambda returns a bare 500, Vercel omits `Access-Control-Allow-Origin` headers entirely → browsers see a misleading CORS error (the real error is the import crash, not CORS).
 - **Lesson Learned**:
-  1. **Vercel Lambda Package Limit (250MB)**: Heavy C binaries (`faiss-cpu`, `uvloop`) in `requirements.txt` cause Lambda cold-start import crashes. When Lambdas crash (HTTP 500), Vercel omits `Access-Control-Allow-Origin` headers, causing browsers to report a false-positive CORS error.
-  2. **Hugging Face Free Tier Limits**: HF free tier only supports **Static** Spaces (`sdk: static`). Free Docker Spaces require a PRO subscription (`402 Payment Required`). Proxying `/api/*` from Vercel to a Static HF Space returns 404 HTML.
-  3. **Fly.io Idle Resets**: Non-existent or suspended Fly.io containers (`horoconsultant-core-backend.fly.dev`) return `net::ERR_CONNECTION_RESET`.
-- **Prevention Protocol**:
-  - **Vercel**: Keep `requirements.txt` lightweight (<15MB, remove `faiss-cpu`, `uvloop`, `pytest`, `timezonefinder`). Add `sys.path` root initialization in `api/index.py`, `runtime.txt` specifying `python-3.11`, and a global `@app.exception_handler(Exception)` in `project/main.py` guaranteeing CORS headers on all errors.
-  - **Hugging Face**: Use `sdk: static` for free static UI hosting (`pphothidaen-horoconsultant-core-backend.static.hf.space`).
+  1. **Never import project.main in api/main.py**: `api/main.py` is the Vercel serverless entry point. It MUST remain lightweight — no FAISS, no RAG, no heavy engines at module level. The `_dispatch` / `handler` functions are self-contained and never needed `project.main`.
+  2. **Vercel Lambda Package Limit (250MB)**: Heavy C binaries (`faiss-cpu`, `uvloop`) in `requirements.txt` cause Lambda cold-start crashes.
+  3. **CORS error ≠ CORS bug**: When a Vercel Lambda crashes before returning ANY response, the browser reports a CORS error because `Access-Control-Allow-Origin` is absent. Always check `X-Vercel-Error: FUNCTION_INVOCATION_FAILED` in response headers first.
+  4. **Hugging Face Free Tier Limits**: HF free tier only supports **Static** Spaces (`sdk: static`). Free Docker Spaces require a PRO subscription (`402 Payment Required`).
+  5. **Fly.io Idle Resets**: Non-existent or suspended Fly.io containers return `net::ERR_CONNECTION_RESET`.
+- **Prevention Protocol (Updated Fix)**:
+  - **api/main.py**: Remove ALL `project.main` imports. Use lazy imports with `try/except` fallback only inside function bodies. Add `_safe_dispatch()` wrapper that guarantees CORS headers on every response including uncaught exceptions.
+  - **runtime.txt**: Pin `python3.11` so Vercel uses a consistent runtime.
+  - **CORS fallback**: If `project.core.cors` import fails, use an inline CORS header builder that reads `CORS_ALLOWED_ORIGINS` env var directly (no dependencies).
+  - **requirements.txt**: Keep lightweight (< 15MB): `fastapi`, `pydantic`, `httpx`, `python-dotenv`, `numpy`, `geopy`, `pyyaml`, `aiofiles` only.
+  - **Post-deploy verification**: Run `python3 scripts/run_vercel_prod_curl_regression.py` after every Vercel deploy to verify all 3 endpoints pass with CORS headers.
   - **Client Web UI (`app.js`)**: Use dynamic `${getApiBaseUrl()}/health` for health pings instead of hardcoded Fly.io URLs.
 
 ### 10. 🔍 Code Reviewer `.venv` False-Positive Secret Scan Bug
