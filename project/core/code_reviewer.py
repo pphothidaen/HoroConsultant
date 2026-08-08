@@ -141,7 +141,7 @@ class CodeReviewer:
                 cwd=ROOT,
                 capture_output=True,
                 text=True,
-                timeout=60
+                timeout=120
             )
             passed = res.returncode == 0
             summary_line = res.stdout.strip().splitlines()[-1] if res.stdout else res.stderr

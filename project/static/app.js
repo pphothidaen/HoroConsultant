@@ -79,6 +79,7 @@ async function calculateChart(event) {
   };
 
   try {
+    // 1. Fetch LLM interpretation
     const res = await fetch('/api/v1/bazi/interpret', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -90,6 +91,22 @@ async function calculateChart(event) {
     }
 
     const data = await res.json();
+
+    // 2. Fetch SVG diagram & detailed chart if not present
+    let svgContent = data.svg_content || (data.chart && data.chart.svg_content);
+    if (!svgContent) {
+      const calcRes = await fetch('/api/v1/bazi/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (calcRes.ok) {
+        const calcData = await calcRes.json();
+        svgContent = calcData.svg_content;
+      }
+    }
+
+    data.svg_content = svgContent;
     renderResults(data);
   } catch (err) {
     alert(`เกิดข้อผิดพลาดในการเรียก API: ${err.message}`);
@@ -100,12 +117,20 @@ async function calculateChart(event) {
 }
 
 function renderResults(data) {
-  const chart = data.chart;
+  const chart = data.chart || {};
   
   // Show Cards
   document.getElementById('pillars-card').classList.remove('hidden');
   document.getElementById('elements-card').classList.remove('hidden');
   document.getElementById('interpretation-card').classList.remove('hidden');
+
+  // SVG Chart Card Rendering
+  const svgCard = document.getElementById('svg-chart-card');
+  const svgContainer = document.getElementById('svg-chart-container');
+  if (svgCard && svgContainer && data.svg_content) {
+    svgContainer.innerHTML = data.svg_content;
+    svgCard.classList.remove('hidden');
+  }
 
   // Render 4 Pillars
   const pillarsGrid = document.getElementById('pillars-grid');
@@ -194,6 +219,9 @@ function renderResults(data) {
     <p>📚 <strong>FAISS RAG Knowledge Base:</strong> 3,132 Vector Chunks Indexed (ZiPing ZhenQuan, DiTianSui, 38 Thai Astrology Books)</p>
     <p>คำตอบนี้ผสมผสานการค้นหาเชิงความหมายจาก FAISS ร่วมกับ Local Model qwen2.5-bazi</p>
   `;
+
+  // Auto-scroll to results
+  document.getElementById('pillars-card').scrollIntoView({ behavior: 'smooth' });
 }
 
 function switchTab(tabId) {
@@ -207,14 +235,18 @@ function switchTab(tabId) {
 /* ---------------------------------------------------------------------------
    5 Metaphysics Branches Helper Handlers & Web UI Visualizer
    --------------------------------------------------------------------------- */
-function showBranchCard(title, contentHtml) {
+function showBranchCard(title, contentHtml, svgContent = "") {
   const card = document.getElementById('branch-result-card');
   const titleEl = document.getElementById('branch-title');
   const bodyEl = document.getElementById('branch-body');
   
   if (card && titleEl && bodyEl) {
     titleEl.innerHTML = title;
-    bodyEl.innerHTML = contentHtml;
+    let fullHtml = contentHtml;
+    if (svgContent) {
+      fullHtml += `<div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; text-align: center; overflow-x: auto;">${svgContent}</div>`;
+    }
+    bodyEl.innerHTML = fullHtml;
     card.classList.remove('hidden');
     card.scrollIntoView({ behavior: 'smooth' });
   }
@@ -228,15 +260,15 @@ async function calcZiWei() {
       <h4 style="color: #c084fc; margin-top: 0;">🔮 紫微斗數 (Zi Wei Dou Shu Chart)</h4>
       <p><strong>命宮支 (Ming Gong):</strong> ${data.ming_gong_branch} | <strong>身宮支 (Shen Gong):</strong> ${data.shen_gong_branch}</p>
       <p><strong>五行局 (Bureau):</strong> ${data.five_element_bureau} | <strong>紫微星位:</strong> ${data.zi_wei_star_branch} | <strong>天府星位:</strong> ${data.tian_fu_star_branch}</p>
-      <p><strong>四化 (Si Hua):</strong> 祿:${data.si_hua.化祿 || '-'}, 權:${data.si_hua.化權 || '-'}, 科:${data.si_hua.化科 || '-'}, 忌:${data.si_hua.化忌 || '-'}</p>
+      <p><strong>四化 (Si Hua):</strong> 祿:${data.si_hua ? (data.si_hua.化祿 || '-') : '-'}, 權:${data.si_hua ? (data.si_hua.化權 || '-') : '-'}, 科:${data.si_hua ? (data.si_hua.化科 || '-') : '-'}, 忌:${data.si_hua ? (data.si_hua.化忌 || '-') : '-'}</p>
       <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
       <p><strong>ผัง 12 ภพ (12 Palaces):</strong></p>
       <ul style="padding-left: 1.2rem; margin: 0;">
-        ${data.palaces.map(p => `<li><strong>${p.palace_name} (${p.earth_branch}):</strong> ${p.stars.join(', ') || '無主星'} ${p.mutators.length ? `[${p.mutators.join(', ')}]` : ''}</li>`).join('')}
+        ${(data.palaces || []).map(p => `<li><strong>${p.palace_name} (${p.earth_branch}):</strong> ${p.stars.join(', ') || '無主星'} ${p.mutators && p.mutators.length ? `[${p.mutators.join(', ')}]` : ''}</li>`).join('')}
       </ul>
     </div>
   `;
-  showBranchCard("🔮 ผังวิชา紫微斗數 (Zi Wei Dou Shu Visualizer)", html);
+  showBranchCard("🔮 ผังวิชา紫微斗數 (Zi Wei Dou Shu Visualizer)", html, data.svg_content);
 }
 
 async function calcQiMen() {
@@ -248,7 +280,7 @@ async function calcQiMen() {
       <p><strong>節氣 (Solar Term):</strong> ${data.solar_term} | <strong>陰陽遁:</strong> ${data.dun_type}遁 ${data.ju_number}局</p>
       <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
-        ${data.palaces.map(p => `
+        ${(data.palaces || []).map(p => `
           <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid #3b82f6; padding: 6px; border-radius: 6px; font-size: 0.85rem;">
             <strong>宮位 ${p.palace_number}</strong><br>
             九星: ${p.star}<br>
@@ -259,7 +291,7 @@ async function calcQiMen() {
       </div>
     </div>
   `;
-  showBranchCard("⚡ ผังวิชา奇門遁甲 (Qi Men Dun Jia Visualizer)", html);
+  showBranchCard("⚡ ผังวิชา奇門遁甲 (Qi Men Dun Jia Visualizer)", html, data.svg_content);
 }
 
 async function calcLiuRen() {
@@ -273,11 +305,11 @@ async function calcLiuRen() {
       <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
       <p><strong>四課 (4 Lessons):</strong></p>
       <ul>
-        ${data.four_lessons.map(l => `<li><strong>${l.lesson_name}:</strong> ${l.bottom} → ${l.top}</li>`).join('')}
+        ${(data.four_lessons || []).map(l => `<li><strong>${l.lesson_name}:</strong> ${l.bottom} → ${l.top}</li>`).join('')}
       </ul>
     </div>
   `;
-  showBranchCard("🌊 ผังวิชา大六壬 (Da Liu Ren Visualizer)", html);
+  showBranchCard("🌊 ผังวิชา大六壬 (Da Liu Ren Visualizer)", html, data.svg_content);
 }
 
 async function calcIChing() {
@@ -291,11 +323,11 @@ async function calcIChing() {
       <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
       <p><strong>六爻 (6 Lines Detail):</strong></p>
       <ul>
-        ${data.six_lines.map(l => `<li><strong>爻 ${l.line_number}:</strong> ${l.line_type} (${l.line_value}) - ${l.relative} [六神: ${l.animal}] ${l.is_moving ? '⚡ 動爻' : ''}</li>`).join('')}
+        ${(data.six_lines || []).map(l => `<li><strong>爻 ${l.line_number}:</strong> ${l.line_type} (${l.line_value}) - ${l.relative} [六神: ${l.animal}] ${l.is_moving ? '⚡ 動爻' : ''}</li>`).join('')}
       </ul>
     </div>
   `;
-  showBranchCard("☯ ผังวิชา易經六爻 (I Ching & Liu Yao Visualizer)", html);
+  showBranchCard("☯ ผังวิชา易經六爻 (I Ching & Liu Yao Visualizer)", html, data.svg_content);
 }
 
 async function calcXuanKong() {
@@ -307,7 +339,7 @@ async function calcXuanKong() {
       <p><strong>九運:</strong> 第 ${data.period} 運 (2024-2043) | <strong>向首:</strong> ${data.facing_mountain} | <strong>坐山:</strong> ${data.sitting_mountain}</p>
       <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
-        ${data.grid_palaces.map(p => `
+        ${(data.grid_palaces || []).map(p => `
           <div style="background: rgba(24, 9, 20, 0.8); border: 1px solid #be185d; padding: 6px; border-radius: 6px; font-size: 0.85rem; text-align: center;">
             <strong>${p.direction} (${p.palace_name})</strong><br>
             <span style="color: #38bdf8;">山:${p.sitting_star}</span> | <span style="color: #f43f5e;">向:${p.facing_star}</span><br>
@@ -317,7 +349,7 @@ async function calcXuanKong() {
       </div>
     </div>
   `;
-  showBranchCard("🏯 ผังวิชา玄空風水 (Xuan Kong Visualizer)", html);
+  showBranchCard("🏯 ผังวิชา玄空風水 (Xuan Kong Visualizer)", html, data.svg_content);
 }
 
 async function calcZeJi() {
@@ -331,11 +363,11 @@ async function calcZeJi() {
       <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
       <p><strong>ความเหมาะสมประจำกิจกรรม:</strong></p>
       <ul>
-        ${Object.entries(data.activities_suitability).map(([act, res]) => `<li><strong>${act}:</strong> ${res === '宜' ? '✅ 宜 (เหมาะสม)' : (res === '忌' ? '❌ 忌 (ควรหลีกเลี่ยง)' : '⚖️ 平 (ปานกลาง)')}</li>`).join('')}
+        ${Object.entries(data.activities_suitability || {}).map(([act, res]) => `<li><strong>${act}:</strong> ${res === '宜' ? '✅ 宜 (เหมาะสม)' : (res === '忌' ? '❌ 忌 (ควรหลีกเลี่ยง)' : '⚖️ 平 (ปานกลาง)')}</li>`).join('')}
       </ul>
     </div>
   `;
-  showBranchCard("📅 คำนวณฤกษ์擇吉 (Date Selection Visualizer)", html);
+  showBranchCard("📅 คำนวณฤกษ์擇吉 (Date Selection Visualizer)", html, data.svg_content);
 }
 
 async function calcThaiVedic() {
@@ -345,16 +377,16 @@ async function calcThaiVedic() {
     <div style="background: rgba(234, 179, 8, 0.15); border: 1px solid #facc15; padding: 1rem; border-radius: 8px;">
       <h4 style="color: #facc15; margin-top: 0;">🐘 โหราศาสตร์ไทยสุริยยาตร์ & ภารตวิทยา (Thai & Jyotish)</h4>
       <p><strong>ลัคนาสุริยยาตร์:</strong> ${data.thai_lagna} | <strong>ดาวกาลกิณี:</strong> <span style="color: #ef4444; font-weight: bold;">${data.kalakini_planet}</span> | <strong>ดาวศรี:</strong> <span style="color: #22c55e; font-weight: bold;">${data.sri_planet}</span></p>
-      <p><strong>นักษัตร 27 ดารา (Vedic):</strong> ${data.vedic_nakshatra.name} (นักษัตรที่ ${data.vedic_nakshatra.number}, Pada ${data.vedic_nakshatra.pada})</p>
+      <p><strong>นักษัตร 27 ดารา (Vedic):</strong> ${data.vedic_nakshatra ? data.vedic_nakshatra.name : ''} (นักษัตรที่ ${data.vedic_nakshatra ? data.vedic_nakshatra.number : ''}, Pada ${data.vedic_nakshatra ? data.vedic_nakshatra.pada : ''})</p>
       <p><strong>วิมโชตตรีทศา (Vimshottari Dasha):</strong> ${data.vimshottari_dasha}</p>
       <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
       <p><strong>มหาทักษา 8 เทวดาเสวยอายุ:</strong></p>
       <ul>
-        ${Object.entries(data.maha_thaksa).map(([k, v]) => `<li><strong>${k}:</strong> ${v}</li>`).join('')}
+        ${Object.entries(data.maha_thaksa || {}).map(([k, v]) => `<li><strong>${k}:</strong> ${v}</li>`).join('')}
       </ul>
     </div>
   `;
-  showBranchCard("🐘 โหราศาสตร์ไทย & ภารตวิทยา (Thai & Jyotish Visualizer)", html);
+  showBranchCard("🐘 โหราศาสตร์ไทย & ภารตวิทยา (Thai & Jyotish Visualizer)", html, data.svg_content);
 }
 
 async function calcWestern() {
@@ -365,33 +397,33 @@ async function calcWestern() {
       <h4 style="color: #818cf8; margin-top: 0;">🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian)</h4>
       <p><strong>ตำแหน่งดาวเคราะห์สากล (Tropical):</strong></p>
       <ul>
-        ${Object.entries(data.planets_tropical).map(([p, pos]) => `<li><strong>${p}:</strong> ${pos}</li>`).join('')}
+        ${Object.entries(data.planets_tropical || {}).map(([p, pos]) => `<li><strong>${p}:</strong> ${pos}</li>`).join('')}
       </ul>
       <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
       <p><strong>ดาวทิพย์ยูเรเนียน 8 องค์ (8 Uranian TNPs):</strong></p>
       <ul>
-        ${Object.entries(data.uranian_tnps).map(([tnp, deg]) => `<li><strong>${tnp}:</strong> Longitude ${deg}°</li>`).join('')}
+        ${Object.entries(data.uranian_tnps || {}).map(([tnp, deg]) => `<li><strong>${tnp}:</strong> Longitude ${deg}°</li>`).join('')}
       </ul>
-      <p><strong>จุดอิทธิพลสะท้อนศูนย์ลิขิต (Midpoint Axis):</strong> ${data.uranian_midpoint_formula.formula} → <strong>${data.uranian_midpoint_formula.zodiac_position}</strong></p>
+      <p><strong>จุดอิทธิพลสะท้อนศูนย์ลิขิต (Midpoint Axis):</strong> ${data.uranian_midpoint_formula ? data.uranian_midpoint_formula.formula : ''} → <strong>${data.uranian_midpoint_formula ? data.uranian_midpoint_formula.zodiac_position : ''}</strong></p>
     </div>
   `;
-  showBranchCard("🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian Visualizer)", html);
+  showBranchCard("🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian Visualizer)", html, data.svg_content);
 }
 
 async function calcNumerology() {
   const res = await fetch('/api/v1/numerology/calculate?text=0812345678&day_num=2&lunar_month=6&year_zodiac_num=7');
   const data = await res.json();
-  const score = data.chaldean_score;
-  const satta = data.satta_lek;
+  const score = data.chaldean_score || {};
+  const satta = data.satta_lek || {};
   const html = `
     <div style="background: rgba(20, 184, 166, 0.15); border: 1px solid #2dd4bf; padding: 1rem; border-radius: 8px;">
       <h4 style="color: #2dd4bf; margin-top: 0;">🔢 สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean</h4>
-      <p><strong>เลขศาสตร์ Chaldean (Input: ${score.input_text}):</strong> ผลรวม ${score.total_score} → ถอดถอดรากได้ <strong>เลข ${score.reduced_root_digit}</strong></p>
-      <p><strong>ความหมายเลข:</strong> ${score.digit_meaning}</p>
+      <p><strong>เลขศาสตร์ Chaldean (Input: ${score.input_text || ''}):</strong> ผลรวม ${score.total_score || ''} → ถอดถอดรากได้ <strong>เลข ${score.reduced_root_digit || ''}</strong></p>
+      <p><strong>ความหมายเลข:</strong> ${score.digit_meaning || ''}</p>
       <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
       <p><strong>ผัง 7 ฐาน 4 แถว (Satta-Lek Matrix):</strong></p>
       <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; font-size: 0.8rem; text-align: center;">
-        ${satta.matrix_7_base.map(m => `
+        ${(satta.matrix_7_base || []).map(m => `
           <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid #0d9488; padding: 4px; border-radius: 4px;">
             <strong>${m.house_name}</strong><br>
             วัน:${m.row1_day}<br>
@@ -403,5 +435,5 @@ async function calcNumerology() {
       </div>
     </div>
   `;
-  showBranchCard("🔢 สัตตเลข 7 ฐาน & เลขศาสตร์ (Numerology Visualizer)", html);
+  showBranchCard("🔢 สัตตเลข 7 ฐาน & เลขศาสตร์ (Numerology Visualizer)", html, data.svg_content);
 }

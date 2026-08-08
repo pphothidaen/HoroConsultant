@@ -22,3 +22,6 @@ rust_core/target/
 project/kaggle_kernel/HoroConsultant/
 wandb/
 .vercel
+project/tests/screenshots/
+project/tests/e2e_results_report.json
+

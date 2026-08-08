@@ -50,18 +50,18 @@
     <text x="0" y="0" font-family="Prompt, sans-serif" font-size="15" font-weight="bold" fill="#fbbf24">⚖️ สัดส่วนสมดุล 5 ธาตุ (Five Elements Harmony)</text>
     <text x="0" y="28" font-family="Prompt, sans-serif" font-size="12" fill="#10b981">Wood: 6.3%</text>
     <rect x="0" y="35" width="120" height="10" rx="5" fill="#334155"/>
-    <rect x="0" y="35" width="10" height="10" rx="5" fill="#10b981"/>
+    <rect x="0" y="35" width="7" height="10" rx="5" fill="#10b981"/>
     <text x="135" y="28" font-family="Prompt, sans-serif" font-size="12" fill="#ef4444">Fire: 34.6%</text>
     <rect x="135" y="35" width="120" height="10" rx="5" fill="#334155"/>
-    <rect x="135" y="35" width="45" height="10" rx="5" fill="#ef4444"/>
+    <rect x="135" y="35" width="41" height="10" rx="5" fill="#ef4444"/>
     <text x="270" y="28" font-family="Prompt, sans-serif" font-size="12" fill="#d97706">Earth: 31.2%</text>
     <rect x="270" y="35" width="120" height="10" rx="5" fill="#334155"/>
-    <rect x="270" y="35" width="40" height="10" rx="5" fill="#d97706"/>
+    <rect x="270" y="35" width="37" height="10" rx="5" fill="#d97706"/>
     <text x="405" y="28" font-family="Prompt, sans-serif" font-size="12" fill="#38bdf8">Metal: 21.2%</text>
     <rect x="405" y="35" width="120" height="10" rx="5" fill="#334155"/>
-    <rect x="405" y="35" width="27" height="10" rx="5" fill="#38bdf8"/>
+    <rect x="405" y="35" width="25" height="10" rx="5" fill="#38bdf8"/>
     <text x="540" y="28" font-family="Prompt, sans-serif" font-size="12" fill="#8b5cf6">Water: 6.6%</text>
     <rect x="540" y="35" width="120" height="10" rx="5" fill="#334155"/>
-    <rect x="540" y="35" width="10" height="10" rx="5" fill="#8b5cf6"/>
+    <rect x="540" y="35" width="7" height="10" rx="5" fill="#8b5cf6"/>
   </g>
 </svg>

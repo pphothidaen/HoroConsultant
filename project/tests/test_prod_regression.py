@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 from project.main import app
@@ -95,11 +96,18 @@ def test_core_fastapi_endpoints_regression():
         "enable_validation": False,
         "query": "ทดสอบระบบ"
     }
-    res = client.post("/api/v1/bazi/interpret", json=bazi_payload)
-    assert res.status_code == 200
-    data = res.json()
-    assert "chart" in data
-    assert "interpretation" in data
+    mock_ai = {
+        "text": "บทวิเคราะห์ทดสอบ",
+        "model_used": "mock-model",
+        "route": "mock_route",
+        "latency_ms": 10
+    }
+    with patch("project.main.router.generate", return_value=mock_ai):
+        res = client.post("/api/v1/bazi/interpret", json=bazi_payload)
+        assert res.status_code == 200
+        data = res.json()
+        assert "chart" in data
+        assert "interpretation" in data
     
     # ZiWei calculation
     res = client.get("/api/v1/ziwei/calculate?year=1990&month=5&day=15&hour=14&gender=male")

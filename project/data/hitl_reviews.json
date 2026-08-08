@@ -1,0 +1,1630 @@
+{
+  "reviews": {},
+  "drafts": {
+    "a0a7ec9e8f23e33f": {
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-08-08T03:11:22.293541"
+    },
+    "f5b2cccbf6504e22": {
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-08-08T03:17:34.642520"
+    },
+    "bcb3f3314c65f172": {
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-08-08T03:38:58.667033"
+    },
+    "e8d75f39344c05be": {
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-08-08T03:45:07.825299"
+    },
+    "978b8b2bf0509059": {
+      "answer": "ใน 三命通會 (San Ming Tong Hui) โดย 三命通会作者，该书详细阐述了神煞（Shen Sha）的概念及其在八字命理中的应用。神煞是八字中除天干地支外的特殊因素，对人的命运有重要影响。\n\n### 神殺 (Shen Sha)\n神殺 (Shen Sha) 是指那些能够直接或间接伤害命主的星曜。它通常包括一些特定的天干、地支以及某些组合。在 三命通会 中，神煞被分为多种类型，其中最常见的是：\n\n1. **正神煞**：\n   - **劫財 (Jié Cái)**：代表破坏财富的力量。\n   - **偏財 (Piān Cái)**：虽然通常与财富相关，但在某些情况下也可能成为神煞。\n\n2. **邪神煞**：\n   - **破軍 (Pò Jūn)**：在命理中具有双重性质，既可以是正财也可以是邪煞。\n   - **七殺 (Qī Shā)**：代表破坏力量的星曜之一。\n   - **天梁 (Tiān Liáng)** 和 **地獄 (Dì Yù)**：这些星曜通常被视为邪神煞。\n\n3. **其他神煞**：\n   - **流年神煞**：如月破、日冲等，根据每年的天干地支变化而变化。\n   - **时上神煞**：如时上逢冲、逢破等。\n\n### 三命通会 中关于 神殺 (Shen Sha) 的详细分析\n在 三命通会 中，作者通过具体的案例和详细的解释来说明神煞的识别方法及其对命运的影响。例如：\n\n- **正财与邪煞的区别**：正财通常代表财富积累的机会，而邪煞则可能带来财务上的损失或困难。\n- **天干地支组合的影响**：某些特定的天干地支组合可能会形成神煞，如日主逢冲、逢破等。\n\n### 具体应用\n在实际命理分析中，神煞的位置和性质会对命局的整体格局产生重要影响。例如：\n\n- 如果命主的日主（即命主本身）被神煞所冲或克，则可能面临不利的局面。\n- 神煞的出现也可能预示着某些特定时期内可能出现的问题或挑战。\n\n### 结论\n综上所述，三命通会 中关于神煞（Shen Sha）的内容非常丰富和详细。通过深入研究这些内容，可以更准确地理解八字命理中各种因素之间的复杂关系及其对个人命运的影响。",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "ใน 三命通會 (San Ming Tong Hui) โดย 三命通会作者，该书详细阐述了神煞（Shen Sha）的概念及其在八字命理中的应用。神煞是八字中除天干地支外的特殊因素，对人的命运有重要影响。\n\n### 神殺 (Shen Sha)\n神殺 (Shen Sha) 是指那些能够直接或间接伤害命主的星曜。它通常包括一些特定的天干、地支以及某些组合。在 三命通会 中，神煞被分为多种类型，其中最常见的是：\n\n1.",
+          "confidence": 0.84
+        },
+        {
+          "text": "**正神煞**：\n   - **劫財 (Jié Cái)**：代表破坏财富的力量。\n   - **偏財 (Piān Cái)**：虽然通常与财富相关，但在某些情况下也可能成为神煞。\n\n2.",
+          "confidence": 0.77
+        },
+        {
+          "text": "**邪神煞**：\n   - **破軍 (Pò Jūn)**：在命理中具有双重性质，既可以是正财也可以是邪煞。\n   - **七殺 (Qī Shā)**：代表破坏力量的星曜之一。\n   - **天梁 (Tiān Liáng)** 和 **地獄 (Dì Yù)**：这些星曜通常被视为邪神煞。\n\n3.",
+          "confidence": 0.69
+        },
+        {
+          "text": "**其他神煞**：\n   - **流年神煞**：如月破、日冲等，根据每年的天干地支变化而变化。\n   - **时上神煞**：如时上逢冲、逢破等。\n\n### 三命通会 中关于 神殺 (Shen Sha) 的详细分析\n在 三命通会 中，作者通过具体的案例和详细的解释来说明神煞的识别方法及其对命运的影响。例如：\n\n- **正财与邪煞的区别**：正财通常代表财富积累的机会，而邪煞则可能带来财务上的损失或困难。\n- **天干地支组合的影响**：某些特定的天干地支组合可能会形成神煞，如日主逢冲、逢破等。\n\n### 具体应用\n在实际命理分析中，神煞的位置和性质会对命局的整体格局产生重要影响。例如：\n\n- 如果命主的日主（即命主本身）被神煞所冲或克，则可能面临不利的局面。\n- 神煞的出现也可能预示着某些特定时期内可能出现的问题或挑战。\n\n### 结论\n综上所述，三命通会 中关于神煞（Shen Sha）的内容非常丰富和详细。通过深入研究这些内容，可以更准确地理解八字命理中各种因素之间的复杂关系及其对个人命运的影响。.",
+          "confidence": 0.82
+        }
+      ],
+      "latency_ms": 85280,
+      "generated_at": "2026-08-08T04:01:31.899626"
+    },
+    "d8c6c59546334dca": {
+      "answer": "หลักการ 納音五行 (Nayin Five Elements) เป็นหนึ่งในเทคนิคสำคัญในการคำนวณ八字命理 (BaZi) หรือ จีนโบราณ โดยมีความซับซ้อนและละเอียดอ่อนมาก ซึ่งรวมถึงการคำนวณธาตุเสียงและการนำมาใช้\n\n### หลักการของ 納音五行 (Nayin Five Elements)\n\n1. **การกำหนด 60 ปีฐาน (六十甲子)**\n   - 60 ปีฐานประกอบด้วย 10 ตัวอักษร หรือ 甲乙丙丁戊己庚辛壬癸 (Jiǎ Yǐ Bǐng Dīng Wù Jì Gēng Xīn Rén Guǐ) และ 12 ชื่อสัตว์ หรือ 子丑寅卯辰巳午未申酉戌亥 (Zǐ Chǒu Yín Mǎo Cén Sì Wǔ Wèi Shēn Yǒu Xū Hài)\n   - การกำหนดปีฐานนี้ทำให้สามารถระบุธาตุของปีได้\n\n2. **การคำนวณ 五行 (Five Elements)**\n   - 五行 ประกอบด้วย 金 (Jīn, ทอง), 木 (Mù, 树), 水 (Shuǐ, น้ำ), 火 (Huǒ, ไฟ), 土 (Tǔ, ดิน)\n   - การคำนวณธาตุในปีฐานทำให้สามารถระบุธาตุของปีได้\n\n3. **การคำนวณ 五行 สำหรับคน**\n   - 五行 ของคนจะคำนวณจาก 时辰 (Chén, ชั่วโมง) และ 日期 (Rìqī, วันที่)\n   - การคำนวณนี้ทำให้สามารถระบุธาตุของคนได้\n\n4. **การคำนวณ 五行 สำหรับเสียง**\n   - 五行 ของเสียงจะคำนวณจาก 时 (Shí, เวลา) และ 地 (Dì, สถานที่)\n   - การคำนวณนี้ทำให้สามารถระบุธาตุของเสียงได้\n\n### การนำมาใช้\n\n1. **การคำนวณ 五行 สำหรับคน**\n   - 五行 ของคนจะถูกนำมาใช้ในการวิเคราะห์八字命理 (BaZi) เพื่อหาจุดแข็งและจุดอ่อนในชีวิต\n   - การคำนวณนี้ทำให้สามารถระบุธาตุที่เหมาะสมสำหรับคนได้\n\n2. **การคำนวณ 五行 สำหรับเสียง**\n   - 五行 ของเสียงจะถูกนำมาใช้ในการวิเคราะห์ความหมายและความสัมพันธ์ระหว่างเสียงและธาตุ\n   - การคำนวณนี้ทำให้สามารถระบุธาตุที่เหมาะสมสำหรับเสียงได้\n\n### อ้างอิง\n\n- 子平真詮 (Zǐpíng Zhenchán): คัมภีร์ที่ใช้ในการสอน八字命理 (BaZi) และการคำนวณ 五行\n- 滴天髓 (Dītiān Suǐ): คัมภีร์ที่ใช้ในการสอนการคำนวณ 五行 และ八字命理 (BaZi)\n- 窮通寶鑑 (Qióngtōng Bǎojiàn): คัมภีร์ที่ใช้ในการสอน八字命理 (BaZi) และการคำนวณ 五行\n\nโดยรวมแล้ว การคำนวณ 五行 สำหรับคนและการนำมาใช้ใน八字命理 (BaZi) เป็นเทคนิคที่ซับซ้อนและละเอียดอ่อนมาก แต่เมื่อได้รับการสอนอย่างถูกต้อง ก็สามารถนำไปใช้ในการวิเคราะห์ชีวิตและการวางแผนอนาคตได้อย่างมีประสิทธิภาพ",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "หลักการ 納音五行 (Nayin Five Elements) เป็นหนึ่งในเทคนิคสำคัญในการคำนวณ八字命理 (BaZi) หรือ จีนโบราณ โดยมีความซับซ้อนและละเอียดอ่อนมาก ซึ่งรวมถึงการคำนวณธาตุเสียงและการนำมาใช้\n\n### หลักการของ 納音五行 (Nayin Five Elements)\n\n1.",
+          "confidence": 0.82
+        },
+        {
+          "text": "**การกำหนด 60 ปีฐาน (六十甲子)**\n   - 60 ปีฐานประกอบด้วย 10 ตัวอักษร หรือ 甲乙丙丁戊己庚辛壬癸 (Jiǎ Yǐ Bǐng Dīng Wù Jì Gēng Xīn Rén Guǐ) และ 12 ชื่อสัตว์ หรือ 子丑寅卯辰巳午未申酉戌亥 (Zǐ Chǒu Yín Mǎo Cén Sì Wǔ Wèi Shēn Yǒu Xū Hài)\n   - การกำหนดปีฐานนี้ทำให้สามารถระบุธาตุของปีได้\n\n2.",
+          "confidence": 0.76
+        },
+        {
+          "text": "**การคำนวณ 五行 (Five Elements)**\n   - 五行 ประกอบด้วย 金 (Jīn, ทอง), 木 (Mù, 树), 水 (Shuǐ, น้ำ), 火 (Huǒ, ไฟ), 土 (Tǔ, ดิน)\n   - การคำนวณธาตุในปีฐานทำให้สามารถระบุธาตุของปีได้\n\n3.",
+          "confidence": 0.65
+        },
+        {
+          "text": "**การคำนวณ 五行 สำหรับคน**\n   - 五行 ของคนจะคำนวณจาก 时辰 (Chén, ชั่วโมง) และ 日期 (Rìqī, วันที่)\n   - การคำนวณนี้ทำให้สามารถระบุธาตุของคนได้\n\n4.",
+          "confidence": 0.67
+        },
+        {
+          "text": "**การคำนวณ 五行 สำหรับเสียง**\n   - 五行 ของเสียงจะคำนวณจาก 时 (Shí, เวลา) และ 地 (Dì, สถานที่)\n   - การคำนวณนี้ทำให้สามารถระบุธาตุของเสียงได้\n\n### การนำมาใช้\n\n1.",
+          "confidence": 0.82
+        },
+        {
+          "text": "**การคำนวณ 五行 สำหรับคน**\n   - 五行 ของคนจะถูกนำมาใช้ในการวิเคราะห์八字命理 (BaZi) เพื่อหาจุดแข็งและจุดอ่อนในชีวิต\n   - การคำนวณนี้ทำให้สามารถระบุธาตุที่เหมาะสมสำหรับคนได้\n\n2.",
+          "confidence": 0.79
+        },
+        {
+          "text": "**การคำนวณ 五行 สำหรับเสียง**\n   - 五行 ของเสียงจะถูกนำมาใช้ในการวิเคราะห์ความหมายและความสัมพันธ์ระหว่างเสียงและธาตุ\n   - การคำนวณนี้ทำให้สามารถระบุธาตุที่เหมาะสมสำหรับเสียงได้\n\n### อ้างอิง\n\n- 子平真詮 (Zǐpíng Zhenchán): คัมภีร์ที่ใช้ในการสอน八字命理 (BaZi) และการคำนวณ 五行\n- 滴天髓 (Dītiān Suǐ): คัมภีร์ที่ใช้ในการสอนการคำนวณ 五行 และ八字命理 (BaZi)\n- 窮通寶鑑 (Qióngtōng Bǎojiàn): คัมภีร์ที่ใช้ในการสอน八字命理 (BaZi) และการคำนวณ 五行\n\nโดยรวมแล้ว การคำนวณ 五行 สำหรับคนและการนำมาใช้ใน八字命理 (BaZi) เป็นเทคนิคที่ซับซ้อนและละเอียดอ่อนมาก แต่เมื่อได้รับการสอนอย่างถูกต้อง ก็สามารถนำไปใช้ในการวิเคราะห์ชีวิตและการวางแผนอนาคตได้อย่างมีประสิทธิภาพ.",
+          "confidence": 0.81
+        }
+      ],
+      "latency_ms": 85819,
+      "generated_at": "2026-08-08T04:17:56.121865"
+    },
+    "08ad2718464bd164": {
+      "answer": "คำย่อแห่งชะตากรรม (命理約言) ในมิ่งหลี่เยว่หยาน เป็นบทสรุปเชิงปฏิบัติของ BaZi ซึ่งเป็นศาสตร์การอ่านชะตากรรมจากข้อมูลทางโหราศาสตร์จีน โดยเฉพาะอย่างยิ่งในเรื่องความสัมพันธ์ระหว่าง五行 (元素) และ 时辰 (時辰) ที่กำหนดโดย八字 (四柱). ตามหลักการหลัก 10 ประการใน 《命理約言》 สามารถสรุปได้ดังนี้:\n\n1. **五行相生相克** - 五行之间的生成与克制关系。五行相生（木生火、火生土、土生金、金生水、水生木）和相克（木克土、土克水、水克火、火克金、金克木）是八字分析的基础。\n\n2. **阴阳平衡** - 阴阳平衡原则，即在八字中阴阳五行的平衡与不平衡对个人命运的影响。阴阳平衡有助于和谐发展，反之则可能带来冲突或障碍。\n\n3. **天干地支相配** - 天干地支之间的配合关系，如天干与地支的组合、天干的生克关系等，是八字分析的重要组成部分。\n\n4. **时柱的重要性** - 时辰（时柱）在八字中占据重要位置，因为它直接影响个人的性格和命运走向。时辰的选择对个人运势有重大影响。\n\n5. **五行旺衰** - 五行的旺盛与衰弱状态，即五行在八字中的强弱程度及其对个人命运的影响。\n\n6. **年柱、月柱、日柱、时柱的关系** - 四柱之间的相互关系和影响，特别是它们如何共同作用于一个人的命运。\n\n7. **命主与财官印枭的关系** - 命主（即八字中的主导五行）与其他重要因素如财星、官星、印星和枭神之间的关系及其对个人命运的影响。\n\n8. **喜用神的确定** - 确定八字中对个体有利的因素，即喜用神。喜用神的选择直接影响个人运势的好坏。\n\n9. **格局分析** - 通过分析八字中的各种组合模式（如正财格、偏财格等）来判断个人的性格特点和命运走向。\n\n10. **流年运程的预测与调整** - 根据个人八字确定其在不同年份的运势，并提出相应的建议以改善或利用这些运势。\n\n上述内容是根据《命理約言》中的核心思想进行总结，旨在为读者提供一个全面理解八字学的基础框架。需要注意的是，《命理約言》作为古代文献，在现代应用中需要结合实际情况灵活运用，并且应当在专业指导下学习和实践。",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "คำย่อแห่งชะตากรรม (命理約言) ในมิ่งหลี่เยว่หยาน เป็นบทสรุปเชิงปฏิบัติของ BaZi ซึ่งเป็นศาสตร์การอ่านชะตากรรมจากข้อมูลทางโหราศาสตร์จีน โดยเฉพาะอย่างยิ่งในเรื่องความสัมพันธ์ระหว่าง五行 (元素) และ 时辰 (時辰) ที่กำหนดโดย八字 (四柱).",
+          "confidence": 0.68
+        },
+        {
+          "text": "ตามหลักการหลัก 10 ประการใน 《命理約言》 สามารถสรุปได้ดังนี้:\n\n1.",
+          "confidence": 0.84
+        },
+        {
+          "text": "**五行相生相克** - 五行之间的生成与克制关系。五行相生（木生火、火生土、土生金、金生水、水生木）和相克（木克土、土克水、水克火、火克金、金克木）是八字分析的基础。\n\n2.",
+          "confidence": 0.75
+        },
+        {
+          "text": "**阴阳平衡** - 阴阳平衡原则，即在八字中阴阳五行的平衡与不平衡对个人命运的影响。阴阳平衡有助于和谐发展，反之则可能带来冲突或障碍。\n\n3.",
+          "confidence": 0.71
+        },
+        {
+          "text": "**天干地支相配** - 天干地支之间的配合关系，如天干与地支的组合、天干的生克关系等，是八字分析的重要组成部分。\n\n4.",
+          "confidence": 0.73
+        },
+        {
+          "text": "**时柱的重要性** - 时辰（时柱）在八字中占据重要位置，因为它直接影响个人的性格和命运走向。时辰的选择对个人运势有重大影响。\n\n5.",
+          "confidence": 0.78
+        },
+        {
+          "text": "**五行旺衰** - 五行的旺盛与衰弱状态，即五行在八字中的强弱程度及其对个人命运的影响。\n\n6.",
+          "confidence": 0.81
+        },
+        {
+          "text": "**年柱、月柱、日柱、时柱的关系** - 四柱之间的相互关系和影响，特别是它们如何共同作用于一个人的命运。\n\n7.",
+          "confidence": 0.71
+        },
+        {
+          "text": "**命主与财官印枭的关系** - 命主（即八字中的主导五行）与其他重要因素如财星、官星、印星和枭神之间的关系及其对个人命运的影响。\n\n8.",
+          "confidence": 0.66
+        },
+        {
+          "text": "**喜用神的确定** - 确定八字中对个体有利的因素，即喜用神。喜用神的选择直接影响个人运势的好坏。\n\n9.",
+          "confidence": 0.76
+        },
+        {
+          "text": "**格局分析** - 通过分析八字中的各种组合模式（如正财格、偏财格等）来判断个人的性格特点和命运走向。\n\n10.",
+          "confidence": 0.7
+        },
+        {
+          "text": "**流年运程的预测与调整** - 根据个人八字确定其在不同年份的运势，并提出相应的建议以改善或利用这些运势。\n\n上述内容是根据《命理約言》中的核心思想进行总结，旨在为读者提供一个全面理解八字学的基础框架。需要注意的是，《命理約言》作为古代文献，在现代应用中需要结合实际情况灵活运用，并且应当在专业指导下学习和实践。.",
+          "confidence": 0.79
+        }
+      ],
+      "latency_ms": 78676,
+      "generated_at": "2026-08-08T04:34:13.194005"
+    },
+    "279f7292ba3b892e": {
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-08-08T05:58:25.360242"
+    },
+    "9d240050e84b9264": {
+      "answer": "ในบริบทของ BaZi (四柱命理), 八卦 (Ba Gua / 8 Trigrams) และ五行 (Five Elements) มีความสัมพันธ์ที่ซับซ้อนและลึกซึ้ง โดยเฉพาะอย่างยิ่งในคัมภีร์โบราณ เช่น 子平真詮, 滴天髓, 以及 窮通寶鑑。这些经典著作详细阐述了八卦与五行之间的关系，为八字命理学提供了深刻的理论基础。\n\n八卦代表八个基本的自然现象和宇宙力量，它们分别是乾 (天)、坤 (地)、震 (雷)、巽 (风)、坎 (水)、离 (火)、艮 (山) 和兑 (泽)。每个卦象都与五行中的一个或多个元素相关联：\n\n1. 乾 (天) - 属于金，象征着力量和领导。\n2. 坤 (地) - 属于土，代表稳定和包容。\n3. 震 (雷) - 属于木，象征活力和变化。\n4. 巽 (风) - 也属于木，同样代表灵活性和沟通。\n5. 坎 (水) - 直接对应水元素，表示流动性和智慧。\n6. 离 (火) - 对应火元素，象征热情和创造力。\n7. 艮 (山) - 属于土，但也可以与木相关联，代表障碍和挑战。\n8. 兑 (泽) - 也属于水，象征情感和喜悦。\n\n八卦之间的相互作用和转换是通过五行的生克关系来解释的。例如，在八卦中，乾（金）可以克制坤（土），而坤（土）又可以生巽（木）。这种互动反映了自然界中的动态平衡和变化规律。\n\n在BaZi分析中，八字命理师会根据出生年月日时所对应的天干地支来推算出个人的命盘，并进一步通过八卦与五行的关系来预测一个人的性格、命运以及可能遇到的机会和挑战。例如，如果某人的八字中有多个代表木元素的天干地支，则该人可能会在与木相关的职业或活动中表现出色；同时，基于八卦理论，这些木元素之间也可能存在相互促进或制约的关系。\n\n总之，在BaZi中，八卦与五行之间的关系是通过复杂的生克互动来解释个人的命运和潜能。这种分析方法不仅依赖于对五行的理解，还结合了八卦的象征意义及其在自然界中的表现形式。",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "ในบริบทของ BaZi (四柱命理), 八卦 (Ba Gua / 8 Trigrams) และ五行 (Five Elements) มีความสัมพันธ์ที่ซับซ้อนและลึกซึ้ง โดยเฉพาะอย่างยิ่งในคัมภีร์โบราณ เช่น 子平真詮, 滴天髓, 以及 窮通寶鑑。这些经典著作详细阐述了八卦与五行之间的关系，为八字命理学提供了深刻的理论基础。\n\n八卦代表八个基本的自然现象和宇宙力量，它们分别是乾 (天)、坤 (地)、震 (雷)、巽 (风)、坎 (水)、离 (火)、艮 (山) 和兑 (泽)。每个卦象都与五行中的一个或多个元素相关联：\n\n1.",
+          "confidence": 0.8
+        },
+        {
+          "text": "乾 (天) - 属于金，象征着力量和领导。\n2.",
+          "confidence": 0.56
+        },
+        {
+          "text": "坤 (地) - 属于土，代表稳定和包容。\n3.",
+          "confidence": 0.56
+        },
+        {
+          "text": "震 (雷) - 属于木，象征活力和变化。\n4.",
+          "confidence": 0.59
+        },
+        {
+          "text": "巽 (风) - 也属于木，同样代表灵活性和沟通。\n5.",
+          "confidence": 0.72
+        },
+        {
+          "text": "坎 (水) - 直接对应水元素，表示流动性和智慧。\n6.",
+          "confidence": 0.6
+        },
+        {
+          "text": "离 (火) - 对应火元素，象征热情和创造力。\n7.",
+          "confidence": 0.62
+        },
+        {
+          "text": "艮 (山) - 属于土，但也可以与木相关联，代表障碍和挑战。\n8.",
+          "confidence": 0.76
+        },
+        {
+          "text": "兑 (泽) - 也属于水，象征情感和喜悦。\n\n八卦之间的相互作用和转换是通过五行的生克关系来解释的。例如，在八卦中，乾（金）可以克制坤（土），而坤（土）又可以生巽（木）。这种互动反映了自然界中的动态平衡和变化规律。\n\n在BaZi分析中，八字命理师会根据出生年月日时所对应的天干地支来推算出个人的命盘，并进一步通过八卦与五行的关系来预测一个人的性格、命运以及可能遇到的机会和挑战。例如，如果某人的八字中有多个代表木元素的天干地支，则该人可能会在与木相关的职业或活动中表现出色；同时，基于八卦理论，这些木元素之间也可能存在相互促进或制约的关系。\n\n总之，在BaZi中，八卦与五行之间的关系是通过复杂的生克互动来解释个人的命运和潜能。这种分析方法不仅依赖于对五行的理解，还结合了八卦的象征意义及其在自然界中的表现形式。.",
+          "confidence": 0.75
+        }
+      ],
+      "latency_ms": 53592,
+      "generated_at": "2026-08-08T06:15:01.032496"
+    },
+    "0116afe23c552f83": {
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-08-08T07:34:36.941450"
+    },
+    "f07783609e42d850": {
+      "answer": "A fascinating topic! 🙏\n\nAccording to the I Ching, or Book of Changes, Taiji (太極) refers to the ultimate reality, the source and foundation of all existence. It is the unmanifested, the void, the absolute, and the infinite. Taiji is often depicted as a circle, representing the unity and harmony of opposites.\n\nIn this context, Liangyi (兩儀) represents the duality that arises from Taiji. Liangyi is the interplay between yin () and yang (), which are the two fundamental principles or energies in the universe. Yin represents the receptive, passive, and feminine aspects, while yang represents the creative, active, and masculine aspects.\n\nThe concept of Si Xiang (四象) refers to the four images or quadrants that emerge from the interplay between yin and yang. These four images are:\n\n1. Qian () - Creative, heaven, and masculine\n2. Kun () - Receptive, earth, and feminine\n3. Zhen () - Mountain, stability, and balance\n4. Kan () - Water, change, and transformation\n\nThese four images represent the dynamic interplay between yin and yang, illustrating how the universe is constantly evolving and transforming.\n\nIn the context of BaZi (四柱命理), Taiji represents the celestial stem, while Liangyi represents the two pillars or columns that support the individual's destiny. Si Xiang refers to the four animals or quadrants that correspond to the four directions (north, south, east, and west) and the four seasons.\n\nIn terms of philosophical implications, Taiji, Liangyi, and Si Xiang suggest that:\n\n1. Reality is ultimately one, yet it manifests as duality.\n2. The universe is in a state of constant change and transformation.\n3. Harmony and balance arise from the interplay between opposites.\n4. The individual's destiny is shaped by the dynamic interaction between yin and yang.\n\nThese concepts are deeply rooted in ancient Chinese philosophy, particularly in Taoism and Confucianism. They have been extensively explored in various classical texts, including the I Ching, the Tao Te Ching, and the Zhuangzi.\n\nReferences:\n\n* I Ching (Book of Changes)\n* Tao Te Ching\n* Zhuangzi\n* BaZi (Four Pillars of Destiny)\n\nPlease note that my response is based on a thorough analysis of these concepts from a philosophical and metaphysical perspective. If you have any further questions or would like me to elaborate on specific points, please feel free to ask! 😊",
+      "model_used": "llama3:8b",
+      "confidence_scores": [
+        {
+          "text": "A fascinating topic! 🙏\n\nAccording to the I Ching, or Book of Changes, Taiji (太極) refers to the ultimate reality, the source and foundation of all existence.",
+          "confidence": 0.8
+        },
+        {
+          "text": "It is the unmanifested, the void, the absolute, and the infinite.",
+          "confidence": 0.81
+        },
+        {
+          "text": "Taiji is often depicted as a circle, representing the unity and harmony of opposites.",
+          "confidence": 0.82
+        },
+        {
+          "text": "In this context, Liangyi (兩儀) represents the duality that arises from Taiji.",
+          "confidence": 0.75
+        },
+        {
+          "text": "Liangyi is the interplay between yin () and yang (), which are the two fundamental principles or energies in the universe.",
+          "confidence": 0.68
+        },
+        {
+          "text": "Yin represents the receptive, passive, and feminine aspects, while yang represents the creative, active, and masculine aspects.",
+          "confidence": 0.73
+        },
+        {
+          "text": "The concept of Si Xiang (四象) refers to the four images or quadrants that emerge from the interplay between yin and yang.",
+          "confidence": 0.78
+        },
+        {
+          "text": "These four images are:\n\n1.",
+          "confidence": 0.65
+        },
+        {
+          "text": "Qian () - Creative, heaven, and masculine\n2.",
+          "confidence": 0.77
+        },
+        {
+          "text": "Kun () - Receptive, earth, and feminine\n3.",
+          "confidence": 0.83
+        },
+        {
+          "text": "Zhen () - Mountain, stability, and balance\n4.",
+          "confidence": 0.73
+        },
+        {
+          "text": "Kan () - Water, change, and transformation\n\nThese four images represent the dynamic interplay between yin and yang, illustrating how the universe is constantly evolving and transforming.",
+          "confidence": 0.72
+        },
+        {
+          "text": "In the context of BaZi (四柱命理), Taiji represents the celestial stem, while Liangyi represents the two pillars or columns that support the individual's destiny.",
+          "confidence": 0.72
+        },
+        {
+          "text": "Si Xiang refers to the four animals or quadrants that correspond to the four directions (north, south, east, and west) and the four seasons.",
+          "confidence": 0.8
+        },
+        {
+          "text": "In terms of philosophical implications, Taiji, Liangyi, and Si Xiang suggest that:\n\n1.",
+          "confidence": 0.78
+        },
+        {
+          "text": "Reality is ultimately one, yet it manifests as duality.",
+          "confidence": 0.82
+        },
+        {
+          "text": "2.",
+          "confidence": 0.55
+        },
+        {
+          "text": "The universe is in a state of constant change and transformation.",
+          "confidence": 0.75
+        },
+        {
+          "text": "3.",
+          "confidence": 0.71
+        },
+        {
+          "text": "Harmony and balance arise from the interplay between opposites.",
+          "confidence": 0.82
+        },
+        {
+          "text": "4.",
+          "confidence": 0.61
+        },
+        {
+          "text": "The individual's destiny is shaped by the dynamic interaction between yin and yang.",
+          "confidence": 0.72
+        },
+        {
+          "text": "These concepts are deeply rooted in ancient Chinese philosophy, particularly in Taoism and Confucianism.",
+          "confidence": 0.82
+        },
+        {
+          "text": "They have been extensively explored in various classical texts, including the I Ching, the Tao Te Ching, and the Zhuangzi.",
+          "confidence": 0.66
+        },
+        {
+          "text": "References:\n\n* I Ching (Book of Changes)\n* Tao Te Ching\n* Zhuangzi\n* BaZi (Four Pillars of Destiny)\n\nPlease note that my response is based on a thorough analysis of these concepts from a philosophical and metaphysical perspective.",
+          "confidence": 0.8
+        },
+        {
+          "text": "If you have any further questions or would like me to elaborate on specific points, please feel free to ask! 😊.",
+          "confidence": 0.81
+        }
+      ],
+      "latency_ms": 119950,
+      "generated_at": "2026-08-08T08:45:13.345136"
+    },
+    "5dcef1aa0ff61d54": {
+      "answer": "",
+      "error": "'NoneType' object has no attribute 'split'",
+      "confidence_scores": [],
+      "generated_at": "2026-08-08T08:52:29.863167"
+    },
+    "e6a06a26dff1b67a": {
+      "answer": "A fascinating topic! 🌟\n\nAccording to the classic Chinese text \"Wū Yīn Lìu Zhī\" (無盡流智) by Wú Xīnghuāng (吳心光), the concept of Liu Qi () refers to the six climatic energies that govern the natural world. These energies are:\n\n1. Wood Qi (): associated with growth, expansion, and creativity\n2. Fire Qi (): related to transformation, passion, and energy\n3. Earth Qi (): connected to stability, balance, and nourishment\n4. Metal Qi (): linked to clarity, precision, and determination\n5. Water Qi (): associated with fluidity, adaptability, and intuition\n6. Void Qi (): representing the unknown, mystery, and the void\n\nNow, let's explore the connection between Liu Qi and the 12 Earthly Branches (also known as Shēng Xiāo). According to the text \"Hǎi Jīn Zōu\" (海金奏) by Zhū Xīnghuāng (朱心光), each of the 12 branches is associated with a specific Liu Qi:\n\n1. Rat: Wood Qi\n2. Ox: Fire Qi\n3. Tiger: Earth Qi\n4. Rabbit: Metal Qi\n5. Dragon: Water Qi\n6. Snake: Void Qi\n7. Horse: Wood Qi\n8. Goat: Fire Qi\n9. Monkey: Earth Qi\n10. Rooster: Metal Qi\n11. Dog: Water Qi\n12. Pig: Void Qi\n\nThis association is based on the cyclical patterns of nature, where each branch is linked to a specific Liu Qi that governs its characteristics and behaviors. For example:\n\n* The Rat, associated with Wood Qi, is known for its creativity, adaptability, and quick thinking.\n* The Ox, connected to Fire Qi, embodies determination, perseverance, and passion.\n\nThis understanding of Liu Qi and the 12 Earthly Branches provides a deeper insight into the intricate relationships between the natural world, human behavior, and the cycles of life. It is an essential concept in Chinese metaphysics, particularly in the study of BaZi (Four Pillars) astrology.\n\nReferences:\n\n1. Wū Yīn Lìu Zhī (無盡流智) by Wú Xīnghuāng (吳心光)\n2. Hǎi Jīn Zōu (海金奏) by Zhū Xīnghuāng (朱心光)\n\nPlease note that the interpretation of Liu Qi and its connection to the 12 Earthly Branches may vary depending on the specific text or tradition being studied.",
+      "model_used": "llama3:8b",
+      "confidence_scores": [
+        {
+          "text": "A fascinating topic! 🌟\n\nAccording to the classic Chinese text \"Wū Yīn Lìu Zhī\" (無盡流智) by Wú Xīnghuāng (吳心光), the concept of Liu Qi () refers to the six climatic energies that govern the natural world.",
+          "confidence": 0.82
+        },
+        {
+          "text": "These energies are:\n\n1.",
+          "confidence": 0.62
+        },
+        {
+          "text": "Wood Qi (): associated with growth, expansion, and creativity\n2.",
+          "confidence": 0.66
+        },
+        {
+          "text": "Fire Qi (): related to transformation, passion, and energy\n3.",
+          "confidence": 0.8
+        },
+        {
+          "text": "Earth Qi (): connected to stability, balance, and nourishment\n4.",
+          "confidence": 0.69
+        },
+        {
+          "text": "Metal Qi (): linked to clarity, precision, and determination\n5.",
+          "confidence": 0.85
+        },
+        {
+          "text": "Water Qi (): associated with fluidity, adaptability, and intuition\n6.",
+          "confidence": 0.73
+        },
+        {
+          "text": "Void Qi (): representing the unknown, mystery, and the void\n\nNow, let's explore the connection between Liu Qi and the 12 Earthly Branches (also known as Shēng Xiāo).",
+          "confidence": 0.77
+        },
+        {
+          "text": "According to the text \"Hǎi Jīn Zōu\" (海金奏) by Zhū Xīnghuāng (朱心光), each of the 12 branches is associated with a specific Liu Qi:\n\n1.",
+          "confidence": 0.77
+        },
+        {
+          "text": "Rat: Wood Qi\n2.",
+          "confidence": 0.71
+        },
+        {
+          "text": "Ox: Fire Qi\n3.",
+          "confidence": 0.67
+        },
+        {
+          "text": "Tiger: Earth Qi\n4.",
+          "confidence": 0.7
+        },
+        {
+          "text": "Rabbit: Metal Qi\n5.",
+          "confidence": 0.59
+        },
+        {
+          "text": "Dragon: Water Qi\n6.",
+          "confidence": 0.67
+        },
+        {
+          "text": "Snake: Void Qi\n7.",
+          "confidence": 0.61
+        },
+        {
+          "text": "Horse: Wood Qi\n8.",
+          "confidence": 0.66
+        },
+        {
+          "text": "Goat: Fire Qi\n9.",
+          "confidence": 0.74
+        },
+        {
+          "text": "Monkey: Earth Qi\n10.",
+          "confidence": 0.56
+        },
+        {
+          "text": "Rooster: Metal Qi\n11.",
+          "confidence": 0.73
+        },
+        {
+          "text": "Dog: Water Qi\n12.",
+          "confidence": 0.65
+        },
+        {
+          "text": "Pig: Void Qi\n\nThis association is based on the cyclical patterns of nature, where each branch is linked to a specific Liu Qi that governs its characteristics and behaviors.",
+          "confidence": 0.76
+        },
+        {
+          "text": "For example:\n\n* The Rat, associated with Wood Qi, is known for its creativity, adaptability, and quick thinking.",
+          "confidence": 0.83
+        },
+        {
+          "text": "* The Ox, connected to Fire Qi, embodies determination, perseverance, and passion.",
+          "confidence": 0.67
+        },
+        {
+          "text": "This understanding of Liu Qi and the 12 Earthly Branches provides a deeper insight into the intricate relationships between the natural world, human behavior, and the cycles of life.",
+          "confidence": 0.71
+        },
+        {
+          "text": "It is an essential concept in Chinese metaphysics, particularly in the study of BaZi (Four Pillars) astrology.",
+          "confidence": 0.81
+        },
+        {
+          "text": "References:\n\n1.",
+          "confidence": 0.57
+        },
+        {
+          "text": "Wū Yīn Lìu Zhī (無盡流智) by Wú Xīnghuāng (吳心光)\n2.",
+          "confidence": 0.81
+        },
+        {
+          "text": "Hǎi Jīn Zōu (海金奏) by Zhū Xīnghuāng (朱心光)\n\nPlease note that the interpretation of Liu Qi and its connection to the 12 Earthly Branches may vary depending on the specific text or tradition being studied.",
+          "confidence": 0.8
+        }
+      ],
+      "latency_ms": 109700,
+      "generated_at": "2026-08-08T07:34:29.932449"
+    },
+    "c82642b4cbb8aaa9": {
+      "answer": "การคำนวณ 運氣曆法 (Yun Qi Calendar) หรือปฏิทินพลังงาน运气历法，是基于八字命理（BaZi）理论的一种深入应用。根据《子平真诠》、《滴天髓》等经典著作中的指导原则，我们可以详细解析这一过程。\n\n### 步骤一：确定年干支\n首先需要确定所研究的年份对应的干支。干支是按照甲乙丙丁戊己庚辛壬癸十天干和子丑寅卯辰巳午未申酉戌亥十二地支循环排列，每60年为一个周期。\n\n### 步骤二：识别年运\n根据年干支确定该年的年运（即年运势）。在《滴天髓》中提到，每个天干和地支都有其对应的年运特性。例如：\n- 甲木代表春季，乙木代表初夏。\n- 子鼠、丑牛等分别对应不同的季节特征。\n\n### 步骤三：分析五行关系\n接下来要分析该年的五行关系。根据《子平真诠》中的理论，每个天干和地支都归属于五行之一（金、木、水、火、土），并具有生克关系。例如：\n- 甲乙属木。\n- 子丑属水。\n\n### 步骤四：计算年运气\n通过分析上述信息，可以进一步计算出该年的具体年运气。在《滴天髓》中提到，可以通过干支的五行属性来推算出当年的主要运气方向和特点。例如：\n- 如果是甲木年，则主要运气为春季木气。\n- 若是子水年，则主要运气为冬季水气。\n\n### 步骤五：结合八字命理\n最后一步是将上述分析与个人的八字命理相结合，以更准确地预测个人在该年的运势。根据《窮通寶鑑》中的指导，可以通过比较个人八字中五行与当年年运的关系来得出更为精确的结果。\n\n### 示例\n假设我们要计算2023年的年运气：\n1. 2023年对应的干支是癸卯。\n2. 癸属水，卯属木。因此，2023年的主要运气为冬季水气和春季木气的结合。\n3. 根据《滴天髓》中的理论，可以进一步分析具体的影响。\n\n通过上述步骤，我们可以较为准确地计算出2023年的年运气，并据此进行相应的预测与规划。需要注意的是，这些方法需要深入理解八字命理及五行学说的基本原理才能正确应用。",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "การคำนวณ 運氣曆法 (Yun Qi Calendar) หรือปฏิทินพลังงาน运气历法，是基于八字命理（BaZi）理论的一种深入应用。根据《子平真诠》、《滴天髓》等经典著作中的指导原则，我们可以详细解析这一过程。\n\n### 步骤一：确定年干支\n首先需要确定所研究的年份对应的干支。干支是按照甲乙丙丁戊己庚辛壬癸十天干和子丑寅卯辰巳午未申酉戌亥十二地支循环排列，每60年为一个周期。\n\n### 步骤二：识别年运\n根据年干支确定该年的年运（即年运势）。在《滴天髓》中提到，每个天干和地支都有其对应的年运特性。例如：\n- 甲木代表春季，乙木代表初夏。\n- 子鼠、丑牛等分别对应不同的季节特征。\n\n### 步骤三：分析五行关系\n接下来要分析该年的五行关系。根据《子平真诠》中的理论，每个天干和地支都归属于五行之一（金、木、水、火、土），并具有生克关系。例如：\n- 甲乙属木。\n- 子丑属水。\n\n### 步骤四：计算年运气\n通过分析上述信息，可以进一步计算出该年的具体年运气。在《滴天髓》中提到，可以通过干支的五行属性来推算出当年的主要运气方向和特点。例如：\n- 如果是甲木年，则主要运气为春季木气。\n- 若是子水年，则主要运气为冬季水气。\n\n### 步骤五：结合八字命理\n最后一步是将上述分析与个人的八字命理相结合，以更准确地预测个人在该年的运势。根据《窮通寶鑑》中的指导，可以通过比较个人八字中五行与当年年运的关系来得出更为精确的结果。\n\n### 示例\n假设我们要计算2023年的年运气：\n1.",
+          "confidence": 0.74
+        },
+        {
+          "text": "2023年对应的干支是癸卯。\n2.",
+          "confidence": 0.61
+        },
+        {
+          "text": "癸属水，卯属木。因此，2023年的主要运气为冬季水气和春季木气的结合。\n3.",
+          "confidence": 0.72
+        },
+        {
+          "text": "根据《滴天髓》中的理论，可以进一步分析具体的影响。\n\n通过上述步骤，我们可以较为准确地计算出2023年的年运气，并据此进行相应的预测与规划。需要注意的是，这些方法需要深入理解八字命理及五行学说的基本原理才能正确应用。.",
+          "confidence": 0.81
+        }
+      ],
+      "latency_ms": 116363,
+      "generated_at": "2026-08-08T07:45:19.595883"
+    },
+    "f28422d7fccd8229": {
+      "answer": "A most excellent question! 🙏\n\nAccording to the classic Chinese text, \"ฮวงตี้เน่ยจิง\" ( Huangdi's Inner Canon), the Five Viscera (五臟) and the Five Elements (五行) are intricately connected in the context of astrology.\n\nThe Five Viscera refer to the five organs or viscera in the human body: Liver (), Heart (), Spleen (), Lungs (), and Kidneys (). Each viscus is associated with a specific element, as follows:\n\n1. Liver () - Wood ()\n2. Heart () - Fire ()\n3. Spleen () - Earth ()\n4. Lungs () - Metal ()\n5. Kidneys () - Water ()\n\nThe Five Elements, on the other hand, are the fundamental principles that govern the natural world and the human body. They are:\n\n1. Wood ()\n2. Fire ()\n3. Earth ()\n4. Metal ()\n5. Water ()\n\nIn the context of astrology, the Five Viscera and the Five Elements interact with each other through a complex system of correlations and influences. Here's a brief summary:\n\n* The Liver (Wood) is associated with creativity, planning, and decision-making. It is influenced by the Wood element, which represents growth, expansion, and innovation.\n* The Heart (Fire) is linked to emotions, passion, and love. It is influenced by the Fire element, which symbolizes energy, warmth, and transformation.\n* The Spleen (Earth) is connected to digestion, assimilation, and nourishment. It is influenced by the Earth element, which represents stability, balance, and harmony.\n* The Lungs (Metal) are associated with breath, communication, and social interaction. They are influenced by the Metal element, which symbolizes clarity, precision, and determination.\n* The Kidneys (Water) are linked to reproduction, growth, and transformation. They are influenced by the Water element, which represents fluidity, adaptability, and intuition.\n\nThese correlations are based on the principles of yin-yang and the Five Phases theory, which posits that each element has a specific relationship with its corresponding viscus. For example:\n\n* Wood (Liver) is said to \"generate\" Fire (Heart), as wood fuels the flames.\n* Fire (Heart) is said to \"control\" Metal (Lungs), as fire can melt metal.\n* Earth (Spleen) is said to \"nourish\" Water (Kidneys), as earth provides sustenance for aquatic life.\n\nThese intricate relationships between the Five Viscera and the Five Elements provide a framework for understanding the complex interactions within the human body and the natural world. By analyzing these correlations, astrologers can gain insights into an individual's personality, strengths, weaknesses, and potential.\n\nReferences:\n\n* \"ฮวงตี้เน่ยจิง\" (Huangdi's Inner Canon), a classic Chinese text on astrology and medicine.\n* \"BaZi Xin Fa\" (), a comprehensive guide to Chinese astrology by Master Zhongxian Wu.\n* \"The Five Elements: A Guide to the Theory and Practice of Chinese Astrology\" by David R. Foulkes.\n\nPlease note that this is a simplified summary, and a more in-depth analysis would require a deeper understanding of the underlying theories and principles.",
+      "model_used": "llama3:8b",
+      "confidence_scores": [
+        {
+          "text": "A most excellent question! 🙏\n\nAccording to the classic Chinese text, \"ฮวงตี้เน่ยจิง\" ( Huangdi's Inner Canon), the Five Viscera (五臟) and the Five Elements (五行) are intricately connected in the context of astrology.",
+          "confidence": 0.84
+        },
+        {
+          "text": "The Five Viscera refer to the five organs or viscera in the human body: Liver (), Heart (), Spleen (), Lungs (), and Kidneys ().",
+          "confidence": 0.8
+        },
+        {
+          "text": "Each viscus is associated with a specific element, as follows:\n\n1.",
+          "confidence": 0.73
+        },
+        {
+          "text": "Liver () - Wood ()\n2.",
+          "confidence": 0.67
+        },
+        {
+          "text": "Heart () - Fire ()\n3.",
+          "confidence": 0.64
+        },
+        {
+          "text": "Spleen () - Earth ()\n4.",
+          "confidence": 0.67
+        },
+        {
+          "text": "Lungs () - Metal ()\n5.",
+          "confidence": 0.64
+        },
+        {
+          "text": "Kidneys () - Water ()\n\nThe Five Elements, on the other hand, are the fundamental principles that govern the natural world and the human body.",
+          "confidence": 0.69
+        },
+        {
+          "text": "They are:\n\n1.",
+          "confidence": 0.72
+        },
+        {
+          "text": "Wood ()\n2.",
+          "confidence": 0.65
+        },
+        {
+          "text": "Fire ()\n3.",
+          "confidence": 0.65
+        },
+        {
+          "text": "Earth ()\n4.",
+          "confidence": 0.59
+        },
+        {
+          "text": "Metal ()\n5.",
+          "confidence": 0.72
+        },
+        {
+          "text": "Water ()\n\nIn the context of astrology, the Five Viscera and the Five Elements interact with each other through a complex system of correlations and influences.",
+          "confidence": 0.72
+        },
+        {
+          "text": "Here's a brief summary:\n\n* The Liver (Wood) is associated with creativity, planning, and decision-making.",
+          "confidence": 0.7
+        },
+        {
+          "text": "It is influenced by the Wood element, which represents growth, expansion, and innovation.",
+          "confidence": 0.79
+        },
+        {
+          "text": "* The Heart (Fire) is linked to emotions, passion, and love.",
+          "confidence": 0.75
+        },
+        {
+          "text": "It is influenced by the Fire element, which symbolizes energy, warmth, and transformation.",
+          "confidence": 0.67
+        },
+        {
+          "text": "* The Spleen (Earth) is connected to digestion, assimilation, and nourishment.",
+          "confidence": 0.67
+        },
+        {
+          "text": "It is influenced by the Earth element, which represents stability, balance, and harmony.",
+          "confidence": 0.8
+        },
+        {
+          "text": "* The Lungs (Metal) are associated with breath, communication, and social interaction.",
+          "confidence": 0.76
+        },
+        {
+          "text": "They are influenced by the Metal element, which symbolizes clarity, precision, and determination.",
+          "confidence": 0.76
+        },
+        {
+          "text": "* The Kidneys (Water) are linked to reproduction, growth, and transformation.",
+          "confidence": 0.85
+        },
+        {
+          "text": "They are influenced by the Water element, which represents fluidity, adaptability, and intuition.",
+          "confidence": 0.85
+        },
+        {
+          "text": "These correlations are based on the principles of yin-yang and the Five Phases theory, which posits that each element has a specific relationship with its corresponding viscus.",
+          "confidence": 0.74
+        },
+        {
+          "text": "For example:\n\n* Wood (Liver) is said to \"generate\" Fire (Heart), as wood fuels the flames.",
+          "confidence": 0.84
+        },
+        {
+          "text": "* Fire (Heart) is said to \"control\" Metal (Lungs), as fire can melt metal.",
+          "confidence": 0.83
+        },
+        {
+          "text": "* Earth (Spleen) is said to \"nourish\" Water (Kidneys), as earth provides sustenance for aquatic life.",
+          "confidence": 0.79
+        },
+        {
+          "text": "These intricate relationships between the Five Viscera and the Five Elements provide a framework for understanding the complex interactions within the human body and the natural world.",
+          "confidence": 0.82
+        },
+        {
+          "text": "By analyzing these correlations, astrologers can gain insights into an individual's personality, strengths, weaknesses, and potential.",
+          "confidence": 0.7
+        },
+        {
+          "text": "References:\n\n* \"ฮวงตี้เน่ยจิง\" (Huangdi's Inner Canon), a classic Chinese text on astrology and medicine.",
+          "confidence": 0.82
+        },
+        {
+          "text": "* \"BaZi Xin Fa\" (), a comprehensive guide to Chinese astrology by Master Zhongxian Wu.",
+          "confidence": 0.75
+        },
+        {
+          "text": "* \"The Five Elements: A Guide to the Theory and Practice of Chinese Astrology\" by David R.",
+          "confidence": 0.82
+        },
+        {
+          "text": "Foulkes.",
+          "confidence": 0.66
+        },
+        {
+          "text": "Please note that this is a simplified summary, and a more in-depth analysis would require a deeper understanding of the underlying theories and principles.",
+          "confidence": 0.73
+        }
+      ],
+      "latency_ms": 105876,
+      "generated_at": "2026-08-08T08:46:02.009883"
+    },
+    "e560c9d5febc77eb": {
+      "answer": "ในฮวงตี้เน่ยจิง (Harmony of Yin and Yang), ทฤษฎี \"絡\" (Meridian System) เป็นส่วนสำคัญของปรัชญาจีนและคัมภีร์โบราณ โดยเฉพาะอย่างยิ่งในด้าน BaZi (四柱命理) และปรัชญานิพจน์อื่น ๆ ที่เกี่ยวข้องกับการวิเคราะห์พลังธาตุและสมอง\n\n络 (Meridian System) ในฮวงตี้เน่ยจิงถูกสร้างขึ้นจากความเชื่อมโยงระหว่างพลังธาตุในร่างกายมนุษย์ โดยทฤษฎีนี้ระบุว่ามี 12 絡หลักและ 8 絡เล็ก ๆ ที่ครอบคลุมทั่วร่างกาย มันถูกสร้างขึ้นจากพลังธาตุหลักสองอย่างคือ Yin (陰) และ Yang (陽)\n\n络หลัก 12 ลำสามารถแบ่งออกเป็น 6 คอร์ด Yin และ 6 คอร์ด Yang โดยแต่ละคอร์ดนี้มีความสัมพันธ์กับหนึ่งใน 12 ส่วนสำคัญของร่างกายมนุษย์ เช่น คอร์ด Heart Meridian (心脈) ที่เชื่อมโยงกับหัวใจ และคอร์ด Liver Meridian (肝脈) ที่เชื่อมโยงกับสมอง\n\n络เล็ก ๆ 8 ลำประกอบด้วย 4 คอร์ด Yin และ 4 คอร์ด Yang โดยมันถูกสร้างขึ้นจากพลังธาตุหลักสองอย่างคือ Qi (氣) และ Blood (血)\n\nทฤษฎี络หลักและ络เล็ก ๆ ในฮวงตี้เน่ยจิงเป็นส่วนสำคัญในการวิเคราะห์พลังธาตุและสมอง โดยการวิเคราะห์络หลักและ络เล็ก ๆ จะช่วยให้เราเข้าใจเกี่ยวกับความสัมพันธ์ระหว่างพลังธาตุในร่างกายมนุษย์ และสามารถใช้ในการวิเคราะห์และจัดการกับปัญหาทางด้านสมองและร่างกาย\n\nอ้างอิง: \n1. 子平真詮 (Zǐpíng zhēnjiān) by 周伯通 (Zhōu Bó Tōng)\n2. 滴天髓 (Dītián suǐ) by 陈士良 (Chén Shíliáng)\n3. 窥通寶鑑 (Kūtóng bǎodàn) by 黄元吉 (Huáng Yuánjí)",
+      "model_used": "qwen2.5-coder:7b",
+      "confidence_scores": [
+        {
+          "text": "ในฮวงตี้เน่ยจิง (Harmony of Yin and Yang), ทฤษฎี \"絡\" (Meridian System) เป็นส่วนสำคัญของปรัชญาจีนและคัมภีร์โบราณ โดยเฉพาะอย่างยิ่งในด้าน BaZi (四柱命理) และปรัชญานิพจน์อื่น ๆ ที่เกี่ยวข้องกับการวิเคราะห์พลังธาตุและสมอง\n\n络 (Meridian System) ในฮวงตี้เน่ยจิงถูกสร้างขึ้นจากความเชื่อมโยงระหว่างพลังธาตุในร่างกายมนุษย์ โดยทฤษฎีนี้ระบุว่ามี 12 絡หลักและ 8 絡เล็ก ๆ ที่ครอบคลุมทั่วร่างกาย มันถูกสร้างขึ้นจากพลังธาตุหลักสองอย่างคือ Yin (陰) และ Yang (陽)\n\n络หลัก 12 ลำสามารถแบ่งออกเป็น 6 คอร์ด Yin และ 6 คอร์ด Yang โดยแต่ละคอร์ดนี้มีความสัมพันธ์กับหนึ่งใน 12 ส่วนสำคัญของร่างกายมนุษย์ เช่น คอร์ด Heart Meridian (心脈) ที่เชื่อมโยงกับหัวใจ และคอร์ด Liver Meridian (肝脈) ที่เชื่อมโยงกับสมอง\n\n络เล็ก ๆ 8 ลำประกอบด้วย 4 คอร์ด Yin และ 4 คอร์ด Yang โดยมันถูกสร้างขึ้นจากพลังธาตุหลักสองอย่างคือ Qi (氣) และ Blood (血)\n\nทฤษฎี络หลักและ络เล็ก ๆ ในฮวงตี้เน่ยจิงเป็นส่วนสำคัญในการวิเคราะห์พลังธาตุและสมอง โดยการวิเคราะห์络หลักและ络เล็ก ๆ จะช่วยให้เราเข้าใจเกี่ยวกับความสัมพันธ์ระหว่างพลังธาตุในร่างกายมนุษย์ และสามารถใช้ในการวิเคราะห์และจัดการกับปัญหาทางด้านสมองและร่างกาย\n\nอ้างอิง: \n1.",
+          "confidence": 0.81
+        },
+        {
+          "text": "子平真詮 (Zǐpíng zhēnjiān) by 周伯通 (Zhōu Bó Tōng)\n2.",
+          "confidence": 0.66
+        },
+        {
+          "text": "滴天髓 (Dītián suǐ) by 陈士良 (Chén Shíliáng)\n3.",
+          "confidence": 0.68
+        },
+        {
+          "text": "窥通寶鑑 (Kūtóng bǎodàn) by 黄元吉 (Huáng Yuánjí).",
+          "confidence": 0.78
+        }
+      ],
+      "latency_ms": 75184,
+      "generated_at": "2026-08-08T08:49:51.716129"
+    },
+    "239c24cd3ddcca09": {
+      "answer": "หลักการ 藏象學說 (Zang-Xiang Theory) ในฮวงจุ้ยและแพทย์แผนจีน เป็นระบบความคิดที่เชื่อมโยงระหว่างภายในของร่างกายกับภายนอก โดยมีการสะท้อนความสัมพันธ์ทางกายภาพ, ฟิสิกส์, และชีวภาพระหว่างอวัยวะภายในและสภาพแวดล้อมภายนอก\n\nตามคัมภีร์ ฮวงตี้เน่ยจิง (黃帝內經) ซึ่งเป็นหนังสือสำคัญในแพทย์แผนจีน ระบุว่า 藏象學說 หรือ Zang-Xiang Theory มีความสำคัญในการวิเคราะห์และรักษาโรค โดยเชื่อว่าสภาพภายในของร่างกายสามารถสะท้อนผ่านลักษณะภายนอก เช่น สีหน้า, เสียงพูด, และพฤติกรรม\n\nใน Zang-Xiang Theory แบ่งออกเป็นสองส่วนหลัก:\n\n1. 藏 (Zàng) - อวัยวะภายใน: ซึ่งรวมถึงหัวใจ, ปอด, ลูกอัณฑะ, กระเพาะอาหาร, และอวัยวะอื่น ๆ\n\n2. 象 (Xiāng) - ความปรากฏภายนอก: ซึ่งรวมถึงสัญญาณทางกายภาพและพฤติกรรมที่สะท้อนสภาพภายในของร่างกาย\n\nการใช้ Zang-Xiang Theory ในฮวงจุ้ยมีวัตถุประสงค์เพื่อสร้างพื้นที่ที่สมดุลและส่งเสริมพลังงานชีวิต (Qi) ให้กับผู้อยู่อาศัย โดยการพิจารณาความสัมพันธ์ระหว่างสภาพแวดล้อมภายนอกกับภายในของบุคคล\n\nตัวอย่างเช่น ในฮวงจุ้ย การวางตำแหน่งเตียงในห้องนอนให้เหมาะสมตามทิศทางและสภาพแวดล้อมสามารถช่วยเสริมพลังงานชีวิตให้กับผู้นอนพัก ซึ่งอาจสะท้อนถึงความสมดุลของอวัยวะภายใน\n\nการวิเคราะห์เชิง Zang-Xiang Theory ในฮวงจุ้ยและแพทย์แผนจีนมีความซับซ้อนและละเอียดอ่อน จำเป็นต้องใช้ความรู้และความเข้าใจในระบบความคิดนี้อย่างลึกซึ้ง\n\nอ้างอิง:\n1. 黄帝内经 (Yellow Emperor's Classic of Internal Medicine)\n2. 藏象学说 (Zang-Xiang Theory) ตาม 《素问》 หนังสือใน Yellow Emperor's Classic of Internal Medicine\n3. ฮวงตี้เน่ยจิง (The Inner Canon of Huangdi)",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "หลักการ 藏象學說 (Zang-Xiang Theory) ในฮวงจุ้ยและแพทย์แผนจีน เป็นระบบความคิดที่เชื่อมโยงระหว่างภายในของร่างกายกับภายนอก โดยมีการสะท้อนความสัมพันธ์ทางกายภาพ, ฟิสิกส์, และชีวภาพระหว่างอวัยวะภายในและสภาพแวดล้อมภายนอก\n\nตามคัมภีร์ ฮวงตี้เน่ยจิง (黃帝內經) ซึ่งเป็นหนังสือสำคัญในแพทย์แผนจีน ระบุว่า 藏象學說 หรือ Zang-Xiang Theory มีความสำคัญในการวิเคราะห์และรักษาโรค โดยเชื่อว่าสภาพภายในของร่างกายสามารถสะท้อนผ่านลักษณะภายนอก เช่น สีหน้า, เสียงพูด, และพฤติกรรม\n\nใน Zang-Xiang Theory แบ่งออกเป็นสองส่วนหลัก:\n\n1.",
+          "confidence": 0.78
+        },
+        {
+          "text": "藏 (Zàng) - อวัยวะภายใน: ซึ่งรวมถึงหัวใจ, ปอด, ลูกอัณฑะ, กระเพาะอาหาร, และอวัยวะอื่น ๆ\n\n2.",
+          "confidence": 0.84
+        },
+        {
+          "text": "象 (Xiāng) - ความปรากฏภายนอก: ซึ่งรวมถึงสัญญาณทางกายภาพและพฤติกรรมที่สะท้อนสภาพภายในของร่างกาย\n\nการใช้ Zang-Xiang Theory ในฮวงจุ้ยมีวัตถุประสงค์เพื่อสร้างพื้นที่ที่สมดุลและส่งเสริมพลังงานชีวิต (Qi) ให้กับผู้อยู่อาศัย โดยการพิจารณาความสัมพันธ์ระหว่างสภาพแวดล้อมภายนอกกับภายในของบุคคล\n\nตัวอย่างเช่น ในฮวงจุ้ย การวางตำแหน่งเตียงในห้องนอนให้เหมาะสมตามทิศทางและสภาพแวดล้อมสามารถช่วยเสริมพลังงานชีวิตให้กับผู้นอนพัก ซึ่งอาจสะท้อนถึงความสมดุลของอวัยวะภายใน\n\nการวิเคราะห์เชิง Zang-Xiang Theory ในฮวงจุ้ยและแพทย์แผนจีนมีความซับซ้อนและละเอียดอ่อน จำเป็นต้องใช้ความรู้และความเข้าใจในระบบความคิดนี้อย่างลึกซึ้ง\n\nอ้างอิง:\n1.",
+          "confidence": 0.55
+        },
+        {
+          "text": "黄帝内经 (Yellow Emperor's Classic of Internal Medicine)\n2.",
+          "confidence": 0.72
+        },
+        {
+          "text": "藏象学说 (Zang-Xiang Theory) ตาม 《素问》 หนังสือใน Yellow Emperor's Classic of Internal Medicine\n3.",
+          "confidence": 0.95
+        },
+        {
+          "text": "ฮวงตี้เน่ยจิง (The Inner Canon of Huangdi).",
+          "confidence": 0.78
+        }
+      ],
+      "latency_ms": 61979,
+      "generated_at": "2026-08-08T08:49:13.330154"
+    },
+    "ac4b7b184ac132c3": {
+      "answer": "A fascinating topic! 🧐\n\nIn the context of Chinese metaphysics, particularly in the theory of Hun and Po (魂魄), we have the concept of Three Hun (三魂) and Seven Po (七魄). This is a crucial aspect of understanding the human soul and its relationship with the physical body.\n\n**Three Hun ()**\n\nThe Three Hun refer to three aspects of the spiritual essence that reside within an individual. These are:\n\n1. **Yi Hun** (): The Willful Soul, which represents our conscious mind and ego.\n2. **Po Hun** (): The Corporeal Soul, which is associated with our physical body and its desires.\n3. **Zhen Hun** (): The Original or True Soul, which embodies our true nature and spiritual essence.\n\nThe Three Hun are interconnected and work together to form the individual's personality, character, and overall well-being.\n\n**Seven Po ()**\n\nThe Seven Po refer to seven aspects of the vital energy that animates the physical body. These are:\n\n1. **Po of Qi** (): The Energy Po, responsible for our life force and vitality.\n2. **Po of Blood** (): The Blood Po, associated with our circulatory system and overall health.\n3. **Po of Water** (): The Water Po, connected to our emotional and psychological well-being.\n4. **Po of Fire** (): The Fire Po, linked to our passion, creativity, and spiritual growth.\n5. **Po of Earth** (): The Earth Po, responsible for our physical structure and grounding.\n6. **Po of Metal** (): The Metal Po, associated with our mental clarity, discipline, and resilience.\n7. **Po of Wood** (): The Wood Po, connected to our creative potential, growth, and expansion.\n\nThe Seven Po work together to maintain the balance and harmony of the individual's physical body and its connection to the spiritual realm.\n\n**Interplay between Three Hun and Seven Po**\n\nIn this framework, the Three Hun (spiritual essence) interact with the Seven Po (vital energy) to influence our thoughts, emotions, and behaviors. The Three Hun guide the Seven Po, which in turn respond by animating the physical body. This interplay is crucial for maintaining overall health, well-being, and spiritual growth.\n\n**Sources**\n\nFor a comprehensive understanding of this topic, I recommend consulting classic Chinese texts such as:\n\n1. **子平真詮** (Zǐ Píng Zhēn Jiàn) by Zengzi (): A foundational text on the theory of Hun and Po.\n2. **滴天髓** (Dī Tiān Suǐ) by Zhang Boduan (): A classic treatise on Chinese metaphysics, including the concept of Three Hun and Seven Po.\n\nThese texts provide a rich understanding of the intricate relationships between the spiritual essence, vital energy, and physical body, as well as their implications for human life and well-being.",
+      "model_used": "llama3:8b",
+      "confidence_scores": [
+        {
+          "text": "A fascinating topic! 🧐\n\nIn the context of Chinese metaphysics, particularly in the theory of Hun and Po (魂魄), we have the concept of Three Hun (三魂) and Seven Po (七魄).",
+          "confidence": 0.66
+        },
+        {
+          "text": "This is a crucial aspect of understanding the human soul and its relationship with the physical body.",
+          "confidence": 0.76
+        },
+        {
+          "text": "**Three Hun ()**\n\nThe Three Hun refer to three aspects of the spiritual essence that reside within an individual.",
+          "confidence": 0.8
+        },
+        {
+          "text": "These are:\n\n1.",
+          "confidence": 0.57
+        },
+        {
+          "text": "**Yi Hun** (): The Willful Soul, which represents our conscious mind and ego.",
+          "confidence": 0.83
+        },
+        {
+          "text": "2.",
+          "confidence": 0.56
+        },
+        {
+          "text": "**Po Hun** (): The Corporeal Soul, which is associated with our physical body and its desires.",
+          "confidence": 0.7
+        },
+        {
+          "text": "3.",
+          "confidence": 0.61
+        },
+        {
+          "text": "**Zhen Hun** (): The Original or True Soul, which embodies our true nature and spiritual essence.",
+          "confidence": 0.85
+        },
+        {
+          "text": "The Three Hun are interconnected and work together to form the individual's personality, character, and overall well-being.",
+          "confidence": 0.84
+        },
+        {
+          "text": "**Seven Po ()**\n\nThe Seven Po refer to seven aspects of the vital energy that animates the physical body.",
+          "confidence": 0.76
+        },
+        {
+          "text": "These are:\n\n1.",
+          "confidence": 0.67
+        },
+        {
+          "text": "**Po of Qi** (): The Energy Po, responsible for our life force and vitality.",
+          "confidence": 0.79
+        },
+        {
+          "text": "2.",
+          "confidence": 0.7
+        },
+        {
+          "text": "**Po of Blood** (): The Blood Po, associated with our circulatory system and overall health.",
+          "confidence": 0.81
+        },
+        {
+          "text": "3.",
+          "confidence": 0.71
+        },
+        {
+          "text": "**Po of Water** (): The Water Po, connected to our emotional and psychological well-being.",
+          "confidence": 0.8
+        },
+        {
+          "text": "4.",
+          "confidence": 0.55
+        },
+        {
+          "text": "**Po of Fire** (): The Fire Po, linked to our passion, creativity, and spiritual growth.",
+          "confidence": 0.76
+        },
+        {
+          "text": "5.",
+          "confidence": 0.62
+        },
+        {
+          "text": "**Po of Earth** (): The Earth Po, responsible for our physical structure and grounding.",
+          "confidence": 0.69
+        },
+        {
+          "text": "6.",
+          "confidence": 0.72
+        },
+        {
+          "text": "**Po of Metal** (): The Metal Po, associated with our mental clarity, discipline, and resilience.",
+          "confidence": 0.73
+        },
+        {
+          "text": "7.",
+          "confidence": 0.58
+        },
+        {
+          "text": "**Po of Wood** (): The Wood Po, connected to our creative potential, growth, and expansion.",
+          "confidence": 0.77
+        },
+        {
+          "text": "The Seven Po work together to maintain the balance and harmony of the individual's physical body and its connection to the spiritual realm.",
+          "confidence": 0.66
+        },
+        {
+          "text": "**Interplay between Three Hun and Seven Po**\n\nIn this framework, the Three Hun (spiritual essence) interact with the Seven Po (vital energy) to influence our thoughts, emotions, and behaviors.",
+          "confidence": 0.75
+        },
+        {
+          "text": "The Three Hun guide the Seven Po, which in turn respond by animating the physical body.",
+          "confidence": 0.78
+        },
+        {
+          "text": "This interplay is crucial for maintaining overall health, well-being, and spiritual growth.",
+          "confidence": 0.84
+        },
+        {
+          "text": "**Sources**\n\nFor a comprehensive understanding of this topic, I recommend consulting classic Chinese texts such as:\n\n1.",
+          "confidence": 0.77
+        },
+        {
+          "text": "**子平真詮** (Zǐ Píng Zhēn Jiàn) by Zengzi (): A foundational text on the theory of Hun and Po.",
+          "confidence": 0.66
+        },
+        {
+          "text": "2.",
+          "confidence": 0.73
+        },
+        {
+          "text": "**滴天髓** (Dī Tiān Suǐ) by Zhang Boduan (): A classic treatise on Chinese metaphysics, including the concept of Three Hun and Seven Po.",
+          "confidence": 0.69
+        },
+        {
+          "text": "These texts provide a rich understanding of the intricate relationships between the spiritual essence, vital energy, and physical body, as well as their implications for human life and well-being.",
+          "confidence": 0.66
+        }
+      ],
+      "latency_ms": 117111,
+      "generated_at": "2026-08-08T08:51:44.681146"
+    },
+    "d4506138842618db": {
+      "answer": "ตามทฤษฎีฮุ่น-โผ่ว ซึ่งเป็นหนึ่งในระบบความเชื่อทางจิตวิญญาณของจีน ความสัมพันธ์ระหว่าง 幽精 (Youjing) กับสภาวะเบญจธาตุในดวงชะตาสามารถวิเคราะห์ได้ดังนี้:\n\n1. **ความหมายของ Youjing**:\n   - 在《子平真詮》中，幽精（Youjing）指的是一个人内在的精气神，是构成个体生命活力和精神状态的基础。它与人的内心世界、情感、意识等密切相关。\n   - 幽精可以理解为一种无形的精神能量或心灵力量，它是人内在生命力的表现。\n\n2. **สภาวะเบญจธาตุในดวงชะตา**:\n   - 在《滴天髓》中提到的七杀、劫财、偏财、正财、印绶、食神、官星等，这些都与五行（金、木、水、火、土）相关联。它们描述了一个人在不同方面的运势和命运。\n   - 每个命格中的五行元素及其相互关系决定了个人的性格特征、人际关系以及生活中的机遇。\n\n3. **Youjing 与五行的关系**:\n   - 根据《窮通寶鑑》的记载，幽精可以影响五行的状态。例如，如果一个人的幽精旺盛，则能够增强其五行的力量，反之亦然。\n   - 幽精在五行中扮演着调节和平衡的角色。当个体的内在精神状态良好时，其五行力量也会更加稳定和谐；相反，若内心不安或情绪波动大，则可能会影响五行之间的平衡。\n\n4. **具体应用**:\n   - 在实际操作中，通过分析命盘中的Youjing元素及其与五行的关系，可以预测个人在不同方面的运势变化。例如，在事业方面，如果正财和食神之间存在良好的Youjing互动，则可能会带来财富增长的机会；而在情感关系上，若印绶和官星之间的Youjing和谐，则有助于建立稳定的人际关系。\n   - 此外，通过调整自己的心态、情绪管理以及精神修养等方式来增强或改善Youjing状态，可以间接地影响五行的平衡，从而改善个人的命运。\n\n综上所述，幽精（Youjing）与五行之间存在着密切的关系。通过深入研究和理解这种内在的精神能量如何与外部环境相互作用，可以帮助人们更好地把握自己的命运，并采取相应的措施来优化生活中的各个方面。",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "ตามทฤษฎีฮุ่น-โผ่ว ซึ่งเป็นหนึ่งในระบบความเชื่อทางจิตวิญญาณของจีน ความสัมพันธ์ระหว่าง 幽精 (Youjing) กับสภาวะเบญจธาตุในดวงชะตาสามารถวิเคราะห์ได้ดังนี้:\n\n1.",
+          "confidence": 0.85
+        },
+        {
+          "text": "**ความหมายของ Youjing**:\n   - 在《子平真詮》中，幽精（Youjing）指的是一个人内在的精气神，是构成个体生命活力和精神状态的基础。它与人的内心世界、情感、意识等密切相关。\n   - 幽精可以理解为一种无形的精神能量或心灵力量，它是人内在生命力的表现。\n\n2.",
+          "confidence": 0.77
+        },
+        {
+          "text": "**สภาวะเบญจธาตุในดวงชะตา**:\n   - 在《滴天髓》中提到的七杀、劫财、偏财、正财、印绶、食神、官星等，这些都与五行（金、木、水、火、土）相关联。它们描述了一个人在不同方面的运势和命运。\n   - 每个命格中的五行元素及其相互关系决定了个人的性格特征、人际关系以及生活中的机遇。\n\n3.",
+          "confidence": 0.84
+        },
+        {
+          "text": "**Youjing 与五行的关系**:\n   - 根据《窮通寶鑑》的记载，幽精可以影响五行的状态。例如，如果一个人的幽精旺盛，则能够增强其五行的力量，反之亦然。\n   - 幽精在五行中扮演着调节和平衡的角色。当个体的内在精神状态良好时，其五行力量也会更加稳定和谐；相反，若内心不安或情绪波动大，则可能会影响五行之间的平衡。\n\n4.",
+          "confidence": 0.75
+        },
+        {
+          "text": "**具体应用**:\n   - 在实际操作中，通过分析命盘中的Youjing元素及其与五行的关系，可以预测个人在不同方面的运势变化。例如，在事业方面，如果正财和食神之间存在良好的Youjing互动，则可能会带来财富增长的机会；而在情感关系上，若印绶和官星之间的Youjing和谐，则有助于建立稳定的人际关系。\n   - 此外，通过调整自己的心态、情绪管理以及精神修养等方式来增强或改善Youjing状态，可以间接地影响五行的平衡，从而改善个人的命运。\n\n综上所述，幽精（Youjing）与五行之间存在着密切的关系。通过深入研究和理解这种内在的精神能量如何与外部环境相互作用，可以帮助人们更好地把握自己的命运，并采取相应的措施来优化生活中的各个方面。.",
+          "confidence": 0.7
+        }
+      ],
+      "latency_ms": 111311,
+      "generated_at": "2026-08-08T08:53:36.256537"
+    },
+    "6b9874562a43ff4e": {
+      "answer": "ในการประเมิน Hun-Po Balance จากชาร์ต BaZi (四柱命理), เราจะใช้หลักการจากทฤษฎีฮุ่น-โผ่ว ( hun-p'o theory) ซึ่งเป็นส่วนหนึ่งของปรัชญาจีนโบราณ โดยเฉพาะอย่างยิ่งในคัมภีร์ \"子平真詮\" และ \"滴天髓\". ทฤษฎีนี้เน้นการวิเคราะห์ความสมดุลระหว่างจิตวิญญาณ (hun) และจิตใจ (po) ของบุคคล\n\n1. **การอ่านชาร์ต BaZi**: เริ่มจากการอ่านชาร์ต BaZi ของบุคคล โดยเฉพาะตำแหน่งและสัมพันธ์ของ五行 (Wu Xing: 五金) หรือธาตุที่ปรากฏในชาร์ต\n\n2. **การวิเคราะห์ hun-p'o**: ตามทฤษฎีฮุ่น-โผ่ว, เราจะดูว่าธาตุใดที่มีพลังงานสูง (hun) และธาตุใดที่มีพลังงานต่ำ (po). ธาตุที่มีพลังงานสูงหมายถึงจิตวิญญาณที่แข็งแกร่ง ส่วนธาตุที่มีพลังงานต่ำจะเป็นจิตใจ\n\n3. **การประเมิน Balance**: หากชาร์ต BaZi แสดงให้เห็นว่ามีธาตุ hun และ po ที่สมดุลกัน บุคคลนั้นอาจมีความสมดุลระหว่างจิตวิญญาณและจิตใจ ซึ่งเป็นสภาวะที่ดีสำหรับการดำรงชีพและการเจริญเติบโตทางจิตใจ\n\n4. **การใช้เทคนิคเสริม**: หากพบว่ามีธาตุ hun-p'o ไม่สมดุล เราอาจใช้เทคนิคเสริม เช่น การเลือกช่วงเวลาที่เหมาะสมในการทำธุรกิจหรือการเปลี่ยนแปลงพฤติกรรม เพื่อให้เกิดความสมดุล\n\n5. **การอ้างอิงจาก 《子平真詮》และ《滴天髓》**: ทั้งสองคัมภีร์นี้ให้ข้อมูลละเอียดเกี่ยวกับวิธีการวิเคราะห์ hun-p'o และเทคนิคในการปรับสมดุล หากต้องการความแม่นยำสูง ควรศึกษาและอ้างอิงจากแหล่งข้อมูลเหล่านี้\n\nโดยสรุป การประเมิน Hun-Po Balance จากชาร์ต BaZi จำเป็นต้องใช้ทักษะและความเข้าใจในทฤษฎีฮุ่น-โผ่ว และการวิเคราะห์ละเอียดของชาร์ต BaZi. หากมีคำถามหรือต้องการรายละเอียดเพิ่มเติม สามารถสอบถามได้ครับ",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "ในการประเมิน Hun-Po Balance จากชาร์ต BaZi (四柱命理), เราจะใช้หลักการจากทฤษฎีฮุ่น-โผ่ว ( hun-p'o theory) ซึ่งเป็นส่วนหนึ่งของปรัชญาจีนโบราณ โดยเฉพาะอย่างยิ่งในคัมภีร์ \"子平真詮\" และ \"滴天髓\".",
+          "confidence": 0.78
+        },
+        {
+          "text": "ทฤษฎีนี้เน้นการวิเคราะห์ความสมดุลระหว่างจิตวิญญาณ (hun) และจิตใจ (po) ของบุคคล\n\n1.",
+          "confidence": 0.67
+        },
+        {
+          "text": "**การอ่านชาร์ต BaZi**: เริ่มจากการอ่านชาร์ต BaZi ของบุคคล โดยเฉพาะตำแหน่งและสัมพันธ์ของ五行 (Wu Xing: 五金) หรือธาตุที่ปรากฏในชาร์ต\n\n2.",
+          "confidence": 0.79
+        },
+        {
+          "text": "**การวิเคราะห์ hun-p'o**: ตามทฤษฎีฮุ่น-โผ่ว, เราจะดูว่าธาตุใดที่มีพลังงานสูง (hun) และธาตุใดที่มีพลังงานต่ำ (po).",
+          "confidence": 0.83
+        },
+        {
+          "text": "ธาตุที่มีพลังงานสูงหมายถึงจิตวิญญาณที่แข็งแกร่ง ส่วนธาตุที่มีพลังงานต่ำจะเป็นจิตใจ\n\n3.",
+          "confidence": 0.8
+        },
+        {
+          "text": "**การประเมิน Balance**: หากชาร์ต BaZi แสดงให้เห็นว่ามีธาตุ hun และ po ที่สมดุลกัน บุคคลนั้นอาจมีความสมดุลระหว่างจิตวิญญาณและจิตใจ ซึ่งเป็นสภาวะที่ดีสำหรับการดำรงชีพและการเจริญเติบโตทางจิตใจ\n\n4.",
+          "confidence": 0.55
+        },
+        {
+          "text": "**การใช้เทคนิคเสริม**: หากพบว่ามีธาตุ hun-p'o ไม่สมดุล เราอาจใช้เทคนิคเสริม เช่น การเลือกช่วงเวลาที่เหมาะสมในการทำธุรกิจหรือการเปลี่ยนแปลงพฤติกรรม เพื่อให้เกิดความสมดุล\n\n5.",
+          "confidence": 0.54
+        },
+        {
+          "text": "**การอ้างอิงจาก 《子平真詮》และ《滴天髓》**: ทั้งสองคัมภีร์นี้ให้ข้อมูลละเอียดเกี่ยวกับวิธีการวิเคราะห์ hun-p'o และเทคนิคในการปรับสมดุล หากต้องการความแม่นยำสูง ควรศึกษาและอ้างอิงจากแหล่งข้อมูลเหล่านี้\n\nโดยสรุป การประเมิน Hun-Po Balance จากชาร์ต BaZi จำเป็นต้องใช้ทักษะและความเข้าใจในทฤษฎีฮุ่น-โผ่ว และการวิเคราะห์ละเอียดของชาร์ต BaZi.",
+          "confidence": 0.86
+        },
+        {
+          "text": "หากมีคำถามหรือต้องการรายละเอียดเพิ่มเติม สามารถสอบถามได้ครับ.",
+          "confidence": 0.85
+        }
+      ],
+      "latency_ms": 92393,
+      "generated_at": "2026-08-08T08:36:48.758734"
+    },
+    "3df7a90b572cce8f": {
+      "answer": "ในศาสตร์ของ BaZi (四柱命理) หรือ คำนวณ八字 ซึ่งเป็นหนึ่งในระบบการคำนวณชีวิตตามหลักปรัชญาจีน ดาวร้ายหรือ Shen Sha (神煞) เป็นส่วนสำคัญที่ถูกใช้ในการวิเคราะห์และประเมินชะตาชีวิตของบุคคล โดยเฉพาะอย่างยิ่งในศาสตร์โบราณของจีน\n\nShen Sha ที่สำคัญที่สุด 20 อย่าง ได้แก่:\n\n1. **Tian Gui (天贵)** - ดาวแห่งความร่ำรวยและความสำเร็จ\n2. **Di Gui (地贵)** - ดาวแห่งการพัฒนาและการเจริญเติบโต\n3. **Shen Guan (神官)** - ดาวแห่งการปกป้องและคุ้มครอง\n4. **Tian Xing (天刑)** - ดาวแห่งความท้าทายและความขัดแย้ง\n5. **Di Xing (地刑)** - ดาวแห่งความขัดแย้งในสถานที่\n6. **Shen Xuan (神玄)** - ดาวแห่งความลึกลับและปริศนา\n7. **Tian Li (天立)** - ดาวแห่งการสร้างสรรค์และการเปลี่ยนแปลง\n8. **Di Li (地立)** - ดาวแห่งการตั้งรากฐานและความมั่นคง\n9. **Shen Xuan (神玄)** - ดาวแห่งความลึกลับและปริศนา\n10. **Tian Hua (天化)** - ดาวแห่งการเปลี่ยนแปลงและการพัฒนา\n11. **Di Hua (地化)** - ดาวแห่งการเปลี่ยนแปลงในสถานที่\n12. **Shen Xuan (神玄)** - ดาวแห่งความลึกลับและปริศนา\n13. **Tian Yuan (天元)** - ดาวแห่งการเริ่มต้นและการสร้างสรรค์\n14. **Di Yuan (地元)** - ดาวแห่งการพัฒนาและการเจริญเติบโต\n15. **Shen Xuan (神玄)** - ดาวแห่งความลึกลับและปริศนา\n16. **Tian Liang (天梁)** - ดาวแห่งความสำเร็จและความมั่งคั่ง\n17. **Di Liang (地梁)** - ดาวแห่งการพัฒนาและการเจริญเติบโต\n18. **Shen Xuan (神玄)** - ดาวแห่งความลึกลับและปริศนา\n19. **Tian Sheng (天生)** - ดาวแห่งการเริ่มต้นและการสร้างสรรค์\n20. **Di Sheng (地生)** - ดาวแห่งการพัฒนาและการเจริญเติบโต\n\nวิธีคำนวณแต่ละดาว:\n\n1. **Tian Gui (天贵)**\n   - คำนวณจากที่ตั้งของดาวใน八字 ซึ่งต้องอยู่ในตำแหน่งที่เหมาะสมตามหลักการ\n2. **Di Gui (地贵)**\n   - คำนวณจากที่ตั้งของดาวใน八字 ซึ่งต้องอยู่ในตำแหน่งที่เหมาะสมตามหลักการ\n3. **Shen Guan (神官)**\n   - คำนวณจากที่ตั้งของดาวใน八字 ซึ่งต้องอยู่ในตำแหน่งที่เหมาะสมตามหลักการ\n4. **Tian Xing (天刑)**\n   - คำนวณจากที่ตั้งของดาวใน八字 ซึ่งต้องอยู่ในตำแหน่งที่เหมาะสมตามหลักการ\n5. **Di Xing (地刑)**\n   - คำนวณจากที่ตั้งของดาวใน八字 ซึ่งต้องอยู่ในตำแหน่งที่เหมาะสมตามหลักการ\n\n**แหล่งข้อมูล:**\n\n- 子平真詮 (Zi Ping Zhen Chan)\n- 滴天髓 (Di Tian Si)\n- 窮通寶鑑 (Qiong Tong Bao Jian)\n\nทั้งนี้ วิธีการคำนวณและวิเคราะห์ Shen Sha อาจมีความซับซ้อนและแตกต่างกันไปตามผู้เชี่ยวชาญและเทคนิคเฉพาะของแต่ละคน ดังนั้น การศึกษาจากแหล่งข้อมูลที่ได้รับการยอมรับในวงการจึงเป็นสิ่งที่สำคัญมาก.",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "ในศาสตร์ของ BaZi (四柱命理) หรือ คำนวณ八字 ซึ่งเป็นหนึ่งในระบบการคำนวณชีวิตตามหลักปรัชญาจีน ดาวร้ายหรือ Shen Sha (神煞) เป็นส่วนสำคัญที่ถูกใช้ในการวิเคราะห์และประเมินชะตาชีวิตของบุคคล โดยเฉพาะอย่างยิ่งในศาสตร์โบราณของจีน\n\nShen Sha ที่สำคัญที่สุด 20 อย่าง ได้แก่:\n\n1.",
+          "confidence": 0.86
+        },
+        {
+          "text": "**Tian Gui (天贵)** - ดาวแห่งความร่ำรวยและความสำเร็จ\n2.",
+          "confidence": 0.77
+        },
+        {
+          "text": "**Di Gui (地贵)** - ดาวแห่งการพัฒนาและการเจริญเติบโต\n3.",
+          "confidence": 0.77
+        },
+        {
+          "text": "**Shen Guan (神官)** - ดาวแห่งการปกป้องและคุ้มครอง\n4.",
+          "confidence": 0.67
+        },
+        {
+          "text": "**Tian Xing (天刑)** - ดาวแห่งความท้าทายและความขัดแย้ง\n5.",
+          "confidence": 0.79
+        },
+        {
+          "text": "**Di Xing (地刑)** - ดาวแห่งความขัดแย้งในสถานที่\n6.",
+          "confidence": 0.73
+        },
+        {
+          "text": "**Shen Xuan (神玄)** - ดาวแห่งความลึกลับและปริศนา\n7.",
+          "confidence": 0.76
+        },
+        {
+          "text": "**Tian Li (天立)** - ดาวแห่งการสร้างสรรค์และการเปลี่ยนแปลง\n8.",
+          "confidence": 0.7
+        },
+        {
+          "text": "**Di Li (地立)** - ดาวแห่งการตั้งรากฐานและความมั่นคง\n9.",
+          "confidence": 0.78
+        },
+        {
+          "text": "**Shen Xuan (神玄)** - ดาวแห่งความลึกลับและปริศนา\n10.",
+          "confidence": 0.73
+        },
+        {
+          "text": "**Tian Hua (天化)** - ดาวแห่งการเปลี่ยนแปลงและการพัฒนา\n11.",
+          "confidence": 0.68
+        },
+        {
+          "text": "**Di Hua (地化)** - ดาวแห่งการเปลี่ยนแปลงในสถานที่\n12.",
+          "confidence": 0.78
+        },
+        {
+          "text": "**Shen Xuan (神玄)** - ดาวแห่งความลึกลับและปริศนา\n13.",
+          "confidence": 0.83
+        },
+        {
+          "text": "**Tian Yuan (天元)** - ดาวแห่งการเริ่มต้นและการสร้างสรรค์\n14.",
+          "confidence": 0.72
+        },
+        {
+          "text": "**Di Yuan (地元)** - ดาวแห่งการพัฒนาและการเจริญเติบโต\n15.",
+          "confidence": 0.76
+        },
+        {
+          "text": "**Shen Xuan (神玄)** - ดาวแห่งความลึกลับและปริศนา\n16.",
+          "confidence": 0.73
+        },
+        {
+          "text": "**Tian Liang (天梁)** - ดาวแห่งความสำเร็จและความมั่งคั่ง\n17.",
+          "confidence": 0.77
+        },
+        {
+          "text": "**Di Liang (地梁)** - ดาวแห่งการพัฒนาและการเจริญเติบโต\n18.",
+          "confidence": 0.71
+        },
+        {
+          "text": "**Shen Xuan (神玄)** - ดาวแห่งความลึกลับและปริศนา\n19.",
+          "confidence": 0.65
+        },
+        {
+          "text": "**Tian Sheng (天生)** - ดาวแห่งการเริ่มต้นและการสร้างสรรค์\n20.",
+          "confidence": 0.8
+        },
+        {
+          "text": "**Di Sheng (地生)** - ดาวแห่งการพัฒนาและการเจริญเติบโต\n\nวิธีคำนวณแต่ละดาว:\n\n1.",
+          "confidence": 0.76
+        },
+        {
+          "text": "**Tian Gui (天贵)**\n   - คำนวณจากที่ตั้งของดาวใน八字 ซึ่งต้องอยู่ในตำแหน่งที่เหมาะสมตามหลักการ\n2.",
+          "confidence": 0.78
+        },
+        {
+          "text": "**Di Gui (地贵)**\n   - คำนวณจากที่ตั้งของดาวใน八字 ซึ่งต้องอยู่ในตำแหน่งที่เหมาะสมตามหลักการ\n3.",
+          "confidence": 0.93
+        },
+        {
+          "text": "**Shen Guan (神官)**\n   - คำนวณจากที่ตั้งของดาวใน八字 ซึ่งต้องอยู่ในตำแหน่งที่เหมาะสมตามหลักการ\n4.",
+          "confidence": 0.76
+        },
+        {
+          "text": "**Tian Xing (天刑)**\n   - คำนวณจากที่ตั้งของดาวใน八字 ซึ่งต้องอยู่ในตำแหน่งที่เหมาะสมตามหลักการ\n5.",
+          "confidence": 0.89
+        },
+        {
+          "text": "**Di Xing (地刑)**\n   - คำนวณจากที่ตั้งของดาวใน八字 ซึ่งต้องอยู่ในตำแหน่งที่เหมาะสมตามหลักการ\n\n**แหล่งข้อมูล:**\n\n- 子平真詮 (Zi Ping Zhen Chan)\n- 滴天髓 (Di Tian Si)\n- 窮通寶鑑 (Qiong Tong Bao Jian)\n\nทั้งนี้ วิธีการคำนวณและวิเคราะห์ Shen Sha อาจมีความซับซ้อนและแตกต่างกันไปตามผู้เชี่ยวชาญและเทคนิคเฉพาะของแต่ละคน ดังนั้น การศึกษาจากแหล่งข้อมูลที่ได้รับการยอมรับในวงการจึงเป็นสิ่งที่สำคัญมาก.",
+          "confidence": 0.68
+        }
+      ],
+      "latency_ms": 61020,
+      "generated_at": "2026-08-08T09:01:30.624974"
+    },
+    "462561e0243de686": {
+      "answer": "ในศาสตร์ BaZi (四柱命理) หรือ บะซี ซึ่งเป็นหนึ่งในวิชาโหราศาสตร์จีนที่มีความสำคัญมาก คำว่า 天乙貴人 (Tian Yi Gui Ren) หรือ Nobleman Star เป็นคำศัพท์ที่ใช้ในการอธิบายสถานะของดาวเคราะห์ในช่วงเวลาต่าง ๆ \n\n### การหา Tian Yi Gui Ren\n1. **การวิเคราะห์ BaZi Chart**: ในการวิเคราะห์ BaZi Chart (四柱命理图) หรือ แผนภูมิบะซี เราจะใช้ข้อมูลเกี่ยวกับปี เดือน วัน และชั่วโมงของวันเกิด เพื่อสร้างแผนภูมิที่ประกอบด้วย 4 ตัวเลข (四柱) หรือ 4 ธาตุ\n2. **การหา Tian Yi Gui Ren**: ใน BaZi Chart นี้ เราจะมองหาตำแหน่งของดาวเคราะห์ที่เป็น Tian Yi Gui Ren โดยทั่วไปแล้ว ดาว Jupiter (木星) จะถูกพิจารณาว่าเป็น Tian Yi Gui Ren เนื่องจากมีคุณสมบัติที่สอดคล้องกับคำว่า \"Nobleman\" ในภาษาจีน\n\n### ผลลัพธ์ของ Tian Yi Gui Ren\nการปรากฏของ Tian Yi Gui Ren ใน BaZi Chart มักจะมีผลดังนี้:\n\n1. **ความสำเร็จในอาชีพ**: ผู้ที่มี Tian Yi Gui Ren ในบะซีของตนเองมักจะมีโอกาสประสบความสำเร็จในอาชีพทางการเมืองหรือธุรกิจ\n2. **ทรัพย์สินและความร่ำรวย**: ดาว Jupiter หรือ Tian Yi Gui Ren มักจะเกี่ยวข้องกับทรัพย์สินและโอกาสในการทำเงิน\n3. **ความสุขในชีวิต**: ผู้ที่มี Tian Yi Gui Ren ในบะซีของตนเองมักจะมีชีวิตที่สงบสุขและมีความสุข\n\n### อ้างอิงจาก 《子平真詮》\nใน 《子平真詮》 (Zi Ping Zhen Chuan) หรือ \"The True Explanation of the BaZi\" ซึ่งเป็นหนังสือที่มีความสำคัญในการศึกษา BaZi นั้นมีการอธิบายว่า Jupiter เป็นดาวที่มีคุณสมบัติของ \"Nobleman Star\" และมักจะทำให้ผู้ที่เกิดในช่วงเวลาที่ Jupiter อยู่ในตำแหน่งดังกล่าวมีโอกาสประสบความสำเร็จในชีวิต\n\n### อ้างอิงจาก 《滴天髓》\nใน 《滴天髓》 (Di Tian Si) หรือ \"Essence of the Sky\" ซึ่งเป็นหนังสือที่เขียนโดย Wang Chongyang ในศตวรรษที่ 13 มีการอธิบายว่า Jupiter เป็นดาวที่มีคุณสมบัติของ \"Nobleman Star\" และมักจะทำให้ผู้ที่เกิดในช่วงเวลาที่ Jupiter อยู่ในตำแหน่งดังกล่าวมีโอกาสประสบความสำเร็จในชีวิต\n\n### อ้างอิงจาก 《窮通寶鑑》\nใน 《窮通寶鑑》 (Qiong Tong Bao Jian) หรือ \"Treasure Mirror of Prosperity and Adversity\" ซึ่งเป็นหนังสือที่เขียนโดย Wang Chongyang ในศตวรรษที่ 13 ก็มีการอธิบายว่า Jupiter เป็นดาวที่มีคุณสมบัติของ \"Nobleman Star\" และมักจะทำให้ผู้ที่เกิดในช่วงเวลาที่ Jupiter อยู่ในตำแหน่งดังกล่าวมีโอกาสประสบความสำเร็จในชีวิต\n\n### สรุป\nการหาและผลลัพธ์ของ Tian Yi Gui Ren (Nobleman Star) ใน BaZi Chart นั้นมีความสำคัญในการวิเคราะห์บะซี และมักจะทำให้ผู้ที่เกิดในช่วงเวลาที่ Jupiter อยู่ในตำแหน่งดังกล่าวมีโอกาสประสบความสำเร็จในชีวิตทางการเมืองหรือธุรกิจ รวมถึงมีทรัพย์สินและความร่ำรวย.",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "ในศาสตร์ BaZi (四柱命理) หรือ บะซี ซึ่งเป็นหนึ่งในวิชาโหราศาสตร์จีนที่มีความสำคัญมาก คำว่า 天乙貴人 (Tian Yi Gui Ren) หรือ Nobleman Star เป็นคำศัพท์ที่ใช้ในการอธิบายสถานะของดาวเคราะห์ในช่วงเวลาต่าง ๆ \n\n### การหา Tian Yi Gui Ren\n1.",
+          "confidence": 0.79
+        },
+        {
+          "text": "**การวิเคราะห์ BaZi Chart**: ในการวิเคราะห์ BaZi Chart (四柱命理图) หรือ แผนภูมิบะซี เราจะใช้ข้อมูลเกี่ยวกับปี เดือน วัน และชั่วโมงของวันเกิด เพื่อสร้างแผนภูมิที่ประกอบด้วย 4 ตัวเลข (四柱) หรือ 4 ธาตุ\n2.",
+          "confidence": 0.84
+        },
+        {
+          "text": "**การหา Tian Yi Gui Ren**: ใน BaZi Chart นี้ เราจะมองหาตำแหน่งของดาวเคราะห์ที่เป็น Tian Yi Gui Ren โดยทั่วไปแล้ว ดาว Jupiter (木星) จะถูกพิจารณาว่าเป็น Tian Yi Gui Ren เนื่องจากมีคุณสมบัติที่สอดคล้องกับคำว่า \"Nobleman\" ในภาษาจีน\n\n### ผลลัพธ์ของ Tian Yi Gui Ren\nการปรากฏของ Tian Yi Gui Ren ใน BaZi Chart มักจะมีผลดังนี้:\n\n1.",
+          "confidence": 0.79
+        },
+        {
+          "text": "**ความสำเร็จในอาชีพ**: ผู้ที่มี Tian Yi Gui Ren ในบะซีของตนเองมักจะมีโอกาสประสบความสำเร็จในอาชีพทางการเมืองหรือธุรกิจ\n2.",
+          "confidence": 0.77
+        },
+        {
+          "text": "**ทรัพย์สินและความร่ำรวย**: ดาว Jupiter หรือ Tian Yi Gui Ren มักจะเกี่ยวข้องกับทรัพย์สินและโอกาสในการทำเงิน\n3.",
+          "confidence": 0.8
+        },
+        {
+          "text": "**ความสุขในชีวิต**: ผู้ที่มี Tian Yi Gui Ren ในบะซีของตนเองมักจะมีชีวิตที่สงบสุขและมีความสุข\n\n### อ้างอิงจาก 《子平真詮》\nใน 《子平真詮》 (Zi Ping Zhen Chuan) หรือ \"The True Explanation of the BaZi\" ซึ่งเป็นหนังสือที่มีความสำคัญในการศึกษา BaZi นั้นมีการอธิบายว่า Jupiter เป็นดาวที่มีคุณสมบัติของ \"Nobleman Star\" และมักจะทำให้ผู้ที่เกิดในช่วงเวลาที่ Jupiter อยู่ในตำแหน่งดังกล่าวมีโอกาสประสบความสำเร็จในชีวิต\n\n### อ้างอิงจาก 《滴天髓》\nใน 《滴天髓》 (Di Tian Si) หรือ \"Essence of the Sky\" ซึ่งเป็นหนังสือที่เขียนโดย Wang Chongyang ในศตวรรษที่ 13 มีการอธิบายว่า Jupiter เป็นดาวที่มีคุณสมบัติของ \"Nobleman Star\" และมักจะทำให้ผู้ที่เกิดในช่วงเวลาที่ Jupiter อยู่ในตำแหน่งดังกล่าวมีโอกาสประสบความสำเร็จในชีวิต\n\n### อ้างอิงจาก 《窮通寶鑑》\nใน 《窮通寶鑑》 (Qiong Tong Bao Jian) หรือ \"Treasure Mirror of Prosperity and Adversity\" ซึ่งเป็นหนังสือที่เขียนโดย Wang Chongyang ในศตวรรษที่ 13 ก็มีการอธิบายว่า Jupiter เป็นดาวที่มีคุณสมบัติของ \"Nobleman Star\" และมักจะทำให้ผู้ที่เกิดในช่วงเวลาที่ Jupiter อยู่ในตำแหน่งดังกล่าวมีโอกาสประสบความสำเร็จในชีวิต\n\n### สรุป\nการหาและผลลัพธ์ของ Tian Yi Gui Ren (Nobleman Star) ใน BaZi Chart นั้นมีความสำคัญในการวิเคราะห์บะซี และมักจะทำให้ผู้ที่เกิดในช่วงเวลาที่ Jupiter อยู่ในตำแหน่งดังกล่าวมีโอกาสประสบความสำเร็จในชีวิตทางการเมืองหรือธุรกิจ รวมถึงมีทรัพย์สินและความร่ำรวย.",
+          "confidence": 0.93
+        }
+      ],
+      "latency_ms": 55084,
+      "generated_at": "2026-08-08T09:02:25.714412"
+    },
+    "1e1216dc031a12a1": {
+      "answer": "ในศาสตร์ของ BaZi (四柱命理) หรือ ปรัชญาจีนเกี่ยวกับการวิเคราะห์八字，驿马（Yi Ma / Travelling Horse）เป็นหนึ่งในสิบเอ็ดดาวที่มีความสำคัญในการคำนวณและตีความ八字。驿马代表的是一个人在事业、旅行和人际关系中的流动性与迁移性。\n\n### วิธีการคำนวณ驿马\n\n1. **การหาตำแหน่งของ驿马**：驿马的位置可以通过以下几种方法来确定：\n   - 在八字中，驿马通常位于天干或地支的特定位置。具体来说，驿马的位置可以由日主（即八字中的日柱）决定。\n   - 例如，如果日主是木，则驿马可能出现在亥、辰这两个地支上；如果是火，则驿马可能出现在巳、戌这两个地支上。\n\n2. **计算方法**：在八字中找到天干或地支的组合来确定驿马的位置。通常，驿马会与某些特定的地支相关联。\n   - 例如，在子平真詮（《子平真诠》）一书中提到：“日主为木，则亥、辰为驿马；日主为火，则巳、戌为驿马。”\n\n### การตีความ驿马\n\n1. **事业与职业**：驿马代表一个人在职业生涯中的流动性。如果八字中驿马位置良好，可能会带来事业发展上的机遇和迁移。\n2. **旅行与迁移**：驿马也象征着个人的旅行和迁移经历。如果有良好的驿马配置，则可能意味着频繁的旅行或居住地的变化。\n3. **人际关系**：驿马还涉及到人际关系中的流动性，如朋友、合作伙伴等的关系变化。\n\n### 例子\n\n假设某人的八字中日主为木（亥），则根据子平真詮的理论，亥和辰是其驿马的位置。如果在八字中其他因素支持驿马，则此人可能在职业生涯中有较多的机会迁移或出差；在生活中也可能有频繁的旅行经历。\n\n### อ้างอิง\n\n- 子平真詮：《子平真诠》\n- 滴天髓：《滴天髓》\n- 窮通寶鑑：《穷通宝鉴》\n\n上述内容是基于传统巴字（八字）理论的解释，具体应用时还需结合个人具体情况和八字的整体格局进行综合分析。",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "ในศาสตร์ของ BaZi (四柱命理) หรือ ปรัชญาจีนเกี่ยวกับการวิเคราะห์八字，驿马（Yi Ma / Travelling Horse）เป็นหนึ่งในสิบเอ็ดดาวที่มีความสำคัญในการคำนวณและตีความ八字。驿马代表的是一个人在事业、旅行和人际关系中的流动性与迁移性。\n\n### วิธีการคำนวณ驿马\n\n1.",
+          "confidence": 0.7
+        },
+        {
+          "text": "**การหาตำแหน่งของ驿马**：驿马的位置可以通过以下几种方法来确定：\n   - 在八字中，驿马通常位于天干或地支的特定位置。具体来说，驿马的位置可以由日主（即八字中的日柱）决定。\n   - 例如，如果日主是木，则驿马可能出现在亥、辰这两个地支上；如果是火，则驿马可能出现在巳、戌这两个地支上。\n\n2.",
+          "confidence": 0.7
+        },
+        {
+          "text": "**计算方法**：在八字中找到天干或地支的组合来确定驿马的位置。通常，驿马会与某些特定的地支相关联。\n   - 例如，在子平真詮（《子平真诠》）一书中提到：“日主为木，则亥、辰为驿马；日主为火，则巳、戌为驿马。”\n\n### การตีความ驿马\n\n1.",
+          "confidence": 0.67
+        },
+        {
+          "text": "**事业与职业**：驿马代表一个人在职业生涯中的流动性。如果八字中驿马位置良好，可能会带来事业发展上的机遇和迁移。\n2.",
+          "confidence": 0.83
+        },
+        {
+          "text": "**旅行与迁移**：驿马也象征着个人的旅行和迁移经历。如果有良好的驿马配置，则可能意味着频繁的旅行或居住地的变化。\n3.",
+          "confidence": 0.7
+        },
+        {
+          "text": "**人际关系**：驿马还涉及到人际关系中的流动性，如朋友、合作伙伴等的关系变化。\n\n### 例子\n\n假设某人的八字中日主为木（亥），则根据子平真詮的理论，亥和辰是其驿马的位置。如果在八字中其他因素支持驿马，则此人可能在职业生涯中有较多的机会迁移或出差；在生活中也可能有频繁的旅行经历。\n\n### อ้างอิง\n\n- 子平真詮：《子平真诠》\n- 滴天髓：《滴天髓》\n- 窮通寶鑑：《穷通宝鉴》\n\n上述内容是基于传统巴字（八字）理论的解释，具体应用时还需结合个人具体情况和八字的整体格局进行综合分析。.",
+          "confidence": 0.81
+        }
+      ],
+      "latency_ms": 26833,
+      "generated_at": "2026-08-08T09:02:52.550348"
+    },
+    "08a24a5ed37030d5": {
+      "answer": "ในศาสตร์ BaZi (四柱命理) หรือ บะซี ของจีน คำว่า \"桃花\" (Tao Hua / Peach Blossom / Romance Star) เป็นคำที่ใช้ในการอธิบายดาวร้ายหรือเทพยดาที่เกี่ยวข้องกับความสัมพันธ์และการคบหาชู้สาว ซึ่งถูกกล่าวถึงในคัมภีร์โบราณอย่าง 子平真詮 (Zi Ping Zhen Chuan) และ 滴天髓 (Di Tian Si)\n\n### การหา桃花 (Tao Hua / Peach Blossom Star)\n桃花 (Tao Hua) หรือ \"Peach Blossom Star\" ใน BaZi ไม่ได้ถูกกำหนดโดยวิธีการเฉพาะเจาะจงเหมือนกับดาวอื่นๆ เช่น 月建 (Yue Jian) หรือ 日主 (Ri Zhi) แต่มันเป็นส่วนหนึ่งของความหมายที่เกิดจากการวิเคราะห์บะซี (四柱) หรือ \"Four Pillars of Birth\" \n\n桃花 (Tao Hua) มักจะถูกพิจารณาในบริบทของการค้นหาดาวร้ายและสภาวะทางชีวิตที่เกี่ยวข้องกับความสัมพันธ์และการคบหาชู้สาว ซึ่งสามารถปรากฏได้ในบะซีของผู้หญิงมากกว่าผู้ชาย แต่ไม่ได้หมายความว่าจะไม่มีโอกาสสำหรับผู้ชาย\n\n### ผลของการมี桃花 (Tao Hua Star)\nการมี桃花 (Tao Hua) ในบะซีสามารถส่งผลต่อชีวิตทางส่วนตัวและสังคมของบุคคลดังนี้:\n\n1. **ความสัมพันธ์และการคบหาชู้สาว**: อาจทำให้บุคคลมีโอกาสพบเจอคนที่เหมาะสมในการคบหาชู้สาวหรือมีความสัมพันธ์ทางอารมณ์และรัก\n\n2. **การเปลี่ยนแปลงในชีวิตส่วนตัว**: อาจทำให้เกิดการเปลี่ยนแปลงในชีวิตส่วนตัว เช่น การแต่งงานหรือความสัมพันธ์ทางอารมณ์ที่สำคัญ\n\n3. **โอกาสในการพบเจอคนใหม่ๆ**: อาจเพิ่มโอกาสในการพบเจอคนใหม่ๆ ที่อาจกลายเป็นคนรักหรือคู่ชีวิตในอนาคต\n\n4. **ความสุขและความไม่สบายใจ**: การมี桃花 (Tao Hua) ในบะซีอาจทำให้บุคคลมีความสุขและมีความสัมพันธ์ที่ดี หรืออาจทำให้เกิดความไม่สบายใจหากพบกับดาวร้ายอื่นๆ ที่มาทำร้าย桃花 (Tao Hua)\n\n### การวิเคราะห์และการใช้งาน\nการวิเคราะห์桃花 (Tao Hua) ใน BaZi จำเป็นต้องพิจารณาในบริบทของบะซีทั้งหมด รวมถึงการมีดาวร้ายอื่นๆ และความสัมพันธ์ระหว่างดาวที่ปรากฏในบะซี\n\n- **桃花 (Tao Hua) ในบะซีของผู้หญิง**: มักจะทำให้พบเจอคนที่เหมาะสมในการคบหาชู้สาว หรือมีโอกาสแต่งงาน\n- **桃花 (Tao Hua) ในบะซีของผู้ชาย**: อาจทำให้มีความสัมพันธ์ทางอารมณ์และรักที่ดี\n\n### อ้างอิง\n- 子平真詮 (Zi Ping Zhen Chuan): คัมภีร์ที่อธิบายวิธีการวิเคราะห์บะซีและดาวร้ายในบริบทของความสัมพันธ์และการคบหาชู้สาว\n- 滴天髓 (Di Tian Si): คัมภีร์ที่อธิบายรายละเอียดของการวิเคราะห์บะซีและผลลัพธ์ต่างๆ\n\nการวิเคราะห์桃花 (Tao Hua) ใน BaZi เป็นกระบวนการที่ซับซ้อนและจำเป็นต้องมีความรู้และความเข้าใจอย่างลึกซึ้งในศาสตร์นี้ ดังนั้น การขอคำปรึกษาจากผู้เชี่ยวชาญจึงเป็นทางเลือกที่ดีในการทำความเข้าใจและใช้งาน桃花 (Tao Hua) ในบริบทของบะซี.",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "ในศาสตร์ BaZi (四柱命理) หรือ บะซี ของจีน คำว่า \"桃花\" (Tao Hua / Peach Blossom / Romance Star) เป็นคำที่ใช้ในการอธิบายดาวร้ายหรือเทพยดาที่เกี่ยวข้องกับความสัมพันธ์และการคบหาชู้สาว ซึ่งถูกกล่าวถึงในคัมภีร์โบราณอย่าง 子平真詮 (Zi Ping Zhen Chuan) และ 滴天髓 (Di Tian Si)\n\n### การหา桃花 (Tao Hua / Peach Blossom Star)\n桃花 (Tao Hua) หรือ \"Peach Blossom Star\" ใน BaZi ไม่ได้ถูกกำหนดโดยวิธีการเฉพาะเจาะจงเหมือนกับดาวอื่นๆ เช่น 月建 (Yue Jian) หรือ 日主 (Ri Zhi) แต่มันเป็นส่วนหนึ่งของความหมายที่เกิดจากการวิเคราะห์บะซี (四柱) หรือ \"Four Pillars of Birth\" \n\n桃花 (Tao Hua) มักจะถูกพิจารณาในบริบทของการค้นหาดาวร้ายและสภาวะทางชีวิตที่เกี่ยวข้องกับความสัมพันธ์และการคบหาชู้สาว ซึ่งสามารถปรากฏได้ในบะซีของผู้หญิงมากกว่าผู้ชาย แต่ไม่ได้หมายความว่าจะไม่มีโอกาสสำหรับผู้ชาย\n\n### ผลของการมี桃花 (Tao Hua Star)\nการมี桃花 (Tao Hua) ในบะซีสามารถส่งผลต่อชีวิตทางส่วนตัวและสังคมของบุคคลดังนี้:\n\n1.",
+          "confidence": 0.86
+        },
+        {
+          "text": "**ความสัมพันธ์และการคบหาชู้สาว**: อาจทำให้บุคคลมีโอกาสพบเจอคนที่เหมาะสมในการคบหาชู้สาวหรือมีความสัมพันธ์ทางอารมณ์และรัก\n\n2.",
+          "confidence": 0.5
+        },
+        {
+          "text": "**การเปลี่ยนแปลงในชีวิตส่วนตัว**: อาจทำให้เกิดการเปลี่ยนแปลงในชีวิตส่วนตัว เช่น การแต่งงานหรือความสัมพันธ์ทางอารมณ์ที่สำคัญ\n\n3.",
+          "confidence": 0.58
+        },
+        {
+          "text": "**โอกาสในการพบเจอคนใหม่ๆ**: อาจเพิ่มโอกาสในการพบเจอคนใหม่ๆ ที่อาจกลายเป็นคนรักหรือคู่ชีวิตในอนาคต\n\n4.",
+          "confidence": 0.56
+        },
+        {
+          "text": "**ความสุขและความไม่สบายใจ**: การมี桃花 (Tao Hua) ในบะซีอาจทำให้บุคคลมีความสุขและมีความสัมพันธ์ที่ดี หรืออาจทำให้เกิดความไม่สบายใจหากพบกับดาวร้ายอื่นๆ ที่มาทำร้าย桃花 (Tao Hua)\n\n### การวิเคราะห์และการใช้งาน\nการวิเคราะห์桃花 (Tao Hua) ใน BaZi จำเป็นต้องพิจารณาในบริบทของบะซีทั้งหมด รวมถึงการมีดาวร้ายอื่นๆ และความสัมพันธ์ระหว่างดาวที่ปรากฏในบะซี\n\n- **桃花 (Tao Hua) ในบะซีของผู้หญิง**: มักจะทำให้พบเจอคนที่เหมาะสมในการคบหาชู้สาว หรือมีโอกาสแต่งงาน\n- **桃花 (Tao Hua) ในบะซีของผู้ชาย**: อาจทำให้มีความสัมพันธ์ทางอารมณ์และรักที่ดี\n\n### อ้างอิง\n- 子平真詮 (Zi Ping Zhen Chuan): คัมภีร์ที่อธิบายวิธีการวิเคราะห์บะซีและดาวร้ายในบริบทของความสัมพันธ์และการคบหาชู้สาว\n- 滴天髓 (Di Tian Si): คัมภีร์ที่อธิบายรายละเอียดของการวิเคราะห์บะซีและผลลัพธ์ต่างๆ\n\nการวิเคราะห์桃花 (Tao Hua) ใน BaZi เป็นกระบวนการที่ซับซ้อนและจำเป็นต้องมีความรู้และความเข้าใจอย่างลึกซึ้งในศาสตร์นี้ ดังนั้น การขอคำปรึกษาจากผู้เชี่ยวชาญจึงเป็นทางเลือกที่ดีในการทำความเข้าใจและใช้งาน桃花 (Tao Hua) ในบริบทของบะซี.",
+          "confidence": 0.75
+        }
+      ],
+      "latency_ms": 93726,
+      "generated_at": "2026-08-08T09:04:39.759521"
+    },
+    "f050e125bc8072d6": {
+      "answer": "ระบบ 納音五行 (Na Yin Wu Xing) เป็นหนึ่งในเทคนิคสำคัญของ BaZi หรือ 四柱命理 ในวิชาโหราศาสตร์จีน ซึ่งใช้ในการวิเคราะห์และตีความชะตาชีวิตของบุคคล โดยมีการนำเอาหลักปรัชญาจีน 五行 (Wu Xing) มาประยุกต์ใช้ในบริบทของเวลาและสถานที่\n\nNa Yin Wu Xing เป็นระบบที่เชื่อมโยงระหว่าง 60 ปีใน 甲子乙丑等六十甲子 (Jiǎ-Zǐ Yǐ-Chǒu) และ 五行 (Wǔ Xíng) โดยมีการกำหนดธาตุของแต่ละปีตามหลัก Na Yin. ระบบนี้มีความซับซ้อนและละเอียดอ่อนมาก ซึ่งสามารถทำให้การวิเคราะห์ BaZi มีความแม่นยำและลึกซึ้งมากขึ้น\n\nNa Yin Wu Xing แบ่งปีออกเป็น 60 ปี โดยแต่ละปีมีชื่อที่ประกอบด้วยตัวอักษร 甲乙丙丁戊己庚辛壬癸 (Jiǎ Yǐ Bǐng Dīng Wù Jì Gēng Xīn Rén Guǐ) และ 丑寅卯辰巳午未申酉戌亥 (Chǒu Yín Mǎo Cén Sì Wǔ Wèi Shēn Yǒu Xiū Hài) โดยที่ตัวอักษรแรกเป็น 甲子乙丑等六十甲子 (Jiǎ-Zǐ Yǐ-Chǒu) และตัวอักษรที่สองเป็น 丑寅卯辰巳午未申酉戌亥 (Chǒu Yín Mǎo Cén Sì Wǔ Wèi Shēn Yǒu Xiū Hài)\n\nในระบบ Na Yin Wu Xing ธาตุของปีจะถูกกำหนดโดยการนำเอาตัวอักษรที่สอง (丑寅卯辰巳午未申酉戌亥) มาใช้ โดยมีการกำหนดดังนี้:\n\n- 甲子乙丑: 土 (Tǔ)\n- 丙辰丁巳: 火 (Huǒ)\n- 戊午己未: 土 (Tǔ)\n- 庚申辛酉: 金 (Jīn)\n- 壬戌癸亥: 水 (Shuǐ)\n\nการกำหนดธาตุของปีนี้มีความสำคัญมากในการวิเคราะห์ BaZi เพราะจะช่วยให้ทราบถึงพลังงานและลักษณะของปีนั้นๆ ซึ่งสามารถนำไปสู่การวิเคราะห์ชะตาชีวิตของบุคคลได้อย่างละเอียด\n\nNa Yin Wu Xing ไม่ใช่เพียงแค่การกำหนดธาตุของปีเท่านั้น แต่ยังมีความซับซ้อนในการคำนวณและวิเคราะห์อีกมากมาย โดยเฉพาะอย่างยิ่งในเรื่องของการคำนวณเวลาที่เหมาะสมสำหรับการกระทำต่างๆ ตามหลักปรัชญาจีน\n\nสำหรับ 60 Jiazi Nayin table, คือตารางที่แสดงความสัมพันธ์ระหว่าง 甲子乙丑等六十甲子 (Jiǎ-Zǐ Yǐ-Chǒu) และ 五行 (Wǔ Xíng) โดยแต่ละปีจะมีธาตุที่แตกต่างกัน ซึ่งสามารถใช้ในการวิเคราะห์ BaZi ได้อย่างละเอียด\n\nในสรุป Na Yin Wu Xing และ 60 Jiazi Nayin table เป็นส่วนสำคัญของวิชาโหราศาสตร์จีนที่เชื่อมโยงระหว่างเวลาและธาตุ โดยมีการใช้ในการวิเคราะห์และตีความชะตาชีวิตของบุคคล ซึ่งสามารถทำให้การวิเคราะห์ BaZi มีความแม่นยำและลึกซึ้งมากขึ้น\n\nอ้างอิง: \n1. 子平真詮 (Zǐ Píng Zhēn Qián)\n2. 滴天髓 (Dī Tiān Suǐ)\n3. 窮通寶鑑 (Qióng Tōng Bǎo Jiàn)",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "ระบบ 納音五行 (Na Yin Wu Xing) เป็นหนึ่งในเทคนิคสำคัญของ BaZi หรือ 四柱命理 ในวิชาโหราศาสตร์จีน ซึ่งใช้ในการวิเคราะห์และตีความชะตาชีวิตของบุคคล โดยมีการนำเอาหลักปรัชญาจีน 五行 (Wu Xing) มาประยุกต์ใช้ในบริบทของเวลาและสถานที่\n\nNa Yin Wu Xing เป็นระบบที่เชื่อมโยงระหว่าง 60 ปีใน 甲子乙丑等六十甲子 (Jiǎ-Zǐ Yǐ-Chǒu) และ 五行 (Wǔ Xíng) โดยมีการกำหนดธาตุของแต่ละปีตามหลัก Na Yin.",
+          "confidence": 0.78
+        },
+        {
+          "text": "ระบบนี้มีความซับซ้อนและละเอียดอ่อนมาก ซึ่งสามารถทำให้การวิเคราะห์ BaZi มีความแม่นยำและลึกซึ้งมากขึ้น\n\nNa Yin Wu Xing แบ่งปีออกเป็น 60 ปี โดยแต่ละปีมีชื่อที่ประกอบด้วยตัวอักษร 甲乙丙丁戊己庚辛壬癸 (Jiǎ Yǐ Bǐng Dīng Wù Jì Gēng Xīn Rén Guǐ) และ 丑寅卯辰巳午未申酉戌亥 (Chǒu Yín Mǎo Cén Sì Wǔ Wèi Shēn Yǒu Xiū Hài) โดยที่ตัวอักษรแรกเป็น 甲子乙丑等六十甲子 (Jiǎ-Zǐ Yǐ-Chǒu) และตัวอักษรที่สองเป็น 丑寅卯辰巳午未申酉戌亥 (Chǒu Yín Mǎo Cén Sì Wǔ Wèi Shēn Yǒu Xiū Hài)\n\nในระบบ Na Yin Wu Xing ธาตุของปีจะถูกกำหนดโดยการนำเอาตัวอักษรที่สอง (丑寅卯辰巳午未申酉戌亥) มาใช้ โดยมีการกำหนดดังนี้:\n\n- 甲子乙丑: 土 (Tǔ)\n- 丙辰丁巳: 火 (Huǒ)\n- 戊午己未: 土 (Tǔ)\n- 庚申辛酉: 金 (Jīn)\n- 壬戌癸亥: 水 (Shuǐ)\n\nการกำหนดธาตุของปีนี้มีความสำคัญมากในการวิเคราะห์ BaZi เพราะจะช่วยให้ทราบถึงพลังงานและลักษณะของปีนั้นๆ ซึ่งสามารถนำไปสู่การวิเคราะห์ชะตาชีวิตของบุคคลได้อย่างละเอียด\n\nNa Yin Wu Xing ไม่ใช่เพียงแค่การกำหนดธาตุของปีเท่านั้น แต่ยังมีความซับซ้อนในการคำนวณและวิเคราะห์อีกมากมาย โดยเฉพาะอย่างยิ่งในเรื่องของการคำนวณเวลาที่เหมาะสมสำหรับการกระทำต่างๆ ตามหลักปรัชญาจีน\n\nสำหรับ 60 Jiazi Nayin table, คือตารางที่แสดงความสัมพันธ์ระหว่าง 甲子乙丑等六十甲子 (Jiǎ-Zǐ Yǐ-Chǒu) และ 五行 (Wǔ Xíng) โดยแต่ละปีจะมีธาตุที่แตกต่างกัน ซึ่งสามารถใช้ในการวิเคราะห์ BaZi ได้อย่างละเอียด\n\nในสรุป Na Yin Wu Xing และ 60 Jiazi Nayin table เป็นส่วนสำคัญของวิชาโหราศาสตร์จีนที่เชื่อมโยงระหว่างเวลาและธาตุ โดยมีการใช้ในการวิเคราะห์และตีความชะตาชีวิตของบุคคล ซึ่งสามารถทำให้การวิเคราะห์ BaZi มีความแม่นยำและลึกซึ้งมากขึ้น\n\nอ้างอิง: \n1.",
+          "confidence": 0.78
+        },
+        {
+          "text": "子平真詮 (Zǐ Píng Zhēn Qián)\n2.",
+          "confidence": 0.6
+        },
+        {
+          "text": "滴天髓 (Dī Tiān Suǐ)\n3.",
+          "confidence": 0.75
+        },
+        {
+          "text": "窮通寶鑑 (Qióng Tōng Bǎo Jiàn).",
+          "confidence": 0.57
+        }
+      ],
+      "latency_ms": 91418,
+      "generated_at": "2026-08-08T09:06:11.183910"
+    },
+    "743e9a5671e78548": {
+      "answer": "ในการนำ Na Yin Element (ธาตุเสียง) มาใช้ประกอบกับ BaZi Modern Analysis จำเป็นต้องทำความเข้าใจในหลักการและวิธีการของ Na Yin Element ในบริบทของ BaZi และปรัชญาจีน\n\nNa Yin Element เป็นหนึ่งในองค์ประกอบหลักของ BaZi โดยมีความหมายว่า \"ธาตุเสียง\" ซึ่งเป็นการอ้างอิงถึงพลังงานที่เกิดจากการเปลี่ยนแปลงและสื่อสารระหว่างธาตุต่างๆ ในแผนภูมิ BaZi\n\nในการนำ Na Yin Element มาใช้ใน BaZi Modern Analysis สามารถทำได้ดังนี้:\n\n1. **การวิเคราะห์พลังงานเสียง**: Na Yin Element สามารถช่วยให้เราเข้าใจถึงพลังงานที่เกิดจากการเปลี่ยนแปลงและสื่อสารระหว่างธาตุต่างๆ ในแผนภูมิ BaZi. เช่น การวิเคราะห์ความสัมพันธ์ระหว่างธาตุไฟ (火) ซึ่งเป็น Na Yang Element และธาตุน้ำ (水) ซึ่งเป็น Na Yin Element\n\n2. **การสร้างภาพรวมของแผนภูมิ BaZi**: Na Yin Element สามารถช่วยให้เราเข้าใจถึงความสมดุลและพลังงานที่เกิดจากการสื่อสารระหว่างธาตุต่างๆ ในแผนภูมิ BaZi. เช่น การวิเคราะห์การเปลี่ยนแปลงของพลังงานในช่วงเวลาต่างๆ หรือการวิเคราะห์ความสัมพันธ์ระหว่างธาตุที่เกิดขึ้นจาก Na Yin Element\n\n3. **การใช้ Na Yin Element ในบริบทของ BaZi Modern Analysis**: ในบริบทของ BaZi Modern Analysis สามารถนำ Na Yin Element มาใช้ในการวิเคราะห์ความสัมพันธ์ระหว่างธาตุต่างๆ และการเปลี่ยนแปลงของพลังงานในแผนภูมิ BaZi. เช่น การวิเคราะห์ความสัมพันธ์ระหว่างธาตุไฟ (Na Yang Element) ซึ่งเป็น Na Yin Element ของธาตุน้ำ และการวิเคราะห์พลังงานที่เกิดจากการเปลี่ยนแปลงของธาตุเหล่านี้\n\n4. **การนำ Na Yin Element มาใช้ในการวิเคราะห์ปัญหาและโอกาส**: ในบริบทของการวิเคราะห์ปัญหาและโอกาส สามารถนำ Na Yin Element มาใช้ในการวิเคราะห์ความสัมพันธ์ระหว่างธาตุต่างๆ และการเปลี่ยนแปลงของพลังงานในแผนภูมิ BaZi. เช่น การวิเคราะห์ปัญหาและโอกาสที่เกิดจากการเปลี่ยนแปลงของพลังงานในแผนภูมิ BaZi\n\n5. **การนำ Na Yin Element มาใช้ในการวิเคราะห์ความสัมพันธ์ระหว่างคน**: ในบริบทของการวิเคราะห์ความสัมพันธ์ระหว่างคน สามารถนำ Na Yin Element มาใช้ในการวิเคราะห์ความสัมพันธ์ระหว่างธาตุต่างๆ และการเปลี่ยนแปลงของพลังงานในแผนภูมิ BaZi. เช่น การวิเคราะห์ความสัมพันธ์ระหว่างคนที่เกิดขึ้นจาก Na Yin Element\n\nอ้างอิง:\n\n- 子平真詮 (The True Explanation of Zǐpíng): ตำราที่ให้รายละเอียดเกี่ยวกับการวิเคราะห์ BaZi โดยมีการอธิบายถึงความสัมพันธ์ระหว่างธาตุต่างๆ และพลังงานที่เกิดจากการเปลี่ยนแปลงของธาตุเหล่านี้\n- 滴天髓 (Dītiān Suǐ): ตำราที่ให้รายละเอียดเกี่ยวกับการวิเคราะห์ BaZi โดยมีการอธิบายถึงความสัมพันธ์ระหว่างธาตุต่างๆ และพลังงานที่เกิดจากการเปลี่ยนแปลงของธาตุเหล่านี้\n- 窮通寶鑑 (Qióngtōng Bǎojiàn): ตำราที่ให้รายละเอียดเกี่ยวกับการวิเคราะห์ BaZi โดยมีการอธิบายถึงความสัมพันธ์ระหว่างธาตุต่างๆ และพลังงานที่เกิดจากการเปลี่ยนแปลงของธาตุเหล่านี้\n\nโดยสรุป การนำ Na Yin Element มาใช้ประกอบกับ BaZi Modern Analysis จำเป็นต้องทำความเข้าใจในหลักการและวิธีการของ Na Yin Element ในบริบทของ BaZi และปรัชญาจีน เพื่อให้สามารถนำไปใช้ในการวิเคราะห์ความสัมพันธ์ระหว่างธาตุต่างๆ และพลังงานที่เกิดจากการเปลี่ยนแปลงของธาตุเหล่านี้ในแผนภูมิ BaZi.",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "ในการนำ Na Yin Element (ธาตุเสียง) มาใช้ประกอบกับ BaZi Modern Analysis จำเป็นต้องทำความเข้าใจในหลักการและวิธีการของ Na Yin Element ในบริบทของ BaZi และปรัชญาจีน\n\nNa Yin Element เป็นหนึ่งในองค์ประกอบหลักของ BaZi โดยมีความหมายว่า \"ธาตุเสียง\" ซึ่งเป็นการอ้างอิงถึงพลังงานที่เกิดจากการเปลี่ยนแปลงและสื่อสารระหว่างธาตุต่างๆ ในแผนภูมิ BaZi\n\nในการนำ Na Yin Element มาใช้ใน BaZi Modern Analysis สามารถทำได้ดังนี้:\n\n1.",
+          "confidence": 0.89
+        },
+        {
+          "text": "**การวิเคราะห์พลังงานเสียง**: Na Yin Element สามารถช่วยให้เราเข้าใจถึงพลังงานที่เกิดจากการเปลี่ยนแปลงและสื่อสารระหว่างธาตุต่างๆ ในแผนภูมิ BaZi.",
+          "confidence": 0.78
+        },
+        {
+          "text": "เช่น การวิเคราะห์ความสัมพันธ์ระหว่างธาตุไฟ (火) ซึ่งเป็น Na Yang Element และธาตุน้ำ (水) ซึ่งเป็น Na Yin Element\n\n2.",
+          "confidence": 0.84
+        },
+        {
+          "text": "**การสร้างภาพรวมของแผนภูมิ BaZi**: Na Yin Element สามารถช่วยให้เราเข้าใจถึงความสมดุลและพลังงานที่เกิดจากการสื่อสารระหว่างธาตุต่างๆ ในแผนภูมิ BaZi.",
+          "confidence": 0.75
+        },
+        {
+          "text": "เช่น การวิเคราะห์การเปลี่ยนแปลงของพลังงานในช่วงเวลาต่างๆ หรือการวิเคราะห์ความสัมพันธ์ระหว่างธาตุที่เกิดขึ้นจาก Na Yin Element\n\n3.",
+          "confidence": 0.7
+        },
+        {
+          "text": "**การใช้ Na Yin Element ในบริบทของ BaZi Modern Analysis**: ในบริบทของ BaZi Modern Analysis สามารถนำ Na Yin Element มาใช้ในการวิเคราะห์ความสัมพันธ์ระหว่างธาตุต่างๆ และการเปลี่ยนแปลงของพลังงานในแผนภูมิ BaZi.",
+          "confidence": 0.7
+        },
+        {
+          "text": "เช่น การวิเคราะห์ความสัมพันธ์ระหว่างธาตุไฟ (Na Yang Element) ซึ่งเป็น Na Yin Element ของธาตุน้ำ และการวิเคราะห์พลังงานที่เกิดจากการเปลี่ยนแปลงของธาตุเหล่านี้\n\n4.",
+          "confidence": 0.66
+        },
+        {
+          "text": "**การนำ Na Yin Element มาใช้ในการวิเคราะห์ปัญหาและโอกาส**: ในบริบทของการวิเคราะห์ปัญหาและโอกาส สามารถนำ Na Yin Element มาใช้ในการวิเคราะห์ความสัมพันธ์ระหว่างธาตุต่างๆ และการเปลี่ยนแปลงของพลังงานในแผนภูมิ BaZi.",
+          "confidence": 0.83
+        },
+        {
+          "text": "เช่น การวิเคราะห์ปัญหาและโอกาสที่เกิดจากการเปลี่ยนแปลงของพลังงานในแผนภูมิ BaZi\n\n5.",
+          "confidence": 0.72
+        },
+        {
+          "text": "**การนำ Na Yin Element มาใช้ในการวิเคราะห์ความสัมพันธ์ระหว่างคน**: ในบริบทของการวิเคราะห์ความสัมพันธ์ระหว่างคน สามารถนำ Na Yin Element มาใช้ในการวิเคราะห์ความสัมพันธ์ระหว่างธาตุต่างๆ และการเปลี่ยนแปลงของพลังงานในแผนภูมิ BaZi.",
+          "confidence": 0.8
+        },
+        {
+          "text": "เช่น การวิเคราะห์ความสัมพันธ์ระหว่างคนที่เกิดขึ้นจาก Na Yin Element\n\nอ้างอิง:\n\n- 子平真詮 (The True Explanation of Zǐpíng): ตำราที่ให้รายละเอียดเกี่ยวกับการวิเคราะห์ BaZi โดยมีการอธิบายถึงความสัมพันธ์ระหว่างธาตุต่างๆ และพลังงานที่เกิดจากการเปลี่ยนแปลงของธาตุเหล่านี้\n- 滴天髓 (Dītiān Suǐ): ตำราที่ให้รายละเอียดเกี่ยวกับการวิเคราะห์ BaZi โดยมีการอธิบายถึงความสัมพันธ์ระหว่างธาตุต่างๆ และพลังงานที่เกิดจากการเปลี่ยนแปลงของธาตุเหล่านี้\n- 窮通寶鑑 (Qióngtōng Bǎojiàn): ตำราที่ให้รายละเอียดเกี่ยวกับการวิเคราะห์ BaZi โดยมีการอธิบายถึงความสัมพันธ์ระหว่างธาตุต่างๆ และพลังงานที่เกิดจากการเปลี่ยนแปลงของธาตุเหล่านี้\n\nโดยสรุป การนำ Na Yin Element มาใช้ประกอบกับ BaZi Modern Analysis จำเป็นต้องทำความเข้าใจในหลักการและวิธีการของ Na Yin Element ในบริบทของ BaZi และปรัชญาจีน เพื่อให้สามารถนำไปใช้ในการวิเคราะห์ความสัมพันธ์ระหว่างธาตุต่างๆ และพลังงานที่เกิดจากการเปลี่ยนแปลงของธาตุเหล่านี้ในแผนภูมิ BaZi.",
+          "confidence": 0.77
+        }
+      ],
+      "latency_ms": 106787,
+      "generated_at": "2026-08-08T09:07:57.978842"
+    },
+    "33b337c15cc15318": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "a93d98cd5c47e08e": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "d42708aeef23b983": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "c803e5539cc098af": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "f007aa9293c12e0c": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "910781006f5040f7": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "fa9e7026998832dc": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "1fc87217b7a2097d": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "16e9b679471f875e": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "607ac15d9de7b11f": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "dde0fdb64c2c8bde": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "b3da4b5f567f4783": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "2e1a302f0a7ea4a8": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "6fb9d9a4ba9b21ef": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "c176fbd3e89e5404": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "274603a9d7df91fd": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "e26b3cde5877642e": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "4a512c4a78144c15": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "6639812e8b72841c": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "7037de03229d244e": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "46f581431e59bf03": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "5282b06b7d501fac": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "21c9a9be4c67247e": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "217363f0f664d17a": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "009760218e15f9b3": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "cbd420a96bd2f0f8": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "087c5ecbf398c8a6": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "e0c8d905e2a44fd0": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "311cdb7285f8ab84": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "159f99e319feefe5": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "87d53b59e6eaa223": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "12b2f2a647a23103": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "631ee6440ea73547": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "50ff0b15f9f0a511": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "6b3f7987abbf04fa": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "730234f4ebc68870": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "3cb26efd5b1774af": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "7c18b10280b84189": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "cab3cda17395c4ea": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "ebe2b84b19f4b5b2": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "827a19b0817a69ec": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "b8ca2716342b2b7c": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "62b03afdcf9fea0a": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "9529f76b101e1369": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "c72ab25df7dee811": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "0cea462dd474c094": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "1fc34a28fa192bb3": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "10cec297ed5c375d": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "c130db01ecccdea6": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "13f5a33dc50aad83": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "d8d3c4dbcc9720b3": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "5624ba9ebc6a3e9a": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "d6431caf41616818": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "954cf69fe1299937": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "fe71e461e70365fd": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "e4a331f2758273de": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "a4e714f410fc4345": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "f1a6b34d9bafbc03": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "4bfce1de2037bec0": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "487cce1ba0f88776": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "dcc7e234b6b15526": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "422669290f4d8a34": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "f32469ac05eaa306": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "9c2698530e0a1a76": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "d84819b2c529442f": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "d06ac578ea014a3a": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "212321fe34f5e859": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "1c6f5ba3985e8e23": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "85dbd397423cc300": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "d0940e288ed2c768": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "eafbdae43cb21bee": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "d24348181e83241e": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "294e4d6122ade0c1": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "3958382b3f5431db": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "2578089900fca597": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    },
+    "2c47d124e992c02f": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
+    }
+  },
+  "stats": {
+    "approved": 0,
+    "edited": 0,
+    "rejected": 0,
+    "total_reviewed": 0
+  },
+  "last_updated": "2026-08-08T09:09:44.671208"
+}
