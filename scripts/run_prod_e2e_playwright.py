@@ -308,13 +308,16 @@ async def run_live_e2e_production_regression():
             interpret_api_calls = [r for r in api_responses if "/api/v1/bazi/interpret" in r["url"]]
             api_status = interpret_api_calls[-1]["status"] if interpret_api_calls else "OK (Proxy/Cached)"
 
-            success = len(interp_text) > 10 or await page.is_visible("#pillars-card")
+            is_fallback = "คำนวณค่าตำแหน่งดวงดาวและ 4 เสาหลักเรียบร้อยแล้ว" in interp_text
+            has_ai_output = len(interp_text) > 100 and not is_fallback
+
+            success = has_ai_output and (interpret_api_calls and interpret_api_calls[-1]["ok"])
 
             shot5 = SCREENSHOT_DIR / "prod_05_bazi_ai_result.png"
             await page.screenshot(path=str(shot5), full_page=True)
             shutil.copy(shot5, ARTIFACT_DIR / shot5.name)
 
-            print(f"  • AI Interpretation Output Length: {len(interp_text)} chars")
+            print(f"  • AI Interpretation Output Length: {len(interp_text)} chars (Is Fallback: {is_fallback})")
             print(f"  • Interpretation snippet: {interp_text[:120].strip()}")
 
             button_results.append({
