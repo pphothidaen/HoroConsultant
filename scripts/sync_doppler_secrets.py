@@ -4,7 +4,8 @@ scripts/sync_doppler_secrets.py
 Automated Production Secret Sync Script for Doppler Secrets Management.
 
 Reads secrets from `.env.production` or `.env` and syncs them into Doppler
-Secrets Manager for `horo-consultant` project (config: `prd` or `dev`).
+Secrets Manager for `horo-consultant` project (config: `prd` or `dev`),
+as well as GitHub Repository Secrets for GitHub Actions CI/CD automation.
 
 Usage:
 ------
@@ -46,6 +47,37 @@ def get_doppler_cli_path() -> str:
     return "doppler"
 
 
+def sync_github_secrets(valid_secrets: dict[str, str], dry_run: bool = False) -> None:
+    """Sync key CI/CD deployment secrets (FLY_API_TOKEN, VERCEL_TOKEN) to GitHub Repository Secrets."""
+    gh_bin = "gh"
+    if not dry_run:
+        try:
+            subprocess.run(["which", "gh"], capture_output=True, check=True)
+        except Exception:
+            logger.info("ℹ️ GitHub CLI (`gh`) not installed. Skipping direct GitHub Secrets sync.")
+            return
+
+    target_secrets = ["FLY_API_TOKEN", "VERCEL_TOKEN", "HF_TOKEN", "GEMINI_API_KEY"]
+    for key in target_secrets:
+        val = valid_secrets.get(key)
+        if val:
+            if dry_run:
+                logger.info(f"🧪 [DRY RUN] Would sync GitHub Secret: {key}")
+            else:
+                try:
+                    res = subprocess.run(
+                        [gh_bin, "secret", "set", key, "--body", val],
+                        capture_output=True,
+                        text=True,
+                    )
+                    if res.returncode == 0:
+                        logger.info(f"✅ Synced GitHub Repository Secret: `{key}`")
+                    else:
+                        logger.warning(f"⚠️ Failed to set GitHub Secret `{key}`: {res.stderr.strip()}")
+                except Exception as e:
+                    logger.warning(f"⚠️ GitHub Secret sync note for {key}: {e}")
+
+
 def sync_secrets_to_doppler(
     env_file: Path,
     project: str = "horo-consultant",
@@ -73,6 +105,7 @@ def sync_secrets_to_doppler(
         "Cloud AI Fallback (Gemini)": ["GOOGLE_AI_STUDIO_API_KEY", "GOOGLE_AI_STUDIO_API_KEY2", "GEMINI_API_KEY", "PRIMARY_MODEL"],
         "Production Database (Supabase)": ["APP_SUPABASE_URL", "APP_SUPABASE_KEY", "SUPABASE_URL", "SUPABASE_ANON_KEY"],
         "Model Repository (Hugging Face)": ["HF_TOKEN", "HF_USERNAME", "HF_REPO_ID"],
+        "Cloud & Edge Deployments (Fly.io & Vercel)": ["FLY_API_TOKEN", "VERCEL_TOKEN", "VERCEL_ORG_ID", "VERCEL_PROJECT_ID"],
         "Cloud GPU Training (Lightning AI & Kaggle)": ["LIGHTNING_API_KEY", "LIGHTNING_PROD_API_KEY", "KAGGLE_USERNAME", "KAGGLE_TOKEN"],
         "MLOps & GitHub": ["WANDB_KEY", "GH_TOKEN", "GH_TOTP_SECRET"],
         "Infrastructure & Security": ["APP_ENV", "SECRET_KEY", "REDIS_URL", "AUTO_SYNC_ENABLED"],
@@ -81,6 +114,8 @@ def sync_secrets_to_doppler(
     for cat_name, keys in categories.items():
         matched = [k for k in keys if k in valid_secrets]
         logger.info(f"   📌 {cat_name}: {len(matched)} keys ({', '.join(matched[:3])}...)")
+
+    sync_github_secrets(valid_secrets, dry_run=dry_run)
 
     if dry_run:
         logger.info("🧪 DRY RUN MODE: All Production secrets categorized and validated successfully!")
@@ -119,7 +154,7 @@ def sync_secrets_to_doppler(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Sync HoroConsultant Production Secrets to Doppler")
+    parser = argparse.ArgumentParser(description="Sync HoroConsultant Production Secrets to Doppler & GitHub Secrets")
     parser.add_argument("--env-file", type=Path, default=ROOT_DIR / ".env.production", help="Path to production .env file")
     parser.add_argument("--project", default="horo-consultant", help="Doppler project name")
     parser.add_argument("--config", default="prd", help="Doppler config name ('dev' or 'prd')")
