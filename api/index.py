@@ -1,3 +1,3 @@
-from api.main import app, handler
+from api.main import handler, app
 
-__all__ = ["app", "handler"]
+__all__ = ["handler", "app"]
