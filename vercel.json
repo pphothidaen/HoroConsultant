@@ -6,15 +6,15 @@
     },
     {
       "source": "/health",
-      "destination": "/api/index.py"
+      "destination": "/api/main"
     },
     {
       "source": "/api/v1/:path*",
-      "destination": "/api/index.py"
+      "destination": "/api/main"
     },
     {
       "source": "/api/:path*",
-      "destination": "/api/index.py"
+      "destination": "/api/main"
     }
   ]
 }
