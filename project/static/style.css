@@ -163,6 +163,16 @@ body {
   box-shadow: 0 0 14px rgba(56, 189, 248, 0.25);
 }
 
+.status-badge.health-badge.amber-badge {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status-badge.health-badge.amber-badge:hover {
+  border-color: rgba(245, 158, 11, 0.6);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
+}
+
 .pulse-dot {
   width: 8px;
   height: 8px;

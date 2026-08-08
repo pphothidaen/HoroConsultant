@@ -161,20 +161,23 @@ async function updateVersionFooter() {
         footerEl.textContent = `Computational Metaphysics Engine ${versionStr} — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) & Dual Gemini API Fallback`;
       }
       if (healthBadge) {
+        healthBadge.className = 'status-badge health-badge';
         const gwName = data.gateway ? ` Gateway (${data.gateway})` : '';
         const vectorCount = data.vector_store_chunks ? ` • ${data.vector_store_chunks.toLocaleString()} Chunks` : '';
         healthBadge.innerHTML = `<span class="pulse-dot cyan"></span><span class="health-text">Health: OK${gwName}${vectorCount} • ${latency}ms</span>`;
       }
     } else {
       if (healthBadge) {
-        healthBadge.innerHTML = `<span class="pulse-dot amber"></span><span class="health-text">Health: Active (Local Engine Fallback)</span>`;
+        healthBadge.className = 'status-badge health-badge amber-badge';
+        healthBadge.innerHTML = `<span class="pulse-dot amber"></span><span class="health-text">Health: Standby (Local Engine Fallback)</span>`;
       }
     }
   } catch (err) {
     console.warn('Could not update dynamic version footer:', err);
     const healthBadge = document.getElementById('health-status-badge');
     if (healthBadge) {
-      healthBadge.innerHTML = `<span class="pulse-dot amber"></span><span class="health-text">Health: Active (Local Engine Fallback)</span>`;
+      healthBadge.className = 'status-badge health-badge amber-badge';
+      healthBadge.innerHTML = `<span class="pulse-dot amber"></span><span class="health-text">Health: Standby (Local Engine Fallback)</span>`;
     }
   }
 }
