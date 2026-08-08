@@ -6,15 +6,15 @@
     },
     {
       "source": "/health",
-      "destination": "/api"
+      "destination": "https://pphothidaen-horoconsultant-core-backend.hf.space/health"
     },
     {
       "source": "/api/v1/:path*",
-      "destination": "/api"
+      "destination": "https://pphothidaen-horoconsultant-core-backend.hf.space/api/v1/:path*"
     },
     {
       "source": "/api/:path*",
-      "destination": "/api"
+      "destination": "https://pphothidaen-horoconsultant-core-backend.hf.space/api/:path*"
     }
   ]
 }
