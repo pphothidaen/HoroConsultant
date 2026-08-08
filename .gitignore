@@ -24,4 +24,6 @@ wandb/
 .vercel
 project/tests/screenshots/
 project/tests/e2e_results_report.json
+project/tests/button_regression_report.json
+
 
