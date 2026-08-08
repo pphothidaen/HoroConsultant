@@ -317,21 +317,37 @@ fly deploy
 
 ### 📊 3.9 การติดตั้งและตรวจสอบระบบ Grafana Cloud Observability & Prometheus Metrics
 
-ระบบ **HoroConsultant** รองรับการส่งข้อมูล Observability แบบ All-in-One ไปยัง **Grafana Cloud Free Tier**:
+ระบบ **HoroConsultant** รองรับการส่งข้อมูล Observability แบบ All-in-One ไปยัง **Grafana Cloud Free Tier (`vividlamp2135.grafana.net`)**:
 
-1. **Prometheus Metrics Endpoint (`/metrics`):**
+1. **Official Grafana Cloud Production Dashboards:**
+   - 🔮 **HoroConsultant Main Observability Dashboard (Public Shareable Link)**:  
+     [https://vividlamp2135.grafana.net/public-dashboards/cab04a7907b74c2b9889a8ad811bbcdb](https://vividlamp2135.grafana.net/public-dashboards/cab04a7907b74c2b9889a8ad811bbcdb)  
+     *(ไม่ต้องผ่านการเข้าสู่ระบบ - แสดงข้อมูลสุขภาพระบบ, HTTP RPM, API Latency Quantiles P95/P90/P50, FAISS RAG Search Volume และ LLM Inference Model Ratio)*
+
+   - 🌐 **Authenticated Main Dashboard**:  
+     [https://vividlamp2135.grafana.net/d/horoconsultant-observability/horoconsultant-observability-dashboard?from=now-1h&to=now&timezone=browser&var-DS_PROMETHEUS=grafanacloud-usage&refresh=5s](https://vividlamp2135.grafana.net/d/horoconsultant-observability/horoconsultant-observability-dashboard?from=now-1h&to=now&timezone=browser&var-DS_PROMETHEUS=grafanacloud-usage&refresh=5s)
+
+   - 🚨 **Alert Groups Insights Dashboard**:  
+     [https://vividlamp2135.grafana.net/d/e18b8570-27bc-4ab2-bb1c-baeea1363061/alert-groups-insights?from=now-7d&to=now&timezone=browser&var-datasource=grafanacloud-usage](https://vividlamp2135.grafana.net/d/e18b8570-27bc-4ab2-bb1c-baeea1363061/alert-groups-insights?from=now-7d&to=now&timezone=browser&var-datasource=grafanacloud-usage)  
+     *(วิเคราะห์และติดตามสถานะการแจ้งเตือน Alert Trigger, Response Time, Resolution Latency และการแจ้งเตือนทีมงาน)*
+
+   - 🌩️ **Incident Insights Dashboard**:  
+     [https://vividlamp2135.grafana.net/d/39ac5605-b947-4c43-87dc-60575f57f219/incident-insights?from=now-90d&to=now&timezone=utc](https://vividlamp2135.grafana.net/d/39ac5605-b947-4c43-87dc-60575f57f219/incident-insights?from=now-90d&to=now&timezone=utc)  
+     *(วิเคราะห์สถิติ Incident ย้อนหลัง, ระดับความรุนแรง Severity, MTTD และ MTTR)*
+
+2. **Prometheus Metrics Endpoint (`/metrics`):**
    - URL: `http://localhost:8000/metrics` (หรือบน Production Host)
    - ข้อมูลที่จัดเก็บ: Request Per Minute (RPM), HTTP status code counters (2xx/4xx/5xx), RAG FAISS retrieval latency, และ LLM inference stats
 
-2. **Synthetic Uptime Monitoring Alias (`/api/health`):**
+3. **Synthetic Uptime Monitoring Alias (`/api/health`):**
    - URL: `http://localhost:8000/api/health`
    - สามารถนำ URL นี้ไปกรอกใน Grafana Synthetic Monitoring เพื่อยิง Ping ทุกๆ 1-3 นาที ป้องกันไม่ให้ Hugging Face Space หรือ Micro-VM เข้าสู่ Sleep Mode
 
-3. **การเปิดใช้งานผ่าน Environment Variables:**
+4. **การเปิดใช้งานผ่าน Environment Variables:**
    ```bash
    PROMETHEUS_METRICS_ENABLED=true
-   GRAFANA_OTLP_ENDPOINT=https://otlp-gateway-prod-us-central-0.grafana.net/otlp
-   GRAFANA_OTLP_TOKEN=your_grafana_api_token
+   GRAFANA_CLOUD_URL=https://vividlamp2135.grafana.net
+   GRAFANA_API_KEY=glsa_YOUR_GRAFANA_API_KEY
    ```
 
 

@@ -375,8 +375,8 @@
       {
         "current": {
           "selected": true,
-          "text": "Prometheus",
-          "value": "prometheus"
+          "text": "grafanacloud-usage",
+          "value": "grafanacloud-usage"
         },
         "hide": 0,
         "includeAll": false,
