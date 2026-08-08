@@ -257,6 +257,7 @@ def publish_space(space_id: str, sdk: str = "static", private: bool = False, dry
             private=private,
             exist_ok=True,
             repo_type="space",
+            space_sdk=sdk,
         )
         logger.info(f"✅ Space ready: https://huggingface.co/spaces/{space_id}")
     except Exception as e:

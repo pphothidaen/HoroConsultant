@@ -174,6 +174,7 @@ async def serve_hitl():
 
 
 @app.get("/health", tags=["system"])
+@app.get("/api/v1/health", tags=["system"])
 async def health():
     from project.core.fast_math import RUST_AVAILABLE, get_cache_stats
     adapter_exists = os.path.exists("project/models/qwen2.5-bazi-adapter/adapters.safetensors")
