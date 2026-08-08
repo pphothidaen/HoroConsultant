@@ -146,7 +146,24 @@ async function resolveLocation() {
   spinner.classList.add('hidden');
 }
 
+async function updateVersionFooter() {
+  try {
+    const res = await fetch('/health');
+    if (res.ok) {
+      const data = await res.json();
+      const versionStr = data.version || ('1.0.0.' + (data.git_commit || 'cb9b314'));
+      const footerEl = document.getElementById('footer-version-text');
+      if (footerEl) {
+        footerEl.textContent = `Computational Metaphysics Engine v${versionStr} — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) & Dual Gemini API Fallback`;
+      }
+    }
+  } catch (err) {
+    console.warn('Could not update dynamic version footer:', err);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  updateVersionFooter();
   const locInput = document.getElementById('location_search');
   if(locInput) {
     locInput.addEventListener("keypress", function(event) {

@@ -16,6 +16,8 @@ import sys
 import json
 import logging
 import urllib.request
+import subprocess
+from functools import lru_cache
 from pathlib import Path
 from typing import Optional
 from dotenv import load_dotenv
@@ -29,6 +31,43 @@ logger = logging.getLogger("config_manager")
 env_file = BASE_DIR / ".env"
 if env_file.exists():
     load_dotenv(env_file, override=False)
+
+
+@lru_cache(maxsize=1)
+def get_git_commit_hash() -> str:
+    """
+    Retrieve short 7-character Git commit hash dynamically.
+    Checks environment variables (GIT_COMMIT_HASH, VERCEL_GIT_COMMIT_SHA, HF_COMMIT_SHA, COMMIT_REF)
+    or executes `git rev-parse --short HEAD`. Falls back to 'cb9b314' if unavailable.
+    """
+    env_hash = (
+        os.getenv("GIT_COMMIT_HASH")
+        or os.getenv("VERCEL_GIT_COMMIT_SHA")
+        or os.getenv("HF_COMMIT_SHA")
+        or os.getenv("COMMIT_REF")
+    )
+    if env_hash:
+        return env_hash[:7]
+
+    try:
+        cmd_out = subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=str(BASE_DIR),
+            stderr=subprocess.DEVNULL,
+            timeout=2,
+            text=True,
+        ).strip()
+        if cmd_out:
+            return cmd_out
+    except Exception:
+        pass
+
+    return "cb9b314"
+
+
+def get_app_version() -> str:
+    """Return full application version string with dynamic Git commit hash, e.g. 1.0.0.cb9b314."""
+    return f"1.0.0.{get_git_commit_hash()}"
 
 
 _DOPPLER_CACHE: dict[str, str] = {}

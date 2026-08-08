@@ -73,12 +73,13 @@ async def lifespan(app: FastAPI):
         logger.info("🛑 Auto-sync scheduler shut down.")
 
 
+from project.core.config import get_git_commit_hash, get_app_version
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title       = "Computational Metaphysics Engine",
     description = "Modular 10-Domain Metaphysical Calculation, AI Debate & Multi-Agent Engine",
-    version     = "1.0.0",
+    version     = get_app_version(),
     docs_url    = "/docs",
     redoc_url   = "/redoc",
     lifespan    = lifespan,
@@ -157,7 +158,8 @@ async def health():
     return {
         "status": "ok",
         "service": "Computational Metaphysics Engine",
-        "version": "1.0.0",
+        "version": get_app_version(),
+        "git_commit": get_git_commit_hash(),
         "rust_acceleration": RUST_AVAILABLE,
         "adapter_available": adapter_exists,
         "vector_store_chunks": vector_chunks,
