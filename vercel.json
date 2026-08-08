@@ -2,13 +2,20 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/api/fly/:path*",
+      "destination": "https://horoconsultant-core-backend.fly.dev/api/:path*"
+    },
+    {
+      "source": "/api/koyeb/:path*",
+      "destination": "https://horoconsultant-backend-horoconsultant.koyeb.app/api/:path*"
+    },
+    {
       "source": "/api/hf/:path*",
       "destination": "https://pphothidaen-horoconsultant-core-backend.hf.space/api/:path*"
     },
     {
-      "source": "/(.*)",
-      "destination": "project/main.py"
+      "source": "/api/:path*",
+      "destination": "https://horoconsultant-core-backend.fly.dev/api/:path*"
     }
   ]
 }
-

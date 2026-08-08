@@ -16,10 +16,12 @@ ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
 echo "[INFO] Starting Multi-Cloud Production Secrets Sync for HoroConsultant..."
 
-# Load .env file dynamically if present
+# Load .env file safely if present
 if [ -f "$ROOT_DIR/.env" ]; then
     echo "[INFO] Loading configuration from $ROOT_DIR/.env..."
-    export $(grep -v '^#' "$ROOT_DIR/.env" | xargs)
+    set -a
+    source "$ROOT_DIR/.env"
+    set +a
 fi
 
 # Fallback defaults for standard config keys if not set in environment
@@ -108,6 +110,6 @@ echo "  MULTI-CLOUD PRODUCTION SECRETS SYNC COMPLETE!"
 echo "======================================================================"
 echo "  • Fly.io Singapore Region   : Secrets Ready"
 echo "  • Koyeb Singapore Region    : Secrets Ready"
-echo "  • Vercel Edge Network       : Configured (.env.production)"
+echo "  • Vercel Edge Network       : Configured (.env.production & vercel.json)"
 echo "  • Hugging Face Spaces       : Token Verified"
 echo "======================================================================"
