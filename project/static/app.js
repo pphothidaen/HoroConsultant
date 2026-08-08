@@ -1,7 +1,6 @@
 function getApiBaseUrl() {
-  const origin = window.location.origin;
-  if (origin.includes('static.hf.space') || origin.includes('huggingface.co')) {
-    return 'https://horo-consultant-psi.vercel.app';
+  if (typeof window !== 'undefined' && window.API_BASE_URL) {
+    return window.API_BASE_URL;
   }
   return '';
 }
