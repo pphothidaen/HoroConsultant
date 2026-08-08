@@ -18,6 +18,8 @@ from pydantic import BaseModel, Field
 from project.core.bazi_engine import BaZiEngine
 from project.api_router import HybridRouter
 from project.validator import PredictionValidator
+from project.core.svg_generator import generate_bazi_svg, generate_zodiac_wheel_svg
+
 
 logger = logging.getLogger("routers.debate")
 
@@ -144,8 +146,15 @@ async def interpret_bazi(req: InterpretRequest):
         {"book": "《紫微斗數全書》 ZiWeiDouShu", "text": "命宮乃一世之樞紐，身宮乃後半生之依歸。星辰吉凶，皆隨局而轉。"}
     ]
 
+    svg_content = generate_bazi_svg(chart)
+    zodiac_svg  = generate_zodiac_wheel_svg(chart)
+    chart["svg_content"] = svg_content
+    chart["zodiac_svg"]  = zodiac_svg
+
     return JSONResponse(content={
         "chart":              chart,
+        "svg_content":        svg_content,
+        "zodiac_svg":         zodiac_svg,
         "interpretation":     initial_text,
         "model_used":         ai_result.get("model_used"),
         "route":              ai_result.get("route"),
