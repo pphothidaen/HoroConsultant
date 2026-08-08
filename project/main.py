@@ -18,9 +18,13 @@ from project.hitl_router  import hitl_router
 from project.routers import astrology_router, debate_router
 from project.routers.debate import router
 
-import asyncio
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.cron import CronTrigger
+try:
+    from apscheduler.schedulers.asyncio import AsyncIOScheduler
+    from apscheduler.triggers.cron import CronTrigger
+    APSCHEDULER_AVAILABLE = True
+except ImportError:
+    APSCHEDULER_AVAILABLE = False
+
 from project.rag.vector_store import get_vector_store
 from scripts.sync_gdrive_vault import check_and_run_if_missed, sync_all
 
@@ -29,7 +33,7 @@ from scripts.sync_gdrive_vault import check_and_run_if_missed, sync_all
 # ---------------------------------------------------------------------------
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 logger = logging.getLogger("main")
-scheduler = AsyncIOScheduler()
+scheduler = AsyncIOScheduler() if APSCHEDULER_AVAILABLE else None
 
 
 @asynccontextmanager
@@ -37,22 +41,23 @@ async def lifespan(app: FastAPI):
     logger.info("🚀 Starting Computational Metaphysics Engine API...")
 
     # 1. Startup Catch-Up Check (if system was powered off at midnight)
-    if os.getenv("AUTO_SYNC_ON_STARTUP", "true").lower() in ("true", "1", "yes"):
+    if os.getenv("AUTO_SYNC_ON_STARTUP", "false").lower() in ("true", "1", "yes"):
         logger.info("🔍 Checking for missed Google Drive syncs on startup...")
         asyncio.create_task(asyncio.to_thread(check_and_run_if_missed))
 
     # 2. Midnight Cron Scheduler Setup
-    if os.getenv("AUTO_SYNC_ENABLED", "true").lower() in ("true", "1", "yes"):
+    if APSCHEDULER_AVAILABLE and os.getenv("AUTO_SYNC_ENABLED", "false").lower() in ("true", "1", "yes"):
         cron_expr = os.getenv("AUTO_SYNC_CRON", "0 0 * * *")
         try:
-            scheduler.add_job(
-                func=lambda: asyncio.run(asyncio.to_thread(sync_all)),
-                trigger=CronTrigger.from_crontab(cron_expr),
-                id="midnight_gdrive_sync",
-                name="Daily Midnight Google Drive Sync & Ingestion",
-                replace_existing=True,
-            )
-            scheduler.start()
+            if scheduler:
+                scheduler.add_job(
+                    func=lambda: asyncio.run(asyncio.to_thread(sync_all)),
+                    trigger=CronTrigger.from_crontab(cron_expr),
+                    id="midnight_gdrive_sync",
+                    name="Daily Midnight Google Drive Sync & Ingestion",
+                    replace_existing=True,
+                )
+                scheduler.start()
         except Exception as e:
             logger.error(f"❌ Failed to start auto-sync scheduler: {e}")
 
