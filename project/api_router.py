@@ -30,9 +30,10 @@ logger = logging.getLogger("api_router")
 # ---------------------------------------------------------------------------
 
 OLLAMA_BASE_URL         = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-PRIMARY_LOCAL_MODEL     = os.getenv("OLLAMA_PRIMARY_MODEL",   "qwen2.5:7b")
-SECONDARY_LOCAL_MODEL   = os.getenv("OLLAMA_SECONDARY_MODEL", "qwen2.5-coder:7b")
-TERTIARY_LOCAL_MODEL    = os.getenv("OLLAMA_TERTIARY_MODEL",  "llama3:8b")
+PRIMARY_LOCAL_MODEL     = os.getenv("OLLAMA_PRIMARY_MODEL",   "qwen2.5-bazi")
+SECONDARY_LOCAL_MODEL   = os.getenv("OLLAMA_SECONDARY_MODEL", "qwen2.5:7b")
+TERTIARY_LOCAL_MODEL    = os.getenv("OLLAMA_TERTIARY_MODEL",  "qwen2.5-coder:7b")
+
 
 GEMINI_BASE_URL         = "https://generativelanguage.googleapis.com/v1beta"
 GEMINI_PRIMARY_MODEL    = os.getenv("PRIMARY_MODEL",   "gemini-2.0-flash")
