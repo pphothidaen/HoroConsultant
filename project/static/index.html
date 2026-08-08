@@ -27,10 +27,6 @@
         <a href="admin.html" class="spa-nav-item">🔐 Admin Panel</a>
         <a href="hitl.html" class="spa-nav-item">🛡️ HITL Studio</a>
       </nav>
-      <div class="status-badge" id="system-status">
-        <span class="pulse-dot green"></span>
-        <span class="status-text">Server Active (Local-First Ollama + RAG 3,132 Vectors)</span>
-      </div>
     </div>
   </header>
 
@@ -199,6 +195,16 @@
   </main>
 
   <footer class="app-footer">
+    <div class="footer-status-bar">
+      <div class="status-badge" id="system-status">
+        <span class="pulse-dot green"></span>
+        <span class="status-text">Server Active (Local-First Ollama + RAG 3,132 Vectors)</span>
+      </div>
+      <div class="status-badge health-badge" id="health-status-badge">
+        <span class="pulse-dot cyan"></span>
+        <span class="health-text" id="health-status-text">Health: OK (Checking...)</span>
+      </div>
+    </div>
     <p id="footer-version-text">Computational Metaphysics Engine v1.0.0 — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback</p>
   </footer>
 
