@@ -11,22 +11,19 @@
     "devops": "Gemini 3.6 Flash (Standard)"
   },
   "permissions": {
-    "auto_approve": [
-      "*",
-      "write_to_file",
-      "replace_file_content",
-      "multi_replace_file_content"
-    ],
-    "auto_approve_commands": [
-      "*",
-      "python3 -m pytest -v",
-      "python3 scripts/kaggle_notebook_manager.py --status",
-      "python3 scripts/kaggle_notebook_manager.py --pull",
-      "python3 project/core/code_reviewer.py --review"
-    ],
-    "deny_commands": [
-      "rm -rf /"
-    ]
+    "file_system": {
+      "read": "auto-accept",
+      "write": "auto-accept"
+    },
+    "terminal_commands": {
+      "execute": "auto-accept",
+      "allowed_commands": [
+        "*"
+      ]
+    },
+    "mcp_servers": {
+      "access": "always-allow"
+    }
   },
   "hooks": {
     "pre_tool_call": ".agents/hooks/pre_tool_check.py",
