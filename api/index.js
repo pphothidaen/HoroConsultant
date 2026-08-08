@@ -1,7 +1,7 @@
 // api/index.js — Vercel Node.js Middleend Gateway
 const HF_BACKEND_URL = (process.env.HF_BACKEND_URL || "https://pphothidaen-horoconsultant-core-backend.hf.space").replace(/\/$/, "");
 
-module.exports = async (req, res) => {
+module.exports = (req, res) => {
   try {
     // Always attach CORS headers on ALL responses
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -41,24 +41,26 @@ module.exports = async (req, res) => {
       }
 
       if (typeof globalThis.fetch === "function") {
-        try {
-          const hfResp = await globalThis.fetch(`${HF_BACKEND_URL}/api/v1/bazi/interpret`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: bodyStr
-          }).catch(() => null);
-
+        globalThis.fetch(`${HF_BACKEND_URL}/api/v1/bazi/interpret`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: bodyStr
+        }).then(async (hfResp) => {
           if (hfResp && hfResp.ok) {
             const json = await hfResp.json();
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json; charset=utf-8");
             return res.end(JSON.stringify(json));
           }
-        } catch (e) {
-          // Fallback to deterministic payload below
-        }
+          sendFallback();
+        }).catch(() => sendFallback());
+        return;
       }
 
+      return sendFallback();
+    }
+
+    function sendFallback() {
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json; charset=utf-8");
       return res.end(JSON.stringify({
