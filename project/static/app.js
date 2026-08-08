@@ -147,11 +147,10 @@ async function resolveLocation() {
 
 async function updateVersionFooter() {
   try {
-    const healthUrl = `${getApiBaseUrl()}/health`;
-    const res = await fetch(healthUrl).catch(() => null);
+    const res = await fetchApi('/health').catch(() => null);
     if (res && res.ok) {
       const data = await res.json();
-      const versionStr = data.version || (data.git_commit ? `1.0.0.${data.git_commit}` : '');
+      const versionStr = data.version || (data.git_commit ? `1.0.0.${data.git_commit}` : '1.0.0');
       const footerEl = document.getElementById('footer-version-text');
       if (footerEl && versionStr) {
         footerEl.textContent = `Computational Metaphysics Engine v${versionStr} — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) & Dual Gemini API Fallback`;

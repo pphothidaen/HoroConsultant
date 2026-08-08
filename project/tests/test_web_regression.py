@@ -36,6 +36,8 @@ class TestWebRegressionUI:
         assert "<title>" in res.text
         assert "HORO CONSULTANT" in res.text
         assert "bazi-form" in res.text
+        assert "footer-version-text" in res.text
+        assert "v1.0.0" in res.text
 
     def test_ui_static_css_loads(self):
         res = client.get("/static/style.css")
@@ -48,6 +50,8 @@ class TestWebRegressionUI:
         assert res.status_code == 200
         assert "calculateChart" in res.text
         assert "renderResults" in res.text
+        assert "updateVersionFooter" in res.text
+        assert "fetchApi('/health')" in res.text
 
 
 class TestAPIRegressionEndpoints:
