@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import os
 import logging
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
