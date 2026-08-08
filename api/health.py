@@ -1,16 +1,12 @@
-from http.server import BaseHTTPRequestHandler
-import json
+import sys
+from pathlib import Path
 
-class handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Credentials', 'true')
-        self.end_headers()
-        response_data = {
-            "status": "ok",
-            "service": "Computational Metaphysics Engine",
-            "version": "1.0.0"
-        }
-        self.wfile.write(json.dumps(response_data).encode('utf-8'))
+# Add project root directory to sys.path for Vercel Serverless Lambda environment
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from project.main import app
+
+# Export FastAPI app for Vercel Serverless Function
+app = app
