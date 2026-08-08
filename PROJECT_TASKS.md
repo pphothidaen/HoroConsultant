@@ -36,8 +36,8 @@ python3 scripts/sync_sdlc_agents.py --check
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Playwright E2E Screenshots (17/17)  │ (None - All tasks completed 100%)     │ (Optional future cloud deployments)   │
-│ • UI Button & Endpoint Suite (25/25)  │                                       │                                       │
+│ • Playwright E2E Screenshots (17/17)  │ (None - All tasks completed 100%)     │ • Grafana Cloud All-in-One            │
+│ • UI Button & Endpoint Suite (25/25)  │                                       │   Monitoring Integration (Phased)     │
 │ • HF Spaces Live Deploy & Audit       │                                       │                                       │
 │ • Static Assets & Async Route Fix     │                                       │                                       │
 │ • Pre-Deploy Safety Audit (PASS)      │                                       │                                       │
@@ -51,7 +51,16 @@ python3 scripts/sync_sdlc_agents.py --check
 
 ### ✅ DONE (เสร็จสมบูรณ์ 100% พร้อมใช้งาน)
 
+- [x] **Production Dual-Mode AI Inference Routing & Failover Engine ([`project/api_router.py`](file:///project/api_router.py), [`project/routers/debate.py`](file:///project/routers/debate.py))**
+  - Configured Primary Route targeting Ollama / GGUF model (`qwen2.5:7b`) inside Hugging Face Docker Container (`http://localhost:11434` with 3.0s fast timeout).
+  - Configured Fallback Route targeting Gemini 2.0 Flash Cloud Engine (`gemini-2.0-flash`) via Google AI Studio API for zero-downtime, fast natural-language interpretation.
+
+- [x] **Cloud Production Environment Detection & Localhost Bypass Guard ([`project/api_router.py`](file:///project/api_router.py), [`project/rag/vector_store.py`](file:///project/rag/vector_store.py))**
+  - Added smart detection for cloud production environments (`SPACE_ID`, `VERCEL`, `FLY_APP_NAME`, `ENVIRONMENT=production`).
+  - Automatically bypasses unreachable localhost calls on pure cloud hosts while preserving local container inference.
+
 - [x] **Full 5-Phase AI SDLC Deployment Pipeline & E2E Visual Suite ([`scripts/run_e2e_screenshots.py`](file:///scripts/run_e2e_screenshots.py))**
+
   - Resolved static asset routing (`/static/app.js` and `/static/style.css`) and converted route handlers to async Playwright handlers.
   - Achieved **100.0% Pass Rate** across 17 E2E visual features (Main Dashboard, Geocoding Resolver, Presets, 4-Pillars Grid, Tab Switching, 8 Master Disciplines Visualizers, Admin Auth, HITL Studio, OpenAPI Swagger UI, ReDoc).
   - Screenshots output saved to `project/tests/screenshots/` and report generated in `project/tests/e2e_results_report.json`.
@@ -125,6 +134,19 @@ python3 scripts/sync_sdlc_agents.py --check
 
 ### 📋 TODO (งานระยะถัดไป / Phased Roadmap)
 
-- *(ไม่มี - งานในเฟสปัจจุบันเสร็จสิ้นสมบูรณ์ 100%)*
+- [ ] **Grafana Cloud All-in-One Production Monitoring & Observability Integration**
+  - **Goal**: ติดตั้งระบบ Centralized Observability แบบ All-in-One สำหรับ Hugging Face Spaces (Docker) และ Ollama Engine บน Grafana Cloud Free Tier
+  - **Key Components & Features**:
+    1. **Synthetic Uptime Monitoring**: ตั้งค่า Grafana Synthetic Ping ยิงไปที่ `/health` endpoint ทุกๆ 1-3 นาที เพื่อแจ้งเตือนเมื่อระบบเกิด Downtime และช่วยป้องกันไม่ให้ Hugging Face Space เข้าสู่ Sleep Mode
+    2. **Centralized Log Aggregation (Grafana Loki)**: ส่ง stdout/stderr จาก FastAPI (`uvicorn`) และ Ollama Server ไปจัดเก็บแบบ Centralized บน Grafana Loki (ฟรี 50 GB/เดือน) สำหรับวิเคราะห์ error logs ย้อนหลัง
+    3. **LLM Tracing & RAG Observability (Grafana Tempo / OpenTelemetry)**: ติดตั้ง `opentelemetry-distro` ใน FastAPI เพื่อติดตาม Response Latency, Token Generation Speed ($t/s$), และ Trace การทำงานในขั้นตอน RAG Vector Retrieval (FAISS)
+    4. **System Metrics (Prometheus Metrics)**: ติดตั้ง Prometheus Middleware เพื่อดูสถิติ Request Rates (RPM), Status Code breakdown (2xx/4xx/5xx), และการใช้งาน CPU/RAM Memory ของ Container
+  - **Implementation Action Items**:
+    - [ ] สมัครบัญชี Grafana Cloud Free Tier & รับ OTLP Endpoint, Instance ID และ API Tokens
+    - [ ] เพิ่ม `opentelemetry-distro` และ `opentelemetry-exporter-otlp` ลงใน [`requirements.txt`](file:///requirements.txt)
+    - [ ] อัปเดต [`project/main.py`](file:///project/main.py) เพื่อติดตั้ง OpenTelemetry FastApiInstrumentor & Logging Handlers
+    - [ ] ปรับปรุง [`Dockerfile`](file:///Dockerfile) / [`Dockerfile.hf`](file:///Dockerfile.hf) เพื่อส่ง Environment Variables สำหรับ Grafana OTLP Credentials
+    - [ ] สร้าง Grafana Dashboard แบบกำหนดเองสำหรับแสดงผล Ollama Tokens/sec, RAG Latency, และ Uptime Metrics
+
 
 

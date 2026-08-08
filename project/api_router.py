@@ -43,13 +43,13 @@ OPENAI_MODEL            = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 TOGETHER_API_KEY        = os.getenv("TOGETHER_API_KEY", "")
 TOGETHER_MODEL          = os.getenv("TOGETHER_MODEL", "Qwen/Qwen2.5-7B-Instruct-Turbo")
 
-TIMEOUT_LOCAL_S         = float(os.getenv("LOCAL_TIMEOUT_SECONDS", "120.0"))
+TIMEOUT_LOCAL_S         = float(os.getenv("LOCAL_TIMEOUT_SECONDS", "3.0"))
 TIMEOUT_CLOUD_S         = float(os.getenv("API_TIMEOUT_SECONDS",   "8.0"))
 RETRY_DELAY_S           = 2.0
 
 
 def _gemini_keys() -> List[str]:
-    """Return all unique, non-empty Gemini API keys from env."""
+    """Return all unique, valid, non-placeholder Gemini API keys from env."""
     raw = [
         os.getenv("GOOGLE_AI_STUDIO_API_KEY",  ""),
         os.getenv("GOOGLE_AI_STUDIO_API_KEY2", ""),
@@ -58,12 +58,14 @@ def _gemini_keys() -> List[str]:
     ]
     seen = set()
     valid = []
+    invalid_prefixes = ("REPLACE", "your_", "YOUR_", "dummy", "DUMMY", "YOUR_GEMINI")
     for k in raw:
         k = k.strip()
-        if k and not k.startswith("REPLACE") and k not in seen:
+        if k and not any(k.startswith(p) for p in invalid_prefixes) and k not in seen:
             seen.add(k)
             valid.append(k)
     return valid
+
 
 
 # ---------------------------------------------------------------------------
@@ -257,22 +259,29 @@ class HybridRouter:
     def _build_routes(self) -> List[Dict[str, Any]]:
         routes: List[Dict[str, Any]] = []
 
-        # Local routes first
-        for model in [PRIMARY_LOCAL_MODEL, SECONDARY_LOCAL_MODEL, TERTIARY_LOCAL_MODEL]:
-            routes.append({"type": "ollama", "model": model, "key": None})
+        disable_local = os.getenv("DISABLE_LOCAL_OLLAMA", "").lower() in ("true", "1", "yes")
+        ollama_url_lower = OLLAMA_BASE_URL.lower().strip()
+        is_disabled_url = ollama_url_lower in ("disabled", "none", "false", "")
 
-        # Cloud routes as fallback (all keys × all models)
+        # 1. Primary Route: Ollama / GGUF Local Engine in Hugging Face Docker Container (qwen2.5:7b)
+        if not disable_local and not is_disabled_url:
+            for model in [PRIMARY_LOCAL_MODEL, SECONDARY_LOCAL_MODEL, TERTIARY_LOCAL_MODEL]:
+                routes.append({"type": "ollama", "model": model, "key": None})
+
+        # 2. Fallback Route: Gemini 2.0 Flash Cloud Engine (Google AI Studio API)
         for model in [GEMINI_PRIMARY_MODEL, GEMINI_SECONDARY_MODEL]:
             for key in _gemini_keys():
                 routes.append({"type": "gemini", "model": model, "key": key})
 
-        # External AI providers
+        # 3. External AI Providers Fallback (OpenAI & Together AI)
         if OPENAI_API_KEY:
             routes.append({"type": "openai", "model": OPENAI_MODEL, "key": OPENAI_API_KEY})
         if TOGETHER_API_KEY:
             routes.append({"type": "together", "model": TOGETHER_MODEL, "key": TOGETHER_API_KEY})
 
         return routes
+
+
 
     def generate(
         self,

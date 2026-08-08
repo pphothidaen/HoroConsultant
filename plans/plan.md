@@ -13,8 +13,8 @@
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Production Live E2E UI (20/20 PASS) │ (None - All tasks completed 100%)     │ (All 5-Phase AI SDLC Tasks Complete)  │
-│ • Business System Analyst Agent (BSA) │                                       │                                       │
+│ • Production Live E2E UI (20/20 PASS) │ (None - All tasks completed 100%)     │ • Grafana Cloud All-in-One            │
+│ • Business System Analyst Agent (BSA) │                                       │   Monitoring (Phased Roadmap)         │
 │ • BSA Skill & Doc Watchdog Governance │                                       │                                       │
 │ • Hybrid Geocoding Offline Fallback   │                                       │                                       │
 │ • Whitelisted Admin Auth (pansakorn & │                                       │                                       │

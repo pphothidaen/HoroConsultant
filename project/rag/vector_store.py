@@ -78,9 +78,15 @@ def _embed_local_nomic(texts: List[str]) -> Optional[List[List[float]]]:
     """
     if not HTTPX_AVAILABLE:
         return None
+    
+    # Bypass localhost embedding calls on cloud production
+    if (os.getenv("ENVIRONMENT", "").lower() in ("production", "prod") or os.getenv("SPACE_ID") is not None) and ("localhost" in OLLAMA_BASE_URL or "127.0.0.1" in OLLAMA_BASE_URL):
+        return None
+
     embeddings = []
     try:
-        with httpx.Client(timeout=60.0) as client:
+        with httpx.Client(timeout=2.0) as client:
+
             for text in texts:
                 res = client.post(
                     f"{OLLAMA_BASE_URL}/api/embeddings",
