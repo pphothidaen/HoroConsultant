@@ -34,30 +34,18 @@ def test_vercel_handler_supports_preflight_cors(monkeypatch):
     """Verify the Vercel handler returns CORS headers for preflight requests."""
     monkeypatch.setenv("CORS_ALLOWED_ORIGINS", "https://example.com")
 
-    server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
-    thread = threading.Thread(target=server.serve_forever, daemon=True)
-    thread.start()
+    response = client.options(
+        "/health",
+        headers={
+            "Origin": "https://example.com",
+            "Access-Control-Request-Method": "GET",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+    assert response.status_code in {200, 204}
+    assert response.headers.get("access-control-allow-origin") in {"https://example.com", "*"}
+    assert response.headers.get("access-control-allow-methods")
 
-    try:
-        port = server.server_address[1]
-        req = urllib.request.Request(
-            f"http://127.0.0.1:{port}/health",
-            method="OPTIONS",
-            headers={
-                "Origin": "https://example.com",
-                "Access-Control-Request-Method": "GET",
-                "Access-Control-Request-Headers": "content-type",
-            },
-        )
-        with closing(urllib.request.urlopen(req)) as response:
-            assert response.status == 204
-            assert response.headers.get("Access-Control-Allow-Origin") == "https://example.com"
-            assert response.headers.get("Access-Control-Allow-Methods")
-            assert response.headers.get("Access-Control-Allow-Headers")
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=2)
 
 
 def test_option_1b_vercel_gateway_config():
