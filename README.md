@@ -362,6 +362,28 @@ python3 project/mcp_server.py
 
 ---
 
+## 🌐 Hugging Face Spaces & Production Multi-Cloud Architecture
+
+The production environment operates under a **Decoupled Multi-Cloud Architecture**:
+
+1. **Hugging Face Static Edge CDN (`sdk: static`)**:
+   - Serves static Web UIs 24/7 with zero CPU hardware quota limits:
+     - 🔮 **Main Dashboard**: `https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html`
+     - 🔐 **Admin Panel**: `https://pphothidaen-horoconsultant-core-backend.static.hf.space/admin.html`
+     - 🔬 **HITL Review Studio**: `https://pphothidaen-horoconsultant-core-backend.static.hf.space/hitl.html`
+2. **Local Edge & Fast Math Engine (`http://localhost:8000`)**:
+   - FastAPI + PyO3 Rust compiled extension for sub-millisecond astronomical calculations, Julian Day conversions, Equation of Time (EoT), and local FAISS vector retrieval.
+3. **Automated HF Spaces Publishing CLI**:
+   ```bash
+   # Audit payload and publish to HF Static Edge CDN
+   python3 scripts/publish_space_hf.py --sdk static
+
+   # Perform live Space health check
+   python3 scripts/publish_space_hf.py --check-health
+   ```
+
+---
+
 ## 📝 Governance Rule Checklist for Developers
 
 When making changes to this codebase:

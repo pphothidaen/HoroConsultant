@@ -1536,284 +1536,316 @@
       "generated_at": "2026-08-08T10:20:15.393814"
     },
     "274603a9d7df91fd": {
-      "answer": "A question that gets to the heart of Jyotish Shastra!\n\nAccording to Jaimini Sutras, a foundational text in Vedic astrology, there are three primary dasha systems: Chara, Sthira, and Navamsa Dasha. Let's break them down:\n\n1. **Chara Dasha** (Transitory Period): This is the most important and widely used dasha system in Jyotish Shastra. It is a 120-year period divided into 12 segments of 10 years each, with each segment ruled by a different planet. The Chara Dasha is calculated from the Moon's longitude at the time of birth.\n\nReference: Jaimini Sutras, Chapter 2, Verse 14-15\n\n\"Chara dasha, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa\"\n\nTranslation: \"The transitory period is of 120 years, divided into 12 segments.\"\n\n2. **Sthira Dasha** (Steady Period): This dasha system is less commonly used and is based on the Sun's longitude at the time of birth. It is also a 120-year period, but with each segment lasting 10 years.\n\nReference: Jaimini Sutras, Chapter 2, Verse 16-17\n\n\"Sthira dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa\"\n\nTranslation: \"The steady period is of 120 years, divided into 12 segments.\"\n\n3. **Navamsa Dasha** (Sub-period): This dasha system is used to analyze the subtle influences on an individual's life. It is a 100-year period divided into 9 segments of approximately 11-12 years each, with each segment ruled by a different planet.\n\nReference: Jaimini Sutras, Chapter 2, Verse 18-19\n\n\"Navamsa dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa\"\n\nTranslation: \"The sub-period is of 100 years, divided into 9 segments.\"\n\nIn conclusion, the three dasha systems mentioned in Jaimini Sutras are Chara Dasha (transitory period), Sthira Dasha (steady period), and Navamsa Dasha (sub-period). Each system provides valuable insights into an individual's life events and influences.\n\nReferences:\n\n* Jaimini Sutras, Chapter 2\n* BPHS (Brihat Parasara Hora Shastra)\n* Phaladeepika\n\nPlease note that the interpretation of dashas requires a deep understanding of Vedic astrology and its various principles.",
+      "answer": "A question from the esteemed Jaimini Sutras!\n\nAccording to Jaimini Sutras, there are three types of Dasha systems:\n\n1. Chara Dasha ( movable dasha): This is a period of 6 months and 3 days, which is calculated by adding the longitude of the Ascendant and the longitude of the Moon at birth. During this period, the native's personality, habits, and tendencies are influenced by the planet occupying the 1st house.\n\nReference: Jaimini Sutras, Chapter 2, Verse 14-15\n\n2. Sthira Dasha (fixed dasha): This is a period of 18 months and 13 days, which is calculated by adding the longitude of the Ascendant and the longitude of the Sun at birth. During this period, the native's character, temperament, and life events are influenced by the planet occupying the 1st house.\n\nReference: Jaimini Sutras, Chapter 2, Verse 16-17\n\n3. Navamsa Dasha (sub-period dasha): This is a period of 1 year and 9 months, which is calculated by adding the longitude of the Ascendant and the longitude of the Moon at birth, and then dividing the result by 30. During this period, the native's emotional and psychological experiences are influenced by the planet occupying the 7th house.\n\nReference: Jaimini Sutras, Chapter 2, Verse 18-19\n\nThese three dasha systems provide a comprehensive understanding of an individual's personality, life events, and spiritual growth, as described in the ancient text of Jaimini Sutras.\n\nSources:\n\n* Jaimini Sutras (original text)\n* BPHS (Brihat Parasara Hora Shastra) - Chapter 10, Verse 1-3\n* Phaladeepika - Chapter 2, Verse 14-16\n\nPlease note that these dasha systems are based on the ancient Indian system of astrology and may not be universally accepted or practiced.",
       "model_used": "llama3:8b",
       "confidence_scores": [
         {
-          "text": "A question that gets to the heart of Jyotish Shastra!\n\nAccording to Jaimini Sutras, a foundational text in Vedic astrology, there are three primary dasha systems: Chara, Sthira, and Navamsa Dasha.",
-          "confidence": 0.71
-        },
-        {
-          "text": "Let's break them down:\n\n1.",
-          "confidence": 0.59
-        },
-        {
-          "text": "**Chara Dasha** (Transitory Period): This is the most important and widely used dasha system in Jyotish Shastra.",
+          "text": "A question from the esteemed Jaimini Sutras!\n\nAccording to Jaimini Sutras, there are three types of Dasha systems:\n\n1.",
           "confidence": 0.79
         },
         {
-          "text": "It is a 120-year period divided into 12 segments of 10 years each, with each segment ruled by a different planet.",
-          "confidence": 0.75
-        },
-        {
-          "text": "The Chara Dasha is calculated from the Moon's longitude at the time of birth.",
-          "confidence": 0.67
-        },
-        {
-          "text": "Reference: Jaimini Sutras, Chapter 2, Verse 14-15\n\n\"Chara dasha, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa\"\n\nTranslation: \"The transitory period is of 120 years, divided into 12 segments.",
-          "confidence": 0.77
-        },
-        {
-          "text": "\"\n\n2.",
-          "confidence": 0.56
-        },
-        {
-          "text": "**Sthira Dasha** (Steady Period): This dasha system is less commonly used and is based on the Sun's longitude at the time of birth.",
-          "confidence": 0.84
-        },
-        {
-          "text": "It is also a 120-year period, but with each segment lasting 10 years.",
-          "confidence": 0.73
-        },
-        {
-          "text": "Reference: Jaimini Sutras, Chapter 2, Verse 16-17\n\n\"Sthira dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa\"\n\nTranslation: \"The steady period is of 120 years, divided into 12 segments.",
-          "confidence": 0.65
-        },
-        {
-          "text": "\"\n\n3.",
-          "confidence": 0.56
-        },
-        {
-          "text": "**Navamsa Dasha** (Sub-period): This dasha system is used to analyze the subtle influences on an individual's life.",
-          "confidence": 0.77
-        },
-        {
-          "text": "It is a 100-year period divided into 9 segments of approximately 11-12 years each, with each segment ruled by a different planet.",
-          "confidence": 0.68
-        },
-        {
-          "text": "Reference: Jaimini Sutras, Chapter 2, Verse 18-19\n\n\"Navamsa dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa, dasa\"\n\nTranslation: \"The sub-period is of 100 years, divided into 9 segments.",
-          "confidence": 0.77
-        },
-        {
-          "text": "\"\n\nIn conclusion, the three dasha systems mentioned in Jaimini Sutras are Chara Dasha (transitory period), Sthira Dasha (steady period), and Navamsa Dasha (sub-period).",
-          "confidence": 0.76
-        },
-        {
-          "text": "Each system provides valuable insights into an individual's life events and influences.",
-          "confidence": 0.67
-        },
-        {
-          "text": "References:\n\n* Jaimini Sutras, Chapter 2\n* BPHS (Brihat Parasara Hora Shastra)\n* Phaladeepika\n\nPlease note that the interpretation of dashas requires a deep understanding of Vedic astrology and its various principles.",
-          "confidence": 0.73
-        }
-      ],
-      "latency_ms": 97122,
-      "generated_at": "2026-08-08T10:17:23.236760"
-    },
-    "e26b3cde5877642e": {
-      "answer": "Planet strength, ในภาษาฮินดูคือ \"शadbala\" (Shadbala), เป็นหนึ่งในหัวข้อสำคัญในการวิเคราะห์ดวงอาทิตย์และดาวในโหราศาสตร์เวท (Jyotish Shastra) โดยเฉพาะอย่างยิ่งใน Phaladeepika หรือ \"พัฒนาการผลิตภัณฑ์\" ในภาษาฮินดู. \n\nตาม Phaladeepika, Planet Strength มีความหมายว่าความสามารถในการสร้างและส่งเสริมผลประโยชน์จากดวงอาทิตย์และดาวในดวงอาทิตย์ของบุคคลที่กำลังถูกศึกษา. ความแข็งแรงของดวงอาทิตย์หรือดาวนั้นจะขึ้นอยู่กับตำแหน่ง, การเชื่อมโยง, และสถานะทางกายภาพและอารมณ์ของดวงอาทิตย์หรือดาวนั้น.\n\nใน Phaladeepika, ความแข็งแรงของดวงอาทิตย์หรือดาวนั้นจะถูกแบ่งออกเป็น 6 ระดับ: \n\n1. \"समुद्र\" (Samudra) - ระดับที่สุด\n2. \"तापा\" (Tapas)\n3. \"योग्य\" (Yoga)\n4. \"धीर\" (Dhīr)\n5. \"मधुम\" (Madhum)\n6. \"चित्र\" (Chitr)\n\nทั้งหมดนี้จะถูกกำหนดโดยการศึกษาตำแหน่ง, การเชื่อมโยง, และสถานะทางกายภาพและอารมณ์ของดวงอาทิตย์หรือดาวนั้น.\n\nสำหรับตัวอย่างเช่น, ดวงอาทิตย์ที่อยู่ใน \"समुद्र\" (Samudra) จะมีความแข็งแรงสูงสุดและสามารถสร้างผลประโยชน์จากดวงอาทิตย์หรือดาวนั้นได้อย่างมาก. ในขณะเดียวกัน, ดวงอาทิตย์ที่อยู่ใน \"चित्र\" (Chitr) จะมีความแข็งแรงน้อยกว่าและอาจไม่สามารถสร้างผลประโยชน์จากดวงอาทิตย์หรือดาวนั้นได้.\n\nดังนั้น, Planet Strength ใน Phaladeepika เป็นหนึ่งในหัวข้อที่สำคัญในการวิเคราะห์ดวงอาทิตย์และดาวในโหราศาสตร์เวท และมีความหมายว่าความสามารถในการสร้างและส่งเสริมผลประโยชน์จากดวงอาทิตย์หรือดาวนั้น.",
-      "model_used": "qwen2.5-coder:7b",
-      "confidence_scores": [
-        {
-          "text": "Planet strength, ในภาษาฮินดูคือ \"शadbala\" (Shadbala), เป็นหนึ่งในหัวข้อสำคัญในการวิเคราะห์ดวงอาทิตย์และดาวในโหราศาสตร์เวท (Jyotish Shastra) โดยเฉพาะอย่างยิ่งใน Phaladeepika หรือ \"พัฒนาการผลิตภัณฑ์\" ในภาษาฮินดู.",
-          "confidence": 0.75
-        },
-        {
-          "text": "ตาม Phaladeepika, Planet Strength มีความหมายว่าความสามารถในการสร้างและส่งเสริมผลประโยชน์จากดวงอาทิตย์และดาวในดวงอาทิตย์ของบุคคลที่กำลังถูกศึกษา.",
-          "confidence": 0.79
-        },
-        {
-          "text": "ความแข็งแรงของดวงอาทิตย์หรือดาวนั้นจะขึ้นอยู่กับตำแหน่ง, การเชื่อมโยง, และสถานะทางกายภาพและอารมณ์ของดวงอาทิตย์หรือดาวนั้น.",
-          "confidence": 0.7
-        },
-        {
-          "text": "ใน Phaladeepika, ความแข็งแรงของดวงอาทิตย์หรือดาวนั้นจะถูกแบ่งออกเป็น 6 ระดับ: \n\n1.",
-          "confidence": 0.82
-        },
-        {
-          "text": "\"समुद्र\" (Samudra) - ระดับที่สุด\n2.",
-          "confidence": 0.77
-        },
-        {
-          "text": "\"तापा\" (Tapas)\n3.",
-          "confidence": 0.69
-        },
-        {
-          "text": "\"योग्य\" (Yoga)\n4.",
-          "confidence": 0.61
-        },
-        {
-          "text": "\"धीर\" (Dhīr)\n5.",
-          "confidence": 0.72
-        },
-        {
-          "text": "\"मधुम\" (Madhum)\n6.",
-          "confidence": 0.68
-        },
-        {
-          "text": "\"चित्र\" (Chitr)\n\nทั้งหมดนี้จะถูกกำหนดโดยการศึกษาตำแหน่ง, การเชื่อมโยง, และสถานะทางกายภาพและอารมณ์ของดวงอาทิตย์หรือดาวนั้น.",
-          "confidence": 0.82
-        },
-        {
-          "text": "สำหรับตัวอย่างเช่น, ดวงอาทิตย์ที่อยู่ใน \"समुद्र\" (Samudra) จะมีความแข็งแรงสูงสุดและสามารถสร้างผลประโยชน์จากดวงอาทิตย์หรือดาวนั้นได้อย่างมาก.",
-          "confidence": 0.74
-        },
-        {
-          "text": "ในขณะเดียวกัน, ดวงอาทิตย์ที่อยู่ใน \"चित्र\" (Chitr) จะมีความแข็งแรงน้อยกว่าและอาจไม่สามารถสร้างผลประโยชน์จากดวงอาทิตย์หรือดาวนั้นได้.",
-          "confidence": 0.6
-        },
-        {
-          "text": "ดังนั้น, Planet Strength ใน Phaladeepika เป็นหนึ่งในหัวข้อที่สำคัญในการวิเคราะห์ดวงอาทิตย์และดาวในโหราศาสตร์เวท และมีความหมายว่าความสามารถในการสร้างและส่งเสริมผลประโยชน์จากดวงอาทิตย์หรือดาวนั้น.",
-          "confidence": 0.69
-        }
-      ],
-      "latency_ms": 93384,
-      "generated_at": "2026-08-08T10:20:57.363715"
-    },
-    "4a512c4a78144c15": {
-      "answer": "ใน Jyotish Shastra, ผลของ placement ของดาวเคราะห์ (Planets) ใน Houses (Dhatus) มีความสำคัญอย่างยิ่งในการวินิจฉัยชีวิตและ destiny ของบุคคล ตาม Phaladeepika ซึ่งเป็นหนึ่งในแหล่งข้อมูลหลักที่ใช้ในการวิเคราะห์ผลของ placement ของดาวเคราะห์ใน Houses\n\nPhaladeepika อธิบายว่า ตำแหน่งของดาวเคราะห์ใน Houses มีความสำคัญอย่างยิ่งต่อการกำหนดผลลัพธ์ทางชีวิต ซึ่งสามารถอ้างอิงจากบทที่ 1, ข้อ 25-30 โดยระบุว่า:\n\n\"Planets in the houses of their own or exaltation are very auspicious and confer good results. Planets in the houses of their fall or debilitation bring bad results.\"\n\nนั่นคือ ดาวเคราะห์ที่อยู่ใน Houses ของตนเองหรือการขึ้นสวรรค์ (Exaltation) จะให้ผลลัพธ์ที่ดีมาก แต่หากดาวเคราะห์อยู่ใน Houses ของความอ่อนแอหรือการตกชั้น (Debilitation) จะทำให้เกิดผลลัพธ์ที่ไม่ดี\n\nนอกจากนี้ ยังมีบทบาทสำคัญของ Planets ใน Houses ตาม Jaimini Sutras และ BPHS โดยระบุว่า:\n\n1. \"Planets in the 2nd, 4th, and 6th houses from their own house are considered to be beneficial.\"\n2. \"Planets in the 3rd, 5th, and 9th houses from their own house are considered to be malefic.\"\n\nนั่นคือ ดาวเคราะห์ที่อยู่ใน Houses ที่ 2, 4 และ 6 จาก Houses ของตนเองจะให้ผลลัพธ์ที่ดี แต่หากอยู่ใน Houses ที่ 3, 5 และ 9 จะทำให้เกิดผลลัพธ์ที่ไม่ดี\n\nการวิเคราะห์ผลของ placement ของ Planets ใน Houses ตาม Phaladeepika จึงจำเป็นต้องพิจารณาในบริบทของ Jaimini Sutras และ BPHS เพื่อให้ความเข้าใจที่ครบถ้วนและละเอียดถี่ถ้วนเกี่ยวกับผลลัพธ์ทางชีวิตของบุคคล",
-      "model_used": "qwen2.5:7b",
-      "confidence_scores": [
-        {
-          "text": "ใน Jyotish Shastra, ผลของ placement ของดาวเคราะห์ (Planets) ใน Houses (Dhatus) มีความสำคัญอย่างยิ่งในการวินิจฉัยชีวิตและ destiny ของบุคคล ตาม Phaladeepika ซึ่งเป็นหนึ่งในแหล่งข้อมูลหลักที่ใช้ในการวิเคราะห์ผลของ placement ของดาวเคราะห์ใน Houses\n\nPhaladeepika อธิบายว่า ตำแหน่งของดาวเคราะห์ใน Houses มีความสำคัญอย่างยิ่งต่อการกำหนดผลลัพธ์ทางชีวิต ซึ่งสามารถอ้างอิงจากบทที่ 1, ข้อ 25-30 โดยระบุว่า:\n\n\"Planets in the houses of their own or exaltation are very auspicious and confer good results.",
-          "confidence": 0.85
-        },
-        {
-          "text": "Planets in the houses of their fall or debilitation bring bad results.",
-          "confidence": 0.71
-        },
-        {
-          "text": "\"\n\nนั่นคือ ดาวเคราะห์ที่อยู่ใน Houses ของตนเองหรือการขึ้นสวรรค์ (Exaltation) จะให้ผลลัพธ์ที่ดีมาก แต่หากดาวเคราะห์อยู่ใน Houses ของความอ่อนแอหรือการตกชั้น (Debilitation) จะทำให้เกิดผลลัพธ์ที่ไม่ดี\n\nนอกจากนี้ ยังมีบทบาทสำคัญของ Planets ใน Houses ตาม Jaimini Sutras และ BPHS โดยระบุว่า:\n\n1.",
-          "confidence": 0.83
-        },
-        {
-          "text": "\"Planets in the 2nd, 4th, and 6th houses from their own house are considered to be beneficial.",
-          "confidence": 0.69
-        },
-        {
-          "text": "\"\n2.",
-          "confidence": 0.74
-        },
-        {
-          "text": "\"Planets in the 3rd, 5th, and 9th houses from their own house are considered to be malefic.",
+          "text": "Chara Dasha ( movable dasha): This is a period of 6 months and 3 days, which is calculated by adding the longitude of the Ascendant and the longitude of the Moon at birth.",
           "confidence": 0.78
         },
         {
-          "text": "\"\n\nนั่นคือ ดาวเคราะห์ที่อยู่ใน Houses ที่ 2, 4 และ 6 จาก Houses ของตนเองจะให้ผลลัพธ์ที่ดี แต่หากอยู่ใน Houses ที่ 3, 5 และ 9 จะทำให้เกิดผลลัพธ์ที่ไม่ดี\n\nการวิเคราะห์ผลของ placement ของ Planets ใน Houses ตาม Phaladeepika จึงจำเป็นต้องพิจารณาในบริบทของ Jaimini Sutras และ BPHS เพื่อให้ความเข้าใจที่ครบถ้วนและละเอียดถี่ถ้วนเกี่ยวกับผลลัพธ์ทางชีวิตของบุคคล.",
-          "confidence": 0.92
-        }
-      ],
-      "latency_ms": 66735,
-      "generated_at": "2026-08-08T10:15:48.164043"
-    },
-    "6639812e8b72841c": {
-      "answer": "A question from the esteemed text, Phaladeepika!\n\nAccording to Phaladeepika, Raja Yoga is a significant aspect of Jyotish Shastra. Here's a summary of its key points:\n\n**Definition**: Raja Yoga refers to the union of the individual soul (Jiva) with the Supreme Soul (Paramatman). It is the highest state of spiritual realization, where the individual ego (Ahamkara) is transcended, and one becomes one with the universe.\n\n**Key Principles**:\n\n1. **Dharmic Life**: A Raja Yogin must lead a dharmic life, adhering to righteous principles and performing duties according to their varna and ashrama.\n2. **Self-Realization**: The ultimate goal is self-realization (Atma-Jnana), where one recognizes the true nature of the Self as pure consciousness.\n3. **Detachment**: A Raja Yogin must cultivate detachment from worldly attachments, desires, and egoistic tendencies.\n4. **Meditation**: Regular meditation (Dhyana) is essential for spiritual growth, helping to quiet the mind and focus on the inner Self.\n5. **Yamas and Niyamas**: Observing the yamas (restraints) and niyamas (observances) as outlined in the Yoga Sutras of Patanjali is crucial for a Raja Yogin.\n\n**Planetary Influences**:\n\n1. **Jupiter**: Jupiter's influence is particularly significant in Raja Yoga, as it represents spiritual growth, wisdom, and expansion.\n2. **Saturn**: Saturn's influence can indicate obstacles and challenges on the path to self-realization, but also serves as a catalyst for spiritual growth.\n\n**Planetary Combinations**:\n\n1. **Jupiter-Saturn Conjunction**: A conjunction between Jupiter and Saturn is considered highly auspicious in Raja Yoga, indicating rapid spiritual progress.\n2. **Rahu-Ketu Combination**: The combination of Rahu (North Node) and Ketu (South Node) can indicate a strong connection to the spiritual realm.\n\n**Conclusion**: In Phaladeepika, Raja Yoga is presented as a profound and complex system that requires dedication, discipline, and a deep understanding of Jyotish Shastra. By applying these principles and planetary influences, one can navigate the journey towards self-realization and ultimate liberation.\n\nReferences:\n\n* Phaladeepika by Varahamihira\n* BPHS (Brihat Parasara Hora Shastra)\n* Jaimini Sutras\n\nPlease note that this summary is based on my understanding of Phaladeepika, and I may have missed some nuances or details. If you'd like me to elaborate or provide further references, please let me know!",
-      "model_used": "llama3:8b",
-      "confidence_scores": [
-        {
-          "text": "A question from the esteemed text, Phaladeepika!\n\nAccording to Phaladeepika, Raja Yoga is a significant aspect of Jyotish Shastra.",
-          "confidence": 0.83
+          "text": "During this period, the native's personality, habits, and tendencies are influenced by the planet occupying the 1st house.",
+          "confidence": 0.82
         },
         {
-          "text": "Here's a summary of its key points:\n\n**Definition**: Raja Yoga refers to the union of the individual soul (Jiva) with the Supreme Soul (Paramatman).",
-          "confidence": 0.67
+          "text": "Reference: Jaimini Sutras, Chapter 2, Verse 14-15\n\n2.",
+          "confidence": 0.7
         },
         {
-          "text": "It is the highest state of spiritual realization, where the individual ego (Ahamkara) is transcended, and one becomes one with the universe.",
-          "confidence": 0.69
+          "text": "Sthira Dasha (fixed dasha): This is a period of 18 months and 13 days, which is calculated by adding the longitude of the Ascendant and the longitude of the Sun at birth.",
+          "confidence": 0.79
         },
         {
-          "text": "**Key Principles**:\n\n1.",
+          "text": "During this period, the native's character, temperament, and life events are influenced by the planet occupying the 1st house.",
+          "confidence": 0.78
+        },
+        {
+          "text": "Reference: Jaimini Sutras, Chapter 2, Verse 16-17\n\n3.",
+          "confidence": 0.84
+        },
+        {
+          "text": "Navamsa Dasha (sub-period dasha): This is a period of 1 year and 9 months, which is calculated by adding the longitude of the Ascendant and the longitude of the Moon at birth, and then dividing the result by 30.",
           "confidence": 0.75
         },
         {
-          "text": "**Dharmic Life**: A Raja Yogin must lead a dharmic life, adhering to righteous principles and performing duties according to their varna and ashrama.",
-          "confidence": 0.68
+          "text": "During this period, the native's emotional and psychological experiences are influenced by the planet occupying the 7th house.",
+          "confidence": 0.78
+        },
+        {
+          "text": "Reference: Jaimini Sutras, Chapter 2, Verse 18-19\n\nThese three dasha systems provide a comprehensive understanding of an individual's personality, life events, and spiritual growth, as described in the ancient text of Jaimini Sutras.",
+          "confidence": 0.82
+        },
+        {
+          "text": "Sources:\n\n* Jaimini Sutras (original text)\n* BPHS (Brihat Parasara Hora Shastra) - Chapter 10, Verse 1-3\n* Phaladeepika - Chapter 2, Verse 14-16\n\nPlease note that these dasha systems are based on the ancient Indian system of astrology and may not be universally accepted or practiced.",
+          "confidence": 0.71
+        }
+      ],
+      "latency_ms": 30268,
+      "generated_at": "2026-08-08T10:24:46.350871"
+    },
+    "e26b3cde5877642e": {
+      "answer": "ในศาสตร์ของ Jyotish Shastra หรือโหราศาสตร์เวท หลักการ Planet Strength (Shadbala) เป็นหนึ่งในปัจจัยสำคัญที่ใช้ในการวิเคราะห์และตัดสินใจเกี่ยวกับผลลัพธ์ของดวงชะตา ซึ่ง Shadbala หรือ \"six strengths\" นี้ประกอบด้วย 6 ปัจจัยหลัก ได้แก่:\n\n1. **Rasi Bala (Star Strength)**: เป็นความแข็งแกร่งของดาวเคราะห์ในราศีที่มันอยู่ ซึ่งถูกวัดจากตำแหน่งของดาวเคราะห์ในราศีต่างๆ ตามหลักการของ Phaladeepika.\n\n2. **Kendra Bala (Angular Strength)**: เป็นความแข็งแกร่งของดาวเคราะห์ที่อยู่ในมุม 90 องศาหรือ 180 องศาจากราศีที่กำลังทำหน้าที่เป็นเจ้าของบ้าน (Lagna) หรือราศีที่กำลังทำหน้าที่เป็นเจ้าของบ้านในราศีที่ดาวเคราะห์อยู่.\n\n3. **Kendra Bala (Angular Strength)**: ซ้ำกับข้อที่ 2 แต่เน้นว่าเป็นความแข็งแกร่งของดาวเคราะห์ที่ทำหน้าที่เป็นเจ้าของบ้านในราศีที่กำลังทำหน้าที่เป็นเจ้าของบ้าน.\n\n4. **Drishti Bala (Sight Strength)**: เป็นความแข็งแกร่งของดาวเคราะห์ที่มีสายตาหรือการมองเห็น (Drishti) ไปยังดาวเคราะห์อื่นๆ ซึ่งถูกวัดจากตำแหน่งทางภูมิศาสตร์.\n\n5. **Paksha Bala (Fortnight Strength)**: เป็นความแข็งแกร่งของดาวเคราะห์ที่อยู่ในช่วงครึ่งเดือน (Paksha) ซึ่งสามารถวัดจากตำแหน่งของดาวเคราะห์ในช่วงครึ่งเดือน.\n\n6. **Nakshatra Bala (Lunar Mansion Strength)**: เป็นความแข็งแกร่งของดาวเคราะห์ที่อยู่ในราศีดวงจันทร์ (Nakshatra) ซึ่งถูกวัดจากตำแหน่งของดาวเคราะห์ในราศีดวงจันทร์.\n\nตาม Phaladeepika, หลักการ Planet Strength (Shadbala) มีความสำคัญในการประเมินผลลัพธ์ของดวงชะตา โดยเฉพาะอย่างยิ่งในการวิเคราะห์และตัดสินใจเกี่ยวกับผลกระทบของดาวเคราะห์ต่อชีวิตของบุคคล ซึ่งสามารถอ้างอิงจากบทที่ 13 ของ Phaladeepika โดยระบุว่า \"Shadbala\" เป็นเทคนิคที่ใช้ในการวัดความแข็งแกร่งของดาวเคราะห์ในดวงชะตา.\n\nดังนั้น หลักการ Planet Strength (Shadbala) ตาม Phaladeepika จึงเป็นเครื่องมือสำคัญในการวิเคราะห์และตีความผลลัพธ์ของดวงชะตา โดยใช้ข้อมูลทางภูมิศาสตร์และการมองเห็นของดาวเคราะห์ในราศีต่างๆ.",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "ในศาสตร์ของ Jyotish Shastra หรือโหราศาสตร์เวท หลักการ Planet Strength (Shadbala) เป็นหนึ่งในปัจจัยสำคัญที่ใช้ในการวิเคราะห์และตัดสินใจเกี่ยวกับผลลัพธ์ของดวงชะตา ซึ่ง Shadbala หรือ \"six strengths\" นี้ประกอบด้วย 6 ปัจจัยหลัก ได้แก่:\n\n1.",
+          "confidence": 0.84
+        },
+        {
+          "text": "**Rasi Bala (Star Strength)**: เป็นความแข็งแกร่งของดาวเคราะห์ในราศีที่มันอยู่ ซึ่งถูกวัดจากตำแหน่งของดาวเคราะห์ในราศีต่างๆ ตามหลักการของ Phaladeepika.",
+          "confidence": 0.85
         },
         {
           "text": "2.",
-          "confidence": 0.58
+          "confidence": 0.62
         },
         {
-          "text": "**Self-Realization**: The ultimate goal is self-realization (Atma-Jnana), where one recognizes the true nature of the Self as pure consciousness.",
-          "confidence": 0.75
+          "text": "**Kendra Bala (Angular Strength)**: เป็นความแข็งแกร่งของดาวเคราะห์ที่อยู่ในมุม 90 องศาหรือ 180 องศาจากราศีที่กำลังทำหน้าที่เป็นเจ้าของบ้าน (Lagna) หรือราศีที่กำลังทำหน้าที่เป็นเจ้าของบ้านในราศีที่ดาวเคราะห์อยู่.",
+          "confidence": 0.72
         },
         {
           "text": "3.",
-          "confidence": 0.71
+          "confidence": 0.69
         },
         {
-          "text": "**Detachment**: A Raja Yogin must cultivate detachment from worldly attachments, desires, and egoistic tendencies.",
+          "text": "**Kendra Bala (Angular Strength)**: ซ้ำกับข้อที่ 2 แต่เน้นว่าเป็นความแข็งแกร่งของดาวเคราะห์ที่ทำหน้าที่เป็นเจ้าของบ้านในราศีที่กำลังทำหน้าที่เป็นเจ้าของบ้าน.",
+          "confidence": 0.68
+        },
+        {
+          "text": "4.",
+          "confidence": 0.68
+        },
+        {
+          "text": "**Drishti Bala (Sight Strength)**: เป็นความแข็งแกร่งของดาวเคราะห์ที่มีสายตาหรือการมองเห็น (Drishti) ไปยังดาวเคราะห์อื่นๆ ซึ่งถูกวัดจากตำแหน่งทางภูมิศาสตร์.",
+          "confidence": 0.7
+        },
+        {
+          "text": "5.",
+          "confidence": 0.72
+        },
+        {
+          "text": "**Paksha Bala (Fortnight Strength)**: เป็นความแข็งแกร่งของดาวเคราะห์ที่อยู่ในช่วงครึ่งเดือน (Paksha) ซึ่งสามารถวัดจากตำแหน่งของดาวเคราะห์ในช่วงครึ่งเดือน.",
           "confidence": 0.79
+        },
+        {
+          "text": "6.",
+          "confidence": 0.63
+        },
+        {
+          "text": "**Nakshatra Bala (Lunar Mansion Strength)**: เป็นความแข็งแกร่งของดาวเคราะห์ที่อยู่ในราศีดวงจันทร์ (Nakshatra) ซึ่งถูกวัดจากตำแหน่งของดาวเคราะห์ในราศีดวงจันทร์.",
+          "confidence": 0.69
+        },
+        {
+          "text": "ตาม Phaladeepika, หลักการ Planet Strength (Shadbala) มีความสำคัญในการประเมินผลลัพธ์ของดวงชะตา โดยเฉพาะอย่างยิ่งในการวิเคราะห์และตัดสินใจเกี่ยวกับผลกระทบของดาวเคราะห์ต่อชีวิตของบุคคล ซึ่งสามารถอ้างอิงจากบทที่ 13 ของ Phaladeepika โดยระบุว่า \"Shadbala\" เป็นเทคนิคที่ใช้ในการวัดความแข็งแกร่งของดาวเคราะห์ในดวงชะตา.",
+          "confidence": 0.88
+        },
+        {
+          "text": "ดังนั้น หลักการ Planet Strength (Shadbala) ตาม Phaladeepika จึงเป็นเครื่องมือสำคัญในการวิเคราะห์และตีความผลลัพธ์ของดวงชะตา โดยใช้ข้อมูลทางภูมิศาสตร์และการมองเห็นของดาวเคราะห์ในราศีต่างๆ.",
+          "confidence": 0.92
+        }
+      ],
+      "latency_ms": 79806,
+      "generated_at": "2026-08-08T10:26:06.198650"
+    },
+    "4a512c4a78144c15": {
+      "answer": "ใน Phaladeepika, การวางดาวในตำแหน่งของบ้าน (Houses) มีผลสำคัญในการระบุลักษณะและพฤติกรรมของคน ตามทฤษฎีโหราศาสตร์. \n\n1. **House 1**: เป็นบ้านแห่งการเรียนรู้และการสัมผัสกับโลกภายนอก. ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านความคิดเห็น, การสื่อสาร, และการเรียนรู้.\n\n2. **House 2**: เป็นบ้านแห่งทรัพยากรทางกายภาพและการสร้างความมั่นคง. ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านการเงิน, การสุขภาพ, และการท่องเที่ยว.\n\n3. **House 3**: เป็นบ้านแห่งการเรียนรู้และการสื่อสาร. ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านการศึกษา, การสื่อสาร, และการเดินทาง.\n\n4. **House 4**: เป็นบ้านแห่งครอบครัวและการที่อยู่อาศัย. ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านครอบครัว, การที่อยู่อาศัย, และการสืบทอด.\n\n5. **House 5**: เป็นบ้านแห่งความสนุกสนานและการสร้างความสำเร็จทางอาชีพ. ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านการศึกษา, การสื่อสาร, และการเดินทาง.\n\n6. **House 6**: เป็นบ้านแห่งความเจ็บป่วยและการรักษาสุขภาพ. ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านการแพทย์, การรักษาสุขภาพ, และการที่อยู่อาศัย.\n\n7. **House 7**: เป็นบ้านแห่งความสัมพันธ์และการสร้างครอบครัว. ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านความสัมพันธ์, การสร้างครอบครัว, และการที่อยู่อาศัย.\n\n8. **House 8**: เป็นบ้านแห่งการทำธุรกิจและการสร้างทรัพยากรทางเศรษฐกิจ. ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านการทำธุรกิจ, การสร้างทรัพยากรทางเศรษฐกิจ, และการที่อยู่อาศัย.\n\n9. **House 9**: เป็นบ้านแห่งความรู้สึกและการคิดเห็น. ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านความรู้สึก, การคิดเห็น, และการที่อยู่อาศัย.\n\n10. **House 10**: เป็นบ้านแห่งอาชีพและการสร้างความสำเร็จทางอาชีพ. ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านอาชีพ, การสร้างความสำเร็จทางอาชีพ, และการที่อยู่อาศัย.\n\n11. **House 11**: เป็นบ้านแห่งความสุขและความรู้สึก. ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านความสุขและความรู้สึก, และการที่อยู่อาศัย.\n\n12. **House 12**: เป็นบ้านแห่งความตายและการสร้างความสำเร็จทางอารมณ์. ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านความตายและความรู้สึก, และการที่อยู่อาศัย.\n\nข้อมูลเหล่านี้มาจาก Phaladeepika โดยอ้างอิงจากบทที่เกี่ยวข้อง.",
+      "model_used": "qwen2.5-coder:7b",
+      "confidence_scores": [
+        {
+          "text": "ใน Phaladeepika, การวางดาวในตำแหน่งของบ้าน (Houses) มีผลสำคัญในการระบุลักษณะและพฤติกรรมของคน ตามทฤษฎีโหราศาสตร์.",
+          "confidence": 0.94
+        },
+        {
+          "text": "1.",
+          "confidence": 0.64
+        },
+        {
+          "text": "**House 1**: เป็นบ้านแห่งการเรียนรู้และการสัมผัสกับโลกภายนอก.",
+          "confidence": 0.77
+        },
+        {
+          "text": "ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านความคิดเห็น, การสื่อสาร, และการเรียนรู้.",
+          "confidence": 0.72
+        },
+        {
+          "text": "2.",
+          "confidence": 0.69
+        },
+        {
+          "text": "**House 2**: เป็นบ้านแห่งทรัพยากรทางกายภาพและการสร้างความมั่นคง.",
+          "confidence": 0.78
+        },
+        {
+          "text": "ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านการเงิน, การสุขภาพ, และการท่องเที่ยว.",
+          "confidence": 0.66
+        },
+        {
+          "text": "3.",
+          "confidence": 0.66
+        },
+        {
+          "text": "**House 3**: เป็นบ้านแห่งการเรียนรู้และการสื่อสาร.",
+          "confidence": 0.82
+        },
+        {
+          "text": "ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านการศึกษา, การสื่อสาร, และการเดินทาง.",
+          "confidence": 0.83
         },
         {
           "text": "4.",
           "confidence": 0.62
         },
         {
-          "text": "**Meditation**: Regular meditation (Dhyana) is essential for spiritual growth, helping to quiet the mind and focus on the inner Self.",
+          "text": "**House 4**: เป็นบ้านแห่งครอบครัวและการที่อยู่อาศัย.",
+          "confidence": 0.71
+        },
+        {
+          "text": "ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านครอบครัว, การที่อยู่อาศัย, และการสืบทอด.",
           "confidence": 0.73
         },
         {
           "text": "5.",
-          "confidence": 0.64
+          "confidence": 0.62
         },
         {
-          "text": "**Yamas and Niyamas**: Observing the yamas (restraints) and niyamas (observances) as outlined in the Yoga Sutras of Patanjali is crucial for a Raja Yogin.",
+          "text": "**House 5**: เป็นบ้านแห่งความสนุกสนานและการสร้างความสำเร็จทางอาชีพ.",
+          "confidence": 0.66
+        },
+        {
+          "text": "ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านการศึกษา, การสื่อสาร, และการเดินทาง.",
+          "confidence": 0.78
+        },
+        {
+          "text": "6.",
           "confidence": 0.67
         },
         {
-          "text": "**Planetary Influences**:\n\n1.",
-          "confidence": 0.63
+          "text": "**House 6**: เป็นบ้านแห่งความเจ็บป่วยและการรักษาสุขภาพ.",
+          "confidence": 0.84
         },
         {
-          "text": "**Jupiter**: Jupiter's influence is particularly significant in Raja Yoga, as it represents spiritual growth, wisdom, and expansion.",
+          "text": "ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านการแพทย์, การรักษาสุขภาพ, และการที่อยู่อาศัย.",
           "confidence": 0.82
         },
         {
-          "text": "2.",
-          "confidence": 0.61
+          "text": "7.",
+          "confidence": 0.59
         },
         {
-          "text": "**Saturn**: Saturn's influence can indicate obstacles and challenges on the path to self-realization, but also serves as a catalyst for spiritual growth.",
+          "text": "**House 7**: เป็นบ้านแห่งความสัมพันธ์และการสร้างครอบครัว.",
+          "confidence": 0.73
+        },
+        {
+          "text": "ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านความสัมพันธ์, การสร้างครอบครัว, และการที่อยู่อาศัย.",
+          "confidence": 0.76
+        },
+        {
+          "text": "8.",
+          "confidence": 0.63
+        },
+        {
+          "text": "**House 8**: เป็นบ้านแห่งการทำธุรกิจและการสร้างทรัพยากรทางเศรษฐกิจ.",
+          "confidence": 0.8
+        },
+        {
+          "text": "ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านการทำธุรกิจ, การสร้างทรัพยากรทางเศรษฐกิจ, และการที่อยู่อาศัย.",
           "confidence": 0.83
         },
         {
-          "text": "**Planetary Combinations**:\n\n1.",
-          "confidence": 0.71
+          "text": "9.",
+          "confidence": 0.67
         },
         {
-          "text": "**Jupiter-Saturn Conjunction**: A conjunction between Jupiter and Saturn is considered highly auspicious in Raja Yoga, indicating rapid spiritual progress.",
-          "confidence": 0.76
+          "text": "**House 9**: เป็นบ้านแห่งความรู้สึกและการคิดเห็น.",
+          "confidence": 0.79
         },
         {
-          "text": "2.",
-          "confidence": 0.58
-        },
-        {
-          "text": "**Rahu-Ketu Combination**: The combination of Rahu (North Node) and Ketu (South Node) can indicate a strong connection to the spiritual realm.",
-          "confidence": 0.75
-        },
-        {
-          "text": "**Conclusion**: In Phaladeepika, Raja Yoga is presented as a profound and complex system that requires dedication, discipline, and a deep understanding of Jyotish Shastra.",
-          "confidence": 0.69
-        },
-        {
-          "text": "By applying these principles and planetary influences, one can navigate the journey towards self-realization and ultimate liberation.",
+          "text": "ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านความรู้สึก, การคิดเห็น, และการที่อยู่อาศัย.",
           "confidence": 0.74
         },
         {
-          "text": "References:\n\n* Phaladeepika by Varahamihira\n* BPHS (Brihat Parasara Hora Shastra)\n* Jaimini Sutras\n\nPlease note that this summary is based on my understanding of Phaladeepika, and I may have missed some nuances or details.",
+          "text": "10.",
+          "confidence": 0.73
+        },
+        {
+          "text": "**House 10**: เป็นบ้านแห่งอาชีพและการสร้างความสำเร็จทางอาชีพ.",
           "confidence": 0.75
         },
         {
-          "text": "If you'd like me to elaborate or provide further references, please let me know!.",
+          "text": "ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านอาชีพ, การสร้างความสำเร็จทางอาชีพ, และการที่อยู่อาศัย.",
+          "confidence": 0.65
+        },
+        {
+          "text": "11.",
+          "confidence": 0.73
+        },
+        {
+          "text": "**House 11**: เป็นบ้านแห่งความสุขและความรู้สึก.",
+          "confidence": 0.7
+        },
+        {
+          "text": "ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านความสุขและความรู้สึก, และการที่อยู่อาศัย.",
+          "confidence": 0.84
+        },
+        {
+          "text": "12.",
+          "confidence": 0.66
+        },
+        {
+          "text": "**House 12**: เป็นบ้านแห่งความตายและการสร้างความสำเร็จทางอารมณ์.",
+          "confidence": 0.78
+        },
+        {
+          "text": "ตำแหน่งดาวในบ้านนี้จะแสดงลักษณะและพฤติกรรมของคนในด้านความตายและความรู้สึก, และการที่อยู่อาศัย.",
+          "confidence": 0.79
+        },
+        {
+          "text": "ข้อมูลเหล่านี้มาจาก Phaladeepika โดยอ้างอิงจากบทที่เกี่ยวข้อง.",
+          "confidence": 0.83
+        }
+      ],
+      "latency_ms": 85541,
+      "generated_at": "2026-08-08T10:24:23.109702"
+    },
+    "6639812e8b72841c": {
+      "answer": "ตามหลักการของ Jyotish Shastra ในบท Phaladeepika โดยเฉพาะในส่วนที่กล่าวถึง Raja Yoga, มีการระบุว่า Raja Yoga คือการรวมตัวของดาวเคราะห์ที่มีพลังงานทรงพลังและมีอิทธิพลทางจิตใจเข้าด้วยกันในราศีหรือตำแหน่งที่เหมาะสมในชีวิตของบุคคล ซึ่งสามารถทำให้เกิดความสำเร็จและความสุขในชีวิต\n\nตาม Phaladeepika, Raja Yoga มีลักษณะสำคัญดังนี้:\n\n1. **การรวมตัวของดาวเคราะห์ที่มีพลังงานทรงพลัง**: ตาม Jaimini Sutras, ดาวเคราะห์ที่มีพลังงานทรงพลังใน Raja Yoga ได้แก่ Sun (Surya), Moon (Chandra), Mars (Mangala) และ Jupiter (Budha) ซึ่งถูกเรียกว่า \"Raja Grahas\" หรือดาวเคราะห์ที่มีอิทธิพลทางจิตใจ\n\n2. **ตำแหน่งที่เหมาะสม**: ตาม Phaladeepika, Raja Yoga จะเกิดขึณในราศีที่ดาวเคราะห์เหล่านี้อยู่ในตำแหน่งที่เหมาะสม เช่น ในราศีของตนเอง (Own House), ราศีที่มีอิทธิพล (Friendly House) หรือราศีที่เป็นศัตรูแต่ไม่มีอันตราย (Mool Trikona)\n\n3. **การรวมตัวในตำแหน่งที่เหมาะสม**: ตาม Saravali, Raja Yoga จะเกิดขึณเมื่อดาวเคราะห์ที่มีพลังงานทรงพลังเหล่านี้รวมตัวกันในราศีหรือตำแหน่งที่เหมาะสม เช่น ในราศีของตนเอง (Own House) หรือราศีที่เป็นศัตรูแต่ไม่มีอันตราย\n\n4. **การรับรู้และเข้าใจ**: ตาม Brihat Jataka, Raja Yoga จะทำให้บุคคลมีความสามารถในการรับรู้และเข้าใจสิ่งต่างๆ ได้อย่างลึกซึ้ง และสามารถนำความรู้นั้นมาใช้ประโยชน์ในชีวิต\n\n5. **การพัฒนาจิตใจ**: ตาม BPHS, Raja Yoga จะทำให้บุคคลมีจิตใจที่แข็งแกร่งและสามารถผ่านพ้นความท้าทายทางจิตใจได้อย่างดี\n\n6. **การประสบความสำเร็จในชีวิต**: ตาม Phaladeepika, Raja Yoga จะทำให้บุคคลมีโอกาสประสบความสำเร็จในชีวิตทางอาชีพและส่วนตัว\n\nโดยสรุป, Raja Yoga ใน Phaladeepika เป็นการรวมตัวของดาวเคราะห์ที่มีพลังงานทรงพลังในตำแหน่งที่เหมาะสม ซึ่งจะทำให้บุคคลมีความสามารถในการรับรู้และเข้าใจสิ่งต่างๆ ได้อย่างลึกซึ้ง และสามารถประสบความสำเร็จในชีวิตทางอาชีพและส่วนตัว",
+      "model_used": "qwen2.5:7b",
+      "confidence_scores": [
+        {
+          "text": "ตามหลักการของ Jyotish Shastra ในบท Phaladeepika โดยเฉพาะในส่วนที่กล่าวถึง Raja Yoga, มีการระบุว่า Raja Yoga คือการรวมตัวของดาวเคราะห์ที่มีพลังงานทรงพลังและมีอิทธิพลทางจิตใจเข้าด้วยกันในราศีหรือตำแหน่งที่เหมาะสมในชีวิตของบุคคล ซึ่งสามารถทำให้เกิดความสำเร็จและความสุขในชีวิต\n\nตาม Phaladeepika, Raja Yoga มีลักษณะสำคัญดังนี้:\n\n1.",
+          "confidence": 0.81
+        },
+        {
+          "text": "**การรวมตัวของดาวเคราะห์ที่มีพลังงานทรงพลัง**: ตาม Jaimini Sutras, ดาวเคราะห์ที่มีพลังงานทรงพลังใน Raja Yoga ได้แก่ Sun (Surya), Moon (Chandra), Mars (Mangala) และ Jupiter (Budha) ซึ่งถูกเรียกว่า \"Raja Grahas\" หรือดาวเคราะห์ที่มีอิทธิพลทางจิตใจ\n\n2.",
+          "confidence": 0.87
+        },
+        {
+          "text": "**ตำแหน่งที่เหมาะสม**: ตาม Phaladeepika, Raja Yoga จะเกิดขึณในราศีที่ดาวเคราะห์เหล่านี้อยู่ในตำแหน่งที่เหมาะสม เช่น ในราศีของตนเอง (Own House), ราศีที่มีอิทธิพล (Friendly House) หรือราศีที่เป็นศัตรูแต่ไม่มีอันตราย (Mool Trikona)\n\n3.",
+          "confidence": 0.77
+        },
+        {
+          "text": "**การรวมตัวในตำแหน่งที่เหมาะสม**: ตาม Saravali, Raja Yoga จะเกิดขึณเมื่อดาวเคราะห์ที่มีพลังงานทรงพลังเหล่านี้รวมตัวกันในราศีหรือตำแหน่งที่เหมาะสม เช่น ในราศีของตนเอง (Own House) หรือราศีที่เป็นศัตรูแต่ไม่มีอันตราย\n\n4.",
+          "confidence": 0.89
+        },
+        {
+          "text": "**การรับรู้และเข้าใจ**: ตาม Brihat Jataka, Raja Yoga จะทำให้บุคคลมีความสามารถในการรับรู้และเข้าใจสิ่งต่างๆ ได้อย่างลึกซึ้ง และสามารถนำความรู้นั้นมาใช้ประโยชน์ในชีวิต\n\n5.",
+          "confidence": 0.91
+        },
+        {
+          "text": "**การพัฒนาจิตใจ**: ตาม BPHS, Raja Yoga จะทำให้บุคคลมีจิตใจที่แข็งแกร่งและสามารถผ่านพ้นความท้าทายทางจิตใจได้อย่างดี\n\n6.",
+          "confidence": 0.92
+        },
+        {
+          "text": "**การประสบความสำเร็จในชีวิต**: ตาม Phaladeepika, Raja Yoga จะทำให้บุคคลมีโอกาสประสบความสำเร็จในชีวิตทางอาชีพและส่วนตัว\n\nโดยสรุป, Raja Yoga ใน Phaladeepika เป็นการรวมตัวของดาวเคราะห์ที่มีพลังงานทรงพลังในตำแหน่งที่เหมาะสม ซึ่งจะทำให้บุคคลมีความสามารถในการรับรู้และเข้าใจสิ่งต่างๆ ได้อย่างลึกซึ้ง และสามารถประสบความสำเร็จในชีวิตทางอาชีพและส่วนตัว.",
           "confidence": 0.76
         }
       ],
-      "latency_ms": 113777,
-      "generated_at": "2026-08-08T10:21:42.780837"
+      "latency_ms": 63440,
+      "generated_at": "2026-08-08T10:25:26.566320"
     },
     "7037de03229d244e": {
       "answer": "ในบริบทของ Jyotish Shastra (โหราศาสตร์เวท), Saravali เป็นหนึ่งในวิธีการคำนวณที่สำคัญ ซึ่งมีลักษณะเฉพาะตัวและแตกต่างจาก BPHS (Brihat Parashara Hora Shastra) ในหลายด้าน\n\n1. **หลักการของ Saravali**:\n   - Saravali ให้ความสำคัญกับการคำนวณที่ละเอียดอ่อนและมีรายละเอียดมากขึ้น โดยเฉพาะในเรื่องของเวลาและตำแหน่งของดาวเคราะห์ (Planets) ในราศี (Signs) และส่วนต่างๆ ของราศี\n   - วิธีการคำนวณของ Saravali มุ่งเน้นที่การพิจารณาปัจจัยทางกายภาพและพฤติกรรมของดาวเคราะห์ในบริบทของราศีและเวลา\n\n2. **ความแตกต่างจาก BPHS**:\n   - ใน BPHS, คำนวณการเคลื่อนที่ของดาวเคราะห์ตามราศีโดยพื้นฐาน และมุ่งเน้นที่การสร้างภาพรวมของชีวิตและความสัมพันธ์ระหว่างผู้คน\n   - ในขณะที่ Saravali ให้ความสำคัญกับรายละเอียดทางกายภาพและพฤติกรรมของดาวเคราะห์มากขึ้น ซึ่งทำให้มีการวิเคราะห์ที่ลึกซึ้งและเฉพาะเจาะจง\n\n3. **อ้างอิงจาก Saravali**:\n   - ใน Saravali, ผู้เขียน (ไม่มีชื่อที่แน่นอน) ได้อธิบายว่าการคำนวณของดาวเคราะห์ควรทำอย่างละเอียดและพิจารณาปัจจัยทางกายภาพและพฤติกรรม (Phaladeepika, Saravali)\n   - \"Saravali\" อธิบายว่าการคำนวณที่ละเอียดอ่อนนี้จะทำให้สามารถเข้าใจลักษณะและความหมายของดาวเคราะห์ในบริบทที่เฉพาะเจาะจงมากขึ้น (Brihat Jataka, Saravali)\n\n4. **อ้างอิงจาก BPHS**:\n   - ใน BPHS, คำว่า \"Parashara\" ได้อธิบายวิธีการคำนวณที่พื้นฐานและสร้างภาพรวมของชีวิตและความสัมพันธ์ระหว่างผู้คน (Brihat Parashara Hora Shastra, BPHS)\n   - \"Parashara\" ได้กล่าวถึงการคำนวณที่เน้นความสมดุลและภาพรวมของชีวิต\n\nสรุปแล้ว Saravali และ BPHS มีความแตกต่างในระดับของการละเอียดและการพิจารณาปัจจัยทางกายภาพและพฤติกรรม ซึ่งทำให้การคำนวณและวิเคราะห์มีลักษณะเฉพาะเจาะจงมากขึ้นใน Saravali เมื่อเทียบกับ BPHS.",
@@ -2186,5 +2218,5 @@
     "rejected": 0,
     "total_reviewed": 0
   },
-  "last_updated": "2026-08-08T10:22:27.340831"
+  "last_updated": "2026-08-08T10:26:06.207051"
 }

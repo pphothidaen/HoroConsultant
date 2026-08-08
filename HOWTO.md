@@ -28,6 +28,7 @@
    - [3.3 Local Ollama LLM Platform](#33-local-ollama-llm-platform)
    - [3.4 Kaggle GPU Fine-Tuning Platform CLI](#34-kaggle-gpu-fine-tuning-platform-cli)
    - [3.5 Model Context Protocol (MCP) Server Platform](#35-model-context-protocol-mcp-server-platform)
+   - [3.6 Hugging Face Spaces Deployment Platform CLI](#36-hugging-face-spaces-deployment-platform-cli)
 
 ---
 
@@ -252,3 +253,24 @@ python3 project/mcp_server.py
 - `render_bazi_svg` — วาดรูปผังดวง BaZi SVG บันทึกลงไฟล์
 - `render_zodiac_svg` — วาดรูปผังวงล้อ 12 ราศี SVG บันทึกลงไฟล์
 - `rag_search` — สืบค้นข้อมูลคัมภีร์โบราณ 3,132 Vector Chunks
+
+---
+
+### 3.6 Hugging Face Spaces Deployment Platform CLI
+**การสั่งงานจัดส่งโค้ดและแอปพลิเคชันขึ้น Hugging Face Spaces (Static Edge CDN & Docker):**
+```bash
+# 1. ตรวจสอบ Payload Audit และ Publish ขึ้น Hugging Face Static Space (0% CPU Quota / 24/7 Unlimited Uptime)
+python3 scripts/publish_space_hf.py --sdk static
+
+# 2. ตรวจสอบสถานะการเชื่อมต่อสด (Live Health Check)
+python3 scripts/publish_space_hf.py --check-health
+
+# 3. ทดสอบ Payload Audit แบบ Dry-Run (ไม่เปลี่ยนแปลงไฟล์บน Cloud)
+python3 scripts/publish_space_hf.py --dry-run
+```
+
+**ลิงก์ใช้งานระบบบน Hugging Face Static Edge CDN:**
+- 🔮 **Main Dashboard**: `https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html`
+- 🔐 **Admin Panel**: `https://pphothidaen-horoconsultant-core-backend.static.hf.space/admin.html`
+- 🔬 **HITL Review Studio**: `https://pphothidaen-horoconsultant-core-backend.static.hf.space/hitl.html`
+

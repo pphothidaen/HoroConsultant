@@ -265,6 +265,33 @@ def publish_space(space_id: str, sdk: str = "static", private: bool = False, dry
 
     try:
         if sdk == "static":
+            # Generate and upload README.md with Hugging Face Space YAML frontmatter for Static SDK
+            hf_static_readme = """---
+title: Horoconsultant Core Backend
+emoji: 🔮
+colorFrom: indigo
+colorTo: purple
+sdk: static
+pinned: false
+---
+
+# 🔮 HoroConsultant — Computational Metaphysics Engine Frontend
+"""
+            readme_path = ROOT / "README.hf.md"
+            readme_path.write_text(hf_static_readme, encoding="utf-8")
+
+            api.upload_file(
+                path_or_fileobj=str(readme_path),
+                path_in_repo="README.md",
+                repo_id=space_id,
+                repo_type="space",
+            )
+            # Remove Dockerfile if it exists in HF repo to force static mode
+            try:
+                api.delete_file("Dockerfile", repo_id=space_id, repo_type="space")
+            except Exception:
+                pass
+
             static_dir = ROOT / "project" / "static"
             api.upload_folder(
                 folder_path=str(static_dir),

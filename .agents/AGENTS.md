@@ -14,6 +14,7 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 | Agent Identifier | Role | Primary Baseline (Gemini-First) | Quota-Enhanced Alternative (Claude / GPT) | Thinking Effort | Token Cost Profile | Primary Focus |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | **`orchestrator`** | Master Orchestrator (The Brain) | `Gemini 3.6 Flash` | `Claude Sonnet 3.7 / 4.6` | **High** | High (Strategic) | Requirements Analysis, Architecture Blueprinting, Spec Breakdown, Delegation, Final Code Review Gateway |
+| **`business_analyst`** | Business System Analyst (The Spec & Skill Architect) | `Gemini 3.6 Flash` | `Claude Sonnet 3.5` / `GPT-4o` | **Standard** | Mid (Analysis) | Requirements Analysis, Spec Breakdown, Live Docs Watchdog (PROJECT_TASKS.md, plans/plan.md), Agent Skill Governance |
 | **`developer`** | Senior Developer (The Hands) | `Gemini 3.6 Flash` (Standard) / `Gemini 3.5 Flash-Lite` | `Claude Sonnet 3.5` / `GPT-4o` | **Standard / Off** | Mid-Low (Execution) | Full-Stack Coding, Inline Documentation, Bug Fixes based on QA reports |
 | **`qa_tester`** | QA Tester (The Guard) | `Gemini 3.5 Flash-Lite` | `GPT-4o-mini` / `Gemini 3.5 Flash-Lite` | **Off** | Lowest (Audit) | Test Case Generation, `pytest` Test Execution, Pessimistic Bug/Vulnerability Identification |
 | **`devops`** | DevOps & Release (The Bridge) | `Gemini 3.6 Flash` (Standard) | `GPT-4o` / `Gemini 3.6 Flash` | **Standard** | Mid (Infrastructure) | Environment Verification (.env, Docker), CLI/Shell Command Approval, Packaging & Release Readiness |
@@ -30,6 +31,7 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 4. **`kaggle-manager`**: Kaggle GPU Fine-Tuning notebook automation (`--status`, `--push`, `--pull`).
 5. **`bazi-calculator`**: Deterministic 4-Pillars, True Solar Time & Five Elements calculation skill.
 6. **`rag-search`**: Local FAISS vector search across 3,132 ingested metaphysical text chunks.
+7. **`bsa-doc-skill-management`**: Business System Analysis, live documentation audit, and agent skill governance skill.
 
 ---
 
@@ -38,15 +40,17 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 ```mermaid
 flowchart TD
     User([User Request]) --> Orch[Orchestrator\nGemini 3.6 Flash - High / Claude Sonnet]
-    Orch -->|1. Blueprint & Breakdown| Plan[/plans/plan.md\]
-    Orch -->|2. Delegate Sub-task| Dev[Senior Developer\nGemini 3.6 Flash / GPT-4o]
-    Dev -->|3. Source Code & Docs| Orch
-    Orch -->|4. Request Verification| QA[QA Tester\nGemini 3.5 Flash-Lite - Thinking: Off]
-    QA -->|5a. Bug Report Fail| Orch
-    Orch -->|5b. Bounce Back Bug Fix| Dev
-    QA -->|6. Test Passed 100%| DevOps[DevOps & Release\nGemini 3.6 Flash Standard]
-    DevOps -->|7. Env & Package Verified| Orch
-    Orch -->|8. Final Code Review & Summary| User
+    Orch -->|1. Delegate Spec & Docs| BSA[Business System Analyst\nGemini 3.6 Flash - Standard]
+    BSA -->|2. Audit Docs, Skills & Spec Breakdown| Plan[/plans/plan.md & PROJECT_TASKS.md\]
+    Orch -->|3. Delegate Sub-task| Dev[Senior Developer\nGemini 3.6 Flash / GPT-4o]
+    Dev -->|4. Source Code & Docs| Orch
+    Orch -->|5. Request Verification| QA[QA Tester\nGemini 3.5 Flash-Lite - Thinking: Off]
+    QA -->|6a. Bug Report Fail| Orch
+    Orch -->|6b. Bounce Back Bug Fix| Dev
+    QA -->|7. Test Passed 100%| DevOps[DevOps & Release\nGemini 3.6 Flash Standard]
+    DevOps -->|8. Env & Package Verified| Orch
+    BSA -->|9. Sync Live Docs & Skills| Docs[Repository Docs & Skills Catalog]
+    Orch -->|10. Final Code Review & Summary| User
 ```
 
 ---
@@ -72,3 +76,4 @@ flowchart TD
 6. **Pre-Development Kaggle Sync**: Before starting any development or modifying code, agents MUST run `python3 scripts/kaggle_notebook_manager.py --status` (and `--pull` if updated) to verify and sync the latest Kaggle kernel status/outputs.
 7. **Locked Kaggle Accelerator Stage**: `project/kaggle_kernel/kernel-metadata.json` accelerator settings (such as `"machine_shape": "NvidiaTeslaT4"`) are permanently preserved and locked. Agents MUST NEVER modify, overwrite, or toggle `kernel-metadata.json` accelerator fields.
 8. **Centralized Secrets & Lessons Learned Audit**: Agents MUST enforce the 2-Tier Priority Secrets Policy (`.agents/rules/06-secrets-policy.md`) and consult `.agents/LESSONS_LEARNED.md` before performing MLOps or architectural changes.
+9. **Documentation & Skill Up-to-date Mandate**: The Business System Analyst (`business_analyst`) MUST audit and keep all repo documentation (`PROJECT_TASKS.md`, `README.md`, `HOWTO.md`, `plans/plan.md`) and `.agents/skills/` definitions fully updated and aligned with actual implementation code.

@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-07 21:34 (UTC+7)*
+> *Last Updated: 2026-08-08 11:33 (UTC+7)*
 
 ---
 
@@ -39,6 +39,7 @@ python3 scripts/kaggle_notebook_manager.py --pull
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
 │ • Cross-Platform AI Agent Framework   │ (None - All tasks completed 100%)     │ (All tasks completed & verified)      │
+│ • Business Analyst Agent & Governance │                                       │                                       │
 │ • 8 Domain Master Agents Decoupled    │                                       │                                       │
 │ • Multi-Model Quota Allocation Policy │                                       │                                       │
 │ • HF Spaces Dockerfile & Publisher    │                                       │                                       │
@@ -54,6 +55,10 @@ python3 scripts/kaggle_notebook_manager.py --pull
 
 ### ✅ DONE (เสร็จสมบูรณ์ 100% พร้อมใช้งาน)
 
+- [x] **Business System Analyst Agent & Skill Governance ([`.agents/agents/business_analyst/agent.md`](file:///.agents/agents/business_analyst/agent.md))**
+  - Created `business_analyst` agent role for requirement analysis, documentation watchdog, and agent skill governance.
+  - Created `bsa-doc-skill-management` skill ([`.agents/skills/bsa-doc-skill-management/SKILL.md`](file:///.agents/skills/bsa-doc-skill-management/SKILL.md)).
+  - Updated Orchestrator collaboration flow and system rules in [`.agents/AGENTS.md`](file:///.agents/AGENTS.md).
 - [x] **Multi-Model Quota Strategy & Model Allocation Matrix ([`.agents/AGENTS.md`](file:///.agents/AGENTS.md))**
   - Updated Gemini-First Production Baseline + Claude/GPT Quota Failover rules.
   - Configured high-efficiency tiering for `orchestrator`, `developer`, `qa_tester`, and `devops`.
