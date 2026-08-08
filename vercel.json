@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/hf/:path*",
+      "destination": "https://pphothidaen-horoconsultant-core-backend.hf.space/:path*"
+    },
+    {
       "source": "/health",
       "destination": "/api"
     },
