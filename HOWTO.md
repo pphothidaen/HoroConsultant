@@ -289,17 +289,22 @@ python3 scripts/publish_space_hf.py --dry-run
 | **Render.com / Railway.app** | Docker Web Service (`Dockerfile.hf`) | Full-stack FastAPI Production Container | Mid (~150ms) | Low Cost ($5/mo), Auto SSL & Custom Domain |
 | **Kaggle GPU Accelerator** | GPU Fine-Tuning Notebook (`T4 Machine`) | LLM Fine-Tuning & Model Weight Fusion | Batch Pipeline | Free 30h/week Nvidia T4 GPU |
 
-### 🛠️ 3.8 การสั่งงานคำสั่ง Deploy และ Sync Secrets ไปยังแต่ละ Platform
+### 🛠️ 3.8 การสั่งงานอัตโนมัติ 100% ทั้งระบบในคำสั่งเดียว (Master 1-Command Production Automation)
 
-#### 🔑 คำสั่งซิงค์ Secrets ไปทุก Platform ในคำสั่งเดียว (Automated Multi-Cloud Secrets Sync):
+#### 🚀 คำสั่งปล่อยระบบขึ้น Production ทั้งหมดแบบอัตโนมัติ (1-Command Full Pipeline):
 ```bash
-# รันสคริปต์อัตโนมัติเพื่อซิงค์ ENV & Secrets ไปยัง Fly.io, Vercel และ Hugging Face
+# รันสคริปต์ Master Automation เพื่อตรวจสอบความปลอดภัย ซิงค์ Secrets และ Deploy ไปยังทุก Platform
+bash scripts/auto_deploy_all.sh
+```
+
+#### 🔑 คำสั่งซิงค์ Secrets ไปทุก Platform (Secrets Sync Only):
+```bash
 bash scripts/setup_production_secrets.sh
 ```
 
 #### 🚀 การจัดส่งขึ้น Fly.io (Singapore Region `sin`):
 ```bash
-# 1. ติดตั้ง Fly CLI และ Login
+# 1. ติดตั้ง Fly CLI และ Login (ครั้งแรก)
 brew install flyctl
 fly auth login
 
@@ -307,6 +312,7 @@ fly auth login
 fly launch --config fly.toml --no-deploy
 fly deploy
 ```
+
 
 
 
