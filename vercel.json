@@ -1,31 +1,24 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "api/**/*.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/hf/(.*)",
-      "dest": "https://pphothidaen-horoconsultant-core-backend.hf.space/$1"
+      "source": "/api/hf/:path*",
+      "destination": "https://pphothidaen-horoconsultant-core-backend.hf.space/:path*"
     },
     {
-      "src": "/health",
-      "dest": "api/health"
+      "source": "/health",
+      "destination": "/api/health"
     },
     {
-      "src": "/api/v1/health",
-      "dest": "api/health"
+      "source": "/api/v1/health",
+      "destination": "/api/health"
     },
     {
-      "src": "/api/v1/(.*)",
-      "dest": "api/index"
+      "source": "/api/v1/:path*",
+      "destination": "/api/index"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "api/index"
+      "source": "/api/:path*",
+      "destination": "/api/index"
     }
   ]
 }
