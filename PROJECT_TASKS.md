@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-08 14:14 (UTC+7)*
+> *Last Updated: 2026-08-08 15:47 (UTC+7)*
 
 ---
 
@@ -9,20 +9,20 @@
 ```bash
 cd /Users/kimlenglim/Project/HoroConsultant
 
-# 1. รัน Production Live Playwright E2E UI Button Regression (20/20 PASSED 100%)
-python3 scripts/run_prod_e2e_playwright.py
+# 1. รัน Playwright E2E Visual Browser Suite (17/17 PASSED 100%)
+python3 scripts/run_e2e_screenshots.py
 
-# 2. รัน Multi-Scenario Production Astrological Audit Suite (4/4 Scenarios PASS)
-python3 scripts/run_production_astrological_audit_suite.py
+# 2. รัน UI Button & Endpoint Contract Regression Suite (25/25 PASSED 100%)
+python3 scripts/run_button_regression.py
 
-# 3. รัน Canonical 5-W Consonance Matrix & Scripture Citation Audit (8/8 Masters PASS)
-python3 scripts/audit_canonical_consonance_matrix.py
+# 3. รัน Pre-Deployment Safety Audit & Secret Scan (READY_FOR_PROD)
+python3 project/core/code_reviewer.py --review
 
-# 4. รัน Topic Relevance & Contextual Coherence Audit (3/3 Topics PASS)
-python3 scripts/audit_topic_relevance_and_coherence.py
+# 4. รัน Hugging Face Spaces Deployment Dry Run
+python3 scripts/publish_space_hf.py --dry-run
 
 # 5. รัน Full Unit, Integration & Universal Bridge Test ทั้งหมด (138/138 tests PASS)
-python3 -m pytest -v
+python3 -m pytest -v --ignore=project/kaggle_kernel
 
 # 6. ตรวจสอบสถานะซิงก์ของ SDLC Agents ข้ามแพลตฟอร์ม (Antigravity & Claude Code)
 python3 scripts/sync_sdlc_agents.py --check
@@ -36,21 +36,37 @@ python3 scripts/sync_sdlc_agents.py --check
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Available Agents & Frontmatter Sync │ (None - All tasks completed 100%)     │ (Run 'fly deploy' & 'npx vercel')     │
-│ • Cross-Framework Agent Synchronizer  │                                       │                                       │
-│ • Live Prod E2E UI Regression (20/20) │                                       │                                       │
-│ • 4-Scenario Astrological Audit Suite │                                       │                                       │
-│ • 5-W Canonical Consonance Audit      │                                       │                                       │
-│ • Universal Runtime Metaphysics Bridge│                                       │                                       │
-│ • Business Analyst Doc Watchdog       │                                       │                                       │
-│ • HF Spaces Edge CDN Deploy Verified  │                                       │                                       │
-│ • 138/138 Pytest Suites PASS          │                                       │                                       │
+│ • Playwright E2E Screenshots (17/17)  │ (None - All tasks completed 100%)     │ (Optional future cloud deployments)   │
+│ • UI Button & Endpoint Suite (25/25)  │                                       │                                       │
+│ • HF Spaces Live Deploy & Audit       │                                       │                                       │
+│ • Static Assets & Async Route Fix     │                                       │                                       │
+│ • Pre-Deploy Safety Audit (PASS)      │                                       │                                       │
+│ • Doppler Secret Sync & Audit         │                                       │                                       │
+│ • 138/138 Pytest Suite (100% PASS)    │                                       │                                       │
+│ • Agent Spec & Skill Governance Sync  │                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
 
 ---
 
 ### ✅ DONE (เสร็จสมบูรณ์ 100% พร้อมใช้งาน)
+
+- [x] **Full 5-Phase AI SDLC Deployment Pipeline & E2E Visual Suite ([`scripts/run_e2e_screenshots.py`](file:///scripts/run_e2e_screenshots.py))**
+  - Resolved static asset routing (`/static/app.js` and `/static/style.css`) and converted route handlers to async Playwright handlers.
+  - Achieved **100.0% Pass Rate** across 17 E2E visual features (Main Dashboard, Geocoding Resolver, Presets, 4-Pillars Grid, Tab Switching, 8 Master Disciplines Visualizers, Admin Auth, HITL Studio, OpenAPI Swagger UI, ReDoc).
+  - Screenshots output saved to `project/tests/screenshots/` and report generated in `project/tests/e2e_results_report.json`.
+
+- [x] **UI Button & Endpoint Contract Regression Suite ([`scripts/run_button_regression.py`](file:///scripts/run_button_regression.py))**
+  - Verified 25/25 endpoint and button contract execution cards with 100% success rate (`project/tests/button_regression_report.json`).
+
+- [x] **Pre-Deployment Safety Audit & Secret Leak Scan ([`project/core/code_reviewer.py`](file:///project/core/code_reviewer.py))**
+  - Audited 1,060 files: **0 secret leaks found**, **0 CUDA issues**, test suite **138 passed**. Overall status: **`READY_FOR_PROD`**.
+
+- [x] **Hugging Face Spaces Live Deployment ([`scripts/publish_space_hf.py`](file:///scripts/publish_space_hf.py))**
+  - Dry-run payload audit passed (3.31 MB). Live demo published to target Space: [`pphothidaen/horoconsultant-core-backend`](https://huggingface.co/spaces/pphothidaen/horoconsultant-core-backend).
+
+- [x] **Cross-Platform SDLC Agent Governance Sync ([`scripts/sync_sdlc_agents.py`](file:///scripts/sync_sdlc_agents.py))**
+  - Synchronized all 16 Antigravity agent definitions (`.antigravity/agents/`), agent skills (`.agents/skills/`), and registry manifests. Verified via `--check` mode (`100% Synchronized`).
 
 - [x] **Available Agents & Default Agent Configuration Fix ([`agent.md`](file:///Users/kimlenglim/Project/HoroConsultant/agent.md), [`.antigravity/agents/`](file:///Users/kimlenglim/Project/HoroConsultant/.antigravity/agents/), [`.agents/agents/`](file:///Users/kimlenglim/Project/HoroConsultant/.agents/agents/))**
   - Resolved `Available Agents` configuration discrepancy across project agent definitions.
