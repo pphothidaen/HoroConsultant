@@ -284,7 +284,6 @@ python3 scripts/publish_space_hf.py --dry-run
 | :--- | :--- | :--- | :--- | :--- |
 | **Hugging Face Static Edge CDN** | Frontend UIs (`sdk: static`) | Web UIs, Admin Panel, HITL Studio | Global Edge (< 20ms) | Zero Cost, 24/7 Unlimited Uptime, No Quota Limit |
 | **Fly.io Micro-VMs (`fly.toml`)** | Docker Container (`Dockerfile.hf`) | FastAPI API + Rust Math (Singapore `sin`) | Ultra-Low (< 30ms) | $5 Free Monthly Credit (3x 256MB Micro-VMs) |
-| **Koyeb Serverless Container** | Docker Container (`Dockerfile.hf`) | FastAPI Backend (Singapore `sin1`) | Ultra-Low (< 35ms) | $5.50 Free Monthly Credit (512MB Nano VM) |
 | **Hugging Face Spaces Docker** | Full Backend Container (`sdk: docker`) | FastAPI API + Rust Fast Math + FAISS | Mid (~200ms US) | Free Tier (16GB RAM, 2 vCPU Container) |
 | **Vercel Edge Network** | Gateway Rewrites (`vercel.json`) | Global Edge Proxy & Reverse Proxy | Global Edge (< 20ms) | Free Tier (Unlimited Static & Serverless) |
 | **Render.com / Railway.app** | Docker Web Service (`Dockerfile.hf`) | Full-stack FastAPI Production Container | Mid (~150ms) | Low Cost ($5/mo), Auto SSL & Custom Domain |
@@ -294,41 +293,21 @@ python3 scripts/publish_space_hf.py --dry-run
 
 #### 🔑 คำสั่งซิงค์ Secrets ไปทุก Platform ในคำสั่งเดียว (Automated Multi-Cloud Secrets Sync):
 ```bash
-# รันสคริปต์อัตโนมัติเพื่อซิงค์ ENV & Secrets ไปยัง Fly.io, Koyeb, Vercel และ Hugging Face
+# รันสคริปต์อัตโนมัติเพื่อซิงค์ ENV & Secrets ไปยัง Fly.io, Vercel และ Hugging Face
 bash scripts/setup_production_secrets.sh
 ```
 
-
-### 🛠️ 3.8 การสั่งงานคำสั่ง Deploy ขึ้น Fly.io และ Koyeb
-
-#### 1. การจัดส่งขึ้น Fly.io (Singapore Region `sin`):
+#### 🚀 การจัดส่งขึ้น Fly.io (Singapore Region `sin`):
 ```bash
 # 1. ติดตั้ง Fly CLI และ Login
 brew install flyctl
 fly auth login
 
-# 2. Deploy ผ่านไฟล์ fly.toml ( targeting Singapore region < 30ms latency)
+# 2. Deploy ผ่านไฟล์ fly.toml (targeting Singapore region < 30ms latency)
 fly launch --config fly.toml --no-deploy
 fly deploy
 ```
 
-#### 2. การจัดส่งขึ้น Koyeb Container Cloud (Singapore Region `sin1`):
-```bash
-# 1. ติดตั้ง Koyeb CLI และ Login
-brew install koyeb/tap/koyeb
-koyeb login
-
-# 2. Deploy จาก GitHub Repository
-koyeb service create horoconsultant-backend \
-  --app horoconsultant \
-  --git github.com/pphothidaen/HoroConsultant \
-  --git-branch main \
-  --git-builder dockerfile \
-  --git-dockerfile Dockerfile.hf \
-  --ports 7860:http \
-  --routes /:7860 \
-  --regions sin
-```
 
 
 

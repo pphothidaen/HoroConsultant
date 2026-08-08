@@ -4,9 +4,8 @@
 # ==============================================================================
 # Dynamically loads secrets from local environment / .env and synchronizes across:
 # 1. Fly.io Micro-VMs (Singapore Region)
-# 2. Koyeb Serverless Cloud (Singapore Region)
-# 3. Vercel Edge Gateway
-# 4. Hugging Face Spaces (Environment Secrets Store)
+# 2. Vercel Edge Gateway
+# 3. Hugging Face Spaces (Environment Secrets Store)
 # ==============================================================================
 
 set -e
@@ -37,7 +36,7 @@ PORT="${PORT:-7860}"
 # ------------------------------------------------------------------------------
 # 1. Sync Secrets to Fly.io
 # ------------------------------------------------------------------------------
-echo "[INFO] [1/4] Synchronizing secrets to Fly.io (fly.toml)..."
+echo "[INFO] [1/3] Synchronizing secrets to Fly.io (fly.toml)..."
 if command -v fly &> /dev/null || command -v flyctl &> /dev/null; then
     FLY_CMD=$(command -v fly || command -v flyctl)
     $FLY_CMD secrets set \
@@ -61,35 +60,20 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 2. Sync Secrets to Koyeb
+# 2. Sync Secrets to Vercel
 # ------------------------------------------------------------------------------
-echo "[INFO] [2/4] Synchronizing secrets to Koyeb Serverless Cloud..."
-if command -v koyeb &> /dev/null; then
-    koyeb secret create horoconsultant-secrets \
-        --value ADMIN_ALLOWED_EMAILS="$ADMIN_ALLOWED_EMAILS" \
-        --value GEMINI_API_KEY="${GEMINI_API_KEY:-}" \
-        --value APP_SUPABASE_URL="${APP_SUPABASE_URL:-}" \
-        --value APP_SUPABASE_KEY="${APP_SUPABASE_KEY:-}" || echo "[INFO] Koyeb secret store updated."
-    echo "[OK] Koyeb secrets sync completed."
-else
-    echo "[WARNING] koyeb CLI not installed. Skip Koyeb sync. Install via: brew install koyeb/tap/koyeb"
-fi
-
-# ------------------------------------------------------------------------------
-# 3. Sync Secrets to Vercel
-# ------------------------------------------------------------------------------
-echo "[INFO] [3/4] Verifying Vercel Edge Gateway Configuration..."
+echo "[INFO] [2/3] Verifying Vercel Edge Gateway Configuration..."
 if command -v vercel &> /dev/null; then
     echo "[INFO] Vercel CLI detected. Ensuring .env.production is aligned."
-    echo "[OK] Vercel ready for 'vercel --prod'."
+    echo "[OK] Vercel ready for 'npx vercel --prod'."
 else
-    echo "[WARNING] vercel CLI not installed. Install via: npm i -g vercel"
+    echo "[INFO] Vercel CLI ready via 'npx vercel --prod'."
 fi
 
 # ------------------------------------------------------------------------------
-# 4. Sync Secrets to Hugging Face Space
+# 3. Sync Secrets to Hugging Face Space
 # ------------------------------------------------------------------------------
-echo "[INFO] [4/4] Verifying Hugging Face Space Credentials..."
+echo "[INFO] [3/3] Verifying Hugging Face Space Credentials..."
 python3 -c "
 import os
 from huggingface_hub import HfApi
@@ -109,7 +93,6 @@ echo "======================================================================"
 echo "  MULTI-CLOUD PRODUCTION SECRETS SYNC COMPLETE!"
 echo "======================================================================"
 echo "  • Fly.io Singapore Region   : Secrets Ready"
-echo "  • Koyeb Singapore Region    : Secrets Ready"
 echo "  • Vercel Edge Network       : Configured (.env.production & vercel.json)"
 echo "  • Hugging Face Spaces       : Token Verified"
 echo "======================================================================"

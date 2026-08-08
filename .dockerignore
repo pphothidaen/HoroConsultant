@@ -1,0 +1,68 @@
+# flyctl launch added from .gitignore
+**/.env*
+!**/.env.example
+**/*.gguf
+**/*.bin
+**/*.safetensors
+**/*.pdf
+**/project/models/qwen2.5-bazi-adapter
+**/project/models/qwen2.5-bazi-fused
+**/project/data/mlx_finetune
+**/project/data/vector_store
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/.pytest_cache
+**/.DS_Store
+**/*.xml
+**/.coverage
+**/coverage.xml
+**/test-results.xml
+**/target
+**/rust_core/target
+**/project/kaggle_kernel/HoroConsultant
+**/wandb
+**/.fly
+**/.vercel
+**/project/tests/screenshots
+**/project/tests/e2e_results_report.json
+**/project/tests/button_regression_report.json
+
+
+
+# flyctl launch added from .pytest_cache/.gitignore
+# Created by pytest automatically.
+.pytest_cache/**/*
+
+# flyctl launch added from .ruff_cache/.gitignore
+# Automatically created by ruff.
+.ruff_cache/**/*
+
+# flyctl launch added from project/kaggle_kernel/HoroConsultant/.gitignore
+project/kaggle_kernel/HoroConsultant/**/.env*
+project/kaggle_kernel/HoroConsultant/**/.env.*
+project/kaggle_kernel/HoroConsultant/**/*.gguf
+project/kaggle_kernel/HoroConsultant/**/*.bin
+project/kaggle_kernel/HoroConsultant/**/*.safetensors
+project/kaggle_kernel/HoroConsultant/**/*.pdf
+project/kaggle_kernel/HoroConsultant/**/project/models/qwen2.5-bazi-adapter
+project/kaggle_kernel/HoroConsultant/**/project/models/qwen2.5-bazi-fused
+project/kaggle_kernel/HoroConsultant/**/project/data/mlx_finetune
+project/kaggle_kernel/HoroConsultant/**/project/data/vector_store
+project/kaggle_kernel/HoroConsultant/**/__pycache__
+project/kaggle_kernel/HoroConsultant/**/*.pyc
+project/kaggle_kernel/HoroConsultant/**/*.pyo
+project/kaggle_kernel/HoroConsultant/**/.pytest_cache
+project/kaggle_kernel/HoroConsultant/**/.DS_Store
+project/kaggle_kernel/HoroConsultant/**/*.xml
+project/kaggle_kernel/HoroConsultant/**/.coverage
+project/kaggle_kernel/HoroConsultant/**/coverage.xml
+project/kaggle_kernel/HoroConsultant/**/test-results.xml
+project/kaggle_kernel/HoroConsultant/**/target
+project/kaggle_kernel/HoroConsultant/**/rust_core/target
+project/kaggle_kernel/HoroConsultant/**/project/kaggle_kernel/HoroConsultant
+
+
+
+
+fly.toml
