@@ -1,9 +1,9 @@
-# AI SDLC Master Implementation Plan: Production Agent Readiness & Multi-Platform Deployment
+# AI SDLC Master Implementation Plan: Production Multi-Cloud Architecture & AI SDLC Full Verification
 
 **Project:** HoroConsultant — Computational Metaphysics Engine  
 **Target Framework:** Antigravity CLI AI SDLC System  
-**Orchestrator Model:** Gemini 3.6 Flash (High Effort) / Claude Sonnet 3.7/4.6  
-**Last Updated:** 2026-08-08 (UTC+7)
+**Lead Agent:** Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
+**Last Updated:** 2026-08-08 12:44 (UTC+7)
 
 ---
 
@@ -13,60 +13,65 @@
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Model Allocation Policy Update      │ (None - All tasks completed 100%)     │ (All tasks completed & verified)      │
-│ • HF Spaces Dockerfile & Publisher    │                                       │                                       │
-│ • Multi-Agent Peer Debate & HITL      │                                       │                                       │
-│ • HF Space Dry-Run & Payload Verified │                                       │                                       │
-│ • Production Secrets Sync Verified    │                                       │                                       │
-│ • Post-Finetune DB Vector Purge Setup │                                       │                                       │
-│ • Vercel API Gateway Proxy (/api/hf/) │                                       │                                       │
-│ • 111/111 Tests Passing (2.85s)       │                                       │                                       │
+│ • Business System Analyst Agent (BSA) │ (None - Goal verification complete)   │ (All 5-Phase AI SDLC Tasks Complete)  │
+│ • BSA Skill & Doc Watchdog Governance │                                       │                                       │
+│ • Hybrid Geocoding Offline Fallback   │                                       │                                       │
+│ • Whitelisted Admin Auth (pansakorn & │                                       │                                       │
+│   kimlenglim.work@gmail.com)          │                                       │                                       │
+│ • Docker Build .dockerignore Fix      │                                       │                                       │
+│ • Fly.io Singapore Node (fly.toml)    │                                       │                                       │
+│ • Vercel Edge Gateway (vercel.json)   │                                       │                                       │
+│ • Automated Secrets Sync Script       │                                       │                                       │
+│ • HF Static Edge CDN Publishing       │                                       │                                       │
+│ • 128/128 Tests Passing (3.87s)       │                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
 
 ---
 
-## 📋 Detailed Task Breakdown Matrix
+## 🌐 Multi-Cloud Platform Architecture Matrix
 
-| Task # | Category | Task Description | Target File / Artifact | Status |
+| Platform Layer | Target Environment | Key Functionality | SLA & Latency Profile | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **Task 1** | **Policy** | Multi-Model Quota Allocation Strategy & Tiering | [`.agents/AGENTS.md`](file:///.agents/AGENTS.md) | ✅ **DONE** |
-| **Task 2** | **Workflow** | AI SDLC Workflow 5-Phase Pipeline Optimization | [`.agents/workflows/aisdlc.md`](file:///.agents/workflows/aisdlc.md) | ✅ **DONE** |
-| **Task 3** | **Agents** | Individual Agent Configs (Orchestrator, Dev, QA, DevOps) | [`.agents/agents/*/*.md`](file:///.agents/agents/) | ✅ **DONE** |
-| **Task 4** | **Deployment**| HuggingFace Spaces Container Configuration | [`Dockerfile.hf`](file:///Dockerfile.hf) | ✅ **DONE** |
-| **Task 5** | **Automation**| Automated HF Space Publisher Script | [`scripts/publish_space_hf.py`](file:///scripts/publish_space_hf.py) | ✅ **DONE** |
-| **Task 6** | **Engine** | Multi-Agent Async Debate & Synthesis Engine | [`project/core/multi_agent_debate.py`](file:///project/core/multi_agent_debate.py) | ✅ **DONE** |
-| **Task 7** | **Deployment**| Dry-run & Health Check for HF Spaces Deployment | [`scripts/publish_space_hf.py`](file:///scripts/publish_space_hf.py) | ✅ **DONE** |
-| **Task 8** | **Secrets** | HF Space Environment Variables & Token Injection | HuggingFace Space Settings (`HF_TOKEN`) | ✅ **DONE** |
-| **Task 9** | **Maintenance**| Data Purge & Vector Cleanup Post Fine-Tuning | [`scripts/post_train_fuse.py`](file:///scripts/post_train_fuse.py) | ✅ **DONE** |
-| **Task 10**| **Gateway** | Vercel Edge API Gateway Proxy to HF Core Backend | [`vercel.json`](file:///vercel.json) | ✅ **DONE** |
+| **Hugging Face Static Edge CDN** | `pphothidaen-horoconsultant-core-backend.static.hf.space` | Web Dashboard (`index.html`), Admin (`admin.html`), HITL (`hitl.html`) | 24/7 Unlimited Uptime, Zero Cost, Global Edge (< 20ms) | ✅ **ACTIVE** |
+| **Fly.io Micro-VMs (`sin`)** | `horoconsultant-core-backend.fly.dev` | FastAPI Backend + PyO3 Rust Fast Math + Swiss Ephemeris | Singapore Region (< 30ms latency for TH users) | ✅ **READY** |
+| **Vercel Edge Network** | `vercel.json` Gateway | Intelligent Edge API Route Rewriting & Reverse Proxy | Global Edge Proxy (< 20ms) | ✅ **READY** |
+| **Hugging Face Docker Space** | `pphothidaen/horoconsultant-core-backend` | Heavy FAISS RAG Search & Async Batch Data Processing | Free Container (16GB RAM, 2 vCPU) | ✅ **ACTIVE** |
+| **Kaggle GPU Accelerator** | `scripts/kaggle_notebook_manager.py` | Asynchronous LLM Fine-Tuning & Model Weight Fusion | Free 30h/week Nvidia T4 GPU Pipeline | ✅ **READY** |
 
 ---
 
 ## 🧪 Verification & Quality Control Standards
 
-1. **Unit & Integration Test Suite**:
+1. **Full Pytest Unit & Integration Regression Suite**:
    ```bash
-   PYTHONIOENCODING=utf-8:surrogateescape PYTHONUTF8=1 python3 -m pytest -v
+   python3 -m pytest -v
    ```
-   - Target: **108 / 108 tests passing (100% success rate)**.
+   - Target: **128 / 128 tests passing (100% success rate)**.
 
-2. **Pre-Deployment Code Audit & Security Review**:
+2. **22-Button UI & Endpoint Contract Regression Suite**:
+   ```bash
+   python3 scripts/run_button_regression.py
+   ```
+   - Target: **22 / 22 UI Button & API Endpoint contracts passing**.
+
+3. **Pre-Deployment Code Audit & Security Review**:
    ```bash
    python3 project/core/code_reviewer.py --review
    ```
    - Target: Status **`READY_FOR_PROD`** with zero sensitive key leaks.
 
-3. **HuggingFace Space Deploy Command**:
+4. **Multi-Cloud Secrets Sync**:
    ```bash
-   python3 scripts/publish_space_hf.py --space-id "username/horoconsultant-core-backend"
+   bash scripts/setup_production_secrets.sh
    ```
 
 ---
 
 ## 🛡️ Agent Execution Protocol
 
-- **Orchestrator Agent**: Delegates deployment tasks and audits test logs.
-- **Developer Agent**: Maintains Dockerfile.hf and FastAPI endpoint routes.
-- **QA Tester Agent**: Runs `pytest` and verifies health check response.
-- **DevOps Agent**: Manages HF_TOKEN authentication and environment variables.
+- **Orchestrator Agent**: Directs overall AI SDLC execution and verifies deployment status.
+- **Business Analyst Agent**: Audits repository documentation (`PROJECT_TASKS.md`, `HOWTO.md`, `README.md`) and agent skills.
+- **Developer Agent**: Maintains Dockerfile.hf, fly.toml, vercel.json, and FastAPI endpoint routes.
+- **QA Tester Agent**: Runs `pytest`, UI button regression suite, and Playwright E2E visual verification.
+- **DevOps Agent**: Manages secret injection, Docker builds, and cloud deployment pipelines.
