@@ -103,7 +103,12 @@ echo "[DEVOPS] Triggering Vercel Edge Gateway Deployment..."
 if command -v vercel &> /dev/null || command -v npx &> /dev/null; then
     VERCEL_CMD="npx vercel"
     [ -x "$(command -v vercel)" ] && VERCEL_CMD="vercel"
-    $VERCEL_CMD --prod --yes || echo "[INFO] [DEVOPS] Vercel login notice."
+    if [ -n "$VERCEL_TOKEN" ]; then
+        echo "[DEVOPS] Executing: $VERCEL_CMD --prod --yes --token=***"
+        $VERCEL_CMD --prod --yes --token="$VERCEL_TOKEN"
+    else
+        $VERCEL_CMD --prod --yes || echo "[INFO] [DEVOPS] Vercel login notice."
+    fi
 fi
 
 echo "[DEVOPS] Triggering Fly.io Micro-VM Deployment..."

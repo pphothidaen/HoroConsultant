@@ -68,8 +68,13 @@ if command -v vercel &> /dev/null || command -v npx &> /dev/null; then
     if command -v vercel &> /dev/null; then
         VERCEL_CMD="vercel"
     fi
-    echo "[DEPLOY] Executing: $VERCEL_CMD --prod --yes"
-    $VERCEL_CMD --prod --yes || echo "[WARNING] Vercel login required. Run '$VERCEL_CMD login' if not authenticated."
+    if [ -n "$VERCEL_TOKEN" ]; then
+        echo "[DEPLOY] Executing: $VERCEL_CMD --prod --yes --token=***"
+        $VERCEL_CMD --prod --yes --token="$VERCEL_TOKEN"
+    else
+        echo "[DEPLOY] Executing: $VERCEL_CMD --prod --yes"
+        $VERCEL_CMD --prod --yes || echo "[WARNING] Vercel login required. Set VERCEL_TOKEN in .env or run '$VERCEL_CMD login'."
+    fi
     echo "[OK] Step 4 Vercel Edge Deployment Completed."
 else
     echo "[WARNING] npx / vercel CLI not found. Skipping Vercel deployment."
