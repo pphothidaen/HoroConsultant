@@ -18,12 +18,13 @@ SWISS_EPHEMERIS_AVAILABLE = False
 try:
     import swisseph as swe
     SWISS_EPHEMERIS_AVAILABLE = True
-except ImportError:
+except (ImportError, OSError, Exception):
     try:
         import pyswisseph as swe  # type: ignore
         SWISS_EPHEMERIS_AVAILABLE = True
-    except ImportError:
+    except (ImportError, OSError, Exception):
         swe = None
+        SWISS_EPHEMERIS_AVAILABLE = False
 
 
 def get_solar_position_ephemeris(dt: datetime, longitude: float, latitude: float) -> Dict[str, Any]:

@@ -37,7 +37,7 @@ import numpy as np
 try:
     import faiss                          # type: ignore
     FAISS_AVAILABLE = True
-except ImportError:
+except (ImportError, OSError, Exception):
     FAISS_AVAILABLE = False
 
 try:
