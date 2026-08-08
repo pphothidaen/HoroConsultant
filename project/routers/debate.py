@@ -118,9 +118,10 @@ async def interpret_bazi(req: InterpretRequest):
         f"User Query: {req.query or 'Provide a comprehensive life reading.'}"
     )
 
-    ai_result = router.generate(
-        prompt             = prompt,
-        system_instruction = (
+    ai_result = await asyncio.to_thread(
+        router.generate,
+        prompt=prompt,
+        system_instruction=(
             "You are a master BaZi consultant. Provide a structured, insightful "
             "reading citing relevant classical principles. Be concise but thorough."
         ),
