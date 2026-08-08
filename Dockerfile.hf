@@ -13,6 +13,7 @@ LABEL description="HoroConsultant Core Backend Dockerfile for HuggingFace Spaces
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV PORT=7860
+# Grafana Cloud Free Tier Observability (GRAFANA_OTLP_ENDPOINT, GRAFANA_USER_ID, GRAFANA_API_KEY)
 ENV PROMETHEUS_METRICS_ENABLED=true
 
 ARG GIT_COMMIT_HASH=unknown

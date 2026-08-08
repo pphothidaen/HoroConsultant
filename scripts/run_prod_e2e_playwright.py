@@ -33,7 +33,7 @@ from playwright.async_api import async_playwright
 PROD_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
 SCREENSHOT_DIR = ROOT / "project" / "tests" / "screenshots"
 REPORT_PATH = ROOT / "project" / "tests" / "prod_button_regression_report.json"
-ARTIFACT_DIR = Path("/Users/kimlenglim/.agy-account-1/.gemini/antigravity-cli/brain/c91b3f3d-f9df-4c5b-9f45-3712ca354382/screenshots")
+ARTIFACT_DIR = ROOT / "project" / "tests" / "artifacts_screenshots"
 
 SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)

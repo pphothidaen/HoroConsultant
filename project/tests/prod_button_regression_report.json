@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-08-08 08:49:39 UTC",
+  "timestamp": "2026-08-08 11:44:49 UTC",
   "target_url": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html",
-  "elapsed_seconds": 44.35,
+  "elapsed_seconds": 45.17,
   "summary": {
     "total_buttons": 20,
-    "passed": 7,
-    "failed": 13,
-    "pass_rate_pct": 35.0
+    "passed": 20,
+    "failed": 0,
+    "pass_rate_pct": 100.0
   },
   "results": [
     {
@@ -26,7 +26,7 @@
       "handler": "resolveLocation()",
       "endpoint": "POST /api/v1/location/resolve",
       "status": "PASSED",
-      "detail": "Resolved location to  (lng: 100.4930, utc: 7.0)",
+      "detail": "Resolved location to ✅ เขตบางกะปิ, กรุงเทพมหานคร, ประเทศไทย (UTC+7) (lng: 100.6439, utc: 7)",
       "screenshot": "screenshots/prod_02_location_resolved.png"
     },
     {
@@ -44,8 +44,8 @@
       "name": "📍 Preset: สิงคโปร์",
       "handler": "loadPreset('1988-08-08 08:08:00', 103.8198, 8.0)",
       "endpoint": "DOM Input Population",
-      "status": "FAILED",
-      "detail": "Fields updated to dt=1990-05-15 14:30:00, lng=100.493, utc=7.0"
+      "status": "PASSED",
+      "detail": "Fields updated to dt=1988-08-08 08:08:00, lng=103.8198, utc=8.0"
     },
     {
       "id": "BTN-PROD-04",
@@ -53,8 +53,8 @@
       "name": "📍 Preset: นิวยอร์ก",
       "handler": "loadPreset('1995-12-25 23:45:00', -74.006, -5.0)",
       "endpoint": "DOM Input Population",
-      "status": "FAILED",
-      "detail": "Fields updated to dt=1990-05-15 14:30:00, lng=100.493, utc=7.0"
+      "status": "PASSED",
+      "detail": "Fields updated to dt=1995-12-25 23:45:00, lng=-74.006, utc=-5.0"
     },
     {
       "id": "BTN-PROD-05",
@@ -62,8 +62,8 @@
       "name": "☯ Zi Wei (紫微斗數)",
       "handler": "calcZiWei()",
       "endpoint": "GET /api/v1/ziwei/calculate",
-      "status": "FAILED",
-      "detail": "Result card rendered cleanly with 2 chars output. API status: []"
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 674 chars output. API status: [200]"
     },
     {
       "id": "BTN-PROD-06",
@@ -71,8 +71,8 @@
       "name": "☯ Qi Men (奇門遁甲)",
       "handler": "calcQiMen()",
       "endpoint": "GET /api/v1/qimen/calculate",
-      "status": "FAILED",
-      "detail": "Result card rendered cleanly with 2 chars output. API status: []"
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 665 chars output. API status: [200]"
     },
     {
       "id": "BTN-PROD-07",
@@ -80,8 +80,8 @@
       "name": "☯ Da Liu Ren (大六壬)",
       "handler": "calcLiuRen()",
       "endpoint": "GET /api/v1/liuren/calculate",
-      "status": "FAILED",
-      "detail": "Result card rendered cleanly with 2 chars output. API status: []"
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 426 chars output. API status: [200]"
     },
     {
       "id": "BTN-PROD-08",
@@ -89,8 +89,8 @@
       "name": "☯ I Ching (六爻)",
       "handler": "calcIChing()",
       "endpoint": "GET /api/v1/iching/calculate",
-      "status": "FAILED",
-      "detail": "Result card rendered cleanly with 2 chars output. API status: []"
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 508 chars output. API status: [200]"
     },
     {
       "id": "BTN-PROD-09",
@@ -98,8 +98,8 @@
       "name": "☯ Xuan Kong (玄空)",
       "handler": "calcXuanKong()",
       "endpoint": "GET /api/v1/xuankong/calculate",
-      "status": "FAILED",
-      "detail": "Result card rendered cleanly with 2 chars output. API status: []"
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 535 chars output. API status: [200]"
     },
     {
       "id": "BTN-PROD-10",
@@ -107,8 +107,8 @@
       "name": "☯ Ze Ji (คำนวณฤกษ์)",
       "handler": "calcZeJi()",
       "endpoint": "GET /api/v1/zeji/calculate",
-      "status": "FAILED",
-      "detail": "Result card rendered cleanly with 2 chars output. API status: []"
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 476 chars output. API status: [200]"
     },
     {
       "id": "BTN-PROD-11",
@@ -116,8 +116,8 @@
       "name": "☯ Thai Vedic (โหราศาสตร์ไทย)",
       "handler": "calcThaiVedic()",
       "endpoint": "GET /api/v1/thaivedic/calculate",
-      "status": "FAILED",
-      "detail": "Result card rendered cleanly with 2 chars output. API status: []"
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 801 chars output. API status: [200]"
     },
     {
       "id": "BTN-PROD-12",
@@ -125,8 +125,8 @@
       "name": "☯ Western (โหราศาสตร์สากล)",
       "handler": "calcWestern()",
       "endpoint": "GET /api/v1/western/calculate",
-      "status": "FAILED",
-      "detail": "Result card rendered cleanly with 2 chars output. API status: []"
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 1290 chars output. API status: [200]"
     },
     {
       "id": "BTN-PROD-13",
@@ -134,8 +134,8 @@
       "name": "☯ Numerology (สัตตเลข)",
       "handler": "calcNumerology()",
       "endpoint": "GET /api/v1/numerology/calculate",
-      "status": "FAILED",
-      "detail": "Result card rendered cleanly with 2 chars output. API status: []"
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 645 chars output. API status: [200]"
     },
     {
       "id": "CHK-PROD-18",
@@ -162,7 +162,7 @@
       "handler": "calculateChart(event)",
       "endpoint": "POST /api/v1/bazi/interpret",
       "status": "PASSED",
-      "detail": "Calculated 4 Pillars chart & AI interpretation (0 chars). API Status: OK (Proxy/Cached)",
+      "detail": "Calculated 4 Pillars chart & AI interpretation (808 chars). API Status: 200",
       "screenshot": "screenshots/prod_05_bazi_ai_result.png"
     },
     {
@@ -180,8 +180,8 @@
       "name": "📑 Tab: 🛡️ Gemini Validator Audit",
       "handler": "switchTab('tab-validator')",
       "endpoint": "DOM Tab Switch",
-      "status": "FAILED",
-      "detail": "Tab container '#tab-validator' active state verified (hidden=True)"
+      "status": "PASSED",
+      "detail": "Tab container '#tab-validator' active state verified (hidden=False)"
     },
     {
       "id": "BTN-PROD-17",
@@ -189,8 +189,8 @@
       "name": "📑 Tab: 📚 คัมภีร์อ้างอิง (RAG 3,132 Chunks)",
       "handler": "switchTab('tab-rag')",
       "endpoint": "DOM Tab Switch",
-      "status": "FAILED",
-      "detail": "Tab container '#tab-rag' active state verified (hidden=True)"
+      "status": "PASSED",
+      "detail": "Tab container '#tab-rag' active state verified (hidden=False)"
     }
   ]
 }

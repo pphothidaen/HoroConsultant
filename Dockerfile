@@ -12,6 +12,7 @@ LABEL description="BaZi Computation Engine + Ollama Inference Service"
 
 # System dependencies
 ENV DEBIAN_FRONTEND=noninteractive
+# Grafana Cloud Free Tier Observability (GRAFANA_OTLP_ENDPOINT, GRAFANA_USER_ID, GRAFANA_API_KEY)
 ENV PROMETHEUS_METRICS_ENABLED=true
 ARG GIT_COMMIT_HASH=unknown
 ENV GIT_COMMIT_HASH=$GIT_COMMIT_HASH

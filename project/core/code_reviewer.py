@@ -42,6 +42,7 @@ SECRET_PATTERNS = [
     (re.compile(r'kg_[A-Za-z0-9_-]{20,}'), "Kaggle API Token"),
     (re.compile(r'dp\.pt\.[A-Za-z0-9_-]{20,}'), "Doppler Service Token"),
     (re.compile(r'ghp_[A-Za-z0-9]{36}'), "GitHub Personal Access Token"),
+    (re.compile(r'glc_[A-Za-z0-9_-]{20,}'), "Grafana Cloud API Key"),
 ]
 
 # Sensitive files that should not be committed with actual secrets
