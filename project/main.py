@@ -70,6 +70,8 @@ async def lifespan(app: FastAPI):
         logger.info("🛑 Auto-sync scheduler shut down.")
 
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(
     title       = "Computational Metaphysics Engine",
     description = "Modular 10-Domain Metaphysical Calculation, AI Debate & Multi-Agent Engine",
@@ -77,6 +79,14 @@ app = FastAPI(
     docs_url    = "/docs",
     redoc_url   = "/redoc",
     lifespan    = lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")

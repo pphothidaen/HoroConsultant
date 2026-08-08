@@ -31,10 +31,10 @@ def test_option_1b_vercel_gateway_config():
     assert vercel_file.exists(), "vercel.json missing"
     
     data = json.loads(vercel_file.read_text(encoding="utf-8"))
-    assert "rewrites" in data, "rewrites missing in vercel.json"
+    assert "routes" in data or "rewrites" in data, "routes/rewrites missing in vercel.json"
     
-    rewrites = data["rewrites"]
-    has_hf_route = any("/api/hf/" in r.get("source", "") for r in rewrites)
+    routes = data.get("routes") or data.get("rewrites")
+    has_hf_route = any("/api/hf/" in r.get("src", r.get("source", "")) for r in routes)
     assert has_hf_route, "Option 1B proxy route /api/hf/ not found in vercel.json"
 
 
@@ -128,3 +128,34 @@ def test_core_fastapi_endpoints_regression():
     res = client.get("/api/v1/iching/calculate?day_stem=甲")
     assert res.status_code == 200
     assert "primary_hexagram" in res.json()
+
+
+def test_bazi_interpret_full_user_payload_regression():
+    """Verify exact user query payload for BaZi interpretation responds with HTTP 200 and valid chart + interpretation."""
+    payload = {
+        "birth_datetime": "1990-05-15 14:30:00",
+        "longitude": 100.493,
+        "utc_offset_hours": 7,
+        "unknown_hour": False,
+        "enable_validation": True,
+        "query": "วิเคราะห์ความแข็งแกร่งของ Day Master ธาตุทอง และอาชีพการงานที่ส่งเสริมดวงชะตา"
+    }
+    headers = {
+        "accept": "*/*",
+        "content-type": "application/json",
+        "origin": "https://pphothidaen-horoconsultant-core-backend.static.hf.space",
+        "referer": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
+    }
+    mock_ai = {
+        "text": "บทวิเคราะห์วิเคราะห์ความแข็งแกร่งของ Day Master ธาตุทอง",
+        "model_used": "mock-qwen",
+        "route": "mock_route",
+        "latency_ms": 15
+    }
+    with patch("project.main.router.generate", return_value=mock_ai):
+        res = client.post("/api/v1/bazi/interpret", json=payload, headers=headers)
+        assert res.status_code == 200, f"Expected 200, got {res.status_code}: {res.text}"
+        data = res.json()
+        assert "chart" in data
+        assert "interpretation" in data
+        assert "day_master" in data["chart"] or "pillars" in data["chart"]
