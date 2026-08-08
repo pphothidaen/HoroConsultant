@@ -1,0 +1,28 @@
+# ==============================================================================
+# HoroConsultant — Automated Fly.io Deployment Workflow (GitHub Actions)
+# ==============================================================================
+# Triggers on git push to main branch to deploy FastAPI container to Fly.io
+# ==============================================================================
+
+name: Fly.io Automatic Production Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy FastAPI Container to Fly.io (Singapore Region)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Flyctl CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy to Fly.io Singapore Region
+        run: flyctl deploy --remote-only --config fly.toml
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
