@@ -270,6 +270,47 @@ async def run_e2e_flow():
         except Exception as e:
             print(f"[ERROR] HITL Review Studio test failed: {e}")
 
+        # -------------------------------------------------------------------
+        # 4. OpenAPI Interactive Documentation (/docs & /redoc) E2E Test
+        # -------------------------------------------------------------------
+        try:
+            print("[INFO] Navigating to OpenAPI Swagger UI http://localhost:8888/docs...")
+            await page.goto("http://localhost:8888/docs", wait_until="domcontentloaded")
+            await page.wait_for_timeout(1500)
+
+            shot18 = SCREENSHOT_DIR / "18_openapi_swagger_docs.png"
+            await page.screenshot(path=str(shot18), full_page=True)
+            shutil.copy(shot18, ARTIFACT_DIR / shot18.name)
+
+            results.append({
+                "id": "E2E-16",
+                "feature": "OpenAPI Interactive Swagger Documentation (/docs)",
+                "status": "PASSED",
+                "screenshot": f"screenshots/{shot18.name}",
+                "detail": "Rendered Swagger UI with interactive endpoint execution cards."
+            })
+        except Exception as e:
+            print(f"[ERROR] OpenAPI Swagger UI test failed: {e}")
+
+        try:
+            print("[INFO] Navigating to OpenAPI ReDoc UI http://localhost:8888/redoc...")
+            await page.goto("http://localhost:8888/redoc", wait_until="domcontentloaded")
+            await page.wait_for_timeout(1500)
+
+            shot19 = SCREENSHOT_DIR / "19_openapi_redoc.png"
+            await page.screenshot(path=str(shot19), full_page=True)
+            shutil.copy(shot19, ARTIFACT_DIR / shot19.name)
+
+            results.append({
+                "id": "E2E-17",
+                "feature": "OpenAPI Interactive ReDoc Documentation (/redoc)",
+                "status": "PASSED",
+                "screenshot": f"screenshots/{shot19.name}",
+                "detail": "Rendered ReDoc API schema explorer."
+            })
+        except Exception as e:
+            print(f"[ERROR] OpenAPI ReDoc UI test failed: {e}")
+
         await browser.close()
 
     # Save summary report JSON

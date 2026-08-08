@@ -141,3 +141,16 @@ class TestAPIRegressionEndpoints:
                 assert "timezone" in data
                 assert "utc_offset_hours" in data
                 assert data["timezone"] == "Asia/Bangkok"
+
+    def test_openapi_docs_endpoints(self):
+        """Regression tests for OpenAPI Interactive Documentation routes (/docs, /redoc, /openapi.json)."""
+        res_docs = client.get("/docs")
+        assert res_docs.status_code == 200
+        res_redoc = client.get("/redoc")
+        assert res_redoc.status_code == 200
+        res_schema = client.get("/openapi.json")
+        assert res_schema.status_code == 200
+        data = res_schema.json()
+        assert "paths" in data
+        assert "info" in data
+

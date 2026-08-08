@@ -254,3 +254,27 @@ class TestHITLHTMLButtons:
         res_undo = client.delete("/hitl/review/CM-BZ-001")
         assert res_undo.status_code in [200, 404]
 
+
+class TestOpenAPIDocumentationButtons:
+    """Verifies interactive OpenAPI documentation endpoints (/docs, /redoc, /openapi.json)."""
+
+    def test_openapi_swagger_ui_loads(self):
+        res = client.get("/docs")
+        assert res.status_code == 200
+        assert "swagger" in res.text.lower() or "<title>" in res.text
+
+    def test_openapi_redoc_ui_loads(self):
+        res = client.get("/redoc")
+        assert res.status_code == 200
+        assert "redoc" in res.text.lower() or "<title>" in res.text
+
+    def test_openapi_json_schema_valid(self):
+        res = client.get("/openapi.json")
+        assert res.status_code == 200
+        data = res.json()
+        assert "openapi" in data
+        assert "info" in data
+        assert "paths" in data
+        assert "/api/v1/bazi/interpret" in data["paths"]
+
+

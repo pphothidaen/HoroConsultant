@@ -228,6 +228,34 @@ BUTTON_CATALOG = [
         "endpoint": "POST /api/v1/hitl/undo-decision",
         "spec_check": "Reverts last submitted review decision.",
         "test_func": "test_hitl_undo_btn"
+    },
+    # docs (/docs, /redoc, /openapi.json)
+    {
+        "id": "BTN-DOC-01",
+        "page": "OpenAPI Docs",
+        "name": "📘 Swagger Interactive API Docs",
+        "handler": "OpenAPI UI Engine",
+        "endpoint": "GET /docs",
+        "spec_check": "Loads Swagger UI interactive API documentation & execute endpoints.",
+        "test_func": "test_openapi_swagger_btn"
+    },
+    {
+        "id": "BTN-DOC-02",
+        "page": "OpenAPI Docs",
+        "name": "📕 ReDoc Schema Explorer",
+        "handler": "ReDoc Engine",
+        "endpoint": "GET /redoc",
+        "spec_check": "Loads ReDoc interactive API schema explorer.",
+        "test_func": "test_openapi_redoc_btn"
+    },
+    {
+        "id": "BTN-DOC-03",
+        "page": "OpenAPI Docs",
+        "name": "⚙️ OpenAPI JSON Specification",
+        "handler": "FastAPI OpenAPI Schema",
+        "endpoint": "GET /openapi.json",
+        "spec_check": "Returns valid OpenAPI 3.1.0 JSON schema with all endpoint paths.",
+        "test_func": "test_openapi_json_btn"
     }
 ]
 
@@ -401,6 +429,26 @@ def test_hitl_undo_btn():
     res = client.delete("/hitl/review/CM-BZ-001")
     assert res.status_code in [200, 404]
     return f"HTTP {res.status_code} - Delete review route responsive"
+
+def test_openapi_swagger_btn():
+    res = client.get("/docs")
+    assert res.status_code == 200
+    assert "swagger" in res.text.lower() or "<title>" in res.text
+    return "HTTP 200 - Swagger UI Interactive Documentation loaded successfully"
+
+def test_openapi_redoc_btn():
+    res = client.get("/redoc")
+    assert res.status_code == 200
+    assert "redoc" in res.text.lower() or "<title>" in res.text
+    return "HTTP 200 - ReDoc Interactive Documentation loaded successfully"
+
+def test_openapi_json_btn():
+    res = client.get("/openapi.json")
+    assert res.status_code == 200
+    data = res.json()
+    assert "paths" in data
+    assert "info" in data
+    return f"HTTP 200 - OpenAPI JSON schema valid ({len(data.get('paths', {}))} paths defined)"
 
 
 

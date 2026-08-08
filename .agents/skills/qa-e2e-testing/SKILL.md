@@ -20,15 +20,15 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 ```
 *Goal*: Ensure 100% pass rate across all 123 test cases (BaZi, Swiss Ephemeris, 5-branch Metaphysics, RAG, MCP, API Router).
 
-### 2. UI Button Contract Regression Suite
-Run full 22-button API & DOM contract check across `index.html`, `admin.html`, and `hitl.html`:
+### 2. UI Button & Endpoint Contract Regression Suite
+Run full 25-button/endpoint contract check across `index.html` (Main Dashboard), `admin.html` (Admin Panel), `hitl.html` (HITL Review Studio), and `OpenAPI Documentation` (`/docs`, `/redoc`, `/openapi.json`):
 ```bash
 python3 scripts/run_button_regression.py
 ```
 *Report Output*: `project/tests/button_regression_report.json`
 
 ### 3. Playwright E2E Browser Screenshot Visual Verification
-Run browser automation, test UI interactions, and capture full-page screenshots:
+Run browser automation, test UI interactions, and capture full-page screenshots across all 4 Core UI Components (Main Dashboard, Admin Panel, HITL Review Studio, OpenAPI Interactive Docs):
 ```bash
 python3 scripts/run_e2e_screenshots.py
 ```

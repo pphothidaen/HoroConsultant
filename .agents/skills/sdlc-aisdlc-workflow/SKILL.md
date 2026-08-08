@@ -65,15 +65,19 @@ Phase 5: Code Review, Deployment & Post-Deploy E2E (Master Orchestrator & Code R
 3. Respect locked dependencies (`transformers==4.44.2`, `peft==0.12.0`, `accelerate==0.33.0`).
 
 ### Phase 3: QA & Testing (QA Tester)
-1. Run pytest regression suite:
+1. Run pytest unit & integration regression suite across all calculation modules, RAG, MCP, and 4 core components:
    ```bash
    python3 -m pytest -v --ignore=project/kaggle_kernel
    ```
-2. Run UI button regression suite:
+2. Run UI button & endpoint contract regression suite across **Main Dashboard**, **Admin Panel**, **HITL Review Studio**, and **OpenAPI Interactive Documentation** (`/docs`, `/redoc`, `/openapi.json`):
    ```bash
    python3 scripts/run_button_regression.py
    ```
-3. Extract concise log snippets if any test fails (do not dump raw context).
+3. Run Playwright E2E browser automation & visual screenshot capture suite across all 4 core components:
+   ```bash
+   python3 scripts/run_e2e_screenshots.py
+   ```
+4. Extract concise log snippets if any test fails (do not dump raw context).
 
 ### Phase 4: DevOps & Release (DevOps)
 1. Validate environment files (`.env`, `.env.production`).
@@ -94,7 +98,8 @@ Phase 5: Code Review, Deployment & Post-Deploy E2E (Master Orchestrator & Code R
    Ensure status is `READY_FOR_PROD`.
 2. Push to GitHub main: `git push origin main`.
 3. Publish to Hugging Face Spaces: `python3 scripts/publish_space_hf.py`.
-4. Execute Post-Deployment E2E verification:
+4. Execute Post-Deployment E2E verification across all 4 Core Components (Main Dashboard, Admin Panel, HITL Studio, OpenAPI Docs):
    ```bash
    python3 scripts/run_button_regression.py
+   python3 scripts/run_e2e_screenshots.py
    ```
