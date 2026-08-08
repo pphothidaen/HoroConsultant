@@ -290,7 +290,14 @@ python3 scripts/publish_space_hf.py --dry-run
 | **Render.com / Railway.app** | Docker Web Service (`Dockerfile.hf`) | Full-stack FastAPI Production Container | Mid (~150ms) | Low Cost ($5/mo), Auto SSL & Custom Domain |
 | **Kaggle GPU Accelerator** | GPU Fine-Tuning Notebook (`T4 Machine`) | LLM Fine-Tuning & Model Weight Fusion | Batch Pipeline | Free 30h/week Nvidia T4 GPU |
 
----
+### 🛠️ 3.8 การสั่งงานคำสั่ง Deploy และ Sync Secrets ไปยังแต่ละ Platform
+
+#### 🔑 คำสั่งซิงค์ Secrets ไปทุก Platform ในคำสั่งเดียว (Automated Multi-Cloud Secrets Sync):
+```bash
+# รันสคริปต์อัตโนมัติเพื่อซิงค์ ENV & Secrets ไปยัง Fly.io, Koyeb, Vercel และ Hugging Face
+bash scripts/setup_production_secrets.sh
+```
+
 
 ### 🛠️ 3.8 การสั่งงานคำสั่ง Deploy ขึ้น Fly.io และ Koyeb
 
