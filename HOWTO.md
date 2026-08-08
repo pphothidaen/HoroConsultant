@@ -313,6 +313,28 @@ fly launch --config fly.toml --no-deploy
 fly deploy
 ```
 
+---
+
+### 📊 3.9 การติดตั้งและตรวจสอบระบบ Grafana Cloud Observability & Prometheus Metrics
+
+ระบบ **HoroConsultant** รองรับการส่งข้อมูล Observability แบบ All-in-One ไปยัง **Grafana Cloud Free Tier**:
+
+1. **Prometheus Metrics Endpoint (`/metrics`):**
+   - URL: `http://localhost:8000/metrics` (หรือบน Production Host)
+   - ข้อมูลที่จัดเก็บ: Request Per Minute (RPM), HTTP status code counters (2xx/4xx/5xx), RAG FAISS retrieval latency, และ LLM inference stats
+
+2. **Synthetic Uptime Monitoring Alias (`/api/health`):**
+   - URL: `http://localhost:8000/api/health`
+   - สามารถนำ URL นี้ไปกรอกใน Grafana Synthetic Monitoring เพื่อยิง Ping ทุกๆ 1-3 นาที ป้องกันไม่ให้ Hugging Face Space หรือ Micro-VM เข้าสู่ Sleep Mode
+
+3. **การเปิดใช้งานผ่าน Environment Variables:**
+   ```bash
+   PROMETHEUS_METRICS_ENABLED=true
+   GRAFANA_OTLP_ENDPOINT=https://otlp-gateway-prod-us-central-0.grafana.net/otlp
+   GRAFANA_OTLP_TOKEN=your_grafana_api_token
+   ```
+
+
 
 
 

@@ -74,6 +74,7 @@ async def lifespan(app: FastAPI):
 
 
 from project.core.config import get_git_commit_hash, get_app_version
+from project.core.observability import setup_observability_middleware
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -92,6 +93,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+setup_observability_middleware(app)
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(STATIC_DIR):

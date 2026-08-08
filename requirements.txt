@@ -29,3 +29,7 @@ rich>=13.7.0
 # Location & Timezone
 geopy>=2.4.0
 timezonefinder>=6.0.0
+
+# Observability & Monitoring
+prometheus-client>=0.20.0
+

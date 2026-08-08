@@ -13,6 +13,7 @@ LABEL description="HoroConsultant Core Backend Dockerfile for HuggingFace Spaces
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV PORT=7860
+ENV PROMETHEUS_METRICS_ENABLED=true
 
 ARG GIT_COMMIT_HASH=unknown
 ENV GIT_COMMIT_HASH=$GIT_COMMIT_HASH

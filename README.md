@@ -313,11 +313,13 @@ pip install -r requirements.txt
 python3 -m uvicorn project.main:app --reload --port 8000
 ```
 
-Access Interactive UI Dashboards:
+Access Interactive UI Dashboards & Metrics:
 - **Main Dashboard:** `http://localhost:8000/`
-- **Admin Panel:** `http://localhost:8000/admin` (Authorized Email: `pansakorn@gmail.com`)
+- **Admin Panel:** `http://localhost:8000/admin` (Authorized Emails: `pansakorn@gmail.com`, `kimlenglim.work@gmail.com`)
 - **HITL Review Studio:** `http://localhost:8000/hitl-studio`
 - **Interactive Swagger Docs:** `http://localhost:8000/docs`
+- **Prometheus Metrics Endpoint:** `http://localhost:8000/metrics`
+- **Synthetic Monitoring Health Alias:** `http://localhost:8000/api/health`
 
 ---
 
