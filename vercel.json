@@ -17,7 +17,7 @@
     },
     {
       "src": "/api/(.*)",
-      "dest": "https://pphothidaen-horoconsultant-core-backend.hf.space/api/$1"
+      "dest": "https://horoconsultant-core-backend.fly.dev/api/$1"
     },
     {
       "src": "/(.*)",
