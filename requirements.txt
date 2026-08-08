@@ -4,5 +4,6 @@ httpx
 python-dotenv
 numpy
 geopy
+pyyaml
 
 
