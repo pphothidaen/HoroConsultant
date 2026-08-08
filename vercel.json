@@ -13,11 +13,11 @@
     },
     {
       "src": "/health",
-      "dest": "/api/index.py"
+      "dest": "/api/health.py"
     },
     {
       "src": "/api/v1/health",
-      "dest": "/api/index.py"
+      "dest": "/api/health.py"
     },
     {
       "src": "/api/v1/(.*)",
