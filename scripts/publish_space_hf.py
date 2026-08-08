@@ -293,12 +293,21 @@ pinned: false
                 pass
 
             static_dir = ROOT / "project" / "static"
+            # Upload static assets to root
             api.upload_folder(
                 folder_path=str(static_dir),
                 repo_id=space_id,
                 repo_type="space",
             )
-            # Create index.html at root if not directly copied
+            # ALSO upload static assets under 'static/' path in repo
+            # so that both /app.js, /style.css AND /static/app.js, /static/style.css work without 404!
+            api.upload_folder(
+                folder_path=str(static_dir),
+                path_in_repo="static",
+                repo_id=space_id,
+                repo_type="space",
+            )
+            # Ensure index.html exists at root
             if (static_dir / "index.html").exists():
                 api.upload_file(
                     path_or_fileobj=str(static_dir / "index.html"),
