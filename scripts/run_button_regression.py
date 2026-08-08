@@ -353,7 +353,7 @@ def test_thaivedic_btn():
 def test_western_btn():
     res = client.get("/api/v1/western/calculate?year=1990&month=5&day=15&hour=14")
     assert res.status_code == 200
-    return f"HTTP 200 - SunPos: {res.json()['planets_tropical']['Sun']}"
+    return f"HTTP 200 - PlanetsCount: {len(res.json()['planets_tropical'])}"
 
 def test_numerology_btn():
     res = client.get("/api/v1/numerology/calculate?text=0812345678&day_num=2&lunar_month=6&year_zodiac_num=7")
