@@ -1,26 +1,16 @@
 {
-  "version": 2,
-  "functions": {
-    "api/index.py": {
-      "maxDuration": 15
-    }
-  },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/hf/(.*)",
-      "dest": "https://pphothidaen-horoconsultant-core-backend.hf.space/$1"
+      "source": "/health",
+      "destination": "/api"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index.py"
+      "source": "/api/v1/:path*",
+      "destination": "/api"
     },
     {
-      "src": "/health",
-      "dest": "/api/index.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/project/static/$1"
+      "source": "/api/:path*",
+      "destination": "/api"
     }
   ]
 }
