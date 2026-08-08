@@ -112,6 +112,48 @@ async def run_live_e2e_production_regression():
             print(f"  ❌ Vercel Gateway Health Check Failed: {e}")
 
         # -------------------------------------------------------------------
+        # 1C. Direct API E2E Fetch Test: POST /api/v1/bazi/interpret
+        # -------------------------------------------------------------------
+        print("\n[STEP 1C] Testing Direct API Fetch: POST /api/v1/bazi/interpret...")
+        try:
+            api_page = await page.context.new_page()
+            interpret_payload = {
+                "birth_datetime": "1990-05-15 14:30:00",
+                "longitude": 100.4930,
+                "utc_offset_hours": 7.0,
+                "unknown_hour": False,
+                "enable_validation": True,
+                "query": "วิเคราะห์ความแข็งแกร่งของ Day Master ธาตุทอง และอาชีพการงานที่ส่งเสริมดวงชะตา"
+            }
+            api_resp = await api_page.request.post(
+                "https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret",
+                data=json.dumps(interpret_payload),
+                headers={
+                    "Content-Type": "application/json",
+                    "Origin": "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
+                }
+            )
+            api_status = api_resp.status
+            api_json = await api_resp.json() if api_resp.ok else {}
+            api_text = api_json.get("interpretation", "")
+            is_fallback = "คำนวณค่าตำแหน่งดวงดาวและ 4 เสาหลักเรียบร้อยแล้ว" in api_text
+            api_ok = api_status == 200 and len(api_text) > 50 and not is_fallback
+
+            await api_page.close()
+            print(f"  • Direct API POST /api/v1/bazi/interpret: HTTP {api_status}, Output Length={len(api_text)} -> {'OK' if api_ok else 'FAIL'}")
+            button_results.append({
+                "id": "BTN-PROD-00B",
+                "page": "index.html",
+                "name": "🔮 Direct API Gateway Endpoint (/api/v1/bazi/interpret)",
+                "handler": "HTTP POST /api/v1/bazi/interpret",
+                "endpoint": "POST /api/v1/bazi/interpret",
+                "status": "PASSED" if api_ok else "FAILED",
+                "detail": f"HTTP {api_status} - AI Interpretation output verified ({len(api_text)} chars, fallback: {is_fallback})",
+            })
+        except Exception as e:
+            print(f"  ❌ Direct API Fetch Failed: {e}")
+
+        # -------------------------------------------------------------------
         # 2. Location Search Button (resolveLocation)
         # -------------------------------------------------------------------
         print("\n[STEP 2] Testing Location Search Button ('ค้นหา & เติมค่า')...")
