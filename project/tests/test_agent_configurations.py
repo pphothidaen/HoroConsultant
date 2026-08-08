@@ -26,12 +26,11 @@ def test_settings_json_default_agent():
 def test_antigravity_default_agent_file():
     """Verify .antigravity/agents/default.agent structure and fields."""
     default_agent_path = os.path.join(ANTIGRAVITY_AGENTS_DIR, "default.agent")
-    assert os.path.exists(default_agent_path), f"Missing {default_agent_path}"
-    
     with open(default_agent_path, "r", encoding="utf-8") as f:
         data = yaml.safe_load(f)
     
-    assert "Default Agent" in data["name"] or "Master Orchestrator" in data["name"]
+    assert data["name"] == "default" or "default" in data["name"]
+    assert "Default Agent" in data.get("display_name", "") or "Master Orchestrator" in data.get("display_name", "")
     assert "Gemini 3.6 Flash" in data["model"]
     assert data.get("thinking") is True
     assert "bazi-calculator" in data.get("tools", [])

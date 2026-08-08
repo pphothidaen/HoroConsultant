@@ -53,10 +53,11 @@ python3 scripts/sync_sdlc_agents.py --check
 ### ✅ DONE (เสร็จสมบูรณ์ 100% พร้อมใช้งาน)
 
 - [x] **Available Agents & Default Agent Configuration Fix ([`agent.md`](file:///Users/kimlenglim/Project/HoroConsultant/agent.md), [`.antigravity/agents/`](file:///Users/kimlenglim/Project/HoroConsultant/.antigravity/agents/), [`.agents/agents/`](file:///Users/kimlenglim/Project/HoroConsultant/.agents/agents/))**
-  - Resolved `Available Agents > ● default` configuration discrepancy across project agent definitions.
+  - Resolved `Available Agents` configuration discrepancy across project agent definitions.
+  - Corrected machine key `name` field in `.antigravity/agents/*.agent` files (mapping exact identifiers e.g. `default`, `orchestrator`, `business_analyst`, `developer`, `qa_tester`, `devops`, `code_reviewer`, and domain masters).
+  - Synchronized both underscore (`*_master.agent`) and hyphenated (`*-master.agent`) definition formats for full Antigravity CLI loader compatibility.
   - Standardized `.agents/agents/` directories with lowercase `agent.md` and valid YAML frontmatter across all 15 agents.
-  - Created and synchronized complete set of `.agent` definitions in `.antigravity/agents/` (`default.agent`, `orchestrator.agent`, `business-analyst.agent`, `developer.agent`, `qa-tester.agent`, `devops.agent`, `code-reviewer.agent`).
-  - Added automated test suite `project/tests/test_agent_configurations.py` (4/4 tests PASS, full suite 134/134 PASS).
+  - Verified via test suite `project/tests/test_agent_configurations.py` (full suite 138/138 PASS).
 
 - [x] **Production Live Playwright E2E UI Button Regression ([`scripts/run_prod_e2e_playwright.py`](file:///scripts/run_prod_e2e_playwright.py))**
   - Target URL: `https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html`

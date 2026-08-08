@@ -48,6 +48,41 @@ class ValidateRequest(BaseModel):
     query:                  Optional[str]= Field(None, description="Optional user query context")
 
 
+def _generate_fallback_reading(dm: dict, pcts: dict, query: Optional[str]) -> str:
+    stem = dm.get("stem", "")
+    elem = dm.get("element", "")
+    pol  = dm.get("polarity", "")
+    
+    sorted_elements = sorted(pcts.items(), key=lambda x: x[1])
+    lowest_elem1, lowest_val1 = sorted_elements[0] if len(sorted_elements) > 0 else ("Wood", 0.0)
+    lowest_elem2, lowest_val2 = sorted_elements[1] if len(sorted_elements) > 1 else ("Water", 0.0)
+
+    element_career_map = {
+        "Wood": "การวางแผนยุทธศาสตร์, การศึกษา, งานวิจัย, ทรัพยากรมนุษย์ (HR), งานสิ่งพิมพ์/การออกแบบ และธุรกิจเกษตรกรรม/พฤกษศาสตร์",
+        "Water": "งานการตลาดและการสื่อสาร, โลจิสติกส์และการขนส่ง, งานเทคโนโลยีสารสนเทศ (IT/Software), การค้าระหว่างประเทศ และธุรกิจที่ต้องใช้นวัตกรรมความยืดหยุ่น",
+        "Fire": "งานบริหารระดับสูง, การประชาสัมพันธ์, งานพลังงาน, สื่อบันเทิง, งานกฎหมาย และวิศวกรรมไฟฟ้า",
+        "Earth": "งานอสังหาริมทรัพย์, การบริหารจัดการทรัพยากร, งานประกันภัย, งานสถาปัตยกรรม และงานการบริหารคลังสินค้า",
+        "Metal": "งานการเงินการธนาคาร, วิศวกรรมเครื่องกล, งานอุตสาหกรรมโลหการ, งานความมั่นคง/บริหารความเสี่ยง และเทคโนโลยีฮาร์ดแวร์"
+    }
+
+    query_str = (query or "").strip()
+    if any(k in query_str for k in ["อาชีพ", "การงาน", "งาน", "career", "job", "work"]):
+        careers1 = element_career_map.get(lowest_elem1, "")
+        careers2 = element_career_map.get(lowest_elem2, "")
+        return (
+            f"ดวงชะตานี้มี Day Master เป็นดิถี {stem} ({elem}, {pol}) มีสมดุลธาตุทั้ง 5: {json.dumps(pcts, ensure_ascii=False)}.\n\n"
+            f"📌 **วิเคราะห์อาชีพการงานที่ส่งเสริมดวงชะตามนุษย์ (ตามหลักตำรา 子平真詮 และ 滴天髓):**\n"
+            f"1. **อาชีพธาตุให้คุณหลัก ({lowest_elem1} - {lowest_val1}%):** {careers1}\n"
+            f"2. **อาชีพธาตุสนับสนุนเสริม ({lowest_elem2} - {lowest_val2}%):** {careers2}\n\n"
+            f"ข้อแนะนำ: เนื่องจากธาตุ {lowest_elem1} และ {lowest_elem2} มีปริมาณค่อนข้างเบาบางเมื่อเทียบกับธาตุอื่น การประกอบอาชีพหรืออยู่ในสภาพแวดล้อมสายงานข้างต้นจะช่วยดึงพลังปรับสมดุล (用神) มาเสริมโชคลาภ ยศตำแหน่ง และความเจริญก้าวหน้าในอาชีพการงานได้อย่างดีเยี่ยม"
+        )
+
+    return (
+        f"ดวงชะตานี้มี Day Master เป็นดิถี {stem} ({elem}, {pol}) สมดุลธาตุทั้ง 5: {json.dumps(pcts, ensure_ascii=False)}. "
+        f"การวิเคราะห์สอดคล้องตามหลักตำรา ZiPing ZhenQuan (子平真詮) และ DiTianSui (滴天髓)"
+    )
+
+
 # ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
@@ -91,11 +126,7 @@ async def interpret_bazi(req: InterpretRequest):
 
     initial_text = ai_result.get("text") or ""
     if not initial_text.strip():
-        initial_text = (
-            f"ดวงชะตานี้มี Day Master เป็นดิถี {dm.get('stem')} ({dm.get('element')}, {dm.get('polarity')}) "
-            f"สมดุลธาตุทั้ง 5: {json.dumps(pcts, ensure_ascii=False)}. "
-            f"การวิเคราะห์สอดคล้องตามหลักตำรา ZiPing ZhenQuan (子平真詮) และ DiTianSui (滴天髓)"
-        )
+        initial_text = _generate_fallback_reading(dm, pcts, req.query)
     validation_report = None
 
     if not validation_report:

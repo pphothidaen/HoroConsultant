@@ -1,4 +1,5 @@
-name: Default Agent (Master Orchestrator)
+name: default
+display_name: Default Agent (Master Orchestrator)
 description: Master Orchestrator & System Director for HoroConsultant. Decomposes
   tasks into plans/plan.md, coordinates peer debate among domain masters, delegates
   technical tasks to specialized subagents, and enforces architecture quality.

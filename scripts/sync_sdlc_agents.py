@@ -67,7 +67,8 @@ def build_antigravity_yaml(agent_data: dict) -> str:
     description = agent_data.get("description", f"Role: {agent_data.get('role', name)}. {agent_data.get('body', '')[:120]}...")
 
     ag_dict = {
-        "name": display_name if isinstance(display_name, str) else name,
+        "name": name,
+        "display_name": display_name if isinstance(display_name, str) else name,
         "description": description,
         "model": model,
         "effort": "high" if thinking else "standard",
@@ -114,9 +115,11 @@ def sync_all_agents(check_only: bool = False) -> bool:
         data = parse_agent_md(agent_md)
         agent_name = data.get("name", agent_dir.name)
 
-        # 1. Antigravity YAML target
-        ag_filename = agent_name.replace("_", "-") + ".agent"
-        ag_target = ANTIGRAVITY_DIR / ag_filename
+        # 1. Antigravity YAML target (generate both underscore and hyphen filenames)
+        ag_filename_hyphen = agent_name.replace("_", "-") + ".agent"
+        ag_filename_underscore = agent_name.replace("-", "_") + ".agent"
+        ag_target_hyphen = ANTIGRAVITY_DIR / ag_filename_hyphen
+        ag_target_underscore = ANTIGRAVITY_DIR / ag_filename_underscore
         ag_yaml_content = build_antigravity_yaml(data)
 
         # 2. Claude Code JSON target
@@ -125,18 +128,20 @@ def sync_all_agents(check_only: bool = False) -> bool:
         claude_json_content = json.dumps(build_claude_json(data), indent=2, ensure_ascii=False)
 
         if check_only:
-            if not ag_target.exists():
-                print(f"❌ Missing Antigravity agent file: {ag_filename}")
+            if not ag_target_hyphen.exists() or not ag_target_underscore.exists():
+                print(f"❌ Missing Antigravity agent file for {agent_name}")
                 mismatches += 1
             if not claude_target.exists():
                 print(f"❌ Missing Claude Code agent file: {claude_filename}")
                 mismatches += 1
         else:
-            with open(ag_target, "w", encoding="utf-8") as f:
+            with open(ag_target_hyphen, "w", encoding="utf-8") as f:
+                f.write(ag_yaml_content)
+            with open(ag_target_underscore, "w", encoding="utf-8") as f:
                 f.write(ag_yaml_content)
             with open(claude_target, "w", encoding="utf-8") as f:
                 f.write(claude_json_content)
-            print(f"✅ Synced: {agent_name} -> {ag_filename} & {claude_filename}")
+            print(f"✅ Synced: {agent_name} -> {ag_filename_hyphen}, {ag_filename_underscore} & {claude_filename}")
 
     if check_only:
         if mismatches == 0:
