@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-08-08 17:50:08 UTC",
+  "timestamp": "2026-08-08 19:36:14 UTC",
   "target_url": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html",
-  "elapsed_seconds": 46.38,
+  "elapsed_seconds": 45.27,
   "summary": {
     "total_buttons": 22,
     "passed": 19,
@@ -26,7 +26,7 @@
       "handler": "HTTP GET /health",
       "endpoint": "GET /health",
       "status": "FAILED",
-      "detail": "HTTP 404 - Response status ok confirmed"
+      "detail": "HTTP 500 - Response status ok confirmed"
     },
     {
       "id": "BTN-PROD-00B",
