@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-08 15:47 (UTC+7)*
+> *Last Updated: 2026-08-09 01:10 (UTC+7)*
 
 ---
 
@@ -147,13 +147,14 @@ python3 scripts/sync_sdlc_agents.py --check
 
 ### 🔄 DOING (กำลังดำเนินการ)
 
-- *(ไม่มี - งานทั้งหมดอยู่ในสถานะ DONE)*
+- [ ] **Vercel gateway handler stabilization & production verification**
+  - Stabilizing the serverless adapter in [api/main.py](api/main.py) and confirming the live route contract for health and CORS preflight behavior.
 
 ---
 
 ### 📋 TODO (งานระยะถัดไป / Phased Roadmap)
 
-- *(ไม่มี - งานใน Phased Roadmap ทั้งหมดได้รับการพัฒนาและทดสอบผ่าน 100% เรียบร้อยแล้ว)*
+- *(ไม่มี - งานใน Phased Roadmap ทั้งหมดได้รับการพัฒนาและทดสอบผ่าน 100% เรียบร้อยแล้ว และสถานะถูกปิดสำหรับ checkpoint นี้)*
 
 
 
