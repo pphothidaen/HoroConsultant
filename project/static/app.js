@@ -1,6 +1,10 @@
-/* ===========================================================================
-   Computational Metaphysics Engine — Dashboard Frontend Script (app.js)
-   =========================================================================== */
+function getApiBaseUrl() {
+  const origin = window.location.origin;
+  if (origin.includes('static.hf.space') || origin.includes('huggingface.co')) {
+    return 'https://horo-consultant-psi.vercel.app';
+  }
+  return '';
+}
 
 function loadPreset(datetime, lng, utc, label) {
   document.getElementById('birth_datetime').value = datetime;
@@ -134,7 +138,7 @@ async function calculateChart(event) {
 
   try {
     // 1. Fetch LLM interpretation
-    const res = await fetch('/api/v1/bazi/interpret', {
+    const res = await fetch(getApiBaseUrl() + '/api/v1/bazi/interpret', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -149,7 +153,7 @@ async function calculateChart(event) {
     // 2. Fetch SVG diagram & detailed chart if not present
     let svgContent = data.svg_content || (data.chart && data.chart.svg_content);
     if (!svgContent) {
-      const calcRes = await fetch('/api/v1/bazi/calculate', {
+      const calcRes = await fetch(getApiBaseUrl() + '/api/v1/bazi/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
