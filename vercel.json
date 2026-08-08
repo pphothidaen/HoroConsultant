@@ -1,18 +1,27 @@
 {
   "version": 2,
-  "outputDirectory": "project/static",
-  "rewrites": [
+  "builds": [
     {
-      "source": "/api/fly/:path*",
-      "destination": "https://horoconsultant-core-backend.fly.dev/api/:path*"
+      "src": "project/static/**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/fly/(.*)",
+      "dest": "https://horoconsultant-core-backend.fly.dev/api/$1"
     },
     {
-      "source": "/api/hf/:path*",
-      "destination": "https://pphothidaen-horoconsultant-core-backend.hf.space/api/:path*"
+      "src": "/api/hf/(.*)",
+      "dest": "https://pphothidaen-horoconsultant-core-backend.hf.space/api/$1"
     },
     {
-      "source": "/api/:path*",
-      "destination": "https://horoconsultant-core-backend.fly.dev/api/:path*"
+      "src": "/api/(.*)",
+      "dest": "https://pphothidaen-horoconsultant-core-backend.hf.space/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/project/static/$1"
     }
   ]
 }
