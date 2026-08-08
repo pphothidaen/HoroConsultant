@@ -80,7 +80,7 @@ class GoogleAuthRequest(BaseModel):
 # ---------------------------------------------------------------------------
 
 def get_allowed_emails() -> List[str]:
-    raw = os.getenv("ADMIN_ALLOWED_EMAILS", "pansakorn@gmail.com,kimlenglim@gmail.com")
+    raw = os.getenv("ADMIN_ALLOWED_EMAILS", "pansakorn@gmail.com,kimlenglim.work@gmail.com")
     return [e.strip().lower() for e in raw.split(",") if e.strip()]
 
 

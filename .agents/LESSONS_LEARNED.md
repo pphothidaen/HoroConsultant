@@ -58,3 +58,22 @@
 - **Prevention Protocol**:
   - Agents MUST run `python3 scripts/kaggle_notebook_manager.py --status` (and `--pull` if updated) before starting any development or modifying code.
   - Enforced in Rule 6 (`.agents/AGENTS.md`).
+
+---
+
+### 7. 🌐 Geocoding Offline Fallback & Network Fault-Tolerance Protocol
+- **Issue Experienced**: Nominatim Geocoding API threw `"ไม่พบสถานที่ดังกล่าว"` when OpenStreetMap timed out, returned 404, or when frontend was loaded from static CDN without a Python backend API connection.
+- **Lesson Learned**: Never rely solely on external 3rd-party network geocoding APIs without a pre-cached offline fallback dictionary.
+- **Prevention Protocol**:
+  - Implement dual-layer (Client-side & Server-side) offline location lookup table (`CLIENT_LOCATION_DICT` & `OFFLINE_LOCATIONS`) covering major Thai provinces, districts, and international cities.
+  - If network geocoding fails or runs on static host, automatically resolve coordinates from the pre-cached offline dictionary without throwing user-facing errors.
+
+---
+
+### 8. 🔐 Decoupled Admin Auth & Strict Email Whitelist Governance
+- **Issue Experienced**: Static frontend host showed `"Email authentication failed"` when calling backend `/admin/auth/google` because no API server listened at the relative static URL, and unauthorized emails were confusingly rejected without clear status.
+- **Lesson Learned**: Strict admin authorization must enforce `ADMIN_ALLOWED_EMAILS=pansakorn@gmail.com,kimlenglim.work@gmail.com` with client-side authorized fallback when operating on static Edge CDNs.
+- **Prevention Protocol**:
+  - Enforce strict whitelist `ADMIN_ALLOWED_EMAILS` restricting access exclusively to `pansakorn@gmail.com` and `kimlenglim.work@gmail.com`.
+  - Provide authorized client-side authentication fallback for static CDNs so admin users can seamlessly access Admin Panel and HITL Studio across all environments.
+

@@ -1298,7 +1298,7 @@ async function handleGoogleCredentialResponse(response) {
 async function submitEmailAuth() {
   const emailInput = document.getElementById('auth-email-input').value.trim();
   if (!emailInput) return;
-  const ALLOWED_ADMIN_EMAILS = ['pansakorn@gmail.com', 'kimlenglim@gmail.com'];
+  const ALLOWED_ADMIN_EMAILS = ['pansakorn@gmail.com', 'kimlenglim.work@gmail.com'];
   
   try {
     const res = await api('POST', '/admin/auth/google', { mock_email: emailInput });

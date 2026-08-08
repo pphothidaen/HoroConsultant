@@ -27,6 +27,15 @@ def test_authorized_email_login_pansakorn():
     assert data["user"]["role"] == "admin"
 
 
+def test_authorized_email_login_kimlenglim_work():
+    response = client.post("/admin/auth/google", json={"mock_email": "kimlenglim.work@gmail.com"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "authenticated"
+    assert data["user"]["email"] == "kimlenglim.work@gmail.com"
+    assert data["user"]["role"] == "admin"
+
+
 def test_unauthorized_email_rejected():
     response = client.post("/admin/auth/google", json={"mock_email": "hacker@evil.com"})
     assert response.status_code == 403

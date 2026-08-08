@@ -9,7 +9,7 @@ primary_region = "sin"
 
 [env]
   PORT = "7860"
-  ADMIN_ALLOWED_EMAILS = "pansakorn@gmail.com,kimlenglim@gmail.com"
+  ADMIN_ALLOWED_EMAILS = "pansakorn@gmail.com,kimlenglim.work@gmail.com"
 
 [[services]]
   protocol = "tcp"
