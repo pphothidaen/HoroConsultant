@@ -5,6 +5,14 @@
       "destination": "https://pphothidaen-horoconsultant-core-backend.hf.space/:path*"
     },
     {
+      "source": "/health",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/api/v1/health",
+      "destination": "/api/index.py"
+    },
+    {
       "source": "/(.*)",
       "destination": "/api/index.py"
     }

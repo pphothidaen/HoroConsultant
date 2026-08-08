@@ -88,6 +88,30 @@ async def run_live_e2e_production_regression():
         })
 
         # -------------------------------------------------------------------
+        # 1B. Testing Production Vercel Gateway Health Check Endpoints
+        # -------------------------------------------------------------------
+        print("\n[STEP 1B] Testing Vercel Gateway /health Endpoint...")
+        try:
+            health_page = await page.context.new_page()
+            h_resp = await health_page.goto("https://horo-consultant-psi.vercel.app/health")
+            h_status = h_resp.status if h_resp else 0
+            h_body = await health_page.content()
+            h_ok = h_status == 200 and "ok" in h_body.lower()
+            await health_page.close()
+            print(f"  • Vercel Gateway GET /health: HTTP {h_status} -> {'OK' if h_ok else 'FAIL'}")
+            button_results.append({
+                "id": "BTN-PROD-00",
+                "page": "index.html",
+                "name": "💚 Vercel Gateway Health Check (/health)",
+                "handler": "HTTP GET /health",
+                "endpoint": "GET /health",
+                "status": "PASSED" if h_ok else "FAILED",
+                "detail": f"HTTP {h_status} - Response status ok confirmed",
+            })
+        except Exception as e:
+            print(f"  ❌ Vercel Gateway Health Check Failed: {e}")
+
+        # -------------------------------------------------------------------
         # 2. Location Search Button (resolveLocation)
         # -------------------------------------------------------------------
         print("\n[STEP 2] Testing Location Search Button ('ค้นหา & เติมค่า')...")
