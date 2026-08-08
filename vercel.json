@@ -1,15 +1,10 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "project/static/**/*",
-      "use": "@vercel/static"
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 15
     }
-  ],
+  },
   "routes": [
     {
       "src": "/api/hf/(.*)",
