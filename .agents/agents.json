@@ -1,0 +1,68 @@
+{
+  "entries": [
+    {
+      "name": "business_analyst",
+      "path": "business_analyst/agent.md"
+    },
+    {
+      "name": "code_reviewer",
+      "path": "code_reviewer/agent.md"
+    },
+    {
+      "name": "default",
+      "path": "default/agent.md"
+    },
+    {
+      "name": "developer",
+      "path": "developer/agent.md"
+    },
+    {
+      "name": "devops",
+      "path": "devops/agent.md"
+    },
+    {
+      "name": "ming_xue_master",
+      "path": "ming_xue_master/agent.md"
+    },
+    {
+      "name": "numerology_master",
+      "path": "numerology_master/agent.md"
+    },
+    {
+      "name": "orchestrator",
+      "path": "orchestrator/agent.md"
+    },
+    {
+      "name": "prediction_validator",
+      "path": "prediction_validator/agent.md"
+    },
+    {
+      "name": "pu_shi_master",
+      "path": "pu_shi_master/agent.md"
+    },
+    {
+      "name": "qa_tester",
+      "path": "qa_tester/agent.md"
+    },
+    {
+      "name": "san_shi_master",
+      "path": "san_shi_master/agent.md"
+    },
+    {
+      "name": "thai_vedic_master",
+      "path": "thai_vedic_master/agent.md"
+    },
+    {
+      "name": "western_astro_master",
+      "path": "western_astro_master/agent.md"
+    },
+    {
+      "name": "xiang_xue_master",
+      "path": "xiang_xue_master/agent.md"
+    },
+    {
+      "name": "ze_ji_master",
+      "path": "ze_ji_master/agent.md"
+    }
+  ]
+}

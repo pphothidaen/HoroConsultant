@@ -57,11 +57,14 @@ async def lifespan(app: FastAPI):
             logger.error(f"❌ Failed to start auto-sync scheduler: {e}")
 
     # 3. Vector DB & FAISS Index Warmup (eliminates cold-start latency)
-    try:
-        logger.info("⚡ Pre-warming FAISS Vector Store & Rust Search Index...")
-        asyncio.create_task(asyncio.to_thread(get_vector_store))
-    except Exception as e:
-        logger.warning(f"Vector store warmup note: {e}")
+    if os.getenv("SKIP_FAISS_WARMUP", "false").lower() != "true":
+        try:
+            logger.info("⚡ Pre-warming FAISS Vector Store & Rust Search Index...")
+            asyncio.create_task(asyncio.to_thread(get_vector_store))
+        except Exception as e:
+            logger.warning(f"Vector store warmup note: {e}")
+    else:
+        logger.info("⏩ Skipping FAISS Vector Store pre-warm (SKIP_FAISS_WARMUP=true)")
 
     yield
 
@@ -110,6 +113,16 @@ async def serve_ui():
     if os.path.exists(index_path):
         return FileResponse(index_path)
     return JSONResponse(content={"status": "ok", "service": "Computational Metaphysics Engine"})
+
+
+@app.get("/app.js", response_class=FileResponse, include_in_schema=False)
+async def serve_app_js():
+    return FileResponse(os.path.join(STATIC_DIR, "app.js"))
+
+
+@app.get("/style.css", response_class=FileResponse, include_in_schema=False)
+async def serve_style_css():
+    return FileResponse(os.path.join(STATIC_DIR, "style.css"))
 
 
 @app.get("/admin", response_class=FileResponse, tags=["Admin UI"])

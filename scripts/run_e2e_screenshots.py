@@ -36,6 +36,9 @@ ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def start_server():
+    os.environ["SKIP_FAISS_WARMUP"] = "true"
+    os.environ["AUTO_SYNC_ON_STARTUP"] = "false"
+    os.environ["AUTO_SYNC_ENABLED"] = "false"
     uvicorn.run("project.main:app", host="127.0.0.1", port=8888, log_level="warning")
 
 
@@ -47,32 +50,38 @@ async def run_e2e_flow():
         browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(viewport={"width": 1400, "height": 900})
         page    = await context.new_page()
+        page.on("console", lambda msg: print(f"[BROWSER LOG] {msg.type}: {msg.text}"))
+        page.on("pageerror", lambda err: print(f"[BROWSER ERROR] {err}"))
 
-        await page.route("**/api/v1/bazi/interpret", lambda route: route.fulfill(
-            status=200,
-            content_type="application/json",
-            body=json.dumps({
-                "chart": {
-                    "pillars": {
-                        "year": {"stem": {"char": "庚", "pinyin": "gēng", "element": "Metal", "polarity": "Yang"}, "branch": {"char": "午", "pinyin": "wǔ", "zodiac": "Horse", "element": "Fire"}},
-                        "month": {"stem": {"char": "辛", "pinyin": "xīn", "element": "Metal", "polarity": "Yin"}, "branch": {"char": "巳", "pinyin": "sì", "zodiac": "Snake", "element": "Fire"}},
-                        "day": {"stem": {"char": "庚", "pinyin": "gēng", "element": "Metal", "polarity": "Yang"}, "branch": {"char": "辰", "pinyin": "chén", "zodiac": "Dragon", "element": "Earth"}},
-                        "hour": {"stem": {"char": "癸", "pinyin": "guǐ", "element": "Water", "polarity": "Yin"}, "branch": {"char": "未", "pinyin": "wèi", "zodiac": "Goat", "element": "Earth"}}
+        async def handle_interpret(route):
+            await route.fulfill(
+                status=200,
+                content_type="application/json",
+                body=json.dumps({
+                    "svg_content": "<svg xmlns='http://www.w3.org/2000/svg' width='400' height='200'><rect width='400' height='200' fill='#0f172a'/><text x='20' y='40' fill='#fbbf24' font-size='16'>BaZi Chart 庚金 (Mocked E2E SVG)</text></svg>",
+                    "chart": {
+                        "pillars": {
+                            "year": {"stem": {"char": "庚", "pinyin": "gēng", "element": "Metal", "polarity": "Yang"}, "branch": {"char": "午", "pinyin": "wǔ", "zodiac": "Horse", "element": "Fire"}},
+                            "month": {"stem": {"char": "辛", "pinyin": "xīn", "element": "Metal", "polarity": "Yin"}, "branch": {"char": "巳", "pinyin": "sì", "zodiac": "Snake", "element": "Fire"}},
+                            "day": {"stem": {"char": "庚", "pinyin": "gēng", "element": "Metal", "polarity": "Yang"}, "branch": {"char": "辰", "pinyin": "chén", "zodiac": "Dragon", "element": "Earth"}},
+                            "hour": {"stem": {"char": "癸", "pinyin": "guǐ", "element": "Water", "polarity": "Yin"}, "branch": {"char": "未", "pinyin": "wèi", "zodiac": "Goat", "element": "Earth"}}
+                        },
+                        "day_master": {"stem": "庚", "element": "Metal", "polarity": "Yang", "pinyin": "gēng"},
+                        "five_elements": {"percentages": {"Metal": 35.0, "Fire": 25.0, "Earth": 20.0, "Water": 15.0, "Wood": 5.0}}
                     },
-                    "day_master": {"stem": "庚", "element": "Metal", "polarity": "Yang", "pinyin": "gēng"},
-                    "five_elements": {"percentages": {"Metal": 35.0, "Fire": 25.0, "Earth": 20.0, "Water": 15.0, "Wood": 5.0}}
-                },
-                "interpretation": "ดวงชะตานี้มี Day Master เป็น 庚金 (ทองหยาง) แข็งแกร่งส่งเสริมด้านนวัตกรรมและการบริหารองค์กร",
-                "route": "ollama_primary",
-                "latency_ms": 120,
-                "validation_report": {
-                    "validation_status": "APPROVED",
-                    "confidence_score": 0.95,
-                    "peer_perspective": "Gemini Multi-Agent Audit verified 5 Elements balance and True Solar Time adjustment.",
-                    "refined_interpretation": "การวิเคราะห์สอดคล้องตามหลัก ZiPing ZhenQuan"
-                }
-            })
-        ))
+                    "interpretation": "ดวงชะตานี้มี Day Master เป็น 庚金 (ทองหยาง) แข็งแกร่งส่งเสริมด้านนวัตกรรมและการบริหารองค์กร",
+                    "route": "ollama_primary",
+                    "latency_ms": 120,
+                    "validation_report": {
+                        "validation_status": "APPROVED",
+                        "confidence_score": 0.95,
+                        "peer_perspective": "Gemini Multi-Agent Audit verified 5 Elements balance and True Solar Time adjustment.",
+                        "refined_interpretation": "การวิเคราะห์สอดคล้องตามหลัก ZiPing ZhenQuan"
+                    }
+                })
+            )
+
+        await page.route("**/api/v1/bazi/interpret", handle_interpret)
 
         # -------------------------------------------------------------------
         # 1. Main Dashboard (index.html) E2E Test
@@ -332,9 +341,26 @@ async def run_e2e_flow():
 
 
 def main():
+    import urllib.request
     server_process = Process(target=start_server, daemon=True)
     server_process.start()
-    time.sleep(4.5)  # Allow FastAPI server to initialize & bind port 8888
+    
+    print("[INFO] Waiting for FastAPI calculation endpoints to initialize & respond on port 8888...")
+    start_time = time.time()
+    server_ready = False
+    endpoint = "http://127.0.0.1:8888/api/v1/ziwei/calculate?year=1990&month=5&day=15&hour=14&gender=male"
+    while time.time() - start_time < 90:
+        try:
+            with urllib.request.urlopen(endpoint, timeout=3) as resp:
+                if resp.status == 200:
+                    server_ready = True
+                    print(f"[INFO] Server endpoints are warm and responding after {time.time() - start_time:.1f}s.")
+                    break
+        except Exception:
+            time.sleep(2)
+
+    if not server_ready:
+        print("[WARNING] Server endpoint check timed out, proceeding anyway...")
 
     try:
         asyncio.run(run_e2e_flow())

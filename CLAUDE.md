@@ -86,15 +86,17 @@ python3 scripts/post_train_fuse.py --dry-run
 ```
 HoroConsultant/
 ├── CLAUDE.md                    # Main Project Blueprint & Agent Guide
+├── .antigravity/agents/         # Primary Google Antigravity Agent Specifications (.agent YAML)
+├── .claude/agents/              # Primary Anthropic Claude Code Agent Specifications (.json)
 ├── .mcp.json                    # Model Context Protocol (MCP) Shared Config
 ├── settings.json                # Tools & Agent Permissions Settings
 ├── .agent_rules.md              # Mandatory Operational Commandments
-├── .agents/                     # Multi-Agent Architecture Directory
+├── .agents/                     # Multi-Agent Architecture Directory & Skill Governance
 │   ├── AGENTS.md                # Agent Role Strategy & Flow Protocol
 │   ├── rules/                   # Modular Rules (01-coding, 02-testing, etc.)
 │   ├── commands/                # Custom Slash Commands (/test, /review, etc.)
 │   ├── skills/                  # Context-aware Modular Skills
-│   ├── agents/                  # Specialized Sub-Agent Prompts & Tools
+│   ├── agents/                  # Downstream Markdown Agent Definitions
 │   └── hooks/                   # Pre/Post-tool Audit Scripts
 ├── project/                     # Core Application Source Code
 │   ├── core/                    # Solar Time, BaZi Engine, SVG, Reviewer
