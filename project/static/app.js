@@ -154,10 +154,11 @@ async function updateVersionFooter() {
 
     if (res && res.ok) {
       const data = await res.json();
-      const versionStr = data.version || (data.git_commit ? `1.0.0.${data.git_commit}` : '1.0.0');
+      const rawVer = data.version || (data.git_commit ? `1.0.0.${data.git_commit.slice(0, 7)}` : '1.0.0');
+      const versionStr = rawVer.startsWith('v') ? rawVer : `v${rawVer}`;
       const footerEl = document.getElementById('footer-version-text');
       if (footerEl && versionStr) {
-        footerEl.textContent = `Computational Metaphysics Engine v${versionStr} — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) & Dual Gemini API Fallback`;
+        footerEl.textContent = `Computational Metaphysics Engine ${versionStr} — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) & Dual Gemini API Fallback`;
       }
       if (healthBadge) {
         const gwName = data.gateway ? ` Gateway (${data.gateway})` : '';

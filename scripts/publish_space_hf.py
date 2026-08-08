@@ -294,29 +294,46 @@ pinned: false
             except Exception:
                 pass
 
+            from project.core.config import get_app_version
+            local_version = get_app_version()
             static_dir = ROOT / "project" / "static"
+
+            # Create temporary staged static assets folder with git version injected into index.html
+            import tempfile, shutil
+            temp_static_dir = Path(tempfile.mkdtemp(prefix="hf_static_staged_"))
+            shutil.copytree(static_dir, temp_static_dir, dirs_exist_ok=True)
+
+            idx_file = temp_static_dir / "index.html"
+            if idx_file.exists():
+                idx_text = idx_file.read_text(encoding="utf-8")
+                idx_text = idx_text.replace("v1.0.0", f"v{local_version}")
+                idx_file.write_text(idx_text, encoding="utf-8")
+
+            logger.info(f"📦 Staging static assets with version 'v{local_version}'...")
+
             # Upload static assets to root
             api.upload_folder(
-                folder_path=str(static_dir),
+                folder_path=str(temp_static_dir),
                 repo_id=space_id,
                 repo_type="space",
             )
             # ALSO upload static assets under 'static/' path in repo
             # so that both /app.js, /style.css AND /static/app.js, /static/style.css work without 404!
             api.upload_folder(
-                folder_path=str(static_dir),
+                folder_path=str(temp_static_dir),
                 path_in_repo="static",
                 repo_id=space_id,
                 repo_type="space",
             )
             # Ensure index.html exists at root
-            if (static_dir / "index.html").exists():
+            if (temp_static_dir / "index.html").exists():
                 api.upload_file(
-                    path_or_fileobj=str(static_dir / "index.html"),
+                    path_or_fileobj=str(temp_static_dir / "index.html"),
                     path_in_repo="index.html",
                     repo_id=space_id,
                     repo_type="space",
                 )
+            shutil.rmtree(temp_static_dir, ignore_errors=True)
         else:
             # Generate and upload README.md with Hugging Face Space YAML frontmatter for Docker SDK
             hf_readme_content = """---

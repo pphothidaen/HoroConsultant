@@ -18,12 +18,16 @@ module.exports = async (req, res) => {
 
   // GET /health
   if (url === "/health" || url === "/api/health" || url === "/api/v1/health" || url === "/") {
+    const gitCommit = (process.env.VERCEL_GIT_COMMIT_SHA || process.env.GIT_COMMIT_HASH || process.env.HF_COMMIT_SHA || "").slice(0, 7);
+    const versionStr = gitCommit ? `1.0.0.${gitCommit}` : "1.0.0";
+
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     return res.end(JSON.stringify({
       status: "ok",
       service: "Computational Metaphysics Engine",
-      version: "1.0.0",
+      version: versionStr,
+      git_commit: gitCommit || null,
       gateway: "vercel-node-middleend",
       backend_target: HF_BACKEND_URL
     }));
