@@ -1,26 +1,21 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+import sys
+import traceback
+from pathlib import Path
 
-app = FastAPI(title="Health Check Gateway")
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+try:
+    from project.main import app
+    handler = app
+except Exception as e:
+    err_msg = traceback.format_exc()
+    from fastapi import FastAPI
+    from fastapi.responses import PlainTextResponse
+    app = FastAPI()
 
-@app.get("/health")
-@app.get("/api/health")
-@app.get("/api/v1/health")
-@app.get("/")
-async def health():
-    return {
-        "status": "ok",
-        "service": "Computational Metaphysics Engine",
-        "version": "1.0.0"
-    }
-
-# Vercel handler alias
-handler = app
+    @app.api_route("/{path:path}", methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"])
+    async def debug_error(path: str):
+        return PlainTextResponse(f"HEALTH IMPORT ERROR:\n{err_msg}", status_code=500)
+    handler = app
