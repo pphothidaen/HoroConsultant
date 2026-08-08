@@ -22,7 +22,11 @@ jobs:
       - name: Setup Flyctl CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
+      - name: Extract Short Git Commit Hash
+        id: git_hash
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
       - name: Deploy to Fly.io Singapore Region
-        run: flyctl deploy --remote-only --config fly.toml
+        run: flyctl deploy --remote-only --config fly.toml --build-arg GIT_COMMIT_HASH=${{ steps.git_hash.outputs.sha_short }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

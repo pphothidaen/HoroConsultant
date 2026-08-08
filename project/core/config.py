@@ -37,8 +37,8 @@ if env_file.exists():
 def get_git_commit_hash() -> str:
     """
     Retrieve short 7-character Git commit hash dynamically.
-    Checks environment variables (GIT_COMMIT_HASH, VERCEL_GIT_COMMIT_SHA, HF_COMMIT_SHA, COMMIT_REF)
-    or executes `git rev-parse --short HEAD`. Falls back to 'cb9b314' if unavailable.
+    Checks environment variables (GIT_COMMIT_HASH, VERCEL_GIT_COMMIT_SHA, HF_COMMIT_SHA, COMMIT_REF),
+    `git_commit.txt` file, or executes `git rev-parse --short HEAD`.
     """
     env_hash = (
         os.getenv("GIT_COMMIT_HASH")
@@ -48,6 +48,15 @@ def get_git_commit_hash() -> str:
     )
     if env_hash:
         return env_hash[:7]
+
+    commit_file = BASE_DIR / "git_commit.txt"
+    if commit_file.exists():
+        try:
+            val = commit_file.read_text().strip()
+            if val:
+                return val[:7]
+        except Exception:
+            pass
 
     try:
         cmd_out = subprocess.check_output(
@@ -62,11 +71,11 @@ def get_git_commit_hash() -> str:
     except Exception:
         pass
 
-    return "cb9b314"
+    return "unknown"
 
 
 def get_app_version() -> str:
-    """Return full application version string with dynamic Git commit hash, e.g. 1.0.0.cb9b314."""
+    """Return full application version string with dynamic Git commit hash, e.g. 1.0.0.fe6a2aa."""
     return f"1.0.0.{get_git_commit_hash()}"
 
 
