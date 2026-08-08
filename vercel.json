@@ -2,22 +2,22 @@
   "version": 2,
   "builds": [
     {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    },
+    {
       "src": "project/static/**/*",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/api/fly/(.*)",
-      "dest": "https://horoconsultant-core-backend.fly.dev/api/$1"
-    },
-    {
       "src": "/api/hf/(.*)",
-      "dest": "https://pphothidaen-horoconsultant-core-backend.hf.space/api/$1"
+      "dest": "https://pphothidaen-horoconsultant-core-backend.hf.space/$1"
     },
     {
       "src": "/api/(.*)",
-      "dest": "https://horoconsultant-core-backend.fly.dev/api/$1"
+      "dest": "api/index.py"
     },
     {
       "src": "/(.*)",

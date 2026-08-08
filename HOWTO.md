@@ -335,13 +335,21 @@ fly deploy
      [https://vividlamp2135.grafana.net/d/39ac5605-b947-4c43-87dc-60575f57f219/incident-insights?from=now-90d&to=now&timezone=utc](https://vividlamp2135.grafana.net/d/39ac5605-b947-4c43-87dc-60575f57f219/incident-insights?from=now-90d&to=now&timezone=utc)  
      *(วิเคราะห์สถิติ Incident ย้อนหลัง, ระดับความรุนแรง Severity, MTTD และ MTTR)*
 
-2. **Prometheus Metrics Endpoint (`/metrics`):**
-   - URL: `http://localhost:8000/metrics` (หรือบน Production Host)
-   - ข้อมูลที่จัดเก็บ: Request Per Minute (RPM), HTTP status code counters (2xx/4xx/5xx), RAG FAISS retrieval latency, และ LLM inference stats
+3. **การส่งข้อมูลจำลองและการตรวจสอบข้อมูลแดชบอร์ด (Telemetry Data Ingestion & Verification):**
+   ```bash
+   # 1. ฉีดข้อมูลจำลอง telemetry OTLP (Prometheus) + Grafana Incident Datasource พร้อมตรวจสอบคิวรี
+   python3 scripts/inject_prod_dummy_data.py --stages 6 --target all --verify-queries
 
-3. **Synthetic Uptime Monitoring Alias (`/api/health`):**
-   - URL: `http://localhost:8000/api/health`
-   - สามารถนำ URL นี้ไปกรอกใน Grafana Synthetic Monitoring เพื่อยิง Ping ทุกๆ 1-3 นาที ป้องกันไม่ให้ Hugging Face Space หรือ Micro-VM เข้าสู่ Sleep Mode
+   # 2. ฉีดข้อมูลเฉพาะ Grafana Incident Datasource (Incidents, Severity, Labels, MTTR)
+   python3 scripts/inject_grafana_incident_data.py --stages 6 --verify-queries
+
+   # 3. ทดสอบการจำลองแบบ Dry-Run
+   python3 scripts/inject_prod_dummy_data.py --dry-run
+   python3 scripts/inject_grafana_incident_data.py --dry-run
+
+   # 4. ส่งออกและเผยแพร่แดชบอร์ดไปยัง Grafana Cloud API
+   python3 scripts/grafana_cloud_exporter.py --export-dashboard
+   ```
 
 4. **การเปิดใช้งานผ่าน Environment Variables:**
    ```bash

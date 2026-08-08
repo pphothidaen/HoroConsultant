@@ -1,7 +1,7 @@
 const BACKEND_API_HOSTS = [
   "", // Relative origin (local server / same-origin proxy)
+  "https://horo-consultant-psi.vercel.app", // Vercel Production Serverless API Gateway
   "https://horoconsultant-core-backend.fly.dev", // Fly.io Core Backend API
-  "https://pphothidaen-horoconsultant-core-backend.hf.space", // HF Docker Space Core Backend API
 ];
 
 function getApiBaseUrl() {
@@ -9,7 +9,7 @@ function getApiBaseUrl() {
     return window.API_BASE_URL;
   }
   if (typeof window !== 'undefined' && window.location && window.location.hostname.includes('static.hf.space')) {
-    return 'https://horoconsultant-core-backend.fly.dev';
+    return 'https://horo-consultant-psi.vercel.app';
   }
   return '';
 }

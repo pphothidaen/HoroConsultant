@@ -26,8 +26,13 @@ from scripts.grafana_cloud_exporter import (
     main as exporter_main,
     DEFAULT_DASHBOARD_PATH,
 )
+from project.core.observability import ObservabilityManager
 
 DASHBOARD_FILE_PATH = ROOT / "project" / "grafana" / "horoconsultant_dashboard.json"
+INCIDENT_DASHBOARD_FILE_PATH = ROOT / "project" / "grafana" / "incident_insights_dashboard.json"
+PUBLIC_DASHBOARD_FILE_PATH = ROOT / "project" / "grafana" / "incident_insights_public_dashboard.json"
+INVALID_TASK_REGEX = "/^task_completed / task_total$/"
+CORRECT_TASK_REGEX = "/^(task_completed|task_total)$/"
 
 
 class TestGrafanaDashboardSchema:
@@ -100,6 +105,60 @@ class TestGrafanaDashboardSchema:
         assert "http_requests_total" in all_exprs or "process_uptime_seconds" in all_exprs
         assert "rag_search_total" in all_exprs or "llm_inference_total" in all_exprs
 
+    def test_public_dashboard_file_structure(self):
+        """Verify the public incident dashboard JSON schema is valid and uses Prometheus datasource."""
+        assert PUBLIC_DASHBOARD_FILE_PATH.exists(), f"Public dashboard JSON does not exist at {PUBLIC_DASHBOARD_FILE_PATH}"
+        data = load_dashboard_schema(PUBLIC_DASHBOARD_FILE_PATH)
+        assert isinstance(data, dict), "Public dashboard root must be a dict"
+        assert data["uid"] == "horoconsultant-incident-insights-public"
+        assert "Prometheus" not in data.get("title", "") or "public" in data.get("title", "").lower()
+
+        panels = data.get("panels", [])
+        assert isinstance(panels, list) and len(panels) >= 3
+
+        exprs = []
+        for panel in panels:
+            datasource = panel.get("datasource")
+            assert isinstance(datasource, dict), f"Panel '{panel.get('title')}' missing datasource"
+            assert datasource.get("type") == "prometheus", f"Panel '{panel.get('title')}' must use Prometheus datasource"
+            assert datasource.get("uid") in ("${DS_PROMETHEUS}", "grafanacloud-prom"), (
+                f"Panel '{panel.get('title')}' datasource uid must be templated or default to grafanacloud-prom"
+            )
+            targets = panel.get("targets", [])
+            assert isinstance(targets, list) and len(targets) > 0, f"Panel '{panel.get('title')}' has no targets"
+            for target in targets:
+                assert "expr" in target, f"Target in panel '{panel.get('title')}' missing 'expr'"
+                exprs.append(target["expr"])
+
+        all_exprs = " ".join(exprs)
+        assert "process_uptime_seconds" in all_exprs
+        assert "http_requests_total" in all_exprs
+        assert "http_request_duration_seconds_sum" in all_exprs
+        assert "http_request_duration_seconds_count" in all_exprs
+        assert "rag_search_total" in all_exprs
+        assert "llm_inference_total" in all_exprs
+
+    def test_public_dashboard_uses_prometheus_variable_uid(self):
+        """Verify public incident dashboard panels use the DS_PROMETHEUS templated datasource UID."""
+        data = load_dashboard_schema(PUBLIC_DASHBOARD_FILE_PATH)
+        panels = data.get("panels", [])
+        for panel in panels:
+            datasource = panel.get("datasource")
+            if isinstance(datasource, dict):
+                uid = datasource.get("uid")
+                assert uid == "${DS_PROMETHEUS}", f"Panel '{panel.get('title')}' should use '${DS_PROMETHEUS}' datasource variable, got '{uid}'"
+
+    def test_incident_dashboard_field_filter_regex(self):
+        """Verify the incident dashboard uses a correct regex for task completed/total field filtering."""
+        data = load_dashboard_schema(INCIDENT_DASHBOARD_FILE_PATH)
+        panels = data.get("panels", [])
+
+        gauge_panel = next((panel for panel in panels if panel.get("id") == 63), None)
+        assert gauge_panel is not None, "Incident dashboard missing panel 63"
+
+        reduce_fields = gauge_panel.get("options", {}).get("reduceOptions", {}).get("fields")
+        assert reduce_fields == CORRECT_TASK_REGEX, f"Panel 63 task field filter regex is invalid: {reduce_fields}"
+
 
 class TestGrafanaCloudExporterCLI:
     """Test Suite for scripts/grafana_cloud_exporter.py Functions and CLI."""
@@ -120,7 +179,9 @@ class TestGrafanaCloudExporterCLI:
         mock_dashboard = {"title": "Test Dashboard", "uid": "test-uid"}
         payload = format_grafana_payload(mock_dashboard, overwrite=True, folder_uid="test-folder")
 
-        assert payload["dashboard"] == mock_dashboard
+        assert payload["dashboard"]["title"] == mock_dashboard["title"]
+        assert payload["dashboard"]["uid"] == mock_dashboard["uid"]
+        assert payload["dashboard"]["id"] is None
         assert payload["overwrite"] is True
         assert payload["folderUid"] == "test-folder"
         assert "Exported via HoroConsultant" in payload["message"]

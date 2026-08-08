@@ -25,9 +25,9 @@
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "grafanacloud-prom"
+        "uid": "${DS_PROMETHEUS}"
       },
-      "description": "Monitors overall application process uptime in seconds and active health status.",
+      "description": "Application uptime in seconds as reported by the HoroConsultant metrics endpoint.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -76,13 +76,12 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "process_uptime_seconds",
           "instant": true,
           "legendFormat": "Process Uptime",
-          "range": false,
           "refId": "A"
         }
       ],
@@ -93,7 +92,7 @@
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "grafanacloud-prom"
+        "uid": "${DS_PROMETHEUS}"
       },
       "description": "HTTP request rate per minute grouped by HTTP method, endpoint, and status code.",
       "fieldConfig": {
@@ -133,7 +132,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "sum(rate(http_requests_total[$__rate_interval])) by (method, endpoint, status_code) * 60",
@@ -148,9 +147,9 @@
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "grafanacloud-prom"
+        "uid": "${DS_PROMETHEUS}"
       },
-      "description": "Calculates P95, P90, and P50 HTTP request latency metrics in seconds.",
+      "description": "Average request latency from the service metrics.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -188,44 +187,24 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[$__rate_interval])) by (le))",
-          "legendFormat": "p95",
+          "expr": "sum(rate(http_request_duration_seconds_sum[$__rate_interval])) / sum(rate(http_request_duration_seconds_count[$__rate_interval]))",
+          "legendFormat": "Average Latency (s)",
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "grafanacloud-prom"
-          },
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.90, sum(rate(http_request_duration_seconds_bucket[$__rate_interval])) by (le))",
-          "legendFormat": "p90",
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "grafanacloud-prom"
-          },
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[$__rate_interval])) by (le))",
-          "legendFormat": "p50",
-          "refId": "C"
         }
       ],
-      "title": "API Latency Histogram",
+      "title": "API Latency (Average)",
       "type": "timeseries"
     },
     {
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "grafanacloud-prom"
+        "uid": "${DS_PROMETHEUS}"
       },
-      "description": "Total RAG vector database queries per minute and latency duration.",
+      "description": "RAG query throughput and average retrieval latency.",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -279,7 +258,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "sum(rate(rag_search_total[$__rate_interval])) * 60",
@@ -289,10 +268,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(rag_search_duration_seconds_sum[$__rate_interval])) / sum(rate(rag_search_total[$__rate_interval]))",
+          "expr": "sum(rate(rag_search_latency_seconds_sum[$__rate_interval])) / sum(rate(rag_search_total[$__rate_interval]))",
           "legendFormat": "Search Latency (s)",
           "refId": "B"
         }
@@ -304,9 +283,9 @@
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "grafanacloud-prom"
+        "uid": "${DS_PROMETHEUS}"
       },
-      "description": "Distribution ratio of LLM model inference requests partitioned by provider and status.",
+      "description": "Distribution of LLM inference calls by provider and status.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -349,7 +328,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "grafanacloud-prom"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "sum by (provider, status) (llm_inference_total)",
@@ -366,9 +345,9 @@
   "style": "dark",
   "tags": [
     "horoconsultant",
-    "observability",
-    "grafana-cloud",
-    "metaphysics"
+    "incident-insights",
+    "public",
+    "prometheus"
   ],
   "templating": {
     "list": [
@@ -405,7 +384,7 @@
     ]
   },
   "timezone": "browser",
-  "title": "HoroConsultant Observability Dashboard",
-  "uid": "horoconsultant-observability",
+  "title": "HoroConsultant Incident Insights Public",
+  "uid": "horoconsultant-incident-insights-public",
   "version": 1
 }

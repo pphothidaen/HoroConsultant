@@ -123,6 +123,20 @@ class ObservabilityManager:
             except Exception:
                 pass
 
+    def seed_dummy_metrics(self) -> None:
+        """Seed the observability manager with dummy metrics for local display and test coverage."""
+        if not self.enabled:
+            return
+
+        # Dummy HTTP request metrics
+        self.record_request(method="GET", endpoint="/dummy", status_code=200, duration=0.123)
+        self.record_request(method="POST", endpoint="/dummy", status_code=201, duration=0.250)
+
+        # Dummy RAG and LLM metrics
+        self.record_rag_search(duration=0.042, hits=5)
+        self.record_llm_inference(provider="dummy", status="success", duration=0.100)
+        self.record_llm_inference(provider="dummy", status="error", duration=0.200)
+
     def generate_metrics_text(self) -> str:
         """Generate Prometheus exposition text format."""
         if PROMETHEUS_CLIENT_AVAILABLE:
@@ -144,6 +158,34 @@ class ObservabilityManager:
         for key, count in self._request_counts.items():
             method, endpoint, status = key.split(":")
             lines.append(f'http_requests_total{{method="{method}",endpoint="{endpoint}",status_code="{status}"}} {count}')
+
+        request_count_by_path: Dict[str, int] = {}
+        for key, count in self._request_counts.items():
+            method, endpoint, _ = key.split(":", 2)
+            path_key = f"{method}:{endpoint}"
+            request_count_by_path[path_key] = request_count_by_path.get(path_key, 0) + count
+
+        lines.extend([
+            "",
+            "# HELP http_request_duration_seconds_count Total number of HTTP request duration observations",
+            "# TYPE http_request_duration_seconds_count counter",
+        ])
+        for path_key, count in request_count_by_path.items():
+            method, endpoint = path_key.split(":", 1)
+            lines.append(
+                f'http_request_duration_seconds_count{{method="{method}",endpoint="{endpoint}"}} {count}'
+            )
+
+        lines.extend([
+            "",
+            "# HELP http_request_duration_seconds_sum Total cumulative HTTP request duration",
+            "# TYPE http_request_duration_seconds_sum counter",
+        ])
+        for path_key, duration_sum in self._request_latencies.items():
+            method, endpoint = path_key.split(":", 1)
+            lines.append(
+                f'http_request_duration_seconds_sum{{method="{method}",endpoint="{endpoint}"}} {duration_sum:.4f}'
+            )
 
         lines.extend([
             "",
@@ -202,6 +244,17 @@ def setup_observability_middleware(app: FastAPI):
         content_type = CONTENT_TYPE_LATEST if PROMETHEUS_CLIENT_AVAILABLE else "text/plain; version=0.0.4; charset=utf-8"
         return PlainTextResponse(content=content, media_type=content_type)
 
+    @app.get("/metrics/seed-dummy", include_in_schema=False, tags=["observability"])
+    @app.post("/metrics/seed-dummy", include_in_schema=False, tags=["observability"])
+    async def seed_dummy_metrics_endpoint():
+        """Trigger dummy metrics generation for testing and Grafana demonstration."""
+        observability_manager.seed_dummy_metrics()
+        return {
+            "status": "success",
+            "message": "Dummy metrics seeded successfully into ObservabilityManager engine",
+            "timestamp": time.time()
+        }
+
     @app.get("/api/health", include_in_schema=False, tags=["system"])
     async def api_health_alias():
         """Grafana Synthetic Monitoring / Health Alias Endpoint."""
@@ -210,3 +263,4 @@ def setup_observability_middleware(app: FastAPI):
             "uptime_seconds": round(time.time() - observability_manager.start_time, 2),
             "service": "Computational Metaphysics Engine",
         }
+

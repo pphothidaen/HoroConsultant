@@ -182,8 +182,10 @@ def format_grafana_payload(dashboard: Dict[str, Any], overwrite: bool = True, fo
     """
     Format payload for Grafana Cloud API /api/dashboards/db endpoint.
     """
+    dash_copy = dict(dashboard)
+    dash_copy["id"] = None
     return {
-        "dashboard": dashboard,
+        "dashboard": dash_copy,
         "overwrite": overwrite,
         "folderUid": folder_uid,
         "message": "Exported via HoroConsultant Grafana Cloud Exporter"
@@ -273,12 +275,13 @@ def push_metrics(grafana_url: str, api_key: str, payload: Dict[str, Any], dry_ru
     }
 
     user_id = os.getenv("GRAFANA_USER_ID", "").strip()
+    prom_key = os.getenv("GRAFANA_PROMETHEUS_API", "").strip() or api_key
     if user_id and "your_grafana" not in user_id.lower():
         import base64
-        cred = base64.b64encode(f"{user_id}:{api_key}".encode("utf-8")).decode("utf-8")
+        cred = base64.b64encode(f"{user_id}:{prom_key}".encode("utf-8")).decode("utf-8")
         headers["Authorization"] = f"Basic {cred}"
     else:
-        headers["Authorization"] = f"Bearer {api_key}"
+        headers["Authorization"] = f"Bearer {prom_key}"
 
     data_bytes = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
@@ -316,8 +319,15 @@ def export_dashboard_to_grafana(
     Export dashboard to Grafana Cloud API.
     Returns status dictionary.
     """
+    token_val = (
+        token
+        or os.getenv("GRAFANA_API_KEY")
+        or os.getenv("GRAFANA_SERVICE_ACCOUNT_TOKEN")
+        or os.getenv("GRAFANA_INCIDENT_TOKEN")
+        or os.getenv("GRAFANA_TOKEN", "")
+    )
     url = url or os.getenv("GRAFANA_CLOUD_URL", os.getenv("GRAFANA_URL", ""))
-    token = token or os.getenv("GRAFANA_API_KEY", os.getenv("GRAFANA_TOKEN", ""))
+    token = token_val
 
     try:
         dash_json = load_dashboard_schema(dashboard_path)
@@ -402,6 +412,13 @@ def build_cli_parser() -> argparse.ArgumentParser:
         help="Scrape metrics, format OTLP/Prometheus JSON payload, and push to Grafana Cloud."
     )
     parser.add_argument(
+        "--inject-dummy",
+        "--inject-incident-metrics",
+        dest="inject_dummy",
+        action="store_true",
+        help="Seed dummy telemetry metrics (Alert Groups, Incident stats, HTTP, LLM, RAG) and push to Grafana Cloud."
+    )
+    parser.add_argument(
         "--export-dashboard",
         action="store_true",
         help="Validate and export horoconsultant_dashboard.json to Grafana Cloud API."
@@ -433,18 +450,30 @@ def build_cli_parser() -> argparse.ArgumentParser:
         "--token",
         dest="api_key",
         type=str,
-        default=os.getenv("GRAFANA_API_KEY", os.getenv("GRAFANA_TOKEN", "")),
+        default=os.getenv(
+            "GRAFANA_API_KEY",
+            os.getenv("GRAFANA_SERVICE_ACCOUNT_TOKEN", os.getenv("GRAFANA_INCIDENT_TOKEN", os.getenv("GRAFANA_TOKEN", "")))
+        ),
         help="Grafana Cloud API Token / Key."
     )
     return parser
 
 
+
 def main() -> int:
+    try:
+        from dotenv import load_dotenv
+        env_file = PROJECT_ROOT / ".env"
+        if env_file.exists():
+            load_dotenv(env_file)
+    except ImportError:
+        pass
+
     parser = build_cli_parser()
     args = parser.parse_args()
 
     # If no specific action is supplied, default to running dry-run mode for metrics and dashboard export
-    if not (args.check_connection or args.push_metrics or args.export_dashboard):
+    if not (args.check_connection or args.push_metrics or args.export_dashboard or args.inject_dummy):
         log_info("No action flag specified. Executing dry-run verification for metrics and dashboard...")
         args.dry_run = True
         args.check_connection = True
@@ -453,12 +482,21 @@ def main() -> int:
 
     overall_success = True
 
+    if args.inject_dummy:
+        log_info("Seeding dummy telemetry metrics into ObservabilityManager engine...")
+        try:
+            from project.core.observability import observability_manager
+            observability_manager.seed_dummy_metrics()
+            log_ok("Successfully seeded dummy metrics (Alert Groups, Incident stats, HTTP, LLM, RAG)")
+        except Exception as e:
+            log_warning(f"Could not seed dummy metrics directly: {e}")
+
     if args.check_connection:
         conn_ok = check_connection(args.grafana_url, args.api_key, args.metrics_url)
         if not conn_ok:
             overall_success = False
 
-    if args.push_metrics:
+    if args.push_metrics or args.inject_dummy:
         metrics_text = fetch_metrics_text(args.metrics_url)
         payload = format_otlp_json_payload(metrics_text)
         push_ok = push_metrics(args.grafana_url, args.api_key, payload, dry_run=args.dry_run)
@@ -485,3 +523,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
