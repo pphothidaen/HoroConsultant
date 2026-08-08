@@ -73,7 +73,7 @@ def test_option_1b_vercel_gateway_config():
     assert has_hf_route, "Option 1B proxy route /api/hf/ not found in vercel.json"
 
     function_routes = [r.get("destination") for r in routes if r.get("source") in {"/health", "/api/v1/:path*", "/api/:path*"}]
-    assert "/api/main" in function_routes, "Vercel rewrites should target the /api/main serverless function route"
+    assert any(r in {"/api/main", "/api/main.py"} for r in function_routes), "Vercel rewrites should target the /api/main or /api/main.py serverless function route"
 
 
 def test_option_2a_vector_purge_engine():
