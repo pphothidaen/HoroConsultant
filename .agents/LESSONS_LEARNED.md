@@ -77,3 +77,17 @@
   - Enforce strict whitelist `ADMIN_ALLOWED_EMAILS` restricting access exclusively to `pansakorn@gmail.com` and `kimlenglim.work@gmail.com`.
   - Provide authorized client-side authentication fallback for static CDNs so admin users can seamlessly access Admin Panel and HITL Studio across all environments.
 
+---
+
+### 9. 🌐 Multi-Cloud Serverless CORS & Package Size Limit Protocol
+- **Issue Experienced**: Executing `curl` against `https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret` from origin `https://pphothidaen-horoconsultant-core-backend.static.hf.space` yielded a CORS error / `FUNCTION_INVOCATION_FAILED (500)` and `health` returned `(failed) net::ERR_CONNECTION_RESET`.
+- **Lesson Learned**:
+  1. **Vercel Lambda Package Limit (250MB)**: Heavy C binaries (`faiss-cpu`, `uvloop`) in `requirements.txt` cause Lambda cold-start import crashes. When Lambdas crash (HTTP 500), Vercel omits `Access-Control-Allow-Origin` headers, causing browsers to report a false-positive CORS error.
+  2. **Hugging Face Free Tier Limits**: HF free tier only supports **Static** Spaces (`sdk: static`). Free Docker Spaces require a PRO subscription (`402 Payment Required`). Proxying `/api/*` from Vercel to a Static HF Space returns 404 HTML.
+  3. **Fly.io Idle Resets**: Non-existent or suspended Fly.io containers (`horoconsultant-core-backend.fly.dev`) return `net::ERR_CONNECTION_RESET`.
+- **Prevention Protocol**:
+  - **Vercel**: Keep `requirements.txt` lightweight (<15MB, remove `faiss-cpu`, `uvloop`, `pytest`, `timezonefinder`). Add `sys.path` root initialization in `api/index.py`, `runtime.txt` specifying `python-3.11`, and a global `@app.exception_handler(Exception)` in `project/main.py` guaranteeing CORS headers on all errors.
+  - **Hugging Face**: Use `sdk: static` for free static UI hosting (`pphothidaen-horoconsultant-core-backend.static.hf.space`).
+  - **Client Web UI (`app.js`)**: Use dynamic `${getApiBaseUrl()}/health` for health pings instead of hardcoded Fly.io URLs.
+
+
