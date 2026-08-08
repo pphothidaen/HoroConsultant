@@ -1,9 +1,50 @@
+const BACKEND_API_HOSTS = [
+  "", // Relative origin (local server / same-origin proxy)
+  "https://horoconsultant-core-backend.fly.dev", // Fly.io Core Backend API
+  "https://pphothidaen-horoconsultant-core-backend.hf.space", // HF Docker Space Core Backend API
+];
+
 function getApiBaseUrl() {
   if (typeof window !== 'undefined' && window.API_BASE_URL) {
     return window.API_BASE_URL;
   }
+  if (typeof window !== 'undefined' && window.location && window.location.hostname.includes('static.hf.space')) {
+    return 'https://horoconsultant-core-backend.fly.dev';
+  }
   return '';
 }
+
+async function fetchApi(endpoint, options = {}) {
+  const customBase = getApiBaseUrl();
+  const candidateBases = customBase
+    ? [customBase, ...BACKEND_API_HOSTS.filter(b => b !== customBase)]
+    : BACKEND_API_HOSTS;
+
+  let lastError = null;
+  for (const base of candidateBases) {
+    if (!base && typeof window !== 'undefined' && window.location && window.location.hostname.includes('static.hf.space')) {
+      continue;
+    }
+    const url = base ? `${base}${endpoint}` : endpoint;
+    try {
+      const res = await fetch(url, options);
+      if (res.ok) {
+        return res;
+      }
+      if (res.status === 404) {
+        console.warn(`[API Fallback] ${url} returned 404, trying next host...`);
+        lastError = new Error(`HTTP 404 from ${url}`);
+        continue;
+      }
+      return res;
+    } catch (err) {
+      console.warn(`[API Fallback] ${url} failed: ${err.message}, trying next host...`);
+      lastError = err;
+    }
+  }
+  throw lastError || new Error(`All API hosts failed for ${endpoint}`);
+}
+
 
 function loadPreset(datetime, lng, utc, label) {
   document.getElementById('birth_datetime').value = datetime;
@@ -56,7 +97,7 @@ async function resolveLocation() {
   statusEl.style.color = "#94a3b8";
   
   try {
-    const res = await fetch(getApiBaseUrl() + '/api/v1/location/resolve', {
+    const res = await fetchApi('/api/v1/location/resolve', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ location: locInput })
@@ -138,7 +179,7 @@ async function calculateChart(event) {
 
   try {
     // 1. Fetch LLM interpretation
-    const res = await fetch(getApiBaseUrl() + '/api/v1/bazi/interpret', {
+    const res = await fetchApi('/api/v1/bazi/interpret', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -153,7 +194,7 @@ async function calculateChart(event) {
     // 2. Fetch SVG diagram & detailed chart if not present
     let svgContent = data.svg_content || (data.chart && data.chart.svg_content);
     if (!svgContent) {
-      const calcRes = await fetch(getApiBaseUrl() + '/api/v1/bazi/calculate', {
+      const calcRes = await fetchApi('/api/v1/bazi/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -360,7 +401,7 @@ function showBranchCard(title, contentHtml, svgContent) {
 }
 
 async function calcZiWei() {
-  const res = await fetch(getApiBaseUrl() + '/api/v1/ziwei/calculate?year=1990&month=5&day=15&hour=14&gender=male');
+  const res = await fetchApi('/api/v1/ziwei/calculate?year=1990&month=5&day=15&hour=14&gender=male');
   const data = await res.json();
   const html = `
     <div style="background: rgba(168, 85, 247, 0.15); border: 1px solid #c084fc; padding: 1rem; border-radius: 8px;">
@@ -379,7 +420,7 @@ async function calcZiWei() {
 }
 
 async function calcQiMen() {
-  const res = await fetch(getApiBaseUrl() + '/api/v1/qimen/calculate?year=2026&month=8&day=7&hour=14');
+  const res = await fetchApi('/api/v1/qimen/calculate?year=2026&month=8&day=7&hour=14');
   const data = await res.json();
   const html = `
     <div style="background: rgba(59, 130, 246, 0.15); border: 1px solid #60a5fa; padding: 1rem; border-radius: 8px;">
@@ -402,7 +443,7 @@ async function calcQiMen() {
 }
 
 async function calcLiuRen() {
-  const res = await fetch(getApiBaseUrl() + '/api/v1/liuren/calculate?day_stem=甲&day_branch=子&month_general=正月&hour_branch=午');
+  const res = await fetchApi('/api/v1/liuren/calculate?day_stem=甲&day_branch=子&month_general=正月&hour_branch=午');
   const data = await res.json();
   const html = `
     <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid #4ade80; padding: 1rem; border-radius: 8px;">
@@ -420,7 +461,7 @@ async function calcLiuRen() {
 }
 
 async function calcIChing() {
-  const res = await fetch(getApiBaseUrl() + '/api/v1/iching/calculate?day_stem=甲');
+  const res = await fetchApi('/api/v1/iching/calculate?day_stem=甲');
   const data = await res.json();
   const html = `
     <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid #fbbf24; padding: 1rem; border-radius: 8px;">
@@ -438,7 +479,7 @@ async function calcIChing() {
 }
 
 async function calcXuanKong() {
-  const res = await fetch(getApiBaseUrl() + '/api/v1/xuankong/calculate?facing_degree=180.0&period=9');
+  const res = await fetchApi('/api/v1/xuankong/calculate?facing_degree=180.0&period=9');
   const data = await res.json();
   const html = `
     <div style="background: rgba(236, 72, 153, 0.15); border: 1px solid #f472b6; padding: 1rem; border-radius: 8px;">
@@ -460,7 +501,7 @@ async function calcXuanKong() {
 }
 
 async function calcZeJi() {
-  const res = await fetch(getApiBaseUrl() + '/api/v1/zeji/calculate?year_branch=午&month_branch=申&day_branch=寅&user_birth_branch=子');
+  const res = await fetchApi('/api/v1/zeji/calculate?year_branch=午&month_branch=申&day_branch=寅&user_birth_branch=子');
   const data = await res.json();
   const html = `
     <div style="background: rgba(14, 165, 233, 0.15); border: 1px solid #38bdf8; padding: 1rem; border-radius: 8px;">
@@ -478,7 +519,7 @@ async function calcZeJi() {
 }
 
 async function calcThaiVedic() {
-  const res = await fetch(getApiBaseUrl() + '/api/v1/thaivedic/calculate?year=1990&month=5&day=15&hour=14&day_of_week=2');
+  const res = await fetchApi('/api/v1/thaivedic/calculate?year=1990&month=5&day=15&hour=14&day_of_week=2');
   const data = await res.json();
   const html = `
     <div style="background: rgba(234, 179, 8, 0.15); border: 1px solid #facc15; padding: 1rem; border-radius: 8px;">
@@ -497,7 +538,7 @@ async function calcThaiVedic() {
 }
 
 async function calcWestern() {
-  const res = await fetch(getApiBaseUrl() + '/api/v1/western/calculate?year=1990&month=5&day=15&hour=14');
+  const res = await fetchApi('/api/v1/western/calculate?year=1990&month=5&day=15&hour=14');
   const data = await res.json();
   const html = `
     <div style="background: rgba(99, 102, 241, 0.15); border: 1px solid #818cf8; padding: 1rem; border-radius: 8px;">
@@ -518,7 +559,7 @@ async function calcWestern() {
 }
 
 async function calcNumerology() {
-  const res = await fetch(getApiBaseUrl() + '/api/v1/numerology/calculate?text=0812345678&day_num=2&lunar_month=6&year_zodiac_num=7');
+  const res = await fetchApi('/api/v1/numerology/calculate?text=0812345678&day_num=2&lunar_month=6&year_zodiac_num=7');
   const data = await res.json();
   const score = data.chaldean_score || {};
   const satta = data.satta_lek || {};
