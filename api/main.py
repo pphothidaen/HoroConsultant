@@ -294,3 +294,57 @@ class handler(BaseHTTPRequestHandler):
 
     def log_message(self, format, *args):  # noqa: A002
         return
+
+
+# ---------------------------------------------------------------------------
+# Vercel WSGI Entry Point (app)
+# Standard WSGI callable for native Vercel Python Serverless execution
+# ---------------------------------------------------------------------------
+def app(environ, start_response):
+    """Standard WSGI entry point for Vercel Serverless Functions."""
+    method = environ.get("REQUEST_METHOD", "GET")
+    path = environ.get("PATH_INFO", "/")
+    query = environ.get("QUERY_STRING", "")
+    if query:
+        path = f"{path}?{query}"
+
+    try:
+        content_length = int(environ.get("CONTENT_LENGTH", 0) or 0)
+    except (ValueError, TypeError):
+        content_length = 0
+
+    body = b""
+    if content_length > 0 and "wsgi.input" in environ:
+        body = environ["wsgi.input"].read(content_length)
+
+    headers = {}
+    for key, value in environ.items():
+        if key.startswith("HTTP_"):
+            headers[key[5:].lower().replace("_", "-")] = value
+        elif key in ("CONTENT_TYPE", "CONTENT_LENGTH"):
+            headers[key.lower().replace("_", "-")] = value
+
+    origin = headers.get("origin")
+    try:
+        res = _dispatch(method, path, headers, body)
+    except Exception as exc:  # noqa: BLE001
+        res = _build_json_response(
+            {"error": "Internal server error", "detail": str(exc)},
+            status=500,
+            origin=origin,
+        )
+
+    status_code = res.get("status", 200)
+    status_text = {
+        200: "200 OK",
+        204: "204 No Content",
+        400: "400 Bad Request",
+        404: "404 Not Found",
+        405: "405 Method Not Allowed",
+        500: "500 Internal Server Error",
+    }.get(status_code, f"{status_code} Status")
+
+    response_headers = [(k, v) for k, v in res.get("headers", {}).items()]
+    start_response(status_text, response_headers)
+    return [res.get("body", b"")]
+
