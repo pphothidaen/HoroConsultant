@@ -1,5 +1,5 @@
 # .vercelignore — Computational Metaphysics Engine
-# Exclude large local data, caches, model weights, and build artifacts from Vercel deployment payload.
+# Exclude large local data, caches, model weights, and heavy subdirectories from Vercel deployment payload.
 
 .env*
 !.env.example
@@ -10,6 +10,10 @@
 *.zip
 *.tar.gz
 *.ipynb
+*.log
+.git/
+.venv/
+venv/
 
 # Python & Testing Caches
 __pycache__/
@@ -22,19 +26,20 @@ coverage.xml
 test-results.xml
 .coverage*
 
-# Data & Models
+# Data, RAG & Models (Excluded from Vercel Edge build)
 project/models/
+project/kaggle_kernel/
+project/rag/
 project/data/mlx_finetune/
 project/data/vector_store/
 project/data/grayzone_answers.json
 project/data/knowledge_catalog.json
 project/data/source_summaries.json
-project/rag/datasets/
 wandb/
 
 # Native Rust & Node Builds
 target/
-rust_core/target/
+rust_core/
 node_modules/
 
 # Agent & IDE Data
