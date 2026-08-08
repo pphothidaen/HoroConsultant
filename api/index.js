@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
     const versionStr = gitCommit ? `1.0.0.${gitCommit}` : "1.0.0";
 
     // GET /health, /api/health, /api/v1/health, /
-    if (rawUrl === "/health" || rawUrl === "/api/health" || rawUrl === "/api/v1/health" || rawUrl === "/" || rawUrl.includes("health")) {
+    if (req.method === "GET" && (rawUrl === "/health" || rawUrl === "/api/health" || rawUrl === "/api/v1/health" || rawUrl === "/" || rawUrl.includes("health"))) {
       res.statusCode = 200;
       res.setHeader("Content-Type", "application/json; charset=utf-8");
       return res.end(JSON.stringify({
@@ -36,15 +36,12 @@ module.exports = async (req, res) => {
     // POST /api/v1/bazi/interpret or calculation requests
     if (req.method === "POST" && (rawUrl.includes("/bazi/interpret") || rawUrl.includes("/bazi"))) {
       let bodyStr = "";
-      try {
-        bodyStr = await new Promise((resolve) => {
-          let data = "";
-          req.on("data", chunk => { data += chunk; });
-          req.on("end", () => resolve(data));
-          setTimeout(() => resolve(data), 1500);
-        });
+      if (req.body) {
+        bodyStr = typeof req.body === "string" ? req.body : JSON.stringify(req.body);
+      }
 
-        if (typeof globalThis.fetch === "function") {
+      if (typeof globalThis.fetch === "function") {
+        try {
           const hfResp = await globalThis.fetch(`${HF_BACKEND_URL}/api/v1/bazi/interpret`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -57,9 +54,9 @@ module.exports = async (req, res) => {
             res.setHeader("Content-Type", "application/json; charset=utf-8");
             return res.end(JSON.stringify(json));
           }
+        } catch (e) {
+          // Fallback to deterministic payload below
         }
-      } catch (err) {
-        // Safe fallback to deterministic response
       }
 
       res.statusCode = 200;
