@@ -1,0 +1,93 @@
+{
+  "audit_timestamp": "2026-08-08 14:13:31",
+  "overall_status": "PASSED 100%",
+  "total_masters_audited": 8,
+  "masters_passed": 8,
+  "has_consensus": true,
+  "consensus_facts": [
+    "ทั้ง 5 สายวิชาเห็นพ้องตรงกันว่า ทิศใต้และธาตุทอง/น้ำ ให้คุณประโยชน์สูงสุดแก่ดวงชะตานี้",
+    "การคำนวณเวลาเกิดใช้ True Solar Time ($TST = LMT + EoT$) ให้ผลลัพธ์ตรงกันตามตำรา 滴天髓 และ 協紀辨方書"
+  ],
+  "master_details": [
+    {
+      "master_id": "san_shi_master",
+      "branch": "三式 (San Shi)",
+      "has_scripture": true,
+      "citations": [
+        "煙波釣叟歌",
+        "六壬指南"
+      ],
+      "passed": true
+    },
+    {
+      "master_id": "ming_xue_master",
+      "branch": "命學 (Ming Xue)",
+      "has_scripture": true,
+      "citations": [
+        "滴天髓",
+        "子平真詮",
+        "淵海子平"
+      ],
+      "passed": true
+    },
+    {
+      "master_id": "pu_shi_master",
+      "branch": "卜筮 (Pu Shi)",
+      "has_scripture": true,
+      "citations": [
+        "周易",
+        "增刪卜易"
+      ],
+      "passed": true
+    },
+    {
+      "master_id": "xiang_xue_master",
+      "branch": "相學 (Xiang Xue)",
+      "has_scripture": true,
+      "citations": [
+        "沈氏玄空學",
+        "青囊奧語"
+      ],
+      "passed": true
+    },
+    {
+      "master_id": "ze_ji_master",
+      "branch": "擇吉 (Ze Ji)",
+      "has_scripture": true,
+      "citations": [
+        "協紀辨方書"
+      ],
+      "passed": true
+    },
+    {
+      "master_id": "thai_vedic_master",
+      "branch": "โหราศาสตร์ไทย & ภารตวิทยา (Thai & Jyotish)",
+      "has_scripture": true,
+      "citations": [
+        "คัมภีร์สุริยยาตร์ & มาณต",
+        "Brihat Parasara Hora Sastra"
+      ],
+      "passed": true
+    },
+    {
+      "master_id": "western_astro_master",
+      "branch": "โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian)",
+      "has_scripture": true,
+      "citations": [
+        "Rules for Planetary Pictures",
+        "Tetrabiblos"
+      ],
+      "passed": true
+    },
+    {
+      "master_id": "numerology_master",
+      "branch": "สัตตเลข 7 ฐาน & เลขศาสตร์ (Numerology)",
+      "has_scripture": true,
+      "citations": [
+        "ตำราสัตตเลข ๗ ฐาน",
+        "Chaldean Numerology"
+      ],
+      "passed": true
+    }
+  ]
+}

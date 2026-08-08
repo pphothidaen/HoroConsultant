@@ -1,0 +1,196 @@
+{
+  "timestamp": "2026-08-08 07:14:05 UTC",
+  "target_url": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html",
+  "elapsed_seconds": 49.52,
+  "summary": {
+    "total_buttons": 20,
+    "passed": 20,
+    "failed": 0,
+    "pass_rate_pct": 100.0
+  },
+  "results": [
+    {
+      "id": "BTN-PROD-00",
+      "page": "index.html",
+      "name": "🌐 Production Page Load",
+      "handler": "HTTP GET",
+      "endpoint": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html",
+      "status": "PASSED",
+      "detail": "HTTP 200 - Page loaded cleanly with title 'Computational Metaphysics Engine — BaZi & True Solar Time Dashboard'",
+      "screenshot": "screenshots/prod_01_dashboard_initial.png"
+    },
+    {
+      "id": "BTN-PROD-01",
+      "page": "index.html",
+      "name": "🔍 ค้นหา & เติมค่า (Location Search)",
+      "handler": "resolveLocation()",
+      "endpoint": "POST /api/v1/location/resolve",
+      "status": "PASSED",
+      "detail": "Resolved location to กำลังค้นหาพิกัด... (lng: 100.4930, utc: 7.0)",
+      "screenshot": "screenshots/prod_02_location_resolved.png"
+    },
+    {
+      "id": "BTN-PROD-02",
+      "page": "index.html",
+      "name": "📍 Preset: กรุงเทพฯ",
+      "handler": "loadPreset('1990-05-15 14:30:00', 100.493, 7.0)",
+      "endpoint": "DOM Input Population",
+      "status": "PASSED",
+      "detail": "Fields updated to dt=1990-05-15 14:30:00, lng=100.493, utc=7.0"
+    },
+    {
+      "id": "BTN-PROD-03",
+      "page": "index.html",
+      "name": "📍 Preset: สิงคโปร์",
+      "handler": "loadPreset('1988-08-08 08:08:00', 103.8198, 8.0)",
+      "endpoint": "DOM Input Population",
+      "status": "PASSED",
+      "detail": "Fields updated to dt=1988-08-08 08:08:00, lng=103.8198, utc=8.0"
+    },
+    {
+      "id": "BTN-PROD-04",
+      "page": "index.html",
+      "name": "📍 Preset: นิวยอร์ก",
+      "handler": "loadPreset('1995-12-25 23:45:00', -74.006, -5.0)",
+      "endpoint": "DOM Input Population",
+      "status": "PASSED",
+      "detail": "Fields updated to dt=1995-12-25 23:45:00, lng=-74.006, utc=-5.0"
+    },
+    {
+      "id": "BTN-PROD-05",
+      "page": "index.html",
+      "name": "☯ Zi Wei (紫微斗數)",
+      "handler": "calcZiWei()",
+      "endpoint": "GET /api/v1/ziwei/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 674 chars output. API status: [200, 200]"
+    },
+    {
+      "id": "BTN-PROD-06",
+      "page": "index.html",
+      "name": "☯ Qi Men (奇門遁甲)",
+      "handler": "calcQiMen()",
+      "endpoint": "GET /api/v1/qimen/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 665 chars output. API status: [200]"
+    },
+    {
+      "id": "BTN-PROD-07",
+      "page": "index.html",
+      "name": "☯ Da Liu Ren (大六壬)",
+      "handler": "calcLiuRen()",
+      "endpoint": "GET /api/v1/liuren/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 426 chars output. API status: [200]"
+    },
+    {
+      "id": "BTN-PROD-08",
+      "page": "index.html",
+      "name": "☯ I Ching (六爻)",
+      "handler": "calcIChing()",
+      "endpoint": "GET /api/v1/iching/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 566 chars output. API status: [200]"
+    },
+    {
+      "id": "BTN-PROD-09",
+      "page": "index.html",
+      "name": "☯ Xuan Kong (玄空)",
+      "handler": "calcXuanKong()",
+      "endpoint": "GET /api/v1/xuankong/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 535 chars output. API status: [200]"
+    },
+    {
+      "id": "BTN-PROD-10",
+      "page": "index.html",
+      "name": "☯ Ze Ji (คำนวณฤกษ์)",
+      "handler": "calcZeJi()",
+      "endpoint": "GET /api/v1/zeji/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 476 chars output. API status: [200]"
+    },
+    {
+      "id": "BTN-PROD-11",
+      "page": "index.html",
+      "name": "☯ Thai Vedic (โหราศาสตร์ไทย)",
+      "handler": "calcThaiVedic()",
+      "endpoint": "GET /api/v1/thaivedic/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 801 chars output. API status: [200]"
+    },
+    {
+      "id": "BTN-PROD-12",
+      "page": "index.html",
+      "name": "☯ Western (โหราศาสตร์สากล)",
+      "handler": "calcWestern()",
+      "endpoint": "GET /api/v1/western/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 1290 chars output. API status: [200]"
+    },
+    {
+      "id": "BTN-PROD-13",
+      "page": "index.html",
+      "name": "☯ Numerology (สัตตเลข)",
+      "handler": "calcNumerology()",
+      "endpoint": "GET /api/v1/numerology/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 645 chars output. API status: [200]"
+    },
+    {
+      "id": "CHK-PROD-18",
+      "page": "index.html",
+      "name": "☑ ไม่ทราบยามเกิด (Unknown Hour Checkbox)",
+      "handler": "DOM Checkbox Toggle",
+      "endpoint": "DOM State",
+      "status": "PASSED",
+      "detail": "Successfully toggled checkbox state (Value=True)"
+    },
+    {
+      "id": "CHK-PROD-19",
+      "page": "index.html",
+      "name": "☑ Gemini Prediction Validator Checkbox",
+      "handler": "DOM Checkbox State",
+      "endpoint": "DOM State",
+      "status": "PASSED",
+      "detail": "Checkbox checked state verified (Checked=True)"
+    },
+    {
+      "id": "BTN-PROD-14",
+      "page": "index.html",
+      "name": "🔮 คำนวณผังดวง & ตีความด้วย AI (#btn-submit)",
+      "handler": "calculateChart(event)",
+      "endpoint": "POST /api/v1/bazi/interpret",
+      "status": "PASSED",
+      "detail": "Calculated 4 Pillars chart & AI interpretation (327 chars). API Status: 200",
+      "screenshot": "screenshots/prod_05_bazi_ai_result.png"
+    },
+    {
+      "id": "BTN-PROD-15",
+      "page": "index.html",
+      "name": "📑 Tab: 📖 บทตีความโหราศาสตร์",
+      "handler": "switchTab('tab-reading')",
+      "endpoint": "DOM Tab Switch",
+      "status": "PASSED",
+      "detail": "Tab container '#tab-reading' active state verified (hidden=False)"
+    },
+    {
+      "id": "BTN-PROD-16",
+      "page": "index.html",
+      "name": "📑 Tab: 🛡️ Gemini Validator Audit",
+      "handler": "switchTab('tab-validator')",
+      "endpoint": "DOM Tab Switch",
+      "status": "PASSED",
+      "detail": "Tab container '#tab-validator' active state verified (hidden=False)"
+    },
+    {
+      "id": "BTN-PROD-17",
+      "page": "index.html",
+      "name": "📑 Tab: 📚 คัมภีร์อ้างอิง (RAG 3,132 Chunks)",
+      "handler": "switchTab('tab-rag')",
+      "endpoint": "DOM Tab Switch",
+      "status": "PASSED",
+      "detail": "Tab container '#tab-rag' active state verified (hidden=False)"
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "audit_timestamp": "2026-08-08 14:13:28",
+  "overall_status": "PASSED 100%",
+  "scenarios_evaluated": 4,
+  "scenarios_passed": 4,
+  "details": [
+    {
+      "scenario": "A_Bangkok_Yang_Metal",
+      "passed": true,
+      "day_master": {
+        "stem": "庚",
+        "element": "Metal",
+        "polarity": "Yang",
+        "pinyin": "Gēng"
+      },
+      "tst_time": "1990-05-15 14:15:53",
+      "five_elements_sum": 100.0,
+      "useful_god": {}
+    },
+    {
+      "scenario": "B_NewYork_Midnight_Shift",
+      "passed": true,
+      "tst_time": "1995-12-25 23:49:17",
+      "four_pillars": {
+        "year": {
+          "label": "Year",
+          "stem": {
+            "char": "乙",
+            "pinyin": "Yǐ",
+            "element": "Wood",
+            "polarity": "Yin"
+          },
+          "branch": {
+            "char": "亥",
+            "pinyin": "Hài",
+            "animal": "Pig",
+            "element": "Water",
+            "polarity": "Yin",
+            "hour_start": 21
+          },
+          "hidden_stems": [
+            {
+              "stem": "壬",
+              "element": "Water",
+              "weight": 0.7
+            },
+            {
+              "stem": "甲",
+              "element": "Wood",
+              "weight": 0.3
+            }
+          ]
+        },
+        "month": {
+          "label": "Month",
+          "stem": {
+            "char": "戊",
+            "pinyin": "Wù",
+            "element": "Earth",
+            "polarity": "Yang"
+          },
+          "branch": {
+            "char": "子",
+            "pinyin": "Zǐ",
+            "animal": "Rat",
+            "element": "Water",
+            "polarity": "Yang",
+            "hour_start": 23
+          },
+          "hidden_stems": [
+            {
+              "stem": "癸",
+              "element": "Water",
+              "weight": 1.0
+            }
+          ]
+        },
+        "day": {
+          "label": "Day",
+          "stem": {
+            "char": "庚",
+            "pinyin": "Gēng",
+            "element": "Metal",
+            "polarity": "Yang"
+          },
+          "branch": {
+            "char": "寅",
+            "pinyin": "Yín",
+            "animal": "Tiger",
+            "element": "Wood",
+            "polarity": "Yang",
+            "hour_start": 3
+          },
+          "hidden_stems": [
+            {
+              "stem": "甲",
+              "element": "Wood",
+              "weight": 0.6
+            },
+            {
+              "stem": "丙",
+              "element": "Fire",
+              "weight": 0.3
+            },
+            {
+              "stem": "戊",
+              "element": "Earth",
+              "weight": 0.1
+            }
+          ]
+        },
+        "hour": {
+          "label": "Hour",
+          "stem": {
+            "char": "丙",
+            "pinyin": "Bǐng",
+            "element": "Fire",
+            "polarity": "Yang"
+          },
+          "branch": {
+            "char": "子",
+            "pinyin": "Zǐ",
+            "animal": "Rat",
+            "element": "Water",
+            "polarity": "Yang",
+            "hour_start": 23
+          },
+          "hidden_stems": [
+            {
+              "stem": "癸",
+              "element": "Water",
+              "weight": 1.0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "scenario": "C_Singapore_Multi_Domain",
+      "passed": true,
+      "bazi_dm": "乙",
+      "ziwei_ming": "巳",
+      "thai_lagna": "ราศีกันย์ (House 6)",
+      "western_sun": "Leo (สิงห์) 15.33°"
+    },
+    {
+      "scenario": "D_LeapYear_Feb29",
+      "passed": true,
+      "year_pillar": "甲辰",
+      "month_pillar": "丙寅",
+      "eot_minutes": -12.9027
+    }
+  ]
+}

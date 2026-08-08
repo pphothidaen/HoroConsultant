@@ -32,11 +32,12 @@ This skill defines the standardized workflow for the **Business System Analyst A
                                     │
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│ Phase 2: Agent Skill Audit & Governance                                │
+│ Phase 2: Agent Skill & Cross-Framework Agent Governance                │
 │  - Review existing .agents/skills/ directories                        │
-│  - Verify YAML frontmatter (name, description)                        │
-│  - Ensure skills contain exact script commands & ASCII log rules      │
-│  - Update skill catalog in .agents/AGENTS.md                          │
+│  - Verify YAML frontmatter (name, description, tools)                 │
+│  - Run 'python3 scripts/sync_sdlc_agents.py --check' to verify sync   │
+│  - Run 'python3 scripts/sync_sdlc_agents.py --sync' to update specs    │
+│  - Update skill catalog in .agents/AGENTS.md & CLAUDE.md              │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │
                                     ▼

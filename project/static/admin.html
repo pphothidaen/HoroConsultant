@@ -1401,6 +1401,14 @@ function filterByCategory(cat) {
 }
 
 /* ======================== API ======================== */
+function getApiBaseUrl() {
+  const origin = window.location.origin;
+  if (origin.includes('static.hf.space') || origin.includes('huggingface.co')) {
+    return 'https://horo-consultant-psi.vercel.app';
+  }
+  return '';
+}
+
 async function api(method, path, body) {
   try {
     const opts = {
@@ -1408,7 +1416,8 @@ async function api(method, path, body) {
       headers: { 'Content-Type': 'application/json' },
     };
     if (body) opts.body = JSON.stringify(body);
-    const res = await fetch(path, opts);
+    const fullPath = path.startsWith('/') ? (getApiBaseUrl() + path) : path;
+    const res = await fetch(fullPath, opts);
     if (!res.ok) {
       const err = await res.json().catch(() => ({ detail: res.statusText }));
       throw new Error(err.detail || res.statusText);

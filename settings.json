@@ -2,7 +2,9 @@
   "$schema": "https://json.schemastore.org/settings.json",
   "project": "HoroConsultant",
   "version": "1.0.0",
+  "default_agent": "orchestrator",
   "models": {
+    "default": "Gemini 3.6 Flash (High)",
     "orchestrator": "Gemini 3.6 Flash (High)",
     "developer": "Gemini 3.6 Flash (Standard)",
     "qa_tester": "Gemini 3.5 Flash-Lite",

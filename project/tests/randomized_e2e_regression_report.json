@@ -1,0 +1,75 @@
+{
+  "suite_timestamp": "2026-08-08 14:12:44",
+  "overall_status": "PASSED 100%",
+  "total_cases_run": 6,
+  "cases_passed": 6,
+  "pass_rate_pct": 100.0,
+  "case_details": [
+    {
+      "case_num": 1,
+      "birth_datetime": "1981-10-22 10:30:00",
+      "location": "เชียงใหม่",
+      "topic": "LOVE",
+      "engines_ok": true,
+      "topic_passed": true,
+      "guidance_passed": true,
+      "validator_passed": true,
+      "case_passed": true
+    },
+    {
+      "case_num": 2,
+      "birth_datetime": "2018-09-01 12:45:00",
+      "location": "กรุงเทพฯ",
+      "topic": "DOS",
+      "engines_ok": true,
+      "topic_passed": true,
+      "guidance_passed": true,
+      "validator_passed": true,
+      "case_passed": true
+    },
+    {
+      "case_num": 3,
+      "birth_datetime": "1961-04-01 04:00:00",
+      "location": "เชียงใหม่",
+      "topic": "DOS",
+      "engines_ok": true,
+      "topic_passed": true,
+      "guidance_passed": true,
+      "validator_passed": true,
+      "case_passed": true
+    },
+    {
+      "case_num": 4,
+      "birth_datetime": "2004-09-14 06:00:00",
+      "location": "โตเกียว",
+      "topic": "WEALTH",
+      "engines_ok": true,
+      "topic_passed": true,
+      "guidance_passed": true,
+      "validator_passed": true,
+      "case_passed": true
+    },
+    {
+      "case_num": 5,
+      "birth_datetime": "1976-03-09 20:30:00",
+      "location": "กรุงเทพฯ",
+      "topic": "HEALTH",
+      "engines_ok": true,
+      "topic_passed": true,
+      "guidance_passed": true,
+      "validator_passed": true,
+      "case_passed": true
+    },
+    {
+      "case_num": 6,
+      "birth_datetime": "1989-02-15 12:30:00",
+      "location": "นิวยอร์ก",
+      "topic": "WEALTH",
+      "engines_ok": true,
+      "topic_passed": true,
+      "guidance_passed": true,
+      "validator_passed": true,
+      "case_passed": true
+    }
+  ]
+}

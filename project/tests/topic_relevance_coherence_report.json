@@ -1,0 +1,33 @@
+{
+  "audit_timestamp": "2026-08-08 14:13:36",
+  "overall_status": "PASSED 100%",
+  "audits": [
+    {
+      "topic": "Health_Wellbeing",
+      "passed": true,
+      "weakest_element": "Wood",
+      "expected_organs": [
+        "ตับ",
+        "ถุงน้ำดี",
+        "สายตา",
+        "เอ็น",
+        "肝",
+        "膽"
+      ],
+      "disease_palace_stars": [
+        "七殺"
+      ],
+      "text_length": 1021
+    },
+    {
+      "topic": "Wealth_Career",
+      "passed": true,
+      "reading_length": 1021
+    },
+    {
+      "topic": "Relationships_Marriage",
+      "passed": true,
+      "reading_length": 1021
+    }
+  ]
+}

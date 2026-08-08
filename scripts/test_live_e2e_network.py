@@ -34,7 +34,7 @@ HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.s
 FLY_BACKEND_URL = "https://horoconsultant-core-backend.fly.dev"
 
 
-def test_url(url: str, method: str = "GET", headers: dict | None = None, payload: dict | None = None, expected_status: int = 200, timeout: int = 15) -> tuple[bool, int, str]:
+def execute_network_request(url: str, method: str = "GET", headers: dict | None = None, payload: dict | None = None, expected_status: int = 200, timeout: int = 15) -> tuple[bool, int, str]:
     """Execute a real live network HTTP request over the public internet."""
     req_headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) HoroConsultant-E2E-Auditor/1.0",
@@ -77,7 +77,7 @@ def run_strict_live_e2e_audit() -> bool:
     logger.info("📌 [1/3] Auditing Live Static Edge CDN (Hugging Face Spaces)...")
     for page in hf_pages:
         url = HF_STATIC_CDN_URL + page
-        success, status, body = test_url(url, method="GET")
+        success, status, body = execute_network_request(url, method="GET")
         if success and ("<!DOCTYPE html>" in body or "<html" in body):
             logger.info(f"   ✅ HF Static Page `{page}`: HTTP {status} OK ({len(body)} bytes)")
             test_results.append((f"HF CDN {page}", True, f"HTTP {status}"))
@@ -95,7 +95,7 @@ def run_strict_live_e2e_audit() -> bool:
     ]
     for path, method, headers, payload in vercel_endpoints:
         url = VERCEL_PROD_URL + path
-        success, status, body = test_url(url, method=method, headers=headers, payload=payload)
+        success, status, body = execute_network_request(url, method=method, headers=headers, payload=payload)
         if success:
             logger.info(f"   ✅ Vercel Route `{path}`: HTTP {status} OK ({len(body)} bytes)")
             test_results.append((f"Vercel {path}", True, f"HTTP {status}"))
@@ -121,7 +121,7 @@ def run_strict_live_e2e_audit() -> bool:
     
     # Try Vercel Gateway first
     api_url = f"{VERCEL_PROD_URL}/api/v1/bazi/interpret"
-    success, status, body = test_url(api_url, method="POST", headers=user_headers, payload=user_payload, timeout=30)
+    success, status, body = execute_network_request(api_url, method="POST", headers=user_headers, payload=user_payload, timeout=30)
     
     if success and ("chart" in body or "status" in body):
         logger.info(f"   ✅ Live API Endpoint `/api/v1/bazi/interpret`: HTTP {status} OK")
@@ -130,7 +130,7 @@ def run_strict_live_e2e_audit() -> bool:
         logger.warning(f"   ⚠️ Vercel Gateway API Proxy returned HTTP {status}. Checking fallback routes...")
         # Fallback check against Fly.io or Local server
         fly_url = f"{FLY_BACKEND_URL}/api/v1/bazi/interpret"
-        fly_success, fly_status, fly_body = test_url(fly_url, method="POST", headers=user_headers, payload=user_payload, timeout=10)
+        fly_success, fly_status, fly_body = execute_network_request(fly_url, method="POST", headers=user_headers, payload=user_payload, timeout=10)
         if fly_success:
             logger.info(f"   ✅ Fly.io Direct Backend `/api/v1/bazi/interpret`: HTTP {fly_status} OK")
             test_results.append(("Fly.io BaZi Interpret API", True, f"HTTP {fly_status}"))

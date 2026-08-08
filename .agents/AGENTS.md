@@ -76,4 +76,18 @@ flowchart TD
 6. **Pre-Development Kaggle Sync**: Before starting any development or modifying code, agents MUST run `python3 scripts/kaggle_notebook_manager.py --status` (and `--pull` if updated) to verify and sync the latest Kaggle kernel status/outputs.
 7. **Locked Kaggle Accelerator Stage**: `project/kaggle_kernel/kernel-metadata.json` accelerator settings (such as `"machine_shape": "NvidiaTeslaT4"`) are permanently preserved and locked. Agents MUST NEVER modify, overwrite, or toggle `kernel-metadata.json` accelerator fields.
 8. **Centralized Secrets & Lessons Learned Audit**: Agents MUST enforce the 2-Tier Priority Secrets Policy (`.agents/rules/06-secrets-policy.md`) and consult `.agents/LESSONS_LEARNED.md` before performing MLOps or architectural changes.
-9. **Documentation & Skill Up-to-date Mandate**: The Business System Analyst (`business_analyst`) MUST audit and keep all repo documentation (`PROJECT_TASKS.md`, `README.md`, `HOWTO.md`, `plans/plan.md`) and `.agents/skills/` definitions fully updated and aligned with actual implementation code.
+9. **Documentation, Agent Matrix & Skill Up-to-date Mandate**: The Business System Analyst (`business_analyst`) MUST continuously audit and keep all repository documentation ([`CLAUDE.md`](file:///Users/kimlenglim/Project/HoroConsultant/CLAUDE.md), [`README.md`](file:///Users/kimlenglim/Project/HoroConsultant/README.md), [`HOWTO.md`](file:///Users/kimlenglim/Project/HoroConsultant/HOWTO.md), [`PROJECT_TASKS.md`](file:///Users/kimlenglim/Project/HoroConsultant/PROJECT_TASKS.md), [`plans/plan.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/plan.md)), `.agents/skills/`, and Cross-Framework Agent Definitions (`.antigravity/agents/*.agent` & `.claude/agents/*.json`) 100% updated and synchronized via `python3 scripts/sync_sdlc_agents.py --check`.
+
+---
+
+## 🌐 Cross-Framework Agent Matrix (Claude Code & Antigravity)
+
+| Agent Identifier | Role | Model Strategy (Gemini / Claude) | Antigravity Spec (`.antigravity/agents/`) | Claude Code Spec (`.claude/agents/`) | Governance Lead |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **`orchestrator` / `default`** | Master Orchestrator | `Gemini 3.6 Flash (High)` / `Claude Sonnet 3.7/4.6` | `orchestrator.agent` / `default.agent` | `orchestrator.json` / `default.json` | Master Brain |
+| **`business_analyst`** | Business System Analyst | `Gemini 3.6 Flash` / `Claude Sonnet 3.5` | `business-analyst.agent` | `business_analyst.json` | **Doc & Skill Watchdog** |
+| **`developer`** | Senior Full-Stack Developer | `Gemini 3.6 Flash` / `Claude Sonnet 3.5` / `GPT-4o` | `developer.agent` | `developer.json` | Code Writing |
+| **`qa_tester`** | QA Tester & Verification Guard | `Gemini 3.5 Flash-Lite` / `GPT-4o-mini` | `qa-tester.agent` | `qa_tester.json` | Test Execution Guard |
+| **`devops`** | DevOps & Release Agent | `Gemini 3.6 Flash` / `GPT-4o` | `devops.agent` | `devops.json` | Release & Deploy |
+| **`code_reviewer`** | Pre-Deployment Safety Auditor | `Gemini 3.6 Flash` / `Claude Sonnet 3.5` | `code-reviewer.agent` | `code_reviewer.json` | Safety Audit |
+| **8 Domain Masters** | Metaphysics Experts | `Gemini 3.6 Flash` / `Claude Sonnet 3.5` | `[domain]-master.agent` | `[domain]_master.json` | Domain Analysis |

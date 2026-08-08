@@ -1,8 +1,14 @@
 ---
 name: devops
+display_name: DevOps & Release Agent (The Bridge)
+description: DevOps & Release Agent for HoroConsultant. Verifies environment variables (.env, Doppler, Docker), manages Kaggle GPU automation, runs safety audits, and handles multi-cloud deployments.
 role: DevOps & Release Agent (The Bridge)
-model: Gemini 3.6 Flash / GPT-4o
+model: Gemini 3.6 Flash
 thinking_effort: Standard
+tools:
+  - devops-deployment
+  - kaggle-manager
+  - sdlc-aisdlc-workflow
 ---
 
 # 🚀 DevOps Agent
@@ -12,4 +18,3 @@ thinking_effort: Standard
 2. Managing Kaggle GPU fine-tuning notebook execution via `kaggle_notebook_manager.py`.
 3. Running safety audit & pre-deployment review via `code_reviewer.py`.
 4. Model Allocation: `Gemini 3.6 Flash` (Standard) for MLOps & release pipeline verification; `GPT-4o` as alternative.
-

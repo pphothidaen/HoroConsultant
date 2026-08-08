@@ -21,7 +21,7 @@
 ## ⚡ 2. Primary Project Commands
 
 ```bash
-# 1. Run Full Unit, Integration & Web Regression Test Suite (93/93 PASS)
+# 1. Run Full Unit, Integration & Web Regression Test Suite (134/134 PASS)
 python3 -m pytest -v
 
 # 2. Start FastAPI Server & Web UI (Local-First: Qwen2.5:7b + FAISS + Glassmorphism UI)
@@ -30,18 +30,24 @@ python3 -m uvicorn project.main:app --reload --port 8000
 # Admin Panel:       http://localhost:8000/admin
 # API Docs:          http://localhost:8000/docs
 
-# 3. Pre-Deployment Code Review & Safety Audit
+# 3. Synchronize SDLC Agents across Antigravity & Claude Code
+python3 scripts/sync_sdlc_agents.py --sync
+
+# 4. Run Universal Production Metaphysics Engine (thClaws + AGY Subagent Hybrid Mode)
+python3 scripts/run_universal_bridge.py --mode hybrid
+
+# 5. Pre-Deployment Code Review & Safety Audit
 python3 project/core/code_reviewer.py --review
 
-# 4. Ingest Obsidian Vault Books & Export ShareGPT Fine-Tuning Dataset
+# 6. Ingest Obsidian Vault Books & Export ShareGPT Fine-Tuning Dataset
 python3 project/rag/ingest_vault.py --export-finetune
 
-# 5. Kaggle Fine-Tuning Automation (Status, Push, Pull)
+# 7. Kaggle Fine-Tuning Automation (Status, Push, Pull)
 python3 scripts/kaggle_notebook_manager.py --status
 python3 scripts/kaggle_notebook_manager.py --push
 python3 scripts/kaggle_notebook_manager.py --pull
 
-# 6. Post-Training Model Fusion & GGUF Conversion
+# 8. Post-Training Model Fusion & GGUF Conversion
 python3 scripts/post_train_fuse.py --dry-run
 ```
 
