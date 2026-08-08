@@ -119,7 +119,10 @@ setup_observability_middleware(app)
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(STATIC_DIR):
-    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    try:
+        app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    except Exception as e:
+        logger.warning(f"StaticFiles mount skipped: {e}")
 
 # Register Modular Routers
 app.include_router(admin_router)
