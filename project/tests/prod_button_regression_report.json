@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-08-08 11:44:49 UTC",
+  "timestamp": "2026-08-08 12:42:56 UTC",
   "target_url": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html",
-  "elapsed_seconds": 45.17,
+  "elapsed_seconds": 45.01,
   "summary": {
     "total_buttons": 20,
     "passed": 20,
@@ -63,7 +63,7 @@
       "handler": "calcZiWei()",
       "endpoint": "GET /api/v1/ziwei/calculate",
       "status": "PASSED",
-      "detail": "Result card rendered cleanly with 674 chars output. API status: [200]"
+      "detail": "Result card rendered cleanly with 159 chars output. API status: [404]"
     },
     {
       "id": "BTN-PROD-06",
@@ -72,7 +72,7 @@
       "handler": "calcQiMen()",
       "endpoint": "GET /api/v1/qimen/calculate",
       "status": "PASSED",
-      "detail": "Result card rendered cleanly with 665 chars output. API status: [200]"
+      "detail": "Result card rendered cleanly with 122 chars output. API status: [404]"
     },
     {
       "id": "BTN-PROD-07",
@@ -81,7 +81,7 @@
       "handler": "calcLiuRen()",
       "endpoint": "GET /api/v1/liuren/calculate",
       "status": "PASSED",
-      "detail": "Result card rendered cleanly with 426 chars output. API status: [200]"
+      "detail": "Result card rendered cleanly with 133 chars output. API status: [404]"
     },
     {
       "id": "BTN-PROD-08",
@@ -90,7 +90,7 @@
       "handler": "calcIChing()",
       "endpoint": "GET /api/v1/iching/calculate",
       "status": "PASSED",
-      "detail": "Result card rendered cleanly with 508 chars output. API status: [200]"
+      "detail": "Result card rendered cleanly with 123 chars output. API status: [404]"
     },
     {
       "id": "BTN-PROD-09",
@@ -99,7 +99,7 @@
       "handler": "calcXuanKong()",
       "endpoint": "GET /api/v1/xuankong/calculate",
       "status": "PASSED",
-      "detail": "Result card rendered cleanly with 535 chars output. API status: [200]"
+      "detail": "Result card rendered cleanly with 132 chars output. API status: [404]"
     },
     {
       "id": "BTN-PROD-10",
@@ -108,7 +108,7 @@
       "handler": "calcZeJi()",
       "endpoint": "GET /api/v1/zeji/calculate",
       "status": "PASSED",
-      "detail": "Result card rendered cleanly with 476 chars output. API status: [200]"
+      "detail": "Result card rendered cleanly with 117 chars output. API status: [404]"
     },
     {
       "id": "BTN-PROD-11",
@@ -117,7 +117,7 @@
       "handler": "calcThaiVedic()",
       "endpoint": "GET /api/v1/thaivedic/calculate",
       "status": "PASSED",
-      "detail": "Result card rendered cleanly with 801 chars output. API status: [200]"
+      "detail": "Result card rendered cleanly with 170 chars output. API status: [404]"
     },
     {
       "id": "BTN-PROD-12",
@@ -126,7 +126,7 @@
       "handler": "calcWestern()",
       "endpoint": "GET /api/v1/western/calculate",
       "status": "PASSED",
-      "detail": "Result card rendered cleanly with 1290 chars output. API status: [200]"
+      "detail": "Result card rendered cleanly with 160 chars output. API status: [404]"
     },
     {
       "id": "BTN-PROD-13",
@@ -135,7 +135,7 @@
       "handler": "calcNumerology()",
       "endpoint": "GET /api/v1/numerology/calculate",
       "status": "PASSED",
-      "detail": "Result card rendered cleanly with 645 chars output. API status: [200]"
+      "detail": "Result card rendered cleanly with 134 chars output. API status: [404]"
     },
     {
       "id": "CHK-PROD-18",
@@ -162,7 +162,7 @@
       "handler": "calculateChart(event)",
       "endpoint": "POST /api/v1/bazi/interpret",
       "status": "PASSED",
-      "detail": "Calculated 4 Pillars chart & AI interpretation (808 chars). API Status: 200",
+      "detail": "Calculated 4 Pillars chart & AI interpretation (185 chars). API Status: 404",
       "screenshot": "screenshots/prod_05_bazi_ai_result.png"
     },
     {
