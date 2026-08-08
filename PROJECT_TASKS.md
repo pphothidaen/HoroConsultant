@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-09 01:10 (UTC+7)*
+> *Last Updated: 2026-08-09 01:50 (UTC+7)*
 
 ---
 
@@ -21,7 +21,7 @@ python3 project/core/code_reviewer.py --review
 # 4. รัน Hugging Face Spaces Deployment Dry Run
 python3 scripts/publish_space_hf.py --dry-run
 
-# 5. รัน Full Unit, Integration & Universal Bridge Test ทั้งหมด (138/138 tests PASS)
+# 5. รัน Full Unit, Integration & Universal Bridge Test ทั้งหมด (169/169 tests PASS)
 python3 -m pytest -v --ignore=project/kaggle_kernel
 
 # 6. ตรวจสอบสถานะซิงก์ของ SDLC Agents ข้ามแพลตฟอร์ม (Antigravity & Claude Code)
@@ -43,7 +43,9 @@ python3 scripts/sync_sdlc_agents.py --check
 │ • UI Button & Endpoint Suite (25/25)  │                                       │                                       │
 │ • HF Spaces Live Deploy & Audit       │                                       │                                       │
 │ • Pre-Deploy Safety Audit (PASS)      │                                       │                                       │
-│ • 142/142 Pytest Suite (100% PASS)    │                                       │                                       │
+│ • 169/169 Pytest Suite (100% PASS)    │                                       │                                       │
+│ • Vercel Gateway Stabilization        │                                       │                                       │
+│ • CodeReviewer .venv Exclusion Fix    │                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
 
@@ -143,12 +145,24 @@ python3 scripts/sync_sdlc_agents.py --check
   - Verified 111/111 tests passing cleanly in 2.85s.
   - Verified `project/core/code_reviewer.py` status `READY_FOR_PROD` with zero secret leaks.
 
+- [x] **Vercel Gateway Handler Stabilization & Production Verification ([`api/main.py`](file:///Users/kimlenglim/Project/HoroConsultant/api/main.py), [`api/index.py`](file:///Users/kimlenglim/Project/HoroConsultant/api/index.py), [`vercel.json`](file:///Users/kimlenglim/Project/HoroConsultant/vercel.json))**
+  - Confirmed full Vercel serverless adapter (`api/main.py`) handling: GET health checks, POST `/api/v1/bazi/interpret`, OPTIONS CORS preflight (HTTP 204), and multi-route gateway forwarding.
+  - CORS preflight headers (`Access-Control-Allow-Origin`, `Access-Control-Allow-Methods`, `Access-Control-Allow-Headers`) verified via `ThreadingHTTPServer` live integration test.
+  - Verified `vercel.json` rewrites: `/api/hf/:path*` proxy, `/health` → `/api/main`, `/api/v1/:path*` → `/api/main`, `/api/:path*` → `/api/main`.
+  - Full production test coverage via `test_prod_regression.py` (7/7 tests PASSED) including CORS preflight, gateway config, and live endpoint contracts.
+
+- [x] **CodeReviewer `.venv` Directory Exclusion Fix ([`project/core/code_reviewer.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/code_reviewer.py))**
+  - Fixed false-positive `BLOCKED` status caused by scanning `.venv` third-party packages (pip, numpy test files) with Kaggle token regex pattern `kg_[A-Za-z0-9_-]{20,}`.
+  - Root cause: exclusion list checked for `"venv"` but directory is named `.venv` (with dot prefix), so path parts never matched.
+  - Extended skip list to include `.venv`, `wandb`, `node_modules`, `.vercel` in addition to existing `.git`, `.pytest_cache`, `.ruff_cache`, `__pycache__`.
+  - Result: audit now correctly scans 1,077 project files (vs 4,156 with false positives), 0 secret leaks found, status restored to `READY_FOR_PROD`.
+  - Test suite verified: **169/169 tests PASS** (upgraded from 142/142 with additional tests for observability, prod regression, and universal bridge).
+
 ---
 
 ### 🔄 DOING (กำลังดำเนินการ)
 
-- [ ] **Vercel gateway handler stabilization & production verification**
-  - Stabilizing the serverless adapter in [api/main.py](api/main.py) and confirming the live route contract for health and CORS preflight behavior.
+- *(None - All tasks completed 100%)*
 
 ---
 

@@ -65,7 +65,7 @@ class CodeReviewer:
             if not path.is_file():
                 continue
             # Skip git cache, venv, pytest cache, and gitignored local .env files
-            if any(part in path.parts for part in [".git", ".pytest_cache", ".ruff_cache", "__pycache__", "venv"]):
+            if any(part in path.parts for part in [".git", ".pytest_cache", ".ruff_cache", "__pycache__", "venv", ".venv", "wandb", "node_modules", ".vercel"]):
                 continue
             if path.name in [".env", ".env.production", ".env.local"]:
                 continue

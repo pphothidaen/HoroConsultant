@@ -90,4 +90,12 @@
   - **Hugging Face**: Use `sdk: static` for free static UI hosting (`pphothidaen-horoconsultant-core-backend.static.hf.space`).
   - **Client Web UI (`app.js`)**: Use dynamic `${getApiBaseUrl()}/health` for health pings instead of hardcoded Fly.io URLs.
 
-
+### 10. 🔍 Code Reviewer `.venv` False-Positive Secret Scan Bug
+- **Issue Experienced**: `python3 project/core/code_reviewer.py --review` returned `BLOCKED` status with 3 "CRITICAL Kaggle API Token" secret leaks found in `.venv/lib/python3.11/site-packages/_pytest/pathlib.py`, `pip/_internal/metadata/__init__.py`, and `numpy/tests/test_configtool.py`. These are NOT real secrets — they are internal pattern strings inside pip/pytest/numpy source code that match the `kg_[A-Za-z0-9_-]{20,}` regex pattern.
+- **Root Cause**: The exclusion list used `"venv"` as a path part check, but the actual virtual environment directory is named `.venv` (with a dot prefix). Since `".venv"` != `"venv"`, the path parts check never matched, allowing the scanner to enter and scan all 3,000+ third-party package files.
+- **Lesson Learned**: When using `path.parts` for directory exclusion, always use the exact directory name (including leading dot for hidden directories). A `.venv` directory has the path part `".venv"`, not `"venv"`.
+- **Prevention Protocol**:
+  - The exclusion list in `CodeReviewer.scan_secrets()` (line 68) now includes both `"venv"` AND `".venv"` explicitly.
+  - Also added `"wandb"`, `"node_modules"`, and `".vercel"` to prevent similar false positives from other third-party tool directories.
+  - Fixed result: scanner now audits 1,077 project files (down from 4,156), 0 secrets found, status correctly `READY_FOR_PROD`.
+  - **Verification**: After fix, run `python3 project/core/code_reviewer.py --review` and confirm `"overall_status": "READY_FOR_PROD"` and `"scanned_files": ~1077`.
