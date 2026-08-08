@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "name": "horoconsultant",
   "rewrites": [
     {
       "source": "/api/fly/:path*",
