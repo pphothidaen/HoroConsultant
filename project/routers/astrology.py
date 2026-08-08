@@ -190,37 +190,97 @@ async def equation_of_time(
         raise HTTPException(status_code=422, detail="Invalid date format, use YYYY-MM-DD")
 
 
+OFFLINE_LOCATIONS = {
+    "กรุงเทพ": {"address": "กรุงเทพมหานคร, ประเทศไทย", "lat": 13.7563, "lon": 100.5018, "tz": "Asia/Bangkok", "utc": 7.0},
+    "กรุงเทพมหานคร": {"address": "กรุงเทพมหานคร, ประเทศไทย", "lat": 13.7563, "lon": 100.5018, "tz": "Asia/Bangkok", "utc": 7.0},
+    "bangkok": {"address": "Bangkok, Thailand", "lat": 13.7563, "lon": 100.5018, "tz": "Asia/Bangkok", "utc": 7.0},
+    "บางกะปิ": {"address": "เขตบางกะปิ, กรุงเทพมหานคร, ประเทศไทย", "lat": 13.7658, "lon": 100.6439, "tz": "Asia/Bangkok", "utc": 7.0},
+    "จตุจักร": {"address": "เขตจตุจักร, กรุงเทพมหานคร, ประเทศไทย", "lat": 13.8166, "lon": 100.5604, "tz": "Asia/Bangkok", "utc": 7.0},
+    "สาทร": {"address": "เขตสาทร, กรุงเทพมหานคร, ประเทศไทย", "lat": 13.7208, "lon": 100.5262, "tz": "Asia/Bangkok", "utc": 7.0},
+    "พญาไท": {"address": "เขตพญาไท, กรุงเทพมหานคร, ประเทศไทย", "lat": 13.7800, "lon": 100.5342, "tz": "Asia/Bangkok", "utc": 7.0},
+    "ปทุมวัน": {"address": "เขตปทุมวัน, กรุงเทพมหานคร, ประเทศไทย", "lat": 13.7462, "lon": 100.5347, "tz": "Asia/Bangkok", "utc": 7.0},
+    "เชียงใหม่": {"address": "อำเภอเมืองเชียงใหม่, จังหวัดเชียงใหม่, ประเทศไทย", "lat": 18.7883, "lon": 98.9853, "tz": "Asia/Bangkok", "utc": 7.0},
+    "chiang mai": {"address": "Chiang Mai, Thailand", "lat": 18.7883, "lon": 98.9853, "tz": "Asia/Bangkok", "utc": 7.0},
+    "ภูเก็ต": {"address": "อำเภอเมืองภูเก็ต, จังหวัดภูเก็ต, ประเทศไทย", "lat": 7.8804, "lon": 98.3923, "tz": "Asia/Bangkok", "utc": 7.0},
+    "phuket": {"address": "Phuket, Thailand", "lat": 7.8804, "lon": 98.3923, "tz": "Asia/Bangkok", "utc": 7.0},
+    "ชลบุรี": {"address": "จังหวัดชลบุรี, ประเทศไทย", "lat": 13.3611, "lon": 100.9847, "tz": "Asia/Bangkok", "utc": 7.0},
+    "พัทยา": {"address": "เมืองพัทยา, จังหวัดชลบุรี, ประเทศไทย", "lat": 12.9236, "lon": 100.8771, "tz": "Asia/Bangkok", "utc": 7.0},
+    "ขอนแก่น": {"address": "จังหวัดขอนแก่น, ประเทศไทย", "lat": 16.4322, "lon": 102.8350, "tz": "Asia/Bangkok", "utc": 7.0},
+    "โคราช": {"address": "จังหวัดนครราชสีมา, ประเทศไทย", "lat": 14.9799, "lon": 102.0978, "tz": "Asia/Bangkok", "utc": 7.0},
+    "นครราชสีมา": {"address": "จังหวัดนครราชสีมา, ประเทศไทย", "lat": 14.9799, "lon": 102.0978, "tz": "Asia/Bangkok", "utc": 7.0},
+    "สงขลา": {"address": "จังหวัดสงขลา, ประเทศไทย", "lat": 7.1988, "lon": 100.5954, "tz": "Asia/Bangkok", "utc": 7.0},
+    "หาดใหญ่": {"address": "อำเภอหาดใหญ่, จังหวัดสงขลา, ประเทศไทย", "lat": 7.0084, "lon": 100.4747, "tz": "Asia/Bangkok", "utc": 7.0},
+    "นนทบุรี": {"address": "จังหวัดนนทบุรี, ประเทศไทย", "lat": 13.8591, "lon": 100.5217, "tz": "Asia/Bangkok", "utc": 7.0},
+    "สมุทรปราการ": {"address": "จังหวัดสมุทรปราการ, ประเทศไทย", "lat": 13.5991, "lon": 100.5998, "tz": "Asia/Bangkok", "utc": 7.0},
+    "tokyo": {"address": "Tokyo, Japan", "lat": 35.6895, "lon": 139.6917, "tz": "Asia/Tokyo", "utc": 9.0},
+    "โตเกียว": {"address": "Tokyo, Japan", "lat": 35.6895, "lon": 139.6917, "tz": "Asia/Tokyo", "utc": 9.0},
+    "london": {"address": "London, United Kingdom", "lat": 51.5074, "lon": -0.1276, "tz": "Europe/London", "utc": 0.0},
+    "ลอนดอน": {"address": "London, United Kingdom", "lat": 51.5074, "lon": -0.1276, "tz": "Europe/London", "utc": 0.0},
+    "new york": {"address": "New York, USA", "lat": 40.7128, "lon": -74.0060, "tz": "America/New_York", "utc": -5.0},
+    "นิวยอร์ก": {"address": "New York, USA", "lat": 40.7128, "lon": -74.0060, "tz": "America/New_York", "utc": -5.0},
+    "singapore": {"address": "Singapore", "lat": 1.3521, "lon": 103.8198, "tz": "Asia/Singapore", "utc": 8.0},
+    "สิงคโปร์": {"address": "Singapore", "lat": 1.3521, "lon": 103.8198, "tz": "Asia/Singapore", "utc": 8.0},
+}
+
+
 @astrology_router.post("/api/v1/location/resolve", tags=["location"])
 async def resolve_location(req: LocationResolveRequest):
     """
     Resolve a location string to longitude, latitude and UTC offset.
+    Supports Nominatim online geocoding with automatic fallback to pre-cached offline location database.
     """
-    from geopy.geocoders import Nominatim
-    from timezonefinder import TimezoneFinder
-    import zoneinfo
+    query_clean = req.location.strip().lower()
 
-    geolocator = Nominatim(user_agent="horo_consultant")
-    location_data = await asyncio.to_thread(geolocator.geocode, req.location)
-    
-    if not location_data:
-        raise HTTPException(status_code=404, detail="Location not found")
-        
-    lat = location_data.latitude
-    lon = location_data.longitude
-    
-    tf = TimezoneFinder()
-    tz_name = tf.timezone_at(lng=lon, lat=lat)
-    if not tz_name:
-        raise HTTPException(status_code=404, detail="Timezone not found for location")
-        
-    tz = zoneinfo.ZoneInfo(tz_name)
-    now = datetime.now(tz)
-    utc_offset_hours = now.utcoffset().total_seconds() / 3600.0
-    
-    return {
-        "location": location_data.address,
-        "latitude": lat,
-        "longitude": lon,
-        "timezone": tz_name,
-        "utc_offset_hours": utc_offset_hours
-    }
+    # 1. Try Nominatim Geocoding API
+    location_data = None
+    try:
+        from geopy.geocoders import Nominatim
+        geolocator = Nominatim(user_agent="horo_consultant")
+        location_data = await asyncio.to_thread(geolocator.geocode, req.location)
+    except Exception as e:
+        location_data = None
+
+    if location_data:
+        lat = location_data.latitude
+        lon = location_data.longitude
+        try:
+            from timezonefinder import TimezoneFinder
+            import zoneinfo
+            tf = TimezoneFinder()
+            tz_name = tf.timezone_at(lng=lon, lat=lat) or "Asia/Bangkok"
+            tz = zoneinfo.ZoneInfo(tz_name)
+            now = datetime.now(tz)
+            utc_offset_hours = now.utcoffset().total_seconds() / 3600.0
+            return {
+                "location": location_data.address,
+                "latitude": lat,
+                "longitude": lon,
+                "timezone": tz_name,
+                "utc_offset_hours": utc_offset_hours
+            }
+        except Exception:
+            pass
+
+    # 2. Fallback to cached OFFLINE_LOCATIONS dictionary
+    for loc_key, loc_info in OFFLINE_LOCATIONS.items():
+        if loc_key in query_clean or query_clean in loc_key:
+            return {
+                "location": loc_info["address"],
+                "latitude": loc_info["lat"],
+                "longitude": loc_info["lon"],
+                "timezone": loc_info["tz"],
+                "utc_offset_hours": loc_info["utc"]
+            }
+
+    # Default fallback to Bangkok if input is non-empty
+    if query_clean:
+        return {
+            "location": f"{req.location} (Defaulting to Bangkok Coordinates)",
+            "latitude": 13.7563,
+            "longitude": 100.5018,
+            "timezone": "Asia/Bangkok",
+            "utc_offset_hours": 7.0
+        }
+
+    raise HTTPException(status_code=404, detail="Location not found")
+

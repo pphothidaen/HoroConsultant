@@ -274,3 +274,19 @@ python3 scripts/publish_space_hf.py --dry-run
 - 🔐 **Admin Panel**: `https://pphothidaen-horoconsultant-core-backend.static.hf.space/admin.html`
 - 🔬 **HITL Review Studio**: `https://pphothidaen-horoconsultant-core-backend.static.hf.space/hitl.html`
 
+---
+
+### 🌐 3.7 Production Deployment Options & Platform Research Matrix
+
+ตารางสรุปผลวิจัยและทางเลือกในการนำบริการไปติดตั้งบนระบบ Production เพิ่มเติม:
+
+| Platform | Deployment Type | Suitable Use Case | Cost & SLA Profile |
+| :--- | :--- | :--- | :--- |
+| **Hugging Face Static Edge CDN** | Frontend UIs (`sdk: static`) | Web UIs, Admin Panel, HITL Studio | Zero Cost, 24/7 Unlimited Uptime, No Hardware Quota Limit |
+| **Hugging Face Spaces Docker** | Full Backend Container (`sdk: docker`) | FastAPI API + Rust Fast Math + FAISS | Free Tier (16GB RAM, 2 vCPU) |
+| **Vercel Edge Network** | Gateway Rewrites (`vercel.json`) | Global Edge Proxy & Reverse Proxy | Free Tier (Unlimited Deployments) |
+| **Render.com / Railway.app** | Docker Web Service (`Dockerfile.hf`) | Full-stack FastAPI Production Container | Low Cost ($5/mo), Auto SSL & Custom Domain |
+| **Fly.io / Koyeb** | Micro-VM Global App | Low Latency Regional Backend | Free Tier Available |
+| **Kaggle GPU Accelerator** | GPU Fine-Tuning Notebook (`T4 Machine`) | LLM Fine-Tuning & Model Weight Fusion | Free 30h/week Nvidia T4 GPU |
+
+

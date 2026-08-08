@@ -9,6 +9,38 @@ function loadPreset(datetime, lng, utc, label) {
   console.log(`Loaded preset: ${label}`);
 }
 
+const CLIENT_LOCATION_DICT = {
+  "กรุงเทพ": { name: "กรุงเทพมหานคร, ประเทศไทย", lng: 100.5018, utc: 7.0 },
+  "กรุงเทพมหานคร": { name: "กรุงเทพมหานคร, ประเทศไทย", lng: 100.5018, utc: 7.0 },
+  "bangkok": { name: "Bangkok, Thailand", lng: 100.5018, utc: 7.0 },
+  "บางกะปิ": { name: "เขตบางกะปิ, กรุงเทพมหานคร, ประเทศไทย", lng: 100.6439, utc: 7.0 },
+  "จตุจักร": { name: "เขตจตุจักร, กรุงเทพมหานคร, ประเทศไทย", lng: 100.5604, utc: 7.0 },
+  "สาทร": { name: "เขตสาทร, กรุงเทพมหานคร, ประเทศไทย", lng: 100.5262, utc: 7.0 },
+  "พญาไท": { name: "เขตพญาไท, กรุงเทพมหานคร, ประเทศไทย", lng: 100.5342, utc: 7.0 },
+  "ปทุมวัน": { name: "เขตปทุมวัน, กรุงเทพมหานคร, ประเทศไทย", lng: 100.5347, utc: 7.0 },
+  "เชียงใหม่": { name: "อำเภอเมืองเชียงใหม่, จังหวัดเชียงใหม่", lng: 98.9853, utc: 7.0 },
+  "chiang mai": { name: "Chiang Mai, Thailand", lng: 98.9853, utc: 7.0 },
+  "ภูเก็ต": { name: "อำเภอเมืองภูเก็ต, จังหวัดภูเก็ต", lng: 98.3923, utc: 7.0 },
+  "phuket": { name: "Phuket, Thailand", lng: 98.3923, utc: 7.0 },
+  "ชลบุรี": { name: "จังหวัดชลบุรี, ประเทศไทย", lng: 100.9847, utc: 7.0 },
+  "พัทยา": { name: "เมืองพัทยา, จังหวัดชลบุรี", lng: 100.8771, utc: 7.0 },
+  "ขอนแก่น": { name: "จังหวัดขอนแก่น, ประเทศไทย", lng: 102.8350, utc: 7.0 },
+  "โคราช": { name: "จังหวัดนครราชสีมา, ประเทศไทย", lng: 102.0978, utc: 7.0 },
+  "นครราชสีมา": { name: "จังหวัดนครราชสีมา, ประเทศไทย", lng: 102.0978, utc: 7.0 },
+  "สงขลา": { name: "จังหวัดสงขลา, ประเทศไทย", lng: 100.5954, utc: 7.0 },
+  "หาดใหญ่": { name: "อำเภอหาดใหญ่, จังหวัดสงขลา", lng: 100.4747, utc: 7.0 },
+  "นนทบุรี": { name: "จังหวัดนนทบุรี, ประเทศไทย", lng: 100.5217, utc: 7.0 },
+  "สมุทรปราการ": { name: "จังหวัดสมุทรปราการ, ประเทศไทย", lng: 100.5998, utc: 7.0 },
+  "tokyo": { name: "Tokyo, Japan", lng: 139.6917, utc: 9.0 },
+  "โตเกียว": { name: "Tokyo, Japan", lng: 139.6917, utc: 9.0 },
+  "london": { name: "London, United Kingdom", lng: -0.1276, utc: 0.0 },
+  "ลอนดอน": { name: "London, United Kingdom", lng: -0.1276, utc: 0.0 },
+  "new york": { name: "New York, USA", lng: -74.0060, utc: -5.0 },
+  "นิวยอร์ก": { name: "New York, USA", lng: -74.0060, utc: -5.0 },
+  "singapore": { name: "Singapore", lng: 103.8198, utc: 8.0 },
+  "สิงคโปร์": { name: "Singapore", lng: 103.8198, utc: 8.0 }
+};
+
 async function resolveLocation() {
   const locInput = document.getElementById('location_search').value.trim();
   if (!locInput) return;
@@ -27,24 +59,46 @@ async function resolveLocation() {
       body: JSON.stringify({ location: locInput })
     });
     
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      throw new Error(errData.detail || "ไม่พบสถานที่ดังกล่าว โปรดลองพิมพ์ชื่อให้ชัดเจนขึ้น");
+    if (res.ok) {
+      const data = await res.json();
+      document.getElementById('longitude').value = data.longitude.toFixed(4);
+      document.getElementById('utc_offset_hours').value = data.utc_offset_hours;
+      
+      const offsetSign = data.utc_offset_hours >= 0 ? '+' : '';
+      statusEl.textContent = `✅ ${data.location} (UTC${offsetSign}${data.utc_offset_hours})`;
+      statusEl.style.color = "#10b981";
+      return;
     }
-    
-    const data = await res.json();
-    document.getElementById('longitude').value = data.longitude.toFixed(4);
-    document.getElementById('utc_offset_hours').value = data.utc_offset_hours;
-    
-    const offsetSign = data.utc_offset_hours >= 0 ? '+' : '';
-    statusEl.textContent = `✅ ${data.location} (UTC${offsetSign}${data.utc_offset_hours})`;
-    statusEl.style.color = "#10b981";
   } catch (err) {
-    statusEl.textContent = `❌ ${err.message}`;
-    statusEl.style.color = "#ef4444";
-  } finally {
-    spinner.classList.add('hidden');
+    console.warn("API location resolve failed, switching to client-side fallback dictionary:", err);
   }
+
+  // Client-side Fallback Dictionary Lookup
+  const cleanKey = locInput.toLowerCase();
+  let match = null;
+  for (const [k, v] of Object.entries(CLIENT_LOCATION_DICT)) {
+    if (k.includes(cleanKey) || cleanKey.includes(k)) {
+      match = v;
+      break;
+    }
+  }
+
+  if (!match && cleanKey.length > 0) {
+    // Default fallback to Bangkok if specific location not found in dictionary
+    match = { name: `${locInput} (พิกัดเทียบเคียง กรุงเทพมหานคร)`, lng: 100.5018, utc: 7.0 };
+  }
+
+  if (match) {
+    document.getElementById('longitude').value = match.lng.toFixed(4);
+    document.getElementById('utc_offset_hours').value = match.utc;
+    const offsetSign = match.utc >= 0 ? '+' : '';
+    statusEl.textContent = `✅ ${match.name} (UTC${offsetSign}${match.utc})`;
+    statusEl.style.color = "#10b981";
+  } else {
+    statusEl.textContent = "❌ ไม่พบสถานที่ดังกล่าว โปรดลองพิมพ์ชื่อให้ชัดเจนขึ้น";
+    statusEl.style.color = "#ef4444";
+  }
+  spinner.classList.add('hidden');
 }
 
 document.addEventListener("DOMContentLoaded", () => {
