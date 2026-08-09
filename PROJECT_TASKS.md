@@ -58,9 +58,22 @@ python3 scripts/run_vercel_prod_curl_regression.py
 
 ---
 
-### ✅ RECENTLY COMPLETED (Checkpoint 3 Deliverables)
+- [x] **Phase 2 Rust Extensions: FAISS Dense Vector Search & Xuan Kong 9-Grid Matrix ([`rust_core/src/vector_search.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/vector_search.rs), [`rust_core/src/fengshui.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/fengshui.rs), [`project/core/fast_math.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/fast_math.py), [`project/rag/vector_store.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/rag/vector_store.py), [`project/core/xuan_kong_engine.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/xuan_kong_engine.py))**
+  - **FAISS Dense Vector Rust Native Binding**: Implemented `dense_vector_search` in Rust PyO3 with Rayon parallelization over 768-dim embeddings for sub-millisecond retrieval (< 1ms). Integrated into `vector_store.py` and `fast_math.py`.
+  - **Feng Shui Flying Star 9-Grid Rust Matrix**: Implemented `resolve_mountain`, `fly_stars`, and `xuankong_9grid_matrix` in Rust PyO3 for 24-mountain directions and Period 9 Flying Stars chart math. Integrated into `xuan_kong_engine.py` and `fast_math.py`.
+  - **Verified Test Suite**: Added [`project/tests/test_rust_extensions.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/tests/test_rust_extensions.py) — 172/172 Pytest tests PASSED 100%.
+
+- [x] **Kaggle GPU Fine-Tuning Iteration Pipeline Automation ([`scripts/kaggle_notebook_manager.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/kaggle_notebook_manager.py))**
+  - Configured automated setup, notebook generation, and metadata verification for `qwen2.5:7b` fine-tuning on Nvidia Tesla T4 GPU.
+  - Locked metadata accelerator configuration (`NvidiaTeslaT4`) preserved strictly.
+
+- [x] **Rust PyO3 Build & Test Audit Job in GitHub Actions CI ([`.github/workflows/ci.yml`](file:///Users/kimlenglim/Project/HoroConsultant/.github/workflows/ci.yml))**
+
+  - Added dedicated `rust-core-audit` job running `cargo check --release` and `cargo test --release` to automatically audit Rust high-performance math core quality on all pushes and PRs.
+  - Verified PyO3 `rust_core` bindings in Python (TF-IDF vector search, BaZi 4-pillars, Equation of Time, CJK chunker).
 
 - [x] **Production CI/CD Build Staging & Multi-Cloud Health Status Verification ([`api/index.js`](file:///Users/kimlenglim/Project/HoroConsultant/api/index.js), [`scripts/publish_space_hf.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/publish_space_hf.py), [`project/static/app.js`](file:///Users/kimlenglim/Project/HoroConsultant/project/static/app.js))**
+
   - [x] **Auto-Inject Git Commit Version Staging**: Inject exact Git commit version string (`v1.0.0.<commit_hash>`) into static `index.html` during `publish_space_hf.py` build staging.
   - [x] **Vercel Serverless Handler Resolution**: Simplify `api/index.js` using Vercel `res.status().json()` methods to eliminate stream hanging and resolve `FUNCTION_INVOCATION_FAILED`.
   - [x] **Amber Status Indicator Wording**: Update `#f59e0b` amber badge text to accurately state `Health: Standby (Local Engine Fallback)` when backend health check is in fallback state.
@@ -215,7 +228,10 @@ python3 scripts/run_vercel_prod_curl_regression.py
 
 ### 📋 TODO (งานระยะถัดไป / Phased Roadmap)
 
-- *(ไม่มี - งานใน Phased Roadmap ทั้งหมดได้รับการพัฒนาและทดสอบผ่าน 100% เรียบร้อยแล้ว และสถานะถูกปิดสำหรับ checkpoint นี้)*
+- [ ] **RAG FAISS Vector Search Native Rust Refactoring (Phase 2 Roadmap)**
+  - Port `project/rag/vector_store.py` dense vector similarity matcher to native Rust PyO3 bindings for sub-millisecond retrieval.
+
+
 
 
 

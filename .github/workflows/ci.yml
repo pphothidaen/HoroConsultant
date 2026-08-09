@@ -62,3 +62,20 @@ jobs:
       - name: Run Project Code Reviewer
         run: |
           python3 project/core/code_reviewer.py --review
+
+  rust-core-audit:
+    name: Rust PyO3 High-Performance Math Core Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build and Check Rust Core
+        run: |
+          cd rust_core
+          cargo check --release
+          cargo test --release
+

@@ -123,17 +123,23 @@ class XuanKongEngine(AbstractAstrologyEngine):
         sitting_stars = self.fly_stars(center_sitting_star, is_forward=(sitting_yy == "陽"))
         facing_stars = self.fly_stars(center_facing_star, is_forward=(facing_yy == "陽"))
 
+        from project.core.fast_math import fast_xuankong_9grid
+        grid_matrix = fast_xuankong_9grid(facing_degree, period)
+        matrix_map = {p[0]: (p[1], p[2], p[3]) for p in grid_matrix}
+
         palaces_grid = []
         for palace_num, palace_name, direction in LUO_SHU_PALACES:
+            base_s, sit_s, face_s = matrix_map.get(palace_num, (base_chart[palace_num], sitting_stars[palace_num], facing_stars[palace_num]))
             palaces_grid.append({
                 "palace_number": palace_num,
                 "palace_name": palace_name,
                 "direction": direction,
-                "base_star": base_chart[palace_num],
-                "sitting_star": sitting_stars[palace_num],
-                "facing_star": facing_stars[palace_num],
-                "facing_star_name": STAR_NAMES[facing_stars[palace_num]]
+                "base_star": base_s,
+                "sitting_star": sit_s,
+                "facing_star": face_s,
+                "facing_star_name": STAR_NAMES[face_s]
             })
+
 
         raw = {
             "engine": "XuanKongEngine",

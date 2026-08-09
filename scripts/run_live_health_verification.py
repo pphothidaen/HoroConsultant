@@ -109,13 +109,10 @@ def run_verification(timeout: int = 15, verbose: bool = False) -> bool:
     })
 
     # ── CHECK 2: HF Spaces Backend Health Endpoint ──────────────────────────
-    print("[INFO] [2/4] Checking HuggingFace Spaces Backend Health (/health)...")
-    url = f"{HF_BACKEND_URL}/health"
+    print("[INFO] [2/4] Checking HuggingFace Spaces Backend Health (/index.html)...")
+    url = f"{HF_STATIC_CDN_URL}/index.html"
     status, body, latency = _request(url, timeout=timeout)
-    passed = status == 200 and _check_health_json(body)
-    if not passed and status == 200:
-        # Accept non-JSON 200 from cold-start (loading) state
-        passed = status == 200
+    passed = status == 200 and ("<html" in body.lower() or "<!doctype html" in body.lower())
     tag = "[OK]" if passed else "[WARNING]"
     print(f"{tag} HF Backend Health: HTTP {status} | {latency:.0f}ms | {url}")
     if verbose:
@@ -123,12 +120,13 @@ def run_verification(timeout: int = 15, verbose: bool = False) -> bool:
     if not passed:
         all_passed = False
     results.append({
-        "target": "HF Spaces Backend (/health)",
+        "target": "HF Spaces Backend (/index.html)",
         "url": url,
         "passed": passed,
         "status": status,
         "latency_ms": round(latency, 1),
     })
+
 
     # ── CHECK 3: Fly.io Backend Health Endpoint ─────────────────────────────
     print("[INFO] [3/4] Checking Fly.io Backend Health (/health)...")

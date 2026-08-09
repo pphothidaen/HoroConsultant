@@ -47,3 +47,8 @@ export default function handler(req, res) {
     });
   }
 }
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = handler;
+}
+

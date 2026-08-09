@@ -20,6 +20,8 @@ mod tfidf;
 mod bazi;
 mod solar;
 mod chunker;
+mod vector_search;
+mod fengshui;
 
 /// High-performance Rust core for Computational Metaphysics Engine.
 #[pymodule]
@@ -29,6 +31,9 @@ fn rust_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(tfidf::batch_cosine_search, m)?)?;
     m.add_function(wrap_pyfunction!(tfidf::build_tfidf_vector, m)?)?;
     m.add_function(wrap_pyfunction!(tfidf::build_tfidf_matrix, m)?)?;
+
+    // Dense Vector Search
+    m.add_function(wrap_pyfunction!(vector_search::dense_vector_search, m)?)?;
 
     // BaZi Engine
     m.add_function(wrap_pyfunction!(bazi::compute_element_scores, m)?)?;
@@ -41,5 +46,11 @@ fn rust_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Chunker
     m.add_function(wrap_pyfunction!(chunker::chunk_text, m)?)?;
 
+    // Feng Shui 9-Grid Matrix
+    m.add_function(wrap_pyfunction!(fengshui::resolve_mountain, m)?)?;
+    m.add_function(wrap_pyfunction!(fengshui::fly_stars, m)?)?;
+    m.add_function(wrap_pyfunction!(fengshui::xuankong_9grid_matrix, m)?)?;
+
     Ok(())
 }
+

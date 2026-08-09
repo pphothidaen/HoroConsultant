@@ -24,14 +24,16 @@ import re
 from pathlib import Path
 from typing  import List, Dict, Any, Optional
 
-# NumPy-accelerated math layer (Phase 1)
+# NumPy & Rust accelerated math layer
 from project.core.fast_math import (
     numpy_tfidf_vector,
     numpy_build_tfidf_matrix,
     numpy_search_topk,
+    rust_dense_vector_search,
     chunk_text_fast,
 )
 import numpy as np
+
 
 # FAISS and embeddings are optional — gracefully degrade
 try:
@@ -199,8 +201,9 @@ class _KeywordIndex:
 
     def search(self, query: str, top_k: int, threshold: float) -> List[Dict[str, Any]]:
         q_vec = numpy_tfidf_vector(query, self.vocab, n_vocab=len(self.vocab))
-        hits  = numpy_search_topk(q_vec, self._matrix, top_k=top_k, threshold=threshold)
+        hits  = rust_dense_vector_search(q_vec, self._matrix, top_k=top_k, threshold=threshold)
         results = []
+
         for (idx, score) in hits:
             c = self.chunks[idx]
             results.append({

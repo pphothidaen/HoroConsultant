@@ -154,6 +154,59 @@ def numpy_search_topk(
     return result
 
 
+def rust_dense_vector_search(
+    query_vec: np.ndarray,
+    doc_matrix: np.ndarray,
+    top_k: int = 5,
+    threshold: float = 0.0,
+) -> List[Tuple[int, float]]:
+    """
+    Rust PyO3 native binding for FAISS dense vector search (< 1ms latency).
+    Delegates to rust_core.dense_vector_search when available, with numpy fallback.
+    """
+    if RUST_AVAILABLE and hasattr(rust_core, "dense_vector_search"):
+        try:
+            return rust_core.dense_vector_search(query_vec.tolist(), doc_matrix.tolist(), top_k, threshold)
+        except Exception:
+            pass
+    return numpy_search_topk(query_vec, doc_matrix, top_k, threshold)
+
+
+def fast_xuankong_9grid(facing_degree: float, period: int = 9) -> List[Tuple[int, int, int, int]]:
+    """
+    Rust PyO3 native binding for Xuan Kong Flying Star 9-Grid matrix calculations.
+    Returns list of (palace_number, base_star, sitting_star, facing_star).
+    """
+    if RUST_AVAILABLE and hasattr(rust_core, "xuankong_9grid_matrix"):
+        try:
+            return rust_core.xuankong_9grid_matrix(facing_degree, period)
+        except Exception:
+            pass
+    
+    # Pure Python fallback
+    palace_sequence = [5, 6, 7, 8, 9, 1, 2, 3, 4]
+    base_chart = [0, 5, 6, 7, 8, 9, 1, 2, 3, 4]
+    center_sit = base_chart[5]
+    center_face = base_chart[9]
+
+    # Facing & sitting mountain lookup
+    deg = facing_degree % 360.0
+    f_yy = "陽" if (157.5 <= deg < 172.5 or 337.5 <= deg or deg < 7.5) else "陰"
+    s_deg = (facing_degree + 180.0) % 360.0
+    s_yy = "陽" if (157.5 <= s_deg < 172.5 or 337.5 <= s_deg or s_deg < 7.5) else "陰"
+
+    sit_map = {}
+    face_map = {}
+    for idx, p in enumerate(palace_sequence):
+        s_star = (center_sit + idx - 1) % 9 + 1 if s_yy == "陽" else (center_sit - idx - 1) % 9 + 1
+        f_star = (center_face + idx - 1) % 9 + 1 if f_yy == "陽" else (center_face - idx - 1) % 9 + 1
+        sit_map[p] = s_star
+        face_map[p] = f_star
+
+    return [(p, base_chart[p], sit_map[p], face_map[p]) for p in range(1, 10)]
+
+
+
 # ═════════════════════════════════════════════════════════════════════════════
 # VECTORISED BAZI FIVE-ELEMENT SCORING
 # ═════════════════════════════════════════════════════════════════════════════
