@@ -15,7 +15,8 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
+
 import httpx
 
 from project.core.config import Config
@@ -27,7 +28,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 class SupabaseDB:
     """Lightweight REST-based Supabase Database Client with Range Pagination."""
 
-    def __init__(self, url: Optional[str] = None, key: Optional[str] = None):
+    def __init__(self, url: str | None = None, key: str | None = None):
         self.url = (url or Config.SUPABASE_URL).rstrip("/")
         self.key = key or Config.SUPABASE_KEY
         self.headers = {
@@ -45,7 +46,7 @@ class SupabaseDB:
         self,
         table: str,
         select: str = "*",
-        filters: Optional[dict[str, Any]] = None,
+        filters: dict[str, Any] | None = None,
         page_size: int = 1000,
     ) -> list[dict[str, Any]]:
         """
@@ -96,7 +97,7 @@ class SupabaseDB:
         self,
         table: str,
         select: str = "*",
-        filters: Optional[dict[str, Any]] = None,
+        filters: dict[str, Any] | None = None,
         page_size: int = 1000,
     ) -> list[dict[str, Any]]:
         """
@@ -147,7 +148,7 @@ class SupabaseDB:
             return False
 
         endpoint = f"{self.url}/rest/v1/{table}"
-        req_headers = {**self.headers, "Prefer": f"resolution=merge-duplicates,return=representation"}
+        req_headers = {**self.headers, "Prefer": "resolution=merge-duplicates,return=representation"}
         params = {"on_conflict": on_conflict}
 
         async with httpx.AsyncClient(timeout=30.0) as client:

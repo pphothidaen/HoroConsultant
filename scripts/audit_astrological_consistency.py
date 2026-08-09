@@ -16,9 +16,9 @@ Usage:
 
 from __future__ import annotations
 
-import sys
 import json
 import logging
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -26,15 +26,26 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from project.core.bazi_engine import BaZiEngine
-from project.core.zi_wei_engine import ZiWeiEngine
+from project.core.numerology_engine import NumerologyEngine
+from project.core.solar_time import (
+    calculate_equation_of_time,
+    calculate_true_solar_time,
+)
 from project.core.thai_vedic_engine import ThaiVedicEngine
 from project.core.western_uranian_engine import WesternUranianEngine
-from project.core.numerology_engine import NumerologyEngine
-from project.core.solar_time import calculate_equation_of_time, calculate_true_solar_time
+from project.core.zi_wei_engine import ZiWeiEngine
 from project.rag.vector_store import get_vector_store
+
+try:
+    import rust_core
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger("metaphysics_auditor")
+if RUST_AVAILABLE:
+    log.info("[INFO] High-Performance Rust Math Core loaded for Astrological Consistency Audit")
 
 bazi_engine = BaZiEngine()
 ziwei_engine = ZiWeiEngine()
@@ -51,10 +62,14 @@ def audit_1_five_elements_balance() -> dict:
     chart = bazi_engine.calculate(dt=dt, longitude=100.493, utc_offset_hours=7.0)
     
     fe = chart.get("five_elements", {}).get("percentages", {})
-    total_pct = sum(fe.values())
+    total_pct = float(sum(fe.values()))
     dm = chart.get("day_master", {})
     
-    passed = abs(total_pct - 100.0) < 0.1 and "stem" in dm and "element" in dm
+    if RUST_AVAILABLE:
+        passed, total_pct = rust_core.audit_five_elements(total_pct, dm.get("stem", ""), dm.get("element", ""))
+    else:
+        passed = abs(total_pct - 100.0) < 0.1 and "stem" in dm and "element" in dm
+
     log.info(f"   • Day Master: {dm.get('stem')} ({dm.get('element')})")
     log.info(f"   • Five Elements Scores: {fe} | Total Sum: {total_pct:.2f}%")
     log.info(f"   • Status: {'✅ PASSED' if passed else '❌ FAILED'}")
@@ -73,15 +88,18 @@ def audit_2_tst_equation_of_time() -> dict:
     log.info("\n☀️ [Audit 2: True Solar Time & EoT Monotonicity]")
     
     # Test EoT values across 4 cardinal dates
-    feb_eot = calculate_equation_of_time(datetime(2026, 2, 12))
-    nov_eot = calculate_equation_of_time(datetime(2026, 11, 3))
+    feb_eot = float(calculate_equation_of_time(datetime(2026, 2, 12)))
+    nov_eot = float(calculate_equation_of_time(datetime(2026, 11, 3)))
     
     # Test 23:30 TST boundary shift
     dt_2330 = datetime(2026, 5, 15, 23, 30, 0)
     tst_res = calculate_true_solar_time(dt=dt_2330, longitude=100.493, utc_offset_hours=7.0)
     tst_dict = tst_res.to_dict() if hasattr(tst_res, "to_dict") else tst_res
     
-    passed = (-15.0 <= feb_eot <= 0.0) and (0.0 <= nov_eot <= 17.0) and "tst_datetime" in tst_dict
+    if RUST_AVAILABLE:
+        passed = rust_core.audit_eot_bounds(feb_eot, nov_eot) and "tst_datetime" in tst_dict
+    else:
+        passed = (-15.0 <= feb_eot <= 0.0) and (0.0 <= nov_eot <= 17.0) and "tst_datetime" in tst_dict
     log.info(f"   • Feb EoT: {feb_eot:.2f} mins (Min) | Nov EoT: {nov_eot:.2f} mins (Max)")
     log.info(f"   • Clock: 23:30:00 -> TST Datetime: {tst_dict.get('tst_datetime')}")
     log.info(f"   • Status: {'✅ PASSED' if passed else '❌ FAILED'}")

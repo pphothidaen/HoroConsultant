@@ -5,10 +5,9 @@ Computational Metaphysics Engine
 
 from __future__ import annotations
 
+import logging
 import os
 import time
-import logging
-from typing import Dict, Any, Optional
 
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import PlainTextResponse
@@ -18,10 +17,22 @@ logger = logging.getLogger("observability")
 # Standard Prometheus metrics storage (pure Python fallback + prometheus_client compatibility)
 try:
     import prometheus_client
-    from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
+    from prometheus_client import (
+        CONTENT_TYPE_LATEST,
+        Counter,
+        Gauge,
+        Histogram,
+        generate_latest,
+    )
     PROMETHEUS_CLIENT_AVAILABLE = True
 except ImportError:
     PROMETHEUS_CLIENT_AVAILABLE = False
+
+try:
+    import rust_core
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
 
 
 class ObservabilityManager:
@@ -35,12 +46,12 @@ class ObservabilityManager:
         self.start_time = time.time()
 
         # Pure Python Fallback Metrics
-        self._request_counts: Dict[str, int] = {}
-        self._request_latencies: Dict[str, float] = {}
+        self._request_counts: dict[str, int] = {}
+        self._request_latencies: dict[str, float] = {}
         self._rag_counts = 0
         self._rag_latency_sum = 0.0
-        self._llm_counts: Dict[str, int] = {}
-        self._llm_latency_sum: Dict[str, float] = {}
+        self._llm_counts: dict[str, int] = {}
+        self._llm_latency_sum: dict[str, float] = {}
 
         if PROMETHEUS_CLIENT_AVAILABLE:
             try:
@@ -81,6 +92,12 @@ class ObservabilityManager:
         if not self.enabled:
             return
 
+        if RUST_AVAILABLE and hasattr(rust_core, "record_http_metric_rust"):
+            try:
+                rust_core.record_http_metric_rust(method, endpoint, int(status_code), float(duration * 1000.0))
+            except Exception:
+                pass
+
         key = f"{method}:{endpoint}:{status_code}"
         self._request_counts[key] = self._request_counts.get(key, 0) + 1
         
@@ -98,6 +115,11 @@ class ObservabilityManager:
         """Record a RAG vector retrieval metric."""
         if not self.enabled:
             return
+        if RUST_AVAILABLE and hasattr(rust_core, "record_rag_metric_rust"):
+            try:
+                rust_core.record_rag_metric_rust(float(duration * 1000.0))
+            except Exception:
+                pass
         self._rag_counts += 1
         self._rag_latency_sum += duration
 
@@ -159,7 +181,7 @@ class ObservabilityManager:
             method, endpoint, status = key.split(":")
             lines.append(f'http_requests_total{{method="{method}",endpoint="{endpoint}",status_code="{status}"}} {count}')
 
-        request_count_by_path: Dict[str, int] = {}
+        request_count_by_path: dict[str, int] = {}
         for key, count in self._request_counts.items():
             method, endpoint, _ = key.split(":", 2)
             path_key = f"{method}:{endpoint}"

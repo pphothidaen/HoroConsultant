@@ -6,7 +6,8 @@ Deterministic calculations for:
 - Chaldean & Pythagorean Numerology Scoring (วิเคราะห์เบอร์โทรศัพท์, ทะเบียนรถ, ชื่อ-นามสกุล)
 """
 
-from typing import Dict, List, Any, Optional
+from typing import Any
+
 from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
 SATTA_LEK_HOUSES = ["อัตตา", "หินะ", "ธนัง", "ปิตา", "มาตา", "โภคา", "มัชฌิมา"]
@@ -52,7 +53,7 @@ class NumerologyEngine(AbstractAstrologyEngine):
     def system_type(self) -> str:
         return "numerology"
 
-    def calculate_satta_lek(self, day_num: int, lunar_month: int, year_zodiac_num: int) -> Dict[str, Any]:
+    def calculate_satta_lek(self, day_num: int, lunar_month: int, year_zodiac_num: int) -> dict[str, Any]:
         """
         Calculate Satta-Lek 7-Base 4-Row Matrix.
         Row 1 (Day Base): starts at day_num % 7 (1..7)
@@ -60,14 +61,9 @@ class NumerologyEngine(AbstractAstrologyEngine):
         Row 3 (Year Base): starts at year_zodiac_num % 7 (1..7)
         Row 4 (Sum Base): Row 1 + Row 2 + Row 3
         """
-        def make_row(start_val: int) -> List[int]:
-            s = start_val if start_val > 0 else 7
-            return [((s + i - 1) % 7) + 1 for i in range(7)]
+        from project.core.fast_math import fast_satta_lek_matrix
+        row1, row2, row3, row4 = fast_satta_lek_matrix(day_num, lunar_month, year_zodiac_num)
 
-        row1 = make_row(day_num)
-        row2 = make_row(lunar_month)
-        row3 = make_row(year_zodiac_num)
-        row4 = [row1[i] + row2[i] + row3[i] for i in range(7)]
 
         matrix = []
         for i in range(7):

@@ -22,14 +22,14 @@ Usage:
 
 from __future__ import annotations
 
-import os
-import sys
 import json
 import logging
+import os
 import subprocess
-from pathlib import Path
+import sys
 from datetime import datetime
-from typing import List, Dict, Any, Set
+from pathlib import Path
+from typing import Any
 
 logging.basicConfig(
     level=logging.INFO,
@@ -80,7 +80,7 @@ STATUS_FILE = ROOT / "project" / "data" / "vault_sync_status.json"
 # Inventory Helpers
 # ---------------------------------------------------------------------------
 
-def get_vault_inventory() -> Set[str]:
+def get_vault_inventory() -> set[str]:
     """Return relative paths of all .pdf and .md files in the vault."""
     if not VAULT_DIR.exists():
         return set()
@@ -91,7 +91,7 @@ def get_vault_inventory() -> Set[str]:
     return files
 
 
-def download_gdrive_folder(folder_info: Dict[str, str]) -> bool:
+def download_gdrive_folder(folder_info: dict[str, str]) -> bool:
     """Download a single Google Drive folder via gdown."""
     target = VAULT_DIR / folder_info["target_subfolder"]
     target.mkdir(parents=True, exist_ok=True)
@@ -126,7 +126,7 @@ def download_gdrive_folder(folder_info: Dict[str, str]) -> bool:
 # Main Sync Pipeline
 # ---------------------------------------------------------------------------
 
-def sync_all(force_reindex: bool = False, dry_run: bool = False) -> Dict[str, Any]:
+def sync_all(force_reindex: bool = False, dry_run: bool = False) -> dict[str, Any]:
     log.info("=" * 65)
     log.info("  Google Drive Vault Sync & Automated Ingestion Pipeline")
     log.info("=" * 65)

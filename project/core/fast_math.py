@@ -21,12 +21,11 @@ from __future__ import annotations
 
 import math
 import re
-from typing import Dict, List, Optional, Tuple, Any
-
-import numpy as np
-
 import sys
 from pathlib import Path
+from typing import Any
+
+import numpy as np
 
 # Add project root and rust_core paths to sys.path
 _ROOT = Path(__file__).resolve().parents[2]
@@ -56,8 +55,8 @@ def numpy_cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
 
 
 def numpy_build_tfidf_matrix(
-    texts: List[str],
-    vocab: Dict[str, int],
+    texts: list[str],
+    vocab: dict[str, int],
     dtype: np.dtype = np.float32,
 ) -> np.ndarray:
     """
@@ -95,8 +94,8 @@ def numpy_build_tfidf_matrix(
 
 def numpy_tfidf_vector(
     text:  str,
-    vocab: Dict[str, int],
-    n_vocab: Optional[int] = None,
+    vocab: dict[str, int],
+    n_vocab: int | None = None,
 ) -> np.ndarray:
     """
     Build a single L2-normalised TF character vector.
@@ -131,7 +130,7 @@ def numpy_search_topk(
     doc_matrix: np.ndarray,         # shape (N, V)  — pre-built, L2 normalised
     top_k:      int = 5,
     threshold:  float = 0.0,
-) -> List[Tuple[int, float]]:
+) -> list[tuple[int, float]]:
     """
     Ultra-fast zero-copy top-K cosine similarity search using hardware BLAS (Apple Accelerate).
     Achieves ~0.04ms search time over 2,000 documents by eliminating PyO3 copy overhead.
@@ -159,10 +158,10 @@ def rust_dense_vector_search(
     doc_matrix: np.ndarray,
     top_k: int = 5,
     threshold: float = 0.0,
-) -> List[Tuple[int, float]]:
+) -> list[tuple[int, float]]:
     """
     Rust PyO3 native binding for FAISS dense vector search (< 1ms latency).
-    Delegates to rust_core.dense_vector_search when available, with numpy fallback.
+    Delegates to rust_core.dense_vector_search (Dot Product / Cosine Similarity), with numpy fallback.
     """
     if RUST_AVAILABLE and hasattr(rust_core, "dense_vector_search"):
         try:
@@ -172,7 +171,33 @@ def rust_dense_vector_search(
     return numpy_search_topk(query_vec, doc_matrix, top_k, threshold)
 
 
-def fast_xuankong_9grid(facing_degree: float, period: int = 9) -> List[Tuple[int, int, int, int]]:
+def rust_dense_vector_search_l2(
+    query_vec: np.ndarray,
+    doc_matrix: np.ndarray,
+    top_k: int = 5,
+    max_distance: float = 1e6,
+) -> list[tuple[int, float]]:
+    """
+    Rust PyO3 native binding for FAISS dense vector search using L2 Euclidean Distance.
+    Delegates to rust_core.dense_vector_search_l2, with numpy fallback.
+    """
+    if RUST_AVAILABLE and hasattr(rust_core, "dense_vector_search_l2"):
+        try:
+            return rust_core.dense_vector_search_l2(query_vec.tolist(), doc_matrix.tolist(), top_k, max_distance)
+        except Exception:
+            pass
+    diffs = doc_matrix - query_vec
+    dists = np.linalg.norm(diffs, axis=1)
+    valid_indices = np.where(dists <= max_distance)[0]
+    if len(valid_indices) == 0:
+        return []
+    sorted_sub_indices = np.argsort(dists[valid_indices])[:top_k]
+    final_indices = valid_indices[sorted_sub_indices]
+    return [(int(idx), round(float(dists[idx]), 4)) for idx in final_indices]
+
+
+
+def fast_xuankong_9grid(facing_degree: float, period: int = 9) -> list[tuple[int, int, int, int]]:
     """
     Rust PyO3 native binding for Xuan Kong Flying Star 9-Grid matrix calculations.
     Returns list of (palace_number, base_star, sitting_star, facing_star).
@@ -206,7 +231,7 @@ def fast_xuankong_9grid(facing_degree: float, period: int = 9) -> List[Tuple[int
     return [(p, base_chart[p], sit_map[p], face_map[p]) for p in range(1, 10)]
 
 
-def fast_ziwei_stars(zi_wei_idx: int) -> List[Tuple[int, List[str]]]:
+def fast_ziwei_stars(zi_wei_idx: int) -> list[tuple[int, list[str]]]:
     """
     Rust PyO3 native binding for Zi Wei Dou Shu 14 Primary Stars calculation.
     Returns list of (earth_branch_index, list_of_star_names).
@@ -245,7 +270,7 @@ def fast_ziwei_stars(zi_wei_idx: int) -> List[Tuple[int, List[str]]]:
     return res
 
 
-def fast_qimen_matrix(dun_is_yang: bool, ju_number: int) -> List[Tuple[int, str, str, str, str]]:
+def fast_qimen_matrix(dun_is_yang: bool, ju_number: int) -> list[tuple[int, str, str, str, str]]:
     """
     Rust PyO3 native binding for Qi Men Dun Jia 9-Palace 4-Plate matrix calculations.
     Returns list of (palace_num, earth_stem, star_name, door_name, spirit_name).
@@ -289,7 +314,7 @@ _STEM_ELEM_IDX = np.array([0, 0, 1, 1, 2, 2, 3, 3, 4, 4], dtype=np.int8)
 
 # Branch hidden stem data as a 3D array: branch(12) × max_hidden(3) × (elem_idx, weight)
 # Shape: (12, 3, 2) — [branch_idx, hidden_stem_slot, (elem_idx, weight)]
-_BRANCH_HIDDEN: List[List[Tuple[int, float]]] = [
+_BRANCH_HIDDEN: list[list[tuple[int, float]]] = [
     [(4, 1.00)],                           # 子 Water
     [(2, 0.60), (4, 0.30), (3, 0.10)],    # 丑 Earth/Water/Metal
     [(0, 0.60), (1, 0.30), (2, 0.10)],    # 寅 Wood/Fire/Earth
@@ -320,10 +345,10 @@ _IDX_TO_ELEM = ["Wood", "Fire", "Earth", "Metal", "Water"]
 
 
 def numpy_element_scores(
-    stem_indices:    List[int],
-    branch_indices:  List[int],
+    stem_indices:    list[int],
+    branch_indices:  list[int],
     season_element:  str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     NumPy-vectorized Five Elements scoring.
     ~3–5× faster than pure Python dict version.
@@ -374,7 +399,7 @@ def numpy_probabilistic_matrix(
     day_stem:     int,
     day_branch:   int,
     season_elem:  str,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Vectorized probabilistic scenario matrix computation.
     Computes all 12 double-hour scenarios at once using NumPy.
@@ -420,7 +445,7 @@ def chunk_text_fast(
     text:       str,
     source:     str,
     chunk_size: int = 300,
-) -> List[Dict[str, str]]:
+) -> list[dict[str, str]]:
     """
     Fast CJK-aware text chunker.
     Uses Rust acceleration (rust_core.chunk_text) when available (~10× faster).
@@ -434,7 +459,7 @@ def chunk_text_fast(
             if len(chunk.strip()) >= 20
         ]
 
-    chunks: List[Dict[str, str]] = []
+    chunks: list[dict[str, str]] = []
     paragraphs = _RE_PARA_SPLIT.split(text)
     chunk_idx  = 0
 
@@ -486,7 +511,7 @@ def cached_tst_calculation(
     hour: int, minute: int, second: int,
     longitude: float,
     utc_offset_hours: float,
-) -> Tuple[int, int, int]:
+) -> tuple[int, int, int]:
     """
     LRU-cached True Solar Time calculation.
     Returns (tst_hour, tst_minute, tst_second).
@@ -495,6 +520,7 @@ def cached_tst_calculation(
     Typical hit rate: 60–80% in batch processing.
     """
     from datetime import datetime
+
     from project.core.solar_time import calculate_true_solar_time
     dt  = datetime(year, month, day, hour, minute, second)
     tst = calculate_true_solar_time(dt, longitude, utc_offset_hours)
@@ -519,7 +545,6 @@ def cached_julian_day(year: int, month: int, day: int) -> int:
 @lru_cache(maxsize=512)
 def cached_equation_of_time(year: int, doy: int, hour_frac: float) -> float:
     """LRU-cached Equation of Time for a given (year, day-of-year, hour)."""
-    import math
     is_leap      = (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0)
     days_in_year = 366.0 if is_leap else 365.0
     gamma        = (2.0 * math.pi / days_in_year) * (doy - 1 + hour_frac / 24.0)
@@ -532,10 +557,82 @@ def cached_equation_of_time(year: int, doy: int, hour_frac: float) -> float:
     ), 4)
 
 
-def get_cache_stats() -> Dict[str, Any]:
+def get_cache_stats() -> dict[str, Any]:
     """Return LRU cache hit/miss statistics for monitoring."""
     return {
         "tst":         cached_tst_calculation.cache_info()._asdict(),
         "julian_day":  cached_julian_day.cache_info()._asdict(),
         "eot":         cached_equation_of_time.cache_info()._asdict(),
     }
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# RUST PYO3 ENGINE ACCELERATION WRAPPERS (Phase 3 Extensions)
+# ═════════════════════════════════════════════════════════════════════════════
+
+def fast_thai_lagna(birth_hour: int, birth_month: int) -> tuple[str, int]:
+    """Calculate Thai Suriyayart Lagna. Uses Rust acceleration when available."""
+    if RUST_AVAILABLE and hasattr(rust_core, "calculate_thai_lagna"):
+        return rust_core.calculate_thai_lagna(birth_hour, birth_month)
+    zodiacs = ["เมษ", "พฤษภ", "เมถุน", "กรกฎ", "สิงห์", "กันย์", "ตุลย์", "พิจิก", "ธนู", "มังกร", "กุมภ์", "มีน"]
+    sun_idx = (birth_month - 4) % 12
+    hour_offset = ((birth_hour - 6) // 2) % 12
+    idx = (sun_idx + hour_offset) % 12
+    return zodiacs[idx], idx
+
+
+def fast_thaksa_map(day_of_week: int) -> list[tuple[str, str]]:
+    """Calculate Maha Thaksa. Uses Rust acceleration when available."""
+    if RUST_AVAILABLE and hasattr(rust_core, "calculate_thaksa_map"):
+        return rust_core.calculate_thaksa_map(day_of_week)
+    thaksa_steps = ["บริวาร", "อายุ", "เดช", "ศรี", "มูละ", "อุตสาหะ", "มนตรี", "กาลกิณี"]
+    planet_days = ["อาทิตย์ (1)", "จันทร์ (2)", "อังคาร (3)", "พุธ (4)", "เสาร์ (7)", "พฤหัสบดี (5)", "ราหู (8)", "ศุกร์ (6)"]
+    start_idx = day_of_week % 8
+    return [(step, planet_days[(start_idx + i) % 8]) for i, step in enumerate(thaksa_steps)]
+
+
+def fast_uranian_midpoint(deg1: float, deg2: float) -> float:
+    """Calculate Uranian Midpoint (A + B) / 2. Uses Rust acceleration when available."""
+    if RUST_AVAILABLE and hasattr(rust_core, "calculate_midpoint"):
+        return rust_core.calculate_midpoint(deg1, deg2)
+    return ((deg1 + deg2) / 2.0) % 360.0
+
+
+def fast_uranian_sensitive_point(deg_a: float, deg_b: float, deg_c: float) -> float:
+    """Calculate Uranian Sensitive Point (A + B - C). Uses Rust acceleration when available."""
+    if RUST_AVAILABLE and hasattr(rust_core, "calculate_sensitive_point"):
+        return rust_core.calculate_sensitive_point(deg_a, deg_b, deg_c)
+    return (deg_a + deg_b - deg_c) % 360.0
+
+
+def fast_liuren_heaven_plate(month_general_branch: str, hour_branch: str) -> list[tuple[str, str]]:
+    """Calculate Da Liu Ren Heaven Plate. Uses Rust acceleration when available."""
+    if RUST_AVAILABLE and hasattr(rust_core, "calculate_liuren_heaven_plate"):
+        return rust_core.calculate_liuren_heaven_plate(month_general_branch, hour_branch)
+    branches = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
+    gen_idx = branches.index(month_general_branch) if month_general_branch in branches else 0
+    hour_idx = branches.index(hour_branch) if hour_branch in branches else 0
+    return [(branches[(hour_idx + i) % 12], branches[(gen_idx + i) % 12]) for i in range(12)]
+
+
+def fast_zeji_duty_officer(month_branch: str, day_branch: str) -> str:
+    """Calculate 12 Duty Officer for Date Selection. Uses Rust acceleration when available."""
+    if RUST_AVAILABLE and hasattr(rust_core, "calculate_zeji_duty_officer"):
+        return rust_core.calculate_zeji_duty_officer(month_branch, day_branch)
+    branches = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
+    duty_officers = ["建日", "除日", "滿日", "平日", "定日", "執日", "破日", "危日", "成日", "收日", "開日", "閉日"]
+    month_idx = branches.index(month_branch) if month_branch in branches else 0
+    day_idx = branches.index(day_branch) if day_branch in branches else 0
+    return duty_officers[(day_idx + 12 - month_idx) % 12]
+
+
+def fast_satta_lek_matrix(day_num: int, lunar_month: int, year_zodiac_num: int) -> tuple[list[int], list[int], list[int], list[int]]:
+    """Calculate Satta-Lek 7-Base 4-Row Matrix. Uses Rust acceleration when available."""
+    if RUST_AVAILABLE and hasattr(rust_core, "calculate_satta_lek_matrix"):
+        return rust_core.calculate_satta_lek_matrix(day_num, lunar_month, year_zodiac_num)
+    row1 = [(day_num + i - 1) % 7 + 1 for i in range(7)]
+    row2 = [(lunar_month + i - 1) % 7 + 1 for i in range(7)]
+    row3 = [(year_zodiac_num + i - 1) % 7 + 1 for i in range(7)]
+    row4 = [row1[i] + row2[i] + row3[i] for i in range(7)]
+    return (row1, row2, row3, row4)
+

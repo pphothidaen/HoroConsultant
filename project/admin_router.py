@@ -26,7 +26,7 @@ import logging
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse, JSONResponse
@@ -57,9 +57,9 @@ class GrayzoneAnswerRequest(BaseModel):
     source_id: str = Field(..., description="Source ID (e.g. CM-BZ-004)")
     question:  str = Field(..., description="The gray-zone question text")
     answer:    str = Field(..., description="Expert answer for fine-tuning")
-    reviewer:  Optional[str] = Field(None, description="Reviewer name/identifier")
-    confidence: Optional[float] = Field(None, ge=0.0, le=1.0, description="Confidence score 0–1")
-    notes:     Optional[str] = Field(None, description="Optional review notes")
+    reviewer:  str | None = Field(None, description="Reviewer name/identifier")
+    confidence: float | None = Field(None, ge=0.0, le=1.0, description="Confidence score 0–1")
+    notes:     str | None = Field(None, description="Optional review notes")
 
 
 class FinetuneTriggerRequest(BaseModel):
@@ -71,15 +71,15 @@ class FinetuneTriggerRequest(BaseModel):
 
 
 class GoogleAuthRequest(BaseModel):
-    credential: Optional[str] = Field(None, description="Google OAuth ID Token from GIS SDK")
-    mock_email: Optional[str] = Field(None, description="Email for dev/demo mode bypass")
+    credential: str | None = Field(None, description="Google OAuth ID Token from GIS SDK")
+    mock_email: str | None = Field(None, description="Email for dev/demo mode bypass")
 
 
 # ---------------------------------------------------------------------------
 # Helpers & Auth Verification
 # ---------------------------------------------------------------------------
 
-def get_allowed_emails() -> List[str]:
+def get_allowed_emails() -> list[str]:
     raw = os.getenv("ADMIN_ALLOWED_EMAILS", "pansakorn@gmail.com,kimlenglim.work@gmail.com")
     return [e.strip().lower() for e in raw.split(",") if e.strip()]
 
@@ -145,7 +145,7 @@ async def verify_google_auth(req: GoogleAuthRequest):
         raise
     except Exception as e:
         logger.error(f"Google auth verification failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Google authentication error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Google authentication error: {e!s}")
 
 
 @admin_router.get("/auth/config")
@@ -162,19 +162,19 @@ async def get_auth_config():
 # Helpers
 # ---------------------------------------------------------------------------
 
-def load_catalog() -> Dict[str, Any]:
+def load_catalog() -> dict[str, Any]:
     if not CATALOG_PATH.exists():
         return {}
     return json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
 
 
-def load_grayzone_db() -> Dict[str, Any]:
+def load_grayzone_db() -> dict[str, Any]:
     if not GRAYZONE_DB_PATH.exists():
         return {"answers": {}, "metadata": {"total_answered": 0, "last_updated": None}}
     return json.loads(GRAYZONE_DB_PATH.read_text(encoding="utf-8"))
 
 
-def save_grayzone_db(data: Dict[str, Any]) -> None:
+def save_grayzone_db(data: dict[str, Any]) -> None:
     GRAYZONE_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     data.setdefault("metadata", {})
     data["metadata"]["total_answered"] = len(data.get("answers", {}))
@@ -184,7 +184,7 @@ def save_grayzone_db(data: Dict[str, Any]) -> None:
     )
 
 
-def iter_all_sources(catalog: Dict[str, Any]):
+def iter_all_sources(catalog: dict[str, Any]):
     for cat_key, cat_val in catalog.get("categories", {}).items():
         if "sources" in cat_val:
             for src in cat_val["sources"]:
@@ -196,8 +196,8 @@ def iter_all_sources(catalog: Dict[str, Any]):
                         yield cat_key, src
 
 
-def get_dataset_stats() -> Dict[str, Any]:
-    stats: Dict[str, Any] = {}
+def get_dataset_stats() -> dict[str, Any]:
+    stats: dict[str, Any] = {}
     for fname in ["train.jsonl", "valid.jsonl", "grayzone_finetune.jsonl", "combined_train.jsonl"]:
         p = DATASETS_DIR / fname
         if p.exists():
@@ -278,16 +278,16 @@ async def get_source_detail(source_id: str):
 
 @admin_router.get("/grayzone", summary="All gray-zone questions with answer status")
 async def get_all_grayzone(
-    category:    Optional[str] = Query(None, description="Filter by category key"),
-    answered:    Optional[bool] = Query(None, description="Filter by answered status"),
-    source_id:   Optional[str] = Query(None, description="Filter by source ID"),
+    category:    str | None = Query(None, description="Filter by category key"),
+    answered:    bool | None = Query(None, description="Filter by answered status"),
+    source_id:   str | None = Query(None, description="Filter by source ID"),
 ):
     """Return all gray-zone questions with their answer status."""
     catalog    = load_catalog()
     answers_db = load_grayzone_db()
     answers    = answers_db.get("answers", {})
 
-    items: List[Dict[str, Any]] = []
+    items: list[dict[str, Any]] = []
 
     for cat_key, src in iter_all_sources(catalog):
         if category and cat_key != category:
@@ -512,7 +512,8 @@ async def trigger_finetune(req: FinetuneTriggerRequest):
     # Route to provider-specific logic
     if req.provider == "ollama":
         # Local MLX Fine-Tune
-        import subprocess, sys
+        import subprocess
+        import sys
         cmd = [
             sys.executable,
             str(ROOT / "scripts" / "run_mlx_finetune.py"),

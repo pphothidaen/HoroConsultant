@@ -40,7 +40,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Project root on sys.path
@@ -89,7 +89,7 @@ HEALTH_TARGETS = [
 # ──────────────────────────────────────────────────────────────────────────────
 # HTTP helper
 # ──────────────────────────────────────────────────────────────────────────────
-def _ping(url: str, timeout: int = 10) -> Tuple[int, float, Optional[str]]:
+def _ping(url: str, timeout: int = 10) -> tuple[int, float, str | None]:
     """
     Send GET request to url. Returns (status_code, latency_ms, error_msg).
     Returns (0, latency_ms, error) on connection failure.
@@ -136,7 +136,7 @@ def _push_alert_metric_to_grafana(target_name: str, status_code: int, latency_ms
     health_value = 1.0 if is_healthy else 0.0
     label = target_name.replace(" ", "_").lower()
 
-    payload: Dict[str, Any] = {
+    payload: dict[str, Any] = {
         "resourceMetrics": [
             {
                 "resource": {
@@ -210,7 +210,7 @@ def _push_alert_metric_to_grafana(target_name: str, status_code: int, latency_ms
     else:
         push_url = otlp_endpoint
 
-    headers: Dict[str, str] = {"Content-Type": "application/json", "User-Agent": "HoroConsultant-SyntheticMonitor/1.0"}
+    headers: dict[str, str] = {"Content-Type": "application/json", "User-Agent": "HoroConsultant-SyntheticMonitor/1.0"}
     if user_id and "your_grafana" not in user_id.lower():
         import base64
         cred = base64.b64encode(f"{user_id}:{api_key}".encode()).decode()
@@ -233,7 +233,7 @@ def _push_alert_metric_to_grafana(target_name: str, status_code: int, latency_ms
 # ──────────────────────────────────────────────────────────────────────────────
 # Single ping cycle
 # ──────────────────────────────────────────────────────────────────────────────
-def run_ping_cycle(targets: List[Dict[str, Any]], timeout: int = 10) -> bool:
+def run_ping_cycle(targets: list[dict[str, Any]], timeout: int = 10) -> bool:
     """
     Execute one complete ping cycle across all health targets.
     Returns True if all CRITICAL targets are healthy.
@@ -242,7 +242,7 @@ def run_ping_cycle(targets: List[Dict[str, Any]], timeout: int = 10) -> bool:
     print(f"\n[INFO] ── Synthetic Health Ping Cycle: {ts} ──────────────────────────")
 
     all_critical_healthy = True
-    cycle_results: List[Dict[str, Any]] = []
+    cycle_results: list[dict[str, Any]] = []
 
     for target in targets:
         name = target["name"]

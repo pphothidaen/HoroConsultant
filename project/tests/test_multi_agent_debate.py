@@ -6,7 +6,7 @@ Unit tests for MetaphysicsDebateEngine (Multi-Agent Peer Debate & HITL Router).
 
 from __future__ import annotations
 
-from project.core.multi_agent_debate import MetaphysicsDebateEngine, CANONICAL_TEXTS
+from project.core.multi_agent_debate import CANONICAL_TEXTS, MetaphysicsDebateEngine
 
 
 def test_debate_engine_initialization():

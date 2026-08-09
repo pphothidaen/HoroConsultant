@@ -3,8 +3,10 @@
 # Computational Metaphysics Engine — Universal Bridge Test Suite
 # ===========================================================================
 
-import pytest
-from project.core.universal_runtime_bridge import UniversalMetaphysicsBridge, universal_bridge
+from project.core.universal_runtime_bridge import (
+    UniversalMetaphysicsBridge,
+    universal_bridge,
+)
 from scripts.sync_sdlc_agents import sync_all_agents
 
 

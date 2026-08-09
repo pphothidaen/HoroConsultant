@@ -66,16 +66,27 @@ jobs:
   rust-core-audit:
     name: Rust PyO3 High-Performance Math Core Audit
     runs-on: ubuntu-latest
+    env:
+      PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
 
       - name: Set up Rust toolchain
         uses: dtolnay/rust-toolchain@stable
 
       - name: Build and Check Rust Core
         run: |
+          python -m pip install --upgrade pip maturin
           cd rust_core
           cargo check --release
           cargo test --release
+          maturin build --release
+
 

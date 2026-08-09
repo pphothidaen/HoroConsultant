@@ -25,10 +25,10 @@ Verifies:
 from __future__ import annotations
 
 import sys
-import re
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
 from fastapi.testclient import TestClient
-from unittest.mock import patch, MagicMock
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))

@@ -17,13 +17,11 @@ the Human-in-the-Loop (HITL) Queue for human verification.
 
 from __future__ import annotations
 
-import json
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger("multi_agent_debate")
 
-from project.core.prompt_manager import prompt_manager
 
 # Classical Canonical Reference Dictionary
 CANONICAL_TEXTS = {
@@ -41,7 +39,7 @@ class MetaphysicsDebateEngine:
     def __init__(self):
         logger.info("[DEBATE] Initialized 5-Branch Metaphysics Peer Debate Engine & Orchestrator Router.")
 
-    def run_peer_debate(self, input_context: Dict[str, Any]) -> Dict[str, Any]:
+    def run_peer_debate(self, input_context: dict[str, Any]) -> dict[str, Any]:
         """
         Run multi-agent peer debate among the 5 Domain Masters.
         Returns synthesized report with consensus points, analytical queries, and HITL status.
@@ -139,18 +137,18 @@ class MetaphysicsDebateEngine:
             }
         }
 
-    def synthesize_5_branch_destiny(self, input_context: Dict[str, Any]) -> Dict[str, Any]:
+    def synthesize_5_branch_destiny(self, input_context: dict[str, Any]) -> dict[str, Any]:
         """
         Synthesize composite calculation results from all 5 Metaphysics branches:
         BaZi, Zi Wei Dou Shu, Qi Men Dun Jia, Da Liu Ren, I Ching, Xuan Kong, Date Selection.
         """
         from project.core.bazi_engine import BaZiEngine
-        from project.core.zi_wei_engine import ZiWeiEngine
-        from project.core.qi_men_engine import QiMenEngine
-        from project.core.liu_ren_engine import LiuRenEngine
         from project.core.iching_engine import IChingEngine
+        from project.core.liu_ren_engine import LiuRenEngine
+        from project.core.qi_men_engine import QiMenEngine
         from project.core.xuan_kong_engine import XuanKongEngine
         from project.core.ze_ji_engine import ZeJiEngine
+        from project.core.zi_wei_engine import ZiWeiEngine
 
         dt_str = input_context.get("birth_datetime", "1990-05-15 14:30:00")
         year, month, day, hour = 1990, 5, 15, 14
@@ -183,7 +181,7 @@ class MetaphysicsDebateEngine:
             "composite_summary": f"ดวงชะตาเกิด {dt_str}: Day Master {bazi_res.get('day_master', {}).get('stem')} ร่วมกับผังจื่อเว่ย {ziwei_res.get('five_element_bureau')} และผังคี้มึ้ง {qimen_res.get('solar_term')} {qimen_res.get('dun_type')}遁 {qimen_res.get('ju_number')}局 ส่งผลให้ดวงชะตามีรากฐานมั่นคงและมีฤกษ์มงคลระดับ {zeji_res.get('rating_stars')} ดาว"
         }
 
-    async def async_synthesize_all_branches(self, input_context: Dict[str, Any]) -> Dict[str, Any]:
+    async def async_synthesize_all_branches(self, input_context: dict[str, Any]) -> dict[str, Any]:
         """
         Execute 10-domain engine calculations concurrently using asyncio.to_thread and asyncio.gather.
         Accelerates multi-branch synthesis latency by up to 5x.

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import Dict, Any
+from typing import Any
 
 logger = logging.getLogger("swiss_ephemeris")
 
@@ -27,7 +27,7 @@ except (ImportError, OSError, Exception):
         SWISS_EPHEMERIS_AVAILABLE = False
 
 
-def get_solar_position_ephemeris(dt: datetime, longitude: float, latitude: float) -> Dict[str, Any]:
+def get_solar_position_ephemeris(dt: datetime, longitude: float, latitude: float) -> dict[str, Any]:
     """
     Calculate solar position parameters. Uses Swiss Ephemeris if available,
     otherwise falls back to standard astronomical approximations.
@@ -63,7 +63,7 @@ def get_solar_position_ephemeris(dt: datetime, longitude: float, latitude: float
     }
 
 
-def calculate_qi_zheng_si_yu(dt: datetime, longitude: float = 100.4930, latitude: float = 13.7563) -> Dict[str, Any]:
+def calculate_qi_zheng_si_yu(dt: datetime, longitude: float = 100.4930, latitude: float = 13.7563) -> dict[str, Any]:
     """
     Calculate Qi Zheng Si Yu (七政四餘 — 7 Planets & 4 Shadow Nodes).
     7 Planets: Sun (日), Moon (月), Jupiter (木), Mars (火), Saturn (土), Venus (金), Mercury (水).

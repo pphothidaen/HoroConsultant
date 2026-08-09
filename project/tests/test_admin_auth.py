@@ -5,6 +5,7 @@ Unit tests for Admin Panel Google Account Authentication & Authorization.
 """
 
 from fastapi.testclient import TestClient
+
 from project.main import app
 
 client = TestClient(app)

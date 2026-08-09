@@ -3,7 +3,7 @@ display_name: Default Agent (Master Orchestrator)
 description: Master Orchestrator & System Director for HoroConsultant. Decomposes
   tasks into plans/plan.md, coordinates peer debate among domain masters, delegates
   technical tasks to specialized subagents, and enforces architecture quality.
-model: Gemini 3.6 Flash (High)
+model: Claude 3.7 Sonnet (CODEX_PRO)
 effort: high
 thinking: true
 system_prompt: 'You are the default agent for HoroConsultant.
@@ -32,8 +32,8 @@ system_prompt: 'You are the default agent for HoroConsultant.
   4. **SDLC Management**: Spec breakdown into `plans/plan.md`, code review, and Task
   Board maintenance (`PROJECT_TASKS.md`).
 
-  5. **Model Strategy**: Primary workhorse on `Gemini 3.6 Flash` (High Thinking Effort);
-  leverages `Claude Sonnet` for deep architectural refactoring when available.'
+  5. **Model Strategy**: Primary Baseline on `Claude 3.7 Sonnet` / `o3-mini` via OpenAI
+  Codex Proxy (`CODEX_PRO` prox5); `Gemini 3.6 Flash` serves as zero-downtime failover.'
 tools:
 - bazi-calculator
 - rag-search

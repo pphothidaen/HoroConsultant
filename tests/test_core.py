@@ -1,25 +1,28 @@
 """
-tests/test_core.py — Unit Tests for Solar Time & BaZi Engine
-=============================================================
+tests/test_core.py — Dual-Tier Python Binding & Integration Test Suite
+=======================================================================
+Note: Core mathematical calculations are also natively tested in Rust via `cargo test`
+      under `rust_core/tests/test_engines.rs` for sub-millisecond execution.
+
 Run:  python -m pytest tests/ -v
   or: python -m unittest discover -s tests -v
 """
 
-import math
 import json
 import unittest
 from datetime import datetime
 
-from project.core.solar_time import calculate_true_solar_time, calculate_equation_of_time
 from project.core.bazi_engine import (
+    BRANCHES,
+    STEMS,
     BaZiEngine,
-    _year_stem_branch,
-    _month_stem_branch,
     _day_stem_branch,
-    _hour_stem_branch,
-    STEMS, BRANCHES,
+    _year_stem_branch,
 )
-
+from project.core.solar_time import (
+    calculate_equation_of_time,
+    calculate_true_solar_time,
+)
 
 # ============================================================
 # Solar Time Tests

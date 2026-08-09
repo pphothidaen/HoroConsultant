@@ -19,16 +19,16 @@ Usage:
 
 from __future__ import annotations
 
-import sys
+import argparse
 import json
 import logging
-import argparse
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from project.mcp_server import HoroMCPTools, get_mcp_manifest
+from project.mcp_server import HoroMCPTools
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger("thclaws_bridge")

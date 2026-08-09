@@ -25,9 +25,10 @@ import sys
 import time
 import urllib.error
 import urllib.request
-from typing import Any, Dict
+from pathlib import Path
+from typing import Any
 
-
+ROOT = Path(__file__).resolve().parents[1]
 ORIGIN = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
 DEFAULT_BASE_URL = "https://horo-consultant-psi.vercel.app"
 
@@ -51,7 +52,7 @@ BROWSER_HEADERS = {
 
 
 def _do_request(url: str, method: str = "GET", body: bytes | None = None,
-                extra_headers: Dict[str, str] | None = None) -> Dict[str, Any]:
+                extra_headers: dict[str, str] | None = None) -> dict[str, Any]:
     """Make HTTP request and return {status, headers, body_text, body_json, latency_ms}."""
     headers = {**BROWSER_HEADERS, **(extra_headers or {})}
 
@@ -98,7 +99,7 @@ def _do_request(url: str, method: str = "GET", body: bytes | None = None,
         }
 
 
-def _check_cors(result: Dict[str, Any]) -> bool:
+def _check_cors(result: dict[str, Any]) -> bool:
     """Return True if CORS header is present and non-empty."""
     headers_lower = {k.lower(): v for k, v in result["headers"].items()}
     acao = headers_lower.get("access-control-allow-origin", "")
@@ -110,7 +111,7 @@ def run_regression(base_url: str) -> int:
     results = []
     all_passed = True
 
-    print(f"\n[INFO] Vercel Production Curl Regression Suite")
+    print("\n[INFO] Vercel Production Curl Regression Suite")
     print(f"[INFO] Target: {base_url}")
     print(f"[INFO] Origin: {ORIGIN}")
     print("-" * 70)
@@ -199,7 +200,16 @@ def run_regression(base_url: str) -> int:
 def main():
     parser = argparse.ArgumentParser(description="Vercel Production Curl Regression Suite")
     parser.add_argument("--url", default=DEFAULT_BASE_URL, help="Base URL to test against")
+    parser.add_argument("--use-python", action="store_true", help="Force python execution instead of Rust binary")
     args = parser.parse_args()
+
+    rust_binary = ROOT / "rust_core" / "target" / "release" / "vercel_curl_regression"
+    if rust_binary.exists() and not args.use_python:
+        import subprocess
+        print(f"[INFO] Delegating Vercel Curl Regression to High-Performance Rust Binary ({rust_binary.name})...")
+        res = subprocess.run([str(rust_binary), "--url", args.url])
+        sys.exit(res.returncode)
+
     sys.exit(run_regression(args.url))
 
 

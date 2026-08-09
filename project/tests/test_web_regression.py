@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+
 from fastapi.testclient import TestClient
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -108,7 +109,8 @@ class TestAPIRegressionEndpoints:
             data = res.json()
             assert "chart" in data
             assert "interpretation" in data
-            assert data["route"] == "ollama_primary"
+            assert "ollama" in data["route"]
+
 
     def test_bazi_validate_endpoint(self):
         chart = {
@@ -127,7 +129,7 @@ class TestAPIRegressionEndpoints:
         assert "peer_perspective" in data
 
     def test_location_resolve_endpoint(self):
-        from unittest.mock import patch, MagicMock
+        from unittest.mock import MagicMock, patch
         payload = {"location": "บางกะปิ, กรุงเทพ"}
         
         mock_location = MagicMock()

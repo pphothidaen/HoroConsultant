@@ -5,7 +5,10 @@ Tests for Swiss Ephemeris module and fallback.
 """
 
 from datetime import datetime
-from project.core.swiss_ephemeris import get_solar_position_ephemeris, SWISS_EPHEMERIS_AVAILABLE
+
+from project.core.swiss_ephemeris import (
+    get_solar_position_ephemeris,
+)
 
 
 def test_get_solar_position_ephemeris_output():

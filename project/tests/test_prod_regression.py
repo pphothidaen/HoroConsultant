@@ -13,16 +13,13 @@ Verifies:
 from __future__ import annotations
 
 import json
-import threading
-import urllib.request
-from contextlib import closing
-from http.server import ThreadingHTTPServer
 from pathlib import Path
 from unittest.mock import patch
+
 from fastapi.testclient import TestClient
 
-from project.main import app
 from project.core.multi_agent_debate import MetaphysicsDebateEngine
+from project.main import app
 from scripts.cleanup_vector_store import audit_storage, purge_and_cleanup
 
 ROOT = Path(__file__).resolve().parents[2]

@@ -7,13 +7,14 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+
 from fastapi.testclient import TestClient
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from project.main import app
 from project.core.observability import observability_manager
+from project.main import app
 
 client = TestClient(app)
 

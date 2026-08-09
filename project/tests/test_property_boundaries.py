@@ -5,9 +5,12 @@ Computational Metaphysics Engine
 
 import unittest
 from datetime import datetime, timedelta
+
 from project.core.bazi_engine import BaZiEngine
-from project.core.solar_time import calculate_true_solar_time, calculate_equation_of_time
 from project.core.fast_math import cached_julian_day
+from project.core.solar_time import (
+    calculate_true_solar_time,
+)
 
 
 class TestPropertyBoundaries(unittest.TestCase):

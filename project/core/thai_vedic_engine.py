@@ -7,8 +7,8 @@ Deterministic calculations for:
 - Vedic 27 Nakshatras (นักษัตร 27 ดารา) & Vimshottari Dasha periods
 """
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime
+from typing import Any
+
 from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
 ZODIAC_THAI_NAMES = [
@@ -54,7 +54,7 @@ class ThaiVedicEngine(AbstractAstrologyEngine):
         lagna_idx = (sun_house_idx + hour_offset) % 12
         return ZODIAC_THAI_NAMES[lagna_idx], lagna_idx
 
-    def calculate_thaksa(self, day_of_week: int) -> Dict[str, str]:
+    def calculate_thaksa(self, day_of_week: int) -> dict[str, str]:
         """
         Calculate Maha Thaksa (มหาทักษา) based on Day of Week (0 = Sunday, 1 = Monday ... 6 = Saturday).
         Sequence order starting from birth day planet.
@@ -78,12 +78,15 @@ class ThaiVedicEngine(AbstractAstrologyEngine):
         pada = int(rem_deg // 3.333333) + 1
         return NAKSHATRAS_27[nak_idx], nak_idx + 1, min(4, pada)
 
-    def calculate_chart(self, year: int, month: int, day: int, hour: int, day_of_week: int = 0) -> Dict[str, Any]:
+    def calculate_chart(self, year: int, month: int, day: int, hour: int, day_of_week: int = 0) -> dict[str, Any]:
         """
         Calculate complete Thai & Vedic Astrology Chart.
         """
-        lagna_name, lagna_idx = self.calculate_lagna(hour, month)
-        thaksa = self.calculate_thaksa(day_of_week)
+        from project.core.fast_math import fast_thai_lagna, fast_thaksa_map
+        lagna_name, lagna_idx = fast_thai_lagna(hour, month)
+        thaksa_list = fast_thaksa_map(day_of_week)
+        thaksa = dict(thaksa_list) if isinstance(thaksa_list, list) else thaksa_list
+
         
         # Approximate Moon degree for Nakshatra calculation
         doy = (month - 1) * 30 + day

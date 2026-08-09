@@ -23,12 +23,12 @@ Usage:
 
 from __future__ import annotations
 
-import os
-import sys
-import json
 import argparse
-import subprocess
+import json
 import logging
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent.parent

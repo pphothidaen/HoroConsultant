@@ -24,7 +24,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 logging.basicConfig(
     level=logging.INFO,
@@ -86,7 +86,7 @@ DEFAULT_SYSTEM_PROMPT = (
 # Catalog Loader
 # ---------------------------------------------------------------------------
 
-def load_catalog() -> Dict[str, Any]:
+def load_catalog() -> dict[str, Any]:
     """Load the knowledge catalog JSON."""
     if not CATALOG_PATH.exists():
         log.error(f"Catalog not found: {CATALOG_PATH}")
@@ -94,14 +94,14 @@ def load_catalog() -> Dict[str, Any]:
     return json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
 
 
-def load_grayzone_answers() -> Dict[str, Any]:
+def load_grayzone_answers() -> dict[str, Any]:
     """Load answered gray-zone Q&A database."""
     if not GRAYZONE_DB_PATH.exists():
         return {"answers": {}}
     return json.loads(GRAYZONE_DB_PATH.read_text(encoding="utf-8"))
 
 
-def save_grayzone_answers(data: Dict[str, Any]) -> None:
+def save_grayzone_answers(data: dict[str, Any]) -> None:
     """Save gray-zone answers back to disk."""
     GRAYZONE_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     GRAYZONE_DB_PATH.write_text(
@@ -113,7 +113,7 @@ def save_grayzone_answers(data: Dict[str, Any]) -> None:
 # Source Iterator
 # ---------------------------------------------------------------------------
 
-def iter_all_sources(catalog: Dict[str, Any]):
+def iter_all_sources(catalog: dict[str, Any]):
     """Iterate over every source in the catalog, yielding (category_key, source_dict)."""
     for cat_key, cat_val in catalog.get("categories", {}).items():
         # Direct sources list
@@ -132,14 +132,14 @@ def iter_all_sources(catalog: Dict[str, Any]):
 # Summary Report Generator
 # ---------------------------------------------------------------------------
 
-def generate_summary_report(catalog: Dict[str, Any]) -> Dict[str, Any]:
+def generate_summary_report(catalog: dict[str, Any]) -> dict[str, Any]:
     """
     Build a per-source summary report showing:
     - Coverage status
     - Gray-zone count
     - Fine-tune readiness
     """
-    report: Dict[str, Any] = {
+    report: dict[str, Any] = {
         "report_version": "2.0.0",
         "generated_at": __import__("datetime").datetime.now().isoformat(),
         "overall_stats": {},
@@ -221,16 +221,16 @@ def generate_summary_report(catalog: Dict[str, Any]) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 def build_finetune_from_grayzone(
-    catalog: Dict[str, Any],
-    answers_db: Dict[str, Any],
+    catalog: dict[str, Any],
+    answers_db: dict[str, Any],
     output_dir: Path = FINETUNE_OUT_PATH,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Build a fine-tune JSONL from answered gray-zone questions.
     Only includes questions that have been answered in grayzone_answers.json.
     """
     answers = answers_db.get("answers", {})
-    entries: List[Dict[str, Any]] = []
+    entries: list[dict[str, Any]] = []
     skipped = 0
     included = 0
 
@@ -314,13 +314,13 @@ def build_finetune_from_grayzone(
 # Merge All Fine-Tune Datasets
 # ---------------------------------------------------------------------------
 
-def merge_all_finetune_datasets(output_dir: Path = FINETUNE_OUT_PATH) -> Dict[str, Any]:
+def merge_all_finetune_datasets(output_dir: Path = FINETUNE_OUT_PATH) -> dict[str, Any]:
     """
     Merge train.jsonl + grayzone_finetune.jsonl into combined_train.jsonl.
     This is the dataset ready for External AI fine-tuning.
     """
     import random
-    combined: List[Dict] = []
+    combined: list[dict] = []
 
     for fname in ["train.jsonl", "grayzone_finetune.jsonl"]:
         p = output_dir / fname
@@ -339,8 +339,7 @@ def merge_all_finetune_datasets(output_dir: Path = FINETUNE_OUT_PATH) -> Dict[st
 
     out_path = output_dir / "combined_train.jsonl"
     with open(out_path, "w", encoding="utf-8") as f:
-        for entry in combined:
-            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        f.writelines(json.dumps(entry, ensure_ascii=False) + "\n" for entry in combined)
 
     log.info(f"✅ Merged {len(combined)} entries → {out_path}")
     return {

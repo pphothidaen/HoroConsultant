@@ -15,12 +15,12 @@ Generates:
 
 from __future__ import annotations
 
-import sys
-import os
-import time
-import json
 import asyncio
+import json
+import os
 import shutil
+import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]

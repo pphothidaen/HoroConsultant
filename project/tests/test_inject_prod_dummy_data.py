@@ -11,7 +11,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from scripts.inject_prod_dummy_data import generate_otlp_stage_payload, inject_production_dummy_data, verify_grafana_queries
+from scripts.inject_prod_dummy_data import (
+    generate_otlp_stage_payload,
+    inject_production_dummy_data,
+    verify_grafana_queries,
+)
 
 
 class TestInjectProdDummyData:

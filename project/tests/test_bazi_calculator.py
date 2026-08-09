@@ -18,17 +18,18 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 # ── Re-export all base tests so `pytest project/tests/` still runs them ──────
-from tests.test_core import (                               # noqa: F401
-    TestEquationOfTime,
-    TestTrueSolarTime,
-    TestPillarHelpers,
-    TestBaZiEngine,
-)
+from datetime import datetime
 
 # ── Extended Integration Tests (BaZi Calculator level) ───────────────────────
 import pytest
-from datetime import datetime
+
 from project.core.bazi_engine import BaZiEngine
+from tests.test_core import (  # noqa: F401
+    TestBaZiEngine,
+    TestEquationOfTime,
+    TestPillarHelpers,
+    TestTrueSolarTime,
+)
 
 
 @pytest.fixture(scope="module")

@@ -7,7 +7,8 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
+
 try:
     from pydantic import BaseModel, Field
 except ImportError:
@@ -31,7 +32,7 @@ class ElementScores(BaseModel):
     metal: float = Field(0.0, description="Metal (金) percentage")
     water: float = Field(0.0, description="Water (水) percentage")
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         return self.model_dump()
 
 
@@ -39,10 +40,10 @@ class PillarData(BaseModel):
     """Pillar Stem-Branch pair."""
     stem: str = Field(..., description="Heavenly Stem (天干)")
     branch: str = Field(..., description="Earthly Branch (地支)")
-    element: Optional[str] = Field(None, description="Primary Five Element")
-    hidden_stems: Optional[List[str]] = Field(default_factory=list, description="Hidden Stems (藏干)")
+    element: str | None = Field(None, description="Primary Five Element")
+    hidden_stems: list[str] | None = Field(default_factory=list, description="Hidden Stems (藏干)")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return self.model_dump()
 
 
@@ -60,10 +61,10 @@ class EngineChartResult(dict):
         self,
         engine_name: str,
         system_type: str,
-        chart_data: Dict[str, Any],
-        element_scores: Optional[Union[Dict[str, float], ElementScores]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-        calculation_timestamp: Optional[str] = None,
+        chart_data: dict[str, Any],
+        element_scores: dict[str, float] | ElementScores | None = None,
+        metadata: dict[str, Any] | None = None,
+        calculation_timestamp: str | None = None,
     ):
         ts = calculation_timestamp or datetime.now(timezone.utc).isoformat()
         
@@ -93,7 +94,7 @@ class EngineChartResult(dict):
         self.element_scores = scores_dict
         self.metadata = metadata or {}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Export clean standard dictionary."""
         return dict(self)
 
@@ -108,13 +109,11 @@ class AbstractAstrologyEngine(ABC):
     @abstractmethod
     def engine_name(self) -> str:
         """Return human-readable engine name."""
-        pass
 
     @property
     @abstractmethod
     def system_type(self) -> str:
         """Return system domain type identifier."""
-        pass
 
     @abstractmethod
     def calculate(self, *args: Any, **kwargs: Any) -> EngineChartResult:
@@ -122,4 +121,3 @@ class AbstractAstrologyEngine(ABC):
         Execute core chart calculation logic.
         Must return a standardized EngineChartResult.
         """
-        pass

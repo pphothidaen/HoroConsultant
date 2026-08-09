@@ -15,13 +15,11 @@ Usage
 
 from __future__ import annotations
 
-import os
-import sys
-import json
 import argparse
 import logging
+import sys
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -32,7 +30,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger("cleanup_vector_store")
 
 
-def audit_storage() -> Dict[str, Any]:
+def audit_storage() -> dict[str, Any]:
     """Audit current size of vector stores, datasets, and databases."""
     data_dir = ROOT / "project" / "data"
     vector_dir = data_dir / "vector_store"

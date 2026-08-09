@@ -12,13 +12,10 @@ and saves the screenshots to artifacts directory.
 
 from __future__ import annotations
 
-import sys
-import os
-import time
-import json
-import random
 import asyncio
+import os
 import shutil
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]

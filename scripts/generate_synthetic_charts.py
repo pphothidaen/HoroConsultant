@@ -5,17 +5,18 @@ scripts/generate_synthetic_charts.py
 Generate a large set of synthetic BaZi charts using the engine
 and save them to project/data/sample_charts.json for MLX training.
 """
-import sys
 import json
 import random
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
 
 # ensure project root on path
 root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(root))
 
 from project.core.bazi_engine import BaZiEngine
+
 
 def main(n=500, seed=42):
     engine = BaZiEngine()
@@ -48,7 +49,7 @@ def main(n=500, seed=42):
             res = engine.calculate(dt=dt, longitude=lng, utc_offset_hours=utc)
             res["_meta"] = {"city": city, "index": i}
             charts.append(res)
-        except Exception as e:
+        except Exception:
             skipped += 1
 
     out = root / "project" / "data" / "sample_charts.json"

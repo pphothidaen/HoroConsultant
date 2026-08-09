@@ -12,11 +12,11 @@ Tests:
 
 from __future__ import annotations
 
+import logging
 import os
 import sys
-import json
-import logging
 from pathlib import Path
+
 import httpx
 
 ROOT_DIR = Path(__file__).resolve().parent.parent

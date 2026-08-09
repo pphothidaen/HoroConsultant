@@ -20,9 +20,13 @@ and Five Elements harmony indicators.
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
-from typing import Dict, Any
+from typing import Any
+
+try:
+    import rust_core
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
 
 ELEMENT_COLORS = {
     "Wood":  "#10b981",  # Emerald Green
@@ -39,12 +43,32 @@ ZODIAC_THAI = [
 ]
 
 
-def generate_bazi_svg(chart: Dict[str, Any], title: str = "ผังดวงชะตา BaZi 4 เสา (Four Pillars of Destiny)") -> str:
+def generate_bazi_svg(chart: dict[str, Any], title: str = "ผังดวงชะตา BaZi 4 เสา (Four Pillars of Destiny)") -> str:
     """Generate clean SVG string for BaZi 4 Pillars Chart."""
     dm = chart.get("day_master", {})
     pcts = chart.get("five_elements", {}).get("percentages", {})
-    tst  = chart.get("tst", {}).get("tst_datetime", "N/A")
+    tst  = str(chart.get("tst", {}).get("tst_datetime", "N/A"))
     pillars = chart.get("pillars", {})
+
+    if RUST_AVAILABLE and hasattr(rust_core, "build_bazi_svg_rust"):
+        try:
+            hp = pillars.get("hour", {})
+            dp = pillars.get("day", {})
+            mp = pillars.get("month", {})
+            yp = pillars.get("year", {})
+            return rust_core.build_bazi_svg_rust(
+                title,
+                str(dm.get("stem", "")),
+                str(dm.get("element", "")),
+                tst,
+                float(sum(pcts.values())),
+                (str(hp.get("stem", {}).get("char", "")), str(hp.get("branch", {}).get("char", ""))),
+                (str(dp.get("stem", {}).get("char", "")), str(dp.get("branch", {}).get("char", ""))),
+                (str(mp.get("stem", {}).get("char", "")), str(mp.get("branch", {}).get("char", ""))),
+                (str(yp.get("stem", {}).get("char", "")), str(yp.get("branch", {}).get("char", ""))),
+            )
+        except Exception:
+            pass
 
     order = [("hour", "เสายาม"), ("day", "เสาวัน"), ("month", "เสาเดือน"), ("year", "เสาปี")]
 
@@ -107,8 +131,14 @@ def generate_bazi_svg(chart: Dict[str, Any], title: str = "ผังดวงช
     return "\n".join(svg_parts)
 
 
-def generate_zodiac_wheel_svg(chart: Dict[str, Any], title: str = "ผังดวงจักรราศี 12 ราศี (Zodiac Wheel)") -> str:
+def generate_zodiac_wheel_svg(chart: dict[str, Any], title: str = "ผังดวงจักรราศี 12 ราศี (Zodiac Wheel)") -> str:
     """Generate clean SVG string for 12 Zodiac Wheel Chart."""
+    if RUST_AVAILABLE and hasattr(rust_core, "build_zodiac_svg_rust"):
+        try:
+            return rust_core.build_zodiac_svg_rust(title)
+        except Exception:
+            pass
+
     import math
     svg_parts = [
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%">',
@@ -142,12 +172,18 @@ def generate_zodiac_wheel_svg(chart: Dict[str, Any], title: str = "ผังด�
     return "\n".join(svg_parts)
 
 
-def generate_ziwei_svg(chart: Dict[str, Any], title: str = "ผังดวง紫微斗數 (Zi Wei Dou Shu 12 Palaces Chart)") -> str:
+def generate_ziwei_svg(chart: dict[str, Any], title: str = "ผังดวง紫微斗數 (Zi Wei Dou Shu 12 Palaces Chart)") -> str:
     """Generate clean SVG string for Zi Wei Dou Shu 12 Palaces Chart."""
     palaces = chart.get("palaces", [])
-    bureau = chart.get("five_element_bureau", "水二局")
-    ming_branch = chart.get("ming_gong_branch", "寅")
-    shen_branch = chart.get("shen_gong_branch", "申")
+    bureau = str(chart.get("five_element_bureau", "水二局"))
+    ming_branch = str(chart.get("ming_gong_branch", "寅"))
+    shen_branch = str(chart.get("shen_gong_branch", "申"))
+
+    if RUST_AVAILABLE and hasattr(rust_core, "build_ziwei_svg_rust"):
+        try:
+            return rust_core.build_ziwei_svg_rust(title, bureau, ming_branch, shen_branch)
+        except Exception:
+            pass
 
     svg_parts = [
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">',
@@ -188,13 +224,19 @@ def generate_ziwei_svg(chart: Dict[str, Any], title: str = "ผังดวง�
     return "\n".join(svg_parts)
 
 
-def generate_qimen_svg(chart: Dict[str, Any], title: str = "ผังดวง奇門遁甲 (Qi Men Dun Jia 4-Plate Grid)") -> str:
+def generate_qimen_svg(chart: dict[str, Any], title: str = "ผังดวง奇門遁甲 (Qi Men Dun Jia 4-Plate Grid)") -> str:
     """Generate clean SVG string for Qi Men Dun Jia 9-Grid Chart."""
-    solar_term = chart.get("solar_term", "冬至")
-    dun_type = chart.get("dun_type", "Yang")
-    ju_num = chart.get("ju_number", 1)
-    palaces = chart.get("palaces", [])
+    solar_term = str(chart.get("solar_term", "冬至"))
+    dun_type = str(chart.get("dun_type", "Yang"))
+    ju_num = int(chart.get("ju_number", 1))
 
+    if RUST_AVAILABLE and hasattr(rust_core, "build_qimen_svg_rust"):
+        try:
+            return rust_core.build_qimen_svg_rust(title, solar_term, dun_type, ju_num)
+        except Exception:
+            pass
+
+    palaces = chart.get("palaces", [])
     svg_parts = [
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%">',
         '  <rect width="600" height="600" rx="16" fill="#09131d" stroke="#3b82f6" stroke-width="2"/>',
@@ -220,11 +262,18 @@ def generate_qimen_svg(chart: Dict[str, Any], title: str = "ผังดวง�
     return "\n".join(svg_parts)
 
 
-def generate_xuankong_svg(chart: Dict[str, Any], title: str = "ผังดวง玄空風水 (Xuan Kong Flying Stars 9-Grid)") -> str:
+def generate_xuankong_svg(chart: dict[str, Any], title: str = "ผังดวง玄空風水 (Xuan Kong Flying Stars 9-Grid)") -> str:
     """Generate clean SVG string for Xuan Kong Flying Stars 9-Grid Chart."""
-    period = chart.get("period", 9)
-    facing = chart.get("facing_mountain", "午")
-    sitting = chart.get("sitting_mountain", "子")
+    period = int(chart.get("period", 9))
+    facing = str(chart.get("facing_mountain", "午"))
+    sitting = str(chart.get("sitting_mountain", "子"))
+    facing_degree = float(chart.get("facing_degree", 180.0))
+
+    if RUST_AVAILABLE and hasattr(rust_core, "build_xuankong_svg_rust"):
+        try:
+            return rust_core.build_xuankong_svg_rust(title, facing_degree, period)
+        except Exception:
+            pass
     grid_palaces = chart.get("grid_palaces", [])
 
     svg_parts = [
@@ -252,7 +301,7 @@ def generate_xuankong_svg(chart: Dict[str, Any], title: str = "ผังดว�
     return "\n".join(svg_parts)
 
 
-def generate_liuren_svg(chart: Dict[str, Any], title: str = "ผังดวง大六壬 (Da Liu Ren 3-Transmission Chart)") -> str:
+def generate_liuren_svg(chart: dict[str, Any], title: str = "ผังดวง大六壬 (Da Liu Ren 3-Transmission Chart)") -> str:
     """Generate SVG string for Da Liu Ren chart."""
     trans = chart.get("three_transmissions", {})
     four_lessons = chart.get("four_lessons", [])
@@ -280,7 +329,7 @@ def generate_liuren_svg(chart: Dict[str, Any], title: str = "ผังดวง�
     return "\n".join(svg_parts)
 
 
-def generate_iching_svg(chart: Dict[str, Any], title: str = "ผังดวง易經六爻 (I Ching Divination Chart)") -> str:
+def generate_iching_svg(chart: dict[str, Any], title: str = "ผังดวง易經六爻 (I Ching Divination Chart)") -> str:
     """Generate SVG string for I Ching Hexagram chart."""
     pri = chart.get("primary_hexagram", {})
     trans = chart.get("transformed_hexagram", {})
@@ -311,7 +360,7 @@ def generate_iching_svg(chart: Dict[str, Any], title: str = "ผังดวง�
     return "\n".join(svg_parts)
 
 
-def generate_zeji_svg(chart: Dict[str, Any], title: str = "ผังดวง擇吉คำนวณฤกษ์ (Date Selection Chart)") -> str:
+def generate_zeji_svg(chart: dict[str, Any], title: str = "ผังดวง擇吉คำนวณฤกษ์ (Date Selection Chart)") -> str:
     """Generate SVG string for Ze Ji Date Selection chart."""
     officer = chart.get("duty_officer", "建")
     stars = chart.get("rating_stars", "⭐⭐⭐")
@@ -342,7 +391,7 @@ def generate_zeji_svg(chart: Dict[str, Any], title: str = "ผังดวง擇
     return "\n".join(svg_parts)
 
 
-def generate_thaivedic_svg(chart: Dict[str, Any], title: str = "ผังดวงโหราศาสตร์ไทย & ภารตวิทยา (Thai & Vedic)") -> str:
+def generate_thaivedic_svg(chart: dict[str, Any], title: str = "ผังดวงโหราศาสตร์ไทย & ภารตวิทยา (Thai & Vedic)") -> str:
     """Generate SVG string for Thai Suriyayart & Vedic Nakshatra chart."""
     lagna = chart.get("thai_lagna", "เมษ")
     kala = chart.get("kalakini_planet", "อาทิตย์")
@@ -376,7 +425,7 @@ def generate_thaivedic_svg(chart: Dict[str, Any], title: str = "ผังดว�
     return "\n".join(svg_parts)
 
 
-def generate_western_svg(chart: Dict[str, Any], title: str = "ผังดวงโหราศาสตร์สากล & ยูเรเนียน (Western & Uranian)") -> str:
+def generate_western_svg(chart: dict[str, Any], title: str = "ผังดวงโหราศาสตร์สากล & ยูเรเนียน (Western & Uranian)") -> str:
     """Generate SVG string for Western Tropical & Uranian TNP chart."""
     planets = chart.get("planets_tropical", {})
     tnps = chart.get("uranian_tnps", {})
@@ -412,7 +461,7 @@ def generate_western_svg(chart: Dict[str, Any], title: str = "ผังดวง
     return "\n".join(svg_parts)
 
 
-def generate_numerology_svg(chart: Dict[str, Any], title: str = "ผังดวงสัตตเลข 7 ฐาน & เลขศาสตร์ (Numerology)") -> str:
+def generate_numerology_svg(chart: dict[str, Any], title: str = "ผังดวงสัตตเลข 7 ฐาน & เลขศาสตร์ (Numerology)") -> str:
     """Generate SVG string for Satta-Lek 7-Base Numerology chart."""
     score = chart.get("chaldean_score", {})
     satta = chart.get("satta_lek", {})

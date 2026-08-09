@@ -22,7 +22,7 @@ import time
 import urllib.parse
 import urllib.request
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 # Ensure project root is in Python path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -98,7 +98,7 @@ SAMPLE_INCIDENTS = [
 ]
 
 
-def generate_incident_payloads(stages: int = 6) -> List[Dict[str, Any]]:
+def generate_incident_payloads(stages: int = 6) -> list[dict[str, Any]]:
     """Generate high-density incident records for ingestion into Grafana Incident plugin."""
     incidents = []
     now = int(time.time())
@@ -125,7 +125,7 @@ def generate_incident_payloads(stages: int = 6) -> List[Dict[str, Any]]:
     return incidents
 
 
-def build_grafana_auth_headers() -> Dict[str, str]:
+def build_grafana_auth_headers() -> dict[str, str]:
     """Build authorization headers for Grafana Cloud Incident REST API."""
     api_key = (
         os.getenv("GRAFANA_API_KEY", "")
@@ -139,7 +139,7 @@ def build_grafana_auth_headers() -> Dict[str, str]:
     user_id = os.getenv("GRAFANA_USER_ID", "").strip()
     prom_api = os.getenv("GRAFANA_PROMETHEUS_API", "").strip()
     if user_id and prom_api:
-        auth = base64.b64encode(f"{user_id}:{prom_api}".encode("utf-8")).decode("utf-8")
+        auth = base64.b64encode(f"{user_id}:{prom_api}".encode()).decode("utf-8")
         return {"Authorization": f"Basic {auth}"}
 
     return {}

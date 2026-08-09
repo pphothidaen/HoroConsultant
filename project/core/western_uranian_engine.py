@@ -7,8 +7,8 @@ Deterministic calculations for:
 - Uranian Sensitive Midpoint Formula (A + B - C)
 """
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime
+from typing import Any
+
 from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
 WESTERN_ZODIAC_SIGNS = [
@@ -55,7 +55,7 @@ class WesternUranianEngine(AbstractAstrologyEngine):
         in_sign_deg = deg % 30.0
         return WESTERN_ZODIAC_SIGNS[sign_idx], in_sign_deg
 
-    def calculate_aspects(self, planet_positions: Dict[str, float]) -> List[Dict[str, Any]]:
+    def calculate_aspects(self, planet_positions: dict[str, float]) -> list[dict[str, Any]]:
         """
         Calculate Planetary Aspects between pairs of planets.
         """
@@ -81,7 +81,7 @@ class WesternUranianEngine(AbstractAstrologyEngine):
                         })
         return aspects
 
-    def calculate_uranian_tnps(self, year: int, doy: int) -> Dict[str, float]:
+    def calculate_uranian_tnps(self, year: int, doy: int) -> dict[str, float]:
         """
         Calculate celestial longitudes of 8 Transneptunian Planets (TNPs).
         """
@@ -112,7 +112,7 @@ class WesternUranianEngine(AbstractAstrologyEngine):
         sign, in_deg = self.resolve_zodiac_sign(sensitive_deg)
         return round(sensitive_deg, 2), f"{sign} {in_deg:.2f}°"
 
-    def calculate_chart(self, year: int, month: int, day: int, hour: int) -> Dict[str, Any]:
+    def calculate_chart(self, year: int, month: int, day: int, hour: int) -> dict[str, Any]:
         """
         Calculate complete Western Tropical & Uranian Astrology Chart.
         """

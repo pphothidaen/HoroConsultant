@@ -19,14 +19,14 @@ Usage:
 
 from __future__ import annotations
 
-import os
-import sys
-import json
-import yaml
-import shutil
 import argparse
+import json
+import shutil
+import sys
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
+
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 ANTIGRAVITY_DIR = ROOT / ".antigravity" / "agents"
@@ -38,7 +38,7 @@ def normalize_agent_name(raw_name: str) -> str:
     return raw_name.strip().replace("-", "_")
 
 
-def parse_antigravity_agent(filepath: Path) -> Dict[str, Any]:
+def parse_antigravity_agent(filepath: Path) -> dict[str, Any]:
     """Parses a Google Antigravity .agent YAML file."""
     with open(filepath, "r", encoding="utf-8") as f:
         data = yaml.safe_load(f) or {}
@@ -56,7 +56,7 @@ def parse_antigravity_agent(filepath: Path) -> Dict[str, Any]:
     }
 
 
-def build_antigravity_yaml(agent_data: Dict[str, Any], override_name: str | None = None) -> str:
+def build_antigravity_yaml(agent_data: dict[str, Any], override_name: str | None = None) -> str:
     """Converts canonical agent dict to Antigravity .agent YAML format."""
     name = override_name or agent_data["name"]
     display_name = agent_data.get("display_name", agent_data.get("role", name))
@@ -78,7 +78,7 @@ def build_antigravity_yaml(agent_data: Dict[str, Any], override_name: str | None
     return yaml.dump(ag_dict, sort_keys=False, allow_unicode=True)
 
 
-def build_agent_json(agent_data: Dict[str, Any]) -> str:
+def build_agent_json(agent_data: dict[str, Any]) -> str:
     """Converts agent dict to JSON spec format for Antigravity CLI."""
     name = agent_data["name"]
     role = agent_data.get("display_name", name)
@@ -96,7 +96,7 @@ def build_agent_json(agent_data: Dict[str, Any]) -> str:
     return json.dumps(json_dict, indent=2, ensure_ascii=False)
 
 
-def build_agent_md(agent_data: Dict[str, Any]) -> str:
+def build_agent_md(agent_data: dict[str, Any]) -> str:
     """Converts canonical agent dict to Markdown agent.md with YAML frontmatter."""
     name = agent_data["name"]
     role = agent_data.get("display_name", name)
@@ -116,9 +116,9 @@ def build_agent_md(agent_data: Dict[str, Any]) -> str:
     return f"---\n{yaml_header}\n---\n\n{body}\n"
 
 
-def load_all_primary_agents() -> Dict[str, Dict[str, Any]]:
+def load_all_primary_agents() -> dict[str, dict[str, Any]]:
     """Loads all primary Antigravity agent specifications from .antigravity/agents/."""
-    agents: Dict[str, Dict[str, Any]] = {}
+    agents: dict[str, dict[str, Any]] = {}
 
     if ANTIGRAVITY_DIR.exists():
         for f in ANTIGRAVITY_DIR.glob("*.agent"):
@@ -271,7 +271,15 @@ if __name__ == "__main__":
     parser.add_argument("--sync", action="store_true", help="Perform synchronization")
     parser.add_argument("--check", action="store_true", help="Check synchronization status without writing")
     parser.add_argument("--list", action="store_true", help="List all canonical agents")
+    parser.add_argument("--use-python", action="store_true", help="Force python execution instead of Rust binary")
     args = parser.parse_args()
+
+    if args.check and not args.use_python:
+        rust_binary = ROOT / "rust_core" / "target" / "release" / "sync_sdlc_agents"
+        if rust_binary.exists():
+            import subprocess
+            res = subprocess.run([str(rust_binary)])
+            sys.exit(res.returncode)
 
     if not args.sync and not args.check and not args.list:
         args.sync = True

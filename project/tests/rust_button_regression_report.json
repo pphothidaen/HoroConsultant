@@ -1,0 +1,177 @@
+{
+  "timestamp": "2026-08-09T06:53:23.671590+00:00",
+  "total_tested": 24,
+  "passed_count": 0,
+  "failed_count": 24,
+  "overall_status": "FAILED",
+  "results": [
+    {
+      "id": "BTN-IDX-02",
+      "label": "ค้นหา & เติมค่า (Location Search)",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 10.386833999999999
+    },
+    {
+      "id": "BTN-IDX-03",
+      "label": "Preset: กรุงเทพฯ",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 7.379667
+    },
+    {
+      "id": "BTN-IDX-04",
+      "label": "Preset: สิงคโปร์",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 2.125084
+    },
+    {
+      "id": "BTN-IDX-05",
+      "label": "Preset: นิวยอร์ก",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 2.017708
+    },
+    {
+      "id": "BTN-IDX-06",
+      "label": "紫微 紫微斗數 (Zi Wei)",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 1.820292
+    },
+    {
+      "id": "BTN-IDX-07",
+      "label": "奇門 奇門遁甲 (Qi Men)",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 1.7463330000000001
+    },
+    {
+      "id": "BTN-IDX-08",
+      "label": "六壬 大六壬 (Da Liu Ren)",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 1.9469999999999998
+    },
+    {
+      "id": "BTN-IDX-09",
+      "label": "易經 易經六爻 (I Ching)",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 1.716917
+    },
+    {
+      "id": "BTN-IDX-10",
+      "label": "風水 玄空風水 (Xuan Kong)",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 1.6533330000000002
+    },
+    {
+      "id": "BTN-IDX-11",
+      "label": "擇吉 擇吉คำนวณฤกษ์ (Ze Ji)",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 5.295084
+    },
+    {
+      "id": "BTN-IDX-12",
+      "label": "🐘 โหราศาสตร์ไทย & ภารตวิทยา",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 1.981333
+    },
+    {
+      "id": "BTN-IDX-13",
+      "label": "🌌 โหราศาสตร์สากล & ยูเรเนียน",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 1.916916
+    },
+    {
+      "id": "BTN-IDX-14",
+      "label": "🔢 สัตตเลข 7 ฐาน & เลขศาสตร์",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 1.882166
+    },
+    {
+      "id": "BTN-IDX-15",
+      "label": "Tab: บทตีความ / Gemini Audit / RAG",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 1.8482500000000002
+    },
+    {
+      "id": "BTN-ADM-01",
+      "label": "Authorized Email Login Button",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 1.667583
+    },
+    {
+      "id": "BTN-ADM-02",
+      "label": "Logout Admin Button",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 4.302042
+    },
+    {
+      "id": "BTN-HTL-01",
+      "label": "⚡ Batch Draft Button",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 2.0778749999999997
+    },
+    {
+      "id": "BTN-HTL-02",
+      "label": "⬇ Export JSONL Button",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 1.655125
+    },
+    {
+      "id": "BTN-HTL-03",
+      "label": "⚡ Single Generate Draft Button",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 1.876625
+    },
+    {
+      "id": "BTN-HTL-04",
+      "label": "✅ Approve Button",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 1.593625
+    },
+    {
+      "id": "BTN-HTL-05",
+      "label": "↩ Undo Decision Button",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 1.967583
+    },
+    {
+      "id": "BTN-DOC-01",
+      "label": "📘 Swagger Interactive API Docs",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 3.2117920000000004
+    },
+    {
+      "id": "BTN-DOC-02",
+      "label": "📕 ReDoc Schema Explorer",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 2.97575
+    },
+    {
+      "id": "BTN-DOC-03",
+      "label": "⚙️ OpenAPI JSON Specification",
+      "status": "ERROR",
+      "http_code": 0,
+      "latency_ms": 1.924917
+    }
+  ]
+}

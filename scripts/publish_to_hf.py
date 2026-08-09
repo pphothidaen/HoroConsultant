@@ -13,10 +13,11 @@ Usage
 
 from __future__ import annotations
 
+import argparse
 import os
 import sys
-import argparse
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -76,7 +77,7 @@ def publish_model(
             repo_id=repo_id,
             repo_type="model",
         )
-        print(f"\n🎉 Model successfully published to Hugging Face Hub!")
+        print("\n🎉 Model successfully published to Hugging Face Hub!")
         print(f"🔗 View Repository: https://huggingface.co/{repo_id}")
         return True
     except Exception as e:

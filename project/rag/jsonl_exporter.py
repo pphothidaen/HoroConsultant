@@ -18,14 +18,13 @@ Usage:
 
 from __future__ import annotations
 
-import os
+import json
+import logging
+import random
 import re
 import sys
-import json
-import random
-import logging
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import Any
 
 logging.basicConfig(
     level=logging.INFO,
@@ -54,9 +53,9 @@ SYSTEM_PROMPT = (
 # Q&A / Text Extractor
 # ---------------------------------------------------------------------------
 
-def extract_qa_from_markdown(md_text: str, source: str) -> List[Dict[str, Any]]:
+def extract_qa_from_markdown(md_text: str, source: str) -> list[dict[str, Any]]:
     """Extract Q&A pairs from markdown text."""
-    pairs: List[Dict[str, Any]] = []
+    pairs: list[dict[str, Any]] = []
 
     # Pattern 1: ## Q: / A:
     pattern1 = re.findall(
@@ -93,7 +92,7 @@ def extract_qa_from_markdown(md_text: str, source: str) -> List[Dict[str, Any]]:
     return pairs
 
 
-def generate_synthetic_conversations() -> List[Dict[str, Any]]:
+def generate_synthetic_conversations() -> list[dict[str, Any]]:
     """Generate structured ShareGPT conversations from synthetic BaZi charts."""
     conversations = []
     charts_file = ROOT / "project" / "data" / "sample_charts.json"
@@ -141,7 +140,7 @@ def generate_synthetic_conversations() -> List[Dict[str, Any]]:
 # ShareGPT Format Validator
 # ---------------------------------------------------------------------------
 
-def validate_sharegpt_entry(entry: Dict[str, Any]) -> Tuple[bool, str]:
+def validate_sharegpt_entry(entry: dict[str, Any]) -> tuple[bool, str]:
     """
     Validate a single ShareGPT JSONL entry.
     Requires 'messages' or 'conversations' list with valid roles.
@@ -173,7 +172,7 @@ def validate_sharegpt_entry(entry: Dict[str, Any]) -> Tuple[bool, str]:
     return True, "VALID"
 
 
-def convert_to_messages_format(entry: Dict[str, Any]) -> Dict[str, Any]:
+def convert_to_messages_format(entry: dict[str, Any]) -> dict[str, Any]:
     """Normalize entry to standard OpenAI/ShareGPT 'messages' format."""
     raw_list = entry.get("messages") or entry.get("conversations") or []
     norm_messages = []
@@ -201,12 +200,12 @@ def convert_to_messages_format(entry: Dict[str, Any]) -> Dict[str, Any]:
 # Exporter Pipeline
 # ---------------------------------------------------------------------------
 
-def build_and_export_jsonl(val_split: float = 0.10, seed: int = 42) -> Dict[str, Any]:
+def build_and_export_jsonl(val_split: float = 0.10, seed: int = 42) -> dict[str, Any]:
     log.info("=" * 65)
     log.info("🚀 Solution 1: ShareGPT JSONL Dataset Builder & Quality Validator")
     log.info("=" * 65)
 
-    all_entries: List[Dict[str, Any]] = []
+    all_entries: list[dict[str, Any]] = []
 
     # 1. Load Q&A from Obsidian Vault (.md files)
     md_files = list(VAULT_DIR.rglob("*.md"))
@@ -235,7 +234,7 @@ def build_and_export_jsonl(val_split: float = 0.10, seed: int = 42) -> Dict[str,
     all_entries.extend(syn_convs)
 
     # 3. Quality Validation Sweep
-    valid_entries: List[Dict[str, Any]] = []
+    valid_entries: list[dict[str, Any]] = []
     rejected_count = 0
 
     for entry in all_entries:
@@ -247,7 +246,7 @@ def build_and_export_jsonl(val_split: float = 0.10, seed: int = 42) -> Dict[str,
             rejected_count += 1
             log.warning(f"  Rejected entry ({reason})")
 
-    log.info(f"\n🔍 Quality Validation Sweep:")
+    log.info("\n🔍 Quality Validation Sweep:")
     log.info(f"   Total Candidates : {len(all_entries)}")
     log.info(f"   Passed           : {len(valid_entries)}")
     log.info(f"   Rejected         : {rejected_count}")
@@ -272,12 +271,10 @@ def build_and_export_jsonl(val_split: float = 0.10, seed: int = 42) -> Dict[str,
         val_path = d / "valid.jsonl"
 
         with open(trn_path, "w", encoding="utf-8") as f:
-            for item in trn_set:
-                f.write(json.dumps(item, ensure_ascii=False) + "\n")
+            f.writelines(json.dumps(item, ensure_ascii=False) + "\n" for item in trn_set)
 
         with open(val_path, "w", encoding="utf-8") as f:
-            for item in val_set:
-                f.write(json.dumps(item, ensure_ascii=False) + "\n")
+            f.writelines(json.dumps(item, ensure_ascii=False) + "\n" for item in val_set)
 
         log.info(f"✅ Exported -> {d.relative_to(ROOT)} ({len(trn_set)} train / {len(val_set)} valid)")
 
@@ -296,7 +293,7 @@ def build_and_export_jsonl(val_split: float = 0.10, seed: int = 42) -> Dict[str,
     print(f"  Total Valid ShareGPT Entries : {len(valid_entries)}")
     print(f"  Training Entries (90%)       : {len(trn_set)}")
     print(f"  Validation Entries (10%)     : {len(val_set)}")
-    print(f"  Target Model                 : Qwen/Qwen2.5-7B-Instruct (qwen2.5-bazi)")
+    print("  Target Model                 : Qwen/Qwen2.5-7B-Instruct (qwen2.5-bazi)")
     print("=" * 65 + "\n")
 
     return summary

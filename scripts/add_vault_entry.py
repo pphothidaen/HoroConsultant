@@ -20,17 +20,16 @@ Usage Examples
 
 from __future__ import annotations
 
-import sys
 import argparse
 import datetime
 import logging
+import sys
 from pathlib import Path
 
 # Add project root to path
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
-from project.core.config import Config
 from project.core.supabase_db import SupabaseDB
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -103,7 +102,11 @@ def rebuild_vector_store() -> None:
     """Rebuild local FAISS vector store and update fine-tune dataset."""
     logger.info("⚡ Updating FAISS Vector DB & Fine-Tune JSONL dataset...")
     try:
-        from project.rag.ingest_vault import load_vault, ingest_to_vector_store, export_finetune_dataset
+        from project.rag.ingest_vault import (
+            export_finetune_dataset,
+            ingest_to_vector_store,
+            load_vault,
+        )
         VECTOR_STORE_DIR = ROOT_DIR / "project" / "data" / "vector_store"
         DATASETS_DIR = ROOT_DIR / "project" / "rag" / "datasets"
 

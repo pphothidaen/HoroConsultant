@@ -30,15 +30,14 @@ Usage
 
 from __future__ import annotations
 
-import os
-import sys
-import json
-import random
-import logging
 import argparse
-from pathlib  import Path
-from typing   import List, Dict, Any
+import json
+import logging
+import random
+import sys
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -62,7 +61,7 @@ SYSTEM_PROMPT = (
 )
 
 
-def _chart_to_instruction(chart: Dict[str, Any]) -> str:
+def _chart_to_instruction(chart: dict[str, Any]) -> str:
     dm = chart.get("day_master", {})
     tst = chart.get("solar_time_info", {})
     return (
@@ -74,7 +73,7 @@ def _chart_to_instruction(chart: Dict[str, Any]) -> str:
     )
 
 
-def _chart_to_response(chart: Dict[str, Any]) -> str:
+def _chart_to_response(chart: dict[str, Any]) -> str:
     """Synthesise a structured response from chart data (used as training target)."""
     fe = chart.get("five_elements", {})
     dm = chart.get("day_master", {})
@@ -107,7 +106,7 @@ def _chart_to_response(chart: Dict[str, Any]) -> str:
     return json.dumps(response, ensure_ascii=False, indent=2)
 
 
-def build_sharegpt_entry(chart: Dict[str, Any]) -> Dict[str, Any]:
+def build_sharegpt_entry(chart: dict[str, Any]) -> dict[str, Any]:
     """Create a ShareGPT-format entry for MLX fine-tuning."""
     return {
         "conversations": [
@@ -122,7 +121,7 @@ def build_sharegpt_entry(chart: Dict[str, Any]) -> Dict[str, Any]:
 # Dataset generation from raw charts
 # ---------------------------------------------------------------------------
 
-def load_charts(charts_path: Path) -> List[Dict[str, Any]]:
+def load_charts(charts_path: Path) -> list[dict[str, Any]]:
     if not charts_path.exists():
         log.warning(f"Charts file not found: {charts_path}. Generating synthetic samples.")
         return _generate_synthetic_charts(n=200)
@@ -132,7 +131,7 @@ def load_charts(charts_path: Path) -> List[Dict[str, Any]]:
     return data
 
 
-def _generate_synthetic_charts(n: int = 200) -> List[Dict[str, Any]]:
+def _generate_synthetic_charts(n: int = 200) -> list[dict[str, Any]]:
     """
     Generate synthetic BaZi charts using the engine for demonstration.
     Replace with real anonymised chart corpus in production.
@@ -168,7 +167,7 @@ def _generate_synthetic_charts(n: int = 200) -> List[Dict[str, Any]]:
     return charts
 
 
-def extract_from_texts(texts_dir: Path) -> List[Dict[str, Any]]:
+def extract_from_texts(texts_dir: Path) -> list[dict[str, Any]]:
     """
     Parse raw .txt classical text files and create Q&A pairs.
     Each paragraph becomes an instruction-following entry.
@@ -247,8 +246,7 @@ def main():
     for name, dataset in [("train", trn_set), ("valid", val_set)]:
         out_path = args.output / f"{name}.jsonl"
         with open(out_path, "w", encoding="utf-8") as f:
-            for entry in dataset:
-                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+            f.writelines(json.dumps(entry, ensure_ascii=False) + "\n" for entry in dataset)
         log.info(f"Saved {name}: {out_path}")
 
     # 6. Write MLX fine-tune config

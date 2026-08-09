@@ -9,13 +9,12 @@ responses to achieve < 10ms response times and zero token cost on repeat queries
 
 from __future__ import annotations
 
-import os
-import json
 import hashlib
-import time
+import json
 import logging
+import time
 from pathlib import Path
-from typing import Any, Optional, Dict
+from typing import Any
 
 logger = logging.getLogger("cache_manager")
 
@@ -29,9 +28,9 @@ class RuntimeCacheManager:
     def __init__(self, ttl_seconds: int = 86400):
         self.ttl_seconds = ttl_seconds
         CACHE_DIR.mkdir(parents=True, exist_ok=True)
-        self._cache: Dict[str, Dict[str, Any]] = self._load_cache()
+        self._cache: dict[str, dict[str, Any]] = self._load_cache()
 
-    def _load_cache(self) -> Dict[str, Dict[str, Any]]:
+    def _load_cache(self) -> dict[str, dict[str, Any]]:
         """Load cache from disk file."""
         if CACHE_FILE.exists():
             try:
@@ -52,7 +51,7 @@ class RuntimeCacheManager:
         serialized = json.dumps(key_data, sort_keys=True, default=str)
         return hashlib.sha256(serialized.encode("utf-8")).hexdigest()
 
-    def get(self, key_data: Any) -> Optional[Dict[str, Any]]:
+    def get(self, key_data: Any) -> dict[str, Any] | None:
         """
         Fetch cached entry if present and not expired.
         Returns response dict or None on miss.
@@ -72,7 +71,7 @@ class RuntimeCacheManager:
         logger.info(f"[CACHE] Cache HIT! Key: {cache_key[:8]} (Saved 100% tokens, < 1ms response)")
         return entry.get("response")
 
-    def set(self, key_data: Any, response_data: Dict[str, Any]) -> None:
+    def set(self, key_data: Any, response_data: dict[str, Any]) -> None:
         """Store response data into cache."""
         cache_key = self._generate_key(key_data)
         self._cache[cache_key] = {

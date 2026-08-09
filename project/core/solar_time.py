@@ -9,10 +9,9 @@ Reference: NOAA Solar Calculator algorithm
 """
 
 import math
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-from dataclasses import dataclass, asdict
-from typing import Dict, Any
-
+from typing import Any
 
 # ---------------------------------------------------------------------------
 # Data Containers
@@ -33,7 +32,7 @@ class SolarTimeResult:
     tst_minute:                int
     tst_second:                int
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
@@ -123,8 +122,8 @@ def calculate_true_solar_time(
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    import json
     import argparse
+    import json
 
     parser = argparse.ArgumentParser(description="True Solar Time Calculator")
     parser.add_argument("--dt",        required=True, help="Local datetime YYYY-MM-DD HH:MM:SS")

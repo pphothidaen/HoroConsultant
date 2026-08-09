@@ -15,9 +15,9 @@ Usage:
 
 from __future__ import annotations
 
-import sys
 import json
 import logging
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -25,9 +25,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from project.core.bazi_engine import BaZiEngine
-from project.core.zi_wei_engine import ZiWeiEngine
-from project.core.thai_vedic_engine import ThaiVedicEngine
 from project.core.multi_agent_debate import MetaphysicsDebateEngine
+from project.core.thai_vedic_engine import ThaiVedicEngine
+from project.core.zi_wei_engine import ZiWeiEngine
 from project.rag.vector_store import get_vector_store
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")

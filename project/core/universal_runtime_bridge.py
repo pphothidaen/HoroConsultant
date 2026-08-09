@@ -8,11 +8,8 @@
 
 from __future__ import annotations
 
-import os
-import sys
-import json
 import logging
-from typing import Dict, Any, Optional
+from typing import Any
 
 from project.mcp_server import HoroMCPTools
 
@@ -32,7 +29,7 @@ class UniversalMetaphysicsBridge:
     def __init__(self, default_mode: str = "hybrid"):
         self.default_mode = default_mode.lower()
 
-    def execute_thclaws_mode(self, birth_datetime: str, query: str) -> Dict[str, Any]:
+    def execute_thclaws_mode(self, birth_datetime: str, query: str) -> dict[str, Any]:
         """Runs native thClaws harness pipeline."""
         log.info("🤖 [thClaws Harness Mode] Invoking Local Pipeline...")
         
@@ -54,7 +51,7 @@ class UniversalMetaphysicsBridge:
             "route_used": interp_res.get("route", "thclaws_local")
         }
 
-    def execute_agy_subagent_mode(self, birth_datetime: str, query: str) -> Dict[str, Any]:
+    def execute_agy_subagent_mode(self, birth_datetime: str, query: str) -> dict[str, Any]:
         """Runs native AGY Subagent MCP pipeline with Gemini Cloud Validator."""
         log.info("🤖 [AGY Subagent Mode] Invoking MCP Server & Gemini Validator Pipeline...")
         
@@ -85,7 +82,7 @@ class UniversalMetaphysicsBridge:
             "route_used": "agy_mcp_gemini"
         }
 
-    def execute_hybrid_mode(self, birth_datetime: str, query: str) -> Dict[str, Any]:
+    def execute_hybrid_mode(self, birth_datetime: str, query: str) -> dict[str, Any]:
         """Runs Hybrid pipeline: thClaws local generation + AGY Subagent cloud validation with failover."""
         log.info("⚡ [Hybrid Mode] Executing thClaws Local Generation + AGY Subagent Audit...")
         
@@ -118,7 +115,7 @@ class UniversalMetaphysicsBridge:
             log.warning(f"⚠️ Hybrid primary route hit exception ({e}). Failing over to AGY Subagent Cloud Route...")
             return self.execute_agy_subagent_mode(birth_datetime=birth_datetime, query=query)
 
-    def run(self, birth_datetime: str, query: str = "วิเคราะห์ภาพรวมดวงชะตา", mode: Optional[str] = None) -> Dict[str, Any]:
+    def run(self, birth_datetime: str, query: str = "วิเคราะห์ภาพรวมดวงชะตา", mode: str | None = None) -> dict[str, Any]:
         """Main entry point for universal runtime execution."""
         exec_mode = (mode or self.default_mode).lower()
         

@@ -17,14 +17,14 @@ Usage:
 
 from __future__ import annotations
 
-import sys
-import json
-import time
-import random
 import argparse
-import urllib.request
-import urllib.error
+import json
 import logging
+import random
+import sys
+import time
+import urllib.error
+import urllib.request
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -242,6 +242,8 @@ def run_randomized_static_questions_test(count: int = 10) -> dict:
             "http_status": status_code,
             "day_master": dm_info,
             "chart_present": chart_present,
+            "validation_present": val_present,
+            "rag_present": rag_present,
             "interpretation_snippet": str(res_data.get("interpretation", ""))[:200],
             "validator_status": res_data.get("validation_report", {}).get("validation_status", "APPROVED") if isinstance(res_data.get("validation_report"), dict) else "APPROVED",
             "rag_citations_count": len(res_data.get("rag_references", [])) if isinstance(res_data.get("rag_references"), list) else 4

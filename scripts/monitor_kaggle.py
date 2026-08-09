@@ -10,15 +10,17 @@ Usage:
 """
 
 from __future__ import annotations
+
+import argparse
+import json
+import logging
 import os
 import sys
-import json
 import time
-import requests
-import argparse
-import logging
-from pathlib import Path
 from datetime import datetime, timezone
+from pathlib import Path
+
+import requests
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))

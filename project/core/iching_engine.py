@@ -9,8 +9,9 @@ Deterministic calculation of I Ching 64 Hexagrams & Liu Yao divinations:
 - Six Animals / Spirits (六神: 青龍, 朱雀, 勾陳, 騰蛇, 白虎, 玄武)
 """
 
-from typing import Dict, List, Any, Optional
 import random
+from typing import Any
+
 from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
 TRIGRAM_NAMES = ["坤", "震", "坎", "兌", "艮", "離", "巽", "乾"]
@@ -60,7 +61,7 @@ class IChingEngine(AbstractAstrologyEngine):
     def system_type(self) -> str:
         return "pu_shi"
 
-    def cast_lines(self, seed: Optional[int] = None) -> List[int]:
+    def cast_lines(self, seed: int | None = None) -> list[int]:
         """
         Cast 6 lines (bottom to top):
         6: Old Yin (動爻), 7: Young Yang, 8: Young Yin, 9: Old Yang (動爻).
@@ -69,7 +70,7 @@ class IChingEngine(AbstractAstrologyEngine):
             random.seed(seed)
         return [random.choice([6, 7, 8, 9]) for _ in range(6)]
 
-    def lines_to_binary(self, lines: List[int]) -> tuple[str, str]:
+    def lines_to_binary(self, lines: list[int]) -> tuple[str, str]:
         """
         Convert 6 lines to binary string representation for Primary & Transformed Hexagram.
         Yang (7, 9) = '1', Yin (6, 8) = '0'.
@@ -86,7 +87,7 @@ class IChingEngine(AbstractAstrologyEngine):
                 transformed_bits.append("1" if line == 6 else "0")
         return "".join(primary_bits), "".join(transformed_bits)
 
-    def calculate_liu_yao(self, day_stem: str, lines: List[int]) -> Dict[str, Any]:
+    def calculate_liu_yao(self, day_stem: str, lines: list[int]) -> dict[str, Any]:
         """
         Calculate complete Liu Yao setup with Six Animals and Five Relatives.
         """

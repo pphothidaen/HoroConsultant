@@ -12,14 +12,14 @@ Usage
 
 from __future__ import annotations
 
+import argparse
+import fnmatch
+import logging
 import os
 import sys
-import argparse
-import logging
-import fnmatch
 import time
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -75,7 +75,7 @@ def should_ignore(rel_path: str) -> bool:
     return False
 
 
-def audit_payload(sdk: str = "static") -> Tuple[bool, Dict[str, Any]]:
+def audit_payload(sdk: str = "static") -> tuple[bool, dict[str, Any]]:
     """
     Perform a static audit of files to be uploaded to Hugging Face Spaces.
     Returns (is_valid, payload_summary).
@@ -158,7 +158,7 @@ def audit_payload(sdk: str = "static") -> Tuple[bool, Dict[str, Any]]:
     return is_valid, payload_summary
 
 
-def verify_space_health(space_id: str, timeout_seconds: float = 10.0) -> Tuple[bool, str, float]:
+def verify_space_health(space_id: str, timeout_seconds: float = 10.0) -> tuple[bool, str, float]:
     """
     Verify live health check status of a deployed HuggingFace Space.
     Returns (is_healthy, status_message, latency_ms).
@@ -299,7 +299,8 @@ pinned: false
             static_dir = ROOT / "project" / "static"
 
             # Create temporary staged static assets folder with git version injected into index.html
-            import tempfile, shutil
+            import shutil
+            import tempfile
             temp_static_dir = Path(tempfile.mkdtemp(prefix="hf_static_staged_"))
             shutil.copytree(static_dir, temp_static_dir, dirs_exist_ok=True)
 
@@ -379,7 +380,7 @@ High-Precision 10-Domain Computational Metaphysics Engine, True Solar Time Engin
                 ignore_patterns=IGNORE_PATTERNS,
             )
 
-        logger.info(f"\n🎉 Demo successfully published to Hugging Face Space!")
+        logger.info("\n🎉 Demo successfully published to Hugging Face Space!")
         logger.info(f"🔗 View Live Demo Space: https://huggingface.co/spaces/{space_id}")
         return True
 
@@ -388,12 +389,12 @@ High-Precision 10-Domain Computational Metaphysics Engine, True Solar Time Engin
         return False
 
 
-def verify_live_deployment_version(space_id: str, timeout_seconds: float = 10.0) -> Tuple[bool, str, Dict[str, Any]]:
+def verify_live_deployment_version(space_id: str, timeout_seconds: float = 10.0) -> tuple[bool, str, dict[str, Any]]:
     """
     Verify that live deployment (backend API & static space) is running the latest git commit version.
     Returns (is_matched, message, details).
     """
-    from project.core.config import get_git_commit_hash, get_app_version
+    from project.core.config import get_app_version, get_git_commit_hash
     local_commit = get_git_commit_hash()
     local_version = get_app_version()
 

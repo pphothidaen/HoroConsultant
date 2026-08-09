@@ -26,7 +26,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 from unittest.mock import MagicMock
 
 # Ensure project root is in Python path for direct imports
@@ -87,12 +87,12 @@ def fetch_metrics_text(metrics_url: str = "http://localhost:8000/metrics") -> st
         return ""
 
 
-def format_otlp_json_payload(metrics_text: str) -> Dict[str, Any]:
+def format_otlp_json_payload(metrics_text: str) -> dict[str, Any]:
     """
     Format OTLP/Prometheus JSON payload from Prometheus exposition format text.
     """
     now_nano = int(time.time() * 1e9)
-    metric_entries: List[Dict[str, Any]] = []
+    metric_entries: list[dict[str, Any]] = []
 
     for line in metrics_text.splitlines():
         line = line.strip()
@@ -106,7 +106,7 @@ def format_otlp_json_payload(metrics_text: str) -> Dict[str, Any]:
                 metric_name = name_part.strip()
                 metric_val = float(val_str.strip())
 
-                attributes: List[Dict[str, Any]] = []
+                attributes: list[dict[str, Any]] = []
                 for kv in labels_str.split(","):
                     if "=" in kv:
                         k, v = kv.split("=", 1)
@@ -136,7 +136,7 @@ def format_otlp_json_payload(metrics_text: str) -> Dict[str, Any]:
         except Exception:
             continue
 
-    payload: Dict[str, Any] = {
+    payload: dict[str, Any] = {
         "resourceMetrics": [
             {
                 "resource": {
@@ -161,7 +161,7 @@ def format_otlp_json_payload(metrics_text: str) -> Dict[str, Any]:
     return payload
 
 
-def load_dashboard_schema(dashboard_path: Union[str, Path]) -> Dict[str, Any]:
+def load_dashboard_schema(dashboard_path: str | Path) -> dict[str, Any]:
     """
     Load and parse Grafana dashboard JSON schema from file.
     Raises FileNotFoundError if file does not exist.
@@ -180,7 +180,7 @@ def load_dashboard_schema(dashboard_path: Union[str, Path]) -> Dict[str, Any]:
     return data
 
 
-def format_grafana_payload(dashboard: Dict[str, Any], overwrite: bool = True, folder_uid: str = "") -> Dict[str, Any]:
+def format_grafana_payload(dashboard: dict[str, Any], overwrite: bool = True, folder_uid: str = "") -> dict[str, Any]:
     """
     Format payload for Grafana Cloud API /api/dashboards/db endpoint.
     """
@@ -239,7 +239,7 @@ def check_connection(grafana_url: str, api_key: str, metrics_url: str) -> bool:
     return status
 
 
-def push_metrics(grafana_url: str, api_key: str, payload: Dict[str, Any], dry_run: bool = False) -> bool:
+def push_metrics(grafana_url: str, api_key: str, payload: dict[str, Any], dry_run: bool = False) -> bool:
     """
     Push OTLP/Prometheus JSON payload to Grafana Cloud metrics endpoint.
     """
@@ -280,7 +280,7 @@ def push_metrics(grafana_url: str, api_key: str, payload: Dict[str, Any], dry_ru
     prom_key = os.getenv("GRAFANA_PROMETHEUS_API", "").strip() or api_key
     if user_id and "your_grafana" not in user_id.lower():
         import base64
-        cred = base64.b64encode(f"{user_id}:{prom_key}".encode("utf-8")).decode("utf-8")
+        cred = base64.b64encode(f"{user_id}:{prom_key}".encode()).decode("utf-8")
         headers["Authorization"] = f"Basic {cred}"
     else:
         headers["Authorization"] = f"Bearer {prom_key}"
@@ -310,13 +310,13 @@ def push_metrics(grafana_url: str, api_key: str, payload: Dict[str, Any], dry_ru
 
 
 def export_dashboard_to_grafana(
-    dashboard_path: Union[str, Path] = DEFAULT_DASHBOARD_PATH,
-    url: Optional[str] = None,
-    token: Optional[str] = None,
+    dashboard_path: str | Path = DEFAULT_DASHBOARD_PATH,
+    url: str | None = None,
+    token: str | None = None,
     dry_run: bool = False,
     overwrite: bool = True,
     folder_uid: str = ""
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Export dashboard to Grafana Cloud API.
     Returns status dictionary.
@@ -405,7 +405,7 @@ _GATEWAY_TARGETS = [
 ]
 
 
-def fetch_gateway_telemetry(targets: Optional[List[Dict[str, Any]]] = None, timeout: int = 10) -> Dict[str, Any]:
+def fetch_gateway_telemetry(targets: list[dict[str, Any]] | None = None, timeout: int = 10) -> dict[str, Any]:
     """
     Probe each gateway health endpoint, measure response latency, and bucket
     HTTP status codes into 2xx/4xx/5xx categories.
@@ -419,9 +419,9 @@ def fetch_gateway_telemetry(targets: Optional[List[Dict[str, Any]]] = None, time
         targets = _GATEWAY_TARGETS
 
     now_nano = str(int(time.time() * 1e9))
-    latency_points: List[Dict[str, Any]] = []
-    status_points: List[Dict[str, Any]] = []
-    bucket_points: List[Dict[str, Any]] = []
+    latency_points: list[dict[str, Any]] = []
+    status_points: list[dict[str, Any]] = []
+    bucket_points: list[dict[str, Any]] = []
 
     for target in targets:
         name = target["name"]
@@ -482,7 +482,7 @@ def fetch_gateway_telemetry(targets: Optional[List[Dict[str, Any]]] = None, time
             "attributes": attrs + [{"key": "status_class", "value": {"stringValue": status_class}}],
         })
 
-    payload: Dict[str, Any] = {
+    payload: dict[str, Any] = {
         "resourceMetrics": [
             {
                 "resource": {

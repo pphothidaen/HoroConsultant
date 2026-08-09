@@ -8,7 +8,8 @@ Deterministic calculation of Da Liu Ren 3-Transmission & 4-Lesson charts:
 - Twelve Heavenly Generals (十二天將)
 """
 
-from typing import Dict, List, Any, Optional
+from typing import Any
+
 from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
 STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
@@ -43,7 +44,7 @@ class LiuRenEngine(AbstractAstrologyEngine):
     def system_type(self) -> str:
         return "san_shi"
 
-    def calculate_heaven_plate(self, month_general_branch: str, hour_branch: str) -> Dict[str, str]:
+    def calculate_heaven_plate(self, month_general_branch: str, hour_branch: str) -> dict[str, str]:
         """
         Calculate Heaven Plate mapping (Earth Branch -> Heaven Branch).
         Month General branch is placed over Hour Branch, then steps clockwise.
@@ -58,7 +59,7 @@ class LiuRenEngine(AbstractAstrologyEngine):
             heaven_plate[earth_b] = heaven_b
         return heaven_plate
 
-    def calculate_four_lessons(self, day_stem: str, day_branch: str, heaven_plate: Dict[str, str]) -> List[Dict[str, str]]:
+    def calculate_four_lessons(self, day_stem: str, day_branch: str, heaven_plate: dict[str, str]) -> list[dict[str, str]]:
         """
         Calculate Four Lessons (四課):
         - Lesson 1: Day Stem parasitic branch -> Heaven Branch
@@ -87,7 +88,7 @@ class LiuRenEngine(AbstractAstrologyEngine):
             {"lesson_name": "第四課 (支上上)", "bottom": lesson4_bottom, "top": lesson4_top},
         ]
 
-    def calculate_three_transmissions(self, four_lessons: List[Dict[str, str]], heaven_plate: Dict[str, str]) -> Dict[str, str]:
+    def calculate_three_transmissions(self, four_lessons: list[dict[str, str]], heaven_plate: dict[str, str]) -> dict[str, str]:
         """
         Calculate Three Transmissions (三傳: 初傳, 中傳, 末傳) via basic Ke/Zei rule.
         """
@@ -102,7 +103,7 @@ class LiuRenEngine(AbstractAstrologyEngine):
             "末傳 (歸結)": mo_chuan
         }
 
-    def calculate_generals_plate(self, noble_branch: str, heaven_plate: Dict[str, str]) -> Dict[str, str]:
+    def calculate_generals_plate(self, noble_branch: str, heaven_plate: dict[str, str]) -> dict[str, str]:
         """
         Assign 12 Heavenly Generals to Earth/Heaven branches.
         """
@@ -113,7 +114,7 @@ class LiuRenEngine(AbstractAstrologyEngine):
             generals_plate[branch] = gen
         return generals_plate
 
-    def calculate_chart(self, day_stem: str, day_branch: str, month_general: str, hour_branch: str) -> Dict[str, Any]:
+    def calculate_chart(self, day_stem: str, day_branch: str, month_general: str, hour_branch: str) -> dict[str, Any]:
         """
         Calculate complete Da Liu Ren chart.
         """

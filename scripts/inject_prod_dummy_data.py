@@ -22,7 +22,7 @@ import time
 import urllib.parse
 import urllib.request
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 # Ensure project root is in Python path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -40,7 +40,7 @@ except ImportError:
     pass
 
 
-def generate_otlp_stage_payload(timestamp_nano: str, stage_idx: int) -> Dict[str, Any]:
+def generate_otlp_stage_payload(timestamp_nano: str, stage_idx: int) -> dict[str, Any]:
     """Generate high-density OTLP metric payload for a specific time window stage."""
     scale = (stage_idx + 1) * 2.5
     base_count = 50.0 + (stage_idx * 5)
@@ -161,7 +161,7 @@ def build_otlp_auth_headers() -> dict[str, str]:
         return {"Authorization": f"Bearer {api_key}"}
 
     if user_id and prom_api:
-        auth = base64.b64encode(f"{user_id}:{prom_api}".encode("utf-8")).decode("utf-8")
+        auth = base64.b64encode(f"{user_id}:{prom_api}".encode()).decode("utf-8")
         return {"Authorization": f"Basic {auth}"}
 
     if prom_api:
@@ -316,7 +316,10 @@ def main() -> int:
     if args.target in ("incident", "all"):
         print("\n--- [STAGE 2] INJECTING GRAFANA INCIDENT DATASOURCE RECORDS ---")
         try:
-            from scripts.inject_grafana_incident_data import inject_grafana_incident_data, verify_incident_datasource_queries
+            from scripts.inject_grafana_incident_data import (
+                inject_grafana_incident_data,
+                verify_incident_datasource_queries,
+            )
             inc_ok = inject_grafana_incident_data(stages=args.stages, dry_run=args.dry_run)
             ok = ok and inc_ok
             if args.verify_queries and not args.dry_run:

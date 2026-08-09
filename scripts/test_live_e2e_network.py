@@ -15,12 +15,12 @@ Usage:
 
 from __future__ import annotations
 
-import sys
 import json
-import time
-import urllib.request
-import urllib.error
 import logging
+import sys
+import time
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent.parent

@@ -5,19 +5,20 @@ Computational Metaphysics Engine
 
 from __future__ import annotations
 
-import os
-import logging
 import asyncio
+import logging
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from project.admin_router import admin_router
-from project.hitl_router  import hitl_router
+from project.api_router import router
+from project.hitl_router import hitl_router
 from project.routers import astrology_router, debate_router
-from project.routers.debate import router
+
 
 try:
     from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -79,10 +80,11 @@ async def lifespan(app: FastAPI):
         logger.info("🛑 Auto-sync scheduler shut down.")
 
 
-from project.core.config import get_git_commit_hash, get_app_version
-from project.core.observability import setup_observability_middleware
 from fastapi.middleware.cors import CORSMiddleware
+
+from project.core.config import get_app_version, get_git_commit_hash
 from project.core.cors import get_allowed_origins
+from project.core.observability import setup_observability_middleware
 
 app = FastAPI(
     title       = "Computational Metaphysics Engine",
@@ -103,6 +105,7 @@ app.add_middleware(
 
 from fastapi import Request
 
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Global unhandled exception on {request.url.path}: {exc}", exc_info=True)
@@ -114,7 +117,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
     return JSONResponse(
         status_code=500,
-        content={"detail": f"Internal Server Error: {str(exc)}"},
+        content={"detail": f"Internal Server Error: {exc!s}"},
         headers=headers,
     )
 

@@ -4,7 +4,6 @@ project/tests/test_ingest_vault.py
 Unit tests for Vault & Additional Source Ingestion Pipeline.
 """
 
-from pathlib import Path
 from project.rag.ingest_vault import chunk_markdown, extract_qa_pairs, qa_to_sharegpt
 
 

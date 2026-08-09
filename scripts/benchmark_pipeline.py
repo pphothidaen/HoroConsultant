@@ -10,10 +10,9 @@ Measures:
 
 from __future__ import annotations
 
+import logging
 import sys
 import time
-import json
-import logging
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -64,7 +63,7 @@ def benchmark_track_b_inference():
     elapsed_hit = (time.monotonic() - t0) * 1000
 
     logger.info(f"   [Cache Layer] Cache Set Latency: {elapsed_set:.3f} ms, Cache HIT Latency: {elapsed_hit:.3f} ms (< 1ms)")
-    logger.info(f"   [Token Savings] Cache HIT saves 100% Cloud Tokens (0 tokens consumed, 0$ cost).")
+    logger.info("   [Token Savings] Cache HIT saves 100% Cloud Tokens (0 tokens consumed, 0$ cost).")
 
 
 def benchmark_track_a_mlops():

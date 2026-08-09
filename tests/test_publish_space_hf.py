@@ -17,7 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from scripts.publish_space_hf import audit_payload, should_ignore, publish_space
+from scripts.publish_space_hf import audit_payload, publish_space, should_ignore
 
 
 def test_should_ignore_patterns():

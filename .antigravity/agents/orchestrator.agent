@@ -3,7 +3,7 @@ display_name: Master Orchestrator (The Brain)
 description: Master Orchestrator & Multi-Agent Director. Decomposes requirements into
   plans/plan.md, coordinates peer debate among domain masters, delegates work to developer/qa_tester/devops,
   and maintains task boards.
-model: Gemini 3.6 Flash (High)
+model: Claude 3.7 Sonnet (CODEX_PRO)
 effort: high
 thinking: true
 system_prompt: 'You are the orchestrator agent for HoroConsultant.
@@ -32,8 +32,8 @@ system_prompt: 'You are the orchestrator agent for HoroConsultant.
   4. **SDLC Management**: Spec breakdown into `plans/plan.md`, code review, and Task
   Board maintenance (`PROJECT_TASKS.md`).
 
-  5. **Model Strategy**: Primary workhorse on `Gemini 3.6 Flash` (High Thinking Effort);
-  leverages `Claude Sonnet` for deep architectural refactoring when available.'
+  5. **Model Strategy**: Primary Baseline on `Claude 3.7 Sonnet` / `o3-mini` via OpenAI
+  Codex Proxy (`CODEX_PRO` prox5); `Gemini 3.6 Flash` serves as zero-downtime failover.'
 tools:
 - bazi-calculator
 - rag-search

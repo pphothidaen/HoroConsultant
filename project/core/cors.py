@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import os
-from typing import Dict, List
 
 
-def get_allowed_origins() -> List[str]:
+def get_allowed_origins() -> list[str]:
     """Return the configured CORS origins from the environment."""
     raw = os.getenv("CORS_ALLOWED_ORIGINS", "*")
     if not raw or raw.strip() == "":
@@ -19,7 +18,7 @@ def get_allowed_origins() -> List[str]:
     return origins or ["*"]
 
 
-def get_cors_headers(request_origin: str | None = None) -> Dict[str, str]:
+def get_cors_headers(request_origin: str | None = None) -> dict[str, str]:
     """Build CORS headers for a request, echoing the request origin when allowed."""
     allowed_origins = get_allowed_origins()
     if "*" in allowed_origins:
@@ -29,7 +28,7 @@ def get_cors_headers(request_origin: str | None = None) -> Dict[str, str]:
     else:
         allow_origin = None
 
-    headers: Dict[str, str] = {
+    headers: dict[str, str] = {
         "Access-Control-Allow-Credentials": "true",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",

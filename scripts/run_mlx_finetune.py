@@ -28,19 +28,19 @@ Requirements (macOS Apple Silicon only)
 
 from __future__ import annotations
 
-import os
-import sys
-import json
-import shutil
-import subprocess
 import argparse
-from pathlib import Path
+import json
+import os
+import subprocess
+import sys
 from datetime import datetime
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # ---------------------------------------------------------------------------
@@ -280,8 +280,8 @@ def _fuse_adapter(model: str, adapter_path: str) -> None:
         print(f"✅ Fused model saved → {fused_path}")
         print("\nNext: Convert to GGUF for Ollama:")
         print(f"  cd llama.cpp && python convert_hf_to_gguf.py {fused_path} \\")
-        print(f"    --outfile project/models/qwen2.5-bazi.gguf --outtype q4_k_m")
-        print(f"  ollama create qwen2.5-bazi -f project/models/Modelfile")
+        print("    --outfile project/models/qwen2.5-bazi.gguf --outtype q4_k_m")
+        print("  ollama create qwen2.5-bazi -f project/models/Modelfile")
     except subprocess.CalledProcessError as e:
         print(f"❌ Fuse failed: {e.returncode}")
 

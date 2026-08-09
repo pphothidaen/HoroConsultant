@@ -11,11 +11,10 @@ Supports launching fine-tuning jobs on External AI platforms:
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 logger = logging.getLogger("external_finetune")
 
@@ -25,7 +24,7 @@ def launch_external_finetune(
     model_name: str,
     dataset_path: Path,
     max_iterations: int = 1000,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Launch fine-tuning job on external provider APIs.
     """

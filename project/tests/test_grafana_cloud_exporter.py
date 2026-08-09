@@ -7,10 +7,10 @@ from __future__ import annotations
 
 import json
 import os
-import sys
 import subprocess
+import sys
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -20,13 +20,13 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.grafana_cloud_exporter import (
-    load_dashboard_schema,
-    format_grafana_payload,
     export_dashboard_to_grafana,
-    main as exporter_main,
-    DEFAULT_DASHBOARD_PATH,
+    format_grafana_payload,
+    load_dashboard_schema,
 )
-from project.core.observability import ObservabilityManager
+from scripts.grafana_cloud_exporter import (
+    main as exporter_main,
+)
 
 DASHBOARD_FILE_PATH = ROOT / "project" / "grafana" / "horoconsultant_dashboard.json"
 INCIDENT_DASHBOARD_FILE_PATH = ROOT / "project" / "grafana" / "incident_insights_dashboard.json"

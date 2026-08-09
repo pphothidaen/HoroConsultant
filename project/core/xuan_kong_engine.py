@@ -7,8 +7,7 @@ Deterministic calculation of Xuan Kong Flying Stars 9-Grid Charts:
 - Sitting Star (山星) and Facing Star (向星) flying tracks (顺飞 / 逆飞)
 """
 
-from typing import Dict, List, Any, Optional
-
+from typing import Any
 
 MOUNTAINS_24 = [
     ("壬", 337.5, 352.5, "坎", "陽"),
@@ -63,7 +62,6 @@ STAR_NAMES = {
     9: "九紫右弼星 (火)"
 }
 
-from typing import Dict, List, Any, Optional
 from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
 
@@ -90,7 +88,7 @@ class XuanKongEngine(AbstractAstrologyEngine):
                     return name, trigram, yinyang
         return "子", "坎", "陰"
 
-    def fly_stars(self, center_star: int, is_forward: bool) -> Dict[int, int]:
+    def fly_stars(self, center_star: int, is_forward: bool) -> dict[int, int]:
         """
         Fly stars forward (順飛) or backward (逆飛) from center star through Luo Shu sequence.
         Luo Shu sequence of palaces: 5 -> 6 -> 7 -> 8 -> 9 -> 1 -> 2 -> 3 -> 4
@@ -105,7 +103,7 @@ class XuanKongEngine(AbstractAstrologyEngine):
             result[palace] = star
         return result
 
-    def calculate_chart(self, facing_degree: float, period: int = 9) -> Dict[str, Any]:
+    def calculate_chart(self, facing_degree: float, period: int = 9) -> dict[str, Any]:
         """
         Calculate complete Xuan Kong Flying Stars 9-Grid chart for a given facing degree.
         """
@@ -115,21 +113,15 @@ class XuanKongEngine(AbstractAstrologyEngine):
 
         base_chart = PERIOD_9_BASE_CHART if period == 9 else PERIOD_9_BASE_CHART
 
-        # Determine center Sitting Star & Facing Star
-        # Facing mountain corresponds to its palace base star in Period Chart
-        center_sitting_star = base_chart.get(5, 9)
-        center_facing_star = base_chart.get(9, 4)
-
-        sitting_stars = self.fly_stars(center_sitting_star, is_forward=(sitting_yy == "陽"))
-        facing_stars = self.fly_stars(center_facing_star, is_forward=(facing_yy == "陽"))
-
         from project.core.fast_math import fast_xuankong_9grid
         grid_matrix = fast_xuankong_9grid(facing_degree, period)
         matrix_map = {p[0]: (p[1], p[2], p[3]) for p in grid_matrix}
 
+
         palaces_grid = []
         for palace_num, palace_name, direction in LUO_SHU_PALACES:
-            base_s, sit_s, face_s = matrix_map.get(palace_num, (base_chart[palace_num], sitting_stars[palace_num], facing_stars[palace_num]))
+            base_s, sit_s, face_s = matrix_map.get(palace_num, (base_chart.get(palace_num, 9), 9, 9))
+
             palaces_grid.append({
                 "palace_number": palace_num,
                 "palace_name": palace_name,

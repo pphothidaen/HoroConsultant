@@ -14,10 +14,10 @@ Usage
 
 from __future__ import annotations
 
-import os
 import json
 import logging
-from typing import Dict, Any, Optional
+import os
+from typing import Any
 
 import httpx
 from dotenv import load_dotenv
@@ -66,15 +66,15 @@ def _get_api_keys() -> list[str]:
 class PredictionValidator:
     """External Gemini API Prediction Validator Agent."""
 
-    def __init__(self, model_name: Optional[str] = None):
+    def __init__(self, model_name: str | None = None):
         self.model_name = model_name or VALIDATOR_MODEL
 
     def validate(
         self,
-        bazi_chart: Dict[str, Any],
+        bazi_chart: dict[str, Any],
         initial_interpretation: str,
         user_query: str = "",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Validate chart calculation and initial interpretation via external Gemini API.
 

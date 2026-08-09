@@ -27,7 +27,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Production endpoint constants
@@ -42,8 +42,8 @@ def _request(
     url: str,
     method: str = "GET",
     timeout: int = 15,
-    extra_headers: Dict[str, str] | None = None,
-) -> Tuple[int, str, float]:
+    extra_headers: dict[str, str] | None = None,
+) -> tuple[int, str, float]:
     """
     Execute HTTP request. Returns (status_code, body_text, latency_ms).
     Returns (0, error_message, latency_ms) on connection failure.
@@ -82,7 +82,7 @@ def run_verification(timeout: int = 15, verbose: bool = False) -> bool:
     """
     Run all health checks. Returns True if all pass.
     """
-    results: List[Dict[str, Any]] = []
+    results: list[dict[str, Any]] = []
     all_passed = True
 
     print("[INFO] ============================================================")

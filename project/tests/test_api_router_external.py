@@ -4,7 +4,8 @@ project/tests/test_api_router_external.py
 Unit & Integration tests for External AI Provider Routing in HybridRouter.
 """
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 from project.api_router import HybridRouter, _call_openai_compatible
 
 

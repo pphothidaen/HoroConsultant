@@ -14,3 +14,4 @@
    os.environ["TRANSFORMERS_VERBOSITY"] = "error"
    ```
 4. **Preserve Comments & Docstrings**: Maintain existing inline comments, NOAA Spencer formulas, and docstrings unless explicitly asked to modify.
+5. **Migration Dead Code Cleanup Mandate**: Every code migration or engine refactoring task MUST include cleaning up original deprecated code, dead functions, unused variables, and legacy fallback loops from the target codebase. Leaving legacy dead code behind is strictly forbidden.

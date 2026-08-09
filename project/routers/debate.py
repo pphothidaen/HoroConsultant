@@ -5,21 +5,19 @@ Computational Metaphysics Engine
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
-import asyncio
 from datetime import datetime
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from project.core.bazi_engine import BaZiEngine
 from project.api_router import HybridRouter
-from project.validator import PredictionValidator
+from project.core.bazi_engine import BaZiEngine
 from project.core.svg_generator import generate_bazi_svg, generate_zodiac_wheel_svg
-
+from project.validator import PredictionValidator
 
 logger = logging.getLogger("routers.debate")
 
@@ -40,17 +38,17 @@ class InterpretRequest(BaseModel):
     longitude:         float = Field(..., json_schema_extra={"example": 100.4930}, ge=-180.0, le=180.0)
     utc_offset_hours:  float = Field(..., json_schema_extra={"example": 7.0}, ge=-12.0, le=14.0)
     unknown_hour:      bool  = Field(False, description="Enable probabilistic matrix mode")
-    query:             Optional[str] = Field(None, json_schema_extra={"example": "Analyse my Day Master strength and career prospects"})
+    query:             str | None = Field(None, json_schema_extra={"example": "Analyse my Day Master strength and career prospects"})
     enable_validation: bool          = Field(False, description="Cross-validate prediction via Gemini Validator Agent")
 
 
 class ValidateRequest(BaseModel):
     bazi_chart:             dict         = Field(..., description="Structured BaZi chart JSON from /calculate")
     initial_interpretation: str          = Field(..., description="Initial interpretation text to be validated")
-    query:                  Optional[str]= Field(None, description="Optional user query context")
+    query:                  str | None= Field(None, description="Optional user query context")
 
 
-def _generate_fallback_reading(dm: dict, pcts: dict, query: Optional[str]) -> str:
+def _generate_fallback_reading(dm: dict, pcts: dict, query: str | None) -> str:
     stem = dm.get("stem", "")
     elem = dm.get("element", "")
     pol  = dm.get("polarity", "")

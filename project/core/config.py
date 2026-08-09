@@ -11,15 +11,14 @@ Priority Order:
 
 from __future__ import annotations
 
-import os
-import sys
 import json
 import logging
-import urllib.request
+import os
 import subprocess
+import urllib.request
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional
+
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -114,7 +113,7 @@ def fetch_all_doppler_secrets_via_api() -> dict[str, str]:
     return _DOPPLER_CACHE
 
 
-def fetch_doppler_secret_via_api(key_name: str) -> Optional[str]:
+def fetch_doppler_secret_via_api(key_name: str) -> str | None:
     """Attempt fetching secret directly from Doppler API if DOPPLER_TOKEN is available."""
     cached = fetch_all_doppler_secrets_via_api()
     if key_name in cached:
@@ -216,6 +215,12 @@ class Config:
     OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
     OLLAMA_PRIMARY_MODEL: str = os.getenv("OLLAMA_PRIMARY_MODEL", "qwen2.5-bazi")
     OLLAMA_EMBED_MODEL: str = os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text:latest")
+
+    # AI Provider Routing Configuration
+    AI_PRIMARY_PROVIDER: str = os.getenv("AI_PRIMARY_PROVIDER", "codex_chatgpt").lower()
+    AI_FALLBACK_PROVIDER: str = os.getenv("AI_FALLBACK_PROVIDER", "gemini").lower()
+    CODEX_COMMAND: str = os.getenv("CODEX_COMMAND", "codex")
+    CODEX_USE_CHATGPT_AUTH: bool = os.getenv("CODEX_USE_CHATGPT_AUTH", "true").lower() == "true"
 
     # Fine-Tuning Settings
     BASE_MODEL_NAME: str = os.getenv("BASE_MODEL_NAME", "Qwen/Qwen2.5-7B-Instruct")

@@ -18,11 +18,11 @@ Usage (On Kaggle / Lightning AI Notebook or Terminal):
 
 from __future__ import annotations
 
+import argparse
+import json
+import logging
 import os
 import sys
-import json
-import argparse
-import logging
 from pathlib import Path
 
 # Add project root to path
@@ -52,11 +52,13 @@ if hasattr(sys.stderr, "reconfigure"):
 
 # Root Cause Fix: Suppress dataset fingerprint hashing warning for inner tokenization closures
 import warnings
+
 warnings.filterwarnings("ignore", message=".*couldn't be hashed properly.*")
 warnings.filterwarnings("ignore", category=UserWarning, module="datasets.*")
 
 # Triton 3.x compatibility shim for bitsandbytes (prevents ModuleNotFoundError: No module named 'triton.ops')
 import types
+
 try:
     import triton.ops
 except (ImportError, ModuleNotFoundError):
@@ -258,6 +260,7 @@ def run_preflight_environment_audit() -> dict:
 
     try:
         import inspect
+
         from peft import LoraConfig
         peft_config = LoraConfig(r=8, lora_alpha=16, task_type="CAUSAL_LM")
         results["peft_ok"] = True
@@ -267,6 +270,7 @@ def run_preflight_environment_audit() -> dict:
 
     try:
         import inspect
+
         from trl import SFTConfig
         sig = inspect.signature(SFTConfig.__init__)
         has_max_seq = "max_seq_length" in sig.parameters
@@ -294,6 +298,7 @@ def create_sft_trainer(
     or unknown keyword arguments like 'max_seq_length' or 'tokenizer' / 'processing_class'.
     """
     import inspect
+
     from trl import SFTTrainer
 
     sig = inspect.signature(SFTTrainer.__init__)
@@ -412,11 +417,14 @@ def run_training_pipeline(
         import torch
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-        from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, TrainingArguments
-
-
-        from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
         from datasets import load_dataset
+        from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
+        from transformers import (
+            AutoModelForCausalLM,
+            AutoTokenizer,
+            BitsAndBytesConfig,
+            TrainingArguments,
+        )
         from trl import SFTTrainer
     except ImportError as e:
         logger.error(f"[ERROR] Missing required PyTorch/Transformers packages: {e}")
@@ -460,7 +468,6 @@ def run_training_pipeline(
     if use_cuda and not is_kaggle and not is_sm75:
         try:
             _ensure_bitsandbytes_cuda_binary()
-            import bitsandbytes as bnb
             bnb_available = True
             logger.info("   [OK] BitsAndBytes 4-bit quantization available.")
         except Exception as bnb_err:
@@ -544,7 +551,6 @@ def run_training_pipeline(
             if hasattr(_peft_utils, "cast_adapter_dtype"):
                 def _safe_cast_adapter_dtype(model, adapter_name=None, autocast_adapter_dtype=True, **kwargs):
                     logger.info("   [INFO] [sm_75 patch] Skipping cast_adapter_dtype to prevent CUDA kernel mismatch.")
-                    return
                 _peft_utils.cast_adapter_dtype = _safe_cast_adapter_dtype
                 logger.info("   [OK] Applied sm_75/T4 PEFT cast_adapter_dtype no-op patch.")
         except Exception:
@@ -725,8 +731,8 @@ def sync_back_to_github_repo(
     hf_repo_id: str,
 ) -> bool:
     """Save post-training summary and push updated files back to GitHub repository."""
-    import subprocess
     import datetime
+    import subprocess
 
     summary_file = ROOT_DIR / "project" / "data" / "latest_cloud_train_summary.json"
     summary_file.parent.mkdir(parents=True, exist_ok=True)

@@ -7,8 +7,8 @@ Deterministic calculation of Date Selection suitability:
 - Activity suitability matrix (Marriage, Moving, Opening, Travel, Construction)
 """
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime
+from typing import Any
+
 from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
 BRANCHES = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
@@ -66,8 +66,8 @@ class ZeJiEngine(AbstractAstrologyEngine):
         year_branch: str,
         month_branch: str,
         day_branch: str,
-        user_birth_branch: Optional[str] = None
-    ) -> Dict[str, Any]:
+        user_birth_branch: str | None = None
+    ) -> dict[str, Any]:
         """
         Evaluate date suitability for key life events.
         """

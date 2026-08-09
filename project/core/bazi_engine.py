@@ -20,28 +20,29 @@ Reference: He Luo Li Shu classical BaZi methodology
 
 from __future__ import annotations
 
-import math
-from functools  import lru_cache
-from datetime   import datetime, timedelta
-from dataclasses import dataclass, field, asdict
-from typing      import Dict, List, Optional, Tuple, Any
+from datetime import datetime
+from functools import lru_cache
+from typing import Any
 
-from project.core.solar_time import calculate_true_solar_time, SolarTimeResult
-from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult, ElementScores
-# NumPy-accelerated operations (Phase 1 — transparent drop-in replacement)
-from project.core.fast_math import (
-    numpy_element_scores,
-    numpy_probabilistic_matrix,
-    cached_julian_day,
-    cached_tst_calculation,
+from project.core.base_engine import (
+    AbstractAstrologyEngine,
+    ElementScores,
+    EngineChartResult,
 )
 
+# NumPy-accelerated operations (Phase 1 — transparent drop-in replacement)
+from project.core.fast_math import (
+    cached_julian_day,
+    numpy_element_scores,
+    numpy_probabilistic_matrix,
+)
+from project.core.solar_time import SolarTimeResult, calculate_true_solar_time
 
 # ============================================================
 # Lookup Tables
 # ============================================================
 
-STEMS: List[Dict[str, str]] = [
+STEMS: list[dict[str, str]] = [
     {"name": "甲", "pinyin": "Jiǎ",  "element": "Wood",  "polarity": "Yang"},
     {"name": "乙", "pinyin": "Yǐ",   "element": "Wood",  "polarity": "Yin"},
     {"name": "丙", "pinyin": "Bǐng", "element": "Fire",  "polarity": "Yang"},
@@ -54,7 +55,7 @@ STEMS: List[Dict[str, str]] = [
     {"name": "癸", "pinyin": "Guǐ",  "element": "Water", "polarity": "Yin"},
 ]
 
-BRANCHES: List[Dict] = [
+BRANCHES: list[dict] = [
     {"name": "子", "pinyin": "Zǐ",    "animal": "Rat",     "element": "Water", "polarity": "Yang", "hour_start": 23},
     {"name": "丑", "pinyin": "Chǒu",  "animal": "Ox",      "element": "Earth", "polarity": "Yin",  "hour_start": 1},
     {"name": "寅", "pinyin": "Yín",   "animal": "Tiger",   "element": "Wood",  "polarity": "Yang", "hour_start": 3},
@@ -70,7 +71,7 @@ BRANCHES: List[Dict] = [
 ]
 
 # Hidden Stems (藏干): branch_name → [(stem_name, fractional_weight)]
-HIDDEN_STEMS: Dict[str, List[Tuple[str, float]]] = {
+HIDDEN_STEMS: dict[str, list[tuple[str, float]]] = {
     "子": [("癸", 1.00)],
     "丑": [("己", 0.60), ("癸", 0.30), ("辛", 0.10)],
     "寅": [("甲", 0.60), ("丙", 0.30), ("戊", 0.10)],
@@ -86,12 +87,12 @@ HIDDEN_STEMS: Dict[str, List[Tuple[str, float]]] = {
 }
 
 # Stem → Element lookup
-STEM_ELEMENT: Dict[str, str] = {s["name"]: s["element"] for s in STEMS}
+STEM_ELEMENT: dict[str, str] = {s["name"]: s["element"] for s in STEMS}
 
 FIVE_ELEMENTS = ["Wood", "Fire", "Earth", "Metal", "Water"]
 
 # Seasonal (月令) multipliers: season_element → {element: multiplier}
-SEASONAL_MULT: Dict[str, Dict[str, float]] = {
+SEASONAL_MULT: dict[str, dict[str, float]] = {
     "Wood":  {"Wood": 1.5, "Fire": 1.2, "Earth": 0.8, "Metal": 0.6, "Water": 1.1},
     "Fire":  {"Fire": 1.5, "Earth": 1.2, "Metal": 0.7, "Water": 0.6, "Wood": 1.1},
     "Earth": {"Earth": 1.5, "Metal": 1.2, "Water": 0.7, "Wood": 0.8, "Fire": 1.1},
@@ -104,11 +105,11 @@ SEASONAL_MULT: Dict[str, Dict[str, float]] = {
 # Helper utilities
 # ============================================================
 
-def _stem(idx: int) -> Dict[str, str]:
+def _stem(idx: int) -> dict[str, str]:
     return STEMS[idx % 10]
 
 
-def _branch(idx: int) -> Dict:
+def _branch(idx: int) -> dict:
     return BRANCHES[idx % 12]
 
 
@@ -122,7 +123,7 @@ def _julian_day(dt: datetime) -> int:
 # ============================================================
 
 @lru_cache(maxsize=4096)
-def _year_stem_branch(year: int, month: int, day: int) -> Tuple[int, int]:
+def _year_stem_branch(year: int, month: int, day: int) -> tuple[int, int]:
     """
     Year pillar indices.
     Switch to prior year if before Lichun (≈ Feb 4).
@@ -133,7 +134,7 @@ def _year_stem_branch(year: int, month: int, day: int) -> Tuple[int, int]:
 
 # Solar term boundary lookup (simplified month boundaries for 12 solar months)
 # Each tuple: (month, day_start) where this solar month begins
-_SOLAR_MONTH_STARTS: List[Tuple[int, int]] = [
+_SOLAR_MONTH_STARTS: list[tuple[int, int]] = [
     (1,  6),   # 0 → 丑 Ox
     (2,  4),   # 1 → 寅 Tiger
     (3,  6),   # 2 → 卯 Rabbit
@@ -161,7 +162,7 @@ def _month_branch_idx(month: int, day: int) -> int:
 
 
 @lru_cache(maxsize=4096)
-def _month_stem_branch(year_stem_idx: int, month: int, day: int) -> Tuple[int, int]:
+def _month_stem_branch(year_stem_idx: int, month: int, day: int) -> tuple[int, int]:
     """
     Month pillar via Five Tigers Rule (五虎遁).
     Year stems 甲/己 → month 寅 stem = 丙; shift by year_stem_idx mod 5.
@@ -178,7 +179,7 @@ def _month_stem_branch(year_stem_idx: int, month: int, day: int) -> Tuple[int, i
     return m_stem, m_branch
 
 
-def _day_stem_branch(dt: datetime) -> Tuple[int, int]:
+def _day_stem_branch(dt: datetime) -> tuple[int, int]:
     """Day pillar via Julian Day Number."""
     jdn = _julian_day(dt)
     return (jdn + 9) % 10, (jdn + 1) % 12
@@ -192,7 +193,7 @@ def _hour_branch_from_tst(tst_hour: int) -> int:
     return (tst_hour + 1) // 2
 
 
-def _hour_stem_branch(day_stem_idx: int, tst_hour: int) -> Tuple[int, int]:
+def _hour_stem_branch(day_stem_idx: int, tst_hour: int) -> tuple[int, int]:
     """
     Hour pillar via Five Rats Rule (五鼠遁).
     Day stems 甲/己 → hour 子 stem = 甲.
@@ -209,10 +210,10 @@ def _hour_stem_branch(day_stem_idx: int, tst_hour: int) -> Tuple[int, int]:
 # ============================================================
 
 def _compute_element_scores(
-    stem_indices:   List[int],
-    branch_indices: List[int],
+    stem_indices:   list[int],
+    branch_indices: list[int],
     season_element: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Five Elements strength — delegates to NumPy-vectorized numpy_element_scores().
     ~3–5× faster via SIMD + pre-compiled lookup arrays.
@@ -224,7 +225,7 @@ def _compute_element_scores(
 # Serialisation helpers
 # ============================================================
 
-def _pillar_dict(stem_idx: int, branch_idx: int, label: str) -> Dict[str, Any]:
+def _pillar_dict(stem_idx: int, branch_idx: int, label: str) -> dict[str, Any]:
     s = _stem(stem_idx)
     b = _branch(branch_idx)
     hs_raw = HIDDEN_STEMS[b["name"]]
@@ -415,8 +416,8 @@ class BaZiEngine(AbstractAstrologyEngine):
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    import json
     import argparse
+    import json
 
     parser = argparse.ArgumentParser(description="BaZi Four Pillars Engine")
     parser.add_argument("--dt",        required=True, help="Datetime YYYY-MM-DD HH:MM:SS")

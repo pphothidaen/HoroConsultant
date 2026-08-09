@@ -13,16 +13,17 @@ Generates:
 
 from __future__ import annotations
 
-import sys
 import json
+import sys
 import time
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from fastapi.testclient import TestClient
+
 from project.main import app
 
 client = TestClient(app)
@@ -277,7 +278,7 @@ def run_tests():
                 detail = "Verified via HTML DOM Contract check"
         except Exception as e:
             status = "FAILED"
-            detail = f"Exception: {str(e)}"
+            detail = f"Exception: {e!s}"
 
         elapsed_ms = round((time.perf_counter() - t0) * 1000, 2)
         results.append({
@@ -452,5 +453,25 @@ def test_openapi_json_btn():
 
 
 
-if __name__ == "__main__":
+def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="UI Button Regression Suite")
+    parser.add_argument("--use-rust", action="store_true", help="Execute high-performance Rust Tokio binary")
+    parser.add_argument("--base-url", default="http://testserver", help="Base URL for target API server")
+    args = parser.parse_args()
+
+    rust_binary = ROOT / "rust_core" / "target" / "release" / "button_regression"
+    if args.use_rust and rust_binary.exists():
+        import subprocess
+        import os
+        print(f"[INFO] Delegating Button Regression Suite to High-Performance Rust Binary ({rust_binary.name})...")
+        env = os.environ.copy()
+        env["TEST_BASE_URL"] = args.base_url
+        res = subprocess.run([str(rust_binary)], env=env)
+        sys.exit(res.returncode)
+
     run_tests()
+
+
+if __name__ == "__main__":
+    main()

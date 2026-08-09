@@ -5,39 +5,37 @@ Computational Metaphysics Engine
 
 from __future__ import annotations
 
-import logging
 import asyncio
+import logging
 from datetime import datetime
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from project.core.bazi_engine import BaZiEngine
-from project.core.zi_wei_engine import ZiWeiEngine
-from project.core.qi_men_engine import QiMenEngine
-from project.core.liu_ren_engine import LiuRenEngine
 from project.core.iching_engine import IChingEngine
-from project.core.xuan_kong_engine import XuanKongEngine
-from project.core.ze_ji_engine import ZeJiEngine
-from project.core.thai_vedic_engine import ThaiVedicEngine
-from project.core.western_uranian_engine import WesternUranianEngine
+from project.core.liu_ren_engine import LiuRenEngine
 from project.core.numerology_engine import NumerologyEngine
-
+from project.core.qi_men_engine import QiMenEngine
 from project.core.svg_generator import (
     generate_bazi_svg,
-    generate_zodiac_wheel_svg,
-    generate_ziwei_svg,
-    generate_qimen_svg,
-    generate_liuren_svg,
     generate_iching_svg,
-    generate_xuankong_svg,
-    generate_zeji_svg,
+    generate_liuren_svg,
+    generate_numerology_svg,
+    generate_qimen_svg,
     generate_thaivedic_svg,
     generate_western_svg,
-    generate_numerology_svg,
+    generate_xuankong_svg,
+    generate_zeji_svg,
+    generate_ziwei_svg,
+    generate_zodiac_wheel_svg,
 )
+from project.core.thai_vedic_engine import ThaiVedicEngine
+from project.core.western_uranian_engine import WesternUranianEngine
+from project.core.xuan_kong_engine import XuanKongEngine
+from project.core.ze_ji_engine import ZeJiEngine
+from project.core.zi_wei_engine import ZiWeiEngine
 
 logger = logging.getLogger("routers.astrology")
 
@@ -96,7 +94,7 @@ async def calculate_bazi(req: BaZiRequest):
         return JSONResponse(content=data)
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
-    except Exception as e:
+    except Exception:
         logger.exception("BaZi calculation error")
         raise HTTPException(status_code=500, detail="Internal calculation error")
 
@@ -126,7 +124,7 @@ async def calculate_liuren(day_stem: str = "甲", day_branch: str = "子", month
 
 
 @astrology_router.get("/api/v1/iching/calculate", tags=["I Ching"])
-async def calculate_iching(day_stem: str = "甲", seed: Optional[int] = None):
+async def calculate_iching(day_stem: str = "甲", seed: int | None = None):
     """Cast I Ching Hexagram and compute Liu Yao setup (6 Lines, 6 Animals, 5 Relatives) with SVG."""
     lines = iching_engine.cast_lines(seed=seed)
     chart = iching_engine.calculate_liu_yao(day_stem, lines).to_dict()
@@ -143,7 +141,7 @@ async def calculate_xuankong(facing_degree: float = 180.0, period: int = 9):
 
 
 @astrology_router.get("/api/v1/zeji/calculate", tags=["Date Selection"])
-async def calculate_zeji(year_branch: str = "午", month_branch: str = "申", day_branch: str = "寅", user_birth_branch: Optional[str] = "子"):
+async def calculate_zeji(year_branch: str = "午", month_branch: str = "申", day_branch: str = "寅", user_birth_branch: str | None = "子"):
     """Calculate Date Selection suitability via 12 Duty Officers and Clash checks with SVG."""
     chart = zeji_engine.check_suitability(year_branch, month_branch, day_branch, user_birth_branch).to_dict()
     chart["svg_content"] = generate_zeji_svg(chart)
@@ -237,15 +235,16 @@ async def resolve_location(req: LocationResolveRequest):
         from geopy.geocoders import Nominatim
         geolocator = Nominatim(user_agent="horo_consultant")
         location_data = await asyncio.to_thread(geolocator.geocode, req.location)
-    except Exception as e:
+    except Exception:
         location_data = None
 
     if location_data:
         lat = location_data.latitude
         lon = location_data.longitude
         try:
-            from timezonefinder import TimezoneFinder
             import zoneinfo
+
+            from timezonefinder import TimezoneFinder
             tf = TimezoneFinder()
             tz_name = tf.timezone_at(lng=lon, lat=lat) or "Asia/Bangkok"
             tz = zoneinfo.ZoneInfo(tz_name)

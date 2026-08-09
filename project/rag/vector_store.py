@@ -17,27 +17,24 @@ Usage
 
 from __future__ import annotations
 
-import os
 import json
-import math
-import re
+import os
 from pathlib import Path
-from typing  import List, Dict, Any, Optional
+from typing import Any
+
+import numpy as np
 
 # NumPy & Rust accelerated math layer
 from project.core.fast_math import (
-    numpy_tfidf_vector,
-    numpy_build_tfidf_matrix,
-    numpy_search_topk,
-    rust_dense_vector_search,
     chunk_text_fast,
+    numpy_build_tfidf_matrix,
+    numpy_tfidf_vector,
+    rust_dense_vector_search,
 )
-import numpy as np
-
 
 # FAISS and embeddings are optional — gracefully degrade
 try:
-    import faiss                          # type: ignore
+    import faiss  # type: ignore
     FAISS_AVAILABLE = True
 except (ImportError, OSError, Exception):
     FAISS_AVAILABLE = False
@@ -73,7 +70,7 @@ DIM = NOMIC_DIM  # nomic-embed-text and text-embedding-004 both output 768-dim
 # Embedding functions — local first, cloud fallback
 # ---------------------------------------------------------------------------
 
-def _embed_local_nomic(texts: List[str]) -> Optional[List[List[float]]]:
+def _embed_local_nomic(texts: list[str]) -> list[list[float]] | None:
     """
     Embed texts with nomic-embed-text via local Ollama.
     100% offline — no API key required.
@@ -107,7 +104,7 @@ def _embed_local_nomic(texts: List[str]) -> Optional[List[List[float]]]:
         return None
 
 
-def _embed_google(texts: List[str]) -> Optional[List[List[float]]]:
+def _embed_google(texts: list[str]) -> list[list[float]] | None:
     """Google text-embedding-004 — cloud fallback, requires API key."""
     api_key = os.getenv("GOOGLE_AI_STUDIO_API_KEY", "")
     if not api_key or api_key.startswith("REPLACE") or not HTTPX_AVAILABLE:
@@ -135,12 +132,12 @@ def _embed_google(texts: List[str]) -> Optional[List[List[float]]]:
 # Chunking
 # ---------------------------------------------------------------------------
 
-def _chunk_text(text: str, source: str, chunk_size: int = 300) -> List[Dict[str, str]]:
+def _chunk_text(text: str, source: str, chunk_size: int = 300) -> list[dict[str, str]]:
     """Split text into paragraph chunks — delegates to fast_math.chunk_text_fast."""
     return chunk_text_fast(text, source, chunk_size)
 
 
-def load_all_chunks() -> List[Dict[str, str]]:
+def load_all_chunks() -> list[dict[str, str]]:
     chunks = []
     if not TEXTS_DIR.exists():
         return chunks
@@ -155,7 +152,7 @@ def load_all_chunks() -> List[Dict[str, str]]:
 # Embedding via Google API (or fallback to TF-IDF-style keyword vectors)
 # ---------------------------------------------------------------------------
 
-def _embed_google(texts: List[str]) -> Optional[List[List[float]]]:
+def _embed_google(texts: list[str]) -> list[list[float]] | None:
     """Call Google text-embedding-004 API. Returns None on failure."""
     api_key = os.getenv("GOOGLE_AI_STUDIO_API_KEY", "")
     if not api_key or not HTTPX_AVAILABLE:
@@ -179,7 +176,7 @@ def _embed_google(texts: List[str]) -> Optional[List[List[float]]]:
     return embeddings
 
 
-def _tfidf_vector(text: str, vocab: Dict[str, int]) -> List[float]:
+def _tfidf_vector(text: str, vocab: dict[str, int]) -> list[float]:
     """Minimal TF-IDF fallback: delegates to NumPy-accelerated version."""
     vec = numpy_tfidf_vector(text, vocab, n_vocab=len(vocab))
     return vec.tolist()
@@ -188,7 +185,7 @@ def _tfidf_vector(text: str, vocab: Dict[str, int]) -> List[float]:
 class _KeywordIndex:
     """NumPy-accelerated keyword search index (replaces pure-Python loop version)."""
 
-    def __init__(self, chunks: List[Dict[str, str]]):
+    def __init__(self, chunks: list[dict[str, str]]):
         self.chunks = chunks
         # Build character vocab from all texts
         all_chars = set()
@@ -199,7 +196,7 @@ class _KeywordIndex:
         texts = [c["text"] for c in chunks]
         self._matrix = numpy_build_tfidf_matrix(texts, self.vocab)  # shape (N, V)
 
-    def search(self, query: str, top_k: int, threshold: float) -> List[Dict[str, Any]]:
+    def search(self, query: str, top_k: int, threshold: float) -> list[dict[str, Any]]:
         q_vec = numpy_tfidf_vector(query, self.vocab, n_vocab=len(self.vocab))
         hits  = rust_dense_vector_search(q_vec, self._matrix, top_k=top_k, threshold=threshold)
         results = []
@@ -224,7 +221,7 @@ class _KeywordIndex:
         )
 
     @classmethod
-    def load(cls, path: Path) -> "_KeywordIndex":
+    def load(cls, path: Path) -> _KeywordIndex:
         meta   = json.loads((path / "metadata.json").read_text(encoding="utf-8"))
         inst   = cls.__new__(cls)
         inst.chunks  = meta["chunks"]
@@ -247,15 +244,15 @@ class VectorStore:
 
     def __init__(self):
         self._faiss_index = None
-        self._keyword_index: Optional[_KeywordIndex] = None
-        self._chunks: List[Dict[str, str]] = []
+        self._keyword_index: _KeywordIndex | None = None
+        self._chunks: list[dict[str, str]] = []
         self._mode = "unloaded"
 
     # ------------------------------------------------------------------
     # Build
     # ------------------------------------------------------------------
 
-    def build(self, chunks: Optional[List[Dict[str, str]]] = None) -> "VectorStore":
+    def build(self, chunks: list[dict[str, str]] | None = None) -> VectorStore:
         if chunks is None:
             chunks = load_all_chunks()
         self._chunks = chunks
@@ -296,11 +293,10 @@ class VectorStore:
         return self
 
 
-    def save(self) -> "VectorStore":
+    def save(self) -> VectorStore:
         STORE_DIR.mkdir(parents=True, exist_ok=True)
 
         if self._mode == "faiss" and self._faiss_index is not None:
-            import numpy as np
             faiss.write_index(self._faiss_index, str(INDEX_PATH))
             meta = {"chunks": self._chunks, "mode": "faiss", "dim": DIM}
             META_PATH.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -315,7 +311,7 @@ class VectorStore:
     # ------------------------------------------------------------------
 
     @classmethod
-    def load(cls) -> "VectorStore":
+    def load(cls) -> VectorStore:
         inst = cls()
         if not META_PATH.exists():
             print("ℹ️  No saved index found — building from raw texts…")
@@ -344,7 +340,7 @@ class VectorStore:
         corpus:    str  = "all",
         top_k:     int  = 5,
         threshold: float = 0.40,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Hybrid RAG search combining FAISS Dense Vector + BM25 Lexical Search via RRF.
 
@@ -376,12 +372,12 @@ class VectorStore:
         threshold: float = 0.40,
         corpus: str = "all",
         rrf_k: int = 60
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Reciprocal Rank Fusion (RRF) Hybrid Search algorithm combining FAISS Vector + Lexical Search.
         RRF_Score(d) = 1 / (60 + rank_dense(d)) + 1 / (60 + rank_lexical(d))
         """
-        dense_results: List[Dict[str, Any]] = []
+        dense_results: list[dict[str, Any]] = []
         if self._mode == "faiss" and self._faiss_index is not None:
             dense_results = self._search_faiss(query, top_k=top_k * 3, threshold=0.0, corpus=corpus)
 
@@ -389,13 +385,13 @@ class VectorStore:
         if self._keyword_index is None and self._chunks:
             self._keyword_index = _KeywordIndex(self._chunks)
         
-        lexical_results: List[Dict[str, Any]] = []
+        lexical_results: list[dict[str, Any]] = []
         if self._keyword_index is not None:
             lexical_results = self._keyword_index.search(query, top_k=top_k * 3, threshold=0.0)
 
         # Reciprocal Rank Fusion (RRF) Map
-        rrf_scores: Dict[str, float] = {}
-        doc_map: Dict[str, Dict[str, Any]] = {}
+        rrf_scores: dict[str, float] = {}
+        doc_map: dict[str, dict[str, Any]] = {}
 
         # 1. Process Dense Ranks
         for rank, res in enumerate(dense_results, start=1):
@@ -421,8 +417,7 @@ class VectorStore:
 
         return fused_results
 
-    def _search_faiss(self, query: str, top_k: int, threshold: float, corpus: str) -> List[Dict[str, Any]]:
-        import numpy as np
+    def _search_faiss(self, query: str, top_k: int, threshold: float, corpus: str) -> list[dict[str, Any]]:
         embeddings = _embed_google([query])
         if not embeddings:
             # fall back to keyword
@@ -456,7 +451,7 @@ class VectorStore:
 # Singleton
 # ---------------------------------------------------------------------------
 
-_instance: Optional[VectorStore] = None
+_instance: VectorStore | None = None
 
 def get_vector_store() -> VectorStore:
     global _instance

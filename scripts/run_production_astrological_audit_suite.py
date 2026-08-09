@@ -16,9 +16,9 @@ Outputs:
 
 from __future__ import annotations
 
-import sys
 import json
 import logging
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -26,11 +26,14 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from project.core.bazi_engine import BaZiEngine
-from project.core.zi_wei_engine import ZiWeiEngine
+from project.core.numerology_engine import NumerologyEngine
+from project.core.solar_time import (
+    calculate_equation_of_time,
+    calculate_true_solar_time,
+)
 from project.core.thai_vedic_engine import ThaiVedicEngine
 from project.core.western_uranian_engine import WesternUranianEngine
-from project.core.numerology_engine import NumerologyEngine
-from project.core.solar_time import calculate_true_solar_time, calculate_equation_of_time
+from project.core.zi_wei_engine import ZiWeiEngine
 from project.rag.vector_store import get_vector_store
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -165,7 +168,7 @@ def run_scenario_d_leap_year_feb29() -> dict:
     lichun_passed = year_sb == "甲辰"
     eot_passed = -15.0 <= eot <= 5.0
 
-    log.info(f"   • Date: 2024-02-29 12:00:00 (Leap Day)")
+    log.info("   • Date: 2024-02-29 12:00:00 (Leap Day)")
     log.info(f"   • Equation of Time: {eot:.2f} mins")
     log.info(f"   • Year Pillar: {year_sb} (Post LiChun Verification) | Month Pillar: {month_sb}")
     log.info(f"   • Verification Result: {'✅ PASSED' if (lichun_passed and eot_passed) else '❌ FAILED'}")

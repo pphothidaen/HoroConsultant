@@ -2,7 +2,7 @@
 Computational Metaphysics Engine – Core Package
 """
 try:
-    from project.core.solar_time import calculate_true_solar_time, SolarTimeResult
+    from project.core.solar_time import SolarTimeResult, calculate_true_solar_time
 except ImportError:
     calculate_true_solar_time = None
     SolarTimeResult = None
@@ -12,4 +12,4 @@ try:
 except ImportError:
     BaZiEngine = None
 
-__all__ = ["calculate_true_solar_time", "SolarTimeResult", "BaZiEngine"]
+__all__ = ["BaZiEngine", "SolarTimeResult", "calculate_true_solar_time"]

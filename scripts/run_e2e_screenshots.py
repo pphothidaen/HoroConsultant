@@ -11,12 +11,12 @@ Saves captured screenshots into:
 
 from __future__ import annotations
 
-import sys
-import os
-import time
-import json
 import asyncio
+import json
+import os
 import shutil
+import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,8 +24,9 @@ sys.path.insert(0, str(ROOT))
 
 os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/Users/kimlenglim/.agy-account-2/Library/Caches/ms-playwright"
 
-import uvicorn
 from multiprocessing import Process
+
+import uvicorn
 from playwright.async_api import async_playwright
 
 SCREENSHOT_DIR = ROOT / "project" / "tests" / "screenshots"

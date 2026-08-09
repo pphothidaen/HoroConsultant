@@ -13,10 +13,10 @@ Route order:
 
 from __future__ import annotations
 
+import logging
 import os
 import time
-import logging
-from typing import Optional, Dict, Any, List, Tuple
+from typing import Any
 
 import httpx
 from dotenv import load_dotenv
@@ -49,7 +49,7 @@ TIMEOUT_CLOUD_S         = float(os.getenv("API_TIMEOUT_SECONDS",   "8.0"))
 RETRY_DELAY_S           = 2.0
 
 
-def _gemini_keys() -> List[str]:
+def _gemini_keys() -> list[str]:
     """Return all unique, valid, non-placeholder Gemini API keys from env."""
     raw = [
         os.getenv("GOOGLE_AI_STUDIO_API_KEY",  ""),
@@ -77,12 +77,12 @@ def _call_ollama(
     model:              str,
     prompt:             str,
     system_instruction: str = "",
-) -> Tuple[Optional[str], str]:
+) -> tuple[str | None, str]:
     """
     Call a local Ollama model.
     Returns (text, reason): reason = "ok" | "connect_error" | "error:<code>" | "exception"
     """
-    payload: Dict[str, Any] = {
+    payload: dict[str, Any] = {
         "model":  model,
         "prompt": prompt,
         "stream": False,
@@ -129,7 +129,7 @@ def _call_gemini(
     api_key:            str,
     prompt:             str,
     system_instruction: str = "",
-) -> Tuple[Optional[str], str]:
+) -> tuple[str | None, str]:
     """
     Call Gemini via Google AI Studio.
     Returns (text, reason): reason = "ok" | "429" | "timeout" | "error:<code>"
@@ -138,7 +138,7 @@ def _call_gemini(
         return None, "no_key"
 
     url = f"{GEMINI_BASE_URL}/models/{model}:generateContent?key={api_key}"
-    payload: Dict[str, Any] = {
+    payload: dict[str, Any] = {
         "contents": [{"role": "user", "parts": [{"text": prompt}]}],
         "generationConfig": {"temperature": 0.2, "maxOutputTokens": 8192},
     }
@@ -189,7 +189,7 @@ def _call_openai_compatible(
     model:              str,
     prompt:             str,
     system_instruction: str = "",
-) -> Tuple[Optional[str], str]:
+) -> tuple[str | None, str]:
     """Call an OpenAI-compatible API endpoint."""
     if not api_key:
         return None, "no_key"
@@ -264,8 +264,8 @@ class HybridRouter:
       CLOUD:   OpenAI & Together AI external providers
     """
 
-    def _build_routes(self) -> List[Dict[str, Any]]:
-        routes: List[Dict[str, Any]] = []
+    def _build_routes(self) -> list[dict[str, Any]]:
+        routes: list[dict[str, Any]] = []
 
         disable_local = os.getenv("DISABLE_LOCAL_OLLAMA", "").lower() in ("true", "1", "yes")
         ollama_url_lower = OLLAMA_BASE_URL.lower().strip()
@@ -303,7 +303,7 @@ class HybridRouter:
         self,
         prompt:             str,
         system_instruction: str = "",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Execute prompt through route chain. Returns on first success.
 
@@ -368,9 +368,9 @@ class HybridRouter:
             "error":            "All local + cloud routes failed",
         }
 
-    def health_check(self) -> Dict[str, Any]:
+    def health_check(self) -> dict[str, Any]:
         """Check all local models and cloud keys."""
-        result: Dict[str, Any] = {"local": [], "cloud": {}}
+        result: dict[str, Any] = {"local": [], "cloud": {}}
 
         # Check each local model
         for model in [PRIMARY_LOCAL_MODEL, SECONDARY_LOCAL_MODEL, TERTIARY_LOCAL_MODEL]:
@@ -415,11 +415,16 @@ class HybridRouter:
         return result
 
 
+# Global HybridRouter Instance
+router = HybridRouter()
+
+
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
+
     import json
     logging.basicConfig(level=logging.INFO, format="%(levelname)-8s %(message)s")
 

@@ -9,10 +9,9 @@ Deterministic calculation of Qi Men Dun Jia 4-Plate charts:
 - Spirit Plate / 8 Spirits (神盤 - 八神)
 """
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime
-from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
+from typing import Any
 
+from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
 PALACE_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
@@ -83,7 +82,7 @@ class QiMenEngine(AbstractAstrologyEngine):
                 selected = term
         return selected
 
-    def calculate_chart(self, year: int, month: int, day: int, hour: int, solar_term: Optional[str] = None) -> Dict[str, Any]:
+    def calculate_chart(self, year: int, month: int, day: int, hour: int, solar_term: str | None = None) -> dict[str, Any]:
         """
         Calculate Qi Men Dun Jia chart for given date & time.
         """

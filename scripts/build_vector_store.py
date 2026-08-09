@@ -19,6 +19,7 @@ sys.path.insert(0, str(root))
 
 from project.rag.vector_store import VectorStore, load_all_chunks
 
+
 def main():
     import argparse
     p = argparse.ArgumentParser()

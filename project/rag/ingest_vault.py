@@ -31,14 +31,13 @@ Export format from NotebookLM
 
 from __future__ import annotations
 
-import os
+import json
+import logging
+import random
 import re
 import sys
-import json
-import random
-import logging
 from pathlib import Path
-from typing  import List, Dict, Any, Optional, Tuple
+from typing import Any
 
 logging.basicConfig(
     level  = logging.INFO,
@@ -74,7 +73,7 @@ SYSTEM_PROMPT = (
 # Markdown Chunker
 # ---------------------------------------------------------------------------
 
-def chunk_markdown(text: str, source: str, chunk_size: int = CHUNK_SIZE) -> List[Dict[str, str]]:
+def chunk_markdown(text: str, source: str, chunk_size: int = CHUNK_SIZE) -> list[dict[str, str]]:
     """
     Split markdown into overlapping chunks.
     Respects heading boundaries where possible.
@@ -84,7 +83,7 @@ def chunk_markdown(text: str, source: str, chunk_size: int = CHUNK_SIZE) -> List
     # Split by headings first
     sections = re.split(r"\n(?=#{1,3} )", text)
 
-    chunks: List[Dict[str, str]] = []
+    chunks: list[dict[str, str]] = []
     for section in sections:
         section = section.strip()
         if not section:
@@ -140,7 +139,7 @@ def chunk_markdown(text: str, source: str, chunk_size: int = CHUNK_SIZE) -> List
 # Q&A Pair Extractor (for Fine-Tuning)
 # ---------------------------------------------------------------------------
 
-def extract_qa_pairs(md_text: str, source: str) -> List[Dict[str, Any]]:
+def extract_qa_pairs(md_text: str, source: str) -> list[dict[str, Any]]:
     """
     Extract Q&A pairs from NotebookLM chat log markdown.
 
@@ -150,7 +149,7 @@ def extract_qa_pairs(md_text: str, source: str) -> List[Dict[str, Any]]:
 
     Or alternating **User:**/**Assistant:** blocks.
     """
-    pairs: List[Dict[str, Any]] = []
+    pairs: list[dict[str, Any]] = []
 
     # Pattern 1: ## Q: ... / A: ...
     pattern1 = re.findall(
@@ -185,7 +184,7 @@ def extract_qa_pairs(md_text: str, source: str) -> List[Dict[str, Any]]:
     return pairs
 
 
-def qa_to_sharegpt(qa: Dict[str, Any]) -> Dict[str, Any]:
+def qa_to_sharegpt(qa: dict[str, Any]) -> dict[str, Any]:
     """Convert a Q&A pair to ShareGPT fine-tune format."""
     return {
         "conversations": [
@@ -216,7 +215,7 @@ def extract_text_from_pdf(pdf_path: Path) -> str:
         return ""
 
 
-def load_vault(vault_dir: Path) -> Tuple[List[Dict[str, str]], List[Dict[str, Any]]]:
+def load_vault(vault_dir: Path) -> tuple[list[dict[str, str]], list[dict[str, Any]]]:
     """
     Scan vault_dir for .md and .pdf files.
     Returns (chunks_for_rag, qa_pairs_for_finetune).
@@ -227,8 +226,8 @@ def load_vault(vault_dir: Path) -> Tuple[List[Dict[str, str]], List[Dict[str, An
         log.info(f"  mkdir -p {vault_dir}")
         return [], []
 
-    all_chunks: List[Dict[str, str]] = []
-    all_qa:     List[Dict[str, Any]] = []
+    all_chunks: list[dict[str, str]] = []
+    all_qa:     list[dict[str, Any]] = []
 
     # Find both .md and .pdf files
     md_files  = list(vault_dir.rglob("*.md"))
@@ -271,7 +270,7 @@ def load_vault(vault_dir: Path) -> Tuple[List[Dict[str, str]], List[Dict[str, An
 # ---------------------------------------------------------------------------
 
 def ingest_to_vector_store(
-    chunks:     List[Dict[str, str]],
+    chunks:     list[dict[str, str]],
     output_dir: Path,
 ) -> None:
     """Build and save FAISS vector store from vault chunks."""
@@ -292,7 +291,7 @@ def ingest_to_vector_store(
 # ---------------------------------------------------------------------------
 
 def export_finetune_dataset(
-    qa_pairs:   List[Dict[str, Any]],
+    qa_pairs:   list[dict[str, Any]],
     output_dir: Path,
     val_split:  float = 0.10,
     seed:       int   = 42,
@@ -318,8 +317,7 @@ def export_finetune_dataset(
     for name, dataset in [("train", trn_set), ("valid", val_set)]:
         out = output_dir / f"{name}.jsonl"
         with open(out, "w", encoding="utf-8") as f:
-            for entry in dataset:
-                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+            f.writelines(json.dumps(entry, ensure_ascii=False) + "\n" for entry in dataset)
         log.info(f"Saved {name}: {len(dataset)} entries → {out}")
 
 

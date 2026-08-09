@@ -24,12 +24,11 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from fastapi import APIRouter, HTTPException, BackgroundTasks, Query
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
 
@@ -103,17 +102,17 @@ hitl_router = APIRouter(prefix="/hitl", tags=["HITL — Human-in-the-Loop Review
 
 class ReviewDecision(BaseModel):
     decision:          str   = Field(..., description="'approve' | 'edit' | 'reject'")
-    human_answer:      Optional[str] = Field(None, description="Human-corrected answer (for edit/approve)")
-    tags:              Optional[List[str]] = Field(None, description="Tag list from TAG_* constants")
-    reject_reason:     Optional[str] = Field(None, description="Reason for rejection")
-    confidence_rating: Optional[int] = Field(None, ge=1, le=5, description="Human confidence 1-5 stars")
-    reviewer:          Optional[str] = Field(None, description="Reviewer name")
-    notes:             Optional[str] = Field(None, description="Additional reviewer notes")
+    human_answer:      str | None = Field(None, description="Human-corrected answer (for edit/approve)")
+    tags:              list[str] | None = Field(None, description="Tag list from TAG_* constants")
+    reject_reason:     str | None = Field(None, description="Reason for rejection")
+    confidence_rating: int | None = Field(None, ge=1, le=5, description="Human confidence 1-5 stars")
+    reviewer:          str | None = Field(None, description="Reviewer name")
+    notes:             str | None = Field(None, description="Additional reviewer notes")
 
 
 class BatchDraftRequest(BaseModel):
     limit:             int   = Field(20, ge=1, le=100, description="Max items to draft")
-    category_filter:   Optional[str] = Field(None, description="Limit to one category")
+    category_filter:   str | None = Field(None, description="Limit to one category")
     force_regenerate:  bool  = Field(False, description="Regenerate even if draft exists")
 
 
@@ -121,19 +120,19 @@ class BatchDraftRequest(BaseModel):
 # DB Helpers
 # ---------------------------------------------------------------------------
 
-def load_catalog() -> Dict[str, Any]:
+def load_catalog() -> dict[str, Any]:
     if not CATALOG_PATH.exists():
         return {}
     return json.loads(CATALOG_PATH.read_text(encoding="utf-8"))
 
 
-def load_hitl_db() -> Dict[str, Any]:
+def load_hitl_db() -> dict[str, Any]:
     if not HITL_DB_PATH.exists():
         return {"reviews": {}, "drafts": {}, "stats": {"approved": 0, "edited": 0, "rejected": 0, "pending": 0}}
     return json.loads(HITL_DB_PATH.read_text(encoding="utf-8"))
 
 
-def save_hitl_db(data: Dict[str, Any]) -> None:
+def save_hitl_db(data: dict[str, Any]) -> None:
     HITL_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     reviews = data.get("reviews", {})
     data["stats"] = {
@@ -146,7 +145,7 @@ def save_hitl_db(data: Dict[str, Any]) -> None:
     HITL_DB_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def iter_all_sources(catalog: Dict[str, Any]):
+def iter_all_sources(catalog: dict[str, Any]):
     for cat_key, cat_val in catalog.get("categories", {}).items():
         if "sources" in cat_val:
             for src in cat_val["sources"]:
@@ -165,11 +164,11 @@ def make_item_id(source_id: str, question: str) -> str:
 
 
 def build_queue_items(
-    catalog: Dict[str, Any],
-    hitl_db: Dict[str, Any],
-    category_filter: Optional[str] = None,
-    status_filter: Optional[str] = None,
-) -> List[Dict[str, Any]]:
+    catalog: dict[str, Any],
+    hitl_db: dict[str, Any],
+    category_filter: str | None = None,
+    status_filter: str | None = None,
+) -> list[dict[str, Any]]:
     reviews = hitl_db.get("reviews", {})
     drafts  = hitl_db.get("drafts", {})
     items   = []
@@ -214,7 +213,7 @@ async def generate_ai_draft(
     question: str,
     system_prompt: str,
     source_title: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Generate an AI draft answer via HybridRouter."""
     try:
         from project.api_router import HybridRouter
@@ -274,8 +273,8 @@ async def generate_ai_draft(
 
 @hitl_router.get("/queue", summary="List items pending human review")
 async def get_review_queue(
-    status:   Optional[str] = Query(None, description="Filter: pending|approve|edit|reject"),
-    category: Optional[str] = Query(None, description="Filter by category key"),
+    status:   str | None = Query(None, description="Filter: pending|approve|edit|reject"),
+    category: str | None = Query(None, description="Filter by category key"),
     limit:    int = Query(50, ge=1, le=200),
     offset:   int = Query(0, ge=0),
 ):
@@ -419,13 +418,13 @@ async def get_stats():
     reviews = hitl_db.get("reviews", {})
 
     # Tag breakdown
-    tag_counts: Dict[str, int] = {}
+    tag_counts: dict[str, int] = {}
     for r in reviews.values():
         for t in r.get("tags", []):
             tag_counts[t] = tag_counts.get(t, 0) + 1
 
     # Category breakdown
-    cat_stats: Dict[str, Dict] = {}
+    cat_stats: dict[str, dict] = {}
     for item in items:
         cat = item["category"]
         if cat not in cat_stats:
@@ -471,8 +470,7 @@ async def export_hitl_jsonl(download: bool = Query(False)):
 
     HITL_EXPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with open(HITL_EXPORT_PATH, "w", encoding="utf-8") as f:
-        for e in entries:
-            f.write(json.dumps(e, ensure_ascii=False) + "\n")
+        f.writelines(json.dumps(e, ensure_ascii=False) + "\n" for e in entries)
 
     if download:
         return FileResponse(

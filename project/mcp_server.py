@@ -16,31 +16,30 @@ Usage:
 
 from __future__ import annotations
 
-import sys
 import json
 import logging
-from pathlib import Path
-from typing import Dict, Any
-
+import sys
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from project.api_router import HybridRouter
 from project.core.bazi_engine import BaZiEngine
-from project.core.zi_wei_engine import ZiWeiEngine
-from project.core.qi_men_engine import QiMenEngine
-from project.core.liu_ren_engine import LiuRenEngine
 from project.core.iching_engine import IChingEngine
-from project.core.xuan_kong_engine import XuanKongEngine
-from project.core.ze_ji_engine import ZeJiEngine
+from project.core.liu_ren_engine import LiuRenEngine
+from project.core.numerology_engine import NumerologyEngine
+from project.core.qi_men_engine import QiMenEngine
+from project.core.svg_generator import generate_bazi_svg, generate_zodiac_wheel_svg
 from project.core.thai_vedic_engine import ThaiVedicEngine
 from project.core.western_uranian_engine import WesternUranianEngine
-from project.core.numerology_engine import NumerologyEngine
-from project.core.svg_generator import generate_bazi_svg, generate_zodiac_wheel_svg
-from project.api_router        import HybridRouter
-from project.validator         import PredictionValidator
-from project.rag.vector_store  import get_vector_store
+from project.core.xuan_kong_engine import XuanKongEngine
+from project.core.ze_ji_engine import ZeJiEngine
+from project.core.zi_wei_engine import ZiWeiEngine
+from project.rag.vector_store import get_vector_store
+from project.validator import PredictionValidator
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger("mcp_server")
@@ -66,13 +65,13 @@ class HoroMCPTools:
     """MCP Tool Definitions for thClaws and AGY Integration."""
 
     @staticmethod
-    def bazi_calculate(birth_datetime: str, longitude: float = 100.493, utc_offset_hours: float = 7.0) -> Dict[str, Any]:
+    def bazi_calculate(birth_datetime: str, longitude: float = 100.493, utc_offset_hours: float = 7.0) -> dict[str, Any]:
         """Compute BaZi chart with True Solar Time adjustment."""
         dt = datetime.strptime(birth_datetime, "%Y-%m-%d %H:%M:%S")
         return engine.calculate(dt=dt, longitude=longitude, utc_offset_hours=utc_offset_hours)
 
     @staticmethod
-    def render_bazi_svg(birth_datetime: str, longitude: float = 100.493, utc_offset_hours: float = 7.0) -> Dict[str, Any]:
+    def render_bazi_svg(birth_datetime: str, longitude: float = 100.493, utc_offset_hours: float = 7.0) -> dict[str, Any]:
         """Generate BaZi 4 Pillars SVG Chart and save to static/charts/."""
         dt = datetime.strptime(birth_datetime, "%Y-%m-%d %H:%M:%S")
         chart = engine.calculate(dt=dt, longitude=longitude, utc_offset_hours=utc_offset_hours)
@@ -89,7 +88,7 @@ class HoroMCPTools:
         }
 
     @staticmethod
-    def render_zodiac_svg(birth_datetime: str, longitude: float = 100.493, utc_offset_hours: float = 7.0) -> Dict[str, Any]:
+    def render_zodiac_svg(birth_datetime: str, longitude: float = 100.493, utc_offset_hours: float = 7.0) -> dict[str, Any]:
         """Generate 12 Zodiac Wheel SVG Chart and save to static/charts/."""
         dt = datetime.strptime(birth_datetime, "%Y-%m-%d %H:%M:%S")
         chart = engine.calculate(dt=dt, longitude=longitude, utc_offset_hours=utc_offset_hours)
@@ -106,14 +105,14 @@ class HoroMCPTools:
         }
 
     @staticmethod
-    def rag_search(query: str, top_k: int = 3) -> Dict[str, Any]:
+    def rag_search(query: str, top_k: int = 3) -> dict[str, Any]:
         """Search classical BaZi texts & Thai astrology books in FAISS vector store."""
         results = vector_store.search(query, top_k=top_k)
         total_count = len(getattr(vector_store, "_chunks", []))
         return {"query": query, "matches": results, "total_vectors": total_count}
 
     @staticmethod
-    def bazi_interpret(birth_datetime: str, longitude: float = 100.493, utc_offset_hours: float = 7.0, query: str = "") -> Dict[str, Any]:
+    def bazi_interpret(birth_datetime: str, longitude: float = 100.493, utc_offset_hours: float = 7.0, query: str = "") -> dict[str, Any]:
         """Generate full AI interpretation using Local Ollama (qwen2.5:7b)."""
         dt = datetime.strptime(birth_datetime, "%Y-%m-%d %H:%M:%S")
         chart = engine.calculate(dt=dt, longitude=longitude, utc_offset_hours=utc_offset_hours)
@@ -134,60 +133,60 @@ class HoroMCPTools:
         return {"chart": chart, "interpretation": res.get("text"), "route": res.get("route")}
 
     @staticmethod
-    def bazi_validate(bazi_chart: Dict[str, Any], initial_interpretation: str, query: str = "") -> Dict[str, Any]:
+    def bazi_validate(bazi_chart: dict[str, Any], initial_interpretation: str, query: str = "") -> dict[str, Any]:
         """Validate astrological chart calculation and interpretation via Gemini Cloud API."""
         return validator.validate(bazi_chart=bazi_chart, initial_interpretation=initial_interpretation, user_query=query)
 
     @staticmethod
-    def ziwei_calculate(year: int = 1990, month: int = 5, day: int = 15, hour: int = 14, gender: str = "male") -> Dict[str, Any]:
+    def ziwei_calculate(year: int = 1990, month: int = 5, day: int = 15, hour: int = 14, gender: str = "male") -> dict[str, Any]:
         """Compute Zi Wei Dou Shu chart (12 Palaces, 14 Stars, Si Hua)."""
         return ziwei_engine.calculate_chart(year, month, day, hour, gender)
 
     @staticmethod
-    def qimen_calculate(year: int = 2026, month: int = 8, day: int = 7, hour: int = 14) -> Dict[str, Any]:
+    def qimen_calculate(year: int = 2026, month: int = 8, day: int = 7, hour: int = 14) -> dict[str, Any]:
         """Compute Qi Men Dun Jia 4-Plate chart."""
         return qimen_engine.calculate_chart(year, month, day, hour)
 
     @staticmethod
-    def liuren_calculate(day_stem: str = "甲", day_branch: str = "子", month_general: str = "正月", hour_branch: str = "午") -> Dict[str, Any]:
+    def liuren_calculate(day_stem: str = "甲", day_branch: str = "子", month_general: str = "正月", hour_branch: str = "午") -> dict[str, Any]:
         """Compute Da Liu Ren 3-Transmission & 4-Lesson chart."""
         return liuren_engine.calculate_chart(day_stem, day_branch, month_general, hour_branch)
 
     @staticmethod
-    def iching_calculate(day_stem: str = "甲", seed: Optional[int] = None) -> Dict[str, Any]:
+    def iching_calculate(day_stem: str = "甲", seed: Optional[int] = None) -> dict[str, Any]:
         """Cast I Ching Hexagram and compute Liu Yao setup."""
         lines = iching_engine.cast_lines(seed=seed)
         return iching_engine.calculate_liu_yao(day_stem, lines)
 
     @staticmethod
-    def xuankong_calculate(facing_degree: float = 180.0, period: int = 9) -> Dict[str, Any]:
+    def xuankong_calculate(facing_degree: float = 180.0, period: int = 9) -> dict[str, Any]:
         """Compute Xuan Kong Flying Stars 9-Grid chart."""
         return xuankong_engine.calculate_chart(facing_degree, period)
 
     @staticmethod
-    def zeji_calculate(year_branch: str = "午", month_branch: str = "申", day_branch: str = "寅", user_birth_branch: Optional[str] = "子") -> Dict[str, Any]:
+    def zeji_calculate(year_branch: str = "午", month_branch: str = "申", day_branch: str = "寅", user_birth_branch: Optional[str] = "子") -> dict[str, Any]:
         """Compute Date Selection suitability via 12 Duty Officers."""
         return zeji_engine.check_suitability(year_branch, month_branch, day_branch, user_birth_branch)
 
     @staticmethod
-    def thaivedic_calculate(year: int = 1990, month: int = 5, day: int = 15, hour: int = 14, day_of_week: int = 2) -> Dict[str, Any]:
+    def thaivedic_calculate(year: int = 1990, month: int = 5, day: int = 15, hour: int = 14, day_of_week: int = 2) -> dict[str, Any]:
         """Compute Thai Suriyayart 10 Lagna, Maha Thaksa & Vimshottari Dasha."""
         return thaivedic_engine.calculate_chart(year, month, day, hour, day_of_week)
 
     @staticmethod
-    def western_calculate(year: int = 1990, month: int = 5, day: int = 15, hour: int = 14) -> Dict[str, Any]:
+    def western_calculate(year: int = 1990, month: int = 5, day: int = 15, hour: int = 14) -> dict[str, Any]:
         """Compute Western Tropical Aspects, Uranian 8 TNPs & Midpoints."""
         return western_engine.calculate_chart(year, month, day, hour)
 
     @staticmethod
-    def numerology_calculate(text: str = "0812345678", day_num: int = 2, lunar_month: int = 6, year_zodiac_num: int = 7) -> Dict[str, Any]:
+    def numerology_calculate(text: str = "0812345678", day_num: int = 2, lunar_month: int = 6, year_zodiac_num: int = 7) -> dict[str, Any]:
         """Compute Satta-Lek 7-Base 4-Row Matrix & Chaldean Numerology Scoring."""
         satta_lek = numerology_engine.calculate_satta_lek(day_num, lunar_month, year_zodiac_num)
         score = numerology_engine.score_text_or_number(text)
         return {"satta_lek": satta_lek, "chaldean_score": score}
 
 
-def get_mcp_manifest() -> Dict[str, Any]:
+def get_mcp_manifest() -> dict[str, Any]:
     """Return MCP Server Tool Manifest for thClaws."""
     return {
         "name": "horo-consultant-mcp",

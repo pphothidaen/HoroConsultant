@@ -27,18 +27,18 @@ Usage:
 
 from __future__ import annotations
 
-import os
-import sys
-import io
-import time
-import json
-import base64
-import logging
-import subprocess
 import argparse
-from pathlib import Path
+import base64
+import io
+import json
+import logging
+import os
+import subprocess
+import sys
+import time
 from datetime import datetime
-from typing import List, Dict, Any, Optional
+from pathlib import Path
+from typing import Any
 
 import httpx
 from dotenv import load_dotenv
@@ -71,7 +71,7 @@ OCR_SYSTEM_PROMPT = """คุณคือผู้เชี่ยวชาญด
 """
 
 
-def _get_api_keys() -> List[str]:
+def _get_api_keys() -> list[str]:
     raw = [
         os.getenv("GOOGLE_AI_STUDIO_API_KEY", ""),
         os.getenv("GOOGLE_AI_STUDIO_API_KEY2", ""),
@@ -79,7 +79,7 @@ def _get_api_keys() -> List[str]:
     return [k for k in raw if k and not k.startswith("REPLACE")]
 
 
-def ocr_page_image_gemini(image_bytes: bytes, mime_type: str = "image/jpeg") -> Optional[str]:
+def ocr_page_image_gemini(image_bytes: bytes, mime_type: str = "image/jpeg") -> str | None:
     """Call Gemini Vision API to OCR a single page image."""
     keys = _get_api_keys()
     if not keys:
@@ -129,9 +129,9 @@ def ocr_page_image_gemini(image_bytes: bytes, mime_type: str = "image/jpeg") -> 
     return None
 
 
-def extract_images_from_pdf(pdf_path: Path, max_pages: Optional[int] = None) -> List[bytes]:
+def extract_images_from_pdf(pdf_path: Path, max_pages: int | None = None) -> list[bytes]:
     """Convert PDF pages into JPEG bytes list."""
-    images_bytes: List[bytes] = []
+    images_bytes: list[bytes] = []
 
     # 1. Try pdf2image (requires poppler)
     try:
@@ -168,7 +168,7 @@ def extract_images_from_pdf(pdf_path: Path, max_pages: Optional[int] = None) -> 
 TRACKER_FILE = ROOT / "project" / "data" / "ocr_completed_files.json"
 
 
-def load_completed_tracker() -> Dict[str, Any]:
+def load_completed_tracker() -> dict[str, Any]:
     if TRACKER_FILE.exists():
         try:
             return json.loads(TRACKER_FILE.read_text(encoding="utf-8"))
@@ -243,7 +243,7 @@ def validate_converted_markdown(md_text: str, expected_min_chars: int = 100) -> 
     return True, "PASSED_QUALITY_CHECKS"
 
 
-def ocr_pdf_to_markdown(pdf_path: Path, output_dir: Path = VAULT_DIR, max_pages: Optional[int] = None, force: bool = False) -> Optional[Path]:
+def ocr_pdf_to_markdown(pdf_path: Path, output_dir: Path = VAULT_DIR, max_pages: int | None = None, force: bool = False) -> Path | None:
     """
     Process a scanned PDF file, perform Gemini Vision OCR page by page,
     validates conversion quality, and saves clean Markdown to output_dir.
@@ -264,7 +264,7 @@ def ocr_pdf_to_markdown(pdf_path: Path, output_dir: Path = VAULT_DIR, max_pages:
 
     log.info(f"Extracted {len(images)} page images -> Starting Gemini Vision OCR...")
 
-    markdown_pages: List[str] = []
+    markdown_pages: list[str] = []
     markdown_pages.append(f"# {pdf_path.stem}\n")
 
     valid_pages = 0
@@ -301,12 +301,12 @@ def ocr_pdf_to_markdown(pdf_path: Path, output_dir: Path = VAULT_DIR, max_pages:
     return out_file
 
 
-def batch_ocr_vault(max_pages_per_pdf: int = 5, force: bool = False) -> List[Path]:
+def batch_ocr_vault(max_pages_per_pdf: int = 5, force: bool = False) -> list[Path]:
     """Find scanned PDFs in obsidian_vault, skip already completed ones, and convert remaining via Gemini Vision OCR."""
     pdf_files = sorted(list(VAULT_DIR.rglob("*.pdf")))
     log.info(f"Found {len(pdf_files)} PDFs in vault for OCR processing...")
 
-    generated: List[Path] = []
+    generated: list[Path] = []
     for pdf_file in pdf_files:
         if not force and is_file_completed(pdf_file):
             log.info(f"⏭️ [DONE] {pdf_file.name}")

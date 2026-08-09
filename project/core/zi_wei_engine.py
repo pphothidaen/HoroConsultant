@@ -9,8 +9,8 @@ Deterministic calculation of Chinese Zi Wei Dou Shu birth charts:
 - Four Transformative Mutators (四化: 化祿, 化權, 化科, 化忌)
 """
 
-from typing import Dict, List, Any, Optional
-from datetime import datetime
+from typing import Any
+
 from project.core.base_engine import AbstractAstrologyEngine, EngineChartResult
 
 STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
@@ -135,7 +135,7 @@ class ZiWeiEngine(AbstractAstrologyEngine):
             branch_idx = (2 + quotient - 1) % 12
         return BRANCHES[branch_idx]
 
-    def calculate_chart(self, year: int, month: int, day: int, hour: int, gender: str = "male") -> Dict[str, Any]:
+    def calculate_chart(self, year: int, month: int, day: int, hour: int, gender: str = "male") -> dict[str, Any]:
         """
         Calculate complete Zi Wei Dou Shu Chart.
         """
@@ -152,37 +152,13 @@ class ZiWeiEngine(AbstractAstrologyEngine):
         
         zi_wei_branch = self.calculate_zi_wei_star_branch(bureau_num, lunar_day)
         zi_wei_idx = BRANCHES.index(zi_wei_branch)
-        
-        # Tian Fu star position relative to Zi Wei star (symmetric placement across Chen-Xu axis)
-        tian_fu_idx = (4 - zi_wei_idx) % 12
-        tian_fu_branch = BRANCHES[tian_fu_idx]
-        
-        # Zi Wei Group Placement relative to Zi Wei Star:
-        # Zi Wei (0), Tian Ji (-1), Tai Yang (-3), Wu Qu (-4), Tian Tong (-5), Lian Zhen (-8)
-        zi_wei_stars = {
-            "紫微": BRANCHES[zi_wei_idx],
-            "天機": BRANCHES[(zi_wei_idx - 1) % 12],
-            "太陽": BRANCHES[(zi_wei_idx - 3) % 12],
-            "武曲": BRANCHES[(zi_wei_idx - 4) % 12],
-            "天同": BRANCHES[(zi_wei_idx - 5) % 12],
-            "廉貞": BRANCHES[(zi_wei_idx - 8) % 12],
-        }
-        
-        # Tian Fu Group Placement relative to Tian Fu Star:
-        # Tian Fu (0), Tai Yin (+1), Tan Lang (+2), Ju Men (+3), Tian Xiang (+4), Tian Liang (+5), Qi Sha (+6), Po Jun (+10)
-        tian_fu_stars = {
-            "天府": BRANCHES[tian_fu_idx],
-            "太陰": BRANCHES[(tian_fu_idx + 1) % 12],
-            "貪狼": BRANCHES[(tian_fu_idx + 2) % 12],
-            "巨門": BRANCHES[(tian_fu_idx + 3) % 12],
-            "天相": BRANCHES[(tian_fu_idx + 4) % 12],
-            "天梁": BRANCHES[(tian_fu_idx + 5) % 12],
-            "七殺": BRANCHES[(tian_fu_idx + 6) % 12],
-            "破軍": BRANCHES[(tian_fu_idx + 10) % 12],
-        }
-        
+        tian_fu_branch = BRANCHES[(4 + 12 - (zi_wei_idx % 12)) % 12]
+
         from project.core.fast_math import fast_ziwei_stars
         branch_stars_map = dict(fast_ziwei_stars(zi_wei_idx))
+
+
+
 
         si_hua = SI_HUA_MATRIX.get(year_stem, {})
         

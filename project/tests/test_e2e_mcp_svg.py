@@ -22,7 +22,6 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from project.mcp_server import HoroMCPTools, get_mcp_manifest
-from project.core.svg_generator import generate_bazi_svg, generate_zodiac_wheel_svg
 
 
 class TestE2EMCPServerAndSVG:
@@ -73,10 +72,14 @@ class TestE2EMCPServerAndSVG:
         assert "</svg>" in content
 
     def test_5_branch_svg_generators(self):
-        from project.core.svg_generator import generate_ziwei_svg, generate_qimen_svg, generate_xuankong_svg
-        from project.core.zi_wei_engine import ZiWeiEngine
         from project.core.qi_men_engine import QiMenEngine
+        from project.core.svg_generator import (
+            generate_qimen_svg,
+            generate_xuankong_svg,
+            generate_ziwei_svg,
+        )
         from project.core.xuan_kong_engine import XuanKongEngine
+        from project.core.zi_wei_engine import ZiWeiEngine
 
         zw_chart = ZiWeiEngine().calculate_chart(1990, 5, 15, 14)
         zw_svg = generate_ziwei_svg(zw_chart)

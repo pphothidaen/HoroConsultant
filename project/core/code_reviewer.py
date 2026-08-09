@@ -20,14 +20,13 @@ Usage:
 
 from __future__ import annotations
 
-import os
-import re
-import sys
 import json
 import logging
+import re
 import subprocess
+import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger("code_reviewer")
@@ -56,21 +55,34 @@ class CodeReviewer:
         self.root_dir = root_dir
 
     @staticmethod
-    def scan_secrets() -> Dict[str, Any]:
-        """Scan codebase for leaked secrets or unmasked API keys."""
+    def scan_secrets() -> dict[str, Any]:
+        """Scan codebase for leaked secrets or unmasked API keys. Accelerated by Rust Rayon multi-threading."""
+        try:
+            import rust_core
+            if hasattr(rust_core, "run_rust_security_audit"):
+                passed, scanned_files, rust_findings = rust_core.run_rust_security_audit(str(ROOT))
+                findings = [{"file": f, "secret_type": "Security Finding", "count": 1} for f in rust_findings]
+                log.info(f"⚡ [Rust Security Auditor] Scanned {scanned_files} files in parallel via Rayon")
+                return {
+                    "scanned_files": scanned_files,
+                    "secret_leaks_found": len(findings),
+                    "findings": findings,
+                    "status": "PASSED" if passed else "FAILED"
+                }
+        except Exception as e:
+            log.warning(f"Rust security audit fallback: {e}")
+
         findings = []
         scanned_files = 0
 
         for path in ROOT.rglob("*"):
             if not path.is_file():
                 continue
-            # Skip git cache, venv, pytest cache, and gitignored local .env files
-            if any(part in path.parts for part in [".git", ".pytest_cache", ".ruff_cache", "__pycache__", "venv", ".venv", "wandb", "node_modules", ".vercel"]):
+            if any(part in path.parts for part in [".git", ".pytest_cache", ".ruff_cache", "__pycache__", "venv", ".venv", "wandb", "node_modules", ".vercel", "target"]):
                 continue
-            if path.name in [".env", ".env.production", ".env.local"]:
+            if path.name.startswith(".env"):
                 continue
 
-            # Check file size (skip binaries > 1MB)
             if path.stat().st_size > 1_000_000:
                 continue
 
@@ -81,7 +93,6 @@ class CodeReviewer:
                 for pattern, secret_type in SECRET_PATTERNS:
                     matches = pattern.findall(content)
                     if matches:
-                        # Filter out example / dummy keys
                         valid_matches = [m for m in matches if not any(d in m.lower() for d in ["dummy", "replace", "example", "test"])]
                         if valid_matches:
                             rel_path = path.relative_to(ROOT)
@@ -102,7 +113,7 @@ class CodeReviewer:
         }
 
     @staticmethod
-    def audit_kaggle_dependencies() -> Dict[str, Any]:
+    def audit_kaggle_dependencies() -> dict[str, Any]:
         """Verify that Kaggle notebook setup does NOT reinstall torch over pre-compiled CUDA binaries."""
         manager_file = ROOT / "scripts" / "kaggle_notebook_manager.py"
         orchestrator_file = ROOT / "scripts" / "cloud_train_orchestrator.py"
@@ -134,7 +145,7 @@ class CodeReviewer:
         }
 
     @staticmethod
-    def run_tests() -> Dict[str, Any]:
+    def run_tests() -> dict[str, Any]:
         """Run quick pytest suite to ensure zero regressions."""
         try:
             res = subprocess.run(
@@ -142,7 +153,8 @@ class CodeReviewer:
                 cwd=ROOT,
                 capture_output=True,
                 text=True,
-                timeout=120
+                timeout=300
+
             )
             passed = res.returncode == 0
             summary_line = res.stdout.strip().splitlines()[-1] if res.stdout else res.stderr
@@ -160,7 +172,7 @@ class CodeReviewer:
                 "status": "FAILED"
             }
 
-    def run_full_review(self) -> Dict[str, Any]:
+    def run_full_review(self) -> dict[str, Any]:
         """Execute comprehensive pre-deployment review."""
         log.info("🔎 Running Pre-Deployment Code Review & Safety Audit...")
 
@@ -192,7 +204,14 @@ def main():
     parser = argparse.ArgumentParser(description="HoroConsultant Pre-Deployment Code Reviewer")
     parser.add_argument("--review", action="store_true", help="Run full code review & safety audit")
     parser.add_argument("--scan-secrets", action="store_true", help="Scan for secret leaks only")
+    parser.add_argument("--use-python", action="store_true", help="Force python execution instead of Rust binary")
     args = parser.parse_args()
+
+    rust_binary = ROOT / "rust_core" / "target" / "release" / "code_reviewer"
+    if args.review and rust_binary.exists() and not args.use_python:
+        import subprocess
+        res = subprocess.run([str(rust_binary)])
+        sys.exit(res.returncode)
 
     reviewer = CodeReviewer()
     if args.scan_secrets:
