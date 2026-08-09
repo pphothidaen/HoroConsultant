@@ -1,27 +1,27 @@
 {
-  "version": 2,
-  "builds": [
+  "headers": [
     {
-      "src": "api/*.js",
-      "use": "@vercel/node"
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Credentials", "value": "true" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform" }
+      ]
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/health",
-      "dest": "/api/health.js"
+      "source": "/health",
+      "destination": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
     },
     {
-      "src": "/api/health",
-      "dest": "/api/health.js"
+      "source": "/api/health",
+      "destination": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
     },
     {
-      "src": "/api/v1/(.*)",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api/health.js"
+      "source": "/(.*)",
+      "destination": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/$1"
     }
   ]
 }
