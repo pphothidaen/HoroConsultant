@@ -14,7 +14,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from project.api_router import HybridRouter
+from project.api_router import router
 from project.core.bazi_engine import BaZiEngine
 from project.core.svg_generator import generate_bazi_svg, generate_zodiac_wheel_svg
 from project.validator import PredictionValidator
@@ -24,7 +24,6 @@ logger = logging.getLogger("routers.debate")
 debate_router = APIRouter()
 
 engine    = BaZiEngine()
-router    = HybridRouter()
 validator = PredictionValidator()
 
 

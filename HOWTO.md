@@ -28,6 +28,7 @@
    - [3.3 Local Ollama LLM Platform](#33-local-ollama-llm-platform)
    - [3.4 Kaggle GPU Fine-Tuning Platform CLI](#34-kaggle-gpu-fine-tuning-platform-cli)
    - [3.5 Model Context Protocol (MCP) Server Platform](#35-model-context-protocol-mcp-server-platform)
+   - [3.5.1 Codex AI Agent Platform](#351-codex-ai-agent-platform)
    - [3.6 Hugging Face Spaces Deployment Platform CLI](#36-hugging-face-spaces-deployment-platform-cli)
 
 ---
@@ -256,6 +257,24 @@ python3 project/mcp_server.py
 
 ---
 
+### 3.5.1 Codex AI Agent Platform
+
+Codex uses the existing repository skills in `.agents/skills/` directly. Its custom subagent TOML files are generated from the legacy workspace role definitions, so Antigravity and Codex can coexist.
+
+```bash
+# Regenerate after modifying legacy Antigravity/workspace roles.
+python3 scripts/sync_sdlc_agents.py --sync
+python3 scripts/sync_codex_agents.py --sync
+
+# Check both targets without writing files.
+python3 scripts/sync_sdlc_agents.py --check --use-python
+python3 scripts/sync_codex_agents.py --check
+```
+
+Edit `.agents/agents/*/agent.json` for role content. Do not manually edit `.codex/agents/*.toml`; the Codex generator will overwrite generated files. Provider-specific model names in legacy prompts are historical context, while Codex subagents use the active Codex model.
+
+---
+
 ### 3.6 Hugging Face Spaces Deployment Platform CLI
 **การสั่งงานจัดส่งโค้ดและแอปพลิเคชันขึ้น Hugging Face Spaces (Static Edge CDN & Docker):**
 ```bash
@@ -357,8 +376,6 @@ fly deploy
    GRAFANA_CLOUD_URL=https://vividlamp2135.grafana.net
    GRAFANA_API_KEY=glsa_YOUR_GRAFANA_API_KEY
    ```
-
-
 
 
 

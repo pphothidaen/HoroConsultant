@@ -1,9 +1,9 @@
 # AI SDLC Master Implementation Plan: Production Multi-Cloud Architecture, Rust PyO3 Audit & Full Deployment
 
 **Project:** HoroConsultant — Computational Metaphysics Engine  
-**Target Framework:** Antigravity CLI AI SDLC System  
+**Target Framework:** Antigravity CLI AI SDLC System + Codex compatibility layer
 **Lead Agent:** Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
-**Last Updated:** 2026-08-09 21:25 (UTC+7) — Phase 6 COMPLETED (Rust Migration 100%)
+**Last Updated:** 2026-08-09 — Added backward-compatible Codex subagent generation from `.agents/agents/*/agent.json` while retaining Antigravity synchronization.
 
 ---
 
@@ -13,14 +13,15 @@
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Decoupled DDD Multi-Cloud & Rust Core│ • None (100% Complete)                │ • Future LLM Model Expansion          │
+│ • Decoupled DDD Multi-Cloud & Rust Core│ • None                                 │ • Harden HITL contract regression     │
 │ • Phase 6.1: Standalone Axum Server   │                                       │                                       │
 │ • Phase 6.2: Native Rust Test Runner  │                                       │                                       │
 │ • SwissEph Native Pure Rust Bridge    │                                       │                                       │
-│ • Production Live E2E UI (20/20 PASS) │                                       │                                       │
+│ • E2E browser automation baseline     │                                       │ • Make E2E results portable/strict    │
 │ • BSA Skill & Doc Watchdog Governance │                                       │                                       │
+│ • Codex compatibility layer (16 roles)│                                       │                                       │
 │ • Module 1-4: Rust Accelerated Core   │                                       │                                       │
-│ • 182 Pytest + 18/18 Native Rust Tests│                                       │                                       │
+│ • 195 Pytest + 2 Cargo + 12 Runner    │                                       │ • Define Future LLM Expansion scope   │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
 
@@ -50,6 +51,7 @@
 - Run UI button contract regression suite (`python3 scripts/run_button_regression.py`).
 - Run pre-deployment safety audit (`python3 project/core/code_reviewer.py --review`).
 - Run SDLC agent cross-platform sync check (`python3 scripts/sync_sdlc_agents.py --check`).
+- Run Codex agent compatibility sync check (`python3 scripts/sync_codex_agents.py --check`).
 
 ### Phase 5: Documentation & Task Synchronization
 - Update `PROJECT_TASKS.md`, `README.md`, and `HOWTO.md` to reflect Grafana Cloud Observability completion.
@@ -95,6 +97,12 @@
    ```
    - Target: **100% Synchronized**.
 
+5. **Codex Agent Compatibility Verification**:
+   ```bash
+   python3 scripts/sync_codex_agents.py --check
+   ```
+   - Target: **all generated Codex role TOML files match the existing workspace definitions**.
+
 ---
 
 ## 🛡️ Agent Execution Protocol
@@ -104,4 +112,3 @@
 - **Developer Agent**: Implements `project/core/observability.py`, updates `project/main.py`, `requirements.txt`, Dockerfiles.
 - **QA Tester Agent**: Runs `pytest`, test_observability.py, and UI button contract suite.
 - **DevOps Agent**: Verifies container configurations and secret security scans.
-

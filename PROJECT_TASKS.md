@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-09 21:25 (UTC+7) — Phase 6 COMPLETED: 100% Standalone Pure Rust Axum Gateway, Native Rust Regression Runner & SwissEph Pure Rust Bridge*
+> *Last Updated: 2026-08-09 — Added backward-compatible Codex subagent configuration generated from the existing `.agents` role definitions. The prior regression audit recorded 195/195 Pytest PASS, 2 Cargo integration tests PASS, and native runner 12/12 PASS.*
 
 
 ---
@@ -12,11 +12,15 @@ cd /Users/kimlenglim/Project/HoroConsultant
 
 # === RUST NATIVE CI/CD TOOLS ===
 
-# 1. Native Rust Integration Test Suite (16/16 tests — BaZi, ZiWei, QiMen, XuanKong, ...)
+# 1. Native Rust Integration Test Suite (2 integration tests: vector search)
 export PATH="/Users/kimlenglim/.agy-account-1/.rustup/toolchains/stable-aarch64-apple-darwin/bin:$PATH"
 export PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1
 export RUSTFLAGS="-C link-arg=-undefined -C link-arg=dynamic_lookup -L /opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/lib -l Python3.14"
-cd rust_core && cargo test && cd ..
+cd rust_core
+cargo test
+# Optional runtime suite: 12 checks; start horo_server first to exercise its health check.
+cargo run --bin regression_runner
+cd ..
 
 # 2. Rust Code Reviewer & Safety Auditor Binary (Pre-Deployment Audit)
 python3 project/core/code_reviewer.py --review
@@ -28,19 +32,22 @@ python3 scripts/sync_sdlc_agents.py --check
 # OR Direct Rust Binary:
 ./rust_core/target/release/sync_sdlc_agents
 
-# 4. Rust Atomic Prometheus Observability Collector Test
+# 4. Codex Agent Compatibility Sync Check
+python3 scripts/sync_codex_agents.py --check
+
+# 5. Rust Atomic Prometheus Observability Collector Test
 python3 -c "import rust_core; print(rust_core.generate_prometheus_metrics_rust(120.0))"
 
-# 5. Rust SVG Chart Rendering Engine Test (BaZi, ZiWei, Zodiac, QiMen, XuanKong)
+# 6. Rust SVG Chart Rendering Engine Test (BaZi, ZiWei, Zodiac, QiMen, XuanKong)
 python3 -c "from project.core.svg_generator import generate_bazi_svg; print(generate_bazi_svg({'day_master': {'stem': '庚'}}))"
 
-# 6. Rust Astrological Consistency Audit (PyO3 Accelerated)
+# 7. Rust Astrological Consistency Audit (PyO3 Accelerated)
 python3 scripts/audit_astrological_consistency.py
 
-# 7. Pre-Deployment Safety Audit & Secret Scan (Rust Rayon Parallel — 642 files, 0 leaks)
+# 8. Pre-Deployment Safety Audit & Secret Scan (Rust Rayon Parallel — 642 files, 0 leaks)
 python3 project/core/code_reviewer.py --scan-secrets
 
-# 8. Full Python Pytest Suite (181/181 tests PASS)
+# 8. Full Python Pytest Suite (195/195 tests PASS as of 2026-08-09)
 python3 -m pytest -v --ignore=project/kaggle_kernel
 ```
 
@@ -56,20 +63,20 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 │ • Phase 1: Astrological Audits + Tokio HTTP Testers (Rust Binaries)           │
 │ • Phase 2 & 3: SVG Chart Renderers (BaZi, ZiWei, Zodiac, QiMen, XuanKong)    │
 │ • Phase 4: Rust Atomic Prometheus Metrics Collector & Observability Engine    │
-│ • Phase 5: Native Cargo Test Suite (18/18 PASS) + Code Reviewer & Governance │
+│ • Phase 5: Cargo Integration Suite (2/2 PASS) + Code Reviewer & Governance   │
 │             Sync CLI Binaries (rust_core/src/bin/)                            │
 │ • Phase 6.1: Standalone Pure Rust Axum Gateway (< 10MB RAM, < 1ms)            │
-│ • Phase 6.2: Native Cargo Test Suite & Rust Runner (0.020s 12/12 100% PASS)   │
+│ • Phase 6.2: Native Rust Runner (12/12 PASS with local Axum health check)    │
 │ • Swiss Ephemeris Native Pure Rust Bridge (swisseph.rs)                       │
 │ • Code Reviewer Rayon Parallel Secret Scanner & Dead Code Cleanup             │
 │ • Grafana Cloud Observability Engine + Gateway Telemetry                      │
 │ • Prometheus Metrics Endpoint (/metrics & /api/health alias)                  │
-│ • Playwright E2E Screenshots (17/17 PASS)                                     │
-│ • UI Button & Endpoint Suite (25/25 PASS)                                     │
+│ • Playwright E2E screenshots — fresh 17-step run remains to be hardened      │
+│ • UI Button Suite: 25 checks pass; HITL lifecycle contract still to harden    │
 │ • HF Spaces Live Deploy & Audit                                               │
 │ • Pre-Deploy Safety Audit (READY_FOR_PROD)                                    │
-│ • 182/182 Python Pytest Suite (100% PASS)                                     │
-│ • 18/18 Native Cargo Test Suite + Rust Runner (0.020s 100% PASS)              │
+│ • 195/195 Python Pytest Suite (100% PASS)                                     │
+│ • 2 Cargo integration tests + Rust Runner 12/12 PASS (0.078s audit)           │
 └───────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -255,17 +262,26 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
   - **Pure Rust Math Routing**: `/health`, `/metrics`, `/api/v1/bazi/calculate`, `/api/v1/ziwei/calculate`, `/api/v1/qimen/calculate`, `/api/v1/xuankong/calculate`, `/api/v1/thai_vedic/calculate`, `/api/v1/uranian/calculate`, `/api/v1/iching/calculate`, `/api/v1/liuren/calculate`, `/api/v1/zeji/calculate`, `/api/v1/numerology/calculate`.
   - **Python RAG Async Proxy**: `/api/v1/proxy/*path` targeting Python RAG/LLM Service (`PYTHON_RAG_HOST`).
 
-- [x] **Phase 6.2: Full Native Cargo Test Suite & Rust Regression Runner Binary Migration (Option 1) ([`rust_core/src/bin/regression_runner.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/regression_runner.rs))**
-  - **Target Achieved**: Replaced slow Pytest execution with 12-test parallel Rust CLI Runner (`regression_runner`) executing in **0.020s (20 ms)**.
+- [x] **Phase 6.2: Native Rust Regression Runner Integration (Option 1) ([`rust_core/src/bin/regression_runner.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/regression_runner.rs))**
+  - **Target Achieved**: Added a 12-check parallel Rust CLI Runner (`regression_runner`) that complements the full Pytest suite. The 2026-08-09 local audit completed all 12 checks in **0.078s** with the Axum health endpoint running.
   - **Execution Protocol**: Verifies BaZi, ZiWei, QiMen, XuanKong, Thai Vedic, Uranian, SwissEph, ZeJi, Secret Scanner, and Consonance audits in pure Rust.
   - **Migration Dead-Code Cleanup Mandate**: Cleaned up warnings and verified 100% test pass rate across Rust binaries.
 
 - [x] **Swiss Ephemeris Native Pure Rust Bridge ([`rust_core/src/swisseph.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/swisseph.rs))**
   - High-precision analytical planetary ephemeris calculation engine in pure Rust (`calculate_sun_position_rust`, `calculate_moon_position_rust`, `compute_ephemeris_sun_moon`).
 
+- [x] **BaZi Interpretation Router Singleton Regression Fix ([`project/routers/debate.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/routers/debate.py))**
+  - The interpretation endpoint now shares the application `HybridRouter` singleton instead of constructing an independent router, so its configured routing and test dependency are consistent.
+  - Verified by the previously failing `test_bazi_interpret_basic` and the full **195/195** Pytest suite.
+
+- [x] **Backward-Compatible Codex Subagent Configuration ([`scripts/sync_codex_agents.py`](scripts/sync_codex_agents.py), [`.codex/agents/`](.codex/agents/), [`AGENTS.md`](AGENTS.md))**
+  - Reuses the 16 existing `.agents/agents/*/agent.json` role definitions as the source and generates native Codex TOML files without changing Antigravity files or legacy provider allocations.
+  - Adds `--check` drift detection, TOML parsing tests, and safe historical model guidance: Codex roles inherit the active Codex model.
+  - Verification: both synchronization checks pass; Codex migration plus legacy agent configuration tests pass **6/6**. The remaining pre-existing live-Codex fallback test requires its configured 45-second CLI timeout and exceeds this harness's foreground-command limit.
+
 ### 🔄 DOING (กำลังดำเนินการ)
 
-*ไม่มี — ทุก Phase ในแผนงานดำเนินการเสร็จสิ้น 100%*
+*ไม่มี implementation ที่กำลังทำอยู่ — งานติดตามผลอยู่ใน TODO ด้านล่าง*
 
 ---
 
@@ -274,7 +290,7 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 - [x] **Module 1: RAG FAISS Vector Search & Distance Metrics Native Rust Migration ([`project/rag/vector_store.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/rag/vector_store.py), [`rust_core/src/vector_search.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/vector_search.rs), [`project/core/fast_math.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/fast_math.py))**
   - Implemented SIMD unrolled Dot Product (Cosine Similarity) & L2 Euclidean Distance vector search matchers in Rust PyO3 bindings (`dense_vector_search` & `dense_vector_search_l2`).
   - Added fast math python bridge `rust_dense_vector_search_l2` with 100% NumPy fallback compatibility.
-  - Test suite verified: 16/16 Cargo tests PASS + 13/13 Pytest extension tests PASS.
+  - Current audit: 2 Cargo integration tests PASS + 13/13 Pytest extension tests PASS.
 
 - [x] **Module 2: Astrological Audit & Canonical Consonance Native Rust Binary ([`rust_core/src/bin/audit_suite.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/audit_suite.rs))**
   - Created parallel Rust CLI binary `audit_suite` executing Five Elements, TST, and Cross-Domain consonance audits in **0.066 ms** (`READY_FOR_PROD`).
@@ -297,10 +313,16 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 - [x] **Module 8: Native Rust SDLC Agent Governance Watchdog & Health Auditor ([`rust_core/src/bin/sdlc_watchdog.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/sdlc_watchdog.rs))**
   - Built native Rust watchdog CLI auditing agent matrix specs (`.antigravity/agents/`), workspace definitions (`.agents/agents/`), docs integrity, and secret leaks.
 
+- [ ] **Harden HITL Button Regression Contracts**
+  - Select a deterministic valid item from `/hitl/queue`, then assert successful draft → review → undo lifecycle responses (rather than treating `404` from a synthetic ID as a pass).
+  - Keep invalid-ID behaviour as a separate negative-path test.
 
+- [ ] **Make Playwright E2E Results Portable and Trustworthy**
+  - Replace the hard-coded external artifact directory with a configurable local output path.
+  - Record every caught browser-step exception as a failed result so the 17-step report cannot overstate success.
 
-
-
+- [ ] **Define the Future LLM Model Expansion Scope**
+  - The master plan lists this roadmap item but has no approved provider/model, acceptance criteria, budget, or deployment target.
 
 
 

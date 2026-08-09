@@ -12,6 +12,24 @@
 
 ---
 
+## 🤖 Codex Agent Compatibility
+
+The legacy Antigravity agent definitions remain intact in `.antigravity/` and `.agents/`. Codex discovers the existing `.agents/skills/` natively; its 16 custom subagents are generated into `.codex/agents/` from `.agents/agents/*/agent.json`.
+
+```bash
+# After changing legacy agent definitions
+python3 scripts/sync_sdlc_agents.py --sync
+python3 scripts/sync_codex_agents.py --sync
+
+# Read-only verification
+python3 scripts/sync_sdlc_agents.py --check --use-python
+python3 scripts/sync_codex_agents.py --check
+```
+
+Do not hand-edit `.codex/agents/*.toml`. Each file preserves the legacy role prompt but makes Codex inherit the active model rather than copying provider-specific model names.
+
+---
+
 ## 🏛️ C4 Software Architecture Levels
 
 ### Level 1: System Context Diagram (บริบทระบบภายนอก)

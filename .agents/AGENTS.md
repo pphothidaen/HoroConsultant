@@ -95,3 +95,25 @@ flowchart TD
 | **`devops`** | DevOps & Release Agent | `Gemini 3.6 Flash` | `devops.agent` | `devops/agent.md` | Release & Deploy |
 | **`code_reviewer`** | Pre-Deployment Safety Auditor | `Gemini 3.6 Flash` | `code-reviewer.agent` | `code_reviewer/agent.md` | Safety Audit |
 | **8 Domain Masters** | Metaphysics Experts | `Gemini 3.6 Flash` | `[domain]-master.agent` | `[domain_master]/agent.md` | Domain Analysis |
+
+---
+
+## 🤖 Codex Compatibility Layer
+
+The Antigravity definitions remain the cross-framework source. Codex uses the same role prompts through generated native subagent files in [`.codex/agents/`](../.codex/agents/).
+
+1. Synchronize Antigravity and workspace definitions as usual:
+   ```bash
+   python3 scripts/sync_sdlc_agents.py --sync
+   ```
+2. Generate the Codex target from the resulting `.agents/agents/*/agent.json` files:
+   ```bash
+   python3 scripts/sync_codex_agents.py --sync
+   ```
+3. Validate both targets without writing:
+   ```bash
+   python3 scripts/sync_sdlc_agents.py --check --use-python
+   python3 scripts/sync_codex_agents.py --check
+   ```
+
+Do not hand-edit `.codex/agents/*.toml`; their headers identify the legacy source file. Legacy provider model names are retained only for Antigravity compatibility. Codex roles inherit the active Codex model.
