@@ -112,7 +112,9 @@ def build_agent_md(agent_data: dict[str, Any]) -> str:
     }
 
     yaml_header = yaml.dump(frontmatter, sort_keys=False, allow_unicode=True).strip()
-    body = agent_data.get("system_prompt", f"System Prompt for {name} agent.")
+    body = str(agent_data.get("system_prompt", f"System Prompt for {name} agent."))
+    if name == "default":
+        body = body.rstrip()
     return f"---\n{yaml_header}\n---\n\n{body}\n"
 
 
