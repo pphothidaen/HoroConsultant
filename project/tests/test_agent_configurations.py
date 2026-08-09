@@ -23,6 +23,42 @@ def test_settings_json_default_agent():
     assert settings.get("models", {}).get("default") == "Gemini 3.6 Flash (High)"
 
 
+def test_default_agent_is_an_explicit_orchestrator_router():
+    """Verify Codex's root profile explicitly plans and routes incoming work."""
+    default_agent_path = os.path.join(AGENTS_AGENTS_DIR, "default", "agent.json")
+    with open(default_agent_path, "r", encoding="utf-8") as f:
+        default_agent = json.load(f)
+
+    assert default_agent["name"] == "default"
+    assert "Default Orchestrator Router" in default_agent["role"]
+    prompt = default_agent["system_prompt"]
+    for stage in ("Classify", "Plan", "Delegate", "Synthesize", "Verify"):
+        assert stage in prompt
+    assert "distinct file or responsibility ownership" in prompt
+
+
+def test_agy_default_agent_uses_the_orchestrator_router_contract():
+    """Verify the AGY source profile uses the same default routing contract."""
+    default_agent_path = os.path.join(ANTIGRAVITY_AGENTS_DIR, "default.agent")
+    with open(default_agent_path, "r", encoding="utf-8") as f:
+        default_agent = yaml.safe_load(f)
+
+    assert "Default Orchestrator Router" in default_agent["display_name"]
+    prompt = default_agent["system_prompt"]
+    for stage in ("Classify", "Plan", "Delegate", "Synthesize", "Verify"):
+        assert stage in prompt
+    assert default_agent["fallback_agent"] == "orchestrator"
+
+
+def test_default_agent_markdown_has_no_trailing_blank_line():
+    """Verify the AGY synchronizer normalizes a block prompt's final newline."""
+    default_agent_path = os.path.join(AGENTS_AGENTS_DIR, "default", "agent.md")
+    with open(default_agent_path, "r", encoding="utf-8") as f:
+        rendered_agent = f.read()
+
+    assert not rendered_agent.endswith("\n\n")
+
+
 def test_antigravity_default_agent_file():
     """Verify .antigravity/agents/default.agent structure and fields."""
     default_agent_path = os.path.join(ANTIGRAVITY_AGENTS_DIR, "default.agent")
@@ -69,4 +105,3 @@ def test_agents_dir_sync_both_formats():
         toplevel_md = os.path.join(AGENTS_AGENTS_DIR, f"{name}.md")
         assert os.path.exists(folder_md), f"Missing {folder_md}"
         assert os.path.exists(toplevel_md), f"Missing {toplevel_md}"
-
