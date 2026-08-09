@@ -5,6 +5,7 @@
 
 import json
 import os
+from pathlib import Path
 
 import yaml
 
@@ -57,6 +58,13 @@ def test_default_agent_markdown_has_no_trailing_blank_line():
         rendered_agent = f.read()
 
     assert not rendered_agent.endswith("\n\n")
+
+
+def test_pytest_does_not_collect_project_local_worktrees():
+    """Keep release audits from collecting duplicate tests in .worktrees/."""
+    pytest_config = (Path(ROOT_DIR) / "pytest.ini").read_text(encoding="utf-8")
+
+    assert ".worktrees" in pytest_config
 
 
 def test_antigravity_default_agent_file():
