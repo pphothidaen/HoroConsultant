@@ -1,7 +1,7 @@
 // api/index.js — Vercel Node.js Middleend Gateway
-const HF_BACKEND_URL = (process.env.HF_BACKEND_URL || "https://pphothidaen-horoconsultant-core-backend.hf.space").replace(/\/$/, "");
+const HF_BACKEND_URL = (process.env.HF_BACKEND_URL || "https://pphothidaen-horoconsultant-core-backend.static.hf.space").replace(/\/$/, "");
 
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   try {
     // Always attach CORS headers
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -46,9 +46,4 @@ export default function handler(req, res) {
       error: err.message
     });
   }
-}
-
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = handler;
-}
-
+};

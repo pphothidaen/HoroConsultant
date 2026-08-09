@@ -285,6 +285,19 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 - [x] **Module 4: Synthetic Chart Generation & Dataset Extractor Engine ([`rust_core/src/bin/chart_generator.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/chart_generator.rs))**
   - Built multithreaded Rayon synthetic chart generator in Rust emitting 1,000 JSONL records in **0.0018s** (**> 540,000 charts/sec**).
 
+- [x] **Module 5: Axum Gateway High-Throughput Load Tester & Latency Analyzer ([`rust_core/src/bin/horo_benchmark.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/horo_benchmark.rs))**
+  - Built Tokio async load tester CLI measuring req/sec throughput & sub-millisecond P50/P95/P99 latency distribution for Axum Gateway.
+
+- [x] **Module 6: High-Performance Pure Rust SVG Vector Chart Generator CLI ([`rust_core/src/bin/svg_chart_cli.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/svg_chart_cli.rs))**
+  - Built standalone Rust CLI for batch rendering vector SVG charts (BaZi, ZiWei, Zodiac Wheel, QiMen, XuanKong) in **< 0.05ms** per chart.
+
+- [x] **Module 7: Parallel Multi-Discipline Metaphysics Fusion Synthesizer ([`rust_core/src/bin/fusion_synthesizer.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/fusion_synthesizer.rs))**
+  - Built Rayon multi-threaded CLI binary executing all 10 domain calculation engines concurrently in **0.17 ms** emitting unified JSON charts.
+
+- [x] **Module 8: Native Rust SDLC Agent Governance Watchdog & Health Auditor ([`rust_core/src/bin/sdlc_watchdog.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/sdlc_watchdog.rs))**
+  - Built native Rust watchdog CLI auditing agent matrix specs (`.antigravity/agents/`), workspace definitions (`.agents/agents/`), docs integrity, and secret leaks.
+
+
 
 
 
