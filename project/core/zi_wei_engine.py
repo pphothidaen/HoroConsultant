@@ -181,7 +181,9 @@ class ZiWeiEngine(AbstractAstrologyEngine):
             "破軍": BRANCHES[(tian_fu_idx + 10) % 12],
         }
         
-        all_main_stars = {**zi_wei_stars, **tian_fu_stars}
+        from project.core.fast_math import fast_ziwei_stars
+        branch_stars_map = dict(fast_ziwei_stars(zi_wei_idx))
+
         si_hua = SI_HUA_MATRIX.get(year_stem, {})
         
         # Construct 12 Palaces list
@@ -190,8 +192,9 @@ class ZiWeiEngine(AbstractAstrologyEngine):
             palace_branch_idx = (ming_idx - i) % 12
             branch_name = BRANCHES[palace_branch_idx]
             
-            # Find stars in this palace
-            stars_in_palace = [star for star, b in all_main_stars.items() if b == branch_name]
+            # Find stars in this palace using fast_ziwei_stars
+            stars_in_palace = branch_stars_map.get(palace_branch_idx, [])
+
             
             # Check if any star has Si Hua mutator
             mutators = []

@@ -98,46 +98,20 @@ class QiMenEngine(AbstractAstrologyEngine):
             yuan_idx = 0
         ju_number = ju_list[yuan_idx]
 
-        # Earth Plate: Nine Palaces distribution of 6 Instruments & 3 Wonders (戊, 己, 庚, 辛, 壬, 癸, 丁, 丙, 乙)
-        stems_order = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"]
-        earth_plate = {}
-        
-        for i, stem in enumerate(stems_order):
-            if dun_type == "Yang":
-                palace = (ju_number + i - 1) % 9 + 1
-            else:
-                palace = (ju_number - i - 1) % 9 + 1
-            earth_plate[palace] = stem
-
-        # Nine Stars Placement across 9 Palaces (starting from Kan Palace 1)
-        stars_plate = {}
-        for idx, star in enumerate(NINE_STARS):
-            palace = (idx % 9) + 1
-            stars_plate[palace] = star
-
-        # Eight Doors Placement across 8 Perimeter Palaces (1, 8, 3, 4, 9, 2, 7, 6)
-        perimeter_palaces = [1, 8, 3, 4, 9, 2, 7, 6]
-        doors_plate = {}
-        for idx, door in enumerate(EIGHT_DOORS):
-            palace = perimeter_palaces[idx % 8]
-            doors_plate[palace] = door
-
-        # Eight Spirits Placement across 8 Perimeter Palaces
-        spirits_plate = {}
-        for idx, spirit in enumerate(EIGHT_SPIRITS):
-            palace = perimeter_palaces[idx % 8]
-            spirits_plate[palace] = spirit
+        from project.core.fast_math import fast_qimen_matrix
+        matrix_tuples = fast_qimen_matrix(dun_type == "Yang", ju_number)
 
         # Construct Palace Detail
         palace_details = []
-        for p in PALACE_NUMBERS:
+        for (p, earth_stem, star, door, spirit) in matrix_tuples:
             palace_details.append({
                 "palace_number": p,
-                "earth_stem": earth_plate.get(p, "戊"),
-                "star": stars_plate.get(p, "天輔"),
-                "door": doors_plate.get(p, "生門"),
-                "spirit": spirits_plate.get(p, "值符")
+                "earth_stem": earth_stem,
+                "star": star,
+                "door": door,
+                "spirit": spirit
             })
+
 
         raw = {
             "engine": "QiMenEngine",

@@ -206,6 +206,78 @@ def fast_xuankong_9grid(facing_degree: float, period: int = 9) -> List[Tuple[int
     return [(p, base_chart[p], sit_map[p], face_map[p]) for p in range(1, 10)]
 
 
+def fast_ziwei_stars(zi_wei_idx: int) -> List[Tuple[int, List[str]]]:
+    """
+    Rust PyO3 native binding for Zi Wei Dou Shu 14 Primary Stars calculation.
+    Returns list of (earth_branch_index, list_of_star_names).
+    """
+    if RUST_AVAILABLE and hasattr(rust_core, "calculate_14_main_stars"):
+        try:
+            return rust_core.calculate_14_main_stars(zi_wei_idx)
+        except Exception:
+            pass
+
+    branches = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
+    tian_fu_idx = (4 + 12 - (zi_wei_idx % 12)) % 12
+    zi_wei_stars = {
+        "紫微": branches[zi_wei_idx % 12],
+        "天機": branches[(zi_wei_idx - 1) % 12],
+        "太陽": branches[(zi_wei_idx - 3) % 12],
+        "武曲": branches[(zi_wei_idx - 4) % 12],
+        "天同": branches[(zi_wei_idx - 5) % 12],
+        "廉貞": branches[(zi_wei_idx - 8) % 12],
+    }
+    tian_fu_stars = {
+        "天府": branches[tian_fu_idx],
+        "太陰": branches[(tian_fu_idx + 1) % 12],
+        "貪狼": branches[(tian_fu_idx + 2) % 12],
+        "巨門": branches[(tian_fu_idx + 3) % 12],
+        "天相": branches[(tian_fu_idx + 4) % 12],
+        "天梁": branches[(tian_fu_idx + 5) % 12],
+        "七殺": branches[(tian_fu_idx + 6) % 12],
+        "破軍": branches[(tian_fu_idx + 10) % 12],
+    }
+    all_stars = {**zi_wei_stars, **tian_fu_stars}
+    res = []
+    for b_idx, b_name in enumerate(branches):
+        s_list = [star for star, b in all_stars.items() if b == b_name]
+        res.append((b_idx, s_list))
+    return res
+
+
+def fast_qimen_matrix(dun_is_yang: bool, ju_number: int) -> List[Tuple[int, str, str, str, str]]:
+    """
+    Rust PyO3 native binding for Qi Men Dun Jia 9-Palace 4-Plate matrix calculations.
+    Returns list of (palace_num, earth_stem, star_name, door_name, spirit_name).
+    """
+    if RUST_AVAILABLE and hasattr(rust_core, "qimen_9palace_matrix"):
+        try:
+            return rust_core.qimen_9palace_matrix(dun_is_yang, ju_number)
+        except Exception:
+            pass
+
+    stems_order = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"]
+    nine_stars = ["天蓬", "天芮", "天衝", "天輔", "天禽", "天心", "天柱", "天任", "天英"]
+    eight_doors = ["休門", "生門", "傷門", "杜門", "景門", "死門", "驚門", "開門"]
+    eight_spirits = ["值符", "騰蛇", "太陰", "六合", "白虎", "玄武", "九地", "九天"]
+    perimeter = [1, 8, 3, 4, 9, 2, 7, 6]
+
+    earth_map = {}
+    for i, stem in enumerate(stems_order):
+        p = (ju_number + i - 1) % 9 + 1 if dun_is_yang else (ju_number - i - 1) % 9 + 1
+        earth_map[p] = stem
+
+    star_map = { (idx % 9) + 1: star for idx, star in enumerate(nine_stars) }
+    door_map = { perimeter[idx % 8]: door for idx, door in enumerate(eight_doors) }
+    spirit_map = { perimeter[idx % 8]: spirit for idx, spirit in enumerate(eight_spirits) }
+
+    res = []
+    for p in range(1, 10):
+        res.append((p, earth_map.get(p, "戊"), star_map.get(p, "天輔"), door_map.get(p, "生門"), spirit_map.get(p, "值符")))
+    return res
+
+
+
 
 # ═════════════════════════════════════════════════════════════════════════════
 # VECTORISED BAZI FIVE-ELEMENT SCORING

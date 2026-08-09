@@ -22,6 +22,8 @@ mod solar;
 mod chunker;
 mod vector_search;
 mod fengshui;
+mod ziwei;
+mod qimen;
 
 /// High-performance Rust core for Computational Metaphysics Engine.
 #[pymodule]
@@ -51,6 +53,13 @@ fn rust_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(fengshui::fly_stars, m)?)?;
     m.add_function(wrap_pyfunction!(fengshui::xuankong_9grid_matrix, m)?)?;
 
+    // Zi Wei Dou Shu & Qi Men Dun Jia Matrix
+    m.add_function(wrap_pyfunction!(ziwei::calculate_ming_shen_gong, m)?)?;
+    m.add_function(wrap_pyfunction!(ziwei::calculate_zi_wei_star_branch, m)?)?;
+    m.add_function(wrap_pyfunction!(ziwei::calculate_14_main_stars, m)?)?;
+    m.add_function(wrap_pyfunction!(qimen::qimen_9palace_matrix, m)?)?;
+
     Ok(())
 }
+
 

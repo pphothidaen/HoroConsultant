@@ -50,3 +50,28 @@ def test_xuankong_engine_integration():
         assert "base_star" in p
         assert "sitting_star" in p
         assert "facing_star" in p
+
+
+def test_fast_ziwei_stars():
+    """Verify Zi Wei Dou Shu 14 main stars fast placement."""
+    from project.core.fast_math import fast_ziwei_stars
+    from project.core.zi_wei_engine import ZiWeiEngine
+    
+    res = fast_ziwei_stars(2)
+    assert len(res) == 12
+    engine = ZiWeiEngine()
+    chart = engine.calculate_chart(1990, 5, 15, 14)
+    assert len(chart.chart_data["palaces"]) == 12
+
+
+def test_fast_qimen_matrix():
+    """Verify Qi Men Dun Jia 4-plate fast matrix computation."""
+    from project.core.fast_math import fast_qimen_matrix
+    from project.core.qi_men_engine import QiMenEngine
+
+    res = fast_qimen_matrix(True, 1)
+    assert len(res) == 9
+    engine = QiMenEngine()
+    chart = engine.calculate_chart(2026, 8, 7, 14)
+    assert len(chart.chart_data["palaces"]) == 9
+
