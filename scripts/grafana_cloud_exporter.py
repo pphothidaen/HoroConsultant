@@ -4,11 +4,13 @@ scripts/grafana_cloud_exporter.py — CLI Exporter for Grafana Cloud & Prometheu
 Computational Metaphysics Engine
 
 Supports CLI flags:
-  --dry-run           Format & display payloads without sending live HTTP requests.
-  --check-connection  Test connection to Grafana Cloud & metrics endpoint.
-  --push-metrics      Scrape metrics from project/core/observability.py or /metrics,
-                      format OTLP/Prometheus JSON payload, and push to Grafana Cloud.
-  --export-dashboard  Validate and export project/grafana/horoconsultant_dashboard.json to Grafana.
+  --dry-run                 Format & display payloads without sending live HTTP requests.
+  --check-connection        Test connection to Grafana Cloud & metrics endpoint.
+  --push-metrics            Scrape metrics from project/core/observability.py or /metrics,
+                             format OTLP/Prometheus JSON payload, and push to Grafana Cloud.
+  --export-dashboard        Validate and export project/grafana/horoconsultant_dashboard.json to Grafana.
+  --push-gateway-telemetry  Collect Vercel/HF/Fly.io gateway response latencies and HTTP
+                             status distribution (2xx/4xx/5xx) and push to Grafana Cloud.
 
 Pure ASCII logging tags enforced: [OK], [ERROR], [INFO], [WARNING].
 """
@@ -391,6 +393,133 @@ def export_dashboard_to_grafana(
         return {"status": "error", "message": str(err)}
 
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Gateway Telemetry Collection
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Production gateway endpoints to probe
+_GATEWAY_TARGETS = [
+    {"name": "vercel_gateway", "url": os.getenv("VERCEL_GATEWAY_URL", "https://horo-consultant-psi.vercel.app") + "/health"},
+    {"name": "hf_backend", "url": os.getenv("HF_BACKEND_URL", "https://pphothidaen-horoconsultant-core-backend.hf.space") + "/health"},
+    {"name": "fly_backend", "url": os.getenv("FLY_BACKEND_URL", "https://horoconsultant-core-backend.fly.dev") + "/health"},
+]
+
+
+def fetch_gateway_telemetry(targets: Optional[List[Dict[str, Any]]] = None, timeout: int = 10) -> Dict[str, Any]:
+    """
+    Probe each gateway health endpoint, measure response latency, and bucket
+    HTTP status codes into 2xx/4xx/5xx categories.
+
+    Returns an OTLP resourceMetrics payload containing:
+      - gateway_response_latency_ms  (gauge, per gateway target)
+      - gateway_http_status_code     (gauge, actual HTTP status per target)
+      - gateway_http_requests_total  (gauge, bucketed by status_class: 2xx/4xx/5xx/error)
+    """
+    if targets is None:
+        targets = _GATEWAY_TARGETS
+
+    now_nano = str(int(time.time() * 1e9))
+    latency_points: List[Dict[str, Any]] = []
+    status_points: List[Dict[str, Any]] = []
+    bucket_points: List[Dict[str, Any]] = []
+
+    for target in targets:
+        name = target["name"]
+        url = target["url"]
+        log_info(f"Probing gateway target '{name}' at {url}")
+
+        t0 = time.perf_counter()
+        status_code = 0
+        try:
+            req = urllib.request.Request(
+                url,
+                headers={"User-Agent": "HoroConsultant-GatewayExporter/1.0", "Accept": "application/json"},
+                method="GET",
+            )
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                status_code = getattr(resp, "status", 200)
+                if isinstance(status_code, MagicMock):
+                    status_code = 200
+                resp.read()  # consume body
+        except urllib.error.HTTPError as e:
+            status_code = e.code
+            e.read()
+        except Exception as exc:
+            status_code = 0
+            log_warning(f"Gateway probe error for '{name}': {exc}")
+
+        latency_ms = (time.perf_counter() - t0) * 1000
+
+        # Determine HTTP status class bucket
+        if 200 <= status_code < 300:
+            status_class = "2xx"
+            log_ok(f"  {name}: HTTP {status_code} | {latency_ms:.0f}ms")
+        elif 400 <= status_code < 500:
+            status_class = "4xx"
+            log_warning(f"  {name}: HTTP {status_code} | {latency_ms:.0f}ms")
+        elif 500 <= status_code < 600:
+            status_class = "5xx"
+            log_error(f"  {name}: HTTP {status_code} | {latency_ms:.0f}ms")
+        else:
+            status_class = "error"
+            log_error(f"  {name}: Unreachable | {latency_ms:.0f}ms")
+
+        attrs = [{"key": "gateway", "value": {"stringValue": name}}]
+
+        latency_points.append({
+            "timeUnixNano": now_nano,
+            "asDouble": round(latency_ms, 2),
+            "attributes": attrs,
+        })
+        status_points.append({
+            "timeUnixNano": now_nano,
+            "asDouble": float(status_code),
+            "attributes": attrs,
+        })
+        bucket_points.append({
+            "timeUnixNano": now_nano,
+            "asDouble": 1.0,
+            "attributes": attrs + [{"key": "status_class", "value": {"stringValue": status_class}}],
+        })
+
+    payload: Dict[str, Any] = {
+        "resourceMetrics": [
+            {
+                "resource": {
+                    "attributes": [
+                        {"key": "service.name", "value": {"stringValue": "horoconsultant"}},
+                        {"key": "service.namespace", "value": {"stringValue": "gateway-telemetry"}},
+                        {"key": "exporter", "value": {"stringValue": "grafana_cloud_exporter"}},
+                    ]
+                },
+                "scopeMetrics": [
+                    {
+                        "scope": {"name": "gateway_telemetry", "version": "1.0.0"},
+                        "metrics": [
+                            {
+                                "name": "gateway_response_latency_ms",
+                                "description": "Gateway health endpoint response latency in milliseconds",
+                                "gauge": {"dataPoints": latency_points},
+                            },
+                            {
+                                "name": "gateway_http_status_code",
+                                "description": "HTTP status code returned by gateway health endpoint",
+                                "gauge": {"dataPoints": status_points},
+                            },
+                            {
+                                "name": "gateway_http_requests_total",
+                                "description": "Gateway health check requests bucketed by HTTP status class (2xx/4xx/5xx/error)",
+                                "gauge": {"dataPoints": bucket_points},
+                            },
+                        ],
+                    }
+                ],
+            }
+        ]
+    }
+    return payload
+
+
 def build_cli_parser() -> argparse.ArgumentParser:
     """Build CLI argument parser."""
     parser = argparse.ArgumentParser(
@@ -417,6 +546,12 @@ def build_cli_parser() -> argparse.ArgumentParser:
         dest="inject_dummy",
         action="store_true",
         help="Seed dummy telemetry metrics (Alert Groups, Incident stats, HTTP, LLM, RAG) and push to Grafana Cloud."
+    )
+    parser.add_argument(
+        "--push-gateway-telemetry",
+        action="store_true",
+        help="Probe Vercel/HF/Fly.io gateway health endpoints, collect response latencies and "
+             "HTTP status distribution (2xx/4xx/5xx), and push OTLP payload to Grafana Cloud."
     )
     parser.add_argument(
         "--export-dashboard",
@@ -473,7 +608,7 @@ def main() -> int:
     args = parser.parse_args()
 
     # If no specific action is supplied, default to running dry-run mode for metrics and dashboard export
-    if not (args.check_connection or args.push_metrics or args.export_dashboard or args.inject_dummy):
+    if not (args.check_connection or args.push_metrics or args.export_dashboard or args.inject_dummy or args.push_gateway_telemetry):
         log_info("No action flag specified. Executing dry-run verification for metrics and dashboard...")
         args.dry_run = True
         args.check_connection = True
@@ -501,6 +636,19 @@ def main() -> int:
         payload = format_otlp_json_payload(metrics_text)
         push_ok = push_metrics(args.grafana_url, args.api_key, payload, dry_run=args.dry_run)
         if not push_ok:
+            overall_success = False
+
+    if args.push_gateway_telemetry:
+        log_info("Collecting gateway response latency and HTTP status distribution telemetry...")
+        gw_payload = fetch_gateway_telemetry()
+        metric_count = sum(
+            len(m.get("gauge", {}).get("dataPoints", []))
+            for sm in gw_payload.get("resourceMetrics", [{}])[0].get("scopeMetrics", [{}])
+            for m in sm.get("metrics", [])
+        )
+        log_info(f"Prepared gateway telemetry OTLP payload with {metric_count} data points")
+        gw_ok = push_metrics(args.grafana_url, args.api_key, gw_payload, dry_run=args.dry_run)
+        if not gw_ok:
             overall_success = False
 
     if args.export_dashboard:

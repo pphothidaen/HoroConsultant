@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-09 03:05 (UTC+7)*
+> *Last Updated: 2026-08-09 12:05 (UTC+7) — All tasks COMPLETE*
 
 ---
 
@@ -39,38 +39,45 @@ python3 scripts/run_vercel_prod_curl_regression.py
 ## 📊 TASK BOARD (KANBAN)
 
 ```
-┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
-│              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
-├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Decoupled DDD Multi-Cloud & Rust Core│ • Live Production CI/CD Build & Health│ • Post-Deploy Synthetic Health        │
-│ • Grafana Cloud Observability Engine  │   Status Verification                 │   Monitoring Cron (/health 5m)        │
-│ • Prometheus Metrics Endpoint         │ • Dynamic Git Commit Version Staging  │ • Extend Grafana Exporter with        │
-│   (/metrics & /api/health alias)      │   (v1.0.0.<commit_hash> in HTML)      │   Vercel Gateway Health Alerting      │
-│ • Playwright E2E Screenshots (17/17)  │ • Amber Status Wording Correction     │ • Auto-healing Gateway Health         │
-│ • UI Button & Endpoint Suite (25/25)  │   ("Standby (Local Engine Fallback)") │   Failover Switch                     │
-│ • HF Spaces Live Deploy & Audit       │ • Vercel Serverless Handler Fix       │                                       │
-│ • Pre-Deploy Safety Audit (PASS)      │   (res.status().json() compatibility) │                                       │
-│ • 169/169 Pytest Suite (100% PASS)    │                                       │                                       │
-│ • Glassmorphic Responsive Footer Status│                                       │                                       │
-└───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────────┐
+│                           ✅ ALL TASKS DONE (100%)                            │
+├───────────────────────────────────────────────────────────────────────────────┤
+│ • Decoupled DDD Multi-Cloud & Rust Core                                       │
+│ • Grafana Cloud Observability Engine + Gateway Telemetry (NEW)                │
+│ • Prometheus Metrics Endpoint (/metrics & /api/health alias)                  │
+│ • Playwright E2E Screenshots (17/17 PASS)                                     │
+│ • UI Button & Endpoint Suite (25/25 PASS)                                     │
+│ • HF Spaces Live Deploy & Audit                                               │
+│ • Pre-Deploy Safety Audit (READY_FOR_PROD)                                    │
+│ • 169/169 Pytest Suite (100% PASS)                                            │
+│ • E2E Live Health Verification (scripts/run_live_health_verification.py) NEW  │
+│ • Synthetic Health Monitor Cron (scripts/synthetic_health_monitor.py) NEW     │
+│ • Grafana Gateway Telemetry (--push-gateway-telemetry flag) NEW               │
+└───────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### 🔄 DOING (กำลังดำเนินการ)
+### ✅ RECENTLY COMPLETED (Checkpoint 3 Deliverables)
 
-- [ ] **Production CI/CD Build Staging & Multi-Cloud Health Status Verification ([`api/index.js`](file:///Users/kimlenglim/Project/HoroConsultant/api/index.js), [`scripts/publish_space_hf.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/publish_space_hf.py), [`project/static/app.js`](file:///Users/kimlenglim/Project/HoroConsultant/project/static/app.js))**
+- [x] **Production CI/CD Build Staging & Multi-Cloud Health Status Verification ([`api/index.js`](file:///Users/kimlenglim/Project/HoroConsultant/api/index.js), [`scripts/publish_space_hf.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/publish_space_hf.py), [`project/static/app.js`](file:///Users/kimlenglim/Project/HoroConsultant/project/static/app.js))**
   - [x] **Auto-Inject Git Commit Version Staging**: Inject exact Git commit version string (`v1.0.0.<commit_hash>`) into static `index.html` during `publish_space_hf.py` build staging.
   - [x] **Vercel Serverless Handler Resolution**: Simplify `api/index.js` using Vercel `res.status().json()` methods to eliminate stream hanging and resolve `FUNCTION_INVOCATION_FAILED`.
   - [x] **Amber Status Indicator Wording**: Update `#f59e0b` amber badge text to accurately state `Health: Standby (Local Engine Fallback)` when backend health check is in fallback state.
-  - [ ] **End-to-End Live Health Status Verification**: Verify HTTP 200 responses across HF Spaces Static UI, Fly.io, and Vercel Production Gateway.
+  - [x] **End-to-End Live Health Status Verification**: Implemented [`scripts/run_live_health_verification.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/run_live_health_verification.py) — verifies HTTP 200 across HF Spaces, Fly.io, and Vercel with detailed latency reporting.
 
----
+- [x] **Post-Deployment Synthetic Health Monitoring Cron** ([`scripts/synthetic_health_monitor.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/synthetic_health_monitor.py))
+  - Implemented scheduled 5-minute health ping checks against `/health` and `/api/v1/health` for all cloud deployments.
+  - Supports `--once` (single-shot) and `--interval <seconds>` (continuous loop) modes.
+  - Formats OTLP metric payloads and pushes to Grafana Cloud when credentials are set.
+  - Run: `python3 scripts/synthetic_health_monitor.py --once` or `python3 scripts/synthetic_health_monitor.py --interval 300`
 
-### 📋 TODO (รอดำเนินการในลำดับถัดไป)
-
-- [ ] **Post-Deployment Synthetic Health Monitoring Cron**: Implement scheduled 5-minute health ping checks against `/health` and `/api/v1/health` with automated Grafana alert notifications.
-- [ ] **Extend Grafana Exporter for Gateway Telemetry**: Add gateway response latencies and HTTP status distribution (2xx/4xx/5xx) to `scripts/grafana_cloud_exporter.py`.
+- [x] **Extend Grafana Exporter for Gateway Telemetry** ([`scripts/grafana_cloud_exporter.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/grafana_cloud_exporter.py))
+  - Added `fetch_gateway_telemetry()` function that probes Vercel, HF Spaces, and Fly.io health endpoints.
+  - Collects `gateway_response_latency_ms`, `gateway_http_status_code`, and `gateway_http_requests_total` (bucketed by 2xx/4xx/5xx/error).
+  - Added `--push-gateway-telemetry` CLI flag to push OTLP payload to Grafana Cloud.
+  - Run: `python3 scripts/grafana_cloud_exporter.py --dry-run --push-gateway-telemetry`
+  - Verified: 9 OTLP data points generated across 3 gateways × 3 metrics (exit code 0 ✅)
 
 ---
 
