@@ -13,3 +13,10 @@ def test_ai_cicd_installs_pytest_for_the_release_audit():
     )
 
     assert "pip install -r requirements-ci.txt pytest" in workflow
+
+
+def test_release_audit_collects_only_portable_test_directories():
+    """Avoid collecting standalone scripts with optional browser dependencies."""
+    pytest_config = (ROOT / "pytest.ini").read_text(encoding="utf-8")
+
+    assert "testpaths = project/tests tests" in pytest_config
