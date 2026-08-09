@@ -13,28 +13,23 @@
   "rewrites": [
     {
       "source": "/health",
-      "destination": "/api/index.js"
+      "destination": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
     },
     {
       "source": "/api/health",
-      "destination": "/api/index.js"
+      "destination": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
     },
     {
       "source": "/api/v1/:path*",
-      "destination": "/api/index.js"
-    },
-    {
-      "source": "/api/hf/:path*",
       "destination": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/:path*"
     },
     {
       "source": "/api/:path*",
-      "destination": "/api/index.js"
+      "destination": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/:path*"
     },
     {
       "source": "/(.*)",
-      "destination": "/api/index.js"
+      "destination": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/$1"
     }
   ]
 }
-
