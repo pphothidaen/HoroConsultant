@@ -6,13 +6,22 @@ Computational Metaphysics Engine
 from __future__ import annotations
 
 import asyncio
+import ipaddress
 import logging
 import os
 from contextlib import asynccontextmanager
+from typing import Any
 
-from fastapi import FastAPI
+_EXPLICIT_WORKER_CONTROLS = {
+    name: os.environ[name]
+    for name in ("AUTO_SYNC_ON_STARTUP", "AUTO_SYNC_ENABLED")
+    if name in os.environ
+}
+
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import RootModel
 
 from project.admin_router import admin_router
 from project.api_router import router
@@ -30,6 +39,10 @@ except ImportError:
 from project.rag.vector_store import get_vector_store
 from scripts.sync_gdrive_vault import check_and_run_if_missed, sync_all
 
+# project.api_router loads legacy dotenv values with override=True. The
+# supervisor's explicit external-sync controls remain authoritative.
+os.environ.update(_EXPLICIT_WORKER_CONTROLS)
+
 # ---------------------------------------------------------------------------
 # Logging & Scheduler
 # ---------------------------------------------------------------------------
@@ -40,11 +53,11 @@ scheduler = AsyncIOScheduler() if APSCHEDULER_AVAILABLE else None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("🚀 Starting Computational Metaphysics Engine API...")
+    logger.info("[START] Starting Computational Metaphysics Engine API")
 
     # 1. Startup Catch-Up Check (if system was powered off at midnight)
     if os.getenv("AUTO_SYNC_ON_STARTUP", "false").lower() in ("true", "1", "yes"):
-        logger.info("🔍 Checking for missed Google Drive syncs on startup...")
+        logger.info("[INFO] Checking for missed Google Drive syncs on startup")
         asyncio.create_task(asyncio.to_thread(check_and_run_if_missed))
 
     # 2. Midnight Cron Scheduler Setup
@@ -61,23 +74,23 @@ async def lifespan(app: FastAPI):
                 )
                 scheduler.start()
         except Exception as e:
-            logger.error(f"❌ Failed to start auto-sync scheduler: {e}")
+            logger.error(f"[ERROR] Failed to start auto-sync scheduler: {e}")
 
     # 3. Vector DB & FAISS Index Warmup (eliminates cold-start latency)
     if os.getenv("SKIP_FAISS_WARMUP", "false").lower() != "true":
         try:
-            logger.info("⚡ Pre-warming FAISS Vector Store & Rust Search Index...")
+            logger.info("[INFO] Pre-warming FAISS Vector Store and Rust Search Index")
             asyncio.create_task(asyncio.to_thread(get_vector_store))
         except Exception as e:
             logger.warning(f"Vector store warmup note: {e}")
     else:
-        logger.info("⏩ Skipping FAISS Vector Store pre-warm (SKIP_FAISS_WARMUP=true)")
+        logger.info("[INFO] Skipping FAISS Vector Store pre-warm (SKIP_FAISS_WARMUP=true)")
 
     yield
 
     if scheduler and scheduler.running:
         scheduler.shutdown(wait=False)
-        logger.info("🛑 Auto-sync scheduler shut down.")
+        logger.info("[INFO] Auto-sync scheduler shut down")
 
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -102,9 +115,6 @@ app.add_middleware(
     allow_headers=["*"],
     allow_credentials=True,
 )
-
-from fastapi import Request
-
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
@@ -135,6 +145,39 @@ app.include_router(admin_router)
 app.include_router(hitl_router)
 app.include_router(astrology_router)
 app.include_router(debate_router)
+
+
+class InternalBaziChart(RootModel[dict[str, Any]]):
+    """Validated chart payload used only by the localhost Rust supervisor."""
+
+
+@app.post("/_internal/v1/bazi/render", include_in_schema=False)
+async def render_bazi_assets(chart: InternalBaziChart, request: Request):
+    """Render the canonical BaZi SVG assets for the private Axum worker bridge."""
+    try:
+        is_loopback = request.client is not None and ipaddress.ip_address(
+            request.client.host
+        ).is_loopback
+    except ValueError:
+        is_loopback = False
+    if not is_loopback:
+        raise HTTPException(status_code=404, detail="Not Found")
+
+    from project.core import svg_generator
+
+    chart_data = chart.root
+    native_renderer_available = svg_generator.RUST_AVAILABLE
+    try:
+        # The current native SVG candidate is not byte-identical to the public
+        # response contract. Keep this single-worker bridge on the canonical
+        # Python renderer until an exact SVG parity gate qualifies it.
+        svg_generator.RUST_AVAILABLE = False
+        return {
+            "svg_content": svg_generator.generate_bazi_svg(chart_data),
+            "zodiac_svg": svg_generator.generate_zodiac_wheel_svg(chart_data),
+        }
+    finally:
+        svg_generator.RUST_AVAILABLE = native_renderer_available
 
 
 # ---------------------------------------------------------------------------
