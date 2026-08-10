@@ -1,23 +1,13 @@
 {
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Credentials", "value": "true" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
-        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform" }
-      ]
-    }
-  ],
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
       "source": "/health",
-      "destination": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
+      "destination": "/api/health"
     },
     {
-      "source": "/api/health",
-      "destination": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
+      "source": "/api/:path*",
+      "destination": "/api/index?path=:path*"
     },
     {
       "source": "/(.*)",

@@ -1,49 +1,58 @@
-// api/index.js — Vercel Node.js Middleend Gateway (ES Module)
-const HF_BACKEND_URL = (process.env.HF_BACKEND_URL || "https://pphothidaen-horoconsultant-core-backend.static.hf.space").replace(/\/$/, "");
+// api/index.js -- Vercel gateway for the Azure Container Apps API origin.
+const AZURE_API_ORIGIN = (process.env.AZURE_API_ORIGIN || "").replace(/\/$/, "");
 
-export default function handler(req, res) {
+function setCorsHeaders(res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+}
+
+function upstreamHeaders(req) {
+  const headers = {};
+  for (const name of ["accept", "content-type", "authorization", "x-request-id"]) {
+    if (req.headers[name]) headers[name] = req.headers[name];
+  }
+  return headers;
+}
+
+function upstreamUrl(path, query) {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(query || {})) {
+    if (key === "path" || value === undefined) continue;
+    for (const item of Array.isArray(value) ? value : [value]) search.append(key, String(item));
+  }
+  const suffix = search.size ? `?${search.toString()}` : "";
+  return `${AZURE_API_ORIGIN}/api/${path}${suffix}`;
+}
+
+function requestBody(req) {
+  if (["GET", "HEAD"].includes(req.method)) return undefined;
+  if (typeof req.body === "string" || Buffer.isBuffer(req.body)) return req.body;
+  return JSON.stringify(req.body ?? {});
+}
+
+export default async function handler(req, res) {
+  setCorsHeaders(res);
+  if (req.method === "OPTIONS") return res.status(204).end();
+
+  if (!AZURE_API_ORIGIN) {
+    return res.status(503).json({ error: "Azure API origin is not configured" });
+  }
+
+  const path = String(req.query?.path || "").replace(/^\//, "");
+  if (!path) return res.status(404).json({ error: "API route was not provided" });
+
   try {
-    // Always attach CORS headers
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, Referer, User-Agent");
-
-    if (req.method === "OPTIONS") {
-      return res.status(204).end();
-    }
-
-    const rawUrl = req.url || "/";
-    const gitCommit = (process.env.VERCEL_GIT_COMMIT_SHA || process.env.GIT_COMMIT_HASH || process.env.HF_COMMIT_SHA || "").slice(0, 7);
-    const versionStr = gitCommit ? `1.0.0.${gitCommit}` : "1.0.0";
-
-    // GET /health
-    if (req.method === "GET" && (rawUrl.includes("health") || rawUrl === "/")) {
-      return res.status(200).json({
-        status: "ok",
-        service: "Computational Metaphysics Engine",
-        version: versionStr,
-        git_commit: gitCommit || null,
-        gateway: "vercel-node-middleend",
-        backend_target: HF_BACKEND_URL
-      });
-    }
-
-    // Default response for all other routes
-    return res.status(200).json({
-      status: "ok",
-      service: "Computational Metaphysics Engine",
-      version: versionStr,
-      gateway: "vercel-node-middleend",
-      route: rawUrl
+    const response = await fetch(upstreamUrl(path, req.query), {
+      method: req.method,
+      headers: upstreamHeaders(req),
+      body: requestBody(req),
     });
-  } catch (err) {
-    return res.status(200).json({
-      status: "ok",
-      service: "Computational Metaphysics Engine",
-      version: "1.0.0",
-      gateway: "vercel-node-middleend",
-      error: err.message
-    });
+    const body = Buffer.from(await response.arrayBuffer());
+    const contentType = response.headers.get("content-type");
+    if (contentType) res.setHeader("content-type", contentType);
+    return res.status(response.status).send(body);
+  } catch (error) {
+    return res.status(502).json({ error: `Azure API request failed: ${error.message}` });
   }
 }

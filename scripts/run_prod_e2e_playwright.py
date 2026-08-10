@@ -26,8 +26,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/Users/kimlenglim/.agy-account-2/Library/Caches/ms-playwright"
-
 from playwright.async_api import async_playwright
 
 PROD_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
@@ -452,6 +450,18 @@ async def run_live_e2e_production_regression():
         shutil.copy(shot6, ARTIFACT_DIR / shot6.name)
 
         await browser.close()
+
+    expected_controls = 22
+    if len(button_results) < expected_controls:
+        button_results.append({
+            "id": "BTN-PROD-UNEXECUTED",
+            "page": "production regression",
+            "name": "All planned production controls",
+            "handler": "Regression harness",
+            "endpoint": PROD_URL,
+            "status": "FAILED",
+            "detail": f"Only {len(button_results)} of {expected_controls} planned controls recorded a result.",
+        })
 
     elapsed = round(time.time() - start_time, 2)
     passed_count = sum(1 for r in button_results if r["status"] == "PASSED")

@@ -1,47 +1,82 @@
-const BACKEND_API_HOSTS = [
-  "", // Relative origin (local server / same-origin proxy)
-  "https://horo-consultant-psi.vercel.app", // Vercel Production Serverless API Gateway
-];
-
-function getApiBaseUrl() {
-  if (typeof window !== 'undefined' && window.API_BASE_URL) {
-    return window.API_BASE_URL;
-  }
-  if (typeof window !== 'undefined' && window.location && window.location.hostname.includes('static.hf.space')) {
-    return 'https://horo-consultant-psi.vercel.app';
-  }
-  return '';
+async function fetchApi(endpoint, options = {}) {
+  return fetch(endpoint, options);
 }
 
-async function fetchApi(endpoint, options = {}) {
-  const customBase = getApiBaseUrl();
-  const candidateBases = customBase
-    ? [customBase, ...BACKEND_API_HOSTS.filter(b => b !== customBase)]
-    : BACKEND_API_HOSTS;
+const BACKEND_WAKE_DELAYS_MS = [1000, 2000, 4000, 8000, 10000];
+const BACKEND_WAKE_LIMIT_MS = 60000;
+let backendWakePromise = null;
 
-  let lastError = null;
-  for (const base of candidateBases) {
-    if (!base && typeof window !== 'undefined' && window.location && window.location.hostname.includes('static.hf.space')) {
-      continue;
-    }
-    const url = base ? `${base}${endpoint}` : endpoint;
+function setBackendStatus(message, state = 'idle') {
+  const statusEl = document.getElementById('backend-status');
+  if (!statusEl) return;
+  statusEl.textContent = message;
+  statusEl.dataset.state = state;
+}
+
+function setRetryVisible(visible) {
+  const retryButton = document.getElementById('backend-retry');
+  if (retryButton) retryButton.classList.toggle('hidden', !visible);
+}
+
+function sleep(delayMs) {
+  return new Promise(resolve => window.setTimeout(resolve, delayMs));
+}
+
+async function wakeBackend() {
+  const startedAt = Date.now();
+  let delayIndex = 0;
+  setRetryVisible(false);
+  setBackendStatus('Starting the API. This can take up to one minute.', 'waking');
+
+  while (Date.now() - startedAt < BACKEND_WAKE_LIMIT_MS) {
     try {
-      const res = await fetch(url, options);
-      if (res.ok) {
-        return res;
+      const response = await fetchApi('/health', { cache: 'no-store' });
+      if (response.ok) {
+        setBackendStatus('API is ready. AI is processing your request.', 'processing');
+        return true;
       }
-      if (res.status === 404) {
-        console.warn(`[API Fallback] ${url} returned 404, trying next host...`);
-        lastError = new Error(`HTTP 404 from ${url}`);
-        continue;
-      }
-      return res;
-    } catch (err) {
-      console.warn(`[API Fallback] ${url} failed: ${err.message}, trying next host...`);
-      lastError = err;
+    } catch (error) {
+      console.warn('[WARNING] API readiness probe failed:', error);
     }
+
+    const elapsed = Date.now() - startedAt;
+    const remaining = BACKEND_WAKE_LIMIT_MS - elapsed;
+    if (remaining <= 0) break;
+    const delay = Math.min(BACKEND_WAKE_DELAYS_MS[Math.min(delayIndex, BACKEND_WAKE_DELAYS_MS.length - 1)], remaining);
+    delayIndex += 1;
+    setBackendStatus(`Starting the API. Checking again in ${Math.ceil(delay / 1000)} seconds.`, 'waking');
+    await sleep(delay);
   }
-  throw lastError || new Error(`All API hosts failed for ${endpoint}`);
+
+  setBackendStatus('The API did not become ready within one minute. Your form is unchanged; try again when it is available.', 'unavailable');
+  setRetryVisible(true);
+  return false;
+}
+
+async function ensureBackendReady() {
+  if (!backendWakePromise) {
+    backendWakePromise = wakeBackend().finally(() => {
+      backendWakePromise = null;
+    });
+  }
+  return backendWakePromise;
+}
+
+async function getApiError(response) {
+  let message = `HTTP ${response.status}`;
+  try {
+    const data = await response.json();
+    message = data.detail || data.message || message;
+  } catch (error) {
+    // Keep the HTTP status when an upstream error body is not JSON.
+  }
+  return new Error(message);
+}
+
+async function fetchApiJson(endpoint, options = {}) {
+  const response = await fetchApi(endpoint, options);
+  if (!response.ok) throw await getApiError(response);
+  return response.json();
 }
 
 
@@ -113,36 +148,14 @@ async function resolveLocation() {
       spinner.classList.add('hidden');
       return;
     }
+    throw await getApiError(res);
   } catch (err) {
-    console.warn("API location resolve failed, switching to client-side fallback dictionary:", err);
-  }
-
-  // Client-side Fallback Dictionary Lookup
-  const cleanKey = locInput.toLowerCase();
-  let match = null;
-  for (const [k, v] of Object.entries(CLIENT_LOCATION_DICT)) {
-    if (k.includes(cleanKey) || cleanKey.includes(k)) {
-      match = v;
-      break;
-    }
-  }
-
-  if (!match && cleanKey.length > 0) {
-    // Default fallback to Bangkok if specific location not found in dictionary
-    match = { name: `${locInput} (พิกัดเทียบเคียง กรุงเทพมหานคร)`, lng: 100.5018, utc: 7.0 };
-  }
-
-  if (match) {
-    document.getElementById('longitude').value = match.lng.toFixed(4);
-    document.getElementById('utc_offset_hours').value = match.utc;
-    const offsetSign = match.utc >= 0 ? '+' : '';
-    statusEl.textContent = `✅ ${match.name} (UTC${offsetSign}${match.utc})`;
-    statusEl.style.color = "#10b981";
-  } else {
-    statusEl.textContent = "❌ ไม่พบสถานที่ดังกล่าว โปรดลองพิมพ์ชื่อให้ชัดเจนขึ้น";
+    console.warn('[WARNING] Location resolution failed:', err);
+    statusEl.textContent = `ไม่สามารถค้นหาพิกัดได้: ${err.message}`;
     statusEl.style.color = "#ef4444";
+  } finally {
+    spinner.classList.add('hidden');
   }
-  spinner.classList.add('hidden');
 }
 
 async function updateVersionFooter() {
@@ -158,7 +171,7 @@ async function updateVersionFooter() {
       const versionStr = rawVer.startsWith('v') ? rawVer : `v${rawVer}`;
       const footerEl = document.getElementById('footer-version-text');
       if (footerEl && versionStr) {
-        footerEl.textContent = `Computational Metaphysics Engine ${versionStr} — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) & Dual Gemini API Fallback`;
+        footerEl.textContent = `Computational Metaphysics Engine ${versionStr} — Azure API gateway`;
       }
       if (healthBadge) {
         healthBadge.className = 'status-badge health-badge';
@@ -169,7 +182,7 @@ async function updateVersionFooter() {
     } else {
       if (healthBadge) {
         healthBadge.className = 'status-badge health-badge amber-badge';
-        healthBadge.innerHTML = `<span class="pulse-dot amber"></span><span class="health-text">Health: Standby (Local Engine Fallback)</span>`;
+        healthBadge.innerHTML = `<span class="pulse-dot amber"></span><span class="health-text">Health: API unavailable</span>`;
       }
     }
   } catch (err) {
@@ -177,7 +190,7 @@ async function updateVersionFooter() {
     const healthBadge = document.getElementById('health-status-badge');
     if (healthBadge) {
       healthBadge.className = 'status-badge health-badge amber-badge';
-      healthBadge.innerHTML = `<span class="pulse-dot amber"></span><span class="health-text">Health: Standby (Local Engine Fallback)</span>`;
+      healthBadge.innerHTML = `<span class="pulse-dot amber"></span><span class="health-text">Health: API unavailable</span>`;
     }
   }
 }
@@ -196,21 +209,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function calculateChart(event) {
-  event.preventDefault();
+  if (event) event.preventDefault();
   
   const submitBtn = document.getElementById('btn-submit');
   const btnText = submitBtn.querySelector('.btn-text');
   const spinner = submitBtn.querySelector('.spinner');
 
-  btnText.textContent = '⚡️ กำลังคำนวณผังดวง & ตีความ...';
+  btnText.textContent = 'Starting API...';
   submitBtn.disabled = true;
-
-  const interpCard = document.getElementById('interpretation-card');
-  const pillarsCard = document.getElementById('pillars-card');
-  const resultsContainer = document.getElementById('results-container');
-  if (interpCard) interpCard.classList.remove('hidden');
-  if (pillarsCard) pillarsCard.classList.remove('hidden');
-  if (resultsContainer) resultsContainer.classList.remove('hidden');
 
   const payload = {
     birth_datetime: document.getElementById('birth_datetime').value,
@@ -222,7 +228,11 @@ async function calculateChart(event) {
   };
 
   try {
-    // 1. Fetch LLM interpretation
+    const ready = await ensureBackendReady();
+    if (!ready) return;
+
+    btnText.textContent = 'AI is processing your request...';
+    setBackendStatus('API is ready. AI is processing your request.', 'processing');
     const res = await fetchApi('/api/v1/bazi/interpret', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -230,37 +240,24 @@ async function calculateChart(event) {
     });
 
     if (!res.ok) {
-      throw new Error(`HTTP error ${res.status}`);
+      throw await getApiError(res);
     }
 
     const data = await res.json();
-
-    // 2. Fetch SVG diagram & detailed chart if not present
-    let svgContent = data.svg_content || (data.chart && data.chart.svg_content);
-    if (!svgContent) {
-      const calcRes = await fetchApi('/api/v1/bazi/calculate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (calcRes.ok) {
-        const calcData = await calcRes.json();
-        svgContent = calcData.svg_content;
-      }
-    }
-
-    renderResults(data, svgContent);
+    renderResults(data, data.svg_content || (data.chart && data.chart.svg_content));
+    setBackendStatus('API is ready. AI processing completed.', 'complete');
   } catch (err) {
-    console.error('Calculation Error:', err);
-    renderResults({
-      interpretation: `### 🔮 การประมวลผลผังดวงจีน (BaZi Chart)\n\n- **วันเวลาเกิด**: ${payload.birth_datetime}\n- **ลองจิจูด**: ${payload.longitude}° | **UTC Offset**: ${payload.utc_offset_hours}\n- **สถานะ**: คำนวณค่าตำแหน่งดวงดาวและ 4 เสาหลักเรียบร้อยแล้ว`,
-      validator_audit: `✅ **Validator Audit**: Verified status ok (${err.message})`,
-      rag_contexts: [`[Document 1] คัมภีร์ผังดวงจีน BaZi 4 เสาหลัก - คำนวณตำแหน่งดวงดาวตามเวลาสุริยคติแท้`]
-    }, null);
+    console.error('[ERROR] Calculation request failed:', err);
+    setBackendStatus(`AI request failed: ${err.message}. Your form is unchanged.`, 'error');
+    setRetryVisible(true);
   } finally {
     btnText.textContent = '🔮 คำนวณผังดวง & ตีความด้วย AI';
     submitBtn.disabled = false;
   }
+}
+
+function retryChartCalculation() {
+  calculateChart();
 }
 
 function renderResults(data, svgContent) {
@@ -324,16 +321,19 @@ function renderResults(data, svgContent) {
     if (dm.stem && dm.element) {
       dmBadge.innerHTML = `ดิถีวัน (Day Master): <strong>${dm.stem} (${dm.th_name || dm.element})</strong> | ธาตุ: <span style="color: #10b981;">${dm.element}</span>`;
     } else {
-      dmBadge.innerHTML = 'วิเคราะห์ผังดวงสำเร็จ';
+      dmBadge.textContent = 'The API response did not include a Day Master.';
     }
   }
 
   // 4. Render Five Elements Bar Chart
   const elemChart = document.getElementById('elements-bars') || document.getElementById('five-elements-chart');
   if (elemChart) {
-    const elements = (chart.five_elements && chart.five_elements.percentages) || chart.five_elements_percent || { Wood: 20, Fire: 20, Earth: 20, Metal: 20, Water: 20 };
+    const elements = (chart.five_elements && chart.five_elements.percentages) || chart.five_elements_percent;
     const colors = { Wood: '#10b981', Fire: '#ef4444', Earth: '#f59e0b', Metal: '#94a3b8', Water: '#3b82f6' };
-    
+
+    if (!elements) {
+      elemChart.textContent = 'The API response did not include Five Elements data.';
+    } else {
     let elemHtml = '<div style="display: flex; gap: 8px; height: 24px; border-radius: 6px; overflow: hidden; margin-top: 8px;">';
     for (const [elem, pct] of Object.entries(elements)) {
       if (pct > 0) {
@@ -342,20 +342,14 @@ function renderResults(data, svgContent) {
     }
     elemHtml += '</div>';
     elemChart.innerHTML = elemHtml;
+    }
   }
 
   // 5. Render AI Interpretation text with Markdown formatting
   const mdContainer = document.getElementById('reading-body') || document.getElementById('llm-markdown-output');
   let rawText = data.interpretation || data.text;
   if (!rawText || !rawText.trim() || rawText === 'ไม่พบผลลัพธ์คำตีความ') {
-    if (dm.stem && dm.element) {
-      rawText = `### ☯️ บทพยากรณ์ผังดวงชะตา (BaZi Four Pillars Reading)\n\n` +
-        `**ดิถีวัน (Day Master):** ${dm.stem} (${dm.th_name || dm.element} - ${dm.polarity || 'Yang'})\n` +
-        `**สถานะความแข็งแกร่ง:** ${dm.strength_status || 'สมดุล (Balanced)'}\n\n` +
-        `ดวงชะตานี้มีดิถีวันธาตุ ${dm.element} ได้รับการคำนวณปรับแต่งเวลาสุริยคติจริง (True Solar Time) อย่างเที่ยงตรง สอดคล้องตามหลักตำราโหราศาสตร์จีนโบราณ *ZiPing ZhenQuan (子平真詮)* และ *DiTianSui (滴天髓)*`;
-    } else {
-      rawText = 'คำนวณผังดวงชะตา 4 เสาสมบูรณ์เรียบร้อยแล้ว';
-    }
+    rawText = 'The API response did not include an interpretation.';
   }
   
   if (mdContainer) {
@@ -369,36 +363,30 @@ function renderResults(data, svgContent) {
   // 6. Render Validator report (Gemini Prediction Validator Audit)
   const valContainer = document.getElementById('validator-body');
   if (valContainer) {
-    const val = data.validation_report || {
-      validation_status: "APPROVED",
-      confidence_score: 0.96,
-      peer_perspective: "Gemini Multi-Agent Audit verified 5 Elements balance, True Solar Time (TST) longitude offset, and Day Master strength.",
-      refined_interpretation: "คำพยากรณ์วิเคราะห์ถูกต้องตามหลักคัมภีร์ ZiPing ZhenQuan (子平真詮) และ DiTianSui (滴天髓)"
-    };
+    const val = data.validation_report;
+    if (!val) {
+      valContainer.textContent = 'The API response did not include a validation report.';
+    } else {
     valContainer.innerHTML = `
       <div style="padding: 1rem; background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 8px; color: #e2e8f0;">
         <h4 style="color: #c084fc; margin-top: 0;">🛡️ ผลการตรวจสอบโดย Gemini Prediction Validator Agent</h4>
-        <p><strong>สถานะการตรวจสอบ (Audit Status):</strong> <span style="color: #4ade80; font-weight: bold;">✅ ${val.validation_status || 'APPROVED'}</span> (Confidence Score: <strong>${val.confidence_score || 0.96}</strong>)</p>
-        <p><strong>มุมมอง Multi-Agent Audit:</strong> ${val.peer_perspective || 'Verified 5-Elements harmony and True Solar Time adjustment.'}</p>
-        <p style="margin-bottom: 0;"><strong>ข้อสรุปคำแนะนำการขัดเกลา:</strong> ${val.refined_interpretation || 'เนื้อหาสอดคล้องตามหลักโหราศาสตร์ชั้นสูง'}</p>
+        <p><strong>สถานะการตรวจสอบ (Audit Status):</strong> ${val.validation_status || 'Not supplied'} (Confidence Score: <strong>${val.confidence_score ?? 'Not supplied'}</strong>)</p>
+        <p><strong>มุมมอง Multi-Agent Audit:</strong> ${val.peer_perspective || 'Not supplied'}</p>
+        <p style="margin-bottom: 0;"><strong>ข้อสรุปคำแนะนำการขัดเกลา:</strong> ${val.refined_interpretation || 'Not supplied'}</p>
       </div>
     `;
+    }
   }
 
   // 7. Render RAG Canonical References (RAG 3,132 Chunks)
   const ragContainer = document.getElementById('rag-body');
   if (ragContainer) {
-    const refs = data.rag_references || data.canonical_citations || [
-      { book: "《子平真詮》 ZiPing ZhenQuan", text: "論十干得時不旺十干失時不弱：凡日干皆有衰旺，看日主先看月令，月令者當權之節氣也。" },
-      { book: "《滴天髓》 DiTianSui", text: "五陽皆陽丙為最，五陰皆陰癸為至。甲木參天，脫胎要火，懷胎要水。" },
-      { book: "《三命通會》 SanMingTongHui", text: "夫命以局言之，各有宜忌。日主勝干，則宜泄宜傷；日主弱干，則宜生宜扶。" },
-      { book: "《紫微斗數全書》 ZiWeiDouShu", text: "命宮乃一世之樞紐，身宮乃後半生之依歸。星辰吉凶，皆隨局而轉。" }
-    ];
+    const refs = data.rag_references || data.canonical_citations || [];
 
     let ragHtml = `
       <div style="padding: 1rem; background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(14, 165, 233, 0.35); border-radius: 8px; color: #e2e8f0;">
         <h4 style="color: #38bdf8; margin-top: 0;">📚 คัมภีร์อ้างอิงโบราณ (Vector RAG Search Over 3,132 Ingested Chunks)</h4>
-        <p style="font-size: 0.85rem; color: #94a3b8;">ค้นหาระยะความคล้ายคลึงเชิงเวกเตอร์ (Cosine Similarity Search) จาก FAISS Index 4,051 มิติ:</p>
+        <p style="font-size: 0.85rem; color: #94a3b8;">${refs.length ? 'References returned by the API:' : 'The API response did not include RAG references.'}</p>
         <ul style="padding-left: 1.2rem; margin-bottom: 0;">
     `;
 
@@ -448,10 +436,17 @@ function showBranchCard(title, contentHtml, svgContent) {
   }
 }
 
+function showBranchError(title, error) {
+  const message = String(error && error.message ? error.message : error)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  showBranchCard(title, `<div class="branch-error" role="alert">Calculation failed: ${message}. Try again when the API is available.</div>`, null);
+}
+
 async function calcZiWei() {
   try {
-    const res = await fetchApi('/api/v1/ziwei/calculate?year=1990&month=5&day=15&hour=14&gender=male');
-    const data = await res.json();
+    const data = await fetchApiJson('/api/v1/ziwei/calculate?year=1990&month=5&day=15&hour=14&gender=male');
     const html = `
       <div style="background: rgba(168, 85, 247, 0.15); border: 1px solid #c084fc; padding: 1rem; border-radius: 8px;">
         <h4 style="color: #c084fc; margin-top: 0;">🔮 紫微斗數 (Zi Wei Dou Shu Chart)</h4>
@@ -467,14 +462,13 @@ async function calcZiWei() {
     `;
     showBranchCard("🔮 ผังวิชา紫微斗數 (Zi Wei Dou Shu Visualizer)", html, data.svg_content);
   } catch (err) {
-    showBranchCard("🔮 ผังวิชา紫微斗數 (Zi Wei Dou Shu Visualizer)", `<div style="background: rgba(168, 85, 247, 0.15); border: 1px solid #c084fc; padding: 1rem; border-radius: 8px;"><h4 style="color: #c084fc; margin-top: 0;">🔮 紫微斗數 (Zi Wei Dou Shu Chart)</h4><p><strong>命宮支 (Ming Gong):</strong> 巳 | <strong>身宮支 (Shen Gong):</strong> 酉</p><p><strong>五行局 (Bureau):</strong> 水二局 | <strong>紫微星位:</strong> 寅 | <strong>天府星位:</strong> 戌</p><p><strong>สถานะคำนวณ:</strong> ประมวลผลผังวิชา Zi Wei เรียบร้อยแล้ว</p></div>`, null);
+    showBranchError("🔮 ผังวิชา紫微斗數 (Zi Wei Dou Shu Visualizer)", err);
   }
 }
 
 async function calcQiMen() {
   try {
-    const res = await fetchApi('/api/v1/qimen/calculate?year=2026&month=8&day=7&hour=14');
-    const data = await res.json();
+    const data = await fetchApiJson('/api/v1/qimen/calculate?year=2026&month=8&day=7&hour=14');
     const html = `
       <div style="background: rgba(59, 130, 246, 0.15); border: 1px solid #60a5fa; padding: 1rem; border-radius: 8px;">
         <h4 style="color: #60a5fa; margin-top: 0;">⚡ 奇門遁甲 (Qi Men Dun Jia 4-Plate Grid)</h4>
@@ -494,14 +488,13 @@ async function calcQiMen() {
     `;
     showBranchCard("⚡ ผังวิชา奇門遁甲 (Qi Men Dun Jia Visualizer)", html, data.svg_content);
   } catch (err) {
-    showBranchCard("⚡ ผังวิชา奇門遁甲 (Qi Men Dun Jia Visualizer)", `<div style="background: rgba(59, 130, 246, 0.15); border: 1px solid #60a5fa; padding: 1rem; border-radius: 8px;"><h4 style="color: #60a5fa; margin-top: 0;">⚡ 奇門遁甲 (Qi Men Dun Jia 4-Plate Grid)</h4><p><strong>節氣 (Solar Term):</strong> 立秋 | <strong>陰陽遁:</strong> 陰遁 2局</p><p><strong>สถานะคำนวณ:</strong> ประมวลผลผัง 9 จาน Qi Men เรียบร้อยแล้ว</p></div>`, null);
+    showBranchError("⚡ ผังวิชา奇門遁甲 (Qi Men Dun Jia Visualizer)", err);
   }
 }
 
 async function calcLiuRen() {
   try {
-    const res = await fetchApi('/api/v1/liuren/calculate?day_stem=甲&day_branch=子&month_general=正月&hour_branch=午');
-    const data = await res.json();
+    const data = await fetchApiJson('/api/v1/liuren/calculate?day_stem=甲&day_branch=子&month_general=正月&hour_branch=午');
     const html = `
       <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid #4ade80; padding: 1rem; border-radius: 8px;">
         <h4 style="color: #4ade80; margin-top: 0;">🌊 大六壬 (Da Liu Ren 3-Transmission & 4-Lesson)</h4>
@@ -516,14 +509,13 @@ async function calcLiuRen() {
     `;
     showBranchCard("🌊 ผังวิชา大六壬 (Da Liu Ren Visualizer)", html, data.svg_content);
   } catch (err) {
-    showBranchCard("🌊 ผังวิชา大六壬 (Da Liu Ren Visualizer)", `<div style="background: rgba(34, 197, 94, 0.15); border: 1px solid #4ade80; padding: 1rem; border-radius: 8px;"><h4 style="color: #4ade80; margin-top: 0;">🌊 大六壬 (Da Liu Ren 3-Transmission & 4-Lesson)</h4><p><strong>日干支:</strong> 甲子 | <strong>月將:</strong> 正月 | <strong>占時:</strong> 午</p><p><strong>สถานะคำนวณ:</strong> ประมวลผล 3 ส่งและ 4 วิชา Da Liu Ren เรียบร้อยแล้ว</p></div>`, null);
+    showBranchError("🌊 ผังวิชา大六壬 (Da Liu Ren Visualizer)", err);
   }
 }
 
 async function calcIChing() {
   try {
-    const res = await fetchApi('/api/v1/iching/calculate?day_stem=甲');
-    const data = await res.json();
+    const data = await fetchApiJson('/api/v1/iching/calculate?day_stem=甲');
     const html = `
       <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid #fbbf24; padding: 1rem; border-radius: 8px;">
         <h4 style="color: #fbbf24; margin-top: 0;">☯ 易經六爻 (I Ching & Liu Yao Divination)</h4>
@@ -538,14 +530,13 @@ async function calcIChing() {
     `;
     showBranchCard("☯ ผังวิชา易經六爻 (I Ching & Liu Yao Visualizer)", html, data.svg_content);
   } catch (err) {
-    showBranchCard("☯ ผังวิชา易經六爻 (I Ching & Liu Yao Visualizer)", `<div style="background: rgba(245, 158, 11, 0.15); border: 1px solid #fbbf24; padding: 1rem; border-radius: 8px;"><h4 style="color: #fbbf24; margin-top: 0;">☯ 易經六爻 (I Ching & Liu Yao Divination)</h4><p><strong>本卦 (Primary):</strong> 乾為天 | <strong>變卦:</strong> 天風姤</p><p><strong>สถานะคำนวณ:</strong> ประมวลผลผังยาม 6 เส้น I Ching เรียบร้อยแล้ว</p></div>`, null);
+    showBranchError("☯ ผังวิชา易經六爻 (I Ching & Liu Yao Visualizer)", err);
   }
 }
 
 async function calcXuanKong() {
   try {
-    const res = await fetchApi('/api/v1/xuankong/calculate?facing_degree=180.0&period=9');
-    const data = await res.json();
+    const data = await fetchApiJson('/api/v1/xuankong/calculate?facing_degree=180.0&period=9');
     const html = `
       <div style="background: rgba(236, 72, 153, 0.15); border: 1px solid #f472b6; padding: 1rem; border-radius: 8px;">
         <h4 style="color: #f472b6; margin-top: 0;">🏯 玄空風水 (Xuan Kong Flying Stars 9-Grid)</h4>
@@ -564,14 +555,13 @@ async function calcXuanKong() {
     `;
     showBranchCard("🏯 ผังวิชา玄空風水 (Xuan Kong Visualizer)", html, data.svg_content);
   } catch (err) {
-    showBranchCard("🏯 ผังวิชา玄空風水 (Xuan Kong Visualizer)", `<div style="background: rgba(236, 72, 153, 0.15); border: 1px solid #f472b6; padding: 1rem; border-radius: 8px;"><h4 style="color: #f472b6; margin-top: 0;">🏯 玄空風水 (Xuan Kong Flying Stars 9-Grid)</h4><p><strong>九運:</strong> 第 9 運 (2024-2043) | <strong>向首:</strong> 午 | <strong>坐山:</strong> 子</p><p><strong>สถานะคำนวณ:</strong> ประมวลผลผัง 9 ดาว Xuan Kong เรียบร้อยแล้ว</p></div>`, null);
+    showBranchError("🏯 ผังวิชา玄空風水 (Xuan Kong Visualizer)", err);
   }
 }
 
 async function calcZeJi() {
   try {
-    const res = await fetchApi('/api/v1/zeji/calculate?year_branch=午&month_branch=申&day_branch=寅&user_birth_branch=子');
-    const data = await res.json();
+    const data = await fetchApiJson('/api/v1/zeji/calculate?year_branch=午&month_branch=申&day_branch=寅&user_birth_branch=子');
     const html = `
       <div style="background: rgba(14, 165, 233, 0.15); border: 1px solid #38bdf8; padding: 1rem; border-radius: 8px;">
         <h4 style="color: #38bdf8; margin-top: 0;">📅 擇吉คำนวณฤกษ์ (Date Selection)</h4>
@@ -586,14 +576,13 @@ async function calcZeJi() {
     `;
     showBranchCard("📅 คำนวณฤกษ์擇吉 (Date Selection Visualizer)", html, data.svg_content);
   } catch (err) {
-    showBranchCard("📅 คำนวณฤกษ์擇吉 (Date Selection Visualizer)", `<div style="background: rgba(14, 165, 233, 0.15); border: 1px solid #38bdf8; padding: 1rem; border-radius: 8px;"><h4 style="color: #38bdf8; margin-top: 0;">📅 擇吉คำนวณฤกษ์ (Date Selection)</h4><p><strong>建除十二神:</strong> 成 | <strong>ระดับความมงคล:</strong> 4 ⭐ (มงคล)</p><p><strong>สถานะคำนวณ:</strong> ประมวลผลฤกษ์ยาม Ze Ji เรียบร้อยแล้ว</p></div>`, null);
+    showBranchError("📅 คำนวณฤกษ์擇吉 (Date Selection Visualizer)", err);
   }
 }
 
 async function calcThaiVedic() {
   try {
-    const res = await fetchApi('/api/v1/thaivedic/calculate?year=1990&month=5&day=15&hour=14&day_of_week=2');
-    const data = await res.json();
+    const data = await fetchApiJson('/api/v1/thaivedic/calculate?year=1990&month=5&day=15&hour=14&day_of_week=2');
     const html = `
       <div style="background: rgba(234, 179, 8, 0.15); border: 1px solid #facc15; padding: 1rem; border-radius: 8px;">
         <h4 style="color: #facc15; margin-top: 0;">🐘 โหราศาสตร์ไทยสุริยยาตร์ & ภารตวิทยา (Thai & Jyotish)</h4>
@@ -609,14 +598,13 @@ async function calcThaiVedic() {
     `;
     showBranchCard("🐘 โหราศาสตร์ไทย & ภารตวิทยา (Thai & Jyotish Visualizer)", html, data.svg_content);
   } catch (err) {
-    showBranchCard("🐘 โหราศาสตร์ไทย & ภารตวิทยา (Thai & Jyotish Visualizer)", `<div style="background: rgba(234, 179, 8, 0.15); border: 1px solid #facc15; padding: 1rem; border-radius: 8px;"><h4 style="color: #facc15; margin-top: 0;">🐘 โหราศาสตร์ไทยสุริยยาตร์ & ภารตวิทยา (Thai & Jyotish)</h4><p><strong>ลัคนาสุริยยาตร์:</strong> กันย์ | <strong>ดาวกาลกิณี:</strong> อาทิตย์ | <strong>ดาวศรี:</strong> พฤหัสบดี</p><p><strong>สถานะคำนวณ:</strong> ประมวลผลดวงไทยสุริยยาตร์เรียบร้อยแล้ว</p></div>`, null);
+    showBranchError("🐘 โหราศาสตร์ไทย & ภารตวิทยา (Thai & Jyotish Visualizer)", err);
   }
 }
 
 async function calcWestern() {
   try {
-    const res = await fetchApi('/api/v1/western/calculate?year=1990&month=5&day=15&hour=14');
-    const data = await res.json();
+    const data = await fetchApiJson('/api/v1/western/calculate?year=1990&month=5&day=15&hour=14');
     const html = `
       <div style="background: rgba(99, 102, 241, 0.15); border: 1px solid #818cf8; padding: 1rem; border-radius: 8px;">
         <h4 style="color: #818cf8; margin-top: 0;">🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian)</h4>
@@ -634,14 +622,13 @@ async function calcWestern() {
     `;
     showBranchCard("🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian Visualizer)", html, data.svg_content);
   } catch (err) {
-    showBranchCard("🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian Visualizer)", `<div style="background: rgba(99, 102, 241, 0.15); border: 1px solid #818cf8; padding: 1rem; border-radius: 8px;"><h4 style="color: #818cf8; margin-top: 0;">🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian)</h4><p><strong>Sun:</strong> Taurus 24° | <strong>Moon:</strong> Aquarius 12° | <strong>Ascendant:</strong> Virgo 15°</p><p><strong>สถานะคำนวณ:</strong> ประมวลผลดวงสากลยูเรเนียนเรียบร้อยแล้ว</p></div>`, null);
+    showBranchError("🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian Visualizer)", err);
   }
 }
 
 async function calcNumerology() {
   try {
-    const res = await fetchApi('/api/v1/numerology/calculate?text=0812345678&day_num=2&lunar_month=6&year_zodiac_num=7');
-    const data = await res.json();
+    const data = await fetchApiJson('/api/v1/numerology/calculate?text=0812345678&day_num=2&lunar_month=6&year_zodiac_num=7');
     const score = data.chaldean_score || {};
     const satta = data.satta_lek || {};
     const html = `
@@ -662,7 +649,7 @@ async function calcNumerology() {
     `;
     showBranchCard("🔢 สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean Visualizer", html, data.svg_content);
   } catch (err) {
-    showBranchCard("🔢 สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean Visualizer", `<div style="background: rgba(20, 184, 166, 0.15); border: 1px solid #2dd4bf; padding: 1rem; border-radius: 8px;"><h4 style="color: #2dd4bf; margin-top: 0;">🔢 สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean</h4><p><strong>เลขศาสตร์ Chaldean:</strong> ผลรวม 45 → ถอดรากได้ <strong>เลข 9</strong></p><p><strong>สถานะคำนวณ:</strong> ประมวลผลผัง 7 ฐาน 4 แถวเรียบร้อยแล้ว</p></div>`, null);
+    showBranchError("🔢 สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean Visualizer", err);
   }
 }
 

@@ -45,15 +45,19 @@ def test_vercel_handler_supports_preflight_cors(monkeypatch):
 
 
 def test_option_1b_vercel_gateway_config():
-    """Verify Option 1B Vercel Gateway configuration file."""
+    """Verify static and dynamic traffic cannot share an upstream fallback."""
     vercel_file = ROOT / "vercel.json"
     assert vercel_file.exists(), "vercel.json missing"
-    
+
     data = json.loads(vercel_file.read_text(encoding="utf-8"))
-    assert "routes" in data or "rewrites" in data or "headers" in data, "routes/rewrites/headers missing in vercel.json"
-    
-    routes = data.get("routes") or data.get("rewrites") or []
-    assert len(routes) > 0, "No rewrites configured in vercel.json"
+    rewrites = data.get("rewrites", [])
+    assert rewrites, "No rewrites configured in vercel.json"
+
+    destinations = {route["source"]: route["destination"] for route in rewrites}
+    assert destinations["/health"] == "/api/health"
+    assert destinations["/api/:path*"] == "/api/index?path=:path*"
+    assert destinations["/(.*)"].startswith("https://pphothidaen-horoconsultant-core-backend.static.hf.space/")
+    assert "static.hf.space" not in destinations["/health"]
 
 
 
@@ -197,5 +201,4 @@ def test_prod_button_regression_report_pass_rate():
         assert data["passed_count"] >= 15, f"Expected at least 15 tested UI controls, got {data['passed_count']}"
     elif "summary" in data:
         assert data["summary"]["failed"] == 0 or data["summary"]["passed"] > 0
-
 

@@ -22,15 +22,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/Users/kimlenglim/.agy-account-2/Library/Caches/ms-playwright"
-
 from multiprocessing import Process
 
 import uvicorn
 from playwright.async_api import async_playwright
 
 SCREENSHOT_DIR = ROOT / "project" / "tests" / "screenshots"
-ARTIFACT_DIR   = Path("/Users/kimlenglim/.agy-account-2/.gemini/antigravity-cli/brain/f4817fb2-91c8-41f2-81f7-ecb9f0b033e8/screenshots")
+ARTIFACT_DIR = ROOT / "project" / "tests" / "artifacts_screenshots"
 
 SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
@@ -323,6 +321,15 @@ async def run_e2e_flow():
 
         await browser.close()
 
+    expected_features = 17
+    if len(results) < expected_features:
+        results.append({
+            "id": "E2E-UNEXECUTED",
+            "feature": "All planned E2E steps",
+            "status": "FAILED",
+            "detail": f"Only {len(results)} of {expected_features} planned steps recorded a result.",
+        })
+
     # Save summary report JSON
     report_json_path = ROOT / "project" / "tests" / "e2e_results_report.json"
     report_data = {
@@ -361,10 +368,14 @@ def main():
             time.sleep(2)
 
     if not server_ready:
-        print("[WARNING] Server endpoint check timed out, proceeding anyway...")
+        server_process.terminate()
+        server_process.join()
+        raise RuntimeError("[ERROR] Server endpoint check timed out")
 
     try:
-        asyncio.run(run_e2e_flow())
+        report = asyncio.run(run_e2e_flow())
+        if report["failed_count"]:
+            raise RuntimeError(f"[ERROR] E2E regression recorded {report['failed_count']} failures")
     finally:
         server_process.terminate()
         server_process.join()
