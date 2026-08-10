@@ -18,6 +18,10 @@
       "destination": "/api/index?path=bazi/:path*"
     },
     {
+      "source": "/admin",
+      "destination": "/api/index?path=admin"
+    },
+    {
       "source": "/admin/:path*",
       "destination": "/api/index?path=admin/:path*"
     },
@@ -30,6 +34,10 @@
       "destination": "/api/index?path=hitl-studio"
     },
     {
+      "source": "/docs",
+      "destination": "/api/index?path=docs"
+    },
+    {
       "source": "/docs/:path*",
       "destination": "/api/index?path=docs/:path*"
     },
@@ -40,6 +48,10 @@
     {
       "source": "/openapi.json",
       "destination": "/api/index?path=openapi.json"
+    },
+    {
+      "source": "/metrics",
+      "destination": "/api/index?path=metrics"
     },
     {
       "source": "/metrics/:path*",

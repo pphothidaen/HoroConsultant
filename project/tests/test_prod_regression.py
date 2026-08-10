@@ -86,6 +86,9 @@ def test_option_1b_vercel_gateway_config():
 
     destinations = {route["source"]: route["destination"] for route in rewrites}
     assert destinations["/health"] == "/api/health"
+    assert destinations["/admin"] == "/api/index?path=admin"
+    assert destinations["/docs"] == "/api/index?path=docs"
+    assert destinations["/metrics"] == "/api/index?path=metrics"
     assert destinations["/api/:path*"] == "/api/index?path=api/:path*"
     assert destinations["/v1/:path*"] == "/api/index?path=v1/:path*"
     assert destinations["/bazi/:path*"] == "/api/index?path=bazi/:path*"
@@ -206,6 +209,142 @@ if (fetchCalled) throw new Error('arbitrary path reached fetch');
 if (result.status !== 404) throw new Error(`unexpected status ${result.status}`);
 if (result.body.detail !== 'The requested API route was not found.') throw new Error('unstable 404 response');
 if (result.body.correlation_id !== 'closed-proxy-check') throw new Error('correlation ID missing');
+'''
+    result = subprocess.run(
+        ["node", "--input-type=module", "--eval", script],
+        cwd=ROOT,
+        env={**os.environ, "AZURE_API_ORIGIN": "https://configured.azure.invalid"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr or result.stdout
+
+
+def test_vercel_gateway_rejects_decoded_and_normalized_traversal_paths():
+    """Encoded traversal must fail before a fixed-origin gateway fetches it."""
+    script = r'''
+import handler from './api/index.js';
+const corpus = [
+  'api/%2e%2e/_internal/secret',
+  'api/%2E%2E/_internal/secret',
+  'api/%252e%252e/_internal/secret',
+  'api/%25252e%25252e/_internal/secret',
+  'api/.%2e/_internal/secret',
+  'api/%2e%2e%2f_internal/secret',
+  'api/..%2f_internal/secret',
+  'api\\..\\_internal\\secret',
+  'api/%5c..%5c_internal/secret',
+  'api/%255c..%255c_internal/secret',
+  'api//..//_internal/secret',
+];
+let fetchCalls = 0;
+global.fetch = async () => { fetchCalls += 1; throw new Error('must not fetch'); };
+for (const path of corpus) {
+  const result = { headers: {} };
+  const res = {
+    setHeader(key, value) { result.headers[key.toLowerCase()] = value; },
+    status(code) { result.status = code; return this; },
+    json(body) { result.body = body; return this; },
+    end() { return this; },
+  };
+  await handler({ method: 'GET', headers: { 'x-request-id': 'traversal-check' }, query: { path } }, res);
+  if (result.status !== 404) throw new Error(`${path}: unexpected status ${result.status}`);
+  if (result.body.detail !== 'The requested API route was not found.') throw new Error(`${path}: unsafe response`);
+}
+if (fetchCalls !== 0) throw new Error(`traversal reached fetch ${fetchCalls} time(s)`);
+'''
+    result = subprocess.run(
+        ["node", "--input-type=module", "--eval", script],
+        cwd=ROOT,
+        env={**os.environ, "AZURE_API_ORIGIN": "https://configured.azure.invalid"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr or result.stdout
+
+
+def test_vercel_gateway_aborts_a_hung_upstream_request_at_its_server_deadline():
+    """Removing the server AbortController would make the Node subprocess time out."""
+    script = r'''
+import handler from './api/index.js';
+let aborted = false;
+global.fetch = async (_url, options) => new Promise((_resolve, reject) => {
+  options.signal.addEventListener('abort', () => {
+    aborted = true;
+    reject(Object.assign(new Error('timed out'), { name: 'AbortError' }));
+  }, { once: true });
+});
+console.error = () => {};
+const result = { headers: {} };
+const res = {
+  setHeader(key, value) { result.headers[key.toLowerCase()] = value; },
+  status(code) { result.status = code; return this; },
+  json(body) { result.body = body; return this; },
+  end() { return this; },
+};
+await handler({ method: 'GET', headers: { 'x-request-id': 'timeout-correlation' }, query: { path: 'api/v1/health' } }, res);
+if (!aborted) throw new Error('gateway did not abort the hung upstream request');
+if (result.status !== 504) throw new Error(`unexpected status ${result.status}`);
+if (result.body.detail !== 'The API request timed out. Try again shortly.') throw new Error(`unsafe timeout body ${JSON.stringify(result.body)}`);
+if (result.body.correlation_id !== 'timeout-correlation') throw new Error('correlation ID missing');
+'''
+    result = subprocess.run(
+        ["node", "--input-type=module", "--eval", script],
+        cwd=ROOT,
+        env={
+            **os.environ,
+            "AZURE_API_ORIGIN": "https://configured.azure.invalid",
+            "AZURE_API_TIMEOUT_MS": "25",
+        },
+        capture_output=True,
+        text=True,
+        timeout=2,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr or result.stdout
+
+
+def test_vercel_gateway_preserves_safe_structured_fastapi_422_errors():
+    """FastAPI clients need a safe `detail` array, while unsafe validation text stays hidden."""
+    script = r'''
+import handler from './api/index.js';
+const responses = [
+  {
+    detail: [{ type: 'missing', loc: ['body', 'birth_datetime'], msg: 'Field required', input: null }],
+    correlation_id: 'validation-correlation',
+  },
+  {
+    detail: [{ type: 'value_error', loc: ['body', 'query'], msg: 'failed at https://internal.azure.invalid', input: 'secret' }],
+    correlation_id: 'unsafe-validation-correlation',
+  },
+];
+global.fetch = async () => new Response(JSON.stringify(responses.shift()), {
+  status: 422,
+  headers: { 'content-type': 'application/json', 'x-request-id': 'validation-correlation' },
+});
+function response() {
+  const result = { headers: {} };
+  return [result, {
+    setHeader(key, value) { result.headers[key.toLowerCase()] = value; },
+    status(code) { result.status = code; return this; },
+    json(body) { result.body = body; return this; },
+    end() { return this; },
+  }];
+}
+const [safeResult, safeResponse] = response();
+await handler({ method: 'POST', headers: { 'x-request-id': 'browser-validation' }, query: { path: 'api/v1/bazi/interpret' }, body: {} }, safeResponse);
+if (safeResult.status !== 422) throw new Error(`unexpected status ${safeResult.status}`);
+if (!Array.isArray(safeResult.body.detail)) throw new Error('FastAPI detail array was lost');
+const issue = safeResult.body.detail[0];
+if (issue.type !== 'missing' || issue.msg !== 'Field required' || issue.loc.join('/') !== 'body/birth_datetime') throw new Error('validation structure changed');
+if ('input' in issue) throw new Error('unbounded input echo was preserved');
+if (safeResult.body.correlation_id !== 'validation-correlation') throw new Error('safe correlation ID missing');
+const [unsafeResult, unsafeResponse] = response();
+await handler({ method: 'POST', headers: { 'x-request-id': 'browser-validation' }, query: { path: 'api/v1/bazi/interpret' }, body: {} }, unsafeResponse);
+if (unsafeResult.body.detail !== 'The API rejected the request data.') throw new Error(`unsafe 422 body ${JSON.stringify(unsafeResult.body)}`);
+if (JSON.stringify(unsafeResult.body).includes('internal.azure.invalid')) throw new Error('upstream origin leaked');
 '''
     result = subprocess.run(
         ["node", "--input-type=module", "--eval", script],
