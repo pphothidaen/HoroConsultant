@@ -21,24 +21,20 @@ from __future__ import annotations
 
 import math
 import re
-import sys
-from pathlib import Path
 from typing import Any
 
 import numpy as np
 
-# Add project root and rust_core paths to sys.path
-_ROOT = Path(__file__).resolve().parents[2]
-_RUST_DIR = _ROOT / "rust_core"
-if _RUST_DIR.exists() and str(_RUST_DIR) not in sys.path:
-    sys.path.insert(0, str(_RUST_DIR))
+# Rust acceleration is required unless explicit development fallback was opted in.
+import rust_core  # type: ignore
 
-# ─── Optional Rust acceleration (Phase 2) ────────────────────────────────────
-try:
-    import rust_core  # type: ignore
-    RUST_AVAILABLE = hasattr(rust_core, "equation_of_time") and hasattr(rust_core, "chunk_text")
-except (ImportError, Exception):
-    RUST_AVAILABLE = False
+RUST_AVAILABLE = rust_core.RUST_AVAILABLE
+PYTHON_FALLBACK_ALLOWED = rust_core.PYTHON_FALLBACK_ALLOWED
+
+
+def runtime_backend() -> dict[str, object]:
+    """Return deterministic, secret-free acceleration runtime identity."""
+    return rust_core.runtime_backend()
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -167,7 +163,8 @@ def rust_dense_vector_search(
         try:
             return rust_core.dense_vector_search(query_vec.tolist(), doc_matrix.tolist(), top_k, threshold)
         except Exception:
-            pass
+            if not PYTHON_FALLBACK_ALLOWED:
+                raise
     return numpy_search_topk(query_vec, doc_matrix, top_k, threshold)
 
 
@@ -185,7 +182,8 @@ def rust_dense_vector_search_l2(
         try:
             return rust_core.dense_vector_search_l2(query_vec.tolist(), doc_matrix.tolist(), top_k, max_distance)
         except Exception:
-            pass
+            if not PYTHON_FALLBACK_ALLOWED:
+                raise
     diffs = doc_matrix - query_vec
     dists = np.linalg.norm(diffs, axis=1)
     valid_indices = np.where(dists <= max_distance)[0]
@@ -206,7 +204,8 @@ def fast_xuankong_9grid(facing_degree: float, period: int = 9) -> list[tuple[int
         try:
             return rust_core.xuankong_9grid_matrix(facing_degree, period)
         except Exception:
-            pass
+            if not PYTHON_FALLBACK_ALLOWED:
+                raise
     
     # Pure Python fallback
     palace_sequence = [5, 6, 7, 8, 9, 1, 2, 3, 4]
@@ -240,7 +239,8 @@ def fast_ziwei_stars(zi_wei_idx: int) -> list[tuple[int, list[str]]]:
         try:
             return rust_core.calculate_14_main_stars(zi_wei_idx)
         except Exception:
-            pass
+            if not PYTHON_FALLBACK_ALLOWED:
+                raise
 
     branches = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
     tian_fu_idx = (4 + 12 - (zi_wei_idx % 12)) % 12
@@ -279,7 +279,8 @@ def fast_qimen_matrix(dun_is_yang: bool, ju_number: int) -> list[tuple[int, str,
         try:
             return rust_core.qimen_9palace_matrix(dun_is_yang, ju_number)
         except Exception:
-            pass
+            if not PYTHON_FALLBACK_ALLOWED:
+                raise
 
     stems_order = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"]
     nine_stars = ["天蓬", "天芮", "天衝", "天輔", "天禽", "天心", "天柱", "天任", "天英"]
@@ -635,4 +636,3 @@ def fast_satta_lek_matrix(day_num: int, lunar_month: int, year_zodiac_num: int) 
     row3 = [(year_zodiac_num + i - 1) % 7 + 1 for i in range(7)]
     row4 = [row1[i] + row2[i] + row3[i] for i in range(7)]
     return (row1, row2, row3, row4)
-

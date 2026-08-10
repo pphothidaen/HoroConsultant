@@ -6,10 +6,152 @@ Tests for Phase 2 Rust Extensions & Fast Math integration:
 2. Xuan Kong Flying Stars 9-Grid Matrix calculations.
 """
 
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
 import numpy as np
+import pytest
+
+# Source-tree tests intentionally exercise the documented development fallback.
+os.environ.setdefault("HORO_ALLOW_PYTHON_FALLBACK", "1")
 
 from project.core.fast_math import fast_xuankong_9grid, rust_dense_vector_search
 from project.core.xuan_kong_engine import XuanKongEngine
+
+
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _run_isolated_python(
+    code: str,
+    *,
+    pythonpath: list[Path],
+    allow_fallback: bool = False,
+) -> subprocess.CompletedProcess[str]:
+    """Run an import contract in a fresh interpreter with a controlled path."""
+    env = os.environ.copy()
+    env["PYTHONPATH"] = os.pathsep.join(str(path) for path in pythonpath)
+    if allow_fallback:
+        env["HORO_ALLOW_PYTHON_FALLBACK"] = "1"
+    else:
+        env.pop("HORO_ALLOW_PYTHON_FALLBACK", None)
+    return subprocess.run(
+        [sys.executable, "-c", code],
+        cwd="/tmp",
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+
+def test_rust_import_order_does_not_change_native_availability():
+    """Importing fast_math before rust_core must report the same backend identity."""
+    code = """
+import importlib
+import json
+import sys
+
+order = sys.argv[1]
+if order == "package-first":
+    import rust_core
+    fast_math = importlib.import_module("project.core.fast_math")
+else:
+    fast_math = importlib.import_module("project.core.fast_math")
+    import rust_core
+print(json.dumps(fast_math.runtime_backend(), sort_keys=True))
+"""
+    results = []
+    for order in ("package-first", "fast-math-first"):
+        env = os.environ.copy()
+        env["PYTHONPATH"] = str(_PROJECT_ROOT)
+        env["HORO_ALLOW_PYTHON_FALLBACK"] = "1"
+        completed = subprocess.run(
+            [sys.executable, "-c", code, order],
+            cwd="/tmp",
+            env=env,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        assert completed.returncode == 0, completed.stderr
+        results.append(json.loads(completed.stdout))
+
+    assert results[0] == results[1]
+    assert set(results[0]) == {"kernels", "rust_available", "rust_version"}
+
+
+def test_source_tree_native_artifact_is_not_discovered(tmp_path):
+    """An unrelated source-tree shared library must never trigger discovery scans."""
+    decoy_dir = tmp_path / "unrelated" / "build"
+    decoy_dir.mkdir(parents=True)
+    (decoy_dir / "rust_core_native.so").write_bytes(b"not a Python extension")
+
+    completed = _run_isolated_python(
+        f"""
+import json
+import sys
+
+scanned = []
+decoy_root = {str(tmp_path)!r}
+def audit(event, args):
+    if event == "os.scandir" and str(args[0]).startswith(decoy_root):
+        scanned.append(str(args[0]))
+sys.addaudithook(audit)
+
+import rust_core
+print(json.dumps(scanned))
+""",
+        pythonpath=[tmp_path, _PROJECT_ROOT],
+        allow_fallback=True,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert json.loads(completed.stdout) == []
+
+
+def test_missing_native_extension_fails_without_explicit_fallback(tmp_path):
+    """Production imports must fail clearly instead of silently using Python kernels."""
+    package_dir = tmp_path / "rust_core"
+    package_dir.mkdir()
+    package_dir.joinpath("__init__.py").write_text(
+        (_PROJECT_ROOT / "rust_core" / "__init__.py").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+
+    completed = _run_isolated_python(
+        "import rust_core",
+        pythonpath=[tmp_path],
+    )
+
+    assert completed.returncode != 0
+    assert "HORO_ALLOW_PYTHON_FALLBACK=1" in completed.stderr
+
+
+def test_explicit_fallback_reports_python_runtime_identity(tmp_path):
+    """The opt-in fallback must be observable and enumerate no active Rust kernels."""
+    package_dir = tmp_path / "rust_core"
+    package_dir.mkdir()
+    package_dir.joinpath("__init__.py").write_text(
+        (_PROJECT_ROOT / "rust_core" / "__init__.py").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+
+    completed = _run_isolated_python(
+        "import json, rust_core; print(json.dumps(rust_core.runtime_backend(), sort_keys=True))",
+        pythonpath=[tmp_path],
+        allow_fallback=True,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert json.loads(completed.stdout) == {
+        "kernels": [],
+        "rust_available": False,
+        "rust_version": None,
+    }
 
 
 def test_rust_dense_vector_search_basic():
@@ -131,6 +273,8 @@ def test_fast_liuren_zeji_satta_lek_rust_extensions():
 def test_rust_security_audit_native():
     """Verify native Rust security audit scanner."""
     import rust_core
+    if not rust_core.RUST_AVAILABLE:
+        pytest.skip("native wheel is not installed")
     passed, scanned_count, findings = rust_core.run_rust_security_audit(".")
     assert scanned_count > 0
     assert isinstance(passed, bool)
@@ -153,6 +297,8 @@ def test_fast_qimen_matrix():
 def test_astrological_audit_rust_native():
     """Verify native Rust astrological audit bindings."""
     import rust_core
+    if not rust_core.RUST_AVAILABLE:
+        pytest.skip("native wheel is not installed")
 
     passed, total = rust_core.audit_five_elements(100.0, "庚", "Metal")
     assert passed is True
@@ -167,6 +313,9 @@ def test_astrological_audit_rust_native():
 
 def test_rust_svg_bazi_rendering():
     """Verify Rust SVG rendering engine."""
+    import rust_core
+    if not rust_core.RUST_AVAILABLE:
+        pytest.skip("native wheel is not installed")
     from project.core.svg_generator import (
         generate_bazi_svg,
         generate_ziwei_svg,
@@ -209,6 +358,8 @@ def test_rust_svg_bazi_rendering():
 def test_rust_atomic_observability_metrics():
     """Verify Rust atomic Prometheus metrics collection."""
     import rust_core
+    if not rust_core.RUST_AVAILABLE:
+        pytest.skip("native wheel is not installed")
 
     req_total = rust_core.record_http_metric_rust("GET", "/api/v1/health", 200, 1.2)
     assert req_total > 0
@@ -220,6 +371,3 @@ def test_rust_atomic_observability_metrics():
     assert "# HELP http_requests_total" in metrics_text
     assert 'engine="rust_core"' in metrics_text
     assert "process_uptime_seconds 120.50" in metrics_text
-
-
-

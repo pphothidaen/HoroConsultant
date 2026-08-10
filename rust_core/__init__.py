@@ -1,30 +1,57 @@
 """
 rust_core Python Package Initialiser
-Dynamically loads and re-exports Rust PyO3 native extension functions.
+Loads and re-exports the standard package-local Rust PyO3 extension.
 """
 
-import sys
-import importlib.util
-from pathlib import Path
+from __future__ import annotations
 
+from importlib import import_module
+import os
+from types import ModuleType
+from typing import Any
+
+
+PYTHON_FALLBACK_ALLOWED = os.environ.get("HORO_ALLOW_PYTHON_FALLBACK") == "1"
 RUST_AVAILABLE = False
+__native_origin__: str | None = None
+_native: ModuleType | None = None
 
-for p in sys.path:
-    p_path = Path(p)
-    if p_path.exists():
-        candidates = list(p_path.rglob("*rust_core*.so")) + list(p_path.rglob("*rust_core*.dylib"))
-        for so in candidates:
-            try:
-                spec = importlib.util.spec_from_file_location("rust_core_native", str(so))
-                if spec and spec.loader:
-                    mod = importlib.util.module_from_spec(spec)
-                    spec.loader.exec_module(mod)
-                    for k in dir(mod):
-                        if not k.startswith("_"):
-                            globals()[k] = getattr(mod, k)
-                    RUST_AVAILABLE = True
-                    break
-            except Exception:
-                pass
-        if RUST_AVAILABLE:
-            break
+try:
+    _native = import_module("._native", __name__)
+except ImportError as exc:
+    if not PYTHON_FALLBACK_ALLOWED:
+        raise ImportError(
+            "rust_core._native is required in production; install the platform wheel "
+            "or set HORO_ALLOW_PYTHON_FALLBACK=1 for explicit development fallback"
+        ) from exc
+else:
+    for _name in dir(_native):
+        if not _name.startswith("_"):
+            globals()[_name] = getattr(_native, _name)
+    RUST_AVAILABLE = True
+    __native_origin__ = _native.__file__
+
+
+def runtime_backend() -> dict[str, Any]:
+    """Return deterministic, secret-free native runtime identity metadata."""
+    if _native is None:
+        return {
+            "rust_available": False,
+            "rust_version": None,
+            "kernels": [],
+        }
+    return {
+        "rust_available": True,
+        "rust_version": getattr(_native, "__version__", None),
+        "kernels": list(getattr(_native, "__kernels__", ())),
+    }
+
+
+__all__ = sorted(
+    [
+        name
+        for name in globals()
+        if not name.startswith("_")
+        and name not in {"Any", "ModuleType", "import_module", "os"}
+    ]
+)
