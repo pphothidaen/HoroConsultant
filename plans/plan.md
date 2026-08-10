@@ -1,114 +1,70 @@
-# AI SDLC Master Implementation Plan: Production Multi-Cloud Architecture, Rust PyO3 Audit & Full Deployment
+# Production Rust-first Runtime and Azure v1 Release
 
-**Project:** HoroConsultant — Computational Metaphysics Engine  
-**Target Framework:** Antigravity CLI AI SDLC System + Codex compatibility layer
-**Lead Agent:** Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
-**Last Updated:** 2026-08-09 — Added backward-compatible Codex subagent generation from `.agents/agents/*/agent.json` while retaining Antigravity synchronization.
+**Last updated:** 2026-08-10
 
----
+**Detailed design:** `docs/superpowers/specs/2026-08-10-rust-first-azure-v1-design.md`
 
-## 📌 Master Task Board (Kanban Summary)
+**Execution plan:** `docs/superpowers/plans/2026-08-10-rust-first-azure-v1.md`
 
-```
-┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
-│              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
-├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Decoupled DDD Multi-Cloud & Rust Core│ • None                                 │ • Harden HITL contract regression     │
-│ • Phase 6.1: Standalone Axum Server   │                                       │                                       │
-│ • Phase 6.2: Native Rust Test Runner  │                                       │                                       │
-│ • SwissEph Native Pure Rust Bridge    │                                       │                                       │
-│ • E2E browser automation baseline     │                                       │ • Make E2E results portable/strict    │
-│ • BSA Skill & Doc Watchdog Governance │                                       │                                       │
-│ • Codex compatibility layer (16 roles)│                                       │                                       │
-│ • Module 1-4: Rust Accelerated Core   │                                       │                                       │
-│ • 195 Pytest + 2 Cargo + 12 Runner    │                                       │ • Define Future LLM Expansion scope   │
-└───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
-```
+## Goal / Problem Statement
 
+Ship a verified Linux AMD64 production runtime that uses Rust where correctness and resource ROI are proven, preserves the existing `/api/v1` contract, and runs on Azure Container Apps within a strict free-allowance guard. The current production packaging does not install Rust, host-specific native files are committed, and several Rust paths diverge from their Python reference; those conditions must be corrected before any 100% migration claim is valid.
 
----
+## Candidate and ROI Decision Matrix
 
-## 🚀 Execution Roadmap: Grafana Cloud & Observability Integration
+| Area | Decision | Gate / reason |
+|---|---|---|
+| Axum ingress, health, correlation, proxy | Migrate | Low idle footprint and one public listener |
+| BaZi and true solar time | Conditional migrate | Exact/golden parity plus p95 +20% and CPU/request -30% |
+| ZiWei, QiMen, XuanKong, Thai/Vedic, I Ching, LiuRen, ZeJi, Numerology, SVG | Conditional migrate per engine | Enable independently only after parity and ROI |
+| TF-IDF matrix kernel | Retain/evaluate | Existing audit measured approximately 2.6x improvement |
+| Dense vector search | Keep Python/FAISS | Current list bridge is over 1,000x slower than NumPy; no `.tolist()` path allowed |
+| Swiss Ephemeris and Western astronomy | Keep Python/native C | Accuracy and body coverage exceed current Rust approximation |
+| RAG/LLM, geolocation, admin, HITL | Keep Python worker | Network/dynamic orchestration has poor rewrite ROI |
 
-### Phase 1: Observability Core Engine (`project/core/observability.py`)
-- Implement `ObservabilityManager` for tracking request count, latencies, HTTP status codes (2xx/4xx/5xx), RAG FAISS retrieval latency, and LLM inference stats.
-- Implement standard Prometheus exposition format (`/metrics`) with `text/plain; version=0.0.4`.
-- Support optional OpenTelemetry OTLP trace exporting when `GRAFANA_OTLP_ENDPOINT` / `OTEL_EXPORTER_OTLP_ENDPOINT` is configured.
-- Ensure 100% graceful fallback with zero request overhead when telemetry credentials are not present.
+## Functional Requirements
 
-### Phase 2: FastAPI Integration & Middleware (`project/main.py`)
-- Register HTTP timing middleware to track API latency, Request Per Minute (RPM), and route metrics.
-- Expose `/metrics` endpoint and `/api/health` alias for Grafana Synthetic Monitoring pinging.
-- Add OpenTelemetry / Prometheus setup hooks in application startup lifecycle.
+- Produce private `pansakorn/horoconsult` for `linux/amd64` with immutable SHA tag plus `v1.0` and `latest`; deploy Azure by the verified digest.
+- Serve publicly through Axum on port 8000 and proxy approved routes to Uvicorn on localhost:8001.
+- Preserve all current methods, paths, schemas, statuses, OpenAPI, and chart data.
+- Keep static UI always available, show bounded cold-start loading, and never retry mutations or fabricate success.
+- Deploy blue/green Azure revisions with scale-to-zero, health probes, private registry access, and deterministic rollback.
+- Make CI, release, secret scanning, and final documentation evidence truthful and reproducible.
 
-### Phase 3: Container & Environment Configuration (`Dockerfile`, `Dockerfile.hf`, `requirements.txt`)
-- Add `prometheus-client>=0.20.0` to `requirements.txt`.
-- Configure `Dockerfile` and `Dockerfile.hf` to expose Grafana environment variables (`GRAFANA_OTLP_ENDPOINT`, `GRAFANA_OTLP_TOKEN`, `PROMETHEUS_METRICS_ENABLED`).
+## Non-Functional Requirements
 
-### Phase 4: Test Suite & Verification (`project/tests/test_observability.py`)
-- Add unit tests for `ObservabilityManager`, `/metrics` endpoint, health ping, and latency metric calculations.
-- Run full pytest regression suite (`python3 -m pytest -v --ignore=project/kaggle_kernel`).
-- Run UI button contract regression suite (`python3 scripts/run_button_regression.py`).
-- Run pre-deployment safety audit (`python3 project/core/code_reviewer.py --review`).
-- Run SDLC agent cross-platform sync check (`python3 scripts/sync_sdlc_agents.py --check`).
-- Run Codex agent compatibility sync check (`python3 scripts/sync_codex_agents.py --check`).
+- Python 3.12 and Rust 1.97.1 in CI/container; pure ASCII subprocess logs.
+- Exact categorical/integer parity, float tolerance `1e-6`, EoT tolerance `0.01` minute.
+- At least 10,000 randomized valid cases and 100,000 invalid/fuzz cases without abort.
+- Migrated endpoint p95 improves at least 20% and CPU/request falls at least 30%.
+- Azure min replicas 0, max replicas 1, initial 0.5 vCPU/1 GiB, Southeast Asia.
+- No secret values in source, command arguments, reports, CI logs, or deployment output.
 
-### Phase 5: Documentation & Task Synchronization
-- Update `PROJECT_TASKS.md`, `README.md`, and `HOWTO.md` to reflect Grafana Cloud Observability completion.
-- Re-verify 100% pass across all tests and audits.
+## Architecture and Data Flow Impact
 
----
+Vercel serves as the public edge. Static assets continue to come from Hugging Face. API traffic is rewritten to Azure Container Apps, where Axum owns port 8000. Pure Rust handlers serve only qualified deterministic engines. An explicit allowlist proxies all retained Python functionality to a supervised Uvicorn child on `127.0.0.1:8001`. Azure revisions and immutable image digests replace in-image duplicate fallback code as the rollback mechanism.
 
-## 🌐 Multi-Cloud Platform Architecture Matrix
+## Phased Implementation
 
-| Platform Layer | Target Environment | Key Functionality | SLA & Latency Profile | Status |
-| :--- | :--- | :--- | :--- | :--- |
-| **Hugging Face Static Edge CDN** | `pphothidaen-horoconsultant-core-backend.static.hf.space` | Web Dashboard (`index.html`), Admin (`admin.html`), HITL (`hitl.html`) | 24/7 Unlimited Uptime, Zero Cost, Global Edge (< 20ms) | ✅ **ACTIVE** |
-| **Fly.io Micro-VMs (`sin`)** | `horoconsultant-core-backend.fly.dev` | FastAPI Backend + PyO3 Rust Fast Math + Swiss Ephemeris | Singapore Region (< 30ms latency for TH users) | ✅ **READY** |
-| **Vercel Edge Network** | `vercel.json` Gateway | Intelligent Edge API Route Rewriting & Reverse Proxy | Global Edge Proxy (< 20ms) | ✅ **READY** |
-| **Hugging Face Docker Space** | `pphothidaen/horoconsultant-core-backend` | Heavy FAISS RAG Search & Async Batch Data Processing + Grafana Metrics | Free Container (16GB RAM, 2 vCPU) | ✅ **ACTIVE** |
-| **Kaggle GPU Accelerator** | `scripts/kaggle_notebook_manager.py` | Asynchronous LLM Fine-Tuning & Model Weight Fusion | Free 30h/week Nvidia T4 GPU Pipeline | ✅ **READY** |
+1. Correct the plan/Kanban and capture clean baseline evidence.
+2. Stabilize Rust packaging/import behavior and remove host binaries.
+3. Establish BaZi/solar and remaining-engine parity/ROI gates.
+4. Implement the contract-safe Axum gateway and Python supervision.
+5. Add cold-start UX and Vercel Azure routing.
+6. Build Linux AMD64 CI, private Docker Hub publishing, Azure IaC, and the strict-free guard.
+7. Complete security/QA review, PR merge, blue/green cutover, live verification, and final documentation.
 
----
+## Acceptance Criteria and Test Matrix
 
-## 🧪 Verification & Quality Control Standards
-
-1. **Full Pytest Unit & Integration Regression Suite**:
-   ```bash
-   python3 -m pytest -v --ignore=project/kaggle_kernel
-   ```
-   - Target: **100% success rate (169+ passed)**.
-
-2. **25-Button UI & Endpoint Contract Regression Suite**:
-   ```bash
-   python3 scripts/run_button_regression.py
-   ```
-   - Target: **25 / 25 UI Button & API Endpoint contracts passing**.
-
-3. **Pre-Deployment Code Audit & Security Review**:
-   ```bash
-   python3 project/core/code_reviewer.py --review
-   ```
-   - Target: Status **`READY_FOR_PROD`** with zero sensitive key leaks.
-
-4. **Cross-Platform Agent Sync Verification**:
-   ```bash
-   python3 scripts/sync_sdlc_agents.py --check
-   ```
-   - Target: **100% Synchronized**.
-
-5. **Codex Agent Compatibility Verification**:
-   ```bash
-   python3 scripts/sync_codex_agents.py --check
-   ```
-   - Target: **all generated Codex role TOML files match the existing workspace definitions**.
-
----
-
-## 🛡️ Agent Execution Protocol
-
-- **Orchestrator Agent**: Directs overall AI SDLC execution and verifies deployment status.
-- **Business Analyst Agent**: Audits repository documentation (`PROJECT_TASKS.md`, `HOWTO.md`, `README.md`) and agent skills.
-- **Developer Agent**: Implements `project/core/observability.py`, updates `project/main.py`, `requirements.txt`, Dockerfiles.
-- **QA Tester Agent**: Runs `pytest`, test_observability.py, and UI button contract suite.
-- **DevOps Agent**: Verifies container configurations and secret security scans.
+| Gate | Required evidence |
+|---|---|
+| Baseline | Fresh full pytest output and starting Git SHA |
+| Rust | `cargo fmt --check`, `cargo clippy -- -D warnings`, `cargo test`, installed-wheel smoke |
+| Contract | All current OpenAPI paths plus representative error/status/SVG goldens through Axum |
+| Correctness | Literal fixtures, 10k deterministic randomized cases, 100k invalid/fuzz cases |
+| Python | Full `python3 -m pytest -v --ignore=project/kaggle_kernel` with zero failures |
+| UI | Button regression and Playwright cold-start/mutation-once/error behavior |
+| Image | Linux AMD64, non-root, health-ready, correct Git SHA and Rust runtime identity |
+| Security | Zero secret leaks and code reviewer `READY_FOR_PROD` |
+| Deployment | Green label verification, traffic promotion, public E2E, 30-minute soak, rollback evidence |
+| Governance | Both agent sync checks pass and Kanban/docs contain exact final evidence |

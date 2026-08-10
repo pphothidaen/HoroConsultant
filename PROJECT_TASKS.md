@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-09 — Added backward-compatible Codex subagent configuration generated from the existing `.agents` role definitions. The prior regression audit recorded 195/195 Pytest PASS, 2 Cargo integration tests PASS, and native runner 12/12 PASS.*
+> *Last Updated: 2026-08-10 — Rust-first Azure v1 implementation is active. Clean baseline at `e7c041c`: 200/200 Pytest PASS with one upstream deprecation warning. Historical Rust completion claims are being re-qualified against Linux packaging, parity, and ROI gates.*
 
 
 ---
@@ -12,43 +12,29 @@ cd /Users/kimlenglim/Project/HoroConsultant
 
 # === RUST NATIVE CI/CD TOOLS ===
 
-# 1. Native Rust Integration Test Suite (2 integration tests: vector search)
-export PATH="/Users/kimlenglim/.agy-account-1/.rustup/toolchains/stable-aarch64-apple-darwin/bin:$PATH"
-export PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1
-export RUSTFLAGS="-C link-arg=-undefined -C link-arg=dynamic_lookup -L /opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/lib -l Python3.14"
+# 1. Native Rust tests (portable; install the pinned toolchain first)
+rustup toolchain install 1.97.1
 cd rust_core
-cargo test
-# Optional runtime suite: 12 checks; start horo_server first to exercise its health check.
-cargo run --bin regression_runner
+cargo +1.97.1 fmt --check
+cargo +1.97.1 clippy --all-targets --all-features -- -D warnings
+cargo +1.97.1 test --all-targets --all-features
 cd ..
 
-# 2. Rust Code Reviewer & Safety Auditor Binary (Pre-Deployment Audit)
+# 2. Code reviewer and secret scan
 python3 project/core/code_reviewer.py --review
-# OR Direct Rust Binary:
-./rust_core/target/release/code_reviewer
 
-# 3. Rust Agent & Governance Spec Sync Check Binary
+# 3. Agent and governance checks
 python3 scripts/sync_sdlc_agents.py --check
-# OR Direct Rust Binary:
-./rust_core/target/release/sync_sdlc_agents
-
-# 4. Codex Agent Compatibility Sync Check
 python3 scripts/sync_codex_agents.py --check
 
-# 5. Rust Atomic Prometheus Observability Collector Test
-python3 -c "import rust_core; print(rust_core.generate_prometheus_metrics_rust(120.0))"
-
-# 6. Rust SVG Chart Rendering Engine Test (BaZi, ZiWei, Zodiac, QiMen, XuanKong)
-python3 -c "from project.core.svg_generator import generate_bazi_svg; print(generate_bazi_svg({'day_master': {'stem': '庚'}}))"
-
-# 7. Rust Astrological Consistency Audit (PyO3 Accelerated)
-python3 scripts/audit_astrological_consistency.py
-
-# 8. Pre-Deployment Safety Audit & Secret Scan (Rust Rayon Parallel — 642 files, 0 leaks)
+# 4. Pre-deployment secret scan
 python3 project/core/code_reviewer.py --scan-secrets
 
-# 8. Full Python Pytest Suite (195/195 tests PASS as of 2026-08-09)
+# 5. Full Python suite (fresh baseline: 200 passed on 2026-08-10)
 python3 -m pytest -v --ignore=project/kaggle_kernel
+
+# 6. Linux AMD64 image build (push is performed only by release CI)
+docker buildx build --platform linux/amd64 --load -t horoconsult:dev .
 ```
 
 ---
@@ -56,28 +42,14 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 ## 📊 TASK BOARD (KANBAN)
 
 ```
-┌───────────────────────────────────────────────────────────────────────────────┐
-│                      ✅ DONE: Phase 6 Rust Migration 100% COMPLETE             │
-├───────────────────────────────────────────────────────────────────────────────┤
-│ • Decoupled DDD Multi-Cloud & Rust Core                                       │
-│ • Phase 1: Astrological Audits + Tokio HTTP Testers (Rust Binaries)           │
-│ • Phase 2 & 3: SVG Chart Renderers (BaZi, ZiWei, Zodiac, QiMen, XuanKong)    │
-│ • Phase 4: Rust Atomic Prometheus Metrics Collector & Observability Engine    │
-│ • Phase 5: Cargo Integration Suite (2/2 PASS) + Code Reviewer & Governance   │
-│             Sync CLI Binaries (rust_core/src/bin/)                            │
-│ • Phase 6.1: Standalone Pure Rust Axum Gateway (< 10MB RAM, < 1ms)            │
-│ • Phase 6.2: Native Rust Runner (12/12 PASS with local Axum health check)    │
-│ • Swiss Ephemeris Native Pure Rust Bridge (swisseph.rs)                       │
-│ • Code Reviewer Rayon Parallel Secret Scanner & Dead Code Cleanup             │
-│ • Grafana Cloud Observability Engine + Gateway Telemetry                      │
-│ • Prometheus Metrics Endpoint (/metrics & /api/health alias)                  │
-│ • Playwright E2E screenshots — fresh 17-step run remains to be hardened      │
-│ • UI Button Suite: 25 checks pass; HITL lifecycle contract still to harden    │
-│ • HF Spaces Live Deploy & Audit                                               │
-│ • Pre-Deploy Safety Audit (READY_FOR_PROD)                                    │
-│ • 195/195 Python Pytest Suite (100% PASS)                                     │
-│ • 2 Cargo integration tests + Rust Runner 12/12 PASS (0.078s audit)           │
-└───────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────┬───────────────────────────┬────────────────────────┐
+│          ✅ DONE          │         🔄 DOING         │        📋 TODO         │
+├───────────────────────────┼───────────────────────────┼────────────────────────┤
+│ • Rust/production audit   │ • Rust-first Azure v1     │ • HITL hardening       │
+│ • Python baseline 200/200 │ • Linux AMD64 packaging  │ • Future LLM scope     │
+│ • Existing Python API     │ • Parity + ROI gates      │                        │
+│                           │ • Cold-start UX + release │                        │
+└───────────────────────────┴───────────────────────────┴────────────────────────┘
 ```
 
 ---
@@ -134,6 +106,12 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 ---
 
 ### ✅ DONE (เสร็จสมบูรณ์ 100% พร้อมใช้งาน)
+
+- [x] **Rust migration ROI and production-readiness audit (`e7c041c`)**
+  - **Evidence**: Clean worktree baseline completed 200/200 Pytest tests; production Dockerfiles did not build/install `rust_core`; tracked native binaries were macOS ARM64; direct Rust import was order-dependent; several engine outputs and benchmarks did not match their Python reference.
+  - **Decision**: Replace blanket "100% Rust" claims with per-engine parity and ROI qualification. Keep Swiss Ephemeris, FAISS/NumPy, RAG/LLM, geolocation, admin, and HITL in the private Python worker.
+  - **Root Cause**: CI built Rust separately from Python/runtime tests, while deployment images omitted Rust and silent fallbacks masked the inactive native path.
+  - **Prevention**: Release CI must install the Linux wheel/image, attest the active runtime backend, compare API goldens, and fail when a required Rust handler is unavailable.
 
 - [x] **Decoupled DDD Multi-Cloud Architecture & Rust High-Performance Core Engine Strategy ([`rust_core/`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/), [`vercel.json`](file:///Users/kimlenglim/Project/HoroConsultant/vercel.json), [`Dockerfile.hf`](file:///Users/kimlenglim/Project/HoroConsultant/Dockerfile.hf))**
   - **Sub-Domain 1 (Fly.io Ultra-Fast Gateway)**: Rust Axum Micro-Gateway specification for < 8 MB RAM footprint, < 20ms cold start, and 50,000+ req/sec throughput in Singapore (`sin`) region.
@@ -281,37 +259,18 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 ### 🔄 DOING (กำลังดำเนินการ)
 
-*ไม่มี implementation ที่กำลังทำอยู่ — งานติดตามผลอยู่ใน TODO ด้านล่าง*
+- [ ] **Cost-aware Rust-first Azure v1 production runtime (`feat/rust-first-azure-v1`)**
+  - **Scope**: Linux AMD64 private image `pansakorn/horoconsult` tagged with immutable SHA, `v1.0`, and `latest`; Axum public port 8000; supervised Python worker on localhost:8001; Azure Container Apps blue/green; Vercel/HF static UI. Azure is pinned to the verified digest.
+  - **ROI Gate**: Enable an engine in Rust only after exact schema parity, numeric tolerance, endpoint p95 improvement of at least 20%, and CPU/request reduction of at least 30%; otherwise mark it PARKED and retain Python.
+  - **Compatibility & fallback**: Preserve all current public API contracts. Roll back by immutable Azure revision/image digest rather than shipping duplicate silent fallback algorithms.
+  - **Dead-code cleanup**: Remove tracked native binaries, recursive native loading, `.tolist()` dense-vector bridge, retired Fly deployment automation, and fake UI success behavior.
+  - **Verification**: Python/Rust/contract/fuzz/UI/security/Linux-image gates, private registry pull, Azure green-label E2E, production soak, and rollback exercise.
+  - **Root Cause**: The previous migration optimized code artifacts without proving that production loaded them or that their results and resource use were better.
+  - **Prevention**: One immutable SHA/digest must pass installed-runtime identity, parity, performance, and live release verification before traffic promotion.
 
 ---
 
 ### 📋 TODO (งานระยะถัดไป / Phased Roadmap)
-
-- [x] **Module 1: RAG FAISS Vector Search & Distance Metrics Native Rust Migration ([`project/rag/vector_store.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/rag/vector_store.py), [`rust_core/src/vector_search.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/vector_search.rs), [`project/core/fast_math.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/fast_math.py))**
-  - Implemented SIMD unrolled Dot Product (Cosine Similarity) & L2 Euclidean Distance vector search matchers in Rust PyO3 bindings (`dense_vector_search` & `dense_vector_search_l2`).
-  - Added fast math python bridge `rust_dense_vector_search_l2` with 100% NumPy fallback compatibility.
-  - Current audit: 2 Cargo integration tests PASS + 13/13 Pytest extension tests PASS.
-
-- [x] **Module 2: Astrological Audit & Canonical Consonance Native Rust Binary ([`rust_core/src/bin/audit_suite.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/audit_suite.rs))**
-  - Created parallel Rust CLI binary `audit_suite` executing Five Elements, TST, and Cross-Domain consonance audits in **0.066 ms** (`READY_FOR_PROD`).
-
-- [x] **Module 3: Grafana OTLP Telemetry & Health Monitoring Daemon ([`rust_core/src/bin/telemetry_daemon.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/telemetry_daemon.rs))**
-  - Built Tokio async Rust binary daemon `telemetry_daemon` probing cloud gateways with < 4MB RAM footprint (`--once` and `--interval` modes).
-
-- [x] **Module 4: Synthetic Chart Generation & Dataset Extractor Engine ([`rust_core/src/bin/chart_generator.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/chart_generator.rs))**
-  - Built multithreaded Rayon synthetic chart generator in Rust emitting 1,000 JSONL records in **0.0018s** (**> 540,000 charts/sec**).
-
-- [x] **Module 5: Axum Gateway High-Throughput Load Tester & Latency Analyzer ([`rust_core/src/bin/horo_benchmark.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/horo_benchmark.rs))**
-  - Built Tokio async load tester CLI measuring req/sec throughput & sub-millisecond P50/P95/P99 latency distribution for Axum Gateway.
-
-- [x] **Module 6: High-Performance Pure Rust SVG Vector Chart Generator CLI ([`rust_core/src/bin/svg_chart_cli.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/svg_chart_cli.rs))**
-  - Built standalone Rust CLI for batch rendering vector SVG charts (BaZi, ZiWei, Zodiac Wheel, QiMen, XuanKong) in **< 0.05ms** per chart.
-
-- [x] **Module 7: Parallel Multi-Discipline Metaphysics Fusion Synthesizer ([`rust_core/src/bin/fusion_synthesizer.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/fusion_synthesizer.rs))**
-  - Built Rayon multi-threaded CLI binary executing all 10 domain calculation engines concurrently in **0.17 ms** emitting unified JSON charts.
-
-- [x] **Module 8: Native Rust SDLC Agent Governance Watchdog & Health Auditor ([`rust_core/src/bin/sdlc_watchdog.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/sdlc_watchdog.rs))**
-  - Built native Rust watchdog CLI auditing agent matrix specs (`.antigravity/agents/`), workspace definitions (`.agents/agents/`), docs integrity, and secret leaks.
 
 - [ ] **Harden HITL Button Regression Contracts**
   - Select a deterministic valid item from `/hitl/queue`, then assert successful draft → review → undo lifecycle responses (rather than treating `404` from a synthetic ID as a pass).
@@ -324,6 +283,13 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 - [ ] **Define the Future LLM Model Expansion Scope**
   - The master plan lists this roadmap item but has no approved provider/model, acceptance criteria, budget, or deployment target.
 
+---
 
+### ⏸ PARKED (ไม่ผ่าน ROI/accuracy gate ในการตรวจล่าสุด)
 
-
+- [ ] **Rust dense-vector bridge**
+  - Keep NumPy/FAISS active because the current PyO3 `.tolist()` bridge measured more than 1,000x slower than NumPy BLAS. Revisit only with a zero-copy buffer and at least 20% p95 improvement.
+- [ ] **Pure-Rust Swiss Ephemeris replacement**
+  - Keep the native Python/C Swiss Ephemeris path because the Rust approximation covers fewer bodies and does not meet the existing accuracy contract.
+- [ ] **Blanket migration of RAG/LLM, admin, HITL, geolocation, and deployment orchestration**
+  - Keep these in Python unless a production profile shows a qualifying CPU hotspot and a payback period within six months.
