@@ -1,13 +1,6 @@
 name: HoroConsultant Kaggle Fine-Tuning Pipeline
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'project/rag/datasets/**'
-      - 'scripts/cloud_train_orchestrator.py'
-      - 'scripts/kaggle_notebook_manager.py'
   workflow_dispatch:
     inputs:
       epochs:

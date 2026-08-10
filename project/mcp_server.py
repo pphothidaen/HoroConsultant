@@ -153,7 +153,7 @@ class HoroMCPTools:
         return liuren_engine.calculate_chart(day_stem, day_branch, month_general, hour_branch)
 
     @staticmethod
-    def iching_calculate(day_stem: str = "甲", seed: Optional[int] = None) -> dict[str, Any]:
+    def iching_calculate(day_stem: str = "甲", seed: int | None = None) -> dict[str, Any]:
         """Cast I Ching Hexagram and compute Liu Yao setup."""
         lines = iching_engine.cast_lines(seed=seed)
         return iching_engine.calculate_liu_yao(day_stem, lines)
@@ -164,7 +164,7 @@ class HoroMCPTools:
         return xuankong_engine.calculate_chart(facing_degree, period)
 
     @staticmethod
-    def zeji_calculate(year_branch: str = "午", month_branch: str = "申", day_branch: str = "寅", user_birth_branch: Optional[str] = "子") -> dict[str, Any]:
+    def zeji_calculate(year_branch: str = "午", month_branch: str = "申", day_branch: str = "寅", user_birth_branch: str | None = "子") -> dict[str, Any]:
         """Compute Date Selection suitability via 12 Duty Officers."""
         return zeji_engine.check_suitability(year_branch, month_branch, day_branch, user_birth_branch)
 

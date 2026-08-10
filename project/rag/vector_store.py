@@ -148,34 +148,6 @@ def load_all_chunks() -> list[dict[str, str]]:
     return chunks
 
 
-# ---------------------------------------------------------------------------
-# Embedding via Google API (or fallback to TF-IDF-style keyword vectors)
-# ---------------------------------------------------------------------------
-
-def _embed_google(texts: list[str]) -> list[list[float]] | None:
-    """Call Google text-embedding-004 API. Returns None on failure."""
-    api_key = os.getenv("GOOGLE_AI_STUDIO_API_KEY", "")
-    if not api_key or not HTTPX_AVAILABLE:
-        return None
-
-    embeddings = []
-    try:
-        with httpx.Client(timeout=30.0) as client:
-            for text in texts:
-                payload = {
-                    "model": f"models/{EMBED_MODEL}",
-                    "content": {"parts": [{"text": text}]},
-                }
-                res = client.post(f"{EMBED_URL}?key={api_key}", json=payload)
-                if res.status_code != 200:
-                    return None
-                vec = res.json()["embedding"]["values"]
-                embeddings.append(vec)
-    except Exception:
-        return None
-    return embeddings
-
-
 def _tfidf_vector(text: str, vocab: dict[str, int]) -> list[float]:
     """Minimal TF-IDF fallback: delegates to NumPy-accelerated version."""
     vec = numpy_tfidf_vector(text, vocab, n_vocab=len(vocab))

@@ -1,18 +1,17 @@
-name: AI CI/CD Pipeline
+name: AI Safety Audit
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
     paths:
-      - 'project/**'
-      - 'scripts/**'
-      - 'requirements.txt'
-      - '.github/workflows/**'
+      - "project/**"
+      - "scripts/**"
+      - "rust_core/**"
+      - "requirements.txt"
+      - ".github/workflows/**"
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
   workflow_dispatch:
-  schedule:
-    - cron: "0 2 * * *"
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
@@ -23,8 +22,11 @@ concurrency:
 
 jobs:
   code-review-and-audit:
-    name: Pre-Deployment Code Review & Safety Audit
+    name: Pre-Deployment Code Review and Safety Audit
     runs-on: ubuntu-latest
+    env:
+      # Source-only audit; the release-gating CI job installs the wheel and uses 0.
+      HORO_ALLOW_PYTHON_FALLBACK: "1"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,7 +35,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: "pip"
+          cache: pip
 
       - name: Install dependencies
         run: |
@@ -41,69 +43,5 @@ jobs:
           grep -vE "mlx|mlx-lm|mlx-metal" requirements.txt > requirements-ci.txt
           pip install -r requirements-ci.txt pytest
 
-      - name: Execute Code Reviewer & Safety Audit
-        run: |
-          python3 project/core/code_reviewer.py --review
-
-  kaggle-ai-cicd:
-    name: Kaggle Cloud Fine-Tuning Trigger & Output Sync
-    needs: code-review-and-audit
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: "pip"
-
-      - name: Install Kaggle CLI & dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install kaggle python-dotenv requests pydantic
-
-      - name: Configure Kaggle Credentials
-        env:
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
-        run: |
-          mkdir -p ~/.kaggle
-          echo "{\"username\":\"${KAGGLE_USERNAME:-pphothidaen}\",\"key\":\"${KAGGLE_KEY}\"}" > ~/.kaggle/kaggle.json
-          chmod 600 ~/.kaggle/kaggle.json
-
-      - name: Generate Kaggle Kernel & Validate Dry Run
-        run: |
-          python3 scripts/kaggle_notebook_manager.py --setup
-
-      - name: Trigger Kaggle Kernel Execution
-        env:
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
-        run: |
-          if [ -n "${KAGGLE_KEY}" ]; then
-            python3 scripts/kaggle_notebook_manager.py --push --accelerator nvidiaTeslaT4
-          else
-            echo "ℹ️ KAGGLE_KEY secret not found. Skipping Kaggle remote trigger."
-          fi
-
-
-      - name: Sync Kaggle Kernel Outputs & Logs
-        env:
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
-        run: |
-          if [ -n "${KAGGLE_KEY}" ]; then
-            python3 scripts/kaggle_notebook_manager.py --output --dest project/kaggle_kernel
-            rm -rf project/kaggle_kernel/HoroConsultant
-          fi
-
-      - name: Commit and Push AI CI/CD artifacts to GitHub
-        run: |
-          git config --global user.name "HoroConsultant-Bot"
-          git config --global user.email "bot@horoconsultant.local"
-          git add project/kaggle_kernel/
-          git diff --quiet && git diff --staged --quiet || (git commit -m "chore(ai-cicd): sync Kaggle kernel notebook & output logs" && git push origin main)
+      - name: Execute code reviewer and safety audit
+        run: python3 project/core/code_reviewer.py --review --use-python

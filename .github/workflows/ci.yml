@@ -12,7 +12,10 @@ env:
 jobs:
   pytest-suite:
     name: PyTest & Edge Boundary Testing
+    needs: rust-core-audit
     runs-on: ubuntu-latest
+    env:
+      HORO_ALLOW_PYTHON_FALLBACK: "0"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -23,15 +26,26 @@ jobs:
           python-version: "3.12"
           cache: "pip"
 
+      - name: Download the audited Linux Rust wheel
+        uses: actions/download-artifact@v4
+        with:
+          name: rust-core-wheel
+          path: wheelhouse
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           grep -vE "mlx|mlx-lm|mlx-metal" requirements.txt > requirements-ci.txt
-          pip install -r requirements-ci.txt
+          pip install -r requirements-ci.txt pytest
+          pip install --force-reinstall --no-deps wheelhouse/*.whl
 
       - name: Run Pytest Test Suite
         run: |
           python3 -m pytest -v
+
+      - name: Run Project Code Reviewer
+        run: |
+          python3 project/core/code_reviewer.py --review --use-python
 
   lint-and-security:
     name: Code Quality & Security Audit
@@ -53,15 +67,12 @@ jobs:
 
       - name: Run Ruff Linter
         run: |
-          ruff check project/ tests/ --exit-zero
+          # Ratchet runtime-breaking findings first; legacy style debt remains tracked.
+          ruff check project/ tests/ --select E9,F63,F7,F82 --exclude project/kaggle_kernel
 
       - name: Run Security Audit (Bandit)
         run: |
-          bandit -r project/ -s B101,B404,B603,B311,B324,B110 -ll --exit-zero
-
-      - name: Run Project Code Reviewer
-        run: |
-          python3 project/core/code_reviewer.py --review
+          bandit -r project/ scripts/ -x project/kaggle_kernel -s B101,B404,B603,B311,B324,B110 -lll
 
   rust-core-audit:
     name: Rust PyO3 High-Performance Math Core Audit
@@ -80,12 +91,17 @@ jobs:
 
       - name: Set up Rust toolchain
         uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.97.1"
+          components: rustfmt, clippy
 
       - name: Build and Check Rust Core
         run: |
           python -m pip install --upgrade pip
           python -m pip install maturin==1.14.1 numpy pytest
           cd rust_core
+          cargo fmt --all -- --check
+          cargo clippy --no-default-features --features server --all-targets -- -D warnings
           cargo test --no-default-features --test test_runtime_contract --test test_vector_search
           cargo test --no-default-features --features server --all-targets
           if cargo tree --no-default-features --features server -e normal | grep -q pyo3; then
@@ -95,3 +111,11 @@ jobs:
           maturin build --release --out wheelhouse
           python -m pip install --force-reinstall --no-deps wheelhouse/*.whl
           HORO_PROJECT_ROOT="$GITHUB_WORKSPACE" python tests/test_installed_wheel.py -v
+
+      - name: Upload the audited Linux wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-core-wheel
+          path: rust_core/wheelhouse/*.whl
+          if-no-files-found: error
+          retention-days: 1

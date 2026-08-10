@@ -146,7 +146,7 @@ class TestGrafanaDashboardSchema:
             datasource = panel.get("datasource")
             if isinstance(datasource, dict):
                 uid = datasource.get("uid")
-                assert uid == "${DS_PROMETHEUS}", f"Panel '{panel.get('title')}' should use '${DS_PROMETHEUS}' datasource variable, got '{uid}'"
+                assert uid == "${DS_PROMETHEUS}", f"Panel '{panel.get('title')}' should use '${{DS_PROMETHEUS}}' datasource variable, got '{uid}'"
 
     def test_incident_dashboard_field_filter_regex(self):
         """Verify the incident dashboard uses a correct regex for task completed/total field filtering."""
