@@ -7,7 +7,43 @@
     },
     {
       "source": "/api/:path*",
-      "destination": "/api/index?path=:path*"
+      "destination": "/api/index?path=api/:path*"
+    },
+    {
+      "source": "/v1/:path*",
+      "destination": "/api/index?path=v1/:path*"
+    },
+    {
+      "source": "/bazi/:path*",
+      "destination": "/api/index?path=bazi/:path*"
+    },
+    {
+      "source": "/admin/:path*",
+      "destination": "/api/index?path=admin/:path*"
+    },
+    {
+      "source": "/hitl/:path*",
+      "destination": "/api/index?path=hitl/:path*"
+    },
+    {
+      "source": "/hitl-studio",
+      "destination": "/api/index?path=hitl-studio"
+    },
+    {
+      "source": "/docs/:path*",
+      "destination": "/api/index?path=docs/:path*"
+    },
+    {
+      "source": "/redoc",
+      "destination": "/api/index?path=redoc"
+    },
+    {
+      "source": "/openapi.json",
+      "destination": "/api/index?path=openapi.json"
+    },
+    {
+      "source": "/metrics/:path*",
+      "destination": "/api/index?path=metrics/:path*"
     },
     {
       "source": "/(.*)",

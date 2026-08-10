@@ -15,6 +15,7 @@ Usage:
 
 from __future__ import annotations
 
+import ast
 from contextlib import contextmanager
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -23,7 +24,7 @@ from pathlib import Path
 from threading import Thread
 
 from fastapi.testclient import TestClient
-from playwright.sync_api import sync_playwright
+import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
@@ -55,6 +56,30 @@ def serve_static_dashboard():
         server.server_close()
 
 
+@contextmanager
+def browser_session():
+    """Start Chromium when browser dependencies are deliberately installed.
+
+    The core regression suite is run in CI environments that install pytest but
+    not Playwright or its browser binaries.  Keeping the import here makes those
+    environments report deterministic skips while retaining an explicit browser
+    command for the E2E job.
+    """
+    playwright_api = pytest.importorskip(
+        "playwright.sync_api",
+        reason="browser-only test; install Playwright and run `playwright install chromium`",
+    )
+    with playwright_api.sync_playwright() as playwright:
+        try:
+            browser = playwright.chromium.launch(headless=True)
+        except playwright_api.Error as error:
+            pytest.skip(f"Chromium is unavailable for browser-only test: {error}")
+        try:
+            yield browser
+        finally:
+            browser.close()
+
+
 class TestWebRegressionUI:
     """Regression tests for Web UI Dashboard assets and routes."""
 
@@ -81,13 +106,22 @@ class TestWebRegressionUI:
         assert "updateVersionFooter" in res.text
         assert "fetchApi('/health')" in res.text
 
+    def test_browser_regressions_lazy_load_playwright_for_clean_ci(self):
+        """A pytest-only job must collect this file without Playwright installed."""
+        source = Path(__file__).read_text(encoding="utf-8")
+        syntax_tree = ast.parse(source)
+        assert not any(
+            isinstance(node, ast.ImportFrom) and node.module == "playwright.sync_api"
+            for node in ast.walk(syntax_tree)
+        )
+        assert 'pytest.importorskip(\n        "playwright.sync_api"' in source
+
     def test_cold_start_browser_gates_a_single_mutation_after_readiness(self):
         """Removing readiness gating must expose a POST before the API is healthy."""
         health_requests = 0
         mutation_requests: list[str] = []
 
-        with serve_static_dashboard() as dashboard_url, sync_playwright() as playwright:
-            browser = playwright.chromium.launch(headless=True)
+        with serve_static_dashboard() as dashboard_url, browser_session() as browser:
             page = browser.new_page()
 
             def route_health(route):
@@ -140,21 +174,24 @@ class TestWebRegressionUI:
             assert page.locator("#btn-submit").is_disabled() is False
             assert page.locator("button[onclick='resolveLocation()']").is_disabled() is False
             assert "API is ready" in page.locator("#backend-status").inner_text()
-            browser.close()
 
     def test_cold_start_browser_preserves_input_and_exposes_retry_on_real_failure(self):
         """Replacing a failed API result with fabricated content must fail this browser contract."""
         mutation_requests = 0
 
-        with serve_static_dashboard() as dashboard_url, sync_playwright() as playwright:
-            browser = playwright.chromium.launch(headless=True)
+        with serve_static_dashboard() as dashboard_url, browser_session() as browser:
             page = browser.new_page()
             page.route("**/health", lambda route: route.fulfill(status=200, body='{"status":"ok"}'))
 
             def route_interpret(route):
                 nonlocal mutation_requests
                 mutation_requests += 1
-                route.fulfill(status=503, content_type="application/json", body='{"detail":"Azure is waking"}')
+                route.fulfill(
+                    status=503,
+                    content_type="application/json",
+                    headers={"x-request-id": "upstream-correlation"},
+                    body='{"detail":"Azure is waking","correlation_id":"upstream-correlation"}',
+                )
 
             page.route("**/api/v1/bazi/interpret", route_interpret)
             page.goto(dashboard_url, wait_until="domcontentloaded")
@@ -166,38 +203,71 @@ class TestWebRegressionUI:
             assert page.input_value("#query") == "do not replace failed input"
             assert page.locator("#interpretation-card").evaluate("node => node.classList.contains('hidden')")
             assert "Azure is waking" in page.locator("#backend-status").inner_text()
+            assert "upstream-correlation" in page.locator("#backend-status").inner_text()
             assert page.locator("#backend-retry").is_visible()
             assert page.locator("#btn-submit").is_disabled() is False
-            browser.close()
+
+    def test_cold_start_browser_aborts_a_hung_health_probe_at_its_deadline(self):
+        """Removing AbortController makes a never-settling readiness request block forever."""
+        with serve_static_dashboard() as dashboard_url, browser_session() as browser:
+            page = browser.new_page()
+            page.goto(dashboard_url, wait_until="domcontentloaded")
+
+            result = page.evaluate(
+                """
+                async () => {
+                  const originalFetch = window.fetch;
+                  window.fetch = (_url, options = {}) => new Promise((resolve, reject) => {
+                    options.signal?.addEventListener(
+                      'abort',
+                      () => reject(new DOMException('aborted', 'AbortError')),
+                      { once: true },
+                    );
+                  });
+                  try {
+                    return await Promise.race([
+                      wakeBackend({ deadlineMs: 75, delays: [10] }),
+                      new Promise(resolve => setTimeout(() => resolve('timed-out'), 250)),
+                    ]);
+                  } finally {
+                    window.fetch = originalFetch;
+                  }
+                }
+                """
+            )
+
+            assert result is False
+            assert page.locator("#backend-retry").is_visible()
 
     def test_cold_start_browser_stops_after_sixty_seconds(self):
         """Removing the 60-second bound must make the simulated browser keep probing."""
-        with serve_static_dashboard() as dashboard_url, sync_playwright() as playwright:
-            browser = playwright.chromium.launch(headless=True)
+        with serve_static_dashboard() as dashboard_url, browser_session() as browser:
             page = browser.new_page()
-            page.add_init_script(
-                """
-                let coldStartClock = 0;
-                Date.now = () => coldStartClock;
-                window.__coldStartDelays = [];
-                window.setTimeout = (callback, delay, ...args) => {
-                  window.__coldStartDelays.push(delay);
-                  coldStartClock += delay;
-                  callback(...args);
-                  return 0;
-                };
-                """
-            )
             page.route("**/health", lambda route: route.fulfill(status=503, body='{"detail":"starting"}'))
             page.goto(dashboard_url, wait_until="domcontentloaded")
-            assert page.evaluate("() => wakeBackend()") is False
+            state = page.evaluate(
+                """
+                async () => {
+                  let coldStartClock = 0;
+                  const delays = [];
+                  const result = await wakeBackend({
+                    now: () => coldStartClock,
+                    waitFor: async (delay) => {
+                      delays.push(delay);
+                      coldStartClock += delay;
+                    },
+                  });
+                  return { result, delays };
+                }
+                """
+            )
+            assert state["result"] is False
 
-            delays = page.evaluate("() => window.__coldStartDelays")
+            delays = state["delays"]
             assert delays[:5] == [1000, 2000, 4000, 8000, 10000]
             assert sum(delays) == 60000
             assert max(delays) == 10000
             assert page.locator("#backend-retry").is_visible()
-            browser.close()
 
 
 class TestAPIRegressionEndpoints:

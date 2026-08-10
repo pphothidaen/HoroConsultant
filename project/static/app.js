@@ -22,30 +22,61 @@ function sleep(delayMs) {
   return new Promise(resolve => window.setTimeout(resolve, delayMs));
 }
 
-async function wakeBackend() {
-  const startedAt = Date.now();
+function createCorrelationId() {
+  if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+    return window.crypto.randomUUID();
+  }
+  return `ui-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function safeApiDetail(value) {
+  if (typeof value !== 'string' || !value.trim()) return 'The API request could not be completed.';
+  if (/https?:\/\/|localhost|traceback|exception|stack trace/i.test(value)) {
+    return 'The API request could not be completed.';
+  }
+  return value.trim().slice(0, 240);
+}
+
+async function wakeBackend(options = {}) {
+  const delays = options.delays || BACKEND_WAKE_DELAYS_MS;
+  const deadlineMs = options.deadlineMs || BACKEND_WAKE_LIMIT_MS;
+  const now = options.now || Date.now;
+  const waitFor = options.waitFor || sleep;
+  const correlationId = options.correlationId || createCorrelationId();
+  const startedAt = now();
   let delayIndex = 0;
   setRetryVisible(false);
   setBackendStatus('Starting the API. This can take up to one minute.', 'waking');
 
-  while (Date.now() - startedAt < BACKEND_WAKE_LIMIT_MS) {
+  while (now() - startedAt < deadlineMs) {
+    const remaining = deadlineMs - (now() - startedAt);
+    if (remaining <= 0) break;
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), remaining);
     try {
-      const response = await fetchApi('/health', { cache: 'no-store' });
+      const response = await fetchApi('/health', {
+        cache: 'no-store',
+        signal: controller.signal,
+        headers: { 'X-Request-ID': correlationId },
+      });
       if (response.ok) {
         setBackendStatus('API is ready. AI is processing your request.', 'processing');
         return true;
       }
     } catch (error) {
+      if (controller.signal.aborted) break;
       console.warn('[WARNING] API readiness probe failed:', error);
+    } finally {
+      window.clearTimeout(timeoutId);
     }
 
-    const elapsed = Date.now() - startedAt;
-    const remaining = BACKEND_WAKE_LIMIT_MS - elapsed;
-    if (remaining <= 0) break;
-    const delay = Math.min(BACKEND_WAKE_DELAYS_MS[Math.min(delayIndex, BACKEND_WAKE_DELAYS_MS.length - 1)], remaining);
+    const elapsed = now() - startedAt;
+    const remainingAfterProbe = deadlineMs - elapsed;
+    if (remainingAfterProbe <= 0) break;
+    const delay = Math.min(delays[Math.min(delayIndex, delays.length - 1)], remainingAfterProbe);
     delayIndex += 1;
     setBackendStatus(`Starting the API. Checking again in ${Math.ceil(delay / 1000)} seconds.`, 'waking');
-    await sleep(delay);
+    await waitFor(delay);
   }
 
   setBackendStatus('The API did not become ready within one minute. Your form is unchanged; try again when it is available.', 'unavailable');
@@ -53,9 +84,9 @@ async function wakeBackend() {
   return false;
 }
 
-async function ensureBackendReady() {
+async function ensureBackendReady(correlationId) {
   if (!backendWakePromise) {
-    backendWakePromise = wakeBackend().finally(() => {
+    backendWakePromise = wakeBackend({ correlationId }).finally(() => {
       backendWakePromise = null;
     });
   }
@@ -63,14 +94,18 @@ async function ensureBackendReady() {
 }
 
 async function getApiError(response) {
-  let message = `HTTP ${response.status}`;
+  let message = 'The API request could not be completed.';
+  let correlationId = response.headers.get('x-request-id') || '';
   try {
     const data = await response.json();
-    message = data.detail || data.message || message;
+    message = safeApiDetail(data.detail || data.message);
+    correlationId = data.correlation_id || correlationId;
   } catch (error) {
-    // Keep the HTTP status when an upstream error body is not JSON.
+    // Keep the stable public message when an upstream error body is not JSON.
   }
-  return new Error(message);
+  const apiError = new Error(message);
+  apiError.correlationId = correlationId;
+  return apiError;
 }
 
 async function fetchApiJson(endpoint, options = {}) {
@@ -86,38 +121,6 @@ function loadPreset(datetime, lng, utc, label) {
   document.getElementById('utc_offset_hours').value = utc;
   console.log(`Loaded preset: ${label}`);
 }
-
-const CLIENT_LOCATION_DICT = {
-  "กรุงเทพ": { name: "กรุงเทพมหานคร, ประเทศไทย", lng: 100.5018, utc: 7.0 },
-  "กรุงเทพมหานคร": { name: "กรุงเทพมหานคร, ประเทศไทย", lng: 100.5018, utc: 7.0 },
-  "bangkok": { name: "Bangkok, Thailand", lng: 100.5018, utc: 7.0 },
-  "บางกะปิ": { name: "เขตบางกะปิ, กรุงเทพมหานคร, ประเทศไทย", lng: 100.6439, utc: 7.0 },
-  "จตุจักร": { name: "เขตจตุจักร, กรุงเทพมหานคร, ประเทศไทย", lng: 100.5604, utc: 7.0 },
-  "สาทร": { name: "เขตสาทร, กรุงเทพมหานคร, ประเทศไทย", lng: 100.5262, utc: 7.0 },
-  "พญาไท": { name: "เขตพญาไท, กรุงเทพมหานคร, ประเทศไทย", lng: 100.5342, utc: 7.0 },
-  "ปทุมวัน": { name: "เขตปทุมวัน, กรุงเทพมหานคร, ประเทศไทย", lng: 100.5347, utc: 7.0 },
-  "เชียงใหม่": { name: "อำเภอเมืองเชียงใหม่, จังหวัดเชียงใหม่", lng: 98.9853, utc: 7.0 },
-  "chiang mai": { name: "Chiang Mai, Thailand", lng: 98.9853, utc: 7.0 },
-  "ภูเก็ต": { name: "อำเภอเมืองภูเก็ต, จังหวัดภูเก็ต", lng: 98.3923, utc: 7.0 },
-  "phuket": { name: "Phuket, Thailand", lng: 98.3923, utc: 7.0 },
-  "ชลบุรี": { name: "จังหวัดชลบุรี, ประเทศไทย", lng: 100.9847, utc: 7.0 },
-  "พัทยา": { name: "เมืองพัทยา, จังหวัดชลบุรี", lng: 100.8771, utc: 7.0 },
-  "ขอนแก่น": { name: "จังหวัดขอนแก่น, ประเทศไทย", lng: 102.8350, utc: 7.0 },
-  "โคราช": { name: "จังหวัดนครราชสีมา, ประเทศไทย", lng: 102.0978, utc: 7.0 },
-  "นครราชสีมา": { name: "จังหวัดนครราชสีมา, ประเทศไทย", lng: 102.0978, utc: 7.0 },
-  "สงขลา": { name: "จังหวัดสงขลา, ประเทศไทย", lng: 100.5954, utc: 7.0 },
-  "หาดใหญ่": { name: "อำเภอหาดใหญ่, จังหวัดสงขลา", lng: 100.4747, utc: 7.0 },
-  "นนทบุรี": { name: "จังหวัดนนทบุรี, ประเทศไทย", lng: 100.5217, utc: 7.0 },
-  "สมุทรปราการ": { name: "จังหวัดสมุทรปราการ, ประเทศไทย", lng: 100.5998, utc: 7.0 },
-  "tokyo": { name: "Tokyo, Japan", lng: 139.6917, utc: 9.0 },
-  "โตเกียว": { name: "Tokyo, Japan", lng: 139.6917, utc: 9.0 },
-  "london": { name: "London, United Kingdom", lng: -0.1276, utc: 0.0 },
-  "ลอนดอน": { name: "London, United Kingdom", lng: -0.1276, utc: 0.0 },
-  "new york": { name: "New York, USA", lng: -74.0060, utc: -5.0 },
-  "นิวยอร์ก": { name: "New York, USA", lng: -74.0060, utc: -5.0 },
-  "singapore": { name: "Singapore", lng: 103.8198, utc: 8.0 },
-  "สิงคโปร์": { name: "Singapore", lng: 103.8198, utc: 8.0 }
-};
 
 async function resolveLocation() {
   const locInput = document.getElementById('location_search').value.trim();
@@ -213,8 +216,6 @@ async function calculateChart(event) {
   
   const submitBtn = document.getElementById('btn-submit');
   const btnText = submitBtn.querySelector('.btn-text');
-  const spinner = submitBtn.querySelector('.spinner');
-
   btnText.textContent = 'Starting API...';
   submitBtn.disabled = true;
 
@@ -227,15 +228,20 @@ async function calculateChart(event) {
     query: document.getElementById('query').value
   };
 
+  const correlationId = createCorrelationId();
+
   try {
-    const ready = await ensureBackendReady();
+    const ready = await ensureBackendReady(correlationId);
     if (!ready) return;
 
     btnText.textContent = 'AI is processing your request...';
     setBackendStatus('API is ready. AI is processing your request.', 'processing');
     const res = await fetchApi('/api/v1/bazi/interpret', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Request-ID': correlationId,
+      },
       body: JSON.stringify(payload)
     });
 
@@ -248,7 +254,8 @@ async function calculateChart(event) {
     setBackendStatus('API is ready. AI processing completed.', 'complete');
   } catch (err) {
     console.error('[ERROR] Calculation request failed:', err);
-    setBackendStatus(`AI request failed: ${err.message}. Your form is unchanged.`, 'error');
+    const correlationNote = err.correlationId ? ` Correlation ID: ${err.correlationId}.` : '';
+    setBackendStatus(`AI request failed: ${safeApiDetail(err.message)}.${correlationNote} Your form is unchanged.`, 'error');
     setRetryVisible(true);
   } finally {
     btnText.textContent = '🔮 คำนวณผังดวง & ตีความด้วย AI';
