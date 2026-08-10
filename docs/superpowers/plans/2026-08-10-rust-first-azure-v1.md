@@ -64,11 +64,11 @@
 **Interfaces:**
 - `calculate_bazi(...)` and true-solar-time output must serialize to the existing Python response schema.
 
-- [ ] Add literal golden cases for Li Chun boundaries, leap day, timezone/longitude extremes, 23:00 day rollover, and known Bangkok/Singapore charts; capture RED against hard-coded or divergent Rust behavior.
-- [ ] Port the canonical Python calculations, including hidden stems, season weighting, equation of time, standard meridian, and pillar boundaries.
-- [ ] Add deterministic 10,000-case parity and 100,000-input invalid/fuzz runners with reproducible seeds.
-- [ ] Benchmark complete endpoint work rather than isolated FFI calls; enable Rust only if both ROI thresholds pass, otherwise record PARKED evidence.
-- [ ] Commit as `feat: make Rust BaZi and solar time parity-gated`.
+- [x] Add literal golden cases for Li Chun boundaries, leap day, timezone/longitude extremes, 23:00 day rollover, and known Bangkok/Singapore charts; capture RED against hard-coded or divergent Rust behavior.
+- [x] Port the canonical Python calculations, including hidden stems, season weighting, equation of time, standard meridian, and pillar boundaries.
+- [x] Add deterministic 10,000-case parity and 100,000-input invalid/fuzz runners with reproducible seeds.
+- [x] Benchmark complete endpoint work rather than isolated FFI calls; enable Rust only if both ROI thresholds pass, otherwise record PARKED evidence.
+- [x] Commit as `feat: make Rust BaZi and solar time parity-gated`.
 
 ### Task 4: Remaining Engine, SVG, and Metrics Parity
 
