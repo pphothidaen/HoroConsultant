@@ -378,3 +378,132 @@ Commit message: `fix: separate Rust core from PyO3 bindings`
 No blocking concern remains from the Critical or Important findings. PyO3 0.21
 continues to use the tested `abi3-py310` compatibility boundary; upgrading PyO3
 remains a separate dependency migration.
+
+## Fix Round 2
+
+### Findings addressed
+
+1. `rust_core::server` now compiles under `server` alone and exposes the pure
+   async `run_rust_axum_server` entrypoint. The Python
+   `start_rust_axum_server` wrapper remains separately gated by `python`.
+2. `svg_chart_cli`, which directly imports PyO3 and calls Python wrappers, now
+   truthfully requires both `python` and `server`; it is not considered
+   server-only eligible.
+3. CI now runs the full server matrix with
+   `cargo test --no-default-features --features server --all-targets`, followed
+   by the no-PyO3 dependency audit.
+
+### Round 2 RED evidence
+
+CI command and target feature requirements:
+
+```text
+python3 -m pytest project/tests/test_cicd_workflow.py \
+  -k 'rust_ci or pyo3_cli' -q
+
+2 failed, 3 deselected
+
+assert 'cargo test --no-default-features --features server --all-targets' in workflow
+assert ['server'] == ['python', 'server']
+```
+
+Pure library server entrypoint:
+
+```text
+cargo test --manifest-path rust_core/Cargo.toml --no-default-features \
+  --features server --test test_runtime_contract \
+  server_feature_exposes_pure_library_entrypoint
+
+error[E0433]: could not find `server` in `rust_core`
+note: the item is gated behind the `python` feature
+```
+
+Complete server-eligible target matrix:
+
+```text
+cargo test --manifest-path rust_core/Cargo.toml --no-default-features \
+  --features server --all-targets
+
+error[E0432]: unresolved import `pyo3` in src/bin/svg_chart_cli.rs
+error[E0425]: Python SVG wrapper functions are configured out
+error: could not compile `rust_core` (bin "svg_chart_cli")
+```
+
+### Round 2 GREEN evidence
+
+CI and honest target contracts:
+
+```text
+python3 -m pytest project/tests/test_cicd_workflow.py \
+  -k 'rust_ci or pyo3_cli' -q
+
+2 passed, 3 deselected
+```
+
+Pure library server entrypoint:
+
+```text
+cargo test --manifest-path rust_core/Cargo.toml --no-default-features \
+  --features server --test test_runtime_contract \
+  server_feature_exposes_pure_library_entrypoint
+
+test result: ok. 1 passed; 0 failed; 4 filtered out
+```
+
+Complete server-eligible target matrix:
+
+```text
+cargo test --manifest-path rust_core/Cargo.toml --no-default-features \
+  --features server --all-targets
+
+12 server-eligible library/binary/integration targets compiled
+test_runtime_contract: 5 passed; 0 failed
+test_vector_search: 2 passed; 0 failed
+all other eligible target harnesses: 0 failed
+```
+
+Dependency audit:
+
+```text
+cargo tree --manifest-path rust_core/Cargo.toml --no-default-features \
+  --features server -e normal | rg pyo3
+
+[no matches]
+```
+
+Composite wheel regression after extracting the pure server runner:
+
+```text
+maturin build --manifest-path rust_core/Cargo.toml --release --out "$fix2_tmp/wheels"
+
+Built wheel rust_core-0.1.0-cp310-abi3-macosx_11_0_arm64.whl
+
+HORO_PROJECT_ROOT=<worktree> <venv>/bin/python \
+  rust_core/tests/test_installed_wheel.py -q
+
+Ran 2 tests
+OK
+```
+
+Focused Python extension suite against the rebuilt installed wheel:
+
+```text
+18 passed in 0.95s
+```
+
+### Round 2 files
+
+- `.github/workflows/ci.yml`
+- `project/tests/test_cicd_workflow.py`
+- `rust_core/Cargo.toml`
+- `rust_core/src/lib.rs`
+- `rust_core/src/server.rs`
+- `rust_core/tests/test_runtime_contract.rs`
+
+### Round 2 commit
+
+Commit message: `fix: validate all PyO3-free server targets`
+
+### Round 2 concerns
+
+None.

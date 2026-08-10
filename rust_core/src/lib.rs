@@ -35,7 +35,7 @@ pub mod numerology;
 pub mod observability;
 pub mod qimen;
 pub mod security_audit;
-#[cfg(all(feature = "python", feature = "server"))]
+#[cfg(feature = "server")]
 pub mod server;
 pub mod solar;
 pub mod svg;

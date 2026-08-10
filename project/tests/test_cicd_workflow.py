@@ -30,9 +30,24 @@ def test_rust_ci_exercises_each_feature_boundary_and_installed_wheel():
     )
 
     assert "cargo test --no-default-features" in workflow
-    assert "cargo test --no-default-features --features server" in workflow
+    assert (
+        "cargo test --no-default-features --features server --all-targets"
+        in workflow
+    )
     assert "cargo tree --no-default-features --features server" in workflow
     assert "python tests/test_installed_wheel.py" in workflow
+
+
+def test_pyo3_cli_is_not_server_eligible_without_python_feature():
+    """The SVG CLI must not enter the PyO3-free server target matrix."""
+    cargo = tomllib.loads(
+        (ROOT / "rust_core" / "Cargo.toml").read_text(encoding="utf-8")
+    )
+    svg_target = next(
+        target for target in cargo["bin"] if target["name"] == "svg_chart_cli"
+    )
+
+    assert svg_target["required-features"] == ["python", "server"]
 
 
 def test_maturin_version_is_pinned_in_package_and_ci():

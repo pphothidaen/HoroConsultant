@@ -87,7 +87,7 @@ jobs:
           python -m pip install maturin==1.14.1 numpy pytest
           cd rust_core
           cargo test --no-default-features --test test_runtime_contract --test test_vector_search
-          cargo test --no-default-features --features server --bin horo_server
+          cargo test --no-default-features --features server --all-targets
           if cargo tree --no-default-features --features server -e normal | grep -q pyo3; then
             echo "[ERROR] server feature unexpectedly depends on PyO3"
             exit 1
@@ -95,4 +95,3 @@ jobs:
           maturin build --release --out wheelhouse
           python -m pip install --force-reinstall --no-deps wheelhouse/*.whl
           HORO_PROJECT_ROOT="$GITHUB_WORKSPACE" python tests/test_installed_wheel.py -v
-

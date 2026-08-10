@@ -84,7 +84,7 @@ required-features = ["server"]
 [[bin]]
 name = "svg_chart_cli"
 path = "src/bin/svg_chart_cli.rs"
-required-features = ["server"]
+required-features = ["python", "server"]
 
 [[bin]]
 name = "sync_sdlc_agents"

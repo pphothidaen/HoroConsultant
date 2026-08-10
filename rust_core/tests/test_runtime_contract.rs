@@ -34,3 +34,9 @@ fn panics_unwind_in_tests_instead_of_aborting_the_process() {
 
     assert!(panic_result.is_err());
 }
+
+#[cfg(feature = "server")]
+#[test]
+fn server_feature_exposes_pure_library_entrypoint() {
+    let _entrypoint = rust_core::server::run_rust_axum_server;
+}

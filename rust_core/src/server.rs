@@ -61,25 +61,26 @@ async fn bazi_handler(Json(payload): Json<BaziRequest>) -> Json<BaziResponse> {
     })
 }
 
+/// Run the native Rust Axum server without requiring Python or PyO3.
+pub async fn run_rust_axum_server(port: u16) -> std::io::Result<()> {
+    let app = Router::new()
+        .route("/health", get(health_handler))
+        .route("/api/v1/health", get(health_handler))
+        .route("/metrics", get(metrics_handler))
+        .route("/api/v1/bazi", post(bazi_handler));
+
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
+    println!("[INFO] Axum Web API Server listening on http://{}", addr);
+
+    let listener = tokio::net::TcpListener::bind(addr).await?;
+    axum::serve(listener, app).await
+}
+
 /// Run native Rust Axum Web API Server on specified port.
 #[cfg(feature = "python")]
 #[pyfunction]
 pub fn start_rust_axum_server(port: u16) -> PyResult<()> {
     let rt = tokio::runtime::Runtime::new().map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;
-    
-    rt.block_on(async move {
-        let app = Router::new()
-            .route("/health", get(health_handler))
-            .route("/api/v1/health", get(health_handler))
-            .route("/metrics", get(metrics_handler))
-            .route("/api/v1/bazi", post(bazi_handler));
-
-        let addr = SocketAddr::from(([0, 0, 0, 0], port));
-        println!("[RUST SERVER] Axum Web API Server listening on http://{}", addr);
-
-        let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-        axum::serve(listener, app).await.unwrap();
-    });
-
-    Ok(())
+    rt.block_on(run_rust_axum_server(port))
+        .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))
 }
