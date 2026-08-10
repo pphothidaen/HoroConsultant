@@ -3,6 +3,7 @@
  * High-performance I Ching 64 Hexagrams & Liu Yao matrix core.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
 pub fn parse_hexagram_trigrams_rust(val: u8) -> (u8, u8) {
@@ -12,6 +13,7 @@ pub fn parse_hexagram_trigrams_rust(val: u8) -> (u8, u8) {
 }
 
 /// Convert 6-bit binary string (e.g. "111111") to Trigrams (Upper, Lower).
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn parse_hexagram_trigrams(binary_str: &str) -> PyResult<(String, String)> {
     let lower_code = &binary_str[0..3.min(binary_str.len())];
@@ -31,4 +33,3 @@ pub fn parse_hexagram_trigrams(binary_str: &str) -> PyResult<(String, String)> {
 
     Ok((get_trigram(upper_code).to_string(), get_trigram(lower_code).to_string()))
 }
-

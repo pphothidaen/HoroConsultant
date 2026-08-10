@@ -22,6 +22,13 @@ fn exported_vector_search_kernel_has_real_behavior() {
 }
 
 #[test]
+fn featureless_solar_kernel_has_real_behavior() {
+    let equation_minutes = rust_core::solar::equation_of_time_rust(1);
+
+    assert!((equation_minutes + 2.904).abs() < 0.01);
+}
+
+#[test]
 fn panics_unwind_in_tests_instead_of_aborting_the_process() {
     let panic_result = std::panic::catch_unwind(|| panic!("test panic"));
 

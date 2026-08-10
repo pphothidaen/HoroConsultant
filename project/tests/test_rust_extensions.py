@@ -154,6 +154,40 @@ def test_explicit_fallback_reports_python_runtime_identity(tmp_path):
     }
 
 
+def test_partial_native_module_fails_without_explicit_fallback(tmp_path):
+    """A loaded native module missing a requested kernel must fail closed."""
+    tmp_path.joinpath("rust_core.py").write_text(
+        """
+import os
+
+RUST_AVAILABLE = True
+PYTHON_FALLBACK_ALLOWED = os.environ.get("HORO_ALLOW_PYTHON_FALLBACK") == "1"
+def runtime_backend():
+    return {"rust_available": True, "rust_version": "test", "kernels": []}
+""",
+        encoding="utf-8",
+    )
+    code = """
+from project.core.fast_math import fast_thai_lagna
+print(fast_thai_lagna(10, 4))
+"""
+
+    production = _run_isolated_python(
+        code,
+        pythonpath=[tmp_path, _PROJECT_ROOT],
+    )
+    fallback = _run_isolated_python(
+        code,
+        pythonpath=[tmp_path, _PROJECT_ROOT],
+        allow_fallback=True,
+    )
+
+    assert production.returncode != 0
+    assert "required native kernel 'calculate_thai_lagna' is missing" in production.stderr
+    assert fallback.returncode == 0, fallback.stderr
+    assert "เมถุน" in fallback.stdout
+
+
 def test_rust_dense_vector_search_basic():
     """Verify dense vector search returns correct top-k indices and scores."""
     q_vec = np.array([1.0, 0.0, 0.0], dtype=np.float32)

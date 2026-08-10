@@ -9,31 +9,22 @@ crate-type = ["cdylib", "rlib"]
 
 [features]
 default = []
-python = [
-    "dep:pyo3",
-    "dep:rayon",
-    "dep:ndarray",
-    "dep:regex",
-    "dep:serde",
-    "dep:serde_json",
-    "dep:chrono",
-    "dep:lazy_static",
-]
+python = ["dep:pyo3"]
 python-extension = ["python", "pyo3/extension-module"]
-server = ["python", "dep:tokio", "dep:axum", "dep:reqwest"]
+server = ["dep:tokio", "dep:axum", "dep:reqwest"]
 
 [dependencies]
 pyo3       = { version = "0.21", optional = true, features = ["abi3-py310"] }
-rayon      = { version = "1.10", optional = true }       # parallel iterators (multi-core)
-ndarray    = { version = "0.15", optional = true }       # array ops
-regex      = { version = "1.10", optional = true }
-serde      = { version = "1.0", optional = true, features = ["derive"] }
-serde_json = { version = "1.0", optional = true }
+rayon      = "1.10"       # parallel iterators (multi-core)
+ndarray    = "0.15"       # array ops
+regex      = "1.10"
+serde      = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 tokio      = { version = "1.38", optional = true, features = ["full"] }
 axum       = { version = "0.7", optional = true }
 reqwest    = { version = "0.12", optional = true, features = ["json"] }
-chrono     = { version = "0.4", optional = true, features = ["serde"] }
-lazy_static = { version = "1.5", optional = true }
+chrono     = { version = "0.4", features = ["serde"] }
+lazy_static = "1.5"
 
 [[test]]
 name = "test_engines"
@@ -41,11 +32,9 @@ required-features = ["server"]
 
 [[test]]
 name = "test_vector_search"
-required-features = ["python"]
 
 [[test]]
 name = "test_runtime_contract"
-required-features = ["python"]
 
 [[bin]]
 name = "audit_suite"

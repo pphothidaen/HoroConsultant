@@ -4,6 +4,7 @@
  * Supports Parallel Dot Product (Cosine Similarity) & L2 Euclidean Distance with SIMD auto-vectorization.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 use rayon::prelude::*;
 
@@ -33,6 +34,7 @@ fn dot_product_simd(a: &[f32], b: &[f32]) -> f32 {
 
 /// SIMD-friendly squared L2 Euclidean distance calculation.
 #[inline(always)]
+#[cfg(feature = "python")]
 fn l2_squared_simd(a: &[f32], b: &[f32]) -> f32 {
     let len = a.len().min(b.len());
     let mut sum = 0.0f32;
@@ -83,6 +85,7 @@ pub fn dense_vector_search_rust(
     scored
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn dense_vector_search(
     py: Python<'_>,
@@ -98,6 +101,7 @@ pub fn dense_vector_search(
 }
 
 /// Parallel dense vector search using L2 Euclidean Distance.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn dense_vector_search_l2(
     py: Python<'_>,

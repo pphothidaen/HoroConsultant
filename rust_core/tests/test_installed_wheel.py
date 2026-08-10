@@ -56,6 +56,15 @@ print(json.dumps({
         self.assertIn("cosine_similarity", results[0]["identity"]["kernels"])
         self.assertIn("site-packages/rust_core/_native", results[0]["origin"])
 
+    def test_standard_wheel_exports_axum_server_entrypoint(self) -> None:
+        import rust_core
+
+        self.assertTrue(hasattr(rust_core, "start_rust_axum_server"))
+        self.assertIn(
+            "start_rust_axum_server",
+            rust_core.runtime_backend()["kernels"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

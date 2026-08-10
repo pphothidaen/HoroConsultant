@@ -3,11 +3,14 @@
  * High-performance BaZi calculations and element scoring.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use std::collections::HashMap;
 
 // ─── Private inner functions (callable inside py.allow_threads) ──────────────
 
+#[cfg(feature = "python")]
 fn compute_element_scores_inner(stems: &[String], branches: &[String]) -> HashMap<String, f32> {
     let mut scores = HashMap::new();
     scores.insert("Wood".to_string(), 20.0f32);
@@ -50,6 +53,7 @@ fn compute_element_scores_inner(stems: &[String], branches: &[String]) -> HashMa
 
 // ─── PyO3 Public Functions ────────────────────────────────────────────────────
 
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn compute_element_scores(
     py: Python<'_>,
@@ -62,6 +66,7 @@ pub fn compute_element_scores(
     Ok(result)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn compute_probabilistic_matrix(
     py: Python<'_>,
@@ -99,6 +104,7 @@ pub fn calculate_bazi_stems_branches_rust(_year: i32, _month: i32, _day: i32, _h
     (stems, branches)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn julian_day_number(py: Python<'_>, year: i32, month: i32, day: i32) -> PyResult<f64> {
     let result = py.allow_threads(move || {
@@ -106,5 +112,3 @@ pub fn julian_day_number(py: Python<'_>, year: i32, month: i32, day: i32) -> PyR
     });
     Ok(result)
 }
-
-

@@ -4,6 +4,7 @@
  * Capable of serving > 50,000 requests/sec with sub-millisecond response latency.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 use axum::{
     routing::{get, post},
@@ -61,6 +62,7 @@ async fn bazi_handler(Json(payload): Json<BaziRequest>) -> Json<BaziResponse> {
 }
 
 /// Run native Rust Axum Web API Server on specified port.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn start_rust_axum_server(port: u16) -> PyResult<()> {
     let rt = tokio::runtime::Runtime::new().map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.to_string()))?;

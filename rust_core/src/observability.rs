@@ -4,8 +4,11 @@
  * Uses atomic counters and thread-safe lock-free metric storage for sub-microsecond tracking.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::AtomicU64;
+#[cfg(feature = "python")]
+use std::sync::atomic::Ordering;
 use std::sync::Mutex;
 use std::collections::HashMap;
 use lazy_static::lazy_static;
@@ -17,6 +20,7 @@ lazy_static! {
 }
 
 /// Record HTTP request metric atomically in Rust.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn record_http_metric_rust(method: &str, endpoint: &str, status_code: u16, latency_ms: f64) -> PyResult<u64> {
     let total = GLOBAL_REQUEST_COUNTER.fetch_add(1, Ordering::Relaxed) + 1;
@@ -31,6 +35,7 @@ pub fn record_http_metric_rust(method: &str, endpoint: &str, status_code: u16, l
 }
 
 /// Record RAG query search metric atomically in Rust.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn record_rag_metric_rust(_latency_ms: f64) -> PyResult<u64> {
     let total = GLOBAL_RAG_COUNTER.fetch_add(1, Ordering::Relaxed) + 1;
@@ -38,6 +43,7 @@ pub fn record_rag_metric_rust(_latency_ms: f64) -> PyResult<u64> {
 }
 
 /// Generate high-performance Prometheus format metrics string in Rust.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn generate_prometheus_metrics_rust(uptime_seconds: f64) -> PyResult<String> {
     let mut out = String::with_capacity(2048);

@@ -25,80 +25,46 @@
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
 
-#[cfg(feature = "python")]
 pub mod astrological_audit;
-#[cfg(feature = "python")]
 pub mod bazi;
-#[cfg(feature = "python")]
 pub mod chunker;
-#[cfg(feature = "python")]
 pub mod fengshui;
-#[cfg(feature = "python")]
 pub mod iching;
-#[cfg(feature = "python")]
 pub mod liuren;
-#[cfg(feature = "python")]
 pub mod numerology;
-#[cfg(feature = "python")]
 pub mod observability;
-#[cfg(feature = "python")]
 pub mod qimen;
-#[cfg(feature = "python")]
 pub mod security_audit;
 #[cfg(all(feature = "python", feature = "server"))]
 pub mod server;
-#[cfg(feature = "python")]
 pub mod solar;
-#[cfg(feature = "python")]
 pub mod svg;
-#[cfg(feature = "python")]
 pub mod swisseph;
-#[cfg(feature = "python")]
 pub mod tfidf;
-#[cfg(feature = "python")]
 pub mod thai_vedic;
-#[cfg(feature = "python")]
 pub mod uranian;
-#[cfg(feature = "python")]
 pub mod vector_search;
-#[cfg(feature = "python")]
 pub mod zeji;
-#[cfg(feature = "python")]
 pub mod ziwei;
 
-#[cfg(feature = "python")]
 pub use astrological_audit::*;
-#[cfg(feature = "python")]
 pub use bazi::*;
-#[cfg(feature = "python")]
 pub use fengshui::*;
-#[cfg(feature = "python")]
 pub use iching::*;
-#[cfg(feature = "python")]
 pub use liuren::*;
-#[cfg(feature = "python")]
 pub use numerology::*;
 #[cfg(feature = "python")]
 pub use observability::*;
-#[cfg(feature = "python")]
 pub use qimen::*;
-#[cfg(feature = "python")]
 pub use security_audit::*;
-#[cfg(feature = "python")]
 pub use solar::*;
 #[cfg(feature = "python")]
 pub use svg::*;
-#[cfg(feature = "python")]
 pub use swisseph::*;
-#[cfg(feature = "python")]
 pub use thai_vedic::*;
-#[cfg(feature = "python")]
 pub use uranian::*;
-#[cfg(feature = "python")]
 pub use vector_search::*;
-#[cfg(feature = "python")]
 pub use zeji::*;
-#[cfg(feature = "python")]
 pub use ziwei::*;
 
 /// Runtime metadata shared by Rust tests and the Python package boundary.
@@ -167,8 +133,11 @@ pub fn runtime_identity() -> RuntimeIdentity {
 #[pymodule]
 fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     let identity = runtime_identity();
+    let mut active_kernels = identity.kernels.to_vec();
+    #[cfg(feature = "server")]
+    active_kernels.push("start_rust_axum_server");
     m.add("__version__", identity.version)?;
-    m.add("__kernels__", identity.kernels.to_vec())?;
+    m.add("__kernels__", active_kernels)?;
 
     // TF-IDF / Search
     m.add_function(wrap_pyfunction!(tfidf::cosine_similarity, m)?)?;

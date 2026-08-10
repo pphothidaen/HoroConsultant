@@ -3,8 +3,10 @@
  * Fast Unicode / CJK-aware text chunking.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn chunk_text(text: &str, chunk_size: usize, overlap: usize) -> PyResult<Vec<String>> {
     let chars: Vec<char> = text.chars().collect();

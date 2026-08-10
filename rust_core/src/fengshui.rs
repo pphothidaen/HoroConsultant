@@ -3,6 +3,7 @@
  * Xuan Kong Flying Stars (玄空風水) 9-Grid Matrix Calculation Engine in Rust.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
 const MOUNTAINS: [(&str, f32, f32, &str, &str); 24] = [
@@ -115,6 +116,7 @@ pub fn xuankong_9grid_matrix_rust(period: i32, mountain_index: usize) -> Vec<Vec
 // ─── PyO3 Public Functions ────────────────────────────────────────────────────
 
 /// Resolve degree to 24 Mountain (Name, Trigram, YinYang)
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn resolve_mountain(py: Python<'_>, degree: f32) -> PyResult<(String, String, String)> {
     let result = py.allow_threads(move || resolve_mountain_inner(degree));
@@ -123,6 +125,7 @@ pub fn resolve_mountain(py: Python<'_>, degree: f32) -> PyResult<(String, String
 
 /// Calculate 9-palace flying star tracks for a given center star.
 /// Sequence of Luo Shu palaces: 5, 6, 7, 8, 9, 1, 2, 3, 4
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn fly_stars(py: Python<'_>, center_star: i32, is_forward: bool) -> PyResult<Vec<(i32, i32)>> {
     let result = py.allow_threads(move || fly_stars_inner(center_star, is_forward));
@@ -131,6 +134,7 @@ pub fn fly_stars(py: Python<'_>, center_star: i32, is_forward: bool) -> PyResult
 
 /// Calculate complete Xuan Kong Flying Star 9-Grid matrix for Period 9.
 /// Returns a list of tuples: (palace_num, base_star, sitting_star, facing_star)
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn xuankong_9grid_matrix(
     py: Python<'_>,
@@ -140,4 +144,3 @@ pub fn xuankong_9grid_matrix(
     let result = py.allow_threads(move || xuankong_9grid_impl(facing_degree, period));
     Ok(result)
 }
-

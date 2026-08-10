@@ -3,6 +3,7 @@
  * High-performance Satta-Lek (สัตตเลข 7 ฐาน 4 แถว) & Chaldean Numerology matrix core.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
 pub fn calculate_satta_lek_matrix_rust(day_num: u8, month_num: u8, year_num: u16) -> Vec<Vec<u8>> {
@@ -27,6 +28,7 @@ pub fn calculate_satta_lek_matrix_rust(day_num: u8, month_num: u8, year_num: u16
 
 /// Calculate Satta-Lek 7-Base 4-Row Matrix.
 /// Returns 4 vectors representing (Row 1 Day Base, Row 2 Month Base, Row 3 Year Base, Row 4 Sum Base).
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn calculate_satta_lek_matrix(
     py: Python<'_>,
@@ -56,4 +58,3 @@ pub fn calculate_satta_lek_matrix(
     });
     Ok(result)
 }
-

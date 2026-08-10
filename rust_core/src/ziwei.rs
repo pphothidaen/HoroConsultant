@@ -3,6 +3,7 @@
  * Zi Wei Dou Shu (紫微斗數) 14 Primary Stars & 12 Palaces Matrix Calculation Engine in Rust.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
 
@@ -15,6 +16,7 @@ pub fn calculate_ming_shen_gong_rust(lunar_month: i32, hour_branch_idx: usize) -
 }
 
 /// Calculate Ming Gong and Shen Gong branch indices.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn calculate_ming_shen_gong(
     py: Python<'_>,
@@ -28,6 +30,7 @@ pub fn calculate_ming_shen_gong(
 }
 
 /// Calculate Zi Wei Star branch index based on Bureau Number and Lunar Day.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn calculate_zi_wei_star_branch(
     py: Python<'_>,
@@ -59,6 +62,7 @@ pub fn calculate_zi_wei_star_branch(
 
 /// Compute 14 Primary Stars placement for all 12 Earth Branches in Rust.
 /// Returns a vector of tuples: (branch_idx, list_of_star_names)
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn calculate_14_main_stars(
     py: Python<'_>,

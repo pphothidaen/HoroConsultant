@@ -201,3 +201,180 @@ Commit hash: populated after commit in the task handoff.
 - PyO3 remains at 0.21 and uses `abi3-py310`; the wheel was successfully loaded
   by CPython 3.14, but a future PyO3 upgrade should be handled as a separate,
   compatibility-tested dependency change.
+
+## Fix Round 1
+
+### Reviewer findings addressed
+
+1. The computational modules and their non-Python dependencies now compile
+   without features. Every PyO3 import and wrapper is gated by `python`, while
+   pure Rust kernels remain available without it.
+2. The `server` feature now enables only Tokio, Axum, and Reqwest. It does not
+   enable `python` or include PyO3 in its dependency graph.
+3. `fast_math` now routes every accelerated call through one strict kernel
+   resolver. A loaded native module missing a requested kernel raises in
+   production and may fall back only with `HORO_ALLOW_PYTHON_FALLBACK=1`.
+4. The standard wheel uses the composite `python-extension` plus `server`
+   feature set and preserves `start_rust_axum_server` in both the public module
+   and reported active kernel list.
+5. CI pins maturin 1.14.1, tests the featureless core, tests the PyO3-free
+   server target, audits the server dependency tree, builds and installs the
+   wheel, and runs its installed-wheel contract.
+6. A pure `equation_of_time_rust` function and literal behavior assertion were
+   added so the no-feature core exposes and tests real solar math in addition
+   to vector search.
+
+### Round 1 RED evidence
+
+Partial-native production behavior:
+
+```text
+python3 -m pytest project/tests/test_rust_extensions.py -k partial_native -q
+
+FAILED test_partial_native_module_fails_without_explicit_fallback
+assert 0 != 0
+stdout="('เมถุน', 2)"
+1 failed, 17 deselected
+```
+
+Installed standard-wheel server entrypoint:
+
+```text
+HORO_PROJECT_ROOT=<worktree> <old-venv>/bin/python \
+  rust_core/tests/test_installed_wheel.py -v
+
+FAIL: test_standard_wheel_exports_axum_server_entrypoint
+AssertionError: False is not true
+```
+
+CI and reproducible maturin configuration:
+
+```text
+python3 -m pytest project/tests/test_cicd_workflow.py \
+  -k 'rust_ci or maturin' -q
+
+2 failed, 2 deselected
+```
+
+Featureless core test target:
+
+```text
+cargo test --manifest-path rust_core/Cargo.toml --no-default-features \
+  --test test_runtime_contract
+
+error: target `test_runtime_contract` ... requires the features: `python`
+```
+
+Server dependency audit:
+
+```text
+cargo tree --manifest-path rust_core/Cargo.toml --no-default-features \
+  --features server -e normal | rg pyo3
+
+├── pyo3 v0.21.2
+│   ├── pyo3-ffi v0.21.2
+│   └── pyo3-macros v0.21.2
+```
+
+Pure solar kernel assertion:
+
+```text
+cargo test --manifest-path rust_core/Cargo.toml --no-default-features \
+  --test test_runtime_contract featureless_solar_kernel_has_real_behavior
+
+error[E0425]: cannot find function `equation_of_time_rust` in module
+`rust_core::solar`
+```
+
+### Round 1 GREEN evidence
+
+Featureless core behavior:
+
+```text
+cargo test --manifest-path rust_core/Cargo.toml --no-default-features \
+  --test test_runtime_contract --test test_vector_search
+
+test result: ok. 4 passed; 0 failed
+test result: ok. 2 passed; 0 failed
+```
+
+PyO3-free server boundary:
+
+```text
+cargo test --manifest-path rust_core/Cargo.toml --no-default-features \
+  --features server --bin horo_server
+
+test result: ok. 0 passed; 0 failed
+
+cargo tree --manifest-path rust_core/Cargo.toml --no-default-features \
+  --features server -e normal | rg pyo3
+
+[no matches]
+```
+
+All-feature composite check:
+
+```text
+cargo check --manifest-path rust_core/Cargo.toml --all-features
+
+Finished `dev` profile ...
+```
+
+Python source and CI contracts:
+
+```text
+HORO_ALLOW_PYTHON_FALLBACK=1 python3 -m pytest \
+  project/tests/test_rust_extensions.py project/tests/test_cicd_workflow.py -q
+
+18 passed, 4 skipped
+```
+
+The skips are native-only tests and run against the installed wheel below.
+
+Pinned composite wheel build and clean installation:
+
+```text
+maturin build --manifest-path rust_core/Cargo.toml --release --out "$fix_tmp/wheels"
+
+Using build options features, bindings from pyproject.toml
+Built wheel .../rust_core-0.1.0-cp310-abi3-macosx_11_0_arm64.whl
+```
+
+```text
+HORO_PROJECT_ROOT=<worktree> <new-venv>/bin/python \
+  rust_core/tests/test_installed_wheel.py -v
+
+Ran 2 tests in 1.206s
+OK
+```
+
+The two tests verify deterministic import order, package-local native origin,
+native runtime identity, and the Axum server entrypoint symbol/identity.
+
+Focused Python extension tests against that installed wheel:
+
+```text
+18 passed in 1.15s
+```
+
+### Round 1 files
+
+- `.github/workflows/ci.yml`
+- `project/core/fast_math.py`
+- `project/tests/test_cicd_workflow.py`
+- `project/tests/test_rust_extensions.py`
+- `rust_core/Cargo.toml`
+- `rust_core/pyproject.toml`
+- `rust_core/src/*.rs` binding/core boundary cfg changes
+- `rust_core/tests/test_installed_wheel.py`
+- `rust_core/tests/test_runtime_contract.rs`
+
+### Round 1 commit
+
+Commit message: `fix: separate Rust core from PyO3 bindings`
+
+### Round 1 concerns
+
+No blocking concern remains from the Critical or Important findings. PyO3 0.21
+continues to use the tested `abi3-py310` compatibility boundary; upgrading PyO3
+remains a separate dependency migration.

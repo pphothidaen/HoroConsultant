@@ -3,6 +3,7 @@
  * High-performance Imperial Calendar Date Selection (擇吉學) Duty Officers matrix core.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
 static BRANCHES: [&str; 12] = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
@@ -26,6 +27,7 @@ pub fn check_branch_clash_rust(day_branch: &str, target_branch: &str) -> bool {
 }
 
 /// Calculate 12 Duty Officer name for Date Selection based on Month Branch and Day Branch.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn calculate_zeji_duty_officer(
     py: Python<'_>,
@@ -44,6 +46,7 @@ pub fn calculate_zeji_duty_officer(
 }
 
 /// Check if Day Branch conflicts (clashes) with Month Branch (Month Breaker 月破) or Year Branch (Year Breaker 歲破).
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn check_branch_clash(
     py: Python<'_>,
@@ -60,4 +63,3 @@ pub fn check_branch_clash(
     });
     Ok(result)
 }
-

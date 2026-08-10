@@ -3,11 +3,13 @@
  * Qi Men Dun Jia (奇門遁甲) 4-Plate 9-Palace Matrix Calculation Engine in Rust.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
 const NINE_STARS: [&str; 9] = ["天蓬", "天芮", "天衝", "天輔", "天禽", "天心", "天柱", "天任", "天英"];
 const EIGHT_DOORS: [&str; 8] = ["休門", "生門", "傷門", "杜門", "景門", "死門", "驚門", "開門"];
 const EIGHT_SPIRITS: [&str; 8] = ["值符", "騰蛇", "太陰", "六合", "白虎", "玄武", "九地", "九天"];
+#[cfg(feature = "python")]
 const PERIMETER_PALACES: [usize; 8] = [1, 8, 3, 4, 9, 2, 7, 6];
 
 pub fn qimen_9palace_matrix_rust(ju_number: i32) -> Vec<Vec<String>> {
@@ -40,6 +42,7 @@ pub fn qimen_9palace_matrix_rust(ju_number: i32) -> Vec<Vec<String>> {
 
 /// Calculate complete Qi Men Dun Jia 9-Palace 4-Plate matrix in Rust.
 /// Returns list of tuples: (palace_num, earth_stem, star_name, door_name, spirit_name)
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn qimen_9palace_matrix(
     py: Python<'_>,
@@ -91,4 +94,3 @@ pub fn qimen_9palace_matrix(
     });
     Ok(result)
 }
-

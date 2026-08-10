@@ -4,8 +4,10 @@
  * Generates standalone, pixel-perfect SVG charts for BaZi 4 Pillars, Zodiac Wheels, and Metaphysical Grids.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
+#[cfg(feature = "python")]
 static ELEMENT_COLORS: &[(&str, &str)] = &[
     ("Wood", "#10b981"),
     ("Fire", "#ef4444"),
@@ -15,6 +17,7 @@ static ELEMENT_COLORS: &[(&str, &str)] = &[
 ];
 
 /// High-performance Rust BaZi 4 Pillars SVG Generator.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn build_bazi_svg_rust(
     py: Python<'_>,
@@ -116,12 +119,14 @@ pub fn build_bazi_svg_rust(
     Ok(result)
 }
 
+#[cfg(feature = "python")]
 static ZODIAC_THAI_SHORT: &[&str] = &[
     "เมษ", "พฤษภ", "เมถุน", "กรกฎ", "สิงห์", "กันย์",
     "ตุลย์", "พิจิก", "ธนู", "มังกร", "กุมภ์", "มีน"
 ];
 
 /// High-performance Rust 12 Zodiac Wheel SVG Generator.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn build_zodiac_svg_rust(py: Python<'_>, title: String) -> PyResult<String> {
     let result = py.allow_threads(move || {
@@ -168,6 +173,7 @@ pub fn build_zodiac_svg_rust(py: Python<'_>, title: String) -> PyResult<String> 
 }
 
 /// High-performance Rust Zi Wei Dou Shu 12 Palaces Chart SVG Generator.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn build_ziwei_svg_rust(
     py: Python<'_>,
@@ -204,6 +210,7 @@ pub fn build_ziwei_svg_rust(
 }
 
 /// High-performance Rust Qi Men Dun Jia 9-Grid SVG Generator.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn build_qimen_svg_rust(
     py: Python<'_>,
@@ -257,6 +264,7 @@ pub fn build_qimen_svg_rust(
 }
 
 /// High-performance Rust Xuan Kong Flying Stars 9-Grid SVG Generator.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn build_xuankong_svg_rust(
     py: Python<'_>,

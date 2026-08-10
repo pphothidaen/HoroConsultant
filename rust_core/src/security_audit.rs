@@ -4,6 +4,7 @@
  * Scans codebase files in parallel via Rayon, ignoring dummy keys and vendor directories.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -87,6 +88,7 @@ pub fn scan_directory_secrets_rust(root_path: &str) -> Result<(bool, usize, Vec<
 }
 
 /// Run parallel security audit and secret leak scanning over target directory.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn run_rust_security_audit(py: Python<'_>, root_path: &str) -> PyResult<(bool, usize, Vec<String>)> {
     let root_path_owned = root_path.to_owned();
