@@ -49,11 +49,11 @@
 - Produces deterministic imports and runtime identity used by Docker, CI, and the gateway.
 - `runtime_backend() -> dict[str, object]` reports `rust_available`, `rust_version`, and active kernel names without secrets.
 
-- [ ] Add a Python integration test that fails when import order changes native availability or a source-tree `.so` is scanned.
-- [ ] Add Rust tests that fail under the current abort/test profile and for exported kernels lacking real behavior assertions.
-- [ ] Remove host binary discovery and expose one standard installed-package import path; retain explicit development fallback only behind `HORO_ALLOW_PYTHON_FALLBACK=1`.
-- [ ] Set test/runtime-safe panic behavior, split library features so pure core/server do not require PyO3, and remove committed native artifacts.
-- [ ] Build/install the wheel in a clean environment and run Python tests against the installed wheel before committing `build: make Rust packaging deterministic`.
+- [x] Add a Python integration test that fails when import order changes native availability or a source-tree `.so` is scanned.
+- [x] Add Rust tests that fail under the current abort/test profile and for exported kernels lacking real behavior assertions.
+- [x] Remove host binary discovery and expose one standard installed-package import path; retain explicit development fallback only behind `HORO_ALLOW_PYTHON_FALLBACK=1`.
+- [x] Set test/runtime-safe panic behavior, split library features so pure core/server do not require PyO3, and remove committed native artifacts.
+- [x] Build/install the wheel in a clean environment and run Python tests against the installed wheel before committing `build: make Rust packaging deterministic`.
 
 ### Task 3: BaZi and Solar-Time Parity
 
