@@ -54,27 +54,27 @@ docker buildx build --platform linux/amd64 --load -t horoconsult:dev .
 
 ---
 
-- [x] **Complete Zi Wei Dou Shu & Qi Men Dun Jia Rust Engine Migration & Python Cleanup ([`rust_core/src/ziwei.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/ziwei.rs), [`rust_core/src/qimen.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/qimen.rs), [`project/core/fast_math.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/fast_math.py), [`project/core/zi_wei_engine.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/zi_wei_engine.py), [`project/core/qi_men_engine.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/qi_men_engine.py))**
+- [x] **Historical/superseded report — Complete Zi Wei Dou Shu & Qi Men Dun Jia Rust Engine Migration & Python Cleanup ([`rust_core/src/ziwei.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/ziwei.rs), [`rust_core/src/qimen.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/qimen.rs), [`project/core/fast_math.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/fast_math.py), [`project/core/zi_wei_engine.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/zi_wei_engine.py), [`project/core/qi_men_engine.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/qi_men_engine.py)); not current production evidence**
   - **Zi Wei Dou Shu Rust Native Binding**: Implemented `calculate_ming_shen_gong`, `calculate_zi_wei_star_branch`, and `calculate_14_main_stars` in Rust PyO3. Integrated into `fast_math.py` (`fast_ziwei_stars`) and `zi_wei_engine.py`.
   - **Qi Men Dun Jia Rust Native Binding**: Implemented `qimen_9palace_matrix` in Rust PyO3 for 4-plate 9-palace matrix placement (Earth Plate, 9 Stars, 8 Doors, 8 Spirits). Integrated into `fast_math.py` (`fast_qimen_matrix`) and `qi_men_engine.py`.
   - **Python Redundant Loop Cleanup**: Eliminated duplicate pure-Python matrix generation loops in favor of unified `fast_math.py` Rust PyO3 acceleration with NumPy zero-overhead fallback.
-  - **Verified Test Suite**: Extended [`project/tests/test_rust_extensions.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/tests/test_rust_extensions.py) — 174/174 Pytest tests PASSED 100%.
+  - **Historical test result (superseded)**: Extended [`project/tests/test_rust_extensions.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/tests/test_rust_extensions.py) — 174/174 Pytest tests PASSED 100% at that time; current release evidence is the 200-test baseline and active gates.
 
-- [x] **Phase 2 Rust Extensions: FAISS Dense Vector Search & Xuan Kong 9-Grid Matrix ([`rust_core/src/vector_search.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/vector_search.rs), [`rust_core/src/fengshui.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/fengshui.rs), [`project/core/fast_math.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/fast_math.py), [`project/rag/vector_store.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/rag/vector_store.py), [`project/core/xuan_kong_engine.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/xuan_kong_engine.py))**
+- [x] **Historical/superseded report — Phase 2 Rust Extensions: FAISS Dense Vector Search & Xuan Kong 9-Grid Matrix ([`rust_core/src/vector_search.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/vector_search.rs), [`rust_core/src/fengshui.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/fengshui.rs), [`project/core/fast_math.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/fast_math.py), [`project/rag/vector_store.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/rag/vector_store.py), [`project/core/xuan_kong_engine.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/xuan_kong_engine.py)); not current production evidence**
 
-  - **FAISS Dense Vector Rust Native Binding**: Implemented `dense_vector_search` in Rust PyO3 with Rayon parallelization over 768-dim embeddings for sub-millisecond retrieval (< 1ms). Integrated into `vector_store.py` and `fast_math.py`.
+  - **Historical benchmark (superseded)**: The FAISS Dense Vector Rust Native Binding was reported as sub-millisecond (< 1ms) retrieval; this is not current endpoint evidence and the active audit retains NumPy/FAISS pending the ROI gate.
   - **Feng Shui Flying Star 9-Grid Rust Matrix**: Implemented `resolve_mountain`, `fly_stars`, and `xuankong_9grid_matrix` in Rust PyO3 for 24-mountain directions and Period 9 Flying Stars chart math. Integrated into `xuan_kong_engine.py` and `fast_math.py`.
-  - **Verified Test Suite**: Added [`project/tests/test_rust_extensions.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/tests/test_rust_extensions.py) — 172/172 Pytest tests PASSED 100%.
+  - **Historical test result (superseded)**: Added [`project/tests/test_rust_extensions.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/tests/test_rust_extensions.py) — 172/172 Pytest tests PASSED 100% at that time; current release evidence is the 200-test baseline and active gates.
 
 - [x] **Kaggle GPU Fine-Tuning Iteration Pipeline Automation ([`scripts/kaggle_notebook_manager.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/kaggle_notebook_manager.py))**
   - Configured automated setup, notebook generation, and metadata verification for `qwen2.5:7b` fine-tuning on Nvidia Tesla T4 GPU.
   - Locked metadata accelerator configuration (`NvidiaTeslaT4`) preserved strictly.
 
-- [x] **Phase 3 Rust Extensions: 100% Rust Metaphysical Engine Coverage & CI/CD ABI3 Audit ([`rust_core/src/thai_vedic.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/thai_vedic.rs), [`rust_core/src/uranian.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/uranian.rs), [`rust_core/src/iching.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/iching.rs), [`rust_core/src/liuren.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/liuren.rs), [`rust_core/src/zeji.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/zeji.rs), [`rust_core/src/numerology.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/numerology.rs), [`project/core/fast_math.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/fast_math.py), [`.github/workflows/ci.yml`](file:///Users/kimlenglim/Project/HoroConsultant/.github/workflows/ci.yml))**
-  - **Full 10-Branch Rust Coverage**: Implemented 6 new Rust modules (`thai_vedic.rs`, `uranian.rs`, `iching.rs`, `liuren.rs`, `zeji.rs`, `numerology.rs`) achieving 100% Rust high-performance math core coverage across all 10 metaphysical calculation branches.
+- [x] **Historical/superseded report — Phase 3 Rust Extensions: Rust Metaphysical Engine Coverage & CI/CD ABI3 Audit ([`rust_core/src/thai_vedic.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/thai_vedic.rs), [`rust_core/src/uranian.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/uranian.rs), [`rust_core/src/iching.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/iching.rs), [`rust_core/src/liuren.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/liuren.rs), [`rust_core/src/zeji.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/zeji.rs), [`rust_core/src/numerology.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/numerology.rs), [`project/core/fast_math.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/fast_math.py), [`.github/workflows/ci.yml`](file:///Users/kimlenglim/Project/HoroConsultant/.github/workflows/ci.yml)); not current production evidence**
+  - **Historical claim (superseded)**: The six Rust modules were previously described as providing 100% Rust high-performance math-core coverage across ten branches; current release enablement is per-engine and requires parity plus ROI evidence.
   - **Fast Math Bridge Integration**: Added Python PyO3 bindings in `project/core/fast_math.py` (`fast_thai_lagna`, `fast_thaksa_map`, `fast_uranian_midpoint`, `fast_uranian_sensitive_point`, `fast_liuren_heaven_plate`, `fast_zeji_duty_officer`, `fast_satta_lek_matrix`).
   - **CI/CD Build Staging**: Updated `.github/workflows/ci.yml` with `PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1` and Maturin wheel building step in GitHub Actions.
-  - **177/177 Pytest Suite PASSED**: Extended `project/tests/test_rust_extensions.py` — verified 100% test pass rate across unit, integration, and Rust PyO3 extension tests.
+  - **Historical test result (superseded)**: Extended `project/tests/test_rust_extensions.py` — the 177/177 suite was reported at a 100% pass rate at that time; current release evidence must come from the active Python/Rust/contract gates.
 
 
 - [x] **Local OpenAI Codex CLI (`CODEX_CHATGPT`) AI Provider & Dynamic Provider Router ([`project/core/ai_provider_router.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/ai_provider_router.py), [`project/core/codex_client.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/codex_client.py), [`project/tests/test_ai_provider_router.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/tests/test_ai_provider_router.py))**
@@ -105,7 +105,7 @@ docker buildx build --platform linux/amd64 --load -t horoconsult:dev .
 
 ---
 
-### ✅ DONE (เสร็จสมบูรณ์ 100% พร้อมใช้งาน)
+### ✅ DONE (historical completed work; current release remains gated)
 
 - [x] **Rust migration ROI and production-readiness audit (`e7c041c`)**
   - **Evidence**: Clean worktree baseline completed 200/200 Pytest tests; production Dockerfiles did not build/install `rust_core`; tracked native binaries were macOS ARM64; direct Rust import was order-dependent; several engine outputs and benchmarks did not match their Python reference.
@@ -113,8 +113,8 @@ docker buildx build --platform linux/amd64 --load -t horoconsult:dev .
   - **Root Cause**: CI built Rust separately from Python/runtime tests, while deployment images omitted Rust and silent fallbacks masked the inactive native path.
   - **Prevention**: Release CI must install the Linux wheel/image, attest the active runtime backend, compare API goldens, and fail when a required Rust handler is unavailable.
 
-- [x] **Decoupled DDD Multi-Cloud Architecture & Rust High-Performance Core Engine Strategy ([`rust_core/`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/), [`vercel.json`](file:///Users/kimlenglim/Project/HoroConsultant/vercel.json), [`Dockerfile.hf`](file:///Users/kimlenglim/Project/HoroConsultant/Dockerfile.hf))**
-  - **Sub-Domain 1 (Fly.io Ultra-Fast Gateway)**: Rust Axum Micro-Gateway specification for < 8 MB RAM footprint, < 20ms cold start, and 50,000+ req/sec throughput in Singapore (`sin`) region.
+- [x] **Historical/superseded report — Decoupled DDD Multi-Cloud Architecture & Rust High-Performance Core Engine Strategy ([`rust_core/`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/), [`vercel.json`](file:///Users/kimlenglim/Project/HoroConsultant/vercel.json), [`Dockerfile.hf`](file:///Users/kimlenglim/Project/HoroConsultant/Dockerfile.hf)); not current production evidence**
+  - **Historical design targets (superseded)**: The Fly.io Rust Axum gateway was specified at < 8 MB RAM, < 20 ms cold start, and 50,000+ requests/sec in Singapore; no current release evidence establishes these targets.
   - **Sub-Domain 2 (Hugging Face Spaces Core Engine)**: 16 GB RAM continuous backend holding 3,132 RAG text chunks, Swiss Ephemeris astronomical math, and PyO3 Rust extensions (`rust_core/src/bazi.rs`, `rust_core/src/tfidf.rs`).
   - **Sub-Domain 3 (Render Async Background Worker)**: Async background worker for Grafana incident telemetry (`scripts/grafana_cloud_exporter.py`) and multi-agent batch audits.
   - **Sub-Domain 4 (Vercel Edge Global CDN Network)**: Native Vercel Edge CDN CORS preflight middleware and global proxy routing.
@@ -198,7 +198,7 @@ docker buildx build --platform linux/amd64 --load -t horoconsult:dev .
   - Built automated Deployment script to push Core Backend codebase to HuggingFace Space with 1 command.
   - Performed payload audit and token authentication check (Verified user: `pphothidaen`, 7 files, 0.17MB payload).
 - [x] **Multi-Agent Async Debate & Synthesis Engine ([`project/core/multi_agent_debate.py`](file:///project/core/multi_agent_debate.py))**
-  - Parallelized 10-Domain Engines execution via `asyncio.gather` for < 2.0s latency.
+  - **Historical performance report (superseded)**: Parallelized 10-Domain Engines execution was reported at < 2.0 s latency; this is not current release evidence.
 - [x] **Unified Admin Panel & HITL Studio Security Integration (`project/static/admin.html`)**
   - Integrated HITL Review Studio directly into Admin Panel navigation sidebar (`showPage('hitl')`).
 - [x] **Production Secret Environment Variables Injection & Verification**
@@ -235,18 +235,18 @@ docker buildx build --platform linux/amd64 --load -t horoconsult:dev .
     - Created `runtime.txt` specifying `python3.11` to pin Vercel Python runtime.
   - **Post-Deploy Regression**: Created [`scripts/run_vercel_prod_curl_regression.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/run_vercel_prod_curl_regression.py) — tests live Vercel URL with exact HuggingFace browser headers: GET `/health`, OPTIONS preflight, POST `/api/v1/bazi/interpret`.
 
-- [x] **Phase 6.1: Standalone Pure Rust Axum API Gateway & Core Metaphysical Engines (Option C) ([`rust_core/src/bin/horo_server.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/horo_server.rs))**
-  - **Rust Server Binary**: Full Axum gateway implementation (< 10MB RAM, < 1ms latency).
-  - **Pure Rust Math Routing**: `/health`, `/metrics`, `/api/v1/bazi/calculate`, `/api/v1/ziwei/calculate`, `/api/v1/qimen/calculate`, `/api/v1/xuankong/calculate`, `/api/v1/thai_vedic/calculate`, `/api/v1/uranian/calculate`, `/api/v1/iching/calculate`, `/api/v1/liuren/calculate`, `/api/v1/zeji/calculate`, `/api/v1/numerology/calculate`.
+- [x] **Historical/superseded report — Phase 6.1: Standalone Pure Rust Axum API Gateway & Core Metaphysical Engines (Option C) ([`rust_core/src/bin/horo_server.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/horo_server.rs)); not current production evidence**
+  - **Historical performance report (superseded)**: The Rust server binary was reported as a full Axum gateway with < 10 MB RAM and < 1 ms latency; these are not current release measurements.
+  - **Historical routing claim (superseded)**: The listed calculation routes were previously described as pure Rust; current routing is enabled only after parity and ROI gates, with the Python worker retained where required.
   - **Python RAG Async Proxy**: `/api/v1/proxy/*path` targeting Python RAG/LLM Service (`PYTHON_RAG_HOST`).
 
-- [x] **Phase 6.2: Native Rust Regression Runner Integration (Option 1) ([`rust_core/src/bin/regression_runner.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/regression_runner.rs))**
-  - **Target Achieved**: Added a 12-check parallel Rust CLI Runner (`regression_runner`) that complements the full Pytest suite. The 2026-08-09 local audit completed all 12 checks in **0.078s** with the Axum health endpoint running.
-  - **Execution Protocol**: Verifies BaZi, ZiWei, QiMen, XuanKong, Thai Vedic, Uranian, SwissEph, ZeJi, Secret Scanner, and Consonance audits in pure Rust.
-  - **Migration Dead-Code Cleanup Mandate**: Cleaned up warnings and verified 100% test pass rate across Rust binaries.
+- [x] **Historical/superseded report — Phase 6.2: Native Rust Regression Runner Integration (Option 1) ([`rust_core/src/bin/regression_runner.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/regression_runner.rs)); not current production evidence**
+  - **Historical report (superseded)**: A 12-check parallel Rust CLI Runner (`regression_runner`) was reported to complete in **0.078 s** on 2026-08-09; this is not the current release gate.
+  - **Historical execution claim (superseded)**: The listed audits were previously described as running in pure Rust; current runtime identity and per-engine parity must be verified in the installed Linux image.
+  - **Historical test claim (superseded)**: The Rust binaries were previously reported at a 100% test pass rate; current release evidence must come from the active Python/Rust/contract gates.
 
-- [x] **Swiss Ephemeris Native Pure Rust Bridge ([`rust_core/src/swisseph.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/swisseph.rs))**
-  - High-precision analytical planetary ephemeris calculation engine in pure Rust (`calculate_sun_position_rust`, `calculate_moon_position_rust`, `compute_ephemeris_sun_moon`).
+- [x] **Historical/superseded report — Swiss Ephemeris Native Pure Rust Bridge ([`rust_core/src/swisseph.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/swisseph.rs)); not current production evidence**
+  - **Historical implementation claim (superseded)**: The analytical planetary ephemeris functions were previously described as a high-precision pure-Rust engine; the current audit retains native Python/C Swiss Ephemeris because the Rust approximation does not meet the accuracy contract.
 
 - [x] **BaZi Interpretation Router Singleton Regression Fix ([`project/routers/debate.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/routers/debate.py))**
   - The interpretation endpoint now shares the application `HybridRouter` singleton instead of constructing an independent router, so its configured routing and test dependency are consistent.

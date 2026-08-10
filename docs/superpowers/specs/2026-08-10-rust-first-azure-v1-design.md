@@ -1,7 +1,7 @@
 # Rust-first Azure v1 Design
 
-**Date:** 2026-08-10  
-**Status:** Approved for implementation  
+**Date:** 2026-08-10
+**Status:** Approved for implementation
 **Production image:** `pansakorn/horoconsult:v1.0` (`linux/amd64`, private)
 
 ## Goal and problem statement

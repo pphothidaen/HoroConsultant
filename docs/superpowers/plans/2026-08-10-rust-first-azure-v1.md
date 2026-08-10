@@ -33,10 +33,10 @@
 **Interfaces:**
 - Produces the binding design, task boundaries, acceptance matrix, and active Kanban card used by every later task.
 
-- [ ] Record the clean starting SHA and full baseline result `200 passed, 1 warning` from `python3 -m pytest -v --ignore=project/kaggle_kernel`.
-- [ ] Replace the obsolete Grafana master plan with goal, ROI matrix, FR/NFR, architecture, rollout, and test matrix for this release.
-- [ ] Correct the board summary, move completed Rust checkboxes out of TODO, add the production-readiness audit under DONE, and add the Rust-first Azure release under DOING with Root Cause and Prevention.
-- [ ] Commit the documentation foundation as `docs: plan rust-first Azure v1 release`.
+- [x] Record the clean starting SHA and full baseline result `200 passed, 1 warning` from `python3 -m pytest -v --ignore=project/kaggle_kernel`.
+- [x] Replace the obsolete Grafana master plan with goal, ROI matrix, FR/NFR, architecture, rollout, and test matrix for this release.
+- [x] Correct the board summary, move completed Rust checkboxes out of TODO, add the production-readiness audit under DONE, and add the Rust-first Azure release under DOING with Root Cause and Prevention.
+- [x] Commit the documentation foundation as `docs: plan rust-first Azure v1 release`.
 
 ### Task 2: Rust Toolchain, Packaging, and Honest Runtime Identity
 
