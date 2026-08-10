@@ -8,10 +8,19 @@ from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts" / "sync_doppler_secrets.py"
+REVIEWER = ROOT / "project" / "core" / "code_reviewer.py"
 
 
 def _load_sync_module():
     spec = importlib.util.spec_from_file_location("sync_doppler_secrets", SCRIPT)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _load_reviewer_module():
+    spec = importlib.util.spec_from_file_location("code_reviewer", REVIEWER)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -46,3 +55,18 @@ def test_doppler_auth_failure_never_prints_secret_values(
     assert canary not in captured.out
     assert canary not in captured.err
     assert canary not in logs
+
+
+def test_release_scanner_detects_docker_hub_personal_access_tokens(
+    tmp_path, monkeypatch
+):
+    """Docker Hub PATs must block release if they enter a tracked-like file."""
+    reviewer = _load_reviewer_module()
+    leaked_token = "dckr" + "_pat_" + ("A" * 24)
+    (tmp_path / "leak.txt").write_text(leaked_token, encoding="utf-8")
+    monkeypatch.setattr(reviewer, "ROOT", tmp_path)
+
+    report = reviewer.CodeReviewer.scan_secrets()
+
+    assert report["status"] == "FAILED"
+    assert report["secret_leaks_found"] == 1
