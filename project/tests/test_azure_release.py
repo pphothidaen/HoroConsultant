@@ -107,6 +107,9 @@ def test_container_is_reproducible_non_root_and_scale_to_zero_ready():
 
     assert "FROM rust:1.97.1-bookworm AS rust-builder" in dockerfile
     assert "FROM python:3.12-slim-bookworm AS runtime" in dockerfile
+    rust_builder = dockerfile.split("FROM python:3.12-slim-bookworm", maxsplit=1)[0]
+    assert "ARG GIT_COMMIT_HASH=unknown" in rust_builder
+    assert 'GIT_COMMIT_HASH="${GIT_COMMIT_HASH}" cargo build' in rust_builder
     assert "maturin==1.14.1" in dockerfile
     assert "cargo build --locked --release --no-default-features --features server --bin horo_server" in dockerfile
     assert 'ENTRYPOINT ["/usr/bin/tini", "--"]' in dockerfile

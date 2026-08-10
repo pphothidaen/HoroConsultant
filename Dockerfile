@@ -5,6 +5,8 @@
 # deterministic across Apple Silicon and x86 hosts.
 FROM rust:1.97.1-bookworm AS rust-builder
 
+ARG GIT_COMMIT_HASH=unknown
+
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends python3 python3-dev python3-venv \
     && rm -rf /var/lib/apt/lists/* \
@@ -17,8 +19,8 @@ COPY rust_core/src ./src
 COPY rust_core/tests ./tests
 COPY rust_core/__init__.py ./__init__.py
 
-RUN cargo build --locked --release --no-default-features --features server --bin horo_server
-RUN /opt/build-venv/bin/maturin build --locked --release --out /wheelhouse
+RUN GIT_COMMIT_HASH="${GIT_COMMIT_HASH}" cargo build --locked --release --no-default-features --features server --bin horo_server
+RUN GIT_COMMIT_HASH="${GIT_COMMIT_HASH}" /opt/build-venv/bin/maturin build --locked --release --out /wheelhouse
 
 
 FROM python:3.12-slim-bookworm AS runtime
