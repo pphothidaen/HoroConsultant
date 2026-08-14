@@ -1,231 +1,231 @@
-[{"stream_name":"stderr","time":6.108067805,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":6.108749926,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":6.108754123,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":6.108756838,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stderr","time":6.698334056,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":6.698385666,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":6.698391055,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":6.698395202,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stdout","time":8.545833214,"data":"[OK] CUDA stability \u0026 Triton compatibility shim applied.\n"}
-,{"stream_name":"stdout","time":8.545902479,"data":"[INFO] Secret APP_SUPABASE_KEY not in Doppler. Checking 2nd Priority (KAGGLE SECRETS STORE)...\n"}
-,{"stream_name":"stdout","time":8.545908284,"data":"[OK] Secret APP_SUPABASE_KEY loaded from 2nd Priority (KAGGLE SECRETS STORE)\n"}
-,{"stream_name":"stdout","time":8.545912594,"data":"[INFO] Secret APP_SUPABASE_URL not in Doppler. Checking 2nd Priority (KAGGLE SECRETS STORE)...\n"}
-,{"stream_name":"stdout","time":8.780311352,"data":"[OK] Secret APP_SUPABASE_URL loaded from 2nd Priority (KAGGLE SECRETS STORE)\n"}
-,{"stream_name":"stdout","time":8.780363549,"data":"[INFO] Secret DOPPLER_TOKEN not in Doppler. Checking 2nd Priority (KAGGLE SECRETS STORE)...\n"}
-,{"stream_name":"stdout","time":8.780368363000001,"data":"[OK] Secret DOPPLER_TOKEN loaded from 2nd Priority (KAGGLE SECRETS STORE)\n"}
-,{"stream_name":"stdout","time":8.780372069,"data":"[INFO] Secret GH_TOKEN not in Doppler. Checking 2nd Priority (KAGGLE SECRETS STORE)...\n"}
-,{"stream_name":"stdout","time":9.008411305,"data":"[OK] Secret GH_TOKEN loaded from 2nd Priority (KAGGLE SECRETS STORE)\n"}
-,{"stream_name":"stdout","time":9.00844829,"data":"[INFO] Secret HF_TOKEN not in Doppler. Checking 2nd Priority (KAGGLE SECRETS STORE)...\n"}
-,{"stream_name":"stdout","time":9.008451696,"data":"[OK] Secret HF_TOKEN loaded from 2nd Priority (KAGGLE SECRETS STORE)\n"}
-,{"stream_name":"stdout","time":9.00845465,"data":"[INFO] Secret KAGGLE_TOKEN not in Doppler. Checking 2nd Priority (KAGGLE SECRETS STORE)...\n"}
-,{"stream_name":"stderr","time":9.177716869,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stdout","time":9.252482297,"data":"[OK] Secret KAGGLE_TOKEN loaded from 2nd Priority (KAGGLE SECRETS STORE)\n"}
-,{"stream_name":"stdout","time":9.252511605,"data":"[INFO] Secret WANDB_KEY not in Doppler. Checking 2nd Priority (KAGGLE SECRETS STORE)...\n"}
-,{"stream_name":"stdout","time":9.252516625,"data":"[OK] Secret WANDB_KEY loaded from 2nd Priority (KAGGLE SECRETS STORE)\n"}
-,{"stream_name":"stdout","time":9.252520051,"data":"[MODEL] Cloning HoroConsultant repository...\n"}
-,{"stream_name":"stderr","time":9.38080345,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stderr","time":9.380836053,"data":"\n"}
-,{"stream_name":"stderr","time":9.380844465,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stdout","time":10.624097546,"data":"[CHECK] Checking pre-installed PyTorch \u0026 CUDA status...\n"}
-,{"stream_name":"stdout","time":14.391426366,"data":"[CUDA] Kaggle PyTorch version: 2.10.0+cu128, CUDA available: True\n"}
-,{"stream_name":"stdout","time":14.391461465999999,"data":"[CUDA] Detected GPU: Tesla P100-PCIE-16GB (sm_60)\n"}
-,{"stream_name":"stdout","time":14.391478458,"data":"[OK] Detected GPU Tesla P100-PCIE-16GB (sm_60) using native Kaggle PyTorch environment.\n"}
-,{"stream_name":"stdout","time":14.391483272,"data":"[MODEL] Removing incompatible torchao/torchvision \u0026 installing fine-tuning packages...\n"}
-,{"stream_name":"stderr","time":14.408755552,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":14.408783168,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
-,{"stream_name":"stderr","time":14.408787281,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
-,{"stream_name":"stderr","time":14.408790108,"data":"    (7.0) - (12.0)\n"}
-,{"stream_name":"stderr","time":14.408792606,"data":"    \n"}
-,{"stream_name":"stderr","time":14.408794832,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":14.40879735,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":14.408799704,"data":"    Please install PyTorch with a following CUDA\n"}
-,{"stream_name":"stderr","time":14.408801933,"data":"    configurations:  12.6 following instructions at\n"}
-,{"stream_name":"stderr","time":14.408804158,"data":"    https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":14.408806448,"data":"    \n"}
-,{"stream_name":"stderr","time":14.408808628,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":14.408810828,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":14.408813174,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
-,{"stream_name":"stderr","time":14.408815567,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
-,{"stream_name":"stderr","time":14.408817908,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":14.408820282,"data":"\n"}
-,{"stream_name":"stderr","time":14.408822418,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":14.408824648,"data":"\n"}
-,{"stream_name":"stderr","time":14.408826803,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":14.408829093,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
-,{"stream_name":"stderr","time":14.408831333,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
-,{"stream_name":"stderr","time":14.408833637,"data":"    (7.0) - (12.0)\n"}
-,{"stream_name":"stderr","time":14.408835818,"data":"    \n"}
-,{"stream_name":"stderr","time":14.408838033,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":14.40884018,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":14.408842478,"data":"    Please install PyTorch with a following CUDA\n"}
-,{"stream_name":"stderr","time":14.40884479,"data":"    configurations:  12.6 following instructions at\n"}
-,{"stream_name":"stderr","time":14.408847014,"data":"    https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":14.408849245,"data":"    \n"}
-,{"stream_name":"stderr","time":14.408864268,"data":"  queued_call()\n"}
-,{"stream_name":"stderr","time":14.408866603,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
-,{"stream_name":"stderr","time":14.408868883,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
-,{"stream_name":"stderr","time":14.408871223,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
-,{"stream_name":"stderr","time":14.408873562,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
-,{"stream_name":"stderr","time":14.408875996999999,"data":"\n"}
-,{"stream_name":"stderr","time":14.408878112,"data":"  queued_call()\n"}
-,{"stream_name":"stdout","time":15.374108428,"data":"Found existing installation: torchao 0.10.0\n"}
-,{"stream_name":"stdout","time":15.444124979,"data":"Uninstalling torchao-0.10.0:\n"}
-,{"stream_name":"stdout","time":15.57617339,"data":"Found existing installation: torchao 0.10.0\n"}
-,{"stream_name":"stdout","time":15.576200996,"data":"Uninstalling torchao-0.10.0:\n"}
-,{"stream_name":"stdout","time":15.744610381,"data":"  Successfully uninstalled torchao-0.10.0\n"}
-,{"stream_name":"stdout","time":15.946863093,"data":"  Successfully uninstalled torchao-0.10.0\n"}
-,{"stream_name":"stdout","time":16.170485014,"data":"Found existing installation: torchvision 0.25.0+cu128\n"}
-,{"stream_name":"stdout","time":16.193302571,"data":"Uninstalling torchvision-0.25.0+cu128:\n"}
-,{"stream_name":"stdout","time":16.372803158,"data":"Found existing installation: torchvision 0.25.0+cu128\n"}
-,{"stream_name":"stdout","time":16.372828843,"data":"Uninstalling torchvision-0.25.0+cu128:\n"}
-,{"stream_name":"stdout","time":16.386289997,"data":"  Successfully uninstalled torchvision-0.25.0+cu128\n"}
-,{"stream_name":"stdout","time":16.588939729,"data":"  Successfully uninstalled torchvision-0.25.0+cu128\n"}
-,{"stream_name":"stderr","time":35.133862773,"data":"WARNING: BNB_CUDA_VERSION=124 environment variable detected; loading libbitsandbytes_cuda128_nocublaslt124.so.\n"}
-,{"stream_name":"stderr","time":35.133893289,"data":"This can be used to load a bitsandbytes version that is different from the PyTorch CUDA version.\n"}
-,{"stream_name":"stderr","time":35.133898613,"data":"If this was unintended set the BNB_CUDA_VERSION variable to an empty string: export BNB_CUDA_VERSION=\n"}
-,{"stream_name":"stderr","time":35.133902823,"data":"If you use the manual override make sure the right libcudart.so is in your LD_LIBRARY_PATH\n"}
-,{"stream_name":"stderr","time":35.133907212,"data":"For example by adding the following to your .bashrc: export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:\u003cpath_to_cuda_dir/lib64\n"}
-,{"stream_name":"stderr","time":35.133912187,"data":"\n"}
-,{"stream_name":"stderr","time":35.133916518,"data":"\n"}
-,{"stream_name":"stderr","time":35.133920854,"data":"WARNING: BNB_CUDA_VERSION=124 environment variable detected; loading libbitsandbytes_cuda128_nocublaslt124.so.\n"}
-,{"stream_name":"stderr","time":35.133925669,"data":"This can be used to load a bitsandbytes version that is different from the PyTorch CUDA version.\n"}
-,{"stream_name":"stderr","time":35.133929847,"data":"If this was unintended set the BNB_CUDA_VERSION variable to an empty string: export BNB_CUDA_VERSION=\n"}
-,{"stream_name":"stderr","time":35.133934084,"data":"If you use the manual override make sure the right libcudart.so is in your LD_LIBRARY_PATH\n"}
-,{"stream_name":"stderr","time":35.133938375,"data":"For example by adding the following to your .bashrc: export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:\u003cpath_to_cuda_dir/lib64\n"}
-,{"stream_name":"stderr","time":35.133957356,"data":"\n"}
-,{"stream_name":"stderr","time":35.134748842,"data":"Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128_nocublaslt124.so')\n"}
-,{"stream_name":"stderr","time":35.134769677,"data":"\n"}
-,{"stream_name":"stderr","time":35.134773799,"data":"Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128_nocublaslt124.so')\n"}
-,{"stream_name":"stderr","time":35.138551404,"data":"The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
-,{"stream_name":"stderr","time":35.138575613,"data":"\n"}
-,{"stream_name":"stderr","time":35.138581556,"data":"The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
-,{"stream_name":"stdout","time":35.356259919,"data":"[OK] BNB CUDA Fix: Symlinked libbitsandbytes_cuda125_nocublaslt.so -\u003e libbitsandbytes_cuda128.so\n"}
-,{"stream_name":"stdout","time":37.711131511,"data":"[OK] Fail-Fast Import Verified: transformers=4.44.2, peft=0.12.0, trl=0.11.0, accelerate=0.33.0, bitsandbytes=0.43.3\n"}
-,{"stream_name":"stdout","time":37.711183471,"data":"[START] Launching Cloud Training Orchestrator...\n"}
-,{"stream_name":"stdout","time":38.778677909,"data":"2026-08-07 18:24:30,710 [INFO] [DATA] Checking dataset source...\n"}
-,{"stream_name":"stdout","time":38.778704983,"data":"2026-08-07 18:24:30,710 [INFO] [DATA] Checking dataset source...\n"}
-,{"stream_name":"stdout","time":40.104051072,"data":"2026-08-07 18:24:32,037 [INFO] HTTP Request: GET https://gypqcpdojsyuiegkiseu.supabase.co/rest/v1/qa_knowledge_base?select=%2A\u0026is_verified=eq.true \"HTTP/1.1 200 OK\"\n"}
-,{"stream_name":"stdout","time":40.104210144,"data":"2026-08-07 18:24:32,038 [INFO] Fetched rows 0..1 from 'qa_knowledge_base' (Total so far: 2)\n"}
-,{"stream_name":"stdout","time":40.104241465,"data":"2026-08-07 18:24:32,038 [INFO] 🎉 Exported 2 ShareGPT records from Supabase to '/kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl'\n"}
-,{"stream_name":"stdout","time":40.104248715,"data":"2026-08-07 18:24:32,038 [INFO] [OK] Downloaded 2 records from Supabase DB to '/kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl'\n"}
-,{"stream_name":"stdout","time":40.104255124,"data":"2026-08-07 18:24:32,038 [INFO] [OK] Downloaded 2 records from Supabase DB to '/kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl'\n"}
-,{"stream_name":"stdout","time":40.104261374,"data":"2026-08-07 18:24:32,038 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE]...\n"}
-,{"stream_name":"stdout","time":40.104281171,"data":"2026-08-07 18:24:32,038 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE]...\n"}
-,{"stream_name":"stdout","time":40.104287371,"data":"2026-08-07 18:24:32,038 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
-,{"stream_name":"stdout","time":40.104293054,"data":"2026-08-07 18:24:32,038 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
-,{"stream_name":"stdout","time":40.104298522,"data":"2026-08-07 18:24:32,039 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl\n"}
-,{"stream_name":"stdout","time":40.104304497,"data":"2026-08-07 18:24:32,039 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl\n"}
-,{"stream_name":"stdout","time":40.104310354,"data":"2026-08-07 18:24:32,039 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
-,{"stream_name":"stdout","time":40.104327611,"data":"2026-08-07 18:24:32,039 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
-,{"stream_name":"stdout","time":40.104332327,"data":"2026-08-07 18:24:32,039 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...\n"}
-,{"stream_name":"stdout","time":40.104336685,"data":"2026-08-07 18:24:32,039 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...\n"}
-,{"stream_name":"stdout","time":41.804902056,"data":"2026-08-07 18:24:33,738 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']\n"}
-,{"stream_name":"stdout","time":41.804944303,"data":"2026-08-07 18:24:33,738 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']\n"}
-,{"stream_name":"stdout","time":41.804948721,"data":"2026-08-07 18:24:33,738 [WARNING]    [WARNING] WARNING: PyTorch wheel does NOT contain compiled binary for sm_60 (Tesla P100-PCIE-16GB)!\n"}
-,{"stream_name":"stdout","time":41.804951896,"data":"2026-08-07 18:24:33,738 [WARNING]    [WARNING] WARNING: PyTorch wheel does NOT contain compiled binary for sm_60 (Tesla P100-PCIE-16GB)!\n"}
-,{"stream_name":"stdout","time":41.804955079,"data":"2026-08-07 18:24:33,738 [INFO]    [TARGET] GPU Architecture: sm_60 (Tesla P100-PCIE-16GB)\n"}
-,{"stream_name":"stdout","time":41.804957892,"data":"2026-08-07 18:24:33,738 [INFO]    [TARGET] GPU Architecture: sm_60 (Tesla P100-PCIE-16GB)\n"}
-,{"stream_name":"stdout","time":41.804960794,"data":"2026-08-07 18:24:33,738 [INFO]    [CUDA] CUDA Device: Tesla P100-PCIE-16GB (Total GPUs: 1)\n"}
-,{"stream_name":"stdout","time":41.804963576,"data":"2026-08-07 18:24:33,738 [INFO]    [CUDA] CUDA Device: Tesla P100-PCIE-16GB (Total GPUs: 1)\n"}
-,{"stream_name":"stdout","time":42.016846371,"data":"2026-08-07 18:24:33,950 [ERROR]    [ERROR] CUDA Kernel Execution Test FAILED: CUDA error: no kernel image is available for execution on the device\n"}
-,{"stream_name":"stdout","time":42.016875542,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
-,{"stream_name":"stdout","time":42.016881732,"data":"CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\n"}
-,{"stream_name":"stdout","time":42.016886614,"data":"For debugging consider passing CUDA_LAUNCH_BLOCKING=1\n"}
-,{"stream_name":"stdout","time":42.016890764,"data":"Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"}
-,{"stream_name":"stdout","time":42.016895674,"data":"\n"}
-,{"stream_name":"stdout","time":42.016900029,"data":"2026-08-07 18:24:33,950 [ERROR]    [ERROR] CUDA Kernel Execution Test FAILED: CUDA error: no kernel image is available for execution on the device\n"}
-,{"stream_name":"stdout","time":42.016904681,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
-,{"stream_name":"stdout","time":42.016909006,"data":"CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\n"}
-,{"stream_name":"stdout","time":42.016913812,"data":"For debugging consider passing CUDA_LAUNCH_BLOCKING=1\n"}
-,{"stream_name":"stdout","time":42.016918542,"data":"Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"}
-,{"stream_name":"stdout","time":42.016922777,"data":"\n"}
-,{"stream_name":"stdout","time":42.878551524,"data":"2026-08-07 18:24:34,811 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
-,{"stream_name":"stdout","time":42.878602585,"data":"2026-08-07 18:24:34,811 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
-,{"stream_name":"stdout","time":42.878608562,"data":"2026-08-07 18:24:34,832 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
-,{"stream_name":"stdout","time":42.878612839,"data":"2026-08-07 18:24:34,832 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
-,{"stream_name":"stdout","time":42.878617052,"data":"2026-08-07 18:24:34,833 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device\n"}
-,{"stream_name":"stdout","time":42.878621411,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
-,{"stream_name":"stdout","time":42.878625608,"data":"CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\n"}
-,{"stream_name":"stdout","time":42.878633837,"data":"For debugging consider passing CUDA_LAUNCH_BLOCKING=1\n"}
-,{"stream_name":"stdout","time":42.878636625,"data":"Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"}
-,{"stream_name":"stdout","time":42.878639245,"data":"\n"}
-,{"stream_name":"stdout","time":42.878641689,"data":"2026-08-07 18:24:34,833 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device\n"}
-,{"stream_name":"stdout","time":42.878644452,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
-,{"stream_name":"stdout","time":42.878647274,"data":"CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\n"}
-,{"stream_name":"stdout","time":42.878649951,"data":"For debugging consider passing CUDA_LAUNCH_BLOCKING=1\n"}
-,{"stream_name":"stdout","time":42.878652547,"data":"Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"}
-,{"stream_name":"stdout","time":42.878655154,"data":"\n"}
-,{"stream_name":"stdout","time":42.878657712,"data":"2026-08-07 18:24:34,833 [WARNING] [WARNING] CUDA pre-flight kernel execution test failed on this device (e.g. sm_60/P100 unsupported by PyTorch wheel). Gracefully falling back to CPU execution mode.\n"}
-,{"stream_name":"stdout","time":42.878662541,"data":"2026-08-07 18:24:34,833 [WARNING] [WARNING] CUDA pre-flight kernel execution test failed on this device (e.g. sm_60/P100 unsupported by PyTorch wheel). Gracefully falling back to CPU execution mode.\n"}
-,{"stream_name":"stdout","time":42.878665411,"data":"2026-08-07 18:24:34,969 [INFO] NumExpr defaulting to 4 threads.\n"}
-,{"stream_name":"stdout","time":43.202518816,"data":"2026-08-07 18:24:35,136 [INFO] PyTorch version 2.10.0+cu128 available.\n"}
-,{"stream_name":"stdout","time":43.202561294,"data":"2026-08-07 18:24:35,136 [INFO] TensorFlow version 2.20.0 available.\n"}
-,{"stream_name":"stdout","time":43.202566208,"data":"2026-08-07 18:24:35,138 [INFO] JAX version 0.7.2 available.\n"}
-,{"stream_name":"stdout","time":59.777116075,"data":"2026-08-07 18:24:51,710 [WARNING] Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128_nocublaslt.so')\n"}
-,{"stream_name":"stdout","time":59.777161006,"data":"2026-08-07 18:24:51,711 [WARNING] The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
-,{"stream_name":"stdout","time":59.777165852,"data":"2026-08-07 18:24:51,726 [INFO]    [INFO] Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.\n"}
-,{"stream_name":"stdout","time":59.777179558,"data":"2026-08-07 18:24:51,726 [INFO]    [INFO] Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.\n"}
-,{"stream_name":"stdout","time":59.777182295,"data":"2026-08-07 18:24:51,727 [INFO] [MODEL] Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...\n"}
-,{"stream_name":"stdout","time":59.777184744,"data":"2026-08-07 18:24:51,727 [INFO] [MODEL] Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...\n"}
-,{"stream_name":"stdout","time":61.157450128,"data":"2026-08-07 18:24:53,090 [INFO] [MODEL] Loading base model in standard precision (torch.float32)...\n"}
-,{"stream_name":"stdout","time":61.157478051,"data":"2026-08-07 18:24:53,090 [INFO] [MODEL] Loading base model in standard precision (torch.float32)...\n"}
-,{"stream_name":"stderr","time":452.44296792,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":452.444042735,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":452.444057848,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
-,{"stream_name":"stderr","time":452.446546818,"data":"    raise_for_execution_errors(nb, output_path)\n"}
-,{"stream_name":"stderr","time":452.446565605,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
-,{"stream_name":"stderr","time":452.446764723,"data":"    raise error\n"}
-,{"stream_name":"stderr","time":452.446809745,"data":"papermill.exceptions.PapermillExecutionError: \n"}
-,{"stream_name":"stderr","time":452.446815988,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":452.446820533,"data":"Exception encountered at \"In [1]\":\n"}
-,{"stream_name":"stderr","time":452.446824935,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":452.446829301,"data":"RuntimeError                              Traceback (most recent call last)\n"}
-,{"stream_name":"stderr","time":452.446833775,"data":"/tmp/ipykernel_23/1679673078.py in \u003ccell line: 0\u003e()\n"}
-,{"stream_name":"stderr","time":452.446838601,"data":"    129         except Exception:\n"}
-,{"stream_name":"stderr","time":452.446843035,"data":"    130             pass\n"}
-,{"stream_name":"stderr","time":452.446847147,"data":"--\u003e 131     raise RuntimeError(f'[ERROR] Training orchestrator failed (exit code {proc.returncode}).\\n--- Tail of train_execution.log ---\\n{log_tail}')\n"}
-,{"stream_name":"stderr","time":452.446852071,"data":"    132 print('[OK] Training pipeline completed successfully!')\n"}
-,{"stream_name":"stderr","time":452.446856526,"data":"\n"}
-,{"stream_name":"stderr","time":452.446860462,"data":"RuntimeError: [ERROR] Training orchestrator failed (exit code -9).\n"}
-,{"stream_name":"stderr","time":452.44686509,"data":"--- Tail of train_execution.log ---\n"}
-,{"stream_name":"stderr","time":452.446869531,"data":"2026-08-07 18:24:34,811 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
-,{"stream_name":"stderr","time":452.446874608,"data":"2026-08-07 18:24:34,811 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
-,{"stream_name":"stderr","time":452.446878954,"data":"2026-08-07 18:24:34,832 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
-,{"stream_name":"stderr","time":452.446884185,"data":"2026-08-07 18:24:34,832 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
-,{"stream_name":"stderr","time":452.446899734,"data":"2026-08-07 18:24:34,833 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device\n"}
-,{"stream_name":"stderr","time":452.44690423,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
-,{"stream_name":"stderr","time":452.446908296,"data":"CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\n"}
-,{"stream_name":"stderr","time":452.446912318,"data":"For debugging consider passing CUDA_LAUNCH_BLOCKING=1\n"}
-,{"stream_name":"stderr","time":452.44691674,"data":"Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"}
-,{"stream_name":"stderr","time":452.446920523,"data":"\n"}
-,{"stream_name":"stderr","time":452.446924398,"data":"2026-08-07 18:24:34,833 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device\n"}
-,{"stream_name":"stderr","time":452.446929451,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
-,{"stream_name":"stderr","time":452.446933937,"data":"CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\n"}
-,{"stream_name":"stderr","time":452.446938638,"data":"For debugging consider passing CUDA_LAUNCH_BLOCKING=1\n"}
-,{"stream_name":"stderr","time":452.446941933,"data":"Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"}
-,{"stream_name":"stderr","time":452.446945204,"data":"\n"}
-,{"stream_name":"stderr","time":452.446948391,"data":"2026-08-07 18:24:34,833 [WARNING] [WARNING] CUDA pre-flight kernel execution test failed on this device (e.g. sm_60/P100 unsupported by PyTorch wheel). Gracefully falling back to CPU execution mode.\n"}
-,{"stream_name":"stderr","time":452.446953679,"data":"2026-08-07 18:24:34,833 [WARNING] [WARNING] CUDA pre-flight kernel execution test failed on this device (e.g. sm_60/P100 unsupported by PyTorch wheel). Gracefully falling back to CPU execution mode.\n"}
-,{"stream_name":"stderr","time":452.446957068,"data":"2026-08-07 18:24:34,969 [INFO] NumExpr defaulting to 4 threads.\n"}
-,{"stream_name":"stderr","time":452.446960323,"data":"2026-08-07 18:24:35,136 [INFO] PyTorch version 2.10.0+cu128 available.\n"}
-,{"stream_name":"stderr","time":452.446964136,"data":"2026-08-07 18:24:35,136 [INFO] TensorFlow version 2.20.0 available.\n"}
-,{"stream_name":"stderr","time":452.44696827,"data":"2026-08-07 18:24:35,138 [INFO] JAX version 0.7.2 available.\n"}
-,{"stream_name":"stderr","time":452.446971843,"data":"2026-08-07 18:24:51,710 [WARNING] Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128_nocublaslt.so')\n"}
-,{"stream_name":"stderr","time":452.446976083,"data":"2026-08-07 18:24:51,711 [WARNING] The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
-,{"stream_name":"stderr","time":452.446979749,"data":"2026-08-07 18:24:51,726 [INFO]    [INFO] Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.\n"}
-,{"stream_name":"stderr","time":452.446983398,"data":"2026-08-07 18:24:51,726 [INFO]    [INFO] Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.\n"}
-,{"stream_name":"stderr","time":452.446987011,"data":"2026-08-07 18:24:51,727 [INFO] [MODEL] Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...\n"}
-,{"stream_name":"stderr","time":452.446994146,"data":"2026-08-07 18:24:51,727 [INFO] [MODEL] Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...\n"}
-,{"stream_name":"stderr","time":452.446997515,"data":"2026-08-07 18:24:53,090 [INFO] [MODEL] Loading base model in standard precision (torch.float32)...\n"}
-,{"stream_name":"stderr","time":452.447001121,"data":"2026-08-07 18:24:53,090 [INFO] [MODEL] Loading base model in standard precision (torch.float32)...\n"}
-,{"stream_name":"stderr","time":452.44700451,"data":"\n"}
-,{"stream_name":"stderr","time":452.447007773,"data":"\n"}
-,{"stream_name":"stderr","time":455.009754361,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
-,{"stream_name":"stderr","time":455.009788074,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
-,{"stream_name":"stderr","time":455.242836803,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
-,{"stream_name":"stderr","time":455.242886944,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
-,{"stream_name":"stderr","time":456.389603742,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
-,{"stream_name":"stderr","time":456.67987626,"data":"[NbConvertApp] Writing 30348 bytes to __notebook__.ipynb\n"}
-,{"stream_name":"stderr","time":458.977379001,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
-,{"stream_name":"stderr","time":459.966599686,"data":"[NbConvertApp] Writing 322207 bytes to __results__.html\n"}
+[{"stream_name":"stderr","time":6.345157141,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.345214574,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.345218729,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.345221349,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":6.911654073,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.911699681,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.911705388,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.911709546,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":8.696510044,"data":"[OK] CUDA stability \u0026 Triton compatibility shim applied.\n"}
+,{"stream_name":"stdout","time":8.696555654,"data":"[INFO] Secret APP_SUPABASE_KEY not in Doppler. Checking 2nd Priority (KAGGLE SECRETS STORE)...\n"}
+,{"stream_name":"stdout","time":8.696565636999999,"data":"[OK] Secret APP_SUPABASE_KEY loaded from 2nd Priority (KAGGLE SECRETS STORE)\n"}
+,{"stream_name":"stdout","time":8.696568607,"data":"[INFO] Secret APP_SUPABASE_URL not in Doppler. Checking 2nd Priority (KAGGLE SECRETS STORE)...\n"}
+,{"stream_name":"stdout","time":8.988596606,"data":"[OK] Secret APP_SUPABASE_URL loaded from 2nd Priority (KAGGLE SECRETS STORE)\n"}
+,{"stream_name":"stdout","time":8.988648229,"data":"[INFO] Secret DOPPLER_TOKEN not in Doppler. Checking 2nd Priority (KAGGLE SECRETS STORE)...\n"}
+,{"stream_name":"stdout","time":8.988653526,"data":"[OK] Secret DOPPLER_TOKEN loaded from 2nd Priority (KAGGLE SECRETS STORE)\n"}
+,{"stream_name":"stdout","time":8.988657278,"data":"[INFO] Secret GH_TOKEN not in Doppler. Checking 2nd Priority (KAGGLE SECRETS STORE)...\n"}
+,{"stream_name":"stdout","time":9.259095159,"data":"[OK] Secret GH_TOKEN loaded from 2nd Priority (KAGGLE SECRETS STORE)\n"}
+,{"stream_name":"stdout","time":9.259121899,"data":"[INFO] Secret HF_TOKEN not in Doppler. Checking 2nd Priority (KAGGLE SECRETS STORE)...\n"}
+,{"stream_name":"stdout","time":9.259127162,"data":"[OK] Secret HF_TOKEN loaded from 2nd Priority (KAGGLE SECRETS STORE)\n"}
+,{"stream_name":"stdout","time":9.259131068,"data":"[INFO] Secret KAGGLE_TOKEN not in Doppler. Checking 2nd Priority (KAGGLE SECRETS STORE)...\n"}
+,{"stream_name":"stderr","time":9.416517446,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stdout","time":9.471202189,"data":"[OK] Secret KAGGLE_TOKEN loaded from 2nd Priority (KAGGLE SECRETS STORE)\n"}
+,{"stream_name":"stdout","time":9.471224698,"data":"[INFO] Secret WANDB_KEY not in Doppler. Checking 2nd Priority (KAGGLE SECRETS STORE)...\n"}
+,{"stream_name":"stdout","time":9.471229592,"data":"[OK] Secret WANDB_KEY loaded from 2nd Priority (KAGGLE SECRETS STORE)\n"}
+,{"stream_name":"stdout","time":9.471233376,"data":"[MODEL] Cloning HoroConsultant repository...\n"}
+,{"stream_name":"stderr","time":9.618763366,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stderr","time":9.618787219,"data":"\n"}
+,{"stream_name":"stderr","time":9.618792218,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stdout","time":11.831313731,"data":"[CHECK] Checking pre-installed PyTorch \u0026 CUDA status...\n"}
+,{"stream_name":"stdout","time":15.515718583,"data":"[CUDA] Kaggle PyTorch version: 2.10.0+cu128, CUDA available: True\n"}
+,{"stream_name":"stdout","time":15.51574969,"data":"[CUDA] Detected GPU: Tesla P100-PCIE-16GB (sm_60)\n"}
+,{"stream_name":"stdout","time":15.515754412,"data":"[OK] Detected GPU Tesla P100-PCIE-16GB (sm_60) using native Kaggle PyTorch environment.\n"}
+,{"stream_name":"stdout","time":15.515762458,"data":"[MODEL] Removing incompatible torchao/torchvision \u0026 installing fine-tuning packages...\n"}
+,{"stream_name":"stderr","time":15.533401365,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":15.533439017,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
+,{"stream_name":"stderr","time":15.533442689,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
+,{"stream_name":"stderr","time":15.533445489,"data":"    (7.0) - (12.0)\n"}
+,{"stream_name":"stderr","time":15.533447881,"data":"    \n"}
+,{"stream_name":"stderr","time":15.533450142,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":15.533452744,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":15.53345551,"data":"    Please install PyTorch with a following CUDA\n"}
+,{"stream_name":"stderr","time":15.533457834,"data":"    configurations:  12.6 following instructions at\n"}
+,{"stream_name":"stderr","time":15.533460111,"data":"    https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":15.533462399,"data":"    \n"}
+,{"stream_name":"stderr","time":15.533464766,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":15.533467002,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":15.533469396,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
+,{"stream_name":"stderr","time":15.533471876,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
+,{"stream_name":"stderr","time":15.533474384,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":15.533476846,"data":"\n"}
+,{"stream_name":"stderr","time":15.533479027,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":15.533481221,"data":"\n"}
+,{"stream_name":"stderr","time":15.533483477,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":15.533485917,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
+,{"stream_name":"stderr","time":15.533488218,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
+,{"stream_name":"stderr","time":15.533490596,"data":"    (7.0) - (12.0)\n"}
+,{"stream_name":"stderr","time":15.533492926,"data":"    \n"}
+,{"stream_name":"stderr","time":15.53349509,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":15.533497306,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":15.533499641,"data":"    Please install PyTorch with a following CUDA\n"}
+,{"stream_name":"stderr","time":15.533501925,"data":"    configurations:  12.6 following instructions at\n"}
+,{"stream_name":"stderr","time":15.533504215,"data":"    https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":15.533506502,"data":"    \n"}
+,{"stream_name":"stderr","time":15.533517749,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":15.533521075,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":15.533523498,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
+,{"stream_name":"stderr","time":15.533525917,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
+,{"stream_name":"stderr","time":15.533528342,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":15.533530812,"data":"\n"}
+,{"stream_name":"stderr","time":15.533533287000001,"data":"  queued_call()\n"}
+,{"stream_name":"stdout","time":16.480391328,"data":"Found existing installation: torchao 0.10.0\n"}
+,{"stream_name":"stdout","time":16.551111072,"data":"Uninstalling torchao-0.10.0:\n"}
+,{"stream_name":"stdout","time":16.68252482,"data":"Found existing installation: torchao 0.10.0\n"}
+,{"stream_name":"stdout","time":16.682551182,"data":"Uninstalling torchao-0.10.0:\n"}
+,{"stream_name":"stdout","time":16.836012098,"data":"  Successfully uninstalled torchao-0.10.0\n"}
+,{"stream_name":"stdout","time":17.038005913,"data":"  Successfully uninstalled torchao-0.10.0\n"}
+,{"stream_name":"stdout","time":17.243817419,"data":"Found existing installation: torchvision 0.25.0+cu128\n"}
+,{"stream_name":"stdout","time":17.263989474,"data":"Uninstalling torchvision-0.25.0+cu128:\n"}
+,{"stream_name":"stdout","time":17.446091231,"data":"Found existing installation: torchvision 0.25.0+cu128\n"}
+,{"stream_name":"stdout","time":17.446118309,"data":"Uninstalling torchvision-0.25.0+cu128:\n"}
+,{"stream_name":"stdout","time":17.464124596,"data":"  Successfully uninstalled torchvision-0.25.0+cu128\n"}
+,{"stream_name":"stdout","time":17.66634732,"data":"  Successfully uninstalled torchvision-0.25.0+cu128\n"}
+,{"stream_name":"stderr","time":35.85693021,"data":"WARNING: BNB_CUDA_VERSION=124 environment variable detected; loading libbitsandbytes_cuda128_nocublaslt124.so.\n"}
+,{"stream_name":"stderr","time":35.856991703,"data":"This can be used to load a bitsandbytes version that is different from the PyTorch CUDA version.\n"}
+,{"stream_name":"stderr","time":35.857004298,"data":"If this was unintended set the BNB_CUDA_VERSION variable to an empty string: export BNB_CUDA_VERSION=\n"}
+,{"stream_name":"stderr","time":35.857017688,"data":"If you use the manual override make sure the right libcudart.so is in your LD_LIBRARY_PATH\n"}
+,{"stream_name":"stderr","time":35.857020652,"data":"For example by adding the following to your .bashrc: export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:\u003cpath_to_cuda_dir/lib64\n"}
+,{"stream_name":"stderr","time":35.857023695,"data":"\n"}
+,{"stream_name":"stderr","time":35.857025993,"data":"\n"}
+,{"stream_name":"stderr","time":35.857028217999996,"data":"WARNING: BNB_CUDA_VERSION=124 environment variable detected; loading libbitsandbytes_cuda128_nocublaslt124.so.\n"}
+,{"stream_name":"stderr","time":35.857030785,"data":"This can be used to load a bitsandbytes version that is different from the PyTorch CUDA version.\n"}
+,{"stream_name":"stderr","time":35.857033187,"data":"If this was unintended set the BNB_CUDA_VERSION variable to an empty string: export BNB_CUDA_VERSION=\n"}
+,{"stream_name":"stderr","time":35.857035572,"data":"If you use the manual override make sure the right libcudart.so is in your LD_LIBRARY_PATH\n"}
+,{"stream_name":"stderr","time":35.857038049,"data":"For example by adding the following to your .bashrc: export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:\u003cpath_to_cuda_dir/lib64\n"}
+,{"stream_name":"stderr","time":35.857049267,"data":"\n"}
+,{"stream_name":"stderr","time":35.857823576,"data":"Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128_nocublaslt124.so')\n"}
+,{"stream_name":"stderr","time":35.857836569,"data":"\n"}
+,{"stream_name":"stderr","time":35.857839193,"data":"Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128_nocublaslt124.so')\n"}
+,{"stream_name":"stderr","time":35.860675854,"data":"The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
+,{"stream_name":"stderr","time":35.860697235,"data":"\n"}
+,{"stream_name":"stderr","time":35.860702035,"data":"The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
+,{"stream_name":"stdout","time":36.078278732,"data":"[OK] BNB CUDA Fix: Symlinked libbitsandbytes_cuda125_nocublaslt.so -\u003e libbitsandbytes_cuda128.so\n"}
+,{"stream_name":"stdout","time":38.283337247,"data":"[OK] Fail-Fast Import Verified: transformers=4.44.2, peft=0.12.0, trl=0.11.0, accelerate=0.33.0, bitsandbytes=0.43.3\n"}
+,{"stream_name":"stdout","time":38.283362892,"data":"[START] Launching Cloud Training Orchestrator...\n"}
+,{"stream_name":"stdout","time":39.284763913,"data":"2026-08-09 14:32:57,775 [INFO] [DATA] Checking dataset source...\n"}
+,{"stream_name":"stdout","time":39.28479154,"data":"2026-08-09 14:32:57,775 [INFO] [DATA] Checking dataset source...\n"}
+,{"stream_name":"stdout","time":41.223625684,"data":"2026-08-09 14:32:59,714 [INFO] HTTP Request: GET https://gypqcpdojsyuiegkiseu.supabase.co/rest/v1/qa_knowledge_base?select=%2A\u0026is_verified=eq.true \"HTTP/1.1 200 OK\"\n"}
+,{"stream_name":"stdout","time":41.223668772,"data":"2026-08-09 14:32:59,715 [INFO] Fetched rows 0..1 from 'qa_knowledge_base' (Total so far: 2)\n"}
+,{"stream_name":"stdout","time":41.223737334,"data":"2026-08-09 14:32:59,715 [INFO] 🎉 Exported 2 ShareGPT records from Supabase to '/kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl'\n"}
+,{"stream_name":"stdout","time":41.223745992,"data":"2026-08-09 14:32:59,715 [INFO] [OK] Downloaded 2 records from Supabase DB to '/kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl'\n"}
+,{"stream_name":"stdout","time":41.223751233,"data":"2026-08-09 14:32:59,715 [INFO] [OK] Downloaded 2 records from Supabase DB to '/kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl'\n"}
+,{"stream_name":"stdout","time":41.223756341,"data":"2026-08-09 14:32:59,716 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE]...\n"}
+,{"stream_name":"stdout","time":41.223761068,"data":"2026-08-09 14:32:59,716 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE]...\n"}
+,{"stream_name":"stdout","time":41.223766249,"data":"2026-08-09 14:32:59,716 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
+,{"stream_name":"stdout","time":41.223771362,"data":"2026-08-09 14:32:59,716 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
+,{"stream_name":"stdout","time":41.223776414,"data":"2026-08-09 14:32:59,716 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl\n"}
+,{"stream_name":"stdout","time":41.223781317,"data":"2026-08-09 14:32:59,716 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl\n"}
+,{"stream_name":"stdout","time":41.223786494,"data":"2026-08-09 14:32:59,716 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
+,{"stream_name":"stdout","time":41.223801569,"data":"2026-08-09 14:32:59,716 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
+,{"stream_name":"stdout","time":41.223805778,"data":"2026-08-09 14:32:59,716 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...\n"}
+,{"stream_name":"stdout","time":41.223809708,"data":"2026-08-09 14:32:59,716 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...\n"}
+,{"stream_name":"stdout","time":42.847264685,"data":"2026-08-09 14:33:01,338 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']\n"}
+,{"stream_name":"stdout","time":42.847299061,"data":"2026-08-09 14:33:01,338 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']\n"}
+,{"stream_name":"stdout","time":42.847305208,"data":"2026-08-09 14:33:01,338 [WARNING]    [WARNING] WARNING: PyTorch wheel does NOT contain compiled binary for sm_60 (Tesla P100-PCIE-16GB)!\n"}
+,{"stream_name":"stdout","time":42.847309556,"data":"2026-08-09 14:33:01,338 [WARNING]    [WARNING] WARNING: PyTorch wheel does NOT contain compiled binary for sm_60 (Tesla P100-PCIE-16GB)!\n"}
+,{"stream_name":"stdout","time":42.847314106,"data":"2026-08-09 14:33:01,338 [INFO]    [TARGET] GPU Architecture: sm_60 (Tesla P100-PCIE-16GB)\n"}
+,{"stream_name":"stdout","time":42.847318558,"data":"2026-08-09 14:33:01,338 [INFO]    [TARGET] GPU Architecture: sm_60 (Tesla P100-PCIE-16GB)\n"}
+,{"stream_name":"stdout","time":42.847322891,"data":"2026-08-09 14:33:01,338 [INFO]    [CUDA] CUDA Device: Tesla P100-PCIE-16GB (Total GPUs: 1)\n"}
+,{"stream_name":"stdout","time":42.847326733,"data":"2026-08-09 14:33:01,338 [INFO]    [CUDA] CUDA Device: Tesla P100-PCIE-16GB (Total GPUs: 1)\n"}
+,{"stream_name":"stdout","time":42.847330758,"data":"2026-08-09 14:33:01,536 [ERROR]    [ERROR] CUDA Kernel Execution Test FAILED: CUDA error: no kernel image is available for execution on the device\n"}
+,{"stream_name":"stdout","time":42.847334704,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
+,{"stream_name":"stdout","time":42.847338685,"data":"CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\n"}
+,{"stream_name":"stdout","time":42.84734247,"data":"For debugging consider passing CUDA_LAUNCH_BLOCKING=1\n"}
+,{"stream_name":"stdout","time":42.847345938,"data":"Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"}
+,{"stream_name":"stdout","time":42.847349601,"data":"\n"}
+,{"stream_name":"stdout","time":42.847355281,"data":"2026-08-09 14:33:01,536 [ERROR]    [ERROR] CUDA Kernel Execution Test FAILED: CUDA error: no kernel image is available for execution on the device\n"}
+,{"stream_name":"stdout","time":42.847359296,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
+,{"stream_name":"stdout","time":42.847363874,"data":"CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\n"}
+,{"stream_name":"stdout","time":42.847367553,"data":"For debugging consider passing CUDA_LAUNCH_BLOCKING=1\n"}
+,{"stream_name":"stdout","time":42.847370963,"data":"Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"}
+,{"stream_name":"stdout","time":42.847374561,"data":"\n"}
+,{"stream_name":"stdout","time":43.848852542,"data":"2026-08-09 14:33:02,339 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
+,{"stream_name":"stdout","time":43.84889657,"data":"2026-08-09 14:33:02,339 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
+,{"stream_name":"stdout","time":43.848902352,"data":"2026-08-09 14:33:02,359 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
+,{"stream_name":"stdout","time":43.848906435,"data":"2026-08-09 14:33:02,359 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
+,{"stream_name":"stdout","time":43.848910315,"data":"2026-08-09 14:33:02,359 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device\n"}
+,{"stream_name":"stdout","time":43.848913922,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
+,{"stream_name":"stdout","time":43.848917805,"data":"CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\n"}
+,{"stream_name":"stdout","time":43.848921835,"data":"For debugging consider passing CUDA_LAUNCH_BLOCKING=1\n"}
+,{"stream_name":"stdout","time":43.848925334,"data":"Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"}
+,{"stream_name":"stdout","time":43.848928936,"data":"\n"}
+,{"stream_name":"stdout","time":43.848932335,"data":"2026-08-09 14:33:02,359 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device\n"}
+,{"stream_name":"stdout","time":43.848936471,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
+,{"stream_name":"stdout","time":43.848940384,"data":"CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\n"}
+,{"stream_name":"stdout","time":43.848959887,"data":"For debugging consider passing CUDA_LAUNCH_BLOCKING=1\n"}
+,{"stream_name":"stdout","time":43.848966819,"data":"Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"}
+,{"stream_name":"stdout","time":43.848970661,"data":"\n"}
+,{"stream_name":"stdout","time":43.848973981,"data":"2026-08-09 14:33:02,359 [WARNING] [WARNING] CUDA pre-flight kernel execution test failed on this device (e.g. sm_60/P100 unsupported by PyTorch wheel). Gracefully falling back to CPU execution mode.\n"}
+,{"stream_name":"stdout","time":43.848982214,"data":"2026-08-09 14:33:02,359 [WARNING] [WARNING] CUDA pre-flight kernel execution test failed on this device (e.g. sm_60/P100 unsupported by PyTorch wheel). Gracefully falling back to CPU execution mode.\n"}
+,{"stream_name":"stdout","time":43.848986269,"data":"2026-08-09 14:33:02,494 [INFO] NumExpr defaulting to 4 threads.\n"}
+,{"stream_name":"stdout","time":44.150752076,"data":"2026-08-09 14:33:02,641 [INFO] PyTorch version 2.10.0+cu128 available.\n"}
+,{"stream_name":"stdout","time":44.150793106,"data":"2026-08-09 14:33:02,642 [INFO] TensorFlow version 2.20.0 available.\n"}
+,{"stream_name":"stdout","time":44.1507989,"data":"2026-08-09 14:33:02,643 [INFO] JAX version 0.7.2 available.\n"}
+,{"stream_name":"stdout","time":60.408116163,"data":"2026-08-09 14:33:18,898 [WARNING] Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128_nocublaslt.so')\n"}
+,{"stream_name":"stdout","time":60.408147283,"data":"2026-08-09 14:33:18,899 [WARNING] The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
+,{"stream_name":"stdout","time":60.408152481,"data":"2026-08-09 14:33:18,914 [INFO]    [INFO] Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.\n"}
+,{"stream_name":"stdout","time":60.408171222,"data":"2026-08-09 14:33:18,914 [INFO]    [INFO] Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.\n"}
+,{"stream_name":"stdout","time":60.408174331,"data":"2026-08-09 14:33:18,914 [INFO] [MODEL] Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...\n"}
+,{"stream_name":"stdout","time":60.408176774,"data":"2026-08-09 14:33:18,914 [INFO] [MODEL] Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...\n"}
+,{"stream_name":"stdout","time":62.022434566,"data":"2026-08-09 14:33:20,513 [INFO] [MODEL] Loading base model in standard precision (torch.float32)...\n"}
+,{"stream_name":"stdout","time":62.022463067,"data":"2026-08-09 14:33:20,513 [INFO] [MODEL] Loading base model in standard precision (torch.float32)...\n"}
+,{"stream_name":"stderr","time":327.6360686,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":327.637386577,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":327.637401088,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":327.639229734,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":327.639244306,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":327.639402533,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":327.639497815,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":327.63950598,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":327.639511019,"data":"Exception encountered at \"In [1]\":\n"}
+,{"stream_name":"stderr","time":327.639515697,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":327.63952075,"data":"RuntimeError                              Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":327.639526075,"data":"/tmp/ipykernel_24/1679673078.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":327.639531709,"data":"    129         except Exception:\n"}
+,{"stream_name":"stderr","time":327.639536335,"data":"    130             pass\n"}
+,{"stream_name":"stderr","time":327.639540784,"data":"--\u003e 131     raise RuntimeError(f'[ERROR] Training orchestrator failed (exit code {proc.returncode}).\\n--- Tail of train_execution.log ---\\n{log_tail}')\n"}
+,{"stream_name":"stderr","time":327.639545891,"data":"    132 print('[OK] Training pipeline completed successfully!')\n"}
+,{"stream_name":"stderr","time":327.639550481,"data":"\n"}
+,{"stream_name":"stderr","time":327.639555349,"data":"RuntimeError: [ERROR] Training orchestrator failed (exit code -9).\n"}
+,{"stream_name":"stderr","time":327.639560878,"data":"--- Tail of train_execution.log ---\n"}
+,{"stream_name":"stderr","time":327.63956603,"data":"2026-08-09 14:33:02,339 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
+,{"stream_name":"stderr","time":327.639571241,"data":"2026-08-09 14:33:02,339 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
+,{"stream_name":"stderr","time":327.639575831,"data":"2026-08-09 14:33:02,359 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
+,{"stream_name":"stderr","time":327.639580405,"data":"2026-08-09 14:33:02,359 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
+,{"stream_name":"stderr","time":327.639595518,"data":"2026-08-09 14:33:02,359 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device\n"}
+,{"stream_name":"stderr","time":327.639599492,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
+,{"stream_name":"stderr","time":327.639603216,"data":"CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\n"}
+,{"stream_name":"stderr","time":327.639606765,"data":"For debugging consider passing CUDA_LAUNCH_BLOCKING=1\n"}
+,{"stream_name":"stderr","time":327.639610153,"data":"Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"}
+,{"stream_name":"stderr","time":327.639613718,"data":"\n"}
+,{"stream_name":"stderr","time":327.639618829,"data":"2026-08-09 14:33:02,359 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device\n"}
+,{"stream_name":"stderr","time":327.639625704,"data":"Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.\n"}
+,{"stream_name":"stderr","time":327.63962884,"data":"CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.\n"}
+,{"stream_name":"stderr","time":327.63963401,"data":"For debugging consider passing CUDA_LAUNCH_BLOCKING=1\n"}
+,{"stream_name":"stderr","time":327.639652706,"data":"Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.\n"}
+,{"stream_name":"stderr","time":327.639656942,"data":"\n"}
+,{"stream_name":"stderr","time":327.639660701,"data":"2026-08-09 14:33:02,359 [WARNING] [WARNING] CUDA pre-flight kernel execution test failed on this device (e.g. sm_60/P100 unsupported by PyTorch wheel). Gracefully falling back to CPU execution mode.\n"}
+,{"stream_name":"stderr","time":327.639665949,"data":"2026-08-09 14:33:02,359 [WARNING] [WARNING] CUDA pre-flight kernel execution test failed on this device (e.g. sm_60/P100 unsupported by PyTorch wheel). Gracefully falling back to CPU execution mode.\n"}
+,{"stream_name":"stderr","time":327.639670753,"data":"2026-08-09 14:33:02,494 [INFO] NumExpr defaulting to 4 threads.\n"}
+,{"stream_name":"stderr","time":327.639674375,"data":"2026-08-09 14:33:02,641 [INFO] PyTorch version 2.10.0+cu128 available.\n"}
+,{"stream_name":"stderr","time":327.63967792,"data":"2026-08-09 14:33:02,642 [INFO] TensorFlow version 2.20.0 available.\n"}
+,{"stream_name":"stderr","time":327.639681369,"data":"2026-08-09 14:33:02,643 [INFO] JAX version 0.7.2 available.\n"}
+,{"stream_name":"stderr","time":327.63968477,"data":"2026-08-09 14:33:18,898 [WARNING] Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128_nocublaslt.so')\n"}
+,{"stream_name":"stderr","time":327.639688703,"data":"2026-08-09 14:33:18,899 [WARNING] The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
+,{"stream_name":"stderr","time":327.639692513,"data":"2026-08-09 14:33:18,914 [INFO]    [INFO] Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.\n"}
+,{"stream_name":"stderr","time":327.639696238,"data":"2026-08-09 14:33:18,914 [INFO]    [INFO] Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.\n"}
+,{"stream_name":"stderr","time":327.63970072,"data":"2026-08-09 14:33:18,914 [INFO] [MODEL] Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...\n"}
+,{"stream_name":"stderr","time":327.639709156,"data":"2026-08-09 14:33:18,914 [INFO] [MODEL] Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...\n"}
+,{"stream_name":"stderr","time":327.639712767,"data":"2026-08-09 14:33:20,513 [INFO] [MODEL] Loading base model in standard precision (torch.float32)...\n"}
+,{"stream_name":"stderr","time":327.639717508,"data":"2026-08-09 14:33:20,513 [INFO] [MODEL] Loading base model in standard precision (torch.float32)...\n"}
+,{"stream_name":"stderr","time":327.639721133,"data":"\n"}
+,{"stream_name":"stderr","time":327.639724413,"data":"\n"}
+,{"stream_name":"stderr","time":330.169328567,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":330.169360638,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":330.410141473,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":330.410169986,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":331.598541076,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":331.889694084,"data":"[NbConvertApp] Writing 30348 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":334.181090433,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":335.206006982,"data":"[NbConvertApp] Writing 322207 bytes to __results__.html\n"}
 ]
