@@ -105,3 +105,16 @@
   - Also added `"wandb"`, `"node_modules"`, and `".vercel"` to prevent similar false positives from other third-party tool directories.
   - Fixed result: scanner now audits 1,077 project files (down from 4,156), 0 secrets found, status correctly `READY_FOR_PROD`.
   - **Verification**: After fix, run `python3 project/core/code_reviewer.py --review` and confirm `"overall_status": "READY_FOR_PROD"` and `"scanned_files": ~1077`.
+
+---
+
+### 11. 🌐 Hugging Face Space URL & Endpoint Topology Disconnect
+- **Issue Experienced**: Calling `curl 'https://pphothidaen-horoconsultant-core-api.hf.space/api/v1/bazi/calculate'` or `.../interpret` from Origin `https://pphothidaen-horoconsultant-core-backend.static.hf.space` failed with `HTTP 404 (Not Found)`.
+- **Definitive Root Cause**:
+  1. **Space Hostname Mismatch**: The deployed Hugging Face Space under `pphothidaen` is named `pphothidaen/horoconsultant-core-backend` (not `core-api`).
+  2. **Static SDK vs Backend API**: `pphothidaen/horoconsultant-core-backend` is deployed under `sdk: static` (HTML/JS/CSS frontend CDN) which serves static files only and cannot execute Python FastAPI backend code directly.
+  3. **API Routing Architecture**: The API routes (`/api/v1/bazi/calculate`, `/api/v1/bazi/interpret`, `/api/v2/*`) must be directed to the active backend gateway (e.g. `https://horo-consultant-psi.vercel.app` or local `http://localhost:8000` / Docker backend) with CORS origin matching the static space.
+- **Prevention Protocol & Verification**:
+  - Added [`project/tests/test_api_integration_suite.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/tests/test_api_integration_suite.py) containing 19 integration tests validating all v1 and v2 API endpoints, CORS preflight (`OPTIONS`), and exact browser headers from `https://pphothidaen-horoconsultant-core-backend.static.hf.space`.
+  - Verified 19/19 integration tests pass 100%.
+

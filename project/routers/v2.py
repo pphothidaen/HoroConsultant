@@ -187,10 +187,12 @@ def interpret_focused(req: QuestionFocusInterpretRequest):
     )
 
     # 3. Generate via HybridRouter
-    interpretation = hybrid_router.generate_interpretation(chart, focused_prompt)
+    gen_result = hybrid_router.generate(prompt=focused_prompt)
+    interpretation = gen_result.get("text", "") or "วิเคราะห์ดวงชะตาตามหลัก 16 สาขาวิชา"
 
     # 4. Enrich metadata
     meta = question_focus_router.enrich_response_metadata(category, confidence, interpretation)
+
 
     return {
         "status": "success",
