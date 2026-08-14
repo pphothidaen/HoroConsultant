@@ -130,12 +130,29 @@ if os.path.exists(STATIC_DIR):
     except Exception as e:
         logger.warning(f"StaticFiles mount skipped: {e}")
 
+from project.core.rate_limiter import rate_limiter
+from project.routers.v2 import v2_router
+
+# Rate Limiting Middleware
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    client_ip = request.client.host if request.client else "127.0.0.1"
+    path = request.url.path
+    # Allow static assets and health checks without rate limit restriction
+    if not path.startswith("/static") and path not in ("/", "/health", "/metrics", "/app.js", "/style.css"):
+        allowed, reason = rate_limiter.check_rate_limit(client_ip, path)
+        if not allowed:
+            return JSONResponse(status_code=429, content={"detail": f"Rate limit exceeded: {reason}"})
+    return await call_next(request)
+
 # Register Modular Routers
 app.include_router(admin_router)
 app.include_router(hitl_router)
 app.include_router(astrology_router)
 app.include_router(debate_router)
 app.include_router(mlops_router)
+app.include_router(v2_router, prefix="/api/v2")
+
 
 
 # ---------------------------------------------------------------------------

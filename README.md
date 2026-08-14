@@ -1,6 +1,7 @@
 # 🌌 Computational Metaphysics Engine — Developer Architecture & Integration Guide
 
-> **Project:** HoroConsultant — High-Precision 10-Domain Computational Metaphysics Engine, True Solar Time Engine, Multi-Agent Gemini & Local Ollama Hybrid Routing, FAISS Classical Vault RAG, Rust Fast Math Acceleration, and HITL Review Studio.
+> **Project:** HoroConsultant — High-Precision 16-Domain Computational Metaphysics Engine (BaZi, ZiWei, QiMen, LiuRen, IChing, XuanKong, ZeJi, ThaiVedic, Western, Numerology, TaiYi, LiuYao, MeiHua, SanHe, QiZheng, MianXiang), True Solar Time Engine, Multi-Agent Gemini & Local Ollama Hybrid Routing, API v2 Router, FAISS Classical Vault RAG, Rust Fast Math Acceleration, and HITL Review Studio.
+
 
 ---
 

@@ -1,0 +1,193 @@
+{
+  "version": "1.0.0",
+  "name": "HoroConsultant 6-Domain Question Benchmark",
+  "description": "Gold standard benchmark questions with expected answer criteria for astrological alignment evaluation",
+  "last_updated": "2026-08-15",
+  "categories": [
+    {
+      "domain": "career",
+      "name_th": "การงานและการลงทุนธุรกิจ",
+      "name_en": "Career, Promotion & Business Strategy",
+      "questions": [
+        {
+          "id": "career_1.1",
+          "question_th": "ในปี 2026 ชะตากำลังอยู่ในช่วงเปลี่ยนงาน ย้ายสายงาน หรือควรเปิดธุรกิจของตัวเองดี? และเดือนไหนคือช่วงจังหวะทอง?",
+          "question_en": "In 2026, is it better to change jobs, switch career paths, or start my own business? Which months are auspicious golden windows?",
+          "expected_criteria": {
+            "direct_relevance": [
+              "Directly compare employee/job switch vs starting own business",
+              "Identify specific auspicious months and clash months to avoid",
+              "Provide 3 proactive actionable recommendations"
+            ],
+            "astrological_logic": [
+              "BaZi: Analyze Officer Star (官星/七殺) vs Output/Wealth Stars (食傷/財星) for Useful God (用神)",
+              "ZiWei: Examine Career Palace (官祿宮) and Migration Palace (遷徙宮) with Transformation Stars (化權/化忌)",
+              "QiMen: Verify Open Door (開門) for employment and Life Door (生門) for business"
+            ],
+            "canonical_citations": [
+              "滴天髓 (Di Tian Sui)",
+              "子平真詮 (Zi Ping Zhen Quan)"
+            ]
+          }
+        },
+        {
+          "id": "career_1.2",
+          "question_th": "มีโอกาสได้รับการเลื่อนตำแหน่งหรือขึ้นเงินเดือนในปีนี้หรือไม่? ต้องระวังศัตรูในที่ทำงานตรงไหน?",
+          "question_en": "Are there opportunities for promotion or salary raise this year? Where should I watch out for workplace politics?",
+          "expected_criteria": {
+            "direct_relevance": [
+              "State promotion likelihood probability",
+              "Identify potential workplace rivals or backstabbers"
+            ],
+            "astrological_logic": [
+              "BaZi: Check Officer Star clarity and Robbery Star (劫財)",
+              "ZiWei: Check Career Palace (官祿) and Servants Palace (奴僕)"
+            ],
+            "canonical_citations": [
+              "滴天髓 (Di Tian Sui)"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "domain": "finance",
+      "name_th": "การเงิน โชคลาภ และทรัพย์สิน",
+      "name_en": "Finance, Wealth & Investment",
+      "questions": [
+        {
+          "id": "finance_2.1",
+          "question_th": "การเงินในปีนี้มีเกณฑ์โชคลาภลอยหรือได้ทรัพย์ใหญ่หรือไม่? และมีจุดรั่วไหลของเงินคงค้างในเรือนชะตาตรงไหน?",
+          "question_en": "Is there windfall wealth or major asset acquisition potential this year? Where are the financial leakage points in the chart?",
+          "expected_criteria": {
+            "direct_relevance": [
+              "Distinguish speculative/windfall wealth from earned income",
+              "Identify specific financial leakage points",
+              "Recommend asset conversion strategy based on Useful God"
+            ],
+            "astrological_logic": [
+              "BaZi: Analyze Indirect Wealth (偏財) vs Direct Wealth (正財) and Robbery Star (劫財)",
+              "ZiWei: Examine Wealth Palace (財帛宮) and Siblings/Servants (兄弟/奴僕)",
+              "Uranian: Check Jupiter/Kronos vs Hades/Vulkanus sensitive points"
+            ],
+            "canonical_citations": [
+              "滴天髓 (Di Tian Sui)",
+              "淵海子平 (Yuan Hai Zi Ping)"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "domain": "love",
+      "name_th": "ความรัก หุ้นส่วน และความสัมพันธ์",
+      "name_en": "Love, Marriage & Business Partnership",
+      "questions": [
+        {
+          "id": "love_3.1",
+          "question_th": "คนที่เพิ่งเข้ามาคบหาหรือหุ้นส่วนธุรกิจคนนี้ สอดคล้องดวงชะตา (ดวงสมพงษ์) หรือไม่? มีเกณฑ์ขัดแย้งหรือหลอกลวงในอนาคตหรือไม่?",
+          "question_en": "Is this new partner or business partner compatible with my chart? Is there risk of conflict or deception?",
+          "expected_criteria": {
+            "direct_relevance": [
+              "Provide Compatibility Index percentage",
+              "Identify harmonious synergies and conflict risk points",
+              "Provide practical relationship / contract advice"
+            ],
+            "astrological_logic": [
+              "BaZi: Check Day Branch combinations (六合/三合) vs clashes (六沖/相害)",
+              "ZiWei: Examine Spouse Palace (夫妻宮) and Servants/Career (奴僕/事業)",
+              "IChing: Check Hexagram lines for Wife-Wealth (妻財) and Siblings (兄弟)"
+            ],
+            "canonical_citations": [
+              "三命通會 (San Ming Tong Hui)",
+              "紫微斗數全書 (Zi Wei Dou Shu Quan Shu)"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "domain": "health",
+      "name_th": "สุขภาพ อุบัติเหตุ และเคราะห์ยาม",
+      "name_en": "Health, Longevity & Accident Hazards",
+      "questions": [
+        {
+          "id": "health_4.1",
+          "question_th": "ดวงชะตามีเกณฑ์เจ็บป่วยหนัก เลือดตกยางออก หรือสภาวะอารมณ์ดิ่งในช่วงปีนี้หรือไม่? ควรป้องกันหรือเสริมสุขภาพอย่างไร?",
+          "question_en": "Is there risk of serious illness, blood accidents, or emotional depression this year? How to prevent and strengthen health?",
+          "expected_criteria": {
+            "direct_relevance": [
+              "Identify specific organ groups at risk",
+              "Highlight high-risk months and preventative measures",
+              "Recommend Five Elements lifestyle balancing"
+            ],
+            "astrological_logic": [
+              "BaZi: Map Five Elements excess/deficiency to organ systems",
+              "ZiWei: Examine Health Palace (疾厄宮)",
+              "LiuRen: Check illness general placement"
+            ],
+            "canonical_citations": [
+              "滴天髓 (Di Tian Sui)",
+              "子平真詮 (Zi Ping Zhen Quan)"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "domain": "family",
+      "name_th": "ครอบครัว บุตรบริวาร และการสืบทอด",
+      "name_en": "Family, Offspring & Inheritance",
+      "questions": [
+        {
+          "id": "family_5.1",
+          "question_th": "ดวงชะตามีเกณฑ์มีบุตรง่ายหรือยาก? บุตรจะส่งเสริมชะตาพ่อแม่หรือไม่? และมีเกณฑ์ความขัดแย้งในครอบครัวอย่างไร?",
+          "question_en": "Does the chart indicate ease of having offspring? Will children support parents' destiny? How is family harmony?",
+          "expected_criteria": {
+            "direct_relevance": [
+              "Address offspring timing and fertility indicators",
+              "Evaluate parent-child chart harmony",
+              "Recommend family harmony enhancement methods"
+            ],
+            "astrological_logic": [
+              "BaZi: Analyze Eating God (食神) and Hurting Officer (傷官)",
+              "ZiWei: Examine Children Palace (子女宮) and Parents Palace (父母宮)"
+            ],
+            "canonical_citations": [
+              "紫微斗數全書 (Zi Wei Dou Shu Quan Shu)",
+              "三命通會 (San Ming Tong Hui)"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "domain": "timing",
+      "name_th": "ฤกษ์ยามมงคลและวงจรดาวเคราะห์",
+      "name_en": "Auspicious Date Selection & Cosmic Cycles",
+      "questions": [
+        {
+          "id": "timing_6.1",
+          "question_th": "ช่วงเวลาหรือวันไหนในเดือนหน้าเหมาะแก่การเซ็นสัญญาสำคัญ เปิดบริษัท หรือออกรถใหม่ที่สุด?",
+          "question_en": "Which dates next month are most auspicious for signing important contracts, opening a business, or purchasing a new vehicle?",
+          "expected_criteria": {
+            "direct_relevance": [
+              "Recommend top 3 specific dates with hour windows",
+              "List contraindicated dates to avoid (Clash days)",
+              "Provide preparation rituals or directional tips"
+            ],
+            "astrological_logic": [
+              "ZeJi: Compute 12 Duty Officers (建除十二神: 成日/開日/定日) avoiding Day Clash (歲破/暗沖)",
+              "QiMen: Select auspicious hour door/spirit formations",
+              "XuanKong: Verify Period 9 Flying Star positive sectors"
+            ],
+            "canonical_citations": [
+              "協紀辨方書 (Xie Ji Bian Fang Shu)",
+              "煙波釣叟歌 (Yan Bo Diao Sou Ge)"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -44,6 +44,10 @@ pub mod astrological_audit;
 pub mod svg;
 pub mod observability;
 pub mod server;
+pub mod meihua;
+pub mod sanhe;
+pub mod liu_yao;
+pub mod tai_yi;
 
 pub use bazi::*;
 pub use solar::*;
@@ -62,6 +66,10 @@ pub use security_audit::*;
 pub use astrological_audit::*;
 pub use svg::*;
 pub use observability::*;
+pub use meihua::*;
+pub use sanhe::*;
+pub use liu_yao::*;
+pub use tai_yi::*;
 
 /// High-performance Rust core for Computational Metaphysics Engine.
 #[pymodule]
@@ -113,6 +121,8 @@ fn rust_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // I Ching & Liu Yao
     m.add_function(wrap_pyfunction!(iching::parse_hexagram_trigrams, m)?)?;
+    m.add_function(wrap_pyfunction!(liu_yao::liu_yao_najia, m)?)?;
+    m.add_function(wrap_pyfunction!(liu_yao::liu_yao_five_relatives, m)?)?;
 
     // Da Liu Ren
     m.add_function(wrap_pyfunction!(liuren::calculate_liuren_heaven_plate, m)?)?;
@@ -123,6 +133,9 @@ fn rust_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Numerology (Satta-Lek)
     m.add_function(wrap_pyfunction!(numerology::calculate_satta_lek_matrix, m)?)?;
+
+    // Mei Hua Yi Shu (Plum Blossom)
+    m.add_function(wrap_pyfunction!(meihua::mei_hua_hexagram_from_time, m)?)?;
 
     // Security Audit Scanner
     m.add_function(wrap_pyfunction!(security_audit::run_rust_security_audit, m)?)?;
@@ -146,6 +159,14 @@ fn rust_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Axum Web Server API Gateway
     m.add_function(wrap_pyfunction!(server::start_rust_axum_server, m)?)?;
+
+    // San He
+    m.add_function(wrap_pyfunction!(sanhe::san_he_resolve_mountain, m)?)?;
+    m.add_function(wrap_pyfunction!(sanhe::san_he_water_method, m)?)?;
+
+    // Tai Yi Engine
+    m.add_function(wrap_pyfunction!(tai_yi::tai_yi_accumulated_years, m)?)?;
+    m.add_function(wrap_pyfunction!(tai_yi::tai_yi_star_palace, m)?)?;
 
     Ok(())
 }

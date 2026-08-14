@@ -165,6 +165,61 @@ BUTTON_CATALOG = [
         "spec_check": "Toggles reading, validator audit, and RAG references panels.",
         "test_func": "test_tab_toggle"
     },
+    {
+        "id": "BTN-IDX-16",
+        "page": "index.html",
+        "name": "太乙 太乙神數 (Tai Yi)",
+        "handler": "calcTaiYi()",
+        "endpoint": "POST /api/v2/calculate/unified",
+        "spec_check": "Calculates Tai Yi accumulated years and 16-path star palace.",
+        "test_func": "test_tai_yi_btn"
+    },
+    {
+        "id": "BTN-IDX-17",
+        "page": "index.html",
+        "name": "六爻 六爻預測 (Liu Yao)",
+        "handler": "calcLiuYao()",
+        "endpoint": "POST /api/v2/calculate/unified",
+        "spec_check": "Calculates Liu Yao 6-lines, Na Jia, and Five Relatives.",
+        "test_func": "test_liu_yao_btn"
+    },
+    {
+        "id": "BTN-IDX-18",
+        "page": "index.html",
+        "name": "梅花 梅花易數 (Mei Hua)",
+        "handler": "calcMeiHua()",
+        "endpoint": "POST /api/v2/calculate/unified",
+        "spec_check": "Calculates Mei Hua Body/Function trigrams and element interaction.",
+        "test_func": "test_mei_hua_btn"
+    },
+    {
+        "id": "BTN-IDX-19",
+        "page": "index.html",
+        "name": "三合 三合風水 (San He)",
+        "handler": "calcSanHe()",
+        "endpoint": "POST /api/v2/calculate/unified",
+        "spec_check": "Calculates San He 12 Life Stages water method and 24 mountains.",
+        "test_func": "test_san_he_btn"
+    },
+    {
+        "id": "BTN-IDX-20",
+        "page": "index.html",
+        "name": "七政 七政四餘 (Qi Zheng)",
+        "handler": "calcQiZheng()",
+        "endpoint": "POST /api/v2/calculate/unified",
+        "spec_check": "Calculates Qi Zheng 7 planets + 4 shadow stars on 28 lunar mansions.",
+        "test_func": "test_qi_zheng_btn"
+    },
+    {
+        "id": "BTN-IDX-21",
+        "page": "index.html",
+        "name": "面相 麻衣神相 (Mian Xiang Physiognomy)",
+        "handler": "calcMianXiang()",
+        "endpoint": "POST /api/v2/mian_xiang/analyze",
+        "spec_check": "Analyzes 12 Face Palaces and 5 Facial Features via physiognomy rules.",
+        "test_func": "test_mian_xiang_btn"
+    },
+
     # admin.html
     {
         "id": "BTN-ADM-01",
@@ -398,6 +453,43 @@ def test_numerology_btn():
     res = client.get("/api/v1/numerology/calculate?text=0812345678&day_num=2&lunar_month=6&year_zodiac_num=7")
     assert res.status_code == 200
     return f"HTTP 200 - ChaldeanTotal: {res.json()['chaldean_score']['total_score']}"
+
+def test_tai_yi_btn():
+    res = client.post("/api/v2/calculate/unified", json={"birth_datetime": "2026-05-15 14:30:00", "disciplines": ["tai_yi"]})
+    assert res.status_code == 200
+    return f"HTTP 200 - TaiYiStarPalace: {res.json()['charts']['tai_yi']['star_palace']}"
+
+def test_liu_yao_btn():
+    res = client.post("/api/v2/calculate/unified", json={"birth_datetime": "2026-05-15 14:30:00", "disciplines": ["liu_yao"]})
+    assert res.status_code == 200
+    return f"HTTP 200 - LiuYaoPalace: {res.json()['charts']['liu_yao']['palace']}"
+
+def test_mei_hua_btn():
+    res = client.post("/api/v2/calculate/unified", json={"birth_datetime": "2026-05-15 14:30:00", "disciplines": ["mei_hua"]})
+    assert res.status_code == 200
+    mh = res.json()['charts']['mei_hua']
+    interaction = mh.get('body_function', {}).get('interaction', '比和')
+    return f"HTTP 200 - MeiHuaInteraction: {interaction}"
+
+
+def test_san_he_btn():
+    res = client.post("/api/v2/calculate/unified", json={"birth_datetime": "2026-05-15 14:30:00", "disciplines": ["san_he"]})
+    assert res.status_code == 200
+    return f"HTTP 200 - SanHeFormation: {res.json()['charts']['san_he']['san_he_formation']}"
+
+def test_qi_zheng_btn():
+    res = client.post("/api/v2/calculate/unified", json={"birth_datetime": "2026-05-15 14:30:00", "disciplines": ["qi_zheng"]})
+    assert res.status_code == 200
+    return f"HTTP 200 - QiZhengMansions: {len(res.json()['charts']['qi_zheng']['lunar_mansions'])}"
+
+def test_mian_xiang_btn():
+    res = client.post("/api/v2/mian_xiang/analyze", json={
+        "features": {"face_shape": "round", "forehead": "wide", "eyebrows": "thick", "eyes": "large", "nose": "high", "mouth": "full", "ears": "large", "chin": "round", "moles": []},
+        "birth_year": 1990
+    })
+    assert res.status_code == 200
+    return f"HTTP 200 - MianXiangElement: {res.json()['analysis']['face_element']}"
+
 
 def test_tab_toggle():
     res = client.get("/")

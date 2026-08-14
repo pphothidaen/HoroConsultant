@@ -636,3 +636,50 @@ def fast_satta_lek_matrix(day_num: int, lunar_month: int, year_zodiac_num: int) 
     row4 = [row1[i] + row2[i] + row3[i] for i in range(7)]
     return (row1, row2, row3, row4)
 
+
+def fast_tai_yi_accumulated_years(year: int) -> int:
+    """Calculate Tai Yi Accumulated Years. Uses Rust acceleration when available."""
+    if RUST_AVAILABLE and hasattr(rust_core, "tai_yi_accumulated_years"):
+        return rust_core.tai_yi_accumulated_years(year)
+    return (year - 4) % 72
+
+
+def fast_liu_yao_najia(trigram_idx: int, is_upper: bool) -> list[int]:
+    """Calculate Liu Yao Na Jia earthly branches."""
+    if RUST_AVAILABLE and hasattr(rust_core, "liu_yao_najia"):
+        return rust_core.liu_yao_najia(trigram_idx, is_upper)
+    if trigram_idx in (7, 1):
+        return [6, 8, 10] if is_upper else [0, 2, 4]
+    elif trigram_idx == 2:
+        return [8, 10, 0] if is_upper else [2, 4, 6]
+    elif trigram_idx == 4:
+        return [10, 0, 2] if is_upper else [4, 6, 8]
+    elif trigram_idx == 0:
+        return [1, 11, 9] if is_upper else [7, 5, 3]
+    elif trigram_idx == 6:
+        return [7, 5, 3] if is_upper else [1, 11, 9]
+    elif trigram_idx == 5:
+        return [9, 7, 5] if is_upper else [3, 1, 11]
+    elif trigram_idx == 3:
+        return [11, 9, 7] if is_upper else [5, 3, 1]
+    return [0, 0, 0]
+
+
+def fast_mei_hua_hexagram(year: int, month: int, day: int, hour: int) -> tuple[int, int, int]:
+    """Calculate Mei Hua time-based hexagram."""
+    if RUST_AVAILABLE and hasattr(rust_core, "mei_hua_hexagram_from_time"):
+        return rust_core.mei_hua_hexagram_from_time(year, month, day, hour)
+    upper = (year + month + day) % 8 or 8
+    lower = (year + month + day + hour) % 8 or 8
+    moving = (year + month + day + hour) % 6 or 6
+    return (upper, lower, moving)
+
+
+def fast_san_he_mountain(degree: float) -> int:
+    """Resolve 24 Mountain direction index from compass degree (0-23)."""
+    if RUST_AVAILABLE and hasattr(rust_core, "san_he_resolve_mountain"):
+        return rust_core.san_he_resolve_mountain(degree)
+    deg = (degree % 360.0 + 7.5) % 360.0
+    return int(deg // 15.0)
+
+

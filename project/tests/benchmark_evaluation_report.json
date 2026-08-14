@@ -1,0 +1,70 @@
+{
+  "total_questions": 7,
+  "passed_questions": 7,
+  "overall_pass_rate": 100.0,
+  "results": [
+    {
+      "id": "career_1.1",
+      "domain": "career",
+      "classified_as": "career",
+      "confidence": 1.0,
+      "domain_match": true,
+      "alignment_percentage": 100.0,
+      "status": "PASS"
+    },
+    {
+      "id": "career_1.2",
+      "domain": "career",
+      "classified_as": "career",
+      "confidence": 0.8,
+      "domain_match": true,
+      "alignment_percentage": 100.0,
+      "status": "PASS"
+    },
+    {
+      "id": "finance_2.1",
+      "domain": "finance",
+      "classified_as": "finance",
+      "confidence": 1.0,
+      "domain_match": true,
+      "alignment_percentage": 100.0,
+      "status": "PASS"
+    },
+    {
+      "id": "love_3.1",
+      "domain": "love",
+      "classified_as": "love",
+      "confidence": 0.73,
+      "domain_match": true,
+      "alignment_percentage": 100.0,
+      "status": "PASS"
+    },
+    {
+      "id": "health_4.1",
+      "domain": "health",
+      "classified_as": "health",
+      "confidence": 1.0,
+      "domain_match": true,
+      "alignment_percentage": 100.0,
+      "status": "PASS"
+    },
+    {
+      "id": "family_5.1",
+      "domain": "family",
+      "classified_as": "family",
+      "confidence": 1.0,
+      "domain_match": true,
+      "alignment_percentage": 100.0,
+      "status": "PASS"
+    },
+    {
+      "id": "timing_6.1",
+      "domain": "timing",
+      "classified_as": "timing",
+      "confidence": 1.0,
+      "domain_match": true,
+      "alignment_percentage": 100.0,
+      "status": "PASS"
+    }
+  ]
+}

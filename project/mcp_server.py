@@ -30,9 +30,15 @@ from project.api_router import HybridRouter
 from project.core.bazi_engine import BaZiEngine
 from project.core.iching_engine import IChingEngine
 from project.core.liu_ren_engine import LiuRenEngine
+from project.core.liu_yao_engine import LiuYaoEngine
+from project.core.mei_hua_engine import MeiHuaEngine
+from project.core.mian_xiang_engine import MianXiangEngine
 from project.core.numerology_engine import NumerologyEngine
 from project.core.qi_men_engine import QiMenEngine
+from project.core.qi_zheng_engine import QiZhengSiYuEngine
+from project.core.san_he_engine import SanHeEngine
 from project.core.svg_generator import generate_bazi_svg, generate_zodiac_wheel_svg
+from project.core.tai_yi_engine import TaiYiEngine
 from project.core.thai_vedic_engine import ThaiVedicEngine
 from project.core.western_uranian_engine import WesternUranianEngine
 from project.core.xuan_kong_engine import XuanKongEngine
@@ -54,6 +60,13 @@ zeji_engine     = ZeJiEngine()
 thaivedic_engine = ThaiVedicEngine()
 western_engine  = WesternUranianEngine()
 numerology_engine = NumerologyEngine()
+tai_yi_engine   = TaiYiEngine()
+liu_yao_engine_ = LiuYaoEngine()
+mei_hua_engine  = MeiHuaEngine()
+san_he_engine   = SanHeEngine()
+qi_zheng_engine = QiZhengSiYuEngine()
+mian_xiang_engine = MianXiangEngine()
+
 
 router       = HybridRouter()
 validator    = PredictionValidator()
@@ -184,6 +197,43 @@ class HoroMCPTools:
         satta_lek = numerology_engine.calculate_satta_lek(day_num, lunar_month, year_zodiac_num)
         score = numerology_engine.score_text_or_number(text)
         return {"satta_lek": satta_lek, "chaldean_score": score}
+
+    @staticmethod
+    def tai_yi_calculate(year: int = 2026, month: int = 5, day: int = 15, hour: int = 14) -> dict[str, Any]:
+        """Compute Tai Yi Shen Shu 16-path star and 8-direction matrix."""
+        res = tai_yi_engine.calculate(year, month, day, hour)
+        return res.chart_data
+
+    @staticmethod
+    def liu_yao_calculate(lines: list[int] = [7, 7, 7, 7, 7, 7], day_stem_idx: int = 0) -> dict[str, Any]:
+        """Compute Liu Yao 6-lines divination with Na Jia and Five Relatives."""
+        res = liu_yao_engine_.calculate(lines, day_stem_idx=day_stem_idx)
+        return res.chart_data
+
+    @staticmethod
+    def mei_hua_calculate(year: int = 2026, month: int = 5, day: int = 15, hour: int = 14) -> dict[str, Any]:
+        """Compute Mei Hua Plum Blossom Numerology Body/Function analysis."""
+        res = mei_hua_engine.calculate(year, month, day, hour)
+        return res.chart_data
+
+    @staticmethod
+    def san_he_calculate(sitting_degree: float = 0.0, facing_degree: float = 180.0) -> dict[str, Any]:
+        """Compute San He 12 Life Stages Water Method and 24 Mountains."""
+        res = san_he_engine.calculate(sitting_degree, facing_degree)
+        return res.chart_data
+
+    @staticmethod
+    def qi_zheng_calculate(year: int = 2026, month: int = 5, day: int = 15, hour: int = 14) -> dict[str, Any]:
+        """Compute Qi Zheng Si Yu 7 planets + 4 shadow stars on 28 lunar mansions."""
+        res = qi_zheng_engine.calculate(year, month, day, hour)
+        return res.chart_data
+
+    @staticmethod
+    def mian_xiang_analyze(features: dict[str, Any]) -> dict[str, Any]:
+        """Analyze 12 Face Palaces and 5 Facial Features using classical physiognomy rules."""
+        res = mian_xiang_engine.analyze(features)
+        return res.chart_data
+
 
 
 def get_mcp_manifest() -> dict[str, Any]:
