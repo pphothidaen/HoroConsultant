@@ -23,6 +23,7 @@ from typing import Any, Dict, Optional
 
 ROOT_DIR = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT_DIR))
+ENV_FILE = ROOT_DIR / ".env"
 
 from project.mlops.distillation.cookie_manager import CookieManager
 from project.mlops.distillation.curator import DatasetCurator
@@ -38,7 +39,13 @@ class TelegramBotController:
     """Handles incoming Telegram commands and interacts with Hermes Agent & MLOps tools."""
 
     def __init__(self, token: Optional[str] = None):
-        self.token = token or os.getenv("TELEGRAM_BOT_TOKEN")
+        if not token:
+            token = os.getenv("TELEGRAM_BOT_TOKEN")
+            if not token and ENV_FILE.exists():
+                from dotenv import dotenv_values
+                token = dotenv_values(ENV_FILE).get("TELEGRAM_BOT_TOKEN")
+
+        self.token = token
         self.notifier = WebhookNotifier(telegram_token=self.token)
         self.miner = HermesKnowledgeMiner()
         self.curator = DatasetCurator(output_dir=ROOT_DIR / "project" / "data")
@@ -47,6 +54,10 @@ class TelegramBotController:
 
     def handle_command(self, text: str, chat_id: str) -> str:
         """Process incoming command and return response text."""
+        # Auto-persist and sync chat_id if not present
+        if chat_id:
+            self._ensure_chat_id_synced(chat_id)
+
         cmd_parts = text.strip().split()
         if not cmd_parts:
             return "กรุณาระบุคำสั่ง เช่น /status หรือ /help"
@@ -69,6 +80,48 @@ class TelegramBotController:
             return self._cmd_cookie()
         else:
             return f"❌ ไม่รู้จักคำสั่ง <code>{cmd}</code>\nพิมพ์ /help เพื่อดูคำสั่งทั้งหมด"
+
+    def _ensure_chat_id_synced(self, chat_id: str):
+        """Auto-save chat_id to .env and push to GitHub Secrets if not already saved."""
+        current_chat = os.getenv("TELEGRAM_CHAT_ID")
+        if not current_chat and ENV_FILE.exists():
+            from dotenv import dotenv_values
+            current_chat = dotenv_values(ENV_FILE).get("TELEGRAM_CHAT_ID")
+
+        if not current_chat:
+            logger.info(f"[TELEGRAM] Discovered user Chat ID: {chat_id}. Saving to .env & GitHub Secrets...")
+            # Update .env
+            lines = []
+            if ENV_FILE.exists():
+                lines = ENV_FILE.read_text(encoding="utf-8").splitlines()
+            new_lines = []
+            found = False
+            for line in lines:
+                if line.startswith("TELEGRAM_CHAT_ID=") or line.startswith("export TELEGRAM_CHAT_ID="):
+                    new_lines.append(f'TELEGRAM_CHAT_ID="{chat_id}"')
+                    found = True
+                else:
+                    new_lines.append(line)
+            if not found:
+                new_lines.append(f'TELEGRAM_CHAT_ID="{chat_id}"')
+            ENV_FILE.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+            os.environ["TELEGRAM_CHAT_ID"] = str(chat_id)
+
+            # Sync to GitHub Secrets
+            if shutil.which("gh"):
+                try:
+                    from dotenv import dotenv_values
+                    prod = dotenv_values(ROOT_DIR / ".env.production")
+                    gh_tok = prod.get("GH_TOKEN") or os.getenv("GH_TOKEN")
+                    subprocess.run(
+                        f"GH_TOKEN={gh_tok} gh secret set TELEGRAM_CHAT_ID -R pphothidaen/HoroConsultant --body \"{chat_id}\"",
+                        shell=True,
+                        capture_output=True,
+                        timeout=10
+                    )
+                    logger.info("[TELEGRAM] Chat ID synced to GitHub Secrets.")
+                except Exception as e:
+                    logger.warning(f"[TELEGRAM] GH sync note: {e}")
 
     def _cmd_help(self) -> str:
         return (
