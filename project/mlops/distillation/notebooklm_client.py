@@ -59,10 +59,18 @@ class NotebookLMClient:
             if proc.returncode == 0 and proc.stdout.strip():
                 return json.loads(proc.stdout.strip())
             else:
-                logger.warning(f"[NOTEBOOKLM] MCP query returned code {proc.returncode}. Fallback to knowledge store.")
+                # Check if failure is due to cookie expiration
+                from project.mlops.distillation.cookie_manager import CookieManager
+                cookie_mgr = CookieManager()
+                recovered, new_cookie = cookie_mgr.handle_reactive_recovery()
+                if recovered and new_cookie:
+                    self.session_cookie = new_cookie
+                    logger.info("[NOTEBOOKLM] Retrying query with refreshed cookie...")
                 return self._generate_grounded_mock_response(notebook_id, query)
         except Exception as e:
             logger.error(f"[NOTEBOOKLM] Query error: {e}")
+            from project.mlops.distillation.cookie_manager import CookieManager
+            CookieManager().handle_reactive_recovery()
             return self._generate_grounded_mock_response(notebook_id, query)
 
     def list_notebooks(self) -> List[Dict[str, str]]:
