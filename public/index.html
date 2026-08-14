@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Computational Metaphysics Engine — BaZi & True Solar Time Dashboard</title>
+  <meta name="description" content="Advanced BaZi Four Pillars of Destiny Engine with True Solar Time, FAISS RAG, and Gemini Multi-Agent Validation">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="background-glow"></div>
+  
+  <header class="app-header">
+    <div class="header-content">
+      <div class="logo-area">
+        <span class="logo-icon">☯</span>
+        <div>
+          <h1>HORO CONSULTANT</h1>
+          <p class="subtitle">Computational Metaphysics & BaZi Multi-Agent Engine</p>
+        </div>
+      </div>
+      <nav class="spa-nav">
+        <a href="index.html" class="spa-nav-item active">🔮 BaZi Dashboard</a>
+        <a href="dashboard_generator.html" class="spa-nav-item">✨ AI Dashboard Generator</a>
+        <a href="admin.html" class="spa-nav-item">🔐 Admin Panel</a>
+        <a href="hitl.html" class="spa-nav-item">🛡️ HITL Studio</a>
+      </nav>
+
+    </div>
+  </header>
+
+  <main class="main-container">
+    <!-- Left Column: Birth Input Form -->
+    <section class="card glass-card form-section">
+      <div class="card-header">
+        <h2>🔮 คำนวณผังดวงชะตา (Calculate Chart)</h2>
+        <p>ระบุเวลาเกิดและพิกัดลองจิจูดเพื่อปรับคำนวณเวลาสุริยคติจริง (True Solar Time)</p>
+      </div>
+
+      <form id="bazi-form" onsubmit="calculateChart(event)">
+        <div class="form-group">
+          <label for="birth_datetime">วัน-เวลาเกิด Local Time (YYYY-MM-DD HH:MM:SS)</label>
+          <input type="text" id="birth_datetime" name="birth_datetime" value="1990-05-15 14:30:00" required>
+        </div>
+
+        <div class="form-group">
+          <label for="location_search">ค้นหาสถานที่เกิด (อำเภอ, จังหวัด) <span id="loc-spinner" class="hidden">⏳</span></label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="location_search" placeholder="เช่น บางกะปิ กรุงเทพ..." autocomplete="off">
+            <button type="button" class="btn-sm" style="padding: 0 1rem; background: rgba(212, 175, 55, 0.2); border-color: rgba(212, 175, 55, 0.5); color: #fbbf24; font-weight: 600;" onclick="resolveLocation()">ค้นหา & เติมค่า</button>
+          </div>
+          <small class="location-status" id="location-status" style="display: block; margin-top: 0.4rem;"></small>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="longitude">ลองจิจูด (°Longitude)</label>
+            <input type="number" id="longitude" name="longitude" step="0.0001" value="100.4930" required>
+            <small>กรุงเทพฯ: 100.4930°</small>
+          </div>
+          <div class="form-group">
+            <label for="utc_offset_hours">เขตเวลา (UTC Offset)</label>
+            <input type="number" id="utc_offset_hours" name="utc_offset_hours" step="0.5" value="7.0" required>
+            <small>ประเทศไทย: UTC+7</small>
+          </div>
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: flex-start; gap: 8px;">
+          <input type="checkbox" id="unknown_hour" name="unknown_hour" style="margin-top: 4px; width: 16px; height: 16px; flex-shrink: 0; cursor: pointer;">
+          <label for="unknown_hour" class="label-text" style="cursor: pointer; line-height: 1.4; word-break: break-word;">ไม่ทราบยามเกิด (Probabilistic Matrix 12 Scenarios)</label>
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: flex-start; gap: 8px;">
+          <input type="checkbox" id="enable_validation" name="enable_validation" checked style="margin-top: 4px; width: 16px; height: 16px; flex-shrink: 0; cursor: pointer;">
+          <label for="enable_validation" class="label-text" style="cursor: pointer; line-height: 1.4; word-break: break-word;">เปิดใช้ Gemini Prediction Validator Agent (Multi-Agent Audit)</label>
+        </div>
+
+        <div class="form-group">
+          <label for="query">คำถามหรือประเด็นที่ต้องการเน้น</label>
+          <input type="text" id="query" name="query" value="วิเคราะห์ความแข็งแกร่งของ Day Master ธาตุทอง และอาชีพการงานที่ส่งเสริมดวงชะตา">
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="btn-submit">
+          <span class="btn-text">☯ คำนวณผังดวง & ตีความด้วย AI</span>
+          <span class="spinner hidden"></span>
+        </button>
+      </form>
+
+      <div class="preset-buttons">
+        <span>ตัวอย่างดวงชะตา:</span>
+        <button class="btn-sm" onclick="loadPreset('1990-05-15 14:30:00', 100.4930, 7.0, 'กรุงเทพฯ (1990)')">กรุงเทพฯ</button>
+        <button class="btn-sm" onclick="loadPreset('1988-08-08 08:08:00', 103.8198, 8.0, 'สิงคโปร์ (1988)')">สิงคโปร์</button>
+        <button class="btn-sm" onclick="loadPreset('1995-12-25 23:45:00', -74.0060, -5.0, 'นิวยอร์ก (1995)')">นิวยอร์ก</button>
+      </div>
+
+      <div class="card-header" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+        <h2>☯️ ศาสตร์โหราศาสตร์และระบบคำนวณประยุกต์ (Astrology & Numerology Master Disciplines)</h2>
+        <p>คำนวณผังวิชาชั้นสูงแยกตามสายวิชาเดี่ยว:</p>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 0.8rem;">
+          <button type="button" class="btn-sm" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border-color: rgba(168, 85, 247, 0.4);" onclick="calcZiWei()">紫微 紫微斗數 (Zi Wei)</button>
+          <button type="button" class="btn-sm" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-color: rgba(59, 130, 246, 0.4);" onclick="calcQiMen()">奇門 奇門遁甲 (Qi Men)</button>
+          <button type="button" class="btn-sm" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border-color: rgba(34, 197, 94, 0.4);" onclick="calcLiuRen()">六壬 大六壬 (Da Liu Ren)</button>
+          <button type="button" class="btn-sm" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);" onclick="calcIChing()">易經 易經六爻 (I Ching)</button>
+          <button type="button" class="btn-sm" style="background: rgba(236, 72, 153, 0.2); color: #f472b6; border-color: rgba(236, 72, 153, 0.4);" onclick="calcXuanKong()">風水 玄空風水 (Xuan Kong)</button>
+          <button type="button" class="btn-sm" style="background: rgba(14, 165, 233, 0.2); color: #38bdf8; border-color: rgba(14, 165, 233, 0.4);" onclick="calcZeJi()">擇吉 擇吉คำนวณฤกษ์ (Ze Ji)</button>
+          <button type="button" class="btn-sm" style="background: rgba(234, 179, 8, 0.2); color: #facc15; border-color: rgba(234, 179, 8, 0.4);" onclick="calcThaiVedic()">🐘 โหราศาสตร์ไทย & ภารตวิทยา</button>
+          <button type="button" class="btn-sm" style="background: rgba(99, 102, 241, 0.2); color: #818cf8; border-color: rgba(99, 102, 241, 0.4);" onclick="calcWestern()">🌌 โหราศาสตร์สากล & ยูเรเนียน</button>
+          <button type="button" class="btn-sm" style="background: rgba(20, 184, 166, 0.2); color: #2dd4bf; border-color: rgba(20, 184, 166, 0.4); grid-column: span 2;" onclick="calcNumerology()">🔢 สัตตเลข 7 ฐาน & เลขศาสตร์ประยุกต์</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Chart Results & Multi-Agent Outputs -->
+    <section class="results-section">
+      <!-- 5-Branch Metaphysics Result & SVG Visualizer Card -->
+      <div class="card glass-card result-card hidden" id="branch-result-card">
+        <div class="card-header border-gold">
+          <h3 id="branch-title">☯️ แสดงผลคำนวณผังวิชา (5-Branch Metaphysics Visualizer)</h3>
+        </div>
+        <div id="branch-body" style="padding: 1rem; color: #e2e8f0; font-family: Prompt, sans-serif; white-space: pre-line; line-height: 1.6;">
+          <!-- Dynamically populated by JS -->
+        </div>
+      </div>
+
+      <!-- SVG Vector Chart Diagram Card -->
+      <div class="card glass-card result-card hidden" id="svg-chart-card">
+        <div class="card-header border-gold">
+          <h3>🎨 ผังดวงเวกเตอร์ SVG (Interactive SVG Vector Chart)</h3>
+        </div>
+        <div id="svg-chart-container" style="padding: 1rem; text-align: center; overflow-x: auto;">
+          <!-- Dynamically populated by JS -->
+        </div>
+      </div>
+
+      <!-- 4 Pillars Card -->
+      <div class="card glass-card result-card hidden" id="pillars-card">
+
+        <div class="card-header border-gold">
+          <h3>🏛️ ผังดวงชะตา 4 เสา (Four Pillars of Destiny — 四柱)</h3>
+          <div class="tst-tag" id="tst-tag">TST Adjusted</div>
+        </div>
+
+        <div class="pillars-grid" id="pillars-grid">
+          <!-- Dynamically populated by JS -->
+        </div>
+
+        <div class="day-master-banner" id="day-master-banner">
+          <!-- Day master highlight -->
+        </div>
+      </div>
+
+      <!-- Five Elements Harmony Chart -->
+      <div class="card glass-card result-card hidden" id="elements-card">
+        <div class="card-header">
+          <h3>⚖️ สมดุลธาตุทั้ง 5 (Five Elements Harmony — 五行)</h3>
+        </div>
+        <div class="elements-bars" id="elements-bars">
+          <!-- Dynamically populated by JS -->
+        </div>
+      </div>
+
+      <!-- AI Interpretation & Validation Output -->
+      <div class="card glass-card result-card hidden" id="interpretation-card">
+        <div class="card-header border-purple">
+          <h3>🤖 บทพยากรณ์ multi-Agent (qwen2.5-bazi + Gemini Validator)</h3>
+          <span class="route-badge" id="route-badge">Ollama Local</span>
+        </div>
+
+        <div class="tab-buttons">
+          <button class="tab-btn active" onclick="switchTab('tab-reading')">📖 บทตีความโหราศาสตร์</button>
+          <button class="tab-btn" onclick="switchTab('tab-validator')">🛡️ Gemini Validator Audit</button>
+          <button class="tab-btn" onclick="switchTab('tab-rag')">📚 คัมภีร์อ้างอิง (RAG 3,132 Chunks)</button>
+        </div>
+
+        <div class="tab-content" id="tab-reading">
+          <div class="reading-body" id="reading-body">
+            <!-- Reading text -->
+          </div>
+        </div>
+
+        <div class="tab-content hidden" id="tab-validator">
+          <div class="validator-body" id="validator-body">
+            <!-- Validator report -->
+          </div>
+        </div>
+
+        <div class="tab-content hidden" id="tab-rag">
+          <div class="rag-body" id="rag-body">
+            <!-- RAG references -->
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <div class="footer-status-bar">
+      <div class="status-badge" id="system-status">
+        <span class="pulse-dot green"></span>
+        <span class="status-text">Server Active (Local-First Ollama + RAG 3,132 Vectors)</span>
+      </div>
+      <div class="status-badge health-badge" id="health-status-badge">
+        <span class="pulse-dot cyan"></span>
+        <span class="health-text" id="health-status-text">Health: OK (Checking...)</span>
+      </div>
+    </div>
+    <p id="footer-version-text">Computational Metaphysics Engine v1.0.0 — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

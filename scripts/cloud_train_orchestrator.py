@@ -347,7 +347,33 @@ def create_sft_trainer(
     if not has_var_kw:
         kwargs = {k: v for k, v in kwargs.items() if k in params}
 
+    # Safe Trainer patch to prevent NotImplementedError on meta/offloaded tensors
+    try:
+        from transformers import Trainer
+        _orig_move = getattr(Trainer, "_move_model_to_device", None)
+        def _safe_move(self, m, dev):
+            if getattr(self, "is_model_parallel", False) or hasattr(m, "hf_device_map") or hasattr(m, "device_map"):
+                return
+            try:
+                has_meta = any(p.is_meta for p in m.parameters()) if hasattr(m, "parameters") else False
+                if has_meta:
+                    logger.info("   [OK] Model contains meta/offloaded parameters. Skipping Trainer._move_model_to_device.")
+                    return
+            except Exception:
+                pass
+            try:
+                if _orig_move is not None:
+                    _orig_move(self, m, dev)
+                else:
+                    m.to(dev)
+            except Exception as move_err:
+                logger.warning(f"   [WARNING] Trainer._move_model_to_device bypassed ({move_err})")
+        Trainer._move_model_to_device = _safe_move
+    except Exception:
+        pass
+
     logger.info(f"[PATCH] Instantiating SFTTrainer with parameters: {list(kwargs.keys())}")
+
 
     try:
         return SFTTrainer(**kwargs)
