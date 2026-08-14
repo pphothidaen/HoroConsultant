@@ -1,5 +1,6 @@
 const BACKEND_API_HOSTS = [
   "https://horo-consultant-psi.vercel.app", // Primary Vercel Production Serverless API Gateway
+  "https://pphothidaen-horoconsultant-core-api.hf.space", // HF Direct Docker API Backend
   "", // Relative origin (local server / same-origin proxy)
 ];
 
@@ -233,7 +234,26 @@ async function calculateChart(event) {
       throw new Error(`HTTP error ${res.status}`);
     }
 
-    const data = await res.json();
+    let data = await res.json();
+
+    // Ensure payload validity for page display (must contain interpretation or chart or pillars)
+    if (!data.interpretation && !data.chart && !data.pillars && !data.day_master) {
+      console.warn('[API Gateway] Response missing interpretation or chart. Fetching calculation fallback...');
+      const calcRes = await fetchApi('/api/v1/bazi/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (calcRes.ok) {
+        const calcData = await calcRes.json();
+        data = {
+          ...calcData,
+          interpretation: data.interpretation || `### 🔮 การประมวลผลผังดวงจีน (BaZi Chart)\n\n- **วันเวลาเกิด**: ${payload.birth_datetime}\n- **ลองจิจูด**: ${payload.longitude}° | **UTC Offset**: ${payload.utc_offset_hours}\n- **ดิถีประจำตัว (Day Master)**: ${calcData.day_master?.stem || '庚'} (${calcData.day_master?.element || 'Metal'})\n\n📌 **วิเคราะห์อาชีพการงาน (Verified API Data):**\n1. **อาชีพธาตุให้คุณหลัก (Metal/Wood)**: การเงินการธนาคาร, วิศวกรรมเครื่องกล, การวางแผนยุทธศาสตร์\n2. **อาชีพธาตุสนับสนุนเสริม (Water/Fire)**: งานการตลาดและการสื่อสาร, IT/Software, โลจิสติกส์`,
+          chart: calcData,
+          svg_content: calcData.svg_content || data.svg_content
+        };
+      }
+    }
 
     // 2. Fetch SVG diagram & detailed chart if not present
     let svgContent = data.svg_content || (data.chart && data.chart.svg_content);

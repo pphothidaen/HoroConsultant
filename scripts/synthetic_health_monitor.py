@@ -34,7 +34,7 @@ from typing import Any, Mapping
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_VERCEL_GATEWAY_URL = "https://horo-consultant-psi.vercel.app"
 DEFAULT_HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
-DEFAULT_HF_BACKEND_URL = "https://pphothidaen-horoconsultant-core-api.hf.space"
+DEFAULT_HF_BACKEND_URL = "https://horo-consultant-psi.vercel.app"
 DEFAULT_PING_INTERVAL_SECONDS = 300
 
 

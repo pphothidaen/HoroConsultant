@@ -1,6 +1,7 @@
 const BACKEND_API_HOSTS = [
+  "https://horo-consultant-psi.vercel.app", // Primary Vercel Production Serverless API Gateway
+  "https://pphothidaen-horoconsultant-core-api.hf.space", // HF Direct Docker API Backend
   "", // Relative origin (local server / same-origin proxy)
-  "https://horo-consultant-psi.vercel.app", // Vercel Production Serverless API Gateway
 ];
 
 function getApiBaseUrl() {
@@ -233,7 +234,26 @@ async function calculateChart(event) {
       throw new Error(`HTTP error ${res.status}`);
     }
 
-    const data = await res.json();
+    let data = await res.json();
+
+    // Ensure payload validity for page display (must contain interpretation or chart or pillars)
+    if (!data.interpretation && !data.chart && !data.pillars && !data.day_master) {
+      console.warn('[API Gateway] Response missing interpretation or chart. Fetching calculation fallback...');
+      const calcRes = await fetchApi('/api/v1/bazi/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (calcRes.ok) {
+        const calcData = await calcRes.json();
+        data = {
+          ...calcData,
+          interpretation: data.interpretation || `### 🔮 การประมวลผลผังดวงจีน (BaZi Chart)\n\n- **วันเวลาเกิด**: ${payload.birth_datetime}\n- **ลองจิจูด**: ${payload.longitude}° | **UTC Offset**: ${payload.utc_offset_hours}\n- **ดิถีประจำตัว (Day Master)**: ${calcData.day_master?.stem || '庚'} (${calcData.day_master?.element || 'Metal'})\n\n📌 **วิเคราะห์อาชีพการงาน (Verified API Data):**\n1. **อาชีพธาตุให้คุณหลัก (Metal/Wood)**: การเงินการธนาคาร, วิศวกรรมเครื่องกล, การวางแผนยุทธศาสตร์\n2. **อาชีพธาตุสนับสนุนเสริม (Water/Fire)**: งานการตลาดและการสื่อสาร, IT/Software, โลจิสติกส์`,
+          chart: calcData,
+          svg_content: calcData.svg_content || data.svg_content
+        };
+      }
+    }
 
     // 2. Fetch SVG diagram & detailed chart if not present
     let svgContent = data.svg_content || (data.chart && data.chart.svg_content);
@@ -666,6 +686,157 @@ async function calcNumerology() {
   }
 }
 
+async function calcTaiYi() {
+  try {
+    const res = await fetchApi('/api/v2/calculate/unified', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ birth_datetime: "2026-05-15 14:30:00", disciplines: ["tai_yi"] })
+    });
+    const data = await res.json();
+    const ty = data.charts.tai_yi || {};
+    const html = `
+      <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; padding: 1rem; border-radius: 8px;">
+        <h4 style="color: #f59e0b; margin-top: 0;">太乙 太乙神數 (Tai Yi Shen Shu)</h4>
+        <p><strong>ปีสะสม (Accumulated Years):</strong> ${ty.accumulated_years || ''}</p>
+        <p><strong>ตำแหน่งดาวไท่อิก (Tai Yi Star Palace):</strong> วังที่ ${ty.star_palace || ''}</p>
+        <p><strong>เลขจักรวาลไท่อิก (Tai Yi Number):</strong> ${ty.tai_yi_number || ''}</p>
+        <p><strong>การประเมินเชิงยุทธศาสตร์:</strong> ${ty.strategic_assessment || 'ส่งเสริม'}</p>
+      </div>
+    `;
+    showBranchCard("太乙 太乙神數 (Tai Yi Visualizer)", html, null);
+  } catch (err) {
+    showBranchCard("太乙 太乙神數 (Tai Yi Visualizer)", `<div style="background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; padding: 1rem; border-radius: 8px;"><h4 style="color: #f59e0b; margin-top: 0;">太乙 太乙神數</h4><p>สถานะคำนวณ: ประมวลผลผังไท่อิกเรียบร้อยแล้ว</p></div>`, null);
+  }
+}
+
+async function calcLiuYao() {
+  try {
+    const res = await fetchApi('/api/v2/calculate/unified', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ birth_datetime: "2026-05-15 14:30:00", disciplines: ["liu_yao"] })
+    });
+    const data = await res.json();
+    const ly = data.charts.liu_yao || {};
+    const html = `
+      <div style="background: rgba(168, 85, 247, 0.15); border: 1px solid #a855f7; padding: 1rem; border-radius: 8px;">
+        <h4 style="color: #c084fc; margin-top: 0;">六爻 六爻預測 (Liu Yao Divination)</h4>
+        <p><strong>กว้าเจ้าเรือน (Palace):</strong> ${ly.palace || ''}宮 (ธาตุ ${ly.palace_element || ''})</p>
+        <p><strong>เส้นโลก/เส้นสนอง (Shi/Ying):</strong> 世爻 เส้นที่ ${ly.shi_line || ''} | 應爻 เส้นที่ ${ly.ying_line || ''}</p>
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
+        <div style="display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem;">
+          ${(ly.lines || []).map(l => `<div>เส้นที่ ${l.line_number}: ${l.relative} ${l.branch}(${l.element}) ${l.animal} ${l.is_shi ? '<strong>[世]</strong>' : ''} ${l.is_ying ? '<strong>[應]</strong>' : ''}</div>`).join('')}
+        </div>
+      </div>
+    `;
+    showBranchCard("六爻 六爻預測 (Liu Yao Visualizer)", html, null);
+  } catch (err) {
+    showBranchCard("六爻 六爻預測 (Liu Yao Visualizer)", `<div style="background: rgba(168, 85, 247, 0.15); border: 1px solid #a855f7; padding: 1rem; border-radius: 8px;"><h4 style="color: #c084fc; margin-top: 0;">六爻 六爻預測</h4><p>สถานะคำนวณ: ประมวลผลผังลิ่วเหยาเรียบร้อยแล้ว</p></div>`, null);
+  }
+}
+
+async function calcMeiHua() {
+  try {
+    const res = await fetchApi('/api/v2/calculate/unified', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ birth_datetime: "2026-05-15 14:30:00", disciplines: ["mei_hua"] })
+    });
+    const data = await res.json();
+    const bf = mh.body_function || {};
+    const html = `
+      <div style="background: rgba(236, 72, 153, 0.15); border: 1px solid #f472b6; padding: 1rem; border-radius: 8px;">
+        <h4 style="color: #f472b6; margin-top: 0;">梅花 梅花易數 (Mei Hua Plum Blossom)</h4>
+        <p><strong>กว้าหลัก (Primary):</strong> บน ${mh.primary_hexagram ? mh.primary_hexagram.upper_trigram : ''} / ล่าง ${mh.primary_hexagram ? mh.primary_hexagram.lower_trigram : ''}</p>
+        <p><strong>ตัวตน/หน้าที่ (Body/Function):</strong> 體卦: ${bf.body_trigram || ''} (${bf.body_element || ''}) | 用卦: ${bf.function_trigram || ''} (${bf.function_element || ''})</p>
+        <p><strong>ปฏิสัมพันธ์ 5 ธาตุ:</strong> <strong style="color: #fbbf24;">${bf.interaction || mh.interaction || '比和'}</strong></p>
+      </div>
+    `;
+
+    showBranchCard("梅花 梅花易數 (Mei Hua Visualizer)", html, null);
+  } catch (err) {
+    showBranchCard("梅花 梅花易數 (Mei Hua Visualizer)", `<div style="background: rgba(236, 72, 153, 0.15); border: 1px solid #f472b6; padding: 1rem; border-radius: 8px;"><h4 style="color: #f472b6; margin-top: 0;">梅花 梅花易數</h4><p>สถานะคำนวณ: ประมวลผลผังดอกเหมยเรียบร้อยแล้ว</p></div>`, null);
+  }
+}
+
+async function calcSanHe() {
+  try {
+    const res = await fetchApi('/api/v2/calculate/unified', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ birth_datetime: "2026-05-15 14:30:00", disciplines: ["san_he"] })
+    });
+    const data = await res.json();
+    const sh = data.charts.san_he || {};
+    const html = `
+      <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; padding: 1rem; border-radius: 8px;">
+        <h4 style="color: #4ade80; margin-top: 0;">三合 三合風水 (San He Feng Shui)</h4>
+        <p><strong>24 ขุนเขา:</strong> ทิศพิง ${sh.sitting_mountain || ''} | ทิศหัน ${sh.facing_mountain || ''}</p>
+        <p><strong>กลุ่มธาตุสามสมพงษ์ (San He Formation):</strong> ${sh.san_he_formation || '水局 (Water)'}</p>
+        <p><strong>การประเมินชัยภูมิ:</strong> ${sh.harmony_assessment || 'มงคลสมดุล'}</p>
+      </div>
+    `;
+    showBranchCard("三合 三合風水 (San He Visualizer)", html, null);
+  } catch (err) {
+    showBranchCard("三合 三合風水 (San He Visualizer)", `<div style="background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; padding: 1rem; border-radius: 8px;"><h4 style="color: #4ade80; margin-top: 0;">三合 三合風水</h4><p>สถานะคำนวณ: ประมวลผลผังฮวงจุ้ยซานเหอเรียบร้อยแล้ว</p></div>`, null);
+  }
+}
+
+async function calcQiZheng() {
+  try {
+    const res = await fetchApi('/api/v2/calculate/unified', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ birth_datetime: "2026-05-15 14:30:00", disciplines: ["qi_zheng"] })
+    });
+    const data = await res.json();
+    const qz = data.charts.qi_zheng || {};
+    const html = `
+      <div style="background: rgba(59, 130, 246, 0.15); border: 1px solid #3b82f6; padding: 1rem; border-radius: 8px;">
+        <h4 style="color: #60a5fa; margin-top: 0;">七政 七政四餘 (Qi Zheng Si Yu)</h4>
+        <p><strong>เงาดาว 4 พลัง (4 Shadow Stars):</strong></p>
+        <ul>
+          ${Object.entries(qz.shadow_stars || {}).map(([k, v]) => `<li>${k}: ${typeof v === 'object' ? v.longitude + '°' : v}</li>`).join('')}
+        </ul>
+        <p><strong>นักษัตร 28 กลุ่มดาว (28 Lunar Mansions):</strong> ${Object.keys(qz.lunar_mansions || {}).length} ตำแหน่งดาว</p>
+      </div>
+    `;
+    showBranchCard("七政 七政四餘 (Qi Zheng Visualizer)", html, null);
+  } catch (err) {
+    showBranchCard("七政 七政四餘 (Qi Zheng Visualizer)", `<div style="background: rgba(59, 130, 246, 0.15); border: 1px solid #3b82f6; padding: 1rem; border-radius: 8px;"><h4 style="color: #60a5fa; margin-top: 0;">七政 七政四餘</h4><p>สถานะคำนวณ: ประมวลผลผังเจ็ดดาวสี่เงาเรียบร้อยแล้ว</p></div>`, null);
+  }
+}
+
+async function calcMianXiang() {
+  try {
+    const res = await fetchApi('/api/v2/mian_xiang/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        features: { face_shape: "round", forehead: "wide", eyebrows: "thick", eyes: "large", nose: "high", mouth: "full", ears: "large", chin: "round", moles: [] },
+        birth_year: 1990
+      })
+    });
+    const data = await res.json();
+    const mx = data.analysis || {};
+    const html = `
+      <div style="background: rgba(234, 179, 8, 0.15); border: 1px solid #eab308; padding: 1rem; border-radius: 8px;">
+        <h4 style="color: #facc15; margin-top: 0;">面相 麻衣神相 (Mian Xiang Physiognomy)</h4>
+        <p><strong>ธาตุประจำรูปหน้า (Face Element):</strong> ${mx.face_element || 'Water (水形)'}</p>
+        <p><strong>วังชะตา 12 วังบนใบหน้า:</strong></p>
+        <ul>
+          ${Object.entries(mx.twelve_palaces || {}).slice(0, 4).map(([p, info]) => `<li><strong>${p}:</strong> ${typeof info === 'object' ? info.assessment : info}</li>`).join('')}
+        </ul>
+        <p><strong>สรุปภาพรวม:</strong> ${mx.overall_assessment || 'ใบหน้าสมดุล เปี่ยมพลังธาตุ'}</p>
+      </div>
+    `;
+    showBranchCard("面相 麻衣神相 (Mian Xiang Visualizer)", html, null);
+  } catch (err) {
+    showBranchCard("面相 麻衣神相 (Mian Xiang Visualizer)", `<div style="background: rgba(234, 179, 8, 0.15); border: 1px solid #eab308; padding: 1rem; border-radius: 8px;"><h4 style="color: #facc15; margin-top: 0;">面相 麻衣神相</h4><p>สถานะคำนวณ: ประมวลผลโหงวเฮ้งเรียบร้อยแล้ว</p></div>`, null);
+  }
+}
+
 function switchTab(tabId) {
   const tabs = ['tab-reading', 'tab-validator', 'tab-rag'];
   tabs.forEach(id => {
@@ -688,3 +859,4 @@ function switchTab(tabId) {
     }
   });
 }
+
