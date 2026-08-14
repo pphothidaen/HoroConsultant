@@ -17,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from project.admin_router import admin_router
 from project.api_router import router
 from project.hitl_router import hitl_router
-from project.routers import astrology_router, debate_router
+from project.routers import astrology_router, debate_router, mlops_router
 
 
 try:
@@ -135,6 +135,7 @@ app.include_router(admin_router)
 app.include_router(hitl_router)
 app.include_router(astrology_router)
 app.include_router(debate_router)
+app.include_router(mlops_router)
 
 
 # ---------------------------------------------------------------------------

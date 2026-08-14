@@ -377,6 +377,37 @@ fly deploy
    GRAFANA_API_KEY=glsa_YOUR_GRAFANA_API_KEY
    ```
 
+---
+
+### 🔮 3.10 การใช้งาน Autonomous Knowledge Distillation & Fine-Tuning Pipeline
+
+ระบบ **HoroConsultant MLOps** รองรับการสกัดความรู้จาก **Google NotebookLM** ผ่าน **Hermes Agent** แปลงเป็นชุดข้อมูลและยิงเทรนบน **Kaggle GPU**:
+
+1. **การรัน Pipeline สกัดความรู้และสร้างชุดข้อมูลผ่าน CLI:**
+   ```bash
+   # สกัดทุกศาสตร์ (BaZi, ZiWei, FengShui, QiMen) และจัดฟอร์แมต ChatML
+   python3 project/mlops/run_pipeline.py --domain all --format chatml
+
+   # รันแบบจำลอง Dry-Run พร้อมทดสอบ Trigger Kaggle Training
+   python3 project/mlops/run_pipeline.py --domain all --dry-run --trigger-training
+   ```
+
+2. **การเปิดใช้งาน Streamlit MLOps Monitoring Dashboard:**
+   ```bash
+   streamlit run project/mlops/dashboard/app.py
+   ```
+
+3. **REST API Endpoints สำหรับ MLOps (`/api/v1/mlops`):**
+   - `GET /api/v1/mlops/status`: ตรวจสอบสถานะ Dataset, Target Model, และ Kaggle GPU Kernel
+   - `GET /api/v1/mlops/datasets`: ดูรายการไฟล์ `.jsonl` และจำนวนตัวอย่าง
+   - `POST /api/v1/mlops/distill`: สั่งสกัดความรู้ตาม Domain ที่ระบุ
+   - `POST /api/v1/mlops/train`: สั่ง Trigger Kaggle Fine-Tuning
+
+4. **GitHub Actions Scheduled Automation:**
+   - ตารางเวลาอัตโนมัติ: รันทุกวันอาทิตย์ เวลา 02:00 UTC ผ่าน `.github/workflows/scheduled_distill_finetune.yml`
+   - รองรับการ Trigger แบบ Manual พร้อมเลือก Domain และ Format ได้ทันที
+
+
 
 
 

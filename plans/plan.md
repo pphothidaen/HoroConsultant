@@ -14,16 +14,14 @@
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
 │ • Decoupled DDD Multi-Cloud & Rust Core│ • None (Follow-up QA & CI/CD release) │ • Future LLM Provider Integration      │
-│ • Phase 6.1: Standalone Axum Server   │                                       │   (Qwen2.5-32B / DeepSeek-R1 evaluation)│
-│ • Phase 6.2: Native Rust Test Runner  │                                       │                                       │
-│ • SwissEph Native Pure Rust Bridge    │                                       │                                       │
-│ • Hardened HITL Lifecycle Regression  │                                       │                                       │
-│ • Portable & Strict Playwright E2E    │                                       │                                       │
-│ • Future LLM Model Scope Defined      │                                       │                                       │
-│ • BSA Skill & Doc Watchdog Governance │                                       │                                       │
-│ • Codex compatibility layer (16 roles)│                                       │                                       │
-│ • Module 1-8: Rust Accelerated Core   │                                       │                                       │
-│ • 195 Pytest + 2 Cargo + 12 Runner    │                                       │                                       │
+│ • Autonomous NotebookLM Distillation  │                                       │   (Qwen2.5-32B / DeepSeek-R1 evaluation)│
+│ • Hermes Agent Synthetic CoT Miner    │                                       │                                       │
+│ • Quality Gate & Dataset Curator      │                                       │                                       │
+│ • Kaggle GPU Fine-Tuning Pipeline     │                                       │                                       │
+│ • MLOps Dashboard & FastAPIRouter     │                                       │                                       │
+│ • Webhook Alerts (Telegram & Discord) │                                       │                                       │
+│ • Scheduled GitHub Actions Cron       │                                       │                                       │
+│ • 206 Pytest + 25 Button Contracts    │                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
 

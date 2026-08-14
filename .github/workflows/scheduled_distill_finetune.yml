@@ -1,0 +1,94 @@
+name: Scheduled Autonomous Knowledge Distillation & Fine-Tuning
+
+on:
+  schedule:
+    # Run every Sunday at 02:00 UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    inputs:
+      domain:
+        description: 'Target Domain for Knowledge Mining'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - bazi
+          - ziwei
+          - fengshui
+          - qimen
+      format:
+        description: 'Training Format'
+        required: true
+        default: 'chatml'
+        type: choice
+        options:
+          - chatml
+          - alpaca
+      trigger_training:
+        description: 'Auto-Trigger Kaggle GPU Fine-Tuning'
+        required: true
+        type: boolean
+        default: true
+      dry_run:
+        description: 'Dry Run Mode (Simulate without external GPU calls)'
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  distill_and_finetune:
+    name: Hermes Distill & Kaggle GPU Train
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install kaggle python-dotenv pydantic
+
+      - name: Setup Kaggle Credentials
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_TOKEN }}
+        run: |
+          mkdir -p ~/.kaggle
+          echo "{\"username\":\"$KAGGLE_USERNAME\",\"key\":\"$KAGGLE_KEY\"}" > ~/.kaggle/kaggle.json
+          chmod 600 ~/.kaggle/kaggle.json
+
+      - name: Run Autonomous Distillation & Curation Pipeline
+        env:
+          NOTEBOOKLM_SESSION_COOKIE: ${{ secrets.NOTEBOOKLM_SESSION_COOKIE }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          DOMAIN="${{ github.event.inputs.domain || 'all' }}"
+          FORMAT="${{ github.event.inputs.format || 'chatml' }}"
+          TRIGGER_TRAIN="${{ github.event.inputs.trigger_training != 'false' && '--trigger-training' || '' }}"
+          DRY_RUN="${{ github.event.inputs.dry_run == 'true' && '--dry-run' || '' }}"
+          
+          python3 project/mlops/run_pipeline.py \
+            --domain "$DOMAIN" \
+            --format "$FORMAT" \
+            $TRIGGER_TRAIN \
+            $DRY_RUN
+
+      - name: Upload Curated Training Datasets
+        uses: actions/upload-artifact@v4
+        with:
+          name: curated-finetune-datasets
+          path: project/data/*.jsonl
+          retention-days: 30
