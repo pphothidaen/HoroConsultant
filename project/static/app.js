@@ -1,7 +1,6 @@
 const BACKEND_API_HOSTS = [
+  "https://horo-consultant-psi.vercel.app", // Primary Vercel Production Serverless API Gateway
   "", // Relative origin (local server / same-origin proxy)
-  "https://pphothidaen-horoconsultant-core-api.hf.space", // Public Docker API backend
-  "https://horo-consultant-psi.vercel.app", // Vercel Production Serverless API Gateway
 ];
 
 function getApiBaseUrl() {
@@ -9,7 +8,7 @@ function getApiBaseUrl() {
     return window.API_BASE_URL;
   }
   if (typeof window !== 'undefined' && window.location && window.location.hostname.includes('static.hf.space')) {
-    return 'https://pphothidaen-horoconsultant-core-api.hf.space';
+    return 'https://horo-consultant-psi.vercel.app';
   }
   return '';
 }
