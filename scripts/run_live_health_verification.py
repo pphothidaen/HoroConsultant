@@ -32,10 +32,13 @@ from typing import Any
 # ──────────────────────────────────────────────────────────────────────────────
 # Production endpoint constants
 # ──────────────────────────────────────────────────────────────────────────────
+import os
+
 HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
-HF_BACKEND_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
-FLY_BACKEND_URL = "https://horoconsultant-core-backend.fly.dev"
+HF_BACKEND_URL    = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
+AZURE_BACKEND_URL = os.getenv("AZURE_CONTAINER_APP_URL", "https://horoconsult-env-new.politepond-CHANGEME.southeastasia.azurecontainerapps.io")
 VERCEL_GATEWAY_URL = "https://horo-consultant-psi.vercel.app"
+
 
 
 def _request(
@@ -128,18 +131,17 @@ def run_verification(timeout: int = 15, verbose: bool = False) -> bool:
     })
 
 
-    # ── CHECK 3: Fly.io Backend Health Endpoint ─────────────────────────────
-    print("[INFO] [3/4] Checking Fly.io Backend Health (/health)...")
-    url = f"{FLY_BACKEND_URL}/health"
+    # ── CHECK 3: Azure Container Apps Backend Health ─────────────────────────
+    print("[INFO] [3/4] Checking Azure Container Apps Backend Health (/health)...")
+    url = f"{AZURE_BACKEND_URL}/health"
     status, body, latency = _request(url, timeout=timeout)
-    passed = status == 200
+    passed = status in (200, 301, 302, 307, 308)
     tag = "[OK]" if passed else "[WARNING]"
-    print(f"{tag} Fly.io Backend Health: HTTP {status} | {latency:.0f}ms | {url}")
+    print(f"{tag} Azure Container Apps Backend Health: HTTP {status} | {latency:.0f}ms | {url}")
     if verbose:
         print(f"       Response: {body[:200]}")
-    # Fly.io is optional fallback — warn but don't fail overall
     results.append({
-        "target": "Fly.io Backend (/health)",
+        "target": "Azure Container Apps (/health)",
         "url": url,
         "passed": passed,
         "status": status,

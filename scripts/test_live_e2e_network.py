@@ -29,9 +29,12 @@ sys.path.insert(0, str(ROOT_DIR))
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("live_e2e_audit")
 
+import os
+
 VERCEL_PROD_URL = "https://horo-consultant-psi.vercel.app"
 HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
-FLY_BACKEND_URL = "https://horoconsultant-core-backend.fly.dev"
+AZURE_BACKEND_URL = os.getenv("AZURE_CONTAINER_APP_URL", "https://horoconsult-env-new.politepond-CHANGEME.southeastasia.azurecontainerapps.io")
+
 
 
 def execute_network_request(url: str, method: str = "GET", headers: dict | None = None, payload: dict | None = None, expected_status: int = 200, timeout: int = 15) -> tuple[bool, int, str]:
