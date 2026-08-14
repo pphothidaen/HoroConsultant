@@ -1,125 +1,67 @@
-2026-08-07 17:50:39,235 [INFO] [DATA] Checking dataset source...
-2026-08-07 17:50:39,235 [INFO] [DATA] Checking dataset source...
-2026-08-07 17:50:40,577 [INFO] HTTP Request: GET https://gypqcpdojsyuiegkiseu.supabase.co/rest/v1/qa_knowledge_base?select=%2A&is_verified=eq.true "HTTP/1.1 200 OK"
-2026-08-07 17:50:40,577 [INFO] Fetched rows 0..1 from 'qa_knowledge_base' (Total so far: 2)
-2026-08-07 17:50:40,578 [INFO] 🎉 Exported 2 ShareGPT records from Supabase to '/kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl'
-2026-08-07 17:50:40,578 [INFO] [OK] Downloaded 2 records from Supabase DB to '/kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl'
-2026-08-07 17:50:40,578 [INFO] [OK] Downloaded 2 records from Supabase DB to '/kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl'
-2026-08-07 17:50:40,578 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE]...
-2026-08-07 17:50:40,578 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE]...
-2026-08-07 17:50:40,578 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct
-2026-08-07 17:50:40,578 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct
-2026-08-07 17:50:40,578 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl
-2026-08-07 17:50:40,578 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl
-2026-08-07 17:50:40,578 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit
-2026-08-07 17:50:40,578 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit
-2026-08-07 17:50:40,578 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...
-2026-08-07 17:50:40,578 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...
-2026-08-07 17:50:42,155 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']
-2026-08-07 17:50:42,155 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']
-2026-08-07 17:50:42,155 [WARNING]    [WARNING] WARNING: PyTorch wheel does NOT contain compiled binary for sm_60 (Tesla P100-PCIE-16GB)!
-2026-08-07 17:50:42,155 [WARNING]    [WARNING] WARNING: PyTorch wheel does NOT contain compiled binary for sm_60 (Tesla P100-PCIE-16GB)!
-2026-08-07 17:50:42,156 [INFO]    [TARGET] GPU Architecture: sm_60 (Tesla P100-PCIE-16GB)
-2026-08-07 17:50:42,156 [INFO]    [TARGET] GPU Architecture: sm_60 (Tesla P100-PCIE-16GB)
-2026-08-07 17:50:42,156 [INFO]    [CUDA] CUDA Device: Tesla P100-PCIE-16GB (Total GPUs: 1)
-2026-08-07 17:50:42,156 [INFO]    [CUDA] CUDA Device: Tesla P100-PCIE-16GB (Total GPUs: 1)
-2026-08-07 17:50:42,357 [ERROR]    [ERROR] CUDA Kernel Execution Test FAILED: CUDA error: no kernel image is available for execution on the device
+2026-08-14 18:21:30,720 [INFO] [DATA] Checking dataset source...
+2026-08-14 18:21:30,720 [INFO] [DATA] Checking dataset source...
+2026-08-14 18:21:33,806 [INFO] HTTP Request: GET https://gypqcpdojsyuiegkiseu.supabase.co/rest/v1/qa_knowledge_base?select=%2A&is_verified=eq.true "HTTP/1.1 200 OK"
+2026-08-14 18:21:33,807 [INFO] Fetched rows 0..1 from 'qa_knowledge_base' (Total so far: 2)
+2026-08-14 18:21:33,807 [INFO] 🎉 Exported 2 ShareGPT records from Supabase to '/kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl'
+2026-08-14 18:21:33,807 [INFO] [OK] Downloaded 2 records from Supabase DB to '/kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl'
+2026-08-14 18:21:33,807 [INFO] [OK] Downloaded 2 records from Supabase DB to '/kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl'
+2026-08-14 18:21:33,807 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE]...
+2026-08-14 18:21:33,807 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE]...
+2026-08-14 18:21:33,807 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct
+2026-08-14 18:21:33,807 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct
+2026-08-14 18:21:33,807 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl
+2026-08-14 18:21:33,807 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl
+2026-08-14 18:21:33,808 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit
+2026-08-14 18:21:33,808 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit
+2026-08-14 18:21:33,808 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...
+2026-08-14 18:21:33,808 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...
+2026-08-14 18:21:35,497 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']
+2026-08-14 18:21:35,497 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']
+2026-08-14 18:21:35,497 [WARNING]    [WARNING] WARNING: PyTorch wheel does NOT contain compiled binary for sm_60 (Tesla P100-PCIE-16GB)!
+2026-08-14 18:21:35,497 [WARNING]    [WARNING] WARNING: PyTorch wheel does NOT contain compiled binary for sm_60 (Tesla P100-PCIE-16GB)!
+2026-08-14 18:21:35,497 [INFO]    [TARGET] GPU Architecture: sm_60 (Tesla P100-PCIE-16GB)
+2026-08-14 18:21:35,497 [INFO]    [TARGET] GPU Architecture: sm_60 (Tesla P100-PCIE-16GB)
+2026-08-14 18:21:35,497 [INFO]    [CUDA] CUDA Device: Tesla P100-PCIE-16GB (Total GPUs: 1)
+2026-08-14 18:21:35,497 [INFO]    [CUDA] CUDA Device: Tesla P100-PCIE-16GB (Total GPUs: 1)
+2026-08-14 18:21:35,697 [ERROR]    [ERROR] CUDA Kernel Execution Test FAILED: CUDA error: no kernel image is available for execution on the device
 Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
 CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
 For debugging consider passing CUDA_LAUNCH_BLOCKING=1
 Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
 
-2026-08-07 17:50:42,357 [ERROR]    [ERROR] CUDA Kernel Execution Test FAILED: CUDA error: no kernel image is available for execution on the device
+2026-08-14 18:21:35,697 [ERROR]    [ERROR] CUDA Kernel Execution Test FAILED: CUDA error: no kernel image is available for execution on the device
 Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
 CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
 For debugging consider passing CUDA_LAUNCH_BLOCKING=1
 Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
 
-2026-08-07 17:50:43,149 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED
-2026-08-07 17:50:43,149 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED
-2026-08-07 17:50:43,169 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)
-2026-08-07 17:50:43,169 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)
-2026-08-07 17:50:43,169 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device
+2026-08-14 18:21:36,520 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED
+2026-08-14 18:21:36,520 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED
+2026-08-14 18:21:36,540 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)
+2026-08-14 18:21:36,540 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)
+2026-08-14 18:21:36,540 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device
 Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
 CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
 For debugging consider passing CUDA_LAUNCH_BLOCKING=1
 Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
 
-2026-08-07 17:50:43,169 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device
+2026-08-14 18:21:36,540 [WARNING] [WARNING] Pre-flight audit notice: CUDA Kernel Failure: CUDA error: no kernel image is available for execution on the device
 Search for `cudaErrorNoKernelImageForDevice' in https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html for more information.
 CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
 For debugging consider passing CUDA_LAUNCH_BLOCKING=1
 Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
 
-2026-08-07 17:50:43,169 [WARNING] [WARNING] CUDA pre-flight kernel execution test failed on this device (e.g. sm_60/P100 unsupported by PyTorch wheel). Gracefully falling back to CPU execution mode.
-2026-08-07 17:50:43,169 [WARNING] [WARNING] CUDA pre-flight kernel execution test failed on this device (e.g. sm_60/P100 unsupported by PyTorch wheel). Gracefully falling back to CPU execution mode.
-2026-08-07 17:50:43,295 [INFO] NumExpr defaulting to 4 threads.
-2026-08-07 17:50:43,443 [INFO] PyTorch version 2.10.0+cu128 available.
-2026-08-07 17:50:43,444 [INFO] TensorFlow version 2.20.0 available.
-2026-08-07 17:50:43,445 [INFO] JAX version 0.7.2 available.
-2026-08-07 17:50:59,845 [WARNING] Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128_nocublaslt.so')
-2026-08-07 17:50:59,845 [WARNING] The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.
-2026-08-07 17:50:59,860 [INFO]    [INFO] Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.
-2026-08-07 17:50:59,860 [INFO]    [INFO] Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.
-2026-08-07 17:50:59,860 [INFO] [MODEL] Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...
-2026-08-07 17:50:59,860 [INFO] [MODEL] Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...
-2026-08-07 17:51:00,967 [INFO] [MODEL] Loading base model in standard precision (torch.float32)...
-2026-08-07 17:51:00,967 [INFO] [MODEL] Loading base model in standard precision (torch.float32)...
-2026-08-07 17:55:16,232 [INFO] We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-2026-08-07 17:56:12,210 [WARNING] Some parameters are on the meta device device because they were offloaded to the cpu.
-2026-08-07 17:56:12,210 [INFO] [OK] Successfully loaded model with precision torch.float32.
-2026-08-07 17:56:12,210 [INFO] [OK] Successfully loaded model with precision torch.float32.
-2026-08-07 17:56:12,210 [INFO]    [OK] Applied Transformers Trainer._get_num_items_in_batch CPU-safe patch.
-2026-08-07 17:56:12,210 [INFO]    [OK] Applied Transformers Trainer._get_num_items_in_batch CPU-safe patch.
-2026-08-07 17:56:12,210 [INFO]  Pre-formatting dataset from '/kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl'...
-2026-08-07 17:56:12,210 [INFO]  Pre-formatting dataset from '/kaggle/working/HoroConsultant/project/rag/datasets/cloud_train_temp.jsonl'...
-wandb: WARNING If you're specifying your api key in code, ensure this code is not shared publicly.
-wandb: WARNING Consider setting the WANDB_API_KEY environment variable, or running `wandb login` from the command line.
-wandb: [wandb.login()] Using explicit session credentials for https://api.wandb.ai.
-wandb: No netrc file found, creating one.
-wandb: Appending key for api.wandb.ai to your netrc file: /root/.netrc
-wandb: Currently logged in as: pphothidaen (pphothidaen-) to https://api.wandb.ai. Use `wandb login --relogin` to force relogin
-2026-08-07 17:56:15,069 [INFO] [OK] W&B authentication successful. Live metrics logging enabled (Project: HoroConsultant, Entity: pphothidaen-).
-2026-08-07 17:56:15,069 [INFO] [OK] W&B authentication successful. Live metrics logging enabled (Project: HoroConsultant, Entity: pphothidaen-).
-2026-08-07 17:56:15,103 [INFO] [PATCH] Instantiating SFTTrainer with parameters: ['model', 'train_dataset', 'peft_config', 'args', 'dataset_text_field', 'max_seq_length', 'tokenizer']
-2026-08-07 17:56:15,103 [INFO] [PATCH] Instantiating SFTTrainer with parameters: ['model', 'train_dataset', 'peft_config', 'args', 'dataset_text_field', 'max_seq_length', 'tokenizer']
-Parameter 'function'=<function SFTTrainer._prepare_non_packed_dataloader.<locals>.tokenize at 0x7c0720652020> of the transform datasets.arrow_dataset.Dataset._map_single couldn't be hashed properly, a random hash was used instead. Make sure your transforms and parameters are serializable with pickle or dill for the dataset fingerprinting and caching to work. If you reuse this transform, the caching mechanism will consider it to be different from the previous calls and recompute everything. This warning is only showed once. Subsequent hashing failures won't be showed.
-2026-08-07 17:56:15,602 [WARNING] Parameter 'function'=<function SFTTrainer._prepare_non_packed_dataloader.<locals>.tokenize at 0x7c0720652020> of the transform datasets.arrow_dataset.Dataset._map_single couldn't be hashed properly, a random hash was used instead. Make sure your transforms and parameters are serializable with pickle or dill for the dataset fingerprinting and caching to work. If you reuse this transform, the caching mechanism will consider it to be different from the previous calls and recompute everything. This warning is only showed once. Subsequent hashing failures won't be showed.
-Traceback (most recent call last):
-  File "/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py", line 806, in <module>
-    main()
-  File "/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py", line 792, in main
-    success = run_training_pipeline(
-              ^^^^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py", line 666, in run_training_pipeline
-    trainer = create_sft_trainer(
-              ^^^^^^^^^^^^^^^^^^^
-  File "/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py", line 348, in create_sft_trainer
-    return SFTTrainer(**kwargs)
-           ^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/huggingface_hub/utils/_deprecation.py", line 101, in inner_f
-    return f(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/trl/trainer/sft_trainer.py", line 401, in __init__
-    super().__init__(
-  File "/usr/local/lib/python3.12/dist-packages/transformers/trainer.py", line 535, in __init__
-    self._move_model_to_device(model, args.device)
-  File "/usr/local/lib/python3.12/dist-packages/transformers/trainer.py", line 782, in _move_model_to_device
-    model = model.to(device)
-            ^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1381, in to
-    return self._apply(convert)
-           ^^^^^^^^^^^^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 933, in _apply
-    module._apply(fn)
-  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 933, in _apply
-    module._apply(fn)
-  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 933, in _apply
-    module._apply(fn)
-  [Previous line repeated 5 more times]
-  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 964, in _apply
-    param_applied = fn(param)
-                    ^^^^^^^^^
-  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1374, in convert
-    raise NotImplementedError(
-NotImplementedError: Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.
+2026-08-14 18:21:36,540 [WARNING] [WARNING] CUDA pre-flight kernel execution test failed on this device (e.g. sm_60/P100 unsupported by PyTorch wheel). Gracefully falling back to CPU execution mode.
+2026-08-14 18:21:36,540 [WARNING] [WARNING] CUDA pre-flight kernel execution test failed on this device (e.g. sm_60/P100 unsupported by PyTorch wheel). Gracefully falling back to CPU execution mode.
+2026-08-14 18:21:36,669 [INFO] NumExpr defaulting to 4 threads.
+2026-08-14 18:21:36,823 [INFO] PyTorch version 2.10.0+cu128 available.
+2026-08-14 18:21:36,823 [INFO] TensorFlow version 2.20.0 available.
+2026-08-14 18:21:36,824 [INFO] JAX version 0.7.2 available.
+2026-08-14 18:21:53,029 [WARNING] Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128_nocublaslt.so')
+2026-08-14 18:21:53,030 [WARNING] The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.
+2026-08-14 18:21:53,045 [INFO]    [INFO] Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.
+2026-08-14 18:21:53,045 [INFO]    [INFO] Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.
+2026-08-14 18:21:53,045 [INFO] [MODEL] Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...
+2026-08-14 18:21:53,045 [INFO] [MODEL] Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...
+2026-08-14 18:21:55,317 [INFO] [MODEL] Loading base model in standard precision (torch.float32)...
+2026-08-14 18:21:55,317 [INFO] [MODEL] Loading base model in standard precision (torch.float32)...
