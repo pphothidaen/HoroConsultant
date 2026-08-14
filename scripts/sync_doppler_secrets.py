@@ -58,7 +58,20 @@ def sync_github_secrets(valid_secrets: dict[str, str], dry_run: bool = False) ->
             logger.info("ℹ️ GitHub CLI (`gh`) not installed. Skipping direct GitHub Secrets sync.")
             return
 
-    target_secrets = ["FLY_API_TOKEN", "VERCEL_TOKEN", "HF_TOKEN", "GEMINI_API_KEY"]
+    target_secrets = [
+        "AZURE_CREDENTIALS",
+        "AZURE_CONTAINER_APP",
+        "AZURE_RESOURCE_GROUP",
+        "AZURE_CONTAINER_APP_URL",
+        "DOCKER_USERNAME",
+        "DOCKER_PASSWORD",
+        "ROUTER_BASE_URL",
+        "NINE_ROUTER_BASE_URL",
+        "FLY_API_TOKEN",
+        "VERCEL_TOKEN",
+        "HF_TOKEN",
+        "GEMINI_API_KEY",
+    ]
     for key in target_secrets:
         val = valid_secrets.get(key)
         if val:
@@ -106,7 +119,7 @@ def sync_secrets_to_doppler(
         "Cloud AI Fallback (Gemini)": ["GOOGLE_AI_STUDIO_API_KEY", "GOOGLE_AI_STUDIO_API_KEY2", "GEMINI_API_KEY", "PRIMARY_MODEL"],
         "Production Database (Supabase)": ["APP_SUPABASE_URL", "APP_SUPABASE_KEY", "SUPABASE_URL", "SUPABASE_ANON_KEY"],
         "Model Repository (Hugging Face)": ["HF_TOKEN", "HF_USERNAME", "HF_REPO_ID"],
-        "Cloud & Edge Deployments (Fly.io & Vercel)": ["FLY_API_TOKEN", "VERCEL_TOKEN", "VERCEL_ORG_ID", "VERCEL_PROJECT_ID"],
+        "Cloud & Edge Deployments (Azure, Fly.io & Vercel)": ["AZURE_RESOURCE_GROUP", "AZURE_CONTAINER_APP", "AZURE_CREDENTIALS", "AZURE_CONTAINER_APP_URL", "FLY_API_TOKEN", "VERCEL_TOKEN", "VERCEL_ORG_ID", "VERCEL_PROJECT_ID"],
         "Cloud GPU Training (Lightning AI & Kaggle)": ["LIGHTNING_API_KEY", "LIGHTNING_PROD_API_KEY", "KAGGLE_USERNAME", "KAGGLE_TOKEN"],
         "MLOps & GitHub": ["WANDB_KEY", "GH_TOKEN", "GH_TOTP_SECRET"],
         "Infrastructure & Security": ["APP_ENV", "SECRET_KEY", "REDIS_URL", "AUTO_SYNC_ENABLED"],

@@ -1,0 +1,26 @@
+{
+  "description": "HoroConsultant Antigravity Lifecycle Hooks Configuration",
+  "version": "1.0.0",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command|shell|terminal.*",
+        "handler": {
+          "type": "command",
+          "command": "python3 .agents/hooks/pre_tool_check.py",
+          "timeout": 30
+        }
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "handler": {
+          "type": "command",
+          "command": "python3 .agents/hooks/post_tool_audit.py",
+          "timeout": 30
+        }
+      }
+    ]
+  }
+}

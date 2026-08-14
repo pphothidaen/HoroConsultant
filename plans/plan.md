@@ -3,7 +3,7 @@
 **Project:** HoroConsultant — Computational Metaphysics Engine  
 **Target Framework:** Antigravity CLI AI SDLC System + Codex compatibility layer
 **Lead Agent:** Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
-**Last Updated:** 2026-08-09 — Added backward-compatible Codex subagent generation from `.agents/agents/*/agent.json` while retaining Antigravity synchronization.
+**Last Updated:** 2026-08-15 — Hermes Agent Cloud-Ready Lifecycle Hooks (.agents/hooks.json), CI headless mode, Doppler 2-Tier secret sync, and Gemini 3.6/3.7 Parity Engine.
 
 ---
 
@@ -22,6 +22,9 @@
 │ • Webhook Alerts (Telegram & Discord) │                                       │                                       │
 │ • Scheduled GitHub Actions Cron       │                                       │                                       │
 │ • 206 Pytest + 25 Button Contracts    │                                       │                                       │
+│ • Hermes Cloud Hooks (.agents/hooks)  │                                       │                                       │
+│ • Doppler 2-Tier Secrets Pipeline     │                                       │                                       │
+│ • Gemini 3.6/3.7 Parity Engine Config │                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
 

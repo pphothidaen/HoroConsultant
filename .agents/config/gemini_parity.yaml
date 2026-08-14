@@ -21,6 +21,12 @@ activation:
     - "gemini-2.0-flash-lite"
     - "gemini-1.5-pro"
     - "gemini-2.5-flash"
+    - "gemini-3.6-flash"
+    - "gemini-3.6-medium"
+    - "gemini-3.7-flash"
+    - "gemini-3.7-flash-thinking"
+    - "gemini-3.7-flash (high)"
+    - "gpt-oss-120b"
   env_flag: "HERMES_PARITY_ENABLED"   # Set to "true" to activate (default: true on Gemini)
   auto_detect_task: true               # Auto-select task profile from message content
 

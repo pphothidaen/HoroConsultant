@@ -15,6 +15,7 @@ on:
     - cron: "0 2 * * *"
 
 env:
+  CI: "true"
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 concurrency:
@@ -61,6 +62,13 @@ jobs:
           python-version: "3.12"
           cache: "pip"
 
+      - name: Doppler Secret Sync (1st Priority)
+        uses: dopplerhq/secrets-fetch-action@v1.2.0
+        continue-on-error: true
+        with:
+          doppler-token: ${{ secrets.DOPPLER_TOKEN }}
+        id: doppler
+
       - name: Install Kaggle CLI & dependencies
         run: |
           python -m pip install --upgrade pip
@@ -68,8 +76,8 @@ jobs:
 
       - name: Configure Kaggle Credentials
         env:
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+          KAGGLE_USERNAME: ${{ env.KAGGLE_USERNAME || secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ env.KAGGLE_TOKEN || env.KAGGLE_KEY || secrets.KAGGLE_KEY }}
         run: |
           mkdir -p ~/.kaggle
           echo "{\"username\":\"${KAGGLE_USERNAME:-pphothidaen}\",\"key\":\"${KAGGLE_KEY}\"}" > ~/.kaggle/kaggle.json
@@ -81,8 +89,8 @@ jobs:
 
       - name: Trigger Kaggle Kernel Execution
         env:
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+          KAGGLE_USERNAME: ${{ env.KAGGLE_USERNAME || secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ env.KAGGLE_TOKEN || env.KAGGLE_KEY || secrets.KAGGLE_KEY }}
         run: |
           if [ -n "${KAGGLE_KEY}" ]; then
             python3 scripts/kaggle_notebook_manager.py --push --accelerator nvidiaTeslaT4
@@ -90,11 +98,10 @@ jobs:
             echo "ℹ️ KAGGLE_KEY secret not found. Skipping Kaggle remote trigger."
           fi
 
-
       - name: Sync Kaggle Kernel Outputs & Logs
         env:
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+          KAGGLE_USERNAME: ${{ env.KAGGLE_USERNAME || secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY: ${{ env.KAGGLE_TOKEN || env.KAGGLE_KEY || secrets.KAGGLE_KEY }}
         run: |
           if [ -n "${KAGGLE_KEY}" ]; then
             python3 scripts/kaggle_notebook_manager.py --output --dest project/kaggle_kernel

@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-09 — Added backward-compatible Codex subagent configuration generated from the existing `.agents` role definitions. The prior regression audit recorded 195/195 Pytest PASS, 2 Cargo integration tests PASS, and native runner 12/12 PASS.*
+> *Last Updated: 2026-08-15 — Hermes Agent Full Cloud-Ready Stack deployed: .agents/hooks.json Antigravity lifecycle hooks, CI headless execution mode, Doppler 2-tier secret sync, Azure Container Apps backend integration, SDLC & Codex CI agent sync validation, and Gemini 3.6/3.7 Parity Engine.*
 
 
 ---
@@ -81,6 +81,13 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 ```
 
 ---
+
+- [x] **Hermes Agent Full Cloud-Ready Stack & Antigravity Hook Architecture ([`.agents/hooks.json`](file:///Users/kimlenglim/Project/HoroConsultant/.agents/hooks.json), [`.agents/hooks/pre_tool_check.py`](file:///Users/kimlenglim/Project/HoroConsultant/.agents/hooks/pre_tool_check.py), [`.agents/hooks/post_tool_audit.py`](file:///Users/kimlenglim/Project/HoroConsultant/.agents/hooks/post_tool_audit.py), [`.agents/config/gemini_parity.yaml`](file:///Users/kimlenglim/Project/HoroConsultant/.agents/config/gemini_parity.yaml), [`.github/workflows/azure_deploy.yml`](file:///Users/kimlenglim/Project/HoroConsultant/.github/workflows/azure_deploy.yml), [`.github/workflows/ci.yml`](file:///Users/kimlenglim/Project/HoroConsultant/.github/workflows/ci.yml))**
+  - **Antigravity Hooks Manifest**: Implemented `.agents/hooks.json` specifying `PreToolUse` command interceptor and `PostToolUse` audit logger conforming to the Antigravity camelCase protojson protocol.
+  - **CI Headless Auto-Approval Mode**: Configured `pre_tool_check.py` to recognize `CI=true` and non-interactive environments, returning instantaneous JSON decisions (`allow`/`deny`) without blocking stdin.
+  - **Doppler 2-Tier Priority Secrets Sync**: Wired Doppler CLI secret injection into `.github/workflows/azure_deploy.yml` and `.github/workflows/ai_cicd.yml` with fallback to GitHub Repository Secrets per Rule 06.
+  - **SDLC & Codex CI Agent Sync Audit**: Integrated `python3 scripts/sync_sdlc_agents.py --check` and `python3 scripts/sync_codex_agents.py --check` into `.github/workflows/ci.yml` pipeline.
+  - **Gemini 3.6/3.7 Parity Engine**: Configured task-specific temperature calibration, self-critique loops, and sliding-window context compression for Gemini 3.6 Medium/Flash and Gemini 3.7 Flash across orchestration, coding, QA, devops, and domain synthesis.
 
 - [x] **Complete Zi Wei Dou Shu & Qi Men Dun Jia Rust Engine Migration & Python Cleanup ([`rust_core/src/ziwei.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/ziwei.rs), [`rust_core/src/qimen.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/qimen.rs), [`project/core/fast_math.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/fast_math.py), [`project/core/zi_wei_engine.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/zi_wei_engine.py), [`project/core/qi_men_engine.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/qi_men_engine.py))**
   - **Zi Wei Dou Shu Rust Native Binding**: Implemented `calculate_ming_shen_gong`, `calculate_zi_wei_star_branch`, and `calculate_14_main_stars` in Rust PyO3. Integrated into `fast_math.py` (`fast_ziwei_stars`) and `zi_wei_engine.py`.
