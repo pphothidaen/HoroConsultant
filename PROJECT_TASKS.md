@@ -320,16 +320,18 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 - [x] **Module 8: Native Rust SDLC Agent Governance Watchdog & Health Auditor ([`rust_core/src/bin/sdlc_watchdog.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/sdlc_watchdog.rs))**
   - Built native Rust watchdog CLI auditing agent matrix specs (`.antigravity/agents/`), workspace definitions (`.agents/agents/`), docs integrity, and secret leaks.
 
-- [ ] **Harden HITL Button Regression Contracts**
-  - Select a deterministic valid item from `/hitl/queue`, then assert successful draft → review → undo lifecycle responses (rather than treating `404` from a synthetic ID as a pass).
-  - Keep invalid-ID behaviour as a separate negative-path test.
+- [x] **Harden HITL Button Regression Contracts ([`scripts/run_button_regression.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/run_button_regression.py))**
+  - Selects a deterministic valid item from `/hitl/queue`, then asserts successful draft → review → undo lifecycle responses (HTTP 200).
+  - Verifies invalid-ID behavior as a separate negative-path test (`test_hitl_negative_path_invalid_id_btn`, HTTP 404).
 
-- [ ] **Make Playwright E2E Results Portable and Trustworthy**
-  - Replace the hard-coded external artifact directory with a configurable local output path.
-  - Record every caught browser-step exception as a failed result so the 17-step report cannot overstate success.
+- [x] **Make Playwright E2E Results Portable and Trustworthy ([`scripts/run_e2e_screenshots.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/run_e2e_screenshots.py))**
+  - Replaced hard-coded external artifact directory with configurable local output path (`E2E_ARTIFACT_DIR` / `project/tests/artifacts/screenshots`).
+  - Records every caught browser-step exception as a `FAILED` result so reports accurately reflect execution outcomes.
 
-- [ ] **Define the Future LLM Model Expansion Scope**
-  - The master plan lists this roadmap item but has no approved provider/model, acceptance criteria, budget, or deployment target.
+- [x] **Define the Future LLM Model Expansion Scope ([`plans/plan.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/plan.md))**
+  - Defined 3-Tier Multi-Provider Topology (Local Qwen2.5 / Ollama → Gemini 2.5/3.6 Flash → 9router DeepSeek-R1 / Claude 3.7 Sonnet).
+  - Specified latency SLAs, zero-cost budget limit ($0.00 baseline), and deterministic Rust PyO3 calculation guard criteria.
+
 
 
 

@@ -13,15 +13,17 @@
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Decoupled DDD Multi-Cloud & Rust Core│ • None                                 │ • Harden HITL contract regression     │
-│ • Phase 6.1: Standalone Axum Server   │                                       │                                       │
+│ • Decoupled DDD Multi-Cloud & Rust Core│ • None (Follow-up QA & CI/CD release) │ • Future LLM Provider Integration      │
+│ • Phase 6.1: Standalone Axum Server   │                                       │   (Qwen2.5-32B / DeepSeek-R1 evaluation)│
 │ • Phase 6.2: Native Rust Test Runner  │                                       │                                       │
 │ • SwissEph Native Pure Rust Bridge    │                                       │                                       │
-│ • E2E browser automation baseline     │                                       │ • Make E2E results portable/strict    │
+│ • Hardened HITL Lifecycle Regression  │                                       │                                       │
+│ • Portable & Strict Playwright E2E    │                                       │                                       │
+│ • Future LLM Model Scope Defined      │                                       │                                       │
 │ • BSA Skill & Doc Watchdog Governance │                                       │                                       │
 │ • Codex compatibility layer (16 roles)│                                       │                                       │
-│ • Module 1-4: Rust Accelerated Core   │                                       │                                       │
-│ • 195 Pytest + 2 Cargo + 12 Runner    │                                       │ • Define Future LLM Expansion scope   │
+│ • Module 1-8: Rust Accelerated Core   │                                       │                                       │
+│ • 195 Pytest + 2 Cargo + 12 Runner    │                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
 
@@ -102,6 +104,34 @@
    python3 scripts/sync_codex_agents.py --check
    ```
    - Target: **all generated Codex role TOML files match the existing workspace definitions**.
+
+## 🔮 Scope Specification: Future LLM Model Expansion & Hybrid Provider Architecture
+
+### 1. Architectural Strategy & Target Models
+To ensure high reasoning capability across 10 computational metaphysics disciplines without incurring API cost inflation, the system adopts a 3-Tier Multi-Provider Topology:
+
+| Tier / Role | Target Model Candidates | Deployment / Provider Target | Target Latency / SLA | Cost Profile |
+| :--- | :--- | :--- | :--- | :--- |
+| **Tier 1: Local / Edge Primary** | `qwen2.5:7b-instruct-q4_K_M`, `qwen2.5:14b-instruct-q4` | Ollama Container (HF Spaces / Azure ACA) / Local Codex CLI | TTFT < 800ms, Full Reading < 2.5s | **$0.00 / Free** (Included Compute) |
+| **Tier 2: High-Speed Cloud Workhorse** | `gemini-2.5-flash`, `gemini-3.6-flash` | Google AI Studio API (`GEMINI_API_KEY`) | TTFT < 400ms, Full Reading < 1.5s | Zero-tier free quota / $0.075/1M tokens |
+| **Tier 3: Reasoning & Domain Synthesis** | `deepseek-r1-distill-qwen-32b`, `claude-3.7-sonnet` | 9router Proxy Gateway (`agy1` alias) / DeepSeek API | TTFT < 1.2s, Full Synthesis < 4.0s | Dynamic quota balancing via 9router |
+
+### 2. Provider Failover Hierarchy & Resilience Circuit Breaker
+```mermaid
+flowchart LR
+    Req[User Reading Request] --> P1{Tier 1: Ollama / Codex Local}
+    P1 -->|Success < 3.0s| Res[Return AI Interpretation]
+    P1 -->|Timeout / 500 / Unavailable| P2{Tier 2: Gemini Flash API}
+    P2 -->|Success < 2.0s| Res
+    P2 -->|Quota 429 / Auth Error| P3{Tier 3: 9router Proxy Gateway}
+    P3 -->|Success| Res
+    P3 -->|All Fail| Fallback[Deterministic Metaphysics Engine Fallback]
+```
+
+### 3. Acceptance Criteria & Test Matrix
+1. **Zero Hallucination Guard**: System MUST enforce deterministic Rust PyO3 calculation for BaZi Day Master, Five Elements percentages, and ZiWei Palaces. AI models MUST NOT modify computed chart parameters.
+2. **Graceful Fallback**: If Tier 1 & Tier 2 fail, response fallback MUST return raw calculation structured output with localized astrological rule summaries within < 100ms.
+3. **Budget Limit**: Monthly cloud API expenditure capped at **$0.00** baseline using local session CLI routing and Gemini free tier.
 
 ---
 

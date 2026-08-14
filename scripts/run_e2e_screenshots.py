@@ -30,10 +30,19 @@ import uvicorn
 from playwright.async_api import async_playwright
 
 SCREENSHOT_DIR = ROOT / "project" / "tests" / "screenshots"
-ARTIFACT_DIR   = Path("/Users/kimlenglim/.agy-account-2/.gemini/antigravity-cli/brain/f4817fb2-91c8-41f2-81f7-ecb9f0b033e8/screenshots")
+ARTIFACT_DIR_ENV = os.environ.get("E2E_ARTIFACT_DIR")
+if ARTIFACT_DIR_ENV:
+    ARTIFACT_DIR = Path(ARTIFACT_DIR_ENV)
+else:
+    ARTIFACT_DIR = ROOT / "project" / "tests" / "artifacts" / "screenshots"
 
 SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def copy_screenshot(src_path: Path):
+    if src_path.exists() and ARTIFACT_DIR.resolve() != SCREENSHOT_DIR.resolve():
+        shutil.copy(src_path, ARTIFACT_DIR / src_path.name)
 
 
 def start_server():
@@ -89,19 +98,29 @@ async def run_e2e_flow():
         # -------------------------------------------------------------------
 
         print("[INFO] Navigating to Main Dashboard http://localhost:8888/...")
-        await page.goto("http://localhost:8888/", wait_until="domcontentloaded")
-        await page.wait_for_timeout(1000)
-        
-        shot1 = SCREENSHOT_DIR / "01_dashboard_initial.png"
-        await page.screenshot(path=str(shot1), full_page=True)
-        shutil.copy(shot1, ARTIFACT_DIR / shot1.name)
-        results.append({
-            "id": "E2E-01",
-            "feature": "Main Dashboard Interface Load",
-            "status": "PASSED",
-            "screenshot": f"screenshots/{shot1.name}",
-            "detail": "Loaded Main Dashboard header, input form, 9 discipline buttons, and RAG status badge."
-        })
+        try:
+            await page.goto("http://localhost:8888/", wait_until="domcontentloaded")
+            await page.wait_for_timeout(1000)
+            
+            shot1 = SCREENSHOT_DIR / "01_dashboard_initial.png"
+            await page.screenshot(path=str(shot1), full_page=True)
+            copy_screenshot(shot1)
+            results.append({
+                "id": "E2E-01",
+                "feature": "Main Dashboard Interface Load",
+                "status": "PASSED",
+                "screenshot": f"screenshots/{shot1.name}",
+                "detail": "Loaded Main Dashboard header, input form, 9 discipline buttons, and RAG status badge."
+            })
+        except Exception as e:
+            print(f"[ERROR] Step 1 failed: {e}")
+            results.append({
+                "id": "E2E-01",
+                "feature": "Main Dashboard Interface Load",
+                "status": "FAILED",
+                "screenshot": None,
+                "detail": f"Step 1 Exception: {e}"
+            })
 
         # 1.1 Test Location Search Button
         try:
@@ -112,7 +131,7 @@ async def run_e2e_flow():
 
             shot2 = SCREENSHOT_DIR / "02_location_search_resolved.png"
             await page.screenshot(path=str(shot2))
-            shutil.copy(shot2, ARTIFACT_DIR / shot2.name)
+            copy_screenshot(shot2)
             results.append({
                 "id": "E2E-02",
                 "feature": "Location Search & Geocoding Resolver",
@@ -122,6 +141,13 @@ async def run_e2e_flow():
             })
         except Exception as e:
             print(f"[ERROR] Step 1.1 failed: {e}")
+            results.append({
+                "id": "E2E-02",
+                "feature": "Location Search & Geocoding Resolver",
+                "status": "FAILED",
+                "screenshot": None,
+                "detail": f"Step 1.1 Exception: {e}"
+            })
 
         # 1.2 Test Preset Buttons
         try:
@@ -130,7 +156,7 @@ async def run_e2e_flow():
             await page.wait_for_timeout(500)
             shot3 = SCREENSHOT_DIR / "03_preset_singapore.png"
             await page.screenshot(path=str(shot3))
-            shutil.copy(shot3, ARTIFACT_DIR / shot3.name)
+            copy_screenshot(shot3)
             results.append({
                 "id": "E2E-03",
                 "feature": "Preset Coordinates Auto-Fill",
@@ -140,6 +166,13 @@ async def run_e2e_flow():
             })
         except Exception as e:
             print(f"[ERROR] Step 1.2 failed: {e}")
+            results.append({
+                "id": "E2E-03",
+                "feature": "Preset Coordinates Auto-Fill",
+                "status": "FAILED",
+                "screenshot": None,
+                "detail": f"Step 1.2 Exception: {e}"
+            })
 
         # Reload Bangkok Preset & Submit Main Form
         try:
@@ -152,7 +185,7 @@ async def run_e2e_flow():
 
             shot4 = SCREENSHOT_DIR / "04_bazi_chart_results.png"
             await page.screenshot(path=str(shot4), full_page=True)
-            shutil.copy(shot4, ARTIFACT_DIR / shot4.name)
+            copy_screenshot(shot4)
             results.append({
                 "id": "E2E-04",
                 "feature": "BaZi 4-Pillars & AI Multi-Agent Output",
@@ -162,6 +195,13 @@ async def run_e2e_flow():
             })
         except Exception as e:
             print(f"[ERROR] Step 1.3 submit failed: {e}")
+            results.append({
+                "id": "E2E-04",
+                "feature": "BaZi 4-Pillars & AI Multi-Agent Output",
+                "status": "FAILED",
+                "screenshot": None,
+                "detail": f"Step 1.3 Exception: {e}"
+            })
 
         # 1.3 Test Tab Switching Buttons
         try:
@@ -170,13 +210,13 @@ async def run_e2e_flow():
             await page.wait_for_timeout(400)
             shot5a = SCREENSHOT_DIR / "05a_tab_validator_audit.png"
             await page.screenshot(path=str(shot5a))
-            shutil.copy(shot5a, ARTIFACT_DIR / shot5a.name)
+            copy_screenshot(shot5a)
 
             await page.click("button:has-text('คัมภีร์อ้างอิง')")
             await page.wait_for_timeout(400)
             shot5b = SCREENSHOT_DIR / "05b_tab_rag_references.png"
             await page.screenshot(path=str(shot5b))
-            shutil.copy(shot5b, ARTIFACT_DIR / shot5b.name)
+            copy_screenshot(shot5b)
             results.append({
                 "id": "E2E-05",
                 "feature": "Tab Switching (Reading, Gemini Audit, RAG)",
@@ -186,8 +226,15 @@ async def run_e2e_flow():
             })
         except Exception as e:
             print(f"[ERROR] Step 1.4 tabs failed: {e}")
+            results.append({
+                "id": "E2E-05",
+                "feature": "Tab Switching (Reading, Gemini Audit, RAG)",
+                "status": "FAILED",
+                "screenshot": None,
+                "detail": f"Step 1.4 Exception: {e}"
+            })
 
-        # 1.4 Test 5-Branch Metaphysics Discipline Buttons
+        # 1.4 Test 8 Metaphysics Discipline Buttons
         branches = [
             ("Zi Wei", "06_discipline_ziwei.png", "Zi Wei Dou Shu 12-Palace Visualizer"),
             ("Qi Men", "07_discipline_qimen.png", "Qi Men Dun Jia 9-Palace Grid Visualizer"),
@@ -209,7 +256,7 @@ async def run_e2e_flow():
                 
                 shot = SCREENSHOT_DIR / file_name
                 await page.screenshot(path=str(shot))
-                shutil.copy(shot, ARTIFACT_DIR / shot.name)
+                copy_screenshot(shot)
                 results.append({
                     "id": f"E2E-{idx:02d}",
                     "feature": feat_title,
@@ -217,9 +264,16 @@ async def run_e2e_flow():
                     "screenshot": f"screenshots/{shot.name}",
                     "detail": f"Calculated and rendered interactive visualizer card for {btn_text}."
                 })
-                idx += 1
             except Exception as e:
                 print(f"[ERROR] Discipline {btn_text} failed: {e}")
+                results.append({
+                    "id": f"E2E-{idx:02d}",
+                    "feature": feat_title,
+                    "status": "FAILED",
+                    "screenshot": None,
+                    "detail": f"Discipline {btn_text} Exception: {e}"
+                })
+            idx += 1
 
         # -------------------------------------------------------------------
         # 2. Admin Panel (admin.html) E2E Test
@@ -231,7 +285,7 @@ async def run_e2e_flow():
             
             shot14 = SCREENSHOT_DIR / "14_admin_auth_modal.png"
             await page.screenshot(path=str(shot14))
-            shutil.copy(shot14, ARTIFACT_DIR / shot14.name)
+            copy_screenshot(shot14)
 
             print("[INFO] Submitting Admin Authorized Email Login (pansakorn@gmail.com)...")
             await page.click("button:has-text('Login')")
@@ -239,7 +293,7 @@ async def run_e2e_flow():
 
             shot15 = SCREENSHOT_DIR / "15_admin_dashboard_authenticated.png"
             await page.screenshot(path=str(shot15), full_page=True)
-            shutil.copy(shot15, ARTIFACT_DIR / shot15.name)
+            copy_screenshot(shot15)
             results.append({
                 "id": "E2E-14",
                 "feature": "Admin Panel Authentication & Source Catalog",
@@ -249,6 +303,13 @@ async def run_e2e_flow():
             })
         except Exception as e:
             print(f"[ERROR] Admin Panel test failed: {e}")
+            results.append({
+                "id": "E2E-14",
+                "feature": "Admin Panel Authentication & Source Catalog",
+                "status": "FAILED",
+                "screenshot": None,
+                "detail": f"Admin Panel Exception: {e}"
+            })
 
         # -------------------------------------------------------------------
         # 3. HITL Review Studio (hitl.html) E2E Test
@@ -260,7 +321,7 @@ async def run_e2e_flow():
 
             shot16 = SCREENSHOT_DIR / "16_hitl_studio_overview.png"
             await page.screenshot(path=str(shot16), full_page=True)
-            shutil.copy(shot16, ARTIFACT_DIR / shot16.name)
+            copy_screenshot(shot16)
 
             queue_items = await page.query_selector_all(".queue-item")
             if queue_items:
@@ -269,7 +330,7 @@ async def run_e2e_flow():
 
             shot17 = SCREENSHOT_DIR / "17_hitl_item_review_selected.png"
             await page.screenshot(path=str(shot17), full_page=True)
-            shutil.copy(shot17, ARTIFACT_DIR / shot17.name)
+            copy_screenshot(shot17)
             results.append({
                 "id": "E2E-15",
                 "feature": "HITL Review Studio & Confidence Heatmap",
@@ -279,6 +340,13 @@ async def run_e2e_flow():
             })
         except Exception as e:
             print(f"[ERROR] HITL Review Studio test failed: {e}")
+            results.append({
+                "id": "E2E-15",
+                "feature": "HITL Review Studio & Confidence Heatmap",
+                "status": "FAILED",
+                "screenshot": None,
+                "detail": f"HITL Review Studio Exception: {e}"
+            })
 
         # -------------------------------------------------------------------
         # 4. OpenAPI Interactive Documentation (/docs & /redoc) E2E Test
@@ -290,7 +358,7 @@ async def run_e2e_flow():
 
             shot18 = SCREENSHOT_DIR / "18_openapi_swagger_docs.png"
             await page.screenshot(path=str(shot18), full_page=True)
-            shutil.copy(shot18, ARTIFACT_DIR / shot18.name)
+            copy_screenshot(shot18)
 
             results.append({
                 "id": "E2E-16",
@@ -301,6 +369,13 @@ async def run_e2e_flow():
             })
         except Exception as e:
             print(f"[ERROR] OpenAPI Swagger UI test failed: {e}")
+            results.append({
+                "id": "E2E-16",
+                "feature": "OpenAPI Interactive Swagger Documentation (/docs)",
+                "status": "FAILED",
+                "screenshot": None,
+                "detail": f"OpenAPI Swagger UI Exception: {e}"
+            })
 
         try:
             print("[INFO] Navigating to OpenAPI ReDoc UI http://localhost:8888/redoc...")
@@ -309,7 +384,7 @@ async def run_e2e_flow():
 
             shot19 = SCREENSHOT_DIR / "19_openapi_redoc.png"
             await page.screenshot(path=str(shot19), full_page=True)
-            shutil.copy(shot19, ARTIFACT_DIR / shot19.name)
+            copy_screenshot(shot19)
 
             results.append({
                 "id": "E2E-17",
@@ -320,6 +395,13 @@ async def run_e2e_flow():
             })
         except Exception as e:
             print(f"[ERROR] OpenAPI ReDoc UI test failed: {e}")
+            results.append({
+                "id": "E2E-17",
+                "feature": "OpenAPI Interactive ReDoc Documentation (/redoc)",
+                "status": "FAILED",
+                "screenshot": None,
+                "detail": f"OpenAPI ReDoc UI Exception: {e}"
+            })
 
         await browser.close()
 

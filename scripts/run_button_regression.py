@@ -230,6 +230,16 @@ BUTTON_CATALOG = [
         "spec_check": "Reverts last submitted review decision.",
         "test_func": "test_hitl_undo_btn"
     },
+    {
+        "id": "BTN-HTL-06",
+        "page": "hitl.html",
+        "name": "❌ HITL Negative Path (Invalid Item ID)",
+        "handler": "Error Handler Validation",
+        "endpoint": "POST /hitl/draft/{invalid_id} & /hitl/review/{invalid_id}",
+        "spec_check": "Verifies 404 response for invalid non-existent item IDs.",
+        "test_func": "test_hitl_negative_path_invalid_id_btn"
+    },
+
     # docs (/docs, /redoc, /openapi.json)
     {
         "id": "BTN-DOC-01",
@@ -404,6 +414,15 @@ def test_logout_btn():
     assert "logoutAdmin()" in res.text
     return "DOM Admin Logout button verified"
 
+def _get_valid_hitl_item_id() -> str:
+    res = client.get("/hitl/queue")
+    if res.status_code == 200:
+        data = res.json()
+        items = data.get("items", [])
+        if items:
+            return items[0]["item_id"]
+    return "CM-BZ-001"
+
 def test_hitl_batch_draft_btn():
     res = client.post("/hitl/batch-draft", json={})
     assert res.status_code == 200
@@ -411,25 +430,46 @@ def test_hitl_batch_draft_btn():
 
 def test_hitl_export_btn():
     res = client.get("/hitl/export")
-    assert res.status_code in [200, 404, 500]
-    return f"HTTP {res.status_code} - Export route responsive"
+    assert res.status_code == 200
+    return f"HTTP {res.status_code} - Export route responsive (entries: {res.json().get('entries', 0)})"
 
 def test_hitl_single_draft_btn():
-    res = client.post("/hitl/draft/CM-BZ-001")
-    assert res.status_code in [200, 404]
-    return f"HTTP {res.status_code} - Single draft route responsive"
+    item_id = _get_valid_hitl_item_id()
+    mock_draft = {
+        "answer": "Mocked HITL Draft Answer for regression test",
+        "model_used": "qwen2.5:7b",
+        "confidence_scores": [{"text": "Mocked draft sentence.", "confidence": 0.95}],
+        "latency_ms": 10,
+        "generated_at": "2026-08-15T00:00:00"
+    }
+    with patch("project.hitl_router.generate_ai_draft", return_value=mock_draft):
+        res = client.post(f"/hitl/draft/{item_id}")
+        assert res.status_code == 200
+        return f"HTTP 200 - Single draft generated for item '{item_id}'"
+
 
 def test_hitl_approve_btn():
-    res = client.post("/hitl/review/CM-BZ-001", json={
-        "decision": "approve", "reviewer": "QA", "quality_rating": 5
+    item_id = _get_valid_hitl_item_id()
+    res = client.post(f"/hitl/review/{item_id}", json={
+        "decision": "approve", "reviewer": "QA_Tester", "confidence_rating": 5
     })
-    assert res.status_code in [200, 404]
-    return f"HTTP {res.status_code} - Submit decision route responsive"
+    assert res.status_code == 200
+    return f"HTTP 200 - Submitted review decision 'approve' for item '{item_id}'"
 
 def test_hitl_undo_btn():
-    res = client.delete("/hitl/review/CM-BZ-001")
-    assert res.status_code in [200, 404]
-    return f"HTTP {res.status_code} - Delete review route responsive"
+    item_id = _get_valid_hitl_item_id()
+    res = client.delete(f"/hitl/review/{item_id}")
+    assert res.status_code in (200, 404)
+    return f"HTTP {res.status_code} - Review decision reset/undone for item '{item_id}'"
+
+def test_hitl_negative_path_invalid_id_btn():
+    invalid_id = "NON_EXISTENT_ITEM_999999"
+    res_draft = client.post(f"/hitl/draft/{invalid_id}")
+    res_review = client.post(f"/hitl/review/{invalid_id}", json={"decision": "approve"})
+    assert res_draft.status_code == 404
+    assert res_review.status_code == 404
+    return "HTTP 404 - Verified negative path returns 404 for invalid item_id"
+
 
 def test_openapi_swagger_btn():
     res = client.get("/docs")
