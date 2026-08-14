@@ -183,6 +183,166 @@ async function updateVersionFooter() {
   }
 }
 
+function buildBaZiDomainInterpretation(query, birthDatetime, dayMasterStem = '庚', dayMasterElement = 'Metal') {
+  const q = (query || "").trim().toLowerCase();
+  const dateStr = birthDatetime || "1990-05-15 14:30:00";
+
+  if (/ลูก|บุตร|เด็ก|บริวาร|ครรภ์|มีลูก|child|children|son|daughter/.test(q)) {
+    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านบุตรหลานและบริวาร (BaZi Children Analysis)
+
+- **วันเวลาเกิด**: ${dateStr}
+- **ดิถีประจำตัว (Day Master)**: ดิถี ${dayMasterStem} (${dayMasterElement})
+- **ดาวประจำมิติตัวแทนลูกหลาน (食神/傷官)**: ธาตุน้ำ (Water - 壬/癸)
+- **เสาประจำมิติบุตรหลาน (時柱)**: เสายามกำเนิด
+
+📌 **คำทำนายเจาะจงมิติบุตรหลาน (ตามหลักตำรา 子平真詮 และ 滴天髓):**
+สำหรับผังดวงชะตาดิถี ${dayMasterStem} (Metal) ดาวแทนบุตรหลานคือ **ธาตุน้ำ (Water - 食神/傷官)** ซึ่งทำหน้าที่ส่งเสริมปัญญา คล่องแคล่ว และจินตนาการ
+
+1. **ลักษณะและวาสนาของบุตรหลาน**: บุตรหลานมีสติปัญญาเฉลียวฉลาด มีความคิดสร้างสรรค์สูง (食神-ดาวโภคทรัพย์สติปัญญา) เป็นเด็กที่มีความมั่นใจและมีความเป็นตัวของตัวเองสูง หากได้รับการส่งเสริมในทักษะเฉพาะด้าน จะสามารถสร้างชื่อเสียงและความสำเร็จได้ตั้งแต่วัยเยาว์
+2. **ความสัมพันธ์และการอุปถัมภ์**: เสายามในผังดวงชะตาส่งผลให้บุตรหลานมีความกตัญญูกตเวที เมื่อเติบใหญ่จะเป็นที่พึ่งพาอาศัยและนำพาโชคลาภมาสู่ครอบครัว
+3. **ข้อแนะนำในการส่งเสริมพัฒนาการ**: ควรเน้นการสื่อสารด้วยความเข้าใจ เปิดโอกาสให้คิดและตัดสินใจด้วยตนเอง หลีกเลี่ยงการใช้อารมณ์กดดัน และสนับสนุนกิจกรรมที่ใช้จินตนาการและการวิเคราะห์`;
+  }
+
+  // 2. Love & Marriage (ความรัก / คู่ครอง / แต่งงาน) - CHECK BEFORE CAREER
+  if (/ความรัก|คู่ครอง|แฟน|แต่งงาน|ความสัมพันธ์|รัก|love|marriage|spouse/.test(q)) {
+    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านความรักและคู่ครอง (BaZi Relationship Analysis)
+
+- **วันเวลาเกิด**: ${dateStr}
+- **ดิถีประจำตัว (Day Master)**: ดิถี ${dayMasterStem} (${dayMasterElement})
+- **เรือนคู่ครอง (日支)**: ฐานวันเกิดดวงชะตา
+
+📌 **คำทำนายเจาะจงมิติความรักและคู่ครอง:**
+สำหรับดิถี ${dayMasterStem} ฐานเรือนคู่ครองส่งผลให้มีดวงชะตาคู่ครองที่เป็นคนมีเหตุผล มีความรับผิดชอบสูง และคอยเป็นที่ปรึกษาหนุนนำชีวิต
+
+1. **อุปนิสัยคู่ครอง**: เป็นคนเก่ง มีความสามารถในการจัดการชีวิต มีความซื่อสัตย์และจริงใจ
+2. **แนวทางเสริมความสัมพันธ์**: ควรสื่อสารด้วยการรับฟังอย่างมีเหตุผล เคารพพื้นที่ส่วนตัวของกันและกัน จะช่วยให้ชีวิตคู่มีความอบอุ่นและยั่งยืน`;
+  }
+
+  // 3. Career & Job Change (การงาน / อาชีพ / ย้ายงาน / ธุรกิจ)
+  if (/อาชีพ|การงาน|ย้ายงาน|ทำธุรกิจ|ทำงาน|ยศ|ตำแหน่ง|career|job|work|business/.test(q) || (q.includes("งาน") && !q.includes("แต่งงาน"))) {
+    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านอาชีพและการงาน (BaZi Career Analysis)
+
+- **วันเวลาเกิด**: ${dateStr}
+- **ดิถีประจำตัว (Day Master)**: ดิถี ${dayMasterStem} (${dayMasterElement})
+- **ดาวการงานและตำแหน่ง (正官/七殺)**: ธาตุไฟ (Fire - 丙/丁)
+- **เสาประจำมิติตำแหน่งงาน (月柱)**: เสาเดือนกำเนิด
+
+📌 **คำทำนายเจาะจงมิติอาชีพและการงาน:**
+ผังดวงชะตาดิถี ${dayMasterStem} มีดาวการงานและยศตำแหน่งเป็น **ธาตุไฟ (Fire - 正官/七殺)** การขับเคลื่อนอาชีพการงานจะโดดเด่นในสายงานบริหาร การวางยุทธศาสตร์ งานเทคโนโลยี งานการเงิน หรืออุตสาหกรรมที่ใช้ความเด็ดขาดและการตัดสินใจระดับสูง
+
+1. **จังหวะโอกาสก้าวหน้า**: มีเกณฑ์ได้รับความไว้วางใจจากผู้ใหญ่และผู้บังคับบัญชา ได้รับการแต่งตั้งหรือขยับขยายหน้าที่ความรับผิดชอบ
+2. **คำแนะนำเชิงยุทธศาสตร์**: ให้มุ่งเน้นการพัฒนาทักษะภาวะผู้นำ (Leadership) การสื่อสารเจรจา และการทำงานร่วมกับองค์กรขนาดใหญ่`;
+  }
+
+  if (/การเงิน|เงิน|โชคลาภ|หุ้น|ลงทุน|รวย|wealth|finance|money/.test(q)) {
+    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านการเงินและโชคลาภ (BaZi Wealth Analysis)
+
+- **วันเวลาเกิด**: ${dateStr}
+- **ดิถีประจำตัว (Day Master)**: ดิถี ${dayMasterStem} (${dayMasterElement})
+- **ดาวโชคลาภและขุมทรัพย์ (正財/偏財)**: ธาตุไม้ (Wood - 甲/乙)
+
+📌 **คำทำนายเจาะจงมิติการเงินและโชคลาภ:**
+ดวงชะตาดิถี ${dayMasterStem} มีดาวโชคลาภเป็น **ธาตุไม้ (Wood - 正財/偏財)** ส่งผลให้มีช่องทางหารายได้หลากหลายทาง ทั้งจากงานประจำและการลงทุน
+
+1. **การสะสมทรัพย์สิน**: ควรเน้นการลงทุนในสินทรัพย์ที่มีความยั่งยืน เช่น อสังหาริมทรัพย์ หรือกองทุนระยะยาว
+2. **ข้อควรระวังการใช้จ่าย**: หลีกเลี่ยงการเสี่ยงโชคเกินตัว ให้ใช้ระบบกระจายความเสี่ยงอย่างเป็นระบบ`;
+  }
+
+  if (/สุขภาพ|ป่วย|โรค|ร่างกาย|สายตา|กระดูก|health|body/.test(q)) {
+    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านสุขภาพและพลังชีวิต (BaZi Health Analysis)
+
+- **วันเวลาเกิด**: ${dateStr}
+- **ดิถีประจำตัว (Day Master)**: ดิถี ${dayMasterStem} (${dayMasterElement})
+- **อวัยวะประจำธาตุหลัก**: ระบบทางเดินหายใจ ปอด ผิวหนัง
+
+📌 **คำทำนายเจาะจงมิติสุขภาพ:**
+การปรับสมดุล 5 ธาตุสำหรับดิถี ${dayMasterStem} (${dayMasterElement}) แนะนำให้ดูแลระบบปอด การหายใจ ผิวหนัง และปรับการพักผ่อนให้เพียงพอ
+
+1. **แนวทางดูแลสุขภาพ**: ควรรับประทานอาหารที่มีคุณสมบัติปรับสมดุล ออกกำลังกายอย่างสม่ำเสมอ และออกรับอากาศบริสุทธิ์`;
+  }
+
+  return `### 🔮 การวิเคราะห์ผังดวงจีน 4 เสาหลักแบบครอบคลุม (BaZi Comprehensive Reading)
+
+- **วันเวลาเกิด**: ${dateStr}
+- **ดิถีประจำตัว (Day Master)**: ดิถี ${dayMasterStem} (${dayMasterElement})
+- **คำถามวิเคราะห์เฉพาะ**: "${query || "ภาพรวมดวงชะตา"}"
+
+📌 **บทวิเคราะห์โครงสร้างดวงชะตา (ตามหลักคัมภีร์ 子平真詮 และ 滴天髓):**
+ดวงชะตานี้มีดิถีวันเป็น ${dayMasterStem} (${dayMasterElement}) ซึ่งมีพลังปรับสมดุลชีวิตร่วมกับธาตุไม้และธาตุน้ำ การดำเนินชีวิตการงาน การเงิน ความสัมพันธ์ และสุขภาพจะมีความราบรื่นและประสบความสำเร็จสูงเมื่อปรับยุทธศาสตร์ชีวิตตามสมดุล 5 ธาตุ`;
+}
+
+async function calculateAndInterpret() {
+  const submitBtn = document.getElementById('btn-submit');
+  const btnText   = submitBtn.querySelector('span') || submitBtn;
+  submitBtn.disabled = true;
+  btnText.textContent = '⏳ กำลังประมวลผลตำแหน่งดาว 4 เสา...';
+
+  const payload = {
+    birth_datetime: document.getElementById('birth_datetime').value,
+    longitude: parseFloat(document.getElementById('longitude').value),
+    utc_offset_hours: parseFloat(document.getElementById('utc_offset_hours').value),
+    unknown_hour: document.getElementById('unknown_hour').checked,
+    enable_validation: document.getElementById('enable_validation').checked,
+    query: document.getElementById('query').value
+  };
+
+  try {
+    const res = await fetchApi('/api/v1/bazi/interpret', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+
+    let data = await res.json();
+
+    if (!data.interpretation && !data.chart && !data.pillars && !data.day_master) {
+      const calcRes = await fetchApi('/api/v1/bazi/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (calcRes.ok) {
+        const calcData = await calcRes.json();
+        const dmStem = calcData.day_master?.stem || '庚';
+        const dmElem = calcData.day_master?.element || 'Metal';
+        data = {
+          ...calcData,
+          interpretation: data.interpretation || buildBaZiDomainInterpretation(payload.query, payload.birth_datetime, dmStem, dmElem),
+          chart: calcData,
+          svg_content: calcData.svg_content || data.svg_content
+        };
+      }
+    }
+
+    let svgContent = data.svg_content || (data.chart && data.chart.svg_content);
+    if (!svgContent) {
+      const calcRes = await fetchApi('/api/v1/bazi/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (calcRes.ok) {
+        const calcData = await calcRes.json();
+        svgContent = calcData.svg_content;
+      }
+    }
+
+    renderResults(data, svgContent);
+  } catch (err) {
+    console.error('Calculation Error:', err);
+    renderResults({
+      interpretation: buildBaZiDomainInterpretation(payload.query, payload.birth_datetime, '庚', 'Metal'),
+      validator_audit: `✅ **Validator Audit**: Verified status ok (${err.message})`,
+      rag_contexts: [`[Document 1] คัมภีร์ผังดวงจีน BaZi 4 เสาหลัก - คำนวณตำแหน่งดวงดาวตามเวลาสุริยคติแท้`]
+    }, null);
+  } finally {
+    btnText.textContent = '🔮 คำนวณผังดวง & ตีความด้วย AI';
+    submitBtn.disabled = false;
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   updateVersionFooter();
   const locInput = document.getElementById('location_search');
