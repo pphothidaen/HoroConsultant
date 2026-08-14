@@ -535,7 +535,7 @@ def run_training_pipeline(
                 quantization_config=bnb_config,
                 torch_dtype=compute_dtype,
                 device_map=device_map,
-                low_cpu_mem_usage=True,
+                low_cpu_mem_usage=(device_map is not None),
                 trust_remote_code=True,
                 attn_implementation="sdpa",
             )
@@ -551,17 +551,20 @@ def run_training_pipeline(
             base_model,
             torch_dtype=compute_dtype,
             device_map=device_map,
-            low_cpu_mem_usage=True,
+            low_cpu_mem_usage=(device_map is not None),
             trust_remote_code=True,
-            attn_implementation="sdpa",
+            attn_implementation="sdpa" if use_cuda else None,
         )
         logger.info(f"[OK] Successfully loaded model with precision {compute_dtype}.")
 
     if use_cuda and (is_kaggle or is_sm75 or cap < (8, 0)):
         compute_dtype = torch.float16
-        if hasattr(model, "to") and getattr(model, "dtype", None) != torch.float16:
+        if device_map is None and hasattr(model, "to") and getattr(model, "dtype", None) != torch.float16:
             logger.info(f"[CAST] Converting base model weights from {getattr(model, 'dtype', 'unknown')} to {compute_dtype} for T4/sm_75 compatibility...")
-            model = model.to(torch.float16)
+            try:
+                model = model.to(torch.float16)
+            except Exception as cast_err:
+                logger.warning(f"Weight cast skipped ({cast_err}).")
 
 
 
