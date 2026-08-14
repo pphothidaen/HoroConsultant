@@ -36,8 +36,8 @@ TERTIARY_LOCAL_MODEL    = os.getenv("OLLAMA_TERTIARY_MODEL",  "qwen2.5-coder:7b"
 
 
 GEMINI_BASE_URL         = "https://generativelanguage.googleapis.com/v1beta"
-GEMINI_PRIMARY_MODEL    = os.getenv("PRIMARY_MODEL",   "gemini-2.0-flash")
-GEMINI_SECONDARY_MODEL  = os.getenv("SECONDARY_MODEL", "gemini-2.0-flash-lite")
+GEMINI_PRIMARY_MODEL    = os.getenv("PRIMARY_MODEL",   "gemini-3.5-flash-lite")
+GEMINI_SECONDARY_MODEL  = os.getenv("SECONDARY_MODEL", "gemini-flash-latest")
 
 OPENAI_API_KEY          = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL            = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
