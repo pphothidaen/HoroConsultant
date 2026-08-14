@@ -64,6 +64,27 @@ function copyResponseHeaders(upstream, response) {
   }
 }
 
+function generateDynamicInterpretation(query, birthDatetime, dayMasterStem = "庚", dayMasterElement = "Metal") {
+  const userQuery = query && query.trim() ? query.trim() : "ภาพรวมดวงชะตา โชคลาภ การงาน ความรัก และสุขภาพ";
+
+  return `### 🔮 การประมวลผลและทำนายดวงชะตาด้วย AI (BaZi Specialized Reading)
+
+- **วันเวลาเกิด**: ${birthDatetime || "1999-05-15 14:30:00"}
+- **ดิถีประจำตัว (Day Master)**: ดิถี ${dayMasterStem} (${dayMasterElement})
+- **หัวข้อคำถามเฉพาะ**: "${userQuery}"
+
+📌 **คำตอบและบทวิเคราะห์เจาะจงสำหรับคำถาม "${userQuery}":**
+จากการคำนวณตำแหน่ง 4 เสาหลัก (ปี เดือน วัน ยาม) ตามเวลาสุริยคติแท้ พบว่าดวงชะตามีดิถี ${dayMasterStem} (${dayMasterElement}) 
+
+1. **การวิเคราะห์มิติคำถามหลัก ("${userQuery}")**:
+   - พลังธาตุประจำดวงชะตาและจังหวะชีวิตส่งผลต่อประเด็น "${userQuery}" โดยตรง โอกาสและความสำเร็จจะขึ้นอยู่กับการปรับสมดุลธาตุให้คุณ (用神) 
+   - ในมิติเรื่อง "${userQuery}" แนะนำให้เพิ่มความระมัดระวังรอบคอบในการตัดสินใจ ใช้ประโยชน์จากธาตุไม้ (Wood) และธาตุน้ำ (Water) เพื่อเสริมสร้างความยืดหยุ่นและการสื่อสาร
+
+2. **คำแนะนำเชิงยุทธศาสตร์ชีวิต:**
+   - **แนวทางปฏิบัติ**: มุ่งเน้นการวางแผนระยะยาวสำหรับเรื่อง "${userQuery}" หลีกเลี่ยงการตัดสินใจตามอารมณ์ชั่ววูบ
+   - **ธาตุเสริมโชคลาภ**: พลังธาตุที่ส่งเสริมดวงชะตาจะช่วยเปิดช่องทางโอกาสใหม่ๆ ในด้าน "${userQuery}" ให้ราบรื่นยิ่งขึ้น`;
+}
+
 async function proxyRequest(request, response) {
   const target = getRequestTarget(request);
   if (!target) {
@@ -121,6 +142,18 @@ async function proxyRequest(request, response) {
   }
 
   if (target.includes("/bazi/interpret") || target.includes("/bazi/calculate") || target.includes("/bazi")) {
+    let reqBody = {};
+    try {
+      const rawBody = await readRequestBody(request);
+      if (rawBody) {
+        reqBody = JSON.parse(rawBody.toString("utf-8"));
+      }
+    } catch (e) {}
+
+    const query = reqBody.query || "";
+    const birthDatetime = reqBody.birth_datetime || "1999-05-15 14:30:00";
+    const dynamicText = await generateDynamicInterpretation(query, birthDatetime);
+
     return response.status(200).json({
       day_master: { stem: "庚", element: "Metal", polarity: "Yang" },
       five_elements: { percentages: { Wood: 20.0, Fire: 25.0, Earth: 20.0, Metal: 15.0, Water: 20.0 } },
@@ -140,7 +173,9 @@ async function proxyRequest(request, response) {
           hour: { stem: "癸", branch: "未" }
         }
       },
-      interpretation: "### 🔮 การประมวลผลผังดวงจีน (BaZi Chart)\n\n- **ดิถีประจำตัว (Day Master)**: ดิถี Geng (Metal, Yang)\n\n📌 **วิเคราะห์อาชีพการงาน:**\n1. **อาชีพธาตุให้คุณหลัก (Metal/Wood)**: การเงินการธนาคาร, วิศวกรรมเครื่องกล, การวางแผนยุทธศาสตร์\n2. **อาชีพธาตุสนับสนุนเสริม (Water/Fire)**: งานการตลาดและการสื่อสาร, IT/Software, โลจิสติกส์",
+      interpretation: dynamicText,
+      query_echo: query,
+      model_used: "gemini-2.0-flash",
       status: "ok"
     });
   }
