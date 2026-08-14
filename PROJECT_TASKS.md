@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-15 — Enhanced QA Tester Agent definitions (`.agents/agents/qa_tester/agent.md`, `.antigravity/agents/qa-tester.agent`, `.codex/agents/qa-tester.toml`) and skills (`.agents/skills/qa-e2e-testing/SKILL.md`) with strict Real AI / LLM Inference Verification (Anti-Template Mandate), multi-domain query matrix execution, and live Playwright E2E automation suite (`scripts/run_live_e2e_hf_space.py`). All 10/10 test cases verified passing 100% on live Hugging Face production Space.*
+> *Last Updated: 2026-08-15 — Created dedicated QA Skill `ai-inference-verifier` (`.agents/skills/ai-inference-verifier/SKILL.md`) and automated inspection tool (`scripts/audit_ai_inference_origin.py`) to classify real AI LLM inference vs fallback/template generation with linguistic variance scoring and signature detection. Synchronized across Antigravity, Codex, and workspace agent specs.*
 
 
 ---
