@@ -302,7 +302,7 @@ python3 scripts/publish_space_hf.py --dry-run
 | Platform | Deployment Type | Suitable Use Case | Latency (TH) | Cost & SLA Profile |
 | :--- | :--- | :--- | :--- | :--- |
 | **Hugging Face Static Edge CDN** | Frontend UIs (`sdk: static`) | Web UIs, Admin Panel, HITL Studio | Global Edge (< 20ms) | Zero Cost, 24/7 Unlimited Uptime, No Quota Limit |
-| **Fly.io Micro-VMs (`fly.toml`)** | Docker Container (`Dockerfile.hf`) | FastAPI API + Rust Math (Singapore `sin`) | Ultra-Low (< 30ms) | $5 Free Monthly Credit (3x 256MB Micro-VMs) |
+| **Azure Container Apps** | Docker Container (`Dockerfile.hf`) | FastAPI API + Rust Math | Southeast Asia production backend | Production deployment via GitHub Actions |
 | **Hugging Face Spaces Docker** | Full Backend Container (`sdk: docker`) | FastAPI API + Rust Fast Math + FAISS | Mid (~200ms US) | Free Tier (16GB RAM, 2 vCPU Container) |
 | **Vercel Edge Network** | Gateway Rewrites (`vercel.json`) | Global Edge Proxy & Reverse Proxy | Global Edge (< 20ms) | Free Tier (Unlimited Static & Serverless) |
 | **Render.com / Railway.app** | Docker Web Service (`Dockerfile.hf`) | Full-stack FastAPI Production Container | Mid (~150ms) | Low Cost ($5/mo), Auto SSL & Custom Domain |
@@ -321,16 +321,8 @@ bash scripts/auto_deploy_all.sh
 bash scripts/setup_production_secrets.sh
 ```
 
-#### 🚀 การจัดส่งขึ้น Fly.io (Singapore Region `sin`):
-```bash
-# 1. ติดตั้ง Fly CLI และ Login (ครั้งแรก)
-brew install flyctl
-fly auth login
-
-# 2. Deploy ผ่านไฟล์ fly.toml (targeting Singapore region < 30ms latency)
-fly launch --config fly.toml --no-deploy
-fly deploy
-```
+#### 🚀 การจัดส่ง Backend ขึ้น Azure Container Apps:
+การ push เข้า `main` จะเรียก `.github/workflows/azure_deploy.yml` ซึ่ง build image, deploy Azure และรัน strict production verification โดยอัตโนมัติ ต้องตั้งค่า `AZURE_CREDENTIALS`, `AZURE_RESOURCE_GROUP`, `AZURE_CONTAINER_APP`, `AZURE_CONTAINER_APP_URL` และ Docker credentials ใน GitHub/Doppler ก่อนใช้งาน
 
 ---
 
@@ -406,7 +398,6 @@ fly deploy
 4. **GitHub Actions Scheduled Automation:**
    - ตารางเวลาอัตโนมัติ: รันทุกวันอาทิตย์ เวลา 02:00 UTC ผ่าน `.github/workflows/scheduled_distill_finetune.yml`
    - รองรับการ Trigger แบบ Manual พร้อมเลือก Domain และ Format ได้ทันที
-
 
 
 

@@ -123,13 +123,13 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
   - [x] **Auto-Inject Git Commit Version Staging**: Inject exact Git commit version string (`v1.0.0.<commit_hash>`) into static `index.html` during `publish_space_hf.py` build staging.
   - [x] **Vercel Serverless Handler Resolution**: Simplify `api/index.js` using Vercel `res.status().json()` methods to eliminate stream hanging and resolve `FUNCTION_INVOCATION_FAILED`.
   - [x] **Amber Status Indicator Wording**: Update `#f59e0b` amber badge text to accurately state `Health: Standby (Local Engine Fallback)` when backend health check is in fallback state.
-  - [x] **End-to-End Live Health Status Verification**: Implemented [`scripts/run_live_health_verification.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/run_live_health_verification.py) — verifies HTTP 200 across HF Spaces, Fly.io, and Vercel with detailed latency reporting.
+  - [x] **End-to-End Live Health Status Verification**: Implemented [`scripts/run_live_health_verification.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/run_live_health_verification.py) — verifies meaningful HTML/JSON payloads across HF Static UI, Vercel, Azure, and a deterministic API proxy request.
 
 - [x] **Post-Deployment Synthetic Health Monitoring Cron** ([`scripts/synthetic_health_monitor.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/synthetic_health_monitor.py))
-  - Implemented scheduled 5-minute health ping checks against `/health` and `/api/v1/health` for all cloud deployments.
+  - Implemented scheduled 15-minute GitHub Actions health checks against HF Static UI, Vercel, and Azure, with strict payload validation.
   - Supports `--once` (single-shot) and `--interval <seconds>` (continuous loop) modes.
   - Formats OTLP metric payloads and pushes to Grafana Cloud when credentials are set.
-  - Run: `python3 scripts/synthetic_health_monitor.py --once` or `python3 scripts/synthetic_health_monitor.py --interval 300`
+  - Run: `python3 scripts/synthetic_health_monitor.py --once --require-azure` or `python3 scripts/synthetic_health_monitor.py --daemon --interval 900`
 
 - [x] **Extend Grafana Exporter for Gateway Telemetry** ([`scripts/grafana_cloud_exporter.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/grafana_cloud_exporter.py))
   - Added `fetch_gateway_telemetry()` function that probes Vercel, HF Spaces, and Fly.io health endpoints.
@@ -338,7 +338,6 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 - [x] **Define the Future LLM Model Expansion Scope ([`plans/plan.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/plan.md))**
   - Defined 3-Tier Multi-Provider Topology (Local Qwen2.5 / Ollama → Gemini 2.5/3.6 Flash → 9router DeepSeek-R1 / Claude 3.7 Sonnet).
   - Specified latency SLAs, zero-cost budget limit ($0.00 baseline), and deterministic Rust PyO3 calculation guard criteria.
-
 
 
 

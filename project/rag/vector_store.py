@@ -163,10 +163,10 @@ def _embed_google(texts: list[str]) -> list[list[float]] | None:
         with httpx.Client(timeout=30.0) as client:
             for text in texts:
                 payload = {
-                    "model": f"models/{EMBED_MODEL}",
+                    "model": f"models/{GOOGLE_EMBED_MODEL}",
                     "content": {"parts": [{"text": text}]},
                 }
-                res = client.post(f"{EMBED_URL}?key={api_key}", json=payload)
+                res = client.post(f"{GOOGLE_EMBED_URL}?key={api_key}", json=payload)
                 if res.status_code != 200:
                     return None
                 vec = res.json()["embedding"]["values"]

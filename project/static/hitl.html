@@ -874,8 +874,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 /* ===================== API ===================== */
 const BACKEND_API_HOSTS = [
   "",
-  "https://horoconsultant-core-backend.fly.dev",
-  "https://pphothidaen-horoconsultant-core-backend.hf.space",
+  "https://pphothidaen-horoconsultant-core-api.hf.space",
+  "https://horo-consultant-psi.vercel.app",
 ];
 
 function getApiBaseUrl() {
@@ -883,7 +883,7 @@ function getApiBaseUrl() {
     return window.API_BASE_URL;
   }
   if (typeof window !== 'undefined' && window.location && window.location.hostname.includes('static.hf.space')) {
-    return 'https://horoconsultant-core-backend.fly.dev';
+    return 'https://pphothidaen-horoconsultant-core-api.hf.space';
   }
   return '';
 }

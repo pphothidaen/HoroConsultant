@@ -85,11 +85,11 @@ jobs:
 
       - name: Run Ruff Linter
         run: |
-          ruff check project/ tests/ --exit-zero
+          ruff check project/ tests/ --exclude project/kaggle_kernel --select E9,F63,F7,F82
 
       - name: Run Security Audit (Bandit)
         run: |
-          bandit -r project/ -s B101,B404,B603,B311,B324,B110 -ll --exit-zero
+          bandit -r project/ -s B101,B404,B603,B311,B324,B110 -lll
 
       - name: Run Project Code Reviewer
         run: |

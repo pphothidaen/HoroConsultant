@@ -13,16 +13,19 @@
   "rewrites": [
     {
       "source": "/health",
-      "destination": "/api/health"
+      "destination": "/api/index?path=/health"
     },
     {
-      "source": "/api/health",
-      "destination": "/api/health"
+      "source": "/api/v1/:path*",
+      "destination": "/api/index?path=/api/v1/:path*"
     },
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index"
+      "source": "/admin/:path*",
+      "destination": "/api/index?path=/admin/:path*"
+    },
+    {
+      "source": "/hitl/:path*",
+      "destination": "/api/index?path=/hitl/:path*"
     }
   ]
 }
-

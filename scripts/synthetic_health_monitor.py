@@ -1,37 +1,26 @@
 #!/usr/bin/env python3
-"""
-scripts/synthetic_health_monitor.py
-=====================================
-Post-Deployment Synthetic Health Monitoring Cron.
+"""Run health checks and incident notifications for production services.
 
-Runs scheduled 5-minute health ping checks against:
-  - /health endpoint (Vercel Edge Gateway)
-  - /api/v1/health alias (Vercel Edge Gateway)
-  - HuggingFace Spaces Backend /health
-  - Fly.io Backend /health
-
-Outputs ping results with ASCII status tags and optionally pushes
-alert metrics to Grafana Cloud via OTLP when degradation is detected.
+The monitor is intentionally dependency-light so it can run in GitHub Actions,
+a container, or a long-running host.  It checks the public static UI, the
+Vercel gateway, and the Hugging Face Docker backend.
 
 Usage:
-  # Run once (single ping cycle — useful for CI/CD)
-  python3 scripts/synthetic_health_monitor.py --once
+    python3 scripts/synthetic_health_monitor.py --once
+    python3 scripts/synthetic_health_monitor.py --daemon --interval 300
+    python3 scripts/synthetic_health_monitor.py --dry-run
 
-  # Run continuously every 5 minutes (daemon mode)
-  python3 scripts/synthetic_health_monitor.py --daemon
-
-  # Run continuously with custom interval
-  python3 scripts/synthetic_health_monitor.py --daemon --interval 120
-
-  # Dry-run: Show config and exit
-  python3 scripts/synthetic_health_monitor.py --dry-run
-
-Pure ASCII logging tags enforced: [OK], [ERROR], [INFO], [WARNING].
+Set one or more of HEALTH_ALERT_WEBHOOK_URL, SLACK_WEBHOOK_URL,
+DISCORD_WEBHOOK_URL, or TELEGRAM_BOT_TOKEN plus TELEGRAM_CHAT_ID to receive a
+notification when any target is degraded.  Grafana OTLP metric export remains
+optional and is activated by GRAFANA_OTLP_ENDPOINT (or GRAFANA_CLOUD_URL) and
+a Grafana token.
 """
 
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import os
 import sys
@@ -40,102 +29,197 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Project root on sys.path
-# ──────────────────────────────────────────────────────────────────────────────
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Production endpoint constants
-# ──────────────────────────────────────────────────────────────────────────────
-VERCEL_GATEWAY_URL = os.getenv("VERCEL_GATEWAY_URL", "https://horo-consultant-psi.vercel.app")
-HF_BACKEND_URL = os.getenv("HF_BACKEND_URL", "https://pphothidaen-horoconsultant-core-backend.hf.space")
-FLY_BACKEND_URL = os.getenv("FLY_BACKEND_URL", "https://horoconsultant-core-backend.fly.dev")
-
-DEFAULT_PING_INTERVAL_SECONDS = 300  # 5 minutes
+DEFAULT_VERCEL_GATEWAY_URL = "https://horo-consultant-psi.vercel.app"
+DEFAULT_HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
+DEFAULT_HF_BACKEND_URL = "https://pphothidaen-horoconsultant-core-api.hf.space"
+DEFAULT_PING_INTERVAL_SECONDS = 300
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Health check targets
-# ──────────────────────────────────────────────────────────────────────────────
-HEALTH_TARGETS = [
-    {
-        "name": "Vercel Gateway /health",
-        "url": f"{VERCEL_GATEWAY_URL}/health",
-        "critical": True,
-    },
-    {
-        "name": "Vercel Gateway /api/v1/health",
-        "url": f"{VERCEL_GATEWAY_URL}/api/v1/health",
-        "critical": False,
-    },
-    {
-        "name": "HuggingFace Backend /health",
-        "url": f"{HF_BACKEND_URL}/health",
-        "critical": True,
-    },
-    {
-        "name": "Fly.io Backend /health",
-        "url": f"{FLY_BACKEND_URL}/health",
-        "critical": False,
-    },
-]
+def _base_url(value: str) -> str:
+    """Normalize a usable URL and ignore template placeholders."""
+    normalized = value.strip().rstrip("/")
+    if "changeme" in normalized.lower() or "your_" in normalized.lower():
+        return ""
+    return normalized
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# HTTP helper
-# ──────────────────────────────────────────────────────────────────────────────
-def _ping(url: str, timeout: int = 10) -> tuple[int, float, str | None]:
+def build_health_targets(
+    environment: Mapping[str, str] | None = None,
+    *,
+    require_backend: bool = True,
+) -> list[dict[str, Any]]:
+    """Build the active production targets after environment loading.
+
+    Azure ingress is unavailable, so the public FastAPI backend is deployed to
+    a dedicated Hugging Face Docker Space and is required in production.
     """
-    Send GET request to url. Returns (status_code, latency_ms, error_msg).
-    Returns (0, latency_ms, error) on connection failure.
-    """
-    headers = {
-        "User-Agent": "HoroConsultant-SyntheticMonitor/1.0",
-        "Accept": "application/json",
-    }
-    req = urllib.request.Request(url, headers=headers, method="GET")
-    t0 = time.perf_counter()
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            resp.read()  # consume body
-            latency = (time.perf_counter() - t0) * 1000
-            return resp.status, latency, None
-    except urllib.error.HTTPError as e:
-        latency = (time.perf_counter() - t0) * 1000
-        e.read()
-        return e.code, latency, f"HTTP {e.code}: {e.reason}"
-    except Exception as exc:
-        latency = (time.perf_counter() - t0) * 1000
-        return 0, latency, str(exc)
+    env = os.environ if environment is None else environment
+    hf_static_url = _base_url(env.get("HF_STATIC_CDN_URL", DEFAULT_HF_STATIC_CDN_URL))
+    backend_url = _base_url(env.get("HF_BACKEND_URL", DEFAULT_HF_BACKEND_URL))
+
+    if not hf_static_url:
+        raise ValueError("HF_STATIC_CDN_URL must not be empty")
+    if require_backend and not backend_url:
+        raise ValueError("HF_BACKEND_URL is required for this monitor run")
+
+    targets: list[dict[str, Any]] = [
+        {
+            "name": "Hugging Face Static UI /index.html",
+            "url": f"{hf_static_url}/index.html",
+            "critical": True,
+        },
+    ]
+    if backend_url:
+        targets.append(
+            {
+                "name": "Hugging Face Docker Backend /health",
+                "url": f"{backend_url}/health",
+                "critical": True,
+            }
+        )
+    return targets
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Grafana OTLP alert metric push
-# ──────────────────────────────────────────────────────────────────────────────
-def _push_alert_metric_to_grafana(target_name: str, status_code: int, latency_ms: float, is_healthy: bool) -> None:
-    """
-    Push synthetic monitor health ping metric to Grafana Cloud via OTLP.
-    No-op if GRAFANA environment variables are not set.
-    """
-    grafana_url = os.getenv("GRAFANA_CLOUD_URL", os.getenv("GRAFANA_URL", ""))
-    user_id = os.getenv("GRAFANA_USER_ID", "")
-    api_key = os.getenv(
-        "GRAFANA_API_KEY",
-        os.getenv("GRAFANA_SERVICE_ACCOUNT_TOKEN", os.getenv("GRAFANA_TOKEN", ""))
+def _ping(url: str, timeout: int = 10) -> tuple[int, float, str, str | None]:
+    """Send a GET request and return status code, latency, body, and error."""
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "HoroConsultant-SyntheticMonitor/2.0",
+            "Accept": "application/json, text/html;q=0.9, */*;q=0.8",
+        },
+        method="GET",
     )
+    started = time.perf_counter()
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as response:
+            body = response.read().decode("utf-8", errors="replace")
+            return response.status, (time.perf_counter() - started) * 1000, body, None
+    except urllib.error.HTTPError as error:
+        body = error.read().decode("utf-8", errors="replace")
+        return error.code, (time.perf_counter() - started) * 1000, body, f"HTTP {error.code}: {error.reason}"
+    except Exception as error:
+        return 0, (time.perf_counter() - started) * 1000, "", str(error)
 
-    if not grafana_url or not api_key:
-        return  # Grafana not configured; skip push
 
-    now_nano = str(int(time.time() * 1e9))
-    health_value = 1.0 if is_healthy else 0.0
-    label = target_name.replace(" ", "_").lower()
+def _target_response_is_valid(target_name: str, body: str) -> bool:
+    """Require meaningful content, not only an HTTP 200 status."""
+    if "Static UI" in target_name:
+        lowered = body.lower()
+        return "<html" in lowered or "<!doctype html" in lowered
+    try:
+        payload = json.loads(body)
+    except json.JSONDecodeError:
+        return False
+    return str(payload.get("status", "")).lower() in {"ok", "healthy", "running", "alive", "up"}
 
+
+def _post_json(url: str, payload: dict[str, Any], timeout: int = 10) -> tuple[bool, str]:
+    """Post JSON to a notification endpoint without exposing credential data."""
+    request = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json", "User-Agent": "HoroConsultant-SyntheticMonitor/2.0"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            response.read()
+            return response.status in (200, 201, 202, 204), f"HTTP {response.status}"
+    except urllib.error.HTTPError as error:
+        error.read()
+        return False, f"HTTP {error.code}"
+    except Exception as error:
+        return False, str(error)
+
+
+def notify_health_degradation(results: list[dict[str, Any]], environment: Mapping[str, str] | None = None) -> bool:
+    """Send one compact incident notification to every configured channel."""
+    env = os.environ if environment is None else environment
+    degraded = [result for result in results if not result["healthy"]]
+    if not degraded:
+        return True
+
+    lines = ["[ALERT] HoroConsultant production health degradation detected."]
+    for result in degraded:
+        severity = "CRITICAL" if result["critical"] else "WARNING"
+        lines.append(
+            f"- {severity}: {result['target']} returned HTTP {result['status']} "
+            f"in {result['latency_ms']:.0f}ms"
+        )
+    message = "\n".join(lines)
+    attempts: list[tuple[str, bool, str]] = []
+
+    generic_webhook = env.get("HEALTH_ALERT_WEBHOOK_URL", "").strip()
+    if generic_webhook:
+        ok, detail = _post_json(generic_webhook, {"text": message})
+        attempts.append(("generic webhook", ok, detail))
+
+    slack_webhook = env.get("SLACK_WEBHOOK_URL", "").strip()
+    if slack_webhook:
+        ok, detail = _post_json(slack_webhook, {"text": message})
+        attempts.append(("Slack", ok, detail))
+
+    discord_webhook = env.get("DISCORD_WEBHOOK_URL", "").strip()
+    if discord_webhook:
+        ok, detail = _post_json(discord_webhook, {"content": message})
+        attempts.append(("Discord", ok, detail))
+
+    telegram_token = env.get("TELEGRAM_BOT_TOKEN", "").strip()
+    telegram_chat_id = env.get("TELEGRAM_CHAT_ID", "").strip()
+    if telegram_token and telegram_chat_id:
+        telegram_url = f"https://api.telegram.org/bot{telegram_token}/sendMessage"
+        ok, detail = _post_json(telegram_url, {"chat_id": telegram_chat_id, "text": message})
+        attempts.append(("Telegram", ok, detail))
+    elif telegram_token or telegram_chat_id:
+        print("[WARNING] Telegram alerting is partially configured; both token and chat ID are required")
+
+    if not attempts:
+        print("[WARNING] No incident notification channel is configured")
+        return False
+
+    all_delivered = True
+    for channel, delivered, detail in attempts:
+        if delivered:
+            print(f"[OK] Incident notification delivered to {channel}: {detail}")
+        else:
+            print(f"[ERROR] Incident notification failed for {channel}: {detail}")
+            all_delivered = False
+    return all_delivered
+
+
+def _push_alert_metric_to_grafana(
+    target_name: str,
+    status_code: int,
+    latency_ms: float,
+    is_healthy: bool,
+    environment: Mapping[str, str] | None = None,
+) -> None:
+    """Push a synthetic-health metric to Grafana OTLP when configured."""
+    env = os.environ if environment is None else environment
+    grafana_url = env.get("GRAFANA_CLOUD_URL", env.get("GRAFANA_URL", "")).strip()
+    otlp_endpoint = env.get("GRAFANA_OTLP_ENDPOINT", "").strip()
+    user_id = env.get("GRAFANA_USER_ID", "").strip()
+    api_key = env.get(
+        "GRAFANA_API_KEY",
+        env.get("GRAFANA_SERVICE_ACCOUNT_TOKEN", env.get("GRAFANA_TOKEN", "")),
+    ).strip()
+    if not api_key or not (grafana_url or otlp_endpoint):
+        return
+
+    if otlp_endpoint:
+        push_url = otlp_endpoint.rstrip("/")
+        if not push_url.endswith("/v1/metrics"):
+            push_url = f"{push_url}/v1/metrics"
+    else:
+        push_url = urllib.parse.urljoin(f"{grafana_url.rstrip('/')}/", "otlp/v1/metrics")
+
+    now_nano = str(int(time.time() * 1_000_000_000))
+    target_label = target_name.replace(" ", "_").lower()
+    attributes = [{"key": "target", "value": {"stringValue": target_label}}]
     payload: dict[str, Any] = {
         "resourceMetrics": [
             {
@@ -147,52 +231,24 @@ def _push_alert_metric_to_grafana(target_name: str, status_code: int, latency_ms
                 },
                 "scopeMetrics": [
                     {
-                        "scope": {"name": "synthetic_health_monitor", "version": "1.0.0"},
+                        "scope": {"name": "synthetic_health_monitor", "version": "2.0.0"},
                         "metrics": [
                             {
                                 "name": "synthetic_health_status",
-                                "description": "Synthetic health check result (1=healthy, 0=degraded)",
                                 "gauge": {
-                                    "dataPoints": [
-                                        {
-                                            "timeUnixNano": now_nano,
-                                            "asDouble": health_value,
-                                            "attributes": [
-                                                {"key": "target", "value": {"stringValue": label}},
-                                                {"key": "url", "value": {"stringValue": target_name}},
-                                            ],
-                                        }
-                                    ]
+                                    "dataPoints": [{"timeUnixNano": now_nano, "asDouble": float(is_healthy), "attributes": attributes}]
                                 },
                             },
                             {
                                 "name": "synthetic_health_latency_ms",
-                                "description": "Synthetic health ping response latency (ms)",
                                 "gauge": {
-                                    "dataPoints": [
-                                        {
-                                            "timeUnixNano": now_nano,
-                                            "asDouble": latency_ms,
-                                            "attributes": [
-                                                {"key": "target", "value": {"stringValue": label}},
-                                            ],
-                                        }
-                                    ]
+                                    "dataPoints": [{"timeUnixNano": now_nano, "asDouble": latency_ms, "attributes": attributes}]
                                 },
                             },
                             {
                                 "name": "synthetic_health_http_status",
-                                "description": "HTTP status code from synthetic health ping",
                                 "gauge": {
-                                    "dataPoints": [
-                                        {
-                                            "timeUnixNano": now_nano,
-                                            "asDouble": float(status_code),
-                                            "attributes": [
-                                                {"key": "target", "value": {"stringValue": label}},
-                                            ],
-                                        }
-                                    ]
+                                    "dataPoints": [{"timeUnixNano": now_nano, "asDouble": float(status_code), "attributes": attributes}]
                                 },
                             },
                         ],
@@ -202,172 +258,151 @@ def _push_alert_metric_to_grafana(target_name: str, status_code: int, latency_ms
         ]
     }
 
-    otlp_endpoint = os.getenv("GRAFANA_OTLP_ENDPOINT", "").strip()
-    if not otlp_endpoint:
-        push_url = urllib.parse.urljoin(grafana_url, "/otlp/v1/metrics")
-    elif not otlp_endpoint.endswith("/v1/metrics"):
-        push_url = otlp_endpoint.rstrip("/") + "/v1/metrics"
-    else:
-        push_url = otlp_endpoint
-
-    headers: dict[str, str] = {"Content-Type": "application/json", "User-Agent": "HoroConsultant-SyntheticMonitor/1.0"}
+    headers = {"Content-Type": "application/json", "User-Agent": "HoroConsultant-SyntheticMonitor/2.0"}
     if user_id and "your_grafana" not in user_id.lower():
-        import base64
-        cred = base64.b64encode(f"{user_id}:{api_key}".encode()).decode()
-        headers["Authorization"] = f"Basic {cred}"
+        credentials = base64.b64encode(f"{user_id}:{api_key}".encode("utf-8")).decode("ascii")
+        headers["Authorization"] = f"Basic {credentials}"
     else:
         headers["Authorization"] = f"Bearer {api_key}"
 
-    data_bytes = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(push_url, data=data_bytes, headers=headers, method="POST")
+    request = urllib.request.Request(
+        push_url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers=headers,
+        method="POST",
+    )
     try:
-        with urllib.request.urlopen(req, timeout=8) as resp:
-            _ = resp.read()
-            code = getattr(resp, "status", 200)
-            if code in (200, 202, 204):
-                print(f"[OK] Grafana OTLP push for '{target_name}': HTTP {code}")
-    except Exception as exc:
-        print(f"[WARNING] Grafana OTLP push skipped for '{target_name}': {exc}")
+        with urllib.request.urlopen(request, timeout=8) as response:
+            response.read()
+            if response.status in (200, 202, 204):
+                print(f"[OK] Grafana OTLP push for {target_name}: HTTP {response.status}")
+            else:
+                print(f"[WARNING] Grafana OTLP push for {target_name}: HTTP {response.status}")
+    except Exception as error:
+        print(f"[WARNING] Grafana OTLP push failed for {target_name}: {error}")
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Single ping cycle
-# ──────────────────────────────────────────────────────────────────────────────
-def run_ping_cycle(targets: list[dict[str, Any]], timeout: int = 10) -> bool:
-    """
-    Execute one complete ping cycle across all health targets.
-    Returns True if all CRITICAL targets are healthy.
-    """
-    ts = time.strftime("%Y-%m-%d %H:%M:%S %Z", time.localtime())
-    print(f"\n[INFO] ── Synthetic Health Ping Cycle: {ts} ──────────────────────────")
+def _write_report(path: Path, results: list[dict[str, Any]], all_critical_healthy: bool) -> None:
+    """Persist a machine-readable result that can be uploaded as a CI artifact."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "timestamp_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "all_critical_healthy": all_critical_healthy,
+        "healthy_count": sum(1 for result in results if result["healthy"]),
+        "target_count": len(results),
+        "results": results,
+    }
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    print(f"[INFO] Synthetic health report written to {path}")
 
+
+def run_ping_cycle(
+    targets: list[dict[str, Any]],
+    *,
+    timeout: int = 10,
+    report_path: Path | None = None,
+    environment: Mapping[str, str] | None = None,
+) -> bool:
+    """Check every target, export metrics, notify on degradation, and return health."""
+    print(f"[INFO] Synthetic health ping cycle started at {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}")
+    results: list[dict[str, Any]] = []
     all_critical_healthy = True
-    cycle_results: list[dict[str, Any]] = []
 
     for target in targets:
-        name = target["name"]
-        url = target["url"]
-        critical = target.get("critical", True)
-
-        status, latency, error = _ping(url, timeout=timeout)
-        is_healthy = (status == 200)
-
-        if is_healthy:
-            print(f"[OK]      {name}: HTTP {status} | {latency:.0f}ms")
-        elif status in (502, 503, 504):
-            print(f"[WARNING] {name}: HTTP {status} | {latency:.0f}ms (Degraded/Gateway Error)")
-        elif status == 0:
-            print(f"[ERROR]   {name}: UNREACHABLE | {latency:.0f}ms | {error}")
-        else:
-            print(f"[WARNING] {name}: HTTP {status} | {latency:.0f}ms")
-
-        if not is_healthy and critical:
-            all_critical_healthy = False
-
-        # Push metric to Grafana Cloud (no-op if env vars not set)
-        _push_alert_metric_to_grafana(name, status, latency, is_healthy)
-
-        cycle_results.append({
-            "target": name,
-            "url": url,
+        status, latency_ms, body, error = _ping(target["url"], timeout=timeout)
+        healthy = status == 200 and _target_response_is_valid(target["name"], body)
+        if status == 200 and not healthy and not error:
+            error = "HTTP 200 response did not contain a valid health/UI payload"
+        result = {
+            "target": target["name"],
+            "url": target["url"],
             "status": status,
-            "latency_ms": round(latency, 1),
-            "healthy": is_healthy,
-            "critical": critical,
-        })
+            "latency_ms": round(latency_ms, 1),
+            "healthy": healthy,
+            "critical": bool(target.get("critical", True)),
+            "error": error,
+        }
+        results.append(result)
+        if healthy:
+            print(f"[OK] {target['name']}: HTTP {status} | {latency_ms:.0f}ms")
+        else:
+            tag = "[ERROR]" if result["critical"] else "[WARNING]"
+            detail = f" | {error}" if error else ""
+            print(f"{tag} {target['name']}: HTTP {status} | {latency_ms:.0f}ms{detail}")
+            if result["critical"]:
+                all_critical_healthy = False
+        _push_alert_metric_to_grafana(target["name"], status, latency_ms, healthy, environment)
 
-    healthy_count = sum(1 for r in cycle_results if r["healthy"])
-    print(f"[INFO] Cycle complete: {healthy_count}/{len(cycle_results)} targets healthy")
+    if report_path:
+        _write_report(report_path, results, all_critical_healthy)
 
-    if not all_critical_healthy:
-        print("[WARNING] One or more CRITICAL targets are DEGRADED. Check services.")
+    healthy_count = sum(1 for result in results if result["healthy"])
+    print(f"[INFO] Cycle complete: {healthy_count}/{len(results)} targets healthy")
+    if all_critical_healthy:
+        print("[OK] All critical health targets are operational")
     else:
-        print("[OK] All critical health targets are operational.")
-
+        print("[ERROR] One or more critical health targets are degraded")
+        notify_health_degradation(results, environment)
     return all_critical_healthy
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# CLI
-# ──────────────────────────────────────────────────────────────────────────────
+def _load_local_environment() -> None:
+    """Load .env for local use before target URLs are derived."""
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        return
+    env_file = PROJECT_ROOT / ".env"
+    if env_file.exists():
+        load_dotenv(env_file)
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description="Synthetic Health Monitoring Cron for HoroConsultant Multi-Cloud."
-    )
-    parser.add_argument(
-        "--once",
-        action="store_true",
-        help="Run a single ping cycle and exit (useful for CI/CD health gates).",
-    )
-    parser.add_argument(
-        "--daemon",
-        action="store_true",
-        help="Run continuously in daemon mode, pinging every --interval seconds.",
-    )
-    parser.add_argument(
-        "--interval",
-        type=int,
-        default=DEFAULT_PING_INTERVAL_SECONDS,
-        help=f"Ping interval in seconds for daemon mode (default: {DEFAULT_PING_INTERVAL_SECONDS}).",
-    )
-    parser.add_argument(
-        "--timeout",
-        type=int,
-        default=10,
-        help="HTTP ping timeout per request in seconds (default: 10).",
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Print configuration and exit without sending any HTTP requests.",
-    )
+    """Build the command-line parser."""
+    parser = argparse.ArgumentParser(description="Synthetic production health monitor for HoroConsultant")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--once", action="store_true", help="Run one health cycle and exit")
+    mode.add_argument("--daemon", action="store_true", help="Run health cycles continuously")
+    parser.add_argument("--interval", type=int, default=DEFAULT_PING_INTERVAL_SECONDS, help="Seconds between daemon cycles")
+    parser.add_argument("--timeout", type=int, default=10, help="Per-target HTTP timeout in seconds")
+    parser.add_argument("--allow-missing-backend", action="store_true", help="Do not require HF_BACKEND_URL")
+    parser.add_argument("--json-output", type=Path, help="Write the latest health report as JSON")
+    parser.add_argument("--dry-run", action="store_true", help="Print resolved targets without network requests")
     return parser
 
 
 def main() -> int:
-    # Load .env if available
+    """Run the requested monitor mode and return an appropriate process status."""
+    _load_local_environment()
+    args = build_parser().parse_args()
+    if args.interval <= 0 or args.timeout <= 0:
+        print("[ERROR] --interval and --timeout must be positive integers")
+        return 2
     try:
-        from dotenv import load_dotenv
-        env_file = PROJECT_ROOT / ".env"
-        if env_file.exists():
-            load_dotenv(env_file)
-    except ImportError:
-        pass
-
-    parser = build_parser()
-    args = parser.parse_args()
+        targets = build_health_targets(require_backend=not args.allow_missing_backend)
+    except ValueError as error:
+        print(f"[ERROR] {error}")
+        return 2
 
     if args.dry_run:
-        print("[INFO] Dry-run mode — configuration:")
-        for t in HEALTH_TARGETS:
-            print(f"  [INFO] Target: {t['name']} | URL: {t['url']} | Critical: {t['critical']}")
-        print(f"[INFO] Ping interval: {args.interval}s | Timeout: {args.timeout}s")
-        print("[OK] Dry-run complete — no HTTP requests sent.")
+        print("[INFO] Dry-run mode - resolved production health targets:")
+        for target in targets:
+            print(f"[INFO] {target['name']} | {target['url']} | critical={target['critical']}")
+        print("[OK] Dry-run complete - no HTTP requests sent")
         return 0
 
-    # Default to --once if no mode specified
-    if not args.daemon and not args.once:
-        args.once = True
+    if not args.daemon:
+        return 0 if run_ping_cycle(targets, timeout=args.timeout, report_path=args.json_output) else 1
 
-    if args.once:
-        print("[INFO] Running single synthetic health ping cycle...")
-        healthy = run_ping_cycle(HEALTH_TARGETS, timeout=args.timeout)
-        return 0 if healthy else 1
-
-    # Daemon mode
-    print(f"[INFO] Synthetic health monitor daemon started (interval: {args.interval}s)")
-    print("[INFO] Press Ctrl+C to stop.")
-    iteration = 0
+    print(f"[INFO] Synthetic health monitor daemon started with interval={args.interval}s")
     try:
         while True:
-            iteration += 1
-            run_ping_cycle(HEALTH_TARGETS, timeout=args.timeout)
-            print(f"[INFO] Next ping in {args.interval}s... (iteration #{iteration})")
+            run_ping_cycle(targets, timeout=args.timeout, report_path=args.json_output)
             time.sleep(args.interval)
     except KeyboardInterrupt:
-        print("\n[INFO] Monitor daemon stopped by user.")
+        print("[INFO] Synthetic health monitor stopped")
         return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

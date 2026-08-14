@@ -1,49 +1,119 @@
-// api/index.js — Vercel Node.js Middleend Gateway (ES Module)
-const HF_BACKEND_URL = (process.env.HF_BACKEND_URL || "https://pphothidaen-horoconsultant-core-backend.static.hf.space").replace(/\/$/, "");
+// api/index.js - Vercel gateway for the production FastAPI service.
+//
+// Dynamic API calls must be forwarded to Azure Container Apps.  Returning a
+// successful placeholder response here masks an unavailable backend and makes
+// the browser treat invalid API payloads as valid responses.
 
-export default function handler(req, res) {
-  try {
-    // Always attach CORS headers
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, Referer, User-Agent");
+const configuredBackend = process.env.HF_BACKEND_URL || "";
+const BACKEND_URL = configuredBackend.replace(/\/$/, "");
 
-    if (req.method === "OPTIONS") {
-      return res.status(204).end();
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Credentials": "true",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization, X-Requested-With, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, Referer, User-Agent",
+};
+
+function applyCors(response) {
+  for (const [name, value] of Object.entries(CORS_HEADERS)) {
+    response.setHeader(name, value);
+  }
+}
+
+function getRequestTarget(request) {
+  const requestUrl = new URL(request.url || "/", "http://localhost");
+  const target = requestUrl.searchParams.get("path");
+  if (!target || !target.startsWith("/") || target.startsWith("//")) {
+    return null;
+  }
+
+  const query = new URLSearchParams(requestUrl.searchParams);
+  query.delete("path");
+  return `${target}${query.size ? `?${query.toString()}` : ""}`;
+}
+
+async function readRequestBody(request) {
+  if (["GET", "HEAD"].includes(request.method || "GET")) {
+    return undefined;
+  }
+  const chunks = [];
+  for await (const chunk of request) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+  return chunks.length ? Buffer.concat(chunks) : undefined;
+}
+
+function forwardHeaders(request) {
+  const forwarded = {};
+  for (const name of ["accept", "authorization", "content-type", "if-none-match", "user-agent"]) {
+    const value = request.headers[name];
+    if (typeof value === "string") {
+      forwarded[name] = value;
     }
+  }
+  return forwarded;
+}
 
-    const rawUrl = req.url || "/";
-    const gitCommit = (process.env.VERCEL_GIT_COMMIT_SHA || process.env.GIT_COMMIT_HASH || process.env.HF_COMMIT_SHA || "").slice(0, 7);
-    const versionStr = gitCommit ? `1.0.0.${gitCommit}` : "1.0.0";
-
-    // GET /health
-    if (req.method === "GET" && (rawUrl.includes("health") || rawUrl === "/")) {
-      return res.status(200).json({
-        status: "ok",
-        service: "Computational Metaphysics Engine",
-        version: versionStr,
-        git_commit: gitCommit || null,
-        gateway: "vercel-node-middleend",
-        backend_target: HF_BACKEND_URL
-      });
+function copyResponseHeaders(upstream, response) {
+  for (const name of ["content-type", "cache-control", "etag", "last-modified"]) {
+    const value = upstream.headers.get(name);
+    if (value) {
+      response.setHeader(name, value);
     }
+  }
+}
 
-    // Default response for all other routes
-    return res.status(200).json({
-      status: "ok",
-      service: "Computational Metaphysics Engine",
-      version: versionStr,
-      gateway: "vercel-node-middleend",
-      route: rawUrl
-    });
-  } catch (err) {
-    return res.status(200).json({
-      status: "ok",
-      service: "Computational Metaphysics Engine",
-      version: "1.0.0",
-      gateway: "vercel-node-middleend",
-      error: err.message
+async function proxyRequest(request, response) {
+  const target = getRequestTarget(request);
+  if (!target) {
+    return response.status(400).json({
+      status: "error",
+      code: "invalid_gateway_target",
+      message: "The gateway request target is missing or invalid.",
     });
   }
+  if (!BACKEND_URL) {
+    return response.status(503).json({
+      status: "error",
+      code: "backend_not_configured",
+      message: "HF_BACKEND_URL is not configured for the Vercel gateway.",
+    });
+  }
+
+  try {
+    const upstream = await fetch(`${BACKEND_URL}${target}`, {
+      method: request.method,
+      headers: forwardHeaders(request),
+      body: await readRequestBody(request),
+      redirect: "manual",
+    });
+    copyResponseHeaders(upstream, response);
+    const body = Buffer.from(await upstream.arrayBuffer());
+    return response.status(upstream.status).send(body);
+  } catch (error) {
+    console.error("[ERROR] Vercel gateway backend request failed", error);
+    return response.status(502).json({
+      status: "error",
+      code: "backend_unreachable",
+      message: "The production backend could not be reached by the gateway.",
+    });
+  }
+}
+
+export default async function handler(request, response) {
+  applyCors(response);
+  if (request.method === "OPTIONS") {
+    return response.status(204).end();
+  }
+
+  const requestUrl = new URL(request.url || "/", "http://localhost");
+  if (request.method === "GET" && requestUrl.pathname === "/api/index" && !requestUrl.searchParams.get("path")) {
+    return response.status(200).json({
+      status: "ok",
+      service: "HoroConsultant Vercel Gateway",
+      backend_configured: Boolean(BACKEND_URL),
+    });
+  }
+  return proxyRequest(request, response);
 }

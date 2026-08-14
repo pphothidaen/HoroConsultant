@@ -102,6 +102,10 @@ class WebhookNotifier:
         success = True
         logger.info(f"[NOTIFIER] [{status}] {title}\n{body}")
 
+        if os.getenv("MLOPS_DRY_RUN", "false").lower() == "true":
+            logger.info("[NOTIFIER] Dry-run enabled; external notification delivery skipped")
+            return True
+
         if self.telegram_token and self.telegram_chat_id:
             try:
                 tg_msg = f"<b>{title}</b>\n\n{body}"

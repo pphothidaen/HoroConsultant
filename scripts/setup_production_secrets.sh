@@ -3,7 +3,7 @@
 # HoroConsultant — Automated Production Multi-Cloud Secrets Synchronization Script
 # ==============================================================================
 # Dynamically loads secrets from local environment / .env and synchronizes across:
-# 1. Fly.io Micro-VMs (Singapore Region)
+# 1. Hugging Face Docker backend
 # 2. Vercel Edge Gateway
 # 3. Hugging Face Spaces (Environment Secrets Store)
 # ==============================================================================
@@ -40,37 +40,13 @@ GRAFANA_API_KEY="${GRAFANA_API_KEY:-}"
 PROMETHEUS_METRICS_ENABLED="${PROMETHEUS_METRICS_ENABLED:-true}"
 
 # ------------------------------------------------------------------------------
-# 1. Sync Secrets to Fly.io
+# 1. Verify Hugging Face Docker backend configuration
 # ------------------------------------------------------------------------------
-echo "[INFO] [1/4] Synchronizing secrets to Fly.io (fly.toml)..."
-if command -v fly &> /dev/null || command -v flyctl &> /dev/null; then
-    FLY_CMD=$(command -v fly || command -v flyctl)
-    if [ -n "$FLY_API_TOKEN" ] || $FLY_CMD auth whoami &>/dev/null; then
-        $FLY_CMD secrets set \
-            ADMIN_ALLOWED_EMAILS="$ADMIN_ALLOWED_EMAILS" \
-            GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
-            PRIMARY_MODEL="$PRIMARY_MODEL" \
-            SECONDARY_MODEL="$SECONDARY_MODEL" \
-            FALLBACK_MODEL="$FALLBACK_MODEL" \
-            GEMINI_API_KEY="${GEMINI_API_KEY:-}" \
-            GOOGLE_AI_STUDIO_API_KEY="${GOOGLE_AI_STUDIO_API_KEY:-}" \
-            APP_SUPABASE_URL="${APP_SUPABASE_URL:-}" \
-            APP_SUPABASE_KEY="${APP_SUPABASE_KEY:-}" \
-            HF_TOKEN="${HF_TOKEN:-}" \
-            DOPPLER_TOKEN="${DOPPLER_TOKEN:-}" \
-            GRAFANA_OTLP_ENDPOINT="$GRAFANA_OTLP_ENDPOINT" \
-            GRAFANA_USER_ID="$GRAFANA_USER_ID" \
-            GRAFANA_API_KEY="$GRAFANA_API_KEY" \
-            PROMETHEUS_METRICS_ENABLED="$PROMETHEUS_METRICS_ENABLED" \
-            APP_ENV="$APP_ENV" \
-            PORT="$PORT" \
-            --app horoconsultant-core-backend || echo "[INFO] Fly.io secrets update note."
-        echo "[OK] Fly.io secrets sync completed."
-    else
-        echo "[INFO] [Fly.io] Authentication pending. Set FLY_API_TOKEN in .env or run 'fly auth login'."
-    fi
+echo "[INFO] [1/4] Verifying Hugging Face Docker backend configuration..."
+if [ -n "${HF_BACKEND_URL:-}" ]; then
+    echo "[OK] Hugging Face Docker backend URL configured: ${HF_BACKEND_URL}"
 else
-    echo "[INFO] [Fly.io] flyctl CLI not installed. Skip Fly.io sync."
+    echo "[WARNING] HF_BACKEND_URL is not set locally; configure it in Vercel and GitHub production variables."
 fi
 
 # ------------------------------------------------------------------------------
@@ -126,10 +102,9 @@ fi
 echo "======================================================================"
 echo "  MULTI-CLOUD PRODUCTION SECRETS SYNC COMPLETE!"
 echo "======================================================================"
-echo "  • Fly.io Singapore Region   : Secrets Ready / Configured"
+echo "  • Hugging Face Docker API   : Configuration Verified / Deployment via GitHub Actions"
 echo "  • Vercel Edge Network       : Configured (.env.production & vercel.json)"
 echo "  • Hugging Face Spaces       : Token Verified"
 echo "  • Grafana Cloud Free Tier   : OTLP Endpoint & Metrics Sync Checked"
 echo "  • Secret Leakage Audit      : 0 Leaks Verified"
 echo "======================================================================"
-

@@ -1,201 +1,179 @@
 #!/usr/bin/env python3
-"""
-scripts/run_live_health_verification.py
-========================================
-End-to-End Live Health Status Verification Suite.
+"""Verify the complete public production request path.
 
-Verifies HTTP 200 health responses across all three production cloud endpoints:
-  1. Hugging Face Spaces Static CDN (UI)
-  2. Fly.io Backend API Health
-  3. Vercel Edge Gateway Health
-
-Exits 0 if all targets return healthy, 1 if any fail.
-
-Usage:
-  python3 scripts/run_live_health_verification.py
-  python3 scripts/run_live_health_verification.py --verbose
-  python3 scripts/run_live_health_verification.py --timeout 10
-
-Pure ASCII logging tags enforced: [OK], [ERROR], [INFO], [WARNING].
+The checks deliberately cover static content, the public backend, and one
+deterministic calculation. A 200 response alone is not sufficient evidence
+that the public application works.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 import urllib.error
 import urllib.request
-from typing import Any
+from pathlib import Path
+from typing import Any, Callable, Mapping
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Production endpoint constants
-# ──────────────────────────────────────────────────────────────────────────────
-import os
-
-HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
-HF_BACKEND_URL    = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
-AZURE_BACKEND_URL = os.getenv("AZURE_CONTAINER_APP_URL", "https://horoconsult-env-new.politepond-CHANGEME.southeastasia.azurecontainerapps.io")
-VERCEL_GATEWAY_URL = "https://horo-consultant-psi.vercel.app"
+DEFAULT_VERCEL_GATEWAY_URL = "https://horo-consultant-psi.vercel.app"
+DEFAULT_HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
+DEFAULT_HF_BACKEND_URL = "https://pphothidaen-horoconsultant-core-api.hf.space"
 
 
+def _configured_url(value: str) -> str:
+    """Return a usable configured URL, rejecting template placeholders."""
+    normalized = value.strip().rstrip("/")
+    if not normalized or "changeme" in normalized.lower() or "your_" in normalized.lower():
+        return ""
+    return normalized
 
-def _request(
-    url: str,
-    method: str = "GET",
-    timeout: int = 15,
-    extra_headers: dict[str, str] | None = None,
-) -> tuple[int, str, float]:
-    """
-    Execute HTTP request. Returns (status_code, body_text, latency_ms).
-    Returns (0, error_message, latency_ms) on connection failure.
-    """
-    headers = {
-        "User-Agent": "HoroConsultant-HealthVerifier/1.0",
-        "Accept": "application/json, text/html, */*",
-        **(extra_headers or {}),
-    }
-    req = urllib.request.Request(url, headers=headers, method=method)
-    t0 = time.perf_counter()
+
+def _request(url: str, timeout: int) -> tuple[int, str, float]:
+    """Execute one public GET request and return status, body, and latency."""
+    request = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "HoroConsultant-ProductionVerifier/2.0",
+            "Accept": "application/json, text/html;q=0.9, */*;q=0.8",
+        },
+        method="GET",
+    )
+    started = time.perf_counter()
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            latency = (time.perf_counter() - t0) * 1000
-            return resp.status, resp.read().decode("utf-8", errors="replace"), latency
-    except urllib.error.HTTPError as e:
-        latency = (time.perf_counter() - t0) * 1000
-        body = e.read().decode("utf-8", errors="replace") if e.fp else ""
-        return e.code, body, latency
-    except Exception as exc:
-        latency = (time.perf_counter() - t0) * 1000
-        return 0, str(exc), latency
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            return response.status, response.read().decode("utf-8", errors="replace"), (time.perf_counter() - started) * 1000
+    except urllib.error.HTTPError as error:
+        return error.code, error.read().decode("utf-8", errors="replace"), (time.perf_counter() - started) * 1000
+    except Exception as error:
+        return 0, str(error), (time.perf_counter() - started) * 1000
 
 
-def _check_health_json(body: str) -> bool:
-    """Return True if body is JSON with status == ok/healthy/running."""
+def _is_health_response(body: str) -> bool:
+    """Return whether the documented health response signals an operational app."""
     try:
-        data = json.loads(body)
-        status_val = str(data.get("status", "")).lower()
-        return status_val in ("ok", "healthy", "running", "alive", "up")
-    except Exception:
+        return str(json.loads(body).get("status", "")).lower() in {"ok", "healthy", "running", "alive", "up"}
+    except json.JSONDecodeError:
         return False
 
 
-def run_verification(timeout: int = 15, verbose: bool = False) -> bool:
-    """
-    Run all health checks. Returns True if all pass.
-    """
+def _is_html_response(body: str) -> bool:
+    """Return whether a static UI response contains an HTML document."""
+    lowered = body.lower()
+    return "<html" in lowered or "<!doctype html" in lowered
+
+
+def _is_ziwei_response(body: str) -> bool:
+    """Return whether the gateway returned the expected deterministic API payload."""
+    try:
+        payload = json.loads(body)
+    except json.JSONDecodeError:
+        return False
+    return "ming_gong_branch" in payload and "palaces" in payload
+
+
+def build_checks(
+    environment: Mapping[str, str] | None = None,
+    *,
+    require_backend: bool = True,
+) -> list[dict[str, Any]]:
+    """Build checks for the active production architecture."""
+    env = os.environ if environment is None else environment
+    static_url = _configured_url(env.get("HF_STATIC_CDN_URL", DEFAULT_HF_STATIC_CDN_URL))
+    backend_url = _configured_url(env.get("HF_BACKEND_URL", DEFAULT_HF_BACKEND_URL))
+    if not static_url:
+        raise ValueError("HF_STATIC_CDN_URL must be a valid URL")
+    if require_backend and not backend_url:
+        raise ValueError("HF_BACKEND_URL must be configured for a production deployment verification")
+
+    checks: list[dict[str, Any]] = [
+        {
+            "name": "Hugging Face static UI",
+            "url": f"{static_url}/index.html",
+            "validator": _is_html_response,
+        },
+    ]
+    if backend_url:
+        checks.append(
+            {
+                "name": "Hugging Face Docker backend health",
+                "url": f"{backend_url}/health",
+                "validator": _is_health_response,
+            }
+        )
+    if backend_url:
+        checks.append(
+            {
+                "name": "Public backend deterministic API",
+                "url": f"{backend_url}/api/v1/ziwei/calculate?year=1990&month=5&day=15&hour=14&gender=male",
+                "validator": _is_ziwei_response,
+            }
+        )
+    return checks
+
+
+def run_verification(
+    timeout: int = 15,
+    verbose: bool = False,
+    *,
+    require_backend: bool = True,
+    environment: Mapping[str, str] | None = None,
+) -> tuple[bool, list[dict[str, Any]]]:
+    """Run every check and return a success flag plus structured results."""
+    checks = build_checks(environment, require_backend=require_backend)
+    print("[INFO] HoroConsultant production path verification started")
     results: list[dict[str, Any]] = []
-    all_passed = True
+    for index, check in enumerate(checks, start=1):
+        status, body, latency_ms = _request(check["url"], timeout)
+        validator: Callable[[str], bool] = check["validator"]
+        passed = status == 200 and validator(body)
+        result = {
+            "target": check["name"],
+            "url": check["url"],
+            "passed": passed,
+            "status": status,
+            "latency_ms": round(latency_ms, 1),
+        }
+        results.append(result)
+        tag = "[OK]" if passed else "[ERROR]"
+        print(f"{tag} [{index}/{len(checks)}] {check['name']}: HTTP {status} | {latency_ms:.0f}ms")
+        if verbose and not passed:
+            print(f"[INFO] Response snippet: {body[:300]}")
 
-    print("[INFO] ============================================================")
-    print("[INFO]   HoroConsultant — End-to-End Live Health Status Verification")
-    print("[INFO] ============================================================")
-
-    # ── CHECK 1: HF Static CDN UI (index.html) ─────────────────────────────
-    print("[INFO] [1/4] Checking HuggingFace Static CDN (index.html)...")
-    url = f"{HF_STATIC_CDN_URL}/index.html"
-    status, body, latency = _request(url, timeout=timeout)
-    passed = status == 200 and ("<html" in body.lower() or "<!doctype html" in body.lower())
-    tag = "[OK]" if passed else "[ERROR]"
-    print(f"{tag} HF Static CDN: HTTP {status} | {latency:.0f}ms | {url}")
-    if verbose and not passed:
-        print(f"       Body snippet: {body[:200]}")
-    if not passed:
-        all_passed = False
-    results.append({
-        "target": "HF Static CDN (index.html)",
-        "url": url,
-        "passed": passed,
-        "status": status,
-        "latency_ms": round(latency, 1),
-    })
-
-    # ── CHECK 2: HF Spaces Backend Health Endpoint ──────────────────────────
-    print("[INFO] [2/4] Checking HuggingFace Spaces Backend Health (/index.html)...")
-    url = f"{HF_STATIC_CDN_URL}/index.html"
-    status, body, latency = _request(url, timeout=timeout)
-    passed = status == 200 and ("<html" in body.lower() or "<!doctype html" in body.lower())
-    tag = "[OK]" if passed else "[WARNING]"
-    print(f"{tag} HF Backend Health: HTTP {status} | {latency:.0f}ms | {url}")
-    if verbose:
-        print(f"       Response: {body[:200]}")
-    if not passed:
-        all_passed = False
-    results.append({
-        "target": "HF Spaces Backend (/index.html)",
-        "url": url,
-        "passed": passed,
-        "status": status,
-        "latency_ms": round(latency, 1),
-    })
-
-
-    # ── CHECK 3: Azure Container Apps Backend Health ─────────────────────────
-    print("[INFO] [3/4] Checking Azure Container Apps Backend Health (/health)...")
-    url = f"{AZURE_BACKEND_URL}/health"
-    status, body, latency = _request(url, timeout=timeout)
-    passed = status in (200, 301, 302, 307, 308)
-    tag = "[OK]" if passed else "[WARNING]"
-    print(f"{tag} Azure Container Apps Backend Health: HTTP {status} | {latency:.0f}ms | {url}")
-    if verbose:
-        print(f"       Response: {body[:200]}")
-    results.append({
-        "target": "Azure Container Apps (/health)",
-        "url": url,
-        "passed": passed,
-        "status": status,
-        "latency_ms": round(latency, 1),
-    })
-
-    # ── CHECK 4: Vercel Edge Gateway Health ─────────────────────────────────
-    print("[INFO] [4/4] Checking Vercel Edge Gateway Health (/health)...")
-    url = f"{VERCEL_GATEWAY_URL}/health"
-    status, body, latency = _request(url, timeout=timeout)
-    passed = status == 200
-    tag = "[OK]" if passed else "[ERROR]"
-    print(f"{tag} Vercel Gateway Health: HTTP {status} | {latency:.0f}ms | {url}")
-    if verbose and not passed:
-        print(f"       Body: {body[:300]}")
-    if not passed:
-        all_passed = False
-    results.append({
-        "target": "Vercel Edge Gateway (/health)",
-        "url": url,
-        "passed": passed,
-        "status": status,
-        "latency_ms": round(latency, 1),
-    })
-
-    # ── Summary ──────────────────────────────────────────────────────────────
-    passed_count = sum(1 for r in results if r["passed"])
-    total = len(results)
-    print("[INFO] ============================================================")
-    print(f"[INFO] Results: {passed_count}/{total} checks PASSED")
-    for r in results:
-        tag = "[OK]" if r["passed"] else "[FAIL]"
-        print(f"  {tag} {r['target']}: HTTP {r['status']} | {r['latency_ms']}ms")
-    print("[INFO] ============================================================")
-
-    if all_passed:
-        print("[OK] ALL CRITICAL HEALTH CHECKS PASSED — Multi-cloud production is healthy")
-    else:
-        print("[ERROR] SOME HEALTH CHECKS FAILED — Review output above for details")
-
-    return all_passed
+    success = all(result["passed"] for result in results)
+    passed_count = sum(1 for result in results if result["passed"])
+    print(f"[INFO] Production verification result: {passed_count}/{len(results)} checks passed")
+    print("[OK] All production path checks passed" if success else "[ERROR] Production path verification failed")
+    return success, results
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="End-to-End Live Health Status Verification for HoroConsultant Multi-Cloud."
-    )
-    parser.add_argument("--timeout", type=int, default=15, help="HTTP request timeout in seconds (default: 15)")
-    parser.add_argument("--verbose", action="store_true", help="Print full response bodies on failures")
+    """Run the verifier from the command line."""
+    parser = argparse.ArgumentParser(description="Verify the HoroConsultant public production request path")
+    parser.add_argument("--timeout", type=int, default=15, help="HTTP timeout in seconds")
+    parser.add_argument("--verbose", action="store_true", help="Show response snippets for failed checks")
+    parser.add_argument("--allow-missing-backend", action="store_true", help="Do not require the public backend health check")
+    parser.add_argument("--json-output", type=Path, help="Write structured verification output to this file")
     args = parser.parse_args()
-
-    success = run_verification(timeout=args.timeout, verbose=args.verbose)
+    if args.timeout <= 0:
+        print("[ERROR] --timeout must be a positive integer")
+        return 2
+    try:
+        success, results = run_verification(args.timeout, args.verbose, require_backend=not args.allow_missing_backend)
+    except ValueError as error:
+        print(f"[ERROR] {error}")
+        return 2
+    if args.json_output:
+        args.json_output.parent.mkdir(parents=True, exist_ok=True)
+        args.json_output.write_text(
+            json.dumps({"success": success, "results": results}, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        print(f"[INFO] Verification report written to {args.json_output}")
     return 0 if success else 1
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

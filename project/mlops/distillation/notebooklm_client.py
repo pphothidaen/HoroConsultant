@@ -43,8 +43,14 @@ class NotebookLMClient:
         """
         logger.info(f"[NOTEBOOKLM] Querying notebook '{notebook_id}' with: '{query[:60]}...'")
         
-        # If in headless or dry-run/mock mode, return deterministic grounded response
-        if os.getenv("MLOPS_DRY_RUN", "false").lower() == "true" or not self.session_cookie:
+        # Remote MCP execution is opt-in. CI, local tests, and production startup
+        # must not launch npx or depend on an interactive NotebookLM session.
+        remote_enabled = os.getenv("NOTEBOOKLM_REMOTE_ENABLED", "false").lower() == "true"
+        if (
+            os.getenv("MLOPS_DRY_RUN", "false").lower() == "true"
+            or not self.session_cookie
+            or not remote_enabled
+        ):
             return self._generate_grounded_mock_response(notebook_id, query)
         
         try:

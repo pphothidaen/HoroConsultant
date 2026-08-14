@@ -1,0 +1,50 @@
+name: Production Synthetic Monitoring
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-synthetic-monitor
+  cancel-in-progress: true
+
+jobs:
+  monitor:
+    name: Public production health and notification check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run synthetic health monitor
+        env:
+          HF_BACKEND_URL: ${{ vars.HF_BACKEND_URL || 'https://pphothidaen-horoconsultant-core-api.hf.space' }}
+          VERCEL_GATEWAY_URL: ${{ vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
+          HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
+          HEALTH_ALERT_WEBHOOK_URL: ${{ secrets.HEALTH_ALERT_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GRAFANA_OTLP_ENDPOINT: ${{ secrets.GRAFANA_OTLP_ENDPOINT }}
+          GRAFANA_USER_ID: ${{ secrets.GRAFANA_USER_ID }}
+          GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
+        run: |
+          python3 scripts/synthetic_health_monitor.py --once --json-output synthetic-health.json
+
+      - name: Upload monitor report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-health-${{ github.run_id }}
+          path: synthetic-health.json
+          if-no-files-found: warn

@@ -1,9 +1,9 @@
 # ==============================================================================
 # HoroConsultant — Azure Container Apps Deployment Workflow (GitHub Actions)
 # ==============================================================================
-# Triggers on git push to main -> builds Docker image -> pushes to Docker Hub ->
-# deploys to Azure Container Apps (horoconsult-env-new / rg-horoconsult) ->
-# runs Hermes Headless Post-Deploy E2E Verification.
+# Azure ingress is currently unavailable. This legacy workflow remains manual
+# only for internal maintenance; public production deploys use
+# hf_backend_deploy.yml instead.
 #
 # Adheres to Rule 06: 2-Tier Priority Secrets Policy:
 #   1st Priority: Doppler Cloud Secrets Vault (DOPPLER_TOKEN)
@@ -13,9 +13,6 @@
 name: Azure Container Apps — Production Deployment
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       force_rebuild:
@@ -101,16 +98,29 @@ jobs:
 
       - name: Verify Azure Container App Health
         run: |
-          echo "[INFO] Waiting 30s for container app to stabilize..."
-          sleep 30
-          HEALTH_URL="${{ env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}/health"
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$HEALTH_URL" || echo "000")
-          if [ "$HTTP_STATUS" = "200" ]; then
-            echo "[OK] Azure Container App health check PASSED (HTTP $HTTP_STATUS)"
-          else
-            echo "[ERROR] Azure Container App health check FAILED (HTTP $HTTP_STATUS)"
-            exit 1
-          fi
+          python3 - <<'PY'
+          import json
+          import os
+          import time
+          import urllib.request
+
+          url = os.environ["AZURE_CONTAINER_APP_URL"].rstrip("/") + "/health"
+          for attempt in range(1, 7):
+              try:
+                  with urllib.request.urlopen(url, timeout=15) as response:
+                      payload = json.loads(response.read().decode("utf-8"))
+                  if response.status == 200 and payload.get("status") in {"ok", "healthy", "running", "alive", "up"}:
+                      print(f"[OK] Azure Container App health check passed on attempt {attempt}")
+                      raise SystemExit(0)
+                  print(f"[WARNING] Health payload not ready on attempt {attempt}: {payload}")
+              except Exception as error:
+                  print(f"[WARNING] Health check attempt {attempt} failed: {error}")
+              time.sleep(10)
+          print("[ERROR] Azure Container App health check failed")
+          raise SystemExit(1)
+          PY
+        env:
+          AZURE_CONTAINER_APP_URL: ${{ env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
 
       - name: Azure Logout
         if: always()
@@ -141,14 +151,28 @@ jobs:
         run: |
           pip install httpx python-dotenv rich typer
 
-      - name: Run Live E2E Network Audit (Hermes Headless Mode)
+      - name: Run strict production path verification
         env:
           AZURE_CONTAINER_APP_URL: ${{ env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
-          # 9router routing: use ROUTER_BASE_URL if set, else fallback to CODEX_PRO
-          ROUTER_BASE_URL: ${{ env.ROUTER_BASE_URL || secrets.ROUTER_BASE_URL }}
-          CODEX_PRO: ${{ env.CODEX_PRO || secrets.CODEX_PRO }}
-          GOOGLE_AI_STUDIO_API_KEY: ${{ env.GOOGLE_AI_STUDIO_API_KEY || secrets.GOOGLE_AI_STUDIO_API_KEY }}
-          OPENAI_BASE_URL: ${{ env.ROUTER_BASE_URL || secrets.ROUTER_BASE_URL }}
-          OPENAI_API_KEY: ${{ env.NINE_ROUTER_API_KEY || secrets.NINE_ROUTER_API_KEY || 'dummy' }}
+          VERCEL_GATEWAY_URL: ${{ vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
+          HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
         run: |
-          python3 scripts/test_live_e2e_network.py || echo "[WARNING] E2E audit completed with warnings"
+          python3 scripts/run_live_health_verification.py --require-azure --json-output production-verification.json
+
+      - name: Run production synthetic monitor
+        env:
+          AZURE_CONTAINER_APP_URL: ${{ env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
+          VERCEL_GATEWAY_URL: ${{ vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
+          HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
+        run: |
+          python3 scripts/synthetic_health_monitor.py --once --require-azure --json-output synthetic-health.json
+
+      - name: Upload production verification reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: production-verification-${{ github.sha }}
+          path: |
+            production-verification.json
+            synthetic-health.json
+          if-no-files-found: warn

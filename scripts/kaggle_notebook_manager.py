@@ -44,29 +44,46 @@ METADATA_FILE = KERNEL_DIR / "kernel-metadata.json"
 NOTEBOOK_FILE = KERNEL_DIR / "notebook.ipynb"
 
 
-def setup_kaggle_credentials() -> bool:
-    """Setup ~/.kaggle/kaggle.json from environment variables / Doppler Config."""
+def setup_kaggle_credentials(*, write_file: bool = True) -> bool:
+    """Load Kaggle credentials and optionally write the CLI configuration file.
+
+    Read-only operations such as ``--status`` must not mutate a developer's
+    home directory.  The Kaggle CLI accepts credentials through environment
+    variables, so writing ``~/.kaggle/kaggle.json`` is reserved for explicit
+    ``--setup`` calls.
+    """
     username = os.getenv("KAGGLE_USERNAME") or Config.get_summary().get("KAGGLE_USERNAME", "pphothidaen")
-    token = os.getenv("KAGGLE_TOKEN")
+    token = os.getenv("KAGGLE_TOKEN") or os.getenv("KAGGLE_KEY")
 
     if not token or token.startswith("REPLACE"):
         # Fallback to check .env or .env.production directly
         from dotenv import dotenv_values
         env_secrets = dotenv_values(ROOT_DIR / ".env.production") or dotenv_values(ROOT_DIR / ".env")
         username = env_secrets.get("KAGGLE_USERNAME", username)
-        token = env_secrets.get("KAGGLE_TOKEN", token)
+        token = env_secrets.get("KAGGLE_TOKEN") or env_secrets.get("KAGGLE_KEY") or token
 
     if not token or token.startswith("REPLACE"):
         logger.error("[ERROR] KAGGLE_TOKEN environment variable or Doppler secret not set!")
         return False
 
-    kaggle_dir = Path.home() / ".kaggle"
-    kaggle_dir.mkdir(parents=True, exist_ok=True)
-    json_file = kaggle_dir / "kaggle.json"
+    os.environ["KAGGLE_USERNAME"] = username
+    os.environ["KAGGLE_TOKEN"] = token
+    os.environ["KAGGLE_KEY"] = token
+    os.environ["KAGGLE_API_TOKEN"] = token
+    if not write_file:
+        logger.info(f"[AUTH] Kaggle credentials loaded for process execution (User: {username})")
+        return True
 
+    kaggle_dir = Path.home() / ".kaggle"
+    json_file = kaggle_dir / "kaggle.json"
     cred_data = {"username": username, "key": token}
-    json_file.write_text(json.dumps(cred_data, indent=2), encoding="utf-8")
-    os.chmod(json_file, 0o600)
+    try:
+        kaggle_dir.mkdir(parents=True, exist_ok=True)
+        json_file.write_text(json.dumps(cred_data, indent=2), encoding="utf-8")
+        os.chmod(json_file, 0o600)
+    except OSError as error:
+        logger.error(f"[ERROR] Could not write Kaggle credentials at '{json_file}': {error}")
+        return False
     logger.info(f"[AUTH] Kaggle credentials configured at '{json_file}' (User: {username})")
     return True
 
@@ -111,6 +128,7 @@ def create_kernel_files(accelerator_type: str = "gpu", force_metadata: bool = Fa
                 "source": [
                     "#  HoroConsultant - Production Cloud Fine-Tuning Pipeline\n",
                     "import os\n",
+                    "import shutil\n",
                     "import sys\n",
                     "import types\n",
                     "import subprocess\n",
@@ -264,29 +282,6 @@ def create_kernel_files(accelerator_type: str = "gpu", force_metadata: bool = Fa
     logger.info(f"[NOTEBOOK] Created Jupyter Notebook file at '{NOTEBOOK_FILE}'")
 
 
-def git_auto_commit_and_push(message: str) -> bool:
-    """Auto-stage, commit, and push updated repository files to GitHub."""
-    logger.info(f"[GIT] Auto-syncing repository changes to GitHub: '{message}'...")
-    try:
-        subprocess.run(["git", "add", "."], cwd=ROOT_DIR, check=False)
-        res = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT_DIR, capture_output=True, text=True)
-        if not res.stdout.strip():
-            logger.info("[INFO] No uncommitted git changes detected.")
-            return True
-        
-        subprocess.run(["git", "commit", "-m", message], cwd=ROOT_DIR, check=False)
-        push_res = subprocess.run(["git", "push", "origin", "main"], cwd=ROOT_DIR, capture_output=True, text=True)
-        if push_res.returncode == 0:
-            logger.info("[SUCCESS] Successfully pushed latest changes to GitHub repository!")
-            return True
-        else:
-            logger.warning(f"[WARNING] Git push notice: {push_res.stderr.strip()}")
-            return False
-    except Exception as e:
-        logger.error(f"[ERROR] Git auto-push failed: {e}")
-        return False
-
-
 def run_kaggle_cmd(args_list: list[str]) -> bool:
     """Run kaggle CLI command with credentials supplied via env vars."""
     cmd = ["kaggle"] + args_list
@@ -315,7 +310,7 @@ def run_kaggle_cmd(args_list: list[str]) -> bool:
         return False
 
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser(description="HoroConsultant Kaggle Notebook Automation CLI")
     parser.add_argument("--setup", action="store_true", help="Setup credentials and generate kernel metadata & notebook")
     parser.add_argument("--push", action="store_true", help="Push & trigger notebook execution on Kaggle GPU")
@@ -331,34 +326,39 @@ def main():
         args.setup = True
 
     if args.setup:
-        setup_kaggle_credentials()
+        if not setup_kaggle_credentials(write_file=True):
+            return 1
         create_kernel_files(args.accelerator)
 
+    success = True
     if args.push:
-        setup_kaggle_credentials()
-        create_kernel_files(args.accelerator)
-        # Auto-commit and push code updates to GitHub first so Kaggle git clone gets latest code
-        git_auto_commit_and_push("feat(kaggle): auto-commit updated notebook & scripts before pushing to Kaggle")
+        if not setup_kaggle_credentials(write_file=False):
+            return 1
+        if not METADATA_FILE.exists() or not NOTEBOOK_FILE.exists():
+            logger.error("[ERROR] Kaggle kernel files are missing; run --setup before --push.")
+            return 1
         push_args = ["kernels", "push", "-p", str(KERNEL_DIR)]
-        run_kaggle_cmd(push_args)
-
+        success = run_kaggle_cmd(push_args) and success
 
     if args.status:
-        setup_kaggle_credentials()
+        if not setup_kaggle_credentials(write_file=False):
+            return 1
         username = os.getenv("KAGGLE_USERNAME", "pphothidaen")
         kernel_id = f"{username}/horoconsultant-finetune-pipeline"
-        run_kaggle_cmd(["kernels", "status", kernel_id])
+        success = run_kaggle_cmd(["kernels", "status", kernel_id]) and success
 
     if args.output:
-        setup_kaggle_credentials()
+        if not setup_kaggle_credentials(write_file=False):
+            return 1
         username = os.getenv("KAGGLE_USERNAME", "pphothidaen")
         kernel_id = f"{username}/horoconsultant-finetune-pipeline"
         dest_dir = Path(args.dest)
         dest_dir.mkdir(parents=True, exist_ok=True)
-        run_kaggle_cmd(["kernels", "output", kernel_id, "-p", str(dest_dir)])
+        success = run_kaggle_cmd(["kernels", "output", kernel_id, "-p", str(dest_dir)]) and success
 
     if args.pull:
-        setup_kaggle_credentials()
+        if not setup_kaggle_credentials(write_file=False):
+            return 1
         username = os.getenv("KAGGLE_USERNAME", "pphothidaen")
         kernel_id = f"{username}/horoconsultant-finetune-pipeline"
         dest_dir = Path(args.dest)
@@ -367,9 +367,9 @@ def main():
         pull_success = run_kaggle_cmd(["kernels", "pull", kernel_id, "-p", str(dest_dir), "-m"])
         # 2. Pull output files (train_execution.log, summaries, adapters)
         output_success = run_kaggle_cmd(["kernels", "output", kernel_id, "-p", str(dest_dir)])
-        if pull_success or output_success:
-            git_auto_commit_and_push("feat(kaggle): sync pulled notebook outputs & metadata from Kaggle")
+        success = (pull_success or output_success) and success
+    return 0 if success else 1
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

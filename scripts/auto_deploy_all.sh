@@ -6,7 +6,8 @@
 # 1. Pre-deployment quality & security audit (Pytest, Code Reviewer)
 # 2. Multi-cloud secrets synchronization across environment stores
 # 3. Vercel Edge Gateway Deployment (npx vercel --prod)
-# 4. Fly.io Micro-VM Deployment (Singapore Region < 30ms)
+# 4. Hugging Face Docker backend deployment is triggered by the protected
+#    main-branch workflow (.github/workflows/hf_backend_deploy.yml)
 # 5. Hugging Face Static Edge CDN Deployment
 # 6. Post-deployment live endpoint health check
 # ==============================================================================
@@ -90,26 +91,14 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# STEP 5: Deploy Fly.io Micro-VMs (Singapore Region sin)
+# STEP 5: Confirm Hugging Face Docker backend deployment ownership
 # ------------------------------------------------------------------------------
 echo ""
-echo "[INFO] [STEP 5/5] Deploying Backend Container to Fly.io (Singapore sin)..."
-if command -v fly &> /dev/null || command -v flyctl &> /dev/null; then
-    FLY_CMD=$(command -v fly || command -v flyctl)
-
-    if [ -n "$FLY_API_TOKEN" ]; then
-        echo "[DEPLOY] Executing: $FLY_CMD deploy --config fly.toml --access-token=***"
-        $FLY_CMD deploy --config fly.toml --access-token="$FLY_API_TOKEN"
-        echo "[OK] Step 5 Fly.io Deployment Completed."
-    elif $FLY_CMD auth whoami &>/dev/null; then
-        echo "[DEPLOY] Executing: $FLY_CMD deploy --config fly.toml"
-        $FLY_CMD deploy --config fly.toml
-        echo "[OK] Step 5 Fly.io Deployment Completed."
-    else
-        echo "[INFO] [Fly.io] Authentication pending. To enable Fly.io auto-deploy, set FLY_API_TOKEN in .env or run 'fly auth login'."
-    fi
+echo "[INFO] [STEP 5/5] Hugging Face Docker backend deploy is triggered by push to main."
+if [ -n "${HF_BACKEND_URL:-}" ]; then
+    echo "[OK] Public backend target configured: ${HF_BACKEND_URL}"
 else
-    echo "[INFO] [Fly.io] flyctl CLI not installed. Skip Fly.io deploy. Install via: brew install flyctl"
+    echo "[WARNING] HF_BACKEND_URL is not configured locally; GitHub Actions supplies its default target."
 fi
 
 # ------------------------------------------------------------------------------
@@ -121,6 +110,6 @@ echo " 🎉 MASTER AUTOMATED PRODUCTION DEPLOYMENT PIPELINE COMPLETED!"
 echo "======================================================================"
 echo "  • Hugging Face Static Edge : https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
 echo "  • Admin Panel & HITL Studio: https://pphothidaen-horoconsultant-core-backend.static.hf.space/admin.html"
-echo "  • Fly.io Singapore Backend : https://horoconsultant-core-backend.fly.dev/health"
+echo "  • Hugging Face Docker Backend : ${HF_BACKEND_URL:-https://pphothidaen-horoconsultant-core-api.hf.space}/health"
 echo "  • Vercel Edge Gateway      : Configured via vercel.json & GitHub Push"
 echo "======================================================================"

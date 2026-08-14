@@ -1,0 +1,68 @@
+name: Hugging Face Docker Backend - Production Deployment
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hf-backend-production
+  cancel-in-progress: false
+
+jobs:
+  publish-and-verify:
+    name: Publish public API and verify production path
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      HF_BACKEND_SPACE_ID: ${{ vars.HF_BACKEND_SPACE_ID || 'pphothidaen/horoconsultant-core-api' }}
+      HF_STATIC_SPACE_ID: ${{ vars.HF_STATIC_SPACE_ID || 'pphothidaen/horoconsultant-core-backend' }}
+      HF_BACKEND_URL: ${{ vars.HF_BACKEND_URL || 'https://pphothidaen-horoconsultant-core-api.hf.space' }}
+      HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
+      VERCEL_GATEWAY_URL: ${{ vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deployment dependencies
+        run: pip install huggingface_hub httpx python-dotenv
+
+      - name: Publish static frontend
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python3 scripts/publish_space_hf.py --space-id "$HF_STATIC_SPACE_ID" --sdk static
+
+      - name: Publish Docker API backend
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: python3 scripts/publish_space_hf.py --space-id "$HF_BACKEND_SPACE_ID" --sdk docker
+
+      - name: Wait for public backend and verify complete path
+        run: |
+          for attempt in $(seq 1 18); do
+            if python3 scripts/run_live_health_verification.py --json-output production-verification.json; then
+              exit 0
+            fi
+            echo "[INFO] Public backend still starting; retrying in 20 seconds"
+            sleep 20
+          done
+          exit 1
+
+      - name: Run synthetic monitor
+        run: python3 scripts/synthetic_health_monitor.py --once --json-output synthetic-health.json
+
+      - name: Upload verification reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hf-production-verification-${{ github.sha }}
+          path: |
+            production-verification.json
+            synthetic-health.json
+          if-no-files-found: warn
