@@ -24,6 +24,22 @@ from typing import Any, Dict, List, Tuple
 import requests
 
 
+# Target Fine-Tuned BaZi LLM on Hugging Face
+TARGET_BAZI_FINE_TUNED_MODEL = "pphothidaen/qwen2.5-7b-bazi-instruct-4bit"
+
+# Known valid AI models supported by the engine
+KNOWN_VALID_AI_MODELS = [
+    TARGET_BAZI_FINE_TUNED_MODEL,
+    "pphothidaen/qwen2.5-7b-bazi-instruct",
+    "qwen2.5-bazi",
+    "qwen2.5:7b",
+    "qwen2.5-coder:7b",
+    "gemini-3.5-flash-lite",
+    "gemini-flash-latest",
+    "gemini-3.6-flash",
+    "gemini-3.7-flash"
+]
+
 # Known static fallback signatures (to detect rule-based fallbacks)
 KNOWN_FALLBACK_SIGNATURES = [
     "สำหรับผังดวงชะตาดิถี",
@@ -37,6 +53,91 @@ KNOWN_FALLBACK_SIGNATURES = [
 def calculate_semantic_similarity(text1: str, text2: str) -> float:
     """Calculate character sequence similarity ratio between two texts."""
     return difflib.SequenceMatcher(None, text1, text2).ratio()
+
+
+def verify_fine_tuned_model_compatibility(model_name: str) -> bool:
+    """
+    Verify if the model used corresponds to or is compatible with
+    the fine-tuned Hugging Face model (pphothidaen/qwen2.5-7b-bazi-instruct-4bit).
+    """
+    if not model_name:
+        return False
+    m = model_name.strip().lower()
+    target = TARGET_BAZI_FINE_TUNED_MODEL.lower()
+    return (
+        m == target
+        or "qwen2.5-7b-bazi" in m
+        or "qwen2.5-bazi" in m
+        or any(m == valid.lower() for valid in KNOWN_VALID_AI_MODELS)
+    )
+
+
+def classify_inference_payload(
+    data_a: Dict[str, Any],
+    data_b: Dict[str, Any],
+    query_a: str,
+    query_b: str
+) -> Dict[str, Any]:
+    """
+    Pure decision function that classifies inference origin based on payload response data.
+    """
+    text_a = data_a.get("interpretation") or data_a.get("response") or str(data_a)
+    text_b = data_b.get("interpretation") or data_b.get("response") or str(data_b)
+
+    source_a = data_a.get("source", "unknown")
+    model_a = data_a.get("model_used", "unknown")
+
+    # 1. Similarity Check
+    similarity = calculate_semantic_similarity(text_a, text_b)
+    variance_score = round(1.0 - similarity, 4)
+
+    # 2. Template Signature Check
+    has_signature_a = any(sig in text_a for sig in KNOWN_FALLBACK_SIGNATURES)
+    has_signature_b = any(sig in text_b for sig in KNOWN_FALLBACK_SIGNATURES)
+
+    # 3. Echo Placeholder Check (does it simply replace query in an identical frame?)
+    simulated_sub = text_a.replace(query_a, query_b)
+    is_echo_template = (calculate_semantic_similarity(simulated_sub, text_b) > 0.98) and query_a != query_b
+
+    # 4. Fine-Tuned Model Recognition Check
+    is_valid_model = verify_fine_tuned_model_compatibility(model_a)
+
+    # 5. Classification Decision Logic
+    if source_a == "ai_agent_llm" and not is_echo_template and variance_score > 0.05:
+        classification = "REAL_AI_MODEL"
+        confidence = 0.98
+        reason = f"Verified live Cloud/Local LLM generation (model: {model_a}, variance: {variance_score:.2f})"
+    elif is_echo_template:
+        classification = "FALLBACK_TEMPLATE"
+        confidence = 0.99
+        reason = "Exact string substitution inside boilerplate template detected."
+    elif has_signature_a and has_signature_b and similarity > 0.90:
+        classification = "FALLBACK_TEMPLATE"
+        confidence = 0.95
+        reason = "Matched known rule-based fallback signature with low semantic variance."
+    elif variance_score > 0.15:
+        classification = "REAL_AI_MODEL"
+        confidence = 0.85
+        reason = f"High linguistic variance ({variance_score:.2f}) and custom vocabulary structure."
+    else:
+        classification = "HYBRID_HEURISTIC"
+        confidence = 0.70
+        reason = "Deterministic or cached response structure."
+
+    return {
+        "query_a": query_a,
+        "query_b": query_b,
+        "classification": classification,
+        "confidence": confidence,
+        "model_used": model_a,
+        "is_fine_tuned_model_compatible": is_valid_model,
+        "source": source_a,
+        "semantic_similarity": round(similarity, 4),
+        "variance_score": variance_score,
+        "is_echo_template": is_echo_template,
+        "reason": reason,
+        "sample_snippet": text_a[:250].replace("\n", " ")
+    }
 
 
 def audit_query_pair(
@@ -74,67 +175,16 @@ def audit_query_pair(
             "status": "ERROR",
             "http_status_a": resp_a.status_code,
             "http_status_b": resp_b.status_code,
-            "classification": "UNREACHABLE"
+            "classification": "UNREACHABLE",
+            "confidence": 0.0,
+            "reason": f"HTTP status A={resp_a.status_code}, B={resp_b.status_code}"
         }
 
     data_a = resp_a.json()
     data_b = resp_b.json()
-
-    text_a = data_a.get("interpretation") or data_a.get("response") or str(data_a)
-    text_b = data_b.get("interpretation") or data_b.get("response") or str(data_b)
-
-    source_a = data_a.get("source", "unknown")
-    model_a = data_a.get("model_used", "unknown")
-
-    # 1. Similarity Check
-    similarity = calculate_semantic_similarity(text_a, text_b)
-    variance_score = round(1.0 - similarity, 4)
-
-    # 2. Template Signature Check
-    has_signature_a = any(sig in text_a for sig in KNOWN_FALLBACK_SIGNATURES)
-    has_signature_b = any(sig in text_b for sig in KNOWN_FALLBACK_SIGNATURES)
-
-    # 3. Echo Placeholder Check (does it simply replace query in an identical frame?)
-    # Replace query_a with query_b in text_a and see if it equals text_b
-    simulated_sub = text_a.replace(query_a, query_b)
-    is_echo_template = (calculate_semantic_similarity(simulated_sub, text_b) > 0.98) and query_a != query_b
-
-    # 4. Classification Decision Logic
-    if source_a == "ai_agent_llm" and not is_echo_template and variance_score > 0.05:
-        classification = "REAL_AI_MODEL"
-        confidence = 0.98
-        reason = f"Verified live Cloud/Local LLM generation (model: {model_a}, variance: {variance_score:.2f})"
-    elif is_echo_template:
-        classification = "FALLBACK_TEMPLATE"
-        confidence = 0.99
-        reason = "Exact string substitution inside boilerplate template detected."
-    elif has_signature_a and has_signature_b and similarity > 0.90:
-        classification = "FALLBACK_TEMPLATE"
-        confidence = 0.95
-        reason = "Matched known rule-based fallback signature with low semantic variance."
-    elif variance_score > 0.15:
-        classification = "REAL_AI_MODEL"
-        confidence = 0.85
-        reason = f"High linguistic variance ({variance_score:.2f}) and custom vocabulary structure."
-    else:
-        classification = "HYBRID_HEURISTIC"
-        confidence = 0.70
-        reason = "Deterministic or cached response structure."
-
-    return {
-        "query_a": query_a,
-        "query_b": query_b,
-        "classification": classification,
-        "confidence": confidence,
-        "model_used": model_a,
-        "source": source_a,
-        "latency_ms": (lat_a + lat_b) // 2,
-        "semantic_similarity": round(similarity, 4),
-        "variance_score": variance_score,
-        "is_echo_template": is_echo_template,
-        "reason": reason,
-        "sample_snippet": text_a[:250].replace("\n", " ")
-    }
+    res = classify_inference_payload(data_a, data_b, query_a, query_b)
+    res["latency_ms"] = (lat_a + lat_b) // 2
+    return res
 
 
 def run_full_audit(endpoint: str) -> bool:
