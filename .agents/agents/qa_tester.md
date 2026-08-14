@@ -9,6 +9,7 @@ model: Gemini 3.5 Flash-Lite
 thinking_effort: Standard
 tools:
 - qa-e2e-testing
+- ai-inference-verifier
 - sdlc-aisdlc-workflow
 ---
 

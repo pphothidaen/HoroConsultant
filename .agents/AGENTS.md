@@ -27,11 +27,12 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 
 1. **`sdlc-aisdlc-workflow`**: Full 5-phase AI SDLC lifecycle guide (Planning, Dev, QA, DevOps, Post-Deploy E2E).
 2. **`qa-e2e-testing`**: Pytest suite, Playwright E2E screenshots, and 22-button UI regression suite commands.
-3. **`devops-deployment`**: Doppler secret sync, Hugging Face Spaces publishing, Docker compose, and secret leakage scanning.
-4. **`kaggle-manager`**: Kaggle GPU Fine-Tuning notebook automation (`--status`, `--push`, `--pull`).
-5. **`bazi-calculator`**: Deterministic 4-Pillars, True Solar Time & Five Elements calculation skill.
-6. **`rag-search`**: Local FAISS vector search across 3,132 ingested metaphysical text chunks.
-7. **`bsa-doc-skill-management`**: Business System Analysis, live documentation audit, and agent skill governance skill.
+3. **`ai-inference-verifier`**: Real AI model vs Fallback/Template inspection & semantic entropy verification skill for QA agent.
+4. **`devops-deployment`**: Doppler secret sync, Hugging Face Spaces publishing, Docker compose, and secret leakage scanning.
+5. **`kaggle-manager`**: Kaggle GPU Fine-Tuning notebook automation (`--status`, `--push`, `--pull`).
+6. **`bazi-calculator`**: Deterministic 4-Pillars, True Solar Time & Five Elements calculation skill.
+7. **`rag-search`**: Local FAISS vector search across 3,132 ingested metaphysical text chunks.
+8. **`bsa-doc-skill-management`**: Business System Analysis, live documentation audit, and agent skill governance skill.
 
 ---
 

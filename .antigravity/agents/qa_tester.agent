@@ -30,5 +30,6 @@ system_prompt: 'You are the qa_tester agent for HoroConsultant.
   qa` — routes through 9router or falls back to Gemini direct.'
 tools:
 - qa-e2e-testing
+- ai-inference-verifier
 - sdlc-aisdlc-workflow
 fallback_agent: orchestrator
