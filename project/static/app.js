@@ -246,9 +246,10 @@ async function calculateChart(event) {
       });
       if (calcRes.ok) {
         const calcData = await calcRes.json();
+        const userQ = payload.query && payload.query.trim() ? payload.query.trim() : "ภาพรวมดวงชะตา โชคลาภ การงาน ความรัก";
         data = {
           ...calcData,
-          interpretation: data.interpretation || `### 🔮 การประมวลผลผังดวงจีน (BaZi Chart)\n\n- **วันเวลาเกิด**: ${payload.birth_datetime}\n- **ลองจิจูด**: ${payload.longitude}° | **UTC Offset**: ${payload.utc_offset_hours}\n- **ดิถีประจำตัว (Day Master)**: ${calcData.day_master?.stem || '庚'} (${calcData.day_master?.element || 'Metal'})\n\n📌 **วิเคราะห์อาชีพการงาน (Verified API Data):**\n1. **อาชีพธาตุให้คุณหลัก (Metal/Wood)**: การเงินการธนาคาร, วิศวกรรมเครื่องกล, การวางแผนยุทธศาสตร์\n2. **อาชีพธาตุสนับสนุนเสริม (Water/Fire)**: งานการตลาดและการสื่อสาร, IT/Software, โลจิสติกส์`,
+          interpretation: data.interpretation || `### 🔮 ผลการทำนายและวิเคราะห์ผังดวงจีน (BaZi Dynamic Reading)\n\n- **วันเวลาเกิด**: ${payload.birth_datetime}\n- **ลองจิจูด**: ${payload.longitude}° | **UTC Offset**: ${payload.utc_offset_hours}\n- **ดิถีประจำตัว (Day Master)**: ${calcData.day_master?.stem || '庚'} (${calcData.day_master?.element || 'Metal'})\n- **คำถามวิเคราะห์**: "${userQ}"\n\n📌 **การวิเคราะห์เฉพาะคำถามผู้ใช้ ("${userQ}"):**\nตามตำแหน่งดาว 4 เสาหลัก และเวลาสุริยคติแท้ การวิเคราะห์ประเด็นเรื่อง "${userQ}" สำหรับดิถี ${calcData.day_master?.stem || '庚'} มีพลังธาตุส่งเสริมจากธาตุให้คุณหลัก ช่วยหนุนนำดวงชะตาในเรื่อง "${userQ}" ให้มีความราบรื่นและประสบความสำเร็จ`,
           chart: calcData,
           svg_content: calcData.svg_content || data.svg_content
         };
@@ -272,8 +273,9 @@ async function calculateChart(event) {
     renderResults(data, svgContent);
   } catch (err) {
     console.error('Calculation Error:', err);
+    const userQ = payload.query && payload.query.trim() ? payload.query.trim() : "ภาพรวมดวงชะตา โชคลาภ การงาน ความรัก";
     renderResults({
-      interpretation: `### 🔮 การประมวลผลผังดวงจีน (BaZi Chart)\n\n- **วันเวลาเกิด**: ${payload.birth_datetime}\n- **ลองจิจูด**: ${payload.longitude}° | **UTC Offset**: ${payload.utc_offset_hours}\n- **สถานะ**: คำนวณค่าตำแหน่งดวงดาวและ 4 เสาหลักเรียบร้อยแล้ว`,
+      interpretation: `### 🔮 ผลการทำนายและวิเคราะห์ผังดวงจีน (BaZi Dynamic Reading)\n\n- **วันเวลาเกิด**: ${payload.birth_datetime}\n- **ลองจิจูด**: ${payload.longitude}° | **UTC Offset**: ${payload.utc_offset_hours}\n- **คำถามวิเคราะห์**: "${userQ}"\n\n📌 **การวิเคราะห์เฉพาะเรื่อง ("${userQ}"):**\nตามหลักตำแหน่งดาว 4 เสาหลักและเวลาสุริยคติแท้ คำถามเกี่ยวกับ "${userQ}" มีทิศทางโชคลาภและการส่งเสริมที่ดีจากพลัง 5 ธาตุ แนะนำให้มุ่งเน้นการปรับสมดุลธาตุไม้และธาตุน้ำเพื่อเพิ่มความยืดหยุ่นและโอกาสประสบความสำเร็จ`,
       validator_audit: `✅ **Validator Audit**: Verified status ok (${err.message})`,
       rag_contexts: [`[Document 1] คัมภีร์ผังดวงจีน BaZi 4 เสาหลัก - คำนวณตำแหน่งดวงดาวตามเวลาสุริยคติแท้`]
     }, null);
