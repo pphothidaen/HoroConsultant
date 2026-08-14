@@ -118,6 +118,13 @@ def test_container_is_reproducible_non_root_and_scale_to_zero_ready():
     assert "EXPOSE 8000" in dockerfile
     for pattern in ("**/*.so", "**/*.dylib", "**/*.dll"):
         assert pattern in dockerignore
+    for runtime_exclusion in (
+        "project/tests",
+        "project/grafana",
+        "project/kaggle_kernel",
+        "project/rag/datasets",
+    ):
+        assert runtime_exclusion in dockerignore
 
 
 def test_bicep_caps_consumption_resources_and_exposes_port_8000():
