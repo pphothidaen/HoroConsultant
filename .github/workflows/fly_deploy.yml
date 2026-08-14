@@ -1,15 +1,20 @@
 # ==============================================================================
-# HoroConsultant — Automated Fly.io Deployment Workflow (GitHub Actions)
+# HoroConsultant — DECOMMISSIONED: Fly.io Deployment Workflow
 # ==============================================================================
-# Triggers on git push to main branch to deploy FastAPI container to Fly.io
+# STATUS: RETIRED on 2026-08-14 — Platform migrated to Azure Container Apps.
+# See azure_deploy.yml for the active production deployment pipeline.
+# This file is preserved for audit history only. Do NOT re-enable.
 # ==============================================================================
 
-name: Fly.io Automatic Production Deployment
+name: "[RETIRED] Fly.io Deployment — DO NOT USE"
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      confirm_retired:
+        description: 'This workflow is retired. Use azure_deploy.yml instead.'
+        required: true
+        default: 'no'
 
 jobs:
   deploy:

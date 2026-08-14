@@ -24,4 +24,4 @@ Role: Senior Developer (The Hands)
 2. Preserving existing docstrings, math formulas, and comments.
 3. Enforcing Pure ASCII logging (`[OK]`, `[ERROR]`) to prevent ipykernel surrogate crashes.
 4. Implementing bug fixes based on QA reports.
-5. Model Allocation: `Gemini 3.6 Flash` (Standard) for features; `Gemini 3.5 Flash-Lite` for micro-fixes; `GPT-4o` / `Claude` when quota enabled.
+5. Model Allocation: Routes via `hermes` agent through 9router Proxy Gateway (`NINE_ROUTER_BASE_URL`). Primary: `DeepSeek-V3` (CODEX_PRO pool) for high-precision code synthesis; `Gemini 3.6 Flash` (Standard) as failover; `Gemini 3.5 Flash-Lite` for micro-fixes. On Cloud/CI: reads `ROUTER_BASE_URL` from CI secrets; falls back to `CODEX_PRO_BASE_URL` then Gemini direct.

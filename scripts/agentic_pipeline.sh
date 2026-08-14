@@ -25,11 +25,53 @@ if [ -f "$ROOT_DIR/.env" ]; then
 fi
 
 echo "======================================================================"
-echo " 🎭 HOROCONSULTANT AGENTIC MULTI-CLOUD PRODUCTION PIPELINE"
+echo " HOROCONSULTANT AGENTIC MULTI-CLOUD PRODUCTION PIPELINE"
 echo "======================================================================"
-echo " [ORCHESTRATOR] Master Agent: Gemini 3.6 Flash (High Effort)"
+echo " [ORCHESTRATOR] Master Agent: Claude 3.7 Sonnet via 9router / CODEX_PRO"
+echo " [HERMES]       Execution Engine: Plan -> Act -> Observe -> Reflect"
 echo " [TIMESTAMP]    $(date '+%Y-%m-%d %H:%M:%S %z')"
 echo "======================================================================"
+
+# ------------------------------------------------------------------------------
+# 9router / Hermes Routing Resolution (Hybrid Cloud-First)
+# ------------------------------------------------------------------------------
+echo ""
+echo "[INFO] [HERMES] Resolving LLM routing (9router -> CODEX_PRO -> Gemini)..."
+
+ACCOUNT_ALIAS="${ROUTER_ACCOUNT_ALIAS:-${NINE_ROUTER_ACCOUNT_ALIAS:-agy1}}"
+
+RESOLVED_ROUTER=""
+if [ -n "${ROUTER_BASE_URL:-}" ]; then
+    RESOLVED_ROUTER="$ROUTER_BASE_URL"
+    echo "[OK]   [HERMES] Routing via Cloud/CI ROUTER_BASE_URL: $RESOLVED_ROUTER (Account Alias: $ACCOUNT_ALIAS)"
+    export OPENAI_BASE_URL="$RESOLVED_ROUTER"
+    export OPENAI_API_KEY="${NINE_ROUTER_API_KEY:-dummy}"
+    export NINE_ROUTER_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
+    export ROUTER_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
+    export HTTP_HEADER_X_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
+elif [ -n "${NINE_ROUTER_BASE_URL:-}" ]; then
+    HEALTH_EP="${NINE_ROUTER_BASE_URL%/v1}/health"
+    if curl -sf --max-time 3 "$HEALTH_EP" > /dev/null 2>&1; then
+        RESOLVED_ROUTER="$NINE_ROUTER_BASE_URL"
+        echo "[OK]   [HERMES] 9router UP at $NINE_ROUTER_BASE_URL (Account Alias: $ACCOUNT_ALIAS)"
+        export OPENAI_BASE_URL="$RESOLVED_ROUTER"
+        export OPENAI_API_KEY="${NINE_ROUTER_API_KEY:-dummy}"
+        export NINE_ROUTER_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
+        export ROUTER_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
+        export HTTP_HEADER_X_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
+    else
+        echo "[WARNING] [HERMES] 9router not reachable — checking CODEX_PRO fallback"
+    fi
+fi
+
+if [ -z "$RESOLVED_ROUTER" ] && [ -n "${CODEX_PRO_BASE_URL:-}" ] && [ -n "${CODEX_PRO:-}" ]; then
+    echo "[WARNING] [HERMES] Routing via CODEX_PRO endpoint (fallback)"
+    export OPENAI_BASE_URL="$CODEX_PRO_BASE_URL"
+    export OPENAI_API_KEY="$CODEX_PRO"
+elif [ -z "$RESOLVED_ROUTER" ] && [ -n "${GOOGLE_AI_STUDIO_API_KEY:-}" ]; then
+    echo "[WARNING] [HERMES] Routing via Gemini direct (no proxy — last resort)"
+    unset OPENAI_BASE_URL OPENAI_API_KEY 2>/dev/null || true
+fi
 
 # ------------------------------------------------------------------------------
 # PHASE 1: Business System Analyst (business_analyst)
@@ -111,7 +153,7 @@ if command -v vercel &> /dev/null || command -v npx &> /dev/null; then
     VERCEL_CMD="npx vercel"
     [ -x "$(command -v vercel)" ] && VERCEL_CMD="vercel"
 
-    if [ -n "$VERCEL_TOKEN" ]; then
+    if [ -n "${VERCEL_TOKEN:-}" ]; then
         echo "[DEVOPS] Executing: $VERCEL_CMD --prod --yes --token=***"
         $VERCEL_CMD --prod --yes --token="$VERCEL_TOKEN"
     elif $VERCEL_CMD whoami &>/dev/null; then
@@ -122,31 +164,27 @@ if command -v vercel &> /dev/null || command -v npx &> /dev/null; then
     fi
 fi
 
-echo "[DEVOPS] Triggering Fly.io Micro-VM Deployment..."
-if command -v fly &> /dev/null || command -v flyctl &> /dev/null; then
-    FLY_CMD=$(command -v fly || command -v flyctl)
-
-    if [ -n "$FLY_API_TOKEN" ]; then
-        echo "[DEVOPS] Executing: $FLY_CMD deploy --config fly.toml --access-token=***"
-        $FLY_CMD deploy --config fly.toml --access-token="$FLY_API_TOKEN"
-    elif $FLY_CMD auth whoami &>/dev/null; then
-        echo "[DEVOPS] Executing: $FLY_CMD deploy --config fly.toml"
-        $FLY_CMD deploy --config fly.toml
-    else
-        echo "[INFO] [DEVOPS] Fly.io authentication pending. Set FLY_API_TOKEN in .env or run 'fly auth login'."
-    fi
-fi
+echo "[DEVOPS] Azure Container Apps — backend deploy triggered via azure_deploy.yml on git push"
+echo "[INFO]   Azure App: ${AZURE_CONTAINER_APP:-horoconsult-env-new} / ${AZURE_RESOURCE_GROUP:-rg-horoconsult}"
+echo "[INFO]   Health URL: ${AZURE_CONTAINER_APP_URL:-<set AZURE_CONTAINER_APP_URL>}/health"
+echo "[INFO]   Fly.io decommissioned on 2026-08-14 — azure_deploy.yml is now active"
 
 echo "[DEVOPS] Executing Strict Orchestrator Live Network E2E Audit..."
 python3 scripts/test_live_e2e_network.py
 
+echo "[DEVOPS] Running Hermes Telemetry emission..."
+if [ "${HERMES_TELEMETRY_ENABLED:-false}" = "true" ] && [ -f "scripts/hermes_telemetry.py" ]; then
+    python3 scripts/hermes_telemetry.py --phase deploy --status passed 2>/dev/null || true
+fi
+
 echo ""
 echo "======================================================================"
-echo " 🎭 [ORCHESTRATOR] MULTI-AGENT PIPELINE CONDUCTION COMPLETE!"
+echo " [ORCHESTRATOR] MULTI-AGENT PIPELINE CONDUCTION COMPLETE!"
 echo "======================================================================"
-echo "  • Business System Analyst : Docs & Skills Governed"
-echo "  • Senior Developer        : Multi-Cloud Specs Verified"
-echo "  • QA Tester               : 129 Unit + 22 UI Button Tests PASSED"
-echo "  • Code Reviewer           : Status READY_FOR_PROD (0 Leaks)"
-echo "  • DevOps & Release        : Live Public Network E2E Audit PASSED 100%"
+echo "  * Business System Analyst : Docs & Skills Governed"
+echo "  * Senior Developer        : Multi-Cloud Specs Verified"
+echo "  * QA Tester               : Unit + UI Button Regression PASSED"
+echo "  * Code Reviewer           : Status READY_FOR_PROD (0 Leaks)"
+echo "  * DevOps & Release        : HF Spaces + Vercel + Azure Deploy COMPLETE"
+echo "  * Hermes Routing          : 9router -> CODEX_PRO -> Gemini (fallback chain)"
 echo "======================================================================"

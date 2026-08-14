@@ -21,6 +21,10 @@
       "path": "devops/agent.md"
     },
     {
+      "name": "hermes",
+      "path": "hermes/agent.md"
+    },
+    {
       "name": "ming_xue_master",
       "path": "ming_xue_master/agent.md"
     },

@@ -23,4 +23,4 @@ Role: QA Tester (The Guard)
 2. Pessimistic bug identification and edge-case boundary testing.
 3. Verifying 100% test pass rate before release approval.
 4. Log audit & error extraction to prevent context bloat.
-5. Model Allocation: `Gemini 3.5 Flash-Lite` (Thinking: Off) for minimum token cost & zero-latency execution.
+5. Model Allocation: `Gemini 3.5 Flash-Lite` (Thinking: Off) for minimum token cost & zero-latency execution. On Cloud/CI: Headless mode via `hermes_sdlc_runner.sh qa` — routes through 9router or falls back to Gemini direct.

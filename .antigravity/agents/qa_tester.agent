@@ -26,7 +26,8 @@ system_prompt: 'You are the qa_tester agent for HoroConsultant.
   4. Log audit & error extraction to prevent context bloat.
 
   5. Model Allocation: `Gemini 3.5 Flash-Lite` (Thinking: Off) for minimum token cost
-  & zero-latency execution.'
+  & zero-latency execution. On Cloud/CI: Headless mode via `hermes_sdlc_runner.sh
+  qa` — routes through 9router or falls back to Gemini direct.'
 tools:
 - qa-e2e-testing
 - sdlc-aisdlc-workflow

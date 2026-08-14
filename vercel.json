@@ -12,12 +12,16 @@
   ],
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "https://horoconsult-env-new.politepond-CHANGEME.southeastasia.azurecontainerapps.io/api/$1"
+    },
+    {
       "source": "/health",
-      "destination": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
+      "destination": "https://horoconsult-env-new.politepond-CHANGEME.southeastasia.azurecontainerapps.io/health"
     },
     {
       "source": "/api/health",
-      "destination": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
+      "destination": "https://horoconsult-env-new.politepond-CHANGEME.southeastasia.azurecontainerapps.io/health"
     },
     {
       "source": "/(.*)",

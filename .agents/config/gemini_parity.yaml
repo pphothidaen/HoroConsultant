@@ -1,0 +1,119 @@
+# ==============================================================================
+# Gemini-Sonnet Parity Configuration
+# .agents/config/gemini_parity.yaml
+# ==============================================================================
+# กำหนด mapping ระหว่าง virtual model IDs (จาก 9router) กับ
+# Gemini Parity profiles เพื่อให้ Gemini 3.6 Flash ทำงานได้
+# เทียบเท่า Claude Sonnet 4.6 ในแต่ละ task context
+# ==============================================================================
+
+version: "1.0.0"
+description: >
+  Gemini-Sonnet Parity Engine Configuration.
+  Activated automatically by hermes_model_parity.py when Hermes routes
+  to Gemini 3.6 Flash (medium) instead of Claude Sonnet 4.6 (high).
+
+# ── Activation Conditions ────────────────────────────────────────────────────
+activation:
+  # Parity mode is ON when the resolved model is Gemini AND parity is enabled
+  trigger_models:
+    - "gemini-2.0-flash"
+    - "gemini-2.0-flash-lite"
+    - "gemini-1.5-pro"
+    - "gemini-2.5-flash"
+  env_flag: "HERMES_PARITY_ENABLED"   # Set to "true" to activate (default: true on Gemini)
+  auto_detect_task: true               # Auto-select task profile from message content
+
+# ── Virtual Model → Parity Profile Mapping ──────────────────────────────────
+# 9router ส่ง virtual model ID มา → hermes_model_parity.py map ไปยัง profile
+virtual_model_mapping:
+  "claude-3-7-sonnet":   "orchestration"   # Orchestrator tasks → orchestration profile
+  "deepseek-v3":         "coding"          # Developer tasks → coding profile
+  "deepseek-r1":         "coding"          # Code review → coding (strict mode)
+  "gpt-4o-mini":         "qa"              # QA tasks → qa profile
+  "gemini-2.0-flash":    "auto"            # Auto-detect from message content
+  "gemini-sonnet-parity": "auto"           # Explicit parity virtual model
+
+# ── Task Profiles (mirror of hermes_model_parity.py TASK_PROFILES) ──────────
+profiles:
+  orchestration:
+    description: >
+      Deep architectural reasoning — matches Claude Sonnet 4.6 High thinking.
+      Used for: spec breakdown, multi-agent coordination, plans/plan.md writing.
+    temperature: 0.15
+    top_p: 0.92
+    top_k: 40
+    max_output_tokens: 8192
+    thinking_depth: deep          # 3-pass: plan, critique, refine
+    self_critique_rounds: 2
+    effective_iq_target: "Claude Sonnet 4.6 High Thinking"
+
+  coding:
+    description: >
+      Precision code synthesis — matches Claude Sonnet 4.6 coding quality.
+      Used for: Python/Rust/FastAPI code writing, bug fixes, refactoring.
+    temperature: 0.10
+    top_p: 0.90
+    top_k: 32
+    max_output_tokens: 16384
+    thinking_depth: medium        # 2-pass: plan, write
+    self_critique_rounds: 1
+    effective_iq_target: "Claude Sonnet 4.6 Standard"
+
+  qa:
+    description: >
+      Pessimistic test audit — matches Claude Sonnet 4.6 analytical mode.
+      Used for: pytest execution, edge case identification, security scan.
+    temperature: 0.05
+    top_p: 0.85
+    top_k: 20
+    max_output_tokens: 4096
+    thinking_depth: shallow       # 1-pass: identify issues
+    self_critique_rounds: 1
+    effective_iq_target: "Claude Sonnet 4.6 Analytical"
+
+  devops:
+    description: >
+      Infrastructure reasoning — matches Claude Sonnet 4.6 structured planning.
+      Used for: Docker, Azure, Vercel, Doppler, Kaggle operations.
+    temperature: 0.12
+    top_p: 0.90
+    top_k: 32
+    max_output_tokens: 4096
+    thinking_depth: medium
+    self_critique_rounds: 1
+    effective_iq_target: "Claude Sonnet 4.6 Standard"
+
+  domain:
+    description: >
+      Metaphysics domain expert synthesis — matches Claude Sonnet 4.6 knowledge reasoning.
+      Used for: BaZi, Zi Wei, Vedic, Western astrology interpretation tasks.
+    temperature: 0.20
+    top_p: 0.93
+    top_k: 50
+    max_output_tokens: 8192
+    thinking_depth: deep          # 3-pass + canonical citation check
+    self_critique_rounds: 2
+    effective_iq_target: "Claude Sonnet 4.6 High Thinking"
+
+# ── Context Window Settings ──────────────────────────────────────────────────
+context_window:
+  gemini_max_chars: 900000        # 1M token window - 100K headroom for output
+  compression_strategy: sliding   # Keep system + most recent N turns
+  truncation_notice: true         # Inject notice when context is compressed
+
+# ── Quality Gate ─────────────────────────────────────────────────────────────
+# Thresholds below which Hermes escalates to Orchestrator instead of retrying
+quality_gate:
+  min_response_length: 50         # chars — too short = likely failed generation
+  max_loop_retries: 3             # total across all retry mechanisms
+  escalate_on_empty: true         # escalate if Gemini returns empty content
+
+# ── Fallback Chain (when Gemini parity still insufficient) ───────────────────
+fallback_chain:
+  - model: "claude-3-7-sonnet"
+    via: "CODEX_PRO"
+    trigger: "self_critique_rounds_exhausted AND quality_gate_failed"
+  - model: "gemini-1.5-pro"
+    via: "direct"
+    trigger: "gemini-2.0-flash rate_limited"

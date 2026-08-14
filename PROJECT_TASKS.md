@@ -131,6 +131,13 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
   - Run: `python3 scripts/grafana_cloud_exporter.py --dry-run --push-gateway-telemetry`
   - Verified: 9 OTLP data points generated across 3 gateways × 3 metrics (exit code 0 ✅)
 
+- [x] **Hermes Execution Engine & 9router `agy1` Multi-Account Proxy Integration & Azure Migration (Hybrid Cloud-First Architecture) ([`.antigravity/agents/hermes.agent`](file:///Users/kimlenglim/Project/HoroConsultant/.antigravity/agents/hermes.agent), [`scripts/hermes_sdlc_runner.sh`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/hermes_sdlc_runner.sh), [`scripts/hermes_model_parity.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/hermes_model_parity.py), [`scripts/hermes_telemetry.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/hermes_telemetry.py), [`.github/workflows/azure_deploy.yml`](file:///Users/kimlenglim/Project/HoroConsultant/.github/workflows/azure_deploy.yml), [`vercel.json`](file:///Users/kimlenglim/Project/HoroConsultant/vercel.json))**
+  - **Hermes Agent & Role Spec**: Created `hermes` agent spec (`.antigravity/agents/hermes.agent`, `.agents/agents/hermes.json`, `.codex/agents/hermes.toml`) for interactive local coding (Developer Mac) and headless CI automation (GitHub Actions).
+  - **9router `agy1` Multi-Account Alias Pool**: Configured `NINE_ROUTER_ACCOUNT_ALIAS=agy1` and `ROUTER_ACCOUNT_ALIAS=agy1` in `.env` and `.env.example`. Automatically passes `X-Account-Alias: agy1` and `X-9router-Account: agy1` HTTP headers to 9router Proxy Gateway for rate-limit and quota management across multi-account pools (`agy1..n`, `codex1..n`).
+  - **Gemini-Sonnet Parity Engine (`scripts/hermes_model_parity.py`, `.agents/config/gemini_parity.yaml`)**: Implemented 5 mechanisms (Explicit Thinking Scaffold, Self-Critique Loop, Context Window Optimizer, Temperature Calibration, and Task-Specific System Reasoning Templates) to elevate Gemini 3.6 Flash (medium) output quality to match Claude Sonnet 4.6 (high).
+  - **Platform Migration (Fly.io → Azure Container Apps)**: Added `.github/workflows/azure_deploy.yml` for automated Docker build, Docker Hub push (`pansakorn/horoconsult:latest`), and Azure Container Apps deployment (`horoconsult-env-new` / `rg-horoconsult`). Updated `vercel.json` split rewrites (`/api/*` → Azure Container Apps, `/*` → HF Spaces). Decommissioned Fly.io workflow (`fly_deploy.yml`).
+  - **OTLP Telemetry & Agent Sync**: Implemented `scripts/hermes_telemetry.py` pushing `hermes.loop.tokens`, `hermes.loop.latency_ms`, and `account_alias` metrics to Grafana Cloud. Synchronized and validated all 17 Codex TOML agent definitions (`python3 scripts/sync_codex_agents.py --check`).
+
 ---
 
 ### ✅ DONE (เสร็จสมบูรณ์ 100% พร้อมใช้งาน)
