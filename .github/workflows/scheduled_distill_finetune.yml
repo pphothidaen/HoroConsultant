@@ -2,8 +2,9 @@ name: Scheduled Autonomous Knowledge Distillation & Fine-Tuning
 
 on:
   schedule:
-    # Run every Sunday at 02:00 UTC
-    - cron: '0 2 * * 0'
+    # Run every Monday and Thursday at 02:00 UTC (09:00 AM Bangkok Time)
+    # Optimized to maximize Kaggle 30h/week GPU quota without queue congestion
+    - cron: '0 2 * * 1,4'
   workflow_dispatch:
     inputs:
       domain:
