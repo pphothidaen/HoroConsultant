@@ -23,14 +23,17 @@ function applyCors(response) {
 
 function getRequestTarget(request) {
   const requestUrl = new URL(request.url || "/", "http://localhost");
-  const target = requestUrl.searchParams.get("path");
-  if (!target || !target.startsWith("/") || target.startsWith("//")) {
-    return null;
+  let target = requestUrl.searchParams.get("path");
+  if (!target || target === "/api/index") {
+    target = requestUrl.pathname;
   }
-
-  const query = new URLSearchParams(requestUrl.searchParams);
-  query.delete("path");
-  return `${target}${query.size ? `?${query.toString()}` : ""}`;
+  if (!target || target === "/api/index") {
+    return "/";
+  }
+  if (!target.startsWith("/")) {
+    target = `/${target}`;
+  }
+  return target;
 }
 
 async function readRequestBody(request) {
