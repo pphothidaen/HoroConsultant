@@ -12,7 +12,7 @@ import logging
 import os
 import urllib.request
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger("webhook_notifier")
 
@@ -30,27 +30,36 @@ class WebhookNotifier:
         self.telegram_chat_id = telegram_chat_id or os.getenv("TELEGRAM_CHAT_ID")
         self.discord_webhook_url = discord_webhook_url or os.getenv("DISCORD_WEBHOOK_URL")
 
-    def notify_distillation_complete(self, stats: Dict[str, Any]) -> bool:
-        """Send notification when knowledge distillation finishes."""
+    def notify_distillation_complete(self, stats: Dict[str, Any], sample_preview: Optional[Dict[str, Any]] = None) -> bool:
+        """Send rich notification when knowledge distillation finishes, including sample preview."""
         title = "📚 [HoroConsultant MLOps] Knowledge Distillation Finished"
-        body = (
-            f"• Output Dataset: `{stats.get('output_path', 'N/A')}`\n"
-            f"• Total Extracted: `{stats.get('total_input', 0)}`\n"
-            f"• Validated & Deduped: `{stats.get('final_unique_count', 0)}`\n"
-            f"• Format: `{stats.get('format', 'chatml')}`\n"
-            f"• Time: `{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}`"
-        )
+        body_lines = [
+            f"• <b>Output Dataset:</b> <code>{stats.get('output_path', 'N/A')}</code>",
+            f"• <b>Total Extracted:</b> <code>{stats.get('total_input', 0)}</code>",
+            f"• <b>Validated & Deduped:</b> <code>{stats.get('final_unique_count', 0)}</code>",
+            f"• <b>Format:</b> <code>{stats.get('format', 'chatml')}</code>",
+            f"• <b>Timestamp:</b> <code>{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}</code>"
+        ]
+
+        if sample_preview:
+            instr = sample_preview.get("instruction") or (sample_preview.get("messages", [{}])[1].get("content") if "messages" in sample_preview else "")
+            out = sample_preview.get("output") or (sample_preview.get("messages", [{}])[2].get("content") if "messages" in sample_preview else "")
+            body_lines.append("\n🔍 <b>Latest Mined Sample Preview:</b>")
+            body_lines.append(f"<b>Q:</b> <i>{instr[:150]}...</i>" if len(instr) > 150 else f"<b>Q:</b> <i>{instr}</i>")
+            body_lines.append(f"<b>A:</b> <i>{out[:220]}...</i>" if len(out) > 220 else f"<b>A:</b> <i>{out}</i>")
+
+        body = "\n".join(body_lines)
         return self._send_all(title, body, status="SUCCESS")
 
     def notify_training_status(self, kernel_id: str, status: str, details: str = "") -> bool:
         """Send notification regarding Kaggle GPU training status."""
         title = f"⚡ [HoroConsultant MLOps] Fine-Tuning: {status.upper()}"
         body = (
-            f"• Target Model: `pphothidaen/qwen2.5-7b-bazi-instruct-4bit`\n"
-            f"• Kaggle Kernel: `{kernel_id}`\n"
-            f"• Status: `{status}`\n"
-            f"• Details: {details or 'N/A'}\n"
-            f"• Timestamp: `{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}`"
+            f"• <b>Target Model:</b> <code>pphothidaen/qwen2.5-7b-bazi-instruct-4bit</code>\n"
+            f"• <b>Kaggle Kernel:</b> <code>{kernel_id}</code>\n"
+            f"• <b>Status:</b> <b>{status}</b>\n"
+            f"• <b>Details:</b> {details or 'N/A'}\n"
+            f"• <b>Timestamp:</b> <code>{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}</code>"
         )
         return self._send_all(title, body, status=status)
 
@@ -58,11 +67,35 @@ class WebhookNotifier:
         """Send urgent error alert with truncated error message."""
         title = f"🚨 [HoroConsultant MLOps Error] Failure in {step_name}"
         body = (
-            f"• Step: `{step_name}`\n"
-            f"• Error Snippet: `{error_message[:400]}`\n"
-            f"• Action: Pipeline fallback engaged."
+            f"• <b>Step:</b> <code>{step_name}</code>\n"
+            f"• <b>Error Snippet:</b> <code>{error_message[:400]}</code>\n"
+            f"• <b>Action:</b> Pipeline fallback engaged."
         )
         return self._send_all(title, body, status="ERROR")
+
+    def send_direct_message(self, message: str, chat_id: Optional[str] = None) -> bool:
+        """Send a direct message to a specific Telegram chat."""
+        target_chat = chat_id or self.telegram_chat_id
+        if not self.telegram_token or not target_chat:
+            return False
+
+        try:
+            url = f"https://api.telegram.org/bot{self.telegram_token}/sendMessage"
+            payload = {
+                "chat_id": target_chat,
+                "text": message,
+                "parse_mode": "HTML"
+            }
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json"}
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                return resp.status == 200
+        except Exception as e:
+            logger.warning(f"[TELEGRAM] Direct send failed: {e}")
+            return False
 
     def _send_all(self, title: str, body: str, status: str = "INFO") -> bool:
         """Dispatch to Telegram and Discord if configured."""
@@ -96,7 +129,7 @@ class WebhookNotifier:
                 payload = {
                     "embeds": [{
                         "title": title,
-                        "description": body,
+                        "description": body.replace("<b>", "**").replace("</b>", "**").replace("<code>", "`").replace("</code>", "`").replace("<i>", "*").replace("</i>", "*"),
                         "color": color,
                         "footer": {"text": "HoroConsultant Autonomous MLOps Pipeline"}
                     }]

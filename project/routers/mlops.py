@@ -126,3 +126,21 @@ def trigger_training(req: TrainRequest) -> Dict[str, Any]:
         dry_run=req.dry_run
     )
     return res
+
+
+@router.post("/telegram/webhook")
+async def telegram_webhook(payload: Dict[str, Any], background_tasks: BackgroundTasks) -> Dict[str, Any]:
+    """Receive incoming webhook updates from Telegram Bot API and dispatch Hermes Agent tasks."""
+    from project.mlops.notifications.telegram_bot import TelegramBotController
+    bot = TelegramBotController()
+    
+    msg = payload.get("message", {})
+    text = msg.get("text", "")
+    chat_id = str(msg.get("chat", {}).get("id", ""))
+    
+    if text and chat_id:
+        reply = bot.handle_command(text, chat_id)
+        background_tasks.add_task(bot.notifier.send_direct_message, reply, chat_id)
+        return {"status": "ok", "action": "dispatched", "command": text}
+    
+    return {"status": "ok", "action": "ignored"}
