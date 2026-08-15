@@ -124,9 +124,7 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
     process.env.GEMINI_API_KEY,
     process.env.GEMINI_API_KEY2,
     process.env.GOOGLE_AI_STUDIO_API_KEY,
-    process.env.GOOGLE_AI_STUDIO_API_KEY2,
-    "AIzaSyA_AnAT3xecBUENFX8sOQh0TjCMoNk62TM",
-    "AIzaSyDjILmvPxPT7YxiT94o5cZ66HijYrZA7hc"
+    process.env.GOOGLE_AI_STUDIO_API_KEY2
   ].filter(Boolean);
 
   const models = [
