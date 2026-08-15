@@ -318,6 +318,39 @@ python3 scripts/publish_space_hf.py --dry-run
 | **Render.com / Railway.app** | Docker Web Service (`Dockerfile.hf`) | Full-stack FastAPI Production Container | Mid (~150ms) | Low Cost ($5/mo), Auto SSL & Custom Domain |
 | **Kaggle GPU Accelerator** | GPU Fine-Tuning Notebook (`T4 Machine`) | LLM Fine-Tuning & Model Weight Fusion | Batch Pipeline | Free 30h/week Nvidia T4 GPU |
 
+#### 🧩 เพิ่มเติม: Hugging Face S3-Compatible Storage Credentials
+
+ข้อความ warning ที่บอกว่า:
+
+> These credentials are paired with the access token HF_TOKEN...
+
+หมายถึง credential ในส่วนนี้ใช้สำหรับเชื่อมต่อ Hugging Face Storage Bucket (S3-compatible) เท่านั้น ใช้คู่กับการใช้งาน client เช่น `aws`, `boto3`, `rclone`  
+ค่าเหล่านี้ควรเก็บเป็น secret เท่านั้น (ไม่ควรใส่ใน source code)
+
+ตัวแปรที่ใช้:
+
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_ENDPOINT_URL`
+
+ตั้งค่าใน CI/CD เป็น Secrets และในเครื่อง dev-test ตามตัวอย่าง `~/.aws/config` / `~/.aws/credentials` ตามเอกสาร:  
+https://huggingface.co/docs/hub/storage-buckets-s3
+
+ตัวอย่าง (ค่าเฉพาะ namespace ของคุณ, อย่างเช่น `pphothidaen` หากเป็น personal namespace):
+
+```ini
+# ~/.aws/config
+[default]
+region = us-east-1
+output = json
+endpoint_url = https://pphothidaen.s3.us-east-1.amazonaws.com
+
+# ~/.aws/credentials
+[default]
+aws_access_key_id = ${AWS_ACCESS_KEY_ID}
+aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}
+```
+
 ### 🛠️ 3.8 การสั่งงานอัตโนมัติ 100% ทั้งระบบในคำสั่งเดียว (Master 1-Command Production Automation)
 
 #### 🚀 คำสั่งปล่อยระบบขึ้น Production ทั้งหมดแบบอัตโนมัติ (1-Command Full Pipeline):
@@ -408,7 +441,6 @@ bash scripts/setup_production_secrets.sh
 4. **GitHub Actions Scheduled Automation:**
    - ตารางเวลาอัตโนมัติ: รันทุกวันอาทิตย์ เวลา 02:00 UTC ผ่าน `.github/workflows/scheduled_distill_finetune.yml`
    - รองรับการ Trigger แบบ Manual พร้อมเลือก Domain และ Format ได้ทันที
-
 
 
 

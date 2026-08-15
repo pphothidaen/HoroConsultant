@@ -91,6 +91,12 @@ else
     echo "[INFO] [Grafana Cloud] OTLP credentials pending in .env or Doppler vault."
 fi
 
+if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$AWS_ENDPOINT_URL" ]; then
+    echo "[OK] [HF S3-compatible Storage] AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_ENDPOINT_URL are configured."
+else
+    echo "[INFO] [HF S3-compatible Storage] S3 credentials are not fully set yet (optional)."
+fi
+
 # Run Secret Leakage Scan via code_reviewer.py
 if [ -f "$ROOT_DIR/project/core/code_reviewer.py" ]; then
     echo "[INFO] Executing Secret Leakage Scan via CodeReviewer..."

@@ -39,9 +39,15 @@ def publish_model(
         print("❌ huggingface_hub package not found. Run 'pip install huggingface_hub'")
         return False
 
-    token = os.getenv("HF_TOKEN")
+    token = (
+        os.getenv("HF_TOKEN")
+        or os.getenv("HUGGINGFACE_TOKEN")
+        or os.getenv("HF_API_TOKEN")
+        or os.getenv("HUGGINGFACE_API_KEY")
+        or os.getenv("HUGGING_FACE_TOKEN")
+    )
     if not token:
-        print("❌ HF_TOKEN environment variable not found in .env")
+        print("❌ HF token environment variable not found in .env")
         return False
 
     api = HfApi(token=token)
