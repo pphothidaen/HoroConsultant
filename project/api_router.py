@@ -62,6 +62,11 @@ OPENAI_API_KEY          = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL            = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 TOGETHER_API_KEY        = os.getenv("TOGETHER_API_KEY", "")
 TOGETHER_MODEL          = os.getenv("TOGETHER_MODEL", "Qwen/Qwen2.5-7B-Instruct-Turbo")
+TOGETHER_BASE_URL       = os.getenv("TOGETHER_BASE_URL", "https://api.together.xyz/v1")
+
+CLOUDFLARE_ACCOUNT_ID   = os.getenv("CLOUDFLARE_ACCOUNT_ID", "")
+CLOUDFLARE_AI_TOKEN     = os.getenv("CLOUDFLARE_AI_TOKEN", "")
+CLOUDFLARE_AI_MODEL     = os.getenv("CLOUDFLARE_AI_MODEL", "@cf/qwen/qwen1.5-7b-chat-awq")
 
 TIMEOUT_LOCAL_S         = float(os.getenv("LOCAL_TIMEOUT_SECONDS", "3.0"))
 TIMEOUT_CLOUD_S         = float(os.getenv("API_TIMEOUT_SECONDS",   "8.0"))
@@ -395,6 +400,64 @@ def _call_openai_compatible(
 
 
 # ---------------------------------------------------------------------------
+# Cloudflare Workers AI caller (REST API)
+# ---------------------------------------------------------------------------
+
+def _call_cloudflare_ai(
+    account_id:         str,
+    ai_token:           str,
+    model:              str,
+    prompt:             str,
+    system_instruction: str = "",
+) -> tuple[str | None, str]:
+    """
+    Call Cloudflare Workers AI via REST API.
+    Returns (text, reason): reason = \"ok\" | \"429\" | \"error:<code>\" | \"timeout\" | \"exception\"
+    Supports chat-completion models: @cf/qwen/qwen1.5-7b-chat-awq, @cf/meta/llama-3-8b-instruct, etc.
+    """
+    if not account_id or not ai_token:
+        return None, "no_auth"
+
+    url = f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/run/{model}"
+    headers = {
+        "Authorization": f"Bearer {ai_token}",
+        "Content-Type": "application/json",
+    }
+    messages: list[dict] = []
+    if system_instruction:
+        messages.append({"role": "system", "content": system_instruction})
+    messages.append({"role": "user", "content": prompt})
+
+    payload: dict = {"messages": messages, "max_tokens": 2048}
+
+    try:
+        with httpx.Client(timeout=TIMEOUT_CLOUD_S) as client:
+            t0  = time.monotonic()
+            res = client.post(url, json=payload, headers=headers)
+            elapsed = round((time.monotonic() - t0) * 1000)
+
+        if res.status_code == 200:
+            data = res.json()
+            text = data.get("result", {}).get("response", "").strip()
+            if text:
+                logger.info(f"[CloudflareAI:{model}] ✅ OK ({elapsed}ms)")
+                return text, "ok"
+            return None, "empty"
+        elif res.status_code == 429:
+            logger.warning(f"[CloudflareAI:{model}] 429 rate-limited")
+            return None, "429"
+        else:
+            logger.warning(f"[CloudflareAI:{model}] HTTP {res.status_code}")
+            return None, f"error:{res.status_code}"
+    except httpx.TimeoutException:
+        logger.warning(f"[CloudflareAI:{model}] Timeout after {TIMEOUT_CLOUD_S}s")
+        return None, "timeout"
+    except Exception as exc:
+        logger.warning(f"[CloudflareAI:{model}] Exception: {exc}")
+        return None, "exception"
+
+
+# ---------------------------------------------------------------------------
 def _is_cloud_environment() -> bool:
     """Detect if running on cloud platform (Vercel, Hugging Face, Fly.io)."""
     return any(
@@ -464,33 +527,58 @@ class HybridRouter:
         is_disabled_url = ollama_url_lower in ("disabled", "none", "false", "")
         is_cloud = _is_cloud_environment()
 
-        # On cloud platforms (Vercel/HF/Fly), put Gemini cloud routes first if local Ollama is unreachable
+        # === CLOUD MODE (Vercel / HF Spaces / Fly.io) ===
+        # Priority chain: Together AI → Cloudflare AI → Gemini → Vertex AI
         if is_cloud:
+            # Route 1: Together AI (Qwen2.5-7B-Instruct-Turbo) — PRIMARY CLOUD
+            if TOGETHER_API_KEY:
+                routes.append({"type": "together", "model": TOGETHER_MODEL, "key": TOGETHER_API_KEY})
+
+            # Route 2: Cloudflare Workers AI (@cf/qwen/qwen1.5-7b-chat-awq) — SECONDARY CLOUD
+            if CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_AI_TOKEN:
+                routes.append({
+                    "type": "cloudflare_ai",
+                    "model": CLOUDFLARE_AI_MODEL,
+                    "key": CLOUDFLARE_AI_TOKEN,
+                    "account_id": CLOUDFLARE_ACCOUNT_ID,
+                })
+
+            # Route 3: Gemini Cloud (key rotation) — TERTIARY CLOUD
             for model in GEMINI_MODELS_ROTATION:
                 for key in _gemini_keys():
                     routes.append({"type": "gemini", "model": model, "key": key})
 
-        # 1. Primary Route: Ollama / GGUF Local Engine (if not disabled and not on pure cloud)
+        # === LOCAL DEV MODE ===
+        # Route 1: Ollama local models (if not disabled)
         if not disable_local and not is_disabled_url and not is_cloud:
             for model in [PRIMARY_LOCAL_MODEL, SECONDARY_LOCAL_MODEL, TERTIARY_LOCAL_MODEL]:
                 routes.append({"type": "ollama", "model": model, "key": None})
 
-        # 2. Fallback Route: Gemini Cloud Engine (if not already added above)
-        if not is_cloud:
+            # Route 2 (local): Together AI as cloud fallback for local dev
+            if TOGETHER_API_KEY:
+                routes.append({"type": "together", "model": TOGETHER_MODEL, "key": TOGETHER_API_KEY})
+
+            # Route 3 (local): Cloudflare AI
+            if CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_AI_TOKEN:
+                routes.append({
+                    "type": "cloudflare_ai",
+                    "model": CLOUDFLARE_AI_MODEL,
+                    "key": CLOUDFLARE_AI_TOKEN,
+                    "account_id": CLOUDFLARE_ACCOUNT_ID,
+                })
+
+            # Route 4 (local): Gemini cloud fallback
             for model in GEMINI_MODELS_ROTATION:
                 for key in _gemini_keys():
                     routes.append({"type": "gemini", "model": model, "key": key})
 
-        # 3. Vertex AI Service Account Direct Integration (Priority 2 Cloud)
+        # === SHARED: Vertex AI + OpenAI (both modes, lower priority) ===
         proj_id, bearer_token = _get_vertex_ai_credentials()
         if proj_id and bearer_token:
             routes.append({"type": "vertex_ai", "model": "gemini-1.5-flash", "key": bearer_token, "project_id": proj_id})
 
-        # 4. External AI Providers Fallback (OpenAI & Together AI)
         if OPENAI_API_KEY:
             routes.append({"type": "openai", "model": OPENAI_MODEL, "key": OPENAI_API_KEY})
-        if TOGETHER_API_KEY:
-            routes.append({"type": "together", "model": TOGETHER_MODEL, "key": TOGETHER_API_KEY})
 
         return routes
 
@@ -538,7 +626,10 @@ class HybridRouter:
             elif rtype == "openai":
                 text, reason = _call_openai_compatible("OpenAI", "https://api.openai.com/v1", key, model, prompt, system_instruction)
             elif rtype == "together":
-                text, reason = _call_openai_compatible("Together", "https://api.together.xyz/v1", key, model, prompt, system_instruction)
+                text, reason = _call_openai_compatible("Together", TOGETHER_BASE_URL, key, model, prompt, system_instruction)
+            elif rtype == "cloudflare_ai":
+                account_id = route.get("account_id", "")
+                text, reason = _call_cloudflare_ai(account_id, key, model, prompt, system_instruction)
             else:
                 text, reason = None, "unknown_route"
             latency_ms = round((time.monotonic() - t0) * 1000)
