@@ -110,9 +110,17 @@ def sync_secrets_to_doppler(
             return False
 
     secrets = dotenv_values(env_file)
+    ignored_keys = {k for k in secrets.keys() if isinstance(k, str) and k.startswith("DOPPLER_")}
     valid_secrets = {
-        k: v for k, v in secrets.items()
-        if k and v and not k.startswith("#") and "REPLACE" not in str(v)
+        k: v
+        for k, v in secrets.items()
+        if (
+            k
+            and v
+            and not k.startswith("#")
+            and "REPLACE" not in str(v)
+            and k not in ignored_keys
+        )
     }
 
     logger.info(f"🔑 Categorized {len(valid_secrets)} Production Secrets from `{env_file.name}`:")
