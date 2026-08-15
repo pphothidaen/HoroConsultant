@@ -18,9 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     env:
-      HF_BACKEND_SPACE_ID: ${{ vars.HF_BACKEND_SPACE_ID || 'pphothidaen/horoconsultant-core-api' }}
+      HF_BACKEND_SPACE_ID: ${{ vars.HF_BACKEND_SPACE_ID || '' }}
       HF_STATIC_SPACE_ID: ${{ vars.HF_STATIC_SPACE_ID || 'pphothidaen/horoconsultant-core-backend' }}
-      HF_BACKEND_URL: ${{ vars.HF_BACKEND_URL || 'https://pphothidaen-horoconsultant-core-api.hf.space' }}
+      HF_BACKEND_URL: ${{ vars.HF_BACKEND_URL || 'https://horo-consultant-psi.vercel.app' }}
       HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID || vars.AWS_ACCESS_KEY_ID || secrets.AWS_ACCESS_KEY || vars.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY || vars.AWS_SECRET_ACCESS_KEY || secrets.AWS_SECRET_KEY || vars.AWS_SECRET_KEY }}
@@ -136,6 +136,7 @@ jobs:
         run: python3 scripts/publish_space_hf.py --space-id "$HF_STATIC_SPACE_ID" --sdk static
 
       - name: Publish Docker API backend
+        if: ${{ env.HF_BACKEND_SPACE_ID != '' }}
         run: python3 scripts/publish_space_hf.py --space-id "$HF_BACKEND_SPACE_ID" --sdk docker
 
       - name: Wait for public backend and verify complete path
