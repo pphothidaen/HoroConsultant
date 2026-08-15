@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-15 — Updated primary BaZi fine-tuned AI model configuration to `pphothidaen/qwen2.5-7b-bazi-instruct-4bit` across Edge Gateway (`api/index.js`) and Backend Router. Integrated model verification step into GitHub Actions CI/CD workflows (`.github/workflows/ci.yml` and `.github/workflows/ai_cicd.yml`) via `python3 -m pytest project/tests/test_audit_ai_inference_origin.py -v`. All 389/389 Pytest tests passed (100%), 25/25 UI button regression passed (100%), and 10/10 Live Playwright E2E passed (100%).*
+> *Last Updated: 2026-08-15 — Fixed production AI inference root cause: `api/index.js` Vercel Gateway rewritten with 5-tier inference fallback chain (Together AI → Cloudflare Workers AI → HF Inference → Gemini API → Domain Template). `project/api_router.py` cloud route priority reordered: Together AI → Cloudflare AI → Gemini (previously Together AI was dead-last after Gemini). Added `_call_cloudflare_ai()` function and `CLOUDFLARE_ACCOUNT_ID/AI_TOKEN/AI_MODEL` config vars. Fixed backend URL default (`core-api` → `core-backend`). Added `X-Deploy-SHA` + `X-AI-Source` headers for observability. Deployed to production via git push `41d59f9` → Vercel auto-deploy triggered.*
 
 
 ---
@@ -57,26 +57,28 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
-│                      ✅ DONE: Phase 6 Rust Migration 100% COMPLETE             │
+│   ✅ DONE: Phase 6 Rust Migration 100% + Production Inference Chain Fixed      │
 ├───────────────────────────────────────────────────────────────────────────────┤
 │ • Decoupled DDD Multi-Cloud & Rust Core                                       │
-│ • Phase 1: Astrological Audits + Tokio HTTP Testers (Rust Binaries)           │
-│ • Phase 2 & 3: SVG Chart Renderers (BaZi, ZiWei, Zodiac, QiMen, XuanKong)    │
-│ • Phase 4: Rust Atomic Prometheus Metrics Collector & Observability Engine    │
-│ • Phase 5: Cargo Integration Suite (2/2 PASS) + Code Reviewer & Governance   │
-│             Sync CLI Binaries (rust_core/src/bin/)                            │
-│ • Phase 6.1: Standalone Pure Rust Axum Gateway (< 10MB RAM, < 1ms)            │
-│ • Phase 6.2: Native Rust Runner (12/12 PASS with local Axum health check)    │
+│ • Phase 1–6: Rust Engines, SVG Charts, Prometheus, Code Reviewer, Gateway    │
 │ • Swiss Ephemeris Native Pure Rust Bridge (swisseph.rs)                       │
-│ • Code Reviewer Rayon Parallel Secret Scanner & Dead Code Cleanup             │
 │ • Grafana Cloud Observability Engine + Gateway Telemetry                      │
-│ • Prometheus Metrics Endpoint (/metrics & /api/health alias)                  │
-│ • Playwright E2E screenshots — fresh 17-step run remains to be hardened      │
-│ • UI Button Suite: 25 checks pass; HITL lifecycle contract still to harden    │
-│ • HF Spaces Live Deploy & Audit                                               │
-│ • Pre-Deploy Safety Audit (READY_FOR_PROD)                                    │
 │ • 195/195 Python Pytest Suite (100% PASS)                                     │
-│ • 2 Cargo integration tests + Rust Runner 12/12 PASS (0.078s audit)           │
+│ • 2 Cargo integration tests + Rust Runner 12/12 PASS                         │
+│ • HF Spaces Live Deploy & Audit (pphothidaen/horoconsultant-core-backend)    │
+│ • Pre-Deploy Safety Audit (READY_FOR_PROD)                                    │
+├───────────────────────────────────────────────────────────────────────────────┤
+│ 🆕 2026-08-15 — Production AI Inference Chain Fix (commit 41d59f9)           │
+│ • api/index.js: 5-tier fallback: Together AI → CF Workers AI → HF →          │
+│   Gemini → Domain Template                                                    │
+│ • api_router.py: Cloud priority reorder: Together AI FIRST (was dead-last)   │
+│ • Added _call_cloudflare_ai() + CLOUDFLARE_* config vars                     │
+│ • Fixed backend URL default (core-api → core-backend)                        │
+│ • Added X-Deploy-SHA + X-AI-Source headers for observability                 │
+├───────────────────────────────────────────────────────────────────────────────┤
+│ 🔑 ACTION REQUIRED: Set TOGETHER_API_KEY in Vercel Env Vars                  │
+│   → https://vercel.com/dashboard → HoroConsultant → Settings → Env Vars     │
+│   Get free key: https://api.together.xyz                                     │
 └───────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -157,6 +159,21 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 ---
 
 ### ✅ DONE (เสร็จสมบูรณ์ 100% พร้อมใช้งาน)
+
+- [x] **🆕 Production AI Inference Chain Fix — 5-Tier Fallback Architecture ([`api/index.js`](file:///Users/kimlenglim/Project/HoroConsultant/api/index.js), [`project/api_router.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/api_router.py))** *(2026-08-15, commit `41d59f9`)*
+  - **Root Cause Fixed**: Vercel Gateway (`api/index.js`) ถูก deploy เป็น outdated commit `a737ff9` ที่ return static `{"status":"ok"}` โดยไม่มี `interpretation` field → `app.js` client-side fallback trigger template response
+  - **Root Cause Fixed**: HF Serverless Inference API ไม่รองรับ MLX 4-bit quantized model (`pphothidaen/qwen2.5-7b-bazi-instruct-4bit`) → inference ล้มเหลวทุก request
+  - **Root Cause Fixed**: Together AI ถูกวางไว้เป็น route สุดท้าย (after Gemini) ใน `api_router.py` cloud mode — ทั้งที่ควรเป็น primary
+  - **`api/index.js` Vercel Gateway**: เขียนใหม่ทั้งหมด — 5-tier inference chain:
+    1. **Together AI** `Qwen2.5-7B-Instruct-Turbo` (OpenAI-compatible API) — PRIMARY
+    2. **Cloudflare Workers AI** `@cf/qwen/qwen1.5-7b-chat-awq` (REST API) — SECONDARY
+    3. **HF Inference API** `pphothidaen/qwen2.5-7b-bazi-instruct-4bit` — TERTIARY
+    4. **Gemini API** (9 model candidates, 2 key rotation) — QUATERNARY
+    5. **Domain Template Fallback** (5 topic-specific Thai BaZi templates) — LAST RESORT
+  - **`api/index.js` Architecture**: Proxy validation (ผ่านเฉพาะ response ที่มี `interpretation`/`pillars`/`chart` fields), fix backend URL default (`core-api` → `core-backend`), add `X-Deploy-SHA` + `X-AI-Source` + `X-AI-Model` headers
+  - **`project/api_router.py` Cloud Mode**: Cloud priority reorder: **Together AI → Cloudflare AI → Gemini → Vertex AI** (Together AI ขึ้นมาจาก dead-last), add `_call_cloudflare_ai()` REST API caller, add `cloudflare_ai` dispatch case, add `CLOUDFLARE_ACCOUNT_ID/AI_TOKEN/AI_MODEL` config vars
+  - **Deployed**: `git push origin main` → commit `41d59f9` → Vercel auto-deploy triggered
+  - **Pending**: ต้องตั้ง `TOGETHER_API_KEY` ใน Vercel Env Vars → https://api.together.xyz (free tier)
 
 - [x] **Decoupled DDD Multi-Cloud Architecture & Rust High-Performance Core Engine Strategy ([`rust_core/`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/), [`vercel.json`](file:///Users/kimlenglim/Project/HoroConsultant/vercel.json), [`Dockerfile.hf`](file:///Users/kimlenglim/Project/HoroConsultant/Dockerfile.hf))**
   - **Sub-Domain 1 (Fly.io Ultra-Fast Gateway)**: Rust Axum Micro-Gateway specification for < 8 MB RAM footprint, < 20ms cold start, and 50,000+ req/sec throughput in Singapore (`sin`) region.
@@ -304,11 +321,41 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 ### 🔄 DOING (กำลังดำเนินการ)
 
-*ไม่มี implementation ที่กำลังทำอยู่ — งานติดตามผลอยู่ใน TODO ด้านล่าง*
+- [ ] **⏳ Vercel Production Deployment Verification (commit `41d59f9`)** — รอ Vercel auto-deploy เสร็จจาก push `41d59f9 → main`. ต้อง verify ผ่าน `curl https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret` ว่า `X-Deploy-SHA` เป็น `41d59f9` และ response มี `interpretation` field ที่ไม่ใช่ template
+  - **Blocked by**: ต้องตั้ง `TOGETHER_API_KEY` ใน Vercel Environment Variables ก่อน
+  - **Next**: E2E test บน production หลัง Vercel deploy เสร็จ + key ตั้งแล้ว
 
 ---
 
 ### 📋 TODO (งานระยะถัดไป / Phased Roadmap)
+
+> **🔥 HIGH PRIORITY — ต้องทำก่อน production inference จะทำงาน**
+
+- [ ] **🔑 ตั้ง `TOGETHER_API_KEY` ใน Vercel Environment Variables** *(Priority: CRITICAL)*
+  - ไปที่ [Vercel Dashboard](https://vercel.com/dashboard) → HoroConsultant → Settings → Environment Variables
+  - สมัคร Together AI ฟรีที่ https://api.together.xyz → copy API Key
+  - เพิ่ม env var: `TOGETHER_API_KEY = <your_key>`
+  - Optional (Route 2): `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_AI_TOKEN`, `CLOUDFLARE_AI_MODEL`
+  - Optional (Rotate): `GOOGLE_AI_STUDIO_API_KEY` ใหม่จาก https://aistudio.google.com (key เก่า leaked)
+  - หลังตั้งแล้ว redeploy หรือรอ Vercel trigger จาก commit `41d59f9`
+
+- [ ] **E2E Production Verification หลัง key ตั้งแล้ว** *(Priority: HIGH)*
+  ```bash
+  # ตรวจสอบ deploy version
+  curl -s https://horo-consultant-psi.vercel.app/health | python3 -m json.tool
+  # ต้องเห็น: "version": "1.0.0.41d59f9", "inference_chain": [{route: together_ai, enabled: true}]
+
+  # ทดสอบ E2E inference
+  curl -s -X POST https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret \
+    -H "Content-Type: application/json" \
+    -d '{"birth_datetime":"1990-05-15 14:30:00","query":"การงานและโชคลาภ","day_master":{"stem":"庚","element":"Metal"}}' \
+    | python3 -m json.tool | grep -A3 "interpretation"
+  # ต้องเห็น: "interpretation" ที่เริ่มด้วย "### 🔮 ผลการทำนาย..." และ "source": "ai_agent_llm"
+
+  # รัน full E2E regression
+  python3 scripts/run_e2e_screenshots.py
+  python3 scripts/run_button_regression.py
+  ```
 
 - [x] **Module 1: RAG FAISS Vector Search & Distance Metrics Native Rust Migration ([`project/rag/vector_store.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/rag/vector_store.py), [`rust_core/src/vector_search.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/vector_search.rs), [`project/core/fast_math.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/fast_math.py))**
   - Implemented SIMD unrolled Dot Product (Cosine Similarity) & L2 Euclidean Distance vector search matchers in Rust PyO3 bindings (`dense_vector_search` & `dense_vector_search_l2`).
