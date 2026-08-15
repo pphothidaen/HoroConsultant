@@ -400,7 +400,7 @@ def export_dashboard_to_grafana(
 # Production gateway endpoints to probe
 _GATEWAY_TARGETS = [
     {"name": "vercel_gateway", "url": os.getenv("VERCEL_GATEWAY_URL", "https://horo-consultant-psi.vercel.app") + "/health"},
-    {"name": "hf_backend", "url": os.getenv("HF_BACKEND_URL", "https://pphothidaen-horoconsultant-core-backend.hf.space") + "/health"},
+    {"name": "hf_backend", "url": os.getenv("HF_BACKEND_URL", "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html")},
     {"name": "fly_backend", "url": os.getenv("FLY_BACKEND_URL", "https://horoconsultant-core-backend.fly.dev") + "/health"},
 ]
 
