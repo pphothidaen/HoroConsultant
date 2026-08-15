@@ -53,6 +53,30 @@ function buildFallbackInterpretation(qText, dateStr, stem, elem) {
   return `### 🔮 การวิเคราะห์ผังดวงจีน 4 เสาหลัก (BaZi Comprehensive Reading)\n\n- **วันเวลาเกิด**: ${dateStr}\n- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})\n- **คำถาม**: "${qText}"\n\n📌 ดวงชะตาดิถี ${stem} (${elem}) มีพลังปรับสมดุลชีวิตการงาน การเงิน ความสัมพันธ์ และสุขภาพ ตามสมดุล 5 ธาตุ\n\n⚠️ *[AI Inference Unavailable — Domain Template Response. Set Cloudflare AI / HF / Gemini / OpenAI keys in Vercel Env Vars for live readings.]*`;
 }
 
+let lastTelegramAlertTime = 0;
+const TELEGRAM_ALERT_COOLDOWN_MS = 300000; // 5 minutes
+
+async function maybeSendTelegramAlert(reason) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+  if (!token || !chatId) return;
+
+  const now = Date.now();
+  if (now - lastTelegramAlertTime < TELEGRAM_ALERT_COOLDOWN_MS) return;
+  lastTelegramAlertTime = now;
+
+  try {
+    const text = `🚨 *[HoroConsultant AI Gateway Alert]*\n\n⚠️ *Inference Fallback Triggered*\n• *Reason:* ${reason}\n• *Action:* Active fallback to Domain Template\n• *Time:* ${new Date().toISOString()}`;
+    await fetchWithTimeout(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: chatId, text, parse_mode: "Markdown" }),
+    }, 3000).catch(() => {});
+  } catch (err) {
+    // Non-blocking
+  }
+}
+
 function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -122,12 +146,13 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
     .filter(isUsableApiKey);
   const openAiKeys = [process.env.OPENAI_API_KEY, process.env.OPENAI_API_KEY2].filter(isUsableApiKey);
   const hasUsableProvider =
-    (isUsableApiKey(cfAccountId) && isUsableApiKey(cfAiToken)) ||
     hfTokens.length > 0 ||
     geminiKeys.length > 0 ||
+    (isUsableApiKey(cfAccountId) && isUsableApiKey(cfAiToken)) ||
     openAiKeys.length > 0;
 
   if (!hasUsableProvider) {
+    maybeSendTelegramAlert("No usable AI provider keys configured in environment");
     return { text: buildFallbackInterpretation(qText, dateStr, stem, elem), model: "domain-template", source: "fallback_template" };
   }
 
@@ -138,7 +163,72 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
 - คำถามของผู้ใช้: "${qText}"
 เริ่มต้นด้วย: ### 🔮 ผลการทำนายและวิเคราะห์ผังดวงจีน (BaZi Dynamic Reading)`;
 
-  // Route 1: Cloudflare Workers AI (with model candidate fallback)
+  // Route 1: HF Inference API (fine-tuned BaZi model) — PRIMARY
+  for (const hfToken of hfTokens) {
+    if (!routeAlive()) break;
+    try {
+      const res = await fetchWithTimeout(`https://api-inference.huggingface.co/models/${TARGET_BAZI_MODEL}`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${hfToken}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          inputs: `<|im_start|>system\n${systemPrompt}<|im_end|>\n<|im_start|>user\n${qText}<|im_end|>\n<|im_start|>assistant\n`,
+          parameters: { max_new_tokens: 1024, temperature: 0.7, return_full_text: false }
+        })
+      }, 4000);
+      if (res.ok) {
+        const data = await res.json();
+        const text = Array.isArray(data) ? data[0]?.generated_text : data?.generated_text;
+        if (text && text.trim().length > 100) {
+          console.log(`[AI Inference] HF model OK`);
+          return { text: text.trim(), model: TARGET_BAZI_MODEL, source: "ai_agent_llm" };
+        }
+      } else {
+        console.warn(`[AI Inference Warning] HF model HTTP ${res.status}`);
+      }
+    } catch (err) { console.warn(`[AI Inference Warning] HF model: ${err.message}`); }
+  }
+
+  // Route 2: Google Gemini (key rotation + live model fallback) — SECONDARY
+  const geminiModels = [
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
+    "gemini-1.5-flash",
+    "gemini-2.5-pro",
+    "gemini-1.5-pro",
+  ];
+  for (const apiKey of geminiKeys) {
+    if (!routeAlive()) break;
+    for (const model of geminiModels) {
+      if (!routeAlive()) break;
+      try {
+        const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: systemPrompt + "\n\nUser Question: " + qText }] }],
+            generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+          })
+        }, AI_PROVIDER_TIMEOUT_MS);
+        if (res.ok) {
+          const data = await res.json();
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text && text.trim().length > 100) {
+            console.log(`[AI Inference] Gemini (${model}) OK`);
+            return { text: text.trim(), model: model, source: "ai_agent_llm" };
+          }
+        } else if (res.status === 403) {
+          console.warn(`[AI Inference Warning] Gemini key blocked (403). Trying next key.`);
+          maybeSendTelegramAlert("Gemini API Key returned 403 Forbidden (Blocked)");
+          break;
+        } else if (res.status === 400 || res.status === 404) {
+          continue;
+        }
+      } catch (err) { console.warn(`[AI Inference Warning] Gemini ${model}: ${err.message}`); }
+    }
+  }
+
+  // Route 3: Cloudflare Workers AI (with model candidate fallback) — TERTIARY
   const cfAiModels = [
     process.env.CLOUDFLARE_AI_MODEL,
     "@cf/meta/llama-3.1-8b-instruct",
@@ -176,70 +266,6 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
       } catch (err) {
         console.warn(`[AI Inference Warning] Cloudflare AI (${cfAiModel}): ${err.message}`);
       }
-    }
-  }
-
-  // Route 2: HF Inference API (fine-tuned BaZi model)
-  for (const hfToken of hfTokens) {
-    if (!routeAlive()) break;
-    try {
-      const res = await fetchWithTimeout(`https://api-inference.huggingface.co/models/${TARGET_BAZI_MODEL}`, {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${hfToken}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          inputs: `<|im_start|>system\n${systemPrompt}<|im_end|>\n<|im_start|>user\n${qText}<|im_end|>\n<|im_start|>assistant\n`,
-          parameters: { max_new_tokens: 1024, temperature: 0.7, return_full_text: false }
-        })
-      }, AI_PROVIDER_TIMEOUT_MS);
-      if (res.ok) {
-        const data = await res.json();
-        const text = Array.isArray(data) ? data[0]?.generated_text : data?.generated_text;
-        if (text && text.trim().length > 100) {
-          console.log(`[AI Inference] HF model OK`);
-          return { text: text.trim(), model: TARGET_BAZI_MODEL, source: "ai_agent_llm" };
-        }
-      } else {
-        console.warn(`[AI Inference Warning] HF model HTTP ${res.status}`);
-      }
-    } catch (err) { console.warn(`[AI Inference Warning] HF model: ${err.message}`); }
-  }
-
-  // Route 3: Google Gemini (key rotation + live model fallback)
-  const geminiModels = [
-    "gemini-2.5-flash",
-    "gemini-2.0-flash",
-    "gemini-2.0-flash-lite",
-    "gemini-1.5-flash",
-    "gemini-2.5-pro",
-    "gemini-1.5-pro",
-  ];
-  for (const apiKey of geminiKeys) {
-    if (!routeAlive()) break;
-    for (const model of geminiModels) {
-      if (!routeAlive()) break;
-      try {
-        const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: systemPrompt + "\n\nUser Question: " + qText }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
-          })
-        }, AI_PROVIDER_TIMEOUT_MS);
-        if (res.ok) {
-          const data = await res.json();
-          const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (text && text.trim().length > 100) {
-            console.log(`[AI Inference] Gemini (${model}) OK`);
-            return { text: text.trim(), model: model, source: "ai_agent_llm" };
-          }
-        } else if (res.status === 403) {
-          console.warn(`[AI Inference Warning] Gemini key blocked (403). Trying next key.`);
-          break;
-        } else if (res.status === 400 || res.status === 404) {
-          continue;
-        }
-      } catch (err) { console.warn(`[AI Inference Warning] Gemini ${model}: ${err.message}`); }
     }
   }
 
@@ -400,9 +426,9 @@ async function proxyRequest(request, response) {
       gateway: "vercel-node-middleend",
       backend_target: BACKEND_URL,
       inference_chain: [
-        { route: "cloudflare_ai", enabled: Boolean(isUsableApiKey(process.env.CLOUDFLARE_ACCOUNT_ID) && isUsableApiKey(process.env.CLOUDFLARE_AI_TOKEN)) },
         { route: "hf_inference",  enabled: hfTokens.length > 0 },
         { route: "gemini_api",    enabled: geminiKeys.length > 0 },
+        { route: "cloudflare_ai", enabled: Boolean(isUsableApiKey(process.env.CLOUDFLARE_ACCOUNT_ID) && isUsableApiKey(process.env.CLOUDFLARE_AI_TOKEN)) },
         { route: "openai_api",    enabled: openAiKeys.length > 0 },
       ]
     });

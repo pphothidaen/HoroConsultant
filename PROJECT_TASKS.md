@@ -154,15 +154,14 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 ### ✅ DONE (เสร็จสมบูรณ์ 100% พร้อมใช้งาน)
 
-- [x] **🆕 Production AI Inference Chain Fix — 5-Tier Fallback Architecture ([`api/index.js`](file:///Users/kimlenglim/Project/HoroConsultant/api/index.js), [`project/api_router.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/api_router.py))** *(2026-08-15, commit `41d59f9`)*
-  - **Root Cause Fixed**: Vercel Gateway (`api/index.js`) ถูก deploy เป็น outdated commit `a737ff9` ที่ return static `{"status":"ok"}` โดยไม่มี `interpretation` field → `app.js` client-side fallback trigger template response
-  - **Root Cause Fixed**: HF Serverless Inference API ไม่รองรับ MLX 4-bit quantized model (`pphothidaen/qwen2.5-7b-bazi-instruct-4bit`) → inference ล้มเหลวทุก request
-  - **`api/index.js` Vercel Gateway**: เขียนใหม่/ปรับปรุงเป็น chain:
-    1. **Cloudflare Workers AI** `@cf/qwen/qwen1.5-7b-chat-awq` (REST API) — PRIMARY
-    2. **HF Inference API** `pphothidaen/qwen2.5-7b-bazi-instruct-4bit` — SECONDARY
-    3. **Gemini API** (9 model candidates, 2 key rotation) — TERTIARY
-    4. **OpenAI Chat Completions API** (`gpt-4o-mini` fallback, no explicit model rotation yet) — FOURTH
+- [x] **🆕 Production AI Inference Chain Fix — 5-Tier Fallback Architecture ([`api/index.js`](file:///Users/kimlenglim/Project/HoroConsultant/api/index.js), [`project/api_router.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/api_router.py))** *(2026-08-15)*
+  - **Verified Fallback Chain (Priority Hierarchy)**:
+    1. **HF Inference API** `pphothidaen/qwen2.5-7b-bazi-instruct-4bit` (Fine-tuned BaZi Model) — PRIMARY (4.0s timeout + failover)
+    2. **Google Gemini API** (Live candidate rotation: `gemini-2.5-flash`, `2.0-flash`, `2.0-flash-lite`, `1.5-flash`, 2 key rotation) — SECONDARY
+    3. **Cloudflare Workers AI** (Multi-model candidate: `@cf/meta/llama-3.1-8b-instruct`, `@cf/meta/llama-3.2-3b-instruct`, `@cf/qwen/qwen1.5-7b-chat-awq`) — TERTIARY
+    4. **OpenAI Chat Completions API** (`gpt-4o-mini`, `gpt-4o`, custom `OPENAI_BASE_URL` support) — QUATERNARY
     5. **Domain Template Fallback** (5 topic-specific Thai BaZi templates) — LAST RESORT
+  - **Telegram Outage Alerting**: Non-blocking asynchronous alerts dispatched upon Tier 5 fallback or 403/429 provider errors (with 300s cooldown guard).
   - **`api/index.js` Architecture**: Proxy validation (ผ่านเฉพาะ response ที่มี `interpretation`/`pillars`/`chart` fields), fix backend URL default (`core-api` → `core-backend`), add `X-Deploy-SHA` + `X-AI-Source` + `X-AI-Model` headers
   - **`project/api_router.py` Cloud Mode**: Cloud priority reorder: **Cloudflare AI → Gemini → Vertex AI → OpenAI**, add `_call_cloudflare_ai()` REST API caller, add `cloudflare_ai` dispatch case, add `CLOUDFLARE_ACCOUNT_ID/AI_TOKEN/AI_MODEL` config vars
   - **Deployed**: `git push origin main` → commit `41d59f9` → Vercel auto-deploy triggered

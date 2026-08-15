@@ -525,9 +525,14 @@ class HybridRouter:
         is_cloud = _is_cloud_environment()
 
         # === CLOUD MODE (Vercel / HF Spaces / Fly.io) ===
-        # Priority chain: Cloudflare AI → Gemini → Vertex AI → OpenAI
+        # Priority chain: Gemini → Cloudflare AI → Vertex AI → OpenAI
         if is_cloud:
-            # Route 1: Cloudflare Workers AI (@cf/qwen/qwen1.5-7b-chat-awq)
+            # Route 1: Gemini Cloud (key rotation)
+            for model in GEMINI_MODELS_ROTATION:
+                for key in _gemini_keys():
+                    routes.append({"type": "gemini", "model": model, "key": key})
+
+            # Route 2: Cloudflare Workers AI (@cf/qwen/qwen1.5-7b-chat-awq)
             if CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_AI_TOKEN:
                 routes.append({
                     "type": "cloudflare_ai",
@@ -535,11 +540,6 @@ class HybridRouter:
                     "key": CLOUDFLARE_AI_TOKEN,
                     "account_id": CLOUDFLARE_ACCOUNT_ID,
                 })
-
-            # Route 2: Gemini Cloud (key rotation)
-            for model in GEMINI_MODELS_ROTATION:
-                for key in _gemini_keys():
-                    routes.append({"type": "gemini", "model": model, "key": key})
 
         # === LOCAL DEV MODE ===
         # Route 1: Ollama local models (if not disabled)
