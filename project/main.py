@@ -195,6 +195,26 @@ async def serve_hitl():
     return JSONResponse(content={"status": "error", "message": "HITL studio not found"})
 
 
+@app.post("/api/v1/telegram/webhook", tags=["Telegram Controller"])
+async def telegram_webhook(payload: dict):
+    """Handles incoming Telegram updates & admin commands (Decision 2)."""
+    message = payload.get("message", {})
+    text = message.get("text", "")
+    chat = message.get("chat", {})
+    chat_id = str(chat.get("id", ""))
+
+    from project.mlops.notifications.telegram_controller import telegram_controller
+    response_text = telegram_controller.handle_command(text, chat_id)
+
+    # If Telegram bot token is configured, send reply directly
+    if chat_id and telegram_controller.token:
+        from project.mlops.notifications.webhook_notifier import WebhookNotifier
+        notifier = WebhookNotifier()
+        notifier.send_direct_message(response_text, chat_id=chat_id)
+
+    return JSONResponse(content={"status": "processed", "response": response_text})
+
+
 @app.get("/health", tags=["system"])
 @app.get("/api/v1/health", tags=["system"])
 async def health():

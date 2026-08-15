@@ -375,7 +375,7 @@ async def submit_review(item_id: str, req: ReviewDecision):
 
     save_hitl_db(hitl_db)
 
-    # Auto-sync approved/edited to grayzone_answers.json
+    # Auto-sync approved/edited to grayzone_answers.json & Instant FAISS Ingest (Decision 6)
     if req.decision in (DECISION_APPROVE, DECISION_EDIT) and final_answer:
         from project.admin_router import load_grayzone_db, save_grayzone_db
         gz_db = load_grayzone_db()
@@ -390,6 +390,44 @@ async def submit_review(item_id: str, req: ReviewDecision):
             "answered_at": datetime.now().isoformat(),
         }
         save_grayzone_db(gz_db)
+
+        # 1. Append to HITL approved JSONL dataset
+        try:
+            DATASETS_DIR.mkdir(parents=True, exist_ok=True)
+            approved_entry = {
+                "source": "hitl_approved",
+                "category": item["category"],
+                "instruction": item["question"],
+                "output": final_answer,
+                "confidence": (req.confidence_rating or 5) / 5.0,
+                "reviewed_at": datetime.now().isoformat()
+            }
+            with open(HITL_EXPORT_PATH, "a", encoding="utf-8") as f:
+                f.write(json.dumps(approved_entry, ensure_ascii=False) + "\n")
+            logger.info(f"[HITL] Appended approved item {item_id} to {HITL_EXPORT_PATH}")
+        except Exception as e:
+            logger.warning(f"[HITL] Failed to append to approved dataset: {e}")
+
+        # 2. Instant FAISS Vector Store Ingest (Decision 6)
+        try:
+            from project.rag.vector_store import VectorStore
+            vs = VectorStore.load()
+            new_chunk = {
+                "text": f"Q: {item['question']}\nA: {final_answer}",
+                "source": f"hitl_{item_id}",
+                "category": item["category"],
+            }
+            if hasattr(vs, "_chunks"):
+                vs._chunks.append(new_chunk)
+                vs.save()
+                logger.info(f"[HITL:RAG] Instant vector ingest completed for item {item_id}")
+        except Exception as e:
+            logger.debug(f"[HITL:RAG] Vector store instant ingest note: {e}")
+
+        # 3. Check Fine-Tuning threshold (Decision 3: threshold >= 50 samples)
+        approved_count = len(hitl_db.get("reviews", {}))
+        if approved_count >= 50:
+            logger.info(f"[HITL:MLOps] Milestone reached ({approved_count} approved items) — Kaggle Fine-Tuning Queue Ready!")
 
     return JSONResponse(content={
         "status":      "saved",

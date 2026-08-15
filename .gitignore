@@ -31,3 +31,4 @@ project/tests/artifacts_screenshots/*.png
 gen-lang-client*.json
 *service_account*.json
 *.pem
+project/data/runtime_response_cache.json

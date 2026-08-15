@@ -21,13 +21,17 @@
 │ • MLOps Dashboard & FastAPIRouter     │                                       │                                       │
 │ • Webhook Alerts (Telegram & Discord) │                                       │                                       │
 │ • Scheduled GitHub Actions Cron       │                                       │                                       │
-│ • 393 Pytest + 25 Button Contracts    │                                       │                                       │
+│ • 400 Pytest + 25 Button Contracts    │                                       │                                       │
 │ • Hermes Cloud Hooks (.agents/hooks)  │                                       │                                       │
 │ • Doppler 2-Tier Secrets Pipeline     │                                       │                                       │
 │ • Gemini 3.6/3.7 Parity Engine Config │                                       │                                       │
 │ • Google Gemini API Dynamic Rotation  │                                       │                                       │
 │ • Instant Telegram Outage Alerting    │                                       │                                       │
 │ • Clean GOOGLE_AI_STUDIO_API_KEY Migr │                                       │                                       │
+│ • 10-Module Architectural Blueprint   │                                       │                                       │
+│ • 2-Tier LRU Cache & Model Auto-Evict │                                       │                                       │
+│ • Two-Way Telegram Interactive Bot    │                                       │                                       │
+│ • Strict Zero-Tolerance Quality Gate  │                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
 

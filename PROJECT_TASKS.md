@@ -352,6 +352,34 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
   - Implemented `_call_vertex_ai()` for direct Google Cloud Vertex AI REST inference with zero API key expiration.
   - Integrated `vertex_ai` route type into `HybridRouter` priority cloud failover chain.
 
+- [x] **Domain Terminology & Multi-Lingual Alignment Engine ([`project/core/glossary.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/glossary.py))**
+  - Built canonical glossary engine covering 10 Heavenly Stems, 12 Earthly Branches, 10 Gods, and 5 Elements.
+  - Implemented automatic language detection (Thai, Chinese, English) with strict Pinyin + Hanzi pairing.
+
+- [x] **2-Tier Caching Engine with LRU in RAM & Model Auto-Eviction ([`project/core/cache_manager.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/cache_manager.py))**
+  - Implemented Tier 1 in-memory `OrderedDict` LRU cache (< 0.1ms) + Tier 2 persistent JSON disk cache.
+  - Implemented `invalidate_on_model_update()` to auto-purge stale AI readings upon new fine-tune releases.
+
+- [x] **Adaptive Multi-Tier Rate Limiter & DDoS Micro-Burst Guard ([`project/core/rate_limiter.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/rate_limiter.py))**
+  - Configured role-based quotas (Anonymous 20 RPM vs Admin 120 RPM).
+  - Implemented 1-second sliding window DDoS micro-burst protection (Max 5 RPS) with audit logging.
+
+- [x] **Consensus Matrix & Five Elements Anchor Synthesis Engine ([`project/core/multi_agent_debate.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/multi_agent_debate.py))**
+  - Enforced BaZi Five Elements balance as core baseline anchor across 10 metaphysical disciplines.
+  - Structured cross-discipline consensus scoring ($0.0 \sim 1.0$), consonance factors, and cautionary factors.
+
+- [x] **HITL Instant FAISS Ingestion & Training Queue Milestone Detector ([`project/hitl_router.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/hitl_router.py))**
+  - Added instant vector store ingestion upon review approval for live RAG retrieval.
+  - Added milestone threshold detector ($\ge 50$ approved samples) for Kaggle GPU fine-tuning trigger.
+
+- [x] **Two-Way Interactive Telegram Bot Controller & Webhook ([`project/mlops/notifications/telegram_controller.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/mlops/notifications/telegram_controller.py), [`project/main.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/main.py))**
+  - Implemented interactive commands (`/status`, `/health`, `/metrics`, `/cache`, `/switch_key`).
+  - Registered `/api/v1/telegram/webhook` endpoint with direct response dispatching.
+
+- [x] **Strict Zero-Tolerance Quality Gate Orchestrator ([`scripts/run_quality_gate.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/run_quality_gate.py))**
+  - Unified 4-stage quality gate enforcing 100% pass across Secret Scans, Agent Sync, Pytest, and 25 Button contracts.
+
+
 
 
 

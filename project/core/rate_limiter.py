@@ -1,8 +1,8 @@
 """
-project/core/rate_limiter.py — In-Memory Token Bucket Rate Limiter
-===================================================================
-Provides rate limiting with per-IP limits, endpoint category limits,
-and monthly budget protection guards.
+project/core/rate_limiter.py — Multi-Tier Adaptive Token Bucket Rate Limiter
+=============================================================================
+Provides adaptive rate limiting with role-based quotas (Anonymous 20 RPM, Admin 120 RPM),
+DDoS micro-burst protection (Max 5 RPS), and security incident logging.
 """
 
 from __future__ import annotations
@@ -10,92 +10,105 @@ from __future__ import annotations
 import logging
 import time
 from collections import defaultdict
-from typing import Dict, Tuple
+from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger("rate_limiter")
 
 
 class RateLimiter:
     """
-    Token-bucket rate limiter with IP tracking and AI inference budget protection.
+    Adaptive Multi-Tier Rate Limiter with DDoS micro-burst guard and security auditing (Decision 8).
     """
 
     def __init__(
         self,
-        default_rpm: int = 120,
-        ai_rpm: int = 20,
+        anonymous_rpm: int = 20,
+        admin_rpm: int = 120,
+        burst_rps: int = 5,
         monthly_budget_cap_usd: float = 0.0,
     ):
-        self.default_rpm = default_rpm
-        self.ai_rpm = ai_rpm
+        self.anonymous_rpm = anonymous_rpm
+        self.admin_rpm = admin_rpm
+        self.burst_rps = burst_rps
         self.monthly_budget_cap_usd = monthly_budget_cap_usd
+
+        # Token buckets: ip -> (tokens, last_update_timestamp)
+        self._buckets: Dict[str, Tuple[float, float]] = defaultdict(lambda: (float(anonymous_rpm), time.monotonic()))
         
-        # IP bucket storage: ip -> (tokens, last_update_timestamp)
-        self._ip_buckets: Dict[str, Tuple[float, float]] = defaultdict(lambda: (float(default_rpm), time.monotonic()))
-        self._ai_buckets: Dict[str, Tuple[float, float]] = defaultdict(lambda: (float(ai_rpm), time.monotonic()))
-        
-        # Total cost tracked this session
+        # Second-level sliding window for DDoS micro-burst protection: ip -> list of timestamps
+        self._burst_windows: Dict[str, List[float]] = defaultdict(list)
+
+        # Security audit violations log
+        self._violations: List[dict] = []
         self._accumulated_cost_usd: float = 0.0
 
-    def check_rate_limit(self, client_ip: str, path: str) -> Tuple[bool, str]:
+    def check_rate_limit(
+        self,
+        client_ip: str,
+        path: str,
+        role: str = "anonymous",
+    ) -> Tuple[bool, str]:
         """
-        Check if a request from client_ip to path is allowed under rate limits.
+        Check if request from client_ip is allowed under multi-tier and burst limits.
 
         Returns:
             (allowed: bool, reason: str)
         """
         now = time.monotonic()
-        is_ai_endpoint = any(kw in path for kw in ("/interpret", "/debate", "/generate", "/mian_xiang"))
 
-        # 1. Budget check for paid inference
-        if is_ai_endpoint and self.monthly_budget_cap_usd > 0.0:
-            if self._accumulated_cost_usd >= self.monthly_budget_cap_usd:
-                logger.warning(f"[RateLimiter] Monthly budget cap reached: ${self._accumulated_cost_usd:.2f}")
-                return False, "monthly_budget_cap_exceeded"
+        # 1. DDoS Micro-Burst Protection Guard (Max 5 requests / second)
+        window = [ts for ts in self._burst_windows[client_ip] if now - ts < 1.0]
+        if len(window) >= self.burst_rps:
+            self._log_violation(client_ip, path, "micro_burst_exceeded")
+            logger.warning(f"[RateLimiter] Micro-burst DDoS limit ({self.burst_rps} RPS) triggered for IP {client_ip}")
+            return False, "micro_burst_exceeded"
 
-        # 2. Token refill calculation
-        if is_ai_endpoint:
-            tokens, last_update = self._ai_buckets[client_ip]
-            capacity = float(self.ai_rpm)
-            fill_rate = capacity / 60.0
-            tokens = min(capacity, tokens + (now - last_update) * fill_rate)
+        window.append(now)
+        self._burst_windows[client_ip] = window
 
-            if tokens < 1.0:
-                self._ai_buckets[client_ip] = (tokens, now)
-                logger.warning(f"[RateLimiter] AI Rate limit exceeded for IP {client_ip} on {path}")
-                return False, "ai_rate_limit_exceeded"
+        # 2. Quota by Role (Anonymous 20 RPM vs Admin 120 RPM)
+        capacity = float(self.admin_rpm if role == "admin" else self.anonymous_rpm)
+        fill_rate = capacity / 60.0
 
-            self._ai_buckets[client_ip] = (tokens - 1.0, now)
-            return True, "ok"
+        tokens, last_update = self._buckets[client_ip]
+        # Refill tokens
+        tokens = min(capacity, tokens + (now - last_update) * fill_rate)
 
-        else:
-            tokens, last_update = self._ip_buckets[client_ip]
-            capacity = float(self.default_rpm)
-            fill_rate = capacity / 60.0
-            tokens = min(capacity, tokens + (now - last_update) * fill_rate)
+        if tokens < 1.0:
+            self._buckets[client_ip] = (tokens, now)
+            self._log_violation(client_ip, path, f"{role}_rate_limit_exceeded")
+            logger.warning(f"[RateLimiter] Rate limit exceeded for {role} IP {client_ip} on {path}")
+            return False, f"{role}_rate_limit_exceeded"
 
-            if tokens < 1.0:
-                self._ip_buckets[client_ip] = (tokens, now)
-                logger.warning(f"[RateLimiter] Standard Rate limit exceeded for IP {client_ip} on {path}")
-                return False, "rate_limit_exceeded"
+        self._buckets[client_ip] = (tokens - 1.0, now)
+        return True, "ok"
 
-            self._ip_buckets[client_ip] = (tokens - 1.0, now)
-            return True, "ok"
+    def _log_violation(self, client_ip: str, path: str, reason: str) -> None:
+        """Record security violation incident."""
+        self._violations.append({
+            "ip": client_ip,
+            "path": path,
+            "reason": reason,
+            "timestamp": time.time(),
+        })
+        if len(self._violations) > 500:
+            self._violations = self._violations[-500:]
 
     def record_cost(self, cost_usd: float) -> None:
         """Record accumulated API cost."""
         self._accumulated_cost_usd += cost_usd
 
     def get_stats(self) -> dict:
-        """Return rate limiter statistics."""
+        """Return rate limiter statistics and violation counts."""
         return {
-            "default_rpm": self.default_rpm,
-            "ai_rpm": self.ai_rpm,
-            "tracked_ips": len(self._ip_buckets),
+            "anonymous_rpm": self.anonymous_rpm,
+            "admin_rpm": self.admin_rpm,
+            "burst_rps": self.burst_rps,
+            "tracked_ips": len(self._buckets),
+            "recent_violations_count": len(self._violations),
             "accumulated_cost_usd": self._accumulated_cost_usd,
-            "budget_cap_usd": self.monthly_budget_cap_usd,
         }
 
 
-# Global singleton
+# Global singleton instance
 rate_limiter = RateLimiter()
