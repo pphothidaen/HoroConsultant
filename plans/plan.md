@@ -13,31 +13,24 @@
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Decoupled DDD Multi-Cloud & Rust Core│ • Future LLM Provider Integration     │ • Continuous MLOps Distillation Sync  │
-│ • Autonomous NotebookLM Distillation  │   (Qwen2.5-32B / DeepSeek-R1 & 9router│ • Grafana Synthetic Latency Tuning    │
-│ • Hermes Agent Synthetic CoT Miner    │    multi-account alias routing)       │                                       │
-│ • Quality Gate & Dataset Curator      │ • Production Finalization Handoff     │ • API Keys Setup for Inference         │
-│ • Kaggle GPU Fine-Tuning Pipeline     │   (blocked: pending key setup)        │ • Release Rollback & Recovery Runbook   │
+│ • BaZi 4-Pillars Research UI & Depth  │ • Production Finalization Handoff     │ • Continuous MLOps Distillation Sync  │
+│   (Year/Month/Day/Hour card breakdown)│   (pending key setup on Vercel)       │ • Grafana Synthetic Latency Tuning    │
+│ • Global API Loader & Accessibility   │ • Future LLM Provider Integration     │ • API Keys Setup for Inference        │
+│ • 408 Pytest (100%) + 32 Buttons (100%)│   (Qwen2.5-32B / DeepSeek-R1)         │                                       │
+│ • Rust Pre-Deployment Code Review:    │                                       │                                       │
+│   READY_FOR_PROD (0 secret leaks)     │                                       │                                       │
+│ • Decoupled DDD Multi-Cloud & Rust Core│                                       │                                       │
+│ • Autonomous NotebookLM Distillation  │                                       │                                       │
+│ • Hermes Agent Synthetic CoT Miner    │                                       │                                       │
+│ • Quality Gate & Dataset Curator      │                                       │                                       │
+│ • Kaggle GPU Fine-Tuning Pipeline     │                                       │                                       │
 │ • MLOps Dashboard & FastAPIRouter     │                                       │                                       │
 │ • Webhook Alerts (Telegram & Discord) │                                       │                                       │
-│ • Scheduled GitHub Actions Cron       │                                       │                                       │
-│ • 408 Pytest + 32 Button Contracts    │                                       │                                       │
 │ • Skill Context Budget Optimization   │                                       │                                       │
-│   (SKILL.md frontmatters < 90 chars,  │                                       │                                       │
-│    agent description streamlining,    │                                       │                                       │
-│    test_skill_configurations.py 100%) │                                       │                                       │
-│ • Hermes Cloud Hooks (.agents/hooks)  │                                       │                                       │
 │ • Doppler 2-Tier Secrets Pipeline     │                                       │                                       │
-│ • Gemini 3.6/3.7 Parity Engine Config │                                       │                                       │
 │ • Google Gemini API Dynamic Rotation  │                                       │                                       │
-│ • Instant Telegram Outage Alerting    │                                       │                                       │
-│ • Clean GOOGLE_AI_STUDIO_API_KEY Migr │                                       │                                       │
-│ • 10-Module Architectural Blueprint   │                                       │                                       │
-│ • 2-Tier LRU Cache & Model Auto-Evict │                                       │                                       │
 │ • Two-Way Telegram Interactive Bot    │                                       │                                       │
-│ • Strict Zero-Tolerance Quality Gate  │                                       │                                       │
-│ • Vercel Production Deployment       │                                       │                                       │
-│   Verification (commit `3d370d9`)     │                                       │                                       │
+│ • Vercel Production Deployment        │                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
 

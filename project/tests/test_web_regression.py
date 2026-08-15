@@ -52,7 +52,7 @@ class TestWebRegressionUI:
         assert "calculateChart" in res.text
         assert "renderResults" in res.text
         assert "updateVersionFooter" in res.text
-        assert "fetchApi('/health')" in res.text
+        assert "fetchApi('/health" in res.text
 
 
 class TestAPIRegressionEndpoints:

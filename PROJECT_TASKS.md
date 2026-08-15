@@ -57,14 +57,20 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
+│   ✅ DONE: BaZi 4-Pillars Research UI, Depth Selector & Full CI/CD (100%)    │
+├───────────────────────────────────────────────────────────────────────────────┤
+│ • Interactive BaZi 4-Pillars Research card rendering with depth selector       │
+│ • Global API loading overlay with smooth micro-animation & accessibility      │
+│ • Full Pytest suite (408/408 PASS 100%), UI Button Regression (32/32 PASS)   │
+│ • Rust Pre-Deployment Code Review & Safety Audit: READY_FOR_PROD (0 leaks)    │
+│ • Synchronized skills & agents across .antigravity, .agents, and .codex (100%)│
+├───────────────────────────────────────────────────────────────────────────────┤
 │   ✅ DONE: Skill Context Budget Refactoring & Agent Governance (100% PASS)    │
 ├───────────────────────────────────────────────────────────────────────────────┤
 │ • Refactored all 8 SKILL.md YAML frontmatters to concise 1-liners (< 90 chars)│
 │ • Streamlined 17 agent descriptions in .antigravity/agents/ to eliminate bloat│
 │ • Synchronized skills & agents across .antigravity, .agents, and .codex       │
 │ • Added test_skill_configurations.py automated context budget linter (5/5)    │
-│ • Full Pytest suite (408/408 PASS 100%), UI Button Regression (32/32 PASS)   │
-│ • Rust Pre-Deployment Code Review & Safety Audit: READY_FOR_PROD (0 leaks)    │
 ├───────────────────────────────────────────────────────────────────────────────┤
 │   ✅ DONE: Phase 6 Rust Migration 100% + Production Inference Chain Fixed      │
 ├───────────────────────────────────────────────────────────────────────────────┤

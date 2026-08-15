@@ -12,6 +12,12 @@
 </head>
 <body>
   <div class="background-glow"></div>
+  <div class="global-api-loader hidden" id="global-api-loader" aria-live="polite">
+    <div class="global-api-loader-panel">
+      <span class="spinner spinner-lg spinner-gold"></span>
+      <span id="global-api-loader-text">กำลังรอผลจาก API...</span>
+    </div>
+  </div>
   
   <header class="app-header">
     <div class="header-content">
@@ -24,9 +30,7 @@
       </div>
       <nav class="spa-nav">
         <a href="index.html" class="spa-nav-item active">🔮 BaZi Dashboard</a>
-        <a href="dashboard_generator.html" class="spa-nav-item">✨ AI Dashboard Generator</a>
         <a href="admin.html" class="spa-nav-item">🔐 Admin Panel</a>
-        <a href="hitl.html" class="spa-nav-item">🛡️ HITL Studio</a>
       </nav>
 
     </div>
@@ -83,6 +87,16 @@
           <input type="text" id="query" name="query" value="วิเคราะห์ความแข็งแกร่งของ Day Master ธาตุทอง และอาชีพการงานที่ส่งเสริมดวงชะตา">
         </div>
 
+        <div class="form-group">
+          <label for="interpretation_depth">ระดับความลึกการตีความ Research</label>
+          <select id="interpretation_depth" name="interpretation_depth" class="form-select">
+            <option value="short" selected>สั้น</option>
+            <option value="medium">กลาง</option>
+            <option value="deep">ลึก</option>
+          </select>
+          <small class="form-help">สั้น: สรุป 1 บรรทัด/เสา | กลาง: 3–4 บรรทัด/เสา | ลึก: วิเคราะห์เชิงเหตุผลเชิงปฏิบัติ/การตีความเชิงสถานการณ์</small>
+        </div>
+
         <button type="submit" class="btn btn-primary" id="btn-submit">
           <span class="spinner hidden"></span>
           <span class="btn-text">☯ คำนวณผังดวง & ตีความด้วย AI</span>
@@ -100,6 +114,7 @@
         <h2>☯️ ศาสตร์โหราศาสตร์และระบบคำนวณประยุกต์ (Astrology & Numerology Master Disciplines)</h2>
         <p>คำนวณผังวิชาชั้นสูงแยกตามสายวิชาเดี่ยว:</p>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 0.8rem;">
+          <button type="button" class="btn-sm" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);" onclick="calcFourPillars()">🏛️ 四柱 Four Pillars (Bazi)</button>
           <button type="button" class="btn-sm" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border-color: rgba(168, 85, 247, 0.4);" onclick="calcZiWei()">紫微 紫微斗數 (Zi Wei)</button>
           <button type="button" class="btn-sm" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-color: rgba(59, 130, 246, 0.4);" onclick="calcQiMen()">奇門 奇門遁甲 (Qi Men)</button>
           <button type="button" class="btn-sm" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border-color: rgba(34, 197, 94, 0.4);" onclick="calcLiuRen()">六壬 大六壬 (Da Liu Ren)</button>

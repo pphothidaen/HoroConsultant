@@ -295,6 +295,33 @@ body {
   box-shadow: 0 0 12px rgba(251, 191, 36, 0.2);
 }
 
+.form-group select,
+.form-group .form-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-glass);
+  background: rgba(15, 23, 42, 0.6);
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  appearance: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group select:focus {
+  border-color: var(--text-gold);
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.2);
+}
+
+.form-help {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.3rem;
+  line-height: 1.35;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -465,6 +492,38 @@ input:checked + .slider:before {
   border: 3px solid rgba(212, 175, 55, 0.2);
   border-top-color: var(--color-metal);
   border-right-color: var(--color-fire);
+}
+
+/* Global API Loader */
+.global-api-loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  background: rgba(6, 8, 16, 0.62);
+  pointer-events: auto;
+}
+
+.global-api-loader-panel {
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  background: rgba(15, 23, 42, 0.88);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
+  color: #e2e8f0;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.global-api-loader .spinner {
+  width: 24px;
+  height: 24px;
+  border-top-color: var(--text-gold);
+  border-right-color: var(--text-gold);
 }
 
 /* Results Layout */

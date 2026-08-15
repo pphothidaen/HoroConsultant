@@ -4,6 +4,40 @@ const BACKEND_API_HOSTS = [
   "", // Relative origin (local server / same-origin proxy)
 ];
 
+let activeApiCallCount = 0;
+
+function updateGlobalApiLoader(isLoading, message) {
+  const loader = document.getElementById('global-api-loader');
+  const loaderText = document.getElementById('global-api-loader-text');
+
+  if (!loader) {
+    return;
+  }
+
+  if (message && loaderText) {
+    loaderText.textContent = message;
+  }
+
+  if (isLoading) {
+    loader.classList.remove('hidden');
+    return;
+  }
+
+  loader.classList.add('hidden');
+}
+
+function beginApiRequest(message) {
+  activeApiCallCount += 1;
+  updateGlobalApiLoader(true, message || 'กำลังรอผลจาก API...');
+}
+
+function endApiRequest() {
+  activeApiCallCount = Math.max(0, activeApiCallCount - 1);
+  if (activeApiCallCount === 0) {
+    updateGlobalApiLoader(false);
+  }
+}
+
 function getApiBaseUrl() {
   if (typeof window !== 'undefined' && window.API_BASE_URL) {
     return window.API_BASE_URL;
@@ -15,34 +49,50 @@ function getApiBaseUrl() {
 }
 
 async function fetchApi(endpoint, options = {}) {
-  const customBase = getApiBaseUrl();
-  const candidateBases = customBase
-    ? [customBase, ...BACKEND_API_HOSTS.filter(b => b !== customBase)]
-    : BACKEND_API_HOSTS;
+  const requestOptions = { ...options };
+  const shouldShowLoader = requestOptions.showLoader !== false;
+  const loaderMessage = requestOptions.loaderMessage || 'กำลังรอผลจาก API...';
+  delete requestOptions.showLoader;
+  delete requestOptions.loaderMessage;
 
-  let lastError = null;
-  for (const base of candidateBases) {
-    if (!base && typeof window !== 'undefined' && window.location && window.location.hostname.includes('static.hf.space')) {
-      continue;
-    }
-    const url = base ? `${base}${endpoint}` : endpoint;
-    try {
-      const res = await fetch(url, options);
-      if (res.ok) {
-        return res;
-      }
-      if (res.status === 404) {
-        console.warn(`[API Fallback] ${url} returned 404, trying next host...`);
-        lastError = new Error(`HTTP 404 from ${url}`);
+  if (shouldShowLoader) {
+    beginApiRequest(loaderMessage);
+  }
+
+  try {
+    const customBase = getApiBaseUrl();
+    const candidateBases = customBase
+      ? [customBase, ...BACKEND_API_HOSTS.filter(b => b !== customBase)]
+      : BACKEND_API_HOSTS;
+
+    let lastError = null;
+    for (const base of candidateBases) {
+      if (!base && typeof window !== 'undefined' && window.location && window.location.hostname.includes('static.hf.space')) {
         continue;
       }
-      return res;
-    } catch (err) {
-      console.warn(`[API Fallback] ${url} failed: ${err.message}, trying next host...`);
-      lastError = err;
+      const url = base ? `${base}${endpoint}` : endpoint;
+      try {
+        const res = await fetch(url, requestOptions);
+        if (res.ok) {
+          return res;
+        }
+        if (res.status === 404) {
+          console.warn(`[API Fallback] ${url} returned 404, trying next host...`);
+          lastError = new Error(`HTTP 404 from ${url}`);
+          continue;
+        }
+        return res;
+      } catch (err) {
+        console.warn(`[API Fallback] ${url} failed: ${err.message}, trying next host...`);
+        lastError = err;
+      }
+    }
+    throw lastError || new Error(`All API hosts failed for ${endpoint}`);
+  } finally {
+    if (shouldShowLoader) {
+      endApiRequest();
     }
   }
-  throw lastError || new Error(`All API hosts failed for ${endpoint}`);
 }
 
 
@@ -149,7 +199,7 @@ async function resolveLocation() {
 async function updateVersionFooter() {
   try {
     const startTime = performance.now();
-    const res = await fetchApi('/health').catch(() => null);
+    const res = await fetchApi('/health', { showLoader: false }).catch(() => null);
     const latency = Math.round(performance.now() - startTime);
     const healthBadge = document.getElementById('health-status-badge');
 
@@ -271,6 +321,478 @@ function buildBaZiDomainInterpretation(query, birthDatetime, dayMasterStem = '�
 ดวงชะตานี้มีดิถีวันเป็น ${dayMasterStem} (${dayMasterElement}) ซึ่งมีพลังปรับสมดุลชีวิตร่วมกับธาตุไม้และธาตุน้ำ การดำเนินชีวิตการงาน การเงิน ความสัมพันธ์ และสุขภาพจะมีความราบรื่นและประสบความสำเร็จสูงเมื่อปรับยุทธศาสตร์ชีวิตตามสมดุล 5 ธาตุ`;
 }
 
+function buildBaziPayloadFromForm() {
+  return {
+    birth_datetime: document.getElementById('birth_datetime').value,
+    longitude: parseFloat(document.getElementById('longitude').value),
+    utc_offset_hours: parseFloat(document.getElementById('utc_offset_hours').value),
+    unknown_hour: document.getElementById('unknown_hour').checked,
+    enable_validation: document.getElementById('enable_validation').checked,
+    query: document.getElementById('query').value,
+    interpretation_depth: getInterpretationDepthFromForm()
+  };
+}
+
+function getInterpretationDepthFromForm() {
+  const el = document.getElementById('interpretation_depth');
+  if (!el) return 'short';
+  const depth = String(el.value || 'short').toLowerCase();
+  return ['short', 'medium', 'deep'].includes(depth) ? depth : 'short';
+}
+
+function interpretationDepthLabel(depth = 'short') {
+  if (depth === 'deep') return 'ตีความเชิงลึก (Deep)';
+  if (depth === 'medium') return 'สรุปเชิงตีความปานกลาง (Medium)';
+  return 'สรุปสั้น (Short)';
+}
+
+const CHINESE_STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+const CHINESE_BRANCHES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+
+function normalizeInt(value, fallback = 0) {
+  const num = parseInt(value, 10);
+  return Number.isFinite(num) ? num : fallback;
+}
+
+function extractBirthDateParts() {
+  const raw = document.getElementById('birth_datetime')?.value || '';
+  const match = raw.match(/^\s*(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) {
+    return null;
+  }
+  return {
+    year: normalizeInt(match[1], 0),
+    month: normalizeInt(match[2], 1),
+    day: normalizeInt(match[3], 1)
+  };
+}
+
+function getYearStemBranchForDate(year, month, day) {
+  if (!year) return { stem: '-', branch: '-' };
+  const eff = (month < 2 || (month === 2 && day < 4)) ? year - 1 : year;
+  const stemIdx = ((eff - 4) % 10 + 10) % 10;
+  const branchIdx = ((eff - 4) % 12 + 12) % 12;
+  return {
+    stem: CHINESE_STEMS[stemIdx],
+    branch: CHINESE_BRANCHES[branchIdx]
+  };
+}
+
+function buildCycleSummary(chart = {}) {
+  const birth = extractBirthDateParts();
+  const now = new Date();
+  const nowParts = {
+    year: now.getFullYear(),
+    month: now.getMonth() + 1,
+    day: now.getDate()
+  };
+
+  if (!birth || !birth.year) {
+    return {
+      ageNow: '-',
+      ageCycle: 'ข้อมูลวันเกิดไม่ครบสำหรับคำนวณวัยจร',
+      annualCycle: 'ข้อมูลปีจรยังไม่สามารถคำนวณได้'
+    };
+  }
+
+  let age = nowParts.year - birth.year;
+  if (nowParts.month < birth.month || (nowParts.month === birth.month && nowParts.day < birth.day)) {
+    age -= 1;
+  }
+  if (age < 0) age = 0;
+
+  const cycleStart = Math.floor(age / 10) * 10;
+  const cycleEnd = cycleStart + 9;
+  const cycleLabel = `ช่วงวัยจรปัจจุบัน: ${cycleStart === 0 ? 1 : cycleStart}-${cycleEnd} ปี (อายุจริง ${age} ปี)`;
+
+  const currentYearPillar = getYearStemBranchForDate(nowParts.year, nowParts.month, nowParts.day);
+  const annualCycle = `ปีจรปัจจุบัน: ${nowParts.year} = ${currentYearPillar.stem}${currentYearPillar.branch} (เสาอายุนี้)`;
+
+  return {
+    ageNow: age,
+    ageCycle: cycleLabel,
+    annualCycle
+  };
+}
+
+function getElementColorByName(element) {
+  const colors = {
+    Wood: '#10b981',
+    Fire: '#ef4444',
+    Earth: '#f59e0b',
+    Metal: '#94a3b8',
+    Water: '#3b82f6',
+    木: '#10b981',
+    火: '#ef4444',
+    土: '#f59e0b',
+    金: '#94a3b8',
+    水: '#3b82f6'
+  };
+  return colors[element] || '#f8fafc';
+}
+
+function buildFallbackFourPillarsSvg(chartData = {}) {
+  const chart = chartData.chart || chartData;
+  const dm = chart.day_master || {};
+  const pillars = chart.pillars || {};
+  const pcts = (chart.five_elements && chart.five_elements.percentages) || {};
+  const order = [
+    { key: 'year', label: 'ปี (Year)', zh: '年柱' },
+    { key: 'month', label: 'เดือน (Month)', zh: '月柱' },
+    { key: 'day', label: 'วัน (Day)', zh: '日柱' },
+    { key: 'hour', label: 'ยาม (Hour)', zh: '時柱' }
+  ];
+  const elements = ['Wood', 'Fire', 'Earth', 'Metal', 'Water'];
+
+  const cols = order.map((entry) => {
+    const p = pillars[entry.key] || {};
+    const stem = p.stem || {};
+    const branch = p.branch || {};
+    return {
+      label: entry.label,
+      zh: entry.zh,
+      stem: stem.char || stem || '-',
+      branch: branch.char || branch || '-',
+      stemElement: stem.element || '-',
+      branchElement: branch.element || '-',
+      stemPinyin: stem.pinyin || '',
+      branchPinyin: branch.pinyin || ''
+    };
+  });
+
+  const barScale = elements.map((el) => {
+    const value = Number(pcts[el]) || 0;
+    return { name: el, value };
+  });
+  let total = barScale.reduce((acc, item) => acc + item.value, 0);
+  if (!total || total <= 0) {
+    total = 100;
+  }
+
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 560" width="100%" height="100%" aria-label="Four Pillars SVG">
+      <defs>
+        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0a0c16"/>
+          <stop offset="100%" stop-color="#111a31"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="860" height="560" rx="14" fill="url(#bg)" stroke="#334155" stroke-width="2"/>
+      <text x="430" y="38" text-anchor="middle" fill="#fbbf24" font-size="22" font-family="Prompt, sans-serif" font-weight="700">☯ Four Pillars of Destiny (四柱)</text>
+      <text x="430" y="64" text-anchor="middle" fill="#94a3b8" font-size="13" font-family="Prompt, sans-serif">True Solar Time (TST): ${chart.tst?.tst_datetime || 'N/A'} | Day Master: ${dm.stem || '-'} (${dm.element || '-'} ${dm.polarity || '-'})</text>
+      <g transform="translate(50 95)">
+      ${cols.map((col, i) => {
+        const x = i * 180;
+        const stemColor = getElementColorByName(col.stemElement);
+        const branchColor = getElementColorByName(col.branchElement);
+        return `
+          <g transform="translate(${x} 0)">
+            <rect x="0" y="0" width="160" height="330" rx="12" fill="#1e293b" fill-opacity="0.6" stroke="#475569" stroke-width="1.5"/>
+            <text x="80" y="22" text-anchor="middle" fill="#94a3b8" font-size="14" font-weight="700" font-family="Prompt, sans-serif">${col.label}</text>
+            <text x="80" y="40" text-anchor="middle" fill="#f8fafc" font-size="11" font-family="Prompt, sans-serif">${col.zh}</text>
+            <rect x="15" y="55" width="130" height="115" rx="10" fill="${stemColor}" fill-opacity="0.16" stroke="${stemColor}" stroke-width="2"/>
+            <text x="80" y="120" text-anchor="middle" fill="${stemColor}" font-size="44" font-family="sans-serif" font-weight="700">${col.stem}</text>
+            <text x="80" y="157" text-anchor="middle" fill="#e2e8f0" font-size="11" font-family="Prompt, sans-serif">${col.stemPinyin || ''} ${col.stemElement ? `(${col.stemElement})` : ''}</text>
+            <rect x="15" y="180" width="130" height="115" rx="10" fill="${branchColor}" fill-opacity="0.16" stroke="${branchColor}" stroke-width="2"/>
+            <text x="80" y="245" text-anchor="middle" fill="${branchColor}" font-size="44" font-family="sans-serif" font-weight="700">${col.branch}</text>
+            <text x="80" y="282" text-anchor="middle" fill="#e2e8f0" font-size="11" font-family="Prompt, sans-serif">${col.branchPinyin || ''} ${col.branchElement ? `(${col.branchElement})` : ''}</text>
+          </g>
+        `;
+      }).join('')}
+      </g>
+      <text x="50" y="470" fill="#f59e0b" font-size="15" font-weight="700" font-family="Prompt, sans-serif">⚖️ สัดส่วนสมดุล 5 ธาตุ (Five Elements)</text>
+      ${barScale.map((entry, index) => {
+        const y = 485 + index * 26;
+        const width = (entry.value / total) * 470;
+        const color = getElementColorByName(entry.name);
+        return `
+          <g>
+            <text x="50" y="${y}" fill="${color}" font-size="12" font-family="Prompt, sans-serif">${entry.name}: ${entry.value.toFixed(1)}%</text>
+            <rect x="170" y="${y - 10}" width="470" height="12" rx="6" fill="#334155"/>
+            <rect x="170" y="${y - 10}" width="${Math.max(12, width)}" height="12" rx="6" fill="${color}"/>
+          </g>
+        `;
+      }).join('')}
+    </svg>
+  `;
+}
+
+const BAZI_PILLAR_ORDER = [
+  { key: 'year', label: 'ปี', zh: '年柱', theme: 'พื้นฐานอัตลักษณ์ตระกูล' },
+  { key: 'month', label: 'เดือน', zh: '月柱', theme: 'ฐานฤกษ์และจังหวะกาลเวลา' },
+  { key: 'day', label: 'วัน', zh: '日柱', theme: 'โครงแกนดวงชะตาหลัก (Day Master)' },
+  { key: 'hour', label: 'ยาม', zh: '時柱', theme: 'แนวโน้มภาคปฏิบัติ/อนาคตระยะสั้น' }
+];
+
+const BAZI_ELEMENT_LABEL = {
+  Metal: 'ทอง',
+  木: 'ไม้',
+  Water: 'น้ำ',
+  水: 'น้ำ',
+  Wood: 'ไม้',
+  Fire: 'ไฟ',
+  火: 'ไฟ',
+  Earth: 'ดิน',
+  土: 'ดิน'
+};
+
+const BAZI_GENERATE_MAP = {
+  Wood: ['Fire'],
+  Wood: ['Fire'],
+  Fire: ['Earth'],
+  Earth: ['Metal'],
+  Metal: ['Water'],
+  Water: ['Wood'],
+  木: ['火'],
+  火: ['土'],
+  土: ['金'],
+  金: ['水'],
+  水: ['木']
+};
+
+const BAZI_CONTROL_MAP = {
+  Wood: ['Earth'],
+  木: ['土'],
+  Fire: ['Water'],
+  火: ['水'],
+  Earth: ['Water'],
+  土: ['水'],
+  Metal: ['Fire'],
+  金: ['火'],
+  Water: ['Fire'],
+  水: ['火']
+};
+
+function isRenderableSvg(content) {
+  return typeof content === 'string' && content.includes('<svg') && content.includes('</svg>');
+}
+
+function normalizeElementName(element) {
+  const mapping = {
+    木: 'Wood',
+    木: 'Wood',
+    火: 'Fire',
+    土: 'Earth',
+    金: 'Metal',
+    水: 'Water'
+  };
+
+  if (!element) return '-';
+  if (typeof element === 'string') {
+    return mapping[element] || element;
+  }
+  return '-';
+}
+
+function getElementRelationTone(source, target) {
+  const src = normalizeElementName(source);
+  const tgt = normalizeElementName(target);
+
+  if (!src || src === '-' || !tgt || tgt === '-') {
+    return 'ความสัมพันธ์กำลังสมดุล (ข้อมูลยังไม่ครบ)';
+  }
+
+  if (src === tgt) {
+    return 'ธาตุเดียวกัน (เสถียรและต่อเนื่อง)';
+  }
+
+  if ((BAZI_GENERATE_MAP[src] || []).includes(tgt)) {
+    return 'เสริม/ให้พลังกับดิถีวัน';
+  }
+
+  if ((BAZI_GENERATE_MAP[tgt] || []).includes(src)) {
+    return 'ใช้พลังจากวันเกิด (ดิถีวันถูกขยายเป็นจุดงาน)';
+  }
+
+  if ((BAZI_CONTROL_MAP[src] || []).includes(tgt)) {
+    return 'ควบคุม/ปรับจุดสมดุลในเชิงกำกับ';
+  }
+
+  if ((BAZI_CONTROL_MAP[tgt] || []).includes(src)) {
+    return 'เป็นเสาหลักที่รับอิทธิพลคุมได้สูง';
+  }
+
+  return 'ปฏิสัมพันธ์กลาง-ค่อนข้างกลาง';
+}
+
+function formatPillarCell(pillar) {
+  const p = pillar || {};
+  const stem = p.stem || {};
+  const branch = p.branch || {};
+  const stemText = stem.char || stem || '-';
+  const branchText = branch.char || branch || '-';
+  const stemElement = normalizeElementName(stem.element || stemElementAlias(stem));
+  const branchElement = normalizeElementName(branch.element || stemElementAlias(branch));
+
+  return {
+    stemText,
+    branchText,
+    stemElement,
+    branchElement
+  };
+}
+
+function stemElementAlias(data) {
+  return data && data.th_name ? BAZI_ELEMENT_LABEL[data.th_name] || data.th_name : null;
+}
+
+function buildPillarResearchMarkdown(chart, queryText = 'ภาพรวมดวงชะตา', interpretationDepth = 'short') {
+  const c = chart || {};
+  const dm = normalizeElementName((c.day_master || {}).element) || 'Metal';
+  const q = queryText && queryText.trim() ? queryText.trim() : 'ภาพรวมดวงชะตา';
+  const depth = ['short', 'medium', 'deep'].includes(interpretationDepth) ? interpretationDepth : 'short';
+
+  const lines = BAZI_PILLAR_ORDER.map((entry) => {
+    const p = formatPillarCell((c.pillars || {})[entry.key]);
+    const stemRelation = getElementRelationTone(p.stemElement, dm);
+    const branchRelation = getElementRelationTone(p.branchElement, dm);
+    const stemText = `${p.stemText} (${BAZI_ELEMENT_LABEL[p.stemElement] || p.stemElement})`;
+    const branchText = `${p.branchText} (${BAZI_ELEMENT_LABEL[p.branchElement] || p.branchElement})`;
+    const toneCore = `เสาหลัก ${stemRelation}`;
+    const toneBranch = `เสาแขนง ${branchRelation}`;
+    if (depth === 'short') {
+      return `- **${entry.label} (${entry.zh})**: ${stemText} / ${branchText} — ${toneCore} + ${toneBranch}`;
+    }
+    if (depth === 'medium') {
+      return `- **${entry.label} (${entry.zh})**: ${stemText} / ${branchText}
+  - แนวคิด: ${toneCore} และ ${toneBranch}
+  - แนวโน้มตีความ: หากมีคำถามเกี่ยวกับ ${q} ให้ติดตามสมดุลต้นน้ำ-ปลายทางของเสานี้ต่อ 3–4 ปัจจัยจุลภาค`; 
+    }
+
+    return `- **${entry.label} (${entry.zh})**: ${stemText} / ${branchText}
+  - แนวคิดเชิงลึก: ${toneCore} และ ${toneBranch}
+  - สัญญาณตีความเชิงสถานการณ์: สำหรับโจทย์ "${q}" ให้พิจารณาความถี่ธาตุ, วันเกิดที่สัมพันธ์กับเสาหลัก, และความสมดุลปลายทาง 2 ชั้น (ฤกษ์-เสา)
+  - สรุปเชิงปฏิบัติ: ใช้เสานี้เป็นตัวชี้จังหวะปรับโครงสร้างเส้นทางตัดสินใจและวางลำดับการพัฒนาจีวิต`; 
+  });
+
+  return `### 🔬 Research Summary (${interpretationDepthLabel(depth)})
+**โจทย์วิเคราะห์:** ${q}
+
+${lines.join('\n')}
+
+**หมายเหตุเชิงวิธี:** คิดจากหลัก **4 เสา (四柱)** + ความสัมพันธ์กับ **Day Master** ผ่านกฎ 5 ธาตุ (生 / 克) โดยกำหนดระดับความลึกตามตัวเลือก ${interpretationDepthLabel(depth)}
+`;
+}
+
+function buildPillarResearchHtml(chart, queryText = 'ภาพรวมดวงชะตา', interpretationDepth = 'short') {
+  const markdown = buildPillarResearchMarkdown(chart, queryText, interpretationDepth);
+  if (typeof marked !== 'undefined') {
+    return marked.parse(markdown);
+  }
+
+  return markdown.replace(/\n/g, '<br>');
+}
+
+function buildPillarsGridHtml(chart) {
+  const p = chart.pillars || {};
+  return BAZI_PILLAR_ORDER.map((entry) => {
+    const c = formatPillarCell(p[entry.key]);
+    return `
+      <div class="pillar-box" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(212, 175, 55, 0.3); padding: 8px; border-radius: 6px; text-align: center;">
+        <div style="font-size: 0.8rem; color: #94a3b8;">${entry.label} (${entry.zh})</div>
+        <div style="font-size: 0.73rem; color: #cbd5e1; margin-bottom: 4px;">${entry.theme}</div>
+        <div style="font-size: 1.3rem; color: #fbbf24; font-weight: bold;">${c.stemText}</div>
+        <div style="font-size: 1.1rem; color: #e2e8f0;">${c.branchText}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function showBaziResultLoading(message = 'กำลังคำนวณผังดวง 4 เสา & ตีความด้วย AI...') {
+  const cardIds = ['branch-result-card', 'svg-chart-card', 'pillars-card', 'elements-card', 'interpretation-card'];
+  const resultsContainer = document.getElementById('results-container');
+
+  cardIds.forEach((id) => {
+    const card = document.getElementById(id);
+    if (!card) return;
+    card.classList.remove('hidden');
+  });
+
+  if (resultsContainer) {
+    resultsContainer.classList.remove('hidden');
+  }
+
+  const chartContainer = document.getElementById('svg-chart-container');
+  const pillarsGrid = document.getElementById('pillars-grid');
+  const elementsBars = document.getElementById('elements-bars');
+  const dmBanner = document.getElementById('day-master-banner') || document.getElementById('day-master-badge');
+  const rd = document.getElementById('reading-body') || document.getElementById('llm-markdown-output');
+  const rb = document.getElementById('branch-body') || document.getElementById('5-branch-body');
+
+  const loadingBadge = `<div style="text-align:center; padding: 1.25rem; display:flex; align-items:center; justify-content:center; gap:0.6rem; color:#cbd5e1;"><span class="spinner spinner-gold spinner-lg"></span><span>${message}</span></div>`;
+
+  if (chartContainer) chartContainer.innerHTML = loadingBadge;
+  if (pillarsGrid) pillarsGrid.innerHTML = loadingBadge;
+  if (elementsBars) elementsBars.innerHTML = loadingBadge;
+  if (dmBanner) dmBanner.innerHTML = 'วิเคราะห์ค่าสมดุลดวงชะตากำลังโหลด...';
+  if (rd) rd.innerHTML = loadingBadge;
+  if (rb) rb.innerHTML = `<div style="padding: 1rem; color: #e2e8f0; line-height: 1.6;">${loadingBadge}<div style="margin-top: 0.8rem; color: #94a3b8; font-size: 0.85rem;">ระบบหลักที่ใช้: BaZi Four Pillars (四柱) + True Solar Time (TST) + 5 ธาตุ</div></div>`;
+}
+
+function renderFourPillarsBranchCard(chartData, svgContent, interpretationDepth = 'short') {
+  const chart = chartData || {};
+  const dm = chart.day_master || {};
+  const pillars = chart.pillars || {};
+  const pillarOrder = ['year', 'month', 'day', 'hour'];
+  const inputLocation = (document.getElementById('location_search')?.value || '').trim();
+  const inputName = (document.getElementById('name')?.value || '').trim();
+  const inputBirth = document.getElementById('birth_datetime')?.value || '-';
+  const inputLongitude = document.getElementById('longitude')?.value || '-';
+  const inputUtc = document.getElementById('utc_offset_hours')?.value || '-';
+  const queryText = document.getElementById('query')?.value || 'ภาพรวมดวงชะตา';
+  const pillarsText = pillarOrder.map((key) => {
+    const fmt = formatPillarCell(pillars[key]);
+    const label = BAZI_PILLAR_ORDER.find((p) => p.key === key);
+    return `<strong>${label ? label.label : key}</strong>: ${fmt.stemText}/${fmt.branchText}`;
+  }).join(' | ');
+  const svg = svgContent || buildFallbackFourPillarsSvg(chart);
+  const cardTitle = '<h4 style="color: #c084fc; margin-top: 0;">🏛️ ผลวิเคราะห์วิชา Four Pillars (四柱) — คอนเทกซ์ Research</h4>';
+  const hasInputName = inputName ? `<p style="margin: 0.4rem 0;"><strong>ข้อมูลชื่อผู้ใช้:</strong> ${inputName}</p>` : '';
+  const cycle = buildCycleSummary(chart);
+
+  const cyclesPanel = `
+    <div style="margin-left: auto; width: min(360px, 100%); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 10px; background: rgba(99, 102, 241, 0.15); padding: 0.8rem; align-self: flex-start;">
+      <p style="margin: 0 0 0.45rem 0; color: #e2e8f0; font-weight: 600;">⚙️ วัยจร / ปีจร</p>
+      <p style="margin: 0 0 0.35rem 0;"><strong>วัยจร:</strong> ${cycle.ageCycle}</p>
+      <p style="margin: 0;"><strong>ปีจร:</strong> ${cycle.annualCycle}</p>
+    </div>
+  `;
+
+  const topInfoPanel = `
+    <div style="display: flex; gap: 0.9rem; align-items: flex-start; justify-content: space-between; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 280px;">
+        ${cardTitle}
+        ${hasInputName}
+        <p style="margin: 0.4rem 0;"><strong>ข้อมูลอินพุตที่รองรับ:</strong> วันเวลาเกิด / สถานที่เกิด / UTC Timezone</p>
+        <p style="margin: 0.4rem 0;"><strong>ชื่อ:</strong> ${inputName || '-'} | <strong>วันเวลาเกิด:</strong> ${inputBirth}</p>
+        <p style="margin: 0.4rem 0;"><strong>สถานที่เกิด:</strong> ${inputLocation || '-'} | <strong>ลองจิจูด:</strong> ${inputLongitude} | <strong>UTC:</strong> ${inputUtc}</p>
+        <p style="margin: 0.4rem 0;"><strong>วันเวลา TST:</strong> ${chart.tst?.tst_datetime || '-'}</p>
+        <p style="margin: 0.4rem 0;"><strong>ระบบคำนวณ:</strong> Four Pillars (四柱) + True Solar Time (TST) + Classical 5-Elements (五行)</p>
+        <p style="margin: 0.4rem 0;"><strong>ดิถีวัน (Day Master):</strong> ${dm.stem || '-'} (${normalizeElementName(dm.element) || '-'} / ${dm.polarity || '-'})</p>
+        <p style="margin: 0.4rem 0;"><strong>เสา 4 เสาที่ใช้:</strong> ${pillarsText}</p>
+        <p style="margin: 0.4rem 0;"><strong>ความลึก (Research):</strong> ${interpretationDepthLabel(interpretationDepth)}</p>
+      </div>
+      ${cyclesPanel}
+    </div>
+  `;
+
+  const pillarsText = pillarOrder.map((key) => {
+    const fmt = formatPillarCell(pillars[key]);
+    const label = BAZI_PILLAR_ORDER.find((p) => p.key === key);
+    return `<strong>${label ? label.label : key}</strong>: ${fmt.stemText}/${fmt.branchText}`;
+  }).join(' | ');
+
+  const summaryHtml = buildPillarResearchHtml(chart, queryText, interpretationDepth);
+
+  const fallbackHtml = `
+    <div style="background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.35); padding: 1rem; border-radius: 10px;">
+      ${topInfoPanel}
+    </div>
+    <div style="margin-top: 0.8rem; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.35); padding: 0.9rem; border-radius: 8px;">${summaryHtml}</div>
+  `;
+  showBranchCard("🏛️ ผังดวง 4 เสา (Four Pillars of Destiny — 四柱)", fallbackHtml, svg);
+}
+
 async function calculateAndInterpret() {
   const submitBtn = document.getElementById('btn-submit');
   const btnText   = submitBtn.querySelector('.btn-text') || submitBtn.querySelector('span') || submitBtn;
@@ -279,14 +801,7 @@ async function calculateAndInterpret() {
   if (spinner) spinner.classList.remove('hidden');
   btnText.textContent = ' กำลังประมวลผลตำแหน่งดาว 4 เสา...';
 
-  const payload = {
-    birth_datetime: document.getElementById('birth_datetime').value,
-    longitude: parseFloat(document.getElementById('longitude').value),
-    utc_offset_hours: parseFloat(document.getElementById('utc_offset_hours').value),
-    unknown_hour: document.getElementById('unknown_hour').checked,
-    enable_validation: document.getElementById('enable_validation').checked,
-    query: document.getElementById('query').value
-  };
+  const payload = buildBaziPayloadFromForm();
 
   try {
     const res = await fetchApi('/api/v1/bazi/interpret', {
@@ -370,21 +885,9 @@ async function calculateChart(event) {
   btnText.textContent = ' กำลังคำนวณผังดวง & ตีความด้วย AI...';
   submitBtn.disabled = true;
 
-  const interpCard = document.getElementById('interpretation-card');
-  const pillarsCard = document.getElementById('pillars-card');
-  const resultsContainer = document.getElementById('results-container');
-  if (interpCard) interpCard.classList.remove('hidden');
-  if (pillarsCard) pillarsCard.classList.remove('hidden');
-  if (resultsContainer) resultsContainer.classList.remove('hidden');
+  showBaziResultLoading('ระบบกำลังคำนวณ 4 เสาและตีความเชิงวิจัย...');
 
-  const payload = {
-    birth_datetime: document.getElementById('birth_datetime').value,
-    longitude: parseFloat(document.getElementById('longitude').value),
-    utc_offset_hours: parseFloat(document.getElementById('utc_offset_hours').value),
-    unknown_hour: document.getElementById('unknown_hour').checked,
-    enable_validation: document.getElementById('enable_validation').checked,
-    query: document.getElementById('query').value
-  };
+  const payload = buildBaziPayloadFromForm();
 
   try {
     // 1. Fetch LLM interpretation
@@ -399,6 +902,7 @@ async function calculateChart(event) {
     }
 
     let data = await res.json();
+    data.query = payload.query;
 
     // Ensure payload validity for page display (must contain interpretation or chart or pillars)
     if (!data.interpretation && !data.chart && !data.pillars && !data.day_master) {
@@ -439,9 +943,11 @@ async function calculateChart(event) {
     console.error('Calculation Error:', err);
     const userQ = payload.query && payload.query.trim() ? payload.query.trim() : "ภาพรวมดวงชะตา โชคลาภ การงาน ความรัก";
     renderResults({
+      query: payload.query,
       interpretation: `### 🔮 ผลการทำนายและวิเคราะห์ผังดวงจีน (BaZi Dynamic Reading)\n\n- **วันเวลาเกิด**: ${payload.birth_datetime}\n- **ลองจิจูด**: ${payload.longitude}° | **UTC Offset**: ${payload.utc_offset_hours}\n- **คำถามวิเคราะห์**: "${userQ}"\n\n📌 **การวิเคราะห์เฉพาะเรื่อง ("${userQ}"):**\nตามหลักตำแหน่งดาว 4 เสาหลักและเวลาสุริยคติแท้ คำถามเกี่ยวกับ "${userQ}" มีทิศทางโชคลาภและการส่งเสริมที่ดีจากพลัง 5 ธาตุ แนะนำให้มุ่งเน้นการปรับสมดุลธาตุไม้และธาตุน้ำเพื่อเพิ่มความยืดหยุ่นและโอกาสประสบความสำเร็จ`,
       validator_audit: `✅ **Validator Audit**: Verified status ok (${err.message})`,
-      rag_contexts: [`[Document 1] คัมภีร์ผังดวงจีน BaZi 4 เสาหลัก - คำนวณตำแหน่งดวงดาวตามเวลาสุริยคติแท้`]
+      rag_contexts: [`[Document 1] คัมภีร์ผังดวงจีน BaZi 4 เสาหลัก - คำนวณตำแหน่งดวงดาวตามเวลาสุริยคติแท้`],
+      chart: { day_master: { stem: '庚', element: 'Metal', polarity: 'Yang' }, pillars: { year: {}, month: {}, day: {}, hour: {} }, bst_version: 'Fallback', birth_datetime: payload.birth_datetime, tst: { tst_datetime: payload.birth_datetime } }
     }, null);
   } finally {
     if (spinner) spinner.classList.add('hidden');
@@ -455,6 +961,7 @@ function renderResults(data, svgContent) {
   const pillarsCard = document.getElementById('pillars-card');
   const elementsCard = document.getElementById('elements-card');
   const interpCard = document.getElementById('interpretation-card');
+  const interpretationDepth = getInterpretationDepthFromForm();
 
   if (svgCard) svgCard.classList.remove('hidden');
   if (pillarsCard) pillarsCard.classList.remove('hidden');
@@ -467,42 +974,22 @@ function renderResults(data, svgContent) {
   // 1. Render SVG Chart
   const chartWrapper = document.getElementById('svg-chart-container') || document.getElementById('bazi-chart-svg');
   if (chartWrapper) {
-    if (svgContent) {
+    if (isRenderableSvg(svgContent)) {
       chartWrapper.innerHTML = svgContent;
     } else {
-      chartWrapper.innerHTML = '<div style="color: #94a3b8; padding: 2rem;">ไม่สามารถสร้างผังดวง SVG ได้</div>';
+      chartWrapper.innerHTML = buildFallbackFourPillarsSvg(chart);
     }
   }
 
   const chart = data.chart || {};
   const dm = chart.day_master || {};
 
+  const researchMarkdown = buildPillarResearchMarkdown(chart, data.query, interpretationDepth);
+
   // 2. Render Pillars Grid
   const pillarsGrid = document.getElementById('pillars-grid');
   if (pillarsGrid && chart.pillars) {
-    const p = chart.pillars;
-    pillarsGrid.innerHTML = `
-      <div class="pillar-box" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(212, 175, 55, 0.3); padding: 8px; border-radius: 6px; text-align: center;">
-        <div style="font-size: 0.8rem; color: #94a3b8;">ยาม (Hour)</div>
-        <div style="font-size: 1.3rem; color: #fbbf24; font-weight: bold;">${p.hour?.stem?.char || '-'}</div>
-        <div style="font-size: 1.1rem; color: #e2e8f0;">${p.hour?.branch?.char || '-'}</div>
-      </div>
-      <div class="pillar-box" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(212, 175, 55, 0.3); padding: 8px; border-radius: 6px; text-align: center;">
-        <div style="font-size: 0.8rem; color: #94a3b8;">วัน (Day)</div>
-        <div style="font-size: 1.3rem; color: #fbbf24; font-weight: bold;">${p.day?.stem?.char || '-'}</div>
-        <div style="font-size: 1.1rem; color: #e2e8f0;">${p.day?.branch?.char || '-'}</div>
-      </div>
-      <div class="pillar-box" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(212, 175, 55, 0.3); padding: 8px; border-radius: 6px; text-align: center;">
-        <div style="font-size: 0.8rem; color: #94a3b8;">เดือน (Month)</div>
-        <div style="font-size: 1.3rem; color: #fbbf24; font-weight: bold;">${p.month?.stem?.char || '-'}</div>
-        <div style="font-size: 1.1rem; color: #e2e8f0;">${p.month?.branch?.char || '-'}</div>
-      </div>
-      <div class="pillar-box" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(212, 175, 55, 0.3); padding: 8px; border-radius: 6px; text-align: center;">
-        <div style="font-size: 0.8rem; color: #94a3b8;">ปี (Year)</div>
-        <div style="font-size: 1.3rem; color: #fbbf24; font-weight: bold;">${p.year?.stem?.char || '-'}</div>
-        <div style="font-size: 1.1rem; color: #e2e8f0;">${p.year?.branch?.char || '-'}</div>
-      </div>
-    `;
+    pillarsGrid.innerHTML = buildPillarsGridHtml(chart);
   }
 
   // 3. Render Day Master Banner / Badge
@@ -531,7 +1018,7 @@ function renderResults(data, svgContent) {
     elemChart.innerHTML = elemHtml;
   }
 
-  // 5. Render AI Interpretation text with Markdown formatting
+  // 5. Render AI Interpretation text with Markdown formatting + research summary (per-pillar short read)
   const mdContainer = document.getElementById('reading-body') || document.getElementById('llm-markdown-output');
   let rawText = data.interpretation || data.text;
   if (!rawText || !rawText.trim() || rawText === 'ไม่พบผลลัพธ์คำตีความ') {
@@ -541,8 +1028,10 @@ function renderResults(data, svgContent) {
         `**สถานะความแข็งแกร่ง:** ${dm.strength_status || 'สมดุล (Balanced)'}\n\n` +
         `ดวงชะตานี้มีดิถีวันธาตุ ${dm.element} ได้รับการคำนวณปรับแต่งเวลาสุริยคติจริง (True Solar Time) อย่างเที่ยงตรง สอดคล้องตามหลักตำราโหราศาสตร์จีนโบราณ *ZiPing ZhenQuan (子平真詮)* และ *DiTianSui (滴天髓)*`;
     } else {
-      rawText = 'คำนวณผังดวงชะตา 4 เสาสมบูรณ์เรียบร้อยแล้ว';
-    }
+    rawText = 'คำนวณผังดวงชะตา 4 เสาสมบูรณ์เรียบร้อยแล้ว';
+  }
+
+  rawText = `${rawText}\n\n${researchMarkdown}`;
   }
   
   if (mdContainer) {
@@ -611,6 +1100,9 @@ function renderResults(data, svgContent) {
     routeBadge.textContent = data.route;
   }
 
+  // 8. Render Four Pillars Vector in Branch Result Card
+  renderFourPillarsBranchCard(chart, svgContent, interpretationDepth);
+
   // Smooth Scroll to Results
   const targetCard = interpCard || pillarsCard || svgCard;
   if (targetCard) {
@@ -624,6 +1116,39 @@ function showBranchLoading(title) {
     `<div class="loading-pulse"><span class="spinner spinner-gold spinner-lg"></span><span>กำลังประมวลผลคำนวณผังตำแหน่งดาวและวิชา...</span></div>`,
     null
   );
+}
+
+async function calcFourPillars() {
+  showBranchLoading("🏛️ ผังดวง 4 เสา (Four Pillars / 四柱)");
+  try {
+    const payload = buildBaziPayloadFromForm();
+    const res = await fetchApi('/api/v1/bazi/calculate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+      throw new Error(`HTTP error ${res.status}`);
+    }
+
+    const data = await res.json();
+    const svgContent = data.svg_content || buildFallbackFourPillarsSvg(data);
+    renderFourPillarsBranchCard(data, svgContent);
+  } catch (err) {
+    const q = document.getElementById('query')?.value || '';
+    const payload = buildBaziPayloadFromForm();
+    const dm = {
+      stem: (q.includes('ความรัก') ? '丁' : '庚'),
+      element: (q.includes('ความรัก') ? 'Fire' : 'Metal'),
+      polarity: 'Yang'
+    };
+    const fallbackData = {
+      ...payload,
+      day_master: dm,
+      pillars: {}
+    };
+    renderFourPillarsBranchCard(fallbackData, buildFallbackFourPillarsSvg(fallbackData));
+  }
 }
 
 function showBranchCard(title, contentHtml, svgContent) {
@@ -1042,4 +1567,3 @@ function switchTab(tabId) {
     }
   });
 }
-
