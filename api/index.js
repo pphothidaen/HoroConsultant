@@ -23,6 +23,213 @@ const BACKEND_TIMEOUT_MS = Number(process.env.VERCEL_BACKEND_TIMEOUT_MS || 8000)
 const AI_PROVIDER_TIMEOUT_MS = Number(process.env.VERCEL_AI_PROVIDER_TIMEOUT_MS || 6000);
 const AI_ROUTE_BUDGET_MS = Number(process.env.VERCEL_AI_ROUTE_BUDGET_MS || 8000);
 const AI_KEY_GUARD_HINTS = ["replace", "your_", "your ", "dummy", "test_", "sample", "placeholder", "changeme", "set_me", "set-me"];
+const INTERPRET_MIN_LENGTH = 100;
+
+const CLIENT_LOCATION_FALLBACK = {
+  "กรุงเทพ": {
+    location: "กรุงเทพมหานคร, ประเทศไทย",
+    latitude: 13.7563,
+    longitude: 100.5018,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  "กรุงเทพมหานคร": {
+    location: "กรุงเทพมหานคร, ประเทศไทย",
+    latitude: 13.7563,
+    longitude: 100.5018,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  bangkok: {
+    location: "Bangkok, Thailand",
+    latitude: 13.7563,
+    longitude: 100.5018,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  "บางกะปิ": {
+    location: "เขตบางกะปิ, กรุงเทพมหานคร, ประเทศไทย",
+    latitude: 13.7658,
+    longitude: 100.6439,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  "จตุจักร": {
+    location: "เขตจตุจักร, กรุงเทพมหานคร, ประเทศไทย",
+    latitude: 13.8166,
+    longitude: 100.5604,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  สาทร: {
+    location: "เขตสาทร, กรุงเทพมหานคร, ประเทศไทย",
+    latitude: 13.7208,
+    longitude: 100.5262,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  พญาไท: {
+    location: "เขตพญาไท, กรุงเทพมหานคร, ประเทศไทย",
+    latitude: 13.78,
+    longitude: 100.5342,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  ปทุมวัน: {
+    location: "เขตปทุมวัน, กรุงเทพมหานคร, ประเทศไทย",
+    latitude: 13.7462,
+    longitude: 100.5347,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  เชียงใหม่: {
+    location: "อำเภอเมืองเชียงใหม่, จังหวัดเชียงใหม่, ประเทศไทย",
+    latitude: 18.7883,
+    longitude: 98.9853,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  "chiang mai": {
+    location: "Chiang Mai, Thailand",
+    latitude: 18.7883,
+    longitude: 98.9853,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  ภูเก็ต: {
+    location: "อำเภอเมืองภูเก็ต, จังหวัดภูเก็ต, ประเทศไทย",
+    latitude: 7.8804,
+    longitude: 98.3923,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  phuket: {
+    location: "Phuket, Thailand",
+    latitude: 7.8804,
+    longitude: 98.3923,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  ชลบุรี: {
+    location: "จังหวัดชลบุรี, ประเทศไทย",
+    latitude: 13.3611,
+    longitude: 100.9847,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  พัทยา: {
+    location: "เมืองพัทยา, จังหวัดชลบุรี, ประเทศไทย",
+    latitude: 12.9236,
+    longitude: 100.8771,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  ขอนแก่น: {
+    location: "จังหวัดขอนแก่น, ประเทศไทย",
+    latitude: 16.4322,
+    longitude: 102.835,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  โคราช: {
+    location: "จังหวัดนครราชสีมา, ประเทศไทย",
+    latitude: 14.9799,
+    longitude: 102.0978,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  นครราชสีมา: {
+    location: "จังหวัดนครราชสีมา, ประเทศไทย",
+    latitude: 14.9799,
+    longitude: 102.0978,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  สงขลา: {
+    location: "จังหวัดสงขลา, ประเทศไทย",
+    latitude: 7.1988,
+    longitude: 100.5954,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  หาดใหญ่: {
+    location: "อำเภอหาดใหญ่, จังหวัดสงขลา, ประเทศไทย",
+    latitude: 7.0084,
+    longitude: 100.4747,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  นนทบุรี: {
+    location: "จังหวัดนนทบุรี, ประเทศไทย",
+    latitude: 13.8591,
+    longitude: 100.5217,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  สมุทรปราการ: {
+    location: "จังหวัดสมุทรปราการ, ประเทศไทย",
+    latitude: 13.5991,
+    longitude: 100.5998,
+    timezone: "Asia/Bangkok",
+    utc_offset_hours: 7.0,
+  },
+  tokyo: {
+    location: "Tokyo, Japan",
+    latitude: 35.6895,
+    longitude: 139.6917,
+    timezone: "Asia/Tokyo",
+    utc_offset_hours: 9.0,
+  },
+  โตเกียว: {
+    location: "Tokyo, Japan",
+    latitude: 35.6895,
+    longitude: 139.6917,
+    timezone: "Asia/Tokyo",
+    utc_offset_hours: 9.0,
+  },
+  london: {
+    location: "London, United Kingdom",
+    latitude: 51.5074,
+    longitude: -0.1276,
+    timezone: "Europe/London",
+    utc_offset_hours: 0.0,
+  },
+  ลอนดอน: {
+    location: "London, United Kingdom",
+    latitude: 51.5074,
+    longitude: -0.1276,
+    timezone: "Europe/London",
+    utc_offset_hours: 0.0,
+  },
+  "new york": {
+    location: "New York, USA",
+    latitude: 40.7128,
+    longitude: -74.006,
+    timezone: "America/New_York",
+    utc_offset_hours: -5.0,
+  },
+  นิวยอร์ก: {
+    location: "New York, USA",
+    latitude: 40.7128,
+    longitude: -74.006,
+    timezone: "America/New_York",
+    utc_offset_hours: -5.0,
+  },
+  singapore: {
+    location: "Singapore",
+    latitude: 1.3521,
+    longitude: 103.8198,
+    timezone: "Asia/Singapore",
+    utc_offset_hours: 8.0,
+  },
+  สิงคโปร์: {
+    location: "Singapore",
+    latitude: 1.3521,
+    longitude: 103.8198,
+    timezone: "Asia/Singapore",
+    utc_offset_hours: 8.0,
+  },
+};
 
 function isUsableApiKey(value) {
   if (typeof value !== "string") return false;
@@ -130,6 +337,55 @@ function copyResponseHeaders(upstream, response) {
     const value = upstream.headers.get(name);
     if (value) response.setHeader(name, value);
   }
+}
+
+function normalizeLocationQuery(value) {
+  if (typeof value !== "string") return "";
+  return value.trim().toLowerCase();
+}
+
+function isUsableLocationResult(payload) {
+  return (
+    payload &&
+    typeof payload === "object" &&
+    typeof payload.location === "string" &&
+    Number.isFinite(Number(payload.latitude)) &&
+    Number.isFinite(Number(payload.longitude)) &&
+    Number.isFinite(Number(payload.utc_offset_hours))
+  );
+}
+
+function resolveLocationFallback(rawBodyBuffer) {
+  if (!rawBodyBuffer) return null;
+  let reqBody = {};
+  try {
+    reqBody = JSON.parse(rawBodyBuffer.toString("utf-8"));
+  } catch (e) {
+    return null;
+  }
+
+  const query = normalizeLocationQuery(reqBody.location);
+  if (!query) return null;
+
+  let fallback = null;
+  for (const [key, value] of Object.entries(CLIENT_LOCATION_FALLBACK)) {
+    if (key.includes(query) || query.includes(key)) {
+      fallback = value;
+      break;
+    }
+  }
+
+  if (!fallback) {
+    return {
+      location: `${reqBody.location} (Defaulting to Bangkok Coordinates)`,
+      latitude: 13.7563,
+      longitude: 100.5018,
+      timezone: "Asia/Bangkok",
+      utc_offset_hours: 7.0,
+    };
+  }
+
+  return { ...fallback };
 }
 
 async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem, dayMasterElement) {
@@ -321,6 +577,10 @@ async function proxyRequest(request, response) {
   try { rawBodyBuffer = await readRequestBody(request); } catch (e) { rawBodyBuffer = undefined; }
 
   // Attempt 1: Proxy to FastAPI backend
+  const targetIsInterpret = target.includes("/interpret");
+  const targetIsLocation = target.includes("/location/resolve");
+  let backendPayload = null;
+
   try {
     const upstream = await fetchWithTimeout(`${BACKEND_URL}${target}`, {
       method: request.method,
@@ -333,19 +593,47 @@ async function proxyRequest(request, response) {
       const bodyStr = body.toString("utf-8");
       try {
         const parsed = JSON.parse(bodyStr);
-        if (parsed.interpretation || parsed.pillars || parsed.chart || parsed.day_master) {
+        if (targetIsLocation && isUsableLocationResult(parsed)) {
+          copyResponseHeaders(upstream, response);
+          return response.status(upstream.status).send(body);
+        }
+
+        if (targetIsInterpret) {
+          const interpretation = (parsed.interpretation || "").toString().trim();
+          if (interpretation.length >= INTERPRET_MIN_LENGTH) {
+            copyResponseHeaders(upstream, response);
+            setAiHeaders(response, parsed.source || parsed.model || parsed.model_used || parsed.route, parsed.model || parsed.model_used || "unknown");
+            return response.status(upstream.status).send(body);
+          }
+          backendPayload = parsed;
+          if (Array.isArray(parsed) && parsed.length === 0) {
+            backendPayload = null;
+          }
+        } else if (parsed.interpretation || parsed.pillars || parsed.chart || parsed.day_master) {
           copyResponseHeaders(upstream, response);
           setAiHeaders(response, parsed.source || parsed.model || parsed.model_used || parsed.route, parsed.model || parsed.model_used || "unknown");
           return response.status(upstream.status).send(body);
         }
       } catch (e) {
-        copyResponseHeaders(upstream, response);
-        setAiHeaders(response, "backend", "unknown");
-        return response.status(upstream.status).send(body);
+        if (targetIsLocation) {
+          // ignore malformed/HTML responses for location and rely on local fallback
+        } else {
+          copyResponseHeaders(upstream, response);
+          setAiHeaders(response, "backend", "unknown");
+          return response.status(upstream.status).send(body);
+        }
       }
     }
   } catch (error) {
     console.error("[ERROR] Backend request failed:", error.message);
+  }
+
+  if (targetIsLocation) {
+    const locationResponse = resolveLocationFallback(rawBodyBuffer);
+    if (locationResponse) {
+      return response.status(200).json(locationResponse);
+    }
+    return response.status(404).json({ status: "error", code: "location_not_found" });
   }
 
   // Attempt 2: Local AI inference for BaZi endpoints
@@ -375,27 +663,43 @@ async function proxyRequest(request, response) {
 
     setAiHeaders(response, source, model);
 
-    return response.status(200).json({
-      day_master:    { stem: dayMasterStem, element: dayMasterElement, polarity: "Yang" },
+    const defaultPayload = {
+      day_master: { stem: dayMasterStem, element: dayMasterElement, polarity: "Yang" },
       five_elements: { percentages: { Wood: 20.0, Fire: 25.0, Earth: 20.0, Metal: 15.0, Water: 20.0 } },
       pillars: {
         year:  { stem: "庚", branch: "午" }, month: { stem: "壬", branch: "午" },
-        day:   { stem: dayMasterStem, branch: "辰" }, hour: { stem: "癸", branch: "未" }
+        day:   { stem: dayMasterStem, branch: "辰" }, hour: { stem: "癸", branch: "未" },
       },
       chart: {
-        day_master:    { stem: dayMasterStem, element: dayMasterElement, polarity: "Yang" },
+        day_master: { stem: dayMasterStem, element: dayMasterElement, polarity: "Yang" },
         five_elements: { percentages: { Wood: 20.0, Fire: 25.0, Earth: 20.0, Metal: 15.0, Water: 20.0 } },
         pillars: {
           year:  { stem: "庚", branch: "午" }, month: { stem: "壬", branch: "午" },
-          day:   { stem: dayMasterStem, branch: "辰" }, hour: { stem: "癸", branch: "未" }
-        }
+          day:   { stem: dayMasterStem, branch: "辰" }, hour: { stem: "癸", branch: "未" },
+        },
       },
       interpretation: text,
-      query_echo:     query,
-      model_used:     model,
-      source:         source,
-      status:         "ok"
-    });
+      query_echo: query,
+      model_used: model,
+      source: source,
+      status: "ok",
+    };
+
+    const mergedPayload = {
+      ...defaultPayload,
+      ...(typeof backendPayload === "object" && backendPayload !== null ? backendPayload : {}),
+      interpretation: text,
+      query_echo: backendPayload && typeof backendPayload.query_echo === "string" ? backendPayload.query_echo : query,
+      model_used: backendPayload?.model_used || model,
+      source: source,
+      status: backendPayload?.status || "ok",
+      day_master: backendPayload?.day_master || defaultPayload.day_master,
+      five_elements: backendPayload?.five_elements || defaultPayload.five_elements,
+      pillars: backendPayload?.pillars || defaultPayload.pillars,
+      chart: backendPayload?.chart || defaultPayload.chart,
+    };
+
+    return response.status(200).json(mergedPayload);
   }
 
   // ZiWei static fallback

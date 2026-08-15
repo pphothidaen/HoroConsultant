@@ -1,12 +1,13 @@
 {
-  "timestamp": "2026-08-09 15:02:46 UTC",
+  "timestamp": "2026-08-15 16:04:21 UTC",
   "target_url": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html",
-  "elapsed_seconds": 46.74,
+  "profile": "smoke",
+  "elapsed_seconds": 18.73,
   "summary": {
-    "total_buttons": 22,
-    "passed": 22,
-    "failed": 0,
-    "pass_rate_pct": 100.0
+    "total_buttons": 13,
+    "passed": 12,
+    "failed": 1,
+    "pass_rate_pct": 92.31
   },
   "results": [
     {
@@ -35,7 +36,7 @@
       "handler": "HTTP POST /api/v1/bazi/interpret",
       "endpoint": "POST /api/v1/bazi/interpret",
       "status": "PASSED",
-      "detail": "HTTP 200 - AI Interpretation output verified (757 chars, fallback: False)"
+      "detail": "HTTP 200 - AI Interpretation output verified (1462 chars, fallback: False)"
     },
     {
       "id": "BTN-PROD-01",
@@ -75,87 +76,6 @@
       "detail": "Fields updated to dt=1995-12-25 23:45:00, lng=-74.006, utc=-5.0"
     },
     {
-      "id": "BTN-PROD-05",
-      "page": "index.html",
-      "name": "☯ Zi Wei (紫微斗數)",
-      "handler": "calcZiWei()",
-      "endpoint": "GET /api/v1/ziwei/calculate",
-      "status": "PASSED",
-      "detail": "Result card rendered cleanly with 232 chars output. API status: [200]"
-    },
-    {
-      "id": "BTN-PROD-06",
-      "page": "index.html",
-      "name": "☯ Qi Men (奇門遁甲)",
-      "handler": "calcQiMen()",
-      "endpoint": "GET /api/v1/qimen/calculate",
-      "status": "PASSED",
-      "detail": "Result card rendered cleanly with 108 chars output. API status: [200]"
-    },
-    {
-      "id": "BTN-PROD-07",
-      "page": "index.html",
-      "name": "☯ Da Liu Ren (大六壬)",
-      "handler": "calcLiuRen()",
-      "endpoint": "GET /api/v1/liuren/calculate",
-      "status": "PASSED",
-      "detail": "Result card rendered cleanly with 133 chars output. API status: [200]"
-    },
-    {
-      "id": "BTN-PROD-08",
-      "page": "index.html",
-      "name": "☯ I Ching (六爻)",
-      "handler": "calcIChing()",
-      "endpoint": "GET /api/v1/iching/calculate",
-      "status": "PASSED",
-      "detail": "Result card rendered cleanly with 123 chars output. API status: [200]"
-    },
-    {
-      "id": "BTN-PROD-09",
-      "page": "index.html",
-      "name": "☯ Xuan Kong (玄空)",
-      "handler": "calcXuanKong()",
-      "endpoint": "GET /api/v1/xuankong/calculate",
-      "status": "PASSED",
-      "detail": "Result card rendered cleanly with 116 chars output. API status: [200]"
-    },
-    {
-      "id": "BTN-PROD-10",
-      "page": "index.html",
-      "name": "☯ Ze Ji (คำนวณฤกษ์)",
-      "handler": "calcZeJi()",
-      "endpoint": "GET /api/v1/zeji/calculate",
-      "status": "PASSED",
-      "detail": "Result card rendered cleanly with 160 chars output. API status: [200]"
-    },
-    {
-      "id": "BTN-PROD-11",
-      "page": "index.html",
-      "name": "☯ Thai Vedic (โหราศาสตร์ไทย)",
-      "handler": "calcThaiVedic()",
-      "endpoint": "GET /api/v1/thaivedic/calculate",
-      "status": "PASSED",
-      "detail": "Result card rendered cleanly with 272 chars output. API status: [200]"
-    },
-    {
-      "id": "BTN-PROD-12",
-      "page": "index.html",
-      "name": "☯ Western (โหราศาสตร์สากล)",
-      "handler": "calcWestern()",
-      "endpoint": "GET /api/v1/western/calculate",
-      "status": "PASSED",
-      "detail": "Result card rendered cleanly with 203 chars output. API status: [200]"
-    },
-    {
-      "id": "BTN-PROD-13",
-      "page": "index.html",
-      "name": "☯ Numerology (สัตตเลข)",
-      "handler": "calcNumerology()",
-      "endpoint": "GET /api/v1/numerology/calculate",
-      "status": "PASSED",
-      "detail": "Result card rendered cleanly with 164 chars output. API status: [200]"
-    },
-    {
       "id": "CHK-PROD-18",
       "page": "index.html",
       "name": "☑ ไม่ทราบยามเกิด (Unknown Hour Checkbox)",
@@ -179,8 +99,8 @@
       "name": "🔮 คำนวณผังดวง & ตีความด้วย AI (#btn-submit)",
       "handler": "calculateChart(event)",
       "endpoint": "POST /api/v1/bazi/interpret",
-      "status": "PASSED",
-      "detail": "Calculated 4 Pillars chart & AI interpretation (757 chars). API Status: 200",
+      "status": "FAILED",
+      "detail": "Calculated 4 Pillars chart & AI interpretation (2 chars). API Status: OK (Proxy/Cached)",
       "screenshot": "screenshots/prod_05_bazi_ai_result.png"
     },
     {
