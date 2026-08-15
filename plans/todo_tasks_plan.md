@@ -13,10 +13,10 @@
   - `project/models/Modelfile` for Ollama configuration.
   - Test suite covering fusion script execution and Modelfile validation.
 
-### Task 2: External AI Provider Integration (OpenAI / Together API & Fallback Expansion)
-- **Objective**: Extend `project/api_router.py` to support external AI providers (OpenAI, Together AI, etc.) alongside Ollama and Gemini fallback.
+### Task 2: External AI Provider Integration (Cloud / Gemini / OpenAI Fallback)
+- **Objective**: Extend `project/api_router.py` to support external AI providers (Cloudflare AI, Gemini, Vertex AI, and OpenAI fallback) alongside Ollama.
 - **Deliverables**:
-  - Update `project/api_router.py` with configurable providers (OpenAI/Together API client support).
+  - Update `project/api_router.py` with configurable providers (`OpenAI`, `Gemini`, `Cloudflare AI`, `Vertex AI`).
   - Add tests in `project/tests/test_api_router_external.py`.
 
 ### Task 3: Swiss Ephemeris Integration (`pyswisseph` / `swisseph`)

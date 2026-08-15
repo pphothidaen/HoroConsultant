@@ -9,15 +9,15 @@ from unittest.mock import MagicMock, patch
 from project.api_router import HybridRouter, _call_openai_compatible
 
 
-def test_build_routes_includes_external_providers():
+def test_build_routes_includes_cloud_and_api_providers():
     with patch("project.api_router.OPENAI_API_KEY", "sk-mock-openai-key"), \
-         patch("project.api_router.TOGETHER_API_KEY", "mock-together-key"):
+         patch("project.api_router._gemini_keys", return_value=["AIzaSyStudioMock"]):
         router = HybridRouter()
         routes = router._build_routes()
         
         provider_types = [r["type"] for r in routes]
         assert "openai" in provider_types
-        assert "together" in provider_types
+        assert "gemini" in provider_types
 
 
 def test_call_openai_compatible_success():

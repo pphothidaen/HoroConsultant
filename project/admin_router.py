@@ -63,7 +63,7 @@ class GrayzoneAnswerRequest(BaseModel):
 
 
 class FinetuneTriggerRequest(BaseModel):
-    provider:       str  = Field("ollama", description="Provider: 'ollama', 'openai', 'together', 'gemini'")
+    provider:       str  = Field("ollama", description="Provider: 'ollama', 'openai', 'gemini'")
     model_name:     str  = Field("Qwen/Qwen2.5-7B-Instruct", description="Base model name")
     dataset:        str  = Field("combined_train.jsonl", description="Dataset filename in datasets dir")
     dry_run:        bool = Field(False, description="Dry run — validate without launching")
@@ -486,7 +486,7 @@ async def merge_finetune_datasets():
 async def trigger_finetune(req: FinetuneTriggerRequest):
     """
     Trigger fine-tuning on the selected provider.
-    Supports: local MLX (Apple Silicon), Ollama, or External API.
+    Supports: local MLX/Ollama, OpenAI, or Google Gemini.
     """
     dataset_path = DATASETS_DIR / req.dataset
     if not dataset_path.exists():
@@ -531,7 +531,7 @@ async def trigger_finetune(req: FinetuneTriggerRequest):
             "message":     f"MLX fine-tune launched (PID {proc.pid}). Check logs for progress.",
         })
 
-    elif req.provider in ("openai", "together", "gemini"):
+    elif req.provider in ("openai", "gemini"):
         from project.rag.external_finetune import launch_external_finetune
         res = launch_external_finetune(
             provider=req.provider,
@@ -588,4 +588,3 @@ async def run_pre_deployment_code_review():
     reviewer = CodeReviewer()
     report = reviewer.run_full_review()
     return JSONResponse(content=report)
-

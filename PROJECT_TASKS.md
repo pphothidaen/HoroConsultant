@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-15 — Fixed production AI inference root cause: `api/index.js` Vercel Gateway rewritten with 5-tier inference fallback chain (Together AI → Cloudflare Workers AI → HF Inference → Gemini API → Domain Template). `project/api_router.py` cloud route priority reordered: Together AI → Cloudflare AI → Gemini (previously Together AI was dead-last after Gemini). Added `_call_cloudflare_ai()` function and `CLOUDFLARE_ACCOUNT_ID/AI_TOKEN/AI_MODEL` config vars. Fixed backend URL default (`core-api` → `core-backend`). Added `X-Deploy-SHA` + `X-AI-Source` headers for observability. Deployed to production via git push `41d59f9` → Vercel auto-deploy triggered.*
+> *Last Updated: 2026-08-15 18:25:17 +07 — Production inference no longer depends on Together AI. Active chain is `api/index.js` Vercel Gateway: Cloudflare Workers AI → HF Inference → Gemini API → OpenAI API → Domain Template fallback. `project/api_router.py` cloud fallback chain: Cloudflare AI → Gemini → Vertex AI → OpenAI. Added `_call_cloudflare_ai()` function and `CLOUDFLARE_ACCOUNT_ID/AI_TOKEN/AI_MODEL` config vars. Fixed backend URL default (`core-api` → `core-backend`). Added `X-Deploy-SHA` + `X-AI-Source` headers for observability. Deployed to production via git push `41d59f9` → Vercel auto-deploy triggered (deployment state still requires verification).*
 
 
 ---
@@ -69,16 +69,16 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 │ • Pre-Deploy Safety Audit (READY_FOR_PROD)                                    │
 ├───────────────────────────────────────────────────────────────────────────────┤
 │ 🆕 2026-08-15 — Production AI Inference Chain Fix (commit 41d59f9)           │
-│ • api/index.js: 5-tier fallback: Together AI → CF Workers AI → HF →          │
-│   Gemini → Domain Template                                                    │
-│ • api_router.py: Cloud priority reorder: Together AI FIRST (was dead-last)   │
+│ • api/index.js: 5-tier fallback: CF Workers AI → HF → Gemini → OpenAI →    │
+│   Domain Template                                                           │
+│ • api_router.py: Cloud fallback reorder: Cloudflare AI → Gemini              │
 │ • Added _call_cloudflare_ai() + CLOUDFLARE_* config vars                     │
 │ • Fixed backend URL default (core-api → core-backend)                        │
 │ • Added X-Deploy-SHA + X-AI-Source headers for observability                 │
 ├───────────────────────────────────────────────────────────────────────────────┤
-│ 🔑 ACTION REQUIRED: Set TOGETHER_API_KEY in Vercel Env Vars                  │
+│ 🔑 ACTION REQUIRED: Set one live AI provider key in Vercel Env Vars             │
 │   → https://vercel.com/dashboard → HoroConsultant → Settings → Env Vars     │
-│   Get free key: https://api.together.xyz                                     │
+│   (Cloudflare Workers AI, HF, Gemini, or OpenAI key is sufficient)          │
 └───────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -163,17 +163,22 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 - [x] **🆕 Production AI Inference Chain Fix — 5-Tier Fallback Architecture ([`api/index.js`](file:///Users/kimlenglim/Project/HoroConsultant/api/index.js), [`project/api_router.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/api_router.py))** *(2026-08-15, commit `41d59f9`)*
   - **Root Cause Fixed**: Vercel Gateway (`api/index.js`) ถูก deploy เป็น outdated commit `a737ff9` ที่ return static `{"status":"ok"}` โดยไม่มี `interpretation` field → `app.js` client-side fallback trigger template response
   - **Root Cause Fixed**: HF Serverless Inference API ไม่รองรับ MLX 4-bit quantized model (`pphothidaen/qwen2.5-7b-bazi-instruct-4bit`) → inference ล้มเหลวทุก request
-  - **Root Cause Fixed**: Together AI ถูกวางไว้เป็น route สุดท้าย (after Gemini) ใน `api_router.py` cloud mode — ทั้งที่ควรเป็น primary
-  - **`api/index.js` Vercel Gateway**: เขียนใหม่ทั้งหมด — 5-tier inference chain:
-    1. **Together AI** `Qwen2.5-7B-Instruct-Turbo` (OpenAI-compatible API) — PRIMARY
-    2. **Cloudflare Workers AI** `@cf/qwen/qwen1.5-7b-chat-awq` (REST API) — SECONDARY
-    3. **HF Inference API** `pphothidaen/qwen2.5-7b-bazi-instruct-4bit` — TERTIARY
-    4. **Gemini API** (9 model candidates, 2 key rotation) — QUATERNARY
+  - **`api/index.js` Vercel Gateway**: เขียนใหม่/ปรับปรุงเป็น chain:
+    1. **Cloudflare Workers AI** `@cf/qwen/qwen1.5-7b-chat-awq` (REST API) — PRIMARY
+    2. **HF Inference API** `pphothidaen/qwen2.5-7b-bazi-instruct-4bit` — SECONDARY
+    3. **Gemini API** (9 model candidates, 2 key rotation) — TERTIARY
+    4. **OpenAI Chat Completions API** (`gpt-4o-mini` fallback, no explicit model rotation yet) — FOURTH
     5. **Domain Template Fallback** (5 topic-specific Thai BaZi templates) — LAST RESORT
   - **`api/index.js` Architecture**: Proxy validation (ผ่านเฉพาะ response ที่มี `interpretation`/`pillars`/`chart` fields), fix backend URL default (`core-api` → `core-backend`), add `X-Deploy-SHA` + `X-AI-Source` + `X-AI-Model` headers
-  - **`project/api_router.py` Cloud Mode**: Cloud priority reorder: **Together AI → Cloudflare AI → Gemini → Vertex AI** (Together AI ขึ้นมาจาก dead-last), add `_call_cloudflare_ai()` REST API caller, add `cloudflare_ai` dispatch case, add `CLOUDFLARE_ACCOUNT_ID/AI_TOKEN/AI_MODEL` config vars
+  - **`project/api_router.py` Cloud Mode**: Cloud priority reorder: **Cloudflare AI → Gemini → Vertex AI → OpenAI**, add `_call_cloudflare_ai()` REST API caller, add `cloudflare_ai` dispatch case, add `CLOUDFLARE_ACCOUNT_ID/AI_TOKEN/AI_MODEL` config vars
   - **Deployed**: `git push origin main` → commit `41d59f9` → Vercel auto-deploy triggered
-  - **Pending**: ต้องตั้ง `TOGETHER_API_KEY` ใน Vercel Env Vars → https://api.together.xyz (free tier)
+  - **Pending**: ต้องตั้ง API key อย่างน้อย 1 ตัวใน Vercel Env Vars (`CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_AI_TOKEN` หรือ `HF_TOKEN` หรือ `GOOGLE_AI_STUDIO_API_KEY` หรือ `OPENAI_API_KEY`)
+
+- [x] **Fine-Tune Pipeline Provider Cleanup (Remove Together AI Dependency) ([`project/admin_router.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/admin_router.py), [`project/static/admin.html`](file:///Users/kimlenglim/Project/HoroConsultant/project/static/admin.html), [`public/admin.html`](file:///Users/kimlenglim/Project/HoroConsultant/public/admin.html), [`project/rag/external_finetune.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/rag/external_finetune.py), [`project/tests/test_api_router_external.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/tests/test_api_router_external.py))**
+  - **Admin path now supports only `ollama`, `openai`, and `gemini`** for fine-tune triggering.
+  - **Removed Together AI branch** (`together`, `TOGETHER_API_KEY`) from external finetune launcher and provider selection.
+  - **Health/Route test alignment**: updated `project/tests/test_api_router_external.py` to verify OpenAI + Gemini provider chain presence, not Together.
+  - **Production runtime cleanup**: removed `TOGETHER_API_KEY` from local `.env` to avoid accidental Together fallback.
 
 - [x] **Decoupled DDD Multi-Cloud Architecture & Rust High-Performance Core Engine Strategy ([`rust_core/`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/), [`vercel.json`](file:///Users/kimlenglim/Project/HoroConsultant/vercel.json), [`Dockerfile.hf`](file:///Users/kimlenglim/Project/HoroConsultant/Dockerfile.hf))**
   - **Sub-Domain 1 (Fly.io Ultra-Fast Gateway)**: Rust Axum Micro-Gateway specification for < 8 MB RAM footprint, < 20ms cold start, and 50,000+ req/sec throughput in Singapore (`sin`) region.
@@ -295,7 +300,7 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
     - Expanded OPTIONS preflight `Access-Control-Allow-Headers` to cover Chrome `sec-ch-ua*` headers.
     - Fixed `five_elements` parsing: engine returns nested `{percentages:{...}, scores:{...}}` dict, not flat floats.
     - Created `runtime.txt` specifying `python3.11` to pin Vercel Python runtime.
-  - **Post-Deploy Regression**: Created [`scripts/run_vercel_prod_curl_regression.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/run_vercel_prod_curl_regression.py) — tests live Vercel URL with exact HuggingFace browser headers: GET `/health`, OPTIONS preflight, POST `/api/v1/bazi/interpret`.
+  - **Post-Deploy Regression**: Created [`scripts/run_vercel_prod_curl_regression.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/run_vercel_prod_curl_regression.py) — tests live Vercel URL with exact HuggingFace browser headers: GET `/health`, OPTIONS preflight, POST `/api/v1/bazi/interpret`, plus observability headers (`X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model`).
 
 - [x] **Phase 6.1: Standalone Pure Rust Axum API Gateway & Core Metaphysical Engines (Option C) ([`rust_core/src/bin/horo_server.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/horo_server.rs))**
   - **Rust Server Binary**: Full Axum gateway implementation (< 10MB RAM, < 1ms latency).
@@ -321,9 +326,56 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 ### 🔄 DOING (กำลังดำเนินการ)
 
-- [ ] **⏳ Vercel Production Deployment Verification (commit `41d59f9`)** — รอ Vercel auto-deploy เสร็จจาก push `41d59f9 → main`. ต้อง verify ผ่าน `curl https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret` ว่า `X-Deploy-SHA` เป็น `41d59f9` และ response มี `interpretation` field ที่ไม่ใช่ template
-  - **Blocked by**: ต้องตั้ง `TOGETHER_API_KEY` ใน Vercel Environment Variables ก่อน
+  - [ ] **⏳ Vercel Production Deployment Verification (commit `41d59f9`)** — รอ Vercel auto-deploy เสร็จจาก push `41d59f9 → main`. ต้อง verify ผ่าน `curl https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret` ว่า `X-Deploy-SHA` เป็น `41d59f9` และ response มี `interpretation` field
+  - **Pass criteria (automated)**: `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` ต้องผ่าน 3/3 (`GET /health`, OPTIONS, POST) และ `POST` ต้องมี `X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model` headers
+  - **Pass criteria (manual)**: `GET /health` มี `version: "1.0.0.41d59f9"` และ response headers มี `X-Deploy-SHA` ตรงตาม deploy
+  - **Blocked by**:
+    - [Sandbox-only] คำสั่ง resolution ในเครื่องนี้ไม่สามารถเช็คโดเมนได้ (nslookup ผิดสิทธิ์/`bind: Operation not permitted`, `gethostbyname` ได้ `gaierror(8, 'nodename nor servname provided, or not known')`).
+    - [Production config] ต้องตั้ง key อย่างน้อยหนึ่งชุดใน Vercel Environment Variables เพื่อให้ runtime มี inference route ทำงาน:
+      - `CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_AI_TOKEN`
+      - `HF_TOKEN`/`HUGGINGFACE_TOKEN`/`HUGGINGFACE_API_KEY`
+      - `GOOGLE_AI_STUDIO_API_KEY`
+      - `OPENAI_API_KEY`
+  - **DNS sanity checks (จาก environment นี้)**:
+    - `nslookup horo-consultant-psi.vercel.app` (bind permission / resolution failure)
+    - `python3 socket.gethostbyname("horo-consultant-psi.vercel.app")` ล้มเหลวด้วย `[Errno 8] nodename nor servname provided, or not known`
+  - **Evidence (จาก environment นี้, 15-08-2026 18:25:17 +07)**: `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` → `0/3 FAILED` (`HTTP 0` ทั้งหมด, ไม่ได้ `X-Deploy-SHA`/CORS); `socket.gethostbyname(...)` ล้มเหลวทั้ง `horo-consultant-psi.vercel.app` และ `pphothidaen-horoconsultant-core-backend.static.hf.space` ด้วย `gaierror(8, 'nodename nor servname provided, or not known')`; `nslookup` ยังคงล้มเหลวด้วย `bind: Operation not permitted`.
   - **Next**: E2E test บน production หลัง Vercel deploy เสร็จ + key ตั้งแล้ว
+  - **External env runbook (เมื่อมี network ปกติ)**:
+    - ลองเช็ก DNS โดยตรง (`nslookup`/`socket.gethostbyname`) ก่อนรัน regression
+    - ถ้ารันผ่านได้แล้ว ให้รัน `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python`
+    - ถ้าผ่าน script แล้ว ให้รัน manual sanity ตาม `TODO` เพื่อยืนยัน `version` และ `X-Deploy-SHA`
+  - **Specialist root-cause trace**:
+    - Root-cause ที่เจอใน environment นี้คือ network/DNS (`gaierror(8)` / `HTTP 0`) ทำให้คำสั่งไม่ถึง layer inference เลย
+    - เมื่อออกนอก sandbox ให้ใช้ลำดับวิเคราะห์นี้เสมอ:
+      1) DNS/เครือข่าย: `nslookup`/`socket.gethostbyname` + `run_vercel_prod_curl_regression.py`
+      2) Deployment: `X-Deploy-SHA` ต้องเป็น `41d59f9` ในทุก endpoint ที่สำคัญ
+      3) Runtime chain: ต้องเห็น `inference_chain` แสดง route ที่เปิดใช้งานจริง และ POST มี `X-AI-Source` + `X-AI-Model`
+      4) Fallback: รันตามลำดับ Cloudflare → HF → Gemini → OpenAI → template (ไม่ใช้อีก Together)
+
+  - **Specialist skill: Inference RCA & Remediation (ไม่ใช้ Together AI)**:
+    - งานของ specialist คือสรุปสาเหตุและแก้ไขให้กลับสู่สภาพ production-ready แบบเร็วสุด โดยรายงานในรูปแบบ: `สาเหตุหลัก -> หลักฐาน -> แก้ไข -> ยืนยันผล`
+    - Inputs ที่ต้องมีเมื่อรับงาน: `run_vercel_prod_curl_regression.py`, `curl -i`, `X-Deploy-SHA` จากเวอร์ชันปัจจุบัน, และสภาพแวดล้อมที่รันจริง (มี DNS/เครือข่าย)
+    - Checklist 1: ถ้าพบ `HTTP 0`/DNS fail ให้แก้ที่ infra ก่อน touching code (DNS/network / outbound network / proxy)
+    - Checklist 2: ถ้า deploy hash ไม่ตรง ให้รีดีพลอย commit ล่าสุดและยืนยัน rollback/no-rollback policy
+    - Checklist 3: ถ้า inference chain ตัด route หลัก/ผิดลำดับ ให้ตรวจ `project/api_router.py`, `api/index.js`, และค่า env ก่อน fallback ต่อ (`openai_api` ต้องเป็น fallback สูงสุด)
+    - Checklist 4: ถ้ายังไม่ผ่าน ให้เปิด log `X-AI-Source` ต่อเนื่อง 3 sample request เพื่อหา provider fail point ทีละตัว
+    - เป้าหมาย fix: กลับมาได้ลำดับ chain `cloudflare_ai -> hf_inference -> gemini_api -> openai_api -> template` และคืน `interpretation` ได้ทุก request
+  - **Expected fail mode นี้ (environment นี้)**:
+    - คำสั่งด้านบนคาดว่าจะล้มเหลวเป็น `HTTP 0` หากยัง resolve ไม่ได้หรือตัว endpoint ยังไม่ตอบกลับ
+  - **Handoff quick commands (copy/paste)**:
+    ```bash
+    nslookup horo-consultant-psi.vercel.app
+    python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python
+    curl -s https://horo-consultant-psi.vercel.app/health | python3 -m json.tool
+    curl -i -X POST https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret \
+      -H "Content-Type: application/json" \
+      -d '{"birth_datetime":"1990-05-15 14:30:00","query":"การงานและโชคลาภ","day_master":{"stem":"庚","element":"Metal"}}'
+    ```
+  - **การปิดงานที่ถูกต้อง (Definition of Done)**:
+    - `run_vercel_prod_curl_regression.py` ต้องผ่าน 3/3 และมี `X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model` ใน POST
+    - manual `GET /health` ต้องได้ `version: "1.0.0.41d59f9"` + header `X-Deploy-SHA=41d59f9`
+    - `POST /api/v1/bazi/interpret` ตอบกลับ JSON ที่มี key `interpretation`, `source`, และข้อความเริ่มต้นเป็น `### 🔮 ผลการทำนาย...` (ถ้ารันบน production จริง)
 
 ---
 
@@ -331,31 +383,49 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 > **🔥 HIGH PRIORITY — ต้องทำก่อน production inference จะทำงาน**
 
-- [ ] **🔑 ตั้ง `TOGETHER_API_KEY` ใน Vercel Environment Variables** *(Priority: CRITICAL)*
+  - [ ] **🔑 ตั้ง API keys สำหรับ Inference (ไม่ใช้ Together AI)** *(Priority: CRITICAL)*
   - ไปที่ [Vercel Dashboard](https://vercel.com/dashboard) → HoroConsultant → Settings → Environment Variables
-  - สมัคร Together AI ฟรีที่ https://api.together.xyz → copy API Key
-  - เพิ่ม env var: `TOGETHER_API_KEY = <your_key>`
+  - เลือกอย่างน้อยหนึ่งทางเลือก:
+    - `CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_AI_TOKEN`
+    - `HF_TOKEN` หรือ `HUGGINGFACE_TOKEN` หรือ `HUGGINGFACE_API_KEY`
+    - `GOOGLE_AI_STUDIO_API_KEY`
+    - `OPENAI_API_KEY`
   - Optional (Route 2): `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_AI_TOKEN`, `CLOUDFLARE_AI_MODEL`
   - Optional (Rotate): `GOOGLE_AI_STUDIO_API_KEY` ใหม่จาก https://aistudio.google.com (key เก่า leaked)
   - หลังตั้งแล้ว redeploy หรือรอ Vercel trigger จาก commit `41d59f9`
 
 - [ ] **E2E Production Verification หลัง key ตั้งแล้ว** *(Priority: HIGH)*
-  ```bash
+  - รัน regression suite (ทำงานพร้อมกันทั้ง health/preflight/inference):
+    ```bash
+    python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app
+    ```
+    - หากใช้ script rust binary ไม่ได้ ให้ต่อท้าย `--use-python`
+  - ความคาดหวังผลจากสคริปต์: 3/3 tests ผ่าน (`GET /health`, OPTIONS, POST ซึ่งมี header checks รวมอยู่)
+  - fallback/manual sanity check หลังผ่าน script:
+    ```bash
   # ตรวจสอบ deploy version
   curl -s https://horo-consultant-psi.vercel.app/health | python3 -m json.tool
-  # ต้องเห็น: "version": "1.0.0.41d59f9", "inference_chain": [{route: together_ai, enabled: true}]
+  # ต้องเห็น: "version": "1.0.0.41d59f9", "inference_chain": [
+  #   {route: cloudflare_ai, enabled: true} หรือ {route: hf_inference, enabled: true} หรือ {route: gemini_api, enabled: true} หรือ {route: openai_api, enabled: true}
+  # และ response headers ต้องมี: X-Deploy-SHA=41d59f9
 
-  # ทดสอบ E2E inference
+  # ทดสอบ E2E inference (body)
   curl -s -X POST https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret \
     -H "Content-Type: application/json" \
     -d '{"birth_datetime":"1990-05-15 14:30:00","query":"การงานและโชคลาภ","day_master":{"stem":"庚","element":"Metal"}}' \
-    | python3 -m json.tool | grep -A3 "interpretation"
-  # ต้องเห็น: "interpretation" ที่เริ่มด้วย "### 🔮 ผลการทำนาย..." และ "source": "ai_agent_llm"
+    | python3 -m json.tool
+  # ทดสอบ Header metadata
+  curl -s -D- -X POST https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret \
+    -H "Content-Type: application/json" \
+    -d '{"birth_datetime":"1990-05-15 14:30:00","query":"การงานและโชคลาภ","day_master":{"stem":"庚","element":"Metal"}}' \
+    | sed -n '1,12p'
+  # ต้องเห็น: "interpretation" ที่เริ่มด้วย "### 🔮 ผลการทำนาย...", 
+  # "source": "ai_agent_llm", และ response headers มี X-AI-Source + X-AI-Model
 
-  # รัน full E2E regression
-  python3 scripts/run_e2e_screenshots.py
-  python3 scripts/run_button_regression.py
-  ```
+    # รัน full E2E regression
+    python3 scripts/run_e2e_screenshots.py
+    python3 scripts/run_button_regression.py
+    ```
 
 - [x] **Module 1: RAG FAISS Vector Search & Distance Metrics Native Rust Migration ([`project/rag/vector_store.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/rag/vector_store.py), [`rust_core/src/vector_search.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/vector_search.rs), [`project/core/fast_math.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/fast_math.py))**
   - Implemented SIMD unrolled Dot Product (Cosine Similarity) & L2 Euclidean Distance vector search matchers in Rust PyO3 bindings (`dense_vector_search` & `dense_vector_search_l2`).
@@ -425,9 +495,3 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 - [x] **Strict Zero-Tolerance Quality Gate Orchestrator ([`scripts/run_quality_gate.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/run_quality_gate.py))**
   - Unified 4-stage quality gate enforcing 100% pass across Secret Scans, Agent Sync, Pytest, and 25 Button contracts.
-
-
-
-
-
-

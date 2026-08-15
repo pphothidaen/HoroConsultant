@@ -4,9 +4,7 @@ project/rag/external_finetune.py
 External AI Fine-Tuning Pipeline Adapter.
 Supports launching fine-tuning jobs on External AI platforms:
 - OpenAI (files.create + fine_tuning.jobs.create)
-- Together AI (files.upload + fine_tuning.create)
 - Google Gemini Tuning (TuningJob API)
-- Fallback / Mock runner for offline environment
 """
 
 from __future__ import annotations
@@ -71,45 +69,7 @@ def launch_external_finetune(
                 "message": str(e),
             }
 
-    # 2. Together AI Fine-Tuning
-    elif provider == "together":
-        api_key = os.getenv("TOGETHER_API_KEY")
-        if not api_key:
-            return {
-                "status": "config_missing",
-                "provider": "together",
-                "message": "TOGETHER_API_KEY is not set in environment.",
-                "dataset": str(dataset_path),
-                "ready_for_upload": True,
-            }
-        try:
-            from together import Together
-            client = Together(api_key=api_key)
-            res = client.files.upload(file=str(dataset_path))
-            file_id = res.id if hasattr(res, "id") else res.get("id")
-            
-            job = client.fine_tuning.create(
-                training_file=file_id,
-                model=model_name or "Qwen/Qwen2.5-7B-Instruct",
-                n_epochs=3,
-            )
-            job_id = job.id if hasattr(job, "id") else job.get("id")
-            return {
-                "status": "success",
-                "provider": "together",
-                "job_id": job_id,
-                "file_id": file_id,
-                "message": f"Together AI fine-tuning job created: {job_id}",
-            }
-        except Exception as e:
-            logger.error(f"Together AI fine-tune error: {e}")
-            return {
-                "status": "error",
-                "provider": "together",
-                "message": str(e),
-            }
-
-    # 3. Google Gemini Model Tuning
+    # 2. Google Gemini Model Tuning
     elif provider == "gemini":
         api_key = os.getenv("GOOGLE_AI_STUDIO_API_KEY") or os.getenv("GOOGLE_AI_STUDIO_API_KEY2")
         if not api_key:

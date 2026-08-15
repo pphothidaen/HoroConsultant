@@ -11,6 +11,7 @@ Checks:
   1. GET /health  → HTTP 200 + JSON {status: ok} + CORS headers present
   2. OPTIONS /api/v1/bazi/interpret → HTTP 204 + CORS preflight headers
   3. POST /api/v1/bazi/interpret → HTTP 200 + {chart, interpretation} + CORS headers
+  4. Response metadata presence: X-Deploy-SHA + X-AI-Source + X-AI-Model
 
 Usage:
   python3 scripts/run_vercel_prod_curl_regression.py
@@ -106,6 +107,10 @@ def _check_cors(result: dict[str, Any]) -> bool:
     return bool(acao)
 
 
+def _header(result: dict[str, Any], name: str) -> str:
+    return {k.lower(): v for k, v in result["headers"].items()}.get(name.lower(), "").strip()
+
+
 def run_regression(base_url: str) -> int:
     """Run all regression tests. Returns exit code (0=pass, 1=fail)."""
     results = []
@@ -119,18 +124,22 @@ def run_regression(base_url: str) -> int:
     # ── Test 1: GET /health ──────────────────────────────────────────────────
     url = f"{base_url}/health"
     r = _do_request(url, "GET")
+    deploy_sha = _header(r, "x-deploy-sha")
     passed = (
         r["status"] == 200
         and r["body_json"] is not None
         and r["body_json"].get("status") == "ok"
+        and bool(deploy_sha)
         and _check_cors(r)
     )
     all_passed = all_passed and passed
     tag = "[OK]" if passed else "[FAIL]"
-    print(f"{tag} GET /health → HTTP {r['status']} | CORS={_check_cors(r)} | {r['latency_ms']}ms")
+    print(f"{tag} GET /health → HTTP {r['status']} | CORS={_check_cors(r)} | SHA={deploy_sha or 'MISSING'} | {r['latency_ms']}ms")
     if not passed:
         print(f"     Body: {r['body_text'][:200]}")
         print(f"     CORS header: {r['headers'].get('Access-Control-Allow-Origin', 'MISSING')}")
+        if not deploy_sha:
+            print("     X-Deploy-SHA: MISSING")
     results.append({"test": "GET /health", "passed": passed, "status": r["status"], "latency_ms": r["latency_ms"]})
 
     # ── Test 2: OPTIONS /api/v1/bazi/interpret (CORS preflight) ─────────────
@@ -167,10 +176,14 @@ def run_regression(base_url: str) -> int:
     r = _do_request(url, "POST", body=payload, extra_headers={"content-type": "application/json"})
     has_chart = (r["body_json"] or {}).get("chart") is not None
     has_interp = (r["body_json"] or {}).get("interpretation") is not None
+    ai_source = _header(r, "x-ai-source")
+    ai_model = _header(r, "x-ai-model")
     passed = (
         r["status"] == 200
         and has_chart
         and has_interp
+        and bool(ai_source)
+        and bool(ai_model)
         and _check_cors(r)
     )
     all_passed = all_passed and passed
@@ -179,9 +192,14 @@ def run_regression(base_url: str) -> int:
     if not passed:
         print(f"     Body (first 300): {r['body_text'][:300]}")
         print(f"     Access-Control-Allow-Origin: {r['headers'].get('Access-Control-Allow-Origin', 'MISSING')}")
+        if not ai_source:
+            print("     X-AI-Source: MISSING")
+        if not ai_model:
+            print("     X-AI-Model: MISSING")
     elif r["body_json"]:
         dm = r["body_json"]["chart"].get("day_master", {})
         print(f"     Day Master: {dm.get('stem', '?')} ({dm.get('element', '?')}, {dm.get('polarity', '?')})")
+        print(f"     AI Metadata: source={ai_source} model={ai_model}")
     results.append({"test": "POST /api/v1/bazi/interpret", "passed": passed, "status": r["status"], "latency_ms": r["latency_ms"]})
 
     # ── Summary ──────────────────────────────────────────────────────────────

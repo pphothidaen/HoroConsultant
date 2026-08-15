@@ -2,13 +2,13 @@
 api_router.py — Hybrid API Routing & Fallback System
 =====================================================
 LOCAL-FIRST architecture: Ollama models are PRIMARY routes.
-Gemini API (dual-key) is used only as cloud fallback.
+Cloud platforms are used only when local routes are unavailable.
 
 Route order:
   1. Ollama PRIMARY_LOCAL_MODEL  (qwen2.5:7b   — best for BaZi/Thai/Chinese)
   2. Ollama SECONDARY_LOCAL_MODEL (qwen2.5-coder:7b)
   3. Ollama TERTIARY_LOCAL_MODEL  (llama3:8b)
-  4. Gemini KEY1 → Gemini KEY2   (cloud fallback, all configured models)
+  4. Cloudflare AI, Gemini KEY1/KEY2 (cloud fallback, all configured routes)
 """
 
 from __future__ import annotations
@@ -60,9 +60,6 @@ GEMINI_MODEL_FALLBACK_CANDIDATES: dict[str, list[str]] = {
 
 OPENAI_API_KEY          = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL            = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-TOGETHER_API_KEY        = os.getenv("TOGETHER_API_KEY", "")
-TOGETHER_MODEL          = os.getenv("TOGETHER_MODEL", "Qwen/Qwen2.5-7B-Instruct-Turbo")
-TOGETHER_BASE_URL       = os.getenv("TOGETHER_BASE_URL", "https://api.together.xyz/v1")
 
 CLOUDFLARE_ACCOUNT_ID   = os.getenv("CLOUDFLARE_ACCOUNT_ID", "")
 CLOUDFLARE_AI_TOKEN     = os.getenv("CLOUDFLARE_AI_TOKEN", "")
@@ -337,7 +334,7 @@ def _call_vertex_ai(
 
 
 # ---------------------------------------------------------------------------
-# OpenAI / Together caller (cloud external providers)
+# OpenAI / OpenAI-compatible caller (cloud external providers)
 # ---------------------------------------------------------------------------
 
 def _call_openai_compatible(
@@ -516,7 +513,7 @@ class HybridRouter:
       LOCAL 2: qwen2.5-coder:7b    (capable fallback)
       LOCAL 3: llama3:8b           (English fallback)
       CLOUD:   Gemini models × all keys (gemini-3.5-flash-lite ➔ gemini-flash-latest ➔ gemini-3.6-flash)
-      CLOUD:   OpenAI & Together AI external providers
+    CLOUD:   Cloudflare AI, Gemini, Vertex AI, OpenAI (fallback chain)
     """
 
     def _build_routes(self) -> list[dict[str, Any]]:
@@ -528,13 +525,9 @@ class HybridRouter:
         is_cloud = _is_cloud_environment()
 
         # === CLOUD MODE (Vercel / HF Spaces / Fly.io) ===
-        # Priority chain: Together AI → Cloudflare AI → Gemini → Vertex AI
+        # Priority chain: Cloudflare AI → Gemini → Vertex AI → OpenAI
         if is_cloud:
-            # Route 1: Together AI (Qwen2.5-7B-Instruct-Turbo) — PRIMARY CLOUD
-            if TOGETHER_API_KEY:
-                routes.append({"type": "together", "model": TOGETHER_MODEL, "key": TOGETHER_API_KEY})
-
-            # Route 2: Cloudflare Workers AI (@cf/qwen/qwen1.5-7b-chat-awq) — SECONDARY CLOUD
+            # Route 1: Cloudflare Workers AI (@cf/qwen/qwen1.5-7b-chat-awq)
             if CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_AI_TOKEN:
                 routes.append({
                     "type": "cloudflare_ai",
@@ -543,7 +536,7 @@ class HybridRouter:
                     "account_id": CLOUDFLARE_ACCOUNT_ID,
                 })
 
-            # Route 3: Gemini Cloud (key rotation) — TERTIARY CLOUD
+            # Route 2: Gemini Cloud (key rotation)
             for model in GEMINI_MODELS_ROTATION:
                 for key in _gemini_keys():
                     routes.append({"type": "gemini", "model": model, "key": key})
@@ -554,11 +547,7 @@ class HybridRouter:
             for model in [PRIMARY_LOCAL_MODEL, SECONDARY_LOCAL_MODEL, TERTIARY_LOCAL_MODEL]:
                 routes.append({"type": "ollama", "model": model, "key": None})
 
-            # Route 2 (local): Together AI as cloud fallback for local dev
-            if TOGETHER_API_KEY:
-                routes.append({"type": "together", "model": TOGETHER_MODEL, "key": TOGETHER_API_KEY})
-
-            # Route 3 (local): Cloudflare AI
+            # Route 2 (local): Cloudflare AI
             if CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_AI_TOKEN:
                 routes.append({
                     "type": "cloudflare_ai",
@@ -567,7 +556,7 @@ class HybridRouter:
                     "account_id": CLOUDFLARE_ACCOUNT_ID,
                 })
 
-            # Route 4 (local): Gemini cloud fallback
+            # Route 3 (local): Gemini cloud fallback
             for model in GEMINI_MODELS_ROTATION:
                 for key in _gemini_keys():
                     routes.append({"type": "gemini", "model": model, "key": key})
@@ -625,8 +614,6 @@ class HybridRouter:
                 text, reason = _call_vertex_ai(model, proj_id, key, prompt, system_instruction)
             elif rtype == "openai":
                 text, reason = _call_openai_compatible("OpenAI", "https://api.openai.com/v1", key, model, prompt, system_instruction)
-            elif rtype == "together":
-                text, reason = _call_openai_compatible("Together", TOGETHER_BASE_URL, key, model, prompt, system_instruction)
             elif rtype == "cloudflare_ai":
                 account_id = route.get("account_id", "")
                 text, reason = _call_cloudflare_ai(account_id, key, model, prompt, system_instruction)
