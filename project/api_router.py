@@ -36,8 +36,27 @@ TERTIARY_LOCAL_MODEL    = os.getenv("OLLAMA_TERTIARY_MODEL",  "qwen2.5-coder:7b"
 
 
 GEMINI_BASE_URL         = "https://generativelanguage.googleapis.com/v1beta"
+DEFAULT_GEMINI_ROTATION = [
+    "gemini-3.5-flash-lite",
+    "gemini-flash-latest",
+    "gemini-3.6-flash",
+]
+
 GEMINI_PRIMARY_MODEL    = os.getenv("PRIMARY_MODEL",   "gemini-3.5-flash-lite")
 GEMINI_SECONDARY_MODEL  = os.getenv("SECONDARY_MODEL", "gemini-flash-latest")
+GEMINI_TERTIARY_MODEL   = os.getenv("TERTIARY_MODEL",  "gemini-3.6-flash")
+
+GEMINI_MODELS_ROTATION: list[str] = []
+for m in [GEMINI_PRIMARY_MODEL, GEMINI_SECONDARY_MODEL, GEMINI_TERTIARY_MODEL, *DEFAULT_GEMINI_ROTATION]:
+    if m and m not in GEMINI_MODELS_ROTATION:
+        GEMINI_MODELS_ROTATION.append(m)
+
+GEMINI_MODEL_FALLBACK_CANDIDATES: dict[str, list[str]] = {
+    "gemini-3.5-flash-lite": ["gemini-2.0-flash-lite", "gemini-2.0-flash", "gemini-1.5-flash"],
+    "gemini-flash-latest": ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-flash-latest"],
+    "gemini-3.6-flash": ["gemini-2.0-flash", "gemini-1.5-pro", "gemini-2.0-flash-lite"],
+    "gemini-3.7-flash": ["gemini-2.0-flash", "gemini-1.5-pro"],
+}
 
 OPENAI_API_KEY          = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL            = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
@@ -50,10 +69,10 @@ RETRY_DELAY_S           = 2.0
 
 
 def _gemini_keys() -> list[str]:
-    """Return all unique, valid, non-placeholder Gemini API keys from env."""
+    """Return all unique, valid, non-placeholder Gemini API keys from env (Google AI Studio Key 1 & 2)."""
     raw = [
         os.getenv("GOOGLE_AI_STUDIO_API_KEY",  ""),
-        os.getenv("GOOGLE_AI_STUDIO_API_KEY2", ""),
+        os.getenv("GOOGLE_AI_STUDIO_API_KEY2", os.getenv("GEMINI_API_KEY2", "")),
         os.getenv("GEMINI_API_KEY", ""),
         os.getenv("GEMINI_API_KEY2", ""),
     ]
@@ -132,50 +151,71 @@ def _call_gemini(
 ) -> tuple[str | None, str]:
     """
     Call Gemini via Google AI Studio.
-    Returns (text, reason): reason = "ok" | "429" | "timeout" | "error:<code>"
+    Supports dynamic alias resolution and candidate model fallbacks if a model name is not available on v1beta.
+    Returns (text, reason): reason = "ok" | "429" | "403_blocked" | "timeout" | "error:<code>"
     """
     if not api_key:
         return None, "no_key"
 
-    url = f"{GEMINI_BASE_URL}/models/{model}:generateContent?key={api_key}"
-    payload: dict[str, Any] = {
-        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0.2, "maxOutputTokens": 8192},
-    }
-    if system_instruction:
-        payload["systemInstruction"] = {"parts": [{"text": system_instruction}]}
+    candidate_models = [model]
+    for alt in GEMINI_MODEL_FALLBACK_CANDIDATES.get(model, []):
+        if alt not in candidate_models:
+            candidate_models.append(alt)
 
-    key_tag   = f"...{api_key[-6:]}"
-    try:
-        with httpx.Client(timeout=TIMEOUT_CLOUD_S) as client:
-            t0  = time.monotonic()
-            res = client.post(url, json=payload)
-            elapsed = round((time.monotonic() - t0) * 1000)
+    key_tag = f"...{api_key[-6:]}" if len(api_key) >= 6 else "key"
+    last_reason = "error"
 
-        if res.status_code == 429:
-            logger.warning(f"[Gemini:{model}][{key_tag}] 429 rate-limited")
-            return None, "429"
-        if res.status_code != 200:
-            logger.warning(f"[Gemini:{model}][{key_tag}] HTTP {res.status_code}")
-            return None, f"error:{res.status_code}"
-        if elapsed > TIMEOUT_CLOUD_S * 1000:
-            logger.warning(f"[Gemini:{model}][{key_tag}] Latency {elapsed}ms")
+    for candidate in candidate_models:
+        url = f"{GEMINI_BASE_URL}/models/{candidate}:generateContent?key={api_key}"
+        payload: dict[str, Any] = {
+            "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+            "generationConfig": {"temperature": 0.2, "maxOutputTokens": 8192},
+        }
+        if system_instruction:
+            payload["systemInstruction"] = {"parts": [{"text": system_instruction}]}
+
+        try:
+            with httpx.Client(timeout=TIMEOUT_CLOUD_S) as client:
+                t0 = time.monotonic()
+                res = client.post(url, json=payload)
+                elapsed = round((time.monotonic() - t0) * 1000)
+
+            if res.status_code == 429:
+                logger.warning(f"[Gemini:{candidate}][{key_tag}] 429 rate-limited")
+                return None, "429"
+            if res.status_code == 403:
+                logger.warning(f"[Gemini:{candidate}][{key_tag}] 403 forbidden / key blocked")
+                return None, "403_blocked"
+            if res.status_code in (400, 404):
+                logger.warning(
+                    f"[Gemini:{candidate}][{key_tag}] HTTP {res.status_code} "
+                    f"(model not available), attempting fallback candidate..."
+                )
+                last_reason = f"error:{res.status_code}"
+                continue
+            if res.status_code != 200:
+                logger.warning(f"[Gemini:{candidate}][{key_tag}] HTTP {res.status_code}")
+                return None, f"error:{res.status_code}"
+            if elapsed > TIMEOUT_CLOUD_S * 1000:
+                logger.warning(f"[Gemini:{candidate}][{key_tag}] Latency {elapsed}ms")
+                return None, "timeout"
+
+            cands = res.json().get("candidates", [])
+            if not cands:
+                return None, "empty"
+
+            text = cands[0]["content"]["parts"][0]["text"]
+            logger.info(f"[Gemini:{candidate}][{key_tag}] ✅ OK ({elapsed}ms)")
+            return text, "ok"
+
+        except httpx.TimeoutException:
+            logger.warning(f"[Gemini:{candidate}][{key_tag}] Connection timeout")
             return None, "timeout"
+        except Exception as exc:
+            logger.warning(f"[Gemini:{candidate}][{key_tag}] Exception: {exc}")
+            return None, "exception"
 
-        cands = res.json().get("candidates", [])
-        if not cands:
-            return None, "empty"
-
-        text = cands[0]["content"]["parts"][0]["text"]
-        logger.info(f"[Gemini:{model}][{key_tag}] ✅ OK ({elapsed}ms)")
-        return text, "ok"
-
-    except httpx.TimeoutException:
-        logger.warning(f"[Gemini:{model}][{key_tag}] Connection timeout")
-        return None, "timeout"
-    except Exception as exc:
-        logger.warning(f"[Gemini:{model}][{key_tag}] Exception: {exc}")
-        return None, "exception"
+    return None, last_reason
 
 
 # ---------------------------------------------------------------------------
@@ -252,6 +292,45 @@ def _is_cloud_environment() -> bool:
     ) or os.getenv("ENVIRONMENT", "").lower() in ("production", "prod", "cloud")
 
 
+_last_gemini_alert_time: float = 0.0
+GEMINI_ALERT_COOLDOWN_SECONDS: float = 300.0
+
+
+def _trigger_gemini_telegram_alert(attempted_routes: list[dict[str, Any]]) -> None:
+    """Send Telegram outage alert when all Gemini models/keys fail."""
+    global _last_gemini_alert_time
+    now = time.time()
+    if now - _last_gemini_alert_time < GEMINI_ALERT_COOLDOWN_SECONDS:
+        return
+    _last_gemini_alert_time = now
+
+    gemini_failures = [
+        r for r in attempted_routes
+        if "gemini" in r.get("route", "").lower() or "cloud:" in r.get("route", "").lower()
+    ]
+    if not gemini_failures:
+        return
+
+    models = list({
+        r.get("route", "").split(":")[1].split("[")[0]
+        for r in gemini_failures if ":" in r.get("route", "")
+    })
+    reasons = list({r.get("reason", "error") for r in gemini_failures})
+    reason_str = ", ".join(reasons) or "403_blocked/timeout"
+
+    try:
+        from project.mlops.notifications.webhook_notifier import WebhookNotifier
+        notifier = WebhookNotifier()
+        notifier.notify_gemini_outage(
+            attempted_models=models,
+            reason=reason_str,
+            details=f"Failed {len(gemini_failures)} Gemini attempts across all rotated keys/models."
+        )
+        logger.info("[Telegram Alert] Dispatched Gemini API outage alert to Telegram.")
+    except Exception as e:
+        logger.warning(f"[Telegram Alert] Failed to dispatch alert: {e}")
+
+
 class HybridRouter:
     """
     Local-First Hybrid Router.
@@ -260,7 +339,7 @@ class HybridRouter:
       LOCAL 1: qwen2.5:7b          (best Chinese/Thai/BaZi understanding)
       LOCAL 2: qwen2.5-coder:7b    (capable fallback)
       LOCAL 3: llama3:8b           (English fallback)
-      CLOUD:   Gemini models × all keys
+      CLOUD:   Gemini models × all keys (gemini-3.5-flash-lite ➔ gemini-flash-latest ➔ gemini-3.6-flash)
       CLOUD:   OpenAI & Together AI external providers
     """
 
@@ -274,7 +353,7 @@ class HybridRouter:
 
         # On cloud platforms (Vercel/HF/Fly), put Gemini cloud routes first if local Ollama is unreachable
         if is_cloud:
-            for model in [GEMINI_PRIMARY_MODEL, GEMINI_SECONDARY_MODEL]:
+            for model in GEMINI_MODELS_ROTATION:
                 for key in _gemini_keys():
                     routes.append({"type": "gemini", "model": model, "key": key})
 
@@ -285,7 +364,7 @@ class HybridRouter:
 
         # 2. Fallback Route: Gemini Cloud Engine (if not already added above)
         if not is_cloud:
-            for model in [GEMINI_PRIMARY_MODEL, GEMINI_SECONDARY_MODEL]:
+            for model in GEMINI_MODELS_ROTATION:
                 for key in _gemini_keys():
                     routes.append({"type": "gemini", "model": model, "key": key})
 
@@ -325,7 +404,8 @@ class HybridRouter:
             key   = route["key"]
             label = (
                 f"local:{model}" if rtype == "ollama"
-                else f"cloud:{model}[...{key[-6:]}]"
+                else f"cloud:{model}[...{key[-6:]}]" if key and len(key) >= 6
+                else f"cloud:{model}"
             )
 
             t0 = time.monotonic()
@@ -340,6 +420,17 @@ class HybridRouter:
             else:
                 text, reason = None, "unknown_route"
             latency_ms = round((time.monotonic() - t0) * 1000)
+
+            # Record Observability LLM telemetry
+            try:
+                from project.core.observability import observability_manager
+                observability_manager.record_llm_inference(
+                    provider=f"{rtype}:{model}",
+                    status="ok" if text is not None else reason,
+                    duration=latency_ms / 1000.0,
+                )
+            except Exception:
+                pass
 
             if text is not None:
                 logger.info(f"[Router] ✅ {label} ({latency_ms}ms)")
@@ -357,6 +448,10 @@ class HybridRouter:
 
             if reason == "429":
                 time.sleep(RETRY_DELAY_S)
+
+        # Trigger Telegram alert if all Gemini cloud routes failed
+        if any("cloud:" in r.get("route", "") for r in attempted):
+            _trigger_gemini_telegram_alert(attempted)
 
         return {
             "text":             None,

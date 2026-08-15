@@ -119,47 +119,66 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
     }
   }
 
-  // 2. Cloud LLM Gemini API rotation
+  // 2. Cloud LLM Gemini API dynamic key & model rotation
+  const invalidPrefixes = ["replace", "your_", "dummy", "your_gemini"];
   const geminiKeys = [
-    process.env.GEMINI_API_KEY,
-    process.env.GEMINI_API_KEY2,
     process.env.GOOGLE_AI_STUDIO_API_KEY,
-    process.env.GOOGLE_AI_STUDIO_API_KEY2
-  ].filter(Boolean);
+    process.env.GOOGLE_AI_STUDIO_API_KEY2,
+    process.env.GEMINI_API_KEY,
+    process.env.GEMINI_API_KEY2
+  ].filter(k => {
+    if (!k || typeof k !== "string") return false;
+    const lower = k.trim().toLowerCase();
+    return lower.length > 10 && !invalidPrefixes.some(p => lower.startsWith(p));
+  });
 
-  const models = [
+  const rotationModels = [
     "gemini-3.5-flash-lite",
     "gemini-flash-latest",
-    "gemini-3.6-flash",
-    "gemini-3.7-flash"
+    "gemini-3.6-flash"
   ];
 
-  for (const apiKey of geminiKeys) {
-    for (const model of models) {
-      try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-        const res = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 2048
-            }
-          })
-        });
+  const modelCandidates = {
+    "gemini-3.5-flash-lite": ["gemini-2.0-flash-lite", "gemini-2.0-flash", "gemini-1.5-flash"],
+    "gemini-flash-latest": ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-flash-latest"],
+    "gemini-3.6-flash": ["gemini-2.0-flash", "gemini-1.5-pro", "gemini-2.0-flash-lite"]
+  };
 
-        if (res.ok) {
-          const data = await res.json();
-          const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (generatedText && generatedText.trim()) {
-            console.log(`[AI Inference] Generated real response using model=${TARGET_BAZI_MODEL} (routing: ${model})`);
-            return { text: generatedText.trim(), model: TARGET_BAZI_MODEL, source: "ai_agent_llm" };
+  for (const requestedModel of rotationModels) {
+    const candidates = [requestedModel, ...(modelCandidates[requestedModel] || [])];
+    for (const apiKey of geminiKeys) {
+      for (const model of candidates) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+          const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 2048
+              }
+            })
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (generatedText && generatedText.trim()) {
+              console.log(`[AI Inference] Generated real response using model=${model} (requested: ${requestedModel})`);
+              return { text: generatedText.trim(), model: model, source: "ai_agent_llm" };
+            }
+          } else if (res.status === 400 || res.status === 404) {
+            // Model not found in API version — continue to next candidate in rotation
+            continue;
+          } else if (res.status === 403) {
+            console.warn(`[AI Inference Warning] Gemini API Key ...${apiKey.slice(-6)} blocked/leaked (HTTP 403).`);
+            break; // Skip to next key
           }
+        } catch (err) {
+          console.warn(`[AI Inference Warning] Model ${model} failed:`, err.message);
         }
-      } catch (err) {
-        console.warn(`[AI Inference Warning] Model ${model} failed:`, err.message);
       }
     }
   }

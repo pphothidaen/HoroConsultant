@@ -73,6 +73,25 @@ class WebhookNotifier:
         )
         return self._send_all(title, body, status="ERROR")
 
+    def notify_gemini_outage(
+        self,
+        attempted_models: Optional[List[str]] = None,
+        reason: str = "unavailable",
+        details: str = ""
+    ) -> bool:
+        """Send urgent notification when Google Gemini API becomes unavailable/blocked/rate-limited."""
+        title = "🚨 [HoroConsultant Alert] Google Gemini API Outage"
+        models_str = ", ".join(attempted_models) if attempted_models else "gemini-3.5-flash-lite, gemini-flash-latest, gemini-3.6-flash"
+        body = (
+            f"• <b>Status:</b> <b>UNAVAILABLE / FAILED</b>\n"
+            f"• <b>Primary Reason:</b> <code>{reason}</code>\n"
+            f"• <b>Attempted Models:</b> <code>{models_str}</code>\n"
+            f"• <b>Details:</b> {details or 'All Gemini keys/endpoints failed or rate-limited'}\n"
+            f"• <b>Fallback Action:</b> Switched to deterministic domain/heuristic engine\n"
+            f"• <b>Timestamp:</b> <code>{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}</code>"
+        )
+        return self._send_all(title, body, status="ERROR")
+
     def send_direct_message(self, message: str, chat_id: Optional[str] = None) -> bool:
         """Send a direct message to a specific Telegram chat."""
         target_chat = chat_id or self.telegram_chat_id

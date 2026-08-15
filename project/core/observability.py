@@ -159,6 +159,16 @@ class ObservabilityManager:
         self.record_llm_inference(provider="dummy", status="success", duration=0.100)
         self.record_llm_inference(provider="dummy", status="error", duration=0.200)
 
+    def clear_metrics(self) -> None:
+        """Clear and reset all in-memory telemetry metrics and reset uptime."""
+        self.start_time = time.time()
+        self._request_counts.clear()
+        self._request_latencies.clear()
+        self._rag_counts = 0
+        self._rag_latency_sum = 0.0
+        self._llm_counts.clear()
+        self._llm_latency_sum.clear()
+
     def generate_metrics_text(self) -> str:
         """Generate Prometheus exposition text format."""
         if PROMETHEUS_CLIENT_AVAILABLE:
@@ -178,13 +188,17 @@ class ObservabilityManager:
             "# TYPE http_requests_total counter",
         ]
         for key, count in self._request_counts.items():
-            method, endpoint, status = key.split(":")
+            parts = key.rsplit(":", 2)
+            if len(parts) == 3:
+                method, endpoint, status = parts
+            else:
+                method, endpoint, status = "GET", key, "200"
             lines.append(f'http_requests_total{{method="{method}",endpoint="{endpoint}",status_code="{status}"}} {count}')
 
         request_count_by_path: dict[str, int] = {}
         for key, count in self._request_counts.items():
-            method, endpoint, _ = key.split(":", 2)
-            path_key = f"{method}:{endpoint}"
+            parts = key.rsplit(":", 2)
+            path_key = f"{parts[0]}:{parts[1]}" if len(parts) >= 2 else key
             request_count_by_path[path_key] = request_count_by_path.get(path_key, 0) + count
 
         lines.extend([
@@ -193,7 +207,9 @@ class ObservabilityManager:
             "# TYPE http_request_duration_seconds_count counter",
         ])
         for path_key, count in request_count_by_path.items():
-            method, endpoint = path_key.split(":", 1)
+            parts = path_key.split(":", 1)
+            method = parts[0] if len(parts) > 1 else "GET"
+            endpoint = parts[1] if len(parts) > 1 else path_key
             lines.append(
                 f'http_request_duration_seconds_count{{method="{method}",endpoint="{endpoint}"}} {count}'
             )
@@ -204,7 +220,9 @@ class ObservabilityManager:
             "# TYPE http_request_duration_seconds_sum counter",
         ])
         for path_key, duration_sum in self._request_latencies.items():
-            method, endpoint = path_key.split(":", 1)
+            parts = path_key.split(":", 1)
+            method = parts[0] if len(parts) > 1 else "GET"
+            endpoint = parts[1] if len(parts) > 1 else path_key
             lines.append(
                 f'http_request_duration_seconds_sum{{method="{method}",endpoint="{endpoint}"}} {duration_sum:.4f}'
             )
@@ -221,7 +239,10 @@ class ObservabilityManager:
         ])
 
         for key, count in self._llm_counts.items():
-            provider, status = key.split(":")
+            if ":" in key:
+                provider, status = key.rsplit(":", 1)
+            else:
+                provider, status = key, "total"
             lines.append(f'llm_inference_total{{provider="{provider}",status="{status}"}} {count}')
 
         return "\n".join(lines) + "\n"
@@ -274,6 +295,17 @@ def setup_observability_middleware(app: FastAPI):
         return {
             "status": "success",
             "message": "Dummy metrics seeded successfully into ObservabilityManager engine",
+            "timestamp": time.time()
+        }
+
+    @app.get("/metrics/reset", include_in_schema=False, tags=["observability"])
+    @app.post("/metrics/reset", include_in_schema=False, tags=["observability"])
+    async def reset_metrics_endpoint():
+        """Reset and clean all in-memory telemetry metrics for fresh collection."""
+        observability_manager.clear_metrics()
+        return {
+            "status": "success",
+            "message": "All in-memory telemetry metrics cleared and reset to fresh baseline",
             "timestamp": time.time()
         }
 

@@ -58,9 +58,19 @@ VALIDATOR_SYSTEM_PROMPT = """คุณคือ "Prediction Validator & Computat
 def _get_api_keys() -> list[str]:
     raw = [
         os.getenv("GOOGLE_AI_STUDIO_API_KEY", ""),
-        os.getenv("GOOGLE_AI_STUDIO_API_KEY2", ""),
+        os.getenv("GOOGLE_AI_STUDIO_API_KEY2", os.getenv("GEMINI_API_KEY2", "")),
+        os.getenv("GEMINI_API_KEY", ""),
+        os.getenv("GEMINI_API_KEY2", ""),
     ]
-    return [k for k in raw if k and not k.startswith("REPLACE")]
+    seen = set()
+    valid = []
+    invalid_prefixes = ("REPLACE", "your_", "YOUR_", "dummy", "DUMMY", "YOUR_GEMINI")
+    for k in raw:
+        k = k.strip()
+        if k and not any(k.startswith(p) for p in invalid_prefixes) and k not in seen:
+            seen.add(k)
+            valid.append(k)
+    return valid
 
 
 class PredictionValidator:
@@ -122,27 +132,36 @@ class PredictionValidator:
             },
         }
 
-        # Try available Gemini keys
+        candidate_models = [self.model_name]
+        for alt in ["gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-1.5-flash", "gemini-1.5-pro"]:
+            if alt not in candidate_models:
+                candidate_models.append(alt)
+
+        # Try available Gemini keys and model candidates
         for key in keys:
-            url = f"{GEMINI_BASE_URL}/models/{self.model_name}:generateContent?key={key}"
-            try:
-                with httpx.Client(timeout=15.0) as client:
-                    res = client.post(url, json=payload)
-                if res.status_code == 200:
-                    data = res.json()
-                    raw_text = data["candidates"][0]["content"]["parts"][0]["text"]
-                    parsed = json.loads(raw_text)
-                    parsed["validator_model"] = self.model_name
-                    parsed["api_key_used"] = f"...{key[-6:]}"
-                    logger.info(f"✅ Prediction Validator success via Gemini ({self.model_name})")
-                    return parsed
-                elif res.status_code == 429:
-                    logger.warning(f"Validator Gemini 429 rate limit on key ...{key[-6:]}")
-                    continue
-                else:
-                    logger.warning(f"Validator Gemini HTTP {res.status_code}: {res.text[:200]}")
-            except Exception as e:
-                logger.warning(f"Validator Gemini call exception: {e}")
+            for candidate in candidate_models:
+                url = f"{GEMINI_BASE_URL}/models/{candidate}:generateContent?key={key}"
+                try:
+                    with httpx.Client(timeout=15.0) as client:
+                        res = client.post(url, json=payload)
+                    if res.status_code == 200:
+                        data = res.json()
+                        text = data["candidates"][0]["content"]["parts"][0]["text"]
+                        report = json.loads(text)
+                        logger.info(f"External validation completed successfully via Gemini model={candidate}.")
+                        return report
+                    elif res.status_code in (400, 404):
+                        continue
+                    elif res.status_code == 403:
+                        logger.warning(f"Validation Gemini API key blocked (HTTP 403) — rotating key.")
+                        break
+                    elif res.status_code == 429:
+                        logger.warning(f"Validator Gemini 429 rate limit on key ...{key[-6:]}")
+                        continue
+                    else:
+                        logger.warning(f"Gemini Validation returned HTTP {res.status_code} for model {candidate}.")
+                except Exception as e:
+                    logger.warning(f"Gemini Validation attempt failed on model {candidate}: {e}")
 
         # Fallback if Gemini rate limited or unavailable
         return {

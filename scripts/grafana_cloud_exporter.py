@@ -554,6 +554,13 @@ def build_cli_parser() -> argparse.ArgumentParser:
              "HTTP status distribution (2xx/4xx/5xx), and push OTLP payload to Grafana Cloud."
     )
     parser.add_argument(
+        "--reset-metrics",
+        "--clean-metrics",
+        dest="reset_metrics",
+        action="store_true",
+        help="Clear and reset all local in-memory telemetry metrics to zero baseline before collecting fresh data."
+    )
+    parser.add_argument(
         "--export-dashboard",
         action="store_true",
         help="Validate and export horoconsultant_dashboard.json to Grafana Cloud API."
@@ -616,6 +623,15 @@ def main() -> int:
         args.export_dashboard = True
 
     overall_success = True
+
+    if args.reset_metrics:
+        log_info("Resetting and clearing all local in-memory telemetry metrics...")
+        try:
+            from project.core.observability import observability_manager
+            observability_manager.clear_metrics()
+            log_ok("Successfully cleared and reset in-memory metrics to baseline zero")
+        except Exception as e:
+            log_warning(f"Could not clear in-memory metrics directly: {e}")
 
     if args.inject_dummy:
         log_info("Seeding dummy telemetry metrics into ObservabilityManager engine...")

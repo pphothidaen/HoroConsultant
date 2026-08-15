@@ -4,43 +4,43 @@
     {
       "case": "1. Live Main Dashboard Load",
       "passed": true,
-      "latency_ms": 1845,
+      "latency_ms": 2029,
       "details": "Title: Computational Metaphysics Engine \u2014 BaZi & True Solar Time Dashboard, HTTP 200"
     },
     {
       "case": "2. Dynamic AI Query \u2014 Children & Offspring ('\u0e25\u0e39\u0e01\u0e40\u0e1b\u0e47\u0e19\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e44\u0e23')",
       "passed": true,
-      "latency_ms": 2056,
+      "latency_ms": 2051,
       "details": "Domain matched: True, Length: 496"
     },
     {
       "case": "3. Dynamic AI Query \u2014 Business Investment 2026",
       "passed": true,
-      "latency_ms": 2352,
+      "latency_ms": 2026,
       "details": "Domain matched: True, Length: 556"
     },
     {
       "case": "4. Dynamic AI Query \u2014 Love & Relationships",
       "passed": true,
-      "latency_ms": 2327,
+      "latency_ms": 2020,
       "details": "Domain matched: True, Length: 556"
     },
     {
       "case": "5. Dynamic AI Query \u2014 Wealth & Financial Fortune",
       "passed": true,
-      "latency_ms": 2230,
-      "details": "Domain matched: True, Length: 556"
+      "latency_ms": 2038,
+      "details": "Domain matched: True, Length: 620"
     },
     {
       "case": "6. Dynamic AI Query \u2014 Health & Wellness",
       "passed": true,
-      "latency_ms": 3348,
+      "latency_ms": 2355,
       "details": "Domain matched: True, Length: 624"
     },
     {
       "case": "7. Location Resolution (\u0e1a\u0e32\u0e07\u0e01\u0e30\u0e1b\u0e34 -> 100.6439)",
       "passed": true,
-      "latency_ms": 19,
+      "latency_ms": 20,
       "details": "Resolved Longitude: 100.4930"
     },
     {
@@ -52,13 +52,13 @@
     {
       "case": "9. Live Admin Panel Load (admin.html)",
       "passed": true,
-      "latency_ms": 1019,
+      "latency_ms": 1045,
       "details": "HTTP 200"
     },
     {
       "case": "10. Live HITL Review Studio Load (hitl.html)",
       "passed": true,
-      "latency_ms": 1329,
+      "latency_ms": 1266,
       "details": "HTTP 200"
     }
   ]

@@ -13,10 +13,10 @@
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Decoupled DDD Multi-Cloud & Rust Core│ • None (Follow-up QA & CI/CD release) │ • Future LLM Provider Integration      │
-│ • Autonomous NotebookLM Distillation  │                                       │   (Qwen2.5-32B / DeepSeek-R1 evaluation)│
-│ • Hermes Agent Synthetic CoT Miner    │                                       │                                       │
-│ • Quality Gate & Dataset Curator      │                                       │                                       │
+│ • Decoupled DDD Multi-Cloud & Rust Core│ • Google Gemini API Dynamic Key &     │ • Future LLM Provider Integration      │
+│ • Autonomous NotebookLM Distillation  │   Model Rotation Engine (gemini-3.5-  │   (Qwen2.5-32B / DeepSeek-R1 evaluation)│
+│ • Hermes Agent Synthetic CoT Miner    │   flash-lite ➔ gemini-flash-latest ➔  │                                       │
+│ • Quality Gate & Dataset Curator      │   gemini-3.6-flash ➔ live endpoints)  │                                       │
 │ • Kaggle GPU Fine-Tuning Pipeline     │                                       │                                       │
 │ • MLOps Dashboard & FastAPIRouter     │                                       │                                       │
 │ • Webhook Alerts (Telegram & Discord) │                                       │                                       │
