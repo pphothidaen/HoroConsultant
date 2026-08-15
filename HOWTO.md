@@ -364,6 +364,10 @@ bash scripts/auto_deploy_all.sh
 bash scripts/setup_production_secrets.sh
 ```
 
+#### 🔗 ลิงก์จัดการ Secrets บน Doppler (Production - `prd`)
+เปิด Workspace/Project ที่ใช้งานจริงได้ที่:
+https://dashboard.doppler.com/workplace/4e65e3d95e9f71174b4e/projects/horo-consultant/configs/prd
+
 #### 🚀 การจัดส่ง Backend ขึ้น Azure Container Apps:
 การ push เข้า `main` จะเรียก `.github/workflows/azure_deploy.yml` ซึ่ง build image, deploy Azure และรัน strict production verification โดยอัตโนมัติ ต้องตั้งค่า `AZURE_CREDENTIALS`, `AZURE_RESOURCE_GROUP`, `AZURE_CONTAINER_APP`, `AZURE_CONTAINER_APP_URL` และ Docker credentials ใน GitHub/Doppler ก่อนใช้งาน
 
@@ -441,6 +445,5 @@ bash scripts/setup_production_secrets.sh
 4. **GitHub Actions Scheduled Automation:**
    - ตารางเวลาอัตโนมัติ: รันทุกวันอาทิตย์ เวลา 02:00 UTC ผ่าน `.github/workflows/scheduled_distill_finetune.yml`
    - รองรับการ Trigger แบบ Manual พร้อมเลือก Domain และ Format ได้ทันที
-
 
 

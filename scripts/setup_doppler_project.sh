@@ -4,6 +4,7 @@
 # ============================================================
 # Automated Setup & Secret Push Script for Doppler Project
 # ============================================================
+# Dashboard: https://dashboard.doppler.com/workplace/4e65e3d95e9f71174b4e/projects/horo-consultant/configs/prd
 
 set -e
 
