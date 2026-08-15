@@ -46,6 +46,16 @@ jobs:
       - name: Install deployment dependencies
         run: pip install huggingface_hub httpx python-dotenv
 
+      - name: Inspect injected environment keys
+        run: |
+          python3 - <<'PY'
+          import os
+          keys = [k for k in os.environ if k.startswith("HF_") or k.startswith("DOPPLER_") or k == "HF_TOKEN"]
+          print(f"[DEBUG] Matched env key count: {len(keys)}")
+          for name in sorted(keys):
+              print(f"[DEBUG] {name} (len={len(os.getenv(name, ''))})")
+          PY
+
       - name: Resolve HF token source
         env:
           HF_TOKEN_FALLBACK: ${{ secrets.HF_TOKEN || vars.HF_TOKEN }}
