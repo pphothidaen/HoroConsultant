@@ -34,6 +34,8 @@ jobs:
         continue-on-error: true
         with:
           doppler-token: ${{ secrets.DOPPLER_TOKEN }}
+          doppler-project: horo-consultant
+          doppler-config: prd
           inject-env-vars: true
         id: doppler
 
@@ -45,17 +47,6 @@ jobs:
         run: pip install huggingface_hub httpx python-dotenv
 
       - name: Resolve HF token source
-        env:
-          HF_TOKEN: >-
-            ${{ steps.doppler.outputs.HF_TOKEN ||
-            steps.doppler.outputs.HUGGINGFACE_TOKEN ||
-            steps.doppler.outputs.HF_API_TOKEN ||
-            steps.doppler.outputs.HUGGINGFACE_API_KEY ||
-            steps.doppler.outputs.HUGGING_FACE_TOKEN ||
-            secrets.HF_TOKEN || vars.HF_TOKEN ||
-            secrets.HUGGINGFACE_TOKEN || vars.HUGGINGFACE_TOKEN ||
-            secrets.HF_API_TOKEN || vars.HF_API_TOKEN ||
-            secrets.HUGGINGFACE_API_KEY || vars.HUGGINGFACE_API_KEY }}
         run: |
           python3 - <<'PY'
           import os
