@@ -150,7 +150,7 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 - [x] **Google Gemini API Dynamic Key & Model Rotation Engine + Telegram Outage Alerting ([`project/api_router.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/api_router.py), [`api/index.js`](file:///Users/kimlenglim/Project/HoroConsultant/api/index.js), [`project/validator.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/validator.py), [`project/mlops/notifications/webhook_notifier.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/mlops/notifications/webhook_notifier.py))**
   - **Dynamic Model Hierarchy & Rotation**: Implemented seamless rotation across priority tiers (`gemini-3.5-flash-lite ➔ gemini-flash-latest ➔ gemini-3.6-flash`).
   - **Smart Model Fallback Candidates**: Added automatic translation and fallback candidate mapping to valid live Google AI Studio endpoints (`gemini-2.0-flash`, `gemini-2.0-flash-lite`, `gemini-1.5-flash`, `gemini-1.5-pro`) upon receiving HTTP 404 / 400.
-  - **Multi-Key Failover & Placeholder Filtering**: Automatically filters out placeholder/dummy keys and safely rotates across all valid keys (`GOOGLE_AI_STUDIO_API_KEY`, `GOOGLE_AI_STUDIO_API_KEY2`, `GEMINI_API_KEY`, `GEMINI_API_KEY2`).
+  - **Multi-Key Failover & Clean Migration**: Automatically filters out placeholder/dummy keys and safely rotates across all valid Google AI Studio keys (`GOOGLE_AI_STUDIO_API_KEY`, `GOOGLE_AI_STUDIO_API_KEY2`). Removed legacy deprecated keys cleanly without backward compatibility overhead.
   - **Instant Telegram Outage Alert**: Added `WebhookNotifier.notify_gemini_outage()` with a 300-second cooldown in `api_router.py` to immediately notify Telegram when all Gemini keys/models fail or hit rate-limits/403 blocks.
   - **Verified Test Suite**: Unit tests in [`project/tests/test_api_router_external.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/tests/test_api_router_external.py) and [`project/tests/test_telegram_gemini_alert.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/tests/test_telegram_gemini_alert.py) PASSED 100%.
 
@@ -247,7 +247,7 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 - [x] **Unified Admin Panel & HITL Studio Security Integration (`project/static/admin.html`)**
   - Integrated HITL Review Studio directly into Admin Panel navigation sidebar (`showPage('hitl')`).
 - [x] **Production Secret Environment Variables Injection & Verification**
-  - Verified `HF_TOKEN`, `GEMINI_API_KEY`, and `OPENAI_API_KEY` in environment config & fallback chain.
+  - Verified `HF_TOKEN`, `GOOGLE_AI_STUDIO_API_KEY`, `GOOGLE_AI_STUDIO_API_KEY2`, and `OPENAI_API_KEY` in environment config & fallback chain.
 - [x] **Post-Finetune DB Vector Purge Execution & Pipeline ([`scripts/post_train_fuse.py`](file:///scripts/post_train_fuse.py))**
   - Configured model fusion, GGUF conversion, and vector store cleanup post-training pipeline.
 - [x] **Vercel Edge API Gateway Proxy Setup ([`vercel.json`](file:///vercel.json))**

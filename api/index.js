@@ -123,9 +123,7 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
   const invalidPrefixes = ["replace", "your_", "dummy", "your_gemini"];
   const geminiKeys = [
     process.env.GOOGLE_AI_STUDIO_API_KEY,
-    process.env.GOOGLE_AI_STUDIO_API_KEY2,
-    process.env.GEMINI_API_KEY,
-    process.env.GEMINI_API_KEY2
+    process.env.GOOGLE_AI_STUDIO_API_KEY2
   ].filter(k => {
     if (!k || typeof k !== "string") return false;
     const lower = k.trim().toLowerCase();

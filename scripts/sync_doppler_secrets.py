@@ -70,7 +70,8 @@ def sync_github_secrets(valid_secrets: dict[str, str], dry_run: bool = False) ->
         "FLY_API_TOKEN",
         "VERCEL_TOKEN",
         "HF_TOKEN",
-        "GEMINI_API_KEY",
+        "GOOGLE_AI_STUDIO_API_KEY",
+        "GOOGLE_AI_STUDIO_API_KEY2",
     ]
     for key in target_secrets:
         val = valid_secrets.get(key)
@@ -116,7 +117,7 @@ def sync_secrets_to_doppler(
 
     logger.info(f"🔑 Categorized {len(valid_secrets)} Production Secrets from `{env_file.name}`:")
     categories = {
-        "Cloud AI Fallback (Gemini)": ["GOOGLE_AI_STUDIO_API_KEY", "GOOGLE_AI_STUDIO_API_KEY2", "GEMINI_API_KEY", "GEMINI_API_KEY2", "GOOGLE_APPLICATION_CREDENTIALS", "PRIMARY_MODEL"],
+        "Cloud AI Fallback (Gemini)": ["GOOGLE_AI_STUDIO_API_KEY", "GOOGLE_AI_STUDIO_API_KEY2", "GOOGLE_APPLICATION_CREDENTIALS", "PRIMARY_MODEL"],
         "Production Database (Supabase)": ["APP_SUPABASE_URL", "APP_SUPABASE_KEY", "SUPABASE_URL", "SUPABASE_ANON_KEY"],
         "Model Repository (Hugging Face)": ["HF_TOKEN", "HF_USERNAME", "HF_REPO_ID"],
         "Cloud & Edge Deployments (Azure, Fly.io & Vercel)": ["AZURE_RESOURCE_GROUP", "AZURE_CONTAINER_APP", "AZURE_CREDENTIALS", "AZURE_CONTAINER_APP_URL", "FLY_API_TOKEN", "VERCEL_TOKEN", "VERCEL_ORG_ID", "VERCEL_PROJECT_ID"],

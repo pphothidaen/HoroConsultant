@@ -84,23 +84,21 @@ def test_gemini_key_rotation_filters_invalid_keys(monkeypatch):
     from project.api_router import _gemini_keys
 
     monkeypatch.setenv("GOOGLE_AI_STUDIO_API_KEY", "REPLACE_WITH_KEY")
-    monkeypatch.setenv("GOOGLE_AI_STUDIO_API_KEY2", "your_api_key_here")
-    monkeypatch.setenv("GEMINI_API_KEY", "dummy_gemini_key")
-    monkeypatch.setenv("GEMINI_API_KEY2", "AIzaSyRealValidKeyXYZ789")
+    monkeypatch.setenv("GOOGLE_AI_STUDIO_API_KEY2", "AIzaSyStudioKey2_987654321")
 
     valid = _gemini_keys()
-    assert valid == ["AIzaSyRealValidKeyXYZ789"]
+    assert valid == ["AIzaSyStudioKey2_987654321"]
 
 
-def test_google_ai_studio_api_key2_used_in_place_of_gemini_api_key2(monkeypatch):
+def test_google_ai_studio_api_keys_in_router_and_validator(monkeypatch):
     from project.api_router import _gemini_keys
     from project.validator import _get_api_keys
 
-    monkeypatch.delenv("GEMINI_API_KEY2", raising=False)
+    monkeypatch.setenv("GOOGLE_AI_STUDIO_API_KEY", "AIzaSyStudioKey1_123456789")
     monkeypatch.setenv("GOOGLE_AI_STUDIO_API_KEY2", "AIzaSyStudioKey2_987654321")
 
     valid_router = _gemini_keys()
     valid_validator = _get_api_keys()
 
-    assert "AIzaSyStudioKey2_987654321" in valid_router
-    assert "AIzaSyStudioKey2_987654321" in valid_validator
+    assert valid_router == ["AIzaSyStudioKey1_123456789", "AIzaSyStudioKey2_987654321"]
+    assert valid_validator == ["AIzaSyStudioKey1_123456789", "AIzaSyStudioKey2_987654321"]

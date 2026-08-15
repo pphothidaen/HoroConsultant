@@ -58,9 +58,7 @@ VALIDATOR_SYSTEM_PROMPT = """คุณคือ "Prediction Validator & Computat
 def _get_api_keys() -> list[str]:
     raw = [
         os.getenv("GOOGLE_AI_STUDIO_API_KEY", ""),
-        os.getenv("GOOGLE_AI_STUDIO_API_KEY2", os.getenv("GEMINI_API_KEY2", "")),
-        os.getenv("GEMINI_API_KEY", ""),
-        os.getenv("GEMINI_API_KEY2", ""),
+        os.getenv("GOOGLE_AI_STUDIO_API_KEY2", ""),
     ]
     seen = set()
     valid = []

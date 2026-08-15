@@ -69,12 +69,10 @@ RETRY_DELAY_S           = 2.0
 
 
 def _gemini_keys() -> list[str]:
-    """Return all unique, valid, non-placeholder Gemini API keys from env (Google AI Studio Key 1 & 2)."""
+    """Return all unique, valid, non-placeholder Google AI Studio API keys from env."""
     raw = [
         os.getenv("GOOGLE_AI_STUDIO_API_KEY",  ""),
-        os.getenv("GOOGLE_AI_STUDIO_API_KEY2", os.getenv("GEMINI_API_KEY2", "")),
-        os.getenv("GEMINI_API_KEY", ""),
-        os.getenv("GEMINI_API_KEY2", ""),
+        os.getenv("GOOGLE_AI_STUDIO_API_KEY2", ""),
     ]
     seen = set()
     valid = []

@@ -161,7 +161,7 @@ class AIProviderRouter:
         codex_available = installed and authenticated
 
         # Gemini health check
-        gemini_key = os.getenv("GOOGLE_AI_STUDIO_API_KEY") or os.getenv("GEMINI_API_KEY")
+        gemini_key = os.getenv("GOOGLE_AI_STUDIO_API_KEY") or os.getenv("GOOGLE_AI_STUDIO_API_KEY2")
         gemini_configured = bool(gemini_key or is_dev_environment())
         gemini_available = True  # Always available via local engine fallback
 
