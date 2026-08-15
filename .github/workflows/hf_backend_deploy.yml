@@ -46,16 +46,6 @@ jobs:
       - name: Install deployment dependencies
         run: pip install huggingface_hub httpx python-dotenv
 
-      - name: Inspect injected environment keys
-        run: |
-          python3 - <<'PY'
-          import os
-          keys = [k for k in os.environ if k.startswith("HF_") or k.startswith("DOPPLER_") or k == "HF_TOKEN"]
-          print(f"[DEBUG] Matched env key count: {len(keys)}")
-          for name in sorted(keys):
-              print(f"[DEBUG] {name} (len={len(os.getenv(name, ''))})")
-          PY
-
       - name: Resolve HF token source
         env:
           HF_TOKEN_FALLBACK: ${{ secrets.HF_TOKEN || vars.HF_TOKEN }}
@@ -66,18 +56,36 @@ jobs:
         run: |
           python3 - <<'PY'
           import os
+          try:
+              from dotenv import dotenv_values
+          except Exception:
+              dotenv_values = None
+
           token_candidates = [
               ("HF_TOKEN", os.getenv("HF_TOKEN")),
               ("HUGGINGFACE_TOKEN", os.getenv("HUGGINGFACE_TOKEN")),
               ("HF_API_TOKEN", os.getenv("HF_API_TOKEN")),
               ("HUGGINGFACE_API_KEY", os.getenv("HUGGINGFACE_API_KEY")),
               ("HUGGING_FACE_TOKEN", os.getenv("HUGGING_FACE_TOKEN")),
+          ]
+
+          if os.getenv("GITHUB_ACTIONS") != "true" and dotenv_values is not None:
+              local_env = dotenv_values(".env")
+              token_candidates.extend([
+                  ("HF_TOKEN_LOCAL", local_env.get("HF_TOKEN")),
+                  ("HUGGINGFACE_TOKEN_LOCAL", local_env.get("HUGGINGFACE_TOKEN")),
+                  ("HF_API_TOKEN_LOCAL", local_env.get("HF_API_TOKEN")),
+                  ("HUGGINGFACE_API_KEY_LOCAL", local_env.get("HUGGINGFACE_API_KEY")),
+                  ("HUGGING_FACE_TOKEN_LOCAL", local_env.get("HUGGING_FACE_TOKEN")),
+              ])
+
+          token_candidates.extend([
               ("HF_TOKEN_FALLBACK", os.getenv("HF_TOKEN_FALLBACK")),
               ("HUGGINGFACE_TOKEN_FALLBACK", os.getenv("HUGGINGFACE_TOKEN_FALLBACK")),
               ("HF_API_TOKEN_FALLBACK", os.getenv("HF_API_TOKEN_FALLBACK")),
               ("HUGGINGFACE_API_KEY_FALLBACK", os.getenv("HUGGINGFACE_API_KEY_FALLBACK")),
               ("HUGGING_FACE_TOKEN_FALLBACK", os.getenv("HUGGING_FACE_TOKEN_FALLBACK")),
-          ]
+          ])
 
           token = None
           token_source = "not-found"
@@ -93,8 +101,8 @@ jobs:
             print("[OK] HF token resolved for deployment.")
             if env_file:
               with open(env_file, "a", encoding="utf-8") as f:
-                  f.write(f\"HF_TOKEN={token}\\n\")
-                  f.write("HF_TOKEN_SOURCE=resolve-step\\n")
+                  f.write(f"HF_TOKEN={token}\n")
+                  f.write("HF_TOKEN_SOURCE=resolve-step\n")
           else:
             print("[ERROR] HF token could not be resolved from env/secrets.")
             raise SystemExit(1)
