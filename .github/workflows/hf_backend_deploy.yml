@@ -47,6 +47,12 @@ jobs:
         run: pip install huggingface_hub httpx python-dotenv
 
       - name: Resolve HF token source
+        env:
+          HF_TOKEN_FALLBACK: ${{ secrets.HF_TOKEN || vars.HF_TOKEN }}
+          HUGGINGFACE_TOKEN_FALLBACK: ${{ secrets.HUGGINGFACE_TOKEN || vars.HUGGINGFACE_TOKEN }}
+          HF_API_TOKEN_FALLBACK: ${{ secrets.HF_API_TOKEN || vars.HF_API_TOKEN }}
+          HUGGINGFACE_API_KEY_FALLBACK: ${{ secrets.HUGGINGFACE_API_KEY || vars.HUGGINGFACE_API_KEY }}
+          HUGGING_FACE_TOKEN_FALLBACK: ${{ secrets.HUGGING_FACE_TOKEN || vars.HUGGING_FACE_TOKEN }}
         run: |
           python3 - <<'PY'
           import os
@@ -56,6 +62,11 @@ jobs:
               ("HF_API_TOKEN", os.getenv("HF_API_TOKEN")),
               ("HUGGINGFACE_API_KEY", os.getenv("HUGGINGFACE_API_KEY")),
               ("HUGGING_FACE_TOKEN", os.getenv("HUGGING_FACE_TOKEN")),
+              ("HF_TOKEN_FALLBACK", os.getenv("HF_TOKEN_FALLBACK")),
+              ("HUGGINGFACE_TOKEN_FALLBACK", os.getenv("HUGGINGFACE_TOKEN_FALLBACK")),
+              ("HF_API_TOKEN_FALLBACK", os.getenv("HF_API_TOKEN_FALLBACK")),
+              ("HUGGINGFACE_API_KEY_FALLBACK", os.getenv("HUGGINGFACE_API_KEY_FALLBACK")),
+              ("HUGGING_FACE_TOKEN_FALLBACK", os.getenv("HUGGING_FACE_TOKEN_FALLBACK")),
           ]
 
           token = None
