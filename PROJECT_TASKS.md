@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-15 22:25:00 +07 — เพิ่ม timeout guard + exception boundary ใน Vercel gateway (`api/index.js`) เพื่อกัน HTTP 0 จาก request ค้าง.*
+> *Last Updated: 2026-08-15 22:33:50 +07 — อัปเดต Cloudflare Workers AI model candidate fallback (@cf/meta/llama-3.1-8b-instruct, @cf/meta/llama-3.2-3b-instruct, @cf/qwen/qwen1.5-7b-chat-awq) และ live Gemini/OpenAI endpoints ใน `api/index.js`.*
 
 
 ---
@@ -320,35 +320,46 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 ### 🔄 DOING (กำลังดำเนินการ)
 
-  - [ ] **🔄 Production Finalization Handoff (pending key setup)** — **BLOCKED** (รอ API keys แล้วจึงยังรัน handoff verification chain ไม่ได้; timeout/catch-all hang ใน handler ถูกแก้แล้ว)
-    - สถานะล่าสุด: POST ยังคืน `source=fallback_template` / `model=domain-template` เมื่อยังไม่มี key ที่ใช้งานได้
-    - **Handoff checklist เมื่อได้ key แล้วเสร็จ**:
-      - ตั้ง key แล้ว redeploy ตามคำสั่งใน TODO
-      - รัน `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` และยืนยัน `3/3 PASSED`
-      - รัน `python3 scripts/run_e2e_screenshots.py` และ `python3 scripts/run_button_regression.py`
-      - ยืนยันว่า handoff บันทึก `X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model` และผลตอบกลับ production inference ครบ chain
-      - เมื่อครบขั้นตอนให้เปลี่ยนรายการนี้เป็น `[x]` และอัปเดต `Last Updated`
-    - Copy/paste handoff command block (พร้อม evidence):
-      ```bash
-      python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python
-      python3 scripts/run_e2e_screenshots.py
-      python3 scripts/run_button_regression.py
-      python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python > /tmp/vercel_regression.log
-      tail -n 40 /tmp/vercel_regression.log
-      jq '.version, .inference_chain' < <(curl -s https://horo-consultant-psi.vercel.app/health)
-      ```
+### ✅ Current Operational Status Sync (Production Inference Handoff)
 
-  - [x] **✅ Production Verification Audits Completed (for handoff evidence)**
-    - `21:28` `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` → `3/3 PASSED` (`X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model` present)
-    - `21:45` `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` → `3/3 PASSED` (`X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model` present; model=gemini-3.7-flash)
-  - [x] **✅ Production Regression Suite Hardening Completed** (`scripts/run_vercel_prod_curl_regression.py`)
-    - Added default `--timeout 45` และ `--retries 1` ให้สคริปต์ Python fallback
-    - ปรับให้มี retry เมื่อตรวจพบ timeout เพื่อกัน false-negative จากคูลดาวน์/เครือข่ายชั่วคราว
-    - ยืนยัน: `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python --timeout 45 --retries 1` → `3/3 PASSED`
-  - [x] **✅ Vercel Gateway Timeout & Error Boundary Hardening (`api/index.js`)**
-    - เพิ่ม `BACKEND_TIMEOUT_MS`, `AI_PROVIDER_TIMEOUT_MS`, `AI_ROUTE_BUDGET_MS` พร้อม `fetchWithTimeout()` เพื่อลด request hang
-    - เพิ่มเงื่อนไข budget/cutoff ระหว่าง provider chain (Cloudflare, HF, Gemini, OpenAI) เพื่อ fallback อย่างเร็ว
-    - รองรับการหยุด gracefully เมื่อ `proxyRequest` ล้มเหลว และยังคงคืน response ที่มี CORS-header
+- [ ] **Production Finalization Handoff (pending key setup)** — **BLOCKED** (รอ API keys บน Vercel)
+  - **Current status:** POST `/api/v1/bazi/interpret` ยังอาจตอบด้วย `fallback_template` หากยังไม่มี API key ที่ใช้งานได้
+  - **Live gate:** `source`/`model` ต้องมีค่าใน production responses (`fallback_template` ถือว่าไม่พร้อม handoff)
+  - **Go-live criteria:** ยืนยัน `3/3 PASSED` จาก `run_vercel_prod_curl_regression.py` พร้อม `X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model`
+- **Latest check:** `22:20:25` `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` → `3/3 PASSED` แต่ได้ `source=fallback_template`, `model=domain-template` (`HF model: fetch failed`, `Gemini key blocked 403`, `OpenAI rate limited`; SHA=6b36197)
+
+- [x] **Production Verification Audits Completed (for handoff evidence)**
+  - `21:28` `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` → `3/3 PASSED` (`X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model` present)
+  - `21:45` `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` → `3/3 PASSED` (`X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model` present; model=gemini-3.7-flash)
+  - `21:56:37` `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` → `3/3 PASSED` (`X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model` present; source=fallback_template/model=domain-template; SHA=6b36197; แสดงว่า no usable provider)
+
+- [x] **Production Regression Suite Hardening Completed** (`scripts/run_vercel_prod_curl_regression.py`)
+  - Added default `--timeout 45` และ `--retries 1` ให้สคริปต์ Python fallback
+  - ปรับให้มี retry เมื่อตรวจพบ timeout เพื่อกัน false-negative จากคูลดาวน์/เครือข่ายชั่วคราว
+  - ยืนยัน: `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python --timeout 45 --retries 1` → `3/3 PASSED`
+
+- [x] **Vercel Gateway Timeout & Error Boundary Hardening (`api/index.js`)**
+  - เพิ่ม `BACKEND_TIMEOUT_MS`, `AI_PROVIDER_TIMEOUT_MS`, `AI_ROUTE_BUDGET_MS` พร้อม `fetchWithTimeout()` เพื่อลด request hang
+  - เพิ่มเงื่อนไข budget/cutoff ระหว่าง provider chain (Cloudflare, HF, Gemini, OpenAI) เพื่อ fallback อย่างเร็ว
+  - รองรับการหยุด gracefully เมื่อ `proxyRequest` ล้มเหลว และยังคงคืน response ที่มี CORS-header
+
+### 🔁 Production Inference Next Action Queue (เมื่อได้ key / redeploy แล้ว)
+
+- [ ] 1) ตั้ง API key อย่างน้อย 1 ตัวบน Vercel ตามลำดับ:
+   - [ ] Route 1: `CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_AI_TOKEN`
+   - [ ] Route 2: `GOOGLE_AI_STUDIO_API_KEY` / `GOOGLE_AI_STUDIO_API_KEY2`
+   - [ ] Route 3: `OPENAI_API_KEY`
+   - [ ] Route 4: `HF_TOKEN` / `HUGGINGFACE_TOKEN` / `HUGGINGFACE_API_KEY`
+- [ ] 2) Redeploy แล้วรัน handoff evidence chain:
+   - `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python`
+   - `python3 scripts/run_e2e_screenshots.py`
+   - `python3 scripts/run_button_regression.py`
+- [ ] 3) ถ้า handoff ไม่ผ่าน: ทำตาม rollback checklist ใน TODO และเก็บ proof (`/tmp/vercel_regression.log`, deploy ID, `X-Deploy-SHA`)
+- [ ] 4) ถ้าผ่านครบ: เปลี่ยน `Production Finalization Handoff` เป็น `[x]` และอัปเดต `Last Updated` + TODO ที่เกี่ยวข้อง
+- [ ] 5) เก็บ evidence:
+   - `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python | tee /tmp/vercel_regression.log`
+   - `tail -n 40 /tmp/vercel_regression.log`
+   - `jq '.version, .inference_chain' < <(curl -s https://horo-consultant-psi.vercel.app/health)`
 
 ---
 

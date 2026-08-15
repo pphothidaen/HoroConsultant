@@ -21,7 +21,37 @@ const CORS_HEADERS = {
 };
 const BACKEND_TIMEOUT_MS = Number(process.env.VERCEL_BACKEND_TIMEOUT_MS || 8000);
 const AI_PROVIDER_TIMEOUT_MS = Number(process.env.VERCEL_AI_PROVIDER_TIMEOUT_MS || 6000);
-const AI_ROUTE_BUDGET_MS = Number(process.env.VERCEL_AI_ROUTE_BUDGET_MS || 22000);
+const AI_ROUTE_BUDGET_MS = Number(process.env.VERCEL_AI_ROUTE_BUDGET_MS || 8000);
+const AI_KEY_GUARD_HINTS = ["replace", "your_", "your ", "dummy", "test_", "sample", "placeholder", "changeme", "set_me", "set-me"];
+
+function isUsableApiKey(value) {
+  if (typeof value !== "string") return false;
+  const normalized = value.trim().toLowerCase();
+  if (normalized.length < 12) return false;
+  return !AI_KEY_GUARD_HINTS.some((hint) => normalized.startsWith(hint) || normalized.includes(hint));
+}
+
+function setAiHeaders(response, source, model) {
+  response.setHeader("X-AI-Source", source || "backend");
+  response.setHeader("X-AI-Model", model || "unknown");
+}
+
+function buildFallbackInterpretation(qText, dateStr, stem, elem) {
+  const q = (qText || "").toLowerCase();
+  if (/ลูก|บุตร|บริวาร|ครรภ์|มีลูก|child|son|daughter/.test(q)) {
+    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านบุตรหลาน (BaZi Children Analysis)\n\n- **วันเวลาเกิด**: ${dateStr}\n- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})\n\n📌 บุตรหลานของดิถี ${stem} มีดาวแทน **ธาตุน้ำ (食神/傷官)** ส่งเสริมปัญญา ความคิดสร้างสรรค์ และความเป็นผู้นำในอนาคต\n\n⚠️ *[AI Inference Unavailable — Domain Template Response. Set Cloudflare AI / HF / Gemini / OpenAI keys in Vercel Env Vars for live readings.]*`;
+  }
+  if (/ความรัก|คู่ครอง|แฟน|แต่งงาน|รัก|love|marriage|spouse/.test(q)) {
+    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านความรัก (BaZi Relationship Analysis)\n\n- **วันเวลาเกิด**: ${dateStr}\n- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})\n\n📌 เรือนคู่ครอง (日支) ของดิถี ${stem} ส่งผลให้มีคู่ครองที่มีเหตุผล รับผิดชอบ และเป็นที่พึ่งพาทางจิตใจ\n\n⚠️ *[AI Inference Unavailable — Domain Template Response. Set Cloudflare AI / HF / Gemini / OpenAI keys in Vercel Env Vars for live readings.]*`;
+  }
+  if (/อาชีพ|การงาน|ทำธุรกิจ|ทำงาน|ลงทุน|career|job|business/.test(q) || (q.includes("งาน") && !q.includes("แต่งงาน"))) {
+    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านอาชีพ (BaZi Career Analysis)\n\n- **วันเวลาเกิด**: ${dateStr}\n- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})\n\n📌 ดาวการงาน (正官/七殺) ของดิถี ${stem} โดดเด่นในสายงานบริหาร การวางยุทธศาสตร์ เทคโนโลยี และการเงิน\n\n⚠️ *[AI Inference Unavailable — Domain Template Response. Set Cloudflare AI / HF / Gemini / OpenAI keys in Vercel Env Vars for live readings.]*`;
+  }
+  if (/การเงิน|เงิน|โชคลาภ|หุ้น|ทรัพย์|รวย|wealth|finance|money/.test(q)) {
+    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านการเงิน (BaZi Wealth Analysis)\n\n- **วันเวลาเกิด**: ${dateStr}\n- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})\n\n📌 ดาวโชคลาภ (正財/偏財) ของดิถี ${stem} มีช่องทางรายได้หลากหลาย ควรเน้นลงทุนสินทรัพย์ยั่งยืนและกระจายความเสี่ยง\n\n⚠️ *[AI Inference Unavailable — Domain Template Response. Set Cloudflare AI / HF / Gemini / OpenAI keys in Vercel Env Vars for live readings.]*`;
+  }
+  return `### 🔮 การวิเคราะห์ผังดวงจีน 4 เสาหลัก (BaZi Comprehensive Reading)\n\n- **วันเวลาเกิด**: ${dateStr}\n- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})\n- **คำถาม**: "${qText}"\n\n📌 ดวงชะตาดิถี ${stem} (${elem}) มีพลังปรับสมดุลชีวิตการงาน การเงิน ความสัมพันธ์ และสุขภาพ ตามสมดุล 5 ธาตุ\n\n⚠️ *[AI Inference Unavailable — Domain Template Response. Set Cloudflare AI / HF / Gemini / OpenAI keys in Vercel Env Vars for live readings.]*`;
+}
 
 function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
   const controller = new AbortController();
@@ -85,6 +115,21 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
   const elem    = dayMasterElement || "Metal";
   const routeStartMs = Date.now();
   const routeAlive = () => Date.now() - routeStartMs < AI_ROUTE_BUDGET_MS;
+  const cfAccountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+  const cfAiToken   = process.env.CLOUDFLARE_AI_TOKEN;
+  const hfTokens = [process.env.HF_TOKEN, process.env.HUGGINGFACE_TOKEN, process.env.HUGGINGFACE_API_KEY].filter(isUsableApiKey);
+  const geminiKeys = [process.env.GOOGLE_AI_STUDIO_API_KEY, process.env.GOOGLE_AI_STUDIO_API_KEY2]
+    .filter(isUsableApiKey);
+  const openAiKeys = [process.env.OPENAI_API_KEY, process.env.OPENAI_API_KEY2].filter(isUsableApiKey);
+  const hasUsableProvider =
+    (isUsableApiKey(cfAccountId) && isUsableApiKey(cfAiToken)) ||
+    hfTokens.length > 0 ||
+    geminiKeys.length > 0 ||
+    openAiKeys.length > 0;
+
+  if (!hasUsableProvider) {
+    return { text: buildFallbackInterpretation(qText, dateStr, stem, elem), model: "domain-template", source: "fallback_template" };
+  }
 
   const systemPrompt = `คุณคือปรมาจารย์โหราศาสตร์จีน BaZi (Four Pillars of Destiny - โป๊ยยี่สี่เถียว) ผู้เชี่ยวชาญตำราคลาสสิก 子平真詮 และ 滴天髓
 จงวิเคราะห์ดวงชะตาและเขียนบทวิเคราะห์เป็นภาษาไทยล้วนอย่างละเอียด ลึกซึ้ง มีชีวิตชีวา ตอบคำถามเฉพาะเจาะจงของผู้ใช้โดยตรง:
@@ -93,35 +138,49 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
 - คำถามของผู้ใช้: "${qText}"
 เริ่มต้นด้วย: ### 🔮 ผลการทำนายและวิเคราะห์ผังดวงจีน (BaZi Dynamic Reading)`;
 
-  // Route 1: Cloudflare Workers AI
-  const cfAccountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-  const cfAiToken   = process.env.CLOUDFLARE_AI_TOKEN;
-  const cfAiModel   = process.env.CLOUDFLARE_AI_MODEL || "@cf/qwen/qwen1.5-7b-chat-awq";
-  if (routeAlive() && cfAccountId && cfAiToken) {
-    try {
-      const res = await fetchWithTimeout(`https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/${cfAiModel}`, {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${cfAiToken}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [{ role: "system", content: systemPrompt }, { role: "user", content: qText }],
-          max_tokens: 2048
-        })
-      }, AI_PROVIDER_TIMEOUT_MS);
-      if (res.ok) {
-        const data = await res.json();
-        const text = data.result?.response;
-        if (text && text.trim().length > 100) {
-          console.log(`[AI Inference] Cloudflare Workers AI (${cfAiModel}) OK`);
-          return { text: text.trim(), model: cfAiModel, source: "ai_agent_llm" };
+  // Route 1: Cloudflare Workers AI (with model candidate fallback)
+  const cfAiModels = [
+    process.env.CLOUDFLARE_AI_MODEL,
+    "@cf/meta/llama-3.1-8b-instruct",
+    "@cf/meta/llama-3.2-3b-instruct",
+    "@cf/qwen/qwen1.5-7b-chat-awq",
+  ].filter(Boolean);
+
+  if (routeAlive() && isUsableApiKey(cfAccountId) && isUsableApiKey(cfAiToken)) {
+    for (const cfAiModel of cfAiModels) {
+      if (!routeAlive()) break;
+      try {
+        const res = await fetchWithTimeout(`https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/${cfAiModel}`, {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${cfAiToken}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [{ role: "system", content: systemPrompt }, { role: "user", content: qText }],
+            max_tokens: 2048
+          })
+        }, AI_PROVIDER_TIMEOUT_MS);
+        if (res.ok) {
+          const data = await res.json();
+          const text = data.result?.response;
+          if (text && text.trim().length > 100) {
+            console.log(`[AI Inference] Cloudflare Workers AI (${cfAiModel}) OK`);
+            return { text: text.trim(), model: cfAiModel, source: "ai_agent_llm" };
+          }
+        } else {
+          console.warn(`[AI Inference Warning] Cloudflare AI (${cfAiModel}) HTTP ${res.status}`);
+          if (res.status === 410 || res.status === 404) {
+            continue; // Try next model candidate
+          } else {
+            break; // Auth error or account limit, move to next provider
+          }
         }
-      } else {
-        console.warn(`[AI Inference Warning] Cloudflare AI HTTP ${res.status}`);
+      } catch (err) {
+        console.warn(`[AI Inference Warning] Cloudflare AI (${cfAiModel}): ${err.message}`);
       }
-    } catch (err) { console.warn(`[AI Inference Warning] Cloudflare AI: ${err.message}`); }
+    }
   }
 
   // Route 2: HF Inference API (fine-tuned BaZi model)
-  for (const hfToken of [process.env.HF_TOKEN, process.env.HUGGINGFACE_TOKEN, process.env.HUGGINGFACE_API_KEY].filter(Boolean)) {
+  for (const hfToken of hfTokens) {
     if (!routeAlive()) break;
     try {
       const res = await fetchWithTimeout(`https://api-inference.huggingface.co/models/${TARGET_BAZI_MODEL}`, {
@@ -139,19 +198,20 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
           console.log(`[AI Inference] HF model OK`);
           return { text: text.trim(), model: TARGET_BAZI_MODEL, source: "ai_agent_llm" };
         }
+      } else {
+        console.warn(`[AI Inference Warning] HF model HTTP ${res.status}`);
       }
     } catch (err) { console.warn(`[AI Inference Warning] HF model: ${err.message}`); }
   }
 
-  // Route 3: Google Gemini (key rotation + model fallback)
-  const invalid = ["replace", "your_", "dummy", "your_gemini"];
-  const geminiKeys = [process.env.GOOGLE_AI_STUDIO_API_KEY, process.env.GOOGLE_AI_STUDIO_API_KEY2]
-    .filter(k => k && k.length > 10 && !invalid.some(p => k.toLowerCase().startsWith(p)));
+  // Route 3: Google Gemini (key rotation + live model fallback)
   const geminiModels = [
-    "gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.7-flash",
-    "gemini-2.5-flash-8b", "gemini-2.5-flash-001",
-    "gemini-2.0-flash-001", "gemini-2.0-flash-lite-001",
-    "gemini-1.5-flash-002", "gemini-flash-latest",
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
+    "gemini-1.5-flash",
+    "gemini-2.5-pro",
+    "gemini-1.5-pro",
   ];
   for (const apiKey of geminiKeys) {
     if (!routeAlive()) break;
@@ -184,17 +244,14 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
   }
 
   // Route 4: OpenAI Chat Completions fallback
-  const openAiInvalid = ["replace", "your_", "dummy", "test_"];
-  const openAiKeys = [process.env.OPENAI_API_KEY, process.env.OPENAI_API_KEY2].filter(
-    (key) => key && key.length > 20 && !openAiInvalid.some((prefix) => key.toLowerCase().startsWith(prefix))
-  );
-  const openAiModels = [process.env.OPENAI_MODEL || "gpt-4o-mini", "gpt-4o-mini"];
+  const openAiBaseUrl = (process.env.OPENAI_BASE_URL || process.env.CODEX_PRO_BASE_URL || "https://api.openai.com/v1").replace(/\/$/, "");
+  const openAiModels = [process.env.OPENAI_MODEL || "gpt-4o-mini", "gpt-4o-mini", "gpt-4o"].filter((v, i, a) => a.indexOf(v) === i);
   for (const openAiKey of openAiKeys) {
     if (!routeAlive()) break;
     for (const model of openAiModels) {
       if (!routeAlive()) break;
       try {
-        const res = await fetchWithTimeout("https://api.openai.com/v1/chat/completions", {
+        const res = await fetchWithTimeout(`${openAiBaseUrl}/chat/completions`, {
           method: "POST",
           headers: { "Authorization": `Bearer ${openAiKey}`, "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -224,22 +281,8 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
   }
 
   // Route 5: Domain Template Fallback
-  const q = qText.toLowerCase();
-  let fallbackText;
-  if (/ลูก|บุตร|บริวาร|ครรภ์|มีลูก|child|son|daughter/.test(q)) {
-    fallbackText = `### 🔮 การวิเคราะห์ผังดวงจีนด้านบุตรหลาน (BaZi Children Analysis)\n\n- **วันเวลาเกิด**: ${dateStr}\n- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})\n\n📌 บุตรหลานของดิถี ${stem} มีดาวแทน **ธาตุน้ำ (食神/傷官)** ส่งเสริมปัญญา ความคิดสร้างสรรค์ และความเป็นผู้นำในอนาคต\n\n⚠️ *[AI Inference Unavailable — Domain Template Response. Set Cloudflare AI / HF / Gemini keys in Vercel Env Vars for live readings.]*`;
-  } else if (/ความรัก|คู่ครอง|แฟน|แต่งงาน|รัก|love|marriage|spouse/.test(q)) {
-    fallbackText = `### 🔮 การวิเคราะห์ผังดวงจีนด้านความรัก (BaZi Relationship Analysis)\n\n- **วันเวลาเกิด**: ${dateStr}\n- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})\n\n📌 เรือนคู่ครอง (日支) ของดิถี ${stem} ส่งผลให้มีคู่ครองที่มีเหตุผล รับผิดชอบ และเป็นที่พึ่งพาทางจิตใจ\n\n⚠️ *[AI Inference Unavailable — Domain Template Response. Set Cloudflare AI / HF / Gemini keys in Vercel Env Vars for live readings.]*`;
-  } else if (/อาชีพ|การงาน|ทำธุรกิจ|ทำงาน|ลงทุน|career|job|business/.test(q) || (q.includes("งาน") && !q.includes("แต่งงาน"))) {
-    fallbackText = `### 🔮 การวิเคราะห์ผังดวงจีนด้านอาชีพ (BaZi Career Analysis)\n\n- **วันเวลาเกิด**: ${dateStr}\n- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})\n\n📌 ดาวการงาน (正官/七殺) ของดิถี ${stem} โดดเด่นในสายงานบริหาร การวางยุทธศาสตร์ เทคโนโลยี และการเงิน\n\n⚠️ *[AI Inference Unavailable — Domain Template Response. Set Cloudflare AI / HF / Gemini keys in Vercel Env Vars for live readings.]*`;
-  } else if (/การเงิน|เงิน|โชคลาภ|หุ้น|ทรัพย์|รวย|wealth|finance|money/.test(q)) {
-    fallbackText = `### 🔮 การวิเคราะห์ผังดวงจีนด้านการเงิน (BaZi Wealth Analysis)\n\n- **วันเวลาเกิด**: ${dateStr}\n- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})\n\n📌 ดาวโชคลาภ (正財/偏財) ของดิถี ${stem} มีช่องทางรายได้หลากหลาย ควรเน้นลงทุนสินทรัพย์ยั่งยืนและกระจายความเสี่ยง\n\n⚠️ *[AI Inference Unavailable — Domain Template Response. Set Cloudflare AI / HF / Gemini keys in Vercel Env Vars for live readings.]*`;
-  } else {
-    fallbackText = `### 🔮 การวิเคราะห์ผังดวงจีน 4 เสาหลัก (BaZi Comprehensive Reading)\n\n- **วันเวลาเกิด**: ${dateStr}\n- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})\n- **คำถาม**: "${qText}"\n\n📌 ดวงชะตาดิถี ${stem} (${elem}) มีพลังปรับสมดุลชีวิตการงาน การเงิน ความสัมพันธ์ และสุขภาพ ตามสมดุล 5 ธาตุ\n\n⚠️ *[AI Inference Unavailable — Domain Template Response. Set Cloudflare AI / HF / Gemini keys in Vercel Env Vars for live readings.]*`;
-  }
-
   console.warn("[AI Inference] All routes exhausted — domain template fallback.");
-  return { text: fallbackText, model: "domain-template", source: "fallback_template" };
+  return { text: buildFallbackInterpretation(qText, dateStr, stem, elem), model: "domain-template", source: "fallback_template" };
 }
 
 async function proxyRequest(request, response) {
@@ -266,11 +309,12 @@ async function proxyRequest(request, response) {
         const parsed = JSON.parse(bodyStr);
         if (parsed.interpretation || parsed.pillars || parsed.chart || parsed.day_master) {
           copyResponseHeaders(upstream, response);
-          response.setHeader("X-AI-Source", parsed.source || "backend");
+          setAiHeaders(response, parsed.source || parsed.model || parsed.model_used || parsed.route, parsed.model || parsed.model_used || "unknown");
           return response.status(upstream.status).send(body);
         }
       } catch (e) {
         copyResponseHeaders(upstream, response);
+        setAiHeaders(response, "backend", "unknown");
         return response.status(upstream.status).send(body);
       }
     }
@@ -288,13 +332,22 @@ async function proxyRequest(request, response) {
     const dayMasterStem    = reqBody.day_master?.stem    || "庚";
     const dayMasterElement = reqBody.day_master?.element || "Metal";
 
-    const result = await generateDynamicInterpretation(query, birthDatetime, dayMasterStem, dayMasterElement);
+    const localAiBudgetMs = Number(process.env.VERCEL_LOCAL_AI_BUDGET_MS || 8000);
+    const result = await Promise.race([
+      generateDynamicInterpretation(query, birthDatetime, dayMasterStem, dayMasterElement),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Local AI budget exceeded")), localAiBudgetMs)
+      ),
+    ]).catch(() => ({
+      text: buildFallbackInterpretation(query, birthDatetime, dayMasterStem, dayMasterElement),
+      model: "domain-template",
+      source: "fallback_timeout",
+    }));
     const text   = typeof result === "object" ? result.text   : result;
     const model  = typeof result === "object" ? result.model  : TARGET_BAZI_MODEL;
     const source = typeof result === "object" ? result.source : "ai_agent_llm";
 
-    response.setHeader("X-AI-Source", source);
-    response.setHeader("X-AI-Model",  model);
+    setAiHeaders(response, source, model);
 
     return response.status(200).json({
       day_master:    { stem: dayMasterStem, element: dayMasterElement, polarity: "Yang" },
@@ -336,7 +389,9 @@ async function proxyRequest(request, response) {
   // Health check
   if (target.includes("/health")) {
     const gitCommit = (process.env.VERCEL_GIT_COMMIT_SHA || "").slice(0, 7);
-    const hfTokens = [process.env.HF_TOKEN, process.env.HUGGINGFACE_TOKEN, process.env.HUGGINGFACE_API_KEY].filter(Boolean);
+    const hfTokens = [process.env.HF_TOKEN, process.env.HUGGINGFACE_TOKEN, process.env.HUGGINGFACE_API_KEY].filter(isUsableApiKey);
+    const geminiKeys = [process.env.GOOGLE_AI_STUDIO_API_KEY, process.env.GOOGLE_AI_STUDIO_API_KEY2].filter(isUsableApiKey);
+    const openAiKeys = [process.env.OPENAI_API_KEY, process.env.OPENAI_API_KEY2].filter(isUsableApiKey);
 
     return response.status(200).json({
       status: "ok",
@@ -345,10 +400,10 @@ async function proxyRequest(request, response) {
       gateway: "vercel-node-middleend",
       backend_target: BACKEND_URL,
       inference_chain: [
-        { route: "cloudflare_ai", enabled: Boolean(process.env.CLOUDFLARE_ACCOUNT_ID && process.env.CLOUDFLARE_AI_TOKEN) },
+        { route: "cloudflare_ai", enabled: Boolean(isUsableApiKey(process.env.CLOUDFLARE_ACCOUNT_ID) && isUsableApiKey(process.env.CLOUDFLARE_AI_TOKEN)) },
         { route: "hf_inference",  enabled: hfTokens.length > 0 },
-        { route: "gemini_api",    enabled: Boolean(process.env.GOOGLE_AI_STUDIO_API_KEY) },
-        { route: "openai_api",    enabled: Boolean(process.env.OPENAI_API_KEY) },
+        { route: "gemini_api",    enabled: geminiKeys.length > 0 },
+        { route: "openai_api",    enabled: openAiKeys.length > 0 },
       ]
     });
   }
