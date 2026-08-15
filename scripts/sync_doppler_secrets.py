@@ -3,8 +3,10 @@ scripts/sync_doppler_secrets.py
 ================================
 Automated Production Secret Sync Script for Doppler Secrets Management.
 
-Reads secrets from `.env.production` or `.env` and syncs them into Doppler
-Secrets Manager for `horo-consultant` project (config: `prd` or `dev`),
+Reads secrets from `.env` in local/dev contexts, and falls back to
+`.env.production` for CI/CD/prod-style runs.
+Syncs all keys into Doppler Secrets Manager for `horo-consultant` project
+(config: `prd` or `dev`), then syncs platform secrets.
 as well as GitHub Repository Secrets for GitHub Actions CI/CD automation.
 
 Usage:
@@ -184,7 +186,13 @@ def sync_secrets_to_doppler(
 
 def main():
     parser = argparse.ArgumentParser(description="Sync HoroConsultant Production Secrets to Doppler & GitHub Secrets")
-    parser.add_argument("--env-file", type=Path, default=ROOT_DIR / ".env.production", help="Path to production .env file")
+    default_env_file = ROOT_DIR / (".env" if os.getenv("GITHUB_ACTIONS") != "true" else ".env.production")
+    parser.add_argument(
+        "--env-file",
+        type=Path,
+        default=default_env_file,
+        help="Path to local/prod env file (defaults to .env locally, .env.production in CI)",
+    )
     parser.add_argument("--project", default="horo-consultant", help="Doppler project name")
     parser.add_argument("--config", default="prd", help="Doppler config name ('dev' or 'prd')")
     parser.add_argument("--dry-run", action="store_true", help="Validate without sending to Doppler")
