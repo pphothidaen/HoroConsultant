@@ -32,6 +32,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 ORIGIN = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
 DEFAULT_BASE_URL = "https://horo-consultant-psi.vercel.app"
+DEFAULT_TIMEOUT_SECONDS = 45
+DEFAULT_RETRIES = 1
 
 # Browser headers that reproduce the exact curl the user reported
 BROWSER_HEADERS = {
@@ -52,52 +54,63 @@ BROWSER_HEADERS = {
 }
 
 
-def _do_request(url: str, method: str = "GET", body: bytes | None = None,
-                extra_headers: dict[str, str] | None = None) -> dict[str, Any]:
+def _do_request(
+    url: str,
+    method: str = "GET",
+    body: bytes | None = None,
+    extra_headers: dict[str, str] | None = None,
+    timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS,
+    retries: int = DEFAULT_RETRIES,
+) -> dict[str, Any]:
     """Make HTTP request and return {status, headers, body_text, body_json, latency_ms}."""
     headers = {**BROWSER_HEADERS, **(extra_headers or {})}
 
-    req = urllib.request.Request(url, method=method, headers=headers, data=body)
-    start = time.perf_counter()
-    try:
-        with urllib.request.urlopen(req, timeout=30) as response:
+    for attempt in range(retries + 1):
+        req = urllib.request.Request(url, method=method, headers=headers, data=body)
+        start = time.perf_counter()
+        try:
+            with urllib.request.urlopen(req, timeout=timeout_seconds) as response:
+                latency = (time.perf_counter() - start) * 1000
+                raw = response.read()
+                body_text = raw.decode("utf-8", errors="replace")
+                try:
+                    body_json = json.loads(body_text)
+                except Exception:
+                    body_json = None
+                return {
+                    "status": response.status,
+                    "headers": dict(response.headers),
+                    "body_text": body_text,
+                    "body_json": body_json,
+                    "latency_ms": round(latency, 1),
+                    "error": None,
+                }
+        except urllib.error.HTTPError as e:
             latency = (time.perf_counter() - start) * 1000
-            raw = response.read()
+            raw = e.read()
             body_text = raw.decode("utf-8", errors="replace")
-            try:
-                body_json = json.loads(body_text)
-            except Exception:
-                body_json = None
             return {
-                "status": response.status,
-                "headers": dict(response.headers),
+                "status": e.code,
+                "headers": dict(e.headers),
                 "body_text": body_text,
-                "body_json": body_json,
+                "body_json": None,
                 "latency_ms": round(latency, 1),
-                "error": None,
+                "error": str(e),
             }
-    except urllib.error.HTTPError as e:
-        latency = (time.perf_counter() - start) * 1000
-        raw = e.read()
-        body_text = raw.decode("utf-8", errors="replace")
-        return {
-            "status": e.code,
-            "headers": dict(e.headers),
-            "body_text": body_text,
-            "body_json": None,
-            "latency_ms": round(latency, 1),
-            "error": str(e),
-        }
-    except Exception as e:
-        latency = (time.perf_counter() - start) * 1000
-        return {
-            "status": 0,
-            "headers": {},
-            "body_text": "",
-            "body_json": None,
-            "latency_ms": round(latency, 1),
-            "error": str(e),
-        }
+        except Exception as e:
+            latency = (time.perf_counter() - start) * 1000
+            message = str(e).lower()
+            if attempt < retries and ("timeout" in message or "timed out" in message):
+                time.sleep(1)
+                continue
+            return {
+                "status": 0,
+                "headers": {},
+                "body_text": "",
+                "body_json": None,
+                "latency_ms": round(latency, 1),
+                "error": str(e),
+            }
 
 
 def _check_cors(result: dict[str, Any]) -> bool:
@@ -111,7 +124,7 @@ def _header(result: dict[str, Any], name: str) -> str:
     return {k.lower(): v for k, v in result["headers"].items()}.get(name.lower(), "").strip()
 
 
-def run_regression(base_url: str) -> int:
+def run_regression(base_url: str, timeout_seconds: int, retries: int) -> int:
     """Run all regression tests. Returns exit code (0=pass, 1=fail)."""
     results = []
     all_passed = True
@@ -123,7 +136,7 @@ def run_regression(base_url: str) -> int:
 
     # ── Test 1: GET /health ──────────────────────────────────────────────────
     url = f"{base_url}/health"
-    r = _do_request(url, "GET")
+    r = _do_request(url, "GET", timeout_seconds=timeout_seconds, retries=retries)
     deploy_sha = _header(r, "x-deploy-sha")
     passed = (
         r["status"] == 200
@@ -144,10 +157,16 @@ def run_regression(base_url: str) -> int:
 
     # ── Test 2: OPTIONS /api/v1/bazi/interpret (CORS preflight) ─────────────
     url = f"{base_url}/api/v1/bazi/interpret"
-    r = _do_request(url, "OPTIONS", extra_headers={
-        "Access-Control-Request-Method": "POST",
-        "Access-Control-Request-Headers": "content-type",
-    })
+    r = _do_request(
+        url,
+        "OPTIONS",
+        extra_headers={
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+        timeout_seconds=timeout_seconds,
+        retries=retries,
+    )
     passed = (
         r["status"] in {200, 204}
         and _check_cors(r)
@@ -173,7 +192,14 @@ def run_regression(base_url: str) -> int:
         "enable_validation": True,
         "query": "วิเคราะห์ความแข็งแกร่งของ Day Master ธาตุทอง และอาชีพการงานที่ส่งเสริมดวงชะตา",
     }, ensure_ascii=False).encode("utf-8")
-    r = _do_request(url, "POST", body=payload, extra_headers={"content-type": "application/json"})
+    r = _do_request(
+        url,
+        "POST",
+        body=payload,
+        extra_headers={"content-type": "application/json"},
+        timeout_seconds=timeout_seconds,
+        retries=retries,
+    )
     has_chart = (r["body_json"] or {}).get("chart") is not None
     has_interp = (r["body_json"] or {}).get("interpretation") is not None
     ai_source = _header(r, "x-ai-source")
@@ -219,6 +245,8 @@ def main():
     parser = argparse.ArgumentParser(description="Vercel Production Curl Regression Suite")
     parser.add_argument("--url", default=DEFAULT_BASE_URL, help="Base URL to test against")
     parser.add_argument("--use-python", action="store_true", help="Force python execution instead of Rust binary")
+    parser.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT_SECONDS, help="Request timeout in seconds (default: %(default)s)")
+    parser.add_argument("--retries", type=int, default=DEFAULT_RETRIES, help="Retry network failures (default: %(default)s)")
     args = parser.parse_args()
 
     rust_binary = ROOT / "rust_core" / "target" / "release" / "vercel_curl_regression"
@@ -228,7 +256,7 @@ def main():
         res = subprocess.run([str(rust_binary), "--url", args.url])
         sys.exit(res.returncode)
 
-    sys.exit(run_regression(args.url))
+    sys.exit(run_regression(args.url, args.timeout, args.retries))
 
 
 if __name__ == "__main__":

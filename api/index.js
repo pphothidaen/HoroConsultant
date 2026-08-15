@@ -19,6 +19,24 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers":
     "Content-Type, Authorization, X-Requested-With, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, Referer, User-Agent",
 };
+const BACKEND_TIMEOUT_MS = Number(process.env.VERCEL_BACKEND_TIMEOUT_MS || 8000);
+const AI_PROVIDER_TIMEOUT_MS = Number(process.env.VERCEL_AI_PROVIDER_TIMEOUT_MS || 6000);
+const AI_ROUTE_BUDGET_MS = Number(process.env.VERCEL_AI_ROUTE_BUDGET_MS || 22000);
+
+function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  return fetch(url, { ...options, signal: controller.signal })
+    .then((response) => {
+      clearTimeout(timeoutId);
+      return response;
+    })
+    .catch((error) => {
+      clearTimeout(timeoutId);
+      throw error;
+    });
+}
 
 function applyCors(response) {
   for (const [name, value] of Object.entries(CORS_HEADERS)) {
@@ -65,6 +83,8 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
   const dateStr = birthDatetime || "1990-05-15 14:30:00";
   const stem    = dayMasterStem    || "庚";
   const elem    = dayMasterElement || "Metal";
+  const routeStartMs = Date.now();
+  const routeAlive = () => Date.now() - routeStartMs < AI_ROUTE_BUDGET_MS;
 
   const systemPrompt = `คุณคือปรมาจารย์โหราศาสตร์จีน BaZi (Four Pillars of Destiny - โป๊ยยี่สี่เถียว) ผู้เชี่ยวชาญตำราคลาสสิก 子平真詮 และ 滴天髓
 จงวิเคราะห์ดวงชะตาและเขียนบทวิเคราะห์เป็นภาษาไทยล้วนอย่างละเอียด ลึกซึ้ง มีชีวิตชีวา ตอบคำถามเฉพาะเจาะจงของผู้ใช้โดยตรง:
@@ -77,16 +97,16 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
   const cfAccountId = process.env.CLOUDFLARE_ACCOUNT_ID;
   const cfAiToken   = process.env.CLOUDFLARE_AI_TOKEN;
   const cfAiModel   = process.env.CLOUDFLARE_AI_MODEL || "@cf/qwen/qwen1.5-7b-chat-awq";
-  if (cfAccountId && cfAiToken) {
+  if (routeAlive() && cfAccountId && cfAiToken) {
     try {
-      const res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/${cfAiModel}`, {
+      const res = await fetchWithTimeout(`https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/ai/run/${cfAiModel}`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${cfAiToken}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: [{ role: "system", content: systemPrompt }, { role: "user", content: qText }],
           max_tokens: 2048
         })
-      });
+      }, AI_PROVIDER_TIMEOUT_MS);
       if (res.ok) {
         const data = await res.json();
         const text = data.result?.response;
@@ -102,15 +122,16 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
 
   // Route 2: HF Inference API (fine-tuned BaZi model)
   for (const hfToken of [process.env.HF_TOKEN, process.env.HUGGINGFACE_TOKEN, process.env.HUGGINGFACE_API_KEY].filter(Boolean)) {
+    if (!routeAlive()) break;
     try {
-      const res = await fetch(`https://api-inference.huggingface.co/models/${TARGET_BAZI_MODEL}`, {
+      const res = await fetchWithTimeout(`https://api-inference.huggingface.co/models/${TARGET_BAZI_MODEL}`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${hfToken}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           inputs: `<|im_start|>system\n${systemPrompt}<|im_end|>\n<|im_start|>user\n${qText}<|im_end|>\n<|im_start|>assistant\n`,
           parameters: { max_new_tokens: 1024, temperature: 0.7, return_full_text: false }
         })
-      });
+      }, AI_PROVIDER_TIMEOUT_MS);
       if (res.ok) {
         const data = await res.json();
         const text = Array.isArray(data) ? data[0]?.generated_text : data?.generated_text;
@@ -133,16 +154,18 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
     "gemini-1.5-flash-002", "gemini-flash-latest",
   ];
   for (const apiKey of geminiKeys) {
+    if (!routeAlive()) break;
     for (const model of geminiModels) {
+      if (!routeAlive()) break;
       try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+        const res = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [{ parts: [{ text: systemPrompt + "\n\nUser Question: " + qText }] }],
             generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
           })
-        });
+        }, AI_PROVIDER_TIMEOUT_MS);
         if (res.ok) {
           const data = await res.json();
           const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -167,9 +190,11 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
   );
   const openAiModels = [process.env.OPENAI_MODEL || "gpt-4o-mini", "gpt-4o-mini"];
   for (const openAiKey of openAiKeys) {
+    if (!routeAlive()) break;
     for (const model of openAiModels) {
+      if (!routeAlive()) break;
       try {
-        const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        const res = await fetchWithTimeout("https://api.openai.com/v1/chat/completions", {
           method: "POST",
           headers: { "Authorization": `Bearer ${openAiKey}`, "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -178,7 +203,7 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
             temperature: 0.7,
             max_tokens: 1024,
           }),
-        });
+        }, AI_PROVIDER_TIMEOUT_MS);
         if (res.ok) {
           const data = await res.json();
           const text = data.choices?.[0]?.message?.content;
@@ -228,12 +253,12 @@ async function proxyRequest(request, response) {
 
   // Attempt 1: Proxy to FastAPI backend
   try {
-    const upstream = await fetch(`${BACKEND_URL}${target}`, {
+    const upstream = await fetchWithTimeout(`${BACKEND_URL}${target}`, {
       method: request.method,
       headers: forwardHeaders(request),
       body: rawBodyBuffer,
       redirect: "manual",
-    });
+    }, BACKEND_TIMEOUT_MS);
     if (upstream.ok) {
       const body    = Buffer.from(await upstream.arrayBuffer());
       const bodyStr = body.toString("utf-8");
@@ -342,5 +367,14 @@ export default async function handler(request, response) {
   if (request.method === "GET" && requestUrl.pathname === "/api/index" && !requestUrl.searchParams.get("path")) {
     return response.status(200).json({ status: "ok", service: "HoroConsultant Vercel Gateway" });
   }
-  return proxyRequest(request, response);
+  try {
+    return await proxyRequest(request, response);
+  } catch (error) {
+    console.error("[ERROR] Unhandled gateway failure:", error);
+    return response.status(502).json({
+      status: "error",
+      code: "gateway_exception",
+      message: error?.message || "Gateway processing failure",
+    });
+  }
 }

@@ -3,7 +3,7 @@
 **Project:** HoroConsultant — Computational Metaphysics Engine  
 **Target Framework:** Antigravity CLI AI SDLC System + Codex compatibility layer  
 **Lead Agent:** Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
-**Last Updated:** 2026-08-15 21:55:00 +07 — Made blocker explicit for `Production Finalization Handoff` (pending API keys) and kept board aligned.
+**Last Updated:** 2026-08-15 22:25:00 +07 — เพิ่ม gateway hardening (`api/index.js`) และทำ status kanban ให้สะท้อนความคืบหน้า.
 
 ---
 
