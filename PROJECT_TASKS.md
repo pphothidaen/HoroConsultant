@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-15 — Created dedicated QA Skill `ai-inference-verifier` (`.agents/skills/ai-inference-verifier/SKILL.md`) and automated inspection tool (`scripts/audit_ai_inference_origin.py`) to classify real AI LLM inference vs fallback/template generation with linguistic variance scoring and signature detection. Synchronized across Antigravity, Codex, and workspace agent specs.*
+> *Last Updated: 2026-08-15 — Updated primary BaZi fine-tuned AI model configuration to `pphothidaen/qwen2.5-7b-bazi-instruct-4bit` across Edge Gateway (`api/index.js`) and Backend Router. Integrated model verification step into GitHub Actions CI/CD workflows (`.github/workflows/ci.yml` and `.github/workflows/ai_cicd.yml`) via `python3 -m pytest project/tests/test_audit_ai_inference_origin.py -v`. All 389/389 Pytest tests passed (100%), 25/25 UI button regression passed (100%), and 10/10 Live Playwright E2E passed (100%).*
 
 
 ---
