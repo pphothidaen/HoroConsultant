@@ -8,6 +8,10 @@ Executes real Playwright browser automation on live production:
 Verifies all 20 UI interactive buttons, form controls, presets, 
 9 Master Astrology Disciplines, AI BaZi calculation, and Tab switchers.
 
+Profiles:
+  - smoke (default): critical path checks (page load, key API + key UI flows)
+  - full: smoke checks plus all 9 discipline calculation buttons.
+
 Generates:
   - project/tests/prod_button_regression_report.json
   - project/tests/screenshots/prod_*.png
@@ -16,6 +20,7 @@ Generates:
 from __future__ import annotations
 
 import asyncio
+import argparse
 import json
 import os
 import shutil
@@ -39,10 +44,16 @@ SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
 
 
-async def run_live_e2e_production_regression():
+async def run_live_e2e_production_regression(profile: str = "smoke"):
+    profile = (profile or "smoke").strip().lower()
+    if profile not in {"smoke", "full"}:
+        raise ValueError(f"Unsupported profile: {profile}")
+    is_full_profile = profile == "full"
+
     print("======================================================================")
     print("  🚀 STARTING PRODUCTION E2E UI BUTTON REGRESSION SUITE")
     print(f"  Target: {PROD_URL}")
+    print(f"  Profile: {profile.upper()}")
     print("======================================================================")
 
     button_results = []
@@ -250,70 +261,71 @@ async def run_live_e2e_production_regression():
         # -------------------------------------------------------------------
         # 4. Master Discipline Calculation Buttons (9 Items)
         # -------------------------------------------------------------------
-        print("\n[STEP 4] Testing 9 Master Metaphysics Discipline Buttons...")
-        disciplines = [
-            ("BTN-PROD-05", "Zi Wei", "calcZiWei()", "/api/v1/ziwei/calculate", "紫微", "紫微斗數"),
-            ("BTN-PROD-06", "Qi Men", "calcQiMen()", "/api/v1/qimen/calculate", "奇門", "奇門遁甲"),
-            ("BTN-PROD-07", "Da Liu Ren", "calcLiuRen()", "/api/v1/liuren/calculate", "六壬", "大六壬"),
-            ("BTN-PROD-08", "I Ching", "calcIChing()", "/api/v1/iching/calculate", "易經", "六爻"),
-            ("BTN-PROD-09", "Xuan Kong", "calcXuanKong()", "/api/v1/xuankong/calculate", "風水", "玄空"),
-            ("BTN-PROD-10", "Ze Ji", "calcZeJi()", "/api/v1/zeji/calculate", "擇吉", "คำนวณฤกษ์"),
-            ("BTN-PROD-11", "Thai Vedic", "calcThaiVedic()", "/api/v1/thaivedic/calculate", "🐘", "โหราศาสตร์ไทย"),
-            ("BTN-PROD-12", "Western", "calcWestern()", "/api/v1/western/calculate", "🌌", "โหราศาสตร์สากล"),
-            ("BTN-PROD-13", "Numerology", "calcNumerology()", "/api/v1/numerology/calculate", "🔢", "สัตตเลข")
-        ]
+        if is_full_profile:
+            print("\n[STEP 4] Testing 9 Master Metaphysics Discipline Buttons...")
+            disciplines = [
+                ("BTN-PROD-05", "Zi Wei", "calcZiWei()", "/api/v1/ziwei/calculate", "紫微", "紫微斗數"),
+                ("BTN-PROD-06", "Qi Men", "calcQiMen()", "/api/v1/qimen/calculate", "奇門", "奇門遁甲"),
+                ("BTN-PROD-07", "Da Liu Ren", "calcLiuRen()", "/api/v1/liuren/calculate", "六壬", "大六壬"),
+                ("BTN-PROD-08", "I Ching", "calcIChing()", "/api/v1/iching/calculate", "易經", "六爻"),
+                ("BTN-PROD-09", "Xuan Kong", "calcXuanKong()", "/api/v1/xuankong/calculate", "風水", "玄空"),
+                ("BTN-PROD-10", "Ze Ji", "calcZeJi()", "/api/v1/zeji/calculate", "擇吉", "คำนวณฤกษ์"),
+                ("BTN-PROD-11", "Thai Vedic", "calcThaiVedic()", "/api/v1/thaivedic/calculate", "🐘", "โหราศาสตร์ไทย"),
+                ("BTN-PROD-12", "Western", "calcWestern()", "/api/v1/western/calculate", "🌌", "โหราศาสตร์สากล"),
+                ("BTN-PROD-13", "Numerology", "calcNumerology()", "/api/v1/numerology/calculate", "🔢", "สัตตเลข")
+            ]
 
-        for btn_id, name, handler, endpoint, icon_match, text_match in disciplines:
-            try:
-                # Find button by selector text
-                btn_selector = f"button:has-text('{text_match}')"
-                await page.click(btn_selector)
-                await page.wait_for_timeout(3500)
-
-                # Check branch result card content
-                card_visible = await page.is_visible("#branch-result-card") or await page.is_visible('[id="5-branch-result-card"]')
-                if not card_visible:
-                    # Retry click if card was not visible immediately
+            for btn_id, name, handler, endpoint, icon_match, text_match in disciplines:
+                try:
+                    # Find button by selector text
+                    btn_selector = f"button:has-text('{text_match}')"
                     await page.click(btn_selector)
                     await page.wait_for_timeout(3500)
+
+                    # Check branch result card content
                     card_visible = await page.is_visible("#branch-result-card") or await page.is_visible('[id="5-branch-result-card"]')
-                body_text = ""
-                if await page.is_visible("#branch-body"):
-                    body_text = await page.inner_text("#branch-body")
-                elif await page.is_visible('[id="5-branch-body"]'):
-                    body_text = await page.inner_text('[id="5-branch-body"]')
+                    if not card_visible:
+                        # Retry click if card was not visible immediately
+                        await page.click(btn_selector)
+                        await page.wait_for_timeout(3500)
+                        card_visible = await page.is_visible("#branch-result-card") or await page.is_visible('[id="5-branch-result-card"]')
+                    body_text = ""
+                    if await page.is_visible("#branch-body"):
+                        body_text = await page.inner_text("#branch-body")
+                    elif await page.is_visible('[id="5-branch-body"]'):
+                        body_text = await page.inner_text('[id="5-branch-body"]')
 
-                # Check network calls for endpoint
-                matched_api = [r for r in api_responses if endpoint in r["url"]]
-                api_ok = any(r["ok"] for r in matched_api)
+                    # Check network calls for endpoint
+                    matched_api = [r for r in api_responses if endpoint in r["url"]]
+                    api_ok = any(r["ok"] for r in matched_api)
 
-                success = card_visible and len(body_text) > 15
-                print(f"  • Discipline '{name}': Card Visible={card_visible}, Text Length={len(body_text)}, API Calls={len(matched_api)} -> {'OK' if success else 'FAIL'}")
+                    success = card_visible and len(body_text) > 15 and api_ok
+                    print(f"  • Discipline '{name}': Card Visible={card_visible}, Text Length={len(body_text)}, API Calls={len(matched_api)} -> {'OK' if success else 'FAIL'}")
 
-                button_results.append({
-                    "id": btn_id,
-                    "page": "index.html",
-                    "name": f"☯ {name} ({text_match})",
-                    "handler": handler,
-                    "endpoint": f"GET {endpoint}",
-                    "status": "PASSED" if success else "FAILED",
-                    "detail": f"Result card rendered cleanly with {len(body_text)} chars output. API status: {[r['status'] for r in matched_api]}",
-                })
-            except Exception as e:
-                print(f"  ❌ Discipline '{name}' Failed: {e}")
-                button_results.append({
-                    "id": btn_id,
-                    "page": "index.html",
-                    "name": f"☯ {name}",
-                    "handler": handler,
-                    "endpoint": f"GET {endpoint}",
-                    "status": "FAILED",
-                    "detail": f"Error: {e}"
-                })
+                    button_results.append({
+                        "id": btn_id,
+                        "page": "index.html",
+                        "name": f"☯ {name} ({text_match})",
+                        "handler": handler,
+                        "endpoint": f"GET {endpoint}",
+                        "status": "PASSED" if success else "FAILED",
+                        "detail": f"Result card rendered cleanly with {len(body_text)} chars output. API status: {[r['status'] for r in matched_api]}",
+                    })
+                except Exception as e:
+                    print(f"  ❌ Discipline '{name}' Failed: {e}")
+                    button_results.append({
+                        "id": btn_id,
+                        "page": "index.html",
+                        "name": f"☯ {name}",
+                        "handler": handler,
+                        "endpoint": f"GET {endpoint}",
+                        "status": "FAILED",
+                        "detail": f"Error: {e}"
+                    })
 
-        shot4 = SCREENSHOT_DIR / "prod_04_master_disciplines_calculated.png"
-        await page.screenshot(path=str(shot4), full_page=True)
-        shutil.copy(shot4, ARTIFACT_DIR / shot4.name)
+            shot4 = SCREENSHOT_DIR / "prod_04_master_disciplines_calculated.png"
+            await page.screenshot(path=str(shot4), full_page=True)
+            shutil.copy(shot4, ARTIFACT_DIR / shot4.name)
 
         # -------------------------------------------------------------------
         # 5. Form Checkboxes (unknown_hour & enable_validation)
@@ -461,6 +473,7 @@ async def run_live_e2e_production_regression():
     report_data = {
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
         "target_url": PROD_URL,
+        "profile": profile,
         "elapsed_seconds": elapsed,
         "summary": {
             "total_buttons": total_count,
@@ -489,5 +502,13 @@ async def run_live_e2e_production_regression():
 
 
 if __name__ == "__main__":
-    success = asyncio.run(run_live_e2e_production_regression())
+    parser = argparse.ArgumentParser(description="Run production E2E regression with a smoke/full profile.")
+    parser.add_argument(
+        "--profile",
+        choices=["smoke", "full"],
+        default=os.getenv("E2E_PROFILE", "smoke"),
+        help="Execution profile. 'smoke' is faster and lower cost; 'full' validates all discipline controls."
+    )
+    args = parser.parse_args()
+    success = asyncio.run(run_live_e2e_production_regression(profile=args.profile))
     sys.exit(0 if success else 1)

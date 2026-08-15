@@ -11,6 +11,20 @@ on:
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
+    inputs:
+      run_kaggle_cloud:
+        description: "Run Kaggle trigger/output sync stage"
+        required: false
+        default: false
+        type: boolean
+      e2e_profile:
+        description: "Production E2E profile for optional manual run"
+        required: false
+        default: smoke
+        type: choice
+        options:
+          - smoke
+          - full
   schedule:
     - cron: "0 2 * * *"
 
@@ -60,11 +74,17 @@ jobs:
           python3 -m pytest -q --ignore=project/kaggle_kernel
           python3 scripts/run_button_regression.py
 
+      - name: Optional production E2E gate (manual run)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          PROFILE="${{ github.event.inputs.e2e_profile || 'smoke' }}"
+          python3 scripts/run_prod_e2e_playwright.py --profile "$PROFILE"
+
   kaggle-ai-cicd:
     name: Kaggle Cloud Fine-Tuning Trigger & Output Sync
     needs: code-review-and-audit
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_kaggle_cloud == 'true'
 
     steps:
       - name: Checkout repository
