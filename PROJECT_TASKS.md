@@ -377,7 +377,7 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
   - Optional (Rotate): `GOOGLE_AI_STUDIO_API_KEY` ใหม่จาก https://aistudio.google.com (key เก่า leaked)
   - หลังตั้งแล้ว redeploy หรือรอ Vercel trigger จาก commit ล่าสุด
 
-- [ ] **Release Rollback & Recovery Runbook** *(Priority: MEDIUM)*
+- [x] **Release Rollback & Recovery Runbook ([`docs/RELEASE_ROLLBACK_RUNBOOK.md`](file:///Users/kimlenglim/Project/HoroConsultant/docs/RELEASE_ROLLBACK_RUNBOOK.md))** *(Priority: MEDIUM)*
   - Define rollback/no-rollback criteria (health probe failures, route error rates, and cross-provider inference chain breakage).
   - Set owners and contact chain for Vercel, Hugging Face, and Azure fallback paths.
   - Owner mapping template:

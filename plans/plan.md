@@ -50,7 +50,7 @@
   - เพิ่ม `fetchWithTimeout()` + handler exception catch เพื่อป้องกัน HTTP 0 และการตก CORS เมื่อมี request ค้าง
   - อ้างอิงงานใน [PROJECT_TASKS.md](/Users/kimlenglim/Project/HoroConsultant/PROJECT_TASKS.md)
 - [ ] **API Keys Setup for Inference** (ความสำคัญสูงสุด): ตั้งตัวแปร inference key อย่างน้อยหนึ่งทางเลือกใน Vercel Env
-- [ ] **Release Rollback & Recovery Runbook**: ทำ owner mapping และเกณฑ์ rollback/no-rollback พร้อม checklist ปฏิบัติใน incident
+- [x] **Release Rollback & Recovery Runbook ([`docs/RELEASE_ROLLBACK_RUNBOOK.md`](file:///Users/kimlenglim/Project/HoroConsultant/docs/RELEASE_ROLLBACK_RUNBOOK.md))**: ทำ owner mapping และเกณฑ์ rollback/no-rollback พร้อม playbook ปฏิบัติการกู้คืนระบบครบวงจร
 
 ### 📌 Production Inference Runbook (Next Action Queue)
 
