@@ -213,7 +213,122 @@ def _call_gemini(
             logger.warning(f"[Gemini:{candidate}][{key_tag}] Exception: {exc}")
             return None, "exception"
 
-    return None, last_reason
+# ---------------------------------------------------------------------------
+# Vertex AI caller (direct Service Account Bearer Token)
+# ---------------------------------------------------------------------------
+
+def _get_vertex_ai_credentials() -> tuple[str | None, str | None]:
+    """
+    Load project ID and generate fresh OAuth2 Bearer token from Service Account JSON if available.
+    """
+    from pathlib import Path
+    import base64
+    import json
+    import urllib.request
+    import urllib.parse
+    from cryptography.hazmat.primitives import hashes
+    from cryptography.hazmat.primitives.asymmetric import padding
+    from cryptography.hazmat.primitives.serialization import load_pem_private_key
+
+    sa_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
+    if not sa_path or not Path(sa_path).exists():
+        default_p = Path(__file__).resolve().parent.parent / "gen-lang-client-0821704500-6831370efa0e.json"
+        if default_p.exists():
+            sa_path = str(default_p)
+
+    if not sa_path or not Path(sa_path).exists():
+        return None, None
+
+    try:
+        sa_data = json.loads(Path(sa_path).read_text(encoding="utf-8"))
+        project_id = sa_data.get("project_id")
+        client_email = sa_data.get("client_email")
+        token_uri = sa_data.get("token_uri", "https://oauth2.googleapis.com/token")
+        pk = load_pem_private_key(sa_data["private_key"].encode("utf-8"), password=None)
+
+        def b64url(d):
+            if isinstance(d, str):
+                d = d.encode("utf-8")
+            return base64.urlsafe_b64encode(d).decode("utf-8").rstrip("=")
+
+        now = int(time.time())
+        jwt_header = {"alg": "RS256", "typ": "JWT"}
+        jwt_payload = {
+            "iss": client_email,
+            "scope": "https://www.googleapis.com/auth/cloud-platform",
+            "aud": token_uri,
+            "exp": now + 3600,
+            "iat": now,
+        }
+        signing_input = f"{b64url(json.dumps(jwt_header))}.{b64url(json.dumps(jwt_payload))}".encode("utf-8")
+        sig = pk.sign(signing_input, padding.PKCS1v15(), hashes.SHA256())
+        signed_jwt = f"{signing_input.decode('utf-8')}.{b64url(sig)}"
+
+        req = urllib.request.Request(
+            token_uri,
+            data=urllib.parse.urlencode({
+                "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+                "assertion": signed_jwt,
+            }).encode("utf-8"),
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            token_res = json.loads(resp.read().decode("utf-8"))
+            return project_id, token_res.get("access_token")
+    except Exception as exc:
+        logger.debug(f"Vertex AI token generation note: {exc}")
+        return None, None
+
+
+def _call_vertex_ai(
+    model: str,
+    project_id: str,
+    bearer_token: str,
+    prompt: str,
+    system_instruction: str = "",
+    location: str = "us-central1",
+) -> tuple[str | None, str]:
+    """Call Google Cloud Vertex AI generateContent endpoint with OAuth2 Bearer token."""
+    if not bearer_token or not project_id:
+        return None, "no_auth"
+
+    v_model = "gemini-1.5-flash" if "flash" in model else "gemini-1.5-pro"
+    url = f"https://{location}-aiplatform.googleapis.com/v1/projects/{project_id}/locations/{location}/publishers/google/models/{v_model}:generateContent"
+    headers = {
+        "Authorization": f"Bearer {bearer_token}",
+        "Content-Type": "application/json",
+    }
+    payload: dict[str, Any] = {
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+        "generationConfig": {"temperature": 0.2, "maxOutputTokens": 8192},
+    }
+    if system_instruction:
+        payload["systemInstruction"] = {"parts": [{"text": system_instruction}]}
+
+    try:
+        with httpx.Client(timeout=TIMEOUT_CLOUD_S) as client:
+            t0 = time.monotonic()
+            res = client.post(url, json=payload, headers=headers)
+            elapsed = round((time.monotonic() - t0) * 1000)
+
+        if res.status_code == 200:
+            cands = res.json().get("candidates", [])
+            if cands:
+                text = cands[0]["content"]["parts"][0]["text"]
+                logger.info(f"[VertexAI:{v_model}] ✅ OK ({elapsed}ms)")
+                return text, "ok"
+            return None, "empty"
+        elif res.status_code == 429:
+            logger.warning(f"[VertexAI:{v_model}] 429 rate-limited")
+            return None, "429"
+        else:
+            logger.warning(f"[VertexAI:{v_model}] HTTP {res.status_code}")
+            return None, f"error:{res.status_code}"
+    except httpx.TimeoutException:
+        return None, "timeout"
+    except Exception as exc:
+        logger.warning(f"[VertexAI:{v_model}] Exception: {exc}")
+        return None, "exception"
 
 
 # ---------------------------------------------------------------------------
@@ -366,7 +481,12 @@ class HybridRouter:
                 for key in _gemini_keys():
                     routes.append({"type": "gemini", "model": model, "key": key})
 
-        # 3. External AI Providers Fallback (OpenAI & Together AI)
+        # 3. Vertex AI Service Account Direct Integration (Priority 2 Cloud)
+        proj_id, bearer_token = _get_vertex_ai_credentials()
+        if proj_id and bearer_token:
+            routes.append({"type": "vertex_ai", "model": "gemini-1.5-flash", "key": bearer_token, "project_id": proj_id})
+
+        # 4. External AI Providers Fallback (OpenAI & Together AI)
         if OPENAI_API_KEY:
             routes.append({"type": "openai", "model": OPENAI_MODEL, "key": OPENAI_API_KEY})
         if TOGETHER_API_KEY:
@@ -393,7 +513,7 @@ class HybridRouter:
 
         logger.info(
             f"[Router] Starting — {sum(1 for r in routes if r['type']=='ollama')} local "
-            f"+ {sum(1 for r in routes if r['type']=='gemini')} cloud routes"
+            f"+ {sum(1 for r in routes if r['type'] in ('gemini', 'vertex_ai'))} cloud routes"
         )
 
         for route in routes:
@@ -402,6 +522,7 @@ class HybridRouter:
             key   = route["key"]
             label = (
                 f"local:{model}" if rtype == "ollama"
+                else f"cloud:vertex_ai:{model}" if rtype == "vertex_ai"
                 else f"cloud:{model}[...{key[-6:]}]" if key and len(key) >= 6
                 else f"cloud:{model}"
             )
@@ -411,6 +532,9 @@ class HybridRouter:
                 text, reason = _call_ollama(model, prompt, system_instruction)
             elif rtype == "gemini":
                 text, reason = _call_gemini(model, key, prompt, system_instruction)
+            elif rtype == "vertex_ai":
+                proj_id = route.get("project_id", "")
+                text, reason = _call_vertex_ai(model, proj_id, key, prompt, system_instruction)
             elif rtype == "openai":
                 text, reason = _call_openai_compatible("OpenAI", "https://api.openai.com/v1", key, model, prompt, system_instruction)
             elif rtype == "together":

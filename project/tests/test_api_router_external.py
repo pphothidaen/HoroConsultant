@@ -102,3 +102,40 @@ def test_google_ai_studio_api_keys_in_router_and_validator(monkeypatch):
 
     assert valid_router == ["AIzaSyStudioKey1_123456789", "AIzaSyStudioKey2_987654321"]
     assert valid_validator == ["AIzaSyStudioKey1_123456789", "AIzaSyStudioKey2_987654321"]
+
+
+def test_call_vertex_ai_success():
+    from project.api_router import _call_vertex_ai
+
+    mock_resp = MagicMock()
+    mock_resp.status_code = 200
+    mock_resp.json.return_value = {
+        "candidates": [
+            {"content": {"parts": [{"text": "คำทำนายจากโมเดล Vertex AI สำเร็จ"}]}}
+        ]
+    }
+
+    with patch("httpx.Client") as mock_client:
+        mock_instance = MagicMock()
+        mock_instance.post.return_value = mock_resp
+        mock_client.return_value.__enter__.return_value = mock_instance
+
+        text, reason = _call_vertex_ai(
+            model="gemini-1.5-flash",
+            project_id="gen-lang-client-0821704500",
+            bearer_token="ya29.mock_token_123456",
+            prompt="ทดสอบคำนวณดวง"
+        )
+
+        assert text == "คำทำนายจากโมเดล Vertex AI สำเร็จ"
+        assert reason == "ok"
+        assert mock_instance.post.call_count == 1
+        call_kwargs = mock_instance.post.call_args[1]
+        assert "Bearer ya29.mock_token_123456" in call_kwargs["headers"]["Authorization"]
+
+
+def test_call_vertex_ai_no_auth():
+    from project.api_router import _call_vertex_ai
+    text, reason = _call_vertex_ai("gemini-1.5-flash", "", "", "hi")
+    assert text is None
+    assert reason == "no_auth"
