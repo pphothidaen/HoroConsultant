@@ -18,14 +18,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     env:
-      HF_BACKEND_SPACE_ID: ${{ env.HF_BACKEND_SPACE_ID || vars.HF_BACKEND_SPACE_ID || '' }}
-      HF_STATIC_SPACE_ID: ${{ env.HF_STATIC_SPACE_ID || vars.HF_STATIC_SPACE_ID || 'pphothidaen/horoconsultant-core-backend' }}
-      HF_BACKEND_URL: ${{ env.HF_BACKEND_URL || secrets.HF_BACKEND_URL || vars.HF_BACKEND_URL || 'https://horo-consultant-psi.vercel.app' }}
-      HF_STATIC_CDN_URL: ${{ env.HF_STATIC_CDN_URL || secrets.HF_STATIC_CDN_URL || vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
-      AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID || secrets.AWS_ACCESS_KEY_ID || vars.AWS_ACCESS_KEY_ID || env.AWS_ACCESS_KEY || secrets.AWS_ACCESS_KEY || vars.AWS_ACCESS_KEY }}
-      AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY || secrets.AWS_SECRET_ACCESS_KEY || vars.AWS_SECRET_ACCESS_KEY || env.AWS_SECRET_KEY || secrets.AWS_SECRET_KEY || vars.AWS_SECRET_KEY }}
-      AWS_ENDPOINT_URL: ${{ env.AWS_ENDPOINT_URL || secrets.AWS_ENDPOINT_URL || vars.AWS_ENDPOINT_URL }}
-      VERCEL_GATEWAY_URL: ${{ env.VERCEL_GATEWAY_URL || secrets.VERCEL_GATEWAY_URL || vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
+      HF_BACKEND_SPACE_ID: ${{ vars.HF_BACKEND_SPACE_ID || '' }}
+      HF_STATIC_SPACE_ID: ${{ vars.HF_STATIC_SPACE_ID || 'pphothidaen/horoconsultant-core-backend' }}
+      HF_BACKEND_URL: ${{ vars.HF_BACKEND_URL || secrets.HF_BACKEND_URL || 'https://horo-consultant-psi.vercel.app' }}
+      HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || secrets.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
+      AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID || secrets.AWS_ACCESS_KEY_ID || vars.AWS_ACCESS_KEY || secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ vars.AWS_SECRET_ACCESS_KEY || secrets.AWS_SECRET_ACCESS_KEY || vars.AWS_SECRET_KEY || secrets.AWS_SECRET_KEY }}
+      AWS_ENDPOINT_URL: ${{ vars.AWS_ENDPOINT_URL || secrets.AWS_ENDPOINT_URL }}
+      VERCEL_GATEWAY_URL: ${{ vars.VERCEL_GATEWAY_URL || secrets.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -48,11 +48,11 @@ jobs:
 
       - name: Resolve HF token source
         env:
-          HF_TOKEN_FALLBACK: ${{ env.HF_TOKEN || secrets.HF_TOKEN || vars.HF_TOKEN }}
-          HUGGINGFACE_TOKEN_FALLBACK: ${{ env.HUGGINGFACE_TOKEN || secrets.HUGGINGFACE_TOKEN || vars.HUGGINGFACE_TOKEN }}
-          HF_API_TOKEN_FALLBACK: ${{ env.HF_API_TOKEN || secrets.HF_API_TOKEN || vars.HF_API_TOKEN }}
-          HUGGINGFACE_API_KEY_FALLBACK: ${{ env.HUGGINGFACE_API_KEY || secrets.HUGGINGFACE_API_KEY || vars.HUGGINGFACE_API_KEY }}
-          HUGGING_FACE_TOKEN_FALLBACK: ${{ env.HUGGING_FACE_TOKEN || secrets.HUGGING_FACE_TOKEN || vars.HUGGING_FACE_TOKEN }}
+          HF_TOKEN_FALLBACK: ${{ secrets.HF_TOKEN || vars.HF_TOKEN }}
+          HUGGINGFACE_TOKEN_FALLBACK: ${{ secrets.HUGGINGFACE_TOKEN || vars.HUGGINGFACE_TOKEN }}
+          HF_API_TOKEN_FALLBACK: ${{ secrets.HF_API_TOKEN || vars.HF_API_TOKEN }}
+          HUGGINGFACE_API_KEY_FALLBACK: ${{ secrets.HUGGINGFACE_API_KEY || vars.HUGGINGFACE_API_KEY }}
+          HUGGING_FACE_TOKEN_FALLBACK: ${{ secrets.HUGGING_FACE_TOKEN || vars.HUGGING_FACE_TOKEN }}
         run: |
           python3 - <<'PY'
           import os
