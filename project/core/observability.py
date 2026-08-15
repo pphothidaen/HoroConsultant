@@ -247,9 +247,79 @@ class ObservabilityManager:
 
         return "\n".join(lines) + "\n"
 
+    def get_summary(self) -> dict:
+        """Return high-level summary metrics dictionary."""
+        total_requests = sum(self._request_counts.values())
+        total_duration = sum(self._request_latencies.values())
+        avg_latency = (total_duration / total_requests * 1000.0) if total_requests > 0 else 0.0
+
+        http_2xx = sum(count for k, count in self._request_counts.items() if k.endswith(":200") or k.endswith(":201") or k.endswith(":204"))
+        http_4xx = sum(count for k, count in self._request_counts.items() if ":4" in k[-4:])
+        http_5xx = sum(count for k, count in self._request_counts.items() if ":5" in k[-4:])
+
+        otlp_endpoint = os.getenv("GRAFANA_OTLP_ENDPOINT", "")
+        return {
+            "uptime_seconds": round(time.time() - self.start_time, 2),
+            "total_requests": total_requests,
+            "avg_latency_ms": round(avg_latency, 2),
+            "http_2xx": http_2xx,
+            "http_4xx": http_4xx,
+            "http_5xx": http_5xx,
+            "rag_total": self._rag_counts,
+            "llm_total": sum(self._llm_counts.values()),
+            "otlp_status": "configured" if otlp_endpoint else "local_only",
+        }
+
+    def push_otlp_metrics(self) -> bool:
+        """
+        Push in-memory metrics snapshot to Grafana Cloud OTLP HTTP endpoint if configured.
+        """
+        endpoint = os.getenv("GRAFANA_OTLP_ENDPOINT") or os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
+        user_id = os.getenv("GRAFANA_USER_ID", "")
+        api_key = os.getenv("GRAFANA_API_KEY", "")
+
+        if not endpoint:
+            logger.debug("[Observability] No GRAFANA_OTLP_ENDPOINT set; skipping periodic push.")
+            return False
+
+        try:
+            import base64
+            import json
+            import urllib.request
+
+            metrics_text = self.generate_metrics_text()
+            headers = {"Content-Type": "text/plain; version=0.0.4"}
+
+            if user_id and api_key:
+                auth_str = f"{user_id}:{api_key}"
+                auth_b64 = base64.b64encode(auth_str.encode("utf-8")).decode("utf-8")
+                headers["Authorization"] = f"Basic {auth_b64}"
+            elif api_key:
+                headers["Authorization"] = f"Bearer {api_key}"
+
+            req = urllib.request.Request(endpoint, data=metrics_text.encode("utf-8"), headers=headers, method="POST")
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                logger.info(f"[Observability] Successfully pushed telemetry metrics to Grafana Cloud (HTTP {resp.status})")
+                return True
+        except Exception as e:
+            logger.warning(f"[Observability] Periodic Grafana OTLP push note: {e}")
+            return False
+
 
 # Global singleton instance
 observability_manager = ObservabilityManager()
+
+
+async def periodic_grafana_metrics_worker(interval_seconds: int = 300):
+    """Background periodic worker flushing metrics to Grafana Cloud every interval (Decision 4)."""
+    import asyncio
+    while True:
+        await asyncio.sleep(interval_seconds)
+        try:
+            observability_manager.push_otlp_metrics()
+        except Exception as e:
+            logger.debug(f"Periodic metrics push worker error: {e}")
+
 
 
 def setup_observability_middleware(app: FastAPI):

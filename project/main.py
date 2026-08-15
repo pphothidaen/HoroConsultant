@@ -73,6 +73,13 @@ async def lifespan(app: FastAPI):
     else:
         logger.info("⏩ Skipping FAISS Vector Store pre-warm (SKIP_FAISS_WARMUP=true)")
 
+    # 4. Background Periodic Grafana Metrics Exporter (Decision 4: Every 5 mins / 300s)
+    if os.getenv("PROMETHEUS_METRICS_ENABLED", "true").lower() in ("true", "1", "yes"):
+        from project.core.observability import periodic_grafana_metrics_worker
+        interval = int(os.getenv("GRAFANA_EXPORT_INTERVAL_SECONDS", "300"))
+        asyncio.create_task(periodic_grafana_metrics_worker(interval_seconds=interval))
+        logger.info(f"📊 Started Periodic Grafana Metrics Exporter (Interval: {interval}s)")
+
     yield
 
     if scheduler and scheduler.running:
