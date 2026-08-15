@@ -56,6 +56,9 @@ jobs:
         run: |
           python3 - <<'PY'
           import os
+          import urllib.error
+          import urllib.request
+
           try:
               from dotenv import dotenv_values
           except Exception:
@@ -89,11 +92,32 @@ jobs:
 
           token = None
           token_source = "not-found"
+
+          def is_token_valid(candidate: str) -> bool:
+            req = urllib.request.Request(
+              "https://huggingface.co/api/whoami-v2",
+              headers={"Authorization": f"Bearer {candidate}"},
+            )
+            try:
+                with urllib.request.urlopen(req, timeout=8) as res:
+                    return res.status == 200
+            except urllib.error.HTTPError as e:
+                if e.code == 401:
+                    print("[WARN] Candidate token returned 401 (invalid token).")
+                else:
+                    print(f"[WARN] Candidate token validation failed with HTTP {e.code}: {e.reason}")
+            except Exception as e:
+                print(f"[WARN] Candidate token validation exception: {e}")
+            return False
+
           for name, value in token_candidates:
-              if value:
+              if not value:
+                  continue
+              if is_token_valid(value):
                   token = value
                   token_source = name
                   break
+              print(f"[WARN] Skipping {name} due invalid token.")
 
           env_file = os.getenv("GITHUB_ENV")
           print(f"[INFO] Token resolved from: {token_source}")
