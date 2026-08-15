@@ -32,3 +32,4 @@ gen-lang-client*.json
 *service_account*.json
 *.pem
 project/data/runtime_response_cache.json
+.aws/

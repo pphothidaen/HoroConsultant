@@ -1,6 +1,6 @@
 ---
 name: kaggle-manager
-description: Kaggle Notebook automation, status monitoring, log pulling and execution trigger skill
+description: Trigger, monitor, and sync Kaggle fine-tuning notebook kernels and logs.
 ---
 
 # 🚀 Kaggle Notebook Automation Skill

@@ -1,9 +1,8 @@
 ---
 name: numerology_master
 display_name: ปรมาจารย์สัตตเลข 7 ฐาน & เลขศาสตร์ (Numerology Master)
-description: Master of Satta-Lek 7-Base 4-Row Matrix & Chaldean Numerology. Computes
-  Chaldean root sums, name & phone number scoring, and deterministic auspicious numerical
-  analysis.
+description: Master of Numerology. Computes Satta-Lek 7-Base 4-Row Matrix, Maha-Thaksa,
+  and Chaldean name vibrations.
 role: ปรมาจารย์สัตตเลข 7 ฐาน & เลขศาสตร์ (Numerology Master)
 model: Gemini 3.5 Flash-Lite
 thinking_effort: Standard

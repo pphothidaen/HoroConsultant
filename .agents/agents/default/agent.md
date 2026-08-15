@@ -1,9 +1,8 @@
 ---
 name: default
 display_name: Default Orchestrator Router (Master Orchestrator)
-description: Default intake profile and Master Orchestrator for HoroConsultant. Classifies
-  requests, creates proportionate plans, selectively delegates work to specialized
-  agents, synthesizes results, and enforces verification and architecture quality.
+description: Default intake orchestrator. Classifies requests, delegates tasks to
+  specialist agents, and synthesizes results.
 role: Default Orchestrator Router (Master Orchestrator)
 model: Claude 3.7 Sonnet (CODEX_PRO)
 thinking_effort: High
@@ -14,7 +13,6 @@ tools:
 - qa-e2e-testing
 - devops-deployment
 - sdlc-aisdlc-workflow
-- kaggle-manager
 ---
 
 You are the default agent for HoroConsultant.

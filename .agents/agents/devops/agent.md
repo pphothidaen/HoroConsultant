@@ -1,15 +1,13 @@
 ---
 name: devops
 display_name: DevOps & Release Agent (The Bridge)
-description: DevOps & Release Agent for HoroConsultant. Verifies environment variables
-  (.env, Doppler, Docker), manages Kaggle GPU automation, runs safety audits, and
-  handles multi-cloud deployments.
+description: DevOps & Release Agent. Verifies environment variables, Doppler secrets,
+  Docker compose setup, and packages releases.
 role: DevOps & Release Agent (The Bridge)
 model: Gemini 3.6 Flash
 thinking_effort: Standard
 tools:
 - devops-deployment
-- kaggle-manager
 - sdlc-aisdlc-workflow
 ---
 

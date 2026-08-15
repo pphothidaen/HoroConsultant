@@ -8,7 +8,6 @@ model: Gemini 3.6 Flash
 thinking_effort: Standard
 tools:
 - devops-deployment
-- kaggle-manager
 - sdlc-aisdlc-workflow
 system_prompt: |
   You are the devops agent for HoroConsultant.

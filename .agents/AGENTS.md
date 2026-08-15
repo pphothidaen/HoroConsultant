@@ -25,14 +25,14 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 
 ## 🧰 Modular Skills Catalog for SDLC / AI SDLC
 
-1. **`sdlc-aisdlc-workflow`**: Full 5-phase AI SDLC lifecycle guide (Planning, Dev, QA, DevOps, Post-Deploy E2E).
-2. **`qa-e2e-testing`**: Pytest suite, Playwright E2E screenshots, and 22-button UI regression suite commands.
-3. **`ai-inference-verifier`**: Real AI model vs Fallback/Template inspection & semantic entropy verification skill for QA agent.
-4. **`devops-deployment`**: Doppler secret sync, Hugging Face Spaces publishing, Docker compose, and secret leakage scanning.
-5. **`kaggle-manager`**: Kaggle GPU Fine-Tuning notebook automation (`--status`, `--push`, `--pull`).
-6. **`bazi-calculator`**: Deterministic 4-Pillars, True Solar Time & Five Elements calculation skill.
-7. **`rag-search`**: Local FAISS vector search across 3,132 ingested metaphysical text chunks.
-8. **`bsa-doc-skill-management`**: Business System Analysis, live documentation audit, and agent skill governance skill.
+1. **`sdlc-aisdlc-workflow`**: 5-Phase AI SDLC lifecycle guide across planning, dev, QA, DevOps, and release.
+2. **`qa-e2e-testing`**: Pytest suite, UI button contracts, and Playwright visual E2E regression tests.
+3. **`ai-inference-verifier`**: Verify real LLM inference origins versus static fallback templates.
+4. **`devops-deployment`**: Doppler secrets sync, HF Spaces deployment, Docker, and security audits.
+5. **`bazi-calculator`**: Calculate BaZi 4-Pillars, True Solar Time, and five elements.
+6. **`rag-search`**: Search FAISS vector store across classical astrological literature passages.
+7. **`bsa-doc-skill-management`**: Business system analysis, live documentation sync, and agent skill governance.
+8. **`kaggle-manager`**: Trigger, monitor, and sync Kaggle fine-tuning notebook kernels and logs.
 
 ---
 

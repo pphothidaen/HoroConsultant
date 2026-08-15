@@ -1,8 +1,6 @@
 ---
 name: qa-e2e-testing
-description: >-
-  Quality Assurance & E2E Testing skill. Provides procedures for Pytest test execution, UI button contract
-  regression testing, Playwright E2E visual screen capture verification, and bug traceback extraction.
+description: Pytest suite, UI button contracts, and Playwright visual E2E regression tests.
 ---
 
 # 🧪 QA & E2E Testing Skill Guide

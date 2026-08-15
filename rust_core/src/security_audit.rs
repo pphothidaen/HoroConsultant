@@ -104,8 +104,12 @@ fn collect_files(dir: &Path, file_list: &mut Vec<PathBuf>) {
                 if EXCLUDED_DIR_PARTS.contains(&file_name) {
                     continue;
                 }
-                if file_name.starts_with(".env") {
-                    continue; // Skip local gitignored .env files
+                if file_name.starts_with(".env")
+                    || file_name.starts_with("gen-lang-client")
+                    || file_name.contains("service_account")
+                    || file_name.ends_with(".pem")
+                {
+                    continue; // Skip local gitignored credential files
                 }
             }
             if path.is_dir() {

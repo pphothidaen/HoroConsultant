@@ -1,8 +1,6 @@
 ---
 name: sdlc-aisdlc-workflow
-description: >-
-  Comprehensive AI SDLC & SDLC lifecycle management skill. Guides Orchestrator, Developer, QA, and DevOps
-  agents through the 5-Phase AI Software Development Life Cycle (Planning, Feature Dev, QA Audit, DevOps, Release & Delivery).
+description: 5-Phase AI SDLC lifecycle guide across planning, dev, QA, DevOps, and release.
 ---
 
 # 🔄 AI SDLC & SDLC Workflow Skill Guide

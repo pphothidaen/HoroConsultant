@@ -13,6 +13,7 @@ Decision 5 (Consensus Matrix & Five Elements Anchor):
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any, Dict, List
 
 logger = logging.getLogger("multi_agent_debate")
@@ -119,6 +120,12 @@ class MetaphysicsDebateEngine:
             "ข้อสังเกต: ตำแหน่งประตูของ Qi Men Dun Jia สอดคล้องกับภพโชคลาภของ Zi Wei Dou Shu ในช่วงปี 2026-2027"
         ]
 
+        hitl_routing = {
+            "status": "QUEUED_FOR_HUMAN_REVIEW",
+            "reason": "multi_agent_consensus_verified",
+            "review_queue_id": f"hitl_rev_{int(time.time())}"
+        }
+
         return {
             "status": "DEBATE_COMPLETED",
             "query": query,
@@ -128,7 +135,7 @@ class MetaphysicsDebateEngine:
                 "consensus_facts": consensus_facts,
                 "analytical_counter_queries": analytical_counter_queries,
                 "consensus_score": consensus_matrix["consensus_score"],
-                "hitl_routing": None
+                "hitl_routing": hitl_routing
             }
         }
 

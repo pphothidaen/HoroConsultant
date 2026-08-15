@@ -1,8 +1,6 @@
 ---
 name: devops-deployment
-description: >-
-  DevOps & Release Engineering skill. Details secrets synchronization via Doppler, Hugging Face Spaces deployment,
-  Docker Compose orchestration, Vercel gateway rewrites, and pre-deployment security scanning.
+description: Doppler secrets sync, HF Spaces deployment, Docker, and security audits.
 ---
 
 # 🚀 DevOps & Deployment Skill Guide

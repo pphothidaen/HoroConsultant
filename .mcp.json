@@ -19,17 +19,6 @@
         "/Users/kimlenglim/Project/HoroConsultant"
       ],
       "description": "Workspace File System Access Server"
-    },
-    "github": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-github"
-      ],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GH_TOKEN}"
-      },
-      "description": "GitHub Repository & Issue Sync Server"
     }
   }
 }

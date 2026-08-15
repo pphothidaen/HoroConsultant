@@ -26,11 +26,17 @@ class RateLimiter:
         admin_rpm: int = 120,
         burst_rps: int = 5,
         monthly_budget_cap_usd: float = 0.0,
+        default_rpm: Optional[int] = None,
+        ai_rpm: Optional[int] = None,
+        **kwargs,
     ):
+        if default_rpm is not None:
+            anonymous_rpm = default_rpm
         self.anonymous_rpm = anonymous_rpm
         self.admin_rpm = admin_rpm
         self.burst_rps = burst_rps
         self.monthly_budget_cap_usd = monthly_budget_cap_usd
+        self.ai_rpm = ai_rpm
 
         # Token buckets: ip -> (tokens, last_update_timestamp)
         self._buckets: Dict[str, Tuple[float, float]] = defaultdict(lambda: (float(anonymous_rpm), time.monotonic()))
@@ -56,7 +62,12 @@ class RateLimiter:
         """
         now = time.monotonic()
 
-        # 1. DDoS Micro-Burst Protection Guard (Max 5 requests / second)
+        # 0. Monthly Budget Guard
+        if self.monthly_budget_cap_usd > 0.0 and self._accumulated_cost_usd >= self.monthly_budget_cap_usd:
+            self._log_violation(client_ip, path, "monthly_budget_cap_exceeded")
+            return False, "monthly_budget_cap_exceeded"
+
+        # 1. DDoS Micro-Burst Protection Guard (Max burst_rps requests / second)
         window = [ts for ts in self._burst_windows[client_ip] if now - ts < 1.0]
         if len(window) >= self.burst_rps:
             self._log_violation(client_ip, path, "micro_burst_exceeded")
@@ -76,9 +87,10 @@ class RateLimiter:
 
         if tokens < 1.0:
             self._buckets[client_ip] = (tokens, now)
-            self._log_violation(client_ip, path, f"{role}_rate_limit_exceeded")
+            reason = f"{role}_rate_limit_exceeded" if role != "anonymous" else "rate_limit_exceeded"
+            self._log_violation(client_ip, path, reason)
             logger.warning(f"[RateLimiter] Rate limit exceeded for {role} IP {client_ip} on {path}")
-            return False, f"{role}_rate_limit_exceeded"
+            return False, reason
 
         self._buckets[client_ip] = (tokens - 1.0, now)
         return True, "ok"

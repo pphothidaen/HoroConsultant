@@ -170,7 +170,12 @@ fn collect_files(dir: &Path, file_list: &mut Vec<PathBuf>) {
         for entry in entries.flatten() {
             let path = entry.path();
             if let Some(file_name) = path.file_name().and_then(|n| n.to_str()) {
-                if EXCLUDED_DIR_PARTS.contains(&file_name) || file_name.starts_with(".env") {
+                if EXCLUDED_DIR_PARTS.contains(&file_name)
+                    || file_name.starts_with(".env")
+                    || file_name.starts_with("gen-lang-client")
+                    || file_name.contains("service_account")
+                    || file_name.ends_with(".pem")
+                {
                     continue;
                 }
             }

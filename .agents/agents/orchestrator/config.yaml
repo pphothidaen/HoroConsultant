@@ -13,7 +13,6 @@ tools:
 - qa-e2e-testing
 - devops-deployment
 - sdlc-aisdlc-workflow
-- kaggle-manager
 system_prompt: |
   You are the orchestrator agent for HoroConsultant.
 

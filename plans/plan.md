@@ -1,9 +1,9 @@
-# AI SDLC Master Implementation Plan: Production Multi-Cloud Architecture, Rust PyO3 Audit & Full Deployment
+# AI SDLC Master Implementation Plan: Skill Context Budget Optimization & Multi-Agent Architecture Refactoring
 
 **Project:** HoroConsultant — Computational Metaphysics Engine  
-**Target Framework:** Antigravity CLI AI SDLC System + Codex compatibility layer
+**Target Framework:** Antigravity CLI AI SDLC System + Codex compatibility layer  
 **Lead Agent:** Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
-**Last Updated:** 2026-08-15 — Hermes Agent Cloud-Ready Lifecycle Hooks (.agents/hooks.json), CI headless mode, Doppler 2-Tier secret sync, and Gemini 3.6/3.7 Parity Engine.
+**Last Updated:** 2026-08-15 — Skill Context Budget Optimization, SKILL.md Frontmatter Refactoring, Agent Description Streamlining, and Automated Budget Governance.
 
 ---
 
@@ -15,13 +15,17 @@
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
 │ • Decoupled DDD Multi-Cloud & Rust Core│ • Future LLM Provider Integration     │ • Continuous MLOps Distillation Sync  │
 │ • Autonomous NotebookLM Distillation  │   (Qwen2.5-32B / DeepSeek-R1 & 9router│ • Grafana Synthetic Latency Tuning    │
-│ • Hermes Agent Synthetic CoT Miner    │   multi-account alias routing)        │                                       │
+│ • Hermes Agent Synthetic CoT Miner    │    multi-account alias routing)       │                                       │
 │ • Quality Gate & Dataset Curator      │                                       │                                       │
 │ • Kaggle GPU Fine-Tuning Pipeline     │                                       │                                       │
 │ • MLOps Dashboard & FastAPIRouter     │                                       │                                       │
 │ • Webhook Alerts (Telegram & Discord) │                                       │                                       │
 │ • Scheduled GitHub Actions Cron       │                                       │                                       │
-│ • 400 Pytest + 25 Button Contracts    │                                       │                                       │
+│ • 408 Pytest + 32 Button Contracts    │                                       │                                       │
+│ • Skill Context Budget Optimization   │                                       │                                       │
+│   (SKILL.md frontmatters < 90 chars,  │                                       │                                       │
+│    agent description streamlining,    │                                       │                                       │
+│    test_skill_configurations.py 100%) │                                       │                                       │
 │ • Hermes Cloud Hooks (.agents/hooks)  │                                       │                                       │
 │ • Doppler 2-Tier Secrets Pipeline     │                                       │                                       │
 │ • Gemini 3.6/3.7 Parity Engine Config │                                       │                                       │
@@ -34,6 +38,37 @@
 │ • Strict Zero-Tolerance Quality Gate  │                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
+
+---
+
+## 🚀 Execution Roadmap: Skill Context Budget Optimization & Governance
+
+### Phase 1: Skill Description Refactoring (`.agents/skills/*/SKILL.md`)
+- Refactor all 8 `SKILL.md` frontmatter descriptions in `.agents/skills/` to be concise, high-signal, single-line, action-oriented, and under 80-90 characters.
+- Eliminate multi-line `>-` blocks, redundant title repetition, and token filler to prevent Codex `"Skill descriptions were shortened to fit the skills context budget"` warnings.
+- Preserve 100% of detailed operational runbooks, command lines, verification matrices, and code snippets in the markdown body.
+
+### Phase 2: Agent Description Streamlining & Cross-Framework Sync
+- Streamline agent descriptions in `.antigravity/agents/*.agent` to concise 1-sentence summaries.
+- Run `python3 scripts/sync_sdlc_agents.py --sync` to regenerate `.antigravity/skills/`, `.agents/agents/*/agent.md`, and `.agents/agents/*/agent.json`.
+- Run `python3 scripts/sync_codex_agents.py --sync` to regenerate `.codex/agents/*.toml`.
+
+### Phase 3: Automated Skill Budget Linter & CI Validation Test (`project/tests/test_skill_configurations.py`)
+- Implement comprehensive automated test suite in `project/tests/test_skill_configurations.py` asserting:
+  - All skills have valid YAML frontmatter with `name` and `description`.
+  - All skill descriptions are $\le 100$ characters and non-empty.
+  - All skill directory names match their frontmatter `name`.
+  - Sync parity between `.agents/skills/` and `.antigravity/skills/`.
+- Add skill budget linting check to `scripts/sync_sdlc_agents.py --check`.
+
+### Phase 4: Full Regression & Pre-Deployment Audit
+- Run full pytest regression suite (`pytest`).
+- Run UI button contract regression suite (`python3 scripts/run_button_regression.py`).
+- Run pre-deployment security scan and safety audit (`python3 project/core/code_reviewer.py --review`).
+
+### Phase 5: Documentation & Release Synchronization
+- Synchronize `.agents/AGENTS.md`, `PROJECT_TASKS.md`, `README.md`, and `HOWTO.md`.
+
 
 
 ---

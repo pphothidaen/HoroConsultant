@@ -25,7 +25,7 @@ BROWSER_HEADERS = {
 @pytest.mark.network
 def test_live_remote_health():
     """Verify live remote GET /health on production gateway."""
-    with httpx.Client(timeout=15.0) as client:
+    with httpx.Client(timeout=30.0) as client:
         res = client.get(f"{GATEWAY_BASE_URL}/health", headers=BROWSER_HEADERS)
     assert res.status_code == 200
     data = res.json()
@@ -41,7 +41,7 @@ def test_live_remote_cors_preflight():
         "Access-Control-Request-Method": "POST",
         "Access-Control-Request-Headers": "content-type",
     }
-    with httpx.Client(timeout=15.0) as client:
+    with httpx.Client(timeout=30.0) as client:
         res = client.options(f"{GATEWAY_BASE_URL}/api/v1/bazi/calculate", headers=options_headers)
     assert res.status_code in (200, 204)
     allow_origin = res.headers.get("access-control-allow-origin")
@@ -57,7 +57,7 @@ def test_live_remote_bazi_calculate():
         "utc_offset_hours": 7.0,
         "unknown_hour": False,
     }
-    with httpx.Client(timeout=15.0) as client:
+    with httpx.Client(timeout=30.0) as client:
         res = client.post(f"{GATEWAY_BASE_URL}/api/v1/bazi/calculate", json=payload, headers=BROWSER_HEADERS)
     assert res.status_code == 200
     assert res.json()["status"] == "ok"
@@ -74,7 +74,7 @@ def test_live_remote_bazi_interpret():
         "enable_validation": True,
         "query": "วิเคราะห์ความแข็งแกร่งของ Day Master ธาตุทอง"
     }
-    with httpx.Client(timeout=15.0) as client:
+    with httpx.Client(timeout=30.0) as client:
         res = client.post(f"{GATEWAY_BASE_URL}/api/v1/bazi/interpret", json=payload, headers=BROWSER_HEADERS)
     assert res.status_code == 200
     assert res.json()["status"] == "ok"

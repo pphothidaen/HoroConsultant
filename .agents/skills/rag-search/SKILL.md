@@ -1,6 +1,6 @@
 ---
 name: rag-search
-description: Local RAG Vector Store search over 3,132 ingested astrological text chunks
+description: Search FAISS vector store across classical astrological literature passages.
 ---
 
 # 📚 RAG Vector Store Search Skill

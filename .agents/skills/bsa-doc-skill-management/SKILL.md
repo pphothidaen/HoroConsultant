@@ -1,9 +1,6 @@
 ---
 name: bsa-doc-skill-management
-description: >-
-  Business System Analysis, Document Watchdog & Agent Skill Governance Skill. Provides systematic procedures for
-  translating user goals into specs, keeping project docs (PROJECT_TASKS.md, plans/plan.md, README.md) 100% updated,
-  and auditing/managing agent skills in .agents/skills/.
+description: Business system analysis, live documentation sync, and agent skill governance.
 ---
 
 # 📋 Business System Analysis, Documentation & Skill Governance Guide

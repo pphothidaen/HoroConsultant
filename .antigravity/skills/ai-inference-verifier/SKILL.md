@@ -1,9 +1,6 @@
 ---
 name: ai-inference-verifier
-description: >-
-  AI Inference Origin & Anti-Template Verification Skill. Enables QA Tester and Developer
-  agents to rigorously inspect and classify whether an API response or UI output originates
-  from genuine AI LLM inference versus static heuristic fallbacks or template string placeholders.
+description: Verify real LLM inference origins versus static fallback templates.
 ---
 
 # 🕵️ AI Inference Origin & Anti-Template Verification Skill

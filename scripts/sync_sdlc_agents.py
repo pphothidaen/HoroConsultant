@@ -135,25 +135,63 @@ def load_all_primary_agents() -> dict[str, dict[str, Any]]:
     return agents
 
 
-def sync_skills() -> None:
-    """Synchronizes agent skills from .agents/skills/ into .antigravity/skills/."""
+def sync_skills(check_only: bool = False) -> int:
+    """Synchronizes and validates agent skills from .agents/skills/ into .antigravity/skills/."""
     AGENTS_SKILLS_DIR = ROOT / ".agents" / "skills"
     ANTIGRAVITY_SKILLS_DIR = ROOT / ".antigravity" / "skills"
 
     ANTIGRAVITY_SKILLS_DIR.mkdir(parents=True, exist_ok=True)
+    mismatches = 0
 
     if AGENTS_SKILLS_DIR.exists():
-        for skill_dir in AGENTS_SKILLS_DIR.iterdir():
+        for skill_dir in sorted(AGENTS_SKILLS_DIR.iterdir()):
             if skill_dir.is_dir():
                 skill_md = skill_dir / "SKILL.md"
-                if skill_md.exists():
-                    target_dir = ANTIGRAVITY_SKILLS_DIR / skill_dir.name
+                if not skill_md.exists():
+                    print(f"[ERROR] Missing SKILL.md in {skill_dir}")
+                    mismatches += 1
+                    continue
+
+                content = skill_md.read_text(encoding="utf-8")
+                # Parse frontmatter
+                if content.startswith("---"):
+                    parts = content.split("---", 2)
+                    if len(parts) >= 3:
+                        try:
+                            fm = yaml.safe_load(parts[1]) or {}
+                            skill_name = fm.get("name", "")
+                            skill_desc = fm.get("description", "")
+                            if not skill_name:
+                                print(f"[ERROR] Skill in {skill_dir.name} missing 'name' in frontmatter")
+                                mismatches += 1
+                            if not skill_desc:
+                                print(f"[ERROR] Skill '{skill_dir.name}' missing 'description' in frontmatter")
+                                mismatches += 1
+                            elif len(skill_desc.strip()) > 100:
+                                print(
+                                    f"[ERROR] Skill '{skill_name}' description exceeds 100 chars "
+                                    f"({len(skill_desc.strip())} chars). Keep concise to fit context budget!"
+                                )
+                                mismatches += 1
+                        except Exception as e:
+                            print(f"[ERROR] Invalid YAML frontmatter in {skill_md}: {e}")
+                            mismatches += 1
+
+                target_dir = ANTIGRAVITY_SKILLS_DIR / skill_dir.name
+                target_md = target_dir / "SKILL.md"
+
+                if check_only:
+                    if not target_md.exists():
+                        print(f"[ERROR] Missing synced SKILL.md in .antigravity/skills/{skill_dir.name}/")
+                        mismatches += 1
+                    elif target_md.read_text(encoding="utf-8") != content:
+                        print(f"[ERROR] Synced SKILL.md mismatch in .antigravity/skills/{skill_dir.name}/")
+                        mismatches += 1
+                else:
                     target_dir.mkdir(parents=True, exist_ok=True)
-                    target_md = target_dir / "SKILL.md"
-                    with open(skill_md, "r", encoding="utf-8") as f_in:
-                        content = f_in.read()
-                    with open(target_md, "w", encoding="utf-8") as f_out:
-                        f_out.write(content)
+                    target_md.write_text(content, encoding="utf-8")
+
+    return mismatches
 
 
 def sync_all_agents(check_only: bool = False, list_only: bool = False) -> bool:
@@ -225,8 +263,10 @@ def sync_all_agents(check_only: bool = False, list_only: bool = False) -> bool:
 
             print(f"[OK] Synced Antigravity agent '{name}' -> .antigravity & .agents")
 
+    skill_mismatches = sync_skills(check_only=check_only)
+    mismatches += skill_mismatches
+
     if not check_only:
-        sync_skills()
         print("[OK] Synchronized all Agent Skills into .antigravity/skills/")
 
         # Generate agents.json registration manifest
@@ -258,13 +298,13 @@ def sync_all_agents(check_only: bool = False, list_only: bool = False) -> bool:
 
     if check_only:
         if mismatches == 0:
-            print("[OK] All Antigravity Agent definitions are 100% synchronized!")
+            print("[OK] All Antigravity Agent & Skill definitions are 100% synchronized and within context budget!")
             return True
         else:
-            print(f"[ERROR] Found {mismatches} agent synchronization issues.")
+            print(f"[ERROR] Found {mismatches} agent / skill synchronization issues.")
             return False
     else:
-        print("[OK] Successfully synchronized all Antigravity agent definitions!")
+        print("[OK] Successfully synchronized all Antigravity agent & skill definitions!")
         return True
 
 

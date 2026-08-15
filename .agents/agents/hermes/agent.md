@@ -1,15 +1,8 @@
 ---
 name: hermes
 display_name: Hermes Executor (Execution Engine & Orchestrator)
-description: 'Autonomous Execution Engine & Runtime Orchestrator for HoroConsultant
-  AI-SDLC. Runs as an interactive agent on Local Mac (Developer mode) and as a Headless
-  Agent in GitHub Actions CI/CD pipelines (automated PR triage, build remediation,
-  regression testing). Routes all LLM calls via 9router Proxy Gateway (NINE_ROUTER_BASE_URL)
-  with automatic fallback to direct cloud endpoints when 9router is unavailable. Executes
-  the Plan → Act → Observe → Reflect agentic loop against the local/CI filesystem
-  and shell environment.
-
-  '
+description: Autonomous Execution Engine & Runtime Orchestrator. Dispatches tasks
+  via proxy gateways, runs benchmarks, and manages workflows.
 role: Hermes Executor (Execution Engine & Orchestrator)
 model: Claude 3.7 Sonnet (CODEX_PRO)
 thinking_effort: High
@@ -19,7 +12,6 @@ tools:
 - sdlc-aisdlc-workflow
 - qa-e2e-testing
 - devops-deployment
-- kaggle-manager
 - bsa-doc-skill-management
 ---
 
