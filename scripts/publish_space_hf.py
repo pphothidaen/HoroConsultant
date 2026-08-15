@@ -19,6 +19,7 @@ import os
 import sys
 import time
 from pathlib import Path
+from typing import Any
 
 from dotenv import load_dotenv
 
@@ -73,6 +74,15 @@ def should_ignore(rel_path: str) -> bool:
         if fnmatch.fnmatch(p_str, f"*{pattern}*"):
             return True
     return False
+
+
+def get_hf_token() -> str | None:
+    """Resolve HF token from supported environment variable names."""
+    for key in ("HF_TOKEN", "HUGGINGFACE_TOKEN", "HF_API_TOKEN", "HUGGINGFACE_API_KEY", "HUGGING_FACE_TOKEN"):
+        token = os.getenv(key)
+        if token:
+            return token
+    return None
 
 
 def audit_payload(sdk: str = "static") -> tuple[bool, dict[str, Any]]:
@@ -218,9 +228,9 @@ def publish_space(space_id: str, sdk: str = "static", private: bool = False, dry
         logger.error("❌ Payload validation failed. Aborting deployment.")
         return False
 
-    if dry_run:
+        if dry_run:
         logger.info("🧪 [DRY-RUN MODE] Payload audit completed successfully. No remote changes made.")
-        token = os.getenv("HF_TOKEN")
+        token = get_hf_token()
         if token and HF_AVAILABLE:
             try:
                 api = HfApi(token=token)
@@ -235,9 +245,12 @@ def publish_space(space_id: str, sdk: str = "static", private: bool = False, dry
         logger.error("❌ huggingface_hub package not found. Run 'pip install huggingface_hub'")
         return False
 
-    token = os.getenv("HF_TOKEN")
+    token = get_hf_token()
     if not token:
-        logger.error("❌ HF_TOKEN environment variable not found in .env")
+        logger.error(
+            "❌ HF token environment variable not found. "
+            "Set one of: HF_TOKEN, HUGGINGFACE_TOKEN, HF_API_TOKEN, HUGGINGFACE_API_KEY, HUGGING_FACE_TOKEN."
+        )
         return False
 
     api = HfApi(token=token)
