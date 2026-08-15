@@ -273,9 +273,11 @@ function buildBaZiDomainInterpretation(query, birthDatetime, dayMasterStem = '�
 
 async function calculateAndInterpret() {
   const submitBtn = document.getElementById('btn-submit');
-  const btnText   = submitBtn.querySelector('span') || submitBtn;
+  const btnText   = submitBtn.querySelector('.btn-text') || submitBtn.querySelector('span') || submitBtn;
+  const spinner   = submitBtn.querySelector('.spinner');
   submitBtn.disabled = true;
-  btnText.textContent = '⏳ กำลังประมวลผลตำแหน่งดาว 4 เสา...';
+  if (spinner) spinner.classList.remove('hidden');
+  btnText.textContent = ' กำลังประมวลผลตำแหน่งดาว 4 เสา...';
 
   const payload = {
     birth_datetime: document.getElementById('birth_datetime').value,
@@ -338,7 +340,8 @@ async function calculateAndInterpret() {
       rag_contexts: [`[Document 1] คัมภีร์ผังดวงจีน BaZi 4 เสาหลัก - คำนวณตำแหน่งดวงดาวตามเวลาสุริยคติแท้`]
     }, null);
   } finally {
-    btnText.textContent = '🔮 คำนวณผังดวง & ตีความด้วย AI';
+    if (spinner) spinner.classList.add('hidden');
+    btnText.textContent = '☯ คำนวณผังดวง & ตีความด้วย AI';
     submitBtn.disabled = false;
   }
 }
@@ -360,10 +363,11 @@ async function calculateChart(event) {
   event.preventDefault();
   
   const submitBtn = document.getElementById('btn-submit');
-  const btnText = submitBtn.querySelector('.btn-text');
+  const btnText = submitBtn.querySelector('.btn-text') || submitBtn.querySelector('span') || submitBtn;
   const spinner = submitBtn.querySelector('.spinner');
 
-  btnText.textContent = '⚡️ กำลังคำนวณผังดวง & ตีความ...';
+  if (spinner) spinner.classList.remove('hidden');
+  btnText.textContent = ' กำลังคำนวณผังดวง & ตีความด้วย AI...';
   submitBtn.disabled = true;
 
   const interpCard = document.getElementById('interpretation-card');
@@ -440,6 +444,7 @@ async function calculateChart(event) {
       rag_contexts: [`[Document 1] คัมภีร์ผังดวงจีน BaZi 4 เสาหลัก - คำนวณตำแหน่งดวงดาวตามเวลาสุริยคติแท้`]
     }, null);
   } finally {
+    if (spinner) spinner.classList.add('hidden');
     btnText.textContent = '🔮 คำนวณผังดวง & ตีความด้วย AI';
     submitBtn.disabled = false;
   }
@@ -613,6 +618,14 @@ function renderResults(data, svgContent) {
   }
 }
 
+function showBranchLoading(title) {
+  showBranchCard(
+    title,
+    `<div class="loading-pulse"><span class="spinner spinner-gold spinner-lg"></span><span>กำลังประมวลผลคำนวณผังตำแหน่งดาวและวิชา...</span></div>`,
+    null
+  );
+}
+
 function showBranchCard(title, contentHtml, svgContent) {
   const card = document.getElementById('branch-result-card') || document.getElementById('5-branch-result-card');
   const titleEl = document.getElementById('branch-title') || document.getElementById('5-branch-title');
@@ -631,6 +644,7 @@ function showBranchCard(title, contentHtml, svgContent) {
 }
 
 async function calcZiWei() {
+  showBranchLoading("🔮 ผังวิชา紫微斗數 (Zi Wei Dou Shu Visualizer)");
   try {
     const res = await fetchApi('/api/v1/ziwei/calculate?year=1990&month=5&day=15&hour=14&gender=male');
     const data = await res.json();
@@ -654,6 +668,7 @@ async function calcZiWei() {
 }
 
 async function calcQiMen() {
+  showBranchLoading("⚡ ผังวิชา奇門遁甲 (Qi Men Dun Jia Visualizer)");
   try {
     const res = await fetchApi('/api/v1/qimen/calculate?year=2026&month=8&day=7&hour=14');
     const data = await res.json();
@@ -681,6 +696,7 @@ async function calcQiMen() {
 }
 
 async function calcLiuRen() {
+  showBranchLoading("🌊 ผังวิชา大六壬 (Da Liu Ren Visualizer)");
   try {
     const res = await fetchApi('/api/v1/liuren/calculate?day_stem=甲&day_branch=子&month_general=正月&hour_branch=午');
     const data = await res.json();
@@ -703,6 +719,7 @@ async function calcLiuRen() {
 }
 
 async function calcIChing() {
+  showBranchLoading("☯ ผังวิชา易經六爻 (I Ching & Liu Yao Visualizer)");
   try {
     const res = await fetchApi('/api/v1/iching/calculate?day_stem=甲');
     const data = await res.json();
@@ -725,6 +742,7 @@ async function calcIChing() {
 }
 
 async function calcXuanKong() {
+  showBranchLoading("🏯 ผังวิชา玄空風水 (Xuan Kong Visualizer)");
   try {
     const res = await fetchApi('/api/v1/xuankong/calculate?facing_degree=180.0&period=9');
     const data = await res.json();
@@ -751,6 +769,7 @@ async function calcXuanKong() {
 }
 
 async function calcZeJi() {
+  showBranchLoading("📅 คำนวณฤกษ์擇吉 (Date Selection Visualizer)");
   try {
     const res = await fetchApi('/api/v1/zeji/calculate?year_branch=午&month_branch=申&day_branch=寅&user_birth_branch=子');
     const data = await res.json();
@@ -773,6 +792,7 @@ async function calcZeJi() {
 }
 
 async function calcThaiVedic() {
+  showBranchLoading("🐘 โหราศาสตร์ไทย & ภารตวิทยา (Thai & Jyotish Visualizer)");
   try {
     const res = await fetchApi('/api/v1/thaivedic/calculate?year=1990&month=5&day=15&hour=14&day_of_week=2');
     const data = await res.json();
@@ -796,6 +816,7 @@ async function calcThaiVedic() {
 }
 
 async function calcWestern() {
+  showBranchLoading("🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian Visualizer)");
   try {
     const res = await fetchApi('/api/v1/western/calculate?year=1990&month=5&day=15&hour=14');
     const data = await res.json();
