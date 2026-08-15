@@ -34,6 +34,7 @@ jobs:
         continue-on-error: true
         with:
           doppler-token: ${{ secrets.DOPPLER_TOKEN }}
+          inject-env-vars: true
         id: doppler
 
       - uses: actions/setup-python@v5
@@ -44,6 +45,17 @@ jobs:
         run: pip install huggingface_hub httpx python-dotenv
 
       - name: Resolve HF token source
+        env:
+          HF_TOKEN: >-
+            ${{ steps.doppler.outputs.HF_TOKEN ||
+            steps.doppler.outputs.HUGGINGFACE_TOKEN ||
+            steps.doppler.outputs.HF_API_TOKEN ||
+            steps.doppler.outputs.HUGGINGFACE_API_KEY ||
+            steps.doppler.outputs.HUGGING_FACE_TOKEN ||
+            secrets.HF_TOKEN || vars.HF_TOKEN ||
+            secrets.HUGGINGFACE_TOKEN || vars.HUGGINGFACE_TOKEN ||
+            secrets.HF_API_TOKEN || vars.HF_API_TOKEN ||
+            secrets.HUGGINGFACE_API_KEY || vars.HUGGINGFACE_API_KEY }}
         run: |
           python3 - <<'PY'
           import os
@@ -57,12 +69,32 @@ jobs:
 
       - name: Publish static frontend
         env:
-          HF_TOKEN: ${{ env.HF_TOKEN || secrets.HF_TOKEN || vars.HF_TOKEN || secrets.HUGGINGFACE_TOKEN || vars.HUGGINGFACE_TOKEN || secrets.HF_API_TOKEN || vars.HF_API_TOKEN || secrets.HUGGINGFACE_API_KEY || vars.HUGGINGFACE_API_KEY }}
+          HF_TOKEN: >-
+            ${{ steps.doppler.outputs.HF_TOKEN ||
+            steps.doppler.outputs.HUGGINGFACE_TOKEN ||
+            steps.doppler.outputs.HF_API_TOKEN ||
+            steps.doppler.outputs.HUGGINGFACE_API_KEY ||
+            steps.doppler.outputs.HUGGING_FACE_TOKEN ||
+            env.HF_TOKEN ||
+            secrets.HF_TOKEN || vars.HF_TOKEN ||
+            secrets.HUGGINGFACE_TOKEN || vars.HUGGINGFACE_TOKEN ||
+            secrets.HF_API_TOKEN || vars.HF_API_TOKEN ||
+            secrets.HUGGINGFACE_API_KEY || vars.HUGGINGFACE_API_KEY }}
         run: python3 scripts/publish_space_hf.py --space-id "$HF_STATIC_SPACE_ID" --sdk static
 
       - name: Publish Docker API backend
         env:
-          HF_TOKEN: ${{ env.HF_TOKEN || secrets.HF_TOKEN || vars.HF_TOKEN || secrets.HUGGINGFACE_TOKEN || vars.HUGGINGFACE_TOKEN || secrets.HF_API_TOKEN || vars.HF_API_TOKEN || secrets.HUGGINGFACE_API_KEY || vars.HUGGINGFACE_API_KEY }}
+          HF_TOKEN: >-
+            ${{ steps.doppler.outputs.HF_TOKEN ||
+            steps.doppler.outputs.HUGGINGFACE_TOKEN ||
+            steps.doppler.outputs.HF_API_TOKEN ||
+            steps.doppler.outputs.HUGGINGFACE_API_KEY ||
+            steps.doppler.outputs.HUGGING_FACE_TOKEN ||
+            env.HF_TOKEN ||
+            secrets.HF_TOKEN || vars.HF_TOKEN ||
+            secrets.HUGGINGFACE_TOKEN || vars.HUGGINGFACE_TOKEN ||
+            secrets.HF_API_TOKEN || vars.HF_API_TOKEN ||
+            secrets.HUGGINGFACE_API_KEY || vars.HUGGINGFACE_API_KEY }}
         run: python3 scripts/publish_space_hf.py --space-id "$HF_BACKEND_SPACE_ID" --sdk docker
 
       - name: Wait for public backend and verify complete path
