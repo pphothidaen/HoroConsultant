@@ -61,6 +61,10 @@ jobs:
           grep -vE "mlx|mlx-lm|mlx-metal" requirements.txt > requirements-ci.txt
           pip install -r requirements-ci.txt
 
+      - name: Verify Hugging Face BaZi Model (pphothidaen/qwen2.5-7b-bazi-instruct-4bit) & AI Inference Origin
+        run: |
+          python3 -m pytest project/tests/test_audit_ai_inference_origin.py -v
+
       - name: Run Pytest Test Suite
         run: |
           python3 -m pytest -v

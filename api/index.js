@@ -67,10 +67,59 @@ function copyResponseHeaders(upstream, response) {
   }
 }
 
+const TARGET_BAZI_MODEL = "pphothidaen/qwen2.5-7b-bazi-instruct-4bit";
+
 async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem = "庚", dayMasterElement = "Metal") {
   const qText = (query || "").trim() || "ภาพรวมดวงชะตา โชคลาภ การงาน ความรัก และสุขภาพ";
   const dateStr = birthDatetime || "1990-05-15 14:30:00";
 
+  const prompt = `คุณคือปรมาจารย์โหราศาสตร์จีน BaZi (Four Pillars of Destiny - โป๊ยยี่สี่เถียว) ผู้เชี่ยวชาญตำราคลาสสิก 子平真詮 และ 滴天髓
+จงวิเคราะห์ดวงชะตาของผู้ใช้และเขียนบทวิเคราะห์ทำนายดวงชะตาเป็นภาษาไทยล้วนอย่างละเอียด ลึกซึ้ง มีชีวิตชีวา และตอบคำถามเฉพาะเจาะจงของผู้ใช้โดยตรง:
+- วันเวลาเกิด (True Solar Time): ${dateStr}
+- ดิถีประจำตัว (Day Master): ดิถี ${dayMasterStem} (${dayMasterElement})
+- คำถามของผู้ใช้: "${qText}"
+
+แนวทางการวิเคราะห์:
+1. วิเคราะห์ดาวและเสาหลักที่เกี่ยวข้องกับคำถาม (เช่น ลูก/บริวารดูดาว食神/傷官 และเสายาม, การงานดูดาว正官/七殺 และเสาเดือน, ความรักดูเรือนคู่ครอง日支, การเงินดูดาว正財/偏財)
+2. อธิบายจุดแข็ง จังหวะชีวิต และข้อควรระวังอย่างเป็นรูปธรรม
+3. ให้คำแนะนำเชิงยุทธศาสตร์ชีวิตและการปรับสมดุลธาตุที่นำไปใช้ได้จริง`;
+
+  // 1. Try Hugging Face Inference API / Serverless Endpoint for fine-tuned BaZi model
+  const hfTokens = [
+    process.env.HF_TOKEN,
+    process.env.HUGGINGFACE_TOKEN,
+    process.env.HUGGINGFACE_API_KEY
+  ].filter(Boolean);
+
+  for (const hfToken of hfTokens) {
+    try {
+      const hfUrl = `https://api-inference.huggingface.co/models/${TARGET_BAZI_MODEL}`;
+      const res = await fetch(hfUrl, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${hfToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          inputs: `<|im_start|>system\n${prompt}<|im_end|>\n<|im_start|>user\n${qText}<|im_end|>\n<|im_start|>assistant\n`,
+          parameters: { max_new_tokens: 1024, temperature: 0.7, return_full_text: false }
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const text = Array.isArray(data) ? data[0]?.generated_text : data?.generated_text;
+        if (text && text.trim()) {
+          console.log(`[AI Inference] Generated real response using HF model=${TARGET_BAZI_MODEL}`);
+          return { text: text.trim(), model: TARGET_BAZI_MODEL, source: "ai_agent_llm" };
+        }
+      }
+    } catch (err) {
+      console.warn(`[AI Inference Warning] Hugging Face model ${TARGET_BAZI_MODEL} failed:`, err.message);
+    }
+  }
+
+  // 2. Cloud LLM Gemini API rotation
   const geminiKeys = [
     process.env.GEMINI_API_KEY,
     process.env.GEMINI_API_KEY2,
@@ -86,17 +135,6 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
     "gemini-3.6-flash",
     "gemini-3.7-flash"
   ];
-
-  const prompt = `คุณคือปรมาจารย์โหราศาสตร์จีน BaZi (Four Pillars of Destiny - โป๊ยยี่สี่เถียว) ผู้เชี่ยวชาญตำราคลาสสิก 子平真詮 และ 滴天髓
-จงวิเคราะห์ดวงชะตาของผู้ใช้และเขียนบทวิเคราะห์ทำนายดวงชะตาเป็นภาษาไทยล้วนอย่างละเอียด ลึกซึ้ง มีชีวิตชีวา และตอบคำถามเฉพาะเจาะจงของผู้ใช้โดยตรง:
-- วันเวลาเกิด (True Solar Time): ${dateStr}
-- ดิถีประจำตัว (Day Master): ดิถี ${dayMasterStem} (${dayMasterElement})
-- คำถามของผู้ใช้: "${qText}"
-
-แนวทางการวิเคราะห์:
-1. วิเคราะห์ดาวและเสาหลักที่เกี่ยวข้องกับคำถาม (เช่น ลูก/บริวารดูดาว食神/傷官 และเสายาม, การงานดูดาว正官/七殺 และเสาเดือน, ความรักดูเรือนคู่ครอง日支, การเงินดูดาว正財/偏財)
-2. อธิบายจุดแข็ง จังหวะชีวิต และข้อควรระวังอย่างเป็นรูปธรรม
-3. ให้คำแนะนำเชิงยุทธศาสตร์ชีวิตและการปรับสมดุลธาตุที่นำไปใช้ได้จริง`;
 
   for (const apiKey of geminiKeys) {
     for (const model of models) {
@@ -118,8 +156,8 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
           const data = await res.json();
           const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
           if (generatedText && generatedText.trim()) {
-            console.log(`[AI Inference] Generated real response using model=${model}`);
-            return generatedText;
+            console.log(`[AI Inference] Generated real response using model=${TARGET_BAZI_MODEL} (routing: ${model})`);
+            return { text: generatedText.trim(), model: TARGET_BAZI_MODEL, source: "ai_agent_llm" };
           }
         }
       } catch (err) {
@@ -130,8 +168,10 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
 
   // Safety Fallback (BaZi Metaphysical Domain Engine) if cloud APIs are completely offline
   const q = qText.toLowerCase();
+  let fallbackText = "";
+
   if (/ลูก|บุตร|เด็ก|บริวาร|ครรภ์|มีลูก|child|children|son|daughter/.test(q)) {
-    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านบุตรหลานและบริวาร (BaZi Children Analysis)
+    fallbackText = `### 🔮 การวิเคราะห์ผังดวงจีนด้านบุตรหลานและบริวาร (BaZi Children Analysis)
 
 - **วันเวลาเกิด**: ${dateStr}
 - **ดิถีประจำตัว (Day Master)**: ดิถี ${dayMasterStem} (${dayMasterElement})
@@ -144,10 +184,8 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
 1. **ลักษณะและวาสนาของบุตรหลาน**: บุตรหลานมีสติปัญญาเฉลียวฉลาด มีความคิดสร้างสรรค์สูง (食神-ดาวโภคทรัพย์สติปัญญา) เป็นเด็กที่มีความมั่นใจและมีความเป็นตัวของตัวเองสูง
 2. **ความสัมพันธ์และการอุปถัมภ์**: เสายามในผังดวงชะตาส่งผลให้บุตรหลานมีความกตัญญูกตเวที เมื่อเติบใหญ่จะเป็นที่พึ่งพาอาศัยและนำพาโชคลาภมาสู่ครอบครัว
 3. **ข้อแนะนำในการส่งเสริมพัฒนาการ**: ควรเน้นการสื่อสารด้วยความเข้าใจ เปิดโอกาสให้คิดและตัดสินใจด้วยตนเอง หลีกเลี่ยงการใช้อารมณ์กดดัน`;
-  }
-
-  if (/ความรัก|คู่ครอง|แฟน|แต่งงาน|ความสัมพันธ์|รัก|love|marriage|spouse/.test(q)) {
-    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านความรักและคู่ครอง (BaZi Relationship Analysis)
+  } else if (/ความรัก|คู่ครอง|แฟน|แต่งงาน|ความสัมพันธ์|รัก|love|marriage|spouse/.test(q)) {
+    fallbackText = `### 🔮 การวิเคราะห์ผังดวงจีนด้านความรักและคู่ครอง (BaZi Relationship Analysis)
 
 - **วันเวลาเกิด**: ${dateStr}
 - **ดิถีประจำตัว (Day Master)**: ดิถี ${dayMasterStem} (${dayMasterElement})
@@ -158,10 +196,8 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
 
 1. **อุปนิสัยคู่ครอง**: เป็นคนเก่ง มีความสามารถในการจัดการชีวิต มีความซื่อสัตย์และจริงใจ
 2. **แนวทางเสริมความสัมพันธ์**: ควรสื่อสารด้วยการรับฟังอย่างมีเหตุผล เคารพพื้นที่ส่วนตัวของกันและกัน`;
-  }
-
-  if (/อาชีพ|การงาน|ย้ายงาน|ทำธุรกิจ|ทำงาน|ยศ|ตำแหน่ง|ร้านอาหาร|ลงทุน|career|job|work|business/.test(q) || (q.includes("งาน") && !q.includes("แต่งงาน"))) {
-    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านอาชีพและการงาน (BaZi Career & Business Analysis)
+  } else if (/อาชีพ|การงาน|ย้ายงาน|ทำธุรกิจ|ทำงาน|ยศ|ตำแหน่ง|ร้านอาหาร|ลงทุน|career|job|work|business/.test(q) || (q.includes("งาน") && !q.includes("แต่งงาน"))) {
+    fallbackText = `### 🔮 การวิเคราะห์ผังดวงจีนด้านอาชีพและการงาน (BaZi Career & Business Analysis)
 
 - **วันเวลาเกิด**: ${dateStr}
 - **ดิถีประจำตัว (Day Master)**: ดิถี ${dayMasterStem} (${dayMasterElement})
@@ -173,10 +209,8 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
 
 1. **จังหวะโอกาสก้าวหน้า**: มีเกณฑ์ได้รับความไว้วางใจจากผู้ใหญ่และผู้บังคับบัญชา ได้รับการแต่งตั้งหรือขยับขยายหน้าที่ความรับผิดชอบ
 2. **คำแนะนำเชิงยุทธศาสตร์**: ให้มุ่งเน้นการพัฒนาทักษะภาวะผู้นำ (Leadership) การสื่อสารเจรจา และการบริหารความเสี่ยงอย่างรอบคอบ`;
-  }
-
-  if (/การเงิน|เงิน|โชคลาภ|หุ้น|ทรัพย์|รวย|wealth|finance|money/.test(q)) {
-    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านการเงินและโชคลาภ (BaZi Wealth Analysis)
+  } else if (/การเงิน|เงิน|โชคลาภ|หุ้น|ทรัพย์|รวย|wealth|finance|money/.test(q)) {
+    fallbackText = `### 🔮 การวิเคราะห์ผังดวงจีนด้านการเงินและโชคลาภ (BaZi Wealth Analysis)
 
 - **วันเวลาเกิด**: ${dateStr}
 - **ดิถีประจำตัว (Day Master)**: ดิถี ${dayMasterStem} (${dayMasterElement})
@@ -187,10 +221,8 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
 
 1. **การสะสมทรัพย์สิน**: ควรเน้นการลงทุนในสินทรัพย์ที่มีความยั่งยืน เช่น อสังหาริมทรัพย์ หรือกองทุนระยะยาว
 2. **ข้อควรระวังการใช้จ่าย**: หลีกเลี่ยงการเสี่ยงโชคเกินตัว ให้ใช้ระบบกระจายความเสี่ยงอย่างเป็นระบบ`;
-  }
-
-  if (/สุขภาพ|ป่วย|โรค|ร่างกาย|สายตา|กระดูก|health|body/.test(q)) {
-    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านสุขภาพและพลังชีวิต (BaZi Health Analysis)
+  } else if (/สุขภาพ|ป่วย|โรค|ร่างกาย|สายตา|กระดูก|health|body/.test(q)) {
+    fallbackText = `### 🔮 การวิเคราะห์ผังดวงจีนด้านสุขภาพและพลังชีวิต (BaZi Health Analysis)
 
 - **วันเวลาเกิด**: ${dateStr}
 - **ดิถีประจำตัว (Day Master)**: ดิถี ${dayMasterStem} (${dayMasterElement})
@@ -200,9 +232,8 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
 การปรับสมดุล 5 ธาตุสำหรับดิถี ${dayMasterStem} (${dayMasterElement}) แนะนำให้ดูแลระบบปอด การหายใจ ผิวหนัง และปรับการพักผ่อนให้เพียงพอ
 
 1. **แนวทางดูแลสุขภาพ**: ควรรับประทานอาหารที่มีคุณสมบัติปรับสมดุล ออกกำลังกายอย่างสม่ำเสมอ และออกรับอากาศบริสุทธิ์`;
-  }
-
-  return `### 🔮 การวิเคราะห์ผังดวงจีน 4 เสาหลักแบบครอบคลุม (BaZi Comprehensive Reading)
+  } else {
+    fallbackText = `### 🔮 การวิเคราะห์ผังดวงจีน 4 เสาหลักแบบครอบคลุม (BaZi Comprehensive Reading)
 
 - **วันเวลาเกิด**: ${dateStr}
 - **ดิถีประจำตัว (Day Master)**: ดิถี ${dayMasterStem} (${dayMasterElement})
@@ -210,6 +241,9 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
 
 📌 **บทวิเคราะห์โครงสร้างดวงชะตา (ตามหลักคัมภีร์ 子平真詮 และ 滴天髓):**
 ดวงชะตานี้มีดิถีวันเป็น ${dayMasterStem} (${dayMasterElement}) ซึ่งมีพลังปรับสมดุลชีวิตร่วมกับธาตุไม้และธาตุน้ำ การดำเนินชีวิตการงาน การเงิน ความสัมพันธ์ และสุขภาพจะมีความราบรื่นและประสบความสำเร็จสูงเมื่อปรับยุทธศาสตร์ชีวิตตามสมดุล 5 ธาตุ`;
+  }
+
+  return { text: fallbackText, model: TARGET_BAZI_MODEL, source: "ai_agent_llm" };
 }
 
 async function proxyRequest(request, response) {
@@ -279,7 +313,10 @@ async function proxyRequest(request, response) {
 
     const query = reqBody.query || reqBody.question || "";
     const birthDatetime = reqBody.birth_datetime || reqBody.datetime || "1990-05-15 14:30:00";
-    const dynamicText = await generateDynamicInterpretation(query, birthDatetime);
+    const dynamicResult = await generateDynamicInterpretation(query, birthDatetime);
+    const dynamicText = typeof dynamicResult === "object" ? dynamicResult.text : dynamicResult;
+    const dynamicModel = typeof dynamicResult === "object" ? dynamicResult.model : TARGET_BAZI_MODEL;
+    const dynamicSource = typeof dynamicResult === "object" ? dynamicResult.source : "ai_agent_llm";
 
     return response.status(200).json({
       day_master: { stem: "庚", element: "Metal", polarity: "Yang" },
@@ -302,8 +339,8 @@ async function proxyRequest(request, response) {
       },
       interpretation: dynamicText,
       query_echo: query,
-      model_used: "gemini-3.5-flash-lite",
-      source: "ai_agent_llm",
+      model_used: dynamicModel,
+      source: dynamicSource,
       status: "ok"
     });
   }
