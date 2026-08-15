@@ -59,9 +59,30 @@ jobs:
         run: |
           python3 - <<'PY'
           import os
-          token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN") or os.getenv("HF_API_TOKEN") or os.getenv("HUGGINGFACE_API_KEY") or os.getenv("HUGGING_FACE_TOKEN")
+          token_candidates = [
+              ("HF_TOKEN", os.getenv("HF_TOKEN")),
+              ("HUGGINGFACE_TOKEN", os.getenv("HUGGINGFACE_TOKEN")),
+              ("HF_API_TOKEN", os.getenv("HF_API_TOKEN")),
+              ("HUGGINGFACE_API_KEY", os.getenv("HUGGINGFACE_API_KEY")),
+              ("HUGGING_FACE_TOKEN", os.getenv("HUGGING_FACE_TOKEN")),
+          ]
+
+          token = None
+          token_source = "not-found"
+          for name, value in token_candidates:
+              if value:
+                  token = value
+                  token_source = name
+                  break
+
+          env_file = os.getenv("GITHUB_ENV")
+          print(f"[INFO] Token resolved from: {token_source}")
           if token:
             print("[OK] HF token resolved for deployment.")
+            if env_file:
+              with open(env_file, "a", encoding="utf-8") as f:
+                  f.write(f\"HF_TOKEN={token}\\n\")
+                  f.write("HF_TOKEN_SOURCE=resolve-step\\n")
           else:
             print("[ERROR] HF token could not be resolved from env/secrets.")
             raise SystemExit(1)
