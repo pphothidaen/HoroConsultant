@@ -132,7 +132,9 @@ def sync_secrets_to_doppler(
 
     if dry_run:
         logger.info("🧪 DRY RUN MODE: All Production secrets categorized and validated successfully!")
-        # Keep sync order consistent with production run: Doppler first, then GitHub Secrets.
+        logger.info(f"🧪 Would sync Doppler first (project: {project}, config: {config})")
+        for k in sorted(valid_secrets.keys()):
+            logger.info(f"🧪 [DRY RUN] Would sync Doppler Secret: {k}")
         sync_github_secrets(valid_secrets, dry_run=dry_run)
         return True
 
