@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-15 21:20:00 +07 — Kanban DOING/TODO alignment with production verification rollback-contingent state and rollout action items.*
+> *Last Updated: 2026-08-15 21:55:00 +07 — ติดตาม blocker ชัดเจน: `Production Finalization Handoff` ยังรอ key setup แล้วจึงยังค้าง DOING.*
 
 
 ---
@@ -320,48 +320,17 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 ### 🔄 DOING (กำลังดำเนินการ)
 
-  - [ ] **🔄 Production Verification Continuation (commit `3d370d9`)** — ต้องยืนยันใหม่หลัง deploy และเมื่อ network กลับมาใช้งานได้
-  - **Pass criteria (automated)**: `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` ผ่าน 3/3 (`GET /health`, OPTIONS, POST) และ `POST` มี `X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model`
-  - **Prior evidence (18-08-2026 18:33:14 +07)**: 3/3 จาก `run_vercel_prod_curl_regression.py` และได้ `X-Deploy-SHA=8fbf665`, `source=ai_agent_llm model=gemini-3.5-flash`
-  - **Deployment metadata**:
-    - deployment id: `dpl_DLGA2y1on7YumKzwQX9SR6jRiebW`
-    - inspector URL: `https://vercel.com/facebook-scraper-ai/horo-consultant/DLGA2y1on7YumKzwQX9SR6jRiebW`
-  - **Next**: รัน E2E production verification ตาม TODO แล้วเพื่อยืนยันความเสถียรต่อเนื่อง
-  - **External env runbook (เมื่อมี network ปกติ)**:
-    - ลองเช็ก DNS โดยตรง (`nslookup`/`socket.gethostbyname`) ก่อนรัน regression
-    - ถ้ารันผ่านได้แล้ว ให้รัน `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python`
-    - ถ้าผ่าน script แล้ว ให้รัน manual sanity ตาม `TODO` เพื่อยืนยัน `version` และ `X-Deploy-SHA`
-  - **Specialist root-cause trace**:
-    - Root-cause ที่เจอใน environment นี้คือ network/DNS (`gaierror(8)` / `HTTP 0`) ทำให้คำสั่งไม่ถึง layer inference เลย
-    - เมื่อออกนอก sandbox ให้ใช้ลำดับวิเคราะห์นี้เสมอ:
-      1) DNS/เครือข่าย: `nslookup`/`socket.gethostbyname` + `run_vercel_prod_curl_regression.py`
-      2) Deployment: `X-Deploy-SHA` ต้องเป็นค่าสดจาก deployment ล่าสุดในทุก endpoint ที่สำคัญ
-      3) Runtime chain: ต้องเห็น `inference_chain` แสดง route ที่เปิดใช้งานจริง และ POST มี `X-AI-Source` + `X-AI-Model`
-      4) Fallback: รันตามลำดับ Cloudflare → HF → Gemini → OpenAI → template (ไม่ใช้อีก Together)
+  - [ ] **🔄 Production Finalization Handoff (pending key setup)** — **BLOCKED** (รอ API keys แล้วจึงยังรัน handoff verification chain ไม่ได้)
+    - **Handoff checklist เมื่อได้ key แล้วเสร็จ**:
+      - ตั้ง key แล้ว redeploy ตามคำสั่งใน TODO
+      - รัน `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` และยืนยัน `3/3 PASSED`
+      - รัน `python3 scripts/run_e2e_screenshots.py` และ `python3 scripts/run_button_regression.py`
+      - ยืนยันว่า handoff บันทึก `X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model` และผลตอบกลับ production inference ครบ chain
+      - เมื่อครบขั้นตอนให้เปลี่ยนรายการนี้เป็น `[x]` และอัปเดต `Last Updated`
 
-  - **Specialist skill: Inference RCA & Remediation (ไม่ใช้ Together AI)**:
-    - งานของ specialist คือสรุปสาเหตุและแก้ไขให้กลับสู่สภาพ production-ready แบบเร็วสุด โดยรายงานในรูปแบบ: `สาเหตุหลัก -> หลักฐาน -> แก้ไข -> ยืนยันผล`
-    - Inputs ที่ต้องมีเมื่อรับงาน: `run_vercel_prod_curl_regression.py`, `curl -i`, `X-Deploy-SHA` จากเวอร์ชันปัจจุบัน, และสภาพแวดล้อมที่รันจริง (มี DNS/เครือข่าย)
-    - Checklist 1: ถ้าพบ `HTTP 0`/DNS fail ให้แก้ที่ infra ก่อน touching code (DNS/network / outbound network / proxy)
-    - Checklist 2: ถ้า deploy hash ไม่ตรง ให้รีดีพลอย commit ล่าสุดและยืนยัน rollback/no-rollback policy
-    - Checklist 3: ถ้า inference chain ตัด route หลัก/ผิดลำดับ ให้ตรวจ `project/api_router.py`, `api/index.js`, และค่า env ก่อน fallback ต่อ (`openai_api` ต้องเป็น fallback สูงสุด)
-    - Checklist 4: ถ้ายังไม่ผ่าน ให้เปิด log `X-AI-Source` ต่อเนื่อง 3 sample request เพื่อหา provider fail point ทีละตัว
-    - เป้าหมาย fix: กลับมาได้ลำดับ chain `cloudflare_ai -> hf_inference -> gemini_api -> openai_api -> template` และคืน `interpretation` ได้ทุก request
-  - **Expected fail mode นี้ (environment นี้)**:
-    - คำสั่งด้านบนคาดว่าจะล้มเหลวเป็น `HTTP 0` หากยัง resolve ไม่ได้หรือตัว endpoint ยังไม่ตอบกลับ
-  - **Handoff quick commands (copy/paste)**:
-    ```bash
-    nslookup horo-consultant-psi.vercel.app
-    python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python
-    curl -s https://horo-consultant-psi.vercel.app/health | python3 -m json.tool
-    curl -i -X POST https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret \
-      -H "Content-Type: application/json" \
-      -d '{"birth_datetime":"1990-05-15 14:30:00","query":"การงานและโชคลาภ","day_master":{"stem":"庚","element":"Metal"}}'
-    ```
-  - **การปิดงานที่ถูกต้อง (Definition of Done)**:
-    - `run_vercel_prod_curl_regression.py` ต้องผ่าน 3/3 และมี `X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model` ใน POST
-    - manual `GET /health` ต้องได้ `version` สอดคล้องกับเวอร์ชัน deployment ล่าสุด + header `X-Deploy-SHA=8fbf665`
-    - `POST /api/v1/bazi/interpret` ตอบกลับ JSON ที่มี key `interpretation`, `source`, และข้อความเริ่มต้นเป็น `### 🔮 ผลการทำนาย...` (ถ้ารันบน production จริง)
+  - [x] **✅ Production Verification Audits Completed (for handoff evidence)**
+    - `21:28` `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` → `3/3 PASSED` (`X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model` present)
+    - `21:45` `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` → `3/3 PASSED` (`X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model` present; model=gemini-3.7-flash)
 
 ---
 
@@ -379,39 +348,6 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
   - Optional (Route 2): `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_AI_TOKEN`, `CLOUDFLARE_AI_MODEL`
   - Optional (Rotate): `GOOGLE_AI_STUDIO_API_KEY` ใหม่จาก https://aistudio.google.com (key เก่า leaked)
   - หลังตั้งแล้ว redeploy หรือรอ Vercel trigger จาก commit ล่าสุด
-
-- [ ] **E2E Production Verification หลัง key ตั้งแล้ว** *(Priority: HIGH)*
-  - รัน regression suite (ทำงานพร้อมกันทั้ง health/preflight/inference):
-    ```bash
-    python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app
-    ```
-    - หากใช้ script rust binary ไม่ได้ ให้ต่อท้าย `--use-python`
-  - ความคาดหวังผลจากสคริปต์: 3/3 tests ผ่าน (`GET /health`, OPTIONS, POST ซึ่งมี header checks รวมอยู่)
-  - fallback/manual sanity check หลังผ่าน script:
-    ```bash
-  # ตรวจสอบ deploy version
-  curl -s https://horo-consultant-psi.vercel.app/health | python3 -m json.tool
-  # ต้องเห็น: "version" เป็นเวอร์ชันปัจจุบันของ deployment และ response headers มี X-Deploy-SHA 3 หลักแรก
-  #   {route: cloudflare_ai, enabled: true} หรือ {route: hf_inference, enabled: true} หรือ {route: gemini_api, enabled: true} หรือ {route: openai_api, enabled: true}
-  # และ response headers ต้องมี: X-Deploy-SHA=8fbf665
-
-  # ทดสอบ E2E inference (body)
-  curl -s -X POST https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret \
-    -H "Content-Type: application/json" \
-    -d '{"birth_datetime":"1990-05-15 14:30:00","query":"การงานและโชคลาภ","day_master":{"stem":"庚","element":"Metal"}}' \
-    | python3 -m json.tool
-  # ทดสอบ Header metadata
-  curl -s -D- -X POST https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret \
-    -H "Content-Type: application/json" \
-    -d '{"birth_datetime":"1990-05-15 14:30:00","query":"การงานและโชคลาภ","day_master":{"stem":"庚","element":"Metal"}}' \
-    | sed -n '1,12p'
-  # ต้องเห็น: "interpretation" ที่เริ่มด้วย "### 🔮 ผลการทำนาย...", 
-  # "source": "ai_agent_llm", และ response headers มี X-AI-Source + X-AI-Model
-
-    # รัน full E2E regression
-    python3 scripts/run_e2e_screenshots.py
-    python3 scripts/run_button_regression.py
-    ```
 
 - [ ] **Release Rollback & Recovery Runbook** *(Priority: MEDIUM)*
   - Define rollback/no-rollback criteria (health probe failures, route error rates, and cross-provider inference chain breakage).
