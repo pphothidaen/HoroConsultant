@@ -130,10 +130,10 @@ def sync_secrets_to_doppler(
         matched = [k for k in keys if k in valid_secrets]
         logger.info(f"   📌 {cat_name}: {len(matched)} keys ({', '.join(matched[:3])}...)")
 
-    sync_github_secrets(valid_secrets, dry_run=dry_run)
-
     if dry_run:
         logger.info("🧪 DRY RUN MODE: All Production secrets categorized and validated successfully!")
+        # Keep sync order consistent with production run: Doppler first, then GitHub Secrets.
+        sync_github_secrets(valid_secrets, dry_run=dry_run)
         return True
 
     doppler_bin = get_doppler_cli_path()
@@ -144,11 +144,12 @@ def sync_secrets_to_doppler(
         cmd.append(f"{k}={v}")
 
     logger.info(f"🚀 Executing Doppler Secret Sync to project [{project}] config [{config}]...")
+    doppler_ok = False
     try:
         res = subprocess.run(cmd, capture_output=True, text=True)
         if res.returncode == 0:
             logger.info("🎉 Successfully synced all Production secrets to Doppler Secrets Manager!")
-            return True
+            doppler_ok = True
         else:
             if "must provide a token" in res.stderr or "auth login" in res.stderr:
                 logger.warning("⚠️ Doppler CLI needs authentication (`doppler login` or `DOPPLER_TOKEN`).")
@@ -159,13 +160,16 @@ def sync_secrets_to_doppler(
                 print("=" * 80)
                 print(cmd_str)
                 print("=" * 80 + "\n")
-                return True
+                doppler_ok = True
             else:
                 logger.error(f"❌ Doppler CLI Error: {res.stderr}")
                 return False
     except Exception as e:
         logger.error(f"❌ Execution error: {e}")
         return False
+
+    sync_github_secrets(valid_secrets, dry_run=dry_run)
+    return doppler_ok
 
 
 def main():
