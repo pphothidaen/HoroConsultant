@@ -228,7 +228,7 @@ def publish_space(space_id: str, sdk: str = "static", private: bool = False, dry
         logger.error("❌ Payload validation failed. Aborting deployment.")
         return False
 
-        if dry_run:
+    if dry_run:
         logger.info("🧪 [DRY-RUN MODE] Payload audit completed successfully. No remote changes made.")
         token = get_hf_token()
         if token and HF_AVAILABLE:
