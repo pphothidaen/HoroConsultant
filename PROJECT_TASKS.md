@@ -344,9 +344,14 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
   - Replaced hard-coded external artifact directory with configurable local output path (`E2E_ARTIFACT_DIR` / `project/tests/artifacts/screenshots`).
   - Records every caught browser-step exception as a `FAILED` result so reports accurately reflect execution outcomes.
 
-- [x] **Define the Future LLM Model Expansion Scope ([`plans/plan.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/plan.md))**
-  - Defined 3-Tier Multi-Provider Topology (Local Qwen2.5 / Ollama → Gemini 2.5/3.6 Flash → 9router DeepSeek-R1 / Claude 3.7 Sonnet).
-  - Specified latency SLAs, zero-cost budget limit ($0.00 baseline), and deterministic Rust PyO3 calculation guard criteria.
+- [x] **Establish 10-Point Master Architecture & Operating Consensus Matrix ([`plans/plan.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/plan.md))**
+  - Resolved 10 comprehensive architectural decisions via `/grill-me` (Hybrid Failover, Two-Way Telegram Controller, Event-Driven Kaggle GPU Loop, Periodic OTLP Exporter, Consensus Matrix, Instant FAISS Ingest, 2-Tier Caching, Adaptive Rate Limiter, Multi-Lingual Glossary, and Zero-Tolerance Quality Gate).
+
+- [x] **Vertex AI Direct Bearer Token Failover Integration ([`project/api_router.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/api_router.py))**
+  - Implemented `_get_vertex_ai_credentials()` for dynamic RS256 OAuth2 token exchange with Service Account JSON.
+  - Implemented `_call_vertex_ai()` for direct Google Cloud Vertex AI REST inference with zero API key expiration.
+  - Integrated `vertex_ai` route type into `HybridRouter` priority cloud failover chain.
+
 
 
 
