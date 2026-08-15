@@ -13,18 +13,21 @@
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Decoupled DDD Multi-Cloud & Rust Core│ • Google Gemini API Dynamic Key &     │ • Future LLM Provider Integration      │
-│ • Autonomous NotebookLM Distillation  │   Model Rotation Engine (gemini-3.5-  │   (Qwen2.5-32B / DeepSeek-R1 evaluation)│
-│ • Hermes Agent Synthetic CoT Miner    │   flash-lite ➔ gemini-flash-latest ➔  │                                       │
-│ • Quality Gate & Dataset Curator      │   gemini-3.6-flash ➔ live endpoints)  │                                       │
+│ • Decoupled DDD Multi-Cloud & Rust Core│ • Future LLM Provider Integration     │ • Continuous MLOps Distillation Sync  │
+│ • Autonomous NotebookLM Distillation  │   (Qwen2.5-32B / DeepSeek-R1 & 9router│ • Grafana Synthetic Latency Tuning    │
+│ • Hermes Agent Synthetic CoT Miner    │   multi-account alias routing)        │                                       │
+│ • Quality Gate & Dataset Curator      │                                       │                                       │
 │ • Kaggle GPU Fine-Tuning Pipeline     │                                       │                                       │
 │ • MLOps Dashboard & FastAPIRouter     │                                       │                                       │
 │ • Webhook Alerts (Telegram & Discord) │                                       │                                       │
 │ • Scheduled GitHub Actions Cron       │                                       │                                       │
-│ • 206 Pytest + 25 Button Contracts    │                                       │                                       │
+│ • 393 Pytest + 25 Button Contracts    │                                       │                                       │
 │ • Hermes Cloud Hooks (.agents/hooks)  │                                       │                                       │
 │ • Doppler 2-Tier Secrets Pipeline     │                                       │                                       │
 │ • Gemini 3.6/3.7 Parity Engine Config │                                       │                                       │
+│ • Google Gemini API Dynamic Rotation  │                                       │                                       │
+│ • Instant Telegram Outage Alerting    │                                       │                                       │
+│ • Clean GOOGLE_AI_STUDIO_API_KEY Migr │                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
 
