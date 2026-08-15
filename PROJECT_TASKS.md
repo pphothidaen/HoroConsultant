@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-15 19:45:00 +07 — Skill Context Budget Optimization: Refactoring all 8 SKILL.md frontmatter descriptions to concise high-signal 1-liners (< 90 chars), streamlining agent descriptions in .antigravity/agents/, syncing to .agents/ and .codex/, and adding automated test_skill_configurations.py budget linter to prevent Codex context budget truncation warnings.*
+> *Last Updated: 2026-08-15 21:20:00 +07 — Kanban DOING/TODO alignment with production verification rollback-contingent state and rollout action items.*
 
 
 ---
@@ -320,11 +320,9 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 ### 🔄 DOING (กำลังดำเนินการ)
 
-  - [x] **✅ Vercel Production Deployment Verification (commit `3d370d9`)** — deployed โดยตรงผ่าน `npx vercel --prod --yes` และเชื่อม alias สำเร็จที่ `horo-consultant-psi.vercel.app`
+  - [ ] **🔄 Production Verification Continuation (commit `3d370d9`)** — ต้องยืนยันใหม่หลัง deploy และเมื่อ network กลับมาใช้งานได้
   - **Pass criteria (automated)**: `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` ผ่าน 3/3 (`GET /health`, OPTIONS, POST) และ `POST` มี `X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model`
-  - **Evidence (18-08-2026 18:33:14 +07)**: `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` → `3/3 PASSED`
-    - GET `/health` ได้ `X-Deploy-SHA=8fbf665`
-    - POST `/api/v1/bazi/interpret` ได้ `source=ai_agent_llm model=gemini-3.5-flash`
+  - **Prior evidence (18-08-2026 18:33:14 +07)**: 3/3 จาก `run_vercel_prod_curl_regression.py` และได้ `X-Deploy-SHA=8fbf665`, `source=ai_agent_llm model=gemini-3.5-flash`
   - **Deployment metadata**:
     - deployment id: `dpl_DLGA2y1on7YumKzwQX9SR6jRiebW`
     - inspector URL: `https://vercel.com/facebook-scraper-ai/horo-consultant/DLGA2y1on7YumKzwQX9SR6jRiebW`
@@ -371,7 +369,7 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 > **🔥 HIGH PRIORITY — ต้องทำก่อน production inference จะทำงาน**
 
-  - [x] **🔑 ตั้ง API keys สำหรับ Inference (ไม่ใช้ Together AI)** *(Priority: CRITICAL)*
+  - [ ] **🔑 ตั้ง API keys สำหรับ Inference (ไม่ใช้ Together AI)** *(Priority: CRITICAL)*
   - ไปที่ [Vercel Dashboard](https://vercel.com/dashboard) → HoroConsultant → Settings → Environment Variables
   - เลือกอย่างน้อยหนึ่งทางเลือก:
     - `CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_AI_TOKEN`
@@ -382,7 +380,7 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
   - Optional (Rotate): `GOOGLE_AI_STUDIO_API_KEY` ใหม่จาก https://aistudio.google.com (key เก่า leaked)
   - หลังตั้งแล้ว redeploy หรือรอ Vercel trigger จาก commit ล่าสุด
 
-- [x] **E2E Production Verification หลัง key ตั้งแล้ว** *(Priority: HIGH)*
+- [ ] **E2E Production Verification หลัง key ตั้งแล้ว** *(Priority: HIGH)*
   - รัน regression suite (ทำงานพร้อมกันทั้ง health/preflight/inference):
     ```bash
     python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app
@@ -415,71 +413,20 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
     python3 scripts/run_button_regression.py
     ```
 
-- [x] **Module 1: RAG FAISS Vector Search & Distance Metrics Native Rust Migration ([`project/rag/vector_store.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/rag/vector_store.py), [`rust_core/src/vector_search.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/vector_search.rs), [`project/core/fast_math.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/fast_math.py))**
-  - Implemented SIMD unrolled Dot Product (Cosine Similarity) & L2 Euclidean Distance vector search matchers in Rust PyO3 bindings (`dense_vector_search` & `dense_vector_search_l2`).
-  - Added fast math python bridge `rust_dense_vector_search_l2` with 100% NumPy fallback compatibility.
-  - Current audit: 2 Cargo integration tests PASS + 13/13 Pytest extension tests PASS.
-
-- [x] **Module 2: Astrological Audit & Canonical Consonance Native Rust Binary ([`rust_core/src/bin/audit_suite.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/audit_suite.rs))**
-  - Created parallel Rust CLI binary `audit_suite` executing Five Elements, TST, and Cross-Domain consonance audits in **0.066 ms** (`READY_FOR_PROD`).
-
-- [x] **Module 3: Grafana OTLP Telemetry & Health Monitoring Daemon ([`rust_core/src/bin/telemetry_daemon.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/telemetry_daemon.rs))**
-  - Built Tokio async Rust binary daemon `telemetry_daemon` probing cloud gateways with < 4MB RAM footprint (`--once` and `--interval` modes).
-
-- [x] **Module 4: Synthetic Chart Generation & Dataset Extractor Engine ([`rust_core/src/bin/chart_generator.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/chart_generator.rs))**
-  - Built multithreaded Rayon synthetic chart generator in Rust emitting 1,000 JSONL records in **0.0018s** (**> 540,000 charts/sec**).
-
-- [x] **Module 5: Axum Gateway High-Throughput Load Tester & Latency Analyzer ([`rust_core/src/bin/horo_benchmark.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/horo_benchmark.rs))**
-  - Built Tokio async load tester CLI measuring req/sec throughput & sub-millisecond P50/P95/P99 latency distribution for Axum Gateway.
-
-- [x] **Module 6: High-Performance Pure Rust SVG Vector Chart Generator CLI ([`rust_core/src/bin/svg_chart_cli.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/svg_chart_cli.rs))**
-  - Built standalone Rust CLI for batch rendering vector SVG charts (BaZi, ZiWei, Zodiac Wheel, QiMen, XuanKong) in **< 0.05ms** per chart.
-
-- [x] **Module 7: Parallel Multi-Discipline Metaphysics Fusion Synthesizer ([`rust_core/src/bin/fusion_synthesizer.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/fusion_synthesizer.rs))**
-  - Built Rayon multi-threaded CLI binary executing all 10 domain calculation engines concurrently in **0.17 ms** emitting unified JSON charts.
-
-- [x] **Module 8: Native Rust SDLC Agent Governance Watchdog & Health Auditor ([`rust_core/src/bin/sdlc_watchdog.rs`](file:///Users/kimlenglim/Project/HoroConsultant/rust_core/src/bin/sdlc_watchdog.rs))**
-  - Built native Rust watchdog CLI auditing agent matrix specs (`.antigravity/agents/`), workspace definitions (`.agents/agents/`), docs integrity, and secret leaks.
-
-- [x] **Harden HITL Button Regression Contracts ([`scripts/run_button_regression.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/run_button_regression.py))**
-  - Selects a deterministic valid item from `/hitl/queue`, then asserts successful draft → review → undo lifecycle responses (HTTP 200).
-  - Verifies invalid-ID behavior as a separate negative-path test (`test_hitl_negative_path_invalid_id_btn`, HTTP 404).
-
-- [x] **Make Playwright E2E Results Portable and Trustworthy ([`scripts/run_e2e_screenshots.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/run_e2e_screenshots.py))**
-  - Replaced hard-coded external artifact directory with configurable local output path (`E2E_ARTIFACT_DIR` / `project/tests/artifacts/screenshots`).
-  - Records every caught browser-step exception as a `FAILED` result so reports accurately reflect execution outcomes.
-
-- [x] **Establish 10-Point Master Architecture & Operating Consensus Matrix ([`plans/plan.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/plan.md))**
-  - Resolved 10 comprehensive architectural decisions via `/grill-me` (Hybrid Failover, Two-Way Telegram Controller, Event-Driven Kaggle GPU Loop, Periodic OTLP Exporter, Consensus Matrix, Instant FAISS Ingest, 2-Tier Caching, Adaptive Rate Limiter, Multi-Lingual Glossary, and Zero-Tolerance Quality Gate).
-
-- [x] **Vertex AI Direct Bearer Token Failover Integration ([`project/api_router.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/api_router.py))**
-  - Implemented `_get_vertex_ai_credentials()` for dynamic RS256 OAuth2 token exchange with Service Account JSON.
-  - Implemented `_call_vertex_ai()` for direct Google Cloud Vertex AI REST inference with zero API key expiration.
-  - Integrated `vertex_ai` route type into `HybridRouter` priority cloud failover chain.
-
-- [x] **Domain Terminology & Multi-Lingual Alignment Engine ([`project/core/glossary.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/glossary.py))**
-  - Built canonical glossary engine covering 10 Heavenly Stems, 12 Earthly Branches, 10 Gods, and 5 Elements.
-  - Implemented automatic language detection (Thai, Chinese, English) with strict Pinyin + Hanzi pairing.
-
-- [x] **2-Tier Caching Engine with LRU in RAM & Model Auto-Eviction ([`project/core/cache_manager.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/cache_manager.py))**
-  - Implemented Tier 1 in-memory `OrderedDict` LRU cache (< 0.1ms) + Tier 2 persistent JSON disk cache.
-  - Implemented `invalidate_on_model_update()` to auto-purge stale AI readings upon new fine-tune releases.
-
-- [x] **Adaptive Multi-Tier Rate Limiter & DDoS Micro-Burst Guard ([`project/core/rate_limiter.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/rate_limiter.py))**
-  - Configured role-based quotas (Anonymous 20 RPM vs Admin 120 RPM).
-  - Implemented 1-second sliding window DDoS micro-burst protection (Max 5 RPS) with audit logging.
-
-- [x] **Consensus Matrix & Five Elements Anchor Synthesis Engine ([`project/core/multi_agent_debate.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/core/multi_agent_debate.py))**
-  - Enforced BaZi Five Elements balance as core baseline anchor across 10 metaphysical disciplines.
-  - Structured cross-discipline consensus scoring ($0.0 \sim 1.0$), consonance factors, and cautionary factors.
-
-- [x] **HITL Instant FAISS Ingestion & Training Queue Milestone Detector ([`project/hitl_router.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/hitl_router.py))**
-  - Added instant vector store ingestion upon review approval for live RAG retrieval.
-  - Added milestone threshold detector ($\ge 50$ approved samples) for Kaggle GPU fine-tuning trigger.
-
-- [x] **Two-Way Interactive Telegram Bot Controller & Webhook ([`project/mlops/notifications/telegram_controller.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/mlops/notifications/telegram_controller.py), [`project/main.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/main.py))**
-  - Implemented interactive commands (`/status`, `/health`, `/metrics`, `/cache`, `/switch_key`).
-  - Registered `/api/v1/telegram/webhook` endpoint with direct response dispatching.
-
-- [x] **Strict Zero-Tolerance Quality Gate Orchestrator ([`scripts/run_quality_gate.py`](file:///Users/kimlenglim/Project/HoroConsultant/scripts/run_quality_gate.py))**
-  - Unified 4-stage quality gate enforcing 100% pass across Secret Scans, Agent Sync, Pytest, and 25 Button contracts.
+- [ ] **Release Rollback & Recovery Runbook** *(Priority: MEDIUM)*
+  - Define rollback/no-rollback criteria (health probe failures, route error rates, and cross-provider inference chain breakage).
+  - Set owners and contact chain for Vercel, Hugging Face, and Azure fallback paths.
+  - Prepare a dry-run drill checklist with evidence capture (`deployment id`, `X-Deploy-SHA`, sample inference latency, `X-AI-Source` continuity).
+  - เตรียม runbook การ rollback/no-rollback policy, owner mapping, และ command playbook สำหรับกรณี production inference validation ไม่ผ่านต่อเนื่อง.
+  - คำสั่ง handoff ด่วนสำหรับ production incident:
+    - ตรวจความเสถียรเบื้องต้น:
+      - `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python`
+      - `curl -s https://horo-consultant-psi.vercel.app/health | python3 -m json.tool`
+      - `curl -i -X POST https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret -H "Content-Type: application/json" -d '{"birth_datetime":"1990-05-15 14:30:00","query":"การงานและโชคลาภ","day_master":{"stem":"庚","element":"Metal"}}' | python3 -m json.tool`
+    - ถ้าขึ้น `HTTP 0`/DNS fail ให้หยุดการ deploy ต่อเนื่องและ escalate infra (DNS/network/proxy) ก่อน
+    - ถ้า deploy hash ไม่ตรง:
+      - รัน `npx vercel ls` และใช้ `npx vercel rollback` กลับไป deployment ที่มี `X-Deploy-SHA` ล่าสุดที่ยืนยันได้
+    - รันเช็ก log:
+      - `curl -s https://horo-consultant-psi.vercel.app/health | jq '.version, .inference_chain, .chain_trace'`
+      - `for _ in 1 2 3; do curl -i -X POST https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret -H "Content-Type: application/json" -d '{"birth_datetime":"1990-05-15 14:30:00","query":"การงานและโชคลาภ","day_master":{"stem":"庚","element":"Metal"}}' | sed -n '1,14p'; done`
+    - เก็บหลักฐานปิดงาน: deployment id, X-Deploy-SHA ชุดล่าสุด, 3 sample inference latency, source model ก่อนส่งต่อ handoff.

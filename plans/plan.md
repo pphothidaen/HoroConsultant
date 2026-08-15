@@ -3,7 +3,7 @@
 **Project:** HoroConsultant — Computational Metaphysics Engine  
 **Target Framework:** Antigravity CLI AI SDLC System + Codex compatibility layer  
 **Lead Agent:** Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
-**Last Updated:** 2026-08-15 — Skill Context Budget Optimization, SKILL.md Frontmatter Refactoring, Agent Description Streamlining, and Automated Budget Governance.
+**Last Updated:** 2026-08-15 21:16:00 +07 — Sync Vercel production verification status into kanban DOING (re-verify pending) and keep rollout blockers in TODO.
 
 ---
 
@@ -15,10 +15,12 @@
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
 │ • Decoupled DDD Multi-Cloud & Rust Core│ • Future LLM Provider Integration     │ • Continuous MLOps Distillation Sync  │
 │ • Autonomous NotebookLM Distillation  │   (Qwen2.5-32B / DeepSeek-R1 & 9router│ • Grafana Synthetic Latency Tuning    │
-│ • Hermes Agent Synthetic CoT Miner    │    multi-account alias routing)       │                                       │
-│ • Quality Gate & Dataset Curator      │                                       │                                       │
-│ • Kaggle GPU Fine-Tuning Pipeline     │                                       │                                       │
-│ • MLOps Dashboard & FastAPIRouter     │                                       │                                       │
+│ • Hermes Agent Synthetic CoT Miner    │    multi-account alias routing)       │ • Release Rollback & Recovery Runbook │
+│ • Quality Gate & Dataset Curator      │ • Production E2E Verification        │ • API Keys Setup for Inference         │
+│ • Kaggle GPU Fine-Tuning Pipeline     │   Continuation (Network-dependent)    │ • E2E Production Verification         │
+│ • MLOps Dashboard & FastAPIRouter     │ • Vercel Production Verification     │                                       │
+│                                       │   (commit `3d370d9`)                 │                                       │
+│                                       │   (re-verify in next network window)  │                                       │
 │ • Webhook Alerts (Telegram & Discord) │                                       │                                       │
 │ • Scheduled GitHub Actions Cron       │                                       │                                       │
 │ • 408 Pytest + 32 Button Contracts    │                                       │                                       │
@@ -204,4 +206,3 @@ The following 10 core architectural and operational policies have been fully ali
 | **8** | **Security, Rate Limiting & RBAC** | **Multi-Tier Adaptive Rate Limiter** | Anonymous: 20 RPM, Admin: 120 RPM, DDoS Burst Guard: 5 RPS + Security Audit Logging to Grafana/Telegram |
 | **9** | **Internationalization & Glossary** | **Auto-Detection + Domain Terminology** | Automatic language detection with strict Chinese philosophical terminology (Pinyin + Hanzi + Thai/English glossaries) |
 | **10** | **CI/CD Quality Gate & Release** | **Strict Zero-Tolerance Quality Gate** | 100% pass mandate (393 Unit Tests + 25 Button Contracts + 0 Secret Leaks + 17 Agent Specs Synchronized) |
-
