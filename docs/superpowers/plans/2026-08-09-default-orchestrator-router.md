@@ -37,7 +37,7 @@
 - Consumes: `.agents/agents/default/agent.json` JSON object with `name`, `description`, and `system_prompt` fields.
 - Produces: a default agent prompt containing the exact routing stages `classify`, `plan`, `delegate`, `synthesize`, and `verify`; generated TOML whose `developer_instructions` embeds that prompt.
 
-- [ ] **Step 1: Write the failing behavioral test**
+- [x] **Step 1: Write the failing behavioral test**
 
   Add this test after `test_settings_json_default_agent` in `project/tests/test_agent_configurations.py`:
 
@@ -55,13 +55,13 @@
       assert "distinct file or responsibility ownership" in prompt
   ```
 
-- [ ] **Step 2: Run the focused test to verify it fails**
+- [x] **Step 2: Run the focused test to verify it fails**
 
   Run: `pytest project/tests/test_agent_configurations.py::test_default_agent_is_an_explicit_orchestrator_router -v`
 
   Expected: FAIL because the existing `role` and prompt do not include the explicit router contract.
 
-- [ ] **Step 3: Implement the minimal source-definition change**
+- [x] **Step 3: Implement the minimal source-definition change**
 
   In `.agents/agents/default/agent.json`:
 
@@ -79,19 +79,19 @@
 
   Keep the existing domain-master, HITL, SDLC, and model-context requirements after this protocol.
 
-- [ ] **Step 4: Regenerate the Codex compatibility output**
+- [x] **Step 4: Regenerate the Codex compatibility output**
 
   Run: `python3 scripts/sync_codex_agents.py --sync`
 
   Expected: `.codex/agents/default.toml` is regenerated from the modified JSON source, with no manual TOML edit.
 
-- [ ] **Step 5: Run the focused test to verify it passes**
+- [x] **Step 5: Run the focused test to verify it passes**
 
   Run: `pytest project/tests/test_agent_configurations.py::test_default_agent_is_an_explicit_orchestrator_router -v`
 
   Expected: PASS.
 
-- [ ] **Step 6: Run synchronization and configuration verification**
+- [x] **Step 6: Run synchronization and configuration verification**
 
   Run:
 
@@ -102,7 +102,7 @@
 
   Expected: all tests pass and the synchronizer reports all 16 Codex definitions synchronized.
 
-- [ ] **Step 7: Review and commit only owned files**
+- [x] **Step 7: Review and commit only owned files**
 
   Run:
 

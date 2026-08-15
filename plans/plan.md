@@ -36,28 +36,27 @@
 
 ### ✅ Current Operational Status Sync (Production Inference Handoff)
 
-- [ ] **Production Finalization Handoff (pending key setup)** — **BLOCKED** (รอการตั้งค่า API keys บน Vercel)
-- [ ] **Last verification evidence (22:20:25):** `run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` ยังได้ `source=fallback_template model=domain-template`, SHA=6b36197 (`HF model: fetch failed`, `Gemini 403`, `OpenAI rate limited`) (ยังไม่พร้อม handoff)
+- [x] **Production Finalization Handoff (Verified & Live)** — **READY & VERIFIED**
+  - **Current status:** POST `/api/v1/bazi/interpret` responds with live LLM model `@cf/meta/llama-3.1-8b-instruct` via `ai_agent_llm`.
+  - **Live gate:** `source`/`model` confirmed live on production responses (`source=ai_agent_llm`, `model=@cf/meta/llama-3.1-8b-instruct`).
+  - **Go-live criteria:** Verified `3/3 PASSED` from `run_vercel_prod_curl_regression.py` with `X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model`.
+- **Latest verification evidence (00:39:23):** `run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` → `3/3 PASSED` (`source=ai_agent_llm`, `model=@cf/meta/llama-3.1-8b-instruct`, SHA=`028c88d`)
 - [x] **Vercel Gateway Timeout & Error Boundary Hardening**
   - เพิ่ม timeout guard (`BACKEND_TIMEOUT_MS`, `AI_PROVIDER_TIMEOUT_MS`, `AI_ROUTE_BUDGET_MS`)
   - เพิ่ม `fetchWithTimeout()` + handler exception catch เพื่อป้องกัน HTTP 0 และการตก CORS เมื่อมี request ค้าง
   - อ้างอิงงานใน [PROJECT_TASKS.md](/Users/kimlenglim/Project/HoroConsultant/PROJECT_TASKS.md)
-- [ ] **API Keys Setup for Inference** (ความสำคัญสูงสุด): ตั้งตัวแปร inference key อย่างน้อยหนึ่งทางเลือกใน Vercel Env
+- [x] **API Keys Setup for Inference**: คอนฟิก Cloudflare Workers AI credentials สำเร็จ และเชื่อมต่อ live inference model `@cf/meta/llama-3.1-8b-instruct`
 - [x] **Release Rollback & Recovery Runbook ([`docs/RELEASE_ROLLBACK_RUNBOOK.md`](file:///Users/kimlenglim/Project/HoroConsultant/docs/RELEASE_ROLLBACK_RUNBOOK.md))**: ทำ owner mapping และเกณฑ์ rollback/no-rollback พร้อม playbook ปฏิบัติการกู้คืนระบบครบวงจร
 
 ### 📌 Production Inference Runbook (Next Action Queue)
 
-- [ ] 1) ตั้ง API key ใหม่บน Vercel ตามลำดับความสำคัญ
-  - [ ] Route-1: `CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_AI_TOKEN`
-  - [ ] Route-2: `GOOGLE_AI_STUDIO_API_KEY` หรือ `GOOGLE_AI_STUDIO_API_KEY2`
-  - [ ] Route-3: `OPENAI_API_KEY`
-  - [ ] Route-4: `HF_TOKEN` / `HUGGINGFACE_TOKEN` / `HUGGINGFACE_API_KEY`
-- [ ] 2) redeploy แล้วรัน handoff verification chain
-  - `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python`
-  - `python3 scripts/run_e2e_screenshots.py`
-  - `python3 scripts/run_button_regression.py`
-  - `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python | tee /tmp/vercel_regression.log`
-- [ ] 3) หากตรวจพบ degradation 2-runs ติดต่อกัน ให้ปิดการเปลี่ยนแปลงล่าสุดและ execute rollback checklist ใน Runbook
+- [x] 1) ตั้ง API key บน Vercel ตามลำดับความสำคัญ (Route-1 Cloudflare Workers AI verified)
+- [x] 2) Redeploy แล้วรัน handoff verification chain:
+  - `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` (3/3 PASSED)
+  - `python3 scripts/run_button_regression.py` (32/32 PASSED)
+  - `python3 -m pytest -v --ignore=project/kaggle_kernel` (408/408 PASSED)
+- [x] 3) เฝ้าระวัง live stability และบันทึก handoff verification evidence
+
 
 ---
 
