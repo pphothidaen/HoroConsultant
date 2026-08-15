@@ -104,7 +104,7 @@ def sync_secrets_to_doppler(
     """Parse environment file and set secrets in Doppler via Doppler CLI / API."""
     if not env_file.exists():
         fallback = ROOT_DIR / ".env"
-        if fallback.exists():
+        if os.getenv("GITHUB_ACTIONS") != "true" and fallback.exists():
             logger.info(f"ℹ️ Requested file '{env_file.name}' not found. Falling back to '{fallback.name}'")
             env_file = fallback
         else:

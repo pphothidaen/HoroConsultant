@@ -20,12 +20,12 @@ jobs:
     env:
       HF_BACKEND_SPACE_ID: ${{ vars.HF_BACKEND_SPACE_ID || '' }}
       HF_STATIC_SPACE_ID: ${{ vars.HF_STATIC_SPACE_ID || 'pphothidaen/horoconsultant-core-backend' }}
-      HF_BACKEND_URL: ${{ vars.HF_BACKEND_URL || secrets.HF_BACKEND_URL || 'https://horo-consultant-psi.vercel.app' }}
-      HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || secrets.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
-      AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID || secrets.AWS_ACCESS_KEY_ID || vars.AWS_ACCESS_KEY || secrets.AWS_ACCESS_KEY }}
-      AWS_SECRET_ACCESS_KEY: ${{ vars.AWS_SECRET_ACCESS_KEY || secrets.AWS_SECRET_ACCESS_KEY || vars.AWS_SECRET_KEY || secrets.AWS_SECRET_KEY }}
-      AWS_ENDPOINT_URL: ${{ vars.AWS_ENDPOINT_URL || secrets.AWS_ENDPOINT_URL }}
-      VERCEL_GATEWAY_URL: ${{ vars.VERCEL_GATEWAY_URL || secrets.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
+      HF_BACKEND_URL: ${{ secrets.HF_BACKEND_URL || vars.HF_BACKEND_URL || 'https://horo-consultant-psi.vercel.app' }}
+      HF_STATIC_CDN_URL: ${{ secrets.HF_STATIC_CDN_URL || vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID || vars.AWS_ACCESS_KEY_ID || secrets.AWS_ACCESS_KEY || vars.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY || vars.AWS_SECRET_ACCESS_KEY || secrets.AWS_SECRET_KEY || vars.AWS_SECRET_KEY }}
+      AWS_ENDPOINT_URL: ${{ secrets.AWS_ENDPOINT_URL || vars.AWS_ENDPOINT_URL }}
+      VERCEL_GATEWAY_URL: ${{ secrets.VERCEL_GATEWAY_URL || vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -64,23 +64,24 @@ jobs:
           except Exception:
               dotenv_values = None
 
-          token_candidates = [
+          if os.getenv("GITHUB_ACTIONS") != "true" and dotenv_values is not None:
+              local_env = dotenv_values(".env")
+              local_token_candidates = [
+                  ("HF_TOKEN_LOCAL", local_env.get("HF_TOKEN")),
+                  ("HUGGINGFACE_TOKEN_LOCAL", local_env.get("HUGGINGFACE_TOKEN")),
+                  ("HF_API_TOKEN_LOCAL", local_env.get("HF_API_TOKEN")),
+                  ("HUGGINGFACE_API_KEY_LOCAL", local_env.get("HUGGINGFACE_API_KEY")),
+                  ("HUGGING_FACE_TOKEN_LOCAL", local_env.get("HUGGING_FACE_TOKEN")),
+              ]
+
+          token_candidates = local_token_candidates if os.getenv("GITHUB_ACTIONS") != "true" and dotenv_values is not None else []
+          token_candidates += [
               ("HF_TOKEN", os.getenv("HF_TOKEN")),
               ("HUGGINGFACE_TOKEN", os.getenv("HUGGINGFACE_TOKEN")),
               ("HF_API_TOKEN", os.getenv("HF_API_TOKEN")),
               ("HUGGINGFACE_API_KEY", os.getenv("HUGGINGFACE_API_KEY")),
               ("HUGGING_FACE_TOKEN", os.getenv("HUGGING_FACE_TOKEN")),
           ]
-
-          if os.getenv("GITHUB_ACTIONS") != "true" and dotenv_values is not None:
-              local_env = dotenv_values(".env")
-              token_candidates.extend([
-                  ("HF_TOKEN_LOCAL", local_env.get("HF_TOKEN")),
-                  ("HUGGINGFACE_TOKEN_LOCAL", local_env.get("HUGGINGFACE_TOKEN")),
-                  ("HF_API_TOKEN_LOCAL", local_env.get("HF_API_TOKEN")),
-                  ("HUGGINGFACE_API_KEY_LOCAL", local_env.get("HUGGINGFACE_API_KEY")),
-                  ("HUGGING_FACE_TOKEN_LOCAL", local_env.get("HUGGING_FACE_TOKEN")),
-              ])
 
           token_candidates.extend([
               ("HF_TOKEN_FALLBACK", os.getenv("HF_TOKEN_FALLBACK")),
