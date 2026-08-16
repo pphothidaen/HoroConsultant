@@ -71,6 +71,8 @@ async def run_live_e2e_production_regression(profile: str = "smoke"):
             "status": resp.status,
             "ok": resp.ok
         }))
+        page.on("console", lambda msg: print(f"    [BROWSER CONSOLE] {msg.type.upper()}: {msg.text}"))
+        page.on("pageerror", lambda err: print(f"    [BROWSER JS ERROR] {err}"))
 
         # -------------------------------------------------------------------
         # 1. Initial Page Load

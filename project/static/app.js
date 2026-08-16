@@ -776,12 +776,6 @@ function renderFourPillarsBranchCard(chartData, svgContent, interpretationDepth 
     </div>
   `;
 
-  const pillarsText = pillarOrder.map((key) => {
-    const fmt = formatPillarCell(pillars[key]);
-    const label = BAZI_PILLAR_ORDER.find((p) => p.key === key);
-    return `<strong>${label ? label.label : key}</strong>: ${fmt.stemText}/${fmt.branchText}`;
-  }).join(' | ');
-
   const summaryHtml = buildPillarResearchHtml(chart, queryText, interpretationDepth);
 
   const fallbackHtml = `
