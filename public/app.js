@@ -4943,7 +4943,7 @@ async function calcSynastry() {
     return;
   }
 
-  renderSynastryResult({
+    renderSynastryResult({
       grade: "A+",
       composite_score: 92,
       verdict: "💖 สมพงษ์ระดับมหาอุดมมงคล ธาตุเกื้อหนุนคู่บารมี",
@@ -4956,7 +4956,6 @@ async function calcSynastry() {
         "ในช่วงปีจร 2026 เป็นช่วงเวลาทองในการสร้างครอบครัวหรือลงทุนในธุรกิจร่วมกัน"
       ]
     });
-  }
 }
 
 function renderSynastryResult(data) {
@@ -5363,7 +5362,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & FORCE CACHE PURGE SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.7e74909";
+const CLIENT_APP_VERSION = "1.0.0.e2a5e21";
 
 async function forcePurgeAndReload(event) {
   if (event) {
@@ -5919,6 +5918,16 @@ function appendChatMessage(role, text, citations) {
 
   chatHistory.push({ role, content: text });
   return msgDiv;
+}
+
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function formatMarkdownText(text) {
