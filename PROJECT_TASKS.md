@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-16 01:37:27 +07 — อัปเดตสถานะ TODO และเพิ่ม OpenAI key rotation หลายตัวใน `project/api_router.py` (`OPENAI_API_KEY` / `OPENAI_API_KEY2`) พร้อมแจ้งเตือน Hermes start-event เมื่อรันขั้นตอน SDLC.* 
+> *Last Updated: 2026-08-16 12:59:30 +07 — Release to Prod Complete (Commit `87a2561`): Continuous MLOps trigger, Tier 3 Reasoning Proxy & Synthetic Latency SLA verified live on Hugging Face Spaces & Vercel.* 
 
 
 ---
