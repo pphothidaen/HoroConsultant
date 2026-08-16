@@ -21,24 +21,32 @@ from __future__ import annotations
 
 import math
 import re
-import sys
-from pathlib import Path
 from typing import Any
 
 import numpy as np
 
-# Add project root and rust_core paths to sys.path
-_ROOT = Path(__file__).resolve().parents[2]
-_RUST_DIR = _ROOT / "rust_core"
-if _RUST_DIR.exists() and str(_RUST_DIR) not in sys.path:
-    sys.path.insert(0, str(_RUST_DIR))
+# Rust acceleration is required unless explicit development fallback was opted in.
+import rust_core  # type: ignore
 
-# ─── Optional Rust acceleration (Phase 2) ────────────────────────────────────
-try:
-    import rust_core  # type: ignore
-    RUST_AVAILABLE = hasattr(rust_core, "equation_of_time") and hasattr(rust_core, "chunk_text")
-except (ImportError, Exception):
-    RUST_AVAILABLE = False
+RUST_AVAILABLE = rust_core.RUST_AVAILABLE
+PYTHON_FALLBACK_ALLOWED = rust_core.PYTHON_FALLBACK_ALLOWED
+
+
+def runtime_backend() -> dict[str, object]:
+    """Return deterministic, secret-free acceleration runtime identity."""
+    return rust_core.runtime_backend()
+
+
+def _native_kernel(name: str) -> Any | None:
+    """Resolve a native kernel, failing closed unless fallback was explicit."""
+    if not RUST_AVAILABLE:
+        return None
+    kernel = getattr(rust_core, name, None)
+    if callable(kernel):
+        return kernel
+    if PYTHON_FALLBACK_ALLOWED:
+        return None
+    raise RuntimeError(f"required native kernel '{name}' is missing")
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -47,8 +55,9 @@ except (ImportError, Exception):
 
 def numpy_cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
     """Compute cosine similarity between two 1-D float32 vectors."""
-    if RUST_AVAILABLE:
-        return rust_core.cosine_similarity(a.tolist(), b.tolist())
+    kernel = _native_kernel("cosine_similarity")
+    if kernel is not None:
+        return kernel(a.tolist(), b.tolist())
     dot  = np.dot(a, b)
     norm = np.linalg.norm(a) * np.linalg.norm(b)
     return float(dot / norm) if norm > 1e-9 else 0.0
@@ -63,9 +72,10 @@ def numpy_build_tfidf_matrix(
     Build TF-IDF character-level matrix for all texts at once.
     Uses Rust acceleration (rust_core.build_tfidf_matrix) when available (~40× faster).
     """
-    if RUST_AVAILABLE:
+    kernel = _native_kernel("build_tfidf_matrix")
+    if kernel is not None:
         vocab_list = [k for k, _ in sorted(vocab.items(), key=lambda item: item[1])]
-        mat_list = rust_core.build_tfidf_matrix(texts, vocab_list)
+        mat_list = kernel(texts, vocab_list)
         return np.array(mat_list, dtype=dtype)
 
     n_docs  = len(texts)
@@ -101,9 +111,10 @@ def numpy_tfidf_vector(
     Build a single L2-normalised TF character vector.
     Uses Rust acceleration (rust_core.build_tfidf_vector) when available.
     """
-    if RUST_AVAILABLE:
+    kernel = _native_kernel("build_tfidf_vector")
+    if kernel is not None:
         vocab_list = [k for k, _ in sorted(vocab.items(), key=lambda item: item[1])]
-        vec_list = rust_core.build_tfidf_vector(text, vocab_list)
+        vec_list = kernel(text, vocab_list)
         return np.array(vec_list, dtype=np.float32)
 
     size = n_vocab if n_vocab is not None else len(vocab)
@@ -163,11 +174,13 @@ def rust_dense_vector_search(
     Rust PyO3 native binding for FAISS dense vector search (< 1ms latency).
     Delegates to rust_core.dense_vector_search (Dot Product / Cosine Similarity), with numpy fallback.
     """
-    if RUST_AVAILABLE and hasattr(rust_core, "dense_vector_search"):
+    kernel = _native_kernel("dense_vector_search")
+    if kernel is not None:
         try:
-            return rust_core.dense_vector_search(query_vec.tolist(), doc_matrix.tolist(), top_k, threshold)
+            return kernel(query_vec.tolist(), doc_matrix.tolist(), top_k, threshold)
         except Exception:
-            pass
+            if not PYTHON_FALLBACK_ALLOWED:
+                raise
     return numpy_search_topk(query_vec, doc_matrix, top_k, threshold)
 
 
@@ -181,11 +194,13 @@ def rust_dense_vector_search_l2(
     Rust PyO3 native binding for FAISS dense vector search using L2 Euclidean Distance.
     Delegates to rust_core.dense_vector_search_l2, with numpy fallback.
     """
-    if RUST_AVAILABLE and hasattr(rust_core, "dense_vector_search_l2"):
+    kernel = _native_kernel("dense_vector_search_l2")
+    if kernel is not None:
         try:
-            return rust_core.dense_vector_search_l2(query_vec.tolist(), doc_matrix.tolist(), top_k, max_distance)
+            return kernel(query_vec.tolist(), doc_matrix.tolist(), top_k, max_distance)
         except Exception:
-            pass
+            if not PYTHON_FALLBACK_ALLOWED:
+                raise
     diffs = doc_matrix - query_vec
     dists = np.linalg.norm(diffs, axis=1)
     valid_indices = np.where(dists <= max_distance)[0]
@@ -202,11 +217,13 @@ def fast_xuankong_9grid(facing_degree: float, period: int = 9) -> list[tuple[int
     Rust PyO3 native binding for Xuan Kong Flying Star 9-Grid matrix calculations.
     Returns list of (palace_number, base_star, sitting_star, facing_star).
     """
-    if RUST_AVAILABLE and hasattr(rust_core, "xuankong_9grid_matrix"):
+    kernel = _native_kernel("xuankong_9grid_matrix")
+    if kernel is not None:
         try:
-            return rust_core.xuankong_9grid_matrix(facing_degree, period)
+            return kernel(facing_degree, period)
         except Exception:
-            pass
+            if not PYTHON_FALLBACK_ALLOWED:
+                raise
     
     # Pure Python fallback
     palace_sequence = [5, 6, 7, 8, 9, 1, 2, 3, 4]
@@ -236,11 +253,13 @@ def fast_ziwei_stars(zi_wei_idx: int) -> list[tuple[int, list[str]]]:
     Rust PyO3 native binding for Zi Wei Dou Shu 14 Primary Stars calculation.
     Returns list of (earth_branch_index, list_of_star_names).
     """
-    if RUST_AVAILABLE and hasattr(rust_core, "calculate_14_main_stars"):
+    kernel = _native_kernel("calculate_14_main_stars")
+    if kernel is not None:
         try:
-            return rust_core.calculate_14_main_stars(zi_wei_idx)
+            return kernel(zi_wei_idx)
         except Exception:
-            pass
+            if not PYTHON_FALLBACK_ALLOWED:
+                raise
 
     branches = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
     tian_fu_idx = (4 + 12 - (zi_wei_idx % 12)) % 12
@@ -275,11 +294,13 @@ def fast_qimen_matrix(dun_is_yang: bool, ju_number: int) -> list[tuple[int, str,
     Rust PyO3 native binding for Qi Men Dun Jia 9-Palace 4-Plate matrix calculations.
     Returns list of (palace_num, earth_stem, star_name, door_name, spirit_name).
     """
-    if RUST_AVAILABLE and hasattr(rust_core, "qimen_9palace_matrix"):
+    kernel = _native_kernel("qimen_9palace_matrix")
+    if kernel is not None:
         try:
-            return rust_core.qimen_9palace_matrix(dun_is_yang, ju_number)
+            return kernel(dun_is_yang, ju_number)
         except Exception:
-            pass
+            if not PYTHON_FALLBACK_ALLOWED:
+                raise
 
     stems_order = ["戊", "己", "庚", "辛", "壬", "癸", "丁", "丙", "乙"]
     nine_stars = ["天蓬", "天芮", "天衝", "天輔", "天禽", "天心", "天柱", "天任", "天英"]
@@ -450,9 +471,9 @@ def chunk_text_fast(
     Fast CJK-aware text chunker.
     Uses Rust acceleration (rust_core.chunk_text) when available (~10× faster).
     """
-    if RUST_AVAILABLE:
-        import rust_core
-        raw_chunks = rust_core.chunk_text(text, chunk_size, 30)
+    kernel = _native_kernel("chunk_text")
+    if kernel is not None:
+        raw_chunks = kernel(text, chunk_size, 30)
         return [
             {"text": chunk.strip(), "source": source, "chunk": idx}
             for idx, chunk in enumerate(raw_chunks)
@@ -530,9 +551,9 @@ def cached_tst_calculation(
 @lru_cache(maxsize=8192)
 def cached_julian_day(year: int, month: int, day: int) -> int:
     """LRU-cached Julian Day Number. Uses Rust acceleration when available."""
-    if RUST_AVAILABLE:
-        import rust_core
-        return int(rust_core.julian_day_number(year, month, day))
+    kernel = _native_kernel("julian_day_number")
+    if kernel is not None:
+        return int(kernel(year, month, day))
     y, m, d = year, month, day
     if m <= 2:
         y -= 1
@@ -572,8 +593,9 @@ def get_cache_stats() -> dict[str, Any]:
 
 def fast_thai_lagna(birth_hour: int, birth_month: int) -> tuple[str, int]:
     """Calculate Thai Suriyayart Lagna. Uses Rust acceleration when available."""
-    if RUST_AVAILABLE and hasattr(rust_core, "calculate_thai_lagna"):
-        return rust_core.calculate_thai_lagna(birth_hour, birth_month)
+    kernel = _native_kernel("calculate_thai_lagna")
+    if kernel is not None:
+        return kernel(birth_hour, birth_month)
     zodiacs = ["เมษ", "พฤษภ", "เมถุน", "กรกฎ", "สิงห์", "กันย์", "ตุลย์", "พิจิก", "ธนู", "มังกร", "กุมภ์", "มีน"]
     sun_idx = (birth_month - 4) % 12
     hour_offset = ((birth_hour - 6) // 2) % 12
@@ -583,8 +605,9 @@ def fast_thai_lagna(birth_hour: int, birth_month: int) -> tuple[str, int]:
 
 def fast_thaksa_map(day_of_week: int) -> list[tuple[str, str]]:
     """Calculate Maha Thaksa. Uses Rust acceleration when available."""
-    if RUST_AVAILABLE and hasattr(rust_core, "calculate_thaksa_map"):
-        return rust_core.calculate_thaksa_map(day_of_week)
+    kernel = _native_kernel("calculate_thaksa_map")
+    if kernel is not None:
+        return kernel(day_of_week)
     thaksa_steps = ["บริวาร", "อายุ", "เดช", "ศรี", "มูละ", "อุตสาหะ", "มนตรี", "กาลกิณี"]
     planet_days = ["อาทิตย์ (1)", "จันทร์ (2)", "อังคาร (3)", "พุธ (4)", "เสาร์ (7)", "พฤหัสบดี (5)", "ราหู (8)", "ศุกร์ (6)"]
     start_idx = day_of_week % 8
@@ -593,22 +616,25 @@ def fast_thaksa_map(day_of_week: int) -> list[tuple[str, str]]:
 
 def fast_uranian_midpoint(deg1: float, deg2: float) -> float:
     """Calculate Uranian Midpoint (A + B) / 2. Uses Rust acceleration when available."""
-    if RUST_AVAILABLE and hasattr(rust_core, "calculate_midpoint"):
-        return rust_core.calculate_midpoint(deg1, deg2)
+    kernel = _native_kernel("calculate_midpoint")
+    if kernel is not None:
+        return kernel(deg1, deg2)
     return ((deg1 + deg2) / 2.0) % 360.0
 
 
 def fast_uranian_sensitive_point(deg_a: float, deg_b: float, deg_c: float) -> float:
     """Calculate Uranian Sensitive Point (A + B - C). Uses Rust acceleration when available."""
-    if RUST_AVAILABLE and hasattr(rust_core, "calculate_sensitive_point"):
-        return rust_core.calculate_sensitive_point(deg_a, deg_b, deg_c)
+    kernel = _native_kernel("calculate_sensitive_point")
+    if kernel is not None:
+        return kernel(deg_a, deg_b, deg_c)
     return (deg_a + deg_b - deg_c) % 360.0
 
 
 def fast_liuren_heaven_plate(month_general_branch: str, hour_branch: str) -> list[tuple[str, str]]:
     """Calculate Da Liu Ren Heaven Plate. Uses Rust acceleration when available."""
-    if RUST_AVAILABLE and hasattr(rust_core, "calculate_liuren_heaven_plate"):
-        return rust_core.calculate_liuren_heaven_plate(month_general_branch, hour_branch)
+    kernel = _native_kernel("calculate_liuren_heaven_plate")
+    if kernel is not None:
+        return kernel(month_general_branch, hour_branch)
     branches = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
     gen_idx = branches.index(month_general_branch) if month_general_branch in branches else 0
     hour_idx = branches.index(hour_branch) if hour_branch in branches else 0
@@ -617,8 +643,9 @@ def fast_liuren_heaven_plate(month_general_branch: str, hour_branch: str) -> lis
 
 def fast_zeji_duty_officer(month_branch: str, day_branch: str) -> str:
     """Calculate 12 Duty Officer for Date Selection. Uses Rust acceleration when available."""
-    if RUST_AVAILABLE and hasattr(rust_core, "calculate_zeji_duty_officer"):
-        return rust_core.calculate_zeji_duty_officer(month_branch, day_branch)
+    kernel = _native_kernel("calculate_zeji_duty_officer")
+    if kernel is not None:
+        return kernel(month_branch, day_branch)
     branches = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
     duty_officers = ["建日", "除日", "滿日", "平日", "定日", "執日", "破日", "危日", "成日", "收日", "開日", "閉日"]
     month_idx = branches.index(month_branch) if month_branch in branches else 0
@@ -628,58 +655,11 @@ def fast_zeji_duty_officer(month_branch: str, day_branch: str) -> str:
 
 def fast_satta_lek_matrix(day_num: int, lunar_month: int, year_zodiac_num: int) -> tuple[list[int], list[int], list[int], list[int]]:
     """Calculate Satta-Lek 7-Base 4-Row Matrix. Uses Rust acceleration when available."""
-    if RUST_AVAILABLE and hasattr(rust_core, "calculate_satta_lek_matrix"):
-        return rust_core.calculate_satta_lek_matrix(day_num, lunar_month, year_zodiac_num)
+    kernel = _native_kernel("calculate_satta_lek_matrix")
+    if kernel is not None:
+        return kernel(day_num, lunar_month, year_zodiac_num)
     row1 = [(day_num + i - 1) % 7 + 1 for i in range(7)]
     row2 = [(lunar_month + i - 1) % 7 + 1 for i in range(7)]
     row3 = [(year_zodiac_num + i - 1) % 7 + 1 for i in range(7)]
     row4 = [row1[i] + row2[i] + row3[i] for i in range(7)]
     return (row1, row2, row3, row4)
-
-
-def fast_tai_yi_accumulated_years(year: int) -> int:
-    """Calculate Tai Yi Accumulated Years. Uses Rust acceleration when available."""
-    if RUST_AVAILABLE and hasattr(rust_core, "tai_yi_accumulated_years"):
-        return rust_core.tai_yi_accumulated_years(year)
-    return (year - 4) % 72
-
-
-def fast_liu_yao_najia(trigram_idx: int, is_upper: bool) -> list[int]:
-    """Calculate Liu Yao Na Jia earthly branches."""
-    if RUST_AVAILABLE and hasattr(rust_core, "liu_yao_najia"):
-        return rust_core.liu_yao_najia(trigram_idx, is_upper)
-    if trigram_idx in (7, 1):
-        return [6, 8, 10] if is_upper else [0, 2, 4]
-    elif trigram_idx == 2:
-        return [8, 10, 0] if is_upper else [2, 4, 6]
-    elif trigram_idx == 4:
-        return [10, 0, 2] if is_upper else [4, 6, 8]
-    elif trigram_idx == 0:
-        return [1, 11, 9] if is_upper else [7, 5, 3]
-    elif trigram_idx == 6:
-        return [7, 5, 3] if is_upper else [1, 11, 9]
-    elif trigram_idx == 5:
-        return [9, 7, 5] if is_upper else [3, 1, 11]
-    elif trigram_idx == 3:
-        return [11, 9, 7] if is_upper else [5, 3, 1]
-    return [0, 0, 0]
-
-
-def fast_mei_hua_hexagram(year: int, month: int, day: int, hour: int) -> tuple[int, int, int]:
-    """Calculate Mei Hua time-based hexagram."""
-    if RUST_AVAILABLE and hasattr(rust_core, "mei_hua_hexagram_from_time"):
-        return rust_core.mei_hua_hexagram_from_time(year, month, day, hour)
-    upper = (year + month + day) % 8 or 8
-    lower = (year + month + day + hour) % 8 or 8
-    moving = (year + month + day + hour) % 6 or 6
-    return (upper, lower, moving)
-
-
-def fast_san_he_mountain(degree: float) -> int:
-    """Resolve 24 Mountain direction index from compass degree (0-23)."""
-    if RUST_AVAILABLE and hasattr(rust_core, "san_he_resolve_mountain"):
-        return rust_core.san_he_resolve_mountain(degree)
-    deg = (degree % 360.0 + 7.5) % 360.0
-    return int(deg // 15.0)
-
-

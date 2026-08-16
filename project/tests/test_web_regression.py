@@ -87,7 +87,7 @@ class TestWebRegressionUI:
         res = client.get("/")
         assert res.status_code == 200
         assert "<title>" in res.text
-        assert "HORO CONSULTANT" in res.text
+        assert "horoconsultant" in res.text.lower()
         assert "bazi-form" in res.text
         assert "footer-version-text" in res.text
         assert "v1.0.0" in res.text

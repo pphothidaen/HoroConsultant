@@ -62,10 +62,9 @@ project/kaggle_kernel/HoroConsultant/**/.coverage
 project/kaggle_kernel/HoroConsultant/**/coverage.xml
 project/kaggle_kernel/HoroConsultant/**/test-results.xml
 project/kaggle_kernel/HoroConsultant/**/target
-project/kaggle_kernel/HoroConsultant/**/rust_core/target
-project/kaggle_kernel/HoroConsultant/**/project/kaggle_kernel/HoroConsultant
-
-
-
+project/tests
+project/grafana
+project/kaggle_kernel
+project/rag/datasets
 
 fly.toml
