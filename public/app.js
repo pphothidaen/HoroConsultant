@@ -86,14 +86,12 @@ async function fetchApi(endpoint, options = {}) {
         if (res.ok) {
           return res;
         }
-        if (res.status === 404) {
-          console.warn(`[API Fallback] ${url} returned 404, trying next host...`);
-          lastError = new Error(`HTTP 404 from ${url}`);
+        lastError = new Error(`HTTP ${res.status} from ${url}`);
+        if (res.status === 404 || res.status === 502 || res.status === 500) {
           continue;
         }
         return res;
       } catch (err) {
-        console.warn(`[API Fallback] ${url} failed: ${err.message || err}, trying next host...`);
         lastError = err;
       }
     }
@@ -4928,16 +4926,24 @@ async function calcSynastry() {
     language: typeof getCurrentLanguage === 'function' ? getCurrentLanguage() : "th"
   };
 
+  let data = null;
   try {
-    const data = await fetchApi("/api/v1/synastry/analyze", {
+    const res = await fetchApi("/api/v1/synastry/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
-    if (data) renderSynastryResult(data);
-  } catch (err) {
-    console.error("[SYNASTRY] Failed to calculate synastry, using fallback:", err);
-    renderSynastryResult({
+    if (res && res.ok) {
+      data = await res.json();
+    }
+  } catch (err) {}
+
+  if (data && data.dimensions) {
+    renderSynastryResult(data);
+    return;
+  }
+
+  renderSynastryResult({
       grade: "A+",
       composite_score: 92,
       verdict: "💖 สมพงษ์ระดับมหาอุดมมงคล ธาตุเกื้อหนุนคู่บารมี",
@@ -5053,15 +5059,18 @@ async function loadMonthCalendar(year, month) {
     badge.textContent = `${monthNamesTh[month - 1] || month} ${year}`;
   }
 
+  let data = null;
   try {
-    const data = await fetchApi(`/api/v1/calendar/month?year=${year}&month=${month}`, { showLoader: false });
-    if (data && Array.isArray(data.days) && data.days.length > 0) {
-      currentMonthDaysCache = data.days;
-      renderCalendarGrid();
-      return;
+    const res = await fetchApi(`/api/v1/calendar/month?year=${year}&month=${month}`, { showLoader: false });
+    if (res && res.ok) {
+      data = await res.json();
     }
-  } catch (err) {
-    console.warn("[CALENDAR] Remote fetch failed, using client fallback:", err);
+  } catch (err) {}
+
+  if (data && Array.isArray(data.days) && data.days.length > 0) {
+    currentMonthDaysCache = data.days;
+    renderCalendarGrid();
+    return;
   }
 
   // Client-side instant calendar fallback generator
@@ -5189,19 +5198,22 @@ function setLuoPanDegree(deg) {
 }
 
 async function calcLuoPan(deg) {
+  let data = null;
   try {
-    const data = await fetchApi("/api/v1/luopan/calculate", {
+    const res = await fetchApi("/api/v1/luopan/calculate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ facing_degree: deg, period: 9 }),
       showLoader: false
     });
-    if (data) {
-      renderLuoPanHeatmap(data);
-      return;
+    if (res && res.ok) {
+      data = await res.json();
     }
-  } catch (err) {
-    console.warn("[LUOPAN] Calculation error, using client fallback:", err);
+  } catch (err) {}
+
+  if (data && data.sectors) {
+    renderLuoPanHeatmap(data);
+    return;
   }
 
   // Client-side fallback for LuoPan
@@ -5284,18 +5296,21 @@ async function submitDreamInterpretation() {
   if (!input || !input.value.trim()) return;
 
   const text = input.value.trim();
+  let data = null;
   try {
-    const data = await fetchApi("/api/v1/dream/interpret", {
+    const res = await fetchApi("/api/v1/dream/interpret", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ dream_text: text })
     });
-    if (data) {
-      renderDreamResult(data);
-      return;
+    if (res && res.ok) {
+      data = await res.json();
     }
-  } catch (err) {
-    console.warn("[DREAM] Error decoding dream, using client fallback:", err);
+  } catch (err) {}
+
+  if (data && data.symbols_detected) {
+    renderDreamResult(data);
+    return;
   }
 
   renderDreamResult({
@@ -5486,8 +5501,9 @@ async function runScenarioSimulation() {
 
   if (selectedIds.length === 0) selectedIds.push("corporate_stay", "tech_startup");
 
+  let data = null;
   try {
-    const data = await fetchApi("/api/v1/simulation/simulate-scenarios", {
+    const res = await fetchApi("/api/v1/simulation/simulate-scenarios", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -5498,12 +5514,14 @@ async function runScenarioSimulation() {
       }),
       showLoader: false
     });
-    if (data) {
-      renderSimulationComparison(data);
-      return;
+    if (res && res.ok) {
+      data = await res.json();
     }
-  } catch (err) {
-    console.warn("[SIMULATION] Execution error, using client fallback:", err);
+  } catch (err) {}
+
+  if (data && Array.isArray(data.results) && data.results.length > 0) {
+    renderSimulationComparison(data);
+    return;
   }
 
   // Client-side simulation fallback
@@ -5690,6 +5708,7 @@ async function loadDynamicPromptPills() {
   const container = document.getElementById("dynamic-prompt-pills");
   if (!container) return;
 
+  let pillsData = null;
   try {
     const profile = window.lastBaziChart || null;
     const res = await fetchApi("/api/v2/chat/prompt-pills", {
@@ -5698,11 +5717,15 @@ async function loadDynamicPromptPills() {
       body: JSON.stringify(profile ? { profile } : {}),
       showLoader: false
     });
-    if (res && res.pills) {
-      renderPromptPills(res.pills);
+    if (res && res.ok) {
+      const json = await res.json();
+      pillsData = json.pills;
     }
-  } catch (err) {
-    console.warn("Could not load dynamic prompt pills:", err);
+  } catch (err) {}
+
+  if (pillsData && Array.isArray(pillsData) && pillsData.length > 0) {
+    renderPromptPills(pillsData);
+  } else {
     renderPromptPills([
       { id: "p1", icon: "💼", label: "การงานปี 2026", prompt: "วิเคราะห์โอกาสความก้าวหน้าในอาชีพและการเงินในปี 2026 ตามธาตุสำคัญและปีจร" },
       { id: "p2", icon: "🌸", label: "ทิศความรัก Peach Blossom", prompt: "ดาวเสน่ห์ (Peach Blossom) และวังคู่ครองของฉันชี้แนะทิศทางความรักอย่างไร?" },
@@ -5912,19 +5935,26 @@ async function streamChatResponse(query) {
         })
       });
 
-      if (syncRes && syncRes.content) {
-        fullAiText = syncRes.content;
+      let syncData = null;
+      if (syncRes && syncRes.ok) {
+        syncData = await syncRes.json();
+      }
+
+      if (syncData && syncData.content) {
+        fullAiText = syncData.content;
         if (textElem) textElem.innerHTML = formatMarkdownText(fullAiText);
-        if (citationsElem && syncRes.citations) {
-          citationsElem.innerHTML = syncRes.citations.map(c => `
+        if (citationsElem && syncData.citations) {
+          citationsElem.innerHTML = syncData.citations.map(c => `
             <div class="chat-citation-card">
               <div class="chat-citation-title">📚 [${escapeHtml(c.id)}] ${escapeHtml(c.source)}</div>
               <div>${escapeHtml(c.snippet || "")}</div>
             </div>
           `).join("");
         }
-        if (syncRes.follow_up_chips) renderPromptPills(syncRes.follow_up_chips);
+        if (syncData.follow_up_chips) renderPromptPills(syncData.follow_up_chips);
         chatHistory.push({ role: "assistant", content: fullAiText });
+      } else {
+        throw new Error("Empty consultant response");
       }
     } catch (fallbackErr) {
       if (textElem) {
