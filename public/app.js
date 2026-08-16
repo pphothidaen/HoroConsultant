@@ -5253,12 +5253,132 @@ window.quickDreamTag = quickDreamTag;
 window.submitDreamInterpretation = submitDreamInterpretation;
 window.renderDreamResult = renderDreamResult;
 
+// ======================================================================
+// 🔄 HYBRID VERSION GUARD & FORCE CACHE PURGE SYSTEM
+// ======================================================================
+
+const CLIENT_APP_VERSION = "1.0.0.6a61068";
+
+async function forcePurgeAndReload() {
+  const btn = document.getElementById("btn-force-refresh");
+  if (btn) {
+    btn.innerHTML = "⏳ กำลังล้างแคช...";
+    btn.disabled = true;
+  }
+
+  try {
+    // 1. Purge all Service Worker Caches
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+      console.info("[CACHE] Purged all CacheStorage keys:", keys);
+    }
+
+    // 2. Unregister all Service Worker Registrations
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+      console.info("[SW] Unregistered all Service Workers:", regs);
+    }
+
+    // 3. Clear session storage
+    sessionStorage.clear();
+
+    // 4. Force hard reload with timestamp query
+    const targetUrl = window.location.origin + window.location.pathname + '?force_reload=' + Date.now();
+    window.location.href = targetUrl;
+  } catch (err) {
+    console.error("[PURGE] Error during cache purge:", err);
+    window.location.reload();
+  }
+}
+
+async function checkAppVersion() {
+  try {
+    const res = await fetch(`/version.json?t=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.version && data.version !== CLIENT_APP_VERSION) {
+      console.warn(`[VERSION] App version mismatch: Client (${CLIENT_APP_VERSION}) vs Remote (${data.version})`);
+      showVersionUpdateToast(data.version);
+    }
+  } catch (err) {
+    console.warn("[VERSION] Periodic version check failed:", err);
+  }
+}
+
+function showVersionUpdateToast(remoteVersion) {
+  if (document.getElementById("version-update-toast")) return;
+
+  const toast = document.createElement("div");
+  toast.id = "version-update-toast";
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 99999;
+    background: linear-gradient(135deg, rgba(30, 27, 75, 0.95), rgba(15, 23, 42, 0.95));
+    border: 1px solid rgba(168, 85, 247, 0.6);
+    border-radius: 12px;
+    padding: 12px 18px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #f8fafc;
+    font-size: 0.88rem;
+  `;
+
+  toast.innerHTML = `
+    <span>🚀 <strong>มีเวอร์ชันใหม่:</strong> v${remoteVersion}</span>
+    <button type="button" onclick="forcePurgeAndReload()" style="
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8rem;
+    ">⚡ อัปเดตทันที</button>
+    <button type="button" onclick="this.parentElement.remove()" style="
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 1rem;
+    ">✕</button>
+  `;
+
+  document.body.appendChild(toast);
+}
+
+// Controller change listener for smooth PWA auto-update
+if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      console.info("[SW] New Service Worker active, reloading for latest build...");
+      window.location.reload();
+    }
+  });
+}
+
+window.forcePurgeAndReload = forcePurgeAndReload;
+window.checkAppVersion = checkAppVersion;
+window.showVersionUpdateToast = showVersionUpdateToast;
+
 if (typeof document !== 'undefined') {
   document.addEventListener("DOMContentLoaded", () => {
     loadMonthCalendar(2026, 8);
     calcLuoPan(180);
+    setTimeout(checkAppVersion, 3000);
+    setInterval(checkAppVersion, 300000);
   });
 }
+
 
 
 

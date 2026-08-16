@@ -308,22 +308,53 @@ pinned: false
                 pass
 
             from project.core.config import get_app_version
+            import json, datetime, re
             local_version = get_app_version()
+            git_commit = local_version.split(".")[-1] if "." in local_version else local_version
             static_dir = ROOT / "project" / "static"
 
-            # Create temporary staged static assets folder with git version injected into index.html
+            # Create temporary staged static assets folder with git version injected into all assets
             import shutil
             import tempfile
             temp_static_dir = Path(tempfile.mkdtemp(prefix="hf_static_staged_"))
             shutil.copytree(static_dir, temp_static_dir, dirs_exist_ok=True)
 
-            idx_file = temp_static_dir / "index.html"
-            if idx_file.exists():
-                idx_text = idx_file.read_text(encoding="utf-8")
-                idx_text = idx_text.replace("v1.0.0", f"v{local_version}")
-                idx_file.write_text(idx_text, encoding="utf-8")
+            # 1. Generate version.json
+            version_meta = {
+                "version": local_version,
+                "commit": git_commit,
+                "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "status": "production"
+            }
+            (temp_static_dir / "version.json").write_text(json.dumps(version_meta, indent=2), encoding="utf-8")
 
-            logger.info(f"📦 Staging static assets with version 'v{local_version}'...")
+            # 2. Update sw.js cache name
+            sw_file = temp_static_dir / "sw.js"
+            if sw_file.exists():
+                sw_text = sw_file.read_text(encoding="utf-8")
+                sw_text = re.sub(r"const CACHE_VERSION = ['\"][^'\"]+['\"];", f"const CACHE_VERSION = 'v{local_version}';", sw_text)
+                sw_file.write_text(sw_text, encoding="utf-8")
+
+            # 3. Update app.js client version
+            app_file = temp_static_dir / "app.js"
+            if app_file.exists():
+                app_text = app_file.read_text(encoding="utf-8")
+                app_text = re.sub(r"const CLIENT_APP_VERSION = ['\"][^'\"]+['\"];", f'const CLIENT_APP_VERSION = "{local_version}";', app_text)
+                app_file.write_text(app_text, encoding="utf-8")
+
+            # 4. Inject cache-busting version query string to HTML files
+            for html_name in ["index.html", "admin.html"]:
+                html_path = temp_static_dir / html_name
+                if html_path.exists():
+                    html_text = html_path.read_text(encoding="utf-8")
+                    html_text = html_text.replace("v1.0.0", f"v{local_version}")
+                    html_text = re.sub(r'href="style\.css(\?v=[^"]*)?"', f'href="style.css?v={git_commit}"', html_text)
+                    html_text = re.sub(r'src="i18n\.js(\?v=[^"]*)?"', f'src="i18n.js?v={git_commit}"', html_text)
+                    html_text = re.sub(r'src="voice_engine\.js(\?v=[^"]*)?"', f'src="voice_engine.js?v={git_commit}"', html_text)
+                    html_text = re.sub(r'src="app\.js(\?v=[^"]*)?"', f'src="app.js?v={git_commit}"', html_text)
+                    html_path.write_text(html_text, encoding="utf-8")
+
+            logger.info(f"📦 Staged static assets with full cache-busting version 'v{local_version}' (Commit: {git_commit})...")
 
             # Upload static assets to root
             api.upload_folder(

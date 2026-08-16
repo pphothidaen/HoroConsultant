@@ -8,7 +8,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <link rel="stylesheet" href="style.css?v=6a61068">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#6366f1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -465,8 +468,9 @@
         <span class="pulse-dot cyan"></span>
         <span class="health-text" id="health-status-text">Health: OK (Checking...)</span>
       </div>
+      <button type="button" class="btn-tool" id="btn-force-refresh" onclick="forcePurgeAndReload()" style="padding: 4px 10px; font-size: 0.75rem; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 12px; color: #a5b4fc; cursor: pointer;" title="ล้าง Service Worker Cache และรีโหลดเวอร์ชันล่าสุด">🔄 ล้างแคช &amp; บังคับอัปเดต (Hard Reset)</button>
     </div>
-    <p id="footer-version-text">Computational Metaphysics Engine v1.0.0 — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback</p>
+    <p id="footer-version-text">Computational Metaphysics Engine v1.0.0.6a61068 — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback</p>
   </footer>
 
   <!-- iOS/Android Bottom-Sheet Drum Wheel DateTime Picker Modal -->
@@ -544,14 +548,18 @@
     </div>
   </div>
 
-  <script src="voice_engine.js"></script>
-  <script src="i18n.js"></script>
-  <script src="app.js"></script>
+  <script src="voice_engine.js?v=6a61068"></script>
+  <script src="i18n.js?v=6a61068"></script>
+  <script src="app.js?v=6a61068"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
-          .then((reg) => console.log('[PWA] ServiceWorker registered with scope:', reg.scope))
+          .then((reg) => {
+            console.log('[PWA] ServiceWorker registered with scope:', reg.scope);
+            // Check for worker updates
+            reg.update();
+          })
           .catch((err) => console.warn('[PWA] ServiceWorker registration failed:', err));
       });
     }
