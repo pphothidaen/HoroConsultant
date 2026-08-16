@@ -426,7 +426,17 @@ function applyCors(response) {
 function getRequestTarget(request) {
   const requestUrl = new URL(request.url || "/", "http://localhost");
   let target = requestUrl.searchParams.get("path");
-  if (!target || target === "/api/index") {
+  if (target) {
+    const queryEntries = [];
+    for (const [k, v] of requestUrl.searchParams.entries()) {
+      if (k !== "path") {
+        queryEntries.push(`${encodeURIComponent(k)}=${encodeURIComponent(v)}`);
+      }
+    }
+    if (queryEntries.length > 0 && !target.includes("?")) {
+      target += `?${queryEntries.join("&")}`;
+    }
+  } else if (!target || target === "/api/index") {
     target = requestUrl.pathname + requestUrl.search;
   }
   if (!target || target === "/api/index") return "/";
