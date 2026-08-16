@@ -2224,5 +2224,14 @@
     "rejected": 0,
     "total_reviewed": 0
   },
-  "last_updated": "2026-08-16T10:28:39.724233"
+  "last_updated": "2026-08-16T11:21:55.861194",
+  "automation": {
+    "threshold": 50,
+    "step": 50,
+    "next_trigger_count": 50,
+    "last_trigger_count": 0,
+    "total_triggers": 0,
+    "last_triggered_at": null,
+    "trigger_history": []
+  }
 }
