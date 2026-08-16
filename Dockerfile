@@ -1,73 +1,66 @@
-# ============================================================
-# Dockerfile — Computational Metaphysics Engine
-# Base: Ubuntu 22.04 LTS
-# Services: FastAPI + Ollama (via sidecar in docker-compose)
-# ============================================================
+# syntax=docker/dockerfile:1.7
 
-FROM ubuntu:22.04 AS base
+# Reproducible Linux/AMD64 Rust and ABI3 wheel build.  The release workflow
+# selects linux/amd64 explicitly; pinning the image here also makes local builds
+# deterministic across Apple Silicon and x86 hosts.
+FROM rust:1.97.1-bookworm AS rust-builder
 
-LABEL maintainer="Computational Metaphysics Engine"
-LABEL version="1.0.0"
-LABEL description="BaZi Computation Engine + Ollama Inference Service"
-
-# System dependencies
-ENV DEBIAN_FRONTEND=noninteractive
-# Grafana Cloud Free Tier Observability (GRAFANA_OTLP_ENDPOINT, GRAFANA_USER_ID, GRAFANA_API_KEY)
-ENV PROMETHEUS_METRICS_ENABLED=true
 ARG GIT_COMMIT_HASH=unknown
-ENV GIT_COMMIT_HASH=$GIT_COMMIT_HASH
-RUN apt-get update && apt-get install -y \
-    python3.11 \
-    python3.11-dev \
-    python3-pip \
-    curl \
-    wget \
-    git \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
 
-# Set python3.11 as default
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1 \
-    && update-alternatives --install /usr/bin/python  python  /usr/bin/python3.11 1
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends python3 python3-dev python3-venv \
+    && rm -rf /var/lib/apt/lists/* \
+    && python3 -m venv /opt/build-venv \
+    && /opt/build-venv/bin/python -m pip install --no-cache-dir maturin==1.14.1
 
-# ============================================================
-# Python dependencies stage
-# ============================================================
-FROM base AS python-deps
+WORKDIR /src/rust_core
+COPY rust_core/Cargo.toml rust_core/Cargo.lock rust_core/pyproject.toml ./
+COPY rust_core/src ./src
+COPY rust_core/tests ./tests
+COPY rust_core/__init__.py ./__init__.py
 
-WORKDIR /install
+RUN GIT_COMMIT_HASH="${GIT_COMMIT_HASH}" cargo build --locked --release --no-default-features --features server --bin horo_server
+RUN GIT_COMMIT_HASH="${GIT_COMMIT_HASH}" /opt/build-venv/bin/maturin build --locked --release --out /wheelhouse
 
-COPY requirements.txt .
-RUN pip3 install --no-cache-dir --upgrade pip \
-    && pip3 install --no-cache-dir -r requirements.txt
 
-# ============================================================
-# Application stage
-# ============================================================
-FROM python-deps AS app
+FROM python:3.12-slim-bookworm AS runtime
+
+ARG GIT_COMMIT_HASH=unknown
+ENV GIT_COMMIT_HASH=${GIT_COMMIT_HASH} \
+    HORO_ALLOW_PYTHON_FALLBACK=0 \
+    PORT=8000 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+LABEL org.opencontainers.image.title="HoroConsultant" \
+      org.opencontainers.image.description="Rust-first Axum gateway with a supervised Python compatibility worker" \
+      org.opencontainers.image.source="https://github.com/pphothidaen/HoroConsultant" \
+      org.opencontainers.image.revision="${GIT_COMMIT_HASH}" \
+      org.opencontainers.image.version="1.0.0"
+
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends ca-certificates curl tini \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system appuser \
+    && useradd --system --gid appuser --home-dir /app --shell /usr/sbin/nologin appuser
 
 WORKDIR /app
+COPY requirements.txt ./requirements.txt
+COPY --from=rust-builder /wheelhouse /tmp/wheelhouse
+RUN python -m pip install --no-cache-dir --upgrade pip \
+    && python -m pip install --no-cache-dir --requirement requirements.txt \
+    && python -m pip install --no-cache-dir /tmp/wheelhouse/*.whl \
+    && rm -rf /tmp/wheelhouse
 
-# Copy source
-COPY project/  ./project/
-COPY tests/    ./tests/
-COPY scripts/  ./scripts/
+COPY project ./project
+COPY --from=rust-builder /src/rust_core/target/release/horo_server /app/horo_server
+RUN chown --recursive appuser:appuser /app \
+    && chmod 0555 /app/horo_server
 
-# Copy config files
-COPY .env.example .env.example
-
-# Non-root user for security
-RUN groupadd -r appuser && useradd -r -g appuser appuser \
-    && chown -R appuser:appuser /app
 USER appuser
-
-# Expose FastAPI port
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+    CMD curl --fail --silent --show-error http://127.0.0.1:8000/health || exit 1
 
-# Default command: run FastAPI server
-CMD ["python3", "-m", "uvicorn", "project.main:app", \
-     "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["/app/horo_server"]

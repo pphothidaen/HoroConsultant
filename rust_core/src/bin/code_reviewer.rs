@@ -19,6 +19,7 @@ static SECRET_PATTERNS: &[(&str, &str)] = &[
     ("Kaggle API Token", r#"kg_[A-Za-z0-9_-]{20,}"#),
     ("Doppler Service Token", r#"dp\.pt\.[A-Za-z0-9_-]{20,}"#),
     ("GitHub Personal Access Token", r#"ghp_[A-Za-z0-9]{36}"#),
+    ("Docker Hub Personal Access Token", r#"dckr_pat_[A-Za-z0-9_-]{20,}"#),
     ("Grafana Cloud API Key", r#"glc_[A-Za-z0-9_-]{20,}"#),
     ("AWS Key", r#"AKIA[0-9A-Z]{16}"#),
     ("Private Key", r#"-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----"#),

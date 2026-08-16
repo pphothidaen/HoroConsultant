@@ -3,6 +3,7 @@
  * High-Performance Native Rust Astrological Audit & Consistency Engine.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -22,6 +23,7 @@ pub struct TstAuditResult {
 }
 
 /// Audit Five Elements sum to 100% and day master properties.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn audit_five_elements(elements_sum: f32, stem: &str, element: &str) -> PyResult<(bool, f32)> {
     let passed = (elements_sum - 100.0).abs() < 0.1 && !stem.is_empty() && !element.is_empty();
@@ -29,6 +31,7 @@ pub fn audit_five_elements(elements_sum: f32, stem: &str, element: &str) -> PyRe
 }
 
 /// Audit True Solar Time Equation of Time bounds (-15 to 0 mins in Feb, 0 to 17 mins in Nov).
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn audit_eot_bounds(feb_eot: f64, nov_eot: f64) -> PyResult<bool> {
     let passed = (-15.0..=0.0).contains(&feb_eot) && (0.0..=17.0).contains(&nov_eot);
@@ -40,6 +43,7 @@ pub fn audit_consonance_matrix_rust() -> Result<bool, String> {
 }
 
 /// Audit Cross Domain calculations integrity.
+#[cfg(feature = "python")]
 #[pyfunction]
 #[pyo3(signature = (num_matrix_rows, bazi_dm=None, ziwei_ming=None, thai_lagna=None, western_sun=None))]
 pub fn audit_cross_domain_synergy(

@@ -128,6 +128,93 @@ class TestBaZiCalculatorIntegration:
         assert len(stems_seen) == 10, f"Only saw stems: {stems_seen}"
 
 
+class TestBaZiRustParityOracleFixtures:
+    """Literal Python-oracle fixtures consumed by the Rust parity gate."""
+
+    def test_bangkok_full_calculation_golden(self, calculator):
+        result = calculator.calculate(
+            datetime(1990, 5, 15, 14, 30, 0),
+            longitude=100.493,
+            utc_offset_hours=7.0,
+        )
+        assert result["solar_time_info"] == {
+            "input_datetime": "1990-05-15 14:30:00",
+            "longitude": 100.493,
+            "utc_offset_hours": 7.0,
+            "standard_meridian": 105.0,
+            "longitude_offset_minutes": -18.028,
+            "eot_minutes": 3.9239,
+            "lmt_datetime": "1990-05-15 14:11:58",
+            "tst_datetime": "1990-05-15 14:15:53",
+            "tst_hour": 14,
+            "tst_minute": 15,
+            "tst_second": 53,
+        }
+        assert [
+            result["pillars"][name]["stem"]["char"]
+            + result["pillars"][name]["branch"]["char"]
+            for name in ("year", "month", "day", "hour")
+        ] == ["庚午", "辛巳", "庚辰", "癸未"]
+        assert result["five_elements"] == {
+            "scores": {
+                "Wood": 6.6,
+                "Fire": 36.0,
+                "Earth": 32.4,
+                "Metal": 22.05,
+                "Water": 6.9,
+            },
+            "percentages": {
+                "Wood": 6.35,
+                "Fire": 34.63,
+                "Earth": 31.17,
+                "Metal": 21.21,
+                "Water": 6.64,
+            },
+            "dominant_element": "Fire",
+            "weakest_element": "Wood",
+            "total_raw": 103.95,
+        }
+
+    def test_li_chun_uses_corrected_solar_date(self, calculator):
+        before = calculator.calculate(datetime(2026, 2, 4, 0, 0), 105.0, 7.0)
+        after = calculator.calculate(datetime(2026, 2, 4, 12, 0), 105.0, 7.0)
+        assert before["solar_time_info"]["tst_datetime"] == "2026-02-03 23:46:23"
+        assert before["pillars"]["year"]["stem"]["char"] == "乙"
+        assert before["pillars"]["month"]["branch"]["char"] == "丑"
+        assert after["solar_time_info"]["tst_datetime"] == "2026-02-04 11:46:19"
+        assert after["pillars"]["year"]["stem"]["char"] == "丙"
+        assert after["pillars"]["month"]["branch"]["char"] == "寅"
+
+    def test_true_solar_midnight_rollover_changes_day_and_hour(self, calculator):
+        result = calculator.calculate(
+            datetime(2026, 2, 3, 23, 58, 30),
+            longitude=120.0,
+            utc_offset_hours=7.0,
+        )
+        assert result["solar_time_info"]["longitude_offset_minutes"] == 60.0
+        assert result["solar_time_info"]["eot_minutes"] == -13.614
+        assert result["solar_time_info"]["tst_datetime"] == "2026-02-04 00:44:53"
+        assert result["pillars"]["day"]["stem"]["char"] == "己"
+        assert result["pillars"]["hour"]["stem"]["char"] == "甲"
+        assert result["pillars"]["hour"]["branch"]["char"] == "子"
+
+    def test_leap_day_and_timezone_extreme_golden(self, calculator):
+        result = calculator.calculate(
+            datetime(2000, 2, 29, 23, 30),
+            longitude=180.0,
+            utc_offset_hours=14.0,
+        )
+        assert result["solar_time_info"]["standard_meridian"] == 210.0
+        assert result["solar_time_info"]["longitude_offset_minutes"] == -120.0
+        assert result["solar_time_info"]["eot_minutes"] == -12.7579
+        assert result["solar_time_info"]["tst_datetime"] == "2000-02-29 21:17:14"
+        assert [
+            result["pillars"][name]["stem"]["char"]
+            + result["pillars"][name]["branch"]["char"]
+            for name in ("year", "month", "day", "hour")
+        ] == ["庚辰", "戊寅", "丁巳", "辛亥"]
+
+
 class TestPredictionValidator:
     """Tests for external Gemini Prediction Validator agent."""
 

@@ -1,15 +1,5 @@
 {
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Credentials", "value": "true" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
-        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform" }
-      ]
-    }
-  ],
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
       "source": "/health",
@@ -30,6 +20,14 @@
     {
       "source": "/hitl/:path*",
       "destination": "/api/index?path=/hitl/:path*"
+    },
+    {
+      "source": "/docs",
+      "destination": "/api/index?path=docs"
+    },
+    {
+      "source": "/openapi.json",
+      "destination": "/api/index?path=openapi.json"
     }
   ]
 }

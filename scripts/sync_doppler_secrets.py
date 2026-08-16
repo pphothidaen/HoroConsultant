@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -41,24 +42,15 @@ def get_doppler_cli_path() -> str:
     for path in ["/opt/homebrew/bin/doppler", "/usr/local/bin/doppler"]:
         if os.path.exists(path):
             return path
-    try:
-        res = subprocess.run(["which", "doppler"], capture_output=True, text=True)
-        if res.returncode == 0 and res.stdout.strip():
-            return res.stdout.strip()
-    except Exception:
-        pass
-    return "doppler"
+    return shutil.which("doppler") or "doppler"
 
 
 def sync_github_secrets(valid_secrets: dict[str, str], dry_run: bool = False) -> None:
-    """Sync key CI/CD deployment secrets (FLY_API_TOKEN, VERCEL_TOKEN) to GitHub Repository Secrets."""
+    """Sync the allowlisted CI/CD values to GitHub Repository Secrets."""
     gh_bin = "gh"
-    if not dry_run:
-        try:
-            subprocess.run(["which", "gh"], capture_output=True, check=True)
-        except Exception:
-            logger.info("ℹ️ GitHub CLI (`gh`) not installed. Skipping direct GitHub Secrets sync.")
-            return
+    if not dry_run and shutil.which("gh") is None:
+        logger.info("[INFO] GitHub CLI is not installed; skipping GitHub secret sync.")
+        return
 
     target_secrets = [
         "AZURE_CREDENTIALS",
@@ -74,25 +66,33 @@ def sync_github_secrets(valid_secrets: dict[str, str], dry_run: bool = False) ->
         "HF_TOKEN",
         "GOOGLE_AI_STUDIO_API_KEY",
         "GOOGLE_AI_STUDIO_API_KEY2",
+        "GEMINI_API_KEY",
     ]
     for key in target_secrets:
         val = valid_secrets.get(key)
         if val:
             if dry_run:
-                logger.info(f"🧪 [DRY RUN] Would sync GitHub Secret: {key}")
+                logger.info("[DRY RUN] Would sync GitHub secret: %s", key)
             else:
                 try:
                     res = subprocess.run(
-                        [gh_bin, "secret", "set", key, "--body", val],
+                        [gh_bin, "secret", "set", key],
+                        input=val,
                         capture_output=True,
                         text=True,
+                        check=False,
                     )
                     if res.returncode == 0:
-                        logger.info(f"✅ Synced GitHub Repository Secret: `{key}`")
+                        logger.info("[OK] Synced GitHub repository secret: %s", key)
                     else:
-                        logger.warning(f"⚠️ Failed to set GitHub Secret `{key}`: {res.stderr.strip()}")
-                except Exception as e:
-                    logger.warning(f"⚠️ GitHub Secret sync note for {key}: {e}")
+                        logger.warning(
+                            "[WARN] GitHub rejected secret %s; details redacted.", key
+                        )
+                except OSError:
+                    logger.warning(
+                        "[WARN] GitHub secret sync failed locally for %s; details redacted.",
+                        key,
+                    )
 
 
 def sync_secrets_to_doppler(
@@ -104,11 +104,20 @@ def sync_secrets_to_doppler(
     """Parse environment file and set secrets in Doppler via Doppler CLI / API."""
     if not env_file.exists():
         fallback = ROOT_DIR / ".env"
+<<<<<<< HEAD
         if os.getenv("GITHUB_ACTIONS") != "true" and fallback.exists():
             logger.info(f"ℹ️ Requested file '{env_file.name}' not found. Falling back to '{fallback.name}'")
+=======
+        if fallback.exists():
+            logger.info(
+                "[INFO] Requested file '%s' not found; using '%s'.",
+                env_file.name,
+                fallback.name,
+            )
+>>>>>>> feat/merge-all-branches
             env_file = fallback
         else:
-            logger.error(f"❌ Secret environment file not found at: {env_file}")
+            logger.error("[ERROR] Secret environment file not found: %s", env_file)
             return False
 
     secrets = dotenv_values(env_file)
@@ -125,7 +134,11 @@ def sync_secrets_to_doppler(
         )
     }
 
-    logger.info(f"🔑 Categorized {len(valid_secrets)} Production Secrets from `{env_file.name}`:")
+    logger.info(
+        "[INFO] Categorized %d production secrets from %s.",
+        len(valid_secrets),
+        env_file.name,
+    )
     categories = {
         "Cloud AI Fallback (Gemini)": ["GOOGLE_AI_STUDIO_API_KEY", "GOOGLE_AI_STUDIO_API_KEY2", "GOOGLE_APPLICATION_CREDENTIALS", "PRIMARY_MODEL"],
         "Production Database (Supabase)": ["APP_SUPABASE_URL", "APP_SUPABASE_KEY", "SUPABASE_URL", "SUPABASE_ANON_KEY"],
@@ -138,14 +151,23 @@ def sync_secrets_to_doppler(
 
     for cat_name, keys in categories.items():
         matched = [k for k in keys if k in valid_secrets]
-        logger.info(f"   📌 {cat_name}: {len(matched)} keys ({', '.join(matched[:3])}...)")
+        logger.info(
+            "[INFO] %s: %d keys (%s)",
+            cat_name,
+            len(matched),
+            ", ".join(matched[:3]),
+        )
 
     if dry_run:
+<<<<<<< HEAD
         logger.info("🧪 DRY RUN MODE: All Production secrets categorized and validated successfully!")
         logger.info(f"🧪 Would sync Doppler first (project: {project}, config: {config})")
         for k in sorted(valid_secrets.keys()):
             logger.info(f"🧪 [DRY RUN] Would sync Doppler Secret: {k}")
         sync_github_secrets(valid_secrets, dry_run=dry_run)
+=======
+        logger.info("[OK] Dry run: production secret names validated.")
+>>>>>>> feat/merge-all-branches
         return True
 
     doppler_bin = get_doppler_cli_path()
@@ -155,11 +177,20 @@ def sync_secrets_to_doppler(
     for k, v in valid_secrets.items():
         cmd.append(f"{k}={v}")
 
+<<<<<<< HEAD
     logger.info(f"🚀 Executing Doppler Secret Sync to project [{project}] config [{config}]...")
     doppler_ok = False
+=======
+    logger.info(
+        "[INFO] Syncing secret values to Doppler project [%s], config [%s].",
+        project,
+        config,
+    )
+>>>>>>> feat/merge-all-branches
     try:
-        res = subprocess.run(cmd, capture_output=True, text=True)
+        res = subprocess.run(cmd, capture_output=True, text=True, check=False)
         if res.returncode == 0:
+<<<<<<< HEAD
             logger.info("🎉 Successfully synced all Production secrets to Doppler Secrets Manager!")
             doppler_ok = True
         else:
@@ -175,9 +206,24 @@ def sync_secrets_to_doppler(
                 doppler_ok = True
             else:
                 logger.error(f"❌ Doppler CLI Error: {res.stderr}")
+=======
+            logger.info("[OK] Synced production secrets to Doppler.")
+            return True
+        else:
+            if "must provide a token" in res.stderr or "auth login" in res.stderr:
+                logger.warning(
+                    "[WARN] Doppler authentication is required; no values were printed."
+                )
+                logger.info(
+                    "[INFO] Authenticate with 'doppler login' or DOPPLER_TOKEN, then rerun."
+                )
+>>>>>>> feat/merge-all-branches
                 return False
-    except Exception as e:
-        logger.error(f"❌ Execution error: {e}")
+            else:
+                logger.error("[ERROR] Doppler rejected the sync; details redacted.")
+                return False
+    except OSError:
+        logger.error("[ERROR] Doppler sync execution failed; details redacted.")
         return False
 
     sync_github_secrets(valid_secrets, dry_run=dry_run)

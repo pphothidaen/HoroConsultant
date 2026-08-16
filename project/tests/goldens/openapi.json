@@ -1,0 +1,2309 @@
+{
+  "components": {
+    "schemas": {
+      "BaZiRequest": {
+        "properties": {
+          "birth_datetime": {
+            "description": "Local datetime YYYY-MM-DD HH:MM:SS",
+            "example": "1990-05-15 14:30:00",
+            "title": "Birth Datetime",
+            "type": "string"
+          },
+          "longitude": {
+            "example": 100.493,
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Longitude",
+            "type": "number"
+          },
+          "unknown_hour": {
+            "default": false,
+            "description": "Enable probabilistic matrix mode",
+            "title": "Unknown Hour",
+            "type": "boolean"
+          },
+          "utc_offset_hours": {
+            "example": 7.0,
+            "maximum": 14.0,
+            "minimum": -12.0,
+            "title": "Utc Offset Hours",
+            "type": "number"
+          }
+        },
+        "required": [
+          "birth_datetime",
+          "longitude",
+          "utc_offset_hours"
+        ],
+        "title": "BaZiRequest",
+        "type": "object"
+      },
+      "BatchDraftRequest": {
+        "properties": {
+          "category_filter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Limit to one category",
+            "title": "Category Filter"
+          },
+          "force_regenerate": {
+            "default": false,
+            "description": "Regenerate even if draft exists",
+            "title": "Force Regenerate",
+            "type": "boolean"
+          },
+          "limit": {
+            "default": 20,
+            "description": "Max items to draft",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "title": "BatchDraftRequest",
+        "type": "object"
+      },
+      "FinetuneTriggerRequest": {
+        "properties": {
+          "dataset": {
+            "default": "combined_train.jsonl",
+            "description": "Dataset filename in datasets dir",
+            "title": "Dataset",
+            "type": "string"
+          },
+          "dry_run": {
+            "default": false,
+            "description": "Dry run — validate without launching",
+            "title": "Dry Run",
+            "type": "boolean"
+          },
+          "max_iterations": {
+            "default": 1000,
+            "maximum": 10000.0,
+            "minimum": 100.0,
+            "title": "Max Iterations",
+            "type": "integer"
+          },
+          "model_name": {
+            "default": "Qwen/Qwen2.5-7B-Instruct",
+            "description": "Base model name",
+            "title": "Model Name",
+            "type": "string"
+          },
+          "provider": {
+            "default": "ollama",
+            "description": "Provider: 'ollama', 'openai', 'together', 'gemini'",
+            "title": "Provider",
+            "type": "string"
+          }
+        },
+        "title": "FinetuneTriggerRequest",
+        "type": "object"
+      },
+      "GoogleAuthRequest": {
+        "properties": {
+          "credential": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Google OAuth ID Token from GIS SDK",
+            "title": "Credential"
+          },
+          "mock_email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Email for dev/demo mode bypass",
+            "title": "Mock Email"
+          }
+        },
+        "title": "GoogleAuthRequest",
+        "type": "object"
+      },
+      "GrayzoneAnswerRequest": {
+        "properties": {
+          "answer": {
+            "description": "Expert answer for fine-tuning",
+            "title": "Answer",
+            "type": "string"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Confidence score 0–1",
+            "title": "Confidence"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional review notes",
+            "title": "Notes"
+          },
+          "question": {
+            "description": "The gray-zone question text",
+            "title": "Question",
+            "type": "string"
+          },
+          "reviewer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Reviewer name/identifier",
+            "title": "Reviewer"
+          },
+          "source_id": {
+            "description": "Source ID (e.g. CM-BZ-004)",
+            "title": "Source Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "question",
+          "answer"
+        ],
+        "title": "GrayzoneAnswerRequest",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "InterpretRequest": {
+        "properties": {
+          "birth_datetime": {
+            "description": "Local datetime YYYY-MM-DD HH:MM:SS",
+            "example": "1990-05-15 14:30:00",
+            "title": "Birth Datetime",
+            "type": "string"
+          },
+          "enable_validation": {
+            "default": false,
+            "description": "Cross-validate prediction via Gemini Validator Agent",
+            "title": "Enable Validation",
+            "type": "boolean"
+          },
+          "longitude": {
+            "example": 100.493,
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Longitude",
+            "type": "number"
+          },
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "example": "Analyse my Day Master strength and career prospects",
+            "title": "Query"
+          },
+          "unknown_hour": {
+            "default": false,
+            "description": "Enable probabilistic matrix mode",
+            "title": "Unknown Hour",
+            "type": "boolean"
+          },
+          "utc_offset_hours": {
+            "example": 7.0,
+            "maximum": 14.0,
+            "minimum": -12.0,
+            "title": "Utc Offset Hours",
+            "type": "number"
+          }
+        },
+        "required": [
+          "birth_datetime",
+          "longitude",
+          "utc_offset_hours"
+        ],
+        "title": "InterpretRequest",
+        "type": "object"
+      },
+      "LocationResolveRequest": {
+        "properties": {
+          "location": {
+            "description": "Location string (e.g. 'บางกะปิ, กรุงเทพ')",
+            "title": "Location",
+            "type": "string"
+          }
+        },
+        "required": [
+          "location"
+        ],
+        "title": "LocationResolveRequest",
+        "type": "object"
+      },
+      "ReviewDecision": {
+        "properties": {
+          "confidence_rating": {
+            "anyOf": [
+              {
+                "maximum": 5.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Human confidence 1-5 stars",
+            "title": "Confidence Rating"
+          },
+          "decision": {
+            "description": "'approve' | 'edit' | 'reject'",
+            "title": "Decision",
+            "type": "string"
+          },
+          "human_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Human-corrected answer (for edit/approve)",
+            "title": "Human Answer"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Additional reviewer notes",
+            "title": "Notes"
+          },
+          "reject_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Reason for rejection",
+            "title": "Reject Reason"
+          },
+          "reviewer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Reviewer name",
+            "title": "Reviewer"
+          },
+          "tags": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Tag list from TAG_* constants",
+            "title": "Tags"
+          }
+        },
+        "required": [
+          "decision"
+        ],
+        "title": "ReviewDecision",
+        "type": "object"
+      },
+      "ValidateRequest": {
+        "properties": {
+          "bazi_chart": {
+            "additionalProperties": true,
+            "description": "Structured BaZi chart JSON from /calculate",
+            "title": "Bazi Chart",
+            "type": "object"
+          },
+          "initial_interpretation": {
+            "description": "Initial interpretation text to be validated",
+            "title": "Initial Interpretation",
+            "type": "string"
+          },
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional user query context",
+            "title": "Query"
+          }
+        },
+        "required": [
+          "bazi_chart",
+          "initial_interpretation"
+        ],
+        "title": "ValidateRequest",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Modular 10-Domain Metaphysical Calculation, AI Debate & Multi-Agent Engine",
+    "title": "Computational Metaphysics Engine",
+    "version": "1.0.0.eb921f6"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "serve_ui__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Serve Ui",
+        "tags": [
+          "UI"
+        ]
+      }
+    },
+    "/admin": {
+      "get": {
+        "description": "Serve the Knowledge Source Management Admin Panel.",
+        "operationId": "serve_admin_admin_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Serve Admin",
+        "tags": [
+          "Admin UI"
+        ]
+      }
+    },
+    "/admin/auth/config": {
+      "get": {
+        "description": "Return public Google Auth client configuration.",
+        "operationId": "get_auth_config_admin_auth_config_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Auth Config",
+        "tags": [
+          "Admin — Knowledge Management"
+        ]
+      }
+    },
+    "/admin/auth/google": {
+      "post": {
+        "description": "Verify Google ID token or mock login for allowed admin emails (e.g. pansakorn@gmail.com).",
+        "operationId": "verify_google_auth_admin_auth_google_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GoogleAuthRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Verify Google Auth",
+        "tags": [
+          "Admin — Knowledge Management"
+        ]
+      }
+    },
+    "/admin/catalog": {
+      "get": {
+        "description": "Return the complete knowledge_catalog.json.",
+        "operationId": "get_catalog_admin_catalog_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Full knowledge source catalog",
+        "tags": [
+          "Admin — Knowledge Management"
+        ]
+      }
+    },
+    "/admin/catalog/source/{source_id}": {
+      "get": {
+        "description": "Return details for a single source by ID.",
+        "operationId": "get_source_detail_admin_catalog_source__source_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "source_id",
+            "required": true,
+            "schema": {
+              "title": "Source Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get single source details",
+        "tags": [
+          "Admin — Knowledge Management"
+        ]
+      }
+    },
+    "/admin/catalog/summary": {
+      "get": {
+        "description": "Generate a compact summary of catalog coverage status.",
+        "operationId": "get_catalog_summary_admin_catalog_summary_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Coverage summary by category",
+        "tags": [
+          "Admin — Knowledge Management"
+        ]
+      }
+    },
+    "/admin/code-review": {
+      "get": {
+        "description": "Run automated code reviewer & safety audit before pushing to production.",
+        "operationId": "run_pre_deployment_code_review_admin_code_review_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Run pre-deployment code review and safety audit",
+        "tags": [
+          "Admin — Knowledge Management"
+        ]
+      }
+    },
+    "/admin/finetune/download": {
+      "get": {
+        "description": "Download combined_train.jsonl for external use.",
+        "operationId": "download_finetune_admin_finetune_download_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Download combined fine-tune dataset",
+        "tags": [
+          "Admin — Knowledge Management"
+        ]
+      }
+    },
+    "/admin/finetune/download-grayzone": {
+      "get": {
+        "description": "Download grayzone_finetune.jsonl.",
+        "operationId": "download_grayzone_finetune_admin_finetune_download_grayzone_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Download gray-zone fine-tune dataset",
+        "tags": [
+          "Admin — Knowledge Management"
+        ]
+      }
+    },
+    "/admin/finetune/export-grayzone": {
+      "post": {
+        "description": "Build grayzone_finetune.jsonl from all answered gray-zone questions.",
+        "operationId": "export_grayzone_finetune_admin_finetune_export_grayzone_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Build JSONL from answered gray-zone Q&A",
+        "tags": [
+          "Admin — Knowledge Management"
+        ]
+      }
+    },
+    "/admin/finetune/merge": {
+      "post": {
+        "description": "Merge train.jsonl + grayzone_finetune.jsonl → combined_train.jsonl.\nThis is the master dataset for External AI fine-tuning.",
+        "operationId": "merge_finetune_datasets_admin_finetune_merge_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Merge all datasets into combined_train.jsonl",
+        "tags": [
+          "Admin — Knowledge Management"
+        ]
+      }
+    },
+    "/admin/finetune/status": {
+      "get": {
+        "description": "Return statistics for all fine-tune datasets.",
+        "operationId": "finetune_status_admin_finetune_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Fine-tune dataset statistics",
+        "tags": [
+          "Admin — Knowledge Management"
+        ]
+      }
+    },
+    "/admin/finetune/trigger": {
+      "post": {
+        "description": "Trigger fine-tuning on the selected provider.\nSupports: local MLX (Apple Silicon), Ollama, or External API.",
+        "operationId": "trigger_finetune_admin_finetune_trigger_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinetuneTriggerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Trigger external AI fine-tune job",
+        "tags": [
+          "Admin — Knowledge Management"
+        ]
+      }
+    },
+    "/admin/grayzone": {
+      "get": {
+        "description": "Return all gray-zone questions with their answer status.",
+        "operationId": "get_all_grayzone_admin_grayzone_get",
+        "parameters": [
+          {
+            "description": "Filter by category key",
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by category key",
+              "title": "Category"
+            }
+          },
+          {
+            "description": "Filter by answered status",
+            "in": "query",
+            "name": "answered",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by answered status",
+              "title": "Answered"
+            }
+          },
+          {
+            "description": "Filter by source ID",
+            "in": "query",
+            "name": "source_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by source ID",
+              "title": "Source Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "All gray-zone questions with answer status",
+        "tags": [
+          "Admin — Knowledge Management"
+        ]
+      }
+    },
+    "/admin/grayzone/answer": {
+      "delete": {
+        "description": "Delete an existing gray-zone answer.",
+        "operationId": "delete_grayzone_answer_admin_grayzone_answer_delete",
+        "parameters": [
+          {
+            "description": "Source ID",
+            "in": "query",
+            "name": "source_id",
+            "required": true,
+            "schema": {
+              "description": "Source ID",
+              "title": "Source Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Question text",
+            "in": "query",
+            "name": "question",
+            "required": true,
+            "schema": {
+              "description": "Question text",
+              "title": "Question",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete a gray-zone answer",
+        "tags": [
+          "Admin — Knowledge Management"
+        ]
+      },
+      "post": {
+        "description": "Store an expert answer for a gray-zone question.\nAnswer is linked by source_id + question text → used in fine-tuning.",
+        "operationId": "submit_grayzone_answer_admin_grayzone_answer_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GrayzoneAnswerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Submit answer for a gray-zone question",
+        "tags": [
+          "Admin — Knowledge Management"
+        ]
+      }
+    },
+    "/api/v1/bazi/calculate": {
+      "post": {
+        "description": "Compute the Four Pillars of Destiny chart.\nReturns structured JSON with TST, pillars, hidden stems, Five Elements scores, and SVG content.",
+        "operationId": "calculate_bazi_api_v1_bazi_calculate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BaZiRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Calculate Bazi",
+        "tags": [
+          "BaZi"
+        ]
+      }
+    },
+    "/api/v1/bazi/interpret": {
+      "post": {
+        "description": "Calculate BaZi chart then pass to AI for natural-language interpretation.\nOptionally cross-validates via Gemini Prediction Validator if enable_validation=True.",
+        "operationId": "interpret_bazi_api_v1_bazi_interpret_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InterpretRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Interpret Bazi",
+        "tags": [
+          "BaZi",
+          "AI"
+        ]
+      }
+    },
+    "/api/v1/bazi/validate": {
+      "post": {
+        "description": "Cross-validate an existing BaZi calculation and interpretation using Gemini Prediction Validator Agent.",
+        "operationId": "validate_prediction_api_v1_bazi_validate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Validate Prediction",
+        "tags": [
+          "BaZi",
+          "AI Validation"
+        ]
+      }
+    },
+    "/api/v1/eot": {
+      "get": {
+        "description": "Return Equation of Time in minutes for a given date.",
+        "operationId": "equation_of_time_api_v1_eot_get",
+        "parameters": [
+          {
+            "description": "Date YYYY-MM-DD",
+            "in": "query",
+            "name": "date",
+            "required": true,
+            "schema": {
+              "description": "Date YYYY-MM-DD",
+              "examples": [
+                "2026-08-03"
+              ],
+              "title": "Date",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Equation Of Time",
+        "tags": [
+          "solar"
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/api/v1/iching/calculate": {
+      "get": {
+        "description": "Cast I Ching Hexagram and compute Liu Yao setup (6 Lines, 6 Animals, 5 Relatives) with SVG.",
+        "operationId": "calculate_iching_api_v1_iching_calculate_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "day_stem",
+            "required": false,
+            "schema": {
+              "default": "甲",
+              "title": "Day Stem",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "seed",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Seed"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Calculate Iching",
+        "tags": [
+          "I Ching"
+        ]
+      }
+    },
+    "/api/v1/liuren/calculate": {
+      "get": {
+        "description": "Calculate Da Liu Ren chart (Earth/Heaven Plate, 4 Lessons, 3 Transmissions, 12 Generals) with SVG.",
+        "operationId": "calculate_liuren_api_v1_liuren_calculate_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "day_stem",
+            "required": false,
+            "schema": {
+              "default": "甲",
+              "title": "Day Stem",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "day_branch",
+            "required": false,
+            "schema": {
+              "default": "子",
+              "title": "Day Branch",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "month_general",
+            "required": false,
+            "schema": {
+              "default": "正月",
+              "title": "Month General",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "hour_branch",
+            "required": false,
+            "schema": {
+              "default": "午",
+              "title": "Hour Branch",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Calculate Liuren",
+        "tags": [
+          "Da Liu Ren"
+        ]
+      }
+    },
+    "/api/v1/location/resolve": {
+      "post": {
+        "description": "Resolve a location string to longitude, latitude and UTC offset.\nSupports Nominatim online geocoding with automatic fallback to pre-cached offline location database.",
+        "operationId": "resolve_location_api_v1_location_resolve_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationResolveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Resolve Location",
+        "tags": [
+          "location"
+        ]
+      }
+    },
+    "/api/v1/numerology/calculate": {
+      "get": {
+        "description": "Calculate Satta-Lek 7-Base 4-Row Matrix & Chaldean Numerology Scoring with SVG.",
+        "operationId": "calculate_numerology_api_v1_numerology_calculate_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "text",
+            "required": false,
+            "schema": {
+              "default": "0812345678",
+              "title": "Text",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "day_num",
+            "required": false,
+            "schema": {
+              "default": 2,
+              "title": "Day Num",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "lunar_month",
+            "required": false,
+            "schema": {
+              "default": 6,
+              "title": "Lunar Month",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "year_zodiac_num",
+            "required": false,
+            "schema": {
+              "default": 7,
+              "title": "Year Zodiac Num",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Calculate Numerology",
+        "tags": [
+          "Numerology & Satta-Lek"
+        ]
+      }
+    },
+    "/api/v1/qimen/calculate": {
+      "get": {
+        "description": "Calculate Qi Men Dun Jia 4-Plate chart (Yang/Yin Dun 18 Ju, 9 Stars, 8 Doors, 8 Spirits) with SVG.",
+        "operationId": "calculate_qimen_api_v1_qimen_calculate_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "default": 2026,
+              "title": "Year",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "required": false,
+            "schema": {
+              "default": 8,
+              "title": "Month",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "day",
+            "required": false,
+            "schema": {
+              "default": 7,
+              "title": "Day",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "hour",
+            "required": false,
+            "schema": {
+              "default": 14,
+              "title": "Hour",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Calculate Qimen",
+        "tags": [
+          "Qi Men Dun Jia"
+        ]
+      }
+    },
+    "/api/v1/thaivedic/calculate": {
+      "get": {
+        "description": "Calculate Thai Suriyayart 10 Lagna, Maha Thaksa, 27 Nakshatras & Vimshottari Dasha with SVG.",
+        "operationId": "calculate_thaivedic_api_v1_thaivedic_calculate_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "default": 1990,
+              "title": "Year",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "required": false,
+            "schema": {
+              "default": 5,
+              "title": "Month",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "day",
+            "required": false,
+            "schema": {
+              "default": 15,
+              "title": "Day",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "hour",
+            "required": false,
+            "schema": {
+              "default": 14,
+              "title": "Hour",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "day_of_week",
+            "required": false,
+            "schema": {
+              "default": 2,
+              "title": "Day Of Week",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Calculate Thaivedic",
+        "tags": [
+          "Thai & Vedic Astrology"
+        ]
+      }
+    },
+    "/api/v1/western/calculate": {
+      "get": {
+        "description": "Calculate Western Tropical Planetary Aspects, Uranian 8 TNPs & Midpoint Formula with SVG.",
+        "operationId": "calculate_western_api_v1_western_calculate_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "default": 1990,
+              "title": "Year",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "required": false,
+            "schema": {
+              "default": 5,
+              "title": "Month",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "day",
+            "required": false,
+            "schema": {
+              "default": 15,
+              "title": "Day",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "hour",
+            "required": false,
+            "schema": {
+              "default": 14,
+              "title": "Hour",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Calculate Western",
+        "tags": [
+          "Western & Uranian Astrology"
+        ]
+      }
+    },
+    "/api/v1/xuankong/calculate": {
+      "get": {
+        "description": "Calculate Xuan Kong Flying Stars Period 9 9-Grid chart with SVG.",
+        "operationId": "calculate_xuankong_api_v1_xuankong_calculate_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "facing_degree",
+            "required": false,
+            "schema": {
+              "default": 180.0,
+              "title": "Facing Degree",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "period",
+            "required": false,
+            "schema": {
+              "default": 9,
+              "title": "Period",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Calculate Xuankong",
+        "tags": [
+          "Xuan Kong Flying Stars"
+        ]
+      }
+    },
+    "/api/v1/zeji/calculate": {
+      "get": {
+        "description": "Calculate Date Selection suitability via 12 Duty Officers and Clash checks with SVG.",
+        "operationId": "calculate_zeji_api_v1_zeji_calculate_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "year_branch",
+            "required": false,
+            "schema": {
+              "default": "午",
+              "title": "Year Branch",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "month_branch",
+            "required": false,
+            "schema": {
+              "default": "申",
+              "title": "Month Branch",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "day_branch",
+            "required": false,
+            "schema": {
+              "default": "寅",
+              "title": "Day Branch",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "user_birth_branch",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "子",
+              "title": "User Birth Branch"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Calculate Zeji",
+        "tags": [
+          "Date Selection"
+        ]
+      }
+    },
+    "/api/v1/ziwei/calculate": {
+      "get": {
+        "description": "Calculate Zi Wei Dou Shu birth chart (12 Palaces, 14 Main Stars, Si Hua) with SVG vector.",
+        "operationId": "calculate_ziwei_api_v1_ziwei_calculate_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "year",
+            "required": false,
+            "schema": {
+              "default": 1990,
+              "title": "Year",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "month",
+            "required": false,
+            "schema": {
+              "default": 5,
+              "title": "Month",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "day",
+            "required": false,
+            "schema": {
+              "default": 15,
+              "title": "Day",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "hour",
+            "required": false,
+            "schema": {
+              "default": 14,
+              "title": "Hour",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "gender",
+            "required": false,
+            "schema": {
+              "default": "male",
+              "title": "Gender",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Calculate Ziwei",
+        "tags": [
+          "Zi Wei Dou Shu"
+        ]
+      }
+    },
+    "/bazi/interpret": {
+      "post": {
+        "description": "Calculate BaZi chart then pass to AI for natural-language interpretation.\nOptionally cross-validates via Gemini Prediction Validator if enable_validation=True.",
+        "operationId": "interpret_bazi_bazi_interpret_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InterpretRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Interpret Bazi",
+        "tags": [
+          "BaZi",
+          "AI"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/hitl-studio": {
+      "get": {
+        "description": "Serve the HITL Review Studio UI.",
+        "operationId": "serve_hitl_hitl_studio_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Serve Hitl",
+        "tags": [
+          "Admin UI"
+        ]
+      }
+    },
+    "/hitl/batch-draft": {
+      "post": {
+        "operationId": "batch_draft_hitl_batch_draft_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchDraftRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Generate AI drafts for multiple pending items",
+        "tags": [
+          "HITL — Human-in-the-Loop Review"
+        ]
+      }
+    },
+    "/hitl/draft/{item_id}": {
+      "post": {
+        "operationId": "generate_draft_hitl_draft__item_id__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Generate AI draft answer for an item",
+        "tags": [
+          "HITL — Human-in-the-Loop Review"
+        ]
+      }
+    },
+    "/hitl/export": {
+      "get": {
+        "operationId": "export_hitl_jsonl_hitl_export_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "download",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Download",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Export HITL-approved JSONL",
+        "tags": [
+          "HITL — Human-in-the-Loop Review"
+        ]
+      }
+    },
+    "/hitl/item/{item_id}": {
+      "get": {
+        "operationId": "get_item_hitl_item__item_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get single review item detail",
+        "tags": [
+          "HITL — Human-in-the-Loop Review"
+        ]
+      }
+    },
+    "/hitl/queue": {
+      "get": {
+        "operationId": "get_review_queue_hitl_queue_get",
+        "parameters": [
+          {
+            "description": "Filter: pending|approve|edit|reject",
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter: pending|approve|edit|reject",
+              "title": "Status"
+            }
+          },
+          {
+            "description": "Filter by category key",
+            "in": "query",
+            "name": "category",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by category key",
+              "title": "Category"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List items pending human review",
+        "tags": [
+          "HITL — Human-in-the-Loop Review"
+        ]
+      }
+    },
+    "/hitl/review/{item_id}": {
+      "delete": {
+        "operationId": "undo_review_hitl_review__item_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Undo a review decision",
+        "tags": [
+          "HITL — Human-in-the-Loop Review"
+        ]
+      },
+      "post": {
+        "operationId": "submit_review_hitl_review__item_id__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "item_id",
+            "required": true,
+            "schema": {
+              "title": "Item Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewDecision"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Submit human review decision",
+        "tags": [
+          "HITL — Human-in-the-Loop Review"
+        ]
+      }
+    },
+    "/hitl/stats": {
+      "get": {
+        "operationId": "get_stats_hitl_stats_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Review session statistics",
+        "tags": [
+          "HITL — Human-in-the-Loop Review"
+        ]
+      }
+    },
+    "/v1/bazi/interpret": {
+      "post": {
+        "description": "Calculate BaZi chart then pass to AI for natural-language interpretation.\nOptionally cross-validates via Gemini Prediction Validator if enable_validation=True.",
+        "operationId": "interpret_bazi_v1_bazi_interpret_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InterpretRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Interpret Bazi",
+        "tags": [
+          "BaZi",
+          "AI"
+        ]
+      }
+    }
+  }
+}

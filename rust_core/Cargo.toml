@@ -7,21 +7,102 @@ edition = "2021"
 name   = "rust_core"
 crate-type = ["cdylib", "rlib"]
 
+[features]
+default = []
+python = ["dep:pyo3"]
+python-extension = ["python", "pyo3/extension-module"]
+server = ["dep:tokio", "dep:axum", "dep:reqwest"]
+
 [dependencies]
-pyo3       = { version = "0.21", features = ["extension-module"] }
+pyo3       = { version = "0.21", optional = true, features = ["abi3-py310"] }
 rayon      = "1.10"       # parallel iterators (multi-core)
 ndarray    = "0.15"       # array ops
 regex      = "1.10"
 serde      = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-tokio      = { version = "1.38", features = ["full"] }
-axum       = "0.7"
-reqwest    = { version = "0.12", features = ["json"] }
+tokio      = { version = "1.38", optional = true, features = ["full"] }
+axum       = { version = "0.7", optional = true }
+reqwest    = { version = "0.12", optional = true, features = ["json"] }
 chrono     = { version = "0.4", features = ["serde"] }
 lazy_static = "1.5"
+
+[[test]]
+name = "test_engines"
+required-features = ["server"]
+
+[[test]]
+name = "test_vector_search"
+
+[[test]]
+name = "test_runtime_contract"
+
+[[bin]]
+name = "audit_suite"
+path = "src/bin/audit_suite.rs"
+required-features = ["server"]
+
+[[bin]]
+name = "button_regression"
+path = "src/bin/button_regression.rs"
+required-features = ["server"]
+
+[[bin]]
+name = "chart_generator"
+path = "src/bin/chart_generator.rs"
+required-features = ["server"]
+
+[[bin]]
+name = "code_reviewer"
+path = "src/bin/code_reviewer.rs"
+required-features = ["server"]
+
+[[bin]]
+name = "fusion_synthesizer"
+path = "src/bin/fusion_synthesizer.rs"
+required-features = ["server"]
+
+[[bin]]
+name = "horo_benchmark"
+path = "src/bin/horo_benchmark.rs"
+required-features = ["server"]
+
+[[bin]]
+name = "horo_server"
+path = "src/bin/horo_server.rs"
+required-features = ["server"]
+
+[[bin]]
+name = "regression_runner"
+path = "src/bin/regression_runner.rs"
+required-features = ["server"]
+
+[[bin]]
+name = "sdlc_watchdog"
+path = "src/bin/sdlc_watchdog.rs"
+required-features = ["server"]
+
+[[bin]]
+name = "svg_chart_cli"
+path = "src/bin/svg_chart_cli.rs"
+required-features = ["python", "server"]
+
+[[bin]]
+name = "sync_sdlc_agents"
+path = "src/bin/sync_sdlc_agents.rs"
+required-features = ["server"]
+
+[[bin]]
+name = "telemetry_daemon"
+path = "src/bin/telemetry_daemon.rs"
+required-features = ["server"]
+
+[[bin]]
+name = "vercel_curl_regression"
+path = "src/bin/vercel_curl_regression.rs"
+required-features = ["server"]
 
 [profile.release]
 opt-level     = 3
 lto           = true
 codegen-units = 1
-panic         = "abort"
+panic         = "unwind"

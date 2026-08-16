@@ -4,6 +4,7 @@
  * Scans codebase files in parallel via Rayon, ignoring dummy keys and vendor directories.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -16,6 +17,7 @@ static SECRET_PATTERNS: &[(&str, &str)] = &[
     ("Kaggle API Token", r#"kg_[A-Za-z0-9_-]{20,}"#),
     ("Doppler Service Token", r#"dp\.pt\.[A-Za-z0-9_-]{20,}"#),
     ("GitHub Personal Access Token", r#"ghp_[A-Za-z0-9]{36}"#),
+    ("Docker Hub Personal Access Token", r#"dckr_pat_[A-Za-z0-9_-]{20,}"#),
     ("Grafana Cloud API Key", r#"glc_[A-Za-z0-9_-]{20,}"#),
     ("AWS Key", r#"AKIA[0-9A-Z]{16}"#),
     ("Private Key", r#"-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----"#),
@@ -87,6 +89,7 @@ pub fn scan_directory_secrets_rust(root_path: &str) -> Result<(bool, usize, Vec<
 }
 
 /// Run parallel security audit and secret leak scanning over target directory.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn run_rust_security_audit(py: Python<'_>, root_path: &str) -> PyResult<(bool, usize, Vec<String>)> {
     let root_path_owned = root_path.to_owned();
@@ -118,5 +121,37 @@ fn collect_files(dir: &Path, file_list: &mut Vec<PathBuf>) {
                 file_list.push(path);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::scan_directory_secrets_rust;
+    use std::fs;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    #[test]
+    fn detects_docker_hub_personal_access_tokens() {
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("clock must follow Unix epoch")
+            .as_nanos();
+        let root = std::env::temp_dir().join(format!(
+            "horo-secret-audit-{}-{nonce}",
+            std::process::id()
+        ));
+        fs::create_dir_all(&root).expect("temporary audit directory");
+        let token = format!("{}{}{}", "dckr", "_pat_", "A".repeat(24));
+        fs::write(root.join("leak.txt"), token).expect("temporary secret fixture");
+
+        let (passed, _count, findings) = scan_directory_secrets_rust(
+            root.to_str().expect("temporary path must be valid UTF-8"),
+        )
+        .expect("security scan must complete");
+
+        let _ = fs::remove_dir_all(&root);
+        assert!(!passed);
+        assert_eq!(findings.len(), 1);
+        assert!(findings[0].contains("Docker Hub Personal Access Token"));
     }
 }

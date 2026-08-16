@@ -199,6 +199,36 @@ body {
   box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
 }
 
+.backend-status {
+  min-height: 1.5rem;
+  margin-top: 0.75rem;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.backend-status[data-state="waking"],
+.backend-status[data-state="processing"] {
+  color: #fbbf24;
+}
+
+.backend-status[data-state="unavailable"],
+.backend-status[data-state="error"] {
+  color: #fda4af;
+}
+
+.backend-status[data-state="complete"] {
+  color: #6ee7b7;
+}
+
+.btn-retry {
+  width: 100%;
+  margin-top: 0.65rem;
+  border-color: rgba(251, 191, 36, 0.75);
+  background: rgba(251, 191, 36, 0.12);
+  color: #fef3c7;
+}
+
 .pulse-dot {
   width: 8px;
   height: 8px;

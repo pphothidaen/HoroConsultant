@@ -28,6 +28,11 @@ try:
 except ImportError:
     RUST_AVAILABLE = False
 
+# The installed PyO3 SVG call signatures predate the complete-chart contract
+# and discard palace/star/element fields.  They remain PARKED at this adapter;
+# the PyO3-free render_* candidates must pass public-byte parity separately.
+LOSSLESS_NATIVE_SVG_ADAPTER = False
+
 ELEMENT_COLORS = {
     "Wood":  "#10b981",  # Emerald Green
     "Fire":  "#ef4444",  # Crimson Red
@@ -47,10 +52,10 @@ def generate_bazi_svg(chart: dict[str, Any], title: str = "ผังดวงช
     """Generate clean SVG string for BaZi 4 Pillars Chart."""
     dm = chart.get("day_master", {})
     pcts = chart.get("five_elements", {}).get("percentages", {})
-    tst  = str(chart.get("tst", {}).get("tst_datetime", "N/A"))
+    tst  = str(chart.get("solar_time_info", {}).get("tst_datetime", "N/A"))
     pillars = chart.get("pillars", {})
 
-    if RUST_AVAILABLE and hasattr(rust_core, "build_bazi_svg_rust"):
+    if LOSSLESS_NATIVE_SVG_ADAPTER and RUST_AVAILABLE and hasattr(rust_core, "build_bazi_svg_rust"):
         try:
             hp = pillars.get("hour", {})
             dp = pillars.get("day", {})
@@ -179,7 +184,7 @@ def generate_ziwei_svg(chart: dict[str, Any], title: str = "ผังดวง�
     ming_branch = str(chart.get("ming_gong_branch", "寅"))
     shen_branch = str(chart.get("shen_gong_branch", "申"))
 
-    if RUST_AVAILABLE and hasattr(rust_core, "build_ziwei_svg_rust"):
+    if LOSSLESS_NATIVE_SVG_ADAPTER and RUST_AVAILABLE and hasattr(rust_core, "build_ziwei_svg_rust"):
         try:
             return rust_core.build_ziwei_svg_rust(title, bureau, ming_branch, shen_branch)
         except Exception:
@@ -230,7 +235,7 @@ def generate_qimen_svg(chart: dict[str, Any], title: str = "ผังดวง�
     dun_type = str(chart.get("dun_type", "Yang"))
     ju_num = int(chart.get("ju_number", 1))
 
-    if RUST_AVAILABLE and hasattr(rust_core, "build_qimen_svg_rust"):
+    if LOSSLESS_NATIVE_SVG_ADAPTER and RUST_AVAILABLE and hasattr(rust_core, "build_qimen_svg_rust"):
         try:
             return rust_core.build_qimen_svg_rust(title, solar_term, dun_type, ju_num)
         except Exception:
@@ -269,7 +274,7 @@ def generate_xuankong_svg(chart: dict[str, Any], title: str = "ผังดว�
     sitting = str(chart.get("sitting_mountain", "子"))
     facing_degree = float(chart.get("facing_degree", 180.0))
 
-    if RUST_AVAILABLE and hasattr(rust_core, "build_xuankong_svg_rust"):
+    if LOSSLESS_NATIVE_SVG_ADAPTER and RUST_AVAILABLE and hasattr(rust_core, "build_xuankong_svg_rust"):
         try:
             return rust_core.build_xuankong_svg_rust(title, facing_degree, period)
         except Exception:

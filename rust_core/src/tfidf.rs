@@ -3,9 +3,12 @@
  * High-performance TF-IDF vector math and batch cosine similarity search.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
+#[cfg(feature = "python")]
 use rayon::prelude::*;
 
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn cosine_similarity(py: Python<'_>, a: Vec<f32>, b: Vec<f32>) -> PyResult<f32> {
     let result = py.allow_threads(move || {
@@ -28,6 +31,7 @@ pub fn cosine_similarity(py: Python<'_>, a: Vec<f32>, b: Vec<f32>) -> PyResult<f
     Ok(result)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn batch_cosine_search(
     py: Python<'_>,
@@ -65,6 +69,7 @@ pub fn batch_cosine_search(
     Ok(result)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn build_tfidf_vector(py: Python<'_>, text: String, vocab: Vec<String>) -> PyResult<Vec<f32>> {
     let result = py.allow_threads(move || {
@@ -91,6 +96,7 @@ pub fn build_tfidf_vector(py: Python<'_>, text: String, vocab: Vec<String>) -> P
     Ok(result)
 }
 
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn build_tfidf_matrix(py: Python<'_>, texts: Vec<String>, vocab: Vec<String>) -> PyResult<Vec<Vec<f32>>> {
     let result = py.allow_threads(move || {

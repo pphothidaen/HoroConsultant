@@ -92,3 +92,53 @@ class TestE2EMCPServerAndSVG:
         xk_chart = XuanKongEngine().calculate_chart(180.0, 9)
         xk_svg = generate_xuankong_svg(xk_chart)
         assert "<svg" in xk_svg and "玄空風水" in xk_svg
+
+    def test_svg_adapter_never_selects_lossy_native_placeholders(self, monkeypatch):
+        from project.core import svg_generator
+        from project.core.qi_men_engine import QiMenEngine
+        from project.core.xuan_kong_engine import XuanKongEngine
+        from project.core.zi_wei_engine import ZiWeiEngine
+
+        monkeypatch.setattr(svg_generator, "RUST_AVAILABLE", True)
+        for kernel_name in (
+            "build_bazi_svg_rust",
+            "build_ziwei_svg_rust",
+            "build_qimen_svg_rust",
+            "build_xuankong_svg_rust",
+        ):
+            monkeypatch.setattr(
+                svg_generator.rust_core,
+                kernel_name,
+                lambda *args: "<svg>PLACEHOLDER</svg>",
+                raising=False,
+            )
+
+        bazi_chart = {
+            "day_master": {"stem": "庚", "element": "Metal", "polarity": "Yang"},
+            "solar_time_info": {"tst_datetime": "1990-05-15 14:09:13"},
+            "five_elements": {"percentages": {"Wood": 12.5, "Metal": 30.0}},
+            "pillars": {
+                key: {
+                    "stem": {"char": "庚", "pinyin": "Gēng", "element": "Metal"},
+                    "branch": {"char": "午", "pinyin": "Wǔ", "animal": "Horse", "element": "Fire"},
+                }
+                for key in ("hour", "day", "month", "year")
+            },
+        }
+        bazi_svg = svg_generator.generate_bazi_svg(bazi_chart)
+        assert "Gēng" in bazi_svg and "Wood: 12.5%" in bazi_svg
+        assert "1990-05-15 14:09:13" in bazi_svg
+
+        zw_chart = ZiWeiEngine().calculate_chart(1990, 5, 15, 14)
+        zw_svg = svg_generator.generate_ziwei_svg(zw_chart)
+        assert "天同" in zw_svg and "天同化忌" in zw_svg
+
+        qm_chart = QiMenEngine().calculate_chart(2026, 8, 7, 14)
+        qm_svg = svg_generator.generate_qimen_svg(qm_chart)
+        assert "天蓬" in qm_svg and "休門" in qm_svg and "值符" in qm_svg
+
+        xk_chart = XuanKongEngine().calculate_chart(180.0, 9)
+        xk_svg = svg_generator.generate_xuankong_svg(xk_chart)
+        assert "午 (離卦 - 陰)" in xk_svg and ">4</text>" in xk_svg
+
+        assert "PLACEHOLDER" not in bazi_svg + zw_svg + qm_svg + xk_svg

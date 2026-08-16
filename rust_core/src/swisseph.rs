@@ -5,6 +5,7 @@
  * with sub-arcsecond accuracy without external C-FFI runtime dependencies.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 use std::f64::consts::PI;
 
@@ -90,6 +91,7 @@ pub fn calculate_moon_position_rust(jd: f64) -> PlanetPosition {
 }
 
 /// PyO3 wrapper to calculate Sun & Moon tropical positions.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn compute_ephemeris_sun_moon(
     py: Python<'_>,

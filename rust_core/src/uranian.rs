@@ -3,8 +3,10 @@
  * High-performance Western & Uranian Astrology midpoint & aspect math core.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
+#[cfg(feature = "python")]
 static WESTERN_ZODIAC: [&str; 12] = [
     "Aries (เมษ)", "Taurus (พฤษภ)", "Gemini (เมถุน)", "Cancer (กรกฎ)",
     "Leo (สิงห์)", "Virgo (กันย์)", "Libra (ตุลย์)", "Scorpio (พิจิก)",
@@ -17,6 +19,7 @@ pub fn calculate_midpoint_rust(deg1: f64, deg2: f64) -> f64 {
 }
 
 /// Resolve celestial longitude (0-360°) to Zodiac Sign & degree inside sign.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn resolve_western_zodiac(degree: f64) -> PyResult<(String, f64)> {
     let deg = degree.rem_euclid(360.0);
@@ -26,6 +29,7 @@ pub fn resolve_western_zodiac(degree: f64) -> PyResult<(String, f64)> {
 }
 
 /// Calculate Uranian midpoint (A + B) / 2 normalized to 0..360°.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn calculate_midpoint(deg1: f64, deg2: f64) -> PyResult<f64> {
     let sum = (deg1 + deg2) / 2.0;
@@ -33,9 +37,9 @@ pub fn calculate_midpoint(deg1: f64, deg2: f64) -> PyResult<f64> {
 }
 
 /// Calculate Uranian Sensitive Point (A + B - C) normalized to 0..360°.
+#[cfg(feature = "python")]
 #[pyfunction]
 pub fn calculate_sensitive_point(deg_a: f64, deg_b: f64, deg_c: f64) -> PyResult<f64> {
     let res = deg_a + deg_b - deg_c;
     Ok(res.rem_euclid(360.0))
 }
-
