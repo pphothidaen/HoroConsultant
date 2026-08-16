@@ -125,6 +125,9 @@ async def run_e2e_flow():
         # 1.1 Test Location Search Button
         try:
             print("[INFO] Testing Location Search Button (resolveLocation)...")
+            if not await page.is_visible("#location_search"):
+                await page.click(".accordion-toggle")
+                await page.wait_for_timeout(300)
             await page.fill("#location_search", "บางกะปิ กรุงเทพ")
             await page.click("button:has-text('ค้นหา & เติมค่า')")
             await page.wait_for_timeout(1200)

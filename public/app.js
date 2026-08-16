@@ -1480,6 +1480,9 @@ async function calculateChart(event) {
       readingBody.innerHTML = typeof marked !== 'undefined' ? marked.parse(data.interpretation) : data.interpretation;
     }
     if (interpCard) interpCard.classList.remove('hidden');
+
+    const svgContent = data.svg_content || (data.chart && data.chart.svg_content) || '';
+    renderResults(data, svgContent);
   } catch (err) {
     if (statusEl) {
       statusEl.classList.remove('hidden');
