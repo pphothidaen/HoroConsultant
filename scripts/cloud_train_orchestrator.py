@@ -732,15 +732,29 @@ def run_training_pipeline(
 
     # 5. Push to Hugging Face Hub
     if Config.is_hf_configured():
-        logger.info(f" Pushing LoRA Adapter to Hugging Face Hub ({hf_repo_id})...")
+        # Pre-flight: verify token actually works before burning time on push
         try:
-            model.push_to_hub(hf_repo_id, token=Config.HF_TOKEN)
-            tokenizer.push_to_hub(hf_repo_id, token=Config.HF_TOKEN)
-            logger.info(f"[SUCCESS] Successfully uploaded to Hugging Face: https://huggingface.co/{hf_repo_id}")
-        except Exception as e:
-            logger.error(f"[WARNING] Failed to push to Hugging Face Hub: {e}")
+            from huggingface_hub import HfApi
+            api = HfApi(token=Config.HF_TOKEN)
+            api.whoami()
+            logger.info(f"[OK] HF_TOKEN verified (Hugging Face login OK).")
+        except Exception as hf_auth_err:
+            logger.error(f"[ERROR] HF_TOKEN pre-flight check failed: {hf_auth_err}. Push will be skipped.")
+            logger.warning("[WARNING] HF_TOKEN not found or invalid (must start with 'hf_'). Skipping Hugging Face upload.")
+            hf_push_skipped = True
+        else:
+            hf_push_skipped = False
+
+        if not hf_push_skipped:
+            logger.info(f" Pushing LoRA Adapter to Hugging Face Hub ({hf_repo_id})...")
+            try:
+                model.push_to_hub(hf_repo_id, token=Config.HF_TOKEN)
+                tokenizer.push_to_hub(hf_repo_id, token=Config.HF_TOKEN)
+                logger.info(f"[SUCCESS] Successfully uploaded to Hugging Face: https://huggingface.co/{hf_repo_id}")
+            except Exception as e:
+                logger.error(f"[WARNING] Failed to push to Hugging Face Hub: {e}")
     else:
-        logger.warning("[WARNING] HF_TOKEN not found. Skipping Hugging Face upload.")
+        logger.warning("[WARNING] HF_TOKEN not found or invalid (must start with 'hf_'). Skipping Hugging Face upload.")
 
     # 6. Log to Supabase DB
     db = SupabaseDB()
@@ -799,6 +813,8 @@ def sync_back_to_github_repo(
         subprocess.run(["git", "config", "user.email", "bot@horoconsultant.local"], check=False)
         subprocess.run(["git", "add", "project/data/latest_cloud_train_summary.json"], check=False)
         subprocess.run(["git", "commit", "-m", f"auto({platform.lower()}): save post-train summary (loss: {final_loss:.4f})"], check=False)
+        # Pull with rebase first to absorb any concurrent Kaggle pushes before pushing.
+        subprocess.run(["git", "pull", "--rebase", "origin", "main"], capture_output=True, text=True, check=False)
         res = subprocess.run(["git", "push", repo_url, "HEAD:main"], capture_output=True, text=True)
 
         if res.returncode == 0:
