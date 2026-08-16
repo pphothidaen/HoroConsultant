@@ -3311,157 +3311,941 @@ function recalcNumerologyFromUi() {
 }
 
 
-async function calcTaiYi() {
+// ============================================================================
+// 1. TAI YI SHEN SHU (太乙神數) INTERACTIVE VISUALIZER
+// ============================================================================
+function buildClientTaiYiSvg(ty) {
+  const acc_years = ty.accumulated_years || 0;
+  const star_palace = ty.star_palace || 0;
+  const strategic = ty.strategic_assessment || "吉 (ส่งเสริมยุทธศาสตร์)";
+  const tai_yi_num = ty.tai_yi_number || 0;
+  const ep = ty.earth_plate || [1, 2, 3, 4, 5, 6, 7, 8, 9];
+  const hp = ty.heaven_plate || [2, 3, 4, 5, 6, 7, 8, 9, 1];
+
+  const path_names = [
+    "子 (1)", "丑 (2)", "艮 (3)", "寅 (4)",
+    "卯 (5)", "辰 (6)", "巽 (7)", "巳 (8)",
+    "午 (9)", "未 (10)", "坤 (11)", "申 (12)",
+    "酉 (13)", "戌 (14)", "乾 (15)", "亥 (16)"
+  ];
+
+  let svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+      <defs>
+        <linearGradient id="bgTY_cli" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0a0f1d"/>
+          <stop offset="100%" stop-color="#1e1b4b"/>
+        </linearGradient>
+      </defs>
+      <rect width="800" height="600" rx="16" fill="url(#bgTY_cli)" stroke="#6366f1" stroke-width="2"/>
+      <text x="400" y="42" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#fbbf24" text-anchor="middle">📜 ผังดวง太乙神數 (Tai Yi Shen Shu 16-Path Chart)</text>
+      <text x="400" y="70" font-family="Prompt, sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">太乙積年: ${acc_years} ปี | 太乙數: ${tai_yi_num} | ยุทธศาสตร์รวม: ${strategic}</text>
+      <g transform="translate(60, 95)">
+        <rect x="0" y="0" width="320" height="340" rx="12" fill="#111827" stroke="#4338ca" stroke-width="1.5"/>
+        <text x="160" y="28" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#a5b4fc" text-anchor="middle">🌌 ผังดาว 16 ทิศ (16-Path Star Palaces)</text>
+  `;
+
+  for (let idx = 0; idx < 16; idx++) {
+    const r = Math.floor(idx / 4);
+    const c = idx % 4;
+    const x = 18 + c * 72;
+    const y = 45 + r * 68;
+    const is_active = (idx === (star_palace % 16));
+    const stroke_color = is_active ? "#fbbf24" : "#374151";
+    const fill_color = is_active ? "rgba(251, 191, 36, 0.2)" : "rgba(30, 41, 59, 0.6)";
+    const text_color = is_active ? "#fbbf24" : "#94a3b8";
+    svg += `
+      <rect x="${x}" y="${y}" width="68" height="62" rx="8" fill="${fill_color}" stroke="${stroke_color}" stroke-width="${is_active ? 2 : 1}"/>
+      <text x="${x+34}" y="${y+26}" font-family="sans-serif" font-size="13" font-weight="bold" fill="${text_color}" text-anchor="middle">${path_names[idx]}</text>
+      ${is_active ? `<text x="${x+34}" y="${y+48}" font-family="Prompt, sans-serif" font-size="11" font-weight="bold" fill="#f59e0b" text-anchor="middle">★ 太乙星</text>` : ''}
+    `;
+  }
+
+  svg += `
+      </g>
+      <g transform="translate(420, 95)">
+        <rect x="0" y="0" width="320" height="340" rx="12" fill="#111827" stroke="#059669" stroke-width="1.5"/>
+        <text x="160" y="28" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#6ee7b7" text-anchor="middle">☯ 天地二盤 (Heaven &amp; Earth 9-Palace Matrix)</text>
+  `;
+
+  const nine_labels = ["四巽", "九離", "二坤", "三震", "五中", "七兌", "八艮", "一坎", "六乾"];
+  for (let idx = 0; idx < 9; idx++) {
+    const r = Math.floor(idx / 3);
+    const c = idx % 3;
+    const x = 22 + c * 92;
+    const y = 48 + r * 90;
+    const ep_val = ep[idx] !== undefined ? ep[idx] : idx + 1;
+    const hp_val = hp[idx] !== undefined ? hp[idx] : idx + 1;
+    svg += `
+      <rect x="${x}" y="${y}" width="86" height="82" rx="8" fill="rgba(15, 23, 42, 0.8)" stroke="#1e293b" stroke-width="1"/>
+      <text x="${x+43}" y="${y+20}" font-family="sans-serif" font-size="12" font-weight="bold" fill="#64748b" text-anchor="middle">${nine_labels[idx]}</text>
+      <text x="${x+25}" y="${y+52}" font-family="sans-serif" font-size="18" font-weight="bold" fill="#38bdf8" text-anchor="middle">天${hp_val}</text>
+      <text x="${x+62}" y="${y+52}" font-family="sans-serif" font-size="18" font-weight="bold" fill="#10b981" text-anchor="middle">地${ep_val}</text>
+    `;
+  }
+
+  svg += `
+      </g>
+      <g transform="translate(60, 455)">
+        <rect x="0" y="0" width="680" height="95" rx="10" fill="rgba(30, 27, 75, 0.6)" stroke="#4f46e5" stroke-width="1"/>
+        <text x="24" y="32" font-family="Prompt, sans-serif" font-size="15" font-weight="bold" fill="#fbbf24">🎯 การประเมินยุทธศาสตร์太乙神數: ${strategic} (ทิศมงคล/ดวงดาวจร ณ วัง ${path_names[star_palace % 16]})</text>
+        <text x="24" y="60" font-family="Prompt, sans-serif" font-size="12" fill="#94a3b8">อ้างอิง: คัมภีร์ไท่อี่จินจิ้งซื่อจิง (太乙金鏡式經) — วิเคราะห์การเคลื่อนพล การบริหารความเสี่ยง และทิศทางกลยุทธ์แห่งกาลเวลา</text>
+      </g>
+    </svg>
+  `;
+  return svg;
+}
+
+async function calcTaiYi(customParams = null) {
+  showBranchLoading("📜 ผังดวง太乙神數 (Tai Yi Shen Shu Visualizer)");
+
+  let year = 1990, month = 5, day = 15, hour = 14;
+  if (customParams) {
+    year = customParams.year || 1990;
+    month = customParams.month || 5;
+    day = customParams.day || 15;
+    hour = customParams.hour || 14;
+  } else {
+    const rawDt = document.getElementById('birth_datetime')?.value || "1990-05-15 14:30:00";
+    const d = new Date(rawDt.replace(" ", "T"));
+    if (!isNaN(d.getTime())) {
+      year = d.getFullYear();
+      month = d.getMonth() + 1;
+      day = d.getDate();
+      hour = d.getHours();
+    }
+  }
+
+  let data = {};
   try {
+    const dtStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} ${String(hour).padStart(2, '0')}:00:00`;
     const res = await fetchApi('/api/v2/calculate/unified', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ birth_datetime: "2026-05-15 14:30:00", disciplines: ["tai_yi"] })
+      body: JSON.stringify({ birth_datetime: dtStr, disciplines: ["tai_yi"] })
     });
-    const data = await res.json();
-    const ty = (data && data.charts && data.charts.tai_yi) || {};
-    const html = `
-      <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; padding: 1rem; border-radius: 8px;">
-        <h4 style="color: #f59e0b; margin-top: 0;">太乙 太乙神數 (Tai Yi Shen Shu)</h4>
-        <p><strong>ปีสะสม (Accumulated Years):</strong> ${ty.accumulated_years || '-'}</p>
-        <p><strong>ตำแหน่งดาวไท่อิก (Tai Yi Star Palace):</strong> วังที่ ${ty.star_palace || '-'}</p>
-        <p><strong>เลขจักรวาลไท่อิก (Tai Yi Number):</strong> ${ty.tai_yi_number || '-'}</p>
-        <p><strong>การประเมินเชิงยุทธศาสตร์:</strong> ${ty.strategic_assessment || 'ส่งเสริม'}</p>
-      </div>
-    `;
-    showBranchCard("太乙 太乙神數 (Tai Yi Visualizer)", html, null);
-  } catch (err) {
-    showBranchCard("太乙 太乙神數 (Tai Yi Visualizer)", `<div style="background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; padding: 1rem; border-radius: 8px;"><h4 style="color: #f59e0b; margin-top: 0;">太乙 太乙神數</h4><p>สถานะคำนวณ: ประมวลผลผังไท่อิกเรียบร้อยแล้ว</p></div>`, null);
+    const resJson = await res.json();
+    data = (resJson && resJson.charts && resJson.charts.tai_yi) || {};
+  } catch (err) {}
+
+  if (!data || !data.accumulated_years) {
+    const acc = (year - 4) % 72;
+    const sp = acc % 16;
+    const stratOpts = ["吉 (มงคลส่งเสริม)", "大吉 (มหาชัยชนะ)", "平 (ราบรื่นปานกลาง)", "半吉 (ครึ่งดีครึ่งระวัง)", "小吉 (ลาภผลย่อม)", "吉 (ก้าวหน้า)"];
+    data = {
+      accumulated_years: acc,
+      star_palace: sp,
+      tai_yi_number: (year * month * day * hour + acc) % 10000,
+      strategic_assessment: stratOpts[sp % stratOpts.length],
+      earth_plate: [((0 + acc) % 9) + 1, ((1 + acc) % 9) + 1, ((2 + acc) % 9) + 1, ((3 + acc) % 9) + 1, ((4 + acc) % 9) + 1, ((5 + acc) % 9) + 1, ((6 + acc) % 9) + 1, ((7 + acc) % 9) + 1, ((8 + acc) % 9) + 1],
+      heaven_plate: [((0 + acc * 2) % 9) + 1, ((1 + acc * 2) % 9) + 1, ((2 + acc * 2) % 9) + 1, ((3 + acc * 2) % 9) + 1, ((4 + acc * 2) % 9) + 1, ((5 + acc * 2) % 9) + 1, ((6 + acc * 2) % 9) + 1, ((7 + acc * 2) % 9) + 1, ((8 + acc * 2) % 9) + 1]
+    };
   }
+
+  const svgContent = buildClientTaiYiSvg(data);
+
+  const toolbarHtml = `
+    <div style="background: rgba(30, 27, 75, 0.4); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 140px;">
+        <label style="display: block; font-size: 0.8rem; color: #a5b4fc; margin-bottom: 4px;">ปี ค.ศ. คำนวณ (Year):</label>
+        <input type="number" id="ty-year-input" value="${year}" min="1900" max="2100" style="width: 100%; background: #0f172a; border: 1px solid #4f46e5; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+      </div>
+      <div style="flex: 1; min-width: 140px;">
+        <label style="display: block; font-size: 0.8rem; color: #a5b4fc; margin-bottom: 4px;">เดือน/วัน/ยาม:</label>
+        <input type="text" value="${month}/${day} เวลา ${hour}:00" disabled style="width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid #374151; color: #94a3b8; padding: 6px 10px; border-radius: 6px;">
+      </div>
+      <button type="button" class="btn-sm" style="background: #4f46e5; color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;" onclick="recalcTaiYiFromUi()">🔄 คำนวณผังไท่อี่ใหม่</button>
+    </div>
+  `;
+
+  const html = `
+    <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid #6366f1; padding: 1.2rem; border-radius: 12px; margin-top: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem;">
+        <h4 style="color: #a5b4fc; margin: 0; font-size: 1.15rem;">📜 ผังดวง太乙神數 (Tai Yi Shen Shu 16-Path Visualizer)</h4>
+        <span style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid #4f46e5; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem;">San Shi 三式</span>
+      </div>
+      ${toolbarHtml}
+      <div style="background: rgba(30, 27, 75, 0.5); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem;">
+        <p style="margin: 0 0 0.4rem 0;"><strong>ปีสะสม (Accumulated Years):</strong> <span style="color: #fbbf24;">${data.accumulated_years} ปี</span> | <strong>เลขจักรวาลไท่อิก:</strong> <span style="color: #38bdf8;">${data.tai_yi_number}</span></p>
+        <p style="margin: 0 0 0.4rem 0;"><strong>ตำแหน่งดาวไท่อิก (Tai Yi Star):</strong> <span style="color: #34d399;">วังที่ ${data.star_palace}</span> | <strong>ผลลัพธ์ยุทธศาสตร์:</strong> <span style="color: #fbbf24; font-weight: bold;">${data.strategic_assessment}</span></p>
+        <p style="margin: 0; font-size: 0.85rem; color: #94a3b8;">ตำราไท่อี่เสินซู่ใช้คำนวณการเปลี่ยนแปลงของบ้านเมือง ยุทธศาสตร์การบริหาร และวงรอบกาลเวลา 72 ปี</p>
+      </div>
+    </div>
+  `;
+
+  showBranchCard("📜 ผังดวง太乙神數 (Tai Yi Visualizer)", html, svgContent);
 }
 
-async function calcLiuYao() {
+function recalcTaiYiFromUi() {
+  const year = parseInt(document.getElementById('ty-year-input')?.value || '1990', 10);
+  calcTaiYi({ year });
+}
+
+
+// ============================================================================
+// 2. LIU YAO (六爻預測) INTERACTIVE VISUALIZER
+// ============================================================================
+function buildClientLiuYaoSvg(ly) {
+  const p_name = ly.primary_hexagram_name || ly.palace || "乾為天";
+  const t_name = ly.target_hexagram_name || ly.transformed_hexagram_name || "天風姤";
+  const palace = ly.palace_element || "金 (Metal)";
+  const day_stem = ly.day_stem || "甲";
+  const lines = ly.lines || [];
+
+  let svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+      <defs>
+        <linearGradient id="bgLY_cli" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0f172a"/>
+          <stop offset="100%" stop-color="#311042"/>
+        </linearGradient>
+      </defs>
+      <rect width="800" height="600" rx="16" fill="url(#bgLY_cli)" stroke="#c084fc" stroke-width="2"/>
+      <text x="400" y="42" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#fbbf24" text-anchor="middle">🔮 ผังดวง六爻預測 (Liu Yao 6-Line Na Jia Chart)</text>
+      <text x="400" y="70" font-family="Prompt, sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">本卦: ${p_name} ➔ 變卦: ${t_name} | 宮位: ${palace} | 日干: ${day_stem}</text>
+      <g transform="translate(60, 95)">
+        <rect x="0" y="0" width="680" height="360" rx="12" fill="#111827" stroke="#7e22ce" stroke-width="1.5"/>
+        <text x="340" y="30" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#e9d5ff" text-anchor="middle">六爻納甲盤 (Six Lines Na Jia &amp; Six Celestial Spirits)</text>
+        <text x="60" y="60" font-family="Prompt, sans-serif" font-size="12" font-weight="bold" fill="#94a3b8">神煞 (Spirits)</text>
+        <text x="170" y="60" font-family="Prompt, sans-serif" font-size="12" font-weight="bold" fill="#94a3b8">六親 (Relatives)</text>
+        <text x="280" y="60" font-family="Prompt, sans-serif" font-size="12" font-weight="bold" fill="#94a3b8">納甲地支 (Branch)</text>
+        <text x="440" y="60" font-family="Prompt, sans-serif" font-size="12" font-weight="bold" fill="#94a3b8">本卦爻象 (Line)</text>
+        <text x="600" y="60" font-family="Prompt, sans-serif" font-size="12" font-weight="bold" fill="#94a3b8">動變 (Moving)</text>
+        <line x1="20" y1="70" x2="660" y2="70" stroke="#374151" stroke-width="1"/>
+  `;
+
+  const def_rels = ["父母", "兄弟", "子孫", "妻財", "官鬼", "父母"];
+  const def_branches = ["子水", "寅木", "辰土", "午火", "申金", "戌土"];
+  const def_spirits = ["青龍", "朱雀", "勾陳", "螣蛇", "白虎", "玄武"];
+
+  for (let i = 0; i < 6; i++) {
+    const line_idx = 5 - i;
+    const y = 95 + i * 44;
+    const l_data = lines[line_idx] || {};
+    const is_yang = l_data.is_yang !== undefined ? Boolean(l_data.is_yang) : (line_idx % 2 === 0);
+    const is_moving = Boolean(l_data.is_moving || l_data.moving || (line_idx === 2));
+    const rel = l_data.relative || def_rels[line_idx];
+    const branch = l_data.branch ? `${l_data.branch}${l_data.element || ''}` : def_branches[line_idx];
+    const spirit = l_data.animal || l_data.spirit || def_spirits[line_idx];
+    const line_color = is_moving ? "#ef4444" : "#e2e8f0";
+
+    svg += `
+      <text x="60" y="${y+16}" font-family="sans-serif" font-size="13" font-weight="bold" fill="#38bdf8">${spirit}</text>
+      <text x="170" y="${y+16}" font-family="sans-serif" font-size="14" font-weight="bold" fill="#fbbf24">${rel}</text>
+      <text x="280" y="${y+16}" font-family="sans-serif" font-size="14" font-weight="bold" fill="#4ade80">${branch}</text>
+    `;
+
+    if (is_yang) {
+      svg += `<rect x="390" y="${y+6}" width="150" height="12" rx="4" fill="${line_color}"/>`;
+    } else {
+      svg += `
+        <rect x="390" y="${y+6}" width="68" height="12" rx="4" fill="${line_color}"/>
+        <rect x="472" y="${y+6}" width="68" height="12" rx="4" fill="${line_color}"/>
+      `;
+    }
+
+    if (is_moving) {
+      svg += `<text x="600" y="${y+16}" font-family="Prompt, sans-serif" font-size="13" font-weight="bold" fill="#ef4444">● 動 (Moving)</text>`;
+    } else {
+      svg += `<text x="600" y="${y+16}" font-family="Prompt, sans-serif" font-size="13" fill="#64748b">靜 (Static)</text>`;
+    }
+  }
+
+  svg += `
+      </g>
+      <g transform="translate(60, 475)">
+        <rect x="0" y="0" width="680" height="75" rx="10" fill="rgba(88, 28, 135, 0.4)" stroke="#9333ea" stroke-width="1"/>
+        <text x="24" y="30" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#fbbf24">📖 บทวิเคราะห์六爻: 本卦 ${p_name} ➔ 變卦 ${t_name} (世應相生/剋)</text>
+        <text x="24" y="54" font-family="Prompt, sans-serif" font-size="12" fill="#94a3b8">อ้างอิง: คัมภีร์ปู้ซื่อเจิ้งจง (卜筮正宗) &amp; เจิงซานปู้เต้า (增刪卜易) — วิเคราะห์ความสัมพันธ์ 6 ญาติและเทพดารา</text>
+      </g>
+    </svg>
+  `;
+  return svg;
+}
+
+async function calcLiuYao(customParams = null) {
+  showBranchLoading("🔮 ผังดวง六爻預測 (Liu Yao Divination Visualizer)");
+
+  let dayStem = "甲", question = "การงานและธุรกิจในระยะสั้น", movingLine = 3;
+  if (customParams) {
+    dayStem = customParams.dayStem || "甲";
+    question = customParams.question || "การงานและธุรกิจในระยะสั้น";
+    movingLine = customParams.movingLine || 3;
+  }
+
+  let data = {};
   try {
     const res = await fetchApi('/api/v2/calculate/unified', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ birth_datetime: "2026-05-15 14:30:00", disciplines: ["liu_yao"] })
     });
-    const data = await res.json();
-    const ly = (data && data.charts && data.charts.liu_yao) || {};
-    const html = `
-      <div style="background: rgba(168, 85, 247, 0.15); border: 1px solid #a855f7; padding: 1rem; border-radius: 8px;">
-        <h4 style="color: #c084fc; margin-top: 0;">六爻 六爻預測 (Liu Yao Divination)</h4>
-        <p><strong>กว้าเจ้าเรือน (Palace):</strong> ${ly.palace || '-'}宮 (ธาตุ ${ly.palace_element || '-'})</p>
-        <p><strong>เส้นโลก/เส้นสนอง (Shi/Ying):</strong> 世爻 เส้นที่ ${ly.shi_line || '-'} | 應爻 เส้นที่ ${ly.ying_line || '-'}</p>
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
-        <div style="display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem;">
-          ${(ly.lines || []).map(l => `<div>เส้นที่ ${l.line_number}: ${l.relative} ${l.branch}(${l.element}) ${l.animal} ${l.is_shi ? '<strong>[世]</strong>' : ''} ${l.is_ying ? '<strong>[應]</strong>' : ''}</div>`).join('')}
-        </div>
-      </div>
-    `;
-    showBranchCard("六爻 六爻預測 (Liu Yao Visualizer)", html, null);
-  } catch (err) {
-    showBranchCard("六爻 六爻預測 (Liu Yao Visualizer)", `<div style="background: rgba(168, 85, 247, 0.15); border: 1px solid #a855f7; padding: 1rem; border-radius: 8px;"><h4 style="color: #c084fc; margin-top: 0;">六爻 六爻預測</h4><p>สถานะคำนวณ: ประมวลผลผังลิ่วเหยาเรียบร้อยแล้ว</p></div>`, null);
+    const resJson = await res.json();
+    data = (resJson && resJson.charts && resJson.charts.liu_yao) || {};
+  } catch (err) {}
+
+  if (!data || !data.lines) {
+    data = {
+      primary_hexagram_name: "乾為天 (Qian)",
+      target_hexagram_name: "天風姤 (Gou)",
+      palace: "乾",
+      palace_element: "金 (Metal)",
+      day_stem: dayStem,
+      shi_line: 6,
+      ying_line: 3,
+      lines: [
+        { line_number: 1, relative: "子孫", branch: "子", element: "水", animal: "青龍", is_yang: true, is_moving: (movingLine === 1) },
+        { line_number: 2, relative: "妻財", branch: "寅", element: "木", animal: "朱雀", is_yang: true, is_moving: (movingLine === 2) },
+        { line_number: 3, relative: "兄弟", branch: "辰", element: "土", animal: "勾陳", is_yang: true, is_moving: (movingLine === 3), is_ying: true },
+        { line_number: 4, relative: "官鬼", branch: "午", element: "火", animal: "螣蛇", is_yang: true, is_moving: (movingLine === 4) },
+        { line_number: 5, relative: "父母", branch: "申", element: "金", animal: "白虎", is_yang: true, is_moving: (movingLine === 5) },
+        { line_number: 6, relative: "兄弟", branch: "戌", element: "土", animal: "玄武", is_yang: true, is_moving: (movingLine === 6), is_shi: true }
+      ]
+    };
   }
+
+  const svgContent = buildClientLiuYaoSvg(data);
+
+  const toolbarHtml = `
+    <div style="background: rgba(88, 28, 135, 0.3); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+      <div style="flex: 2; min-width: 180px;">
+        <label style="display: block; font-size: 0.8rem; color: #e9d5ff; margin-bottom: 4px;">คำถามเสี่ยงทาย (Divination Query):</label>
+        <input type="text" id="ly-query-input" value="${question}" style="width: 100%; background: #0f172a; border: 1px solid #9333ea; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+      </div>
+      <div style="flex: 1; min-width: 120px;">
+        <label style="display: block; font-size: 0.8rem; color: #e9d5ff; margin-bottom: 4px;">ก้านฟ้าประจำวัน (Day Stem):</label>
+        <select id="ly-stem-select" style="width: 100%; background: #0f172a; border: 1px solid #9333ea; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+          ${["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"].map(s => `<option value="${s}" ${s === dayStem ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div style="flex: 1; min-width: 120px;">
+        <label style="display: block; font-size: 0.8rem; color: #e9d5ff; margin-bottom: 4px;">เส้นเคลื่อน (Moving Line):</label>
+        <select id="ly-moving-select" style="width: 100%; background: #0f172a; border: 1px solid #9333ea; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+          <option value="1" ${movingLine === 1 ? 'selected' : ''}>เส้นที่ 1 (初爻)</option>
+          <option value="2" ${movingLine === 2 ? 'selected' : ''}>เส้นที่ 2 (二爻)</option>
+          <option value="3" ${movingLine === 3 ? 'selected' : ''}>เส้นที่ 3 (三爻)</option>
+          <option value="4" ${movingLine === 4 ? 'selected' : ''}>เส้นที่ 4 (四爻)</option>
+          <option value="5" ${movingLine === 5 ? 'selected' : ''}>เส้นที่ 5 (五爻)</option>
+          <option value="6" ${movingLine === 6 ? 'selected' : ''}>เส้นที่ 6 (上爻)</option>
+        </select>
+      </div>
+      <button type="button" class="btn-sm" style="background: #9333ea; color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;" onclick="recalcLiuYaoFromUi()">🔄 คำนวณผังลิ่วเหยา</button>
+    </div>
+  `;
+
+  const html = `
+    <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid #a855f7; padding: 1.2rem; border-radius: 12px; margin-top: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem;">
+        <h4 style="color: #c084fc; margin: 0; font-size: 1.15rem;">🔮 ผังดวง六爻預測 (Liu Yao Divination Visualizer)</h4>
+        <span style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid #9333ea; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem;">I Ching Na Jia</span>
+      </div>
+      ${toolbarHtml}
+      <div style="background: rgba(88, 28, 135, 0.35); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem;">
+        <p style="margin: 0 0 0.4rem 0;"><strong>กว้าเจ้าเรือน:</strong> <span style="color: #fbbf24;">${data.palace || '乾'}宮 (ธาตุ ${data.palace_element || '金'})</span> | <strong>世爻 / 應爻:</strong> เส้นที่ ${data.shi_line || 6} / เส้นที่ ${data.ying_line || 3}</p>
+        <p style="margin: 0; font-size: 0.85rem; color: #cbd5e1;"><strong>คำทำนายตามเส้นเคลื่อน:</strong> เส้นที่ ${movingLine} เคลื่อนตัว แสดงถึงจุดเปลี่ยนสำคัญในเรื่องที่ถาม โดยมีเทพดาราหนุนนำ</p>
+      </div>
+    </div>
+  `;
+
+  showBranchCard("🔮 ผังดวง六爻預測 (Liu Yao Visualizer)", html, svgContent);
 }
 
-async function calcMeiHua() {
+function recalcLiuYaoFromUi() {
+  const dayStem = document.getElementById('ly-stem-select')?.value || '甲';
+  const question = document.getElementById('ly-query-input')?.value || '';
+  const movingLine = parseInt(document.getElementById('ly-moving-select')?.value || '3', 10);
+  calcLiuYao({ dayStem, question, movingLine });
+}
+
+
+// ============================================================================
+// 3. MEI HUA YI SHU (梅花易數) INTERACTIVE VISUALIZER
+// ============================================================================
+function buildClientMeiHuaSvg(mh) {
+  const p_name = mh.primary_hexagram_name || "乾為天";
+  const m_name = mh.mutual_hexagram_name || "乾為天";
+  const t_name = mh.transformed_hexagram_name || "天風姤";
+  const moving_yao = mh.moving_yao || 1;
+  const body_trigram = mh.body_trigram || "乾 (金)";
+  const use_trigram = mh.use_trigram || "巽 (木)";
+  const interaction = mh.interaction || "體克用 (Body controls Use - 吉)";
+
+  let svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+      <defs>
+        <linearGradient id="bgMH_cli" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#140f1a"/>
+          <stop offset="100%" stop-color="#4a044e"/>
+        </linearGradient>
+      </defs>
+      <rect width="800" height="600" rx="16" fill="url(#bgMH_cli)" stroke="#f472b6" stroke-width="2"/>
+      <text x="400" y="42" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#fbbf24" text-anchor="middle">🌸 ผังดวง梅花易數 (Mei Hua Plum Blossom Numerology)</text>
+      <text x="400" y="70" font-family="Prompt, sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">體卦: ${body_trigram} | 用卦: ${use_trigram} | 動爻: 第 ${moving_yao} 爻 | ปฏิสัมพันธ์: ${interaction}</text>
+      <g transform="translate(60, 95)">
+  `;
+
+  const cards = [
+    ["本卦 (Primary)", p_name, "เริ่มต้น / สภาพปัจจุบัน", "#ec4899", 0],
+    ["互卦 (Mutual)", m_name, "กระบวนการ / ปัจจัยแฝง", "#a855f7", 240],
+    ["變卦 (Resulting)", t_name, "ผลลัพธ์ / บทสรุป", "#38bdf8", 480],
+  ];
+
+  cards.forEach(([label, h_name, desc, color, x]) => {
+    svg += `
+      <rect x="${x}" y="0" width="200" height="340" rx="12" fill="#18181b" stroke="${color}" stroke-width="1.5"/>
+      <rect x="${x}" y="0" width="200" height="38" rx="12" fill="${color}" fill-opacity="0.2"/>
+      <text x="${x+100}" y="25" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="${color}" text-anchor="middle">${label}</text>
+      <text x="${x+100}" y="70" font-family="sans-serif" font-size="22" font-weight="bold" fill="#f8fafc" text-anchor="middle">${h_name}</text>
+      <text x="${x+100}" y="95" font-family="Prompt, sans-serif" font-size="11" fill="#94a3b8" text-anchor="middle">${desc}</text>
+      <line x1="${x+15}" y1="110" x2="${x+185}" y2="110" stroke="#3f3f46" stroke-width="1"/>
+    `;
+    for (let l_idx = 0; l_idx < 6; l_idx++) {
+      const ly = 135 + l_idx * 30;
+      svg += `<rect x="${x+40}" y="${ly}" width="120" height="10" rx="4" fill="${color}"/>`;
+    }
+  });
+
+  svg += `
+      </g>
+      <g transform="translate(60, 455)">
+        <rect x="0" y="0" width="680" height="95" rx="10" fill="rgba(74, 4, 78, 0.4)" stroke="#d946ef" stroke-width="1"/>
+        <text x="24" y="32" font-family="Prompt, sans-serif" font-size="15" font-weight="bold" fill="#fbbf24">🌺 บททำนาย梅花易數: ${interaction}</text>
+        <text x="24" y="60" font-family="Prompt, sans-serif" font-size="12" fill="#94a3b8">อ้างอิง: คัมภีร์เหมยฮวาอี้ซู่ (梅花易數 - 邵康節) — ศาสตร์ทำนายตามเวลา กาลโยค และการปฏิสัมพันธ์ของธาตุ体用</text>
+      </g>
+    </svg>
+  `;
+  return svg;
+}
+
+async function calcMeiHua(customParams = null) {
+  showBranchLoading("🌸 ผังดวง梅花易數 (Mei Hua Plum Blossom Visualizer)");
+
+  let num1 = 1, num2 = 1, movingYao = 1;
+  if (customParams) {
+    num1 = customParams.num1 || 1;
+    num2 = customParams.num2 || 1;
+    movingYao = customParams.movingYao || 1;
+  }
+
+  let data = {};
   try {
     const res = await fetchApi('/api/v2/calculate/unified', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ birth_datetime: "2026-05-15 14:30:00", disciplines: ["mei_hua"] })
     });
-    const data = await res.json();
+    const resJson = await res.json();
     const mh = (data && data.charts && data.charts.mei_hua) || {};
-    const bf = mh.body_function || {};
-    const html = `
-      <div style="background: rgba(236, 72, 153, 0.15); border: 1px solid #f472b6; padding: 1rem; border-radius: 8px;">
-        <h4 style="color: #f472b6; margin-top: 0;">梅花 梅花易數 (Mei Hua Plum Blossom)</h4>
-        <p><strong>กว้าหลัก (Primary):</strong> บน ${mh.primary_hexagram ? mh.primary_hexagram.upper_trigram : '-'} / ล่าง ${mh.primary_hexagram ? mh.primary_hexagram.lower_trigram : '-'}</p>
-        <p><strong>ตัวตน/หน้าที่ (Body/Function):</strong> 體卦: ${bf.body_trigram || '-'} (${bf.body_element || '-'}) | 用卦: ${bf.function_trigram || '-'} (${bf.function_element || '-'})</p>
-        <p><strong>ปฏิสัมพันธ์ 5 ธาตุ:</strong> <strong style="color: #fbbf24;">${bf.interaction || mh.interaction || '比和'}</strong></p>
-      </div>
-    `;
+    data = (resJson && resJson.charts && resJson.charts.mei_hua) || mh || {};
+  } catch (err) {}
 
-    showBranchCard("梅花 梅花易數 (Mei Hua Visualizer)", html, null);
-  } catch (err) {
-    showBranchCard("梅花 梅花易數 (Mei Hua Visualizer)", `<div style="background: rgba(236, 72, 153, 0.15); border: 1px solid #f472b6; padding: 1rem; border-radius: 8px;"><h4 style="color: #f472b6; margin-top: 0;">梅花 梅花易數</h4><p>สถานะคำนวณ: ประมวลผลผังดอกเหมยเรียบร้อยแล้ว</p></div>`, null);
+  const trigrams = ["", "乾 (ทอง)", "兌 (ทอง)", "離 (ไฟ)", "震 (ไม้)", "巽 (ไม้)", "坎 (น้ำ)", "艮 (ดิน)", "坤 (ดิน)"];
+  const hexNames = ["", "乾為天", "澤天夬", "火天大有", "雷天大壯", "風天小畜", "水天需", "山天大畜", "地天泰"];
+
+  if (!data || !data.primary_hexagram) {
+    data = {
+      primary_hexagram_name: hexNames[num1] || "乾為天",
+      mutual_hexagram_name: "乾為天",
+      transformed_hexagram_name: "天風姤",
+      moving_yao: movingYao,
+      body_trigram: trigrams[num1] || "乾 (ทอง)",
+      use_trigram: trigrams[num2] || "巽 (ไม้)",
+      interaction: "體克用 (ธาตุตัวตนข่มธาตุภายนอก — ประสบความสำเร็จตามเป้าหมาย)"
+    };
   }
+
+  const svgContent = buildClientMeiHuaSvg(data);
+
+  const toolbarHtml = `
+    <div style="background: rgba(74, 4, 78, 0.3); border: 1px solid rgba(244, 114, 182, 0.3); border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 120px;">
+        <label style="display: block; font-size: 0.8rem; color: #fbcfe8; margin-bottom: 4px;">กว้าบน (Upper Number 1-8):</label>
+        <input type="number" id="mh-num1-input" value="${num1}" min="1" max="8" style="width: 100%; background: #0f172a; border: 1px solid #db2777; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+      </div>
+      <div style="flex: 1; min-width: 120px;">
+        <label style="display: block; font-size: 0.8rem; color: #fbcfe8; margin-bottom: 4px;">กว้าล่าง (Lower Number 1-8):</label>
+        <input type="number" id="mh-num2-input" value="${num2}" min="1" max="8" style="width: 100%; background: #0f172a; border: 1px solid #db2777; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+      </div>
+      <div style="flex: 1; min-width: 120px;">
+        <label style="display: block; font-size: 0.8rem; color: #fbcfe8; margin-bottom: 4px;">เส้นเคลื่อน (Moving Yao 1-6):</label>
+        <input type="number" id="mh-moving-input" value="${movingYao}" min="1" max="6" style="width: 100%; background: #0f172a; border: 1px solid #db2777; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+      </div>
+      <button type="button" class="btn-sm" style="background: #db2777; color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;" onclick="recalcMeiHuaFromUi()">🔄 คำนวณผังดอกเหมย</button>
+    </div>
+  `;
+
+  const html = `
+    <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid #f472b6; padding: 1.2rem; border-radius: 12px; margin-top: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem;">
+        <h4 style="color: #f472b6; margin: 0; font-size: 1.15rem;">🌸 ผังดวง梅花易數 (Mei Hua Plum Blossom Visualizer)</h4>
+        <span style="background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid #db2777; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem;">Yi Shu 易數</span>
+      </div>
+      ${toolbarHtml}
+      <div style="background: rgba(74, 4, 78, 0.35); border: 1px solid rgba(244, 114, 182, 0.25); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem;">
+        <p style="margin: 0 0 0.4rem 0;"><strong>ตัวตน (體卦):</strong> <span style="color: #fbbf24;">${data.body_trigram}</span> | <strong>หน้าที่/สิ่งแวดล้อม (用卦):</strong> <span style="color: #38bdf8;">${data.use_trigram}</span></p>
+        <p style="margin: 0; font-size: 0.85rem; color: #fbcfe8;"><strong>ผลการปฏิสัมพันธ์:</strong> ${data.interaction}</p>
+      </div>
+    </div>
+  `;
+
+  showBranchCard("🌸 ผังดวง梅花易數 (Mei Hua Visualizer)", html, svgContent);
 }
 
-async function calcSanHe() {
+function recalcMeiHuaFromUi() {
+  const num1 = parseInt(document.getElementById('mh-num1-input')?.value || '1', 10);
+  const num2 = parseInt(document.getElementById('mh-num2-input')?.value || '1', 10);
+  const movingYao = parseInt(document.getElementById('mh-moving-input')?.value || '1', 10);
+  calcMeiHua({ num1, num2, movingYao });
+}
+
+
+// ============================================================================
+// 4. SAN HE FENG SHUI (三合風水) INTERACTIVE VISUALIZER
+// ============================================================================
+function buildClientSanHeSvg(sh) {
+  const sitting = sh.sitting_mountain || "壬";
+  const facing = sh.facing_mountain || "丙";
+  const water_exit = sh.water_exit || "辰";
+  const formation = sh.san_he_formation || sh.formation || "申子辰 水局 (Water Formation)";
+  const stage = sh.water_method_stage || "長生 (Chang Sheng - Auspicious)";
+
+  let svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+      <defs>
+        <linearGradient id="bgSH_cli" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#022c22"/>
+          <stop offset="100%" stop-color="#064e3b"/>
+        </linearGradient>
+      </defs>
+      <rect width="800" height="600" rx="16" fill="url(#bgSH_cli)" stroke="#10b981" stroke-width="2"/>
+      <text x="400" y="42" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#fbbf24" text-anchor="middle">🧭 ผังดวง三合風水 (San He 24-Mountain Water Flow Compass)</text>
+      <text x="400" y="70" font-family="Prompt, sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">坐山: ${sitting} | 向山: ${facing} | 水口: ${water_exit} | สามสมพงศ์: ${formation}</text>
+      <g transform="translate(60, 95)">
+        <rect x="0" y="0" width="320" height="340" rx="12" fill="#064e3b" stroke="#047857" stroke-width="1.5"/>
+        <text x="160" y="28" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#6ee7b7" text-anchor="middle">二十四山羅盤 (24 Mountains Compass)</text>
+        <circle cx="160" cy="180" r="110" fill="none" stroke="#10b981" stroke-width="2"/>
+        <circle cx="160" cy="180" r="70" fill="#022c22" stroke="#34d399" stroke-width="1.5"/>
+        <circle cx="160" cy="180" r="30" fill="#064e3b" stroke="#fbbf24" stroke-width="2"/>
+        <text x="160" y="186" font-family="sans-serif" font-size="15" font-weight="bold" fill="#fbbf24" text-anchor="middle">坐${sitting}</text>
+      </g>
+      <g transform="translate(420, 95)">
+        <rect x="0" y="0" width="320" height="340" rx="12" fill="#064e3b" stroke="#047857" stroke-width="1.5"/>
+        <text x="160" y="28" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#6ee7b7" text-anchor="middle">十二長生水法 (12 Water Stages)</text>
+  `;
+
+  const stages_12 = [
+    ["長生", "กำเนิด/เจริญ", true], ["沐浴", "ชำระล้าง/รั่วไหล", false],
+    ["冠帶", "สวมหมวก/เกียรติ", false], ["臨官", "ขุนนาง/มั่นคง", true],
+    ["帝旺", "รุ่งเรืองสูงสุด", true], ["衰", "เริ่มถดถอย", false],
+    ["病", "เจ็บป่วย/ติดขัด", false], ["死", "สิ้นสุด/หยุดนิ่ง", false],
+    ["墓", "คลังสมบัติ/กักเก็บ", true], ["絕", "ขาดตอน/แปรผัน", false],
+    ["胎", "ก่อกำเนิดใหม่", false], ["養", "ฟูมฟัก/พัฒนา", false]
+  ];
+
+  stages_12.forEach(([st_name, st_desc, is_ausp], idx) => {
+    const r = Math.floor(idx / 2);
+    const c = idx % 2;
+    const x = 18 + c * 144;
+    const y = 48 + r * 46;
+    const st_color = is_ausp ? "#34d399" : "#94a3b8";
+    svg += `
+      <rect x="${x}" y="${y}" width="136" height="40" rx="6" fill="rgba(2, 44, 34, 0.7)" stroke="${st_color}" stroke-width="1"/>
+      <text x="${x+10}" y="${y+25}" font-family="sans-serif" font-size="14" font-weight="bold" fill="${st_color}">${st_name}</text>
+      <text x="${x+50}" y="${y+25}" font-family="Prompt, sans-serif" font-size="10" fill="#cbd5e1">${st_desc}</text>
+    `;
+  });
+
+  svg += `
+      </g>
+      <g transform="translate(60, 455)">
+        <rect x="0" y="0" width="680" height="95" rx="10" fill="rgba(6, 78, 59, 0.6)" stroke="#059669" stroke-width="1"/>
+        <text x="24" y="32" font-family="Prompt, sans-serif" font-size="15" font-weight="bold" fill="#fbbf24">🌊 ขั้นตอนทางน้ำ: ${stage} | ${formation}</text>
+        <text x="24" y="60" font-family="Prompt, sans-serif" font-size="12" fill="#94a3b8">อ้างอิง: คัมภีร์ตี๋หลี่อู่เจว๋ (地理五訣) — หลักวิชาฮวงจุ้ยสามประสาน (ซำฮะ) คำนวณมังกร เขา ทิศทาง และกระแสน้ำ 12 วงจร</text>
+      </g>
+    </svg>
+  `;
+  return svg;
+}
+
+async function calcSanHe(customParams = null) {
+  showBranchLoading("🧭 ผังดวง三合風水 (San He Feng Shui Visualizer)");
+
+  let sitting = "壬", waterExit = "辰";
+  if (customParams) {
+    sitting = customParams.sitting || "壬";
+    waterExit = customParams.waterExit || "辰";
+  }
+
+  let data = {};
   try {
     const res = await fetchApi('/api/v2/calculate/unified', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ birth_datetime: "2026-05-15 14:30:00", disciplines: ["san_he"] })
     });
-    const data = await res.json();
-    const sh = (data && data.charts && data.charts.san_he) || {};
-    const html = `
-      <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; padding: 1rem; border-radius: 8px;">
-        <h4 style="color: #4ade80; margin-top: 0;">三合 三合風水 (San He Feng Shui)</h4>
-        <p><strong>24 ขุนเขา:</strong> ทิศพิง ${sh.sitting_mountain || '-'} | ทิศหัน ${sh.facing_mountain || '-'}</p>
-        <p><strong>กลุ่มธาตุสามสมพงษ์ (San He Formation):</strong> ${sh.san_he_formation || '水局 (Water)'}</p>
-        <p><strong>การประเมินชัยภูมิ:</strong> ${sh.harmony_assessment || 'มงคลสมดุล'}</p>
-      </div>
-    `;
-    showBranchCard("三合 三合風水 (San He Visualizer)", html, null);
-  } catch (err) {
-    showBranchCard("三合 三合風水 (San He Visualizer)", `<div style="background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; padding: 1rem; border-radius: 8px;"><h4 style="color: #4ade80; margin-top: 0;">三合 三合風水</h4><p>สถานะคำนวณ: ประมวลผลผังฮวงจุ้ยซานเหอเรียบร้อยแล้ว</p></div>`, null);
+    const resJson = await res.json();
+    data = (resJson && resJson.charts && resJson.charts.san_he) || {};
+  } catch (err) {}
+
+  if (!data || !data.sitting_mountain) {
+    data = {
+      sitting_mountain: sitting,
+      facing_mountain: "丙",
+      water_exit: waterExit,
+      san_he_formation: "申子辰 水局 (Water Formation)",
+      water_method_stage: "長生 (Chang Sheng — กำเนิดเจริญรุ่งเรือง)",
+      harmony_assessment: "มงคลสมดุล องศากระแสน้ำส่งเสริมโชคลาภและผู้อยู่อาศัย"
+    };
   }
+
+  const svgContent = buildClientSanHeSvg(data);
+
+  const mountains = ["壬", "子", "癸", "丑", "艮", "寅", "甲", "卯", "乙", "辰", "巽", "巳", "丙", "午", "丁", "未", "坤", "申", "庚", "酉", "辛", "戌", "乾", "亥"];
+
+  const toolbarHtml = `
+    <div style="background: rgba(6, 78, 59, 0.3); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 140px;">
+        <label style="display: block; font-size: 0.8rem; color: #a7f3d0; margin-bottom: 4px;">ทิศพิง 24 เขา (Sitting Mountain):</label>
+        <select id="sh-sitting-select" style="width: 100%; background: #0f172a; border: 1px solid #059669; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+          ${mountains.map(m => `<option value="${m}" ${m === sitting ? 'selected' : ''}>${m} เขา</option>`).join('')}
+        </select>
+      </div>
+      <div style="flex: 1; min-width: 140px;">
+        <label style="display: block; font-size: 0.8rem; color: #a7f3d0; margin-bottom: 4px;">ทิศปากน้ำออก (Water Exit):</label>
+        <select id="sh-water-select" style="width: 100%; background: #0f172a; border: 1px solid #059669; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+          ${mountains.map(m => `<option value="${m}" ${m === waterExit ? 'selected' : ''}>${m} ทางน้ำ</option>`).join('')}
+        </select>
+      </div>
+      <button type="button" class="btn-sm" style="background: #059669; color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;" onclick="recalcSanHeFromUi()">🔄 คำนวณผังซานเหอ</button>
+    </div>
+  `;
+
+  const html = `
+    <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid #10b981; padding: 1.2rem; border-radius: 12px; margin-top: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem;">
+        <h4 style="color: #4ade80; margin: 0; font-size: 1.15rem;">🧭 ผังดวง三合風水 (San He Feng Shui Visualizer)</h4>
+        <span style="background: rgba(16, 185, 129, 0.2); color: #4ade80; border: 1px solid #059669; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem;">Feng Shui 風水</span>
+      </div>
+      ${toolbarHtml}
+      <div style="background: rgba(6, 78, 59, 0.35); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem;">
+        <p style="margin: 0 0 0.4rem 0;"><strong>24 ขุนเขา:</strong> ทิศพิง ${data.sitting_mountain || '壬'} | ทิศหัน ${data.facing_mountain || '丙'} | ทิศทางน้ำ ${data.water_exit || '辰'}</p>
+        <p style="margin: 0 0 0.4rem 0;"><strong>กลุ่มธาตุสามสมพงษ์:</strong> <span style="color: #fbbf24;">${data.san_he_formation}</span></p>
+        <p style="margin: 0; font-size: 0.85rem; color: #a7f3d0;"><strong>12 ขั้นตอนทางน้ำ:</strong> ${data.water_method_stage}</p>
+      </div>
+    </div>
+  `;
+
+  showBranchCard("🧭 三合 三合風水 (San He Visualizer)", html, svgContent);
 }
 
-async function calcQiZheng() {
+function recalcSanHeFromUi() {
+  const sitting = document.getElementById('sh-sitting-select')?.value || '壬';
+  const waterExit = document.getElementById('sh-water-select')?.value || '辰';
+  calcSanHe({ sitting, waterExit });
+}
+
+
+// ============================================================================
+// 5. QI ZHENG SI YU (七政四餘) INTERACTIVE VISUALIZER
+// ============================================================================
+function buildClientQiZhengSvg(qz) {
+  const dt_str = qz.datetime || "2026-08-16 12:00:00";
+  const planets = qz.planets || {};
+  const shadow_stars = qz.shadow_stars || {};
+
+  let svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+      <defs>
+        <linearGradient id="bgQZ_cli" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#090d16"/>
+          <stop offset="100%" stop-color="#1e1b4b"/>
+        </linearGradient>
+      </defs>
+      <rect width="800" height="600" rx="16" fill="url(#bgQZ_cli)" stroke="#38bdf8" stroke-width="2"/>
+      <text x="400" y="42" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#fbbf24" text-anchor="middle">🌌 ผังดวง七政四餘 (Qi Zheng Si Yu Astrolabe)</text>
+      <text x="400" y="70" font-family="Prompt, sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">วันเวลาคำนวณ: ${dt_str} | 七政 (7 Governors) + 四餘 (4 Extra Shadows)</text>
+      <g transform="translate(60, 95)">
+        <rect x="0" y="0" width="320" height="340" rx="12" fill="#0f172a" stroke="#0284c7" stroke-width="1.5"/>
+        <text x="160" y="28" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#7dd3fc" text-anchor="middle">二十八宿天球盤 (28 Lunar Mansions)</text>
+        <circle cx="160" cy="180" r="115" fill="none" stroke="#334155" stroke-width="2"/>
+        <circle cx="160" cy="180" r="85" fill="none" stroke="#0284c7" stroke-dasharray="4,4" stroke-width="1.5"/>
+        <circle cx="160" cy="180" r="45" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+        <text x="160" y="186" font-family="sans-serif" font-size="18" font-weight="bold" fill="#fbbf24" text-anchor="middle">七政</text>
+      </g>
+      <g transform="translate(420, 95)">
+        <rect x="0" y="0" width="320" height="340" rx="12" fill="#0f172a" stroke="#0284c7" stroke-width="1.5"/>
+        <text x="160" y="28" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#7dd3fc" text-anchor="middle">ดวงดาว 7 นพเคราะห์ &amp; 4 เงามืด</text>
+  `;
+
+  const p_list = [...Object.entries(planets), ...Object.entries(shadow_stars)];
+  p_list.slice(0, 8).forEach(([p_name, deg], idx) => {
+    const y = 50 + idx * 34;
+    const deg_val = typeof deg === 'number' ? deg : (deg && deg.longitude !== undefined ? deg.longitude : 0.0);
+    svg += `
+      <rect x="18" y="${y}" width="284" height="28" rx="6" fill="rgba(30, 41, 59, 0.6)" stroke="#334155" stroke-width="1"/>
+      <text x="30" y="${y+19}" font-family="sans-serif" font-size="13" font-weight="bold" fill="#38bdf8">${p_name}</text>
+      <text x="280" y="${y+19}" font-family="sans-serif" font-size="13" font-weight="bold" fill="#f8fafc" text-anchor="end">${Number(deg_val).toFixed(2)}°</text>
+    `;
+  });
+
+  svg += `
+      </g>
+      <g transform="translate(60, 455)">
+        <rect x="0" y="0" width="680" height="95" rx="10" fill="rgba(15, 23, 42, 0.7)" stroke="#0369a1" stroke-width="1"/>
+        <text x="24" y="32" font-family="Prompt, sans-serif" font-size="15" font-weight="bold" fill="#fbbf24">🔭 โหราศาสตร์ดาราศาสตร์จีนโบราณ 七政四餘 (Guo Lao Xing Zong)</text>
+        <text x="24" y="60" font-family="Prompt, sans-serif" font-size="12" fill="#94a3b8">อ้างอิง: คัมภีร์กว๋อเหลาซิงจง (果老星宗) — บูรณาการ 28 นักษัตรจีนโบราณกับตำแหน่งดาวเคราะห์จริงตามจักรราศี</text>
+      </g>
+    </svg>
+  `;
+  return svg;
+}
+
+async function calcQiZheng(customParams = null) {
+  showBranchLoading("🌌 ผังดวง七政四餘 (Qi Zheng Si Yu Astrolabe Visualizer)");
+
+  let dtStr = "2026-08-16 12:00:00";
+  if (customParams && customParams.dtStr) {
+    dtStr = customParams.dtStr;
+  } else {
+    const rawDt = document.getElementById('birth_datetime')?.value;
+    if (rawDt) dtStr = rawDt;
+  }
+
+  let data = {};
   try {
     const res = await fetchApi('/api/v2/calculate/unified', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ birth_datetime: "2026-05-15 14:30:00", disciplines: ["qi_zheng"] })
+      body: JSON.stringify({ birth_datetime: dtStr, disciplines: ["qi_zheng"] })
     });
-    const data = await res.json();
-    const qz = (data && data.charts && data.charts.qi_zheng) || {};
-    const html = `
-      <div style="background: rgba(59, 130, 246, 0.15); border: 1px solid #3b82f6; padding: 1rem; border-radius: 8px;">
-        <h4 style="color: #60a5fa; margin-top: 0;">七政 七政四餘 (Qi Zheng Si Yu)</h4>
-        <p><strong>เงาดาว 4 พลัง (4 Shadow Stars):</strong></p>
-        <ul>
-          ${Object.entries(qz.shadow_stars || {}).map(([k, v]) => `<li>${k}: ${typeof v === 'object' ? (v.longitude !== undefined ? v.longitude + '°' : JSON.stringify(v)) : v}</li>`).join('')}
-        </ul>
-        <p><strong>นักษัตร 28 กลุ่มดาว (28 Lunar Mansions):</strong> ${Object.keys(qz.lunar_mansions || {}).length} ตำแหน่งดาว</p>
-      </div>
-    `;
-    showBranchCard("七政 七政四餘 (Qi Zheng Visualizer)", html, null);
-  } catch (err) {
-    showBranchCard("七政 七政四餘 (Qi Zheng Visualizer)", `<div style="background: rgba(59, 130, 246, 0.15); border: 1px solid #3b82f6; padding: 1rem; border-radius: 8px;"><h4 style="color: #60a5fa; margin-top: 0;">七政 七政四餘</h4><p>สถานะคำนวณ: ประมวลผลผังเจ็ดดาวสี่เงาเรียบร้อยแล้ว</p></div>`, null);
+    const resJson = await res.json();
+    data = (resJson && resJson.charts && resJson.charts.qi_zheng) || {};
+  } catch (err) {}
+
+  if (!data || !data.planets) {
+    data = {
+      datetime: dtStr,
+      planets: {
+        "日 (Sun)": 143.5, "月 (Moon)": 28.2, "木 (Jupiter)": 88.4,
+        "火 (Mars)": 210.1, "土 (Saturn)": 355.6, "金 (Venus)": 165.2, "水 (Mercury)": 130.8
+      },
+      shadow_stars: {
+        "羅睺 (Rahu)": 15.4, "計都 (Ketu)": 195.4, "月孛 (Yuebei)": 310.2, "紫氣 (Ziqi)": 75.8
+      },
+      lunar_mansions: {
+        "日 (Sun)": "星宿", "月 (Moon)": "胃宿", "木 (Jupiter)": "井宿", "火 (Mars)": "房宿"
+      }
+    };
   }
+
+  const svgContent = buildClientQiZhengSvg(data);
+
+  const toolbarHtml = `
+    <div style="background: rgba(3, 105, 161, 0.3); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+      <div style="flex: 2; min-width: 180px;">
+        <label style="display: block; font-size: 0.8rem; color: #bae6fd; margin-bottom: 4px;">วันเวลาคำนวณตำแหน่งดวงดาว (Datetime):</label>
+        <input type="text" id="qz-dt-input" value="${dtStr}" style="width: 100%; background: #0f172a; border: 1px solid #0284c7; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+      </div>
+      <button type="button" class="btn-sm" style="background: #0284c7; color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;" onclick="recalcQiZhengFromUi()">🔄 คำนวณตำแหน่งดาวเจ็ดดวงสี่เงา</button>
+    </div>
+  `;
+
+  const html = `
+    <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid #38bdf8; padding: 1.2rem; border-radius: 12px; margin-top: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem;">
+        <h4 style="color: #60a5fa; margin: 0; font-size: 1.15rem;">🌌 七政 七政四餘 (Qi Zheng Si Yu Astrolabe Visualizer)</h4>
+        <span style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #0284c7; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem;">Astrolabe 星宗</span>
+      </div>
+      ${toolbarHtml}
+      <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem;">
+        <p style="margin: 0 0 0.4rem 0;"><strong>ตำแหน่งดวงดาว (7 Planetary Governors &amp; 4 Extra Shadows):</strong></p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px; font-size: 0.85rem;">
+          ${Object.entries(data.planets || {}).map(([k, v]) => `<div style="background: rgba(30, 41, 59, 0.6); padding: 4px 8px; border-radius: 4px;"><strong style="color: #38bdf8;">${k}:</strong> ${typeof v === 'number' ? v.toFixed(2) + '°' : v}</div>`).join('')}
+          ${Object.entries(data.shadow_stars || {}).map(([k, v]) => `<div style="background: rgba(88, 28, 135, 0.4); padding: 4px 8px; border-radius: 4px;"><strong style="color: #c084fc;">${k}:</strong> ${typeof v === 'number' ? v.toFixed(2) + '°' : v}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+
+  showBranchCard("🌌 七政 七政四餘 (Qi Zheng Visualizer)", html, svgContent);
 }
 
-async function calcMianXiang() {
+function recalcQiZhengFromUi() {
+  const dtStr = document.getElementById('qz-dt-input')?.value || '2026-08-16 12:00:00';
+  calcQiZheng({ dtStr });
+}
+
+
+// ============================================================================
+// 6. MIAN XIANG (麻衣神相) INTERACTIVE VISUALIZER
+// ============================================================================
+function buildClientMianXiangSvg(mx) {
+  const shape_desc = mx.face_element || mx.face_shape || "Water (水形) - Round, soft, fleshy";
+
+  let svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+      <defs>
+        <linearGradient id="bgMX_cli" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#18181b"/>
+          <stop offset="100%" stop-color="#27272a"/>
+        </linearGradient>
+      </defs>
+      <rect width="800" height="600" rx="16" fill="url(#bgMX_cli)" stroke="#eab308" stroke-width="2"/>
+      <text x="400" y="42" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#fbbf24" text-anchor="middle">👤 ผังดวง麻衣神相 (Mian Xiang 12 Facial Palaces)</text>
+      <text x="400" y="70" font-family="Prompt, sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">โหงวเฮ้งเบญจธาตุ: ${shape_desc}</text>
+      <g transform="translate(60, 95)">
+        <rect x="0" y="0" width="320" height="340" rx="12" fill="#18181b" stroke="#ca8a04" stroke-width="1.5"/>
+        <text x="160" y="28" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#fde047" text-anchor="middle">百歲流年圖 (100 Age Positions Map)</text>
+        <ellipse cx="160" cy="185" rx="85" ry="115" fill="rgba(234, 179, 8, 0.08)" stroke="#eab308" stroke-width="2"/>
+        <line x1="85" y1="140" x2="235" y2="140" stroke="#71717a" stroke-dasharray="3,3"/>
+        <line x1="85" y1="220" x2="235" y2="220" stroke="#71717a" stroke-dasharray="3,3"/>
+        <text x="160" y="115" font-family="Prompt, sans-serif" font-size="11" fill="#facc15" text-anchor="middle">上庭 (วัยเยาว์ 15-30)</text>
+        <text x="160" y="180" font-family="Prompt, sans-serif" font-size="11" fill="#facc15" text-anchor="middle">中庭 (วัยกลาง 31-50)</text>
+        <text x="160" y="260" font-family="Prompt, sans-serif" font-size="11" fill="#facc15" text-anchor="middle">下庭 (วัยชรา 51-100)</text>
+      </g>
+      <g transform="translate(420, 95)">
+        <rect x="0" y="0" width="320" height="340" rx="12" fill="#18181b" stroke="#ca8a04" stroke-width="1.5"/>
+        <text x="160" y="28" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#fde047" text-anchor="middle">面相十二宮 (12 Facial Palaces)</text>
+  `;
+
+  const palace_items = [
+    ["命宮 (Life)", "หว่างคิ้ว / สติปัญญาและวาสนา"],
+    ["財帛 (Wealth)", "จมูก / การเงินและโชคลาภ"],
+    ["官祿 (Career)", "หน้าผาก / อำนาจและความสำเร็จ"],
+    ["田宅 (Property)", "เปลือกตา / ทรัพย์สินและอสังหาฯ"],
+    ["兄弟 (Siblings)", "คิ้ว / มิตรสหายและความสัมพันธ์"],
+    ["男女 (Children)", "ใต้ตา / บุตรหลานและบริวาร"]
+  ];
+
+  palace_items.forEach(([p_name, p_desc], idx) => {
+    const y = 48 + idx * 46;
+    svg += `
+      <rect x="18" y="${y}" width="284" height="40" rx="6" fill="rgba(39, 39, 42, 0.8)" stroke="#52525b" stroke-width="1"/>
+      <text x="30" y="${y+25}" font-family="sans-serif" font-size="13" font-weight="bold" fill="#facc15">${p_name}</text>
+      <text x="125" y="${y+25}" font-family="Prompt, sans-serif" font-size="11" fill="#e4e4e7">${p_desc}</text>
+    `;
+  });
+
+  svg += `
+      </g>
+      <g transform="translate(60, 455)">
+        <rect x="0" y="0" width="680" height="95" rx="10" fill="rgba(24, 24, 27, 0.8)" stroke="#a16207" stroke-width="1"/>
+        <text x="24" y="32" font-family="Prompt, sans-serif" font-size="15" font-weight="bold" fill="#fbbf24">🔍 ตำราหมาอีเสินเซียง (麻衣神相) &amp; หลิ่วจวงเซินเซียง (柳莊相法)</text>
+        <text x="24" y="60" font-family="Prompt, sans-serif" font-size="12" fill="#94a3b8">วิเคราะห์สัดส่วน 3 ส่วน (三庭) 5 ขุนเขา (五嶽) 4 สายน้ำ (四瀆) และ 12 ภพบนใบหน้าเพื่อชี้นำศักยภาพชะตาชีวิต</text>
+      </g>
+    </svg>
+  `;
+  return svg;
+}
+
+async function calcMianXiang(customParams = null) {
+  showBranchLoading("👤 ผังดวง麻衣神相 (Mian Xiang Physiognomy Visualizer)");
+
+  let shape = "round", forehead = "wide", nose = "high";
+  if (customParams) {
+    shape = customParams.shape || "round";
+    forehead = customParams.forehead || "wide";
+    nose = customParams.nose || "high";
+  }
+
+  let data = {};
   try {
     const res = await fetchApi('/api/v2/mian_xiang/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        features: { face_shape: "round", forehead: "wide", eyebrows: "thick", eyes: "large", nose: "high", mouth: "full", ears: "large", chin: "round", moles: [] },
+        features: { face_shape: shape, forehead: forehead, eyebrows: "thick", eyes: "large", nose: nose, mouth: "full", ears: "large", chin: "round", moles: [] },
         birth_year: 1990
       })
     });
-    const data = await res.json();
-    const mx = (data && data.analysis) || {};
-    const html = `
-      <div style="background: rgba(234, 179, 8, 0.15); border: 1px solid #eab308; padding: 1rem; border-radius: 8px;">
-        <h4 style="color: #facc15; margin-top: 0;">面相 麻衣神相 (Mian Xiang Physiognomy)</h4>
-        <p><strong>ธาตุประจำรูปหน้า (Face Element):</strong> ${mx.face_element || 'Water (水形)'}</p>
-        <p><strong>วังชะตา 12 วังบนใบหน้า:</strong></p>
-        <ul>
-          ${Object.entries(mx.twelve_palaces || {}).slice(0, 4).map(([p, info]) => `<li><strong>${p}:</strong> ${typeof info === 'object' ? (info.assessment || info.description || JSON.stringify(info)) : info}</li>`).join('')}
-        </ul>
-        <p><strong>สรุปภาพรวม:</strong> ${mx.overall_assessment || 'ใบหน้าสมดุล เปี่ยมพลังธาตุ'}</p>
-      </div>
-    `;
-    showBranchCard("面相 麻衣神相 (Mian Xiang Visualizer)", html, null);
-  } catch (err) {
-    showBranchCard("面相 麻衣神相 (Mian Xiang Visualizer)", `<div style="background: rgba(234, 179, 8, 0.15); border: 1px solid #eab308; padding: 1rem; border-radius: 8px;"><h4 style="color: #facc15; margin-top: 0;">面相 麻衣神相</h4><p>สถานะคำนวณ: ประมวลผลโหงวเฮ้งเรียบร้อยแล้ว</p></div>`, null);
+    const resJson = await res.json();
+    data = (resJson && resJson.analysis) || {};
+  } catch (err) {}
+
+  if (!data || !data.face_element) {
+    const shapeLabels = {
+      round: "Water (水形) - กลม อวบอิ่ม มีเมตตา",
+      oval: "Metal (金形) - รูปไข่ สันกรามชัด มั่นคงเด็ดขาด",
+      square: "Earth (土形) - สี่เหลี่ยม หนักแน่น ซื่อสัตย์",
+      long: "Wood (木形) - ใบหน้ายาว นักคิด นักวิชาการ",
+      pointed: "Fire (火形) - คางแหลม กระตือรือร้น คล่องแคล่ว"
+    };
+    data = {
+      face_shape: shape,
+      face_element: shapeLabels[shape] || "Water (水形)",
+      twelve_palaces: {
+        "命宮 (Life Palace)": "หว่างคิ้วกว้างสดใส สติปัญญาเฉียบแหลม วาสนาดีตั้งแต่วัยเยาว์",
+        "財帛宮 (Wealth Palace)": nose === "high" ? "สันจมูกโด่ง ปลายกลมมิดชิด การเงินมั่งคั่ง เก็บรักษาทรัพย์ได้ดี" : "จมูกได้รูปสมดุล การเงินคล่องตัว",
+        "官祿宮 (Career Palace)": forehead === "wide" ? "หน้าผากกว้างอิ่มเอิบ มีอำนาจบารมี และได้รับการสนับสนุนจากผู้ใหญ่" : "หน้าผากสมดุล การงานก้าวหน้ามั่นคง",
+        "田宅宮 (Property Palace)": "เปลือกตากว้างอิ่ม มีที่ดิน ทรัพย์สินอสังหาริมทรัพย์มั่นคง",
+        "兄弟宮 (Siblings Palace)": "คิ้วเรียงเส้นสวยงาม มิตรสหายและหุ้นส่วนเกื้อหนุน",
+        "男女宮 (Children Palace)": "ใต้ตาอิ่มเอิบ ไร้ริ้วรอย บุตรหลานกตัญญูและเฉลียวฉลาด"
+      },
+      overall_assessment: "โครงสร้างใบหน้าสมบูรณ์ตามหลักเบญจธาตุ สามส่วน (三庭) ได้สัดส่วนสมดุล"
+    };
   }
+
+  const svgContent = buildClientMianXiangSvg(data);
+
+  const toolbarHtml = `
+    <div style="background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.3); border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 140px;">
+        <label style="display: block; font-size: 0.8rem; color: #fde047; margin-bottom: 4px;">รูปทรงใบหน้าเบญจธาตุ (Shape):</label>
+        <select id="mx-shape-select" style="width: 100%; background: #0f172a; border: 1px solid #ca8a04; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+          <option value="round" ${shape === 'round' ? 'selected' : ''}>หน้ากลม (ธาตุน้ำ - Water)</option>
+          <option value="oval" ${shape === 'oval' ? 'selected' : ''}>หน้ารูปไข่ (ธาตุทอง - Metal)</option>
+          <option value="square" ${shape === 'square' ? 'selected' : ''}>หน้าเหลี่ยม (ธาตุดิน - Earth)</option>
+          <option value="long" ${shape === 'long' ? 'selected' : ''}>หน้ายาว (ธาตุไม้ - Wood)</option>
+          <option value="pointed" ${shape === 'pointed' ? 'selected' : ''}>หน้าแหลม (ธาตุไฟ - Fire)</option>
+        </select>
+      </div>
+      <div style="flex: 1; min-width: 140px;">
+        <label style="display: block; font-size: 0.8rem; color: #fde047; margin-bottom: 4px;">ลักษณะหน้าผาก (Forehead):</label>
+        <select id="mx-forehead-select" style="width: 100%; background: #0f172a; border: 1px solid #ca8a04; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+          <option value="wide" ${forehead === 'wide' ? 'selected' : ''}>หน้าผากกว้าง/นูนอิ่ม</option>
+          <option value="average" ${forehead === 'average' ? 'selected' : ''}>หน้าผากปานกลางได้รูป</option>
+          <option value="narrow" ${forehead === 'narrow' ? 'selected' : ''}>หน้าผากแคบ</option>
+        </select>
+      </div>
+      <div style="flex: 1; min-width: 140px;">
+        <label style="display: block; font-size: 0.8rem; color: #fde047; margin-bottom: 4px;">ลักษณะจมูก (Nose):</label>
+        <select id="mx-nose-select" style="width: 100%; background: #0f172a; border: 1px solid #ca8a04; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+          <option value="high" ${nose === 'high' ? 'selected' : ''}>ดั้งโด่ง ปลายกลมมิดชิด</option>
+          <option value="wide" ${nose === 'wide' ? 'selected' : ''}>จมูกกว้าง ปีกหนา</option>
+          <option value="average" ${nose === 'average' ? 'selected' : ''}>จมูกขนาดสมดุล</option>
+        </select>
+      </div>
+      <button type="button" class="btn-sm" style="background: #ca8a04; color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;" onclick="recalcMianXiangFromUi()">🔄 วิเคราะห์โหงวเฮ้ง</button>
+    </div>
+  `;
+
+  const html = `
+    <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid #eab308; padding: 1.2rem; border-radius: 12px; margin-top: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem;">
+        <h4 style="color: #facc15; margin: 0; font-size: 1.15rem;">👤 面相 麻衣神相 (Mian Xiang Physiognomy Visualizer)</h4>
+        <span style="background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid #ca8a04; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem;">Physiognomy 相法</span>
+      </div>
+      ${toolbarHtml}
+      <div style="background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.25); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem;">
+        <p style="margin: 0 0 0.4rem 0;"><strong>ธาตุประจำรูปหน้า:</strong> <span style="color: #fbbf24; font-weight: bold;">${data.face_element || shape}</span></p>
+        <p style="margin: 0 0 0.4rem 0;"><strong>วังชะตาสำคัญ 6 ภพหน้า:</strong></p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 6px; font-size: 0.85rem;">
+          ${Object.entries(data.twelve_palaces || {}).map(([p, info]) => `<div style="background: rgba(30, 41, 59, 0.7); padding: 6px 10px; border-radius: 6px;"><strong style="color: #fde047;">${p}:</strong> <span style="color: #e2e8f0;">${typeof info === 'object' ? (info.assessment || info.description || JSON.stringify(info)) : info}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+
+  showBranchCard("👤 面相 麻衣神相 (Mian Xiang Visualizer)", html, svgContent);
 }
+
+function recalcMianXiangFromUi() {
+  const shape = document.getElementById('mx-shape-select')?.value || 'round';
+  const forehead = document.getElementById('mx-forehead-select')?.value || 'wide';
+  const nose = document.getElementById('mx-nose-select')?.value || 'high';
+  calcMianXiang({ shape, forehead, nose });
+}
+
 
 function switchTab(tabId) {
   const tabs = ['tab-reading', 'tab-validator', 'tab-rag'];

@@ -1,4 +1,79 @@
 ---
+## 🔥 GRILL REPORT — Phase 2: All 7 Extended Disciplines Interactive Visualizers & SVG Charts Upgrade
+**Date**: 2026-08-16T20:10:00+07:00  
+**Grilled By**: orchestrator  
+**Gate Status**: ✅ APPROVED (User Interview Concluded via `/goal continue roadmap`)  
+
+### D1 — Scope Boundary
+- **IN**:
+  1. **Phase 2: 7 Extended Metaphysics Disciplines Visualizer & SVG Upgrade**:
+     - 📜 **Tai Yi Shen Shu (太乙神數)**: 16-Path, 8-Palace matrix visualizer, accumulated years (太乙積年), Tai Yi Star position (太乙星宮), 12 Heavenly Generals, Five Elements interaction, SVG 16-Path Palace Wheel.
+     - 🔮 **Liu Yao Divination (六爻預測)**: Na Jia (納甲) 6-line Earthly Branches calculation, 6 Relatives (六親), Six Celestial Spirits (六獸: 青龍, 朱雀, 勾陳, 騰蛇, 白虎, 玄武), Moving lines (動爻), Target Hexagram (變卦), SVG 6-Line Na Jia Plate.
+     - 🌸 **Mei Hua Yi Shu (梅花易數)**: Time/Number Trigram generation, Body (體) & Application (用) dynamics, Five Elements Sheng/Ke relationships, Mutating Yao, Mutual Trigrams (互卦), Resulting Trigrams (變卦), SVG Plum Blossom Hexagram Flow.
+     - 🧭 **San He Feng Shui (三合風水)**: 24-Mountain Direction resolution (24山), 12 Water Method Stages (十二長生水法: 長生, 沐浴, 冠帶, 臨官, 帝旺, 衰, 病, 死, 墓, 絕, 胎, 養), Sitting & Facing Mountain compass overlay, SVG 24-Mountain Water Flow Compass.
+     - 🌌 **Qi Zheng Si Yu (七政四餘)**: 7 Planetary Governors & 4 Extras (日月五星 + 羅睺, 計都, 月孛, 紫氣), 28 Lunar Mansions (二十八宿), 12 Zodiac Houses, SVG 28-Mansion Astrolabe.
+     - 👤 **Mian Xiang Physiognomy (麻衣神相)**: 12 Facial Palaces (十二宮), 100 Age Positions Map (百歲流年圖), Three Courts (三庭: 上庭, 中庭, 下庭), Five Features (五官), SVG 12-Palace Facial Map.
+     - 🔢 **Satta-Lek 7-Base (สัตตเลข 7 ฐาน & Chaldean Numerology)**: 7-base 4-row matrix, 21 Planetary deities strength sum, Chaldean Gematria name root & 7-house interpretation, SVG 7-Base Star Matrix.
+  2. **4 Core Visualizer Components per Extended Discipline**:
+     - 🎛️ **Interactive Toolbar**: Controls for custom year, degree, sitting direction, face features, and divination query.
+     - 📊 **Canonical Matrix Table**: Clean structured table displaying traditional formulas, stages, elements, and positions.
+     - 🎨 **SVG Vector Symbolic Chart**: Glassmorphic SVG vector charts with crisp typography and responsive layouts.
+     - 🏛️ **In-Depth Interpretation Cards**: Canonical text citations and practical situational guidance.
+  3. **Automated Playwright E2E & Snapshot Suite**:
+     - Comprehensive assertions and high-resolution snapshots across all 16 disciplines.
+     - Zero `[object Object]` leaks, zero UI overlap, zero horizontal scrolling issues.
+- **OUT**: Modifying core BaZi replication logic, Kaggle accelerator settings, or Doppler secrets policy.
+
+### D2 — Requirement Delta
+- **New Additions**:
+  - Implement full visualizer rendering functions (`calcTaiYi()`, `calcLiuYao()`, `calcMeiHua()`, `calcSanHe()`, `calcQiZheng()`, `calcMianXiang()`, `calcNumerology()`) in `project/static/app.js` and `public/app.js`.
+  - Implement corresponding SVG generator functions (`generate_tai_yi_svg`, `generate_liu_yao_svg`, `generate_meihua_svg`, `generate_sanhe_svg`, `generate_qizheng_svg`, `generate_mianxiang_svg`, `generate_numerology_svg`) in `project/core/svg_generator.py`.
+- **Cleaned Up**:
+  - Clean up raw textual JSON/string fallback representations in favor of rich interactive tables and SVG diagrams.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification Tool | Responsible Agent |
+|---|---|---|---|
+| 1 | All 7 extended disciplines have Interactive Toolbars, Canonical Matrices, SVG Charts and In-Depth Cards | `pytest project/tests/` & browser evaluation | `developer` |
+| 2 | Zero `[object Object]` leaks and zero UI layout overlaps across all 16 disciplines | `pytest project/tests/test_object_rendering.py` | `qa_tester` |
+| 3 | Full Pytest suite passes 100% (508+ tests) | `python3 -m pytest -v --ignore=project/kaggle_kernel` | `qa_tester` |
+| 4 | UI Button Regression (31/31) and Playwright E2E visual tests pass 100% | `python3 scripts/run_button_regression.py` & `scripts/run_e2e_screenshots.py` | `qa_tester` |
+| 5 | Pre-deployment safety audit passes `READY_FOR_PROD` (0 secret leaks) | `python3 project/core/code_reviewer.py --review` | `code_reviewer` |
+| 6 | Production CI/CD release to Hugging Face Spaces & version verification | `python3 scripts/publish_space_hf.py` | `devops` |
+
+### D4 — Constraints & Safeguards
+- Pure ASCII Logging.
+- Responsive Glassmorphic Design for Desktop, Tablet, and Mobile viewports.
+- Strict backward compatibility with existing FastAPI `/api/v1` and `/api/v2` endpoints.
+
+### D5 — Sub-Agent Task Decomposition
+- `TICKET-PHASE2-001` (`orchestrator`): Architecture Blueprint, Data Schemas & SVG Token Framework
+- `TICKET-PHASE2-002` (`developer`): Tai Yi Shen Shu & Liu Yao Interactive Visualizers + SVG Charts
+- `TICKET-PHASE2-003` (`developer`): Mei Hua Yi Shu & San He Feng Shui Interactive Visualizers + SVG Charts
+- `TICKET-PHASE2-004` (`developer`): Qi Zheng Si Yu, Mian Xiang & Satta-Lek Interactive Visualizers + SVG Charts
+- `TICKET-PHASE2-005` (`qa_tester`): Unit & Regression Testing Suite (Pytest + Playwright E2E)
+- `TICKET-PHASE2-006` (`devops`): CI/CD Production Deployment to HF Spaces & Live Verification
+- `TICKET-PHASE2-007` (`code_reviewer` / `business_analyst`): Pre-Deployment Safety Audit & Documentation Sync
+
+### D6 — Assumption Register
+| # | Assumption | Status |
+|---|---|---|
+| 1 | All 7 extended disciplines must match the visual quality and completeness of the 9 core disciplines | [CONFIRMED] |
+| 2 | Python engines and PyO3 Rust math modules provide deterministic calculation data | [CONFIRMED] |
+| 3 | E2E snapshot gate must pass 100% before production cutover | [CONFIRMED] |
+
+### D7 — Risk Assessment & Rollback Strategy
+- **Risk**: Client-side parsing errors or SVG dimension clipping on mobile viewports.
+- **Mitigation**: Standardized SVG `viewBox="0 0 800 600" width="100%" height="100%"` with responsive CSS container wrapper.
+- **Rollback**: Revert `app.js` and `svg_generator.py` commits.
+
+### D8 — Token & Cost Budget Strategy
+- Local JavaScript & SVG generation, zero external API token consumption during chart rendering.
+
+### D9 — Canonical Treatise Alignment
+- Compliant with 太乙金鏡式經, 卜筮正宗, 梅花易數, 地理五訣 (三合水法), 七政四餘 (果老星宗), 麻衣神相 (麻衣道者), and คัมภีร์สัตตเลขไทย.
+
+---
 ## 🔥 GRILL REPORT — All 16 Metaphysics Disciplines E2E Snapshot & Visualizer Upgrade (Phase 1: Core 9 Disciplines)
 **Date**: 2026-08-16T14:15:00+07:00  
 **Grilled By**: orchestrator  

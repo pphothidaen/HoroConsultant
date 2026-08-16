@@ -530,3 +530,415 @@ def generate_numerology_svg(chart: dict[str, Any], title: str = "ผังดว
     svg_parts.append('  <text x="380" y="495" font-family="Prompt, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">สัตตเลข 7 ฐาน (ภพ ๗ เรือน) + ถอดรหัสอักษรเลขศาสตร์ Chaldean โบราณ</text>')
     svg_parts.append('</svg>')
     return "\n".join(svg_parts)
+
+
+def generate_tai_yi_svg(chart: dict[str, Any], title: str = "ผังดวง太乙神數 (Tai Yi Shen Shu 16-Path Chart)") -> str:
+    """Generate SVG chart for Tai Yi Shen Shu (太乙神數)."""
+    acc_years = chart.get("accumulated_years", 0)
+    star_palace = chart.get("star_palace", 0)
+    strategic = chart.get("strategic_assessment", "吉")
+    tai_yi_num = chart.get("tai_yi_number", 0)
+    earth_plate = chart.get("earth_plate", [1, 2, 3, 4, 5, 6, 7, 8, 9])
+    heaven_plate = chart.get("heaven_plate", [2, 3, 4, 5, 6, 7, 8, 9, 1])
+
+    path_names = [
+        "子 (1)", "丑 (2)", "艮 (3)", "寅 (4)",
+        "卯 (5)", "辰 (6)", "巽 (7)", "巳 (8)",
+        "午 (9)", "未 (10)", "坤 (11)", "申 (12)",
+        "酉 (13)", "戌 (14)", "乾 (15)", "亥 (16)"
+    ]
+
+    svg = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">',
+        '  <defs>',
+        '    <linearGradient id="bgTaiYi" x1="0%" y1="0%" x2="100%" y2="100%">',
+        '      <stop offset="0%" stop-color="#0a0f1d"/>',
+        '      <stop offset="100%" stop-color="#1e1b4b"/>',
+        '    </linearGradient>',
+        '    <filter id="glowGoldTY" x="-20%" y="-20%" width="140%" height="140%">',
+        '      <feGaussianBlur stdDeviation="4" result="blur"/>',
+        '      <feComposite in="SourceGraphic" in2="blur" operator="over"/>',
+        '    </filter>',
+        '  </defs>',
+        '  <rect width="800" height="600" rx="16" fill="url(#bgTaiYi)" stroke="#6366f1" stroke-width="2"/>',
+        f'  <text x="400" y="42" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#fbbf24" text-anchor="middle" filter="url(#glowGoldTY)">📜 {title}</text>',
+        f'  <text x="400" y="70" font-family="Prompt, sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">太乙積年: {acc_years} ปี | 太乙數: {tai_yi_num} | ยุทธศาสตร์รวม: {strategic}</text>',
+        '  <g transform="translate(60, 95)">',
+        '    <rect x="0" y="0" width="320" height="340" rx="12" fill="#111827" stroke="#4338ca" stroke-width="1.5"/>',
+        '    <text x="160" y="28" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#a5b4fc" text-anchor="middle">🌌 ผังดาว 16 ทิศ (16-Path Star Palaces)</text>',
+    ]
+
+    for idx, p_name in enumerate(path_names):
+        r = idx // 4
+        c = idx % 4
+        x = 18 + c * 72
+        y = 45 + r * 68
+        is_active = (idx == (star_palace % 16))
+        stroke_color = "#fbbf24" if is_active else "#374151"
+        fill_color = "rgba(251, 191, 36, 0.2)" if is_active else "rgba(30, 41, 59, 0.6)"
+        text_color = "#fbbf24" if is_active else "#94a3b8"
+        svg.append(f'    <rect x="{x}" y="{y}" width="68" height="62" rx="8" fill="{fill_color}" stroke="{stroke_color}" stroke-width="{"2" if is_active else "1"}"/>')
+        svg.append(f'    <text x="{x+34}" y="{y+26}" font-family="sans-serif" font-size="13" font-weight="bold" fill="{text_color}" text-anchor="middle">{p_name}</text>')
+        if is_active:
+            svg.append(f'    <text x="{x+34}" y="{y+48}" font-family="Prompt, sans-serif" font-size="11" font-weight="bold" fill="#f59e0b" text-anchor="middle">★ 太乙星</text>')
+
+    svg.append('  </g>')
+
+    svg.extend([
+        '  <g transform="translate(420, 95)">',
+        '    <rect x="0" y="0" width="320" height="340" rx="12" fill="#111827" stroke="#059669" stroke-width="1.5"/>',
+        '    <text x="160" y="28" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#6ee7b7" text-anchor="middle">☯ 天地二盤 (Heaven &amp; Earth 9-Palace Matrix)</text>',
+    ])
+
+    nine_palace_labels = ["四巽", "九離", "二坤", "三震", "五中", "七兌", "八艮", "一坎", "六乾"]
+    for idx in range(9):
+        r = idx // 3
+        c = idx % 3
+        x = 22 + c * 92
+        y = 48 + r * 90
+        ep_val = earth_plate[idx] if idx < len(earth_plate) else idx + 1
+        hp_val = heaven_plate[idx] if idx < len(heaven_plate) else idx + 1
+        palace_name = nine_palace_labels[idx]
+        svg.append(f'    <rect x="{x}" y="{y}" width="86" height="82" rx="8" fill="rgba(15, 23, 42, 0.8)" stroke="#1e293b" stroke-width="1"/>')
+        svg.append(f'    <text x="{x+43}" y="{y+20}" font-family="sans-serif" font-size="12" font-weight="bold" fill="#64748b" text-anchor="middle">{palace_name}</text>')
+        svg.append(f'    <text x="{x+25}" y="{y+52}" font-family="sans-serif" font-size="18" font-weight="bold" fill="#38bdf8" text-anchor="middle">天{hp_val}</text>')
+        svg.append(f'    <text x="{x+62}" y="{y+52}" font-family="sans-serif" font-size="18" font-weight="bold" fill="#10b981" text-anchor="middle">地{ep_val}</text>')
+
+    svg.append('  </g>')
+
+    svg.extend([
+        '  <g transform="translate(60, 455)">',
+        '    <rect x="0" y="0" width="680" height="95" rx="10" fill="rgba(30, 27, 75, 0.6)" stroke="#4f46e5" stroke-width="1"/>',
+        f'    <text x="24" y="32" font-family="Prompt, sans-serif" font-size="15" font-weight="bold" fill="#fbbf24">🎯 การประเมินยุทธศาสตร์太乙神數: {strategic} (ทิศมงคล/ดวงดาวจร ณ วัง {path_names[star_palace % 16]})</text>',
+        '    <text x="24" y="60" font-family="Prompt, sans-serif" font-size="12" fill="#94a3b8">อ้างอิง: คัมภีร์ไท่อี่จินจิ้งซื่อจิง (太乙金鏡式經) — วิเคราะห์การเคลื่อนพล การบริหารความเสี่ยง และทิศทางกลยุทธ์แห่งกาลเวลา</text>',
+        '  </g>',
+        '</svg>'
+    ])
+    return "\n".join(svg)
+
+
+def generate_liu_yao_svg(chart: dict[str, Any], title: str = "ผังดวง六爻預測 (Liu Yao 6-Line Na Jia Chart)") -> str:
+    """Generate SVG chart for Liu Yao Divination (六爻預測)."""
+    p_name = chart.get("primary_hexagram_name", "乾為天")
+    t_name = chart.get("target_hexagram_name", chart.get("transformed_hexagram_name", "同人"))
+    palace = chart.get("palace_element", "金 (Metal)")
+    day_stem = chart.get("day_stem", "甲")
+    lines = chart.get("lines", [])
+
+    svg = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">',
+        '  <defs>',
+        '    <linearGradient id="bgLiuYao" x1="0%" y1="0%" x2="100%" y2="100%">',
+        '      <stop offset="0%" stop-color="#0f172a"/>',
+        '      <stop offset="100%" stop-color="#311042"/>',
+        '    </linearGradient>',
+        '    <filter id="glowPurpleLY" x="-20%" y="-20%" width="140%" height="140%">',
+        '      <feGaussianBlur stdDeviation="4" result="blur"/>',
+        '      <feComposite in="SourceGraphic" in2="blur" operator="over"/>',
+        '    </filter>',
+        '  </defs>',
+        '  <rect width="800" height="600" rx="16" fill="url(#bgLiuYao)" stroke="#c084fc" stroke-width="2"/>',
+        f'  <text x="400" y="42" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#fbbf24" text-anchor="middle" filter="url(#glowPurpleLY)">🔮 {title}</text>',
+        f'  <text x="400" y="70" font-family="Prompt, sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">本卦: {p_name} ➔ 變卦: {t_name} | 宮位: {palace} | 日干: {day_stem}</text>',
+        '  <g transform="translate(60, 95)">',
+        '    <rect x="0" y="0" width="680" height="360" rx="12" fill="#111827" stroke="#7e22ce" stroke-width="1.5"/>',
+        '    <text x="340" y="30" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#e9d5ff" text-anchor="middle">六爻納甲盤 (Six Lines Na Jia &amp; Six Celestial Spirits)</text>',
+        '    <text x="60" y="60" font-family="Prompt, sans-serif" font-size="12" font-weight="bold" fill="#94a3b8">神煞 (Spirits)</text>',
+        '    <text x="170" y="60" font-family="Prompt, sans-serif" font-size="12" font-weight="bold" fill="#94a3b8">六親 (Relatives)</text>',
+        '    <text x="280" y="60" font-family="Prompt, sans-serif" font-size="12" font-weight="bold" fill="#94a3b8">納甲地支 (Branch)</text>',
+        '    <text x="440" y="60" font-family="Prompt, sans-serif" font-size="12" font-weight="bold" fill="#94a3b8">本卦爻象 (Line)</text>',
+        '    <text x="600" y="60" font-family="Prompt, sans-serif" font-size="12" font-weight="bold" fill="#94a3b8">動變 (Moving)</text>',
+        '    <line x1="20" y1="70" x2="660" y2="70" stroke="#374151" stroke-width="1"/>',
+    ]
+
+    default_relatives = ["父母", "兄弟", "子孫", "妻財", "官鬼", "父母"]
+    default_branches = ["子水", "寅木", "辰土", "午火", "申金", "戌土"]
+    default_spirits = ["青龍", "朱雀", "勾陳", "螣蛇", "白虎", "玄武"]
+
+    for i in range(6):
+        line_idx = 5 - i # Line 6 down to Line 1
+        y = 95 + i * 44
+        line_data = lines[line_idx] if line_idx < len(lines) else {}
+        is_yang = bool(line_data.get("is_yang", (line_idx % 2 == 0)))
+        is_moving = bool(line_data.get("is_moving", (line_idx == 2)))
+        rel = line_data.get("relative", default_relatives[line_idx])
+        branch = line_data.get("branch", default_branches[line_idx])
+        spirit = line_data.get("spirit", default_spirits[line_idx])
+
+        # Spirit badge
+        svg.append(f'    <text x="60" y="{y+16}" font-family="sans-serif" font-size="13" font-weight="bold" fill="#38bdf8">{spirit}</text>')
+        # Relative
+        svg.append(f'    <text x="170" y="{y+16}" font-family="sans-serif" font-size="14" font-weight="bold" fill="#fbbf24">{rel}</text>')
+        # Branch
+        svg.append(f'    <text x="280" y="{y+16}" font-family="sans-serif" font-size="14" font-weight="bold" fill="#4ade80">{branch}</text>')
+
+        # Hexagram Line
+        line_color = "#ef4444" if is_moving else "#e2e8f0"
+        if is_yang:
+            # Solid line
+            svg.append(f'    <rect x="390" y="{y+6}" width="150" height="12" rx="4" fill="{line_color}"/>')
+        else:
+            # Broken line
+            svg.append(f'    <rect x="390" y="{y+6}" width="68" height="12" rx="4" fill="{line_color}"/>')
+            svg.append(f'    <rect x="472" y="{y+6}" width="68" height="12" rx="4" fill="{line_color}"/>')
+
+        # Moving line indicator
+        if is_moving:
+            svg.append(f'    <text x="600" y="{y+16}" font-family="Prompt, sans-serif" font-size="13" font-weight="bold" fill="#ef4444">● 動 (Moving)</text>')
+        else:
+            svg.append(f'    <text x="600" y="{y+16}" font-family="Prompt, sans-serif" font-size="13" fill="#64748b">靜 (Static)</text>')
+
+    svg.append('  </g>')
+    svg.extend([
+        '  <g transform="translate(60, 475)">',
+        '    <rect x="0" y="0" width="680" height="75" rx="10" fill="rgba(88, 28, 135, 0.4)" stroke="#9333ea" stroke-width="1"/>',
+        f'    <text x="24" y="30" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#fbbf24">📖 บทวิเคราะห์六爻: 本卦 {p_name} ➔ 變卦 {t_name} (世應相生/剋)</text>',
+        '    <text x="24" y="54" font-family="Prompt, sans-serif" font-size="12" fill="#94a3b8">อ้างอิง: คัมภีร์ปู้ซื่อเจิ้งจง (卜筮正宗) &amp; เจิงซานปู้เต้า (增刪卜易) — วิเคราะห์ความสัมพันธ์ 6 ญาติและเทพดารา</text>',
+        '  </g>',
+        '</svg>'
+    ])
+    return "\n".join(svg)
+
+
+def generate_meihua_svg(chart: dict[str, Any], title: str = "ผังดวง梅花易數 (Mei Hua Plum Blossom Numerology)") -> str:
+    """Generate SVG chart for Mei Hua Yi Shu (梅花易數)."""
+    p_name = chart.get("primary_hexagram", "乾為天")
+    m_name = chart.get("mutual_hexagram", "乾為天")
+    t_name = chart.get("transformed_hexagram", "天風姤")
+    moving_yao = chart.get("moving_yao", 1)
+    body_trigram = chart.get("body_trigram", "乾 (金)")
+    use_trigram = chart.get("use_trigram", "巽 (木)")
+    interaction = chart.get("interaction", "體克用 (Body controls Use - 吉)")
+
+    svg = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">',
+        '  <defs>',
+        '    <linearGradient id="bgMeiHua" x1="0%" y1="0%" x2="100%" y2="100%">',
+        '      <stop offset="0%" stop-color="#140f1a"/>',
+        '      <stop offset="100%" stop-color="#4a044e"/>',
+        '    </linearGradient>',
+        '    <filter id="glowPinkMH" x="-20%" y="-20%" width="140%" height="140%">',
+        '      <feGaussianBlur stdDeviation="4" result="blur"/>',
+        '      <feComposite in="SourceGraphic" in2="blur" operator="over"/>',
+        '    </filter>',
+        '  </defs>',
+        '  <rect width="800" height="600" rx="16" fill="url(#bgMeiHua)" stroke="#f472b6" stroke-width="2"/>',
+        f'  <text x="400" y="42" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#fbbf24" text-anchor="middle" filter="url(#glowPinkMH)">🌸 {title}</text>',
+        f'  <text x="400" y="70" font-family="Prompt, sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">體卦: {body_trigram} | 用卦: {use_trigram} | 動爻: 第 {moving_yao} 爻 | ปฏิสัมพันธ์: {interaction}</text>',
+        '  <g transform="translate(60, 95)">',
+    ]
+
+    # 3 Cards: 本卦 (Primary) ➔ 互卦 (Mutual) ➔ 變卦 (Resulting)
+    cards = [
+        ("本卦 (Primary)", p_name, "เริ่มต้น / สภาพปัจจุบัน", "#ec4899", 0),
+        ("互卦 (Mutual)", m_name, "กระบวนการ / ปัจจัยแฝง", "#a855f7", 240),
+        ("變卦 (Resulting)", t_name, "ผลลัพธ์ / บทสรุป", "#38bdf8", 480),
+    ]
+
+    for label, h_name, desc, color, x in cards:
+        svg.append(f'    <rect x="{x}" y="0" width="200" height="340" rx="12" fill="#18181b" stroke="{color}" stroke-width="1.5"/>')
+        svg.append(f'    <rect x="{x}" y="0" width="200" height="38" rx="12" fill="{color}" fill-opacity="0.2"/>')
+        svg.append(f'    <text x="{x+100}" y="25" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="{color}" text-anchor="middle">{label}</text>')
+        svg.append(f'    <text x="{x+100}" y="70" font-family="sans-serif" font-size="22" font-weight="bold" fill="#f8fafc" text-anchor="middle">{h_name}</text>')
+        svg.append(f'    <text x="{x+100}" y="95" font-family="Prompt, sans-serif" font-size="11" fill="#94a3b8" text-anchor="middle">{desc}</text>')
+        svg.append(f'    <line x1="{x+15}" y1="110" x2="{x+185}" y2="110" stroke="#3f3f46" stroke-width="1"/>')
+        # Hexagram Lines graphic
+        for l_idx in range(6):
+            ly = 135 + l_idx * 30
+            svg.append(f'    <rect x="{x+40}" y="{ly}" width="120" height="10" rx="4" fill="{color}"/>')
+
+    svg.append('  </g>')
+    svg.extend([
+        '  <g transform="translate(60, 455)">',
+        '    <rect x="0" y="0" width="680" height="95" rx="10" fill="rgba(74, 4, 78, 0.4)" stroke="#d946ef" stroke-width="1"/>',
+        f'    <text x="24" y="32" font-family="Prompt, sans-serif" font-size="15" font-weight="bold" fill="#fbbf24">🌺 บททำนาย梅花易數: {interaction}</text>',
+        '    <text x="24" y="60" font-family="Prompt, sans-serif" font-size="12" fill="#94a3b8">อ้างอิง: คัมภีร์เหมยฮวาอี้ซู่ (梅花易數 - 邵康節) — ศาสตร์ทำนายตามเวลา กาลโยค และการปฏิสัมพันธ์ของธาตุ体用</text>',
+        '  </g>',
+        '</svg>'
+    ])
+    return "\n".join(svg)
+
+
+def generate_sanhe_svg(chart: dict[str, Any], title: str = "ผังดวง三合風水 (San He 24-Mountain Water Flow Compass)") -> str:
+    """Generate SVG chart for San He Feng Shui (三合風水)."""
+    sitting = chart.get("sitting_mountain", "壬")
+    facing = chart.get("facing_mountain", "丙")
+    water_exit = chart.get("water_exit", "辰")
+    formation = chart.get("formation", "申子辰 水局 (Water Formation)")
+    stage = chart.get("water_method_stage", "長生 (Chang Sheng - Auspicious)")
+
+    svg = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">',
+        '  <defs>',
+        '    <linearGradient id="bgSanHe" x1="0%" y1="0%" x2="100%" y2="100%">',
+        '      <stop offset="0%" stop-color="#022c22"/>',
+        '      <stop offset="100%" stop-color="#064e3b"/>',
+        '    </linearGradient>',
+        '    <filter id="glowGreenSH" x="-20%" y="-20%" width="140%" height="140%">',
+        '      <feGaussianBlur stdDeviation="4" result="blur"/>',
+        '      <feComposite in="SourceGraphic" in2="blur" operator="over"/>',
+        '    </filter>',
+        '  </defs>',
+        '  <rect width="800" height="600" rx="16" fill="url(#bgSanHe)" stroke="#10b981" stroke-width="2"/>',
+        f'  <text x="400" y="42" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#fbbf24" text-anchor="middle" filter="url(#glowGreenSH)">🧭 {title}</text>',
+        f'  <text x="400" y="70" font-family="Prompt, sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">坐山: {sitting} | 向山: {facing} | 水口: {water_exit} | สามสมพงศ์: {formation}</text>',
+        '  <g transform="translate(60, 95)">',
+        '    <rect x="0" y="0" width="320" height="340" rx="12" fill="#064e3b" stroke="#047857" stroke-width="1.5"/>',
+        '    <text x="160" y="28" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#6ee7b7" text-anchor="middle">二十四山羅盤 (24 Mountains Compass)</text>',
+        '    <circle cx="160" cy="180" r="110" fill="none" stroke="#10b981" stroke-width="2"/>',
+        '    <circle cx="160" cy="180" r="70" fill="#022c22" stroke="#34d399" stroke-width="1.5"/>',
+        '    <circle cx="160" cy="180" r="30" fill="#064e3b" stroke="#fbbf24" stroke-width="2"/>',
+        f'    <text x="160" y="186" font-family="sans-serif" font-size="15" font-weight="bold" fill="#fbbf24" text-anchor="middle">坐{sitting}</text>',
+        '  </g>',
+        '  <g transform="translate(420, 95)">',
+        '    <rect x="0" y="0" width="320" height="340" rx="12" fill="#064e3b" stroke="#047857" stroke-width="1.5"/>',
+        '    <text x="160" y="28" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#6ee7b7" text-anchor="middle">十二長生水法 (12 Water Stages)</text>',
+    ]
+
+    stages_12 = [
+        ("長生", "กำเนิด/เจริญ", True), ("沐浴", "ชำระล้าง/รั่วไหล", False),
+        ("冠帶", "สวมหมวก/เกียรติ", False), ("臨官", "ขุนนาง/มั่นคง", True),
+        ("帝旺", "รุ่งเรืองสูงสุด", True), ("衰", "เริ่มถดถอย", False),
+        ("病", "เจ็บป่วย/ติดขัด", False), ("死", "สิ้นสุด/หยุดนิ่ง", False),
+        ("墓", "คลังสมบัติ/กักเก็บ", True), ("絕", "ขาดตอน/แปรผัน", False),
+        ("胎", "ก่อกำเนิดใหม่", False), ("養", "ฟูมฟัก/พัฒนา", False)
+    ]
+
+    for idx, (st_name, st_desc, is_auspicious) in enumerate(stages_12):
+        r = idx // 2
+        c = idx % 2
+        x = 18 + c * 144
+        y = 48 + r * 46
+        st_color = "#34d399" if is_auspicious else "#94a3b8"
+        svg.append(f'    <rect x="{x}" y="{y}" width="136" height="40" rx="6" fill="rgba(2, 44, 34, 0.7)" stroke="{st_color}" stroke-width="1"/>')
+        svg.append(f'    <text x="{x+10}" y="{y+25}" font-family="sans-serif" font-size="14" font-weight="bold" fill="{st_color}">{st_name}</text>')
+        svg.append(f'    <text x="{x+50}" y="{y+25}" font-family="Prompt, sans-serif" font-size="10" fill="#cbd5e1">{st_desc}</text>')
+
+    svg.append('  </g>')
+    svg.extend([
+        '  <g transform="translate(60, 455)">',
+        '    <rect x="0" y="0" width="680" height="95" rx="10" fill="rgba(6, 78, 59, 0.6)" stroke="#059669" stroke-width="1"/>',
+        f'    <text x="24" y="32" font-family="Prompt, sans-serif" font-size="15" font-weight="bold" fill="#fbbf24">🌊 ขั้นตอนทางน้ำ: {stage} | {formation}</text>',
+        '    <text x="24" y="60" font-family="Prompt, sans-serif" font-size="12" fill="#94a3b8">อ้างอิง: คัมภีร์ตี๋หลี่อู่เจว๋ (地理五訣) — หลักวิชาฮวงจุ้ยสามประสาน (ซำฮะ) คำนวณมังกร เขา ทิศทาง และกระแสน้ำ 12 วงจร</text>',
+        '  </g>',
+        '</svg>'
+    ])
+    return "\n".join(svg)
+
+
+def generate_qizheng_svg(chart: dict[str, Any], title: str = "ผังดวง七政四餘 (Qi Zheng Si Yu Astrolabe)") -> str:
+    """Generate SVG chart for Qi Zheng Si Yu (七政四餘)."""
+    dt_str = chart.get("datetime", "2026-08-16 12:00:00")
+    planets = chart.get("planets", {})
+    shadow_stars = chart.get("shadow_stars", {})
+
+    svg = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">',
+        '  <defs>',
+        '    <linearGradient id="bgQiZheng" x1="0%" y1="0%" x2="100%" y2="100%">',
+        '      <stop offset="0%" stop-color="#090d16"/>',
+        '      <stop offset="100%" stop-color="#1e1b4b"/>',
+        '    </linearGradient>',
+        '    <filter id="glowBlueQZ" x="-20%" y="-20%" width="140%" height="140%">',
+        '      <feGaussianBlur stdDeviation="4" result="blur"/>',
+        '      <feComposite in="SourceGraphic" in2="blur" operator="over"/>',
+        '    </filter>',
+        '  </defs>',
+        '  <rect width="800" height="600" rx="16" fill="url(#bgQiZheng)" stroke="#38bdf8" stroke-width="2"/>',
+        f'  <text x="400" y="42" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#fbbf24" text-anchor="middle" filter="url(#glowBlueQZ)">🌌 {title}</text>',
+        f'  <text x="400" y="70" font-family="Prompt, sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">วันเวลาคำนวณ: {dt_str} | 七政 (7 Governors) + 四餘 (4 Extra Shadows)</text>',
+        '  <g transform="translate(60, 95)">',
+        '    <rect x="0" y="0" width="320" height="340" rx="12" fill="#0f172a" stroke="#0284c7" stroke-width="1.5"/>',
+        '    <text x="160" y="28" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#7dd3fc" text-anchor="middle">二十八宿天球盤 (28 Lunar Mansions)</text>',
+        '    <circle cx="160" cy="180" r="115" fill="none" stroke="#334155" stroke-width="2"/>',
+        '    <circle cx="160" cy="180" r="85" fill="none" stroke="#0284c7" stroke-dasharray="4,4" stroke-width="1.5"/>',
+        '    <circle cx="160" cy="180" r="45" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>',
+        '    <text x="160" y="186" font-family="sans-serif" font-size="18" font-weight="bold" fill="#fbbf24" text-anchor="middle">七政</text>',
+        '  </g>',
+        '  <g transform="translate(420, 95)">',
+        '    <rect x="0" y="0" width="320" height="340" rx="12" fill="#0f172a" stroke="#0284c7" stroke-width="1.5"/>',
+        '    <text x="160" y="28" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#7dd3fc" text-anchor="middle">ดวงดาว 7 นพเคราะห์ &amp; 4 เงามืด</text>',
+    ]
+
+    p_list = list(planets.items()) + list(shadow_stars.items())
+    for idx, (p_name, deg) in enumerate(p_list[:8]):
+        y = 50 + idx * 34
+        deg_val = deg if isinstance(deg, (int, float)) else 0.0
+        svg.append(f'    <rect x="18" y="{y}" width="284" height="28" rx="6" fill="rgba(30, 41, 59, 0.6)" stroke="#334155" stroke-width="1"/>')
+        svg.append(f'    <text x="30" y="{y+19}" font-family="sans-serif" font-size="13" font-weight="bold" fill="#38bdf8">{p_name}</text>')
+        svg.append(f'    <text x="280" y="{y+19}" font-family="sans-serif" font-size="13" font-weight="bold" fill="#f8fafc" text-anchor="end">{deg_val:.2f}°</text>')
+
+    svg.append('  </g>')
+    svg.extend([
+        '  <g transform="translate(60, 455)">',
+        '    <rect x="0" y="0" width="680" height="95" rx="10" fill="rgba(15, 23, 42, 0.7)" stroke="#0369a1" stroke-width="1"/>',
+        '    <text x="24" y="32" font-family="Prompt, sans-serif" font-size="15" font-weight="bold" fill="#fbbf24">🔭 โหราศาสตร์ดาราศาสตร์จีนโบราณ 七政四餘 (Guo Lao Xing Zong)</text>',
+        '    <text x="24" y="60" font-family="Prompt, sans-serif" font-size="12" fill="#94a3b8">อ้างอิง: คัมภีร์กว๋อเหลาซิงจง (果老星宗) — บูรณาการ 28 นักษัตรจีนโบราณกับตำแหน่งดาวเคราะห์จริงตามจักรราศี</text>',
+        '  </g>',
+        '</svg>'
+    ])
+    return "\n".join(svg)
+
+
+def generate_mianxiang_svg(chart: dict[str, Any], title: str = "ผังดวง麻衣神相 (Mian Xiang 12 Facial Palaces)") -> str:
+    """Generate SVG chart for Mian Xiang (麻衣神相)."""
+    shape_desc = chart.get("face_shape", "Water (水形) - Round, soft, fleshy")
+    palaces = chart.get("twelve_palaces", {})
+
+    svg = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">',
+        '  <defs>',
+        '    <linearGradient id="bgMianXiang" x1="0%" y1="0%" x2="100%" y2="100%">',
+        '      <stop offset="0%" stop-color="#18181b"/>',
+        '      <stop offset="100%" stop-color="#27272a"/>',
+        '    </linearGradient>',
+        '    <filter id="glowAmberMX" x="-20%" y="-20%" width="140%" height="140%">',
+        '      <feGaussianBlur stdDeviation="4" result="blur"/>',
+        '      <feComposite in="SourceGraphic" in2="blur" operator="over"/>',
+        '    </filter>',
+        '  </defs>',
+        '  <rect width="800" height="600" rx="16" fill="url(#bgMianXiang)" stroke="#eab308" stroke-width="2"/>',
+        f'  <text x="400" y="42" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#fbbf24" text-anchor="middle" filter="url(#glowAmberMX)">👤 {title}</text>',
+        f'  <text x="400" y="70" font-family="Prompt, sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">โหงวเฮ้งเบญจธาตุ: {shape_desc}</text>',
+        '  <g transform="translate(60, 95)">',
+        '    <rect x="0" y="0" width="320" height="340" rx="12" fill="#18181b" stroke="#ca8a04" stroke-width="1.5"/>',
+        '    <text x="160" y="28" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#fde047" text-anchor="middle">百歲流年圖 (100 Age Positions Map)</text>',
+        '    <!-- Face Outline Diagram -->',
+        '    <ellipse cx="160" cy="185" rx="85" ry="115" fill="rgba(234, 179, 8, 0.08)" stroke="#eab308" stroke-width="2"/>',
+        '    <line x1="85" y1="140" x2="235" y2="140" stroke="#71717a" stroke-dasharray="3,3"/>',
+        '    <line x1="85" y1="220" x2="235" y2="220" stroke="#71717a" stroke-dasharray="3,3"/>',
+        '    <text x="160" y="115" font-family="Prompt, sans-serif" font-size="11" fill="#facc15" text-anchor="middle">上庭 (วัยเยาว์ 15-30)</text>',
+        '    <text x="160" y="180" font-family="Prompt, sans-serif" font-size="11" fill="#facc15" text-anchor="middle">中庭 (วัยกลาง 31-50)</text>',
+        '    <text x="160" y="260" font-family="Prompt, sans-serif" font-size="11" fill="#facc15" text-anchor="middle">下庭 (วัยชรา 51-100)</text>',
+        '  </g>',
+        '  <g transform="translate(420, 95)">',
+        '    <rect x="0" y="0" width="320" height="340" rx="12" fill="#18181b" stroke="#ca8a04" stroke-width="1.5"/>',
+        '    <text x="160" y="28" font-family="Prompt, sans-serif" font-size="14" font-weight="bold" fill="#fde047" text-anchor="middle">面相十二宮 (12 Facial Palaces)</text>',
+    ]
+
+    palace_items = [
+        ("命宮 (Life)", "หว่างคิ้ว / สติปัญญาและวาสนา"),
+        ("財帛 (Wealth)", "จมูก / การเงินและโชคลาภ"),
+        ("官祿 (Career)", "หน้าผาก / อำนาจและความสำเร็จ"),
+        ("田宅 (Property)", "เปลือกตา / ทรัพย์สินและอสังหาฯ"),
+        ("兄弟 (Siblings)", "คิ้ว / มิตรสหายและความสัมพันธ์"),
+        ("男女 (Children)", "ใต้ตา / บุตรหลานและบริวาร")
+    ]
+
+    for idx, (p_name, p_desc) in enumerate(palace_items):
+        y = 48 + idx * 46
+        svg.append(f'    <rect x="18" y="{y}" width="284" height="40" rx="6" fill="rgba(39, 39, 42, 0.8)" stroke="#52525b" stroke-width="1"/>')
+        svg.append(f'    <text x="30" y="{y+25}" font-family="sans-serif" font-size="13" font-weight="bold" fill="#facc15">{p_name}</text>')
+        svg.append(f'    <text x="125" y="{y+25}" font-family="Prompt, sans-serif" font-size="11" fill="#e4e4e7">{p_desc}</text>')
+
+    svg.append('  </g>')
+    svg.extend([
+        '  <g transform="translate(60, 455)">',
+        '    <rect x="0" y="0" width="680" height="95" rx="10" fill="rgba(24, 24, 27, 0.8)" stroke="#a16207" stroke-width="1"/>',
+        '    <text x="24" y="32" font-family="Prompt, sans-serif" font-size="15" font-weight="bold" fill="#fbbf24">🔍 ตำราหมาอีเสินเซียง (麻衣神相) &amp; หลิ่วจวงเซินเซียง (柳莊相法)</text>',
+        '    <text x="24" y="60" font-family="Prompt, sans-serif" font-size="12" fill="#94a3b8">วิเคราะห์สัดส่วน 3 ส่วน (三庭) 5 ขุนเขา (五嶽) 4 สายน้ำ (四瀆) และ 12 ภพบนใบหน้าเพื่อชี้นำศักยภาพชะตาชีวิต</text>',
+        '  </g>',
+        '</svg>'
+    ])
+    return "\n".join(svg)
+

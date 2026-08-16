@@ -87,6 +87,7 @@ class SanHeEngine(AbstractAstrologyEngine):
             "facing_degree": facing_degree,
             "sitting_mountain": sitting_mountain,
             "facing_mountain": facing_mountain,
+            "water_exit": exit_mountain if water_exit_degree is not None else MOUNTAINS_24[(sitting_idx + 8) % 24],
             "san_he_formation": san_he_formation,
             "water_method": water_method_res,
             "harmony_assessment": harmony

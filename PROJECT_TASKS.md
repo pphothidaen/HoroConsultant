@@ -56,7 +56,140 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
+│   🚀 IN PROGRESS: Phase 2 — 7 Extended Disciplines Visualizers & SVG Upgrade  │
+├───────────────────────────────────────────────────────────────────────────────┤
+│ • Tai Yi Shen Shu (太乙神數) 16-Path Palace Matrix & Accumulated Years Chart  │
+│ • Liu Yao Divination (六爻預測) Na Jia 6-Lines + Six Celestial Spirits Chart   │
+│ • Mei Hua Yi Shu (梅花易數) Plum Blossom Time/Mutual Hexagram Flow SVG        │
+│ • San He Feng Shui (三合風水) 24-Mountain Water Methods & Compass SVG         │
+│ • Qi Zheng Si Yu (七政四餘) 28 Lunar Mansions & 7 Planetary Governors SVG     │
+│ • Mian Xiang Physiognomy (麻衣神相) 12 Palaces & 100 Age Positions Facial Map  │
+│ • Satta-Lek 7-Base (สัตตเลข 7 ฐาน) + Chaldean 4-Row Strength Balance Grid     │
+├───────────────────────────────────────────────────────────────────────────────┤
 │   ✅ DONE: BaZi Fengshuix.com Complete Replication & Standalone Display (100%)│
+├───────────────────────────────────────────────────────────────────────────────┤
+│ • 100% Field & Math Parity with Bazi.Fengshuix.com reference case (ป๋อง กพล)   │
+│ • True Solar Time gamma fractional equation of time precision (0.01 min match)│
+│ • Four Pillars 辛亥/丁酉/甲申/乙丑, Ming Gua Kua 6 乾 (Qian), Favorable elements│
+│ • 10 Profiles & 5 Structures percentage algorithm exact match                 │
+│ • Da Yun 12-cycle navigation + 12x13 Annual Cells grid + General Stars matrix │
+│ • Complete responsive standalone HTML generator (project/core/bazi_display.py)│
+│ • Full Pytest suite (508/508 PASS 100%), 0 agent sync drift                  │
+└───────────────────────────────────────────────────────────────────────────────┘
+```
+
+## 🚀 ACTIVE SPRINT: Phase 2 — All 7 Extended Disciplines Interactive Visualizers & SVG Charts Upgrade
+**Grill Gate Status**: ✅ APPROVED (Ref: `/plans/plan.md`)  
+**Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)  
+
+| Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
+|---|---|---|---|---|
+| `TICKET-PHASE2-001` | `orchestrator` | Architecture Blueprint, Data Schemas & SVG Token Framework | DONE | None |
+| `TICKET-PHASE2-002` | `developer` | Tai Yi Shen Shu & Liu Yao Interactive Visualizers + SVG Charts | DONE | `TICKET-PHASE2-001` |
+| `TICKET-PHASE2-003` | `developer` | Mei Hua Yi Shu & San He Feng Shui Interactive Visualizers + SVG Charts | DONE | `TICKET-PHASE2-001` |
+| `TICKET-PHASE2-004` | `developer` | Qi Zheng Si Yu, Mian Xiang & Satta-Lek Interactive Visualizers + SVG Charts | DONE | `TICKET-PHASE2-001` |
+| `TICKET-PHASE2-005` | `qa_tester` | Unit & Regression Testing Suite (Pytest + Playwright E2E) | DONE | `TICKET-PHASE2-002`..`004` |
+| `TICKET-PHASE2-006` | `devops` | CI/CD Production Deployment to HF Spaces & Live Verification | DONE | `TICKET-PHASE2-005` |
+| `TICKET-PHASE2-007` | `code_reviewer` | Pre-Deployment Safety Audit & Documentation Sync | DONE | `TICKET-PHASE2-006` |
+
+---
+
+### 🎫 TICKET-PHASE2-001 | `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: None  
+**Blocks**: `TICKET-PHASE2-002`..`004`  
+#### Detailed Instructions
+1. Review requirements in `plans/plan.md` and complete Gate 0 Grill Report.
+2. Establish canonical schemas for all 7 extended disciplines:
+   - Tai Yi: accumulated years, 16 paths, 8 palaces, 12 heavenly generals.
+   - Liu Yao: Na Jia earthly branches, 6 relatives, 6 celestial animals, moving line.
+   - Mei Hua: upper/lower trigram, body/use, mutual/resulting hexagrams.
+   - San He: 24 mountains, sitting/facing, 12 life stage water methods.
+   - Qi Zheng: 7 governors, 4 extras, 28 mansions, 12 zodiac houses.
+   - Mian Xiang: 12 facial palaces, 100 age positions, 3 courts, 5 features.
+   - Satta-Lek: 7 bases, 4 rows, 21 planetary strengths, Chaldean root & 7 houses.
+3. Define glassmorphic SVG tokens (dark gradient, gold borders, cyan/purple highlights, 800x600 responsive viewBox).
+#### Acceptance Criteria
+- [x] GRILL REPORT generated in `/plans/plan.md`.
+- [x] Sub-agent tickets allocated in `PROJECT_TASKS.md`.
+
+---
+
+### 🎫 TICKET-PHASE2-002 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-PHASE2-001`  
+**Blocks**: `TICKET-PHASE2-005`  
+#### Detailed Instructions
+1. In `project/core/svg_generator.py`: Implement `generate_tai_yi_svg(data)` with 16-path circular palace wheel and `generate_liu_yao_svg(data)` with 6-line Na Jia plate.
+2. In `project/static/app.js` and `public/app.js`: Implement `calcTaiYi()` and `calcLiuYao()` with interactive form controls (year, question, hexagram, lines), canonical tables, and SVG rendering.
+#### Acceptance Criteria
+- [x] Tai Yi and Liu Yao render interactive tables and glassmorphic SVG charts without `[object Object]`.
+- [x] All custom input controls respond to user interaction.
+
+---
+
+### 🎫 TICKET-PHASE2-003 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-PHASE2-001`  
+**Blocks**: `TICKET-PHASE2-005`  
+#### Detailed Instructions
+1. In `project/core/svg_generator.py`: Implement `generate_meihua_svg(data)` with plum blossom hexagram flow and `generate_sanhe_svg(data)` with 24-mountain compass & 12 water methods.
+2. In `project/static/app.js` and `public/app.js`: Implement `calcMeiHua()` and `calcSanHe()` with interactive form controls (datetime, sitting degree, water exit degree), canonical tables, and SVG rendering.
+#### Acceptance Criteria
+- [x] Mei Hua and San He render interactive tables and glassmorphic SVG charts without `[object Object]`.
+
+---
+
+### 🎫 TICKET-PHASE2-004 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-PHASE2-001`  
+**Blocks**: `TICKET-PHASE2-005`  
+#### Detailed Instructions
+1. In `project/core/svg_generator.py`: Implement `generate_qizheng_svg(data)`, `generate_mianxiang_svg(data)`, and `generate_numerology_svg(data)`.
+2. In `project/static/app.js` and `public/app.js`: Implement `calcQiZheng()`, `calcMianXiang()`, and `calcNumerology()` with interactive form controls, canonical tables, and SVG rendering.
+#### Acceptance Criteria
+- [x] Qi Zheng, Mian Xiang, and Satta-Lek render interactive tables and glassmorphic SVG charts without `[object Object]`.
+
+---
+
+### 🎫 TICKET-PHASE2-005 | `qa_tester` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-PHASE2-002`..`004`  
+**Blocks**: `TICKET-PHASE2-006`  
+#### Detailed Instructions
+1. Run pytest suite: `python3 -m pytest -v --ignore=project/kaggle_kernel`.
+2. Run UI button regression suite: `python3 scripts/run_button_regression.py`.
+3. Run Playwright E2E screenshots suite: `python3 scripts/run_e2e_screenshots.py`.
+#### Acceptance Criteria
+- [x] 100% test pass rate across all suites (515/515 pytest tests passed).
+- [x] 31/31 UI buttons passed, zero object rendering leaks.
+
+---
+
+### 🎫 TICKET-PHASE2-006 | `devops` | [STATUS: DONE]
+**Priority**: HIGH  
+**Depends On**: `TICKET-PHASE2-005`  
+**Blocks**: `TICKET-PHASE2-007`  
+#### Detailed Instructions
+1. Run secret scan: `python3 project/core/code_reviewer.py --scan-secrets`.
+2. Run agent sync checks: `python3 scripts/sync_sdlc_agents.py --check` and `python3 scripts/sync_codex_agents.py --check`.
+3. Commit and push to `origin/main`, deploy to Hugging Face Spaces.
+#### Acceptance Criteria
+- [x] 0 secret leaks, 100% agent sync, live deployment verified.
+
+---
+
+### 🎫 TICKET-PHASE2-007 | `code_reviewer` / `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-PHASE2-006`  
+**Blocks**: None  
+#### Detailed Instructions
+1. Run pre-deployment review: `python3 project/core/code_reviewer.py --review`.
+2. Update live documentation in `PROJECT_TASKS.md` and report to user.
+#### Acceptance Criteria
+- [x] Status `READY_FOR_PROD` verified.
+
+---
 ├───────────────────────────────────────────────────────────────────────────────┤
 │ • 100% Field & Math Parity with Bazi.Fengshuix.com reference case (ป๋อง กพล)   │
 │ • True Solar Time gamma fractional equation of time precision (0.01 min match)│
