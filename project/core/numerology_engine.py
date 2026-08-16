@@ -42,6 +42,29 @@ NUMBER_MEANINGS = {
 }
 
 
+PLANETARY_POWER_BASE = {
+    3: {"name": "กำลังพระอังคารเล็ก (3)", "meaning": "ความมุ่งมั่น บากบั่น ต่อสู้ อดทนฝ่าฟัน"},
+    4: {"name": "กำลังพระพุธเล็ก (4)", "meaning": "การเจรจา ปฏิภาณไหวพริบ ความคิดสร้างสรรค์"},
+    5: {"name": "กำลังพระพฤหัสเล็ก (5)", "meaning": "คุณธรรม ปัญญา ความยุติธรรม จิตใจดีงาม"},
+    6: {"name": "กำลังพระอาทิตย์ (6)", "meaning": "เกียรติยศ อำนาจ วาสนา ความเป็นผู้นำโดดเด่น"},
+    7: {"name": "กำลังพระเสาร์เล็ก (7)", "meaning": "ความสุขุม รอบคอบ อดทน หนักแน่น"},
+    8: {"name": "กำลังพระอังคาร (8)", "meaning": "ความกล้าหาญ เด็ดเดี่ยว ชัยชนะ การแข่งขัน"},
+    9: {"name": "กำลังพระเกตุ (9)", "meaning": "สิ่งศักดิ์สิทธิ์คุ้มครอง ลางสังหรณ์แม่นยำ เทคโนโลยี"},
+    10: {"name": "กำลังพระเสาร์ (10)", "meaning": "ความมั่นคง มหาอุตม์ อสังหาริมทรัพย์ ความรับผิดชอบสูง"},
+    11: {"name": "ราชาโชค (11)", "meaning": "โชคลาภเกื้อหนุน การเดินทาง ความสำเร็จราบรื่น"},
+    12: {"name": "กำลังพระราหู (12)", "meaning": "ไหวพริบปฏิภาณ พลิกแพลง โชคลาภกะทันหัน"},
+    13: {"name": "มหาอุจจ์ (13)", "meaning": "พลังเข้มแข็ง บารมีสูงเด่น พลิกฟื้นสถานการณ์"},
+    14: {"name": "จักรพรรดิ (14)", "meaning": "ความสำเร็จยิ่งใหญ่ วาสนาสูง ผู้นำองค์กร มหาเสน่ห์"},
+    15: {"name": "กำลังพระจันทร์ (15)", "meaning": "เสน่ห์เมตตามหานิยม มหาเศรษฐี โภคทรัพย์สมบูรณ์"},
+    16: {"name": "โสฬสมงคล (16)", "meaning": "สิริมงคลสูงสุด 16 ชั้นฟ้า ความสำเร็จสมบูรณ์พูนผล"},
+    17: {"name": "กำลังพระพุธ (17)", "meaning": "เจรจาค้าขาย ปัญญาเลิศล้ำ วาจาสิทธิ์ การทูต"},
+    18: {"name": "มหาจักรพรรดิ (18)", "meaning": "อำนาจบารมีมหาศาล ความยิ่งใหญ่ เกียรติยศสูงสุด"},
+    19: {"name": "กำลังพระพฤหัสบดี (19)", "meaning": "ครูบาอาจารย์ ปัญญาญาณ มหาเศรษฐี ผู้ใหญ่เมตตา"},
+    20: {"name": "มหาโชค (20)", "meaning": "ความอุดมสมบูรณ์ มั่งคั่ง มั่งมี โภคทรัพย์ไหลมา"},
+    21: {"name": "กำลังพระศุกร์ (21)", "meaning": "โภคทรัพย์เงินทอง ศิลปะ ความสุขเกษม เสน่ห์สมบูรณ์"}
+}
+
+
 class NumerologyEngine(AbstractAstrologyEngine):
     """Core Numerology & Satta-Lek calculation engine."""
 
@@ -64,15 +87,18 @@ class NumerologyEngine(AbstractAstrologyEngine):
         from project.core.fast_math import fast_satta_lek_matrix
         row1, row2, row3, row4 = fast_satta_lek_matrix(day_num, lunar_month, year_zodiac_num)
 
-
         matrix = []
         for i in range(7):
+            sum_val = row4[i]
+            p_info = PLANETARY_POWER_BASE.get(sum_val, {"name": f"ฐานกำลัง ({sum_val})", "meaning": "พลังงานส่งเสริมดวงชะตา"})
             matrix.append({
                 "house_name": SATTA_LEK_HOUSES[i],
                 "row1_day": row1[i],
                 "row2_month": row2[i],
                 "row3_year": row3[i],
-                "row4_sum": row4[i]
+                "row4_sum": sum_val,
+                "power_name": p_info["name"],
+                "power_meaning": p_info["meaning"]
             })
 
         raw = {
@@ -93,24 +119,33 @@ class NumerologyEngine(AbstractAstrologyEngine):
         Score any text, name, phone number, or license plate using Chaldean Numerology.
         Sum digits/char values and reduce to single digit & root sum.
         """
-        digits = [int(c) for c in text if c.isdigit()]
-        text_chars = [c for c in text if not c.isdigit() and c in CHALDEAN_MAP]
+        breakdown = []
+        for c in text:
+            if c.isdigit():
+                breakdown.append({"char": c, "val": int(c), "type": "digit"})
+            elif c in CHALDEAN_MAP:
+                breakdown.append({"char": c, "val": CHALDEAN_MAP[c], "type": "letter"})
+            elif c != " ":
+                breakdown.append({"char": c, "val": 0, "type": "symbol"})
 
-        total_sum = sum(digits) + sum(CHALDEAN_MAP[c] for c in text_chars)
-        
+        total_sum = sum(b["val"] for b in breakdown)
+
         # Reduce to single digit
         root = total_sum
         while root > 9:
             root = sum(int(d) for d in str(root))
 
         meaning = NUMBER_MEANINGS.get(root, "เลขมงคลสมดุล")
+        auspicious_tier = "มงคลยิ่ง (High Auspicious)" if root in (1, 4, 5, 6, 9) else ("มงคลปานกลาง (Neutral/Progressive)" if root in (2, 8) else "ควรระวัง/รอบคอบ (Cautious)")
 
         raw = {
             "engine": "ChaldeanNumerologyEngine",
             "input_text": text,
+            "char_breakdown": breakdown,
             "total_score": total_sum,
             "reduced_root_digit": root,
-            "digit_meaning": meaning
+            "digit_meaning": meaning,
+            "auspicious_tier": auspicious_tier
         }
         return EngineChartResult(
             engine_name=self.engine_name,

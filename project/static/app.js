@@ -1360,32 +1360,188 @@ async function calcWestern() {
   }
 }
 
-async function calcNumerology() {
+const SATTA_LEK_HOUSE_NAMES = ["อัตตา (ตัวตน/วาสนา)", "หินะ (อุปสรรค/ระวัง)", "ธนัง (ทรัพย์สิน/เงินทอง)", "ปิตา (บิดา/ผู้ใหญ่ชาย)", "มาตา (มารดา/อุปถัมภ์)", "โภคา (หลักทรัพย์/สมบัติ)", "มัชฌิมา (ความพอดี/ชีวิตกลาง)"];
+const THAI_DAY_OPTS = ["วันอาทิตย์ (1)", "วันจันทร์ (2)", "วันอังคาร (3)", "วันพุธ (4)", "วันพฤหัสบดี (5)", "วันศุกร์ (6)", "วันเสาร์ (7)"];
+const THAI_MONTH_OPTS = ["เดือน 1 (อ้าย)", "เดือน 2 (ยี่)", "เดือน 3", "เดือน 4", "เดือน 5", "เดือน 6", "เดือน 7", "เดือน 8", "เดือน 9", "เดือน 10", "เดือน 11", "เดือน 12"];
+const THAI_ZODIAC_OPTS = ["ชวด (หนู - 1)", "ฉลู (วัว - 2)", "ขาล (เสือ - 3)", "เถาะ (กระต่าย - 4)", "มะโรง (งูใหญ่ - 5)", "มะเส็ง (งูเล็ก - 6)", "มะเมีย (ม้า - 7)", "มะแม (แพะ - 8)", "วอก (ลิง - 9)", "ระกา (ไก่ - 10)", "จอ (สุนัข - 11)", "กุน (หมู - 12)"];
+
+async function calcNumerology(customParams = null) {
+  showBranchLoading("🔢 ผังดวงสัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean Visualizer");
+  
+  let dayNum = 2, monthNum = 6, yearZodiac = 7, inputText = "0812345678";
+  
+  if (customParams) {
+    dayNum = customParams.dayNum || 2;
+    monthNum = customParams.monthNum || 6;
+    yearZodiac = customParams.yearZodiac || 7;
+    inputText = customParams.inputText || "0812345678";
+  } else {
+    const rawDt = document.getElementById('birth_datetime')?.value || "1990-05-15 14:30:00";
+    const d = new Date(rawDt.replace(" ", "T"));
+    if (!isNaN(d.getTime())) {
+      dayNum = d.getDay() + 1; // 1=Sun .. 7=Sat
+      monthNum = d.getMonth() + 1; // 1-12
+      yearZodiac = ((d.getFullYear() - 4) % 12) + 1;
+      if (yearZodiac <= 0) yearZodiac += 12;
+    }
+    const q = document.getElementById('query')?.value;
+    if (q && q.trim()) {
+      inputText = q.trim();
+    }
+  }
+
   try {
-    const res = await fetchApi('/api/v1/numerology/calculate?text=0812345678&day_num=2&lunar_month=6&year_zodiac_num=7');
+    const res = await fetchApi(`/api/v1/numerology/calculate?text=${encodeURIComponent(inputText)}&day_num=${dayNum}&lunar_month=${monthNum}&year_zodiac_num=${yearZodiac}`);
     const data = await res.json();
     const score = data.chaldean_score || {};
     const satta = data.satta_lek || {};
-    const html = `
-      <div style="background: rgba(20, 184, 166, 0.15); border: 1px solid #2dd4bf; padding: 1rem; border-radius: 8px;">
-        <h4 style="color: #2dd4bf; margin-top: 0;">🔢 สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean</h4>
-        <p><strong>เลขศาสตร์ Chaldean (Input: ${score.input_text || ''}):</strong> ผลรวม ${score.total_score || ''} → ถอดถอดรากได้ <strong>เลข ${score.reduced_root_digit || ''}</strong></p>
-        <p><strong>ความหมายเลข:</strong> ${score.digit_meaning || ''}</p>
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
-        <p><strong>ผัง 7 ฐาน 4 แถว (Satta-Lek Matrix):</strong></p>
-        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; font-size: 0.8rem; text-align: center;">
-          ${(satta.matrix_7_base || []).map(m => `
-            <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid #0d9488; padding: 4px; border-radius: 4px;">
-              <strong>${m.column_name}</strong><br>${m.digit}
+    const matrix = satta.matrix_7_base || [];
+    const breakdown = score.char_breakdown || [];
+
+    const charBoxesHtml = breakdown.length ? `
+      <div style="margin: 0.8rem 0; overflow-x: auto;">
+        <p style="margin: 0 0 0.4rem 0; font-size: 0.85rem; color: #99f6e4;"><strong>ตารางถอดรหัสตัวอักษรทีละตัว (Letter Decomposition Matrix):</strong></p>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+          ${breakdown.map(b => `
+            <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(45, 212, 191, 0.4); border-radius: 6px; padding: 4px 8px; text-align: center; min-width: 32px;">
+              <div style="font-size: 1rem; font-weight: bold; color: #ffffff;">${b.char}</div>
+              <div style="font-size: 0.85rem; font-weight: bold; color: #2dd4bf; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 2px; padding-top: 2px;">${b.val}</div>
             </div>
           `).join('')}
         </div>
+      </div>
+    ` : '';
+
+    const matrixTableHtml = `
+      <div style="overflow-x: auto; margin: 1rem 0;">
+        <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.85rem;">
+          <thead>
+            <tr style="background: rgba(13, 148, 136, 0.35);">
+              <th style="padding: 8px; border: 1px solid #0d9488; color: #99f6e4;">ฐาน / ภพ</th>
+              ${matrix.map(m => `<th style="padding: 8px; border: 1px solid #0d9488; color: #2dd4bf; font-weight: 700;">${m.house_name}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background: rgba(15, 23, 42, 0.7);">
+              <td style="padding: 8px; border: 1px solid #134e4a; font-weight: 600; color: #cbd5e1;">ฐาน ๑ (วัน)</td>
+              ${matrix.map(m => `<td style="padding: 8px; border: 1px solid #134e4a; font-size: 1.1rem; font-weight: bold; color: #f8fafc;">${m.row1_day}</td>`).join('')}
+            </tr>
+            <tr style="background: rgba(15, 23, 42, 0.5);">
+              <td style="padding: 8px; border: 1px solid #134e4a; font-weight: 600; color: #cbd5e1;">ฐาน ๒ (เดือน)</td>
+              ${matrix.map(m => `<td style="padding: 8px; border: 1px solid #134e4a; font-size: 1.1rem; font-weight: bold; color: #f8fafc;">${m.row2_month}</td>`).join('')}
+            </tr>
+            <tr style="background: rgba(15, 23, 42, 0.7);">
+              <td style="padding: 8px; border: 1px solid #134e4a; font-weight: 600; color: #cbd5e1;">ฐาน ๓ (ปี)</td>
+              ${matrix.map(m => `<td style="padding: 8px; border: 1px solid #134e4a; font-size: 1.1rem; font-weight: bold; color: #f8fafc;">${m.row3_year}</td>`).join('')}
+            </tr>
+            <tr style="background: rgba(245, 158, 11, 0.15); border-top: 2px solid #f59e0b;">
+              <td style="padding: 8px; border: 1px solid #d97706; font-weight: 700; color: #fbbf24;">ฐาน ๔ (กำลังดาว)</td>
+              ${matrix.map(m => `
+                <td style="padding: 8px; border: 1px solid #d97706;">
+                  <div style="font-size: 1.25rem; font-weight: bold; color: #fbbf24;">${m.row4_sum}</div>
+                  <div style="font-size: 0.7rem; color: #fde68a; margin-top: 2px;">${(m.power_name || '').split('(')[0]}</div>
+                </td>
+              `).join('')}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    const houseAnalysisHtml = `
+      <div style="margin-top: 1rem;">
+        <h5 style="color: #2dd4bf; margin: 0 0 0.6rem 0;">🏛️ คำพยากรณ์เจาะลึก 7 ภพชะตา (7 Houses In-Depth):</h5>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px;">
+          ${matrix.map((m, idx) => `
+            <div style="background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(45, 212, 191, 0.3); border-radius: 8px; padding: 8px 10px;">
+              <div style="font-weight: bold; color: #2dd4bf; font-size: 0.9rem;">${SATTA_LEK_HOUSE_NAMES[idx] || m.house_name}</div>
+              <div style="font-size: 0.8rem; color: #fbbf24; margin: 2px 0;">กำลังดาว: <strong>${m.power_name || m.row4_sum}</strong></div>
+              <div style="font-size: 0.75rem; color: #cbd5e1; line-height: 1.4;">${m.power_meaning || 'พลังส่งเสริมดวงชะตา'}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    const interactiveControlsHtml = `
+      <div style="background: rgba(13, 148, 136, 0.12); border: 1px solid rgba(45, 212, 191, 0.3); border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; align-items: end;">
+          <div>
+            <label style="font-size: 0.75rem; color: #99f6e4; display: block; margin-bottom: 2px;">วันเกิด (ฐาน ๑)</label>
+            <select id="num-day-select" class="form-select" style="font-size: 0.8rem; padding: 4px 6px;">
+              ${THAI_DAY_OPTS.map((d, i) => `<option value="${i+1}" ${dayNum === i+1 ? 'selected' : ''}>${d}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #99f6e4; display: block; margin-bottom: 2px;">เดือนเกิด (ฐาน ๒)</label>
+            <select id="num-month-select" class="form-select" style="font-size: 0.8rem; padding: 4px 6px;">
+              ${THAI_MONTH_OPTS.map((m, i) => `<option value="${i+1}" ${monthNum === i+1 ? 'selected' : ''}>${m}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #99f6e4; display: block; margin-bottom: 2px;">ปีนักษัตร (ฐาน ๓)</label>
+            <select id="num-zodiac-select" class="form-select" style="font-size: 0.8rem; padding: 4px 6px;">
+              ${THAI_ZODIAC_OPTS.map((z, i) => `<option value="${i+1}" ${yearZodiac === i+1 ? 'selected' : ''}>${z}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #99f6e4; display: block; margin-bottom: 2px;">ชื่อ / เบอร์ / ทะเบียนรถ</label>
+            <input type="text" id="num-text-input" value="${score.input_text || inputText}" style="font-size: 0.8rem; padding: 4px 6px; width: 100%; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.8); color: #fff;">
+          </div>
+          <div>
+            <button type="button" class="btn-sm" style="width: 100%; background: #0d9488; color: #fff; font-weight: bold; padding: 6px;" onclick="recalcNumerologyFromUi()">⚡ วิเคราะห์ใหม่</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const html = `
+      <div style="background: rgba(4, 22, 22, 0.85); border: 1px solid #2dd4bf; padding: 1.25rem; border-radius: 12px; backdrop-filter: blur(12px);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 0.8rem;">
+          <h4 style="color: #2dd4bf; margin: 0; font-size: 1.15rem;">🔢 สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean Visualizer</h4>
+          <span style="background: rgba(45, 212, 191, 0.2); color: #2dd4bf; border: 1px solid #0d9488; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem;">${score.auspicious_tier || 'มงคลสมดุล'}</span>
+        </div>
+
+        ${interactiveControlsHtml}
+
+        <!-- Chaldean Numerology Summary -->
+        <div style="background: rgba(15, 45, 42, 0.6); border: 1px solid rgba(45, 212, 191, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <span style="color: #cbd5e1; font-size: 0.85rem;">ข้อความ/ตัวเลขที่วิเคราะห์:</span>
+              <strong style="color: #99f6e4; font-size: 1rem; margin-left: 4px;">"${score.input_text || inputText}"</strong>
+            </div>
+            <div style="font-size: 0.9rem;">
+              <span style="color: #cbd5e1;">ผลรวม Chaldean:</span>
+              <strong style="color: #fbbf24; font-size: 1.15rem; margin: 0 4px;">${score.total_score || ''}</strong>
+              <span style="color: #cbd5e1;">➔ ถอดรากได้:</span>
+              <strong style="color: #2dd4bf; font-size: 1.25rem; margin-left: 4px;">เลข ${score.reduced_root_digit || ''}</strong>
+            </div>
+          </div>
+          ${charBoxesHtml}
+          <p style="margin: 0.4rem 0 0 0; font-size: 0.85rem; color: #e2e8f0;"><strong>ความหมายดาวประจำเลข:</strong> ${score.digit_meaning || ''}</p>
+        </div>
+
+        <!-- 7-Base 4-Row Matrix -->
+        <h5 style="color: #2dd4bf; margin: 0.8rem 0 0.4rem 0;">📊 ผัง 7 ฐาน 4 แถว (Satta-Lek 7-Base Matrix):</h5>
+        ${matrixTableHtml}
+
+        <!-- In-Depth House Analysis -->
+        ${houseAnalysisHtml}
       </div>
     `;
     showBranchCard("🔢 สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean Visualizer", html, data.svg_content);
   } catch (err) {
     showBranchCard("🔢 สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean Visualizer", `<div style="background: rgba(20, 184, 166, 0.15); border: 1px solid #2dd4bf; padding: 1rem; border-radius: 8px;"><h4 style="color: #2dd4bf; margin-top: 0;">🔢 สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean</h4><p><strong>เลขศาสตร์ Chaldean:</strong> ผลรวม 45 → ถอดรากได้ <strong>เลข 9</strong></p><p><strong>สถานะคำนวณ:</strong> ประมวลผลผัง 7 ฐาน 4 แถวเรียบร้อยแล้ว</p></div>`, null);
   }
+}
+
+function recalcNumerologyFromUi() {
+  const dayNum = parseInt(document.getElementById('num-day-select')?.value || '2', 10);
+  const monthNum = parseInt(document.getElementById('num-month-select')?.value || '6', 10);
+  const yearZodiac = parseInt(document.getElementById('num-zodiac-select')?.value || '7', 10);
+  const inputText = document.getElementById('num-text-input')?.value || '0812345678';
+  calcNumerology({ dayNum, monthNum, yearZodiac, inputText });
 }
 
 async function calcTaiYi() {

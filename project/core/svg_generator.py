@@ -468,25 +468,60 @@ def generate_numerology_svg(chart: dict[str, Any], title: str = "ผังดว
     matrix = satta.get("matrix_7_base", [])
 
     svg_parts = [
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 480" width="100%" height="100%">',
-        '  <rect width="700" height="480" rx="16" fill="#041616" stroke="#14b8a6" stroke-width="2"/>',
-        f'  <text x="350" y="40" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#2dd4bf" text-anchor="middle">🔢 {title}</text>',
-        f'  <text x="350" y="70" font-family="Prompt, sans-serif" font-size="13" fill="#99f6e4" text-anchor="middle">Chaldean Score ({score.get("input_text","")}): {score.get("total_score","")} ➔ เลข {score.get("reduced_root_digit","")} [{score.get("digit_meaning","")}]</text>',
-        '  <g transform="translate(30, 95)">'
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 530" width="100%" height="100%">',
+        '  <defs>',
+        '    <linearGradient id="bgNum" x1="0%" y1="0%" x2="100%" y2="100%">',
+        '      <stop offset="0%" stop-color="#021f1d" />',
+        '      <stop offset="100%" stop-color="#0a141a" />',
+        '    </linearGradient>',
+        '    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">',
+        '      <stop offset="0%" stop-color="#14b8a6" />',
+        '      <stop offset="100%" stop-color="#38bdf8" />',
+        '    </linearGradient>',
+        '  </defs>',
+        '  <rect width="760" height="530" rx="16" fill="url(#bgNum)" stroke="#0d9488" stroke-width="2"/>',
+        f'  <text x="380" y="38" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#2dd4bf" text-anchor="middle">🔢 {title}</text>',
+        f'  <rect x="50" y="55" width="660" height="36" rx="8" fill="rgba(13, 148, 136, 0.2)" stroke="#14b8a6" stroke-width="1"/>',
+        f'  <text x="380" y="78" font-family="Prompt, sans-serif" font-size="13" font-weight="500" fill="#99f6e4" text-anchor="middle">Chaldean Score ({score.get("input_text","")}): รวม {score.get("total_score","")} ➔ รากเลข {score.get("reduced_root_digit","")} [{score.get("digit_meaning","")}]</text>',
+        '  <g transform="translate(100, 105)">'
     ]
 
-    col_w = 90
+    # Row labels on the left
+    row_labels = [
+        ("ฐาน ๑ (วัน)", 55),
+        ("ฐาน ๒ (เดือน)", 135),
+        ("ฐาน ๓ (ปี)", 215),
+        ("ฐาน ๔ (กำลังดาว)", 295)
+    ]
+    for label, y in row_labels:
+        svg_parts.append(f'    <text x="-15" y="{y}" font-family="Prompt, sans-serif" font-size="12" font-weight="600" fill="#64748b" text-anchor="end">{label}</text>')
+
+    col_w = 88
     for idx, m in enumerate(matrix[:7]):
         x = idx * col_w
-        svg_parts.append(f'    <rect x="{x}" y="0" width="82" height="350" rx="8" fill="#0f2d2a" stroke="#0d9488" stroke-width="1.5"/>')
-        svg_parts.append(f'    <text x="{x+41}" y="28" font-family="Prompt, sans-serif" font-size="12" font-weight="bold" fill="#2dd4bf" text-anchor="middle">{m.get("house_name","")}</text>')
-        svg_parts.append(f'    <line x1="{x+5}" y1="40" x2="{x+77}" y2="40" stroke="#134e4a"/>')
-        svg_parts.append(f'    <text x="{x+41}" y="90" font-family="sans-serif" font-size="22" font-weight="bold" fill="#ffffff" text-anchor="middle">{m.get("row1_day","")}</text>')
-        svg_parts.append(f'    <text x="{x+41}" y="160" font-family="sans-serif" font-size="22" font-weight="bold" fill="#ffffff" text-anchor="middle">{m.get("row2_month","")}</text>')
-        svg_parts.append(f'    <text x="{x+41}" y="230" font-family="sans-serif" font-size="22" font-weight="bold" fill="#ffffff" text-anchor="middle">{m.get("row3_year","")}</text>')
-        svg_parts.append(f'    <line x1="{x+5}" y1="270" x2="{x+77}" y2="270" stroke="#134e4a"/>')
-        svg_parts.append(f'    <text x="{x+41}" y="315" font-family="sans-serif" font-size="24" font-weight="bold" fill="#fbbf24" text-anchor="middle">{m.get("row4_sum","")}</text>')
+        svg_parts.append(f'    <rect x="{x}" y="0" width="80" height="340" rx="8" fill="#0f2d2a" stroke="#0d9488" stroke-width="1.5"/>')
+        # House Name Header
+        svg_parts.append(f'    <rect x="{x}" y="0" width="80" height="32" rx="8" fill="rgba(20, 184, 166, 0.3)"/>')
+        svg_parts.append(f'    <text x="{x+40}" y="21" font-family="Prompt, sans-serif" font-size="13" font-weight="bold" fill="#2dd4bf" text-anchor="middle">{m.get("house_name","")}</text>')
+        svg_parts.append(f'    <line x1="{x+4}" y1="32" x2="{x+76}" y2="32" stroke="#134e4a"/>')
+        # Row 1 (Day)
+        svg_parts.append(f'    <text x="{x+40}" y="65" font-family="Outfit, sans-serif" font-size="24" font-weight="bold" fill="#f8fafc" text-anchor="middle">{m.get("row1_day","")}</text>')
+        svg_parts.append(f'    <line x1="{x+8}" y1="88" x2="{x+72}" y2="88" stroke="#134e4a" stroke-dasharray="3,3"/>')
+        # Row 2 (Month)
+        svg_parts.append(f'    <text x="{x+40}" y="145" font-family="Outfit, sans-serif" font-size="24" font-weight="bold" fill="#f8fafc" text-anchor="middle">{m.get("row2_month","")}</text>')
+        svg_parts.append(f'    <line x1="{x+8}" y1="168" x2="{x+72}" y2="168" stroke="#134e4a" stroke-dasharray="3,3"/>')
+        # Row 3 (Year)
+        svg_parts.append(f'    <text x="{x+40}" y="225" font-family="Outfit, sans-serif" font-size="24" font-weight="bold" fill="#f8fafc" text-anchor="middle">{m.get("row3_year","")}</text>')
+        svg_parts.append(f'    <line x1="{x+4}" y1="248" x2="{x+76}" y2="248" stroke="#0d9488" stroke-width="1.5"/>')
+        # Row 4 (Planetary Power Sum)
+        p_name = m.get("power_name", "")
+        short_p = p_name.split("(")[0].strip() if "(" in p_name else p_name
+        svg_parts.append(f'    <rect x="{x+4}" y="254" width="72" height="78" rx="6" fill="rgba(251, 191, 36, 0.12)" stroke="#d97706" stroke-width="1"/>')
+        svg_parts.append(f'    <text x="{x+40}" y="288" font-family="Outfit, sans-serif" font-size="26" font-weight="bold" fill="#fbbf24" text-anchor="middle">{m.get("row4_sum","")}</text>')
+        svg_parts.append(f'    <text x="{x+40}" y="318" font-family="Prompt, sans-serif" font-size="10" font-weight="500" fill="#fde68a" text-anchor="middle">{short_p[:8]}</text>')
 
+    # Footer note inside SVG
     svg_parts.append('  </g>')
+    svg_parts.append('  <text x="380" y="495" font-family="Prompt, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">สัตตเลข 7 ฐาน (ภพ ๗ เรือน) + ถอดรหัสอักษรเลขศาสตร์ Chaldean โบราณ</text>')
     svg_parts.append('</svg>')
     return "\n".join(svg_parts)

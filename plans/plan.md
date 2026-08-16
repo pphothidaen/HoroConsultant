@@ -1,4 +1,64 @@
 ---
+## 🔥 GRILL REPORT — สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean Visualizer
+**Date**: 2026-08-16T13:46:00+07:00  
+**Grilled By**: orchestrator  
+**Gate Status**: ✅ APPROVED  
+
+### D1 — Scope Boundary
+- **IN**:
+  1. `project/static/app.js` & `public/app.js`: สร้างและปรับปรุงฟังก์ชัน `calcNumerology()` และอินเตอร์เฟซ Visualizer แบบโต้ตอบสำหรับ **สัตตเลข 7 ฐาน 4 แถว** (ฐานวัน, ฐานเดือน, ฐานปี, ฐานกำลังดาวผลรวม) และ **เลขศาสตร์ Chaldean** (ถอดรหัสตัวอักษร/ตัวเลข ผลรวมชะตา รากเลข 1-9 และความหมายดวงดาว).
+  2. `project/core/svg_generator.py`: ยกระดับ `generate_numerology_svg()` ให้แสดงผลผัง 7 ฐาน 4 แถว และตารางถอดรหัสเลขศาสตร์แบบ SVG Vector กราฟิกคมชัดสวยงาม.
+  3. `project/routers/astrology.py`: เสริมพารามิเตอร์รับค่าอินพุตสำหรับการวิเคราะห์.
+  4. `project/tests/test_numerology_visualizer.py`: Unit test ครอบคลุมการคำนวณและการเรนเดอร์.
+  5. Playwright E2E & Production Deploy verification.
+- **OUT**: การแก้ไขโมดูล BaZi อื่นๆ ที่ไม่เกี่ยวข้อง, การแตะต้อง Kaggle accelerator.
+
+### D2 — Requirement Delta
+- **New Additions**:
+  - Interactive Satta-Lek 7-Base Matrix Table with 7 Houses (อัตตา, หินะ, ธนัง, ปิตา, มาตา, โภคา, มัชฌิมา).
+  - Row 1 (วัน), Row 2 (เดือน), Row 3 (ปี), Row 4 (กำลังพระเคราะห์ / ผลรวม).
+  - Letter-by-letter Chaldean Mapping breakdown grid.
+  - Interactive custom input form within modal/branch card for custom birth date & text analysis.
+- **Cleaned Up**: Removed static placeholders in numerology viewer.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification Tool | Responsible Agent |
+|---|---|---|---|
+| 1 | การคำนวณผัง 7 ฐาน 4 แถว ถูกต้องตามหลักสัตตเลขไทย | `pytest project/tests/test_numerology_visualizer.py` | `developer` / `qa_tester` |
+| 2 | การถอดรหัสตัวอักษร Chaldean ถูกต้องทั้งภาษาไทยและอังกฤษ | `pytest project/tests/test_numerology_visualizer.py` | `developer` / `qa_tester` |
+| 3 | Visualizer แสดงผลสวยงาม Responsive ไม่มี Overlap | `python3 scripts/audit_ui_overlap.py` | `qa_tester` |
+| 4 | Pre-deployment review ผ่าน 100% | `python3 project/core/code_reviewer.py --review` | `code_reviewer` |
+| 5 | Live Production Deploy & E2E Pass | `python3 scripts/run_prod_e2e_playwright.py` | `devops` |
+
+### D4 — Constraints & Safeguards
+- Pure ASCII Logging.
+- Responsive design without section overlap.
+- Zero secret leaks.
+
+### D5 — Sub-Agent Allocation & Dependencies
+- `TICKET-NUMEROLOGY-001` (Plan & Spec Architecture) — `orchestrator` / `business_analyst`
+- `TICKET-NUMEROLOGY-002` (Core SVG & Web Visualizer Implementation) — `developer`
+- `TICKET-NUMEROLOGY-003` (Unit Testing & Visual Verification) — `qa_tester`
+- `TICKET-NUMEROLOGY-004` (CI/CD Production Deployment & Live Verification) — `devops`
+
+### D6 — Assumption Register
+| # | Assumption | Status |
+|---|---|---|
+| 1 | Satta-Lek follows classical Thai 7-Base (วัน, เดือน, ปี, ผลรวม) | [CONFIRMED] |
+| 2 | Chaldean mapping uses standard Cheiro / Thai gematria alphabet weights | [CONFIRMED] |
+
+### D7 — Risk & Rollback
+- Risk: None (isolated numerology visualizer rendering enhancements).
+- Rollback: Revert `app.js` and `svg_generator.py` to previous git commit if needed.
+
+### D8 — Token Budget
+- Optimized for zero token waste via deterministic formulas.
+
+### D9 — Metaphysics Alignment
+- 100% compliant with classical Satta-Lek and Chaldean numerology doctrine.
+
+---
+
 ## 🔥 GRILL REPORT — Continuous MLOps Distillation, Hybrid LLM Expansion & Grafana Tuning
 **Date**: 2026-08-16T12:52:00+07:00  
 **Grilled By**: orchestrator  
