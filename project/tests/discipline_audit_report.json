@@ -1,40 +1,40 @@
 [
   {
     "id": "DISC-01",
-    "name": "四柱 Four Pillars (BaZi)",
+    "name": "四柱 BaZi (Four Pillars)",
     "doctrine": "Classical BaZi (滴天髓 / 淵海子平)",
     "passed": false,
     "is_visible": true,
-    "has_svg": true,
+    "has_svg": false,
     "svg_expected": true,
     "element_checks": [
       {
-        "item": "4 เสาหลัก (Year/Month/Day/Hour)",
+        "item": "Year",
+        "found": false
+      },
+      {
+        "item": "Month",
+        "found": false
+      },
+      {
+        "item": "Day",
+        "found": false
+      },
+      {
+        "item": "Hour",
+        "found": false
+      },
+      {
+        "item": "True Solar Time",
+        "found": false
+      },
+      {
+        "item": "Pillars",
         "found": true
-      },
-      {
-        "item": "10 ก้านฟ้า 12 กิ่งดิน",
-        "found": false
-      },
-      {
-        "item": "ดิถีประจำตัว (Day Master)",
-        "found": false
-      },
-      {
-        "item": "สมดุล 5 ธาตุ",
-        "found": false
-      },
-      {
-        "item": "เวลาสุริยคติแท้ (TST)",
-        "found": false
-      },
-      {
-        "item": "วัยจร/ปีจร",
-        "found": false
       }
     ],
-    "snapshot": "discipline_disc-01_四柱.png",
-    "body_snippet": "🏛️ ผังดวงชะตา 4 เสา (Four Pillars of Destiny — 四柱) TST Adjusted ปี (年柱) พื้นฐานอัตลักษณ์ตระกูล 庚 午 เดือน (月柱) ฐานฤกษ์และจังหวะกาลเวลา 壬 午 วัน (日柱) โครงแกนดวงชะตาหลัก (Day Master) 庚 辰 ยาม (時柱) แนวโน้มภ"
+    "elements_matched": "1/6",
+    "snapshot": "discipline_disc_01.png"
   },
   {
     "id": "DISC-02",
@@ -42,36 +42,36 @@
     "doctrine": "Zi Wei Dou Shu (紫微斗數全書)",
     "passed": false,
     "is_visible": true,
-    "has_svg": true,
+    "has_svg": false,
     "svg_expected": true,
     "element_checks": [
       {
-        "item": "命宮 (Ming Gong)",
+        "item": "命宮",
         "found": false
       },
       {
-        "item": "身宮 (Shen Gong)",
+        "item": "身宮",
         "found": false
       },
       {
-        "item": "五行局 (Bureau)",
+        "item": "五行局",
         "found": false
       },
       {
-        "item": "紫微/天府星位",
-        "found": true
-      },
-      {
-        "item": "四化 (Si Hua 祿/權/科/忌)",
+        "item": "紫微星位",
         "found": false
       },
       {
-        "item": "ผัง 12 ภพ (12 Palaces)",
+        "item": "四化",
+        "found": false
+      },
+      {
+        "item": "ผัง 12 ภพ",
         "found": false
       }
     ],
-    "snapshot": "discipline_disc-02_紫微斗數.png",
-    "body_snippet": "🔮 ผังวิชา紫微斗數 (Zi Wei Dou Shu Visualizer) กำลังประมวลผลคำนวณผังตำแหน่งดาวและวิชา..."
+    "elements_matched": "0/6",
+    "snapshot": "discipline_disc_02.png"
   },
   {
     "id": "DISC-03",
@@ -79,40 +79,40 @@
     "doctrine": "Qi Men Dun Jia (煙波釣叟歌 / 御定奇門寶鑑)",
     "passed": false,
     "is_visible": true,
-    "has_svg": true,
+    "has_svg": false,
     "svg_expected": true,
     "element_checks": [
       {
-        "item": "節氣 (Solar Term)",
+        "item": "節氣",
         "found": false
       },
       {
-        "item": "陰陽遁 (Yin/Yang Dun)",
+        "item": "陰陽遁",
         "found": false
       },
       {
-        "item": "局數 (Ju Number)",
+        "item": "局",
         "found": false
       },
       {
-        "item": "9 วัง (9 Palaces)",
+        "item": "宮位",
         "found": false
       },
       {
-        "item": "九星 (9 Stars)",
+        "item": "九星",
         "found": false
       },
       {
-        "item": "八門 (8 Doors)",
+        "item": "八門",
         "found": false
       },
       {
-        "item": "八神 (8 Spirits)",
+        "item": "八神",
         "found": false
       }
     ],
-    "snapshot": "discipline_disc-03_奇門遁甲.png",
-    "body_snippet": "⚡ ผังวิชา奇門遁甲 (Qi Men Dun Jia Visualizer) กำลังประมวลผลคำนวณผังตำแหน่งดาวและวิชา..."
+    "elements_matched": "0/7",
+    "snapshot": "discipline_disc_03.png"
   },
   {
     "id": "DISC-04",
@@ -120,32 +120,32 @@
     "doctrine": "Da Liu Ren (六壬大全 / 六壬指南)",
     "passed": false,
     "is_visible": true,
-    "has_svg": true,
+    "has_svg": false,
     "svg_expected": true,
     "element_checks": [
       {
-        "item": "日干支 (Day Stem-Branch)",
+        "item": "日干支",
         "found": false
       },
       {
-        "item": "月將 (Month General)",
+        "item": "月將",
         "found": false
       },
       {
-        "item": "占時 (Divination Hour)",
+        "item": "占時",
         "found": false
       },
       {
-        "item": "三傳 (3 Transmissions: 初/中/末)",
+        "item": "三傳",
         "found": false
       },
       {
-        "item": "四課 (4 Lessons: 1-4)",
+        "item": "四課",
         "found": false
       }
     ],
-    "snapshot": "discipline_disc-04_大六壬.png",
-    "body_snippet": "🌊 ผังวิชา大六壬 (Da Liu Ren Visualizer) กำลังประมวลผลคำนวณผังตำแหน่งดาวและวิชา..."
+    "elements_matched": "0/5",
+    "snapshot": "discipline_disc_04.png"
   },
   {
     "id": "DISC-05",
@@ -153,36 +153,28 @@
     "doctrine": "I Ching & Wen Wang Ba Gua (周易 / 卜筮正宗 / 增刪卜易)",
     "passed": false,
     "is_visible": true,
-    "has_svg": true,
+    "has_svg": false,
     "svg_expected": true,
     "element_checks": [
       {
-        "item": "本卦 (Primary Hexagram)",
+        "item": "本卦",
         "found": false
       },
       {
-        "item": "變卦 (Transformed Hexagram)",
+        "item": "變卦",
         "found": false
       },
       {
-        "item": "六爻 6 เส้น (Line Types/Values)",
-        "found": false
+        "item": "爻",
+        "found": true
       },
       {
-        "item": "六親 (Relatives)",
-        "found": false
-      },
-      {
-        "item": "六神 (6 Animals/Spirits)",
-        "found": false
-      },
-      {
-        "item": "動爻 (Changing Lines)",
+        "item": "六神",
         "found": false
       }
     ],
-    "snapshot": "discipline_disc-05_易經六爻.png",
-    "body_snippet": "☯ ผังวิชา易經六爻 (I Ching & Liu Yao Visualizer) กำลังประมวลผลคำนวณผังตำแหน่งดาวและวิชา..."
+    "elements_matched": "1/4",
+    "snapshot": "discipline_disc_05.png"
   },
   {
     "id": "DISC-06",
@@ -190,40 +182,36 @@
     "doctrine": "Xuan Kong Flying Stars (沈氏玄空學 / 青囊經)",
     "passed": false,
     "is_visible": true,
-    "has_svg": true,
+    "has_svg": false,
     "svg_expected": true,
     "element_checks": [
       {
-        "item": "九運 (Period 9: 2024-2043)",
+        "item": "九運",
         "found": false
       },
       {
-        "item": "向首 (Facing Mountain)",
+        "item": "向首",
         "found": false
       },
       {
-        "item": "坐山 (Sitting Mountain)",
+        "item": "坐山",
         "found": false
       },
       {
-        "item": "9-Grid Palaces",
+        "item": "山",
         "found": false
       },
       {
-        "item": "山星 (Mountain Star)",
+        "item": "向",
         "found": false
       },
       {
-        "item": "向星 (Facing Star)",
-        "found": false
-      },
-      {
-        "item": "運星 (Base Star)",
+        "item": "運星",
         "found": false
       }
     ],
-    "snapshot": "discipline_disc-06_玄空風水.png",
-    "body_snippet": "🏯 ผังวิชา玄空風水 (Xuan Kong Visualizer) กำลังประมวลผลคำนวณผังตำแหน่งดาวและวิชา..."
+    "elements_matched": "0/6",
+    "snapshot": "discipline_disc_06.png"
   },
   {
     "id": "DISC-07",
@@ -231,24 +219,24 @@
     "doctrine": "Ze Ji Date Selection (協紀辨方書 / 玉匣記)",
     "passed": false,
     "is_visible": true,
-    "has_svg": true,
+    "has_svg": false,
     "svg_expected": true,
     "element_checks": [
       {
-        "item": "建除十二神 (12 Duty Officers)",
+        "item": "建除十二神",
         "found": false
       },
       {
-        "item": "ระดับความมงคล (Rating)",
+        "item": "ระดับความมงคล",
         "found": false
       },
       {
-        "item": "ความเหมาะสมประจำกิจกรรม (宜/忌/平)",
+        "item": "ความเหมาะสมประจำกิจกรรม",
         "found": false
       }
     ],
-    "snapshot": "discipline_disc-07_擇吉คำนวณฤกษ์.png",
-    "body_snippet": "📅 คำนวณฤกษ์擇吉 (Date Selection Visualizer) กำลังประมวลผลคำนวณผังตำแหน่งดาวและวิชา..."
+    "elements_matched": "0/3",
+    "snapshot": "discipline_disc_07.png"
   },
   {
     "id": "DISC-08",
@@ -256,15 +244,11 @@
     "doctrine": "Thai Suriyayart & Parashara Jyotish (คัมภีร์สุริยยาตร์ / มหาทักษา / พฤหัสชาดก)",
     "passed": false,
     "is_visible": true,
-    "has_svg": true,
+    "has_svg": false,
     "svg_expected": true,
     "element_checks": [
       {
-        "item": "ลัคนาสุริยยาตร์ (Lagna)",
-        "found": false
-      },
-      {
-        "item": "ดาวกาลกิณี",
+        "item": "ลัคนาสุริยยาตร์",
         "found": false
       },
       {
@@ -272,20 +256,24 @@
         "found": false
       },
       {
-        "item": "มหาทักษา 8 เทวดาเสวยอายุ",
+        "item": "ดาวกาลกิณี",
         "found": false
       },
       {
-        "item": "นักษัตร 27 ดารา (Vedic Nakshatra)",
+        "item": "มหาทักษา",
         "found": false
       },
       {
-        "item": "วิมโชตตรีทศา (Vimshottari Dasha)",
+        "item": "นักษัตร 27 ดารา",
+        "found": false
+      },
+      {
+        "item": "วิมโชตตรีทศา",
         "found": false
       }
     ],
-    "snapshot": "discipline_disc-08_โหราศาสตร์ไทย.png",
-    "body_snippet": "🐘 โหราศาสตร์ไทย & ภารตวิทยา (Thai & Jyotish Visualizer) กำลังประมวลผลคำนวณผังตำแหน่งดาวและวิชา..."
+    "elements_matched": "0/6",
+    "snapshot": "discipline_disc_08.png"
   },
   {
     "id": "DISC-09",
@@ -293,24 +281,24 @@
     "doctrine": "Western Tropical & Hamburg Uranian (Tetrabiblos / Alfred Witte Rulebook)",
     "passed": false,
     "is_visible": true,
-    "has_svg": true,
+    "has_svg": false,
     "svg_expected": true,
     "element_checks": [
       {
-        "item": "ดาวเคราะห์สากล (Sun, Moon, Mercury, etc.)",
+        "item": "Tropical Planets",
         "found": false
       },
       {
-        "item": "8 ดาวทิพย์ยูเรเนียน (8 Uranian TNPs: Cupido..Poseidon)",
+        "item": "Uranian TNPs",
         "found": false
       },
       {
-        "item": "จุดอิทธิพลศูนย์ครึ่ง (Midpoint Formula)",
+        "item": "จุดอิทธิพลสะท้อนศูนย์ลิขิต",
         "found": false
       }
     ],
-    "snapshot": "discipline_disc-09_โหราศาสตร์สากล.png",
-    "body_snippet": "🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian Visualizer) กำลังประมวลผลคำนวณผังตำแหน่งดาวและวิชา..."
+    "elements_matched": "0/3",
+    "snapshot": "discipline_disc_09.png"
   },
   {
     "id": "DISC-10",
@@ -318,197 +306,35 @@
     "doctrine": "Thai Satta-Lek 7-Base (คัมภีร์สัตตเลข 7 ฐาน 4 แถว) & Chaldean Gematria",
     "passed": false,
     "is_visible": true,
-    "has_svg": true,
+    "has_svg": false,
     "svg_expected": true,
     "element_checks": [
       {
-        "item": "ผัง 7 ฐาน 4 แถว (วัน/เดือน/ปี/กำลังดาว)",
+        "item": "ผัง 7 ฐาน 4 แถว",
         "found": false
       },
       {
-        "item": "7 ภพ (อัตตา, หินะ, ธนัง, ปิตา, มาตา, โภคา, มัชฌิมา)",
+        "item": "อัตตา",
         "found": false
       },
       {
-        "item": "ฐานกำลังพระเคราะห์ 21",
+        "item": "มัชฌิมา",
         "found": false
       },
       {
-        "item": "ตารางถอดรหัสตัวอักษร Chaldean",
+        "item": "ฐาน ๔",
         "found": false
       },
       {
-        "item": "ผลรวมตัวเลข & รากเลข 1-9",
-        "found": false
-      }
-    ],
-    "snapshot": "discipline_disc-10_สัตตเลข.png",
-    "body_snippet": "🔢 ผังดวงสัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean Visualizer กำลังประมวลผลคำนวณผังตำแหน่งดาวและวิชา..."
-  },
-  {
-    "id": "DISC-11",
-    "name": "太乙神數 (Tai Yi Shen Shu)",
-    "doctrine": "Tai Yi Shen Shu (太乙統宗寶鑑)",
-    "passed": false,
-    "is_visible": true,
-    "has_svg": true,
-    "svg_expected": false,
-    "element_checks": [
-      {
-        "item": "ปีสะสม (Accumulated Years)",
-        "found": false
-      },
-      {
-        "item": "ตำแหน่งดาวไท่อิก (Tai Yi Star Palace)",
-        "found": false
-      },
-      {
-        "item": "เลขจักรวาลไท่อิก (Tai Yi Number)",
-        "found": false
-      },
-      {
-        "item": "การประเมินเชิงยุทธศาสตร์",
-        "found": false
-      }
-    ],
-    "snapshot": "discipline_disc-11_太乙神數.png",
-    "body_snippet": "🔢 สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean Visualizer     🔢 สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean Visualizer มงคลสมดุล         วันเกิด (ฐาน ๑)   วันอาทิตย์ (1) วันจันทร์ (2) วันอังคาร (3) วันพุธ (4) วันพฤหัสบด"
-  },
-  {
-    "id": "DISC-12",
-    "name": "六爻預測 (Liu Yao Divination)",
-    "doctrine": "Wen Wang Ba Gua Liu Yao (卜筮正宗)",
-    "passed": false,
-    "is_visible": true,
-    "has_svg": true,
-    "svg_expected": false,
-    "element_checks": [
-      {
-        "item": "本卦 (Primary)",
-        "found": false
-      },
-      {
-        "item": "變卦 (Transformed)",
-        "found": false
-      },
-      {
-        "item": "世應 (Shi/Ying Line)",
-        "found": false
-      },
-      {
-        "item": "六親 (6 Relatives)",
-        "found": false
-      },
-      {
-        "item": "六神 (6 Spirits)",
-        "found": false
-      }
-    ],
-    "snapshot": "discipline_disc-12_六爻預測.png",
-    "body_snippet": "太乙 太乙神數 (Tai Yi Visualizer) 太乙 太乙神數  สถานะคำนวณ: ประมวลผลผังไท่อิกเรียบร้อยแล้ว"
-  },
-  {
-    "id": "DISC-13",
-    "name": "梅花易數 (Mei Hua Yi Shu)",
-    "doctrine": "Mei Hua Yi Shu (邵康節梅花易數)",
-    "passed": false,
-    "is_visible": true,
-    "has_svg": true,
-    "svg_expected": false,
-    "element_checks": [
-      {
-        "item": "上卦 (Upper Trigram)",
-        "found": false
-      },
-      {
-        "item": "下卦 (Lower Trigram)",
-        "found": false
-      },
-      {
-        "item": "互卦 (Nuclear Trigram)",
-        "found": false
-      },
-      {
-        "item": "體用五行 (Body/Application Elements)",
-        "found": false
-      },
-      {
-        "item": "การพยากรณ์เชิงเหตุการณ์",
-        "found": false
-      }
-    ],
-    "snapshot": "discipline_disc-13_梅花易數.png",
-    "body_snippet": "六爻 六爻預測 (Liu Yao Visualizer) 六爻 六爻預測  สถานะคำนวณ: ประมวลผลผังลิ่วเหยาเรียบร้อยแล้ว"
-  },
-  {
-    "id": "DISC-14",
-    "name": "三合風水 (San He Feng Shui)",
-    "doctrine": "San He Luopan & 4 Major Water Structures (地理五訣 / 三合水法)",
-    "passed": false,
-    "is_visible": true,
-    "has_svg": true,
-    "svg_expected": false,
-    "element_checks": [
-      {
-        "item": "24 ทิศเขา (24 Mountains)",
-        "found": false
-      },
-      {
-        "item": "12 สเตจเจริญชีพ (12 Life Stages - 長生/帝旺/墓)",
-        "found": false
-      },
-      {
-        "item": "โครงสร้าง 4 ธาตุใหญ่ (Water/Wood/Fire/Metal Gates)",
-        "found": false
-      }
-    ],
-    "snapshot": "discipline_disc-14_三合風水.png",
-    "body_snippet": "梅花 梅花易數 (Mei Hua Visualizer) 梅花 梅花易數  สถานะคำนวณ: ประมวลผลผังดอกเหมยเรียบร้อยแล้ว"
-  },
-  {
-    "id": "DISC-15",
-    "name": "七政四餘 (Qi Zheng Si Yu)",
-    "doctrine": "Qi Zheng Si Yu 7 Governors & 4 Extras (果老星宗 / 28 宿)",
-    "passed": false,
-    "is_visible": true,
-    "has_svg": true,
-    "svg_expected": false,
-    "element_checks": [
-      {
-        "item": "7 ดาวหลัก (7 Governors)",
-        "found": false
-      },
-      {
-        "item": "4 ดาวเงา (4 Extras: 羅睺/計都/紫炁/月孛)",
-        "found": false
-      },
-      {
-        "item": "28 นักษัตรจีน (28 Lunar Mansions)",
-        "found": false
-      }
-    ],
-    "snapshot": "discipline_disc-15_七政四餘.png",
-    "body_snippet": "三合 三合風水 (San He Visualizer) 三合 三合風水  สถานะคำนวณ: ประมวลผลผังฮวงจุ้ยซานเหอเรียบร้อยแล้ว"
-  },
-  {
-    "id": "DISC-16",
-    "name": "麻衣神相 (Mian Xiang Physiognomy)",
-    "doctrine": "Ma Yi Shen Xiang (麻衣神相 12 宮)",
-    "passed": false,
-    "is_visible": true,
-    "has_svg": true,
-    "svg_expected": false,
-    "element_checks": [
-      {
-        "item": "12 วังบนใบหน้า (12 Facial Palaces: 命宮/財帛/官祿...)",
+        "item": "Chaldean",
         "found": true
       },
       {
-        "item": "การวิเคราะห์โหงวเฮ้งและสมดุล 5 ธาตุบนใบหน้า",
+        "item": "ถอดราก",
         "found": false
       }
     ],
-    "snapshot": "discipline_disc-16_麻衣神相.png",
-    "body_snippet": "面相 麻衣神相 (Mian Xiang Visualizer)     面相 麻衣神相 (Mian Xiang Physiognomy)    ธาตุประจำรูปหน้า (Face Element): Water (水形)     วังชะตา 12 วังบนใบหน้า:          สรุปภาพรวม: ใบหน้าสมดุล เปี่ยมพลังธาตุ"
+    "elements_matched": "1/6",
+    "snapshot": "discipline_disc_10.png"
   }
 ]
