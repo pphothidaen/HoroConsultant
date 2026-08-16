@@ -5363,7 +5363,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & FORCE CACHE PURGE SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.ca3093e";
+const CLIENT_APP_VERSION = "1.0.0.7e74909";
 
 async function forcePurgeAndReload(event) {
   if (event) {
