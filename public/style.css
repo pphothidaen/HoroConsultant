@@ -2041,4 +2041,74 @@ span.flatpickr-weekday {
   margin-right: 4px;
 }
 
+/* Life Path Scenario Simulation Styles */
+.sim-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.sim-card {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.sim-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(168, 85, 247, 0.5);
+}
+
+.sim-card.optimal-choice {
+  border: 2px solid #10b981;
+  background: rgba(16, 185, 129, 0.06);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+}
+
+.sim-badge-optimal {
+  position: absolute;
+  top: -10px;
+  right: 12px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+}
+
+.metric-bar-wrapper {
+  margin-bottom: 4px;
+}
+
+.metric-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+
+.metric-bar-bg {
+  height: 6px;
+  background: rgba(51, 65, 85, 0.6);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.metric-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+
 

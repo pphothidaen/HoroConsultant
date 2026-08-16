@@ -455,6 +455,52 @@
           </div>
         </div>
       </div>
+
+      <!-- Life Path Multi-Scenario Simulation & What-If Analyzer Card -->
+      <div class="card glass-card result-card" id="scenario-simulation-card">
+        <div class="card-header border-purple" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <h3 data-i18n="sim_title">🔮 จำลองฉากทัศน์ชีวิตคู่ขนาน &amp; วิเคราะห์ทางเลือก (What-If Life Path Simulator)</h3>
+          <span class="badge badge-purple" id="sim-horizon-badge">กรอบเวลา 3 ปี (2026-2028)</span>
+        </div>
+        <div style="padding: 1.2rem;">
+          <div style="margin-bottom: 1rem;">
+            <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 10px;" data-i18n="sim_desc">
+              จำลองเปรียบเทียบผลลัพธ์ทางเลือกสำคัญในชีวิต (การงาน/ธุรกิจ/ย้ายถิ่น) ผ่านการผสานธาตุประจำปีและพลังดาวจร 3-5 ปีข้างหน้า
+            </p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px;">
+              <label style="font-size: 0.85rem; color: #cbd5e1; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                <input type="checkbox" id="scen-corporate" checked value="corporate_stay" style="accent-color: #a855f7;">
+                <span>🏢 ทำงานประจำต่อ (Corporate Path)</span>
+              </label>
+              <label style="font-size: 0.85rem; color: #cbd5e1; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                <input type="checkbox" id="scen-startup" checked value="tech_startup" style="accent-color: #a855f7;">
+                <span>🚀 ร่วมงาน Tech Startup (Startup Pivot)</span>
+              </label>
+              <label style="font-size: 0.85rem; color: #cbd5e1; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                <input type="checkbox" id="scen-business" checked value="business_startup" style="accent-color: #a855f7;">
+                <span>💼 เปิดธุรกิจส่วนตัว (New Venture)</span>
+              </label>
+              <label style="font-size: 0.85rem; color: #cbd5e1; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                <input type="checkbox" id="scen-overseas" value="overseas_relocation" style="accent-color: #a855f7;">
+                <span>🌏 ย้ายไปต่างประเทศ (Overseas Path)</span>
+              </label>
+            </div>
+
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <div style="display: flex; gap: 6px;">
+                <button type="button" class="btn-tool active" id="btn-horizon-3" onclick="setSimulationHorizon(3, this)">⏳ 3 ปี (2026-2028)</button>
+                <button type="button" class="btn-tool" id="btn-horizon-5" onclick="setSimulationHorizon(5, this)">⏳ 5 ปี (2026-2030)</button>
+              </div>
+              <button type="button" class="btn-tool" id="btn-run-simulation" onclick="runScenarioSimulation()" style="margin-left: auto; background: linear-gradient(135deg, #10b981, #059669); color: white;" data-i18n="btn_run_sim">⚡ จำลองฉากทัศน์คู่ขนาน</button>
+            </div>
+          </div>
+
+          <!-- Simulation Comparison Results Container -->
+          <div id="simulation-results-box" class="hidden" style="margin-top: 1rem;">
+            <!-- Dynamically populated by JS -->
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 

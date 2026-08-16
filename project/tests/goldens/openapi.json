@@ -3,7 +3,7 @@
   "info": {
     "title": "Computational Metaphysics Engine",
     "description": "Modular 10-Domain Metaphysical Calculation, AI Debate & Multi-Agent Engine",
-    "version": "1.0.0.34833bc"
+    "version": "1.0.0.5a55b78"
   },
   "paths": {
     "/admin/auth/google": {
@@ -2620,6 +2620,77 @@
         }
       }
     },
+    "/api/v1/simulation/preset-scenarios": {
+      "get": {
+        "tags": [
+          "Life Path Simulation & What-If Analyzer"
+        ],
+        "summary": "Get Preset Scenarios",
+        "description": "Return catalog of life decision simulation templates.",
+        "operationId": "get_preset_scenarios_api_v1_simulation_preset_scenarios_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "type": "array",
+                  "title": "Response Get Preset Scenarios Api V1 Simulation Preset Scenarios Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/simulation/simulate-scenarios": {
+      "post": {
+        "tags": [
+          "Life Path Simulation & What-If Analyzer"
+        ],
+        "summary": "Simulate Scenarios",
+        "description": "Execute comparative multi-year life decision simulation across multiple paths.",
+        "operationId": "simulate_scenarios_api_v1_simulation_simulate_scenarios_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Simulate Scenarios Api V1 Simulation Simulate Scenarios Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "tags": [
@@ -3463,6 +3534,75 @@
           "decision"
         ],
         "title": "ReviewDecision"
+      },
+      "SimulateRequest": {
+        "properties": {
+          "birth_datetime": {
+            "type": "string",
+            "title": "Birth Datetime",
+            "description": "User's birth datetime in ISO format YYYY-MM-DD HH:MM:SS"
+          },
+          "scenario_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scenario Ids",
+            "description": "List of preset scenario IDs"
+          },
+          "custom_scenarios": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom Scenarios",
+            "description": "Custom user-defined scenarios"
+          },
+          "start_year": {
+            "type": "integer",
+            "title": "Start Year",
+            "description": "Starting transit year (default 2026)",
+            "default": 2026
+          },
+          "horizon_years": {
+            "type": "integer",
+            "title": "Horizon Years",
+            "description": "Evaluation horizon in years (1 - 5)",
+            "default": 3
+          },
+          "day_master": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Day Master",
+            "description": "User's Day Master Stem"
+          }
+        },
+        "type": "object",
+        "required": [
+          "birth_datetime"
+        ],
+        "title": "SimulateRequest"
       },
       "SynastryRequest": {
         "properties": {

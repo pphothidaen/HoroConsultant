@@ -5366,9 +5366,130 @@ if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
   });
 }
 
+// ======================================================================
+// 🔮 LIFE PATH MULTI-SCENARIO SIMULATION & WHAT-IF ANALYZER
+// ======================================================================
+
+let currentSimulationHorizon = 3;
+
+function setSimulationHorizon(years, btn) {
+  currentSimulationHorizon = years;
+  document.querySelectorAll("#scenario-simulation-card .btn-tool").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  const badge = document.getElementById("sim-horizon-badge");
+  if (badge) badge.textContent = `กรอบเวลา ${years} ปี (${2026}-${2026 + years - 1})`;
+  runScenarioSimulation();
+}
+
+async function runScenarioSimulation() {
+  const resultBox = document.getElementById("simulation-results-box");
+  const birthInput = document.getElementById("birth_datetime");
+  const birthDatetime = (birthInput && birthInput.value) ? birthInput.value : "1990-05-15 14:30:00";
+
+  const selectedIds = [];
+  if (document.getElementById("scen-corporate")?.checked) selectedIds.push("corporate_stay");
+  if (document.getElementById("scen-startup")?.checked) selectedIds.push("tech_startup");
+  if (document.getElementById("scen-business")?.checked) selectedIds.push("business_startup");
+  if (document.getElementById("scen-overseas")?.checked) selectedIds.push("overseas_relocation");
+
+  if (selectedIds.length === 0) selectedIds.push("corporate_stay", "tech_startup");
+
+  try {
+    const res = await fetch("/api/v1/simulation/simulate-scenarios", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        birth_datetime: birthDatetime,
+        scenario_ids: selectedIds,
+        start_year: 2026,
+        horizon_years: currentSimulationHorizon
+      })
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const data = await res.json();
+    renderSimulationComparison(data);
+  } catch (err) {
+    console.error("[SIMULATION] Execution error:", err);
+  }
+}
+
+function renderSimulationComparison(data) {
+  const resultBox = document.getElementById("simulation-results-box");
+  if (!resultBox || !data) return;
+
+  const optimalId = data.optimal_scenario_id;
+
+  let html = `
+    <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 0.88rem; color: #6ee7b7;">
+      🏆 <strong>สรุปการตัดสินใจที่คุ้มค่าที่สุด:</strong> ${data.optimal_summary}
+    </div>
+    <div class="sim-grid">
+  `;
+
+  (data.results || []).forEach(item => {
+    const isOptimal = item.scenario_id === optimalId;
+    const cardClass = isOptimal ? "sim-card optimal-choice" : "sim-card";
+
+    let yearlyHtml = "";
+    (item.yearly_metrics || []).forEach(ym => {
+      yearlyHtml += `
+        <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: #94a3b8; padding: 2px 0;">
+          <span>${ym.year} (${ym.pillar.split(" ")[0]}):</span>
+          <strong style="color: #f8fafc;">${ym.composite_score} pts</strong>
+        </div>
+      `;
+    });
+
+    html += `
+      <div class="${cardClass}">
+        ${isOptimal ? '<span class="sim-badge-optimal">🏆 แนะนำสูงสุด</span>' : ''}
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h4 style="font-size: 0.92rem; color: #f8fafc; margin: 0;">${item.icon} ${item.title.split("/")[0]}</h4>
+          <span style="font-size: 0.95rem; font-weight: 700; color: #10b981;">${item.composite_roi} <small style="font-size: 0.7rem;">ROI</small></span>
+        </div>
+
+        <div style="font-size: 0.75rem; color: #cbd5e1; margin-bottom: 4px;">
+          <strong>ระดับความเสี่ยง:</strong> <span class="badge ${item.risk_tier === 'LOW' ? 'badge-blue' : item.risk_tier === 'HIGH' ? 'badge-red' : 'badge-purple'}">${item.risk_tier}</span>
+        </div>
+
+        <div class="metric-bar-wrapper">
+          <div class="metric-bar-label"><span>💰 ผลตอบแทนการเงิน (Wealth)</span><span>${item.yearly_metrics[0].wealth_score}%</span></div>
+          <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: ${item.yearly_metrics[0].wealth_score}%; background: #10b981;"></div></div>
+        </div>
+
+        <div class="metric-bar-wrapper">
+          <div class="metric-bar-label"><span>🏆 ความก้าวหน้าอาชีพ (Career)</span><span>${item.yearly_metrics[0].career_score}%</span></div>
+          <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: ${item.yearly_metrics[0].career_score}%; background: #3b82f6;"></div></div>
+        </div>
+
+        <div class="metric-bar-wrapper">
+          <div class="metric-bar-label"><span>🛡️ เสถียรภาพความปลอดภัย (Stability)</span><span>${item.yearly_metrics[0].stability_score}%</span></div>
+          <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: ${item.yearly_metrics[0].stability_score}%; background: #8b5cf6;"></div></div>
+        </div>
+
+        <div style="background: rgba(15, 23, 42, 0.6); padding: 6px 8px; border-radius: 6px; margin-top: 4px;">
+          <div style="font-size: 0.72rem; color: #a5b4fc; font-weight: 600; margin-bottom: 2px;">📈 แนวโน้มรายปี (Forecast):</div>
+          ${yearlyHtml}
+        </div>
+
+        <div style="font-size: 0.73rem; color: #94a3b8; font-style: italic; margin-top: 4px;">
+          💡 ${item.strategy_advice}
+        </div>
+      </div>
+    `;
+  });
+
+  html += "</div>";
+  resultBox.innerHTML = html;
+  resultBox.classList.remove("hidden");
+}
+
 window.forcePurgeAndReload = forcePurgeAndReload;
 window.checkAppVersion = checkAppVersion;
 window.showVersionUpdateToast = showVersionUpdateToast;
+window.setSimulationHorizon = setSimulationHorizon;
+window.runScenarioSimulation = runScenarioSimulation;
+window.renderSimulationComparison = renderSimulationComparison;
 
 if (typeof document !== 'undefined') {
   document.addEventListener("DOMContentLoaded", () => {
@@ -5376,6 +5497,7 @@ if (typeof document !== 'undefined') {
     calcLuoPan(180);
     setTimeout(checkAppVersion, 3000);
     setInterval(checkAppVersion, 300000);
+    setTimeout(runScenarioSimulation, 1000);
   });
 }
 

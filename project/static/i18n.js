@@ -68,6 +68,9 @@ const I18N_DICTIONARY = {
     dream_title: "🌙 ทำนายฝัน & ถอดรหัสสัญลักษณ์เทพ 64 ลักษณ์ (Dream Decoder)",
     dream_input_label: "พิมพ์รายละเอียดความฝัน หรือสัญลักษณ์ที่พบในฝัน:",
     btn_interpret_dream: "🔮 ทำนายฝัน",
+    sim_title: "🔮 จำลองฉากทัศน์ชีวิตคู่ขนาน & วิเคราะห์ทางเลือก (What-If Life Path Simulator)",
+    sim_desc: "จำลองเปรียบเทียบผลลัพธ์ทางเลือกสำคัญในชีวิต (การงาน/ธุรกิจ/ย้ายถิ่น) ผ่านการผสานธาตุประจำปีและพลังดาวจร 3-5 ปีข้างหน้า",
+    btn_run_sim: "⚡ จำลองฉากทัศน์คู่ขนาน",
     btn_reset: "🔄 รีเซ็ตข้อมูล (Reset)",
     
     // 16 Disciplines Buttons
@@ -191,6 +194,9 @@ const I18N_DICTIONARY = {
     dream_title: "🌙 AI Dream Interpreter & 64 Hexagrams Symbolism Decoder",
     dream_input_label: "Type your dream description or symbols:",
     btn_interpret_dream: "🔮 Decode Dream",
+    sim_title: "🔮 Life Path Multi-Scenario Simulation & What-If Analyzer",
+    sim_desc: "Simulate and compare strategic life decisions (career, startup, relocation) across 3-5 year transit trajectories.",
+    btn_run_sim: "⚡ Run What-If Simulation",
     btn_reset: "🔄 Reset Form",
     
     // 16 Disciplines Buttons
@@ -314,6 +320,9 @@ const I18N_DICTIONARY = {
     dream_title: "🌙 吠陀周易釋夢與六十四卦象徵解碼 (Dream Decoder)",
     dream_input_label: "請輸入夢境描述或出現的特定象徵物:",
     btn_interpret_dream: "🔮 解碼夢境",
+    sim_title: "🔮 多場景命理決策模擬與平行人生路徑分析 (What-If Simulator)",
+    sim_desc: "基於未來3-5年流年五行氣運，全方位模擬對比事業轉型、創業投資與跨國發展之決策路徑。",
+    btn_run_sim: "⚡ 運行多路徑決策模擬",
     btn_reset: "🔄 重置表單 (Reset)",
     
     // 16 Disciplines Buttons

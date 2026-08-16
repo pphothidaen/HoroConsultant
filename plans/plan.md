@@ -1,4 +1,66 @@
 ---
+## 🔥 GRILL REPORT — Phase 12: Metaphysics Life Path Multi-Scenario Simulation & What-If Analyzer (多場景命理決策模擬器)
+**Date**: 2026-08-16T22:13:55+07:00  
+**Grilled By**: orchestrator  
+**Gate Status**: ✅ APPROVED (User Interview Concluded via `/goal continue next sprint until delivery phase`)  
+
+### D1 — Scope Boundary
+- **IN**:
+  1. **Backend Life Path Multi-Scenario Simulation Engine (`project/core/simulation_engine.py`)**:
+     - Scenario Element Mapping (e.g., Corporate Job = Earth/Metal, Startup Pivot = Fire/Wood, Business Venture = Fire/Water, Overseas Relocation = Water/Wood).
+     - 3-5 Year Timeline Forecast Model (2026-2030) cross-referencing user's Day Master, Favorable Elements (喜用神), DaYun decade, and annual LiuNian pillars.
+     - 4-Dimensional Metric Scoring per Scenario per Year:
+       - 💰 Wealth / Financial Upside (0-100)
+       - 🏆 Career / Status Growth (0-100)
+       - 🛡️ Stability / Risk Buffer (0-100)
+       - ⚡ Opportunity / Innovation Index (0-100)
+     - Composite Success Index, Optimal Path Recommendation, and Year-by-Year Strategic Milestones.
+  2. **REST API Endpoints (`project/routers/simulation.py`)**:
+     - `POST /api/v1/simulation/simulate-scenarios`: Accepts birth data/Day Master, selected scenarios, and horizon years; returns multi-path comparative trajectories.
+     - `GET /api/v1/simulation/preset-scenarios`: Returns predefined life decision templates (Career Pivot, Business Startup, Overseas Expansion, Real Estate Investment).
+  3. **Frontend Interactive Simulation & What-If Comparison UI (`index.html`, `style.css`, `app.js`, `i18n.js`)**:
+     - Glassmorphic What-If Simulation Card (`#scenario-simulation-card`).
+     - Scenario Selection Checkboxes / Custom Scenario Creator.
+     - Multi-Path Comparison Table and Visual Trajectory Metric Cards with Optimal Scenario Badge (🏆 Best Path).
+  4. **Quality & Verification**:
+     - Unit & regression test suite in `project/tests/test_simulation_engine.py`.
+     - Full Pytest regression suite, 33/33 Button Regression, 0 secret leaks.
+- **OUT**: Modifying locked Kaggle accelerator settings or Doppler secrets policy.
+
+### D2 — Requirement Delta
+- **New Additions**:
+  - Add `project/core/simulation_engine.py` and `project/routers/simulation.py`.
+  - Mount `simulation_router` in `project/main.py`.
+  - Add Simulation UI card in `project/static/index.html` & `public/index.html`.
+  - Add styling in `project/static/style.css` & `public/style.css`.
+  - Add JS handlers in `project/static/app.js` & `public/app.js`.
+  - Add translations in `project/static/i18n.js` & `public/i18n.js`.
+  - Add `project/tests/test_simulation_engine.py`.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification Tool | Responsible Agent |
+|---|---|---|---|
+| 1 | `SimulationEngine` accurately computes element alignment, multi-scenario trajectories, and optimal path ranking | `pytest project/tests/test_simulation_engine.py` | `developer` |
+| 2 | `POST /api/v1/simulation/simulate-scenarios` and `GET /api/v1/simulation/preset-scenarios` return valid responses | `pytest project/tests/test_simulation_engine.py` | `developer` |
+| 3 | Frontend Scenario Comparison UI renders seamlessly with responsive badges | `pytest project/tests/test_simulation_engine.py` | `developer` |
+| 4 | Full Pytest regression suite passes 100% | `python3 -m pytest -v --ignore=project/kaggle_kernel` | `qa_tester` |
+| 5 | UI Button Regression (33/33) passes 100% | `python3 scripts/run_button_regression.py` | `qa_tester` |
+| 6 | Pre-deployment safety audit passes `READY_FOR_PROD` (0 secret leaks) | `python3 project/core/code_reviewer.py --review` | `code_reviewer` |
+
+### D4 — Constraints & Safeguards
+- Pure ASCII Logging.
+- Dual-path synchronization (`project/static/` and `public/`).
+- 0 secret leaks.
+
+### D5 — Sub-Agent Task Decomposition
+- `TICKET-SIM-001` (`orchestrator`): Architecture Blueprint & Specification
+- `TICKET-SIM-002` (`developer`): Backend Multi-Scenario Simulation Engine & Router (`simulation_engine.py`, `simulation.py`, `main.py`)
+- `TICKET-SIM-003` (`developer`): Frontend Scenario Comparison UI (`index.html`, `style.css`, `app.js`, `i18n.js`)
+- `TICKET-SIM-004` (`qa_tester`): Unit & Regression Test Suite (`test_simulation_engine.py`)
+- `TICKET-SIM-005` (`devops`): Production Delivery Release & HF Spaces Sync
+- `TICKET-SIM-006` (`code_reviewer` / `business_analyst`): Final Code Review & Live Documentation Sync
+
+---
 ## 🔥 GRILL REPORT — Phase 11: LuoPan 24-Mountain Energy Heatmap & Dream Symbolism Decoder (24山羅盤 & 夢境象徵解碼)
 **Date**: 2026-08-16T21:54:25+07:00  
 **Grilled By**: orchestrator  
