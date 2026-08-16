@@ -16,6 +16,30 @@
   <meta name="theme-color" content="#dc2626">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <script>
+    window.forcePurgeAndReload = async function(e) {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      const btn = document.getElementById("btn-force-refresh");
+      if (btn) { btn.innerHTML = "⏳ กำลังล้างแคช..."; btn.disabled = true; }
+      try { localStorage.clear(); } catch (_) {}
+      try { sessionStorage.clear(); } catch (_) {}
+      try {
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map(k => caches.delete(k).catch(() => {})));
+        }
+      } catch (_) {}
+      try {
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map(r => r.unregister().catch(() => {})));
+        }
+      } catch (_) {}
+      const cleanUrl = window.location.href.split('?')[0].split('#')[0];
+      const targetUrl = cleanUrl + '?force_reload=' + Date.now();
+      try { window.location.replace(targetUrl); } catch (_) { window.location.href = targetUrl; }
+    };
+  </script>
 </head>
 <body>
   <div class="background-glow"></div>
@@ -514,7 +538,9 @@
         <span class="pulse-dot cyan"></span>
         <span class="health-text" id="health-status-text">Health: OK (Checking...)</span>
       </div>
-      <button type="button" class="btn-tool" id="btn-force-refresh" onclick="forcePurgeAndReload()" style="padding: 4px 10px; font-size: 0.75rem; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 12px; color: #a5b4fc; cursor: pointer;" title="ล้าง Service Worker Cache และรีโหลดเวอร์ชันล่าสุด">🔄 ล้างแคช &amp; บังคับอัปเดต (Hard Reset)</button>
+      <button type="button" class="btn-force-refresh" id="btn-force-refresh" onclick="window.forcePurgeAndReload(event)" title="ล้าง Service Worker Cache และรีโหลดเวอร์ชันล่าสุด">
+        <span>🔄</span> <span>ล้างแคช &amp; บังคับอัปเดต (Hard Reset)</span>
+      </button>
     </div>
     <p id="footer-version-text">Computational Metaphysics Engine v1.0.0.6a61068 — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback</p>
   </footer>

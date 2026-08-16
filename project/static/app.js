@@ -5365,39 +5365,52 @@ window.renderDreamResult = renderDreamResult;
 
 const CLIENT_APP_VERSION = "1.0.0.6a61068";
 
-async function forcePurgeAndReload() {
+async function forcePurgeAndReload(event) {
+  if (event) {
+    try { event.preventDefault(); event.stopPropagation(); } catch (_) {}
+  }
   const btn = document.getElementById("btn-force-refresh");
   if (btn) {
     btn.innerHTML = "⏳ กำลังล้างแคช...";
     btn.disabled = true;
   }
 
+  try { localStorage.clear(); } catch (_) {}
+  try { sessionStorage.clear(); } catch (_) {}
+
+  const safePurge = async () => {
+    try {
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k).catch(() => {})));
+        console.info("[CACHE] Purged all CacheStorage keys:", keys);
+      }
+    } catch (_) {}
+
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r => r.unregister().catch(() => {})));
+        console.info("[SW] Unregistered all Service Workers:", regs);
+      }
+    } catch (_) {}
+  };
+
+  const timeoutPromise = new Promise(resolve => setTimeout(resolve, 400));
   try {
-    // 1. Purge all Service Worker Caches
-    if ('caches' in window) {
-      const keys = await caches.keys();
-      await Promise.all(keys.map(k => caches.delete(k)));
-      console.info("[CACHE] Purged all CacheStorage keys:", keys);
-    }
+    await Promise.race([safePurge(), timeoutPromise]);
+  } catch (_) {}
 
-    // 2. Unregister all Service Worker Registrations
-    if ('serviceWorker' in navigator) {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(r => r.unregister()));
-      console.info("[SW] Unregistered all Service Workers:", regs);
-    }
-
-    // 3. Clear session storage
-    sessionStorage.clear();
-
-    // 4. Force hard reload with timestamp query
-    const targetUrl = window.location.origin + window.location.pathname + '?force_reload=' + Date.now();
+  const cleanUrl = window.location.href.split('?')[0].split('#')[0];
+  const targetUrl = cleanUrl + '?force_reload=' + Date.now();
+  try {
+    window.location.replace(targetUrl);
+  } catch (_) {
     window.location.href = targetUrl;
-  } catch (err) {
-    console.error("[PURGE] Error during cache purge:", err);
-    window.location.reload();
   }
 }
+
+window.forcePurgeAndReload = forcePurgeAndReload;
 
 async function checkAppVersion() {
   try {
@@ -6030,6 +6043,10 @@ window.exportChatTranscript = exportChatTranscript;
 
 if (typeof document !== 'undefined') {
   document.addEventListener("DOMContentLoaded", () => {
+    const refreshBtn = document.getElementById("btn-force-refresh");
+    if (refreshBtn) {
+      refreshBtn.addEventListener("click", (e) => forcePurgeAndReload(e));
+    }
     loadMonthCalendar(2026, 8);
     calcLuoPan(180);
     loadDynamicPromptPills();
