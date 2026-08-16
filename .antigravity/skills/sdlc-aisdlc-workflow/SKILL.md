@@ -15,9 +15,16 @@ This skill provides step-by-step instructions for executing the AI Software Deve
 [User Request / Goal]
        │
        ▼
+[Gate 0: Requirement-Grill Gate (`requirement-grill-gate` skill)]
+       │  ├─ Interactive 9-dimension interview & context auto-scan
+       │  ├─ Prepend GRILL REPORT to `/plans/plan.md` (✅ APPROVED / ⚠️ WAIVED / 🚫 BLOCKED)
+       │  └─ Generate specialized sub-agent tickets in `PROJECT_TASKS.md`
+       │
+       ▼
 Phase 1: Planning & Blueprinting (Master Orchestrator)
        │  ├─ Check Kaggle status (`python3 scripts/kaggle_notebook_manager.py --status`)
-       │  └─ Write spec & task breakdown to `/plans/plan.md`
+       │  ├─ Finalize technical architecture blueprint in `/plans/plan.md`
+       │  └─ Dispatch assigned tickets to sub-agents (`orchestrator`, `developer`, `qa_tester`, `devops`)
        │
        ▼
 Phase 2: Code Implementation & Inline Docs (Senior Developer)
@@ -48,20 +55,22 @@ Phase 5: Code Review, Deployment & Post-Deploy E2E (Master Orchestrator & Code R
 
 ## 📌 Phase Instructions for Agents
 
-### Phase 1: Planning & Blueprinting (Orchestrator)
-1. **Kaggle Pre-Development Sync Mandate**: Before starting any code edits, run:
+### Phase 1: Requirement Grill, Planning & Blueprinting (Orchestrator)
+1. **Mandatory Requirement-Grill Gate (`requirement-grill-gate` skill)**:
+   - Execute the 9-dimension grill interview pass before planning.
+   - Scan codebase for low-risk auto-answers and ask user one-by-one for critical/high items.
+   - Prepend the signed-off **GRILL REPORT** at the top of `/plans/plan.md` with status badge (`✅ APPROVED` / `⚠️ WAIVED` / `🚫 BLOCKED`).
+   - If `🚫 BLOCKED`, halt and do not proceed to Phase 2.
+2. **Deconstruct Sub-Agent Tickets in `PROJECT_TASKS.md`**:
+   - Create a dedicated sprint/session block in `PROJECT_TASKS.md` with one ticket per assigned sub-agent (`orchestrator`, `developer`, `qa_tester`, `devops`, `domain_master`).
+   - Detail step-by-step instructions, dependencies, and testable acceptance criteria for each ticket.
+3. **Kaggle Pre-Development Sync Mandate**:
    ```bash
    python3 scripts/kaggle_notebook_manager.py --status
    ```
    If kernel output is updated, pull latest artifacts via `--pull`.
-2. Run a mandatory requirement grilling pass in `/plans/plan.md`:
-   - Scope boundaries (what is in/out of scope).
-   - Requirement deltas since last commit / last request.
-   - Acceptance criteria (measurable outcomes + QA checkpoints).
-   - Constraint checks (security, data, quota, model latency, compliance).
-   - Pending assumptions that need owner confirmation.
-3. Document requirements and sub-task specifications in `/plans/plan.md` only after the grill questions are answered or explicitly accepted as waived.
-3. Delegate sub-tasks to `developer`, `qa_tester`, and `devops`.
+4. **Handoff & Tracking**:
+   - Transition `TICKET-001` (Plan) to `DONE` and move `TICKET-002` (Developer) from `TODO` to `DOING`.
 
 ### Phase 2: Feature Implementation (Developer)
 1. Write/modify code in `project/`, `rust_core/`, or `scripts/`.

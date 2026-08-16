@@ -1,3 +1,58 @@
+---
+## 🔥 GRILL REPORT — Requirement-Grill Gate (before PLAN) & Sub-Agent Task Tracking
+**Date**: 2026-08-16T12:35:00+07:00  
+**Grilled By**: orchestrator  
+**Gate Status**: ✅ APPROVED  
+
+### D1 — Scope Boundary
+- **IN**: Standalone skill `requirement-grill-gate`, 9 grill dimensions, blocking gate enforcement, GRILL REPORT in `/plans/plan.md`, sub-agent ticket decomposition in `PROJECT_TASKS.md`, Rule 08, SDLC workflow wiring, agent/skill synchronization.
+- **OUT**: Modifying core metaphysics calculation algorithms, altering Kaggle accelerator settings.
+
+### D2 — Requirement Delta
+- **New Additions**: Dedicated pre-plan interview gate like `/grill-me`, specialized sub-agent ticket decomposition (`TODO` → `DOING` → `DONE`), post-grill task flow tracking mechanism.
+- **Cleaned Up**: Legacy inline checklist in `sdlc-aisdlc-workflow/SKILL.md` replaced with formal `requirement-grill-gate` skill reference.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification Tool | Responsible Agent |
+|---|---|---|---|
+| 1 | `requirement-grill-gate` SKILL.md under 100-char context budget | `test_skill_configurations.py` | `qa_tester` |
+| 2 | 100% Agent & Skill synchronization across `.antigravity`, `.agents`, `.codex` | `sync_sdlc_agents.py` & `sync_codex_agents.py` | `devops` |
+| 3 | System Rule 08 created and documented | Direct audit | `developer` |
+| 4 | Pre-deployment safety audit status `READY_FOR_PROD` (0 leaks) | `code_reviewer.py --review` | `code_reviewer` |
+
+### D4 — Constraints & Safeguards
+- Locked Deps: `transformers==4.44.2`, `peft==0.12.0`, `accelerate==0.33.0` intact
+- Secrets: Doppler Tier-2 priority compliant (0 leaks across 3,443 files)
+- Kaggle Accelerator: Locked (`NvidiaTeslaT4`)
+- Pure ASCII Logging: Enforced
+
+### D5 — Sub-Agent Allocation & Dependencies
+- Assigned Sub-Agents: `orchestrator`, `developer`, `qa_tester`, `devops`, `code_reviewer`
+- Dependency Chain: TICKET-GRILL-001 (Orchestrator) → TICKET-GRILL-002 (Developer) → TICKET-GRILL-003 (QA) → TICKET-GRILL-004 (DevOps) → TICKET-GRILL-005 (Reviewer)
+
+### D6 — Assumption Register
+| # | Assumption | Status |
+|---|---|---|
+| 1 | Requirement-Grill Gate should be a standalone skill | [CONFIRMED] |
+| 2 | Gate must block execution on unconfirmed critical questions | [CONFIRMED] |
+| 3 | Tickets should be created directly in `PROJECT_TASKS.md` | [CONFIRMED] |
+
+### D7 — Risk & Rollback
+- Risk: Skill frontmatter context budget overflow
+- Mitigation: Streamlined frontmatter description (< 90 chars), verified by `test_skill_configurations.py`
+- Rollback: `git revert HEAD`
+
+### D8 — Token Efficiency Strategy
+- Orchestrator: High Reasoning (Claude 3.7 Sonnet / Gemini 3.6 Flash High)
+- Developer/QA/DevOps: Gemini 3.6 Flash Standard / Gemini 3.5 Flash-Lite
+
+### D9 — Metaphysics Domain Alignment
+- Cross-Domain Routing: Pre-plan grill includes domain check for BaZi, Zi Wei, Qi Men, Da Liu Ren, I Ching, Feng Shui, Astrology, and HITL escalation.
+
+### ⚠️ Waivers: None
+### 🚫 Blockers: None
+---
+
 # AI SDLC Master Implementation Plan: Skill Context Budget Optimization & Multi-Agent Architecture Refactoring
 
 **Project:** HoroConsultant — Computational Metaphysics Engine  

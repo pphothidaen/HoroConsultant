@@ -10,25 +10,32 @@ This workflow defines the end-to-end multi-agent execution pipeline for the **Ho
 User Order
    │
    ▼
-1. 🧠 Orchestrator (Gemini 3.6 Flash - High / Claude Sonnet)
-   │  └─ Analyzes Requirement & Writes Plan to /plans/plan.md
+0. 🔥 Gate 0: Requirement-Grill Gate (Orchestrator)
+   │  ├─ 9-Dimension Grill Interview & Context Scan
+   │  ├─ Prepends GRILL REPORT to /plans/plan.md (✅ APPROVED / ⚠️ WAIVED / 🚫 BLOCKED)
+   │  └─ Deconstructs into Sub-Agent Tickets in PROJECT_TASKS.md
    │
    ▼
-2. 💻 Senior Developer (Gemini 3.6 Flash / GPT-4o / Flash-Lite)
-   │  └─ Implements Code & Writes Module Docs
+1. 🧠 Phase 1: Planning & Blueprinting (Orchestrator)
+   │  ├─ Kaggle Sync Pre-Check
+   │  └─ Technical Blueprint & Assigns Ticket-002 to Developer
    │
    ▼
-3. 🧪 QA Tester (Gemini 3.5 Flash-Lite - Thinking: Off / GPT-4o-mini)
-   │  └─ Generates Test Cases & Runs `pytest`
+2. 💻 Phase 2: Feature Implementation (Senior Developer)
+   │  └─ Implements Code & Writes Module Docs (Ticket-002)
+   │
+   ▼
+3. 🧪 Phase 3: QA & Regression Testing (QA Tester)
+   │  └─ Generates Test Cases & Runs `pytest`, button regression, E2E (Ticket-003)
    │      ├─ [FAIL] ──> Generates Bug Report ──> Returns to Developer (Loop)
    │      └─ [PASS] ──> Reports 100% Success to Orchestrator
    ▼
-4. 🚀 DevOps & Release (Gemini 3.6 Flash Standard / GPT-4o)
-   │  └─ Audits .env, Dependencies, Docker, and Release Readiness
+4. 🚀 Phase 4: Environment & Release Verification (DevOps)
+   │  └─ Audits .env, Doppler Secrets, Docker, and HF Deployment (Ticket-004)
    │
    ▼
-5. 🧠 Orchestrator (Final Code Review & Summary)
-   │  └─ Generates Final Delivery Summary for User
+5. 🧠 Phase 5: Code Review, Deployment & Post-Deploy E2E (Orchestrator & Code Reviewer)
+   │  └─ READY_FOR_PROD Audit, Prod Push, Post-Deploy Verification & Delivery Summary (Ticket-005)
    ▼
 User Delivery Complete
 ```
@@ -37,15 +44,24 @@ User Delivery Complete
 
 ## 📋 Step-by-Step Execution Phases
 
+### Gate 0: Requirement-Grill Gate (Orchestrator)
+- **Primary Skill**: `requirement-grill-gate`
+- **Model**: `Claude Sonnet 3.7 / 4.6` / `Gemini 3.6 Flash` (High Reasoning)
+- **Input**: User order / feature request.
+- **Action**:
+  1. Conduct the 9-dimension grill interview (Scope, Delta, Criteria, Constraints, Arch Impact, Assumptions, Risk/Rollback, Token Budget, Domain Check).
+  2. Prepend signed-off **GRILL REPORT** at the top of `/plans/plan.md` with status badge (`✅ APPROVED` / `⚠️ WAIVED` / `🚫 BLOCKED`).
+  3. Deconstruct task into specialized tickets per sub-agent in `PROJECT_TASKS.md`.
+  4. Block execution if CRITICAL items are unresolved.
+
 ### Phase 1: Planning & Blueprinting (Orchestrator)
 - **Primary Baseline**: `Gemini 3.6 Flash` (Thinking Effort: High)
 - **Quota Alternative**: `Claude Sonnet 3.7 / 4.6` (Deep System Design & Metaphysics Debate)
-- **Input**: User requirement or request.
+- **Input**: Signed-off GRILL REPORT.
 - **Action**:
-  1. Analyze scope, architecture requirements, and security constraints.
+  1. Finalize architecture blueprint and technical specifications in `/plans/plan.md`.
   2. **Kaggle Sync Pre-Check**: Run `python3 scripts/kaggle_notebook_manager.py --status` (and `--pull` if updated) to sync latest kernel version/outputs before starting.
-  3. Create or update plan document at `/plans/plan.md` (or Antigravity implementation plan).
-  4. Deconstruct job into specific sub-tasks for `developer`, `qa_tester`, and `devops`.
+  3. Move `TICKET-001` to `DONE` and hand off `TICKET-002` to `developer` (`TODO` → `DOING`).
 
 ### Phase 2: Feature Implementation (Developer)
 - **Primary Baseline**: `Gemini 3.6 Flash` (Standard Mode) / `Gemini 3.5 Flash-Lite`

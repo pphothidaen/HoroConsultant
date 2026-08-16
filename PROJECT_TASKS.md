@@ -57,6 +57,15 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
+│   ✅ DONE: Requirement-Grill Gate (before PLAN) & Sub-Agent Task Tracking     │
+├───────────────────────────────────────────────────────────────────────────────┤
+│ • Standalone `requirement-grill-gate` skill (.agents/skills/requirement-grill)│
+│ • 9-Dimension Interview (Scope, Delta, Criteria, Constraints, Arch, Assump...) │
+│ • Strict Gate Enforcement (✅ APPROVED / ⚠️ WAIVED / 🚫 BLOCKED)              │
+│ • Prepending GRILL REPORT to /plans/plan.md & Sub-Agent Tickets in PROJECT_TASKS│
+│ • System-level Rule 08 (.agents/rules/08-grill-gate-enforcement.md)           │
+│ • SDLC pipeline, aisdlc workflow, and agent definitions synced 100%           │
+├───────────────────────────────────────────────────────────────────────────────┤
 │   ✅ DONE: BaZi 4-Pillars Research UI, Depth Selector & Full CI/CD (100%)    │
 ├───────────────────────────────────────────────────────────────────────────────┤
 │ • Interactive BaZi 4-Pillars Research card rendering with depth selector       │
@@ -71,16 +80,90 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 │ • Streamlined 17 agent descriptions in .antigravity/agents/ to eliminate bloat│
 │ • Synchronized skills & agents across .antigravity, .agents, and .codex       │
 │ • Added test_skill_configurations.py automated context budget linter (5/5)    │
-├───────────────────────────────────────────────────────────────────────────────┤
-│   ✅ DONE: Phase 6 Rust Migration 100% + Production Inference Chain Fixed      │
-├───────────────────────────────────────────────────────────────────────────────┤
-│ • Decoupled DDD Multi-Cloud & Rust Core                                       │
-│ • Phase 1–6: Rust Engines, SVG Charts, Prometheus, Code Reviewer, Gateway    │
-│ • Swiss Ephemeris Native Pure Rust Bridge (swisseph.rs)                       │
-│ • Grafana Cloud Observability Engine + Gateway Telemetry                      │
-│ • HF Spaces Live Deploy & Audit (pphothidaen/horoconsultant-core-backend)    │
 └───────────────────────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## 🚀 ACTIVE / RECENT SPRINT: Requirement-Grill Gate & Sub-Agent Task Flow
+**Grill Gate Status**: ✅ APPROVED  
+**Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)  
+
+| Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
+|---|---|---|---|---|
+| `TICKET-GRILL-001` | `orchestrator` | Standalone `requirement-grill-gate` Skill & Spec Blueprint | DONE | None |
+| `TICKET-GRILL-002` | `developer` | System Rule 08 & SDLC Workflow Integration | DONE | `TICKET-GRILL-001` |
+| `TICKET-GRILL-003` | `qa_tester` | Agent Synchronization & Context Budget Verification | DONE | `TICKET-GRILL-002` |
+| `TICKET-GRILL-004` | `devops` | Global Agent Registrations & Codex Compatibility Sync | DONE | `TICKET-GRILL-003` |
+| `TICKET-GRILL-005` | `code_reviewer` | Live Documentation & Task Board Audit | DONE | `TICKET-GRILL-004` |
+
+---
+
+### 🎫 TICKET-GRILL-001 | `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: None  
+**Blocks**: `TICKET-GRILL-002`  
+#### Detailed Instructions
+1. Design standalone skill `.agents/skills/requirement-grill-gate/SKILL.md` with 9 dimensions.
+2. Formulate interview protocol with auto-scan for LOW risk items and interactive `ask_question` for CRITICAL/HIGH items.
+3. Define GRILL REPORT template for `/plans/plan.md` with status badges (`✅ APPROVED`, `⚠️ WAIVED`, `🚫 BLOCKED`).
+#### Acceptance Criteria
+- [x] SKILL.md created with complete 9-dimension interview guide.
+- [x] Gate blocking semantics clearly defined.
+
+---
+
+### 🎫 TICKET-GRILL-002 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-GRILL-001`  
+**Blocks**: `TICKET-GRILL-003`  
+#### Detailed Instructions
+1. Create system rule `.agents/rules/08-grill-gate-enforcement.md`.
+2. Update `.agents/skills/sdlc-aisdlc-workflow/SKILL.md` to wire Gate 0 as prerequisite.
+3. Update `.agents/workflows/aisdlc.md` lifecycle diagram.
+4. Add `requirement-grill-gate` tool to `orchestrator.json` and `orchestrator.md`.
+#### Acceptance Criteria
+- [x] Rule 08 created and documented.
+- [x] SDLC workflow and orchestrator agent definitions updated.
+
+---
+
+### 🎫 TICKET-GRILL-003 | `qa_tester` | [STATUS: DONE]
+**Priority**: HIGH  
+**Depends On**: `TICKET-GRILL-002`  
+**Blocks**: `TICKET-GRILL-004`  
+#### Detailed Instructions
+1. Run `python3 scripts/sync_sdlc_agents.py --check --use-python`.
+2. Run `python3 scripts/sync_codex_agents.py --check`.
+3. Verify SKILL.md frontmatter description stays within context budget (< 100 characters).
+#### Acceptance Criteria
+- [x] 100% sync check passed across all agent specifications.
+- [x] Zero context budget errors.
+
+---
+
+### 🎫 TICKET-GRILL-004 | `devops` | [STATUS: DONE]
+**Priority**: HIGH  
+**Depends On**: `TICKET-GRILL-003`  
+**Blocks**: `TICKET-GRILL-005`  
+#### Detailed Instructions
+1. Run sync scripts (`sync_sdlc_agents.py --sync` and `sync_codex_agents.py --sync`).
+2. Verify manifests in `.antigravity/` and `.codex/`.
+#### Acceptance Criteria
+- [x] Synced 17 agents and 9 skills across `.antigravity`, `.agents`, and `.codex`.
+
+---
+
+### 🎫 TICKET-GRILL-005 | `code_reviewer` / `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-GRILL-004`  
+**Blocks**: None  
+#### Detailed Instructions
+1. Update `PROJECT_TASKS.md` and `.agents/AGENTS.md`.
+2. Verify end-to-end task flow tracking mechanism from Grill Gate to completion.
+#### Acceptance Criteria
+- [x] Live documentation updated and synchronized.
+- [x] Sub-agent task board fully verifiable.
 
 ---
 

@@ -25,14 +25,15 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 
 ## 🧰 Modular Skills Catalog for SDLC / AI SDLC
 
-1. **`sdlc-aisdlc-workflow`**: AI SDLC governance from planning through implementation, QA, release, and post-deploy verification.
-2. **`qa-e2e-testing`**: Pytest, API/UI contract, and Playwright E2E regression matrix for production validation.
-3. **`ai-inference-verifier`**: Verify interpretation output is real model inference, not static template fallback.
-4. **`devops-deployment`**: Deploy hygiene workflows: secret sync, container checks, and production publish/audit.
-5. **`bazi-calculator`**: Compute BaZi 4-Pillars with true solar time and five-elements analysis.
-6. **`rag-search`**: Retrieve ranked metaphysics passages from FAISS index with configured embeddings.
-7. **`bsa-doc-skill-management`**: Own requirements decomposition, live docs sync, and skill-governance operations.
-8. **`metaphysical-domain-engine`**: Cross-train and route metaphysical queries among Zi Wei, Qi Men, Da Liu Ren, I Ching, feng shui, and astrology specialists.
+1. **`requirement-grill-gate`**: Pre-planning requirement grilling gate with 9-dimension interview, blocker enforcement, GRILL REPORT generation, and sub-agent task ticket decomposition.
+2. **`sdlc-aisdlc-workflow`**: AI SDLC governance from planning through implementation, QA, release, and post-deploy verification.
+3. **`qa-e2e-testing`**: Pytest, API/UI contract, and Playwright E2E regression matrix for production validation.
+4. **`ai-inference-verifier`**: Verify interpretation output is real model inference, not static template fallback.
+5. **`devops-deployment`**: Deploy hygiene workflows: secret sync, container checks, and production publish/audit.
+6. **`bazi-calculator`**: Compute BaZi 4-Pillars with true solar time and five-elements analysis.
+7. **`rag-search`**: Retrieve ranked metaphysics passages from FAISS index with configured embeddings.
+8. **`bsa-doc-skill-management`**: Own requirements decomposition, live docs sync, and skill-governance operations.
+9. **`metaphysical-domain-engine`**: Cross-train and route metaphysical queries among Zi Wei, Qi Men, Da Liu Ren, I Ching, feng shui, and astrology specialists.
 
 ### Disabled / Retired Skills
 
@@ -44,12 +45,14 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 
 ```mermaid
 flowchart TD
-    User([User Request]) --> Orch[Orchestrator\nGemini 3.6 Flash - High / Claude 3.7 Sonnet]
+    User([User Request]) --> Gate[Gate 0: Requirement-Grill Gate\n9-Dimension Interview & Context Scan]
+    Gate -->|✅ Approved / ⚠️ Waived| Orch[Orchestrator\nGemini 3.6 Flash - High / Claude 3.7 Sonnet]
+    Gate -->|🚫 Blocked| Halt([Halt: Await Confirmation])
     Orch -->|1. Delegate Spec & Docs| BSA[Business System Analyst\nGemini 3.6 Flash - Standard]
-    BSA -->|2. Audit Docs, Skills & Spec Breakdown| Plan[/plans/plan.md & PROJECT_TASKS.md\]
-    Orch -->|3. Delegate Sub-task| Dev[Senior Developer\nGemini 3.6 Flash / DeepSeek-V3]
+    BSA -->|2. Audit Docs, Skills & Sub-Agent Tickets| Plan[/plans/plan.md & PROJECT_TASKS.md\]
+    Orch -->|3. Delegate Ticket-002| Dev[Senior Developer\nGemini 3.6 Flash / DeepSeek-V3]
     Dev -->|4. Source Code & Docs| Orch
-    Orch -->|5. Request Verification| QA[QA Tester\nGemini 3.5 Flash-Lite - Thinking: Off]
+    Orch -->|5. Delegate Ticket-003| QA[QA Tester\nGemini 3.5 Flash-Lite - Thinking: Off]
     QA -->|6a. Bug Report Fail| Orch
     Orch -->|6b. Bounce Back Bug Fix| Dev
     QA -->|7. Test Passed 100%| DevOps[DevOps & Release\nGemini 3.6 Flash Standard]
