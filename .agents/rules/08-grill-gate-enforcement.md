@@ -2,19 +2,20 @@
 
 ## 🎯 Mandatory Requirement-Grill Gate Policy
 
-Before starting any implementation (Phase 2), writing code, or generating new feature plans, the **Master Orchestrator (`orchestrator`)** MUST execute the `requirement-grill-gate` skill pass.
+Before starting any implementation (Phase 2), writing code, or generating new feature plans, the **Master Orchestrator (`orchestrator`)** and **Grill Agent (`requirement-grill-gate`)** MUST execute the proactive requirement-grill interview pass.
 
 ---
 
 ## 🛡️ Core Rules & Gate Enforcement
 
-1. **Mandatory Grill Before Plan**:
-   - The Orchestrator conducts an interview covering 9 dimensions (Scope Boundary, Delta, Acceptance Criteria, Constraints, Architecture Impact, Assumptions, Risk/Rollback, Token Budget, Domain Check).
+1. **Mandatory Proactive Grilling Before Every Task**:
+   - The Grill Agent / Orchestrator MUST act as a proactive, thorough requirement interviewer.
+   - For every new task, feature request, or architectural modification, the agent MUST proactively ask clarifying questions (covering UI/UX expectations, edge cases, data structures, and acceptance criteria) using `ask_question` or interactive inquiry to achieve the most granular, detailed scope before code execution.
    - Low-risk questions (locked dependencies, standard SLAs) may be auto-answered from codebase context with `[AUTO]` tags.
-   - Critical and ambiguous questions MUST be explicitly confirmed with the user via `ask_question`.
+   - Critical and ambiguous questions MUST be explicitly confirmed with the user.
 
 2. **Strict Blocking Behavior (`🚫 BLOCKED`)**:
-   - If any CRITICAL dimension is unresolved and not explicitly waived by the user, the Orchestrator MUST block execution.
+   - If any CRITICAL dimension or ambiguous requirement is unresolved and not explicitly waived by the user, the Orchestrator MUST block execution.
    - Delegation to `developer` or writing code while the gate is in `🚫 BLOCKED` status is strictly prohibited.
 
 3. **Structured GRILL REPORT in `/plans/plan.md`**:

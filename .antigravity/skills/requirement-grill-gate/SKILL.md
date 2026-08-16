@@ -5,8 +5,8 @@ description: "Pre-plan 9-dim grill gate, block unconfirmed scope, and decompose 
 
 # 🔥 Requirement-Grill Gate Skill
 
-> **Purpose**: Block all code work until requirements are fully grilled, signed off, and decomposed into agent-specific tickets.  
-> **Gate Enforcer**: Orchestrator agent (`orchestrator`)  
+> **Purpose**: Proactively interview the user with clarifying questions before every task to establish a crystal-clear, granular scope, blocking all code work until requirements are fully grilled, signed off, and decomposed into agent-specific tickets.  
+> **Gate Enforcer**: Orchestrator agent (`orchestrator`) / Requirement Grill Agent  
 > **Gate Status Badges**: `✅ APPROVED` · `⚠️ WAIVED` · `🚫 BLOCKED`
 
 ---

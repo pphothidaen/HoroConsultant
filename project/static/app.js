@@ -100,8 +100,54 @@ async function fetchApi(endpoint, options = {}) {
 }
 
 
+function syncFromPickerToText() {
+  const picker = document.getElementById('birth_datetime_picker');
+  const textInput = document.getElementById('birth_datetime');
+  if (picker && textInput && picker.value) {
+    let val = picker.value.replace('T', ' ');
+    if (val.length === 16) {
+      val += ':00';
+    }
+    textInput.value = val;
+  }
+}
+
+function syncFromTextToPicker() {
+  const picker = document.getElementById('birth_datetime_picker');
+  const textInput = document.getElementById('birth_datetime');
+  if (picker && textInput && textInput.value) {
+    const parts = textInput.value.trim().split(' ');
+    if (parts.length === 2) {
+      const timePart = parts[1].length === 8 ? parts[1] : (parts[1].length === 5 ? parts[1] + ':00' : '14:30:00');
+      picker.value = `${parts[0]}T${timePart}`;
+    }
+  }
+}
+
+function setCurrentDateTime() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  
+  const formatted = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  const isoFormatted = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  
+  const textInput = document.getElementById('birth_datetime');
+  const picker = document.getElementById('birth_datetime_picker');
+  
+  if (textInput) textInput.value = formatted;
+  if (picker) picker.value = isoFormatted;
+}
+
 function loadPreset(datetime, lng, utc, label) {
-  document.getElementById('birth_datetime').value = datetime;
+  const textInput = document.getElementById('birth_datetime');
+  const picker = document.getElementById('birth_datetime_picker');
+  if (textInput) textInput.value = datetime;
+  if (picker && datetime) picker.value = datetime.replace(' ', 'T');
   document.getElementById('longitude').value = lng;
   document.getElementById('utc_offset_hours').value = utc;
   console.log(`Loaded preset: ${label}`);
@@ -974,6 +1020,11 @@ async function calculateAndInterpret() {
 
 document.addEventListener("DOMContentLoaded", () => {
   updateVersionFooter();
+  const bdtPicker = document.getElementById('birth_datetime_picker');
+  if (bdtPicker) {
+    bdtPicker.addEventListener('input', syncFromPickerToText);
+    bdtPicker.addEventListener('change', syncFromPickerToText);
+  }
   const locInput = document.getElementById('location_search');
   if(locInput) {
     locInput.addEventListener("keypress", function(event) {

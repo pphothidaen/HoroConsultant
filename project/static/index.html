@@ -46,8 +46,13 @@
 
       <form id="bazi-form" onsubmit="calculateChart(event)">
         <div class="form-group">
-          <label for="birth_datetime">วัน-เวลาเกิด Local Time (YYYY-MM-DD HH:MM:SS)</label>
-          <input type="text" id="birth_datetime" name="birth_datetime" value="1990-05-15 14:30:00" required>
+          <label for="birth_datetime_picker">📅 วัน-เวลาเกิด Local Time (YYYY-MM-DD HH:MM:SS)</label>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="datetime-local" id="birth_datetime_picker" step="1" value="1990-05-15T14:30:00" style="flex: 1; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(212, 175, 55, 0.4); color: #fbbf24; border-radius: 6px; padding: 0.6rem 0.8rem; font-family: inherit; font-size: 0.95rem; min-width: 220px;" onchange="syncFromPickerToText()">
+            <input type="text" id="birth_datetime" name="birth_datetime" value="1990-05-15 14:30:00" required style="display: none;">
+            <button type="button" id="btn-set-current-time" class="btn-sm" style="padding: 0.6rem 0.8rem; background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.5); color: #38bdf8; border-radius: 6px; cursor: pointer; white-space: nowrap; font-weight: 600;" onclick="setCurrentDateTime()">🕒 ปัจจุบัน</button>
+          </div>
+          <small style="color: #94a3b8; margin-top: 0.3rem; display: block;">เลือกผ่านปฏิทินและเวลา (รองรับระดับวินาที) หรือกดปุ่มเวลาปัจจุบัน</small>
         </div>
 
         <div class="form-group">
