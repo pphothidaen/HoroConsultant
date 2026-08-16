@@ -1,6 +1,5 @@
 const BACKEND_API_HOSTS = [
   "https://horo-consultant-psi.vercel.app", // Primary Vercel Production Serverless API Gateway
-  "https://pphothidaen-horoconsultant-core-api.hf.space", // HF Direct Docker API Backend
   "", // Relative origin (local server / same-origin proxy)
 ];
 

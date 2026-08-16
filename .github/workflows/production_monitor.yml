@@ -27,7 +27,7 @@ jobs:
 
       - name: Run synthetic health monitor
         env:
-          HF_BACKEND_URL: ${{ vars.HF_BACKEND_URL || 'https://pphothidaen-horoconsultant-core-api.hf.space' }}
+          HF_BACKEND_URL: ${{ vars.HF_BACKEND_URL || 'https://pphothidaen-horoconsultant-core-backend.hf.space' }}
           VERCEL_GATEWAY_URL: ${{ vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
           HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
           HEALTH_ALERT_WEBHOOK_URL: ${{ secrets.HEALTH_ALERT_WEBHOOK_URL }}

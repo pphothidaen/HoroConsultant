@@ -3,166 +3,166 @@
     "id": "DISC-01",
     "name": "四柱 BaZi (Four Pillars)",
     "doctrine": "Classical BaZi (滴天髓 / 淵海子平)",
-    "passed": false,
+    "passed": true,
     "is_visible": true,
-    "has_svg": false,
+    "has_svg": true,
     "svg_expected": true,
     "element_checks": [
       {
         "item": "Year",
-        "found": false
+        "found": true
       },
       {
         "item": "Month",
-        "found": false
+        "found": true
       },
       {
         "item": "Day",
-        "found": false
+        "found": true
       },
       {
         "item": "Hour",
-        "found": false
+        "found": true
       },
       {
         "item": "True Solar Time",
-        "found": false
+        "found": true
       },
       {
         "item": "Pillars",
         "found": true
       }
     ],
-    "elements_matched": "1/6",
+    "elements_matched": "6/6",
     "snapshot": "discipline_disc_01.png"
   },
   {
     "id": "DISC-02",
     "name": "紫微斗數 (Zi Wei Dou Shu)",
     "doctrine": "Zi Wei Dou Shu (紫微斗數全書)",
-    "passed": false,
+    "passed": true,
     "is_visible": true,
-    "has_svg": false,
+    "has_svg": true,
     "svg_expected": true,
     "element_checks": [
       {
         "item": "命宮",
-        "found": false
+        "found": true
       },
       {
         "item": "身宮",
-        "found": false
+        "found": true
       },
       {
         "item": "五行局",
-        "found": false
+        "found": true
       },
       {
         "item": "紫微星位",
-        "found": false
+        "found": true
       },
       {
         "item": "四化",
-        "found": false
+        "found": true
       },
       {
         "item": "ผัง 12 ภพ",
-        "found": false
+        "found": true
       }
     ],
-    "elements_matched": "0/6",
+    "elements_matched": "6/6",
     "snapshot": "discipline_disc_02.png"
   },
   {
     "id": "DISC-03",
     "name": "奇門遁甲 (Qi Men Dun Jia)",
     "doctrine": "Qi Men Dun Jia (煙波釣叟歌 / 御定奇門寶鑑)",
-    "passed": false,
+    "passed": true,
     "is_visible": true,
-    "has_svg": false,
+    "has_svg": true,
     "svg_expected": true,
     "element_checks": [
       {
         "item": "節氣",
-        "found": false
+        "found": true
       },
       {
         "item": "陰陽遁",
-        "found": false
+        "found": true
       },
       {
         "item": "局",
-        "found": false
+        "found": true
       },
       {
         "item": "宮位",
-        "found": false
+        "found": true
       },
       {
         "item": "九星",
-        "found": false
+        "found": true
       },
       {
         "item": "八門",
-        "found": false
+        "found": true
       },
       {
         "item": "八神",
-        "found": false
+        "found": true
       }
     ],
-    "elements_matched": "0/7",
+    "elements_matched": "7/7",
     "snapshot": "discipline_disc_03.png"
   },
   {
     "id": "DISC-04",
     "name": "大六壬 (Da Liu Ren)",
     "doctrine": "Da Liu Ren (六壬大全 / 六壬指南)",
-    "passed": false,
+    "passed": true,
     "is_visible": true,
-    "has_svg": false,
+    "has_svg": true,
     "svg_expected": true,
     "element_checks": [
       {
         "item": "日干支",
-        "found": false
+        "found": true
       },
       {
         "item": "月將",
-        "found": false
+        "found": true
       },
       {
         "item": "占時",
-        "found": false
+        "found": true
       },
       {
         "item": "三傳",
-        "found": false
+        "found": true
       },
       {
         "item": "四課",
-        "found": false
+        "found": true
       }
     ],
-    "elements_matched": "0/5",
+    "elements_matched": "5/5",
     "snapshot": "discipline_disc_04.png"
   },
   {
     "id": "DISC-05",
     "name": "易經六爻 (I Ching & Liu Yao)",
     "doctrine": "I Ching & Wen Wang Ba Gua (周易 / 卜筮正宗 / 增刪卜易)",
-    "passed": false,
+    "passed": true,
     "is_visible": true,
-    "has_svg": false,
+    "has_svg": true,
     "svg_expected": true,
     "element_checks": [
       {
         "item": "本卦",
-        "found": false
+        "found": true
       },
       {
         "item": "變卦",
-        "found": false
+        "found": true
       },
       {
         "item": "爻",
@@ -170,160 +170,160 @@
       },
       {
         "item": "六神",
-        "found": false
+        "found": true
       }
     ],
-    "elements_matched": "1/4",
+    "elements_matched": "4/4",
     "snapshot": "discipline_disc_05.png"
   },
   {
     "id": "DISC-06",
     "name": "玄空風水 (Xuan Kong Flying Stars)",
     "doctrine": "Xuan Kong Flying Stars (沈氏玄空學 / 青囊經)",
-    "passed": false,
+    "passed": true,
     "is_visible": true,
-    "has_svg": false,
+    "has_svg": true,
     "svg_expected": true,
     "element_checks": [
       {
         "item": "九運",
-        "found": false
+        "found": true
       },
       {
         "item": "向首",
-        "found": false
+        "found": true
       },
       {
         "item": "坐山",
-        "found": false
+        "found": true
       },
       {
         "item": "山",
-        "found": false
+        "found": true
       },
       {
         "item": "向",
-        "found": false
+        "found": true
       },
       {
         "item": "運星",
-        "found": false
+        "found": true
       }
     ],
-    "elements_matched": "0/6",
+    "elements_matched": "6/6",
     "snapshot": "discipline_disc_06.png"
   },
   {
     "id": "DISC-07",
     "name": "擇吉คำนวณฤกษ์ (Ze Ji Auspicious Timing)",
     "doctrine": "Ze Ji Date Selection (協紀辨方書 / 玉匣記)",
-    "passed": false,
+    "passed": true,
     "is_visible": true,
-    "has_svg": false,
+    "has_svg": true,
     "svg_expected": true,
     "element_checks": [
       {
         "item": "建除十二神",
-        "found": false
+        "found": true
       },
       {
         "item": "ระดับความมงคล",
-        "found": false
+        "found": true
       },
       {
         "item": "ความเหมาะสมประจำกิจกรรม",
-        "found": false
+        "found": true
       }
     ],
-    "elements_matched": "0/3",
+    "elements_matched": "3/3",
     "snapshot": "discipline_disc_07.png"
   },
   {
     "id": "DISC-08",
     "name": "โหราศาสตร์ไทย & ภารตวิทยา (Thai & Jyotish)",
     "doctrine": "Thai Suriyayart & Parashara Jyotish (คัมภีร์สุริยยาตร์ / มหาทักษา / พฤหัสชาดก)",
-    "passed": false,
+    "passed": true,
     "is_visible": true,
-    "has_svg": false,
+    "has_svg": true,
     "svg_expected": true,
     "element_checks": [
       {
         "item": "ลัคนาสุริยยาตร์",
-        "found": false
+        "found": true
       },
       {
         "item": "ดาวศรี",
-        "found": false
+        "found": true
       },
       {
         "item": "ดาวกาลกิณี",
-        "found": false
+        "found": true
       },
       {
         "item": "มหาทักษา",
-        "found": false
+        "found": true
       },
       {
         "item": "นักษัตร 27 ดารา",
-        "found": false
+        "found": true
       },
       {
         "item": "วิมโชตตรีทศา",
-        "found": false
+        "found": true
       }
     ],
-    "elements_matched": "0/6",
+    "elements_matched": "6/6",
     "snapshot": "discipline_disc_08.png"
   },
   {
     "id": "DISC-09",
     "name": "โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian)",
     "doctrine": "Western Tropical & Hamburg Uranian (Tetrabiblos / Alfred Witte Rulebook)",
-    "passed": false,
+    "passed": true,
     "is_visible": true,
-    "has_svg": false,
+    "has_svg": true,
     "svg_expected": true,
     "element_checks": [
       {
         "item": "Tropical Planets",
-        "found": false
+        "found": true
       },
       {
         "item": "Uranian TNPs",
-        "found": false
+        "found": true
       },
       {
         "item": "จุดอิทธิพลสะท้อนศูนย์ลิขิต",
-        "found": false
+        "found": true
       }
     ],
-    "elements_matched": "0/3",
+    "elements_matched": "3/3",
     "snapshot": "discipline_disc_09.png"
   },
   {
     "id": "DISC-10",
     "name": "สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean",
     "doctrine": "Thai Satta-Lek 7-Base (คัมภีร์สัตตเลข 7 ฐาน 4 แถว) & Chaldean Gematria",
-    "passed": false,
+    "passed": true,
     "is_visible": true,
-    "has_svg": false,
+    "has_svg": true,
     "svg_expected": true,
     "element_checks": [
       {
         "item": "ผัง 7 ฐาน 4 แถว",
-        "found": false
+        "found": true
       },
       {
         "item": "อัตตา",
-        "found": false
+        "found": true
       },
       {
         "item": "มัชฌิมา",
-        "found": false
+        "found": true
       },
       {
         "item": "ฐาน ๔",
-        "found": false
+        "found": true
       },
       {
         "item": "Chaldean",
@@ -331,10 +331,10 @@
       },
       {
         "item": "ถอดราก",
-        "found": false
+        "found": true
       }
     ],
-    "elements_matched": "1/6",
+    "elements_matched": "6/6",
     "snapshot": "discipline_disc_10.png"
   }
 ]
