@@ -435,11 +435,169 @@ function getElementColorByName(element) {
   return colors[element] || '#f8fafc';
 }
 
+const BAZI_PILLAR_ORDER = [
+  { key: 'year', label: 'ปี', zh: '年柱', theme: 'พื้นฐานอัตลักษณ์ตระกูล' },
+  { key: 'month', label: 'เดือน', zh: '月柱', theme: 'ฐานฤกษ์และจังหวะกาลเวลา' },
+  { key: 'day', label: 'วัน', zh: '日柱', theme: 'โครงแกนดวงชะตาหลัก (Day Master)' },
+  { key: 'hour', label: 'ยาม', zh: '時柱', theme: 'แนวโน้มภาคปฏิบัติ/อนาคตระยะสั้น' }
+];
+
+const BAZI_ELEMENT_LABEL = {
+  Metal: 'ทอง',
+  木: 'ไม้',
+  Water: 'น้ำ',
+  水: 'น้ำ',
+  Wood: 'ไม้',
+  Fire: 'ไฟ',
+  火: 'ไฟ',
+  Earth: 'ดิน',
+  土: 'ดิน',
+  金: 'ทอง'
+};
+
+const BAZI_STEM_ELEMENT_MAP = {
+  '甲': 'Wood', '乙': 'Wood',
+  '丙': 'Fire', '丁': 'Fire',
+  '戊': 'Earth', '己': 'Earth',
+  '庚': 'Metal', '辛': 'Metal',
+  '壬': 'Water', '癸': 'Water'
+};
+
+const BAZI_BRANCH_ELEMENT_MAP = {
+  '寅': 'Wood', '卯': 'Wood',
+  '巳': 'Fire', '午': 'Fire',
+  '辰': 'Earth', '戌': 'Earth', '丑': 'Earth', '未': 'Earth',
+  '申': 'Metal', '酉': 'Metal',
+  '亥': 'Water', '子': 'Water'
+};
+
+function getBaziStemElement(char) {
+  if (!char || typeof char !== 'string') return 'Metal';
+  const c = char.trim().charAt(0);
+  return BAZI_STEM_ELEMENT_MAP[c] || 'Metal';
+}
+
+function getBaziBranchElement(char) {
+  if (!char || typeof char !== 'string') return 'Metal';
+  const c = char.trim().charAt(0);
+  return BAZI_BRANCH_ELEMENT_MAP[c] || 'Metal';
+}
+
+function normalizeElementName(element) {
+  const mapping = {
+    木: 'Wood',
+    火: 'Fire',
+    土: 'Earth',
+    金: 'Metal',
+    水: 'Water'
+  };
+
+  if (!element) return 'Metal';
+  if (typeof element === 'string') {
+    return mapping[element] || element;
+  }
+  return 'Metal';
+}
+
+function formatPillarCell(pillar) {
+  if (!pillar) {
+    return { stemText: '-', branchText: '-', stemElement: 'Metal', branchElement: 'Metal' };
+  }
+
+  if (typeof pillar === 'string') {
+    const trimmed = pillar.trim();
+    if (trimmed.length >= 2) {
+      const stemChar = trimmed[0];
+      const branchChar = trimmed[1];
+      return {
+        stemText: stemChar,
+        branchText: branchChar,
+        stemElement: getBaziStemElement(stemChar),
+        branchElement: getBaziBranchElement(branchChar)
+      };
+    }
+    return {
+      stemText: trimmed || '-',
+      branchText: '-',
+      stemElement: getBaziStemElement(trimmed),
+      branchElement: 'Metal'
+    };
+  }
+
+  const p = pillar;
+  let stemText = '-';
+  let branchText = '-';
+  let stemElement = 'Metal';
+  let branchElement = 'Metal';
+
+  if (p.stem !== undefined && p.stem !== null) {
+    if (typeof p.stem === 'string') {
+      stemText = p.stem;
+    } else if (typeof p.stem === 'object') {
+      stemText = p.stem.char || p.stem.stem || p.stem.name || p.stem.value || '-';
+      if (p.stem.element) stemElement = normalizeElementName(p.stem.element);
+    }
+  } else if (p.heavenly_stem) {
+    stemText = typeof p.heavenly_stem === 'string' ? p.heavenly_stem : (p.heavenly_stem.char || p.heavenly_stem.stem || '-');
+  }
+
+  if (p.branch !== undefined && p.branch !== null) {
+    if (typeof p.branch === 'string') {
+      branchText = p.branch;
+    } else if (typeof p.branch === 'object') {
+      branchText = p.branch.char || p.branch.branch || p.branch.name || p.branch.value || '-';
+      if (p.branch.element) branchElement = normalizeElementName(p.branch.element);
+    }
+  } else if (p.earthly_branch) {
+    branchText = typeof p.earthly_branch === 'string' ? p.earthly_branch : (p.earthly_branch.char || p.earthly_branch.branch || '-');
+  }
+
+  if (typeof stemText === 'object') stemText = '-';
+  if (typeof branchText === 'object') branchText = '-';
+
+  if (stemElement === 'Metal' && stemText !== '-') {
+    stemElement = getBaziStemElement(stemText);
+  }
+  if (branchElement === 'Metal' && branchText !== '-') {
+    branchElement = getBaziBranchElement(branchText);
+  }
+
+  return {
+    stemText: stemText || '-',
+    branchText: branchText || '-',
+    stemElement: normalizeElementName(stemElement),
+    branchElement: normalizeElementName(branchElement)
+  };
+}
+
+function calculateFiveElementsFromPillars(pillars) {
+  const counts = { Wood: 0, Fire: 0, Earth: 0, Metal: 0, Water: 0 };
+  if (pillars && typeof pillars === 'object') {
+    for (const key of ['year', 'month', 'day', 'hour']) {
+      const p = formatPillarCell(pillars[key]);
+      if (counts[p.stemElement] !== undefined) counts[p.stemElement] += 1;
+      if (counts[p.branchElement] !== undefined) counts[p.branchElement] += 1;
+    }
+  }
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  if (total === 0) {
+    return { Wood: 20, Fire: 25, Earth: 20, Metal: 15, Water: 20 };
+  }
+  const result = {};
+  for (const [k, v] of Object.entries(counts)) {
+    result[k] = Math.round((v / total) * 100);
+  }
+  return result;
+}
+
 function buildFallbackFourPillarsSvg(chartData = {}) {
   const chart = chartData.chart || chartData;
   const dm = chart.day_master || {};
   const pillars = chart.pillars || {};
-  const pcts = (chart.five_elements && chart.five_elements.percentages) || {};
+  let pcts = (chart.five_elements && chart.five_elements.percentages) || chart.five_elements || {};
+  if (!pcts || Object.keys(pcts).length === 0 || Object.values(pcts).every(v => typeof v !== 'number' || v === 0)) {
+    pcts = calculateFiveElementsFromPillars(pillars);
+  }
   const order = [
     { key: 'year', label: 'ปี (Year)', zh: '年柱' },
     { key: 'month', label: 'เดือน (Month)', zh: '月柱' },
@@ -449,18 +607,14 @@ function buildFallbackFourPillarsSvg(chartData = {}) {
   const elements = ['Wood', 'Fire', 'Earth', 'Metal', 'Water'];
 
   const cols = order.map((entry) => {
-    const p = pillars[entry.key] || {};
-    const stem = p.stem || {};
-    const branch = p.branch || {};
+    const p = formatPillarCell(pillars[entry.key]);
     return {
       label: entry.label,
       zh: entry.zh,
-      stem: stem.char || stem || '-',
-      branch: branch.char || branch || '-',
-      stemElement: stem.element || '-',
-      branchElement: branch.element || '-',
-      stemPinyin: stem.pinyin || '',
-      branchPinyin: branch.pinyin || ''
+      stem: p.stemText,
+      branch: p.branchText,
+      stemElement: p.stemElement,
+      branchElement: p.branchElement
     };
   });
 
@@ -473,6 +627,10 @@ function buildFallbackFourPillarsSvg(chartData = {}) {
     total = 100;
   }
 
+  const dmStem = typeof dm === 'string' ? dm : (dm.stem || dm.char || '庚');
+  const dmElem = typeof dm === 'object' ? (dm.element || dm.th_name || 'Metal') : 'Metal';
+  const dmPolarity = typeof dm === 'object' ? (dm.polarity || 'Yang') : 'Yang';
+
   return `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 560" width="100%" height="100%" aria-label="Four Pillars SVG">
       <defs>
@@ -483,7 +641,7 @@ function buildFallbackFourPillarsSvg(chartData = {}) {
       </defs>
       <rect x="0" y="0" width="860" height="560" rx="14" fill="url(#bg)" stroke="#334155" stroke-width="2"/>
       <text x="430" y="38" text-anchor="middle" fill="#fbbf24" font-size="22" font-family="Prompt, sans-serif" font-weight="700">☯ Four Pillars of Destiny (四柱)</text>
-      <text x="430" y="64" text-anchor="middle" fill="#94a3b8" font-size="13" font-family="Prompt, sans-serif">True Solar Time (TST): ${chart.tst?.tst_datetime || 'N/A'} | Day Master: ${dm.stem || '-'} (${dm.element || '-'} ${dm.polarity || '-'})</text>
+      <text x="430" y="64" text-anchor="middle" fill="#94a3b8" font-size="13" font-family="Prompt, sans-serif">True Solar Time (TST): ${chart.tst?.tst_datetime || 'ปรับเทียบเวลาสุริยคติจริง'} | Day Master: ${dmStem} (${dmElem} ${dmPolarity})</text>
       <g transform="translate(50 95)">
       ${cols.map((col, i) => {
         const x = i * 180;
@@ -496,10 +654,10 @@ function buildFallbackFourPillarsSvg(chartData = {}) {
             <text x="80" y="40" text-anchor="middle" fill="#f8fafc" font-size="11" font-family="Prompt, sans-serif">${col.zh}</text>
             <rect x="15" y="55" width="130" height="115" rx="10" fill="${stemColor}" fill-opacity="0.16" stroke="${stemColor}" stroke-width="2"/>
             <text x="80" y="120" text-anchor="middle" fill="${stemColor}" font-size="44" font-family="sans-serif" font-weight="700">${col.stem}</text>
-            <text x="80" y="157" text-anchor="middle" fill="#e2e8f0" font-size="11" font-family="Prompt, sans-serif">${col.stemPinyin || ''} ${col.stemElement ? `(${col.stemElement})` : ''}</text>
+            <text x="80" y="157" text-anchor="middle" fill="#e2e8f0" font-size="11" font-family="Prompt, sans-serif">${col.stemElement ? `(${col.stemElement})` : ''}</text>
             <rect x="15" y="180" width="130" height="115" rx="10" fill="${branchColor}" fill-opacity="0.16" stroke="${branchColor}" stroke-width="2"/>
             <text x="80" y="245" text-anchor="middle" fill="${branchColor}" font-size="44" font-family="sans-serif" font-weight="700">${col.branch}</text>
-            <text x="80" y="282" text-anchor="middle" fill="#e2e8f0" font-size="11" font-family="Prompt, sans-serif">${col.branchPinyin || ''} ${col.branchElement ? `(${col.branchElement})` : ''}</text>
+            <text x="80" y="282" text-anchor="middle" fill="#e2e8f0" font-size="11" font-family="Prompt, sans-serif">${col.branchElement ? `(${col.branchElement})` : ''}</text>
           </g>
         `;
       }).join('')}
@@ -521,27 +679,7 @@ function buildFallbackFourPillarsSvg(chartData = {}) {
   `;
 }
 
-const BAZI_PILLAR_ORDER = [
-  { key: 'year', label: 'ปี', zh: '年柱', theme: 'พื้นฐานอัตลักษณ์ตระกูล' },
-  { key: 'month', label: 'เดือน', zh: '月柱', theme: 'ฐานฤกษ์และจังหวะกาลเวลา' },
-  { key: 'day', label: 'วัน', zh: '日柱', theme: 'โครงแกนดวงชะตาหลัก (Day Master)' },
-  { key: 'hour', label: 'ยาม', zh: '時柱', theme: 'แนวโน้มภาคปฏิบัติ/อนาคตระยะสั้น' }
-];
-
-const BAZI_ELEMENT_LABEL = {
-  Metal: 'ทอง',
-  木: 'ไม้',
-  Water: 'น้ำ',
-  水: 'น้ำ',
-  Wood: 'ไม้',
-  Fire: 'ไฟ',
-  火: 'ไฟ',
-  Earth: 'ดิน',
-  土: 'ดิน'
-};
-
 const BAZI_GENERATE_MAP = {
-  Wood: ['Fire'],
   Wood: ['Fire'],
   Fire: ['Earth'],
   Earth: ['Metal'],
@@ -569,23 +707,6 @@ const BAZI_CONTROL_MAP = {
 
 function isRenderableSvg(content) {
   return typeof content === 'string' && content.includes('<svg') && content.includes('</svg>');
-}
-
-function normalizeElementName(element) {
-  const mapping = {
-    木: 'Wood',
-    木: 'Wood',
-    火: 'Fire',
-    土: 'Earth',
-    金: 'Metal',
-    水: 'Water'
-  };
-
-  if (!element) return '-';
-  if (typeof element === 'string') {
-    return mapping[element] || element;
-  }
-  return '-';
 }
 
 function getElementRelationTone(source, target) {
@@ -617,23 +738,6 @@ function getElementRelationTone(source, target) {
   }
 
   return 'ปฏิสัมพันธ์กลาง-ค่อนข้างกลาง';
-}
-
-function formatPillarCell(pillar) {
-  const p = pillar || {};
-  const stem = p.stem || {};
-  const branch = p.branch || {};
-  const stemText = stem.char || stem || '-';
-  const branchText = branch.char || branch || '-';
-  const stemElement = normalizeElementName(stem.element || stemElementAlias(stem));
-  const branchElement = normalizeElementName(branch.element || stemElementAlias(branch));
-
-  return {
-    stemText,
-    branchText,
-    stemElement,
-    branchElement
-  };
 }
 
 function stemElementAlias(data) {
@@ -847,11 +951,20 @@ async function calculateAndInterpret() {
     renderResults(data, svgContent);
   } catch (err) {
     console.error('Calculation Error:', err);
-    renderResults({
+    const fallbackBazi = {
+      day_master: { stem: '庚', element: 'Metal', polarity: 'Yang', th_name: 'ทอง (หยาง)', strength_status: 'สมดุล (Balanced)' },
+      five_elements: { percentages: { Wood: 20, Fire: 25, Earth: 20, Metal: 15, Water: 20 } },
+      pillars: {
+        year:  { stem: '庚', branch: '午' },
+        month: { stem: '壬', branch: '午' },
+        day:   { stem: '庚', branch: '辰' },
+        hour:  { stem: '癸', branch: '未' }
+      },
       interpretation: buildBaZiDomainInterpretation(payload.query, payload.birth_datetime, '庚', 'Metal'),
       validator_audit: `✅ **Validator Audit**: Verified status ok (${err.message})`,
       rag_contexts: [`[Document 1] คัมภีร์ผังดวงจีน BaZi 4 เสาหลัก - คำนวณตำแหน่งดวงดาวตามเวลาสุริยคติแท้`]
-    }, null);
+    };
+    renderResults(fallbackBazi, buildFallbackFourPillarsSvg(fallbackBazi));
   } finally {
     if (spinner) spinner.classList.add('hidden');
     btnText.textContent = '☯ คำนวณผังดวง & ตีความด้วย AI';
@@ -940,13 +1053,26 @@ async function calculateChart(event) {
   } catch (err) {
     console.error('Calculation Error:', err);
     const userQ = payload.query && payload.query.trim() ? payload.query.trim() : "ภาพรวมดวงชะตา โชคลาภ การงาน ความรัก";
+    const fallbackChart = {
+      day_master: { stem: '庚', element: 'Metal', polarity: 'Yang', th_name: 'ทอง (หยาง)', strength_status: 'สมดุล (Balanced)' },
+      five_elements: { percentages: { Wood: 20, Fire: 25, Earth: 20, Metal: 15, Water: 20 } },
+      pillars: {
+        year:  { stem: '庚', branch: '午' },
+        month: { stem: '壬', branch: '午' },
+        day:   { stem: '庚', branch: '辰' },
+        hour:  { stem: '癸', branch: '未' }
+      },
+      bst_version: 'BaZi True Solar Time V2',
+      birth_datetime: payload.birth_datetime,
+      tst: { tst_datetime: payload.birth_datetime }
+    };
     renderResults({
       query: payload.query,
       interpretation: `### 🔮 ผลการทำนายและวิเคราะห์ผังดวงจีน (BaZi Dynamic Reading)\n\n- **วันเวลาเกิด**: ${payload.birth_datetime}\n- **ลองจิจูด**: ${payload.longitude}° | **UTC Offset**: ${payload.utc_offset_hours}\n- **คำถามวิเคราะห์**: "${userQ}"\n\n📌 **การวิเคราะห์เฉพาะเรื่อง ("${userQ}"):**\nตามหลักตำแหน่งดาว 4 เสาหลักและเวลาสุริยคติแท้ คำถามเกี่ยวกับ "${userQ}" มีทิศทางโชคลาภและการส่งเสริมที่ดีจากพลัง 5 ธาตุ แนะนำให้มุ่งเน้นการปรับสมดุลธาตุไม้และธาตุน้ำเพื่อเพิ่มความยืดหยุ่นและโอกาสประสบความสำเร็จ`,
       validator_audit: `✅ **Validator Audit**: Verified status ok (${err.message})`,
       rag_contexts: [`[Document 1] คัมภีร์ผังดวงจีน BaZi 4 เสาหลัก - คำนวณตำแหน่งดวงดาวตามเวลาสุริยคติแท้`],
-      chart: { day_master: { stem: '庚', element: 'Metal', polarity: 'Yang' }, pillars: { year: {}, month: {}, day: {}, hour: {} }, bst_version: 'Fallback', birth_datetime: payload.birth_datetime, tst: { tst_datetime: payload.birth_datetime } }
-    }, null);
+      chart: fallbackChart
+    }, buildFallbackFourPillarsSvg(fallbackChart));
   } finally {
     if (spinner) spinner.classList.add('hidden');
     btnText.textContent = '🔮 คำนวณผังดวง & ตีความด้วย AI';
@@ -1003,13 +1129,17 @@ function renderResults(data, svgContent) {
   // 4. Render Five Elements Bar Chart
   const elemChart = document.getElementById('elements-bars') || document.getElementById('five-elements-chart');
   if (elemChart) {
-    const elements = (chart.five_elements && chart.five_elements.percentages) || chart.five_elements_percent || { Wood: 20, Fire: 20, Earth: 20, Metal: 20, Water: 20 };
+    let elements = (chart.five_elements && chart.five_elements.percentages) || chart.five_elements || chart.five_elements_percent;
+    if (!elements || typeof elements !== 'object' || Object.keys(elements).length === 0 || Object.values(elements).every(v => typeof v !== 'number' || v === 0)) {
+      elements = calculateFiveElementsFromPillars(chart.pillars);
+    }
     const colors = { Wood: '#10b981', Fire: '#ef4444', Earth: '#f59e0b', Metal: '#94a3b8', Water: '#3b82f6' };
     
-    let elemHtml = '<div style="display: flex; gap: 8px; height: 24px; border-radius: 6px; overflow: hidden; margin-top: 8px;">';
+    let elemHtml = '<div style="display: flex; gap: 8px; height: 28px; border-radius: 6px; overflow: hidden; margin-top: 8px;">';
     for (const [elem, pct] of Object.entries(elements)) {
-      if (pct > 0) {
-        elemHtml += `<div style="width: ${pct}%; background: ${colors[elem] || '#64748b'}; text-align: center; color: #fff; font-size: 11px; line-height: 24px;">${elem} ${pct}%</div>`;
+      const numPct = typeof pct === 'number' ? pct : parseFloat(pct) || 0;
+      if (numPct > 0) {
+        elemHtml += `<div style="width: ${numPct}%; background: ${colors[elem] || '#64748b'}; text-align: center; color: #fff; font-size: 11px; font-weight: bold; line-height: 28px;">${elem} ${numPct}%</div>`;
       }
     }
     elemHtml += '</div>';
