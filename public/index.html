@@ -7,7 +7,7 @@
   <meta name="description" content="Advanced BaZi Four Pillars of Destiny Engine with True Solar Time, FAISS RAG, and Gemini Multi-Agent Validation">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,12 +20,12 @@
   </div>
   
   <header class="app-header">
-    <div class="header-content">
-      <div class="logo-area">
-        <span class="logo-icon">☯</span>
-        <div>
-          <h1>HORO CONSULTANT</h1>
-          <p class="subtitle">Computational Metaphysics & BaZi Multi-Agent Engine</p>
+    <div class="header-container">
+      <div class="brand">
+        <span class="brand-icon">☯</span>
+        <div class="brand-text">
+          <h1>HoroConsultant</h1>
+          <span class="tagline">Computational Metaphysics &amp; Multi-Agent Intelligence</span>
         </div>
       </div>
       <nav class="spa-nav">
@@ -45,51 +45,97 @@
       </div>
 
       <form id="bazi-form" onsubmit="calculateChart(event)">
-        <div class="form-group">
-          <label for="birth_datetime_picker">📅 วัน-เวลาเกิด Local Time (YYYY-MM-DD HH:MM:SS)</label>
-          <div style="display: flex; gap: 8px; align-items: center;">
-            <input type="datetime-local" id="birth_datetime_picker" step="1" value="1990-05-15T14:30:00" style="flex: 1; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(212, 175, 55, 0.4); color: #fbbf24; border-radius: 6px; padding: 0.6rem 0.8rem; font-family: inherit; font-size: 0.95rem; min-width: 220px;" onchange="syncFromPickerToText()">
-            <input type="text" id="birth_datetime" name="birth_datetime" value="1990-05-15 14:30:00" required style="display: none;">
-            <button type="button" id="btn-set-current-time" class="btn-sm" style="padding: 0.6rem 0.8rem; background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.5); color: #38bdf8; border-radius: 6px; cursor: pointer; white-space: nowrap; font-weight: 600;" onclick="setCurrentDateTime()">🕒 ปัจจุบัน</button>
-          </div>
-          <small style="color: #94a3b8; margin-top: 0.3rem; display: block;">เลือกผ่านปฏิทินและเวลา (รองรับระดับวินาที) หรือกดปุ่มเวลาปัจจุบัน</small>
-        </div>
-
-        <div class="form-group">
-          <label for="location_search">ค้นหาสถานที่เกิด (อำเภอ, จังหวัด) <span id="loc-spinner" class="hidden">⏳</span></label>
-          <div style="display: flex; gap: 8px;">
-            <input type="text" id="location_search" placeholder="เช่น บางกะปิ กรุงเทพ..." autocomplete="off">
-            <button type="button" class="btn-sm" style="padding: 0 1rem; background: rgba(212, 175, 55, 0.2); border-color: rgba(212, 175, 55, 0.5); color: #fbbf24; font-weight: 600;" onclick="resolveLocation()">ค้นหา & เติมค่า</button>
-          </div>
-          <small class="location-status" id="location-status" style="display: block; margin-top: 0.4rem;"></small>
-        </div>
-
+        <!-- Name (Optional) -->
         <div class="form-row">
           <div class="form-group">
-            <label for="longitude">ลองจิจูด (°Longitude)</label>
-            <input type="number" id="longitude" name="longitude" step="0.0001" value="100.4930" required>
-            <small>กรุงเทพฯ: 100.4930°</small>
+            <label for="user_name">ชื่อ (First Name - Optional)</label>
+            <input type="text" id="user_name" name="user_name" placeholder="ชื่อ (ไม่ระบุก็ได้)">
           </div>
           <div class="form-group">
-            <label for="utc_offset_hours">เขตเวลา (UTC Offset)</label>
-            <input type="number" id="utc_offset_hours" name="utc_offset_hours" step="0.5" value="7.0" required>
-            <small>ประเทศไทย: UTC+7</small>
+            <label for="user_surname">นามสกุล (Last Name - Optional)</label>
+            <input type="text" id="user_surname" name="user_surname" placeholder="นามสกุล (ไม่ระบุก็ได้)">
           </div>
         </div>
 
-        <div class="form-group" style="display: flex; align-items: flex-start; gap: 8px;">
-          <input type="checkbox" id="unknown_hour" name="unknown_hour" style="margin-top: 4px; width: 16px; height: 16px; flex-shrink: 0; cursor: pointer;">
-          <label for="unknown_hour" class="label-text" style="cursor: pointer; line-height: 1.4; word-break: break-word;">ไม่ทราบยามเกิด (Probabilistic Matrix 12 Scenarios)</label>
+        <!-- Gender at Birth -->
+        <div class="form-group">
+          <label class="block-label">เพศกำเนิด (Gender at Birth) <span class="badge-hint">*กำหนดทิศทางวัยจร Da Yun</span></label>
+          <div class="gender-segmented-control">
+            <label class="gender-option active" id="gender-male-label">
+              <input type="radio" name="gender" value="male" checked onchange="onGenderChange('male')">
+              <span class="gender-icon">👨</span>
+              <span class="gender-text">ชาย (Male)</span>
+            </label>
+            <label class="gender-option" id="gender-female-label">
+              <input type="radio" name="gender" value="female" onchange="onGenderChange('female')">
+              <span class="gender-icon">👩</span>
+              <span class="gender-text">หญิง (Female)</span>
+            </label>
+          </div>
         </div>
 
-        <div class="form-group" style="display: flex; align-items: flex-start; gap: 8px;">
-          <input type="checkbox" id="enable_validation" name="enable_validation" checked style="margin-top: 4px; width: 16px; height: 16px; flex-shrink: 0; cursor: pointer;">
-          <label for="enable_validation" class="label-text" style="cursor: pointer; line-height: 1.4; word-break: break-word;">เปิดใช้ Gemini Prediction Validator Agent (Multi-Agent Audit)</label>
+        <!-- Date & Time of Birth -->
+        <div class="form-group">
+          <div class="label-with-addon">
+            <label for="birth_datetime_picker">📅 วัน-เวลาเกิด Local Time (YYYY-MM-DD HH:MM:SS)</label>
+            <span class="be-year-badge" id="be-year-display">พ.ศ. 2569</span>
+          </div>
+          <div class="datetime-picker-wrapper" onclick="openWheelPicker()">
+            <input type="text" id="birth_datetime_picker" placeholder="แตะเพื่อเลือกวัน-เวลาเกิด (Drum Wheel Picker)" readonly>
+            <span class="picker-icon-badge">📅 หมุนเลือกเวลา</span>
+            <input type="hidden" id="birth_datetime" name="birth_datetime">
+          </div>
+          <div class="checkbox-row-compact">
+            <label class="checkbox-inline">
+              <input type="checkbox" id="unknown_hour" name="unknown_hour" onchange="toggleUnknownHour(this)">
+              <span>🕒 ไม่ทราบเวลาเกิด (Unknown Time)</span>
+            </label>
+            <label class="checkbox-inline">
+              <input type="checkbox" id="has_twin" name="has_twin">
+              <span>👥 เกิดเป็นฝาแฝด (Has Twin)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Advanced Settings Accordion -->
+        <div class="advanced-accordion">
+          <button type="button" class="accordion-toggle" onclick="toggleAdvancedSettings()">
+            <span>⚙️ การตั้งค่าขั้นสูง (พิกัดเกิด & เวลาสุริยคติแท้ True Solar Time)</span>
+            <span class="accordion-icon" id="adv-acc-icon">▼</span>
+          </button>
+          <div class="accordion-content hidden" id="adv-acc-content">
+            <div class="form-group" style="margin-top: 0.6rem;">
+              <label for="location_search">ค้นหาสถานที่เกิด (อำเภอ, จังหวัด) <span id="loc-spinner" class="hidden">⏳</span></label>
+              <div style="display: flex; gap: 8px;">
+                <input type="text" id="location_search" placeholder="เช่น บางกะปิ กรุงเทพ..." autocomplete="off">
+                <button type="button" class="btn-sm" style="padding: 0 1rem; background: rgba(212, 175, 55, 0.2); border-color: rgba(212, 175, 55, 0.5); color: #fbbf24; font-weight: 600;" onclick="resolveLocation()">ค้นหา & เติมค่า</button>
+              </div>
+              <small class="location-status" id="location-status" style="display: block; margin-top: 0.4rem;"></small>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="longitude">ลองจิจูด (°Longitude)</label>
+                <input type="number" id="longitude" name="longitude" step="0.0001" value="100.4930" required>
+                <small>กรุงเทพฯ: 100.4930°</small>
+              </div>
+              <div class="form-group">
+                <label for="utc_offset_hours">เขตเวลา (UTC Offset)</label>
+                <input type="number" id="utc_offset_hours" name="utc_offset_hours" step="0.5" value="7.0" required>
+                <small>ประเทศไทย: UTC+7</small>
+              </div>
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: flex-start; gap: 8px; margin-top: 0.4rem;">
+              <input type="checkbox" id="enable_validation" name="enable_validation" checked style="margin-top: 4px; width: 16px; height: 16px; flex-shrink: 0; cursor: pointer;">
+              <label for="enable_validation" class="label-text" style="cursor: pointer; line-height: 1.4; word-break: break-word;">เปิดใช้ Gemini Prediction Validator Agent (Multi-Agent Audit)</label>
+            </div>
+          </div>
         </div>
 
         <div class="form-group">
           <label for="query">คำถามหรือประเด็นที่ต้องการเน้น</label>
-          <input type="text" id="query" name="query" value="วิเคราะห์ความแข็งแกร่งของ Day Master ธาตุทอง และอาชีพการงานที่ส่งเสริมดวงชะตา">
+          <input type="text" id="query" name="query" value="วิเคราะห์ดวงชะตาโดยรวมช่วงนี้">
         </div>
 
         <div class="form-group">
@@ -236,6 +282,57 @@
     </div>
     <p id="footer-version-text">Computational Metaphysics Engine v1.0.0 — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback</p>
   </footer>
+
+  <!-- iOS/Android Bottom-Sheet Drum Wheel DateTime Picker Modal -->
+  <div id="wheel-picker-modal" class="wheel-picker-backdrop hidden" onclick="closeWheelPicker(event)">
+    <div class="wheel-picker-sheet glass-card" onclick="event.stopPropagation()">
+      <div class="wheel-picker-header">
+        <button type="button" class="wheel-picker-btn btn-cancel" onclick="closeWheelPicker()">ยกเลิก</button>
+        <div class="wheel-picker-title">
+          <span class="title-main">📅 เลือกวัน-เวลาเกิด (Local Time)</span>
+          <span class="title-sub" id="wheel-preview-text">2026-08-16 17:45:00</span>
+        </div>
+        <button type="button" class="wheel-picker-btn btn-confirm" onclick="confirmWheelPicker()">ยืนยัน</button>
+      </div>
+
+      <div class="wheel-quick-actions">
+        <button type="button" class="quick-pill" onclick="setWheelToNow()">🕒 เวลาปัจจุบัน</button>
+        <button type="button" class="quick-pill" onclick="setWheelQuickYear(2000)">ปี 2000</button>
+        <button type="button" class="quick-pill" onclick="setWheelQuickYear(1990)">ปี 1990</button>
+        <button type="button" class="quick-pill" onclick="setWheelQuickYear(1980)">ปี 1980</button>
+      </div>
+
+      <div class="wheel-picker-body">
+        <div class="wheel-selection-lens"></div>
+
+        <div class="wheel-col-wrapper">
+          <div class="wheel-col-label">ปี (ค.ศ.)</div>
+          <div class="wheel-column" id="wheel-col-year" data-type="year"></div>
+        </div>
+        <div class="wheel-col-wrapper">
+          <div class="wheel-col-label">เดือน</div>
+          <div class="wheel-column" id="wheel-col-month" data-type="month"></div>
+        </div>
+        <div class="wheel-col-wrapper">
+          <div class="wheel-col-label">วัน</div>
+          <div class="wheel-column" id="wheel-col-day" data-type="day"></div>
+        </div>
+        <div class="wheel-col-separator">:</div>
+        <div class="wheel-col-wrapper">
+          <div class="wheel-col-label">ชั่วโมง</div>
+          <div class="wheel-column" id="wheel-col-hour" data-type="hour"></div>
+        </div>
+        <div class="wheel-col-wrapper">
+          <div class="wheel-col-label">นาที</div>
+          <div class="wheel-column" id="wheel-col-minute" data-type="minute"></div>
+        </div>
+        <div class="wheel-col-wrapper">
+          <div class="wheel-col-label">วินาที</div>
+          <div class="wheel-column" id="wheel-col-second" data-type="second"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>

@@ -15,24 +15,28 @@ from playwright.async_api import async_playwright
 os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/Users/kimlenglim/.agy-account-2/Library/Caches/ms-playwright"
 
 PROD_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
+LOCAL_URL = f"file://{Path('project/static/index.html').resolve()}"
+
 VIEWPORTS = [
-    {"name": "Desktop (1440x900)", "width": 1440, "height": 900},
+    {"name": "Desktop Large (1512x733)", "width": 1512, "height": 733},
+    {"name": "Desktop Standard (1440x900)", "width": 1440, "height": 900},
+    {"name": "Laptop (1366x768)", "width": 1366, "height": 768},
     {"name": "Tablet (768x1024)", "width": 768, "height": 1024},
     {"name": "Mobile (375x812)", "width": 375, "height": 812},
 ]
 
 
-async def audit_viewport_overlaps(page, vp):
+async def audit_viewport_overlaps(page, vp, target_url):
     print(f"\n--- Checking Viewport: {vp['name']} ---")
     await page.set_viewport_size({"width": vp["width"], "height": vp["height"]})
-    await page.goto(PROD_URL, wait_until="networkidle")
-    await page.wait_for_timeout(1500)
+    await page.goto(target_url, wait_until="load")
+    await page.wait_for_timeout(1000)
 
     # Click preset & calculate to populate all sections
     try:
         await page.click(".preset-buttons button:has-text('กรุงเทพฯ')")
         await page.click("#btn-submit")
-        await page.wait_for_timeout(4000)
+        await page.wait_for_timeout(1500)
     except Exception as e:
         print(f"  Note during form submit: {e}")
 
@@ -150,9 +154,10 @@ async def audit_viewport_overlaps(page, vp):
 
 
 async def main():
+    target_url = PROD_URL if "--prod" in sys.argv else LOCAL_URL
     print("======================================================================")
     print("  🎨 UI SECTION & LAYOUT OVERLAP AUDITOR")
-    print(f"  Target: {PROD_URL}")
+    print(f"  Target: {target_url}")
     print("======================================================================")
 
     all_passed = True
@@ -162,7 +167,7 @@ async def main():
         page = await context.new_page()
 
         for vp in VIEWPORTS:
-            ok = await audit_viewport_overlaps(page, vp)
+            ok = await audit_viewport_overlaps(page, vp, target_url)
             if not ok:
                 all_passed = False
 

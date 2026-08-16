@@ -26,11 +26,15 @@
   --shadow-glow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-* {
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   font-family: 'Prompt', 'Outfit', sans-serif;
+}
+
+svg, svg * {
+  box-sizing: content-box;
 }
 
 body {
@@ -243,13 +247,32 @@ body {
   margin: 2rem auto;
   padding: 0 1.5rem;
   display: grid;
-  grid-template-columns: 420px 1fr;
+  grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
   gap: 2rem;
+  width: 100%;
+}
+
+.main-container > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.form-section, .results-section {
+  min-width: 0;
+  max-width: 100%;
 }
 
 @media (max-width: 1024px) {
   .main-container {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    padding: 0 0.75rem;
+    margin: 1rem auto;
+    gap: 1.25rem;
   }
 }
 
@@ -263,6 +286,16 @@ body {
   box-shadow: var(--shadow-glow);
   padding: 1.5rem;
   transition: transform 0.3s ease, border-color 0.3s ease;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .glass-card {
+    padding: 1rem;
+    border-radius: var(--radius-md);
+  }
 }
 
 .glass-card:hover {
@@ -749,10 +782,651 @@ input:checked + .slider:before {
   .footer-status-bar {
     flex-direction: column;
     gap: 0.6rem;
+    width: 100%;
   }
   .footer-status-bar .status-badge {
     width: 100%;
-    max-width: 380px;
+    max-width: 100%;
     justify-content: center;
   }
 }
+
+/* Flatpickr Custom Theme for Glassmorphism */
+.flatpickr-calendar {
+  background: rgba(15, 23, 42, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(212, 175, 55, 0.4) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6) !important;
+  color: #f1f5f9 !important;
+  font-family: inherit !important;
+}
+
+.flatpickr-calendar.arrowTop:before,
+.flatpickr-calendar.arrowTop:after {
+  border-bottom-color: rgba(15, 23, 42, 0.95) !important;
+}
+
+.flatpickr-calendar.arrowBottom:before,
+.flatpickr-calendar.arrowBottom:after {
+  border-top-color: rgba(15, 23, 42, 0.95) !important;
+}
+
+.flatpickr-months {
+  background: transparent !important;
+}
+
+.flatpickr-months .flatpickr-month {
+  color: #fbbf24 !important;
+  fill: #fbbf24 !important;
+}
+
+.flatpickr-current-month .numInputWrapper span.arrowUp:after {
+  border-bottom-color: #fbbf24 !important;
+}
+
+.flatpickr-current-month .numInputWrapper span.arrowDown:after {
+  border-top-color: #fbbf24 !important;
+}
+
+span.flatpickr-weekday {
+  color: #94a3b8 !important;
+  font-weight: 600 !important;
+}
+
+.flatpickr-day {
+  color: #e2e8f0 !important;
+  border-radius: 6px !important;
+}
+
+.flatpickr-day:hover {
+  background: rgba(245, 158, 11, 0.2) !important;
+  border-color: rgba(245, 158, 11, 0.5) !important;
+  color: #fbbf24 !important;
+}
+
+.flatpickr-day.today {
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+.flatpickr-day.selected {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  border-color: #f59e0b !important;
+  color: #0f172a !important;
+  font-weight: bold !important;
+}
+
+.flatpickr-time {
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(10, 14, 26, 0.6) !important;
+}
+
+.flatpickr-time input {
+  color: #fbbf24 !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+}
+
+.flatpickr-time .flatpickr-time-separator {
+  color: #94a3b8 !important;
+}
+
+/* ==========================================================================
+   iOS / Android Bottom-Sheet Drum Wheel DateTime Picker (Glassmorphism Dark)
+   ========================================================================== */
+.datetime-picker-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 8px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.datetime-picker-wrapper:hover {
+  border-color: #fbbf24;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
+  background: rgba(15, 23, 42, 0.9);
+}
+
+.datetime-picker-wrapper input {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  color: #fbbf24 !important;
+  font-family: inherit !important;
+  font-size: 0.98rem !important;
+  font-weight: 500 !important;
+  padding: 0.5rem 0.4rem !important;
+  width: 100% !important;
+  cursor: pointer !important;
+}
+
+.picker-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.35rem 0.65rem;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 6px;
+  color: #fbbf24;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Modal Backdrop */
+.wheel-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wheel-picker-backdrop.hidden {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Bottom Sheet Container */
+.wheel-picker-sheet {
+  width: 100%;
+  max-width: 600px;
+  background: rgba(15, 23, 42, 0.97) !important;
+  border: 1px solid rgba(212, 175, 55, 0.4) !important;
+  border-bottom: none !important;
+  border-radius: 24px 24px 0 0 !important;
+  padding: 1.25rem 1rem 2rem 1rem !important;
+  box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.85) !important;
+  animation: slideUpWheelSheet 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  box-sizing: border-box;
+}
+
+@keyframes slideUpWheelSheet {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Header */
+.wheel-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 0.75rem;
+}
+
+.wheel-picker-btn {
+  border: none;
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.wheel-picker-btn:active {
+  transform: scale(0.95);
+}
+
+.btn-cancel {
+  background: transparent;
+  color: #94a3b8;
+  padding: 0.4rem 0.8rem;
+  font-weight: 500;
+}
+
+.btn-confirm {
+  background: var(--gradient-gold);
+  color: #0f172a;
+  padding: 0.45rem 1.3rem;
+  border-radius: 8px;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(245, 158, 11, 0.4);
+}
+
+.wheel-picker-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.title-main {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.title-sub {
+  font-size: 0.82rem;
+  color: #fbbf24;
+  font-family: monospace;
+  font-weight: 600;
+  margin-top: 2px;
+  letter-spacing: 0.5px;
+}
+
+/* Quick Pills */
+.wheel-quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 0.6rem;
+  margin-bottom: 0.6rem;
+  scrollbar-width: none;
+}
+
+.wheel-quick-actions::-webkit-scrollbar {
+  display: none;
+}
+
+.quick-pill {
+  padding: 0.3rem 0.7rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.quick-pill:hover, .quick-pill:active {
+  background: rgba(245, 158, 11, 0.25);
+  border-color: rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+}
+
+/* Body & Columns */
+.wheel-picker-body {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  height: 220px;
+  overflow: hidden;
+  user-select: none;
+  background: rgba(10, 14, 26, 0.65);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.wheel-selection-lens {
+  position: absolute;
+  top: 88px;
+  left: 0;
+  right: 0;
+  height: 44px;
+  background: rgba(245, 158, 11, 0.14);
+  border-top: 1px solid rgba(245, 158, 11, 0.5);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.5);
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.15);
+}
+
+.wheel-col-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+  position: relative;
+  z-index: 5;
+}
+
+.wheel-col-label {
+  text-align: center;
+  font-size: 0.68rem;
+  color: #94a3b8;
+  padding: 4px 0 2px 0;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(15, 23, 42, 0.4);
+}
+
+.wheel-col-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #fbbf24;
+  padding: 0 2px;
+  padding-top: 20px;
+  pointer-events: none;
+}
+
+.wheel-column {
+  flex: 1;
+  height: 100%;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 88px 0;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.wheel-column::-webkit-scrollbar {
+  display: none;
+}
+
+.wheel-item {
+  height: 44px;
+  line-height: 44px;
+  scroll-snap-align: center;
+  font-size: 0.95rem;
+  color: #64748b;
+  cursor: pointer;
+  transition: color 0.15s ease, transform 0.15s ease, font-weight 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 2px;
+}
+
+.wheel-item.active {
+  color: #fbbf24 !important;
+  font-weight: 700 !important;
+  font-size: 1.05rem !important;
+  transform: scale(1.08);
+}
+
+/* ==========================================================================
+   FengShuiX & Astroneko UX/UI Enhancements (Gender, Accordion, 5-Elements)
+   ========================================================================== */
+.block-label {
+  display: block;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+}
+
+.badge-hint {
+  font-size: 0.72rem;
+  color: #fbbf24;
+  font-weight: normal;
+  margin-left: 4px;
+}
+
+.gender-segmented-control {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.gender-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(15, 23, 42, 0.6);
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  user-select: none;
+}
+
+.gender-option input {
+  display: none;
+}
+
+.gender-option.active {
+  background: rgba(245, 158, 11, 0.18);
+  border-color: rgba(245, 158, 11, 0.6);
+  color: #fbbf24;
+  font-weight: 700;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.2);
+}
+
+.gender-option:hover {
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #f1f5f9;
+}
+
+.gender-icon {
+  font-size: 1.1rem;
+}
+
+.label-with-addon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+
+.label-with-addon label {
+  margin-bottom: 0;
+}
+
+.be-year-badge {
+  font-size: 0.78rem;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  padding: 0.15rem 0.55rem;
+  border-radius: 4px;
+  font-family: monospace;
+  font-weight: 600;
+}
+
+.checkbox-row-compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 0.5rem;
+}
+
+.checkbox-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-inline input {
+  accent-color: #fbbf24;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+/* Advanced Settings Accordion */
+.advanced-accordion {
+  margin: 0.8rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(10, 14, 26, 0.5);
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.advanced-accordion:hover {
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.accordion-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 0.9rem;
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.accordion-toggle:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #fbbf24;
+}
+
+.accordion-icon {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.accordion-icon.open {
+  transform: rotate(180deg);
+  color: #fbbf24;
+}
+
+.accordion-content {
+  padding: 0.5rem 0.9rem 0.9rem 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Astroneko Five Elements Color Palette */
+.elem-wood {
+  color: #10b981 !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+}
+
+.elem-fire {
+  color: #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  background: rgba(239, 68, 68, 0.12) !important;
+}
+
+.elem-earth {
+  color: #f59e0b !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  background: rgba(245, 158, 11, 0.12) !important;
+}
+
+.elem-metal {
+  color: #e2e8f0 !important;
+  border-color: rgba(226, 232, 240, 0.4) !important;
+  background: rgba(226, 232, 240, 0.12) !important;
+}
+
+.elem-water {
+  color: #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+  background: rgba(56, 189, 248, 0.12) !important;
+}
+
+/* Five Elements Bar Breakdown */
+.element-balance-bar {
+  display: flex;
+  height: 14px;
+  border-radius: 7px;
+  overflow: hidden;
+  margin: 0.75rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.element-bar-segment {
+  height: 100%;
+  transition: width 0.4s ease;
+  position: relative;
+}
+
+.element-legend-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-top: 0.6rem;
+  text-align: center;
+}
+
+.element-legend-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.4rem 0.2rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+}
+
+.element-legend-item .el-name {
+  font-weight: 600;
+}
+
+.element-legend-item .el-pct {
+  font-size: 0.7rem;
+  opacity: 0.85;
+}
+
+/* Luck Pillars da-yun track */
+.dayun-track {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+  scrollbar-width: thin;
+}
+
+.dayun-card {
+  flex: 0 0 72px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem 0.3rem;
+  text-align: center;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.dayun-card:hover {
+  transform: translateY(-2px);
+  border-color: #fbbf24;
+}
+
+.dayun-age {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+
+.dayun-stem-branch {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fbbf24;
+}
+

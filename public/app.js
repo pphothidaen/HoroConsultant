@@ -51,7 +51,7 @@ async function fetchApi(endpoint, options = {}) {
   const requestOptions = { ...options };
   const shouldShowLoader = requestOptions.showLoader !== false;
   const loaderMessage = requestOptions.loaderMessage || 'กำลังรอผลจาก API...';
-  const timeoutMs = requestOptions.timeoutMs || (endpoint.includes('/interpret') ? 12000 : 6000);
+  const timeoutMs = requestOptions.timeoutMs || (endpoint.includes('/interpret') ? 25000 : 18000);
   delete requestOptions.showLoader;
   delete requestOptions.loaderMessage;
   delete requestOptions.timeoutMs;
@@ -74,7 +74,13 @@ async function fetchApi(endpoint, options = {}) {
       const url = base ? `${base}${endpoint}` : endpoint;
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+        const timeoutId = setTimeout(() => {
+          try {
+            controller.abort(new Error(`Timeout of ${timeoutMs}ms exceeded for ${url}`));
+          } catch (_) {
+            controller.abort();
+          }
+        }, timeoutMs);
         const res = await fetch(url, { ...requestOptions, signal: requestOptions.signal || controller.signal });
         clearTimeout(timeoutId);
         if (res.ok) {
@@ -87,7 +93,7 @@ async function fetchApi(endpoint, options = {}) {
         }
         return res;
       } catch (err) {
-        console.warn(`[API Fallback] ${url} failed: ${err.message}, trying next host...`);
+        console.warn(`[API Fallback] ${url} failed: ${err.message || err}, trying next host...`);
         lastError = err;
       }
     }
@@ -100,31 +106,7 @@ async function fetchApi(endpoint, options = {}) {
 }
 
 
-function syncFromPickerToText() {
-  const picker = document.getElementById('birth_datetime_picker');
-  const textInput = document.getElementById('birth_datetime');
-  if (picker && textInput && picker.value) {
-    let val = picker.value.replace('T', ' ');
-    if (val.length === 16) {
-      val += ':00';
-    }
-    textInput.value = val;
-  }
-}
-
-function syncFromTextToPicker() {
-  const picker = document.getElementById('birth_datetime_picker');
-  const textInput = document.getElementById('birth_datetime');
-  if (picker && textInput && textInput.value) {
-    const parts = textInput.value.trim().split(' ');
-    if (parts.length === 2) {
-      const timePart = parts[1].length === 8 ? parts[1] : (parts[1].length === 5 ? parts[1] + ':00' : '14:30:00');
-      picker.value = `${parts[0]}T${timePart}`;
-    }
-  }
-}
-
-function setCurrentDateTime() {
+function getNowFormattedDateTime() {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -132,22 +114,341 @@ function setCurrentDateTime() {
   const hours = String(now.getHours()).padStart(2, '0');
   const minutes = String(now.getMinutes()).padStart(2, '0');
   const seconds = String(now.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+const THAI_MONTHS_SHORT = [
+  'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+  'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+];
+
+let currentWheelState = {
+  year: 1990,
+  month: 5,
+  day: 15,
+  hour: 14,
+  minute: 30,
+  second: 0
+};
+
+const WHEEL_ITEM_HEIGHT = 44;
+
+function getDaysInMonth(year, month) {
+  return new Date(year, month, 0).getDate();
+}
+
+function parseDateTimeString(dtStr) {
+  const now = new Date();
+  if (!dtStr || typeof dtStr !== 'string') {
+    return {
+      year: now.getFullYear(),
+      month: now.getMonth() + 1,
+      day: now.getDate(),
+      hour: now.getHours(),
+      minute: now.getMinutes(),
+      second: now.getSeconds()
+    };
+  }
+  const clean = dtStr.replace('T', ' ').trim();
+  const [datePart, timePart] = clean.split(' ');
+  const [y, m, d] = (datePart || '').split('-').map(Number);
+  const [h, min, s] = (timePart || '00:00:00').split(':').map(Number);
+
+  return {
+    year: isNaN(y) ? now.getFullYear() : y,
+    month: isNaN(m) ? (now.getMonth() + 1) : m,
+    day: isNaN(d) ? now.getDate() : d,
+    hour: isNaN(h) ? now.getHours() : h,
+    minute: isNaN(min) ? now.getMinutes() : min,
+    second: isNaN(s) ? 0 : s
+  };
+}
+
+function formatWheelState(state) {
+  const y = String(state.year).padStart(4, '0');
+  const m = String(state.month).padStart(2, '0');
+  const d = String(state.day).padStart(2, '0');
+  const h = String(state.hour).padStart(2, '0');
+  const min = String(state.minute).padStart(2, '0');
+  const s = String(state.second).padStart(2, '0');
+  return `${y}-${m}-${d} ${h}:${min}:${s}`;
+}
+
+function buildWheelColumnItems(colEl, items, selectedVal, onSelect) {
+  if (!colEl) return;
+  colEl.innerHTML = '';
   
-  const formatted = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  const isoFormatted = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  items.forEach((item) => {
+    const div = document.createElement('div');
+    div.className = 'wheel-item' + (item.value === selectedVal ? ' active' : '');
+    div.dataset.value = item.value;
+    div.textContent = item.label;
+    div.addEventListener('click', () => {
+      onSelect(item.value, true);
+    });
+    colEl.appendChild(div);
+  });
+
+  colEl.onscroll = () => {
+    if (colEl._isProgrammaticScrolling) return;
+    clearTimeout(colEl._scrollTimeout);
+    colEl._scrollTimeout = setTimeout(() => {
+      if (colEl._isProgrammaticScrolling) return;
+      const scrollTop = colEl.scrollTop;
+      const index = Math.round(scrollTop / WHEEL_ITEM_HEIGHT);
+      const activeDiv = colEl.children[index];
+      if (activeDiv) {
+        const val = Number(activeDiv.dataset.value);
+        Array.from(colEl.children).forEach((c, i) => {
+          c.classList.toggle('active', i === index);
+        });
+        onSelect(val, false);
+      }
+    }, 60);
+  };
+}
+
+function scrollWheelColToValue(colEl, value, smooth = true) {
+  if (!colEl) return;
+  const items = Array.from(colEl.children);
+  const index = items.findIndex(c => Number(c.dataset.value) === Number(value));
+  if (index >= 0) {
+    items.forEach((c, i) => c.classList.toggle('active', i === index));
+    colEl._isProgrammaticScrolling = true;
+    clearTimeout(colEl._progScrollTimeout);
+    colEl.scrollTo({
+      top: index * WHEEL_ITEM_HEIGHT,
+      behavior: smooth ? 'smooth' : 'auto'
+    });
+    colEl._progScrollTimeout = setTimeout(() => {
+      colEl._isProgrammaticScrolling = false;
+    }, 600);
+  }
+}
+
+function renderWheelPickerColumns(initialState) {
+  const currentYear = new Date().getFullYear();
+  const years = [];
+  for (let y = 1900; y <= currentYear + 30; y++) {
+    years.push({ value: y, label: String(y) });
+  }
+
+  const months = [];
+  for (let m = 1; m <= 12; m++) {
+    months.push({ value: m, label: `${String(m).padStart(2, '0')} (${THAI_MONTHS_SHORT[m - 1]})` });
+  }
+
+  const daysCount = getDaysInMonth(initialState.year, initialState.month);
+  const days = [];
+  for (let d = 1; d <= daysCount; d++) {
+    days.push({ value: d, label: String(d).padStart(2, '0') });
+  }
+
+  const hours = [];
+  for (let h = 0; h <= 23; h++) {
+    hours.push({ value: h, label: String(h).padStart(2, '0') });
+  }
+
+  const minutes = [];
+  for (let mi = 0; mi <= 59; mi++) {
+    minutes.push({ value: mi, label: String(mi).padStart(2, '0') });
+  }
+
+  const seconds = [];
+  for (let s = 0; s <= 59; s++) {
+    seconds.push({ value: s, label: String(s).padStart(2, '0') });
+  }
+
+  buildWheelColumnItems(document.getElementById('wheel-col-year'), years, initialState.year, (v, scroll) => {
+    currentWheelState.year = v;
+    updateDaysColumn();
+    updateWheelPreview();
+    if (scroll) scrollWheelColToValue(document.getElementById('wheel-col-year'), v);
+  });
+
+  buildWheelColumnItems(document.getElementById('wheel-col-month'), months, initialState.month, (v, scroll) => {
+    currentWheelState.month = v;
+    updateDaysColumn();
+    updateWheelPreview();
+    if (scroll) scrollWheelColToValue(document.getElementById('wheel-col-month'), v);
+  });
+
+  buildWheelColumnItems(document.getElementById('wheel-col-day'), days, initialState.day, (v, scroll) => {
+    currentWheelState.day = v;
+    updateWheelPreview();
+    if (scroll) scrollWheelColToValue(document.getElementById('wheel-col-day'), v);
+  });
+
+  buildWheelColumnItems(document.getElementById('wheel-col-hour'), hours, initialState.hour, (v, scroll) => {
+    currentWheelState.hour = v;
+    updateWheelPreview();
+    if (scroll) scrollWheelColToValue(document.getElementById('wheel-col-hour'), v);
+  });
+
+  buildWheelColumnItems(document.getElementById('wheel-col-minute'), minutes, initialState.minute, (v, scroll) => {
+    currentWheelState.minute = v;
+    updateWheelPreview();
+    if (scroll) scrollWheelColToValue(document.getElementById('wheel-col-minute'), v);
+  });
+
+  buildWheelColumnItems(document.getElementById('wheel-col-second'), seconds, initialState.second, (v, scroll) => {
+    currentWheelState.second = v;
+    updateWheelPreview();
+    if (scroll) scrollWheelColToValue(document.getElementById('wheel-col-second'), v);
+  });
+}
+
+function updateDaysColumn() {
+  const maxDays = getDaysInMonth(currentWheelState.year, currentWheelState.month);
+  if (currentWheelState.day > maxDays) {
+    currentWheelState.day = maxDays;
+  }
+  const dayCol = document.getElementById('wheel-col-day');
+  if (!dayCol) return;
+  const days = [];
+  for (let d = 1; d <= maxDays; d++) {
+    days.push({ value: d, label: String(d).padStart(2, '0') });
+  }
+  buildWheelColumnItems(dayCol, days, currentWheelState.day, (v, scroll) => {
+    currentWheelState.day = v;
+    updateWheelPreview();
+    if (scroll) scrollWheelColToValue(dayCol, v);
+  });
+  scrollWheelColToValue(dayCol, currentWheelState.day, false);
+}
+
+function updateWheelPreview() {
+  const prevText = document.getElementById('wheel-preview-text');
+  if (prevText) {
+    prevText.textContent = formatWheelState(currentWheelState);
+  }
+}
+
+function openWheelPicker() {
+  const modal = document.getElementById('wheel-picker-modal');
+  if (!modal) return;
   
+  const currentVal = document.getElementById('birth_datetime')?.value || document.getElementById('birth_datetime_picker')?.value || getNowFormattedDateTime();
+  currentWheelState = parseDateTimeString(currentVal);
+  
+  renderWheelPickerColumns(currentWheelState);
+  updateWheelPreview();
+  
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+
+  setTimeout(() => {
+    scrollWheelColToValue(document.getElementById('wheel-col-year'), currentWheelState.year, false);
+    scrollWheelColToValue(document.getElementById('wheel-col-month'), currentWheelState.month, false);
+    scrollWheelColToValue(document.getElementById('wheel-col-day'), currentWheelState.day, false);
+    scrollWheelColToValue(document.getElementById('wheel-col-hour'), currentWheelState.hour, false);
+    scrollWheelColToValue(document.getElementById('wheel-col-minute'), currentWheelState.minute, false);
+    scrollWheelColToValue(document.getElementById('wheel-col-second'), currentWheelState.second, false);
+  }, 60);
+}
+
+function closeWheelPicker(event) {
+  if (event && event.target && event.target.id !== 'wheel-picker-modal' && !event.target.classList.contains('btn-cancel')) {
+    return;
+  }
+  const modal = document.getElementById('wheel-picker-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+  document.body.style.overflow = '';
+}
+
+function confirmWheelPicker() {
+  const formatted = formatWheelState(currentWheelState);
+  const pickerInput = document.getElementById('birth_datetime_picker');
   const textInput = document.getElementById('birth_datetime');
-  const picker = document.getElementById('birth_datetime_picker');
   
+  if (pickerInput) pickerInput.value = formatted;
   if (textInput) textInput.value = formatted;
-  if (picker) picker.value = isoFormatted;
+  
+  updateBeYearDisplay(currentWheelState.year);
+  
+  const modal = document.getElementById('wheel-picker-modal');
+  if (modal) modal.classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function updateBeYearDisplay(year) {
+  const beDisplay = document.getElementById('be-year-display');
+  if (!beDisplay) return;
+  const numericYear = Number(year) || new Date().getFullYear();
+  const beYear = numericYear + 543;
+  beDisplay.textContent = `พ.ศ. ${beYear}`;
+}
+
+function onGenderChange(gender) {
+  const maleLabel = document.getElementById('gender-male-label');
+  const femaleLabel = document.getElementById('gender-female-label');
+  if (gender === 'male') {
+    maleLabel?.classList.add('active');
+    femaleLabel?.classList.remove('active');
+  } else {
+    femaleLabel?.classList.add('active');
+    maleLabel?.classList.remove('active');
+  }
+}
+
+function toggleUnknownHour(checkbox) {
+  const isUnknown = checkbox && checkbox.checked;
+  const pickerInput = document.getElementById('birth_datetime_picker');
+  const hiddenInput = document.getElementById('birth_datetime');
+  if (isUnknown) {
+    if (hiddenInput && hiddenInput.value) {
+      const dateOnly = hiddenInput.value.split(' ')[0] || '1990-05-15';
+      hiddenInput.value = `${dateOnly} 12:00:00`;
+      if (pickerInput) pickerInput.value = `${dateOnly} (ไม่ทราบเวลา)`;
+    }
+  } else {
+    if (hiddenInput && hiddenInput.value) {
+      if (pickerInput) pickerInput.value = hiddenInput.value;
+    }
+  }
+}
+
+function toggleAdvancedSettings() {
+  const content = document.getElementById('adv-acc-content');
+  const icon = document.getElementById('adv-acc-icon');
+  if (!content) return;
+  const isHidden = content.classList.toggle('hidden');
+  if (icon) {
+    icon.classList.toggle('open', !isHidden);
+  }
+}
+
+function setWheelToNow() {
+  currentWheelState = parseDateTimeString(getNowFormattedDateTime());
+  updateDaysColumn();
+  updateWheelPreview();
+  updateBeYearDisplay(currentWheelState.year);
+  scrollWheelColToValue(document.getElementById('wheel-col-year'), currentWheelState.year);
+  scrollWheelColToValue(document.getElementById('wheel-col-month'), currentWheelState.month);
+  scrollWheelColToValue(document.getElementById('wheel-col-day'), currentWheelState.day);
+  scrollWheelColToValue(document.getElementById('wheel-col-hour'), currentWheelState.hour);
+  scrollWheelColToValue(document.getElementById('wheel-col-minute'), currentWheelState.minute);
+  scrollWheelColToValue(document.getElementById('wheel-col-second'), currentWheelState.second);
+}
+
+function setWheelQuickYear(year) {
+  currentWheelState.year = year;
+  updateDaysColumn();
+  updateWheelPreview();
+  updateBeYearDisplay(year);
+  scrollWheelColToValue(document.getElementById('wheel-col-year'), year);
 }
 
 function loadPreset(datetime, lng, utc, label) {
   const textInput = document.getElementById('birth_datetime');
   const picker = document.getElementById('birth_datetime_picker');
-  if (textInput) textInput.value = datetime;
-  if (picker && datetime) picker.value = datetime.replace(' ', 'T');
+  const cleanDt = (datetime || '').replace('T', ' ');
+  if (textInput) textInput.value = cleanDt;
+  if (picker) picker.value = cleanDt;
+  currentWheelState = parseDateTimeString(cleanDt);
+  updateBeYearDisplay(currentWheelState.year);
   document.getElementById('longitude').value = lng;
   document.getElementById('utc_offset_hours').value = utc;
   console.log(`Loaded preset: ${label}`);
@@ -372,7 +673,17 @@ function buildBaZiDomainInterpretation(query, birthDatetime, dayMasterStem = '�
 }
 
 function buildBaziPayloadFromForm() {
+  const genderRadio = document.querySelector('input[name="gender"]:checked');
+  const gender = genderRadio ? genderRadio.value : 'male';
+  const nameInput = document.getElementById('user_name');
+  const surnameInput = document.getElementById('user_surname');
+  const twinInput = document.getElementById('has_twin');
+
   return {
+    name: nameInput ? nameInput.value.trim() : '',
+    surname: surnameInput ? surnameInput.value.trim() : '',
+    gender: gender,
+    has_twin: !!(twinInput && twinInput.checked),
     birth_datetime: document.getElementById('birth_datetime').value,
     longitude: parseFloat(document.getElementById('longitude').value),
     utc_offset_hours: parseFloat(document.getElementById('utc_offset_hours').value),
@@ -1020,11 +1331,17 @@ async function calculateAndInterpret() {
 
 document.addEventListener("DOMContentLoaded", () => {
   updateVersionFooter();
-  const bdtPicker = document.getElementById('birth_datetime_picker');
-  if (bdtPicker) {
-    bdtPicker.addEventListener('input', syncFromPickerToText);
-    bdtPicker.addEventListener('change', syncFromPickerToText);
+  const initialNow = getNowFormattedDateTime();
+  const pickerInput = document.getElementById('birth_datetime_picker');
+  const textInput = document.getElementById('birth_datetime');
+  if (pickerInput && !pickerInput.value) {
+    pickerInput.value = initialNow;
   }
+  if (textInput && !textInput.value) {
+    textInput.value = initialNow;
+  }
+  const currentYear = new Date().getFullYear();
+  updateBeYearDisplay(currentYear);
   const locInput = document.getElementById('location_search');
   if(locInput) {
     locInput.addEventListener("keypress", function(event) {
@@ -1170,31 +1487,52 @@ function renderResults(data, svgContent) {
   // 3. Render Day Master Banner / Badge
   const dmBadge = document.getElementById('day-master-banner') || document.getElementById('day-master-badge');
   if (dmBadge) {
+    const payload = buildBaziPayloadFromForm();
+    const ownerName = payload.name ? `${payload.name} ${payload.surname}`.trim() : '';
+    const genderLabel = payload.gender === 'female' ? '👩 หญิง' : '👨 ชาย';
+    const ownerPrefix = ownerName ? `<strong>เจ้าชะตา:</strong> ${ownerName} (${genderLabel}) &nbsp;|&nbsp; ` : `<strong>เพศ:</strong> ${genderLabel} &nbsp;|&nbsp; `;
+    
     if (dm.stem && dm.element) {
-      dmBadge.innerHTML = `ดิถีวัน (Day Master): <strong>${dm.stem} (${dm.th_name || dm.element})</strong> | ธาตุ: <span style="color: #10b981;">${dm.element}</span>`;
+      dmBadge.innerHTML = `${ownerPrefix}ดิถีวัน (Day Master): <strong style="color: #fbbf24; font-size: 1.05rem;">${dm.stem} (${dm.th_name || dm.element})</strong> &nbsp;|&nbsp; สถานะ: <span style="color: #38bdf8; font-weight: 600;">${dm.strength_status || 'สมดุล (Balanced)'}</span>`;
     } else {
-      dmBadge.innerHTML = 'วิเคราะห์ผังดวงสำเร็จ';
+      dmBadge.innerHTML = `${ownerPrefix}วิเคราะห์ผังดวงสำเร็จ (True Solar Time Validated)`;
     }
   }
 
-  // 4. Render Five Elements Bar Chart
+  // 4. Render Five Elements Bar Chart & Legend (Astroneko Style)
   const elemChart = document.getElementById('elements-bars') || document.getElementById('five-elements-chart');
   if (elemChart) {
     let elements = (chart.five_elements && chart.five_elements.percentages) || chart.five_elements || chart.five_elements_percent;
     if (!elements || typeof elements !== 'object' || Object.keys(elements).length === 0 || Object.values(elements).every(v => typeof v !== 'number' || v === 0)) {
       elements = calculateFiveElementsFromPillars(chart.pillars);
     }
-    const colors = { Wood: '#10b981', Fire: '#ef4444', Earth: '#f59e0b', Metal: '#94a3b8', Water: '#3b82f6' };
+    const elemConfig = {
+      Wood: { name: 'ไม้ (Wood)', color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)', border: 'rgba(16, 185, 129, 0.35)' },
+      Fire: { name: 'ไฟ (Fire)', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.12)', border: 'rgba(239, 68, 68, 0.35)' },
+      Earth: { name: 'ดิน (Earth)', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)', border: 'rgba(245, 158, 11, 0.35)' },
+      Metal: { name: 'ทอง (Metal)', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.12)', border: 'rgba(251, 191, 36, 0.35)' },
+      Water: { name: 'น้ำ (Water)', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.12)', border: 'rgba(56, 189, 248, 0.35)' }
+    };
     
-    let elemHtml = '<div style="display: flex; gap: 8px; height: 28px; border-radius: 6px; overflow: hidden; margin-top: 8px;">';
-    for (const [elem, pct] of Object.entries(elements)) {
-      const numPct = typeof pct === 'number' ? pct : parseFloat(pct) || 0;
+    let elemBarHtml = '<div class="element-balance-bar">';
+    let elemLegendHtml = '<div class="element-legend-grid">';
+    
+    for (const [elem, cfg] of Object.entries(elemConfig)) {
+      const pctVal = elements[elem] || 0;
+      const numPct = typeof pctVal === 'number' ? Math.round(pctVal) : Math.round(parseFloat(pctVal) || 0);
       if (numPct > 0) {
-        elemHtml += `<div style="width: ${numPct}%; background: ${colors[elem] || '#64748b'}; text-align: center; color: #fff; font-size: 11px; font-weight: bold; line-height: 28px;">${elem} ${numPct}%</div>`;
+        elemBarHtml += `<div class="element-bar-segment" style="width: ${numPct}%; background: ${cfg.color};" title="${cfg.name}: ${numPct}%"></div>`;
       }
+      elemLegendHtml += `
+        <div class="element-legend-item" style="background: ${cfg.bg}; border: 1px solid ${cfg.border};">
+          <span class="el-name" style="color: ${cfg.color};">${cfg.name}</span>
+          <span class="el-pct" style="color: #f1f5f9;">${numPct}%</span>
+        </div>
+      `;
     }
-    elemHtml += '</div>';
-    elemChart.innerHTML = elemHtml;
+    elemBarHtml += '</div>';
+    elemLegendHtml += '</div>';
+    elemChart.innerHTML = elemBarHtml + elemLegendHtml;
   }
 
   // 5. Render AI Interpretation text with Markdown formatting + research summary (per-pillar short read)
@@ -2931,13 +3269,13 @@ async function calcTaiYi() {
       body: JSON.stringify({ birth_datetime: "2026-05-15 14:30:00", disciplines: ["tai_yi"] })
     });
     const data = await res.json();
-    const ty = data.charts.tai_yi || {};
+    const ty = (data && data.charts && data.charts.tai_yi) || {};
     const html = `
       <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; padding: 1rem; border-radius: 8px;">
         <h4 style="color: #f59e0b; margin-top: 0;">太乙 太乙神數 (Tai Yi Shen Shu)</h4>
-        <p><strong>ปีสะสม (Accumulated Years):</strong> ${ty.accumulated_years || ''}</p>
-        <p><strong>ตำแหน่งดาวไท่อิก (Tai Yi Star Palace):</strong> วังที่ ${ty.star_palace || ''}</p>
-        <p><strong>เลขจักรวาลไท่อิก (Tai Yi Number):</strong> ${ty.tai_yi_number || ''}</p>
+        <p><strong>ปีสะสม (Accumulated Years):</strong> ${ty.accumulated_years || '-'}</p>
+        <p><strong>ตำแหน่งดาวไท่อิก (Tai Yi Star Palace):</strong> วังที่ ${ty.star_palace || '-'}</p>
+        <p><strong>เลขจักรวาลไท่อิก (Tai Yi Number):</strong> ${ty.tai_yi_number || '-'}</p>
         <p><strong>การประเมินเชิงยุทธศาสตร์:</strong> ${ty.strategic_assessment || 'ส่งเสริม'}</p>
       </div>
     `;
@@ -2955,12 +3293,12 @@ async function calcLiuYao() {
       body: JSON.stringify({ birth_datetime: "2026-05-15 14:30:00", disciplines: ["liu_yao"] })
     });
     const data = await res.json();
-    const ly = data.charts.liu_yao || {};
+    const ly = (data && data.charts && data.charts.liu_yao) || {};
     const html = `
       <div style="background: rgba(168, 85, 247, 0.15); border: 1px solid #a855f7; padding: 1rem; border-radius: 8px;">
         <h4 style="color: #c084fc; margin-top: 0;">六爻 六爻預測 (Liu Yao Divination)</h4>
-        <p><strong>กว้าเจ้าเรือน (Palace):</strong> ${ly.palace || ''}宮 (ธาตุ ${ly.palace_element || ''})</p>
-        <p><strong>เส้นโลก/เส้นสนอง (Shi/Ying):</strong> 世爻 เส้นที่ ${ly.shi_line || ''} | 應爻 เส้นที่ ${ly.ying_line || ''}</p>
+        <p><strong>กว้าเจ้าเรือน (Palace):</strong> ${ly.palace || '-'}宮 (ธาตุ ${ly.palace_element || '-'})</p>
+        <p><strong>เส้นโลก/เส้นสนอง (Shi/Ying):</strong> 世爻 เส้นที่ ${ly.shi_line || '-'} | 應爻 เส้นที่ ${ly.ying_line || '-'}</p>
         <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
         <div style="display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem;">
           ${(ly.lines || []).map(l => `<div>เส้นที่ ${l.line_number}: ${l.relative} ${l.branch}(${l.element}) ${l.animal} ${l.is_shi ? '<strong>[世]</strong>' : ''} ${l.is_ying ? '<strong>[應]</strong>' : ''}</div>`).join('')}
@@ -2981,12 +3319,13 @@ async function calcMeiHua() {
       body: JSON.stringify({ birth_datetime: "2026-05-15 14:30:00", disciplines: ["mei_hua"] })
     });
     const data = await res.json();
+    const mh = (data && data.charts && data.charts.mei_hua) || {};
     const bf = mh.body_function || {};
     const html = `
       <div style="background: rgba(236, 72, 153, 0.15); border: 1px solid #f472b6; padding: 1rem; border-radius: 8px;">
         <h4 style="color: #f472b6; margin-top: 0;">梅花 梅花易數 (Mei Hua Plum Blossom)</h4>
-        <p><strong>กว้าหลัก (Primary):</strong> บน ${mh.primary_hexagram ? mh.primary_hexagram.upper_trigram : ''} / ล่าง ${mh.primary_hexagram ? mh.primary_hexagram.lower_trigram : ''}</p>
-        <p><strong>ตัวตน/หน้าที่ (Body/Function):</strong> 體卦: ${bf.body_trigram || ''} (${bf.body_element || ''}) | 用卦: ${bf.function_trigram || ''} (${bf.function_element || ''})</p>
+        <p><strong>กว้าหลัก (Primary):</strong> บน ${mh.primary_hexagram ? mh.primary_hexagram.upper_trigram : '-'} / ล่าง ${mh.primary_hexagram ? mh.primary_hexagram.lower_trigram : '-'}</p>
+        <p><strong>ตัวตน/หน้าที่ (Body/Function):</strong> 體卦: ${bf.body_trigram || '-'} (${bf.body_element || '-'}) | 用卦: ${bf.function_trigram || '-'} (${bf.function_element || '-'})</p>
         <p><strong>ปฏิสัมพันธ์ 5 ธาตุ:</strong> <strong style="color: #fbbf24;">${bf.interaction || mh.interaction || '比和'}</strong></p>
       </div>
     `;
@@ -3005,11 +3344,11 @@ async function calcSanHe() {
       body: JSON.stringify({ birth_datetime: "2026-05-15 14:30:00", disciplines: ["san_he"] })
     });
     const data = await res.json();
-    const sh = data.charts.san_he || {};
+    const sh = (data && data.charts && data.charts.san_he) || {};
     const html = `
       <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; padding: 1rem; border-radius: 8px;">
         <h4 style="color: #4ade80; margin-top: 0;">三合 三合風水 (San He Feng Shui)</h4>
-        <p><strong>24 ขุนเขา:</strong> ทิศพิง ${sh.sitting_mountain || ''} | ทิศหัน ${sh.facing_mountain || ''}</p>
+        <p><strong>24 ขุนเขา:</strong> ทิศพิง ${sh.sitting_mountain || '-'} | ทิศหัน ${sh.facing_mountain || '-'}</p>
         <p><strong>กลุ่มธาตุสามสมพงษ์ (San He Formation):</strong> ${sh.san_he_formation || '水局 (Water)'}</p>
         <p><strong>การประเมินชัยภูมิ:</strong> ${sh.harmony_assessment || 'มงคลสมดุล'}</p>
       </div>
@@ -3028,13 +3367,13 @@ async function calcQiZheng() {
       body: JSON.stringify({ birth_datetime: "2026-05-15 14:30:00", disciplines: ["qi_zheng"] })
     });
     const data = await res.json();
-    const qz = data.charts.qi_zheng || {};
+    const qz = (data && data.charts && data.charts.qi_zheng) || {};
     const html = `
       <div style="background: rgba(59, 130, 246, 0.15); border: 1px solid #3b82f6; padding: 1rem; border-radius: 8px;">
         <h4 style="color: #60a5fa; margin-top: 0;">七政 七政四餘 (Qi Zheng Si Yu)</h4>
         <p><strong>เงาดาว 4 พลัง (4 Shadow Stars):</strong></p>
         <ul>
-          ${Object.entries(qz.shadow_stars || {}).map(([k, v]) => `<li>${k}: ${typeof v === 'object' ? v.longitude + '°' : v}</li>`).join('')}
+          ${Object.entries(qz.shadow_stars || {}).map(([k, v]) => `<li>${k}: ${typeof v === 'object' ? (v.longitude !== undefined ? v.longitude + '°' : JSON.stringify(v)) : v}</li>`).join('')}
         </ul>
         <p><strong>นักษัตร 28 กลุ่มดาว (28 Lunar Mansions):</strong> ${Object.keys(qz.lunar_mansions || {}).length} ตำแหน่งดาว</p>
       </div>
@@ -3056,14 +3395,14 @@ async function calcMianXiang() {
       })
     });
     const data = await res.json();
-    const mx = data.analysis || {};
+    const mx = (data && data.analysis) || {};
     const html = `
       <div style="background: rgba(234, 179, 8, 0.15); border: 1px solid #eab308; padding: 1rem; border-radius: 8px;">
         <h4 style="color: #facc15; margin-top: 0;">面相 麻衣神相 (Mian Xiang Physiognomy)</h4>
         <p><strong>ธาตุประจำรูปหน้า (Face Element):</strong> ${mx.face_element || 'Water (水形)'}</p>
         <p><strong>วังชะตา 12 วังบนใบหน้า:</strong></p>
         <ul>
-          ${Object.entries(mx.twelve_palaces || {}).slice(0, 4).map(([p, info]) => `<li><strong>${p}:</strong> ${typeof info === 'object' ? info.assessment : info}</li>`).join('')}
+          ${Object.entries(mx.twelve_palaces || {}).slice(0, 4).map(([p, info]) => `<li><strong>${p}:</strong> ${typeof info === 'object' ? (info.assessment || info.description || JSON.stringify(info)) : info}</li>`).join('')}
         </ul>
         <p><strong>สรุปภาพรวม:</strong> ${mx.overall_assessment || 'ใบหน้าสมดุล เปี่ยมพลังธาตุ'}</p>
       </div>

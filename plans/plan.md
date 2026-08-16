@@ -210,10 +210,10 @@
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO (Future Roadmap) │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • BaZi 4-Pillars Research UI & Depth  │ • Monitoring & Maintenance            │ • Next Major Phase Release (v2.2)     │
-│   (Year/Month/Day/Hour card breakdown)│                                       │                                       │
-│ • Global API Loader & Accessibility   │                                       │                                       │
-│ • 419 Pytest (100%) + 31 Buttons (100%)│                                       │                                       │
+│ • Zero [object Object] leaks (16 discs)│ • Monitoring & Maintenance            │ • Next Major Phase Release (v2.2)     │
+│ • UI Overlap & Mobile Overflow fixed  │                                       │                                       │
+│ • Satta-Lek 7-Base & Chaldean Matrix  │                                       │                                       │
+│ • 427 Pytest (100%) + 32 Verify (100%)│                                       │                                       │
 │ • Rust Pre-Deployment Code Review:    │                                       │                                       │
 │   READY_FOR_PROD (0 secret leaks)     │                                       │                                       │
 │ • Continuous MLOps Distillation Sync  │                                       │                                       │

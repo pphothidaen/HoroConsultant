@@ -1,0 +1,265 @@
+{
+  "title": "Object Rendering & [object Object] Verification Report",
+  "total_audited": 32,
+  "total_passed": 32,
+  "pass_rate_percent": 100.0,
+  "all_passed": true,
+  "results": [
+    {
+      "discipline": "BaZi Four Pillars",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Desktop (1440x900)"
+    },
+    {
+      "discipline": "Zi Wei Dou Shu",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Desktop (1440x900)"
+    },
+    {
+      "discipline": "Qi Men Dun Jia",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Desktop (1440x900)"
+    },
+    {
+      "discipline": "Da Liu Ren",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Desktop (1440x900)"
+    },
+    {
+      "discipline": "I Ching Liu Yao",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Desktop (1440x900)"
+    },
+    {
+      "discipline": "Xuan Kong Flying Stars",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Desktop (1440x900)"
+    },
+    {
+      "discipline": "Ze Ji Auspicious",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Desktop (1440x900)"
+    },
+    {
+      "discipline": "Thai & Jyotish",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Desktop (1440x900)"
+    },
+    {
+      "discipline": "Western & Uranian",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Desktop (1440x900)"
+    },
+    {
+      "discipline": "Satta-Lek & Chaldean",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Desktop (1440x900)"
+    },
+    {
+      "discipline": "Tai Yi Shen Shu",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Desktop (1440x900)"
+    },
+    {
+      "discipline": "Liu Yao Divination",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Desktop (1440x900)"
+    },
+    {
+      "discipline": "Mei Hua Plum Blossom",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Desktop (1440x900)"
+    },
+    {
+      "discipline": "San He Feng Shui",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Desktop (1440x900)"
+    },
+    {
+      "discipline": "Qi Zheng Si Yu",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Desktop (1440x900)"
+    },
+    {
+      "discipline": "Mian Xiang Physiognomy",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Desktop (1440x900)"
+    },
+    {
+      "discipline": "BaZi Four Pillars",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Mobile (375x812)"
+    },
+    {
+      "discipline": "Zi Wei Dou Shu",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Mobile (375x812)"
+    },
+    {
+      "discipline": "Qi Men Dun Jia",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Mobile (375x812)"
+    },
+    {
+      "discipline": "Da Liu Ren",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Mobile (375x812)"
+    },
+    {
+      "discipline": "I Ching Liu Yao",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Mobile (375x812)"
+    },
+    {
+      "discipline": "Xuan Kong Flying Stars",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Mobile (375x812)"
+    },
+    {
+      "discipline": "Ze Ji Auspicious",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Mobile (375x812)"
+    },
+    {
+      "discipline": "Thai & Jyotish",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Mobile (375x812)"
+    },
+    {
+      "discipline": "Western & Uranian",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Mobile (375x812)"
+    },
+    {
+      "discipline": "Satta-Lek & Chaldean",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Mobile (375x812)"
+    },
+    {
+      "discipline": "Tai Yi Shen Shu",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Mobile (375x812)"
+    },
+    {
+      "discipline": "Liu Yao Divination",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Mobile (375x812)"
+    },
+    {
+      "discipline": "Mei Hua Plum Blossom",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Mobile (375x812)"
+    },
+    {
+      "discipline": "San He Feng Shui",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Mobile (375x812)"
+    },
+    {
+      "discipline": "Qi Zheng Si Yu",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Mobile (375x812)"
+    },
+    {
+      "discipline": "Mian Xiang Physiognomy",
+      "passed": true,
+      "findings": [],
+      "hasPillars": true,
+      "hasFiveElements": true,
+      "viewport": "Mobile (375x812)"
+    }
+  ]
+}

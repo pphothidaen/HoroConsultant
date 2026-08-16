@@ -409,6 +409,21 @@ The production environment operates under a **Decoupled Multi-Cloud Architecture
 
 When making changes to this codebase:
 - [ ] Maintain deterministic math verification in `project/core/` before calling LLMs.
-- [ ] Preserve all ASCII subprocess logging tags (`[OK]`, `[ERROR]`, `[WARNING]`, `[INFO]`).
-- [ ] Verify that all 22 UI buttons pass `test_button_regression.py`.
-- [ ] **ALWAYS update this `README.md` document to accurately reflect any new architecture, route changes, or newly added metaphysical engines.**
+- - [ ] **ALWAYS update this `README.md` document to accurately reflect any new architecture, route changes, or newly added metaphysical engines.**
+- [ ] **ALWAYS update the Central Kanban Board [`PROJECT_TASKS.md`](PROJECT_TASKS.md) with new tickets, status changes, and completion evidence — this file is the single source of truth for all project work tracking.**
+
+---
+
+## 📋 Central Kanban Board
+
+The **single source of truth for all project tasks, tickets, sprint tracking, and operational handoff** is:
+
+👉 **[`PROJECT_TASKS.md`](PROJECT_TASKS.md)** — Kanban Task Board & Ticket Registry
+
+This file contains:
+- **TASK BOARD (KANBAN)** — Done/Doing/TODO column overview
+- **Ticket Table** — All tickets with ID, assigned agent, summary, status, and dependencies
+- **Ticket Detail Sections** — Full detailed instructions and acceptance criteria per ticket
+- **Quick-Start Commands** — Essential dev/CI commands for the next engineer or AI assistant
+
+All new work, bug fixes, feature requests, and operational items **must** be tracked here. Do not create separate task lists, kanban boards, or tracking files elsewhere in the repo — keep everything centralized in `PROJECT_TASKS.md`.
