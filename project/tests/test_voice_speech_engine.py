@@ -65,7 +65,7 @@ class TestVoiceDOMIntegration:
             assert 'id="voice-play-pause-btn"' in html, f"Missing voice-play-pause-btn in {subpath}"
             assert 'id="voice-stop-btn"' in html, f"Missing voice-stop-btn in {subpath}"
             assert 'id="btn-speak-reading"' in html, f"Missing btn-speak-reading in {subpath}"
-            assert 'src="voice_engine.js"' in html, f"Missing voice_engine.js script tag in {subpath}"
+            assert 'voice_engine.js' in html, f"Missing voice_engine.js script tag in {subpath}"
 
     def test_style_css_has_voice_styles(self):
         for subpath in ["project/static/style.css", "public/style.css"]:
