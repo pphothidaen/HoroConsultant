@@ -24,6 +24,132 @@ if [ -f "$ROOT_DIR/.env" ]; then
     set +a
 fi
 
+HERMES_AGY_ROUTING_CONFIG="${HERMES_AGY_ROUTING_CONFIG:-$ROOT_DIR/.agents/config/gemini_parity.yaml}"
+HERMES_TASK_ROLE="${HERMES_TASK_ROLE:-analysis}"
+HERMES_TASK_COMPLEXITY="${HERMES_TASK_COMPLEXITY:-high}"
+HERMES_START_NOTIFY_ENABLED="${HERMES_START_NOTIFY_ENABLED:-true}"
+
+hermes_escape_json() {
+    local value="${1:-}"
+    value="${value//\\/\\\\}"
+    value="${value//\"/\\\"}"
+    value="${value//$'\n'/\\n}"
+    value="${value//$'\r'/\\r}"
+    value="${value//$'\t'/\\t}"
+    printf '%s' "$value"
+}
+
+send_hermes_webhook() {
+    local url="$1"
+    local payload="$2"
+
+    if [ -z "$url" ] || [ -z "$payload" ]; then
+        return 1
+    fi
+    if ! command -v curl >/dev/null 2>&1; then
+        echo "[WARNING] curl is unavailable — skipping HTTP notification"
+        return 1
+    fi
+    if curl -sS --max-time 10 -H "Content-Type: application/json" -d "$payload" "$url" >/dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+notify_hermes_pipeline_start() {
+    local phase="${1:-pipeline}"
+    local router="${RESOLVED_ROUTER:-${OPENAI_BASE_URL:-<direct LLM backend>}}"
+    local account_alias="${HERMES_ACCOUNT_ALIAS:-agy1}"
+    local model="${HERMES_ROUTER_MODEL:-${NINE_ROUTER_DEVELOPER_MODEL:-deepseek-v3}}"
+    local ts
+    local escaped
+    local sent_count=0
+    local msg
+
+    if [ "${HERMES_START_NOTIFY_ENABLED:-true}" != "true" ]; then
+        return 0
+    fi
+
+    ts="$(date '+%Y-%m-%d %H:%M:%S %z')"
+    msg="Hermes pipeline [$phase] started account=$account_alias model=$model router=$router complexity=${HERMES_TASK_COMPLEXITY:-medium} ts=$ts"
+    escaped="$(hermes_escape_json "$msg")"
+
+    if [ -n "${HERMES_NOTIFY_WEBHOOK_URL:-}" ] && send_hermes_webhook "$HERMES_NOTIFY_WEBHOOK_URL" "{\"text\":\"$escaped\"}"; then
+        echo "[OK] Notification sent to HERMES_NOTIFY_WEBHOOK_URL"
+        sent_count=$((sent_count+1))
+    elif [ -n "${HERMES_NOTIFY_WEBHOOK_URL:-}" ]; then
+        echo "[WARNING] Failed to send notification to HERMES_NOTIFY_WEBHOOK_URL"
+    fi
+
+    if [ -n "${DISCORD_WEBHOOK_URL:-}" ] && send_hermes_webhook "$DISCORD_WEBHOOK_URL" "{\"content\":\"$escaped\"}"; then
+        echo "[OK] Notification sent to DISCORD_WEBHOOK_URL"
+        sent_count=$((sent_count+1))
+    elif [ -n "${DISCORD_WEBHOOK_URL:-}" ]; then
+        echo "[WARNING] Failed to send notification to DISCORD_WEBHOOK_URL"
+    fi
+
+    if [ -n "${SLACK_WEBHOOK_URL:-}" ] && send_hermes_webhook "$SLACK_WEBHOOK_URL" "{\"text\":\"$escaped\"}"; then
+        echo "[OK] Notification sent to SLACK_WEBHOOK_URL"
+        sent_count=$((sent_count+1))
+    elif [ -n "${SLACK_WEBHOOK_URL:-}" ]; then
+        echo "[WARNING] Failed to send notification to SLACK_WEBHOOK_URL"
+    fi
+
+    if [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
+        if send_hermes_webhook "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" "{\"chat_id\":\"$TELEGRAM_CHAT_ID\",\"text\":\"$escaped\"}"; then
+            echo "[OK] Notification sent to Telegram"
+            sent_count=$((sent_count+1))
+        else
+            echo "[WARNING] Failed to send Telegram notification"
+        fi
+    elif [ -n "${TELEGRAM_BOT_TOKEN:-}${TELEGRAM_CHAT_ID:-}" ]; then
+        echo "[WARNING] Telegram notify requested but token or chat id is missing"
+    fi
+
+    if [ "$sent_count" -eq 0 ]; then
+        echo "[WARNING] No notification channel configured for Hermes pipeline start event"
+    fi
+}
+
+resolve_hermes_route_profile() {
+    local requested_alias="${HERMES_ACCOUNT_ALIAS:-${ROUTER_ACCOUNT_ALIAS:-${NINE_ROUTER_ACCOUNT_ALIAS:-agy1}}}"
+    local requested_role="${HERMES_TASK_ROLE:-analysis}"
+    local requested_complexity="${HERMES_TASK_COMPLEXITY:-high}"
+    local route_line
+
+    if [ -f "$HERMES_AGY_ROUTING_CONFIG" ] && command -v python3 >/dev/null 2>&1; then
+        if route_line="$(python3 "$SCRIPT_DIR/hermes_agy_router.py" \
+            --alias "$requested_alias" \
+            --role "$requested_role" \
+            --complexity "$requested_complexity" \
+            --config "$HERMES_AGY_ROUTING_CONFIG")"; then
+
+            if [ -n "$route_line" ]; then
+                local model time alias chain resolved_role resolved_complexity codex_fallback_model
+                IFS='|' read -r model time alias chain resolved_role resolved_complexity codex_fallback_model <<< "$route_line"
+                export HERMES_ROUTER_MODEL="${model:-${NINE_ROUTER_DEVELOPER_MODEL:-deepseek-v3}}"
+                export HERMES_ROUTER_TIME="${time:-medium}"
+                export HERMES_ACCOUNT_ALIAS_RESOLVED="${alias:-$requested_alias}"
+                export AGY_FALLBACK_CHAIN="${chain:-agy1,agy2,codex_subagent}"
+                export HERMES_RESOLVED_ROLE="${resolved_role:-$requested_role}"
+                export HERMES_RESOLVED_COMPLEXITY="${resolved_complexity:-$requested_complexity}"
+                export HERMES_CODEX_FALLBACK_MODEL="${codex_fallback_model:-gpt-5.3-codex-spark high}"
+                return 0
+            fi
+        fi
+    fi
+
+    echo "[WARNING] [HERMES] AGY routing config not available; using legacy env/model defaults."
+    export HERMES_ROUTER_MODEL="${NINE_ROUTER_DEVELOPER_MODEL:-deepseek-v3}"
+    export HERMES_ROUTER_TIME="medium"
+    export HERMES_ACCOUNT_ALIAS_RESOLVED="${requested_alias}"
+    export AGY_FALLBACK_CHAIN="agy1,agy2,codex_subagent"
+    export HERMES_RESOLVED_ROLE="${requested_role}"
+    export HERMES_RESOLVED_COMPLEXITY="${requested_complexity}"
+    export HERMES_CODEX_FALLBACK_MODEL="gpt-5.3-codex-spark high"
+}
+
 echo "======================================================================"
 echo " HOROCONSULTANT AGENTIC MULTI-CLOUD PRODUCTION PIPELINE"
 echo "======================================================================"
@@ -37,6 +163,15 @@ echo "======================================================================"
 # ------------------------------------------------------------------------------
 echo ""
 echo "[INFO] [HERMES] Resolving LLM routing (9router -> CODEX_PRO -> Gemini)..."
+
+resolve_hermes_route_profile
+export HERMES_TASK_ROLE="${HERMES_RESOLVED_ROLE:-analysis}"
+export HERMES_TASK_COMPLEXITY="${HERMES_RESOLVED_COMPLEXITY:-high}"
+export HERMES_ACCOUNT_ALIAS="${HERMES_ACCOUNT_ALIAS_RESOLVED:-agy1}"
+export NINE_ROUTER_DEVELOPER_MODEL="${HERMES_ROUTER_MODEL}"
+export NINE_ROUTER_ACCOUNT_ALIAS="${HERMES_ACCOUNT_ALIAS}"
+export ROUTER_ACCOUNT_ALIAS="${HERMES_ACCOUNT_ALIAS}"
+export HTTP_HEADER_X_ACCOUNT_ALIAS="${HERMES_ACCOUNT_ALIAS}"
 
 ACCOUNT_ALIAS="${ROUTER_ACCOUNT_ALIAS:-${NINE_ROUTER_ACCOUNT_ALIAS:-agy1}}"
 
@@ -72,6 +207,8 @@ elif [ -z "$RESOLVED_ROUTER" ] && [ -n "${GOOGLE_AI_STUDIO_API_KEY:-}" ]; then
     echo "[WARNING] [HERMES] Routing via Gemini direct (no proxy — last resort)"
     unset OPENAI_BASE_URL OPENAI_API_KEY 2>/dev/null || true
 fi
+
+notify_hermes_pipeline_start "agentic_pipeline"
 
 # ------------------------------------------------------------------------------
 # PHASE 1: Business System Analyst (business_analyst)
@@ -186,5 +323,7 @@ echo "  * Senior Developer        : Multi-Cloud Specs Verified"
 echo "  * QA Tester               : Unit + UI Button Regression PASSED"
 echo "  * Code Reviewer           : Status READY_FOR_PROD (0 Leaks)"
 echo "  * DevOps & Release        : HF Spaces + Vercel + Azure Deploy COMPLETE"
-echo "  * Hermes Routing          : 9router -> CODEX_PRO -> Gemini (fallback chain)"
+echo "  * Hermes Routing          : ${HERMES_ACCOUNT_ALIAS} | model=${HERMES_ROUTER_MODEL:-deepseek-v3} | time=${HERMES_ROUTER_TIME:-medium}"
+echo "  * Hermes Fallback Chain   : ${AGY_FALLBACK_CHAIN:-agy1,agy2,codex_subagent}"
+echo "  * Codex Fallback Model    : ${HERMES_CODEX_FALLBACK_MODEL:-gpt-5.3-codex-spark high}"
 echo "======================================================================"

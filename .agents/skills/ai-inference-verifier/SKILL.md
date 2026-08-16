@@ -1,6 +1,6 @@
 ---
 name: ai-inference-verifier
-description: Verify real LLM inference origins versus static fallback templates.
+description: Validate that interpretation output is real LLM inference, not static-template fallback.
 ---
 
 # 🕵️ AI Inference Origin & Anti-Template Verification Skill

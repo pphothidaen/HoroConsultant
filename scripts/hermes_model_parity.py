@@ -209,18 +209,19 @@ class GeminiParityClient:
     def __init__(
         self,
         api_key: str | None = None,
-        model: str = "gemini-2.0-flash",
+        model: str | None = None,
         task_type: Literal["orchestration", "coding", "qa", "devops", "domain"] = "coding",
         account_alias: str | None = None,
     ) -> None:
         self.api_key       = api_key or os.getenv("GOOGLE_AI_STUDIO_API_KEY", "")
-        self.model         = model
+        self.model         = model or os.getenv("HERMES_ROUTER_MODEL", "gemini-2.0-flash")
         self.task_type     = task_type
         self.profile       = TASK_PROFILES[task_type]
         self.account_alias = (
             account_alias
             or os.getenv("ROUTER_ACCOUNT_ALIAS")
             or os.getenv("NINE_ROUTER_ACCOUNT_ALIAS")
+            or os.getenv("HERMES_ACCOUNT_ALIAS_RESOLVED")
             or "agy1"
         )
 

@@ -1,6 +1,6 @@
 ---
 name: sdlc-aisdlc-workflow
-description: 5-Phase AI SDLC lifecycle guide across planning, dev, QA, DevOps, and release.
+description: "Run 5-phase AI SDLC: planning, implementation, QA, release, and post-deploy verification."
 ---
 
 # 🔄 AI SDLC & SDLC Workflow Skill Guide

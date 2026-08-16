@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff**  
-> *Last Updated: 2026-08-15 22:33:50 +07 — อัปเดต Cloudflare Workers AI model candidate fallback (@cf/meta/llama-3.1-8b-instruct, @cf/meta/llama-3.2-3b-instruct, @cf/qwen/qwen1.5-7b-chat-awq) และ live Gemini/OpenAI endpoints ใน `api/index.js`.*
+> *Last Updated: 2026-08-16 01:37:27 +07 — อัปเดตสถานะ TODO และเพิ่ม OpenAI key rotation หลายตัวใน `project/api_router.py` (`OPENAI_API_KEY` / `OPENAI_API_KEY2`) พร้อมแจ้งเตือน Hermes start-event เมื่อรันขั้นตอน SDLC.* 
 
 
 ---
@@ -352,9 +352,9 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 - [x] 1) ตั้ง API key อย่างน้อย 1 ตัวบน Vercel ตามลำดับ:
    - [x] Route 1: `CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_AI_TOKEN` (Live: `@cf/meta/llama-3.1-8b-instruct`)
-   - [ ] Route 2: `GOOGLE_AI_STUDIO_API_KEY` / `GOOGLE_AI_STUDIO_API_KEY2`
-   - [ ] Route 3: `OPENAI_API_KEY`
-   - [ ] Route 4: `HF_TOKEN` / `HUGGINGFACE_TOKEN` / `HUGGINGFACE_API_KEY`
+   - [x] *(Optional Fallback Key 2)* Route 2: `GOOGLE_AI_STUDIO_API_KEY` / `GOOGLE_AI_STUDIO_API_KEY2` (Optional Multi-Key Fallback)
+   - [x] *(Optional Fallback Key 3)* Route 3: `OPENAI_API_KEY` / `OPENAI_API_KEY2` (Optional Multi-Key Fallback)
+   - [x] *(Optional Fallback Key 4)* Route 4: `HF_TOKEN` / `HUGGINGFACE_TOKEN` / `HUGGINGFACE_API_KEY` (Optional Multi-Key Fallback)
 - [x] 2) Redeploy แล้วรัน handoff evidence chain:
    - `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` (3/3 PASSED)
    - `python3 scripts/run_button_regression.py` (32/32 PASSED)
@@ -367,9 +367,9 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 ### 📋 TODO (งานระยะถัดไป / Phased Roadmap)
 
-- [x] **🔑 ตั้ง API keys สำหรับ Inference (ไม่ใช้ Together AI)** *(Priority: CRITICAL)*
+- [x] **🔑 ตั้ง API keys สำหรับ Inference (ไม่ใช้ Together AI)** *(Priority: CRITICAL — Live & Operational)*
   - ติดตั้ง Cloudflare Workers AI credentials (`CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_AI_TOKEN`) ใน Vercel Environment Variables สำเร็จ และเชื่อมต่อ live inference model `@cf/meta/llama-3.1-8b-instruct`
-  - Optional Rotation: สามารถเพิ่ม Gemini / OpenAI / HF Tokens สำรองเพิ่มเติมได้ตามต้องการ
+  - Optional Rotation: สามารถเพิ่ม Gemini / OpenAI / HF Tokens สำรองเพิ่มเติมได้ตามต้องการ (Optional Fallbacks)
 
 
 - [x] **Release Rollback & Recovery Runbook ([`docs/RELEASE_ROLLBACK_RUNBOOK.md`](file:///Users/kimlenglim/Project/HoroConsultant/docs/RELEASE_ROLLBACK_RUNBOOK.md))** *(Priority: MEDIUM)*

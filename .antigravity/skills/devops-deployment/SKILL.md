@@ -1,6 +1,8 @@
 ---
 name: devops-deployment
-description: Doppler secrets sync, HF Spaces deployment, Docker, and security audits.
+description: "Run release-safe deployment workflows: secret hygiene, container checks, and multi-cloud publish."
+owner: devops
+responsibility: production-deployment
 ---
 
 # 🚀 DevOps & Deployment Skill Guide
@@ -10,6 +12,9 @@ This skill provides operational runbooks for environment management, secrets syn
 ---
 
 ## 🛠️ DevOps Execution Runbooks
+
+### Ownership
+Primary owner: `devops` agent (Release & Deploy responsibility, including pre-prod and production publish workflows).
 
 ### 1. Secret Leakage Audit
 Scan the entire codebase for unmasked API keys or leaked secrets before any release:

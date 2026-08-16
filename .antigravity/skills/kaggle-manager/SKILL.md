@@ -1,9 +1,14 @@
 ---
 name: kaggle-manager
-description: Trigger, monitor, and sync Kaggle fine-tuning notebook kernels and logs.
+description: DISABLED — legacy Kaggle fine-tuning notebook orchestration retained for reference only.
 ---
 
 # 🚀 Kaggle Notebook Automation Skill
+
+⚠️ **Status:** Disabled by policy. Keep this file for historical reference only.
+
+This repository no longer triggers or monitors Kaggle kernels during normal workflows.
+Re-enable only when explicitly requested by the user or a planned migration.
 
 ### Purpose
 Manages fine-tuning notebook execution (`pphothidaen/horoconsultant-finetune-pipeline`) on Kaggle GPU.

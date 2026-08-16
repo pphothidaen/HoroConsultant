@@ -33,6 +33,10 @@ OLLAMA_BASE_URL         = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 PRIMARY_LOCAL_MODEL     = os.getenv("OLLAMA_PRIMARY_MODEL",   "qwen2.5-bazi")
 SECONDARY_LOCAL_MODEL   = os.getenv("OLLAMA_SECONDARY_MODEL", "qwen2.5:7b")
 TERTIARY_LOCAL_MODEL    = os.getenv("OLLAMA_TERTIARY_MODEL",  "qwen2.5-coder:7b")
+OPENAI_API_KEY          = os.getenv("OPENAI_API_KEY", "")
+OPENAI_API_KEY2         = os.getenv("OPENAI_API_KEY2", "")
+GOOGLE_AI_STUDIO_API_KEY = os.getenv("GOOGLE_AI_STUDIO_API_KEY", "")
+GOOGLE_AI_STUDIO_API_KEY2 = os.getenv("GOOGLE_AI_STUDIO_API_KEY2", "")
 
 
 GEMINI_BASE_URL         = "https://generativelanguage.googleapis.com/v1beta"
@@ -58,7 +62,6 @@ GEMINI_MODEL_FALLBACK_CANDIDATES: dict[str, list[str]] = {
     "gemini-3.7-flash": ["gemini-2.0-flash", "gemini-1.5-pro"],
 }
 
-OPENAI_API_KEY          = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL            = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 CLOUDFLARE_ACCOUNT_ID   = os.getenv("CLOUDFLARE_ACCOUNT_ID", "")
@@ -73,12 +76,29 @@ RETRY_DELAY_S           = 2.0
 def _gemini_keys() -> list[str]:
     """Return all unique, valid, non-placeholder Google AI Studio API keys from env."""
     raw = [
-        os.getenv("GOOGLE_AI_STUDIO_API_KEY",  ""),
-        os.getenv("GOOGLE_AI_STUDIO_API_KEY2", ""),
+        os.getenv("GOOGLE_AI_STUDIO_API_KEY", GOOGLE_AI_STUDIO_API_KEY),
+        os.getenv("GOOGLE_AI_STUDIO_API_KEY2", GOOGLE_AI_STUDIO_API_KEY2),
     ]
     seen = set()
     valid = []
     invalid_prefixes = ("REPLACE", "your_", "YOUR_", "dummy", "DUMMY", "YOUR_GEMINI")
+    for k in raw:
+        k = k.strip()
+        if k and not any(k.startswith(p) for p in invalid_prefixes) and k not in seen:
+            seen.add(k)
+            valid.append(k)
+    return valid
+
+
+def _openai_keys() -> list[str]:
+    """Return all unique, valid OpenAI-compatible keys from env."""
+    raw = [
+        os.getenv("OPENAI_API_KEY", OPENAI_API_KEY),
+        os.getenv("OPENAI_API_KEY2", OPENAI_API_KEY2),
+    ]
+    seen = set()
+    valid = []
+    invalid_prefixes = ("REPLACE", "your_", "YOUR_", "dummy", "DUMMY", "YOUR_OPENAI")
     for k in raw:
         k = k.strip()
         if k and not any(k.startswith(p) for p in invalid_prefixes) and k not in seen:
@@ -566,8 +586,8 @@ class HybridRouter:
         if proj_id and bearer_token:
             routes.append({"type": "vertex_ai", "model": "gemini-1.5-flash", "key": bearer_token, "project_id": proj_id})
 
-        if OPENAI_API_KEY:
-            routes.append({"type": "openai", "model": OPENAI_MODEL, "key": OPENAI_API_KEY})
+        for key in _openai_keys():
+            routes.append({"type": "openai", "model": OPENAI_MODEL, "key": key})
 
         return routes
 

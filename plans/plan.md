@@ -3,7 +3,7 @@
 **Project:** HoroConsultant — Computational Metaphysics Engine  
 **Target Framework:** Antigravity CLI AI SDLC System + Codex compatibility layer  
 **Lead Agent:** Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
-**Last Updated:** 2026-08-15 22:33:50 +07 — อัปเดต Cloudflare Workers AI candidate fallback และ live model chain ใน `api/index.js`
+**Last Updated:** 2026-08-16 01:37:27 +07 — อัปเดตสถานะ Todo และเปิดใช้งาน OpenAI multi-key fallback (`OPENAI_API_KEY` + `OPENAI_API_KEY2`) พร้อมแจ้งเตือนเริ่มรัน Hermes SDLC
 
 ---
 
@@ -11,14 +11,14 @@
 
 ```
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
-│              ✅ DONE                  │              🔄 DOING                 │              📋 TODO                  │
+│              ✅ DONE                  │              🔄 DOING                 │              📋 TODO (Future Roadmap) │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • BaZi 4-Pillars Research UI & Depth  │ • Production Finalization Handoff     │ • Continuous MLOps Distillation Sync  │
-│   (Year/Month/Day/Hour card breakdown)│   (pending key setup on Vercel)       │ • Grafana Synthetic Latency Tuning    │
-│ • Global API Loader & Accessibility   │ • Future LLM Provider Integration     │ • API Keys Setup for Inference        │
-│ • 408 Pytest (100%) + 32 Buttons (100%)│   (Qwen2.5-32B / DeepSeek-R1)         │                                       │
-│ • Rust Pre-Deployment Code Review:    │                                       │                                       │
-│   READY_FOR_PROD (0 secret leaks)     │                                       │                                       │
+│ • BaZi 4-Pillars Research UI & Depth  │ • Live Production Monitoring & SLA    │ • Continuous MLOps Distillation Sync  │
+│   (Year/Month/Day/Hour card breakdown)│   (Cloudflare Workers AI @ Vercel)    │   (HITL dataset ≥ 50 samples trigger) │
+│ • Global API Loader & Accessibility   │ • Optional Multi-Key Fallback Routing │ • Future LLM Provider Integration     │
+│ • 408 Pytest (100%) + 32 Buttons (100%)│   (Gemini / OpenAI / HF tokens)       │   (Qwen2.5-32B / DeepSeek-R1 via 9r)  │
+│ • Rust Pre-Deployment Code Review:    │                                       │ • Grafana Synthetic Latency Tuning    │
+│   READY_FOR_PROD (0 secret leaks)     │                                       │   (Threshold alert rules < 5s)        │
 │ • Decoupled DDD Multi-Cloud & Rust Core│                                       │                                       │
 │ • Autonomous NotebookLM Distillation  │                                       │                                       │
 │ • Hermes Agent Synthetic CoT Miner    │                                       │                                       │
@@ -30,7 +30,8 @@
 │ • Doppler 2-Tier Secrets Pipeline     │                                       │                                       │
 │ • Google Gemini API Dynamic Rotation  │                                       │                                       │
 │ • Two-Way Telegram Interactive Bot    │                                       │                                       │
-│ • Vercel Production Deployment        │                                       │                                       │
+│ • Vercel Production Deployment & Live │                                       │                                       │
+│   Inference Handoff (@cf/meta/llama)  │                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
 

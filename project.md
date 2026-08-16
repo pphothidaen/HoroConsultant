@@ -281,7 +281,9 @@ Percentage[E]  = Final[E] / Σ Final × 100%
 
 ---
 
-## 5. MLX Fine-Tuning Checklist
+## 5. MLX Fine-Tuning Checklist (Legacy Local Dev Reference)
+
+> **Note:** The checklists below represent the historical Apple Silicon MLX local fine-tuning workflow. In modern production, the project utilizes the **Kaggle GPU Cloud Fine-Tuning Pipeline** (`scripts/kaggle_notebook_manager.py`) with LoRA / QLoRA and automated weights export.
 
 - [ ] Place raw classical texts in `project/data/raw_texts/*.txt`
 - [ ] Run `python scripts/extract_dataset_mlx.py`
@@ -294,7 +296,9 @@ Percentage[E]  = Final[E] / Σ Final × 100%
 
 ---
 
-## 6. Docker Deployment Checklist
+## 6. Docker Deployment Checklist (Local Self-Hosted Reference)
+
+> **Note:** Production is deployed to **Vercel** (`https://horo-consultant-psi.vercel.app`) with serverless edge gateway and **Hugging Face Spaces** (`https://pphothidaen-horoconsultant-core-backend.static.hf.space`). The Docker checklist below is maintained for local self-hosted deployments.
 
 - [ ] `cp .env.example .env` and fill all vars
 - [ ] `docker compose up --build -d`
@@ -313,22 +317,20 @@ This project is structured for seamless AI-to-AI handoff:
 |-----------|--------|-------|
 | `solar_time.py` | ✅ Complete | NOAA EoT, dataclass output, CLI |
 | `bazi_engine.py` | ✅ Complete | 4 pillars, hidden stems, element scores, probabilistic |
-| `api_router.py` | ✅ Complete | 4-level fallback chain |
-| `main.py` | ✅ Complete | FastAPI 3 endpoints |
-| `tests/test_core.py` | ✅ Complete | 14 test cases |
+| `api_router.py` | ✅ Complete | 4-level fallback chain (Cloudflare, HF, Gemini, OpenAI) |
+| `main.py` | ✅ Complete | FastAPI endpoints (v1 & v2) |
+| `tests/test_core.py` | ✅ Complete | Core unit test suite |
 | `Dockerfile` | ✅ Complete | Multi-stage Ubuntu build |
 | `docker-compose.yml` | ✅ Complete | App + Ollama + Redis |
 | `Modelfile` | ✅ Complete | Qwen2.5-BaZi ChatML format |
 | `extract_dataset_mlx.py` | ✅ Complete | Chart synthesis + JSONL output |
-| `.antigravity/agents/` | ✅ Complete | Sol + Luna agents |
-| `.antigravity/skills/` | ✅ Complete | bazi-calculator + rag-search |
+| `.antigravity/agents/` | ✅ Complete | Antigravity AI SDLC Agent specifications (17 agents) |
+| `.antigravity/skills/` | ✅ Complete | 8 SDLC & Domain skills synchronized |
 | `README.md` | ✅ Complete | Full usage guide |
-| `project.md` | ✅ Complete | This document |
+| `project.md` | ✅ Complete | Architecture specification document |
 
-**Remaining tasks for next agent/developer:**
-1. Add real classical text files to `project/data/raw_texts/`
-2. Curate and annotate `project/data/sample_charts.json` with verified charts
-3. Implement vector store backend for `rag-search` skill
-4. Run MLX fine-tuning with curated dataset
-5. Configure Google AI Studio API key in `.env`
-6. Set up CI/CD pipeline (GitHub Actions recommended)
+**Current Production Status & Phased Roadmap:**
+1. **Live Production Inference:** Connected to Cloudflare Workers AI (`@cf/meta/llama-3.1-8b-instruct`) on Vercel.
+2. **Multi-Key Fallback Routing:** Optional Gemini / OpenAI / HF tokens can be configured for secondary redundancy.
+3. **MLOps Distillation Pipeline:** Automated Kaggle GPU kernel sync and dataset curation pipeline active.
+4. **Observability:** Grafana Cloud metrics & Prometheus `/metrics` endpoint enabled.

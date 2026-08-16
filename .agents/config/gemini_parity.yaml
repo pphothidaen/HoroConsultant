@@ -27,6 +27,13 @@ activation:
     - "gemini-3.7-flash-thinking"
     - "gemini-3.7-flash (high)"
     - "gpt-oss-120b"
+    - "Gemini 3.7 Flash Medium Fast O"
+    - "Gemini 3.6 Flash Medium Fast O"
+    - "Gemini 3.5 Flash Medium Fast O"
+    - "Gemini 3.1 Pro Low"
+    - "Claude Sonnet 4.6 (Thinking)"
+    - "Claude Opus 4.6 (Thinking)"
+    - "GPT-OSS 120B (Medium)"
   env_flag: "HERMES_PARITY_ENABLED"   # Set to "true" to activate (default: true on Gemini)
   auto_detect_task: true               # Auto-select task profile from message content
 
@@ -39,6 +46,138 @@ virtual_model_mapping:
   "gpt-4o-mini":         "qa"              # QA tasks → qa profile
   "gemini-2.0-flash":    "auto"            # Auto-detect from message content
   "gemini-sonnet-parity": "auto"           # Explicit parity virtual model
+
+# ── AGY Profile Routing Matrix (Complexity-aware) ───────────────────────
+agy_routing:
+  enabled: true
+  roles:
+    analysis:
+      low:
+        model: "Gemini 3.5 Flash Medium Fast O"
+        time: "fast"
+      medium:
+        model: "Gemini 3.6 Flash Medium Fast O"
+        time: "medium"
+      high:
+        model: "Gemini 3.7 Flash Medium Fast O"
+        time: "medium"
+      fallback:
+        model: "Gemini 3.1 Pro Low"
+        time: "low"
+    implementation:
+      low:
+        model: "Gemini 3.6 Flash Medium Fast O"
+        time: "fast"
+      medium:
+        model: "Gemini 3.7 Flash Medium Fast O"
+        time: "medium"
+      high:
+        model: "GPT-OSS 120B (Medium)"
+        time: "medium"
+      fallback:
+        model: "Gemini 3.1 Pro Low"
+        time: "low"
+    review:
+      low:
+        model: "Gemini 3.5 Flash Medium Fast O"
+        time: "fast"
+      medium:
+        model: "Claude Sonnet 4.6 (Thinking)"
+        time: "medium"
+      high:
+        model: "Claude Opus 4.6 (Thinking)"
+        time: "high"
+      fallback:
+        model: "Gemini 3.1 Pro Low"
+        time: "low"
+
+  agents:
+    - name: "agy1"
+      default_profile: "analysis"
+      routing:
+        analysis:
+          low:
+            model: "Gemini 3.5 Flash Medium Fast O"
+            time: "fast"
+          medium:
+            model: "Gemini 3.6 Flash Medium Fast O"
+            time: "medium"
+          high:
+            model: "Gemini 3.7 Flash Medium Fast O"
+            time: "medium"
+        implementation:
+          low:
+            model: "Gemini 3.6 Flash Medium Fast O"
+            time: "fast"
+          medium:
+            model: "Gemini 3.7 Flash Medium Fast O"
+            time: "medium"
+          high:
+            model: "GPT-OSS 120B (Medium)"
+            time: "medium"
+        review:
+          low:
+            model: "Gemini 3.5 Flash Medium Fast O"
+            time: "fast"
+          medium:
+            model: "Claude Sonnet 4.6 (Thinking)"
+            time: "medium"
+          high:
+            model: "Claude Opus 4.6 (Thinking)"
+            time: "high"
+
+    - name: "agy2"
+      default_profile: "implementation"
+      routing:
+        analysis:
+          low:
+            model: "Gemini 3.5 Flash Medium Fast O"
+            time: "fast"
+          medium:
+            model: "Gemini 3.6 Flash Medium Fast O"
+            time: "medium"
+          high:
+            model: "Claude Sonnet 4.6 (Thinking)"
+            time: "high"
+        implementation:
+          low:
+            model: "Gemini 3.6 Flash Medium Fast O"
+            time: "fast"
+          medium:
+            model: "GPT-OSS 120B (Medium)"
+            time: "medium"
+          high:
+            model: "Claude Opus 4.6 (Thinking)"
+            time: "high"
+        review:
+          low:
+            model: "Gemini 3.6 Flash Medium Fast O"
+            time: "fast"
+          medium:
+            model: "Claude Sonnet 4.6 (Thinking)"
+            time: "medium"
+          high:
+            model: "Claude Opus 4.6 (Thinking)"
+            time: "high"
+
+  fallback_chain:
+    mode: "sequential"
+    triggers:
+      - "not_called"
+      - "quota_reached"
+      - "timeout"
+      - "error"
+      - "overloaded"
+      - "unavailable"
+      - "rate_limited"
+    sequence:
+      - "agy1"
+      - "agy2"
+      - "codex_subagent"
+    codex_fallback:
+      model: "gpt-5.3-codex-spark high"
+      via: "CODEX_PRO"
+      reason: "Sequential AGY fallback exhausted"
 
 # ── Task Profiles (mirror of hermes_model_parity.py TASK_PROFILES) ──────────
 profiles:

@@ -1,6 +1,6 @@
 ---
 name: bazi-calculator
-description: Calculate BaZi 4-Pillars, True Solar Time, and five elements.
+description: Compute BaZi 4-Pillars with true solar time and five-elements analysis.
 ---
 
 # ☯️ BaZi Calculator Skill

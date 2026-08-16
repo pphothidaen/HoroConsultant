@@ -1,6 +1,6 @@
 ---
 name: bsa-doc-skill-management
-description: Business system analysis, live documentation sync, and agent skill governance.
+description: Govern requirements, documentation, and agent skills with synchronized governance workflows.
 ---
 
 # 📋 Business System Analysis, Documentation & Skill Governance Guide

@@ -5,6 +5,7 @@
   "thinking_effort": "Standard",
   "description": "Pre-Deployment Safety Auditor for HoroConsultant. Scans git diffs for secret key leakage, verifies CUDA/PyTorch binary compatibility, enforces doc update mandates, and grants READY_FOR_PROD approval.",
   "tools": [
+    "bsa-doc-skill-management",
     "devops-deployment",
     "sdlc-aisdlc-workflow"
   ],

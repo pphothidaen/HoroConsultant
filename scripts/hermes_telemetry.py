@@ -45,7 +45,9 @@ ACTIVE_ROUTER = (
     or "gemini-direct"
 )
 ACCOUNT_ALIAS = (
-    os.getenv("ROUTER_ACCOUNT_ALIAS")
+    os.getenv("HERMES_ACCOUNT_ALIAS_RESOLVED")
+    or os.getenv("ROUTER_ACCOUNT_ALIAS")
+    or os.getenv("HERMES_ACCOUNT_ALIAS")
     or os.getenv("NINE_ROUTER_ACCOUNT_ALIAS")
     or "agy1"
 )
@@ -106,6 +108,7 @@ def emit_loop_metric(
     common_attrs = [
         _attr("phase",         phase),
         _attr("model",         model),
+        _attr("codex_fallback_model", os.getenv("HERMES_CODEX_FALLBACK_MODEL", "gpt-5.3-codex-spark high")),
         _attr("failover",      failover),
         _attr("status",        status),
         _attr("router",        ACTIVE_ROUTER),
@@ -191,7 +194,14 @@ def main() -> None:
     )
     parser.add_argument("--phase",     required=True, help="SDLC phase: dev|qa|deploy|sync")
     parser.add_argument("--status",    default="passed", help="passed|failed|retried")
-    parser.add_argument("--model",     default=os.getenv("NINE_ROUTER_DEVELOPER_MODEL", "unknown"))
+    parser.add_argument(
+        "--model",
+        default=(
+            os.getenv("HERMES_ROUTER_MODEL")
+            or os.getenv("NINE_ROUTER_DEVELOPER_MODEL", "unknown")
+            or "unknown"
+        ),
+    )
     parser.add_argument("--tokens",    type=int,   default=0)
     parser.add_argument("--latency",   type=float, default=0.0, help="Latency in ms")
     parser.add_argument("--iteration", type=int,   default=1)

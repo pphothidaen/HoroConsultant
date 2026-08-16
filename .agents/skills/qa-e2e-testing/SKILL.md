@@ -1,6 +1,6 @@
 ---
 name: qa-e2e-testing
-description: Pytest suite, UI button contracts, and Playwright visual E2E regression tests.
+description: Run pytest, API/UI contract, and Playwright E2E regression suites for production-grade validation.
 ---
 
 # 🧪 QA & E2E Testing Skill Guide

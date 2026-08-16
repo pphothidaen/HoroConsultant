@@ -1,6 +1,6 @@
 ---
 name: rag-search
-description: Search FAISS vector store across classical astrological literature passages.
+description: Perform ranked retrieval over FAISS-indexed classical metaphysics texts with configured embeddings.
 ---
 
 # 📚 RAG Vector Store Search Skill
