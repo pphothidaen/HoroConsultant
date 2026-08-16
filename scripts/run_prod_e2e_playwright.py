@@ -219,8 +219,8 @@ async def run_live_e2e_production_regression(profile: str = "smoke"):
 
         for btn_id, label, expected_dt, expected_lng, expected_utc in presets:
             try:
-                await page.click(f"button:has-text('{label}')")
-                await page.wait_for_timeout(300)
+                await page.click(f".preset-buttons button:has-text('{label}')")
+                await page.wait_for_timeout(500)
 
                 dt_val = await page.input_value("#birth_datetime")
                 lng_val = float(await page.input_value("#longitude"))

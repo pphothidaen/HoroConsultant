@@ -971,6 +971,9 @@ function renderResults(data, svgContent) {
   const mainContainer = document.getElementById('results-container');
   if (mainContainer) mainContainer.classList.remove('hidden');
 
+  const chart = data.chart || {};
+  const dm = chart.day_master || {};
+
   // 1. Render SVG Chart
   const chartWrapper = document.getElementById('svg-chart-container') || document.getElementById('bazi-chart-svg');
   if (chartWrapper) {
@@ -980,9 +983,6 @@ function renderResults(data, svgContent) {
       chartWrapper.innerHTML = buildFallbackFourPillarsSvg(chart);
     }
   }
-
-  const chart = data.chart || {};
-  const dm = chart.day_master || {};
 
   const researchMarkdown = buildPillarResearchMarkdown(chart, data.query, interpretationDepth);
 
