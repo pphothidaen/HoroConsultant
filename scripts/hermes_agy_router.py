@@ -55,12 +55,12 @@ def _default_config() -> Dict[str, Any]:
                         "implementation": {
                             "low": {"model": "Gemini 3.6 Flash Medium Fast O", "time": "fast"},
                             "medium": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},
-                            "high": {"model": "GPT-OSS 120B (Medium)", "time": "medium"},
+                            "high": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},  # v2.1: was GPT-OSS
                         },
                         "review": {
                             "low": {"model": "Gemini 3.5 Flash Medium Fast O", "time": "fast"},
-                            "medium": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},  # v2: Gemini
-                            "high": {"model": "Claude Opus 4.6 (Thinking)", "time": "high"},          # v2: sole Claude slot
+                            "medium": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},
+                            "high": {"model": "Claude Opus 4.6 (Thinking)", "time": "high"},  # sole Claude slot
                         },
                     },
                 },
@@ -70,17 +70,17 @@ def _default_config() -> Dict[str, Any]:
                         "analysis": {
                             "low": {"model": "Gemini 3.5 Flash Medium Fast O", "time": "fast"},
                             "medium": {"model": "Gemini 3.6 Flash Medium Fast O", "time": "medium"},
-                            "high": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},   # v2: was Claude Sonnet
+                            "high": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},
                         },
                         "implementation": {
                             "low": {"model": "Gemini 3.6 Flash Medium Fast O", "time": "fast"},
-                            "medium": {"model": "GPT-OSS 120B (Medium)", "time": "medium"},
-                            "high": {"model": "GPT-OSS 120B (Medium)", "time": "medium"},            # v2: was Claude Opus
+                            "medium": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},  # v2.1: was GPT-OSS
+                            "high": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},    # v2.1: was GPT-OSS
                         },
                         "review": {
                             "low": {"model": "Gemini 3.6 Flash Medium Fast O", "time": "fast"},
-                            "medium": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"}, # v2: was Claude Sonnet
-                            "high": {"model": "GPT-OSS 120B (Medium)", "time": "medium"},            # v2: was Claude Opus
+                            "medium": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},
+                            "high": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},   # v2.1: was GPT-OSS
                         },
                     },
                 },
@@ -121,12 +121,12 @@ def _default_config() -> Dict[str, Any]:
                 "implementation": {
                     "low": {"model": "Gemini 3.6 Flash Medium Fast O", "time": "fast"},
                     "medium": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},
-                    "high": {"model": "GPT-OSS 120B (Medium)", "time": "medium"},
+                    "high": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},   # v2.1: was GPT-OSS
                 },
                 "review": {
                     "low": {"model": "Gemini 3.5 Flash Medium Fast O", "time": "fast"},
-                    "medium": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},  # v2: Gemini
-                    "high": {"model": "Claude Opus 4.6 (Thinking)", "time": "high"},          # v2: sole Claude slot
+                    "medium": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},
+                    "high": {"model": "Claude Opus 4.6 (Thinking)", "time": "high"},          # sole Claude slot
                 },
             },
         }

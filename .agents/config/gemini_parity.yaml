@@ -7,7 +7,7 @@
 # เทียบเท่า Claude Sonnet 4.6 ในแต่ละ task context
 # ==============================================================================
 
-version: "2.0.0"
+version: "2.1.0"
 description: >
   Gemini-Sonnet Parity Engine Configuration.
   Activated automatically by hermes_model_parity.py when Hermes routes
@@ -72,7 +72,7 @@ agy_routing:
         model: "Gemini 3.7 Flash Medium Fast O"
         time: "medium"
       high:
-        model: "GPT-OSS 120B (Medium)"
+        model: "Gemini 3.7 Flash Medium Fast O"  # v2.1: was GPT-OSS 120B — Claude/GPT quota 34% critical
         time: "medium"
       fallback:
         model: "Gemini 3.1 Pro Low"
@@ -113,7 +113,7 @@ agy_routing:
             model: "Gemini 3.7 Flash Medium Fast O"
             time: "medium"
           high:
-            model: "GPT-OSS 120B (Medium)"
+            model: "Gemini 3.7 Flash Medium Fast O"  # v2.1: was GPT-OSS 120B — Gemini-maximum mode
             time: "medium"
         review:
           low:
@@ -144,10 +144,10 @@ agy_routing:
             model: "Gemini 3.6 Flash Medium Fast O"
             time: "fast"
           medium:
-            model: "GPT-OSS 120B (Medium)"
+            model: "Gemini 3.7 Flash Medium Fast O"  # v2.1: was GPT-OSS 120B — Gemini-maximum mode
             time: "medium"
           high:
-            model: "GPT-OSS 120B (Medium)"  # v2: was Claude Opus 4.6 — demoted for quota sustainability
+            model: "Gemini 3.7 Flash Medium Fast O"  # v2.1: was GPT-OSS 120B → Claude Opus v1 — Gemini-maximum mode
             time: "medium"
         review:
           low:
@@ -157,7 +157,7 @@ agy_routing:
             model: "Gemini 3.7 Flash Medium Fast O"  # v2: was Claude Sonnet 4.6 — demoted for quota sustainability
             time: "medium"
           high:
-            model: "GPT-OSS 120B (Medium)"  # v2: was Claude Opus 4.6 — demoted for quota sustainability
+            model: "Gemini 3.7 Flash Medium Fast O"  # v2.1: was GPT-OSS 120B → Claude Opus v1 — Gemini-maximum mode
             time: "medium"
 
     - name: "agy3"
@@ -229,7 +229,7 @@ sdlc_phases:
   dev:
     role: "implementation"
     complexity: "medium"      # Code writing, bug fixes — balanced quality vs cost
-    account: "agy2"           # agy2 implementation:medium → GPT-OSS 120B
+    account: "agy2"           # v2.1: agy2 implementation:medium → Gemini 3.7 Flash (was GPT-OSS 120B)
   qa:
     role: "review"
     complexity: "low"         # Deterministic pytest, log parsing — minimal LLM reasoning
