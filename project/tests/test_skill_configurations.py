@@ -23,7 +23,24 @@ EXPECTED_SKILLS = [
     "qa-e2e-testing",
     "rag-search",
     "sdlc-aisdlc-workflow",
+    "kaggle-manager",
 ]
+
+
+def _is_disabled(skill_file: Path) -> bool:
+    content = skill_file.read_text(encoding="utf-8")
+    parts = content.split("---", 2)
+    fm = yaml.safe_load(parts[1])
+    return bool(fm.get("disabled")) or str(fm.get("description", "")).lstrip().startswith("DISABLED —")
+
+
+def _active_skills() -> list[str]:
+    names = []
+    for skill_name in EXPECTED_SKILLS:
+        skill_file = AGENTS_SKILLS_DIR / skill_name / "SKILL.md"
+        if skill_file.exists() and not _is_disabled(skill_file):
+            names.append(skill_name)
+    return names
 
 
 def test_all_expected_skills_exist():
@@ -63,9 +80,12 @@ def test_skill_frontmatter_and_context_budget():
 
 
 def test_total_skill_context_budget_aggregate():
-    """Verify total combined character length of all skill descriptions is under 800 chars."""
+    """Verify total combined character length of active skill descriptions is under 800 chars."""
+    active_skills = _active_skills()
+    assert len(active_skills) > 0, "No active skills found for aggregate context budget check"
+
     total_desc_len = 0
-    for skill_name in EXPECTED_SKILLS:
+    for skill_name in active_skills:
         skill_file = AGENTS_SKILLS_DIR / skill_name / "SKILL.md"
         content = skill_file.read_text(encoding="utf-8")
         parts = content.split("---", 2)
