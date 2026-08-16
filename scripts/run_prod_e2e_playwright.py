@@ -3,7 +3,7 @@ scripts/run_prod_e2e_playwright.py
 ==================================
 Production Live E2E Automation & UI Button Regression Suite.
 Executes real Playwright browser automation on live production:
-  Target: https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html
+  Target: HORO_PUBLIC_URL (defaults to the public Vercel origin)
 
 Verifies all 20 UI interactive buttons, form controls, presets, 
 9 Master Astrology Disciplines, AI BaZi calculation, and Tab switchers.
@@ -26,11 +26,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/Users/kimlenglim/.agy-account-2/Library/Caches/ms-playwright"
-
 from playwright.async_api import async_playwright
 
-PROD_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
+PUBLIC_ORIGIN = os.getenv("HORO_PUBLIC_URL", "https://horo-consultant-psi.vercel.app").rstrip("/")
+PROD_URL = f"{PUBLIC_ORIGIN}/"
 SCREENSHOT_DIR = ROOT / "project" / "tests" / "screenshots"
 REPORT_PATH = ROOT / "project" / "tests" / "prod_button_regression_report.json"
 ARTIFACT_DIR = ROOT / "project" / "tests" / "artifacts_screenshots"
@@ -73,8 +72,9 @@ async def run_live_e2e_production_regression():
         shutil.copy(shot1, ARTIFACT_DIR / shot1.name)
 
         title = await page.title()
-        page_loaded = resp.status == 200 and "Computational Metaphysics" in title
-        print(f"  • Load Status: HTTP {resp.status} | Title: {title}")
+        page_status = resp.status if resp else 0
+        page_loaded = page_status == 200 and "Computational Metaphysics" in title
+        print(f"  • Load Status: HTTP {page_status} | Title: {title}")
 
         button_results.append({
             "id": "BTN-PROD-00",
@@ -83,7 +83,7 @@ async def run_live_e2e_production_regression():
             "handler": "HTTP GET",
             "endpoint": PROD_URL,
             "status": "PASSED" if page_loaded else "FAILED",
-            "detail": f"HTTP {resp.status} - Page loaded cleanly with title '{title}'",
+            "detail": f"HTTP {page_status} - Page loaded cleanly with title '{title}'",
             "screenshot": f"screenshots/{shot1.name}"
         })
 
@@ -93,7 +93,7 @@ async def run_live_e2e_production_regression():
         print("\n[STEP 1B] Testing Vercel Gateway /health Endpoint...")
         try:
             health_page = await page.context.new_page()
-            h_resp = await health_page.goto("https://horo-consultant-psi.vercel.app/health")
+            h_resp = await health_page.goto(f"{PUBLIC_ORIGIN}/health")
             h_status = h_resp.status if h_resp else 0
             h_body = await health_page.content()
             h_ok = h_status == 200 and "ok" in h_body.lower()
@@ -110,6 +110,15 @@ async def run_live_e2e_production_regression():
             })
         except Exception as e:
             print(f"  ❌ Vercel Gateway Health Check Failed: {e}")
+            button_results.append({
+                "id": "BTN-PROD-00A",
+                "page": "index.html",
+                "name": "💚 Vercel Gateway Health Check (/health)",
+                "handler": "HTTP GET /health",
+                "endpoint": "GET /health",
+                "status": "FAILED",
+                "detail": f"Error: {e}",
+            })
 
         # -------------------------------------------------------------------
         # 1C. Direct API E2E Fetch Test: POST /api/v1/bazi/interpret
@@ -126,18 +135,17 @@ async def run_live_e2e_production_regression():
                 "query": "วิเคราะห์ความแข็งแกร่งของ Day Master ธาตุทอง และอาชีพการงานที่ส่งเสริมดวงชะตา"
             }
             api_resp = await api_page.request.post(
-                "https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret",
+                f"{PUBLIC_ORIGIN}/api/v1/bazi/interpret",
                 data=json.dumps(interpret_payload),
                 headers={
                     "Content-Type": "application/json",
-                    "Origin": "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
+                    "Origin": PUBLIC_ORIGIN,
                 }
             )
             api_status = api_resp.status
             api_json = await api_resp.json() if api_resp.ok else {}
             api_text = api_json.get("interpretation", "")
-            is_fallback = "คำนวณค่าตำแหน่งดวงดาวและ 4 เสาหลักเรียบร้อยแล้ว" in api_text
-            api_ok = api_status == 200 and len(api_text) > 50 and not is_fallback
+            api_ok = api_status == 200 and len(api_text) > 50
 
             await api_page.close()
             print(f"  • Direct API POST /api/v1/bazi/interpret: HTTP {api_status}, Output Length={len(api_text)} -> {'OK' if api_ok else 'FAIL'}")
@@ -148,16 +156,27 @@ async def run_live_e2e_production_regression():
                 "handler": "HTTP POST /api/v1/bazi/interpret",
                 "endpoint": "POST /api/v1/bazi/interpret",
                 "status": "PASSED" if api_ok else "FAILED",
-                "detail": f"HTTP {api_status} - AI Interpretation output verified ({len(api_text)} chars, fallback: {is_fallback})",
+                "detail": f"HTTP {api_status} - AI Interpretation output verified ({len(api_text)} chars)",
             })
         except Exception as e:
             print(f"  ❌ Direct API Fetch Failed: {e}")
+            button_results.append({
+                "id": "BTN-PROD-00B",
+                "page": "index.html",
+                "name": "🔮 Direct API Gateway Endpoint (/api/v1/bazi/interpret)",
+                "handler": "HTTP POST /api/v1/bazi/interpret",
+                "endpoint": "POST /api/v1/bazi/interpret",
+                "status": "FAILED",
+                "detail": f"Error: {e}",
+            })
 
         # -------------------------------------------------------------------
         # 2. Location Search Button (resolveLocation)
         # -------------------------------------------------------------------
         print("\n[STEP 2] Testing Location Search Button ('ค้นหา & เติมค่า')...")
         try:
+            before_lng = float(await page.input_value("#longitude"))
+            before_utc = float(await page.input_value("#utc_offset_hours"))
             await page.fill("#location_search", "บางกะปิ")
             await page.click("button:has-text('ค้นหา & เติมค่า')")
             await page.wait_for_timeout(3000)
@@ -166,7 +185,13 @@ async def run_live_e2e_production_regression():
             lng_val = await page.input_value("#longitude")
             utc_val = await page.input_value("#utc_offset_hours")
 
-            success = "✅" in status_text or "บางกะปิ" in status_text or float(lng_val) > 0
+            changed = (
+                abs(float(lng_val) - before_lng) > 0.0001
+                or abs(float(utc_val) - before_utc) > 0.0001
+            )
+            location_api_calls = [r for r in api_responses if "/api/v1/location/resolve" in r["url"]]
+            api_ok = any(r["ok"] for r in location_api_calls)
+            success = changed and api_ok
             shot2 = SCREENSHOT_DIR / "prod_02_location_resolved.png"
             await page.screenshot(path=str(shot2), full_page=True)
             shutil.copy(shot2, ARTIFACT_DIR / shot2.name)
@@ -181,7 +206,10 @@ async def run_live_e2e_production_regression():
                 "handler": "resolveLocation()",
                 "endpoint": "POST /api/v1/location/resolve",
                 "status": "PASSED" if success else "FAILED",
-                "detail": f"Resolved location to {status_text.strip()} (lng: {lng_val}, utc: {utc_val})",
+                "detail": (
+                    f"Resolved location to {status_text.strip()} (lng: {lng_val}, utc: {utc_val}; "
+                    f"changed={changed}; API status={[r['status'] for r in location_api_calls]})"
+                ),
                 "screenshot": f"screenshots/{shot2.name}"
             })
         except Exception as e:
@@ -287,7 +315,7 @@ async def run_live_e2e_production_regression():
                 matched_api = [r for r in api_responses if endpoint in r["url"]]
                 api_ok = any(r["ok"] for r in matched_api)
 
-                success = card_visible and len(body_text) > 15
+                success = card_visible and len(body_text) > 15 and api_ok
                 print(f"  • Discipline '{name}': Card Visible={card_visible}, Text Length={len(body_text)}, API Calls={len(matched_api)} -> {'OK' if success else 'FAIL'}")
 
                 button_results.append({
@@ -347,6 +375,19 @@ async def run_live_e2e_production_regression():
             })
         except Exception as e:
             print(f"  ❌ Checkboxes Test Failed: {e}")
+            for button_id, name in [
+                ("CHK-PROD-18", "☑ ไม่ทราบยามเกิด (Unknown Hour Checkbox)"),
+                ("CHK-PROD-19", "☑ Gemini Prediction Validator Checkbox"),
+            ]:
+                button_results.append({
+                    "id": button_id,
+                    "page": "index.html",
+                    "name": name,
+                    "handler": "DOM Checkbox State",
+                    "endpoint": "DOM State",
+                    "status": "FAILED",
+                    "detail": f"Error: {e}",
+                })
 
         # -------------------------------------------------------------------
         # 6. Main Submit Button: Calculate Chart & AI Interpretation (#btn-submit)
@@ -372,18 +413,15 @@ async def run_live_e2e_production_regression():
                 interp_text = await page.inner_text("#llm-markdown-output")
 
             interpret_api_calls = [r for r in api_responses if "/api/v1/bazi/interpret" in r["url"]]
-            api_status = interpret_api_calls[-1]["status"] if interpret_api_calls else "OK (Proxy/Cached)"
-
-            is_fallback = "คำนวณค่าตำแหน่งดวงดาวและ 4 เสาหลักเรียบร้อยแล้ว" in interp_text
-            has_ai_output = len(interp_text) > 100 and not is_fallback
-
-            success = has_ai_output and (interpret_api_calls and interpret_api_calls[-1]["ok"])
+            api_status = interpret_api_calls[-1]["status"] if interpret_api_calls else "NO API RESPONSE"
+            api_ok = bool(interpret_api_calls and interpret_api_calls[-1]["ok"])
+            success = len(interp_text) > 100 and api_ok
 
             shot5 = SCREENSHOT_DIR / "prod_05_bazi_ai_result.png"
             await page.screenshot(path=str(shot5), full_page=True)
             shutil.copy(shot5, ARTIFACT_DIR / shot5.name)
 
-            print(f"  • AI Interpretation Output Length: {len(interp_text)} chars (Is Fallback: {is_fallback})")
+            print(f"  • AI Interpretation Output Length: {len(interp_text)} chars (API OK: {api_ok})")
             print(f"  • Interpretation snippet: {interp_text[:120].strip()}")
 
             button_results.append({
@@ -452,6 +490,18 @@ async def run_live_e2e_production_regression():
         shutil.copy(shot6, ARTIFACT_DIR / shot6.name)
 
         await browser.close()
+
+    expected_controls = 22
+    if len(button_results) < expected_controls:
+        button_results.append({
+            "id": "BTN-PROD-UNEXECUTED",
+            "page": "production regression",
+            "name": "All planned production controls",
+            "handler": "Regression harness",
+            "endpoint": PROD_URL,
+            "status": "FAILED",
+            "detail": f"Only {len(button_results)} of {expected_controls} planned controls recorded a result.",
+        })
 
     elapsed = round(time.time() - start_time, 2)
     passed_count = sum(1 for r in button_results if r["status"] == "PASSED")

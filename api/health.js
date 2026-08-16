@@ -1,19 +1,18 @@
-// api/health.js — Dedicated Vercel Serverless Health Check Endpoint
-export default function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform");
+// api/health.js -- Vercel health gateway for the Azure Container Apps origin.
+import {
+  correlationIdFor,
+  proxyToAzure,
+  sendPublicError,
+  setCorsHeaders,
+} from "./gateway.js";
 
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
+export default async function handler(req, res) {
+  setCorsHeaders(res, "GET, OPTIONS");
+  if (req.method === "OPTIONS") return res.status(204).end();
+
+  const correlationId = correlationIdFor(req);
+  if (req.method !== "GET") {
+    return sendPublicError(res, 405, correlationId, "Method not allowed.");
   }
-
-  return res.status(200).json({
-    status: "ok",
-    service: "Computational Metaphysics Engine",
-    version: "1.0.0",
-    gateway: "vercel-edge",
-    timestamp: new Date().toISOString()
-  });
+  return proxyToAzure(req, res, "health", correlationId);
 }

@@ -85,7 +85,12 @@
 
         <button type="submit" class="btn btn-primary" id="btn-submit">
           <span class="btn-text">☯ คำนวณผังดวง & ตีความด้วย AI</span>
-          <span class="spinner hidden"></span>
+        </button>
+        <div id="backend-status" class="backend-status" role="status" aria-live="polite" aria-atomic="true">
+          API status: ready to start a calculation.
+        </div>
+        <button type="button" class="btn btn-retry hidden" id="backend-retry" onclick="retryChartCalculation()">
+          Retry this calculation
         </button>
       </form>
 
@@ -200,14 +205,14 @@
     <div class="footer-status-bar">
       <div class="status-badge" id="system-status">
         <span class="pulse-dot green"></span>
-        <span class="status-text">Server Active (Local-First Ollama + RAG 3,132 Vectors)</span>
+        <span class="status-text">API status is checked before each calculation</span>
       </div>
       <div class="status-badge health-badge" id="health-status-badge">
         <span class="pulse-dot cyan"></span>
         <span class="health-text" id="health-status-text">Health: OK (Checking...)</span>
       </div>
     </div>
-    <p id="footer-version-text">Computational Metaphysics Engine v1.0.0 — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback</p>
+    <p id="footer-version-text">Computational Metaphysics Engine v1.0.0 — Azure API gateway</p>
   </footer>
 
   <script src="app.js"></script>

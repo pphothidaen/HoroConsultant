@@ -2,8 +2,8 @@
 """
 scripts/run_randomized_playwright_test.py
 ============================================
-Executes Playwright browser UI automation on live HF Static Space:
-  Target: https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html
+Executes Playwright browser UI automation on the public Vercel application:
+  Target: HORO_PUBLIC_URL (defaults to the public Vercel origin)
 
 Fills the BaZi form with randomized test questions across multiple life domains,
 submits the form, waits for static/AI answer rendering, captures visual screenshots,
@@ -21,13 +21,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/Users/kimlenglim/.agy-account-2/Library/Caches/ms-playwright"
-
 from playwright.async_api import async_playwright
 
-PROD_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
+PUBLIC_ORIGIN = os.getenv("HORO_PUBLIC_URL", "https://horo-consultant-psi.vercel.app").rstrip("/")
+PROD_URL = f"{PUBLIC_ORIGIN}/"
 SCREENSHOT_DIR = ROOT / "project" / "tests" / "screenshots"
-ARTIFACT_DIR = Path("/Users/kimlenglim/.agy-account-1/.gemini/antigravity-cli/brain/54cf3650-3430-47cd-9081-c506d9a7fb8a/screenshots")
+ARTIFACT_DIR = ROOT / "project" / "tests" / "artifacts_screenshots"
 
 SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
@@ -43,7 +42,7 @@ RANDOM_QUERIES = [
 
 async def run_randomized_playwright_ui_test():
     print("======================================================================")
-    print("  🚀 PLAYWRIGHT RANDOMIZED UI TEST FOR HF STATIC SPACE")
+    print("  🚀 PLAYWRIGHT RANDOMIZED UI TEST FOR PUBLIC VERCEL")
     print(f"  Target: {PROD_URL}")
     print("======================================================================")
 
@@ -52,19 +51,26 @@ async def run_randomized_playwright_ui_test():
         context = await browser.new_context(viewport={"width": 1400, "height": 1000})
         page = await context.new_page()
 
-        print("\n[STEP 1] Navigating to HF Static Space Dashboard...")
+        print("\n[STEP 1] Navigating to public Vercel dashboard...")
         resp = await page.goto(PROD_URL, wait_until="domcontentloaded")
         await page.wait_for_timeout(2000)
 
-        shot_init = SCREENSHOT_DIR / "hf_static_01_init.png"
+        shot_init = SCREENSHOT_DIR / "prod_01_init.png"
         await page.screenshot(path=str(shot_init), full_page=True)
         shutil.copy(shot_init, ARTIFACT_DIR / shot_init.name)
-        print(f"  • Initial Load: HTTP {resp.status}")
+        print(f"  • Initial Load: HTTP {resp.status if resp else 0}")
 
         test_results = []
+        api_responses = []
+        page.on("response", lambda response: api_responses.append({
+            "url": response.url,
+            "ok": response.ok,
+            "status": response.status,
+        }))
 
         for idx, (category, query_text) in enumerate(RANDOM_QUERIES, 1):
             print(f"\n[STEP {idx+1}] Testing Category: {category}...")
+            request_start = len(api_responses)
             
             # Fill query field
             await page.fill("#query", query_text)
@@ -79,11 +85,15 @@ async def run_randomized_playwright_ui_test():
             res_container_visible = await page.is_visible("#results-container") or await page.is_visible("#interpretation-card")
             reading_text = await page.inner_text("#reading-body") if await page.is_visible("#reading-body") else ""
             
-            shot_file = SCREENSHOT_DIR / f"hf_static_q{idx:02d}_{category.replace(' ', '_').replace('/', '_')}.png"
+            shot_file = SCREENSHOT_DIR / f"prod_q{idx:02d}_{category.replace(' ', '_').replace('/', '_')}.png"
             await page.screenshot(path=str(shot_file), full_page=True)
             shutil.copy(shot_file, ARTIFACT_DIR / shot_file.name)
             
-            status = "PASSED" if res_container_visible and len(reading_text) > 20 else "FAILED"
+            api_ok = any(
+                response["ok"] and "/api/v1/bazi/interpret" in response["url"]
+                for response in api_responses[request_start:]
+            )
+            status = "PASSED" if res_container_visible and len(reading_text) > 20 and api_ok else "FAILED"
             print(f"  • Category: {category}")
             print(f"  • Render Status: {'✅ PASSED' if status == 'PASSED' else '❌ FAILED'}")
             print(f"  • Answer Snippet: {reading_text[:80].strip()}...")

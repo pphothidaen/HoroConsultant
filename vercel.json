@@ -1,23 +1,61 @@
 {
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Credentials", "value": "true" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
-        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform" }
-      ]
-    }
-  ],
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
       "source": "/health",
-      "destination": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
+      "destination": "/api/health"
     },
     {
-      "source": "/api/health",
-      "destination": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
+      "source": "/api/:path*",
+      "destination": "/api/index?path=api/:path*"
+    },
+    {
+      "source": "/v1/:path*",
+      "destination": "/api/index?path=v1/:path*"
+    },
+    {
+      "source": "/bazi/:path*",
+      "destination": "/api/index?path=bazi/:path*"
+    },
+    {
+      "source": "/admin",
+      "destination": "/api/index?path=admin"
+    },
+    {
+      "source": "/admin/:path*",
+      "destination": "/api/index?path=admin/:path*"
+    },
+    {
+      "source": "/hitl/:path*",
+      "destination": "/api/index?path=hitl/:path*"
+    },
+    {
+      "source": "/hitl-studio",
+      "destination": "/api/index?path=hitl-studio"
+    },
+    {
+      "source": "/docs",
+      "destination": "/api/index?path=docs"
+    },
+    {
+      "source": "/docs/:path*",
+      "destination": "/api/index?path=docs/:path*"
+    },
+    {
+      "source": "/redoc",
+      "destination": "/api/index?path=redoc"
+    },
+    {
+      "source": "/openapi.json",
+      "destination": "/api/index?path=openapi.json"
+    },
+    {
+      "source": "/metrics",
+      "destination": "/api/index?path=metrics"
+    },
+    {
+      "source": "/metrics/:path*",
+      "destination": "/api/index?path=metrics/:path*"
     },
     {
       "source": "/(.*)",
