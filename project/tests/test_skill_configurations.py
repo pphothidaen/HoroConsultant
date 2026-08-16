@@ -23,7 +23,6 @@ EXPECTED_SKILLS = [
     "qa-e2e-testing",
     "rag-search",
     "sdlc-aisdlc-workflow",
-    "kaggle-manager",
 ]
 
 
@@ -41,6 +40,27 @@ def _active_skills() -> list[str]:
         if skill_file.exists() and not _is_disabled(skill_file):
             names.append(skill_name)
     return names
+
+
+def _agent_skill_refs() -> set[str]:
+    refs = set()
+    agent_dirs = [
+        ROOT_DIR / ".agents" / "agents",
+        ROOT_DIR / ".antigravity" / "agents",
+        ROOT_DIR / ".codex" / "agents",
+    ]
+
+    for agent_dir in agent_dirs:
+        for path in agent_dir.rglob("*"):
+            if not path.is_file():
+                continue
+            if path.suffix not in {".json", ".md", ".yaml", ".toml", ".agent"}:
+                continue
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            for skill_name in EXPECTED_SKILLS:
+                if skill_name in text:
+                    refs.add(skill_name)
+    return refs
 
 
 def test_all_expected_skills_exist():
@@ -94,6 +114,21 @@ def test_total_skill_context_budget_aggregate():
         total_desc_len += len(desc)
     
     assert total_desc_len < 800, f"Total skill descriptions aggregate length ({total_desc_len}) exceeds 800 chars budget"
+
+
+def test_disabled_skills_are_not_active_dependencies():
+    """Unused skills should be explicitly marked disabled so they do not consume budget."""
+    active_refs = _agent_skill_refs()
+    active_skills = _active_skills()
+
+    for skill_name in EXPECTED_SKILLS:
+        skill_file = AGENTS_SKILLS_DIR / skill_name / "SKILL.md"
+        disabled = _is_disabled(skill_file)
+        if skill_name in active_refs:
+            assert not disabled, f"Skill '{skill_name}' is referenced by an agent/manifest but marked disabled"
+            assert skill_name in active_skills, f"Skill '{skill_name}' was not included in active budget calculation"
+        else:
+            assert disabled, f"Unused skill '{skill_name}' must be explicitly marked disabled to avoid budget pressure"
 
 
 def test_antigravity_skills_parity():
