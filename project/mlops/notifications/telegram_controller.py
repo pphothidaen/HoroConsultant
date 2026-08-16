@@ -46,6 +46,8 @@ class TelegramBotController:
                 "• <code>/metrics</code> — Request count, RPM, error rates\n"
                 "• <code>/hitl_status</code> — HITL queue and finetune readiness\n"
                 "• <code>/hitl_queue</code> — HITL queue counters\n"
+                "• <code>/hitl_backoffice</code> — Unresolved HITL snapshot by domain\n"
+                "• <code>/hitl_scope_audit</code> — Verify source-domain HITL compliance and unresolved conflicts\n"
                 "• <code>/hitl_export</code> — Rebuild HITL JSONL export files\n"
                 "• <code>/hitl_trigger [--force] [--dry]</code> — Trigger HITL fine-tune now\n"
                 "• <code>/switch_key</code> — Test & cycle Google AI Studio keys\n"
@@ -110,6 +112,14 @@ class TelegramBotController:
         elif cmd == "/hitl_queue":
             return self._cmd_hitl_queue()
 
+        elif cmd == "/hitl_backoffice":
+            include_resolved = bool(args and args[0] in {"--all", "all", "resolved", "--resolved"})
+            return self._cmd_hitl_backoffice(include_resolved=include_resolved)
+
+        elif cmd == "/hitl_scope_audit":
+            scope_domain = args[0] if args else "metaphysical-domain-engine"
+            return self._cmd_hitl_scope_audit(source_domain=scope_domain)
+
         elif cmd == "/hitl_export":
             return self._cmd_hitl_export()
 
@@ -150,12 +160,21 @@ class TelegramBotController:
         pending_conflict = sum(
             1 for item in queue if item.get("status") == "pending" and bool(item.get("conflict_detected", False))
         )
+        by_domain: dict[str, int] = {}
+        for item in queue:
+            if item.get("status") != "pending":
+                continue
+            if bool(item.get("required_human_review", False)):
+                domain = item.get("source_domain", "catalog")
+                by_domain[domain] = by_domain.get(domain, 0) + 1
+        domain_summary = ", ".join(f"{k}:{v}" for k, v in sorted(by_domain.items())) if by_domain else "N/A"
         return (
             "🎯 <b>HITL Workflow Status</b>\n"
             f"• <b>Auto Trigger:</b> <code>{'ON' if HITL_AUTOTRAIN_ENABLED else 'OFF'}</code>\n"
             f"• <b>Approved/Edited pairs:</b> <code>{approved_count}</code>\n"
             f"• <b>Pending HITL conflict reviews:</b> <code>{pending_hitl}</code>\n"
             f"• <b>Pending conflict-detected:</b> <code>{pending_conflict}</code>\n"
+            f"• <b>Pending by domain:</b> <code>{domain_summary}</code>\n"
             f"• <b>Next trigger target:</b> <code>{next_threshold}</code>\n"
             f"• <b>Need more:</b> <code>{remaining}</code>\n"
             f"• <b>Total triggers:</b> <code>{automation.get('total_triggers', 0)}</code>\n"
@@ -187,8 +206,69 @@ class TelegramBotController:
             f"• <b>Pending:</b> <code>{len(pending)}</code>\n"
             f"• <b>Pending HITL-required:</b> <code>{len(pending_hitl)}</code>\n"
             f"• <b>Pending conflict:</b> <code>{len(pending_conflict)}</code>\n"
+            f"• <b>Conflict queued domains:</b> <code>{','.join(sorted(set(d for i in queue for d in i.get('conflicting_domains', []))) or 'N/A')}</code>\n"
             f"• <b>Pending by domain:</b> <code>{domain_lines}</code>\n"
             f"• <b>Next trigger target:</b> <code>{state.get('automation', {}).get('next_trigger_count', '-')}</code>"
+        )
+
+    def _cmd_hitl_scope_audit(self, source_domain: str = "metaphysical-domain-engine") -> str:
+        from project.hitl_router import build_queue_items, _audit_metaphysical_scope, load_catalog, load_hitl_db
+        state = load_hitl_db()
+        catalog = load_catalog()
+        items = build_queue_items(catalog, state)
+        audit = _audit_metaphysical_scope(items, source_domain=source_domain.strip() or "metaphysical-domain-engine")
+        summary = audit["summary"]
+        gap_count = summary.get("missing_required_human_gate", 0)
+        status = "PASS" if summary.get("pass_gate_check") else "FAIL"
+        gap_samples = audit["items"].get("gap_samples", [])
+        gap_ids = ", ".join(sorted({str(item.get("item_id", "n/a")) for item in gap_samples[:3]})) or "N/A"
+        return (
+            "🛠️ <b>HITL Scope Audit</b>\n"
+            f"• <b>Scope:</b> <code>{source_domain}</code>\n"
+            f"• <b>Status:</b> <b>{status}</b>\n"
+            f"• <b>Scope items:</b> <code>{summary.get('scope_items', 0)}</code>\n"
+            f"• <b>Pending review:</b> <code>{summary.get('required_human_review', 0)}</code>\n"
+            f"• <b>Pending conflict:</b> <code>{summary.get('pending_conflict', 0)}</code>\n"
+            f"• <b>Missing HITL gate:</b> <code>{gap_count}</code>\n"
+            f"• <b>Sample IDs pending gate:</b> <code>{gap_ids}</code>\n"
+            f"• <b>Active model:</b> <code>{get_active_model_state().get('active_model', 'unknown')}</code>\n"
+            f"• <b>Last update:</b> <code>{audit['generated_at']}</code>"
+        )
+
+    def _cmd_hitl_backoffice(self, include_resolved: bool = False) -> str:
+        from project.hitl_router import (
+            _audit_metaphysical_scope,
+            build_queue_items,
+            load_catalog,
+            load_hitl_db,
+            _requires_human_review,
+        )
+        state = load_hitl_db()
+        catalog = load_catalog()
+        items = build_queue_items(catalog, state)
+
+        scope_items = items if include_resolved else [i for i in items if _requires_human_review(i) or i["status"] == "pending"]
+        required_review = [i for i in scope_items if _requires_human_review(i)]
+        conflicts = [i for i in scope_items if bool(i.get("conflict_detected", False))]
+
+        domain_rows: dict[str, int] = {}
+        for item in required_review:
+            key = item.get("source_domain", "metaphysical-domain-engine")
+            domain_rows[key] = domain_rows.get(key, 0) + 1
+
+        audit = _audit_metaphysical_scope(items, source_domain="metaphysical-domain-engine")
+        unresolved = audit["summary"].get("missing_required_human_gate", 0)
+        sample_ids = ", ".join(sorted({str(item.get("item_id", "")) for item in scope_items[:3]})) or "N/A"
+
+        return (
+            "🧾 <b>HITL Backoffice Snapshot</b>\n"
+            f"• <b>Scope gate unresolved:</b> <code>{unresolved}</code>\n"
+            f"• <b>Items in scope view:</b> <code>{len(scope_items)}</code>\n"
+            f"• <b>Pending HITL-required:</b> <code>{len(required_review)}</code>\n"
+            f"• <b>Pending conflict:</b> <code>{len(conflicts)}</code>\n"
+            f"• <b>Pending by domain:</b> <code>{', '.join(f'{k}:{v}' for k, v in sorted(domain_rows.items())) or 'N/A'}</code>\n"
+            f"• <b>Sample item IDs:</b> <code>{sample_ids}</code>\n"
+            f"• <b>Include resolved:</b> <code>{'true' if include_resolved else 'false'}</code>"
         )
 
     def _cmd_hitl_export(self) -> str:

@@ -229,6 +229,95 @@ def _collect_hitl_export_records(hitl_db: dict[str, Any]) -> list[dict[str, Any]
     return records
 
 
+def _build_hitl_backoffice_item(item: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "item_id": item.get("item_id"),
+        "source_domain": item.get("source_domain", "metaphysical-domain-engine"),
+        "source_id": item.get("source_id"),
+        "source_title": item.get("source_title", ""),
+        "category": item.get("category", "metaphysical_debate"),
+        "question": item.get("question", ""),
+        "status": item.get("status", "pending"),
+        "required_human_review": bool(item.get("required_human_review", False)),
+        "conflict_detected": bool(item.get("conflict_detected", False)),
+        "conflicting_domains": item.get("conflicting_domains", []),
+        "consensus_score": item.get("consensus_score"),
+        "hitl_routing": item.get("hitl_routing"),
+        "review": item.get("review"),
+        "created_at": item.get("created_at"),
+        "updated_at": item.get("reviewed_at") or item.get("updated_at"),
+        "coverage_pct": item.get("coverage_pct", 0),
+        "notes": item.get("notes"),
+    }
+
+
+def _needs_human_gate(item: dict[str, Any]) -> bool:
+    hitl_routing = item.get("hitl_routing")
+    routing_status = ""
+    if isinstance(hitl_routing, dict):
+        routing_status = str(hitl_routing.get("status", "")).upper()
+
+    score = item.get("consensus_score")
+    low_consensus = False
+    try:
+        if score is not None:
+            low_consensus = float(score) < 0.75
+    except (TypeError, ValueError):
+        low_consensus = False
+
+    return (
+        bool(item.get("required_human_review", False))
+        or bool(item.get("conflict_detected", False))
+        or bool(item.get("force_human_review", False))
+        or item.get("status") == "review_queued"
+        or routing_status == "QUEUED_FOR_HUMAN_REVIEW"
+        or low_consensus
+    )
+
+
+def _requires_human_review(item: dict[str, Any]) -> bool:
+    if item.get("status") != "pending":
+        return False
+    return _needs_human_gate(item)
+
+
+def _missing_human_gate(item: dict[str, Any]) -> bool:
+    return item.get("status") == "pending" and _needs_human_gate(item) and not bool(
+        item.get("required_human_review", False)
+    )
+
+
+def _audit_metaphysical_scope(items: list[dict[str, Any]], source_domain: str) -> dict[str, Any]:
+    scope_items = [i for i in items if (i.get("source_domain") or "metaphysical-domain-engine") == source_domain]
+    pending = [i for i in scope_items if i.get("status") == "pending"]
+    required = [i for i in pending if _requires_human_review(i)]
+    required_without_gate = [i for i in pending if _missing_human_gate(i)]
+    conflict_pending = [i for i in pending if bool(i.get("conflict_detected", False))]
+    domain_hits: dict[str, int] = {}
+    for item in required:
+        key = item.get("source_domain", source_domain)
+        domain_hits[key] = domain_hits.get(key, 0) + 1
+
+    return {
+        "scope_domain": source_domain,
+        "generated_at": datetime.now().isoformat(),
+        "summary": {
+            "scope_items": len(scope_items),
+            "pending_items": len(pending),
+            "required_human_review": len(required),
+            "pending_conflict": len(conflict_pending),
+            "missing_required_human_gate": len(required_without_gate),
+            "pass_gate_check": len(required_without_gate) == 0,
+            "required_by_domain": domain_hits,
+        },
+        "items": {
+            "required_review_sample": [_build_hitl_backoffice_item(i) for i in required[:50]],
+            "conflicts_sample": [_build_hitl_backoffice_item(i) for i in conflict_pending[:50]],
+            "gap_samples": [_build_hitl_backoffice_item(i) for i in required_without_gate[:50]],
+        },
+    }
+
+
 def make_external_item_id(source_domain: str, source_id: str, question: str) -> str:
     import hashlib
     raw = f"{source_domain}::{source_id}::{question}"
@@ -309,6 +398,19 @@ def _run_finetune_trigger(
     approved_count = _approved_hitl_count(reviews)
     next_threshold = automation.get("next_trigger_count", automation.get("threshold", HITL_AUTOTRAIN_THRESHOLD))
     records = _collect_hitl_export_records(hitl_db)
+    catalog = load_catalog()
+    scope_audit = _audit_metaphysical_scope(build_queue_items(catalog, hitl_db), source_domain="metaphysical-domain-engine")
+    missing_human_gate = scope_audit["summary"].get("missing_required_human_gate", 0)
+
+    if not force and missing_human_gate:
+        return {
+            "status": "skipped",
+            "reason": "metaphysical_scope_human_gate_not_ready",
+            "scope_domain": scope_audit["scope_domain"],
+            "scope_pass_gate": scope_audit["summary"].get("pass_gate_check", False),
+            "missing_required_human_gate": missing_human_gate,
+            "requested_by": requested_by,
+        }
 
     if not records:
         return {
@@ -549,13 +651,24 @@ async def get_review_queue(
     approved = sum(1 for i in items if i["status"] == DECISION_APPROVE)
     edited   = sum(1 for i in items if i["status"] == DECISION_EDIT)
     rejected = sum(1 for i in items if i["status"] == DECISION_REJECT)
-    pending_required_hitl = sum(
-        1 for i in items if i["status"] == "pending" and i.get("required_human_review", False)
-    )
+    pending_items = [i for i in items if i["status"] == "pending"]
+    pending_required_hitl = sum(1 for i in pending_items if i.get("required_human_review", False))
     pending_conflicts = sum(
-        1 for i in items if i["status"] == "pending" and (
-            bool(i.get("conflict_detected", False)) or bool(i.get("required_human_review", False))
-        )
+        1 for i in pending_items if bool(i.get("conflict_detected", False)) or bool(i.get("required_human_review", False))
+    )
+    required_review_items = [i for i in pending_items if _requires_human_review(i)]
+
+    domain_counts: dict[str, int] = {}
+    domain_samples: dict[str, list[str]] = {}
+    for i in required_review_items:
+        domain = i.get("source_domain") or i.get("category", "metaphysical-domain-engine")
+        domain_counts[domain] = domain_counts.get(domain, 0) + 1
+        if len(domain_samples.setdefault(domain, [])) < 5:
+            domain_samples[domain].append(i.get("item_id", ""))
+
+    required_review_snapshot = sorted(
+        [_build_hitl_backoffice_item(i) for i in required_review_items],
+        key=lambda x: x.get("updated_at") or x.get("created_at") or ""
     )
     automation = hitl_db.get("automation", {})
     conflict_domains = sorted({
@@ -582,6 +695,10 @@ async def get_review_queue(
             "pending_required_human_review": pending_required_hitl,
             "pending_conflict_items": pending_conflicts,
             "conflict_domains": conflict_domains,
+            "required_review_items": len(required_review_items),
+            "required_review_by_domain": domain_counts,
+            "required_review_samples": domain_samples,
+            "required_review_snapshot": required_review_snapshot[:100],
         },
         "offset":   offset,
         "limit":    limit,
@@ -598,6 +715,48 @@ async def get_item(item_id: str):
     if not item:
         raise HTTPException(status_code=404, detail=f"Item '{item_id}' not found")
     return JSONResponse(content=item)
+
+
+@hitl_router.get("/backoffice", summary="Backoffice review snapshot for unresolved HITL cases")
+async def get_backoffice_snapshot(
+    include_resolved: bool = Query(False, description="Include resolved items in snapshot")
+):
+    catalog = load_catalog()
+    hitl_db = load_hitl_db()
+    items = build_queue_items(catalog, hitl_db)
+    scope_items = items if include_resolved else [i for i in items if _requires_human_review(i) or i["status"] == "pending"]
+
+    required_review_items = [i for i in scope_items if _requires_human_review(i)]
+    domain_rows: dict[str, int] = {}
+    for item in required_review_items:
+        key = item.get("source_domain") or "metaphysical-domain-engine"
+        domain_rows[key] = domain_rows.get(key, 0) + 1
+
+    automation = hitl_db.get("automation", {})
+    return JSONResponse(content={
+        "generated_at": datetime.now().isoformat(),
+        "include_resolved": include_resolved,
+        "summary": {
+            "total_items": len(items),
+            "unresolved_pending": len([i for i in items if i["status"] == "pending"]),
+            "required_human_review": len(required_review_items),
+            "conflicts": len([i for i in items if bool(i.get("conflict_detected", False))]),
+            "required_by_domain": domain_rows,
+            "approved_count": _approved_hitl_count(hitl_db.get("reviews", {})),
+            "automation_next_trigger": automation.get("next_trigger_count", HITL_AUTOTRAIN_THRESHOLD),
+            "automation_threshold": automation.get("threshold", HITL_AUTOTRAIN_THRESHOLD),
+            "automation_total_triggers": automation.get("total_triggers", 0),
+        },
+        "items": [_build_hitl_backoffice_item(i) for i in scope_items],
+    })
+
+
+@hitl_router.get("/scope-audit", summary="Audit unresolved items for a source domain and HITL compliance")
+async def get_scope_audit(source_domain: str = Query("metaphysical-domain-engine")):
+    catalog = load_catalog()
+    hitl_db = load_hitl_db()
+    items = build_queue_items(catalog, hitl_db)
+    return JSONResponse(content=_audit_metaphysical_scope(items, source_domain=source_domain.strip() or "metaphysical-domain-engine"))
 
 
 @hitl_router.post("/draft/{item_id}", summary="Generate AI draft answer for an item")

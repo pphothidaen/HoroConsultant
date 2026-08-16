@@ -339,6 +339,15 @@ async def run_metaphysical_debate(req: MetaphysicalDebateRequest):
                 "required_human_review": required_human_review,
                 "full_result": synthesis.get("decision_matrix"),
             },
+            "review_summary": {
+                "reason": "metaphysical_conflict_or_uncertain",
+                "conflict_detected": conflict_detected,
+                "required_human_review": required_human_review,
+                "consensus_score": consensus_score,
+                "conflicting_domains": synthesis.get("conflicting_domains", []),
+                "hitl_status": synthesis.get("hitl_routing", {}).get("status"),
+                "decision_matrix": synthesis.get("decision_matrix"),
+            },
         })
 
     return JSONResponse(content={

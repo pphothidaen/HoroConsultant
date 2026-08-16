@@ -693,8 +693,17 @@ body::before{
     <button onclick="batchGenerateDrafts()" style="padding:5px 12px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(183,148,244,0.15);border:1px solid rgba(183,148,244,0.3);color:var(--purple);cursor:pointer" id="btn-batch">
       ⚡ Batch Draft
     </button>
+    <button onclick="triggerFinetuneFromUI(false)" style="padding:5px 12px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(245,158,11,0.18);border:1px solid rgba(245,158,11,0.35);color:var(--orange);cursor:pointer" id="btn-trigger">
+      🚀 Trigger Fine-Tune
+    </button>
+    <button onclick="triggerFinetuneFromUI(true)" style="padding:5px 12px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(239,68,68,0.16);border:1px solid rgba(239,68,68,0.32);color:#fca5a5;cursor:pointer" id="btn-force-trigger" title="Use only when required">
+      ⚠️ Force Trigger
+    </button>
     <button onclick="exportHITL()" style="padding:5px 12px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(104,211,145,0.15);border:1px solid rgba(104,211,145,0.3);color:var(--green);cursor:pointer">
       ⬇ Export JSONL
+    </button>
+    <button onclick="runScopeAuditFromUI()" style="padding:5px 12px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(99,179,237,0.15);border:1px solid rgba(99,179,237,0.3);color:var(--blue);cursor:pointer" id="btn-scope-audit">
+      🧪 Audit HITL Scope
     </button>
   </div>
 </header>
@@ -996,6 +1005,8 @@ function renderQueueList() {
           <div class="qi-status ${sClass}"></div>
           <span class="qi-id">${item.source_id}</span>
           ${item.has_draft ? '<span class="qi-draft-badge">AI✓</span>' : ''}
+          ${item.required_human_review ? '<span class="qi-draft-badge" style="color:var(--orange);border-color:rgba(245,158,11,.55);">HITL</span>' : ''}
+          ${item.conflict_detected ? '<span class="qi-draft-badge" style="color:var(--red);border-color:rgba(239,68,68,.45);">Conflict</span>' : ''}
         </div>
         <div class="qi-question">${escHtml(item.question)}</div>
         <div class="qi-cat">${CAT_EMOJI[item.category] || ''} ${item.category.replace(/_/g,' ')}</div>
@@ -1374,6 +1385,58 @@ async function exportHITL() {
     toast('success', `✅ Exported ${res.entries} HITL-approved pairs`);
     setTimeout(() => { window.open('/hitl/export?download=true', '_blank'); }, 300);
   } catch(e) { toast('error', '❌ ' + e.message); }
+}
+
+async function triggerFinetuneFromUI(forceRun = false) {
+  const btn = forceRun ? document.getElementById('btn-force-trigger') : document.getElementById('btn-trigger');
+  const label = forceRun ? '⚠️ FORCE' : '🚀 Trigger';
+  const actionText = forceRun ? 'Force Triggering' : 'Triggering';
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = `${actionText}...`;
+  }
+
+  try {
+    const query = forceRun ? '?force=true' : '';
+    const res = await api('POST', `/hitl/trigger${query}`);
+    if (res.status === 'skipped') {
+      toast('info', `ℹ️ ${label} skipped: ${res.reason}`);
+    } else {
+      const t = res.training || {};
+      toast('success', `✅ ${label} success: ${t.status || res.status}`);
+      await loadQueue();
+    }
+  } catch(e) {
+    toast('error', '❌ ' + e.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = forceRun ? '⚠️ Force Trigger' : '🚀 Trigger Fine-Tune';
+    }
+  }
+}
+
+async function runScopeAuditFromUI() {
+  const btn = document.getElementById('btn-scope-audit');
+  btn.disabled = true;
+  btn.textContent = '🧪 Auditing...';
+
+  try {
+    const res = await api('GET', '/hitl/scope-audit?source_domain=metaphysical-domain-engine');
+    const summary = res.summary || {};
+    const missing = summary.missing_required_human_gate || 0;
+    if (summary.pass_gate_check) {
+      toast('success', `✅ HITL scope audit pass (${summary.required_human_review || 0} items require review)`);
+    } else {
+      toast('warning', `⚠️ HITL scope audit fail: ${missing} conflict items missing required_human_review`);
+    }
+  } catch(e) {
+    toast('error', '❌ ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🧪 Audit HITL Scope';
+  }
 }
 
 /* ===================== UTILS ===================== */

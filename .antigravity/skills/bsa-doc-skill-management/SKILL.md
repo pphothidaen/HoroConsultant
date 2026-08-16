@@ -66,6 +66,16 @@ This skill defines the standardized workflow for the **Business System Analyst A
   - **System Architecture & Data Flow Impact**
   - **Acceptance Criteria & Test Matrix**
 
+### 1.1 Mandatory Scope-Grill Before Planning
+Before any implementation planning, the analyst must capture and validate:
+- **Scope Boundary:** exact user outcomes to deliver, and explicit exclusions.
+- **Requirements Completeness:** missing inputs, dependencies, and assumptions.
+- **Success Criteria:** measurable verification conditions and rollback thresholds.
+- **Constraints & Risks:** runtime, compliance, quota, data, and security limits.
+- **Owner Confirmation:** ask the user/owner to confirm unresolved ambiguities before moving forward.
+
+This gate must block implementation until at least 3 clarifying items are either confirmed or explicitly waived.
+
 ### 2. Live Documentation Maintenance Mandate
 Whenever system functionality, API endpoints, environment variables, or CLI scripts change:
 - **`PROJECT_TASKS.md`**: Update Task Board (DONE / DOING / TODO items), quick-start commands, and timestamp.

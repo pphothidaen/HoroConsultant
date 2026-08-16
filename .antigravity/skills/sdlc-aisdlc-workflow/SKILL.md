@@ -54,7 +54,13 @@ Phase 5: Code Review, Deployment & Post-Deploy E2E (Master Orchestrator & Code R
    python3 scripts/kaggle_notebook_manager.py --status
    ```
    If kernel output is updated, pull latest artifacts via `--pull`.
-2. Document requirements and sub-task specifications in `/plans/plan.md`.
+2. Run a mandatory requirement grilling pass in `/plans/plan.md`:
+   - Scope boundaries (what is in/out of scope).
+   - Requirement deltas since last commit / last request.
+   - Acceptance criteria (measurable outcomes + QA checkpoints).
+   - Constraint checks (security, data, quota, model latency, compliance).
+   - Pending assumptions that need owner confirmation.
+3. Document requirements and sub-task specifications in `/plans/plan.md` only after the grill questions are answered or explicitly accepted as waived.
 3. Delegate sub-tasks to `developer`, `qa_tester`, and `devops`.
 
 ### Phase 2: Feature Implementation (Developer)
