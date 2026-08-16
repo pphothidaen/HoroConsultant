@@ -147,16 +147,20 @@ def get_priority_secret(key_name: str, fallback_keys: tuple[str, ...] = (), defa
     all_keys = (key_name,) + fallback_keys
 
     # --- 1st Priority: DOPPLER SECRETS ---
-    # Check if Doppler CLI is running or DOPPLER_ENVIRONMENT is set
+    # Check if Doppler CLI is running or DOPPLER_ENVIRONMENT / DOPPLER_TOKEN is set.
+    # When Doppler is available, prefer the API result over any pre-populated
+    # environment variable (e.g. a value loaded from Kaggle Secrets) so the
+    # central vault is always the source of truth.
     is_doppler_env = bool(os.getenv("DOPPLER_ENVIRONMENT") or os.getenv("DOPPLER_CONFIG") or os.getenv("DOPPLER_TOKEN"))
     if is_doppler_env:
         for k in all_keys:
-            val = os.getenv(k)
-            if val:
-                return val
             val_api = fetch_doppler_secret_via_api(k)
             if val_api:
                 return val_api
+            # API did not return this key — fall back to whatever is in env / .env
+            val = os.getenv(k)
+            if val:
+                return val
 
     # --- Warning Notice if 1st Priority Doppler miss ---
     platform_name = "KAGGLE SECRETS STORE" if (os.path.exists("/kaggle") or "KAGGLE" in os.environ) else "PLATFORM SECRETS (.env / System)"
