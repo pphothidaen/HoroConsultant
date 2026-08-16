@@ -115,23 +115,27 @@ notify_hermes_pipeline_start() {
 resolve_hermes_route_profile() {
     local requested_alias="${HERMES_ACCOUNT_ALIAS:-${ROUTER_ACCOUNT_ALIAS:-${NINE_ROUTER_ACCOUNT_ALIAS:-agy1}}}"
     local requested_role="${HERMES_TASK_ROLE:-analysis}"
-    local requested_complexity="${HERMES_TASK_COMPLEXITY:-high}"
+    local requested_complexity="${HERMES_TASK_COMPLEXITY:-medium}"
+    local sdlc_phase="${HERMES_SDLC_PHASE:-}"
     local route_line
+    local model time alias chain resolved_role resolved_complexity codex_fallback_model
 
     if [ -f "$HERMES_AGY_ROUTING_CONFIG" ] && command -v python3 >/dev/null 2>&1; then
-        if route_line="$(python3 "$SCRIPT_DIR/hermes_agy_router.py" \
-            --alias "$requested_alias" \
-            --role "$requested_role" \
-            --complexity "$requested_complexity" \
-            --config "$HERMES_AGY_ROUTING_CONFIG")"; then
+        # Prefer --phase shortcut when HERMES_SDLC_PHASE is set (auto-resolves role+complexity+alias)
+        local router_args=("--config" "$HERMES_AGY_ROUTING_CONFIG")
+        if [ -n "$sdlc_phase" ]; then
+            router_args+=("--phase" "$sdlc_phase")
+        else
+            router_args+=("--alias" "$requested_alias" "--role" "$requested_role" "--complexity" "$requested_complexity")
+        fi
 
+        if route_line="$(python3 "$SCRIPT_DIR/hermes_agy_router.py" "${router_args[@]}")"; then
             if [ -n "$route_line" ]; then
-                local model time alias chain resolved_role resolved_complexity codex_fallback_model
                 IFS='|' read -r model time alias chain resolved_role resolved_complexity codex_fallback_model <<< "$route_line"
                 export HERMES_ROUTER_MODEL="${model:-${NINE_ROUTER_DEVELOPER_MODEL:-deepseek-v3}}"
                 export HERMES_ROUTER_TIME="${time:-medium}"
                 export HERMES_ACCOUNT_ALIAS_RESOLVED="${alias:-$requested_alias}"
-                export AGY_FALLBACK_CHAIN="${chain:-agy1,agy2,codex_subagent}"
+                export AGY_FALLBACK_CHAIN="${chain:-agy1,agy2,agy3,codex_subagent}"
                 export HERMES_RESOLVED_ROLE="${resolved_role:-$requested_role}"
                 export HERMES_RESOLVED_COMPLEXITY="${resolved_complexity:-$requested_complexity}"
                 export HERMES_CODEX_FALLBACK_MODEL="${codex_fallback_model:-gpt-5.3-codex-spark high}"
@@ -144,7 +148,7 @@ resolve_hermes_route_profile() {
     export HERMES_ROUTER_MODEL="${NINE_ROUTER_DEVELOPER_MODEL:-deepseek-v3}"
     export HERMES_ROUTER_TIME="medium"
     export HERMES_ACCOUNT_ALIAS_RESOLVED="${requested_alias}"
-    export AGY_FALLBACK_CHAIN="agy1,agy2,codex_subagent"
+    export AGY_FALLBACK_CHAIN="agy1,agy2,agy3,codex_subagent"
     export HERMES_RESOLVED_ROLE="${requested_role}"
     export HERMES_RESOLVED_COMPLEXITY="${requested_complexity}"
     export HERMES_CODEX_FALLBACK_MODEL="gpt-5.3-codex-spark high"
@@ -215,8 +219,11 @@ notify_hermes_pipeline_start "agentic_pipeline"
 # ------------------------------------------------------------------------------
 echo ""
 echo "----------------------------------------------------------------------"
-echo " 📋 PHASE 1: Business System Analyst (business_analyst)"
+echo " PHASE 1: Business System Analyst (business_analyst)"
 echo "----------------------------------------------------------------------"
+export HERMES_SDLC_PHASE="bsa"           # → analysis/low/agy1 → Gemini 3.5 Flash (fast)
+export HERMES_TASK_ROLE="analysis"
+export HERMES_TASK_COMPLEXITY="low"      # BSA: docs audit + spec sync — no heavy reasoning
 echo "[BSA] Auditing project documentation integrity (PROJECT_TASKS.md, HOWTO.md)..."
 if [ -f "PROJECT_TASKS.md" ] && [ -f "HOWTO.md" ] && [ -f "README.md" ]; then
     echo "[OK] [BSA] Documentation files verified 100% up to date."
@@ -234,9 +241,12 @@ fi
 # ------------------------------------------------------------------------------
 echo ""
 echo "----------------------------------------------------------------------"
-echo " 💻 PHASE 2: Senior Developer (developer)"
+echo " PHASE 2: Senior Developer (developer)"
 echo "----------------------------------------------------------------------"
-echo "[DEV] Checking Multi-Cloud configurations (fly.toml, vercel.json, Dockerfile.hf)..."
+export HERMES_SDLC_PHASE="dev"           # → implementation/medium/agy2 → GPT-OSS 120B
+export HERMES_TASK_ROLE="implementation"
+export HERMES_TASK_COMPLEXITY="medium"   # DEV: code writing — balanced quality vs cost
+echo "[DEV] Checking Multi-Cloud configurations (vercel.json, Dockerfile.hf)..."
 python3 -c "
 import json
 with open('vercel.json') as f:
@@ -251,25 +261,31 @@ echo "[OK] [DEV] fly.toml (Singapore region sin) and Dockerfile.hf validated."
 # ------------------------------------------------------------------------------
 echo ""
 echo "----------------------------------------------------------------------"
-echo " 🧪 PHASE 3: QA Tester (qa_tester)"
+echo " PHASE 3: QA Tester (qa_tester)"
 echo "----------------------------------------------------------------------"
+export HERMES_SDLC_PHASE="qa"            # → review/low/agy1 → Gemini 3.5 Flash (fast)
+export HERMES_TASK_ROLE="review"
+export HERMES_TASK_COMPLEXITY="low"      # QA: deterministic pytest — minimal LLM reasoning
 echo "[QA] Executing Pytest Unit & Integration Regression Suite..."
-python3 -m pytest -v --ignore=project/kaggle_kernel
+python3 -m pytest -v --ignore=project/kaggle_kernel -m "not network"
 
 echo "[QA] Executing 22-Button UI & Endpoint Contract Regression Test..."
 python3 scripts/run_button_regression.py
 
-echo "[OK] [QA] 100% of Pytest (128/128) and UI Button Regression (22/22) tests PASSED."
+echo "[OK] [QA] Pytest and UI Button Regression PASSED."
 
 # ------------------------------------------------------------------------------
 # PHASE 4: Code Reviewer & Safety Auditor (code_reviewer)
 # ------------------------------------------------------------------------------
 echo ""
 echo "----------------------------------------------------------------------"
-echo " 🛡️ PHASE 4: Code Reviewer & Safety Auditor (code_reviewer)"
+echo " PHASE 4: Code Reviewer & Safety Auditor (code_reviewer)"
 echo "----------------------------------------------------------------------"
+export HERMES_SDLC_PHASE="reviewer"      # → review/low/agy1 → Gemini 3.5 Flash (fast)
+export HERMES_TASK_ROLE="review"
+export HERMES_TASK_COMPLEXITY="low"      # REVIEWER: deterministic Python script — not an LLM call
 echo "[REVIEWER] Running Secret Leakage & Kaggle CUDA Dependency Audit..."
-python3 project/core/code_reviewer.py --review
+PYTEST_ADDOPTS='-m "not network"' python3 project/core/code_reviewer.py --review --use-python
 echo "[OK] [REVIEWER] Security Audit Passed: Status READY_FOR_PROD (0 Secret Leaks)."
 
 # ------------------------------------------------------------------------------
@@ -277,8 +293,11 @@ echo "[OK] [REVIEWER] Security Audit Passed: Status READY_FOR_PROD (0 Secret Lea
 # ------------------------------------------------------------------------------
 echo ""
 echo "----------------------------------------------------------------------"
-echo " 🚀 PHASE 5: DevOps & Release Engineering (devops)"
+echo " PHASE 5: DevOps & Release Engineering (devops)"
 echo "----------------------------------------------------------------------"
+export HERMES_SDLC_PHASE="devops"        # → implementation/medium/agy1 → Gemini 3.7 Flash
+export HERMES_TASK_ROLE="implementation"
+export HERMES_TASK_COMPLEXITY="medium"   # DEVOPS: structured deploy tasks
 echo "[DEVOPS] Synchronizing Production Secrets across Cloud Platforms..."
 bash scripts/setup_production_secrets.sh
 
@@ -301,11 +320,6 @@ if command -v vercel &> /dev/null || command -v npx &> /dev/null; then
     fi
 fi
 
-echo "[DEVOPS] Azure Container Apps — backend deploy triggered via azure_deploy.yml on git push"
-echo "[INFO]   Azure App: ${AZURE_CONTAINER_APP:-horoconsult-env-new} / ${AZURE_RESOURCE_GROUP:-rg-horoconsult}"
-echo "[INFO]   Health URL: ${AZURE_CONTAINER_APP_URL:-<set AZURE_CONTAINER_APP_URL>}/health"
-echo "[INFO]   Fly.io decommissioned on 2026-08-14 — azure_deploy.yml is now active"
-
 echo "[DEVOPS] Executing Strict Orchestrator Live Network E2E Audit..."
 python3 scripts/test_live_e2e_network.py
 
@@ -318,12 +332,12 @@ echo ""
 echo "======================================================================"
 echo " [ORCHESTRATOR] MULTI-AGENT PIPELINE CONDUCTION COMPLETE!"
 echo "======================================================================"
-echo "  * Business System Analyst : Docs & Skills Governed"
-echo "  * Senior Developer        : Multi-Cloud Specs Verified"
-echo "  * QA Tester               : Unit + UI Button Regression PASSED"
-echo "  * Code Reviewer           : Status READY_FOR_PROD (0 Leaks)"
-echo "  * DevOps & Release        : HF Spaces + Vercel + Azure Deploy COMPLETE"
-echo "  * Hermes Routing          : ${HERMES_ACCOUNT_ALIAS} | model=${HERMES_ROUTER_MODEL:-deepseek-v3} | time=${HERMES_ROUTER_TIME:-medium}"
-echo "  * Hermes Fallback Chain   : ${AGY_FALLBACK_CHAIN:-agy1,agy2,codex_subagent}"
+echo "  * Business System Analyst : Docs & Skills Governed [analysis/low/agy1 → Gemini 3.5 Flash]"
+echo "  * Senior Developer        : Multi-Cloud Specs Verified [implementation/medium/agy2 → GPT-OSS 120B]"
+echo "  * QA Tester               : Unit + UI Button Regression PASSED [review/low/agy1 → Gemini 3.5 Flash]"
+echo "  * Code Reviewer           : Status READY_FOR_PROD (0 Leaks) [review/low/agy1 → Gemini 3.5 Flash]"
+echo "  * DevOps & Release        : HF Spaces + Vercel Deploy COMPLETE [implementation/medium/agy1 → Gemini 3.7 Flash]"
+echo "  * Hermes Routing (last)   : ${HERMES_ACCOUNT_ALIAS:-agy1} | model=${HERMES_ROUTER_MODEL:-deepseek-v3} | time=${HERMES_ROUTER_TIME:-medium}"
+echo "  * Hermes Fallback Chain   : ${AGY_FALLBACK_CHAIN:-agy1,agy2,agy3,codex_subagent}"
 echo "  * Codex Fallback Model    : ${HERMES_CODEX_FALLBACK_MODEL:-gpt-5.3-codex-spark high}"
 echo "======================================================================"

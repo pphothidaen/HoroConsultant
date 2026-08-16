@@ -27,6 +27,18 @@ except ImportError:  # pragma: no cover
 ROOT_DIR = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG = ROOT_DIR / ".agents" / "config" / "gemini_parity.yaml"
 
+# ── SDLC Phase → (role, complexity, account) hardcoded defaults ──────────────
+# Mirrors sdlc_phases section in gemini_parity.yaml. Used when --phase is given
+# instead of --role + --complexity to avoid per-script complexity management.
+SDLC_PHASE_MAP: Dict[str, Dict[str, str]] = {
+    "bsa":          {"role": "analysis",       "complexity": "low",    "account": "agy1"},
+    "dev":          {"role": "implementation",  "complexity": "medium", "account": "agy2"},
+    "qa":           {"role": "review",          "complexity": "low",    "account": "agy1"},
+    "reviewer":     {"role": "review",          "complexity": "low",    "account": "agy1"},
+    "devops":       {"role": "implementation",  "complexity": "medium", "account": "agy1"},
+    "orchestrator": {"role": "analysis",        "complexity": "high",   "account": "agy1"},
+}
+
 
 def _default_config() -> Dict[str, Any]:
     return {
@@ -47,8 +59,8 @@ def _default_config() -> Dict[str, Any]:
                         },
                         "review": {
                             "low": {"model": "Gemini 3.5 Flash Medium Fast O", "time": "fast"},
-                            "medium": {"model": "Claude Sonnet 4.6 (Thinking)", "time": "medium"},
-                            "high": {"model": "Claude Opus 4.6 (Thinking)", "time": "high"},
+                            "medium": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},  # v2: Gemini
+                            "high": {"model": "Claude Opus 4.6 (Thinking)", "time": "high"},          # v2: sole Claude slot
                         },
                     },
                 },
@@ -58,23 +70,43 @@ def _default_config() -> Dict[str, Any]:
                         "analysis": {
                             "low": {"model": "Gemini 3.5 Flash Medium Fast O", "time": "fast"},
                             "medium": {"model": "Gemini 3.6 Flash Medium Fast O", "time": "medium"},
-                            "high": {"model": "Claude Sonnet 4.6 (Thinking)", "time": "high"},
+                            "high": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},   # v2: was Claude Sonnet
                         },
                         "implementation": {
                             "low": {"model": "Gemini 3.6 Flash Medium Fast O", "time": "fast"},
                             "medium": {"model": "GPT-OSS 120B (Medium)", "time": "medium"},
-                            "high": {"model": "Claude Opus 4.6 (Thinking)", "time": "high"},
+                            "high": {"model": "GPT-OSS 120B (Medium)", "time": "medium"},            # v2: was Claude Opus
                         },
                         "review": {
                             "low": {"model": "Gemini 3.6 Flash Medium Fast O", "time": "fast"},
-                            "medium": {"model": "Claude Sonnet 4.6 (Thinking)", "time": "medium"},
-                            "high": {"model": "Claude Opus 4.6 (Thinking)", "time": "high"},
+                            "medium": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"}, # v2: was Claude Sonnet
+                            "high": {"model": "GPT-OSS 120B (Medium)", "time": "medium"},            # v2: was Claude Opus
+                        },
+                    },
+                },
+                {
+                    "name": "agy3",
+                    "routing": {
+                        "analysis": {
+                            "low": {"model": "Gemini 3.5 Flash Medium Fast O", "time": "fast"},
+                            "medium": {"model": "Gemini 3.6 Flash Medium Fast O", "time": "medium"},
+                            "high": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},
+                        },
+                        "implementation": {
+                            "low": {"model": "Gemini 3.6 Flash Medium Fast O", "time": "fast"},
+                            "medium": {"model": "Gemini 3.6 Flash Medium Fast O", "time": "medium"},
+                            "high": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},
+                        },
+                        "review": {
+                            "low": {"model": "Gemini 3.5 Flash Medium Fast O", "time": "fast"},
+                            "medium": {"model": "Gemini 3.6 Flash Medium Fast O", "time": "medium"},
+                            "high": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},
                         },
                     },
                 },
             ],
             "fallback_chain": {
-                "sequence": ["agy1", "agy2", "codex_subagent"],
+                "sequence": ["agy1", "agy2", "agy3", "codex_subagent"],
                 "codex_fallback": {
                     "via": "CODEX_PRO",
                     "model": "gpt-5.3-codex-spark high",
@@ -93,8 +125,8 @@ def _default_config() -> Dict[str, Any]:
                 },
                 "review": {
                     "low": {"model": "Gemini 3.5 Flash Medium Fast O", "time": "fast"},
-                    "medium": {"model": "Claude Sonnet 4.6 (Thinking)", "time": "medium"},
-                    "high": {"model": "Claude Opus 4.6 (Thinking)", "time": "high"},
+                    "medium": {"model": "Gemini 3.7 Flash Medium Fast O", "time": "medium"},  # v2: Gemini
+                    "high": {"model": "Claude Opus 4.6 (Thinking)", "time": "high"},          # v2: sole Claude slot
                 },
             },
         }
@@ -207,13 +239,72 @@ def resolve_hermes_route(
     )
 
 
+def _resolve_phase_profile(
+    phase: str,
+    config_path: Path,
+) -> tuple[str, str, str]:
+    """Resolve (role, complexity, account_alias) for a given SDLC phase name.
+
+    Priority:
+      1. sdlc_phases section in gemini_parity.yaml (YAML overrides built-in)
+      2. SDLC_PHASE_MAP built-in defaults
+    """
+    phase_key = phase.strip().lower()
+
+    # Try loading from YAML sdlc_phases section first
+    config = _load_yaml_config(config_path)
+    yaml_phases = config.get("sdlc_phases", {})
+    if isinstance(yaml_phases, dict) and phase_key in yaml_phases:
+        phase_cfg = yaml_phases[phase_key]
+        if isinstance(phase_cfg, dict):
+            role = str(phase_cfg.get("role", "analysis"))
+            complexity = str(phase_cfg.get("complexity", "medium"))
+            account = str(phase_cfg.get("account", "agy1"))
+            return role, complexity, account
+
+    # Fall back to built-in SDLC_PHASE_MAP
+    if phase_key in SDLC_PHASE_MAP:
+        pm = SDLC_PHASE_MAP[phase_key]
+        return pm["role"], pm["complexity"], pm["account"]
+
+    # Unknown phase — safe default (analysis/low on agy1 = cheapest Gemini)
+    return "analysis", "low", "agy1"
+
+
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Resolve Hermes AGY routing target.")
-    parser.add_argument("--alias", default="agy1")
-    parser.add_argument("--role", default="analysis")
-    parser.add_argument("--complexity", default="high")
+    parser = argparse.ArgumentParser(
+        description="Resolve Hermes AGY routing target.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+SDLC Phase shortcuts (--phase overrides --role/--complexity/--alias):
+  bsa          analysis/low/agy1   → Gemini 3.5 Flash (fast)
+  dev          implementation/medium/agy2 → GPT-OSS 120B
+  qa           review/low/agy1     → Gemini 3.5 Flash (fast)
+  reviewer     review/low/agy1     → Gemini 3.5 Flash (fast)
+  devops       implementation/medium/agy1 → Gemini 3.7 Flash
+  orchestrator analysis/high/agy1  → Gemini 3.7 Flash
+""",
+    )
+    parser.add_argument("--alias", default="agy1", help="AGY account alias (overridden by --phase)")
+    parser.add_argument("--role", default="analysis", help="Task role: analysis/implementation/review")
+    parser.add_argument("--complexity", default="high", help="Task complexity: low/medium/high")
     parser.add_argument("--config", default=str(DEFAULT_CONFIG))
+    parser.add_argument(
+        "--phase",
+        default="",
+        help="SDLC phase shortcut: bsa/dev/qa/reviewer/devops/orchestrator. "
+             "Overrides --role, --complexity, and --alias.",
+    )
     args = parser.parse_args()
+
+    config_path = Path(args.config)
+    alias = args.alias
+    role = args.role
+    complexity = args.complexity
+
+    # --phase takes priority — resolve role/complexity/alias from phase map
+    if args.phase:
+        role, complexity, alias = _resolve_phase_profile(args.phase, config_path)
 
     (
         resolved_alias,
@@ -224,14 +315,14 @@ def main() -> None:
         fallback_chain,
         codex_fallback_model,
     ) = resolve_hermes_route(
-        config_path=Path(args.config),
-        account_alias=args.alias,
-        role=args.role,
-        complexity=args.complexity,
+        config_path=config_path,
+        account_alias=alias,
+        role=role,
+        complexity=complexity,
     )
 
     # shell-safe delimiter output for downstream scripts.
-    # Format: model|time|alias|fallback_chain
+    # Format: model|time|alias|fallback_chain|role|complexity|codex_fallback_model
     print(
         f"{model}|{time_label}|{resolved_alias}|{fallback_chain}|"
         f"{resolved_role}|{resolved_complexity}|{codex_fallback_model}"

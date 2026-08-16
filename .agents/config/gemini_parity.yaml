@@ -7,7 +7,7 @@
 # เทียบเท่า Claude Sonnet 4.6 ในแต่ละ task context
 # ==============================================================================
 
-version: "1.0.0"
+version: "2.0.0"
 description: >
   Gemini-Sonnet Parity Engine Configuration.
   Activated automatically by hermes_model_parity.py when Hermes routes
@@ -82,7 +82,7 @@ agy_routing:
         model: "Gemini 3.5 Flash Medium Fast O"
         time: "fast"
       medium:
-        model: "Claude Sonnet 4.6 (Thinking)"
+        model: "Gemini 3.7 Flash Medium Fast O"
         time: "medium"
       high:
         model: "Claude Opus 4.6 (Thinking)"
@@ -120,7 +120,7 @@ agy_routing:
             model: "Gemini 3.5 Flash Medium Fast O"
             time: "fast"
           medium:
-            model: "Claude Sonnet 4.6 (Thinking)"
+            model: "Gemini 3.7 Flash Medium Fast O"
             time: "medium"
           high:
             model: "Claude Opus 4.6 (Thinking)"
@@ -137,8 +137,8 @@ agy_routing:
             model: "Gemini 3.6 Flash Medium Fast O"
             time: "medium"
           high:
-            model: "Claude Sonnet 4.6 (Thinking)"
-            time: "high"
+            model: "Gemini 3.7 Flash Medium Fast O"  # v2: was Claude Sonnet 4.6 — demoted for quota sustainability
+            time: "medium"
         implementation:
           low:
             model: "Gemini 3.6 Flash Medium Fast O"
@@ -147,18 +147,56 @@ agy_routing:
             model: "GPT-OSS 120B (Medium)"
             time: "medium"
           high:
-            model: "Claude Opus 4.6 (Thinking)"
-            time: "high"
+            model: "GPT-OSS 120B (Medium)"  # v2: was Claude Opus 4.6 — demoted for quota sustainability
+            time: "medium"
         review:
           low:
             model: "Gemini 3.6 Flash Medium Fast O"
             time: "fast"
           medium:
-            model: "Claude Sonnet 4.6 (Thinking)"
+            model: "Gemini 3.7 Flash Medium Fast O"  # v2: was Claude Sonnet 4.6 — demoted for quota sustainability
             time: "medium"
           high:
-            model: "Claude Opus 4.6 (Thinking)"
-            time: "high"
+            model: "GPT-OSS 120B (Medium)"  # v2: was Claude Opus 4.6 — demoted for quota sustainability
+            time: "medium"
+
+    - name: "agy3"
+      default_profile: "analysis"
+      description: >
+        Gemini-direct Parity fallback account. Zero Claude usage.
+        Activated when agy1 and agy2 are both quota-limited or rate-limited.
+        All slots use Gemini Flash with Parity Engine bridging to Sonnet-grade quality.
+      routing:
+        analysis:
+          low:
+            model: "Gemini 3.5 Flash Medium Fast O"
+            time: "fast"
+          medium:
+            model: "Gemini 3.6 Flash Medium Fast O"
+            time: "medium"
+          high:
+            model: "Gemini 3.7 Flash Medium Fast O"
+            time: "medium"
+        implementation:
+          low:
+            model: "Gemini 3.6 Flash Medium Fast O"
+            time: "fast"
+          medium:
+            model: "Gemini 3.6 Flash Medium Fast O"
+            time: "medium"
+          high:
+            model: "Gemini 3.7 Flash Medium Fast O"
+            time: "medium"
+        review:
+          low:
+            model: "Gemini 3.5 Flash Medium Fast O"
+            time: "fast"
+          medium:
+            model: "Gemini 3.6 Flash Medium Fast O"
+            time: "medium"
+          high:
+            model: "Gemini 3.7 Flash Medium Fast O"
+            time: "medium"
 
   fallback_chain:
     mode: "sequential"
@@ -173,11 +211,42 @@ agy_routing:
     sequence:
       - "agy1"
       - "agy2"
+      - "agy3"       # v2: Gemini-direct Parity account — zero Claude, zero downtime
       - "codex_subagent"
     codex_fallback:
       model: "gpt-5.3-codex-spark high"
       via: "CODEX_PRO"
-      reason: "Sequential AGY fallback exhausted"
+      reason: "Sequential AGY fallback exhausted (agy1→agy2→agy3 all quota-limited)"
+
+# ── SDLC Phase → Role + Complexity + Account Mapping (v2) ────────────────────
+# Source of truth for hermes_agy_router.py --phase, hermes_sdlc_runner.sh, and agentic_pipeline.sh.
+# Each phase maps to the minimum complexity required — never over-allocate to Claude.
+sdlc_phases:
+  bsa:
+    role: "analysis"
+    complexity: "low"         # Docs audit, spec sync — no heavy reasoning needed
+    account: "agy1"           # agy1 analysis:low → Gemini 3.5 Flash (fast)
+  dev:
+    role: "implementation"
+    complexity: "medium"      # Code writing, bug fixes — balanced quality vs cost
+    account: "agy2"           # agy2 implementation:medium → GPT-OSS 120B
+  qa:
+    role: "review"
+    complexity: "low"         # Deterministic pytest, log parsing — minimal LLM reasoning
+    account: "agy1"           # agy1 review:low → Gemini 3.5 Flash (fast)
+  reviewer:
+    role: "review"
+    complexity: "low"         # Code reviewer runs deterministic Python script — not LLM
+    account: "agy1"           # agy1 review:low → Gemini 3.5 Flash (fast)
+  devops:
+    role: "implementation"
+    complexity: "medium"      # Secrets sync, Docker, Vercel — structured tasks
+    account: "agy1"           # agy1 implementation:medium → Gemini 3.7 Flash
+  orchestrator:
+    role: "analysis"
+    complexity: "high"        # Architecture planning, spec breakdown — highest reasoning
+    account: "agy1"           # agy1 analysis:high → Gemini 3.7 Flash (Claude Opus only on review:high)
+
 
 # ── Task Profiles (mirror of hermes_model_parity.py TASK_PROFILES) ──────────
 profiles:

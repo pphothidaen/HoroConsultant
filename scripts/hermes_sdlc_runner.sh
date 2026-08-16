@@ -131,24 +131,28 @@ notify_hermes_start() {
 resolve_hermes_route_profile() {
     local requested_alias="${HERMES_ACCOUNT_ALIAS:-${ROUTER_ACCOUNT_ALIAS:-${NINE_ROUTER_ACCOUNT_ALIAS:-agy1}}}"
     local requested_role="${HERMES_TASK_ROLE:-analysis}"
-    local requested_complexity="${HERMES_TASK_COMPLEXITY:-high}"
+    local requested_complexity="${HERMES_TASK_COMPLEXITY:-medium}"
+    local sdlc_phase="${HERMES_SDLC_PHASE:-}"
     local route_line
     local model time alias chain
 
     if [ -f "$AGY_ROUTING_CONFIG" ] && command -v python3 >/dev/null 2>&1; then
-        if route_line="$(python3 "$SCRIPT_DIR/hermes_agy_router.py" \
-            --alias "$requested_alias" \
-            --role "$requested_role" \
-            --complexity "$requested_complexity" \
-            --config "$AGY_ROUTING_CONFIG")"; then
+        # Build router args — prefer --phase when set (auto-resolves role+complexity+alias from YAML)
+        local router_args=("--config" "$AGY_ROUTING_CONFIG")
+        if [ -n "$sdlc_phase" ]; then
+            router_args+=("--phase" "$sdlc_phase")
+        else
+            router_args+=("--alias" "$requested_alias" "--role" "$requested_role" "--complexity" "$requested_complexity")
+        fi
 
+        if route_line="$(python3 "$SCRIPT_DIR/hermes_agy_router.py" "${router_args[@]}")"; then
             if [ -n "$route_line" ]; then
                 IFS='|' read -r model time alias chain _role _complexity codex_fallback_model <<< "$route_line"
                 export HERMES_ROUTER_MODEL="${model:-${NINE_ROUTER_DEVELOPER_MODEL:-deepseek-v3}}"
                 export HERMES_ROUTER_TIME="${time:-medium}"
                 export HERMES_ACCOUNT_ALIAS_RESOLVED="${alias:-$requested_alias}"
                 export NINE_ROUTER_DEVELOPER_MODEL="${HERMES_ROUTER_MODEL}"
-                export AGY_FALLBACK_CHAIN="${chain:-agy1,agy2,codex_subagent}"
+                export AGY_FALLBACK_CHAIN="${chain:-agy1,agy2,agy3,codex_subagent}"
                 export HERMES_RESOLVED_ROLE="${_role:-$requested_role}"
                 export HERMES_RESOLVED_COMPLEXITY="${_complexity:-$requested_complexity}"
                 export HERMES_CODEX_FALLBACK_MODEL="${codex_fallback_model:-gpt-5.3-codex-spark high}"
@@ -162,7 +166,7 @@ resolve_hermes_route_profile() {
     export HERMES_ROUTER_TIME="medium"
     export HERMES_ACCOUNT_ALIAS_RESOLVED="${requested_alias}"
     export NINE_ROUTER_DEVELOPER_MODEL="${HERMES_ROUTER_MODEL}"
-    export AGY_FALLBACK_CHAIN="agy1,agy2,codex_subagent"
+    export AGY_FALLBACK_CHAIN="agy1,agy2,agy3,codex_subagent"
     export HERMES_RESOLVED_ROLE="${requested_role}"
     export HERMES_RESOLVED_COMPLEXITY="${requested_complexity}"
     export HERMES_CODEX_FALLBACK_MODEL="gpt-5.3-codex-spark high"
@@ -228,8 +232,9 @@ resolve_router() {
 
 phase_dev() {
     log_section "PHASE 2: Core Implementation (Hermes — developer agent)"
-    export HERMES_TASK_ROLE="${HERMES_TASK_ROLE:-implementation}"
-    export HERMES_TASK_COMPLEXITY="${HERMES_TASK_COMPLEXITY:-medium}"
+    export HERMES_SDLC_PHASE="dev"                   # → implementation/medium/agy2 → GPT-OSS 120B
+    export HERMES_TASK_ROLE="implementation"
+    export HERMES_TASK_COMPLEXITY="medium"
     resolve_router
     log_info "Router resolved. Developer agent now active via $OPENAI_BASE_URL"
     log_info "Routing profile: role=${HERMES_RESOLVED_ROLE:-implementation}, complexity=${HERMES_RESOLVED_COMPLEXITY:-medium}"
@@ -242,8 +247,9 @@ phase_dev() {
 
 phase_qa() {
     log_section "PHASE 3: QA Testing (Hermes Headless — qa_tester agent)"
-    export HERMES_TASK_ROLE="${HERMES_TASK_ROLE:-review}"
-    export HERMES_TASK_COMPLEXITY="${HERMES_TASK_COMPLEXITY:-medium}"
+    export HERMES_SDLC_PHASE="qa"                    # → review/low/agy1 → Gemini 3.5 Flash (fast)
+    export HERMES_TASK_ROLE="review"
+    export HERMES_TASK_COMPLEXITY="low"              # v2: was medium — QA is deterministic pytest, not LLM
     resolve_router
     notify_hermes_start "qa" "execution"
     local retry=0
@@ -279,8 +285,9 @@ phase_qa() {
 
 phase_deploy() {
     log_section "PHASE 5: Cloud Deploy (Hermes — devops agent)"
-    export HERMES_TASK_ROLE="${HERMES_TASK_ROLE:-implementation}"
-    export HERMES_TASK_COMPLEXITY="${HERMES_TASK_COMPLEXITY:-medium}"
+    export HERMES_SDLC_PHASE="devops"                # → implementation/medium/agy1 → Gemini 3.7 Flash
+    export HERMES_TASK_ROLE="implementation"
+    export HERMES_TASK_COMPLEXITY="medium"
     resolve_router
     notify_hermes_start "deploy" "execution"
 
