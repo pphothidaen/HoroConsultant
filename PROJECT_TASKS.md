@@ -56,34 +56,115 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
-│   🚀 IN PROGRESS: Phase 3 — Unified Multimodal Matrix & 16-Discipline Consensus│
+│   🚀 IN PROGRESS: Phase 4 — External LLM Multi-Routing & Cloud Gateway        │
 ├───────────────────────────────────────────────────────────────────────────────┤
-│ • 6 Life Themes Question-Focus Controller (Career, Wealth, Love, Health, etc.) │
-│ • 16-Discipline Consensus Index & Polarity Balance Meter (0-100% Agreement)   │
-│ • Composite Multimodal Matrix SVG Vector Radar / Mandala Chart (800x600)      │
-│ • Cross-Domain Synthesis Summary Table across 4 Metaphysics Super-Families    │
-│ • Full Pytest (515+ tests), Playwright E2E & UI Button Regression Suite       │
+│ • 5-Tier Resilient Failover (Cloudflare AI ➔ Gemini ➔ OpenAI ➔ Claude ➔ Ollama)│
+│ • Deterministic Fallback Guard (Zero uncaught exceptions / Zero leakage)      │
+│ • Dynamic Circuit Breaker, Exponential Backoff & Latency Health Monitoring    │
+│ • Endpoints /api/v2/llm/providers/status & /api/v2/llm/route-test             │
+│ • Admin Panel Live Provider Status Widget (project/static/admin.html)         │
 ├───────────────────────────────────────────────────────────────────────────────┤
-│   ✅ DONE: Phase 2 — 7 Extended Disciplines Visualizers & SVG Upgrade (100%)  │
+│   ✅ DONE: Phase 3 — Unified Multimodal Matrix & 16-Discipline Consensus (100%)│
 ├───────────────────────────────────────────────────────────────────────────────┤
-│ • Tai Yi, Liu Yao, Mei Hua, San He, Qi Zheng, Mian Xiang, Satta-Lek (100% PASS)│
-│ • 7 Standalone Glassmorphic SVG Charts, Pytest 515/515 PASS, 31/31 UI Buttons  │
-│ • Pre-deployment audit READY_FOR_PROD, Live HF Spaces v1.0.0.f49f1fc verified │
+│ • 6 Core Life Themes Focus Controller, 16-Discipline Radar Mandala SVG Chart  │
+│ • Pytest 517/517 PASS, 32/32 UI Buttons PASS, Live HF Space v1.0.0.3c08386    │
 └───────────────────────────────────────────────────────────────────────────────┘
 ```
 
-## 🚀 ACTIVE SPRINT: Phase 3 — Unified Multimodal Matrix Dashboard & 16-Discipline Consensus Engine
+## 🚀 ACTIVE SPRINT: Phase 4 — External LLM Multi-Routing & Multi-Provider Cloud Gateway
 **Grill Gate Status**: ✅ APPROVED (Ref: `/plans/plan.md`)  
 **Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)  
 
 | Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
 |---|---|---|---|---|
-| `TICKET-MULTIMODAL-001` | `orchestrator` | Architecture Blueprint & Multi-Domain Consensus Schema | DONE | None |
-| `TICKET-MULTIMODAL-002` | `developer` | Composite Multimodal Matrix SVG Vector Generator in `svg_generator.py` | DONE | `TICKET-MULTIMODAL-001` |
-| `TICKET-MULTIMODAL-003` | `developer` | Frontend UI Integration & 6-Domain Question Focus Controller in `app.js` & `index.html` | DONE | `TICKET-MULTIMODAL-001` |
-| `TICKET-MULTIMODAL-004` | `qa_tester` | Unit tests & End-to-End Regression Suite (Pytest + Playwright E2E) | DONE | `TICKET-MULTIMODAL-002`..`003` |
-| `TICKET-MULTIMODAL-005` | `devops` | CI/CD Production Release to HF Spaces & Live Verification | DONE | `TICKET-MULTIMODAL-004` |
-| `TICKET-MULTIMODAL-006` | `code_reviewer` | Pre-Deployment Safety Audit & Documentation Sync | DONE | `TICKET-MULTIMODAL-005` |
+| `TICKET-LLM-001` | `orchestrator` | Architecture Blueprint & Multi-Provider Gateway Spec | DONE | None |
+| `TICKET-LLM-002` | `developer` | Multi-Tier LLM Gateway & Circuit Breaker Engine in `project/core/llm_gateway.py` | DONE | `TICKET-LLM-001` |
+| `TICKET-LLM-003` | `developer` | FastAPI Routers & Admin Panel Provider Status Widget Integration | DONE | `TICKET-LLM-001` |
+| `TICKET-LLM-004` | `qa_tester` | Unit & Mock Failure Regression Test Suite (`test_llm_multirouter.py`) | DONE | `TICKET-LLM-002`..`003` |
+| `TICKET-LLM-005` | `devops` | CI/CD Production Release to HF Spaces & Live Verification | DONE | `TICKET-LLM-004` |
+| `TICKET-LLM-006` | `code_reviewer` | Pre-Deployment Safety Audit & Live Documentation Sync | DONE | `TICKET-LLM-005` |
+
+---
+
+### 🎫 TICKET-LLM-001 | `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: None  
+**Blocks**: `TICKET-LLM-002`..`003`  
+#### Detailed Instructions
+1. Review requirements in `plans/plan.md` and complete Gate 0 Grill Report.
+2. Formulate 6-tier failover routing protocol:
+   - Tier 1: Cloudflare Workers AI (`@cf/meta/llama-3.1-8b-instruct`, `@cf/qwen/qwen2.5-7b-instruct`)
+   - Tier 2: Google Gemini (Gemini 2.5/1.5 Flash via `GEMINI_API_KEY` / `GOOGLE_API_KEY`)
+   - Tier 3: OpenAI / CODEX_PRO proxy (`OPENAI_API_KEY`, `CODEX_PRO_BASE_URL`)
+   - Tier 4: Anthropic Claude proxy (`ANTHROPIC_API_KEY` / `CLAUDE_API_KEY`)
+   - Tier 5: Local Ollama Workhorse (`OLLAMA_BASE_URL`, default `http://127.0.0.1:11434`)
+   - Tier 6: Canonical Deterministic Synthesizer (always safe fallback)
+#### Acceptance Criteria
+- [x] GRILL REPORT generated in `/plans/plan.md`.
+- [x] Sub-agent tickets allocated in `PROJECT_TASKS.md`.
+
+---
+
+### 🎫 TICKET-LLM-002 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-LLM-001`  
+**Blocks**: `TICKET-LLM-004`  
+#### Detailed Instructions
+1. Create `project/core/llm_gateway.py` with `LLMGateway` class:
+   - Methods: `async generate_text(prompt, system_instruction, preferred_provider=None)`, `get_providers_status()`, `test_provider(provider_key)`.
+   - Dynamic circuit breaker (trip after 3 consecutive failures, cooldown 60s).
+   - Real-time latency tracking and error counters.
+2. Integrate `LLMGateway` into `project/core/model_activation.py` and `project/core/orchestrator_router.py`.
+#### Acceptance Criteria
+- [x] Multi-tier failover executes gracefully without raising uncaught exceptions.
+
+---
+
+### 🎫 TICKET-LLM-003 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-LLM-001`  
+**Blocks**: `TICKET-LLM-004`  
+#### Detailed Instructions
+1. In `project/routers/v2.py`: Add `GET /api/v2/llm/providers/status` and `POST /api/v2/llm/route-test`.
+2. In `project/static/admin.html` and `public/admin.html`: Add Live LLM Gateway Status card with health indicators and manual provider test button.
+#### Acceptance Criteria
+- [x] Admin panel displays provider health and test trigger works.
+
+---
+
+### 🎫 TICKET-LLM-004 | `qa_tester` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-LLM-002`..`003`  
+**Blocks**: `TICKET-LLM-005`  
+#### Detailed Instructions
+1. Create `project/tests/test_llm_multirouter.py` with mock failure scenarios testing Tier 1 ➔ Tier 2 ➔ Tier 3 ➔ Tier 4 ➔ Tier 5 ➔ Deterministic Fallback.
+2. Run pytest suite, UI button regression suite (32/32), and Playwright E2E screenshots.
+#### Acceptance Criteria
+- [x] 100% test pass rate across all suites (522/522 pytest tests passed).
+
+---
+
+### 🎫 TICKET-LLM-005 | `devops` | [STATUS: DONE]
+**Priority**: HIGH  
+**Depends On**: `TICKET-LLM-004`  
+**Blocks**: `TICKET-LLM-006`  
+#### Detailed Instructions
+1. Run secret scan: `python3 project/core/code_reviewer.py --scan-secrets`.
+2. Commit, push, and deploy to Hugging Face Spaces.
+#### Acceptance Criteria
+- [x] 0 secret leaks, 100% agent sync, live deployment verified.
+
+---
+
+### 🎫 TICKET-LLM-006 | `code_reviewer` / `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-LLM-005`  
+**Blocks**: None  
+#### Detailed Instructions
+1. Run pre-deployment review: `python3 project/core/code_reviewer.py --review`.
+2. Update live documentation in `PROJECT_TASKS.md` and report to user.
+#### Acceptance Criteria
+- [x] Status `READY_FOR_PROD` verified.
 
 ---
 

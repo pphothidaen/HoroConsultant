@@ -3,7 +3,7 @@
   "info": {
     "title": "Computational Metaphysics Engine",
     "description": "Modular 10-Domain Metaphysical Calculation, AI Debate & Multi-Agent Engine",
-    "version": "1.0.0.89c4545"
+    "version": "1.0.0.3c08386"
   },
   "paths": {
     "/admin/auth/google": {
@@ -2278,6 +2278,73 @@
         }
       }
     },
+    "/api/v2/llm/providers/status": {
+      "get": {
+        "tags": [
+          "API v2 — Extended Metaphysics Suite"
+        ],
+        "summary": "Get Llm Providers Status",
+        "description": "Retrieve real-time health, latency, and circuit breaker metrics for all multi-tier LLM providers.",
+        "operationId": "get_llm_providers_status_api_v2_llm_providers_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/llm/route-test": {
+      "post": {
+        "tags": [
+          "API v2 — Extended Metaphysics Suite"
+        ],
+        "summary": "Test Llm Route",
+        "description": "Test routing through multi-provider gateway with automatic failover.",
+        "operationId": "test_llm_route_api_v2_llm_route_test_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/LLMRouteTestRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Req"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "tags": [
@@ -2700,6 +2767,35 @@
           "utc_offset_hours"
         ],
         "title": "InterpretRequest"
+      },
+      "LLMRouteTestRequest": {
+        "properties": {
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "prompt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prompt",
+            "default": "วิเคราะห์เกียรติยศและโชคลาภสำหรับปี 2026 สั้นๆ"
+          }
+        },
+        "type": "object",
+        "title": "LLMRouteTestRequest"
       },
       "LocationResolveRequest": {
         "properties": {

@@ -911,6 +911,19 @@
         </div>
       </div>
 
+      <!-- Multi-Tier LLM Gateway Status Panel -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><span class="panel-title-icon">☁️</span> Multi-Tier LLM Gateway &amp; Failover Status</div>
+          <button class="btn btn-outline btn-sm" onclick="loadLLMGatewayStatus()">
+            <span class="btn-label">⚡ Test Gateway</span>
+          </button>
+        </div>
+        <div class="panel-body" id="llm-gateway-status">
+          <div class="empty-state"><div class="empty-state-icon">⏳</div>Loading LLM Gateway Status...</div>
+        </div>
+      </div>
+
       <!-- Action Required -->
       <div class="panel">
         <div class="panel-header">
@@ -1506,8 +1519,43 @@ async function loadDashboard() {
     // Action required
     renderActionRequired(summary.action_required);
 
+    // LLM Gateway Status
+    loadLLMGatewayStatus();
+
   } catch(e) { console.error(e); }
 }
+
+async function loadLLMGatewayStatus() {
+  const container = document.getElementById('llm-gateway-status');
+  if (!container) return;
+  try {
+    const res = await api('GET', '/api/v2/llm/providers/status');
+    const data = (res && res.data && res.data.providers) || [];
+    let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px">';
+    data.forEach(p => {
+      const isOk = p.is_configured && p.is_healthy && !p.circuit_open;
+      const statusBadge = isOk ? '<span class="status-badge status-ingested">🟢 Ready</span>' :
+                          (!p.is_configured ? '<span class="status-badge status-partial">⚪ Unset</span>' : '<span class="status-badge status-error">🔴 Tripped</span>');
+      html += `
+        <div style="background:var(--glass);border:1px solid var(--border);border-radius:10px;padding:12px 14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-weight:600;font-size:13px;color:var(--text-primary)">Tier ${p.tier}: ${p.name}</span>
+            ${statusBadge}
+          </div>
+          <div style="font-size:11px;color:var(--text-sub);line-height:1.5">
+            <div>Latency: <span style="color:var(--accent-teal)">${p.last_latency_ms || 0} ms</span></div>
+            <div>Requests: <span style="color:var(--text-primary)">${p.total_requests || 0}</span> (Failures: ${p.total_failures || 0})</div>
+          </div>
+        </div>
+      `;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+  } catch (err) {
+    container.innerHTML = `<div style="color:var(--accent-orange);font-size:12px">⚠️ LLM Gateway Status currently offline: ${err.message || err}</div>`;
+  }
+}
+
 
 function renderCategoryBreakdown(byCategory) {
   const catNames = {

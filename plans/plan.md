@@ -1,4 +1,78 @@
 ---
+## 🔥 GRILL REPORT — Phase 4: External LLM Multi-Routing & Multi-Provider Cloud Gateway
+**Date**: 2026-08-16T20:35:45+07:00  
+**Grilled By**: orchestrator  
+**Gate Status**: ✅ APPROVED (User Interview Concluded via `/goal resume roadmap`)  
+
+### D1 — Scope Boundary
+- **IN**:
+  1. **Multi-Provider LLM Gateway & Dynamic Failover Routing**:
+     - ☁️ **Tier 1 — Cloudflare Workers AI**: Fast serverless inference (`@cf/meta/llama-3.1-8b-instruct`, `@cf/qwen/qwen2.5-7b-instruct`).
+     - 💎 **Tier 2 — Google Gemini**: Multi-modal reasoning via Google AI Studio / Vertex AI (`gemini-2.5-flash`, `gemini-1.5-flash`).
+     - 🧠 **Tier 3 — OpenAI / CODEX_PRO**: High-precision reasoning (`o3-mini`, `gpt-4o-mini`, `gpt-4o`).
+     - 🎭 **Tier 4 — Anthropic Claude**: Canonical synthesis (`claude-3-5-sonnet-20241022`, `claude-3-haiku`).
+     - 💻 **Tier 5 — Local Ollama Workhorse**: Zero-cost local fallback (`qwen2.5:7b-instruct-q4_K_M`).
+     - 🛡️ **Tier 6 — Deterministic Canonical Synthesizer**: Guaranteed zero-exception offline fallback.
+  2. **Circuit Breaker, Health Metrics & Observability**:
+     - Dynamic latency and error-rate tracking per provider.
+     - Circuit breaker with exponential backoff on timeouts/rate limits.
+     - Admin Monitoring Endpoint: `GET /api/v2/llm/providers/status` & `POST /api/v2/llm/route-test`.
+     - Admin UI Widget: Live LLM Provider Status Panel in `admin.html`.
+  3. **Verification Suite**:
+     - Unit & mock failure regression tests in `project/tests/test_llm_multirouter.py`.
+     - Full Pytest suite, 32/32 Button Regression, and Playwright E2E tests.
+     - Pre-deployment audit `READY_FOR_PROD` and live deployment to HF Spaces.
+- **OUT**: Modifying Kaggle accelerator locks (`project/kaggle_kernel/kernel-metadata.json`) or hardcoding secrets.
+
+### D2 — Requirement Delta
+- **New Additions**:
+  - Add `project/core/llm_gateway.py` with multi-tier failover and circuit breaker.
+  - Integrate gateway into `project/core/model_activation.py` and `project/routers/v2.py`.
+  - Add LLM Provider Status Widget to `project/static/admin.html` and `public/admin.html`.
+  - Add `project/tests/test_llm_multirouter.py`.
+- **Cleaned Up**:
+  - Deprecate single-point LLM request logic in favor of unified resilient gateway.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification Tool | Responsible Agent |
+|---|---|---|---|
+| 1 | Multi-tier LLM failover routes through Tiers 1-5 with deterministic fallback without exceptions | `pytest project/tests/test_llm_multirouter.py` | `developer` |
+| 2 | `/api/v2/llm/providers/status` and `/api/v2/llm/route-test` return valid JSON health metrics | `pytest project/tests/test_llm_multirouter.py` | `developer` |
+| 3 | Admin dashboard renders LLM provider status panel cleanly without `[object Object]` | `pytest project/tests/test_object_rendering.py` | `qa_tester` |
+| 4 | Full Pytest regression suite passes 100% (517+ tests) | `python3 -m pytest -v --ignore=project/kaggle_kernel` | `qa_tester` |
+| 5 | UI Button Regression (32/32) and Playwright E2E pass 100% | `python3 scripts/run_button_regression.py` | `qa_tester` |
+| 6 | Pre-deployment safety audit passes `READY_FOR_PROD` (0 secret leaks) | `python3 project/core/code_reviewer.py --review` | `code_reviewer` |
+| 7 | Production release published to Hugging Face Spaces & live version verified | `python3 scripts/publish_space_hf.py` | `devops` |
+
+### D4 — Constraints & Safeguards
+- Pure ASCII Logging.
+- 2-Tier Priority Secrets Policy: API keys read strictly from environment variables or Doppler secrets.
+- Response timeout budget: max 8s per provider attempt before tripping failover.
+
+### D5 — Sub-Agent Task Decomposition
+- `TICKET-LLM-001` (`orchestrator`): Architecture Blueprint & Multi-Provider Provider Spec
+- `TICKET-LLM-002` (`developer`): Multi-Tier LLM Gateway & Circuit Breaker Engine in `project/core/llm_gateway.py`
+- `TICKET-LLM-003` (`developer`): FastAPI Routers & Admin Panel Provider Status Integration
+- `TICKET-LLM-004` (`qa_tester`): Unit & Mock Failure Regression Test Suite (`test_llm_multirouter.py`)
+- `TICKET-LLM-005` (`devops`): CI/CD Production Release to HF Spaces & Live Verification
+- `TICKET-LLM-006` (`code_reviewer` / `business_analyst`): Pre-Deployment Safety Audit & Live Documentation Sync
+
+### D6 — Assumption Register
+| # | Assumption | Status |
+|---|---|---|
+| 1 | System gracefully handles any provider having missing API keys by skipping to next available tier | [CONFIRMED] |
+| 2 | Offline/air-gapped environment safely falls back to deterministic template generation without crashing | [CONFIRMED] |
+| 3 | Admin panel widget allows manual testing of specific provider endpoints | [CONFIRMED] |
+
+### D7 — Risk Assessment & Rollback Strategy
+- **Risk**: External network timeouts slowing down user requests.
+- **Mitigation**: Tight timeout thresholds (3-5s), non-blocking provider health checks, and circuit breakers.
+- **Rollback**: Revert `model_activation.py` and `llm_gateway.py` commits.
+
+### D8 — Token & Cost Budget Strategy
+- Tiered cost optimization prioritizing free/low-cost tiers (Cloudflare AI / Gemini Flash) before routing to larger reasoning models.
+
+---
 ## 🔥 GRILL REPORT — Phase 3: Unified Multimodal Matrix Dashboard & 16-Discipline Consensus Engine
 **Date**: 2026-08-16T20:25:00+07:00  
 **Grilled By**: orchestrator  

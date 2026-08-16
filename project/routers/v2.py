@@ -216,3 +216,38 @@ def analyze_mian_xiang(req: MianXiangAnalysisRequest):
         "api_version": "v2.0.0",
         "analysis": res.chart_data,
     }
+
+
+class LLMRouteTestRequest(BaseModel):
+    provider: Optional[str] = None
+    prompt: Optional[str] = "วิเคราะห์เกียรติยศและโชคลาภสำหรับปี 2026 สั้นๆ"
+
+
+@v2_router.get("/llm/providers/status")
+def get_llm_providers_status():
+    """
+    Retrieve real-time health, latency, and circuit breaker metrics for all multi-tier LLM providers.
+    """
+    from project.core.llm_gateway import llm_gateway
+    return {
+        "status": "success",
+        "api_version": "v2.0.0",
+        "data": llm_gateway.get_providers_status()
+    }
+
+
+@v2_router.post("/llm/route-test")
+async def test_llm_route(req: Optional[LLMRouteTestRequest] = None):
+    """
+    Test routing through multi-provider gateway with automatic failover.
+    """
+    from project.core.llm_gateway import llm_gateway
+    provider = req.provider if req else None
+    prompt = (req.prompt if req and req.prompt else "ทดสอบระบบการพยากรณ์")
+    res = await llm_gateway.generate_text(prompt=prompt, preferred_provider=provider)
+    return {
+        "status": "success",
+        "api_version": "v2.0.0",
+        "result": res
+    }
+
