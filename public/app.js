@@ -51,7 +51,7 @@ async function fetchApi(endpoint, options = {}) {
   const requestOptions = { ...options };
   const shouldShowLoader = requestOptions.showLoader !== false;
   const loaderMessage = requestOptions.loaderMessage || 'กำลังรอผลจาก API...';
-  const timeoutMs = requestOptions.timeoutMs || 2500;
+  const timeoutMs = requestOptions.timeoutMs || (endpoint.includes('/interpret') ? 12000 : 6000);
   delete requestOptions.showLoader;
   delete requestOptions.loaderMessage;
   delete requestOptions.timeoutMs;
