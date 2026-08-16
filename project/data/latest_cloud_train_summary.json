@@ -1,9 +1,9 @@
 {
-  "completed_at": "2026-08-14T19:53:06.545585",
+  "completed_at": "2026-08-16T15:51:03.573938",
   "platform": "KAGGLE",
   "model_name": "Qwen/Qwen2.5-7B-Instruct",
   "step_count": 3,
-  "final_loss": 0.752377986907959,
+  "final_loss": 0.7524212201436361,
   "hf_repo_id": "pphothidaen/qwen2.5-7b-bazi-instruct-4bit",
   "status": "COMPLETED"
 }
