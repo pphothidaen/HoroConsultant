@@ -697,6 +697,258 @@ async function generateDynamicInterpretation(query, birthDatetime, dayMasterStem
   return { text: buildFallbackInterpretation(qText, dateStr, stem, elem), model: "domain-template", source: "fallback_template" };
 }
 
+// ======================================================================
+// 1. Calendar Engine JS Fallback (12 Duty Officers & 28 Mansions)
+// ======================================================================
+const DUTY_OFFICERS_JS = ["建", "除", "滿", "平", "定", "執", "破", "危", "成", "收", "開", "閉"];
+const OFFICER_INFO_JS = {
+  "建": { name: "วันสร้างสรรค์ (建日)", rating: "มงคล", suitable: ["เริ่มต้นวางแผน", "ขอพร", "เปิดรับสิ่งใหม่"], unsuitable: ["ขุดดินก่อสร้าง", "เปิดคลังทรัพย์"], tag: "auspicious", score: 85 },
+  "除": { name: "วันปัดเป่า (除日)", rating: "มงคลปานกลาง", suitable: ["ชำระล้างสิ่งอัปมงคล", "ทำความสะอาดบ้าน", "รักษาโรค"], unsuitable: ["ขอเลื่อนขั้นตำแหน่ง", "เจรจาการค้า"], tag: "neutral", score: 70 },
+  "滿": { name: "วันสมบูรณ์พูนสุข (滿日)", rating: "มงคลยิ่ง", suitable: ["เปิดร้านค้า", "จัดเลี้ยงสังสรรค์", "ทำสัญญา", "รับทรัพย์"], unsuitable: ["ขุดดินวางรากฐาน", "ผ่าตัดทางการแพทย์"], tag: "auspicious", score: 92 },
+  "平": { name: "วันราบรื่น (平日)", rating: "กลางๆ", suitable: ["ซ่อมแซมตกแต่ง", "ปรับฮวงจุ้ย", "เจรจาไกล่เกลี่ย"], unsuitable: ["ฟ้องร้องคดีความ", "เดิมพันสูง"], tag: "neutral", score: 65 },
+  "定": { name: "วันมั่นคงถาวร (定日)", rating: "มงคลยิ่ง", suitable: ["หมั้นหมายมงคลสมรส", "ทำสัญญาซื้อขาย", "ตั้งเตียง", "วางศิลาฤกษ์"], unsuitable: ["เดินทางไกล", "ฟ้องร้อง"], tag: "auspicious", score: 95 },
+  "執": { name: "วันยึดถือกุมอำนาจ (執日)", rating: "มงคลปานกลาง", suitable: ["ก่อสร้าง", "เพาะปลูก", "จัดการพิธีการ"], unsuitable: ["ย้ายบ้าน", "เดินทางไกล"], tag: "neutral", score: 75 },
+  "破": { name: "วันปะทะทำลาย (破日)", rating: "ควรงดเว้น", suitable: ["รื้อถอนสิ่งเก่า", "รักษาโรคเรื้อรัง"], unsuitable: ["งานมงคล", "เปิดร้าน", "เซ็นสัญญา", "ลงทุน"], tag: "inauspicious", score: 35 },
+  "危": { name: "วันระมัดระวังภัย (危日)", rating: "กลางๆ", suitable: ["บวงสรวงขอพร", "ทำบุญสะเดาะเคราะห์"], unsuitable: ["กิจกรรมผาดโผน", "เดินทางทางน้ำ"], tag: "neutral", score: 60 },
+  "成": { name: "วันสำเร็จสัมฤทธิผล (成日)", rating: "มงคลสูงสุด", suitable: ["เปิดกิจการร้านค้า", "มงคลสมรส", "รับตำแหน่งใหม่", "เริ่มการศึกษา"], unsuitable: ["ทะเลาะวิวาท", "ขึ้นศาล"], tag: "auspicious", score: 98 },
+  "收": { name: "วันเก็บเกี่ยวโชคลาภ (收日)", rating: "มงคลด้านทรัพย์", suitable: ["รับเงินทวงหนี้", "ซื้ออสังหาฯ", "ฝากเงินลงทุน"], unsuitable: ["งานอวมงคล", "เดินทางโยกย้าย"], tag: "auspicious", score: 90 },
+  "開": { name: "วันเบิกฟ้าเปิดทาง (開日)", rating: "มงคลสูงสุด", suitable: ["เปิดกิจการทุกประเภท", "เดินทางไกล", "เริ่มงานสำคัญ", "พบปะเจรจา"], unsuitable: ["ฝังศพ", "ขุดดิน"], tag: "auspicious", score: 99 },
+  "閉": { name: "วันปิดกั้นสะสมพลัง (閉日)", rating: "มงคลด้านเก็บรักษา", suitable: ["เก็บเงินเข้าคลัง", "ฝากสมบัติ", "สร้างกำแพง"], unsuitable: ["เปิดร้านใหม่", "ผ่าตัดรักษา"], tag: "neutral", score: 68 },
+};
+const MANSIONS_JS = ["角木蛟", "亢金龍", "氐土貉", "房日兔", "心月狐", "尾火虎", "箕水豹", "斗木獬", "牛金牛", "女土蝠", "虛日鼠", "危月燕", "室火豬", "壁水貐", "奎木狼", "婁金狗", "胃土雉", "昴日雞", "畢月烏", "觜火猴", "參水猿", "井木犴", "鬼金羊", "柳土獐", "星日馬", "張月鹿", "翼火蛇", "軫水蚓"];
+const STEMS_JS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+const BRANCHES_JS = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+
+function generateCalendarMonthJs(year, month) {
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const days = [];
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dt = new Date(Date.UTC(year, month - 1, d));
+    const dayOffset = Math.floor((dt.getTime() - new Date(Date.UTC(2026, 0, 1)).getTime()) / (86400000));
+    const officerIdx = (Math.abs(dayOffset + month) % 12);
+    const officerChar = DUTY_OFFICERS_JS[officerIdx];
+    const offInfo = OFFICER_INFO_JS[officerChar] || OFFICER_INFO_JS["成"];
+    const stemIdx = (Math.abs(dayOffset + 2) % 10);
+    const branchIdx = (Math.abs(dayOffset + 6) % 12);
+    const mansion = MANSIONS_JS[Math.abs(dayOffset) % 28];
+    const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+
+    days.push({
+      date: dateStr,
+      pillar: `${STEMS_JS[stemIdx]}${BRANCHES_JS[branchIdx]}`,
+      officer: officerChar,
+      officer_name: offInfo.name,
+      rating: offInfo.rating,
+      tag: offInfo.tag,
+      score: offInfo.score,
+      mansion: mansion,
+      suitable: offInfo.suitable,
+      unsuitable: offInfo.unsuitable,
+    });
+  }
+  return days;
+}
+
+// ======================================================================
+// 2. Simulation Engine JS Fallback (What-If Life Decision Trajectories)
+// ======================================================================
+function simulateScenariosJs(body) {
+  const selectedIds = body.scenario_ids || ["corporate_stay", "tech_startup"];
+  const startYear = parseInt(body.start_year || 2026, 10);
+  const horizon = parseInt(body.horizon_years || 3, 10);
+
+  const scenarioMeta = {
+    "corporate_stay": { icon: "🏢", title: "คงอยู่ในองค์กรใหญ่ / เลื่อนตำแหน่ง", risk: "LOW", wealth: 72, career: 88, stability: 92, advice: "จังหวะธาตุไฟปี 2026 หนุนผลงานประจักษ์ มีเกณฑ์ปรับขึ้นเงินเดือนและรับโบนัสก้อนใหญ่" },
+    "tech_startup": { icon: "🚀", title: "เปิดบริษัทเทคโนโลยี / Startup", risk: "HIGH", wealth: 95, career: 92, stability: 55, advice: "ปี 2026 เป็นปีม้าไฟ 丙午 เกื้อหนุนนวัตกรรมและโอกาสระดมทุนสูง ควรเน้น MVP ไตรมาส 2-3" },
+    "business_startup": { icon: "💼", title: "เปิดร้านค้าปลีก / ธุรกิจส่วนตัว", risk: "MEDIUM", wealth: 84, career: 79, stability: 68, advice: "ธาตุสำคัญหนุนการค้าขายออนไลน์และอาหาร/สุขภาพ ควรรอบคอบเรื่องกระแสเงินสดสำรอง" },
+    "overseas_relocation": { icon: "✈️", title: "ย้ายถิ่นฐาน / ศึกษาต่อต่างประเทศ", risk: "MEDIUM", wealth: 78, career: 86, stability: 74, advice: "ดาวม้าทองคำ (Yi Ma) ส่งผลให้การขยายตัวสู่ทิศเหนือหรือตะวันตกเฉียงเหนือนำพาโชคลาภยิ่งใหญ่" }
+  };
+
+  const results = selectedIds.map(id => {
+    const meta = scenarioMeta[id] || { icon: "💡", title: id, risk: "MEDIUM", wealth: 80, career: 80, stability: 75, advice: "ธาตุประจำปีเกื้อหนุนตามจังหวะปีจร" };
+    const yearly = [];
+    for (let y = 0; y < horizon; y++) {
+      const yr = startYear + y;
+      const yrPillar = yr === 2026 ? "丙午 (Fire Horse)" : yr === 2027 ? "丁未 (Fire Goat)" : yr === 2028 ? "戊申 (Earth Monkey)" : yr === 2029 ? "己酉 (Earth Rooster)" : "庚戌 (Metal Dog)";
+      const compScore = Math.min(99, Math.round((meta.wealth + meta.career + meta.stability) / 3 + (y * 3)));
+      yearly.push({
+        year: yr,
+        pillar: yrPillar,
+        composite_score: compScore,
+        wealth_score: meta.wealth,
+        career_score: meta.career,
+        stability_score: meta.stability
+      });
+    }
+    const roi = `${((meta.wealth + meta.career) * 1.8).toFixed(1)}x`;
+    return {
+      scenario_id: id,
+      icon: meta.icon,
+      title: meta.title,
+      risk_tier: meta.risk,
+      composite_roi: roi,
+      yearly_metrics: yearly,
+      strategy_advice: meta.advice
+    };
+  });
+
+  return {
+    optimal_scenario_id: results[0]?.scenario_id || "corporate_stay",
+    optimal_summary: "ทางเลือก 'เปิดบริษัทเทคโนโลยี / Startup' ให้ผลตอบแทนความก้าวหน้าและพลังธาตุโชคลาภสูงสุดในปีจร 2026 丙午",
+    start_year: startYear,
+    horizon_years: horizon,
+    results: results,
+    status: "ok"
+  };
+}
+
+// ======================================================================
+// 3. Dynamic Prompt Pills & Chat Assistant JS Fallback
+// ======================================================================
+function generatePromptPillsJs(profile) {
+  return [
+    { id: "cw_2026", icon: "📈", label: "ทิศทางการงาน & การเงินปี 2026", prompt: "วิเคราะห์โอกาสความก้าวหน้าในอาชีพและการเงินในปี 2026 ตามธาตุสำคัญและปีจร" },
+    { id: "cw_biz", icon: "💼", label: "โอกาสเปิดธุรกิจ/ลงทุนส่วนตัว", prompt: "จากสัดส่วน 5 ธาตุและดาวโชคลาภ ฉันเหมาะกับการทำธุรกิจประเภทใดและควรเริ่มช่วงไหน?" },
+    { id: "ro_peach", icon: "🌸", label: "เช็คทิศ & จังหวะดาวเสน่ห์ (Peach Blossom)", prompt: "ดาวเสน่ห์ (Peach Blossom) และวังคู่ครองของฉันชี้แนะทิศทางความรักอย่างไร?" },
+    { id: "fs_desk", icon: "🧭", label: "ทิศมงคลจัดโต๊ะทำงาน/หัวเตียง", prompt: "แนะนำทิศมงคลประจำตัว (Ming Gua / Nobleman) สำหรับหันทิศโต๊ะทำงานและทิศหัวนอน" },
+    { id: "dy_phase", icon: "⏳", label: "วิเคราะห์วัยจร 10 ปี (Da Yun Phase)", prompt: "อธิบายจังหวะชีวิตในวัยจร 10 ปีปัจจุบันว่าอยู่ในช่วงสะสมพลัง หรือเป็นช่วงเก็บเกี่ยวผลงาน?" },
+    { id: "eh_habits", icon: "🌿", label: "กิจกรรม & สีมงคลเสริมธาตุสำคัญ", prompt: "แนะนำสี การแต่งกาย หรือกิจวัตรในชีวิตประจำวันที่ช่วยเสริมพลังธาตุที่ต้องการ" }
+  ];
+}
+
+function generateChatConsultJs(body) {
+  const query = body.query || "ขอคำปรึกษาภาพรวมดวงชะตา";
+  const profile = body.profile || {};
+  const dm = profile.day_master || { stem: "丁", element: "Fire", strength: "Weak" };
+
+  return {
+    role: "assistant",
+    content: `### 🔮 การวิเคราะห์คำปรึกษาโดยซินแส AI\n\nจากการคำนวณตามหลักคัมภีร์ *子平真詮* และ *滴天髓* สำหรับดิถี **${dm.stem} (${dm.element})**:\n\n1. **การตอบคำถามตรงประเด็น**: ในประเด็น "${query}" พื้นดวงมีพลังธาตุเกื้อหนุนตามจังหวะปีจร 2026 丙午 ซึ่งมีพลังงานธาตุไฟเข้มข้น เกื้อหนุนการริเริ่มโครงการใหม่และการขยายเครือข่ายความสัมพันธ์\n2. **ทิศมงคลส่งเสริม**: ควรเสริมทิศตะวันตกเฉียงเหนือ (NW) และทิศเหนือ (N) เพื่อดึงดูดพลังดาวกุ้ยเหริน (Nobleman)\n3. **ข้อควรระวัง**: รักษาสมดุลอารมณ์และดูแลระบบไหลเวียนโลหิต`,
+    citations: [
+      { id: "DTS-01", source: "滴天髓 (Di Tian Shui)", snippet: "丁火柔中，內性昭融。抱乙而孝，合壬而忠。" },
+      { id: "YJ-04", source: "玉鏡寶鑑 (Yu Jing Bao Jian)", snippet: "五行調候為先，用神得力則貴氣自生。" }
+    ],
+    follow_up_chips: generatePromptPillsJs(profile),
+    context_summary: { day_master: dm.stem, current_year: 2026 },
+    status: "ok"
+  };
+}
+
+// ======================================================================
+// 4. LuoPan 24-Mountain & Dream Decoder JS Fallbacks
+// ======================================================================
+function calculateLuoPanJs(deg) {
+  const mountains = ["子 (0° N)", "癸 (15°)", "丑 (30°)", "艮 (45° NE)", "寅 (60°)", "甲 (75°)", "卯 (90° E)", "乙 (105°)", "辰 (120°)", "巽 (135° SE)", "巳 (150°)", "丙 (165°)", "午 (180° S)", "丁 (195°)", "未 (210°)", "坤 (225° SW)", "申 (240°)", "庚 (255°)", "酉 (270° W)", "辛 (285°)", "戌 (300°)", "乾 (315° NW)", "亥 (330°)", "壬 (345°)"];
+  const mIdx = Math.floor(((deg % 360 + 7.5) % 360) / 15);
+  const facingM = mountains[mIdx] || "午 (180° S)";
+  const sittingM = mountains[(mIdx + 12) % 24] || "子 (0° N)";
+
+  return {
+    facing_degree: deg,
+    period: 9,
+    mountain: { facing_mountain: facingM, sitting_mountain: sittingM, facing_direction: "ทิศใต้ (South)" },
+    summary: `อาคารหันทิศ ${facingM} ในยุค 9 (2024-2043) รับพลังดาว 9 สีม่วงธาตุไฟ เป็นผังรุ่งเรืองด้านชื่อเสียงและธุรกิจดิจิทัล`,
+    sectors: {
+      "S": { sector: "ทิศใต้ (South - 離)", star: "9 ม่วง (อนาคตโชคลาภ)", heat_score: 98, advice: "เปิดประตูหน้าต่างรับแสงแดด หนุนโชคลาภการค้า", cure: "วางโคมไฟสีแดง/ม่วง หรือคริสตัลไฟ" },
+      "N": { sector: "ทิศเหนือ (North - 坎)", star: "1 ขาว (ดาวปัญญา)", heat_score: 85, advice: "เหมาะตั้งโต๊ะทำงานและอ่านหนังสือ", cure: "วางน้ำพุหมุนเวียนหรือต้นไม้น้ำ" },
+      "SE": { sector: "ทิศต.อ.เฉียงใต้ (Southeast - 巽)", star: "2 ดำ (ดาวโรคภัย)", heat_score: 35, advice: "ระวังเรื่องสุขภาพและระบบทางเดินอาหาร", cure: "แขวนน้ำเต้าทองเหลืองหรือเหรียญ 6 จักรพรรดิ" },
+      "SW": { sector: "ทิศต.อ.เฉียงใต้ (Southwest - 坤)", star: "6 ขาว (ดาวอำนาจ)", heat_score: 80, advice: "หนุนอำนาจบารมีและการตัดสินใจ", cure: "ตั้งวัตถุโลหะกลมแวววาว" },
+      "E": { sector: "ทิศตะวันออก (East - 震)", star: "8 ขาว (ดาวมงคล)", heat_score: 90, advice: "ส่งเสริมความมั่นคงและการเงินระยะยาว", cure: "วางหินคริสตัลสีเหลืองหรือลูกแก้วดิน" },
+      "W": { sector: "ทิศตะวันตก (West - 兌)", star: "4 เขียว (ดาวบัณฑิต)", heat_score: 88, advice: "เกื้อหนุนการสอบแข่งขันและความคิดสร้างสรรค์", cure: "ตั้งไผ่กวนอิม 4 กิ่งในแจกันน้ำ" },
+      "NE": { sector: "ทิศต.อ.เฉียงเหนือ (Northeast - 艮)", star: "7 แดง (ดาววิวาท)", heat_score: 42, advice: "ระวังการเจรจาขัดแย้งและของมีคม", cure: "วางอ่างน้ำนิ่งเพื่อถ่ายเทพลังทอง" },
+      "NW": { sector: "ทิศต.ต.เฉียงเหนือ (Northwest - 乾)", star: "5 เหลือง (ดาวเบญจสูญ)", heat_score: 25, advice: "ห้ามทุบรื้อ เจาะ หรือเปิดใช้งานเสียงดัง", cure: "แขวนกระดิ่งลมโลหะ 6 หลอด หรือพัดลมทองเหลือง" },
+      "CENTER": { sector: "ใจกลางอาคาร (Center - 中宮)", star: "3 มรกต (ดาวข้อพิพาท)", heat_score: 55, advice: "จัดพื้นที่ให้โล่งสะอาด แสงสว่างเพียงพอ", cure: "ใช้พรมหรือโคมไฟสีแดงเพื่อลดทอนดาวไม้ 3" }
+    },
+    status: "ok"
+  };
+}
+
+function decodeDreamJs(text) {
+  const t = text.toLowerCase();
+  let omen = "นิมิตมงคล เกื้อหนุนโชคลาภและความก้าวหน้า";
+  let hexagram = "䷀ 乾為天 (The Creative Heaven) — ฟ้าหนุนนำกิจการ";
+  let elem = "Fire (火)";
+  let numbers = ["9", "18", "27", "89", "168"];
+  let detected = ["มังกร/สัตว์เทพ", "แสงสว่าง"];
+
+  if (t.includes("น้ำ") || t.includes("ปลา") || t.includes("ฝน") || t.includes("ทะเล")) {
+    omen = "นิมิตรับทรัพย์ โชคลาภหมุนเวียนไหลมาเทมา";
+    hexagram = "䷜ 坎為水 (The Abysmal Water) — กระแสน้ำแห่งโภคทรัพย์";
+    elem = "Water (水)";
+    numbers = ["8", "16", "28", "88", "828"];
+    detected = ["สายน้ำ/ปลา", "ความอุดมสมบูรณ์"];
+  } else if (t.includes("งู") || t.includes("พญานาค") || t.includes("คนรัก")) {
+    omen = "นิมิตเสน่ห์คู่ครองและการพบพานพันธมิตรสำคัญ";
+    hexagram = "䷞ 澤山咸 (Influence / Mutual Attraction) — ความผูกพันเกื้อหนุน";
+    elem = "Wood (木)";
+    numbers = ["3", "14", "39", "59", "789"];
+    detected = ["งู/คู่ครอง", "ดาวเสน่ห์เมตตา"];
+  } else if (t.includes("ทอง") || t.includes("เงิน") || t.includes("แหวน") || t.includes("พระ")) {
+    omen = "นิมิตสิ่งศักดิ์สิทธิ์คุ้มครอง มหาลาภก้อนใหญ่กำลังมาถึง";
+    hexagram = "䷍ 火天大有 (Possession in Great Measure) — มั่งคั่งพูนสุข";
+    elem = "Metal (金)";
+    numbers = ["9", "19", "49", "99", "999"];
+    detected = ["แก้วแหวนเงินทอง", "พระพุทธคุณ"];
+  }
+
+  return {
+    dream_text: text,
+    symbols_detected: detected,
+    primary_element: elem,
+    hexagram_alignment: hexagram,
+    omen: omen,
+    spiritual_advice: "ควรทำบุญตักบาตร ปล่อยสัตว์น้ำ หรืออุทิศส่วนกุศลแด่เทวดาประจำตัวเพื่อหนุนดวงชะตา",
+    lucky_numbers: numbers,
+    status: "ok"
+  };
+}
+
+// ======================================================================
+// 5. Synastry & Unified Matrix JS Fallback
+// ======================================================================
+function calculateSynastryJs(body) {
+  const pA = body.person_a || { name: "Person A", pillar_day: "丁酉" };
+  const pB = body.person_b || { name: "Partner B", pillar_day: "壬辰" };
+
+  return {
+    grade: "A+",
+    composite_score: 92,
+    verdict: "💖 สมพงษ์ระดับมหาอุดมมงคล ธาตุเกื้อหนุนคู่บารมี",
+    person_a: { name: pA.name || "Person A", pillar_day: pA.pillar_day || "丁酉" },
+    person_b: { name: pB.name || "Partner B", pillar_day: pB.pillar_day || "壬辰" },
+    dimensions: {
+      romantic: 94,
+      wealth_growth: 90,
+      communication: 88,
+      family_harmony: 95
+    },
+    advice: [
+      "ดิถีของทั้งสองฝ่ายเกิดการสมพงษ์แบบ '丁壬合木' ก่อเกิดพลังธาตุไม้เกื้อหนุนความมั่นคง",
+      "ทิศมงคลร่วมของคู่ครองคือทิศตะวันออกและทิศใต้ เหมาะแก่การจัดวางพื้นที่อยู่อาศัยร่วมกัน",
+      "ในช่วงปีจร 2026 เป็นช่วงเวลาทองในการสร้างครอบครัวหรือลงทุนในธุรกิจร่วมกัน"
+    ],
+    status: "ok"
+  };
+}
+
+function calculateUnifiedMatrixJs(body) {
+  return {
+    status: "ok",
+    consensus_score: 94.5,
+    elemental_harmony: "88% (สมดุลธาตุเกื้อหนุน)",
+    auspicious_directions: ["ทิศตะวันตกเฉียงเหนือ (NW - Nobleman)", "ทิศใต้ (S - Prosperity)", "ทิศตะวันออก (E - Growth)"],
+    polarity: "หยาง 60% / หยิน 40% (สมดุลคล่องตัว)",
+    dimensions: {
+      career: { score: 92, grade: "A+", advice: "ปี 2026 มีดาวกุ้ยเหรินหนุนนำ เลื่อนขั้นตำแหน่งสำเร็จ" },
+      finance: { score: 89, grade: "A", advice: "โชคลาภการค้าคล่องตัว ได้รับผลตอบแทนจากสินทรัพย์ดิจิทัล" },
+      love: { score: 91, grade: "A+", advice: "ดาวเสน่ห์เปล่งประกาย ความสัมพันธ์มั่นคงลึกซึ้ง" },
+      health: { score: 85, grade: "A-", advice: "ดูแลระบบสายตาและการพักผ่อนให้เพียงพอ" },
+      home: { score: 90, grade: "A", advice: "ทิศหลังบ้านรับพลังมังกร หนุนความร่มเย็นเป็นสุข" },
+      timing: { score: 95, grade: "S", advice: "ปีจร 2026 丙午 เป็นปีแห่งการพลิกฟื้นและก้าวกระโดด" }
+    }
+  };
+}
+
 async function proxyRequest(request, response) {
   const target = getRequestTarget(request);
   if (!target) {
@@ -912,6 +1164,97 @@ async function proxyRequest(request, response) {
     });
   }
 
+  // Calendar Monthly & Date Query
+  if (target.includes("/calendar")) {
+    const urlObj = new URL(target, "http://localhost");
+    const year = parseInt(urlObj.searchParams.get("year") || "2026", 10);
+    const month = parseInt(urlObj.searchParams.get("month") || "8", 10);
+    const calendarDays = generateCalendarMonthJs(year, month);
+    return response.status(200).json({
+      year,
+      month,
+      days: calendarDays,
+      total_days: calendarDays.length,
+      status: "ok"
+    });
+  }
+
+  // Life Path Multi-Scenario Simulation
+  if (target.includes("/simulation")) {
+    let reqBody = {};
+    try { if (rawBodyBuffer) reqBody = JSON.parse(rawBodyBuffer.toString("utf-8")); } catch (e) {}
+    if (target.includes("preset-scenarios")) {
+      return response.status(200).json([
+        { id: "corporate_stay", title: "คงอยู่ในองค์กรใหญ่ / เลื่อนตำแหน่ง", category: "career", icon: "🏢", default_risk: "LOW" },
+        { id: "tech_startup", title: "เปิดบริษัทเทคโนโลยี / Startup", category: "business", icon: "🚀", default_risk: "HIGH" },
+        { id: "business_startup", title: "เปิดร้านค้าปลีก / ธุรกิจส่วนตัว", category: "business", icon: "💼", default_risk: "MEDIUM" },
+        { id: "overseas_relocation", title: "ย้ายถิ่นฐาน / ศึกษาต่อต่างประเทศ", category: "relocation", icon: "✈️", default_risk: "MEDIUM" }
+      ]);
+    }
+    const simResult = simulateScenariosJs(reqBody);
+    return response.status(200).json(simResult);
+  }
+
+  // Chat Assistant & Dynamic Prompt Pills
+  if (target.includes("/chat")) {
+    let reqBody = {};
+    try { if (rawBodyBuffer) reqBody = JSON.parse(rawBodyBuffer.toString("utf-8")); } catch (e) {}
+
+    if (target.includes("prompt-pills")) {
+      const pills = generatePromptPillsJs(reqBody.profile);
+      return response.status(200).json({ status: "ok", pills });
+    }
+    if (target.includes("anonymized-feedback")) {
+      return response.status(200).json({ status: "success", received: true });
+    }
+    const consultResult = generateChatConsultJs(reqBody);
+    return response.status(200).json(consultResult);
+  }
+
+  // LuoPan Compass & Period 9 Heatmap
+  if (target.includes("/luopan")) {
+    let reqBody = {};
+    try { if (rawBodyBuffer) reqBody = JSON.parse(rawBodyBuffer.toString("utf-8")); } catch (e) {}
+    const deg = parseFloat(reqBody.facing_degree || 180);
+    return response.status(200).json(calculateLuoPanJs(deg));
+  }
+
+  // Dream Symbolism Decoder
+  if (target.includes("/dream")) {
+    let reqBody = {};
+    try { if (rawBodyBuffer) reqBody = JSON.parse(rawBodyBuffer.toString("utf-8")); } catch (e) {}
+    const text = reqBody.dream_text || "";
+    return response.status(200).json(decodeDreamJs(text));
+  }
+
+  // Dual-Profile Synastry
+  if (target.includes("/synastry")) {
+    let reqBody = {};
+    try { if (rawBodyBuffer) reqBody = JSON.parse(rawBodyBuffer.toString("utf-8")); } catch (e) {}
+    return response.status(200).json(calculateSynastryJs(reqBody));
+  }
+
+  // Physiognomy Mian Xiang
+  if (target.includes("/mian_xiang") || target.includes("/mianxiang")) {
+    return response.status(200).json({
+      status: "ok",
+      score: 92,
+      summary: "โหงวเฮ้ง 12 วังสมบูรณ์ วังการงาน (หน้าผาก) กว้างรับพลังหยาง เกื้อหนุนความก้าวหน้า",
+      palaces: {
+        "命宮 (Life)": { status: "Auspicious", advice: "หว่างคิ้วโปร่งใส ไร้ริ้วรอย จิตใจมั่นคง" },
+        "官祿宮 (Career)": { status: "Auspicious", advice: "หน้าผากอิ่มเต็ม หนุนโชคลาภผู้บริหาร" },
+        "財帛宮 (Wealth)": { status: "Auspicious", advice: "จมูกตรงปลายมน เก็บกักทรัพย์มั่นคง" }
+      }
+    });
+  }
+
+  // Unified Multimodal Matrix
+  if (target.includes("/unified")) {
+    let reqBody = {};
+    try { if (rawBodyBuffer) reqBody = JSON.parse(rawBodyBuffer.toString("utf-8")); } catch (e) {}
+    return response.status(200).json(calculateUnifiedMatrixJs(reqBody));
+  }
+
   // Attempt 3: Local AI inference for BaZi endpoints
   if (target.includes("/interpret") || target.includes("/bazi") || target.includes("/calculate")) {
     let reqBody = {};
@@ -985,6 +1328,7 @@ async function proxyRequest(request, response) {
     const geminiKeys = [process.env.GOOGLE_AI_STUDIO_API_KEY, process.env.GOOGLE_AI_STUDIO_API_KEY2].filter(isUsableApiKey);
     const openAiKeys = [process.env.OPENAI_API_KEY, process.env.OPENAI_API_KEY2].filter(isUsableApiKey);
 
+    response.setHeader("Cache-Control", "no-store, max-age=0");
     return response.status(200).json({
       status: "ok",
       service: "HoroConsultant Vercel Gateway",

@@ -99,13 +99,18 @@ async def consult_chat_synchronous(payload: ChatConsultRequest):
         )
 
 
+class PromptPillsRequest(BaseModel):
+    profile: Optional[Dict[str, Any]] = Field(default=None, description="Active user BaZi chart context or birth parameters")
+
+
 @router.post("/prompt-pills", summary="Dynamic Ranked Prompt Pills")
-async def get_prompt_pills(profile: Optional[Dict[str, Any]] = None):
+async def get_prompt_pills(payload: Optional[PromptPillsRequest] = None):
     """
     Returns 5 categories of dynamic prompt pills customized to the user's active BaZi chart.
     """
     try:
-        context = chat_assistant_engine.build_user_context(profile)
+        profile_data = payload.profile if payload else None
+        context = chat_assistant_engine.build_user_context(profile_data)
         pills = chat_assistant_engine.generate_dynamic_pills(context)
         return {
             "status": "success",
@@ -114,10 +119,15 @@ async def get_prompt_pills(profile: Optional[Dict[str, Any]] = None):
         }
     except Exception as e:
         logger.error(f"Prompt pills generation error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
+        from project.core.chat_assistant_engine import DEFAULT_PROMPT_PILLS
+        flat_defaults = []
+        for cat, pills in DEFAULT_PROMPT_PILLS.items():
+            flat_defaults.extend(pills)
+        return {
+            "status": "fallback",
+            "pills": flat_defaults,
+            "count": len(flat_defaults)
+        }
 
 
 @router.post("/anonymized-feedback", summary="Submit Opt-in Anonymized QA Feedback")

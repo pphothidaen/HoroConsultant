@@ -3,7 +3,7 @@
   "info": {
     "title": "Computational Metaphysics Engine",
     "description": "Modular 10-Domain Metaphysical Calculation, AI Debate & Multi-Agent Engine",
-    "version": "1.0.0.f94753a"
+    "version": "1.0.0.83cf01b"
   },
   "paths": {
     "/admin/auth/google": {
@@ -2785,14 +2785,13 @@
               "schema": {
                 "anyOf": [
                   {
-                    "additionalProperties": true,
-                    "type": "object"
+                    "$ref": "#/components/schemas/PromptPillsRequest"
                   },
                   {
                     "type": "null"
                   }
                 ],
-                "title": "Profile"
+                "title": "Payload"
               }
             }
           }
@@ -3696,6 +3695,25 @@
           "birth_datetime"
         ],
         "title": "ProfileInput"
+      },
+      "PromptPillsRequest": {
+        "properties": {
+          "profile": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile",
+            "description": "Active user BaZi chart context or birth parameters"
+          }
+        },
+        "type": "object",
+        "title": "PromptPillsRequest"
       },
       "QuestionFocusInterpretRequest": {
         "properties": {
