@@ -1,82 +1,155 @@
 /*!
  * rust_core/src/observability.rs
- * High-Performance Atomic Prometheus Metrics & Observability Collector.
- * Uses atomic counters and thread-safe lock-free metric storage for sub-microsecond tracking.
+ * Wire-compatible Prometheus metrics collection for the Python fallback and
+ * the pure Rust gateway.
  */
 
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
-use std::sync::atomic::AtomicU64;
-#[cfg(feature = "python")]
-use std::sync::atomic::Ordering;
+use std::collections::BTreeMap;
 use std::sync::Mutex;
-use std::collections::HashMap;
+
 use lazy_static::lazy_static;
 
-lazy_static! {
-    static ref GLOBAL_REQUEST_COUNTER: AtomicU64 = AtomicU64::new(0);
-    static ref GLOBAL_RAG_COUNTER: AtomicU64 = AtomicU64::new(0);
-    static ref ENDPOINT_COUNTERS: Mutex<HashMap<String, u64>> = Mutex::new(HashMap::new());
+#[derive(Debug, Default)]
+pub struct MetricsRegistry {
+    request_counts: BTreeMap<(String, String, u16), u64>,
+    request_latency_sums: BTreeMap<(String, String), f64>,
+    rag_count: u64,
+    rag_latency_sum: f64,
+    llm_counts: BTreeMap<(String, String), u64>,
+    llm_latency_sums: BTreeMap<String, f64>,
 }
 
-/// Record HTTP request metric atomically in Rust.
-#[cfg(feature = "python")]
-#[pyfunction]
-pub fn record_http_metric_rust(method: &str, endpoint: &str, status_code: u16, latency_ms: f64) -> PyResult<u64> {
-    let total = GLOBAL_REQUEST_COUNTER.fetch_add(1, Ordering::Relaxed) + 1;
-    let key = format!("{} {} {}", method, endpoint, status_code);
-    
-    if let Ok(mut map) = ENDPOINT_COUNTERS.lock() {
-        *map.entry(key).or_insert(0) += 1;
+impl MetricsRegistry {
+    pub fn record_request(
+        &mut self,
+        method: &str,
+        endpoint: &str,
+        status_code: u16,
+        duration_seconds: f64,
+    ) -> u64 {
+        *self
+            .request_counts
+            .entry((method.to_string(), endpoint.to_string(), status_code))
+            .or_insert(0) += 1;
+        *self
+            .request_latency_sums
+            .entry((method.to_string(), endpoint.to_string()))
+            .or_insert(0.0) += duration_seconds;
+        self.request_counts.values().sum()
     }
-    
-    let _ = latency_ms;
-    Ok(total)
+
+    pub fn record_rag_search(&mut self, duration_seconds: f64) -> u64 {
+        self.rag_count += 1;
+        self.rag_latency_sum += duration_seconds;
+        self.rag_count
+    }
+
+    pub fn record_llm_inference(&mut self, provider: &str, status: &str, duration_seconds: f64) {
+        *self
+            .llm_counts
+            .entry((provider.to_string(), status.to_string()))
+            .or_insert(0) += 1;
+        *self
+            .llm_latency_sums
+            .entry(provider.to_string())
+            .or_insert(0.0) += duration_seconds;
+    }
+
+    pub fn generate_metrics_text(&self, uptime_seconds: f64) -> String {
+        let mut lines = vec![
+            "# HELP process_uptime_seconds Total application uptime in seconds".to_string(),
+            "# TYPE process_uptime_seconds gauge".to_string(),
+            format!("process_uptime_seconds {uptime_seconds:.2}"),
+            String::new(),
+            "# HELP http_requests_total Total count of HTTP requests".to_string(),
+            "# TYPE http_requests_total counter".to_string(),
+        ];
+        for ((method, endpoint, status), count) in &self.request_counts {
+            lines.push(format!(
+                "http_requests_total{{method=\"{method}\",endpoint=\"{endpoint}\",status_code=\"{status}\"}} {count}"
+            ));
+        }
+        lines.extend([
+            String::new(),
+            "# HELP http_request_duration_seconds_count Total number of HTTP request duration observations".to_string(),
+            "# TYPE http_request_duration_seconds_count counter".to_string(),
+        ]);
+        let mut path_counts: BTreeMap<(&str, &str), u64> = BTreeMap::new();
+        for ((method, endpoint, _), count) in &self.request_counts {
+            *path_counts.entry((method, endpoint)).or_insert(0) += count;
+        }
+        for ((method, endpoint), count) in path_counts {
+            lines.push(format!(
+                "http_request_duration_seconds_count{{method=\"{method}\",endpoint=\"{endpoint}\"}} {count}"
+            ));
+        }
+        lines.extend([
+            String::new(),
+            "# HELP http_request_duration_seconds_sum Total cumulative HTTP request duration"
+                .to_string(),
+            "# TYPE http_request_duration_seconds_sum counter".to_string(),
+        ]);
+        for ((method, endpoint), duration) in &self.request_latency_sums {
+            lines.push(format!(
+                "http_request_duration_seconds_sum{{method=\"{method}\",endpoint=\"{endpoint}\"}} {duration:.4}"
+            ));
+        }
+        lines.extend([
+            String::new(),
+            "# HELP rag_search_total Total RAG vector store queries".to_string(),
+            "# TYPE rag_search_total counter".to_string(),
+            format!("rag_search_total {}", self.rag_count),
+            String::new(),
+            "# HELP rag_search_latency_seconds_sum Total RAG vector store retrieval duration"
+                .to_string(),
+            "# TYPE rag_search_latency_seconds_sum counter".to_string(),
+            format!("rag_search_latency_seconds_sum {:.4}", self.rag_latency_sum),
+        ]);
+        for ((provider, status), count) in &self.llm_counts {
+            lines.push(format!(
+                "llm_inference_total{{provider=\"{provider}\",status=\"{status}\"}} {count}"
+            ));
+        }
+        lines.join("\n") + "\n"
+    }
 }
 
-/// Record RAG query search metric atomically in Rust.
+lazy_static! {
+    static ref GLOBAL_METRICS: Mutex<MetricsRegistry> = Mutex::new(MetricsRegistry::default());
+}
+
+/// Record an HTTP request. The PyO3 boundary accepts milliseconds for backward
+/// compatibility and normalizes to the Python manager's seconds schema.
 #[cfg(feature = "python")]
 #[pyfunction]
-pub fn record_rag_metric_rust(_latency_ms: f64) -> PyResult<u64> {
-    let total = GLOBAL_RAG_COUNTER.fetch_add(1, Ordering::Relaxed) + 1;
-    Ok(total)
+pub fn record_http_metric_rust(
+    method: &str,
+    endpoint: &str,
+    status_code: u16,
+    latency_ms: f64,
+) -> PyResult<u64> {
+    let mut metrics = GLOBAL_METRICS
+        .lock()
+        .map_err(|_| pyo3::exceptions::PyRuntimeError::new_err("metrics lock poisoned"))?;
+    Ok(metrics.record_request(method, endpoint, status_code, latency_ms / 1000.0))
 }
 
-/// Generate high-performance Prometheus format metrics string in Rust.
+#[cfg(feature = "python")]
+#[pyfunction]
+pub fn record_rag_metric_rust(latency_ms: f64) -> PyResult<u64> {
+    let mut metrics = GLOBAL_METRICS
+        .lock()
+        .map_err(|_| pyo3::exceptions::PyRuntimeError::new_err("metrics lock poisoned"))?;
+    Ok(metrics.record_rag_search(latency_ms / 1000.0))
+}
+
 #[cfg(feature = "python")]
 #[pyfunction]
 pub fn generate_prometheus_metrics_rust(uptime_seconds: f64) -> PyResult<String> {
-    let mut out = String::with_capacity(2048);
-
-    out.push_str("# HELP http_requests_total Total count of HTTP requests processed by Rust Core\n");
-    out.push_str("# TYPE http_requests_total counter\n");
-    out.push_str(&format!(
-        "http_requests_total {{engine=\"rust_core\"}} {}\n",
-        GLOBAL_REQUEST_COUNTER.load(Ordering::Relaxed)
-    ));
-
-    out.push_str("\n# HELP rag_search_total Total count of RAG vector store queries\n");
-    out.push_str("# TYPE rag_search_total counter\n");
-    out.push_str(&format!(
-        "rag_search_total {{engine=\"rust_core\"}} {}\n",
-        GLOBAL_RAG_COUNTER.load(Ordering::Relaxed)
-    ));
-
-    out.push_str("\n# HELP process_uptime_seconds Total server uptime in seconds\n");
-    out.push_str("# TYPE process_uptime_seconds gauge\n");
-    out.push_str(&format!("process_uptime_seconds {:.2}\n", uptime_seconds));
-
-    if let Ok(map) = ENDPOINT_COUNTERS.lock() {
-        for (k, v) in map.iter() {
-            let parts: Vec<&str> = k.split_whitespace().collect();
-            if parts.len() == 3 {
-                out.push_str(&format!(
-                    "http_request_endpoint_total {{method=\"{}\", endpoint=\"{}\", status=\"{}\"}} {}\n",
-                    parts[0], parts[1], parts[2], v
-                ));
-            }
-        }
-    }
-
-    Ok(out)
+    let metrics = GLOBAL_METRICS
+        .lock()
+        .map_err(|_| pyo3::exceptions::PyRuntimeError::new_err("metrics lock poisoned"))?;
+    Ok(metrics.generate_metrics_text(uptime_seconds))
 }

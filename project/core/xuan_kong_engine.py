@@ -113,8 +113,18 @@ class XuanKongEngine(AbstractAstrologyEngine):
 
         base_chart = PERIOD_9_BASE_CHART if period == 9 else PERIOD_9_BASE_CHART
 
-        from project.core.fast_math import fast_xuankong_9grid
-        grid_matrix = fast_xuankong_9grid(facing_degree, period)
+        from project.core.fast_math import RUST_AVAILABLE, fast_xuankong_9grid
+        if RUST_AVAILABLE:
+            grid_matrix = fast_xuankong_9grid(facing_degree, period)
+        else:
+            # Keep the explicit development fallback on the same canonical
+            # 24-mountain Yin/Yang table used by resolve_mountain().
+            sitting_tracks = self.fly_stars(base_chart[5], sitting_yy == "陽")
+            facing_tracks = self.fly_stars(base_chart[9], facing_yy == "陽")
+            grid_matrix = [
+                (palace, base_chart[palace], sitting_tracks[palace], facing_tracks[palace])
+                for palace in range(1, 10)
+            ]
         matrix_map = {p[0]: (p[1], p[2], p[3]) for p in grid_matrix}
 
 
