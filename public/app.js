@@ -5363,7 +5363,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & FORCE CACHE PURGE SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.6a61068";
+const CLIENT_APP_VERSION = "1.0.0.2c1312e";
 
 async function forcePurgeAndReload(event) {
   if (event) {
@@ -5412,8 +5412,13 @@ async function forcePurgeAndReload(event) {
 
 window.forcePurgeAndReload = forcePurgeAndReload;
 
+let _versionSnoozedUntil = 0;
+
 async function checkAppVersion() {
   try {
+    // Respect snooze window
+    if (Date.now() < _versionSnoozedUntil) return;
+
     const res = await fetch(`/version.json?t=${Date.now()}`, { cache: 'no-store' });
     if (!res.ok) return;
     const data = await res.json();
@@ -5426,8 +5431,22 @@ async function checkAppVersion() {
   }
 }
 
+function _isUserTyping() {
+  const active = document.activeElement;
+  if (!active) return false;
+  const tag = active.tagName.toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || tag === 'select') return true;
+  if (active.isContentEditable) return true;
+  return false;
+}
+
 function showVersionUpdateToast(remoteVersion) {
   if (document.getElementById("version-update-toast")) return;
+
+  const COUNTDOWN_SECONDS = 10;
+  let countdown = COUNTDOWN_SECONDS;
+  let countdownTimer = null;
+  let dismissed = false;
 
   const toast = document.createElement("div");
   toast.id = "version-update-toast";
@@ -5440,38 +5459,113 @@ function showVersionUpdateToast(remoteVersion) {
     border: 1px solid #fecaca;
     border-top: 3px solid #dc2626;
     border-radius: 12px;
-    padding: 12px 18px;
+    padding: 14px 18px;
     box-shadow: 0 10px 30px rgba(220, 38, 38, 0.2);
     display: flex;
-    align-items: center;
-    gap: 12px;
+    flex-direction: column;
+    gap: 8px;
     color: #0f172a;
     font-size: 0.88rem;
+    max-width: 340px;
+    animation: slideInRight 0.3s ease-out;
   `;
 
+  // Add slide-in animation
+  if (!document.getElementById("version-toast-style")) {
+    const style = document.createElement("style");
+    style.id = "version-toast-style";
+    style.textContent = `
+      @keyframes slideInRight {
+        from { transform: translateX(120%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function updateToastUI() {
+    const countdownEl = toast.querySelector("#version-countdown");
+    if (countdownEl) countdownEl.textContent = countdown;
+  }
+
+  function cleanupAndDismiss(snoozeMinutes) {
+    dismissed = true;
+    if (countdownTimer) clearInterval(countdownTimer);
+    toast.remove();
+    if (snoozeMinutes > 0) {
+      _versionSnoozedUntil = Date.now() + (snoozeMinutes * 60 * 1000);
+      console.info(`[VERSION] Update snoozed for ${snoozeMinutes} minutes`);
+    }
+  }
+
+  function tryAutoRefresh() {
+    if (dismissed) return;
+    if (_isUserTyping()) {
+      // User is typing — pause countdown and wait
+      console.info("[VERSION] User is typing, pausing auto-refresh...");
+      countdown = 5; // Reset to 5s, will re-check next tick
+      updateToastUI();
+      return;
+    }
+    // Auto-refresh now
+    console.info("[VERSION] Auto-refreshing to latest version...");
+    forcePurgeAndReload();
+  }
+
   toast.innerHTML = `
-    <span>🚀 <strong>มีเวอร์ชันใหม่:</strong> v${remoteVersion}</span>
-    <button type="button" onclick="forcePurgeAndReload()" style="
-      background: linear-gradient(135deg, #dc2626, #b91c1c);
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 0.8rem;
-      box-shadow: 0 2px 8px rgba(220,38,38,0.3);
-    ">⚡ อัปเดตทันที</button>
-    <button type="button" onclick="this.parentElement.remove()" style="
-      background: transparent;
-      border: none;
-      color: #94a3b8;
-      cursor: pointer;
-      font-size: 1rem;
-    ">✕</button>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span>🚀 <strong>มีเวอร์ชันใหม่:</strong> v${remoteVersion}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
+      <button type="button" id="btn-version-update-now" style="
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        color: white;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 0.8rem;
+        box-shadow: 0 2px 8px rgba(220,38,38,0.3);
+        flex-shrink: 0;
+      ">⚡ อัปเดตทันที</button>
+      <span style="color:#64748b;font-size:0.78rem;">อัปเดตอัตโนมัติใน <strong id="version-countdown">${countdown}</strong>s</span>
+      <button type="button" id="btn-version-dismiss" style="
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        font-size: 1rem;
+        margin-left: auto;
+        flex-shrink: 0;
+      " title="เลื่อนออกไป 30 นาที">✕</button>
+    </div>
+    <div style="height:3px;background:#fee2e2;border-radius:2px;overflow:hidden;margin-top:2px;">
+      <div id="version-countdown-bar" style="height:100%;background:linear-gradient(90deg,#dc2626,#f87171);width:100%;transition:width 1s linear;"></div>
+    </div>
   `;
 
   document.body.appendChild(toast);
+
+  // Bind button events after DOM insertion
+  toast.querySelector("#btn-version-update-now").addEventListener("click", () => forcePurgeAndReload());
+  toast.querySelector("#btn-version-dismiss").addEventListener("click", () => cleanupAndDismiss(30));
+
+  // Start countdown
+  countdownTimer = setInterval(() => {
+    if (dismissed) { clearInterval(countdownTimer); return; }
+    countdown--;
+    updateToastUI();
+
+    // Update progress bar
+    const bar = toast.querySelector("#version-countdown-bar");
+    if (bar) bar.style.width = `${(countdown / COUNTDOWN_SECONDS) * 100}%`;
+
+    if (countdown <= 0) {
+      clearInterval(countdownTimer);
+      tryAutoRefresh();
+    }
+  }, 1000);
 }
 
 // Controller change listener for smooth PWA auto-update

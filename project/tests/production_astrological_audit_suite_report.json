@@ -1,5 +1,5 @@
 {
-  "audit_timestamp": "2026-08-08 14:13:28",
+  "audit_timestamp": "2026-08-17 01:02:37",
   "overall_status": "PASSED 100%",
   "scenarios_evaluated": 4,
   "scenarios_passed": 4,
@@ -11,7 +11,8 @@
         "stem": "庚",
         "element": "Metal",
         "polarity": "Yang",
-        "pinyin": "Gēng"
+        "pinyin": "Gēng",
+        "strength": "WEAK"
       },
       "tst_time": "1990-05-15 14:15:53",
       "five_elements_sum": 100.0,
@@ -20,7 +21,7 @@
     {
       "scenario": "B_NewYork_Midnight_Shift",
       "passed": true,
-      "tst_time": "1995-12-25 23:49:17",
+      "tst_time": "1995-12-25 23:48:49",
       "four_pillars": {
         "year": {
           "label": "Year",
@@ -42,14 +43,36 @@
             {
               "stem": "壬",
               "element": "Water",
-              "weight": 0.7
+              "weight": 0.7,
+              "ten_god": "EG"
             },
             {
               "stem": "甲",
               "element": "Wood",
-              "weight": 0.3
+              "weight": 0.3,
+              "ten_god": "IW"
             }
-          ]
+          ],
+          "ten_god": "DW",
+          "ten_god_info": {
+            "zh": "正財",
+            "en": "Direct Wealth",
+            "structure": "Wealth"
+          },
+          "pillar_phase": {
+            "phase": "Bing",
+            "phase_zh": "病",
+            "phase_idx": 6
+          },
+          "stars": {
+            "heavenly": [
+              "Nobleman",
+              "Intelligence"
+            ],
+            "earthly": [
+              "Robbing Star"
+            ]
+          }
         },
         "month": {
           "label": "Month",
@@ -71,9 +94,27 @@
             {
               "stem": "癸",
               "element": "Water",
-              "weight": 1.0
+              "weight": 1.0,
+              "ten_god": "HO"
             }
-          ]
+          ],
+          "ten_god": "IR",
+          "ten_god_info": {
+            "zh": "偏印",
+            "en": "Indirect Resource",
+            "structure": "Resource"
+          },
+          "pillar_phase": {
+            "phase": "Si",
+            "phase_zh": "死",
+            "phase_idx": 7
+          },
+          "stars": {
+            "heavenly": [
+              "Peach Blossom"
+            ],
+            "earthly": []
+          }
         },
         "day": {
           "label": "Day",
@@ -95,19 +136,39 @@
             {
               "stem": "甲",
               "element": "Wood",
-              "weight": 0.6
+              "weight": 0.6,
+              "ten_god": "IW"
             },
             {
               "stem": "丙",
               "element": "Fire",
-              "weight": 0.3
+              "weight": 0.3,
+              "ten_god": "7K"
             },
             {
               "stem": "戊",
               "element": "Earth",
-              "weight": 0.1
+              "weight": 0.1,
+              "ten_god": "IR"
             }
-          ]
+          ],
+          "ten_god": "DM",
+          "ten_god_info": {
+            "zh": "日主",
+            "en": "Day Master",
+            "structure": "Companion"
+          },
+          "pillar_phase": {
+            "phase": "Jue",
+            "phase_zh": "絕",
+            "phase_idx": 9
+          },
+          "stars": {
+            "heavenly": [],
+            "earthly": [
+              "Death Star"
+            ]
+          }
         },
         "hour": {
           "label": "Hour",
@@ -129,9 +190,27 @@
             {
               "stem": "癸",
               "element": "Water",
-              "weight": 1.0
+              "weight": 1.0,
+              "ten_god": "HO"
             }
-          ]
+          ],
+          "ten_god": "7K",
+          "ten_god_info": {
+            "zh": "七殺",
+            "en": "Seven Killings",
+            "structure": "Influence"
+          },
+          "pillar_phase": {
+            "phase": "Si",
+            "phase_zh": "死",
+            "phase_idx": 7
+          },
+          "stars": {
+            "heavenly": [
+              "Peach Blossom"
+            ],
+            "earthly": []
+          }
         }
       }
     },
@@ -148,7 +227,7 @@
       "passed": true,
       "year_pillar": "甲辰",
       "month_pillar": "丙寅",
-      "eot_minutes": -12.9027
+      "eot_minutes": -12.8436
     }
   ]
 }

@@ -1,43 +1,43 @@
 {
-  "timestamp": "2026-08-09T06:53:57.116004+00:00",
+  "timestamp": "2026-08-16T18:01:45.654097+00:00",
   "target_url": "https://horo-consultant-psi.vercel.app",
   "total_checks": 3,
-  "passed_count": 0,
-  "failed_count": 3,
-  "overall_status": "FAILED",
+  "passed_count": 3,
+  "failed_count": 0,
+  "overall_status": "PASSED 100%",
   "checks": [
     {
       "id": "CHK-01",
       "name": "GET /health Endpoint & CORS",
       "url": "https://horo-consultant-psi.vercel.app/health",
       "method": "GET",
-      "status_code": 500,
-      "passed": false,
-      "latency_ms": 610.085542,
-      "cors_ok": false,
-      "details": "JSON OK: false, Body length: 96"
+      "status_code": 200,
+      "passed": true,
+      "latency_ms": 434.224208,
+      "cors_ok": true,
+      "details": "JSON OK: true, Body length: 370"
     },
     {
       "id": "CHK-02",
       "name": "OPTIONS /api/v1/bazi/interpret Preflight",
       "url": "https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret",
       "method": "OPTIONS",
-      "status_code": 500,
-      "passed": false,
-      "latency_ms": 512.199042,
-      "cors_ok": false,
-      "details": "Status: 500"
+      "status_code": 204,
+      "passed": true,
+      "latency_ms": 269.426041,
+      "cors_ok": true,
+      "details": "Status: 204"
     },
     {
       "id": "CHK-03",
       "name": "POST /api/v1/bazi/interpret Execution",
       "url": "https://horo-consultant-psi.vercel.app/api/v1/bazi/interpret",
       "method": "POST",
-      "status_code": 500,
-      "passed": false,
-      "latency_ms": 471.820292,
-      "cors_ok": false,
-      "details": "Chart Present: false, Response Length: 96"
+      "status_code": 200,
+      "passed": true,
+      "latency_ms": 1310.7475829999998,
+      "cors_ok": true,
+      "details": "Chart Present: true, Response Length: 1430"
     }
   ]
 }
