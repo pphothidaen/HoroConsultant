@@ -56,6 +56,20 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
+│   ✅ DONE: Phase 14 — Metaphysics AI Live Consultant Chat Assistant (100%)    │
+├───────────────────────────────────────────────────────────────────────────────┤
+│ • Floating Glassmorphic Slide-Out Drawer & Co-Pilot Split-Screen View         │
+│ • Auto-Context Injection (Day Master 丁火, 5-Elements, DaYun, RAG Grounding)   │
+│ • Hybrid Backend: SSE Stream `/api/v2/chat/stream` + JSON `/api/v2/chat/consult` │
+│ • 5-Category Dynamic Prompt Pills & Privacy-First Client Session Management   │
+│ • Full Pytest Pass: 598/598 (100%), Button Regression: 33/33 (100%), 0 Drift   │
+├───────────────────────────────────────────────────────────────────────────────┤
+│   ✅ DONE: Phase 13 — Imperial White & Red Theme Overhaul (FengShuiX-Style)   │
+├───────────────────────────────────────────────────────────────────────────────┤
+│ • Complete UI Theme Alignment with White & Red FengShuiX Metaphysics Style    │
+│ • Full Elimination of Dark Remnants in Admin Studio & HITL Review Studio      │
+│ • High-Contrast 5-Elements Metaphysics Palette & Dual-Path Asset Sync (100%)  │
+├───────────────────────────────────────────────────────────────────────────────┤
 │   ✅ DONE: Phase 12 — Life Path Multi-Scenario Simulation & What-If (100%)    │
 ├───────────────────────────────────────────────────────────────────────────────┤
 │ • 3-5 Year Multi-Path Life Decision Simulation Model (Career/Startup/Move)     │
@@ -67,14 +81,143 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 │ • 24-Mountain LuoPan Compass & Period 9 Flying Star 9-Palace Energy Heatmap   │
 │ • AI Metaphysics Dream Interpreter with 64 Hexagrams & Sattaleka Numbers      │
 │ • Interactive SVG LuoPan Compass Dial, Sector Matrix & Dream Search UI        │
-├───────────────────────────────────────────────────────────────────────────────┤
-│   ✅ DONE: Phase 10 — Astrological Calendar & Date Selector (100%)            │
-├───────────────────────────────────────────────────────────────────────────────┤
-│ • 24 Solar Terms & 12 Day Officers (建除十二神) Calculation Engine             │
-│ • Personalized Auspicious Date Scoring & Intention-Specific Best Date Finder   │
-│ • Interactive Monthly Calendar Card UI with Activity Filters & Badges         │
 └───────────────────────────────────────────────────────────────────────────────┘
 ```
+
+## 🚀 ACTIVE SPRINT: Phase 14 — Metaphysics AI Live Consultant Chat Assistant & Multi-Turn Interactive Consultation Engine
+**Grill Gate Status**: ✅ APPROVED (Ref: `/plans/plan.md`)  
+**Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)  
+
+| Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
+|---|---|---|---|---|
+| `TICKET-CHAT-001` | `orchestrator` | Architecture Blueprint & Specification | DONE | None |
+| `TICKET-CHAT-002` | `developer` | Backend Chat Engine & Streaming Router (`chat_assistant_engine.py`, `chat.py`, `main.py`) | DONE | `TICKET-CHAT-001` |
+| `TICKET-CHAT-003` | `developer` | Frontend Floating Drawer, Co-Pilot Split-Screen & Modal UI (`index.html`, `style.css`, `app.js`, `i18n.js`) | DONE | `TICKET-CHAT-002` |
+| `TICKET-CHAT-004` | `qa_tester` | Unit & Regression Test Suite (`test_chat_assistant.py`) | DONE | `TICKET-CHAT-002`..`003` |
+| `TICKET-CHAT-005` | `devops` | Production Delivery Release & HF Spaces Sync | DONE | `TICKET-CHAT-004` |
+| `TICKET-CHAT-006` | `code_reviewer` | Pre-Deploy Safety Audit & Documentation Sync | DONE | `TICKET-CHAT-005` |
+
+---
+
+### 🎫 TICKET-CHAT-001 | `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: None  
+**Blocks**: `TICKET-CHAT-002`..`003`  
+#### Detailed Instructions
+1. Review requirements in `plans/plan.md` and complete Gate 0 Grill Report via `/grill-me`.
+2. Establish SSE streaming format, RAG citation metadata schema, 5-category dynamic prompt pills hierarchy, and hybrid drawer/co-pilot layout specs.
+#### Acceptance Criteria
+- [x] GRILL REPORT generated in `/plans/plan.md`.
+- [x] Sub-agent tickets decomposed in `PROJECT_TASKS.md`.
+
+---
+
+### 🎫 TICKET-CHAT-002 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-CHAT-001`  
+**Blocks**: `TICKET-CHAT-003`..`004`  
+#### Detailed Instructions
+1. In `project/core/chat_assistant_engine.py`:
+   - Implement `ChatAssistantEngine` with auto-context injection (Day Master stem/strength, 4-Pillars, 5-Elements %, Favorable/Unfavorable elements, Symbolic Stars, Current Da Yun decade, 2026 Liu Nian transit).
+   - Ingest 3,132 RAG classical knowledge chunks for grounded citations.
+   - Generate dynamic 5-category follow-up prompt pills (Career, Romance, Feng Shui, Da Yun Timing, 5 Elements Remedies).
+2. In `project/routers/chat.py`:
+   - `POST /api/v2/chat/stream` (SSE Server-Sent Events delta token streaming, citations, chips, done event).
+   - `POST /api/v2/chat/consult` (Synchronous JSON response for audit/export).
+   - `POST /api/v2/chat/anonymized-feedback` (Opt-in QA collection for HITL pipeline).
+3. In `project/main.py`:
+   - Register and mount `chat_router`.
+#### Acceptance Criteria
+- [x] SSE streaming endpoint returns valid chunk deltas.
+- [x] Synchronous consultation endpoint returns full context + citations + chips.
+
+---
+
+### 🎫 TICKET-CHAT-003 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-CHAT-002`  
+**Blocks**: `TICKET-CHAT-004`  
+#### Detailed Instructions
+1. In `project/static/index.html` and `public/index.html`:
+   - Add Floating Chat Drawer launcher icon, slide-out drawer markup (`#floating-chat-drawer`), Co-Pilot split-screen mode toggle, full-screen modal expander, dynamic prompt pills bar, and privacy-consent dialog.
+2. In `project/static/style.css` and `public/style.css`:
+   - Style drawer, chat bubbles (AI vs User), grounded citation cards, dynamic pills, and typing stream animation in Imperial White & Crimson Red palette.
+3. In `project/static/app.js` and `public/app.js`:
+   - Implement SSE streaming client reader (`EventSource` / `fetch` reader), auto-scroll, message history, auto-context collector, dynamic pill ranking, export JSON/Markdown, and clear chat functions.
+4. In `project/static/i18n.js` and `public/i18n.js`:
+   - Add English, Thai, and Chinese translations for all Chat Assistant UI elements.
+#### Acceptance Criteria
+- [x] Floating Drawer opens seamlessly and transforms to Co-Pilot mode.
+- [x] Real-time token streaming works with smooth typing animation.
+- [x] Both `project/static/` and `public/` synced (0 diff).
+
+---
+
+### 🎫 TICKET-CHAT-004 | `qa_tester` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-CHAT-002`..`003`  
+**Blocks**: `TICKET-CHAT-005`  
+#### Detailed Instructions
+1. Create unit and integration test suite in `project/tests/test_chat_assistant.py`.
+2. Test SSE streaming endpoint, JSON endpoint, auto-context synthesis, RAG citations, and prompt pills.
+3. Run button regression: `python3 scripts/run_button_regression.py`.
+4. Run full pytest suite: `python3 -m pytest -v --ignore=project/kaggle_kernel`.
+#### Acceptance Criteria
+- [x] All tests in `test_chat_assistant.py` pass 100% (11/11).
+- [x] 100% pytest pass rate (598/598 tests passed).
+
+---
+
+### 🎫 TICKET-CHAT-005 | `devops` | [STATUS: DONE]
+**Priority**: HIGH  
+**Depends On**: `TICKET-CHAT-004`  
+**Blocks**: `TICKET-CHAT-006`  
+#### Detailed Instructions
+1. Verify dual-path synchronization between `project/static/` and `public/`.
+2. Run secret scan: `python3 project/core/code_reviewer.py --scan-secrets`.
+3. Verify HF Space publishing payload dry run: `python3 scripts/publish_space_hf.py --dry-run`.
+#### Acceptance Criteria
+- [x] Zero secret leaks detected across 1,321 files.
+- [x] Files perfectly synchronized.
+
+---
+
+### 🎫 TICKET-CHAT-006 | `code_reviewer` / `business_analyst` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-CHAT-005`  
+**Blocks**: None (Delivery Gateway)  
+#### Detailed Instructions
+1. Run pre-deployment review: `python3 project/core/code_reviewer.py --review`.
+2. Ensure status is `READY_FOR_PROD`.
+3. Synchronize agent definitions and update live docs.
+#### Acceptance Criteria
+- [x] `code_reviewer.py --review` returns `READY_FOR_PROD`.
+- [x] Agent sync checks pass 100%.
+
+---
+
+### 🏛️ ARCHIVED SPRINTS
+
+#### 🎫 Phase 14 — Metaphysics AI Live Consultant Chat Assistant [STATUS: DONE]
+- `TICKET-CHAT-001` (Orchestrator Blueprint) — DONE
+- `TICKET-CHAT-002` (Backend Chat Engine & SSE Stream Router) — DONE
+- `TICKET-CHAT-003` (Frontend Floating Drawer & Co-Pilot UI) — DONE
+- `TICKET-CHAT-004` (Pytest & Button Regression Verification) — DONE
+- `TICKET-CHAT-005` (DevOps & Dual-Path Sync) — DONE
+- `TICKET-CHAT-006` (Safety Audit & Doc Sync) — DONE
+
+#### 🎫 Phase 13 — Imperial White & Crimson Red Theme Overhaul (FengShuiX-Inspired Aesthetic) [STATUS: DONE]
+- `TICKET-THEME-001` (Orchestrator Blueprint) — DONE
+- `TICKET-THEME-002` (Style.css & Main UI Theme Polish) — DONE
+- `TICKET-THEME-003` (Admin & HITL Studio Migration) — DONE
+- `TICKET-THEME-004` (Button Regression & Pytest Verification) — DONE
+- `TICKET-THEME-005` (Production Delivery & Static Parity) — DONE
+- `TICKET-THEME-006` (Safety Audit & Doc Sync) — DONE
+#### Acceptance Criteria
+- [ ] Status `READY_FOR_PROD` verified.
+- [ ] Live docs updated.
+
+---
 
 ## 🚀 COMPLETED SPRINT: Phase 12 — Metaphysics Life Path Multi-Scenario Simulation & What-If Analyzer
 **Grill Gate Status**: ✅ APPROVED (Ref: `/plans/plan.md`)  

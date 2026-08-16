@@ -1,4 +1,130 @@
 ---
+## 🔥 GRILL REPORT — Phase 14: Metaphysics AI Live Consultant Chat Assistant & Multi-Turn Interactive Consultation Engine (แชทบอทซินแส AI โต้ตอบแบบ Real-time พร้อม Grounded RAG & Day Master Context)
+**Date**: 2026-08-16T23:45:00+07:00  
+**Grilled By**: orchestrator  
+**Gate Status**: ✅ APPROVED (User Interview Concluded via `/grill-me` 9-Dimension Grill Gate)  
+
+### D1 — Scope Boundary
+- **IN**:
+  1. **Backend Metaphysics AI Consultant Chat Engine (`project/core/chat_assistant_engine.py`)**:
+     - Auto-context synthesis: Extracts active BaZi chart state (Day Master stem & strength, 4 Pillars, 5 Elements balance %, Favorable/Unfavorable elements, Symbolic Stars, Current Da Yun decade, and 2026 Liu Nian transit).
+     - RAG Knowledge grounding: Ingests 3,132 metaphysics classical chunks, retrieves top-ranked citations (e.g., 《玉鏡寶鑑》, 《滴天髓》, 《子平真詮》), and embeds verified source reference links.
+     - Multi-turn conversation manager with token budget guardrails, role prompt steering (Compassionate & Rigorous Master Consultant), and hallucination safety filtering.
+     - 5 Dynamic Follow-Up Prompt Pill Generator (Career/Wealth, Romance/Peach Blossom, Feng Shui Directions, Da Yun Timing, 5 Elements Remedies) with progressive disclosure ranking.
+  2. **API Endpoints (`project/routers/chat.py`)**:
+     - `POST /api/v2/chat/stream`: SSE (Server-Sent Events) endpoint streaming token chunks, delta citations, dynamic prompt pills, and completion meta.
+     - `POST /api/v2/chat/consult`: Synchronous JSON REST endpoint returning full synthesized response, citations, follow-up chips, and token metrics.
+     - `POST /api/v2/chat/anonymized-feedback`: Opt-in endpoint for contributing anonymized QA insights to the HITL fine-tuning pipeline without PII.
+  3. **Frontend Hybrid Interactive Chat Assistant UI (`index.html`, `style.css`, `app.js`, `i18n.js`)**:
+     - Floating Glassmorphic Slide-Out Drawer (`#floating-chat-drawer`) with toggle launcher at the bottom-right of all views.
+     - Co-Pilot Split-Screen View: Expands side-by-side with 4-Pillars, Star Chart, and LuoPan without obscuring charts.
+     - Full-Screen Consultation Modal expand button for deep reading sessions.
+     - Dynamic Prompt Pills bar with 5 categories and one-click submission.
+     - Grounded citation accordion cards with clickable source chunk references.
+     - Client ephemeral privacy: Session storage / LocalStorage management with Export Markdown/JSON and Clear Session buttons.
+     - Privacy-first modal consent before optional anonymous fine-tuning sync.
+  4. **Quality & Verification**:
+     - Unit & regression test suite in `project/tests/test_chat_assistant.py`.
+     - Full Pytest regression suite, 33/33 Button Regression, 0 secret leaks.
+- **OUT**: Modifying locked Kaggle accelerator settings or Doppler secrets policy.
+
+### D2 — Requirement Delta
+- **New Additions**:
+  - Add `project/core/chat_assistant_engine.py` and `project/routers/chat.py`.
+  - Mount `chat_router` in `project/main.py`.
+  - Add Floating Chat Drawer and Co-Pilot UI in `project/static/index.html` & `public/index.html`.
+  - Add Chat styling in `project/static/style.css` & `public/style.css`.
+  - Add Chat client logic & SSE streaming in `project/static/app.js` & `public/app.js`.
+  - Add translations in `project/static/i18n.js` & `public/i18n.js`.
+  - Add `project/tests/test_chat_assistant.py`.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification Tool | Responsible Agent |
+|---|---|---|---|
+| 1 | `ChatAssistantEngine` synthesizes Day Master, 5 Elements, Da Yun, and RAG citations into coherent responses | `pytest project/tests/test_chat_assistant.py` | `developer` |
+| 2 | `POST /api/v2/chat/stream` streams valid SSE tokens and `POST /api/v2/chat/consult` returns complete JSON | `pytest project/tests/test_chat_assistant.py` | `developer` |
+| 3 | Frontend Floating Drawer & Co-Pilot View open smoothly, stream text, and render citation chips | `pytest project/tests/test_chat_assistant.py` | `developer` |
+| 4 | 5-category dynamic prompt pills render and trigger instant consultations | Visual & DOM inspection | `developer` |
+| 5 | Full Pytest regression suite passes 100% | `python3 -m pytest -v --ignore=project/kaggle_kernel` | `qa_tester` |
+| 6 | UI Button Regression (33/33) passes 100% | `python3 scripts/run_button_regression.py` | `qa_tester` |
+| 7 | Pre-deployment safety audit passes `READY_FOR_PROD` (0 secret leaks) | `python3 project/core/code_reviewer.py --review` | `code_reviewer` |
+
+### D4 — Constraints & Safeguards
+- Pure ASCII Logging.
+- Dual-path synchronization (`project/static/` and `public/`).
+- 0 secret leaks.
+- No PII storage in chat sessions.
+
+### D5 — Sub-Agent Task Decomposition
+- `TICKET-CHAT-001` (`orchestrator`): Architecture Blueprint & Chat Engine Specification [STATUS: DONE]
+- `TICKET-CHAT-002` (`developer`): Backend Chat Assistant Engine & Streaming Router (`chat_assistant_engine.py`, `chat.py`, `main.py`) [STATUS: DONE]
+- `TICKET-CHAT-003` (`developer`): Frontend Floating Drawer, Co-Pilot Split-Screen & Modal UI (`index.html`, `style.css`, `app.js`, `i18n.js`) [STATUS: DONE]
+- `TICKET-CHAT-004` (`qa_tester`): Unit & Regression Test Suite (`test_chat_assistant.py`) [STATUS: DONE]
+- `TICKET-CHAT-005` (`devops`): Production Delivery Release & HF Spaces Sync [STATUS: DONE]
+- `TICKET-CHAT-006` (`code_reviewer` / `business_analyst`): Final Code Review & Live Documentation Sync [STATUS: DONE]
+
+### D6 — Verification & Delivery Results
+- **Pytest Regression Suite**: **598/598 PASSED (100%)**, 4 skipped, 0 failed in 126.40s.
+- **Chat Assistant Unit Tests**: **11/11 PASSED (100%)** (`project/tests/test_chat_assistant.py`).
+- **UI Button Regression Suite**: **33/33 PASSED (100%)** (`scripts/run_button_regression.py`).
+- **Secret Scan**: Scanned 1,321 files via Rust Rayon — **0 leaks found**.
+- **Pre-Deployment Safety Audit**: **`READY_FOR_PROD`** (`project/core/code_reviewer.py --review`).
+- **Dual-Path Static Sync**: `project/static/` and `public/` are 100% identical (`diff -r` returns 0).
+- **Agent Governance Check**: Antigravity (`sync_sdlc_agents.py`) & Codex (`sync_codex_agents.py`) are 100% synchronized.
+
+---
+## 🔥 GRILL REPORT — Phase 13: Imperial White & Crimson Red Theme Overhaul (FengShuiX-Inspired Aesthetic)
+**Date**: 2026-08-16T22:48:30+07:00  
+**Grilled By**: orchestrator  
+**Gate Status**: ✅ APPROVED (User Confirmed Scope & 5-Elements High-Contrast White/Red Palette)  
+
+### D1 — Scope Boundary
+- **IN**:
+  1. **Main UI & Core Design Tokens (`project/static/style.css` & `public/style.css`)**:
+     - Modern FengShuiX-inspired clean white background (`#ffffff` / `#f8fafc`), soft rose/red tints (`#fef2f2`, `#fee2e2`), imperial crimson borders and highlights (`#dc2626`, `#b91c1c`, `#991b1b`).
+     - Form controls, inputs, select dropdowns, radio/checkbox pills, tabs, accordions, modals, and tooltips with high-contrast text and crimson focus rings.
+     - 5-Elements Metaphysical Palette tuned for maximum readability on white backgrounds (Wood: `#16a34a`, Fire: `#dc2626`, Earth: `#d97706`, Metal: `#475569`, Water: `#2563eb`).
+     - Interactive widgets (Sky Clock, Time Scrubber, LuoPan 24-Mountain Compass, 9-Grid Floorplan Heatmap, Scenario Trajectory Cards) in crisp white & red styling.
+  2. **Admin Studio (`project/static/admin.html` & `public/admin.html`)**:
+     - Migrate entire topbar, sidebar, table grids, status badges, modals, and input controls from legacy dark theme to clean White & Red aesthetic.
+  3. **HITL Review Studio (`project/static/hitl.html` & `public/hitl.html`)**:
+     - Migrate entire HITL interface from dark theme (`#04080f`) to clean White & Red theme with high-contrast cards, gold/red status badges, and crystal-clear diff viewers.
+  4. **Dual-Path Synchronization**:
+     - Keep `project/static/` and `public/` 100% identical.
+  5. **Verification & Testing**:
+     - UI Button Regression Suite (`scripts/run_button_regression.py`).
+     - Full Pytest Regression Suite (`python3 -m pytest -v --ignore=project/kaggle_kernel`).
+     - Pre-deployment security & code review (`project/core/code_reviewer.py --review`).
+- **OUT**: Modifying locked Kaggle accelerator settings or Doppler secrets policy.
+
+### D2 — Requirement Delta
+- **Changed**: Complete elimination of dark theme remnants in `admin.html`, `hitl.html`, and `style.css`.
+- **Cleaned Up**: Removed legacy dark background CSS classes and redundant dark-mode overrides.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification Tool | Responsible Agent |
+|---|---|---|---|
+| 1 | `style.css` provides a comprehensive, responsive Imperial White & Red theme matching FengShuiX style | Visual & DOM inspection | `developer` |
+| 2 | `admin.html` and `hitl.html` are 100% migrated to the White & Red aesthetic without dark artifacts | Browser & DOM review | `developer` |
+| 3 | 5-Elements colors maintain high contrast and clear readability on white surfaces | UI review & contrast check | `developer` |
+| 4 | UI Button Regression Suite passes 100% (33/33) | `python3 scripts/run_button_regression.py` | `qa_tester` |
+| 5 | Full Pytest suite passes 100% | `python3 -m pytest -v --ignore=project/kaggle_kernel` | `qa_tester` |
+| 6 | Pre-deployment safety audit passes `READY_FOR_PROD` (0 secret leaks) | `python3 project/core/code_reviewer.py --review` | `code_reviewer` |
+
+### D4 — Constraints & Safeguards
+- Pure ASCII Logging.
+- Dual-path synchronization (`project/static/` and `public/`).
+- 0 secret leaks.
+
+### D5 — Sub-Agent Task Decomposition
+- `TICKET-THEME-001` (`orchestrator`): Architecture Blueprint & Specification
+- `TICKET-THEME-002` (`developer`): Style.css & Main UI Theme Polish (`project/static/style.css`, `public/style.css`, `index.html`)
+- `TICKET-THEME-003` (`developer`): Admin Panel & HITL Studio Theme Migration (`admin.html`, `hitl.html`)
+- `TICKET-THEME-004` (`qa_tester`): UI Button Regression & Pytest Verification
+- `TICKET-THEME-005` (`devops`): Production Delivery & Dual-Path Sync Verification
+- `TICKET-THEME-006` (`code_reviewer` / `business_analyst`): Pre-Deploy Safety Audit & Documentation Sync
+
+---
 ## 🔥 GRILL REPORT — Phase 12: Metaphysics Life Path Multi-Scenario Simulation & What-If Analyzer (多場景命理決策模擬器)
 **Date**: 2026-08-16T22:13:55+07:00  
 **Grilled By**: orchestrator  

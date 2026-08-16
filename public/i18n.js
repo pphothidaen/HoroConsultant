@@ -126,6 +126,12 @@ const I18N_DICTIONARY = {
     ai_model_source: "AI Engine:",
     ai_latency: "เวลาประมวลผล:",
     
+    // Chat Assistant
+    chat_launcher: "💬 ปรึกษาซินแส AI",
+    chat_title: "🔮 ซินแส AI ผู้ช่วยดวงชะตา",
+    chat_sub: "Live Metaphysics Consultant • Grounded RAG",
+    chat_privacy: "🔒 Privacy Mode: Client Ephemeral (ไม่บันทึกข้อมูลส่วนบุคคล)",
+
     // Footer & Status
     health_status: "สถานะระบบ:",
     ready_status: "พร้อมใช้งาน",
@@ -252,6 +258,12 @@ const I18N_DICTIONARY = {
     ai_model_source: "AI Engine:",
     ai_latency: "Inference Latency:",
     
+    // Chat Assistant
+    chat_launcher: "💬 Consult AI Sin-Sae",
+    chat_title: "🔮 Metaphysics AI Live Consultant",
+    chat_sub: "Live Metaphysics Consultant • Grounded RAG",
+    chat_privacy: "🔒 Privacy Mode: Client Ephemeral (No PII Stored)",
+
     // Footer & Status
     health_status: "System Health:",
     ready_status: "Operational",
@@ -378,6 +390,12 @@ const I18N_DICTIONARY = {
     ai_model_source: "分析引擎:",
     ai_latency: "研判耗時:",
     
+    // Chat Assistant
+    chat_launcher: "💬 諮詢 AI 命理師",
+    chat_title: "🔮 AI 命理大師顧問",
+    chat_sub: "Live Metaphysics Consultant • Grounded RAG",
+    chat_privacy: "🔒 隱私安全模式：Client Ephemeral (不保存個人隱私記錄)",
+
     // Footer & Status
     health_status: "系統狀態:",
     ready_status: "運行中",

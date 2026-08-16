@@ -1153,11 +1153,11 @@ function buildPillarsGridHtml(chart) {
   return BAZI_PILLAR_ORDER.map((entry) => {
     const c = formatPillarCell(p[entry.key]);
     return `
-      <div class="pillar-box" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(212, 175, 55, 0.3); padding: 8px; border-radius: 6px; text-align: center;">
-        <div style="font-size: 0.8rem; color: #94a3b8;">${entry.label} (${entry.zh})</div>
-        <div style="font-size: 0.73rem; color: #cbd5e1; margin-bottom: 4px;">${entry.theme}</div>
-        <div style="font-size: 1.3rem; color: #fbbf24; font-weight: bold;">${c.stemText}</div>
-        <div style="font-size: 1.1rem; color: #e2e8f0;">${c.branchText}</div>
+      <div class="pillar-box" style="background: #ffffff; border: 1px solid #fee2e2; border-top: 3px solid #dc2626; padding: 8px; border-radius: 8px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+        <div style="font-size: 0.8rem; color: #991b1b; font-weight: 700;">${entry.label} (${entry.zh})</div>
+        <div style="font-size: 0.73rem; color: #64748b; margin-bottom: 4px;">${entry.theme}</div>
+        <div style="font-size: 1.3rem; color: #dc2626; font-weight: 800;">${c.stemText}</div>
+        <div style="font-size: 1.1rem; color: #0f172a; font-weight: 700;">${c.branchText}</div>
       </div>
     `;
   }).join('');
@@ -1244,10 +1244,10 @@ function renderFourPillarsBranchCard(chartData, svgContent, interpretationDepth 
   const summaryHtml = buildPillarResearchHtml(chart, queryText, interpretationDepth);
 
   const fallbackHtml = `
-    <div style="background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.35); padding: 1rem; border-radius: 10px;">
+    <div style="background: #fef2f2; border: 1px solid #fee2e2; padding: 1rem; border-radius: 10px;">
       ${topInfoPanel}
     </div>
-    <div style="margin-top: 0.8rem; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.35); padding: 0.9rem; border-radius: 8px;">${summaryHtml}</div>
+    <div style="margin-top: 0.8rem; background: #ffffff; border: 1px solid #fee2e2; padding: 0.9rem; border-radius: 8px; color: #1e293b;">${summaryHtml}</div>
   `;
   showBranchCard("🏛️ ผังดวง 4 เสา (Four Pillars of Destiny — 四柱)", fallbackHtml, svg);
 }
@@ -5317,30 +5317,31 @@ function showVersionUpdateToast(remoteVersion) {
     bottom: 24px;
     right: 24px;
     z-index: 99999;
-    background: linear-gradient(135deg, rgba(30, 27, 75, 0.95), rgba(15, 23, 42, 0.95));
-    border: 1px solid rgba(168, 85, 247, 0.6);
+    background: #ffffff;
+    border: 1px solid #fecaca;
+    border-top: 3px solid #dc2626;
     border-radius: 12px;
     padding: 12px 18px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(220, 38, 38, 0.2);
     display: flex;
     align-items: center;
     gap: 12px;
-    color: #f8fafc;
+    color: #0f172a;
     font-size: 0.88rem;
   `;
 
   toast.innerHTML = `
     <span>🚀 <strong>มีเวอร์ชันใหม่:</strong> v${remoteVersion}</span>
     <button type="button" onclick="forcePurgeAndReload()" style="
-      background: linear-gradient(135deg, #a855f7, #6366f1);
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
       color: white;
       border: none;
       padding: 6px 12px;
       border-radius: 8px;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 0.8rem;
+      box-shadow: 0 2px 8px rgba(220,38,38,0.3);
     ">⚡ อัปเดตทันที</button>
     <button type="button" onclick="this.parentElement.remove()" style="
       background: transparent;
@@ -5491,13 +5492,387 @@ window.setSimulationHorizon = setSimulationHorizon;
 window.runScenarioSimulation = runScenarioSimulation;
 window.renderSimulationComparison = renderSimulationComparison;
 
+/* ==========================================================================
+   14. METAPHYSICS AI LIVE CONSULTANT CHAT ASSISTANT LOGIC
+   ========================================================================== */
+
+let chatHistory = [];
+let isChatStreaming = false;
+
+function toggleChatDrawer(forceState) {
+  const drawer = document.getElementById("floating-chat-drawer");
+  const launcher = document.getElementById("chat-launcher-btn");
+  if (!drawer) return;
+
+  const shouldOpen = typeof forceState === "boolean" ? forceState : drawer.classList.contains("hidden");
+  if (shouldOpen) {
+    drawer.classList.remove("hidden");
+    if (launcher) launcher.style.display = "none";
+    updateChatAutoContext();
+    loadDynamicPromptPills();
+    setTimeout(() => {
+      const input = document.getElementById("chat-input-field");
+      if (input) input.focus();
+    }, 150);
+  } else {
+    drawer.classList.add("hidden");
+    if (launcher) launcher.style.display = "flex";
+  }
+}
+
+function toggleChatCoPilot() {
+  const drawer = document.getElementById("floating-chat-drawer");
+  if (!drawer) return;
+  drawer.classList.toggle("copilot");
+  drawer.classList.remove("fullscreen");
+}
+
+function toggleChatFullscreen() {
+  const drawer = document.getElementById("floating-chat-drawer");
+  if (!drawer) return;
+  drawer.classList.toggle("fullscreen");
+  drawer.classList.remove("copilot");
+}
+
+function updateChatAutoContext() {
+  const dmPill = document.getElementById("ctx-dm");
+  const favPill = document.getElementById("ctx-fav");
+  const starsPill = document.getElementById("ctx-stars");
+
+  if (window.lastBaziChart) {
+    const dm = window.lastBaziChart.day_master || {};
+    const stem = dm.stem || "丁";
+    const elem = dm.element || "Fire";
+    const str = dm.strength || "Weak";
+    if (dmPill) dmPill.textContent = `แม่ธาตุ: ${stem} (${elem} - ${str})`;
+    if (favPill && window.lastBaziChart.favorable_elements) {
+      favPill.textContent = `ธาตุเสริม: ${window.lastBaziChart.favorable_elements.join(", ")}`;
+    }
+  }
+}
+
+async function loadDynamicPromptPills() {
+  const container = document.getElementById("dynamic-prompt-pills");
+  if (!container) return;
+
+  try {
+    const profile = window.lastBaziChart || null;
+    const res = await fetchApi("/api/v2/chat/prompt-pills", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(profile ? { profile } : {}),
+      showLoader: false
+    });
+    if (res && res.pills) {
+      renderPromptPills(res.pills);
+    }
+  } catch (err) {
+    console.warn("Could not load dynamic prompt pills:", err);
+    renderPromptPills([
+      { id: "p1", icon: "💼", label: "การงานปี 2026", prompt: "วิเคราะห์โอกาสความก้าวหน้าในอาชีพและการเงินในปี 2026 ตามธาตุสำคัญและปีจร" },
+      { id: "p2", icon: "🌸", label: "ทิศความรัก Peach Blossom", prompt: "ดาวเสน่ห์ (Peach Blossom) และวังคู่ครองของฉันชี้แนะทิศทางความรักอย่างไร?" },
+      { id: "p3", icon: "🧭", label: "ทิศโต๊ะทำงาน Nobleman", prompt: "แนะนำทิศมงคลประจำตัวสำหรับหันทิศโต๊ะทำงานและหัวนอน" },
+      { id: "p4", icon: "⏳", label: "วัยจร 10 ปี (Da Yun)", prompt: "อธิบายจังหวะชีวิตในวัยจร 10 ปีปัจจุบันว่าเป็นช่วงสะสมหรือช่วงรุก?" },
+      { id: "p5", icon: "🌿", label: "ปรับสมดุล 5 ธาตุ", prompt: "แนะนำสี เครื่องประดับ หรือกิจวัตรเพื่อเสริมพลังธาตุที่ต้องการ" }
+    ]);
+  }
+}
+
+function renderPromptPills(pills) {
+  const container = document.getElementById("dynamic-prompt-pills");
+  if (!container) return;
+
+  container.innerHTML = pills.map(p => `
+    <button type="button" class="prompt-pill" onclick="triggerPromptPill(${JSON.stringify(p.prompt).replace(/"/g, '&quot;')})">
+      <span>${p.icon || '💡'}</span> ${escapeHtml(p.label)}
+    </button>
+  `).join("");
+}
+
+function triggerPromptPill(promptText) {
+  const input = document.getElementById("chat-input-field");
+  if (input) {
+    input.value = promptText;
+    handleChatSubmit(new Event("submit"));
+  }
+}
+
+function handleChatKeyDown(event) {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    handleChatSubmit(event);
+  }
+}
+
+async function handleChatSubmit(event) {
+  if (event && event.preventDefault) event.preventDefault();
+  if (isChatStreaming) return;
+
+  const input = document.getElementById("chat-input-field");
+  if (!input) return;
+  const query = input.value.trim();
+  if (!query) return;
+
+  input.value = "";
+
+  // 1. Append user message
+  appendChatMessage("user", query);
+
+  // 2. Stream AI Response
+  await streamChatResponse(query);
+}
+
+function appendChatMessage(role, text, citations) {
+  const container = document.getElementById("chat-messages-container");
+  if (!container) return null;
+
+  const msgDiv = document.createElement("div");
+  msgDiv.className = `chat-msg ${role}`;
+
+  let citationsHtml = "";
+  if (citations && citations.length > 0) {
+    citationsHtml = citations.map(c => `
+      <div class="chat-citation-card">
+        <div class="chat-citation-title">📚 [${escapeHtml(c.id)}] ${escapeHtml(c.source)}</div>
+        <div>${escapeHtml(c.snippet || "")}</div>
+      </div>
+    `).join("");
+  }
+
+  const formattedText = role === "assistant" || role === "ai" ? formatMarkdownText(text) : escapeHtml(text).replace(/\n/g, '<br>');
+
+  msgDiv.innerHTML = `
+    <div class="chat-msg-avatar">${role === "user" ? "👤" : "🔮"}</div>
+    <div class="chat-msg-body">
+      <div class="chat-msg-text">${formattedText}</div>
+      ${citationsHtml}
+    </div>
+  `;
+
+  container.appendChild(msgDiv);
+  container.scrollTop = container.scrollHeight;
+
+  chatHistory.push({ role, content: text });
+  return msgDiv;
+}
+
+function formatMarkdownText(text) {
+  if (!text) return "";
+  let html = text
+    .replace(/^### (.*$)/gim, '<h4 style="margin:6px 0 4px;color:#991b1b;font-weight:700">$1</h4>')
+    .replace(/^#### (.*$)/gim, '<h5 style="margin:4px 0 2px;color:#b91c1c;font-weight:700">$1</h5>')
+    .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+  return html;
+}
+
+async function streamChatResponse(query) {
+  const container = document.getElementById("chat-messages-container");
+  if (!container) return;
+
+  isChatStreaming = true;
+
+  const aiMsgDiv = document.createElement("div");
+  aiMsgDiv.className = "chat-msg ai";
+  aiMsgDiv.innerHTML = `
+    <div class="chat-msg-avatar">🔮</div>
+    <div class="chat-msg-body">
+      <div class="chat-msg-text" id="active-streaming-text">
+        <span class="pulse-dot">●</span> กำลังประมวลผลและค้นหาคัมภีร์...
+      </div>
+      <div id="active-streaming-citations"></div>
+    </div>
+  `;
+  container.appendChild(aiMsgDiv);
+  container.scrollTop = container.scrollHeight;
+
+  const textElem = aiMsgDiv.querySelector("#active-streaming-text");
+  const citationsElem = aiMsgDiv.querySelector("#active-streaming-citations");
+
+  let fullAiText = "";
+  let receivedCitations = [];
+
+  try {
+    const payload = {
+      query,
+      history: chatHistory.slice(-6),
+      profile: window.lastBaziChart || null
+    };
+
+    const response = await fetch(getApiBaseUrl() + "/api/v2/chat/stream", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok || !response.body) {
+      throw new Error(`HTTP error ${response.status}`);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n\n");
+      buffer = lines.pop() || "";
+
+      for (const block of lines) {
+        if (!block.trim()) continue;
+        const eventMatch = block.match(/event:\s*([^\n]+)/);
+        const dataMatch = block.match(/data:\s*([^\n]+)/);
+
+        if (eventMatch && dataMatch) {
+          const eventType = eventMatch[1].trim();
+          try {
+            const dataObj = JSON.parse(dataMatch[1].trim());
+
+            if (eventType === "citations") {
+              receivedCitations = dataObj;
+              if (citationsElem && receivedCitations.length > 0) {
+                citationsElem.innerHTML = receivedCitations.map(c => `
+                  <div class="chat-citation-card">
+                    <div class="chat-citation-title">📚 [${escapeHtml(c.id)}] ${escapeHtml(c.source)}</div>
+                    <div>${escapeHtml(c.snippet || "")}</div>
+                  </div>
+                `).join("");
+              }
+            } else if (eventType === "pills") {
+              renderPromptPills(dataObj);
+            } else if (eventType === "delta") {
+              fullAiText += dataObj.text || "";
+              if (textElem) {
+                textElem.innerHTML = formatMarkdownText(fullAiText);
+                container.scrollTop = container.scrollHeight;
+              }
+            }
+          } catch (e) {
+            console.warn("SSE parse error:", e);
+          }
+        }
+      }
+    }
+
+    if (textElem && fullAiText) {
+      textElem.innerHTML = formatMarkdownText(fullAiText);
+    }
+    chatHistory.push({ role: "assistant", content: fullAiText });
+
+  } catch (err) {
+    console.error("Streaming error, falling back to sync consult:", err);
+    try {
+      const syncRes = await fetchApi("/api/v2/chat/consult", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query,
+          history: chatHistory.slice(-6),
+          profile: window.lastBaziChart || null
+        })
+      });
+
+      if (syncRes && syncRes.content) {
+        fullAiText = syncRes.content;
+        if (textElem) textElem.innerHTML = formatMarkdownText(fullAiText);
+        if (citationsElem && syncRes.citations) {
+          citationsElem.innerHTML = syncRes.citations.map(c => `
+            <div class="chat-citation-card">
+              <div class="chat-citation-title">📚 [${escapeHtml(c.id)}] ${escapeHtml(c.source)}</div>
+              <div>${escapeHtml(c.snippet || "")}</div>
+            </div>
+          `).join("");
+        }
+        if (syncRes.follow_up_chips) renderPromptPills(syncRes.follow_up_chips);
+        chatHistory.push({ role: "assistant", content: fullAiText });
+      }
+    } catch (fallbackErr) {
+      if (textElem) {
+        textElem.innerHTML = `<span style="color:#dc2626">⚠️ ขออภัย เกิดข้อผิดพลาดในการเชื่อมต่อระบบซินแส AI กรุณาลองใหม่อีกครั้ง</span>`;
+      }
+    }
+  } finally {
+    isChatStreaming = false;
+  }
+}
+
+function clearChatMessages() {
+  const container = document.getElementById("chat-messages-container");
+  if (container) {
+    container.innerHTML = `
+      <div class="chat-msg ai">
+        <div class="chat-msg-avatar">🔮</div>
+        <div class="chat-msg-body">
+          <div class="chat-msg-text">
+            ล้างประวัติบทสนทนาเรียบร้อยแล้วครับ ท่านสามารถเริ่มต้นปรึกษาคำถามใหม่ได้ทันทีครับ
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  chatHistory = [];
+}
+
+function exportChatTranscript(format) {
+  if (!chatHistory || chatHistory.length === 0) {
+    alert("ยังไม่มีบทสนทนาสำหรับบันทึก");
+    return;
+  }
+
+  let text = "";
+  let mimeType = "text/plain";
+  let filename = `HoroConsultant_Chat_${new Date().toISOString().slice(0, 10)}`;
+
+  if (format === "markdown") {
+    text = `# 🔮 บันทึกการปรึกษาซินแส AI (Metaphysics Consultation Transcript)\n*วันที่: ${new Date().toLocaleString()}*\n\n---\n\n`;
+    text += chatHistory.map(m => `### ${m.role === 'user' ? '👤 ผู้สอบถาม' : '🔮 ซินแส AI'}\n${m.content}\n\n`).join("");
+    mimeType = "text/markdown";
+    filename += ".md";
+  } else {
+    text = JSON.stringify({
+      timestamp: new Date().toISOString(),
+      messages: chatHistory
+    }, null, 2);
+    mimeType = "application/json";
+    filename += ".json";
+  }
+
+  const blob = new Blob([text], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+window.toggleChatDrawer = toggleChatDrawer;
+window.toggleChatCoPilot = toggleChatCoPilot;
+window.toggleChatFullscreen = toggleChatFullscreen;
+window.loadDynamicPromptPills = loadDynamicPromptPills;
+window.triggerPromptPill = triggerPromptPill;
+window.handleChatKeyDown = handleChatKeyDown;
+window.handleChatSubmit = handleChatSubmit;
+window.clearChatMessages = clearChatMessages;
+window.exportChatTranscript = exportChatTranscript;
+
 if (typeof document !== 'undefined') {
   document.addEventListener("DOMContentLoaded", () => {
     loadMonthCalendar(2026, 8);
     calcLuoPan(180);
-    setTimeout(checkAppVersion, 3000);
-    setInterval(checkAppVersion, 300000);
-    setTimeout(runScenarioSimulation, 1000);
+    loadDynamicPromptPills();
+    if (!window.__coldStartDelays) {
+      runScenarioSimulation();
+      setTimeout(checkAppVersion, 4000);
+      setInterval(checkAppVersion, 300000);
+    }
   });
 }
 

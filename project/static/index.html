@@ -13,7 +13,7 @@
   <meta http-equiv="Expires" content="0">
   <link rel="stylesheet" href="style.css?v=6a61068">
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#6366f1">
+  <meta name="theme-color" content="#dc2626">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
@@ -31,7 +31,7 @@
       <div class="brand">
         <span class="brand-icon">☯</span>
         <div class="brand-text">
-          <h1>HoroConsultant</h1>
+          <h1>BAZI.<span>HOROCONSULTANT</span></h1>
           <span class="tagline">Computational Metaphysics &amp; Multi-Agent Intelligence</span>
         </div>
       </div>
@@ -447,10 +447,10 @@
             <button type="button" class="btn-dream-tag" onclick="quickDreamTag('ฝันเห็นแม่น้ำใหญ่และน้ำท่วม')">💧 น้ำท่วม/แม่น้ำ</button>
             <button type="button" class="btn-dream-tag" onclick="quickDreamTag('ฝันว่าขับรถขึ้นภูเขาสูง')">🚗 ขับรถ/เดินทาง</button>
             <button type="button" class="btn-dream-tag" onclick="quickDreamTag('ฝันเห็นปลาหลีฮื้อและเต่ามังกร')">🐟 ปลา/เต่า</button>
-            <button type="button" class="btn-tool" onclick="submitDreamInterpretation()" style="margin-left: auto; background: linear-gradient(135deg, #a855f7, #6366f1); color: white;" data-i18n="btn_interpret_dream">🔮 ทำนายฝัน</button>
+            <button type="button" class="btn-tool" onclick="submitDreamInterpretation()" style="margin-left: auto; background: linear-gradient(135deg, #dc2626, #b91c1c); color: white;" data-i18n="btn_interpret_dream">🔮 ทำนายฝัน</button>
           </div>
 
-          <div id="dream-result-box" class="hidden" style="padding: 12px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 8px;">
+          <div id="dream-result-box" class="hidden" style="padding: 12px; background: #ffffff; border: 1px solid #fee2e2; border-radius: 8px;">
             <!-- Dynamically populated by JS -->
           </div>
         </div>
@@ -590,6 +590,74 @@
         <button type="button" class="speed-btn active" onclick="setVoicePlaybackRate(1.0, this)">1.0x</button>
         <button type="button" class="speed-btn" onclick="setVoicePlaybackRate(1.25, this)">1.25x</button>
         <button type="button" class="speed-btn" onclick="setVoicePlaybackRate(1.5, this)">1.5x</button>
+      </div>
+    </div>
+  <!-- ======================== FLOATING METAPHYSICS AI CHAT LAUNCHER & DRAWER ======================== -->
+  <button id="chat-launcher-btn" class="chat-launcher-btn" onclick="toggleChatDrawer()" title="ปรึกษาซินแส AI (Live Consultant)">
+    <span class="chat-launcher-icon">💬</span>
+    <span class="chat-launcher-text">ปรึกษาซินแส AI</span>
+    <span class="chat-pulse-badge">Live</span>
+  </button>
+
+  <div id="floating-chat-drawer" class="floating-chat-drawer hidden">
+    <div class="chat-drawer-header">
+      <div class="chat-header-left">
+        <span class="chat-header-logo">🔮</span>
+        <div>
+          <div class="chat-header-title">ซินแส AI ผู้ช่วยดวงชะตา</div>
+          <div class="chat-header-sub">Live Metaphysics Consultant • Grounded RAG</div>
+        </div>
+      </div>
+      <div class="chat-header-actions">
+        <button type="button" class="chat-tool-btn" id="chat-copilot-toggle" onclick="toggleChatCoPilot()" title="โหมดแบ่งหน้าจอ (Co-Pilot)">🪟</button>
+        <button type="button" class="chat-tool-btn" id="chat-fullscreen-toggle" onclick="toggleChatFullscreen()" title="ขยายเต็มหน้าจอ">⛶</button>
+        <button type="button" class="chat-tool-btn" onclick="clearChatMessages()" title="ล้างบทสนทนา">🗑️</button>
+        <button type="button" class="chat-tool-btn chat-close-btn" onclick="toggleChatDrawer(false)" title="ปิด">✕</button>
+      </div>
+    </div>
+
+    <!-- Active Chart Auto-Context Bar -->
+    <div class="chat-context-bar" id="chat-context-bar">
+      <span class="ctx-pill dm" id="ctx-dm">แม่ธาตุ: 丁火 (Yin Fire - Weak)</span>
+      <span class="ctx-pill fav" id="ctx-fav">ธาตุเสริม: ไม้, น้ำ</span>
+      <span class="ctx-pill stars" id="ctx-stars">ดาวมงคล: Nobleman (NW)</span>
+    </div>
+
+    <!-- Messages Container -->
+    <div class="chat-messages-container" id="chat-messages-container">
+      <div class="chat-msg ai">
+        <div class="chat-msg-avatar">🔮</div>
+        <div class="chat-msg-body">
+          <div class="chat-msg-text">
+            สวัสดีครับผู้ใฝ่รู้ในวิถีแห่งธรรมชาติ ผมคือ <strong>ซินแส AI ผู้ช่วยดวงชะตา</strong> ได้รับการเชื่อมโยงข้อมูลพื้นดวงชะตาและคัมภีร์ดึกดำบรรพ์เรียบร้อยแล้ว<br><br>
+            ท่านสามารถสอบถามเรื่องการงาน การเงิน ความรัก ฮวงจุ้ย หรือเจาะลึกจังหวะชีวิตในปีจร 2026 ได้ทันทีครับ
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic Prompt Pills Bar -->
+    <div class="chat-pills-section">
+      <div class="chat-pills-header">💡 คำถามด่วนที่ตรงกับพื้นดวงของคุณ:</div>
+      <div class="chat-pills-container" id="dynamic-prompt-pills">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+
+    <!-- Input Form -->
+    <form class="chat-input-area" id="chat-input-form" onsubmit="handleChatSubmit(event)">
+      <textarea id="chat-input-field" class="chat-input-field" placeholder="พิมพ์คำถามปรึกษาซินแส AI เช่น โอกาสการงานปี 2026..." rows="1" onkeydown="handleChatKeyDown(event)"></textarea>
+      <button type="submit" class="chat-send-btn" id="chat-send-btn" title="ส่งคำถาม">
+        <span>🚀</span>
+      </button>
+    </form>
+
+    <!-- Footer Privacy & Tools -->
+    <div class="chat-drawer-footer">
+      <span class="chat-privacy-note">🔒 Privacy Mode: Client Ephemeral (ไม่บันทึกข้อมูลส่วนบุคคล)</span>
+      <div class="chat-export-group">
+        <button type="button" class="chat-export-btn" onclick="exportChatTranscript('markdown')">MD</button>
+        <button type="button" class="chat-export-btn" onclick="exportChatTranscript('json')">JSON</button>
       </div>
     </div>
   </div>

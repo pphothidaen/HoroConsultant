@@ -3,7 +3,7 @@
   "info": {
     "title": "Computational Metaphysics Engine",
     "description": "Modular 10-Domain Metaphysical Calculation, AI Debate & Multi-Agent Engine",
-    "version": "1.0.0.5a55b78"
+    "version": "1.0.0.f94753a"
   },
   "paths": {
     "/admin/auth/google": {
@@ -2691,6 +2691,174 @@
         }
       }
     },
+    "/api/v2/chat/stream": {
+      "post": {
+        "tags": [
+          "Metaphysics AI Live Consultant Chat Assistant"
+        ],
+        "summary": "Live SSE Streaming Consultation Endpoint",
+        "description": "Streams Server-Sent Events (SSE) including delta tokens, RAG citations, and dynamic prompt pills.",
+        "operationId": "stream_chat_consultation_api_v2_chat_stream_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatConsultRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/chat/consult": {
+      "post": {
+        "tags": [
+          "Metaphysics AI Live Consultant Chat Assistant"
+        ],
+        "summary": "Synchronous Consultation JSON Endpoint",
+        "description": "Returns complete synthesized consultation with grounded citations, prompt pills, and context.",
+        "operationId": "consult_chat_synchronous_api_v2_chat_consult_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatConsultRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/chat/prompt-pills": {
+      "post": {
+        "tags": [
+          "Metaphysics AI Live Consultant Chat Assistant"
+        ],
+        "summary": "Dynamic Ranked Prompt Pills",
+        "description": "Returns 5 categories of dynamic prompt pills customized to the user's active BaZi chart.",
+        "operationId": "get_prompt_pills_api_v2_chat_prompt_pills_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Profile"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/chat/anonymized-feedback": {
+      "post": {
+        "tags": [
+          "Metaphysics AI Live Consultant Chat Assistant"
+        ],
+        "summary": "Submit Opt-in Anonymized QA Feedback",
+        "description": "Accepts anonymized user feedback to enrich the HITL fine-tuning pipeline.\nEnforces privacy: strictly no PII stored.",
+        "operationId": "submit_anonymized_feedback_api_v2_chat_anonymized_feedback_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnonymizedFeedbackRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "tags": [
@@ -2818,6 +2986,67 @@
   },
   "components": {
     "schemas": {
+      "AnonymizedFeedbackRequest": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query",
+            "description": "User question (anonymized, no PII)"
+          },
+          "response": {
+            "type": "string",
+            "title": "Response",
+            "description": "AI assistant response"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 5.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating",
+            "description": "1-5 star user rating"
+          },
+          "tags": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tags",
+            "description": "Categorization error tags"
+          },
+          "feedback_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feedback Text",
+            "description": "Optional user correction"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query",
+          "response"
+        ],
+        "title": "AnonymizedFeedbackRequest"
+      },
       "BaZiRequest": {
         "properties": {
           "birth_datetime": {
@@ -2886,6 +3115,68 @@
         },
         "type": "object",
         "title": "BatchDraftRequest"
+      },
+      "ChatConsultRequest": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "title": "Query",
+            "description": "User's metaphysics query"
+          },
+          "history": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ChatMessage"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "History",
+            "description": "Recent conversation turns"
+          },
+          "profile": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile",
+            "description": "Active user BaZi chart context or birth parameters"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "ChatConsultRequest"
+      },
+      "ChatMessage": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "description": "Message author role: 'user' or 'assistant'"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "description": "Message text content"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role",
+          "content"
+        ],
+        "title": "ChatMessage"
       },
       "DateQueryRequest": {
         "properties": {

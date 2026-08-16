@@ -31,6 +31,7 @@ from project.routers.synastry import synastry_router
 from project.routers.calendar import calendar_router
 from project.routers.luopan_dream import luopan_dream_router
 from project.routers.simulation import simulation_router
+from project.routers.chat import router as chat_router
 
 
 try:
@@ -180,6 +181,7 @@ app.include_router(synastry_router)
 app.include_router(calendar_router)
 app.include_router(luopan_dream_router)
 app.include_router(simulation_router)
+app.include_router(chat_router)
 
 
 
