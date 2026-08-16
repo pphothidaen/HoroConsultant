@@ -677,6 +677,7 @@ function buildBaziPayloadFromForm() {
   const gender = genderRadio ? genderRadio.value : 'male';
   const nameInput = document.getElementById('user_name');
   const twinInput = document.getElementById('has_twin');
+  const currentLang = typeof window.getLanguage === 'function' ? window.getLanguage() : 'th';
 
   return {
     name: nameInput ? nameInput.value.trim() : '',
@@ -688,7 +689,8 @@ function buildBaziPayloadFromForm() {
     unknown_hour: document.getElementById('unknown_hour').checked,
     enable_validation: document.getElementById('enable_validation').checked,
     query: document.getElementById('query').value,
-    interpretation_depth: getInterpretationDepthFromForm()
+    interpretation_depth: getInterpretationDepthFromForm(),
+    language: currentLang
   };
 }
 
@@ -1328,6 +1330,9 @@ async function calculateAndInterpret() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  if (typeof window.initI18n === 'function') {
+    window.initI18n();
+  }
   updateVersionFooter();
   const initialNow = getNowFormattedDateTime();
   const pickerInput = document.getElementById('birth_datetime_picker');
@@ -1483,6 +1488,11 @@ async function calculateChart(event) {
 
     const svgContent = data.svg_content || (data.chart && data.chart.svg_content) || '';
     renderResults(data, svgContent);
+
+    const isSynastry = document.getElementById('toggle-synastry-mode');
+    if (isSynastry && isSynastry.checked && typeof calcSynastry === 'function') {
+      calcSynastry();
+    }
   } catch (err) {
     if (statusEl) {
       statusEl.classList.remove('hidden');
@@ -1722,6 +1732,7 @@ function showBranchCard(title, contentHtml, svgContent) {
   const card = document.getElementById('branch-result-card') || document.getElementById('5-branch-result-card');
   const titleEl = document.getElementById('branch-title') || document.getElementById('5-branch-title');
   const bodyEl = document.getElementById('branch-body') || document.getElementById('5-branch-body');
+  const actionsBar = document.getElementById('results-actions-bar');
   
   if (card && titleEl && bodyEl) {
     titleEl.innerHTML = title;
@@ -1731,6 +1742,8 @@ function showBranchCard(title, contentHtml, svgContent) {
     }
     bodyEl.innerHTML = fullHtml;
     card.classList.remove('hidden');
+    if (actionsBar) actionsBar.classList.remove('hidden');
+    if (typeof initDaYunTimeline === 'function') initDaYunTimeline(activeNatalChartCache || {});
     card.scrollIntoView({ behavior: 'smooth' });
   }
 }
@@ -4572,4 +4585,682 @@ async function calcMultimodalMatrix(domainKey = 'career') {
 function switchFocusDomain(domainKey) {
   calcMultimodalMatrix(domainKey);
 }
+
+// ======================================================================
+// 📄 CONSULTATION REPORT EXPORTER (PDF / PRINT DOSSIER GENERATOR)
+// ======================================================================
+
+function exportConsultationReport() {
+  const dtInput = document.getElementById("birth-datetime");
+  const locInput = document.getElementById("birth-location");
+  const tstTag = document.getElementById("tst-tag");
+
+  const reportHeader = document.getElementById("consultation-report-header");
+  const reportDt = document.getElementById("report-client-datetime");
+  const reportTst = document.getElementById("report-client-tst");
+  const reportLoc = document.getElementById("report-client-location");
+
+  if (reportDt) reportDt.textContent = dtInput ? dtInput.value : "N/A";
+  if (reportTst) reportTst.textContent = tstTag ? tstTag.textContent : "TST Synchronized";
+  if (reportLoc) reportLoc.textContent = locInput ? locInput.value || "Bangkok, Thailand (100.493°E)" : "Bangkok, Thailand";
+
+  if (reportHeader) {
+    reportHeader.style.display = "block";
+  }
+
+  // Ensure results-actions-bar is present
+  const actionsBar = document.getElementById("results-actions-bar");
+  if (actionsBar) {
+    actionsBar.classList.remove("hidden");
+  }
+
+  // Trigger browser print dialog for PDF / Paper export
+  window.print();
+}
+
+window.exportConsultationReport = exportConsultationReport;
+
+// ======================================================================
+// 🌌 LIVE SKY TRANSIT CLOCK & INTERACTIVE TIMELINE ENGINE
+// ======================================================================
+
+const HEAVENLY_STEMS_JS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+const EARTHLY_BRANCHES_JS = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+
+const STEM_COMBINATIONS_JS = {
+  "甲己": "土 (Earth)", "乙庚": "金 (Metal)", "丙辛": "水 (Water)", "丁壬": "木 (Wood)", "戊癸": "火 (Fire)",
+  "己甲": "土 (Earth)", "庚乙": "金 (Metal)", "辛丙": "水 (Water)", "壬丁": "木 (Wood)", "癸戊": "火 (Fire)"
+};
+
+const BRANCH_CLASHES_JS = {
+  "子午": "Rat-Horse Clash", "午子": "Rat-Horse Clash",
+  "丑未": "Ox-Goat Clash", "未丑": "Ox-Goat Clash",
+  "寅申": "Tiger-Monkey Clash", "申寅": "Tiger-Monkey Clash",
+  "卯酉": "Rabbit-Rooster Clash", "酉卯": "Rabbit-Rooster Clash",
+  "辰戌": "Dragon-Dog Clash", "戌辰": "Dragon-Dog Clash",
+  "巳亥": "Snake-Pig Clash", "亥巳": "Snake-Pig Clash"
+};
+
+const BRANCH_COMBINATIONS_JS = {
+  "子丑": "Earth", "丑子": "Earth",
+  "寅亥": "Wood",  "亥寅": "Wood",
+  "卯戌": "Fire",  "戌卯": "Fire",
+  "辰酉": "Metal", "酉辰": "Metal",
+  "巳申": "Water", "申巳": "Water",
+  "午未": "Earth", "未午": "Earth"
+};
+
+function getAnnualPillarJS(year) {
+  const offset = (year - 1984 + 6000) % 60;
+  const stem = HEAVENLY_STEMS_JS[offset % 10];
+  const branch = EARTHLY_BRANCHES_JS[offset % 12];
+  return { year, stem, branch, str: `${stem}${branch}` };
+}
+
+function updateLiveSkyClock() {
+  const el = document.getElementById("sky-clock-pillars");
+  if (!el) return;
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+  const hour = now.getHours();
+
+  const yPillar = getAnnualPillarJS(year);
+  const mOffset = ((year - 1984) * 2 + month + 6000) % 10;
+  const mStem = HEAVENLY_STEMS_JS[mOffset];
+  const mBranch = EARTHLY_BRANCHES_JS[(month + 1) % 12];
+
+  const dStem = HEAVENLY_STEMS_JS[(day + month * 2) % 10];
+  const dBranch = EARTHLY_BRANCHES_JS[(day + 4) % 12];
+
+  const hIdx = Math.floor((hour + 1) / 2) % 12;
+  const hStem = HEAVENLY_STEMS_JS[(hIdx + 2) % 10];
+  const hBranch = EARTHLY_BRANCHES_JS[hIdx];
+
+  el.textContent = `${yPillar.str}年 ${mStem}${mBranch}月 ${dStem}${dBranch}日 ${hStem}${hBranch}時`;
+}
+
+function startLiveSkyClock() {
+  updateLiveSkyClock();
+  setInterval(updateLiveSkyClock, 60000);
+}
+
+let activeNatalChartCache = null;
+
+function initDaYunTimeline(chartData) {
+  activeNatalChartCache = chartData;
+  const card = document.getElementById("timeline-scrubber-card");
+  if (!card) return;
+  card.classList.remove("hidden");
+
+  const dtInput = document.getElementById("birth-datetime");
+  let birthYear = 1990;
+  if (dtInput && dtInput.value) {
+    const parsed = parseInt(dtInput.value.slice(0, 4), 10);
+    if (!isNaN(parsed)) birthYear = parsed;
+  }
+  const currentYear = new Date().getFullYear();
+  const initialAge = Math.max(1, Math.min(100, currentYear - birthYear));
+
+  const slider = document.getElementById("timeline-age-slider");
+  if (slider) {
+    slider.value = initialAge;
+    onTimelineSliderChange(initialAge);
+  }
+}
+
+function onTimelineSliderChange(ageVal) {
+  const age = parseInt(ageVal, 10);
+  const dtInput = document.getElementById("birth-datetime");
+  let birthYear = 1990;
+  if (dtInput && dtInput.value) {
+    const parsed = parseInt(dtInput.value.slice(0, 4), 10);
+    if (!isNaN(parsed)) birthYear = parsed;
+  }
+  const targetYear = birthYear + age;
+
+  const displayEl = document.getElementById("timeline-slider-display");
+  const badgeEl = document.getElementById("scrubber-active-age-badge");
+  if (displayEl) displayEl.textContent = `${age} ปี`;
+  if (badgeEl) badgeEl.textContent = `อายุ ${age} ปี (พ.ศ. ${targetYear + 543} / ค.ศ. ${targetYear})`;
+
+  renderTimelineAspects(age, targetYear);
+}
+
+function renderTimelineAspects(age, targetYear) {
+  const container = document.getElementById("timeline-aspects-container");
+  if (!container) return;
+
+  const annualPillar = getAnnualPillarJS(targetYear);
+  const tStem = annualPillar.stem;
+  const tBranch = annualPillar.branch;
+
+  const daYunIdx = Math.max(1, Math.min(10, Math.floor(age / 10) + 1));
+  const daYunStem = HEAVENLY_STEMS_JS[(daYunIdx * 2 + 1) % 10];
+  const daYunBranch = EARTHLY_BRANCHES_JS[(daYunIdx + 2) % 12];
+
+  let dmStem = "甲";
+  let dmBranch = "子";
+  if (activeNatalChartCache && activeNatalChartCache.day_master) {
+    dmStem = activeNatalChartCache.day_master.stem || "甲";
+  }
+  if (activeNatalChartCache && activeNatalChartCache.pillars && activeNatalChartCache.pillars.day) {
+    dmBranch = activeNatalChartCache.pillars.day.branch ? activeNatalChartCache.pillars.day.branch.char : "子";
+  }
+
+  const aspects = [];
+
+  // Stem Combination
+  const pairKey = `${dmStem}${tStem}`;
+  if (STEM_COMBINATIONS_JS[pairKey]) {
+    const elem = STEM_COMBINATIONS_JS[pairKey];
+    aspects.push({
+      title: `✨ ก้านฟ้าปีจรฮะดิถี (${tStem} + ${dmStem} ➔ ${elem})`,
+      badge: "เกื้อหนุนมงคล",
+      type: "favorable",
+      desc: `ปีจร ${targetYear} (${annualPillar.str}) รวมธาตุกับดิถีประจำตัว ส่งผลให้การงานราบรื่น มีผู้ใหญ่หรือหุ้นส่วนคอยส่งเสริมเกียรติยศ`
+    });
+  }
+
+  // Branch Clash
+  const bKey = `${dmBranch}${tBranch}`;
+  if (BRANCH_CLASHES_JS[bKey]) {
+    aspects.push({
+      title: `⚡ กิ่งดินปีจรปะทะดิถี (${tBranch} 沖 ${dmBranch})`,
+      badge: "ควรระวัง / พลิกผัน",
+      type: "caution",
+      desc: `ปีจร ${targetYear} กิ่งดิน ${tBranch} ปะทะกับเสาดวงกำเนิด (${dmBranch}) แนะนำให้ระมัดระวังเรื่องการเปลี่ยนแปลงฉับพลัน หรือการเดินทางโยกย้าย`
+    });
+  }
+
+  // Branch Combination
+  if (BRANCH_COMBINATIONS_JS[bKey]) {
+    const elem = BRANCH_COMBINATIONS_JS[bKey];
+    aspects.push({
+      title: `🤝 กิ่งดินปีจรผูกมิตร (${tBranch} 合 ${dmBranch})`,
+      badge: "มิตรภาพราบรื่น",
+      type: "favorable",
+      desc: `เกิดโครงสร้างสัมพันธ์พันธมิตร ก่อเกิดธาตุ ${elem} หนุนนำความสัมพันธ์ มิตรภาพ และโอกาสทางการเงินใหม่ๆ`
+    });
+  }
+
+  if (aspects.length === 0) {
+    aspects.push({
+      title: `🌱 สภาวะกาลเวลาปีจร ${annualPillar.str} (ปกติราบรื่น)`,
+      badge: "สมดุลปานกลาง",
+      type: "favorable",
+      desc: `ปีจร ${targetYear} (${annualPillar.str}) สถิตในวัยจรเสาที่ ${daYunIdx} (${daYunStem}${daYunBranch}) พลังงานธาตุสมดุล ดำเนินชีวิตด้วยความมั่นคง`
+    });
+  }
+
+  let html = `
+    <div style="grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
+      <div style="background: rgba(30, 27, 75, 0.6); border: 1px solid #6366f1; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem;">
+        <span style="color: #94a3b8;">เสาวัยจร 10 ปี (大運):</span> <strong style="color: #38bdf8; font-family: monospace; font-size: 1rem;">${daYunStem}${daYunBranch}</strong> (วัยจรที่ ${daYunIdx})
+      </div>
+      <div style="background: rgba(30, 27, 75, 0.6); border: 1px solid #eab308; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem;">
+        <span style="color: #94a3b8;">เสาปีจร (流年):</span> <strong style="color: #fbbf24; font-family: monospace; font-size: 1rem;">${annualPillar.str}</strong> (${targetYear})
+      </div>
+    </div>
+  `;
+
+  for (const asp of aspects) {
+    html += `
+      <div class="aspect-card aspect-${asp.type}">
+        <div class="aspect-header">
+          <span class="aspect-title">${asp.title}</span>
+          <span class="aspect-badge ${asp.type}">${asp.badge}</span>
+        </div>
+        <div class="aspect-desc">${asp.desc}</div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+}
+
+// Auto-start clock on load
+if (typeof window !== "undefined") {
+  window.addEventListener("DOMContentLoaded", () => {
+    startLiveSkyClock();
+  });
+}
+
+window.startLiveSkyClock = startLiveSkyClock;
+window.initDaYunTimeline = initDaYunTimeline;
+window.onTimelineSliderChange = onTimelineSliderChange;
+
+// ======================================================================
+// 🎙️ METAPHYSICS AI VOICE CONTROLLER & INTEGRATION
+// ======================================================================
+
+let currentVoiceRate = 1.0;
+
+function startVoiceInput() {
+  const lang = typeof getCurrentLanguage === 'function' ? getCurrentLanguage() : 'th';
+  if (typeof HoroVoice !== 'undefined' && HoroVoice.startDictation) {
+    HoroVoice.startDictation('query', lang);
+  }
+}
+
+function speakCurrentInterpretation() {
+  const readingEl = document.getElementById('reading-body');
+  if (!readingEl) return;
+  const text = readingEl.innerText || readingEl.textContent;
+  const lang = typeof getCurrentLanguage === 'function' ? getCurrentLanguage() : 'th';
+  if (typeof HoroVoice !== 'undefined' && HoroVoice.speak) {
+    HoroVoice.speak(text, lang, currentVoiceRate);
+  }
+}
+
+function toggleVoicePlayback() {
+  if (typeof HoroVoice === 'undefined') return;
+  if (HoroVoice.isPaused) {
+    HoroVoice.resume();
+  } else {
+    HoroVoice.pause();
+  }
+}
+
+function stopVoicePlayback() {
+  if (typeof HoroVoice !== 'undefined') {
+    HoroVoice.stop();
+  }
+}
+
+function setVoicePlaybackRate(rate, btnEl) {
+  currentVoiceRate = rate;
+  document.querySelectorAll('.voice-speed-selector .speed-btn').forEach(b => b.classList.remove('active'));
+  if (btnEl) btnEl.classList.add('active');
+  if (typeof HoroVoice !== 'undefined') {
+    HoroVoice.setRate(rate);
+  }
+}
+
+window.startVoiceInput = startVoiceInput;
+window.speakCurrentInterpretation = speakCurrentInterpretation;
+window.toggleVoicePlayback = toggleVoicePlayback;
+window.stopVoicePlayback = stopVoicePlayback;
+window.setVoicePlaybackRate = setVoicePlaybackRate;
+
+// ======================================================================
+// 💖 DUAL-PROFILE SYNASTRY & COMPATIBILITY ENGINE
+// ======================================================================
+
+function toggleSynastryMode(isEnabled) {
+  const partnerSec = document.getElementById("partner-b-section");
+  if (partnerSec) {
+    if (isEnabled) {
+      partnerSec.classList.remove("hidden");
+    } else {
+      partnerSec.classList.add("hidden");
+    }
+  }
+}
+
+async function calcSynastry() {
+  const dtInputA = document.getElementById("birth_datetime_picker") || document.getElementById("birth-datetime");
+  const nameInputA = document.getElementById("user_name");
+  const genderInputA = document.querySelector('input[name="gender"]:checked');
+
+  const nameInputB = document.getElementById("partner-b-name");
+  const dtInputB = document.getElementById("partner-b-datetime");
+  const genderInputB = document.getElementById("partner-b-gender");
+
+  const payload = {
+    person_a: {
+      name: nameInputA ? nameInputA.value || "Person A" : "Person A",
+      birth_datetime: dtInputA ? dtInputA.value : "1990-05-15 14:30:00",
+      longitude: 100.493,
+      utc_offset_hours: 7.0,
+      gender: genderInputA ? genderInputA.value : "male"
+    },
+    person_b: {
+      name: nameInputB ? nameInputB.value || "Partner B" : "Partner B",
+      birth_datetime: dtInputB ? dtInputB.value : "1992-08-20 10:15:00",
+      longitude: 100.493,
+      utc_offset_hours: 7.0,
+      gender: genderInputB ? genderInputB.value : "female"
+    },
+    relation_type: "romantic",
+    language: typeof getCurrentLanguage === 'function' ? getCurrentLanguage() : "th"
+  };
+
+  try {
+    const res = await fetch("/api/v1/synastry/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const data = await res.json();
+    renderSynastryResult(data);
+  } catch (err) {
+    console.error("[SYNASTRY] Failed to calculate synastry:", err);
+  }
+}
+
+function renderSynastryResult(data) {
+  const card = document.getElementById("synastry-result-card");
+  const body = document.getElementById("synastry-content-body");
+  const badge = document.getElementById("synastry-grade-badge");
+  if (!card || !body) return;
+
+  if (badge) {
+    badge.textContent = `Grade ${data.grade} (${data.composite_score}%)`;
+  }
+
+  const dims = data.dimensions || {};
+  let adviceHtml = "";
+  if (Array.isArray(data.advice)) {
+    adviceHtml = data.advice.map(adv => `<li style="margin-bottom: 4px; color: #cbd5e1;">✨ ${adv}</li>`).join("");
+  }
+
+  body.innerHTML = `
+    <div style="margin-bottom: 1.2rem; text-align: center;">
+      <h4 style="color: #f472b6; font-size: 1.1rem; margin-bottom: 4px;">${data.verdict}</h4>
+      <p style="color: #94a3b8; font-size: 0.85rem;">เปรียบเทียบระหว่าง <strong>${data.person_a.name} (${data.person_a.pillar_day})</strong> และ <strong>${data.person_b.name} (${data.person_b.pillar_day})</strong></p>
+    </div>
+
+    <!-- 4-Dimension Compatibility Bars -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 1.2rem;">
+      <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(236, 72, 153, 0.2);">
+        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px;">
+          <span>💖 ความเสน่หา & ความรัก</span>
+          <strong style="color: #f472b6;">${dims.romantic_harmony || 85}%</strong>
+        </div>
+        <div style="height: 6px; background: #334155; border-radius: 3px; overflow: hidden;">
+          <div style="width: ${dims.romantic_harmony || 85}%; height: 100%; background: linear-gradient(90deg, #ec4899, #f43f5e);"></div>
+        </div>
+      </div>
+
+      <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.2);">
+        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px;">
+          <span>💼 การเกื้อหนุนงาน/ธุรกิจ</span>
+          <strong style="color: #60a5fa;">${dims.business_synergy || 80}%</strong>
+        </div>
+        <div style="height: 6px; background: #334155; border-radius: 3px; overflow: hidden;">
+          <div style="width: ${dims.business_synergy || 80}%; height: 100%; background: linear-gradient(90deg, #3b82f6, #06b6d4);"></div>
+        </div>
+      </div>
+
+      <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(168, 85, 247, 0.2);">
+        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px;">
+          <span>🗣️ การสื่อสาร & ทัศนคติ</span>
+          <strong style="color: #c084fc;">${dims.communication_values || 78}%</strong>
+        </div>
+        <div style="height: 6px; background: #334155; border-radius: 3px; overflow: hidden;">
+          <div style="width: ${dims.communication_values || 78}%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #d946ef);"></div>
+        </div>
+      </div>
+
+      <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.2);">
+        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px;">
+          <span>🌱 ความมั่นคงระยะยาว</span>
+          <strong style="color: #4ade80;">${dims.longterm_stability || 82}%</strong>
+        </div>
+        <div style="height: 6px; background: #334155; border-radius: 3px; overflow: hidden;">
+          <div style="width: ${dims.longterm_stability || 82}%; height: 100%; background: linear-gradient(90deg, #10b981, #84cc16);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advice List -->
+    <div style="background: rgba(30, 27, 75, 0.4); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 12px;">
+      <h5 style="color: #e2e8f0; margin-bottom: 6px; font-size: 0.85rem;">คำแนะนำเชิงสังเคราะห์:</h5>
+      <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.8rem; line-height: 1.5;">
+        ${adviceHtml}
+      </ul>
+    </div>
+  `;
+
+  card.classList.remove("hidden");
+  card.scrollIntoView({ behavior: "smooth" });
+}
+
+window.toggleSynastryMode = toggleSynastryMode;
+window.calcSynastry = calcSynastry;
+window.renderSynastryResult = renderSynastryResult;
+
+// ======================================================================
+// 📅 INTERACTIVE ASTROLOGICAL CALENDAR & DATE SELECTOR ENGINE
+// ======================================================================
+
+let currentCalYear = 2026;
+let currentCalMonth = 8;
+let currentCalIntent = 'all';
+let currentMonthDaysCache = [];
+
+async function loadMonthCalendar(year, month) {
+  currentCalYear = year;
+  currentCalMonth = month;
+  const badge = document.getElementById("calendar-current-month-badge");
+  const monthNamesTh = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+  if (badge) {
+    badge.textContent = `${monthNamesTh[month - 1] || month} ${year}`;
+  }
+
+  try {
+    const res = await fetch(`/api/v1/calendar/month?year=${year}&month=${month}`);
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const data = await res.json();
+    currentMonthDaysCache = data.days || [];
+    renderCalendarGrid();
+  } catch (err) {
+    console.error("[CALENDAR] Failed to load calendar:", err);
+  }
+}
+
+function changeCalendarMonth(delta) {
+  currentCalMonth += delta;
+  if (currentCalMonth > 12) {
+    currentCalMonth = 1;
+    currentCalYear += 1;
+  } else if (currentCalMonth < 1) {
+    currentCalMonth = 12;
+    currentCalYear -= 1;
+  }
+  loadMonthCalendar(currentCalYear, currentCalMonth);
+}
+
+function filterCalendarIntent(intent, btnEl) {
+  currentCalIntent = intent;
+  document.querySelectorAll(".calendar-filters .btn-intent-filter").forEach(b => b.classList.remove("active"));
+  if (btnEl) btnEl.classList.add("active");
+  renderCalendarGrid();
+}
+
+function renderCalendarGrid() {
+  const container = document.getElementById("calendar-grid-container");
+  if (!container) return;
+
+  const targetOfficers = {
+    "business_opening": ["開", "成", "滿", "建"],
+    "marriage_ceremony": ["定", "成", "開", "執"],
+    "home_moving": ["開", "成", "定"],
+    "contract_signing": ["成", "滿", "定", "開"],
+  }[currentCalIntent] || null;
+
+  let html = "";
+  currentMonthDaysCache.forEach(day => {
+    const isTarget = !targetOfficers || targetOfficers.includes(day.officer);
+    const opacityStyle = isTarget ? "" : "opacity: 0.35; filter: grayscale(0.6);";
+    const dayNum = day.date.split("-")[2];
+
+    html += `
+      <div class="calendar-day-card ${day.tag}" style="${opacityStyle}">
+        <div class="calendar-day-date">
+          <span>${dayNum}</span>
+          <span style="font-size: 0.75rem; color: #a855f7;">${day.score} pts</span>
+        </div>
+        <div class="calendar-day-pillar">${day.pillar} (${day.officer_name.split(" ")[0]})</div>
+        <div class="calendar-day-officer">✨ 宿: ${day.mansion.slice(0, 2)}</div>
+        <div class="calendar-day-suitable">
+          <strong>宜:</strong> ${day.suitable.slice(0, 2).join(", ")}<br>
+          <strong style="color: #f87171;">忌:</strong> ${day.unsuitable.slice(0, 2).join(", ")}
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+window.loadMonthCalendar = loadMonthCalendar;
+window.changeCalendarMonth = changeCalendarMonth;
+window.filterCalendarIntent = filterCalendarIntent;
+window.renderCalendarGrid = renderCalendarGrid;
+
+// ======================================================================
+// 🧭 LUOPAN 24-MOUNTAIN COMPASS & PERIOD 9 HEATMAP ENGINE
+// ======================================================================
+
+let currentLuoPanDegree = 180;
+
+function onLuoPanSliderChange(val) {
+  currentLuoPanDegree = parseFloat(val);
+  const disp = document.getElementById("luopan-degree-display");
+  if (disp) disp.textContent = `${Math.round(val)}°`;
+  calcLuoPan(currentLuoPanDegree);
+}
+
+function setLuoPanDegree(deg) {
+  currentLuoPanDegree = deg;
+  const slider = document.getElementById("luopan-slider");
+  const disp = document.getElementById("luopan-degree-display");
+  if (slider) slider.value = deg;
+  if (disp) disp.textContent = `${deg}°`;
+  calcLuoPan(deg);
+}
+
+async function calcLuoPan(deg) {
+  try {
+    const res = await fetch("/api/v1/luopan/calculate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ facing_degree: deg, period: 9 })
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const data = await res.json();
+    renderLuoPanHeatmap(data);
+  } catch (err) {
+    console.error("[LUOPAN] Calculation error:", err);
+  }
+}
+
+function renderLuoPanHeatmap(data) {
+  const badge = document.getElementById("luopan-mountain-badge");
+  const grid = document.getElementById("luopan-sector-grid");
+  const summary = document.getElementById("luopan-summary-box");
+  if (!data) return;
+
+  const m = data.mountain || {};
+  if (badge) {
+    badge.textContent = `ทิศหน้า ${m.facing_mountain} (${m.facing_direction}) / ทิศหลัง ${m.sitting_mountain}`;
+  }
+  if (summary) {
+    summary.innerHTML = `<strong>สรุปผังฮวงจุ้ย:</strong> ${data.summary}`;
+  }
+
+  if (grid && data.sectors) {
+    const order = ["SE", "S", "SW", "E", "CENTER", "W", "NE", "N", "NW"];
+    let html = "";
+    order.forEach(k => {
+      const sec = data.sectors[k];
+      if (!sec) return;
+      let cardClass = "noble";
+      if (sec.heat_score >= 90) cardClass = "high-prosperity";
+      else if (sec.heat_score <= 40) cardClass = "caution";
+
+      html += `
+        <div class="sector-card ${cardClass}">
+          <div class="sector-name">${sec.sector}</div>
+          <div class="sector-star">${sec.star}</div>
+          <div class="sector-desc">${sec.advice}</div>
+          <div class="sector-cure">🛡️ <strong>แก้ไข/เสริม:</strong> ${sec.cure}</div>
+        </div>
+      `;
+    });
+    grid.innerHTML = html;
+  }
+}
+
+// ======================================================================
+// 🌙 AI METAPHYSICS DREAM INTERPRETER & SYMBOLISM DECODER
+// ======================================================================
+
+function quickDreamTag(text) {
+  const input = document.getElementById("dream-input");
+  if (input) {
+    input.value = text;
+    submitDreamInterpretation();
+  }
+}
+
+async function submitDreamInterpretation() {
+  const input = document.getElementById("dream-input");
+  const resultBox = document.getElementById("dream-result-box");
+  if (!input || !input.value.trim()) return;
+
+  const text = input.value.trim();
+  try {
+    const res = await fetch("/api/v1/dream/interpret", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dream_text: text })
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const data = await res.json();
+    renderDreamResult(data);
+  } catch (err) {
+    console.error("[DREAM] Error decoding dream:", err);
+  }
+}
+
+function renderDreamResult(data) {
+  const resultBox = document.getElementById("dream-result-box");
+  if (!resultBox || !data) return;
+
+  const numbersHtml = (data.lucky_numbers || []).map(n => `<span class="lucky-number-badge">${n}</span>`).join(" ");
+
+  resultBox.innerHTML = `
+    <h4 style="color: #c084fc; font-size: 1rem; margin-bottom: 6px;">✨ ผลการถอดรหัสความฝันเชิงอภิมงคล:</h4>
+    <div style="margin-bottom: 6px; font-size: 0.85rem; color: #f8fafc;">
+      <strong>สัญลักษณ์ที่ตรวจพบ:</strong> ${data.symbols_detected.join(", ")} | <strong>ธาตุพลัง:</strong> ${data.primary_element}
+    </div>
+    <div style="margin-bottom: 6px; font-size: 0.85rem; color: #fbbf24;">
+      <strong>คัมภีร์อี้จิง 64 ลักษณ์:</strong> ${data.hexagram_alignment}
+    </div>
+    <div style="margin-bottom: 8px; font-size: 0.85rem; color: #4ade80;">
+      <strong>นิมิตมงคล:</strong> ${data.omen}
+    </div>
+    <div style="margin-bottom: 8px; font-size: 0.85rem; color: #cbd5e1;">
+      <strong>คำแนะนำปฏิบัติการ:</strong> ${data.spiritual_advice}
+    </div>
+    <div style="padding-top: 6px; border-top: 1px solid rgba(148, 163, 184, 0.2); font-size: 0.85rem;">
+      <strong style="color: #f472b6;">เลขเสี่ยงทายสัตตเลข &amp; นิมิตโชคลาภ:</strong> ${numbersHtml}
+    </div>
+  `;
+  resultBox.classList.remove("hidden");
+}
+
+window.onLuoPanSliderChange = onLuoPanSliderChange;
+window.setLuoPanDegree = setLuoPanDegree;
+window.calcLuoPan = calcLuoPan;
+window.renderLuoPanHeatmap = renderLuoPanHeatmap;
+window.quickDreamTag = quickDreamTag;
+window.submitDreamInterpretation = submitDreamInterpretation;
+window.renderDreamResult = renderDreamResult;
+
+if (typeof document !== 'undefined') {
+  document.addEventListener("DOMContentLoaded", () => {
+    loadMonthCalendar(2026, 8);
+    calcLuoPan(180);
+  });
+}
+
+
+
+
 

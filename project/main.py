@@ -27,6 +27,9 @@ from project.admin_router import admin_router
 from project.api_router import router
 from project.hitl_router import hitl_router
 from project.routers import astrology_router, debate_router, mlops_router
+from project.routers.synastry import synastry_router
+from project.routers.calendar import calendar_router
+from project.routers.luopan_dream import luopan_dream_router
 
 
 try:
@@ -172,6 +175,9 @@ app.include_router(astrology_router)
 app.include_router(debate_router)
 app.include_router(mlops_router)
 app.include_router(v2_router, prefix="/api/v2")
+app.include_router(synastry_router)
+app.include_router(calendar_router)
+app.include_router(luopan_dream_router)
 
 
 

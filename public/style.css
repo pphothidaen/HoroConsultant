@@ -123,6 +123,322 @@ body {
   border: 1px solid rgba(212, 175, 55, 0.4);
 }
 
+.lang-switcher {
+  display: flex;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.7);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid var(--border-glass);
+  align-items: center;
+}
+
+.lang-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lang-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.lang-btn.active {
+  color: #ffd700;
+  background: rgba(212, 175, 55, 0.25);
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.2);
+}
+
+.sky-clock-widget {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.7);
+  padding: 4px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.15);
+}
+
+.sky-clock-icon {
+  font-size: 1.1rem;
+}
+
+.sky-clock-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.sky-clock-label {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.sky-clock-pillars {
+  font-family: monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 0.5px;
+}
+
+/* Timeline Scrubber & Aspect Cards */
+.timeline-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: #334155;
+  outline: none;
+}
+
+.timeline-aspects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.aspect-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.aspect-card.aspect-favorable {
+  border-color: rgba(52, 211, 153, 0.4);
+  background: rgba(6, 78, 59, 0.2);
+}
+
+.aspect-card.aspect-caution {
+  border-color: rgba(248, 113, 113, 0.4);
+  background: rgba(127, 29, 29, 0.2);
+}
+
+.aspect-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.aspect-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.aspect-badge {
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.aspect-badge.favorable {
+  background: rgba(52, 211, 153, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.4);
+}
+
+.aspect-badge.caution {
+  background: rgba(248, 113, 113, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.4);
+}
+
+.aspect-desc {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+/* Voice Engine & Audio Player Styles */
+.btn-voice-mic {
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  color: #818cf8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.btn-voice-mic:hover {
+  background: rgba(99, 102, 241, 0.3);
+  color: #ffffff;
+}
+
+.btn-voice-mic.listening {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #fca5a5;
+  animation: pulseMic 1.2s infinite alternate;
+}
+
+@keyframes pulseMic {
+  from { box-shadow: 0 0 4px rgba(239, 68, 68, 0.4); }
+  to { box-shadow: 0 0 12px rgba(239, 68, 68, 0.8); }
+}
+
+.btn-voice-listen {
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #c084fc;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-voice-listen:hover {
+  background: rgba(168, 85, 247, 0.3);
+  color: #ffffff;
+}
+
+.audio-player-bar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(168, 85, 247, 0.5);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px rgba(168, 85, 247, 0.3);
+  border-radius: 30px;
+  padding: 8px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  z-index: 1000;
+  max-width: 90vw;
+  width: 520px;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translate(-50%, 100%); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+.audio-player-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.voice-status-text {
+  font-size: 0.8rem;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.waveform-container {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 16px;
+}
+
+.waveform-bar {
+  width: 3px;
+  height: 4px;
+  background: #c084fc;
+  border-radius: 2px;
+}
+
+.waveform-bar.animating {
+  animation: soundWave 0.8s infinite ease-in-out alternate;
+}
+
+.waveform-bar:nth-child(1) { animation-delay: 0.1s; }
+.waveform-bar:nth-child(2) { animation-delay: 0.3s; }
+.waveform-bar:nth-child(3) { animation-delay: 0.2s; }
+.waveform-bar:nth-child(4) { animation-delay: 0.4s; }
+.waveform-bar:nth-child(5) { animation-delay: 0.25s; }
+
+@keyframes soundWave {
+  0% { height: 4px; }
+  100% { height: 16px; }
+}
+
+.audio-player-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.voice-ctrl-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.voice-ctrl-btn:hover {
+  background: rgba(168, 85, 247, 0.4);
+  border-color: #c084fc;
+}
+
+.voice-speed-selector {
+  display: flex;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px;
+  border-radius: 12px;
+}
+
+.voice-speed-selector .speed-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.voice-speed-selector .speed-btn.active {
+  background: rgba(168, 85, 247, 0.4);
+  color: #ffffff;
+}
+
+
 
 .logo-area {
   display: flex;
@@ -1459,4 +1775,270 @@ span.flatpickr-weekday {
   font-weight: 700;
   color: #fbbf24;
 }
+
+/* ==========================================================================
+   Consultation Report Print & PDF Export Styles
+   ========================================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm 15mm 15mm;
+  }
+
+  *, *::before, *::after {
+    background: transparent !important;
+    color: #0f172a !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+
+  /* Hide interactive controls, navbars, background effects */
+  .app-header,
+  .topbar,
+  .form-card,
+  .input-panel,
+  .location-search-box,
+  .lang-switcher,
+  .quick-presets,
+  .advanced-accordion,
+  .btn,
+  .modal,
+  .toast,
+  .global-api-loader,
+  .background-glow,
+  #lang-switcher,
+  .sidebar,
+  .nav-section {
+    display: none !important;
+  }
+
+  /* Show Report Container cleanly */
+  .results-container,
+  #results-container,
+  .dashboard-main {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .consultation-report-header {
+    display: block !important;
+    border-bottom: 2px solid #334155;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+  }
+
+  .consultation-report-header h1 {
+    font-size: 18pt !important;
+    color: #1e1b4b !important;
+    margin: 0 0 4px 0;
+  }
+
+  .consultation-report-meta {
+    font-size: 9pt;
+    color: #475569 !important;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* Chart & Card container layout */
+  .card, .analysis-card, .chart-panel, .interpretation-panel, .pillar-card {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    margin-bottom: 14px !important;
+    padding: 12px !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  svg {
+    max-width: 100% !important;
+    height: auto !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .report-footer {
+    display: block !important;
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 8pt;
+    color: #64748b !important;
+    text-align: center;
+  }
+}
+
+/* Astrological Calendar Styles */
+.btn-intent-filter {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: #cbd5e1;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-intent-filter:hover {
+  background: rgba(168, 85, 247, 0.2);
+  border-color: rgba(168, 85, 247, 0.5);
+  color: #f3e8ff;
+}
+
+.btn-intent-filter.active {
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  border-color: #c084fc;
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+}
+
+.calendar-day-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.calendar-day-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(168, 85, 247, 0.5);
+}
+
+.calendar-day-card.auspicious {
+  border-left: 4px solid #10b981;
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.calendar-day-card.inauspicious {
+  border-left: 4px solid #ef4444;
+  background: rgba(239, 68, 68, 0.06);
+}
+
+.calendar-day-card.neutral {
+  border-left: 4px solid #64748b;
+}
+
+.calendar-day-date {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f8fafc;
+  display: flex;
+  justify-content: space-between;
+}
+
+.calendar-day-pillar {
+  font-size: 0.85rem;
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.calendar-day-officer {
+  font-size: 0.75rem;
+  color: #38bdf8;
+}
+
+.calendar-day-suitable {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  line-height: 1.3;
+}
+
+/* LuoPan 9-Grid Sector Heatmap Styles */
+.sector-card {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.sector-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(168, 85, 247, 0.6);
+}
+
+.sector-card.high-prosperity {
+  border-top: 4px solid #10b981;
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.sector-card.caution {
+  border-top: 4px solid #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.sector-card.noble {
+  border-top: 4px solid #a855f7;
+  background: rgba(168, 85, 247, 0.08);
+}
+
+.sector-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.sector-star {
+  font-size: 0.8rem;
+  color: #fbbf24;
+}
+
+.sector-desc {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  line-height: 1.3;
+}
+
+.sector-cure {
+  font-size: 0.72rem;
+  color: #38bdf8;
+}
+
+/* Dream Decoder Styles */
+.btn-dream-tag {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: #cbd5e1;
+  padding: 5px 12px;
+  border-radius: 16px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-dream-tag:hover {
+  background: rgba(168, 85, 247, 0.2);
+  border-color: rgba(168, 85, 247, 0.5);
+  color: #f3e8ff;
+}
+
+.lucky-number-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: white;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-right: 4px;
+}
+
 

@@ -47,9 +47,96 @@ ZODIAC_THAI = [
     "ราศีธนู (Sagittarius)", "ราศีมังกร (Capricorn)", "ราศีกุมภ์ (Aquarius)", "ราศีมีน (Pisces)"
 ]
 
+SVG_LOCALES: dict[str, dict[str, str]] = {
+    "th": {
+        "bazi": "ผังดวงชะตา BaZi 4 เสา (Four Pillars of Destiny)",
+        "zodiac": "ผังดวงจักรราศี 12 ราศี (Zodiac Wheel)",
+        "ziwei": "ผังดวง紫微斗數 (Zi Wei Dou Shu 12 Palaces Chart)",
+        "qimen": "ผังดวง奇門遁甲 (Qi Men Dun Jia 4-Plate Grid)",
+        "xuankong": "ผังดวง玄空風水 (Xuan Kong Flying Stars 9-Grid)",
+        "liuren": "ผังดวง大六壬 (Da Liu Ren 3-Transmission Chart)",
+        "iching": "ผังดวง易經六爻 (I Ching Divination Chart)",
+        "zeji": "ผังดวง擇吉คำนวณฤกษ์ (Date Selection Chart)",
+        "thaivedic": "ผังดวงโหราศาสตร์ไทย & ภารตวิทยา (Thai & Vedic)",
+        "western": "ผังดวงโหราศาสตร์สากล & ยูเรเนียน (Western & Uranian)",
+        "numerology": "ผังดวงสัตตเลข 7 ฐาน & เลขศาสตร์ (Numerology)",
+        "taiyi": "ผังดวง太乙神數 (Tai Yi Shen Shu 16-Path Chart)",
+        "liuyao": "ผังดวง六爻預測 (Liu Yao 6-Line Na Jia Chart)",
+        "meihua": "ผังดวง梅花易數 (Mei Hua Plum Blossom Numerology)",
+        "sanhe": "ผังดวง三合風水 (San He 24-Mountain Water Flow Compass)",
+        "qizheng": "ผังดวง七政四餘 (Qi Zheng Si Yu Astrolabe)",
+        "mianxiang": "ผังดวง麻衣神相 (Mian Xiang 12 Facial Palaces)",
+        "multimodal": "ผังดวงสังเคราะห์ 16 ศาสตร์ (Unified Multimodal Metaphysics Matrix)",
+        "hour_pillar": "เสายาม",
+        "day_pillar": "เสาวัน",
+        "month_pillar": "เสาเดือน",
+        "year_pillar": "เสาปี",
+        "five_elements": "สมดุล 5 ธาตุ",
+    },
+    "en": {
+        "bazi": "BaZi Four Pillars of Destiny Chart",
+        "zodiac": "12 Zodiac Signs Celestial Wheel",
+        "ziwei": "Zi Wei Dou Shu 12-Palace Matrix",
+        "qimen": "Qi Men Dun Jia 4-Plate Celestial Grid",
+        "xuankong": "Xuan Kong Flying Stars 9-Grid Chart",
+        "liuren": "Da Liu Ren 3-Transmissions Astrolabe",
+        "iching": "I Ching & Liu Yao Hexagram Transformation",
+        "zeji": "Ze Ji Auspicious Date & Time Selection",
+        "thaivedic": "Thai Vedic & Jyotish 12 Rashi Chart",
+        "western": "Western Tropical & Uranian Astrolabe",
+        "numerology": "Satta-Lek 7-Base & Chaldean Matrix",
+        "taiyi": "Tai Yi Shen Shu 16-Path Celestial Wheel",
+        "liuyao": "Liu Yao 6-Line Na Jia Divination Plate",
+        "meihua": "Mei Hua Plum Blossom Hexagram Flow",
+        "sanhe": "San He 24-Mountain Water Flow Compass",
+        "qizheng": "Qi Zheng Si Yu 28-Mansion Astrolabe",
+        "mianxiang": "Mian Xiang 12 Facial Palaces Map",
+        "multimodal": "Unified 16-Discipline Multimodal Consensus Matrix",
+        "hour_pillar": "Hour Pillar",
+        "day_pillar": "Day Pillar",
+        "month_pillar": "Month Pillar",
+        "year_pillar": "Year Pillar",
+        "five_elements": "5 Elements Balance",
+    },
+    "zh": {
+        "bazi": "四柱八字命盤 (Four Pillars of Destiny)",
+        "zodiac": "十二黃道宮位天盤 (Zodiac Wheel)",
+        "ziwei": "紫微斗數十二宮命盤 (Zi Wei Dou Shu)",
+        "qimen": "奇門遁甲四盤九宮局 (Qi Men Dun Jia)",
+        "xuankong": "玄空九星飛星排盤 (Xuan Kong)",
+        "liuren": "大六壬四課三傳天盤 (Da Liu Ren)",
+        "iching": "周易六爻動靜變卦盤 (I Ching)",
+        "zeji": "協紀辨方擇吉通書盤 (Ze Ji Timing)",
+        "thaivedic": "泰國吠陀印度占星盤 (Thai Vedic)",
+        "western": "西洋漢堡學派星盤 (Western Uranian)",
+        "numerology": "泰國七基數與迦勒底數字矩陣",
+        "taiyi": "太乙神數十六神道九宮局 (Tai Yi)",
+        "liuyao": "六爻納甲六親六獸卦盤 (Liu Yao)",
+        "meihua": "梅花易數體用互變卦流 (Mei Hua)",
+        "sanhe": "三合風水二十四山水法羅盤 (San He)",
+        "qizheng": "七政四餘二十八宿天星盤 (Qi Zheng)",
+        "mianxiang": "麻衣神相十二宮百歲流年圖 (Mian Xiang)",
+        "multimodal": "16門術數大一統全息共識羅盤 (Multimodal)",
+        "hour_pillar": "時柱",
+        "day_pillar": "日柱",
+        "month_pillar": "月柱",
+        "year_pillar": "年柱",
+        "five_elements": "五行平衡度",
+    }
+}
 
-def generate_bazi_svg(chart: dict[str, Any], title: str = "ผังดวงชะตา BaZi 4 เสา (Four Pillars of Destiny)") -> str:
+
+def _resolve_svg_title(key: str, custom_title: str | None = None, lang: str = "th") -> str:
+    if custom_title and not custom_title.startswith("ผังดวง"):
+        return custom_title
+    loc = SVG_LOCALES.get(lang, SVG_LOCALES["th"])
+    return loc.get(key, SVG_LOCALES["th"].get(key, custom_title or key))
+
+
+def generate_bazi_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
     """Generate clean SVG string for BaZi 4 Pillars Chart."""
+    title = _resolve_svg_title("bazi", title, lang)
+    loc = SVG_LOCALES.get(lang, SVG_LOCALES["th"])
     dm = chart.get("day_master", {})
     pcts = chart.get("five_elements", {}).get("percentages", {})
     tst  = str(chart.get("solar_time_info", {}).get("tst_datetime", "N/A"))
@@ -75,7 +162,12 @@ def generate_bazi_svg(chart: dict[str, Any], title: str = "ผังดวงช
         except Exception:
             pass
 
-    order = [("hour", "เสายาม"), ("day", "เสาวัน"), ("month", "เสาเดือน"), ("year", "เสาปี")]
+    order = [
+        ("hour", loc.get("hour_pillar", "เสายาม")),
+        ("day", loc.get("day_pillar", "เสาวัน")),
+        ("month", loc.get("month_pillar", "เสาเดือน")),
+        ("year", loc.get("year_pillar", "เสาปี"))
+    ]
 
     svg_parts = [
         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">',
@@ -136,8 +228,9 @@ def generate_bazi_svg(chart: dict[str, Any], title: str = "ผังดวงช
     return "\n".join(svg_parts)
 
 
-def generate_zodiac_wheel_svg(chart: dict[str, Any], title: str = "ผังดวงจักรราศี 12 ราศี (Zodiac Wheel)") -> str:
+def generate_zodiac_wheel_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
     """Generate clean SVG string for 12 Zodiac Wheel Chart."""
+    title = _resolve_svg_title("zodiac", title, lang)
     if RUST_AVAILABLE and hasattr(rust_core, "build_zodiac_svg_rust"):
         try:
             return rust_core.build_zodiac_svg_rust(title)
@@ -177,8 +270,9 @@ def generate_zodiac_wheel_svg(chart: dict[str, Any], title: str = "ผังด�
     return "\n".join(svg_parts)
 
 
-def generate_ziwei_svg(chart: dict[str, Any], title: str = "ผังดวง紫微斗數 (Zi Wei Dou Shu 12 Palaces Chart)") -> str:
+def generate_ziwei_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
     """Generate clean SVG string for Zi Wei Dou Shu 12 Palaces Chart."""
+    title = _resolve_svg_title("ziwei", title, lang)
     palaces = chart.get("palaces", [])
     bureau = str(chart.get("five_element_bureau", "水二局"))
     ming_branch = str(chart.get("ming_gong_branch", "寅"))
@@ -229,8 +323,9 @@ def generate_ziwei_svg(chart: dict[str, Any], title: str = "ผังดวง�
     return "\n".join(svg_parts)
 
 
-def generate_qimen_svg(chart: dict[str, Any], title: str = "ผังดวง奇門遁甲 (Qi Men Dun Jia 4-Plate Grid)") -> str:
+def generate_qimen_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
     """Generate clean SVG string for Qi Men Dun Jia 9-Grid Chart."""
+    title = _resolve_svg_title("qimen", title, lang)
     solar_term = str(chart.get("solar_term", "冬至"))
     dun_type = str(chart.get("dun_type", "Yang"))
     ju_num = int(chart.get("ju_number", 1))
@@ -267,8 +362,9 @@ def generate_qimen_svg(chart: dict[str, Any], title: str = "ผังดวง�
     return "\n".join(svg_parts)
 
 
-def generate_xuankong_svg(chart: dict[str, Any], title: str = "ผังดวง玄空風水 (Xuan Kong Flying Stars 9-Grid)") -> str:
+def generate_xuankong_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
     """Generate clean SVG string for Xuan Kong Flying Stars 9-Grid Chart."""
+    title = _resolve_svg_title("xuankong", title, lang)
     period = int(chart.get("period", 9))
     facing = str(chart.get("facing_mountain", "午"))
     sitting = str(chart.get("sitting_mountain", "子"))
@@ -306,8 +402,9 @@ def generate_xuankong_svg(chart: dict[str, Any], title: str = "ผังดว�
     return "\n".join(svg_parts)
 
 
-def generate_liuren_svg(chart: dict[str, Any], title: str = "ผังดวง大六壬 (Da Liu Ren 3-Transmission Chart)") -> str:
+def generate_liuren_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
     """Generate SVG string for Da Liu Ren chart."""
+    title = _resolve_svg_title("liuren", title, lang)
     trans = chart.get("three_transmissions", {})
     four_lessons = chart.get("four_lessons", [])
     svg_parts = [
@@ -334,8 +431,9 @@ def generate_liuren_svg(chart: dict[str, Any], title: str = "ผังดวง�
     return "\n".join(svg_parts)
 
 
-def generate_iching_svg(chart: dict[str, Any], title: str = "ผังดวง易經六爻 (I Ching Divination Chart)") -> str:
+def generate_iching_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
     """Generate SVG string for I Ching Hexagram chart."""
+    title = _resolve_svg_title("iching", title, lang)
     pri = chart.get("primary_hexagram", {})
     trans = chart.get("transformed_hexagram", {})
     six_lines = chart.get("six_lines", [])
@@ -365,8 +463,9 @@ def generate_iching_svg(chart: dict[str, Any], title: str = "ผังดวง�
     return "\n".join(svg_parts)
 
 
-def generate_zeji_svg(chart: dict[str, Any], title: str = "ผังดวง擇吉คำนวณฤกษ์ (Date Selection Chart)") -> str:
+def generate_zeji_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
     """Generate SVG string for Ze Ji Date Selection chart."""
+    title = _resolve_svg_title("zeji", title, lang)
     officer = chart.get("duty_officer", "建")
     stars = chart.get("rating_stars", "⭐⭐⭐")
     status = chart.get("overall_status", "吉")
@@ -396,8 +495,9 @@ def generate_zeji_svg(chart: dict[str, Any], title: str = "ผังดวง擇
     return "\n".join(svg_parts)
 
 
-def generate_thaivedic_svg(chart: dict[str, Any], title: str = "ผังดวงโหราศาสตร์ไทย & ภารตวิทยา (Thai & Vedic)") -> str:
+def generate_thaivedic_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
     """Generate SVG string for Thai Suriyayart & Vedic Nakshatra chart."""
+    title = _resolve_svg_title("thaivedic", title, lang)
     lagna = chart.get("thai_lagna", "เมษ")
     kala = chart.get("kalakini_planet", "อาทิตย์")
     sri = chart.get("sri_planet", "จันทร์")
@@ -430,8 +530,9 @@ def generate_thaivedic_svg(chart: dict[str, Any], title: str = "ผังดว�
     return "\n".join(svg_parts)
 
 
-def generate_western_svg(chart: dict[str, Any], title: str = "ผังดวงโหราศาสตร์สากล & ยูเรเนียน (Western & Uranian)") -> str:
+def generate_western_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
     """Generate SVG string for Western Tropical & Uranian TNP chart."""
+    title = _resolve_svg_title("western", title, lang)
     planets = chart.get("planets_tropical", {})
     tnps = chart.get("uranian_tnps", {})
     mid = chart.get("uranian_midpoint_formula", {})
@@ -466,8 +567,9 @@ def generate_western_svg(chart: dict[str, Any], title: str = "ผังดวง
     return "\n".join(svg_parts)
 
 
-def generate_numerology_svg(chart: dict[str, Any], title: str = "ผังดวงสัตตเลข 7 ฐาน & เลขศาสตร์ (Numerology)") -> str:
+def generate_numerology_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
     """Generate SVG string for Satta-Lek 7-Base Numerology chart."""
+    title = _resolve_svg_title("numerology", title, lang)
     score = chart.get("chaldean_score", {})
     satta = chart.get("satta_lek", {})
     matrix = satta.get("matrix_7_base", [])
@@ -532,7 +634,9 @@ def generate_numerology_svg(chart: dict[str, Any], title: str = "ผังดว
     return "\n".join(svg_parts)
 
 
-def generate_tai_yi_svg(chart: dict[str, Any], title: str = "ผังดวง太乙神數 (Tai Yi Shen Shu 16-Path Chart)") -> str:
+def generate_tai_yi_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
+    """Generate SVG chart for Tai Yi Shen Shu (太乙神數)."""
+    title = _resolve_svg_title("taiyi", title, lang)
     """Generate SVG chart for Tai Yi Shen Shu (太乙神數)."""
     acc_years = chart.get("accumulated_years", 0)
     star_palace = chart.get("star_palace", 0)
@@ -617,8 +721,9 @@ def generate_tai_yi_svg(chart: dict[str, Any], title: str = "ผังดวง�
     return "\n".join(svg)
 
 
-def generate_liu_yao_svg(chart: dict[str, Any], title: str = "ผังดวง六爻預測 (Liu Yao 6-Line Na Jia Chart)") -> str:
+def generate_liu_yao_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
     """Generate SVG chart for Liu Yao Divination (六爻預測)."""
+    title = _resolve_svg_title("liuyao", title, lang)
     p_name = chart.get("primary_hexagram_name", "乾為天")
     t_name = chart.get("target_hexagram_name", chart.get("transformed_hexagram_name", "同人"))
     palace = chart.get("palace_element", "金 (Metal)")
@@ -700,8 +805,9 @@ def generate_liu_yao_svg(chart: dict[str, Any], title: str = "ผังดวง
     return "\n".join(svg)
 
 
-def generate_meihua_svg(chart: dict[str, Any], title: str = "ผังดวง梅花易數 (Mei Hua Plum Blossom Numerology)") -> str:
+def generate_meihua_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
     """Generate SVG chart for Mei Hua Yi Shu (梅花易數)."""
+    title = _resolve_svg_title("meihua", title, lang)
     p_name = chart.get("primary_hexagram", "乾為天")
     m_name = chart.get("mutual_hexagram", "乾為天")
     t_name = chart.get("transformed_hexagram", "天風姤")
@@ -759,8 +865,9 @@ def generate_meihua_svg(chart: dict[str, Any], title: str = "ผังดวง�
     return "\n".join(svg)
 
 
-def generate_sanhe_svg(chart: dict[str, Any], title: str = "ผังดวง三合風水 (San He 24-Mountain Water Flow Compass)") -> str:
+def generate_sanhe_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
     """Generate SVG chart for San He Feng Shui (三合風水)."""
+    title = _resolve_svg_title("sanhe", title, lang)
     sitting = chart.get("sitting_mountain", "壬")
     facing = chart.get("facing_mountain", "丙")
     water_exit = chart.get("water_exit", "辰")
@@ -826,8 +933,9 @@ def generate_sanhe_svg(chart: dict[str, Any], title: str = "ผังดวง�
     return "\n".join(svg)
 
 
-def generate_qizheng_svg(chart: dict[str, Any], title: str = "ผังดวง七政四餘 (Qi Zheng Si Yu Astrolabe)") -> str:
+def generate_qizheng_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
     """Generate SVG chart for Qi Zheng Si Yu (七政四餘)."""
+    title = _resolve_svg_title("qizheng", title, lang)
     dt_str = chart.get("datetime", "2026-08-16 12:00:00")
     planets = chart.get("planets", {})
     shadow_stars = chart.get("shadow_stars", {})
@@ -880,8 +988,9 @@ def generate_qizheng_svg(chart: dict[str, Any], title: str = "ผังดวง
     return "\n".join(svg)
 
 
-def generate_mianxiang_svg(chart: dict[str, Any], title: str = "ผังดวง麻衣神相 (Mian Xiang 12 Facial Palaces)") -> str:
+def generate_mianxiang_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
     """Generate SVG chart for Mian Xiang (麻衣神相)."""
+    title = _resolve_svg_title("mianxiang", title, lang)
     shape_desc = chart.get("face_shape", "Water (水形) - Round, soft, fleshy")
     palaces = chart.get("twelve_palaces", {})
 
@@ -943,7 +1052,9 @@ def generate_mianxiang_svg(chart: dict[str, Any], title: str = "ผังดว�
     return "\n".join(svg)
 
 
-def generate_multimodal_matrix_svg(data: dict[str, Any], title: str = "ผังดวงสังเคราะห์ 16 ศาสตร์ (Unified Multimodal Metaphysics Matrix)") -> str:
+def generate_multimodal_matrix_svg(data: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
+    """Generate Composite 16-Discipline Multimodal Matrix SVG chart."""
+    title = _resolve_svg_title("multimodal", title, lang)
     """Generate Composite 16-Discipline Multimodal Matrix SVG chart."""
     domain_name = data.get("domain_name", "ธุรกิจและการงาน (Career)")
     consensus_pct = data.get("consensus_score_pct", 88)

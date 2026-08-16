@@ -9,6 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
   <div class="background-glow"></div>
@@ -29,10 +33,21 @@
         </div>
       </div>
       <nav class="spa-nav">
-        <a href="index.html" class="spa-nav-item active">🔮 BaZi Dashboard</a>
-        <a href="admin.html" class="spa-nav-item">🔐 Admin Panel</a>
+        <a href="index.html" class="spa-nav-item active" data-i18n="nav_bazi">🔮 BaZi Dashboard</a>
+        <a href="admin.html" class="spa-nav-item" data-i18n="nav_admin">🔐 Admin Panel</a>
       </nav>
-
+      <div class="sky-clock-widget" id="sky-clock-widget" title="Live Celestial Sky 4-Pillars">
+        <span class="sky-clock-icon">🌌</span>
+        <div class="sky-clock-text">
+          <div class="sky-clock-label" data-i18n="sky_clock_label">Live Celestial Transit</div>
+          <div class="sky-clock-pillars" id="sky-clock-pillars">--年 --月 --日 --時</div>
+        </div>
+      </div>
+      <div class="lang-switcher" id="lang-switcher">
+        <button type="button" class="lang-btn active" data-lang="th" onclick="setLanguage('th')">TH</button>
+        <button type="button" class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+        <button type="button" class="lang-btn" data-lang="zh" onclick="setLanguage('zh')">ZH</button>
+      </div>
     </div>
   </header>
 
@@ -65,6 +80,38 @@
               <span class="gender-icon">👩</span>
               <span class="gender-text">หญิง (Female)</span>
             </label>
+          </div>
+        </div>
+
+        <!-- Synastry Mode Switch -->
+        <div class="synastry-toggle-row" style="display: flex; align-items: center; justify-content: space-between; margin: 1rem 0; padding: 10px 14px; background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.35); border-radius: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 1.2rem;">💖</span>
+            <div>
+              <strong style="color: #f472b6; font-size: 0.85rem;" data-i18n="synastry_mode_title">โหมดวิเคราะห์ดวงสมพงษ์ 2 บุคคล (Synastry Mode)</strong>
+              <div style="color: #94a3b8; font-size: 0.72rem;" data-i18n="synastry_mode_desc">เปรียบเทียบดวงชะตาคู่รัก หรือพาร์ทเนอร์ธุรกิจ</div>
+            </div>
+          </div>
+          <input type="checkbox" id="toggle-synastry-mode" onchange="toggleSynastryMode(this.checked)" style="width: 18px; height: 18px; accent-color: #ec4899; cursor: pointer;">
+        </div>
+
+        <!-- Partner B Profile Section (Hidden by default) -->
+        <div id="partner-b-section" class="hidden partner-b-section" style="margin-bottom: 1.2rem; padding: 12px; background: rgba(236, 72, 153, 0.08); border: 1px dashed rgba(236, 72, 153, 0.4); border-radius: 8px;">
+          <h4 style="color: #f472b6; margin-bottom: 8px; font-size: 0.9rem;" data-i18n="partner_b_title">👤 ข้อมูลบุคคลที่ 2 (Partner B)</h4>
+          <div class="form-group" style="margin-bottom: 8px;">
+            <label for="partner-b-name" style="font-size: 0.8rem;" data-i18n="partner_b_name_label">ชื่อ/ฉายา Partner B</label>
+            <input type="text" id="partner-b-name" value="Partner B" placeholder="ชื่อบุคคลที่ 2">
+          </div>
+          <div class="form-group" style="margin-bottom: 8px;">
+            <label for="partner-b-datetime" style="font-size: 0.8rem;" data-i18n="partner_b_datetime_label">วันเวลาเกิด Partner B (YYYY-MM-DD HH:MM:SS)</label>
+            <input type="text" id="partner-b-datetime" value="1992-08-20 10:15:00">
+          </div>
+          <div class="form-group" style="margin-bottom: 4px;">
+            <label for="partner-b-gender" style="font-size: 0.8rem;" data-i18n="gender_label">เพศ Partner B</label>
+            <select id="partner-b-gender" class="form-select">
+              <option value="female" selected>หญิง (Female)</option>
+              <option value="male">ชาย (Male)</option>
+            </select>
           </div>
         </div>
 
@@ -128,7 +175,12 @@
         </div>
 
         <div class="form-group">
-          <label for="query">คำถามหรือประเด็นที่ต้องการเน้น</label>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <label for="query" data-i18n="query_label" style="margin-bottom: 0;">คำถามหรือประเด็นที่ต้องการเน้น</label>
+            <button type="button" class="btn-voice-mic" id="btn-voice-input" onclick="startVoiceInput()" title="สั่งการด้วยเสียง (Voice Dictation)" data-i18n="btn_voice_input">
+              🎤 สั่งการด้วยเสียง
+            </button>
+          </div>
           <input type="text" id="query" name="query" value="วิเคราะห์ดวงชะตาโดยรวมช่วงนี้">
         </div>
 
@@ -184,7 +236,24 @@
 
 
     <!-- Right Column: Chart Results & Multi-Agent Outputs -->
-    <section class="results-section">
+    <section class="results-section" id="results-container">
+      <!-- Printable Consultation Dossier Header (Visible in print/PDF) -->
+      <div class="consultation-report-header" id="consultation-report-header" style="display: none;">
+        <h1 data-i18n="report_title">HoroConsultant — รายงานผลการคำนวณและวิเคราะห์ดวงชะตา</h1>
+        <div class="consultation-report-meta" id="consultation-report-meta">
+          <span><strong>Client Datetime:</strong> <span id="report-client-datetime">-</span></span>
+          <span><strong>True Solar Time (TST):</strong> <span id="report-client-tst">-</span></span>
+          <span><strong>Location:</strong> <span id="report-client-location">-</span></span>
+        </div>
+      </div>
+
+      <!-- Results Actions & Report Export Bar -->
+      <div class="results-actions-bar hidden" id="results-actions-bar" style="margin-bottom: 1rem; display: flex; justify-content: flex-end;">
+        <button type="button" class="btn btn-outline" id="btn-export-report" onclick="exportConsultationReport()" data-i18n="btn_export_report" style="display: inline-flex; align-items: center; gap: 8px; font-weight: 600;">
+          📄 ส่งออกรายงาน (Export Report)
+        </button>
+      </div>
+
       <!-- 5-Branch Metaphysics Result & SVG Visualizer Card -->
       <div class="card glass-card result-card hidden" id="branch-result-card">
         <div class="card-header border-gold">
@@ -222,6 +291,26 @@
         </div>
       </div>
 
+      <!-- Interactive DaYun & LiuNian Timeline Scrubber Card -->
+      <div class="card glass-card result-card hidden" id="timeline-scrubber-card">
+        <div class="card-header border-gold" style="display: flex; justify-content: space-between; align-items: center;">
+          <h3 data-i18n="timeline_title">⏳ แถบเลื่อนกาลเวลาวัยจร 10 ปี / ปีจร (DaYun & LiuNian Timeline Scrubber)</h3>
+          <span class="badge badge-gold" id="scrubber-active-age-badge" style="font-size: 0.85rem; font-weight: 600; padding: 4px 10px; border-radius: 6px; background: rgba(251, 191, 36, 0.15); border: 1px solid rgba(251, 191, 36, 0.4); color: #fbbf24;">อายุ 36 ปี (2026)</span>
+        </div>
+        <div style="padding: 1.2rem;">
+          <div class="timeline-controls-row" style="display: flex; align-items: center; gap: 15px; margin-bottom: 1rem;">
+            <label for="timeline-age-slider" style="font-size: 0.85rem; font-weight: 600; color: #fbbf24; min-width: 90px;" data-i18n="timeline_age_label">เลือกช่วงอายุ:</label>
+            <input type="range" id="timeline-age-slider" min="1" max="100" value="36" class="timeline-slider" oninput="onTimelineSliderChange(this.value)" style="flex: 1; accent-color: #fbbf24; cursor: pointer;">
+            <span id="timeline-slider-display" style="font-family: monospace; font-size: 1.1rem; font-weight: bold; color: #38bdf8; min-width: 70px;">36 ปี</span>
+          </div>
+
+          <!-- Dynamic Transit Aspects Display -->
+          <div id="timeline-aspects-container" class="timeline-aspects-grid">
+            <!-- Dynamically updated by JS -->
+          </div>
+        </div>
+      </div>
+
       <!-- Five Elements Harmony Chart -->
       <div class="card glass-card result-card hidden" id="elements-card">
         <div class="card-header">
@@ -232,10 +321,24 @@
         </div>
       </div>
 
+      <!-- Dual-Profile Synastry Result Card -->
+      <div class="card glass-card result-card hidden" id="synastry-result-card">
+        <div class="card-header border-purple" style="display: flex; justify-content: space-between; align-items: center;">
+          <h3 data-i18n="synastry_result_title">💖 ผลการวิเคราะห์ดวงสมพงษ์ &amp; ธาตุคู่ครอง (Synastry Matrix)</h3>
+          <span class="badge badge-pink" id="synastry-grade-badge" style="font-size: 0.95rem; font-weight: 700; padding: 4px 12px; border-radius: 6px; background: rgba(236, 72, 153, 0.2); border: 1px solid rgba(236, 72, 153, 0.5); color: #f472b6;">Grade A (88%)</span>
+        </div>
+        <div style="padding: 1.2rem;" id="synastry-content-body">
+          <!-- Dynamically populated by JS -->
+        </div>
+      </div>
+
       <!-- AI Interpretation & Validation Output -->
       <div class="card glass-card result-card hidden" id="interpretation-card">
-        <div class="card-header border-purple">
-          <h3>🤖 บทพยากรณ์ multi-Agent (qwen2.5-bazi + Gemini Validator)</h3>
+        <div class="card-header border-purple" style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <h3>🤖 บทพยากรณ์ multi-Agent (qwen2.5-bazi + Gemini Validator)</h3>
+            <button type="button" class="btn-voice-listen" id="btn-speak-reading" onclick="speakCurrentInterpretation()" data-i18n="btn_listen_reading">🔊 ฟังเสียง AI (Listen)</button>
+          </div>
           <span class="route-badge" id="route-badge">Ollama Local</span>
         </div>
 
@@ -260,6 +363,92 @@
         <div class="tab-content hidden" id="tab-rag">
           <div class="rag-body" id="rag-body">
             <!-- RAG references -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Astrological Calendar & Date Selector Card -->
+      <div class="card glass-card result-card" id="calendar-view-card">
+        <div class="card-header border-purple" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <h3 data-i18n="calendar_title">📅 ปฏิทินหมื่นปีฤกษ์มงคล 12 เทพ (Auspicious Calendar)</h3>
+            <span class="badge badge-purple" id="calendar-current-month-badge">สิงหาคม 2026</span>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button type="button" class="btn-tool" onclick="changeCalendarMonth(-1)">◀ เดือนก่อนหน้า</button>
+            <button type="button" class="btn-tool" onclick="changeCalendarMonth(1)">เดือนถัดไป ▶</button>
+          </div>
+        </div>
+
+        <div style="padding: 1.2rem;">
+          <!-- Intent Filter Buttons -->
+          <div class="calendar-filters" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem;">
+            <button type="button" class="btn-intent-filter active" onclick="filterCalendarIntent('all', this)" data-i18n="intent_all">🌟 ทั้งหมด</button>
+            <button type="button" class="btn-intent-filter" onclick="filterCalendarIntent('business_opening', this)" data-i18n="intent_business">💼 เปิดร้าน/ธุรกิจ</button>
+            <button type="button" class="btn-intent-filter" onclick="filterCalendarIntent('marriage_ceremony', this)" data-i18n="intent_marriage">💍 แต่งงาน/หมั้น</button>
+            <button type="button" class="btn-intent-filter" onclick="filterCalendarIntent('home_moving', this)" data-i18n="intent_moving">🏡 ย้ายบ้าน</button>
+            <button type="button" class="btn-intent-filter" onclick="filterCalendarIntent('contract_signing', this)" data-i18n="intent_contract">✍️ เซ็นสัญญา</button>
+          </div>
+
+          <!-- Calendar Month Grid -->
+          <div id="calendar-grid-container" class="calendar-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px;">
+            <!-- Dynamically generated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- LuoPan 24-Mountain & Period 9 Flying Star Heatmap Card -->
+      <div class="card glass-card result-card" id="luopan-heatmap-card">
+        <div class="card-header border-purple" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <h3 data-i18n="luopan_title">🧭 เข็มทิศหล่อแก 24 ขุนเขา &amp; ผังพลังงาน 9 ยุค (24-Mountain LuoPan)</h3>
+          <span class="badge badge-purple" id="luopan-mountain-badge">ทิศใต้ 午 (Wu) 180°</span>
+        </div>
+        <div style="padding: 1.2rem;">
+          <div style="margin-bottom: 1rem;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
+              <label for="luopan-slider" data-i18n="luopan_slider_label">หมุนปรับองศาทิศหน้าบ้าน/อาคาร (Facing Degree):</label>
+              <strong id="luopan-degree-display" style="color: #a855f7;">180°</strong>
+            </div>
+            <input type="range" id="luopan-slider" min="0" max="359" value="180" step="1" oninput="onLuoPanSliderChange(this.value)" style="width: 100%; accent-color: #a855f7; cursor: pointer;">
+            <div style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
+              <button type="button" class="btn-tool" onclick="setLuoPanDegree(0)">⬆ เหนือ (0°)</button>
+              <button type="button" class="btn-tool" onclick="setLuoPanDegree(90)">➡ ตะวันออก (90°)</button>
+              <button type="button" class="btn-tool" onclick="setLuoPanDegree(180)">⬇ ใต้ (180°)</button>
+              <button type="button" class="btn-tool" onclick="setLuoPanDegree(270)">⬅ ตะวันตก (270°)</button>
+            </div>
+          </div>
+
+          <!-- 9-Palace Heatmap Sector Grid -->
+          <div id="luopan-sector-grid" class="sector-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem;">
+            <!-- Dynamically populated by JS -->
+          </div>
+          <div id="luopan-summary-box" style="padding: 10px; background: rgba(30, 27, 75, 0.4); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; font-size: 0.85rem; color: #cbd5e1;">
+            กำลังคำนวณผังทิศทาง...
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Metaphysics Dream Interpreter & Symbolism Decoder Card -->
+      <div class="card glass-card result-card" id="dream-interpreter-card">
+        <div class="card-header border-purple">
+          <h3 data-i18n="dream_title">🌙 ทำนายฝัน &amp; ถอดรหัสสัญลักษณ์เทพ 64 ลักษณ์ (Dream Decoder)</h3>
+        </div>
+        <div style="padding: 1.2rem;">
+          <div class="form-group" style="margin-bottom: 10px;">
+            <label for="dream-input" data-i18n="dream_input_label">พิมพ์รายละเอียดความฝัน หรือสัญลักษณ์ที่พบในฝัน:</label>
+            <input type="text" id="dream-input" placeholder="เช่น ฝันเห็นพญานาคสีทองเล่นน้ำ หรือฝันว่าขับรถขึ้นเขา" style="width: 100%;">
+          </div>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem;">
+            <button type="button" class="btn-dream-tag" onclick="quickDreamTag('ฝันเห็นพญานาคเล่นน้ำ')">🐉 พญานาค/งู</button>
+            <button type="button" class="btn-dream-tag" onclick="quickDreamTag('ฝันเห็นพระพุทธรูปทองคำเปล่งแสง')">✨ พระพุทธรูป/ทองคำ</button>
+            <button type="button" class="btn-dream-tag" onclick="quickDreamTag('ฝันเห็นแม่น้ำใหญ่และน้ำท่วม')">💧 น้ำท่วม/แม่น้ำ</button>
+            <button type="button" class="btn-dream-tag" onclick="quickDreamTag('ฝันว่าขับรถขึ้นภูเขาสูง')">🚗 ขับรถ/เดินทาง</button>
+            <button type="button" class="btn-dream-tag" onclick="quickDreamTag('ฝันเห็นปลาหลีฮื้อและเต่ามังกร')">🐟 ปลา/เต่า</button>
+            <button type="button" class="btn-tool" onclick="submitDreamInterpretation()" style="margin-left: auto; background: linear-gradient(135deg, #a855f7, #6366f1); color: white;" data-i18n="btn_interpret_dream">🔮 ทำนายฝัน</button>
+          </div>
+
+          <div id="dream-result-box" class="hidden" style="padding: 12px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 8px;">
+            <!-- Dynamically populated by JS -->
           </div>
         </div>
       </div>
@@ -331,6 +520,41 @@
     </div>
   </div>
 
+  <!-- Metaphysics AI Voice Audio Player Bar -->
+  <div class="audio-player-bar hidden" id="audio-player-bar">
+    <div class="audio-player-info">
+      <span class="audio-icon">🔊</span>
+      <div class="waveform-container">
+        <span class="waveform-bar"></span>
+        <span class="waveform-bar"></span>
+        <span class="waveform-bar"></span>
+        <span class="waveform-bar"></span>
+        <span class="waveform-bar"></span>
+      </div>
+      <span id="voice-status-text" class="voice-status-text" data-i18n="voice_reading_status">กำลังอ่านบทพยากรณ์เสียง AI...</span>
+    </div>
+    <div class="audio-player-controls">
+      <button type="button" class="voice-ctrl-btn" id="voice-play-pause-btn" onclick="toggleVoicePlayback()" title="Play / Pause">⏸</button>
+      <button type="button" class="voice-ctrl-btn" id="voice-stop-btn" onclick="stopVoicePlayback()" title="Stop">⏹</button>
+      <div class="voice-speed-selector">
+        <button type="button" class="speed-btn active" onclick="setVoicePlaybackRate(1.0, this)">1.0x</button>
+        <button type="button" class="speed-btn" onclick="setVoicePlaybackRate(1.25, this)">1.25x</button>
+        <button type="button" class="speed-btn" onclick="setVoicePlaybackRate(1.5, this)">1.5x</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="voice_engine.js"></script>
+  <script src="i18n.js"></script>
   <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((reg) => console.log('[PWA] ServiceWorker registered with scope:', reg.scope))
+          .catch((err) => console.warn('[PWA] ServiceWorker registration failed:', err));
+      });
+    }
+  </script>
 </body>
 </html>

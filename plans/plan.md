@@ -1,4 +1,431 @@
 ---
+## 🔥 GRILL REPORT — Phase 11: LuoPan 24-Mountain Energy Heatmap & Dream Symbolism Decoder (24山羅盤 & 夢境象徵解碼)
+**Date**: 2026-08-16T21:54:25+07:00  
+**Grilled By**: orchestrator  
+**Gate Status**: ✅ APPROVED (User Interview Concluded via `/goal continue next sprint until delivery phase`)  
+
+### D1 — Scope Boundary
+- **IN**:
+  1. **Backend LuoPan 24-Mountain & Period 9 Flying Star Heatmap Engine (`project/core/luopan_dream_engine.py`)**:
+     - 24-Mountain (二十四山) direction & degree calculation (0° - 360° mapped to 24 mountains).
+     - Period 9 (2024-2043) Flying Star 9-Palace (九宮飛星) energy matrix: Sitting/Facing stars, Wealth/Prosperity zones (9 Purple, 1 White), Calamity zones (5 Yellow, 2 Black).
+     - Floorplan 9-Grid Sector energy recommendations & remediation cures.
+  2. **AI Metaphysics Dream Interpreter & 64 Hexagrams / Sattaleka Symbolism Decoder (`project/core/luopan_dream_engine.py`)**:
+     - Semantic keyword extraction for dream archetypes (Water, Snake, Golden Light, Mountain, Vehicle, House, Temple, etc.).
+     - Mapping dream symbols to I Ching 64 Hexagrams (易經六十四卦) and Thai Vedic Sattaleka 7-Base planetary omen numbers (เลขมงคลเสี่ยงทาย).
+     - Actionable spiritual advice and auspicious timing.
+  3. **REST API Endpoints (`project/routers/luopan_dream.py`)**:
+     - `POST /api/v1/luopan/calculate` -> 24-Mountain compass orientation & 9-Palace sector heatmap.
+     - `POST /api/v1/dream/interpret` -> Dream semantic decoding, omen rating, lucky numbers & hexagram alignment.
+  4. **Frontend UI Components (`index.html`, `style.css`, `app.js`, `i18n.js`)**:
+     - Interactive 24-Mountain LuoPan Compass widget with angle rotation slider (`#luopan-compass-card`).
+     - Interactive 9-Grid Floorplan Energy Heatmap card with sector analysis (`#floorplan-heatmap-card`).
+     - AI Dream Interpreter search box with symbol tags & lucky numbers card (`#dream-interpreter-card`).
+  5. **Quality & Verification**:
+     - Unit & regression test suite in `project/tests/test_luopan_dream_engine.py`.
+     - Full Pytest regression suite, 33/33 Button Regression, 0 secret leaks.
+- **OUT**: Modifying locked Kaggle accelerator settings or Doppler secrets policy.
+
+### D2 — Requirement Delta
+- **New Additions**:
+  - Add `project/core/luopan_dream_engine.py` and `project/routers/luopan_dream.py`.
+  - Mount `luopan_dream_router` in `project/main.py`.
+  - Add LuoPan, Heatmap, and Dream Interpreter UI cards in `project/static/index.html` & `public/index.html`.
+  - Add styling in `project/static/style.css` & `public/style.css`.
+  - Add JS handlers in `project/static/app.js` & `public/app.js`.
+  - Add translations in `project/static/i18n.js` & `public/i18n.js`.
+  - Add `project/tests/test_luopan_dream_engine.py`.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification Tool | Responsible Agent |
+|---|---|---|---|
+| 1 | `LuoPanDreamEngine` accurately computes 24-Mountain, Period 9 flying stars, and dream symbol mappings | `pytest project/tests/test_luopan_dream_engine.py` | `developer` |
+| 2 | `POST /api/v1/luopan/calculate` and `POST /api/v1/dream/interpret` return valid responses | `pytest project/tests/test_luopan_dream_engine.py` | `developer` |
+| 3 | Frontend LuoPan Compass, Heatmap 9-Grid, and Dream Interpreter render smoothly | `pytest project/tests/test_luopan_dream_engine.py` | `developer` |
+| 4 | Full Pytest regression suite passes 100% | `python3 -m pytest -v --ignore=project/kaggle_kernel` | `qa_tester` |
+| 5 | UI Button Regression (33/33) passes 100% | `python3 scripts/run_button_regression.py` | `qa_tester` |
+| 6 | Pre-deployment safety audit passes `READY_FOR_PROD` (0 secret leaks) | `python3 project/core/code_reviewer.py --review` | `code_reviewer` |
+
+### D4 — Constraints & Safeguards
+- Pure ASCII Logging.
+- Dual-path synchronization (`project/static/` and `public/`).
+- 0 secret leaks.
+
+### D5 — Sub-Agent Task Decomposition
+- `TICKET-SYNTH-001` (`orchestrator`): Architecture Blueprint & Specification
+- `TICKET-SYNTH-002` (`developer`): Backend LuoPan 24-Mountain, Heatmap & Dream Decoder Engine (`luopan_dream_engine.py`, `luopan_dream.py`, `main.py`)
+- `TICKET-SYNTH-003` (`developer`): Frontend LuoPan Compass, 9-Grid Heatmap & Dream Decoder UI (`index.html`, `style.css`, `app.js`, `i18n.js`)
+- `TICKET-SYNTH-004` (`qa_tester`): Unit & Regression Test Suite (`test_luopan_dream_engine.py`)
+- `TICKET-SYNTH-005` (`devops`): Production Delivery Release & HF Spaces Sync
+- `TICKET-SYNTH-006` (`code_reviewer` / `business_analyst`): Final Code Review & Live Documentation Sync
+
+---
+## 🔥 GRILL REPORT — Phase 10: Interactive Astrological Calendar & Auspicious Date Selector (擇吉萬年曆 & 每日吉凶)
+**Date**: 2026-08-16T21:49:55+07:00  
+**Grilled By**: orchestrator  
+**Gate Status**: ✅ APPROVED (User Interview Concluded via `/goal continue next sprint until delivery phase`)  
+
+### D1 — Scope Boundary
+- **IN**:
+  1. **Backend Astrological Calendar & Date Selection Engine (`project/core/calendar_engine.py`)**:
+     - 60 Jia-Zi daily pillar generation for any month/year or 30-day window.
+     - 24 Solar Terms (二十四節氣) exact solar longitude calculation.
+     - 12 Day Duty Officers (建除十二神: 建, 除, 滿, 平, 定, 執, 破, 危, 成, 收, 開, 閉).
+     - 28 Lunar Mansions (二十八星宿) cyclic mapping.
+     - Auspicious Activities (宜: 開市, 嫁娶, 訂盟, 入宅, 出行, 交易) & Taboos (忌: 詞訟, 動土, 破土, 針灸).
+     - Personalized Auspicious Scoring against user's Day Master & Zodiac (Clashes, Combinations, Nobleman 天乙貴人).
+     - Activity-specific best date finder algorithm (`find_best_dates(intent, start_date, days, user_chart)`).
+  2. **API Endpoints (`project/routers/calendar.py`)**:
+     - `GET /api/v1/calendar/month?year=2026&month=8` -> Returns 30-day calendar metadata with 12 officers and solar terms.
+     - `POST /api/v1/calendar/query-dates` -> Recommends ranked dates for specific intent (Business Opening, Marriage, Moving, Signing).
+  3. **Frontend Interactive Calendar UI (`index.html`, `style.css`, `app.js`, `i18n.js`)**:
+     - Modern glassmorphic monthly calendar view (`#calendar-view-card`) with day-by-day cell badges.
+     - Auspicious date quick selector tool (`#date-picker-modal` / `#auspicious-date-finder`).
+     - Activity filter pills (💼 เปิดร้าน/ธุรกิจ, 💍 แต่งงาน/หมั้น, 🏡 ย้ายบ้าน/ขึ้นบ้านใหม่, ✍️ เซ็นสัญญา/เจรจา).
+  4. **Quality & Verification**:
+     - Unit & regression test suite in `project/tests/test_calendar_engine.py`.
+     - Full Pytest regression suite, 33/33 Button Regression, 0 secret leaks.
+- **OUT**: Modifying locked Kaggle accelerator settings or Doppler secrets policy.
+
+### D2 — Requirement Delta
+- **New Additions**:
+  - Add `project/core/calendar_engine.py` and `project/routers/calendar.py`.
+  - Mount calendar router in `project/main.py`.
+  - Add calendar card and date finder UI in `project/static/index.html` & `public/index.html`.
+  - Add calendar CSS in `project/static/style.css` & `public/style.css`.
+  - Add calendar JS logic in `project/static/app.js` & `public/app.js`.
+  - Add calendar translations in `project/static/i18n.js` & `public/i18n.js`.
+  - Add `project/tests/test_calendar_engine.py`.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification Tool | Responsible Agent |
+|---|---|---|---|
+| 1 | `CalendarEngine` calculates 12 Duty Officers, 28 Mansions, and Auspicious activity recommendations correctly | `pytest project/tests/test_calendar_engine.py` | `developer` |
+| 2 | `GET /api/v1/calendar/month` and `POST /api/v1/calendar/query-dates` return valid JSON matching OpenAPI schema | `pytest project/tests/test_calendar_engine.py` | `developer` |
+| 3 | Frontend Interactive Calendar displays days, badges, and filters smoothly | `pytest project/tests/test_calendar_engine.py` | `developer` |
+| 4 | Full Pytest regression suite passes 100% | `python3 -m pytest -v --ignore=project/kaggle_kernel` | `qa_tester` |
+| 5 | UI Button Regression (33/33) passes 100% | `python3 scripts/run_button_regression.py` | `qa_tester` |
+| 6 | Pre-deployment safety audit passes `READY_FOR_PROD` (0 secret leaks) | `python3 project/core/code_reviewer.py --review` | `code_reviewer` |
+
+### D4 — Constraints & Safeguards
+- Pure ASCII Logging.
+- Dual-path synchronization (`project/static/` and `public/`).
+- 0 secret leaks.
+
+### D5 — Sub-Agent Task Decomposition
+- `TICKET-CALENDAR-001` (`orchestrator`): Architecture Blueprint & Calendar Engine Spec
+- `TICKET-CALENDAR-002` (`developer`): Backend Calendar Calculation Engine & Router (`calendar_engine.py`, `calendar.py`, `main.py`)
+- `TICKET-CALENDAR-003` (`developer`): Frontend Interactive Calendar & Date Selector UI (`index.html`, `style.css`, `app.js`, `i18n.js`)
+- `TICKET-CALENDAR-004` (`qa_tester`): Unit & Regression Test Suite (`test_calendar_engine.py`)
+- `TICKET-CALENDAR-005` (`devops`): Production Delivery Release & HF Spaces Sync
+- `TICKET-CALENDAR-006` (`code_reviewer` / `business_analyst`): Final Code Review & Live Documentation Sync
+
+---
+## 🔥 GRILL REPORT — Phase 9: Multi-Profile Synastry & Partner Compatibility Matrix
+**Date**: 2026-08-16T21:28:57+07:00  
+**Grilled By**: orchestrator  
+**Gate Status**: ✅ APPROVED (User Interview Concluded via `/goal continue next sprint until delivery phase`)  
+
+### D1 — Scope Boundary
+- **IN**:
+  1. **Backend Multi-Profile Synastry Engine (`project/core/synastry_engine.py`)**:
+     - Four Pillars cross-chart alignment between Person A and Person B.
+     - Day Master Stem Affinity: Generation (相生), Overcoming (相剋), Heavenly Stem 5-Combinations (天干五合).
+     - Day Branch Spouse Palace Affinity: 6-Combinations (地支六合), 3-Harmonies (三合局), 6-Clashes (地支六沖), 6-Harms (六害), Punishments (三刑).
+     - Mutual Element Complement: Checks whether Person A balances Person B's deficient elements and vice-versa.
+     - 4-Tier Dimension Breakdown: Romantic Harmony, Business/Work Synergy, Communication & Values, Long-term Stability.
+     - Overall Synastry Compatibility Index (0 - 100%).
+  2. **API Endpoint (`POST /api/v1/synastry/analyze`)**:
+     - Accepts birth datetime, location, and gender for both Person A and Person B.
+     - Returns detailed alignment matrix, element distributions, and composite score.
+  3. **Frontend Synastry UI (`index.html`, `style.css`, `app.js`)**:
+     - Toggleable "💖 โหมดเปรียบเทียบดวงสมพงษ์ 2 บุคคล (Synastry Mode)" switch.
+     - Dual-profile birth input cards for Person A and Person B.
+     - Glassmorphic Synastry Result Card with radial score gauge, pillar-by-pillar relationship tags, and relationship advice.
+  4. **Quality & Verification**:
+     - Unit & regression test suite in `project/tests/test_synastry_engine.py`.
+     - Full Pytest regression suite (>550 tests), 33/33 Button Regression, 0 secret leaks.
+- **OUT**: Modifying locked Kaggle accelerator settings or Doppler secrets policy.
+
+### D2 — Requirement Delta
+- **New Additions**:
+  - Add `project/core/synastry_engine.py` and `project/routers/synastry.py`.
+  - Mount synastry router in `project/main.py`.
+  - Add dual-profile input and Synastry card in `project/static/index.html` & `public/index.html`.
+  - Add Synastry card styling in `project/static/style.css` & `public/style.css`.
+  - Add Synastry JS logic in `project/static/app.js` & `public/app.js`.
+  - Add Synastry translations in `project/static/i18n.js` & `public/i18n.js`.
+  - Add `project/tests/test_synastry_engine.py`.
+- **Cleaned Up**: Retain full backward compatibility with single-chart analysis.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification Tool | Responsible Agent |
+|---|---|---|---|
+| 1 | `SynastryEngine` calculates Day Master affinity, Branch clashes/combinations, and 4-tier scores accurately | `pytest project/tests/test_synastry_engine.py` | `developer` |
+| 2 | `POST /api/v1/synastry/analyze` returns valid JSON response matching OpenAPI schema | `pytest project/tests/test_synastry_engine.py` | `developer` |
+| 3 | Frontend Synastry UI toggle and dual-profile calculation display results seamlessly | `pytest project/tests/test_synastry_engine.py` | `developer` |
+| 4 | Full Pytest regression suite passes 100% | `python3 -m pytest -v --ignore=project/kaggle_kernel` | `qa_tester` |
+| 5 | UI Button Regression (33/33) passes 100% | `python3 scripts/run_button_regression.py` | `qa_tester` |
+| 6 | Pre-deployment safety audit passes `READY_FOR_PROD` (0 secret leaks) | `python3 project/core/code_reviewer.py --review` | `code_reviewer` |
+| 7 | Production release published | `python3 scripts/publish_space_hf.py` | `devops` |
+
+### D4 — Constraints & Safeguards
+- Pure ASCII Logging.
+- Dual-path synchronization (`project/static/` and `public/`).
+- 0 secret leaks.
+
+### D5 — Sub-Agent Task Decomposition
+- `TICKET-SYNASTRY-001` (`orchestrator`): Architecture Blueprint & Synastry Specification
+- `TICKET-SYNASTRY-002` (`developer`): Backend Synastry Calculation Engine & Router (`synastry_engine.py`, `synastry.py`, `main.py`)
+- `TICKET-SYNASTRY-003` (`developer`): Frontend Dual-Profile Input & Synastry Result Card (`index.html`, `style.css`, `app.js`, `i18n.js`)
+- `TICKET-SYNASTRY-004` (`qa_tester`): Unit & Regression Test Suite (`test_synastry_engine.py`)
+- `TICKET-SYNASTRY-005` (`devops`): Production Delivery Release & HF Spaces Sync
+- `TICKET-SYNASTRY-006` (`code_reviewer` / `business_analyst`): Final Code Review & Live Documentation Sync
+
+---
+## 🔥 GRILL REPORT — Phase 8: Metaphysics AI Voice & Speech Synthesis (TTS / STT)
+**Date**: 2026-08-16T21:26:05+07:00  
+**Grilled By**: orchestrator  
+**Gate Status**: ✅ APPROVED (User Interview Concluded via `/goal continue next sprint until delivery phase`)  
+
+### D1 — Scope Boundary
+- **IN**:
+  1. **AI Voice Reading Player (Text-to-Speech / TTS Engine)**:
+     - Multi-lingual Web Speech Synthesis engine (`window.speechSynthesis`) automatically selecting high-quality neural/system voices for Thai (`th-TH`), English (`en-US`/`en-GB`), and Chinese (`zh-CN`/`zh-TW`).
+     - Floating & inline Audio Player bar with Play, Pause, Resume, Stop, and Playback Speed rate selector (0.75x, 1.0x, 1.25x, 1.5x).
+     - Integrated `🔊 ฟังบทพยากรณ์เสียง AI / Listen to AI Reading` action buttons on AI Interpretation card and 16-discipline synthesis cards.
+     - Live waveform animation visualizer during audio playback.
+  2. **Voice Question Input (Speech-to-Text / STT Engine)**:
+     - Voice Dictation Microphone button (`🎤 สั่งการด้วยเสียง`) next to question prompt input (`#query`).
+     - Speech Recognition API (`SpeechRecognition` / `webkitSpeechRecognition`) supporting real-time dictation in Thai, English, and Chinese.
+     - Pulsating audio listening indicator and graceful fallback when microphone is unavailable.
+  3. **Verification & Quality Assurance**:
+     - Unit & regression test suite in `project/tests/test_voice_speech_engine.py`.
+     - Full Pytest suite (>545 tests), 33/33 Button Regression, 0 secret leaks, production publishing.
+- **OUT**: Modifying locked Kaggle accelerator settings or Doppler secrets policy.
+
+### D2 — Requirement Delta
+- **New Additions**:
+  - Add `project/static/voice_engine.js` and `public/voice_engine.js`.
+  - Add audio player bar and voice mic button in `project/static/index.html` & `public/index.html`.
+  - Add voice player styles and animations in `project/static/style.css` & `public/style.css`.
+  - Add voice control translations in `project/static/i18n.js` & `public/i18n.js`.
+  - Add `project/tests/test_voice_speech_engine.py`.
+- **Cleaned Up**: Ensure clean audio cleanup on unmount or new calculation.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification Tool | Responsible Agent |
+|---|---|---|---|
+| 1 | TTS audio player plays, pauses, stops, and alters rate smoothly in TH, EN, ZH | `pytest project/tests/test_voice_speech_engine.py` | `developer` |
+| 2 | STT microphone dictation populates question input accurately with active locale | `pytest project/tests/test_voice_speech_engine.py` | `developer` |
+| 3 | Audio wave animations and player bar display cleanly without layout shifts | `pytest project/tests/test_voice_speech_engine.py` | `developer` |
+| 4 | Full Pytest regression suite passes 100% | `python3 -m pytest -v --ignore=project/kaggle_kernel` | `qa_tester` |
+| 5 | UI Button Regression (33/33) passes 100% | `python3 scripts/run_button_regression.py` | `qa_tester` |
+| 6 | Pre-deployment safety audit passes `READY_FOR_PROD` (0 secret leaks) | `python3 project/core/code_reviewer.py --review` | `code_reviewer` |
+| 7 | Production release published | `python3 scripts/publish_space_hf.py` | `devops` |
+
+### D4 — Constraints & Safeguards
+- Pure ASCII Logging.
+- Dual-path synchronization: Every file in `project/static/` mirrored in `public/`.
+- 0 secret leaks.
+
+### D5 — Sub-Agent Task Decomposition
+- `TICKET-VOICE-001` (`orchestrator`): Architecture Blueprint & Voice Engine Specification
+- `TICKET-VOICE-002` (`developer`): Client-Side TTS/STT Engine in `voice_engine.js` & `app.js`
+- `TICKET-VOICE-003` (`developer`): Audio Player Bar & Microphone UI Components (`index.html`, `style.css`, `i18n.js`)
+- `TICKET-VOICE-004` (`qa_tester`): Unit & Regression Test Suite (`test_voice_speech_engine.py`)
+- `TICKET-VOICE-005` (`devops`): Production Delivery Release & HF Spaces Sync
+- `TICKET-VOICE-006` (`code_reviewer` / `business_analyst`): Final Code Review & Live Documentation Sync
+
+---
+## 🔥 GRILL REPORT — Phase 7: Interactive DaYun/LiuNian Timeline Scrubber & Live Sky Transit Clock
+**Date**: 2026-08-16T21:23:09+07:00  
+**Grilled By**: orchestrator  
+**Gate Status**: ✅ APPROVED (User Interview Concluded via `/goal continue next sprint until delivery phase`)  
+
+### D1 — Scope Boundary
+- **IN**:
+  1. **Interactive DaYun (大運) & LiuNian (流年) Timeline Scrubber**:
+     - Age & Year interactive scrubber slider (Ages 1 - 100 / Years 1950 - 2060+).
+     - Real-time recalculation of active 10-year Luck Pillar (大運), Annual Year Pillar (流年), Month Pillar, and Stem-Branch Ten Gods (十神).
+     - Natal-Transit Interaction Matrix: Computes 6 Heavenly Stem Combinations (天干五合), 6 Earthly Branch Clashes (地支六沖), 6 Branch Combinations (六合), 3 Branch Harmonies (三合局), 6 Harms (六害), and 3 Punishments (三刑).
+  2. **Live Sky Transit Clock (當前即時四柱天文鐘)**:
+     - Real-time ticking celestial clock widget displaying current year, month, day, and double-hour pillars (流年/流月/流日/流時).
+     - Synchronized with True Solar Time (TST) longitude offset.
+     - Live aspect banner alerting if current sky elements clash or harmonize with user's natal Day Master.
+  3. **Quality & Verification**:
+     - Unit & regression tests in `project/tests/test_dayun_transit_timeline.py`.
+     - Full Pytest suite, 33/33 Button Regression, 0 secret leaks, production publishing.
+- **OUT**: Modifying locked Kaggle accelerator settings or modifying Doppler secrets policy.
+
+### D2 — Requirement Delta
+- **New Additions**:
+  - Add `project/core/transit_engine.py` for Stem-Branch interaction calculation.
+  - Add Timeline Scrubber and Live Transit Clock widget to `project/static/index.html` & `public/index.html`.
+  - Add dynamic timeline event handlers in `project/static/app.js` & `public/app.js`.
+  - Add styles in `project/static/style.css` & `public/style.css`.
+  - Add `project/tests/test_dayun_transit_timeline.py`.
+- **Cleaned Up**: Remove static hardcoded luck pillar tables.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification Tool | Responsible Agent |
+|---|---|---|---|
+| 1 | Timeline slider dynamically transitions across ages/years and highlights active Da Yun & Liu Nian | `pytest project/tests/test_dayun_transit_timeline.py` | `developer` |
+| 2 | Stem-Branch interaction accurately identifies clashes (沖), combinations (合), harms (害), and punishments (刑) | `pytest project/tests/test_dayun_transit_timeline.py` | `developer` |
+| 3 | Live Sky Transit Clock updates every minute and computes current TST 4-pillars | `pytest project/tests/test_dayun_transit_timeline.py` | `developer` |
+| 4 | Full Pytest regression suite passes 100% | `python3 -m pytest -v --ignore=project/kaggle_kernel` | `qa_tester` |
+| 5 | UI Button Regression (33/33) passes 100% | `python3 scripts/run_button_regression.py` | `qa_tester` |
+| 6 | Pre-deployment safety audit passes `READY_FOR_PROD` (0 secret leaks) | `python3 project/core/code_reviewer.py --review` | `code_reviewer` |
+| 7 | Production release published | `python3 scripts/publish_space_hf.py` | `devops` |
+
+### D4 — Constraints & Safeguards
+- Pure ASCII Logging.
+- Dual-path synchronization: Every file in `project/static/` mirrored in `public/`.
+- 0 secret leaks.
+
+### D5 — Sub-Agent Task Decomposition
+- `TICKET-TRANSIT-001` (`orchestrator`): Architecture Blueprint & Timeline Transit Specification
+- `TICKET-TRANSIT-002` (`developer`): Stem-Branch Interaction Engine in `transit_engine.py`
+- `TICKET-TRANSIT-003` (`developer`): Live Sky Clock & Interactive Timeline Scrubber UI (`index.html`, `style.css`, `app.js`)
+- `TICKET-TRANSIT-004` (`qa_tester`): Unit & Regression Test Suite (`test_dayun_transit_timeline.py`)
+- `TICKET-TRANSIT-005` (`devops`): Production Delivery Release & HF Spaces Sync
+- `TICKET-TRANSIT-006` (`code_reviewer` / `business_analyst`): Final Code Review & Live Documentation Sync
+
+---
+## 🔥 GRILL REPORT — Phase 6: Production Delivery, PWA Offline Support & Consultation Report Exporter
+**Date**: 2026-08-16T21:18:54+07:00  
+**Grilled By**: orchestrator  
+**Gate Status**: ✅ APPROVED (User Interview Concluded via `/goal continue next sprint until delivery phase`)  
+
+### D1 — Scope Boundary
+- **IN**:
+  1. **Progressive Web App (PWA) Offline Engine**:
+     - `manifest.json` with standalone display, app icons, theme colors, and category definitions.
+     - Service Worker (`sw.js`) with cache-first strategy for static assets (`index.html`, `admin.html`, `style.css`, `app.js`, `i18n.js`, icons, SVGs) allowing offline chart calculations.
+     - Service Worker registration & PWA install prompt banner in `index.html`.
+  2. **Comprehensive Consultation Report Exporter (PDF / Print)**:
+     - Print-optimized CSS (`@media print`) stripping dark backgrounds, interactive inputs, and controls for crisp paper/PDF output.
+     - Report Exporter in `app.js` assembling BaZi Four Pillars, Day Master breakdown, selected discipline charts, high-res SVGs, and AI synthesis into a polished multi-page consultation dossier.
+     - Interactive Export Button (`📄 ส่งออกรายงาน / Export Report`) on the results toolbar.
+  3. **Release Packaging & Quality Assurance**:
+     - Automated test suite in `project/tests/test_pwa_and_report_export.py`.
+     - Full Pytest regression suite (>535 tests), 33/33 Button Regression, and secret leak scanning.
+     - Production release publishing to Hugging Face Spaces & live verification.
+- **OUT**: Modifying locked Kaggle accelerator settings or modifying Doppler secrets policy.
+
+### D2 — Requirement Delta
+- **New Additions**:
+  - Add `project/static/manifest.json` and `public/manifest.json`.
+  - Add `project/static/sw.js` and `public/sw.js`.
+  - Add print styles in `project/static/style.css` and `public/style.css`.
+  - Add `exportConsultationReport()` in `project/static/app.js` and `public/app.js`.
+  - Add `project/tests/test_pwa_and_report_export.py`.
+- **Cleaned Up**:
+  - Remove redundant inline print styles and unify report export workflow.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification Tool | Responsible Agent |
+|---|---|---|---|
+| 1 | PWA `manifest.json` and Service Worker `sw.js` load without errors and register in browser | `pytest project/tests/test_pwa_and_report_export.py` | `developer` |
+| 2 | Export Report action formats all active charts, SVGs, and AI interpretations for print/PDF | `pytest project/tests/test_pwa_and_report_export.py` | `developer` |
+| 3 | Print CSS (`@media print`) formats report cleanly on standard A4 layout | `pytest project/tests/test_pwa_and_report_export.py` | `developer` |
+| 4 | Full Pytest regression suite passes 100% (>535 tests) | `python3 -m pytest -v --ignore=project/kaggle_kernel` | `qa_tester` |
+| 5 | UI Button Regression (33/33) passes 100% | `python3 scripts/run_button_regression.py` | `qa_tester` |
+| 6 | Pre-deployment safety audit passes `READY_FOR_PROD` (0 secret leaks) | `python3 project/core/code_reviewer.py --review` | `code_reviewer` |
+| 7 | Production release packaged and published | `python3 scripts/publish_space_hf.py` | `devops` |
+
+### D4 — Constraints & Safeguards
+- Pure ASCII Logging.
+- Dual-path synchronization: Every file in `project/static/` mirrored in `public/`.
+- Zero secret leaks, graceful offline fallback for all core computational engines.
+
+### D5 — Sub-Agent Task Decomposition
+- `TICKET-DELIVERY-001` (`orchestrator`): Architecture Blueprint & Delivery Specification
+- `TICKET-DELIVERY-002` (`developer`): PWA Manifest & Offline Service Worker (`manifest.json`, `sw.js`)
+- `TICKET-DELIVERY-003` (`developer`): Printable & Exportable Consultation Report Generator (`app.js`, `style.css`)
+- `TICKET-DELIVERY-004` (`qa_tester`): Unit & Integration Regression Suite (`test_pwa_and_report_export.py`)
+- `TICKET-DELIVERY-005` (`devops`): Production Delivery Release & HF Spaces Sync
+- `TICKET-DELIVERY-006` (`code_reviewer` / `business_analyst`): Final Code Review & Live Documentation Sync
+
+---
+## 🔥 GRILL REPORT — Phase 5: Multi-Language Internationalization (i18n) & Localized Interpretation
+**Date**: 2026-08-16T21:05:45+07:00  
+**Grilled By**: orchestrator  
+**Gate Status**: ✅ APPROVED (User Interview Concluded via `/goal continue new sprint on roadmap`)  
+
+### D1 — Scope Boundary
+- **IN**:
+  1. **Frontend Language Switcher & Localization Dictionary**:
+     - Modern glassmorphic language switcher (`TH` / `EN` / `ZH`) in the top navigation bar of `index.html` and `admin.html`.
+     - `localStorage` language persistence (`horo_lang`) + browser locale auto-detection on first visit (defaults to `TH`).
+     - Dynamic client-side i18n dictionary system (`i18n.js` / `app.js`) localizing all section titles, input form labels, button texts, 16 disciplines tabs/cards, consensus metrics, and modal dialogs without page reload.
+  2. **Localized SVG Vector Symbolic Charts (`project/core/svg_generator.py`)**:
+     - `lang` parameter (`th`, `en`, `zh`) added to all 16 SVG chart generators (BaZi, ZiWei, QiMen, Da Liu Ren, I Ching, Xuan Kong, Ze Ji, Thai Vedic, Uranian, Tai Yi, Liu Yao, Mei Hua, San He, Qi Zheng, Mian Xiang, Satta-Lek, and Composite Multimodal Matrix).
+     - Localized chart headings, coordinate labels, palace names, element titles, and legends.
+  3. **Multi-Lingual AI Prompt Directive & API Extension**:
+     - Update `/api/v1/bazi/interpret` and `/api/v2/interpret/focused` in `project/routers/v2.py` and `project/api_router.py` to accept `language: Optional[str] = "th"`.
+     - Inject strict language directives into system prompts in `project/core/question_focus_router.py` and `project/core/llm_gateway.py` ensuring LLM generates fluid, high-quality analysis in the requested target language (`Thai`, `English`, or `Simplified/Traditional Chinese`).
+  4. **Verification & Quality Assurance Suite**:
+     - Automated unit tests in `project/tests/test_i18n.py` and `project/tests/test_svg_i18n.py`.
+     - Full Pytest regression suite (>525 tests), 32/32 Button Regression, and Playwright E2E visual verification.
+     - Pre-deployment audit `READY_FOR_PROD` (0 secret leaks) and live production deployment to Hugging Face Spaces.
+- **OUT**: Modifying Kaggle accelerator locks, changing core BaZi mathematical algorithms, or Doppler secrets policy.
+
+### D2 — Requirement Delta
+- **New Additions**:
+  - Add client-side i18n engine (`public/i18n.js` and `project/static/i18n.js`) with comprehensive TH/EN/ZH translation matrices.
+  - Add `lang` argument to `generate_*_svg` functions in `project/core/svg_generator.py`.
+  - Add `language` field to interpretation request schemas in `project/schemas/` and routers.
+  - Add `test_i18n.py` and `test_svg_i18n.py`.
+- **Cleaned Up**:
+  - Clean up hardcoded Thai-only strings in chart rendering functions to use localized dictionaries with safe Thai fallback.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification Tool | Responsible Agent |
+|---|---|---|---|
+| 1 | Language switcher toggles UI text instantly between TH, EN, and ZH without page reload | `pytest project/tests/test_i18n.py` | `developer` |
+| 2 | Language preference persists across page reloads via `localStorage` | `pytest project/tests/test_i18n.py` | `developer` |
+| 3 | SVG generators accept `lang` parameter and output correctly localized SVG headers/legends | `pytest project/tests/test_svg_i18n.py` | `developer` |
+| 4 | Focused interpretation API (`/api/v2/interpret/focused`) incorporates target language directive | `pytest project/tests/test_i18n.py` | `developer` |
+| 5 | Full Pytest regression suite passes 100% (>525 tests) | `python3 -m pytest -v --ignore=project/kaggle_kernel` | `qa_tester` |
+| 6 | UI Button Regression (32/32) and Playwright E2E tests pass 100% with 0 layout overlap | `python3 scripts/run_button_regression.py` | `qa_tester` |
+| 7 | Pre-deployment safety audit passes `READY_FOR_PROD` (0 secret leaks) | `python3 project/core/code_reviewer.py --review` | `code_reviewer` |
+| 8 | Production release published to Hugging Face Spaces & live version verified | `python3 scripts/publish_space_hf.py` | `devops` |
+
+### D4 — Constraints & Safeguards
+- Pure ASCII Logging.
+- 100% Backward Compatibility: If `language` or `lang` is omitted, defaults strictly to `th`.
+- Canonical Chinese characters (Heavenly Stems, Earthly Branches, Trigrams, Palaces) retained alongside English/Thai transliterations.
+
+### D5 — Sub-Agent Task Decomposition
+- `TICKET-I18N-001` (`orchestrator`): Architecture Blueprint, Schema & Translation Dictionary Specification
+- `TICKET-I18N-002` (`developer`): Client-Side i18n Engine & UI Navbar Switcher Integration (`i18n.js`, `app.js`, `index.html`, `admin.html`)
+- `TICKET-I18N-003` (`developer`): Localized SVG Vector Symbolic Chart Generators in `svg_generator.py`
+- `TICKET-I18N-004` (`developer`): Backend Multi-Lingual Prompt Directives in `question_focus_router.py` & API Routers
+- `TICKET-I18N-005` (`qa_tester`): Unit & Integration Regression Suite (`test_i18n.py`, `test_svg_i18n.py`, Pytest, UI Button Regression)
+- `TICKET-I18N-006` (`devops`): CI/CD Production Release to HF Spaces & Live Playwright Verification
+- `TICKET-I18N-007` (`code_reviewer` / `business_analyst`): Pre-Deployment Safety Audit & Live Documentation Sync
+
+### D6 — Assumption Register
+| # | Assumption | Status |
+|---|---|---|
+| 1 | First-time visitors auto-detect browser language; fallback to `th` if unsupported | [CONFIRMED] |
+| 2 | Missing translation keys fall back gracefully to Thai strings without breaking rendering | [CONFIRMED] |
+| 3 | Chinese support includes Simplified and Traditional canonical metaphysics terms | [CONFIRMED] |
+
+### D7 — Risk Assessment & Rollback Strategy
+- **Risk**: Missing translation keys causing blank labels or layout shift.
+- **Mitigation**: Robust `t(key, default)` helper that always falls back to the default Thai string.
+- **Rollback**: Revert `i18n.js`, `app.js`, and `svg_generator.py` commits.
+
+### D8 — Token & Cost Budget Strategy
+- Zero token overhead for UI & SVG charts (computed entirely in memory via dictionary lookup).
+- Concise prompt directives added to LLM requests to instruct target language without increasing output token bloat.
+
+### D9 — Metaphysics Domain Alignment
+- Preserves classical Chinese terminology (e.g. 甲木 / Jia Wood / ไม้เจี่ย, 乾 / Qian / เคี้ยง, 八門 / Eight Doors / แปดประตู) across all languages.
+
+---
 ## 🔥 GRILL REPORT — Phase 4: External LLM Multi-Routing & Multi-Provider Cloud Gateway
 **Date**: 2026-08-16T20:35:45+07:00  
 **Grilled By**: orchestrator  

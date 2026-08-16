@@ -3,7 +3,7 @@
   "info": {
     "title": "Computational Metaphysics Engine",
     "description": "Modular 10-Domain Metaphysical Calculation, AI Debate & Multi-Agent Engine",
-    "version": "1.0.0.3c08386"
+    "version": "1.0.0.34833bc"
   },
   "paths": {
     "/admin/auth/google": {
@@ -2345,6 +2345,281 @@
         }
       }
     },
+    "/api/v1/synastry/analyze": {
+      "post": {
+        "tags": [
+          "Synastry & Partner Compatibility"
+        ],
+        "summary": "Analyze Synastry",
+        "description": "Calculate BaZi synastry, elemental affinity, and multi-tier compatibility between two profiles.",
+        "operationId": "analyze_synastry_api_v1_synastry_analyze_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SynastryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Analyze Synastry Api V1 Synastry Analyze Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/calendar/month": {
+      "get": {
+        "tags": [
+          "Astrological Calendar & Date Selection"
+        ],
+        "summary": "Get Monthly Calendar",
+        "description": "Retrieve full monthly astrological calendar metadata with 12 duty officers and suitability.",
+        "operationId": "get_monthly_calendar_api_v1_calendar_month_get",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Calendar Year",
+              "default": 2026,
+              "title": "Year"
+            },
+            "description": "Calendar Year"
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Calendar Month (1-12)",
+              "default": 8,
+              "title": "Month"
+            },
+            "description": "Calendar Month (1-12)"
+          },
+          {
+            "name": "user_day_master",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "User Day Master",
+              "title": "User Day Master"
+            },
+            "description": "User Day Master"
+          },
+          {
+            "name": "user_zodiac",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "User Zodiac Branch",
+              "title": "User Zodiac"
+            },
+            "description": "User Zodiac Branch"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Monthly Calendar Api V1 Calendar Month Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/calendar/query-dates": {
+      "post": {
+        "tags": [
+          "Astrological Calendar & Date Selection"
+        ],
+        "summary": "Query Auspicious Dates",
+        "description": "Find and rank auspicious dates for specific activity in upcoming period.",
+        "operationId": "query_auspicious_dates_api_v1_calendar_query_dates_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DateQueryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "type": "array",
+                  "title": "Response Query Auspicious Dates Api V1 Calendar Query Dates Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/luopan/calculate": {
+      "post": {
+        "tags": [
+          "LuoPan Compass & Dream Interpretation"
+        ],
+        "summary": "Calculate Luopan",
+        "description": "Calculate 24-Mountain compass orientation and Period 9 Flying Star 9-Palace sector heatmap.",
+        "operationId": "calculate_luopan_api_v1_luopan_calculate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LuoPanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Calculate Luopan Api V1 Luopan Calculate Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dream/interpret": {
+      "post": {
+        "tags": [
+          "LuoPan Compass & Dream Interpretation"
+        ],
+        "summary": "Interpret Dream",
+        "description": "Decode dream symbolism into I Ching 64 Hexagrams and Sattaleka lucky omen numbers.",
+        "operationId": "interpret_dream_api_v1_dream_interpret_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DreamRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Interpret Dream Api V1 Dream Interpret Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "tags": [
@@ -2541,6 +2816,56 @@
         "type": "object",
         "title": "BatchDraftRequest"
       },
+      "DateQueryRequest": {
+        "properties": {
+          "intent": {
+            "type": "string",
+            "title": "Intent",
+            "description": "business_opening | marriage_ceremony | home_moving | contract_signing | travel_journey | wealth_investment",
+            "default": "business_opening"
+          },
+          "start_date": {
+            "type": "string",
+            "title": "Start Date",
+            "description": "YYYY-MM-DD format"
+          },
+          "days_ahead": {
+            "type": "integer",
+            "title": "Days Ahead",
+            "description": "Number of days to search ahead",
+            "default": 30
+          },
+          "user_day_master": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Day Master",
+            "description": "User's Day Master Stem (e.g. 甲, 乙)"
+          },
+          "user_zodiac": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Zodiac",
+            "description": "User's Birth Year Branch (e.g. 子, 丑)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start_date"
+        ],
+        "title": "DateQueryRequest"
+      },
       "DistillRequest": {
         "properties": {
           "domain": {
@@ -2568,6 +2893,32 @@
         },
         "type": "object",
         "title": "DistillRequest"
+      },
+      "DreamRequest": {
+        "properties": {
+          "dream_text": {
+            "type": "string",
+            "title": "Dream Text",
+            "description": "Description of the dream in Thai or English"
+          },
+          "user_day_master": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Day Master",
+            "description": "User's BaZi Day Master Stem"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dream_text"
+        ],
+        "title": "DreamRequest"
       },
       "FinetuneTriggerRequest": {
         "properties": {
@@ -2753,6 +3104,12 @@
             "title": "Query",
             "example": "Analyse my Day Master strength and career prospects"
           },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "description": "Response language code: 'th', 'en', 'zh'",
+            "default": "th"
+          },
           "enable_validation": {
             "type": "boolean",
             "title": "Enable Validation",
@@ -2811,6 +3168,24 @@
         ],
         "title": "LocationResolveRequest"
       },
+      "LuoPanRequest": {
+        "properties": {
+          "facing_degree": {
+            "type": "number",
+            "title": "Facing Degree",
+            "description": "Facing compass degree (0 - 360)",
+            "default": 180.0
+          },
+          "period": {
+            "type": "integer",
+            "title": "Period",
+            "description": "Feng Shui Period (default 9: 2024-2043)",
+            "default": 9
+          }
+        },
+        "type": "object",
+        "title": "LuoPanRequest"
+      },
       "MetaphysicalDebateRequest": {
         "properties": {
           "birth_datetime": {
@@ -2843,6 +3218,12 @@
             "type": "string",
             "title": "Query",
             "description": "Primary user question for synthesis"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "description": "Response language code: 'th', 'en', 'zh'",
+            "default": "th"
           },
           "force_human_review": {
             "type": "boolean",
@@ -2901,6 +3282,58 @@
           "features"
         ],
         "title": "MianXiangAnalysisRequest"
+      },
+      "ProfileInput": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name",
+            "description": "Profile name",
+            "default": "Person"
+          },
+          "birth_datetime": {
+            "type": "string",
+            "title": "Birth Datetime",
+            "description": "YYYY-MM-DD HH:MM:SS format"
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude",
+            "description": "Longitude for TST correction",
+            "default": 100.493
+          },
+          "utc_offset_hours": {
+            "type": "number",
+            "title": "Utc Offset Hours",
+            "description": "UTC timezone offset in hours",
+            "default": 7.0
+          },
+          "gender": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender",
+            "description": "Gender: male | female",
+            "default": "male"
+          }
+        },
+        "type": "object",
+        "required": [
+          "birth_datetime"
+        ],
+        "title": "ProfileInput"
       },
       "QuestionFocusInterpretRequest": {
         "properties": {
@@ -3030,6 +3463,50 @@
           "decision"
         ],
         "title": "ReviewDecision"
+      },
+      "SynastryRequest": {
+        "properties": {
+          "person_a": {
+            "$ref": "#/components/schemas/ProfileInput",
+            "description": "Person A Profile"
+          },
+          "person_b": {
+            "$ref": "#/components/schemas/ProfileInput",
+            "description": "Person B Profile"
+          },
+          "relation_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relation Type",
+            "description": "romantic | business | friendship",
+            "default": "romantic"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language",
+            "description": "Response language: th | en | zh",
+            "default": "th"
+          }
+        },
+        "type": "object",
+        "required": [
+          "person_a",
+          "person_b"
+        ],
+        "title": "SynastryRequest"
       },
       "TrainRequest": {
         "properties": {

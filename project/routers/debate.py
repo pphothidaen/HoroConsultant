@@ -40,6 +40,7 @@ class InterpretRequest(BaseModel):
     utc_offset_hours:  float = Field(..., json_schema_extra={"example": 7.0}, ge=-12.0, le=14.0)
     unknown_hour:      bool  = Field(False, description="Enable probabilistic matrix mode")
     query:             str | None = Field(None, json_schema_extra={"example": "Analyse my Day Master strength and career prospects"})
+    language:          str   = Field("th", description="Response language code: 'th', 'en', 'zh'")
     enable_validation: bool          = Field(False, description="Cross-validate prediction via Gemini Validator Agent")
 
 
@@ -56,6 +57,7 @@ class MetaphysicalDebateRequest(BaseModel):
     utc_offset_hours: float = Field(..., json_schema_extra={"example": 7.0}, ge=-12.0, le=14.0)
     unknown_hour: bool = Field(False, description="Enable probabilistic handling for unknown birth hour")
     query: str = Field(..., description="Primary user question for synthesis")
+    language: str = Field("th", description="Response language code: 'th', 'en', 'zh'")
     force_human_review: bool = Field(False, description="Force HITL queue even if consensus score is high")
 
 
@@ -230,12 +232,18 @@ async def interpret_bazi(req: InterpretRequest):
         f"User Query: {req.query or 'Provide a comprehensive life reading.'}"
     )
 
+    lang_directive = {
+        "th": "Respond in Thai with clear, professional astrological explanations. (ตอบเป็นภาษาไทยอย่างละเอียด สละสลวย)",
+        "en": "Respond entirely in English with clear, professional astrological explanations, keeping Chinese/Thai terms in parentheses.",
+        "zh": "请全程使用中文（简体/繁体）进行详细深入的命理专业分析与解答。",
+    }.get(req.language, "Respond in Thai.")
+
     ai_result = await asyncio.to_thread(
         router.generate,
         prompt=prompt,
         system_instruction=(
             "You are a master BaZi consultant. Provide a structured, insightful "
-            "reading citing relevant classical principles. Be concise but thorough."
+            f"reading citing relevant classical principles. Be concise but thorough. {lang_directive}"
         ),
     )
 
@@ -259,8 +267,8 @@ async def interpret_bazi(req: InterpretRequest):
         {"book": "《紫微斗數全書》 ZiWeiDouShu", "text": "命宮乃一世之樞紐，身宮乃後半生之依歸。星辰吉凶，皆隨局而轉。"}
     ]
 
-    svg_content = generate_bazi_svg(chart)
-    zodiac_svg  = generate_zodiac_wheel_svg(chart)
+    svg_content = generate_bazi_svg(chart, lang=req.language)
+    zodiac_svg  = generate_zodiac_wheel_svg(chart, lang=req.language)
     chart["svg_content"] = svg_content
     chart["zodiac_svg"]  = zodiac_svg
 

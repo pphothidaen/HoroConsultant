@@ -106,6 +106,39 @@
     display: flex; align-items: center; gap: 12px;
   }
 
+  .lang-switcher {
+    display: flex;
+    gap: 4px;
+    background: rgba(15, 23, 42, 0.7);
+    padding: 3px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    align-items: center;
+  }
+
+  .lang-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .lang-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .lang-btn.active {
+    color: #f6d860;
+    background: rgba(246, 216, 96, 0.2);
+    border-color: rgba(246, 216, 96, 0.4);
+  }
+
   .badge-admin {
     padding: 4px 10px;
     background: rgba(183,148,244,0.15);
@@ -777,6 +810,11 @@
         <img id="user-avatar" src="" style="width:24px; height:24px; border-radius:50%; object-fit:cover;">
         <span id="user-email-display" style="font-size:12px; font-weight:600; color:var(--accent-blue);">pansakorn@gmail.com</span>
         <button onclick="logoutAdmin()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:12px; padding:2px 4px;" title="Logout">🚪</button>
+      </div>
+      <div class="lang-switcher" id="lang-switcher">
+        <button type="button" class="lang-btn active" data-lang="th" onclick="setLanguage('th')">TH</button>
+        <button type="button" class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+        <button type="button" class="lang-btn" data-lang="zh" onclick="setLanguage('zh')">ZH</button>
       </div>
       <a href="/" class="btn btn-outline" style="font-size:11px;padding:6px 12px;">← Main App</a>
       <span class="badge-admin">🔐 Admin Panel</span>
@@ -1989,5 +2027,6 @@ function escQ(str) {
   return String(str || '').replace(/'/g,"\\'").replace(/\n/g,' ').substring(0, 200);
 }
 </script>
+<script src="i18n.js"></script>
 </body>
 </html>

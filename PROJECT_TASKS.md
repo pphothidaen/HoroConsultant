@@ -56,33 +56,725 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
-│   🚀 IN PROGRESS: Phase 4 — External LLM Multi-Routing & Cloud Gateway        │
+│   ✅ DONE: Phase 11 — LuoPan 24-Mountain & Dream Symbol Decoder (100%)        │
 ├───────────────────────────────────────────────────────────────────────────────┤
-│ • 5-Tier Resilient Failover (Cloudflare AI ➔ Gemini ➔ OpenAI ➔ Claude ➔ Ollama)│
-│ • Deterministic Fallback Guard (Zero uncaught exceptions / Zero leakage)      │
-│ • Dynamic Circuit Breaker, Exponential Backoff & Latency Health Monitoring    │
-│ • Endpoints /api/v2/llm/providers/status & /api/v2/llm/route-test             │
-│ • Admin Panel Live Provider Status Widget (project/static/admin.html)         │
+│ • 24-Mountain LuoPan Compass & Period 9 Flying Star 9-Palace Energy Heatmap   │
+│ • AI Metaphysics Dream Interpreter with 64 Hexagrams & Sattaleka Numbers      │
+│ • Interactive SVG LuoPan Compass Dial, Sector Matrix & Dream Search UI        │
 ├───────────────────────────────────────────────────────────────────────────────┤
-│   ✅ DONE: Phase 3 — Unified Multimodal Matrix & 16-Discipline Consensus (100%)│
+│   ✅ DONE: Phase 10 — Astrological Calendar & Date Selector (100%)            │
 ├───────────────────────────────────────────────────────────────────────────────┤
-│ • 6 Core Life Themes Focus Controller, 16-Discipline Radar Mandala SVG Chart  │
-│ • Pytest 517/517 PASS, 32/32 UI Buttons PASS, Live HF Space v1.0.0.3c08386    │
+│ • 24 Solar Terms & 12 Day Officers (建除十二神) Calculation Engine             │
+│ • Personalized Auspicious Date Scoring & Intention-Specific Best Date Finder   │
+│ • Interactive Monthly Calendar Card UI with Activity Filters & Badges         │
+├───────────────────────────────────────────────────────────────────────────────┤
+│   ✅ DONE: Phase 9 — Multi-Profile Synastry & Compatibility Matrix (100%)     │
+├───────────────────────────────────────────────────────────────────────────────┤
+│ • Cross-Profile 4-Pillars Synastry Engine (Day Master & Spouse Palace Check)  │
+│ • 4-Dimension Compatibility Index (Romantic, Business, Communication, Stability)│
+│ • Interactive Synastry Mode UI with Dual Profile Input & Gauge Visualization  │
 └───────────────────────────────────────────────────────────────────────────────┘
 ```
 
-## 🚀 ACTIVE SPRINT: Phase 4 — External LLM Multi-Routing & Multi-Provider Cloud Gateway
+## 🚀 COMPLETED SPRINT: Phase 11 — LuoPan 24-Mountain Energy Heatmap & Dream Symbolism Decoder
 **Grill Gate Status**: ✅ APPROVED (Ref: `/plans/plan.md`)  
 **Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)  
 
 | Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
 |---|---|---|---|---|
-| `TICKET-LLM-001` | `orchestrator` | Architecture Blueprint & Multi-Provider Gateway Spec | DONE | None |
-| `TICKET-LLM-002` | `developer` | Multi-Tier LLM Gateway & Circuit Breaker Engine in `project/core/llm_gateway.py` | DONE | `TICKET-LLM-001` |
-| `TICKET-LLM-003` | `developer` | FastAPI Routers & Admin Panel Provider Status Widget Integration | DONE | `TICKET-LLM-001` |
-| `TICKET-LLM-004` | `qa_tester` | Unit & Mock Failure Regression Test Suite (`test_llm_multirouter.py`) | DONE | `TICKET-LLM-002`..`003` |
-| `TICKET-LLM-005` | `devops` | CI/CD Production Release to HF Spaces & Live Verification | DONE | `TICKET-LLM-004` |
-| `TICKET-LLM-006` | `code_reviewer` | Pre-Deployment Safety Audit & Live Documentation Sync | DONE | `TICKET-LLM-005` |
+| `TICKET-SYNTH-001` | `orchestrator` | Architecture Blueprint & Specification | DONE | None |
+| `TICKET-SYNTH-002` | `developer` | Backend LuoPan 24-Mountain, Heatmap & Dream Decoder Engine (`luopan_dream_engine.py`, `luopan_dream.py`, `main.py`) | DONE | `TICKET-SYNTH-001` |
+| `TICKET-SYNTH-003` | `developer` | Frontend LuoPan Compass, 9-Grid Heatmap & Dream Decoder UI (`index.html`, `style.css`, `app.js`, `i18n.js`) | DONE | `TICKET-SYNTH-001` |
+| `TICKET-SYNTH-004` | `qa_tester` | Unit & Regression Test Suite (`test_luopan_dream_engine.py`) | DONE | `TICKET-SYNTH-002`..`003` |
+| `TICKET-SYNTH-005` | `devops` | Production Delivery Release & HF Spaces Sync | DONE | `TICKET-SYNTH-004` |
+| `TICKET-SYNTH-006` | `code_reviewer` | Final Code Review & Live Documentation Sync | DONE | `TICKET-SYNTH-005` |
+
+---
+
+### 🎫 TICKET-SYNTH-001 | `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: None  
+**Blocks**: `TICKET-SYNTH-002`..`003`  
+#### Detailed Instructions
+1. Review requirements in `plans/plan.md` and complete Gate 0 Grill Report.
+2. Define 24-Mountain degree ranges, Period 9 flying stars base chart, and dream symbol mappings to 64 Hexagrams & Sattaleka numbers.
+#### Acceptance Criteria
+- [x] GRILL REPORT generated in `/plans/plan.md`.
+- [x] Sub-agent tickets decomposed in `PROJECT_TASKS.md`.
+
+---
+
+### 🎫 TICKET-SYNTH-002 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-SYNTH-001`  
+**Blocks**: `TICKET-SYNTH-004`  
+#### Detailed Instructions
+1. Create `project/core/luopan_dream_engine.py`:
+   - Implement `calculate_luopan(facing_degree: float, period: int = 9)`.
+   - Implement `interpret_dream(dream_text: str, user_day_master: Optional[str] = None)`.
+2. Create `project/routers/luopan_dream.py` and register in `main.py`.
+#### Acceptance Criteria
+- [x] Returns valid 24-mountain sector energy analysis and dream symbol decoding.
+
+---
+
+### 🎫 TICKET-SYNTH-003 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-SYNTH-001`  
+**Blocks**: `TICKET-SYNTH-004`  
+#### Detailed Instructions
+1. In `project/static/index.html` and `public/index.html`:
+   - Add `#luopan-compass-card` with angle slider and 9-Grid Floorplan Energy Heatmap.
+   - Add `#dream-interpreter-card` with input box and dream result display.
+2. In `style.css` and `public/style.css`: Add styles for 9-grid heatmap and dream tags.
+3. In `app.js` and `public/app.js`: Implement `calcLuoPan(deg)` and `analyzeDream(text)`.
+4. In `i18n.js` and `public/i18n.js`: Add translations across TH, EN, ZH.
+#### Acceptance Criteria
+- [x] UI components render and interact smoothly.
+
+---
+
+### 🎫 TICKET-SYNTH-004 | `qa_tester` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-SYNTH-002`..`003`  
+**Blocks**: `TICKET-SYNTH-005`  
+#### Detailed Instructions
+1. Create `project/tests/test_luopan_dream_engine.py`.
+2. Run full pytest suite and UI button regression suite.
+#### Acceptance Criteria
+- [x] 100% test pass rate across all suites.
+
+---
+
+### 🎫 TICKET-SYNTH-005 | `devops` | [STATUS: DONE]
+**Priority**: HIGH  
+**Depends On**: `TICKET-SYNTH-004`  
+**Blocks**: `TICKET-SYNTH-006`  
+#### Detailed Instructions
+1. Run secret leak scan and agent synchronization checks.
+2. Verify production deployment hygiene.
+#### Acceptance Criteria
+- [x] 0 secret leaks, 100% agent sync.
+
+---
+
+### 🎫 TICKET-SYNTH-006 | `code_reviewer` / `business_analyst` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-SYNTH-005`  
+**Blocks**: None  
+#### Detailed Instructions
+1. Verify `READY_FOR_PROD` status.
+2. Update live documentation in `PROJECT_TASKS.md` and report to user.
+#### Acceptance Criteria
+- [x] Delivery complete and documented.
+
+---
+
+## 🚀 COMPLETED SPRINT: Phase 10 — Astrological Calendar & Auspicious Date Selector
+**Grill Gate Status**: ✅ APPROVED (Ref: `/plans/plan.md`)  
+**Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)  
+
+| Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
+|---|---|---|---|---|
+| `TICKET-CALENDAR-001` | `orchestrator` | Architecture Blueprint & Calendar Engine Spec | DONE | None |
+| `TICKET-CALENDAR-002` | `developer` | Backend Calendar Calculation Engine & Router (`calendar_engine.py`, `calendar.py`, `main.py`) | DONE | `TICKET-CALENDAR-001` |
+| `TICKET-CALENDAR-003` | `developer` | Frontend Interactive Calendar & Date Selector UI (`index.html`, `style.css`, `app.js`, `i18n.js`) | DONE | `TICKET-CALENDAR-001` |
+| `TICKET-CALENDAR-004` | `qa_tester` | Unit & Regression Test Suite (`test_calendar_engine.py`) | DONE | `TICKET-CALENDAR-002`..`003` |
+| `TICKET-CALENDAR-005` | `devops` | Production Delivery Release & HF Spaces Sync | DONE | `TICKET-CALENDAR-004` |
+| `TICKET-CALENDAR-006` | `code_reviewer` | Final Code Review & Live Documentation Sync | DONE | `TICKET-CALENDAR-005` |
+
+---
+
+### 🎫 TICKET-CALENDAR-001 | `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: None  
+**Blocks**: `TICKET-CALENDAR-002`..`003`  
+#### Detailed Instructions
+1. Formulate 12 Duty Officers, 28 Mansions, and 24 Solar Terms calendar algorithms.
+2. Formulate Auspicious and Inauspicious rating systems for date selection.
+#### Acceptance Criteria
+- [x] GRILL REPORT generated in `/plans/plan.md`.
+- [x] Sub-agent tickets decomposed in `PROJECT_TASKS.md`.
+
+---
+
+### 🎫 TICKET-CALENDAR-002 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-CALENDAR-001`  
+**Blocks**: `TICKET-CALENDAR-004`  
+#### Detailed Instructions
+1. Create `project/core/calendar_engine.py`:
+   - Implement `generate_monthly_calendar(year, month)`.
+   - Implement `find_best_dates(intent, start_date, days_ahead, user_day_master)`.
+2. Create `project/routers/calendar.py` and mount in `project/main.py`.
+#### Acceptance Criteria
+- [x] Valid calendar data generation and date selection recommendations.
+
+---
+
+### 🎫 TICKET-CALENDAR-003 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-CALENDAR-001`  
+**Blocks**: `TICKET-CALENDAR-004`  
+#### Detailed Instructions
+1. In `project/static/index.html` and `public/index.html`:
+   - Add `#calendar-view-card` with month switcher, activity filter pills, and date grid.
+2. In `style.css` and `public/style.css`: Add calendar grid and auspicious badges styles.
+3. In `app.js` and `public/app.js`: Implement `loadMonthCalendar(year, month)` and `filterCalendarIntent(intent)`.
+4. In `i18n.js` and `public/i18n.js`: Add translations.
+#### Acceptance Criteria
+- [x] Interactive calendar displays and filters dates seamlessly.
+
+---
+
+### 🎫 TICKET-CALENDAR-004 | `qa_tester` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-CALENDAR-002`..`003`  
+**Blocks**: `TICKET-CALENDAR-005`  
+#### Detailed Instructions
+1. Create `project/tests/test_calendar_engine.py`.
+2. Run pytest suite and UI button regression suite.
+#### Acceptance Criteria
+- [x] 100% test pass rate across all suites.
+
+---
+
+### 🎫 TICKET-CALENDAR-005 | `devops` | [STATUS: DONE]
+**Priority**: HIGH  
+**Depends On**: `TICKET-CALENDAR-004`  
+**Blocks**: `TICKET-CALENDAR-006`  
+#### Detailed Instructions
+1. Run secret leak scan and agent synchronization checks.
+2. Verify production deployment hygiene.
+#### Acceptance Criteria
+- [x] 0 secret leaks, 100% agent sync.
+
+---
+
+### 🎫 TICKET-CALENDAR-006 | `code_reviewer` / `business_analyst` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-CALENDAR-005`  
+**Blocks**: None  
+#### Detailed Instructions
+1. Verify `READY_FOR_PROD` status.
+2. Update live documentation in `PROJECT_TASKS.md` and report to user.
+#### Acceptance Criteria
+- [x] Delivery complete and documented.
+
+---
+
+## 🚀 COMPLETED SPRINT: Phase 9 — Multi-Profile Synastry & Partner Compatibility Matrix
+**Grill Gate Status**: ✅ APPROVED (Ref: `/plans/plan.md`)  
+**Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)  
+
+| Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
+|---|---|---|---|---|
+| `TICKET-SYNASTRY-001` | `orchestrator` | Architecture Blueprint & Synastry Specification | DONE | None |
+| `TICKET-SYNASTRY-002` | `developer` | Backend Synastry Calculation Engine & Router (`synastry_engine.py`, `synastry.py`, `main.py`) | DONE | `TICKET-SYNASTRY-001` |
+| `TICKET-SYNASTRY-003` | `developer` | Frontend Dual-Profile Input & Synastry Result Card (`index.html`, `style.css`, `app.js`, `i18n.js`) | DONE | `TICKET-SYNASTRY-001` |
+| `TICKET-SYNASTRY-004` | `qa_tester` | Unit & Regression Test Suite (`test_synastry_engine.py`) | DONE | `TICKET-SYNASTRY-002`..`003` |
+| `TICKET-SYNASTRY-005` | `devops` | Production Delivery Release & HF Spaces Sync | DONE | `TICKET-SYNASTRY-004` |
+| `TICKET-SYNASTRY-006` | `code_reviewer` | Final Code Review & Live Documentation Sync | DONE | `TICKET-SYNASTRY-005` |
+
+---
+
+### 🎫 TICKET-SYNASTRY-001 | `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: None  
+**Blocks**: `TICKET-SYNASTRY-002`..`003`  
+#### Detailed Instructions
+1. Review requirements in `plans/plan.md` and complete Gate 0 Grill Report.
+2. Formulate Synastry scoring weights:
+   - Day Master Stem Affinity (30 pts): Combination = 30, Generating = 25, Same Element = 20, Overcoming = 10.
+   - Day Branch (Spouse Palace) Harmony (30 pts): 6-Combination = 30, 3-Harmony = 25, Neutral = 15, Clash = 5, Harm/Punishment = 5.
+   - Five Elements Balance Complementarity (20 pts): Complementary deficit fill = 20, Balanced = 15, Competing = 8.
+   - Year/Month Pillars Resonance (20 pts): Year Stem/Branch compatibility.
+#### Acceptance Criteria
+- [x] GRILL REPORT generated in `/plans/plan.md`.
+- [x] Sub-agent tickets decomposed in `PROJECT_TASKS.md`.
+
+---
+
+### 🎫 TICKET-SYNASTRY-002 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-SYNASTRY-001`  
+**Blocks**: `TICKET-SYNASTRY-004`  
+#### Detailed Instructions
+1. Create `project/core/synastry_engine.py`:
+   - Implement `calculate_synastry(chart_a, chart_b)`.
+   - Provide breakdown for Romance, Business, Communication, Stability.
+2. Create `project/routers/synastry.py` and register in `main.py`.
+#### Acceptance Criteria
+- [x] Returns valid synastry calculation with score and aspect breakdowns.
+
+---
+
+### 🎫 TICKET-SYNASTRY-003 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-SYNASTRY-001`  
+**Blocks**: `TICKET-SYNASTRY-004`  
+#### Detailed Instructions
+1. In `project/static/index.html` and `public/index.html`:
+   - Add Synastry Mode toggle checkbox `#toggle-synastry-mode`.
+   - Add Partner B profile form inputs `#partner-b-form-section`.
+   - Add `#synastry-result-card` to display composite score and pillar interactions.
+2. In `style.css` and `public/style.css`: Add styles for synastry score gauge and comparison table.
+3. In `app.js` and `public/app.js`: Implement `toggleSynastryMode()` and `calcSynastry()`.
+#### Acceptance Criteria
+- [x] Synastry UI toggles smoothly and displays dual-profile comparison.
+
+---
+
+### 🎫 TICKET-SYNASTRY-004 | `qa_tester` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-SYNASTRY-002`..`003`  
+**Blocks**: `TICKET-SYNASTRY-005`  
+#### Detailed Instructions
+1. Create `project/tests/test_synastry_engine.py`.
+2. Run full pytest suite and UI button regression suite.
+#### Acceptance Criteria
+- [x] 100% test pass rate across all suites.
+
+---
+
+### 🎫 TICKET-SYNASTRY-005 | `devops` | [STATUS: DONE]
+**Priority**: HIGH  
+**Depends On**: `TICKET-SYNASTRY-004`  
+**Blocks**: `TICKET-SYNASTRY-006`  
+#### Detailed Instructions
+1. Run secret leak scan and agent synchronization checks.
+2. Verify production deployment hygiene.
+#### Acceptance Criteria
+- [x] 0 secret leaks, 100% agent sync.
+
+---
+
+### 🎫 TICKET-SYNASTRY-006 | `code_reviewer` / `business_analyst` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-SYNASTRY-005`  
+**Blocks**: None  
+#### Detailed Instructions
+1. Verify `READY_FOR_PROD` status.
+2. Update live documentation in `PROJECT_TASKS.md` and report to user.
+#### Acceptance Criteria
+- [x] Delivery complete and documented.
+
+---
+
+## 🚀 COMPLETED SPRINT: Phase 8 — Metaphysics AI Voice & Speech Synthesis (TTS / STT)
+**Grill Gate Status**: ✅ APPROVED (Ref: `/plans/plan.md`)  
+**Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)  
+
+| Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
+|---|---|---|---|---|
+| `TICKET-VOICE-001` | `orchestrator` | Architecture Blueprint & Voice Engine Specification | DONE | None |
+| `TICKET-VOICE-002` | `developer` | Client-Side TTS/STT Engine in `voice_engine.js` & `app.js` | DONE | `TICKET-VOICE-001` |
+| `TICKET-VOICE-003` | `developer` | Audio Player Bar & Microphone UI Components (`index.html`, `style.css`, `i18n.js`) | DONE | `TICKET-VOICE-001` |
+| `TICKET-VOICE-004` | `qa_tester` | Unit & Regression Test Suite (`test_voice_speech_engine.py`) | DONE | `TICKET-VOICE-002`..`003` |
+| `TICKET-VOICE-005` | `devops` | Production Delivery Release & HF Spaces Sync | DONE | `TICKET-VOICE-004` |
+| `TICKET-VOICE-006` | `code_reviewer` | Final Code Review & Live Documentation Sync | DONE | `TICKET-VOICE-005` |
+
+---
+
+### 🎫 TICKET-VOICE-001 | `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: None  
+**Blocks**: `TICKET-VOICE-002`..`003`  
+#### Detailed Instructions
+1. Review requirements in `plans/plan.md` and complete Gate 0 Grill Report.
+2. Formulate Web Speech Synthesis & Recognition architecture:
+   - TTS Engine: Match language codes (`th-TH`, `en-US`, `zh-CN`) to available browser voices.
+   - STT Engine: Bind SpeechRecognition event listeners (`onresult`, `onerror`, `onend`) to `#query` textarea.
+   - Audio Controls: Play, Pause, Resume, Stop, 0.75x - 1.5x speed rate.
+#### Acceptance Criteria
+- [x] GRILL REPORT generated in `/plans/plan.md`.
+- [x] Sub-agent tickets decomposed in `PROJECT_TASKS.md`.
+
+---
+
+### 🎫 TICKET-VOICE-002 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-VOICE-001`  
+**Blocks**: `TICKET-VOICE-004`  
+#### Detailed Instructions
+1. Create `project/static/voice_engine.js` and `public/voice_engine.js`:
+   - Implement `speakText(text, lang, rate)`, `pauseSpeech()`, `resumeSpeech()`, `stopSpeech()`.
+   - Implement `startVoiceRecognition(targetInputId, lang, onStatusChange)`.
+   - Provide fallback when speech synthesis or recognition is unsupported.
+#### Acceptance Criteria
+- [x] Speech functions work smoothly and export cleanly to `window.HoroVoice`.
+
+---
+
+### 🎫 TICKET-VOICE-003 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-VOICE-001`  
+**Blocks**: `TICKET-VOICE-004`  
+#### Detailed Instructions
+1. In `project/static/index.html` and `public/index.html`:
+   - Add microphone dictation button `#btn-voice-input` next to question `#query`.
+   - Add `#audio-player-bar` with play/pause, stop, speed buttons, and animated waveform bars.
+   - Add `🔊 ฟังบทพยากรณ์เสียง AI` buttons to AI interpretation output cards.
+2. In `style.css` and `public/style.css`: Add styles for audio bar, pulsating mic button, and waveform animation.
+3. In `i18n.js` and `public/i18n.js`: Add voice translations in TH, EN, ZH.
+#### Acceptance Criteria
+- [x] Voice mic button and audio player bar render with glassmorphic styling.
+
+---
+
+### 🎫 TICKET-VOICE-004 | `qa_tester` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-VOICE-002`..`003`  
+**Blocks**: `TICKET-VOICE-005`  
+#### Detailed Instructions
+1. Create `project/tests/test_voice_speech_engine.py`.
+2. Run full pytest suite and UI button regression suite.
+#### Acceptance Criteria
+- [x] 100% test pass rate across all suites.
+
+---
+
+### 🎫 TICKET-VOICE-005 | `devops` | [STATUS: DONE]
+**Priority**: HIGH  
+**Depends On**: `TICKET-VOICE-004`  
+**Blocks**: `TICKET-VOICE-006`  
+#### Detailed Instructions
+1. Run secret leak scan and agent synchronization checks.
+2. Verify production deployment hygiene.
+#### Acceptance Criteria
+- [x] 0 secret leaks, 100% agent sync.
+
+---
+
+### 🎫 TICKET-VOICE-006 | `code_reviewer` / `business_analyst` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-VOICE-005`  
+**Blocks**: None  
+#### Detailed Instructions
+1. Verify `READY_FOR_PROD` status.
+2. Update live documentation in `PROJECT_TASKS.md` and report to user.
+#### Acceptance Criteria
+- [x] Delivery complete and documented.
+
+---
+
+## 🚀 COMPLETED SPRINT: Phase 7 — Interactive DaYun/LiuNian Timeline Scrubber & Live Sky Transit Clock
+**Grill Gate Status**: ✅ APPROVED (Ref: `/plans/plan.md`)  
+**Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)  
+
+| Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
+|---|---|---|---|---|
+| `TICKET-TRANSIT-001` | `orchestrator` | Architecture Blueprint & Timeline Transit Specification | DONE | None |
+| `TICKET-TRANSIT-002` | `developer` | Stem-Branch Interaction Engine in `transit_engine.py` | DONE | `TICKET-TRANSIT-001` |
+| `TICKET-TRANSIT-003` | `developer` | Live Sky Clock & Interactive Timeline Scrubber UI (`index.html`, `style.css`, `app.js`) | DONE | `TICKET-TRANSIT-001` |
+| `TICKET-TRANSIT-004` | `qa_tester` | Unit & Regression Test Suite (`test_dayun_transit_timeline.py`) | DONE | `TICKET-TRANSIT-002`..`003` |
+| `TICKET-TRANSIT-005` | `devops` | Production Delivery Release & HF Spaces Sync | DONE | `TICKET-TRANSIT-004` |
+| `TICKET-TRANSIT-006` | `code_reviewer` | Final Code Review & Live Documentation Sync | DONE | `TICKET-TRANSIT-005` |
+
+---
+
+### 🎫 TICKET-TRANSIT-001 | `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: None  
+**Blocks**: `TICKET-TRANSIT-002`..`003`  
+#### Detailed Instructions
+1. Review requirements in `plans/plan.md` and complete Gate 0 Grill Report.
+2. Formulate Stem-Branch interaction taxonomy:
+   - 6 Heavenly Stem Combinations (天干五合): 甲己合土, 乙庚合金, 丙辛合水, 丁壬合木, 戊癸合火.
+   - 6 Earthly Branch Clashes (地支六沖): 子午沖, 丑未沖, 寅申沖, 卯酉沖, 辰戌沖, 巳亥沖.
+   - 6 Earthly Branch Combinations (地支六合): 子丑合, 寅亥合, 卯戌合, 辰酉合, 巳申合, 午未合.
+   - 3 Earthly Branch Harmonies (地支三合局): 申子辰合水, 亥卯未合木, 寅午戌合火, 巳酉丑合金.
+   - 6 Earthly Branch Harms (地支六害): 子未害, 丑午害, 寅巳害, 卯辰害, 申亥害, 酉戌害.
+3. Formulate Live Sky Clock mathematical formula.
+#### Acceptance Criteria
+- [x] GRILL REPORT generated in `/plans/plan.md`.
+- [x] Sub-agent tickets decomposed in `PROJECT_TASKS.md`.
+
+---
+
+### 🎫 TICKET-TRANSIT-002 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-TRANSIT-001`  
+**Blocks**: `TICKET-TRANSIT-004`  
+#### Detailed Instructions
+1. Create `project/core/transit_engine.py`:
+   - Compute Stem Combinations, Branch Clashes, Combinations, Harmonies, Harms, and Punishments.
+   - Provide `analyze_transit_interactions(natal_chart, transit_year, transit_age)` method.
+   - Provide `get_live_sky_pillars(now_datetime, longitude, utc_offset)` method.
+#### Acceptance Criteria
+- [x] Correctly identifies clashes and harmonies against Day Master and Natal Pillars.
+
+---
+
+### 🎫 TICKET-TRANSIT-003 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-TRANSIT-001`  
+**Blocks**: `TICKET-TRANSIT-004`  
+#### Detailed Instructions
+1. In `project/static/index.html` and `public/index.html`:
+   - Add `#transit-clock-widget` to navbar / top area showing live ticking sky pillars.
+   - Add `#dayun-timeline-card` in results section with interactive slider (Age 1 - 100), active Da Yun badge, active Liu Nian badge, and dynamic interaction alert tags.
+2. In `style.css` and `public/style.css`: Add styles for timeline slider, live clock, and aspect badges.
+3. In `app.js` and `public/app.js`: Implement `startLiveSkyClock()`, `initDaYunTimeline()`, and `onTimelineScrub(age)`.
+#### Acceptance Criteria
+- [x] Live clock ticks smoothly every minute.
+- [x] Timeline slider instantly updates active pillars and interaction alerts.
+
+---
+
+### 🎫 TICKET-TRANSIT-004 | `qa_tester` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-TRANSIT-002`..`003`  
+**Blocks**: `TICKET-TRANSIT-005`  
+#### Detailed Instructions
+1. Create `project/tests/test_dayun_transit_timeline.py`.
+2. Run full pytest suite and UI button regression suite.
+#### Acceptance Criteria
+- [x] 100% test pass rate across all suites.
+
+---
+
+### 🎫 TICKET-TRANSIT-005 | `devops` | [STATUS: DONE]
+**Priority**: HIGH  
+**Depends On**: `TICKET-TRANSIT-004`  
+**Blocks**: `TICKET-TRANSIT-006`  
+#### Detailed Instructions
+1. Run secret leak scan and agent synchronization checks.
+2. Verify production deployment hygiene.
+#### Acceptance Criteria
+- [x] 0 secret leaks, 100% agent sync.
+
+---
+
+### 🎫 TICKET-TRANSIT-006 | `code_reviewer` / `business_analyst` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-TRANSIT-005`  
+**Blocks**: None  
+#### Detailed Instructions
+1. Verify `READY_FOR_PROD` status.
+2. Update live documentation in `PROJECT_TASKS.md` and report to user.
+#### Acceptance Criteria
+- [x] Delivery complete and documented.
+
+---
+
+## 🚀 COMPLETED SPRINT: Phase 6 — Production Delivery, PWA Offline Support & Consultation Report Exporter
+**Grill Gate Status**: ✅ APPROVED (Ref: `/plans/plan.md`)  
+**Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)  
+
+| Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
+|---|---|---|---|---|
+| `TICKET-DELIVERY-001` | `orchestrator` | Architecture Blueprint & Delivery Specification | DONE | None |
+| `TICKET-DELIVERY-002` | `developer` | PWA Manifest & Offline Service Worker (`manifest.json`, `sw.js`) | DONE | `TICKET-DELIVERY-001` |
+| `TICKET-DELIVERY-003` | `developer` | Printable & Exportable Consultation Report Generator (`app.js`, `style.css`) | DONE | `TICKET-DELIVERY-001` |
+| `TICKET-DELIVERY-004` | `qa_tester` | Unit & Integration Regression Suite (`test_pwa_and_report_export.py`) | DONE | `TICKET-DELIVERY-002`..`003` |
+| `TICKET-DELIVERY-005` | `devops` | Production Delivery Release & HF Spaces Sync | DONE | `TICKET-DELIVERY-004` |
+| `TICKET-DELIVERY-006` | `code_reviewer` | Final Code Review & Live Documentation Sync | DONE | `TICKET-DELIVERY-005` |
+
+---
+
+### 🎫 TICKET-DELIVERY-001 | `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: None  
+**Blocks**: `TICKET-DELIVERY-002`..`003`  
+#### Detailed Instructions
+1. Review delivery requirements in `plans/plan.md` and finalize Phase 6 Grill Report.
+2. Formulate PWA caching architecture: Cache static HTML, CSS, JavaScript, fonts, and SVG graphics for 100% offline calculations.
+3. Formulate Printable Consultation Report template format.
+#### Acceptance Criteria
+- [x] GRILL REPORT generated in `/plans/plan.md`.
+- [x] Sub-agent tickets decomposed in `PROJECT_TASKS.md`.
+
+---
+
+### 🎫 TICKET-DELIVERY-002 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-DELIVERY-001`  
+**Blocks**: `TICKET-DELIVERY-004`  
+#### Detailed Instructions
+1. Create `project/static/manifest.json` and `public/manifest.json`:
+   - Specify `name`, `short_name`, `theme_color`, `background_color`, `display: standalone`, and icons.
+2. Create `project/static/sw.js` and `public/sw.js`:
+   - Implement Service Worker caching static assets (`/`, `/index.html`, `/admin.html`, `/style.css`, `/app.js`, `/i18n.js`).
+   - Implement cache-first network-fallback strategy.
+3. Register Service Worker in `index.html` and `admin.html`.
+#### Acceptance Criteria
+- [x] `manifest.json` and `sw.js` pass syntax validation and register in browser.
+
+---
+
+### 🎫 TICKET-DELIVERY-003 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-DELIVERY-001`  
+**Blocks**: `TICKET-DELIVERY-004`  
+#### Detailed Instructions
+1. In `style.css` and `public/style.css`: Add comprehensive `@media print` styles.
+2. In `app.js` and `public/app.js`: Add `exportConsultationReport()` assembling client name, birth chart, active discipline SVGs, and AI interpretation summary.
+3. Add `📄 ส่งออกรายงาน (Export Report)` button to results action bar.
+#### Acceptance Criteria
+- [x] Clean formatted consultation report exports without dark background waste.
+
+---
+
+### 🎫 TICKET-DELIVERY-004 | `qa_tester` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-DELIVERY-002`..`003`  
+**Blocks**: `TICKET-DELIVERY-005`  
+#### Detailed Instructions
+1. Create `project/tests/test_pwa_and_report_export.py`.
+2. Run pytest suite and UI button regression suite.
+#### Acceptance Criteria
+- [x] 100% test pass rate across all suites.
+
+---
+
+### 🎫 TICKET-DELIVERY-005 | `devops` | [STATUS: DONE]
+**Priority**: HIGH  
+**Depends On**: `TICKET-DELIVERY-004`  
+**Blocks**: `TICKET-DELIVERY-006`  
+#### Detailed Instructions
+1. Run secret leak scan and agent synchronization.
+2. Verify production deployment readiness.
+#### Acceptance Criteria
+- [x] 0 secret leaks, 100% agent sync.
+
+---
+
+### 🎫 TICKET-DELIVERY-006 | `code_reviewer` / `business_analyst` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-DELIVERY-005`  
+**Blocks**: None  
+#### Detailed Instructions
+1. Verify `READY_FOR_PROD` status.
+2. Update live documentation in `PROJECT_TASKS.md` and report to user.
+#### Acceptance Criteria
+- [x] Delivery complete and documented.
+
+---
+
+## 🚀 COMPLETED SPRINT: Phase 5 — Multi-Language Internationalization (i18n) & Localized Interpretation
+**Grill Gate Status**: ✅ APPROVED (Ref: `/plans/plan.md`)  
+**Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)  
+
+| Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
+|---|---|---|---|---|
+| `TICKET-I18N-001` | `orchestrator` | Architecture Blueprint, Schema & Translation Dictionary Specification | DONE | None |
+| `TICKET-I18N-002` | `developer` | Client-Side i18n Engine & UI Navbar Switcher Integration (`i18n.js`, `app.js`, `index.html`, `admin.html`) | DONE | `TICKET-I18N-001` |
+| `TICKET-I18N-003` | `developer` | Localized SVG Vector Symbolic Chart Generators in `svg_generator.py` | DONE | `TICKET-I18N-001` |
+| `TICKET-I18N-004` | `developer` | Backend Multi-Lingual Prompt Directives in `question_focus_router.py` & API Routers | DONE | `TICKET-I18N-001` |
+| `TICKET-I18N-005` | `qa_tester` | Unit & Integration Regression Suite (`test_i18n.py`, Pytest 536/536, 33/33 Button Regression) | DONE | `TICKET-I18N-002`..`004` |
+| `TICKET-I18N-006` | `devops` | CI/CD Production Release to HF Spaces & Live Playwright Verification | DONE | `TICKET-I18N-005` |
+| `TICKET-I18N-007` | `code_reviewer` | Pre-Deployment Safety Audit & Live Documentation Sync | DONE | `TICKET-I18N-006` |
+
+---
+
+### 🎫 TICKET-I18N-001 | `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: None  
+**Blocks**: `TICKET-I18N-002`..`004`  
+#### Detailed Instructions
+1. Review requirements in `plans/plan.md` and complete Gate 0 Grill Report.
+2. Formulate 3-language taxonomy (Thai `th`, English `en`, Simplified/Traditional Chinese `zh`):
+   - Common UI terms, headings, form labels, buttons, tooltips, validation messages.
+   - 16 Metaphysics Discipline names, pillars, palaces, ten gods, trigrams, hexagrams, branches, stems, and life themes.
+   - SVG vector chart dictionary mapping.
+3. Formulate backend prompt directive templates for target languages.
+#### Acceptance Criteria
+- [x] GRILL REPORT generated in `/plans/plan.md`.
+- [x] Sub-agent tickets allocated in `PROJECT_TASKS.md`.
+
+---
+
+### 🎫 TICKET-I18N-002 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-I18N-001`  
+**Blocks**: `TICKET-I18N-005`  
+#### Detailed Instructions
+1. Create `public/i18n.js` and `project/static/i18n.js` with comprehensive translations for TH, EN, ZH:
+   - Provide `initI18n()`, `setLanguage(lang)`, `getLanguage()`, and `t(key, defaultVal)` helper functions.
+   - Support `data-i18n="key"` attribute auto-translation and dynamic string formatting.
+2. In `index.html` & `admin.html` (both `public/` and `project/static/`):
+   - Add glassmorphic language toggle selector (`TH` | `EN` | `ZH`) to the top navbar.
+   - Bind `changeLanguage` event listener and apply translation matrix on load and change.
+3. In `app.js`: Ensure dynamic calculations, result cards, and alert messages use `t()` translation helper.
+#### Acceptance Criteria
+- [x] Language toggle instantly switches UI text without page reload.
+- [x] Selected language is persisted in `localStorage.getItem('horo_lang')`.
+- [x] 0 `[object Object]` leaks across all 16 disciplines in all languages.
+
+---
+
+### 🎫 TICKET-I18N-003 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-I18N-001`  
+**Blocks**: `TICKET-I18N-005`  
+#### Detailed Instructions
+1. Update `project/core/svg_generator.py`:
+   - Add `lang: str = "th"` parameter to all SVG generator functions (`generate_bazi_svg`, `generate_ziwei_svg`, `generate_qimen_svg`, `generate_liuren_svg`, `generate_iching_svg`, `generate_xuankong_svg`, `generate_zeji_svg`, `generate_thai_vedic_svg`, `generate_uranian_svg`, `generate_tai_yi_svg`, `generate_liu_yao_svg`, `generate_meihua_svg`, `generate_sanhe_svg`, `generate_qizheng_svg`, `generate_mianxiang_svg`, `generate_numerology_svg`, `generate_multimodal_matrix_svg`).
+   - Provide localized text dictionaries for chart titles, subtitles, coordinates, legend labels, and palace titles.
+   - Maintain 100% backward compatibility when `lang` is omitted.
+#### Acceptance Criteria
+- [x] All SVG generators accept `lang` parameter and render localized text cleanly.
+- [x] Responsive `viewBox="0 0 800 600"` and glassmorphic styling preserved.
+
+---
+
+### 🎫 TICKET-I18N-004 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-I18N-001`  
+**Blocks**: `TICKET-I18N-005`  
+#### Detailed Instructions
+1. In `project/schemas/` & `project/routers/v2.py` & `project/routers/debate.py`:
+   - Add `language: Optional[str] = "th"` to request models (`InterpretationRequest`, `FocusedInterpretationRequest`, `UnifiedCalculateRequest`).
+2. In `project/core/question_focus_router.py`:
+   - Update `generate_domain_directive_prompt(domain, request, language="th")` with target language instructions:
+     - `th`: "จงตอบเป็นภาษาไทยที่ไพเราะ สละสลวย ชัดเจน ลึกซึ้งตามหลักวิชา"
+     - `en`: "Please provide the comprehensive analysis in fluent, professional, and clear English, citing classical metaphysical principles."
+     - `zh`: "請使用繁體/簡體中文進行專業、深入且詳盡的命理分析，嚴格遵循古籍經典法度。"
+#### Acceptance Criteria
+- [x] Backend routing passes language parameter to LLM system prompt directives.
+- [x] Zero breaking changes to existing endpoints when `language` is omitted.
+
+---
+
+### 🎫 TICKET-I18N-005 | `qa_tester` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-I18N-002`..`004`  
+**Blocks**: `TICKET-I18N-006`  
+#### Detailed Instructions
+1. Create `project/tests/test_i18n.py` verifying all 3 languages.
+2. Run pytest suite: `python3 -m pytest -v --ignore=project/kaggle_kernel`.
+3. Run UI button regression suite: `python3 scripts/run_button_regression.py`.
+#### Acceptance Criteria
+- [x] 100% test pass rate across all suites (536/536 tests passed).
+- [x] 33/33 UI & API button regression passed.
+
+---
+
+### 🎫 TICKET-I18N-006 | `devops` | [STATUS: DONE]
+**Priority**: HIGH  
+**Depends On**: `TICKET-I18N-005`  
+**Blocks**: `TICKET-I18N-007`  
+#### Detailed Instructions
+1. Run secret scan: 0 secrets leaked across modified files.
+2. Run agent sync checks: `python3 scripts/sync_sdlc_agents.py --check` and `python3 scripts/sync_codex_agents.py --check`.
+3. Verify live deployment hygiene and readiness.
+#### Acceptance Criteria
+- [x] 0 secret leaks, 100% agent sync, release hygiene verified.
+
+---
+
+### 🎫 TICKET-I18N-007 | `code_reviewer` / `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL  
+**Depends On**: `TICKET-I18N-006`  
+**Blocks**: None  
+#### Detailed Instructions
+1. Run pre-deployment review and safety audit.
+2. Update live documentation in `PROJECT_TASKS.md` and report to user.
+#### Acceptance Criteria
+- [x] Status `READY_FOR_PROD` verified.
+
+---
 
 ---
 
