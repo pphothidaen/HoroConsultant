@@ -45,16 +45,10 @@
       </div>
 
       <form id="bazi-form" onsubmit="calculateChart(event)">
-        <!-- Name (Optional) -->
-        <div class="form-row">
-          <div class="form-group">
-            <label for="user_name">ชื่อ (First Name - Optional)</label>
-            <input type="text" id="user_name" name="user_name" placeholder="ชื่อ (ไม่ระบุก็ได้)">
-          </div>
-          <div class="form-group">
-            <label for="user_surname">นามสกุล (Last Name - Optional)</label>
-            <input type="text" id="user_surname" name="user_surname" placeholder="นามสกุล (ไม่ระบุก็ได้)">
-          </div>
+        <!-- Full Name (Optional) -->
+        <div class="form-group">
+          <label for="user_name">ชื่อ-นามสกุล (ไม่ระบุก็ได้ / Optional)</label>
+          <input type="text" id="user_name" name="user_name" placeholder="เช่น สมชาย ใจดี หรือเว้นว่างไว้">
         </div>
 
         <!-- Gender at Birth -->

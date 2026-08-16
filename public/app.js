@@ -676,12 +676,10 @@ function buildBaziPayloadFromForm() {
   const genderRadio = document.querySelector('input[name="gender"]:checked');
   const gender = genderRadio ? genderRadio.value : 'male';
   const nameInput = document.getElementById('user_name');
-  const surnameInput = document.getElementById('user_surname');
   const twinInput = document.getElementById('has_twin');
 
   return {
     name: nameInput ? nameInput.value.trim() : '',
-    surname: surnameInput ? surnameInput.value.trim() : '',
     gender: gender,
     has_twin: !!(twinInput && twinInput.checked),
     birth_datetime: document.getElementById('birth_datetime').value,
@@ -1488,7 +1486,7 @@ function renderResults(data, svgContent) {
   const dmBadge = document.getElementById('day-master-banner') || document.getElementById('day-master-badge');
   if (dmBadge) {
     const payload = buildBaziPayloadFromForm();
-    const ownerName = payload.name ? `${payload.name} ${payload.surname}`.trim() : '';
+    const ownerName = payload.name ? payload.name.trim() : '';
     const genderLabel = payload.gender === 'female' ? '👩 หญิง' : '👨 ชาย';
     const ownerPrefix = ownerName ? `<strong>เจ้าชะตา:</strong> ${ownerName} (${genderLabel}) &nbsp;|&nbsp; ` : `<strong>เพศ:</strong> ${genderLabel} &nbsp;|&nbsp; `;
     
