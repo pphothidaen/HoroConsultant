@@ -36,6 +36,7 @@ DEFAULT_VERCEL_GATEWAY_URL = "https://horo-consultant-psi.vercel.app"
 DEFAULT_HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
 DEFAULT_HF_BACKEND_URL = "https://horo-consultant-psi.vercel.app"
 DEFAULT_PING_INTERVAL_SECONDS = 300
+DEFAULT_MAX_LATENCY_MS = float(os.getenv("MAX_LATENCY_THRESHOLD_MS", "5000.0"))
 
 
 def _base_url(value: str) -> str:
@@ -300,6 +301,7 @@ def run_ping_cycle(
     targets: list[dict[str, Any]],
     *,
     timeout: int = 10,
+    max_latency_ms: float = DEFAULT_MAX_LATENCY_MS,
     report_path: Path | None = None,
     environment: Mapping[str, str] | None = None,
 ) -> bool:
@@ -313,18 +315,24 @@ def run_ping_cycle(
         healthy = status == 200 and _target_response_is_valid(target["name"], body)
         if status == 200 and not healthy and not error:
             error = "HTTP 200 response did not contain a valid health/UI payload"
+        
+        latency_degraded = latency_ms > max_latency_ms
         result = {
             "target": target["name"],
             "url": target["url"],
             "status": status,
             "latency_ms": round(latency_ms, 1),
             "healthy": healthy,
+            "latency_degraded": latency_degraded,
             "critical": bool(target.get("critical", True)),
             "error": error,
         }
         results.append(result)
         if healthy:
-            print(f"[OK] {target['name']}: HTTP {status} | {latency_ms:.0f}ms")
+            if latency_degraded:
+                print(f"[WARNING] {target['name']}: HTTP {status} | {latency_ms:.0f}ms (High Latency > {max_latency_ms:.0f}ms SLA)")
+            else:
+                print(f"[OK] {target['name']}: HTTP {status} | {latency_ms:.0f}ms")
         else:
             tag = "[ERROR]" if result["critical"] else "[WARNING]"
             detail = f" | {error}" if error else ""
@@ -365,6 +373,7 @@ def build_parser() -> argparse.ArgumentParser:
     mode.add_argument("--daemon", action="store_true", help="Run health cycles continuously")
     parser.add_argument("--interval", type=int, default=DEFAULT_PING_INTERVAL_SECONDS, help="Seconds between daemon cycles")
     parser.add_argument("--timeout", type=int, default=10, help="Per-target HTTP timeout in seconds")
+    parser.add_argument("--max-latency-ms", type=float, default=DEFAULT_MAX_LATENCY_MS, help="Max latency SLA threshold in ms before warning (default 5000)")
     parser.add_argument("--allow-missing-backend", action="store_true", help="Do not require HF_BACKEND_URL")
     parser.add_argument("--json-output", type=Path, help="Write the latest health report as JSON")
     parser.add_argument("--dry-run", action="store_true", help="Print resolved targets without network requests")
@@ -392,12 +401,12 @@ def main() -> int:
         return 0
 
     if not args.daemon:
-        return 0 if run_ping_cycle(targets, timeout=args.timeout, report_path=args.json_output) else 1
+        return 0 if run_ping_cycle(targets, timeout=args.timeout, max_latency_ms=args.max_latency_ms, report_path=args.json_output) else 1
 
     print(f"[INFO] Synthetic health monitor daemon started with interval={args.interval}s")
     try:
         while True:
-            run_ping_cycle(targets, timeout=args.timeout, report_path=args.json_output)
+            run_ping_cycle(targets, timeout=args.timeout, max_latency_ms=args.max_latency_ms, report_path=args.json_output)
             time.sleep(args.interval)
     except KeyboardInterrupt:
         print("[INFO] Synthetic health monitor stopped")

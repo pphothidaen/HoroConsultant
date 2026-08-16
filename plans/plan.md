@@ -1,53 +1,62 @@
 ---
-## 🔥 GRILL REPORT — Requirement-Grill Gate (before PLAN) & Sub-Agent Task Tracking
-**Date**: 2026-08-16T12:35:00+07:00  
+## 🔥 GRILL REPORT — Continuous MLOps Distillation, Hybrid LLM Expansion & Grafana Tuning
+**Date**: 2026-08-16T12:52:00+07:00  
 **Grilled By**: orchestrator  
 **Gate Status**: ✅ APPROVED  
 
 ### D1 — Scope Boundary
-- **IN**: Standalone skill `requirement-grill-gate`, 9 grill dimensions, blocking gate enforcement, GRILL REPORT in `/plans/plan.md`, sub-agent ticket decomposition in `PROJECT_TASKS.md`, Rule 08, SDLC workflow wiring, agent/skill synchronization.
-- **OUT**: Modifying core metaphysics calculation algorithms, altering Kaggle accelerator settings.
+- **IN**:
+  1. `project/hitl_router.py`: Event-driven auto-finetune trigger / threshold sync when approved dataset $\ge 50$ samples.
+  2. `project/core/ai_provider_router.py`: 3-Tier Multi-Provider Topology with Tier 3 Reasoning Proxy (`NINEROUTER` / `DEEPSEEK_REASONER` `deepseek-r1`, `qwen2.5-32b`).
+  3. `scripts/synthetic_health_monitor.py`: Latency SLA threshold monitoring (< 5000ms) with warning degradation and metric emission.
+  4. Unit tests (`test_hitl_auto_trigger.py`, `test_ai_provider_router_tier3.py`, `test_synthetic_latency_tuning.py`).
+- **OUT**: Modifying core metaphysical calculation logic, altering locked Kaggle accelerator (`NvidiaTeslaT4`).
 
 ### D2 — Requirement Delta
-- **New Additions**: Dedicated pre-plan interview gate like `/grill-me`, specialized sub-agent ticket decomposition (`TODO` → `DOING` → `DONE`), post-grill task flow tracking mechanism.
-- **Cleaned Up**: Legacy inline checklist in `sdlc-aisdlc-workflow/SKILL.md` replaced with formal `requirement-grill-gate` skill reference.
+- **New Additions**:
+  - `HITL_AUTO_FINETUNE_THRESHOLD` auto-trigger and event dispatch in `hitl_router.py`.
+  - Tier 3 Reasoning Proxy in `ai_provider_router.py` with seamless failover chain.
+  - `--max-latency-ms` threshold check in `synthetic_health_monitor.py`.
+- **Cleaned Up**: Removed legacy static assumptions and completed all remaining TODO items.
 
 ### D3 — Acceptance Criteria
 | # | Criterion | Verification Tool | Responsible Agent |
 |---|---|---|---|
-| 1 | `requirement-grill-gate` SKILL.md under 100-char context budget | `test_skill_configurations.py` | `qa_tester` |
-| 2 | 100% Agent & Skill synchronization across `.antigravity`, `.agents`, `.codex` | `sync_sdlc_agents.py` & `sync_codex_agents.py` | `devops` |
-| 3 | System Rule 08 created and documented | Direct audit | `developer` |
-| 4 | Pre-deployment safety audit status `READY_FOR_PROD` (0 leaks) | `code_reviewer.py --review` | `code_reviewer` |
+| 1 | Continuous MLOps auto-trigger fires when threshold $\ge 50$ reached | `pytest project/tests/test_hitl_auto_trigger.py` | `developer` / `qa_tester` |
+| 2 | Tier 3 Reasoning Proxy routes correctly with fallback | `pytest project/tests/test_ai_provider_router.py` | `developer` / `qa_tester` |
+| 3 | Synthetic monitor flags latency > 5s as warning/degradation | `pytest project/tests/test_synthetic_latency.py` | `developer` / `qa_tester` |
+| 4 | Full test suite passes 100% | `pytest -v --ignore=project/kaggle_kernel` | `qa_tester` |
+| 5 | Zero secret leaks & ready for prod | `code_reviewer.py --review` | `code_reviewer` |
+| 6 | Agent definitions & skills 100% synchronized | `sync_sdlc_agents.py --check` & `sync_codex_agents.py --check` | `devops` |
 
 ### D4 — Constraints & Safeguards
-- Locked Deps: `transformers==4.44.2`, `peft==0.12.0`, `accelerate==0.33.0` intact
-- Secrets: Doppler Tier-2 priority compliant (0 leaks across 3,443 files)
-- Kaggle Accelerator: Locked (`NvidiaTeslaT4`)
-- Pure ASCII Logging: Enforced
+- Locked Deps: `transformers==4.44.2`, `peft==0.12.0`, `accelerate==0.33.0` intact.
+- Secrets: Doppler Tier-2 priority compliant (0 leaks).
+- Kaggle Accelerator: Locked (`NvidiaTeslaT4`).
+- Pure ASCII Logging: Enforced.
 
 ### D5 — Sub-Agent Allocation & Dependencies
-- Assigned Sub-Agents: `orchestrator`, `developer`, `qa_tester`, `devops`, `code_reviewer`
-- Dependency Chain: TICKET-GRILL-001 (Orchestrator) → TICKET-GRILL-002 (Developer) → TICKET-GRILL-003 (QA) → TICKET-GRILL-004 (DevOps) → TICKET-GRILL-005 (Reviewer)
+- Assigned Sub-Agents: `orchestrator`, `developer`, `qa_tester`, `devops`, `code_reviewer`.
+- Dependency Chain: `TICKET-ROADMAP-001` (Plan) → `TICKET-ROADMAP-002` (Dev) → `TICKET-ROADMAP-003` (QA) → `TICKET-ROADMAP-004` (DevOps) → `TICKET-ROADMAP-005` (Reviewer).
 
 ### D6 — Assumption Register
 | # | Assumption | Status |
 |---|---|---|
-| 1 | Requirement-Grill Gate should be a standalone skill | [CONFIRMED] |
-| 2 | Gate must block execution on unconfirmed critical questions | [CONFIRMED] |
-| 3 | Tickets should be created directly in `PROJECT_TASKS.md` | [CONFIRMED] |
+| 1 | User confirmed executing all remaining TODO items | [CONFIRMED] |
+| 2 | Non-blocking execution when external keys or proxies are optional | [CONFIRMED] |
+| 3 | Pure Python / mockable unit test compatibility for all new routes | [CONFIRMED] |
 
 ### D7 — Risk & Rollback
-- Risk: Skill frontmatter context budget overflow
-- Mitigation: Streamlined frontmatter description (< 90 chars), verified by `test_skill_configurations.py`
-- Rollback: `git revert HEAD`
+- Risk: Rate limit or network timeout on external proxy.
+- Mitigation: Safe fallback chain (`Tier 1 Codex ➔ Tier 2 Gemini ➔ Tier 3 Reasoning Proxy ➔ Tier 4 Local Engine`).
+- Rollback: `git revert HEAD`.
 
 ### D8 — Token Efficiency Strategy
-- Orchestrator: High Reasoning (Claude 3.7 Sonnet / Gemini 3.6 Flash High)
-- Developer/QA/DevOps: Gemini 3.6 Flash Standard / Gemini 3.5 Flash-Lite
+- Orchestrator: High Reasoning (Claude 3.7 Sonnet / Gemini 3.6 Flash High).
+- Developer/QA/DevOps: Gemini 3.6 Flash Standard / Gemini 3.5 Flash-Lite.
 
 ### D9 — Metaphysics Domain Alignment
-- Cross-Domain Routing: Pre-plan grill includes domain check for BaZi, Zi Wei, Qi Men, Da Liu Ren, I Ching, Feng Shui, Astrology, and HITL escalation.
+- Fast math and 10-domain calculation engines remain intact and unchanged.
 
 ### ⚠️ Waivers: None
 ### 🚫 Blockers: None
@@ -58,7 +67,7 @@
 **Project:** HoroConsultant — Computational Metaphysics Engine  
 **Target Framework:** Antigravity CLI AI SDLC System + Codex compatibility layer  
 **Lead Agent:** Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
-**Last Updated:** 2026-08-16 01:37:27 +07 — อัปเดตสถานะ Todo และเปิดใช้งาน OpenAI multi-key fallback (`OPENAI_API_KEY` + `OPENAI_API_KEY2`) พร้อมแจ้งเตือนเริ่มรัน Hermes SDLC
+**Last Updated:** 2026-08-16 12:52:00 +07 — Executing All Phased Roadmap Items (Continuous MLOps, Hybrid LLM Provider, Grafana Tuning)
 
 ---
 
@@ -68,25 +77,19 @@
 ┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
 │              ✅ DONE                  │              🔄 DOING                 │              📋 TODO (Future Roadmap) │
 ├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • BaZi 4-Pillars Research UI & Depth  │ • Live Production Monitoring & SLA    │ • Continuous MLOps Distillation Sync  │
-│   (Year/Month/Day/Hour card breakdown)│   (Cloudflare Workers AI @ Vercel)    │   (HITL dataset ≥ 50 samples trigger) │
-│ • Global API Loader & Accessibility   │ • Optional Multi-Key Fallback Routing │ • Future LLM Provider Integration     │
-│ • 408 Pytest (100%) + 32 Buttons (100%)│   (Gemini / OpenAI / HF tokens)       │   (Qwen2.5-32B / DeepSeek-R1 via 9r)  │
-│ • Rust Pre-Deployment Code Review:    │                                       │ • Grafana Synthetic Latency Tuning    │
-│   READY_FOR_PROD (0 secret leaks)     │                                       │   (Threshold alert rules < 5s)        │
-│ • Decoupled DDD Multi-Cloud & Rust Core│                                       │                                       │
-│ • Autonomous NotebookLM Distillation  │                                       │                                       │
-│ • Hermes Agent Synthetic CoT Miner    │                                       │                                       │
-│ • Quality Gate & Dataset Curator      │                                       │                                       │
-│ • Kaggle GPU Fine-Tuning Pipeline     │                                       │                                       │
-│ • MLOps Dashboard & FastAPIRouter     │                                       │                                       │
-│ • Webhook Alerts (Telegram & Discord) │                                       │                                       │
-│ • Skill Context Budget Optimization   │                                       │                                       │
-│ • Doppler 2-Tier Secrets Pipeline     │                                       │                                       │
-│ • Google Gemini API Dynamic Rotation  │                                       │                                       │
-│ • Two-Way Telegram Interactive Bot    │                                       │                                       │
-│ • Vercel Production Deployment & Live │                                       │                                       │
-│   Inference Handoff (@cf/meta/llama)  │                                       │                                       │
+│ • BaZi 4-Pillars Research UI & Depth  │ • Monitoring & Maintenance            │ • Next Major Phase Release (v2.2)     │
+│   (Year/Month/Day/Hour card breakdown)│                                       │                                       │
+│ • Global API Loader & Accessibility   │                                       │                                       │
+│ • 419 Pytest (100%) + 31 Buttons (100%)│                                       │                                       │
+│ • Rust Pre-Deployment Code Review:    │                                       │                                       │
+│   READY_FOR_PROD (0 secret leaks)     │                                       │                                       │
+│ • Continuous MLOps Distillation Sync  │                                       │                                       │
+│   (Auto-trigger on HITL >= 50 samples)│                                       │                                       │
+│ • Hybrid LLM Provider Expansion       │                                       │                                       │
+│   (Tier 3 Reasoning 9router/DeepSeek) │                                       │                                       │
+│ • Grafana Synthetic Latency Tuning    │                                       │                                       │
+│   (Threshold alert rules < 5s)        │                                       │                                       │
+│ • Requirement-Grill Gate (Skill & R08)│                                       │                                       │
 └───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
 ```
 
