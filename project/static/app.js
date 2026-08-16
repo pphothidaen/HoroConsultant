@@ -1162,22 +1162,113 @@ function showBranchCard(title, contentHtml, svgContent) {
   }
 }
 
-async function calcZiWei() {
+// ======================================================================
+// 🔮 9 CORE CANONICAL METAPHYSICS VISUALIZERS (PHASE 1)
+// ======================================================================
+
+async function calcZiWei(customParams = null) {
   showBranchLoading("🔮 ผังวิชา紫微斗數 (Zi Wei Dou Shu Visualizer)");
+  let year = 1990, month = 5, day = 15, hour = 14, gender = "male";
+  if (customParams) {
+    year = customParams.year || 1990;
+    month = customParams.month || 5;
+    day = customParams.day || 15;
+    hour = customParams.hour || 14;
+    gender = customParams.gender || "male";
+  } else {
+    const rawDt = document.getElementById('birth_datetime')?.value || "1990-05-15 14:30:00";
+    const d = new Date(rawDt.replace(" ", "T"));
+    if (!isNaN(d.getTime())) {
+      year = d.getFullYear();
+      month = d.getMonth() + 1;
+      day = d.getDate();
+      hour = d.getHours();
+    }
+  }
+
   try {
-    const res = await fetchApi('/api/v1/ziwei/calculate?year=1990&month=5&day=15&hour=14&gender=male');
+    const res = await fetchApi(`/api/v1/ziwei/calculate?year=${year}&month=${month}&day=${day}&hour=${hour}&gender=${gender}`);
     const data = await res.json();
+    const palaces = data.palaces || [];
+    const siHua = data.si_hua || {};
+
+    const toolbarHtml = `
+      <div style="background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(192, 132, 252, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; align-items: end;">
+          <div>
+            <label style="font-size: 0.75rem; color: #e9d5ff; display: block; margin-bottom: 2px;">ปีเกิด (ค.ศ.)</label>
+            <input type="number" id="zw-year" value="${year}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #e9d5ff; display: block; margin-bottom: 2px;">เดือน (1-12)</label>
+            <input type="number" id="zw-month" min="1" max="12" value="${month}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #e9d5ff; display: block; margin-bottom: 2px;">วัน (1-31)</label>
+            <input type="number" id="zw-day" min="1" max="31" value="${day}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #e9d5ff; display: block; margin-bottom: 2px;">ชั่วโมง (0-23)</label>
+            <input type="number" id="zw-hour" min="0" max="23" value="${hour}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #e9d5ff; display: block; margin-bottom: 2px;">เพศ</label>
+            <select id="zw-gender" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+              <option value="male" ${gender === 'male' ? 'selected' : ''}>ชาย (乾造)</option>
+              <option value="female" ${gender === 'female' ? 'selected' : ''}>หญิง (坤造)</option>
+            </select>
+          </div>
+          <div>
+            <button type="button" class="btn-sm" style="width: 100%; background: #9333ea; color: #fff; font-weight: bold; padding: 6px;" onclick="recalcZiWeiFromUi()">⚡ คำนวณผังใหม่</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const palacesGridHtml = `
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; margin: 1rem 0;">
+        ${palaces.map(p => `
+          <div style="background: ${p.is_ming_gong ? 'rgba(88, 28, 135, 0.7)' : (p.is_shen_gong ? 'rgba(131, 24, 67, 0.6)' : 'rgba(24, 14, 41, 0.8)')}; border: 1px solid ${p.is_ming_gong ? '#fbbf24' : (p.is_shen_gong ? '#f43f5e' : '#7e22ce')}; border-radius: 8px; padding: 8px 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px; margin-bottom: 4px;">
+              <strong style="color: ${p.is_ming_gong ? '#fbbf24' : '#e9d5ff'}; font-size: 0.9rem;">${p.palace_name} (${p.earth_branch})</strong>
+              ${p.is_ming_gong ? '<span style="background: #eab308; color: #000; font-size: 0.65rem; font-weight: bold; padding: 1px 6px; border-radius: 9999px;">命宮</span>' : (p.is_shen_gong ? '<span style="background: #ec4899; color: #fff; font-size: 0.65rem; font-weight: bold; padding: 1px 6px; border-radius: 9999px;">身宮</span>' : '')}
+            </div>
+            <div style="font-size: 0.85rem; color: #c084fc; font-weight: bold; margin: 3px 0;">ดาวหลัก: ${(p.stars && p.stars.length) ? p.stars.join(', ') : '<span style="color:#94a3b8;">無主星 (ไม่มีดาวหลัก)</span>'}</div>
+            ${p.mutators && p.mutators.length ? `<div style="font-size: 0.75rem; color: #f43f5e; font-weight: bold;">四化: ${p.mutators.join(', ')}</div>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `;
+
     const html = `
-      <div style="background: rgba(168, 85, 247, 0.15); border: 1px solid #c084fc; padding: 1rem; border-radius: 8px;">
-        <h4 style="color: #c084fc; margin-top: 0;">🔮 紫微斗數 (Zi Wei Dou Shu Chart)</h4>
-        <p><strong>命宮支 (Ming Gong):</strong> ${data.ming_gong_branch} | <strong>身宮支 (Shen Gong):</strong> ${data.shen_gong_branch}</p>
-        <p><strong>五行局 (Bureau):</strong> ${data.five_element_bureau} | <strong>紫微星位:</strong> ${data.zi_wei_star_branch} | <strong>天府星位:</strong> ${data.tian_fu_star_branch}</p>
-        <p><strong>四化 (Si Hua):</strong> 祿:${data.si_hua ? (data.si_hua.化祿 || '-') : '-'}, 權:${data.si_hua ? (data.si_hua.化權 || '-') : '-'}, 科:${data.si_hua ? (data.si_hua.化科 || '-') : '-'}, 忌:${data.si_hua ? (data.si_hua.化忌 || '-') : '-'}</p>
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
-        <p><strong>ผัง 12 ภพ (12 Palaces):</strong></p>
-        <ul style="padding-left: 1.2rem; margin: 0;">
-          ${(data.palaces || []).map(p => `<li><strong>${p.palace_name} (${p.earth_branch}):</strong> ${p.stars.join(', ') || '無主星'} ${p.mutators && p.mutators.length ? `[${p.mutators.join(', ')}]` : ''}</li>`).join('')}
-        </ul>
+      <div style="background: rgba(12, 7, 24, 0.9); border: 1px solid #a855f7; padding: 1.25rem; border-radius: 12px; backdrop-filter: blur(12px);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 0.8rem;">
+          <h4 style="color: #c084fc; margin: 0; font-size: 1.15rem;">🔮 紫微斗數 (Zi Wei Dou Shu 12 Palaces Visualizer)</h4>
+          <span style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid #9333ea; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem;">คัมภีร์《紫微斗數全書》</span>
+        </div>
+
+        ${toolbarHtml}
+
+        <div style="background: rgba(30, 27, 75, 0.6); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.85rem; color: #e9d5ff;">
+            <div><strong>命宮支 (Ming Gong):</strong> <span style="color: #fbbf24; font-weight: bold;">${data.ming_gong_branch}</span> | <strong>身宮支 (Shen Gong):</strong> <span style="color: #f43f5e; font-weight: bold;">${data.shen_gong_branch}</span></div>
+            <div><strong>五行局 (Bureau):</strong> <span style="color: #38bdf8; font-weight: bold;">${data.five_element_bureau}</span> | <strong>紫微星位:</strong> ${data.zi_wei_star_branch} | <strong>天府星位:</strong> ${data.tian_fu_star_branch}</div>
+          </div>
+          <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; color: #cbd5e1;">
+            <strong>四化星 (4 Mutators):</strong>
+            <span style="color: #4ade80; margin-left: 6px;">化祿: ${siHua.化祿 || '-'}</span> |
+            <span style="color: #f59e0b; margin-left: 6px;">化權: ${siHua.化權 || '-'}</span> |
+            <span style="color: #38bdf8; margin-left: 6px;">化科: ${siHua.化科 || '-'}</span> |
+            <span style="color: #ef4444; margin-left: 6px;">化忌: ${siHua.化忌 || '-'}</span>
+          </div>
+        </div>
+
+        <h5 style="color: #c084fc; margin: 0.8rem 0 0.4rem 0;">🏛️ ผัง 12 ภพชะตา (12 Palaces Matrix):</h5>
+        ${palacesGridHtml}
+
+        <div style="margin-top: 1rem; background: rgba(30, 27, 75, 0.4); border-left: 3px solid #a855f7; padding: 8px 12px; font-size: 0.8rem; color: #cbd5e1;">
+          <strong>📖 หลักวิชาตามตำรา:</strong> ตามคัมภีร์จื่อเวยโต่วซู่ 12 ภพแทนสภาวะชีวิตรอบด้าน ดาวราชา (紫微/天府) เป็นประธานคุ้มครองดวงชะตา และตำแหน่ง四化ชี้บอกทิศทางโชคลาภ อำนาจ ชื่อเสียง และอุปสรรคที่ต้องบริหารจัดการ
+        </div>
       </div>
     `;
     showBranchCard("🔮 ผังวิชา紫微斗數 (Zi Wei Dou Shu Visualizer)", html, data.svg_content);
@@ -1186,25 +1277,90 @@ async function calcZiWei() {
   }
 }
 
-async function calcQiMen() {
+function recalcZiWeiFromUi() {
+  const year = parseInt(document.getElementById('zw-year')?.value || '1990', 10);
+  const month = parseInt(document.getElementById('zw-month')?.value || '5', 10);
+  const day = parseInt(document.getElementById('zw-day')?.value || '15', 10);
+  const hour = parseInt(document.getElementById('zw-hour')?.value || '14', 10);
+  const gender = document.getElementById('zw-gender')?.value || 'male';
+  calcZiWei({ year, month, day, hour, gender });
+}
+
+async function calcQiMen(customParams = null) {
   showBranchLoading("⚡ ผังวิชา奇門遁甲 (Qi Men Dun Jia Visualizer)");
+  let year = 2026, month = 8, day = 7, hour = 14;
+  if (customParams) {
+    year = customParams.year || 2026;
+    month = customParams.month || 8;
+    day = customParams.day || 7;
+    hour = customParams.hour || 14;
+  }
+
   try {
-    const res = await fetchApi('/api/v1/qimen/calculate?year=2026&month=8&day=7&hour=14');
+    const res = await fetchApi(`/api/v1/qimen/calculate?year=${year}&month=${month}&day=${day}&hour=${hour}`);
     const data = await res.json();
-    const html = `
-      <div style="background: rgba(59, 130, 246, 0.15); border: 1px solid #60a5fa; padding: 1rem; border-radius: 8px;">
-        <h4 style="color: #60a5fa; margin-top: 0;">⚡ 奇門遁甲 (Qi Men Dun Jia 4-Plate Grid)</h4>
-        <p><strong>節氣 (Solar Term):</strong> ${data.solar_term} | <strong>陰陽遁:</strong> ${data.dun_type}遁 ${data.ju_number}局</p>
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
-          ${(data.palaces || []).map(p => `
-            <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid #3b82f6; padding: 6px; border-radius: 6px; font-size: 0.85rem;">
-              <strong>宮位 ${p.palace_number}</strong><br>
-              九星: ${p.star}<br>
-              八門: ${p.door}<br>
-              八神: ${p.spirit}
+    const palaces = data.palaces || [];
+
+    const toolbarHtml = `
+      <div style="background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(96, 165, 250, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; align-items: end;">
+          <div>
+            <label style="font-size: 0.75rem; color: #bfdbfe; display: block; margin-bottom: 2px;">ปี (ค.ศ.)</label>
+            <input type="number" id="qm-year" value="${year}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #bfdbfe; display: block; margin-bottom: 2px;">เดือน (1-12)</label>
+            <input type="number" id="qm-month" min="1" max="12" value="${month}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #bfdbfe; display: block; margin-bottom: 2px;">วัน (1-31)</label>
+            <input type="number" id="qm-day" min="1" max="31" value="${day}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #bfdbfe; display: block; margin-bottom: 2px;">ชั่วโมง (0-23)</label>
+            <input type="number" id="qm-hour" min="0" max="23" value="${hour}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+          </div>
+          <div>
+            <button type="button" class="btn-sm" style="width: 100%; background: #2563eb; color: #fff; font-weight: bold; padding: 6px;" onclick="recalcQiMenFromUi()">⚡ คำนวณผังใหม่</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const palacesGridHtml = `
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 1rem 0;">
+        ${palaces.map(p => `
+          <div style="background: rgba(15, 23, 42, 0.85); border: 1px solid #3b82f6; padding: 8px; border-radius: 8px; font-size: 0.85rem;">
+            <div style="font-weight: bold; color: #93c5fd; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px; margin-bottom: 4px;">
+              宮位 ${p.palace_number}
             </div>
-          `).join('')}
+            <div style="color: #38bdf8;">九星: <strong>${p.star || '-'}</strong></div>
+            <div style="color: #4ade80;">八門: <strong>${p.door || '-'}</strong></div>
+            <div style="color: #fbbf24;">八神: <strong>${p.spirit || '-'}</strong></div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    const html = `
+      <div style="background: rgba(9, 19, 29, 0.9); border: 1px solid #3b82f6; padding: 1.25rem; border-radius: 12px; backdrop-filter: blur(12px);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 0.8rem;">
+          <h4 style="color: #60a5fa; margin: 0; font-size: 1.15rem;">⚡ 奇門遁甲 (Qi Men Dun Jia 4-Plate Grid Visualizer)</h4>
+          <span style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #2563eb; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem;">คัมภีร์《煙波釣叟歌》</span>
+        </div>
+
+        ${toolbarHtml}
+
+        <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
+          <strong>節氣 (Solar Term):</strong> <span style="color: #93c5fd; font-weight: bold;">${data.solar_term}</span> |
+          <strong>陰陽遁:</strong> <span style="color: #fbbf24; font-weight: bold;">${data.dun_type}遁 ${data.ju_number}局</span>
+        </div>
+
+        <h5 style="color: #60a5fa; margin: 0.8rem 0 0.4rem 0;">📊 ผัง 9 วัง 4 จาน (9 Palaces 4-Plates Grid):</h5>
+        ${palacesGridHtml}
+
+        <div style="margin-top: 1rem; background: rgba(30, 41, 59, 0.4); border-left: 3px solid #3b82f6; padding: 8px 12px; font-size: 0.8rem; color: #cbd5e1;">
+          <strong>📖 หลักวิชาตามตำรา:</strong> ตามคัมภีร์เยียนปอเตี้ยวโส่วเกอ ประตูสามมงคล (開門/休門/生門) ร่วมกับดาวมงคลและเทพบริวาร ใช้ในการวางแผนยุทธศาสตร์ กำหนดทิศทางแห่งความสำเร็จ และเลือกยามทำภารกิจสำคัญ
         </div>
       </div>
     `;
@@ -1214,21 +1370,110 @@ async function calcQiMen() {
   }
 }
 
-async function calcLiuRen() {
+function recalcQiMenFromUi() {
+  const year = parseInt(document.getElementById('qm-year')?.value || '2026', 10);
+  const month = parseInt(document.getElementById('qm-month')?.value || '8', 10);
+  const day = parseInt(document.getElementById('qm-day')?.value || '7', 10);
+  const hour = parseInt(document.getElementById('qm-hour')?.value || '14', 10);
+  calcQiMen({ year, month, day, hour });
+}
+
+async function calcLiuRen(customParams = null) {
   showBranchLoading("🌊 ผังวิชา大六壬 (Da Liu Ren Visualizer)");
+  let day_stem = "甲", day_branch = "子", month_general = "正月", hour_branch = "午";
+  if (customParams) {
+    day_stem = customParams.day_stem || "甲";
+    day_branch = customParams.day_branch || "子";
+    month_general = customParams.month_general || "正月";
+    hour_branch = customParams.hour_branch || "午";
+  }
+
   try {
-    const res = await fetchApi('/api/v1/liuren/calculate?day_stem=甲&day_branch=子&month_general=正月&hour_branch=午');
+    const res = await fetchApi(`/api/v1/liuren/calculate?day_stem=${encodeURIComponent(day_stem)}&day_branch=${encodeURIComponent(day_branch)}&month_general=${encodeURIComponent(month_general)}&hour_branch=${encodeURIComponent(hour_branch)}`);
     const data = await res.json();
+    const trans = data.three_transmissions || {};
+    const four_lessons = data.four_lessons || [];
+
+    const toolbarHtml = `
+      <div style="background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(74, 222, 128, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; align-items: end;">
+          <div>
+            <label style="font-size: 0.75rem; color: #bbf7d0; display: block; margin-bottom: 2px;">ก้านวัน (日干)</label>
+            <select id="lr-day-stem" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+              ${["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"].map(s => `<option value="${s}" ${s === day_stem ? 'selected' : ''}>${s}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #bbf7d0; display: block; margin-bottom: 2px;">กิ่งวัน (日支)</label>
+            <select id="lr-day-branch" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+              ${["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"].map(b => `<option value="${b}" ${b === day_branch ? 'selected' : ''}>${b}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #bbf7d0; display: block; margin-bottom: 2px;">ขุนพลเดือน (月將)</label>
+            <select id="lr-month-gen" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+              ${["正月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"].map(m => `<option value="${m}" ${m === month_general ? 'selected' : ''}>${m}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #bbf7d0; display: block; margin-bottom: 2px;">ยามเสี่ยงทาย (占時)</label>
+            <select id="lr-hour-branch" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+              ${["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"].map(h => `<option value="${h}" ${h === hour_branch ? 'selected' : ''}>${h}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <button type="button" class="btn-sm" style="width: 100%; background: #16a34a; color: #fff; font-weight: bold; padding: 6px;" onclick="recalcLiuRenFromUi()">⚡ คำนวณผังใหม่</button>
+          </div>
+        </div>
+      </div>
+    `;
+
     const html = `
-      <div style="background: rgba(34, 197, 94, 0.15); border: 1px solid #4ade80; padding: 1rem; border-radius: 8px;">
-        <h4 style="color: #4ade80; margin-top: 0;">🌊 大六壬 (Da Liu Ren 3-Transmission & 4-Lesson)</h4>
-        <p><strong>日干支:</strong> ${data.day_stem_branch} | <strong>月將:</strong> ${data.month_general} | <strong>占時:</strong> ${data.hour_branch}</p>
-        <p><strong>三傳 (3 Transmissions):</strong> 初傳: ${data.three_transmissions['初傳 (發端)']}, 中傳: ${data.three_transmissions['中傳 (移革)']}, 末傳: ${data.three_transmissions['末傳 (歸結)']}</p>
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
-        <p><strong>四課 (4 Lessons):</strong></p>
-        <ul>
-          ${(data.four_lessons || []).map(l => `<li><strong>${l.lesson_name}:</strong> ${l.bottom} → ${l.top}</li>`).join('')}
-        </ul>
+      <div style="background: rgba(4, 24, 18, 0.9); border: 1px solid #22c55e; padding: 1.25rem; border-radius: 12px; backdrop-filter: blur(12px);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 0.8rem;">
+          <h4 style="color: #4ade80; margin: 0; font-size: 1.15rem;">🌊 大六壬 (Da Liu Ren 3-Transmissions & 4-Lessons Visualizer)</h4>
+          <span style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #16a34a; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem;">คัมภีร์《六壬指南》</span>
+        </div>
+
+        ${toolbarHtml}
+
+        <div style="background: rgba(6, 78, 59, 0.4); border: 1px solid rgba(74, 222, 128, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
+          <strong>日干支:</strong> <span style="color: #86efac; font-weight: bold;">${data.day_stem_branch}</span> |
+          <strong>月將:</strong> <span style="color: #fbbf24; font-weight: bold;">${data.month_general}</span> |
+          <strong>占時:</strong> <span style="color: #38bdf8; font-weight: bold;">${data.hour_branch}</span>
+        </div>
+
+        <!-- 3 Transmissions -->
+        <h5 style="color: #4ade80; margin: 0.8rem 0 0.4rem 0;">🔄 三傳 (3 Transmissions):</h5>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 0.8rem;">
+          <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid #22c55e; border-radius: 6px; padding: 8px; text-align: center;">
+            <div style="font-size: 0.75rem; color: #86efac;">初傳 (發端)</div>
+            <div style="font-size: 1.1rem; font-weight: bold; color: #fef08a; margin-top: 2px;">${trans['初傳 (發端)'] || '-'}</div>
+          </div>
+          <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid #22c55e; border-radius: 6px; padding: 8px; text-align: center;">
+            <div style="font-size: 0.75rem; color: #86efac;">中傳 (移革)</div>
+            <div style="font-size: 1.1rem; font-weight: bold; color: #fef08a; margin-top: 2px;">${trans['中傳 (移革)'] || '-'}</div>
+          </div>
+          <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid #22c55e; border-radius: 6px; padding: 8px; text-align: center;">
+            <div style="font-size: 0.75rem; color: #86efac;">末傳 (歸結)</div>
+            <div style="font-size: 1.1rem; font-weight: bold; color: #fef08a; margin-top: 2px;">${trans['末傳 (歸結)'] || '-'}</div>
+          </div>
+        </div>
+
+        <!-- 4 Lessons -->
+        <h5 style="color: #4ade80; margin: 0.8rem 0 0.4rem 0;">📚 四課 (4 Lessons):</h5>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
+          ${four_lessons.map(l => `
+            <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid #16a34a; border-radius: 6px; padding: 6px 8px; text-align: center;">
+              <div style="font-size: 0.75rem; color: #86efac;">${l.lesson_name}</div>
+              <div style="font-size: 0.95rem; font-weight: bold; color: #ffffff; margin-top: 2px;">${l.bottom} ➔ ${l.top}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div style="margin-top: 1rem; background: rgba(6, 78, 59, 0.3); border-left: 3px solid #22c55e; padding: 8px 12px; font-size: 0.8rem; color: #cbd5e1;">
+          <strong>📖 หลักวิชาตามตำรา:</strong> ตามคัมภีร์ลิ่วเหรินจื่อหนาน "ซื่อเค่อ" บ่งบอกปฏิสัมพันธ์ระหว่างตัวบุคคลกับสภาพแวดล้อม และ "ซานจ้วน" พยากรณ์กระบวนการของเหตุการณ์ตั้งแต่จุดเริ่มต้น (初傳) จุดพลิกผัน (中傳) จนถึงบทสรุป (末傳)
+        </div>
       </div>
     `;
     showBranchCard("🌊 ผังวิชา大六壬 (Da Liu Ren Visualizer)", html, data.svg_content);
@@ -1237,21 +1482,80 @@ async function calcLiuRen() {
   }
 }
 
-async function calcIChing() {
+function recalcLiuRenFromUi() {
+  const day_stem = document.getElementById('lr-day-stem')?.value || '甲';
+  const day_branch = document.getElementById('lr-day-branch')?.value || '子';
+  const month_general = document.getElementById('lr-month-gen')?.value || '正月';
+  const hour_branch = document.getElementById('lr-hour-branch')?.value || '午';
+  calcLiuRen({ day_stem, day_branch, month_general, hour_branch });
+}
+
+async function calcIChing(customParams = null) {
   showBranchLoading("☯ ผังวิชา易經六爻 (I Ching & Liu Yao Visualizer)");
+  let day_stem = "甲";
+  if (customParams) {
+    day_stem = customParams.day_stem || "甲";
+  }
+
   try {
-    const res = await fetchApi('/api/v1/iching/calculate?day_stem=甲');
+    const res = await fetchApi(`/api/v1/iching/calculate?day_stem=${encodeURIComponent(day_stem)}`);
     const data = await res.json();
+    const pri = data.primary_hexagram || {};
+    const trans = data.transformed_hexagram || {};
+    const six_lines = data.six_lines || [];
+
+    const toolbarHtml = `
+      <div style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem;">
+        <div style="display: flex; gap: 8px; align-items: end; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 140px;">
+            <label style="font-size: 0.75rem; color: #fde68a; display: block; margin-bottom: 2px;">ก้านวันเสี่ยงทาย (日干)</label>
+            <select id="ic-day-stem" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+              ${["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"].map(s => `<option value="${s}" ${s === day_stem ? 'selected' : ''}>${s}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <button type="button" class="btn-sm" style="background: #d97706; color: #fff; font-weight: bold; padding: 6px 16px;" onclick="recalcIChingFromUi()">🎲 ทอดเหรียญเสี่ยงทายกว้าใหม่</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const linesTableHtml = `
+      <div style="display: flex; flex-direction: column; gap: 6px; margin: 1rem 0;">
+        ${[...six_lines].reverse().map(l => `
+          <div style="background: ${l.is_moving ? 'rgba(120, 53, 15, 0.7)' : 'rgba(30, 20, 5, 0.8)'}; border: 1px solid ${l.is_moving ? '#ef4444' : '#d97706'}; border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+            <div style="font-weight: bold; color: ${l.is_moving ? '#fef08a' : '#fbbf24'};">
+              爻 ${l.line_number}: ${l.line_type} (${l.line_value})
+            </div>
+            <div style="color: #cbd5e1;">[${l.relative}] 六神: <strong style="color: #38bdf8;">${l.animal}</strong></div>
+            ${l.is_moving ? '<span style="background: #ef4444; color: #fff; font-size: 0.7rem; font-weight: bold; padding: 1px 6px; border-radius: 4px;">⚡ 動爻 (เส้นเปลี่ยน)</span>' : '<span style="color: #64748b; font-size: 0.75rem;">靜爻</span>'}
+          </div>
+        `).join('')}
+      </div>
+    `;
+
     const html = `
-      <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid #fbbf24; padding: 1rem; border-radius: 8px;">
-        <h4 style="color: #fbbf24; margin-top: 0;">☯ 易經六爻 (I Ching & Liu Yao Divination)</h4>
-        <p><strong>本卦 (Primary):</strong> ${data.primary_hexagram.name} (${data.primary_hexagram.nature}) | Binary: ${data.primary_hexagram.binary}</p>
-        <p><strong>變卦 (Transformed):</strong> ${data.transformed_hexagram.name} | Binary: ${data.transformed_hexagram.binary}</p>
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
-        <p><strong>六爻 (6 Lines Detail):</strong></p>
-        <ul>
-          ${(data.six_lines || []).map(l => `<li><strong>爻 ${l.line_number}:</strong> ${l.line_type} (${l.line_value}) - ${l.relative} [六神: ${l.animal}] ${l.is_moving ? '⚡ 動爻' : ''}</li>`).join('')}
-        </ul>
+      <div style="background: rgba(27, 18, 4, 0.9); border: 1px solid #f59e0b; padding: 1.25rem; border-radius: 12px; backdrop-filter: blur(12px);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 0.8rem;">
+          <h4 style="color: #fbbf24; margin: 0; font-size: 1.15rem;">☯ 易經六爻 (I Ching & Liu Yao Divination Visualizer)</h4>
+          <span style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #d97706; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem;">คัมภีร์《周易 / 卜筮正宗》</span>
+        </div>
+
+        ${toolbarHtml}
+
+        <div style="background: rgba(41, 30, 10, 0.6); border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div><strong>本卦 (Primary):</strong> <span style="color: #fbbf24; font-size: 1.05rem; font-weight: bold;">${pri.name}</span> (${pri.nature})</div>
+            <div>➔ <strong>變卦 (Transformed):</strong> <span style="color: #38bdf8; font-size: 1.05rem; font-weight: bold;">${trans.name}</span></div>
+          </div>
+        </div>
+
+        <h5 style="color: #fbbf24; margin: 0.8rem 0 0.4rem 0;">📜 รายละเอียดเส้นเหยาทั้ง 6 (6 Lines Detail):</h5>
+        ${linesTableHtml}
+
+        <div style="margin-top: 1rem; background: rgba(41, 30, 10, 0.3); border-left: 3px solid #f59e0b; padding: 8px 12px; font-size: 0.8rem; color: #cbd5e1;">
+          <strong>📖 หลักวิชาตามตำรา:</strong> ตามคัมภีร์อี้จิงและปู่ซื่อเจิ้งจง เส้นเหยาแสดงพลวัตของหยิน-หยาง เส้นเคลื่อน (動爻) เป็นจุดพลิกผันของสถานการณ์ สัตว์เทพทั้งหก (六神) สะท้อนสภาพอารมณ์และสิ่งแวดล้อมรอบตัว
+        </div>
       </div>
     `;
     showBranchCard("☯ ผังวิชา易經六爻 (I Ching & Liu Yao Visualizer)", html, data.svg_content);
@@ -1260,24 +1564,81 @@ async function calcIChing() {
   }
 }
 
-async function calcXuanKong() {
+function recalcIChingFromUi() {
+  const day_stem = document.getElementById('ic-day-stem')?.value || '甲';
+  calcIChing({ day_stem });
+}
+
+async function calcXuanKong(customParams = null) {
   showBranchLoading("🏯 ผังวิชา玄空風水 (Xuan Kong Visualizer)");
+  let facing_degree = 180.0, period = 9;
+  if (customParams) {
+    facing_degree = customParams.facing_degree || 180.0;
+    period = customParams.period || 9;
+  }
+
   try {
-    const res = await fetchApi('/api/v1/xuankong/calculate?facing_degree=180.0&period=9');
+    const res = await fetchApi(`/api/v1/xuankong/calculate?facing_degree=${facing_degree}&period=${period}`);
     const data = await res.json();
-    const html = `
-      <div style="background: rgba(236, 72, 153, 0.15); border: 1px solid #f472b6; padding: 1rem; border-radius: 8px;">
-        <h4 style="color: #f472b6; margin-top: 0;">🏯 玄空風水 (Xuan Kong Flying Stars 9-Grid)</h4>
-        <p><strong>九運:</strong> 第 ${data.period} 運 (2024-2043) | <strong>向首:</strong> ${data.facing_mountain} | <strong>坐山:</strong> ${data.sitting_mountain}</p>
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
-          ${(data.grid_palaces || []).map(p => `
-            <div style="background: rgba(24, 9, 20, 0.8); border: 1px solid #be185d; padding: 6px; border-radius: 6px; font-size: 0.85rem; text-align: center;">
-              <strong>${p.direction} (${p.palace_name})</strong><br>
-              <span style="color: #38bdf8;">山:${p.sitting_star}</span> | <span style="color: #f43f5e;">向:${p.facing_star}</span><br>
-              <span style="color: #fbbf24; font-weight: bold;">運:${p.base_star}</span>
+    const grid_palaces = data.grid_palaces || [];
+
+    const toolbarHtml = `
+      <div style="background: rgba(236, 72, 153, 0.12); border: 1px solid rgba(244, 114, 182, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; align-items: end;">
+          <div>
+            <label style="font-size: 0.75rem; color: #fbcfe8; display: block; margin-bottom: 2px;">ยุคฮวงจุ้ย (Period 1-9)</label>
+            <select id="xk-period" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+              ${[1,2,3,4,5,6,7,8,9].map(p => `<option value="${p}" ${p === period ? 'selected' : ''}>ยุคที่ ${p} ${p === 9 ? '(2024-2043 ยุคปัจจุบัน)' : ''}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #fbcfe8; display: block; margin-bottom: 2px;">องศาหน้าบ้าน (0-360°)</label>
+            <input type="number" id="xk-degree" min="0" max="360" step="0.5" value="${facing_degree}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+          </div>
+          <div>
+            <button type="button" class="btn-sm" style="width: 100%; background: #be185d; color: #fff; font-weight: bold; padding: 6px;" onclick="recalcXuanKongFromUi()">⚡ คำนวณผัง 9 ดาว</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const gridHtml = `
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 1rem 0;">
+        ${grid_palaces.map(p => `
+          <div style="background: rgba(24, 9, 20, 0.85); border: 1px solid #be185d; padding: 8px; border-radius: 8px; text-align: center; font-size: 0.85rem;">
+            <div style="font-weight: bold; color: #fbcfe8; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px; margin-bottom: 4px;">
+              ${p.direction} (${p.palace_name})
             </div>
-          `).join('')}
+            <div style="display: flex; justify-content: space-around; align-items: center; margin: 4px 0;">
+              <div><span style="font-size: 0.7rem; color: #94a3b8;">山</span><br><strong style="font-size: 1.2rem; color: #38bdf8;">${p.sitting_star}</strong></div>
+              <div><span style="font-size: 0.7rem; color: #94a3b8;">向</span><br><strong style="font-size: 1.2rem; color: #f43f5e;">${p.facing_star}</strong></div>
+            </div>
+            <div style="font-size: 0.8rem; color: #fbbf24; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 2px;">運星: <strong>${p.base_star}</strong></div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    const html = `
+      <div style="background: rgba(26, 9, 20, 0.9); border: 1px solid #ec4899; padding: 1.25rem; border-radius: 12px; backdrop-filter: blur(12px);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 0.8rem;">
+          <h4 style="color: #f472b6; margin: 0; font-size: 1.15rem;">🏯 玄空風水 (Xuan Kong Flying Stars 9-Grid Visualizer)</h4>
+          <span style="background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid #be185d; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem;">คัมภีร์《沈氏玄空學》</span>
+        </div>
+
+        ${toolbarHtml}
+
+        <div style="background: rgba(45, 18, 34, 0.6); border: 1px solid rgba(244, 114, 182, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
+          <strong>九運 (Period):</strong> <span style="color: #fbbf24; font-weight: bold;">第 ${data.period} 運 (2024-2043)</span> |
+          <strong>向首 (Facing):</strong> <span style="color: #f43f5e; font-weight: bold;">${data.facing_mountain}</span> |
+          <strong>坐山 (Sitting):</strong> <span style="color: #38bdf8; font-weight: bold;">${data.sitting_mountain}</span>
+        </div>
+
+        <h5 style="color: #f472b6; margin: 0.8rem 0 0.4rem 0;">🧭 ผังดาวบิน 9 วัง (Flying Stars 9-Grid):</h5>
+        ${gridHtml}
+
+        <div style="margin-top: 1rem; background: rgba(45, 18, 34, 0.3); border-left: 3px solid #ec4899; padding: 8px 12px; font-size: 0.8rem; color: #cbd5e1;">
+          <strong>📖 หลักวิชาตามตำรา:</strong> ตามคัมภีร์เสิ่นซื่อเสวียนคง ดาวภูเขา (山星) ควบคุมสุขภาพ บารมี และความสงบสุขของคนในบ้าน ส่วนดาวน้ำ (向星) ควบคุมโชคลาภ ทรัพย์สิน และโอกาสทางธุรกิจ
         </div>
       </div>
     `;
@@ -1287,21 +1648,99 @@ async function calcXuanKong() {
   }
 }
 
-async function calcZeJi() {
+function recalcXuanKongFromUi() {
+  const period = parseInt(document.getElementById('xk-period')?.value || '9', 10);
+  const facing_degree = parseFloat(document.getElementById('xk-degree')?.value || '180.0');
+  calcXuanKong({ period, facing_degree });
+}
+
+async function calcZeJi(customParams = null) {
   showBranchLoading("📅 คำนวณฤกษ์擇吉 (Date Selection Visualizer)");
+  let year_branch = "午", month_branch = "申", day_branch = "寅", user_birth_branch = "子";
+  if (customParams) {
+    year_branch = customParams.year_branch || "午";
+    month_branch = customParams.month_branch || "申";
+    day_branch = customParams.day_branch || "寅";
+    user_birth_branch = customParams.user_birth_branch || "子";
+  }
+
   try {
-    const res = await fetchApi('/api/v1/zeji/calculate?year_branch=午&month_branch=申&day_branch=寅&user_birth_branch=子');
+    const res = await fetchApi(`/api/v1/zeji/calculate?year_branch=${encodeURIComponent(year_branch)}&month_branch=${encodeURIComponent(month_branch)}&day_branch=${encodeURIComponent(day_branch)}&user_birth_branch=${encodeURIComponent(user_birth_branch)}`);
     const data = await res.json();
+    const suits = data.activities_suitability || {};
+
+    const toolbarHtml = `
+      <div style="background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; align-items: end;">
+          <div>
+            <label style="font-size: 0.75rem; color: #bae6fd; display: block; margin-bottom: 2px;">ปี (年支)</label>
+            <select id="zj-year-b" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+              ${["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"].map(b => `<option value="${b}" ${b === year_branch ? 'selected' : ''}>${b}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #bae6fd; display: block; margin-bottom: 2px;">เดือน (月支)</label>
+            <select id="zj-month-b" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+              ${["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"].map(b => `<option value="${b}" ${b === month_branch ? 'selected' : ''}>${b}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #bae6fd; display: block; margin-bottom: 2px;">วัน (日支)</label>
+            <select id="zj-day-b" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+              ${["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"].map(b => `<option value="${b}" ${b === day_branch ? 'selected' : ''}>${b}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #bae6fd; display: block; margin-bottom: 2px;">ปีเกิดเจ้าชะตา</label>
+            <select id="zj-user-b" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+              ${["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"].map(b => `<option value="${b}" ${b === user_birth_branch ? 'selected' : ''}>${b}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <button type="button" class="btn-sm" style="width: 100%; background: #0284c7; color: #fff; font-weight: bold; padding: 6px;" onclick="recalcZeJiFromUi()">⚡ คำนวณฤกษ์</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const suitabilityHtml = `
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin: 1rem 0;">
+        ${Object.entries(suits).map(([act, res]) => {
+          const isGood = res === '宜';
+          const isBad = res === '忌';
+          return `
+            <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid ${isGood ? '#22c55e' : (isBad ? '#ef4444' : '#eab308')}; border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+              <span style="color: #e0f2fe;">${act}</span>
+              <strong style="color: ${isGood ? '#4ade80' : (isBad ? '#f87171' : '#fde047')};">${isGood ? '✅ 宜 (เหมาะสม)' : (isBad ? '❌ 忌 (ควรเลี่ยง)' : '⚖️ 平 (ปานกลาง)')}</strong>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+
     const html = `
-      <div style="background: rgba(14, 165, 233, 0.15); border: 1px solid #38bdf8; padding: 1rem; border-radius: 8px;">
-        <h4 style="color: #38bdf8; margin-top: 0;">📅 擇吉คำนวณฤกษ์ (Date Selection)</h4>
-        <p><strong>建除十二神:</strong> ${data.duty_officer} | <strong>ระดับความมงคล:</strong> ${data.rating_stars} ⭐ (${data.overall_status})</p>
-        <p><strong>คำอธิบาย:</strong> ${data.duty_description}</p>
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
-        <p><strong>ความเหมาะสมประจำกิจกรรม:</strong></p>
-        <ul>
-          ${Object.entries(data.activities_suitability || {}).map(([act, res]) => `<li><strong>${act}:</strong> ${res === '宜' ? '✅ 宜 (เหมาะสม)' : (res === '忌' ? '❌ 忌 (ควรหลีกเลี่ยง)' : '⚖️ 平 (ปานกลาง)')}</li>`).join('')}
-        </ul>
+      <div style="background: rgba(3, 22, 32, 0.9); border: 1px solid #0ea5e9; padding: 1.25rem; border-radius: 12px; backdrop-filter: blur(12px);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 0.8rem;">
+          <h4 style="color: #38bdf8; margin: 0; font-size: 1.15rem;">📅 擇吉คำนวณฤกษ์ (Date Selection Visualizer)</h4>
+          <span style="background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid #0284c7; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem;">คัมภีร์《協紀辨方書 / 玉匣記》</span>
+        </div>
+
+        ${toolbarHtml}
+
+        <div style="background: rgba(7, 43, 62, 0.6); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div><strong>建除十二神 (12 Duty Officers):</strong> <span style="color: #fbbf24; font-size: 1.15rem; font-weight: bold;">${data.duty_officer}</span></div>
+            <div><strong>ระดับความมงคล:</strong> <span style="color: #fde047;">${data.rating_stars}</span> (<strong style="color: #38bdf8;">${data.overall_status}</strong>)</div>
+          </div>
+          <div style="margin-top: 4px; font-size: 0.8rem; color: #bae6fd;"><strong>คำอธิบาย:</strong> ${data.duty_description || ''}</div>
+        </div>
+
+        <h5 style="color: #38bdf8; margin: 0.8rem 0 0.4rem 0;">📋 ความเหมาะสมประจำกิจกรรม (Activities Suitability):</h5>
+        ${suitabilityHtml}
+
+        <div style="margin-top: 1rem; background: rgba(7, 43, 62, 0.3); border-left: 3px solid #0ea5e9; padding: 8px 12px; font-size: 0.8rem; color: #cbd5e1;">
+          <strong>📖 หลักวิชาตามตำรา:</strong> ตามคัมภีร์เสียจี้เปี้ยนฟังซู เจี้ยนฉือสิบสองเทพกำกับวัฏจักรพลังงานในแต่ละวัน การเลือกฤกษ์ที่สอดคล้องกับกิจกรรมจะส่งเสริมให้การดำเนินงานราบรื่นและประสบความสำเร็จสูงสุด
+        </div>
       </div>
     `;
     showBranchCard("📅 คำนวณฤกษ์擇吉 (Date Selection Visualizer)", html, data.svg_content);
@@ -1310,22 +1749,106 @@ async function calcZeJi() {
   }
 }
 
-async function calcThaiVedic() {
+function recalcZeJiFromUi() {
+  const year_branch = document.getElementById('zj-year-b')?.value || '午';
+  const month_branch = document.getElementById('zj-month-b')?.value || '申';
+  const day_branch = document.getElementById('zj-day-b')?.value || '寅';
+  const user_birth_branch = document.getElementById('zj-user-b')?.value || '子';
+  calcZeJi({ year_branch, month_branch, day_branch, user_birth_branch });
+}
+
+async function calcThaiVedic(customParams = null) {
   showBranchLoading("🐘 โหราศาสตร์ไทย & ภารตวิทยา (Thai & Jyotish Visualizer)");
+  let year = 1990, month = 5, day = 15, hour = 14, day_of_week = 2;
+  if (customParams) {
+    year = customParams.year || 1990;
+    month = customParams.month || 5;
+    day = customParams.day || 15;
+    hour = customParams.hour || 14;
+    day_of_week = customParams.day_of_week || 2;
+  } else {
+    const rawDt = document.getElementById('birth_datetime')?.value || "1990-05-15 14:30:00";
+    const d = new Date(rawDt.replace(" ", "T"));
+    if (!isNaN(d.getTime())) {
+      year = d.getFullYear();
+      month = d.getMonth() + 1;
+      day = d.getDate();
+      hour = d.getHours();
+      day_of_week = d.getDay() + 1;
+    }
+  }
+
   try {
-    const res = await fetchApi('/api/v1/thaivedic/calculate?year=1990&month=5&day=15&hour=14&day_of_week=2');
+    const res = await fetchApi(`/api/v1/thaivedic/calculate?year=${year}&month=${month}&day=${day}&hour=${hour}&day_of_week=${day_of_week}`);
     const data = await res.json();
+    const nak = data.vedic_nakshatra || {};
+    const thaksa = data.maha_thaksa || {};
+
+    const toolbarHtml = `
+      <div style="background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(250, 204, 21, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; align-items: end;">
+          <div>
+            <label style="font-size: 0.75rem; color: #fef08a; display: block; margin-bottom: 2px;">ปีเกิด (ค.ศ.)</label>
+            <input type="number" id="tv-year" value="${year}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #fef08a; display: block; margin-bottom: 2px;">เดือนเกิด (1-12)</label>
+            <input type="number" id="tv-month" min="1" max="12" value="${month}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #fef08a; display: block; margin-bottom: 2px;">วันเกิด (1-31)</label>
+            <input type="number" id="tv-day" min="1" max="31" value="${day}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #fef08a; display: block; margin-bottom: 2px;">วันในสัปดาห์</label>
+            <select id="tv-dow" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+              ${["วันอาทิตย์ (1)", "วันจันทร์ (2)", "วันอังคาร (3)", "วันพุธ (4)", "วันพฤหัสบดี (5)", "วันศุกร์ (6)", "วันเสาร์ (7)"].map((d, i) => `<option value="${i+1}" ${i+1 === day_of_week ? 'selected' : ''}>${d}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <button type="button" class="btn-sm" style="width: 100%; background: #ca8a04; color: #fff; font-weight: bold; padding: 6px;" onclick="recalcThaiVedicFromUi()">⚡ คำนวณดวงไทย</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const thaksaGridHtml = `
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin: 1rem 0;">
+        ${Object.entries(thaksa).map(([k, v]) => `
+          <div style="background: rgba(36, 28, 3, 0.8); border: 1px solid #ca8a04; border-radius: 6px; padding: 6px 8px; font-size: 0.8rem;">
+            <div style="color: #fde047; font-weight: bold;">${k}</div>
+            <div style="color: #fef9c3; margin-top: 2px;">${v}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
     const html = `
-      <div style="background: rgba(234, 179, 8, 0.15); border: 1px solid #facc15; padding: 1rem; border-radius: 8px;">
-        <h4 style="color: #facc15; margin-top: 0;">🐘 โหราศาสตร์ไทยสุริยยาตร์ & ภารตวิทยา (Thai & Jyotish)</h4>
-        <p><strong>ลัคนาสุริยยาตร์:</strong> ${data.thai_lagna} | <strong>ดาวกาลกิณี:</strong> <span style="color: #ef4444; font-weight: bold;">${data.kalakini_planet}</span> | <strong>ดาวศรี:</strong> <span style="color: #22c55e; font-weight: bold;">${data.sri_planet}</span></p>
-        <p><strong>นักษัตร 27 ดารา (Vedic):</strong> ${data.vedic_nakshatra ? data.vedic_nakshatra.name : ''} (นักษัตรที่ ${data.vedic_nakshatra ? data.vedic_nakshatra.number : ''}, Pada ${data.vedic_nakshatra ? data.vedic_nakshatra.pada : ''})</p>
-        <p><strong>วิมโชตตรีทศา (Vimshottari Dasha):</strong> ${data.vimshottari_dasha}</p>
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
-        <p><strong>มหาทักษา 8 เทวดาเสวยอายุ:</strong></p>
-        <ul>
-          ${Object.entries(data.maha_thaksa || {}).map(([k, v]) => `<li><strong>${k}:</strong> ${v}</li>`).join('')}
-        </ul>
+      <div style="background: rgba(28, 22, 3, 0.9); border: 1px solid #eab308; padding: 1.25rem; border-radius: 12px; backdrop-filter: blur(12px);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 0.8rem;">
+          <h4 style="color: #facc15; margin: 0; font-size: 1.15rem;">🐘 โหราศาสตร์ไทยสุริยยาตร์ & ภารตวิทยา (Thai & Jyotish Visualizer)</h4>
+          <span style="background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid #ca8a04; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem;">คัมภีร์สุริยยาตร์ & พฤหัสชาดก</span>
+        </div>
+
+        ${toolbarHtml}
+
+        <div style="background: rgba(46, 36, 5, 0.6); border: 1px solid rgba(250, 204, 21, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div><strong>ลัคนาสุริยยาตร์:</strong> <span style="color: #fde047; font-size: 1.1rem; font-weight: bold;">ราศี${data.thai_lagna}</span></div>
+            <div><strong>ดาวศรี:</strong> <span style="color: #4ade80; font-weight: bold;">${data.sri_planet}</span> | <strong>ดาวกาลกิณี:</strong> <span style="color: #ef4444; font-weight: bold;">${data.kalakini_planet}</span></div>
+          </div>
+          <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <strong>นักษัตร 27 ดารา (Vedic Nakshatra):</strong> นักษัตรที่ ${nak.number || '-'} <strong>${nak.name || '-'}</strong> (Pada ${nak.pada || '-'}) |
+            <strong>วิมโชตตรีทศา:</strong> <span style="color: #38bdf8;">${data.vimshottari_dasha || '-'}</span>
+          </div>
+        </div>
+
+        <h5 style="color: #facc15; margin: 0.8rem 0 0.4rem 0;">👑 มหาทักษา 8 เทวดาเสวยอายุ:</h5>
+        ${thaksaGridHtml}
+
+        <div style="margin-top: 1rem; background: rgba(46, 36, 5, 0.3); border-left: 3px solid #eab308; padding: 8px 12px; font-size: 0.8rem; color: #cbd5e1;">
+          <strong>📖 หลักวิชาตามตำรา:</strong> ตามคัมภีร์สุริยยาตร์โบราณ ลัคนาเป็นประธานของดวงชะตา ดาวศรีหนุนนำเกียรติยศและโชคลาภ ส่วนดาวกาลกิณีเป็นจุดเตือนสติ มหาทักษา 8 เทวดาเป็นหลักเกณฑ์ตรวจดูช่วงอายุและดาวเสวยแทรก
+        </div>
       </div>
     `;
     showBranchCard("🐘 โหราศาสตร์ไทย & ภารตวิทยา (Thai & Jyotish Visualizer)", html, data.svg_content);
@@ -1334,30 +1857,125 @@ async function calcThaiVedic() {
   }
 }
 
-async function calcWestern() {
+function recalcThaiVedicFromUi() {
+  const year = parseInt(document.getElementById('tv-year')?.value || '1990', 10);
+  const month = parseInt(document.getElementById('tv-month')?.value || '5', 10);
+  const day = parseInt(document.getElementById('tv-day')?.value || '15', 10);
+  const day_of_week = parseInt(document.getElementById('tv-dow')?.value || '2', 10);
+  calcThaiVedic({ year, month, day, day_of_week });
+}
+
+async function calcWestern(customParams = null) {
   showBranchLoading("🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian Visualizer)");
+  let year = 1990, month = 5, day = 15, hour = 14;
+  if (customParams) {
+    year = customParams.year || 1990;
+    month = customParams.month || 5;
+    day = customParams.day || 15;
+    hour = customParams.hour || 14;
+  } else {
+    const rawDt = document.getElementById('birth_datetime')?.value || "1990-05-15 14:30:00";
+    const d = new Date(rawDt.replace(" ", "T"));
+    if (!isNaN(d.getTime())) {
+      year = d.getFullYear();
+      month = d.getMonth() + 1;
+      day = d.getDate();
+      hour = d.getHours();
+    }
+  }
+
   try {
-    const res = await fetchApi('/api/v1/western/calculate?year=1990&month=5&day=15&hour=14');
+    const res = await fetchApi(`/api/v1/western/calculate?year=${year}&month=${month}&day=${day}&hour=${hour}`);
     const data = await res.json();
+    const planets = data.planets_tropical || {};
+    const tnps = data.uranian_tnps || {};
+    const mid = data.uranian_midpoint_formula || {};
+
+    const toolbarHtml = `
+      <div style="background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(129, 140, 248, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; align-items: end;">
+          <div>
+            <label style="font-size: 0.75rem; color: #c7d2fe; display: block; margin-bottom: 2px;">ปีเกิด (ค.ศ.)</label>
+            <input type="number" id="wt-year" value="${year}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #c7d2fe; display: block; margin-bottom: 2px;">เดือน (1-12)</label>
+            <input type="number" id="wt-month" min="1" max="12" value="${month}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #c7d2fe; display: block; margin-bottom: 2px;">วัน (1-31)</label>
+            <input type="number" id="wt-day" min="1" max="31" value="${day}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+          </div>
+          <div>
+            <label style="font-size: 0.75rem; color: #c7d2fe; display: block; margin-bottom: 2px;">ชั่วโมง (0-23)</label>
+            <input type="number" id="wt-hour" min="0" max="23" value="${hour}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
+          </div>
+          <div>
+            <button type="button" class="btn-sm" style="width: 100%; background: #4f46e5; color: #fff; font-weight: bold; padding: 6px;" onclick="recalcWesternFromUi()">⚡ คำนวณผังสากล</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const planetsGridHtml = `
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px; margin: 0.8rem 0;">
+        ${Object.entries(planets).map(([p, pos]) => `
+          <div style="background: rgba(20, 19, 50, 0.8); border: 1px solid #4f46e5; border-radius: 6px; padding: 6px 8px; font-size: 0.8rem;">
+            <span style="color: #a5b4fc; font-weight: bold;">${p}:</span> <span style="color: #ffffff;">${pos}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    const tnpsGridHtml = `
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px; margin: 0.8rem 0;">
+        ${Object.entries(tnps).map(([tnp, deg]) => `
+          <div style="background: rgba(20, 19, 50, 0.8); border: 1px solid #6366f1; border-radius: 6px; padding: 6px 8px; font-size: 0.8rem;">
+            <span style="color: #c7d2fe; font-weight: bold;">${tnp}:</span> <span style="color: #fbbf24;">${deg.toFixed(1)}°</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
     const html = `
-      <div style="background: rgba(99, 102, 241, 0.15); border: 1px solid #818cf8; padding: 1rem; border-radius: 8px;">
-        <h4 style="color: #818cf8; margin-top: 0;">🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian)</h4>
-        <p><strong>ตำแหน่งดาวเคราะห์สากล (Tropical):</strong></p>
-        <ul>
-          ${Object.entries(data.planets_tropical || {}).map(([p, pos]) => `<li><strong>${p}:</strong> ${pos}</li>`).join('')}
-        </ul>
-        <hr style="border-color: rgba(255,255,255,0.1); margin: 0.8rem 0;">
-        <p><strong>ดาวทิพย์ยูเรเนียน 8 องค์ (8 Uranian TNPs):</strong></p>
-        <ul>
-          ${Object.entries(data.uranian_tnps || {}).map(([tnp, deg]) => `<li><strong>${tnp}:</strong> Longitude ${deg}°</li>`).join('')}
-        </ul>
-        <p><strong>จุดอิทธิพลสะท้อนศูนย์ลิขิต (Midpoint Axis):</strong> ${data.uranian_midpoint_formula ? data.uranian_midpoint_formula.formula : ''} → <strong>${data.uranian_midpoint_formula ? data.uranian_midpoint_formula.zodiac_position : ''}</strong></p>
+      <div style="background: rgba(11, 10, 29, 0.9); border: 1px solid #6366f1; padding: 1.25rem; border-radius: 12px; backdrop-filter: blur(12px);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 0.8rem;">
+          <h4 style="color: #818cf8; margin: 0; font-size: 1.15rem;">🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian Visualizer)</h4>
+          <span style="background: rgba(99, 102, 241, 0.2); color: #818cf8; border: 1px solid #4f46e5; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem;">Ptolemy Tetrabiblos & Hamburg School Rules</span>
+        </div>
+
+        ${toolbarHtml}
+
+        <div style="background: rgba(20, 19, 50, 0.6); border: 1px solid rgba(129, 140, 248, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
+          <strong>จุดอิทธิพลสะท้อนศูนย์ลิขิต (Midpoint Axis):</strong>
+          <span style="color: #a5b4fc; font-weight: bold; margin-left: 4px;">${mid.formula || ''}</span>
+          <span style="color: #cbd5e1;">➔</span>
+          <span style="color: #fbbf24; font-weight: bold;">${mid.zodiac_position || ''}</span>
+        </div>
+
+        <h5 style="color: #818cf8; margin: 0.8rem 0 0.4rem 0;">🪐 ตำแหน่งดาวเคราะห์สากล (Tropical Planets):</h5>
+        ${planetsGridHtml}
+
+        <h5 style="color: #818cf8; margin: 0.8rem 0 0.4rem 0;">✨ 8 ดาวทิพย์ยูเรเนียน (8 Uranian TNPs):</h5>
+        ${tnpsGridHtml}
+
+        <div style="margin-top: 1rem; background: rgba(20, 19, 50, 0.3); border-left: 3px solid #6366f1; padding: 8px 12px; font-size: 0.8rem; color: #cbd5e1;">
+          <strong>📖 หลักวิชาตามตำรา:</strong> ตามระบบยูเรเนียนของ Alfred Witte (Hamburg School) ดาวทิพย์ทั้ง 8 (Cupido, Hades, Zeus, Kronos, Apollon, Admetos, Vulcanus, Poseidon) และสมการจุดศูนย์ครึ่ง (Midpoints) เป็นเครื่องมือความแม่นยำสูงในการเจาะจงเหตุการณ์และแนวโน้มชีวิต
+        </div>
       </div>
     `;
     showBranchCard("🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian Visualizer)", html, data.svg_content);
   } catch (err) {
     showBranchCard("🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian Visualizer)", `<div style="background: rgba(99, 102, 241, 0.15); border: 1px solid #818cf8; padding: 1rem; border-radius: 8px;"><h4 style="color: #818cf8; margin-top: 0;">🌌 โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian)</h4><p><strong>Sun:</strong> Taurus 24° | <strong>Moon:</strong> Aquarius 12° | <strong>Ascendant:</strong> Virgo 15°</p><p><strong>สถานะคำนวณ:</strong> ประมวลผลดวงสากลยูเรเนียนเรียบร้อยแล้ว</p></div>`, null);
   }
+}
+
+function recalcWesternFromUi() {
+  const year = parseInt(document.getElementById('wt-year')?.value || '1990', 10);
+  const month = parseInt(document.getElementById('wt-month')?.value || '5', 10);
+  const day = parseInt(document.getElementById('wt-day')?.value || '15', 10);
+  const hour = parseInt(document.getElementById('wt-hour')?.value || '14', 10);
+  calcWestern({ year, month, day, hour });
 }
 
 const SATTA_LEK_HOUSE_NAMES = ["อัตตา (ตัวตน/วาสนา)", "หินะ (อุปสรรค/ระวัง)", "ธนัง (ทรัพย์สิน/เงินทอง)", "ปิตา (บิดา/ผู้ใหญ่ชาย)", "มาตา (มารดา/อุปถัมภ์)", "โภคา (หลักทรัพย์/สมบัติ)", "มัชฌิมา (ความพอดี/ชีวิตกลาง)"];

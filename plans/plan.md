@@ -1,8 +1,81 @@
 ---
-## 🔥 GRILL REPORT — สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean Visualizer
-**Date**: 2026-08-16T13:46:00+07:00  
+## 🔥 GRILL REPORT — All 16 Metaphysics Disciplines E2E Snapshot & Visualizer Upgrade (Phase 1: Core 9 Disciplines)
+**Date**: 2026-08-16T14:15:00+07:00  
 **Grilled By**: orchestrator  
-**Gate Status**: ✅ APPROVED  
+**Gate Status**: ✅ APPROVED (User Interview Concluded via `/grill-me`)  
+
+### D1 — Scope Boundary
+- **IN**:
+  1. **Phase 1: 9 Core Classical Disciplines Visualizer Upgrade**:
+     - 🏛️ **BaZi (四柱)**: 4 เสาหลัก, 10 ก้านฟ้า 12 กิ่งดิน, ดิถีประจำตัว, สมดุล 5 ธาตุ, เวลาสุริยคติแท้ (TST), วัยจร/ปีจร, SVG Pillar Balance Chart.
+     - 🔮 **Zi Wei Dou Shu (紫微斗數)**: ผัง 12 ภพ (12 Palaces Matrix), 14 ดาวหลัก, สี่แปลง (Si Hua: 祿/權/科/忌), 五行局, SVG Glassmorphic Palace Chart.
+     - ⚡ **Qi Men Dun Jia (奇門遁甲)**: ผัง 9 วัง 4 จาน (Earth/Heaven Plates, 8 Doors 八門, 9 Stars 九星, 8 Spirits 八神), ฤดูกาล 節氣, หยิน-หยางตุ้น, SVG 9-Palace Plate Chart.
+     - 🌊 **Da Liu Ren (大六壬)**: ซื่อเค่อ ซานจ้วน (4 Lessons, 3 Transmissions 初/中/末), เทพดารา 12 องค์, 12 สาขาปฐพี, SVG 12-Heaven Chart.
+     - ☯ **I Ching & Liu Yao (易經六爻)**: กว้าหลัก (Primary), กว้าแปลง (Transformed), 6 เส้นเหยา, ดวงดาวเหยา/สัตว์เทพ 6 ทิศ, เส้นเคลื่อน (Moving Lines), SVG Hexagram Transformation.
+     - 🏯 **Xuan Kong Flying Stars (玄空風水)**: ดาวบิน 9 ยุค (Period 9: 2024-2043), ดาวภูเขา (Mountain Star), ดาวน้ำ (Water Star), ทิศ 24 เขา, SVG 9-Grid Flying Star Chart.
+     - 📅 **Ze Ji Auspicious Timing (擇吉)**: 12 เทพผู้สร้าง (建除十二神), ระดับความมงคล, ความเหมาะสมประจำกิจกรรม (宜/忌/平), SVG Auspicious Dial.
+     - 🐘 **Thai Vedic & Jyotish (โหราศาสตร์ไทย & ภารตวิทยา)**: ลัคนาสุริยยาตร์, ดาวกาลกิณี, ดาวศรี, มหาทักษา 8 เทวดาเสวยอายุ, นักษัตร 27 ดารา (Vedic Nakshatra), วิมโชตตรีทศา, SVG 12 Zodiac Rashi Chart.
+     - 🌌 **Western Tropical & Uranian (โหราศาสตร์สากล & ยูเรเนียน)**: 12 Houses, ดาวเคราะห์สากล, 8 ดาวทิพย์ยูเรเนียน (8 TNPs), จุดศูนย์ครึ่ง (Midpoints Formula), SVG Tropical Wheel.
+  2. **4 Core Visualizer Components per Discipline**:
+     - 🎛️ **Interactive Toolbar**: ฟอร์มปรับค่าเฉพาะศาสตร์ (เวลาเกิด, ฤดูกาล, ทิศทาง, องศา, ปฏิทิน ฯลฯ)
+     - 📊 **Canonical Matrix Table**: ตารางคำนวณโครงสร้างตามคัมภีร์ดั้งเดิม (宫/卦/ลำดับ/แถว)
+     - 🎨 **SVG Vector Symbolic Chart**: ผังเวกเตอร์กราฟิกคมชัดระดับ Glassmorphism
+     - 🏛️ **In-Depth Interpretation Cards**: คำพยากรณ์เจาะลึกพร้อมระบุชื่อตำรา/สูตร/หลักเกณฑ์อ้างอิง
+  3. **Automated Playwright E2E Snapshot Suite**:
+     - ถ่ายภาพ Snapshot ความละเอียดสูงทุกศาสตร์
+     - ตรวจสอบความครบถ้วนขององค์ประกอบตามคัมภีร์ (Doctrinal Elements Verification)
+  4. **Phase 2 (Next Step)**:
+     - 7 ศาสตร์เสริม (Tai Yi, Liu Yao, Mei Hua, San He, Qi Zheng, Mian Xiang, Satta-Lek enhancement) + Multimodal Matrix Dashboard.
+- **OUT**: การแก้ไขระบบอื่นที่ไม่เกี่ยวข้อง, การละเมิด Secrets Policy หรือ Kaggle locks.
+
+### D2 — Requirement Delta
+- **New Additions**:
+  - ยกระดับฟังก์ชันและ UI สำหรับ 9 ศาสตร์หลักใน `project/static/app.js`, `public/app.js` และ SVG Generator ใน `project/core/svg_generator.py`.
+  - เพิ่ม E2E Snapshot Auditor Script `scripts/audit_all_astrology_disciplines.py` ที่ตรวจสอบ element ครบถ้วนตามตำรา.
+- **Cleaned Up**: ลบการแสดงผล placeholder หรือการ์ดแบบย่อที่ไม่สมบูรณ์.
+
+### D3 — Acceptance Criteria & Snapshot Gate
+| # | Criterion | Verification Tool | Responsible Agent |
+|---|---|---|---|
+| 1 | 9 ศาสตร์หลักมี Interactive Toolbar, Canonical Matrix, SVG Chart และ In-Depth Cards ครบ 100% | `python3 scripts/audit_all_astrology_disciplines.py` | `developer` / `qa_tester` |
+| 2 | ภาพ Snapshot ทุกศาสตร์มีความถูกต้อง สวยงาม คมชัด ไม่มี Overlap | `scripts/audit_all_astrology_disciplines.py` & `audit_ui_overlap.py` | `qa_tester` |
+| 3 | Unit tests ครบถ้วนและ Pytest regression suite ผ่าน 100% | `python3 -m pytest -v` | `qa_tester` |
+| 4 | Pre-deployment safety audit ผ่าน `READY_FOR_PROD` | `python3 project/core/code_reviewer.py --review` | `code_reviewer` |
+| 5 | Deploy สู่ Production บน Hugging Face Spaces & Live E2E Verification ผ่าน 100% | `python3 scripts/publish_space_hf.py` & `run_prod_e2e_playwright.py` | `devops` |
+
+### D4 — Constraints & Safeguards
+- Pure ASCII Logging.
+- Responsive Glassmorphic Design for Desktop, Tablet, and Mobile.
+- Zero secret leaks, deterministic algorithms.
+
+### D5 — Sub-Agent Task Decomposition
+- `TICKET-VISUAL-001` (Common Schema & Design Tokens) — `orchestrator` / `business_analyst`
+- `TICKET-VISUAL-002` (Zi Wei Dou Shu & BaZi Visualizer) — `developer`
+- `TICKET-VISUAL-003` (Qi Men Dun Jia & Da Liu Ren Visualizer) — `developer`
+- `TICKET-VISUAL-004` (I Ching / Liu Yao & Xuan Kong Visualizer) — `developer`
+- `TICKET-VISUAL-005` (Thai Vedic / Jyotish, Western / Uranian & Ze Ji Visualizer) — `developer`
+- `TICKET-VISUAL-006` (E2E Snapshot Suite & Canonical Doctrinal Audit) — `qa_tester`
+- `TICKET-VISUAL-007` (CI/CD Production Deployment & Live Verification) — `devops`
+
+### D6 — Assumption Register
+| # | Assumption | Status |
+|---|---|---|
+| 1 | Phase 1 prioritizes 9 core classical disciplines to control canonical risk | [CONFIRMED] |
+| 2 | Each discipline must have 4 core visual components | [CONFIRMED] |
+| 3 | Snapshot gate must pass before phase completion | [CONFIRMED] |
+
+### D7 — Risk & Rollback
+- Risk: None (isolated client-side and SVG generator rendering extensions).
+- Rollback: Revert `app.js` and `svg_generator.py` commits if required.
+
+### D8 — Token Budget
+- Strict local computation, zero token overhead.
+
+### D9 — Canonical Treatise Alignment
+- 100% compliant with classical texts: 滴天髓, 子平真詮, 紫微斗數全書, 煙波釣叟歌, 六壬指南, 周易, 卜筮正宗, 沈氏玄空學, 協紀辨方書, คัมภีร์สุริยยาตร์, Brihat Parashara Hora Shastra, Hamburg School Uranian.
+
+---
+## 🔥 GRILL REPORT — สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean Visualizer
 
 ### D1 — Scope Boundary
 - **IN**:

@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-08-16 06:27:25 UTC",
+  "timestamp": "2026-08-16 06:53:00 UTC",
   "target_url": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html",
   "profile": "full",
-  "elapsed_seconds": 73.34,
+  "elapsed_seconds": 77.98,
   "summary": {
     "total_buttons": 22,
     "passed": 22,
@@ -36,7 +36,7 @@
       "handler": "HTTP POST /api/v1/bazi/interpret",
       "endpoint": "POST /api/v1/bazi/interpret",
       "status": "PASSED",
-      "detail": "HTTP 200 - AI Interpretation output verified (1490 chars, fallback: False)"
+      "detail": "HTTP 200 - AI Interpretation output verified (1491 chars, fallback: False)"
     },
     {
       "id": "BTN-PROD-01",
@@ -154,7 +154,7 @@
       "handler": "calcNumerology()",
       "endpoint": "GET /api/v1/numerology/calculate",
       "status": "PASSED",
-      "detail": "Result card rendered cleanly with 203 chars output. API status: []"
+      "detail": "Result card rendered cleanly with 41 chars output. API status: []"
     },
     {
       "id": "CHK-PROD-18",
@@ -181,7 +181,7 @@
       "handler": "calculateChart(event)",
       "endpoint": "POST /api/v1/bazi/interpret",
       "status": "PASSED",
-      "detail": "Calculated 4 Pillars chart & AI interpretation (1579 chars). API Status: 200",
+      "detail": "Calculated 4 Pillars chart & AI interpretation (2100 chars). API Status: 200",
       "screenshot": "screenshots/prod_05_bazi_ai_result.png"
     },
     {

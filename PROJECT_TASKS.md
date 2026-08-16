@@ -76,6 +76,22 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 └───────────────────────────────────────────────────────────────────────────────┘
 ```
 
+## 🚀 ACTIVE SPRINT: All 16 Metaphysics Disciplines E2E Snapshot & Visualizer Upgrade (Phase 1: Core 9 Disciplines)
+**Grill Gate Status**: ✅ APPROVED (Ref: `/plans/plan.md`)  
+**Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)  
+
+| Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
+|---|---|---|---|---|
+| `TICKET-VISUAL-001` | `orchestrator` | Common Foundation, Canonical Schema & SVG Glassmorphic Token System | IN_PROGRESS | None |
+| `TICKET-VISUAL-002` | `developer` | Zi Wei Dou Shu & BaZi 4-Pillars Interactive Visualizers & SVG Charts | TODO | `TICKET-VISUAL-001` |
+| `TICKET-VISUAL-003` | `developer` | Qi Men Dun Jia & Da Liu Ren 4-Plates / 3-Transmissions Visualizers & SVG Charts | TODO | `TICKET-VISUAL-001` |
+| `TICKET-VISUAL-004` | `developer` | I Ching / Liu Yao 6-Lines & Xuan Kong 9-Grid Flying Stars Visualizers & SVG Charts | TODO | `TICKET-VISUAL-001` |
+| `TICKET-VISUAL-005` | `developer` | Thai Vedic / Jyotish, Western / Uranian & Ze Ji Visualizers & SVG Charts | TODO | `TICKET-VISUAL-001` |
+| `TICKET-VISUAL-006` | `qa_tester` | E2E Snapshot Regression Suite & Canonical Doctrinal Verification Gate | TODO | `TICKET-VISUAL-002`..`005` |
+| `TICKET-VISUAL-007` | `devops` | Production CI/CD Release, Version Audit & Live Playwright E2E Verification | TODO | `TICKET-VISUAL-006` |
+
+---
+
 ## 🚀 RECENT COMPLETED SPRINT: สัตตเลข 7 ฐาน & เลขศาสตร์ Chaldean Visualizer Web Application
 **Grill Gate Status**: ✅ APPROVED (Ref: `/plans/plan.md`)  
 **Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)  
