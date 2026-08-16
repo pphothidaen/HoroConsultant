@@ -745,17 +745,11 @@ async function proxyRequest(request, response) {
           return response.status(upstream.status).send(body);
         }
       } catch (e) {
-        if (targetIsLocation) {
-          // ignore malformed/HTML responses for location and rely on local fallback
-        } else {
-          copyResponseHeaders(upstream, response);
-          setAiHeaders(response, "backend", "unknown");
-          return response.status(upstream.status).send(body);
-        }
+        console.warn(`[Gateway Warning] Upstream body for ${target} is not valid JSON, using local handlers:`, e.message);
       }
     }
   } catch (error) {
-    console.error("[ERROR] Backend request failed:", error.message);
+    console.warn("[Gateway Warning] Backend upstream request failed, using local handlers:", error.message);
   }
 
   if (targetIsLocation) {
