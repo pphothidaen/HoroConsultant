@@ -33,3 +33,5 @@ gen-lang-client*.json
 *.pem
 project/data/runtime_response_cache.json
 .aws/
+*.so
+*.dylib

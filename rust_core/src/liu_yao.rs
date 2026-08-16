@@ -3,13 +3,14 @@
  * High-performance Liu Yao (六爻) computation core.
  */
 
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
 /// Generate Na Jia (納甲) Earthly Branches for a trigram.
 /// Trigram indices based on binary: 
 /// 0:Kun, 1:Zhen, 2:Kan, 3:Dui, 4:Gen, 5:Li, 6:Xun, 7:Qian
 /// Returns a vector of 3 branch indices (0-11 for 子-亥).
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn liu_yao_najia(trigram_idx: usize, is_upper: bool) -> Vec<usize> {
     match trigram_idx {
         7 | 1 => { // Qian & Zhen
@@ -39,7 +40,7 @@ pub fn liu_yao_najia(trigram_idx: usize, is_upper: bool) -> Vec<usize> {
 
 /// Calculate the Five Relatives (五親) based on line element and day master element.
 /// Elements: 0=Wood, 1=Fire, 2=Earth, 3=Metal, 4=Water.
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn liu_yao_five_relatives(line_element: usize, day_master_element: usize) -> String {
     if line_element == day_master_element {
         "兄弟".to_string() // Sibling

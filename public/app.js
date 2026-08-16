@@ -1351,98 +1351,147 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+async function wakeBackend(options = {}) {
+  const defaultDelays = [1000, 2000, 4000, 8000, 10000, 10000, 10000, 10000, 5000];
+  const delays = options.delays || defaultDelays;
+  const deadlineMs = options.deadlineMs || 5000;
+  const now = options.now || (() => Date.now());
+  const waitFor = options.waitFor || ((ms) => new Promise(r => setTimeout(r, ms)));
+  const statusEl = document.getElementById('backend-status');
+  const retryBtn = document.getElementById('backend-retry');
+
+  const startTime = now();
+  for (let i = 0; i < delays.length; i++) {
+    const elapsed = now() - startTime;
+    if (elapsed >= 60000) {
+      break;
+    }
+    const delay = Math.min(delays[i], 60000 - elapsed);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), deadlineMs);
+    try {
+      const res = await fetch('/health', { signal: controller.signal });
+      clearTimeout(timer);
+      if (res.ok) {
+        if (statusEl) {
+          statusEl.classList.remove('hidden');
+          statusEl.setAttribute('data-state', 'ready');
+          statusEl.innerText = 'API is ready';
+        }
+        if (retryBtn) retryBtn.classList.add('hidden');
+        return true;
+      }
+    } catch (e) {
+      clearTimeout(timer);
+    }
+    if (statusEl) {
+      statusEl.classList.remove('hidden');
+      statusEl.setAttribute('data-state', 'waking');
+      statusEl.innerText = 'Azure is waking (backend starting)';
+    }
+    if (retryBtn) retryBtn.classList.remove('hidden');
+    await waitFor(delay);
+  }
+  if (retryBtn) retryBtn.classList.remove('hidden');
+  return false;
+}
+
+async function ensureBackendReady() {
+  const statusEl = document.getElementById('backend-status');
+  const submitBtn = document.getElementById('btn-submit');
+  if (statusEl) {
+    statusEl.classList.remove('hidden');
+    statusEl.setAttribute('data-state', 'waking');
+    statusEl.innerText = 'Azure is waking (backend starting)';
+  }
+  if (submitBtn) submitBtn.disabled = true;
+  const ready = await wakeBackend();
+  if (ready) {
+    if (statusEl) {
+      statusEl.classList.remove('hidden');
+      statusEl.setAttribute('data-state', 'ready');
+      statusEl.innerText = 'API is ready';
+    }
+  }
+  return ready;
+}
+
+window.wakeBackend = wakeBackend;
+window.ensureBackendReady = ensureBackendReady;
+
 async function calculateChart(event) {
-  event.preventDefault();
+  if (event && event.preventDefault) event.preventDefault();
   
   const submitBtn = document.getElementById('btn-submit');
-  const btnText = submitBtn.querySelector('.btn-text') || submitBtn.querySelector('span') || submitBtn;
-  const spinner = submitBtn.querySelector('.spinner');
+  const btnText = submitBtn ? (submitBtn.querySelector('.btn-text') || submitBtn.querySelector('span') || submitBtn) : null;
+  const spinner = submitBtn ? submitBtn.querySelector('.spinner') : null;
+  const statusEl = document.getElementById('backend-status');
+  const retryBtn = document.getElementById('backend-retry');
+  const interpCard = document.getElementById('interpretation-card');
 
+  if (submitBtn) submitBtn.disabled = true;
   if (spinner) spinner.classList.remove('hidden');
-  btnText.textContent = ' กำลังคำนวณผังดวง & ตีความด้วย AI...';
-  submitBtn.disabled = true;
+  if (btnText) btnText.textContent = ' กำลังคำนวณผังดวง & ตีความด้วย AI...';
 
-  showBaziResultLoading('ระบบกำลังคำนวณ 4 เสาและตีความเชิงวิจัย...');
+  // 1. Ensure backend is ready
+  await ensureBackendReady();
 
   const payload = buildBaziPayloadFromForm();
 
   try {
-    // 1. Fetch LLM interpretation
-    const res = await fetchApi('/api/v1/bazi/interpret', {
+    const res = await fetch('/api/v1/bazi/interpret', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
 
+    const corrId = res.headers.get('x-request-id') || '';
+
     if (!res.ok) {
-      throw new Error(`HTTP error ${res.status}`);
+      let errDetail = 'Azure is waking';
+      try {
+        const errJson = await res.json();
+        if (errJson.detail) errDetail = errJson.detail;
+        if (errJson.correlation_id) errDetail += ` (correlation_id: ${errJson.correlation_id})`;
+      } catch (_) {}
+      if (corrId && !errDetail.includes(corrId)) {
+        errDetail += ` ${corrId}`;
+      }
+      if (statusEl) {
+        statusEl.classList.remove('hidden');
+        statusEl.setAttribute('data-state', 'error');
+        statusEl.innerText = errDetail;
+      }
+      if (retryBtn) retryBtn.classList.remove('hidden');
+      if (interpCard) interpCard.classList.add('hidden');
+      return;
     }
 
     let data = await res.json();
-    data.query = payload.query;
-
-    // Ensure payload validity for page display (must contain interpretation or chart or pillars)
-    if (!data.interpretation && !data.chart && !data.pillars && !data.day_master) {
-      console.warn('[API Gateway] Response missing interpretation or chart. Fetching calculation fallback...');
-      const calcRes = await fetchApi('/api/v1/bazi/calculate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (calcRes.ok) {
-        const calcData = await calcRes.json();
-        const userQ = payload.query && payload.query.trim() ? payload.query.trim() : "ภาพรวมดวงชะตา โชคลาภ การงาน ความรัก";
-        data = {
-          ...calcData,
-          interpretation: data.interpretation || `### 🔮 ผลการทำนายและวิเคราะห์ผังดวงจีน (BaZi Dynamic Reading)\n\n- **วันเวลาเกิด**: ${payload.birth_datetime}\n- **ลองจิจูด**: ${payload.longitude}° | **UTC Offset**: ${payload.utc_offset_hours}\n- **ดิถีประจำตัว (Day Master)**: ${calcData.day_master?.stem || '庚'} (${calcData.day_master?.element || 'Metal'})\n- **คำถามวิเคราะห์**: "${userQ}"\n\n📌 **การวิเคราะห์เฉพาะคำถามผู้ใช้ ("${userQ}"):**\nตามตำแหน่งดาว 4 เสาหลัก และเวลาสุริยคติแท้ การวิเคราะห์ประเด็นเรื่อง "${userQ}" สำหรับดิถี ${calcData.day_master?.stem || '庚'} มีพลังธาตุส่งเสริมจากธาตุให้คุณหลัก ช่วยหนุนนำดวงชะตาในเรื่อง "${userQ}" ให้มีความราบรื่นและประสบความสำเร็จ`,
-          chart: calcData,
-          svg_content: calcData.svg_content || data.svg_content
-        };
-      }
+    if (statusEl) {
+      statusEl.classList.remove('hidden');
+      statusEl.setAttribute('data-state', 'ready');
+      statusEl.innerText = 'API is ready';
     }
+    if (retryBtn) retryBtn.classList.add('hidden');
 
-    // 2. Fetch SVG diagram & detailed chart if not present
-    let svgContent = data.svg_content || (data.chart && data.chart.svg_content);
-    if (!svgContent) {
-      const calcRes = await fetchApi('/api/v1/bazi/calculate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (calcRes.ok) {
-        const calcData = await calcRes.json();
-        svgContent = calcData.svg_content;
-      }
+    const readingBody = document.getElementById('reading-body');
+    if (readingBody && data.interpretation) {
+      readingBody.innerHTML = typeof marked !== 'undefined' ? marked.parse(data.interpretation) : data.interpretation;
     }
-
-    renderResults(data, svgContent);
+    if (interpCard) interpCard.classList.remove('hidden');
   } catch (err) {
-    console.error('Calculation Error:', err);
-    const userQ = payload.query && payload.query.trim() ? payload.query.trim() : "ภาพรวมดวงชะตา โชคลาภ การงาน ความรัก";
-    const fallbackChart = {
-      day_master: { stem: '庚', element: 'Metal', polarity: 'Yang', th_name: 'ทอง (หยาง)', strength_status: 'สมดุล (Balanced)' },
-      five_elements: { percentages: { Wood: 20, Fire: 25, Earth: 20, Metal: 15, Water: 20 } },
-      pillars: {
-        year:  { stem: '庚', branch: '午' },
-        month: { stem: '壬', branch: '午' },
-        day:   { stem: '庚', branch: '辰' },
-        hour:  { stem: '癸', branch: '未' }
-      },
-      bst_version: 'BaZi True Solar Time V2',
-      birth_datetime: payload.birth_datetime,
-      tst: { tst_datetime: payload.birth_datetime }
-    };
-    renderResults({
-      query: payload.query,
-      interpretation: `### 🔮 ผลการทำนายและวิเคราะห์ผังดวงจีน (BaZi Dynamic Reading)\n\n- **วันเวลาเกิด**: ${payload.birth_datetime}\n- **ลองจิจูด**: ${payload.longitude}° | **UTC Offset**: ${payload.utc_offset_hours}\n- **คำถามวิเคราะห์**: "${userQ}"\n\n📌 **การวิเคราะห์เฉพาะเรื่อง ("${userQ}"):**\nตามหลักตำแหน่งดาว 4 เสาหลักและเวลาสุริยคติแท้ คำถามเกี่ยวกับ "${userQ}" มีทิศทางโชคลาภและการส่งเสริมที่ดีจากพลัง 5 ธาตุ แนะนำให้มุ่งเน้นการปรับสมดุลธาตุไม้และธาตุน้ำเพื่อเพิ่มความยืดหยุ่นและโอกาสประสบความสำเร็จ`,
-      validator_audit: `✅ **Validator Audit**: Verified status ok (${err.message})`,
-      rag_contexts: [`[Document 1] คัมภีร์ผังดวงจีน BaZi 4 เสาหลัก - คำนวณตำแหน่งดวงดาวตามเวลาสุริยคติแท้`],
-      chart: fallbackChart
-    }, buildFallbackFourPillarsSvg(fallbackChart));
+    if (statusEl) {
+      statusEl.classList.remove('hidden');
+      statusEl.setAttribute('data-state', 'error');
+      statusEl.innerText = `Azure is waking (${err.message})`;
+    }
+    if (retryBtn) retryBtn.classList.remove('hidden');
+    if (interpCard) interpCard.classList.add('hidden');
   } finally {
     if (spinner) spinner.classList.add('hidden');
-    btnText.textContent = '🔮 คำนวณผังดวง & ตีความด้วย AI';
-    submitBtn.disabled = false;
+    if (btnText) btnText.textContent = '🔮 คำนวณผังดวง & ตีความด้วย AI';
+    if (submitBtn) submitBtn.disabled = false;
   }
 }
 

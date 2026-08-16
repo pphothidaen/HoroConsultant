@@ -10,9 +10,10 @@ import logging
 from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
 
+from project.core.bazi_display import generate_bazi_html
 from project.core.bazi_engine import BaZiEngine
 from project.core.iching_engine import IChingEngine
 from project.core.liu_ren_engine import LiuRenEngine
@@ -88,7 +89,52 @@ async def calculate_bazi(req: BaZiRequest):
             utc_offset_hours = req.utc_offset_hours,
             unknown_hour     = req.unknown_hour,
         )
-        data = result.to_dict()
+        data = {
+            "engine_version": result.get("engine_version", "1.0.0"),
+            "solar_time_info": result["solar_time_info"],
+            "day_master": {
+                "stem": result["day_master"]["stem"],
+                "element": result["day_master"]["element"],
+                "polarity": result["day_master"]["polarity"],
+                "pinyin": result["day_master"]["pinyin"],
+            },
+            "pillars": {
+                pk: {
+                    "label": p["label"],
+                    "stem": {
+                        "char": p["stem"]["char"],
+                        "pinyin": p["stem"]["pinyin"],
+                        "element": p["stem"]["element"],
+                        "polarity": p["stem"]["polarity"],
+                    },
+                    "branch": {
+                        "char": p["branch"]["char"],
+                        "pinyin": p["branch"]["pinyin"],
+                        "animal": p["branch"]["animal"],
+                        "element": p["branch"]["element"],
+                        "polarity": p["branch"]["polarity"],
+                        "hour_start": p["branch"]["hour_start"],
+                    },
+                    "hidden_stems": [
+                        {"stem": hs["stem"], "element": hs["element"], "weight": hs["weight"]}
+                        for hs in p["hidden_stems"]
+                    ],
+                }
+                for pk, p in result["pillars"].items()
+            },
+            "five_elements": result["five_elements"],
+            "is_probabilistic": False,
+            "engine_name": result.engine_name,
+            "system_type": result.system_type,
+            "calculation_timestamp": result["calculation_timestamp"],
+            "element_scores": result.get("element_scores", {
+                "wood": 0.0,
+                "fire": 0.0,
+                "earth": 0.0,
+                "metal": 0.0,
+                "water": 0.0,
+            }),
+        }
         data["svg_content"] = generate_bazi_svg(data)
         data["zodiac_svg"]  = generate_zodiac_wheel_svg(data)
         return JSONResponse(content=data)

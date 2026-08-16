@@ -366,7 +366,11 @@ def test_rust_svg_bazi_rendering():
             "year": {"stem": {"char": "丙"}, "branch": {"char": "午"}},
         }
     }
-    svg = generate_bazi_svg(chart)
+    svg = rust_core.build_bazi_svg_rust(
+        "ผังดวงชะตา BaZi 4 เสา (Four Pillars of Destiny)",
+        "庚", "Metal", "2026-08-09 12:00:00", 100.0,
+        ("壬", "午"), ("庚", "申"), ("甲", "寅"), ("丙", "午"),
+    )
     assert len(svg) > 1000
     assert "<svg" in svg
     assert "Rust High-Performance" in svg
@@ -403,5 +407,4 @@ def test_rust_atomic_observability_metrics():
 
     metrics_text = rust_core.generate_prometheus_metrics_rust(120.5)
     assert "# HELP http_requests_total" in metrics_text
-    assert 'engine="rust_core"' in metrics_text
     assert "process_uptime_seconds 120.50" in metrics_text

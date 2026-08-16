@@ -27,8 +27,6 @@ use pyo3::prelude::*;
 
 pub mod astrological_audit;
 pub mod bazi;
-pub mod astrological_audit;
-pub mod bazi;
 pub mod chunker;
 pub mod fengshui;
 pub mod iching;

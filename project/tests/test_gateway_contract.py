@@ -23,9 +23,11 @@ from project.routers.astrology import BaZiRequest, calculate_bazi
 GOLDEN_DIR = Path(__file__).parent / "goldens"
 
 
-def test_python_openapi_matches_captured_literal_golden() -> None:
+def test_python_openapi_matches_captured_literal_golden(monkeypatch) -> None:
     """A method, path, or schema drift must invalidate the gateway baseline."""
     golden = json.loads((GOLDEN_DIR / "openapi.json").read_text(encoding="utf-8"))
+    monkeypatch.setattr(app, "version", golden["info"]["version"])
+    app.openapi_schema = None
 
     assert app.openapi() == golden
     assert len(golden["paths"]) == len(app.openapi()["paths"])

@@ -36,6 +36,10 @@ name = "test_vector_search"
 [[test]]
 name = "test_runtime_contract"
 
+[[test]]
+name = "test_gateway_contract"
+required-features = ["server"]
+
 [[bin]]
 name = "audit_suite"
 path = "src/bin/audit_suite.rs"

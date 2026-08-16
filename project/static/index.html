@@ -146,6 +146,8 @@
           <span class="spinner hidden"></span>
           <span class="btn-text">☯ คำนวณผังดวง & ตีความด้วย AI</span>
         </button>
+        <div id="backend-status" class="hidden" data-state="idle" aria-live="polite" style="margin-top:8px;font-size:12px;color:#38bdf8;"></div>
+        <button type="button" id="backend-retry" class="hidden btn btn-sm" onclick="calculateChart(event)" style="margin-top:6px;">ลองใหม่อีกครั้ง (Retry)</button>
       </form>
 
       <div class="preset-buttons">

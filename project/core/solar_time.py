@@ -52,16 +52,9 @@ def _fractional_year_gamma(dt: datetime) -> float:
 def calculate_equation_of_time(dt: datetime) -> float:
     """
     Compute the Equation of Time (EoT) in minutes using the NOAA algorithm.
-    Uses Rust acceleration (rust_core) when available.
 
     Returns minutes (+ve → solar noon before clock noon).
     """
-    from project.core.fast_math import RUST_AVAILABLE
-    if RUST_AVAILABLE:
-        import rust_core
-        doy = dt.timetuple().tm_yday
-        return round(rust_core.equation_of_time(doy), 4)
-
     γ = _fractional_year_gamma(dt)
     eot = 229.18 * (
         0.000075

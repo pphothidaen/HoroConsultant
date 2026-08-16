@@ -1,3 +1,4 @@
+#[cfg(feature = "python")]
 use pyo3::prelude::*;
 
 const MOUNTAINS_24: [&str; 24] = [
@@ -6,9 +7,9 @@ const MOUNTAINS_24: [&str; 24] = [
     "坤", "申", "庚", "酉", "辛", "戌", "乾", "亥"
 ];
 
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn san_he_resolve_mountain(degree: f64) -> usize {
-    let mut deg = (degree % 360.0 + 360.0) % 360.0;
+    let deg = (degree % 360.0 + 360.0) % 360.0;
     let mut shifted = (deg + 22.5) % 360.0;
     if shifted < 0.0 {
         shifted += 360.0;
@@ -17,7 +18,7 @@ pub fn san_he_resolve_mountain(degree: f64) -> usize {
     idx % 24
 }
 
-#[pyfunction]
+#[cfg_attr(feature = "python", pyfunction)]
 pub fn san_he_water_method(sitting_idx: usize, water_exit_idx: usize) -> Vec<String> {
     let stages = [
         "長生", "沐浴", "冠帶", "臨官", "帝旺", "衰", 
