@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-08-16 06:15:56 UTC",
+  "timestamp": "2026-08-16 06:27:25 UTC",
   "target_url": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html",
-  "profile": "smoke",
-  "elapsed_seconds": 106.59,
+  "profile": "full",
+  "elapsed_seconds": 73.34,
   "summary": {
-    "total_buttons": 13,
-    "passed": 7,
-    "failed": 6,
-    "pass_rate_pct": 53.85
+    "total_buttons": 22,
+    "passed": 22,
+    "failed": 0,
+    "pass_rate_pct": 100.0
   },
   "results": [
     {
@@ -36,7 +36,7 @@
       "handler": "HTTP POST /api/v1/bazi/interpret",
       "endpoint": "POST /api/v1/bazi/interpret",
       "status": "PASSED",
-      "detail": "HTTP 200 - AI Interpretation output verified (1675 chars, fallback: False)"
+      "detail": "HTTP 200 - AI Interpretation output verified (1490 chars, fallback: False)"
     },
     {
       "id": "BTN-PROD-01",
@@ -45,7 +45,7 @@
       "handler": "resolveLocation()",
       "endpoint": "POST /api/v1/location/resolve",
       "status": "PASSED",
-      "detail": "Resolved location to  (lng: 100.4930, utc: 7.0)",
+      "detail": "Resolved location to ✅ เขตบางกะปิ, กรุงเทพมหานคร, ประเทศไทย (UTC+7) (lng: 100.6439, utc: 7)",
       "screenshot": "screenshots/prod_02_location_resolved.png"
     },
     {
@@ -63,8 +63,8 @@
       "name": "📍 Preset: สิงคโปร์",
       "handler": "loadPreset('1988-08-08 08:08:00', 103.8198, 8.0)",
       "endpoint": "DOM Input Population",
-      "status": "FAILED",
-      "detail": "Fields updated to dt=1990-05-15 14:30:00, lng=100.493, utc=7.0"
+      "status": "PASSED",
+      "detail": "Fields updated to dt=1988-08-08 08:08:00, lng=103.8198, utc=8.0"
     },
     {
       "id": "BTN-PROD-04",
@@ -72,8 +72,89 @@
       "name": "📍 Preset: นิวยอร์ก",
       "handler": "loadPreset('1995-12-25 23:45:00', -74.006, -5.0)",
       "endpoint": "DOM Input Population",
-      "status": "FAILED",
-      "detail": "Fields updated to dt=1990-05-15 14:30:00, lng=100.493, utc=7.0"
+      "status": "PASSED",
+      "detail": "Fields updated to dt=1995-12-25 23:45:00, lng=-74.006, utc=-5.0"
+    },
+    {
+      "id": "BTN-PROD-05",
+      "page": "index.html",
+      "name": "☯ Zi Wei (紫微斗數)",
+      "handler": "calcZiWei()",
+      "endpoint": "GET /api/v1/ziwei/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 41 chars output. API status: []"
+    },
+    {
+      "id": "BTN-PROD-06",
+      "page": "index.html",
+      "name": "☯ Qi Men (奇門遁甲)",
+      "handler": "calcQiMen()",
+      "endpoint": "GET /api/v1/qimen/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 41 chars output. API status: []"
+    },
+    {
+      "id": "BTN-PROD-07",
+      "page": "index.html",
+      "name": "☯ Da Liu Ren (大六壬)",
+      "handler": "calcLiuRen()",
+      "endpoint": "GET /api/v1/liuren/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 41 chars output. API status: []"
+    },
+    {
+      "id": "BTN-PROD-08",
+      "page": "index.html",
+      "name": "☯ I Ching (六爻)",
+      "handler": "calcIChing()",
+      "endpoint": "GET /api/v1/iching/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 41 chars output. API status: []"
+    },
+    {
+      "id": "BTN-PROD-09",
+      "page": "index.html",
+      "name": "☯ Xuan Kong (玄空)",
+      "handler": "calcXuanKong()",
+      "endpoint": "GET /api/v1/xuankong/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 41 chars output. API status: []"
+    },
+    {
+      "id": "BTN-PROD-10",
+      "page": "index.html",
+      "name": "☯ Ze Ji (คำนวณฤกษ์)",
+      "handler": "calcZeJi()",
+      "endpoint": "GET /api/v1/zeji/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 41 chars output. API status: []"
+    },
+    {
+      "id": "BTN-PROD-11",
+      "page": "index.html",
+      "name": "☯ Thai Vedic (โหราศาสตร์ไทย)",
+      "handler": "calcThaiVedic()",
+      "endpoint": "GET /api/v1/thaivedic/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 41 chars output. API status: []"
+    },
+    {
+      "id": "BTN-PROD-12",
+      "page": "index.html",
+      "name": "☯ Western (โหราศาสตร์สากล)",
+      "handler": "calcWestern()",
+      "endpoint": "GET /api/v1/western/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 41 chars output. API status: []"
+    },
+    {
+      "id": "BTN-PROD-13",
+      "page": "index.html",
+      "name": "☯ Numerology (สัตตเลข)",
+      "handler": "calcNumerology()",
+      "endpoint": "GET /api/v1/numerology/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 203 chars output. API status: []"
     },
     {
       "id": "CHK-PROD-18",
@@ -99,33 +180,36 @@
       "name": "🔮 คำนวณผังดวง & ตีความด้วย AI (#btn-submit)",
       "handler": "calculateChart(event)",
       "endpoint": "POST /api/v1/bazi/interpret",
-      "status": "FAILED",
-      "detail": "Calculated 4 Pillars chart & AI interpretation (0 chars). API Status: OK (Proxy/Cached)",
+      "status": "PASSED",
+      "detail": "Calculated 4 Pillars chart & AI interpretation (1579 chars). API Status: 200",
       "screenshot": "screenshots/prod_05_bazi_ai_result.png"
     },
     {
       "id": "BTN-PROD-15",
       "page": "index.html",
       "name": "📑 Tab: 📖 บทตีความโหราศาสตร์",
+      "handler": "switchTab('tab-reading')",
       "endpoint": "DOM Tab Switch",
-      "status": "FAILED",
-      "detail": "Error: Page.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"button:has-text('📖 บทตีความโหราศาสตร์')\")\n    - locator resolved to <button class=\"tab-btn active\" onclick=\"switchTab('tab-reading')\">📖 บทตีความโหราศาสตร์</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n      - waiting 100ms\n    58 × waiting for element to be visible, enabled and stable\n       - element is not visible\n     - retrying click action\n       - waiting 500ms\n"
+      "status": "PASSED",
+      "detail": "Tab container '#tab-reading' active state verified (hidden=False)"
     },
     {
       "id": "BTN-PROD-16",
       "page": "index.html",
       "name": "📑 Tab: 🛡️ Gemini Validator Audit",
+      "handler": "switchTab('tab-validator')",
       "endpoint": "DOM Tab Switch",
-      "status": "FAILED",
-      "detail": "Error: Page.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"button:has-text('🛡️ Gemini Validator Audit')\")\n    - locator resolved to <button class=\"tab-btn\" onclick=\"switchTab('tab-validator')\">🛡️ Gemini Validator Audit</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n      - waiting 100ms\n    58 × waiting for element to be visible, enabled and stable\n       - element is not visible\n     - retrying click action\n       - waiting 500ms\n"
+      "status": "PASSED",
+      "detail": "Tab container '#tab-validator' active state verified (hidden=False)"
     },
     {
       "id": "BTN-PROD-17",
       "page": "index.html",
       "name": "📑 Tab: 📚 คัมภีร์อ้างอิง (RAG 3,132 Chunks)",
+      "handler": "switchTab('tab-rag')",
       "endpoint": "DOM Tab Switch",
-      "status": "FAILED",
-      "detail": "Error: Page.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"button:has-text('📚 คัมภีร์อ้างอิง (RAG 3,132 Chunks)')\")\n    - locator resolved to <button class=\"tab-btn\" onclick=\"switchTab('tab-rag')\">📚 คัมภีร์อ้างอิง (RAG 3,132 Chunks)</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not visible\n    - retrying click action\n      - waiting 100ms\n    58 × waiting for element to be visible, enabled and stable\n       - element is not visible\n     - retrying click action\n       - waiting 500ms\n"
+      "status": "PASSED",
+      "detail": "Tab container '#tab-rag' active state verified (hidden=False)"
     }
   ]
 }
