@@ -144,8 +144,16 @@ logger.setLevel(logging.INFO)
 logger.handlers = [_handler]
 
 
-def prepare_dataset(output_jsonl: Path) -> Path:
-    """Fetch latest dataset from Supabase or fallback to local JSONL dataset."""
+def prepare_dataset(output_jsonl: Path, dataset_path: str | None = None) -> Path:
+    """Fetch latest dataset from explicit path, Supabase, or fallback local JSONL dataset."""
+    if dataset_path:
+        explicit_path = Path(dataset_path).expanduser()
+        if explicit_path.exists():
+            logger.info(f"[INFO] Using explicit dataset path '{explicit_path}'")
+            return explicit_path
+        logger.warning(
+            f"[WARN] Explicit dataset path '{explicit_path}' not found. Falling back to automated dataset source."
+        )
     logger.info("[DATA] Checking dataset source...")
     db = SupabaseDB()
     if db.is_configured():
@@ -815,6 +823,7 @@ def main():
     parser.add_argument("--base-model", default=Config.BASE_MODEL_NAME, help="Base model identifier")
     parser.add_argument("--hf-repo", default=Config.HF_REPO_ID, help="Hugging Face Repository ID")
     parser.add_argument("--epochs", type=int, default=3, help="Number of training epochs")
+    parser.add_argument("--dataset-path", default=None, help="Explicit dataset JSONL path")
     parser.add_argument("--dry-run", action="store_true", help="Validate setup without running GPU training")
 
     args = parser.parse_args()
@@ -822,7 +831,7 @@ def main():
     temp_dataset = ROOT_DIR / "project" / "rag" / "datasets" / "cloud_train_temp.jsonl"
     output_dir = ROOT_DIR / "project" / "models" / "cloud_checkpoint"
 
-    dataset_path = prepare_dataset(temp_dataset)
+    dataset_path = prepare_dataset(temp_dataset, dataset_path=args.dataset_path)
 
     success = run_training_pipeline(
         dataset_path=dataset_path,

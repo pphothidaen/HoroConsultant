@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel, Field
 
+from project.core.model_activation import get_active_model_state
 from project.mlops.distillation.curator import DatasetCurator
 from project.mlops.distillation.hermes_miner import MINING_ONTOLOGY, HermesKnowledgeMiner
 from project.mlops.notifications.webhook_notifier import WebhookNotifier
@@ -50,9 +51,11 @@ def get_mlops_status() -> Dict[str, Any]:
 
     orchestrator = FineTuneOrchestrator()
     kaggle_status = orchestrator.get_training_status()
+    active_model = get_active_model_state()
 
     return {
-        "target_model": "pphothidaen/qwen2.5-7b-bazi-instruct-4bit",
+        "target_model": active_model["active_model"],
+        "active_model_state": active_model,
         "available_domains": list(MINING_ONTOLOGY.keys()),
         "datasets": datasets,
         "kaggle_kernel_status": kaggle_status,

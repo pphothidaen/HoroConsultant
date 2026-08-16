@@ -269,11 +269,13 @@ def build_finetune_from_grayzone(
     if entries:
         output_dir.mkdir(parents=True, exist_ok=True)
         gz_path = output_dir / "grayzone_finetune.jsonl"
+        gz_meta_path = output_dir / "grayzone_finetune_with_metadata.jsonl"
         with open(gz_path, "w", encoding="utf-8") as f:
             for e in entries:
-                # Strip _meta before writing
-                clean = {"messages": e["messages"]}
-                f.write(json.dumps(clean, ensure_ascii=False) + "\n")
+                f.write(json.dumps({"messages": e["messages"]}, ensure_ascii=False) + "\n")
+        with open(gz_meta_path, "w", encoding="utf-8") as f_meta:
+            for e in entries:
+                f_meta.write(json.dumps(e, ensure_ascii=False) + "\n")
         log.info(f"✅ Exported {included} gray-zone Q&A entries → {gz_path}")
 
         # Also sync to Supabase DB if configured
@@ -307,6 +309,7 @@ def build_finetune_from_grayzone(
         "included": included,
         "skipped":  skipped,
         "output":   str(output_dir / "grayzone_finetune.jsonl") if entries else None,
+        "metadata_output": str(output_dir / "grayzone_finetune_with_metadata.jsonl") if entries else None,
     }
 
 

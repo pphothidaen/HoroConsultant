@@ -221,6 +221,27 @@ body::before{
   font-size:9px;color:var(--text-3);margin-top:3px;
 }
 
+.qi-meta{
+  font-size:9px;color:var(--text-3);margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;
+}
+
+.qi-chip{
+  padding:2px 6px;border-radius:999px;display:inline-flex;align-items:center;
+  font-size:8px;font-weight:700;line-height:1.2;
+}
+
+.qi-chip.hitl{
+  background:rgba(247,197,72,0.15);
+  border:1px solid rgba(247,197,72,0.4);
+  color:var(--gold);
+}
+
+.qi-chip.warn{
+  background:rgba(252,129,129,0.15);
+  border:1px solid rgba(252,129,129,0.45);
+  color:var(--red);
+}
+
 .qi-draft-badge{
   margin-left:auto;font-size:8px;font-weight:700;
   padding:1px 5px;border-radius:3px;
@@ -690,11 +711,24 @@ body::before{
       <span class="ribbon-label">Rejected</span>
       <span class="ribbon-val" id="r-rejected">—</span>
     </div>
+    <div class="progress-ribbon">
+      <div class="ribbon-dot" style="background:var(--purple)"></div>
+      <span class="ribbon-label">Need Trigger</span>
+      <span class="ribbon-val" id="r-hitl-need">—</span>
+    </div>
+    <div class="progress-ribbon">
+      <div class="ribbon-dot" style="background:var(--teal)"></div>
+      <span class="ribbon-label">Next</span>
+      <span class="ribbon-val" id="r-hitl-next">—</span>
+    </div>
     <button onclick="batchGenerateDrafts()" style="padding:5px 12px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(183,148,244,0.15);border:1px solid rgba(183,148,244,0.3);color:var(--purple);cursor:pointer" id="btn-batch">
       ⚡ Batch Draft
     </button>
     <button onclick="exportHITL()" style="padding:5px 12px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(104,211,145,0.15);border:1px solid rgba(104,211,145,0.3);color:var(--green);cursor:pointer">
       ⬇ Export JSONL
+    </button>
+    <button onclick="triggerHITLFinetune(false, false)" style="padding:5px 12px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(246,173,85,0.18);border:1px solid rgba(246,173,85,0.35);color:var(--orange);cursor:pointer" id="btn-hitl-trigger">
+      🚀 Trigger HITL FineTune
     </button>
   </div>
 </header>
@@ -947,6 +981,22 @@ function updateRibbon(data) {
   document.getElementById('r-approved').textContent = data.approved || 0;
   document.getElementById('r-edited').textContent   = data.edited   || 0;
   document.getElementById('r-rejected').textContent = data.rejected || 0;
+
+  const automation = data.automation || {};
+  const approved = data.automation?.approved_count ?? ((data.approved || 0) + (data.edited || 0));
+  const nextThreshold = automation.next_trigger_count ?? '—';
+  const hitlSummary = data.hitl_summary || {};
+  const pendingHuman = hitlSummary.pending_required_human_review || 0;
+  const pendingConflict = hitlSummary.pending_conflict_items || 0;
+  const need = (typeof nextThreshold === 'number' && typeof approved === 'number')
+    ? Math.max(nextThreshold - approved, 0)
+    : '—';
+  document.getElementById('r-hitl-need').textContent = need;
+  document.getElementById('r-hitl-next').textContent = nextThreshold;
+  const triggerButton = document.getElementById('btn-hitl-trigger');
+  if (triggerButton) {
+    triggerButton.title = `Next trigger target: ${nextThreshold}, approved: ${approved}, pending HITL: ${pendingHuman}, conflict: ${pendingConflict}`;
+  }
 }
 
 function setQueueFilter(f, btn) {
@@ -990,6 +1040,7 @@ function renderQueueList() {
   el.innerHTML = S.filteredQueue.map((item, idx) => {
     const sClass = {pending:'s-pending',approve:'s-approve',edit:'s-edit',reject:'s-reject'}[item.status] || 's-pending';
     const isActive = S.currentItem && S.currentItem.item_id === item.item_id;
+    const conflicts = Array.isArray(item.conflicting_domains) ? item.conflicting_domains : [];
     return `
       <div class="queue-item ${isActive ? 'active' : ''}" onclick="selectItem(${idx})">
         <div class="qi-header">
@@ -999,6 +1050,13 @@ function renderQueueList() {
         </div>
         <div class="qi-question">${escHtml(item.question)}</div>
         <div class="qi-cat">${CAT_EMOJI[item.category] || ''} ${item.category.replace(/_/g,' ')}</div>
+        <div class="qi-meta">
+          ${item.source_domain ? `<span class=\"qi-chip\">${escHtml(item.source_domain)}</span>` : ''}
+          ${item.required_human_review ? '<span class="qi-chip hitl">HITL</span>' : ''}
+          ${item.conflict_detected ? '<span class="qi-chip warn">CONFLICT</span>' : ''}
+          ${typeof item.consensus_score === 'number' ? `<span class="qi-chip">Score ${item.consensus_score.toFixed(2)}</span>` : ''}
+          ${conflicts.length ? `<span class=\"qi-chip warn\">${escHtml(conflicts.join(', '))}</span>` : ''}
+        </div>
       </div>`;
   }).join('');
 }
@@ -1035,6 +1093,14 @@ function renderAIPanel(item) {
       <div class="question-label">📌 Question</div>
       <div class="question-text">${escHtml(item.question)}</div>
       <div class="source-chip">${item.source_id} · ${escHtml(item.source_title)}</div>
+      <div class="qi-meta" style="margin-top:8px">
+        ${item.source_domain ? `<span class=\"qi-chip\">${escHtml(item.source_domain)}</span>` : ''}
+        ${item.required_human_review ? '<span class="qi-chip hitl">Human Review Required</span>' : ''}
+        ${typeof item.consensus_score === 'number' ? `<span class="qi-chip">Consensus ${item.consensus_score.toFixed(2)}</span>` : ''}
+        ${(Array.isArray(item.conflicting_domains) && item.conflicting_domains.length)
+          ? `<span class="qi-chip warn">Conflicts: ${escHtml(item.conflicting_domains.join(', '))}</span>`
+          : ''}
+      </div>
     </div>`;
 
   if (item.ai_draft && item.ai_confidence && item.ai_confidence.length) {
@@ -1364,6 +1430,37 @@ async function batchGenerateDrafts() {
   } catch(e) { toast('error', '❌ ' + e.message); }
   finally {
     setTimeout(() => { btn.textContent = '⚡ Batch Draft'; btn.disabled = false; }, 2000);
+  }
+}
+
+async function triggerHITLFinetune(force = false, dry = false) {
+  const btn = document.getElementById('btn-hitl-trigger');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = '⏳ Triggering...';
+  }
+  try {
+    const qs = [];
+    if (force) qs.push('force=true');
+    if (dry) qs.push('dry_run=true');
+    const endpoint = `/hitl/trigger${qs.length ? `?${qs.join('&')}` : ''}`;
+    const res = await api('POST', endpoint);
+    if (res.status === 'skipped') {
+      toast('warning', `⚠️ HITL trigger skipped: ${res.reason || 'not ready'}`);
+      if (typeof res.next_trigger_count !== 'undefined') {
+        toast('info', `Need ${Math.max((res.next_trigger_count || 0) - (res.approved_count || 0), 0)} more to trigger`);
+      }
+      return;
+    }
+    toast('success', `🚀 HITL trigger started: ${res.status}`);
+    await loadQueue();
+  } catch (e) {
+    toast('error', '❌ ' + e.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '🚀 Trigger HITL FineTune';
+    }
   }
 }
 

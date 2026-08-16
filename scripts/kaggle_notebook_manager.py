@@ -88,9 +88,14 @@ def setup_kaggle_credentials(*, write_file: bool = True) -> bool:
     return True
 
 
-def create_kernel_files(accelerator_type: str = "gpu", force_metadata: bool = False) -> None:
+def create_kernel_files(
+    accelerator_type: str = "gpu",
+    force_metadata: bool = False,
+    dataset_path: str | None = None,
+) -> None:
     """Generate project/kaggle_kernel/ metadata and notebook.ipynb preserving user's default Kaggle GPU settings."""
     KERNEL_DIR.mkdir(parents=True, exist_ok=True)
+    dataset_cmd_path = str(Path(dataset_path).expanduser()) if dataset_path else ""
 
     username = os.getenv("KAGGLE_USERNAME", "pphothidaen")
     slug = "horoconsultant-finetune-pipeline"
@@ -242,7 +247,18 @@ def create_kernel_files(accelerator_type: str = "gpu", force_metadata: bool = Fa
                     "train_env = os.environ.copy()\n",
                     "train_env['PYTHONIOENCODING'] = 'utf-8'\n",
                     "train_env['PYTHONUTF8'] = '1'\n",
-                    "proc = subprocess.Popen([sys.executable, 'scripts/cloud_train_orchestrator.py', '--platform', 'KAGGLE', '--base-model', 'Qwen/Qwen2.5-7B-Instruct', '--epochs', '3'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors='replace', env=train_env)\n",
+                    "train_cmd = [\n",
+                    "    sys.executable,\n",
+                    "    'scripts/cloud_train_orchestrator.py',\n",
+                    "    '--platform', 'KAGGLE',\n",
+                    "    '--base-model', 'Qwen/Qwen2.5-7B-Instruct',\n",
+                    "    '--epochs', '3',\n",
+                    "]\n",
+                    "if 'HITL_EXPORT_PATH' in os.environ:\n",
+                    "    train_cmd.extend(['--dataset-path', os.environ['HITL_EXPORT_PATH']])\n",
+                    "elif dataset_cmd_path:\n",
+                    "    train_cmd.extend(['--dataset-path', dataset_cmd_path])\n",
+                    "proc = subprocess.Popen(train_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors='replace', env=train_env)\n",
                     "with open(log_path, 'w', encoding='utf-8', errors='replace') as log_f:\n",
                     "    for line in iter(proc.stdout.readline, ''):\n",
                     "        safe_line = line.encode('utf-8', errors='replace').decode('utf-8', errors='replace')\n",
@@ -317,6 +333,7 @@ def main() -> int:
     parser.add_argument("--status", action="store_true", help="Check notebook execution status on Kaggle")
     parser.add_argument("--pull", action="store_true", help="Pull latest notebook, outputs, and metadata down from Kaggle")
     parser.add_argument("--output", action="store_true", help="Pull kernel output files specifically via 'kaggle kernels output'")
+    parser.add_argument("--dataset-path", default=None, help="Explicit dataset JSONL path for training run")
     parser.add_argument("--dest", default=str(KERNEL_DIR), help="Destination directory for output files (default: project/kaggle_kernel)")
     parser.add_argument("--accelerator", default="nvidiaTeslaT4x2", help="Specify Kaggle GPU accelerator (default: nvidiaTeslaT4x2, optional: nvidiaTeslaP100)")
 
@@ -328,7 +345,10 @@ def main() -> int:
     if args.setup:
         if not setup_kaggle_credentials(write_file=True):
             return 1
-        create_kernel_files(args.accelerator)
+        create_kernel_files(args.accelerator, dataset_path=args.dataset_path)
+
+    elif args.push and args.dataset_path:
+        create_kernel_files(args.accelerator, dataset_path=args.dataset_path)
 
     success = True
     if args.push:

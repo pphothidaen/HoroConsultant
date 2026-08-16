@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -31,6 +32,9 @@ from typing import Any
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
+
+from project.core.model_activation import get_active_model_state
+from project.mlops.training.finetune_orchestrator import FineTuneOrchestrator
 
 logger = logging.getLogger("hitl_router")
 
@@ -40,7 +44,13 @@ CATALOG_PATH     = ROOT / "project" / "data" / "knowledge_catalog.json"
 GRAYZONE_DB_PATH = ROOT / "project" / "data" / "grayzone_answers.json"
 HITL_DB_PATH     = ROOT / "project" / "data" / "hitl_reviews.json"
 HITL_EXPORT_PATH = ROOT / "project" / "rag" / "datasets" / "hitl_approved.jsonl"
+HITL_EXPORT_WITH_META_PATH = ROOT / "project" / "rag" / "datasets" / "hitl_approved_with_metadata.jsonl"
 DATASETS_DIR     = ROOT / "project" / "rag" / "datasets"
+HITL_EXTERNAL_ITEMS_KEY = "external_items"
+HITL_AUTOTRAIN_THRESHOLD = max(1, int(os.getenv("HITL_AUTOTRAIN_TRIGGER_THRESHOLD", os.getenv("HITL_FINETUNE_TRIGGER_THRESHOLD", "50"))))
+HITL_AUTOTRAIN_STEP = max(1, int(os.getenv("HITL_AUTOTRAIN_TRIGGER_STEP", str(HITL_AUTOTRAIN_THRESHOLD))))
+HITL_AUTOTRAIN_DRY_RUN = os.getenv("HITL_AUTOTRAIN_DRY_RUN", "false").lower() == "true"
+HITL_AUTOTRAIN_ENABLED = os.getenv("HITL_AUTOTRAIN_ENABLED", "true").lower() != "false"
 
 SYSTEM_PROMPT_MAP = {
     "chinese_metaphysics": (
@@ -128,8 +138,14 @@ def load_catalog() -> dict[str, Any]:
 
 def load_hitl_db() -> dict[str, Any]:
     if not HITL_DB_PATH.exists():
-        return {"reviews": {}, "drafts": {}, "stats": {"approved": 0, "edited": 0, "rejected": 0, "pending": 0}}
-    return json.loads(HITL_DB_PATH.read_text(encoding="utf-8"))
+        return _ensure_hitl_automation_defaults({
+            "reviews": {},
+            "drafts": {},
+            HITL_EXTERNAL_ITEMS_KEY: {},
+            "stats": {"approved": 0, "edited": 0, "rejected": 0, "pending": 0},
+        })
+    data = json.loads(HITL_DB_PATH.read_text(encoding="utf-8"))
+    return _ensure_hitl_automation_defaults(data)
 
 
 def save_hitl_db(data: dict[str, Any]) -> None:
@@ -143,6 +159,215 @@ def save_hitl_db(data: dict[str, Any]) -> None:
     }
     data["last_updated"] = datetime.now().isoformat()
     HITL_DB_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _ensure_hitl_automation_defaults(hitl_db: dict[str, Any]) -> dict[str, Any]:
+    automation = hitl_db.setdefault("automation", {})
+    automation.setdefault("threshold", HITL_AUTOTRAIN_THRESHOLD)
+    automation.setdefault("step", HITL_AUTOTRAIN_STEP)
+    automation.setdefault("next_trigger_count", automation.get("threshold", HITL_AUTOTRAIN_THRESHOLD))
+    automation.setdefault("last_trigger_count", 0)
+    automation.setdefault("total_triggers", 0)
+    automation.setdefault("last_triggered_at", None)
+    automation.setdefault("trigger_history", [])
+    return hitl_db
+
+
+def _approved_hitl_count(reviews: dict[str, Any]) -> int:
+    return sum(
+        1 for r in reviews.values()
+        if r.get("decision") in (DECISION_APPROVE, DECISION_EDIT) and (r.get("final_answer") or "").strip()
+    )
+
+
+def _normalize_hitl_payload(item_id: str, review: dict[str, Any]) -> dict[str, Any] | None:
+    question = (review.get("question") or "").strip()
+    final_answer = (review.get("final_answer") or "").strip()
+    if not question or not final_answer:
+        return None
+
+    category = review.get("category", "")
+    system_prompt = SYSTEM_PROMPT_MAP.get(category, DEFAULT_SYSTEM)
+    reviewed_at = review.get("reviewed_at") or datetime.now().isoformat()
+
+    return {
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": question},
+            {"role": "assistant", "content": final_answer},
+        ],
+        "_meta": {
+            "item_id": item_id,
+            "source_domain": review.get("source_domain", ""),
+            "source_id": review.get("source_id", ""),
+            "source_title": review.get("source_title", ""),
+            "category": category,
+            "question": question,
+            "required_human_review": review.get("required_human_review", False),
+            "conflict_detected": review.get("conflict_detected", False),
+            "conflicting_domains": review.get("conflicting_domains", []),
+            "consensus_score": review.get("consensus_score"),
+            "hitl_routing": review.get("hitl_routing"),
+            "decision": review.get("decision"),
+            "reviewer": review.get("reviewer"),
+            "confidence_rating": review.get("confidence_rating"),
+            "tags": review.get("tags", []),
+            "notes": review.get("notes"),
+            "reviewed_at": reviewed_at,
+            "pipeline": "hitl_router",
+        },
+    }
+
+
+def _collect_hitl_export_records(hitl_db: dict[str, Any]) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
+    for item_id, review in hitl_db.get("reviews", {}).items():
+        payload = _normalize_hitl_payload(item_id, review)
+        if payload:
+            records.append(payload)
+    records.sort(key=lambda r: r["_meta"].get("reviewed_at") or "")
+    return records
+
+
+def make_external_item_id(source_domain: str, source_id: str, question: str) -> str:
+    import hashlib
+    raw = f"{source_domain}::{source_id}::{question}"
+    return hashlib.md5(raw.encode()).hexdigest()[:16]
+
+
+def upsert_external_hitl_item(
+    item: dict[str, Any],
+) -> str:
+    hitl_db = load_hitl_db()
+    hitl_db.setdefault(HITL_EXTERNAL_ITEMS_KEY, {})
+    question = str(item.get("question", "")).strip()
+    source_domain = str(item.get("source_domain", "metaphysical-domain-engine")).strip()
+    source_id = str(item.get("source_id", source_domain)).strip() or source_domain
+    item_id = str(item.get("item_id") or make_external_item_id(source_domain, source_id, question)).strip()
+    now = datetime.now().isoformat()
+
+    if not question:
+        question = "Metaphysical deliberation review item"
+
+    existing = hitl_db[HITL_EXTERNAL_ITEMS_KEY].get(item_id, {})
+    payload = {
+        "item_id": item_id,
+        "source_domain": source_domain,
+        "source_id": source_id,
+        "source_title": item.get("source_title", "Metaphysical Domain Engine"),
+        "category": item.get("category", "metaphysical_debate"),
+        "question": question,
+        "required_human_review": bool(item.get("required_human_review", True)),
+        "conflict_detected": bool(item.get("conflict_detected", False)),
+        "conflicting_domains": item.get("conflicting_domains", []),
+        "consensus_score": item.get("consensus_score"),
+        "hitl_routing": item.get("hitl_routing", {}),
+        "synthesis_snapshot": item.get("synthesis_snapshot", {}),
+        "notes": item.get("notes"),
+        "created_at": existing.get("created_at", now),
+        "updated_at": now,
+        "status": existing.get("status", "pending"),
+        "review": existing.get("review"),
+    }
+    hitl_db[HITL_EXTERNAL_ITEMS_KEY][item_id] = payload
+    save_hitl_db(hitl_db)
+    return item_id
+
+
+def _write_hitl_exports(records: list[dict[str, Any]], *, append: bool = False) -> dict[str, Any]:
+    DATASETS_DIR.mkdir(parents=True, exist_ok=True)
+    mode = "a" if append else "w"
+    with open(HITL_EXPORT_PATH, mode, encoding="utf-8") as f_messages, open(
+        HITL_EXPORT_WITH_META_PATH, mode, encoding="utf-8"
+    ) as f_metadata:
+        for entry in records:
+            f_messages.write(json.dumps({"messages": entry["messages"]}, ensure_ascii=False) + "\n")
+            f_metadata.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    return {
+        "status": "success",
+        "entries": len(records),
+        "output": str(HITL_EXPORT_PATH),
+        "metadata_output": str(HITL_EXPORT_WITH_META_PATH),
+    }
+
+
+def _run_finetune_trigger(
+    force: bool,
+    dry_run: bool = False,
+    requested_by: str = "system",
+) -> dict[str, Any]:
+    if not HITL_AUTOTRAIN_ENABLED and not force:
+        return {
+            "status": "skipped",
+            "reason": "autotrain_disabled",
+            "requested_by": requested_by,
+        }
+
+    hitl_db = load_hitl_db()
+    automation = _ensure_hitl_automation_defaults(hitl_db)
+    reviews = hitl_db.get("reviews", {})
+    approved_count = _approved_hitl_count(reviews)
+    next_threshold = automation.get("next_trigger_count", automation.get("threshold", HITL_AUTOTRAIN_THRESHOLD))
+    records = _collect_hitl_export_records(hitl_db)
+
+    if not records:
+        return {
+            "status": "skipped",
+            "reason": "no_approved_or_edited_pairs",
+            "approved_count": approved_count,
+            "requested_by": requested_by,
+        }
+
+    _write_hitl_exports(records, append=False)
+
+    if not force and approved_count < next_threshold:
+        return {
+            "status": "skipped",
+            "reason": "threshold_not_reached",
+            "approved_count": approved_count,
+            "next_trigger_count": next_threshold,
+            "requested_by": requested_by,
+        }
+
+    active_model = get_active_model_state().get("active_model")
+    orchestrator = FineTuneOrchestrator(target_model=active_model)
+    training = orchestrator.trigger_kaggle_training(
+        dataset_path=str(HITL_EXPORT_PATH),
+        dry_run=dry_run or HITL_AUTOTRAIN_DRY_RUN,
+    )
+    status = training.get("status", "FAILED")
+    trigger_ok = status in {"RUNNING", "QUEUED (DRY-RUN)"}
+
+    if trigger_ok:
+        now_iso = datetime.now().isoformat()
+        step = max(1, automation.get("step", HITL_AUTOTRAIN_STEP))
+        automation["last_triggered_at"] = now_iso
+        automation["last_trigger_count"] = approved_count
+        automation["next_trigger_count"] = approved_count + step
+        automation["total_triggers"] = automation.get("total_triggers", 0) + 1
+        automation.setdefault("trigger_history", [])
+        automation["trigger_history"].insert(
+            0,
+            {
+                "approved_count": approved_count,
+                "requested_by": requested_by,
+                "status": status,
+                "timestamp": now_iso,
+                "dataset": str(HITL_EXPORT_PATH),
+                "target_model": training.get("target_model"),
+            },
+        )
+        automation["trigger_history"] = automation["trigger_history"][:20]
+        save_hitl_db(hitl_db)
+
+    return {
+        "status": status,
+        "requested_by": requested_by,
+        "approved_count": approved_count,
+        "next_trigger_count": automation.get("next_trigger_count", next_threshold),
+        "training": training,
+        "reason": None if trigger_ok else training.get("error") or training.get("status"),
+    }
 
 
 def iter_all_sources(catalog: dict[str, Any]):
@@ -200,7 +425,43 @@ def build_queue_items(
                 "ai_confidence": draft.get("confidence_scores") if draft else None,
                 "review":        review if review else None,
                 "reviewed_at":   review.get("reviewed_at") if review else None,
+                "required_human_review": False,
+                "conflict_detected": False,
+                "conflicting_domains": [],
+                "consensus_score": None,
+                "hitl_routing": None,
             })
+
+    for ext_item_id, ext_item in hitl_db.get(HITL_EXTERNAL_ITEMS_KEY, {}).items():
+        review = reviews.get(ext_item_id, {})
+        draft = drafts.get(ext_item_id, {})
+        status = review.get("decision", "pending") if review else ext_item.get("status", "pending")
+        if category_filter and ext_item.get("category") != category_filter:
+            continue
+
+        if status_filter and status != status_filter:
+            continue
+
+        items.append({
+            "item_id":       ext_item_id,
+            "source_id":     ext_item.get("source_id", "metaphysical-domain-engine"),
+            "source_title":  ext_item.get("source_title", "Metaphysical Domain Engine"),
+            "source_domain":  ext_item.get("source_domain", "metaphysical-domain-engine"),
+            "category":      ext_item.get("category", "metaphysical_debate"),
+            "coverage_pct":  ext_item.get("coverage_pct", 0),
+            "question":      ext_item.get("question", ""),
+            "status":        status,
+            "has_draft":     bool(draft),
+            "ai_draft":      draft.get("answer") if draft else None,
+            "ai_confidence": draft.get("confidence_scores") if draft else None,
+            "review":        review if review else ext_item.get("review"),
+            "reviewed_at":   review.get("reviewed_at") if review else ext_item.get("reviewed_at"),
+            "required_human_review": bool(ext_item.get("required_human_review", True)),
+            "conflict_detected": bool(ext_item.get("conflict_detected", False)),
+            "conflicting_domains": ext_item.get("conflicting_domains", []),
+            "consensus_score": ext_item.get("consensus_score"),
+            "hitl_routing": ext_item.get("hitl_routing"),
+        })
 
     return items
 
@@ -288,6 +549,21 @@ async def get_review_queue(
     approved = sum(1 for i in items if i["status"] == DECISION_APPROVE)
     edited   = sum(1 for i in items if i["status"] == DECISION_EDIT)
     rejected = sum(1 for i in items if i["status"] == DECISION_REJECT)
+    pending_required_hitl = sum(
+        1 for i in items if i["status"] == "pending" and i.get("required_human_review", False)
+    )
+    pending_conflicts = sum(
+        1 for i in items if i["status"] == "pending" and (
+            bool(i.get("conflict_detected", False)) or bool(i.get("required_human_review", False))
+        )
+    )
+    automation = hitl_db.get("automation", {})
+    conflict_domains = sorted({
+        dom
+        for i in items
+        for dom in i.get("conflicting_domains", []) or []
+        if isinstance(dom, str)
+    })
 
     return JSONResponse(content={
         "total":    total,
@@ -295,6 +571,18 @@ async def get_review_queue(
         "approved": approved,
         "edited":   edited,
         "rejected": rejected,
+        "automation": {
+            "approved_count": _approved_hitl_count(hitl_db.get("reviews", {})),
+            "next_trigger_count": automation.get("next_trigger_count", HITL_AUTOTRAIN_THRESHOLD),
+            "threshold": automation.get("threshold", HITL_AUTOTRAIN_THRESHOLD),
+            "last_trigger_count": automation.get("last_trigger_count", 0),
+            "total_triggers": automation.get("total_triggers", 0),
+        },
+        "hitl_summary": {
+            "pending_required_human_review": pending_required_hitl,
+            "pending_conflict_items": pending_conflicts,
+            "conflict_domains": conflict_domains,
+        },
         "offset":   offset,
         "limit":    limit,
         "items":    paged,
@@ -335,7 +623,11 @@ async def generate_draft(item_id: str, background_tasks: BackgroundTasks):
 
 
 @hitl_router.post("/review/{item_id}", summary="Submit human review decision")
-async def submit_review(item_id: str, req: ReviewDecision):
+async def submit_review(
+    item_id: str,
+    req: ReviewDecision,
+    background_tasks: BackgroundTasks,
+):
     catalog = load_catalog()
     hitl_db = load_hitl_db()
     items   = build_queue_items(catalog, hitl_db)
@@ -360,11 +652,17 @@ async def submit_review(item_id: str, req: ReviewDecision):
     hitl_db.setdefault("reviews", {})[item_id] = {
         "item_id":          item_id,
         "source_id":        item["source_id"],
+        "source_domain":    item.get("source_domain"),
         "source_title":     item["source_title"],
         "category":         item["category"],
         "question":         item["question"],
         "decision":         req.decision,
         "final_answer":     final_answer,
+        "required_human_review": item.get("required_human_review"),
+        "conflict_detected": bool(item.get("conflict_detected", False)),
+        "conflicting_domains": item.get("conflicting_domains", []),
+        "consensus_score": item.get("consensus_score"),
+        "hitl_routing": item.get("hitl_routing"),
         "tags":             req.tags or [],
         "reject_reason":    req.reject_reason,
         "confidence_rating": req.confidence_rating,
@@ -391,19 +689,33 @@ async def submit_review(item_id: str, req: ReviewDecision):
         }
         save_grayzone_db(gz_db)
 
-        # 1. Append to HITL approved JSONL dataset
+        # 1. Append to HITL approved JSONL dataset + metadata dataset
         try:
-            DATASETS_DIR.mkdir(parents=True, exist_ok=True)
-            approved_entry = {
-                "source": "hitl_approved",
+            records = []
+            payload = _normalize_hitl_payload(item_id, {
+                "item_id": item_id,
+                "source_id": item["source_id"],
+                "source_domain": item.get("source_domain"),
+                "source_title": item["source_title"],
                 "category": item["category"],
-                "instruction": item["question"],
-                "output": final_answer,
-                "confidence": (req.confidence_rating or 5) / 5.0,
-                "reviewed_at": datetime.now().isoformat()
-            }
-            with open(HITL_EXPORT_PATH, "a", encoding="utf-8") as f:
-                f.write(json.dumps(approved_entry, ensure_ascii=False) + "\n")
+                "question": item["question"],
+                "decision": req.decision,
+                "final_answer": final_answer,
+                "required_human_review": item.get("required_human_review"),
+                "conflict_detected": bool(item.get("conflict_detected", False)),
+                "conflicting_domains": item.get("conflicting_domains", []),
+                "consensus_score": item.get("consensus_score"),
+                "hitl_routing": item.get("hitl_routing"),
+                "synthesis_snapshot": item.get("synthesis_snapshot"),
+                "reviewer": req.reviewer or "human",
+                "confidence_rating": req.confidence_rating,
+                "tags": req.tags or [],
+                "notes": f"HITL reviewed: {req.decision}" + (f" | Tags: {req.tags}" if req.tags else ""),
+                "reviewed_at": datetime.now().isoformat(),
+            })
+            if payload:
+                records.append(payload)
+            _write_hitl_exports(records, append=True)
             logger.info(f"[HITL] Appended approved item {item_id} to {HITL_EXPORT_PATH}")
         except Exception as e:
             logger.warning(f"[HITL] Failed to append to approved dataset: {e}")
@@ -424,10 +736,8 @@ async def submit_review(item_id: str, req: ReviewDecision):
         except Exception as e:
             logger.debug(f"[HITL:RAG] Vector store instant ingest note: {e}")
 
-        # 3. Check Fine-Tuning threshold (Decision 3: threshold >= 50 samples)
-        approved_count = len(hitl_db.get("reviews", {}))
-        if approved_count >= 50:
-            logger.info(f"[HITL:MLOps] Milestone reached ({approved_count} approved items) — Kaggle Fine-Tuning Queue Ready!")
+        # 3. Schedule auto-finetraining when milestone is reached
+        background_tasks.add_task(_run_finetune_trigger, False, False, f"review:{item_id}")
 
     return JSONResponse(content={
         "status":      "saved",
@@ -454,6 +764,7 @@ async def get_stats():
     hitl_db = load_hitl_db()
     items   = build_queue_items(catalog, hitl_db)
     reviews = hitl_db.get("reviews", {})
+    automation = hitl_db.get("automation", {})
 
     # Tag breakdown
     tag_counts: dict[str, int] = {}
@@ -481,6 +792,14 @@ async def get_stats():
         },
         "tag_counts":      tag_counts,
         "by_category":     cat_stats,
+        "automation": {
+            "approved_count": _approved_hitl_count(reviews),
+            "next_trigger_count": automation.get("next_trigger_count", HITL_AUTOTRAIN_THRESHOLD),
+            "total_triggers": automation.get("total_triggers", 0),
+            "last_triggered_at": automation.get("last_triggered_at"),
+            "last_trigger_count": automation.get("last_trigger_count", 0),
+            "trigger_history": automation.get("trigger_history", [])[:5],
+        },
         "last_updated":    hitl_db.get("last_updated"),
     })
 
@@ -488,27 +807,8 @@ async def get_stats():
 @hitl_router.get("/export", summary="Export HITL-approved JSONL")
 async def export_hitl_jsonl(download: bool = Query(False)):
     hitl_db = load_hitl_db()
-    reviews = hitl_db.get("reviews", {})
-    entries = []
-
-    for r in reviews.values():
-        if r.get("decision") not in (DECISION_APPROVE, DECISION_EDIT):
-            continue
-        answer = r.get("final_answer", "")
-        if not answer:
-            continue
-        system_prompt = SYSTEM_PROMPT_MAP.get(r.get("category", ""), DEFAULT_SYSTEM)
-        entries.append({
-            "messages": [
-                {"role": "system",    "content": system_prompt},
-                {"role": "user",      "content": r["question"]},
-                {"role": "assistant", "content": answer},
-            ]
-        })
-
-    HITL_EXPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(HITL_EXPORT_PATH, "w", encoding="utf-8") as f:
-        f.writelines(json.dumps(e, ensure_ascii=False) + "\n" for e in entries)
+    entries = _collect_hitl_export_records(hitl_db)
+    result = _write_hitl_exports(entries, append=False)
 
     if download:
         return FileResponse(
@@ -518,10 +818,23 @@ async def export_hitl_jsonl(download: bool = Query(False)):
         )
 
     return JSONResponse(content={
-        "status":  "exported",
-        "entries": len(entries),
-        "output":  str(HITL_EXPORT_PATH),
+        "status":         "exported",
+        "entries":        len(entries),
+        "output":         result["output"],
+        "metadata_output": result["metadata_output"],
+        "approved_count":  _approved_hitl_count(hitl_db.get("reviews", {})),
     })
+
+
+@hitl_router.post("/trigger", summary="Trigger Fine-tuning from HITL-approved pairs")
+async def trigger_finetune(
+    force: bool = Query(False, description="Force trigger even before threshold"),
+    dry_run: bool = Query(False, description="Run dry-run only (no external platform call)"),
+):
+    result = _run_finetune_trigger(force=force, dry_run=dry_run, requested_by="api/manual")
+    if result.get("status") == "skipped":
+        return JSONResponse(status_code=200, content=result)
+    return JSONResponse(content=result)
 
 
 @hitl_router.post("/batch-draft", summary="Generate AI drafts for multiple pending items")

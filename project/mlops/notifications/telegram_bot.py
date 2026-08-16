@@ -8,6 +8,7 @@ Allows users to:
   • Trigger on-demand knowledge distillation (/distill [domain])
   • Dispatch Kaggle GPU fine-tuning (/train)
   • Check Cookie health & Google Session status (/cookie)
+  • Manage HITL queue, export, and training triggers (/hitl_status, /hitl_export, /hitl_trigger)
 """
 
 from __future__ import annotations
@@ -27,6 +28,7 @@ ROOT_DIR = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT_DIR))
 ENV_FILE = ROOT_DIR / ".env"
 
+from project.core.model_activation import get_active_model_state
 from project.mlops.distillation.cookie_manager import CookieManager
 from project.mlops.distillation.curator import DatasetCurator
 from project.mlops.distillation.hermes_miner import MINING_ONTOLOGY, HermesKnowledgeMiner
@@ -73,6 +75,16 @@ class TelegramBotController:
             return self._cmd_status()
         elif cmd == "/sample":
             return self._cmd_sample()
+        elif cmd == "/hitl_status":
+            return self._cmd_hitl_status()
+        elif cmd == "/hitl_queue":
+            return self._cmd_hitl_queue()
+        elif cmd == "/hitl_export":
+            return self._cmd_hitl_export()
+        elif cmd == "/hitl_trigger":
+            force = "--force" in args
+            dry_run = "--dry" in args or "--dry-run" in args
+            return self._cmd_hitl_trigger(force=force, dry_run=dry_run)
         elif cmd == "/distill":
             domain = args[0] if args else "bazi"
             return self._cmd_distill(domain)
@@ -129,6 +141,10 @@ class TelegramBotController:
         return (
             "🤖 <b>คำสั่งสำหรับสั่งการ Hermes Agent & MLOps:</b>\n\n"
             "• /status — ตรวจสอบสถานะ Dataset, Kaggle GPU, และ Model Hub\n"
+            "• /hitl_status — ติดตามจำนวน HITL และสถานะ trigger\n"
+            "• /hitl_queue — รายละเอียดคิว HITL (สรุปจาก /hitl_status)\n"
+            "• /hitl_export — Export JSONL จาก HITL reviewed ทั้งหมด\n"
+            "• /hitl_trigger [--force] [--dry] — Trigger fine-tune จาก HITL ได้ทันที\n"
             "• /sample — ดูตัวอย่างเนื้อหาที่สกัดได้ล่าสุดพร้อมผลวิเคราะห์ Tri-Thinking\n"
             "• /distill <code>[domain]</code> — สั่ง Hermes Agent สกัดความรู้ (เช่น /distill bazi หรือ all)\n"
             "• /train — สั่งเริ่ม Fine-Tuning บน Kaggle GPU ทันที\n"
@@ -140,13 +156,16 @@ class TelegramBotController:
         data_dir = ROOT_DIR / "project" / "data"
         datasets = list(data_dir.glob("*.jsonl")) if data_dir.exists() else []
         total_samples = sum(sum(1 for _ in open(f, encoding="utf-8")) for f in datasets)
+        active_model = get_active_model_state()
         
         train_status = self.orchestrator.get_training_status()
         raw_st = train_status.get("raw_status", "N/A")
         
         return (
             "📊 <b>HoroConsultant MLOps Status:</b>\n\n"
-            f"• <b>Target Model:</b> <code>pphothidaen/qwen2.5-7b-bazi-instruct-4bit</code>\n"
+            f"• <b>Active Model:</b> <code>{active_model.get('active_model', 'unknown')}</code>\n"
+            f"• <b>Model Version:</b> <code>{active_model.get('model_version', 'unknown')}</code>\n"
+            f"• <b>Model Source:</b> <code>{active_model.get('source', 'bootstrap')}</code>\n"
             f"• <b>Curated Datasets:</b> <code>{len(datasets)} files</code>\n"
             f"• <b>Total Training Samples:</b> <code>{total_samples} samples</code>\n"
             f"• <b>Kaggle GPU Kernel:</b> <code>{train_status.get('kernel_id')}</code>\n"
@@ -230,8 +249,99 @@ class TelegramBotController:
             "⚡ <b>สั่งเริ่ม Fine-Tuning บน Kaggle GPU แล้ว:</b>\n\n"
             f"• <b>Kernel:</b> <code>{res.get('kernel_id')}</code>\n"
             f"• <b>Status:</b> <b>{res.get('status')}</b>\n"
-            f"• <b>Target:</b> <code>pphothidaen/qwen2.5-7b-bazi-instruct-4bit</code>\n\n"
+            f"• <b>Target:</b> <code>{res.get('target_model', 'pphothidaen/qwen2.5-7b-bazi-instruct-4bit')}</code>\n\n"
             "พิมพ์ /status เพื่อติดตามสถานะการรัน"
+        )
+
+    def _cmd_hitl_status(self) -> str:
+        from project.hitl_router import HITL_AUTOTRAIN_ENABLED, HITL_AUTOTRAIN_THRESHOLD, load_hitl_db, _approved_hitl_count
+        from project.hitl_router import build_queue_items, load_catalog
+
+        state = load_hitl_db()
+        reviews = state.get("reviews", {})
+        automation = state.get("automation", {})
+        approved_count = _approved_hitl_count(reviews)
+        next_threshold = automation.get("next_trigger_count", HITL_AUTOTRAIN_THRESHOLD)
+        remaining = max(next_threshold - approved_count, 0)
+        active_model = get_active_model_state()
+        catalog = load_catalog()
+        queue = build_queue_items(catalog, state)
+        pending_hitl = sum(
+            1 for item in queue if item.get("status") == "pending" and item.get("required_human_review", False)
+        )
+        pending_conflict = sum(
+            1 for item in queue if item.get("status") == "pending" and bool(item.get("conflict_detected", False))
+        )
+        return (
+            "🎯 <b>HITL Workflow Status</b>\n"
+            f"• <b>Auto Trigger:</b> <code>{'ON' if HITL_AUTOTRAIN_ENABLED else 'OFF'}</code>\n"
+            f"• <b>Approved/Edited pairs:</b> <code>{approved_count}</code>\n"
+            f"• <b>Pending HITL conflict reviews:</b> <code>{pending_hitl}</code>\n"
+            f"• <b>Pending conflict:</b> <code>{pending_conflict}</code>\n"
+            f"• <b>Next trigger target:</b> <code>{next_threshold}</code>\n"
+            f"• <b>Need more:</b> <code>{remaining}</code>\n"
+            f"• <b>Total triggers:</b> <code>{automation.get('total_triggers', 0)}</code>\n"
+            f"• <b>Active model:</b> <code>{active_model.get('active_model')}</code>\n"
+            f"• <b>Last trigger:</b> <code>{automation.get('last_triggered_at') or 'N/A'}</code>"
+        )
+
+    def _cmd_hitl_queue(self) -> str:
+        from project.hitl_router import build_queue_items, load_catalog, load_hitl_db
+
+        state = load_hitl_db()
+        catalog = load_catalog()
+        queue = build_queue_items(catalog, state)
+        pending = [i for i in queue if i.get("status") == "pending"]
+        if not queue:
+            return "🗒️ ยังไม่มีรายการใน HITL queue"
+
+        pending_hitl = [i for i in pending if i.get("required_human_review", False)]
+        pending_conflict = [i for i in pending if i.get("conflict_detected", False)]
+        by_domain: dict[str, int] = {}
+        for item in pending_hitl:
+            dom = item.get("source_domain", "catalog")
+            by_domain[dom] = by_domain.get(dom, 0) + 1
+        domain_lines = ", ".join(f"{k}:{v}" for k, v in sorted(by_domain.items())) if by_domain else "N/A"
+
+        return (
+            "📋 <b>HITL Queue Summary</b>\n"
+            f"• <b>ทั้งหมด:</b> <code>{len(queue)}</code>\n"
+            f"• <b>รอรีวิว:</b> <code>{len(pending)}</code>\n"
+            f"• <b>รอ Human Review:</b> <code>{len(pending_hitl)}</code>\n"
+            f"• <b>กรณีขัดแย้ง:</b> <code>{len(pending_conflict)}</code>\n"
+            f"• <b>แบ่งตาม domain:</b> <code>{domain_lines}</code>\n"
+            f"• <b>ยอด trigger ถัดไป:</b> <code>{state.get('automation', {}).get('next_trigger_count', '-')}</code>"
+        )
+
+    def _cmd_hitl_export(self) -> str:
+        from project.hitl_router import load_hitl_db, _collect_hitl_export_records, _write_hitl_exports
+
+        state = load_hitl_db()
+        records = _collect_hitl_export_records(state)
+        result = _write_hitl_exports(records, append=False)
+        if result.get("entries", 0) == 0:
+            return "⚠️ <b>ยังไม่มี HITL approve/edit</b>\n• กรุณาทำการ review ก่อน export"
+        return (
+            "📁 <b>HITL Export Rebuilt</b>\n"
+            f"• <b>Entries:</b> <code>{result['entries']}</code>\n"
+            f"• <b>Compat file:</b> <code>{result['output']}</code>\n"
+            f"• <b>Metadata file:</b> <code>{result['metadata_output']}</code>"
+        )
+
+    def _cmd_hitl_trigger(self, force: bool = False, dry_run: bool = False) -> str:
+        from project.hitl_router import _run_finetune_trigger
+
+        result = _run_finetune_trigger(force=force, dry_run=dry_run, requested_by="telegram")
+        if result.get("status") == "skipped":
+            reason = result.get("reason", "not_started")
+            return f"ℹ️ <b>HITL Trigger skipped:</b> <code>{reason}</code>"
+        training = result.get("training", {})
+        return (
+            "🚀 <b>HITL Trigger Fired</b>\n"
+            f"• <b>Status:</b> <code>{result.get('status')}</code>\n"
+            f"• <b>Training:</b> <code>{training.get('status', 'N/A')}</code>\n"
+            f"• <b>Kernel:</b> <code>{training.get('kernel_id', 'N/A')}</code>\n"
+            f"• <b>Target:</b> <code>{training.get('target_model', 'N/A')}</code>"
         )
 
     def _cmd_cookie(self) -> str:

@@ -16,11 +16,13 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from project.core.config import Config
+from project.core.model_activation import get_active_model, update_active_model
 from project.mlops.notifications.webhook_notifier import WebhookNotifier
 
 logger = logging.getLogger("finetune_orchestrator")
 
-TARGET_MODEL_ID = "pphothidaen/qwen2.5-7b-bazi-instruct-4bit"
+TARGET_MODEL_ID = Config.HF_REPO_ID
 KAGGLE_KERNEL_ID = "pphothidaen/horoconsultant-finetune-pipeline"
 
 
@@ -53,6 +55,7 @@ class FineTuneOrchestrator:
                 "kernel_id": KAGGLE_KERNEL_ID,
                 "target_model": self.target_model,
                 "dataset_path": dataset_path or "project/data/finetune_bazi_qwen25_chatml.jsonl",
+                "active_model_update": "skipped (dry-run)",
                 "message": "Simulated fine-tuning kernel push success."
             }
             self.notifier.notify_training_status(KAGGLE_KERNEL_ID, "QUEUED (DRY-RUN)", "Dry-run simulation dispatched.")
@@ -63,12 +66,25 @@ class FineTuneOrchestrator:
             cmd = [
                 sys.executable,
                 str(self.root_dir / "scripts" / "kaggle_notebook_manager.py"),
-                "--push"
+                "--push",
             ]
+            if dataset_path:
+                cmd.extend(["--dataset-path", dataset_path])
             proc = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
             
             if proc.returncode == 0:
                 logger.info(f"[ORCHESTRATOR] Kaggle kernel successfully pushed: {proc.stdout}")
+                active_state = update_active_model(
+                    self.target_model,
+                    status="active",
+                    source="kaggle_orchestrator",
+                    notes="Auto-updated by successful Kaggle trigger",
+                    training_metadata={
+                        "kernel_id": KAGGLE_KERNEL_ID,
+                        "dataset_path": dataset_path or "project/data/finetune_bazi_qwen25_chatml.jsonl",
+                        "proc_returncode": proc.returncode,
+                    },
+                )
                 self.notifier.notify_training_status(
                     KAGGLE_KERNEL_ID,
                     "RUNNING",
@@ -78,6 +94,7 @@ class FineTuneOrchestrator:
                     "status": "RUNNING",
                     "kernel_id": KAGGLE_KERNEL_ID,
                     "target_model": self.target_model,
+                    "active_model": active_state,
                     "output": proc.stdout
                 }
             else:

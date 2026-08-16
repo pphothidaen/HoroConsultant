@@ -3,6 +3,12 @@ name: devops-deployment
 description: "Run release-safe deployment workflows: secret hygiene, container checks, and multi-cloud publish."
 owner: devops
 responsibility: production-deployment
+responsible_agents:
+  - devops
+  - code_reviewer
+  - orchestrator
+  - default
+  - hermes
 ---
 
 # 🚀 DevOps & Deployment Skill Guide

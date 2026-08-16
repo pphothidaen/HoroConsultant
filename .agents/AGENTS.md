@@ -32,6 +32,7 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 5. **`bazi-calculator`**: Compute BaZi 4-Pillars with true solar time and five-elements analysis.
 6. **`rag-search`**: Retrieve ranked metaphysics passages from FAISS index with configured embeddings.
 7. **`bsa-doc-skill-management`**: Own requirements decomposition, live docs sync, and skill-governance operations.
+8. **`metaphysical-domain-engine`**: Cross-train and route metaphysical queries among Zi Wei, Qi Men, Da Liu Ren, I Ching, feng shui, and astrology specialists.
 
 ### Disabled / Retired Skills
 

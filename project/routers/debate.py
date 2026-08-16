@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 
 from project.api_router import router
 from project.core.bazi_engine import BaZiEngine
+from project.core.multi_agent_debate import MetaphysicsDebateEngine
 from project.core.svg_generator import generate_bazi_svg, generate_zodiac_wheel_svg
 from project.validator import PredictionValidator
 
@@ -25,6 +26,7 @@ debate_router = APIRouter()
 
 engine    = BaZiEngine()
 validator = PredictionValidator()
+metaphysics_engine = MetaphysicsDebateEngine()
 
 
 # ---------------------------------------------------------------------------
@@ -45,6 +47,17 @@ class ValidateRequest(BaseModel):
     bazi_chart:             dict         = Field(..., description="Structured BaZi chart JSON from /calculate")
     initial_interpretation: str          = Field(..., description="Initial interpretation text to be validated")
     query:                  str | None= Field(None, description="Optional user query context")
+
+
+class MetaphysicalDebateRequest(BaseModel):
+    birth_datetime: str = Field(..., json_schema_extra={"example": "1990-05-15 14:30:00"},
+                                description="Local datetime YYYY-MM-DD HH:MM:SS")
+    longitude: float = Field(..., json_schema_extra={"example": 100.4930}, ge=-180.0, le=180.0)
+    utc_offset_hours: float = Field(..., json_schema_extra={"example": 7.0}, ge=-12.0, le=14.0)
+    unknown_hour: bool = Field(False, description="Enable probabilistic handling for unknown birth hour")
+    query: str = Field(..., description="Primary user question for synthesis")
+    force_human_review: bool = Field(False, description="Force HITL queue even if consensus score is high")
+
 
 
 def _generate_fallback_reading(dm: dict, pcts: dict, query: str | None) -> str:
@@ -276,3 +289,68 @@ async def validate_prediction(req: ValidateRequest):
         user_query=req.query or "",
     )
     return JSONResponse(content=report)
+
+
+@debate_router.post("/api/v1/metaphysical/debate", tags=["Metaphysics", "HITL"])
+async def run_metaphysical_debate(req: MetaphysicalDebateRequest):
+    """
+    Run multi-agent debate orchestration and queue unresolved/conflicting cases to HITL.
+    """
+    try:
+        dt = datetime.strptime(req.birth_datetime, "%Y-%m-%d %H:%M:%S")
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    context = {
+        "query": req.query,
+        "birth_datetime": req.birth_datetime,
+        "longitude": req.longitude,
+        "utc_offset_hours": req.utc_offset_hours,
+        "unknown_hour": req.unknown_hour,
+        "force_hitl": req.force_human_review,
+    }
+
+    debate_result = await asyncio.to_thread(metaphysics_engine.run_peer_debate, context)
+    synthesis = debate_result.get("orchestrator_synthesis", {})
+    consensus_score = synthesis.get("consensus_score")
+    conflict_detected = bool(synthesis.get("conflict_detected", False))
+    required_human_review = bool(synthesis.get("required_human_review", conflict_detected))
+    item_id = None
+
+    if required_human_review:
+        from project.hitl_router import upsert_external_hitl_item
+        item_id = upsert_external_hitl_item({
+            "source_domain": "metaphysical-domain-engine",
+            "source_id": f"metaphysical-debate-{dt.strftime('%Y%m%d%H%M%S')}",
+            "source_title": "Metaphysical-Domain-Engine Consensus",
+            "category": "metaphysical_debate",
+            "question": req.query,
+            "required_human_review": required_human_review,
+            "conflict_detected": conflict_detected,
+            "conflicting_domains": synthesis.get("conflicting_domains", []),
+            "consensus_score": consensus_score,
+            "hitl_routing": synthesis.get("hitl_routing"),
+            "synthesis_snapshot": {
+                "query": req.query,
+                "birth_datetime": req.birth_datetime,
+                "consensus_score": consensus_score,
+                "conflicting_domains": synthesis.get("conflicting_domains", []),
+                "conflict_detected": conflict_detected,
+                "required_human_review": required_human_review,
+                "full_result": synthesis.get("decision_matrix"),
+            },
+        })
+
+    return JSONResponse(content={
+        "status": debate_result.get("status", "DEBATE_COMPLETED"),
+        "query": req.query,
+        "birth_datetime": req.birth_datetime,
+        "required_human_review": required_human_review,
+        "consensus_score": consensus_score,
+        "conflicting_domains": synthesis.get("conflicting_domains", []),
+        "conflict_detected": conflict_detected,
+        "hitl_queue_id": item_id,
+        "orchestrator_synthesis": synthesis,
+        "consensus_matrix": debate_result.get("consensus_matrix"),
+        "domain_perspectives": debate_result.get("domain_perspectives", {}),
+    })

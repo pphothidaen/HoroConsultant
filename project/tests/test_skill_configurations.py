@@ -21,6 +21,7 @@ EXPECTED_SKILLS = [
     "devops-deployment",
     "kaggle-manager",
     "qa-e2e-testing",
+    "metaphysical-domain-engine",
     "rag-search",
     "sdlc-aisdlc-workflow",
 ]

@@ -96,9 +96,62 @@ class MetaphysicsDebateEngine:
         }
 
         # 2. Consensus Matrix Calculation (Five Elements Anchor)
+        # Lightweight stance metadata for conflict-aware routing decisions.
+        perspectives["san_shi_master"]["stance"] = "affirm"
+        perspectives["san_shi_master"]["stance_confidence"] = 0.90
+        perspectives["ming_xue_master"]["stance"] = "affirm"
+        perspectives["ming_xue_master"]["stance_confidence"] = 0.86
+        perspectives["pu_shi_master"]["stance"] = "cautious"
+        perspectives["pu_shi_master"]["stance_confidence"] = 0.78
+        perspectives["xiang_xue_master"]["stance"] = "affirm"
+        perspectives["xiang_xue_master"]["stance_confidence"] = 0.84
+        perspectives["ze_ji_master"]["stance"] = "conditional"
+        perspectives["ze_ji_master"]["stance_confidence"] = 0.72
+        perspectives["thai_vedic_master"]["stance"] = "affirm"
+        perspectives["thai_vedic_master"]["stance_confidence"] = 0.80
+        perspectives["western_astro_master"]["stance"] = "affirm"
+        perspectives["western_astro_master"]["stance_confidence"] = 0.79
+        perspectives["numerology_master"]["stance"] = "affirm"
+        perspectives["numerology_master"]["stance_confidence"] = 0.75
+
+        stance_counts: dict[str, list[str]] = {
+            "affirm": [],
+            "cautious": [],
+            "conditional": [],
+            "neutral": [],
+        }
+        for k, p in perspectives.items():
+            stance_counts.setdefault(p.get("stance", "neutral"), []).append(k)
+
+        conflict_domains: list[str] = []
+        conflict_domains.extend(stance_counts.get("cautious", []))
+        conflict_domains.extend(stance_counts.get("conditional", []))
+        conflict_domains.extend(stance_counts.get("neutral", []))
+
+        total_weight = 0.0
+        weighted_score = 0.0
+        for p in perspectives.values():
+            c = float(p.get("stance_confidence", 0.7))
+            if p.get("stance") == "affirm":
+                weighted_score += 1.0 * c
+            elif p.get("stance") == "conditional":
+                weighted_score += 0.72 * c
+            elif p.get("stance") == "cautious":
+                weighted_score += 0.45 * c
+            else:
+                weighted_score += 0.58 * c
+            total_weight += c
+
+        consensus_score = round((weighted_score / max(total_weight, 1.0)), 2) if total_weight else 0.5
+        consensus_score = max(0.0, min(1.0, consensus_score))
+
+        conflict_detected = bool(conflict_domains) or consensus_score < 0.75 or input_context.get("force_hitl", False)
+        hitl_status = "QUEUED_FOR_HUMAN_REVIEW"
+        hitl_reason = "conflict_detected" if conflict_detected else "multi_agent_consensus_verified"
+
         consensus_matrix = {
             "baseline_anchor": "BaZi Five Elements Distribution & Day Master",
-            "consensus_score": 0.88,
+            "consensus_score": consensus_score,
             "favorable_elements": ["Metal (金)", "Water (水)"],
             "consonance_factors": [
                 "BaZi Day Master และผังจื่อเว่ยชี้ทิศทางสมดุลธาตุเกื้อหนุนร่วมกัน",
@@ -121,9 +174,22 @@ class MetaphysicsDebateEngine:
         ]
 
         hitl_routing = {
-            "status": "QUEUED_FOR_HUMAN_REVIEW",
-            "reason": "multi_agent_consensus_verified",
-            "review_queue_id": f"hitl_rev_{int(time.time())}"
+            "status": hitl_status,
+            "reason": hitl_reason,
+            "review_queue_id": f"hitl_rev_{int(time.time())}",
+            "required_human_review": True,
+            "conflict_detected": conflict_detected,
+            "conflicting_domains": sorted(set(conflict_domains)),
+            "consensus_breakdown": {
+                "affirm": sorted(stance_counts["affirm"]),
+                "conditional": sorted(stance_counts["conditional"]),
+                "cautious": sorted(stance_counts["cautious"]),
+                "neutral": sorted(stance_counts["neutral"])
+            },
+            "decision_matrix": {
+                "avg_confidence": round(total_weight / max(len(perspectives), 1), 2),
+                "score": consensus_score
+            }
         }
 
         return {
@@ -135,6 +201,9 @@ class MetaphysicsDebateEngine:
                 "consensus_facts": consensus_facts,
                 "analytical_counter_queries": analytical_counter_queries,
                 "consensus_score": consensus_matrix["consensus_score"],
+                "required_human_review": conflict_detected,
+                "conflict_detected": conflict_detected,
+                "conflicting_domains": sorted(set(conflict_domains)),
                 "hitl_routing": hitl_routing
             }
         }
