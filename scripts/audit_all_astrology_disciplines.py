@@ -132,7 +132,11 @@ async def run_audit(target_url: str):
                     raise ValueError(f"Button selector not found: {sel}")
                 
                 await btn.click()
-                await page.wait_for_timeout(2000)
+                try:
+                    await page.wait_for_function("() => { const el = document.getElementById('branch-body'); return el && !el.innerText.includes('กำลังประมวลผล'); }", timeout=6000)
+                except Exception:
+                    pass
+                await page.wait_for_timeout(1000)
 
                 # Locate result card
                 card_locator = page.locator("#branch-result-card")

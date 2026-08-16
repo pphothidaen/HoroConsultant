@@ -52,8 +52,10 @@ async function fetchApi(endpoint, options = {}) {
   const requestOptions = { ...options };
   const shouldShowLoader = requestOptions.showLoader !== false;
   const loaderMessage = requestOptions.loaderMessage || 'กำลังรอผลจาก API...';
+  const timeoutMs = requestOptions.timeoutMs || 2500;
   delete requestOptions.showLoader;
   delete requestOptions.loaderMessage;
+  delete requestOptions.timeoutMs;
 
   if (shouldShowLoader) {
     beginApiRequest(loaderMessage);
@@ -72,7 +74,10 @@ async function fetchApi(endpoint, options = {}) {
       }
       const url = base ? `${base}${endpoint}` : endpoint;
       try {
-        const res = await fetch(url, requestOptions);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+        const res = await fetch(url, { ...requestOptions, signal: requestOptions.signal || controller.signal });
+        clearTimeout(timeoutId);
         if (res.ok) {
           return res;
         }
