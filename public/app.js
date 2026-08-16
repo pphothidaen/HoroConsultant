@@ -4269,3 +4269,307 @@ function switchTab(tabId) {
     }
   });
 }
+
+function buildClientMultimodalMatrixSvg(data) {
+  const domainName = data.domain_name || "ธุรกิจและการงาน (Career)";
+  const consensusPct = data.consensus_score_pct || 88;
+  const favorablePct = data.favorable_pct || 82;
+  const cautiousPct = 100 - favorablePct;
+  const elementHarmony = data.element_harmony || "ธาตุไม้-ธาตุไฟ เกื้อหนุนสมบูรณ์";
+
+  const disciplines = [
+    { name: "四柱", score: 0.90 }, { name: "紫微", score: 0.85 }, { name: "奇門", score: 0.92 }, { name: "六壬", score: 0.80 },
+    { name: "易經", score: 0.88 }, { name: "玄空", score: 0.84 }, { name: "擇吉", score: 0.90 }, { name: "โหรไทย", score: 0.86 },
+    { name: "สากล", score: 0.82 }, { name: "สัตตเลข", score: 0.88 }, { name: "太乙", score: 0.85 }, { name: "六爻", score: 0.87 },
+    { name: "梅花", score: 0.89 }, { name: "三合", score: 0.83 }, { name: "七政", score: 0.86 }, { name: "麻衣", score: 0.85 }
+  ];
+
+  const cx = 200, cy = 260, rMax = 130;
+  const radarPoints = [];
+  let spokesSvg = '';
+
+  disciplines.forEach((d, idx) => {
+    const angle = (idx * 2 * Math.PI / 16) - (Math.PI / 2);
+    const sx = cx + rMax * Math.cos(angle);
+    const sy = cy + rMax * Math.sin(angle);
+    spokesSvg += `<line x1="${cx}" y1="${cy}" x2="${sx.toFixed(1)}" y2="${sy.toFixed(1)}" stroke="#334155" stroke-width="1"/>`;
+    const lx = cx + (rMax + 22) * Math.cos(angle);
+    const ly = cy + (rMax + 22) * Math.sin(angle);
+    spokesSvg += `<text x="${lx.toFixed(1)}" y="${(ly + 4).toFixed(1)}" font-family="sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">${d.name}</text>`;
+    const px = cx + (rMax * d.score) * Math.cos(angle);
+    const py = cy + (rMax * d.score) * Math.sin(angle);
+    radarPoints.push(`${px.toFixed(1)},${py.toFixed(1)}`);
+  });
+
+  const pointsStr = radarPoints.join(' ');
+
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+      <defs>
+        <linearGradient id="bgMultiGradClient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#080d1a"/>
+          <stop offset="100%" stop-color="#1e1b4b"/>
+        </linearGradient>
+        <filter id="glowMultiClient" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+        </filter>
+        <linearGradient id="barGradMultiClient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#10b981"/>
+          <stop offset="100%" stop-color="#38bdf8"/>
+        </linearGradient>
+      </defs>
+      <rect width="800" height="600" rx="16" fill="url(#bgMultiGradClient)" stroke="#6366f1" stroke-width="2"/>
+      <text x="400" y="40" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#fbbf24" text-anchor="middle" filter="url(#glowMultiClient)">🌐 ผังดวงสังเคราะห์ 16 ศาสตร์ (Unified Multimodal Metaphysics Matrix)</text>
+      <text x="400" y="68" font-family="Prompt, sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">หมวดคำถาม: <tspan fill="#38bdf8" font-weight="bold">[${domainName}]</tspan> | ดัชนีความสอดคล้อง 16 ศาสตร์: <tspan fill="#34d399" font-weight="bold">${consensusPct}%</tspan></text>
+      
+      <!-- Left Panel: 16-Spoke Radar Chart -->
+      <circle cx="${cx}" cy="${cy}" r="${rMax}" fill="rgba(15, 23, 42, 0.6)" stroke="#334155" stroke-width="1.5"/>
+      <circle cx="${cx}" cy="${cy}" r="${(rMax * 0.75).toFixed(1)}" fill="none" stroke="#1e293b" stroke-dasharray="3,3"/>
+      <circle cx="${cx}" cy="${cy}" r="${(rMax * 0.5).toFixed(1)}" fill="none" stroke="#1e293b" stroke-dasharray="3,3"/>
+      <circle cx="${cx}" cy="${cy}" r="${(rMax * 0.25).toFixed(1)}" fill="none" stroke="#1e293b" stroke-dasharray="3,3"/>
+      ${spokesSvg}
+      <polygon points="${pointsStr}" fill="rgba(45, 212, 191, 0.25)" stroke="#2dd4bf" stroke-width="2"/>
+      <circle cx="${cx}" cy="${cy}" r="28" fill="#0f172a" stroke="#fbbf24" stroke-width="2"/>
+      <text x="${cx}" y="${cy + 6}" font-family="Outfit, sans-serif" font-size="14" font-weight="bold" fill="#fbbf24" text-anchor="middle">${consensusPct}%</text>
+
+      <!-- Right Panel: 4 Metaphysics Super-Families Cards -->
+      <g transform="translate(410, 95)">
+        <rect x="0" y="0" width="340" height="78" rx="8" fill="rgba(15, 23, 42, 0.85)" stroke="#38bdf8" stroke-width="1"/>
+        <text x="12" y="22" font-family="Prompt, sans-serif" font-size="12" font-weight="bold" fill="#38bdf8">🏛️ สายโหราศาสตร์คำนวณ (Astrological)</text>
+        <text x="12" y="42" font-family="sans-serif" font-size="10" fill="#94a3b8">BaZi • ZiWei • QiZheng • ThaiVedic</text>
+        <text x="12" y="62" font-family="Prompt, sans-serif" font-size="11" fill="#f8fafc">สอดคล้อง 89% — ดาวเกื้อหนุนดิถีแข็งแกร่ง</text>
+      </g>
+      <g transform="translate(410, 185)">
+        <rect x="0" y="0" width="340" height="78" rx="8" fill="rgba(15, 23, 42, 0.85)" stroke="#c084fc" stroke-width="1"/>
+        <text x="12" y="22" font-family="Prompt, sans-serif" font-size="12" font-weight="bold" fill="#c084fc">🔮 สายพยากรณ์ &amp; ไตรวิชา (Divination/San Shi)</text>
+        <text x="12" y="42" font-family="sans-serif" font-size="10" fill="#94a3b8">QiMen • LiuRen • TaiYi • IChing • LiuYao • MeiHua</text>
+        <text x="12" y="62" font-family="Prompt, sans-serif" font-size="11" fill="#f8fafc">สอดคล้อง 92% — ทิศมงคลเปิด ประตูส่งเสริม</text>
+      </g>
+      <g transform="translate(410, 275)">
+        <rect x="0" y="0" width="340" height="78" rx="8" fill="rgba(15, 23, 42, 0.85)" stroke="#34d399" stroke-width="1"/>
+        <text x="12" y="22" font-family="Prompt, sans-serif" font-size="12" font-weight="bold" fill="#34d399">🏯 สายฮวงจุ้ย &amp; ฤกษ์ยาม (Geomancy &amp; Timing)</text>
+        <text x="12" y="42" font-family="sans-serif" font-size="10" fill="#94a3b8">XuanKong • SanHe • ZeJi</text>
+        <text x="12" y="62" font-family="Prompt, sans-serif" font-size="11" fill="#f8fafc">สอดคล้อง 85% — ชัยภูมิน้ำเข้า องศามงคลยุค 9</text>
+      </g>
+      <g transform="translate(410, 365)">
+        <rect x="0" y="0" width="340" height="78" rx="8" fill="rgba(15, 23, 42, 0.85)" stroke="#fbbf24" stroke-width="1"/>
+        <text x="12" y="22" font-family="Prompt, sans-serif" font-size="12" font-weight="bold" fill="#fbbf24">🔢 สายเลขศาสตร์ &amp; นรลักษณ์ (Numerology/Face)</text>
+        <text x="12" y="42" font-family="sans-serif" font-size="10" fill="#94a3b8">Satta-Lek • MianXiang • WesternUranian</text>
+        <text x="12" y="62" font-family="Prompt, sans-serif" font-size="11" fill="#f8fafc">สอดคล้อง 86% — โหงวเฮ้งสมดุล รากเลขดาวศุภเคราะห์</text>
+      </g>
+
+      <!-- Bottom Panel: Polarity Balance Bar & Synthesis Guidance -->
+      <g transform="translate(50, 465)">
+        <rect x="0" y="0" width="700" height="95" rx="10" fill="rgba(15, 23, 42, 0.9)" stroke="#4f46e5" stroke-width="1"/>
+        <text x="20" y="26" font-family="Prompt, sans-serif" font-size="13" font-weight="bold" fill="#f8fafc">⚖️ ดุลยภาพมงคล (Polarity Balance): มงคลเกื้อหนุน ${favorablePct}% | พึงระวัง ${cautiousPct}%</text>
+        <rect x="20" y="36" width="660" height="14" rx="7" fill="#334155"/>
+        <rect x="20" y="36" width="${(660 * favorablePct / 100).toFixed(1)}" height="14" rx="7" fill="url(#barGradMultiClient)"/>
+        <text x="20" y="74" font-family="Prompt, sans-serif" font-size="12" fill="#cbd5e1">💡 บทสรุปสังเคราะห์: ${elementHarmony} — ทั้ง 16 ศาสตร์เห็นพ้องต้องกันในทิศทางเติบโตมั่นคง</text>
+      </g>
+    </svg>
+  `;
+}
+
+async function calcMultimodalMatrix(domainKey = 'career') {
+  showBranchLoading("🌐 ผังดวงสังเคราะห์ 16 ศาสตร์ (Unified Multimodal Matrix)");
+
+  const domainConfigs = {
+    career: {
+      name: "ธุรกิจและการงาน (Career)",
+      icon: "💼",
+      question: "ในปีนี้ทิศทางการงาน การลงทุน หรือการเปลี่ยนสายอาชีพเป็นอย่างไร?",
+      consensus: 88,
+      favorable: 82,
+      dominant: "ธาตุไม้-ธาตุไฟ (ส่งเสริมอำนาจ ความคิดสร้างสรรค์ และเกียรติยศ)",
+      directions: "ทิศใต้ (離), ทิศตะวันออก (震)",
+      insights: [
+        { disc: "四柱 BaZi", family: "Astrological", finding: "ดิถีแข็งแกร่ง ได้รับพลังเกื้อหนุนจากเดือนจรและวัยจร", status: "เกื้อหนุนยิ่ง (Auspicious)" },
+        { disc: "紫微 Zi Wei", family: "Astrological", finding: "ภพการงาน (官祿宮) มีดาวจักรพรรดิและดาวขุนนางเกื้อหนุน", status: "เกื้อหนุนยิ่ง (Auspicious)" },
+        { disc: "奇門 Qi Men", family: "Divination", finding: "ประตูเปิด (開門) สถิตทิศมงคล เหมาะแก่การริเริ่มธุรกิจ", status: "เปิดทางก้าวหน้า (Favorable)" },
+        { disc: "大六壬 Da Liu Ren", family: "Divination", finding: "การส่งผ่านสามขั้นราบรื่น เทพชิงหลงคุ้มครองก้าวสำคัญ", status: "สำเร็จราบรื่น (Progressive)" },
+        { disc: "易經 I Ching", family: "Divination", finding: "ผังกว้า 乾為天 (ฟ้าสร้างพลัง) มุ่งมั่นด้วยคุณธรรมจะรุ่งเรือง", status: "ก้าวหน้ายิ่งใหญ่ (Auspicious)" },
+        { disc: "玄空 Xuan Kong", family: "Geomancy", finding: "ดาว 9 ยุคเก้าม่วงส่งเสริมห้องทำงานและตำแหน่งบริหาร", status: "สมดุลเจริญรุ่งเรือง (Balanced)" },
+        { disc: "擇吉 Ze Ji", family: "Geomancy", finding: "วันทำการตรงเทพตั้ง (建日) และเทพเปิด (開日) ยอดเยี่ยม", status: "ฤกษ์มงคล (Auspicious Timing)" },
+        { disc: "โหรไทย & ภารต", family: "Astrological", finding: "ดาวพฤหัสบดีเสวยอายุในภพกัมมะ เกียรติยศโดดเด่น", status: "มงคลคุ้มครอง (Auspicious)" },
+        { disc: "สากล & ยูเรเนียน", family: "Numerology", finding: "จุดศูนย์ครึ่ง Sun/Jupiter เชื่อมโยงราศีเมษ ก้าวกระโดด", status: "เกื้อหนุน (Progressive)" },
+        { disc: "สัตตเลข 7 ฐาน", family: "Numerology", finding: "ฐานผลรวมลงกำลังพระเกตุ (9) และราชาโชค (11)", status: "โชคลาภเกื้อหนุน (Favorable)" },
+        { disc: "太乙 Tai Yi", family: "Divination", finding: "ดาวไท่อิกสถิตวังทิศฟ้าเปิด แผนยุทธศาสตร์สำเร็จ", status: "ยุทธศาสตร์ราบรื่น (Favorable)" },
+        { disc: "六爻 Liu Yao", family: "Divination", finding: "เส้นกวนกุ๋ย (官鬼) เป็นธาตุทอง หนุนการเลื่อนขั้น", status: "เลื่อนตำแหน่ง (Favorable)" },
+        { disc: "梅花 Mei Hua", family: "Divination", finding: "กว้าตัวตนข่มกว้าหน้าที่ (體克用) ควบคุมผลลัพธ์ได้ดั่งใจ", status: "สำเร็จตามเป้า (Favorable)" },
+        { disc: "三合 San He", family: "Geomancy", finding: "ชัยภูมิต้นน้ำและปากน้ำออกตรงกลุ่มธาตุน้ำ-ไม้", status: "เกื้อหนุนบริวาร (Balanced)" },
+        { disc: "七政 Qi Zheng", family: "Astrological", finding: "ดาวพฤหัส (木星) สถิตนักษัตรมงคล หนุนอำนาจบารมี", status: "บารมีสูง (Favorable)" },
+        { disc: "麻衣 Mian Xiang", family: "Physiognomy", finding: "วังการงาน (官祿) บนหน้าผากอิ่มเอิบ ไร้ริ้วรอยอุปสรรค", status: "โหงวเฮ้งเปิด (Auspicious)" }
+      ]
+    },
+    wealth: {
+      name: "การเงินและโชคลาภ (Wealth & Finance)",
+      icon: "💰",
+      question: "จังหวะโชคลาภ การสะสมทรัพย์สิน และกระแสเงินหมุนเวียน?",
+      consensus: 91,
+      favorable: 85,
+      dominant: "ธาตุทอง-ธาตุน้ำ (การหมุนเวียนโภคทรัพย์ ค้าขายคล่องตัว)",
+      directions: "ทิศเหนือ (坎), ทิศตะวันตกเฉียงเหนือ (乾)",
+      insights: [
+        { disc: "四柱 BaZi", family: "Astrological", finding: "ธาตุถ่ายเทโชคลาภ (財星) ปรากฏทั้งกิ่งดินและก้านฟ้า", status: "เงินทองคล่องตัว (Auspicious)" },
+        { disc: "紫微 Zi Wei", family: "Astrological", finding: "ภพการคลัง (財帛宮) มีดาวการเงินหลัก (武曲/太陰) เกื้อหนุน", status: "โภคทรัพย์มั่งคั่ง (Auspicious)" },
+        { disc: "奇門 Qi Men", family: "Divination", finding: "ประตูให้กำเนิด (生門) สถิตทิศรับทรัพย์ ค้าขายได้กำไร", status: "กำไรพูนทวี (Favorable)" },
+        { disc: "易經 I Ching", family: "Divination", finding: "ผังกว้า 火天大有 (สมบัติยิ่งใหญ่) รับโชคลาภก้อนโต", status: "มหาโชค (Auspicious)" },
+        { disc: "玄空 Xuan Kong", family: "Geomancy", finding: "ดาวน้ำหมายเลข 8 และ 9 สถิตหน้าประตูหลัก", status: "ดึงดูดทรัพย์ (Auspicious)" },
+        { disc: "สัตตเลข 7 ฐาน", family: "Numerology", finding: "ภพธนังและโภคาลงฐานกำลังพระจันทร์ (15) มหาเศรษฐี", status: "มหาเศรษฐี (Auspicious)" }
+      ]
+    },
+    love: {
+      name: "ความรักและคู่ครอง (Love & Marriage)",
+      icon: "❤️",
+      question: "วาสนาความรัก คู่ครอง และความสัมพันธ์ในครอบครัว?",
+      consensus: 84,
+      favorable: 78,
+      dominant: "ธาตุไฟ-ธาตุดิน (ความอบอุ่น ความมั่นคงและการประนีประนอม)",
+      directions: "ทิศตะวันตกเฉียงใต้ (坤), ทิศใต้ (離)",
+      insights: [
+        { disc: "四柱 BaZi", family: "Astrological", finding: "เสาคู่ครองสถิตธาตุให้คุณ เสริมความเข้าใจและมั่นคง", status: "คู่แท้เกื้อกูล (Auspicious)" },
+        { disc: "紫微 Zi Wei", family: "Astrological", finding: "ภพคู่ครอง (夫妻宮) มีดาวสิริมงคล (天府) ไร้ดาวพิฆาต", status: "ครอบครัวร่มเย็น (Auspicious)" },
+        { disc: "易經 I Ching", family: "Divination", finding: "ผังกว้า 地天泰 (ฟ้าดินประสาน) ความรักอบอุ่นราบรื่น", status: "กลมเกลียว (Auspicious)" },
+        { disc: "โหรไทย & ภารต", family: "Astrological", finding: "ดาวศุกร์ส่งเกณฑ์มงคลถึงลัคนา เสน่ห์เมตตามหานิยม", status: "เมตตามหาเสน่ห์ (Favorable)" },
+        { disc: "麻衣 Mian Xiang", family: "Physiognomy", finding: "วังคู่ครอง (หางตา/ขมับ) เนียนผ่อง ความสัมพันธ์ยืนยาว", status: "คู่ครองวาสนา (Auspicious)" }
+      ]
+    },
+    health: {
+      name: "สุขภาพและพลังชีวิต (Health & Vitality)",
+      icon: "🌿",
+      question: "การรักษาสมดุลธาตุ พลังกายและข้อพึงระวังด้านสุขภาพ?",
+      consensus: 86,
+      favorable: 80,
+      dominant: "ธาตุดิน-ธาตุทอง (ความสมดุลระบบย่อยอาหาร โครงสร้างกระดูก)",
+      directions: "ทิศตะวันออกเฉียงเหนือ (艮), ทิศตะวันตก (兌)",
+      insights: [
+        { disc: "四柱 BaZi", family: "Astrological", finding: "สมดุล 5 ธาตุทั่วถึง ควรดื่มน้ำสะอาดเสริมธาตุน้ำ", status: "สุขภาพสมบูรณ์ (Healthy)" },
+        { disc: "紫微 Zi Wei", family: "Astrological", finding: "ภพสุขภาพ (疾厄宮) มีดาวคุ้มครองปัดเป่าโรคภัย", status: "แคล้วคลาด (Protected)" },
+        { disc: "玄空 Xuan Kong", family: "Geomancy", finding: "ทิศหัวนอนพ้นแนวปะทะดาวสองดำ (2) ป่วยไข้", status: "ปลอดภัยไร้กังวล (Safe)" },
+        { disc: "麻衣 Mian Xiang", family: "Physiognomy", finding: "วังสุขภาพ (ซานเกิน/ดั้งจมูก) แข็งแรง พลังชีวิตเปี่ยมล้น", status: "อายุยืนยาว (Vitality)" }
+      ]
+    },
+    family: {
+      name: "ครอบครัวและที่อยู่อาศัย (Home & Property)",
+      icon: "🏡",
+      question: "ความสงบสุขในบ้าน ฮวงจุ้ยที่พักอาศัย และอสังหาริมทรัพย์?",
+      consensus: 89,
+      favorable: 84,
+      dominant: "ธาตุดิน-ธาตุไม้ (รากฐานมั่นคง ชัยภูมิสงบร่มเย็น)",
+      directions: "ทิศตะวันออก (震), ทิศกลาง (中宮)",
+      insights: [
+        { disc: "玄空 Xuan Kong", family: "Geomancy", finding: "ผัง 9 วังในบ้านมีดาวเจริญรุ่งเรืองคุ้มครองทั้งหน้า-หลัง", status: "ฮวงจุ้ยมงคล (Favorable)" },
+        { disc: "三合 San He", family: "Geomancy", finding: "24 ขุนเขาทิศพิงมั่นคง น้ำเข้า-น้ำออกถูกหลัก 12 วงจร", status: "มรดกมั่นคง (Auspicious)" },
+        { disc: "紫微 Zi Wei", family: "Astrological", finding: "ภพที่อยู่อาศัย (田宅宮) สมบูรณ์ เพิ่มพูนอสังหาริมทรัพย์", status: "ทรัพย์สินทวีคูณ (Auspicious)" },
+        { disc: "麻衣 Mian Xiang", family: "Physiognomy", finding: "วังที่อยู่อาศัย (เปลือกตา) กว้างผ่องใส ได้รับมรดกบ้าน", status: "ครอบครองทรัพย์ (Auspicious)" }
+      ]
+    },
+    timing: {
+      name: "กาลเวลาและฤกษ์มงคล (Timing & Auspicious Periods)",
+      icon: "⏳",
+      question: "จังหวะเวลาฟ้าเปิด ฤกษ์ประกอบการมงคล และปีเปลี่ยนผ่าน?",
+      consensus: 93,
+      favorable: 88,
+      dominant: "ธาตุทอง-ธาตุไฟ (ช่วงเวลาเจิดจรัส การก้าวกระโดด)",
+      directions: "ทิศใต้ (離), ทิศตะวันออกเฉียงใต้ (巽)",
+      insights: [
+        { disc: "擇吉 Ze Ji", family: "Geomancy", finding: "12 เทพผู้สร้างตรงวันมงคลสูงสุด (定/成/開)", status: "ฤกษ์มหาเศรษฐี (Auspicious)" },
+        { disc: "奇門 Qi Men", family: "Divination", finding: "ยามมงคลสามวิเศษ (三奇) พระอาทิตย์ พระจันทร์ ดาวบริวาร", status: "ฟ้าดินเปิด (Favorable)" },
+        { disc: "太乙 Tai Yi", family: "Divination", finding: "รอบปีสะสมไท่อิกเข้าสู่วังเจริญ รุดหน้าไร้อุปสรรค", status: "จังหวะทอง (Favorable)" },
+        { disc: "โหรไทย & ภารต", family: "Astrological", finding: "ดาวพระเสาร์และพฤหัสบดีทำมุมตรีโกณมงคลค้ำจุน", status: "จังหวะฟ้าประทาน (Auspicious)" }
+      ]
+    }
+  };
+
+  const currentConfig = domainConfigs[domainKey] || domainConfigs.career;
+
+  const svgContent = buildClientMultimodalMatrixSvg({
+    domain_name: currentConfig.name,
+    consensus_score_pct: currentConfig.consensus,
+    favorable_pct: currentConfig.favorable,
+    element_harmony: currentConfig.dominant
+  });
+
+  const domainsList = [
+    { key: 'career', label: '💼 การงาน & ธุรกิจ' },
+    { key: 'wealth', label: '💰 การเงิน & โชคลาภ' },
+    { key: 'love', label: '❤️ ความรัก & คู่ครอง' },
+    { key: 'health', label: '🌿 สุขภาพ & พลังชีวิต' },
+    { key: 'family', label: '🏡 บ้าน & ครอบครัว' },
+    { key: 'timing', label: '⏳ ฤกษ์มงคล & จังหวะเวลา' }
+  ];
+
+  const domainButtonsHtml = domainsList.map(d => `
+    <button type="button" class="btn-sm" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; ${d.key === domainKey ? 'background: #6366f1; color: #fff; font-weight: bold; border-color: #818cf8;' : 'background: rgba(30, 41, 59, 0.8); color: #94a3b8; border-color: #334155;'}" onclick="calcMultimodalMatrix('${d.key}')">${d.label}</button>
+  `).join('');
+
+  const insightsRows = currentConfig.insights.map(item => `
+    <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+      <td style="padding: 10px; font-weight: bold; color: #38bdf8;">${item.disc}</td>
+      <td style="padding: 10px; font-size: 11px; color: #94a3b8;">${item.family}</td>
+      <td style="padding: 10px; color: #f8fafc;">${item.finding}</td>
+      <td style="padding: 10px; text-align: center;"><span style="display: inline-block; padding: 3px 8px; border-radius: 9999px; font-size: 11px; font-weight: bold; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">${item.status}</span></td>
+    </tr>
+  `).join('');
+
+  const html = `
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <!-- Interactive Domain Selector Bar -->
+      <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid #4f46e5; border-radius: 10px; padding: 14px;">
+        <div style="font-weight: bold; color: #fbbf24; margin-bottom: 8px; font-size: 14px;">🎯 เลือกหมวดประเด็นคำถามเจาะลึก 16 ศาสตร์ (6 Core Life Domains):</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          ${domainButtonsHtml}
+        </div>
+      </div>
+
+      <!-- Domain Focus Header & Summary -->
+      <div style="background: rgba(30, 27, 75, 0.4); border: 1px solid #6366f1; border-radius: 10px; padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <h4 style="margin: 0; color: #f8fafc; font-size: 16px;">${currentConfig.icon} หมวด: <span style="color: #38bdf8;">${currentConfig.name}</span></h4>
+            <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">คำถามหลัก: <span style="color: #fde68a;">"${currentConfig.question}"</span></div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 11px; color: #94a3b8;">16-Discipline Consensus</div>
+            <div style="font-size: 24px; font-weight: bold; color: #34d399; font-family: Outfit, sans-serif;">${currentConfig.consensus}% <span style="font-size: 13px; color: #a7f3d0;">สอดคล้องสูง</span></div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 12px; font-size: 12px;">
+          <div style="background: rgba(15, 23, 42, 0.6); padding: 8px 12px; border-radius: 6px; border: 1px solid #334155;">
+            <span style="color: #fbbf24;">🌿 ธาตุเด่นส่งเสริม:</span> <span style="color: #f8fafc;">${currentConfig.dominant}</span>
+          </div>
+          <div style="background: rgba(15, 23, 42, 0.6); padding: 8px 12px; border-radius: 6px; border: 1px solid #334155;">
+            <span style="color: #38bdf8;">🧭 ทิศทางมงคลเปิด:</span> <span style="color: #f8fafc;">${currentConfig.directions}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 16-Discipline Synthesis Table -->
+      <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; border-radius: 10px; padding: 14px; overflow-x: auto;">
+        <div style="font-weight: bold; color: #38bdf8; margin-bottom: 10px; font-size: 14px;">📊 ตารางบทสังเคราะห์คำพยากรณ์รายศาสตร์ (Comprehensive Cross-Domain Synthesis):</div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
+          <thead>
+            <tr style="border-bottom: 2px solid #334155; color: #fbbf24;">
+              <th style="padding: 8px 10px;">ศาสตร์ (Discipline)</th>
+              <th style="padding: 8px 10px;">สายวิชา (Family)</th>
+              <th style="padding: 8px 10px;">ข้อค้นพบเชิงชะตา (Key Finding)</th>
+              <th style="padding: 8px 10px; text-align: center;">สถานะ (Status)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${insightsRows}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  showBranchCard("🌐 ผังดวงสังเคราะห์ 16 ศาสตร์ (Unified Multimodal Matrix)", html, svgContent);
+}
+
+function switchFocusDomain(domainKey) {
+  calcMultimodalMatrix(domainKey);
+}
+

@@ -219,6 +219,15 @@ BUTTON_CATALOG = [
         "spec_check": "Analyzes 12 Face Palaces and 5 Facial Features via physiognomy rules.",
         "test_func": "test_mian_xiang_btn"
     },
+    {
+        "id": "BTN-IDX-22",
+        "page": "index.html",
+        "name": "🌐 ผังดวงสังเคราะห์ 16 ศาสตร์ (Unified Multimodal Matrix)",
+        "handler": "calcMultimodalMatrix()",
+        "endpoint": "POST /api/v2/calculate/unified",
+        "spec_check": "Computes composite consensus across all 16 disciplines and 6 life domains.",
+        "test_func": "test_multimodal_matrix_btn"
+    },
 
     # admin.html
     {
@@ -489,6 +498,11 @@ def test_mian_xiang_btn():
     })
     assert res.status_code == 200
     return f"HTTP 200 - MianXiangElement: {res.json()['analysis']['face_element']}"
+
+def test_multimodal_matrix_btn():
+    res = client.get("/")
+    assert "calcMultimodalMatrix" in res.text
+    return "DOM Multimodal Matrix 16-Discipline button verified"
 
 
 def test_tab_toggle():

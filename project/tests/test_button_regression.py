@@ -69,6 +69,7 @@ class TestIndexHTMLButtons:
         assert "calcThaiVedic()" in html
         assert "calcWestern()" in html
         assert "calcNumerology()" in html
+        assert "calcMultimodalMatrix()" in html
 
         # Verify Tab Buttons
         assert "switchTab('tab-reading')" in html

@@ -942,3 +942,102 @@ def generate_mianxiang_svg(chart: dict[str, Any], title: str = "ผังดว�
     ])
     return "\n".join(svg)
 
+
+def generate_multimodal_matrix_svg(data: dict[str, Any], title: str = "ผังดวงสังเคราะห์ 16 ศาสตร์ (Unified Multimodal Metaphysics Matrix)") -> str:
+    """Generate Composite 16-Discipline Multimodal Matrix SVG chart."""
+    domain_name = data.get("domain_name", "ธุรกิจและการงาน (Career)")
+    consensus_pct = data.get("consensus_score_pct", 88)
+    favorable_pct = data.get("favorable_pct", 82)
+    cautious_pct = 100 - favorable_pct
+    element_harmony = data.get("element_harmony", "ธาตุไม้-ธาตุไฟ เกื้อหนุนสมบูรณ์")
+
+    disciplines = [
+        ("四柱 BaZi", 0.90), ("紫微 ZiWei", 0.85), ("奇門 QiMen", 0.92), ("六壬 LiuRen", 0.80),
+        ("易經 IChing", 0.88), ("玄空 XuanKong", 0.84), ("擇吉 ZeJi", 0.90), ("โหรไทย Thai", 0.86),
+        ("สากล Western", 0.82), ("สัตตเลข 7Base", 0.88), ("太乙 TaiYi", 0.85), ("六爻 LiuYao", 0.87),
+        ("梅花 MeiHua", 0.89), ("三合 SanHe", 0.83), ("七政 QiZheng", 0.86), ("麻衣 MianXiang", 0.85)
+    ]
+
+    import math
+    cx, cy, r_max = 200, 260, 130
+    radar_points = []
+
+    svg = [
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">',
+        '  <defs>',
+        '    <linearGradient id="bgMultiGrad" x1="0%" y1="0%" x2="100%" y2="100%">',
+        '      <stop offset="0%" stop-color="#080d1a"/>',
+        '      <stop offset="100%" stop-color="#1e1b4b"/>',
+        '    </linearGradient>',
+        '    <filter id="glowMulti" x="-20%" y="-20%" width="140%" height="140%">',
+        '      <feGaussianBlur stdDeviation="4" result="blur"/>',
+        '      <feComposite in="SourceGraphic" in2="blur" operator="over"/>',
+        '    </filter>',
+        '  </defs>',
+        '  <rect width="800" height="600" rx="16" fill="url(#bgMultiGrad)" stroke="#6366f1" stroke-width="2"/>',
+        f'  <text x="400" y="40" font-family="Prompt, sans-serif" font-size="20" font-weight="bold" fill="#fbbf24" text-anchor="middle" filter="url(#glowMulti)">🌐 {title}</text>',
+        f'  <text x="400" y="68" font-family="Prompt, sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">หมวดคำถาม: <tspan fill="#38bdf8" font-weight="bold">[{domain_name}]</tspan> | ดัชนีความสอดคล้อง 16 ศาสตร์: <tspan fill="#34d399" font-weight="bold">{consensus_pct}%</tspan></text>',
+        
+        # Left Panel: 16-Spoke Radar Chart
+        f'  <circle cx="{cx}" cy="{cy}" r="{r_max}" fill="rgba(15, 23, 42, 0.6)" stroke="#334155" stroke-width="1.5"/>',
+        f'  <circle cx="{cx}" cy="{cy}" r="{r_max*0.75:.1f}" fill="none" stroke="#1e293b" stroke-dasharray="3,3"/>',
+        f'  <circle cx="{cx}" cy="{cy}" r="{r_max*0.5:.1f}" fill="none" stroke="#1e293b" stroke-dasharray="3,3"/>',
+        f'  <circle cx="{cx}" cy="{cy}" r="{r_max*0.25:.1f}" fill="none" stroke="#1e293b" stroke-dasharray="3,3"/>',
+    ]
+
+    for idx, (d_name, score) in enumerate(disciplines):
+        angle = (idx * 2 * math.pi / 16) - (math.pi / 2)
+        sx = cx + r_max * math.cos(angle)
+        sy = cy + r_max * math.sin(angle)
+        svg.append(f'  <line x1="{cx}" y1="{cy}" x2="{sx:.1f}" y2="{sy:.1f}" stroke="#334155" stroke-width="1"/>')
+        # Label outside
+        lx = cx + (r_max + 22) * math.cos(angle)
+        ly = cy + (r_max + 22) * math.sin(angle)
+        svg.append(f'  <text x="{lx:.1f}" y="{ly+4:.1f}" font-family="sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">{d_name.split()[0]}</text>')
+        # Radar point
+        px = cx + (r_max * score) * math.cos(angle)
+        py = cy + (r_max * score) * math.sin(angle)
+        radar_points.append(f'{px:.1f},{py:.1f}')
+
+    points_str = " ".join(radar_points)
+    svg.append(f'  <polygon points="{points_str}" fill="rgba(45, 212, 191, 0.25)" stroke="#2dd4bf" stroke-width="2"/>')
+    svg.append(f'  <circle cx="{cx}" cy="{cy}" r="28" fill="#0f172a" stroke="#fbbf24" stroke-width="2"/>')
+    svg.append(f'  <text x="{cx}" y="{cy+6}" font-family="Outfit, sans-serif" font-size="14" font-weight="bold" fill="#fbbf24" text-anchor="middle">{consensus_pct}%</text>')
+
+    # Right Panel: 4 Metaphysics Super-Families Cards
+    families = [
+        ("🏛️ สายโหราศาสตร์คำนวณ (Astrological)", "BaZi • ZiWei • QiZheng • ThaiVedic", "สอดคล้อง 89% — ดาวเกื้อหนุนดิถีแข็งแกร่ง", "#38bdf8", 95),
+        ("🔮 สายพยากรณ์ & ไตรวิชา (Divination/San Shi)", "QiMen • LiuRen • TaiYi • IChing • LiuYao • MeiHua", "สอดคล้อง 92% — ทิศมงคลเปิด ประตูส่งเสริม", "#c084fc", 185),
+        ("🏯 สายฮวงจุ้ย & ฤกษ์ยาม (Geomancy & Timing)", "XuanKong • SanHe • ZeJi", "สอดคล้อง 85% — ชัยภูมิน้ำเข้า องศามงคลยุค 9", "#34d399", 275),
+        ("🔢 สายเลขศาสตร์ & นรลักษณ์ (Numerology/Face)", "Satta-Lek • MianXiang • WesternUranian", "สอดคล้อง 86% — โหงวเฮ้งสมดุล รากเลขดาวศุภเคราะห์", "#fbbf24", 365)
+    ]
+
+    for f_title, f_sub, f_detail, f_color, y_pos in families:
+        svg.append(f'  <g transform="translate(410, {y_pos})">')
+        svg.append(f'    <rect x="0" y="0" width="340" height="78" rx="8" fill="rgba(15, 23, 42, 0.85)" stroke="{f_color}" stroke-width="1"/>')
+        svg.append(f'    <text x="12" y="22" font-family="Prompt, sans-serif" font-size="12" font-weight="bold" fill="{f_color}">{f_title}</text>')
+        svg.append(f'    <text x="12" y="42" font-family="sans-serif" font-size="10" fill="#94a3b8">{f_sub}</text>')
+        svg.append(f'    <text x="12" y="62" font-family="Prompt, sans-serif" font-size="11" fill="#f8fafc">{f_detail}</text>')
+        svg.append('  </g>')
+
+    # Bottom Panel: Polarity Balance Bar & Synthesis Guidance
+    svg.extend([
+        '  <g transform="translate(50, 465)">',
+        '    <rect x="0" y="0" width="700" height="95" rx="10" fill="rgba(15, 23, 42, 0.9)" stroke="#4f46e5" stroke-width="1"/>',
+        f'    <text x="20" y="26" font-family="Prompt, sans-serif" font-size="13" font-weight="bold" fill="#f8fafc">⚖️ ดุลยภาพมงคล (Polarity Balance): มงคลเกื้อหนุน {favorable_pct}% | พึงระวัง {cautious_pct}%</text>',
+        # Progress Bar
+        f'    <rect x="20" y="36" width="660" height="14" rx="7" fill="#334155"/>',
+        f'    <rect x="20" y="36" width="{660 * favorable_pct / 100:.1f}" height="14" rx="7" fill="url(#barGradMulti)"/>',
+        f'    <text x="20" y="74" font-family="Prompt, sans-serif" font-size="12" fill="#cbd5e1">💡 บทสรุปสังเคราะห์: {element_harmony} — ทั้ง 16 ศาสตร์เห็นพ้องต้องกันในทิศทางเติบโตมั่นคง</text>',
+        '  </g>',
+        '  <defs>',
+        '    <linearGradient id="barGradMulti" x1="0%" y1="0%" x2="100%" y2="0%">',
+        '      <stop offset="0%" stop-color="#10b981"/>',
+        '      <stop offset="100%" stop-color="#38bdf8"/>',
+        '    </linearGradient>',
+        '  </defs>',
+        '</svg>'
+    ])
+    return "\n".join(svg)
+
+
