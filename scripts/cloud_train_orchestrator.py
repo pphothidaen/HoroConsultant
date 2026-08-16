@@ -36,6 +36,8 @@ from project.core.supabase_db import SupabaseDB
 os.environ["PYTHONIOENCODING"] = "utf-8"
 os.environ["PYTHONUTF8"] = "1"
 os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
+os.environ["HF_HUB_DOWNLOAD_TIMEOUT"] = "300"
+os.environ["HF_HUB_MAX_RETRIES"] = "10"
 os.environ["TRANSFORMERS_VERBOSITY"] = "error"
 os.environ["TQDM_DISABLE"] = "1"
 os.environ["BITSANDBYTES_NOWELCOME"] = "1"

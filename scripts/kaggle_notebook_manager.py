@@ -144,6 +144,8 @@ def create_kernel_files(
                     "os.environ['PYTHONIOENCODING'] = 'utf-8'\n",
                     "os.environ['PYTHONUTF8'] = '1'\n",
                     "os.environ['HF_HUB_DISABLE_PROGRESS_BARS'] = '1'\n",
+                    "os.environ['HF_HUB_DOWNLOAD_TIMEOUT'] = '300'\n",
+                    "os.environ['HF_HUB_MAX_RETRIES'] = '10'\n",
                     "os.environ['TRANSFORMERS_VERBOSITY'] = 'error'\n",
                     "os.environ['TQDM_DISABLE'] = '1'\n",
                     "if hasattr(sys.stdout, 'reconfigure'):\n",

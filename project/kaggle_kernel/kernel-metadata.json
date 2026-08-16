@@ -10,7 +10,6 @@
   "enable_tpu": false,
   "enable_internet": true,
   "keywords": [
-    "scheduled",
     "gpu"
   ],
   "dataset_sources": [],
