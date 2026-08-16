@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import random
 import sys
 import time
@@ -35,7 +36,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 log = logging.getLogger("static_hf_questions_test")
 
 HF_STATIC_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
-FLY_BACKEND_URL = "https://horoconsultant-core-backend.fly.dev"
+PROD_GATEWAY_URL = os.environ.get("VERCEL_GATEWAY_URL", "https://horo-consultant-psi.vercel.app")
 
 # 7 Domain Question Categories
 RANDOM_QUESTION_TEMPLATES = [
@@ -150,8 +151,7 @@ def generate_random_test_cases(count: int = 10) -> list[dict]:
 def send_bazi_interpret_request(payload: dict, timeout: int = 15) -> tuple[bool, int, dict]:
     """Send live HTTP request to backend endpoint."""
     endpoints = [
-        f"{FLY_BACKEND_URL}/api/v1/bazi/interpret",
-        f"{HF_STATIC_URL}/api/v1/bazi/interpret"
+        f"{PROD_GATEWAY_URL}/api/v1/bazi/interpret"
     ]
     
     headers = {

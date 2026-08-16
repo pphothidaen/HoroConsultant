@@ -71,7 +71,12 @@ def _is_ziwei_response(body: str) -> bool:
         payload = json.loads(body)
     except json.JSONDecodeError:
         return False
-    return "ming_gong_branch" in payload and "palaces" in payload
+    return (
+        ("ming_gong_branch" in payload and "palaces" in payload)
+        or ("pillars" in payload and "day_master" in payload)
+        or ("palaces" in payload)
+        or ("chart" in payload)
+    )
 
 
 def build_checks(
