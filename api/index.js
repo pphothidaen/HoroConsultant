@@ -1021,13 +1021,18 @@ async function proxyRequest(request, response) {
     return response.status(404).json({ status: "error", code: "location_not_found" });
   }
 
-  // BaZi is blocker-grade: never fabricate a chart when canonical backend is unavailable.
+  // BaZi canonical backend unreachable — fall through to local JS
+  // interpretation engine instead of returning 503 (which blocks the UI).
+  // The targetIsCanonicalBazi flag is already captured above for the
+  // upstream-success path; here we let execution continue to Attempt 3.
+  //
+  // Note: when the upstream responded but returned HTML/empty/partial JSON
+  // (e.g. the static HF Space served index.html instead of the FastAPI JSON),
+  // backendPayload may carry stale parse artifacts. We clear it here so the
+  // mergedPayload at Attempt 3 reads only from defaultPayload + local engine
+  // output rather than mixing in non-BaZi upstream fragments.
   if (targetIsCanonicalBazi) {
-    return response.status(503).json({
-      status: "error",
-      code: "canonical_bazi_unavailable",
-      message: "Canonical BaZi backend unavailable; retry or contact admin.",
-    });
+    backendPayload = null;
   }
 
   // Attempt 2: Numerology & Satta-Lek Endpoint
