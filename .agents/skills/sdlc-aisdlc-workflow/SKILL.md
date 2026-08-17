@@ -77,8 +77,8 @@ Phase 5: Code Review, Deployment & Post-Deploy E2E (Master Orchestrator & Code R
 2. Follow Pure ASCII logging standard: use `[OK]`, `[ERROR]`, `[WARNING]`, `[INFO]` (no emojis inside subprocess logs).
 3. Respect locked dependencies (`transformers==4.44.2`, `peft==0.12.0`, `accelerate>=0.34.0,<1.0.0`).
 
-### Phase 3: QA & Testing (QA Tester)
-1. Run pytest unit & integration regression suite across all calculation modules, RAG, MCP, and 4 core components:
+### Phase 3: QA, Testing & Auto-Remediation Loop (QA Tester & Orchestrator)
+1. Run pytest unit & integration regression suite across all calculation modules, notebooks, RAG, MCP, and 4 core components:
    ```bash
    python3 -m pytest -v --ignore=project/kaggle_kernel
    ```
@@ -90,7 +90,11 @@ Phase 5: Code Review, Deployment & Post-Deploy E2E (Master Orchestrator & Code R
    ```bash
    python3 scripts/run_e2e_screenshots.py
    ```
-4. Extract concise log snippets if any test fails (do not dump raw context).
+4. **Auto-Remediation Loop & HITL Protocol**:
+   - If any test or quality gate fails: `qa_tester` extracts concise failure snippets and passes them to `orchestrator`.
+   - `orchestrator` automatically distributes the fix ticket to `developer` for remediation.
+   - The loop repeats: `developer` fixes -> `qa_tester` verifies.
+   - **HITL Threshold**: If the issue remains unresolved after **3 consecutive retry attempts**, the orchestrator MUST pause the workflow, generate an Incident Summary, and escalate to **Human-In-The-Loop (HITL)** for guidance.
 
 ### Phase 4: DevOps & Release (DevOps)
 1. Validate environment files (`.env`, `.env.production`).

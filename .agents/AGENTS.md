@@ -41,7 +41,7 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 
 ---
 
-## 🔄 Agent Execution Flow & Collaboration Protocol
+## 🔄 Agent Execution Flow & Collaboration Protocol (Auto-Remediation & HITL Loop)
 
 ```mermaid
 flowchart TD
@@ -50,12 +50,13 @@ flowchart TD
     Gate -->|🚫 Blocked| Halt([Halt: Await Confirmation])
     Orch -->|1. Delegate Spec & Docs| BSA[Business System Analyst\nGemini 3.6 Flash - Standard]
     BSA -->|2. Audit Docs, Skills & Sub-Agent Tickets| Plan[/plans/plan.md & PROJECT_TASKS.md\]
-    Orch -->|3. Delegate Ticket-002| Dev[Senior Developer\nGemini 3.6 Flash / DeepSeek-V3]
-    Dev -->|4. Source Code & Docs| Orch
-    Orch -->|5. Delegate Ticket-003| QA[QA Tester\nGemini 3.5 Flash-Lite - Thinking: Off]
-    QA -->|6a. Bug Report Fail| Orch
-    Orch -->|6b. Bounce Back Bug Fix| Dev
-    QA -->|7. Test Passed 100%| DevOps[DevOps & Release\nGemini 3.6 Flash Standard]
+    Orch -->|3. Delegate Implementation| Dev[Senior Developer\nGemini 3.6 Flash / DeepSeek-V3]
+    Dev -->|4. Source Code & Notebooks| Orch
+    Orch -->|5. Delegate QA & Quality Gate| QA[QA Tester / Code Reviewer\nGemini 3.5 Flash-Lite / Rust Rayon]
+    QA -->|6a. Bug / Syntax / Test Failure| Orch
+    Orch -->|6b. Auto-Remediation Loop: Retry Fix &lt; 3 attempts| Dev
+    Orch -->|6c. Unresolved after 3 Retries| HITL([🚨 Human-In-The-Loop Escalation\nPause & Await Human Guidance])
+    QA -->|7. 100% Tests & Safety Passed READY_FOR_PROD| DevOps[DevOps & Release\nGemini 3.6 Flash Standard]
     DevOps -->|8. Env & Package Verified| Orch
     BSA -->|9. Sync Live Docs & Skills| Docs[Repository Docs & Skills Catalog]
     Orch -->|10. Final Code Review & Summary| User
