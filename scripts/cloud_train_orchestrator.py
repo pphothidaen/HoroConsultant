@@ -547,16 +547,14 @@ def run_training_pipeline(
 
     # Quantization check (BitsAndBytes 4-bit)
     bnb_available = False
-    if use_cuda and not is_kaggle and not is_sm75:
+    if use_cuda:
         try:
             _ensure_bitsandbytes_cuda_binary()
+            import bitsandbytes as bnb
             bnb_available = True
-            logger.info("   [OK] BitsAndBytes 4-bit quantization available.")
+            logger.info("   [OK] BitsAndBytes 4-bit quantization initialized successfully.")
         except Exception as bnb_err:
             logger.warning(f"BitsAndBytes CUDA check failed ({bnb_err}). 4-bit quantization will be bypassed.")
-    elif is_kaggle or is_sm75:
-        _ensure_bitsandbytes_cuda_binary()
-        logger.info("   [INFO] Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.")
 
     bnb_config = None
     if bnb_available:
