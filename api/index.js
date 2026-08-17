@@ -961,6 +961,7 @@ async function proxyRequest(request, response) {
   // Attempt 1: Proxy to FastAPI backend
   const targetIsInterpret = target.includes("/interpret");
   const targetIsLocation = target.includes("/location/resolve");
+  const targetIsCanonicalBazi = /\/bazi\/(calculate|interpret)(?:\/|$)/.test(target);
   let backendPayload = null;
 
   try {
@@ -976,6 +977,14 @@ async function proxyRequest(request, response) {
       try {
         const parsed = JSON.parse(bodyStr);
         if (targetIsLocation && isUsableLocationResult(parsed)) {
+          copyResponseHeaders(upstream, response);
+          return response.status(upstream.status).send(body);
+        }
+
+        const canonicalPillars = parsed.pillars || parsed.chart?.pillars;
+        const hasCompleteCanonicalPillars = canonicalPillars &&
+          ["year", "month", "day", "hour"].every((key) => canonicalPillars[key]);
+        if (targetIsCanonicalBazi && hasCompleteCanonicalPillars) {
           copyResponseHeaders(upstream, response);
           return response.status(upstream.status).send(body);
         }
@@ -1010,6 +1019,15 @@ async function proxyRequest(request, response) {
       return response.status(200).json(locationResponse);
     }
     return response.status(404).json({ status: "error", code: "location_not_found" });
+  }
+
+  // BaZi is blocker-grade: never fabricate a chart when canonical backend is unavailable.
+  if (targetIsCanonicalBazi) {
+    return response.status(503).json({
+      status: "error",
+      code: "canonical_bazi_unavailable",
+      message: "Canonical BaZi backend unavailable; retry or contact admin.",
+    });
   }
 
   // Attempt 2: Numerology & Satta-Lek Endpoint

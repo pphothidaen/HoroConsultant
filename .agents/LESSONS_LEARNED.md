@@ -158,3 +158,14 @@
   - `SafeDataCollator` in `scripts/cloud_train_orchestrator.py` explicitly converts `batch["labels"] = batch["labels"].to(torch.long)`.
   - Registered `_safe_compute_loss` wrapper on `transformers.Trainer` that ensures `inputs["labels"] = inputs["labels"].long()`.
   - Enforced via `tests/test_notebook_syntax.py::test_safe_data_collator_and_long_dtype_loss_guard`.
+
+### 16. 🚫 BaZi Canonical Calculation Blocker & No-Fabricated-Fallback Policy
+- **Issue Experienced**: The browser pre-rendered a simplified chart and the Vercel gateway could return a hardcoded chart when the canonical backend was unavailable. This produced incorrect Hour/Month pillars, including a false `癸未` result instead of the verified Ratchaburi `辛亥` result.
+- **Root Cause**: Calculation logic was duplicated across client JavaScript, gateway fallback handlers, and the canonical Python/Rust engine. Backend health was treated as advisory, and incomplete responses were rendered as successful charts.
+- **Lesson Learned**: BaZi calculation is blocker-grade. Only the canonical backend may authorize a chart; client-side calculation is preview-only and must never be rendered as authoritative or used for interpretation/storage.
+- **Prevention Protocol**:
+  - Frontend requires backend health before calculation and opens a BLOCKER modal with retry/admin actions on failure.
+  - Frontend validates that `year`, `month`, `day`, and `hour` pillars exist before rendering.
+  - Vercel returns HTTP 503 `canonical_bazi_unavailable` instead of fabricated chart data when the backend is unavailable.
+  - API responses preserve Ten Gods, Pillar Phase, Stars, and hidden-stem metadata.
+  - The golden vector `1985-08-26 23:03:00`, Ratchaburi, UTC+7 must equal `辛亥 / 丁酉 / 甲申 / 乙丑` and remain covered by Python/Rust parity tests.

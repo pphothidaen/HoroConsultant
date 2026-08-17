@@ -116,9 +116,18 @@ async def calculate_bazi(req: BaZiRequest):
                         "hour_start": p["branch"]["hour_start"],
                     },
                     "hidden_stems": [
-                        {"stem": hs["stem"], "element": hs["element"], "weight": hs["weight"]}
+                        {
+                            "stem": hs["stem"],
+                            "element": hs["element"],
+                            "weight": hs["weight"],
+                            "ten_god": hs.get("ten_god"),
+                        }
                         for hs in p["hidden_stems"]
                     ],
+                    "ten_god": p.get("ten_god"),
+                    "ten_god_info": p.get("ten_god_info", {}),
+                    "pillar_phase": p.get("pillar_phase", {}),
+                    "stars": p.get("stars", {}),
                 }
                 for pk, p in result["pillars"].items()
             },
@@ -328,4 +337,3 @@ async def resolve_location(req: LocationResolveRequest):
         }
 
     raise HTTPException(status_code=404, detail="Location not found")
-
