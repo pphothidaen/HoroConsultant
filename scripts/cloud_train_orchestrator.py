@@ -377,7 +377,7 @@ def create_sft_trainer(
         "args": training_args,
     }
 
-    if "dataset_text_field" in params:
+    if dataset_text_field is not None and "dataset_text_field" in params:
         kwargs["dataset_text_field"] = dataset_text_field
 
     if formatting_func is not None and "formatting_func" in params:
@@ -385,10 +385,11 @@ def create_sft_trainer(
 
     try:
         from transformers import DataCollatorForLanguageModeling
-        if "data_collator" in params:
-            kwargs["data_collator"] = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
+        collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
+        if "data_collator" in params or has_var_kw:
+            kwargs["data_collator"] = collator
     except Exception:
-        pass
+        collator = None
 
     # Pass max_seq_length ONLY if SFTTrainer.__init__ explicitly accepts it (TRL < 0.12)
     if "max_seq_length" in params:
@@ -457,6 +458,8 @@ def create_sft_trainer(
                 "train_dataset": train_dataset,
                 "args": training_args,
             }
+            if collator is not None:
+                min_kwargs["data_collator"] = collator
             if peft_config is not None:
                 min_kwargs["peft_config"] = peft_config
             if "processing_class" in params:
@@ -746,10 +749,26 @@ def run_training_pipeline(
     logger.info(f" Pre-formatting dataset from '{dataset_path}'...")
     raw_data = load_dataset("json", data_files=str(dataset_path))
 
-    train_ds = raw_data["train"].map(
+    formatted_ds = raw_data["train"].map(
         _format_conversation_example,
         remove_columns=raw_data["train"].column_names,
         desc="Formatting dataset rows into single string 'text' column",
+    )
+
+    logger.info(" Pre-tokenizing dataset into input_ids and attention_mask...")
+    def _tokenize_batch(examples):
+        return tokenizer(
+            examples["text"],
+            truncation=True,
+            max_length=max_seq_length,
+            padding=False,
+        )
+
+    train_ds = formatted_ds.map(
+        _tokenize_batch,
+        batched=True,
+        remove_columns=formatted_ds.column_names,
+        desc="Tokenizing dataset into input_ids and attention_mask",
     )
 
     # Disable incompatible pre-installed torchao (<0.16.0) on Kaggle/cloud to prevent PEFT ImportError
@@ -790,7 +809,6 @@ def run_training_pipeline(
         "fp16": use_cuda,
         "report_to": report_to_target,
         "gradient_checkpointing": True,
-        "dataset_text_field": "text",
         "remove_unused_columns": False,
     }
 
@@ -817,7 +835,7 @@ def run_training_pipeline(
         train_dataset=train_ds,
         peft_config=peft_config,
         training_args=training_args,
-        dataset_text_field="text",
+        dataset_text_field=None,
         max_seq_length=max_seq_length,
     )
 

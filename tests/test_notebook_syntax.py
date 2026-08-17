@@ -170,6 +170,16 @@ class TestNotebookSyntaxAndIntegrity(unittest.TestCase):
         self.assertIn('bnb_available = True', content)
         self.assertIn('load_in_4bit=True', content)
 
+    def test_dataset_pre_tokenization_pipeline(self):
+        """Ensure dataset is pre-tokenized into input_ids/attention_mask to prevent raw string DataCollator errors."""
+        orchestrator_path = ROOT / "scripts" / "cloud_train_orchestrator.py"
+        with open(orchestrator_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        self.assertIn('_tokenize_batch', content)
+        self.assertIn('desc="Tokenizing dataset into input_ids and attention_mask"', content)
+        self.assertIn('dataset_text_field=None', content)
+
 
 if __name__ == "__main__":
     unittest.main()
