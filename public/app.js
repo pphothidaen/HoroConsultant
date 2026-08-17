@@ -1639,7 +1639,7 @@ async function calculateChart(event) {
   const payload = buildBaziPayloadFromForm();
 
   try {
-    const res = await fetch('/api/v1/bazi/interpret', {
+    const res = await fetchApi('/api/v1/bazi/interpret', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -5551,7 +5551,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & FORCE CACHE PURGE SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.d824039";
+const CLIENT_APP_VERSION = "1.0.0.b2672df";
 
 async function forcePurgeAndReload(event) {
   if (event) {
