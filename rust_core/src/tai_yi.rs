@@ -27,7 +27,7 @@ pub fn tai_yi_star_palace(accumulated: i32) -> i32 {
     if path < 0 {
         path += 16;
     }
-    // Mapping from path (0-15) to palace (1-9) is not fully specified, 
+    // Mapping from path (0-15) to palace (1-9) is not fully specified,
     // let's return path for now, or just use path as the palace.
     // The prompt says "using (accumulated_years % 16) path index". I'll return the index.
     path

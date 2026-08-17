@@ -57,9 +57,18 @@ async fn probe_gateway(client: &reqwest::Client, name: &str, url: &str) -> Gatew
 async fn run_health_checks() -> TelemetryPayload {
     let client = reqwest::Client::new();
     let gateways = vec![
-        ("HuggingFace Edge UI", "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"),
-        ("Fly.io Micro-Gateway", "https://horoconsultant-core-backend.fly.dev/health"),
-        ("Vercel Edge Proxy", "https://horoconsultant.vercel.app/health"),
+        (
+            "HuggingFace Edge UI",
+            "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html",
+        ),
+        (
+            "Fly.io Micro-Gateway",
+            "https://horoconsultant-core-backend.fly.dev/health",
+        ),
+        (
+            "Vercel Edge Proxy",
+            "https://horoconsultant.vercel.app/health",
+        ),
     ];
 
     let mut probes = Vec::new();
@@ -96,15 +105,24 @@ async fn main() {
     loop {
         let payload = run_health_checks().await;
         println!("\n============================================================");
-        println!("📊 TELEMETRY DAEMON PROBE COMPLETE — PASSED ({}/{})", payload.successful_probes, payload.total_probes);
+        println!(
+            "📊 TELEMETRY DAEMON PROBE COMPLETE — PASSED ({}/{})",
+            payload.successful_probes, payload.total_probes
+        );
         println!("============================================================");
-        println!("{}", serde_json::to_string_pretty(&payload).unwrap_or_default());
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&payload).unwrap_or_default()
+        );
 
         if once_mode {
             break;
         }
 
-        println!("💤 Sleeping for {} seconds before next telemetry cycle...", interval_secs);
+        println!(
+            "💤 Sleeping for {} seconds before next telemetry cycle...",
+            interval_secs
+        );
         sleep(Duration::from_secs(interval_secs)).await;
     }
 }

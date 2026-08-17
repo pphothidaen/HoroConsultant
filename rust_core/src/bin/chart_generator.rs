@@ -38,7 +38,9 @@ fn generate_single_chart(id: usize) -> SyntheticChart {
     let jd = rust_core::julian_day_number_rust(year, month, day);
 
     let stems = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
-    let elements = ["Wood", "Wood", "Fire", "Fire", "Earth", "Earth", "Metal", "Metal", "Water", "Water"];
+    let elements = [
+        "Wood", "Wood", "Fire", "Fire", "Earth", "Earth", "Metal", "Metal", "Water", "Water",
+    ];
 
     let stem_idx = id % 10;
     let stem = stems[stem_idx].to_string();
@@ -64,7 +66,10 @@ fn generate_single_chart(id: usize) -> SyntheticChart {
 fn main() {
     let start = Instant::now();
     let num_charts = 1000;
-    println!("⚡ Rust Synthetic Chart Generator starting... target: {} charts", num_charts);
+    println!(
+        "⚡ Rust Synthetic Chart Generator starting... target: {} charts",
+        num_charts
+    );
 
     let charts: Vec<SyntheticChart> = (0..num_charts)
         .into_par_iter()
@@ -88,7 +93,10 @@ fn main() {
     let rate = num_charts as f64 / duration;
 
     println!("\n============================================================");
-    println!("📊 SYNTHETIC GENERATOR COMPLETE — {} charts in {:.4}s ({:.2} charts/sec)", num_charts, duration, rate);
+    println!(
+        "📊 SYNTHETIC GENERATOR COMPLETE — {} charts in {:.4}s ({:.2} charts/sec)",
+        num_charts, duration, rate
+    );
     println!("============================================================");
     println!("File saved to: {}", output_path.display());
 }

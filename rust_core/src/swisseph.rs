@@ -18,14 +18,27 @@ pub struct PlanetPosition {
 }
 
 static ZODIAC_SIGNS: [&str; 12] = [
-    "Aries (เมษ)", "Taurus (พฤษภ)", "Gemini (เมถุน)", "Cancer (กรกฎ)",
-    "Leo (สิงห์)", "Virgo (กันย์)", "Libra (ตุลย์)", "Scorpio (พิจิก)",
-    "Sagittarius (ธนู)", "Capricorn (มังกร)", "Aquarius (กุมภ์)", "Pisces (มีน)"
+    "Aries (เมษ)",
+    "Taurus (พฤษภ)",
+    "Gemini (เมถุน)",
+    "Cancer (กรกฎ)",
+    "Leo (สิงห์)",
+    "Virgo (กันย์)",
+    "Libra (ตุลย์)",
+    "Scorpio (พิจิก)",
+    "Sagittarius (ธนู)",
+    "Capricorn (มังกร)",
+    "Aquarius (กุมภ์)",
+    "Pisces (มีน)",
 ];
 
 fn normalize_deg(deg: f64) -> f64 {
     let d = deg % 360.0;
-    if d < 0.0 { d + 360.0 } else { d }
+    if d < 0.0 {
+        d + 360.0
+    } else {
+        d
+    }
 }
 
 /// Compute Julian Day Number for given UTC Date & Time.
@@ -40,7 +53,10 @@ pub fn calculate_julian_day_utc(year: i32, month: i32, day: i32, hour: f64) -> f
     let b = 2.0 - a + (a / 4.0).floor();
     let jd = (365.25 * (y as f64 + 4716.0)).floor()
         + (30.6001 * (m as f64 + 1.0)).floor()
-        + (day as f64) + (hour / 24.0) + b - 1524.5;
+        + (day as f64)
+        + (hour / 24.0)
+        + b
+        - 1524.5;
     jd
 }
 
@@ -104,7 +120,12 @@ pub fn compute_ephemeris_sun_moon(
         let jd = calculate_julian_day_utc(year, month, day, hour);
         let sun = calculate_sun_position_rust(jd);
         let moon = calculate_moon_position_rust(jd);
-        (sun.longitude, sun.zodiac_sign, moon.longitude, moon.zodiac_sign)
+        (
+            sun.longitude,
+            sun.zodiac_sign,
+            moon.longitude,
+            moon.zodiac_sign,
+        )
     });
     Ok(result)
 }

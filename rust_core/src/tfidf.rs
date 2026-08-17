@@ -61,7 +61,8 @@ pub fn batch_cosine_search(
             .collect();
 
         // Sort descending by score
-        scored_docs.sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+        scored_docs
+            .sort_unstable_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
         scored_docs.truncate(top_k);
 
         scored_docs
@@ -98,7 +99,11 @@ pub fn build_tfidf_vector(py: Python<'_>, text: String, vocab: Vec<String>) -> P
 
 #[cfg(feature = "python")]
 #[pyfunction]
-pub fn build_tfidf_matrix(py: Python<'_>, texts: Vec<String>, vocab: Vec<String>) -> PyResult<Vec<Vec<f32>>> {
+pub fn build_tfidf_matrix(
+    py: Python<'_>,
+    texts: Vec<String>,
+    vocab: Vec<String>,
+) -> PyResult<Vec<Vec<f32>>> {
     let result = py.allow_threads(move || {
         let matrix: Vec<Vec<f32>> = texts
             .par_iter()

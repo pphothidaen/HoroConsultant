@@ -35,19 +35,27 @@ fn main() {
             ("丙".to_string(), "寅".to_string()),
             ("戊".to_string(), "子".to_string()),
             ("甲".to_string(), "午".to_string()),
-        ).expect("Failed to build BaZi SVG");
+        )
+        .expect("Failed to build BaZi SVG");
         let bazi_path = output_dir.join("bazi_chart_rust.svg");
         fs::write(&bazi_path, &bazi_svg).expect("Failed to write BaZi SVG");
-        println!("[1/5] Rendered BaZi SVG         : {} (Size: {} bytes)", bazi_path.display(), bazi_svg.len());
+        println!(
+            "[1/5] Rendered BaZi SVG         : {} (Size: {} bytes)",
+            bazi_path.display(),
+            bazi_svg.len()
+        );
 
         // 2. Render Zodiac Wheel SVG
-        let zodiac_svg = rust_core::svg::build_zodiac_svg_rust(
-            py,
-            "Western Tropical Zodiac Wheel".to_string(),
-        ).expect("Failed to build Zodiac SVG");
+        let zodiac_svg =
+            rust_core::svg::build_zodiac_svg_rust(py, "Western Tropical Zodiac Wheel".to_string())
+                .expect("Failed to build Zodiac SVG");
         let zodiac_path = output_dir.join("zodiac_wheel_rust.svg");
         fs::write(&zodiac_path, &zodiac_svg).expect("Failed to write Zodiac SVG");
-        println!("[2/5] Rendered Zodiac Wheel SVG : {} (Size: {} bytes)", zodiac_path.display(), zodiac_svg.len());
+        println!(
+            "[2/5] Rendered Zodiac Wheel SVG : {} (Size: {} bytes)",
+            zodiac_path.display(),
+            zodiac_svg.len()
+        );
 
         // 3. Render Zi Wei Dou Shu SVG
         let ziwei_svg = rust_core::svg::build_ziwei_svg_rust(
@@ -56,10 +64,15 @@ fn main() {
             "8".to_string(),
             "9".to_string(),
             "丙午".to_string(),
-        ).expect("Failed to build ZiWei SVG");
+        )
+        .expect("Failed to build ZiWei SVG");
         let ziwei_path = output_dir.join("ziwei_chart_rust.svg");
         fs::write(&ziwei_path, &ziwei_svg).expect("Failed to write ZiWei SVG");
-        println!("[3/5] Rendered ZiWei Dou Shu SVG: {} (Size: {} bytes)", ziwei_path.display(), ziwei_svg.len());
+        println!(
+            "[3/5] Rendered ZiWei Dou Shu SVG: {} (Size: {} bytes)",
+            ziwei_path.display(),
+            ziwei_svg.len()
+        );
 
         // 4. Render Qi Men Dun Jia SVG
         let qimen_svg = rust_core::svg::build_qimen_svg_rust(
@@ -68,10 +81,15 @@ fn main() {
             "立秋".to_string(),
             "陽".to_string(),
             1,
-        ).expect("Failed to build QiMen SVG");
+        )
+        .expect("Failed to build QiMen SVG");
         let qimen_path = output_dir.join("qimen_chart_rust.svg");
         fs::write(&qimen_path, &qimen_svg).expect("Failed to write QiMen SVG");
-        println!("[4/5] Rendered QiMen Dun Jia SVG: {} (Size: {} bytes)", qimen_path.display(), qimen_svg.len());
+        println!(
+            "[4/5] Rendered QiMen Dun Jia SVG: {} (Size: {} bytes)",
+            qimen_path.display(),
+            qimen_svg.len()
+        );
 
         // 5. Render Xuan Kong Flying Stars SVG
         let xuankong_svg = rust_core::svg::build_xuankong_svg_rust(
@@ -79,14 +97,23 @@ fn main() {
             "Xuan Kong Flying Stars Period 9 Chart".to_string(),
             180.0,
             9,
-        ).expect("Failed to build XuanKong SVG");
+        )
+        .expect("Failed to build XuanKong SVG");
         let xuankong_path = output_dir.join("xuankong_chart_rust.svg");
         fs::write(&xuankong_path, &xuankong_svg).expect("Failed to write XuanKong SVG");
-        println!("[5/5] Rendered XuanKong 9-Grid SVG: {} (Size: {} bytes)", xuankong_path.display(), xuankong_svg.len());
+        println!(
+            "[5/5] Rendered XuanKong 9-Grid SVG: {} (Size: {} bytes)",
+            xuankong_path.display(),
+            xuankong_svg.len()
+        );
     });
 
     let elapsed = start.elapsed();
     println!("------------------------------------------------------------");
-    println!("📊 SUMMARY: 5 Vector Charts Rendered | Time: {:.3} ms ({:.3} ms/chart)", elapsed.as_secs_f64() * 1000.0, (elapsed.as_secs_f64() * 1000.0) / 5.0);
+    println!(
+        "📊 SUMMARY: 5 Vector Charts Rendered | Time: {:.3} ms ({:.3} ms/chart)",
+        elapsed.as_secs_f64() * 1000.0,
+        (elapsed.as_secs_f64() * 1000.0) / 5.0
+    );
     println!("============================================================");
 }

@@ -21,7 +21,8 @@ fn test_rust_dense_vector_search() {
 
 #[test]
 fn test_rust_security_audit_scanner() {
-    let (passed, scanned_count, findings) = rust_core::security_audit::scan_directory_secrets_rust(".").unwrap();
+    let (passed, scanned_count, findings) =
+        rust_core::security_audit::scan_directory_secrets_rust(".").unwrap();
     assert!(scanned_count > 0);
     assert!(passed || !findings.is_empty());
 }

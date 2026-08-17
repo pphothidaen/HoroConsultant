@@ -23,7 +23,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("⚡ Benchmarking Axum Gateway Throughput & Latency (< 1ms)");
     println!("============================================================");
 
-    let target_url = env::var("RUST_GATEWAY_URL").unwrap_or_else(|_| "http://127.0.0.1:8080".to_string());
+    let target_url =
+        env::var("RUST_GATEWAY_URL").unwrap_or_else(|_| "http://127.0.0.1:8080".to_string());
     let total_requests: usize = 1000;
     let concurrency: usize = 10;
 
@@ -70,11 +71,20 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     println!("------------------------------------------------------------");
     println!("📊 BENCHMARK RESULTS:");
-    println!("  • Total Requests Completed : {} / {}", completed, total_requests);
-    println!("  • Elapsed Time             : {:.3}s", elapsed.as_secs_f64());
+    println!(
+        "  • Total Requests Completed : {} / {}",
+        completed, total_requests
+    );
+    println!(
+        "  • Elapsed Time             : {:.3}s",
+        elapsed.as_secs_f64()
+    );
     if completed > 0 {
         println!("  • Throughput Rate          : {:.2} req/sec", rps);
-        println!("  • Avg Latency Per Request  : {:.3} ms", (elapsed.as_secs_f64() * 1000.0) / completed as f64);
+        println!(
+            "  • Avg Latency Per Request  : {:.3} ms",
+            (elapsed.as_secs_f64() * 1000.0) / completed as f64
+        );
     } else {
         println!("  • Status                   : Server offline (math cores verified standalone)");
     }
@@ -95,10 +105,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
     match bazi_res {
         Ok(r) if r.status().is_success() => {
             let json_body: serde_json::Value = r.json().await.unwrap_or_default();
-            println!("  • BaZi Calculation Test    : PASSED ✅ ({:.3} ms, Engine: {})", bazi_elapsed.as_secs_f64() * 1000.0, json_body["engine"]);
+            println!(
+                "  • BaZi Calculation Test    : PASSED ✅ ({:.3} ms, Engine: {})",
+                bazi_elapsed.as_secs_f64() * 1000.0,
+                json_body["engine"]
+            );
         }
         _ => {
-            println!("  • BaZi Calculation Test    : SKIPPED 🟡 (Standalone Math Execution Certified)");
+            println!(
+                "  • BaZi Calculation Test    : SKIPPED 🟡 (Standalone Math Execution Certified)"
+            );
         }
     }
 

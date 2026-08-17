@@ -94,9 +94,8 @@ pub fn dense_vector_search(
     top_k: usize,
     threshold: f32,
 ) -> PyResult<Vec<(usize, f32)>> {
-    let result = py.allow_threads(move || {
-        dense_vector_search_rust(&query_vec, &doc_matrix, top_k, threshold)
-    });
+    let result = py
+        .allow_threads(move || dense_vector_search_rust(&query_vec, &doc_matrix, top_k, threshold));
     Ok(result)
 }
 

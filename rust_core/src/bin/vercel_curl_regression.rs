@@ -62,14 +62,23 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut headers = HeaderMap::new();
     headers.insert("accept", HeaderValue::from_static("*/*"));
     headers.insert("origin", HeaderValue::from_static(ORIGIN));
-    headers.insert("user-agent", HeaderValue::from_static("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Rust/VercelCurlSuite"));
+    headers.insert(
+        "user-agent",
+        HeaderValue::from_static(
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Rust/VercelCurlSuite",
+        ),
+    );
 
     let mut checks = Vec::new();
 
     // Check 1: GET /health
     let health_url = format!("{}/health", base_url.trim_end_matches('/'));
     let start = Instant::now();
-    let resp = client.get(&health_url).headers(headers.clone()).send().await;
+    let resp = client
+        .get(&health_url)
+        .headers(headers.clone())
+        .send()
+        .await;
     let elapsed = start.elapsed().as_secs_f64() * 1000.0;
 
     match resp {
@@ -109,13 +118,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Check 2: OPTIONS /api/v1/bazi/interpret
     let opts_url = format!("{}/api/v1/bazi/interpret", base_url.trim_end_matches('/'));
     let start = Instant::now();
-    let resp = client.request(reqwest::Method::OPTIONS, &opts_url).headers(headers.clone()).send().await;
+    let resp = client
+        .request(reqwest::Method::OPTIONS, &opts_url)
+        .headers(headers.clone())
+        .send()
+        .await;
     let elapsed = start.elapsed().as_secs_f64() * 1000.0;
 
     match resp {
         Ok(r) => {
             let status = r.status().as_u16();
-            let cors_ok = r.headers().contains_key("access-control-allow-origin") || r.headers().contains_key("access-control-allow-methods");
+            let cors_ok = r.headers().contains_key("access-control-allow-origin")
+                || r.headers().contains_key("access-control-allow-methods");
             let passed = (status == 200 || status == 204) && cors_ok;
             checks.push(CheckResult {
                 id: "CHK-02".to_string(),
@@ -160,7 +174,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     post_headers.insert("content-type", HeaderValue::from_static("application/json"));
 
     let start = Instant::now();
-    let resp = client.post(&post_url).headers(post_headers).json(&payload).send().await;
+    let resp = client
+        .post(&post_url)
+        .headers(post_headers)
+        .json(&payload)
+        .send()
+        .await;
     let elapsed = start.elapsed().as_secs_f64() * 1000.0;
 
     match resp {
@@ -168,7 +187,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             let status = r.status().as_u16();
             let cors_ok = r.headers().contains_key("access-control-allow-origin");
             let body = r.text().await.unwrap_or_default();
-            let has_chart = body.contains("chart") || body.contains("bazi") || body.contains("day_master");
+            let has_chart =
+                body.contains("chart") || body.contains("bazi") || body.contains("day_master");
             let passed = (status == 200) && has_chart;
             checks.push(CheckResult {
                 id: "CHK-03".to_string(),
@@ -179,7 +199,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 passed,
                 latency_ms: elapsed,
                 cors_ok,
-                details: format!("Chart Present: {}, Response Length: {}", has_chart, body.len()),
+                details: format!(
+                    "Chart Present: {}, Response Length: {}",
+                    has_chart,
+                    body.len()
+                ),
             });
         }
         Err(e) => {
@@ -200,7 +224,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let passed_count = checks.iter().filter(|c| c.passed).count();
     let total_checks = checks.len();
     let failed_count = total_checks - passed_count;
-    let overall_status = if failed_count == 0 { "PASSED 100%".to_string() } else { "FAILED".to_string() };
+    let overall_status = if failed_count == 0 {
+        "PASSED 100%".to_string()
+    } else {
+        "FAILED".to_string()
+    };
 
     let report = FinalReport {
         timestamp: chrono::Utc::now().to_rfc3339(),
@@ -217,11 +245,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("============================================================");
     for c in &report.checks {
         let icon = if c.passed { "✅" } else { "❌" };
-        println!("{} [{}] {} {} -> HTTP {} ({:.1} ms)", icon, c.id, c.method, c.name, c.status_code, c.latency_ms);
+        println!(
+            "{} [{}] {} {} -> HTTP {} ({:.1} ms)",
+            icon, c.id, c.method, c.name, c.status_code, c.latency_ms
+        );
     }
 
     let report_json = serde_json::to_string_pretty(&report)?;
-    std::fs::write("project/tests/vercel_curl_regression_report.json", report_json)?;
+    std::fs::write(
+        "project/tests/vercel_curl_regression_report.json",
+        report_json,
+    )?;
     println!("\n[INFO] Saved report to project/tests/vercel_curl_regression_report.json");
 
     if failed_count > 0 {

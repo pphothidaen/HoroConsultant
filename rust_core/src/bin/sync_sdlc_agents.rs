@@ -7,7 +7,6 @@ use std::env;
 use std::error::Error;
 use std::fs;
 
-
 fn main() -> Result<(), Box<dyn Error>> {
     println!("[INFO] Starting High-Performance Rust Agent & Governance Spec Auditor...");
 
@@ -29,7 +28,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    println!("[INFO] Discovered {} Antigravity Agent specifications in .antigravity/agents/", count);
+    println!(
+        "[INFO] Discovered {} Antigravity Agent specifications in .antigravity/agents/",
+        count
+    );
 
     if agents_dir.exists() {
         println!("[OK] Workspace Customization Directory (.agents/agents/) verified");

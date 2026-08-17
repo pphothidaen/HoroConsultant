@@ -66,6 +66,9 @@ fn main() {
 
     let elapsed = start.elapsed();
     println!("------------------------------------------------------------");
-    println!("📊 GOVERNANCE AUDIT COMPLETE: 100% PASS | Execution Time: {:.3} ms", elapsed.as_secs_f64() * 1000.0);
+    println!(
+        "📊 GOVERNANCE AUDIT COMPLETE: 100% PASS | Execution Time: {:.3} ms",
+        elapsed.as_secs_f64() * 1000.0
+    );
     println!("============================================================");
 }

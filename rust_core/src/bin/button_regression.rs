@@ -33,8 +33,9 @@ struct FinalReport {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     println!("[INFO] Starting High-Performance Async Rust UI Button Regression Test Suite...");
-    
-    let base_url = std::env::var("TEST_BASE_URL").unwrap_or_else(|_| "http://testserver".to_string());
+
+    let base_url =
+        std::env::var("TEST_BASE_URL").unwrap_or_else(|_| "http://testserver".to_string());
     let client = Client::builder()
         .timeout(std::time::Duration::from_secs(10))
         .build()?;
@@ -73,7 +74,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     for (id, label, method, path, expected_status) in contracts {
         let start = Instant::now();
         let full_url = format!("{}{}", base_url, path);
-        
+
         let req_builder = match method {
             "POST" => client.post(&full_url),
             "DELETE" => client.delete(&full_url),
@@ -92,12 +93,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     println!("[OK] {} - {}: PASSED ({:.2}ms)", id, label, elapsed);
                 } else {
                     failed += 1;
-                    println!("[FAIL] {} - {}: Expected {} got {}", id, label, expected_status, code);
+                    println!(
+                        "[FAIL] {} - {}: Expected {} got {}",
+                        id, label, expected_status, code
+                    );
                 }
                 results.push(TestResult {
                     id: id.to_string(),
                     label: label.to_string(),
-                    status: if is_pass { "PASSED".to_string() } else { "FAILED".to_string() },
+                    status: if is_pass {
+                        "PASSED".to_string()
+                    } else {
+                        "FAILED".to_string()
+                    },
                     http_code: code,
                     latency_ms: elapsed,
                 });
@@ -121,7 +129,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
         total_tested: results.len(),
         passed_count: passed,
         failed_count: failed,
-        overall_status: if failed == 0 { "PASSED".to_string() } else { "FAILED".to_string() },
+        overall_status: if failed == 0 {
+            "PASSED".to_string()
+        } else {
+            "FAILED".to_string()
+        },
         results,
     };
 
@@ -132,8 +144,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     }
     fs::write(out_path, report_json)?;
 
-    println!("[INFO] Rust Button Regression Report written to {:?}", out_path);
-    println!("[SUMMARY] Passed: {} / Total: {}", passed, report.total_tested);
+    println!(
+        "[INFO] Rust Button Regression Report written to {:?}",
+        out_path
+    );
+    println!(
+        "[SUMMARY] Passed: {} / Total: {}",
+        passed, report.total_tested
+    );
 
     Ok(())
 }

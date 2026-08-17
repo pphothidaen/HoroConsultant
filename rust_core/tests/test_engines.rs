@@ -7,7 +7,7 @@
 
 use reqwest::Client as HttpClient;
 use serde_json::Value;
-use std::{time::Instant, process::ExitCode};
+use std::{process::ExitCode, time::Instant};
 
 #[tokio::main]
 async fn main() -> ExitCode {
@@ -81,7 +81,10 @@ async fn main() -> ExitCode {
     let (lagna_deg, _rashi) = rust_core::thai_vedic::calculate_thai_lagna_rust(2026, 8, 9, 14, 30);
     let thaksa = rust_core::thai_vedic::calculate_thaksa_map_rust(9);
     if lagna_deg >= 0.0 && !thaksa.is_empty() {
-        println!("PASSED ✅ (Lagna: {:.2}°, Day Master: {})", lagna_deg, thaksa);
+        println!(
+            "PASSED ✅ (Lagna: {:.2}°, Day Master: {})",
+            lagna_deg, thaksa
+        );
         passed += 1;
     } else {
         println!("FAILED ❌");
@@ -105,7 +108,10 @@ async fn main() -> ExitCode {
     let sun = rust_core::swisseph::calculate_sun_position_rust(jd);
     let moon = rust_core::swisseph::calculate_moon_position_rust(jd);
     if sun.longitude >= 0.0 && moon.longitude >= 0.0 {
-        println!("PASSED ✅ (Sun: {:.2}°, Moon: {:.2}°)", sun.longitude, moon.longitude);
+        println!(
+            "PASSED ✅ (Sun: {:.2}°, Moon: {:.2}°)",
+            sun.longitude, moon.longitude
+        );
         passed += 1;
     } else {
         println!("FAILED ❌");
@@ -153,7 +159,8 @@ async fn main() -> ExitCode {
         .build()
         .unwrap();
 
-    let ping_target = std::env::var("RUST_GATEWAY_URL").unwrap_or_else(|_| "http://127.0.0.1:8080/health".to_string());
+    let ping_target = std::env::var("RUST_GATEWAY_URL")
+        .unwrap_or_else(|_| "http://127.0.0.1:8080/health".to_string());
     match client.get(&ping_target).send().await {
         Ok(res) => {
             if res.status().is_success() {
@@ -164,14 +171,22 @@ async fn main() -> ExitCode {
             }
         }
         Err(_) => {
-            println!("SKIPPED 🟡 (Gateway server not running on {}, standalone math checks PASSED)", ping_target);
+            println!(
+                "SKIPPED 🟡 (Gateway server not running on {}, standalone math checks PASSED)",
+                ping_target
+            );
         }
     }
     passed += 1;
 
     let elapsed = start_time.elapsed();
     println!("------------------------------------------------------------");
-    println!("📊 SUMMARY: {} Passed | {} Failed | Total Execution Time: {:.3}s", passed, failed, elapsed.as_secs_f64());
+    println!(
+        "📊 SUMMARY: {} Passed | {} Failed | Total Execution Time: {:.3}s",
+        passed,
+        failed,
+        elapsed.as_secs_f64()
+    );
     println!("============================================================");
 
     if failed == 0 {

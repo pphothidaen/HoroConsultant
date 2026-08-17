@@ -26,12 +26,18 @@ fn main() {
         // 1. BaZi
         Box::new(move || {
             let jd = rust_core::bazi::julian_day_number_rust(birth_year, birth_month, birth_day);
-            let (stems, branches) = rust_core::bazi::calculate_bazi_stems_branches_rust(birth_year, birth_month, birth_day, birth_hour);
+            let (stems, branches) = rust_core::bazi::calculate_bazi_stems_branches_rust(
+                birth_year,
+                birth_month,
+                birth_day,
+                birth_hour,
+            );
             json!({ "domain": "BaZi", "julian_day": jd, "stems": stems, "branches": branches })
         }),
         // 2. ZiWei
         Box::new(move || {
-            let (ming, shen) = rust_core::ziwei::calculate_ming_shen_gong_rust(birth_month, birth_day as usize);
+            let (ming, shen) =
+                rust_core::ziwei::calculate_ming_shen_gong_rust(birth_month, birth_day as usize);
             json!({ "domain": "ZiWei", "ming_palace": ming, "shen_palace": shen })
         }),
         // 3. QiMen
@@ -47,7 +53,13 @@ fn main() {
         }),
         // 5. Thai Vedic
         Box::new(move || {
-            let (lagna_deg, rashi) = rust_core::thai_vedic::calculate_thai_lagna_rust(birth_year, birth_month, birth_day, birth_hour, 30);
+            let (lagna_deg, rashi) = rust_core::thai_vedic::calculate_thai_lagna_rust(
+                birth_year,
+                birth_month,
+                birth_day,
+                birth_hour,
+                30,
+            );
             let thaksa = rust_core::thai_vedic::calculate_thaksa_map_rust(birth_day);
             json!({ "domain": "ThaiVedic", "lagna_deg": lagna_deg, "rashi_index": rashi, "thaksa": thaksa })
         }),
@@ -58,7 +70,12 @@ fn main() {
         }),
         // 7. SwissEph
         Box::new(move || {
-            let jd = rust_core::swisseph::calculate_julian_day_utc(birth_year, birth_month, birth_day, birth_hour as f64);
+            let jd = rust_core::swisseph::calculate_julian_day_utc(
+                birth_year,
+                birth_month,
+                birth_day,
+                birth_hour as f64,
+            );
             let sun = rust_core::swisseph::calculate_sun_position_rust(jd);
             let moon = rust_core::swisseph::calculate_moon_position_rust(jd);
             json!({ "domain": "SwissEph", "sun_deg": sun.longitude, "sun_sign": sun.zodiac_sign, "moon_deg": moon.longitude, "moon_sign": moon.zodiac_sign })
@@ -76,7 +93,11 @@ fn main() {
         }),
         // 10. Numerology
         Box::new(move || {
-            let matrix = rust_core::numerology::calculate_satta_lek_matrix_rust(birth_day as u8, birth_month as u8, birth_year as u16);
+            let matrix = rust_core::numerology::calculate_satta_lek_matrix_rust(
+                birth_day as u8,
+                birth_month as u8,
+                birth_year as u16,
+            );
             json!({ "domain": "Numerology", "rows_count": matrix.len() })
         }),
     ];
@@ -92,8 +113,14 @@ fn main() {
         "fusion_results": results
     });
 
-    println!("{}", serde_json::to_string_pretty(&unified_payload).unwrap());
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&unified_payload).unwrap()
+    );
     println!("------------------------------------------------------------");
-    println!("📊 SUMMARY: 10 Disciplines Synthesized in Parallel | Total Execution Time: {:.3} ms", elapsed.as_secs_f64() * 1000.0);
+    println!(
+        "📊 SUMMARY: 10 Disciplines Synthesized in Parallel | Total Execution Time: {:.3} ms",
+        elapsed.as_secs_f64() * 1000.0
+    );
     println!("============================================================");
 }

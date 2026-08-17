@@ -15,7 +15,11 @@ pub fn chunk_text(text: &str, chunk_size: usize, overlap: usize) -> PyResult<Vec
         return Ok(chunks);
     }
 
-    let step = if chunk_size > overlap { chunk_size - overlap } else { 1 };
+    let step = if chunk_size > overlap {
+        chunk_size - overlap
+    } else {
+        1
+    };
     let mut start = 0;
 
     while start < chars.len() {

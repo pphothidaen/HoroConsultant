@@ -8,9 +8,18 @@ use pyo3::prelude::*;
 
 #[cfg(feature = "python")]
 static WESTERN_ZODIAC: [&str; 12] = [
-    "Aries (เมษ)", "Taurus (พฤษภ)", "Gemini (เมถุน)", "Cancer (กรกฎ)",
-    "Leo (สิงห์)", "Virgo (กันย์)", "Libra (ตุลย์)", "Scorpio (พิจิก)",
-    "Sagittarius (ธนู)", "Capricorn (มังกร)", "Aquarius (กุมภ์)", "Pisces (มีน)"
+    "Aries (เมษ)",
+    "Taurus (พฤษภ)",
+    "Gemini (เมถุน)",
+    "Cancer (กรกฎ)",
+    "Leo (สิงห์)",
+    "Virgo (กันย์)",
+    "Libra (ตุลย์)",
+    "Scorpio (พิจิก)",
+    "Sagittarius (ธนู)",
+    "Capricorn (มังกร)",
+    "Aquarius (กุมภ์)",
+    "Pisces (มีน)",
 ];
 
 pub fn calculate_midpoint_rust(deg1: f64, deg2: f64) -> f64 {

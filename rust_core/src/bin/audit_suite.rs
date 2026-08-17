@@ -34,7 +34,10 @@ fn audit_five_elements_balance() -> AuditItem {
     AuditItem {
         name: "Five Elements Sum & Day Master Balance".to_string(),
         passed,
-        detail: format!("Stem: {}, Element: {}, Total Sum: {:.2}%", stem, element, elements_sum),
+        detail: format!(
+            "Stem: {}, Element: {}, Total Sum: {:.2}%",
+            stem, element, elements_sum
+        ),
     }
 }
 
@@ -59,7 +62,8 @@ fn audit_cross_domain_synergy() -> AuditItem {
     let thai_lagna = Some("เมษ".to_string());
     let western_sun = Some("Taurus".to_string());
 
-    let passed = bazi_dm.is_some() && ziwei_ming.is_some() && thai_lagna.is_some() && western_sun.is_some();
+    let passed =
+        bazi_dm.is_some() && ziwei_ming.is_some() && thai_lagna.is_some() && western_sun.is_some();
 
     AuditItem {
         name: "Cross-Domain Synergy Audit".to_string(),
@@ -89,15 +93,25 @@ fn main() {
     let report = AuditReport {
         auditor: "RustAstrologicalAuditSuite v1.0".to_string(),
         timestamp: chrono::Utc::now().to_rfc3339(),
-        overall_status: if all_passed { "READY_FOR_PROD".to_string() } else { "FAILED".to_string() },
+        overall_status: if all_passed {
+            "READY_FOR_PROD".to_string()
+        } else {
+            "FAILED".to_string()
+        },
         execution_time_ms: duration,
         audits,
     };
 
     println!("\n============================================================");
-    println!("📊 ASTROLOGICAL AUDIT COMPLETE — OVERALL STATUS: {}", report.overall_status);
+    println!(
+        "📊 ASTROLOGICAL AUDIT COMPLETE — OVERALL STATUS: {}",
+        report.overall_status
+    );
     println!("============================================================");
-    println!("{}", serde_json::to_string_pretty(&report).unwrap_or_default());
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&report).unwrap_or_default()
+    );
 
     if !all_passed {
         std::process::exit(1);

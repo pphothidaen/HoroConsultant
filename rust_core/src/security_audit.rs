@@ -6,10 +6,10 @@
 
 #[cfg(feature = "python")]
 use pyo3::prelude::*;
-use std::fs;
-use std::path::{Path, PathBuf};
 use rayon::prelude::*;
 use regex::Regex;
+use std::fs;
+use std::path::{Path, PathBuf};
 
 static SECRET_PATTERNS: &[(&str, &str)] = &[
     ("Google AI Studio API Key", r#"AIzaSy[A-Za-z0-9_-]{33}"#),
@@ -17,15 +17,29 @@ static SECRET_PATTERNS: &[(&str, &str)] = &[
     ("Kaggle API Token", r#"kg_[A-Za-z0-9_-]{20,}"#),
     ("Doppler Service Token", r#"dp\.pt\.[A-Za-z0-9_-]{20,}"#),
     ("GitHub Personal Access Token", r#"ghp_[A-Za-z0-9]{36}"#),
-    ("Docker Hub Personal Access Token", r#"dckr_pat_[A-Za-z0-9_-]{20,}"#),
+    (
+        "Docker Hub Personal Access Token",
+        r#"dckr_pat_[A-Za-z0-9_-]{20,}"#,
+    ),
     ("Grafana Cloud API Key", r#"glc_[A-Za-z0-9_-]{20,}"#),
     ("AWS Key", r#"AKIA[0-9A-Z]{16}"#),
-    ("Private Key", r#"-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----"#),
+    (
+        "Private Key",
+        r#"-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----"#,
+    ),
 ];
 
 static EXCLUDED_DIR_PARTS: &[&str] = &[
-    ".git", ".pytest_cache", ".ruff_cache", "__pycache__", "venv", ".venv",
-    "node_modules", ".vercel", "target", "wandb"
+    ".git",
+    ".pytest_cache",
+    ".ruff_cache",
+    "__pycache__",
+    "venv",
+    ".venv",
+    "node_modules",
+    ".vercel",
+    "target",
+    "wandb",
 ];
 
 static DUMMY_SUBSTRINGS: &[&str] = &["dummy", "replace", "example", "test_key", "your_api_key"];
@@ -91,10 +105,17 @@ pub fn scan_directory_secrets_rust(root_path: &str) -> Result<(bool, usize, Vec<
 /// Run parallel security audit and secret leak scanning over target directory.
 #[cfg(feature = "python")]
 #[pyfunction]
-pub fn run_rust_security_audit(py: Python<'_>, root_path: &str) -> PyResult<(bool, usize, Vec<String>)> {
+pub fn run_rust_security_audit(
+    py: Python<'_>,
+    root_path: &str,
+) -> PyResult<(bool, usize, Vec<String>)> {
     let root_path_owned = root_path.to_owned();
     let result = py.allow_threads(move || {
-        scan_directory_secrets_rust(&root_path_owned).unwrap_or((false, 0, vec!["Scan failed".to_string()]))
+        scan_directory_secrets_rust(&root_path_owned).unwrap_or((
+            false,
+            0,
+            vec!["Scan failed".to_string()],
+        ))
     });
     Ok(result)
 }
@@ -136,18 +157,15 @@ mod tests {
             .duration_since(UNIX_EPOCH)
             .expect("clock must follow Unix epoch")
             .as_nanos();
-        let root = std::env::temp_dir().join(format!(
-            "horo-secret-audit-{}-{nonce}",
-            std::process::id()
-        ));
+        let root =
+            std::env::temp_dir().join(format!("horo-secret-audit-{}-{nonce}", std::process::id()));
         fs::create_dir_all(&root).expect("temporary audit directory");
         let token = format!("{}{}{}", "dckr", "_pat_", "A".repeat(24));
         fs::write(root.join("leak.txt"), token).expect("temporary secret fixture");
 
-        let (passed, _count, findings) = scan_directory_secrets_rust(
-            root.to_str().expect("temporary path must be valid UTF-8"),
-        )
-        .expect("security scan must complete");
+        let (passed, _count, findings) =
+            scan_directory_secrets_rust(root.to_str().expect("temporary path must be valid UTF-8"))
+                .expect("security scan must complete");
 
         let _ = fs::remove_dir_all(&root);
         assert!(!passed);

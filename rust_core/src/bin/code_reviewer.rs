@@ -3,6 +3,8 @@
  * High-Performance Native Rust Pre-Deployment Code Reviewer & Safety Auditor.
  */
 
+use rayon::prelude::*;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::error::Error;
@@ -10,8 +12,6 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Instant;
-use rayon::prelude::*;
-use regex::Regex;
 
 static SECRET_PATTERNS: &[(&str, &str)] = &[
     ("Google AI Studio API Key", r#"AIzaSy[A-Za-z0-9_-]{33}"#),
@@ -19,15 +19,29 @@ static SECRET_PATTERNS: &[(&str, &str)] = &[
     ("Kaggle API Token", r#"kg_[A-Za-z0-9_-]{20,}"#),
     ("Doppler Service Token", r#"dp\.pt\.[A-Za-z0-9_-]{20,}"#),
     ("GitHub Personal Access Token", r#"ghp_[A-Za-z0-9]{36}"#),
-    ("Docker Hub Personal Access Token", r#"dckr_pat_[A-Za-z0-9_-]{20,}"#),
+    (
+        "Docker Hub Personal Access Token",
+        r#"dckr_pat_[A-Za-z0-9_-]{20,}"#,
+    ),
     ("Grafana Cloud API Key", r#"glc_[A-Za-z0-9_-]{20,}"#),
     ("AWS Key", r#"AKIA[0-9A-Z]{16}"#),
-    ("Private Key", r#"-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----"#),
+    (
+        "Private Key",
+        r#"-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----"#,
+    ),
 ];
 
 static EXCLUDED_DIR_PARTS: &[&str] = &[
-    ".git", ".pytest_cache", ".ruff_cache", "__pycache__", "venv", ".venv",
-    "node_modules", ".vercel", "target", "wandb"
+    ".git",
+    ".pytest_cache",
+    ".ruff_cache",
+    "__pycache__",
+    "venv",
+    ".venv",
+    "node_modules",
+    ".vercel",
+    "target",
+    "wandb",
 ];
 
 static DUMMY_SUBSTRINGS: &[&str] = &["dummy", "replace", "example", "test_key", "your_api_key"];
@@ -105,7 +119,11 @@ fn scan_secrets_rust(root: &Path) -> SecretScanReport {
         })
         .collect();
 
-    let status = if findings.is_empty() { "PASSED".to_string() } else { "FAILED".to_string() };
+    let status = if findings.is_empty() {
+        "PASSED".to_string()
+    } else {
+        "FAILED".to_string()
+    };
     SecretScanReport {
         scanned_files: scanned_count,
         secret_leaks_found: findings.len(),
@@ -120,14 +138,23 @@ fn audit_kaggle_dependencies_rust(root: &Path) -> KaggleAuditReport {
 
     if manager_file.exists() {
         if let Ok(content) = fs::read_to_string(&manager_file) {
-            let re = Regex::new(r#"pip['"]?,?\s*['"]install['"]?,?\s*['"]-q['"]?,?\s*['"]torch['"]"#).unwrap();
+            let re =
+                Regex::new(r#"pip['"]?,?\s*['"]install['"]?,?\s*['"]-q['"]?,?\s*['"]torch['"]"#)
+                    .unwrap();
             if re.is_match(&content) {
-                issues.push("Notebook setup reinstalls 'torch' on Kaggle, overwriting CUDA binaries.".to_string());
+                issues.push(
+                    "Notebook setup reinstalls 'torch' on Kaggle, overwriting CUDA binaries."
+                        .to_string(),
+                );
             }
         }
     }
 
-    let status = if issues.is_empty() { "PASSED".to_string() } else { "WARNING".to_string() };
+    let status = if issues.is_empty() {
+        "PASSED".to_string()
+    } else {
+        "WARNING".to_string()
+    };
     KaggleAuditReport {
         issues_found: issues.len(),
         issues,
@@ -147,9 +174,21 @@ fn run_test_suite_rust(root: &Path) -> TestSuiteReport {
             let exit_code = out.status.code().unwrap_or(-1);
             let passed = exit_code == 0;
             let stdout_str = String::from_utf8_lossy(&out.stdout);
-            let summary = stdout_str.lines().last().unwrap_or("Tests executed").to_string();
-            let status = if passed { "PASSED".to_string() } else { "FAILED".to_string() };
-            println!("[INFO] Test Suite Output ({:.2}s): {}", start.elapsed().as_secs_f64(), summary);
+            let summary = stdout_str
+                .lines()
+                .last()
+                .unwrap_or("Tests executed")
+                .to_string();
+            let status = if passed {
+                "PASSED".to_string()
+            } else {
+                "FAILED".to_string()
+            };
+            println!(
+                "[INFO] Test Suite Output ({:.2}s): {}",
+                start.elapsed().as_secs_f64(),
+                summary
+            );
             TestSuiteReport {
                 passed,
                 exit_code,
@@ -196,10 +235,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     let root_path = env::current_dir()?;
 
     let secret_report = scan_secrets_rust(&root_path);
-    println!("⚡ [Rust Security Scanner] Scanned {} files in parallel via Rayon | Secret Leaks: {}", secret_report.scanned_files, secret_report.secret_leaks_found);
+    println!(
+        "⚡ [Rust Security Scanner] Scanned {} files in parallel via Rayon | Secret Leaks: {}",
+        secret_report.scanned_files, secret_report.secret_leaks_found
+    );
 
     let kaggle_report = audit_kaggle_dependencies_rust(&root_path);
-    println!("📦 [Kaggle CUDA Audit] Issues Found: {}", kaggle_report.issues_found);
+    println!(
+        "📦 [Kaggle CUDA Audit] Issues Found: {}",
+        kaggle_report.issues_found
+    );
 
     let test_report = run_test_suite_rust(&root_path);
 
@@ -207,7 +252,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         && test_report.status == "PASSED"
         && kaggle_report.status != "FAILED";
 
-    let overall_status = if all_passed { "READY_FOR_PROD".to_string() } else { "BLOCKED".to_string() };
+    let overall_status = if all_passed {
+        "READY_FOR_PROD".to_string()
+    } else {
+        "BLOCKED".to_string()
+    };
     let elapsed_ms = start.elapsed().as_secs_f64() * 1000.0;
 
     let final_report = FinalAuditReport {
