@@ -248,6 +248,10 @@ Run the required unit, integration, UI/E2E, security, agent synchronization, pre
 - [x] Local Playwright E2E report: `17/17 PASSED`; console still records local `sw.js` 404 and proxy 502 events requiring live/release disposition.
 - [x] Secret scan: `0` leaks across `1,485` files.
 - [x] Hugging Face static payload dry-run: `21` files, `3.75 MB`, authenticated payload audit passed.
+- [x] Authorized push: remote `origin/main` advanced to `9205dd8`; HF workflow `32011185681` completed successfully for that SHA.
+- [x] HF static production version: `1.0.0.9205dd8` confirmed live.
+- [x] Vercel gateway health: HTTP `200`; production gateway reports `1.0.0.028c88d` with configured provider chain.
+- [ ] Docker backend deployment: not executed because production variable `HF_BACKEND_SPACE_ID` is unset; the nominal `...core-api.hf.space` target returns HTTP `404`.
 - [ ] Rust/Python full-review wrapper completion: wrapper hangs while re-running its internal suite; independent full QA evidence is available.
 - [ ] Live production Playwright E2E: pending explicit authorization for external birth-data test egress.
 
