@@ -35,3 +35,4 @@ project/data/runtime_response_cache.json
 .aws/
 *.so
 *.dylib
+*.log
