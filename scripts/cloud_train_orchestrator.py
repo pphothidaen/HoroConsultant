@@ -674,6 +674,8 @@ def run_training_pipeline(
         )
 
 
+    max_seq_length = 1024
+
     # 3. Load & Pre-format Dataset into a single string 'text' column
     logger.info(f" Pre-formatting dataset from '{dataset_path}'...")
     raw_data = load_dataset("json", data_files=str(dataset_path))
@@ -725,7 +727,6 @@ def run_training_pipeline(
         except Exception as e:
             logger.warning(f"[WARNING] W&B login/initialization failed ({e}). Defaulting report_to to 'none'.")
 
-    max_seq_length = 1024
     sft_kwargs = {
         "output_dir": str(output_dir),
         "num_train_epochs": epochs,
