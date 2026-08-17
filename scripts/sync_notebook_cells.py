@@ -134,13 +134,32 @@ os.chdir(target_dir)
 if target_dir not in sys.path:
     sys.path.insert(0, target_dir)
 
-# 3. Dynamic CUDA symlink fix & Fail-Fast Import Verification
 import torch
 if torch.cuda.is_available():
     cap = torch.cuda.get_device_capability(0)
     dev_name = torch.cuda.get_device_name(0)
     target_sm = f'sm_{cap[0]}{cap[1]}'
     print(f'[CUDA] Detected GPU: {dev_name} ({target_sm})')
+
+# Global PyTorch Embedding Guard to enforce LongTensor scalar types
+try:
+    import torch.nn as nn
+    import torch.nn.functional as F
+    _orig_nn_embedding_forward = nn.Embedding.forward
+    def _safe_nn_embedding_forward(self, input):
+        if isinstance(input, torch.Tensor) and input.dtype not in (torch.long, torch.int, torch.int32, torch.int64):
+            input = input.long()
+        return _orig_nn_embedding_forward(self, input)
+    nn.Embedding.forward = _safe_nn_embedding_forward
+
+    _orig_f_embedding = F.embedding
+    def _safe_f_embedding(input, weight, *args, **kwargs):
+        if isinstance(input, torch.Tensor) and input.dtype not in (torch.long, torch.int, torch.int32, torch.int64):
+            input = input.long()
+        return _orig_f_embedding(input, weight, *args, **kwargs)
+    F.embedding = _safe_f_embedding
+except Exception:
+    pass
 
 try:
     import bitsandbytes as bnb

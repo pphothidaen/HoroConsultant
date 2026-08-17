@@ -69,7 +69,27 @@ except (ImportError, ModuleNotFoundError):
     triton_ops_matmul.early_config_prune = lambda *a, **k: None
     triton_ops_matmul.estimate_matmul_time = lambda *a, **k: 0
     sys.modules["triton.ops"] = triton_ops
-    sys.modules["triton.ops.matmul_perf_model"] = triton_ops_matmul
+# Global PyTorch Embedding Guard: Prevents RuntimeError on FloatTensor input_ids during mixed-precision / accelerate training
+try:
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as F
+
+    _orig_nn_embedding_forward = nn.Embedding.forward
+    def _safe_nn_embedding_forward(self, input):
+        if isinstance(input, torch.Tensor) and input.dtype not in (torch.long, torch.int, torch.int32, torch.int64):
+            input = input.long()
+        return _orig_nn_embedding_forward(self, input)
+    nn.Embedding.forward = _safe_nn_embedding_forward
+
+    _orig_f_embedding = F.embedding
+    def _safe_f_embedding(input, weight, *args, **kwargs):
+        if isinstance(input, torch.Tensor) and input.dtype not in (torch.long, torch.int, torch.int32, torch.int64):
+            input = input.long()
+        return _orig_f_embedding(input, weight, *args, **kwargs)
+    F.embedding = _safe_f_embedding
+except Exception:
+    pass
 
 
 def _ensure_bitsandbytes_cuda_binary() -> bool:
