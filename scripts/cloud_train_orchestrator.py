@@ -445,6 +445,10 @@ def run_training_pipeline(
         logger.warning(f"[WARNING] Base model '{base_model}' is an MLX format model. Automatically switching to PyTorch base model 'Qwen/Qwen2.5-7B-Instruct' for Cloud training.")
         base_model = "Qwen/Qwen2.5-7B-Instruct"
 
+    if base_model == Config.HF_REPO_ID or base_model.endswith("-4bit") or "bazi-instruct" in base_model:
+        logger.warning(f"[WARNING] Base model '{base_model}' appears to be an adapter or quantized repository. Automatically switching to base model 'Qwen/Qwen2.5-7B-Instruct' for Cloud training.")
+        base_model = "Qwen/Qwen2.5-7B-Instruct"
+
     if dry_run:
         logger.info(" DRY RUN MODE: Validated dataset & setup cleanly. Skipping heavy GPU training.")
         return True
