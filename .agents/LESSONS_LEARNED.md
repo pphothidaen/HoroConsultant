@@ -118,3 +118,35 @@
   - Added [`project/tests/test_api_integration_suite.py`](file:///Users/kimlenglim/Project/HoroConsultant/project/tests/test_api_integration_suite.py) containing 19 integration tests validating all v1 and v2 API endpoints, CORS preflight (`OPTIONS`), and exact browser headers from `https://pphothidaen-horoconsultant-core-backend.static.hf.space`.
   - Verified 19/19 integration tests pass 100%.
 
+---
+
+### 12. ⚡ Native Transformers Trainer Standard over Fragmented SFTTrainer Wrappers
+- **Issue Experienced**: SFTTrainer across TRL versions 0.7.x through 0.15.x introduced breaking signature changes (`dataset_text_field`, `max_seq_length`, `processing_class` vs `tokenizer`), causing runtime crashes (`ValueError: Unable to create tensor... features ('text') have excessive nesting`).
+- **Definitive Root Cause**: TRL's `SFTTrainer` encapsulates custom dataset collators and defaults `dataset_text_field = 'text'`, conflicting with datasets that are already pre-tokenized into `input_ids` and `attention_mask`.
+- **Lesson Learned**: For causal language modeling with pre-tokenized datasets and LoRA adapters, standard `transformers.Trainer` with `peft.get_peft_model()` and `transformers.DataCollatorForLanguageModeling(mlm=False)` provides 100% deterministic stability with zero breaking changes across all cloud platforms.
+- **Prevention Protocol**:
+  - `scripts/cloud_train_orchestrator.py` wraps `model = get_peft_model(model, peft_config)` and instantiates native `transformers.Trainer`.
+  - Enforced in `tests/test_notebook_syntax.py::test_dataset_pre_tokenization_pipeline`.
+
+---
+
+### 13. 🔍 Python Closure Variable Scope Ordering & Static AST Quality Gate
+- **Issue Experienced**: `NameError: cannot access free variable 'max_seq_length' where it is not associated with a value in enclosing scope` at line 763.
+- **Definitive Root Cause**: Assigning `max_seq_length = 1024` *after* defining an inner function closure (`_tokenize_batch`) that referenced `max_seq_length` made Python treat `max_seq_length` as an unbound local variable at the time `_tokenize_batch` was invoked.
+- **Lesson Learned**: Python functions must declare and initialize all configuration parameters and hyperparameters at the top of the function scope before any closures or dataset map operations.
+- **Prevention Protocol**:
+  - Move all hyperparameter definitions to the very top of `run_training_pipeline()`.
+  - Enforce static AST linting via `tests/test_notebook_syntax.py::test_python_closure_variable_scope_hygiene` which walks AST trees to detect any closure referencing variables assigned later in the parent function.
+
+---
+
+### 14. 🔗 Cloud Execution Traceability & Kaggle-GitHub Synchronization Protocol
+- **Issue Experienced**: Kaggle kernel executed an older GitHub commit because local files were modified without a preceding `git push origin main`, causing confusion between local code state and cloud execution logs.
+- **Definitive Root Cause**: Kaggle kernels dynamically clone `https://github.com/pphothidaen/HoroConsultant.git` (`origin/main`). If local edits are not pushed to GitHub before `kaggle kernels push`, the cloud GPU runs the previous commit.
+- **Lesson Learned**: Pushing to Kaggle must always be preceded by a Git synchronization check, and the cloud kernel must explicitly log the exact commit hash it is running.
+- **Prevention Protocol**:
+  - `scripts/kaggle_notebook_manager.py` implements `check_git_sync_safety()` before executing `--push`, alerting if uncommitted changes or unpushed commits exist.
+  - Cell 2 in `notebook.ipynb` prints `[GIT] Cloud Environment Active Commit: <hash> (<message>)` at startup for 100% log traceability.
+  - `kaggle_notebook_manager.py` enforces `--force` on all output download operations to guarantee fresh logs.
+
+

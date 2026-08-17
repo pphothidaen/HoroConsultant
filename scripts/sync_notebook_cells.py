@@ -145,6 +145,13 @@ else:
     subprocess.run(['git', '-C', target_dir, 'fetch', 'origin', 'main'], check=True)
     subprocess.run(['git', '-C', target_dir, 'reset', '--hard', 'origin/main'], check=True)
 
+try:
+    head_rev = subprocess.check_output(['git', '-C', target_dir, 'rev-parse', '--short', 'HEAD'], text=True).strip()
+    head_msg = subprocess.check_output(['git', '-C', target_dir, 'log', '-1', '--pretty=%B'], text=True).strip().splitlines()[0]
+    print(f'[GIT] Cloud Environment Active Commit: {head_rev} ({head_msg})')
+except Exception:
+    pass
+
 os.chdir(target_dir)
 if target_dir not in sys.path:
     sys.path.insert(0, target_dir)

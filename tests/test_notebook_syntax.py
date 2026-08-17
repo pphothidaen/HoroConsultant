@@ -180,6 +180,54 @@ class TestNotebookSyntaxAndIntegrity(unittest.TestCase):
         self.assertIn('desc="Tokenizing dataset into input_ids and attention_mask"', content)
         self.assertIn('dataset_text_field=None', content)
 
+    def test_python_closure_variable_scope_hygiene(self):
+        """Static AST audit ensuring all variables referenced in inner functions are assigned prior to definition."""
+        orchestrator_path = ROOT / "scripts" / "cloud_train_orchestrator.py"
+        with open(orchestrator_path, "r", encoding="utf-8") as f:
+            source = f.read()
+
+        tree = ast.parse(source, filename=str(orchestrator_path))
+
+        class ClosureScopeVisitor(ast.NodeVisitor):
+            def visit_FunctionDef(self, node):
+                assigned_vars = set(arg.arg for arg in node.args.args)
+                for stmt in node.body:
+                    if isinstance(stmt, ast.Assign):
+                        for target in stmt.targets:
+                            if isinstance(target, ast.Name):
+                                assigned_vars.add(target.id)
+                    elif isinstance(stmt, ast.FunctionDef):
+                        # Inner function: ensure any free variables are already assigned in outer scope
+                        for inner_node in ast.walk(stmt):
+                            if isinstance(inner_node, ast.Name) and isinstance(inner_node.ctx, ast.Load):
+                                var_name = inner_node.id
+                                # If variable is assigned later in the outer function, it must be assigned before this inner function
+                                outer_assignments_after = []
+                                stmt_idx = node.body.index(stmt)
+                                for later_stmt in node.body[stmt_idx + 1:]:
+                                    if isinstance(later_stmt, ast.Assign):
+                                        for t in later_stmt.targets:
+                                            if isinstance(t, ast.Name) and t.id == var_name:
+                                                outer_assignments_after.append(t.id)
+                                if var_name in outer_assignments_after and var_name not in assigned_vars:
+                                    raise AssertionError(
+                                        f"Scope Error in {node.name} -> {stmt.name}: variable '{var_name}' "
+                                        f"is read in inner closure before being assigned in outer function!"
+                                    )
+                self.generic_visit(node)
+
+        visitor = ClosureScopeVisitor()
+        visitor.visit(tree)
+
+    def test_kaggle_manager_force_download_flags(self):
+        """Ensure kaggle_notebook_manager.py includes --force flag on output and pull operations."""
+        manager_path = ROOT / "scripts" / "kaggle_notebook_manager.py"
+        with open(manager_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        self.assertIn('"--force"', content)
+        self.assertIn('check_git_sync_safety', content)
+
 
 if __name__ == "__main__":
     unittest.main()

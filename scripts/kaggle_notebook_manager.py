@@ -412,6 +412,40 @@ def run_kaggle_cmd(args_list: list[str]) -> bool:
         return False
 
 
+def check_git_sync_safety() -> bool:
+    """Verify local working tree is clean and local commits are pushed to remote origin."""
+    try:
+        status_res = subprocess.run(
+            ["git", "status", "--porcelain"],
+            cwd=str(ROOT_DIR),
+            capture_output=True,
+            text=True,
+        )
+        if status_res.returncode == 0:
+            modified_files = [
+                line.strip() for line in status_res.stdout.splitlines()
+                if "scripts/" in line or "project/" in line
+            ]
+            if modified_files:
+                logger.warning(f"[WARNING] Uncommitted changes detected before Kaggle push: {modified_files}")
+                logger.warning("[WARNING] Cloud kernel clones origin/main; uncommitted edits will NOT run on Kaggle!")
+
+        rev_local = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=str(ROOT_DIR), text=True).strip()
+        try:
+            rev_remote = subprocess.check_output(["git", "rev-parse", "origin/main"], cwd=str(ROOT_DIR), text=True).strip()
+            if rev_local != rev_remote:
+                logger.warning(f"[WARNING] Local HEAD ({rev_local[:7]}) differs from origin/main ({rev_remote[:7]}).")
+                logger.warning("[WARNING] Remember to 'git push origin main' so Kaggle executes your latest commit!")
+            else:
+                logger.info(f"[GIT] Synchronized with origin/main ({rev_local[:7]})")
+        except Exception:
+            pass
+        return True
+    except Exception as e:
+        logger.info(f"[INFO] Git sync check note: {e}")
+        return True
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="HoroConsultant Kaggle Notebook Automation CLI")
     parser.add_argument("--setup", action="store_true", help="Setup credentials and generate kernel metadata & notebook")
@@ -438,6 +472,7 @@ def main() -> int:
 
     success = True
     if args.push:
+        check_git_sync_safety()
         if not setup_kaggle_credentials(write_file=False):
             return 1
         if not METADATA_FILE.exists() or not NOTEBOOK_FILE.exists():
@@ -460,7 +495,7 @@ def main() -> int:
         kernel_id = f"{username}/horoconsultant-finetune-pipeline"
         dest_dir = Path(args.dest)
         dest_dir.mkdir(parents=True, exist_ok=True)
-        success = run_kaggle_cmd(["kernels", "output", kernel_id, "-p", str(dest_dir)]) and success
+        success = run_kaggle_cmd(["kernels", "output", kernel_id, "-p", str(dest_dir), "--force"]) and success
 
     if args.pull:
         if not setup_kaggle_credentials(write_file=False):
@@ -471,8 +506,8 @@ def main() -> int:
         dest_dir.mkdir(parents=True, exist_ok=True)
         # 1. Pull notebook & metadata
         pull_success = run_kaggle_cmd(["kernels", "pull", kernel_id, "-p", str(dest_dir), "-m"])
-        # 2. Pull output files (train_execution.log, summaries, adapters)
-        output_success = run_kaggle_cmd(["kernels", "output", kernel_id, "-p", str(dest_dir)])
+        # 2. Pull output files with --force
+        output_success = run_kaggle_cmd(["kernels", "output", kernel_id, "-p", str(dest_dir), "--force"])
         success = (pull_success or output_success) and success
     return 0 if success else 1
 
