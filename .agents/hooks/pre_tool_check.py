@@ -23,10 +23,27 @@ IS_CI = os.environ.get("CI", "").lower() in ("true", "1") or os.environ.get("GIT
 
 
 def check_command(command_str: str) -> tuple[bool, str]:
-    """Check command against forbidden patterns."""
+    """Check command against forbidden patterns and enforce pre-push gates."""
     for pattern, reason in FORBIDDEN_PATTERNS:
         if re.search(pattern, command_str):
             return False, reason
+
+    # Pre-push gate: if pushing to Kaggle, run AST and notebook syntax tests first
+    if "kaggle kernels push" in command_str or "kaggle_notebook_manager.py --push" in command_str:
+        try:
+            import subprocess
+            res = subprocess.run(
+                ["python3", "-m", "pytest", "tests/test_notebook_syntax.py", "-q"],
+                capture_output=True,
+                text=True,
+                timeout=15,
+            )
+            if res.returncode != 0:
+                return False, f"Kaggle push blocked: tests/test_notebook_syntax.py failed:\n{res.stdout or res.stderr}"
+        except Exception as e:
+            # If pytest is not directly available, allow command to proceed to CLI-level checks
+            pass
+
     return True, "Passed pre-tool checks"
 
 
