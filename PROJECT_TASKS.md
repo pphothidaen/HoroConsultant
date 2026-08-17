@@ -263,11 +263,13 @@ Run the required unit, integration, UI/E2E, security, agent synchronization, pre
 - [x] Browser readiness regression: `15/15 PASSED` with service-worker isolation; no product fallback is permitted.
 - [x] Secret scan: `0` leaks across `1,485` files.
 - [x] Hugging Face static payload dry-run: `21` files, `3.75 MB`, authenticated payload audit passed.
-- [x] Authorized push: remote `origin/main` advanced to `a71323e`; HF workflow `32012892457` completed successfully for that SHA.
-- [x] HF static production version: `1.0.0.a71323e` confirmed live.
-- [x] Vercel gateway health: HTTP `200`; production gateway reports `1.0.0.a71323e`.
+- [x] Authorized push: remote `origin/main` advanced to `bbc5bc2`; Vercel production deployment `dpl_BpRzm5avDj4KudRYQMpxDYCMD1Zv` is READY.
+- [x] HF static production workflow `32016627926` completed successfully; static payload is published for `bbc5bc2`.
+- [x] Vercel gateway health: HTTP `200`; production gateway reports `1.0.0.bbc5bc2`.
 - [ ] Docker backend deployment: not executed because production variable `HF_BACKEND_SPACE_ID` is unset; the nominal `...core-api.hf.space` target returns HTTP `404`.
 - [ ] Azure canonical backend deployment: workflow `32013668451` stopped at `azure/login` because `AZURE_CREDENTIALS` is malformed/incomplete.
+- [ ] HF Docker canonical backend: workflow `32016627926` skipped Docker promotion because `HF_BACKEND_SPACE_ID` is empty; live `...core-backend.hf.space/health` returns HTTP `404`.
+- [ ] Release CI remains red on pre-existing Rust formatting drift and Bandit B602 findings in `project/mlops`; these are recorded as separate release-gate blockers.
 - [ ] Rust/Python full-review wrapper completion: wrapper hangs while re-running its internal suite; independent QA evidence is available.
 - [ ] Live production Playwright E2E: pending explicit authorization for external birth-data test egress.
 
