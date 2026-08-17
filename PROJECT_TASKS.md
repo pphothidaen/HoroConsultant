@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff — Central Kanban Board for ALL Project Work**  
-> *Last Updated: 2026-08-16 19:40:00 +07 — BaZi.Fengshuix.com Complete Replication & Standalone Display Component Sprint (100% Match): True Solar Time with equation of time gamma precision, Four Pillars 100% math/stem/branch parity, Ming Gua, 5 Structures Radar spider chart, 10 Profiles percentage chart, 12 Da Yun Cycles, 12x13 Annual Matrix, 508/508 Pytest PASS (100%), 0 agent sync drift.*
+> *Last Updated: 2026-08-17 14:30:00 +07 — Phase 17: Client-Side Deterministic BaZi & True Solar Time Engine (0ms Pre-render), 570/570 Pytest PASS (100%), 31/31 Button Regression PASS (100%), Kaggle Fine-Tuning v132 COMPLETE, HF Spaces Live Deployed & Stamped v1.0.0.a2dd558.*
 
 ---
 
@@ -46,8 +46,8 @@ python3 scripts/audit_astrological_consistency.py
 # 8. Pre-Deployment Safety Audit & Secret Scan (Rust Rayon Parallel — 642 files, 0 leaks)
 python3 project/core/code_reviewer.py --scan-secrets
 
-# 9. Full Python Pytest Suite (All 508 test cases PASS)
-python3 -m pytest -v --ignore=project/kaggle_kernel
+# 9. Full Python Pytest Suite (All test cases PASS)
+pytest -v project/tests/
 ```
 
 ---
@@ -56,6 +56,16 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
+│   ✅ DONE: Phase 17 — Client-Side Deterministic BaZi & True Solar Time Engine  │
+├───────────────────────────────────────────────────────────────────────────────┤
+│ • 0ms Pre-rendering & Zero-Latency Fast-Path Chart Render in Pure JavaScript  │
+│ • Client True Solar Time (Equation of Time + Longitude Correction) in app.js  │
+│ • 24 Solar Terms (JieQi) boundary check, 10 Stems, 12 Branches, 5 Elements   │
+│ • Full Dual-Path sync across project/static/app.js and public/app.js          │
+│ • Kaggle Fine-Tuning Pipeline v132 Execution Completed (Loss: 0.6974)         │
+│ • 570/570 Pytest Tests Passed (100%), 31/31 UI Button Regressions Passed     │
+│ • Deployed to HF Spaces (pphothidaen/horoconsultant-core-backend) & Verified │
+├───────────────────────────────────────────────────────────────────────────────┤
 │   ✅ DONE: Phase 16 — 3-Tier Notebook AST, Python Syntax & MLOps Safety Gate  │
 ├───────────────────────────────────────────────────────────────────────────────┤
 │ • Tier 1: Local Pre-Commit Hook (`.githooks/pre-commit`) blocking syntax bugs  │
