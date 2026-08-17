@@ -127,9 +127,21 @@ class TelegramBotController:
                     from dotenv import dotenv_values
                     prod = dotenv_values(ROOT_DIR / ".env.production")
                     gh_tok = prod.get("GH_TOKEN") or os.getenv("GH_TOKEN")
+                    gh_env = os.environ.copy()
+                    if gh_tok:
+                        gh_env["GH_TOKEN"] = str(gh_tok)
                     subprocess.run(
-                        f"GH_TOKEN={gh_tok} gh secret set TELEGRAM_CHAT_ID -R pphothidaen/HoroConsultant --body \"{chat_id}\"",
-                        shell=True,
+                        [
+                            "gh",
+                            "secret",
+                            "set",
+                            "TELEGRAM_CHAT_ID",
+                            "-R",
+                            "pphothidaen/HoroConsultant",
+                            "--body",
+                            str(chat_id),
+                        ],
+                        env=gh_env,
                         capture_output=True,
                         timeout=10
                     )

@@ -1671,7 +1671,9 @@ async function calculateChart(event) {
     const authoritativeChart = data.chart || data;
     const requiredPillars = ['year', 'month', 'day', 'hour'];
     if (!authoritativeChart.pillars || requiredPillars.some((key) => !authoritativeChart.pillars[key])) {
-      throw new Error('canonical_bazi_schema_incomplete');
+      const errDetail = `server returned chart without pillars; chart keys: ${Object.keys(authoritativeChart).join(', ')}`;
+      console.error(errDetail);
+      throw new Error(errDetail);
     }
     if (statusEl) {
       statusEl.classList.remove('hidden');
@@ -5551,7 +5553,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & FORCE CACHE PURGE SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.b2672df";
+const CLIENT_APP_VERSION = "1.0.0.b9ebfc5";
 
 async function forcePurgeAndReload(event) {
   if (event) {

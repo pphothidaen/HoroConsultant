@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import shlex
 import subprocess
 from typing import Any, Dict, List, Optional
 
@@ -54,10 +55,15 @@ class NotebookLMClient:
             return self._generate_grounded_mock_response(notebook_id, query)
         
         try:
-            cmd = f"{self.mcp_command} query --notebook-id {notebook_id} --query {json.dumps(query)}"
+            cmd = shlex.split(self.mcp_command) + [
+                "query",
+                "--notebook-id",
+                notebook_id,
+                "--query",
+                query,
+            ]
             proc = subprocess.run(
                 cmd,
-                shell=True,
                 capture_output=True,
                 text=True,
                 timeout=45
