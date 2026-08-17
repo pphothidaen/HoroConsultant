@@ -45,13 +45,27 @@ os.environ.setdefault('CUDA_MODULE_LOADING', 'LAZY')
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 
 try:
-    import triton.ops
+    import triton
 except (ImportError, ModuleNotFoundError):
+    triton = types.ModuleType('triton')
+    triton.__path__ = []
+    sys.modules['triton'] = triton
+
+if not hasattr(triton, 'ops') or 'triton.ops' not in sys.modules:
     triton_ops = types.ModuleType('triton.ops')
+    triton_ops.__path__ = []
+    setattr(triton, 'ops', triton_ops)
+    sys.modules['triton.ops'] = triton_ops
+
+triton_ops = sys.modules['triton.ops']
+if not hasattr(triton_ops, '__path__'):
+    triton_ops.__path__ = []
+
+if not hasattr(triton_ops, 'matmul_perf_model') or 'triton.ops.matmul_perf_model' not in sys.modules:
     triton_ops_matmul = types.ModuleType('triton.ops.matmul_perf_model')
     triton_ops_matmul.early_config_prune = lambda *a, **k: None
     triton_ops_matmul.estimate_matmul_time = lambda *a, **k: 0
-    sys.modules['triton.ops'] = triton_ops
+    setattr(triton_ops, 'matmul_perf_model', triton_ops_matmul)
     sys.modules['triton.ops.matmul_perf_model'] = triton_ops_matmul
 print('[OK] CUDA stability & Triton compatibility shim applied.')
 
