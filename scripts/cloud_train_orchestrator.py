@@ -428,14 +428,15 @@ def create_sft_trainer(
             except Exception as move_err:
                 logger.warning(f"   [WARNING] Trainer._move_model_to_device bypassed ({move_err})")
         Trainer._move_model_to_device = _safe_move
+        Trainer._remove_unused_columns = lambda self, dataset, description=None: dataset
     except Exception:
         pass
 
     logger.info(f"[PATCH] Instantiating SFTTrainer with parameters: {list(kwargs.keys())}")
 
-
+    trainer = None
     try:
-        return SFTTrainer(**kwargs)
+        trainer = SFTTrainer(**kwargs)
     except TypeError as te:
         logger.warning(f"[WARNING] Initial SFTTrainer call raised TypeError ({te}). Attempting version fallback...")
 
@@ -448,7 +449,7 @@ def create_sft_trainer(
             kwargs["processing_class"] = tokenizer
 
         try:
-            return SFTTrainer(**kwargs)
+            trainer = SFTTrainer(**kwargs)
         except TypeError as te2:
             logger.warning(f"[WARNING] Secondary SFTTrainer fallback raised ({te2}). Using minimal signature...")
             min_kwargs = {
@@ -462,7 +463,21 @@ def create_sft_trainer(
                 min_kwargs["processing_class"] = tokenizer
             else:
                 min_kwargs["tokenizer"] = tokenizer
-            return SFTTrainer(**min_kwargs)
+            trainer = SFTTrainer(**min_kwargs)
+
+    if trainer is not None:
+        if hasattr(trainer, "_remove_unused_columns"):
+            try:
+                trainer._remove_unused_columns = lambda dataset, description=None: dataset
+            except Exception:
+                pass
+        if hasattr(trainer, "args") and hasattr(trainer.args, "remove_unused_columns"):
+            try:
+                trainer.args.remove_unused_columns = False
+            except Exception:
+                pass
+
+    return trainer
 
 
 def run_training_pipeline(
@@ -660,21 +675,6 @@ def run_training_pipeline(
         if input_embeddings is not None and hasattr(input_embeddings, "register_forward_pre_hook"):
             input_embeddings.register_forward_pre_hook(_ensure_long_indices_hook)
             logger.info("   [OK] Registered long-dtype pre-hook on input embeddings.")
-
-        if hasattr(model, "forward"):
-            import functools
-            _orig_model_forward = model.forward
-            @functools.wraps(_orig_model_forward)
-            def _safe_model_forward(*args, **kwargs):
-                if "input_ids" in kwargs and hasattr(kwargs["input_ids"], "dtype"):
-                    if kwargs["input_ids"].dtype not in (torch.long, torch.int, torch.int32, torch.int64):
-                        kwargs["input_ids"] = kwargs["input_ids"].long()
-                if args and hasattr(args[0], "dtype"):
-                    if args[0].dtype not in (torch.long, torch.int, torch.int32, torch.int64):
-                        args = (args[0].long(),) + args[1:]
-                return _orig_model_forward(*args, **kwargs)
-            model.forward = _safe_model_forward
-            logger.info("   [OK] Applied safe LongTensor input_ids wrapper on model.forward.")
     except Exception as hook_err:
         logger.info(f"   [INFO] Embedding long-dtype hook note: {hook_err}")
 
