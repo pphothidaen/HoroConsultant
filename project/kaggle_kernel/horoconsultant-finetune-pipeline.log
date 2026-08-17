@@ -1,364 +1,339 @@
-[{"stream_name":"stderr","time":7.513221098,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":7.513278878,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":7.513283405,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":7.513285945,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stderr","time":8.117902325,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
-,{"stream_name":"stderr","time":8.117936173,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
-,{"stream_name":"stderr","time":8.117941322,"data":"0.00s - to python to disable frozen modules.\n"}
-,{"stream_name":"stderr","time":8.117947275,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
-,{"stream_name":"stdout","time":15.398432775,"data":"[OK] CUDA stability \u0026 Triton compatibility shim applied.\n"}
-,{"stream_name":"stdout","time":15.398489575,"data":"[MODEL] Removing incompatible torchao/torchvision \u0026 installing fine-tuning packages...\n"}
-,{"stream_name":"stdout","time":16.588536169,"data":"Found existing installation: torchao 0.10.0\n"}
-,{"stream_name":"stdout","time":16.664577216,"data":"Uninstalling torchao-0.10.0:\n"}
-,{"stream_name":"stdout","time":16.790617456,"data":"Found existing installation: torchao 0.10.0\n"}
-,{"stream_name":"stdout","time":16.790644481,"data":"Uninstalling torchao-0.10.0:\n"}
-,{"stream_name":"stdout","time":17.038986727,"data":"  Successfully uninstalled torchao-0.10.0\n"}
-,{"stream_name":"stdout","time":17.241190365,"data":"  Successfully uninstalled torchao-0.10.0\n"}
-,{"stream_name":"stdout","time":17.544502131,"data":"Found existing installation: torchvision 0.25.0+cu128\n"}
-,{"stream_name":"stdout","time":17.569587577,"data":"Uninstalling torchvision-0.25.0+cu128:\n"}
-,{"stream_name":"stdout","time":17.746597673,"data":"Found existing installation: torchvision 0.25.0+cu128\n"}
-,{"stream_name":"stdout","time":17.746627334,"data":"Uninstalling torchvision-0.25.0+cu128:\n"}
-,{"stream_name":"stdout","time":17.821222632,"data":"  Successfully uninstalled torchvision-0.25.0+cu128\n"}
-,{"stream_name":"stdout","time":18.023451609,"data":"  Successfully uninstalled torchvision-0.25.0+cu128\n"}
-,{"stream_name":"stderr","time":40.94402167,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
-,{"stream_name":"stderr","time":40.944064187,"data":"bigframes 2.39.0 requires google-cloud-bigquery-storage\u003c3.0.0,\u003e=2.30.0, which is not installed.\n"}
-,{"stream_name":"stderr","time":40.944095825,"data":"timm 1.0.26 requires torchvision, which is not installed.\n"}
-,{"stream_name":"stderr","time":40.944101748,"data":"tpot 1.1.0 requires dill\u003e=0.3.9, but you have dill 0.3.8 which is incompatible.\n"}
-,{"stream_name":"stderr","time":40.944106846,"data":"diffusers 0.37.1 requires huggingface-hub\u003c2.0,\u003e=0.34.0, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
-,{"stream_name":"stderr","time":40.944111869,"data":"gcsfs 2025.3.0 requires fsspec==2025.3.0, but you have fsspec 2024.12.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":40.944116745,"data":"gradio 5.50.0 requires huggingface-hub\u003c2.0,\u003e=0.33.5, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
-,{"stream_name":"stdout","time":41.098992167,"data":"[OK] Dependencies installed successfully. Ready for Cell 2 Execution!\n"}
-,{"stream_name":"stderr","time":41.100056788,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
-,{"stream_name":"stderr","time":41.100071355,"data":"bigframes 2.39.0 requires google-cloud-bigquery-storage\u003c3.0.0,\u003e=2.30.0, which is not installed.\n"}
-,{"stream_name":"stderr","time":41.100077306,"data":"timm 1.0.26 requires torchvision, which is not installed.\n"}
-,{"stream_name":"stderr","time":41.100081339,"data":"tpot 1.1.0 requires dill\u003e=0.3.9, but you have dill 0.3.8 which is incompatible.\n"}
-,{"stream_name":"stderr","time":41.100085595,"data":"diffusers 0.37.1 requires huggingface-hub\u003c2.0,\u003e=0.34.0, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
-,{"stream_name":"stderr","time":41.100089331,"data":"gcsfs 2025.3.0 requires fsspec==2025.3.0, but you have fsspec 2024.12.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":41.10009319,"data":"gradio 5.50.0 requires huggingface-hub\u003c2.0,\u003e=0.33.5, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
-,{"stream_name":"stderr","time":41.100096877,"data":"\n"}
-,{"stream_name":"stderr","time":41.100100187,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
-,{"stream_name":"stderr","time":41.10010394,"data":"bigframes 2.39.0 requires google-cloud-bigquery-storage\u003c3.0.0,\u003e=2.30.0, which is not installed.\n"}
-,{"stream_name":"stderr","time":41.100107578,"data":"timm 1.0.26 requires torchvision, which is not installed.\n"}
-,{"stream_name":"stderr","time":41.1001126,"data":"tpot 1.1.0 requires dill\u003e=0.3.9, but you have dill 0.3.8 which is incompatible.\n"}
-,{"stream_name":"stderr","time":41.100118918,"data":"diffusers 0.37.1 requires huggingface-hub\u003c2.0,\u003e=0.34.0, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
-,{"stream_name":"stderr","time":41.100121347,"data":"gcsfs 2025.3.0 requires fsspec==2025.3.0, but you have fsspec 2024.12.0 which is incompatible.\n"}
-,{"stream_name":"stderr","time":41.100123752,"data":"gradio 5.50.0 requires huggingface-hub\u003c2.0,\u003e=0.33.5, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
-,{"stream_name":"stderr","time":41.251555258,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stdout","time":41.297500199,"data":"[INFO] Detected Kaggle: Loading Secrets...\n"}
-,{"stream_name":"stdout","time":41.29752513,"data":"[MODEL] Cloning HoroConsultant repository...\n"}
-,{"stream_name":"stderr","time":41.45467858,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stderr","time":41.454704881,"data":"\n"}
-,{"stream_name":"stderr","time":41.454709964,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
-,{"stream_name":"stderr","time":46.141619019,"data":"Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128.so')\n"}
-,{"stream_name":"stderr","time":46.141646908,"data":"\n"}
-,{"stream_name":"stderr","time":46.141651635,"data":"Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128.so')\n"}
-,{"stream_name":"stderr","time":46.144075879,"data":"The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
-,{"stream_name":"stderr","time":46.144094003,"data":"\n"}
-,{"stream_name":"stderr","time":46.144107915,"data":"The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
-,{"stream_name":"stdout","time":46.333904471,"data":"[CUDA] Detected GPU: Tesla T4 (sm_75)\n"}
-,{"stream_name":"stdout","time":46.333930634,"data":"[OK] BNB CUDA Fix: Symlinked libbitsandbytes_cuda125_nocublaslt.so -\u003e libbitsandbytes_cuda128.so\n"}
-,{"stream_name":"stdout","time":49.223979367,"data":"[OK] Fail-Fast Import Verified: transformers=4.44.2, peft=0.12.0, trl=0.11.0, accelerate=0.34.2, datasets=3.4.1, bitsandbytes=0.43.3\n"}
-,{"stream_name":"stdout","time":49.224019962,"data":"[INFO] กำลังดาวน์โหลด Dataset จาก Google Drive...\n"}
-,{"stream_name":"stderr","time":49.225326068,"data":"Retrieving folder contents\n"}
-,{"stream_name":"stderr","time":49.225344016,"data":"\n"}
-,{"stream_name":"stderr","time":49.225350577,"data":"Retrieving folder contents\n"}
-,{"stream_name":"stdout","time":49.606504556,"data":"Processing file 19wvJL_YVZR2XO9Voyv57r3Z0s4j72sSEnEfPaxbCCaQ HoroClip_Advanced_Treatises_Dataset.jsonl\n"}
-,{"stream_name":"stdout","time":49.606536327,"data":"Processing file 1BgQOV5gV6Wx7IX58ZX-g3qaGipiIznc4kaJ7vyGsf9o HoroClip_Batch04_Treatises_Dataset.jsonl\n"}
-,{"stream_name":"stdout","time":49.606542693,"data":"Processing file 1OL_GDKne0dT8mIesVdnK5guQIPSugP8d HoroClip_Batch05_Treatises_Dataset.jsonl\n"}
-,{"stream_name":"stdout","time":49.606547614,"data":"Processing file 1S07tzllpa0OV0npgU1v89v94e1Xwn3LMGJc5v7NRQsc HoroClip_Classical_Treatises_Dataset.jsonl\n"}
-,{"stream_name":"stdout","time":49.606553988,"data":"Processing file 110DSAsmtRyk5q7UJkpMTg1a35ZZJKVHaov7KnbdtcIw HoroClip_Dataset_2026_08.jsonl\n"}
-,{"stream_name":"stdout","time":49.606560986,"data":"Processing file 1NfW3HyvOrPkAR7IFpvjG02xHDxMEllJMendfqPY8zgM HoroClip_FineTuning_Dataset.jsonl\n"}
-,{"stream_name":"stderr","time":49.607429207,"data":"Retrieving folder contents completed\n"}
-,{"stream_name":"stderr","time":49.607454409,"data":"Building directory structure\n"}
-,{"stream_name":"stderr","time":49.60746077,"data":"Building directory structure completed\n"}
-,{"stream_name":"stderr","time":49.607465951,"data":"\n"}
-,{"stream_name":"stderr","time":49.607470356,"data":"Retrieving folder contents completed\n"}
-,{"stream_name":"stderr","time":49.607474752,"data":"Building directory structure\n"}
-,{"stream_name":"stderr","time":49.607479256,"data":"Building directory structure completed\n"}
-,{"stream_name":"stderr","time":50.737616105,"data":"Downloading...\n"}
-,{"stream_name":"stderr","time":50.737647885,"data":"From (original): https://drive.google.com/uc?id=19wvJL_YVZR2XO9Voyv57r3Z0s4j72sSEnEfPaxbCCaQ\n"}
-,{"stream_name":"stderr","time":50.737654606,"data":"From (redirected): https://docs.google.com/document/d/19wvJL_YVZR2XO9Voyv57r3Z0s4j72sSEnEfPaxbCCaQ/export?format=docx\n"}
-,{"stream_name":"stderr","time":50.737659807,"data":"To: /kaggle/working/my_dataset/HoroClip_Advanced_Treatises_Dataset.jsonl\n"}
-,{"stream_name":"stderr","time":50.737664952,"data":"\n"}
-,{"stream_name":"stderr","time":50.737669794,"data":"Downloading...\n"}
-,{"stream_name":"stderr","time":50.737674154,"data":"From (original): https://drive.google.com/uc?id=19wvJL_YVZR2XO9Voyv57r3Z0s4j72sSEnEfPaxbCCaQ\n"}
-,{"stream_name":"stderr","time":50.737678757,"data":"From (redirected): https://docs.google.com/document/d/19wvJL_YVZR2XO9Voyv57r3Z0s4j72sSEnEfPaxbCCaQ/export?format=docx\n"}
-,{"stream_name":"stderr","time":50.737683966,"data":"To: /kaggle/working/my_dataset/HoroClip_Advanced_Treatises_Dataset.jsonl\n"}
-,{"stream_name":"stderr","time":50.738481108,"data":"\r0.00B [00:00, ?B/s]\n"}
-,{"stream_name":"stderr","time":50.739787909,"data":"\r0.00B [00:00, ?B/s]\r8.88kB [00:00, 14.7MB/s]\n"}
-,{"stream_name":"stderr","time":50.935488005,"data":"\r8.88kB [00:00, 14.7MB/s]\n"}
-,{"stream_name":"stderr","time":50.935513224,"data":"\n"}
-,{"stream_name":"stderr","time":50.935518087,"data":"\n"}
-,{"stream_name":"stderr","time":52.023273154,"data":"Downloading...\n"}
-,{"stream_name":"stderr","time":52.023311336,"data":"From (original): https://drive.google.com/uc?id=1BgQOV5gV6Wx7IX58ZX-g3qaGipiIznc4kaJ7vyGsf9o\n"}
-,{"stream_name":"stderr","time":52.023317336,"data":"From (redirected): https://docs.google.com/document/d/1BgQOV5gV6Wx7IX58ZX-g3qaGipiIznc4kaJ7vyGsf9o/export?format=docx\n"}
-,{"stream_name":"stderr","time":52.023321499,"data":"To: /kaggle/working/my_dataset/HoroClip_Batch04_Treatises_Dataset.jsonl\n"}
-,{"stream_name":"stderr","time":52.023325312,"data":"\n"}
-,{"stream_name":"stderr","time":52.023328828,"data":"Downloading...\n"}
-,{"stream_name":"stderr","time":52.023332481,"data":"From (original): https://drive.google.com/uc?id=1BgQOV5gV6Wx7IX58ZX-g3qaGipiIznc4kaJ7vyGsf9o\n"}
-,{"stream_name":"stderr","time":52.023336824,"data":"From (redirected): https://docs.google.com/document/d/1BgQOV5gV6Wx7IX58ZX-g3qaGipiIznc4kaJ7vyGsf9o/export?format=docx\n"}
-,{"stream_name":"stderr","time":52.023341486,"data":"To: /kaggle/working/my_dataset/HoroClip_Batch04_Treatises_Dataset.jsonl\n"}
-,{"stream_name":"stderr","time":52.024251735,"data":"\r0.00B [00:00, ?B/s]\n"}
-,{"stream_name":"stderr","time":52.02605002,"data":"\r0.00B [00:00, ?B/s]\r8.47kB [00:00, 23.2MB/s]\n"}
-,{"stream_name":"stderr","time":52.224255616,"data":"\r8.47kB [00:00, 23.2MB/s]\n"}
-,{"stream_name":"stderr","time":52.224291743,"data":"\n"}
-,{"stream_name":"stderr","time":52.224295282,"data":"\n"}
-,{"stream_name":"stderr","time":53.572801012,"data":"Downloading...\n"}
-,{"stream_name":"stderr","time":53.572829403,"data":"From: https://drive.google.com/uc?id=1OL_GDKne0dT8mIesVdnK5guQIPSugP8d\n"}
-,{"stream_name":"stderr","time":53.572834819,"data":"To: /kaggle/working/my_dataset/HoroClip_Batch05_Treatises_Dataset.jsonl\n"}
-,{"stream_name":"stderr","time":53.572839079,"data":"\n"}
-,{"stream_name":"stderr","time":53.572842858,"data":"Downloading...\n"}
-,{"stream_name":"stderr","time":53.572847205,"data":"From: https://drive.google.com/uc?id=1OL_GDKne0dT8mIesVdnK5guQIPSugP8d\n"}
-,{"stream_name":"stderr","time":53.572850899,"data":"To: /kaggle/working/my_dataset/HoroClip_Batch05_Treatises_Dataset.jsonl\n"}
-,{"stream_name":"stderr","time":53.573759073,"data":"\r  0%|          | 0.00/4.04k [00:00\u003c?, ?B/s]\n"}
-,{"stream_name":"stderr","time":53.574651569,"data":"\r  0%|          | 0.00/4.04k [00:00\u003c?, ?B/s]\r100%|██████████| 4.04k/4.04k [00:00\u003c00:00, 5.68MB/s]\n"}
-,{"stream_name":"stderr","time":53.773234785,"data":"\r100%|██████████| 4.04k/4.04k [00:00\u003c00:00, 5.68MB/s]\n"}
-,{"stream_name":"stderr","time":53.773269454,"data":"\n"}
-,{"stream_name":"stderr","time":53.773274364,"data":"\n"}
-,{"stream_name":"stderr","time":55.054877751,"data":"Downloading...\n"}
-,{"stream_name":"stderr","time":55.054905535,"data":"From (original): https://drive.google.com/uc?id=1S07tzllpa0OV0npgU1v89v94e1Xwn3LMGJc5v7NRQsc\n"}
-,{"stream_name":"stderr","time":55.054912891,"data":"From (redirected): https://docs.google.com/document/d/1S07tzllpa0OV0npgU1v89v94e1Xwn3LMGJc5v7NRQsc/export?format=docx\n"}
-,{"stream_name":"stderr","time":55.054919203,"data":"To: /kaggle/working/my_dataset/HoroClip_Classical_Treatises_Dataset.jsonl\n"}
-,{"stream_name":"stderr","time":55.05493501,"data":"\n"}
-,{"stream_name":"stderr","time":55.05493941,"data":"Downloading...\n"}
-,{"stream_name":"stderr","time":55.054943505,"data":"From (original): https://drive.google.com/uc?id=1S07tzllpa0OV0npgU1v89v94e1Xwn3LMGJc5v7NRQsc\n"}
-,{"stream_name":"stderr","time":55.054947176,"data":"From (redirected): https://docs.google.com/document/d/1S07tzllpa0OV0npgU1v89v94e1Xwn3LMGJc5v7NRQsc/export?format=docx\n"}
-,{"stream_name":"stderr","time":55.054951868,"data":"To: /kaggle/working/my_dataset/HoroClip_Classical_Treatises_Dataset.jsonl\n"}
-,{"stream_name":"stderr","time":55.055851585,"data":"\r0.00B [00:00, ?B/s]\n"}
-,{"stream_name":"stderr","time":55.056670028,"data":"\r0.00B [00:00, ?B/s]\r9.23kB [00:00, 17.9MB/s]\n"}
-,{"stream_name":"stderr","time":55.254943601,"data":"\r9.23kB [00:00, 17.9MB/s]\n"}
-,{"stream_name":"stderr","time":55.254973095,"data":"\n"}
-,{"stream_name":"stderr","time":55.254977987,"data":"\n"}
-,{"stream_name":"stderr","time":56.463606043,"data":"Downloading...\n"}
-,{"stream_name":"stderr","time":56.463631744,"data":"From (original): https://drive.google.com/uc?id=110DSAsmtRyk5q7UJkpMTg1a35ZZJKVHaov7KnbdtcIw\n"}
-,{"stream_name":"stderr","time":56.463636755,"data":"From (redirected): https://docs.google.com/document/d/110DSAsmtRyk5q7UJkpMTg1a35ZZJKVHaov7KnbdtcIw/export?format=docx\n"}
-,{"stream_name":"stderr","time":56.463641742,"data":"To: /kaggle/working/my_dataset/HoroClip_Dataset_2026_08.jsonl\n"}
-,{"stream_name":"stderr","time":56.463645389,"data":"\n"}
-,{"stream_name":"stderr","time":56.463648865,"data":"Downloading...\n"}
-,{"stream_name":"stderr","time":56.463653248,"data":"From (original): https://drive.google.com/uc?id=110DSAsmtRyk5q7UJkpMTg1a35ZZJKVHaov7KnbdtcIw\n"}
-,{"stream_name":"stderr","time":56.463657396,"data":"From (redirected): https://docs.google.com/document/d/110DSAsmtRyk5q7UJkpMTg1a35ZZJKVHaov7KnbdtcIw/export?format=docx\n"}
-,{"stream_name":"stderr","time":56.463661695,"data":"To: /kaggle/working/my_dataset/HoroClip_Dataset_2026_08.jsonl\n"}
-,{"stream_name":"stderr","time":56.464715975,"data":"\r0.00B [00:00, ?B/s]\n"}
-,{"stream_name":"stderr","time":56.465616113,"data":"\r0.00B [00:00, ?B/s]\r7.93kB [00:00, 15.1MB/s]\n"}
-,{"stream_name":"stderr","time":56.663827002,"data":"\r7.93kB [00:00, 15.1MB/s]\n"}
-,{"stream_name":"stderr","time":56.66384966,"data":"\n"}
-,{"stream_name":"stderr","time":56.663854781,"data":"\n"}
-,{"stream_name":"stderr","time":57.984020893,"data":"Downloading...\n"}
-,{"stream_name":"stderr","time":57.984049936,"data":"From (original): https://drive.google.com/uc?id=1NfW3HyvOrPkAR7IFpvjG02xHDxMEllJMendfqPY8zgM\n"}
-,{"stream_name":"stderr","time":57.98405504,"data":"From (redirected): https://docs.google.com/document/d/1NfW3HyvOrPkAR7IFpvjG02xHDxMEllJMendfqPY8zgM/export?format=docx\n"}
-,{"stream_name":"stderr","time":57.984059868,"data":"To: /kaggle/working/my_dataset/HoroClip_FineTuning_Dataset.jsonl\n"}
-,{"stream_name":"stderr","time":57.984063457,"data":"\n"}
-,{"stream_name":"stderr","time":57.984066864,"data":"Downloading...\n"}
-,{"stream_name":"stderr","time":57.984070815,"data":"From (original): https://drive.google.com/uc?id=1NfW3HyvOrPkAR7IFpvjG02xHDxMEllJMendfqPY8zgM\n"}
-,{"stream_name":"stderr","time":57.984074507,"data":"From (redirected): https://docs.google.com/document/d/1NfW3HyvOrPkAR7IFpvjG02xHDxMEllJMendfqPY8zgM/export?format=docx\n"}
-,{"stream_name":"stderr","time":57.984078277,"data":"To: /kaggle/working/my_dataset/HoroClip_FineTuning_Dataset.jsonl\n"}
-,{"stream_name":"stderr","time":57.985201168,"data":"\r0.00B [00:00, ?B/s]\n"}
-,{"stream_name":"stderr","time":57.98604434,"data":"\r0.00B [00:00, ?B/s]\r9.10kB [00:00, 15.3MB/s]\n"}
-,{"stream_name":"stderr","time":58.184687365,"data":"\r9.10kB [00:00, 15.3MB/s]\n"}
-,{"stream_name":"stderr","time":58.184721869,"data":"Download completed\n"}
-,{"stream_name":"stderr","time":58.184725358,"data":"\n"}
-,{"stream_name":"stderr","time":58.184727754,"data":"\n"}
-,{"stream_name":"stderr","time":58.184730019,"data":"Download completed\n"}
-,{"stream_name":"stdout","time":58.188865136,"data":"[INFO] กำลังตรวจสอบ รวบรวม และคัดกรองข้อมูลซ้ำจากไฟล์ทั้งหมด...\n"}
-,{"stream_name":"stdout","time":58.188890043,"data":"[PROCESS] กำลังประมวลผลไฟล์: HoroClip_Batch04_Treatises_Dataset.jsonl\n"}
-,{"stream_name":"stdout","time":58.188894882,"data":"  -\u003e [OK] ได้ข้อมูลใหม่ 3 บรรทัด (ตัดข้อมูลซ้ำออก 0 บรรทัด)\n"}
-,{"stream_name":"stdout","time":58.188899425,"data":"[PROCESS] กำลังประมวลผลไฟล์: HoroClip_Classical_Treatises_Dataset.jsonl\n"}
-,{"stream_name":"stdout","time":58.188915961,"data":"  -\u003e [OK] ได้ข้อมูลใหม่ 5 บรรทัด (ตัดข้อมูลซ้ำออก 0 บรรทัด)\n"}
-,{"stream_name":"stdout","time":58.188918923,"data":"[PROCESS] กำลังประมวลผลไฟล์: HoroClip_Batch05_Treatises_Dataset.jsonl\n"}
-,{"stream_name":"stdout","time":58.188921488,"data":"  -\u003e [OK] ได้ข้อมูลใหม่ 3 บรรทัด (ตัดข้อมูลซ้ำออก 0 บรรทัด)\n"}
-,{"stream_name":"stdout","time":58.188924194,"data":"[PROCESS] กำลังประมวลผลไฟล์: HoroClip_Dataset_2026_08.jsonl\n"}
-,{"stream_name":"stdout","time":58.18892669,"data":"  -\u003e [OK] ได้ข้อมูลใหม่ 2 บรรทัด (ตัดข้อมูลซ้ำออก 0 บรรทัด)\n"}
-,{"stream_name":"stdout","time":58.188929171,"data":"[PROCESS] กำลังประมวลผลไฟล์: HoroClip_Advanced_Treatises_Dataset.jsonl\n"}
-,{"stream_name":"stdout","time":58.188931591,"data":"  -\u003e [OK] ได้ข้อมูลใหม่ 4 บรรทัด (ตัดข้อมูลซ้ำออก 0 บรรทัด)\n"}
-,{"stream_name":"stdout","time":58.188934075,"data":"[PROCESS] กำลังประมวลผลไฟล์: HoroClip_FineTuning_Dataset.jsonl\n"}
-,{"stream_name":"stdout","time":58.18893643,"data":"  -\u003e [OK] ได้ข้อมูลใหม่ 3 บรรทัด (ตัดข้อมูลซ้ำออก 2 บรรทัด)\n"}
-,{"stream_name":"stdout","time":58.188938948,"data":"[OK] รวบรวม Dataset สำเร็จ! มีข้อมูลที่ไม่ซ้ำกันพร้อมเทรนรวมทั้งสิ้น 22 บรรทัด\n"}
-,{"stream_name":"stdout","time":58.18894303,"data":"[START] Launching Cloud Training Orchestrator สำหรับการเทรนต่อเนื่อง...\n"}
-,{"stream_name":"stdout","time":58.389813574,"data":"2026-08-17 05:42:28,427 [WARNING] Secret 'APP_SUPABASE_URL' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority (KAGGLE SECRETS STORE)...\n"}
-,{"stream_name":"stdout","time":58.443014163,"data":"2026-08-17 05:42:28,484 [WARNING] Secret 'APP_SUPABASE_KEY' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority (KAGGLE SECRETS STORE)...\n"}
-,{"stream_name":"stdout","time":58.483569137,"data":"2026-08-17 05:42:28,525 [WARNING] Secret 'HF_TOKEN' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority (KAGGLE SECRETS STORE)...\n"}
-,{"stream_name":"stdout","time":58.498497374,"data":"2026-08-17 05:42:28,540 [WARNING] Secret 'GH_TOKEN' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority (KAGGLE SECRETS STORE)...\n"}
-,{"stream_name":"stdout","time":58.570450602,"data":"2026-08-17 05:42:28,612 [WARNING] Secret 'GOOGLE_AI_STUDIO_API_KEY' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority (KAGGLE SECRETS STORE)...\n"}
-,{"stream_name":"stdout","time":58.627659358,"data":"2026-08-17 05:42:28,669 [WARNING] Secret 'GOOGLE_AI_STUDIO_API_KEY2' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority (KAGGLE SECRETS STORE)...\n"}
-,{"stream_name":"stdout","time":58.63911278,"data":"2026-08-17 05:42:28,681 [WARNING] Secret 'WANDB_KEY' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority (KAGGLE SECRETS STORE)...\n"}
-,{"stream_name":"stdout","time":58.651462455,"data":"2026-08-17 05:42:28,693 [WARNING] Secret 'KAGGLE_TOKEN' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority (KAGGLE SECRETS STORE)...\n"}
-,{"stream_name":"stdout","time":60.45183603,"data":"2026-08-17 05:42:30,492 [INFO] [INFO] Using explicit dataset path '/kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl'\n"}
-,{"stream_name":"stdout","time":60.453380158,"data":"2026-08-17 05:42:30,492 [INFO] [INFO] Using explicit dataset path '/kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl'\n"}
-,{"stream_name":"stdout","time":60.454633523,"data":"2026-08-17 05:42:30,492 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE]...\n"}
-,{"stream_name":"stdout","time":60.455837836,"data":"2026-08-17 05:42:30,492 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE]...\n"}
-,{"stream_name":"stdout","time":60.457011008,"data":"2026-08-17 05:42:30,492 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
-,{"stream_name":"stdout","time":60.458239185,"data":"2026-08-17 05:42:30,492 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
-,{"stream_name":"stdout","time":60.459279298,"data":"2026-08-17 05:42:30,492 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl\n"}
-,{"stream_name":"stdout","time":60.46029744,"data":"2026-08-17 05:42:30,492 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl\n"}
-,{"stream_name":"stdout","time":60.461374895,"data":"2026-08-17 05:42:30,493 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
-,{"stream_name":"stdout","time":60.462558847,"data":"2026-08-17 05:42:30,493 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
-,{"stream_name":"stdout","time":60.463608656,"data":"2026-08-17 05:42:30,493 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...\n"}
-,{"stream_name":"stdout","time":60.464688821,"data":"2026-08-17 05:42:30,493 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...\n"}
-,{"stream_name":"stdout","time":60.556669334,"data":"2026-08-17 05:42:30,598 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']\n"}
-,{"stream_name":"stdout","time":60.557678775,"data":"2026-08-17 05:42:30,598 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']\n"}
-,{"stream_name":"stdout","time":60.558626992,"data":"2026-08-17 05:42:30,598 [INFO]    [TARGET] GPU Architecture: sm_75 (Tesla T4)  Applying T4-specific stability settings.\n"}
-,{"stream_name":"stdout","time":60.559628921,"data":"2026-08-17 05:42:30,598 [INFO]    [TARGET] GPU Architecture: sm_75 (Tesla T4) — Applying T4-specific stability settings.\n"}
-,{"stream_name":"stdout","time":60.560388198,"data":"2026-08-17 05:42:30,598 [INFO]    [OK] Set TORCH_CUDA_ARCH_LIST=7.5, CUDA_MODULE_LOADING=LAZY\n"}
-,{"stream_name":"stdout","time":60.561117407,"data":"2026-08-17 05:42:30,598 [INFO]    [OK] Set TORCH_CUDA_ARCH_LIST=7.5, CUDA_MODULE_LOADING=LAZY\n"}
-,{"stream_name":"stdout","time":60.561784054,"data":"2026-08-17 05:42:30,598 [INFO]    [CUDA] CUDA Device: Tesla T4 (Total GPUs: 2)\n"}
-,{"stream_name":"stdout","time":60.562437114,"data":"2026-08-17 05:42:30,598 [INFO]    [CUDA] CUDA Device: Tesla T4 (Total GPUs: 2)\n"}
-,{"stream_name":"stdout","time":60.900650182,"data":"2026-08-17 05:42:30,939 [INFO]    [OK] CUDA Kernel Execution Test (float32): PASSED\n"}
-,{"stream_name":"stdout","time":60.905101869,"data":"2026-08-17 05:42:30,939 [INFO]    [OK] CUDA Kernel Execution Test (float32): PASSED\n"}
-,{"stream_name":"stdout","time":60.908889489,"data":"2026-08-17 05:42:30,942 [INFO]    [OK] CUDA Kernel Execution Test (float16): PASSED\n"}
-,{"stream_name":"stdout","time":60.909331239,"data":"2026-08-17 05:42:30,942 [INFO]    [OK] CUDA Kernel Execution Test (float16): PASSED\n"}
-,{"stream_name":"stdout","time":61.749222565,"data":"2026-08-17 05:42:31,790 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
-,{"stream_name":"stdout","time":61.750017002,"data":"2026-08-17 05:42:31,790 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
-,{"stream_name":"stdout","time":61.769257516,"data":"2026-08-17 05:42:31,811 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
-,{"stream_name":"stdout","time":61.769992835,"data":"2026-08-17 05:42:31,811 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
-,{"stream_name":"stdout","time":61.900100702,"data":"2026-08-17 05:42:31,941 [INFO] NumExpr defaulting to 4 threads.\n"}
-,{"stream_name":"stdout","time":62.047008316,"data":"2026-08-17 05:42:32,088 [INFO] PyTorch version 2.10.0+cu128 available.\n"}
-,{"stream_name":"stdout","time":62.048139963,"data":"2026-08-17 05:42:32,090 [INFO] Polars version 1.35.2 available.\n"}
-,{"stream_name":"stdout","time":62.048900697,"data":"2026-08-17 05:42:32,090 [INFO] Duckdb version 1.3.2 available.\n"}
-,{"stream_name":"stdout","time":62.049680608,"data":"2026-08-17 05:42:32,092 [INFO] TensorFlow version 2.20.0 available.\n"}
-,{"stream_name":"stdout","time":62.050804432,"data":"2026-08-17 05:42:32,093 [INFO] JAX version 0.7.2 available.\n"}
-,{"stream_name":"stdout","time":81.301168575,"data":"2026-08-17 05:42:51,337 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']\n"}
-,{"stream_name":"stdout","time":81.302010715,"data":"2026-08-17 05:42:51,337 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']\n"}
-,{"stream_name":"stdout","time":81.302761664,"data":"2026-08-17 05:42:51,337 [INFO]    [TARGET] GPU Architecture: sm_75 (Tesla T4)  Applying T4-specific stability settings.\n"}
-,{"stream_name":"stdout","time":81.303506456,"data":"2026-08-17 05:42:51,337 [INFO]    [TARGET] GPU Architecture: sm_75 (Tesla T4) — Applying T4-specific stability settings.\n"}
-,{"stream_name":"stdout","time":81.304296731,"data":"2026-08-17 05:42:51,337 [INFO]    [OK] Set TORCH_CUDA_ARCH_LIST=7.5, CUDA_MODULE_LOADING=LAZY\n"}
-,{"stream_name":"stdout","time":81.305019688,"data":"2026-08-17 05:42:51,337 [INFO]    [OK] Set TORCH_CUDA_ARCH_LIST=7.5, CUDA_MODULE_LOADING=LAZY\n"}
-,{"stream_name":"stdout","time":81.305770242,"data":"2026-08-17 05:42:51,337 [INFO]    [INFO] Kaggle/T4/sm_60-75 platform detected: Forcing float16 compute dtype (sm_75 has no native bfloat16).\n"}
-,{"stream_name":"stdout","time":81.306436069,"data":"2026-08-17 05:42:51,337 [INFO]    [INFO] Kaggle/T4/sm_60-75 platform detected: Forcing float16 compute dtype (sm_75 has no native bfloat16).\n"}
-,{"stream_name":"stdout","time":81.310429447,"data":"2026-08-17 05:42:51,352 [INFO]    [INFO] Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.\n"}
-,{"stream_name":"stdout","time":81.311222388,"data":"2026-08-17 05:42:51,352 [INFO]    [INFO] Kaggle/T4 (sm_75) platform: Bypassing bitsandbytes 4-bit CUDA ops to ensure 100% stable float16 execution.\n"}
-,{"stream_name":"stdout","time":81.312223373,"data":"2026-08-17 05:42:51,352 [INFO] [MODEL] Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...\n"}
-,{"stream_name":"stdout","time":81.312960258,"data":"2026-08-17 05:42:51,352 [INFO] [MODEL] Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...\n"}
-,{"stream_name":"stdout","time":82.239777545,"data":"2026-08-17 05:42:52,281 [INFO] [CUDA] Multi-GPU detected (2 GPUs available). Distributing model with device_map='auto'.\n"}
-,{"stream_name":"stdout","time":82.240508904,"data":"2026-08-17 05:42:52,281 [INFO] [CUDA] Multi-GPU detected (2 GPUs available). Distributing model with device_map='auto'.\n"}
-,{"stream_name":"stdout","time":82.241327804,"data":"2026-08-17 05:42:52,281 [INFO] [MODEL] Loading base model in standard precision (torch.float16)...\n"}
-,{"stream_name":"stdout","time":82.242085145,"data":"2026-08-17 05:42:52,281 [INFO] [MODEL] Loading base model in standard precision (torch.float16)...\n"}
-,{"stream_name":"stdout","time":269.375678462,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stdout","time":269.377767704,"data":"  File \"/usr/local/lib/python3.12/dist-packages/urllib3/response.py\", line 779, in _error_catcher\n"}
-,{"stream_name":"stdout","time":269.378951613,"data":"    yield\n"}
-,{"stream_name":"stdout","time":269.379990938,"data":"  File \"/usr/local/lib/python3.12/dist-packages/urllib3/response.py\", line 925, in _raw_read\n"}
-,{"stream_name":"stdout","time":269.381119723,"data":"    raise IncompleteRead(self._fp_bytes_read, self.length_remaining)\n"}
-,{"stream_name":"stdout","time":269.382195363,"data":"urllib3.exceptions.IncompleteRead: IncompleteRead(1688247884 bytes read, 1868129788 more expected)\n"}
-,{"stream_name":"stdout","time":269.383284975,"data":"\n"}
-,{"stream_name":"stdout","time":269.384400203,"data":"The above exception was the direct cause of the following exception:\n"}
-,{"stream_name":"stdout","time":269.385391103,"data":"\n"}
-,{"stream_name":"stdout","time":269.386536481,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stdout","time":269.387687377,"data":"  File \"/usr/local/lib/python3.12/dist-packages/requests/models.py\", line 820, in generate\n"}
-,{"stream_name":"stdout","time":269.388735053,"data":"    yield from self.raw.stream(chunk_size, decode_content=True)\n"}
-,{"stream_name":"stdout","time":269.389895316,"data":"  File \"/usr/local/lib/python3.12/dist-packages/urllib3/response.py\", line 1091, in stream\n"}
-,{"stream_name":"stdout","time":269.39098069,"data":"    data = self.read(amt=amt, decode_content=decode_content)\n"}
-,{"stream_name":"stdout","time":269.392093937,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stdout","time":269.393194859,"data":"  File \"/usr/local/lib/python3.12/dist-packages/urllib3/response.py\", line 1008, in read\n"}
-,{"stream_name":"stdout","time":269.394207993,"data":"    data = self._raw_read(amt)\n"}
-,{"stream_name":"stdout","time":269.39513308,"data":"           ^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stdout","time":269.395967145,"data":"  File \"/usr/local/lib/python3.12/dist-packages/urllib3/response.py\", line 903, in _raw_read\n"}
-,{"stream_name":"stdout","time":269.396964382,"data":"    with self._error_catcher():\n"}
-,{"stream_name":"stdout","time":269.397928722,"data":"         ^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stdout","time":269.398698028,"data":"  File \"/usr/lib/python3.12/contextlib.py\", line 158, in __exit__\n"}
-,{"stream_name":"stdout","time":269.39972123,"data":"    self.gen.throw(value)\n"}
-,{"stream_name":"stdout","time":269.40081434,"data":"  File \"/usr/local/lib/python3.12/dist-packages/urllib3/response.py\", line 803, in _error_catcher\n"}
-,{"stream_name":"stdout","time":269.401599892,"data":"    raise ProtocolError(arg, e) from e\n"}
-,{"stream_name":"stdout","time":269.402389537,"data":"urllib3.exceptions.ProtocolError: ('Connection broken: IncompleteRead(1688247884 bytes read, 1868129788 more expected)', IncompleteRead(1688247884 bytes read, 1868129788 more expected))\n"}
-,{"stream_name":"stdout","time":269.403364869,"data":"\n"}
-,{"stream_name":"stdout","time":269.404397775,"data":"During handling of the above exception, another exception occurred:\n"}
-,{"stream_name":"stdout","time":269.405479445,"data":"\n"}
-,{"stream_name":"stdout","time":269.406276111,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stdout","time":269.407219119,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 928, in \u003cmodule\u003e\n"}
-,{"stream_name":"stdout","time":269.408302299,"data":"    main()\n"}
-,{"stream_name":"stdout","time":269.410199552,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 914, in main\n"}
-,{"stream_name":"stdout","time":269.411357896,"data":"    success = run_training_pipeline(\n"}
-,{"stream_name":"stdout","time":269.412157322,"data":"              ^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stdout","time":269.412932101,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 591, in run_training_pipeline\n"}
-,{"stream_name":"stdout","time":269.413942796,"data":"    model = AutoModelForCausalLM.from_pretrained(\n"}
-,{"stream_name":"stdout","time":269.415169984,"data":"            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stdout","time":269.41643166,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/models/auto/auto_factory.py\", line 564, in from_pretrained\n"}
-,{"stream_name":"stdout","time":269.417374919,"data":"    return model_class.from_pretrained(\n"}
-,{"stream_name":"stdout","time":269.418477994,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stdout","time":269.419487656,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/modeling_utils.py\", line 3715, in from_pretrained\n"}
-,{"stream_name":"stdout","time":269.420533007,"data":"    resolved_archive_file, sharded_metadata = get_checkpoint_shard_files(\n"}
-,{"stream_name":"stdout","time":269.421440035,"data":"                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stdout","time":269.422336177,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/utils/hub.py\", line 1079, in get_checkpoint_shard_files\n"}
-,{"stream_name":"stdout","time":269.423142762,"data":"    cached_filename = cached_file(\n"}
-,{"stream_name":"stdout","time":269.423926943,"data":"                      ^^^^^^^^^^^^\n"}
-,{"stream_name":"stdout","time":269.424723123,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/utils/hub.py\", line 402, in cached_file\n"}
-,{"stream_name":"stdout","time":269.425551192,"data":"    resolved_file = hf_hub_download(\n"}
-,{"stream_name":"stdout","time":269.42636938,"data":"                    ^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stdout","time":269.427173052,"data":"  File \"/usr/local/lib/python3.12/dist-packages/huggingface_hub/utils/_deprecation.py\", line 101, in inner_f\n"}
-,{"stream_name":"stdout","time":269.428005172,"data":"    return f(*args, **kwargs)\n"}
-,{"stream_name":"stdout","time":269.428719519,"data":"           ^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stdout","time":269.429496162,"data":"  File \"/usr/local/lib/python3.12/dist-packages/huggingface_hub/utils/_validators.py\", line 114, in _inner_fn\n"}
-,{"stream_name":"stdout","time":269.430357455,"data":"    return fn(*args, **kwargs)\n"}
-,{"stream_name":"stdout","time":269.43117793,"data":"           ^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stdout","time":269.432036512,"data":"  File \"/usr/local/lib/python3.12/dist-packages/huggingface_hub/file_download.py\", line 1232, in hf_hub_download\n"}
-,{"stream_name":"stdout","time":269.432830489,"data":"    return _hf_hub_download_to_cache_dir(\n"}
-,{"stream_name":"stdout","time":269.433544637,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stdout","time":269.434335461,"data":"  File \"/usr/local/lib/python3.12/dist-packages/huggingface_hub/file_download.py\", line 1381, in _hf_hub_download_to_cache_dir\n"}
-,{"stream_name":"stdout","time":269.43523792,"data":"    _download_to_tmp_and_move(\n"}
-,{"stream_name":"stdout","time":269.436092662,"data":"  File \"/usr/local/lib/python3.12/dist-packages/huggingface_hub/file_download.py\", line 1915, in _download_to_tmp_and_move\n"}
-,{"stream_name":"stdout","time":269.436859664,"data":"    http_get(\n"}
-,{"stream_name":"stdout","time":269.437638216,"data":"  File \"/usr/local/lib/python3.12/dist-packages/huggingface_hub/file_download.py\", line 541, in http_get\n"}
-,{"stream_name":"stdout","time":269.438400366,"data":"    for chunk in r.iter_content(chunk_size=constants.DOWNLOAD_CHUNK_SIZE):\n"}
-,{"stream_name":"stdout","time":269.43930278,"data":"                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stdout","time":269.440168187,"data":"  File \"/usr/local/lib/python3.12/dist-packages/requests/models.py\", line 822, in generate\n"}
-,{"stream_name":"stdout","time":269.441006913,"data":"    raise ChunkedEncodingError(e)\n"}
-,{"stream_name":"stdout","time":269.441761591,"data":"requests.exceptions.ChunkedEncodingError: ('Connection broken: IncompleteRead(1688247884 bytes read, 1868129788 more expected)', IncompleteRead(1688247884 bytes read, 1868129788 more expected))\n"}
-,{"stream_name":"stderr","time":274.189861707,"data":"Traceback (most recent call last):\n"}
-,{"stream_name":"stderr","time":274.189887454,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
-,{"stream_name":"stderr","time":274.18989638,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
-,{"stream_name":"stderr","time":274.191024676,"data":"    raise_for_execution_errors(nb, output_path)\n"}
-,{"stream_name":"stderr","time":274.191041009,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
-,{"stream_name":"stderr","time":274.191193084,"data":"    raise error\n"}
-,{"stream_name":"stderr","time":274.191335289,"data":"papermill.exceptions.PapermillExecutionError: \n"}
-,{"stream_name":"stderr","time":274.191345852,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":274.191349864,"data":"Exception encountered at \"In [2]\":\n"}
-,{"stream_name":"stderr","time":274.191353489,"data":"---------------------------------------------------------------------------\n"}
-,{"stream_name":"stderr","time":274.191356847,"data":"RuntimeError                              Traceback (most recent call last)\n"}
-,{"stream_name":"stderr","time":274.191370404,"data":"/tmp/ipykernel_23/146415890.py in \u003ccell line: 0\u003e()\n"}
-,{"stream_name":"stderr","time":274.191374185,"data":"    255         except Exception:\n"}
-,{"stream_name":"stderr","time":274.191378319,"data":"    256             pass\n"}
-,{"stream_name":"stderr","time":274.191383214,"data":"--\u003e 257     raise RuntimeError(f'[ERROR] Training orchestrator failed (exit code {proc.returncode}).\\n--- Tail of train_execution.log ---\\n{log_tail}')\n"}
-,{"stream_name":"stderr","time":274.1913882,"data":"    258 \n"}
-,{"stream_name":"stderr","time":274.191392539,"data":"    259 print('[OK] Training pipeline completed successfully! โมเดลถูกอัปโหลดขึ้น Hugging Face เรียบร้อยแล้ว!')\n"}
-,{"stream_name":"stderr","time":274.191397284,"data":"\n"}
-,{"stream_name":"stderr","time":274.191400522,"data":"RuntimeError: [ERROR] Training orchestrator failed (exit code 1).\n"}
-,{"stream_name":"stderr","time":274.191404172,"data":"--- Tail of train_execution.log ---\n"}
-,{"stream_name":"stderr","time":274.191407249,"data":"    return model_class.from_pretrained(\n"}
-,{"stream_name":"stderr","time":274.191410646,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":274.191414715,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/modeling_utils.py\", line 3715, in from_pretrained\n"}
-,{"stream_name":"stderr","time":274.191417992,"data":"    resolved_archive_file, sharded_metadata = get_checkpoint_shard_files(\n"}
-,{"stream_name":"stderr","time":274.191421106,"data":"                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":274.191425124,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/utils/hub.py\", line 1079, in get_checkpoint_shard_files\n"}
-,{"stream_name":"stderr","time":274.191429947,"data":"    cached_filename = cached_file(\n"}
-,{"stream_name":"stderr","time":274.191434015,"data":"                      ^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":274.191437581,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/utils/hub.py\", line 402, in cached_file\n"}
-,{"stream_name":"stderr","time":274.191441375,"data":"    resolved_file = hf_hub_download(\n"}
-,{"stream_name":"stderr","time":274.191444753,"data":"                    ^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":274.191448512,"data":"  File \"/usr/local/lib/python3.12/dist-packages/huggingface_hub/utils/_deprecation.py\", line 101, in inner_f\n"}
-,{"stream_name":"stderr","time":274.191452195,"data":"    return f(*args, **kwargs)\n"}
-,{"stream_name":"stderr","time":274.19145562,"data":"           ^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":274.191459663,"data":"  File \"/usr/local/lib/python3.12/dist-packages/huggingface_hub/utils/_validators.py\", line 114, in _inner_fn\n"}
-,{"stream_name":"stderr","time":274.191463169,"data":"    return fn(*args, **kwargs)\n"}
-,{"stream_name":"stderr","time":274.191466404,"data":"           ^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":274.19146976,"data":"  File \"/usr/local/lib/python3.12/dist-packages/huggingface_hub/file_download.py\", line 1232, in hf_hub_download\n"}
-,{"stream_name":"stderr","time":274.191474202,"data":"    return _hf_hub_download_to_cache_dir(\n"}
-,{"stream_name":"stderr","time":274.191477536,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":274.191480915,"data":"  File \"/usr/local/lib/python3.12/dist-packages/huggingface_hub/file_download.py\", line 1381, in _hf_hub_download_to_cache_dir\n"}
-,{"stream_name":"stderr","time":274.191484662,"data":"    _download_to_tmp_and_move(\n"}
-,{"stream_name":"stderr","time":274.191492475,"data":"  File \"/usr/local/lib/python3.12/dist-packages/huggingface_hub/file_download.py\", line 1915, in _download_to_tmp_and_move\n"}
-,{"stream_name":"stderr","time":274.191496529,"data":"    http_get(\n"}
-,{"stream_name":"stderr","time":274.191500147,"data":"  File \"/usr/local/lib/python3.12/dist-packages/huggingface_hub/file_download.py\", line 541, in http_get\n"}
-,{"stream_name":"stderr","time":274.191503744,"data":"    for chunk in r.iter_content(chunk_size=constants.DOWNLOAD_CHUNK_SIZE):\n"}
-,{"stream_name":"stderr","time":274.191507475,"data":"                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
-,{"stream_name":"stderr","time":274.191510774,"data":"  File \"/usr/local/lib/python3.12/dist-packages/requests/models.py\", line 822, in generate\n"}
-,{"stream_name":"stderr","time":274.191514384,"data":"    raise ChunkedEncodingError(e)\n"}
-,{"stream_name":"stderr","time":274.19151801,"data":"requests.exceptions.ChunkedEncodingError: ('Connection broken: IncompleteRead(1688247884 bytes read, 1868129788 more expected)', IncompleteRead(1688247884 bytes read, 1868129788 more expected))\n"}
-,{"stream_name":"stderr","time":274.191523317,"data":"\n"}
-,{"stream_name":"stderr","time":274.191526539,"data":"\n"}
-,{"stream_name":"stderr","time":276.225726111,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
-,{"stream_name":"stderr","time":276.22577648,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
-,{"stream_name":"stderr","time":276.386944185,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
-,{"stream_name":"stderr","time":276.38696845,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
-,{"stream_name":"stderr","time":277.01325601,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
-,{"stream_name":"stderr","time":277.327867527,"data":"[NbConvertApp] Writing 44407 bytes to __notebook__.ipynb\n"}
-,{"stream_name":"stderr","time":279.652509323,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
-,{"stream_name":"stderr","time":280.48029408,"data":"[NbConvertApp] Writing 358780 bytes to __results__.html\n"}
+[{"stream_name":"stderr","time":7.488056233,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.488118443,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.488122943,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.488125541,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":8.084263716,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.08429374,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.084299145,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.084302779,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":15.350988764,"data":"[OK] CUDA stability \u0026 Triton compatibility shim applied.\n"}
+,{"stream_name":"stdout","time":15.351048545,"data":"[MODEL] Removing incompatible torchao/torchvision \u0026 installing fine-tuning packages...\n"}
+,{"stream_name":"stdout","time":16.498159539,"data":"Found existing installation: torchao 0.10.0\n"}
+,{"stream_name":"stdout","time":16.575754794,"data":"Uninstalling torchao-0.10.0:\n"}
+,{"stream_name":"stdout","time":16.699853646,"data":"Found existing installation: torchao 0.10.0\n"}
+,{"stream_name":"stdout","time":16.699882623,"data":"Uninstalling torchao-0.10.0:\n"}
+,{"stream_name":"stdout","time":16.918553681,"data":"  Successfully uninstalled torchao-0.10.0\n"}
+,{"stream_name":"stdout","time":17.120905136,"data":"  Successfully uninstalled torchao-0.10.0\n"}
+,{"stream_name":"stdout","time":17.408647751,"data":"Found existing installation: torchvision 0.25.0+cu128\n"}
+,{"stream_name":"stdout","time":17.432909235,"data":"Uninstalling torchvision-0.25.0+cu128:\n"}
+,{"stream_name":"stdout","time":17.610704514,"data":"Found existing installation: torchvision 0.25.0+cu128\n"}
+,{"stream_name":"stdout","time":17.610726678,"data":"Uninstalling torchvision-0.25.0+cu128:\n"}
+,{"stream_name":"stdout","time":17.669309009,"data":"  Successfully uninstalled torchvision-0.25.0+cu128\n"}
+,{"stream_name":"stdout","time":17.871381023,"data":"  Successfully uninstalled torchvision-0.25.0+cu128\n"}
+,{"stream_name":"stderr","time":40.72470181,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stderr","time":40.72473364,"data":"bigframes 2.39.0 requires google-cloud-bigquery-storage\u003c3.0.0,\u003e=2.30.0, which is not installed.\n"}
+,{"stream_name":"stderr","time":40.72474065,"data":"timm 1.0.26 requires torchvision, which is not installed.\n"}
+,{"stream_name":"stderr","time":40.724745923,"data":"tpot 1.1.0 requires dill\u003e=0.3.9, but you have dill 0.3.8 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.724750623,"data":"diffusers 0.37.1 requires huggingface-hub\u003c2.0,\u003e=0.34.0, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.724764784,"data":"gcsfs 2025.3.0 requires fsspec==2025.3.0, but you have fsspec 2024.12.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.724770105,"data":"gradio 5.50.0 requires huggingface-hub\u003c2.0,\u003e=0.33.5, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
+,{"stream_name":"stdout","time":40.879636001,"data":"[OK] Dependencies installed successfully. Ready for Cell 2 Execution!\n"}
+,{"stream_name":"stderr","time":40.881138718,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stderr","time":40.881159024,"data":"bigframes 2.39.0 requires google-cloud-bigquery-storage\u003c3.0.0,\u003e=2.30.0, which is not installed.\n"}
+,{"stream_name":"stderr","time":40.881164137,"data":"timm 1.0.26 requires torchvision, which is not installed.\n"}
+,{"stream_name":"stderr","time":40.881167881,"data":"tpot 1.1.0 requires dill\u003e=0.3.9, but you have dill 0.3.8 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.881182933,"data":"diffusers 0.37.1 requires huggingface-hub\u003c2.0,\u003e=0.34.0, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.881187658,"data":"gcsfs 2025.3.0 requires fsspec==2025.3.0, but you have fsspec 2024.12.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.881191653,"data":"gradio 5.50.0 requires huggingface-hub\u003c2.0,\u003e=0.33.5, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.881196231,"data":"\n"}
+,{"stream_name":"stderr","time":40.881199688,"data":"ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.\n"}
+,{"stream_name":"stderr","time":40.881203975,"data":"bigframes 2.39.0 requires google-cloud-bigquery-storage\u003c3.0.0,\u003e=2.30.0, which is not installed.\n"}
+,{"stream_name":"stderr","time":40.881208044,"data":"timm 1.0.26 requires torchvision, which is not installed.\n"}
+,{"stream_name":"stderr","time":40.881212873,"data":"tpot 1.1.0 requires dill\u003e=0.3.9, but you have dill 0.3.8 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.88121661,"data":"diffusers 0.37.1 requires huggingface-hub\u003c2.0,\u003e=0.34.0, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.881220855,"data":"gcsfs 2025.3.0 requires fsspec==2025.3.0, but you have fsspec 2024.12.0 which is incompatible.\n"}
+,{"stream_name":"stderr","time":40.881224461,"data":"gradio 5.50.0 requires huggingface-hub\u003c2.0,\u003e=0.33.5, but you have huggingface-hub 0.25.1 which is incompatible.\n"}
+,{"stream_name":"stderr","time":41.0260161,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stdout","time":41.076931547,"data":"[INFO] Detected Kaggle: Loading Secrets...\n"}
+,{"stream_name":"stdout","time":41.076955677,"data":"[MODEL] Cloning HoroConsultant repository...\n"}
+,{"stream_name":"stderr","time":41.228775879,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stderr","time":41.228799938,"data":"\n"}
+,{"stream_name":"stderr","time":41.228804362,"data":"Cloning into '/kaggle/working/HoroConsultant'...\n"}
+,{"stream_name":"stderr","time":46.442854776,"data":"Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128.so')\n"}
+,{"stream_name":"stderr","time":46.442892324,"data":"\n"}
+,{"stream_name":"stderr","time":46.442896956,"data":"Could not find the bitsandbytes CUDA binary at PosixPath('/usr/local/lib/python3.12/dist-packages/bitsandbytes/libbitsandbytes_cuda128.so')\n"}
+,{"stream_name":"stderr","time":46.445131445,"data":"The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
+,{"stream_name":"stderr","time":46.44515211,"data":"\n"}
+,{"stream_name":"stderr","time":46.445170054,"data":"The installed version of bitsandbytes was compiled without GPU support. 8-bit optimizers, 8-bit multiplication, and GPU quantization are unavailable.\n"}
+,{"stream_name":"stdout","time":46.644030564,"data":"[CUDA] Detected GPU: Tesla T4 (sm_75)\n"}
+,{"stream_name":"stdout","time":46.644054882,"data":"[OK] BNB CUDA Fix: Symlinked libbitsandbytes_cuda125_nocublaslt.so -\u003e libbitsandbytes_cuda128.so\n"}
+,{"stream_name":"stdout","time":49.475296771000004,"data":"[OK] Fail-Fast Import Verified: transformers=4.44.2, peft=0.12.0, trl=0.11.0, accelerate=0.34.2, datasets=3.4.1, bitsandbytes=0.43.3\n"}
+,{"stream_name":"stdout","time":49.475328205,"data":"[INFO] กำลังดาวน์โหลด Dataset จาก Google Drive...\n"}
+,{"stream_name":"stderr","time":49.476095213,"data":"Retrieving folder contents\n"}
+,{"stream_name":"stderr","time":49.476109165,"data":"\n"}
+,{"stream_name":"stderr","time":49.476112957,"data":"Retrieving folder contents\n"}
+,{"stream_name":"stdout","time":49.817170149,"data":"Processing file 19wvJL_YVZR2XO9Voyv57r3Z0s4j72sSEnEfPaxbCCaQ HoroClip_Advanced_Treatises_Dataset.jsonl\n"}
+,{"stream_name":"stdout","time":49.817195435,"data":"Processing file 1BgQOV5gV6Wx7IX58ZX-g3qaGipiIznc4kaJ7vyGsf9o HoroClip_Batch04_Treatises_Dataset.jsonl\n"}
+,{"stream_name":"stdout","time":49.817213672,"data":"Processing file 1OL_GDKne0dT8mIesVdnK5guQIPSugP8d HoroClip_Batch05_Treatises_Dataset.jsonl\n"}
+,{"stream_name":"stdout","time":49.817218487,"data":"Processing file 1S07tzllpa0OV0npgU1v89v94e1Xwn3LMGJc5v7NRQsc HoroClip_Classical_Treatises_Dataset.jsonl\n"}
+,{"stream_name":"stdout","time":49.817222341,"data":"Processing file 110DSAsmtRyk5q7UJkpMTg1a35ZZJKVHaov7KnbdtcIw HoroClip_Dataset_2026_08.jsonl\n"}
+,{"stream_name":"stdout","time":49.817226289,"data":"Processing file 1NfW3HyvOrPkAR7IFpvjG02xHDxMEllJMendfqPY8zgM HoroClip_FineTuning_Dataset.jsonl\n"}
+,{"stream_name":"stderr","time":49.817968251,"data":"Retrieving folder contents completed\n"}
+,{"stream_name":"stderr","time":49.817980205,"data":"Building directory structure\n"}
+,{"stream_name":"stderr","time":49.817988875,"data":"Building directory structure completed\n"}
+,{"stream_name":"stderr","time":49.817991655,"data":"\n"}
+,{"stream_name":"stderr","time":49.817993881,"data":"Retrieving folder contents completed\n"}
+,{"stream_name":"stderr","time":49.817996239,"data":"Building directory structure\n"}
+,{"stream_name":"stderr","time":49.817998862,"data":"Building directory structure completed\n"}
+,{"stream_name":"stderr","time":51.381958684,"data":"Downloading...\n"}
+,{"stream_name":"stderr","time":51.381982154,"data":"From (original): https://drive.google.com/uc?id=19wvJL_YVZR2XO9Voyv57r3Z0s4j72sSEnEfPaxbCCaQ\n"}
+,{"stream_name":"stderr","time":51.381986748,"data":"From (redirected): https://docs.google.com/document/d/19wvJL_YVZR2XO9Voyv57r3Z0s4j72sSEnEfPaxbCCaQ/export?format=docx\n"}
+,{"stream_name":"stderr","time":51.38199081,"data":"To: /kaggle/working/my_dataset/HoroClip_Advanced_Treatises_Dataset.jsonl\n"}
+,{"stream_name":"stderr","time":51.381994287,"data":"\n"}
+,{"stream_name":"stderr","time":51.381997657,"data":"Downloading...\n"}
+,{"stream_name":"stderr","time":51.382001146,"data":"From (original): https://drive.google.com/uc?id=19wvJL_YVZR2XO9Voyv57r3Z0s4j72sSEnEfPaxbCCaQ\n"}
+,{"stream_name":"stderr","time":51.382004508,"data":"From (redirected): https://docs.google.com/document/d/19wvJL_YVZR2XO9Voyv57r3Z0s4j72sSEnEfPaxbCCaQ/export?format=docx\n"}
+,{"stream_name":"stderr","time":51.382008543,"data":"To: /kaggle/working/my_dataset/HoroClip_Advanced_Treatises_Dataset.jsonl\n"}
+,{"stream_name":"stderr","time":51.382910244,"data":"\r0.00B [00:00, ?B/s]\n"}
+,{"stream_name":"stderr","time":51.384156177,"data":"\r0.00B [00:00, ?B/s]\r8.88kB [00:00, 20.2MB/s]\n"}
+,{"stream_name":"stderr","time":51.579824862,"data":"\r8.88kB [00:00, 20.2MB/s]\n"}
+,{"stream_name":"stderr","time":51.579868649,"data":"\n"}
+,{"stream_name":"stderr","time":51.579874048,"data":"\n"}
+,{"stream_name":"stderr","time":53.235051486,"data":"Downloading...\n"}
+,{"stream_name":"stderr","time":53.235079747,"data":"From (original): https://drive.google.com/uc?id=1BgQOV5gV6Wx7IX58ZX-g3qaGipiIznc4kaJ7vyGsf9o\n"}
+,{"stream_name":"stderr","time":53.235086432,"data":"From (redirected): https://docs.google.com/document/d/1BgQOV5gV6Wx7IX58ZX-g3qaGipiIznc4kaJ7vyGsf9o/export?format=docx\n"}
+,{"stream_name":"stderr","time":53.235092154,"data":"To: /kaggle/working/my_dataset/HoroClip_Batch04_Treatises_Dataset.jsonl\n"}
+,{"stream_name":"stderr","time":53.235097064,"data":"\n"}
+,{"stream_name":"stderr","time":53.235101987,"data":"Downloading...\n"}
+,{"stream_name":"stderr","time":53.235107446,"data":"From (original): https://drive.google.com/uc?id=1BgQOV5gV6Wx7IX58ZX-g3qaGipiIznc4kaJ7vyGsf9o\n"}
+,{"stream_name":"stderr","time":53.235112445,"data":"From (redirected): https://docs.google.com/document/d/1BgQOV5gV6Wx7IX58ZX-g3qaGipiIznc4kaJ7vyGsf9o/export?format=docx\n"}
+,{"stream_name":"stderr","time":53.235116951,"data":"To: /kaggle/working/my_dataset/HoroClip_Batch04_Treatises_Dataset.jsonl\n"}
+,{"stream_name":"stderr","time":53.236082183,"data":"\r0.00B [00:00, ?B/s]\n"}
+,{"stream_name":"stderr","time":53.236978932,"data":"\r0.00B [00:00, ?B/s]\r8.47kB [00:00, 17.4MB/s]\n"}
+,{"stream_name":"stderr","time":53.435360411,"data":"\r8.47kB [00:00, 17.4MB/s]\n"}
+,{"stream_name":"stderr","time":53.435385399,"data":"\n"}
+,{"stream_name":"stderr","time":53.435390194,"data":"\n"}
+,{"stream_name":"stderr","time":54.705359707,"data":"Downloading...\n"}
+,{"stream_name":"stderr","time":54.705390533,"data":"From: https://drive.google.com/uc?id=1OL_GDKne0dT8mIesVdnK5guQIPSugP8d\n"}
+,{"stream_name":"stderr","time":54.705412786,"data":"To: /kaggle/working/my_dataset/HoroClip_Batch05_Treatises_Dataset.jsonl\n"}
+,{"stream_name":"stderr","time":54.705418058,"data":"\n"}
+,{"stream_name":"stderr","time":54.705422668,"data":"Downloading...\n"}
+,{"stream_name":"stderr","time":54.705427089,"data":"From: https://drive.google.com/uc?id=1OL_GDKne0dT8mIesVdnK5guQIPSugP8d\n"}
+,{"stream_name":"stderr","time":54.705431779,"data":"To: /kaggle/working/my_dataset/HoroClip_Batch05_Treatises_Dataset.jsonl\n"}
+,{"stream_name":"stderr","time":54.706477443,"data":"\r  0%|          | 0.00/4.04k [00:00\u003c?, ?B/s]\n"}
+,{"stream_name":"stderr","time":54.707429014,"data":"\r  0%|          | 0.00/4.04k [00:00\u003c?, ?B/s]\r100%|██████████| 4.04k/4.04k [00:00\u003c00:00, 6.56MB/s]\n"}
+,{"stream_name":"stderr","time":54.905320162,"data":"\r100%|██████████| 4.04k/4.04k [00:00\u003c00:00, 6.56MB/s]\n"}
+,{"stream_name":"stderr","time":54.905341071,"data":"\n"}
+,{"stream_name":"stderr","time":54.905348252,"data":"\n"}
+,{"stream_name":"stderr","time":56.534058469,"data":"Downloading...\n"}
+,{"stream_name":"stderr","time":56.534086123,"data":"From (original): https://drive.google.com/uc?id=1S07tzllpa0OV0npgU1v89v94e1Xwn3LMGJc5v7NRQsc\n"}
+,{"stream_name":"stderr","time":56.53409218,"data":"From (redirected): https://docs.google.com/document/d/1S07tzllpa0OV0npgU1v89v94e1Xwn3LMGJc5v7NRQsc/export?format=docx\n"}
+,{"stream_name":"stderr","time":56.534097148,"data":"To: /kaggle/working/my_dataset/HoroClip_Classical_Treatises_Dataset.jsonl\n"}
+,{"stream_name":"stderr","time":56.534111905,"data":"\n"}
+,{"stream_name":"stderr","time":56.534115392,"data":"Downloading...\n"}
+,{"stream_name":"stderr","time":56.534118728,"data":"From (original): https://drive.google.com/uc?id=1S07tzllpa0OV0npgU1v89v94e1Xwn3LMGJc5v7NRQsc\n"}
+,{"stream_name":"stderr","time":56.534122453,"data":"From (redirected): https://docs.google.com/document/d/1S07tzllpa0OV0npgU1v89v94e1Xwn3LMGJc5v7NRQsc/export?format=docx\n"}
+,{"stream_name":"stderr","time":56.534126367,"data":"To: /kaggle/working/my_dataset/HoroClip_Classical_Treatises_Dataset.jsonl\n"}
+,{"stream_name":"stderr","time":56.535243115,"data":"\r0.00B [00:00, ?B/s]\n"}
+,{"stream_name":"stderr","time":56.53623696,"data":"\r0.00B [00:00, ?B/s]\r9.23kB [00:00, 13.4MB/s]\n"}
+,{"stream_name":"stderr","time":56.734293995,"data":"\r9.23kB [00:00, 13.4MB/s]\n"}
+,{"stream_name":"stderr","time":56.734312274,"data":"\n"}
+,{"stream_name":"stderr","time":56.734316699,"data":"\n"}
+,{"stream_name":"stderr","time":57.913667919,"data":"Downloading...\n"}
+,{"stream_name":"stderr","time":57.913696468,"data":"From (original): https://drive.google.com/uc?id=110DSAsmtRyk5q7UJkpMTg1a35ZZJKVHaov7KnbdtcIw\n"}
+,{"stream_name":"stderr","time":57.913701733,"data":"From (redirected): https://docs.google.com/document/d/110DSAsmtRyk5q7UJkpMTg1a35ZZJKVHaov7KnbdtcIw/export?format=docx\n"}
+,{"stream_name":"stderr","time":57.91370565,"data":"To: /kaggle/working/my_dataset/HoroClip_Dataset_2026_08.jsonl\n"}
+,{"stream_name":"stderr","time":57.913708933,"data":"\n"}
+,{"stream_name":"stderr","time":57.913712576,"data":"Downloading...\n"}
+,{"stream_name":"stderr","time":57.91371666,"data":"From (original): https://drive.google.com/uc?id=110DSAsmtRyk5q7UJkpMTg1a35ZZJKVHaov7KnbdtcIw\n"}
+,{"stream_name":"stderr","time":57.913720211,"data":"From (redirected): https://docs.google.com/document/d/110DSAsmtRyk5q7UJkpMTg1a35ZZJKVHaov7KnbdtcIw/export?format=docx\n"}
+,{"stream_name":"stderr","time":57.913723708,"data":"To: /kaggle/working/my_dataset/HoroClip_Dataset_2026_08.jsonl\n"}
+,{"stream_name":"stderr","time":57.9146408,"data":"\r0.00B [00:00, ?B/s]\n"}
+,{"stream_name":"stderr","time":57.915965021,"data":"\r0.00B [00:00, ?B/s]\r7.93kB [00:00, 23.0MB/s]\n"}
+,{"stream_name":"stderr","time":58.113772602,"data":"\r7.93kB [00:00, 23.0MB/s]\n"}
+,{"stream_name":"stderr","time":58.113795286,"data":"\n"}
+,{"stream_name":"stderr","time":58.113798396,"data":"\n"}
+,{"stream_name":"stderr","time":59.514637848,"data":"Downloading...\n"}
+,{"stream_name":"stderr","time":59.514664745,"data":"From (original): https://drive.google.com/uc?id=1NfW3HyvOrPkAR7IFpvjG02xHDxMEllJMendfqPY8zgM\n"}
+,{"stream_name":"stderr","time":59.514671486,"data":"From (redirected): https://docs.google.com/document/d/1NfW3HyvOrPkAR7IFpvjG02xHDxMEllJMendfqPY8zgM/export?format=docx\n"}
+,{"stream_name":"stderr","time":59.514676637,"data":"To: /kaggle/working/my_dataset/HoroClip_FineTuning_Dataset.jsonl\n"}
+,{"stream_name":"stderr","time":59.514681054,"data":"\n"}
+,{"stream_name":"stderr","time":59.514685587,"data":"Downloading...\n"}
+,{"stream_name":"stderr","time":59.51468971,"data":"From (original): https://drive.google.com/uc?id=1NfW3HyvOrPkAR7IFpvjG02xHDxMEllJMendfqPY8zgM\n"}
+,{"stream_name":"stderr","time":59.514694371,"data":"From (redirected): https://docs.google.com/document/d/1NfW3HyvOrPkAR7IFpvjG02xHDxMEllJMendfqPY8zgM/export?format=docx\n"}
+,{"stream_name":"stderr","time":59.514698967,"data":"To: /kaggle/working/my_dataset/HoroClip_FineTuning_Dataset.jsonl\n"}
+,{"stream_name":"stderr","time":59.515688895,"data":"\r0.00B [00:00, ?B/s]\n"}
+,{"stream_name":"stderr","time":59.516677367,"data":"\r0.00B [00:00, ?B/s]\r9.10kB [00:00, 18.3MB/s]\n"}
+,{"stream_name":"stderr","time":59.715058891,"data":"\r9.10kB [00:00, 18.3MB/s]\n"}
+,{"stream_name":"stderr","time":59.715082331,"data":"Download completed\n"}
+,{"stream_name":"stderr","time":59.715088168,"data":"\n"}
+,{"stream_name":"stderr","time":59.715092038,"data":"\n"}
+,{"stream_name":"stderr","time":59.715096006,"data":"Download completed\n"}
+,{"stream_name":"stdout","time":59.718896409,"data":"[INFO] กำลังตรวจสอบ รวบรวม และคัดกรองข้อมูลซ้ำจากไฟล์ทั้งหมด...\n"}
+,{"stream_name":"stdout","time":59.71891595,"data":"[PROCESS] กำลังประมวลผลไฟล์: HoroClip_Dataset_2026_08.jsonl\n"}
+,{"stream_name":"stdout","time":59.718921235,"data":"  -\u003e [OK] ได้ข้อมูลใหม่ 2 บรรทัด (ตัดข้อมูลซ้ำออก 0 บรรทัด)\n"}
+,{"stream_name":"stdout","time":59.718925694,"data":"[PROCESS] กำลังประมวลผลไฟล์: HoroClip_FineTuning_Dataset.jsonl\n"}
+,{"stream_name":"stdout","time":59.718929644,"data":"  -\u003e [OK] ได้ข้อมูลใหม่ 3 บรรทัด (ตัดข้อมูลซ้ำออก 2 บรรทัด)\n"}
+,{"stream_name":"stdout","time":59.718933676,"data":"[PROCESS] กำลังประมวลผลไฟล์: HoroClip_Advanced_Treatises_Dataset.jsonl\n"}
+,{"stream_name":"stdout","time":59.718940582,"data":"  -\u003e [OK] ได้ข้อมูลใหม่ 4 บรรทัด (ตัดข้อมูลซ้ำออก 0 บรรทัด)\n"}
+,{"stream_name":"stdout","time":59.718958337,"data":"[PROCESS] กำลังประมวลผลไฟล์: HoroClip_Batch04_Treatises_Dataset.jsonl\n"}
+,{"stream_name":"stdout","time":59.718962549,"data":"  -\u003e [OK] ได้ข้อมูลใหม่ 3 บรรทัด (ตัดข้อมูลซ้ำออก 0 บรรทัด)\n"}
+,{"stream_name":"stdout","time":59.718966999,"data":"[PROCESS] กำลังประมวลผลไฟล์: HoroClip_Batch05_Treatises_Dataset.jsonl\n"}
+,{"stream_name":"stdout","time":59.718971266,"data":"  -\u003e [OK] ได้ข้อมูลใหม่ 3 บรรทัด (ตัดข้อมูลซ้ำออก 0 บรรทัด)\n"}
+,{"stream_name":"stdout","time":59.718976094,"data":"[PROCESS] กำลังประมวลผลไฟล์: HoroClip_Classical_Treatises_Dataset.jsonl\n"}
+,{"stream_name":"stdout","time":59.71898,"data":"  -\u003e [OK] ได้ข้อมูลใหม่ 5 บรรทัด (ตัดข้อมูลซ้ำออก 0 บรรทัด)\n"}
+,{"stream_name":"stdout","time":59.718983839,"data":"[OK] รวบรวม Dataset สำเร็จ! มีข้อมูลที่ไม่ซ้ำกันพร้อมเทรนรวมทั้งสิ้น 22 บรรทัด\n"}
+,{"stream_name":"stdout","time":59.718989455,"data":"[START] Launching Cloud Training Orchestrator สำหรับการเทรนต่อเนื่อง...\n"}
+,{"stream_name":"stdout","time":59.896517873,"data":"2026-08-17 06:45:05,375 [WARNING] Secret 'APP_SUPABASE_URL' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority (KAGGLE SECRETS STORE)...\n"}
+,{"stream_name":"stdout","time":59.926092147,"data":"2026-08-17 06:45:05,409 [WARNING] Secret 'APP_SUPABASE_KEY' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority (KAGGLE SECRETS STORE)...\n"}
+,{"stream_name":"stdout","time":59.980379575,"data":"2026-08-17 06:45:05,464 [WARNING] Secret 'HF_TOKEN' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority (KAGGLE SECRETS STORE)...\n"}
+,{"stream_name":"stdout","time":59.992767386,"data":"2026-08-17 06:45:05,476 [WARNING] Secret 'GH_TOKEN' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority (KAGGLE SECRETS STORE)...\n"}
+,{"stream_name":"stdout","time":60.015011643,"data":"2026-08-17 06:45:05,499 [WARNING] Secret 'GOOGLE_AI_STUDIO_API_KEY' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority (KAGGLE SECRETS STORE)...\n"}
+,{"stream_name":"stdout","time":60.028083903,"data":"2026-08-17 06:45:05,512 [WARNING] Secret 'GOOGLE_AI_STUDIO_API_KEY2' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority (KAGGLE SECRETS STORE)...\n"}
+,{"stream_name":"stdout","time":60.041412017,"data":"2026-08-17 06:45:05,525 [WARNING] Secret 'WANDB_KEY' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority (KAGGLE SECRETS STORE)...\n"}
+,{"stream_name":"stdout","time":60.05620216,"data":"2026-08-17 06:45:05,540 [WARNING] Secret 'KAGGLE_TOKEN' not found in 1st Priority (DOPPLER). Falling back to 2nd Priority (KAGGLE SECRETS STORE)...\n"}
+,{"stream_name":"stdout","time":61.843516888,"data":"2026-08-17 06:45:07,326 [INFO] [INFO] Using explicit dataset path '/kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl'\n"}
+,{"stream_name":"stdout","time":61.845630623,"data":"2026-08-17 06:45:07,326 [INFO] [INFO] Using explicit dataset path '/kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl'\n"}
+,{"stream_name":"stdout","time":61.845653845,"data":"2026-08-17 06:45:07,326 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE]...\n"}
+,{"stream_name":"stdout","time":61.846509676,"data":"2026-08-17 06:45:07,326 [INFO] [START] Starting Cloud Fine-Tuning Pipeline on platform [KAGGLE]...\n"}
+,{"stream_name":"stdout","time":61.847370667,"data":"2026-08-17 06:45:07,326 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
+,{"stream_name":"stdout","time":61.848237692,"data":"2026-08-17 06:45:07,326 [INFO]    Base Model: Qwen/Qwen2.5-7B-Instruct\n"}
+,{"stream_name":"stdout","time":61.849136692,"data":"2026-08-17 06:45:07,326 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl\n"}
+,{"stream_name":"stdout","time":61.849897453,"data":"2026-08-17 06:45:07,326 [INFO]    Dataset: /kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl\n"}
+,{"stream_name":"stdout","time":61.850631554,"data":"2026-08-17 06:45:07,326 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
+,{"stream_name":"stdout","time":61.851346535,"data":"2026-08-17 06:45:07,326 [INFO]    HF Repo ID: pphothidaen/qwen2.5-7b-bazi-instruct-4bit\n"}
+,{"stream_name":"stdout","time":61.852075142,"data":"2026-08-17 06:45:07,326 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...\n"}
+,{"stream_name":"stdout","time":61.852854674,"data":"2026-08-17 06:45:07,326 [INFO] [CHECK] Running Instant Pre-Flight Environment Audit...\n"}
+,{"stream_name":"stdout","time":61.943715514,"data":"2026-08-17 06:45:07,427 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']\n"}
+,{"stream_name":"stdout","time":61.944608728,"data":"2026-08-17 06:45:07,427 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']\n"}
+,{"stream_name":"stdout","time":61.945517305,"data":"2026-08-17 06:45:07,427 [INFO]    [TARGET] GPU Architecture: sm_75 (Tesla T4)  Applying T4-specific stability settings.\n"}
+,{"stream_name":"stdout","time":61.946334003,"data":"2026-08-17 06:45:07,427 [INFO]    [TARGET] GPU Architecture: sm_75 (Tesla T4) — Applying T4-specific stability settings.\n"}
+,{"stream_name":"stdout","time":61.947041423,"data":"2026-08-17 06:45:07,427 [INFO]    [OK] Set TORCH_CUDA_ARCH_LIST=7.5, CUDA_MODULE_LOADING=LAZY\n"}
+,{"stream_name":"stdout","time":61.947713424,"data":"2026-08-17 06:45:07,427 [INFO]    [OK] Set TORCH_CUDA_ARCH_LIST=7.5, CUDA_MODULE_LOADING=LAZY\n"}
+,{"stream_name":"stdout","time":61.948441042,"data":"2026-08-17 06:45:07,428 [INFO]    [CUDA] CUDA Device: Tesla T4 (Total GPUs: 2)\n"}
+,{"stream_name":"stdout","time":61.949450419,"data":"2026-08-17 06:45:07,428 [INFO]    [CUDA] CUDA Device: Tesla T4 (Total GPUs: 2)\n"}
+,{"stream_name":"stdout","time":62.280860441,"data":"2026-08-17 06:45:07,764 [INFO]    [OK] CUDA Kernel Execution Test (float32): PASSED\n"}
+,{"stream_name":"stdout","time":62.281929107,"data":"2026-08-17 06:45:07,764 [INFO]    [OK] CUDA Kernel Execution Test (float32): PASSED\n"}
+,{"stream_name":"stdout","time":62.28270864,"data":"2026-08-17 06:45:07,765 [INFO]    [OK] CUDA Kernel Execution Test (float16): PASSED\n"}
+,{"stream_name":"stdout","time":62.283489301,"data":"2026-08-17 06:45:07,765 [INFO]    [OK] CUDA Kernel Execution Test (float16): PASSED\n"}
+,{"stream_name":"stdout","time":63.043484488,"data":"2026-08-17 06:45:08,526 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
+,{"stream_name":"stdout","time":63.0446079,"data":"2026-08-17 06:45:08,526 [INFO]    [OK] PEFT Adapter Configuration Test: PASSED\n"}
+,{"stream_name":"stdout","time":63.065641928,"data":"2026-08-17 06:45:08,549 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
+,{"stream_name":"stdout","time":63.066339925,"data":"2026-08-17 06:45:08,549 [INFO]    [OK] TRL SFTConfig Test: PASSED (accepts max_seq_length in __init__: True)\n"}
+,{"stream_name":"stdout","time":63.189433586,"data":"2026-08-17 06:45:08,673 [INFO] NumExpr defaulting to 4 threads.\n"}
+,{"stream_name":"stdout","time":63.332611338,"data":"2026-08-17 06:45:08,816 [INFO] PyTorch version 2.10.0+cu128 available.\n"}
+,{"stream_name":"stdout","time":63.333567214,"data":"2026-08-17 06:45:08,817 [INFO] Polars version 1.35.2 available.\n"}
+,{"stream_name":"stdout","time":63.334443061,"data":"2026-08-17 06:45:08,818 [INFO] Duckdb version 1.3.2 available.\n"}
+,{"stream_name":"stdout","time":63.335449456,"data":"2026-08-17 06:45:08,819 [INFO] TensorFlow version 2.20.0 available.\n"}
+,{"stream_name":"stdout","time":63.336692196,"data":"2026-08-17 06:45:08,821 [INFO] JAX version 0.7.2 available.\n"}
+,{"stream_name":"stdout","time":81.698460408,"data":"2026-08-17 06:45:27,175 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']\n"}
+,{"stream_name":"stdout","time":81.699235944,"data":"2026-08-17 06:45:27,175 [INFO]    [AUDIT] PyTorch Compiled Arch List: ['sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'sm_100', 'sm_120']\n"}
+,{"stream_name":"stdout","time":81.700008174,"data":"2026-08-17 06:45:27,175 [INFO]    [TARGET] GPU Architecture: sm_75 (Tesla T4)  Applying T4-specific stability settings.\n"}
+,{"stream_name":"stdout","time":81.700783974,"data":"2026-08-17 06:45:27,175 [INFO]    [TARGET] GPU Architecture: sm_75 (Tesla T4) — Applying T4-specific stability settings.\n"}
+,{"stream_name":"stdout","time":81.701498001,"data":"2026-08-17 06:45:27,176 [INFO]    [OK] Set TORCH_CUDA_ARCH_LIST=7.5, CUDA_MODULE_LOADING=LAZY\n"}
+,{"stream_name":"stdout","time":81.702156275,"data":"2026-08-17 06:45:27,176 [INFO]    [OK] Set TORCH_CUDA_ARCH_LIST=7.5, CUDA_MODULE_LOADING=LAZY\n"}
+,{"stream_name":"stdout","time":81.70296887,"data":"2026-08-17 06:45:27,176 [INFO]    [INFO] Kaggle/T4/sm_60-75 platform detected: Forcing float16 compute dtype (sm_75 has no native bfloat16).\n"}
+,{"stream_name":"stdout","time":81.703772623,"data":"2026-08-17 06:45:27,176 [INFO]    [INFO] Kaggle/T4/sm_60-75 platform detected: Forcing float16 compute dtype (sm_75 has no native bfloat16).\n"}
+,{"stream_name":"stdout","time":81.716775804,"data":"2026-08-17 06:45:27,200 [INFO]    [OK] BitsAndBytes 4-bit quantization initialized successfully.\n"}
+,{"stream_name":"stdout","time":81.717332122,"data":"2026-08-17 06:45:27,200 [INFO]    [OK] BitsAndBytes 4-bit quantization initialized successfully.\n"}
+,{"stream_name":"stdout","time":81.718057431,"data":"2026-08-17 06:45:27,201 [INFO] [MODEL] Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...\n"}
+,{"stream_name":"stdout","time":81.718900066,"data":"2026-08-17 06:45:27,201 [INFO] [MODEL] Loading tokenizer and base model 'Qwen/Qwen2.5-7B-Instruct'...\n"}
+,{"stream_name":"stdout","time":82.508932396,"data":"2026-08-17 06:45:27,992 [INFO] [CUDA] Multi-GPU detected (2 GPUs available). Distributing model with device_map='auto'.\n"}
+,{"stream_name":"stdout","time":82.50970132,"data":"2026-08-17 06:45:27,992 [INFO] [CUDA] Multi-GPU detected (2 GPUs available). Distributing model with device_map='auto'.\n"}
+,{"stream_name":"stdout","time":82.510358606,"data":"2026-08-17 06:45:27,992 [INFO] [CUDA] Attempting 4-bit BitsAndBytes quantization model load (Attempt 1/5)...\n"}
+,{"stream_name":"stdout","time":82.511063334,"data":"2026-08-17 06:45:27,992 [INFO] [CUDA] Attempting 4-bit BitsAndBytes quantization model load (Attempt 1/5)...\n"}
+,{"stream_name":"stdout","time":369.418255647,"data":"2026-08-17 06:50:14,894 [INFO] [OK] Successfully loaded 4-bit quantized model.\n"}
+,{"stream_name":"stdout","time":369.419136584,"data":"2026-08-17 06:50:14,894 [INFO] [OK] Successfully loaded 4-bit quantized model.\n"}
+,{"stream_name":"stdout","time":369.419825662,"data":"2026-08-17 06:50:14,894 [INFO]    [OK] Registered long-dtype pre-hook on input embeddings.\n"}
+,{"stream_name":"stdout","time":369.420573286,"data":"2026-08-17 06:50:14,894 [INFO]    [OK] Registered long-dtype pre-hook on input embeddings.\n"}
+,{"stream_name":"stdout","time":369.421215183,"data":"2026-08-17 06:50:14,894 [INFO]    [OK] Applied Transformers Trainer._get_num_items_in_batch CPU-safe patch.\n"}
+,{"stream_name":"stdout","time":369.421944761,"data":"2026-08-17 06:50:14,894 [INFO]    [OK] Applied Transformers Trainer._get_num_items_in_batch CPU-safe patch.\n"}
+,{"stream_name":"stdout","time":369.422638318,"data":"2026-08-17 06:50:14,894 [INFO]  Pre-formatting dataset from '/kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl'...\n"}
+,{"stream_name":"stdout","time":369.423280949,"data":"2026-08-17 06:50:14,894 [INFO]  Pre-formatting dataset from '/kaggle/working/HoroConsultant/project/rag/datasets/train.jsonl'...\n"}
+,{"stream_name":"stdout","time":369.65794395,"data":"2026-08-17 06:50:15,141 [INFO]  Pre-tokenizing dataset into input_ids and attention_mask...\n"}
+,{"stream_name":"stdout","time":369.658710172,"data":"2026-08-17 06:50:15,141 [INFO]  Pre-tokenizing dataset into input_ids and attention_mask...\n"}
+,{"stream_name":"stdout","time":370.306083671,"data":"2026-08-17 06:50:15,789 [INFO]    [OK] Attached PEFT LoRA adapter to base causal LM.\n"}
+,{"stream_name":"stdout","time":370.306857982,"data":"2026-08-17 06:50:15,789 [INFO]    [OK] Attached PEFT LoRA adapter to base causal LM.\n"}
+,{"stream_name":"stdout","time":370.31021996,"data":"trainable params: 40,370,176 || all params: 7,655,986,688 || trainable%: 0.5273\n"}
+,{"stream_name":"stdout","time":370.310973611,"data":"2026-08-17 06:50:15,794 [INFO] [OK] Initializing standard Hugging Face Trainer with pre-tokenized dataset and DataCollator.\n"}
+,{"stream_name":"stdout","time":370.311691484,"data":"2026-08-17 06:50:15,794 [INFO] [OK] Initializing standard Hugging Face Trainer with pre-tokenized dataset and DataCollator.\n"}
+,{"stream_name":"stdout","time":370.328435614,"data":"2026-08-17 06:50:15,812 [INFO]  Training model...\n"}
+,{"stream_name":"stdout","time":370.329114434,"data":"2026-08-17 06:50:15,812 [INFO] ️ Training model...\n"}
+,{"stream_name":"stdout","time":373.072062116,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stdout","time":373.074441378,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 911, in \u003cmodule\u003e\n"}
+,{"stream_name":"stdout","time":373.07446234,"data":"    main()\n"}
+,{"stream_name":"stdout","time":373.075314996,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 897, in main\n"}
+,{"stream_name":"stdout","time":373.076287911,"data":"    success = run_training_pipeline(\n"}
+,{"stream_name":"stdout","time":373.077080438,"data":"              ^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stdout","time":373.07805092,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 768, in run_training_pipeline\n"}
+,{"stream_name":"stdout","time":373.078870512,"data":"    train_result = trainer.train()\n"}
+,{"stream_name":"stdout","time":373.079840366,"data":"                   ^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stdout","time":373.080672362,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/trainer.py\", line 1938, in train\n"}
+,{"stream_name":"stdout","time":373.081595689,"data":"    return inner_training_loop(\n"}
+,{"stream_name":"stdout","time":373.082511091,"data":"           ^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stdout","time":373.083488388,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/trainer.py\", line 2279, in _inner_training_loop\n"}
+,{"stream_name":"stdout","time":373.08465865,"data":"    tr_loss_step = self.training_step(model, inputs)\n"}
+,{"stream_name":"stdout","time":373.085285766,"data":"                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stdout","time":373.086134536,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/trainer.py\", line 3349, in training_step\n"}
+,{"stream_name":"stdout","time":373.086855749,"data":"    self.accelerator.backward(loss, **kwargs)\n"}
+,{"stream_name":"stdout","time":373.087560207,"data":"  File \"/usr/local/lib/python3.12/dist-packages/accelerate/accelerator.py\", line 2192, in backward\n"}
+,{"stream_name":"stdout","time":373.088251148,"data":"    self.scaler.scale(loss).backward(**kwargs)\n"}
+,{"stream_name":"stdout","time":373.089001823,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/_tensor.py\", line 630, in backward\n"}
+,{"stream_name":"stdout","time":373.089720322,"data":"    torch.autograd.backward(\n"}
+,{"stream_name":"stdout","time":373.090422612,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/autograd/__init__.py\", line 364, in backward\n"}
+,{"stream_name":"stdout","time":373.091103075,"data":"    _engine_run_backward(\n"}
+,{"stream_name":"stdout","time":373.091852898,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/autograd/graph.py\", line 865, in _engine_run_backward\n"}
+,{"stream_name":"stdout","time":373.09258642,"data":"    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass\n"}
+,{"stream_name":"stdout","time":373.093272637,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stdout","time":373.093987628,"data":"NotImplementedError: \"nll_loss_backward_reduce_cuda_kernel_2d_index\" not implemented for 'Float'\n"}
+,{"stream_name":"stderr","time":378.173243819,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":378.173272631,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":378.173285919,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":378.174452453,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":378.174481972,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":378.174827633,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":378.174836879,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":378.174841208,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":378.174845352,"data":"Exception encountered at \"In [2]\":\n"}
+,{"stream_name":"stderr","time":378.174850119,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":378.174854851,"data":"RuntimeError                              Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":378.174859441,"data":"/tmp/ipykernel_23/642136059.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":378.174864682,"data":"    255         except Exception:\n"}
+,{"stream_name":"stderr","time":378.174869337,"data":"    256             pass\n"}
+,{"stream_name":"stderr","time":378.174874101,"data":"--\u003e 257     raise RuntimeError(f'[ERROR] Training orchestrator failed (exit code {proc.returncode}).\\n--- Tail of train_execution.log ---\\n{log_tail}')\n"}
+,{"stream_name":"stderr","time":378.174879844,"data":"    258 \n"}
+,{"stream_name":"stderr","time":378.174884736,"data":"    259 print('[OK] Training pipeline completed successfully! โมเดลถูกอัปโหลดขึ้น Hugging Face เรียบร้อยแล้ว!')\n"}
+,{"stream_name":"stderr","time":378.174891399,"data":"\n"}
+,{"stream_name":"stderr","time":378.174895458,"data":"RuntimeError: [ERROR] Training orchestrator failed (exit code 1).\n"}
+,{"stream_name":"stderr","time":378.174899439,"data":"--- Tail of train_execution.log ---\n"}
+,{"stream_name":"stderr","time":378.17490348,"data":"2026-08-17 06:50:15,794 [INFO] [OK] Initializing standard Hugging Face Trainer with pre-tokenized dataset and DataCollator.\n"}
+,{"stream_name":"stderr","time":378.174907697,"data":"2026-08-17 06:50:15,812 [INFO]  Training model...\n"}
+,{"stream_name":"stderr","time":378.174911646,"data":"2026-08-17 06:50:15,812 [INFO] ️ Training model...\n"}
+,{"stream_name":"stderr","time":378.174915632,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":378.174919491,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 911, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":378.174923872,"data":"    main()\n"}
+,{"stream_name":"stderr","time":378.174927642,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 897, in main\n"}
+,{"stream_name":"stderr","time":378.174931804,"data":"    success = run_training_pipeline(\n"}
+,{"stream_name":"stderr","time":378.174935653,"data":"              ^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":378.174939536,"data":"  File \"/kaggle/working/HoroConsultant/scripts/cloud_train_orchestrator.py\", line 768, in run_training_pipeline\n"}
+,{"stream_name":"stderr","time":378.174943782,"data":"    train_result = trainer.train()\n"}
+,{"stream_name":"stderr","time":378.174947761,"data":"                   ^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":378.174956996,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/trainer.py\", line 1938, in train\n"}
+,{"stream_name":"stderr","time":378.174993279,"data":"    return inner_training_loop(\n"}
+,{"stream_name":"stderr","time":378.174998825,"data":"           ^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":378.175002835,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/trainer.py\", line 2279, in _inner_training_loop\n"}
+,{"stream_name":"stderr","time":378.175007145,"data":"    tr_loss_step = self.training_step(model, inputs)\n"}
+,{"stream_name":"stderr","time":378.175011015,"data":"                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":378.175015651,"data":"  File \"/usr/local/lib/python3.12/dist-packages/transformers/trainer.py\", line 3349, in training_step\n"}
+,{"stream_name":"stderr","time":378.175019874,"data":"    self.accelerator.backward(loss, **kwargs)\n"}
+,{"stream_name":"stderr","time":378.175023818,"data":"  File \"/usr/local/lib/python3.12/dist-packages/accelerate/accelerator.py\", line 2192, in backward\n"}
+,{"stream_name":"stderr","time":378.175027908,"data":"    self.scaler.scale(loss).backward(**kwargs)\n"}
+,{"stream_name":"stderr","time":378.175031739,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/_tensor.py\", line 630, in backward\n"}
+,{"stream_name":"stderr","time":378.175035882,"data":"    torch.autograd.backward(\n"}
+,{"stream_name":"stderr","time":378.175039741,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/autograd/__init__.py\", line 364, in backward\n"}
+,{"stream_name":"stderr","time":378.175043922,"data":"    _engine_run_backward(\n"}
+,{"stream_name":"stderr","time":378.175047705,"data":"  File \"/usr/local/lib/python3.12/dist-packages/torch/autograd/graph.py\", line 865, in _engine_run_backward\n"}
+,{"stream_name":"stderr","time":378.175052079,"data":"    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass\n"}
+,{"stream_name":"stderr","time":378.175061722,"data":"           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":378.175065508,"data":"NotImplementedError: \"nll_loss_backward_reduce_cuda_kernel_2d_index\" not implemented for 'Float'\n"}
+,{"stream_name":"stderr","time":378.175082617,"data":"\n"}
+,{"stream_name":"stderr","time":378.175087155,"data":"\n"}
+,{"stream_name":"stderr","time":380.196812829,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":380.196851345,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":380.365879647,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":380.365926732,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":381.017533476,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":381.453979472,"data":"[NbConvertApp] Writing 42993 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":383.927642261,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":384.769976461,"data":"[NbConvertApp] Writing 358122 bytes to __results__.html\n"}
 ]

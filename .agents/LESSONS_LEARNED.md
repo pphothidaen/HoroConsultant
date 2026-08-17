@@ -148,5 +148,13 @@
   - `scripts/kaggle_notebook_manager.py` implements `check_git_sync_safety()` before executing `--push`, alerting if uncommitted changes or unpushed commits exist.
   - Cell 2 in `notebook.ipynb` prints `[GIT] Cloud Environment Active Commit: <hash> (<message>)` at startup for 100% log traceability.
   - `kaggle_notebook_manager.py` enforces `--force` on all output download operations to guarantee fresh logs.
+---
 
-
+### 15. 🎯 PyTorch Target Tensor Dtype Invariance (`torch.long` Labels Enforcement)
+- **Issue Experienced**: `NotImplementedError: "nll_loss_backward_reduce_cuda_kernel_2d_index" not implemented for 'Float'` during `trainer.train()` backward pass.
+- **Definitive Root Cause**: In PyTorch CrossEntropyLoss and NLLLoss, the target `labels` tensor must strictly be of integer index type (`torch.long` / `int64`). If `labels` is autocast, scaled, or passed as `torch.float32`/`torch.float16`, the CUDA autograd backward kernel throws `NotImplementedError` for `'Float'`.
+- **Lesson Learned**: Always enforce explicit `torch.long` integer dtype conversion on `labels` and `input_ids` inside custom DataCollator and `Trainer.compute_loss()`, regardless of model weight precision or mixed precision (`fp16`) training settings.
+- **Prevention Protocol**:
+  - `SafeDataCollator` in `scripts/cloud_train_orchestrator.py` explicitly converts `batch["labels"] = batch["labels"].to(torch.long)`.
+  - Registered `_safe_compute_loss` wrapper on `transformers.Trainer` that ensures `inputs["labels"] = inputs["labels"].long()`.
+  - Enforced via `tests/test_notebook_syntax.py::test_safe_data_collator_and_long_dtype_loss_guard`.

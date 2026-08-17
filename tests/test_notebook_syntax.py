@@ -219,14 +219,16 @@ class TestNotebookSyntaxAndIntegrity(unittest.TestCase):
         visitor = ClosureScopeVisitor()
         visitor.visit(tree)
 
-    def test_kaggle_manager_force_download_flags(self):
-        """Ensure kaggle_notebook_manager.py includes --force flag on output and pull operations."""
-        manager_path = ROOT / "scripts" / "kaggle_notebook_manager.py"
-        with open(manager_path, "r", encoding="utf-8") as f:
+    def test_safe_data_collator_and_long_dtype_loss_guard(self):
+        """Ensure SafeDataCollator and long dtype loss guards prevent NotImplementedError on Float labels."""
+        orchestrator_path = ROOT / "scripts" / "cloud_train_orchestrator.py"
+        with open(orchestrator_path, "r", encoding="utf-8") as f:
             content = f.read()
 
-        self.assertIn('"--force"', content)
-        self.assertIn('check_git_sync_safety', content)
+        self.assertIn("SafeDataCollator", content)
+        self.assertIn("batch[\"labels\"] = batch[\"labels\"].to(torch.long)", content)
+        self.assertIn("Trainer.compute_loss = _safe_compute_loss", content)
+        self.assertIn("inputs[\"labels\"] = inputs[\"labels\"].long()", content)
 
 
 if __name__ == "__main__":

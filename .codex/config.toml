@@ -1,0 +1,15 @@
+[mcp_servers.bazi-mcp-server]
+command = "python3"
+args = ["project/mcp_server.py"]
+
+[mcp_servers.bazi-mcp-server.env]
+PYTHONIOENCODING = "utf-8"
+PYTHONUTF8 = "1"
+
+[mcp_servers.filesystem]
+command = "npx"
+args = [
+    "-y",
+    "@modelcontextprotocol/server-filesystem",
+    "/Users/kimlenglim/Project/HoroConsultant",
+]

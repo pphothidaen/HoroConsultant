@@ -355,9 +355,18 @@ def create_sft_trainer(
         except Exception as peft_wrap_err:
             logger.warning(f"   [WARNING] PEFT wrapping skipped/failed ({peft_wrap_err})")
 
-    collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
+    class SafeDataCollator(DataCollatorForLanguageModeling):
+        def torch_call(self, examples):
+            batch = super().torch_call(examples)
+            if "labels" in batch and hasattr(batch["labels"], "to"):
+                batch["labels"] = batch["labels"].to(torch.long)
+            if "input_ids" in batch and hasattr(batch["input_ids"], "to"):
+                batch["input_ids"] = batch["input_ids"].to(torch.long)
+            return batch
 
-    # Safe Trainer patch to prevent NotImplementedError on meta/offloaded tensors
+    collator = SafeDataCollator(tokenizer=tokenizer, mlm=False)
+
+    # Safe Trainer patch to prevent NotImplementedError on meta/offloaded tensors and float labels
     try:
         _orig_move = getattr(Trainer, "_move_model_to_device", None)
         def _safe_move(self, m, dev):
@@ -379,6 +388,23 @@ def create_sft_trainer(
                 logger.warning(f"   [WARNING] Trainer._move_model_to_device bypassed ({move_err})")
         Trainer._move_model_to_device = _safe_move
         Trainer._remove_unused_columns = lambda self, dataset, description=None: dataset
+
+        _orig_compute_loss = getattr(Trainer, "compute_loss", None)
+        if _orig_compute_loss is not None:
+            def _safe_compute_loss(self, m, inputs, return_outputs=False, num_items_in_batch=None):
+                if isinstance(inputs, dict):
+                    if "labels" in inputs and hasattr(inputs["labels"], "long"):
+                        inputs["labels"] = inputs["labels"].long()
+                    if "input_ids" in inputs and hasattr(inputs["input_ids"], "long"):
+                        inputs["input_ids"] = inputs["input_ids"].long()
+                if num_items_in_batch is not None:
+                    try:
+                        return _orig_compute_loss(self, m, inputs, return_outputs=return_outputs, num_items_in_batch=num_items_in_batch)
+                    except TypeError:
+                        return _orig_compute_loss(self, m, inputs, return_outputs=return_outputs)
+                return _orig_compute_loss(self, m, inputs, return_outputs=return_outputs)
+            Trainer.compute_loss = _safe_compute_loss
+            logger.info("   [OK] Registered long-dtype compute_loss guard on Transformers Trainer.")
     except Exception:
         pass
 
