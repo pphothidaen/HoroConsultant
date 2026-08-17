@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff — Central Kanban Board for ALL Project Work**  
-> *Last Updated: 2026-08-17 14:30:00 +07 — Phase 17: Client-Side Deterministic BaZi & True Solar Time Engine (0ms Pre-render), 570/570 Pytest PASS (100%), 31/31 Button Regression PASS (100%), Kaggle Fine-Tuning v132 COMPLETE, HF Spaces Live Deployed & Stamped v1.0.0.a2dd558.*
+> *Last Updated: 2026-08-17 — `TICKET-META-001` DOING: roadmap implementation and release verification in progress.*
 
 ---
 
@@ -117,6 +117,145 @@ pytest -v project/tests/
 │ • Interactive SVG LuoPan Compass Dial, Sector Matrix & Dream Search UI        │
 └───────────────────────────────────────────────────────────────────────────────┘
 ```
+
+## 📋 PLANNED SPRINT: Metaphysics Learning Roadmap & Question-Forecast Alignment
+**Grill Gate Status**: DOING — scope approved for execution; child tickets are queued in `TODO`.
+**Sprint Tracking Lead**: `orchestrator` / `business_analyst`
+**Source Documents**:
+- [`plans/metaphysics_learning_roadmap.md`](plans/metaphysics_learning_roadmap.md)
+- [`plans/plan.md`](plans/plan.md)
+- [`plans/question_forecast_alignment_spec.md`](plans/question_forecast_alignment_spec.md)
+- [`plans/todo_tasks_plan.md`](plans/todo_tasks_plan.md)
+
+**Plan Coverage Matrix**:
+
+| Plan | Covered scope | Kanban disposition |
+|---|---|---|
+| `metaphysics_learning_roadmap.md` | Five branches, source ingestion, deterministic engines, fine-tuning, MCP, and UI visualizer | `TICKET-META-001` scope; implementation child tickets required |
+| `plan.md` | Phases 1–16, MLOps/provider/Grafana work, governance, multi-cloud, quality gates, and future model architecture | Existing phase tickets remain historical evidence; active/future gaps require child tickets |
+| `question_forecast_alignment_spec.md` | Six benchmark domains, 100-point rubric, validator threshold, prompt/debate routing | `TICKET-META-001` acceptance criteria |
+| `todo_tasks_plan.md` | Six implementation workstreams and five-phase SDLC execution flow | `TICKET-META-001` instructions and child-ticket handoff |
+
+| Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
+|---|---|---|---|---|
+| `TICKET-META-001` | `orchestrator` / `business_analyst` | Consolidate and execute the five-branch metaphysics roadmap, six-domain question/forecast alignment benchmark, and six TODO workstreams | DOING | None |
+| `TICKET-META-002` | `domain_master` / `developer` | Implement and test the five-branch deterministic metaphysics calculation modules | TODO | `TICKET-META-001` |
+| `TICKET-META-003` | `developer` | Execute OCR/RAG ingestion, dataset generation, fine-tuning, model fusion, MCP, and visualizer integration | TODO | `TICKET-META-001` |
+| `TICKET-META-004` | `developer` / `qa_tester` | Implement six-domain question/forecast alignment, focused prompting, debate routing, and validator benchmarks | TODO | `TICKET-META-001` |
+| `TICKET-META-005` | `devops` / `developer` | Reconcile active/future `plan.md` platform work: providers, observability, CI/CD, governance, and release architecture | TODO | `TICKET-META-001` |
+| `TICKET-META-006` | `qa_tester` / `code_reviewer` / `business_analyst` | Run full QA, security, synchronization, release evidence, and final Kanban documentation handoff | DOING | `TICKET-META-002`..`005` |
+
+### 🎫 TICKET-META-001 | `orchestrator` / `business_analyst` | [STATUS: DOING]
+**Priority**: CRITICAL
+**Depends On**: None
+**Blocks**: Future implementation, QA, release, and production handoff tickets derived from this scope.
+
+#### Detailed Instructions
+1. **Scope and architecture** — implement the five roadmap branches and their calculation/knowledge surfaces: Three Cosmic Styles (Tai Yi, Da Liu Ren, Qi Men), Destiny Analysis (BaZi improvements, Zi Wei, Qi Zheng Si Yu), Divination (I Ching, Liu Yao, Mei Hua), Physiognomy/Feng Shui (Xuan Kong, San He, Mian Xiang), and Date Selection (Ze Ji).
+2. **Knowledge pipeline** — run the OCR/Obsidian ingestion flow, maintain the RAG vector store and exported ShareGPT JSONL dataset, and preserve traceable classical-source metadata.
+3. **Deterministic engines** — implement or extend the pure-Python calculation modules under `project/core/`, including deterministic unit tests for solar terms, chart placement, interactions, and fallback behavior.
+4. **Model and delivery pipeline** — execute the dataset/fine-tuning, adapter-to-GGUF/Ollama fusion, MCP tool integration, and Glassmorphism dashboard visualization work described by the roadmap and `plans/todo_tasks_plan.md`.
+5. **Question/forecast alignment** — implement the six benchmark domains in `plans/question_forecast_alignment_spec.md`; pass the user’s `user_query` and extracted focus into `project/core/prompt_manager.py` and `project/core/multi_agent_debate.py`; validate direct relevance, astrological consistency, canonical evidence, and actionable guidance using the 100-point rubric and `Confidence Score > 0.85` validator threshold.
+6. **TODO workstreams** — complete the six deliverables in `plans/todo_tasks_plan.md`: model fusion, external provider routing, Swiss Ephemeris, batch vault ingestion, CI/CD automation, and consultant UI enhancements.
+7. **SDLC handoff** — follow the repository workflow from planning through implementation, QA, release verification, and final Kanban evidence. Create child tickets for developer, QA, DevOps, domain, and review work before execution begins.
+8. **Complete `plans/plan.md` coverage** — treat its historical completed phases as required traceability/evidence, and its active or future sections as execution scope:
+   - Phase 1–3: all-16-discipline E2E/snapshot visualizer baseline, seven extended SVG visualizers, and the multimodal 16-discipline consensus matrix.
+   - Phase 4–6: external multi-provider gateway, multilingual/i18n interpretation, production delivery/PWA/offline support, and consultation report export.
+   - Phase 7–10: DaYun/LiuNian timeline and transit clock, voice TTS/STT, synastry compatibility matrix, and interactive Ze Ji calendar/date selector.
+   - Phase 11–14: LuoPan/dream decoder, multi-scenario life simulation, Imperial White/Crimson UI, and live multi-turn consultant chat with grounded RAG.
+   - Phase 15–16: Kaggle NumPy/BNB pipeline compatibility and the three-tier notebook AST/pre-commit/deployment safety gate.
+   - Continuous MLOps, hybrid LLM provider expansion, and Grafana latency/observability tuning.
+   - Skill-context governance, agent synchronization, Grafana Cloud integration, multi-cloud architecture, quality-control standards, future LLM model expansion/circuit breaking, and the ten-policy operating consensus matrix.
+9. **Status reconciliation** — link each `plan.md` phase to its existing Kanban ticket and verification evidence; do not re-open phases already marked `DONE`. Any active or future item without a current ticket must receive a child ticket before implementation.
+
+#### Acceptance Criteria
+- [ ] All roadmap modules and their source/algorithm boundaries are mapped to implementation files and child tickets.
+- [ ] OCR/RAG ingestion produces traceable Markdown, vector-store, and JSONL outputs without losing source metadata.
+- [ ] Calculation engines have deterministic tests covering the implemented branches and pass the project’s required pytest gate.
+- [ ] The six-domain benchmark contains executable cases for direct relevance, logic consistency, canonical evidence, and actionable guidance.
+- [ ] Prompt/debate routing preserves the user’s requested focus, and validator evidence meets `Confidence Score > 0.85`.
+- [ ] The six TODO workstreams have implementation, test, and release evidence recorded in the child tickets.
+- [ ] Every section of `plans/plan.md` is dispositioned as `DONE` with evidence, `DOING`, or `TODO` with a child ticket; no plan section is left untracked.
+- [ ] CI/CD, secret scan, agent synchronization, pre-deployment review, and required E2E/UI regression gates pass before release.
+- [ ] `PROJECT_TASKS.md`, the four source plans, and the final delivery evidence are synchronized with the actual implementation state.
+
+#### Definition of Done
+This ticket is `DOING` while child tickets are being executed. It moves to `DONE` only when every child ticket is complete, all acceptance evidence is recorded, the relevant test/release gates pass, and the final Kanban/documentation synchronization is verified.
+
+### 🎫 TICKET-META-002 | `domain_master` / `developer` | [STATUS: TODO]
+**Priority**: CRITICAL
+**Depends On**: `TICKET-META-001`
+**Blocks**: `TICKET-META-004`, `TICKET-META-006`
+
+#### Detailed Instructions
+Implement or extend the five roadmap branches: Tai Yi, Da Liu Ren, Qi Men, BaZi/Zi Wei/Qi Zheng, I Ching/Liu Yao/Mei Hua, Xuan Kong/San He/Mian Xiang, and Ze Ji. Map each module to canonical source material, preserve pure-Python deterministic behavior, and add deterministic tests for chart placement, solar terms, interactions, and fallback paths.
+
+#### Acceptance Criteria
+- [ ] Every roadmap module has an implementation path, owner, canonical source mapping, and child evidence.
+- [ ] Deterministic tests cover every implemented branch and pass.
+- [ ] Existing BaZi and Swiss Ephemeris behavior remains backward compatible.
+
+### 🎫 TICKET-META-003 | `developer` | [STATUS: TODO]
+**Priority**: HIGH
+**Depends On**: `TICKET-META-001`
+**Blocks**: `TICKET-META-006`
+
+#### Detailed Instructions
+Execute the knowledge and delivery pipeline from the roadmap and TODO plan: OCR into Obsidian Markdown, RAG/vector and ShareGPT JSONL export, additional batch ingestion, Kaggle fine-tuning, GGUF/Ollama fusion, MCP calculation tools, and the Glassmorphism five-branch visualizer. Include the external provider and Swiss Ephemeris deliverables where they are part of the current implementation path.
+
+#### Acceptance Criteria
+- [ ] Ingestion outputs retain source metadata and are reproducible.
+- [ ] Dataset, fusion, provider, Swiss Ephemeris, MCP, and visualizer tests pass for implemented scope.
+- [ ] Root and target artifacts remain synchronized where the plans require parity.
+
+### 🎫 TICKET-META-004 | `developer` / `qa_tester` | [STATUS: TODO]
+**Priority**: CRITICAL
+**Depends On**: `TICKET-META-001`, `TICKET-META-002`
+**Blocks**: `TICKET-META-006`
+
+#### Detailed Instructions
+Implement the six benchmark domains from `question_forecast_alignment_spec.md`. Ensure `user_query` and extracted focus reach `prompt_manager.py` and `multi_agent_debate.py`; preserve direct relevance, astrological consistency, canonical citations, actionable guidance, the 100-point rubric, and validator confidence above `0.85`.
+
+#### Acceptance Criteria
+- [ ] All six benchmark questions have executable regression cases.
+- [ ] Responses remain focused on the user’s question and include required evidence and actions.
+- [ ] Validator results meet the configured confidence threshold without template-only fallback.
+
+### 🎫 TICKET-META-005 | `devops` / `developer` | [STATUS: TODO]
+**Priority**: HIGH
+**Depends On**: `TICKET-META-001`, `TICKET-META-003`
+**Blocks**: `TICKET-META-006`
+
+#### Detailed Instructions
+Reconcile every active or future section of `plan.md` with implementation or a child ticket. Cover hybrid provider failover, Grafana/observability, CI/CD, multi-cloud deployment, skill and agent synchronization, release safeguards, caching/rate limits/security, and future model circuit-breaking architecture. Do not reopen historical `DONE` phases without contrary evidence.
+
+#### Acceptance Criteria
+- [ ] Each active/future plan section has an owner, ticket, dependency, and measurable gate.
+- [ ] Provider, observability, CI/CD, security, and agent-sync checks pass for the implemented scope.
+- [ ] Rollback and release evidence is recorded before production claims.
+
+### 🎫 TICKET-META-006 | `qa_tester` / `code_reviewer` / `business_analyst` | [STATUS: DOING]
+**Priority**: CRITICAL
+**Depends On**: `TICKET-META-002`..`005`
+**Blocks**: None
+
+#### Detailed Instructions
+Run the required unit, integration, UI/E2E, security, agent synchronization, pre-deployment, and documentation audits. Reconcile all four source plans against actual implementation evidence, update ticket statuses, and record the final handoff without marking incomplete work as done.
+
+#### Current Verification Evidence
+- [x] Full local QA: `609 passed, 4 skipped` with elevated network/localhost permissions.
+- [x] Button and endpoint contract regression: `31/31 PASSED`.
+- [x] Local Playwright E2E report: `17/17 PASSED`; console still records local `sw.js` 404 and proxy 502 events requiring live/release disposition.
+- [x] Secret scan: `0` leaks across `1,485` files.
+- [x] Hugging Face static payload dry-run: `21` files, `3.75 MB`, authenticated payload audit passed.
+- [ ] Rust/Python full-review wrapper completion: wrapper hangs while re-running its internal suite; independent full QA evidence is available.
+- [ ] Live production Playwright E2E: pending explicit authorization for external birth-data test egress.
+
+#### Acceptance Criteria
+- [ ] Required pytest, UI regression, E2E, secret scan, and code-review gates pass.
+- [ ] Agent definitions are synchronized with zero drift.
+- [ ] All child tickets have evidence-backed `DONE`, `BLOCKED`, or remaining `TODO` status.
+- [ ] Parent ticket is moved to `DONE` only after the complete audit passes.
 
 ## 🚀 ACTIVE SPRINT: Phase 14 — Metaphysics AI Live Consultant Chat Assistant & Multi-Turn Interactive Consultation Engine
 **Grill Gate Status**: ✅ APPROVED (Ref: `/plans/plan.md`)  
