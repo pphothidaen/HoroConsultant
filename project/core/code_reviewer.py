@@ -146,6 +146,74 @@ class CodeReviewer:
         }
 
     @staticmethod
+    def audit_notebooks() -> dict[str, Any]:
+        """Scan all repository Jupyter notebooks for Python syntax errors, AST validity, and dependency lock compliance."""
+        import ast
+        notebook_paths = [
+            ROOT / "horoconsultant-finetune-pipeline.ipynb",
+            ROOT / "project" / "kaggle_kernel" / "notebook.ipynb",
+        ]
+        issues = []
+        scanned_cells = 0
+
+        forbidden_patterns = [
+            ("accelerate==0.33.0", "accelerate==0.33.0 forces numpy<2.0 breaking Kaggle numpy 2.x ABI"),
+            ("datasets==2.18.0", "datasets==2.18.0 forces pyarrow<15; use datasets>=2.21.0"),
+            ("pyarrow_hotfix", "pyarrow_hotfix is deprecated on PyArrow 15+"),
+        ]
+
+        for nb_path in notebook_paths:
+            if not nb_path.exists():
+                continue
+            try:
+                with open(nb_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                
+                for idx, cell in enumerate(data.get("cells", [])):
+                    if cell.get("cell_type") != "code":
+                        continue
+                    scanned_cells += 1
+                    source = "".join(cell.get("source", []))
+                    cell_label = f"{nb_path.name}:cell_{idx + 1}"
+
+                    # 1. AST syntax check
+                    try:
+                        ast.parse(source, filename=cell_label)
+                        compile(source, cell_label, "exec")
+                    except SyntaxError as e:
+                        issues.append({
+                            "file": str(nb_path.relative_to(ROOT)),
+                            "cell": idx + 1,
+                            "issue": f"SyntaxError at line {e.lineno}: {e.msg}",
+                            "snippet": e.text or "",
+                            "severity": "CRITICAL"
+                        })
+
+                    # 2. Forbidden dependency check
+                    for bad_pat, reason in forbidden_patterns:
+                        if bad_pat in source:
+                            issues.append({
+                                "file": str(nb_path.relative_to(ROOT)),
+                                "cell": idx + 1,
+                                "issue": f"Forbidden dependency pattern '{bad_pat}': {reason}",
+                                "severity": "HIGH"
+                            })
+
+            except Exception as e:
+                issues.append({
+                    "file": str(nb_path.relative_to(ROOT)),
+                    "issue": f"Malformed notebook JSON: {e}",
+                    "severity": "CRITICAL"
+                })
+
+        return {
+            "scanned_cells": scanned_cells,
+            "issues_found": len(issues),
+            "issues": issues,
+            "status": "PASSED" if len(issues) == 0 else "FAILED"
+        }
+
+    @staticmethod
     def run_tests() -> dict[str, Any]:
         """Run quick pytest suite to ensure zero regressions."""
         try:
@@ -179,10 +247,12 @@ class CodeReviewer:
 
         secret_report = CodeReviewer.scan_secrets()
         kaggle_report = CodeReviewer.audit_kaggle_dependencies()
+        notebook_report = CodeReviewer.audit_notebooks()
         test_report = CodeReviewer.run_tests()
 
         all_passed = (
             secret_report["status"] == "PASSED" and
+            notebook_report["status"] == "PASSED" and
             test_report["status"] == "PASSED" and
             kaggle_report["status"] in ("PASSED", "WARNING")
         )
@@ -193,6 +263,7 @@ class CodeReviewer:
             "overall_status": "READY_FOR_PROD" if all_passed else "BLOCKED",
             "secret_scan": secret_report,
             "kaggle_cuda_audit": kaggle_report,
+            "notebook_audit": notebook_report,
             "test_suite": test_report,
         }
 
