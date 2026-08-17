@@ -181,11 +181,6 @@ def get_priority_secret(key_name: str, fallback_keys: tuple[str, ...] = (), defa
                 pass
     except Exception:
         pass
-                    return val
-            except Exception:
-                pass
-    except Exception:
-        pass
 
     # 2. Try System Environment & Local .env
     for k in all_keys:
