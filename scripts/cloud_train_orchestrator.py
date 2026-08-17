@@ -36,8 +36,9 @@ from project.core.supabase_db import SupabaseDB
 os.environ["PYTHONIOENCODING"] = "utf-8"
 os.environ["PYTHONUTF8"] = "1"
 os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
-os.environ["HF_HUB_DOWNLOAD_TIMEOUT"] = "300"
-os.environ["HF_HUB_MAX_RETRIES"] = "10"
+os.environ["HF_HUB_DOWNLOAD_TIMEOUT"] = "600"
+os.environ["HF_HUB_MAX_RETRIES"] = "20"
+os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "0"
 os.environ["TRANSFORMERS_VERBOSITY"] = "error"
 os.environ["TQDM_DISABLE"] = "1"
 os.environ["BITSANDBYTES_NOWELCOME"] = "1"
@@ -581,35 +582,55 @@ def run_training_pipeline(
         device_map = None
 
     model = None
+    max_download_retries = 5
     if use_cuda and bnb_config is not None:
-        try:
-            logger.info("[CUDA] Attempting 4-bit BitsAndBytes quantization model load...")
-            model = AutoModelForCausalLM.from_pretrained(
-                base_model,
-                quantization_config=bnb_config,
-                torch_dtype=compute_dtype,
-                device_map=device_map,
-                low_cpu_mem_usage=(device_map is not None),
-                trust_remote_code=True,
-                attn_implementation="sdpa",
-            )
-            model = prepare_model_for_kbit_training(model)
-            logger.info("[OK] Successfully loaded 4-bit quantized model.")
-        except Exception as e:
-            logger.warning(f"[WARNING] 4-bit BitsAndBytes quantization load failed ({e}). Falling back to standard precision loading...")
-            model = None
+        for attempt in range(1, max_download_retries + 1):
+            try:
+                logger.info(f"[CUDA] Attempting 4-bit BitsAndBytes quantization model load (Attempt {attempt}/{max_download_retries})...")
+                model = AutoModelForCausalLM.from_pretrained(
+                    base_model,
+                    quantization_config=bnb_config,
+                    torch_dtype=compute_dtype,
+                    device_map=device_map,
+                    low_cpu_mem_usage=(device_map is not None),
+                    trust_remote_code=True,
+                    attn_implementation="sdpa",
+                )
+                model = prepare_model_for_kbit_training(model)
+                logger.info("[OK] Successfully loaded 4-bit quantized model.")
+                break
+            except Exception as e:
+                logger.warning(f"[WARNING] 4-bit BitsAndBytes quantization load attempt {attempt} failed ({e}).")
+                if attempt < max_download_retries:
+                    import time
+                    time.sleep(5 * attempt)
+                    continue
+                else:
+                    logger.warning("[WARNING] All 4-bit quantization load attempts exhausted. Falling back to standard precision loading...")
+                    model = None
 
     if model is None:
-        logger.info(f"[MODEL] Loading base model in standard precision ({compute_dtype})...")
-        model = AutoModelForCausalLM.from_pretrained(
-            base_model,
-            torch_dtype=compute_dtype,
-            device_map=device_map,
-            low_cpu_mem_usage=(device_map is not None),
-            trust_remote_code=True,
-            attn_implementation="sdpa" if use_cuda else None,
-        )
-        logger.info(f"[OK] Successfully loaded model with precision {compute_dtype}.")
+        for attempt in range(1, max_download_retries + 1):
+            try:
+                logger.info(f"[MODEL] Loading base model in standard precision ({compute_dtype}) (Attempt {attempt}/{max_download_retries})...")
+                model = AutoModelForCausalLM.from_pretrained(
+                    base_model,
+                    torch_dtype=compute_dtype,
+                    device_map=device_map,
+                    low_cpu_mem_usage=(device_map is not None),
+                    trust_remote_code=True,
+                    attn_implementation="sdpa" if use_cuda else None,
+                )
+                logger.info(f"[OK] Successfully loaded model with precision {compute_dtype}.")
+                break
+            except Exception as e:
+                logger.warning(f"[WARNING] Standard precision load attempt {attempt} failed ({e}).")
+                if attempt < max_download_retries:
+                    import time
+                    time.sleep(5 * attempt)
+                    continue
+                else:
+                    raise e
 
     if use_cuda and (is_kaggle or is_sm75 or cap < (8, 0)):
         compute_dtype = torch.float16
