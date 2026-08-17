@@ -74,9 +74,11 @@ def browser_session():
             browser = playwright.chromium.launch(headless=True)
         except playwright_api.Error as error:
             pytest.skip(f"Chromium is unavailable for browser-only test: {error}")
+        context = browser.new_context(service_workers="block")
         try:
-            yield browser
+            yield context
         finally:
+            context.close()
             browser.close()
 
 
@@ -140,11 +142,21 @@ class TestWebRegressionUI:
                     status=200,
                     content_type="application/json",
                     body=(
-                        '{"chart":{"pillars":{},"day_master":{"stem":"庚","element":"Metal"},'
+                        '{"chart":{"pillars":{"year":{"stem":{"char":"庚","element":"Metal"},"branch":{"char":"午","element":"Fire"}},'
+                        '"month":{"stem":{"char":"辛","element":"Metal"},"branch":{"char":"巳","element":"Fire"}},'
+                        '"day":{"stem":{"char":"庚","element":"Metal"},"branch":{"char":"辰","element":"Earth"}},'
+                        '"hour":{"stem":{"char":"癸","element":"Water"},"branch":{"char":"未","element":"Earth"}}},'
+                        '"day_master":{"stem":"庚","element":"Metal"},'
                         '"five_elements":{"percentages":{"Metal":100}}},'
                         '"interpretation":"A real API interpretation."}'
                     ),
                 )
+
+            def route_all(route):
+                if "/health" in route.request.url:
+                    route_health(route)
+                else:
+                    route.continue_()
 
             page.add_init_script(
                 """
@@ -156,7 +168,7 @@ class TestWebRegressionUI:
                 };
                 """
             )
-            page.route("**/health", route_health)
+            page.route("**/*", route_all)
             page.route("**/api/v1/bazi/interpret", route_interpret)
             page.goto(dashboard_url, wait_until="domcontentloaded")
             page.fill("#query", "preserve this request")

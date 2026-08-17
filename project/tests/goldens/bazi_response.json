@@ -40,14 +40,20 @@
         {
           "stem": "丁",
           "element": "Fire",
-          "weight": 0.7
+          "weight": 0.7,
+          "ten_god": "DO"
         },
         {
           "stem": "己",
           "element": "Earth",
-          "weight": 0.3
+          "weight": 0.3,
+          "ten_god": "DR"
         }
-      ]
+      ],
+      "ten_god": "DM",
+      "ten_god_info": {"zh": "日主", "en": "Day Master", "structure": "Companion"},
+      "pillar_phase": {"phase": "Mu Yu", "phase_zh": "沐浴", "phase_idx": 1},
+      "stars": {"heavenly": [], "earthly": []}
     },
     "month": {
       "label": "Month",
@@ -69,19 +75,26 @@
         {
           "stem": "丙",
           "element": "Fire",
-          "weight": 0.6
+          "weight": 0.6,
+          "ten_god": "7K"
         },
         {
           "stem": "戊",
           "element": "Earth",
-          "weight": 0.3
+          "weight": 0.3,
+          "ten_god": "IR"
         },
         {
           "stem": "庚",
           "element": "Metal",
-          "weight": 0.1
+          "weight": 0.1,
+          "ten_god": "DM"
         }
-      ]
+      ],
+      "ten_god": "RW",
+      "ten_god_info": {"zh": "劫財", "en": "Rob Wealth", "structure": "Companion"},
+      "pillar_phase": {"phase": "Chang Sheng", "phase_zh": "長生", "phase_idx": 0},
+      "stars": {"heavenly": [], "earthly": ["Robbing Star"]}
     },
     "day": {
       "label": "Day",
@@ -103,19 +116,26 @@
         {
           "stem": "戊",
           "element": "Earth",
-          "weight": 0.6
+          "weight": 0.6,
+          "ten_god": "IR"
         },
         {
           "stem": "乙",
           "element": "Wood",
-          "weight": 0.3
+          "weight": 0.3,
+          "ten_god": "DW"
         },
         {
           "stem": "癸",
           "element": "Water",
-          "weight": 0.1
+          "weight": 0.1,
+          "ten_god": "HO"
         }
-      ]
+      ],
+      "ten_god": "DM",
+      "ten_god_info": {"zh": "日主", "en": "Day Master", "structure": "Companion"},
+      "pillar_phase": {"phase": "Yang", "phase_zh": "養", "phase_idx": 11},
+      "stars": {"heavenly": [], "earthly": ["Talent Star"]}
     },
     "hour": {
       "label": "Hour",
@@ -137,19 +157,26 @@
         {
           "stem": "己",
           "element": "Earth",
-          "weight": 0.6
+          "weight": 0.6,
+          "ten_god": "DR"
         },
         {
           "stem": "丁",
           "element": "Fire",
-          "weight": 0.3
+          "weight": 0.3,
+          "ten_god": "DO"
         },
         {
           "stem": "乙",
           "element": "Wood",
-          "weight": 0.1
+          "weight": 0.1,
+          "ten_god": "DW"
         }
-      ]
+      ],
+      "ten_god": "HO",
+      "ten_god_info": {"zh": "傷官", "en": "Hurting Officer", "structure": "Output"},
+      "pillar_phase": {"phase": "Guan Dai", "phase_zh": "冠帶", "phase_idx": 2},
+      "stars": {"heavenly": [], "earthly": []}
     }
   },
   "five_elements": {

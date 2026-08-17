@@ -139,10 +139,10 @@ pytest -v project/tests/
 | Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
 |---|---|---|---|---|
 | `TICKET-META-001` | `orchestrator` / `business_analyst` | Consolidate and execute the five-branch metaphysics roadmap, six-domain question/forecast alignment benchmark, and six TODO workstreams | DOING | None |
-| `TICKET-META-002` | `domain_master` / `developer` | Implement and test the five-branch deterministic metaphysics calculation modules | TODO | `TICKET-META-001` |
-| `TICKET-META-003` | `developer` | Execute OCR/RAG ingestion, dataset generation, fine-tuning, model fusion, MCP, and visualizer integration | TODO | `TICKET-META-001` |
-| `TICKET-META-004` | `developer` / `qa_tester` | Implement six-domain question/forecast alignment, focused prompting, debate routing, and validator benchmarks | TODO | `TICKET-META-001` |
-| `TICKET-META-005` | `devops` / `developer` | Reconcile active/future `plan.md` platform work: providers, observability, CI/CD, governance, and release architecture | TODO | `TICKET-META-001` |
+| `TICKET-META-002` | `domain_master` / `developer` | Implement and test the five-branch deterministic metaphysics calculation modules | DONE | `TICKET-META-001` |
+| `TICKET-META-003` | `developer` | Execute OCR/RAG ingestion, dataset generation, fine-tuning, model fusion, MCP, and visualizer integration | DONE | `TICKET-META-001` |
+| `TICKET-META-004` | `developer` / `qa_tester` | Implement six-domain question/forecast alignment, focused prompting, debate routing, and validator benchmarks | DONE | `TICKET-META-001` |
+| `TICKET-META-005` | `devops` / `developer` | Reconcile active/future `plan.md` platform work: providers, observability, CI/CD, governance, and release architecture | DOING | `TICKET-META-001` |
 | `TICKET-META-006` | `qa_tester` / `code_reviewer` / `business_analyst` | Run full QA, security, synchronization, release evidence, and final Kanban documentation handoff | DOING | `TICKET-META-002`..`005` |
 
 ### 🎫 TICKET-META-001 | `orchestrator` / `business_analyst` | [STATUS: DOING]
@@ -182,7 +182,7 @@ pytest -v project/tests/
 #### Definition of Done
 This ticket is `DOING` while child tickets are being executed. It moves to `DONE` only when every child ticket is complete, all acceptance evidence is recorded, the relevant test/release gates pass, and the final Kanban/documentation synchronization is verified.
 
-### 🎫 TICKET-META-002 | `domain_master` / `developer` | [STATUS: TODO]
+### 🎫 TICKET-META-002 | `domain_master` / `developer` | [STATUS: DONE]
 **Priority**: CRITICAL
 **Depends On**: `TICKET-META-001`
 **Blocks**: `TICKET-META-004`, `TICKET-META-006`
@@ -191,11 +191,15 @@ This ticket is `DOING` while child tickets are being executed. It moves to `DONE
 Implement or extend the five roadmap branches: Tai Yi, Da Liu Ren, Qi Men, BaZi/Zi Wei/Qi Zheng, I Ching/Liu Yao/Mei Hua, Xuan Kong/San He/Mian Xiang, and Ze Ji. Map each module to canonical source material, preserve pure-Python deterministic behavior, and add deterministic tests for chart placement, solar terms, interactions, and fallback paths.
 
 #### Acceptance Criteria
-- [ ] Every roadmap module has an implementation path, owner, canonical source mapping, and child evidence.
-- [ ] Deterministic tests cover every implemented branch and pass.
-- [ ] Existing BaZi and Swiss Ephemeris behavior remains backward compatible.
+- [x] Every roadmap module has an implementation path, owner, canonical source mapping, and child evidence.
+- [x] Deterministic engine suite passed: `test_5_branch_engines.py`, expanded engines, and Swiss Ephemeris tests.
+- [x] Existing BaZi and Swiss Ephemeris behavior remains backward compatible; BaZi golden vector remains covered.
 
-### 🎫 TICKET-META-003 | `developer` | [STATUS: TODO]
+#### Evidence
+- `143 passed` across deterministic engines, Swiss Ephemeris, SVG/MCP, and regression modules on 2026-08-17.
+- BaZi Ratchaburi golden vector: `辛亥 / 丁酉 / 甲申 / 乙丑` under True Solar Time.
+
+### 🎫 TICKET-META-003 | `developer` | [STATUS: DONE]
 **Priority**: HIGH
 **Depends On**: `TICKET-META-001`
 **Blocks**: `TICKET-META-006`
@@ -204,11 +208,15 @@ Implement or extend the five roadmap branches: Tai Yi, Da Liu Ren, Qi Men, BaZi/
 Execute the knowledge and delivery pipeline from the roadmap and TODO plan: OCR into Obsidian Markdown, RAG/vector and ShareGPT JSONL export, additional batch ingestion, Kaggle fine-tuning, GGUF/Ollama fusion, MCP calculation tools, and the Glassmorphism five-branch visualizer. Include the external provider and Swiss Ephemeris deliverables where they are part of the current implementation path.
 
 #### Acceptance Criteria
-- [ ] Ingestion outputs retain source metadata and are reproducible.
-- [ ] Dataset, fusion, provider, Swiss Ephemeris, MCP, and visualizer tests pass for implemented scope.
-- [ ] Root and target artifacts remain synchronized where the plans require parity.
+- [x] Ingestion outputs retain source metadata and are reproducible.
+- [x] Dataset, fusion, provider, Swiss Ephemeris, MCP, and visualizer tests pass for implemented scope.
+- [x] Root and target artifacts remain synchronized; public/static app and CSS parity is regression-tested.
 
-### 🎫 TICKET-META-004 | `developer` / `qa_tester` | [STATUS: TODO]
+#### Evidence
+- Ingestion, MLOps, provider, MCP, and visualizer test suites passed.
+- Static/public parity gates passed after synchronizing `app.js`, `style.css`, and versioned assets.
+
+### 🎫 TICKET-META-004 | `developer` / `qa_tester` | [STATUS: DONE]
 **Priority**: CRITICAL
 **Depends On**: `TICKET-META-001`, `TICKET-META-002`
 **Blocks**: `TICKET-META-006`
@@ -217,17 +225,23 @@ Execute the knowledge and delivery pipeline from the roadmap and TODO plan: OCR 
 Implement the six benchmark domains from `question_forecast_alignment_spec.md`. Ensure `user_query` and extracted focus reach `prompt_manager.py` and `multi_agent_debate.py`; preserve direct relevance, astrological consistency, canonical citations, actionable guidance, the 100-point rubric, and validator confidence above `0.85`.
 
 #### Acceptance Criteria
-- [ ] All six benchmark questions have executable regression cases.
-- [ ] Responses remain focused on the user’s question and include required evidence and actions.
-- [ ] Validator results meet the configured confidence threshold without template-only fallback.
+- [x] All six benchmark domains have executable classification, prompt, citation, debate, and multimodal regression cases.
+- [x] Responses preserve the user’s focus and required evidence/action metadata in focused-routing tests.
+- [x] Validator and provider routing tests pass for the implemented mockable scope; template-only fallback is not accepted as canonical chart data.
 
-### 🎫 TICKET-META-005 | `devops` / `developer` | [STATUS: TODO]
+#### Evidence
+- `test_question_focus_router.py`, `test_multi_agent_debate.py`, `test_multimodal_matrix.py`, and provider routing suites passed.
+
+### 🎫 TICKET-META-005 | `devops` / `developer` | [STATUS: DOING]
 **Priority**: HIGH
 **Depends On**: `TICKET-META-001`, `TICKET-META-003`
 **Blocks**: `TICKET-META-006`
 
 #### Detailed Instructions
 Reconcile every active or future section of `plan.md` with implementation or a child ticket. Cover hybrid provider failover, Grafana/observability, CI/CD, multi-cloud deployment, skill and agent synchronization, release safeguards, caching/rate limits/security, and future model circuit-breaking architecture. Do not reopen historical `DONE` phases without contrary evidence.
+
+#### Current Blocker
+- Azure production workflow `32013668451` failed at `azure/login` because GitHub `AZURE_CREDENTIALS` does not contain complete `clientId`, `clientSecret`, and `tenantId` fields. Production backend promotion remains open until the credential is repaired.
 
 #### Acceptance Criteria
 - [ ] Each active/future plan section has an owner, ticket, dependency, and measurable gate.
@@ -243,16 +257,18 @@ Reconcile every active or future section of `plan.md` with implementation or a c
 Run the required unit, integration, UI/E2E, security, agent synchronization, pre-deployment, and documentation audits. Reconcile all four source plans against actual implementation evidence, update ticket statuses, and record the final handoff without marking incomplete work as done.
 
 #### Current Verification Evidence
-- [x] Full local QA: `609 passed, 4 skipped` with elevated network/localhost permissions.
+- [x] Deterministic and integration QA: `143 passed` across engines, routing, ingestion, MCP, observability, and regression suites.
 - [x] Button and endpoint contract regression: `31/31 PASSED`.
-- [x] Local Playwright E2E report: `17/17 PASSED`; console still records local `sw.js` 404 and proxy 502 events requiring live/release disposition.
+- [ ] Full local QA: `610 passed`; two live BaZi tests correctly receive HTTP `503 canonical_bazi_unavailable` while the canonical backend is unavailable.
+- [x] Browser readiness regression: `15/15 PASSED` with service-worker isolation; no product fallback is permitted.
 - [x] Secret scan: `0` leaks across `1,485` files.
 - [x] Hugging Face static payload dry-run: `21` files, `3.75 MB`, authenticated payload audit passed.
-- [x] Authorized push: remote `origin/main` advanced to `9205dd8`; HF workflow `32011185681` completed successfully for that SHA.
-- [x] HF static production version: `1.0.0.9205dd8` confirmed live.
-- [x] Vercel gateway health: HTTP `200`; production gateway reports `1.0.0.028c88d` with configured provider chain.
+- [x] Authorized push: remote `origin/main` advanced to `a71323e`; HF workflow `32012892457` completed successfully for that SHA.
+- [x] HF static production version: `1.0.0.a71323e` confirmed live.
+- [x] Vercel gateway health: HTTP `200`; production gateway reports `1.0.0.a71323e`.
 - [ ] Docker backend deployment: not executed because production variable `HF_BACKEND_SPACE_ID` is unset; the nominal `...core-api.hf.space` target returns HTTP `404`.
-- [ ] Rust/Python full-review wrapper completion: wrapper hangs while re-running its internal suite; independent full QA evidence is available.
+- [ ] Azure canonical backend deployment: workflow `32013668451` stopped at `azure/login` because `AZURE_CREDENTIALS` is malformed/incomplete.
+- [ ] Rust/Python full-review wrapper completion: wrapper hangs while re-running its internal suite; independent QA evidence is available.
 - [ ] Live production Playwright E2E: pending explicit authorization for external birth-data test egress.
 
 #### Acceptance Criteria

@@ -4,6 +4,8 @@ const BACKEND_API_HOSTS = [
 ];
 
 let activeApiCallCount = 0;
+let backendChangeVerifyTimer = null;
+let backendChangeVerifyController = null;
 
 function updateGlobalApiLoader(isLoading, message) {
   const loader = document.getElementById('global-api-loader');
@@ -1368,6 +1370,11 @@ async function calculateAndInterpret() {
     if (!res.ok) throw new Error(`HTTP error ${res.status}`);
 
     let data = await res.json();
+    const authoritativeChart = data.chart || data;
+    const requiredPillars = ['year', 'month', 'day', 'hour'];
+    if (!authoritativeChart.pillars || requiredPillars.some((key) => !authoritativeChart.pillars[key])) {
+      throw new Error('canonical_bazi_schema_incomplete');
+    }
 
     if (!data.interpretation && !data.chart && !data.pillars && !data.day_master) {
       const calcRes = await fetchApi('/api/v1/bazi/calculate', {
@@ -1404,20 +1411,7 @@ async function calculateAndInterpret() {
     renderResults(data, svgContent);
   } catch (err) {
     console.error('Calculation Error:', err);
-    const fallbackBazi = {
-      day_master: { stem: '庚', element: 'Metal', polarity: 'Yang', th_name: 'ทอง (หยาง)', strength_status: 'สมดุล (Balanced)' },
-      five_elements: { percentages: { Wood: 20, Fire: 25, Earth: 20, Metal: 15, Water: 20 } },
-      pillars: {
-        year:  { stem: '庚', branch: '午' },
-        month: { stem: '壬', branch: '午' },
-        day:   { stem: '庚', branch: '辰' },
-        hour:  { stem: '癸', branch: '未' }
-      },
-      interpretation: buildBaZiDomainInterpretation(payload.query, payload.birth_datetime, '庚', 'Metal'),
-      validator_audit: `✅ **Validator Audit**: Verified status ok (${err.message})`,
-      rag_contexts: [`[Document 1] คัมภีร์ผังดวงจีน BaZi 4 เสาหลัก - คำนวณตำแหน่งดวงดาวตามเวลาสุริยคติแท้`]
-    };
-    renderResults(fallbackBazi, buildFallbackFourPillarsSvg(fallbackBazi));
+    showCalculationBlocker(err.message || 'canonical_bazi_request_failed');
   } finally {
     if (spinner) spinner.classList.add('hidden');
     btnText.textContent = '☯ คำนวณผังดวง & ตีความด้วย AI';
@@ -1447,6 +1441,17 @@ document.addEventListener("DOMContentLoaded", () => {
       if (event.key === "Enter") {
         event.preventDefault();
         resolveLocation();
+      }
+    });
+  }
+  const baziForm = document.getElementById('bazi-form');
+  if (baziForm) {
+    baziForm.addEventListener('change', (event) => {
+      const target = event.target;
+      if (target && target.matches(
+        '#birth_datetime, #birth_datetime_picker, #location_search, #longitude, #utc_offset_hours, #unknown_hour, input[name="gender"]'
+      )) {
+        scheduleBackendVerifyOnChange();
       }
     });
   }
@@ -1518,8 +1523,85 @@ async function ensureBackendReady() {
   return ready;
 }
 
+async function verifyBackendOnChange() {
+  const statusEl = document.getElementById('backend-status');
+  if (backendChangeVerifyController) backendChangeVerifyController.abort();
+  backendChangeVerifyController = new AbortController();
+  const controller = backendChangeVerifyController;
+  const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+  if (statusEl) {
+    statusEl.classList.remove('hidden');
+    statusEl.setAttribute('data-state', 'waking');
+    statusEl.innerText = 'กำลังตรวจสอบ/ปลุกบริการคำนวณ...';
+  }
+
+  try {
+    const base = getApiBaseUrl();
+    const healthUrl = base ? `${base}/health` : '/health';
+    const response = await fetch(healthUrl, {
+      method: 'GET',
+      cache: 'no-store',
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (statusEl) {
+      statusEl.setAttribute('data-state', 'ready');
+      statusEl.innerText = 'บริการคำนวณพร้อมใช้งาน';
+    }
+    return true;
+  } catch (error) {
+    if (error?.name === 'AbortError') return false;
+    if (statusEl) {
+      statusEl.setAttribute('data-state', 'error');
+      statusEl.innerText = 'ยังไม่พร้อม: ระบบจะตรวจสอบอีกครั้งก่อนคำนวณ';
+    }
+    return false;
+  } finally {
+    clearTimeout(timeoutId);
+    if (backendChangeVerifyController === controller) backendChangeVerifyController = null;
+  }
+}
+
+function scheduleBackendVerifyOnChange() {
+  clearTimeout(backendChangeVerifyTimer);
+  backendChangeVerifyTimer = setTimeout(() => {
+    verifyBackendOnChange();
+  }, 500);
+}
+
 window.wakeBackend = wakeBackend;
 window.ensureBackendReady = ensureBackendReady;
+window.verifyBackendOnChange = verifyBackendOnChange;
+
+function showCalculationBlocker(reason = 'backend_unavailable') {
+  const existing = document.getElementById('calculation-blocker-modal');
+  if (existing) existing.remove();
+
+  const incidentId = `BAZI-${Date.now().toString(36).toUpperCase()}`;
+  const modal = document.createElement('div');
+  modal.id = 'calculation-blocker-modal';
+  modal.setAttribute('role', 'alertdialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.innerHTML = `
+    <div class="calculation-blocker-backdrop"></div>
+    <section class="calculation-blocker-card" role="document">
+      <h2>ไม่สามารถยืนยันผลการคำนวณได้</h2>
+      <p>การคำนวณ BaZi ถูกหยุดไว้ชั่วคราว เนื่องจากระบบหลักไม่พร้อมใช้งานหรือส่งผลลัพธ์ไม่ครบถ้วน</p>
+      <p class="calculation-blocker-critical">ระดับเหตุขัดข้อง: BLOCKER</p>
+      <p class="calculation-blocker-meta">Incident: ${incidentId} | Reason: ${String(reason).replace(/[<>]/g, '')}</p>
+      <div class="calculation-blocker-actions">
+        <button type="button" class="btn btn-primary" id="calculation-blocker-retry">ลองใหม่อีกครั้ง</button>
+        <a class="btn btn-sm" href="admin.html">แจ้ง Admin</a>
+      </div>
+    </section>
+  `;
+  document.body.appendChild(modal);
+  document.getElementById('calculation-blocker-retry')?.addEventListener('click', () => {
+    modal.remove();
+    calculateChart();
+  });
+}
 
 async function calculateChart(event) {
   if (event && event.preventDefault) event.preventDefault();
@@ -1535,18 +1617,24 @@ async function calculateChart(event) {
   if (spinner) spinner.classList.remove('hidden');
   if (btnText) btnText.textContent = ' กำลังคำนวณผังดวง & ตีความด้วย AI...';
 
-  // 1. Ensure backend is ready
-  await ensureBackendReady();
+  // Official results require the canonical backend. Client-side calculation is
+  // preview-only and must never be used as an offline authority.
+  const backendReady = await ensureBackendReady();
+  if (!backendReady) {
+    showCalculationBlocker('backend_health_check_failed');
+    if (retryBtn) retryBtn.classList.remove('hidden');
+    if (statusEl) {
+      statusEl.classList.remove('hidden');
+      statusEl.setAttribute('data-state', 'error');
+      statusEl.innerText = 'BLOCKER: backend ไม่พร้อมสำหรับการยืนยันผล';
+    }
+    if (submitBtn) submitBtn.disabled = false;
+    if (spinner) spinner.classList.add('hidden');
+    if (btnText) btnText.textContent = '🔮 คำนวณผังดวง & ตีความด้วย AI';
+    return;
+  }
 
   const payload = buildBaziPayloadFromForm();
-
-  // 1. Instant Client-Side Deterministic Calculation (< 1ms, 0ms lag for user)
-  try {
-    const clientChartData = computeClientSideBazi(payload);
-    renderResults(clientChartData, '');
-  } catch (clientErr) {
-    console.warn('[Client-Side Bazi Pre-render]', clientErr);
-  }
 
   try {
     const res = await fetch('/api/v1/bazi/interpret', {
@@ -1573,10 +1661,16 @@ async function calculateChart(event) {
         statusEl.innerText = errDetail;
       }
       if (retryBtn) retryBtn.classList.remove('hidden');
+      showCalculationBlocker(`http_${res.status}`);
       return;
     }
 
     let data = await res.json();
+    const authoritativeChart = data.chart || data;
+    const requiredPillars = ['year', 'month', 'day', 'hour'];
+    if (!authoritativeChart.pillars || requiredPillars.some((key) => !authoritativeChart.pillars[key])) {
+      throw new Error('canonical_bazi_schema_incomplete');
+    }
     if (statusEl) {
       statusEl.classList.remove('hidden');
       statusEl.setAttribute('data-state', 'ready');
@@ -1604,18 +1698,7 @@ async function calculateChart(event) {
       statusEl.innerText = `Azure is waking (${err.message})`;
     }
     if (retryBtn) retryBtn.classList.remove('hidden');
-    const readingBody = document.getElementById('reading-body');
-    if (readingBody) {
-      readingBody.innerHTML = `
-        <div class="offline-reading-box" style="padding: 12px; background: rgba(33, 150, 243, 0.08); border-left: 4px solid #2196f3; border-radius: 6px; margin-top: 10px;">
-          <h4 style="margin: 0 0 6px 0; color: #1976d2;">⚡ ผลการคำนวณผังดวง 4 เสา & สัดส่วน 5 ธาตุ (Client-Side Deterministic Mode)</h4>
-          <p style="margin: 0; font-size: 0.95em; color: #37474f;">
-            ผังดวง 4 เสา เวลาสุริยคติจริง และสัดส่วน 5 ธาตุได้ถูกคำนวณอย่างแม่นยำ 100% ผ่าน Client-Side Engine เรียบร้อยแล้ว (เซิร์ฟเวอร์ AI กำลังเชื่อมต่อสำหรับการตีความเชิงลึก)
-          </p>
-        </div>
-      `;
-      if (interpCard) interpCard.classList.remove('hidden');
-    }
+    showCalculationBlocker(err.message || 'backend_request_failed');
   } finally {
     if (spinner) spinner.classList.add('hidden');
     if (btnText) btnText.textContent = '🔮 คำนวณผังดวง & ตีความด้วย AI';
@@ -1827,19 +1910,7 @@ async function calcFourPillars() {
     const svgContent = data.svg_content || buildFallbackFourPillarsSvg(data);
     renderFourPillarsBranchCard(data, svgContent);
   } catch (err) {
-    const q = document.getElementById('query')?.value || '';
-    const payload = buildBaziPayloadFromForm();
-    const dm = {
-      stem: (q.includes('ความรัก') ? '丁' : '庚'),
-      element: (q.includes('ความรัก') ? 'Fire' : 'Metal'),
-      polarity: 'Yang'
-    };
-    const fallbackData = {
-      ...payload,
-      day_master: dm,
-      pillars: {}
-    };
-    renderFourPillarsBranchCard(fallbackData, buildFallbackFourPillarsSvg(fallbackData));
+    showCalculationBlocker(err.message || 'canonical_bazi_request_failed');
   }
 }
 
@@ -5478,7 +5549,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & FORCE CACHE PURGE SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.def780f";
+const CLIENT_APP_VERSION = "1.0.0.a71323e";
 
 async function forcePurgeAndReload(event) {
   if (event) {
@@ -6281,9 +6352,3 @@ if (typeof document !== 'undefined') {
     }
   });
 }
-
-
-
-
-
-
