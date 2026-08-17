@@ -341,6 +341,13 @@ def create_sft_trainer(
     if formatting_func is not None and "formatting_func" in params:
         kwargs["formatting_func"] = formatting_func
 
+    try:
+        from transformers import DataCollatorForLanguageModeling
+        if "data_collator" in params:
+            kwargs["data_collator"] = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
+    except Exception:
+        pass
+
     # Pass max_seq_length ONLY if SFTTrainer.__init__ explicitly accepts it (TRL < 0.12)
     if "max_seq_length" in params:
         kwargs["max_seq_length"] = max_seq_length
@@ -579,6 +586,35 @@ def run_training_pipeline(
                 model = model.to(torch.float16)
             except Exception as cast_err:
                 logger.warning(f"Weight cast skipped ({cast_err}).")
+
+    # Ensure input embeddings and model forward strictly enforce LongTensor input_ids
+    try:
+        def _ensure_long_indices_hook(module, args):
+            if args and len(args) > 0:
+                idx = args[0]
+                if hasattr(idx, "dtype") and getattr(idx, "dtype", None) not in (torch.long, torch.int, torch.int32, torch.int64):
+                    return (idx.long(),) + args[1:]
+            return args
+
+        input_embeddings = getattr(model, "get_input_embeddings", lambda: None)()
+        if input_embeddings is not None and hasattr(input_embeddings, "register_forward_pre_hook"):
+            input_embeddings.register_forward_pre_hook(_ensure_long_indices_hook)
+            logger.info("   [OK] Registered long-dtype pre-hook on input embeddings.")
+
+        if hasattr(model, "forward"):
+            _orig_model_forward = model.forward
+            def _safe_model_forward(*args, **kwargs):
+                if "input_ids" in kwargs and hasattr(kwargs["input_ids"], "dtype"):
+                    if kwargs["input_ids"].dtype not in (torch.long, torch.int, torch.int32, torch.int64):
+                        kwargs["input_ids"] = kwargs["input_ids"].long()
+                if args and hasattr(args[0], "dtype"):
+                    if args[0].dtype not in (torch.long, torch.int, torch.int32, torch.int64):
+                        args = (args[0].long(),) + args[1:]
+                return _orig_model_forward(*args, **kwargs)
+            model.forward = _safe_model_forward
+            logger.info("   [OK] Applied safe LongTensor input_ids wrapper on model.forward.")
+    except Exception as hook_err:
+        logger.info(f"   [INFO] Embedding long-dtype hook note: {hook_err}")
 
 
 
