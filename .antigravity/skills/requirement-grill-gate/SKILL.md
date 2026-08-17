@@ -42,7 +42,7 @@ Before prompting the user with questions, the Orchestrator MUST read the codebas
 |---|---|
 | `/plans/plan.md` | Existing scope baseline, previous architecture decisions |
 | `PROJECT_TASKS.md` | Active sprint status, unfinished tickets in `DOING`/`TODO` |
-| `.agent_rules.md` | Locked dependencies (`transformers==4.44.2`, `peft==0.12.0`, `accelerate==0.33.0`) |
+| `.agent_rules.md` | Locked dependencies (`transformers==4.44.2`, `peft==0.12.0`, `accelerate>=0.34.0,<1.0.0`) |
 | `.agents/rules/05-security-privacy.md` | Security and data privacy requirements |
 | `.agents/rules/06-secrets-policy.md` | 2-tier secrets policy & Doppler integration |
 | `.agents/rules/07-infrastructure-constraints.md` | Infrastructure limits, Fly.io, HF Spaces constraints |
@@ -73,7 +73,7 @@ The Orchestrator conducts an interactive interview asking questions **one at a t
 - **Verification Mapping**: Map each criterion to its test runner (`pytest`, `scripts/run_button_regression.py`, `scripts/run_e2e_screenshots.py`, or manual review).
 
 ### Dimension 4 — Constraint Checks `[HIGH]` (Auto-Scanned + Confirmed)
-- **Dependency Locks**: Strict verification that locked versions (`transformers==4.44.2`, `peft==0.12.0`, `accelerate==0.33.0`) are respected.
+- **Dependency Locks**: Strict verification that locked versions (`transformers==4.44.2`, `peft==0.12.0`, `accelerate>=0.34.0,<1.0.0`) are respected.
 - **Secrets Policy**: Adherence to 2-Tier Priority Secrets Policy (`.agents/rules/06-secrets-policy.md`).
 - **Kaggle Accelerator Lock**: Confirmation that `kernel-metadata.json` accelerator (`NvidiaTeslaT4`) is untouched.
 - **Pure ASCII Logging**: Subprocess log outputs strictly follow `[OK]`, `[ERROR]`, `[WARNING]`, `[INFO]`.

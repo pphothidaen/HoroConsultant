@@ -75,7 +75,7 @@ Phase 5: Code Review, Deployment & Post-Deploy E2E (Master Orchestrator & Code R
 ### Phase 2: Feature Implementation (Developer)
 1. Write/modify code in `project/`, `rust_core/`, or `scripts/`.
 2. Follow Pure ASCII logging standard: use `[OK]`, `[ERROR]`, `[WARNING]`, `[INFO]` (no emojis inside subprocess logs).
-3. Respect locked dependencies (`transformers==4.44.2`, `peft==0.12.0`, `accelerate==0.33.0`).
+3. Respect locked dependencies (`transformers==4.44.2`, `peft==0.12.0`, `accelerate>=0.34.0,<1.0.0`).
 
 ### Phase 3: QA & Testing (QA Tester)
 1. Run pytest unit & integration regression suite across all calculation modules, RAG, MCP, and 4 core components:

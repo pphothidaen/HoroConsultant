@@ -63,7 +63,7 @@ python3 scripts/post_train_fuse.py --dry-run
    - `transformers == 4.44.2`
    - `peft == 0.12.0`
    - `trl == 0.11.0`
-   - `accelerate == 0.33.0`
+   - `accelerate >= 0.34.0, < 1.0.0`
    - `bitsandbytes == 0.43.3`
    - `datasets >= 2.21.0`
    - `huggingface_hub == 0.25.1`

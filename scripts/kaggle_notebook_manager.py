@@ -223,7 +223,7 @@ def create_kernel_files(
                     "    print(f'[OK] Detected GPU {dev_name} ({target_sm}) using native Kaggle PyTorch environment.')\n",
                     "print('[MODEL] Removing incompatible torchao/torchvision & installing fine-tuning packages...')\n",
                     "subprocess.run([sys.executable, '-m', 'pip', 'uninstall', '-y', 'torchao', 'torchvision'], check=False)\n",
-                    "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--progress-bar', 'off', '--prefer-binary', 'transformers==4.44.2', 'tokenizers==0.19.1', 'peft==0.12.0', 'trl==0.11.0', 'accelerate==0.33.0', 'bitsandbytes==0.43.3', 'datasets==2.18.0', 'huggingface_hub==0.25.1', 'pyarrow_hotfix', 'python-docx', 'gdown'], check=True)\n",
+                    "subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--progress-bar', 'off', '--prefer-binary', 'transformers==4.44.2', 'tokenizers==0.19.1', 'peft==0.12.0', 'trl==0.11.0', 'accelerate>=0.34.0,<1.0.0', 'bitsandbytes==0.43.3', 'datasets>=2.21.0,<3.5.0', 'huggingface_hub==0.25.1', 'python-docx', 'gdown'], check=True)\n",
                     "import docx, gdown, glob, zipfile\n",
                     "try:\n",
                     "    import bitsandbytes as bnb\n",
