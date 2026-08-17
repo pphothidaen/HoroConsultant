@@ -334,82 +334,31 @@ def create_sft_trainer(
     train_dataset,
     peft_config,
     training_args,
-    dataset_text_field: str = "text",
+    dataset_text_field: str = None,
     formatting_func = None,
     max_seq_length: int = 512,
 ):
     """
-    Safely instantiates SFTTrainer across all TRL versions (0.7.x through 0.15.x+).
-    Dynamically inspects SFTTrainer.__init__ parameters to avoid passing deprecated
-    or unknown keyword arguments like 'max_seq_length' or 'tokenizer' / 'processing_class'.
+    Instantiates training pipeline using standard Hugging Face Trainer
+    with pre-tokenized dataset, PEFT LoRA adapter, and dynamic DataCollator.
     """
-    import inspect
+    from transformers import Trainer, DataCollatorForLanguageModeling
+    from peft import get_peft_model, PeftModel
 
-    from trl import SFTTrainer
-
-    sig = inspect.signature(SFTTrainer.__init__)
-    params = sig.parameters
-    has_var_kw = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in params.values())
-
-    # Ensure max_seq_length is configured on training_args (SFTConfig/TrainingArguments)
-    if hasattr(training_args, "max_seq_length"):
+    # Wrap model with PEFT LoRA if not already wrapped
+    if peft_config is not None and not isinstance(model, PeftModel):
         try:
-            training_args.max_seq_length = max_seq_length
-        except Exception:
-            pass
+            model = get_peft_model(model, peft_config)
+            logger.info("   [OK] Attached PEFT LoRA adapter to base causal LM.")
+            if hasattr(model, "print_trainable_parameters"):
+                model.print_trainable_parameters()
+        except Exception as peft_wrap_err:
+            logger.warning(f"   [WARNING] PEFT wrapping skipped/failed ({peft_wrap_err})")
 
-    if hasattr(training_args, "dataset_text_field"):
-        try:
-            training_args.dataset_text_field = dataset_text_field
-        except Exception:
-            pass
-
-    if hasattr(training_args, "remove_unused_columns"):
-        try:
-            training_args.remove_unused_columns = False
-        except Exception:
-            pass
-
-    kwargs = {
-        "model": model,
-        "train_dataset": train_dataset,
-        "peft_config": peft_config,
-        "args": training_args,
-    }
-
-    if dataset_text_field is not None and "dataset_text_field" in params:
-        kwargs["dataset_text_field"] = dataset_text_field
-
-    if formatting_func is not None and "formatting_func" in params:
-        kwargs["formatting_func"] = formatting_func
-
-    try:
-        from transformers import DataCollatorForLanguageModeling
-        collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
-        if "data_collator" in params or has_var_kw:
-            kwargs["data_collator"] = collator
-    except Exception:
-        collator = None
-
-    # Pass max_seq_length ONLY if SFTTrainer.__init__ explicitly accepts it (TRL < 0.12)
-    if "max_seq_length" in params:
-        kwargs["max_seq_length"] = max_seq_length
-
-    # Pass processing_class or tokenizer depending on what SFTTrainer.__init__ accepts
-    if "processing_class" in params:
-        kwargs["processing_class"] = tokenizer
-    elif "tokenizer" in params:
-        kwargs["tokenizer"] = tokenizer
-    else:
-        kwargs["processing_class" if has_var_kw else "tokenizer"] = tokenizer
-
-    # If VAR_KEYWORD is not present, filter kwargs strictly to accepted parameters
-    if not has_var_kw:
-        kwargs = {k: v for k, v in kwargs.items() if k in params}
+    collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
     # Safe Trainer patch to prevent NotImplementedError on meta/offloaded tensors
     try:
-        from transformers import Trainer
         _orig_move = getattr(Trainer, "_move_model_to_device", None)
         def _safe_move(self, m, dev):
             if getattr(self, "is_model_parallel", False) or hasattr(m, "hf_device_map") or hasattr(m, "device_map"):
@@ -433,52 +382,32 @@ def create_sft_trainer(
     except Exception:
         pass
 
-    logger.info(f"[PATCH] Instantiating SFTTrainer with parameters: {list(kwargs.keys())}")
-
-    trainer = None
-    try:
-        trainer = SFTTrainer(**kwargs)
-    except TypeError as te:
-        logger.warning(f"[WARNING] Initial SFTTrainer call raised TypeError ({te}). Attempting version fallback...")
-
-        kwargs.pop("max_seq_length", None)
-        if "processing_class" in kwargs:
-            kwargs.pop("processing_class")
-            kwargs["tokenizer"] = tokenizer
-        elif "tokenizer" in kwargs:
-            kwargs.pop("tokenizer")
-            kwargs["processing_class"] = tokenizer
-
+    # Ensure max_seq_length / remove_unused_columns configured on training_args
+    if hasattr(training_args, "remove_unused_columns"):
         try:
-            trainer = SFTTrainer(**kwargs)
-        except TypeError as te2:
-            logger.warning(f"[WARNING] Secondary SFTTrainer fallback raised ({te2}). Using minimal signature...")
-            min_kwargs = {
-                "model": model,
-                "train_dataset": train_dataset,
-                "args": training_args,
-            }
-            if collator is not None:
-                min_kwargs["data_collator"] = collator
-            if peft_config is not None:
-                min_kwargs["peft_config"] = peft_config
-            if "processing_class" in params:
-                min_kwargs["processing_class"] = tokenizer
-            else:
-                min_kwargs["tokenizer"] = tokenizer
-            trainer = SFTTrainer(**min_kwargs)
+            training_args.remove_unused_columns = False
+        except Exception:
+            pass
 
-    if trainer is not None:
-        if hasattr(trainer, "_remove_unused_columns"):
-            try:
-                trainer._remove_unused_columns = lambda dataset, description=None: dataset
-            except Exception:
-                pass
-        if hasattr(trainer, "args") and hasattr(trainer.args, "remove_unused_columns"):
-            try:
-                trainer.args.remove_unused_columns = False
-            except Exception:
-                pass
+    logger.info("[OK] Initializing standard Hugging Face Trainer with pre-tokenized dataset and DataCollator.")
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=train_dataset,
+        tokenizer=tokenizer,
+        data_collator=collator,
+    )
+
+    if hasattr(trainer, "_remove_unused_columns"):
+        try:
+            trainer._remove_unused_columns = lambda dataset, description=None: dataset
+        except Exception:
+            pass
+    if hasattr(trainer, "args") and hasattr(trainer.args, "remove_unused_columns"):
+        try:
+            trainer.args.remove_unused_columns = False
+        except Exception:
+            pass
 
     return trainer
 
@@ -812,16 +741,8 @@ def run_training_pipeline(
         "remove_unused_columns": False,
     }
 
-    training_args = None
-    try:
-        from trl import SFTConfig
-        try:
-            training_args = SFTConfig(max_seq_length=max_seq_length, **sft_kwargs)
-        except TypeError:
-            training_args = SFTConfig(**sft_kwargs)
-    except ImportError:
-        from transformers import TrainingArguments
-        training_args = TrainingArguments(**sft_kwargs)
+    from transformers import TrainingArguments
+    training_args = TrainingArguments(**sft_kwargs)
 
     if hasattr(training_args, "max_seq_length") and getattr(training_args, "max_seq_length", None) is None:
         try:
