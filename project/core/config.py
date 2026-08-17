@@ -105,6 +105,7 @@ def fetch_all_doppler_secrets_via_api() -> dict[str, str]:
                 if isinstance(sec_obj, dict):
                     val = sec_obj.get("computed") or sec_obj.get("raw") or ""
                     if val:
+                        val = str(val).strip()
                         _DOPPLER_CACHE[k] = val
                         os.environ[k] = val
     except Exception:
@@ -126,12 +127,13 @@ def fetch_doppler_secret_via_api(key_name: str) -> str | None:
     try:
         url = f"https://api.doppler.com/v3/configs/config/secret?name={key_name}"
         req = urllib.request.Request(url)
-        req.add_header("Authorization", f"Bearer {doppler_token}")
+        req.add_header("Authorization", f"Bearer {doppler_token.strip()}")
         req.add_header("Accept", "application/json")
         with urllib.request.urlopen(req, timeout=3) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             val = data.get("value", {}).get("computed")
             if val:
+                val = str(val).strip()
                 os.environ[key_name] = val
             return val
     except Exception:
@@ -147,20 +149,15 @@ def get_priority_secret(key_name: str, fallback_keys: tuple[str, ...] = (), defa
     all_keys = (key_name,) + fallback_keys
 
     # --- 1st Priority: DOPPLER SECRETS ---
-    # Check if Doppler CLI is running or DOPPLER_ENVIRONMENT / DOPPLER_TOKEN is set.
-    # When Doppler is available, prefer the API result over any pre-populated
-    # environment variable (e.g. a value loaded from Kaggle Secrets) so the
-    # central vault is always the source of truth.
     is_doppler_env = bool(os.getenv("DOPPLER_ENVIRONMENT") or os.getenv("DOPPLER_CONFIG") or os.getenv("DOPPLER_TOKEN"))
     if is_doppler_env:
         for k in all_keys:
             val_api = fetch_doppler_secret_via_api(k)
             if val_api:
-                return val_api
-            # API did not return this key — fall back to whatever is in env / .env
+                return str(val_api).strip()
             val = os.getenv(k)
             if val:
-                return val
+                return str(val).strip()
 
     # --- Warning Notice if 1st Priority Doppler miss ---
     platform_name = "KAGGLE SECRETS STORE" if (os.path.exists("/kaggle") or "KAGGLE" in os.environ) else "PLATFORM SECRETS (.env / System)"
@@ -175,9 +172,15 @@ def get_priority_secret(key_name: str, fallback_keys: tuple[str, ...] = (), defa
             try:
                 val = user_secrets.get_secret(k)
                 if val:
+                    val = str(val).strip()
                     logger.info(f"[OK] Secret '{k}' loaded from 2nd Priority (KAGGLE SECRETS STORE)")
                     os.environ[k] = val
                     os.environ[key_name] = val
+                    return val
+            except Exception:
+                pass
+    except Exception:
+        pass
                     return val
             except Exception:
                 pass

@@ -109,7 +109,7 @@ try:
         try:
             val = user_secrets.get_secret(key)
             if val:
-                os.environ[key] = val
+                os.environ[key] = str(val).strip()
                 print(f'  -> [OK] {key} loaded from Kaggle.')
         except Exception:
             pass
@@ -122,7 +122,7 @@ except ImportError:
             try:
                 val = userdata.get(key)
                 if val:
-                    os.environ[key] = val
+                    os.environ[key] = str(val).strip()
                     print(f'  -> [OK] {key} loaded from Colab.')
             except Exception:
                 pass
