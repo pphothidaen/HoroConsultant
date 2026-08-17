@@ -139,6 +139,29 @@ class TestNotebookSyntaxAndIntegrity(unittest.TestCase):
         self.assertTrue(callable(early_config_prune))
         self.assertTrue(callable(estimate_matmul_time))
 
+    def test_hf_hub_resilience_settings(self):
+        """Verify that Hugging Face Hub download timeout and retry limits are properly configured."""
+        orchestrator_path = ROOT / "scripts" / "cloud_train_orchestrator.py"
+        with open(orchestrator_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        self.assertIn('HF_HUB_DOWNLOAD_TIMEOUT', content)
+        self.assertIn('"600"', content)
+        self.assertIn('HF_HUB_MAX_RETRIES', content)
+        self.assertIn('"20"', content)
+        self.assertIn('max_download_retries', content)
+
+    def test_bnb_quantization_config_enabled_on_sm75(self):
+        """Ensure BitsAndBytesConfig is never bypassed on sm_75 / Kaggle platforms."""
+        orchestrator_path = ROOT / "scripts" / "cloud_train_orchestrator.py"
+        with open(orchestrator_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # Must not contain legacy bypass check that disabled bnb on kaggle
+        self.assertNotIn('not is_kaggle and not is_sm75', content)
+        self.assertIn('bnb_available = True', content)
+        self.assertIn('load_in_4bit=True', content)
+
 
 if __name__ == "__main__":
     unittest.main()
