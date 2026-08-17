@@ -5362,7 +5362,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & FORCE CACHE PURGE SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.19428bf";
+const CLIENT_APP_VERSION = "1.0.0.9887179";
 
 async function forcePurgeAndReload(event) {
   if (event) {
@@ -5569,8 +5569,13 @@ function showVersionUpdateToast(remoteVersion) {
 
 // Controller change listener for smooth PWA auto-update
 if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+  let hadPreviousController = !!navigator.serviceWorker.controller;
   let refreshing = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadPreviousController) {
+      hadPreviousController = true;
+      return;
+    }
     if (!refreshing) {
       refreshing = true;
       console.info("[SW] New Service Worker active, reloading for latest build...");

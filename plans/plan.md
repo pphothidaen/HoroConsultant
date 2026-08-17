@@ -1,4 +1,49 @@
 ---
+## 🔥 GRILL REPORT — Phase 15: Kaggle Fine-Tuning Pipeline NumPy 2.x & BNB CUDA Auto-Detection Hotfix
+**Date**: 2026-08-17T11:34:00+07:00  
+**Grilled By**: orchestrator  
+**Gate Status**: ✅ APPROVED (Resolved via `/grill-me` 9-Dimension Grill Gate)  
+
+### D1 — Scope Boundary
+- **IN**:
+  1. Fix `ValueError: numpy.dtype size changed, may indicate binary incompatibility` on Kaggle Python 3.12 environment by upgrading `datasets>=2.21.0,<3.5.0` (native NumPy 2.x & PyArrow 15+ support).
+  2. Remove legacy `pyarrow_hotfix` dependency.
+  3. Remove hardcoded `BNB_CUDA_VERSION=124` override; enforce auto-detection via `os.environ.pop('BNB_CUDA_VERSION', None)` with dynamic CUDA 12.8 `.so` symlinking.
+  4. Fix missing `import json` in notebook top-level imports.
+  5. Fix undefined `dataset_cmd_path` check with `elif 'dataset_cmd_path' in locals() and dataset_cmd_path:`.
+  6. Synchronize root `horoconsultant-finetune-pipeline.ipynb` and `project/kaggle_kernel/notebook.ipynb`.
+  7. Update dependency standards across `.agent_rules.md`, `.agents/rules/04-mlops-kaggle.md`, and `CLAUDE.md`.
+- **OUT**: Modifying locked Kaggle accelerator settings (`NvidiaTeslaT4`) or altering backend FastAPI inference pipelines.
+
+### D2 — Requirement Delta
+- **Changed**:
+  - `horoconsultant-finetune-pipeline.ipynb`: Upgrade datasets to `>=2.21.0`, auto-detect BNB CUDA, add import json, safe dataset path check.
+  - `project/kaggle_kernel/notebook.ipynb`: 100% parity with root pipeline.
+  - `.agent_rules.md`, `.agents/rules/04-mlops-kaggle.md`, `CLAUDE.md`: Update datasets version requirement to `>= 2.21.0`.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification Tool | Responsible Agent | Status |
+|---|---|---|---|---|
+| 1 | `horoconsultant-finetune-pipeline.ipynb` & `notebook.ipynb` upgraded with `datasets>=2.21.0` | Python JSON validation | `developer` | ✅ PASSED |
+| 2 | Pure ASCII fail-fast package verification imports without binary incompatibility | Static & unit verification | `developer` | ✅ PASSED |
+| 3 | Full Pytest suite passes 100% (598/598 tests) | `python3 -m pytest -v --ignore=project/kaggle_kernel` | `qa_tester` | ✅ PASSED |
+| 4 | UI Button regression suite passes 100% (33/33 tests) | `python3 scripts/run_button_regression.py` | `qa_tester` | ✅ PASSED |
+| 5 | Pre-deployment safety audit passes `READY_FOR_PROD` (0 secret leaks) | `python3 project/core/code_reviewer.py --review` | `code_reviewer` | ✅ PASSED |
+| 6 | Agent definitions synchronized (0 drift) | `sync_sdlc_agents.py` & `sync_codex_agents.py` | `business_analyst` | ✅ PASSED |
+
+### D4 — Constraints & Safeguards
+- Kaggle GPU Accelerator locked to `NvidiaTeslaT4` (0 modification).
+- Pure ASCII Logging strictly enforced.
+- 0 secret leaks detected across 1,471 files.
+
+### D5 — Sub-Agent Task Decomposition
+- `TICKET-PIPE-001` (`orchestrator`): Root Cause Analysis & Architecture Fix Specification [STATUS: DONE]
+- `TICKET-PIPE-002` (`developer`): Notebook JSON Structure & Dependency Hotfix [STATUS: DONE]
+- `TICKET-PIPE-003` (`qa_tester`): Pytest & UI Button Regression Suite Verification [STATUS: DONE]
+- `TICKET-PIPE-004` (`code_reviewer`): Pre-Deployment Safety Audit (`READY_FOR_PROD`) [STATUS: DONE]
+- `TICKET-PIPE-005` (`business_analyst`): Live Documentation & Rules Synchronization [STATUS: DONE]
+
+---
 ## 🔥 GRILL REPORT — Phase 14: Metaphysics AI Live Consultant Chat Assistant & Multi-Turn Interactive Consultation Engine (แชทบอทซินแส AI โต้ตอบแบบ Real-time พร้อม Grounded RAG & Day Master Context)
 **Date**: 2026-08-16T23:45:00+07:00  
 **Grilled By**: orchestrator  

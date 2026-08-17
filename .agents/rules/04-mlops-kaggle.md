@@ -8,7 +8,7 @@
    - `trl == 0.11.0`
    - `accelerate == 0.33.0`
    - `bitsandbytes == 0.43.3`
-   - `datasets == 2.18.0`
+   - `datasets >= 2.21.0`
    - `huggingface_hub == 0.25.1`
 2. **Kaggle PyTorch Integrity**:
    - NEVER run `pip install torch==...` to reinstall PyTorch in Kaggle environment (causes `libcudnn.so.8` missing crash).

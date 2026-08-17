@@ -65,7 +65,7 @@ python3 scripts/post_train_fuse.py --dry-run
    - `trl == 0.11.0`
    - `accelerate == 0.33.0`
    - `bitsandbytes == 0.43.3`
-   - `datasets == 2.18.0`
+   - `datasets >= 2.21.0`
    - `huggingface_hub == 0.25.1`
 
 3. **Pip Options Standard**:

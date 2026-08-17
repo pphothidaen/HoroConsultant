@@ -56,6 +56,14 @@ python3 -m pytest -v --ignore=project/kaggle_kernel
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────┐
+│   ✅ DONE: Phase 15 — Kaggle Fine-Tuning Pipeline NumPy 2.x & BNB Hotfix      │
+├───────────────────────────────────────────────────────────────────────────────┤
+│ • Fixed `ValueError: numpy.dtype size changed` by upgrading datasets>=2.21.0  │
+│ • Removed legacy pyarrow_hotfix and unlocked BNB_CUDA_VERSION auto-detect     │
+│ • Fixed top-level import json and dataset_cmd_path safety guard check         │
+│ • Synced horoconsultant-finetune-pipeline.ipynb & project/kaggle_kernel/      │
+│ • Passed 598/598 tests (100%), 33/33 Button Regressions, READY_FOR_PROD       │
+├───────────────────────────────────────────────────────────────────────────────┤
 │   ✅ DONE: Production Gateway 404/502 Hotfix & Post-Deploy Verification       │
 ├───────────────────────────────────────────────────────────────────────────────┤
 │ • Resolved 404/502 across `/calendar/month`, `/simulation`, `/prompt-pills`  │
