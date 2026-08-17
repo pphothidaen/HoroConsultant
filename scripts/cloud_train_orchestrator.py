@@ -364,6 +364,12 @@ def create_sft_trainer(
         except Exception:
             pass
 
+    if hasattr(training_args, "remove_unused_columns"):
+        try:
+            training_args.remove_unused_columns = False
+        except Exception:
+            pass
+
     kwargs = {
         "model": model,
         "train_dataset": train_dataset,
@@ -656,7 +662,9 @@ def run_training_pipeline(
             logger.info("   [OK] Registered long-dtype pre-hook on input embeddings.")
 
         if hasattr(model, "forward"):
+            import functools
             _orig_model_forward = model.forward
+            @functools.wraps(_orig_model_forward)
             def _safe_model_forward(*args, **kwargs):
                 if "input_ids" in kwargs and hasattr(kwargs["input_ids"], "dtype"):
                     if kwargs["input_ids"].dtype not in (torch.long, torch.int, torch.int32, torch.int64):
@@ -783,6 +791,7 @@ def run_training_pipeline(
         "report_to": report_to_target,
         "gradient_checkpointing": True,
         "dataset_text_field": "text",
+        "remove_unused_columns": False,
     }
 
     training_args = None

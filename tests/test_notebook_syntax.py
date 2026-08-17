@@ -151,13 +151,21 @@ class TestNotebookSyntaxAndIntegrity(unittest.TestCase):
         self.assertIn('"20"', content)
         self.assertIn('max_download_retries', content)
 
+    def test_remove_unused_columns_setting(self):
+        """Ensure remove_unused_columns is explicitly disabled to prevent Trainer from stripping input_ids."""
+        orchestrator_path = ROOT / "scripts" / "cloud_train_orchestrator.py"
+        with open(orchestrator_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        self.assertIn('"remove_unused_columns": False', content)
+        self.assertIn('training_args.remove_unused_columns = False', content)
+
     def test_bnb_quantization_config_enabled_on_sm75(self):
         """Ensure BitsAndBytesConfig is never bypassed on sm_75 / Kaggle platforms."""
         orchestrator_path = ROOT / "scripts" / "cloud_train_orchestrator.py"
         with open(orchestrator_path, "r", encoding="utf-8") as f:
             content = f.read()
 
-        # Must not contain legacy bypass check that disabled bnb on kaggle
         self.assertNotIn('not is_kaggle and not is_sm75', content)
         self.assertIn('bnb_available = True', content)
         self.assertIn('load_in_4bit=True', content)
