@@ -126,6 +126,23 @@ jobs:
                   "tenantId": placeholders["AZURE_TENANT_ID"],
               }
 
+          fallback_fields = {
+              "clientId": "AZURE_CLIENT_ID",
+              "clientSecret": "AZURE_CLIENT_SECRET",
+              "subscriptionId": "AZURE_SUBSCRIPTION_ID",
+              "tenantId": "AZURE_TENANT_ID",
+          }
+          filled_from_individual = []
+          for key, env_name in fallback_fields.items():
+              if not str(parsed.get(key, "")).strip() and placeholders.get(env_name):
+                  parsed[key] = placeholders[env_name]
+                  filled_from_individual.append(key)
+          if filled_from_individual:
+              print(
+                  "[OK] Filled missing Azure credential fields from individual secrets: "
+                  + ", ".join(filled_from_individual)
+              )
+
           if raw and used_template_placeholders:
               missing_placeholders = [
                   name for name in sorted(used_template_placeholders)
