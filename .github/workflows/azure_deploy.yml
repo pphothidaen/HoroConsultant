@@ -222,7 +222,7 @@ jobs:
 
       - name: Azure Logout
         if: always()
-        run: az logout
+        run: az logout || true
 
   hermes-post-deploy:
     name: Hermes Headless — Post-Deploy E2E Verification
