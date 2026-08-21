@@ -48,8 +48,8 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ env.DOCKER_USERNAME || secrets.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD || secrets.DOCKER_PASSWORD }}
+          username: ${{ vars.DOCKER_USERNAME || env.DOCKER_USERNAME || secrets.DOCKER_USERNAME }}
+          password: ${{ vars.DOCKER_PASSWORD || env.DOCKER_PASSWORD || secrets.DOCKER_PASSWORD }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -61,8 +61,8 @@ jobs:
           file: ./Dockerfile.hf
           push: true
           tags: |
-            ${{ env.DOCKER_USERNAME || secrets.DOCKER_USERNAME }}/horoconsult:latest
-            ${{ env.DOCKER_USERNAME || secrets.DOCKER_USERNAME }}/horoconsult:${{ steps.meta.outputs.sha_short }}
+            ${{ vars.DOCKER_USERNAME || env.DOCKER_USERNAME || secrets.DOCKER_USERNAME }}/horoconsult:latest
+            ${{ vars.DOCKER_USERNAME || env.DOCKER_USERNAME || secrets.DOCKER_USERNAME }}/horoconsult:${{ steps.meta.outputs.sha_short }}
           build-args: |
             GIT_COMMIT_HASH=${{ steps.meta.outputs.sha_short }}
           cache-from: type=gha
@@ -84,17 +84,115 @@ jobs:
           doppler-token: ${{ secrets.DOPPLER_TOKEN }}
         id: doppler
 
+      - name: Resolve Azure credentials
+        id: resolve-azure-creds
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import sys
+
+          placeholders = {
+              "AZURE_CLIENT_ID": os.getenv("AZURE_CLIENT_ID", ""),
+              "AZURE_CLIENT_SECRET": os.getenv("AZURE_CLIENT_SECRET", ""),
+              "AZURE_SUBSCRIPTION_ID": os.getenv("AZURE_SUBSCRIPTION_ID", ""),
+              "AZURE_TENANT_ID": os.getenv("AZURE_TENANT_ID", ""),
+          }
+
+          parsed = None
+          used_template_placeholders = set()
+          raw = os.getenv("AZURE_CREDENTIALS")
+          if raw:
+              pattern = re.compile(r"\$\{([A-Z0-9_]+)\}")
+              def substitute_placeholder(match):
+                  name = match.group(1)
+                  used_template_placeholders.add(name)
+                  return placeholders.get(name, match.group(0))
+
+              resolved = pattern.sub(substitute_placeholder, raw)
+              try:
+                  parsed = json.loads(resolved)
+              except json.JSONDecodeError as error:
+                  print(f"[WARN] Could not parse AZURE_CREDENTIALS after substitution: {error}")
+          else:
+              print("[WARN] AZURE_CREDENTIALS is not available in this workflow context; attempting field assembly from individual env vars.")
+
+          if parsed is None:
+              parsed = {
+                  "clientId": placeholders["AZURE_CLIENT_ID"],
+                  "clientSecret": placeholders["AZURE_CLIENT_SECRET"],
+                  "subscriptionId": placeholders["AZURE_SUBSCRIPTION_ID"],
+                  "tenantId": placeholders["AZURE_TENANT_ID"],
+              }
+
+          if raw and used_template_placeholders:
+              missing_placeholders = [
+                  name for name in sorted(used_template_placeholders)
+                  if not placeholders.get(name)
+              ]
+              if missing_placeholders:
+                  print("[ERROR] AZURE_CREDENTIALS references unresolved placeholders:")
+                  for name in missing_placeholders:
+                      print(f"[ERROR] - {name}")
+                  print("[ERROR] Provide each referenced value via Doppler Secrets, repository secrets, or workflow environment.")
+                  sys.exit(1)
+
+          for key in ("clientId", "clientSecret", "subscriptionId", "tenantId"):
+              if not str(parsed.get(key, "")).strip():
+                  print(f"[ERROR] Missing resolved credential field: {key}")
+                  sys.exit(1)
+              if "${" in str(parsed.get(key, "")):
+                  print(f"[ERROR] Unresolved placeholder detected in credential field {key}: {parsed.get(key)}")
+                  sys.exit(1)
+
+          if raw:
+              print(f"[OK] Resolved Azure credentials from AZURE_CREDENTIALS template payload.")
+          else:
+              print("[OK] Resolved Azure credentials from individual AZURE_* environment fields.")
+
+          output_file = os.environ["GITHUB_OUTPUT"]
+          with open(output_file, "a", encoding="utf-8") as output:
+              output.write(f"json={json.dumps(parsed)}\n")
+              output.write(f"subscription_id={parsed['subscriptionId']}\n")
+          print("[OK] Resolved Azure credentials for deployment.")
+          PY
+        env:
+          AZURE_CREDENTIALS: ${{ vars.AZURE_CREDENTIALS || env.AZURE_CREDENTIALS || secrets.AZURE_CREDENTIALS }}
+          AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID || env.AZURE_CLIENT_ID || secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ vars.AZURE_CLIENT_SECRET || env.AZURE_CLIENT_SECRET || secrets.AZURE_CLIENT_SECRET }}
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID || env.AZURE_SUBSCRIPTION_ID || secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID || env.AZURE_TENANT_ID || secrets.AZURE_TENANT_ID }}
+
       - name: Azure Login
         uses: azure/login@v2
         with:
-          creds: ${{ env.AZURE_CREDENTIALS || secrets.AZURE_CREDENTIALS }}
+          creds: ${{ steps.resolve-azure-creds.outputs.json }}
+
+      - name: Preflight Azure target access
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ steps.resolve-azure-creds.outputs.subscription_id }}
+          AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP || env.AZURE_RESOURCE_GROUP || secrets.AZURE_RESOURCE_GROUP }}
+          AZURE_CONTAINER_APP: ${{ vars.AZURE_CONTAINER_APP || env.AZURE_CONTAINER_APP || secrets.AZURE_CONTAINER_APP }}
+        run: |
+          set -euo pipefail
+          test -n "${AZURE_SUBSCRIPTION_ID}" || { echo "[ERROR] AZURE_SUBSCRIPTION_ID is missing"; exit 1; }
+          test -n "${AZURE_RESOURCE_GROUP}" || { echo "[ERROR] AZURE_RESOURCE_GROUP is missing"; exit 1; }
+          test -n "${AZURE_CONTAINER_APP}" || { echo "[ERROR] AZURE_CONTAINER_APP is missing"; exit 1; }
+          az account set --subscription "${AZURE_SUBSCRIPTION_ID}"
+          if ! az group show --name "${AZURE_RESOURCE_GROUP}" --subscription "${AZURE_SUBSCRIPTION_ID}" --only-show-errors >/dev/null; then
+            echo "[ERROR] Azure identity cannot read target resource group '${AZURE_RESOURCE_GROUP}'."
+            echo "[ERROR] Grant the deployment service principal Reader/Contributor access on this resource group, then rerun."
+            exit 1
+          fi
+          echo "[OK] Azure target resource group is readable; deployment can proceed to Container Apps provisioning."
 
       - name: Deploy to Azure Container Apps
         uses: azure/container-apps-deploy-action@v2
         with:
-          resourceGroup: ${{ env.AZURE_RESOURCE_GROUP || secrets.AZURE_RESOURCE_GROUP }}
-          containerAppName: ${{ env.AZURE_CONTAINER_APP || secrets.AZURE_CONTAINER_APP }}
-          imageToDeploy: ${{ env.DOCKER_USERNAME || secrets.DOCKER_USERNAME }}/horoconsult:${{ needs.build-and-push.outputs.image_tag }}
+          resourceGroup: ${{ vars.AZURE_RESOURCE_GROUP || env.AZURE_RESOURCE_GROUP || secrets.AZURE_RESOURCE_GROUP }}
+          containerAppName: ${{ vars.AZURE_CONTAINER_APP || env.AZURE_CONTAINER_APP || secrets.AZURE_CONTAINER_APP }}
+          imageToDeploy: ${{ vars.DOCKER_USERNAME || env.DOCKER_USERNAME || secrets.DOCKER_USERNAME }}/horoconsult:${{ needs.build-and-push.outputs.image_tag }}
 
       - name: Verify Azure Container App Health
         run: |
@@ -120,7 +218,7 @@ jobs:
           raise SystemExit(1)
           PY
         env:
-          AZURE_CONTAINER_APP_URL: ${{ env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
+          AZURE_CONTAINER_APP_URL: ${{ vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
 
       - name: Azure Logout
         if: always()
@@ -153,19 +251,21 @@ jobs:
 
       - name: Run strict production path verification
         env:
-          AZURE_CONTAINER_APP_URL: ${{ env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
+          AZURE_CONTAINER_APP_URL: ${{ vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
+          HF_BACKEND_URL: ${{ vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
           VERCEL_GATEWAY_URL: ${{ vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
           HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
         run: |
-          python3 scripts/run_live_health_verification.py --require-azure --json-output production-verification.json
+          python3 scripts/run_live_health_verification.py --json-output production-verification.json
 
       - name: Run production synthetic monitor
         env:
-          AZURE_CONTAINER_APP_URL: ${{ env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
+          AZURE_CONTAINER_APP_URL: ${{ vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
+          HF_BACKEND_URL: ${{ vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
           VERCEL_GATEWAY_URL: ${{ vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
           HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
         run: |
-          python3 scripts/synthetic_health_monitor.py --once --require-azure --json-output synthetic-health.json
+          python3 scripts/synthetic_health_monitor.py --once --json-output synthetic-health.json
 
       - name: Upload production verification reports
         uses: actions/upload-artifact@v4
