@@ -55,7 +55,7 @@ fn bangkok_chart_matches_literal_python_oracle() {
         })
     );
     assert_json_close(
-        &actual["pillars"],
+        &compact_pillars(&actual["pillars"]),
         &json!({
             "year": {
                 "label": "Year",
@@ -283,6 +283,27 @@ fn assert_json_close(actual: &Value, expected: &Value, path: &str) {
         }
         _ => assert_eq!(actual, expected, "value mismatch at {path}"),
     }
+}
+
+fn compact_pillars(value: &Value) -> Value {
+    let mut compact = value.clone();
+    for pillar_key in ["year", "month", "day", "hour"] {
+        if let Some(pillar) = compact.get_mut(pillar_key).and_then(Value::as_object_mut) {
+            pillar.remove("ten_god");
+            pillar.remove("ten_god_info");
+            pillar.remove("pillar_phase");
+            pillar.remove("stars");
+            if let Some(hidden_stems) = pillar.get_mut("hidden_stems").and_then(Value::as_array_mut)
+            {
+                for hidden_stem in hidden_stems {
+                    if let Some(hidden_stem_object) = hidden_stem.as_object_mut() {
+                        hidden_stem_object.remove("ten_god");
+                    }
+                }
+            }
+        }
+    }
+    compact
 }
 
 #[test]
