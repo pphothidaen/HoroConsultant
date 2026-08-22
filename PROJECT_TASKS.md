@@ -315,20 +315,20 @@ Run the required unit, integration, UI/E2E, security, agent synchronization, pre
 - [x] Vercel API probe executed; in this run production curl checks are `2/3` with `POST /api/v1/bazi/interpret` returning `503` (`canonical_bazi_unavailable`) and missing `X-AI-Source`/`X-AI-Model` headers.
 - [x] Local release-verifier routing and synthetic-monitor fallback are covered by focused regression tests: an explicit backend URL takes precedence, a canonical HF Space ID derives the backend URL when unset, and static `/index.html` fallback no longer crashes the monitor.
 - [x] 2026-08-21 15:43 local revalidation: code review passed with notebook audit clean; secret scan found `0` leaks across `1,507` files, and the UI contract suite passed `25/25` checks.
-- [ ] Docker backend deployment: GitHub Actions run `32571990206` for commit `056b1aa` resolved HF token, published the static frontend, and published the Docker API backend successfully, then failed final public verification.
-- **Current status:** Docker publish is complete, but the canonical HF Space remains unhealthy/paused. CI verification artifact shows static `404`, backend `/health` `503`, deterministic API `503`; a direct post-publish health check reports `503 — The space is paused, ask a maintainer to restart it`.
-  - **Runtime evidence:** GitHub Actions run `32571990206`; artifact `production-verification.json`; `project/tests/backend-release-check-hf-canonical.json`; direct `python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --check-health`.
-- **Next action:** Restart/unpause the Hugging Face Space from a maintainer account, wait for build/startup logs to settle, then rerun canonical HF and Vercel checks side-by-side before deciding gate closure.
+- [x] Docker backend deployment: GitHub Actions run `32577425927` for commit `52149b7` published the Docker API backend and completed canonical verification.
+- **Current status:** The HF Docker Space is running and the canonical request path is healthy. The static UI and backend share the Docker Space origin; `.static.hf.space` was removed from the canonical configuration because it only applies to Static SDK Spaces.
+  - **Runtime evidence:** artifact `hf-production-verification-52149b72b713a92e7c3e2d4e46b702bc554b2b5a`; static UI `200`, `/health` `200`, deterministic API `200`; synthetic monitor `2/2` critical targets healthy.
+- **Next action:** None for `G-META-006-BACKEND`; retain the same-space origin guard and rerun this gate only when release-affecting changes land.
   - **Gate Ref:** `G-META-006-BACKEND`.
 - [ ] Azure canonical backend deployment: workflow `Azure Container Apps — Production Deployment` reaches `azure/login` but fails in `Deploy to Azure Container Apps` with RBAC `AuthorizationFailed` on resource-group read/write.
   - **Current status:** RBAC grant was applied on 2026-08-21 for service principal `2e0f6d36-99da-4c75-a07c-bf6299da2180` / object id `d730cc3c-aa0d-4b01-98db-828ec4a6eeda` as `Contributor` on `rg-horoconsult`; local `az group show` confirms Resource Group read access and `provisioningState: Succeeded`.
   - **Runtime credential evidence:** Operator-provided role assignment output plus local `az group show`; run `32472307078` built/pushed Docker successfully but failed at `Azure Login` because `creds` lacked required service-principal fields; workflow fix `bcac542` was pushed and rerun as `32472681936`, which then failed earlier at `Resolve Azure credentials` with `Missing resolved credential field: clientId`.
   - **Next action:** Replace GitHub `AZURE_CREDENTIALS` with complete service-principal JSON or configure `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `AZURE_SUBSCRIPTION_ID`, and `AZURE_TENANT_ID` as Actions secrets, then rerun `Azure Container Apps — Production Deployment` and confirm post-login provisioning plus `/health` pass.
   - **Gate Ref:** `G-META-005-AZURE`.
-- [ ] HF Docker canonical backend: workflow `32571990206` has canonical `HF_BACKEND_SPACE_ID` defaulted in CI and completed the Docker publish step.
-- **Current status:** Backend is still unavailable because the HF Space is paused/unhealthy after publish.
-  - **Runtime evidence:** `project/tests/backend-release-check-hf-canonical.json` shows static `404`, backend `/health` `503`, deterministic API `503`; direct health check reports the Space is paused.
-- **Next action:** Restart/unpause HF Space, then verify `/health` endpoint availability.
+- [x] HF Docker canonical backend: workflow `32577425927` completed publish, startup, canonical verification, and synthetic monitoring for commit `52149b7`.
+- **Current status:** Static UI, backend health, and deterministic API all return `200` from `https://pphothidaen-horoconsultant-core-backend.hf.space`.
+  - **Runtime evidence:** `production-verification.json` reports `3/3` checks passed; `synthetic-health.json` reports `2/2` critical targets healthy.
+- **Next action:** None for this gate.
   - **Gate Ref:** `G-META-006-BACKEND`.
 - [x] Release CI confirmation for the previously reported Rust formatting drift and Bandit B602 findings.
   - **Current status:** GitHub Actions `Unified CI & Quality Audit Pipeline` run `32571990179` for `056b1aa` completed successfully. Local Rust formatting, Rust vector/security tests, MLOps Python compilation, and the exact CI Bandit command also pass; Bandit reports no issues across `project/` and `scripts/` (`36,112` lines).
