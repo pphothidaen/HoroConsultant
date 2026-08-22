@@ -37,6 +37,12 @@ This rule governs how the `orchestrator` distributes work to sub-agents, monitor
    - Escalate to Human-in-the-Loop when progress requires a credential value, platform permission, production approval, external billing decision, or unresolved high-impact domain judgment.
    - Provide the human operator with the exact command, UI path, or decision needed, and wait for fresh evidence after completion.
 
+9. **Context Hygiene and `/clear`**
+   - Use `/clear` or equivalent context reset when logs, polling output, completed sub-agent transcripts, or stale branches make the working context too large.
+   - Before clearing, write a compact handoff summary with objective/current phase, latest commit and branch, active workflow run ids, intentional file changes, staged state, completed checks, blockers/HITL actions, and the next safe command.
+   - After clearing, resume from authoritative current state. Re-check `git status`, active workflow status, and relevant task files before acting.
+   - Never clear away an unresolved secret incident, destructive operation, production deploy, or HITL decision without preserving the exact non-secret evidence and next operator action.
+
 ## Required Sub-Agent Handoff Fields
 
 Each sub-agent final response must include:

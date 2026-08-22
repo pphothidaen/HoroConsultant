@@ -73,6 +73,22 @@ Do not put hard safety controls only in `CLAUDE.md`; if an action must be blocke
 5. Merge results by evidence, not by majority. If two agents conflict, inspect the underlying commands/logs before deciding.
 6. Update `PROJECT_TASKS.md`, release handoff docs, or plan files only after the evidence is stable and the user has authorized any required external action.
 
+## Context Hygiene and `/clear` Handoff
+
+Use `/clear` or an equivalent context reset when the active thread has accumulated large logs, repeated workflow polling, completed sub-agent transcripts, or stale investigation branches that no longer need full detail in memory. Do not clear immediately before an unresolved destructive action, secret operation, production deploy, or user decision unless the required state has been summarized first.
+
+Before clearing, produce a compact handoff summary that preserves enough state for the next agent turn to continue without redoing work:
+
+- Objective and current phase.
+- Latest commit SHA, branch, and push status.
+- Active workflow/run ids, job names, and current step.
+- Files intentionally changed, files staged, and known dirty files that are out of scope.
+- Verification already completed with exact commands/results.
+- Remaining blockers, HITL actions, and the next safe command.
+- Secret policy notes, including any leaked/rotated token status without repeating values.
+
+After clearing, resume from authoritative current state. Re-check only the minimum necessary evidence, such as `git status`, current workflow state, and relevant task files. Do not treat the pre-clear summary as proof when fresh external state may have changed.
+
 ## Claude Code Governance Mapping
 
 When the user asks to apply this delegation model to Claude Code, map controls into three layers:
@@ -123,6 +139,7 @@ Use Claude Code three-level command governance:
 1. Hooks are hard constraints.
 2. Rules load only by relevant paths.
 3. CLAUDE.md is short global context.
+Use `/clear` when context becomes large, but first write a handoff summary with objective, latest commit, active run ids, changed files, verified checks, blockers, and next command.
 
 For every sub-agent, define objective, ownership, boundaries, evidence expected, and stop condition.
 Do not assign two agents to edit the same file.
