@@ -105,6 +105,13 @@ def evaluate_usage(
         reasons.append(f"period is not current UTC month ({current_period})")
     if snapshot.get("complete") is not True:
         reasons.append("usage snapshot is incomplete")
+    collection_errors = snapshot.get("collection_errors", [])
+    if isinstance(collection_errors, list):
+        reasons.extend(
+            f"collection error: {str(error)[:240]}"
+            for error in collection_errors
+            if error
+        )
 
     try:
         actual_cost = _finite_nonnegative(snapshot["actual_cost"])
@@ -245,6 +252,7 @@ def collect_azure_usage(
         "vcpu_seconds": 0.0,
         "gib_seconds": 0.0,
         "requests": 0.0,
+        "collection_errors": [],
         "complete": False,
     }
     try:
@@ -341,7 +349,8 @@ def collect_azure_usage(
             snapshot["requests"] += _sum_metric(by_name["Requests"], "total")
 
         snapshot["complete"] = True
-    except (KeyError, TypeError, ValueError, RuntimeError):
+    except (KeyError, TypeError, ValueError, RuntimeError) as exc:
+        snapshot["collection_errors"].append(str(exc))
         snapshot["complete"] = False
     return snapshot
 

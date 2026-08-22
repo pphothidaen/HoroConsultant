@@ -63,10 +63,16 @@ def test_guard_fails_closed_for_stale_incomplete_or_malformed_usage():
 
     stale = guard.evaluate_usage(_snapshot(period="2025-01"), threshold=0.70)
     incomplete = guard.evaluate_usage(_snapshot(complete=False), threshold=0.70)
+    collector_failed = guard.evaluate_usage(
+        _snapshot(complete=False, collection_errors=["Azure CLI command failed: az rest"]),
+        threshold=0.70,
+    )
     malformed = guard.evaluate_usage({"period": "invalid"}, threshold=0.70)
 
     assert stale.allowed is False
     assert incomplete.allowed is False
+    assert collector_failed.allowed is False
+    assert "az rest" in " ".join(collector_failed.reasons)
     assert malformed.allowed is False
 
 
