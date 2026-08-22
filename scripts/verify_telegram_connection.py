@@ -11,12 +11,12 @@ Features:
 
 from __future__ import annotations
 
+import argparse
 import json
 import logging
 import os
 import shutil
 import subprocess
-import sys
 import urllib.request
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
@@ -25,14 +25,24 @@ from dotenv import dotenv_values
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 ENV_FILE = ROOT_DIR / ".env"
+PRODUCTION_ENV_FILE = ROOT_DIR / ".env.production"
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("telegram_verifier")
 
 
-def get_telegram_creds() -> Tuple[Optional[str], Optional[str]]:
-    """Retrieve token and chat id from env or .env file."""
-    env_vals = dotenv_values(ENV_FILE) if ENV_FILE.exists() else {}
+def _load_env_values(env_file: Path = ENV_FILE) -> dict[str, str | None]:
+    """Load local env values with production fallback for release diagnostics."""
+    values: dict[str, str | None] = {}
+    for candidate in (env_file, PRODUCTION_ENV_FILE):
+        if candidate.exists():
+            values.update(dotenv_values(candidate))
+    return values
+
+
+def get_telegram_creds(env_file: Path = ENV_FILE) -> Tuple[Optional[str], Optional[str]]:
+    """Retrieve token and chat id from environment or env files."""
+    env_vals = _load_env_values(env_file)
     token = os.getenv("TELEGRAM_BOT_TOKEN") or env_vals.get("TELEGRAM_BOT_TOKEN")
     chat_id = os.getenv("TELEGRAM_CHAT_ID") or env_vals.get("TELEGRAM_CHAT_ID")
     return token, chat_id
@@ -110,11 +120,11 @@ def discover_chat_id(token: str, timeout_sec: int = 30) -> Optional[str]:
     return None
 
 
-def update_env(key: str, value: str):
+def update_env(key: str, value: str, env_file: Path = ENV_FILE) -> None:
     """Save variable to .env."""
     lines = []
-    if ENV_FILE.exists():
-        lines = ENV_FILE.read_text(encoding="utf-8").splitlines()
+    if env_file.exists():
+        lines = env_file.read_text(encoding="utf-8").splitlines()
     new_lines = []
     found = False
     for line in lines:
@@ -125,7 +135,7 @@ def update_env(key: str, value: str):
             new_lines.append(line)
     if not found:
         new_lines.append(f'{key}="{value}"')
-    ENV_FILE.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+    env_file.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
 
 
 def sync_github_secret(secret_name: str, secret_value: str) -> bool:
@@ -140,12 +150,12 @@ def sync_github_secret(secret_name: str, secret_value: str) -> bool:
         return False
 
 
-def run_diagnostics(interactive: bool = False):
+def run_diagnostics(interactive: bool = False, env_file: Path = ENV_FILE) -> None:
     print("=" * 70)
     print("🔍 [HoroConsultant] TELEGRAM INTEGRATION HEALTH & VERIFICATION DIAGNOSTICS")
     print("=" * 70)
 
-    token, chat_id = get_telegram_creds()
+    token, chat_id = get_telegram_creds(env_file)
 
     if not token:
         print("\n❌ สถานะ: ยังไม่ได้เชื่อมต่อ Telegram Bot Token (TELEGRAM_BOT_TOKEN is MISSING)")
@@ -176,7 +186,7 @@ def run_diagnostics(interactive: bool = False):
             discovered = discover_chat_id(token, timeout_sec=20)
             if discovered:
                 chat_id = discovered
-                update_env("TELEGRAM_CHAT_ID", chat_id)
+                update_env("TELEGRAM_CHAT_ID", chat_id, env_file)
                 sync_github_secret("TELEGRAM_CHAT_ID", chat_id)
             else:
                 print("❌ ไม่พบข้อความใหม่ สามารถค้นหา Chat ID ของท่านได้จากบอท @userinfobot")
@@ -197,6 +207,13 @@ def run_diagnostics(interactive: bool = False):
     print("=" * 70 + "\n")
 
 
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Verify Telegram notification configuration.")
+    parser.add_argument("--setup", "-i", action="store_true", help="Discover and persist TELEGRAM_CHAT_ID interactively")
+    parser.add_argument("--env-file", type=Path, default=ENV_FILE, help="Env file to update/read before .env.production fallback")
+    args = parser.parse_args()
+    run_diagnostics(interactive=args.setup, env_file=args.env_file)
+
+
 if __name__ == "__main__":
-    is_interactive = "--setup" in sys.argv or "-i" in sys.argv
-    run_diagnostics(interactive=is_interactive)
+    main()

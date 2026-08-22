@@ -67,6 +67,8 @@ def sync_github_secrets(valid_secrets: dict[str, str], dry_run: bool = False) ->
         "GOOGLE_AI_STUDIO_API_KEY",
         "GOOGLE_AI_STUDIO_API_KEY2",
         "GEMINI_API_KEY",
+        "TELEGRAM_BOT_TOKEN",
+        "TELEGRAM_CHAT_ID",
     ]
     for key in target_secrets:
         val = valid_secrets.get(key)
@@ -141,6 +143,7 @@ def sync_secrets_to_doppler(
         "Cloud & Edge Deployments (Azure, Fly.io & Vercel)": ["AZURE_RESOURCE_GROUP", "AZURE_CONTAINER_APP", "AZURE_CREDENTIALS", "AZURE_CONTAINER_APP_URL", "FLY_API_TOKEN", "VERCEL_TOKEN", "VERCEL_ORG_ID", "VERCEL_PROJECT_ID"],
         "Cloud GPU Training (Lightning AI & Kaggle)": ["LIGHTNING_API_KEY", "LIGHTNING_PROD_API_KEY", "KAGGLE_USERNAME", "KAGGLE_TOKEN"],
         "MLOps & GitHub": ["WANDB_KEY", "GH_TOKEN", "GH_TOTP_SECRET"],
+        "Incident Notifications": ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "DISCORD_WEBHOOK_URL", "SLACK_WEBHOOK_URL", "HEALTH_ALERT_WEBHOOK_URL"],
         "Infrastructure & Security": ["APP_ENV", "SECRET_KEY", "REDIS_URL", "AUTO_SYNC_ENABLED"],
     }
 

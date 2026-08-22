@@ -57,6 +57,35 @@ def test_doppler_auth_failure_never_prints_secret_values(
     assert canary not in logs
 
 
+def test_dry_run_includes_telegram_secret_names_without_values(
+    tmp_path, monkeypatch, caplog, capsys
+):
+    caplog.set_level("INFO", logger="doppler_sync")
+    module = _load_sync_module()
+    canary_token = "123456789:CANARY_VALUE_MUST_NEVER_APPEAR"
+    env_file = tmp_path / ".env.test"
+    env_file.write_text(
+        "\n".join(
+            [
+                f"TELEGRAM_BOT_TOKEN={canary_token}",
+                "TELEGRAM_CHAT_ID=987654321",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    success = module.sync_secrets_to_doppler(env_file, dry_run=True)
+    captured = capsys.readouterr()
+    output = "\n".join([captured.out, captured.err, caplog.text])
+
+    assert success is True
+    assert "TELEGRAM_BOT_TOKEN" in output
+    assert "TELEGRAM_CHAT_ID" in output
+    assert canary_token not in output
+    assert "987654321" not in output
+
+
 def test_release_scanner_detects_docker_hub_personal_access_tokens(
     tmp_path, monkeypatch
 ):
