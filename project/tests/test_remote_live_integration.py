@@ -4,6 +4,7 @@ project/tests/test_remote_live_integration.py
 Pytest Integration Tests against live production endpoints & Hugging Face Spaces.
 """
 
+import os
 import httpx
 import pytest
 
@@ -22,7 +23,11 @@ BROWSER_HEADERS = {
 }
 
 
+RUN_REMOTE_INTEGRATION = os.getenv("RUN_REMOTE_INTEGRATION", "").lower() in {"1", "true", "yes", "on"}
+
+
 @pytest.mark.network
+@pytest.mark.skipif(not RUN_REMOTE_INTEGRATION, reason="Remote integration requires explicit RUN_REMOTE_INTEGRATION=True")
 def test_live_remote_health():
     """Verify live remote GET /health on production gateway."""
     with httpx.Client(timeout=30.0) as client:
@@ -34,6 +39,7 @@ def test_live_remote_health():
 
 
 @pytest.mark.network
+@pytest.mark.skipif(not RUN_REMOTE_INTEGRATION, reason="Remote integration requires explicit RUN_REMOTE_INTEGRATION=True")
 def test_live_remote_cors_preflight():
     """Verify live remote OPTIONS preflight with CORS headers."""
     options_headers = {
@@ -49,6 +55,7 @@ def test_live_remote_cors_preflight():
 
 
 @pytest.mark.network
+@pytest.mark.skipif(not RUN_REMOTE_INTEGRATION, reason="Remote integration requires explicit RUN_REMOTE_INTEGRATION=True")
 def test_live_remote_bazi_calculate():
     """Verify live remote POST /api/v1/bazi/calculate on production gateway."""
     payload = {
@@ -64,6 +71,7 @@ def test_live_remote_bazi_calculate():
 
 
 @pytest.mark.network
+@pytest.mark.skipif(not RUN_REMOTE_INTEGRATION, reason="Remote integration requires explicit RUN_REMOTE_INTEGRATION=True")
 def test_live_remote_bazi_interpret():
     """Verify live remote POST /api/v1/bazi/interpret on production gateway."""
     payload = {
