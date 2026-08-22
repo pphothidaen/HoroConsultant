@@ -150,7 +150,7 @@ def test_guard_never_resumes_a_manual_or_current_period_shutdown():
     guard = _load_guard()
     current_period = datetime.now(timezone.utc).strftime("%Y-%m")
 
-    for tags in ({}, {"horoCostGuardSuspendedPeriod": current_period}):
+    for tags in (None, {}, {"horoCostGuardSuspendedPeriod": current_period}):
         calls: list[list[str]] = []
 
         def fake_run(command, _calls=calls, _tags=tags, **kwargs):

@@ -425,7 +425,7 @@ def resume_after_reset(
         ],
         runner,
     )
-    tags = tags_payload.get("properties", {}).get("tags", {})
+    tags = tags_payload.get("properties", {}).get("tags") or {}
     suspended_period = tags.get(COST_GUARD_TAG)
     if not suspended_period or suspended_period == decision.period:
         return False
