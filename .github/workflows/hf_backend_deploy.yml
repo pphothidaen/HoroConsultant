@@ -140,6 +140,29 @@ jobs:
         if: ${{ env.HF_BACKEND_SPACE_ID != '' }}
         run: python3 scripts/publish_space_hf.py --space-id "$HF_BACKEND_SPACE_ID" --sdk docker
 
+      - name: Capture redacted HF build log
+        if: always()
+        continue-on-error: true
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+          from huggingface_hub import HfApi
+
+          log_text = "".join(
+              HfApi(token=os.environ["HF_TOKEN"]).fetch_space_logs(
+                  os.environ["HF_BACKEND_SPACE_ID"],
+                  build=True,
+                  follow=False,
+              )
+          )
+          log_text = re.sub(r"hf_[A-Za-z0-9_-]{8,}", "[REDACTED_HF_TOKEN]", log_text)
+          log_text = re.sub(r"Bearer\s+\S+", "Bearer [REDACTED]", log_text, flags=re.IGNORECASE)
+          Path("hf-build.log").write_text(log_text, encoding="utf-8")
+          print(f"[INFO] Captured redacted HF build log ({len(log_text)} bytes)")
+          PY
+
       - name: Wait for public backend and verify complete path
         run: |
           if [ -n "${HF_BACKEND_SPACE_ID}" ]; then
@@ -172,4 +195,5 @@ jobs:
           path: |
             production-verification.json
             synthetic-health.json
+            hf-build.log
           if-no-files-found: warn
