@@ -162,8 +162,8 @@ def test_bazi_interpret_full_user_payload_regression():
     headers = {
         "accept": "*/*",
         "content-type": "application/json",
-        "origin": "https://pphothidaen-horoconsultant-core-backend.static.hf.space",
-        "referer": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html"
+        "origin": "https://pphothidaen-horoconsultant-core-backend.hf.space",
+        "referer": "https://pphothidaen-horoconsultant-core-backend.hf.space/index.html"
     }
     mock_ai = {
         "text": "บทวิเคราะห์วิเคราะห์ความแข็งแกร่งของ Day Master ธาตุทอง",
@@ -197,5 +197,4 @@ def test_prod_button_regression_report_pass_rate():
         assert data["passed_count"] >= 15, f"Expected at least 15 tested UI controls, got {data['passed_count']}"
     elif "summary" in data:
         assert data["summary"]["failed"] == 0 or data["summary"]["passed"] > 0
-
 

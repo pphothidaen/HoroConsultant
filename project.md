@@ -298,7 +298,7 @@ Percentage[E]  = Final[E] / Σ Final × 100%
 
 ## 6. Docker Deployment Checklist (Local Self-Hosted Reference)
 
-> **Note:** Production is deployed to **Vercel** (`https://horo-consultant-psi.vercel.app`) with serverless edge gateway and **Hugging Face Spaces** (`https://pphothidaen-horoconsultant-core-backend.static.hf.space`). The Docker checklist below is maintained for local self-hosted deployments.
+> **Note:** Production is deployed to **Vercel** (`https://horo-consultant-psi.vercel.app`) with serverless edge gateway and the **Hugging Face Docker Space** (`https://pphothidaen-horoconsultant-core-backend.hf.space`). The Docker checklist below is maintained for local self-hosted deployments.
 
 - [ ] `cp .env.example .env` and fill all vars
 - [ ] `docker compose up --build -d`

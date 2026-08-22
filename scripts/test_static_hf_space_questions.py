@@ -35,7 +35,7 @@ sys.path.insert(0, str(ROOT))
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger("static_hf_questions_test")
 
-HF_STATIC_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
+HF_STATIC_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
 PROD_GATEWAY_URL = os.environ.get("VERCEL_GATEWAY_URL", "https://horo-consultant-psi.vercel.app")
 
 # 7 Domain Question Categories

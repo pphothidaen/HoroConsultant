@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any, Callable, Mapping
 
 DEFAULT_VERCEL_GATEWAY_URL = "https://horo-consultant-psi.vercel.app"
-DEFAULT_HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
+DEFAULT_HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
 DEFAULT_HF_BACKEND_URL = "https://horo-consultant-psi.vercel.app"
 
 
@@ -138,8 +138,13 @@ def build_checks(
 ) -> list[dict[str, Any]]:
     """Build checks for the active production architecture."""
     env = os.environ if environment is None else environment
-    static_url = _configured_url(env.get("HF_STATIC_CDN_URL", DEFAULT_HF_STATIC_CDN_URL))
     backend_url = _backend_url_from_env(env)
+    static_space_id = env.get("HF_STATIC_SPACE_ID", "").strip()
+    backend_space_id = env.get("HF_BACKEND_SPACE_ID", "").strip()
+    if static_space_id and static_space_id == backend_space_id and backend_url:
+        static_url = backend_url
+    else:
+        static_url = _configured_url(env.get("HF_STATIC_CDN_URL", DEFAULT_HF_STATIC_CDN_URL))
     if not static_url:
         raise ValueError("HF_STATIC_CDN_URL must be a valid URL")
     if require_backend and not backend_url:

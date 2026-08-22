@@ -33,7 +33,7 @@ from typing import Any, Mapping
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_VERCEL_GATEWAY_URL = "https://horo-consultant-psi.vercel.app"
-DEFAULT_HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
+DEFAULT_HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
 DEFAULT_HF_BACKEND_URL = "https://horo-consultant-psi.vercel.app"
 DEFAULT_PING_INTERVAL_SECONDS = 300
 DEFAULT_MAX_LATENCY_MS = float(os.getenv("MAX_LATENCY_THRESHOLD_MS", "5000.0"))
@@ -58,8 +58,13 @@ def build_health_targets(
     a dedicated Hugging Face Docker Space and is required in production.
     """
     env = os.environ if environment is None else environment
-    hf_static_url = _base_url(env.get("HF_STATIC_CDN_URL", DEFAULT_HF_STATIC_CDN_URL))
     backend_url = _base_url(env.get("HF_BACKEND_URL", DEFAULT_HF_BACKEND_URL))
+    static_space_id = env.get("HF_STATIC_SPACE_ID", "").strip()
+    backend_space_id = env.get("HF_BACKEND_SPACE_ID", "").strip()
+    if static_space_id and static_space_id == backend_space_id and backend_url:
+        hf_static_url = backend_url
+    else:
+        hf_static_url = _base_url(env.get("HF_STATIC_CDN_URL", DEFAULT_HF_STATIC_CDN_URL))
 
     if not hf_static_url:
         raise ValueError("HF_STATIC_CDN_URL must not be empty")

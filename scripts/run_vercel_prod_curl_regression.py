@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-ORIGIN = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
+ORIGIN = "https://pphothidaen-horoconsultant-core-backend.hf.space"
 DEFAULT_BASE_URL = "https://horo-consultant-psi.vercel.app"
 DEFAULT_TIMEOUT_SECONDS = 45
 DEFAULT_RETRIES = 1

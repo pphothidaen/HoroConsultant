@@ -21,7 +21,7 @@ jobs:
       HF_BACKEND_SPACE_ID: ${{ vars.HF_BACKEND_SPACE_ID || secrets.HF_BACKEND_SPACE_ID || 'pphothidaen/horoconsultant-core-backend' }}
       HF_STATIC_SPACE_ID: ${{ vars.HF_STATIC_SPACE_ID || secrets.HF_STATIC_SPACE_ID || 'pphothidaen/horoconsultant-core-backend' }}
       HF_BACKEND_URL: ${{ secrets.HF_BACKEND_URL || vars.HF_BACKEND_URL || 'https://pphothidaen-horoconsultant-core-backend.hf.space' }}
-      HF_STATIC_CDN_URL: ${{ secrets.HF_STATIC_CDN_URL || vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
+      HF_STATIC_CDN_URL: ${{ secrets.HF_STATIC_CDN_URL || vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.hf.space' }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID || vars.AWS_ACCESS_KEY_ID || secrets.AWS_ACCESS_KEY || vars.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY || vars.AWS_SECRET_ACCESS_KEY || secrets.AWS_SECRET_KEY || vars.AWS_SECRET_KEY }}
       AWS_ENDPOINT_URL: ${{ secrets.AWS_ENDPOINT_URL || vars.AWS_ENDPOINT_URL }}
@@ -134,11 +134,16 @@ jobs:
           PY
 
       - name: Publish static frontend
+        if: ${{ env.HF_STATIC_SPACE_ID != '' && env.HF_STATIC_SPACE_ID != env.HF_BACKEND_SPACE_ID }}
         run: python3 scripts/publish_space_hf.py --space-id "$HF_STATIC_SPACE_ID" --sdk static
 
       - name: Publish Docker API backend
         if: ${{ env.HF_BACKEND_SPACE_ID != '' }}
         run: python3 scripts/publish_space_hf.py --space-id "$HF_BACKEND_SPACE_ID" --sdk docker
+
+      - name: Normalize same-space static origin
+        if: ${{ env.HF_STATIC_SPACE_ID != '' && env.HF_STATIC_SPACE_ID == env.HF_BACKEND_SPACE_ID }}
+        run: echo "HF_STATIC_CDN_URL=${HF_BACKEND_URL}" >> "$GITHUB_ENV"
 
       - name: Wait for public backend and verify complete path
         run: |

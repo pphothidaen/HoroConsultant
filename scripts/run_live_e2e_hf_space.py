@@ -2,7 +2,7 @@
 scripts/run_live_e2e_hf_space.py
 ==================================
 Live E2E Automation & Verification Suite for Hugging Face Production Space:
-https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html
+https://pphothidaen-horoconsultant-core-backend.hf.space/index.html
 
 Executes Playwright browser automation on the live hosted Space:
 1. Dynamic User Query 1 (Love & Relationships)
@@ -34,7 +34,7 @@ from playwright.async_api import async_playwright
 
 LIVE_BASE_URL = os.environ.get(
     "HF_LIVE_URL",
-    "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
+    "https://pphothidaen-horoconsultant-core-backend.hf.space"
 )
 SCREENSHOT_DIR = ROOT / "project" / "tests" / "screenshots" / "live_e2e"
 SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)

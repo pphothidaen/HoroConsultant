@@ -299,9 +299,9 @@ python3 scripts/publish_space_hf.py --dry-run
 ```
 
 **ลิงก์ใช้งานระบบบน Hugging Face Static Edge CDN:**
-- 🔮 **Main Dashboard**: `https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html`
-- 🔐 **Admin Panel**: `https://pphothidaen-horoconsultant-core-backend.static.hf.space/admin.html`
-- 🔬 **HITL Review Studio**: `https://pphothidaen-horoconsultant-core-backend.static.hf.space/hitl.html`
+- 🔮 **Main Dashboard**: `https://pphothidaen-horoconsultant-core-backend.hf.space/index.html`
+- 🔐 **Admin Panel**: `https://pphothidaen-horoconsultant-core-backend.hf.space/admin.html`
+- 🔬 **HITL Review Studio**: `https://pphothidaen-horoconsultant-core-backend.hf.space/hitl.html`
 
 ---
 
@@ -445,5 +445,4 @@ https://dashboard.doppler.com/workplace/4e65e3d95e9f71174b4e/projects/horo-consu
 4. **GitHub Actions Scheduled Automation:**
    - ตารางเวลาอัตโนมัติ: รันทุกวันอาทิตย์ เวลา 02:00 UTC ผ่าน `.github/workflows/scheduled_distill_finetune.yml`
    - รองรับการ Trigger แบบ Manual พร้อมเลือก Domain และ Format ได้ทันที
-
 

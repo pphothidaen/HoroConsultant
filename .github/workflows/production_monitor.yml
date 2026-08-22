@@ -31,7 +31,7 @@ jobs:
         env:
           HF_BACKEND_URL: ${{ vars.AZURE_PUBLIC_BACKEND_URL || env.AZURE_PUBLIC_BACKEND_URL || vars.HF_BACKEND_URL || 'https://horo-consultant-psi.vercel.app' }}
           VERCEL_GATEWAY_URL: ${{ vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
-          HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
+          HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.hf.space' }}
           HEALTH_ALERT_WEBHOOK_URL: ${{ secrets.HEALTH_ALERT_WEBHOOK_URL }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

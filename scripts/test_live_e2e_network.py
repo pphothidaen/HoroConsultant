@@ -32,7 +32,7 @@ logger = logging.getLogger("live_e2e_audit")
 import os
 
 VERCEL_PROD_URL = "https://horo-consultant-psi.vercel.app"
-HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
+HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
 AZURE_BACKEND_URL = os.getenv("AZURE_CONTAINER_APP_URL", "https://horoconsult-env-new.politepond-CHANGEME.southeastasia.azurecontainerapps.io")
 
 
