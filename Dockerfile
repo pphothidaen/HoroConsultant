@@ -8,7 +8,7 @@ FROM rust:1.97.1-bookworm AS rust-builder
 ARG GIT_COMMIT_HASH=unknown
 
 RUN apt-get update \
-    && apt-get install --yes --no-install-recommends python3 python3-dev python3-venv \
+    && apt-get install --yes --no-install-recommends python3 python3-dev python3-venv patchelf \
     && rm -rf /var/lib/apt/lists/* \
     && python3 -m venv /opt/build-venv \
     && /opt/build-venv/bin/python -m pip install --no-cache-dir maturin==1.14.1
