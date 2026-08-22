@@ -61,6 +61,8 @@ def test_requirement_f_no_openai_api_key_required(monkeypatch):
     monkeypatch.delenv("CODEX_PRO", raising=False)
     monkeypatch.delenv("OPENAI_BASE_URL", raising=False)
     monkeypatch.delenv("CODEX_PRO_BASE_URL", raising=False)
+    monkeypatch.setattr("project.core.ai_provider_router.check_codex_installation", lambda _cmd: True)
+    monkeypatch.setattr("project.core.ai_provider_router.check_codex_authentication", lambda _cmd: (True, None))
 
     router = AIProviderRouter()
     # Health check should not depend on API keys
@@ -106,6 +108,8 @@ def test_requirement_c_codex_not_authenticated_fallback(monkeypatch):
     """Requirement C: When Codex is not authenticated, fall back to Gemini."""
     router = AIProviderRouter()
     
+    monkeypatch.setattr("project.core.ai_provider_router.check_codex_installation", lambda _cmd: True)
+
     def mock_auth(cmd):
         return False, "not_authenticated"
     
