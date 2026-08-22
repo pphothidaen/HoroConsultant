@@ -16,4 +16,11 @@ exclude = [
     "rust_core/*.so",
     "rust_core/*.dylib",
     "rust_core/target",
+    "rust_core/target/**",
+    "rust_core/wheelhouse",
+    "rust_core/wheelhouse/**",
+    "target",
+    "target/**",
+    "wheelhouse",
+    "wheelhouse/**",
 ]
