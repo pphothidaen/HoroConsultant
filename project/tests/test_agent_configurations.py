@@ -16,12 +16,12 @@ SETTINGS_FILE = os.path.join(ROOT_DIR, "settings.json")
 
 
 def test_settings_json_default_agent():
-    """Verify settings.json specifies orchestrator as default_agent and Gemini 3.6 Flash (High)."""
+    """Verify settings.json routes intake to the flagship reasoning model."""
     assert os.path.exists(SETTINGS_FILE), f"Missing {SETTINGS_FILE}"
     with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
         settings = json.load(f)
     assert settings.get("default_agent") == "orchestrator"
-    assert settings.get("models", {}).get("default") == "Gemini 3.6 Flash (High)"
+    assert settings.get("models", {}).get("default") == "gpt-5.6-sol"
 
 
 def test_default_agent_is_an_explicit_orchestrator_router():
