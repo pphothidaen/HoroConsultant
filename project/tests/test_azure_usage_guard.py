@@ -141,6 +141,31 @@ def test_azure_cli_failure_diagnostic_includes_safe_stderr_excerpt():
     assert "hidden" not in message
 
 
+def test_azure_cli_429_is_retried_before_fail_closed(monkeypatch):
+    guard = _load_guard()
+    calls: list[list[str]] = []
+    sleeps: list[float] = []
+
+    monkeypatch.setenv("AZURE_USAGE_GUARD_RETRIES", "2")
+    monkeypatch.setenv("AZURE_USAGE_GUARD_RETRY_BACKOFF_SECONDS", "0")
+
+    def fake_run(command, **kwargs):
+        calls.append(command)
+        if len(calls) == 1:
+            return SimpleNamespace(
+                returncode=1,
+                stdout="",
+                stderr='ERROR: Too Many Requests({"error":{"code":"429"}})',
+            )
+        return SimpleNamespace(returncode=0, stdout='{"ok": true}', stderr="")
+
+    payload = guard._run_json(["az", "rest"], fake_run, sleeps.append)
+
+    assert payload == {"ok": True}
+    assert len(calls) == 2
+    assert sleeps == [0.0]
+
+
 def test_new_month_resumes_only_ingress_suspended_by_the_guard():
     guard = _load_guard()
     calls: list[list[str]] = []

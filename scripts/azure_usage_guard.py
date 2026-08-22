@@ -19,6 +19,7 @@ import math
 import os
 import subprocess
 import sys
+import time
 from collections.abc import Callable, Mapping
 from datetime import datetime, timezone
 from pathlib import Path
@@ -157,9 +158,33 @@ def evaluate_file(
 
 
 def _run_json(
-    command: list[str], runner: Callable[..., Any] = subprocess.run
+    command: list[str],
+    runner: Callable[..., Any] = subprocess.run,
+    sleeper: Callable[[float], Any] = time.sleep,
 ) -> Any:
-    result = runner(command, capture_output=True, text=True, check=False)
+    try:
+        retries = max(1, int(os.getenv("AZURE_USAGE_GUARD_RETRIES", "4")))
+    except ValueError:
+        retries = 4
+    try:
+        backoff_seconds = max(
+            0.0, float(os.getenv("AZURE_USAGE_GUARD_RETRY_BACKOFF_SECONDS", "8"))
+        )
+    except ValueError:
+        backoff_seconds = 8.0
+    result = None
+    for attempt in range(1, retries + 1):
+        result = runner(command, capture_output=True, text=True, check=False)
+        stderr = " ".join((result.stderr or "").split())
+        retryable = (
+            result.returncode != 0
+            and attempt < retries
+            and ("Too Many Requests" in stderr or '"code":"429"' in stderr)
+        )
+        if not retryable:
+            break
+        sleeper(backoff_seconds * attempt)
+    assert result is not None
     if result.returncode != 0:
         stderr = " ".join((result.stderr or "").split())[:400]
         suffix = f": {stderr}" if stderr else ""
