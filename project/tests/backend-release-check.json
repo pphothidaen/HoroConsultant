@@ -1,0 +1,26 @@
+{
+  "success": false,
+  "results": [
+    {
+      "target": "Hugging Face static UI",
+      "url": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/",
+      "passed": false,
+      "status": 0,
+      "latency_ms": 0.1
+    },
+    {
+      "target": "Hugging Face Docker backend health",
+      "url": "https://horo-consultant-psi.vercel.app/health",
+      "passed": false,
+      "status": 0,
+      "latency_ms": 0.1
+    },
+    {
+      "target": "Public backend deterministic API",
+      "url": "https://horo-consultant-psi.vercel.app/api/v1/ziwei/calculate?year=1990&month=5&day=15&hour=14&gender=male",
+      "passed": false,
+      "status": 0,
+      "latency_ms": 0.1
+    }
+  ]
+}

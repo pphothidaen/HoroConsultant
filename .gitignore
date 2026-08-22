@@ -36,4 +36,5 @@ project/data/runtime_response_cache.json
 *.so
 *.dylib
 *.log
+*.egg-info/
 project/kaggle_kernel/horoconsultant-finetune-pipeline.log

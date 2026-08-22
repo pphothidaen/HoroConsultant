@@ -1,0 +1,26 @@
+{
+  "success": false,
+  "results": [
+    {
+      "target": "Hugging Face static UI",
+      "url": "https://static.hf.space/index.html",
+      "passed": false,
+      "status": 0,
+      "latency_ms": 16.6
+    },
+    {
+      "target": "Hugging Face Docker backend health",
+      "url": "https://core-backend.hf.space/health",
+      "passed": false,
+      "status": 0,
+      "latency_ms": 0.2
+    },
+    {
+      "target": "Public backend deterministic API",
+      "url": "https://core-backend.hf.space/api/v1/ziwei/calculate?year=1990&month=5&day=15&hour=14&gender=male",
+      "passed": false,
+      "status": 0,
+      "latency_ms": 0.2
+    }
+  ]
+}

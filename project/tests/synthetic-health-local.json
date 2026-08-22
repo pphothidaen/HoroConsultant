@@ -1,0 +1,28 @@
+{
+  "timestamp_utc": "2026-08-17T16:22:27Z",
+  "all_critical_healthy": false,
+  "healthy_count": 0,
+  "target_count": 2,
+  "results": [
+    {
+      "target": "Hugging Face Static UI /index.html",
+      "url": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html",
+      "status": 404,
+      "latency_ms": 311.2,
+      "healthy": false,
+      "latency_degraded": false,
+      "critical": true,
+      "error": "HTTP 404: Not Found"
+    },
+    {
+      "target": "Hugging Face Docker Backend /health",
+      "url": "https://pphothidaen-horoconsultant-core-backend.hf.space/health",
+      "status": 503,
+      "latency_ms": 1114.9,
+      "healthy": false,
+      "latency_degraded": false,
+      "critical": true,
+      "error": "HTTP 503: Service Unavailable"
+    }
+  ]
+}

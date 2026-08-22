@@ -1,0 +1,47 @@
+{
+  "timestamp": "2026-08-17T16:22:11Z",
+  "results": [
+    {
+      "host": "horo-consultant-psi.vercel.app",
+      "dns_ok": true,
+      "dns_error": null,
+      "https_status": 200,
+      "https_error": null
+    },
+    {
+      "host": "pphothidaen-horoconsultant-core-backend.hf.space",
+      "dns_ok": true,
+      "dns_error": null,
+      "https_status": null,
+      "https_error": "<HTTPError 503: 'Service Unavailable'>"
+    },
+    {
+      "host": "pphothidaen-horoconsultant-core-backend.static.hf.space",
+      "dns_ok": true,
+      "dns_error": null,
+      "https_status": null,
+      "https_error": "<HTTPError 404: 'Not Found'>"
+    },
+    {
+      "host": "api.github.com",
+      "dns_ok": true,
+      "dns_error": null,
+      "https_status": 200,
+      "https_error": null
+    },
+    {
+      "host": "pypi.org",
+      "dns_ok": true,
+      "dns_error": null,
+      "https_status": 200,
+      "https_error": null
+    },
+    {
+      "host": "playwright.dev",
+      "dns_ok": true,
+      "dns_error": null,
+      "https_status": 200,
+      "https_error": null
+    }
+  ]
+}

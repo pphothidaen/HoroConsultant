@@ -2,8 +2,9 @@
 
 **Project:** HoroConsultant — Computational Metaphysics Engine  
 **Lead Agent:** Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
-**Status:** APPROVED & ACTIVE  
-**Last Updated:** 2026-08-08 13:40 (UTC+7)
+**Status:** APPROVED; implementation evidence complete, release handoff externally blocked
+**Last Updated:** 2026-08-21 14:16 (UTC+7)
+**Ticket disposition:** Benchmark and prompt/debate routing are closed under `TICKET-META-004`; the only remaining release gates are `TICKET-META-005`/`006` in [`PROJECT_TASKS.md`](../PROJECT_TASKS.md).
 
 ---
 

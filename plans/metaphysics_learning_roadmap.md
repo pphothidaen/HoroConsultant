@@ -1,6 +1,7 @@
 # ☯️ Roadmap การเรียนรู้ คำนวณ และสกัดคัมภีร์โหราศาสตร์จีน 5 สายวิชา (五術 Metaphysics Roadmap)
 > **โปรเจกต์:** HoroConsultant (Computational Metaphysics Engine)  
 > **เป้าหมาย:** สกัดคัมภีร์โบราณ พัฒนาโมดูลคำนวณคณิตศาสตร์บริสุทธิ์ และขยาย RAG/Fine-Tuning Dataset ให้ครอบคลุม 5 สายวิชาหลัก
+> **Current disposition (2026-08-21):** Implementation scope is evidenced as complete through `TICKET-META-002`/`003`; release closure remains tracked by `TICKET-META-005`/`006` in [`PROJECT_TASKS.md`](../PROJECT_TASKS.md). Do not infer a production-release claim from this roadmap alone.
 
 ---
 

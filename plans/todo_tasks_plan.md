@@ -2,6 +2,8 @@
 
 **Goal**: Execute the remaining tasks in the `📋 TODO` section of `PROJECT_TASKS.md` following the AI SDLC Workflow (`.agents/workflows/aisdlc.md`).
 
+> **Current disposition (2026-08-21):** Tasks 1–6 have implementation and focused-test evidence under `TICKET-META-003`/`004`. CI/CD release verification remains explicitly blocked under `TICKET-META-005`/`006`; see [`PROJECT_TASKS.md`](../PROJECT_TASKS.md) for owner, gate, and recovery action. This plan is retained for traceability, not as an unstarted backlog.
+
 ---
 
 ## Task Breakdown & Roadmap
@@ -40,7 +42,7 @@
 ### Task 6: Consultant Web UI Enhancements (Frontend Glassmorphism)
 - **Objective**: Enhance `project/static/` web interface with interactive 4-Pillar visual display, element dynamic balance graphs, and consultant chat interaction UI.
 - **Deliverables**:
-  - UI updates in `project/static/index.html`, `project/static/app.js`, `project/static/styles.css`.
+  - UI updates in `project/static/index.html`, `project/static/app.js`, `project/static/style.css`.
   - Verified with Web Regression test suite.
 
 ---

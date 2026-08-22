@@ -1,0 +1,10 @@
+{
+  "/tmp/pytest_smoke_local.txt": true,
+  "/tmp/quality_gate.txt": true,
+  "/tmp/code_reviewer.txt": true,
+  "/tmp/sync_sdlc.txt": true,
+  "/tmp/sync_codex.txt": true,
+  "project/tests/network-dns-probe.json": true,
+  "project/tests/backend-release-check.json": true,
+  "project/tests/local_release_readiness_2026-08-17.md": true
+}

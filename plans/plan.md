@@ -642,7 +642,7 @@
      - Update `/api/v1/bazi/interpret` and `/api/v2/interpret/focused` in `project/routers/v2.py` and `project/api_router.py` to accept `language: Optional[str] = "th"`.
      - Inject strict language directives into system prompts in `project/core/question_focus_router.py` and `project/core/llm_gateway.py` ensuring LLM generates fluid, high-quality analysis in the requested target language (`Thai`, `English`, or `Simplified/Traditional Chinese`).
   4. **Verification & Quality Assurance Suite**:
-     - Automated unit tests in `project/tests/test_i18n.py` and `project/tests/test_svg_i18n.py`.
+     - Automated unit tests in `project/tests/test_i18n.py` and `project/tests/test_svg_i18n.py` (both present and passing).
      - Full Pytest regression suite (>525 tests), 32/32 Button Regression, and Playwright E2E visual verification.
      - Pre-deployment audit `READY_FOR_PROD` (0 secret leaks) and live production deployment to Hugging Face Spaces.
 - **OUT**: Modifying Kaggle accelerator locks, changing core BaZi mathematical algorithms, or Doppler secrets policy.
@@ -651,7 +651,7 @@
 - **New Additions**:
   - Add client-side i18n engine (`public/i18n.js` and `project/static/i18n.js`) with comprehensive TH/EN/ZH translation matrices.
   - Add `lang` argument to `generate_*_svg` functions in `project/core/svg_generator.py`.
-  - Add `language` field to interpretation request schemas in `project/schemas/` and routers.
+  - Add `language` field to interpretation request models (inline router schemas) and routers.
   - Add `test_i18n.py` and `test_svg_i18n.py`.
 - **Cleaned Up**:
   - Clean up hardcoded Thai-only strings in chart rendering functions to use localized dictionaries with safe Thai fallback.
@@ -1115,10 +1115,12 @@
 
 # AI SDLC Master Implementation Plan: Skill Context Budget Optimization & Multi-Agent Architecture Refactoring
 
+> **Current execution disposition (2026-08-21):** Historical Phase 1–16 grill reports below are retained as completion evidence. Active/future platform, governance, observability, provider, and release work is tracked by `TICKET-META-005` and `TICKET-META-006` in [`PROJECT_TASKS.md`](../PROJECT_TASKS.md). Local release gates pass (code review: 621 passed, 8 skipped; project suite: 582 passed, 8 skipped; quality gate 4/4; 0 secret leaks across 1,507 files; agent sync clean), but those tickets remain externally blocked until Azure RBAC, canonical-HF health, release-CI, and authorized production Playwright evidence are all green.
+
 **Project:** HoroConsultant — Computational Metaphysics Engine  
 **Target Framework:** Antigravity CLI AI SDLC System + Codex compatibility layer  
 **Lead Agent:** Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
-**Last Updated:** 2026-08-16 12:52:00 +07 — Executing All Phased Roadmap Items (Continuous MLOps, Hybrid LLM Provider, Grafana Tuning)
+**Last Updated:** 2026-08-21 15:43 +07 — parent code review revalidated; externally blocked release work remains under `TICKET-META-005`/`006`
 
 ---
 
@@ -1304,6 +1306,14 @@ flowchart LR
 1. **Zero Hallucination Guard**: System MUST enforce deterministic Rust PyO3 calculation for BaZi Day Master, Five Elements percentages, and ZiWei Palaces. AI models MUST NOT modify computed chart parameters.
 2. **Graceful Fallback**: If Tier 1 & Tier 2 fail, response fallback MUST return raw calculation structured output with localized astrological rule summaries within < 100ms.
 3. **Budget Limit**: Monthly cloud API expenditure capped at **$0.00** baseline using local session CLI routing and Gemini free tier.
+4. **Quota Exhaustion / Account Migration Guard**: Before assistant quota or account context is exhausted, update `PROJECT_TASKS.md` ticket `TICKET-META-008` with scoped commits, unresolved external gates, non-secret credential status, and safe resume commands. Do not move secrets into documentation; record only whether GitHub CLI, Doppler CLI, Telegram token, and Telegram chat ID are present/valid.
+
+### 4. Account Migration Continuity
+- Canonical handoff state lives in `PROJECT_TASKS.md` under `TICKET-META-008`; account-specific chat summaries are secondary and must not replace the board.
+- If a new account resumes work, start with secret-safe validation only: `gh auth status`, `doppler me`, `python3 project/core/code_reviewer.py --scan-secrets`, and the Telegram focused pytest suite.
+- If unrelated dirty files remain, preserve them in place, review by ownership batch, commit scoped accepted work separately, quarantine only reviewed generated artifacts, and clean quarantined files after 7 stable operating days.
+- Credential state must be expressed as present/missing/invalid only. Never paste GitHub, Doppler, Telegram, Hugging Face, or cloud provider token values into the plan.
+- Governance hooks and skills must route low-quota checks through `scripts/agent_quota_status_guard.py`; when the guard reports quota below 10%, update `PROJECT_TASKS.md` `TICKET-META-008` and this section before continuing broad work.
 
 ---
 
