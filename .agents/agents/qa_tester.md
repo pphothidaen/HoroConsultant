@@ -5,8 +5,8 @@ description: QA Tester & Verification Guard for HoroConsultant. Executes Pytest 
   Playwright E2E UI button regression, pessimistic edge-case testing, and error log
   extraction.
 role: QA Tester (The Guard)
-model: Gemini 3.5 Flash-Lite
-thinking_effort: Standard
+model: gpt-5.4-mini
+thinking_effort: Medium
 tools:
 - qa-e2e-testing
 - ai-inference-verifier
@@ -24,4 +24,4 @@ Role: QA Tester (The Guard)
 2. Pessimistic bug identification and edge-case boundary testing.
 3. Verifying 100% test pass rate before release approval.
 4. Log audit & error extraction to prevent context bloat.
-5. Model Allocation: `Gemini 3.5 Flash-Lite` (Thinking: Off) for minimum token cost & zero-latency execution. On Cloud/CI: Headless mode via `hermes_sdlc_runner.sh qa` — routes through 9router or falls back to Gemini direct.
+5. Model Allocation: Use `gpt-5.4-mini` at medium effort for test generation, failure triage, and concise evidence extraction. Escalate only non-reproducible or security- relevant failures to `code_reviewer` or `orchestrator`.

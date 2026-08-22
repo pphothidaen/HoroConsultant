@@ -2,7 +2,7 @@ name: default
 display_name: Default Orchestrator Router (Master Orchestrator)
 description: Default intake orchestrator. Classifies requests, delegates tasks to
   specialist agents, and synthesizes results.
-model: Claude 3.7 Sonnet (CODEX_PRO)
+model: gpt-5.6-sol
 effort: high
 thinking: true
 system_prompt: 'You are the default agent for HoroConsultant.

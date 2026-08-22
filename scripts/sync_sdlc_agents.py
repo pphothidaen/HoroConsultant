@@ -61,14 +61,15 @@ def build_antigravity_yaml(agent_data: dict[str, Any], override_name: str | None
     name = override_name or agent_data["name"]
     display_name = agent_data.get("display_name", agent_data.get("role", name))
     model = agent_data.get("model", "Gemini 3.6 Flash")
-    thinking = agent_data.get("thinking", False) or "High" in str(agent_data.get("thinking_effort", ""))
+    effort = str(agent_data.get("effort", agent_data.get("thinking_effort", "standard"))).lower()
+    thinking = agent_data.get("thinking", False) or effort in {"high", "xhigh", "max"}
 
     ag_dict = {
         "name": name,
         "display_name": display_name if isinstance(display_name, str) else name,
         "description": agent_data.get("description", ""),
         "model": model,
-        "effort": "high" if thinking else "standard",
+        "effort": effort,
         "thinking": bool(thinking),
         "system_prompt": agent_data.get("system_prompt", ""),
         "tools": agent_data.get("tools", []),
@@ -82,7 +83,9 @@ def build_agent_json(agent_data: dict[str, Any]) -> str:
     """Converts agent dict to JSON spec format for Antigravity CLI."""
     name = agent_data["name"]
     role = agent_data.get("display_name", name)
-    thinking_effort = "High" if agent_data.get("thinking") else "Standard"
+    thinking_effort = str(
+        agent_data.get("effort", "high" if agent_data.get("thinking") else "standard")
+    ).title()
 
     json_dict = {
         "name": name,
@@ -107,7 +110,9 @@ def build_agent_md(agent_data: dict[str, Any]) -> str:
         "description": agent_data.get("description", ""),
         "role": role,
         "model": agent_data.get("model", "Gemini 3.6 Flash"),
-        "thinking_effort": "High" if agent_data.get("thinking") else "Standard",
+        "thinking_effort": str(
+            agent_data.get("effort", "high" if agent_data.get("thinking") else "standard")
+        ).title(),
         "tools": agent_data.get("tools", [])
     }
 

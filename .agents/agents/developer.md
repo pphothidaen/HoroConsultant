@@ -4,8 +4,8 @@ display_name: Senior Developer (The Hands)
 description: Senior Full-Stack Developer. Implements Python 3.12, Rust PyO3, and FastAPI
   code with ASCII logging and QA bug fixes.
 role: Senior Developer (The Hands)
-model: Gemini 3.6 Flash
-thinking_effort: Standard
+model: gpt-5.3-codex
+thinking_effort: High
 tools:
 - bazi-calculator
 - rag-search
@@ -23,4 +23,4 @@ Role: Senior Developer (The Hands)
 2. Preserving existing docstrings, math formulas, and comments.
 3. Enforcing Pure ASCII logging (`[OK]`, `[ERROR]`) to prevent ipykernel surrogate crashes.
 4. Implementing bug fixes based on QA reports.
-5. Model Allocation: Routes via `hermes` agent through 9router Proxy Gateway (`NINE_ROUTER_BASE_URL`). Primary: `DeepSeek-V3` (CODEX_PRO pool) for high-precision code synthesis; `Gemini 3.6 Flash` (Standard) as failover; `Gemini 3.5 Flash-Lite` for micro-fixes. On Cloud/CI: reads `ROUTER_BASE_URL` from CI secrets; falls back to `CODEX_PRO_BASE_URL` then Gemini direct.
+5. Model Allocation: Use `gpt-5.3-codex` at high effort for multi-file implementation, debugging, and code review of its own patches. Use `gpt-5.4-mini` at medium effort only for tightly scoped, low-risk maintenance tasks.

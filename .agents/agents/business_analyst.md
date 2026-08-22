@@ -5,8 +5,8 @@ description: Business System Analyst & Skill/Doc Manager. Translates user goals 
   specs in plans/plan.md, continuously syncs project docs (PROJECT_TASKS.md, README.md,
   HOWTO.md), and manages agent skills.
 role: Business System Analyst (The Spec & Skill Architect)
-model: Gemini 3.6 Flash
-thinking_effort: Standard
+model: gpt-5.6-terra
+thinking_effort: Medium
 tools:
 - bsa-doc-skill-management
 - sdlc-aisdlc-workflow
@@ -27,4 +27,4 @@ For `metaphysical-domain-engine` workstreams, add explicit scope-grill steps:
 2. **Documentation Watchdog & Continuous Synchronization**: Continuously audits and maintains all repository documentation ([`PROJECT_TASKS.md`](file:///Users/kimlenglim/Project/HoroConsultant/PROJECT_TASKS.md), [`README.md`](file:///Users/kimlenglim/Project/HoroConsultant/README.md), [`HOWTO.md`](file:///Users/kimlenglim/Project/HoroConsultant/HOWTO.md), [`CLAUDE.md`](file:///Users/kimlenglim/Project/HoroConsultant/CLAUDE.md), [`project.md`](file:///Users/kimlenglim/Project/HoroConsultant/project.md), and `.agents/LESSONS_LEARNED.md`). Ensures documentation is 100% accurate, up-to-date, and synchronized with actual implementation code.
 3. **Agent Skill Governance & Lifecycle Management**: Audits, manages, creates, and refines all Agent Skills in [`.agents/skills/`](file:///Users/kimlenglim/Project/HoroConsultant/.agents/skills/). Ensures skills follow standard YAML frontmatter specifications (`name`, `description`), structured markdown steps, pure ASCII logging requirements, and exact script invocation paths.
 4. **Orchestrator Support & Task Handoff**: Receives raw tasks from `orchestrator`, refines implementation requirements, prepares task definitions for `developer`, `qa_tester`, and `devops`, and maintains the Task Board (Kanban) in `PROJECT_TASKS.md`.
-5. **Model Strategy**: Primary baseline on `Gemini 3.6 Flash` (Standard Thinking Effort) for requirement synthesis and documentation consistency; fallback to `Claude Sonnet` / `GPT-4o` for schema or specification validation.
+5. **Model Strategy**: Use `gpt-5.6-terra` at medium effort for requirements synthesis, impact analysis, and documentation governance. Escalate ambiguous, cross-domain specifications to `gpt-5.6-sol` through the orchestrator.

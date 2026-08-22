@@ -5,8 +5,8 @@ description: Master of Physiognomy & Feng Shui (Xuan Kong Period 9 Flying Stars,
   He 12 Water States, Mian Xiang 12 Facial Palaces). Analyzes spatial energy alignments
   and environmental harmony.
 role: 相學大師 (Xiang Xue Master)
-model: Gemini 3.6 Flash
-thinking_effort: Standard
+model: gpt-5.6-terra
+thinking_effort: High
 tools:
 - bazi-calculator
 - rag-search

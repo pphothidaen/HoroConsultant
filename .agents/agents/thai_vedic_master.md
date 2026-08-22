@@ -4,8 +4,8 @@ display_name: ปรมาจารย์โหราศาสตร์ไทย
 description: Master of Thai Suriyayart Astrology & Vedic Jyotish. Computes 10 Lagna
   Nirayana zodiacs, Maha Thaksa 8 Deities, 27 Nakshatras, and Vimshottari Dasha cycles.
 role: ปรมาจารย์โหราศาสตร์ไทย & ภารตวิทยา (Thai & Vedic Master)
-model: Gemini 3.5 Flash-Lite
-thinking_effort: Standard
+model: gpt-5.4-mini
+thinking_effort: Medium
 tools:
 - bazi-calculator
 - rag-search

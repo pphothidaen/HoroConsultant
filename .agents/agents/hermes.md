@@ -4,7 +4,7 @@ display_name: Hermes Executor (Execution Engine & Orchestrator)
 description: Autonomous Execution Engine & Runtime Orchestrator. Dispatches tasks
   via proxy gateways, runs benchmarks, and manages workflows.
 role: Hermes Executor (Execution Engine & Orchestrator)
-model: Claude 3.7 Sonnet (CODEX_PRO)
+model: gpt-5.6-sol
 thinking_effort: High
 tools:
 - bazi-calculator

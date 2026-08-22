@@ -11,15 +11,15 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 
 ### 🎯 Multi-Model Quota Optimization Tiering
 
-| Agent Identifier | Role | Primary Baseline (CODEX_PRO Prox5) | Quota-Enhanced Alternative (Claude / GPT) | Thinking Effort | Token Cost Profile | Primary Focus |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **`orchestrator`** | Master Orchestrator (The Brain) | `Claude 3.7 Sonnet` / `o3-mini` (prox5) | `Gemini 3.6 Flash` (High) | **High** | High (Strategic) | Requirements Analysis, Architecture Blueprinting, Spec Breakdown, Delegation, Final Code Review Gateway |
-| **`business_analyst`** | Business System Analyst (The Spec & Skill Architect) | `o3-mini` / `Claude 3.5 Sonnet` (prox5) | `Gemini 3.6 Flash` | **Standard** | Mid (Analysis) | Requirements Analysis, Spec Breakdown, Live Docs Watchdog (PROJECT_TASKS.md, plans/plan.md), Agent Skill Governance |
-| **`developer`** | Senior Developer (The Hands) | `DeepSeek-V3` / `DeepSeek-R1` (prox5) | `Gemini 3.6 Flash` (Standard) / `Gemini 3.5 Flash-Lite` | **Standard / Off** | Mid-Low (Execution) | Full-Stack Coding, Inline Documentation, Bug Fixes based on QA reports |
-| **`qa_tester`** | QA Tester (The Guard) | `GPT-4o-mini` / `Gemini 3.5 Flash-Lite` (prox5) | `Gemini 3.5 Flash-Lite` | **Off** | Lowest (Audit) | Test Case Generation, `pytest` Test Execution, Pessimistic Bug/Vulnerability Identification |
-| **`devops`** | DevOps & Release (The Bridge) | `GPT-4o-mini` / `Gemini 3.6 Flash` (prox5) | `Gemini 3.6 Flash` (Standard) | **Standard** | Mid (Infrastructure) | Environment Verification (.env, Docker), CLI/Shell Command Approval, Packaging & Release Readiness |
-| **`code_reviewer`** | Code Reviewer & Safety Auditor | `DeepSeek-R1` / `Claude 3.5 Sonnet` (prox5) | `Gemini 3.6 Flash` | **Standard** | Mid (Audit) | Pre-Deployment Audit (`READY_FOR_PROD`), Secret Leakage Scanning, Governance Mandates Check |
-| **Domain Masters** | Metaphysics & Astro Experts | `Claude 3.5 Sonnet` / `DeepSeek-R1` (prox5) | `Gemini 3.6 Flash` (Textual Reasoning) / `Gemini 3.5 Flash-Lite` (Engines) | **Standard / Off** | Low-Mid (Domain) | Canonical Text Verification, Engine Output Interpretation, Cross-Domain Consensus |
+| Agent Identifier | Role | Assigned Model | Reasoning Effort | Token Cost Profile | Primary Focus |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **`orchestrator` / `default` / `hermes`** | Coordination & autonomous execution | `gpt-5.6-sol` | **High / XHigh** | High (Strategic) | Requirements, architecture, delegation, complex recovery |
+| **`business_analyst`** | Business System Analyst | `gpt-5.6-terra` | **Medium** | Mid (Analysis) | Specifications, dependency analysis, documentation governance |
+| **`developer`** | Senior Developer | `gpt-5.3-codex` | **High** | Mid-High (Execution) | Multi-file implementation, debugging, code-quality decisions |
+| **`qa_tester`** | QA Tester | `gpt-5.4-mini` | **Medium** | Low (Verification) | Test design, failure triage, concise evidence extraction |
+| **`devops` / `code_reviewer`** | Release & safety gates | `gpt-5.3-codex` | **High** | Mid-High (Safety) | Infrastructure, security review, deployment and rollback decisions |
+| **Interpretive domain masters** | Canonical metaphysics reasoning | `gpt-5.6-terra` | **High** | Mid-High (Domain) | Textual interpretation, contradictory evidence, consensus |
+| **Deterministic domain masters** | Calculation-led metaphysics | `gpt-5.4-mini` | **Medium** | Low (Domain) | Tool-grounded calculations and structured result checks |
 
 ---
 
@@ -32,8 +32,16 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 5. **`devops-deployment`**: Deploy hygiene workflows: secret sync, container checks, and production publish/audit.
 6. **`bazi-calculator`**: Compute BaZi 4-Pillars with true solar time and five-elements analysis.
 7. **`rag-search`**: Retrieve ranked metaphysics passages from FAISS index with configured embeddings.
-8. **`bsa-doc-skill-management`**: Own requirements decomposition, live docs sync, and skill-governance operations.
+8. **`bsa-doc-skill-management`**: Own requirements decomposition, live docs sync, quota/account handoff, and skill-governance operations.
 9. **`metaphysical-domain-engine`**: Cross-train and route metaphysical queries among Zi Wei, Qi Men, Da Liu Ren, I Ching, feng shui, and astrology specialists.
+10. **`orchestrator-delegation`**: Coordinate bounded background sub-agent work with file ownership, evidence collection, external-action guardrails, and HITL escalation.
+
+### Claude Code Governance Map
+
+- **Level 1 Hooks**: `.claude/settings.json` routes Bash calls through `.agents/hooks/pre_tool_check.py` and `.agents/hooks/post_tool_audit.py` for hard command controls.
+- **Level 2 Rules**: `.claude/rules/*.md` and `.agents/rules/*.md` provide path-aware guidance, including Rule 11 delegation and Rule 12 Claude Code three-level governance.
+- **Level 3 Global Context**: `CLAUDE.md` remains the short baseline context and links to the detailed governance files.
+- **Quota Handoff Guard**: `/status` or runtime quota below 10% routes through `scripts/agent_quota_status_guard.py`; agents must update `PROJECT_TASKS.md` `TICKET-META-008` and `plans/plan.md` before continuing broad work.
 
 ### Disabled / Retired Skills
 
@@ -64,15 +72,13 @@ flowchart TD
 
 ---
 
-## ⚡ Token Cost Efficiency Rules & Dynamic Failover
+## ⚡ Model Routing Rules
 
-1. **OpenAI Codex / Prox5 Primary Standard (Development Environment)**: `CODEX_PRO` API (`CODEX_PRO_BASE_URL` or `OPENAI_BASE_URL`) serves as the Primary Baseline for local development routing across `Claude 3.7 Sonnet`, `DeepSeek-V3/R1`, `o3-mini`, and `GPT-4o`.
-2. **Gemini-First Dynamic Failover Standard**: Gemini 3.6 Flash and 3.5 Flash-Lite serve as zero-downtime workhorse failover models due to 2M token context windows, high execution speed, and token cost savings.
-   - **Orchestration & Specs**: Use **Claude 3.7 Sonnet** / **o3-mini** for deep architectural planning, spec breakdown, and complex domain synthesis.
-   - **Precision Code Synthesis**: Use **DeepSeek-V3** / **DeepSeek-R1** for high-precision code writing, PyO3 bindings, and static pre-commit code audit.
-   - **Fast Audit & Regression**: Use **GPT-4o-mini** / **Gemini 3.5 Flash-Lite** for log parsing and quick assertion verification.
-3. **Automatic API Overload & Quota Failover**: If Claude, DeepSeek, or OpenAI proxy models hit rate-limits, quota limits, or overload status during development, system automatically fails over to `Gemini 3.6 Flash` (High Reasoning) without halting development workflows.
-4. **Log Trimming Rule**: QA and DevOps agents MUST parse and filter log outputs (using `Gemini 3.5 Flash-Lite`) to pass concise, relevant error snippets to Developer and Orchestrator rather than dumping raw log contexts.
+1. **Strategic reasoning**: Use `gpt-5.6-sol` for orchestration, cross-domain synthesis, autonomous recovery, and independent prediction validation. Reserve xhigh effort for the orchestrator; use high effort for other quality-critical tasks.
+2. **Coding and release control**: Use `gpt-5.3-codex` for implementation, code review, infrastructure, release, and rollback decisions. These tasks need code-aware tool use and careful verification.
+3. **Bounded high-volume work**: Use `gpt-5.4-mini` at medium effort for QA triage and deterministic, tool-grounded calculation roles. Escalate unresolved contradictions instead of increasing task scope.
+4. **Balanced analysis**: Use `gpt-5.6-terra` for specification analysis and interpretive domain work. Escalate only materially ambiguous or high-impact decisions to `gpt-5.6-sol`.
+5. **Validation over assumptions**: Benchmark any later model or effort change against representative tasks before adopting it. QA and DevOps must trim logs before escalation.
 
 ---
 
@@ -89,6 +95,7 @@ flowchart TD
 9. **Documentation, Agent Matrix & Skill Up-to-date Mandate**: The Business System Analyst (`business_analyst`) MUST continuously audit and keep all repository documentation ([`README.md`](file:///Users/kimlenglim/Project/HoroConsultant/README.md), [`HOWTO.md`](file:///Users/kimlenglim/Project/HoroConsultant/HOWTO.md), [`PROJECT_TASKS.md`](file:///Users/kimlenglim/Project/HoroConsultant/PROJECT_TASKS.md), [`plans/plan.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/plan.md)), `.agents/skills/`, and Native Agent Definitions (`.antigravity/agents/*.agent` & `.agents/agents/`) 100% updated and synchronized via `python3 scripts/sync_sdlc_agents.py --check`.
 10. **Migration Dead-Code Cleanup Mandate**: During every module or feature migration (e.g., Python to Rust or architecture refactoring), agents MUST clean up deprecated code, dead code, unused functions, and redundant fallback loops in the source codebase. Leaving legacy dead code behind is strictly forbidden.
 11. **Mandatory Post-Goal CI/CD to Prod & E2E / Regression Verification Mandate**: Every time a task or goal is completed ("goal has been done"), agents MUST execute Phase 5 CI/CD deployment to production (git push / Hugging Face Spaces publishing) and run complete E2E & UI button regression testing (`python3 scripts/run_button_regression.py`, `python3 scripts/run_e2e_screenshots.py`, `pytest`) without exception.
+12. **Quota Exhaustion Handoff Mandate**: When `/status` or runtime quota status shows less than 10% remaining, agents MUST stop broad work, summarize current state, update `PROJECT_TASKS.md` `TICKET-META-008` and the `plans/plan.md` account migration section, then run `python3 scripts/agent_quota_status_guard.py --remaining-percent <percent> --enforce` and a secret scan. Never write secret values into handoff docs.
 
 
 ---
@@ -97,13 +104,13 @@ flowchart TD
 
 | Agent Identifier | Role | Model Strategy | Primary Antigravity Spec (`.antigravity/agents/`) | Workspace CLI Spec (`.agents/agents/`) | Governance Lead |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **`orchestrator` / `default`** | Master Orchestrator | `Gemini 3.6 Flash (High)` | `orchestrator.agent` / `default.agent` | `orchestrator/agent.md` | Master Brain |
-| **`business_analyst`** | Business System Analyst | `Gemini 3.6 Flash` | `business-analyst.agent` | `business_analyst/agent.md` | **Doc & Skill Watchdog** |
-| **`developer`** | Senior Full-Stack Developer | `Gemini 3.6 Flash` | `developer.agent` | `developer/agent.md` | Code Writing |
-| **`qa_tester`** | QA Tester & Verification Guard | `Gemini 3.5 Flash-Lite` | `qa-tester.agent` | `qa_tester/agent.md` | Test Execution Guard |
-| **`devops`** | DevOps & Release Agent | `Gemini 3.6 Flash` | `devops.agent` | `devops/agent.md` | Release & Deploy |
-| **`code_reviewer`** | Pre-Deployment Safety Auditor | `Gemini 3.6 Flash` | `code-reviewer.agent` | `code_reviewer/agent.md` | Safety Audit |
-| **8 Domain Masters** | Metaphysics Experts | `Gemini 3.6 Flash` | `[domain]-master.agent` | `[domain_master]/agent.md` | Domain Analysis |
+| **`orchestrator` / `default` / `hermes`** | Coordination & execution | `gpt-5.6-sol` | `orchestrator.agent` / `default.agent` | `orchestrator/agent.md` | Master Brain |
+| **`business_analyst`** | Business System Analyst | `gpt-5.6-terra` | `business-analyst.agent` | `business_analyst/agent.md` | **Doc & Skill Watchdog** |
+| **`developer`** | Senior Full-Stack Developer | `gpt-5.3-codex` | `developer.agent` | `developer/agent.md` | Code Writing |
+| **`qa_tester`** | QA Tester & Verification Guard | `gpt-5.4-mini` | `qa-tester.agent` | `qa_tester/agent.md` | Test Execution Guard |
+| **`devops`** | DevOps & Release Agent | `gpt-5.3-codex` | `devops.agent` | `devops/agent.md` | Release & Deploy |
+| **`code_reviewer`** | Pre-Deployment Safety Auditor | `gpt-5.3-codex` | `code-reviewer.agent` | `code_reviewer/agent.md` | Safety Audit |
+| **Interpretive / deterministic domain masters** | Metaphysics Experts | `gpt-5.6-terra` / `gpt-5.4-mini` | `[domain]-master.agent` | `[domain_master]/agent.md` | Domain Analysis |
 
 ---
 

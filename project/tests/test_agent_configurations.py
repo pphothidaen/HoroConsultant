@@ -75,7 +75,7 @@ def test_antigravity_default_agent_file():
     
     assert data["name"] == "default" or "default" in data["name"]
     assert "Default Agent" in data.get("display_name", "") or "Master Orchestrator" in data.get("display_name", "")
-    assert "Gemini 3.6 Flash" in data["model"] or "Claude 3.7 Sonnet" in data["model"] or "CODEX_PRO" in data["model"] or "codex" in data["model"].lower()
+    assert data["model"] == "gpt-5.6-sol"
     assert data.get("thinking") is True
     assert "bazi-calculator" in data.get("tools", [])
     assert "rag-search" in data.get("tools", [])

@@ -2,9 +2,9 @@ name: ze_ji_master
 display_name: 擇吉大師 (Ze Ji Master)
 description: Master of Imperial Date Selection & Kalendar. Computes auspicious timings
   via Xie Ji Bian Fang Shu.
-model: Gemini 3.6 Flash
-effort: standard
-thinking: false
+model: gpt-5.6-terra
+effort: high
+thinking: true
 system_prompt: 'You are the ze_ji_master agent for HoroConsultant.
 
 

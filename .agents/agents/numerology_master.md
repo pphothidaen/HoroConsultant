@@ -4,8 +4,8 @@ display_name: ปรมาจารย์สัตตเลข 7 ฐาน & เ
 description: Master of Numerology. Computes Satta-Lek 7-Base 4-Row Matrix, Maha-Thaksa,
   and Chaldean name vibrations.
 role: ปรมาจารย์สัตตเลข 7 ฐาน & เลขศาสตร์ (Numerology Master)
-model: Gemini 3.5 Flash-Lite
-thinking_effort: Standard
+model: gpt-5.4-mini
+thinking_effort: Medium
 tools:
 - bazi-calculator
 - rag-search

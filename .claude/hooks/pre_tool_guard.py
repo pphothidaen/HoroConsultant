@@ -9,10 +9,14 @@ logs in this project must remain surrogate-safe.
 from __future__ import annotations
 
 import json
+import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
+
+ROOT_DIR = Path(__file__).resolve().parents[2]
 
 
 SECRET_PATH_PATTERNS = (
@@ -41,6 +45,12 @@ SECRET_OUTPUT_BASH_PATTERNS = (
 )
 
 SECRET_READ_COMMAND = re.compile(r"\b(cat|sed|awk|grep|rg|less|more|head|tail|open)\b")
+QUOTA_ENV_KEYS = (
+    "AGENT_QUOTA_REMAINING_PERCENT",
+    "AI_AGENT_QUOTA_REMAINING_PERCENT",
+    "CODEX_QUOTA_REMAINING_PERCENT",
+    "CODEX_REMAINING_QUOTA_PERCENT",
+)
 
 
 def deny(reason: str) -> None:
@@ -94,6 +104,23 @@ def inspect_bash(command: str) -> None:
             candidate = token.strip("'\";|&()")
             if candidate and is_secret_path(candidate):
                 deny(f"reading secret file is blocked: {candidate}")
+
+    lowered = command.lower()
+    if any(os.getenv(key) for key in QUOTA_ENV_KEYS) or "/status" in lowered or "/staus" in lowered:
+        guard = ROOT_DIR / "scripts" / "agent_quota_status_guard.py"
+        if not guard.exists():
+            deny("quota status guard script is missing")
+        result = subprocess.run(
+            [sys.executable, str(guard), "--enforce"],
+            cwd=ROOT_DIR,
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        if result.returncode != 0:
+            reason = (result.stdout or result.stderr or "quota status guard failed").strip()
+            deny(reason)
 
 
 def main() -> int:

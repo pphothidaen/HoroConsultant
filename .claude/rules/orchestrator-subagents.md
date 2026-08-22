@@ -19,4 +19,6 @@ paths:
 - Sub-agents must return: `Status`, `Scope owned`, `Evidence`, `Findings`, `Changed files`, `Residual risk`, and `Recommended next action`.
 - Root orchestrator remains accountable for final user-facing synthesis and cannot close a parent task until delegated items are `DONE` or explicitly `BLOCKED` with HITL action.
 - Use `/clear` when context becomes too large from logs, polling, or completed investigations, but first write a handoff summary containing objective, current phase, latest commit, active run ids, changed/staged files, verified checks, blockers/HITL actions, and next safe command.
+- Use `/status` whenever account quota may be low. If remaining quota is below 10%, stop broad work and update `PROJECT_TASKS.md` ticket `TICKET-META-008` plus the `plans/plan.md` account migration section before continuing or handing off.
+- Quota handoff summaries must include only non-secret credential state (`present`, `missing`, `invalid`) and must not include token values, Chat IDs, API keys, or credential JSON.
 - After `/clear`, re-check authoritative current state before acting; do not rely on the handoff summary as proof when external CI, deployments, or files may have changed.

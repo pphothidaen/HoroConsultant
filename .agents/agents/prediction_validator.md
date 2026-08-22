@@ -11,8 +11,8 @@ description: 'Prediction Validator and Astrological Auditor.
 
   '
 role: prediction_validator
-model: gemini-2.0-flash
-thinking_effort: Standard
+model: gpt-5.6-sol
+thinking_effort: High
 tools:
 - bazi-calculator.skill
 - rag-search.skill

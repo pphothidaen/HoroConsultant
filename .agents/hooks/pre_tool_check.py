@@ -10,16 +10,57 @@ import json
 import os
 import re
 import select
+import subprocess
 import sys
+from pathlib import Path
 
 FORBIDDEN_PATTERNS = [
     (r"--no-progress-bar", "Use '--progress-bar off' with pip instead of invalid '--no-progress-bar'."),
     (r"pip install torch==", "Do NOT reinstall PyTorch in Kaggle environment; use pre-installed native PyTorch."),
     (r"rm\s+-rf\s+/(?:\s|$)", "Destructive root deletion is forbidden."),
+    (r"\brm\s+-rf\b", "Recursive force deletion is forbidden in agent automation; use a reviewed, explicit cleanup plan instead."),
+    (r"\bgit\s+push\b.*(?:\s-f\b|--force(?:-with-lease)?\b)", "Force push is forbidden for agent automation."),
+    (
+        r"\b(?:cat|less|more|head|tail|sed|awk|grep|rg|open)\b.*(?:^|[/\s])(?:\.env(?:\.|$|[\s/])|credentials(?:\.|/|$)|.*secret.*|.*token.*|id_rsa|.*\.pem\b)",
+        "Reading secret-like files is forbidden. Reference secret names only and use approved secret managers.",
+    ),
     (r"mkfs", "Filesystem formatting is forbidden.")
 ]
 
 IS_CI = os.environ.get("CI", "").lower() in ("true", "1") or os.environ.get("GITHUB_ACTIONS", "").lower() in ("true", "1")
+ROOT_DIR = Path(__file__).resolve().parents[2]
+QUOTA_ENV_KEYS = (
+    "AGENT_QUOTA_REMAINING_PERCENT",
+    "AI_AGENT_QUOTA_REMAINING_PERCENT",
+    "CODEX_QUOTA_REMAINING_PERCENT",
+    "CODEX_REMAINING_QUOTA_PERCENT",
+)
+
+
+def _should_run_quota_guard(command_str: str) -> bool:
+    lowered = command_str.lower()
+    return any(os.getenv(key) for key in QUOTA_ENV_KEYS) or "/status" in lowered or "/staus" in lowered
+
+
+def _run_quota_guard() -> tuple[bool, str]:
+    guard_script = ROOT_DIR / "scripts" / "agent_quota_status_guard.py"
+    if not guard_script.exists():
+        return False, "Quota guard script missing: scripts/agent_quota_status_guard.py"
+    try:
+        result = subprocess.run(
+            [sys.executable, str(guard_script), "--enforce"],
+            cwd=ROOT_DIR,
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+    except Exception as exc:
+        return False, f"Quota guard execution failed: {exc}"
+    output = (result.stdout or result.stderr or "").strip()
+    if result.returncode != 0:
+        return False, output or "Quota guard failed"
+    return True, output or "Quota guard passed"
 
 
 def check_command(command_str: str) -> tuple[bool, str]:
@@ -27,6 +68,11 @@ def check_command(command_str: str) -> tuple[bool, str]:
     for pattern, reason in FORBIDDEN_PATTERNS:
         if re.search(pattern, command_str):
             return False, reason
+
+    if _should_run_quota_guard(command_str):
+        quota_ok, quota_reason = _run_quota_guard()
+        if not quota_ok:
+            return False, quota_reason
 
     # Pre-push gate: if pushing to Kaggle, run AST and notebook syntax tests first
     if "kaggle kernels push" in command_str or "kaggle_notebook_manager.py --push" in command_str:

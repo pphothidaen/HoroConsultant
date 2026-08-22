@@ -2,8 +2,8 @@ name: numerology_master
 display_name: ปรมาจารย์สัตตเลข 7 ฐาน & เลขศาสตร์ (Numerology Master)
 description: Master of Numerology. Computes Satta-Lek 7-Base 4-Row Matrix, Maha-Thaksa,
   and Chaldean name vibrations.
-model: Gemini 3.5 Flash-Lite
-effort: standard
+model: gpt-5.4-mini
+effort: medium
 thinking: false
 system_prompt: 'You are the numerology_master agent for HoroConsultant.
 

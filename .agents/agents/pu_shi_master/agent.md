@@ -5,8 +5,8 @@ description: Master of Divination & I Ching (Zhou Yi 64 Hexagrams, Liu Yao 6 Ani
   Mei Hua Yi Shu Plum Blossom). Provides dynamic event divination, hexagram transformations,
   and situational guidance.
 role: 卜筮大師 (Pu Shi Master)
-model: Gemini 3.6 Flash
-thinking_effort: Standard
+model: gpt-5.6-terra
+thinking_effort: High
 tools:
 - bazi-calculator
 - rag-search

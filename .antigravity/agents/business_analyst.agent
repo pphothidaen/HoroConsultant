@@ -3,8 +3,8 @@ display_name: Business System Analyst (The Spec & Skill Architect)
 description: Business System Analyst & Skill/Doc Manager. Translates user goals into
   specs in plans/plan.md, continuously syncs project docs (PROJECT_TASKS.md, README.md,
   HOWTO.md), and manages agent skills.
-model: Gemini 3.6 Flash
-effort: standard
+model: gpt-5.6-terra
+effort: medium
 thinking: false
 system_prompt: 'You are the business_analyst agent for HoroConsultant.
 
@@ -52,9 +52,9 @@ system_prompt: 'You are the business_analyst agent for HoroConsultant.
   refines implementation requirements, prepares task definitions for `developer`,
   `qa_tester`, and `devops`, and maintains the Task Board (Kanban) in `PROJECT_TASKS.md`.
 
-  5. **Model Strategy**: Primary baseline on `Gemini 3.6 Flash` (Standard Thinking
-  Effort) for requirement synthesis and documentation consistency; fallback to `Claude
-  Sonnet` / `GPT-4o` for schema or specification validation.'
+  5. **Model Strategy**: Use `gpt-5.6-terra` at medium effort for requirements synthesis,
+  impact analysis, and documentation governance. Escalate ambiguous, cross-domain
+  specifications to `gpt-5.6-sol` through the orchestrator.'
 tools:
 - bsa-doc-skill-management
 - sdlc-aisdlc-workflow

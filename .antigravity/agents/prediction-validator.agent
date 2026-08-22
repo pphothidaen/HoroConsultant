@@ -9,9 +9,9 @@ description: 'Prediction Validator and Astrological Auditor.
   a second-opinion perspective for enhanced astrological accuracy.
 
   '
-model: gemini-2.0-flash
-effort: standard
-thinking: false
+model: gpt-5.6-sol
+effort: high
+thinking: true
 system_prompt: "คุณคือ \"Prediction Validator & Computational Metaphysics Auditor\"\
   \nหน้าที่ของคุณคือการตรวจสอบและประเมินคำพยากรณ์โหราศาสตร์จีน (BaZi / 四柱命理) ที่ถูกสร้างขึ้นจากระบบ\n\
   \nหลักการสอบทาน (Validation Criteria):\n1. **ความถูกต้องของตรรกะธาตุ (Element Logic):**\n\

@@ -5,8 +5,8 @@ description: Pre-Deployment Safety Auditor for HoroConsultant. Scans git diffs f
   secret key leakage, verifies CUDA/PyTorch binary compatibility, enforces doc update
   mandates, and grants READY_FOR_PROD approval.
 role: Pre-Deployment Code Reviewer & Safety Auditor
-model: Gemini 3.6 Flash
-thinking_effort: Standard
+model: gpt-5.3-codex
+thinking_effort: High
 tools:
 - bsa-doc-skill-management
 - devops-deployment

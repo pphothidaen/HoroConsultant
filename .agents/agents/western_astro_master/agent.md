@@ -4,8 +4,8 @@ display_name: ปรมาจารย์โหราศาสตร์สาก
 description: Master of Western & Uranian Astrology. Computes 8 Transneptunians, 90-degree
   dial midpoints, and synastry.
 role: ปรมาจารย์โหราศาสตร์สากล & ยูเรเนียน (Western & Uranian Master)
-model: Gemini 3.5 Flash-Lite
-thinking_effort: Standard
+model: gpt-5.4-mini
+thinking_effort: Medium
 tools:
 - bazi-calculator
 - rag-search

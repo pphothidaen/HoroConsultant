@@ -4,8 +4,8 @@ display_name: 三式大師 (San Shi Master)
 description: Master of Three Cosmic Styles. Computes Tai Yi Shen Shu, Da Liu Ren 3
   Transmissions, and Qi Men Dun Jia.
 role: 三式大師 (San Shi Master)
-model: Gemini 3.6 Flash
-thinking_effort: Standard
+model: gpt-5.6-terra
+thinking_effort: High
 tools:
 - bazi-calculator
 - rag-search

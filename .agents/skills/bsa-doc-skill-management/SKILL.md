@@ -84,6 +84,21 @@ Whenever system functionality, API endpoints, environment variables, or CLI scri
 - **`CLAUDE.md` / `.agent_rules.md`**: Synchronize coding standards, locked dependencies, and model allocation rules.
 - **`.agents/LESSONS_LEARNED.md`**: Log any recurring bug patterns, optimization tricks, or runtime caveats.
 
+### 2.1 Quota Exhaustion / Account Migration Handoff
+When `/status` or the runtime quota signal shows less than **10% remaining**, immediately switch from implementation mode to handoff mode:
+
+1. Stop long-running or high-token exploration unless it is required to preserve state.
+2. Summarize the current objective, newest relevant user request, latest commits, changed/staged files, verified checks, unresolved blockers, HITL actions, and next safe command.
+3. Update `PROJECT_TASKS.md` ticket `TICKET-META-008` with only non-secret credential status (`present`, `missing`, `invalid`) and current blockers.
+4. Update `plans/plan.md` under the account migration continuity section if the handoff process or blocker set changed.
+5. Run the secret-safe guard:
+   ```bash
+   python3 scripts/agent_quota_status_guard.py --remaining-percent <percent> --enforce
+   ```
+6. Run `python3 project/core/code_reviewer.py --scan-secrets` after documentation edits.
+
+Never paste token values, Chat IDs, API keys, or cloud credential JSON into the plan or task board.
+
 ### 3. Agent Skill Quality Audit Checklist
 Every skill in `.agents/skills/<skill-name>/SKILL.md` MUST pass the following checks:
 1. **Frontmatter Specification**: Must contain valid YAML frontmatter with `name` and `description`.

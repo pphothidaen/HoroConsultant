@@ -14,6 +14,7 @@ Use hooks for:
 - Destructive command prevention (`rm -rf`, `mkfs`).
 - Git history protection (`git push --force`, `git push -f`, `git push --force-with-lease`).
 - CI compatibility enforcement such as disallowing `pip --no-progress-bar`.
+- Quota/status continuity checks via `scripts/agent_quota_status_guard.py` when `/status` or runtime quota env signals show account quota near exhaustion.
 
 Do not rely on `CLAUDE.md` alone for these controls. If violation would be critical, it belongs in hooks.
 
@@ -30,6 +31,19 @@ Use rules for:
 - Sub-agent delegation and result collection.
 
 Rules should contain concrete behaviors and examples. Avoid copying all global project context into every rule.
+
+### Quota handoff rule
+
+If `/status` reports less than 10% quota remaining, or an environment signal such as `AGENT_QUOTA_REMAINING_PERCENT`/`CODEX_QUOTA_REMAINING_PERCENT` is below 10, agents must:
+
+1. Stop nonessential exploration and avoid large log dumps.
+2. Write a concise handoff summary for the next AI agent/account.
+3. Update `PROJECT_TASKS.md` ticket `TICKET-META-008`.
+4. Update `plans/plan.md` only if the account-migration process or blocker set changed.
+5. Run `python3 scripts/agent_quota_status_guard.py --remaining-percent <percent> --enforce`.
+6. Run `python3 project/core/code_reviewer.py --scan-secrets`.
+
+The handoff must record credential state only as `present`, `missing`, or `invalid`; never include secret values.
 
 ## Level 3: `CLAUDE.md` — global baseline context
 
@@ -68,4 +82,3 @@ For each task, define objective, ownership, boundaries, evidence expected, and s
 Do not assign two editors to the same file.
 Return all results using Status, Scope owned, Evidence, Findings, Changed files, Residual risk, and Recommended next action.
 ```
-

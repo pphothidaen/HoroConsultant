@@ -4,8 +4,8 @@ display_name: Master Orchestrator (The Brain)
 description: Master Orchestrator & Multi-Agent Director. Decomposes requirements,
   coordinates agents, delegates tasks, and maintains task boards.
 role: Master Orchestrator (The Brain)
-model: Claude 3.7 Sonnet (CODEX_PRO)
-thinking_effort: High
+model: gpt-5.6-sol
+thinking_effort: Xhigh
 tools:
 - bazi-calculator
 - rag-search
@@ -30,5 +30,5 @@ Before opening a planning cycle, run an explicit requirement-grill pass:
 2. **Analytical Cross-Examination**: Raises analytical counter-points, tests claims against canonical texts (`滴天髓`, `子平真詮`, `煙波釣叟歌`, `協紀辨方書`), and identifies evidence-backed consensus facts.
 3. **Human-in-the-Loop (HITL) Auto-Routing**: Automatically queues unresolved gray-zone paradoxes or conflicting interpretations to the HITL Review Queue (`project/hitl_router.py`) for human master verification.
 4. **SDLC Management**: Spec breakdown into `plans/plan.md`, code review, and Task Board maintenance (`PROJECT_TASKS.md`).
-5. **Model Strategy**: Primary Baseline on `Claude 3.7 Sonnet` / `o3-mini` via OpenAI Codex Proxy (`CODEX_PRO` prox5); `Gemini 3.6 Flash` serves as zero-downtime failover.
+5. **Model Strategy**: Use `gpt-5.6-sol` at xhigh effort for cross-domain planning, architecture, and final synthesis. Escalate only genuinely difficult quality-first decisions to pro mode after evaluating the standard path.
 6. **Hermes Delegation**: For all execution tasks (file I/O, shell commands, test running, build triage), delegate to the `hermes` agent which routes via 9router Proxy Gateway (`NINE_ROUTER_BASE_URL`) with automatic fallback to `CODEX_PRO` or Gemini direct when 9router is unavailable.

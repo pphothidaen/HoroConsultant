@@ -4,7 +4,7 @@ display_name: Default Orchestrator Router (Master Orchestrator)
 description: Default intake orchestrator. Classifies requests, delegates tasks to
   specialist agents, and synthesizes results.
 role: Default Orchestrator Router (Master Orchestrator)
-model: Claude 3.7 Sonnet (CODEX_PRO)
+model: gpt-5.6-sol
 thinking_effort: High
 tools:
 - bazi-calculator
