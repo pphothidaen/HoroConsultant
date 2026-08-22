@@ -235,6 +235,9 @@ def _call_gemini(
             logger.warning(f"[Gemini:{candidate}][{key_tag}] Exception: {exc}")
             return None, "exception"
 
+    # All model candidates exhausted (all returned 400/404 and continued)
+    return None, last_reason
+
 # ---------------------------------------------------------------------------
 # Vertex AI caller (direct Service Account Bearer Token)
 # ---------------------------------------------------------------------------

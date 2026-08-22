@@ -45,7 +45,10 @@ class _QuietStaticHandler(SimpleHTTPRequestHandler):
 def serve_static_dashboard():
     """Provide the production static assets to a real browser test."""
     handler = partial(_QuietStaticHandler, directory=str(ROOT / "project" / "static"))
-    server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    try:
+        server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    except PermissionError as error:
+        pytest.skip(f"Local dashboard server bind is restricted in this runtime: {error}")
     thread = Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:

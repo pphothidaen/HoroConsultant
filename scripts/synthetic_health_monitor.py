@@ -68,8 +68,11 @@ def build_health_targets(
 
     targets: list[dict[str, Any]] = [
         {
-            "name": "Hugging Face Static UI /index.html",
-            "url": f"{hf_static_url}/index.html",
+            "name": "Hugging Face Static UI",
+            "urls": [
+                f"{hf_static_url}/",
+                f"{hf_static_url}/index.html",
+            ],
             "critical": True,
         },
     ]
@@ -311,11 +314,27 @@ def run_ping_cycle(
     all_critical_healthy = True
 
     for target in targets:
-        status, latency_ms, body, error = _ping(target["url"], timeout=timeout)
-        healthy = status == 200 and _target_response_is_valid(target["name"], body)
-        if status == 200 and not healthy and not error:
+        target_urls = target.get("urls") or [target["url"]]
+        target_name = target["name"]
+        candidate_url = str(target_urls[0])
+        status = 0
+        latency_ms = 0.0
+        body = ""
+        error = None
+        healthy = False
+
+        for candidate in target_urls:
+            candidate_url = candidate
+            status, latency_ms, body, candidate_error = _ping(candidate_url, timeout=timeout)
+            if candidate_error is None and _target_response_is_valid(target_name, body):
+                healthy = True
+                error = None
+                break
+            error = candidate_error or ("HTTP 200 response did not contain a valid health/UI payload" if status == 200 else candidate_error)
+
+        target["url"] = candidate_url
+        if status == 200 and not healthy and error is None:
             error = "HTTP 200 response did not contain a valid health/UI payload"
-        
         latency_degraded = latency_ms > max_latency_ms
         result = {
             "target": target["name"],

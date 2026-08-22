@@ -23,12 +23,40 @@ DEFAULT_HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.sta
 DEFAULT_HF_BACKEND_URL = "https://horo-consultant-psi.vercel.app"
 
 
+def _backend_from_space_id(space_id: str) -> str:
+    """Derive an HF public space URL from a space id if available."""
+    parts = space_id.strip().split("/")
+    if len(parts) != 2:
+        return ""
+    user, repo = parts
+    return f"https://{user.lower()}-{repo.lower().replace('_', '-').replace('.', '-')}.hf.space"
+
+
 def _configured_url(value: str) -> str:
     """Return a usable configured URL, rejecting template placeholders."""
     normalized = value.strip().rstrip("/")
-    if not normalized or "changeme" in normalized.lower() or "your_" in normalized.lower():
+    lowered = normalized.lower()
+    if (
+        not normalized
+        or "changeme" in lowered
+        or "your_" in lowered
+        or "${" in normalized
+    ):
         return ""
     return normalized
+
+
+def _backend_url_from_env(env: Mapping[str, str]) -> str:
+    """Resolve backend URL from explicit config or space-id convention."""
+    configured = _configured_url(env.get("HF_BACKEND_URL", ""))
+    if configured:
+        return configured
+
+    space_url = _backend_from_space_id(env.get("HF_BACKEND_SPACE_ID", ""))
+    if space_url:
+        return _configured_url(space_url)
+
+    return _configured_url(DEFAULT_HF_BACKEND_URL)
 
 
 def _request(url: str, timeout: int) -> tuple[int, str, float]:
@@ -79,6 +107,30 @@ def _is_ziwei_response(body: str) -> bool:
     )
 
 
+def _static_candidates(static_url: str) -> list[str]:
+    """Build the candidate static UI URLs for deployment variations."""
+    base = static_url.rstrip("/")
+    return [
+        f"{base}/",
+        f"{base}/index.html",
+    ]
+
+
+def _pick_first_healthy_url(urls: list[str], timeout: int, validator: Callable[[str], bool]) -> tuple[str, int, str, float, bool]:
+    """Try multiple URLs and return the first successful match."""
+    last_status = 0
+    last_body = ""
+    last_latency = 0.0
+    for url in urls:
+        status, body, latency_ms = _request(url, timeout)
+        last_status = status
+        last_body = body
+        last_latency = latency_ms
+        if status == 200 and validator(body):
+            return url, status, body, latency_ms, True
+    return urls[0], last_status, last_body, last_latency, False
+
+
 def build_checks(
     environment: Mapping[str, str] | None = None,
     *,
@@ -87,7 +139,7 @@ def build_checks(
     """Build checks for the active production architecture."""
     env = os.environ if environment is None else environment
     static_url = _configured_url(env.get("HF_STATIC_CDN_URL", DEFAULT_HF_STATIC_CDN_URL))
-    backend_url = _configured_url(env.get("HF_BACKEND_URL", DEFAULT_HF_BACKEND_URL))
+    backend_url = _backend_url_from_env(env)
     if not static_url:
         raise ValueError("HF_STATIC_CDN_URL must be a valid URL")
     if require_backend and not backend_url:
@@ -96,7 +148,7 @@ def build_checks(
     checks: list[dict[str, Any]] = [
         {
             "name": "Hugging Face static UI",
-            "url": f"{static_url}/index.html",
+            "urls": _static_candidates(static_url),
             "validator": _is_html_response,
         },
     ]
@@ -131,12 +183,18 @@ def run_verification(
     print("[INFO] HoroConsultant production path verification started")
     results: list[dict[str, Any]] = []
     for index, check in enumerate(checks, start=1):
-        status, body, latency_ms = _request(check["url"], timeout)
-        validator: Callable[[str], bool] = check["validator"]
-        passed = status == 200 and validator(body)
+        urls = check.get("urls")
+        if urls:
+            chosen_url, status, body, latency_ms, passed = _pick_first_healthy_url(urls, timeout, check["validator"])
+        else:
+            chosen_url, status, body, latency_ms = (
+                check["url"],
+                *_request(check["url"], timeout),
+            )
+            passed = status == 200 and check["validator"](body)
         result = {
             "target": check["name"],
-            "url": check["url"],
+            "url": chosen_url,
             "passed": passed,
             "status": status,
             "latency_ms": round(latency_ms, 1),

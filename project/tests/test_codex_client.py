@@ -10,13 +10,22 @@ import os
 from project.core.codex_client import is_dev_environment, call_codex_api, get_codex_auth_token
 
 
-def test_is_dev_environment():
+def _force_local_dev_environment(monkeypatch):
+    """Ensure tests run in local-dev guard mode for deterministic assertions."""
+    monkeypatch.delenv("VERCEL", raising=False)
+    monkeypatch.delenv("SPACE_ID", raising=False)
+    monkeypatch.delenv("FLY_APP_NAME", raising=False)
+
+
+def test_is_dev_environment(monkeypatch):
     # In test suite running locally, should return True
+    _force_local_dev_environment(monkeypatch)
     assert is_dev_environment() is True
 
 
-def test_call_codex_api_fallback_without_auth():
+def test_call_codex_api_fallback_without_auth(monkeypatch):
     # When no auth is present, call_codex_api should safely fallback to Gemini
+    _force_local_dev_environment(monkeypatch)
     res = call_codex_api(prompt="Write a Python function to calculate BaZi 4 Pillars")
     assert res["status"] in ("success", "fallback")
     assert "content" in res

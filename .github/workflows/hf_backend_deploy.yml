@@ -18,9 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     env:
-      HF_BACKEND_SPACE_ID: ${{ vars.HF_BACKEND_SPACE_ID || '' }}
-      HF_STATIC_SPACE_ID: ${{ vars.HF_STATIC_SPACE_ID || 'pphothidaen/horoconsultant-core-backend' }}
-      HF_BACKEND_URL: ${{ secrets.HF_BACKEND_URL || vars.HF_BACKEND_URL || '' }}
+      HF_BACKEND_SPACE_ID: ${{ vars.HF_BACKEND_SPACE_ID || secrets.HF_BACKEND_SPACE_ID || 'pphothidaen/horoconsultant-core-backend' }}
+      HF_STATIC_SPACE_ID: ${{ vars.HF_STATIC_SPACE_ID || secrets.HF_STATIC_SPACE_ID || 'pphothidaen/horoconsultant-core-backend' }}
+      HF_BACKEND_URL: ${{ secrets.HF_BACKEND_URL || vars.HF_BACKEND_URL || 'https://pphothidaen-horoconsultant-core-backend.hf.space' }}
       HF_STATIC_CDN_URL: ${{ secrets.HF_STATIC_CDN_URL || vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID || vars.AWS_ACCESS_KEY_ID || secrets.AWS_ACCESS_KEY || vars.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY || vars.AWS_SECRET_ACCESS_KEY || secrets.AWS_SECRET_KEY || vars.AWS_SECRET_KEY }}

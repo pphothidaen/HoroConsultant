@@ -60,9 +60,9 @@ hybrid_router = HybridRouter()
 # --- Request Models ---
 
 class UnifiedCalculateRequest(BaseModel):
-    birth_datetime: str = Field(..., example="1990-05-15 14:30:00")
-    longitude: float = Field(100.493, example=100.493)
-    utc_offset_hours: float = Field(7.0, example=7.0)
+    birth_datetime: str = Field(..., json_schema_extra={"example": "1990-05-15 14:30:00"})
+    longitude: float = Field(100.493, json_schema_extra={"example": 100.493})
+    utc_offset_hours: float = Field(7.0, json_schema_extra={"example": 7.0})
     disciplines: Optional[List[str]] = Field(
         None,
         description="List of disciplines to compute (e.g. ['bazi', 'tai_yi', 'liu_yao']). Defaults to all.",
@@ -70,29 +70,31 @@ class UnifiedCalculateRequest(BaseModel):
 
 
 class QuestionFocusInterpretRequest(BaseModel):
-    birth_datetime: str = Field(..., example="1990-05-15 14:30:00")
-    query: str = Field(..., example="ในปี 2026 ควรย้ายงานหรือเปิดธุรกิจดี?")
-    longitude: float = Field(100.493, example=100.493)
-    utc_offset_hours: float = Field(7.0, example=7.0)
-    language: str = Field("th", example="th")
+    birth_datetime: str = Field(..., json_schema_extra={"example": "1990-05-15 14:30:00"})
+    query: str = Field(..., json_schema_extra={"example": "ในปี 2026 ควรย้ายงานหรือเปิดธุรกิจดี?"})
+    longitude: float = Field(100.493, json_schema_extra={"example": 100.493})
+    utc_offset_hours: float = Field(7.0, json_schema_extra={"example": 7.0})
+    language: str = Field("th", json_schema_extra={"example": "th"})
 
 
 class MianXiangAnalysisRequest(BaseModel):
     features: Dict[str, Any] = Field(
         ...,
-        example={
-            "face_shape": "round",
-            "forehead": "wide",
-            "eyebrows": "thick",
-            "eyes": "large",
-            "nose": "high",
-            "mouth": "full",
-            "ears": "large",
-            "chin": "round",
-            "moles": [{"location": "forehead_center", "size": "small"}]
-        }
+        json_schema_extra={
+            "example": {
+                "face_shape": "round",
+                "forehead": "wide",
+                "eyebrows": "thick",
+                "eyes": "large",
+                "nose": "high",
+                "mouth": "full",
+                "ears": "large",
+                "chin": "round",
+                "moles": [{"location": "forehead_center", "size": "small"}]
+            }
+        },
     )
-    birth_year: Optional[int] = Field(None, example=1990)
+    birth_year: Optional[int] = Field(None, json_schema_extra={"example": 1990})
 
 
 # --- Endpoints ---
@@ -250,4 +252,3 @@ async def test_llm_route(req: Optional[LLMRouteTestRequest] = None):
         "api_version": "v2.0.0",
         "result": res
     }
-
