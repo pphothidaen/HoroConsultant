@@ -52,6 +52,7 @@ RUN python -m pip install --no-cache-dir --upgrade pip \
     && rm -rf /tmp/wheelhouse
 
 COPY project ./project
+COPY scripts ./scripts
 COPY --from=rust-builder /src/rust_core/target/release/horo_server /app/horo_server
 RUN chown --recursive appuser:appuser /app \
     && chmod 0555 /app/horo_server

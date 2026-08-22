@@ -113,6 +113,7 @@ def test_container_is_reproducible_non_root_and_scale_to_zero_ready():
     assert "maturin==1.14.1" in dockerfile
     assert "patchelf" in rust_builder
     assert "cargo build --locked --release --no-default-features --features server --bin horo_server" in dockerfile
+    assert "COPY scripts ./scripts" in dockerfile
     assert 'ENTRYPOINT ["/usr/bin/tini", "--"]' in dockerfile
     assert 'CMD ["/app/horo_server"]' in dockerfile
     assert "USER appuser" in dockerfile
