@@ -15,6 +15,7 @@ RUN apt-get update \
 WORKDIR /src/rust_core
 COPY rust_core/Cargo.toml rust_core/Cargo.lock rust_core/pyproject.toml ./
 COPY rust_core/src ./src
+COPY rust_core/tests ./tests
 COPY rust_core/__init__.py ./__init__.py
 RUN /opt/build-venv/bin/maturin build --locked --release --out /wheelhouse
 
