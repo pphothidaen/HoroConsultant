@@ -226,11 +226,21 @@ jobs:
             --target-port 8000 \
             --transport auto \
             --only-show-errors
-          az containerapp ingress traffic set \
+          revision_mode="$(az containerapp show \
             --resource-group "${AZURE_RESOURCE_GROUP}" \
             --name "${AZURE_CONTAINER_APP}" \
-            --revision-weight latest=100 \
-            --only-show-errors
+            --query properties.configuration.activeRevisionsMode \
+            --output tsv \
+            --only-show-errors)"
+          if [ "${revision_mode}" = "Multiple" ]; then
+            az containerapp ingress traffic set \
+              --resource-group "${AZURE_RESOURCE_GROUP}" \
+              --name "${AZURE_CONTAINER_APP}" \
+              --revision-weight latest=100 \
+              --only-show-errors
+          else
+            echo "[INFO] Azure Container App revision mode is ${revision_mode}; skipping traffic split update."
+          fi
 
       - name: Resolve Azure Container App URL
         id: resolve-azure-url
