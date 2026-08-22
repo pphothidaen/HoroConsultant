@@ -161,7 +161,12 @@ def _run_json(
 ) -> Any:
     result = runner(command, capture_output=True, text=True, check=False)
     if result.returncode != 0:
-        raise RuntimeError(f"Azure CLI command failed: {command[0]} {command[1]}")
+        stderr = " ".join((result.stderr or "").split())[:400]
+        suffix = f": {stderr}" if stderr else ""
+        raise RuntimeError(
+            f"Azure CLI command failed: {command[0]} {command[1]} "
+            f"(exit {result.returncode}){suffix}"
+        )
     try:
         return json.loads(result.stdout or "null")
     except json.JSONDecodeError as exc:

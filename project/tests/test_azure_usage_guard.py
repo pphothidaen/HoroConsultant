@@ -118,6 +118,29 @@ def test_snapshot_json_is_machine_readable_and_contains_no_credentials(tmp_path)
     assert "token" not in rendered.lower()
 
 
+def test_azure_cli_failure_diagnostic_includes_safe_stderr_excerpt():
+    guard = _load_guard()
+
+    def fake_run(command, **kwargs):
+        return SimpleNamespace(
+            returncode=7,
+            stdout="",
+            stderr="Forbidden: caller lacks Cost Management Reader permission",
+        )
+
+    try:
+        guard._run_json(["az", "rest", "--body", '{"hidden":"value"}'], fake_run)
+    except RuntimeError as exc:
+        message = str(exc)
+    else:
+        raise AssertionError("expected RuntimeError")
+
+    assert "az rest" in message
+    assert "exit 7" in message
+    assert "Cost Management Reader" in message
+    assert "hidden" not in message
+
+
 def test_new_month_resumes_only_ingress_suspended_by_the_guard():
     guard = _load_guard()
     calls: list[list[str]] = []
