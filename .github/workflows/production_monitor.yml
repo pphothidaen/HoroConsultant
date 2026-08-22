@@ -16,6 +16,8 @@ jobs:
   monitor:
     name: Public production health and notification check
     runs-on: ubuntu-latest
+    env:
+      AZURE_PUBLIC_BACKEND_URL: "https://horoconsult-env-new.mangoforest-3a921b17.westus2.azurecontainerapps.io"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,7 +29,7 @@ jobs:
 
       - name: Run synthetic health monitor
         env:
-          HF_BACKEND_URL: ${{ vars.HF_BACKEND_URL || 'https://pphothidaen-horoconsultant-core-backend.hf.space' }}
+          HF_BACKEND_URL: ${{ vars.AZURE_PUBLIC_BACKEND_URL || env.AZURE_PUBLIC_BACKEND_URL || vars.HF_BACKEND_URL || 'https://horo-consultant-psi.vercel.app' }}
           VERCEL_GATEWAY_URL: ${{ vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
           HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
           HEALTH_ALERT_WEBHOOK_URL: ${{ secrets.HEALTH_ALERT_WEBHOOK_URL }}

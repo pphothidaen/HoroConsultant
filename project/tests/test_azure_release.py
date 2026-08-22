@@ -78,6 +78,20 @@ def test_manual_azure_workflow_uses_public_backend_url_for_hermes_verification()
     assert "needs.deploy-azure.outputs.azure_container_app_url ||" not in text
 
 
+def test_production_monitor_prefers_azure_backend_over_stale_hf_backend():
+    """Synthetic monitoring must not use the stale HF backend when Azure is live."""
+    text, _ = _workflow("production_monitor.yml")
+
+    assert "AZURE_PUBLIC_BACKEND_URL" in text
+    assert "horoconsult-env-new.mangoforest-3a921b17.westus2.azurecontainerapps.io" in text
+    assert (
+        "HF_BACKEND_URL: ${{ vars.AZURE_PUBLIC_BACKEND_URL || "
+        "env.AZURE_PUBLIC_BACKEND_URL || vars.HF_BACKEND_URL || "
+        "'https://horo-consultant-psi.vercel.app' }}"
+    ) in text
+    assert "https://pphothidaen-horoconsultant-core-backend.hf.space" not in text
+
+
 def test_release_never_overwrites_the_v1_immutable_tag():
     """The human-readable v1.0 tag is created once and then treated immutable."""
     text, workflow = _workflow("deploy.yml")
