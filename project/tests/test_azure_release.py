@@ -57,6 +57,11 @@ def test_release_builds_amd64_once_and_deploys_the_digest():
     assert "secrets.DOCKER_USERNAME" in text
     assert "secrets.DOCKER_PASSWORD" in text
     assert "secrets.AZURE_CREDENTIALS" in text
+    assert "steps.resolve-azure-creds.outputs.json" in text
+    assert "AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}" in text
+    assert "AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}" in text
+    assert "AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}" in text
+    assert "AZURE_SUBSCRIPTION_ID_SECRET: ${{ secrets.AZURE_SUBSCRIPTION_ID }}" in text
     assert "provenance: mode=max" in text
     assert "sbom: true" in text
     assert "docker buildx imagetools inspect" in text

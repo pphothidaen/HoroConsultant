@@ -50,10 +50,53 @@ jobs:
           echo "sha=${VERIFIED_SHA}" >> "${GITHUB_OUTPUT}"
           echo "short_sha=${VERIFIED_SHA:0:12}" >> "${GITHUB_OUTPUT}"
 
-      - name: Azure login with repository secret
+      - name: Resolve Azure credentials
+        id: resolve-azure-creds
+        env:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_SUBSCRIPTION_ID_SECRET: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+
+          raw = os.getenv("AZURE_CREDENTIALS", "")
+          parsed = {}
+          if raw:
+              try:
+                  parsed = json.loads(raw)
+              except json.JSONDecodeError:
+                  print("[WARN] AZURE_CREDENTIALS is not valid JSON; falling back to individual Azure secrets.")
+
+          fallback = {
+              "clientId": os.getenv("AZURE_CLIENT_ID", ""),
+              "clientSecret": os.getenv("AZURE_CLIENT_SECRET", ""),
+              "subscriptionId": os.getenv("AZURE_SUBSCRIPTION_ID_SECRET") or os.getenv("AZURE_SUBSCRIPTION_ID", ""),
+              "tenantId": os.getenv("AZURE_TENANT_ID", ""),
+          }
+          for key, value in fallback.items():
+              if not parsed.get(key):
+                  parsed[key] = value
+
+          missing = [key for key in ("clientId", "clientSecret", "subscriptionId", "tenantId") if not parsed.get(key)]
+          if missing:
+              print("[ERROR] Missing Azure credential field(s): " + ", ".join(missing))
+              print("[ERROR] Set AZURE_CREDENTIALS JSON or individual AZURE_CLIENT_ID/AZURE_CLIENT_SECRET/AZURE_TENANT_ID/AZURE_SUBSCRIPTION_ID secrets.")
+              sys.exit(1)
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write("json=" + json.dumps(parsed, separators=(",", ":")) + "\n")
+          print("[OK] Resolved Azure credentials without printing secret values.")
+          PY
+
+      - name: Azure login with resolved credentials
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          creds: ${{ steps.resolve-azure-creds.outputs.json }}
 
       - name: Install Azure Container Apps extension
         run: az extension add --name containerapp --upgrade --only-show-errors
