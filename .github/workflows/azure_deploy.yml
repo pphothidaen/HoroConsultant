@@ -58,7 +58,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile.hf
+          file: ./Dockerfile
           push: true
           tags: |
             ${{ vars.DOCKER_USERNAME || env.DOCKER_USERNAME || secrets.DOCKER_USERNAME }}/horoconsult:latest
@@ -73,6 +73,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-push
     environment: production
+    outputs:
+      azure_container_app_url: ${{ steps.resolve-azure-url.outputs.url }}
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
@@ -211,6 +213,43 @@ jobs:
           containerAppName: ${{ vars.AZURE_CONTAINER_APP || env.AZURE_CONTAINER_APP || secrets.AZURE_CONTAINER_APP }}
           imageToDeploy: ${{ vars.DOCKER_USERNAME || env.DOCKER_USERNAME || secrets.DOCKER_USERNAME }}/horoconsult:${{ needs.build-and-push.outputs.image_tag }}
 
+      - name: Configure public Azure ingress
+        env:
+          AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP || env.AZURE_RESOURCE_GROUP || secrets.AZURE_RESOURCE_GROUP }}
+          AZURE_CONTAINER_APP: ${{ vars.AZURE_CONTAINER_APP || env.AZURE_CONTAINER_APP || secrets.AZURE_CONTAINER_APP }}
+        run: |
+          set -euo pipefail
+          az containerapp ingress enable \
+            --resource-group "${AZURE_RESOURCE_GROUP}" \
+            --name "${AZURE_CONTAINER_APP}" \
+            --type external \
+            --target-port 8000 \
+            --transport auto \
+            --only-show-errors
+          az containerapp ingress traffic set \
+            --resource-group "${AZURE_RESOURCE_GROUP}" \
+            --name "${AZURE_CONTAINER_APP}" \
+            --revision-weight latest=100 \
+            --only-show-errors
+
+      - name: Resolve Azure Container App URL
+        id: resolve-azure-url
+        env:
+          AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP || env.AZURE_RESOURCE_GROUP || secrets.AZURE_RESOURCE_GROUP }}
+          AZURE_CONTAINER_APP: ${{ vars.AZURE_CONTAINER_APP || env.AZURE_CONTAINER_APP || secrets.AZURE_CONTAINER_APP }}
+        run: |
+          set -euo pipefail
+          fqdn="$(az containerapp show \
+            --resource-group "${AZURE_RESOURCE_GROUP}" \
+            --name "${AZURE_CONTAINER_APP}" \
+            --query properties.configuration.ingress.fqdn \
+            --output tsv \
+            --only-show-errors)"
+          test -n "${fqdn}" || { echo "[ERROR] Azure Container App FQDN is empty"; exit 1; }
+          url="https://${fqdn}"
+          echo "url=${url}" >> "${GITHUB_OUTPUT}"
+          echo "[OK] Azure Container App public URL resolved."
+
       - name: Verify Azure Container App Health
         run: |
           python3 - <<'PY'
@@ -235,7 +274,7 @@ jobs:
           raise SystemExit(1)
           PY
         env:
-          AZURE_CONTAINER_APP_URL: ${{ vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
+          AZURE_CONTAINER_APP_URL: ${{ steps.resolve-azure-url.outputs.url }}
 
       - name: Azure Logout
         if: always()
@@ -268,8 +307,8 @@ jobs:
 
       - name: Run strict production path verification
         env:
-          AZURE_CONTAINER_APP_URL: ${{ vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
-          HF_BACKEND_URL: ${{ vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
+          AZURE_CONTAINER_APP_URL: ${{ needs.deploy-azure.outputs.azure_container_app_url || vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
+          HF_BACKEND_URL: ${{ needs.deploy-azure.outputs.azure_container_app_url || vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
           VERCEL_GATEWAY_URL: ${{ vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
           HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
         run: |
@@ -277,8 +316,8 @@ jobs:
 
       - name: Run production synthetic monitor
         env:
-          AZURE_CONTAINER_APP_URL: ${{ vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
-          HF_BACKEND_URL: ${{ vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
+          AZURE_CONTAINER_APP_URL: ${{ needs.deploy-azure.outputs.azure_container_app_url || vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
+          HF_BACKEND_URL: ${{ needs.deploy-azure.outputs.azure_container_app_url || vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
           VERCEL_GATEWAY_URL: ${{ vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
           HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
         run: |
