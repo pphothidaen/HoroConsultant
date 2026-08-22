@@ -54,6 +54,8 @@ def test_full_pytest_uses_the_linux_wheel_with_fallback_disabled():
     assert "pip install --force-reinstall --no-deps wheelhouse/*.whl" in workflow
     assert "rust_core.__native_origin__" in workflow
     assert "shutil.copy2(native_origin, target)" in workflow
+    assert 'package_dir.parent / "rust_core.libs"' in workflow
+    assert "shutil.copytree(libs_dir, libs_target)" in workflow
     assert "HORO_ALLOW_PYTHON_FALLBACK: \"0\"" in workflow
 
 

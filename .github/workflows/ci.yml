@@ -47,9 +47,18 @@ jobs:
           import rust_core
 
           native_origin = pathlib.Path(rust_core.__native_origin__)
-          target = pathlib.Path(os.environ["GITHUB_WORKSPACE"]) / "rust_core" / native_origin.name
+          workspace = pathlib.Path(os.environ["GITHUB_WORKSPACE"])
+          target = workspace / "rust_core" / native_origin.name
           shutil.copy2(native_origin, target)
-          print(f"Copied installed Rust extension artifact to {target}")
+          package_dir = native_origin.parent
+          for libs_dir in (package_dir.parent / "rust_core.libs", package_dir / ".libs"):
+              if libs_dir.is_dir():
+                  libs_target = workspace / libs_dir.name
+                  if libs_target.exists():
+                      shutil.rmtree(libs_target)
+                  shutil.copytree(libs_dir, libs_target)
+                  print(f"Copied installed Rust shared libraries to {libs_target}")
+          print(f"Copied installed Rust extension artifact from {native_origin} to {target}")
           PY
 
       - name: Run Pytest Test Suite
