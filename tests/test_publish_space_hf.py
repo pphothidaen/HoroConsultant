@@ -54,6 +54,7 @@ def test_docker_build_context_dependencies_exist():
     assert "maturin build --locked --release" in dockerfile
     assert "COPY rust_core/Cargo.toml" in dockerfile
     assert "COPY rust_core/tests" in dockerfile
+    assert "python3-venv patchelf" in dockerfile
 
 
 def test_publish_space_dry_run():
