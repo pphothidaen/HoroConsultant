@@ -45,7 +45,9 @@ def test_docker_build_context_dependencies_exist():
     dockerfile = (ROOT / "Dockerfile.hf").read_text(encoding="utf-8")
     assert (ROOT / ".env.example").is_file()
     assert (ROOT / "scripts").is_dir()
+    assert (ROOT / "tests").is_dir()
     assert "COPY --chown=user:user scripts/" in dockerfile
+    assert "COPY --chown=user:user tests/" in dockerfile
     assert "COPY --chown=user:user .env.example" in dockerfile
 
 
