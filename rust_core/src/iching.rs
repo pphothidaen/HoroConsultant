@@ -40,7 +40,7 @@ pub fn calculate_iching_chart_rust(
     if lines.len() != 6 {
         return Err("I Ching requires exactly six lines".to_string());
     }
-    if let Some(invalid) = lines.iter().find(|&&line| !matches!(line, 6 | 7 | 8 | 9)) {
+    if let Some(invalid) = lines.iter().find(|&&line| !matches!(line, 6..=9)) {
         return Err(format!("invalid I Ching line value: {invalid}"));
     }
     let mut primary = String::with_capacity(6);

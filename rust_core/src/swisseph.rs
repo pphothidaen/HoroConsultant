@@ -51,13 +51,12 @@ pub fn calculate_julian_day_utc(year: i32, month: i32, day: i32, hour: f64) -> f
 
     let a = (y as f64 / 100.0).floor();
     let b = 2.0 - a + (a / 4.0).floor();
-    let jd = (365.25 * (y as f64 + 4716.0)).floor()
+    (365.25 * (y as f64 + 4716.0)).floor()
         + (30.6001 * (m as f64 + 1.0)).floor()
         + (day as f64)
         + (hour / 24.0)
         + b
-        - 1524.5;
-    jd
+        - 1524.5
 }
 
 /// Calculate mean solar longitude L0 and mean anomaly M for Sun.

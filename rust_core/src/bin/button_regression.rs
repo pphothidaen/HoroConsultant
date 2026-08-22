@@ -9,7 +9,6 @@ use std::error::Error;
 use std::fs;
 use std::path::Path;
 use std::time::Instant;
-use tokio;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct TestResult {

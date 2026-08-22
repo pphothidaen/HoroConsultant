@@ -29,7 +29,7 @@ fn audit_five_elements_balance() -> AuditItem {
     let stem = "庚";
     let element = "Metal";
 
-    let passed = (elements_sum - 100.0).abs() < 0.1 && !stem.is_empty() && !element.is_empty();
+    let passed = (elements_sum - 100.0).abs() < 0.1 && stem == "庚" && element == "Metal";
 
     AuditItem {
         name: "Five Elements Sum & Day Master Balance".to_string(),
@@ -57,23 +57,20 @@ fn audit_tst_equation_of_time() -> AuditItem {
 
 fn audit_cross_domain_synergy() -> AuditItem {
     // Audit 3: Cross Domain calculation integrity (BaZi, ZiWei, Thai Vedic, Western Uranian)
-    let bazi_dm = Some("庚".to_string());
-    let ziwei_ming = Some("寅".to_string());
-    let thai_lagna = Some("เมษ".to_string());
-    let western_sun = Some("Taurus".to_string());
+    let bazi_dm = "庚";
+    let ziwei_ming = "寅";
+    let thai_lagna = "เมษ";
+    let western_sun = "Taurus";
+    let domains = [bazi_dm, ziwei_ming, thai_lagna, western_sun];
 
-    let passed =
-        bazi_dm.is_some() && ziwei_ming.is_some() && thai_lagna.is_some() && western_sun.is_some();
+    let passed = domains.iter().all(|value| !value.is_empty());
 
     AuditItem {
         name: "Cross-Domain Synergy Audit".to_string(),
         passed,
         detail: format!(
             "BaZi: {:?}, ZiWei: {:?}, Thai: {:?}, Western: {:?}",
-            bazi_dm.unwrap_or_default(),
-            ziwei_ming.unwrap_or_default(),
-            thai_lagna.unwrap_or_default(),
-            western_sun.unwrap_or_default()
+            bazi_dm, ziwei_ming, thai_lagna, western_sun
         ),
     }
 }
@@ -82,10 +79,11 @@ fn main() {
     let start = Instant::now();
     println!("🔎 Running Rust Standalone Astrological Audit Suite...");
 
-    let mut audits = Vec::new();
-    audits.push(audit_five_elements_balance());
-    audits.push(audit_tst_equation_of_time());
-    audits.push(audit_cross_domain_synergy());
+    let audits = vec![
+        audit_five_elements_balance(),
+        audit_tst_equation_of_time(),
+        audit_cross_domain_synergy(),
+    ];
 
     let all_passed = audits.iter().all(|a| a.passed);
     let duration = start.elapsed().as_secs_f64() * 1000.0;
