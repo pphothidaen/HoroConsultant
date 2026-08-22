@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff — Central Kanban Board for ALL Project Work**  
-> *Last Updated: 2026-08-22 18:56 (Asia/Bangkok) — revalidated quota/account-migration guard, agent ecosystem sync, focused health/router regressions, and secret scan. Parent release gates remain blocked only on documented external Azure, canonical-HF, release-CI, authorized-production-Playwright, and operator credential handoff gates.*
+> *Last Updated: 2026-08-22 19:14 (Asia/Bangkok) — pushed commit `056b1aa`, GitHub CI passed, HF Docker publish step completed via Actions, but canonical HF verification remains blocked because the Space is paused/unhealthy (`503`).*
 
 ---
 
@@ -83,6 +83,11 @@ python3 -m pytest -q project/tests/
 - `PYTHONPYCACHEPREFIX=/private/tmp/horo_pycache python3 -m py_compile .agents/hooks/pre_tool_check.py .claude/hooks/pre_tool_guard.py scripts/agent_quota_status_guard.py scripts/synthetic_health_monitor.py scripts/run_live_health_verification.py project/api_router.py project/routers/v2.py` → passed on 2026-08-22.
 - `python3 scripts/agent_quota_status_guard.py --remaining-percent 9 --enforce` → warning emitted for `<10%` quota and confirmed required handoff markers in `PROJECT_TASKS.md` and `plans/plan.md`.
 - `python3 project/core/code_reviewer.py --scan-secrets` → PASSED: `0` leaks across `1,530` files (2026-08-22 18:56).
+- `git push origin main` → pushed `056b1aa` to `origin/main` on 2026-08-22.
+- GitHub Actions `Unified CI & Quality Audit Pipeline` run `32571990179` for `056b1aa` → `success`.
+- GitHub Actions `Hugging Face Docker Backend - Production Deployment` run `32571990206` for `056b1aa` → static publish `success`, Docker API backend publish `success`, final verification `failure`.
+  - CI artifact `production-verification.json` / `project/tests/backend-release-check-hf-canonical.json`: static `404`, backend `/health` `503`, deterministic API `503`.
+  - Direct HF health check after publish: `/health` returned `503` with detail `The space is paused, ask a maintainer to restart it`.
 
 ---
 
@@ -222,7 +227,7 @@ This ticket is `DOING` while child tickets are being executed. It moves to `DONE
   - `a6467e5` — Telegram notification secret config support.
   - `87ecc84` — Persist Telegram Chat ID from bot/webhook updates.
 - Telegram runtime check: bot token is present locally; `TELEGRAM_CHAT_ID` key exists but is still empty in `.env` until a stopped/non-competing bot update is captured or the operator provides the numeric ID.
-- GitHub CLI: current `gh auth status` reports account `pphothidaen` token invalid; do not rely on `gh secret set` until re-authenticated.
+- GitHub CLI: `gh auth status` now reports account `pphothidaen` authenticated via keyring with `repo` and `workflow` scopes; do not print token values.
 - Doppler CLI: `doppler me` reports no token in keyring; do not claim Doppler sync completion until `doppler login` or a valid `DOPPLER_TOKEN` is provided.
 - Local secret hygiene: expired `GH_TOKEN` was removed from `.env` and `.env.production`; latest secret scan remains `0` leaks across `1,530` files.
 - Dirty files outside the Telegram/account-continuity scope remain uncommitted and must be reviewed by batch before quarantine or cleanup.
@@ -241,7 +246,8 @@ doppler me
 - [x] Account-migration continuity ticket exists in `PROJECT_TASKS.md`.
 - [x] Plan-level quota/account migration guard is recorded in `plans/plan.md`.
 - [x] Governance hook/rule/skill enforcement exists for `/status` or runtime quota below 10%.
-- [ ] GitHub CLI is re-authenticated and Telegram secrets are synced to GitHub Actions without printing values.
+- [x] GitHub CLI is re-authenticated without printing values.
+- [ ] Telegram secrets are synced to GitHub Actions without printing values.
 - [ ] Doppler CLI/API auth is available and `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID` are synced without printing values.
 - [ ] Final handoff includes clean scoped commits and a reviewed disposition for unrelated dirty files.
 
@@ -309,24 +315,24 @@ Run the required unit, integration, UI/E2E, security, agent synchronization, pre
 - [x] Vercel API probe executed; in this run production curl checks are `2/3` with `POST /api/v1/bazi/interpret` returning `503` (`canonical_bazi_unavailable`) and missing `X-AI-Source`/`X-AI-Model` headers.
 - [x] Local release-verifier routing and synthetic-monitor fallback are covered by focused regression tests: an explicit backend URL takes precedence, a canonical HF Space ID derives the backend URL when unset, and static `/index.html` fallback no longer crashes the monitor.
 - [x] 2026-08-21 15:43 local revalidation: code review passed with notebook audit clean; secret scan found `0` leaks across `1,507` files, and the UI contract suite passed `25/25` checks.
-- [ ] Docker backend deployment: static HF publish to `pphothidaen/horoconsultant-core-backend` succeeded on 2026-08-21 17:12 (+07) and stamped `v1.0.0.4b9c373`; canonical HF verification now passes static UI but still fails backend (`project/tests/backend-release-check-hf-canonical.json` is `1/3`: static `200`, `/health` `404`, deterministic API `404`).
-- **Current status:** Blocked by missing/unfinished Docker backend publish to the canonical HF Space. The local approval reviewer requires explicit approval for uploading the 69.78 MB backend payload to `pphothidaen/horoconsultant-core-backend` before execution can continue.
-  - **Runtime evidence:** HF dry-run authenticated as `pphothidaen`; static publish completed; canonical live verifier wrote `project/tests/backend-release-check-hf-canonical.json` with backend/API `404`.
-- **Next action:** Explicitly approve Docker backend upload to `pphothidaen/horoconsultant-core-backend`, publish Docker payload, wait for Space startup, then rerun canonical HF and Vercel checks side-by-side before deciding gate closure.
+- [ ] Docker backend deployment: GitHub Actions run `32571990206` for commit `056b1aa` resolved HF token, published the static frontend, and published the Docker API backend successfully, then failed final public verification.
+- **Current status:** Docker publish is complete, but the canonical HF Space remains unhealthy/paused. CI verification artifact shows static `404`, backend `/health` `503`, deterministic API `503`; a direct post-publish health check reports `503 — The space is paused, ask a maintainer to restart it`.
+  - **Runtime evidence:** GitHub Actions run `32571990206`; artifact `production-verification.json`; `project/tests/backend-release-check-hf-canonical.json`; direct `python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --check-health`.
+- **Next action:** Restart/unpause the Hugging Face Space from a maintainer account, wait for build/startup logs to settle, then rerun canonical HF and Vercel checks side-by-side before deciding gate closure.
   - **Gate Ref:** `G-META-006-BACKEND`.
 - [ ] Azure canonical backend deployment: workflow `Azure Container Apps — Production Deployment` reaches `azure/login` but fails in `Deploy to Azure Container Apps` with RBAC `AuthorizationFailed` on resource-group read/write.
   - **Current status:** RBAC grant was applied on 2026-08-21 for service principal `2e0f6d36-99da-4c75-a07c-bf6299da2180` / object id `d730cc3c-aa0d-4b01-98db-828ec4a6eeda` as `Contributor` on `rg-horoconsult`; local `az group show` confirms Resource Group read access and `provisioningState: Succeeded`.
   - **Runtime credential evidence:** Operator-provided role assignment output plus local `az group show`; run `32472307078` built/pushed Docker successfully but failed at `Azure Login` because `creds` lacked required service-principal fields; workflow fix `bcac542` was pushed and rerun as `32472681936`, which then failed earlier at `Resolve Azure credentials` with `Missing resolved credential field: clientId`.
   - **Next action:** Replace GitHub `AZURE_CREDENTIALS` with complete service-principal JSON or configure `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `AZURE_SUBSCRIPTION_ID`, and `AZURE_TENANT_ID` as Actions secrets, then rerun `Azure Container Apps — Production Deployment` and confirm post-login provisioning plus `/health` pass.
   - **Gate Ref:** `G-META-005-AZURE`.
-- [ ] HF Docker canonical backend: workflow `32016627926` now has canonical `HF_BACKEND_SPACE_ID` defaulted in CI; live canonical health evidence still fails (`/health` unavailable, static `404`) and `0/2` in local synthetic checks.
-- **Current status:** Static canonical HF is now live; backend is still unavailable until Docker publish is explicitly approved and completed.
-  - **Runtime evidence:** `project/tests/backend-release-check-hf-canonical.json` shows static `200`, backend `/health` `404`, deterministic API `404`; Vercel-side check remains split at `2/3` in `project/tests/backend-release-check.json`.
-- **Next action:** Publish Docker backend after explicit payload approval, then verify `/health` endpoint availability.
+- [ ] HF Docker canonical backend: workflow `32571990206` has canonical `HF_BACKEND_SPACE_ID` defaulted in CI and completed the Docker publish step.
+- **Current status:** Backend is still unavailable because the HF Space is paused/unhealthy after publish.
+  - **Runtime evidence:** `project/tests/backend-release-check-hf-canonical.json` shows static `404`, backend `/health` `503`, deterministic API `503`; direct health check reports the Space is paused.
+- **Next action:** Restart/unpause HF Space, then verify `/health` endpoint availability.
   - **Gate Ref:** `G-META-006-BACKEND`.
-- [ ] Release CI remains pending external confirmation for the previously reported Rust formatting drift and Bandit B602 findings.
-  - **Current status:** Local Rust formatting, Rust vector/security tests, MLOps Python compilation, and the exact CI Bandit command all pass; Bandit reports no issues across `project/` and `scripts/` (`36,112` lines). A repository-wide search also finds no `shell=` usage. External release CI still needs to reproduce the result.
-  - **Next action:** Rerun the release CI workflow and attach its Bandit/Rust artifacts before clearing this external gate.
+- [x] Release CI confirmation for the previously reported Rust formatting drift and Bandit B602 findings.
+  - **Current status:** GitHub Actions `Unified CI & Quality Audit Pipeline` run `32571990179` for `056b1aa` completed successfully. Local Rust formatting, Rust vector/security tests, MLOps Python compilation, and the exact CI Bandit command also pass; Bandit reports no issues across `project/` and `scripts/` (`36,112` lines).
+  - **Next action:** Keep the run URL attached to the final evidence bundle; rerun only if release-affecting files change.
   - **Gate Ref:** `G-META-005-RUSTCI`.
 - [x] Rust/Python full-review wrapper completion: wrapper command path confirmed; accepted commands are `--review --use-python` and `--review`.
   - **Current status:** `python3 project/core/code_reviewer.py --review --use-python` and `python3 project/core/code_reviewer.py --review` both execute successfully and deterministically in this workspace with `READY_FOR_PROD`.
