@@ -227,12 +227,16 @@ class CodeReviewer:
             )
             passed = res.returncode == 0
             summary_line = res.stdout.strip().splitlines()[-1] if res.stdout else res.stderr
-            return {
+            report = {
                 "passed": passed,
                 "exit_code": res.returncode,
                 "summary": summary_line,
                 "status": "PASSED" if passed else "FAILED"
             }
+            if not passed:
+                report["stdout_tail"] = "\n".join(res.stdout.strip().splitlines()[-80:])
+                report["stderr_tail"] = "\n".join(res.stderr.strip().splitlines()[-80:])
+            return report
         except Exception as e:
             return {
                 "passed": False,
