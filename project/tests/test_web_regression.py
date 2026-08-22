@@ -107,6 +107,8 @@ class TestWebRegressionUI:
         assert "renderResults" in res.text
         assert "updateVersionFooter" in res.text
         assert "fetchApi('/health" in res.text
+        assert "horoconsult-env-new.mangoforest-3a921b17.westus2.azurecontainerapps.io" in res.text
+        assert "res.status === 503" in res.text
 
     def test_browser_regressions_lazy_load_playwright_for_clean_ci(self):
         """A pytest-only job must collect this file without Playwright installed."""

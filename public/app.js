@@ -1,5 +1,6 @@
 const BACKEND_API_HOSTS = [
   "https://horo-consultant-psi.vercel.app", // Primary Vercel Production Serverless API Gateway
+  "https://horoconsult-env-new.mangoforest-3a921b17.westus2.azurecontainerapps.io", // Azure Container Apps Docker backend fallback
   "", // Relative origin (local server / same-origin proxy)
 ];
 
@@ -89,7 +90,7 @@ async function fetchApi(endpoint, options = {}) {
           return res;
         }
         lastError = new Error(`HTTP ${res.status} from ${url}`);
-        if (res.status === 404 || res.status === 502 || res.status === 500) {
+        if (res.status === 404 || res.status === 500 || res.status === 502 || res.status === 503) {
           continue;
         }
         return res;
@@ -5553,7 +5554,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & FORCE CACHE PURGE SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.0163471";
+const CLIENT_APP_VERSION = "1.0.0.f2415a1";
 
 async function forcePurgeAndReload(event) {
   if (event) {
