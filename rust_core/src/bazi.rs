@@ -18,6 +18,20 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 
 const ELEMENTS: [&str; 5] = ["Wood", "Fire", "Earth", "Metal", "Water"];
+const GENERATES: [(&str, &str); 5] = [
+    ("Wood", "Fire"),
+    ("Fire", "Earth"),
+    ("Earth", "Metal"),
+    ("Metal", "Water"),
+    ("Water", "Wood"),
+];
+const CONTROLS: [(&str, &str); 5] = [
+    ("Wood", "Earth"),
+    ("Fire", "Metal"),
+    ("Earth", "Water"),
+    ("Metal", "Wood"),
+    ("Water", "Fire"),
+];
 
 #[derive(Clone, Copy)]
 struct StemLookup {
@@ -239,6 +253,40 @@ const SOLAR_MONTH_STARTS: [(u32, u32); 12] = [
     (12, 7),
 ];
 
+const PILLAR_PHASES: [&str; 12] = [
+    "Chang Sheng",
+    "Mu Yu",
+    "Guan Dai",
+    "Lin Guan",
+    "Di Wang",
+    "Shuai",
+    "Bing",
+    "Si",
+    "Mu",
+    "Jue",
+    "Tai",
+    "Yang",
+];
+const PILLAR_PHASES_ZH: [&str; 12] = [
+    "長生", "沐浴", "冠帶", "臨官", "帝旺", "衰", "病", "死", "墓", "絕", "胎", "養",
+];
+const CHANG_SHENG_BRANCH: [usize; 10] = [11, 6, 2, 9, 2, 9, 5, 0, 8, 3];
+const GENERAL_STAR: [&str; 12] = [
+    "子", "酉", "午", "子", "酉", "午", "子", "酉", "午", "子", "酉", "午",
+];
+const TALENT_STAR: [&str; 12] = [
+    "辰", "丑", "戌", "未", "辰", "丑", "戌", "未", "辰", "丑", "戌", "未",
+];
+const TRAVELLING_HORSE: [&str; 12] = [
+    "寅", "亥", "申", "巳", "寅", "亥", "申", "巳", "寅", "亥", "申", "巳",
+];
+const ROBBING_STAR: [&str; 12] = [
+    "巳", "寅", "亥", "申", "巳", "寅", "亥", "申", "巳", "寅", "亥", "申",
+];
+const DEATH_STAR: [&str; 12] = [
+    "申", "巳", "寅", "亥", "申", "巳", "寅", "亥", "申", "巳", "寅", "亥",
+];
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BaziInput {
     pub year: i32,
@@ -288,7 +336,28 @@ pub struct BranchData {
 pub struct HiddenStemData {
     pub stem: String,
     pub element: String,
+    pub ten_god: String,
     pub weight: f64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct TenGodInfo {
+    pub zh: String,
+    pub en: String,
+    pub structure: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PillarPhase {
+    pub phase: String,
+    pub phase_zh: String,
+    pub phase_idx: usize,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PillarStars {
+    pub heavenly: Vec<String>,
+    pub earthly: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -297,6 +366,10 @@ pub struct PillarData {
     pub stem: StemData,
     pub branch: BranchData,
     pub hidden_stems: Vec<HiddenStemData>,
+    pub ten_god: String,
+    pub ten_god_info: TenGodInfo,
+    pub pillar_phase: PillarPhase,
+    pub stars: PillarStars,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -398,20 +471,149 @@ fn branch_data(index: usize) -> BranchData {
     }
 }
 
-fn pillar_data(stem_index: usize, branch_index: usize, label: &str) -> PillarData {
+fn maps_to(mapping: &[(&str, &str)], from: &str, to: &str) -> bool {
+    mapping
+        .iter()
+        .any(|(source, target)| *source == from && *target == to)
+}
+
+fn ten_god_code(day_stem_index: usize, other_stem_index: usize) -> &'static str {
+    if day_stem_index == other_stem_index {
+        return "FR";
+    }
+    let day_stem = STEMS[day_stem_index % 10];
+    let other_stem = STEMS[other_stem_index % 10];
+    let same_polarity = day_stem.polarity == other_stem.polarity;
+    if day_stem.element == other_stem.element {
+        return if same_polarity { "FR" } else { "RW" };
+    }
+    if maps_to(&GENERATES, day_stem.element, other_stem.element) {
+        return if same_polarity { "EG" } else { "HO" };
+    }
+    if maps_to(&CONTROLS, day_stem.element, other_stem.element) {
+        return if same_polarity { "IW" } else { "DW" };
+    }
+    if maps_to(&GENERATES, other_stem.element, day_stem.element) {
+        return if same_polarity { "IR" } else { "DR" };
+    }
+    if maps_to(&CONTROLS, other_stem.element, day_stem.element) {
+        return if same_polarity { "7K" } else { "DO" };
+    }
+    "FR"
+}
+
+fn ten_god_info(code: &str) -> TenGodInfo {
+    let (zh, en, structure) = match code {
+        "FR" => ("比肩", "Friend", "Companion"),
+        "RW" => ("劫財", "Rob Wealth", "Companion"),
+        "EG" => ("食神", "Eating God", "Output"),
+        "HO" => ("傷官", "Hurting Officer", "Output"),
+        "DW" => ("正財", "Direct Wealth", "Wealth"),
+        "IW" => ("偏財", "Indirect Wealth", "Wealth"),
+        "DO" => ("正官", "Direct Officer", "Influence"),
+        "7K" => ("七殺", "Seven Killings", "Influence"),
+        "DR" => ("正印", "Direct Resource", "Resource"),
+        "IR" => ("偏印", "Indirect Resource", "Resource"),
+        "DM" => ("日主", "Day Master", "Companion"),
+        _ => ("比肩", "Friend", "Companion"),
+    };
+    TenGodInfo {
+        zh: zh.to_string(),
+        en: en.to_string(),
+        structure: structure.to_string(),
+    }
+}
+
+fn pillar_phase(day_stem_index: usize, branch_index: usize) -> PillarPhase {
+    let day_stem = STEMS[day_stem_index % 10];
+    let start = CHANG_SHENG_BRANCH[day_stem_index % 10];
+    let phase_idx = if day_stem.polarity == "Yang" {
+        (branch_index + 12 - start) % 12
+    } else {
+        (start + 12 - branch_index) % 12
+    };
+    PillarPhase {
+        phase: PILLAR_PHASES[phase_idx].to_string(),
+        phase_zh: PILLAR_PHASES_ZH[phase_idx].to_string(),
+        phase_idx,
+    }
+}
+
+fn compute_pillar_stars(
+    pillar_branch_index: usize,
+    year_branch_index: usize,
+    day_branch_index: usize,
+) -> PillarStars {
+    let pillar_branch = BRANCHES[pillar_branch_index % 12].character;
+    let year_branch = year_branch_index % 12;
+    let day_branch = day_branch_index % 12;
+    let mut earthly = Vec::new();
+    if pillar_branch == GENERAL_STAR[day_branch] {
+        earthly.push("General Star".to_string());
+    }
+    if pillar_branch == TALENT_STAR[day_branch] {
+        earthly.push("Talent Star".to_string());
+    }
+    if pillar_branch == TRAVELLING_HORSE[day_branch] {
+        earthly.push("Travelling Horse".to_string());
+    }
+    if pillar_branch == ROBBING_STAR[day_branch] {
+        earthly.push("Robbing Star".to_string());
+    }
+    if pillar_branch == DEATH_STAR[day_branch] {
+        earthly.push("Death Star".to_string());
+    }
+    if pillar_branch == GENERAL_STAR[year_branch]
+        && !earthly.iter().any(|star| star == "General Star")
+    {
+        earthly.push("General Star".to_string());
+    }
+    if pillar_branch == TALENT_STAR[year_branch]
+        && !earthly.iter().any(|star| star == "Talent Star")
+    {
+        earthly.push("Talent Star".to_string());
+    }
+    PillarStars {
+        heavenly: Vec::new(),
+        earthly,
+    }
+}
+
+fn pillar_data(
+    stem_index: usize,
+    branch_index: usize,
+    label: &str,
+    day_stem_index: usize,
+    year_branch_index: usize,
+    day_branch_index: usize,
+) -> PillarData {
     let hidden_stems = HIDDEN_STEMS[branch_index % 12]
         .iter()
         .map(|(index, weight)| HiddenStemData {
             stem: STEMS[*index].character.to_string(),
             element: STEMS[*index].element.to_string(),
+            ten_god: if *index == day_stem_index {
+                "DM".to_string()
+            } else {
+                ten_god_code(day_stem_index, *index).to_string()
+            },
             weight: round_two(*weight),
         })
         .collect();
+    let ten_god = if stem_index == day_stem_index {
+        "DM".to_string()
+    } else {
+        ten_god_code(day_stem_index, stem_index).to_string()
+    };
     PillarData {
         label: label.to_string(),
         stem: stem_data(stem_index),
         branch: branch_data(branch_index),
         hidden_stems,
+        ten_god_info: ten_god_info(&ten_god),
+        ten_god,
+        pillar_phase: pillar_phase(day_stem_index, branch_index),
+        stars: compute_pillar_stars(branch_index, year_branch_index, day_branch_index),
     }
 }
 
@@ -554,9 +756,30 @@ pub fn calculate_bazi(input: &BaziInput) -> Result<BaziChart, BaziError> {
     let (year_stem, year_branch) = year_stem_branch(tst.year(), tst.month(), tst.day());
     let (month_stem, month_branch) = month_stem_branch(year_stem, tst.month(), tst.day());
     let (day_stem, day_branch) = day_stem_branch(tst);
-    let year_pillar = pillar_data(year_stem, year_branch, "Year");
-    let month_pillar = pillar_data(month_stem, month_branch, "Month");
-    let day_pillar = pillar_data(day_stem, day_branch, "Day");
+    let year_pillar = pillar_data(
+        year_stem,
+        year_branch,
+        "Year",
+        day_stem,
+        year_branch,
+        day_branch,
+    );
+    let month_pillar = pillar_data(
+        month_stem,
+        month_branch,
+        "Month",
+        day_stem,
+        year_branch,
+        day_branch,
+    );
+    let day_pillar = pillar_data(
+        day_stem,
+        day_branch,
+        "Day",
+        day_stem,
+        year_branch,
+        day_branch,
+    );
     let day_lookup = STEMS[day_stem];
     let day_master = DayMaster {
         stem: day_lookup.character.to_string(),
@@ -581,7 +804,14 @@ pub fn calculate_bazi(input: &BaziInput) -> Result<BaziChart, BaziError> {
                         (branch.hour_start + 2) % 24
                     ),
                     probability_weight: 0.083333,
-                    hour_pillar: pillar_data(hour_stem, hour_branch, "Hour"),
+                    hour_pillar: pillar_data(
+                        hour_stem,
+                        hour_branch,
+                        "Hour",
+                        day_stem,
+                        year_branch,
+                        day_branch,
+                    ),
                     five_elements: compute_five_elements(
                         &[year_stem, month_stem, day_stem, hour_stem],
                         &[year_branch, month_branch, day_branch, hour_branch],
@@ -599,7 +829,14 @@ pub fn calculate_bazi(input: &BaziInput) -> Result<BaziChart, BaziError> {
             season_element,
         );
         (
-            Some(pillar_data(hour_stem, hour_branch, "Hour")),
+            Some(pillar_data(
+                hour_stem,
+                hour_branch,
+                "Hour",
+                day_stem,
+                year_branch,
+                day_branch,
+            )),
             Some(scores),
             None,
             Some(LegacyElementScores {
