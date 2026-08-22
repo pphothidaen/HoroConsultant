@@ -13,12 +13,18 @@ import pytest
 from fastapi.testclient import TestClient
 
 from project.main import app
+from project.mlops.notifications import telegram_bot as telegram_bot_module
 from project.mlops.notifications.telegram_bot import TelegramBotController
 
 
 @pytest.fixture
 def client():
     return TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def configured_chat_id(monkeypatch):
+    monkeypatch.setenv("TELEGRAM_CHAT_ID", "12345")
 
 
 def test_telegram_bot_help_command():
@@ -61,6 +67,16 @@ def test_telegram_bot_unknown_command():
     bot = TelegramBotController()
     res = bot.handle_command("/unknown_xyz", "12345")
     assert "ไม่รู้จักคำสั่ง" in res
+
+
+def test_persist_telegram_chat_id_writes_missing_value(tmp_path, monkeypatch):
+    env_file = tmp_path / ".env"
+    env_file.write_text('TELEGRAM_CHAT_ID=""\n', encoding="utf-8")
+    monkeypatch.delenv("TELEGRAM_CHAT_ID", raising=False)
+    monkeypatch.setattr(telegram_bot_module, "ENV_FILE", env_file)
+
+    assert telegram_bot_module.persist_telegram_chat_id("12345") is True
+    assert 'TELEGRAM_CHAT_ID="12345"' in env_file.read_text(encoding="utf-8")
 
 
 def test_telegram_webhook_endpoint(client):

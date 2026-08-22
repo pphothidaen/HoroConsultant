@@ -266,6 +266,11 @@ async def telegram_webhook(payload: dict):
     chat = message.get("chat", {})
     chat_id = str(chat.get("id", ""))
 
+    if chat_id:
+        from project.mlops.notifications.telegram_bot import persist_telegram_chat_id
+
+        persist_telegram_chat_id(chat_id)
+
     from project.mlops.notifications.telegram_controller import telegram_controller
     response_text = telegram_controller.handle_command(text, chat_id)
 

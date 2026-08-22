@@ -124,7 +124,8 @@ def test_metaphysics_consensus_matrix_debate():
 # 5. Two-Way Telegram Interactive Controller Tests (Decision 2)
 # ---------------------------------------------------------------------------
 
-def test_telegram_controller_commands():
+def test_telegram_controller_commands(monkeypatch):
+    monkeypatch.setenv("TELEGRAM_CHAT_ID", "123456")
     controller = TelegramBotController()
 
     resp_start = controller.handle_command("/start", "123456")
@@ -140,7 +141,8 @@ def test_telegram_controller_commands():
     assert "Google AI Studio Key Pool" in resp_keys
 
 
-def test_telegram_webhook_endpoint():
+def test_telegram_webhook_endpoint(monkeypatch):
+    monkeypatch.setenv("TELEGRAM_CHAT_ID", "12345678")
     client = TestClient(app)
     payload = {
         "update_id": 99999,

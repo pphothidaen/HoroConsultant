@@ -39,6 +39,39 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger("telegram_bot")
 
 
+def persist_telegram_chat_id(chat_id: str) -> bool:
+    """Persist Telegram chat ID locally when it is first discovered."""
+    if not chat_id:
+        return False
+
+    current_chat = os.getenv("TELEGRAM_CHAT_ID")
+    if not current_chat and ENV_FILE.exists():
+        from dotenv import dotenv_values
+
+        current_chat = dotenv_values(ENV_FILE).get("TELEGRAM_CHAT_ID")
+
+    if current_chat:
+        return False
+
+    logger.info("[TELEGRAM] Discovered user Chat ID. Saving to local env.")
+    lines = []
+    if ENV_FILE.exists():
+        lines = ENV_FILE.read_text(encoding="utf-8").splitlines()
+    new_lines = []
+    found = False
+    for line in lines:
+        if line.startswith("TELEGRAM_CHAT_ID=") or line.startswith("export TELEGRAM_CHAT_ID="):
+            new_lines.append(f'TELEGRAM_CHAT_ID="{chat_id}"')
+            found = True
+        else:
+            new_lines.append(line)
+    if not found:
+        new_lines.append(f'TELEGRAM_CHAT_ID="{chat_id}"')
+    ENV_FILE.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
+    os.environ["TELEGRAM_CHAT_ID"] = str(chat_id)
+    return True
+
+
 class TelegramBotController:
     """Handles incoming Telegram commands and interacts with Hermes Agent & MLOps tools."""
 
@@ -97,30 +130,7 @@ class TelegramBotController:
 
     def _ensure_chat_id_synced(self, chat_id: str):
         """Auto-save chat_id to .env and push to GitHub Secrets if not already saved."""
-        current_chat = os.getenv("TELEGRAM_CHAT_ID")
-        if not current_chat and ENV_FILE.exists():
-            from dotenv import dotenv_values
-            current_chat = dotenv_values(ENV_FILE).get("TELEGRAM_CHAT_ID")
-
-        if not current_chat:
-            logger.info(f"[TELEGRAM] Discovered user Chat ID: {chat_id}. Saving to .env & GitHub Secrets...")
-            # Update .env
-            lines = []
-            if ENV_FILE.exists():
-                lines = ENV_FILE.read_text(encoding="utf-8").splitlines()
-            new_lines = []
-            found = False
-            for line in lines:
-                if line.startswith("TELEGRAM_CHAT_ID=") or line.startswith("export TELEGRAM_CHAT_ID="):
-                    new_lines.append(f'TELEGRAM_CHAT_ID="{chat_id}"')
-                    found = True
-                else:
-                    new_lines.append(line)
-            if not found:
-                new_lines.append(f'TELEGRAM_CHAT_ID="{chat_id}"')
-            ENV_FILE.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
-            os.environ["TELEGRAM_CHAT_ID"] = str(chat_id)
-
+        if persist_telegram_chat_id(chat_id):
             # Sync to GitHub Secrets
             if shutil.which("gh"):
                 try:
