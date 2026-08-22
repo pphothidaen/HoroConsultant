@@ -1,3 +1,21 @@
+## Current Execution Control — 2026-08-22
+
+This file is the historical architecture/phase record. Current execution is controlled by the checkpoint board in [`PROJECT_TASKS.md`](../PROJECT_TASKS.md), not by reopening completed historical phases.
+
+| Current checkpoint | Status | Evidence / next action |
+|---|---|---|
+| `CP-00-DOCS` | DONE | 2026-08-22 21:12 +07: `git diff --check` and `python3 scripts/sync_ai_agent_ecosystem.py --check` passed; board/plans now identify ownership, evidence precedence, HITL blockers, and next action. |
+| `CP-01-LOCAL` | DONE | 2026-08-22 revalidation: full pytest `642 passed, 8 skipped, 12 warnings`; Azure release `9 passed`; sync/governance `7 passed`; secret scan and agent sync passed. External runtime gates remain separate. |
+| `CP-02-HF` | BLOCKED | Latest `project/tests/backend-release-check-hf-canonical.json` reports static `404`, backend/API `503`; Space appears paused/unhealthy. |
+| `CP-03-AZURE` | BLOCKED | GitHub Actions Azure credential fields/RBAC remain unresolved. |
+| `CP-04-PW` | BLOCKED | Production authorization and runnable browser/network egress are still required. |
+| `CP-05-RELEASE` | PENDING | Must wait for CP-02 through CP-04 to be green in one consolidated run. |
+| `CP-06-HANDOFF` | PENDING | Final sync and parent-ticket transition only after the release matrix is green. |
+
+Quota rule: complete one checkpoint per session, write its evidence immediately, and stop broad work when the quota guard reports below 10%.
+
+Handoff disposition: `TICKET-META-008` is `NEEDS_HITL` for unresolved Telegram/Doppler owner actions, unrelated dirty-file review, and external release gates. CP-00 documentation work is complete; no source, test, workflow, deployment, credential, or production-E2E changes were authorized in this checkpoint.
+
 ---
 ## 🔥 GRILL REPORT — Phase 16: Automated 3-Tier Notebook AST, Python Syntax & MLOps Dependency Quality Gate
 **Date**: 2026-08-17T12:23:00+07:00  
@@ -1115,12 +1133,12 @@
 
 # AI SDLC Master Implementation Plan: Skill Context Budget Optimization & Multi-Agent Architecture Refactoring
 
-> **Current execution disposition (2026-08-21):** Historical Phase 1–16 grill reports below are retained as completion evidence. Active/future platform, governance, observability, provider, and release work is tracked by `TICKET-META-005` and `TICKET-META-006` in [`PROJECT_TASKS.md`](../PROJECT_TASKS.md). Local release gates pass (code review: 621 passed, 8 skipped; project suite: 582 passed, 8 skipped; quality gate 4/4; 0 secret leaks across 1,507 files; agent sync clean), but those tickets remain externally blocked until Azure RBAC, canonical-HF health, release-CI, and authorized production Playwright evidence are all green.
+> **Historical execution disposition (2026-08-21):** Historical Phase 1–16 grill reports below are retained as completion evidence. Current release execution is controlled by the checkpoint matrix at the top of this file and [`PROJECT_TASKS.md`](../PROJECT_TASKS.md). The newest HF canonical probe is failed (`404/503`), while Azure promotion and authorized production Playwright evidence remain unresolved; older `200` HF evidence is superseded.
 
 **Project:** HoroConsultant — Computational Metaphysics Engine  
 **Target Framework:** Antigravity CLI AI SDLC System + Codex compatibility layer  
 **Lead Agent:** Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
-**Last Updated:** 2026-08-21 15:43 +07 — parent code review revalidated; externally blocked release work remains under `TICKET-META-005`/`006`
+**Historical Last Updated:** 2026-08-21 15:43 +07 — retained for audit traceability; current status is maintained in the checkpoint block above.
 
 ---
 

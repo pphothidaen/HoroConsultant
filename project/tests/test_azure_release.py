@@ -84,11 +84,8 @@ def test_production_monitor_prefers_azure_backend_over_stale_hf_backend():
 
     assert "AZURE_PUBLIC_BACKEND_URL" in text
     assert "horoconsult-env-new.mangoforest-3a921b17.westus2.azurecontainerapps.io" in text
-    assert (
-        "HF_BACKEND_URL: ${{ vars.AZURE_PUBLIC_BACKEND_URL || "
-        "env.AZURE_PUBLIC_BACKEND_URL || vars.HF_BACKEND_URL || "
-        "'https://horo-consultant-psi.vercel.app' }}"
-    ) in text
+    assert "HF_BACKEND_URL: ${{ vars.AZURE_PUBLIC_BACKEND_URL || env.AZURE_PUBLIC_BACKEND_URL }}" in text
+    assert "vars.HF_BACKEND_URL" not in text
     assert "https://pphothidaen-horoconsultant-core-backend.hf.space" not in text
 
 

@@ -4,6 +4,8 @@
 
 > **Current disposition (2026-08-21):** Tasks 1–6 have implementation and focused-test evidence under `TICKET-META-003`/`004`. CI/CD release verification remains explicitly blocked under `TICKET-META-005`/`006`; see [`PROJECT_TASKS.md`](../PROJECT_TASKS.md) for owner, gate, and recovery action. This plan is retained for traceability, not as an unstarted backlog.
 
+> **Execution decomposition (2026-08-22 21:12 +07):** Tasks 1–6 are closed implementation workstreams. `CP-00-DOCS` is complete for this session. The next executable checkpoint is `CP-01-LOCAL` (QA/code-review ownership); remaining external checkpoints are `CP-02-HF` / `CP-03-AZURE` / `CP-04-PW` → `CP-05-RELEASE` → `CP-06-HANDOFF`. Do not restart Tasks 1–6 unless new evidence shows regression.
+
 ---
 
 ## Task Breakdown & Roadmap

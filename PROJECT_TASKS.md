@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff — Central Kanban Board for ALL Project Work**  
-> *Last Updated: 2026-08-22 19:14 (Asia/Bangkok) — pushed commit `056b1aa`, GitHub CI passed, HF Docker publish step completed via Actions, but canonical HF verification remains blocked because the Space is paused/unhealthy (`503`).*
+> *Last Updated: 2026-08-22 (Asia/Bangkok) — CP-01 local QA revalidated green after the production-monitor Azure-only fix. The latest canonical HF evidence remains failed (`404/503`), Azure promotion is unresolved, and production Playwright is not yet authorized.*
 
 ---
 
@@ -52,6 +52,13 @@ python3 -m pytest -q project/tests/
 
 > **Current release state is captured by the latest evidence block below; historical ticket checkboxes above may reflect earlier completed milestones.**
 
+### Documentation Authority Rules (current)
+
+- The newest timestamped evidence artifact outranks older prose or historical release notes.
+- A deployment is not considered healthy from a previous `200` result when the newest canonical probe is `404/503`.
+- External deployment, production E2E, credential, and secret-sync actions remain separate HITL checkpoints; do not combine them with local QA.
+- Each checkpoint below must produce its own evidence before the next checkpoint starts. If quota is low, stop after the current checkpoint and update `TICKET-META-008` only.
+
 ## ✅ Latest Local Evidence Snapshot (2026-08-22 18:56)
 - `python3 scripts/sync_sdlc_agents.py --check` → passed (all Antigravity definitions synchronized).
 - `python3 scripts/sync_codex_agents.py --check` → passed (all Codex definitions synchronized).
@@ -81,6 +88,7 @@ python3 -m pytest -q project/tests/
 - `python3 scripts/sync_ai_agent_ecosystem.py --check` → passed on 2026-08-22 (platform files, Claude hooks/rules, Antigravity sync, and all `17` Codex agent definitions synchronized).
 - `python3 -m pytest -q project/tests/test_agent_quota_status_guard.py project/tests/test_live_health_verification.py project/tests/test_synthetic_health_monitor.py project/tests/test_mian_xiang_vision.py project/tests/test_post_train_fuse.py project/tests/test_svg_i18n.py project/tests/test_web_regression.py project/tests/test_codex_client.py project/tests/test_agent_configurations.py` → `45 passed`, `4 skipped`, `1 warning` on 2026-08-22.
 - `PYTHONPYCACHEPREFIX=/private/tmp/horo_pycache python3 -m py_compile .agents/hooks/pre_tool_check.py .claude/hooks/pre_tool_guard.py scripts/agent_quota_status_guard.py scripts/synthetic_health_monitor.py scripts/run_live_health_verification.py project/api_router.py project/routers/v2.py` → passed on 2026-08-22.
+- CP-01 revalidation after `.github/workflows/production_monitor.yml` Azure-only backend selection: `python3 -m pytest -q project/tests/` → `642 passed`, `8 skipped`, `12 warnings`; Azure release tests → `9 passed`; sync/governance tests → `7 passed` (2026-08-22).
 - `python3 scripts/agent_quota_status_guard.py --remaining-percent 9 --enforce` → warning emitted for `<10%` quota and confirmed required handoff markers in `PROJECT_TASKS.md` and `plans/plan.md`.
 - `python3 project/core/code_reviewer.py --scan-secrets` → PASSED: `0` leaks across `1,530` files (2026-08-22 18:56).
 - `git push origin main` → pushed `056b1aa` to `origin/main` on 2026-08-22.
@@ -122,7 +130,28 @@ Current sections below track active work and release gates only.
 | `TICKET-META-005` | `devops` / `developer` | Reconcile active/future `plan.md` platform work: providers, observability, CI/CD, governance, and release architecture | BLOCKED | `TICKET-META-001` |
 | `TICKET-META-006` | `qa_tester` / `code_reviewer` / `business_analyst` | Run full QA, security, synchronization, release evidence, and final Kanban documentation handoff | BLOCKED | `TICKET-META-002`..`005` |
 | `TICKET-META-007` | `orchestrator` / `business_analyst` | Refresh sub-agent delegation governance and Claude Code three-level command-control examples | DONE | `TICKET-META-001` |
-| `TICKET-META-008` | `orchestrator` / `business_analyst` / `devops` | Preserve account-migration continuity and quota-exhaustion handoff, including active blockers, non-secret credential status, and safe resume commands | DOING | `TICKET-META-005`, `TICKET-META-006` |
+| `TICKET-META-008` | `orchestrator` / `business_analyst` / `devops` | Preserve account-migration continuity and quota-exhaustion handoff, including active blockers, non-secret credential status, and safe resume commands | NEEDS_HITL | `TICKET-META-005`, `TICKET-META-006` |
+
+## 🧩 Decoupled Release Closure Checkpoints
+
+These checkpoints replace the previous single release-closure workstream. They are intentionally small, independently verifiable, and resumable across quota/account changes.
+
+| Checkpoint | Owner | Scope | Exit evidence | Stop condition |
+|---|---|---|---|---|
+| `CP-00-DOCS` | `business_analyst` | Reconcile ticket/plan/evidence status before execution | Updated board, plans, and evidence index | **DONE** — proceed to CP-01-LOCAL |
+| `CP-01-LOCAL` | `qa_tester` / `code_reviewer` | Re-run local QA, secret scan, agent sync, quality gate | Timestamped command outputs and report paths | **DONE** — local evidence green; proceed only to separately gated external checkpoints |
+| `CP-02-HF` | `devops` | Verify canonical HF origin, `/health`, deterministic API | Fresh canonical probe JSON with explicit status | Stop on `404/503`, paused Space, DNS, or auth failure |
+| `CP-03-AZURE` | `devops` | Validate complete Azure Actions credentials and deploy | Workflow proving login, provisioning, and `/health` | Stop on missing fields or RBAC error |
+| `CP-04-PW` | `qa_tester` | Obtain authorization and run production Playwright | Authorization record plus Playwright artifact | Stop if authorization/browser egress is unavailable |
+| `CP-05-RELEASE` | `orchestrator` / `devops` | Consolidate all green release gates | Single all-green release matrix | Stop if any upstream checkpoint is not green |
+| `CP-06-HANDOFF` | `business_analyst` | Final document sync, quota-safe handoff, parent transition | Updated board, plan links, evidence index | Stop before `DONE` if any blocker remains |
+
+### Checkpoint execution policy
+
+1. Execute only one checkpoint per work session unless its evidence is already present.
+2. At the end of every checkpoint, record status, timestamp, command/artifact, blocker, and next checkpoint.
+3. When quota is below 10%, stop implementation/release work and complete only the quota-safe update in `TICKET-META-008`.
+4. No checkpoint may claim another checkpoint's evidence; local green tests do not prove external deployment health.
 
 ### 🎫 TICKET-META-001 | `orchestrator` / `business_analyst` | [STATUS: DOING]
 **Priority**: CRITICAL
@@ -206,7 +235,7 @@ This ticket is `DOING` while child tickets are being executed. It moves to `DONE
 - Credential, production deploy, and production Playwright execution remain HITL-gated unless the user provides current explicit authorization and required non-secret evidence.
 - Any secret value printed by a CLI must be considered compromised and rotated before propagation.
 
-### 🎫 TICKET-META-008 | `orchestrator` / `business_analyst` / `devops` | [STATUS: DOING]
+### 🎫 TICKET-META-008 | `orchestrator` / `business_analyst` / `devops` | [STATUS: NEEDS_HITL]
 **Priority**: HIGH
 **Depends On**: `TICKET-META-005`, `TICKET-META-006`
 **Blocks**: Safe account handoff when current assistant/account quota is exhausted.
@@ -232,6 +261,14 @@ This ticket is `DOING` while child tickets are being executed. It moves to `DONE
 - Local secret hygiene: expired `GH_TOKEN` was removed from `.env` and `.env.production`; latest secret scan remains `0` leaks across `1,530` files.
 - Dirty files outside the Telegram/account-continuity scope remain uncommitted and must be reviewed by batch before quarantine or cleanup.
 - Governance enforcement: `scripts/agent_quota_status_guard.py` checks `/status`/runtime quota signals; `.agents/hooks/pre_tool_check.py` and `.claude/hooks/pre_tool_guard.py` invoke it when quota status is present, and `bsa-doc-skill-management` defines the low-quota handoff workflow. Focused guard regression and explicit `--remaining-percent 9 --enforce` validation passed on 2026-08-22.
+
+#### Documentation checkpoint result — `CP-00-DOCS` (2026-08-22 21:12 +07)
+- **Status:** DONE for the owned documentation/governance scope; this does not close the parent release workstream.
+- **Scope grill:** in scope was board/plan/evidence reconciliation and a safe next-ticket handoff; out of scope were source/tests/workflows, generated or legacy agent definitions, deployment, credentials, secret sync, and production E2E. Inputs were the current worktree, the canonical HF probe artifact, and existing local evidence. Success requires aligned checkpoint status, explicit blockers, non-secret credential state, and a runnable next action; stop before any external mutation or green release claim.
+- **Evidence:** `git status --short`; `git diff --check`; `python3 scripts/sync_ai_agent_ecosystem.py --check` passed. `project/tests/backend-release-check-hf-canonical.json` remains authoritative and records static `404`, backend `/health` `503`, and deterministic API `503`.
+- **Reconciled files:** `PROJECT_TASKS.md`, `plans/plan.md`, and `plans/todo_tasks_plan.md`. Existing unrelated `project_tickets.md` edits were preserved and not modified.
+- **Next executable checkpoint:** `CP-01-LOCAL`, owned by `qa_tester` / `code_reviewer`. Use the documented local QA, secret scan, sync, and quality-gate commands; stop on any local failure and do not deploy.
+- **HITL required:** owner action remains necessary for Telegram chat-id capture/confirmation, Doppler authentication/secret sync, review of unrelated dirty files, HF Space recovery, Azure Actions credential/RBAC resolution, and production Playwright authorization. None is claimed green here.
 
 #### Safe Resume Commands
 ```bash
@@ -315,21 +352,16 @@ Run the required unit, integration, UI/E2E, security, agent synchronization, pre
 - [x] Vercel API probe executed; in this run production curl checks are `2/3` with `POST /api/v1/bazi/interpret` returning `503` (`canonical_bazi_unavailable`) and missing `X-AI-Source`/`X-AI-Model` headers.
 - [x] Local release-verifier routing and synthetic-monitor fallback are covered by focused regression tests: an explicit backend URL takes precedence, a canonical HF Space ID derives the backend URL when unset, and static `/index.html` fallback no longer crashes the monitor.
 - [x] 2026-08-21 15:43 local revalidation: code review passed with notebook audit clean; secret scan found `0` leaks across `1,507` files, and the UI contract suite passed `25/25` checks.
-- [x] Docker backend deployment: GitHub Actions run `32577425927` for commit `52149b7` published the Docker API backend and completed canonical verification.
-- **Current status:** The HF Docker Space is running and the canonical request path is healthy. The static UI and backend share the Docker Space origin; `.static.hf.space` was removed from the canonical configuration because it only applies to Static SDK Spaces.
-  - **Runtime evidence:** artifact `hf-production-verification-52149b72b713a92e7c3e2d4e46b702bc554b2b5a`; static UI `200`, `/health` `200`, deterministic API `200`; synthetic monitor `2/2` critical targets healthy.
-- **Next action:** None for `G-META-006-BACKEND`; retain the same-space origin guard and rerun this gate only when release-affecting changes land.
-  - **Gate Ref:** `G-META-006-BACKEND`.
+- [x] Historical HF Docker deployment evidence exists for workflow `32577425927` / commit `52149b7`.
+- **AUTHORITATIVE CURRENT STATUS (`CP-02-HF`):** The newest artifact `project/tests/backend-release-check-hf-canonical.json` (2026-08-22 19:14) reports static UI `404`, backend `/health` `503`, and deterministic API `503`; the Space is reported paused/unhealthy. The older `200/healthy` block below is retained as historical evidence only and must not be used for release closure.
+  - **Next action:** Re-run the canonical HF checkpoint only after the Space/origin is repaired, then replace this status with a fresh timestamped result.
+  - **Gate Ref:** `G-META-006-BACKEND` / `CP-02-HF`.
 - [ ] Azure canonical backend deployment: workflow `Azure Container Apps — Production Deployment` reaches `azure/login` but fails in `Deploy to Azure Container Apps` with RBAC `AuthorizationFailed` on resource-group read/write.
   - **Current status:** RBAC grant was applied on 2026-08-21 for service principal `2e0f6d36-99da-4c75-a07c-bf6299da2180` / object id `d730cc3c-aa0d-4b01-98db-828ec4a6eeda` as `Contributor` on `rg-horoconsult`; local `az group show` confirms Resource Group read access and `provisioningState: Succeeded`.
   - **Runtime credential evidence:** Operator-provided role assignment output plus local `az group show`; run `32472307078` built/pushed Docker successfully but failed at `Azure Login` because `creds` lacked required service-principal fields; workflow fix `bcac542` was pushed and rerun as `32472681936`, which then failed earlier at `Resolve Azure credentials` with `Missing resolved credential field: clientId`.
   - **Next action:** Replace GitHub `AZURE_CREDENTIALS` with complete service-principal JSON or configure `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`, `AZURE_SUBSCRIPTION_ID`, and `AZURE_TENANT_ID` as Actions secrets, then rerun `Azure Container Apps — Production Deployment` and confirm post-login provisioning plus `/health` pass.
   - **Gate Ref:** `G-META-005-AZURE`.
-- [x] HF Docker canonical backend: workflow `32577425927` completed publish, startup, canonical verification, and synthetic monitoring for commit `52149b7`.
-- **Current status:** Static UI, backend health, and deterministic API all return `200` from `https://pphothidaen-horoconsultant-core-backend.hf.space`.
-  - **Runtime evidence:** `production-verification.json` reports `3/3` checks passed; `synthetic-health.json` reports `2/2` critical targets healthy.
-- **Next action:** None for this gate.
-  - **Gate Ref:** `G-META-006-BACKEND`.
+- **Historical evidence (superseded):** `production-verification.json` reported `3/3` and `synthetic-health.json` reported `2/2` for an earlier deployment. These artifacts do not override the newer failed canonical probe.
 - [x] Release CI confirmation for the previously reported Rust formatting drift and Bandit B602 findings.
   - **Current status:** GitHub Actions `Unified CI & Quality Audit Pipeline` run `32571990179` for `056b1aa` completed successfully. Local Rust formatting, Rust vector/security tests, MLOps Python compilation, and the exact CI Bandit command also pass; Bandit reports no issues across `project/` and `scripts/` (`36,112` lines).
   - **Next action:** Keep the run URL attached to the final evidence bundle; rerun only if release-affecting files change.
@@ -362,18 +394,18 @@ Run the required unit, integration, UI/E2E, security, agent synchronization, pre
   - **Next action:** Move to `DONE` only when all unresolved `Current Verification Evidence` items are closed and evidence archive is finalized.
   - **Gate Ref:** `G-META-001-SYNC`.
 
-### Unresolved Gate Recovery Actions
+### Unresolved Gate Recovery Actions (mapped to checkpoints)
+- `CP-01-LOCAL` baseline is currently available from the latest evidence snapshot; rerun it only after release-affecting changes.
 - Local checks completed in this workspace:
   - `cargo fmt --manifest-path rust_core/Cargo.toml --all` completed successfully.
   - `cd rust_core && cargo fmt --all -- --check` completed successfully.
   - Local `project/mlops` scan shows no `shell=True` / `os.system` subprocess anti-patterns tied to Bandit B602 in a literal string search.
-- Exact CI Bandit command now passes locally on 2026-08-21; CI runner confirmation is still required for release closure.
-- 2026-08-21 blocker investigation: HF canonical probes fail at status `0` (DNS/socket/egress or remote Space availability); Azure login succeeds but target resource-group authorization fails; local CI/Rust/Bandit gates pass; production Playwright still needs authorized browser egress. The Azure workflow now includes a target-access preflight with remediation output.
-- Confirm canonical `HF_BACKEND_SPACE_ID` fallback path is active in CI and rerun Docker backend and HF canonical backend deployment checks.
-- Repair Azure runtime Azure RBAC by granting the workflow identity `resourceGroups/read` + `resourceGroups/write` (or equivalent) on the target deployment resource group, then rerun Azure promotion workflow.
-- Confirm local Rust formatting (`cargo fmt`) is clean, rerun Bandit in an environment where it is installed, then clear both findings in the same release CI run.
-- Re-run the Rust/Python full-review wrapper after hang investigation and confirm wrapper convergence.
-- Obtain external birth-data execution authorization and rerun production Playwright E2E.
+- Exact CI Bandit command passes locally; retain CI run evidence under `CP-01-LOCAL`/`G-META-005-RUSTCI`.
+- `CP-02-HF`: newest canonical probe is `404/503`; repair or resume the HF Space/origin, then rerun the canonical probe.
+- `CP-03-AZURE`: replace GitHub Azure credentials with complete non-secret field configuration, rerun the workflow, and verify provisioning plus `/health`.
+- `CP-04-PW`: obtain explicit production authorization and runnable browser/network egress, then archive the Playwright artifact.
+- `CP-05-RELEASE`: run only after CP-01 through CP-04 have current evidence.
+- `CP-06-HANDOFF`: synchronize docs and transition tickets only after the consolidated matrix is green.
 
 #### Unresolved Gate Ownership & Validation
 | Gate ID | Gate | Owner | Action/Validation target |

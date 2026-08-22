@@ -7,21 +7,32 @@
 
 echo "🔎 [Pre-Commit] Validating Notebook AST & Python Syntax..."
 
-if command -v python3 >/dev/null 2>&1; then
-    # Run the fast dedicated notebook syntax test suite (<0.05s)
-    if [ -f "tests/test_notebook_syntax.py" ]; then
-        python3 -m pytest tests/test_notebook_syntax.py -q >/dev/null 2>&1
-        STATUS=$?
-        if [ $STATUS -ne 0 ]; then
-            echo ""
-            echo "❌ [Pre-Commit BLOCKED] Notebook Syntax or Dependency Conflict detected!"
-            echo "   Run: python3 -m pytest tests/test_notebook_syntax.py -v"
-            echo "   Fix: python3 scripts/sync_notebook_cells.py"
-            echo ""
-            exit 1
-        fi
-        echo "✅ [Pre-Commit] Notebook AST & Dependency Matrix Passed 100%!"
+# Prefer project venv python (has pytest); fall back to system python3
+PYTHON=""
+if [ -x ".venv/bin/python3" ]; then
+    PYTHON=".venv/bin/python3"
+elif command -v python3 >/dev/null 2>&1; then
+    PYTHON=python3
+fi
+
+if [ -z "$PYTHON" ]; then
+    echo "[WARN] Python not available; skipping notebook AST check."
+    exit 0
+fi
+
+# Run the fast dedicated notebook syntax test suite (<0.05s)
+if [ -f "tests/test_notebook_syntax.py" ]; then
+    "$PYTHON" -m pytest tests/test_notebook_syntax.py -q >/dev/null 2>&1
+    STATUS=$?
+    if [ $STATUS -ne 0 ]; then
+        echo ""
+        echo "❌ [Pre-Commit BLOCKED] Notebook Syntax or Dependency Conflict detected!"
+        echo "   Run: $PYTHON -m pytest tests/test_notebook_syntax.py -v"
+        echo "   Fix: $PYTHON scripts/sync_notebook_cells.py"
+        echo ""
+        exit 1
     fi
+    echo "✅ [Pre-Commit] Notebook AST & Dependency Matrix Passed 100%!"
 fi
 
 # Auto-stamp git version into all local source files
