@@ -46,9 +46,12 @@ def test_docker_build_context_dependencies_exist():
     assert (ROOT / ".env.example").is_file()
     assert (ROOT / "scripts").is_dir()
     assert (ROOT / "tests").is_dir()
+    assert (ROOT / "rust_core" / "Cargo.toml").is_file()
     assert "COPY --chown=user:user scripts/" in dockerfile
     assert "COPY --chown=user:user tests/" in dockerfile
     assert "COPY --chown=user:user .env.example" in dockerfile
+    assert "maturin build --locked --release" in dockerfile
+    assert "COPY rust_core/Cargo.toml" in dockerfile
 
 
 def test_publish_space_dry_run():

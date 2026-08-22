@@ -4,6 +4,20 @@
 # Target: Hugging Face Spaces (Port 7860, User 1000)
 # ============================================================
 
+FROM rust:1.97.1-bookworm AS rust-builder
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends python3 python3-dev python3-pip \
+    && rm -rf /var/lib/apt/lists/* \
+    && python3 -m pip install --no-cache-dir maturin==1.14.1
+
+WORKDIR /src/rust_core
+COPY rust_core/Cargo.toml rust_core/Cargo.lock rust_core/pyproject.toml ./
+COPY rust_core/src ./src
+COPY rust_core/__init__.py ./__init__.py
+RUN maturin build --locked --release --out /wheelhouse
+
+
 FROM ubuntu:22.04 AS base
 
 LABEL maintainer="Computational Metaphysics Engine"
@@ -36,6 +50,11 @@ WORKDIR /code
 COPY requirements.txt /code/requirements.txt
 RUN pip3 install --no-cache-dir --upgrade pip \
     && pip3 install --no-cache-dir -r requirements.txt
+
+# Install the Linux wheel built from source; the checked-in .so is host-specific.
+COPY --from=rust-builder /wheelhouse /tmp/rust-wheelhouse
+RUN pip3 install --no-cache-dir /tmp/rust-wheelhouse/*.whl \
+    && rm -rf /tmp/rust-wheelhouse
 
 # Create non-root user with UID 1000 for HuggingFace Spaces compatibility
 RUN useradd -m -u 1000 user

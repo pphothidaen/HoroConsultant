@@ -439,6 +439,18 @@ High-Precision 10-Domain Computational Metaphysics Engine, True Solar Time Engin
                 ignore_patterns=IGNORE_PATTERNS,
             )
             api.upload_folder(
+                folder_path=str(ROOT / "rust_core"),
+                path_in_repo="rust_core",
+                repo_id=space_id,
+                repo_type="space",
+                ignore_patterns=[
+                    *IGNORE_PATTERNS,
+                    "rust_core/target/*",
+                    "rust_core/*.so",
+                    "rust_core/*.dylib",
+                ],
+            )
+            api.upload_folder(
                 folder_path=str(ROOT / "project"),
                 path_in_repo="project",
                 repo_id=space_id,
