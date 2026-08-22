@@ -140,7 +140,23 @@ jobs:
         if: ${{ env.HF_BACKEND_SPACE_ID != '' }}
         run: python3 scripts/publish_space_hf.py --space-id "$HF_BACKEND_SPACE_ID" --sdk docker
 
-      - name: Capture redacted HF build log
+      - name: Wait for public backend and verify complete path
+        run: |
+          if [ -n "${HF_BACKEND_SPACE_ID}" ]; then
+            CHECK_CMD="python3 scripts/run_live_health_verification.py --json-output production-verification.json"
+          else
+            CHECK_CMD="python3 scripts/run_live_health_verification.py --allow-missing-backend --json-output production-verification.json"
+          fi
+          for attempt in $(seq 1 18); do
+            if ${CHECK_CMD}; then
+              exit 0
+            fi
+            echo "[INFO] Public backend still starting; retrying in 20 seconds"
+            sleep 20
+          done
+          exit 1
+
+      - name: Capture final redacted HF build log
         if: always()
         continue-on-error: true
         run: |
@@ -160,24 +176,8 @@ jobs:
           log_text = re.sub(r"hf_[A-Za-z0-9_-]{8,}", "[REDACTED_HF_TOKEN]", log_text)
           log_text = re.sub(r"Bearer\s+\S+", "Bearer [REDACTED]", log_text, flags=re.IGNORECASE)
           Path("hf-build.log").write_text(log_text, encoding="utf-8")
-          print(f"[INFO] Captured redacted HF build log ({len(log_text)} bytes)")
+          print(f"[INFO] Captured final redacted HF build log ({len(log_text)} bytes)")
           PY
-
-      - name: Wait for public backend and verify complete path
-        run: |
-          if [ -n "${HF_BACKEND_SPACE_ID}" ]; then
-            CHECK_CMD="python3 scripts/run_live_health_verification.py --json-output production-verification.json"
-          else
-            CHECK_CMD="python3 scripts/run_live_health_verification.py --allow-missing-backend --json-output production-verification.json"
-          fi
-          for attempt in $(seq 1 18); do
-            if ${CHECK_CMD}; then
-              exit 0
-            fi
-            echo "[INFO] Public backend still starting; retrying in 20 seconds"
-            sleep 20
-          done
-          exit 1
 
       - name: Run synthetic monitor
         run: |
