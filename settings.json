@@ -4,11 +4,23 @@
   "version": "1.0.0",
   "default_agent": "orchestrator",
   "models": {
-    "default": "Gemini 3.6 Flash (High)",
-    "orchestrator": "Gemini 3.6 Flash (High)",
-    "developer": "Gemini 3.6 Flash (Standard)",
-    "qa_tester": "Gemini 3.5 Flash-Lite",
-    "devops": "Gemini 3.6 Flash (Standard)"
+    "default": "gpt-5.6-sol",
+    "orchestrator": "gpt-5.6-sol",
+    "hermes": "gpt-5.6-sol",
+    "business_analyst": "gpt-5.6-terra",
+    "developer": "gpt-5.3-codex",
+    "qa_tester": "gpt-5.4-mini",
+    "devops": "gpt-5.3-codex",
+    "code_reviewer": "gpt-5.3-codex",
+    "ming_xue_master": "gpt-5.6-terra",
+    "numerology_master": "gpt-5.4-mini",
+    "prediction_validator": "gpt-5.6-sol",
+    "pu_shi_master": "gpt-5.6-terra",
+    "san_shi_master": "gpt-5.6-terra",
+    "thai_vedic_master": "gpt-5.4-mini",
+    "western_astro_master": "gpt-5.4-mini",
+    "xiang_xue_master": "gpt-5.6-terra",
+    "ze_ji_master": "gpt-5.6-terra"
   },
   "permissions": {
     "file_system": {
