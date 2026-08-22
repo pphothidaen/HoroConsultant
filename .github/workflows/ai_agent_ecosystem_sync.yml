@@ -1,0 +1,26 @@
+name: AI Agent Ecosystem Sync
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync-check:
+    name: Validate cross-platform agent sync
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install validation dependencies
+        run: python -m pip install -q PyYAML
+
+      - name: Check AI agent ecosystem sync
+        run: python scripts/sync_ai_agent_ecosystem.py --check

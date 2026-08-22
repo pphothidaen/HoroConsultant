@@ -52,3 +52,19 @@ Each sub-agent final response must include:
 ## Completion Gate
 
 The orchestrator may close a parent task only after all delegated items are either `DONE` with evidence or explicitly `BLOCKED` with a documented operator action. A parent release task cannot be closed from local checks alone when external CI, production deployment, or live endpoint verification remains pending.
+
+## Claude Code Governance Layering
+
+For Claude Code, distribute orchestration controls across three layers:
+
+1. **Level 1 Hooks (`.claude/settings.json`)**
+   - Use `PreToolUse` hooks for hard blocks before execution.
+   - Block secret-file reads, plaintext token output, force push, `rm -rf`, hard resets, and unsafe destructive cleanup.
+
+2. **Level 2 Rules (`.claude/rules/*.md`)**
+   - Use frontmatter `paths` so task-specific rules load only for matching files.
+   - Keep separate files for API, frontend, testing/release, secrets/devops, and orchestrator/sub-agent governance.
+
+3. **Level 3 Global Context (`.claude/CLAUDE.md` or root `CLAUDE.md`)**
+   - Keep global context short: project priorities, generated-file boundaries, release evidence requirements, and the sub-agent result format.
+   - Do not place detailed implementation standards here when they can live in path-scoped rules.

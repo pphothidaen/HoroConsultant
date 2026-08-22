@@ -4,6 +4,25 @@
 
 ---
 
+## Claude Code governance priority
+
+Claude Code should use the three-layer governance model in this order:
+
+1. `.claude/settings.json` hooks for hard safety constraints before tool execution.
+2. `.claude/rules/*.md` for path-scoped, context-aware rules.
+3. `.claude/CLAUDE.md` and this file for short global context only.
+
+Do not read secret files or print token values. Do not edit generated `.codex/agents/*.toml` directly. Do not claim release completion without CI, deployment, and live endpoint evidence.
+
+For cross-platform agent sync, use the umbrella gate:
+
+```bash
+python3 scripts/sync_ai_agent_ecosystem.py --check
+python3 scripts/sync_ai_agent_ecosystem.py --sync
+```
+
+---
+
 ## 📌 1. Session Initialization & Project Overview
 
 **HoroConsultant** is an enterprise-grade Computational Metaphysics Engine & Fine-Tuning Pipeline. It combines deterministic astronomical algorithms (True Solar Time, NOAA Spencer 1971, Swiss Ephemeris) with a Local-First Hybrid Multi-Agent AI System (Ollama Qwen2.5:7b + FAISS RAG + Gemini Cloud Validator).
@@ -30,8 +49,8 @@ python3 -m uvicorn project.main:app --reload --port 8000
 # Admin Panel:       http://localhost:8000/admin
 # API Docs:          http://localhost:8000/docs
 
-# 3. Synchronize SDLC Agents across Antigravity & Claude Code
-python3 scripts/sync_sdlc_agents.py --sync
+# 3. Synchronize AI Agents across Claude, OpenAI/Codex, Gemini/AGY, Hermes, and thClaws
+python3 scripts/sync_ai_agent_ecosystem.py --sync
 
 # 4. Run Universal Production Metaphysics Engine (thClaws + AGY Subagent Hybrid Mode)
 python3 scripts/run_universal_bridge.py --mode hybrid
@@ -79,6 +98,12 @@ python3 scripts/post_train_fuse.py --dry-run
 5. **Local Override Configuration**:
    - Developers and Agents may create `CLAUDE.local.md` or `.env` for local environment variable overrides without committing secrets to Git.
 
+6. **Claude Code Command Governance (3 Levels)**:
+   - Level 1 hard constraints live in `.claude/settings.json` hooks and block critical risks before tool execution.
+   - Level 2 context-aware rules live in `.claude/rules/*.md` and `.agents/rules/*.md`; load only rules relevant to touched paths.
+   - Level 3 global context stays here in `CLAUDE.md`; keep it short and do not use it as the only safety boundary.
+   - Delegation rules are governed by `.agents/skills/orchestrator-delegation/SKILL.md`, `.agents/rules/11-orchestrator-subagent-delegation.md`, and `.agents/rules/12-claude-code-three-level-governance.md`.
+
 ---
 
 ## 📁 4. Project Directory Structure
@@ -87,7 +112,9 @@ python3 scripts/post_train_fuse.py --dry-run
 HoroConsultant/
 ├── CLAUDE.md                    # Main Project Blueprint & Agent Guide
 ├── .antigravity/agents/         # Primary Google Antigravity Agent Specifications (.agent YAML)
-├── .claude/agents/              # Primary Anthropic Claude Code Agent Specifications (.json)
+├── .claude/                     # Claude Code hooks, path-aware rules, and prompt patterns
+│   ├── settings.json            # PreToolUse/PostToolUse hook wiring
+│   └── rules/                   # Context-aware Claude Code rules
 ├── .mcp.json                    # Model Context Protocol (MCP) Shared Config
 ├── settings.json                # Tools & Agent Permissions Settings
 ├── .agent_rules.md              # Mandatory Operational Commandments
