@@ -1,9 +1,8 @@
 # ==============================================================================
 # HoroConsultant — Azure Container Apps Deployment Workflow (GitHub Actions)
 # ==============================================================================
-# Azure ingress is currently unavailable. This legacy workflow remains manual
-# only for internal maintenance; public production deploys use
-# hf_backend_deploy.yml instead.
+# Azure Container Apps is the production Docker backend lane. Public ingress is
+# enabled explicitly for horoconsult-env-new on target port 8000.
 #
 # Adheres to Rule 06: 2-Tier Priority Secrets Policy:
 #   1st Priority: Doppler Cloud Secrets Vault (DOPPLER_TOKEN)
@@ -23,6 +22,7 @@ on:
 env:
   CI: "true"
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  AZURE_PUBLIC_BACKEND_URL: "https://horoconsult-env-new.mangoforest-3a921b17.westus2.azurecontainerapps.io"
 
 jobs:
   build-and-push:
@@ -317,8 +317,8 @@ jobs:
 
       - name: Run strict production path verification
         env:
-          AZURE_CONTAINER_APP_URL: ${{ needs.deploy-azure.outputs.azure_container_app_url || vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
-          HF_BACKEND_URL: ${{ needs.deploy-azure.outputs.azure_container_app_url || vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
+          AZURE_CONTAINER_APP_URL: ${{ vars.AZURE_PUBLIC_BACKEND_URL || env.AZURE_PUBLIC_BACKEND_URL }}
+          HF_BACKEND_URL: ${{ vars.AZURE_PUBLIC_BACKEND_URL || env.AZURE_PUBLIC_BACKEND_URL }}
           VERCEL_GATEWAY_URL: ${{ vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
           HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
         run: |
@@ -326,8 +326,8 @@ jobs:
 
       - name: Run production synthetic monitor
         env:
-          AZURE_CONTAINER_APP_URL: ${{ needs.deploy-azure.outputs.azure_container_app_url || vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
-          HF_BACKEND_URL: ${{ needs.deploy-azure.outputs.azure_container_app_url || vars.AZURE_CONTAINER_APP_URL || env.AZURE_CONTAINER_APP_URL || secrets.AZURE_CONTAINER_APP_URL }}
+          AZURE_CONTAINER_APP_URL: ${{ vars.AZURE_PUBLIC_BACKEND_URL || env.AZURE_PUBLIC_BACKEND_URL }}
+          HF_BACKEND_URL: ${{ vars.AZURE_PUBLIC_BACKEND_URL || env.AZURE_PUBLIC_BACKEND_URL }}
           VERCEL_GATEWAY_URL: ${{ vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
           HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.static.hf.space' }}
         run: |

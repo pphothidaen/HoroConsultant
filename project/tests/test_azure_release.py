@@ -63,6 +63,16 @@ def test_release_builds_amd64_once_and_deploys_the_digest():
     assert "Platform:[[:space:]]+linux/amd64" in text
 
 
+def test_manual_azure_workflow_uses_public_backend_url_for_hermes_verification():
+    """The manual Azure lane must not pass a masked job output to Hermes."""
+    text, _ = _workflow("azure_deploy.yml")
+
+    assert "AZURE_PUBLIC_BACKEND_URL" in text
+    assert "horoconsult-env-new.mangoforest-3a921b17.westus2.azurecontainerapps.io" in text
+    assert "HF_BACKEND_URL: ${{ vars.AZURE_PUBLIC_BACKEND_URL || env.AZURE_PUBLIC_BACKEND_URL }}" in text
+    assert "needs.deploy-azure.outputs.azure_container_app_url ||" not in text
+
+
 def test_release_never_overwrites_the_v1_immutable_tag():
     """The human-readable v1.0 tag is created once and then treated immutable."""
     text, workflow = _workflow("deploy.yml")
