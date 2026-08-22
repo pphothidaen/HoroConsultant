@@ -40,6 +40,15 @@ def test_audit_payload_integrity():
     assert summary["total_bytes"] > 0
 
 
+def test_docker_build_context_dependencies_exist():
+    """Dockerfile COPY sources must be present in the published repository payload."""
+    dockerfile = (ROOT / "Dockerfile.hf").read_text(encoding="utf-8")
+    assert (ROOT / ".env.example").is_file()
+    assert (ROOT / "scripts").is_dir()
+    assert "COPY --chown=user:user scripts/" in dockerfile
+    assert "COPY --chown=user:user .env.example" in dockerfile
+
+
 def test_publish_space_dry_run():
     """Verify dry-run mode returns True without throwing exception."""
     result = publish_space("pphothidaen/test-horoconsultant-backend", dry_run=True)

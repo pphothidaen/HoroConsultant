@@ -416,6 +416,21 @@ High-Precision 10-Domain Computational Metaphysics Engine, True Solar Time Engin
                 repo_id=space_id,
                 repo_type="space",
             )
+            # Dockerfile.hf imports runtime helpers from these build-context paths.
+            # Keep the local .env out of the payload; only the non-secret example is needed.
+            api.upload_file(
+                path_or_fileobj=str(ROOT / ".env.example"),
+                path_in_repo=".env.example",
+                repo_id=space_id,
+                repo_type="space",
+            )
+            api.upload_folder(
+                folder_path=str(ROOT / "scripts"),
+                path_in_repo="scripts",
+                repo_id=space_id,
+                repo_type="space",
+                ignore_patterns=IGNORE_PATTERNS,
+            )
             api.upload_folder(
                 folder_path=str(ROOT / "project"),
                 path_in_repo="project",
