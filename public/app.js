@@ -5389,25 +5389,6 @@ function setLuoPanDegree(deg) {
 }
 
 async function calcLuoPan(deg) {
-  let data = null;
-  try {
-    const res = await fetchApi("/api/v1/luopan/calculate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ facing_degree: deg, period: 9 }),
-      showLoader: false
-    });
-    if (res && res.ok) {
-      data = await res.json();
-    }
-  } catch (err) {}
-
-  if (data && data.sectors) {
-    renderLuoPanHeatmap(data);
-    return;
-  }
-
-  // Client-side fallback for LuoPan
   const normalizedDeg = ((deg % 360) + 360) % 360;
   const mountains = [
     "子 (0° N)", "癸 (15°)", "丑 (30°)", "艮 (45° NE)", "寅 (60°)", "甲 (75°)",
@@ -5428,6 +5409,7 @@ async function calcLuoPan(deg) {
   else if (normalizedDeg >= 247.5 && normalizedDeg < 292.5) facingDir = "ทิศตะวันตก (West)";
   else if (normalizedDeg >= 292.5 && normalizedDeg < 337.5) facingDir = "ทิศตะวันตกเฉียงเหนือ (Northwest)";
 
+  // 1. Instant local render for zero-latency slider response
   renderLuoPanHeatmap({
     facing_degree: normalizedDeg,
     period: 9,
@@ -5445,6 +5427,22 @@ async function calcLuoPan(deg) {
       "CENTER": { sector: "ใจกลางอาคาร (Center - 中宮)", star: "3 มรกต (ดาวข้อพิพาท)", heat_score: 55, advice: "จัดพื้นที่ให้โล่งสะอาด แสงสว่างเพียงพอ", cure: "ใช้พรมหรือโคมไฟสีแดงเพื่อลดทอนดาวไม้ 3" }
     }
   });
+
+  // 2. Server API sync in background if available
+  try {
+    const res = await fetchApi("/api/v1/luopan/calculate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ facing_degree: normalizedDeg, period: 9 }),
+      showLoader: false
+    });
+    if (res && res.ok) {
+      const data = await res.json();
+      if (data && data.sectors && data.facing_degree === normalizedDeg) {
+        renderLuoPanHeatmap(data);
+      }
+    }
+  } catch (err) {}
 }
 
 function renderLuoPanHeatmap(data) {
@@ -5569,7 +5567,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & PROMINENT UPDATE MODAL SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.5ad42b5";
+const CLIENT_APP_VERSION = "1.0.0.500c77d";
 let _versionModalDismissed = false;
 let _versionCountdownTimer = null;
 
