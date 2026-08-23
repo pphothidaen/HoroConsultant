@@ -3,7 +3,7 @@
   "info": {
     "title": "Computational Metaphysics Engine",
     "description": "Modular 10-Domain Metaphysical Calculation, AI Debate & Multi-Agent Engine",
-    "version": "1.0.0.b6bc903"
+    "version": "1.0.0.e8c5aa0"
   },
   "paths": {
     "/admin/auth/google": {
@@ -1970,6 +1970,82 @@
                   "additionalProperties": true,
                   "type": "object",
                   "title": "Response Get Mlops Status Api V1 Mlops Status Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mlops/hf_status": {
+      "get": {
+        "tags": [
+          "MLOps Pipeline & Monitoring"
+        ],
+        "summary": "Get Huggingface Model Status",
+        "description": "Inspect and verify Hugging Face model repository tree/main files and latest commit.",
+        "operationId": "get_huggingface_model_status_api_v1_mlops_hf_status_get",
+        "parameters": [
+          {
+            "name": "repo_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Repo Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "title": "Response Get Huggingface Model Status Api V1 Mlops Hf Status Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mlops/checklist": {
+      "get": {
+        "tags": [
+          "MLOps Pipeline & Monitoring"
+        ],
+        "summary": "Get Distillation Checklist",
+        "description": "Get topic-level distillation progress, completed items, and multimodal diagram stats.",
+        "operationId": "get_distillation_checklist_api_v1_mlops_checklist_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Distillation Checklist Api V1 Mlops Checklist Get"
                 }
               }
             }

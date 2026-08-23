@@ -1110,10 +1110,10 @@ function buildFallbackFourPillarsSvg(chartData = {}) {
             <text x="80" y="40" text-anchor="middle" fill="#f8fafc" font-size="11" font-family="Prompt, sans-serif">${col.zh}</text>
             <rect x="15" y="55" width="130" height="115" rx="10" fill="${stemColor}" fill-opacity="0.16" stroke="${stemColor}" stroke-width="2"/>
             <text x="80" y="120" text-anchor="middle" fill="${stemColor}" font-size="44" font-family="sans-serif" font-weight="700">${col.stem}</text>
-            <text x="80" y="157" text-anchor="middle" fill="#e2e8f0" font-size="11" font-family="Prompt, sans-serif">${col.stemElement ? `(${col.stemElement})` : ''}</text>
+            <text x="80" y="157" text-anchor="middle" fill="#64748b" font-size="11" font-family="Prompt, sans-serif">${col.stemElement ? `(${col.stemElement})` : ''}</text>
             <rect x="15" y="180" width="130" height="115" rx="10" fill="${branchColor}" fill-opacity="0.16" stroke="${branchColor}" stroke-width="2"/>
             <text x="80" y="245" text-anchor="middle" fill="${branchColor}" font-size="44" font-family="sans-serif" font-weight="700">${col.branch}</text>
-            <text x="80" y="282" text-anchor="middle" fill="#e2e8f0" font-size="11" font-family="Prompt, sans-serif">${col.branchElement ? `(${col.branchElement})` : ''}</text>
+            <text x="80" y="282" text-anchor="middle" fill="#64748b" font-size="11" font-family="Prompt, sans-serif">${col.branchElement ? `(${col.branchElement})` : ''}</text>
           </g>
         `;
       }).join('')}
@@ -1290,7 +1290,7 @@ function showBaziResultLoading(message = 'กำลังคำนวณผั�
   if (elementsBars) elementsBars.innerHTML = loadingBadge;
   if (dmBanner) dmBanner.innerHTML = 'วิเคราะห์ค่าสมดุลดวงชะตากำลังโหลด...';
   if (rd) rd.innerHTML = loadingBadge;
-  if (rb) rb.innerHTML = `<div style="padding: 1rem; color: #e2e8f0; line-height: 1.6;">${loadingBadge}<div style="margin-top: 0.8rem; color: #475569; font-size: 0.85rem;">ระบบหลักที่ใช้: BaZi Four Pillars (四柱) + True Solar Time (TST) + 5 ธาตุ</div></div>`;
+  if (rb) rb.innerHTML = `<div style="padding: 1rem; color: #64748b; line-height: 1.6;">${loadingBadge}<div style="margin-top: 0.8rem; color: #475569; font-size: 0.85rem;">ระบบหลักที่ใช้: BaZi Four Pillars (四柱) + True Solar Time (TST) + 5 ธาตุ</div></div>`;
 }
 
 function renderFourPillarsBranchCard(chartData, svgContent, interpretationDepth = 'short') {
@@ -1316,7 +1316,7 @@ function renderFourPillarsBranchCard(chartData, svgContent, interpretationDepth 
 
   const cyclesPanel = `
     <div style="margin-left: auto; width: min(360px, 100%); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 10px; background: rgba(99, 102, 241, 0.15); padding: 0.8rem; align-self: flex-start;">
-      <p style="margin: 0 0 0.45rem 0; color: #e2e8f0; font-weight: 600;">⚙️ วัยจร / ปีจร</p>
+      <p style="margin: 0 0 0.45rem 0; color: #64748b; font-weight: 600;">⚙️ วัยจร / ปีจร</p>
       <p style="margin: 0 0 0.35rem 0;"><strong>วัยจร:</strong> ${cycle.ageCycle}</p>
       <p style="margin: 0;"><strong>ปีจร:</strong> ${cycle.annualCycle}</p>
     </div>
@@ -1789,7 +1789,7 @@ function renderResults(data, svgContent) {
       elemLegendHtml += `
         <div class="element-legend-item" style="background: ${cfg.bg}; border: 1px solid ${cfg.border};">
           <span class="el-name" style="color: ${cfg.color};">${cfg.name}</span>
-          <span class="el-pct" style="color: #f1f5f9;">${numPct}%</span>
+          <span class="el-pct" style="color: #64748b;">${numPct}%</span>
         </div>
       `;
     }
@@ -1818,7 +1818,7 @@ function renderResults(data, svgContent) {
     if (typeof marked !== 'undefined') {
       mdContainer.innerHTML = marked.parse(rawText);
     } else {
-      mdContainer.innerHTML = `<pre style="white-space: pre-wrap; font-family: inherit; color: #e2e8f0; font-size: 0.95rem; line-height: 1.6;">${rawText}</pre>`;
+      mdContainer.innerHTML = `<pre style="white-space: pre-wrap; font-family: inherit; color: #64748b; font-size: 0.95rem; line-height: 1.6;">${rawText}</pre>`;
     }
   }
 
@@ -1832,7 +1832,7 @@ function renderResults(data, svgContent) {
       refined_interpretation: "คำพยากรณ์วิเคราะห์ถูกต้องตามหลักคัมภีร์ ZiPing ZhenQuan (子平真詮) และ DiTianSui (滴天髓)"
     };
     valContainer.innerHTML = `
-      <div style="padding: 1rem; background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 8px; color: #e2e8f0;">
+      <div style="padding: 1rem; background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 8px; color: #64748b;">
         <h4 style="color: #c084fc; margin-top: 0;">🛡️ ผลการตรวจสอบโดย Gemini Prediction Validator Agent</h4>
         <p><strong>สถานะการตรวจสอบ (Audit Status):</strong> <span style="color: #4ade80; font-weight: bold;">✅ ${val.validation_status || 'APPROVED'}</span> (Confidence Score: <strong>${val.confidence_score || 0.96}</strong>)</p>
         <p><strong>มุมมอง Multi-Agent Audit:</strong> ${val.peer_perspective || 'Verified 5-Elements harmony and True Solar Time adjustment.'}</p>
@@ -1852,7 +1852,7 @@ function renderResults(data, svgContent) {
     ];
 
     let ragHtml = `
-      <div style="padding: 1rem; background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(14, 165, 233, 0.35); border-radius: 8px; color: #e2e8f0;">
+      <div style="padding: 1rem; background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(14, 165, 233, 0.35); border-radius: 8px; color: #64748b;">
         <h4 style="color: #38bdf8; margin-top: 0;">📚 คัมภีร์อ้างอิงโบราณ (Vector RAG Search Over 3,132 Ingested Chunks)</h4>
         <p style="font-size: 0.85rem; color: #475569;">ค้นหาระยะความคล้ายคลึงเชิงเวกเตอร์ (Cosine Similarity Search) จาก FAISS Index 4,051 มิติ:</p>
         <ul style="padding-left: 1.2rem; margin-bottom: 0;">
@@ -2544,7 +2544,7 @@ async function calcQiMen(customParams = null) {
 
       ${toolbarHtml}
 
-      <div style="background: #f8fafc; border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
+      <div style="background: #f8fafc; border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #64748b;">
         <strong>節氣 (Solar Term):</strong> <span style="color: #93c5fd; font-weight: bold;">${data.solar_term}</span> |
         <strong>陰陽遁:</strong> <span style="color: #92400e; font-weight: bold;">${data.dun_type}遁 ${data.ju_number}局</span>
       </div>
@@ -2648,7 +2648,7 @@ async function calcLiuRen(customParams = null) {
 
       ${toolbarHtml}
 
-      <div style="background: rgba(6, 78, 59, 0.4); border: 1px solid rgba(74, 222, 128, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
+      <div style="background: rgba(6, 78, 59, 0.4); border: 1px solid rgba(74, 222, 128, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #64748b;">
         <strong>日干支:</strong> <span style="color: #86efac; font-weight: bold;">${data.day_stem_branch}</span> |
         <strong>月將:</strong> <span style="color: #92400e; font-weight: bold;">${data.month_general}</span> |
         <strong>占時:</strong> <span style="color: #38bdf8; font-weight: bold;">${data.hour_branch}</span>
@@ -2772,7 +2772,7 @@ async function calcIChing(customParams = null) {
 
       ${toolbarHtml}
 
-      <div style="background: rgba(41, 30, 10, 0.6); border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
+      <div style="background: rgba(41, 30, 10, 0.6); border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #64748b;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
           <div><strong>本卦 (Primary):</strong> <span style="color: #92400e; font-size: 1.05rem; font-weight: bold;">${pri.name}</span> (${pri.nature || ''})</div>
           <div>➔ <strong>變卦 (Transformed):</strong> <span style="color: #38bdf8; font-size: 1.05rem; font-weight: bold;">${trans.name}</span></div>
@@ -2879,7 +2879,7 @@ async function calcXuanKong(customParams = null) {
 
       ${toolbarHtml}
 
-      <div style="background: rgba(45, 18, 34, 0.6); border: 1px solid rgba(244, 114, 182, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
+      <div style="background: rgba(45, 18, 34, 0.6); border: 1px solid rgba(244, 114, 182, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #64748b;">
         <strong>九運 (Period):</strong> <span style="color: #92400e; font-weight: bold;">第 ${data.period} 運 (2024-2043)</span> |
         <strong>向首 (Facing):</strong> <span style="color: #f43f5e; font-weight: bold;">${data.facing_mountain}</span> |
         <strong>坐山 (Sitting):</strong> <span style="color: #38bdf8; font-weight: bold;">${data.sitting_mountain}</span>
@@ -2997,7 +2997,7 @@ async function calcZeJi(customParams = null) {
 
       ${toolbarHtml}
 
-      <div style="background: rgba(7, 43, 62, 0.6); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
+      <div style="background: rgba(7, 43, 62, 0.6); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #64748b;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
           <div><strong>建除十二神 (12 Duty Officers):</strong> <span style="color: #92400e; font-size: 1.15rem; font-weight: bold;">${data.duty_officer}</span></div>
           <div><strong>ระดับความมงคล:</strong> <span style="color: #854d0e; font-weight: 600;">${data.rating_stars}</span> (<strong style="color: #38bdf8;">${data.overall_status}</strong>)</div>
@@ -3125,7 +3125,7 @@ async function calcThaiVedic(customParams = null) {
 
       ${toolbarHtml}
 
-      <div style="background: rgba(46, 36, 5, 0.6); border: 1px solid rgba(250, 204, 21, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
+      <div style="background: rgba(46, 36, 5, 0.6); border: 1px solid rgba(250, 204, 21, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #64748b;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
           <div><strong>ลัคนาสุริยยาตร์:</strong> <span style="color: #854d0e; font-weight: 600; font-size: 1.1rem; font-weight: bold;">ราศี${data.thai_lagna}</span></div>
           <div><strong>ดาวศรี:</strong> <span style="color: #4ade80; font-weight: bold;">${data.sri_planet}</span> | <strong>ดาวกาลกิณี:</strong> <span style="color: #ef4444; font-weight: bold;">${data.kalakini_planet}</span></div>
@@ -3271,7 +3271,7 @@ async function calcWestern(customParams = null) {
 
       ${toolbarHtml}
 
-      <div style="background: rgba(20, 19, 50, 0.6); border: 1px solid rgba(129, 140, 248, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
+      <div style="background: rgba(20, 19, 50, 0.6); border: 1px solid rgba(129, 140, 248, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #64748b;">
         <strong>จุดอิทธิพลสะท้อนศูนย์ลิขิต (Midpoint Axis):</strong>
         <span style="color: #a5b4fc; font-weight: bold; margin-left: 4px;">${mid.formula || ''}</span>
         <span style="color: #334155;">➔</span>
@@ -3492,7 +3492,7 @@ async function calcNumerology(customParams = null) {
           </div>
         </div>
         ${charBoxesHtml}
-        <p style="margin: 0.4rem 0 0 0; font-size: 0.85rem; color: #e2e8f0;"><strong>ความหมายดาวประจำเลข:</strong> ${score.digit_meaning || ''}</p>
+        <p style="margin: 0.4rem 0 0 0; font-size: 0.85rem; color: #64748b;"><strong>ความหมายดาวประจำเลข:</strong> ${score.digit_meaning || ''}</p>
       </div>
 
       <!-- 7-Base 4-Row Matrix -->
@@ -3731,7 +3731,7 @@ function buildClientLiuYaoSvg(ly) {
     const rel = l_data.relative || def_rels[line_idx];
     const branch = l_data.branch ? `${l_data.branch}${l_data.element || ''}` : def_branches[line_idx];
     const spirit = l_data.animal || l_data.spirit || def_spirits[line_idx];
-    const line_color = is_moving ? "#ef4444" : "#e2e8f0";
+    const line_color = is_moving ? "#ef4444" : "#64748b";
 
     svg += `
       <text x="60" y="${y+16}" font-family="sans-serif" font-size="13" font-weight="bold" fill="#38bdf8">${spirit}</text>
@@ -4434,7 +4434,7 @@ async function calcMianXiang(customParams = null) {
         <p style="margin: 0 0 0.4rem 0;"><strong>ธาตุประจำรูปหน้า:</strong> <span style="color: #92400e; font-weight: bold;">${data.face_element || shape}</span></p>
         <p style="margin: 0 0 0.4rem 0;"><strong>วังชะตาสำคัญ 6 ภพหน้า:</strong></p>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 6px; font-size: 0.85rem;">
-          ${Object.entries(data.twelve_palaces || {}).map(([p, info]) => `<div style="background: rgba(30, 41, 59, 0.7); padding: 6px 10px; border-radius: 6px;"><strong style="color: #854d0e; font-weight: 600;">${p}:</strong> <span style="color: #e2e8f0;">${typeof info === 'object' ? (info.assessment || info.description || JSON.stringify(info)) : info}</span></div>`).join('')}
+          ${Object.entries(data.twelve_palaces || {}).map(([p, info]) => `<div style="background: rgba(30, 41, 59, 0.7); padding: 6px 10px; border-radius: 6px;"><strong style="color: #854d0e; font-weight: 600;">${p}:</strong> <span style="color: #64748b;">${typeof info === 'object' ? (info.assessment || info.description || JSON.stringify(info)) : info}</span></div>`).join('')}
         </div>
       </div>
     </div>
@@ -4709,7 +4709,7 @@ async function calcMultimodalMatrix(domainKey = 'career') {
   `).join('');
 
   const insightsRows = currentConfig.insights.map(item => `
-    <tr style="border-bottom: 1px solid #f1f5f9;">
+    <tr style="border-bottom: 1px solid #64748b;">
       <td style="padding: 10px; font-weight: bold; color: #38bdf8;">${item.disc}</td>
       <td style="padding: 10px; font-size: 11px; color: #475569;">${item.family}</td>
       <td style="padding: 10px; color: #1e293b; line-height: 1.4;">${item.finding}</td>
@@ -4720,7 +4720,7 @@ async function calcMultimodalMatrix(domainKey = 'career') {
   const html = `
     <div style="display: flex; flex-direction: column; gap: 16px;">
       <!-- Interactive Domain Selector Bar -->
-      <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+      <div style="background: #ffffff; border: 1px solid #64748b; border-radius: 10px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
         <div style="font-weight: 700; color: #0f172a; margin-bottom: 8px; font-size: 14px;">🎯 เลือกหมวดประเด็นคำถามเจาะลึก 16 ศาสตร์ (6 Core Life Domains):</div>
         <div style="display: flex; flex-wrap: wrap; gap: 8px;">
           ${domainButtonsHtml}
@@ -4751,11 +4751,11 @@ async function calcMultimodalMatrix(domainKey = 'career') {
       </div>
 
       <!-- 16-Discipline Synthesis Table -->
-      <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; overflow-x: auto; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+      <div style="background: #ffffff; border: 1px solid #64748b; border-radius: 10px; padding: 14px; overflow-x: auto; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
         <div style="font-weight: 700; color: #0f172a; margin-bottom: 10px; font-size: 14px;">📊 ตารางบทสังเคราะห์คำพยากรณ์รายศาสตร์ (Comprehensive Cross-Domain Synthesis):</div>
         <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
           <thead>
-            <tr style="border-bottom: 2px solid #e2e8f0; color: #0f172a; font-weight: 700; background: #f8fafc;">
+            <tr style="border-bottom: 2px solid #64748b; color: #0f172a; font-weight: 700; background: #f8fafc;">
               <th style="padding: 8px 10px;">ศาสตร์ (Discipline)</th>
               <th style="padding: 8px 10px;">สายวิชา (Family)</th>
               <th style="padding: 8px 10px;">ข้อค้นพบเชิงชะตา (Key Finding)</th>
@@ -5179,7 +5179,7 @@ function renderSynastryResult(data) {
           <span>💖 ความเสน่หา & ความรัก</span>
           <strong style="color: #9d174d; font-weight: 700;">${dims.romantic_harmony || 85}%</strong>
         </div>
-        <div style="height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+        <div style="height: 6px; background: #64748b; border-radius: 3px; overflow: hidden;">
           <div style="width: ${dims.romantic_harmony || 85}%; height: 100%; background: linear-gradient(90deg, #ec4899, #f43f5e);"></div>
         </div>
       </div>
@@ -5189,7 +5189,7 @@ function renderSynastryResult(data) {
           <span>💼 การเกื้อหนุนงาน/ธุรกิจ</span>
           <strong style="color: #1d4ed8; font-weight: 700;">${dims.business_synergy || 80}%</strong>
         </div>
-        <div style="height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+        <div style="height: 6px; background: #64748b; border-radius: 3px; overflow: hidden;">
           <div style="width: ${dims.business_synergy || 80}%; height: 100%; background: linear-gradient(90deg, #3b82f6, #06b6d4);"></div>
         </div>
       </div>
@@ -5199,7 +5199,7 @@ function renderSynastryResult(data) {
           <span>🗣️ การสื่อสาร & ทัศนคติ</span>
           <strong style="color: #6b21a8; font-weight: 700;">${dims.communication_values || 78}%</strong>
         </div>
-        <div style="height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+        <div style="height: 6px; background: #64748b; border-radius: 3px; overflow: hidden;">
           <div style="width: ${dims.communication_values || 78}%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #d946ef);"></div>
         </div>
       </div>
@@ -5209,7 +5209,7 @@ function renderSynastryResult(data) {
           <span>🌱 ความมั่นคงระยะยาว</span>
           <strong style="color: #15803d; font-weight: 700;">${dims.longterm_stability || 82}%</strong>
         </div>
-        <div style="height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
+        <div style="height: 6px; background: #64748b; border-radius: 3px; overflow: hidden;">
           <div style="width: ${dims.longterm_stability || 82}%; height: 100%; background: linear-gradient(90deg, #10b981, #84cc16);"></div>
         </div>
       </div>
@@ -5554,7 +5554,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & PROMINENT UPDATE MODAL SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.bc9a495";
+const CLIENT_APP_VERSION = "1.0.0.e8c5aa0";
 let _versionModalDismissed = false;
 let _versionCountdownTimer = null;
 
@@ -5623,7 +5623,7 @@ function showVersionModal(remoteVersion) {
           </div>
         </div>
         <button type="button" id="btn-close-version-modal" style="
-          background: #f1f5f9;
+          background: #64748b;
           border: none;
           color: #64748b;
           width: 26px;
