@@ -12,7 +12,9 @@
   "keywords": [
     "gpu"
   ],
-  "dataset_sources": [],
+  "dataset_sources": [
+    "pphothidaen/horoconsultant-distilled-dataset"
+  ],
   "kernel_sources": [],
   "competition_sources": [],
   "model_sources": [],
