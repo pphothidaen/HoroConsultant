@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-08-23 09:29:52 UTC",
+  "timestamp": "2026-08-23 10:00:30 UTC",
   "target_url": "https://horo-consultant-psi.vercel.app/",
-  "profile": "smoke",
-  "elapsed_seconds": 41.97,
+  "profile": "full",
+  "elapsed_seconds": 73.81,
   "summary": {
-    "total_buttons": 14,
-    "passed": 12,
-    "failed": 2,
-    "pass_rate_pct": 85.71
+    "total_buttons": 22,
+    "passed": 21,
+    "failed": 1,
+    "pass_rate_pct": 95.45
   },
   "results": [
     {
@@ -75,6 +75,87 @@
       "detail": "Fields updated to dt=1995-12-25 23:45:00, lng=-74.006, utc=-5.0"
     },
     {
+      "id": "BTN-PROD-05",
+      "page": "index.html",
+      "name": "☯ Zi Wei (紫微斗數)",
+      "handler": "calcZiWei()",
+      "endpoint": "GET /api/v1/ziwei/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 1284 chars output. API status: [200]"
+    },
+    {
+      "id": "BTN-PROD-06",
+      "page": "index.html",
+      "name": "☯ Qi Men (奇門遁甲)",
+      "handler": "calcQiMen()",
+      "endpoint": "GET /api/v1/qimen/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 1256 chars output. API status: [200]"
+    },
+    {
+      "id": "BTN-PROD-07",
+      "page": "index.html",
+      "name": "☯ Da Liu Ren (大六壬)",
+      "handler": "calcLiuRen()",
+      "endpoint": "GET /api/v1/liuren/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 41 chars output. API status: [200]"
+    },
+    {
+      "id": "BTN-PROD-08",
+      "page": "index.html",
+      "name": "☯ I Ching (六爻)",
+      "handler": "calcIChing()",
+      "endpoint": "GET /api/v1/iching/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 916 chars output. API status: [200]"
+    },
+    {
+      "id": "BTN-PROD-09",
+      "page": "index.html",
+      "name": "☯ Xuan Kong (玄空)",
+      "handler": "calcXuanKong()",
+      "endpoint": "GET /api/v1/xuankong/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 1203 chars output. API status: [200]"
+    },
+    {
+      "id": "BTN-PROD-10",
+      "page": "index.html",
+      "name": "☯ Ze Ji (คำนวณฤกษ์)",
+      "handler": "calcZeJi()",
+      "endpoint": "GET /api/v1/zeji/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 861 chars output. API status: [200]"
+    },
+    {
+      "id": "BTN-PROD-11",
+      "page": "index.html",
+      "name": "☯ Thai Vedic (โหราศาสตร์ไทย)",
+      "handler": "calcThaiVedic()",
+      "endpoint": "GET /api/v1/thaivedic/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 1265 chars output. API status: [200]"
+    },
+    {
+      "id": "BTN-PROD-12",
+      "page": "index.html",
+      "name": "☯ Western (โหราศาสตร์สากล)",
+      "handler": "calcWestern()",
+      "endpoint": "GET /api/v1/western/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 1747 chars output. API status: [200]"
+    },
+    {
+      "id": "BTN-PROD-13",
+      "page": "index.html",
+      "name": "☯ Numerology (สัตตเลข)",
+      "handler": "calcNumerology()",
+      "endpoint": "GET /api/v1/numerology/calculate",
+      "status": "PASSED",
+      "detail": "Result card rendered cleanly with 2622 chars output. API status: [200]"
+    },
+    {
       "id": "CHK-PROD-18",
       "page": "index.html",
       "name": "☑ ไม่ทราบยามเกิด (Unknown Hour Checkbox)",
@@ -128,15 +209,6 @@
       "endpoint": "DOM Tab Switch",
       "status": "PASSED",
       "detail": "Tab container '#tab-rag' active state verified (hidden=False)"
-    },
-    {
-      "id": "BTN-PROD-UNEXECUTED",
-      "page": "production regression",
-      "name": "All planned production controls",
-      "handler": "Regression harness",
-      "endpoint": "https://horo-consultant-psi.vercel.app/",
-      "status": "FAILED",
-      "detail": "Only 13 of 22 planned controls recorded a result."
     }
   ]
 }
