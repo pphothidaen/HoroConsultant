@@ -978,12 +978,13 @@ def sync_back_to_github_repo(
     summary_file.write_text(json.dumps(summary_data, indent=2, ensure_ascii=False), encoding="utf-8")
     logger.info(f"[FILE] Saved training summary to '{summary_file}'")
 
-    gh_token = os.getenv("GH_TOKEN")
-    if not gh_token:
-        logger.warning("[WARNING] GH_TOKEN not found. Skipping auto git push to GitHub repository.")
+    gh_token = os.getenv("GH_TOKEN") or os.getenv("GITHUB_TOKEN")
+    if not gh_token or gh_token.strip().lower() in ("pphothidaen", "none", "null", "false", "") or len(gh_token.strip()) < 15:
+        logger.info("[INFO] GitHub Personal Access Token (GH_TOKEN/GITHUB_TOKEN) not configured or lacks write permissions. Skipping auto git push (training summary saved to disk & Hugging Face Hub).")
         return False
 
-    repo_url = f"https://{gh_token}@github.com/pphothidaen/HoroConsultant.git"
+    clean_token = gh_token.strip()
+    repo_url = f"https://x-access-token:{clean_token}@github.com/pphothidaen/HoroConsultant.git"
 
     logger.info(f"[GIT] Auto-committing and pushing training artifacts back to GitHub repository [{platform}]...")
     try:
@@ -999,10 +1000,14 @@ def sync_back_to_github_repo(
             logger.info("[SUCCESS] Successfully pushed post-training artifacts back to GitHub repository!")
             return True
         else:
-            logger.warning(f"[WARNING] Git push note: {res.stderr}")
+            err_msg = res.stderr.strip()
+            if "403" in err_msg or "Permission to" in err_msg:
+                logger.info(f"[INFO] GitHub push skipped (PAT lacks write permission: {err_msg}). Training artifacts remain safely persisted in Hugging Face Hub.")
+            else:
+                logger.warning(f"[WARNING] Git push note: {err_msg}")
             return False
     except Exception as e:
-        logger.warning(f"[WARNING] Git auto-sync exception: {e}")
+        logger.info(f"[INFO] Git auto-sync bypassed: {e}")
         return False
 
 

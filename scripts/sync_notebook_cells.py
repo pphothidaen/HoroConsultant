@@ -97,7 +97,7 @@ import glob
 import zipfile
 
 # 1. Platform Detection & Decoupled Secrets Loading
-required_secrets = ['HF_TOKEN', 'WANDB_KEY', 'GITHUB_TOKEN', 'DOPPLER_TOKEN', 'HF_USERNAME']
+required_secrets = ['HF_TOKEN', 'WANDB_KEY', 'GITHUB_TOKEN', 'GH_TOKEN', 'DOPPLER_TOKEN', 'HF_USERNAME']
 current_platform = 'LOCAL'
 
 try:
@@ -128,6 +128,11 @@ except ImportError:
                 pass
     except ImportError:
         print('[INFO] Local/Other Environment detected: Relying on system environment variables or Doppler.')
+
+if 'GITHUB_TOKEN' in os.environ and 'GH_TOKEN' not in os.environ:
+    os.environ['GH_TOKEN'] = os.environ['GITHUB_TOKEN']
+elif 'GH_TOKEN' in os.environ and 'GITHUB_TOKEN' not in os.environ:
+    os.environ['GITHUB_TOKEN'] = os.environ['GH_TOKEN']
 
 # 2. Dynamic Target Pathing & Git Clone/Pull
 if current_platform == 'KAGGLE':
