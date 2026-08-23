@@ -64,6 +64,22 @@ def get_mlops_status() -> Dict[str, Any]:
     }
 
 
+@router.get("/hf_status")
+def get_huggingface_model_status(repo_id: Optional[str] = None) -> Dict[str, Any]:
+    """Inspect and verify Hugging Face model repository tree/main files and latest commit."""
+    from scripts.verify_hf_model_status import check_hf_model_status
+    target_repo = repo_id or "pphothidaen/qwen2.5-7b-bazi-instruct-4bit"
+    return check_hf_model_status(repo_id=target_repo)
+
+
+@router.get("/checklist")
+def get_distillation_checklist() -> Dict[str, Any]:
+    """Get topic-level distillation progress, completed items, and multimodal diagram stats."""
+    from project.mlops.distillation.checklist_tracker import DistillationChecklistTracker
+    tracker = DistillationChecklistTracker()
+    return tracker.get_summary_stats()
+
+
 @router.get("/datasets")
 def list_datasets() -> List[Dict[str, Any]]:
     """List all curated training datasets stored locally."""
