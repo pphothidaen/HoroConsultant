@@ -14,8 +14,8 @@
   ],
   "dataset_sources": [
     "pphothidaen/bazi-huggingface-curated",
-    "pphothidaen/horoconsultant-distilled-dataset",
-    "pphothidaen/horoconsultant-classical-treatises-pdf"
+    "pphothidaen/horoconsultant-classical-treatises-pdf",
+    "pphothidaen/horoconsultant-distilled-dataset"
   ],
   "kernel_sources": [],
   "competition_sources": [],
