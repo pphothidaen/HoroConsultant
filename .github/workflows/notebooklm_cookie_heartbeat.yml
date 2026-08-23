@@ -1,0 +1,42 @@
+name: NotebookLM Cookie Health Heartbeat
+
+on:
+  schedule:
+    # Run daily at 00:00 UTC (07:00 AM Bangkok Time)
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [check-cookie-heartbeat, heartbeat]
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  cookie-heartbeat:
+    name: Check Google Session Cookie Validity
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests python-dotenv pydantic
+
+      - name: Evaluate Google Session Cookie Validity
+        env:
+          NOTEBOOKLM_SESSION_COOKIE: ${{ secrets.NOTEBOOKLM_SESSION_COOKIE }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          python3 scripts/check_cookie_heartbeat.py --silent-if-ok --json

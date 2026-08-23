@@ -36,6 +36,8 @@ on:
         required: true
         type: boolean
         default: false
+  repository_dispatch:
+    types: [trigger-distill-finetune, trigger-distill, hermes-distill]
 
 jobs:
   distill_and_finetune:
@@ -57,7 +59,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install kaggle python-dotenv pydantic
+          pip install kaggle python-dotenv pydantic requests
 
       - name: Setup Kaggle Credentials
         env:
@@ -65,7 +67,7 @@ jobs:
           KAGGLE_KEY: ${{ secrets.KAGGLE_TOKEN }}
         run: |
           mkdir -p ~/.kaggle
-          echo "{\"username\":\"$KAGGLE_USERNAME\",\"key\":\"$KAGGLE_KEY\"}" > ~/.kaggle/kaggle.json
+          echo "{"username":"$KAGGLE_USERNAME","key":"$KAGGLE_KEY"}" > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
 
       - name: Run Autonomous Distillation & Curation Pipeline
@@ -76,16 +78,12 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          DOMAIN="${{ github.event.inputs.domain || 'all' }}"
-          FORMAT="${{ github.event.inputs.format || 'chatml' }}"
-          TRIGGER_TRAIN="${{ github.event.inputs.trigger_training != 'false' && '--trigger-training' || '' }}"
-          DRY_RUN="${{ github.event.inputs.dry_run == 'true' && '--dry-run' || '' }}"
+          DOMAIN="${{ github.event.client_payload.domain || github.event.inputs.domain || 'all' }}"
+          FORMAT="${{ github.event.client_payload.format || github.event.inputs.format || 'chatml' }}"
+          TRIGGER_TRAIN="${{ (github.event.client_payload.trigger_training != false && github.event.inputs.trigger_training != 'false') && '--trigger-training' || '' }}"
+          DRY_RUN="${{ (github.event.client_payload.dry_run == true || github.event.inputs.dry_run == 'true') && '--dry-run' || '' }}"
           
-          python3 project/mlops/run_pipeline.py \
-            --domain "$DOMAIN" \
-            --format "$FORMAT" \
-            $TRIGGER_TRAIN \
-            $DRY_RUN
+          python3 project/mlops/run_pipeline.py             --domain "$DOMAIN"             --format "$FORMAT"             $TRIGGER_TRAIN             $DRY_RUN
 
       - name: Upload Curated Training Datasets
         uses: actions/upload-artifact@v4

@@ -32,7 +32,7 @@ jobs:
           KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
         run: |
           mkdir -p ~/.kaggle
-          echo "{\"username\":\"${KAGGLE_USERNAME:-pphothidaen}\",\"key\":\"${KAGGLE_KEY}\"}" > ~/.kaggle/kaggle.json
+          echo "{"username":"${KAGGLE_USERNAME:-pphothidaen}","key":"${KAGGLE_KEY}"}" > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
 
       - name: Pull Kaggle Kernel Outputs & Logs

@@ -104,7 +104,7 @@ class TelegramBotController:
 
         if cmd in ("/start", "/help"):
             return self._cmd_help()
-        elif cmd == "/status":
+        elif cmd in ("/status", "/mlops_status", "/mlops"):
             return self._cmd_status()
         elif cmd == "/sample":
             return self._cmd_sample()
@@ -118,13 +118,17 @@ class TelegramBotController:
             force = "--force" in args
             dry_run = "--dry" in args or "--dry-run" in args
             return self._cmd_hitl_trigger(force=force, dry_run=dry_run)
-        elif cmd == "/distill":
+        elif cmd in ("/distill", "/extract", "/mine"):
             domain = args[0] if args else "bazi"
             return self._cmd_distill(domain)
-        elif cmd == "/train":
+        elif cmd in ("/train", "/finetune"):
             return self._cmd_train()
-        elif cmd == "/cookie":
+        elif cmd in ("/cookie", "/cookie_check", "/cookie_status"):
             return self._cmd_cookie()
+        elif cmd in ("/kaggle_status", "/gpu_status"):
+            return self._cmd_kaggle_status()
+        elif cmd in ("/kaggle_sync", "/pull_logs"):
+            return self._cmd_kaggle_sync()
         else:
             return f"❌ ไม่รู้จักคำสั่ง <code>{cmd}</code>\nพิมพ์ /help เพื่อดูคำสั่งทั้งหมด"
 
@@ -162,15 +166,17 @@ class TelegramBotController:
     def _cmd_help(self) -> str:
         return (
             "🤖 <b>คำสั่งสำหรับสั่งการ Hermes Agent & MLOps:</b>\n\n"
-            "• /status — ตรวจสอบสถานะ Dataset, Kaggle GPU, และ Model Hub\n"
+            "• /status หรือ /mlops — ตรวจสอบสถานะ Dataset, Kaggle GPU, และ Model Hub\n"
+            "• /sample — ดูตัวอย่างเนื้อหาที่สกัดได้ล่าสุดพร้อมผลวิเคราะห์ Tri-Thinking\n"
+            "• /distill <code>[domain]</code> — สั่ง Hermes Agent สกัดความรู้จาก NotebookLM (เช่น /distill bazi หรือ all)\n"
+            "• /train หรือ /finetune — สั่งเริ่ม Fine-Tuning บน Kaggle GPU ทันที\n"
+            "• /kaggle_status — ตรวจสอบสถานะ Kaggle GPU Kernel และ log ล่าสุด\n"
+            "• /kaggle_sync — ดึง output และ log จาก Kaggle กลับเข้าสู่ระบบ\n"
+            "• /cookie — ตรวจสอบสถานะความสดใหม่ของ Google Session Cookie\n"
             "• /hitl_status — ติดตามจำนวน HITL และสถานะ trigger\n"
-            "• /hitl_queue — รายละเอียดคิว HITL (สรุปจาก /hitl_status)\n"
+            "• /hitl_queue — รายละเอียดคิว HITL\n"
             "• /hitl_export — Export JSONL จาก HITL reviewed ทั้งหมด\n"
             "• /hitl_trigger [--force] [--dry] — Trigger fine-tune จาก HITL ได้ทันที\n"
-            "• /sample — ดูตัวอย่างเนื้อหาที่สกัดได้ล่าสุดพร้อมผลวิเคราะห์ Tri-Thinking\n"
-            "• /distill <code>[domain]</code> — สั่ง Hermes Agent สกัดความรู้ (เช่น /distill bazi หรือ all)\n"
-            "• /train — สั่งเริ่ม Fine-Tuning บน Kaggle GPU ทันที\n"
-            "• /cookie — ตรวจสอบสถานะความสดใหม่ของ Google Session Cookie\n"
             "• /help — แสดงคู่มือการใช้งานนี้"
         )
 
@@ -365,6 +371,50 @@ class TelegramBotController:
             f"• <b>Kernel:</b> <code>{training.get('kernel_id', 'N/A')}</code>\n"
             f"• <b>Target:</b> <code>{training.get('target_model', 'N/A')}</code>"
         )
+
+    def _cmd_kaggle_status(self) -> str:
+        train_status = self.orchestrator.get_training_status()
+        raw_st = train_status.get("raw_status", "N/A")
+        kernel_id = train_status.get("kernel_id", "N/A")
+        target = train_status.get("target_model", "N/A")
+
+        log_file = ROOT_DIR / "project" / "kaggle_kernel" / "train_execution.log"
+        tail_lines = ""
+        if log_file.exists():
+            tail_lines = "".join(log_file.read_text(encoding="utf-8", errors="replace").splitlines(keepends=True)[-8:])
+
+        res = (
+            "⚡ <b>Kaggle GPU Training Status:</b>\n\n"
+            f"• <b>Kernel ID:</b> <code>{kernel_id}</code>\n"
+            f"• <b>Status:</b> <b>{raw_st}</b>\n"
+            f"• <b>Target Model:</b> <code>{target}</code>\n"
+        )
+        if tail_lines:
+            res += f"\n📄 <b>Latest Local Log:</b>\n<pre>{tail_lines[:350]}</pre>\n"
+        res += "\nพิมพ์ /kaggle_sync เพื่อดึง logs และโมเดลล่าสุดจาก Kaggle"
+        return res
+
+    def _cmd_kaggle_sync(self) -> str:
+        try:
+            cmd = [sys.executable, str(ROOT_DIR / "scripts" / "kaggle_notebook_manager.py"), "--output"]
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            if proc.returncode == 0:
+                log_file = ROOT_DIR / "project" / "kaggle_kernel" / "train_execution.log"
+                tail_lines = ""
+                if log_file.exists():
+                    tail_lines = "".join(log_file.read_text(encoding="utf-8", errors="replace").splitlines(keepends=True)[-6:])
+                res = (
+                    "📥 <b>Kaggle Output Sync Completed!</b>\n\n"
+                    "• <b>Status:</b> 🟢 <b>Success</b>\n"
+                    "• <b>Destination:</b> <code>project/kaggle_kernel/</code>\n"
+                )
+                if tail_lines:
+                    res += f"\n📄 <b>Latest Log:</b>\n<pre>{tail_lines[:300]}</pre>"
+                return res
+            else:
+                return f"❌ <b>Kaggle Sync Failed:</b>\n<code>{proc.stderr[:300] or proc.stdout[:300]}</code>"
+        except Exception as e:
+            return f"❌ <b>Kaggle Sync Exception:</b>\n<code>{e}</code>"
 
     def _cmd_cookie(self) -> str:
         is_valid, reason = self.cookie_mgr.check_cookie_validity(skip_network=True)

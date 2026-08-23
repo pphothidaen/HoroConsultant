@@ -61,6 +61,20 @@ def test_telegram_bot_cookie_command():
     res = bot.handle_command("/cookie", "12345")
     assert "Google Session Cookie Health" in res
     assert "Cookie Length" in res
+    res_alias = bot.handle_command("/cookie_check", "12345")
+    assert "Google Session Cookie Health" in res_alias
+
+
+def test_telegram_bot_kaggle_commands():
+    bot = TelegramBotController()
+    res_status = bot.handle_command("/kaggle_status", "12345")
+    assert "Kaggle GPU Training Status" in res_status
+
+    with patch.object(bot.orchestrator, "trigger_kaggle_training") as mock_train:
+        mock_train.return_value = {"status": "RUNNING", "kernel_id": "test/k", "target_model": "m"}
+        res_train = bot.handle_command("/finetune", "12345")
+        assert "Fine-Tuning" in res_train
+        assert "Kaggle GPU" in res_train
 
 
 def test_telegram_bot_unknown_command():

@@ -40,7 +40,7 @@ jobs:
           WANDB_KEY: ${{ secrets.WANDB_KEY }}
         run: |
           mkdir -p ~/.kaggle
-          echo "{\"username\":\"${KAGGLE_USERNAME:-pphothidaen}\",\"key\":\"${KAGGLE_TOKEN}\"}" > ~/.kaggle/kaggle.json
+          echo "{"username":"${KAGGLE_USERNAME:-pphothidaen}","key":"${KAGGLE_TOKEN}"}" > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
           echo "[OK] Kaggle credentials configured for GitHub Actions worker."
 

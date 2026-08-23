@@ -40,19 +40,39 @@ class TelegramBotController:
         if cmd == "/start" or cmd == "/help":
             return (
                 "🔮 <b>HoroConsultant Operations Controller</b>\n\n"
-                "Available Commands:\n"
+                "<b>📊 Monitoring & System:</b>\n"
                 "• <code>/status</code> — System status, active models & memory\n"
                 "• <code>/health</code> — Multi-provider live latency probe\n"
                 "• <code>/metrics</code> — Request count, RPM, error rates\n"
+                "• <code>/cache</code> — 2-Tier cache hit rate & statistics\n"
+                "• <code>/switch_key</code> — Test & cycle Google AI Studio keys\n\n"
+                "<b>🤖 MLOps, NotebookLM & Fine-Tuning:</b>\n"
+                "• <code>/distill [domain]</code> — สกัดความรู้จาก NotebookLM (bazi, ziwei, fengshui, qimen, all)\n"
+                "• <code>/train</code> หรือ <code>/finetune</code> — สั่งเริ่ม Fine-Tuning บน Kaggle GPU ทันที\n"
+                "• <code>/kaggle_status</code> — ตรวจสอบสถานะ Kaggle GPU Training Kernel\n"
+                "• <code>/kaggle_sync</code> — ดึง logs & outputs จาก Kaggle กลับเข้าสู่ระบบ\n"
+                "• <code>/cookie</code> — ตรวจสอบสถานะ Google NotebookLM Session Cookie\n"
+                "• <code>/sample</code> — ดูตัวอย่างเนื้อหาที่สกัดได้ล่าสุดพร้อมผลวิเคราะห์ Tri-Thinking\n\n"
+                "<b>🎯 HITL Governance:</b>\n"
                 "• <code>/hitl_status</code> — HITL queue and finetune readiness\n"
                 "• <code>/hitl_queue</code> — HITL queue counters\n"
                 "• <code>/hitl_backoffice</code> — Unresolved HITL snapshot by domain\n"
-                "• <code>/hitl_scope_audit</code> — Verify source-domain HITL compliance and unresolved conflicts\n"
+                "• <code>/hitl_scope_audit</code> — Verify source-domain HITL compliance\n"
                 "• <code>/hitl_export</code> — Rebuild HITL JSONL export files\n"
-                "• <code>/hitl_trigger [--force] [--dry]</code> — Trigger HITL fine-tune now\n"
-                "• <code>/switch_key</code> — Test & cycle Google AI Studio keys\n"
-                "• <code>/cache</code> — 2-Tier cache hit rate & statistics"
+                "• <code>/hitl_trigger [--force] [--dry]</code> — Trigger HITL fine-tune now"
             )
+
+        elif cmd in (
+            "/distill", "/extract", "/mine",
+            "/train", "/finetune",
+            "/cookie", "/cookie_check", "/cookie_status",
+            "/kaggle_status", "/gpu_status",
+            "/kaggle_sync", "/pull_logs",
+            "/sample", "/mlops", "/mlops_status"
+        ):
+            from project.mlops.notifications.telegram_bot import TelegramBotController as MLOpsBotController
+            mlops_bot = MLOpsBotController(token=self.token)
+            return mlops_bot.handle_command(text, from_chat_id)
 
         elif cmd == "/status":
             from project.api_router import HybridRouter

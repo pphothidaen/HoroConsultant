@@ -2644,3 +2644,136 @@ span.flatpickr-weekday {
   color: #dc2626;
   border-color: #fca5a5;
 }
+
+/* ============================================================
+   ACCORDION CARD SYSTEM — Collapsible Result Sections
+   ============================================================ */
+
+.accordion-card {
+  overflow: hidden;
+}
+
+.accordion-card-header {
+  width: 100%;
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  background: var(--bg-card-header);
+  border: none;
+  text-align: left;
+  padding: 1rem 1.2rem;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-glass);
+  transition: background 0.2s ease;
+  border-radius: 0;
+}
+
+.accordion-card-header:hover {
+  background: rgba(220, 38, 38, 0.06);
+}
+
+.accordion-card-header .acc-header-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.acc-chevron {
+  font-size: 0.75rem;
+  color: #dc2626;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+  font-weight: bold;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.accordion-card-header[aria-expanded="false"] .acc-chevron {
+  transform: rotate(180deg);
+}
+
+.accordion-card-header[aria-expanded="false"] {
+  border-bottom-color: transparent;
+  border-radius: var(--radius-lg);
+}
+
+.accordion-card-body {
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+  max-height: 5000px;
+  opacity: 1;
+}
+
+.accordion-card-body.acc-collapsed {
+  max-height: 0 !important;
+  opacity: 0;
+}
+
+/* ============================================================
+   TEXT COLOR CONTRAST FIXES — WCAG AA Compliance
+   ============================================================ */
+
+/* Dream result box — white bg needs dark text */
+.dream-result-box {
+  color: #1e293b !important;
+  background: #fef2f2 !important;
+  border: 1px solid #fecaca !important;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+/* General AI output content — ensure readable on white */
+.reading-body,
+.validator-body,
+.rag-body {
+  color: var(--text-primary);
+}
+
+/* Secondary/muted text — minimum 4.5:1 on white */
+.text-muted-readable {
+  color: #475569;
+}
+
+/* Pillar cell color fix */
+.char-han {
+  color: #0f172a;
+}
+
+/* ============================================================
+   COMPREHENSIVE CONTRAST FIX — v2 (WCAG AA+ on White Theme)
+   ============================================================ */
+
+/* Discipline action buttons — colorful but readable on white card bg */
+.btn-sm[style*="rgba(245, 158, 11"] { color: #92400e !important; font-weight: 600 !important; }
+.btn-sm[style*="rgba(168, 85, 247"] { color: #6b21a8 !important; font-weight: 600 !important; }
+.btn-sm[style*="rgba(59, 130, 246"] { color: #1d4ed8 !important; font-weight: 600 !important; }
+.btn-sm[style*="rgba(34, 197, 94"]  { color: #166534 !important; font-weight: 600 !important; }
+.btn-sm[style*="rgba(236, 72, 153"] { color: #9d174d !important; font-weight: 600 !important; }
+.btn-sm[style*="rgba(14, 165, 233"] { color: #0369a1 !important; font-weight: 600 !important; }
+.btn-sm[style*="rgba(234, 179, 8"]  { color: #78350f !important; font-weight: 600 !important; }
+.btn-sm[style*="rgba(20, 184, 166"] { color: #134e4a !important; font-weight: 600 !important; }
+.btn-sm[style*="rgba(99, 102, 241"] { color: #312e81 !important; font-weight: 600 !important; }
+
+/* Scenario checkboxes labels */
+.scenario-label, label[style*="color: #cbd5e1"] {
+  color: #334155 !important;
+}
+
+/* Timeline & age scrubber labels */
+label[for="timeline-age-slider"] { color: #92400e !important; }
+#timeline-slider-display { color: #0369a1 !important; }
+
+/* Synastry title */
+strong[data-i18n="synastry_mode_title"] { color: #9d174d !important; }
+
+/* Loading text */
+.global-api-loader-panel span { color: #1e293b !important; }
