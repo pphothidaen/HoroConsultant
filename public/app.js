@@ -5554,7 +5554,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & PROMINENT UPDATE MODAL SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.88bd756";
+const CLIENT_APP_VERSION = "1.0.0.8891d8f";
 let _versionModalDismissed = false;
 let _versionCountdownTimer = null;
 
@@ -6243,18 +6243,22 @@ if (typeof document !== 'undefined') {
  * toggleCardAccordion — Click handler for accordion card headers.
  * Toggles aria-expanded and adds/removes acc-collapsed on the body.
  */
-function toggleCardAccordion(btn) {
-  const card = btn.closest('.accordion-card') || btn.parentElement;
+function toggleCardAccordion(headerEl, event) {
+  if (event && event.target && event.target.closest('.btn-tool, .btn-voice-listen, button, input, select')) {
+    // Inner interactive element clicked, do not toggle accordion
+    return;
+  }
+  const card = headerEl.closest('.accordion-card') || headerEl.parentElement;
   if (!card) return;
-  const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+  const isExpanded = headerEl.getAttribute('aria-expanded') === 'true';
   const body = card.querySelector('.accordion-card-body');
   if (!body) return;
 
   if (isExpanded) {
-    btn.setAttribute('aria-expanded', 'false');
+    headerEl.setAttribute('aria-expanded', 'false');
     body.classList.add('acc-collapsed');
   } else {
-    btn.setAttribute('aria-expanded', 'true');
+    headerEl.setAttribute('aria-expanded', 'true');
     body.classList.remove('acc-collapsed');
   }
 }
