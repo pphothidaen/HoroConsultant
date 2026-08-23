@@ -337,23 +337,40 @@ def create_sft_trainer(
     dataset_text_field: str = None,
     formatting_func = None,
     max_seq_length: int = 512,
+    hf_repo_id: str | None = None,
 ):
     """
     Instantiates training pipeline using standard Hugging Face Trainer
-    with pre-tokenized dataset, PEFT LoRA adapter, and dynamic DataCollator.
+    with pre-tokenized dataset, PEFT LoRA adapter (with continual checkpoint warm-start),
+    and dynamic DataCollator.
     """
     from transformers import Trainer, DataCollatorForLanguageModeling
     from peft import get_peft_model, PeftModel
 
     # Wrap model with PEFT LoRA if not already wrapped
     if peft_config is not None and not isinstance(model, PeftModel):
-        try:
-            model = get_peft_model(model, peft_config)
-            logger.info("   [OK] Attached PEFT LoRA adapter to base causal LM.")
-            if hasattr(model, "print_trainable_parameters"):
-                model.print_trainable_parameters()
-        except Exception as peft_wrap_err:
-            logger.warning(f"   [WARNING] PEFT wrapping skipped/failed ({peft_wrap_err})")
+        adapter_loaded = False
+        if hf_repo_id and Config.is_hf_configured():
+            try:
+                from huggingface_hub import HfApi
+                api = HfApi(token=Config.HF_TOKEN)
+                if api.repo_exists(hf_repo_id):
+                    logger.info(f"   [RESUME] Found existing LoRA checkpoint on Hugging Face: '{hf_repo_id}'. Continual learning enabled!")
+                    model = PeftModel.from_pretrained(model, hf_repo_id, is_trainable=True)
+                    adapter_loaded = True
+                    logger.info(f"   [OK] Resumed trainable LoRA adapter from latest checkpoint '{hf_repo_id}'.")
+            except Exception as resume_err:
+                logger.warning(f"   [INFO] Checkpoint warm-start note: {resume_err}")
+
+        if not adapter_loaded:
+            try:
+                model = get_peft_model(model, peft_config)
+                logger.info("   [OK] Attached fresh PEFT LoRA adapter to base causal LM.")
+            except Exception as peft_wrap_err:
+                logger.warning(f"   [WARNING] PEFT wrapping skipped/failed ({peft_wrap_err})")
+
+        if hasattr(model, "print_trainable_parameters"):
+            model.print_trainable_parameters()
 
     class SafeDataCollator(DataCollatorForLanguageModeling):
         def torch_call(self, examples):
@@ -785,6 +802,7 @@ def run_training_pipeline(
         training_args=training_args,
         dataset_text_field=None,
         max_seq_length=max_seq_length,
+        hf_repo_id=hf_repo_id,
     )
 
 
