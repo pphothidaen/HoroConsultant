@@ -133,6 +133,8 @@ class TelegramBotController:
             return self._cmd_train()
         elif cmd in ("/cookie", "/cookie_check", "/cookie_status"):
             return self._cmd_cookie()
+        elif cmd in ("/cookie_refresh", "/refresh_cookie", "/renew_cookie", "/hermes_renew_cookie"):
+            return self._cmd_refresh_cookie()
         elif cmd in ("/kaggle_status", "/gpu_status"):
             return self._cmd_kaggle_status()
         elif cmd in ("/kaggle_sync", "/pull_logs"):
@@ -185,12 +187,32 @@ class TelegramBotController:
             "• /kaggle_sync — ดึง output และ log จาก Kaggle กลับเข้าสู่ระบบ\n"
             "• /hf_status — ตรวจสอบ Model Registry & Tree/Main files บน Hugging Face\n"
             "• /cookie — ตรวจสอบสถานะความสดใหม่ของ Google Session Cookie\n"
+            "• /refresh_cookie — สั่ง Hermes Agent ให้ต่ออายุ Cookie อัตโนมัติและทดสอบ On-Cloud\n"
             "• /hitl_status — ติดตามจำนวน HITL และสถานะ trigger\n"
             "• /hitl_queue — รายละเอียดคิว HITL\n"
             "• /hitl_export — Export JSONL จาก HITL reviewed ทั้งหมด\n"
             "• /hitl_trigger [--force] [--dry] — Trigger fine-tune จาก HITL ได้ทันที\n"
             "• /help — แสดงคู่มือการใช้งานนี้"
         )
+
+    def _cmd_refresh_cookie(self) -> str:
+        from project.mlops.distillation.cookie_manager import CookieManager
+        mgr = CookieManager()
+        res = mgr.handle_autonomous_cloud_recovery()
+        if res.get("recovered") and res.get("is_valid"):
+            return (
+                "🎉 <b>[Hermes Agent] Google Session Cookie Refreshed & Verified!</b>\n\n"
+                f"• <b>Status:</b> 🟢 <b>VERIFIED_LIVE (HTTP 200 OK)</b>\n"
+                f"• <b>Cookie Length:</b> <code>{res.get('cookie_length', 0)} chars</code>\n"
+                f"• <b>GitHub Secrets:</b> <b>{'✅ SYNCHRONIZED' if res.get('sync_results', {}).get('github_actions') else '⚠️ LOCAL ONLY'}</b>\n\n"
+                "<i>ระบบสกัดความรู้และการเทรนสามารถรันต่อได้อัตโนมัติแล้วครับ</i>"
+            )
+        else:
+            return (
+                "⚠️ <b>[Hermes Agent] Session Refresh Challenge Required:</b>\n\n"
+                f"• <b>Reason:</b> <code>{res.get('probe_reason', 'CHALLENGE_REQUIRED')}</code>\n"
+                "• <b>Action:</b> กรุณารัน <code>python3 scripts/hermes_cookie_sync.py</code> บนเครื่องของคุณเพื่อยืนยันตัวตนใน 1 คลิก"
+            )
 
     def _cmd_hf_status(self) -> str:
         from scripts.verify_hf_model_status import check_hf_model_status

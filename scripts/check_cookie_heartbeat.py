@@ -45,16 +45,13 @@ def run_heartbeat(
     }
 
     if not is_valid:
-        alert_title = "🚨 [NotebookLM Cookie Expired] Re-Authentication Required"
-        alert_body = (
-            "• <b>Service:</b> <code>Google NotebookLM Knowledge Extraction</code>\n"
-            f"• <b>Status:</b> <b>{reason}</b>\n"
-            f"• <b>Cookie Length:</b> <code>{cookie_len} chars</code>\n"
-            "• <b>Action Required:</b> Please run the following command to refresh session & sync secrets:\n"
-            "<code>python3 scripts/hermes_cookie_sync.py</code>\n"
-            "• <b>Impact:</b> Scheduled distillation runs will use fallback until cookie is refreshed."
-        )
-        notifier._send_all(alert_title, alert_body, status="ERROR")
+        logger.info("[HEARTBEAT] Triggering Hermes Agent Autonomous Cloud Auto-Heal...")
+        recovery_res = cookie_mgr.handle_autonomous_cloud_recovery()
+        if recovery_res.get("recovered") and recovery_res.get("is_valid"):
+            result["is_valid"] = True
+            result["status"] = "RECOVERED_HEALTHY"
+            result["cookie_length"] = recovery_res.get("cookie_length", 0)
+            result["reason"] = "RECOVERED_AND_VERIFIED"
     elif notify_always:
         title = "🍪 [NotebookLM Heartbeat] Cookie Active & Healthy"
         body = (

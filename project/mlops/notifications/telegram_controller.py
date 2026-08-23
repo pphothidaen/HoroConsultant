@@ -69,6 +69,7 @@ class TelegramBotController:
             "/checklist", "/checklist_status",
             "/train", "/finetune",
             "/cookie", "/cookie_check", "/cookie_status",
+            "/cookie_refresh", "/refresh_cookie", "/renew_cookie", "/hermes_renew_cookie",
             "/kaggle_status", "/gpu_status",
             "/kaggle_sync", "/pull_logs",
             "/hf_status", "/model_status", "/huggingface",
