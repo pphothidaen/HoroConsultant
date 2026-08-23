@@ -1,3 +1,264 @@
+
+// ======================================================================
+// 🌟 6-DIMENSION LIFE ANALYSIS ENGINE (FOR SINGLE & 16-DOMAIN SYNTHESIS)
+// ======================================================================
+
+const METAPHYSICS_6D_INSIGHTS_DATABASE = {
+  "bazi": {
+    name: "四柱 八字 (BaZi 4-Pillars)",
+    icon: "🏛️",
+    career: "วิเคราะห์โครงสร้างสิบลักขณา (十神): ดาวกัว/สั่วะ (官殺) หนุนตำแหน่งหน้าที่การงาน ดาวชัว/เชียะ (食傷) ผลักดันความคิดสร้างสรรค์และธุรกิจส่วนตัว",
+    timing: "วิเคราะห์ช่วงเปลี่ยนผ่านวัยจร (大運) และปีจร (流年) ช่วงธาตุให้คุณเกื้อหนุนการเริ่มต้นกิจการใหม่และการขยายงาน",
+    wealth: "ธาตุถ่ายเทโชคลาภ (財星) สถิตทั้งกิ่งดินและก้านฟ้า การบริหารกระแสเงินสดหมุนเวียนคล่องตัวและมีเกณฑ์สะสมอสังหาริมทรัพย์",
+    love: "เสาคู่ครอง (日支) สถิตธาตุเกื้อหนุน ส่งเสริมความเข้าใจและการประคับประคองชีวิตคู่ที่มั่นคง",
+    health: "ดุลยภาพ 5 ธาตุ (五行平衡) แนะนำเสริมธาตุน้ำและธาตุไม้เพื่อบำรุงพลังชีวิตและรักษาสมดุลหยิน-หยาง",
+    family: "เสาปีและเสาเดือน (祖業/父母) มั่นคง หนุนความผูกพันในครอบครัวและรากฐานเคหสถานร่มเย็น"
+  },
+  "ziwei": {
+    name: "紫微斗數 (Zi Wei Dou Shu)",
+    icon: "🔮",
+    career: "ภพการงาน (官祿宮) มีดาวราชาและดาวขุนนาง (紫微/天相/天府) สถิต หนุนอำนาจการบริหาร การตัดสินใจ และเกียรติยศ",
+    timing: "รอบมหาทศวรรษ (大限) และปีจร ดาวฮว่าลู่ (化祿) และฮว่าฉวน (化權) จรเข้าสู่ภพสำคัญ เป็นจังหวะฟ้าเปิดของชีวิต",
+    wealth: "ภพการคลัง (財帛宮) มีดาวการเงินหลัก (武曲/太陰/祿存) เกื้อหนุน สภาพคล่องสูงและมีโอกาสรับโชคก้อนใหญ่",
+    love: "ภพคู่ครอง (夫妻宮) สถิตดาวสิริมงคล ไร้ดาวพิฆาต ช่วยให้ความสัมพันธ์ราบรื่นและคู่ครองช่วยหนุนบารมี",
+    health: "ภพสุขภาพ (疾厄宮) มีดาวคุ้มครองปัดเป่าโรคภัย แคล้วคลาดปลอดภัยและมีพลังชีวิตสดชื่น",
+    family: "ภพที่อยู่อาศัย (田宅宮) สมบูรณ์ เพิ่มพูนทรัพย์สินอสังหาริมทรัพย์และบรรยากาศในบ้านอบอุ่น"
+  },
+  "qimen": {
+    name: "奇門遁甲 (Qi Men Dun Jia)",
+    icon: "⚡",
+    career: "ประตูเปิด (開門) สถิตทิศมงคล เหมาะแก่การริเริ่มธุรกิจ การเจรจาการค้า และการลงนามสัญญาสำคัญ",
+    timing: "ยามมงคลสามวิเศษ (三奇: 乙/丙/丁) จังหวะฟ้าดินเปิดรับพลังสูงสุด เหมาะประกอบการมงคล",
+    wealth: "ประตูให้กำเนิด (生門) สถิตทิศรับทรัพย์ ค้าขายได้กำไรพูนทวีและหมุนเวียนโภคทรัพย์ราบรื่น",
+    love: "ประตูพักผ่อน (休門) และเทพหกประสาน (六合) เสริมเสน่ห์เมตตามหานิยมและความสัมพันธ์ราบรื่น",
+    health: "เทพไท่อิน (太陰) คุ้มครองพลังปราณ เลี่ยงทิศประตูมรณะ (死門) เพื่อสุขอนามัยที่แข็งแรง",
+    family: "ทิศประตูทิวทัศน์ (景門) และจิ่วเทียน (九天) ชี้ความร่มเย็นและชื่อเสียงเกียรติคุณของบ้านเรือน"
+  },
+  "liuren": {
+    name: "大六壬 (Da Liu Ren)",
+    icon: "🌊",
+    career: "การส่งผ่านสามขั้น (三傳) ราบรื่น เทพชิงหลง (青龍) คุ้มครองการตัดสินใจเชิงยุทธศาสตร์และการงานก้าวหน้า",
+    timing: "ยามขุนพลฟ้า (天將) สถิตวังให้คุณ เหมาะแก่การเคลื่อนไหวสำคัญและเจรจาธุรกิจ",
+    wealth: "เสินโฮ่วและกุ้ยเหรินหนุนกระแสการเงินและการค้าขาย รับผลตอบแทนคุ้มค่า",
+    love: "ซือจื่อ (四課) ปรากฏคู่สมพงศ์ธาตุ หนุนสายสัมพันธ์คนรักและครอบครัวกลมเกลียว",
+    health: "ปราณฟ้าปรับสมดุลธาตุดิน-น้ำ เลี่ยงแนวธาตุพิฆาตไป๋หู่ (白虎) สุขภาพแข็งแรง",
+    family: "เทพกุ้ยเหรินสถิตเคหสถาน คุ้มครองความปลอดภัยและความสงบสุขในบ้าน"
+  },
+  "iching": {
+    name: "易經六爻 (I Ching Divination)",
+    icon: "☯️",
+    career: "ผังกว้าหลักและกว้าเปลี่ยนชี้แนวโน้มความสำเร็จในการทำงาน มุ่งมั่นด้วยคุณธรรมจะรุ่งเรือง",
+    timing: "เส้นเปลี่ยน (爻變) บ่งบอกจังหวะเวลาที่ควรเคลื่อนไหวรุดหน้าหรือควรรอคอยโอกาสที่เหมาะสม",
+    wealth: "ธาตุประจำกว้าชี้ทิศทางการงอกเงยของโภคทรัพย์และการลงทุนที่ปลอดภัย",
+    love: "ดุลยภาพหยิน-หยางในผังกว้าส่งเสริมความเข้าใจและการร่วมมือของคู่ครอง",
+    health: "ความสมดุลของตรีโกณบน-ล่างบ่งบอกพลังชีวิตที่สมบูรณ์และจิตใจที่สงบผ่อนคลาย",
+    family: "ผังกว้าประจำทิศส่งเสริมความสามัคคีและรากฐานเคหสถานที่มั่นคงยืนยาว"
+  },
+  "xuankong": {
+    name: "玄空風水 (Xuan Kong Feng Shui)",
+    icon: "🧭",
+    career: "ดาว 9 ยุคเก้าม่วงและดาว 6 ขาวส่งเสริมห้องทำงานและตำแหน่งบริหาร หนุนอำนาจบารมี",
+    timing: "วงจรดาวบินประจำปีและเดือนจรบอกจังหวะเปิดรับพลังมงคลและการปรับเปลี่ยนพื้นที่",
+    wealth: "ดาวน้ำ (向星) สถิตประตูหน้าอาคาร ดึงดูดกระแสการเงินและโอกาสทางธุรกิจ",
+    love: "ดาวบัณฑิตและเสน่ห์ (4 เขียว) ในทิศห้องนอน เสริมสร้างความรักและความเข้าใจ",
+    health: "เลี่ยงการรบกวนในแนวปะทะดาว 2 ดำ (โรคภัย) และ 5 เหลือง (เบญจสูญ) เพื่อสุขอนามัยคนในบ้าน",
+    family: "ดาวภูเขา (山星) พิงหลังมั่นคง หนุนสุขภาพ บารมี และความกลมเกลียวของคนในครอบครัว"
+  },
+  "zeji": {
+    name: "擇吉 (Ze Ji Auspicious Timing)",
+    icon: "📅",
+    career: "ฤกษ์วันเปิด (開日) และวันตั้ง (建日) ยอดเยี่ยมสำหรับการเปิดกิจการ เซ็นสัญญา และเริ่มงานใหม่",
+    timing: "ยามสุริยะมงคลและ 28 นักษัตรฤกษ์ดี หนุนจังหวะความสำเร็จสูงสุด",
+    wealth: "ฤกษ์วันรับทรัพย์ (成日/定日) เหมาะแก่การลงทุน เปิดบัญชีการค้า และทำธุรกรรมการเงิน",
+    love: "ฤกษ์หมั้นหมายและมงคลสมรสปราศจากวันปะทะ (破日/冲) หนุนการครองเรือนยั่งยืน",
+    health: "ฤกษ์ฟื้นฟูสุขภาพและพักผ่อนในวันปราณสงบ ช่วยเสริมพลังชีวิต",
+    family: "ฤกษ์ยกเสาเอก ย้ายเข้าบ้านใหม่ และตั้งศาลมงคล หนุนความร่มเย็นของเคหสถาน"
+  },
+  "thai_vedic": {
+    name: "โหราศาสตร์ไทย & ภารตวิทยา",
+    icon: "🐘",
+    career: "ภพกัมมะและดาวพฤหัสบดี (๕) เสวยอายุ เกียรติยศโดดเด่นและผู้ใหญ่อุปถัมภ์",
+    timing: "มหาฤกษ์ภูมิปาโล/ราชาฤกษ์ ช่วงเวลาทองของการขยับขยายชีวิต",
+    wealth: "ภพกดุมภะและลาภะ ดาวศุกร์ (๖) ส่งเกณฑ์มงคล โชคลาภและการเงินหมุนเวียนคล่องตัว",
+    love: "ภพปัตนิและดาวคู่ครองสมพงศ์ เสริมเสน่ห์เมตตามหานิยมและคู่ครองเกื้อกูล",
+    health: "ภพตนุเข้มแข็ง ดาวอาทิตย์ (๑) ให้กำลัง พลังชีวิตเปี่ยมล้น ไร้ดาวเบียดเบียน",
+    family: "ภพพันธุและดาวจันทร์ (๒) ชี้เคหสถานร่มเย็น ครอบครัวอบอุ่นและมีโชคเรื่องที่ดิน"
+  },
+  "western": {
+    name: "โหราศาสตร์สากล & ยูเรเนียน",
+    icon: "🌌",
+    career: "Midheaven (MC) และดาวพฤหัส (Jupiter) ทำมุมตรีโกณ หนุนความก้าวหน้าในอาชีพและชื่อเสียง",
+    timing: "จุดศูนย์ครึ่ง (Midpoints) เชื่อมโยงราศีเมษ ก้าวกระโดดสู่โอกาสสำคัญ",
+    wealth: "เรือนที่ 2 และเรือนที่ 8 สัมพันธ์ดาววีนัส (Venus) รับผลตอบแทนจากการลงทุนคุ้มค่า",
+    love: "เรือนที่ 7 (Descendant) ได้รับพลังดาวศุกร์ เสริมความรักและมิตรภาพที่จริงใจ",
+    health: "เรือนที่ 6 และดาวอังคาร (Mars) มีมุมสัมพันธ์ดี พลังงานกายกระฉับกระเฉง",
+    family: "เรือนที่ 4 (IC) เข้มแข็ง รากฐานครอบครัวและบ้านพักอาศัยมั่นคงอบอุ่น"
+  },
+  "numerology": {
+    name: "สัตตเลข 7 ฐาน & เลขศาสตร์",
+    icon: "🔢",
+    career: "ฐานผลรวมลงกำลังพระเกตุ (9) และราชาโชค (11) หนุนหน้าที่การงานและการบริหารราบรื่น",
+    timing: "รอบอายุจรตกดาวศุภเคราะห์ เป็นจังหวะเริ่มต้นโครงการใหม่ที่ประสบความสำเร็จ",
+    wealth: "ภพธนังและโภคาลงฐานกำลังพระจันทร์ (15) มหาเศรษฐี เงินทองไหลมาเทมา",
+    love: "ภพปัตนิสมพงศ์ธาตุมงคล เสริมเสน่ห์และความเข้าใจในชีวิตคู่",
+    health: "ฐานกำลังดาวกำเนิดสมดุล ไร้เลขคู่ศัตรูทำลายพลังชีวิต สุขภาพแข็งแรง",
+    family: "ภพเคหังและมาตา-ปิตา มั่นคง เคหสถานร่มเย็นเป็นสุข"
+  },
+  "taiyi": {
+    name: "太乙神數 (Tai Yi Shen Shu)",
+    icon: "👑",
+    career: "ดาวไท่อิกสถิตวังทิศฟ้าเปิด แผนยุทธศาสตร์องค์กรประสบความสำเร็จและมีผู้อุปถัมภ์",
+    timing: "รอบปีสะสมไท่อิกเข้าสู่วังเจริญ รุดหน้าไร้อุปสรรค",
+    wealth: "ทิศมงคลไท่อิกหนุนกระแสโภคทรัพย์ใหญ่และการขยายการลงทุนข้ามแดน",
+    love: "ปราณฟ้าไท่อิกเชื่อมสัมพันธ์ พันธมิตรและคู่ครองให้การสนับสนุน",
+    health: "พลังหยางไท่อิกคุ้มครอง ปราณชี่หมุนเวียนสมบูรณ์ ไร้โรคาเบียดเบียน",
+    family: "วังกลางมั่นคง คุ้มครองความปลอดภัยและความสงบสุขในเคหสถาน"
+  },
+  "liuyao": {
+    name: "六爻預測 (Liu Yao Prediction)",
+    icon: "📜",
+    career: "เส้นกวนกุ๋ย (官鬼) เป็นธาตุทองหนุนการบริหาร เลื่อนตำแหน่ง และความน่าเชื่อถือ",
+    timing: "วันและเดือนจรหนุนเส้นเกิดผล (用神) สำเร็จตามกำหนดการ",
+    wealth: "เส้นชีไฉ (妻財) แข็งแกร่ง ได้รับผลตอบแทนการค้าและการลงทุนคุ้มค่า",
+    love: "เส้นอิ้ง (應爻) สมพงศ์กับเส้นตัวตน (世爻) ความสัมพันธ์แนบแน่นมั่นคง",
+    health: "เส้นจื่อซุน (子孫) ข่มเส้นกวนกุ๋ย ปัดเป่าโรคภัยไข้เจ็บให้ทุเลา",
+    family: "เส้นฝูหมู่ (父母) มั่นคง คุ้มครองเอกสารสัญญาและบ้านเรือนร่มเย็น"
+  },
+  "meihua": {
+    name: "梅花易數 (Mei Hua Yi Shu)",
+    icon: "🌸",
+    career: "กว้าตัวตนข่มกว้าหน้าที่ (體克用) ควบคุมผลลัพธ์การงานและการแข่งขันได้ดั่งใจ",
+    timing: "ปรากฏการณ์นิมิตบอกจังหวะเริ่มต้นที่สมบูรณ์แบบ ไร้ความล่าช้า",
+    wealth: "กว้ากำเนิดให้คุณ โชคลาภเงินทองไหลมาเทมาอย่างไม่คาดฝัน",
+    love: "กว้าสัมพันธ์เป็นมิตร เสริมสร้างความเข้าอกเข้าใจและความรักอบอุ่น",
+    health: "ธาตุกว้ากลมกลืน ช่วยให้จิตใจปลอดโปร่ง ร่างกายสมบูรณ์",
+    family: "ทิศกว้าหนุนเคหสถาน คนในครอบครัวรักใคร่กลมเกลียว"
+  },
+  "sanhe": {
+    name: "三合風水 (San He Feng Shui)",
+    icon: "⛰️",
+    career: "ชัยภูมิมังกรเขียว-เสือขาวสมดุล หนุนอำนาจบารมีและบริวารซื่อสัตย์",
+    timing: "ฤกษ์ 12 วงจรชีวิตฟ้าเปิดรับพลังดิน เสริมความเจริญรุ่งเรือง",
+    wealth: "ชัยภูมิต้นน้ำและปากน้ำออก (水口) กักเก็บทรัพย์ ไม่รั่วไหล เงินทองพูนทวี",
+    love: "ทิศพิงมั่นคงเสริมความอบอุ่นและสายใยครอบครัวแน่นแฟ้น",
+    health: "ปราณธรรมชาติจากแนวเขาส่งเสริมสุขภาพและอายุวัฒนะ",
+    family: "24 ขุนเขาทิศพิงมั่นคง ปกป้องคุ้มครองวงศ์ตระกูลและอสังหาริมทรัพย์"
+  },
+  "qizheng": {
+    name: "七政四餘 (Qi Zheng Si Yu)",
+    icon: "✨",
+    career: "ดาวพฤหัส (木星) สถิตนักษัตรมงคล หนุนอำนาจบารมีและความน่าเชื่อถือ",
+    timing: "ลัคนาและดาวนำโชคจรเข้าสู่วังทองคำ จังหวะชีวิตรุ่งเรือง",
+    wealth: "ดาวพระจันทร์และดาวศุกร์ส่องแสงเรืองรอง หนุนการเงินมั่งคั่ง",
+    love: "ดาวคู่ครองไร้ดาวบาปเคราะห์เบียน ครองรักราบรื่น",
+    health: "ดาวอาทิตย์คุ้มครองดวงชะตา พลังชีวิตเจิดจ้าแจ่มใส",
+    family: "ภพเคหะได้รับแสงจากดาวศุภเคราะห์ บ้านร่มเย็นเป็นสุข"
+  },
+  "mianxiang": {
+    name: "麻衣神相 (Mian Xiang Physiognomy)",
+    icon: "👤",
+    career: "วังการงาน (官祿宮) บนหน้าผากอิ่มเอิบ ไร้ริ้วรอยอุปสรรค โหงวเฮ้งเปิดรับความสำเร็จ",
+    timing: "โหงวเฮ้งช่วงวัยปัจจุบันมีรัศมีผ่องใส เปิดรับโอกาสและจังหวะชีวิตใหม่",
+    wealth: "วังการคลัง (ปีกจมูก/จมูก) หนานูน ปลายจมูกกลม ดึงดูดทรัพย์และเก็บเงินอยู่",
+    love: "วังคู่ครอง (หางตา/ขมับ) เนียนผ่อง ความสัมพันธ์ยืนยาวและคู่ครองเกื้อกูล",
+    health: "วังสุขภาพ (ซานเกิน/ดั้งจมูก) แข็งแรง พลังชีวิตเปี่ยมล้น",
+    family: "วังที่อยู่อาศัย (เปลือกตา) กว้างผ่องใส ได้รับมรดกและความสุขในบ้าน"
+  }
+};
+
+function render6DimensionAnalysisMatrix(disciplineKey = "bazi") {
+  const data = METAPHYSICS_6D_INSIGHTS_DATABASE[disciplineKey] || METAPHYSICS_6D_INSIGHTS_DATABASE["bazi"];
+  
+  return `
+    <div class="discipline-6d-matrix" style="margin-top: 1.25rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px;">
+        <h4 style="margin: 0; color: #1e293b; font-size: 1.05rem; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+          <span>🌟</span> บทวิเคราะห์ 6 มิติชีวิตเฉพาะศาสตร์ (${data.icon} ${data.name})
+        </h4>
+        <span style="font-size: 0.75rem; background: #f1f5f9; color: #475569; padding: 3px 10px; border-radius: 9999px; font-weight: 600; border: 1px solid #cbd5e1;">Standardized 6-Dimension Analysis</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+        <!-- 1. การงาน & ธุรกิจ -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; transition: transform 0.2s ease;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <strong style="color: #1e40af; font-size: 0.92rem;">💼 การงาน & ธุรกิจ</strong>
+            <span style="font-size: 0.7rem; background: #dbeafe; color: #1e40af; padding: 2px 6px; border-radius: 4px; font-weight: bold;">Career & Business</span>
+          </div>
+          <p style="margin: 0; font-size: 0.85rem; color: #334155; line-height: 1.5;">${data.career}</p>
+        </div>
+
+        <!-- 2. ฤกษ์มงคล & จังหวะเวลา -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; transition: transform 0.2s ease;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <strong style="color: #78350f; font-size: 0.92rem;">⏳ ฤกษ์มงคล & จังหวะเวลา</strong>
+            <span style="font-size: 0.7rem; background: #fef3c7; color: #78350f; padding: 2px 6px; border-radius: 4px; font-weight: bold;">Timing & Cycles</span>
+          </div>
+          <p style="margin: 0; font-size: 0.85rem; color: #334155; line-height: 1.5;">${data.timing}</p>
+        </div>
+
+        <!-- 3. การเงิน & โชคลาภ -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; transition: transform 0.2s ease;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <strong style="color: #166534; font-size: 0.92rem;">💰 การเงิน & โชคลาภ</strong>
+            <span style="font-size: 0.7rem; background: #dcfce7; color: #166534; padding: 2px 6px; border-radius: 4px; font-weight: bold;">Wealth & Fortune</span>
+          </div>
+          <p style="margin: 0; font-size: 0.85rem; color: #334155; line-height: 1.5;">${data.wealth}</p>
+        </div>
+
+        <!-- 4. ความรัก & คู่ครอง -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; transition: transform 0.2s ease;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <strong style="color: #9d174d; font-size: 0.92rem;">❤️ ความรัก & คู่ครอง</strong>
+            <span style="font-size: 0.7rem; background: #fce7f3; color: #9d174d; padding: 2px 6px; border-radius: 4px; font-weight: bold;">Love & Marriage</span>
+          </div>
+          <p style="margin: 0; font-size: 0.85rem; color: #334155; line-height: 1.5;">${data.love}</p>
+        </div>
+
+        <!-- 5. สุขภาพ & พลังชีวิต -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; transition: transform 0.2s ease;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <strong style="color: #065f46; font-size: 0.92rem;">🌿 สุขภาพ & พลังชีวิต</strong>
+            <span style="font-size: 0.7rem; background: #d1fae5; color: #065f46; padding: 2px 6px; border-radius: 4px; font-weight: bold;">Health & Vitality</span>
+          </div>
+          <p style="margin: 0; font-size: 0.85rem; color: #334155; line-height: 1.5;">${data.health}</p>
+        </div>
+
+        <!-- 6. บ้าน & ครอบครัว -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; transition: transform 0.2s ease;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <strong style="color: #4338ca; font-size: 0.92rem;">🏡 บ้าน & ครอบครัว</strong>
+            <span style="font-size: 0.7rem; background: #e0e7ff; color: #4338ca; padding: 2px 6px; border-radius: 4px; font-weight: bold;">Home & Property</span>
+          </div>
+          <p style="margin: 0; font-size: 0.85rem; color: #334155; line-height: 1.5;">${data.family}</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function detectDisciplineKeyFromTitle(title) {
+  if (!title) return "bazi";
+  if (title.includes("四柱") || title.includes("Bazi") || title.includes("BaZi")) return "bazi";
+  if (title.includes("紫微") || title.includes("Zi Wei")) return "ziwei";
+  if (title.includes("奇門") || title.includes("Qi Men")) return "qimen";
+  if (title.includes("六壬") || title.includes("Liu Ren") || title.includes("LiuRen")) return "liuren";
+  if (title.includes("易經") || title.includes("I Ching") || title.includes("IChing")) return "iching";
+  if (title.includes("玄空") || title.includes("Xuan Kong") || title.includes("XuanKong")) return "xuankong";
+  if (title.includes("擇吉") || title.includes("Ze Ji") || title.includes("ZeJi")) return "zeji";
+  if (title.includes("ไทย") || title.includes("ภารต")) return "thai_vedic";
+  if (title.includes("สากล") || title.includes("ยูเรเนียน")) return "western";
+  if (title.includes("สัตตเลข") || title.includes("เลขศาสตร์")) return "numerology";
+  if (title.includes("太乙") || title.includes("Tai Yi")) return "taiyi";
+  if (title.includes("六爻") || title.includes("Liu Yao")) return "liuyao";
+  if (title.includes("梅花") || title.includes("Mei Hua")) return "meihua";
+  if (title.includes("三合") || title.includes("San He")) return "sanhe";
+  if (title.includes("七政") || title.includes("Qi Zheng")) return "qizheng";
+  if (title.includes("麻衣") || title.includes("Mian Xiang") || title.includes("โหงวเฮ้ง")) return "mianxiang";
+  return "bazi";
+}
+
+
 const BACKEND_API_HOSTS = [
   "https://horo-consultant-psi.vercel.app", // Primary Vercel Production Serverless API Gateway
   "https://horoconsult-env-new.mangoforest-3a921b17.westus2.azurecontainerapps.io", // Azure Container Apps Docker backend fallback
@@ -1928,6 +2189,13 @@ function showBranchCard(title, contentHtml, svgContent) {
   if (card && titleEl && bodyEl) {
     titleEl.innerHTML = title;
     let fullHtml = contentHtml;
+    
+    // Automatically inject 6-Dimension standardized life analysis if not already multimodal matrix
+    if (!title.includes("16 ศาสตร์ (Unified Multimodal Matrix)") && !fullHtml.includes("discipline-6d-matrix")) {
+      const discKey = detectDisciplineKeyFromTitle(title);
+      fullHtml += render6DimensionAnalysisMatrix(discKey);
+    }
+
     if (svgContent) {
       fullHtml += `<div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; text-align: center; overflow-x: auto;">${svgContent}</div>`;
     }
@@ -4697,11 +4965,11 @@ async function calcMultimodalMatrix(domainKey = 'career') {
 
   const domainsList = [
     { key: 'career', label: '💼 การงาน & ธุรกิจ' },
+    { key: 'timing', label: '⏳ ฤกษ์มงคล & จังหวะเวลา' },
     { key: 'wealth', label: '💰 การเงิน & โชคลาภ' },
     { key: 'love', label: '❤️ ความรัก & คู่ครอง' },
     { key: 'health', label: '🌿 สุขภาพ & พลังชีวิต' },
-    { key: 'family', label: '🏡 บ้าน & ครอบครัว' },
-    { key: 'timing', label: '⏳ ฤกษ์มงคล & จังหวะเวลา' }
+    { key: 'family', label: '🏡 บ้าน & ครอบครัว' }
   ];
 
   const domainButtonsHtml = domainsList.map(d => `
@@ -5687,7 +5955,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & PROMINENT UPDATE MODAL SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.b3e63c4";
+const CLIENT_APP_VERSION = "1.0.0.2252aea";
 let _versionModalDismissed = false;
 let _versionCountdownTimer = null;
 
