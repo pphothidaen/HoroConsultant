@@ -26,7 +26,7 @@ from project.mlops.notifications.webhook_notifier import WebhookNotifier
 ROOT_DIR = Path(__file__).resolve().parents[3]
 ENV_FILE = ROOT_DIR / ".env"
 SESSION_CACHE = ROOT_DIR / ".notebooklm_session.json"
-PROFILE_DIR = ROOT_DIR / ".playwright_profile"
+PROFILE_DIR = Path.home() / ".hermes_notebooklm_profile"
 
 logger = logging.getLogger("cookie_manager")
 
@@ -83,20 +83,24 @@ class CookieManager:
 
     def attempt_silent_refresh(self) -> Tuple[bool, Optional[str]]:
         """
-        Attempt silent background refresh using Playwright headless automation.
+        Attempt silent background refresh using Playwright persistent headless automation.
         If Google provides fresh rolling cookies, extracts and syncs them.
         """
-        logger.info("[COOKIE MANAGER] Attempting silent background session refresh...")
+        logger.info("[COOKIE MANAGER] Attempting silent background session refresh via persistent profile...")
         try:
             from playwright.sync_api import sync_playwright
 
+            PROFILE_DIR.mkdir(parents=True, exist_ok=True)
             with sync_playwright() as p:
-                browser = p.chromium.launch(
+                context = p.chromium.launch_persistent_context(
+                    user_data_dir=str(PROFILE_DIR),
                     headless=True,
-                    args=["--disable-blink-features=AutomationControlled"]
-                )
-                context = browser.new_context(
-                    user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+                    args=[
+                        "--disable-blink-features=AutomationControlled",
+                        "--no-first-run",
+                        "--no-default-browser-check",
+                    ],
+                    user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
                 )
 
                 # Inject existing cookies into context if available
@@ -107,7 +111,7 @@ class CookieManager:
                     except Exception:
                         pass
 
-                page = context.new_page()
+                page = context.pages[0] if context.pages else context.new_page()
                 page.goto("https://notebooklm.google.com/", timeout=25000)
                 
                 # Check if landed inside authenticated session
@@ -116,13 +120,13 @@ class CookieManager:
                     fresh_cookies = context.cookies()
                     fresh_cookie_str = "; ".join([f"{c['name']}={c['value']}" for c in fresh_cookies])
                     SESSION_CACHE.write_text(json.dumps(fresh_cookies, indent=2), encoding="utf-8")
-                    browser.close()
+                    context.close()
                     
                     self.sync_all_targets(fresh_cookie_str)
                     logger.info("[COOKIE MANAGER] Silent refresh successful! Cookies updated.")
                     return True, fresh_cookie_str
                 
-                browser.close()
+                context.close()
                 return False, None
         except Exception as e:
             logger.warning(f"[COOKIE MANAGER] Silent refresh encountered exception: {e}")
