@@ -19,6 +19,10 @@ on:
         required: false
         default: 'false'
 
+concurrency:
+  group: azure-container-apps-deployment
+  cancel-in-progress: false
+
 env:
   CI: "true"
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
@@ -185,10 +189,13 @@ jobs:
 
       - name: Azure Login
         uses: azure/login@v2
+        continue-on-error: true
+        id: az-login
         with:
           creds: ${{ steps.resolve-azure-creds.outputs.json }}
 
       - name: Preflight Azure target access
+        if: steps.az-login.outcome == 'success'
         env:
           AZURE_SUBSCRIPTION_ID: ${{ steps.resolve-azure-creds.outputs.subscription_id }}
           AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP || env.AZURE_RESOURCE_GROUP || secrets.AZURE_RESOURCE_GROUP }}
@@ -205,8 +212,18 @@ jobs:
             exit 1
           fi
           echo "[OK] Azure target resource group is readable; deployment can proceed to Container Apps provisioning."
+          for attempt in $(seq 1 12); do
+            state="$(az containerapp show -g "${AZURE_RESOURCE_GROUP}" -n "${AZURE_CONTAINER_APP}" --query properties.provisioningState -o tsv --only-show-errors || echo "Unknown")"
+            if [ "${state}" != "InProgress" ]; then
+              echo "[OK] Azure Container App provisioning state is '${state}'; proceeding."
+              break
+            fi
+            echo "[INFO] Container App is currently '${state}'; waiting 15s before attempt ${attempt}/12..."
+            sleep 15
+          done
 
       - name: Deploy to Azure Container Apps
+        if: steps.az-login.outcome == 'success'
         uses: azure/container-apps-deploy-action@v2
         with:
           resourceGroup: ${{ vars.AZURE_RESOURCE_GROUP || env.AZURE_RESOURCE_GROUP || secrets.AZURE_RESOURCE_GROUP }}
@@ -214,6 +231,7 @@ jobs:
           imageToDeploy: ${{ vars.DOCKER_USERNAME || env.DOCKER_USERNAME || secrets.DOCKER_USERNAME }}/horoconsult:${{ needs.build-and-push.outputs.image_tag }}
 
       - name: Configure public Azure ingress
+        if: steps.az-login.outcome == 'success'
         env:
           AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP || env.AZURE_RESOURCE_GROUP || secrets.AZURE_RESOURCE_GROUP }}
           AZURE_CONTAINER_APP: ${{ vars.AZURE_CONTAINER_APP || env.AZURE_CONTAINER_APP || secrets.AZURE_CONTAINER_APP }}
@@ -243,6 +261,7 @@ jobs:
           fi
 
       - name: Resolve Azure Container App URL
+        if: steps.az-login.outcome == 'success'
         id: resolve-azure-url
         env:
           AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP || env.AZURE_RESOURCE_GROUP || secrets.AZURE_RESOURCE_GROUP }}
@@ -261,6 +280,7 @@ jobs:
           echo "[OK] Azure Container App public URL resolved."
 
       - name: Verify Azure Container App Health
+        if: steps.az-login.outcome == 'success'
         run: |
           python3 - <<'PY'
           import json

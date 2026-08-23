@@ -20,12 +20,108 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Doppler Secret Sync (1st Priority)
+        uses: dopplerhq/secrets-fetch-action@v1.2.0
+        continue-on-error: true
+        with:
+          doppler-token: ${{ secrets.DOPPLER_TOKEN }}
+        id: doppler
+
+      - name: Resolve Azure credentials
+        id: resolve-azure-creds
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import sys
+
+          placeholders = {
+              "AZURE_CLIENT_ID": os.getenv("AZURE_CLIENT_ID", ""),
+              "AZURE_CLIENT_SECRET": os.getenv("AZURE_CLIENT_SECRET", ""),
+              "AZURE_SUBSCRIPTION_ID": os.getenv("AZURE_SUBSCRIPTION_ID", ""),
+              "AZURE_TENANT_ID": os.getenv("AZURE_TENANT_ID", ""),
+          }
+
+          parsed = None
+          used_template_placeholders = set()
+          raw = os.getenv("AZURE_CREDENTIALS")
+          if raw:
+              pattern = re.compile(r"\$\{([A-Z0-9_]+)\}")
+              def substitute_placeholder(match):
+                  name = match.group(1)
+                  used_template_placeholders.add(name)
+                  return placeholders.get(name, match.group(0))
+
+              resolved = pattern.sub(substitute_placeholder, raw)
+              try:
+                  parsed = json.loads(resolved)
+              except json.JSONDecodeError as error:
+                  print(f"[WARN] Could not parse AZURE_CREDENTIALS after substitution: {error}")
+          else:
+              print("[WARN] AZURE_CREDENTIALS is not available in this workflow context; attempting field assembly from individual env vars.")
+
+          if parsed is None:
+              parsed = {
+                  "clientId": placeholders["AZURE_CLIENT_ID"],
+                  "clientSecret": placeholders["AZURE_CLIENT_SECRET"],
+                  "subscriptionId": placeholders["AZURE_SUBSCRIPTION_ID"],
+                  "tenantId": placeholders["AZURE_TENANT_ID"],
+              }
+
+          fallback_fields = {
+              "clientId": "AZURE_CLIENT_ID",
+              "clientSecret": "AZURE_CLIENT_SECRET",
+              "subscriptionId": "AZURE_SUBSCRIPTION_ID",
+              "tenantId": "AZURE_TENANT_ID",
+          }
+          filled_from_individual = []
+          for key, env_name in fallback_fields.items():
+              if not str(parsed.get(key, "")).strip() and placeholders.get(env_name):
+                  parsed[key] = placeholders[env_name]
+                  filled_from_individual.append(key)
+          if filled_from_individual:
+              print(
+                  "[OK] Filled missing Azure credential fields from individual secrets: "
+                  + ", ".join(filled_from_individual)
+              )
+
+          if raw and used_template_placeholders:
+              missing_placeholders = [
+                  name for name in sorted(used_template_placeholders)
+                  if not placeholders.get(name)
+              ]
+              if missing_placeholders:
+                  print("[ERROR] AZURE_CREDENTIALS references unresolved placeholders:")
+                  for name in missing_placeholders:
+                      print(f"[ERROR] - {name}")
+
+          has_all = all(str(parsed.get(k, "")).strip() and "${" not in str(parsed.get(k, "")) for k in ("clientId", "clientSecret", "subscriptionId", "tenantId"))
+          output_file = os.environ["GITHUB_OUTPUT"]
+          with open(output_file, "a", encoding="utf-8") as output:
+              if has_all:
+                  output.write(f"json={json.dumps(parsed)}\n")
+                  output.write(f"subscription_id={parsed['subscriptionId']}\n")
+                  output.write("valid=true\n")
+                  print("[OK] Resolved complete Azure credentials for cost guard.")
+              else:
+                  output.write("valid=false\n")
+                  print("[WARN] Incomplete Azure credentials; skipping Azure login gracefully.")
+          PY
+        env:
+          AZURE_CREDENTIALS: ${{ vars.AZURE_CREDENTIALS || env.AZURE_CREDENTIALS || secrets.AZURE_CREDENTIALS }}
+          AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID || env.AZURE_CLIENT_ID || secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ vars.AZURE_CLIENT_SECRET || env.AZURE_CLIENT_SECRET || secrets.AZURE_CLIENT_SECRET }}
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID || env.AZURE_SUBSCRIPTION_ID || secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID || env.AZURE_TENANT_ID || secrets.AZURE_TENANT_ID }}
+
       - name: Azure login
+        if: steps.resolve-azure-creds.outputs.valid == 'true'
         uses: azure/login@v2
         continue-on-error: true
         id: az-login
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          creds: ${{ steps.resolve-azure-creds.outputs.json }}
 
       - name: Install Azure Container Apps extension
         if: steps.az-login.outcome == 'success'

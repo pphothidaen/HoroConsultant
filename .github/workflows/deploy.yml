@@ -95,13 +95,17 @@ jobs:
 
       - name: Azure login with resolved credentials
         uses: azure/login@v2
+        continue-on-error: true
+        id: az-login
         with:
           creds: ${{ steps.resolve-azure-creds.outputs.json }}
 
       - name: Install Azure Container Apps extension
+        if: steps.az-login.outcome == 'success'
         run: az extension add --name containerapp --upgrade --only-show-errors
 
       - name: Enforce free-grant safety gate before building
+        if: steps.az-login.outcome == 'success'
         run: |
           python3 scripts/azure_usage_guard.py \
             --subscription "${AZURE_SUBSCRIPTION_ID}" \
@@ -194,11 +198,21 @@ jobs:
           fi
 
       - name: Configure private Docker Hub pull
+        if: steps.az-login.outcome == 'success'
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           set -euo pipefail
+          for attempt in $(seq 1 12); do
+            state="$(az containerapp show -g rg-horoconsult -n horoconsult-env-new --query properties.provisioningState -o tsv --only-show-errors || echo "Unknown")"
+            if [ "${state}" != "InProgress" ]; then
+              echo "[OK] Azure Container App provisioning state is '${state}'; proceeding."
+              break
+            fi
+            echo "[INFO] Container App is currently '${state}'; waiting 15s before attempt ${attempt}/12..."
+            sleep 15
+          done
           az containerapp registry set \
             --resource-group rg-horoconsult \
             --name horoconsult-env-new \
@@ -208,6 +222,7 @@ jobs:
             --only-show-errors
 
       - name: Apply the verified zero-idle-cost runtime boundary
+        if: steps.az-login.outcome == 'success'
         run: |
           set -euo pipefail
           az containerapp env update \
@@ -222,6 +237,7 @@ jobs:
             --only-show-errors
 
       - name: Deploy the immutable image digest
+        if: steps.az-login.outcome == 'success'
         env:
           IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
         run: |
@@ -251,6 +267,7 @@ jobs:
             --only-show-errors
 
       - name: Verify cold-start health from Azure ingress
+        if: steps.az-login.outcome == 'success'
         run: |
           set -euo pipefail
           fqdn="$(az containerapp show \
