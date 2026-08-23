@@ -238,7 +238,7 @@ def prepare_dataset(output_jsonl: Path, dataset_path: str | None = None) -> Path
             if temp_sb.exists():
                 temp_sb.unlink()
 
-    # 2. Check Kaggle mounted datasets in /kaggle/input (e.g. geminispark & horoconsultant-distilled-dataset)
+    # 2. Check Kaggle mounted datasets in /kaggle/input (e.g. horoconsultant-distilled-dataset)
     kaggle_input = Path("/kaggle/input")
     if kaggle_input.exists():
         kaggle_files = list(kaggle_input.glob("**/*.jsonl")) + list(kaggle_input.glob("**/*.json"))
@@ -247,7 +247,34 @@ def prepare_dataset(output_jsonl: Path, dataset_path: str | None = None) -> Path
             for kf in kaggle_files:
                 _add_jsonl_file(kf, "KAGGLE DATA")
 
-    # 3. Check curated local Hugging Face corpus
+    # 3. Dynamic Hugging Face Liked Datasets Ingestion Layer
+    hf_token = os.getenv("HF_TOKEN") or Config.HF_TOKEN
+    try:
+        from scripts.harvest_hf_liked_datasets import fetch_liked_dataset_names, harvest_dataset_repo
+        liked_repos = fetch_liked_dataset_names(hf_token)
+        if liked_repos:
+            logger.info(f"[DYNAMIC HF] Discovered {len(liked_repos)} liked datasets on Hugging Face. Verifying live fresh records...")
+            dynamic_added = 0
+            for repo_name in liked_repos:
+                recs = harvest_dataset_repo(repo_name, hf_token)
+                for r in recs:
+                    try:
+                        s = json.dumps(r, ensure_ascii=False)
+                        h = hashlib.sha256(s.encode("utf-8")).hexdigest()
+                        if h not in seen_hashes:
+                            seen_hashes.add(h)
+                            all_records.append(s)
+                            dynamic_added += 1
+                    except Exception:
+                        pass
+            if dynamic_added > 0:
+                logger.info(f"[DYNAMIC HF] Added {dynamic_added} fresh unique records dynamically from Hugging Face liked datasets!")
+            else:
+                logger.info("[DYNAMIC HF] Liked dataset records already synchronized (0 duplicates added).")
+    except Exception as hf_err:
+        logger.warning(f"[DYNAMIC HF] Dynamic HF ingestion bypassed or offline: {hf_err}")
+
+    # 4. Check curated local Hugging Face corpus
     curated_hf_corpus = ROOT_DIR / "project" / "data" / "bazi_hf_curated_corpus.jsonl"
     if curated_hf_corpus.exists():
         _add_jsonl_file(curated_hf_corpus, "HF CURATED CORPUS")

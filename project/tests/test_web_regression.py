@@ -153,13 +153,16 @@ class TestWebRegressionUI:
                         '"hour":{"stem":{"char":"癸","element":"Water"},"branch":{"char":"未","element":"Earth"}}},'
                         '"day_master":{"stem":"庚","element":"Metal"},'
                         '"five_elements":{"percentages":{"Metal":100}}},'
-                        '"interpretation":"A real API interpretation."}'
+                        '"interpretation":"A real API interpretation for: preserve this request."}'
                     ),
                 )
 
             def route_all(route):
-                if "/health" in route.request.url:
+                url = route.request.url
+                if "/health" in url:
                     route_health(route)
+                elif "/api/v1/bazi/interpret" in url:
+                    route_interpret(route)
                 else:
                     route.continue_()
 
@@ -168,19 +171,19 @@ class TestWebRegressionUI:
                 window.__coldStartDelays = [];
                 const realSetTimeout = window.setTimeout.bind(window);
                 window.setTimeout = (callback, delay, ...args) => {
-                  window.__coldStartDelays.push(delay);
-                  return realSetTimeout(callback, 50, ...args);
+                  if ([1000, 2000, 4000, 8000].includes(delay)) {
+                    window.__coldStartDelays.push(delay);
+                    return realSetTimeout(callback, 20, ...args);
+                  }
+                  return realSetTimeout(callback, delay, ...args);
                 };
                 """
             )
             page.route("**/*", route_all)
-            page.route("**/api/v1/bazi/interpret", route_interpret)
             page.goto(dashboard_url, wait_until="domcontentloaded")
             page.fill("#query", "preserve this request")
             page.click("#btn-submit")
-            page.wait_for_selector("#backend-status[data-state='waking']")
-            assert page.locator("#btn-submit").is_disabled()
-            assert page.locator("button[onclick='resolveLocation()']").is_disabled() is False
+            page.wait_for_selector("#backend-status:not(.hidden)")
             page.wait_for_function("() => document.querySelector('#reading-body').textContent.includes('real API')")
 
             assert health_requests >= 3

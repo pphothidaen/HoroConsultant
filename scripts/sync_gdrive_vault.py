@@ -70,6 +70,12 @@ GDRIVE_FOLDERS = [
         "url": "https://drive.google.com/drive/folders/1e8nX-h3cKpcifUv6G2EjuJDey9DBm5b2?usp=sharing",
         "target_subfolder": "folder_3",
     },
+    {
+        "id": "1vNh9IaFbBvXQdAiKVcCz61p59BTFR58E",
+        "name": "HoroClip Master Vault & Treatise Summaries",
+        "url": "https://drive.google.com/drive/folders/1vNh9IaFbBvXQdAiKVcCz61p59BTFR58E?usp=sharing",
+        "target_subfolder": "folder_horoclip",
+    },
 ]
 
 VAULT_DIR   = ROOT / "project" / "rag" / "obsidian_vault"

@@ -8,6 +8,7 @@ project/models/qwen2.5-bazi-adapter/
 project/models/qwen2.5-bazi-fused/
 project/data/mlx_finetune/
 project/data/vector_store/
+project/data/bazi_hf_curated_corpus.jsonl
 __pycache__/
 *.pyc
 *.pyo

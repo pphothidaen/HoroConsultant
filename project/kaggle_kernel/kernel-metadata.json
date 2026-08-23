@@ -13,8 +13,9 @@
     "gpu"
   ],
   "dataset_sources": [
-    "pphothidaen/geminispark",
-    "pphothidaen/horoconsultant-distilled-dataset"
+    "pphothidaen/bazi-huggingface-curated",
+    "pphothidaen/horoconsultant-distilled-dataset",
+    "pphothidaen/horoconsultant-classical-treatises-pdf"
   ],
   "kernel_sources": [],
   "competition_sources": [],

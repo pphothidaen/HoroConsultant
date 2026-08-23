@@ -115,15 +115,16 @@ def create_kernel_files(
             "enable_tpu": False,
             "enable_internet": True,
             "dataset_sources": [
+                "pphothidaen/bazi-huggingface-curated",
                 "pphothidaen/horoconsultant-distilled-dataset",
-                "pphothidaen/geminispark"
+                "pphothidaen/horoconsultant-classical-treatises-pdf"
             ],
             "competition_sources": [],
             "kernel_sources": [],
             "accelerator": "gpu"
         }
         METADATA_FILE.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-        logger.info(f"[FILE] Created metadata file at '{METADATA_FILE}' with geminispark & horoconsultant-distilled-dataset (Accelerator locked to default: [gpu])")
+        logger.info(f"[FILE] Created metadata file at '{METADATA_FILE}' with bazi-huggingface-curated & horoconsultant-distilled-dataset (Accelerator locked to default: [gpu])")
 
     # Generate notebook structure with clean execution code
     notebook = {
@@ -276,10 +277,10 @@ def create_kernel_files(
                     "    for item in seen_data:\n",
                     "        f_out.write(item + '\\n')\n",
                     "        valid_total_lines += 1\n",
-                    "    # 4.1 Ingest Kaggle Mounted Datasets (/kaggle/input/geminispark & horoconsultant-distilled-dataset)\n",
+                    "    # 4.1 Ingest Kaggle Mounted Datasets (/kaggle/input/horoconsultant-distilled-dataset)\n",
                     "    kaggle_input_dir = '/kaggle/input'\n",
                     "    if os.path.exists(kaggle_input_dir):\n",
-                    "        print('[KAGGLE INPUT] ค้นหาและรวบรวมไฟล์จาก Kaggle Input Datasets (geminispark, horoconsultant-distilled-dataset)...')\n",
+                    "        print('[KAGGLE INPUT] ค้นหาและรวบรวมไฟล์จาก Kaggle Input Datasets (horoconsultant-distilled-dataset)...')\n",
                     "        k_files = glob.glob(os.path.join(kaggle_input_dir, '**/*.*'), recursive=True)\n",
                     "        for kpath in k_files:\n",
                     "            kext = kpath.lower()\n",
