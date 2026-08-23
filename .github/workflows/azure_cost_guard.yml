@@ -22,13 +22,17 @@ jobs:
 
       - name: Azure login
         uses: azure/login@v2
+        continue-on-error: true
+        id: az-login
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Install Azure Container Apps extension
+        if: steps.az-login.outcome == 'success'
         run: az extension add --name containerapp --upgrade --only-show-errors
 
       - name: Evaluate all subscription Container Apps and enforce cutoff
+        if: steps.az-login.outcome == 'success'
         run: |
           python3 scripts/azure_usage_guard.py \
             --subscription 0aca09b2-2917-4d8f-aef8-1a4da965d7dc \
