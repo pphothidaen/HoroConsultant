@@ -5554,7 +5554,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & PROMINENT UPDATE MODAL SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.e64046e";
+const CLIENT_APP_VERSION = "1.0.0.39199b4";
 let _versionModalDismissed = false;
 let _versionCountdownTimer = null;
 
@@ -5699,8 +5699,8 @@ async function checkAppVersion() {
 }
 
 window.checkAppVersion = checkAppVersion;
-
-window.showVersionUpdateToast = showVersionUpdateToast;
+window.showVersionModal = showVersionModal;
+window.showVersionUpdateToast = showVersionModal; // Backwards-compatible alias
 window.setSimulationHorizon = setSimulationHorizon;
 window.runScenarioSimulation = runScenarioSimulation;
 window.renderSimulationComparison = renderSimulationComparison;
