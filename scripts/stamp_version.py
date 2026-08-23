@@ -160,14 +160,16 @@ def stamp_index_html(path: Path, version: str, commit: str, *, dry_run: bool = F
 def main():
     parser = argparse.ArgumentParser(description="Stamp git version into all local source files")
     parser.add_argument("--check", action="store_true", help="Dry-run: report mismatches only, exit 1 if any found")
+    parser.add_argument("--commit", type=str, default=None, help="Explicit commit hash to stamp")
+    parser.add_argument("--version", type=str, default=None, help="Explicit version string (e.g. 1.0.0.abc1234)")
     args = parser.parse_args()
 
-    commit = get_git_short_hash()
+    commit = args.commit or get_git_short_hash()
     if commit == "unknown":
         print("❌ Cannot determine git commit hash. Are you in a git repository?")
         sys.exit(1)
 
-    version = build_version(commit)
+    version = args.version or build_version(commit)
     dry_run = args.check
 
     print(f"{'🔍 Checking' if dry_run else '📌 Stamping'} version: {version} (commit: {commit})")

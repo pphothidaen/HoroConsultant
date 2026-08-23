@@ -11,13 +11,13 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <link rel="stylesheet" href="style.css?v=0123edc">
+  <link rel="stylesheet" href="style.css?v=443a43e">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#dc2626">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <script>
-    window.CURRENT_PAGE_VERSION = "1.0.0.0123edc";
+    window.CURRENT_PAGE_VERSION = "1.0.0.443a43e";
     window.forcePurgeAndReload = async function(e) {
       if (e) { try { e.preventDefault(); e.stopPropagation(); } catch (_) {} }
       const btn = document.getElementById("btn-force-refresh");
@@ -49,13 +49,20 @@
         const res = await fetch('/version.json?t=' + Date.now(), { cache: 'no-store' });
         if (!res.ok) return;
         const data = await res.json();
-        if (data && data.version && data.version !== window.CURRENT_PAGE_VERSION) {
-          console.warn('[VERSION] New version detected:', data.version, '(Current:', window.CURRENT_PAGE_VERSION, ')');
+        const clientVer = (window.CURRENT_PAGE_VERSION || '').replace(/^v/, '').trim();
+        const remoteVer = (data && data.version ? data.version : '').replace(/^v/, '').trim();
+        if (remoteVer && clientVer && remoteVer !== clientVer) {
+          console.warn('[VERSION MISMATCH] Client:', clientVer, 'vs Remote:', remoteVer);
           window._pendingNewVersion = data.version;
+          const showModal = () => {
+            if (typeof window.showVersionModal === 'function') {
+              window.showVersionModal(data.version);
+            }
+          };
           if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => window.showVersionModal && window.showVersionModal(data.version));
+            document.addEventListener('DOMContentLoaded', showModal);
           } else {
-            setTimeout(() => window.showVersionModal && window.showVersionModal(data.version), 300);
+            setTimeout(showModal, 150);
           }
         }
       } catch (_) {}
@@ -622,7 +629,7 @@
         <span>🔄</span> <span>ล้างแคช &amp; บังคับอัปเดต (Hard Reset)</span>
       </button>
     </div>
-    <p id="footer-version-text">Computational Metaphysics Engine v1.0.0.0123edc — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback</p>
+    <p id="footer-version-text">Computational Metaphysics Engine v1.0.0.443a43e — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback</p>
   </footer>
 
   <!-- iOS/Android Bottom-Sheet Drum Wheel DateTime Picker Modal -->
@@ -768,9 +775,9 @@
     </div>
   </div>
 
-  <script src="voice_engine.js?v=0123edc"></script>
-  <script src="i18n.js?v=0123edc"></script>
-  <script src="app.js?v=0123edc"></script>
+  <script src="voice_engine.js?v=443a43e"></script>
+  <script src="i18n.js?v=443a43e"></script>
+  <script src="app.js?v=443a43e"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
