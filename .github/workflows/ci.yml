@@ -65,9 +65,43 @@ jobs:
         run: |
           python3 -m pytest -v
 
+      - name: Run LuoPan & Metaphysics Dynamic Regression Tests
+        run: |
+          python3 -m pytest project/tests/test_luopan_dynamic_variance_regression.py project/tests/test_luopan_dream_engine.py -v
+
       - name: Run Project Code Reviewer
         run: |
           python3 project/core/code_reviewer.py --review --use-python
+
+  e2e-production-audit:
+    name: Live Production Version & LuoPan E2E Regression
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run Production Version E2E Regression
+        run: |
+          python3 scripts/run_prod_version_e2e.py
+
+      - name: Run LuoPan Dynamic Variance E2E Regression
+        run: |
+          python3 scripts/run_luopan_e2e_regression.py
+
+      - name: Upload E2E Regression Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-regression-reports
+          path: |
+            project/tests/prod_version_regression_report.json
+            project/tests/luopan_e2e_regression_report.json
+          if-no-files-found: warn
 
   lint-and-security:
     name: Code Quality & Security Audit
