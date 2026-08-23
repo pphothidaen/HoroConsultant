@@ -13,43 +13,56 @@ function synthesizeQuerySpecificAnswer(userQuery, disciplineKey) {
   let astroFactor = "";
   let actionAdvice = "";
 
-  if (q.includes("งาน") || q.includes("ธุรกิจ") || q.includes("ร้าน") || q.includes("บริษัท") || q.includes("เจรจา") || q.includes("สมัคร") || q.includes("ย้าย") || q.includes("ลาออก") || q.includes("เลื่อนขั้น") || q.includes("ตำแหน่ง") || q.includes("อาชีพ")) {
+  // 1. Check Love & Relationship FIRST (to avoid "แต่งงาน" falling into "งาน")
+  if (q.includes("รัก") || q.includes("แต่งงาน") || q.includes("แฟน") || q.includes("คู่ครอง") || q.includes("คนคุย") || q.includes("เนื้อคู่") || q.includes("คนรัก") || q.includes("เลิก") || q.includes("หย่า") || q.includes("มือที่สาม") || q.includes("เสน่ห์") || q.includes("โสด")) {
+    primaryDomain = "love";
+    domainLabel = "❤️ ความรัก & คู่ครอง";
+    directAnswer = `ตามผังวิชา ${discInfo.name} วาสนาความรักและความสัมพันธ์อยู่ในเกณฑ์ราบรื่นและมีพลังเกื้อหนุนที่ดี มีโอกาสปรับความเข้าใจ พัฒนาความสัมพันธ์ หรือสร้างอนาคตร่วมกันอย่างมั่นคง`;
+    astroFactor = discInfo.love;
+    actionAdvice = "ใช้ความจริงใจและการสื่อสารที่เปิดเผยในการสร้างความเข้าใจ หลีกเลี่ยงความใจร้อนหรืออารมณ์ชั่ววูบในการตัดสินใจ";
+  }
+  // 2. Check Auspicious Timing & Cycles
+  else if (q.includes("ฤกษ์") || q.includes("เวลา") || q.includes("เมื่อไหร่") || q.includes("ปีนี้") || q.includes("เดือน") || q.includes("วันไหน") || q.includes("จังหวะ") || q.includes("ดวงขึ้น") || q.includes("ดวงตก")) {
+    primaryDomain = "timing";
+    domainLabel = "⏳ ฤกษ์มงคล & จังหวะเวลา";
+    directAnswer = `ตามวงจรการคำนวณ ${discInfo.name} ช่วงเวลานี้เป็นจังหวะฟ้าเปิดและมีพลังดาวส่งเสริม เหมาะสำหรับการเตรียมความพร้อมและเริ่มต้นโครงการสำคัญ`;
+    astroFactor = discInfo.timing;
+    actionAdvice = "เลือกวันและยามมงคลที่ปราศจากการปะทะกับปีเกิด เพื่อหนุนให้การดำเนินงานราบรื่นและสำเร็จตามเป้าหมายสูงสุด";
+  }
+  // 3. Check Wealth & Fortune
+  else if (q.includes("เงิน") || q.includes("โชค") || q.includes("ลาภ") || q.includes("รวย") || q.includes("หนี้") || q.includes("หุ้น") || q.includes("คริปโต") || q.includes("ทุน") || q.includes("ทรัพย์") || q.includes("ขายดี") || q.includes("กำไร") || q.includes("หวย") || q.includes("เสี่ยงโชค")) {
+    primaryDomain = "wealth";
+    domainLabel = "💰 การเงิน & โชคลาภ";
+    directAnswer = `ตามหลักคำนวณ ${discInfo.name} กระแสการเงินและโชคลาภมีสภาพคล่องตัวดี เหมาะแก่การจัดสรรเงินทุนเพื่อสร้างผลตอบแทนและสะสมความมั่งคั่งระยะยาว`;
+    astroFactor = discInfo.wealth;
+    actionAdvice = "หลีกเลี่ยงการเก็งกำไรที่มีความเสี่ยงสูงเกินไป และเน้นการกระจายความเสี่ยงในสินทรัพย์ที่มีรากฐานมั่นคง";
+  }
+  // 4. Check Health & Vitality
+  else if (q.includes("สุขภาพ") || q.includes("ป่วย") || q.includes("ผ่าตัด") || q.includes("อุบัติเหตุ") || q.includes("เจ็บ") || q.includes("เหนื่อย") || q.includes("พักผ่อน") || q.includes("อายุ") || q.includes("โรงพยาบาล")) {
+    primaryDomain = "health";
+    domainLabel = "🌿 สุขภาพ & พลังชีวิต";
+    directAnswer = `การตรวจสอบดุลยภาพพลังงานตาม ${discInfo.name} ชี้ว่าพลังชีวิตอยู่ในเกณฑ์ควบคุมได้ แนะนำบำรุงธาตุที่พร่องเพื่อเสริมภูมิคุ้มกันและฟื้นฟูร่างกาย`;
+    astroFactor = discInfo.health;
+    actionAdvice = "จัดสรรเวลาพักผ่อนให้เพียงพอ รับประทานอาหารตามธาตุที่ส่งเสริม และออกกำลังกายสม่ำเสมอเพื่อฟื้นฟูปราณชี่";
+  }
+  // 5. Check Home & Family / Property
+  else if (q.includes("บ้าน") || q.includes("ที่ดิน") || q.includes("คอนโด") || q.includes("ห้อง") || q.includes("ฮวงจุ้ย") || q.includes("อสังหา") || q.includes("ย้ายบ้าน") || q.includes("ครอบครัว") || q.includes("พ่อแม่") || q.includes("ลูก")) {
+    primaryDomain = "family";
+    domainLabel = "🏡 บ้าน & ครอบครัว";
+    directAnswer = `ตามหลักชัยภูมิและผังชะตา ${discInfo.name} เคหสถานและสภาพแวดล้อมมีพลังส่งเสริมความร่มเย็น ความมั่นคง และเพิ่มพูนทรัพย์สินของวงศ์ตระกูล`;
+    astroFactor = discInfo.family;
+    actionAdvice = "จัดระเบียบบ้านให้เปิดรับแสงธรรมชาติ อากาศถ่ายเท และจัดวางตำแหน่งหัวนอนหรือโต๊ะทำงานให้ถูกทิศมงคล";
+  }
+  // 6. Check Career & Business
+  else if (q.includes("งาน") || q.includes("ธุรกิจ") || q.includes("ร้าน") || q.includes("บริษัท") || q.includes("เจรจา") || q.includes("สมัคร") || q.includes("ย้าย") || q.includes("ลาออก") || q.includes("เลื่อนขั้น") || q.includes("ตำแหน่ง") || q.includes("อาชีพ") || q.includes("ค้าขาย")) {
     primaryDomain = "career";
     domainLabel = "💼 การงาน & ธุรกิจ";
     directAnswer = `จากผังวิชา ${discInfo.name} ชี้ว่าทิศทางด้านการงานและธุรกิจอยู่ในเกณฑ์มีพลังบวกสูง จังหวะนี้เปิดรับความคิดริเริ่มและมีโอกาสขยับขยายหน้าที่การงานหรือลงทุนอย่างมั่นคง`;
     astroFactor = discInfo.career;
     actionAdvice = "มุ่งเน้นการวางแผนอย่างเป็นระบบ ใช้ความเชี่ยวชาญเฉพาะทางสร้างความแตกต่าง และร่วมมือกับพันธมิตรที่น่าเชื่อถือ";
-  } else if (q.includes("เงิน") || q.includes("โชค") || q.includes("ลาภ") || q.includes("รวย") || q.includes("หนี้") || q.includes("หุ้น") || q.includes("คริปโต") || q.includes("ทุน") || q.includes("ทรัพย์") || q.includes("ขายดี") || q.includes("กำไร")) {
-    primaryDomain = "wealth";
-    domainLabel = "💰 การเงิน & โชคลาภ";
-    directAnswer = `ตามหลักคำนวณ ${discInfo.name} กระแสการเงินและโชคลาภมีสภาพคล่องตัวดี เหมาะแก่การจัดสรรเงินทุนเพื่อสร้างผลตอบแทนระยะยาว`;
-    astroFactor = discInfo.wealth;
-    actionAdvice = "หลีกเลี่ยงการเก็งกำไรที่มีความเสี่ยงสูงเกินไป และเน้นการกระจายความเสี่ยงในสินทรัพย์ที่มีรากฐานมั่นคง";
-  } else if (q.includes("รัก") || q.includes("แฟน") || q.includes("คู่") || q.includes("แต่งงาน") || q.includes("คุย") || q.includes("เลิก") || q.includes("ครอบครัว") || q.includes("หย่า") || q.includes("เสน่ห์") || q.includes("โสด")) {
-    primaryDomain = "love";
-    domainLabel = "❤️ ความรัก & คู่ครอง";
-    directAnswer = `ตามผังวิชา ${discInfo.name} วาสนาความรักและปฏิสัมพันธ์ราบรื่น มีเกณฑ์พบคนรู้ใจหรือพัฒนาความสัมพันธ์ไปสู่ความมั่นคงร่วมกัน`;
-    astroFactor = discInfo.love;
-    actionAdvice = "ใช้ความจริงใจและการสื่อสารที่เปิดเผยในการปรับความเข้าใจ หลีกเลี่ยงอารมณ์ชั่ววูบในการตัดสินใจ";
-  } else if (q.includes("ฤกษ์") || q.includes("เวลา") || q.includes("เมื่อไหร่") || q.includes("ปีนี้") || q.includes("เดือน") || q.includes("วัน") || q.includes("จังหวะ")) {
-    primaryDomain = "timing";
-    domainLabel = "⏳ ฤกษ์มงคล & จังหวะเวลา";
-    directAnswer = `ตามวงจรการคำนวณ ${discInfo.name} ช่วงเวลานี้เป็นจังหวะฟ้าเปิดและพลังส่งเสริม เหมาะสำหรับการเริ่มต้นโครงการสำคัญ`;
-    astroFactor = discInfo.timing;
-    actionAdvice = "เลือกวันและยามมงคลที่ปราศจากการปะทะ เพื่อหนุนให้การดำเนินงานราบรื่นและสำเร็จตามเป้าหมาย";
-  } else if (q.includes("สุขภาพ") || q.includes("ป่วย") || q.includes("ผ่าตัด") || q.includes("อุบัติเหตุ") || q.includes("เจ็บ") || q.includes("เหนื่อย") || q.includes("พักผ่อน") || q.includes("อายุ")) {
-    primaryDomain = "health";
-    domainLabel = "🌿 สุขภาพ & พลังชีวิต";
-    directAnswer = `การตรวจสอบดุลยภาพพลังงานตาม ${discInfo.name} ชี้ว่าพลังชีวิตอยู่ในเกณฑ์ควบคุมได้ แนะนำบำรุงธาตุที่พร่องเพื่อเสริมภูมิคุ้มกัน`;
-    astroFactor = discInfo.health;
-    actionAdvice = "จัดสรรเวลาพักผ่อนให้เพียงพอ รับประทานอาหารตามธาตุ และออกกำลังกายสม่ำเสมอเพื่อฟื้นฟูปราณชี่";
-  } else if (q.includes("บ้าน") || q.includes("ที่ดิน") || q.includes("คอนโด") || q.includes("ห้อง") || q.includes("ฮวงจุ้ย") || q.includes("อสังหา") || q.includes("ย้ายบ้าน") || q.includes("ทิศ")) {
-    primaryDomain = "family";
-    domainLabel = "🏡 บ้าน & ครอบครัว";
-    directAnswer = `ตามหลักชัยภูมิและผังชะตา ${discInfo.name} เคหสถานและสภาพแวดล้อมมีพลังส่งเสริมความร่มเย็นและเพิ่มพูนทรัพย์สิน`;
-    astroFactor = discInfo.family;
-    actionAdvice = "จัดระเบียบบ้านให้เปิดรับแสงธรรมชาติ อากาศถ่ายเท และจัดวางตำแหน่งหัวนอน/โต๊ะทำงานให้ถูกทิศมงคล";
-  } else {
+  }
+  // 7. General / Overall Fallback
+  else {
     primaryDomain = "career";
     domainLabel = "🌐 ภาพรวมทุกมิติ";
     directAnswer = `ผลวิเคราะห์ตามผังวิชา ${discInfo.name} สำหรับประเด็นคำถาม "${userQuery}" ชี้ว่าโครงสร้างดวงชะตามีเกณฑ์หนุนส่งในทิศทางเติบโต สามารถบริหารจัดการโอกาสและอุปสรรคได้อย่างมีประสิทธิภาพ`;
@@ -6061,7 +6074,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & PROMINENT UPDATE MODAL SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.d9566d0";
+const CLIENT_APP_VERSION = "1.0.0.58a6a00";
 let _versionModalDismissed = false;
 let _versionCountdownTimer = null;
 
