@@ -1,0 +1,26 @@
+{
+  "success": true,
+  "results": [
+    {
+      "target": "Hugging Face static UI",
+      "url": "https://pphothidaen-horoconsultant-core-backend.hf.space/",
+      "passed": true,
+      "status": 200,
+      "latency_ms": 1783.0
+    },
+    {
+      "target": "Hugging Face Docker backend health",
+      "url": "https://pphothidaen-horoconsultant-core-backend.hf.space/health",
+      "passed": true,
+      "status": 200,
+      "latency_ms": 1125.1
+    },
+    {
+      "target": "Public backend deterministic API",
+      "url": "https://pphothidaen-horoconsultant-core-backend.hf.space/api/v1/ziwei/calculate?year=1990&month=5&day=15&hour=14&gender=male",
+      "passed": true,
+      "status": 200,
+      "latency_ms": 1231.5
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-## Current Execution Control — 2026-08-22
+## Current Execution Control — 2026-08-23
 
 This file is the historical architecture/phase record. Current execution is controlled by the checkpoint board in [`PROJECT_TASKS.md`](../PROJECT_TASKS.md), not by reopening completed historical phases.
 
@@ -6,10 +6,10 @@ This file is the historical architecture/phase record. Current execution is cont
 |---|---|---|
 | `CP-00-DOCS` | DONE | 2026-08-22 21:12 +07: `git diff --check` and `python3 scripts/sync_ai_agent_ecosystem.py --check` passed; board/plans now identify ownership, evidence precedence, HITL blockers, and next action. |
 | `CP-01-LOCAL` | DONE | 2026-08-22 revalidation: full pytest `642 passed, 8 skipped, 12 warnings`; Azure release `9 passed`; sync/governance `7 passed`; secret scan and agent sync passed. External runtime gates remain separate. |
-|| `CP-02-HF` | PARTIAL | HF Space `pphothidaen/horoconsultant-core-backend` unpaused and running (commit `78ece8d`); backend `/health` 200, deterministic API 200, static UI still 404 (static assets not served from root). Vercel production endpoint `horo-consultant-psi.vercel.app` verified 3/3 as fallback. Next: fix static asset serving or redeploy with static files properly served. ||
-|| `CP-02-HF` (Vercel fallback) | PASS | `HF_BACKEND_URL=https://horo-consultant-psi.vercel.app` canonical verification 3/3 checks passed (static UI 200, backend `/health` 200, deterministic API 200) on 2026-08-22. Vercel is the verified production fallback while HF static serving is being fixed. ||
-|| `CP-03-AZURE` | DONE | GitHub Actions run `32589506050` (2026-08-22) succeeded: build, deploy, E2E verification all passed. Doppler secrets `AZURE_SUBSCRIPTION_ID` + `AZURE_TENANT_ID` added. Workflow verified working. ||
-| `CP-04-PW` | BLOCKED | Production authorization and runnable browser/network egress are still required. |
+||| `CP-02-HF` | PASS | 2026-08-23 11:12 +07: Canonical HF probe `project/tests/backend-release-check-hf-canonical-2026-08-23-latest.json` — 3/3 GREEN: static UI 200 (1,783ms), backend `/health` 200 (1,125ms), deterministic API 200 (1,232ms). Commit `6c8ee89` (horo_server static serving) deployed and live at `pphothidaen-horoconsultant-core-backend.hf.space`. Vercel `horo-consultant-psi.vercel.app` also 200 as redundant fallback. Next: Azure RBAC + Playwright. ||
+||| `CP-02-HF` (Vercel fallback) | PASS | `HF_BACKEND_URL=https://horo-consultant-psi.vercel.app` canonical verification 3/3 checks passed (static UI 200, backend `/health` 200, deterministic API 200) on 2026-08-22. Vercel is the redundant verified fallback alongside the now-green canonical HF Space. ||
+||| `CP-03-AZURE` | PASS | 2026-08-23 16:20 +07: GitHub Actions run `32630424001` (commit `6c8ee89`) completed with `success`: Docker build/push, Azure login + preflight + deploy to Southeast Asia, ingress config, health verification, and Hermes headless post-deploy E2E all passed. RBAC remediation from 2026-08-21 is now effective in the Actions runner context. Next: Playwright authorization + consolidated release matrix. ||
+| `CP-04-PW` | PARTIAL | 2026-08-23 16:27 +07: Playwright `chromium` installed and launchable in this workspace; smoke E2E run against Vercel fallback (`horo-consultant-psi.vercel.app`) completed with **12/14 controls passed** — page load, `/health`, direct API `POST /api/v1/bazi/interpret` (583-char AI interpretation), 3 presets, 2 checkboxes, main submit (#btn-submit), and 3 interpretation tabs all passed. **2 pre-existing failures** remain: `(BTN-PROD-01)` location search `#location_search` fill timeout (element not visible) and `(BTN-PROD-UNEXECUTED)` 9 discipline buttons unexecuted (smoke profile only). **CP-04-PW is partially resolved on the smoke tier**; full-profile authorization + triage of the 2 pre-existing failures remain. ||
 | `CP-05-RELEASE` | PENDING | Must wait for CP-02 through CP-04 to be green in one consolidated run. |
 | `CP-06-HANDOFF` | PENDING | Final sync and parent-ticket transition only after the release matrix is green. |
 
