@@ -5554,7 +5554,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & PROMINENT UPDATE MODAL SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.9123c49";
+const CLIENT_APP_VERSION = "1.0.0.8982b0c";
 let _versionModalDismissed = false;
 let _versionCountdownTimer = null;
 
@@ -5701,9 +5701,129 @@ async function checkAppVersion() {
 window.checkAppVersion = checkAppVersion;
 window.showVersionModal = showVersionModal;
 window.showVersionUpdateToast = showVersionModal; // Backwards-compatible alias
+
+// ======================================================================
+// 🔮 LIFE PATH MULTI-SCENARIO SIMULATION & WHAT-IF ANALYZER
+// ======================================================================
+
+let currentSimulationHorizon = 3;
+
+function setSimulationHorizon(years, btn) {
+  currentSimulationHorizon = years;
+  document.querySelectorAll("#scenario-simulation-card .btn-tool").forEach(b => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  const badge = document.getElementById("sim-horizon-badge");
+  if (badge) badge.textContent = `กรอบเวลา ${years} ปี (${2026}-${2026 + years - 1})`;
+  runScenarioSimulation();
+}
+
+async function runScenarioSimulation() {
+  const resultBox = document.getElementById("simulation-results-box");
+  const birthInput = document.getElementById("birth_datetime");
+  const birthDatetime = (birthInput && birthInput.value) ? birthInput.value : "1990-05-15 14:30:00";
+
+  const selectedIds = [];
+  if (document.getElementById("scen-corporate")?.checked) selectedIds.push("corporate_stay");
+  if (document.getElementById("scen-startup")?.checked) selectedIds.push("tech_startup");
+  if (document.getElementById("scen-business")?.checked) selectedIds.push("business_startup");
+  if (document.getElementById("scen-overseas")?.checked) selectedIds.push("overseas_relocation");
+
+  if (selectedIds.length === 0) selectedIds.push("corporate_stay", "tech_startup");
+
+  try {
+    const res = await fetch("/api/v1/simulation/simulate-scenarios", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        birth_datetime: birthDatetime,
+        scenario_ids: selectedIds,
+        start_year: 2026,
+        horizon_years: currentSimulationHorizon
+      })
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const data = await res.json();
+    renderSimulationComparison(data);
+  } catch (err) {
+    console.error("[SIMULATION] Execution error:", err);
+  }
+}
+
+function renderSimulationComparison(data) {
+  const resultBox = document.getElementById("simulation-results-box");
+  if (!resultBox || !data) return;
+
+  const optimalId = data.optimal_scenario_id;
+
+  let html = `
+    <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 0.88rem; color: #166534;">
+      🏆 <strong>สรุปการตัดสินใจที่คุ้มค่าที่สุด:</strong> ${data.optimal_summary}
+    </div>
+    <div class="sim-grid">
+  `;
+
+  (data.results || []).forEach(item => {
+    const isOptimal = item.scenario_id === optimalId;
+    const cardClass = isOptimal ? "sim-card optimal-choice" : "sim-card";
+
+    let yearlyHtml = "";
+    (item.yearly_metrics || []).forEach(ym => {
+      yearlyHtml += `
+        <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: #475569; padding: 2px 0;">
+          <span>${ym.year} (${ym.pillar.split(" ")[0]}):</span>
+          <strong style="color: #0f172a; font-weight: 700;">${ym.composite_score} pts</strong>
+        </div>
+      `;
+    });
+
+    html += `
+      <div class="${cardClass}">
+        ${isOptimal ? '<span class="sim-badge-optimal">🏆 แนะนำสูงสุด</span>' : ''}
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: #475569; margin: 0;">${item.icon} ${item.title.split("/")[0]}</h4>
+          <span style="font-size: 0.95rem; font-weight: 800; color: #15803d;">${item.composite_roi} <small style="font-size: 0.7rem; color: #166534;">ROI</small></span>
+        </div>
+
+        <div style="font-size: 0.75rem; color: #334155; margin-bottom: 4px;">
+          <strong>ระดับความเสี่ยง:</strong> <span class="badge ${item.risk_tier === 'LOW' ? 'badge-blue' : item.risk_tier === 'HIGH' ? 'badge-red' : 'badge-purple'}">${item.risk_tier}</span>
+        </div>
+
+        <div class="metric-bar-wrapper">
+          <div class="metric-bar-label"><span>💰 ผลตอบแทนการเงิน (Wealth)</span><span>${item.yearly_metrics[0].wealth_score}%</span></div>
+          <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: ${item.yearly_metrics[0].wealth_score}%; background: #10b981;"></div></div>
+        </div>
+
+        <div class="metric-bar-wrapper">
+          <div class="metric-bar-label"><span>🏆 ความก้าวหน้าอาชีพ (Career)</span><span>${item.yearly_metrics[0].career_score}%</span></div>
+          <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: ${item.yearly_metrics[0].career_score}%; background: #3b82f6;"></div></div>
+        </div>
+
+        <div class="metric-bar-wrapper">
+          <div class="metric-bar-label"><span>🛡️ เสถียรภาพความปลอดภัย (Stability)</span><span>${item.yearly_metrics[0].stability_score}%</span></div>
+          <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: ${item.yearly_metrics[0].stability_score}%; background: #8b5cf6;"></div></div>
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid #64748b; padding: 8px 10px; border-radius: 6px; margin-top: 6px;">
+          <div style="font-size: 0.75rem; color: #4338ca; font-weight: 700; margin-bottom: 4px;">📈 แนวโน้มรายปี (Forecast):</div>
+          ${yearlyHtml}
+        </div>
+
+        <div style="font-size: 0.73rem; color: #475569; font-style: italic; margin-top: 4px;">
+          💡 ${item.strategy_advice}
+        </div>
+      </div>
+    `;
+  });
+
+  html += "</div>";
+  resultBox.innerHTML = html;
+  resultBox.classList.remove("hidden");
+}
+
 window.setSimulationHorizon = setSimulationHorizon;
 window.runScenarioSimulation = runScenarioSimulation;
 window.renderSimulationComparison = renderSimulationComparison;
+
 
 /* ==========================================================================
    14. METAPHYSICS AI LIVE CONSULTANT CHAT ASSISTANT LOGIC
