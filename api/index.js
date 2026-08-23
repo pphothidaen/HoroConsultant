@@ -1164,6 +1164,26 @@ async function proxyRequest(request, response) {
     return response.status(400).json({ status: "error", code: "invalid_gateway_target" });
   }
 
+  if (target === "/favicon.ico" || target === "/favicon.svg") {
+    response.setHeader("Cache-Control", "public, max-age=86400");
+    if (target.endsWith(".svg")) {
+      response.setHeader("Content-Type", "image/svg+xml");
+      return response.status(200).send(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#dc2626" stroke="#f59e0b" stroke-width="2.5"/><path d="M32 8 A24 24 0 0 1 32 56 A12 12 0 0 1 32 32 A12 12 0 0 0 32 8 Z" fill="#ffffff"/><path d="M32 8 A24 24 0 0 0 32 56 A12 12 0 0 0 32 32 A12 12 0 0 1 32 8 Z" fill="#0f172a"/><circle cx="32" cy="20" r="3.5" fill="#0f172a"/><circle cx="32" cy="44" r="3.5" fill="#ffffff"/></svg>`);
+    } else {
+      try {
+        const fs = await import("fs");
+        const path = await import("path");
+        const icoPath = path.resolve(process.cwd(), "public", "favicon.ico");
+        if (fs.existsSync(icoPath)) {
+          response.setHeader("Content-Type", "image/x-icon");
+          return response.status(200).send(fs.readFileSync(icoPath));
+        }
+      } catch (e) {}
+      response.setHeader("Content-Type", "image/svg+xml");
+      return response.status(200).send(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#dc2626"/><path d="M32 8 A24 24 0 0 1 32 56 A12 12 0 0 1 32 32 A12 12 0 0 0 32 8 Z" fill="#ffffff"/><path d="M32 8 A24 24 0 0 0 32 56 A12 12 0 0 0 32 32 A12 12 0 0 1 32 8 Z" fill="#0f172a"/><circle cx="32" cy="20" r="3.5" fill="#0f172a"/><circle cx="32" cy="44" r="3.5" fill="#ffffff"/></svg>`);
+    }
+  }
+
   let rawBodyBuffer;
   try { rawBodyBuffer = await readRequestBody(request); } catch (e) { rawBodyBuffer = undefined; }
 

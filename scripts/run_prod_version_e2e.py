@@ -212,6 +212,25 @@ def run_version_e2e_audit(base_url: str = DEFAULT_URL) -> dict:
         print(f"❌ [FAIL] Live sw.js fetch failed: HTTP {status_sw}")
         report["checks"].append({"name": "sw_js_version_match", "status": "FAILED", "http_status": status_sw})
 
+    # 5. Fetch live /favicon.ico and /favicon.svg
+    status_ico, _, lat_ico = fetch_resource(f"{base_url}/favicon.ico")
+    if status_ico == 200:
+        print(f"✅ [OK] Live /favicon.ico available: HTTP 200 [{lat_ico:.1f}ms]")
+        report["checks"].append({"name": "favicon_ico_available", "status": "PASSED", "latency_ms": lat_ico})
+    else:
+        print(f"❌ [FAIL] Live /favicon.ico failed: HTTP {status_ico}")
+        report["mismatches"].append({"asset": "favicon.ico", "actual": f"HTTP {status_ico}", "expected": "HTTP 200"})
+        report["checks"].append({"name": "favicon_ico_available", "status": "FAILED", "http_status": status_ico})
+
+    status_svg, _, lat_svg = fetch_resource(f"{base_url}/favicon.svg")
+    if status_svg == 200:
+        print(f"✅ [OK] Live /favicon.svg available: HTTP 200 [{lat_svg:.1f}ms]")
+        report["checks"].append({"name": "favicon_svg_available", "status": "PASSED", "latency_ms": lat_svg})
+    else:
+        print(f"❌ [FAIL] Live /favicon.svg failed: HTTP {status_svg}")
+        report["mismatches"].append({"asset": "favicon.svg", "actual": f"HTTP {status_svg}", "expected": "HTTP 200"})
+        report["checks"].append({"name": "favicon_svg_available", "status": "FAILED", "http_status": status_svg})
+
     # 5. Determine overall status
     if len(report["mismatches"]) == 0 and all(c.get("status") == "PASSED" for c in report["checks"]):
         report["status"] = "ALL_PASSED_READY_FOR_PROD"
