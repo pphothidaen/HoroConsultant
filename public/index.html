@@ -11,7 +11,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <link rel="stylesheet" href="style.css?v=74aec5c">
+  <link rel="stylesheet" href="style.css?v=14b2334">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#dc2626">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -115,8 +115,8 @@
           <div style="display: flex; align-items: center; gap: 8px;">
             <span style="font-size: 1.2rem;">💖</span>
             <div>
-              <strong style="color: #f472b6; font-size: 0.85rem;" data-i18n="synastry_mode_title">โหมดวิเคราะห์ดวงสมพงษ์ 2 บุคคล (Synastry Mode)</strong>
-              <div style="color: #94a3b8; font-size: 0.72rem;" data-i18n="synastry_mode_desc">เปรียบเทียบดวงชะตาคู่รัก หรือพาร์ทเนอร์ธุรกิจ</div>
+              <strong style="color: #9d174d; font-size: 0.85rem; font-weight: 700;" data-i18n="synastry_mode_title">โหมดวิเคราะห์ดวงสมพงษ์ 2 บุคคล (Synastry Mode)</strong>
+              <div style="color: #475569; font-size: 0.72rem;" data-i18n="synastry_mode_desc">เปรียบเทียบดวงชะตาคู่รัก หรือพาร์ทเนอร์ธุรกิจ</div>
             </div>
           </div>
           <input type="checkbox" id="toggle-synastry-mode" onchange="toggleSynastryMode(this.checked)" style="width: 18px; height: 18px; accent-color: #ec4899; cursor: pointer;">
@@ -124,7 +124,7 @@
 
         <!-- Partner B Profile Section (Hidden by default) -->
         <div id="partner-b-section" class="hidden partner-b-section" style="margin-bottom: 1.2rem; padding: 12px; background: rgba(236, 72, 153, 0.08); border: 1px dashed rgba(236, 72, 153, 0.4); border-radius: 8px;">
-          <h4 style="color: #f472b6; margin-bottom: 8px; font-size: 0.9rem;" data-i18n="partner_b_title">👤 ข้อมูลบุคคลที่ 2 (Partner B)</h4>
+          <h4 style="color: #9d174d; margin-bottom: 8px; font-size: 0.9rem; font-weight: 700;" data-i18n="partner_b_title">👤 ข้อมูลบุคคลที่ 2 (Partner B)</h4>
           <div class="form-group" style="margin-bottom: 8px;">
             <label for="partner-b-name" style="font-size: 0.8rem;" data-i18n="partner_b_name_label">ชื่อ/ฉายา Partner B</label>
             <input type="text" id="partner-b-name" value="Partner B" placeholder="ชื่อบุคคลที่ 2">
@@ -176,7 +176,7 @@
               <label for="location_search">ค้นหาสถานที่เกิด (อำเภอ, จังหวัด) <span id="loc-spinner" class="hidden">⏳</span></label>
               <div style="display: flex; gap: 8px;">
                 <input type="text" id="location_search" placeholder="เช่น บางกะปิ กรุงเทพ..." autocomplete="off">
-                <button type="button" class="btn-sm" style="padding: 0 1rem; background: rgba(212, 175, 55, 0.2); border-color: rgba(212, 175, 55, 0.5); color: #fbbf24; font-weight: 600;" onclick="resolveLocation()">ค้นหา & เติมค่า</button>
+                <button type="button" class="btn-sm" style="padding: 0 1rem; background: rgba(120, 53, 15, 0.12); border-color: rgba(120, 53, 15, 0.4); color: #78350f; font-weight: 700;" onclick="resolveLocation()">ค้นหา & เติมค่า</button>
               </div>
               <small class="location-status" id="location-status" style="display: block; margin-top: 0.4rem;"></small>
             </div>
@@ -240,23 +240,23 @@
         <h2>☯️ ศาสตร์โหราศาสตร์และระบบคำนวณประยุกต์ (Astrology & Numerology Master Disciplines)</h2>
         <p>คำนวณผังวิชาชั้นสูงแยกตามสายวิชาเดี่ยว หรือสังเคราะห์รวม 16 ศาสตร์:</p>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 0.8rem;">
-          <button type="button" id="btn-multimodal-matrix" class="btn-sm" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(45, 212, 191, 0.3)); color: #38bdf8; border-color: #818cf8; grid-column: span 2; font-weight: bold; padding: 8px;" onclick="calcMultimodalMatrix()">🌐 ผังดวงสังเคราะห์ 16 ศาสตร์ (Unified Multimodal Matrix)</button>
-          <button type="button" class="btn-sm" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);" onclick="calcFourPillars()">🏛️ 四柱 Four Pillars (Bazi)</button>
-          <button type="button" class="btn-sm" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border-color: rgba(168, 85, 247, 0.4);" onclick="calcZiWei()">紫微 紫微斗數 (Zi Wei)</button>
-          <button type="button" class="btn-sm" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-color: rgba(59, 130, 246, 0.4);" onclick="calcQiMen()">奇門 奇門遁甲 (Qi Men)</button>
-          <button type="button" class="btn-sm" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border-color: rgba(34, 197, 94, 0.4);" onclick="calcLiuRen()">六壬 大六壬 (Da Liu Ren)</button>
-          <button type="button" class="btn-sm" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);" onclick="calcIChing()">易經 易經六爻 (I Ching)</button>
-          <button type="button" class="btn-sm" style="background: rgba(236, 72, 153, 0.2); color: #f472b6; border-color: rgba(236, 72, 153, 0.4);" onclick="calcXuanKong()">風水 玄空風水 (Xuan Kong)</button>
-          <button type="button" class="btn-sm" style="background: rgba(14, 165, 233, 0.2); color: #38bdf8; border-color: rgba(14, 165, 233, 0.4);" onclick="calcZeJi()">擇吉 擇吉คำนวณฤกษ์ (Ze Ji)</button>
-          <button type="button" class="btn-sm" style="background: rgba(234, 179, 8, 0.2); color: #facc15; border-color: rgba(234, 179, 8, 0.4);" onclick="calcThaiVedic()">🐘 โหราศาสตร์ไทย & ภารตวิทยา</button>
+          <button type="button" id="btn-multimodal-matrix" class="btn-sm" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(45, 212, 191, 0.3)); color: #1e40af; border-color: #4338ca; grid-column: span 2; font-weight: bold; padding: 8px;" onclick="calcMultimodalMatrix()">🌐 ผังดวงสังเคราะห์ 16 ศาสตร์ (Unified Multimodal Matrix)</button>
+          <button type="button" class="btn-sm" style="background: rgba(245, 158, 11, 0.2); color: #92400e; border-color: rgba(120, 53, 15, 0.5); font-weight: 600;" onclick="calcFourPillars()">🏛️ 四柱 Four Pillars (Bazi)</button>
+          <button type="button" class="btn-sm" style="background: rgba(168, 85, 247, 0.2); color: #6b21a8; border-color: rgba(107, 33, 168, 0.5); font-weight: 600;" onclick="calcZiWei()">紫微 紫微斗數 (Zi Wei)</button>
+          <button type="button" class="btn-sm" style="background: rgba(59, 130, 246, 0.2); color: #1d4ed8; border-color: rgba(29, 78, 216, 0.5); font-weight: 600;" onclick="calcQiMen()">奇門 奇門遁甲 (Qi Men)</button>
+          <button type="button" class="btn-sm" style="background: rgba(34, 197, 94, 0.2); color: #166534; border-color: rgba(22, 101, 52, 0.5); font-weight: 600;" onclick="calcLiuRen()">六壬 大六壬 (Da Liu Ren)</button>
+          <button type="button" class="btn-sm" style="background: rgba(245, 158, 11, 0.2); color: #92400e; border-color: rgba(120, 53, 15, 0.5); font-weight: 600;" onclick="calcIChing()">易經 易經六爻 (I Ching)</button>
+          <button type="button" class="btn-sm" style="background: rgba(236, 72, 153, 0.2); color: #9d174d; border-color: rgba(157, 23, 77, 0.5); font-weight: 600;" onclick="calcXuanKong()">風水 玄空風水 (Xuan Kong)</button>
+          <button type="button" class="btn-sm" style="background: rgba(14, 165, 233, 0.2); color: #0369a1; border-color: rgba(3, 105, 161, 0.5); font-weight: 600;" onclick="calcZeJi()">擇吉 擇吉คำนวณฤกษ์ (Ze Ji)</button>
+          <button type="button" class="btn-sm" style="background: rgba(234, 179, 8, 0.2); color: #78350f; border-color: rgba(120, 53, 15, 0.5); font-weight: 600;" onclick="calcThaiVedic()">🐘 โหราศาสตร์ไทย & ภารตวิทยา</button>
           <button type="button" class="btn-sm" style="background: rgba(99, 102, 241, 0.2); color: #818cf8; border-color: rgba(99, 102, 241, 0.4);" onclick="calcWestern()">🌌 โหราศาสตร์สากล & ยูเรเนียน</button>
-          <button type="button" class="btn-sm" style="background: rgba(20, 184, 166, 0.2); color: #2dd4bf; border-color: rgba(20, 184, 166, 0.4);" onclick="calcNumerology()">🔢 สัตตเลข 7 ฐาน & เลขศาสตร์</button>
-          <button type="button" class="btn-sm" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);" onclick="calcTaiYi()">太乙 太乙神數 (Tai Yi)</button>
-          <button type="button" class="btn-sm" style="background: rgba(168, 85, 247, 0.2); color: #c084fc; border-color: rgba(168, 85, 247, 0.4);" onclick="calcLiuYao()">六爻 六爻預測 (Liu Yao)</button>
-          <button type="button" class="btn-sm" style="background: rgba(236, 72, 153, 0.2); color: #f472b6; border-color: rgba(236, 72, 153, 0.4);" onclick="calcMeiHua()">梅花 梅花易數 (Mei Hua)</button>
-          <button type="button" class="btn-sm" style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border-color: rgba(34, 197, 94, 0.4);" onclick="calcSanHe()">三合 三合風水 (San He)</button>
-          <button type="button" class="btn-sm" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; border-color: rgba(59, 130, 246, 0.4);" onclick="calcQiZheng()">七政 七政四餘 (Qi Zheng)</button>
-          <button type="button" class="btn-sm" style="background: rgba(234, 179, 8, 0.2); color: #facc15; border-color: rgba(234, 179, 8, 0.4); grid-column: span 2;" onclick="calcMianXiang()">面相 麻衣神相 (Mian Xiang Physiognomy)</button>
+          <button type="button" class="btn-sm" style="background: rgba(20, 184, 166, 0.2); color: #134e4a; border-color: rgba(19, 78, 74, 0.5); font-weight: 600;" onclick="calcNumerology()">🔢 สัตตเลข 7 ฐาน & เลขศาสตร์</button>
+          <button type="button" class="btn-sm" style="background: rgba(245, 158, 11, 0.2); color: #92400e; border-color: rgba(120, 53, 15, 0.5); font-weight: 600;" onclick="calcTaiYi()">太乙 太乙神數 (Tai Yi)</button>
+          <button type="button" class="btn-sm" style="background: rgba(168, 85, 247, 0.2); color: #6b21a8; border-color: rgba(107, 33, 168, 0.5); font-weight: 600;" onclick="calcLiuYao()">六爻 六爻預測 (Liu Yao)</button>
+          <button type="button" class="btn-sm" style="background: rgba(236, 72, 153, 0.2); color: #9d174d; border-color: rgba(157, 23, 77, 0.5); font-weight: 600;" onclick="calcMeiHua()">梅花 梅花易數 (Mei Hua)</button>
+          <button type="button" class="btn-sm" style="background: rgba(34, 197, 94, 0.2); color: #166534; border-color: rgba(22, 101, 52, 0.5); font-weight: 600;" onclick="calcSanHe()">三合 三合風水 (San He)</button>
+          <button type="button" class="btn-sm" style="background: rgba(59, 130, 246, 0.2); color: #1d4ed8; border-color: rgba(29, 78, 216, 0.5); font-weight: 600;" onclick="calcQiZheng()">七政 七政四餘 (Qi Zheng)</button>
+          <button type="button" class="btn-sm" style="background: rgba(234, 179, 8, 0.2); color: #78350f; border-color: rgba(120, 53, 15, 0.5); font-weight: 600; grid-column: span 2;" onclick="calcMianXiang()">面相 麻衣神相 (Mian Xiang Physiognomy)</button>
         </div>
       </div>
     </section>
@@ -282,14 +282,19 @@
       </div>
 
       <!-- 5-Branch Metaphysics Result & SVG Visualizer Card -->
-      <div class="card glass-card result-card hidden" id="branch-result-card">
-        <div class="card-header border-gold">
+      <div class="accordion-card card glass-card result-card hidden" id="branch-result-card">
+        <button type="button" class="accordion-card-header card-header border-gold" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <h3 id="branch-title">☯️ แสดงผลคำนวณผังวิชา (5-Branch Metaphysics Visualizer)</h3>
         </div>
-        <div id="branch-body" style="padding: 1rem; color: #e2e8f0; font-family: Prompt, sans-serif; white-space: pre-line; line-height: 1.6;">
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
+        <div id="branch-body" style="padding: 1rem; color: #1e293b; font-family: Prompt, sans-serif; white-space: pre-line; line-height: 1.6;">
           <!-- Dynamically populated by JS -->
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- SVG Vector Chart Diagram Card -->
       <div class="card glass-card result-card hidden" id="svg-chart-card">
@@ -302,12 +307,16 @@
       </div>
 
       <!-- 4 Pillars Card -->
-      <div class="card glass-card result-card hidden" id="pillars-card">
+      <div class="accordion-card card glass-card result-card hidden" id="pillars-card">
 
-        <div class="card-header border-gold">
+        <button type="button" class="accordion-card-header card-header border-gold" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <h3>🏛️ ผังดวงชะตา 4 เสา (Four Pillars of Destiny — 四柱)</h3>
           <div class="tst-tag" id="tst-tag">TST Adjusted</div>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
 
         <div class="pillars-grid" id="pillars-grid">
           <!-- Dynamically populated by JS -->
@@ -316,19 +325,24 @@
         <div class="day-master-banner" id="day-master-banner">
           <!-- Day master highlight -->
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- Interactive DaYun & LiuNian Timeline Scrubber Card -->
-      <div class="card glass-card result-card hidden" id="timeline-scrubber-card">
-        <div class="card-header border-gold" style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="accordion-card card glass-card result-card hidden" id="timeline-scrubber-card">
+        <button type="button" class="accordion-card-header card-header border-gold" style="display: flex; justify-content: space-between; align-items: center;" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <h3 data-i18n="timeline_title">⏳ แถบเลื่อนกาลเวลาวัยจร 10 ปี / ปีจร (DaYun & LiuNian Timeline Scrubber)</h3>
-          <span class="badge badge-gold" id="scrubber-active-age-badge" style="font-size: 0.85rem; font-weight: 600; padding: 4px 10px; border-radius: 6px; background: rgba(251, 191, 36, 0.15); border: 1px solid rgba(251, 191, 36, 0.4); color: #fbbf24;">อายุ 36 ปี (2026)</span>
+          <span class="badge badge-gold" id="scrubber-active-age-badge" style="font-size: 0.85rem; font-weight: 600; padding: 4px 10px; border-radius: 6px; background: rgba(146, 64, 14, 0.1); border: 1px solid rgba(146, 64, 14, 0.4); color: #92400e; font-weight: 700;">อายุ 36 ปี (2026)</span>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
         <div style="padding: 1.2rem;">
           <div class="timeline-controls-row" style="display: flex; align-items: center; gap: 15px; margin-bottom: 1rem;">
-            <label for="timeline-age-slider" style="font-size: 0.85rem; font-weight: 600; color: #fbbf24; min-width: 90px;" data-i18n="timeline_age_label">เลือกช่วงอายุ:</label>
+            <label for="timeline-age-slider" style="font-size: 0.85rem; font-weight: 700; color: #92400e; min-width: 90px;" data-i18n="timeline_age_label">เลือกช่วงอายุ:</label>
             <input type="range" id="timeline-age-slider" min="1" max="100" value="36" class="timeline-slider" oninput="onTimelineSliderChange(this.value)" style="flex: 1; accent-color: #fbbf24; cursor: pointer;">
-            <span id="timeline-slider-display" style="font-family: monospace; font-size: 1.1rem; font-weight: bold; color: #38bdf8; min-width: 70px;">36 ปี</span>
+            <span id="timeline-slider-display" style="font-family: monospace; font-size: 1.1rem; font-weight: bold; color: #0369a1; min-width: 70px;">36 ปี</span>
           </div>
 
           <!-- Dynamic Transit Aspects Display -->
@@ -336,38 +350,53 @@
             <!-- Dynamically updated by JS -->
           </div>
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- Five Elements Harmony Chart -->
-      <div class="card glass-card result-card hidden" id="elements-card">
-        <div class="card-header">
+      <div class="accordion-card card glass-card result-card hidden" id="elements-card">
+        <button type="button" class="accordion-card-header card-header" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <h3>⚖️ สมดุลธาตุทั้ง 5 (Five Elements Harmony — 五行)</h3>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
         <div class="elements-bars" id="elements-bars">
           <!-- Dynamically populated by JS -->
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- Dual-Profile Synastry Result Card -->
-      <div class="card glass-card result-card hidden" id="synastry-result-card">
-        <div class="card-header border-purple" style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="accordion-card card glass-card result-card hidden" id="synastry-result-card">
+        <button type="button" class="accordion-card-header card-header border-purple" style="display: flex; justify-content: space-between; align-items: center;" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <h3 data-i18n="synastry_result_title">💖 ผลการวิเคราะห์ดวงสมพงษ์ &amp; ธาตุคู่ครอง (Synastry Matrix)</h3>
           <span class="badge badge-pink" id="synastry-grade-badge" style="font-size: 0.95rem; font-weight: 700; padding: 4px 12px; border-radius: 6px; background: rgba(236, 72, 153, 0.2); border: 1px solid rgba(236, 72, 153, 0.5); color: #f472b6;">Grade A (88%)</span>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
         <div style="padding: 1.2rem;" id="synastry-content-body">
           <!-- Dynamically populated by JS -->
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- AI Interpretation & Validation Output -->
-      <div class="card glass-card result-card hidden" id="interpretation-card">
-        <div class="card-header border-purple" style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="accordion-card card glass-card result-card hidden" id="interpretation-card">
+        <button type="button" class="accordion-card-header card-header border-purple" style="display: flex; justify-content: space-between; align-items: center;" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <div style="display: flex; align-items: center; gap: 10px;">
             <h3>🤖 บทพยากรณ์ multi-Agent (qwen2.5-bazi + Gemini Validator)</h3>
             <button type="button" class="btn-voice-listen" id="btn-speak-reading" onclick="speakCurrentInterpretation()" data-i18n="btn_listen_reading">🔊 ฟังเสียง AI (Listen)</button>
           </div>
           <span class="route-badge" id="route-badge">Ollama Local</span>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
 
         <div class="tab-buttons">
           <button class="tab-btn active" onclick="switchTab('tab-reading')">📖 บทตีความโหราศาสตร์</button>
@@ -392,11 +421,13 @@
             <!-- RAG references -->
           </div>
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- Interactive Astrological Calendar & Date Selector Card -->
-      <div class="card glass-card result-card" id="calendar-view-card">
-        <div class="card-header border-purple" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <div class="accordion-card card glass-card result-card" id="calendar-view-card">
+        <button type="button" class="accordion-card-header card-header border-purple" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <div style="display: flex; align-items: center; gap: 10px;">
             <h3 data-i18n="calendar_title">📅 ปฏิทินหมื่นปีฤกษ์มงคล 12 เทพ (Auspicious Calendar)</h3>
             <span class="badge badge-purple" id="calendar-current-month-badge">สิงหาคม 2026</span>
@@ -406,6 +437,9 @@
             <button type="button" class="btn-tool" onclick="changeCalendarMonth(1)">เดือนถัดไป ▶</button>
           </div>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
 
         <div style="padding: 1.2rem;">
           <!-- Intent Filter Buttons -->
@@ -422,19 +456,24 @@
             <!-- Dynamically generated by JS -->
           </div>
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- LuoPan 24-Mountain & Period 9 Flying Star Heatmap Card -->
-      <div class="card glass-card result-card" id="luopan-heatmap-card">
-        <div class="card-header border-purple" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <div class="accordion-card card glass-card result-card" id="luopan-heatmap-card">
+        <button type="button" class="accordion-card-header card-header border-purple" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <h3 data-i18n="luopan_title">🧭 เข็มทิศหล่อแก 24 ขุนเขา &amp; ผังพลังงาน 9 ยุค (24-Mountain LuoPan)</h3>
           <span class="badge badge-purple" id="luopan-mountain-badge">ทิศใต้ 午 (Wu) 180°</span>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
         <div style="padding: 1.2rem;">
           <div style="margin-bottom: 1rem;">
             <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
               <label for="luopan-slider" data-i18n="luopan_slider_label">หมุนปรับองศาทิศหน้าบ้าน/อาคาร (Facing Degree):</label>
-              <strong id="luopan-degree-display" style="color: #a855f7;">180°</strong>
+              <strong id="luopan-degree-display" style="color: #6b21a8; font-weight: 700;">180°</strong>
             </div>
             <input type="range" id="luopan-slider" min="0" max="359" value="180" step="1" oninput="onLuoPanSliderChange(this.value)" style="width: 100%; accent-color: #a855f7; cursor: pointer;">
             <div style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
@@ -449,17 +488,22 @@
           <div id="luopan-sector-grid" class="sector-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem;">
             <!-- Dynamically populated by JS -->
           </div>
-          <div id="luopan-summary-box" style="padding: 10px; background: rgba(30, 27, 75, 0.4); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; font-size: 0.85rem; color: #cbd5e1;">
+          <div id="luopan-summary-box" style="padding: 10px; background: rgba(30, 27, 75, 0.4); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; font-size: 0.85rem; color: #334155;">
             กำลังคำนวณผังทิศทาง...
           </div>
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- AI Metaphysics Dream Interpreter & Symbolism Decoder Card -->
-      <div class="card glass-card result-card" id="dream-interpreter-card">
-        <div class="card-header border-purple">
+      <div class="accordion-card card glass-card result-card" id="dream-interpreter-card">
+        <button type="button" class="accordion-card-header card-header border-purple" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <h3 data-i18n="dream_title">🌙 ทำนายฝัน &amp; ถอดรหัสสัญลักษณ์เทพ 64 ลักษณ์ (Dream Decoder)</h3>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
         <div style="padding: 1.2rem;">
           <div class="form-group" style="margin-bottom: 10px;">
             <label for="dream-input" data-i18n="dream_input_label">พิมพ์รายละเอียดความฝัน หรือสัญลักษณ์ที่พบในฝัน:</label>
@@ -474,37 +518,42 @@
             <button type="button" class="btn-tool" onclick="submitDreamInterpretation()" style="margin-left: auto; background: linear-gradient(135deg, #dc2626, #b91c1c); color: white;" data-i18n="btn_interpret_dream">🔮 ทำนายฝัน</button>
           </div>
 
-          <div id="dream-result-box" class="hidden" style="padding: 12px; background: #ffffff; border: 1px solid #fee2e2; border-radius: 8px;">
+          <div id="dream-result-box" class="hidden dream-result-box">
             <!-- Dynamically populated by JS -->
           </div>
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- Life Path Multi-Scenario Simulation & What-If Analyzer Card -->
-      <div class="card glass-card result-card" id="scenario-simulation-card">
-        <div class="card-header border-purple" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <div class="accordion-card card glass-card result-card" id="scenario-simulation-card">
+        <button type="button" class="accordion-card-header card-header border-purple" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <h3 data-i18n="sim_title">🔮 จำลองฉากทัศน์ชีวิตคู่ขนาน &amp; วิเคราะห์ทางเลือก (What-If Life Path Simulator)</h3>
           <span class="badge badge-purple" id="sim-horizon-badge">กรอบเวลา 3 ปี (2026-2028)</span>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
         <div style="padding: 1.2rem;">
           <div style="margin-bottom: 1rem;">
-            <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 10px;" data-i18n="sim_desc">
+            <p style="font-size: 0.88rem; color: #475569; margin-bottom: 10px;" data-i18n="sim_desc">
               จำลองเปรียบเทียบผลลัพธ์ทางเลือกสำคัญในชีวิต (การงาน/ธุรกิจ/ย้ายถิ่น) ผ่านการผสานธาตุประจำปีและพลังดาวจร 3-5 ปีข้างหน้า
             </p>
             <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px;">
-              <label style="font-size: 0.85rem; color: #cbd5e1; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+              <label style="font-size: 0.85rem; color: #334155; display: flex; align-items: center; gap: 6px; cursor: pointer;">
                 <input type="checkbox" id="scen-corporate" checked value="corporate_stay" style="accent-color: #a855f7;">
                 <span>🏢 ทำงานประจำต่อ (Corporate Path)</span>
               </label>
-              <label style="font-size: 0.85rem; color: #cbd5e1; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+              <label style="font-size: 0.85rem; color: #334155; display: flex; align-items: center; gap: 6px; cursor: pointer;">
                 <input type="checkbox" id="scen-startup" checked value="tech_startup" style="accent-color: #a855f7;">
                 <span>🚀 ร่วมงาน Tech Startup (Startup Pivot)</span>
               </label>
-              <label style="font-size: 0.85rem; color: #cbd5e1; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+              <label style="font-size: 0.85rem; color: #334155; display: flex; align-items: center; gap: 6px; cursor: pointer;">
                 <input type="checkbox" id="scen-business" checked value="business_startup" style="accent-color: #a855f7;">
                 <span>💼 เปิดธุรกิจส่วนตัว (New Venture)</span>
               </label>
-              <label style="font-size: 0.85rem; color: #cbd5e1; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+              <label style="font-size: 0.85rem; color: #334155; display: flex; align-items: center; gap: 6px; cursor: pointer;">
                 <input type="checkbox" id="scen-overseas" value="overseas_relocation" style="accent-color: #a855f7;">
                 <span>🌏 ย้ายไปต่างประเทศ (Overseas Path)</span>
               </label>
@@ -524,7 +573,8 @@
             <!-- Dynamically populated by JS -->
           </div>
         </div>
-      </div>
+      
+        </div></div>
     </section>
   </main>
 
@@ -542,7 +592,7 @@
         <span>🔄</span> <span>ล้างแคช &amp; บังคับอัปเดต (Hard Reset)</span>
       </button>
     </div>
-    <p id="footer-version-text">Computational Metaphysics Engine v1.0.0.74aec5c — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback</p>
+    <p id="footer-version-text">Computational Metaphysics Engine v1.0.0.14b2334 — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback</p>
   </footer>
 
   <!-- iOS/Android Bottom-Sheet Drum Wheel DateTime Picker Modal -->
@@ -688,9 +738,9 @@
     </div>
   </div>
 
-  <script src="voice_engine.js?v=74aec5c"></script>
-  <script src="i18n.js?v=74aec5c"></script>
-  <script src="app.js?v=74aec5c"></script>
+  <script src="voice_engine.js?v=14b2334"></script>
+  <script src="i18n.js?v=14b2334"></script>
+  <script src="app.js?v=14b2334"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
