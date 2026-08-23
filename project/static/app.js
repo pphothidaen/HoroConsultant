@@ -1,5 +1,74 @@
 
 // ======================================================================
+// 🎯 TARGETED USER QUERY RESOLUTION SYNTHESIZER
+// ======================================================================
+
+function synthesizeQuerySpecificAnswer(userQuery, disciplineKey) {
+  const q = (userQuery || "").toLowerCase();
+  const discInfo = METAPHYSICS_6D_INSIGHTS_DATABASE[disciplineKey] || METAPHYSICS_6D_INSIGHTS_DATABASE["bazi"];
+  
+  let primaryDomain = "career";
+  let domainLabel = "💼 การงาน & ธุรกิจ";
+  let directAnswer = "";
+  let astroFactor = "";
+  let actionAdvice = "";
+
+  if (q.includes("งาน") || q.includes("ธุรกิจ") || q.includes("ร้าน") || q.includes("บริษัท") || q.includes("เจรจา") || q.includes("สมัคร") || q.includes("ย้าย") || q.includes("ลาออก") || q.includes("เลื่อนขั้น") || q.includes("ตำแหน่ง") || q.includes("อาชีพ")) {
+    primaryDomain = "career";
+    domainLabel = "💼 การงาน & ธุรกิจ";
+    directAnswer = `จากผังวิชา ${discInfo.name} ชี้ว่าทิศทางด้านการงานและธุรกิจอยู่ในเกณฑ์มีพลังบวกสูง จังหวะนี้เปิดรับความคิดริเริ่มและมีโอกาสขยับขยายหน้าที่การงานหรือลงทุนอย่างมั่นคง`;
+    astroFactor = discInfo.career;
+    actionAdvice = "มุ่งเน้นการวางแผนอย่างเป็นระบบ ใช้ความเชี่ยวชาญเฉพาะทางสร้างความแตกต่าง และร่วมมือกับพันธมิตรที่น่าเชื่อถือ";
+  } else if (q.includes("เงิน") || q.includes("โชค") || q.includes("ลาภ") || q.includes("รวย") || q.includes("หนี้") || q.includes("หุ้น") || q.includes("คริปโต") || q.includes("ทุน") || q.includes("ทรัพย์") || q.includes("ขายดี") || q.includes("กำไร")) {
+    primaryDomain = "wealth";
+    domainLabel = "💰 การเงิน & โชคลาภ";
+    directAnswer = `ตามหลักคำนวณ ${discInfo.name} กระแสการเงินและโชคลาภมีสภาพคล่องตัวดี เหมาะแก่การจัดสรรเงินทุนเพื่อสร้างผลตอบแทนระยะยาว`;
+    astroFactor = discInfo.wealth;
+    actionAdvice = "หลีกเลี่ยงการเก็งกำไรที่มีความเสี่ยงสูงเกินไป และเน้นการกระจายความเสี่ยงในสินทรัพย์ที่มีรากฐานมั่นคง";
+  } else if (q.includes("รัก") || q.includes("แฟน") || q.includes("คู่") || q.includes("แต่งงาน") || q.includes("คุย") || q.includes("เลิก") || q.includes("ครอบครัว") || q.includes("หย่า") || q.includes("เสน่ห์") || q.includes("โสด")) {
+    primaryDomain = "love";
+    domainLabel = "❤️ ความรัก & คู่ครอง";
+    directAnswer = `ตามผังวิชา ${discInfo.name} วาสนาความรักและปฏิสัมพันธ์ราบรื่น มีเกณฑ์พบคนรู้ใจหรือพัฒนาความสัมพันธ์ไปสู่ความมั่นคงร่วมกัน`;
+    astroFactor = discInfo.love;
+    actionAdvice = "ใช้ความจริงใจและการสื่อสารที่เปิดเผยในการปรับความเข้าใจ หลีกเลี่ยงอารมณ์ชั่ววูบในการตัดสินใจ";
+  } else if (q.includes("ฤกษ์") || q.includes("เวลา") || q.includes("เมื่อไหร่") || q.includes("ปีนี้") || q.includes("เดือน") || q.includes("วัน") || q.includes("จังหวะ")) {
+    primaryDomain = "timing";
+    domainLabel = "⏳ ฤกษ์มงคล & จังหวะเวลา";
+    directAnswer = `ตามวงจรการคำนวณ ${discInfo.name} ช่วงเวลานี้เป็นจังหวะฟ้าเปิดและพลังส่งเสริม เหมาะสำหรับการเริ่มต้นโครงการสำคัญ`;
+    astroFactor = discInfo.timing;
+    actionAdvice = "เลือกวันและยามมงคลที่ปราศจากการปะทะ เพื่อหนุนให้การดำเนินงานราบรื่นและสำเร็จตามเป้าหมาย";
+  } else if (q.includes("สุขภาพ") || q.includes("ป่วย") || q.includes("ผ่าตัด") || q.includes("อุบัติเหตุ") || q.includes("เจ็บ") || q.includes("เหนื่อย") || q.includes("พักผ่อน") || q.includes("อายุ")) {
+    primaryDomain = "health";
+    domainLabel = "🌿 สุขภาพ & พลังชีวิต";
+    directAnswer = `การตรวจสอบดุลยภาพพลังงานตาม ${discInfo.name} ชี้ว่าพลังชีวิตอยู่ในเกณฑ์ควบคุมได้ แนะนำบำรุงธาตุที่พร่องเพื่อเสริมภูมิคุ้มกัน`;
+    astroFactor = discInfo.health;
+    actionAdvice = "จัดสรรเวลาพักผ่อนให้เพียงพอ รับประทานอาหารตามธาตุ และออกกำลังกายสม่ำเสมอเพื่อฟื้นฟูปราณชี่";
+  } else if (q.includes("บ้าน") || q.includes("ที่ดิน") || q.includes("คอนโด") || q.includes("ห้อง") || q.includes("ฮวงจุ้ย") || q.includes("อสังหา") || q.includes("ย้ายบ้าน") || q.includes("ทิศ")) {
+    primaryDomain = "family";
+    domainLabel = "🏡 บ้าน & ครอบครัว";
+    directAnswer = `ตามหลักชัยภูมิและผังชะตา ${discInfo.name} เคหสถานและสภาพแวดล้อมมีพลังส่งเสริมความร่มเย็นและเพิ่มพูนทรัพย์สิน`;
+    astroFactor = discInfo.family;
+    actionAdvice = "จัดระเบียบบ้านให้เปิดรับแสงธรรมชาติ อากาศถ่ายเท และจัดวางตำแหน่งหัวนอน/โต๊ะทำงานให้ถูกทิศมงคล";
+  } else {
+    primaryDomain = "career";
+    domainLabel = "🌐 ภาพรวมทุกมิติ";
+    directAnswer = `ผลวิเคราะห์ตามผังวิชา ${discInfo.name} สำหรับประเด็นคำถาม "${userQuery}" ชี้ว่าโครงสร้างดวงชะตามีเกณฑ์หนุนส่งในทิศทางเติบโต สามารถบริหารจัดการโอกาสและอุปสรรคได้อย่างมีประสิทธิภาพ`;
+    astroFactor = `${discInfo.career} • ${discInfo.wealth}`;
+    actionAdvice = "ดำเนินชีวิตด้วยสติ วางแผนระยะยาว และใช้จุดเด่นของธาตุให้คุณในการขับเคลื่อนความสำเร็จ";
+  }
+
+  return {
+    primaryDomain,
+    domainLabel,
+    directAnswer,
+    astroFactor,
+    actionAdvice
+  };
+}
+
+
+
+// ======================================================================
 // 🌟 6-DIMENSION LIFE ANALYSIS ENGINE (FOR SINGLE & 16-DOMAIN SYNTHESIS)
 // ======================================================================
 
@@ -166,11 +235,30 @@ const METAPHYSICS_6D_INSIGHTS_DATABASE = {
   }
 };
 
-function render6DimensionAnalysisMatrix(disciplineKey = "bazi") {
+function render6DimensionAnalysisMatrix(disciplineKey = "bazi", customQuery = null) {
   const data = METAPHYSICS_6D_INSIGHTS_DATABASE[disciplineKey] || METAPHYSICS_6D_INSIGHTS_DATABASE["bazi"];
+  const userQuery = customQuery || (document.getElementById('query')?.value || '').trim() || 'วิเคราะห์ดวงชะตาโดยรวมช่วงนี้';
+  const queryAnswer = synthesizeQuerySpecificAnswer(userQuery, disciplineKey);
   
   return `
     <div class="discipline-6d-matrix" style="margin-top: 1.25rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+      <!-- Targeted Query Resolution Box -->
+      <div style="background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%); border: 1px solid #86efac; border-radius: 10px; padding: 14px; margin-bottom: 1.2rem; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+          <div style="font-weight: 700; color: #1e3a8a; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+            <span>🎯</span> บทวิเคราะห์ตรงประเด็นคำถาม: <span style="color: #0369a1; font-weight: 800;">"${userQuery}"</span>
+          </div>
+          <span style="font-size: 0.72rem; background: #0284c7; color: #ffffff; padding: 2px 8px; border-radius: 9999px; font-weight: bold;">Focused Answer</span>
+        </div>
+        <p style="margin: 0 0 8px 0; font-size: 0.88rem; color: #0f172a; line-height: 1.5; font-weight: 600;">
+          👉 ${queryAnswer.directAnswer}
+        </p>
+        <div style="font-size: 0.8rem; color: #334155; display: flex; flex-direction: column; gap: 4px; border-top: 1px dashed #cbd5e1; padding-top: 6px;">
+          <div><strong style="color: #1e40af;">⚡ ปัจจัยทางโหราศาสตร์:</strong> ${queryAnswer.astroFactor}</div>
+          <div><strong style="color: #166534;">💡 กลยุทธ์และข้อพึงปฏิบัติ:</strong> ${queryAnswer.actionAdvice}</div>
+        </div>
+      </div>
+
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px;">
         <h4 style="margin: 0; color: #1e293b; font-size: 1.05rem; font-weight: bold; display: flex; align-items: center; gap: 8px;">
           <span>🌟</span> บทวิเคราะห์ 6 มิติชีวิตเฉพาะศาสตร์ (${data.icon} ${data.name})
@@ -236,6 +324,7 @@ function render6DimensionAnalysisMatrix(disciplineKey = "bazi") {
     </div>
   `;
 }
+
 
 function detectDisciplineKeyFromTitle(title) {
   if (!title) return "bazi";
@@ -4995,6 +5084,23 @@ async function calcMultimodalMatrix(domainKey = 'career') {
         </div>
       </div>
 
+      <!-- Targeted User Query Box for 16-Domain Synthesis -->
+      <div style="background: linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%); border: 1px solid #86efac; border-radius: 10px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+          <div style="font-weight: 700; color: #1e3a8a; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+            <span>🎯</span> คำตอบสังเคราะห์ 16 ศาสตร์ตรงประเด็น: <span style="color: #0369a1; font-weight: 800;">"${(document.getElementById('query')?.value || '').trim() || 'วิเคราะห์ดวงชะตาโดยรวมช่วงนี้'}"</span>
+          </div>
+          <span style="font-size: 0.72rem; background: #059669; color: #ffffff; padding: 2px 8px; border-radius: 9999px; font-weight: bold;">16-Domain Consensus Answer</span>
+        </div>
+        <p style="margin: 0 0 8px 0; font-size: 0.88rem; color: #0f172a; line-height: 1.5; font-weight: 600;">
+          👉 จากการสังเคราะห์ร่วม 16 ศาสตร์ในหมวด ${currentConfig.name}: ชี้ว่าประเด็นคำถามของผู้ใช้งานสอดคล้องกับจังหวะธาตุเกื้อหนุน (${currentConfig.dominant}) โดยมีความเห็นพ้องต้องกันของ 16 ศาสตร์สูงถึง ${currentConfig.consensus}%
+        </p>
+        <div style="font-size: 0.8rem; color: #334155; display: flex; flex-direction: column; gap: 4px; border-top: 1px dashed #cbd5e1; padding-top: 6px;">
+          <div><strong style="color: #1e40af;">⚡ ปัจจัยชะตาหลัก:</strong> ${currentConfig.insights[0] ? currentConfig.insights[0].finding : 'พลังดวงชะตาเกื้อหนุนมั่นคง'}</div>
+          <div><strong style="color: #166534;">💡 ทิศทางมงคลเปิดรับ:</strong> ${currentConfig.directions} — ควรใช้ทิศทางและจังหวะเวลานี้ในการขับเคลื่อนเป้าหมาย</div>
+        </div>
+      </div>
+
       <!-- Domain Focus Header & Summary -->
       <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
@@ -5955,7 +6061,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & PROMINENT UPDATE MODAL SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.22b5007";
+const CLIENT_APP_VERSION = "1.0.0.9ee8a5a";
 let _versionModalDismissed = false;
 let _versionCountdownTimer = null;
 
