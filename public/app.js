@@ -5554,7 +5554,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & FORCE CACHE PURGE SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.0494e39";
+const CLIENT_APP_VERSION = "1.0.0.84ba76f";
 
 async function forcePurgeAndReload(event) {
   if (event) {
@@ -5901,7 +5901,7 @@ function renderSimulationComparison(data) {
       <div class="${cardClass}">
         ${isOptimal ? '<span class="sim-badge-optimal">🏆 แนะนำสูงสุด</span>' : ''}
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <h4 style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin: 0;">${item.icon} ${item.title.split("/")[0]}</h4>
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: #475569; margin: 0;">${item.icon} ${item.title.split("/")[0]}</h4>
           <span style="font-size: 0.95rem; font-weight: 800; color: #15803d;">${item.composite_roi} <small style="font-size: 0.7rem; color: #166534;">ROI</small></span>
         </div>
 
