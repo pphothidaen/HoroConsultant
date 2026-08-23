@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-08-23 10:00:30 UTC",
+  "timestamp": "2026-08-23 10:41:02 UTC",
   "target_url": "https://horo-consultant-psi.vercel.app/",
   "profile": "full",
-  "elapsed_seconds": 73.81,
+  "elapsed_seconds": 46.82,
   "summary": {
     "total_buttons": 22,
-    "passed": 21,
-    "failed": 1,
-    "pass_rate_pct": 95.45
+    "passed": 22,
+    "failed": 0,
+    "pass_rate_pct": 100.0
   },
   "results": [
     {
@@ -44,8 +44,9 @@
       "name": "🔍 ค้นหา & เติมค่า (Location Search)",
       "handler": "resolveLocation()",
       "endpoint": "POST /api/v1/location/resolve",
-      "status": "FAILED",
-      "detail": "Error: Page.fill: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"#location_search\")\n    - locator resolved to <input type=\"text\" autocomplete=\"off\" id=\"location_search\" placeholder=\"เช่น บางกะปิ กรุงเทพ...\"/>\n    - fill(\"บางกะปิ\")\n  - attempting fill action\n    2 × waiting for element to be visible, enabled and editable\n      - element is not visible\n    - retrying fill action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and editable\n      - element is not visible\n    - retrying fill action\n      - waiting 100ms\n    60 × waiting for element to be visible, enabled and editable\n       - element is not visible\n     - retrying fill action\n       - waiting 500ms\n"
+      "status": "PASSED",
+      "detail": "Resolved location to ✅ เขตบางกะปิ, กรุงเทพมหานคร, ประเทศไทย (UTC+7) (lng: 100.6439, utc: 7; changed=True; API status=[200])",
+      "screenshot": "screenshots/prod_02_location_resolved.png"
     },
     {
       "id": "BTN-PROD-02",

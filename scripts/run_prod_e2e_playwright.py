@@ -188,6 +188,9 @@ async def run_live_e2e_production_regression(profile: str = "smoke"):
         # -------------------------------------------------------------------
         print("\n[STEP 2] Testing Location Search Button ('ค้นหา & เติมค่า')...")
         try:
+            if not await page.is_visible("#location_search"):
+                await page.click(".accordion-toggle")
+                await page.wait_for_timeout(500)
             before_lng = float(await page.input_value("#longitude"))
             before_utc = float(await page.input_value("#utc_offset_hours"))
             await page.fill("#location_search", "บางกะปิ")
