@@ -8,9 +8,6 @@ on:
   repository_dispatch:
     types: [check-cookie-heartbeat, heartbeat]
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-
 jobs:
   cookie-heartbeat:
     name: Check Google Session Cookie Validity

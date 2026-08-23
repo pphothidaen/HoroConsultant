@@ -16,7 +16,6 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   AZURE_SUBSCRIPTION_ID: 0aca09b2-2917-4d8f-aef8-1a4da965d7dc
   AZURE_RESOURCE_GROUP: rg-horoconsult
   AZURE_CONTAINER_APP: horoconsult-env-new

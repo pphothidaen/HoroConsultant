@@ -25,7 +25,6 @@ concurrency:
 
 env:
   CI: "true"
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   AZURE_PUBLIC_BACKEND_URL: "https://horoconsult-env-new.mangoforest-3a921b17.westus2.azurecontainerapps.io"
 
 jobs:
