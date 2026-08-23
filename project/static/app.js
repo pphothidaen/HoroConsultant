@@ -2367,23 +2367,23 @@ async function calcZiWei(customParams = null) {
     <div style="background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(192, 132, 252, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem;">
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; align-items: end;">
         <div>
-          <label style="font-size: 0.75rem; color: #e9d5ff; display: block; margin-bottom: 2px;">ปีเกิด (ค.ศ.)</label>
+          <label style="font-size: 0.75rem; color: #6b21a8; font-weight: 600; display: block; margin-bottom: 2px;">ปีเกิด (ค.ศ.)</label>
           <input type="number" id="zw-year" value="${year}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
         </div>
         <div>
-          <label style="font-size: 0.75rem; color: #e9d5ff; display: block; margin-bottom: 2px;">เดือน (1-12)</label>
+          <label style="font-size: 0.75rem; color: #6b21a8; font-weight: 600; display: block; margin-bottom: 2px;">เดือน (1-12)</label>
           <input type="number" id="zw-month" min="1" max="12" value="${month}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
         </div>
         <div>
-          <label style="font-size: 0.75rem; color: #e9d5ff; display: block; margin-bottom: 2px;">วัน (1-31)</label>
+          <label style="font-size: 0.75rem; color: #6b21a8; font-weight: 600; display: block; margin-bottom: 2px;">วัน (1-31)</label>
           <input type="number" id="zw-day" min="1" max="31" value="${day}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
         </div>
         <div>
-          <label style="font-size: 0.75rem; color: #e9d5ff; display: block; margin-bottom: 2px;">ชั่วโมง (0-23)</label>
+          <label style="font-size: 0.75rem; color: #6b21a8; font-weight: 600; display: block; margin-bottom: 2px;">ชั่วโมง (0-23)</label>
           <input type="number" id="zw-hour" min="0" max="23" value="${hour}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
         </div>
         <div>
-          <label style="font-size: 0.75rem; color: #e9d5ff; display: block; margin-bottom: 2px;">เพศ</label>
+          <label style="font-size: 0.75rem; color: #6b21a8; font-weight: 600; display: block; margin-bottom: 2px;">เพศ</label>
           <select id="zw-gender" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
             <option value="male" ${gender === 'male' ? 'selected' : ''}>ชาย (乾造)</option>
             <option value="female" ${gender === 'female' ? 'selected' : ''}>หญิง (坤造)</option>
@@ -2421,7 +2421,7 @@ async function calcZiWei(customParams = null) {
       ${toolbarHtml}
 
       <div style="background: rgba(30, 27, 75, 0.6); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.85rem; color: #e9d5ff;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 0.85rem; color: #6b21a8; font-weight: 600;">
           <div><strong>命宮支 (Ming Gong):</strong> <span style="color: #92400e; font-weight: bold;">${data.ming_gong_branch}</span> | <strong>身宮支 (Shen Gong):</strong> <span style="color: #f43f5e; font-weight: bold;">${data.shen_gong_branch}</span></div>
           <div><strong>五行局 (Bureau):</strong> <span style="color: #38bdf8; font-weight: bold;">${data.five_element_bureau}</span> | <strong>紫微星位:</strong> ${data.zi_wei_star_branch} | <strong>天府星位:</strong> ${data.tian_fu_star_branch}</div>
         </div>
@@ -2437,7 +2437,7 @@ async function calcZiWei(customParams = null) {
       <h5 style="color: #c084fc; margin: 0.8rem 0 0.4rem 0;">🏛️ ผัง 12 ภพชะตา (12 Palaces Matrix):</h5>
       ${palacesGridHtml}
 
-      <div style="margin-top: 1rem; background: rgba(30, 27, 75, 0.4); border-left: 3px solid #a855f7; padding: 8px 12px; font-size: 0.8rem; color: #334155;">
+      <div style="margin-top: 1rem; background: #faf5ff; border-left: 3px solid #a855f7; padding: 8px 12px; font-size: 0.8rem; color: #334155;">
         <strong>📖 หลักวิชาตามตำรา:</strong> ตามคัมภีร์จื่อเวยโต่วซู่ 12 ภพแทนสภาวะชีวิตรอบด้าน ดาวราชา (紫微/天府) เป็นประธานคุ้มครองดวงชะตา และตำแหน่ง四化ชี้บอกทิศทางโชคลาภ อำนาจ ชื่อเสียง และอุปสรรคที่ต้องบริหารจัดการ
       </div>
     </div>
@@ -2544,7 +2544,7 @@ async function calcQiMen(customParams = null) {
 
       ${toolbarHtml}
 
-      <div style="background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
+      <div style="background: #f8fafc; border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
         <strong>節氣 (Solar Term):</strong> <span style="color: #93c5fd; font-weight: bold;">${data.solar_term}</span> |
         <strong>陰陽遁:</strong> <span style="color: #92400e; font-weight: bold;">${data.dun_type}遁 ${data.ju_number}局</span>
       </div>
@@ -2609,25 +2609,25 @@ async function calcLiuRen(customParams = null) {
     <div style="background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(74, 222, 128, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem;">
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; align-items: end;">
         <div>
-          <label style="font-size: 0.75rem; color: #bbf7d0; display: block; margin-bottom: 2px;">ก้านวัน (日干)</label>
+          <label style="font-size: 0.75rem; color: #166534; font-weight: 600; display: block; margin-bottom: 2px;">ก้านวัน (日干)</label>
           <select id="lr-day-stem" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
             ${["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"].map(s => `<option value="${s}" ${s === day_stem ? 'selected' : ''}>${s}</option>`).join('')}
           </select>
         </div>
         <div>
-          <label style="font-size: 0.75rem; color: #bbf7d0; display: block; margin-bottom: 2px;">กิ่งวัน (日支)</label>
+          <label style="font-size: 0.75rem; color: #166534; font-weight: 600; display: block; margin-bottom: 2px;">กิ่งวัน (日支)</label>
           <select id="lr-day-branch" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
             ${["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"].map(b => `<option value="${b}" ${b === day_branch ? 'selected' : ''}>${b}</option>`).join('')}
           </select>
         </div>
         <div>
-          <label style="font-size: 0.75rem; color: #bbf7d0; display: block; margin-bottom: 2px;">ขุนพลเดือน (月將)</label>
+          <label style="font-size: 0.75rem; color: #166534; font-weight: 600; display: block; margin-bottom: 2px;">ขุนพลเดือน (月將)</label>
           <select id="lr-month-gen" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
             ${["正月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"].map(m => `<option value="${m}" ${m === month_general ? 'selected' : ''}>${m}</option>`).join('')}
           </select>
         </div>
         <div>
-          <label style="font-size: 0.75rem; color: #bbf7d0; display: block; margin-bottom: 2px;">ยามเสี่ยงทาย (占時)</label>
+          <label style="font-size: 0.75rem; color: #166534; font-weight: 600; display: block; margin-bottom: 2px;">ยามเสี่ยงทาย (占時)</label>
           <select id="lr-hour-branch" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
             ${["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"].map(h => `<option value="${h}" ${h === hour_branch ? 'selected' : ''}>${h}</option>`).join('')}
           </select>
@@ -2640,7 +2640,7 @@ async function calcLiuRen(customParams = null) {
   `;
 
   const html = `
-    <div style="background: rgba(4, 24, 18, 0.9); border: 1px solid #22c55e; padding: 1.25rem; border-radius: 12px; backdrop-filter: blur(12px);">
+    <div style="background: #f0fdf4; border: 1px solid #22c55e; padding: 1.25rem; border-radius: 12px; backdrop-filter: blur(12px);">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 0.8rem;">
         <h4 style="color: #4ade80; margin: 0; font-size: 1.15rem;">🌊 大六壬 (Da Liu Ren 3-Transmissions & 4-Lessons Visualizer)</h4>
         <span style="background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #16a34a; padding: 2px 10px; border-radius: 9999px; font-size: 0.75rem;">คัมภีร์《六壬指南》</span>
@@ -2657,15 +2657,15 @@ async function calcLiuRen(customParams = null) {
       <!-- 3 Transmissions -->
       <h5 style="color: #4ade80; margin: 0.8rem 0 0.4rem 0;">🔄 三傳 (3 Transmissions):</h5>
       <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 0.8rem;">
-        <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid #22c55e; border-radius: 6px; padding: 8px; text-align: center;">
+        <div style="background: #f8fafc; border: 1px solid #22c55e; border-radius: 6px; padding: 8px; text-align: center;">
           <div style="font-size: 0.75rem; color: #86efac;">初傳 (發端)</div>
           <div style="font-size: 1.1rem; font-weight: bold; color: #fef08a; margin-top: 2px;">${trans['初傳 (發端)'] || '-'}</div>
         </div>
-        <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid #22c55e; border-radius: 6px; padding: 8px; text-align: center;">
+        <div style="background: #f8fafc; border: 1px solid #22c55e; border-radius: 6px; padding: 8px; text-align: center;">
           <div style="font-size: 0.75rem; color: #86efac;">中傳 (移革)</div>
           <div style="font-size: 1.1rem; font-weight: bold; color: #fef08a; margin-top: 2px;">${trans['中傳 (移革)'] || '-'}</div>
         </div>
-        <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid #22c55e; border-radius: 6px; padding: 8px; text-align: center;">
+        <div style="background: #f8fafc; border: 1px solid #22c55e; border-radius: 6px; padding: 8px; text-align: center;">
           <div style="font-size: 0.75rem; color: #86efac;">末傳 (歸結)</div>
           <div style="font-size: 1.1rem; font-weight: bold; color: #fef08a; margin-top: 2px;">${trans['末傳 (歸結)'] || '-'}</div>
         </div>
@@ -2675,7 +2675,7 @@ async function calcLiuRen(customParams = null) {
       <h5 style="color: #4ade80; margin: 0.8rem 0 0.4rem 0;">📚 四課 (4 Lessons):</h5>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
         ${four_lessons.map(l => `
-          <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid #16a34a; border-radius: 6px; padding: 6px 8px; text-align: center;">
+          <div style="background: #f8fafc; border: 1px solid #16a34a; border-radius: 6px; padding: 6px 8px; text-align: center;">
             <div style="font-size: 0.75rem; color: #86efac;">${l.lesson_name}</div>
             <div style="font-size: 0.95rem; font-weight: bold; color: #ffffff; margin-top: 2px;">${l.bottom} ➔ ${l.top}</div>
           </div>
@@ -2837,13 +2837,13 @@ async function calcXuanKong(customParams = null) {
     <div style="background: rgba(236, 72, 153, 0.12); border: 1px solid rgba(244, 114, 182, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem;">
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; align-items: end;">
         <div>
-          <label style="font-size: 0.75rem; color: #fbcfe8; display: block; margin-bottom: 2px;">ยุคฮวงจุ้ย (Period 1-9)</label>
+          <label style="font-size: 0.75rem; color: #9d174d; font-weight: 600; display: block; margin-bottom: 2px;">ยุคฮวงจุ้ย (Period 1-9)</label>
           <select id="xk-period" class="form-select" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
             ${[1,2,3,4,5,6,7,8,9].map(p => `<option value="${p}" ${p === period ? 'selected' : ''}>ยุคที่ ${p} ${p === 9 ? '(2024-2043 ยุคปัจจุบัน)' : ''}</option>`).join('')}
           </select>
         </div>
         <div>
-          <label style="font-size: 0.75rem; color: #fbcfe8; display: block; margin-bottom: 2px;">องศาหน้าบ้าน (0-360°)</label>
+          <label style="font-size: 0.75rem; color: #9d174d; font-weight: 600; display: block; margin-bottom: 2px;">องศาหน้าบ้าน (0-360°)</label>
           <input type="number" id="xk-degree" min="0" max="360" step="0.5" value="${facing_degree}" class="form-input" style="font-size: 0.8rem; padding: 4px 6px; width: 100%;">
         </div>
         <div>
@@ -2857,7 +2857,7 @@ async function calcXuanKong(customParams = null) {
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 1rem 0;">
       ${grid_palaces.map(p => `
         <div style="background: rgba(24, 9, 20, 0.85); border: 1px solid #be185d; padding: 8px; border-radius: 8px; text-align: center; font-size: 0.85rem;">
-          <div style="font-weight: bold; color: #fbcfe8; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px; margin-bottom: 4px;">
+          <div style="font-weight: bold; color: #9d174d; font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px; margin-bottom: 4px;">
             ${p.direction} (${p.palace_name})
           </div>
           <div style="display: flex; justify-content: space-around; align-items: center; margin: 4px 0;">
@@ -2979,7 +2979,7 @@ async function calcZeJi(customParams = null) {
         const isGood = res === '宜';
         const isBad = res === '忌';
         return `
-          <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid ${isGood ? '#22c55e' : (isBad ? '#ef4444' : '#eab308')}; border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+          <div style="background: #f8fafc; border: 1px solid ${isGood ? '#22c55e' : (isBad ? '#ef4444' : '#eab308')}; border-radius: 6px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
             <span style="color: #e0f2fe;">${act}</span>
             <strong style="color: ${isGood ? '#4ade80' : (isBad ? '#f87171' : '#fde047')};">${isGood ? '✅ 宜 (เหมาะสม)' : (isBad ? '❌ 忌 (ควรเลี่ยง)' : '⚖️ 平 (ปานกลาง)')}</strong>
           </div>
@@ -3000,7 +3000,7 @@ async function calcZeJi(customParams = null) {
       <div style="background: rgba(7, 43, 62, 0.6); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
           <div><strong>建除十二神 (12 Duty Officers):</strong> <span style="color: #92400e; font-size: 1.15rem; font-weight: bold;">${data.duty_officer}</span></div>
-          <div><strong>ระดับความมงคล:</strong> <span style="color: #fde047;">${data.rating_stars}</span> (<strong style="color: #38bdf8;">${data.overall_status}</strong>)</div>
+          <div><strong>ระดับความมงคล:</strong> <span style="color: #854d0e; font-weight: 600;">${data.rating_stars}</span> (<strong style="color: #38bdf8;">${data.overall_status}</strong>)</div>
         </div>
         <div style="margin-top: 4px; font-size: 0.8rem; color: #bae6fd;"><strong>คำอธิบาย:</strong> ${data.duty_description || ''}</div>
       </div>
@@ -3109,7 +3109,7 @@ async function calcThaiVedic(customParams = null) {
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin: 1rem 0;">
       ${Object.entries(thaksa).map(([k, v]) => `
         <div style="background: rgba(36, 28, 3, 0.8); border: 1px solid #ca8a04; border-radius: 6px; padding: 6px 8px; font-size: 0.8rem;">
-          <div style="color: #fde047; font-weight: bold;">${k}</div>
+          <div style="color: #854d0e; font-weight: 600; font-weight: bold;">${k}</div>
           <div style="color: #fef9c3; margin-top: 2px;">${v}</div>
         </div>
       `).join('')}
@@ -3127,7 +3127,7 @@ async function calcThaiVedic(customParams = null) {
 
       <div style="background: rgba(46, 36, 5, 0.6); border: 1px solid rgba(250, 204, 21, 0.35); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem; font-size: 0.85rem; color: #e2e8f0;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-          <div><strong>ลัคนาสุริยยาตร์:</strong> <span style="color: #fde047; font-size: 1.1rem; font-weight: bold;">ราศี${data.thai_lagna}</span></div>
+          <div><strong>ลัคนาสุริยยาตร์:</strong> <span style="color: #854d0e; font-weight: 600; font-size: 1.1rem; font-weight: bold;">ราศี${data.thai_lagna}</span></div>
           <div><strong>ดาวศรี:</strong> <span style="color: #4ade80; font-weight: bold;">${data.sri_planet}</span> | <strong>ดาวกาลกิณี:</strong> <span style="color: #ef4444; font-weight: bold;">${data.kalakini_planet}</span></div>
         </div>
         <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.1);">
@@ -3459,7 +3459,7 @@ async function calcNumerology(customParams = null) {
         </div>
         <div>
           <label style="font-size: 0.75rem; color: #99f6e4; display: block; margin-bottom: 2px;">ชื่อ / เบอร์ / ทะเบียนรถ</label>
-          <input type="text" id="num-text-input" value="${score.input_text || inputText}" style="font-size: 0.8rem; padding: 4px 6px; width: 100%; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(15, 23, 42, 0.8); color: #fff;">
+          <input type="text" id="num-text-input" value="${score.input_text || inputText}" style="font-size: 0.8rem; padding: 4px 6px; width: 100%; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: #f8fafc; color: #0f172a;">
         </div>
         <div>
           <button type="button" class="btn-sm" style="width: 100%; background: #0d9488; color: #fff; font-weight: bold; padding: 6px;" onclick="recalcNumerologyFromUi()">⚡ วิเคราะห์ใหม่</button>
@@ -3649,14 +3649,14 @@ async function calcTaiYi(customParams = null) {
   const svgContent = buildClientTaiYiSvg(data);
 
   const toolbarHtml = `
-    <div style="background: rgba(30, 27, 75, 0.4); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+    <div style="background: #faf5ff; border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
       <div style="flex: 1; min-width: 140px;">
         <label style="display: block; font-size: 0.8rem; color: #a5b4fc; margin-bottom: 4px;">ปี ค.ศ. คำนวณ (Year):</label>
-        <input type="number" id="ty-year-input" value="${year}" min="1900" max="2100" style="width: 100%; background: #0f172a; border: 1px solid #4f46e5; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+        <input type="number" id="ty-year-input" value="${year}" min="1900" max="2100" style="width: 100%; background: #ffffff; border: 1px solid #4f46e5; color: #0f172a; padding: 6px 10px; border-radius: 6px;">
       </div>
       <div style="flex: 1; min-width: 140px;">
         <label style="display: block; font-size: 0.8rem; color: #a5b4fc; margin-bottom: 4px;">เดือน/วัน/ยาม:</label>
-        <input type="text" value="${month}/${day} เวลา ${hour}:00" disabled style="width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid #374151; color: #475569; padding: 6px 10px; border-radius: 6px;">
+        <input type="text" value="${month}/${day} เวลา ${hour}:00" disabled style="width: 100%; background: #f8fafc; border: 1px solid #374151; color: #0f172a; padding: 6px 10px; border-radius: 6px;">
       </div>
       <button type="button" class="btn-sm" style="background: #4f46e5; color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;" onclick="recalcTaiYiFromUi()">🔄 คำนวณผังไท่อี่ใหม่</button>
     </div>
@@ -3813,18 +3813,18 @@ async function calcLiuYao(customParams = null) {
   const toolbarHtml = `
     <div style="background: rgba(88, 28, 135, 0.3); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
       <div style="flex: 2; min-width: 180px;">
-        <label style="display: block; font-size: 0.8rem; color: #e9d5ff; margin-bottom: 4px;">คำถามเสี่ยงทาย (Divination Query):</label>
-        <input type="text" id="ly-query-input" value="${question}" style="width: 100%; background: #0f172a; border: 1px solid #9333ea; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+        <label style="display: block; font-size: 0.8rem; color: #6b21a8; font-weight: 600; margin-bottom: 4px;">คำถามเสี่ยงทาย (Divination Query):</label>
+        <input type="text" id="ly-query-input" value="${question}" style="width: 100%; background: #ffffff; border: 1px solid #9333ea; color: #0f172a; padding: 6px 10px; border-radius: 6px;">
       </div>
       <div style="flex: 1; min-width: 120px;">
-        <label style="display: block; font-size: 0.8rem; color: #e9d5ff; margin-bottom: 4px;">ก้านฟ้าประจำวัน (Day Stem):</label>
-        <select id="ly-stem-select" style="width: 100%; background: #0f172a; border: 1px solid #9333ea; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+        <label style="display: block; font-size: 0.8rem; color: #6b21a8; font-weight: 600; margin-bottom: 4px;">ก้านฟ้าประจำวัน (Day Stem):</label>
+        <select id="ly-stem-select" style="width: 100%; background: #ffffff; border: 1px solid #9333ea; color: #0f172a; padding: 6px 10px; border-radius: 6px;">
           ${["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"].map(s => `<option value="${s}" ${s === dayStem ? 'selected' : ''}>${s}</option>`).join('')}
         </select>
       </div>
       <div style="flex: 1; min-width: 120px;">
-        <label style="display: block; font-size: 0.8rem; color: #e9d5ff; margin-bottom: 4px;">เส้นเคลื่อน (Moving Line):</label>
-        <select id="ly-moving-select" style="width: 100%; background: #0f172a; border: 1px solid #9333ea; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+        <label style="display: block; font-size: 0.8rem; color: #6b21a8; font-weight: 600; margin-bottom: 4px;">เส้นเคลื่อน (Moving Line):</label>
+        <select id="ly-moving-select" style="width: 100%; background: #ffffff; border: 1px solid #9333ea; color: #0f172a; padding: 6px 10px; border-radius: 6px;">
           <option value="1" ${movingLine === 1 ? 'selected' : ''}>เส้นที่ 1 (初爻)</option>
           <option value="2" ${movingLine === 2 ? 'selected' : ''}>เส้นที่ 2 (二爻)</option>
           <option value="3" ${movingLine === 3 ? 'selected' : ''}>เส้นที่ 3 (三爻)</option>
@@ -3963,16 +3963,16 @@ async function calcMeiHua(customParams = null) {
   const toolbarHtml = `
     <div style="background: rgba(74, 4, 78, 0.3); border: 1px solid rgba(244, 114, 182, 0.3); border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
       <div style="flex: 1; min-width: 120px;">
-        <label style="display: block; font-size: 0.8rem; color: #fbcfe8; margin-bottom: 4px;">กว้าบน (Upper Number 1-8):</label>
-        <input type="number" id="mh-num1-input" value="${num1}" min="1" max="8" style="width: 100%; background: #0f172a; border: 1px solid #db2777; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+        <label style="display: block; font-size: 0.8rem; color: #9d174d; font-weight: 600; margin-bottom: 4px;">กว้าบน (Upper Number 1-8):</label>
+        <input type="number" id="mh-num1-input" value="${num1}" min="1" max="8" style="width: 100%; background: #ffffff; border: 1px solid #db2777; color: #0f172a; padding: 6px 10px; border-radius: 6px;">
       </div>
       <div style="flex: 1; min-width: 120px;">
-        <label style="display: block; font-size: 0.8rem; color: #fbcfe8; margin-bottom: 4px;">กว้าล่าง (Lower Number 1-8):</label>
-        <input type="number" id="mh-num2-input" value="${num2}" min="1" max="8" style="width: 100%; background: #0f172a; border: 1px solid #db2777; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+        <label style="display: block; font-size: 0.8rem; color: #9d174d; font-weight: 600; margin-bottom: 4px;">กว้าล่าง (Lower Number 1-8):</label>
+        <input type="number" id="mh-num2-input" value="${num2}" min="1" max="8" style="width: 100%; background: #ffffff; border: 1px solid #db2777; color: #0f172a; padding: 6px 10px; border-radius: 6px;">
       </div>
       <div style="flex: 1; min-width: 120px;">
-        <label style="display: block; font-size: 0.8rem; color: #fbcfe8; margin-bottom: 4px;">เส้นเคลื่อน (Moving Yao 1-6):</label>
-        <input type="number" id="mh-moving-input" value="${movingYao}" min="1" max="6" style="width: 100%; background: #0f172a; border: 1px solid #db2777; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+        <label style="display: block; font-size: 0.8rem; color: #9d174d; font-weight: 600; margin-bottom: 4px;">เส้นเคลื่อน (Moving Yao 1-6):</label>
+        <input type="number" id="mh-moving-input" value="${movingYao}" min="1" max="6" style="width: 100%; background: #ffffff; border: 1px solid #db2777; color: #0f172a; padding: 6px 10px; border-radius: 6px;">
       </div>
       <button type="button" class="btn-sm" style="background: #db2777; color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;" onclick="recalcMeiHuaFromUi()">🔄 คำนวณผังดอกเหมย</button>
     </div>
@@ -3987,7 +3987,7 @@ async function calcMeiHua(customParams = null) {
       ${toolbarHtml}
       <div style="background: rgba(74, 4, 78, 0.35); border: 1px solid rgba(244, 114, 182, 0.25); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem;">
         <p style="margin: 0 0 0.4rem 0;"><strong>ตัวตน (體卦):</strong> <span style="color: #92400e;">${data.body_trigram}</span> | <strong>หน้าที่/สิ่งแวดล้อม (用卦):</strong> <span style="color: #38bdf8;">${data.use_trigram}</span></p>
-        <p style="margin: 0; font-size: 0.85rem; color: #fbcfe8;"><strong>ผลการปฏิสัมพันธ์:</strong> ${data.interaction}</p>
+        <p style="margin: 0; font-size: 0.85rem; color: #9d174d; font-weight: 600;"><strong>ผลการปฏิสัมพันธ์:</strong> ${data.interaction}</p>
       </div>
     </div>
   `;
@@ -4110,13 +4110,13 @@ async function calcSanHe(customParams = null) {
     <div style="background: rgba(6, 78, 59, 0.3); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
       <div style="flex: 1; min-width: 140px;">
         <label style="display: block; font-size: 0.8rem; color: #a7f3d0; margin-bottom: 4px;">ทิศพิง 24 เขา (Sitting Mountain):</label>
-        <select id="sh-sitting-select" style="width: 100%; background: #0f172a; border: 1px solid #059669; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+        <select id="sh-sitting-select" style="width: 100%; background: #ffffff; border: 1px solid #059669; color: #0f172a; padding: 6px 10px; border-radius: 6px;">
           ${mountains.map(m => `<option value="${m}" ${m === sitting ? 'selected' : ''}>${m} เขา</option>`).join('')}
         </select>
       </div>
       <div style="flex: 1; min-width: 140px;">
         <label style="display: block; font-size: 0.8rem; color: #a7f3d0; margin-bottom: 4px;">ทิศปากน้ำออก (Water Exit):</label>
-        <select id="sh-water-select" style="width: 100%; background: #0f172a; border: 1px solid #059669; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+        <select id="sh-water-select" style="width: 100%; background: #ffffff; border: 1px solid #059669; color: #0f172a; padding: 6px 10px; border-radius: 6px;">
           ${mountains.map(m => `<option value="${m}" ${m === waterExit ? 'selected' : ''}>${m} ทางน้ำ</option>`).join('')}
         </select>
       </div>
@@ -4248,7 +4248,7 @@ async function calcQiZheng(customParams = null) {
     <div style="background: rgba(3, 105, 161, 0.3); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
       <div style="flex: 2; min-width: 180px;">
         <label style="display: block; font-size: 0.8rem; color: #bae6fd; margin-bottom: 4px;">วันเวลาคำนวณตำแหน่งดวงดาว (Datetime):</label>
-        <input type="text" id="qz-dt-input" value="${dtStr}" style="width: 100%; background: #0f172a; border: 1px solid #0284c7; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+        <input type="text" id="qz-dt-input" value="${dtStr}" style="width: 100%; background: #ffffff; border: 1px solid #0284c7; color: #0f172a; padding: 6px 10px; border-radius: 6px;">
       </div>
       <button type="button" class="btn-sm" style="background: #0284c7; color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer;" onclick="recalcQiZhengFromUi()">🔄 คำนวณตำแหน่งดาวเจ็ดดวงสี่เงา</button>
     </div>
@@ -4264,7 +4264,7 @@ async function calcQiZheng(customParams = null) {
       <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 0.85rem; margin-bottom: 0.8rem;">
         <p style="margin: 0 0 0.4rem 0;"><strong>ตำแหน่งดวงดาว (7 Planetary Governors &amp; 4 Extra Shadows):</strong></p>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px; font-size: 0.85rem;">
-          ${Object.entries(data.planets || {}).map(([k, v]) => `<div style="background: rgba(30, 41, 59, 0.6); padding: 4px 8px; border-radius: 4px;"><strong style="color: #38bdf8;">${k}:</strong> ${typeof v === 'number' ? v.toFixed(2) + '°' : v}</div>`).join('')}
+          ${Object.entries(data.planets || {}).map(([k, v]) => `<div style="background: #f8fafc; padding: 4px 8px; border-radius: 4px;"><strong style="color: #38bdf8;">${k}:</strong> ${typeof v === 'number' ? v.toFixed(2) + '°' : v}</div>`).join('')}
           ${Object.entries(data.shadow_stars || {}).map(([k, v]) => `<div style="background: rgba(88, 28, 135, 0.4); padding: 4px 8px; border-radius: 4px;"><strong style="color: #c084fc;">${k}:</strong> ${typeof v === 'number' ? v.toFixed(2) + '°' : v}</div>`).join('')}
         </div>
       </div>
@@ -4394,8 +4394,8 @@ async function calcMianXiang(customParams = null) {
   const toolbarHtml = `
     <div style="background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.3); border-radius: 8px; padding: 0.8rem; margin: 0.8rem 0; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
       <div style="flex: 1; min-width: 140px;">
-        <label style="display: block; font-size: 0.8rem; color: #fde047; margin-bottom: 4px;">รูปทรงใบหน้าเบญจธาตุ (Shape):</label>
-        <select id="mx-shape-select" style="width: 100%; background: #0f172a; border: 1px solid #ca8a04; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+        <label style="display: block; font-size: 0.8rem; color: #854d0e; font-weight: 600; margin-bottom: 4px;">รูปทรงใบหน้าเบญจธาตุ (Shape):</label>
+        <select id="mx-shape-select" style="width: 100%; background: #ffffff; border: 1px solid #ca8a04; color: #0f172a; padding: 6px 10px; border-radius: 6px;">
           <option value="round" ${shape === 'round' ? 'selected' : ''}>หน้ากลม (ธาตุน้ำ - Water)</option>
           <option value="oval" ${shape === 'oval' ? 'selected' : ''}>หน้ารูปไข่ (ธาตุทอง - Metal)</option>
           <option value="square" ${shape === 'square' ? 'selected' : ''}>หน้าเหลี่ยม (ธาตุดิน - Earth)</option>
@@ -4404,16 +4404,16 @@ async function calcMianXiang(customParams = null) {
         </select>
       </div>
       <div style="flex: 1; min-width: 140px;">
-        <label style="display: block; font-size: 0.8rem; color: #fde047; margin-bottom: 4px;">ลักษณะหน้าผาก (Forehead):</label>
-        <select id="mx-forehead-select" style="width: 100%; background: #0f172a; border: 1px solid #ca8a04; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+        <label style="display: block; font-size: 0.8rem; color: #854d0e; font-weight: 600; margin-bottom: 4px;">ลักษณะหน้าผาก (Forehead):</label>
+        <select id="mx-forehead-select" style="width: 100%; background: #ffffff; border: 1px solid #ca8a04; color: #0f172a; padding: 6px 10px; border-radius: 6px;">
           <option value="wide" ${forehead === 'wide' ? 'selected' : ''}>หน้าผากกว้าง/นูนอิ่ม</option>
           <option value="average" ${forehead === 'average' ? 'selected' : ''}>หน้าผากปานกลางได้รูป</option>
           <option value="narrow" ${forehead === 'narrow' ? 'selected' : ''}>หน้าผากแคบ</option>
         </select>
       </div>
       <div style="flex: 1; min-width: 140px;">
-        <label style="display: block; font-size: 0.8rem; color: #fde047; margin-bottom: 4px;">ลักษณะจมูก (Nose):</label>
-        <select id="mx-nose-select" style="width: 100%; background: #0f172a; border: 1px solid #ca8a04; color: #f8fafc; padding: 6px 10px; border-radius: 6px;">
+        <label style="display: block; font-size: 0.8rem; color: #854d0e; font-weight: 600; margin-bottom: 4px;">ลักษณะจมูก (Nose):</label>
+        <select id="mx-nose-select" style="width: 100%; background: #ffffff; border: 1px solid #ca8a04; color: #0f172a; padding: 6px 10px; border-radius: 6px;">
           <option value="high" ${nose === 'high' ? 'selected' : ''}>ดั้งโด่ง ปลายกลมมิดชิด</option>
           <option value="wide" ${nose === 'wide' ? 'selected' : ''}>จมูกกว้าง ปีกหนา</option>
           <option value="average" ${nose === 'average' ? 'selected' : ''}>จมูกขนาดสมดุล</option>
@@ -4434,7 +4434,7 @@ async function calcMianXiang(customParams = null) {
         <p style="margin: 0 0 0.4rem 0;"><strong>ธาตุประจำรูปหน้า:</strong> <span style="color: #92400e; font-weight: bold;">${data.face_element || shape}</span></p>
         <p style="margin: 0 0 0.4rem 0;"><strong>วังชะตาสำคัญ 6 ภพหน้า:</strong></p>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 6px; font-size: 0.85rem;">
-          ${Object.entries(data.twelve_palaces || {}).map(([p, info]) => `<div style="background: rgba(30, 41, 59, 0.7); padding: 6px 10px; border-radius: 6px;"><strong style="color: #fde047;">${p}:</strong> <span style="color: #e2e8f0;">${typeof info === 'object' ? (info.assessment || info.description || JSON.stringify(info)) : info}</span></div>`).join('')}
+          ${Object.entries(data.twelve_palaces || {}).map(([p, info]) => `<div style="background: rgba(30, 41, 59, 0.7); padding: 6px 10px; border-radius: 6px;"><strong style="color: #854d0e; font-weight: 600;">${p}:</strong> <span style="color: #e2e8f0;">${typeof info === 'object' ? (info.assessment || info.description || JSON.stringify(info)) : info}</span></div>`).join('')}
         </div>
       </div>
     </div>
@@ -4705,57 +4705,57 @@ async function calcMultimodalMatrix(domainKey = 'career') {
   ];
 
   const domainButtonsHtml = domainsList.map(d => `
-    <button type="button" class="btn-sm" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; ${d.key === domainKey ? 'background: #6366f1; color: #fff; font-weight: bold; border-color: #818cf8;' : 'background: rgba(30, 41, 59, 0.8); color: #475569; border-color: #334155;'}" onclick="calcMultimodalMatrix('${d.key}')">${d.label}</button>
+    <button type="button" class="btn-sm" style="padding: 6px 12px; font-size: 12px; border-radius: 6px; ${d.key === domainKey ? 'background: #6366f1; color: #fff; font-weight: bold; border-color: #818cf8;' : 'background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; font-weight: 600;'}" onclick="calcMultimodalMatrix('${d.key}')">${d.label}</button>
   `).join('');
 
   const insightsRows = currentConfig.insights.map(item => `
-    <tr style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+    <tr style="border-bottom: 1px solid #f1f5f9;">
       <td style="padding: 10px; font-weight: bold; color: #38bdf8;">${item.disc}</td>
       <td style="padding: 10px; font-size: 11px; color: #475569;">${item.family}</td>
-      <td style="padding: 10px; color: #f8fafc;">${item.finding}</td>
-      <td style="padding: 10px; text-align: center;"><span style="display: inline-block; padding: 3px 8px; border-radius: 9999px; font-size: 11px; font-weight: bold; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">${item.status}</span></td>
+      <td style="padding: 10px; color: #1e293b; line-height: 1.4;">${item.finding}</td>
+      <td style="padding: 10px; text-align: center;"><span style="display: inline-block; padding: 3px 8px; border-radius: 9999px; font-size: 11px; font-weight: bold; background: #dcfce7; color: #166534; border: 1px solid #86efac; font-weight: 700;">${item.status}</span></td>
     </tr>
   `).join('');
 
   const html = `
     <div style="display: flex; flex-direction: column; gap: 16px;">
       <!-- Interactive Domain Selector Bar -->
-      <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid #4f46e5; border-radius: 10px; padding: 14px;">
-        <div style="font-weight: bold; color: #92400e; margin-bottom: 8px; font-size: 14px;">🎯 เลือกหมวดประเด็นคำถามเจาะลึก 16 ศาสตร์ (6 Core Life Domains):</div>
+      <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+        <div style="font-weight: 700; color: #0f172a; margin-bottom: 8px; font-size: 14px;">🎯 เลือกหมวดประเด็นคำถามเจาะลึก 16 ศาสตร์ (6 Core Life Domains):</div>
         <div style="display: flex; flex-wrap: wrap; gap: 8px;">
           ${domainButtonsHtml}
         </div>
       </div>
 
       <!-- Domain Focus Header & Summary -->
-      <div style="background: rgba(30, 27, 75, 0.4); border: 1px solid #6366f1; border-radius: 10px; padding: 16px;">
+      <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
           <div>
-            <h4 style="margin: 0; color: #f8fafc; font-size: 16px;">${currentConfig.icon} หมวด: <span style="color: #38bdf8;">${currentConfig.name}</span></h4>
-            <div style="font-size: 13px; color: #475569; margin-top: 4px;">คำถามหลัก: <span style="color: #fde68a;">"${currentConfig.question}"</span></div>
+            <h4 style="margin: 0; color: #0f172a; font-size: 16px; font-weight: 700;">${currentConfig.icon} หมวด: <span style="color: #0369a1;">${currentConfig.name}</span></h4>
+            <div style="font-size: 13px; color: #334155; margin-top: 4px;">คำถามหลัก: <span style="color: #78350f; font-weight: 600;">"${currentConfig.question}"</span></div>
           </div>
           <div style="text-align: right;">
             <div style="font-size: 11px; color: #475569;">16-Discipline Consensus</div>
-            <div style="font-size: 24px; font-weight: bold; color: #34d399; font-family: Outfit, sans-serif;">${currentConfig.consensus}% <span style="font-size: 13px; color: #a7f3d0;">สอดคล้องสูง</span></div>
+            <div style="font-size: 24px; font-weight: 800; color: #15803d; font-family: Outfit, sans-serif;">${currentConfig.consensus}% <span style="font-size: 13px; color: #166534; font-weight: 600;">สอดคล้องสูง</span></div>
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 12px; font-size: 12px;">
-          <div style="background: rgba(15, 23, 42, 0.6); padding: 8px 12px; border-radius: 6px; border: 1px solid #334155;">
-            <span style="color: #92400e;">🌿 ธาตุเด่นส่งเสริม:</span> <span style="color: #f8fafc;">${currentConfig.dominant}</span>
+          <div style="background: #f0fdf4; padding: 8px 12px; border-radius: 6px; border: 1px solid #bbf7d0;">
+            <span style="color: #166534; font-weight: 700;">🌿 ธาตุเด่นส่งเสริม:</span> <span style="color: #0f172a; font-weight: 600;">${currentConfig.dominant}</span>
           </div>
-          <div style="background: rgba(15, 23, 42, 0.6); padding: 8px 12px; border-radius: 6px; border: 1px solid #334155;">
-            <span style="color: #38bdf8;">🧭 ทิศทางมงคลเปิด:</span> <span style="color: #f8fafc;">${currentConfig.directions}</span>
+          <div style="background: #eff6ff; padding: 8px 12px; border-radius: 6px; border: 1px solid #bfdbfe;">
+            <span style="color: #1d4ed8; font-weight: 700;">🧭 ทิศทางมงคลเปิด:</span> <span style="color: #0f172a; font-weight: 600;">${currentConfig.directions}</span>
           </div>
         </div>
       </div>
 
       <!-- 16-Discipline Synthesis Table -->
-      <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; border-radius: 10px; padding: 14px; overflow-x: auto;">
-        <div style="font-weight: bold; color: #38bdf8; margin-bottom: 10px; font-size: 14px;">📊 ตารางบทสังเคราะห์คำพยากรณ์รายศาสตร์ (Comprehensive Cross-Domain Synthesis):</div>
+      <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; overflow-x: auto; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+        <div style="font-weight: 700; color: #0f172a; margin-bottom: 10px; font-size: 14px;">📊 ตารางบทสังเคราะห์คำพยากรณ์รายศาสตร์ (Comprehensive Cross-Domain Synthesis):</div>
         <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
           <thead>
-            <tr style="border-bottom: 2px solid #334155; color: #92400e;">
+            <tr style="border-bottom: 2px solid #e2e8f0; color: #0f172a; font-weight: 700; background: #f8fafc;">
               <th style="padding: 8px 10px;">ศาสตร์ (Discipline)</th>
               <th style="padding: 8px 10px;">สายวิชา (Family)</th>
               <th style="padding: 8px 10px;">ข้อค้นพบเชิงชะตา (Key Finding)</th>
@@ -5168,56 +5168,56 @@ function renderSynastryResult(data) {
 
   body.innerHTML = `
     <div style="margin-bottom: 1.2rem; text-align: center;">
-      <h4 style="color: #f472b6; font-size: 1.1rem; margin-bottom: 4px;">${data.verdict}</h4>
+      <h4 style="color: #9d174d; font-size: 1.15rem; font-weight: 700; margin-bottom: 4px;">${data.verdict}</h4>
       <p style="color: #475569; font-size: 0.85rem;">เปรียบเทียบระหว่าง <strong>${data.person_a.name} (${data.person_a.pillar_day})</strong> และ <strong>${data.person_b.name} (${data.person_b.pillar_day})</strong></p>
     </div>
 
     <!-- 4-Dimension Compatibility Bars -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 1.2rem;">
-      <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(236, 72, 153, 0.2);">
+      <div style="background: #fdf2f8; padding: 10px 12px; border-radius: 8px; border: 1px solid #fbcfe8;">
         <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px;">
           <span>💖 ความเสน่หา & ความรัก</span>
-          <strong style="color: #f472b6;">${dims.romantic_harmony || 85}%</strong>
+          <strong style="color: #9d174d; font-weight: 700;">${dims.romantic_harmony || 85}%</strong>
         </div>
-        <div style="height: 6px; background: #334155; border-radius: 3px; overflow: hidden;">
+        <div style="height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
           <div style="width: ${dims.romantic_harmony || 85}%; height: 100%; background: linear-gradient(90deg, #ec4899, #f43f5e);"></div>
         </div>
       </div>
 
-      <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.2);">
+      <div style="background: #eff6ff; padding: 10px 12px; border-radius: 8px; border: 1px solid #bfdbfe;">
         <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px;">
           <span>💼 การเกื้อหนุนงาน/ธุรกิจ</span>
-          <strong style="color: #60a5fa;">${dims.business_synergy || 80}%</strong>
+          <strong style="color: #1d4ed8; font-weight: 700;">${dims.business_synergy || 80}%</strong>
         </div>
-        <div style="height: 6px; background: #334155; border-radius: 3px; overflow: hidden;">
+        <div style="height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
           <div style="width: ${dims.business_synergy || 80}%; height: 100%; background: linear-gradient(90deg, #3b82f6, #06b6d4);"></div>
         </div>
       </div>
 
-      <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(168, 85, 247, 0.2);">
+      <div style="background: #faf5ff; padding: 10px 12px; border-radius: 8px; border: 1px solid #e9d5ff;">
         <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px;">
           <span>🗣️ การสื่อสาร & ทัศนคติ</span>
-          <strong style="color: #c084fc;">${dims.communication_values || 78}%</strong>
+          <strong style="color: #6b21a8; font-weight: 700;">${dims.communication_values || 78}%</strong>
         </div>
-        <div style="height: 6px; background: #334155; border-radius: 3px; overflow: hidden;">
+        <div style="height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
           <div style="width: ${dims.communication_values || 78}%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #d946ef);"></div>
         </div>
       </div>
 
-      <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(34, 197, 94, 0.2);">
+      <div style="background: #f0fdf4; padding: 10px 12px; border-radius: 8px; border: 1px solid #bbf7d0;">
         <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px;">
           <span>🌱 ความมั่นคงระยะยาว</span>
-          <strong style="color: #4ade80;">${dims.longterm_stability || 82}%</strong>
+          <strong style="color: #15803d; font-weight: 700;">${dims.longterm_stability || 82}%</strong>
         </div>
-        <div style="height: 6px; background: #334155; border-radius: 3px; overflow: hidden;">
+        <div style="height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden;">
           <div style="width: ${dims.longterm_stability || 82}%; height: 100%; background: linear-gradient(90deg, #10b981, #84cc16);"></div>
         </div>
       </div>
     </div>
 
     <!-- Advice List -->
-    <div style="background: rgba(30, 27, 75, 0.4); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 12px;">
-      <h5 style="color: #e2e8f0; margin-bottom: 6px; font-size: 0.85rem;">คำแนะนำเชิงสังเคราะห์:</h5>
+    <div style="background: #fefce8; border: 1px solid #fef08a; border-radius: 8px; padding: 12px 14px;">
+      <h5 style="color: #854d0e; font-weight: 700; margin-bottom: 6px; font-size: 0.88rem;">💡 คำแนะนำเชิงสังเคราะห์:</h5>
       <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.8rem; line-height: 1.5;">
         ${adviceHtml}
       </ul>
@@ -5522,21 +5522,21 @@ function renderDreamResult(data) {
   const numbersHtml = (data.lucky_numbers || []).map(n => `<span class="lucky-number-badge">${n}</span>`).join(" ");
 
   resultBox.innerHTML = `
-    <h4 style="color: #c084fc; font-size: 1rem; margin-bottom: 6px;">✨ ผลการถอดรหัสความฝันเชิงอภิมงคล:</h4>
-    <div style="margin-bottom: 6px; font-size: 0.85rem; color: #f8fafc;">
+    <h4 style="color: #6b21a8; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px;">✨ ผลการถอดรหัสความฝันเชิงอภิมงคล:</h4>
+    <div style="margin-bottom: 6px; font-size: 0.88rem; color: #0f172a;">
       <strong>สัญลักษณ์ที่ตรวจพบ:</strong> ${(data.symbols_detected || []).join(", ")} | <strong>ธาตุพลัง:</strong> ${data.primary_element || "Five Elements"}
     </div>
     <div style="margin-bottom: 6px; font-size: 0.85rem; color: #92400e;">
       <strong>คัมภีร์อี้จิง 64 ลักษณ์:</strong> ${data.hexagram_alignment || ""}
     </div>
-    <div style="margin-bottom: 8px; font-size: 0.85rem; color: #4ade80;">
+    <div style="margin-bottom: 8px; font-size: 0.88rem; color: #15803d; font-weight: 600;">
       <strong>นิมิตมงคล:</strong> ${data.omen}
     </div>
     <div style="margin-bottom: 8px; font-size: 0.85rem; color: #334155;">
       <strong>คำแนะนำปฏิบัติการ:</strong> ${data.spiritual_advice}
     </div>
     <div style="padding-top: 6px; border-top: 1px solid rgba(148, 163, 184, 0.2); font-size: 0.85rem;">
-      <strong style="color: #f472b6;">เลขเสี่ยงทายสัตตเลข &amp; นิมิตโชคลาภ:</strong> ${numbersHtml}
+      <strong style="color: #9d174d; font-weight: 700;">เลขเสี่ยงทายสัตตเลข &amp; นิมิตโชคลาภ:</strong> ${numbersHtml}
     </div>
   `;
   resultBox.classList.remove("hidden");
@@ -5554,7 +5554,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & FORCE CACHE PURGE SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.713035e";
+const CLIENT_APP_VERSION = "1.0.0.9262157";
 
 async function forcePurgeAndReload(event) {
   if (event) {
@@ -5877,8 +5877,8 @@ function renderSimulationComparison(data) {
   const optimalId = data.optimal_scenario_id;
 
   let html = `
-    <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 0.88rem; color: #6ee7b7;">
-      🏆 <strong>สรุปการตัดสินใจที่คุ้มค่าที่สุด:</strong> ${data.optimal_summary}
+    <div style="background: #ecfdf5; border: 1px solid #86efac; border-left: 4px solid #16a34a; border-radius: 8px; padding: 12px 16px; margin-bottom: 14px; font-size: 0.9rem; color: #065f46; font-weight: 500;">
+      🏆 <strong style="color: #166534;">สรุปการตัดสินใจที่คุ้มค่าที่สุด:</strong> ${data.optimal_summary}
     </div>
     <div class="sim-grid">
   `;
@@ -5892,7 +5892,7 @@ function renderSimulationComparison(data) {
       yearlyHtml += `
         <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: #475569; padding: 2px 0;">
           <span>${ym.year} (${ym.pillar.split(" ")[0]}):</span>
-          <strong style="color: #f8fafc;">${ym.composite_score} pts</strong>
+          <strong style="color: #0f172a; font-weight: 700;">${ym.composite_score} pts</strong>
         </div>
       `;
     });
@@ -5901,8 +5901,8 @@ function renderSimulationComparison(data) {
       <div class="${cardClass}">
         ${isOptimal ? '<span class="sim-badge-optimal">🏆 แนะนำสูงสุด</span>' : ''}
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <h4 style="font-size: 0.92rem; color: #f8fafc; margin: 0;">${item.icon} ${item.title.split("/")[0]}</h4>
-          <span style="font-size: 0.95rem; font-weight: 700; color: #10b981;">${item.composite_roi} <small style="font-size: 0.7rem;">ROI</small></span>
+          <h4 style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin: 0;">${item.icon} ${item.title.split("/")[0]}</h4>
+          <span style="font-size: 0.95rem; font-weight: 800; color: #15803d;">${item.composite_roi} <small style="font-size: 0.7rem; color: #166534;">ROI</small></span>
         </div>
 
         <div style="font-size: 0.75rem; color: #334155; margin-bottom: 4px;">
@@ -5924,8 +5924,8 @@ function renderSimulationComparison(data) {
           <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: ${item.yearly_metrics[0].stability_score}%; background: #8b5cf6;"></div></div>
         </div>
 
-        <div style="background: rgba(15, 23, 42, 0.6); padding: 6px 8px; border-radius: 6px; margin-top: 4px;">
-          <div style="font-size: 0.72rem; color: #a5b4fc; font-weight: 600; margin-bottom: 2px;">📈 แนวโน้มรายปี (Forecast):</div>
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 10px; border-radius: 6px; margin-top: 6px;">
+          <div style="font-size: 0.75rem; color: #4338ca; font-weight: 700; margin-bottom: 4px;">📈 แนวโน้มรายปี (Forecast):</div>
           ${yearlyHtml}
         </div>
 

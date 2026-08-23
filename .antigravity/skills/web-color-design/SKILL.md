@@ -54,11 +54,17 @@ Use the formula: **CR = (L1 + 0.05) / (L2 + 0.05)** where L1 > L2 (relative lumi
 - Headlines: **Lc ≥ 60**
 - Placeholder / decorative: **Lc ≥ 30**
 
-### Step 4 — Remediation
-If contrast fails:
-1. Darken background or lighten text (adjust L in HSL).
-2. Never rely on color alone — add icons, patterns, or labels.
-3. Test with simulated color-blindness (Deuteranopia, Protanopia, Tritanopia).
+### Step 4 — Monochrome Filter Simulation (Grayscale ΔLuma Audit)
+Simulate full grayscale filter (Rec.601: `Y = 0.299*R + 0.587*G + 0.114*B`).
+- **Metric**: `ΔLuma = |Y_fg - Y_bg|`
+- **Mandatory Threshold**: `ΔLuma ≥ 125 / 255 (≥49%)`
+- Verify that under complete desaturation / grayscale, all text, badges, and buttons remain instantly readable without relying on hue discrimination.
+
+### Step 5 — Remediation & High-Contrast Guard
+If contrast or ΔLuma fails:
+1. On white/light backgrounds, darken text to Slate-900 (`#0f172a`), Forest Green (`#166534`), Royal Blue (`#1d4ed8`), or Imperial Purple (`#6b21a8`).
+2. Never put light text (such as `#6ee7b7` or `#f8fafc`) on light-colored (e.g. `#f0fdf4`, `#ecfdf5`) cards.
+3. Test with simulated color-blindness (Deuteranopia, Protanopia, Tritanopia) and grayscale monochrome mode.
 
 ---
 
