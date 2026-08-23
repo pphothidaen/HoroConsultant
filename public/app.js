@@ -5408,16 +5408,31 @@ async function calcLuoPan(deg) {
   }
 
   // Client-side fallback for LuoPan
-  const mountains = ["子 (0° N)", "癸 (15°)", "丑 (30°)", "艮 (45° NE)", "寅 (60°)", "甲 (75°)", "卯 (90° E)", "乙 (105°)", "辰 (120°)", "巽 (135° SE)", "巳 (150°)", "丙 (165°)", "午 (180° S)", "丁 (195°)", "未 (210°)", "坤 (225° SW)", "申 (240°)", "庚 (255°)", "酉 (270° W)", "辛 (285°)", "戌 (300°)", "乾 (315° NW)", "亥 (330°)", "壬 (345°)"];
-  const mIdx = Math.floor(((deg % 360 + 7.5) % 360) / 15);
+  const normalizedDeg = ((deg % 360) + 360) % 360;
+  const mountains = [
+    "子 (0° N)", "癸 (15°)", "丑 (30°)", "艮 (45° NE)", "寅 (60°)", "甲 (75°)",
+    "卯 (90° E)", "乙 (105°)", "辰 (120°)", "巽 (135° SE)", "巳 (150°)", "丙 (165°)",
+    "午 (180° S)", "丁 (195°)", "未 (210°)", "坤 (225° SW)", "申 (240°)", "庚 (255°)",
+    "酉 (270° W)", "辛 (285°)", "戌 (300°)", "乾 (315° NW)", "亥 (330°)", "壬 (345°)"
+  ];
+  const mIdx = Math.floor(((normalizedDeg + 7.5) % 360) / 15);
   const facingM = mountains[mIdx] || "午 (180° S)";
   const sittingM = mountains[(mIdx + 12) % 24] || "子 (0° N)";
 
+  let facingDir = "ทิศเหนือ (North)";
+  if (normalizedDeg >= 22.5 && normalizedDeg < 67.5) facingDir = "ทิศตะวันออกเฉียงเหนือ (Northeast)";
+  else if (normalizedDeg >= 67.5 && normalizedDeg < 112.5) facingDir = "ทิศตะวันออก (East)";
+  else if (normalizedDeg >= 112.5 && normalizedDeg < 157.5) facingDir = "ทิศตะวันออกเฉียงใต้ (Southeast)";
+  else if (normalizedDeg >= 157.5 && normalizedDeg < 202.5) facingDir = "ทิศใต้ (South)";
+  else if (normalizedDeg >= 202.5 && normalizedDeg < 247.5) facingDir = "ทิศตะวันตกเฉียงใต้ (Southwest)";
+  else if (normalizedDeg >= 247.5 && normalizedDeg < 292.5) facingDir = "ทิศตะวันตก (West)";
+  else if (normalizedDeg >= 292.5 && normalizedDeg < 337.5) facingDir = "ทิศตะวันตกเฉียงเหนือ (Northwest)";
+
   renderLuoPanHeatmap({
-    facing_degree: deg,
+    facing_degree: normalizedDeg,
     period: 9,
-    mountain: { facing_mountain: facingM, sitting_mountain: sittingM, facing_direction: "ทิศใต้ (South)" },
-    summary: `อาคารหันทิศ ${facingM} ในยุค 9 (2024-2043) รับพลังดาว 9 สีม่วงธาตุไฟ เป็นผังรุ่งเรืองด้านชื่อเสียงและธุรกิจดิจิทัล`,
+    mountain: { facing_mountain: facingM, sitting_mountain: sittingM, facing_direction: facingDir },
+    summary: `อาคารหันทิศ ${facingM} (${facingDir}) นั่งทิศ ${sittingM} ในยุค 9 (2024-2043) รับพลังผังดาวบิน 9 ยุคเกื้อหนุนมงคล`,
     sectors: {
       "S": { sector: "ทิศใต้ (South - 離)", star: "9 ม่วง (อนาคตโชคลาภ)", heat_score: 98, advice: "เปิดประตูหน้าต่างรับแสงแดด หนุนโชคลาภการค้า", cure: "วางโคมไฟสีแดง/ม่วง หรือคริสตัลไฟ" },
       "N": { sector: "ทิศเหนือ (North - 坎)", star: "1 ขาว (ดาวปัญญา)", heat_score: 85, advice: "เหมาะตั้งโต๊ะทำงานและอ่านหนังสือ", cure: "วางน้ำพุหมุนเวียนหรือต้นไม้น้ำ" },
@@ -5554,7 +5569,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & PROMINENT UPDATE MODAL SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.6aa8595";
+const CLIENT_APP_VERSION = "1.0.0.01cde25";
 let _versionModalDismissed = false;
 let _versionCountdownTimer = null;
 
