@@ -51,11 +51,12 @@ def fetch_resource(url: str, timeout: int = 25) -> tuple[int, str, float]:
     )
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
-            content = resp.read().decode("utf-8")
+            raw_bytes = resp.read()
+            content = raw_bytes.decode("utf-8", errors="replace")
             latency = (time.perf_counter() - start) * 1000
             return resp.status, content, latency
     except urllib.error.HTTPError as e:
-        content = e.read().decode("utf-8") if e.fp else ""
+        content = e.read().decode("utf-8", errors="replace") if e.fp else ""
         latency = (time.perf_counter() - start) * 1000
         return e.code, content, latency
     except Exception as ex:
