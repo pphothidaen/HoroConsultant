@@ -56,17 +56,22 @@ def check_hf_model_status(repo_id: str = TARGET_REPO_ID) -> Dict[str, Any]:
             if resp.status_code == 200:
                 data = resp.json()
                 siblings = [f.get("rfilename", "") for f in data.get("siblings", [])]
-                
-                # Check for critical adapter files
-                has_config = "adapter_config.json" in siblings
-                has_weights = any("adapter_model" in s or "model.safetensors" in s for s in siblings)
+                # Check for critical model/adapter files
+                has_adapter_config = "adapter_config.json" in siblings
+                has_model_config = "config.json" in siblings
+                has_config = has_adapter_config or has_model_config
+                has_adapter_weights = any("adapter_model" in s or ("adapter" in s and s.endswith(".safetensors")) for s in siblings)
+                has_model_weights = any("model.safetensors" in s or s.startswith("model-") for s in siblings)
+                has_weights = has_adapter_weights or has_model_weights
                 has_tokenizer = any("tokenizer" in s for s in siblings)
                 
-                is_valid_adapter = has_config and has_weights
+                is_valid = has_config and has_weights
+                repo_type = "lora_adapter" if has_adapter_config else ("fused_model" if has_model_config else "unknown")
 
                 return {
                     "status": "ONLINE",
                     "repo_id": repo_id,
+                    "repo_type": repo_type,
                     "repo_url": f"https://huggingface.co/{repo_id}",
                     "tree_url": tree_url,
                     "private": data.get("private", False),
@@ -74,12 +79,13 @@ def check_hf_model_status(repo_id: str = TARGET_REPO_ID) -> Dict[str, Any]:
                     "latest_commit_sha": data.get("sha"),
                     "total_files": len(siblings),
                     "files_in_tree": siblings,
-                    "adapter_verified": is_valid_adapter,
-                    "has_adapter_config": has_config,
-                    "has_adapter_weights": has_weights,
+                    "adapter_verified": is_valid,
+                    "has_adapter_config": has_adapter_config,
+                    "has_model_config": has_model_config,
+                    "has_weights": has_weights,
                     "has_tokenizer": has_tokenizer,
                     "local_last_training": local_summary,
-                    "message": "Model repository is live and contains verified fine-tuned LoRA weights." if is_valid_adapter else "Repository exists but is missing adapter weights."
+                    "message": f"Model repository is live and contains verified {repo_type} weights." if is_valid else "Repository exists but is missing required weights/config."
                 }
             elif resp.status_code in (401, 403):
                 return {

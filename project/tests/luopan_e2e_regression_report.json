@@ -1,0 +1,120 @@
+{
+  "target_url": "https://horo-consultant-psi.vercel.app/api/v1/luopan/calculate",
+  "timestamp": "2026-08-23T15:05:42Z",
+  "status": "ALL_PASSED_READY_FOR_PROD",
+  "tests": [
+    {
+      "input_degree": 0.0,
+      "http_status": 200,
+      "latency_ms": 402.2,
+      "passed": true,
+      "details": {
+        "facing_mountain": "子 (0° N)",
+        "facing_palace": "N",
+        "facing_star": "1 ขาว (向星 - ประตูหน้าปัญญารับทรัพย์)",
+        "facing_heat_score": 98,
+        "five_yellow_palace": "E",
+        "southwest_label": "ทิศตะวันตกเฉียงใต้ (Southwest - 坤)"
+      }
+    },
+    {
+      "input_degree": 45.0,
+      "http_status": 200,
+      "latency_ms": 380.2,
+      "passed": true,
+      "details": {
+        "facing_mountain": "艮 (45° NE)",
+        "facing_palace": "NE",
+        "facing_star": "7 แดง (向星 - ประตูหน้าวาจารับทรัพย์)",
+        "facing_heat_score": 96,
+        "five_yellow_palace": "S",
+        "southwest_label": "ทิศตะวันตกเฉียงใต้ (Southwest - 坤)"
+      }
+    },
+    {
+      "input_degree": 90.0,
+      "http_status": 200,
+      "latency_ms": 360.0,
+      "passed": true,
+      "details": {
+        "facing_mountain": "卯 (90° E)",
+        "facing_palace": "E",
+        "facing_star": "8 ขาว (向星 - ประตูหน้ามหาเศรษฐี)",
+        "facing_heat_score": 98,
+        "five_yellow_palace": "SW",
+        "southwest_label": "ทิศตะวันตกเฉียงใต้ (Southwest - 坤)"
+      }
+    },
+    {
+      "input_degree": 135.0,
+      "http_status": 200,
+      "latency_ms": 500.4,
+      "passed": true,
+      "details": {
+        "facing_mountain": "巽 (135° SE)",
+        "facing_palace": "SE",
+        "facing_star": "9 ม่วง (向星 - ประตูมงคลยุค 9 โชคลาภการค้า)",
+        "facing_heat_score": 96,
+        "five_yellow_palace": "W",
+        "southwest_label": "ทิศตะวันตกเฉียงใต้ (Southwest - 坤)"
+      }
+    },
+    {
+      "input_degree": 180.0,
+      "http_status": 200,
+      "latency_ms": 410.2,
+      "passed": true,
+      "details": {
+        "facing_mountain": "午 (180° S)",
+        "facing_palace": "S",
+        "facing_star": "9 ม่วง (向星 - ดาวโชคลาภหน้าอาคาร)",
+        "facing_heat_score": 98,
+        "five_yellow_palace": "NW",
+        "southwest_label": "ทิศตะวันตกเฉียงใต้ (Southwest - 坤)"
+      }
+    },
+    {
+      "input_degree": 225.0,
+      "http_status": 200,
+      "latency_ms": 417.4,
+      "passed": true,
+      "details": {
+        "facing_mountain": "坤 (225° SW)",
+        "facing_palace": "SW",
+        "facing_star": "1 ขาว (向星 - ประตูหน้าปัญญามหาลาภ)",
+        "facing_heat_score": 98,
+        "five_yellow_palace": "E",
+        "southwest_label": "ทิศตะวันตกเฉียงใต้ (Southwest - 坤)"
+      }
+    },
+    {
+      "input_degree": 270.0,
+      "http_status": 200,
+      "latency_ms": 386.3,
+      "passed": true,
+      "details": {
+        "facing_mountain": "酉 (270° W)",
+        "facing_palace": "W",
+        "facing_star": "4 เขียว (向星 - ประตูหน้าเสน่ห์การค้าสร้างสรรค์)",
+        "facing_heat_score": 98,
+        "five_yellow_palace": "SE",
+        "southwest_label": "ทิศตะวันตกเฉียงใต้ (Southwest - 坤)"
+      }
+    },
+    {
+      "input_degree": 315.0,
+      "http_status": 200,
+      "latency_ms": 379.4,
+      "passed": true,
+      "details": {
+        "facing_mountain": "乾 (315° NW)",
+        "facing_palace": "NW",
+        "facing_star": "6 ขาว (向星 - ประตูหน้ามหาอำนาจบารมี)",
+        "facing_heat_score": 98,
+        "five_yellow_palace": "SW",
+        "southwest_label": "ทิศตะวันตกเฉียงใต้ (Southwest - 坤)"
+      }
+    }
+  ],
+  "failures": []
+}
