@@ -29,13 +29,17 @@ jobs:
       - name: Configure Kaggle Credentials
         env:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+          KAGGLE_TOKEN: ${{ secrets.KAGGLE_TOKEN || secrets.KAGGLE_KEY }}
         run: |
           mkdir -p ~/.kaggle
-          echo "{"username":"${KAGGLE_USERNAME:-pphothidaen}","key":"${KAGGLE_KEY}"}" > ~/.kaggle/kaggle.json
+          echo "{\"username\":\"${KAGGLE_USERNAME:-pphothidaen}\",\"key\":\"${KAGGLE_TOKEN}\"}" > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
 
       - name: Pull Kaggle Kernel Outputs & Logs
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_TOKEN: ${{ secrets.KAGGLE_TOKEN || secrets.KAGGLE_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           python3 scripts/kaggle_notebook_manager.py --output --dest project/kaggle_kernel
 
