@@ -65,10 +65,11 @@ class DatasetCurator:
         self,
         samples: List[SyntheticSample],
         dataset_name: str = "finetune_bazi_qwen25",
-        target_format: str = "chatml"
+        target_format: str = "chatml",
+        export_multimodal: bool = True
     ) -> Dict[str, Any]:
         """
-        Curate, validate, deduplicate, and export samples to JSONL file.
+        Curate, validate, deduplicate, and export samples to JSONL file(s).
         """
         valid_samples = []
         rejected = 0
@@ -83,11 +84,25 @@ class DatasetCurator:
 
         deduped_samples = self.deduplicate(valid_samples)
         
+        # 1. Primary Export (Text / ChatML / Alpaca)
         out_file = self.output_dir / f"{dataset_name}_{target_format}.jsonl"
         with open(out_file, "w", encoding="utf-8") as f:
             for s in deduped_samples:
                 record = self._format_record(s, target_format)
                 f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+        # 2. Multimodal VL Export (for Vision-Language fine-tuning)
+        vl_out_file = None
+        vl_count = 0
+        if export_multimodal:
+            vl_samples = [s for s in deduped_samples if s.is_multimodal or s.diagram_type or s.diagram_image_path]
+            if vl_samples:
+                vl_out_file = self.output_dir / f"{dataset_name}_multimodal_vl.jsonl"
+                with open(vl_out_file, "w", encoding="utf-8") as f:
+                    for s in vl_samples:
+                        record = self._format_record(s, "multimodal_vl")
+                        f.write(json.dumps(record, ensure_ascii=False) + "\n")
+                vl_count = len(vl_samples)
 
         stats = {
             "total_input": len(samples),
@@ -95,7 +110,9 @@ class DatasetCurator:
             "rejected": rejected,
             "final_unique_count": len(deduped_samples),
             "output_path": str(out_file),
-            "format": target_format
+            "format": target_format,
+            "multimodal_vl_path": str(vl_out_file) if vl_out_file else None,
+            "multimodal_vl_count": vl_count
         }
         logger.info(f"[CURATOR] Dataset export complete: {stats}")
         return stats
@@ -105,6 +122,10 @@ class DatasetCurator:
         meta = dict(sample.metadata)
         if sample.audit_trace:
             meta["audit_trace"] = sample.audit_trace
+        if sample.diagram_type:
+            meta["diagram_type"] = sample.diagram_type
+        if sample.diagram_image_path:
+            meta["diagram_image_path"] = sample.diagram_image_path
 
         if target_format == "chatml":
             return {
@@ -113,6 +134,26 @@ class DatasetCurator:
                 "messages": [
                     {"role": "system", "content": DEFAULT_SYSTEM_PROMPT},
                     {"role": "user", "content": f"{sample.instruction}\n{sample.input_context}".strip()},
+                    {"role": "assistant", "content": sample.output}
+                ],
+                "metadata": meta
+            }
+        elif target_format == "multimodal_vl":
+            user_content = [
+                {"type": "text", "text": f"{sample.instruction}\n{sample.input_context}".strip()}
+            ]
+            if sample.diagram_image_path:
+                user_content.append({
+                    "type": "image_url",
+                    "image_url": {"url": sample.diagram_image_path}
+                })
+            return {
+                "id": sample.id,
+                "domain": sample.domain,
+                "diagram_type": sample.diagram_type,
+                "messages": [
+                    {"role": "system", "content": DEFAULT_SYSTEM_PROMPT},
+                    {"role": "user", "content": user_content},
                     {"role": "assistant", "content": sample.output}
                 ],
                 "metadata": meta

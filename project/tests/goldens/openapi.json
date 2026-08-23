@@ -3,7 +3,7 @@
   "info": {
     "title": "Computational Metaphysics Engine",
     "description": "Modular 10-Domain Metaphysical Calculation, AI Debate & Multi-Agent Engine",
-    "version": "1.0.0.83cf01b"
+    "version": "1.0.0.b6bc903"
   },
   "paths": {
     "/admin/auth/google": {
@@ -3249,6 +3249,12 @@
           "dry_run": {
             "type": "boolean",
             "title": "Dry Run",
+            "default": false
+          },
+          "force": {
+            "type": "boolean",
+            "title": "Force",
+            "description": "Force re-distillation ignoring checklist cache",
             "default": false
           }
         },

@@ -2777,3 +2777,79 @@ strong[data-i18n="synastry_mode_title"] { color: #9d174d !important; }
 
 /* Loading text */
 .global-api-loader-panel span { color: #1e293b !important; }
+
+/* ============================================================
+   STRICT MONOCHROME & WCAG AAA THEME CONTRAST RULES
+   ============================================================ */
+
+/* Simulation Cards & Optimal Choice (Light Green Card) */
+.sim-card {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.sim-card h4 {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+.sim-card.optimal-choice {
+  border: 2px solid #16a34a !important;
+  background: #f0fdf4 !important;
+  box-shadow: 0 4px 16px rgba(22, 163, 74, 0.12) !important;
+}
+
+.sim-card.optimal-choice h4 {
+  color: #064e3b !important;
+}
+
+.sim-badge-optimal {
+  background: linear-gradient(135deg, #15803d, #166534) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.metric-bar-label {
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+
+/* Dream Result Container */
+.dream-result-box h4 {
+  color: #6b21a8 !important;
+  font-weight: 700 !important;
+}
+
+.dream-result-box div,
+.dream-result-box p {
+  color: #0f172a !important;
+}
+
+/* Branch & Visualizer Result Body */
+#branch-body {
+  color: #0f172a !important;
+}
+
+#branch-body h4,
+#branch-body h5 {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+#branch-body p,
+#branch-body div,
+#branch-body span,
+#branch-body td,
+#branch-body th {
+  color: #1e293b;
+}
+
+/* Form Controls High Contrast */
+.form-group label {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+.form-help {
+  color: #475569 !important;
+}

@@ -119,8 +119,16 @@ class TelegramBotController:
             dry_run = "--dry" in args or "--dry-run" in args
             return self._cmd_hitl_trigger(force=force, dry_run=dry_run)
         elif cmd in ("/distill", "/extract", "/mine"):
-            domain = args[0] if args else "bazi"
-            return self._cmd_distill(domain)
+            domain = "bazi"
+            force = False
+            for arg in args:
+                if arg in ("--force", "force", "-f"):
+                    force = True
+                elif not arg.startswith("-"):
+                    domain = arg
+            return self._cmd_distill(domain, force=force)
+        elif cmd in ("/checklist", "/checklist_status"):
+            return self._cmd_checklist()
         elif cmd in ("/train", "/finetune"):
             return self._cmd_train()
         elif cmd in ("/cookie", "/cookie_check", "/cookie_status"):
@@ -167,8 +175,9 @@ class TelegramBotController:
         return (
             "🤖 <b>คำสั่งสำหรับสั่งการ Hermes Agent & MLOps:</b>\n\n"
             "• /status หรือ /mlops — ตรวจสอบสถานะ Dataset, Kaggle GPU, และ Model Hub\n"
+            "• /checklist — ตรวจสอบรายการ Source/Topic ที่สกัดแล้ว และจำนวนผังตำรา\n"
             "• /sample — ดูตัวอย่างเนื้อหาที่สกัดได้ล่าสุดพร้อมผลวิเคราะห์ Tri-Thinking\n"
-            "• /distill <code>[domain]</code> — สั่ง Hermes Agent สกัดความรู้จาก NotebookLM (เช่น /distill bazi หรือ all)\n"
+            "• /distill <code>[domain] [--force]</code> — สั่งสกัดความรู้ (เช่น /distill bazi หรือ /distill all --force)\n"
             "• /train หรือ /finetune — สั่งเริ่ม Fine-Tuning บน Kaggle GPU ทันที\n"
             "• /kaggle_status — ตรวจสอบสถานะ Kaggle GPU Kernel และ log ล่าสุด\n"
             "• /kaggle_sync — ดึง output และ log จาก Kaggle กลับเข้าสู่ระบบ\n"
@@ -178,6 +187,25 @@ class TelegramBotController:
             "• /hitl_export — Export JSONL จาก HITL reviewed ทั้งหมด\n"
             "• /hitl_trigger [--force] [--dry] — Trigger fine-tune จาก HITL ได้ทันที\n"
             "• /help — แสดงคู่มือการใช้งานนี้"
+        )
+
+    def _cmd_checklist(self) -> str:
+        stats = self.miner.tracker.get_summary_stats()
+        by_dom = stats.get("by_domain", {})
+        dom_lines = []
+        for d, s in sorted(by_dom.items()):
+            dom_lines.append(f"  • <b>{d.upper()}:</b> {s.get('completed', 0)}/{s.get('total', 0)} topics (🖼️ {s.get('diagrams', 0)} diagrams)")
+        dom_str = "\n".join(dom_lines) if dom_lines else "  • ไม่มีข้อมูลบันทึก"
+        return (
+            "📋 <b>NotebookLM Distillation Checklist:</b>\n\n"
+            f"• <b>Total Recorded Topics:</b> <code>{stats.get('total_recorded', 0)}</code>\n"
+            f"• <b>Completed:</b> <code>{stats.get('completed', 0)}</code>\n"
+            f"• <b>In-Progress:</b> <code>{stats.get('in_progress', 0)}</code>\n"
+            f"• <b>Failed:</b> <code>{stats.get('failed', 0)}</code>\n"
+            f"• <b>Multimodal Diagrams:</b> <code>{stats.get('diagrams_count', 0)}</code>\n\n"
+            f"<b>Domain Breakdown:</b>\n{dom_str}\n\n"
+            f"• <b>Last Updated:</b> <code>{stats.get('last_updated', 'N/A')}</code>\n\n"
+            "<i>พิมพ์ <code>/distill [domain] --force</code> หากต้องการสั่งสกัดซ้ำ</i>"
         )
 
     def _cmd_status(self) -> str:
@@ -248,27 +276,29 @@ class TelegramBotController:
             f"{output[:300]}..."
         )
 
-    def _cmd_distill(self, domain: str) -> str:
+    def _cmd_distill(self, domain: str, force: bool = False) -> str:
         if domain != "all" and domain not in MINING_ONTOLOGY:
             return f"❌ Domain ไม่ถูกต้อง เลือกได้จาก: {list(MINING_ONTOLOGY.keys())} หรือ all"
 
         if domain == "all":
-            all_res = self.miner.mine_all_domains()
+            all_res = self.miner.mine_all_domains(force=force)
             samples = [s for sub in all_res.values() for s in sub]
         else:
-            samples = self.miner.mine_domain(domain=domain)
+            samples = self.miner.mine_domain(domain=domain, force=force)
 
         stats = self.curator.curate_and_export(
             samples=samples,
             dataset_name=f"bazi_{domain}_manual",
-            target_format="chatml"
+            target_format="chatml",
+            export_multimodal=True
         )
         return (
             f"✅ <b>Hermes Agent สกัดความรู้สำเร็จ ({domain.upper()}):</b>\n\n"
             f"• <b>Total Mined:</b> <code>{stats['total_input']}</code>\n"
             f"• <b>Validated & Saved:</b> <code>{stats['final_unique_count']}</code>\n"
-            f"• <b>File:</b> <code>{stats['output_path']}</code>\n\n"
-            "พิมพ์ /sample เพื่อดูตัวอย่างข้อความที่สกัดได้"
+            f"• <b>Multimodal Diagrams:</b> <code>{stats.get('multimodal_vl_count', 0)}</code>\n"
+            f"• <b>ChatML File:</b> <code>{stats['output_path']}</code>\n\n"
+            "พิมพ์ /sample เพื่อดูตัวอย่างข้อความที่สกัดได้ หรือ /checklist เพื่อดูรายการทั้งหมด"
         )
 
     def _cmd_train(self) -> str:

@@ -47,7 +47,8 @@ class TelegramBotController:
                 "• <code>/cache</code> — 2-Tier cache hit rate & statistics\n"
                 "• <code>/switch_key</code> — Test & cycle Google AI Studio keys\n\n"
                 "<b>🤖 MLOps, NotebookLM & Fine-Tuning:</b>\n"
-                "• <code>/distill [domain]</code> — สกัดความรู้จาก NotebookLM (bazi, ziwei, fengshui, qimen, all)\n"
+                "• <code>/distill [domain] [--force]</code> — สกัดความรู้จาก NotebookLM (bazi, ziwei, fengshui, qimen, all)\n"
+                "• <code>/checklist</code> — ตรวจสอบรายการ Source/Topic ที่สกัดแล้ว และจำนวนผังตำรา\n"
                 "• <code>/train</code> หรือ <code>/finetune</code> — สั่งเริ่ม Fine-Tuning บน Kaggle GPU ทันที\n"
                 "• <code>/kaggle_status</code> — ตรวจสอบสถานะ Kaggle GPU Training Kernel\n"
                 "• <code>/kaggle_sync</code> — ดึง logs & outputs จาก Kaggle กลับเข้าสู่ระบบ\n"
@@ -64,6 +65,7 @@ class TelegramBotController:
 
         elif cmd in (
             "/distill", "/extract", "/mine",
+            "/checklist", "/checklist_status",
             "/train", "/finetune",
             "/cookie", "/cookie_check", "/cookie_status",
             "/kaggle_status", "/gpu_status",

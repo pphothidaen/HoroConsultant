@@ -68,7 +68,7 @@ def test_notebooklm_client_mock_and_list():
 
 def test_hermes_miner_generation_and_tri_thinking():
     miner = HermesKnowledgeMiner()
-    bazi_samples = miner.mine_domain("bazi")
+    bazi_samples = miner.mine_domain("bazi", force=True)
     assert len(bazi_samples) > 0
     assert all(isinstance(s, SyntheticSample) for s in bazi_samples)
     assert any(s.format_type == "tri_thinking" for s in bazi_samples)

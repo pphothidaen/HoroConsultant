@@ -27,6 +27,7 @@ class DistillRequest(BaseModel):
     dataset_name: str = Field(default="finetune_bazi_qwen25")
     format: str = Field(default="chatml", description="Target format: chatml, alpaca, raw")
     dry_run: bool = Field(default=False)
+    force: bool = Field(default=False, description="Force re-distillation ignoring checklist cache")
 
 
 class TrainRequest(BaseModel):
@@ -99,11 +100,12 @@ def trigger_distillation(req: DistillRequest, background_tasks: BackgroundTasks)
     curator = DatasetCurator(output_dir=ROOT_DIR / "project" / "data")
     notifier = WebhookNotifier()
 
+    force_mining = req.force or req.dry_run
     if req.domain == "all":
-        domain_dict = miner.mine_all_domains()
+        domain_dict = miner.mine_all_domains(force=force_mining)
         samples = [s for d_samples in domain_dict.values() for s in d_samples]
     else:
-        samples = miner.mine_domain(domain=req.domain)
+        samples = miner.mine_domain(domain=req.domain, force=force_mining)
 
     stats = curator.curate_and_export(
         samples=samples,

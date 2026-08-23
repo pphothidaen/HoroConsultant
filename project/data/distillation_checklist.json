@@ -1,0 +1,251 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-08-23T12:17:13.346941+00:00",
+  "topics": {
+    "bazi:b7fbdede70c5e03d": {
+      "key": "bazi:b7fbdede70c5e03d",
+      "domain": "bazi",
+      "notebook_id": "nb_bazi_classics",
+      "topic": "การวิเคราะห์ดิถีธาตุไม้กะ (Yang Wood Jia) ในฤดูใบไม้ร่วงและธาตุปรับสมดุล",
+      "status": "COMPLETED",
+      "sample_ids": [
+        "syn_bazi_000_inst",
+        "syn_bazi_000_trithinking",
+        "syn_bazi_000_diagram_vl"
+      ],
+      "content_hash": "27e14a1eab2811cf215a4082477674c6b8cacd2f903a7517e4e8b0b9228c7925",
+      "has_diagram": true,
+      "diagram_type": "five_elements_cycle",
+      "diagram_path": "project/rag/obsidian_vault/diagrams/bazi_five_elements_cycle.png",
+      "completed_at": "2026-08-23T12:17:13.344708+00:00"
+    },
+    "bazi:e682ab99dbd3934e": {
+      "key": "bazi:e682ab99dbd3934e",
+      "domain": "bazi",
+      "notebook_id": "nb_bazi_classics",
+      "topic": "หลักการเลือกธาตุสำคัญ (Yong Shen) สำหรับโครงสร้างดิถีอ่อนแอ (Weak Day Master)",
+      "status": "COMPLETED",
+      "sample_ids": [
+        "syn_bazi_001_inst",
+        "syn_bazi_001_trithinking",
+        "syn_bazi_001_diagram_vl"
+      ],
+      "content_hash": "711d0e902492022bc1e384e70f4960c2c486a02b9177066eda37684daf302a9d",
+      "has_diagram": true,
+      "diagram_type": "hand_palm_grid",
+      "diagram_path": "project/rag/obsidian_vault/diagrams/bazi_palm_12_branches.png",
+      "completed_at": "2026-08-23T12:17:13.345144+00:00"
+    },
+    "bazi:6c352293010f25a5": {
+      "key": "bazi:6c352293010f25a5",
+      "domain": "bazi",
+      "notebook_id": "nb_bazi_classics",
+      "topic": "ปฏิสัมพันธ์ 3 ประสาน (San He) ธาตุไฟ อิน-โง่ว-สุก และผลกระทบต่อดวงชะตา",
+      "status": "COMPLETED",
+      "sample_ids": [
+        "syn_bazi_002_inst",
+        "syn_bazi_002_trithinking",
+        "syn_bazi_002_diagram_vl"
+      ],
+      "content_hash": "569af8914b0ad6b14c34f1a9545b7299c769187de1f015136f993ddd9b380762",
+      "has_diagram": true,
+      "diagram_type": "san_he_triangle",
+      "diagram_path": "project/rag/obsidian_vault/diagrams/bazi_san_he_fire.png",
+      "completed_at": "2026-08-23T12:17:13.345519+00:00"
+    },
+    "bazi:11f60d6d8a4fb1f7": {
+      "key": "bazi:11f60d6d8a4fb1f7",
+      "domain": "bazi",
+      "notebook_id": "nb_bazi_classics",
+      "topic": "การคำนวณและชี้แจงสิบเทพ (Ten Gods / Shi Shen) ในตำแหน่งเสาปีและเสาเดือน",
+      "status": "COMPLETED",
+      "sample_ids": [
+        "syn_bazi_003_inst",
+        "syn_bazi_003_trithinking",
+        "syn_bazi_003_diagram_vl"
+      ],
+      "content_hash": "06e0ab6a8ff13004fc1168581a5828effb4946b1fed88fb5017ff6b938f3bb6c",
+      "has_diagram": true,
+      "diagram_type": "ten_gods_matrix",
+      "diagram_path": "project/rag/obsidian_vault/diagrams/bazi_ten_gods_chart.png",
+      "completed_at": "2026-08-23T12:17:13.345860+00:00"
+    },
+    "bazi:ee56eb7c64e3669f": {
+      "key": "bazi:ee56eb7c64e3669f",
+      "domain": "bazi",
+      "notebook_id": "nb_bazi_classics",
+      "topic": "วิเคราะห์การปะทะ ชง-ฮะ-เฮ้ง-ผั่ว และแนวทางผ่อนปรนตามคัมภีร์ซานมิ่งทงฮุ่ย",
+      "status": "COMPLETED",
+      "sample_ids": [
+        "syn_bazi_004_inst",
+        "syn_bazi_004_trithinking",
+        "syn_bazi_004_diagram_vl"
+      ],
+      "content_hash": "62319c9d12db03c5598de39b3247b814b2443002468c0dd4cb748047ee30276f",
+      "has_diagram": true,
+      "diagram_type": "six_clashes_circle",
+      "diagram_path": "project/rag/obsidian_vault/diagrams/bazi_six_clashes.png",
+      "completed_at": "2026-08-23T12:17:13.346924+00:00"
+    },
+    "ziwei:ef940a38efaf3395": {
+      "key": "ziwei:ef940a38efaf3395",
+      "domain": "ziwei",
+      "notebook_id": "nb_ziwei_emperor",
+      "topic": "ดาวจื่อเวยสถิตเรือนชะตา (Ming Palace) ร่วมกับดาวเจ็ดพิฆาต (Qi Sha)",
+      "status": "COMPLETED",
+      "sample_ids": [
+        "syn_ziwei_000_inst",
+        "syn_ziwei_000_trithinking",
+        "syn_ziwei_000_diagram_vl"
+      ],
+      "content_hash": "aa789bedc12b6f2965a99e827d9e4825a4cf7d8237ea89084dd8e8cf54eca328",
+      "has_diagram": true,
+      "diagram_type": "twelve_palaces_grid",
+      "diagram_path": "project/rag/obsidian_vault/diagrams/ziwei_12_palaces.png",
+      "completed_at": "2026-08-23T12:13:00.339413+00:00"
+    },
+    "ziwei:3428e556ae0115c7": {
+      "key": "ziwei:3428e556ae0115c7",
+      "domain": "ziwei",
+      "notebook_id": "nb_ziwei_emperor",
+      "topic": "การกระจาย 4 จตุรเคราะห์ (Si Hua): ฮั่วลู่, ฮั่วเฉวียน, ฮั่วเคอ, ฮั่วจี้",
+      "status": "COMPLETED",
+      "sample_ids": [
+        "syn_ziwei_001_inst",
+        "syn_ziwei_001_trithinking",
+        "syn_ziwei_001_diagram_vl"
+      ],
+      "content_hash": "72130f375c5620a1b97f84a92a19febef485f896476171ce64435969561141d8",
+      "has_diagram": true,
+      "diagram_type": "si_hua_transformation",
+      "diagram_path": "project/rag/obsidian_vault/diagrams/ziwei_si_hua.png",
+      "completed_at": "2026-08-23T12:13:00.339785+00:00"
+    },
+    "ziwei:266f4acf93801254": {
+      "key": "ziwei:266f4acf93801254",
+      "domain": "ziwei",
+      "notebook_id": "nb_ziwei_emperor",
+      "topic": "โครงสร้างเรือนการเงิน (Cai Bo) และเรือนการงาน (Guan Lu) ในดวงจักรพรรดิ",
+      "status": "COMPLETED",
+      "sample_ids": [
+        "syn_ziwei_002_inst",
+        "syn_ziwei_002_trithinking",
+        "syn_ziwei_002_diagram_vl"
+      ],
+      "content_hash": "a6466b077ce9e33e4f16f16f7783450dc34830f5ad27361a7d78ff281307f117",
+      "has_diagram": true,
+      "diagram_type": "san_fang_si_zheng",
+      "diagram_path": "project/rag/obsidian_vault/diagrams/ziwei_sanfang_sizheng.png",
+      "completed_at": "2026-08-23T12:13:00.340159+00:00"
+    },
+    "ziwei:e7489539c11ffa35": {
+      "key": "ziwei:e7489539c11ffa35",
+      "domain": "ziwei",
+      "notebook_id": "nb_ziwei_emperor",
+      "topic": "อิทธิพลของดาวบริวาร ซ้าย-ขวา กุย-เยียะ ในการสนับสนุนดาวประธาน",
+      "status": "COMPLETED",
+      "sample_ids": [
+        "syn_ziwei_003_inst",
+        "syn_ziwei_003_trithinking",
+        "syn_ziwei_003_diagram_vl"
+      ],
+      "content_hash": "941da05333d54dfd75328486d218504621038bc233f9ed707278ac1b7aa60e15",
+      "has_diagram": true,
+      "diagram_type": "assistant_stars_alignment",
+      "diagram_path": "project/rag/obsidian_vault/diagrams/ziwei_assistant_stars.png",
+      "completed_at": "2026-08-23T12:13:00.340599+00:00"
+    },
+    "fengshui:857b4a80b3cabdc2": {
+      "key": "fengshui:857b4a80b3cabdc2",
+      "domain": "fengshui",
+      "notebook_id": "nb_fengshui_xuankong",
+      "topic": "การจัดผังดาวเหินยุค 9 (Period 9 Flying Stars) ดาว 9 ม่วงครองทิศประธาน",
+      "status": "COMPLETED",
+      "sample_ids": [
+        "syn_fengshui_000_inst",
+        "syn_fengshui_000_trithinking",
+        "syn_fengshui_000_diagram_vl"
+      ],
+      "content_hash": "e40fb49f079a3c33f4239b5f0e55b1e7b59878542f884d443fe792e7b3094fb5",
+      "has_diagram": true,
+      "diagram_type": "flying_stars_9_grid",
+      "diagram_path": "project/rag/obsidian_vault/diagrams/fengshui_flying_stars_period9.png",
+      "completed_at": "2026-08-23T12:13:00.340983+00:00"
+    },
+    "fengshui:a7cfaee850877379": {
+      "key": "fengshui:a7cfaee850877379",
+      "domain": "fengshui",
+      "notebook_id": "nb_fengshui_xuankong",
+      "topic": "หลักเกณฑ์ภูเขาและสายน้ำ (San Yuan Shan Shui) สำหรับอาคารสำนักงานและที่อยู่อาศัย",
+      "status": "COMPLETED",
+      "sample_ids": [
+        "syn_fengshui_001_inst",
+        "syn_fengshui_001_trithinking",
+        "syn_fengshui_001_diagram_vl"
+      ],
+      "content_hash": "14968237142673ad226836ac324834f46531339500d6c946ed90e40fcf456638",
+      "has_diagram": true,
+      "diagram_type": "mountain_water_formation",
+      "diagram_path": "project/rag/obsidian_vault/diagrams/fengshui_mountain_water.png",
+      "completed_at": "2026-08-23T12:13:00.341345+00:00"
+    },
+    "fengshui:e30e738375b59b5a": {
+      "key": "fengshui:e30e738375b59b5a",
+      "domain": "fengshui",
+      "notebook_id": "nb_fengshui_xuankong",
+      "topic": "การแก้ดาวร้าย ดาว 5 เหลือง (Five Yellow) และดาว 2 ดำ (Two Black) ด้วยหลักเบญจธาตุ",
+      "status": "COMPLETED",
+      "sample_ids": [
+        "syn_fengshui_002_inst",
+        "syn_fengshui_002_trithinking",
+        "syn_fengshui_002_diagram_vl"
+      ],
+      "content_hash": "7cd8a7c67df6db55fc118196b757ee47a19f2f74ed7cf4a03239fdce73a6b603",
+      "has_diagram": true,
+      "diagram_type": "cures_5_yellow_2_black",
+      "diagram_path": "project/rag/obsidian_vault/diagrams/fengshui_cures_metal.png",
+      "completed_at": "2026-08-23T12:13:00.341692+00:00"
+    },
+    "qimen:1870942678b39bcc": {
+      "key": "qimen:1870942678b39bcc",
+      "domain": "qimen",
+      "notebook_id": "nb_qimen_dunjia",
+      "topic": "การวางค่ายกลฉีเหมิน ยุทธศาสตร์ประตูด่านเปิด (Open Gate) และ 3 มหามงคล",
+      "status": "COMPLETED",
+      "sample_ids": [
+        "syn_qimen_000_inst",
+        "syn_qimen_000_trithinking",
+        "syn_qimen_000_diagram_vl"
+      ],
+      "content_hash": "3c7ecdc2fad3ef4bbd7b6290e6408195beb5d01fbcd7888fa3ab16b5c8aabfbd",
+      "has_diagram": true,
+      "diagram_type": "qimen_9_palace_plate",
+      "diagram_path": "project/rag/obsidian_vault/diagrams/qimen_plate_8_gates.png",
+      "completed_at": "2026-08-23T12:13:00.342077+00:00"
+    },
+    "qimen:5cd34b184cf3460c": {
+      "key": "qimen:5cd34b184cf3460c",
+      "domain": "qimen",
+      "notebook_id": "nb_qimen_dunjia",
+      "topic": "การคำนวณเวลาฤกษ์ยามมงคลเพื่อการเจรจาธุรกิจและตั้งรับความเสี่ยง",
+      "status": "COMPLETED",
+      "sample_ids": [
+        "syn_qimen_001_inst",
+        "syn_qimen_001_trithinking",
+        "syn_qimen_001_diagram_vl"
+      ],
+      "content_hash": "1dacea34938ca691c620a7eceb53fa920536f0521027a7c1d9bd8f56b9f65906",
+      "has_diagram": true,
+      "diagram_type": "qimen_auspicious_hours",
+      "diagram_path": "project/rag/obsidian_vault/diagrams/qimen_time_matrix.png",
+      "completed_at": "2026-08-23T12:13:00.342406+00:00"
+    }
+  },
+  "stats": {
+    "total_recorded": 14,
+    "completed": 14,
+    "in_progress": 0,
+    "failed": 0,
+    "diagrams_count": 14
+  }
+}
