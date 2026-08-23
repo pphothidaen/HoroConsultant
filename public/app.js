@@ -5551,398 +5551,155 @@ window.submitDreamInterpretation = submitDreamInterpretation;
 window.renderDreamResult = renderDreamResult;
 
 // ======================================================================
-// 🔄 HYBRID VERSION GUARD & FORCE CACHE PURGE SYSTEM
+// 🔄 HYBRID VERSION GUARD & PROMINENT UPDATE MODAL SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.8cd4a19";
+const CLIENT_APP_VERSION = "1.0.0.50a5ad0";
+let _versionModalDismissed = false;
+let _versionCountdownTimer = null;
 
-async function forcePurgeAndReload(event) {
-  if (event) {
-    try { event.preventDefault(); event.stopPropagation(); } catch (_) {}
-  }
-  const btn = document.getElementById("btn-force-refresh");
-  if (btn) {
-    btn.innerHTML = "⏳ กำลังล้างแคช...";
-    btn.disabled = true;
-  }
+function showVersionModal(remoteVersion) {
+  if (document.getElementById("version-update-modal") || _versionModalDismissed) return;
 
-  try { localStorage.clear(); } catch (_) {}
-  try { sessionStorage.clear(); } catch (_) {}
+  const versionTag = remoteVersion ? `v${remoteVersion}` : "เวอร์ชันใหม่";
+  const currentTag = `v${CLIENT_APP_VERSION}`;
 
-  const safePurge = async () => {
-    try {
-      if ('caches' in window) {
-        const keys = await caches.keys();
-        await Promise.all(keys.map(k => caches.delete(k).catch(() => {})));
-        console.info("[CACHE] Purged all CacheStorage keys:", keys);
-      }
-    } catch (_) {}
-
-    try {
-      if ('serviceWorker' in navigator) {
-        const regs = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(regs.map(r => r.unregister().catch(() => {})));
-        console.info("[SW] Unregistered all Service Workers:", regs);
-      }
-    } catch (_) {}
-  };
-
-  const timeoutPromise = new Promise(resolve => setTimeout(resolve, 400));
-  try {
-    await Promise.race([safePurge(), timeoutPromise]);
-  } catch (_) {}
-
-  const cleanUrl = window.location.href.split('?')[0].split('#')[0];
-  const targetUrl = cleanUrl + '?force_reload=' + Date.now();
-  try {
-    window.location.replace(targetUrl);
-  } catch (_) {
-    window.location.href = targetUrl;
-  }
-}
-
-window.forcePurgeAndReload = forcePurgeAndReload;
-
-let _versionSnoozedUntil = 0;
-
-async function checkAppVersion() {
-  try {
-    // Respect snooze window
-    if (Date.now() < _versionSnoozedUntil) return;
-
-    const res = await fetch(`/version.json?t=${Date.now()}`, { cache: 'no-store' });
-    if (!res.ok) return;
-    const data = await res.json();
-    if (data.version && data.version !== CLIENT_APP_VERSION) {
-      console.warn(`[VERSION] App version mismatch: Client (${CLIENT_APP_VERSION}) vs Remote (${data.version})`);
-      showVersionUpdateToast(data.version);
-    }
-  } catch (err) {
-    console.warn("[VERSION] Periodic version check failed:", err);
-  }
-}
-
-function _isUserTyping() {
-  const active = document.activeElement;
-  if (!active) return false;
-  const tag = active.tagName.toLowerCase();
-  if (tag === 'input' || tag === 'textarea' || tag === 'select') return true;
-  if (active.isContentEditable) return true;
-  return false;
-}
-
-function showVersionUpdateToast(remoteVersion) {
-  if (document.getElementById("version-update-toast")) return;
-
-  const COUNTDOWN_SECONDS = 10;
-  let countdown = COUNTDOWN_SECONDS;
-  let countdownTimer = null;
-  let dismissed = false;
-
-  const toast = document.createElement("div");
-  toast.id = "version-update-toast";
-  toast.style.cssText = `
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 99999;
-    background: #ffffff;
-    border: 1px solid #fecaca;
-    border-top: 3px solid #dc2626;
-    border-radius: 12px;
-    padding: 14px 18px;
-    box-shadow: 0 10px 30px rgba(220, 38, 38, 0.2);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    color: #0f172a;
-    font-size: 0.88rem;
-    max-width: 340px;
-    animation: slideInRight 0.3s ease-out;
-  `;
-
-  // Add slide-in animation
-  if (!document.getElementById("version-toast-style")) {
+  // Inject CSS styles for modal if not present
+  if (!document.getElementById("version-modal-styles")) {
     const style = document.createElement("style");
-    style.id = "version-toast-style";
+    style.id = "version-modal-styles";
     style.textContent = `
-      @keyframes slideInRight {
-        from { transform: translateX(120%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
+      @keyframes modalSlideUp {
+        from { transform: translateY(40px) scale(0.96); opacity: 0; }
+        to { transform: translateY(0) scale(1); opacity: 1; }
+      }
+      @keyframes pulseGlow {
+        0%, 100% { box-shadow: 0 10px 30px rgba(220, 38, 38, 0.25), 0 0 0 1px rgba(220, 38, 38, 0.3); }
+        50% { box-shadow: 0 14px 40px rgba(220, 38, 38, 0.4), 0 0 0 2px rgba(220, 38, 38, 0.6); }
+      }
+      .version-modal-card {
+        animation: modalSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1), pulseGlow 3s infinite ease-in-out;
       }
     `;
     document.head.appendChild(style);
   }
 
-  function updateToastUI() {
-    const countdownEl = toast.querySelector("#version-countdown");
-    if (countdownEl) countdownEl.textContent = countdown;
-  }
-
-  function cleanupAndDismiss(snoozeMinutes) {
-    dismissed = true;
-    if (countdownTimer) clearInterval(countdownTimer);
-    toast.remove();
-    if (snoozeMinutes > 0) {
-      _versionSnoozedUntil = Date.now() + (snoozeMinutes * 60 * 1000);
-      console.info(`[VERSION] Update snoozed for ${snoozeMinutes} minutes`);
-    }
-  }
-
-  function tryAutoRefresh() {
-    if (dismissed) return;
-    if (_isUserTyping()) {
-      // User is typing — pause countdown and wait
-      console.info("[VERSION] User is typing, pausing auto-refresh...");
-      countdown = 5; // Reset to 5s, will re-check next tick
-      updateToastUI();
-      return;
-    }
-    // Auto-refresh now
-    console.info("[VERSION] Auto-refreshing to latest version...");
-    forcePurgeAndReload();
-  }
-
-  toast.innerHTML = `
-    <div style="display:flex;align-items:center;gap:10px;">
-      <span>🚀 <strong>มีเวอร์ชันใหม่:</strong> v${remoteVersion}</span>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
-      <button type="button" id="btn-version-update-now" style="
-        background: linear-gradient(135deg, #dc2626, #b91c1c);
-        color: white;
-        border: none;
-        padding: 6px 14px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 700;
-        font-size: 0.8rem;
-        box-shadow: 0 2px 8px rgba(220,38,38,0.3);
-        flex-shrink: 0;
-      ">⚡ อัปเดตทันที</button>
-      <span style="color:#64748b;font-size:0.78rem;">อัปเดตอัตโนมัติใน <strong id="version-countdown">${countdown}</strong>s</span>
-      <button type="button" id="btn-version-dismiss" style="
-        background: transparent;
-        border: none;
-        color: #475569;
-        cursor: pointer;
-        font-size: 1rem;
-        margin-left: auto;
-        flex-shrink: 0;
-      " title="เลื่อนออกไป 30 นาที">✕</button>
-    </div>
-    <div style="height:3px;background:#fee2e2;border-radius:2px;overflow:hidden;margin-top:2px;">
-      <div id="version-countdown-bar" style="height:100%;background:linear-gradient(90deg,#dc2626,#f87171);width:100%;transition:width 1s linear;"></div>
-    </div>
+  const modalContainer = document.createElement("div");
+  modalContainer.id = "version-update-modal";
+  modalContainer.setAttribute("role", "dialog");
+  modalContainer.setAttribute("aria-live", "assertive");
+  modalContainer.style.cssText = `
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 999999;
+    max-width: 420px;
+    width: calc(100vw - 48px);
+    pointer-events: auto;
+    font-family: 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif;
   `;
 
-  document.body.appendChild(toast);
-
-  // Bind button events after DOM insertion
-  toast.querySelector("#btn-version-update-now").addEventListener("click", () => forcePurgeAndReload());
-  toast.querySelector("#btn-version-dismiss").addEventListener("click", () => cleanupAndDismiss(30));
-
-  // Start countdown
-  countdownTimer = setInterval(() => {
-    if (dismissed) { clearInterval(countdownTimer); return; }
-    countdown--;
-    updateToastUI();
-
-    // Update progress bar
-    const bar = toast.querySelector("#version-countdown-bar");
-    if (bar) bar.style.width = `${(countdown / COUNTDOWN_SECONDS) * 100}%`;
-
-    if (countdown <= 0) {
-      clearInterval(countdownTimer);
-      tryAutoRefresh();
-    }
-  }, 1000);
-}
-
-// Controller change listener for smooth PWA auto-update
-if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
-  let hadPreviousController = !!navigator.serviceWorker.controller;
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!hadPreviousController) {
-      hadPreviousController = true;
-      return;
-    }
-    if (!refreshing) {
-      refreshing = true;
-      console.info("[SW] New Service Worker active, reloading for latest build...");
-      window.location.reload();
-    }
-  });
-}
-
-// ======================================================================
-// 🔮 LIFE PATH MULTI-SCENARIO SIMULATION & WHAT-IF ANALYZER
-// ======================================================================
-
-let currentSimulationHorizon = 3;
-
-function setSimulationHorizon(years, btn) {
-  currentSimulationHorizon = years;
-  document.querySelectorAll("#scenario-simulation-card .btn-tool").forEach(b => b.classList.remove("active"));
-  if (btn) btn.classList.add("active");
-  const badge = document.getElementById("sim-horizon-badge");
-  if (badge) badge.textContent = `กรอบเวลา ${years} ปี (${2026}-${2026 + years - 1})`;
-  runScenarioSimulation();
-}
-
-async function runScenarioSimulation() {
-  const resultBox = document.getElementById("simulation-results-box");
-  const birthInput = document.getElementById("birth_datetime");
-  const birthDatetime = (birthInput && birthInput.value) ? birthInput.value : "1990-05-15 14:30:00";
-
-  const selectedIds = [];
-  if (document.getElementById("scen-corporate")?.checked) selectedIds.push("corporate_stay");
-  if (document.getElementById("scen-startup")?.checked) selectedIds.push("tech_startup");
-  if (document.getElementById("scen-business")?.checked) selectedIds.push("business_startup");
-  if (document.getElementById("scen-overseas")?.checked) selectedIds.push("overseas_relocation");
-
-  if (selectedIds.length === 0) selectedIds.push("corporate_stay", "tech_startup");
-
-  let data = null;
-  try {
-    const res = await fetchApi("/api/v1/simulation/simulate-scenarios", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        birth_datetime: birthDatetime,
-        scenario_ids: selectedIds,
-        start_year: 2026,
-        horizon_years: currentSimulationHorizon
-      }),
-      showLoader: false
-    });
-    if (res && res.ok) {
-      data = await res.json();
-    }
-  } catch (err) {}
-
-  if (data && Array.isArray(data.results) && data.results.length > 0) {
-    renderSimulationComparison(data);
-    return;
-  }
-
-  // Client-side simulation fallback
-  const scenarioMeta = {
-    "corporate_stay": { icon: "🏢", title: "คงอยู่ในองค์กรใหญ่ / เลื่อนตำแหน่ง", risk: "LOW", wealth: 72, career: 88, stability: 92, advice: "จังหวะธาตุไฟปี 2026 หนุนผลงานประจักษ์ มีเกณฑ์ปรับขึ้นเงินเดือนและรับโบนัสก้อนใหญ่" },
-    "tech_startup": { icon: "🚀", title: "เปิดบริษัทเทคโนโลยี / Startup", risk: "HIGH", wealth: 95, career: 92, stability: 55, advice: "ปี 2026 เป็นปีม้าไฟ 丙午 เกื้อหนุนนวัตกรรมและโอกาสระดมทุนสูง ควรเน้น MVP ไตรมาส 2-3" },
-    "business_startup": { icon: "💼", title: "เปิดร้านค้าปลีก / ธุรกิจส่วนตัว", risk: "MEDIUM", wealth: 84, career: 79, stability: 68, advice: "ธาตุสำคัญหนุนการค้าขายออนไลน์และอาหาร/สุขภาพ ควรรอบคอบเรื่องกระแสเงินสดสำรอง" },
-    "overseas_relocation": { icon: "✈️", title: "ย้ายถิ่นฐาน / ศึกษาต่อต่างประเทศ", risk: "MEDIUM", wealth: 78, career: 86, stability: 74, advice: "ดาวม้าทองคำ (Yi Ma) ส่งผลให้การขยายตัวสู่ทิศเหนือหรือตะวันตกเฉียงเหนือนำพาโชคลาภยิ่งใหญ่" }
-  };
-
-  const results = selectedIds.map(id => {
-    const meta = scenarioMeta[id] || { icon: "💡", title: id, risk: "MEDIUM", wealth: 80, career: 80, stability: 75, advice: "ธาตุประจำปีเกื้อหนุนตามจังหวะปีจร" };
-    const yearly = [];
-    for (let y = 0; y < currentSimulationHorizon; y++) {
-      const yr = 2026 + y;
-      const yrPillar = yr === 2026 ? "丙午 (Fire Horse)" : yr === 2027 ? "丁未 (Fire Goat)" : yr === 2028 ? "戊申 (Earth Monkey)" : yr === 2029 ? "己酉 (Earth Rooster)" : "庚戌 (Metal Dog)";
-      yearly.push({
-        year: yr,
-        pillar: yrPillar,
-        composite_score: Math.min(99, Math.round((meta.wealth + meta.career + meta.stability) / 3 + (y * 3))),
-        wealth_score: meta.wealth,
-        career_score: meta.career,
-        stability_score: meta.stability
-      });
-    }
-    return {
-      scenario_id: id,
-      icon: meta.icon,
-      title: meta.title,
-      risk_tier: meta.risk,
-      composite_roi: `${((meta.wealth + meta.career) * 1.8).toFixed(1)}x`,
-      yearly_metrics: yearly,
-      strategy_advice: meta.advice
-    };
-  });
-
-  renderSimulationComparison({
-    optimal_scenario_id: results[0]?.scenario_id || "corporate_stay",
-    optimal_summary: "ทางเลือก 'เปิดบริษัทเทคโนโลยี / Startup' ให้ผลตอบแทนความก้าวหน้าและพลังธาตุโชคลาภสูงสุดในปีจร 2026 丙午",
-    start_year: 2026,
-    horizon_years: currentSimulationHorizon,
-    results: results
-  });
-}
-
-function renderSimulationComparison(data) {
-  const resultBox = document.getElementById("simulation-results-box");
-  if (!resultBox || !data) return;
-
-  const optimalId = data.optimal_scenario_id;
-
-  let html = `
-    <div style="background: #ecfdf5; border: 1px solid #86efac; border-left: 4px solid #16a34a; border-radius: 8px; padding: 12px 16px; margin-bottom: 14px; font-size: 0.9rem; color: #065f46; font-weight: 500;">
-      🏆 <strong style="color: #166534;">สรุปการตัดสินใจที่คุ้มค่าที่สุด:</strong> ${data.optimal_summary}
-    </div>
-    <div class="sim-grid">
-  `;
-
-  (data.results || []).forEach(item => {
-    const isOptimal = item.scenario_id === optimalId;
-    const cardClass = isOptimal ? "sim-card optimal-choice" : "sim-card";
-
-    let yearlyHtml = "";
-    (item.yearly_metrics || []).forEach(ym => {
-      yearlyHtml += `
-        <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: #475569; padding: 2px 0;">
-          <span>${ym.year} (${ym.pillar.split(" ")[0]}):</span>
-          <strong style="color: #0f172a; font-weight: 700;">${ym.composite_score} pts</strong>
+  modalContainer.innerHTML = `
+    <div class="version-modal-card" style="
+      background: #ffffff;
+      border: 1px solid #fca5a5;
+      border-top: 4px solid #dc2626;
+      border-radius: 14px;
+      padding: 16px 18px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.18), 0 4px 12px rgba(220,38,38,0.15);
+      color: #0f172a;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    ">
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.4rem; line-height: 1;">🚀</span>
+          <div>
+            <h4 style="margin: 0; font-size: 1rem; font-weight: 700; color: #991b1b;">ตรวจพบเวอร์ชันใหม่ล่าสุด!</h4>
+            <p style="margin: 2px 0 0 0; font-size: 0.78rem; color: #475569;">
+              ปัจจุบัน: <strong style="color: #64748b;">${currentTag}</strong> ➔ ใหม่: <strong style="color: #15803d; background: #dcfce7; padding: 1px 6px; border-radius: 4px;">${versionTag}</strong>
+            </p>
+          </div>
         </div>
-      `;
-    });
-
-    html += `
-      <div class="${cardClass}">
-        ${isOptimal ? '<span class="sim-badge-optimal">🏆 แนะนำสูงสุด</span>' : ''}
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <h4 style="font-size: 0.95rem; font-weight: 700; color: #475569; margin: 0;">${item.icon} ${item.title.split("/")[0]}</h4>
-          <span style="font-size: 0.95rem; font-weight: 800; color: #15803d;">${item.composite_roi} <small style="font-size: 0.7rem; color: #166534;">ROI</small></span>
-        </div>
-
-        <div style="font-size: 0.75rem; color: #334155; margin-bottom: 4px;">
-          <strong>ระดับความเสี่ยง:</strong> <span class="badge ${item.risk_tier === 'LOW' ? 'badge-blue' : item.risk_tier === 'HIGH' ? 'badge-red' : 'badge-purple'}">${item.risk_tier}</span>
-        </div>
-
-        <div class="metric-bar-wrapper">
-          <div class="metric-bar-label"><span>💰 ผลตอบแทนการเงิน (Wealth)</span><span>${item.yearly_metrics[0].wealth_score}%</span></div>
-          <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: ${item.yearly_metrics[0].wealth_score}%; background: #10b981;"></div></div>
-        </div>
-
-        <div class="metric-bar-wrapper">
-          <div class="metric-bar-label"><span>🏆 ความก้าวหน้าอาชีพ (Career)</span><span>${item.yearly_metrics[0].career_score}%</span></div>
-          <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: ${item.yearly_metrics[0].career_score}%; background: #3b82f6;"></div></div>
-        </div>
-
-        <div class="metric-bar-wrapper">
-          <div class="metric-bar-label"><span>🛡️ เสถียรภาพความปลอดภัย (Stability)</span><span>${item.yearly_metrics[0].stability_score}%</span></div>
-          <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: ${item.yearly_metrics[0].stability_score}%; background: #8b5cf6;"></div></div>
-        </div>
-
-        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 10px; border-radius: 6px; margin-top: 6px;">
-          <div style="font-size: 0.75rem; color: #4338ca; font-weight: 700; margin-bottom: 4px;">📈 แนวโน้มรายปี (Forecast):</div>
-          ${yearlyHtml}
-        </div>
-
-        <div style="font-size: 0.73rem; color: #475569; font-style: italic; margin-top: 4px;">
-          💡 ${item.strategy_advice}
-        </div>
+        <button type="button" id="btn-close-version-modal" style="
+          background: #f1f5f9;
+          border: none;
+          color: #64748b;
+          width: 26px;
+          height: 26px;
+          border-radius: 50%;
+          cursor: pointer;
+          font-size: 0.9rem;
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          transition: all 0.2s;
+        " title="ปิดการแจ้งเตือนนี้">✕</button>
       </div>
-    `;
-  });
 
-  html += "</div>";
-  resultBox.innerHTML = html;
-  resultBox.classList.remove("hidden");
+      <div style="font-size: 0.83rem; color: #334155; line-height: 1.4; background: #fef2f2; border: 1px solid #fee2e2; border-radius: 8px; padding: 8px 12px;">
+        💡 มีการปรับปรุง UI ความคมชัด และการคำนวณ กรุณากด <strong>Hard Reset</strong> เพื่อโหลดเวอร์ชันใหม่
+      </div>
+
+      <div style="display: flex; gap: 8px; align-items: center; margin-top: 2px;">
+        <button type="button" id="btn-modal-hard-reset" style="
+          flex: 1;
+          background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+          color: #ffffff;
+          border: none;
+          padding: 9px 16px;
+          border-radius: 8px;
+          font-weight: 700;
+          font-size: 0.88rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          box-shadow: 0 4px 12px rgba(220,38,38,0.35);
+          transition: all 0.2s ease;
+        ">
+          🔄 ล้างแคช & อัปเดตทันที (Hard Reset)
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modalContainer);
+
+  const resetBtn = document.getElementById("btn-modal-hard-reset");
+  if (resetBtn) resetBtn.addEventListener("click", (e) => window.forcePurgeAndReload(e));
+
+  const closeBtn = document.getElementById("btn-close-version-modal");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      _versionModalDismissed = true;
+      modalContainer.remove();
+    });
+  }
 }
 
-window.forcePurgeAndReload = forcePurgeAndReload;
+window.showVersionModal = showVersionModal;
+
+async function checkAppVersion() {
+  try {
+    const res = await fetch(`/version.json?t=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data && data.version && data.version !== CLIENT_APP_VERSION) {
+      console.warn(`[VERSION] Remote update detected: Client (${CLIENT_APP_VERSION}) vs Remote (${data.version})`);
+      showVersionModal(data.version);
+    }
+  } catch (err) {
+    console.debug("[VERSION] Check failed:", err);
+  }
+}
+
 window.checkAppVersion = checkAppVersion;
+
 window.showVersionUpdateToast = showVersionUpdateToast;
 window.setSimulationHorizon = setSimulationHorizon;
 window.runScenarioSimulation = runScenarioSimulation;

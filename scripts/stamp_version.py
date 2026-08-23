@@ -124,6 +124,13 @@ def stamp_index_html(path: Path, version: str, commit: str, *, dry_run: bool = F
     text = path.read_text(encoding="utf-8")
     original = text
 
+    # Update window.CURRENT_PAGE_VERSION in <head>
+    text = re.sub(
+        r'(window\.CURRENT_PAGE_VERSION\s*=\s*["\'])[^"\']+(["\'])',
+        f'\\g<1>{version}\\g<2>',
+        text,
+    )
+
     # Update footer version text
     text = re.sub(
         r'(Computational Metaphysics Engine v)[\d.]+[a-f0-9]*',

@@ -11,16 +11,19 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <link rel="stylesheet" href="style.css?v=8cd4a19">
+  <link rel="stylesheet" href="style.css?v=50a5ad0">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#dc2626">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <script>
+    window.CURRENT_PAGE_VERSION = "1.0.0.50a5ad0";
     window.forcePurgeAndReload = async function(e) {
-      if (e) { e.preventDefault(); e.stopPropagation(); }
+      if (e) { try { e.preventDefault(); e.stopPropagation(); } catch (_) {} }
       const btn = document.getElementById("btn-force-refresh");
       if (btn) { btn.innerHTML = "⏳ กำลังล้างแคช..."; btn.disabled = true; }
+      const modalBtn = document.getElementById("btn-modal-hard-reset");
+      if (modalBtn) { modalBtn.innerHTML = "⏳ กำลังอัปเดต..."; modalBtn.disabled = true; }
       try { localStorage.clear(); } catch (_) {}
       try { sessionStorage.clear(); } catch (_) {}
       try {
@@ -39,6 +42,33 @@
       const targetUrl = cleanUrl + '?force_reload=' + Date.now();
       try { window.location.replace(targetUrl); } catch (_) { window.location.href = targetUrl; }
     };
+
+    // Early Version Check on Page Load
+    (async function initEarlyVersionCheck() {
+      try {
+        const res = await fetch('/version.json?t=' + Date.now(), { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.version && data.version !== window.CURRENT_PAGE_VERSION) {
+          console.warn('[VERSION] New version detected:', data.version, '(Current:', window.CURRENT_PAGE_VERSION, ')');
+          window._pendingNewVersion = data.version;
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => window.showVersionModal && window.showVersionModal(data.version));
+          } else {
+            setTimeout(() => window.showVersionModal && window.showVersionModal(data.version), 300);
+          }
+        }
+      } catch (_) {}
+    })();
+
+    // Listen for Service Worker Controller Change
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (window.showVersionModal && window._pendingNewVersion) {
+          window.showVersionModal(window._pendingNewVersion);
+        }
+      });
+    }
   </script>
 </head>
 <body>
@@ -592,7 +622,7 @@
         <span>🔄</span> <span>ล้างแคช &amp; บังคับอัปเดต (Hard Reset)</span>
       </button>
     </div>
-    <p id="footer-version-text">Computational Metaphysics Engine v1.0.0.8cd4a19 — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback</p>
+    <p id="footer-version-text">Computational Metaphysics Engine v1.0.0.50a5ad0 — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback</p>
   </footer>
 
   <!-- iOS/Android Bottom-Sheet Drum Wheel DateTime Picker Modal -->
@@ -738,9 +768,9 @@
     </div>
   </div>
 
-  <script src="voice_engine.js?v=8cd4a19"></script>
-  <script src="i18n.js?v=8cd4a19"></script>
-  <script src="app.js?v=8cd4a19"></script>
+  <script src="voice_engine.js?v=50a5ad0"></script>
+  <script src="i18n.js?v=50a5ad0"></script>
+  <script src="app.js?v=50a5ad0"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
