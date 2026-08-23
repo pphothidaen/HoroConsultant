@@ -19,6 +19,7 @@ Usage (On Kaggle / Lightning AI Notebook or Terminal):
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import logging
 import os
@@ -183,7 +184,15 @@ logger.handlers = [_handler]
 
 
 def prepare_dataset(output_jsonl: Path, dataset_path: str | None = None) -> Path:
-    """Fetch latest dataset from explicit path, Supabase, or fallback local JSONL dataset."""
+    """
+    Fetch and compile the complete training corpus using Hybrid Ingestion:
+    1. Explicit path (if provided)
+    2. Supabase verified QA exports (if configured)
+    3. Kaggle mounted input datasets (/kaggle/input/**)
+    4. Curated local Hugging Face corpus (project/data/bazi_hf_curated_corpus.jsonl)
+    5. Dynamic Hugging Face Liked Datasets sync (@pphothidaen)
+    6. Local fallback (project/rag/datasets/train.jsonl)
+    """
     if dataset_path:
         explicit_path = Path(dataset_path).expanduser()
         if explicit_path.exists():
@@ -192,45 +201,73 @@ def prepare_dataset(output_jsonl: Path, dataset_path: str | None = None) -> Path
         logger.warning(
             f"[WARN] Explicit dataset path '{explicit_path}' not found. Falling back to automated dataset source."
         )
-    logger.info("[DATA] Checking dataset source...")
+
+    logger.info("[DATA] Initializing Hybrid Metaphysics Data Ingestion...")
+    output_jsonl.parent.mkdir(parents=True, exist_ok=True)
+    all_records = []
+    seen_hashes = set()
+
+    def _add_jsonl_file(fpath: Path, tag: str):
+        count = 0
+        try:
+            for line in fpath.read_text(encoding="utf-8", errors="replace").splitlines():
+                s = line.strip()
+                if not s:
+                    continue
+                try:
+                    obj = json.loads(s)
+                    h = hashlib.sha256(s.encode("utf-8")).hexdigest()
+                    if h not in seen_hashes:
+                        seen_hashes.add(h)
+                        all_records.append(s)
+                        count += 1
+                except Exception:
+                    pass
+            if count > 0:
+                logger.info(f"[{tag}] Ingested {count} records from {fpath.name}")
+        except Exception as e:
+            logger.warning(f"[{tag}] Note reading {fpath}: {e}")
+
+    # 1. Check Supabase DB
     db = SupabaseDB()
     if db.is_configured():
-        count = db.export_verified_qa_to_jsonl(output_jsonl)
-        if count > 0:
-            logger.info(f"[OK] Downloaded {count} records from Supabase DB to '{output_jsonl}'")
-            return output_jsonl
+        temp_sb = output_jsonl.parent / "temp_supabase.jsonl"
+        sb_count = db.export_verified_qa_to_jsonl(temp_sb)
+        if sb_count > 0:
+            _add_jsonl_file(temp_sb, "SUPABASE")
+            if temp_sb.exists():
+                temp_sb.unlink()
 
-    # 0. Check Kaggle mounted datasets in /kaggle/input (e.g. geminispark & horoconsultant-distilled-dataset)
+    # 2. Check Kaggle mounted datasets in /kaggle/input (e.g. geminispark & horoconsultant-distilled-dataset)
     kaggle_input = Path("/kaggle/input")
     if kaggle_input.exists():
         kaggle_files = list(kaggle_input.glob("**/*.jsonl")) + list(kaggle_input.glob("**/*.json"))
         if kaggle_files:
             logger.info(f"[KAGGLE DATA] Discovered {len(kaggle_files)} dataset file(s) in /kaggle/input...")
-            seen_lines = set()
-            output_jsonl.parent.mkdir(parents=True, exist_ok=True)
             for kf in kaggle_files:
-                try:
-                    for line in kf.read_text(encoding="utf-8", errors="replace").splitlines():
-                        s = line.strip()
-                        if s:
-                            try:
-                                json.loads(s)
-                                seen_lines.add(s)
-                            except Exception:
-                                pass
-                except Exception as e:
-                    logger.warning(f"[KAGGLE DATA] Note reading {kf.name}: {e}")
-            if seen_lines:
-                output_jsonl.write_text("\n".join(seen_lines) + "\n", encoding="utf-8")
-                logger.info(f"[OK] Ingested and deduplicated {len(seen_lines)} records from Kaggle datasets to '{output_jsonl}'")
-                return output_jsonl
+                _add_jsonl_file(kf, "KAGGLE DATA")
 
-    fallback_dataset = ROOT_DIR / "project" / "rag" / "datasets" / "train.jsonl"
-    if fallback_dataset.exists():
-        logger.info(f"[INFO] Supabase not available/empty. Using local dataset '{fallback_dataset}'")
-        return fallback_dataset
+    # 3. Check curated local Hugging Face corpus
+    curated_hf_corpus = ROOT_DIR / "project" / "data" / "bazi_hf_curated_corpus.jsonl"
+    if curated_hf_corpus.exists():
+        _add_jsonl_file(curated_hf_corpus, "HF CURATED CORPUS")
 
-    raise FileNotFoundError("[ERROR] Neither Supabase dataset, Kaggle input datasets, nor local 'project/rag/datasets/train.jsonl' was found!")
+    # 4. Check base train.jsonl
+    base_train = ROOT_DIR / "project" / "rag" / "datasets" / "train.jsonl"
+    if base_train.exists():
+        _add_jsonl_file(base_train, "BASE DATASET")
+
+    # 5. Check hitl_approved.jsonl
+    hitl_train = ROOT_DIR / "project" / "rag" / "datasets" / "hitl_approved.jsonl"
+    if hitl_train.exists():
+        _add_jsonl_file(hitl_train, "HITL APPROVED")
+
+    if all_records:
+        output_jsonl.write_text("\n".join(all_records) + "\n", encoding="utf-8")
+        logger.info(f"[OK] Hybrid Ingestion compiled {len(all_records)} unique records into '{output_jsonl}'")
+        return output_jsonl
+
+    raise FileNotFoundError("[ERROR] No valid dataset records found from any hybrid sources!")
 
 
 def _setup_cuda_environment_for_device() -> dict:

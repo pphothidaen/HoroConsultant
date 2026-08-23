@@ -1,12 +1,12 @@
 {
   "target_url": "https://horo-consultant-psi.vercel.app/api/v1/luopan/calculate",
-  "timestamp": "2026-08-23T15:06:29Z",
+  "timestamp": "2026-08-23T16:49:26Z",
   "status": "ALL_PASSED_READY_FOR_PROD",
   "tests": [
     {
       "input_degree": 0.0,
       "http_status": 200,
-      "latency_ms": 811.6,
+      "latency_ms": 438.0,
       "passed": true,
       "details": {
         "facing_mountain": "子 (0° N)",
@@ -20,7 +20,7 @@
     {
       "input_degree": 45.0,
       "http_status": 200,
-      "latency_ms": 681.9,
+      "latency_ms": 431.8,
       "passed": true,
       "details": {
         "facing_mountain": "艮 (45° NE)",
@@ -34,7 +34,7 @@
     {
       "input_degree": 90.0,
       "http_status": 200,
-      "latency_ms": 675.2,
+      "latency_ms": 378.0,
       "passed": true,
       "details": {
         "facing_mountain": "卯 (90° E)",
@@ -48,7 +48,7 @@
     {
       "input_degree": 135.0,
       "http_status": 200,
-      "latency_ms": 684.8,
+      "latency_ms": 397.5,
       "passed": true,
       "details": {
         "facing_mountain": "巽 (135° SE)",
@@ -62,7 +62,7 @@
     {
       "input_degree": 180.0,
       "http_status": 200,
-      "latency_ms": 395.0,
+      "latency_ms": 425.5,
       "passed": true,
       "details": {
         "facing_mountain": "午 (180° S)",
@@ -76,7 +76,7 @@
     {
       "input_degree": 225.0,
       "http_status": 200,
-      "latency_ms": 650.9,
+      "latency_ms": 368.0,
       "passed": true,
       "details": {
         "facing_mountain": "坤 (225° SW)",
@@ -90,7 +90,7 @@
     {
       "input_degree": 270.0,
       "http_status": 200,
-      "latency_ms": 436.2,
+      "latency_ms": 393.0,
       "passed": true,
       "details": {
         "facing_mountain": "酉 (270° W)",
@@ -104,7 +104,7 @@
     {
       "input_degree": 315.0,
       "http_status": 200,
-      "latency_ms": 380.4,
+      "latency_ms": 407.1,
       "passed": true,
       "details": {
         "facing_mountain": "乾 (315° NW)",
