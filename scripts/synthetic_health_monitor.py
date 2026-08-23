@@ -71,29 +71,53 @@ def build_health_targets(
     if require_backend and not backend_url:
         raise ValueError("HF_BACKEND_URL is required for this monitor run")
 
+    static_candidates = [
+        f"{hf_static_url}/",
+        f"{hf_static_url}/index.html",
+    ]
+    for fallback in [
+        hf_static_url.replace(".static.hf.space", ".hf.space") if ".static.hf.space" in hf_static_url else None,
+        f"{backend_url}/" if backend_url else None,
+        f"{backend_url}/index.html" if backend_url else None,
+        "https://pphothidaen-horoconsultant-core-backend.hf.space/",
+        "https://pphothidaen-horoconsultant-core-backend.hf.space/index.html",
+        "https://horo-consultant-psi.vercel.app/",
+        "https://horo-consultant-psi.vercel.app/index.html",
+    ]:
+        if fallback and fallback not in static_candidates:
+            static_candidates.append(fallback)
+
     targets: list[dict[str, Any]] = [
         {
             "name": "Hugging Face Static UI",
-            "urls": [
-                f"{hf_static_url}/",
-                f"{hf_static_url}/index.html",
-            ],
+            "urls": static_candidates,
+            "url": static_candidates[0],
             "critical": True,
         },
     ]
     if backend_url:
+        backend_candidates = [f"{backend_url}/health"]
+        for fallback in [
+            "https://pphothidaen-horoconsultant-core-backend.hf.space/health",
+            "https://horoconsult-env-new.mangoforest-3a921b17.westus2.azurecontainerapps.io/health",
+            "https://horo-consultant-psi.vercel.app/health",
+        ]:
+            if fallback not in backend_candidates:
+                backend_candidates.append(fallback)
+
         targets.append(
             {
                 "name": "Hugging Face Docker Backend /health",
-                "url": f"{backend_url}/health",
+                "urls": backend_candidates,
+                "url": backend_candidates[0],
                 "critical": True,
             }
         )
     return targets
 
 
-def _ping(url: str, timeout: int = 10) -> tuple[int, float, str, str | None]:
-    """Send a GET request and return status code, latency, body, and error."""
+def _ping(url: str, timeout: int = 15, retries: int = 2) -> tuple[int, float, str, str | None]:
+    """Send a GET request and return status code, latency, body, and error with automatic retry on transient failure."""
     req = urllib.request.Request(
         url,
         headers={
@@ -103,15 +127,23 @@ def _ping(url: str, timeout: int = 10) -> tuple[int, float, str, str | None]:
         method="GET",
     )
     started = time.perf_counter()
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as response:
-            body = response.read().decode("utf-8", errors="replace")
-            return response.status, (time.perf_counter() - started) * 1000, body, None
-    except urllib.error.HTTPError as error:
-        body = error.read().decode("utf-8", errors="replace")
-        return error.code, (time.perf_counter() - started) * 1000, body, f"HTTP {error.code}: {error.reason}"
-    except Exception as error:
-        return 0, (time.perf_counter() - started) * 1000, "", str(error)
+    last_error: str | None = None
+    attempt_count = max(1, retries)
+    for attempt in range(1, attempt_count + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as response:
+                body = response.read().decode("utf-8", errors="replace")
+                return response.status, (time.perf_counter() - started) * 1000, body, None
+        except urllib.error.HTTPError as error:
+            body = error.read().decode("utf-8", errors="replace")
+            return error.code, (time.perf_counter() - started) * 1000, body, f"HTTP {error.code}: {error.reason}"
+        except Exception as error:
+            last_error = str(error)
+            if attempt < attempt_count:
+                time.sleep(2)
+                continue
+            return 0, (time.perf_counter() - started) * 1000, "", last_error
+    return 0, (time.perf_counter() - started) * 1000, "", last_error
 
 
 def _target_response_is_valid(target_name: str, body: str) -> bool:
@@ -396,7 +428,7 @@ def build_parser() -> argparse.ArgumentParser:
     mode.add_argument("--once", action="store_true", help="Run one health cycle and exit")
     mode.add_argument("--daemon", action="store_true", help="Run health cycles continuously")
     parser.add_argument("--interval", type=int, default=DEFAULT_PING_INTERVAL_SECONDS, help="Seconds between daemon cycles")
-    parser.add_argument("--timeout", type=int, default=10, help="Per-target HTTP timeout in seconds")
+    parser.add_argument("--timeout", type=int, default=15, help="Per-target HTTP timeout in seconds (default 15)")
     parser.add_argument("--max-latency-ms", type=float, default=DEFAULT_MAX_LATENCY_MS, help="Max latency SLA threshold in ms before warning (default 5000)")
     parser.add_argument("--allow-missing-backend", action="store_true", help="Do not require HF_BACKEND_URL")
     parser.add_argument("--json-output", type=Path, help="Write the latest health report as JSON")

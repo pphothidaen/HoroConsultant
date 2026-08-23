@@ -70,6 +70,7 @@ def main() -> int:
     parser.add_argument("--silent-if-ok", action="store_true", default=True, help="Do not send Telegram message if healthy")
     parser.add_argument("--notify-always", action="store_true", help="Send Telegram message even if healthy")
     parser.add_argument("--skip-network", action="store_true", help="Perform only structural check without HTTP call")
+    parser.add_argument("--warn-only", action="store_true", help="Exit with 0 even if cookie is expired (after notifying)")
     parser.add_argument("--json", action="store_true", help="Output JSON result")
 
     args = parser.parse_args()
@@ -82,6 +83,8 @@ def main() -> int:
     if args.json:
         print(json.dumps(res, indent=2, ensure_ascii=False))
 
+    if args.warn_only:
+        return 0
     return 0 if res["is_valid"] else 1
 
 

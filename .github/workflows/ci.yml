@@ -85,6 +85,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          grep -vE "mlx|mlx-lm|mlx-metal" requirements.txt > requirements-ci.txt
+          pip install -r requirements-ci.txt pytest
 
       - name: Run Production Version E2E Regression
         run: |

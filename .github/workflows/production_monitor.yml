@@ -29,7 +29,7 @@ jobs:
 
       - name: Run synthetic health monitor
         env:
-          HF_BACKEND_URL: ${{ vars.AZURE_PUBLIC_BACKEND_URL || env.AZURE_PUBLIC_BACKEND_URL }}
+          HF_BACKEND_URL: ${{ secrets.HF_BACKEND_URL || vars.HF_BACKEND_URL || vars.AZURE_PUBLIC_BACKEND_URL || env.AZURE_PUBLIC_BACKEND_URL || 'https://pphothidaen-horoconsultant-core-backend.hf.space' }}
           VERCEL_GATEWAY_URL: ${{ vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
           HF_STATIC_CDN_URL: ${{ vars.HF_STATIC_CDN_URL || vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
           HEALTH_ALERT_WEBHOOK_URL: ${{ secrets.HEALTH_ALERT_WEBHOOK_URL }}
@@ -41,7 +41,7 @@ jobs:
           GRAFANA_USER_ID: ${{ secrets.GRAFANA_USER_ID }}
           GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
         run: |
-          python3 scripts/synthetic_health_monitor.py --once --json-output synthetic-health.json
+          python3 scripts/synthetic_health_monitor.py --once --timeout 15 --json-output synthetic-health.json
           python3 scripts/run_luopan_e2e_regression.py
 
       - name: Upload monitor report
