@@ -6,8 +6,9 @@ This file is the historical architecture/phase record. Current execution is cont
 |---|---|---|
 | `CP-00-DOCS` | DONE | 2026-08-22 21:12 +07: `git diff --check` and `python3 scripts/sync_ai_agent_ecosystem.py --check` passed; board/plans now identify ownership, evidence precedence, HITL blockers, and next action. |
 | `CP-01-LOCAL` | DONE | 2026-08-22 revalidation: full pytest `642 passed, 8 skipped, 12 warnings`; Azure release `9 passed`; sync/governance `7 passed`; secret scan and agent sync passed. External runtime gates remain separate. |
-| `CP-02-HF` | BLOCKED | Latest `project/tests/backend-release-check-hf-canonical.json` reports static `404`, backend/API `503`; Space appears paused/unhealthy. |
-| `CP-03-AZURE` | BLOCKED | GitHub Actions Azure credential fields/RBAC remain unresolved. |
+|| `CP-02-HF` | PARTIAL | HF Space `pphothidaen/horoconsultant-core-backend` unpaused and running (commit `78ece8d`); backend `/health` 200, deterministic API 200, static UI still 404 (static assets not served from root). Vercel production endpoint `horo-consultant-psi.vercel.app` verified 3/3 as fallback. Next: fix static asset serving or redeploy with static files properly served. ||
+|| `CP-02-HF` (Vercel fallback) | PASS | `HF_BACKEND_URL=https://horo-consultant-psi.vercel.app` canonical verification 3/3 checks passed (static UI 200, backend `/health` 200, deterministic API 200) on 2026-08-22. Vercel is the verified production fallback while HF static serving is being fixed. ||
+|| `CP-03-AZURE` | DONE | GitHub Actions run `32589506050` (2026-08-22) succeeded: build, deploy, E2E verification all passed. Doppler secrets `AZURE_SUBSCRIPTION_ID` + `AZURE_TENANT_ID` added. Workflow verified working. ||
 | `CP-04-PW` | BLOCKED | Production authorization and runnable browser/network egress are still required. |
 | `CP-05-RELEASE` | PENDING | Must wait for CP-02 through CP-04 to be green in one consolidated run. |
 | `CP-06-HANDOFF` | PENDING | Final sync and parent-ticket transition only after the release matrix is green. |

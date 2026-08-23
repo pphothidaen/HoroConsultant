@@ -240,6 +240,26 @@ async def serve_style_css():
     return FileResponse(os.path.join(STATIC_DIR, "style.css"))
 
 
+@app.get("/voice_engine.js", response_class=FileResponse, include_in_schema=False)
+async def serve_voice_engine_js():
+    return FileResponse(os.path.join(STATIC_DIR, "voice_engine.js"))
+
+
+@app.get("/i18n.js", response_class=FileResponse, include_in_schema=False)
+async def serve_i18n_js():
+    return FileResponse(os.path.join(STATIC_DIR, "i18n.js"))
+
+
+@app.get("/sw.js", response_class=FileResponse, include_in_schema=False)
+async def serve_sw_js():
+    return FileResponse(os.path.join(STATIC_DIR, "sw.js"))
+
+
+@app.get("/version.json", response_class=FileResponse, include_in_schema=False)
+async def serve_version_json():
+    return FileResponse(os.path.join(STATIC_DIR, "version.json"))
+
+
 @app.get("/admin", response_class=FileResponse, tags=["Admin UI"])
 async def serve_admin():
     """Serve the Knowledge Source Management Admin Panel."""

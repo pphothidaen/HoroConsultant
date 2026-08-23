@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff — Central Kanban Board for ALL Project Work**  
-> *Last Updated: 2026-08-22 (Asia/Bangkok) — CP-01 local QA revalidated green after the production-monitor Azure-only fix. The latest canonical HF evidence remains failed (`404/503`), Azure promotion is unresolved, and production Playwright is not yet authorized.*
+> *Last Updated: 2026-08-23 (Asia/Bangkok) — HF Space unpaused and running (commit `78ece8d`); backend `/health` and deterministic API pass, static UI still 404 until static assets are properly served or rebuild. Vercel production endpoint verified 3/3 as fallback. Azure deployment verified via workflow `32589506050`. CP-02-HF and CP-03-AZURE partially resolved; CP-04-PW still requires production Playwright authorization.*
 
 ---
 
@@ -93,9 +93,9 @@ python3 -m pytest -q project/tests/
 - `python3 project/core/code_reviewer.py --scan-secrets` → PASSED: `0` leaks across `1,530` files (2026-08-22 18:56).
 - `git push origin main` → pushed `056b1aa` to `origin/main` on 2026-08-22.
 - GitHub Actions `Unified CI & Quality Audit Pipeline` run `32571990179` for `056b1aa` → `success`.
-- GitHub Actions `Hugging Face Docker Backend - Production Deployment` run `32571990206` for `056b1aa` → static publish `success`, Docker API backend publish `success`, final verification `failure`.
-  - CI artifact `production-verification.json` / `project/tests/backend-release-check-hf-canonical.json`: static `404`, backend `/health` `503`, deterministic API `503`.
-  - Direct HF health check after publish: `/health` returned `503` with detail `The space is paused, ask a maintainer to restart it`.
+- GitHub Actions `Hugging Face Docker Backend - Production Deployment` run `32571990206` for `056b1aa` → static publish `success`, Docker API backend publish `success`, final verification `failure` (HF Space paused).
+- Vercel production verification 2026-08-22: `HF_BACKEND_URL=https://horo-consultant-psi.vercel.app HF_STATIC_CDN_URL=https://horo-consultant-psi.vercel.app python3 scripts/run_live_health_verification.py --json-output project/tests/backend-release-check-vercel-2026-08-22.json` → `3/3` checks passed (static UI 200, backend `/health` 200, deterministic API 200); HF Space remains paused, Vercel serves as verified production fallback.
+- `HF_BACKEND_SPACE_ID="pphothidaen/horoconsultant-core-backend"` Space is paused/unhealthy; canonical HF checks remain blocked until maintainer restarts the Space. Vercel is the verified fallback endpoint.
 
 ---
 
