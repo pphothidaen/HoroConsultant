@@ -13,7 +13,8 @@
     "gpu"
   ],
   "dataset_sources": [
-    "pphothidaen/horoconsultant-distilled-dataset"
+    "pphothidaen/horoconsultant-distilled-dataset",
+    "pphothidaen/geminispark"
   ],
   "kernel_sources": [],
   "competition_sources": [],

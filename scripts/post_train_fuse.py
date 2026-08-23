@@ -393,9 +393,9 @@ def run_sanity_test(
 
     # Fallback to mlx_lm.generate if fused path exists
     if fused_path.exists():
-        print("   Testing via MLX (`mlx_lm.generate`)...")
+        print("   Testing via MLX (`mlx_lm generate`)...")
         cmd = [
-            sys.executable, "-m", "mlx_lm.generate",
+            sys.executable, "-m", "mlx_lm", "generate",
             "--model", str(fused_path),
             "--prompt", prompt,
             "--max-tokens", "150"

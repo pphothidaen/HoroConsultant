@@ -1,38 +1,48 @@
 {
   "target_url": "https://horo-consultant-psi.vercel.app",
-  "timestamp": "2026-08-23T15:05:57Z",
+  "timestamp": "2026-08-23T15:53:51Z",
   "status": "ALL_PASSED_READY_FOR_PROD",
   "checks": [
     {
       "name": "version_json_contract",
       "status": "PASSED",
-      "version": "1.0.0.98f3f15",
-      "commit": "98f3f15",
-      "latency_ms": 134.13000002037734
+      "version": "1.0.0.28b1aa0",
+      "commit": "28b1aa0",
+      "latency_ms": 674.8469169833697
     },
     {
       "name": "html_version_match",
       "status": "PASSED",
-      "head_version": "1.0.0.98f3f15",
-      "footer_text": "Computational Metaphysics Engine v1.0.0.98f3f15 — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback",
-      "latency_ms": 129.0389159694314
+      "head_version": "1.0.0.28b1aa0",
+      "footer_text": "Computational Metaphysics Engine v1.0.0.28b1aa0 — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback",
+      "latency_ms": 754.2470000335015
     },
     {
       "name": "app_js_version_match",
       "status": "PASSED",
-      "app_version": "1.0.0.98f3f15",
+      "app_version": "1.0.0.28b1aa0",
       "has_show_modal": true,
       "has_hard_reset": true,
-      "latency_ms": 167.39866603165865
+      "latency_ms": 800.3151660086587
     },
     {
       "name": "sw_js_version_match",
       "status": "PASSED",
-      "sw_version": "1.0.0.98f3f15",
-      "latency_ms": 138.00899998750538
+      "sw_version": "1.0.0.28b1aa0",
+      "latency_ms": 724.3112080032006
+    },
+    {
+      "name": "favicon_ico_available",
+      "status": "PASSED",
+      "latency_ms": 487.7151250257157
+    },
+    {
+      "name": "favicon_svg_available",
+      "status": "PASSED",
+      "latency_ms": 663.1899159983732
     }
   ],
-  "server_version": "1.0.0.98f3f15",
+  "server_version": "1.0.0.28b1aa0",
   "mismatches": [],
-  "server_commit": "98f3f15"
+  "server_commit": "28b1aa0"
 }

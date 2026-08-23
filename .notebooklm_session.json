@@ -314,7 +314,7 @@
     "value": "GA1.1.142051806.1786732534",
     "domain": ".notebook.google.com",
     "path": "/",
-    "expires": 1822053005.514289,
+    "expires": 1822053797.55741,
     "httpOnly": false,
     "secure": false,
     "sameSite": "Lax"
@@ -450,43 +450,43 @@
     "sameSite": "None"
   },
   {
-    "name": "_ga_W0LDH41ZCB",
-    "value": "GS2.1.s1787493005$o3$g1$t1787493005$j60$l0$h0",
-    "domain": ".notebook.google.com",
-    "path": "/",
-    "expires": 1822053005.517041,
-    "httpOnly": false,
-    "secure": false,
-    "sameSite": "Lax"
-  },
-  {
     "name": "SIDCC",
-    "value": "AKEyXzUqKcOKGCuWh-zVvwT7IaVa4xEDMQoUoY7x3ircEKavofgoxGHSeNRSQspdh3gxX0_ixQ",
+    "value": "AKEyXzXZ_cJEL6A9w7pjd6OE3u93xHVxe4wrq3jXswS8F6GFTkG1OfUB1kCnn6ulULJhPfeTcQ",
     "domain": ".google.com",
     "path": "/",
-    "expires": 1819029005.911355,
+    "expires": 1819029797.303265,
     "httpOnly": false,
     "secure": false,
     "sameSite": "Lax"
   },
   {
     "name": "__Secure-1PSIDCC",
-    "value": "AKEyXzWwsrs4QkwnTvDYwf-A_Y5TUa8N6bJwRcKFQ_JGNKG79WvtF8Vmp8BI93McDm8qQ-emuQ",
+    "value": "AKEyXzXDMakTcoQjludclCt-gSYmeodcLl6Y6gHjrttWO7lCzHHzObBTT-nY_sRlMKDsiViscQ",
     "domain": ".google.com",
     "path": "/",
-    "expires": 1819029005.911416,
+    "expires": 1819029797.303296,
     "httpOnly": true,
     "secure": true,
     "sameSite": "Lax"
   },
   {
     "name": "__Secure-3PSIDCC",
-    "value": "AKEyXzU8i1YFYR4Ec8hruAfViCezsn-47-8mcJIzQC33hzAG67cMYqLbmCPR3lSqRNUrFpzg",
+    "value": "AKEyXzXHEOWTvZGEnWdgVbry-o3wJQTdlU9OfmK_kBwKVL_IjHX4-Nop9ZY0gRS6IYOdsZZn",
     "domain": ".google.com",
     "path": "/",
-    "expires": 1819029005.911448,
+    "expires": 1819029797.30333,
     "httpOnly": true,
     "secure": true,
     "sameSite": "None"
+  },
+  {
+    "name": "_ga_W0LDH41ZCB",
+    "value": "GS2.1.s1787493005$o3$g1$t1787493797$j7$l0$h0",
+    "domain": ".notebook.google.com",
+    "path": "/",
+    "expires": 1822053797.557282,
+    "httpOnly": false,
+    "secure": false,
+    "sameSite": "Lax"
   }
 ]

@@ -45,3 +45,10 @@ jobs:
 
       - name: Execute code reviewer and safety audit
         run: python3 project/core/code_reviewer.py --review --use-python
+
+      - name: Run Cloud Architecture Overview (Full Stack) Regression
+        run: python3 scripts/run_cloud_architecture_regression.py
+
+      - name: Run GitHub Actions Workflows Full Regression
+        run: python3 scripts/run_github_actions_regression.py
+

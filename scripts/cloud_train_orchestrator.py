@@ -200,12 +200,37 @@ def prepare_dataset(output_jsonl: Path, dataset_path: str | None = None) -> Path
             logger.info(f"[OK] Downloaded {count} records from Supabase DB to '{output_jsonl}'")
             return output_jsonl
 
+    # 0. Check Kaggle mounted datasets in /kaggle/input (e.g. geminispark & horoconsultant-distilled-dataset)
+    kaggle_input = Path("/kaggle/input")
+    if kaggle_input.exists():
+        kaggle_files = list(kaggle_input.glob("**/*.jsonl")) + list(kaggle_input.glob("**/*.json"))
+        if kaggle_files:
+            logger.info(f"[KAGGLE DATA] Discovered {len(kaggle_files)} dataset file(s) in /kaggle/input...")
+            seen_lines = set()
+            output_jsonl.parent.mkdir(parents=True, exist_ok=True)
+            for kf in kaggle_files:
+                try:
+                    for line in kf.read_text(encoding="utf-8", errors="replace").splitlines():
+                        s = line.strip()
+                        if s:
+                            try:
+                                json.loads(s)
+                                seen_lines.add(s)
+                            except Exception:
+                                pass
+                except Exception as e:
+                    logger.warning(f"[KAGGLE DATA] Note reading {kf.name}: {e}")
+            if seen_lines:
+                output_jsonl.write_text("\n".join(seen_lines) + "\n", encoding="utf-8")
+                logger.info(f"[OK] Ingested and deduplicated {len(seen_lines)} records from Kaggle datasets to '{output_jsonl}'")
+                return output_jsonl
+
     fallback_dataset = ROOT_DIR / "project" / "rag" / "datasets" / "train.jsonl"
     if fallback_dataset.exists():
         logger.info(f"[INFO] Supabase not available/empty. Using local dataset '{fallback_dataset}'")
         return fallback_dataset
 
-    raise FileNotFoundError("[ERROR] Neither Supabase dataset nor local 'project/rag/datasets/train.jsonl' was found!")
+    raise FileNotFoundError("[ERROR] Neither Supabase dataset, Kaggle input datasets, nor local 'project/rag/datasets/train.jsonl' was found!")
 
 
 def _setup_cuda_environment_for_device() -> dict:

@@ -39,15 +39,14 @@ def publish_model(
         print("❌ huggingface_hub package not found. Run 'pip install huggingface_hub'")
         return False
 
-    token = (
-        os.getenv("HF_TOKEN")
-        or os.getenv("HUGGINGFACE_TOKEN")
-        or os.getenv("HF_API_TOKEN")
-        or os.getenv("HUGGINGFACE_API_KEY")
-        or os.getenv("HUGGING_FACE_TOKEN")
-    )
+    try:
+        from project.core.config import Config
+        token = Config.HF_TOKEN or os.getenv("HF_TOKEN")
+    except Exception:
+        token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN")
+
     if not token:
-        print("❌ HF token environment variable not found in .env")
+        print("❌ HF token environment variable not found in .env or Config")
         return False
 
     api = HfApi(token=token)
@@ -78,13 +77,17 @@ def publish_model(
 
     print(f"🚀 Uploading model contents from '{model_dir}' to '{repo_id}'...")
     try:
-        api.upload_folder(
+        commit_info = api.upload_folder(
             folder_path=str(model_dir),
             repo_id=repo_id,
             repo_type="model",
+            commit_message=f"Update model weights & artifacts from {model_dir.name}",
         )
+        commit_id = getattr(commit_info, "commit_id", "latest")
+        commit_url = getattr(commit_info, "commit_url", f"https://huggingface.co/{repo_id}")
         print("\n🎉 Model successfully published to Hugging Face Hub!")
-        print(f"🔗 View Repository: https://huggingface.co/{repo_id}")
+        print(f"📌 Latest Commit SHA: {commit_id}")
+        print(f"🔗 View Commit: {commit_url}")
         return True
     except Exception as e:
         print(f"❌ Upload failed: {e}")
