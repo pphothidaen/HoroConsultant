@@ -5554,7 +5554,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & PROMINENT UPDATE MODAL SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.a6fa4c7";
+const CLIENT_APP_VERSION = "1.0.0.8745013";
 let _versionModalDismissed = false;
 let _versionCountdownTimer = null;
 
@@ -6257,37 +6257,23 @@ function toggleCardAccordion(btn) {
   }
 }
 
-// Auto-expand accordion when a result card is shown (hidden class removed by JS)
+// Accordion Card Management — All sections collapsed by default
 (function initAccordionObserver() {
-  const observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
-      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-        const el = mutation.target;
-        if (
-          el.classList.contains('accordion-card') &&
-          !el.classList.contains('hidden')
-        ) {
-          const btn  = el.querySelector('.accordion-card-header');
-          const body = el.querySelector('.accordion-card-body');
-          if (btn && body) {
-            btn.setAttribute('aria-expanded', 'true');
-            body.classList.remove('acc-collapsed');
-          }
-        }
-      }
-    });
-  });
-
-  // Observe all accordion cards for class changes
-  function attachObservers() {
+  // Retained for manual accordion state initialization if needed
+  function initAccordions() {
     document.querySelectorAll('.accordion-card').forEach(function(card) {
-      observer.observe(card, { attributes: true, attributeFilter: ['class'] });
+      const btn = card.querySelector('.accordion-card-header');
+      const body = card.querySelector('.accordion-card-body');
+      if (btn && body && !btn.hasAttribute('aria-expanded')) {
+        btn.setAttribute('aria-expanded', 'false');
+        body.classList.add('acc-collapsed');
+      }
     });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', attachObservers);
+    document.addEventListener('DOMContentLoaded', initAccordions);
   } else {
-    attachObservers();
+    initAccordions();
   }
 })();

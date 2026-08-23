@@ -2715,7 +2715,9 @@ span.flatpickr-weekday {
 
 .accordion-card-body.acc-collapsed {
   max-height: 0 !important;
-  opacity: 0;
+  opacity: 0 !important;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 /* ============================================================
