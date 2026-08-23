@@ -2189,18 +2189,15 @@ function renderResults(data, svgContent) {
 
   // 5. Render AI Interpretation text with Markdown formatting + research summary (per-pillar short read)
   const mdContainer = document.getElementById('reading-body') || document.getElementById('llm-markdown-output');
+  const currentQuery = (document.getElementById('query')?.value || '').trim() || (data.query || '');
+  const birthDt = data.birth_datetime || document.getElementById('birth_datetime')?.value;
+  
   let rawText = data.interpretation || data.text;
-  if (!rawText || !rawText.trim() || rawText === 'ไม่พบผลลัพธ์คำตีความ') {
-    if (dm.stem && dm.element) {
-      rawText = `### ☯️ บทพยากรณ์ผังดวงชะตา (BaZi Four Pillars Reading)\n\n` +
-        `**ดิถีวัน (Day Master):** ${dm.stem} (${dm.th_name || dm.element} - ${dm.polarity || 'Yang'})\n` +
-        `**สถานะความแข็งแกร่ง:** ${dm.strength_status || 'สมดุล (Balanced)'}\n\n` +
-        `ดวงชะตานี้มีดิถีวันธาตุ ${dm.element} ได้รับการคำนวณปรับแต่งเวลาสุริยคติจริง (True Solar Time) อย่างเที่ยงตรง สอดคล้องตามหลักตำราโหราศาสตร์จีนโบราณ *ZiPing ZhenQuan (子平真詮)* และ *DiTianSui (滴天髓)*`;
-    } else {
-    rawText = 'คำนวณผังดวงชะตา 4 เสาสมบูรณ์เรียบร้อยแล้ว';
-  }
-
-  rawText = `${rawText}\n\n${researchMarkdown}`;
+  
+  // If backend returned static template or mismatched query, use precise dynamic BaZi Domain engine
+  if (!rawText || !rawText.trim() || rawText === 'ไม่พบผลลัพธ์คำตีความ' || rawText.includes("ดูแลระบบปอด การหายใจ ผิวหนัง") || (currentQuery && !rawText.includes(currentQuery))) {
+    rawText = buildBaZiDomainInterpretation(currentQuery, birthDt, dm.stem, dm.element);
+    rawText = `${rawText}\n\n${researchMarkdown}`;
   }
   
   if (mdContainer) {
@@ -6100,7 +6097,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & PROMINENT UPDATE MODAL SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.5c1fc9d";
+const CLIENT_APP_VERSION = "1.0.0.98941f6";
 let _versionModalDismissed = false;
 let _versionCountdownTimer = null;
 
