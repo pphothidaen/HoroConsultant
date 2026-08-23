@@ -52,6 +52,7 @@ class TelegramBotController:
                 "• <code>/train</code> หรือ <code>/finetune</code> — สั่งเริ่ม Fine-Tuning บน Kaggle GPU ทันที\n"
                 "• <code>/kaggle_status</code> — ตรวจสอบสถานะ Kaggle GPU Training Kernel\n"
                 "• <code>/kaggle_sync</code> — ดึง logs & outputs จาก Kaggle กลับเข้าสู่ระบบ\n"
+                "• <code>/hf_status</code> — ตรวจสอบ Model Registry & Tree/Main files บน Hugging Face\n"
                 "• <code>/cookie</code> — ตรวจสอบสถานะ Google NotebookLM Session Cookie\n"
                 "• <code>/sample</code> — ดูตัวอย่างเนื้อหาที่สกัดได้ล่าสุดพร้อมผลวิเคราะห์ Tri-Thinking\n\n"
                 "<b>🎯 HITL Governance:</b>\n"
@@ -70,6 +71,7 @@ class TelegramBotController:
             "/cookie", "/cookie_check", "/cookie_status",
             "/kaggle_status", "/gpu_status",
             "/kaggle_sync", "/pull_logs",
+            "/hf_status", "/model_status", "/huggingface",
             "/sample", "/mlops", "/mlops_status"
         ):
             from project.mlops.notifications.telegram_bot import TelegramBotController as MLOpsBotController

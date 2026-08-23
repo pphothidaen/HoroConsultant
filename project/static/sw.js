@@ -5,7 +5,7 @@
  * Implements aggressive cache invalidation on new version deployments.
  */
 
-const CACHE_VERSION = 'v1.0.0.9be14ab';
+const CACHE_VERSION = 'v1.0.0.bc9a495';
 const CACHE_NAME = `horoconsultant-${CACHE_VERSION}-cache`;
 const STATIC_ASSETS = [
   '/',

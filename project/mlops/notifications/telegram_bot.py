@@ -137,6 +137,8 @@ class TelegramBotController:
             return self._cmd_kaggle_status()
         elif cmd in ("/kaggle_sync", "/pull_logs"):
             return self._cmd_kaggle_sync()
+        elif cmd in ("/hf_status", "/model_status", "/huggingface"):
+            return self._cmd_hf_status()
         else:
             return f"❌ ไม่รู้จักคำสั่ง <code>{cmd}</code>\nพิมพ์ /help เพื่อดูคำสั่งทั้งหมด"
 
@@ -181,12 +183,32 @@ class TelegramBotController:
             "• /train หรือ /finetune — สั่งเริ่ม Fine-Tuning บน Kaggle GPU ทันที\n"
             "• /kaggle_status — ตรวจสอบสถานะ Kaggle GPU Kernel และ log ล่าสุด\n"
             "• /kaggle_sync — ดึง output และ log จาก Kaggle กลับเข้าสู่ระบบ\n"
+            "• /hf_status — ตรวจสอบ Model Registry & Tree/Main files บน Hugging Face\n"
             "• /cookie — ตรวจสอบสถานะความสดใหม่ของ Google Session Cookie\n"
             "• /hitl_status — ติดตามจำนวน HITL และสถานะ trigger\n"
             "• /hitl_queue — รายละเอียดคิว HITL\n"
             "• /hitl_export — Export JSONL จาก HITL reviewed ทั้งหมด\n"
             "• /hitl_trigger [--force] [--dry] — Trigger fine-tune จาก HITL ได้ทันที\n"
             "• /help — แสดงคู่มือการใช้งานนี้"
+        )
+
+    def _cmd_hf_status(self) -> str:
+        from scripts.verify_hf_model_status import check_hf_model_status
+        res = check_hf_model_status()
+        st = res.get("status", "UNKNOWN")
+        repo = res.get("repo_id", "pphothidaen/qwen2.5-7b-bazi-instruct-4bit")
+        files = res.get("files_in_tree", [])
+        files_str = "\n".join([f"  • <code>{f}</code>" for f in files[:8]]) if files else "  • ไม่พบไฟล์"
+        
+        return (
+            "🤗 <b>Hugging Face Model Hub Verification:</b>\n\n"
+            f"• <b>Repository:</b> <code>{repo}</code>\n"
+            f"• <b>Status:</b> <b>{st}</b>\n"
+            f"• <b>Adapter Verified:</b> {'✅ YES' if res.get('adapter_verified') else '⚠️ PENDING / AUTH'}\n"
+            f"• <b>Last Modified:</b> <code>{res.get('last_modified', 'N/A')}</code>\n"
+            f"• <b>Latest Commit SHA:</b> <code>{res.get('latest_commit_sha', 'N/A')[:10] if res.get('latest_commit_sha') else 'N/A'}</code>\n\n"
+            f"<b>Files in <code>tree/main</code>:</b>\n{files_str}\n\n"
+            f"🔗 <a href='{res.get('tree_url', f'https://huggingface.co/{repo}/tree/main')}'>เปิดดูบน Hugging Face Tree/Main</a>"
         )
 
     def _cmd_checklist(self) -> str:
