@@ -1,0 +1,38 @@
+{
+  "target_url": "https://horo-consultant-psi.vercel.app",
+  "timestamp": "2026-08-23T13:37:22Z",
+  "status": "ALL_PASSED_READY_FOR_PROD",
+  "checks": [
+    {
+      "name": "version_json_contract",
+      "status": "PASSED",
+      "version": "1.0.0.443a43e",
+      "commit": "443a43e",
+      "latency_ms": 147.6120000006631
+    },
+    {
+      "name": "html_version_match",
+      "status": "PASSED",
+      "head_version": "1.0.0.443a43e",
+      "footer_text": "Computational Metaphysics Engine v1.0.0.443a43e — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback",
+      "latency_ms": 126.83949997881427
+    },
+    {
+      "name": "app_js_version_match",
+      "status": "PASSED",
+      "app_version": "1.0.0.443a43e",
+      "has_show_modal": true,
+      "has_hard_reset": true,
+      "latency_ms": 173.62791701452807
+    },
+    {
+      "name": "sw_js_version_match",
+      "status": "PASSED",
+      "sw_version": "1.0.0.443a43e",
+      "latency_ms": 130.0328749930486
+    }
+  ],
+  "server_version": "1.0.0.443a43e",
+  "mismatches": [],
+  "server_commit": "443a43e"
+}
