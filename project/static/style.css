@@ -2644,3 +2644,106 @@ span.flatpickr-weekday {
   color: #dc2626;
   border-color: #fca5a5;
 }
+
+/* ============================================================
+   ACCORDION CARD SYSTEM — Collapsible Result Sections
+   ============================================================ */
+
+.accordion-card {
+  overflow: hidden;
+}
+
+.accordion-card-header {
+  width: 100%;
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  background: var(--bg-card-header);
+  border: none;
+  text-align: left;
+  padding: 1rem 1.2rem;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-glass);
+  transition: background 0.2s ease;
+  border-radius: 0;
+}
+
+.accordion-card-header:hover {
+  background: rgba(220, 38, 38, 0.06);
+}
+
+.accordion-card-header .acc-header-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.acc-chevron {
+  font-size: 0.75rem;
+  color: #dc2626;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+  font-weight: bold;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.accordion-card-header[aria-expanded="false"] .acc-chevron {
+  transform: rotate(180deg);
+}
+
+.accordion-card-header[aria-expanded="false"] {
+  border-bottom-color: transparent;
+  border-radius: var(--radius-lg);
+}
+
+.accordion-card-body {
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+  max-height: 5000px;
+  opacity: 1;
+}
+
+.accordion-card-body.acc-collapsed {
+  max-height: 0 !important;
+  opacity: 0;
+}
+
+/* ============================================================
+   TEXT COLOR CONTRAST FIXES — WCAG AA Compliance
+   ============================================================ */
+
+/* Dream result box — white bg needs dark text */
+.dream-result-box {
+  color: #1e293b !important;
+  background: #fef2f2 !important;
+  border: 1px solid #fecaca !important;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+/* General AI output content — ensure readable on white */
+.reading-body,
+.validator-body,
+.rag-body {
+  color: var(--text-primary);
+}
+
+/* Secondary/muted text — minimum 4.5:1 on white */
+.text-muted-readable {
+  color: #475569;
+}
+
+/* Pillar cell color fix */
+.char-han {
+  color: #0f172a;
+}

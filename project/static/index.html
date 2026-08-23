@@ -11,7 +11,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <link rel="stylesheet" href="style.css?v=2369659">
+  <link rel="stylesheet" href="style.css?v=74aec5c">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#dc2626">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -116,7 +116,7 @@
             <span style="font-size: 1.2rem;">💖</span>
             <div>
               <strong style="color: #f472b6; font-size: 0.85rem;" data-i18n="synastry_mode_title">โหมดวิเคราะห์ดวงสมพงษ์ 2 บุคคล (Synastry Mode)</strong>
-              <div style="color: #94a3b8; font-size: 0.72rem;" data-i18n="synastry_mode_desc">เปรียบเทียบดวงชะตาคู่รัก หรือพาร์ทเนอร์ธุรกิจ</div>
+              <div style="color: #475569; font-size: 0.72rem;" data-i18n="synastry_mode_desc">เปรียบเทียบดวงชะตาคู่รัก หรือพาร์ทเนอร์ธุรกิจ</div>
             </div>
           </div>
           <input type="checkbox" id="toggle-synastry-mode" onchange="toggleSynastryMode(this.checked)" style="width: 18px; height: 18px; accent-color: #ec4899; cursor: pointer;">
@@ -282,14 +282,19 @@
       </div>
 
       <!-- 5-Branch Metaphysics Result & SVG Visualizer Card -->
-      <div class="card glass-card result-card hidden" id="branch-result-card">
-        <div class="card-header border-gold">
+      <div class="accordion-card card glass-card result-card hidden" id="branch-result-card">
+        <button type="button" class="accordion-card-header card-header border-gold" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <h3 id="branch-title">☯️ แสดงผลคำนวณผังวิชา (5-Branch Metaphysics Visualizer)</h3>
         </div>
-        <div id="branch-body" style="padding: 1rem; color: #e2e8f0; font-family: Prompt, sans-serif; white-space: pre-line; line-height: 1.6;">
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
+        <div id="branch-body" style="padding: 1rem; color: #1e293b; font-family: Prompt, sans-serif; white-space: pre-line; line-height: 1.6;">
           <!-- Dynamically populated by JS -->
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- SVG Vector Chart Diagram Card -->
       <div class="card glass-card result-card hidden" id="svg-chart-card">
@@ -302,12 +307,16 @@
       </div>
 
       <!-- 4 Pillars Card -->
-      <div class="card glass-card result-card hidden" id="pillars-card">
+      <div class="accordion-card card glass-card result-card hidden" id="pillars-card">
 
-        <div class="card-header border-gold">
+        <button type="button" class="accordion-card-header card-header border-gold" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <h3>🏛️ ผังดวงชะตา 4 เสา (Four Pillars of Destiny — 四柱)</h3>
           <div class="tst-tag" id="tst-tag">TST Adjusted</div>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
 
         <div class="pillars-grid" id="pillars-grid">
           <!-- Dynamically populated by JS -->
@@ -316,14 +325,19 @@
         <div class="day-master-banner" id="day-master-banner">
           <!-- Day master highlight -->
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- Interactive DaYun & LiuNian Timeline Scrubber Card -->
-      <div class="card glass-card result-card hidden" id="timeline-scrubber-card">
-        <div class="card-header border-gold" style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="accordion-card card glass-card result-card hidden" id="timeline-scrubber-card">
+        <button type="button" class="accordion-card-header card-header border-gold" style="display: flex; justify-content: space-between; align-items: center;" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <h3 data-i18n="timeline_title">⏳ แถบเลื่อนกาลเวลาวัยจร 10 ปี / ปีจร (DaYun & LiuNian Timeline Scrubber)</h3>
           <span class="badge badge-gold" id="scrubber-active-age-badge" style="font-size: 0.85rem; font-weight: 600; padding: 4px 10px; border-radius: 6px; background: rgba(251, 191, 36, 0.15); border: 1px solid rgba(251, 191, 36, 0.4); color: #fbbf24;">อายุ 36 ปี (2026)</span>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
         <div style="padding: 1.2rem;">
           <div class="timeline-controls-row" style="display: flex; align-items: center; gap: 15px; margin-bottom: 1rem;">
             <label for="timeline-age-slider" style="font-size: 0.85rem; font-weight: 600; color: #fbbf24; min-width: 90px;" data-i18n="timeline_age_label">เลือกช่วงอายุ:</label>
@@ -336,38 +350,53 @@
             <!-- Dynamically updated by JS -->
           </div>
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- Five Elements Harmony Chart -->
-      <div class="card glass-card result-card hidden" id="elements-card">
-        <div class="card-header">
+      <div class="accordion-card card glass-card result-card hidden" id="elements-card">
+        <button type="button" class="accordion-card-header card-header" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <h3>⚖️ สมดุลธาตุทั้ง 5 (Five Elements Harmony — 五行)</h3>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
         <div class="elements-bars" id="elements-bars">
           <!-- Dynamically populated by JS -->
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- Dual-Profile Synastry Result Card -->
-      <div class="card glass-card result-card hidden" id="synastry-result-card">
-        <div class="card-header border-purple" style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="accordion-card card glass-card result-card hidden" id="synastry-result-card">
+        <button type="button" class="accordion-card-header card-header border-purple" style="display: flex; justify-content: space-between; align-items: center;" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <h3 data-i18n="synastry_result_title">💖 ผลการวิเคราะห์ดวงสมพงษ์ &amp; ธาตุคู่ครอง (Synastry Matrix)</h3>
           <span class="badge badge-pink" id="synastry-grade-badge" style="font-size: 0.95rem; font-weight: 700; padding: 4px 12px; border-radius: 6px; background: rgba(236, 72, 153, 0.2); border: 1px solid rgba(236, 72, 153, 0.5); color: #f472b6;">Grade A (88%)</span>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
         <div style="padding: 1.2rem;" id="synastry-content-body">
           <!-- Dynamically populated by JS -->
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- AI Interpretation & Validation Output -->
-      <div class="card glass-card result-card hidden" id="interpretation-card">
-        <div class="card-header border-purple" style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="accordion-card card glass-card result-card hidden" id="interpretation-card">
+        <button type="button" class="accordion-card-header card-header border-purple" style="display: flex; justify-content: space-between; align-items: center;" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <div style="display: flex; align-items: center; gap: 10px;">
             <h3>🤖 บทพยากรณ์ multi-Agent (qwen2.5-bazi + Gemini Validator)</h3>
             <button type="button" class="btn-voice-listen" id="btn-speak-reading" onclick="speakCurrentInterpretation()" data-i18n="btn_listen_reading">🔊 ฟังเสียง AI (Listen)</button>
           </div>
           <span class="route-badge" id="route-badge">Ollama Local</span>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
 
         <div class="tab-buttons">
           <button class="tab-btn active" onclick="switchTab('tab-reading')">📖 บทตีความโหราศาสตร์</button>
@@ -392,11 +421,13 @@
             <!-- RAG references -->
           </div>
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- Interactive Astrological Calendar & Date Selector Card -->
-      <div class="card glass-card result-card" id="calendar-view-card">
-        <div class="card-header border-purple" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <div class="accordion-card card glass-card result-card" id="calendar-view-card">
+        <button type="button" class="accordion-card-header card-header border-purple" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <div style="display: flex; align-items: center; gap: 10px;">
             <h3 data-i18n="calendar_title">📅 ปฏิทินหมื่นปีฤกษ์มงคล 12 เทพ (Auspicious Calendar)</h3>
             <span class="badge badge-purple" id="calendar-current-month-badge">สิงหาคม 2026</span>
@@ -406,6 +437,9 @@
             <button type="button" class="btn-tool" onclick="changeCalendarMonth(1)">เดือนถัดไป ▶</button>
           </div>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
 
         <div style="padding: 1.2rem;">
           <!-- Intent Filter Buttons -->
@@ -422,14 +456,19 @@
             <!-- Dynamically generated by JS -->
           </div>
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- LuoPan 24-Mountain & Period 9 Flying Star Heatmap Card -->
-      <div class="card glass-card result-card" id="luopan-heatmap-card">
-        <div class="card-header border-purple" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <div class="accordion-card card glass-card result-card" id="luopan-heatmap-card">
+        <button type="button" class="accordion-card-header card-header border-purple" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <h3 data-i18n="luopan_title">🧭 เข็มทิศหล่อแก 24 ขุนเขา &amp; ผังพลังงาน 9 ยุค (24-Mountain LuoPan)</h3>
           <span class="badge badge-purple" id="luopan-mountain-badge">ทิศใต้ 午 (Wu) 180°</span>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
         <div style="padding: 1.2rem;">
           <div style="margin-bottom: 1rem;">
             <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
@@ -453,13 +492,18 @@
             กำลังคำนวณผังทิศทาง...
           </div>
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- AI Metaphysics Dream Interpreter & Symbolism Decoder Card -->
-      <div class="card glass-card result-card" id="dream-interpreter-card">
-        <div class="card-header border-purple">
+      <div class="accordion-card card glass-card result-card" id="dream-interpreter-card">
+        <button type="button" class="accordion-card-header card-header border-purple" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <h3 data-i18n="dream_title">🌙 ทำนายฝัน &amp; ถอดรหัสสัญลักษณ์เทพ 64 ลักษณ์ (Dream Decoder)</h3>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
         <div style="padding: 1.2rem;">
           <div class="form-group" style="margin-bottom: 10px;">
             <label for="dream-input" data-i18n="dream_input_label">พิมพ์รายละเอียดความฝัน หรือสัญลักษณ์ที่พบในฝัน:</label>
@@ -474,21 +518,26 @@
             <button type="button" class="btn-tool" onclick="submitDreamInterpretation()" style="margin-left: auto; background: linear-gradient(135deg, #dc2626, #b91c1c); color: white;" data-i18n="btn_interpret_dream">🔮 ทำนายฝัน</button>
           </div>
 
-          <div id="dream-result-box" class="hidden" style="padding: 12px; background: #ffffff; border: 1px solid #fee2e2; border-radius: 8px;">
+          <div id="dream-result-box" class="hidden dream-result-box">
             <!-- Dynamically populated by JS -->
           </div>
         </div>
-      </div>
+      
+        </div></div>
 
       <!-- Life Path Multi-Scenario Simulation & What-If Analyzer Card -->
-      <div class="card glass-card result-card" id="scenario-simulation-card">
-        <div class="card-header border-purple" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <div class="accordion-card card glass-card result-card" id="scenario-simulation-card">
+        <button type="button" class="accordion-card-header card-header border-purple" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;" onclick="toggleCardAccordion(this)" aria-expanded="true">
+          <div class="acc-header-content">
           <h3 data-i18n="sim_title">🔮 จำลองฉากทัศน์ชีวิตคู่ขนาน &amp; วิเคราะห์ทางเลือก (What-If Life Path Simulator)</h3>
           <span class="badge badge-purple" id="sim-horizon-badge">กรอบเวลา 3 ปี (2026-2028)</span>
         </div>
+          <span class="acc-chevron">▲</span>
+        </button>
+        <div class="accordion-card-body">
         <div style="padding: 1.2rem;">
           <div style="margin-bottom: 1rem;">
-            <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 10px;" data-i18n="sim_desc">
+            <p style="font-size: 0.88rem; color: #475569; margin-bottom: 10px;" data-i18n="sim_desc">
               จำลองเปรียบเทียบผลลัพธ์ทางเลือกสำคัญในชีวิต (การงาน/ธุรกิจ/ย้ายถิ่น) ผ่านการผสานธาตุประจำปีและพลังดาวจร 3-5 ปีข้างหน้า
             </p>
             <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px;">
@@ -524,7 +573,8 @@
             <!-- Dynamically populated by JS -->
           </div>
         </div>
-      </div>
+      
+        </div></div>
     </section>
   </main>
 
@@ -542,7 +592,7 @@
         <span>🔄</span> <span>ล้างแคช &amp; บังคับอัปเดต (Hard Reset)</span>
       </button>
     </div>
-    <p id="footer-version-text">Computational Metaphysics Engine v1.0.0.2369659 — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback</p>
+    <p id="footer-version-text">Computational Metaphysics Engine v1.0.0.74aec5c — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback</p>
   </footer>
 
   <!-- iOS/Android Bottom-Sheet Drum Wheel DateTime Picker Modal -->
@@ -688,9 +738,9 @@
     </div>
   </div>
 
-  <script src="voice_engine.js?v=2369659"></script>
-  <script src="i18n.js?v=2369659"></script>
-  <script src="app.js?v=2369659"></script>
+  <script src="voice_engine.js?v=74aec5c"></script>
+  <script src="i18n.js?v=74aec5c"></script>
+  <script src="app.js?v=74aec5c"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

@@ -35,17 +35,31 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 8. **`bsa-doc-skill-management`**: Own requirements decomposition, live docs sync, quota/account handoff, and skill-governance operations.
 9. **`metaphysical-domain-engine`**: Cross-train and route metaphysical queries among Zi Wei, Qi Men, Da Liu Ren, I Ching, feng shui, and astrology specialists.
 10. **`orchestrator-delegation`**: Coordinate bounded background sub-agent work with file ownership, evidence collection, external-action guardrails, and HITL escalation.
+11. **`web-color-design`**: Color systems, Five Elements palettes, WCAG contrast validation, dark mode, and CSS design tokens for HoroConsultant UI. Used by `ux_ui_designer`.
 
 ### Claude Code Governance Map
 
 - **Level 1 Hooks**: `.claude/settings.json` routes Bash calls through `.agents/hooks/pre_tool_check.py` and `.agents/hooks/post_tool_audit.py` for hard command controls.
-- **Level 2 Rules**: `.claude/rules/*.md` and `.agents/rules/*.md` provide path-aware guidance, including Rule 11 delegation and Rule 12 Claude Code three-level governance.
+- **Level 2 Rules**: `.claude/rules/*.md` and `.agents/rules/*.md` provide path-aware guidance, including Rule 11 delegation, Rule 12 Claude Code three-level governance, Rule 13 ecosystem sync, and Rule 14 specialist decomposition mandate.
 - **Level 3 Global Context**: `CLAUDE.md` remains the short baseline context and links to the detailed governance files.
 - **Quota Handoff Guard**: `/status` or runtime quota below 10% routes through `scripts/agent_quota_status_guard.py`; agents must update `PROJECT_TASKS.md` `TICKET-META-008` and `plans/plan.md` before continuing broad work.
+
+### Specialist Decomposition Policy (Rule 14)
+
+When any skill, agent, rule, hook, or governance document grows too large or requires deep specialist coverage, **create a new dedicated single-responsibility file** rather than expanding the existing one. Hard limits:
+- Skill `description`: ≤ 100 chars
+- SKILL.md body: ≤ 300 lines
+- Agent `system_prompt`: ≤ 50 lines (one primary role)
+- `.agents/rules/*.md`: ≤ 80 lines per concern
+- `.claude/rules/*.md`: ≤ 40 lines per concern
+- Hook script: ≤ 150 lines
+
+See `.agents/rules/14-specialist-decomposition-mandate.md` and `.claude/rules/specialist-decomposition.md` for the full policy and enforcement checklist.
 
 ### Disabled / Retired Skills
 
 1. **`kaggle-manager`**: Disabled. Retained for reference only; not linked to any active agent flow.
+
 
 ---
 
@@ -96,6 +110,8 @@ flowchart TD
 10. **Migration Dead-Code Cleanup Mandate**: During every module or feature migration (e.g., Python to Rust or architecture refactoring), agents MUST clean up deprecated code, dead code, unused functions, and redundant fallback loops in the source codebase. Leaving legacy dead code behind is strictly forbidden.
 11. **Mandatory Post-Goal CI/CD to Prod & E2E / Regression Verification Mandate**: Every time a task or goal is completed ("goal has been done"), agents MUST execute Phase 5 CI/CD deployment to production (git push / Hugging Face Spaces publishing) and run complete E2E & UI button regression testing (`python3 scripts/run_button_regression.py`, `python3 scripts/run_e2e_screenshots.py`, `pytest`) without exception.
 12. **Quota Exhaustion Handoff Mandate**: When `/status` or runtime quota status shows less than 10% remaining, agents MUST stop broad work, summarize current state, update `PROJECT_TASKS.md` `TICKET-META-008` and the `plans/plan.md` account migration section, then run `python3 scripts/agent_quota_status_guard.py --remaining-percent <percent> --enforce` and a secret scan. Never write secret values into handoff docs.
+13. **AI Agent Ecosystem Always-Sync Mandate**: After any change to agent definitions, skills, rules, hooks, or routing config, agents MUST run `python3 scripts/sync_ai_agent_ecosystem.py --check`. Use `--sync` after intentional changes. See `.agents/rules/13-ai-agent-ecosystem-sync.md`.
+14. **Specialist Decomposition Mandate**: When any skill, agent, rule, hook, or governance doc grows too long or requires deep specialist knowledge, agents MUST create a new dedicated single-responsibility file rather than expanding the existing one. Hard limits: skill `description` ≤ 100 chars, SKILL.md ≤ 300 lines, agent `system_prompt` ≤ 50 lines, rule file ≤ 80 lines per concern, Claude rule ≤ 40 lines per concern, hook script ≤ 150 lines. See `.agents/rules/14-specialist-decomposition-mandate.md`.
 
 
 ---
@@ -110,6 +126,7 @@ flowchart TD
 | **`qa_tester`** | QA Tester & Verification Guard | `gpt-5.4-mini` | `qa-tester.agent` | `qa_tester/agent.md` | Test Execution Guard |
 | **`devops`** | DevOps & Release Agent | `gpt-5.3-codex` | `devops.agent` | `devops/agent.md` | Release & Deploy |
 | **`code_reviewer`** | Pre-Deployment Safety Auditor | `gpt-5.3-codex` | `code-reviewer.agent` | `code_reviewer/agent.md` | Safety Audit |
+| **`ux_ui_designer`** | UX/UI Designer & Color Architect | `gpt-5.6-terra` | `ux-ui-designer.agent` | `ux_ui_designer/agent.md` | Color & Design System |
 | **Interpretive / deterministic domain masters** | Metaphysics Experts | `gpt-5.6-terra` / `gpt-5.4-mini` | `[domain]-master.agent` | `[domain_master]/agent.md` | Domain Analysis |
 
 ---
