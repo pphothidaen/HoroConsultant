@@ -172,19 +172,90 @@ def find_llama_cpp_script(custom_dir: str | None = None) -> Path | None:
     return None
 
 
+def _is_mlx_quantized_model(fused_path: Path) -> bool:
+    """Detect if fused model is in MLX quantized format (has .biases/.scales tensors)."""
+    try:
+        from safetensors import safe_open
+        safetensor_files = list(fused_path.glob("*.safetensors"))
+        if not safetensor_files:
+            return False
+        with safe_open(str(safetensor_files[0]), framework="pt") as f:
+            keys = list(f.keys())[:20]
+        return any(k.endswith(".biases") or k.endswith(".scales") for k in keys)
+    except Exception:
+        return False
+
+
+def convert_to_gguf_mlx(
+    model_id: str,
+    adapter_path: Path,
+    fused_path: Path,
+    gguf_path: Path,
+    dry_run: bool = False,
+) -> bool:
+    """Export GGUF directly via mlx_lm.fuse --export-gguf (for MLX quantized models)."""
+    cmd = [
+        sys.executable, "-m", "mlx_lm", "fuse",
+        "--model", model_id,
+        "--adapter-path", str(adapter_path),
+        "--save-path", str(fused_path),
+        "--export-gguf",
+        "--gguf-path", str(gguf_path),
+    ]
+    print(f"   $ {' '.join(cmd)}")
+    if dry_run:
+        print("🔎 [Dry-run] Would execute mlx_lm.fuse --export-gguf command above.")
+        return True
+    try:
+        subprocess.run(cmd, check=True)
+        if gguf_path.exists():
+            size_str = _format_size(gguf_path)
+            print(f"✅ GGUF (MLX-native) created → {gguf_path} ({size_str})")
+            return True
+        print(f"❌ GGUF not found after mlx_lm.fuse: {gguf_path}")
+        return False
+    except subprocess.CalledProcessError as e:
+        print(f"❌ mlx_lm.fuse --export-gguf failed (exit {e.returncode})")
+        return False
+    except Exception as e:
+        print(f"❌ mlx_lm.fuse --export-gguf error: {e}")
+        return False
+
+
 def convert_to_gguf(
     fused_path: Path,
     gguf_path: Path,
     outtype: str = DEFAULT_OUTTYPE,
     llama_cpp_dir: str | None = None,
-    dry_run: bool = False
+    dry_run: bool = False,
+    adapter_path: Path | None = None,
+    base_model: str = DEFAULT_BASE_MODEL,
 ) -> bool:
-    """Step 3: Convert fused model to GGUF format using llama.cpp."""
+    """Step 3: Convert fused model to GGUF format.
+    
+    Auto-detects model format:
+    - MLX quantized (has .biases/.scales): uses mlx_lm.fuse --export-gguf
+    - Standard PyTorch: uses llama.cpp convert_hf_to_gguf.py
+    """
     print("\n📦 Step 3/5: Converting Fused Model to GGUF Format...")
     print(f"   Fused Model : {fused_path}")
     print(f"   GGUF Target : {gguf_path}")
     print(f"   Quantization: {outtype}")
 
+    # Auto-detect MLX quantized format
+    if _is_mlx_quantized_model(fused_path):
+        print("   Format: MLX quantized (has .biases/.scales tensors) → using mlx_lm --export-gguf")
+        _adapter_path = adapter_path or Path(str(fused_path).replace("-fused", "-adapter"))
+        return convert_to_gguf_mlx(
+            model_id=base_model,
+            adapter_path=_adapter_path,
+            fused_path=fused_path,
+            gguf_path=gguf_path,
+            dry_run=dry_run,
+        )
+
+    # Standard PyTorch model → llama.cpp
+    print("   Format: Standard PyTorch → using llama.cpp convert_hf_to_gguf.py")
     script_path = find_llama_cpp_script(llama_cpp_dir)
 
     if not script_path:
@@ -366,6 +437,7 @@ def main() -> None:
     parser.add_argument("--outtype",          default=DEFAULT_OUTTYPE, help="GGUF quantization type")
     parser.add_argument("--llama-cpp-dir",    default=None, help="Directory containing llama.cpp convert_hf_to_gguf.py")
     parser.add_argument("--dry-run",          action="store_true", help="Preview pipeline steps without running commands")
+    parser.add_argument("--skip-fuse",        action="store_true", help="Skip MLX fusion step (use when fused model already exists)")
     parser.add_argument("--skip-gguf",        action="store_true", help="Skip GGUF conversion step")
     parser.add_argument("--skip-ollama",      action="store_true", help="Skip Ollama model creation step")
     parser.add_argument("--skip-test",        action="store_true", help="Skip model sanity test step")
@@ -388,11 +460,20 @@ def main() -> None:
         print("\n❌ Pipeline aborted: Adapter verification failed.")
         sys.exit(1)
 
-    # 2. Fuse Adapter
-    ok = fuse_adapter(args.model, adapter_path, fused_path, dry_run=args.dry_run)
-    if not ok and not args.dry_run:
-        print("\n❌ Pipeline aborted: Model fusion failed.")
-        sys.exit(1)
+    # 2. Fuse Adapter (auto-skip if fused model already exists OR --skip-fuse passed)
+    fused_already_exists = fused_path.exists() and any(fused_path.glob("*.safetensors"))
+    if args.skip_fuse or fused_already_exists:
+        if fused_already_exists:
+            fused_size = _format_size(fused_path)
+            print(f"\n🔗 Step 2/5: MLX Fusion [AUTO-SKIPPED — fused model already exists at {fused_path} ({fused_size})]")
+        else:
+            print("\n🔗 Step 2/5: MLX Fusion [SKIPPED via --skip-fuse]")
+    else:
+        ok = fuse_adapter(args.model, adapter_path, fused_path, dry_run=args.dry_run)
+        if not ok and not args.dry_run:
+            print("\n❌ Pipeline aborted: Model fusion failed.")
+            sys.exit(1)
+
 
     # 3. Convert to GGUF
     if args.skip_gguf:

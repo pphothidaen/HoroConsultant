@@ -43,13 +43,19 @@ class TestLuoPanAlgorithms:
         assert m_south["facing_direction"] == "S"
 
     def test_luopan_heatmap_period_9(self):
-        res = LuoPanDreamEngine.calculate_luopan_heatmap(180.0, period=9)
-        assert res["period"] == 9
-        assert "sectors" in res
-        assert "S" in res["sectors"]
-        assert "W" in res["sectors"]
-        assert res["sectors"]["S"]["heat_score"] >= 90
-        assert res["sectors"]["W"]["heat_score"] <= 20  # Calamity 5 Yellow
+        res_south = LuoPanDreamEngine.calculate_luopan_heatmap(180.0, period=9)
+        assert res_south["period"] == 9
+        assert "sectors" in res_south
+        assert "S" in res_south["sectors"]
+        assert "NW" in res_south["sectors"]
+        assert res_south["sectors"]["S"]["heat_score"] >= 90  # Facing Palace South 9 Purple
+        assert res_south["sectors"]["NW"]["heat_score"] <= 30  # Calamity 5 Yellow
+
+        # When facing North (0 deg), sectors dynamically adjust
+        res_north = LuoPanDreamEngine.calculate_luopan_heatmap(0.0, period=9)
+        assert res_north["sectors"]["N"]["heat_score"] >= 90  # Facing Palace North 1 White
+        assert res_north["sectors"]["E"]["heat_score"] <= 30  # Calamity 5 Yellow
+        assert res_north["sectors"]["N"]["star"] != res_south["sectors"]["N"]["star"]
 
 
 class TestDreamDecoderAlgorithms:
