@@ -5554,7 +5554,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & PROMINENT UPDATE MODAL SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.ca583e9";
+const CLIENT_APP_VERSION = "1.0.0.09f9720";
 let _versionModalDismissed = false;
 let _versionCountdownTimer = null;
 
@@ -6244,9 +6244,11 @@ if (typeof document !== 'undefined') {
  * Toggles aria-expanded and adds/removes acc-collapsed on the body.
  */
 function toggleCardAccordion(btn) {
+  const card = btn.closest('.accordion-card') || btn.parentElement;
+  if (!card) return;
   const isExpanded = btn.getAttribute('aria-expanded') === 'true';
-  const body = btn.nextElementSibling;
-  if (!body || !body.classList.contains('accordion-card-body')) return;
+  const body = card.querySelector('.accordion-card-body');
+  if (!body) return;
 
   if (isExpanded) {
     btn.setAttribute('aria-expanded', 'false');
