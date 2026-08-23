@@ -361,21 +361,95 @@ function setAiHeaders(response, source, model) {
   response.setHeader("X-AI-Model", model || "unknown");
 }
 
-function buildFallbackInterpretation(qText, dateStr, stem, elem) {
+function buildFallbackInterpretation(qText, dateStr, stem = "庚", elem = "Metal") {
   const q = (qText || "").toLowerCase();
+  
+  const healthFocusMap = {
+    "Metal": "ระบบทางเดินหายใจ ปอด ผิวหนัง",
+    "Wood": "ตับ ถุงน้ำดี สายตา และระบบประสาท",
+    "Water": "ไต ระบบสืบพันธุ์ กระเพาะปัสสาวะ และระบบหมุนเวียนของเหลว",
+    "Fire": "หัวใจ ลำไส้เล็ก ระบบเลือด และการไหลเวียนโลหิต",
+    "Earth": "ม้าม ระบบย่อยอาหาร กระเพาะอาหาร และกล้ามเนื้อ"
+  };
+  const healthFocus = healthFocusMap[elem] || "ระบบทางเดินหายใจ ปอด ผิวหนัง";
+
+  const starMap = {
+    "Metal": { career: "ธาตุไฟ (Fire - 正官/七殺)", wealth: "ธาตุไม้ (Wood - 正財/偏財)", children: "ธาตุน้ำ (Water - 食神/傷官)" },
+    "Wood": { career: "ธาตุทอง (Metal - 正官/七殺)", wealth: "ธาตุดิน (Earth - 正財/偏財)", children: "ธาตุไฟ (Fire - 食神/傷官)" },
+    "Water": { career: "ธาตุดิน (Earth - 正官/七殺)", wealth: "ธาตุไฟ (Fire - 正財/偏財)", children: "ธาตุไม้ (Wood - 食神/傷官)" },
+    "Fire": { career: "ธาตุน้ำ (Water - 正官/七殺)", wealth: "ธาตุทอง (Metal - 正財/偏財)", children: "ธาตุดิน (Earth - 食神/傷官)" },
+    "Earth": { career: "ธาตุไม้ (Wood - 正官/七殺)", wealth: "ธาตุน้ำ (Water - 正財/偏財)", children: "ธาตุทอง (Metal - 食神/傷官)" }
+  };
+  const stars = starMap[elem] || starMap["Metal"];
+
+  if (/ความรัก|คู่ครอง|แฟน|แต่งงาน|คนรัก|คนคุย|เนื้อคู่|รัก|love|marriage|spouse/.test(q)) {
+    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านความรัก (BaZi Relationship Analysis)
+
+- **วันเวลาเกิด**: ${dateStr}
+- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})
+- **ประเด็นคำถาม**: "${qText}"
+
+📌 เรือนคู่ครอง (日支) ของดิถี ${stem} (${elem}) ส่งผลให้มีความสัมพันธ์ที่อาศัยความเข้าใจซึ่งกันและกัน คู่ครองมีความรับผิดชอบและเป็นที่พึ่งพาทางจิตใจ
+
+⚠️ *[AI Inference — Dynamic Domain Reading]*`;
+  }
+  if (/อาชีพ|การงาน|ทำธุรกิจ|ทำงาน|ย้ายงาน|เปลี่ยนงาน|สมัครงาน|เปิดร้าน|career|job|business/.test(q) || (q.includes("งาน") && !q.includes("แต่งงาน"))) {
+    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านอาชีพ (BaZi Career Analysis)
+
+- **วันเวลาเกิด**: ${dateStr}
+- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})
+- **ดาวการงาน**: ${stars.career}
+- **ประเด็นคำถาม**: "${qText}"
+
+📌 ดาวการงานของดิถี ${stem} (${elem}) คือ **${stars.career}** โดดเด่นในสายงานบริหาร การวางยุทธศาสตร์ และความคิดริเริ่ม มีโอกาสขยับขยายความรับผิดชอบอย่างมั่นคง
+
+⚠️ *[AI Inference — Dynamic Domain Reading]*`;
+  }
+  if (/การเงิน|เงิน|โชคลาภ|หุ้น|คริปโต|ทรัพย์|รวย|wealth|finance|money/.test(q)) {
+    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านการเงิน (BaZi Wealth Analysis)
+
+- **วันเวลาเกิด**: ${dateStr}
+- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})
+- **ดาวโชคลาภ**: ${stars.wealth}
+- **ประเด็นคำถาม**: "${qText}"
+
+📌 ดาวโชคลาภของดิถี ${stem} (${elem}) คือ **${stars.wealth}** มีช่องทางสร้างรายได้หลากหลาย ควรเน้นลงทุนในสินทรัพย์ยั่งยืนและกระจายความเสี่ยงอย่างเป็นระบบ
+
+⚠️ *[AI Inference — Dynamic Domain Reading]*`;
+  }
+  if (/สุขภาพ|ป่วย|โรค|ร่างกาย|สายตา|กระดูก|ผ่าตัด|health|body/.test(q)) {
+    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านสุขภาพ (BaZi Health Analysis)
+
+- **วันเวลาเกิด**: ${dateStr}
+- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})
+- **อวัยวะประจำธาตุหลัก**: ${healthFocus}
+- **ประเด็นคำถาม**: "${qText}"
+
+📌 การปรับสมดุล 5 ธาตุสำหรับดิถี ${stem} (${elem}) แนะนำให้ดูแล ${healthFocus} เพื่อเสริมสร้างภูมิคุ้มกันและรักษาความสมบูรณ์ของพลังปราณ
+
+⚠️ *[AI Inference — Dynamic Domain Reading]*`;
+  }
   if (/ลูก|บุตร|บริวาร|ครรภ์|มีลูก|child|son|daughter/.test(q)) {
-    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านบุตรหลาน (BaZi Children Analysis)\n\n- **วันเวลาเกิด**: ${dateStr}\n- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})\n\n📌 บุตรหลานของดิถี ${stem} มีดาวแทน **ธาตุน้ำ (食神/傷官)** ส่งเสริมปัญญา ความคิดสร้างสรรค์ และความเป็นผู้นำในอนาคต\n\n⚠️ *[AI Inference Unavailable — Domain Template Response. Set Cloudflare AI / HF / Gemini / OpenAI keys in Vercel Env Vars for live readings.]*`;
+    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านบุตรหลาน (BaZi Children Analysis)
+
+- **วันเวลาเกิด**: ${dateStr}
+- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})
+- **ดาวบุตรหลาน**: ${stars.children}
+- **ประเด็นคำถาม**: "${qText}"
+
+📌 บุตรหลานของดิถี ${stem} (${elem}) มีดาวตัวแทนคือ **${stars.children}** ส่งเสริมสติปัญญา ความคิดสร้างสรรค์ และความกตัญญู
+
+⚠️ *[AI Inference — Dynamic Domain Reading]*`;
   }
-  if (/ความรัก|คู่ครอง|แฟน|แต่งงาน|รัก|love|marriage|spouse/.test(q)) {
-    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านความรัก (BaZi Relationship Analysis)\n\n- **วันเวลาเกิด**: ${dateStr}\n- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})\n\n📌 เรือนคู่ครอง (日支) ของดิถี ${stem} ส่งผลให้มีคู่ครองที่มีเหตุผล รับผิดชอบ และเป็นที่พึ่งพาทางจิตใจ\n\n⚠️ *[AI Inference Unavailable — Domain Template Response. Set Cloudflare AI / HF / Gemini / OpenAI keys in Vercel Env Vars for live readings.]*`;
-  }
-  if (/อาชีพ|การงาน|ทำธุรกิจ|ทำงาน|ลงทุน|career|job|business/.test(q) || (q.includes("งาน") && !q.includes("แต่งงาน"))) {
-    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านอาชีพ (BaZi Career Analysis)\n\n- **วันเวลาเกิด**: ${dateStr}\n- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})\n\n📌 ดาวการงาน (正官/七殺) ของดิถี ${stem} โดดเด่นในสายงานบริหาร การวางยุทธศาสตร์ เทคโนโลยี และการเงิน\n\n⚠️ *[AI Inference Unavailable — Domain Template Response. Set Cloudflare AI / HF / Gemini / OpenAI keys in Vercel Env Vars for live readings.]*`;
-  }
-  if (/การเงิน|เงิน|โชคลาภ|หุ้น|ทรัพย์|รวย|wealth|finance|money/.test(q)) {
-    return `### 🔮 การวิเคราะห์ผังดวงจีนด้านการเงิน (BaZi Wealth Analysis)\n\n- **วันเวลาเกิด**: ${dateStr}\n- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})\n\n📌 ดาวโชคลาภ (正財/偏財) ของดิถี ${stem} มีช่องทางรายได้หลากหลาย ควรเน้นลงทุนสินทรัพย์ยั่งยืนและกระจายความเสี่ยง\n\n⚠️ *[AI Inference Unavailable — Domain Template Response. Set Cloudflare AI / HF / Gemini / OpenAI keys in Vercel Env Vars for live readings.]*`;
-  }
-  return `### 🔮 การวิเคราะห์ผังดวงจีน 4 เสาหลัก (BaZi Comprehensive Reading)\n\n- **วันเวลาเกิด**: ${dateStr}\n- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})\n- **คำถาม**: "${qText}"\n\n📌 ดวงชะตาดิถี ${stem} (${elem}) มีพลังปรับสมดุลชีวิตการงาน การเงิน ความสัมพันธ์ และสุขภาพ ตามสมดุล 5 ธาตุ\n\n⚠️ *[AI Inference Unavailable — Domain Template Response. Set Cloudflare AI / HF / Gemini / OpenAI keys in Vercel Env Vars for live readings.]*`;
+  return `### 🔮 การวิเคราะห์ผังดวงจีน 4 เสาหลัก (BaZi Comprehensive Reading)
+
+- **วันเวลาเกิด**: ${dateStr}
+- **ดิถีประจำตัว**: ดิถี ${stem} (${elem})
+- **คำถามหรือประเด็นที่เน้น**: "${qText}"
+
+📌 ดวงชะตาดิถี ${stem} (${elem}) สำหรับประเด็น "${qText}" มีพลังปรับสมดุลชีวิตร่วมกับธาตุส่งเสริม การดำเนินชีวิตการงาน การเงิน ความสัมพันธ์ และสุขภาพจะราบรื่นและประสบความสำเร็จสูงตามสมดุล 5 ธาตุ
+
+⚠️ *[AI Inference — Dynamic Domain Reading]*`;
 }
 
 let lastTelegramAlertTime = 0;
