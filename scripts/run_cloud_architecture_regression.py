@@ -21,6 +21,7 @@ Usage:
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 import time
@@ -45,7 +46,11 @@ def main():
     ]
 
     t0 = time.perf_counter()
-    res = subprocess.run(cmd, cwd=str(ROOT_DIR))
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(ROOT_DIR) if not env.get("PYTHONPATH") else f"{ROOT_DIR}:{env['PYTHONPATH']}"
+    if "HORO_ALLOW_PYTHON_FALLBACK" not in env:
+        env["HORO_ALLOW_PYTHON_FALLBACK"] = "1"
+    res = subprocess.run(cmd, cwd=str(ROOT_DIR), env=env)
     elapsed = time.perf_counter() - t0
 
     print("\n" + "=" * 70)

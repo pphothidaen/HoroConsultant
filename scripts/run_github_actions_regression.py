@@ -16,6 +16,7 @@ Usage:
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 import time
@@ -40,7 +41,9 @@ def main():
     ]
 
     t0 = time.perf_counter()
-    res = subprocess.run(cmd, cwd=str(ROOT_DIR))
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(ROOT_DIR) if not env.get("PYTHONPATH") else f"{ROOT_DIR}:{env['PYTHONPATH']}"
+    res = subprocess.run(cmd, cwd=str(ROOT_DIR), env=env)
     elapsed = time.perf_counter() - t0
 
     print("\n" + "=" * 70)
