@@ -1,6 +1,7 @@
 """Contract tests for deterministic engine -> Horo v3.0 claim adapters."""
 
 from datetime import datetime
+import hashlib
 import os
 import sys
 from uuid import UUID
@@ -32,6 +33,8 @@ from project.core.v3_engine_adapter import (
     adapt_xuankong_to_claims,
     adapt_zeji_to_claims,
     adapt_ziwei_to_claims,
+    check_graph_acyclicity,
+    compute_merkle_hash,
 )
 
 from runtimes.claim_validator import ClaimValidator
@@ -125,3 +128,31 @@ def test_adapter_emission_has_contract_metadata(name, build_result):
 def test_adapters_reject_non_mapping_engine_results():
     with pytest.raises(TypeError):
         adapt_bazi_to_claims(["not", "a", "result"])
+
+
+def test_compute_merkle_hash_matches_v3_rust_algorithm():
+    payload = '{"stage":"L2","value":1}'
+    parents = ["parent-b", "parent-a"]
+    expected = hashlib.sha256(
+        f"{payload}||parent-aparent-b".encode("utf-8")
+    ).hexdigest()
+
+    assert compute_merkle_hash(payload, parents) == expected
+    assert compute_merkle_hash(payload, list(reversed(parents))) == expected
+    assert len(compute_merkle_hash('{"stage":"L1"}', [])) == 64
+
+
+def test_graph_reachability_matches_v3_rust_algorithm():
+    edges = [("A", "B"), ("B", "C"), ("C", "D")]
+
+    assert check_graph_acyclicity(edges, "A", "D") is True
+    assert check_graph_acyclicity(edges, "D", "A") is False
+    assert check_graph_acyclicity(edges, "A", "missing") is False
+    assert check_graph_acyclicity(edges, "A", "A") is True
+
+
+def test_graph_reachability_terminates_for_cycles():
+    edges = [("A", "B"), ("B", "C"), ("C", "A")]
+
+    assert check_graph_acyclicity(edges, "B", "A") is True
+    assert check_graph_acyclicity(edges, "A", "missing") is False

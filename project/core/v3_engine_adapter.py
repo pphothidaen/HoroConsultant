@@ -13,6 +13,57 @@ import json
 from typing import Any
 from uuid import uuid4
 
+try:
+    import rust_core
+except ImportError:
+    rust_core = None  # type: ignore[assignment]
+
+
+def _compute_merkle_hash_python(payload_json: str, parent_hashes: list[str]) -> str:
+    parent_material = "ROOT_NODE" if not parent_hashes else "".join(sorted(parent_hashes))
+    return hashlib.sha256(f"{payload_json}||{parent_material}".encode("utf-8")).hexdigest()
+
+
+def compute_merkle_hash(payload_json: str, parent_hashes: list[str]) -> str:
+    """Compute a v3 Merkle node hash using Rust when the extension is available."""
+    native = getattr(rust_core, "compute_merkle_node_hash_py", None)
+    if native is not None:
+        return native(payload_json, parent_hashes)
+    return _compute_merkle_hash_python(payload_json, parent_hashes)
+
+
+def _check_graph_reachability_python(
+    edges: list[tuple[str, str]], from_node: str, to_node: str
+) -> bool:
+    if from_node == to_node:
+        return True
+
+    adjacency: dict[str, list[str]] = {}
+    for source, destination in edges:
+        adjacency.setdefault(source, []).append(destination)
+
+    queue = [from_node]
+    visited = {from_node}
+    while queue:
+        current = queue.pop(0)
+        for neighbor in adjacency.get(current, ()):
+            if neighbor == to_node:
+                return True
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+    return False
+
+
+def check_graph_acyclicity(
+    edges: list[tuple[str, str]], from_node: str, to_node: str
+) -> bool:
+    """Return whether ``to_node`` is reachable from ``from_node``."""
+    native = getattr(rust_core, "check_reachability_py", None)
+    if native is not None:
+        return native(edges, from_node, to_node)
+    return _check_graph_reachability_python(edges, from_node, to_node)
+
 
 def _as_dict(result: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(result, dict):
@@ -282,6 +333,8 @@ def adapt_mianxiang_to_claims(mianxiang_result: dict, session_id: str | None = N
 
 
 __all__ = [
+    "compute_merkle_hash",
+    "check_graph_acyclicity",
     "adapt_bazi_to_claims",
     "adapt_ziwei_to_claims",
     "adapt_qimen_to_claims",

@@ -132,6 +132,8 @@ pub const ACTIVE_KERNELS: &[&str] = &[
     "record_http_metric_rust",
     "record_rag_metric_rust",
     "generate_prometheus_metrics_rust",
+    "compute_merkle_node_hash_py",
+    "check_reachability_py",
 ];
 
 /// Return deterministic, secret-free native runtime metadata.
@@ -140,6 +142,32 @@ pub fn runtime_identity() -> RuntimeIdentity {
         version: env!("CARGO_PKG_VERSION"),
         kernels: ACTIVE_KERNELS,
     }
+}
+
+/// Python boundary for deterministic v3 Merkle-DAG node hashing.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn compute_merkle_node_hash_py(
+    payload_json: String,
+    parent_hashes: Vec<String>,
+) -> PyResult<String> {
+    Ok(v3_merkle_dag::compute_merkle_node_hash(
+        &payload_json,
+        &parent_hashes,
+    ))
+}
+
+/// Python boundary for iterative v3 Merkle-DAG reachability checks.
+#[cfg(feature = "python")]
+#[pyfunction]
+fn check_reachability_py(
+    edges: Vec<(String, String)>,
+    from_node: String,
+    to_node: String,
+) -> PyResult<bool> {
+    Ok(v3_merkle_dag::check_reachability(
+        &edges, &from_node, &to_node,
+    ))
 }
 
 /// High-performance Rust core for Computational Metaphysics Engine.
@@ -152,6 +180,10 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     active_kernels.push("start_rust_axum_server");
     m.add("__version__", identity.version)?;
     m.add("__kernels__", active_kernels)?;
+
+    // v3 Merkle provenance and DAG validation
+    m.add_function(wrap_pyfunction!(compute_merkle_node_hash_py, m)?)?;
+    m.add_function(wrap_pyfunction!(check_reachability_py, m)?)?;
 
     // TF-IDF / Search
     m.add_function(wrap_pyfunction!(tfidf::cosine_similarity, m)?)?;
