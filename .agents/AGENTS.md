@@ -36,6 +36,7 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 9. **`metaphysical-domain-engine`**: Cross-train and route metaphysical queries among Zi Wei, Qi Men, Da Liu Ren, I Ching, feng shui, and astrology specialists.
 10. **`orchestrator-delegation`**: Coordinate bounded background sub-agent work with file ownership, evidence collection, external-action guardrails, and HITL escalation.
 11. **`web-color-design`**: Color systems, Five Elements palettes, WCAG contrast validation, dark mode, and CSS design tokens for HoroConsultant UI. Used by `ux_ui_designer`.
+12. **`ui-visual-auditor`**: Multi-viewport screenshot capture, DOM overlap detection, and layout distortion auditing. Used by `ui_visual_tester`.
 
 ### Claude Code Governance Map
 
@@ -127,6 +128,7 @@ flowchart TD
 | **`devops`** | DevOps & Release Agent | `gpt-5.3-codex` | `devops.agent` | `devops/agent.md` | Release & Deploy |
 | **`code_reviewer`** | Pre-Deployment Safety Auditor | `gpt-5.3-codex` | `code-reviewer.agent` | `code_reviewer/agent.md` | Safety Audit |
 | **`ux_ui_designer`** | UX/UI Designer & Color Architect | `gpt-5.6-terra` | `ux-ui-designer.agent` | `ux_ui_designer/agent.md` | Color & Design System |
+| **`ui_visual_tester`** | UI Visual Tester & Layout Auditor | `gpt-5.4-mini` | `ui-visual-tester.agent` | `ui_visual_tester/agent.md` | Visual Layout QA |
 | **Interpretive / deterministic domain masters** | Metaphysics Experts | `gpt-5.6-terra` / `gpt-5.4-mini` | `[domain]-master.agent` | `[domain_master]/agent.md` | Domain Analysis |
 
 ---

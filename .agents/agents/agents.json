@@ -57,6 +57,10 @@
       "path": "thai_vedic_master/agent.md"
     },
     {
+      "name": "ui_visual_tester",
+      "path": "ui_visual_tester/agent.md"
+    },
+    {
       "name": "ux_ui_designer",
       "path": "ux_ui_designer/agent.md"
     },

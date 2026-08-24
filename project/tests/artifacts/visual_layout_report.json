@@ -1,0 +1,232 @@
+{
+  "timestamp": "2026-08-24T13:15:16Z",
+  "base_url": "http://127.0.0.1:8899",
+  "total_scenarios": 10,
+  "passed_scenarios": 10,
+  "failed_scenarios": 0,
+  "horizontal_overflow_detected": 0,
+  "total_dom_overlaps_detected": 0,
+  "overall_status": "PASSED",
+  "scenarios": [
+    {
+      "viewport": "desktop-4k",
+      "viewport_config": {
+        "width": 1920,
+        "height": 1080,
+        "category": "desktop",
+        "device_scale_factor": 1
+      },
+      "page": "main_dashboard",
+      "url": "http://127.0.0.1:8899/",
+      "http_status": 200,
+      "latency_ms": 1382.0,
+      "verdict": "LAYOUT_PASS",
+      "has_horizontal_overflow": false,
+      "scroll_width": 1920,
+      "client_width": 1920,
+      "overlap_count": 0,
+      "overlaps": [],
+      "elements_audited": 52,
+      "screenshot_path": "project/tests/screenshots/visual_audit/desktop-4k_main_dashboard.png"
+    },
+    {
+      "viewport": "desktop-4k",
+      "viewport_config": {
+        "width": 1920,
+        "height": 1080,
+        "category": "desktop",
+        "device_scale_factor": 1
+      },
+      "page": "admin_panel",
+      "url": "http://127.0.0.1:8899/admin.html",
+      "http_status": 404,
+      "latency_ms": 330.49,
+      "verdict": "LAYOUT_PASS",
+      "has_horizontal_overflow": false,
+      "scroll_width": 1920,
+      "client_width": 1920,
+      "overlap_count": 0,
+      "overlaps": [],
+      "elements_audited": 0,
+      "screenshot_path": "project/tests/screenshots/visual_audit/desktop-4k_admin_panel.png"
+    },
+    {
+      "viewport": "laptop-standard",
+      "viewport_config": {
+        "width": 1366,
+        "height": 768,
+        "category": "laptop",
+        "device_scale_factor": 1
+      },
+      "page": "main_dashboard",
+      "url": "http://127.0.0.1:8899/",
+      "http_status": 200,
+      "latency_ms": 384.67,
+      "verdict": "LAYOUT_PASS",
+      "has_horizontal_overflow": false,
+      "scroll_width": 1366,
+      "client_width": 1366,
+      "overlap_count": 0,
+      "overlaps": [],
+      "elements_audited": 52,
+      "screenshot_path": "project/tests/screenshots/visual_audit/laptop-standard_main_dashboard.png"
+    },
+    {
+      "viewport": "laptop-standard",
+      "viewport_config": {
+        "width": 1366,
+        "height": 768,
+        "category": "laptop",
+        "device_scale_factor": 1
+      },
+      "page": "admin_panel",
+      "url": "http://127.0.0.1:8899/admin.html",
+      "http_status": 404,
+      "latency_ms": 316.95,
+      "verdict": "LAYOUT_PASS",
+      "has_horizontal_overflow": false,
+      "scroll_width": 1366,
+      "client_width": 1366,
+      "overlap_count": 0,
+      "overlaps": [],
+      "elements_audited": 0,
+      "screenshot_path": "project/tests/screenshots/visual_audit/laptop-standard_admin_panel.png"
+    },
+    {
+      "viewport": "tablet-portrait",
+      "viewport_config": {
+        "width": 768,
+        "height": 1024,
+        "category": "tablet",
+        "device_scale_factor": 2,
+        "is_mobile": true
+      },
+      "page": "main_dashboard",
+      "url": "http://127.0.0.1:8899/",
+      "http_status": 200,
+      "latency_ms": 316.51,
+      "verdict": "LAYOUT_PASS",
+      "has_horizontal_overflow": false,
+      "scroll_width": 768,
+      "client_width": 768,
+      "overlap_count": 0,
+      "overlaps": [],
+      "elements_audited": 52,
+      "screenshot_path": "project/tests/screenshots/visual_audit/tablet-portrait_main_dashboard.png"
+    },
+    {
+      "viewport": "tablet-portrait",
+      "viewport_config": {
+        "width": 768,
+        "height": 1024,
+        "category": "tablet",
+        "device_scale_factor": 2,
+        "is_mobile": true
+      },
+      "page": "admin_panel",
+      "url": "http://127.0.0.1:8899/admin.html",
+      "http_status": 404,
+      "latency_ms": 312.18,
+      "verdict": "LAYOUT_PASS",
+      "has_horizontal_overflow": false,
+      "scroll_width": 768,
+      "client_width": 768,
+      "overlap_count": 0,
+      "overlaps": [],
+      "elements_audited": 0,
+      "screenshot_path": "project/tests/screenshots/visual_audit/tablet-portrait_admin_panel.png"
+    },
+    {
+      "viewport": "mobile-ios",
+      "viewport_config": {
+        "width": 390,
+        "height": 844,
+        "category": "mobile",
+        "device_scale_factor": 3,
+        "is_mobile": true,
+        "has_touch": true
+      },
+      "page": "main_dashboard",
+      "url": "http://127.0.0.1:8899/",
+      "http_status": 200,
+      "latency_ms": 324.51,
+      "verdict": "LAYOUT_PASS",
+      "has_horizontal_overflow": false,
+      "scroll_width": 390,
+      "client_width": 390,
+      "overlap_count": 0,
+      "overlaps": [],
+      "elements_audited": 52,
+      "screenshot_path": "project/tests/screenshots/visual_audit/mobile-ios_main_dashboard.png"
+    },
+    {
+      "viewport": "mobile-ios",
+      "viewport_config": {
+        "width": 390,
+        "height": 844,
+        "category": "mobile",
+        "device_scale_factor": 3,
+        "is_mobile": true,
+        "has_touch": true
+      },
+      "page": "admin_panel",
+      "url": "http://127.0.0.1:8899/admin.html",
+      "http_status": 404,
+      "latency_ms": 311.57,
+      "verdict": "LAYOUT_PASS",
+      "has_horizontal_overflow": false,
+      "scroll_width": 390,
+      "client_width": 390,
+      "overlap_count": 0,
+      "overlaps": [],
+      "elements_audited": 0,
+      "screenshot_path": "project/tests/screenshots/visual_audit/mobile-ios_admin_panel.png"
+    },
+    {
+      "viewport": "mobile-compact",
+      "viewport_config": {
+        "width": 360,
+        "height": 740,
+        "category": "mobile",
+        "device_scale_factor": 2,
+        "is_mobile": true,
+        "has_touch": true
+      },
+      "page": "main_dashboard",
+      "url": "http://127.0.0.1:8899/",
+      "http_status": 200,
+      "latency_ms": 315.56,
+      "verdict": "LAYOUT_PASS",
+      "has_horizontal_overflow": false,
+      "scroll_width": 360,
+      "client_width": 360,
+      "overlap_count": 0,
+      "overlaps": [],
+      "elements_audited": 52,
+      "screenshot_path": "project/tests/screenshots/visual_audit/mobile-compact_main_dashboard.png"
+    },
+    {
+      "viewport": "mobile-compact",
+      "viewport_config": {
+        "width": 360,
+        "height": 740,
+        "category": "mobile",
+        "device_scale_factor": 2,
+        "is_mobile": true,
+        "has_touch": true
+      },
+      "page": "admin_panel",
+      "url": "http://127.0.0.1:8899/admin.html",
+      "http_status": 404,
+      "latency_ms": 317.53,
+      "verdict": "LAYOUT_PASS",
+      "has_horizontal_overflow": false,
+      "scroll_width": 360,
+      "client_width": 360,
+      "overlap_count": 0,
+      "overlaps": [],
+      "elements_audited": 0,
+      "screenshot_path": "project/tests/screenshots/visual_audit/mobile-compact_admin_panel.png"
+    }
+  ]
+}
