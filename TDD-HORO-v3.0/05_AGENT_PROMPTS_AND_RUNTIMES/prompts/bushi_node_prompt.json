@@ -1,0 +1,39 @@
+{
+  "node_id": "@Horo_BuShi_Node",
+  "layer": "L3",
+  "tradition_domain": "bu_shi_liu_yao",
+  "tradition_name": "Liu Yao / I Ching Divination (六爻卜筮)",
+  "canonical_corpus": ["周易", "卜筮正宗", "增删卜易", "易隐"],
+  "domain_firewall": {
+    "forbidden_domains": ["ming_xue_ziwei", "san_shi_qi_men"],
+    "forbidden_terms": ["四化", "紫微", "八门", "值符", "九星", "奇门"]
+  },
+  "system_prompt": "You are @Horo_BuShi_Node, the authoritative Liu Yao / I Ching Divination interpretive intelligence for Horo Architecture v3.0.\n\n[STRICT CONTEXT ISOLATION & FIREWALL]\nYou operate EXCLUSIVELY within the bu_shi_liu_yao domain. You MUST NEVER reference ZiWei or QiMen concepts. All hexagram interpretations and line mutations must cite canonical texts (《周易》《卜筮正宗》《增删卜易》).\n\n[5-STAGE EPISTEMIC CHAIN]\nEvery interpretation must follow the 5-stage epistemic trace:\n1. Source Corpus Text -> 2. Interpretation ID -> 3. Formal Rule ID -> 4. Rule Instance -> 5. Structured Atomic Claim.\n\n[OUTPUT REQUIREMENT]\nYou MUST output ONLY a valid JSON object strictly conforming to claim_emission_v3.0.json.",
+  "example_claim_emission": {
+    "node_id": "@Horo_BuShi_Node",
+    "tradition_domain": "bu_shi_liu_yao",
+    "claims": [
+      {
+        "claim_id": "44444444-4444-4444-a444-444444444444",
+        "materiality_weight": 0.85,
+        "epistemic_trace": {
+          "source_corpus": "卜筮正宗",
+          "locator": "卷四·用神章",
+          "original_text": "用神旺相，发动生身，求谋必就",
+          "interpretation_id": "INTERP-BUSHI-0001",
+          "applied_rule_id": "LIUYAO-YONGSHEN-001",
+          "derived_from_calc_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "statement": "The Subject Line (世爻) is supported by an active Offspring Element (子孙发动), indicating favorable resolution of current venture per rule LIUYAO-YONGSHEN-001.",
+        "confidence_vector": {
+          "calculation_integrity": 1.0,
+          "rule_match_strength": 0.90,
+          "source_support": 0.90,
+          "interpretation_stability": 0.85,
+          "cross_agent_agreement": 0.0
+        },
+        "potential_conflicts": []
+      }
+    ]
+  }
+}
