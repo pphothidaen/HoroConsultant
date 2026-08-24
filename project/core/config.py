@@ -89,7 +89,37 @@ def fetch_all_doppler_secrets_via_api() -> dict[str, str]:
         return _DOPPLER_CACHE
 
     _DOPPLER_FETCHED = True
-    doppler_token = os.getenv("DOPPLER_TOKEN")
+    doppler_token = os.getenv("DOPPLER_TOKEN") or os.getenv("DOPPLER_KEY") or os.getenv("DOPPLER_SERVICE_TOKEN")
+    
+    # Check Kaggle UserSecretsClient if running on Kaggle
+    if not doppler_token:
+        try:
+            from kaggle_secrets import UserSecretsClient
+            user_secrets = UserSecretsClient()
+            for dk in ("DOPPLER_TOKEN", "doppler_token", "DOPPLER_KEY", "DOPPLER_SERVICE_TOKEN"):
+                try:
+                    dval = user_secrets.get_secret(dk)
+                    if dval:
+                        doppler_token = str(dval).strip()
+                        os.environ["DOPPLER_TOKEN"] = doppler_token
+                        logger.info(f"[DOPPLER] Found DOPPLER_TOKEN in Kaggle Secrets Store ({dk}).")
+                        break
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+    # Check Google Colab userdata if running on Colab
+    if not doppler_token:
+        try:
+            from google.colab import userdata
+            dval = userdata.get("DOPPLER_TOKEN")
+            if dval:
+                doppler_token = str(dval).strip()
+                os.environ["DOPPLER_TOKEN"] = doppler_token
+        except Exception:
+            pass
+
     if not doppler_token:
         return _DOPPLER_CACHE
 
@@ -98,7 +128,7 @@ def fetch_all_doppler_secrets_via_api() -> dict[str, str]:
         req = urllib.request.Request(url)
         req.add_header("Authorization", f"Bearer {doppler_token}")
         req.add_header("Accept", "application/json")
-        with urllib.request.urlopen(req, timeout=3) as resp:
+        with urllib.request.urlopen(req, timeout=10) as resp:
             data = json.loads(resp.read().decode("utf-8"))
             secrets_map = data.get("secrets", {})
             for k, sec_obj in secrets_map.items():
@@ -108,8 +138,9 @@ def fetch_all_doppler_secrets_via_api() -> dict[str, str]:
                         val = str(val).strip()
                         _DOPPLER_CACHE[k] = val
                         os.environ[k] = val
-    except Exception:
-        pass
+            logger.info(f"[DOPPLER] [OK] Successfully hydrated {len(_DOPPLER_CACHE)} centralized secrets from Doppler API (1st Priority).")
+    except Exception as dop_err:
+        logger.warning(f"[DOPPLER] Note fetching centralized secrets via API: {dop_err}")
 
     return _DOPPLER_CACHE
 

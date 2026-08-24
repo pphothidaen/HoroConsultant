@@ -96,38 +96,89 @@ import json
 import glob
 import zipfile
 
-# 1. Platform Detection & Decoupled Secrets Loading
-required_secrets = ['HF_TOKEN', 'WANDB_KEY', 'GITHUB_TOKEN', 'GH_TOKEN', 'DOPPLER_TOKEN', 'HF_USERNAME']
+# 1. 2-Tier Priority Secrets Loading (1st Priority: Doppler Centralized API, 2nd Priority: Platform Secrets)
 current_platform = 'LOCAL'
+doppler_token = os.getenv('DOPPLER_TOKEN') or os.getenv('DOPPLER_KEY') or os.getenv('DOPPLER_SERVICE_TOKEN')
 
+# 1.1 Discover DOPPLER_TOKEN across environments
 try:
     from kaggle_secrets import UserSecretsClient
     current_platform = 'KAGGLE'
-    print('[INFO] Detected Kaggle: Loading Secrets from Kaggle Secrets Store...')
     user_secrets = UserSecretsClient()
-    for key in required_secrets:
-        try:
-            val = user_secrets.get_secret(key)
-            if val:
-                os.environ[key] = str(val).strip()
-                print(f'  -> [OK] {key} loaded from Kaggle Secrets Store.')
-        except Exception:
-            pass
+    if not doppler_token:
+        for dk in ['DOPPLER_TOKEN', 'doppler_token', 'DOPPLER_KEY', 'DOPPLER_SERVICE_TOKEN']:
+            try:
+                dval = user_secrets.get_secret(dk)
+                if dval:
+                    doppler_token = str(dval).strip()
+                    os.environ['DOPPLER_TOKEN'] = doppler_token
+                    print(f'[DOPPLER] 🔑 Loaded DOPPLER_TOKEN from Kaggle Secrets Store ({dk}).')
+                    break
+            except Exception:
+                pass
 except ImportError:
     try:
         from google.colab import userdata
         current_platform = 'COLAB'
-        print('[INFO] Detected Google Colab: Loading Secrets...')
-        for key in required_secrets:
-            try:
-                val = userdata.get(key)
-                if val:
-                    os.environ[key] = str(val).strip()
-                    print(f'  -> [OK] {key} loaded from Colab.')
-            except Exception:
-                pass
+        if not doppler_token:
+            dval = userdata.get('DOPPLER_TOKEN')
+            if dval:
+                doppler_token = str(dval).strip()
+                os.environ['DOPPLER_TOKEN'] = doppler_token
+                print('[DOPPLER] 🔑 Loaded DOPPLER_TOKEN from Colab Userdata.')
     except ImportError:
-        print('[INFO] Local/Other Environment detected: Relying on system environment variables or Doppler.')
+        pass
+
+# 1.2 Hydrate Centralized Secrets from Doppler REST API (1st Priority)
+doppler_hydrated = 0
+if doppler_token:
+    try:
+        import urllib.request
+        url = 'https://api.doppler.com/v3/configs/config/secrets'
+        req = urllib.request.Request(url)
+        req.add_header('Authorization', f'Bearer {doppler_token}')
+        req.add_header('Accept', 'application/json')
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+            for k, sec_obj in data.get('secrets', {}).items():
+                if isinstance(sec_obj, dict):
+                    val = sec_obj.get('computed') or sec_obj.get('raw') or ''
+                    if val:
+                        os.environ[k] = str(val).strip()
+                        doppler_hydrated += 1
+        print(f'[DOPPLER] ✅ Successfully hydrated {doppler_hydrated} Centralized Secrets from Doppler API (1st Priority).')
+    except Exception as dop_err:
+        print(f'[DOPPLER] ⚠️ Doppler API call note: {dop_err}')
+
+# 1.3 Fallback to Platform Secrets for any missing keys (2nd Priority)
+required_secrets = ['HF_TOKEN', 'WANDB_KEY', 'GITHUB_TOKEN', 'GH_TOKEN', 'HF_USERNAME', 'APP_SUPABASE_URL', 'APP_SUPABASE_KEY', 'GOOGLE_AI_STUDIO_API_KEY']
+if current_platform == 'KAGGLE':
+    try:
+        user_secrets = UserSecretsClient()
+        for key in required_secrets:
+            if not os.getenv(key):
+                try:
+                    val = user_secrets.get_secret(key)
+                    if val:
+                        os.environ[key] = str(val).strip()
+                        print(f'  -> [OK] Secret {key} loaded from 2nd Priority (Kaggle Secrets Store).')
+                except Exception:
+                    pass
+    except Exception:
+        pass
+elif current_platform == 'COLAB':
+    try:
+        for key in required_secrets:
+            if not os.getenv(key):
+                try:
+                    val = userdata.get(key)
+                    if val:
+                        os.environ[key] = str(val).strip()
+                        print(f'  -> [OK] Secret {key} loaded from 2nd Priority (Colab).')
+                except Exception:
+                    pass
+    except Exception:
+        pass
 
 if 'GITHUB_TOKEN' in os.environ and 'GH_TOKEN' not in os.environ:
     os.environ['GH_TOKEN'] = os.environ['GITHUB_TOKEN']
@@ -136,10 +187,10 @@ elif 'GH_TOKEN' in os.environ and 'GITHUB_TOKEN' not in os.environ:
 
 # Secrets Pre-flight Audit Summary
 print('[AUDIT] Pre-flight Secrets Status:')
+print(f"  - DOPPLER_TOKEN: {'✅ Configured (1st Priority Active)' if os.getenv('DOPPLER_TOKEN') else 'ℹ️ Not set'}")
 print(f"  - HF_TOKEN:      {'✅ Configured' if os.getenv('HF_TOKEN') else '⚠️ Missing (Add to Kaggle Secrets -> HF_TOKEN)'}")
 print(f"  - GH_TOKEN:      {'✅ Configured' if (os.getenv('GH_TOKEN') or os.getenv('GITHUB_TOKEN')) else '⚠️ Missing (Add to Kaggle Secrets -> GH_TOKEN)'}")
 print(f"  - WANDB_KEY:     {'✅ Configured' if os.getenv('WANDB_KEY') else '⚠️ Missing (Add to Kaggle Secrets -> WANDB_KEY)'}")
-print(f"  - DOPPLER_TOKEN: {'✅ Configured' if os.getenv('DOPPLER_TOKEN') else 'ℹ️ Not set (Optional)'}")
 
 # 2. Dynamic Target Pathing & Git Clone/Pull
 if current_platform == 'KAGGLE':
