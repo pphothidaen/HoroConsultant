@@ -1,0 +1,29 @@
+{
+  "active_model": "pphothidaen/qwen2.5-7b-bazi-instruct-4bit",
+  "model_version": "run-20260824-031628",
+  "status": "active",
+  "updated_at": "2026-08-24T03:16:28.320630Z",
+  "source": "kaggle_orchestrator",
+  "notes": "Auto-updated by successful Kaggle trigger",
+  "last_training_job": {
+    "kernel_id": "pphothidaen/horoconsultant-finetune-pipeline",
+    "dataset_path": "project/data/finetune_bazi_qwen25_chatml.jsonl",
+    "proc_returncode": 0
+  },
+  "history": [
+    {
+      "active_model": "pphothidaen/qwen2.5-7b-bazi-instruct-4bit",
+      "model_version": "run-20260824-031628",
+      "status": "active",
+      "source": "kaggle_orchestrator",
+      "updated_at": "2026-08-24T03:16:28.320630Z",
+      "notes": "Auto-updated by successful Kaggle trigger",
+      "training_metadata": {
+        "kernel_id": "pphothidaen/horoconsultant-finetune-pipeline",
+        "dataset_path": "project/data/finetune_bazi_qwen25_chatml.jsonl",
+        "proc_returncode": 0
+      }
+    }
+  ],
+  "cache_evicted": 0
+}
