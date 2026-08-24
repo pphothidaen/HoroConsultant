@@ -661,12 +661,15 @@ Use [docs/RELEASE_HANDOFF_CHECKLIST.md](docs/RELEASE_HANDOFF_CHECKLIST.md) for t
 | `TICKET-HORO30-024` | `codex1` (High Thinking) | พัฒนา PyO3 Bindings (`compute_merkle_node_hash_py`, `check_reachability_py`) ใน `rust_core/src/lib.rs` & `v3_engine_adapter.py` (24 tests PASS, Commit: `9e87014`) | ✅ DONE |
 | `TICKET-HORO30-025` | `codex1` (High Thinking) | พัฒนา `project/tests/test_v3_prompt_benchmarks.py` ตรวจสอบ Golden Prompts 10 สำนักวิชา & Domain Firewalls (4 tests PASS, Commit: `b264fb3`) | ✅ DONE |
 | `TICKET-HORO30-026` | `codex2` (Dev) | พัฒนา Prometheus Metrics สำหรับ Horo v3.0 ใน `project/core/observability.py` & `test_v3_observability.py` (3 tests PASS, Commit: `b264fb3`) | ✅ DONE |
+| `TICKET-HORO30-027` | `codex1` (High Thinking) | พัฒนา `scripts/run_v3_e2e_consultation.py` & `test_v3_e2e_consultation.py` รัน 5 Synthetic Consultation Profiles (5/5 PASS, Commit: `cf27dbd`) | ✅ DONE |
+| `TICKET-HORO30-028` | `agy1` (Docs) | พัฒนา `docs/v3_api_specification.md` (Full OpenAPI & Epistemic Derivation Specification, Commit: `cf27dbd`) | ✅ DONE |
+| `TICKET-HORO30-029` | `codex2` (Dev) | พัฒนา `scripts/v3_diagnostic_cli.py` & `test_v3_diagnostic_cli.py` (Interactive Terminal CLI with Tri-Graph Output, 3 tests PASS, Commit: `cf27dbd`) | ✅ DONE |
 
 ---
 
 ## 💎 Cumulative Multi-Agent Token Savings Matrix
-- **`codex1` (OpenAI Pro Lite, `gpt-5.6-luna` — High Thinking Priority)**: **259,018 tokens** offloaded across QA Verification, 10 Domain Adapters, Rust Merkle DAG, PyO3 Bindings (`task-510`), and Prompt Benchmarks (`task-534`).
-- **`codex2` (OpenAI Plus, `gpt-5.6-luna` — Heavy Implementation)**: **210,281 tokens** offloaded across Tasks D1..D3, Engine Adapters, v3 Router, and Observability Metrics (`task-538`).
-- **`agy1` (Antigravity Account 1, `Gemini 3.7 Flash Low`)**: 100% of Documentation Sync, Doppler Dry-run, Live Health Probes, Web Color Tokens, and Frontend UI Visualizer.
+- **`codex1` (OpenAI Pro Lite, `gpt-5.6-luna` — High Thinking Priority)**: **323,170 tokens** offloaded across QA Verification, 10 Domain Adapters, Rust Merkle DAG, PyO3 Bindings, Prompt Benchmarks, and E2E Consultation Pipeline (`task-584`).
+- **`codex2` (OpenAI Plus, `gpt-5.6-luna` — Heavy Implementation)**: **267,169 tokens** offloaded across Tasks D1..D3, Engine Adapters, v3 Router, Observability Metrics, and Diagnostic CLI (`task-588`).
+- **`agy1` (Antigravity Account 1, `Gemini 3.7 Flash Low`)**: 100% of Documentation Sync, Doppler Dry-run, Live Health Probes, Web Color Tokens, Frontend UI Visualizer, and Technical API Specs.
 - **`agy2` (Orchestrator Session)**: **Zero heavy code-writing overhead**, pure orchestration & review mode.
-- **Total Multi-Agent Tokens Offloaded**: **469,299+ tokens** (100% Zero-cost to this Antigravity session).
+- **Total Multi-Agent Tokens Offloaded**: **590,339+ tokens** (100% Zero-cost to this Antigravity session).
