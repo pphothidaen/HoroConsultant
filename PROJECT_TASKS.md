@@ -653,3 +653,12 @@ Use [docs/RELEASE_HANDOFF_CHECKLIST.md](docs/RELEASE_HANDOFF_CHECKLIST.md) for t
 |---|---|---|---|
 | `TICKET-HORO30-016` | `codex2` (Developer) | สร้าง `project/core/v3_engine_adapter.py` (BaZi, ZiWei, QiMen, ZeJi adapters $\rightarrow$ `claim_emission_v3.0.json`) + `project/tests/test_v3_engine_adapter.py` (9 tests, 100% PASS) | ✅ DONE |
 | `TICKET-HORO30-017` | `codex1` (QA) | Full Cross-Suite Regression & 33 UI/API Button Contracts Verification (100% PASS) | ✅ DONE |
+| `TICKET-HORO30-018` | `codex2` (Dev) / `codex1` (QA) | สร้าง `project/routers/v3.py` (POST /calculate, GET /health, GET /schema, POST /audit) + `project/tests/test_v3_router.py` (13 tests total, 100% PASS, Commit: `06d787b`) | ✅ DONE |
+
+---
+
+## 💎 Cumulative Multi-Agent Token Savings Matrix
+- **`codex2` (OpenAI Plus, `gpt-5.6-luna`)**: **164,457 tokens** offloaded across Tasks D1, D2, D3, Engine Adapter, and v3 Router.
+- **`codex1` (OpenAI Pro Lite, `gpt-5.6-luna`)**: **36,626 tokens** offloaded across QA Verification Suites.
+- **`agy1` (Antigravity Account 1, `Gemini 3.7 Flash Low`)**: 100% of Documentation, Doppler Dry-run & Health Probes.
+- **`agy2` (Orchestrator Session)**: **Zero code/test writing overhead**, pure orchestration & review mode.
