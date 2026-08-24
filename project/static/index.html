@@ -14,14 +14,14 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="apple-touch-icon" href="favicon.svg">
-  <link rel="stylesheet" href="style.css?v=5d97bb6">
+  <link rel="stylesheet" href="style.css?v=9e87014">
   <link rel="stylesheet" href="/static/v3_tokens.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#dc2626">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <script>
-    window.CURRENT_PAGE_VERSION = "1.0.0.5d97bb6";
+    window.CURRENT_PAGE_VERSION = "1.0.0.9e87014";
     window.forcePurgeAndReload = async function(e) {
       if (e) { try { e.preventDefault(); e.stopPropagation(); } catch (_) {} }
       const btn = document.getElementById("btn-force-refresh");
@@ -281,6 +281,7 @@
         <h2>☯️ ศาสตร์โหราศาสตร์และระบบคำนวณประยุกต์ (Astrology & Numerology Master Disciplines)</h2>
         <p>คำนวณผังวิชาชั้นสูงแยกตามสายวิชาเดี่ยว หรือสังเคราะห์รวม 16 ศาสตร์:</p>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 0.8rem;">
+          <button type="button" id="btn-v3-consensus" class="btn-sm" style="background: linear-gradient(135deg, rgba(21, 101, 192, 0.25), rgba(76, 175, 80, 0.25)); color: #1565c0; border-color: #1565c0; grid-column: span 2; font-weight: bold; padding: 8px;" onclick="calcHoroV3()">🏛️ Horo Architecture v3.0 Multi-Agent Consensus (10 Traditions)</button>
           <button type="button" id="btn-multimodal-matrix" class="btn-sm" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(45, 212, 191, 0.3)); color: #1e40af; border-color: #4338ca; grid-column: span 2; font-weight: bold; padding: 8px;" onclick="calcMultimodalMatrix()">🌐 ผังดวงสังเคราะห์ 16 ศาสตร์ (Unified Multimodal Matrix)</button>
           <button type="button" class="btn-sm" style="background: rgba(245, 158, 11, 0.2); color: #92400e; border-color: rgba(120, 53, 15, 0.5); font-weight: 600;" onclick="calcFourPillars()">🏛️ 四柱 Four Pillars (Bazi)</button>
           <button type="button" class="btn-sm" style="background: rgba(168, 85, 247, 0.2); color: #6b21a8; border-color: rgba(107, 33, 168, 0.5); font-weight: 600;" onclick="calcZiWei()">紫微 紫微斗數 (Zi Wei)</button>
@@ -448,6 +449,7 @@
           <button class="tab-btn active" onclick="switchTab('tab-reading')">📖 บทตีความโหราศาสตร์</button>
           <button class="tab-btn" onclick="switchTab('tab-validator')">🛡️ Gemini Validator Audit</button>
           <button class="tab-btn" onclick="switchTab('tab-rag')">📚 คัมภีร์อ้างอิง (RAG 3,132 Chunks)</button>
+          <button class="tab-btn" onclick="switchTab('tab-v3-engine')">🏛️ Horo v3.0 Consensus Engine</button>
         </div>
 
         <div class="tab-content" id="tab-reading">
@@ -465,6 +467,12 @@
         <div class="tab-content hidden" id="tab-rag">
           <div class="rag-body" id="rag-body">
             <!-- RAG references -->
+          </div>
+        </div>
+
+        <div class="tab-content hidden" id="tab-v3-engine">
+          <div class="v3-engine-body" id="v3-engine-results" style="padding: 1rem;">
+            <!-- Horo v3.0 Consensus Results -->
           </div>
         </div>
       
@@ -638,7 +646,7 @@
         <span>🔄</span> <span>ล้างแคช &amp; บังคับอัปเดต (Hard Reset)</span>
       </button>
     </div>
-    <p id="footer-version-text">Computational Metaphysics Engine v1.0.0.5d97bb6 — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback</p>
+    <p id="footer-version-text">Computational Metaphysics Engine v1.0.0.9e87014 — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback</p>
   </footer>
 
   <!-- iOS/Android Bottom-Sheet Drum Wheel DateTime Picker Modal -->
@@ -784,9 +792,9 @@
     </div>
   </div>
 
-  <script src="voice_engine.js?v=5d97bb6"></script>
-  <script src="i18n.js?v=5d97bb6"></script>
-  <script src="app.js?v=5d97bb6"></script>
+  <script src="voice_engine.js?v=9e87014"></script>
+  <script src="i18n.js?v=9e87014"></script>
+  <script src="app.js?v=9e87014"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

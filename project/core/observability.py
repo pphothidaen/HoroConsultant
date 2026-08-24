@@ -53,6 +53,17 @@ class ObservabilityManager:
         self._llm_counts: dict[str, int] = {}
         self._llm_latency_sum: dict[str, float] = {}
 
+        # v3.0 consensus and audit metrics.  These mirrors keep the metrics
+        # available when prometheus_client is not installed and make the
+        # current in-memory snapshot easy to inspect in tests.
+        self._v3_emissions: dict[str, int] = {}
+        self._v3_arbitrations: dict[tuple[str, str], int] = {}
+        self._v3_arbitration_count = 0
+        self._v3_arbitration_seconds_sum = 0.0
+        self._v3_lciw_latest = 0.0
+        self._v3_rniw_latest = 0.0
+        self._v3_audit_verdicts: dict[str, int] = {}
+
         if PROMETHEUS_CLIENT_AVAILABLE:
             try:
                 self.reg = prometheus_client.REGISTRY
@@ -86,6 +97,26 @@ class ObservabilityManager:
                 )
             except Exception as e:
                 logger.warning(f"Failed to register Prometheus metrics: {e}")
+
+            # Register independently so one already-registered legacy metric
+            # cannot prevent the v3.0 collectors from being available.
+            v3_metrics = (
+                ("prom_v3_emissions", Counter, "horo_v3_emissions_total", "Total v3.0 domain emissions", ["domain"]),
+                ("prom_v3_arbitrations", Counter, "horo_v3_arbitrations_total", "Total v3.0 consensus arbitrations", ["intent", "veto_applied"]),
+                ("prom_v3_arbitration_seconds", Histogram, "horo_v3_arbitration_seconds", "v3.0 arbitration duration in seconds", []),
+                ("prom_v3_lciw", Gauge, "horo_v3_lciw_latest", "Latest v3.0 LCIw audit score", []),
+                ("prom_v3_rniw", Gauge, "horo_v3_rniw_latest", "Latest v3.0 RNIw audit score", []),
+                ("prom_v3_audit_verdicts", Counter, "horo_v3_audit_verdicts_total", "Total v3.0 audit verdicts", ["verdict"]),
+            )
+            for attribute, metric_type, name, documentation, labels in v3_metrics:
+                try:
+                    setattr(self, attribute, metric_type(name, documentation, labels))
+                except ValueError:
+                    # Reuse a collector registered by another manager in this
+                    # process.  The registry is process-global by design.
+                    collector = getattr(self.reg, "_names_to_collectors", {}).get(name)
+                    if collector is not None:
+                        setattr(self, attribute, collector)
 
     def record_request(self, method: str, endpoint: str, status_code: int, duration: float):
         """Record an HTTP request metric."""
@@ -145,6 +176,39 @@ class ObservabilityManager:
             except Exception:
                 pass
 
+    def record_v3_emission_metric(self, domain: str, count: int = 1):
+        """Record one or more v3.0 claim emissions for a domain."""
+        if not self.enabled:
+            return
+        self._v3_emissions[domain] = self._v3_emissions.get(domain, 0) + count
+        if PROMETHEUS_CLIENT_AVAILABLE and hasattr(self, "prom_v3_emissions"):
+            self.prom_v3_emissions.labels(domain=domain).inc(count)
+
+    def record_v3_arbitration_metric(self, intent: str, duration: float, veto_count: int = 0):
+        """Record a v3.0 arbitration, including duration and veto presence."""
+        if not self.enabled:
+            return
+        veto_applied = "true" if veto_count > 0 else "false"
+        key = (intent, veto_applied)
+        self._v3_arbitrations[key] = self._v3_arbitrations.get(key, 0) + 1
+        self._v3_arbitration_count += 1
+        self._v3_arbitration_seconds_sum += duration
+        if PROMETHEUS_CLIENT_AVAILABLE and hasattr(self, "prom_v3_arbitrations"):
+            self.prom_v3_arbitrations.labels(intent=intent, veto_applied=veto_applied).inc()
+            self.prom_v3_arbitration_seconds.observe(duration)
+
+    def record_v3_audit_metric(self, verdict: str, lciw: float, rniw: float):
+        """Record a v3.0 audit verdict and publish its latest quality scores."""
+        if not self.enabled:
+            return
+        self._v3_audit_verdicts[verdict] = self._v3_audit_verdicts.get(verdict, 0) + 1
+        self._v3_lciw_latest = lciw
+        self._v3_rniw_latest = rniw
+        if PROMETHEUS_CLIENT_AVAILABLE and hasattr(self, "prom_v3_audit_verdicts"):
+            self.prom_v3_audit_verdicts.labels(verdict=verdict).inc()
+            self.prom_v3_lciw.set(lciw)
+            self.prom_v3_rniw.set(rniw)
+
     def seed_dummy_metrics(self) -> None:
         """Seed the observability manager with dummy metrics for local display and test coverage."""
         if not self.enabled:
@@ -168,6 +232,13 @@ class ObservabilityManager:
         self._rag_latency_sum = 0.0
         self._llm_counts.clear()
         self._llm_latency_sum.clear()
+        self._v3_emissions.clear()
+        self._v3_arbitrations.clear()
+        self._v3_arbitration_count = 0
+        self._v3_arbitration_seconds_sum = 0.0
+        self._v3_lciw_latest = 0.0
+        self._v3_rniw_latest = 0.0
+        self._v3_audit_verdicts.clear()
 
     def generate_metrics_text(self) -> str:
         """Generate Prometheus exposition text format."""
@@ -245,7 +316,48 @@ class ObservabilityManager:
                 provider, status = key, "total"
             lines.append(f'llm_inference_total{{provider="{provider}",status="{status}"}} {count}')
 
+        lines.extend([
+            "",
+            "# HELP horo_v3_emissions_total Total v3.0 domain emissions",
+            "# TYPE horo_v3_emissions_total counter",
+        ])
+        for domain, count in self._v3_emissions.items():
+            lines.append(f'horo_v3_emissions_total{{domain="{domain}"}} {count}')
+        lines.extend([
+            "",
+            "# HELP horo_v3_arbitrations_total Total v3.0 consensus arbitrations",
+            "# TYPE horo_v3_arbitrations_total counter",
+        ])
+        for (intent, veto_applied), count in self._v3_arbitrations.items():
+            lines.append(
+                f'horo_v3_arbitrations_total{{intent="{intent}",veto_applied="{veto_applied}"}} {count}'
+            )
+        lines.extend([
+            "",
+            "# HELP horo_v3_arbitration_seconds v3.0 arbitration duration in seconds",
+            "# TYPE horo_v3_arbitration_seconds histogram",
+            f"horo_v3_arbitration_seconds_count {self._v3_arbitration_count}",
+            f"horo_v3_arbitration_seconds_sum {self._v3_arbitration_seconds_sum:.6f}",
+            "",
+            "# HELP horo_v3_lciw_latest Latest v3.0 LCIw audit score",
+            "# TYPE horo_v3_lciw_latest gauge",
+            f"horo_v3_lciw_latest {self._v3_lciw_latest}",
+            "",
+            "# HELP horo_v3_rniw_latest Latest v3.0 RNIw audit score",
+            "# TYPE horo_v3_rniw_latest gauge",
+            f"horo_v3_rniw_latest {self._v3_rniw_latest}",
+            "",
+            "# HELP horo_v3_audit_verdicts_total Total v3.0 audit verdicts",
+            "# TYPE horo_v3_audit_verdicts_total counter",
+        ])
+        for verdict, count in self._v3_audit_verdicts.items():
+            lines.append(f'horo_v3_audit_verdicts_total{{verdict="{verdict}"}} {count}')
+
         return "\n".join(lines) + "\n"
+
+    def generate_prometheus_metrics(self) -> str:
+        """Compatibility name for callers expecting the v3 metrics API."""
+        return self.generate_metrics_text()
 
     def get_summary(self) -> dict:
         """Return high-level summary metrics dictionary."""
@@ -308,6 +420,14 @@ class ObservabilityManager:
 
 # Global singleton instance
 observability_manager = ObservabilityManager()
+
+# Compatibility aliases used by v3.0 integrations and lightweight callers.
+MetricsCollector = ObservabilityManager
+
+
+def generate_prometheus_metrics() -> str:
+    """Generate the current process-wide Prometheus exposition snapshot."""
+    return observability_manager.generate_metrics_text()
 
 
 async def periodic_grafana_metrics_worker(interval_seconds: int = 300):
@@ -387,4 +507,3 @@ def setup_observability_middleware(app: FastAPI):
             "uptime_seconds": round(time.time() - observability_manager.start_time, 2),
             "service": "Computational Metaphysics Engine",
         }
-

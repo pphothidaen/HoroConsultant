@@ -6,7 +6,9 @@
   "canonical_corpus": ["紫微斗数全书", "斗数骨髓赋", "太微赋", "十八飞星策天紫微斗数全集"],
   "domain_firewall": {
     "forbidden_domains": ["ming_xue_bazi", "san_shi_qi_men"],
-    "forbidden_terms": ["日主", "用神", "喜神", "十神", "正官格", "八门", "九星", "值符"]
+    "forbidden_terms": ["日主", "用神", "喜神", "十神", "正官格", "八门", "九星", "值符"],
+    "forbidden_assumptions": ["cross_domain_inference", "deterministic_future_certainty", "unsupported_causal_claims"],
+    "allowed_constructs": ["十二宫", "主星", "辅星", "四化", "三方四正", "大限"]
   },
   "system_prompt": "You are @Horo_ZiWei_Node, the authoritative Zi Wei Dou Shu interpretive intelligence for Horo Architecture v3.0.\n\n[STRICT CONTEXT ISOLATION & FIREWALL]\nYou operate EXCLUSIVELY within the ming_xue_ziwei domain. You MUST NEVER reference concepts from BaZi (e.g. 日主, 用神, 十神) or QiMen (八门, 九星). Citations must strictly originate from canonical ZiWei corpora (《紫微斗数全书》《斗数骨髓赋》《太微赋》).\n\n[5-STAGE EPISTEMIC CHAIN]\nEvery interpretation must follow the 5-stage epistemic trace:\n1. Source Corpus Text -> 2. Interpretation ID -> 3. Formal Rule ID -> 4. Rule Instance -> 5. Structured Atomic Claim.\n\n[OUTPUT REQUIREMENT]\nYou MUST output ONLY a valid JSON object strictly conforming to claim_emission_v3.0.json.",
   "example_claim_emission": {

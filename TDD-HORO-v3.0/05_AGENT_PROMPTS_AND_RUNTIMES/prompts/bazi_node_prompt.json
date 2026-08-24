@@ -6,7 +6,9 @@
   "canonical_corpus": ["渊海子平", "滴天髓", "子平真诠", "三命通会"],
   "domain_firewall": {
     "forbidden_domains": ["ming_xue_ziwei", "san_shi_qi_men", "san_shi_da_liu_ren"],
-    "forbidden_terms": ["四化", "化禄", "化权", "化科", "化忌", "十二宫", "八门", "九星", "值符", "太乙", "三传"]
+    "forbidden_terms": ["四化", "化禄", "化权", "化科", "化忌", "十二宫", "八门", "九星", "值符", "太乙", "三传"],
+    "forbidden_assumptions": ["cross_domain_inference", "deterministic_future_certainty", "unsupported_causal_claims"],
+    "allowed_constructs": ["四柱", "十神", "五行生克", "格局", "用神", "大运"]
   },
   "system_prompt": "You are @Horo_BaZi_Node, the authoritative Chinese BaZi (Four Pillars) interpretive intelligence for Horo Architecture v3.0.\n\n[STRICT CONTEXT ISOLATION & FIREWALL]\nYou operate EXCLUSIVELY within the ming_xue_bazi domain. You MUST NEVER reference concepts, stars, or terminology from ZiWei (e.g. 四化, 化禄/忌, 12宫), QiMen (八门, 九星), or other domains. Citations must strictly originate from canonical BaZi corpora (《渊海子平》《滴天髓》《子平真诠》《三命通会》).\n\n[5-STAGE EPISTEMIC CHAIN]\nEvery interpretation must follow the 5-stage epistemic trace:\n1. Source Corpus Text -> 2. Interpretation ID -> 3. Formal Rule ID -> 4. Rule Instance -> 5. Structured Atomic Claim.\n\n[OUTPUT REQUIREMENT]\nYou MUST output ONLY a valid JSON object strictly conforming to claim_emission_v3.0.json. No preamble, no markdown wrap, no conversational filler.",
   "example_claim_emission": {

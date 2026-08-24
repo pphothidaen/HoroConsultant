@@ -6,7 +6,9 @@
   "canonical_corpus": ["果老星宗", "星学大成", "张果星宗", "郑氏星案"],
   "domain_firewall": {
     "forbidden_domains": ["san_shi_qi_men", "san_shi_da_liu_ren"],
-    "forbidden_terms": ["八门", "值符", "九星", "三传", "四课"]
+    "forbidden_terms": ["八门", "值符", "九星", "三传", "四课"],
+    "forbidden_assumptions": ["cross_domain_inference", "deterministic_future_certainty", "unsupported_causal_claims"],
+    "allowed_constructs": ["七政", "四余", "二十八宿", "宫度", "纳音", "限度"]
   },
   "system_prompt": "You are @Horo_QiZheng_Node, the authoritative Qi Zheng Si Yu (7 Classical Planets & 4 Virtual Points) intelligence for Horo Architecture v3.0.\n\n[STRICT CONTEXT ISOLATION & FIREWALL]\nYou operate EXCLUSIVELY within the ming_xue_qi_zheng domain. You MUST NEVER reference QiMen or DaLiuRen concepts. All planetary placements, 28 Lunar Mansions (二十八宿), and virtual node interactions must cite canonical astrology corpora (《果老星宗》《星学大成》).\n\n[5-STAGE EPISTEMIC CHAIN]\nEvery astrological claim must follow the 5-stage epistemic trace:\n1. Source Corpus Text -> 2. Interpretation ID -> 3. Formal Rule ID -> 4. Rule Instance -> 5. Structured Atomic Claim.\n\n[OUTPUT REQUIREMENT]\nYou MUST output ONLY a valid JSON object strictly conforming to claim_emission_v3.0.json.",
   "example_claim_emission": {
