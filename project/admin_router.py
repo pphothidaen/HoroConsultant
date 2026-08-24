@@ -64,7 +64,7 @@ class GrayzoneAnswerRequest(BaseModel):
 
 class FinetuneTriggerRequest(BaseModel):
     provider:       str  = Field("ollama", description="Provider: 'ollama', 'openai', 'gemini'")
-    model_name:     str  = Field("Qwen/Qwen2.5-7B-Instruct", description="Base model name")
+    model_name:     str  = Field("pphothidaen/qwen2.5-7b-bazi-instruct-4bit", description="Base model name")
     dataset:        str  = Field("combined_train.jsonl", description="Dataset filename in datasets dir")
     dry_run:        bool = Field(False, description="Dry run — validate without launching")
     max_iterations: int  = Field(1000, ge=100, le=10000)

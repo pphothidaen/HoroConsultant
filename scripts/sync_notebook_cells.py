@@ -103,14 +103,14 @@ current_platform = 'LOCAL'
 try:
     from kaggle_secrets import UserSecretsClient
     current_platform = 'KAGGLE'
-    print('[INFO] Detected Kaggle: Loading Secrets...')
+    print('[INFO] Detected Kaggle: Loading Secrets from Kaggle Secrets Store...')
     user_secrets = UserSecretsClient()
     for key in required_secrets:
         try:
             val = user_secrets.get_secret(key)
             if val:
                 os.environ[key] = str(val).strip()
-                print(f'  -> [OK] {key} loaded from Kaggle.')
+                print(f'  -> [OK] {key} loaded from Kaggle Secrets Store.')
         except Exception:
             pass
 except ImportError:
@@ -133,6 +133,13 @@ if 'GITHUB_TOKEN' in os.environ and 'GH_TOKEN' not in os.environ:
     os.environ['GH_TOKEN'] = os.environ['GITHUB_TOKEN']
 elif 'GH_TOKEN' in os.environ and 'GITHUB_TOKEN' not in os.environ:
     os.environ['GITHUB_TOKEN'] = os.environ['GH_TOKEN']
+
+# Secrets Pre-flight Audit Summary
+print('[AUDIT] Pre-flight Secrets Status:')
+print(f"  - HF_TOKEN:      {'✅ Configured' if os.getenv('HF_TOKEN') else '⚠️ Missing (Add to Kaggle Secrets -> HF_TOKEN)'}")
+print(f"  - GH_TOKEN:      {'✅ Configured' if (os.getenv('GH_TOKEN') or os.getenv('GITHUB_TOKEN')) else '⚠️ Missing (Add to Kaggle Secrets -> GH_TOKEN)'}")
+print(f"  - WANDB_KEY:     {'✅ Configured' if os.getenv('WANDB_KEY') else '⚠️ Missing (Add to Kaggle Secrets -> WANDB_KEY)'}")
+print(f"  - DOPPLER_TOKEN: {'✅ Configured' if os.getenv('DOPPLER_TOKEN') else 'ℹ️ Not set (Optional)'}")
 
 # 2. Dynamic Target Pathing & Git Clone/Pull
 if current_platform == 'KAGGLE':
@@ -295,6 +302,60 @@ with open(local_dataset_target, 'w', encoding='utf-8') as f_out:
                         print(f'  -> [ERROR] อ่านไฟล์ล้มเหลว: {e}')
                 valid_total_lines += valid_file_lines
 
+    # Ingest Kaggle Mounted Datasets (/kaggle/input/**)
+    kaggle_input_dir = '/kaggle/input'
+    if os.path.exists(kaggle_input_dir):
+        print('[KAGGLE INPUT] ค้นหาและรวบรวมไฟล์จาก Kaggle Input Datasets (bazi-huggingface-curated, horoconsultant-distilled-dataset, horoconsultant-classical-treatises-pdf)...')
+        k_files = glob.glob(os.path.join(kaggle_input_dir, '**/*.*'), recursive=True)
+        for kpath in k_files:
+            kext = kpath.lower()
+            if kext.endswith('.jsonl') or kext.endswith('.json'):
+                k_valid = 0
+                try:
+                    with open(kpath, 'r', encoding='utf-8', errors='replace') as k_in:
+                        for line in k_in:
+                            ktext = line.strip()
+                            if ktext:
+                                try:
+                                    json.loads(ktext)
+                                    if ktext not in seen_data:
+                                        seen_data.add(ktext)
+                                        f_out.write(ktext + '\\n')
+                                        k_valid += 1
+                                except Exception: pass
+                    if k_valid > 0:
+                        print(f'  -> [OK] Ingested {k_valid} samples from Kaggle dataset: {os.path.basename(kpath)}')
+                        valid_total_lines += k_valid
+                except Exception as k_err:
+                    print(f'  -> [WARNING] Note reading {kpath}: {k_err}')
+
+    # Hybrid Data Enrichment: If dataset count is low (< 50), ingest curated repository corpus
+    internal_sources = [
+        os.path.join(target_dir, 'project/data/bazi_hf_curated_corpus.jsonl'),
+        os.path.join(target_dir, 'project/rag/datasets/combined_train.jsonl'),
+        os.path.join(target_dir, 'project/data/finetune_bazi_qwen25_chatml.jsonl')
+    ]
+    for isrc in internal_sources:
+        if os.path.exists(isrc):
+            try:
+                added_isrc = 0
+                with open(isrc, 'r', encoding='utf-8', errors='replace') as f_isrc:
+                    for line in f_isrc:
+                        text = line.strip()
+                        if text:
+                            try:
+                                json.loads(text)
+                                if text not in seen_data:
+                                    seen_data.add(text)
+                                    f_out.write(text + '\\n')
+                                    added_isrc += 1
+                            except json.JSONDecodeError: pass
+                if added_isrc > 0:
+                    print(f'  -> [OK] Ingested {added_isrc} records from internal {os.path.basename(isrc)}')
+                    valid_total_lines += added_isrc
+            except Exception as isrc_err:
+                print(f'  -> [WARNING] Note reading {isrc}: {isrc_err}')
+
 print(f'[OK] รวบรวม Dataset สำเร็จ! มีข้อมูลที่ไม่ซ้ำกันพร้อมเทรนรวมทั้งสิ้น {valid_total_lines} บรรทัด')
 
 # 5. Run Cloud Training Orchestrator with Execution Logging
@@ -316,7 +377,7 @@ train_cmd = [
     sys.executable,
     'scripts/cloud_train_orchestrator.py',
     '--platform', current_platform,
-    '--base-model', 'Qwen/Qwen2.5-7B-Instruct',
+    '--base-model', 'pphothidaen/qwen2.5-7b-bazi-instruct-4bit',
     '--hf-repo', 'pphothidaen/qwen2.5-7b-bazi-instruct-4bit',
     '--dataset-path', local_dataset_target,
     '--epochs', '3',

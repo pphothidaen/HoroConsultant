@@ -364,7 +364,7 @@ def create_kernel_files(
                     "    sys.executable,\n",
                     "    'scripts/cloud_train_orchestrator.py',\n",
                     "    '--platform', 'KAGGLE',\n",
-                    "    '--base-model', 'Qwen/Qwen2.5-7B-Instruct',\n",
+                    "    '--base-model', 'pphothidaen/qwen2.5-7b-bazi-instruct-4bit',\n",
                     "    '--hf-repo', 'pphothidaen/qwen2.5-7b-bazi-instruct-4bit',\n",
                     "    '--dataset-path', local_dataset_target,\n",
                     "    '--epochs', '3',\n",

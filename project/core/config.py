@@ -225,7 +225,7 @@ class Config:
     CODEX_USE_CHATGPT_AUTH: bool = os.getenv("CODEX_USE_CHATGPT_AUTH", "true").lower() == "true"
 
     # Fine-Tuning Settings
-    BASE_MODEL_NAME: str = os.getenv("BASE_MODEL_NAME", "Qwen/Qwen2.5-7B-Instruct")
+    BASE_MODEL_NAME: str = os.getenv("BASE_MODEL_NAME", "pphothidaen/qwen2.5-7b-bazi-instruct-4bit")
     ADAPTER_PATH: str = os.getenv("ADAPTER_PATH", str(BASE_DIR / "project" / "models" / "qwen2.5-bazi-adapter"))
 
     @classmethod

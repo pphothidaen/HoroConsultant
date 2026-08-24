@@ -196,11 +196,19 @@ def prepare_dataset(output_jsonl: Path, dataset_path: str | None = None) -> Path
     if dataset_path:
         explicit_path = Path(dataset_path).expanduser()
         if explicit_path.exists():
-            logger.info(f"[INFO] Using explicit dataset path '{explicit_path}'")
-            return explicit_path
-        logger.warning(
-            f"[WARN] Explicit dataset path '{explicit_path}' not found. Falling back to automated dataset source."
-        )
+            valid_lines = [l for l in explicit_path.read_text(encoding="utf-8", errors="replace").splitlines() if l.strip()]
+            if len(valid_lines) >= 50:
+                logger.info(f"[INFO] Using explicit dataset path '{explicit_path}' ({len(valid_lines)} records)")
+                return explicit_path
+            else:
+                logger.warning(
+                    f"[WARN] Explicit dataset path '{explicit_path}' has only {len(valid_lines)} records (< 50 threshold). "
+                    f"Applying Hybrid Ingestion to enrich dataset and prevent small-data loss spikes."
+                )
+        else:
+            logger.warning(
+                f"[WARN] Explicit dataset path '{explicit_path}' not found. Falling back to automated dataset source."
+            )
 
     logger.info("[DATA] Initializing Hybrid Metaphysics Data Ingestion...")
     output_jsonl.parent.mkdir(parents=True, exist_ok=True)
@@ -227,6 +235,12 @@ def prepare_dataset(output_jsonl: Path, dataset_path: str | None = None) -> Path
                 logger.info(f"[{tag}] Ingested {count} records from {fpath.name}")
         except Exception as e:
             logger.warning(f"[{tag}] Note reading {fpath}: {e}")
+
+    # 0. Include explicit path if it exists
+    if dataset_path:
+        exp_p = Path(dataset_path).expanduser()
+        if exp_p.exists():
+            _add_jsonl_file(exp_p, "EXPLICIT DATASET")
 
     # 1. Check Supabase DB
     db = SupabaseDB()
@@ -279,12 +293,22 @@ def prepare_dataset(output_jsonl: Path, dataset_path: str | None = None) -> Path
     if curated_hf_corpus.exists():
         _add_jsonl_file(curated_hf_corpus, "HF CURATED CORPUS")
 
-    # 4. Check base train.jsonl
+    # 5. Check combined_train.jsonl
+    combined_train = ROOT_DIR / "project" / "rag" / "datasets" / "combined_train.jsonl"
+    if combined_train.exists():
+        _add_jsonl_file(combined_train, "COMBINED DATASET")
+
+    # 6. Check finetune_bazi_qwen25_chatml.jsonl
+    chatml_bazi = ROOT_DIR / "project" / "data" / "finetune_bazi_qwen25_chatml.jsonl"
+    if chatml_bazi.exists():
+        _add_jsonl_file(chatml_bazi, "CHATML BAZI DATASET")
+
+    # 7. Check base train.jsonl
     base_train = ROOT_DIR / "project" / "rag" / "datasets" / "train.jsonl"
     if base_train.exists():
         _add_jsonl_file(base_train, "BASE DATASET")
 
-    # 5. Check hitl_approved.jsonl
+    # 8. Check hitl_approved.jsonl
     hitl_train = ROOT_DIR / "project" / "rag" / "datasets" / "hitl_approved.jsonl"
     if hitl_train.exists():
         _add_jsonl_file(hitl_train, "HITL APPROVED")
@@ -570,12 +594,8 @@ def run_training_pipeline(
         logger.warning("[WARNING] CUDA pre-flight kernel execution test failed on this device (e.g. sm_60/P100 unsupported by PyTorch wheel). Gracefully falling back to CPU execution mode.")
 
     if "mlx-community" in base_model:
-        logger.warning(f"[WARNING] Base model '{base_model}' is an MLX format model. Automatically switching to PyTorch base model 'Qwen/Qwen2.5-7B-Instruct' for Cloud training.")
-        base_model = "Qwen/Qwen2.5-7B-Instruct"
-
-    if base_model == Config.HF_REPO_ID or base_model.endswith("-4bit") or "bazi-instruct" in base_model:
-        logger.warning(f"[WARNING] Base model '{base_model}' appears to be an adapter or quantized repository. Automatically switching to base model 'Qwen/Qwen2.5-7B-Instruct' for Cloud training.")
-        base_model = "Qwen/Qwen2.5-7B-Instruct"
+        logger.warning(f"[WARNING] Base model '{base_model}' is an MLX format model. Automatically switching to PyTorch base model '{Config.BASE_MODEL_NAME}' for Cloud training.")
+        base_model = Config.BASE_MODEL_NAME
 
     if dry_run:
         logger.info(" DRY RUN MODE: Validated dataset & setup cleanly. Skipping heavy GPU training.")
@@ -651,8 +671,9 @@ def run_training_pipeline(
             bnb_4bit_use_double_quant=True,
         )
 
+    hf_token = os.getenv("HF_TOKEN") or Config.HF_TOKEN
     logger.info(f"[MODEL] Loading tokenizer and base model '{base_model}'...")
-    tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True, token=hf_token)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
@@ -680,6 +701,7 @@ def run_training_pipeline(
                     low_cpu_mem_usage=(device_map is not None),
                     trust_remote_code=True,
                     attn_implementation="sdpa",
+                    token=hf_token,
                 )
                 model = prepare_model_for_kbit_training(model)
                 logger.info("[OK] Successfully loaded 4-bit quantized model.")
@@ -705,6 +727,7 @@ def run_training_pipeline(
                     low_cpu_mem_usage=(device_map is not None),
                     trust_remote_code=True,
                     attn_implementation="sdpa" if use_cuda else None,
+                    token=hf_token,
                 )
                 logger.info(f"[OK] Successfully loaded model with precision {compute_dtype}.")
                 break
