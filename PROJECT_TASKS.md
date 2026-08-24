@@ -559,8 +559,42 @@ Use [docs/RELEASE_HANDOFF_CHECKLIST.md](docs/RELEASE_HANDOFF_CHECKLIST.md) for t
 - Secret scan: **0 leaks**
 - Ecosystem check: **[OK] All sync (Antigravity & Codex 100%)**
 
-### Next Sprint (Sprint 3: 03_STORAGE_AND_EVENT_SOURCING)
-- `TICKET-HORO30-009`: Implement Neo4j Cypher schema `semantic_graph_schema.cql`
-- `TICKET-HORO30-010`: Implement Derivation DAG Merkle provenance spec `derivation_dag_immutability.md`
-- `TICKET-HORO30-011`: Implement Append-Only Event Ledger streaming spec `event_ledger_stream.md`
-- `TICKET-HORO30-012`: Implement pytest / schema tests for storage & event sourcing
+### Next Sprint (Sprint 3 — COMPLETED ✅)
+- `TICKET-HORO30-009`: Implement Neo4j Cypher schema `semantic_graph_schema.cql` — ✅ DONE
+- `TICKET-HORO30-010`: Implement Derivation DAG Merkle provenance spec `derivation_dag_immutability.md` — ✅ DONE
+- `TICKET-HORO30-011`: Implement Append-Only Event Ledger streaming spec `event_ledger_stream.md` — ✅ DONE
+- `TICKET-HORO30-012`: Implement pytest / schema tests for storage & event sourcing (`test_storage_and_event_sourcing.py`, 14 tests) — ✅ DONE
+
+---
+
+## 🚀 SPRINT 3: Horo Architecture v3.0 — Storage & Event Sourcing — 2026-08-24
+**Grill Gate Status**: ✅ APPROVED  
+**Sprint Tracking Lead**: orchestrator (agy2)  
+**Deliverables Status**: ALL 4 TICKETS DONE ✅
+
+| Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
+|---|---|---|---|---|
+| `TICKET-HORO30-009` | `agy2` (orchestrator) | สร้าง Neo4j Cypher schema `semantic_graph_schema.cql` (Constraints, Indexes, Traversal queries) | ✅ DONE | TICKET-HORO30-008 |
+| `TICKET-HORO30-010` | `agy2` (orchestrator) | สร้าง Merkle DAG specification `derivation_dag_immutability.md` (Acyclicity, JCS Hash Formula, R0..R4 Tiers) | ✅ DONE | TICKET-HORO30-009 |
+| `TICKET-HORO30-011` | `agy2` (orchestrator) | สร้าง Event Ledger stream spec `event_ledger_stream.md` (17 canonical events, Hash chaining, Redis/Kafka) | ✅ DONE | TICKET-HORO30-010 |
+| `TICKET-HORO30-012` | `agy2` (orchestrator) | สร้าง `test_storage_and_event_sourcing.py` (14 tests) + Full Suite (105 tests total, 100% PASS) | ✅ DONE | TICKET-HORO30-011 |
+
+### Sprint 3 Deliverables — All DONE ✅
+
+| File | Description |
+|---|---|
+| `TDD-HORO-v3.0/03_STORAGE_AND_EVENT_SOURCING/cypher/semantic_graph_schema.cql` | Neo4j Cypher constraints, indexes, relationship ontology, and stored traversal/audit queries |
+| `TDD-HORO-v3.0/03_STORAGE_AND_EVENT_SOURCING/specs/derivation_dag_immutability.md` | Derivation DAG Merkle hash formula, topological insertion guard, and R0..R4 verification spec |
+| `TDD-HORO-v3.0/03_STORAGE_AND_EVENT_SOURCING/specs/event_ledger_stream.md` | Append-Only Event Ledger streaming spec, 17 FSM event types, hash chaining recurrence & replay |
+| `TDD-HORO-v3.0/03_STORAGE_AND_EVENT_SOURCING/README.md` | Complete architectural documentation for 03_STORAGE_AND_EVENT_SOURCING module |
+| `TDD-HORO-v3.0/tests/test_storage_and_event_sourcing.py` | 14 pytest tests validating Cypher schema, Merkle DAG algorithms, and Event Ledger chaining |
+
+### Quality & Safety Gate Evidence
+- pytest: **105/105 PASSED** across full `TDD-HORO-v3.0/tests/` suite (0.07s)
+- Secret scan: **0 leaks**
+- Ecosystem check: **[OK] All sync (Antigravity & Codex 100%)**
+
+### Next Phase: Production Agent Prompts & Runtime Adapters (L3–L7 Integration)
+- `TICKET-HORO30-013`: Implement specialized prompt templates for 10 tradition domain nodes (L3/L4)
+- `TICKET-HORO30-014`: Implement Consensus Engine (L5), Audit Node (L6), and Plan Composer (L7) runtime wrappers
+- `TICKET-HORO30-015`: Integrate Test Plane validation suite into CI/CD regression pipeline
