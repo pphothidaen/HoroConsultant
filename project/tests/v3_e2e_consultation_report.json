@@ -1,0 +1,116 @@
+{
+  "ticket": "TICKET-HORO30-027",
+  "profiles": [
+    {
+      "profile_id": "A",
+      "profile": {
+        "id": "A",
+        "name": "Tech Startup Timing",
+        "intent": "STRATEGIC_TIMING_ACTION",
+        "birth_datetime": "1992-03-15T12:00:00",
+        "city": "Bangkok",
+        "latitude": 13.7563,
+        "longitude": 100.5018,
+        "tz_offset": 7.0
+      },
+      "status_code": 200,
+      "status": "COMPLETED",
+      "emission_count": 10,
+      "populated_emission_count": 10,
+      "has_epistemic_disclaimer": true,
+      "audit_metrics": {
+        "LCIw": 1.0,
+        "RNIw": 0.0
+      }
+    },
+    {
+      "profile_id": "B",
+      "profile": {
+        "id": "B",
+        "name": "Real Estate Investment",
+        "intent": "RISK_MITIGATION",
+        "birth_datetime": "1985-08-20T12:00:00",
+        "city": "Singapore",
+        "latitude": 1.3521,
+        "longitude": 103.8198,
+        "tz_offset": 8.0
+      },
+      "status_code": 200,
+      "status": "COMPLETED",
+      "emission_count": 10,
+      "populated_emission_count": 10,
+      "has_epistemic_disclaimer": true,
+      "audit_metrics": {
+        "LCIw": 1.0,
+        "RNIw": 0.0
+      }
+    },
+    {
+      "profile_id": "C",
+      "profile": {
+        "id": "C",
+        "name": "Career & Relocation",
+        "intent": "SPIRITUAL_ALIGNMENT",
+        "birth_datetime": "1998-11-05T12:00:00",
+        "city": "Tokyo",
+        "latitude": 35.6762,
+        "longitude": 139.6503,
+        "tz_offset": 9.0
+      },
+      "status_code": 200,
+      "status": "COMPLETED",
+      "emission_count": 10,
+      "populated_emission_count": 10,
+      "has_epistemic_disclaimer": true,
+      "audit_metrics": {
+        "LCIw": 1.0,
+        "RNIw": 0.0
+      }
+    },
+    {
+      "profile_id": "D",
+      "profile": {
+        "id": "D",
+        "name": "Partnership & Marriage",
+        "intent": "RELATIONSHIP_SYNASTRY",
+        "birth_datetime": "1990-06-12T12:00:00",
+        "city": "London",
+        "latitude": 51.5074,
+        "longitude": -0.1278,
+        "tz_offset": 0.0
+      },
+      "status_code": 200,
+      "status": "COMPLETED",
+      "emission_count": 10,
+      "populated_emission_count": 10,
+      "has_epistemic_disclaimer": true,
+      "audit_metrics": {
+        "LCIw": 1.0,
+        "RNIw": 0.0
+      }
+    },
+    {
+      "profile_id": "E",
+      "profile": {
+        "id": "E",
+        "name": "Health & Longevity",
+        "intent": "HOLISTIC_WELLNESS",
+        "birth_datetime": "1978-01-30T12:00:00",
+        "city": "New York",
+        "latitude": 40.7128,
+        "longitude": -74.006,
+        "tz_offset": -5.0
+      },
+      "status_code": 200,
+      "status": "COMPLETED",
+      "emission_count": 10,
+      "populated_emission_count": 10,
+      "has_epistemic_disclaimer": true,
+      "audit_metrics": {
+        "LCIw": 1.0,
+        "RNIw": 0.0
+      }
+    }
+  ],
+  "profile_count": 5
+}

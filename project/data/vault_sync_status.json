@@ -1,5 +1,5 @@
 {
-  "last_sync_timestamp": "2026-08-16T11:22:17.791079",
+  "last_sync_timestamp": "2026-08-24T19:55:46.488939",
   "total_files_in_vault": 48,
   "pdf_count": 38,
   "md_count": 10,
@@ -29,6 +29,12 @@
       "name": "Additional Training Vault (คัมภีร์ & ตำราเพิ่มเติม)",
       "url": "https://drive.google.com/drive/folders/1e8nX-h3cKpcifUv6G2EjuJDey9DBm5b2?usp=sharing",
       "target_subfolder": "folder_3"
+    },
+    {
+      "id": "1vNh9IaFbBvXQdAiKVcCz61p59BTFR58E",
+      "name": "HoroClip Master Vault & Treatise Summaries",
+      "url": "https://drive.google.com/drive/folders/1vNh9IaFbBvXQdAiKVcCz61p59BTFR58E?usp=sharing",
+      "target_subfolder": "folder_horoclip"
     }
   ],
   "download_status": [
@@ -46,6 +52,10 @@
     },
     {
       "folder": "Additional Training Vault (คัมภีร์ & ตำราเพิ่มเติม)",
+      "success": true
+    },
+    {
+      "folder": "HoroClip Master Vault & Treatise Summaries",
       "success": true
     }
   ],
