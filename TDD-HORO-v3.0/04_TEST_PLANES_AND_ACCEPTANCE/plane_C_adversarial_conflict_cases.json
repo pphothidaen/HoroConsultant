@@ -1,0 +1,185 @@
+{
+  "$schema_version": "3.0.0",
+  "description": "Test Plane C — Adversarial Conflict Cases (Inversion Thinking). These cases verify that the L5 Consensus Engine (FSM) and L6 Audit Node correctly DETECT and HANDLE attacks: domain contamination, hallucinated claims, unresolved hard conflicts, and false provenance. Each case defines the injected attack and the EXPECTED defensive response.",
+  "adversarial_categories": ["cross_domain_contamination", "hallucination", "false_provenance", "hard_conflict_escape", "confirmation_bias"],
+  "cases": [
+    {
+      "attack_id": "ADV-C-001",
+      "attack_type": "cross_domain_contamination",
+      "category": "cross_domain_contamination",
+      "description": "ATTACK: @Horo_BaZi_Node emits a claim referencing 四化 (Si Hua — a ZiWei concept) in its statement. This is a Domain Firewall violation — BaZi Nodes MUST NOT reference ZiWei concepts.",
+      "injected_claim": {
+        "node_id": "@Horo_BaZi_Node",
+        "tradition_domain": "ming_xue_bazi",
+        "claims": [{
+          "claim_id": "aaaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa",
+          "materiality_weight": 0.8,
+          "epistemic_trace": {
+            "source_corpus": "渊海子平",
+            "locator": "卷一",
+            "applied_rule_id": "BAZI-FAKE-001",
+            "derived_from_calc_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          "statement": "The Day Master shows 化禄 transformation (化禄入命) indicating wealth influx",
+          "confidence_vector": {
+            "calculation_integrity": 0.9,
+            "rule_match_strength": 0.8,
+            "source_support": 0.7,
+            "interpretation_stability": 0.7,
+            "cross_agent_agreement": 0.0
+          }
+        }]
+      },
+      "expected_fsm_response": "H1_TRIGGERED",
+      "expected_audit_verdict": "AUDIT_FAIL_RECOMPUTE",
+      "expected_detection_reason": "Term '化禄' is in the forbidden_terms list for ming_xue_bazi domain (belongs to ming_xue_ziwei)",
+      "pass_condition": "L6 Audit Node must flag this claim and reduce source_support to 0.0"
+    },
+    {
+      "attack_id": "ADV-C-002",
+      "attack_type": "hallucination",
+      "category": "hallucination",
+      "description": "ATTACK: A claim is emitted with source_corpus referencing a non-existent book '秘传奇门秘诀' that is not in any canonical corpus list. This simulates LLM hallucination of fake classical references.",
+      "injected_claim": {
+        "node_id": "@Horo_QiMen_Node",
+        "tradition_domain": "san_shi_qi_men",
+        "claims": [{
+          "claim_id": "bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb",
+          "materiality_weight": 0.9,
+          "epistemic_trace": {
+            "source_corpus": "秘传奇门秘诀",
+            "locator": "第七章",
+            "applied_rule_id": "QIMEN-FAKE-001",
+            "derived_from_calc_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          },
+          "statement": "The 天蓬星 in central palace indicates hidden attack from northeast",
+          "confidence_vector": {
+            "calculation_integrity": 0.85,
+            "rule_match_strength": 0.75,
+            "source_support": 0.80,
+            "interpretation_stability": 0.70,
+            "cross_agent_agreement": 0.0
+          }
+        }]
+      },
+      "expected_fsm_response": "NONE",
+      "expected_audit_verdict": "AUDIT_FAIL_RECOMPUTE",
+      "expected_detection_reason": "source_corpus '秘传奇门秘诀' not found in QiMen Convention Profile canonical_corpus list",
+      "pass_condition": "RNIw raised by materiality_weight=0.9 * 1 (ungrounded) — must exceed threshold 0.15"
+    },
+    {
+      "attack_id": "ADV-C-003",
+      "attack_type": "false_provenance",
+      "category": "false_provenance",
+      "description": "ATTACK: A claim cites 《协纪辨方书》 (Ze Ji canon) but the node is @Horo_BaZi_Node. Cross-corpus citation violation — BaZi nodes MUST only cite their own corpus.",
+      "injected_claim": {
+        "node_id": "@Horo_BaZi_Node",
+        "tradition_domain": "ming_xue_bazi",
+        "claims": [{
+          "claim_id": "cccccccc-cccc-4ccc-cccc-cccccccccccc",
+          "materiality_weight": 0.7,
+          "epistemic_trace": {
+            "source_corpus": "协纪辨方书",
+            "locator": "卷三",
+            "applied_rule_id": "BAZI-FAKE-002",
+            "derived_from_calc_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+          },
+          "statement": "The birth date is auspicious and free of Sui Po (岁破)",
+          "confidence_vector": {
+            "calculation_integrity": 0.6,
+            "rule_match_strength": 0.5,
+            "source_support": 0.9,
+            "interpretation_stability": 0.6,
+            "cross_agent_agreement": 0.0
+          }
+        }]
+      },
+      "expected_fsm_response": "H2_EXCLUSION",
+      "expected_audit_verdict": "AUDIT_FAIL_ESCALATE",
+      "expected_detection_reason": "Source corpus '协纪辨方书' belongs to ze_ji_xue domain, not ming_xue_bazi — false provenance detected",
+      "pass_condition": "L6 marks this as false_provenance_detected=true and triggers AUDIT_FAIL_ESCALATE"
+    },
+    {
+      "attack_id": "ADV-C-004",
+      "attack_type": "hard_conflict_escape",
+      "category": "hard_conflict_escape",
+      "description": "ATTACK: @Horo_ZeJi_Node emits a 'PASS' claim for a candidate datetime that has 岁破 (Sui Po — Year Branch Clash). The ZeJi Hard Exclusion MUST veto this regardless of other positive signals.",
+      "injected_claim": {
+        "node_id": "@Horo_ZeJi_Node",
+        "tradition_domain": "ze_ji_xue",
+        "claims": [{
+          "claim_id": "dddddddd-dddd-4ddd-dddd-dddddddddddd",
+          "materiality_weight": 1.0,
+          "epistemic_trace": {
+            "source_corpus": "协纪辨方书",
+            "locator": "卷七·岁破",
+            "applied_rule_id": "ZEJI-VETO-003",
+            "derived_from_calc_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+          },
+          "statement": "Candidate date 2026-10-04 is auspicious for business opening",
+          "claim_type": "hard_exclusion",
+          "confidence_vector": {
+            "calculation_integrity": 0.95,
+            "rule_match_strength": 0.9,
+            "source_support": 0.95,
+            "interpretation_stability": 0.9,
+            "cross_agent_agreement": 0.0
+          },
+          "potential_conflicts": []
+        }]
+      },
+      "ground_truth": {
+        "year_branch_2026": "午",
+        "candidate_day_branch": "子",
+        "sui_po_clash": true,
+        "correct_action": "EXCLUDE_CANDIDATE"
+      },
+      "expected_fsm_response": "H2_EXCLUSION",
+      "expected_audit_verdict": "AUDIT_FAIL_RECOMPUTE",
+      "expected_detection_reason": "Candidate date has Sui Po (子-午 clash with year branch) — H2 Hard Exclusion must trigger regardless of positive claims",
+      "pass_condition": "L5 FSM MUST apply H2 EXCLUDE_CANDIDATE and prevent this date from appearing in final output"
+    },
+    {
+      "attack_id": "ADV-C-005",
+      "attack_type": "confirmation_bias",
+      "category": "confirmation_bias",
+      "description": "ATTACK: All three tradition nodes (@Horo_BaZi_Node, @Horo_ZiWei_Node, @Horo_QiMen_Node) agree that 'the subject will become wealthy in 2026' with high cross_agent_agreement=0.95. Inversion test: L6 Audit must check if this consensus is grounded or a shared hallucination pattern (all nodes citing the same questionable interpretation).",
+      "injected_claims": [
+        {
+          "node_id": "@Horo_BaZi_Node",
+          "statement": "Subject will achieve significant wealth accumulation in 2026",
+          "source_support": 0.3,
+          "cross_agent_agreement": 0.95,
+          "materiality_weight": 0.9
+        },
+        {
+          "node_id": "@Horo_ZiWei_Node",
+          "statement": "Subject will achieve significant wealth accumulation in 2026",
+          "source_support": 0.25,
+          "cross_agent_agreement": 0.95,
+          "materiality_weight": 0.9
+        },
+        {
+          "node_id": "@Horo_QiMen_Node",
+          "statement": "Subject will achieve significant wealth accumulation in 2026",
+          "source_support": 0.2,
+          "cross_agent_agreement": 0.95,
+          "materiality_weight": 0.9
+        }
+      ],
+      "expected_fsm_response": "NONE",
+      "expected_audit_verdict": "AUDIT_PASS_WITH_WARNINGS",
+      "expected_detection": "RNIw elevated due to low source_support across all nodes despite high cross_agent_agreement — consensus without corpus grounding is a confirmation bias pattern",
+      "pass_condition": "L6 must emit WARNING: 'high cross_agent_agreement with low source_support indicates potential echo chamber — flag for HITL review'"
+    }
+  ],
+  "inversion_thinking_protocol": {
+    "description": "L6 Audit Node must apply inversion thinking: ask 'What would have to be FALSE for this claim to be wrong?' for each high-materiality claim",
+    "steps": [
+      "1. Identify the 3 highest materiality claims in the emission set",
+      "2. For each: hypothesize the negation and check if any existing claim supports the negation",
+      "3. If negation-supporting claims exist but were not flagged as conflicts — escalate to HITL",
+      "4. Check for echo chamber: if cross_agent_agreement > 0.9 but source_support < 0.5 for all agreeing agents — warn"
+    ]
+  }
+}

@@ -1,0 +1,250 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://horo-engine.org/schemas/convention-profile-v3.0.json",
+  "$schema_version": "3.0.0",
+  "title": "HoroConventionProfile",
+  "description": "Convention Profile Schema for L2 Tradition Engine configuration. Each profile uniquely identifies a canonical school of metaphysics, its calculation rules, and its corpus boundaries. The profile_hash ensures reproducibility — same hash = same calculation conventions.",
+  "type": "object",
+  "required": ["profile_id", "profile_hash", "tradition_name", "tradition_domain", "canonical_corpus", "calculation_conventions", "version"],
+  "additionalProperties": false,
+  "properties": {
+    "profile_id": {
+      "type": "string",
+      "description": "Unique convention profile identifier",
+      "pattern": "^CP-[A-Z]+-[0-9]{4}$",
+      "examples": ["CP-BAZI-0001", "CP-ZIWEI-0001", "CP-QIMEN-0001"]
+    },
+    "profile_hash": {
+      "type": "string",
+      "description": "SHA-256 hash of the canonical serialization of this profile (excluding profile_hash field itself). Used by L3 Nodes to verify they received the correct calculation context from L2.",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "tradition_name": {
+      "type": "string",
+      "description": "Human-readable tradition name in English",
+      "examples": ["BaZi / Four Pillars of Destiny", "Zi Wei Dou Shu", "Qi Men Dun Jia", "Da Liu Ren", "Liu Yao / Plum Blossom Yi", "Xuan Kong Feng Shui", "Ze Ji / Auspicious Timing"]
+    },
+    "tradition_name_zh": {
+      "type": "string",
+      "description": "Tradition name in Traditional Chinese",
+      "examples": ["八字命理", "紫微斗数", "奇门遁甲", "大六壬", "六爻占卜", "玄空风水", "择吉学"]
+    },
+    "tradition_domain": {
+      "type": "string",
+      "description": "Machine-readable domain identifier matching Claim Emission Schema",
+      "enum": [
+        "ming_xue_bazi", "ming_xue_ziwei", "ming_xue_qi_zheng",
+        "san_shi_qi_men", "san_shi_da_liu_ren", "san_shi_tai_yi",
+        "xiang_xue_feng_shui", "xiang_xue_mian_xiang",
+        "ze_ji_xue", "bu_shi_liu_yao"
+      ]
+    },
+    "l2_engine_class": {
+      "type": "string",
+      "description": "Python class name of the L2 Tradition Engine that uses this profile",
+      "examples": ["BaZiEngine", "ZiWeiEngine", "QiMenEngine", "DaLiuRenEngine", "LiuYaoEngine", "XuanKongEngine", "ZeJiEngine"]
+    },
+    "canonical_corpus": {
+      "type": "array",
+      "description": "List of canonical classical texts that define the rule boundary for this tradition. L3/L4 Nodes MUST NOT reference texts outside this list.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/CanonicalBook"
+      }
+    },
+    "calculation_conventions": {
+      "$ref": "#/definitions/CalculationConventions"
+    },
+    "cross_domain_firewall": {
+      "$ref": "#/definitions/CrossDomainFirewall"
+    },
+    "active_period": {
+      "$ref": "#/definitions/ActivePeriod"
+    },
+    "version": {
+      "type": "string",
+      "description": "SemVer of this convention profile",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "examples": ["3.0.0"]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "definitions": {
+    "CanonicalBook": {
+      "type": "object",
+      "required": ["title_zh", "title_romanized", "tradition_domain", "authority_tier"],
+      "additionalProperties": false,
+      "properties": {
+        "title_zh": {
+          "type": "string",
+          "description": "Book title in Traditional Chinese",
+          "examples": ["渊海子平", "滴天髓", "子平真诠", "三命通会"]
+        },
+        "title_romanized": {
+          "type": "string",
+          "description": "Romanized title (Pinyin)",
+          "examples": ["Yuan Hai Zi Ping", "Di Tian Sui", "Zi Ping Zhen Quan", "San Ming Tong Hui"]
+        },
+        "title_en": {
+          "type": "string",
+          "description": "English translation of title (if available)"
+        },
+        "tradition_domain": {
+          "type": "string",
+          "description": "Domain this book belongs to"
+        },
+        "dynasty_period": {
+          "type": "string",
+          "description": "Historical dynasty/period of composition",
+          "examples": ["Song Dynasty", "Ming Dynasty", "Qing Dynasty", "Qing Dynasty (Imperial Commission)"]
+        },
+        "authority_tier": {
+          "type": "integer",
+          "description": "Authority tier: 1=Primary Canon (must cite), 2=Secondary (supporting), 3=Reference (context only)",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "rag_namespace": {
+          "type": "string",
+          "description": "RAG vector store namespace for this book's corpus chunks",
+          "examples": ["horo_bazi_yuan_hai", "horo_ziwei_dou_shu_quan_shu"]
+        }
+      }
+    },
+    "CalculationConventions": {
+      "type": "object",
+      "description": "Deterministic calculation parameters — defines WHICH variant of the tradition to use. Same profile_hash = same calculation output for same input.",
+      "additionalProperties": true,
+      "properties": {
+        "solar_system": {
+          "type": "string",
+          "description": "Solar coordinate system used",
+          "enum": ["tropical", "sidereal_lahiri", "sidereal_raman", "chinese_traditional"],
+          "default": "tropical"
+        },
+        "time_correction": {
+          "type": "string",
+          "description": "Time correction method",
+          "enum": ["true_solar_time", "local_mean_time", "standard_time"],
+          "default": "true_solar_time"
+        },
+        "calendar_system": {
+          "type": "string",
+          "description": "Primary calendar for pillar/palace assignment",
+          "enum": ["chinese_sexagenary", "lunar_chinese", "gregorian"],
+          "default": "chinese_sexagenary"
+        },
+        "bazi_conventions": {
+          "type": "object",
+          "description": "BaZi-specific conventions (applicable only to ming_xue_bazi)",
+          "properties": {
+            "dayun_gender_rule": {
+              "type": "string",
+              "enum": ["standard_male_yang_female_yin", "reversed"],
+              "default": "standard_male_yang_female_yin"
+            },
+            "dayun_start_age_method": {
+              "type": "string",
+              "enum": ["exact_days_to_term", "rounded_years"],
+              "default": "exact_days_to_term"
+            },
+            "hidden_stems_method": {
+              "type": "string",
+              "enum": ["full_3_stems", "dominant_only"],
+              "default": "full_3_stems"
+            }
+          }
+        },
+        "ziwei_conventions": {
+          "type": "object",
+          "description": "Zi Wei Dou Shu conventions (applicable only to ming_xue_ziwei)",
+          "properties": {
+            "palace_assignment_method": {
+              "type": "string",
+              "enum": ["lunar_hour", "solar_hour"],
+              "default": "lunar_hour"
+            },
+            "si_hua_system": {
+              "type": "string",
+              "enum": ["zhong_zhou_pai", "san_he_pai"],
+              "default": "zhong_zhou_pai"
+            }
+          }
+        },
+        "qimen_conventions": {
+          "type": "object",
+          "description": "Qi Men Dun Jia conventions",
+          "properties": {
+            "displacement_method": {
+              "type": "string",
+              "enum": ["zhuan_pan", "fei_pan"],
+              "default": "fei_pan"
+            },
+            "cycle_type": {
+              "type": "string",
+              "enum": ["annual", "monthly", "daily", "hourly"],
+              "default": "hourly"
+            }
+          }
+        }
+      }
+    },
+    "CrossDomainFirewall": {
+      "type": "object",
+      "description": "Explicit declaration of which domains this tradition MUST NOT borrow from. Enforced by L3/L4 Node system prompts.",
+      "properties": {
+        "forbidden_domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of tradition domains that CANNOT be referenced by this node",
+          "examples": [
+            ["ming_xue_ziwei", "san_shi_qi_men"],
+            ["ming_xue_bazi", "san_shi_da_liu_ren"]
+          ]
+        },
+        "forbidden_terms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specific terms/concepts that must not appear in claims from this node",
+          "examples": [["四化", "宫位"], ["용신", "格局"]]
+        }
+      }
+    },
+    "ActivePeriod": {
+      "type": "object",
+      "description": "Temporal validity of calendar-dependent conventions (e.g. Feng Shui Period 9)",
+      "properties": {
+        "period_name": {
+          "type": "string",
+          "examples": ["Period 9 (九运)", "Current Year Cycle"]
+        },
+        "start_date": {
+          "type": "string",
+          "format": "date",
+          "examples": ["2024-02-04"]
+        },
+        "end_date": {
+          "type": "string",
+          "format": "date",
+          "examples": ["2043-02-03"]
+        },
+        "governing_element": {
+          "type": "string",
+          "description": "Dominant element of this period (for Feng Shui Period 9: Fire 火)",
+          "examples": ["火 (Fire)"]
+        }
+      }
+    }
+  }
+}

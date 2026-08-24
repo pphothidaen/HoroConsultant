@@ -1,0 +1,253 @@
+// Horo Architecture v3.0 — L1 Astro Kernel Service gRPC API Specification
+// Reference: JPL DE440 Ephemeris, IERS Bulletin D (DUT1), Swiss Ephemeris
+// Status: FROZEN BASELINE — Do NOT modify without opening an Architecture Change Request (ACR)
+// Schema Version: 3.0.0
+// Git Tag: v3.0-data-contracts
+
+syntax = "proto3";
+
+package horo.astro.v3;
+
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "org.horo.astro.v3";
+option java_outer_classname = "AstroKernelServiceProto";
+
+// ============================================================
+// AstroKernelService — Pure Deterministic Astronomical Engine
+// No LLM, No Interpretation. Calculation ONLY.
+// Invariance: All outputs are physically deterministic given the same input.
+// ============================================================
+service AstroKernelService {
+  // Compute tropical solar longitude for a given UTC moment
+  // Used by L2 Tradition Engines to determine: Solar Term (节气), Day Pillar boundary, annual season
+  rpc ComputeSolarLongitude(AstroRequest) returns (SolarLongitudeResponse);
+
+  // Compute planetary positions (7 Classical Planets + 4 Virtual Points)
+  // Used by: @Horo_QiZheng_Node (七政四余), @Horo_FengShui_Node (玄空 Period)
+  rpc ComputePlanetaryPositions(AstroRequest) returns (PlanetaryPositionsResponse);
+
+  // Convert UTC to all required timescales: UT1, TAI, TT, TST (True Solar Time)
+  // Pipeline: UTC -> UT1 (IERS DUT1) -> TAI -> TT (DeltaT = TT - UT1)
+  // TST = LMT + EoT (Equation of Time correction)
+  rpc ConvertTimescale(TimescaleRequest) returns (TimescaleResponse);
+
+  // Compute 24 Solar Terms (二十四节气) for a given Gregorian year
+  // Returns exact UTC timestamps when Sun crosses each 15-degree longitude boundary
+  rpc Compute24SolarTerms(SolarTermsRequest) returns (SolarTermsResponse);
+
+  // Compute lunar phase and lunar mansion (二十八宿) for a given date
+  // Used by: @Horo_ZeJi_Node (择吉学), @Horo_QiZheng_Node
+  rpc ComputeLunarState(AstroRequest) returns (LunarStateResponse);
+}
+
+// ============================================================
+// Core Request Messages
+// ============================================================
+
+// Base astronomical query — all coordinates in WGS84
+message AstroRequest {
+  // Observation moment in UTC
+  google.protobuf.Timestamp utc_timestamp = 1;
+
+  // Observer geographic location (WGS84 decimal degrees)
+  double latitude_deg = 2;   // Range: -90.0 to +90.0
+  double longitude_deg = 3;  // Range: -180.0 to +180.0
+  double altitude_m = 4;     // Altitude in meters above WGS84 ellipsoid (default: 0)
+
+  // IANA timezone string (e.g. "Asia/Bangkok") — used for TST offset only
+  string timezone_iana = 5;
+
+  // Ephemeris backend selection
+  EphemerisBackend ephemeris_backend = 6;
+}
+
+// Timescale conversion request
+message TimescaleRequest {
+  google.protobuf.Timestamp utc_input = 1;
+  double longitude_deg = 2;  // For True Solar Time (TST) calculation
+}
+
+// Solar Terms year request
+message SolarTermsRequest {
+  int32 gregorian_year = 1;  // e.g. 2026
+}
+
+// ============================================================
+// Core Response Messages
+// ============================================================
+
+// Tropical solar longitude response
+// IMPORTANT: Tropical (not Sidereal). Chinese metaphysics uses Tropical longitude.
+// Do NOT inject Ayanamsa — that is used ONLY for Vedic/Indian systems.
+message SolarLongitudeResponse {
+  // Tropical solar longitude in degrees [0.0, 360.0)
+  double solar_longitude_deg = 1;
+
+  // Current Solar Term index (0-23, 0 = 小寒 XiaoHan for Chinese reckoning)
+  int32 solar_term_index = 2;
+
+  // Solar Term name in classical Chinese (e.g. "清明", "冬至")
+  string solar_term_name_zh = 3;
+
+  // Solar Term name in romanized Mandarin (e.g. "QingMing", "DongZhi")
+  string solar_term_name_romanized = 4;
+
+  // Whether this moment is past the Solar Term boundary (used for Day/Year Pillar assignment)
+  bool past_solar_term_boundary = 5;
+
+  // DeltaT correction applied (TT - UT1) in seconds
+  double delta_t_seconds = 6;
+
+  // Computation metadata
+  ComputationMeta meta = 7;
+}
+
+// Planetary positions for 7 Classical Planets + 4 Virtual Points (七政四余)
+message PlanetaryPositionsResponse {
+  repeated PlanetaryBody bodies = 1;
+  ComputationMeta meta = 2;
+}
+
+// Individual planetary body state
+message PlanetaryBody {
+  PlanetID planet_id = 1;
+
+  // Tropical ecliptic longitude in degrees [0.0, 360.0)
+  double ecliptic_longitude_deg = 2;
+
+  // Ecliptic latitude in degrees
+  double ecliptic_latitude_deg = 3;
+
+  // Distance from Earth in AU
+  double distance_au = 4;
+
+  // Apparent magnitude (if applicable)
+  double apparent_magnitude = 5;
+
+  // Retrograde motion flag
+  bool is_retrograde = 6;
+
+  // 28 Lunar Mansion index [0-27] (二十八宿)
+  int32 lunar_mansion_index = 7;
+
+  // 28 Lunar Mansion name in Chinese
+  string lunar_mansion_name_zh = 8;
+}
+
+// Timescale conversion response
+message TimescaleResponse {
+  // Input UTC preserved
+  google.protobuf.Timestamp utc_input = 1;
+
+  // UT1 (corrected by IERS DUT1 = UT1 - UTC)
+  google.protobuf.Timestamp ut1 = 2;
+  double dut1_seconds = 3;
+
+  // TAI (UTC + leap seconds offset)
+  google.protobuf.Timestamp tai = 4;
+  int32 leap_seconds = 5;
+
+  // TT = Terrestrial Time = TAI + 32.184s
+  google.protobuf.Timestamp tt = 6;
+
+  // DeltaT = TT - UT1 (in seconds)
+  double delta_t_seconds = 7;
+
+  // True Solar Time at given longitude
+  // TST = LMT + EquationOfTime
+  google.protobuf.Timestamp true_solar_time = 8;
+
+  // Equation of Time in minutes
+  double equation_of_time_minutes = 9;
+
+  ComputationMeta meta = 10;
+}
+
+// 24 Solar Terms response
+message SolarTermsResponse {
+  int32 gregorian_year = 1;
+  repeated SolarTerm terms = 2;
+  ComputationMeta meta = 3;
+}
+
+// Individual Solar Term entry
+message SolarTerm {
+  int32 index = 1;             // 0-23
+  string name_zh = 2;          // Classical Chinese name (e.g. "春分")
+  string name_romanized = 3;   // Romanized (e.g. "ChunFen")
+  double solar_longitude_deg = 4;  // Trigger longitude (0, 15, 30... 345 degrees)
+  google.protobuf.Timestamp utc_exact = 5;   // Exact UTC moment of crossing
+  string jia_zi_day_pillar = 6;  // 60 Jia-Zi day pillar at this moment
+}
+
+// Lunar state response
+message LunarStateResponse {
+  // Lunar phase angle in degrees [0, 360)
+  double phase_angle_deg = 1;
+
+  // Phase name (New/Waxing/Full/Waning)
+  string phase_name = 2;
+
+  // Moon's tropical longitude
+  double moon_longitude_deg = 3;
+
+  // 28 Lunar Mansion (二十八宿)
+  int32 lunar_mansion_index = 4;
+  string lunar_mansion_name_zh = 5;
+
+  // Jian Chu 12 Officers (建除十二神) for this day
+  int32 jian_chu_index = 6;
+  string jian_chu_name_zh = 7;
+
+  ComputationMeta meta = 8;
+}
+
+// ============================================================
+// Enumerations
+// ============================================================
+
+enum EphemerisBackend {
+  EPHEMERIS_UNSPECIFIED = 0;
+  SWISS_EPHEMERIS_SE2 = 1;   // Swiss Ephemeris (default, uses JPL DE440)
+  JPL_HORIZONS_API = 2;      // JPL Horizons REST API (validation/golden test only)
+  VSOP87 = 3;                // VSOP87 analytical (fallback, lower precision)
+}
+
+enum PlanetID {
+  PLANET_UNSPECIFIED = 0;
+  SUN = 1;         // 太阳 (Tai Yang)
+  MOON = 2;        // 太阴 (Tai Yin)
+  MARS = 3;        // 火星 (Huo Xing)
+  MERCURY = 4;     // 水星 (Shui Xing)
+  JUPITER = 5;     // 木星 (Mu Xing)
+  VENUS = 6;       // 金星 (Jin Xing)
+  SATURN = 7;      // 土星 (Tu Xing)
+  RAHU = 8;        // 罗睺 (Luo Hou) — North Lunar Node (virtual)
+  KETU = 9;        // 计都 (Ji Du) — South Lunar Node (virtual)
+  LUNAR_APOGEE = 10;  // 月孛 (Yue Bo) — Lunar Apogee (virtual)
+  COMET_VIRTUAL = 11; // 紫气 (Zi Qi) — Purple Vapor (virtual, classical)
+}
+
+// ============================================================
+// Computation Metadata (Audit Trail)
+// ============================================================
+
+message ComputationMeta {
+  // Ephemeris version used
+  string ephemeris_version = 1;  // e.g. "Swiss Ephemeris 2.10.03 / JPL DE440"
+
+  // IERS Bulletin D bulletin date used for DUT1
+  string iers_bulletin_date = 2;
+
+  // Computation timestamp (server-side)
+  google.protobuf.Timestamp computed_at_utc = 3;
+
+  // Hash of input parameters (SHA-256) for reproducibility audit
+  string input_hash_sha256 = 4;
+
+  // Reproducibility level per Horo v3.0 spec
+  // R0=bit-identical, R1=float-epsilon, R2=rule-identical, R3=semantic, R4=observational
+  string reproducibility_level = 5;
+}

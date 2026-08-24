@@ -1,0 +1,350 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://horo-engine.org/schemas/tri-graph-node-edge-v3.0.json",
+  "$schema_version": "3.0.0",
+  "title": "HoroTriGraphSchema",
+  "description": "Tri-Graph Node and Edge Ontology for Horo Architecture v3.0. Defines the structure of three separate graphs: Derivation DAG (G_deriv), Semantic Property Graph (G_sem), and Execution Event Ledger (L_event). Each graph has strict structural and semantic invariants.",
+
+  "definitions": {
+
+    "GraphType": {
+      "type": "string",
+      "enum": ["G_deriv", "G_sem", "L_event"],
+      "description": "Identifies which of the three graphs a node or edge belongs to. G_deriv=Derivation DAG (strictly acyclic), G_sem=Semantic Property Graph (allows cycles for contradictions), L_event=Append-Only Event Ledger"
+    },
+
+    "NodeBase": {
+      "type": "object",
+      "required": ["node_uid", "graph_type", "node_type", "created_at_utc"],
+      "properties": {
+        "node_uid": {
+          "type": "string",
+          "description": "Globally unique node identifier (UUIDv4 or deterministic hash)",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$|^[a-f0-9]{64}$"
+        },
+        "graph_type": {
+          "$ref": "#/definitions/GraphType"
+        },
+        "node_type": {
+          "type": "string",
+          "description": "Subtype of node within the graph"
+        },
+        "created_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "session_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "immutable": {
+          "type": "boolean",
+          "description": "Once set to true, the node MUST NOT be modified. G_deriv and L_event nodes are always immutable.",
+          "default": false
+        }
+      }
+    },
+
+    "DerivationNode": {
+      "allOf": [
+        {"$ref": "#/definitions/NodeBase"},
+        {
+          "type": "object",
+          "description": "Node in the Derivation DAG (G_deriv). Strictly acyclic. Represents one computational step in the pipeline.",
+          "required": ["pipeline_stage", "content_hash"],
+          "properties": {
+            "graph_type": {"const": "G_deriv"},
+            "node_type": {
+              "type": "string",
+              "enum": [
+                "AstroState",
+                "CompiledRule",
+                "ClaimEmission",
+                "ConventionProfile",
+                "L2CalculationOutput"
+              ]
+            },
+            "pipeline_stage": {
+              "type": "string",
+              "enum": ["L0_gateway", "L1_astro", "L2_tradition", "L3_interpretation", "L4_tactical", "L5_consensus", "L6_audit", "L7_composer"],
+              "description": "Which pipeline layer produced this node"
+            },
+            "content_hash": {
+              "type": "string",
+              "description": "SHA-256 hash of the node's content — enables Merkle DAG replay",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "payload_ref": {
+              "type": "string",
+              "description": "URI or path reference to the full node payload (stored externally to keep graph lightweight)"
+            }
+          }
+        }
+      ]
+    },
+
+    "SemanticNode": {
+      "allOf": [
+        {"$ref": "#/definitions/NodeBase"},
+        {
+          "type": "object",
+          "description": "Node in the Semantic Property Graph (G_sem). Can participate in cycles (e.g. mutual contradictions). Represents a Claim or Rule with semantic relationships.",
+          "required": ["claim_id", "tradition_domain"],
+          "properties": {
+            "graph_type": {"const": "G_sem"},
+            "node_type": {
+              "type": "string",
+              "enum": ["Claim", "Rule", "CorpusPassage", "InterpretationStep"]
+            },
+            "claim_id": {
+              "type": "string",
+              "description": "Reference to the claim_id in the Claim Emission Schema"
+            },
+            "tradition_domain": {
+              "type": "string"
+            },
+            "materiality_weight": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 1.0
+            }
+          }
+        }
+      ]
+    },
+
+    "EventNode": {
+      "allOf": [
+        {"$ref": "#/definitions/NodeBase"},
+        {
+          "type": "object",
+          "description": "Entry in the Execution Event Ledger (L_event). Append-only. Records every state transition in the FSM pipeline.",
+          "required": ["event_type", "sequence_number"],
+          "properties": {
+            "graph_type": {"const": "L_event"},
+            "node_type": {"const": "EventEntry"},
+            "immutable": {"const": true},
+            "event_type": {
+              "type": "string",
+              "enum": [
+                "PIPELINE_STARTED",
+                "L2_CALCULATION_COMPLETED",
+                "CLAIM_EMITTED",
+                "FSM_H0_TRIGGERED",
+                "FSM_H1_TRIGGERED",
+                "FSM_H1_RECOMPUTE",
+                "FSM_H1_QUARANTINE",
+                "FSM_H2_EXCLUSION",
+                "FSM_H3_ARBITRATION",
+                "FSM_H3_HITL_ESCALATION",
+                "AUDIT_PASS",
+                "AUDIT_PASS_WITH_WARNINGS",
+                "AUDIT_FAIL_RECOMPUTE",
+                "AUDIT_FAIL_ESCALATE",
+                "COMPOSER_OUTPUT_EMITTED",
+                "PIPELINE_COMPLETED",
+                "PIPELINE_ABORTED"
+              ]
+            },
+            "sequence_number": {
+              "type": "integer",
+              "description": "Monotonically increasing sequence number within a session — ensures event ordering",
+              "minimum": 1
+            },
+            "previous_event_hash": {
+              "type": "string",
+              "description": "SHA-256 hash of the previous event entry — forms an append-only chain",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "payload": {
+              "type": "object",
+              "description": "Event-specific payload (FSM state, metric values, affected node IDs)"
+            }
+          }
+        }
+      ]
+    },
+
+    "EdgeBase": {
+      "type": "object",
+      "required": ["edge_uid", "edge_type", "source_node_uid", "target_node_uid", "graph_type"],
+      "properties": {
+        "edge_uid": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "graph_type": {
+          "$ref": "#/definitions/GraphType"
+        },
+        "edge_type": {
+          "type": "string"
+        },
+        "source_node_uid": {
+          "type": "string"
+        },
+        "target_node_uid": {
+          "type": "string"
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 1.0
+        },
+        "created_at_utc": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+
+    "EdgeOntologyRegistry": {
+      "type": "object",
+      "description": "Authoritative registry of all permitted edge types with their ontological properties. FROZEN in v3.0.",
+      "properties": {
+        "contradicts": {
+          "type": "object",
+          "description": "A contradicts B: the claims are logically incompatible and cannot both be fully applied",
+          "properties": {
+            "symmetric": {"const": true, "description": "If A contradicts B, then B contradicts A"},
+            "transitive": {"const": false, "description": "A contradicts B and B contradicts C does NOT imply A contradicts C"},
+            "temporal_monotonic": {"const": false},
+            "permitted_graphs": {"type": "array", "items": {"type": "string"}, "const": ["G_sem"]},
+            "triggers_fsm": {"const": "H3_ARBITRATION"},
+            "severity_required": {"const": true}
+          }
+        },
+        "supports": {
+          "type": "object",
+          "description": "A supports B: Claim A provides corroborating evidence for Claim B",
+          "properties": {
+            "symmetric": {"const": false, "description": "A supports B does NOT imply B supports A"},
+            "transitive": {"const": false},
+            "temporal_monotonic": {"const": false},
+            "permitted_graphs": {"type": "array", "items": {"type": "string"}, "const": ["G_sem"]},
+            "triggers_fsm": {"const": null}
+          }
+        },
+        "qualifies": {
+          "type": "object",
+          "description": "A qualifies B: Claim A adds a condition, scope limitation, or nuance to Claim B without contradiction",
+          "properties": {
+            "symmetric": {"const": false},
+            "transitive": {"const": false},
+            "temporal_monotonic": {"const": false},
+            "permitted_graphs": {"type": "array", "items": {"type": "string"}, "const": ["G_sem"]},
+            "triggers_fsm": {"const": null}
+          }
+        },
+        "supersedes": {
+          "type": "object",
+          "description": "A supersedes B: Claim A replaces Claim B due to temporal advancement, rule priority, or FSM arbitration outcome",
+          "properties": {
+            "symmetric": {"const": false},
+            "transitive": {"const": true, "description": "If A supersedes B and B supersedes C, then A effectively supersedes C"},
+            "temporal_monotonic": {"const": true, "description": "A supersedes edge can only point from a later event to an earlier one"},
+            "permitted_graphs": {"type": "array", "items": {"type": "string"}, "const": ["G_sem", "L_event"]},
+            "subtypes": {
+              "type": "array",
+              "items": {"type": "string"},
+              "const": ["direct_supersedes", "effective_supersedes"],
+              "description": "direct_supersedes: explicitly declared by FSM arbitration. effective_supersedes: inferred via transitivity closure."
+            },
+            "triggers_fsm": {"const": null}
+          }
+        },
+        "derives_from": {
+          "type": "object",
+          "description": "B derives_from A: Used in G_deriv DAG only. Records the computational ancestry of a node.",
+          "properties": {
+            "symmetric": {"const": false},
+            "transitive": {"const": true},
+            "temporal_monotonic": {"const": true},
+            "permitted_graphs": {"type": "array", "items": {"type": "string"}, "const": ["G_deriv"]},
+            "acyclicity_enforced": {"const": true, "description": "G_deriv is a DAG — cycles MUST be rejected"}
+          }
+        },
+        "triggers": {
+          "type": "object",
+          "description": "A triggers B: An event in L_event caused a state transition B",
+          "properties": {
+            "symmetric": {"const": false},
+            "transitive": {"const": false},
+            "temporal_monotonic": {"const": true},
+            "permitted_graphs": {"type": "array", "items": {"type": "string"}, "const": ["L_event"]}
+          }
+        }
+      }
+    },
+
+    "AuditMetrics": {
+      "type": "object",
+      "description": "L6 Audit Node metric definitions — Weighted Residual Noise Index (RNIw) and Weighted Logical Consistency Index (LCIw)",
+      "properties": {
+        "RNIw": {
+          "type": "object",
+          "description": "Weighted Residual Noise Index: fraction of materiality-weighted ungrounded claims. Formula: sum(m_i * u_i) / sum(m_i). u_i=1 if claim lacks source_support>0 OR applied_rule_id is null.",
+          "properties": {
+            "formula": {"const": "sum(m_i * u_i) / sum(m_i)"},
+            "threshold_pass": {"const": 0.15, "description": "RNIw <= 0.15 for AUDIT_PASS"},
+            "threshold_warn": {"const": 0.20, "description": "RNIw <= 0.20 for PASS_WITH_WARNINGS"},
+            "verdict_fail": {"const": "AUDIT_FAIL_RECOMPUTE", "description": "RNIw > 0.20 triggers FAIL"}
+          }
+        },
+        "LCIw": {
+          "type": "object",
+          "description": "Weighted Logical Consistency Index: 1 minus fraction of materiality-weighted unresolved conflicts. Formula: 1 - sum(s_j * c_j * e_j) / sum(s_j * e_j). s_j=severity, c_j=conflict_active(0/1), e_j=max(m_a, m_b).",
+          "properties": {
+            "formula": {"const": "1 - sum(s_j * c_j * e_j) / sum(s_j * e_j)"},
+            "threshold_pass": {"const": 0.85, "description": "LCIw >= 0.85 for AUDIT_PASS"},
+            "threshold_warn": {"const": 0.70, "description": "LCIw >= 0.70 for PASS_WITH_WARNINGS"},
+            "verdict_fail": {"const": "AUDIT_FAIL_ESCALATE", "description": "LCIw < 0.70 triggers FAIL or ESCALATE"}
+          }
+        },
+        "verdict_truth_table": {
+          "type": "array",
+          "description": "Deterministic audit verdict lookup table",
+          "items": {
+            "type": "object",
+            "properties": {
+              "condition": {"type": "string"},
+              "verdict": {"type": "string"}
+            }
+          },
+          "default": [
+            {"condition": "LCIw >= 0.85 AND RNIw <= 0.15 AND no_unresolved_H0_H1_H2", "verdict": "AUDIT_PASS"},
+            {"condition": "LCIw >= 0.70 AND LCIw < 0.85 AND RNIw <= 0.20", "verdict": "AUDIT_PASS_WITH_WARNINGS"},
+            {"condition": "LCIw < 0.70 OR false_provenance_detected", "verdict": "AUDIT_FAIL_ESCALATE"},
+            {"condition": "RNIw > 0.20", "verdict": "AUDIT_FAIL_RECOMPUTE"}
+          ]
+        }
+      }
+    }
+  },
+
+  "type": "object",
+  "description": "Root schema container — validated against this schema to verify Tri-Graph structure compliance",
+  "properties": {
+    "graph_type": {"$ref": "#/definitions/GraphType"},
+    "nodes": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {"$ref": "#/definitions/DerivationNode"},
+          {"$ref": "#/definitions/SemanticNode"},
+          {"$ref": "#/definitions/EventNode"}
+        ]
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/EdgeBase"}
+    },
+    "edge_ontology": {
+      "$ref": "#/definitions/EdgeOntologyRegistry"
+    },
+    "audit_metrics": {
+      "$ref": "#/definitions/AuditMetrics"
+    }
+  }
+}

@@ -1,0 +1,250 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://horo-engine.org/schemas/claim-emission-v3.0.json",
+  "$schema_version": "3.0.0",
+  "title": "HoroClaimEmission",
+  "description": "Common Claim Emission Schema for all L3/L4 Interpretation Nodes in Horo Architecture v3.0. Every node MUST emit results in this format — no exceptions.",
+  "type": "object",
+  "required": ["node_id", "tradition_domain", "claims"],
+  "additionalProperties": false,
+  "properties": {
+    "node_id": {
+      "type": "string",
+      "description": "Unique identifier of the emitting node (e.g. '@Horo_BaZi_Node')",
+      "pattern": "^@Horo_[A-Za-z]+_Node$",
+      "examples": ["@Horo_BaZi_Node", "@Horo_ZiWei_Node", "@Horo_QiMen_Node"]
+    },
+    "tradition_domain": {
+      "type": "string",
+      "description": "The metaphysics tradition domain this node belongs to",
+      "enum": [
+        "ming_xue_bazi",
+        "ming_xue_ziwei",
+        "ming_xue_qi_zheng",
+        "san_shi_qi_men",
+        "san_shi_da_liu_ren",
+        "san_shi_tai_yi",
+        "xiang_xue_feng_shui",
+        "xiang_xue_mian_xiang",
+        "ze_ji_xue",
+        "bu_shi_liu_yao"
+      ]
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Execution session identifier — links this emission to a specific inference run",
+      "format": "uuid"
+    },
+    "emitted_at_utc": {
+      "type": "string",
+      "description": "ISO 8601 UTC timestamp of claim emission",
+      "format": "date-time"
+    },
+    "input_state_hash": {
+      "type": "string",
+      "description": "SHA-256 hash of the L2 State Matrix received by this node — enables Derivation DAG linking",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "claims": {
+      "type": "array",
+      "description": "Array of atomic interpretive claims. Each claim is independently verifiable.",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "$ref": "#/definitions/AtomicClaim"
+      }
+    }
+  },
+  "definitions": {
+    "AtomicClaim": {
+      "type": "object",
+      "title": "AtomicClaim",
+      "description": "A single atomic, independently verifiable interpretive claim derived from tradition rules",
+      "required": ["claim_id", "materiality_weight", "epistemic_trace", "statement", "confidence_vector"],
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": {
+          "type": "string",
+          "description": "Unique claim identifier — UUIDv4 or deterministic SHA-256 hash of (node_id + rule_id + input_hash)",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$|^[a-f0-9]{64}$"
+        },
+        "materiality_weight": {
+          "type": "number",
+          "description": "Impact weight of this claim relative to the user's query objective. Used in LCIw and RNIw calculations. 1.0 = maximally material, 0.0 = irrelevant.",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "epistemic_trace": {
+          "$ref": "#/definitions/EpistemicTrace"
+        },
+        "statement": {
+          "type": "string",
+          "description": "Objective deductive statement in the form: '[Subject] [predicate] [conclusion] based on [rule]'. Must NOT contain predictions, must NOT claim future certainty.",
+          "minLength": 10,
+          "maxLength": 1000,
+          "examples": [
+            "The Day Master Geng-Metal (庚金) is assessed as Strong (身旺) because the month branch Shen (申) provides Metal support, per rule BAZI-STRENGTH-001.",
+            "Palace 命宫 hosts 紫微 and 天府, indicating primary life path governance by authority and resource accumulation, per rule ZIWEI-PALACE-007."
+          ]
+        },
+        "confidence_vector": {
+          "$ref": "#/definitions/ConfidenceVector"
+        },
+        "potential_conflicts": {
+          "type": "array",
+          "description": "Conflicts this claim may have with claims from other tradition domains. Used by L5 Consensus Engine for Cross-Domain Arbitration (H3).",
+          "items": {
+            "$ref": "#/definitions/PotentialConflict"
+          },
+          "default": []
+        },
+        "claim_type": {
+          "type": "string",
+          "description": "Classification of claim function within the 5-stage epistemic chain",
+          "enum": [
+            "natal_structure",
+            "elemental_balance",
+            "temporal_transit",
+            "spatial_energy",
+            "event_mutation",
+            "macro_context",
+            "hard_exclusion",
+            "tactical_vector"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "description": "Semantic tags for graph traversal and claim grouping",
+          "items": {
+            "type": "string"
+          },
+          "examples": [["day_master", "strength", "metal"], ["palace", "wealth", "ziwei"]]
+        }
+      }
+    },
+    "EpistemicTrace": {
+      "type": "object",
+      "title": "EpistemicTrace",
+      "description": "Full provenance chain: Source Text → Interpretation → Formal Rule → Rule Instance → Emitted Claim (5-stage epistemic chain per Horo v3.0)",
+      "required": ["source_corpus", "locator", "applied_rule_id", "derived_from_calc_hash"],
+      "additionalProperties": false,
+      "properties": {
+        "source_corpus": {
+          "type": "string",
+          "description": "Canonical book title in Traditional Chinese (e.g. '滴天髓', '紫微斗数全书')",
+          "examples": ["渊海子平", "滴天髓", "子平真诠", "三命通会", "紫微斗数全书", "斗数骨髓赋", "烟波钓叟歌", "奇门遁甲大全", "六壬大全", "协纪辨方书", "沈氏玄空学", "易经", "卜筮正宗"]
+        },
+        "locator": {
+          "type": "string",
+          "description": "Chapter, volume, stanza, or section reference within the source corpus",
+          "examples": ["卷一·论日主强弱", "第三章·紫微星系", "论三奇得使格"]
+        },
+        "original_text": {
+          "type": "string",
+          "description": "Original Classical Chinese text passage that supports this claim",
+          "examples": ["日主坐库为身旺之征", "紫微守命，贵格无疑"]
+        },
+        "interpretation_id": {
+          "type": "string",
+          "description": "Unique ID of the interpretation step linking source text to formal rule (Stage 2 of epistemic chain)",
+          "pattern": "^INTERP-[A-Z]+-[0-9]{4}$",
+          "examples": ["INTERP-BAZI-0001", "INTERP-ZIWEI-0007"]
+        },
+        "applied_rule_id": {
+          "type": "string",
+          "description": "Unique ID of the Horo Rule DSL rule that was executed to produce this claim (Stage 3)",
+          "pattern": "^[A-Z]+-[A-Z]+-[0-9]{3,6}$",
+          "examples": ["BAZI-STRENGTH-001", "ZIWEI-PALACE-007", "QIMEN-SECTOR-012", "ZEJI-VETO-003"]
+        },
+        "derived_from_calc_hash": {
+          "type": "string",
+          "description": "SHA-256 hash of the L2 calculation output that triggered this rule execution. Links this claim back to the Derivation DAG node.",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "rule_version": {
+          "type": "string",
+          "description": "Version of the rule bundle used (SemVer)",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "examples": ["3.0.0", "3.0.1"]
+        }
+      }
+    },
+    "ConfidenceVector": {
+      "type": "object",
+      "title": "ConfidenceVector",
+      "description": "5-dimensional confidence vector replacing the deprecated scalar confidence score. Each dimension is independently assessable.",
+      "required": ["calculation_integrity", "rule_match_strength", "source_support", "interpretation_stability", "cross_agent_agreement"],
+      "additionalProperties": false,
+      "properties": {
+        "calculation_integrity": {
+          "type": "number",
+          "description": "Confidence in the deterministic L2 calculation that underlies this claim. 1.0 = verified against golden test vector, 0.0 = calculation failed or missing.",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "rule_match_strength": {
+          "type": "number",
+          "description": "Strength of match between the input state and the triggering rule's preconditions. 1.0 = exact match, 0.5 = partial/analogical match.",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "source_support": {
+          "type": "number",
+          "description": "Degree of explicit support in canonical corpus text. 1.0 = verbatim classical text citation, 0.0 = no corpus provenance (Ungrounded — will raise RNIw alert).",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "interpretation_stability": {
+          "type": "number",
+          "description": "Stability of this interpretation across different canonical commentators/schools. 1.0 = consensus across all schools, 0.0 = school-specific or contested.",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "cross_agent_agreement": {
+          "type": "number",
+          "description": "Agreement rate from other tradition agents in L5 Consensus round. 1.0 = all agents agree, 0.0 = contradiction from another domain. Populated by L5, initially 0.0.",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      }
+    },
+    "PotentialConflict": {
+      "type": "object",
+      "title": "PotentialConflict",
+      "description": "A declared potential conflict between this claim and a claim from another tradition domain",
+      "required": ["target_domain", "conflict_nature", "severity"],
+      "additionalProperties": false,
+      "properties": {
+        "target_domain": {
+          "type": "string",
+          "description": "Tradition domain of the potentially conflicting claim",
+          "enum": [
+            "ming_xue_bazi", "ming_xue_ziwei", "ming_xue_qi_zheng",
+            "san_shi_qi_men", "san_shi_da_liu_ren", "san_shi_tai_yi",
+            "xiang_xue_feng_shui", "xiang_xue_mian_xiang",
+            "ze_ji_xue", "bu_shi_liu_yao"
+          ]
+        },
+        "conflict_nature": {
+          "type": "string",
+          "description": "Description of how this conflict arises",
+          "examples": [
+            "BaZi Day Master weak contradicts QiMen aggressive timing recommendation",
+            "ZiWei wealth palace suppressed conflicts FengShui prosperity sector activation"
+          ]
+        },
+        "severity": {
+          "type": "number",
+          "description": "Conflict severity weight used in LCIw calculation. 1.0 = irreconcilable hard conflict, 0.0 = minor stylistic difference.",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "resolution_suggestion": {
+          "type": "string",
+          "description": "Optional suggested resolution strategy for L5 Consensus Engine",
+          "examples": ["Apply STRATEGIC_TIMING_ACTION priority: QiMen > BaZi compatibility", "Escalate to HITL"]
+        }
+      }
+    }
+  }
+}

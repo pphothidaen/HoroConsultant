@@ -1,0 +1,169 @@
+{
+  "$schema_version": "3.0.0",
+  "description": "Test Plane B — Tradition Conformance Cases. Each case verifies that a L2 Engine + L3 Node produces claims that conform to canonical classical texts. Cases are sourced from well-known reference examples in classical commentaries.",
+  "traditions_covered": ["BaZi", "ZiWei", "QiMen", "DaLiuRen", "XuanKong"],
+  "conformance_cases": [
+    {
+      "case_id": "CONF-BAZI-001",
+      "tradition": "BaZi",
+      "description": "Day Master Geng-Metal (庚金) born in Autumn — classic Strong Day Master case. Reference: 《滴天髓》论身强",
+      "input": {
+        "birth_datetime_utc": "1990-09-15T08:30:00Z",
+        "birth_location": {"latitude": 13.7563, "longitude": 100.5018, "timezone_iana": "Asia/Bangkok"},
+        "gender": "male"
+      },
+      "expected_pillars": {
+        "year_stem": "庚", "year_branch": "午",
+        "month_stem": "辛", "month_branch": "酉",
+        "day_stem": "庚", "day_branch": "申",
+        "hour_stem": "甲", "hour_branch": "辰"
+      },
+      "expected_claims": [
+        {
+          "claim_type": "natal_structure",
+          "statement_contains": "Strong",
+          "applied_rule_id_prefix": "BAZI-STRENGTH",
+          "source_corpus": "滴天髓"
+        },
+        {
+          "claim_type": "elemental_balance",
+          "dominant_element": "METAL",
+          "applied_rule_id_prefix": "BAZI-ELEMENT"
+        }
+      ],
+      "canonical_reference": "《滴天髓》: 庚金生秋，身旺有余，喜见制化"
+    },
+    {
+      "case_id": "CONF-BAZI-002",
+      "tradition": "BaZi",
+      "description": "Classic Zheng Guan formation (正官格) — Day Master Yi-Wood with Metal Officer in Month Branch. Reference: 《子平真诠》",
+      "input": {
+        "birth_datetime_utc": "1985-11-08T10:00:00Z",
+        "birth_location": {"latitude": 13.7563, "longitude": 100.5018, "timezone_iana": "Asia/Bangkok"},
+        "gender": "female"
+      },
+      "expected_claims": [
+        {
+          "claim_type": "natal_structure",
+          "statement_contains": "正官格",
+          "applied_rule_id_prefix": "BAZI-FORMATION",
+          "source_corpus": "子平真诠"
+        }
+      ],
+      "canonical_reference": "《子平真诠》: 正官格，月令官星透干，不杂七杀"
+    },
+    {
+      "case_id": "CONF-ZIWEI-001",
+      "tradition": "ZiWei",
+      "description": "紫微星 in 命宫 (Life Palace) — classic noble destiny indicator. Reference: 《紫微斗数全书》",
+      "input": {
+        "birth_datetime_utc": "1988-03-21T22:00:00Z",
+        "birth_location": {"latitude": 13.7563, "longitude": 100.5018, "timezone_iana": "Asia/Bangkok"},
+        "gender": "male",
+        "birth_hour_earthly_branch": "亥"
+      },
+      "expected_claims": [
+        {
+          "claim_type": "natal_structure",
+          "palace_name": "命宫",
+          "star_present": "紫微",
+          "applied_rule_id_prefix": "ZIWEI-PALACE",
+          "source_corpus": "紫微斗数全书"
+        },
+        {
+          "claim_type": "natal_structure",
+          "statement_contains": "贵格",
+          "source_corpus": "斗数骨髓赋"
+        }
+      ],
+      "canonical_reference": "《紫微斗数全书》: 紫微守命，贵格无疑，官禄宫吉，仕途亨通"
+    },
+    {
+      "case_id": "CONF-ZIWEI-002",
+      "tradition": "ZiWei",
+      "description": "化忌 (Hua Ji — Obstruction Transformation) in 财帛宫 (Wealth Palace) — classic wealth obstruction. Reference: 《斗数骨髓赋》",
+      "input": {
+        "birth_datetime_utc": "1992-07-12T14:00:00Z",
+        "birth_location": {"latitude": 13.7563, "longitude": 100.5018, "timezone_iana": "Asia/Bangkok"},
+        "gender": "female"
+      },
+      "expected_claims": [
+        {
+          "claim_type": "natal_structure",
+          "palace_name": "财帛宫",
+          "si_hua_present": "化忌",
+          "applied_rule_id_prefix": "ZIWEI-SIHUA",
+          "source_corpus": "斗数骨髓赋"
+        }
+      ],
+      "canonical_reference": "《斗数骨髓赋》: 化忌入财宫，财来财去，财帛不聚"
+    },
+    {
+      "case_id": "CONF-QIMEN-001",
+      "tradition": "QiMen",
+      "description": "三奇得使 (San Qi De Shi — Three Rarities Formation) — highly auspicious strategic timing formation. Reference: 《烟波钓叟歌》",
+      "input": {
+        "query_datetime_utc": "2026-08-24T06:00:00Z",
+        "query_location": {"latitude": 13.7563, "longitude": 100.5018, "timezone_iana": "Asia/Bangkok"},
+        "intent": "STRATEGIC_ACTION"
+      },
+      "expected_claims": [
+        {
+          "claim_type": "tactical_vector",
+          "formation_name": "三奇得使",
+          "formation_type": "auspicious",
+          "applied_rule_id_prefix": "QIMEN-FORMATION",
+          "source_corpus": "烟波钓叟歌"
+        }
+      ],
+      "canonical_reference": "《烟波钓叟歌》: 三奇得使最为良，可以横行到处方"
+    },
+    {
+      "case_id": "CONF-DALIUREN-001",
+      "tradition": "DaLiuRen",
+      "description": "贵人临位 (Gui Ren — Noble Heavenly General) in 初传 (First Transmission) — positive event progression. Reference: 《六壬大全》",
+      "input": {
+        "query_datetime_utc": "2026-08-24T10:00:00Z",
+        "query_location": {"latitude": 13.7563, "longitude": 100.5018, "timezone_iana": "Asia/Bangkok"}
+      },
+      "expected_claims": [
+        {
+          "claim_type": "event_mutation",
+          "chu_chuan_general": "贵人",
+          "prognosis": "positive_progression",
+          "applied_rule_id_prefix": "DALIUREN-GENERAL",
+          "source_corpus": "六壬大全"
+        }
+      ],
+      "canonical_reference": "《六壬大全》: 初传贵人临，事有贵人相助，诸事顺遂"
+    },
+    {
+      "case_id": "CONF-XUANKONG-001",
+      "tradition": "XuanKong",
+      "description": "Period 9 (九运 2024-2043) — Star 9 Purple (九紫 Fire Star) in facing palace. Wealth star in current period. Reference: 《沈氏玄空学》",
+      "input": {
+        "facing_direction_deg": 180.0,
+        "sitting_direction_deg": 0.0,
+        "period": 9,
+        "current_year": 2026
+      },
+      "expected_claims": [
+        {
+          "claim_type": "spatial_energy",
+          "facing_palace_star": 9,
+          "star_9_status": "current_prosperity",
+          "period_governance": "Fire",
+          "applied_rule_id_prefix": "XUANKONG-PERIOD",
+          "source_corpus": "沈氏玄空学"
+        }
+      ],
+      "canonical_reference": "《沈氏玄空学》: 九运九紫当令，得位为旺，财丁两旺"
+    }
+  ],
+  "failure_criteria": [
+    "Any case where emitted claims do NOT reference the specified source_corpus",
+    "Any case where applied_rule_id does NOT match the expected prefix",
+    "Any case where claim_type does not match expected type",
+    "Any case where source_support in confidence_vector < 0.5 for a Primary Canon case"
+  ]
+}

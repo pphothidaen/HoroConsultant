@@ -1,0 +1,294 @@
+(* ============================================================ *)
+(* Horo Rule DSL v3.0 — EBNF Grammar Specification             *)
+(* Horo Architecture v3.0 — Frozen Baseline                    *)
+(* Schema Version: 3.0.0                                       *)
+(* ============================================================ *)
+(*                                                              *)
+(* PURPOSE:                                                     *)
+(*   Defines the grammar for the Horo Rule DSL, which encodes  *)
+(*   classical metaphysics rules as formal executable objects.  *)
+(*   Rules are compiled by the Rule DSL Compiler into AST and  *)
+(*   bytecode for execution by L2/L3 engines.                  *)
+(*                                                              *)
+(* 5-STAGE EPISTEMIC CHAIN:                                     *)
+(*   source_ref -> interpretation -> formal_rule ->            *)
+(*   rule_instance -> claim_emission                            *)
+(*                                                              *)
+(* TODO: Extend with full temporal operators in v3.1            *)
+(* TODO: Add macro expansion support for repeated rule patterns *)
+(* ============================================================ *)
+
+
+(* ------------------------------------------------------------ *)
+(* TOP-LEVEL STRUCTURE                                          *)
+(* ------------------------------------------------------------ *)
+
+rule_file       = { rule_definition | comment } ;
+
+rule_definition = rule_header rule_metadata rule_body ;
+
+comment         = "(*" { any_char - "*)" } "*)"
+                | "//" { any_char - newline } newline ;
+
+
+(* ------------------------------------------------------------ *)
+(* RULE HEADER — Unique identity and classification             *)
+(* ------------------------------------------------------------ *)
+
+rule_header     = "RULE" rule_id ":" rule_name newline ;
+
+rule_id         = tradition_prefix "-" category_code "-" rule_number ;
+
+tradition_prefix = "BAZI" | "ZIWEI" | "QIMEN" | "DALIUREN" | "LIUYAO"
+                 | "XUANKONG" | "ZEJI" | "TAIYI" | "QIZHENG" | "MIANXIANG" ;
+
+category_code   = "STRENGTH" | "ELEMENT" | "PALACE" | "SECTOR" | "VETO"
+                | "TRANSIT" | "CLASH" | "COMBINE" | "FORMATION" | "MACRO"
+                | "GATE" | "STAR" | "DEITY" | "PHASE" | "TIMING" ;
+
+rule_number     = digit { digit } ;
+
+rule_name       = '"' { printable_char - '"' } '"' ;
+
+
+(* ------------------------------------------------------------ *)
+(* RULE METADATA — Epistemic provenance (Stages 1-2 of chain)  *)
+(* ------------------------------------------------------------ *)
+
+rule_metadata   = "@tradition" tradition_domain newline
+                  "@corpus"    corpus_ref newline
+                  "@locator"   locator_ref newline
+                  [ "@original_text" chinese_text newline ]
+                  "@interp_id" interpretation_id newline
+                  "@rule_id"   rule_id newline
+                  [ "@authority_tier" tier_number newline ]
+                  "@version"   semver newline ;
+
+tradition_domain = "ming_xue_bazi" | "ming_xue_ziwei" | "ming_xue_qi_zheng"
+                 | "san_shi_qi_men" | "san_shi_da_liu_ren" | "san_shi_tai_yi"
+                 | "xiang_xue_feng_shui" | "xiang_xue_mian_xiang"
+                 | "ze_ji_xue" | "bu_shi_liu_yao" ;
+
+corpus_ref      = '"' { printable_char - '"' } '"' ;
+                  (* Must match a canonical book in the Convention Profile *)
+                  (* Examples: "渊海子平", "滴天髓", "奇门遁甲大全" *)
+
+locator_ref     = '"' { printable_char - '"' } '"' ;
+                  (* Chapter/stanza reference. Example: "卷一·论日主强弱" *)
+
+chinese_text    = '"' { any_char - '"' } '"' ;
+                  (* Classical Chinese passage verbatim *)
+
+interpretation_id = '"' "INTERP-" tradition_prefix "-" digit { digit } '"' ;
+
+tier_number     = "1" | "2" | "3" ;  (* 1=Primary Canon, 2=Secondary, 3=Reference *)
+
+semver          = '"' digit "." digit "." digit '"' ;
+
+
+(* ------------------------------------------------------------ *)
+(* RULE BODY — Logic execution (Stages 3-5 of chain)           *)
+(* ------------------------------------------------------------ *)
+
+rule_body       = "BEGIN" newline
+                  condition_block
+                  action_block
+                  "END" newline ;
+
+condition_block = "WHEN" newline { condition_stmt } ;
+
+condition_stmt  = ( "IF" | "UNLESS" | "REQUIRE" ) condition_expr newline
+                | "AND" condition_expr newline
+                | "OR" condition_expr newline ;
+
+condition_expr  = element_check
+                | strength_check
+                | palace_check
+                | sector_check
+                | temporal_check
+                | clash_check
+                | combine_check
+                | formation_check
+                | compound_condition ;
+
+(* Element condition: checks Five Elements (五行) balance *)
+element_check   = "ELEMENT" "(" element ")" comparator element_threshold ;
+element         = "WOOD" | "FIRE" | "EARTH" | "METAL" | "WATER"
+                | "木" | "火" | "土" | "金" | "水" ;
+element_threshold = float_literal | "DOMINANT" | "DEFICIENT" | "BALANCED" ;
+
+(* Strength condition: Day Master or element strength assessment *)
+strength_check  = "STRENGTH" "(" subject ")" comparator strength_level ;
+subject         = "DAY_MASTER" | "YEAR_MASTER" | "MONTH_MASTER" | stem_name ;
+strength_level  = "VERY_STRONG" | "STRONG" | "NEUTRAL" | "WEAK" | "VERY_WEAK"
+                | "身强" | "身弱" | "中和" ;
+
+(* Palace condition: Zi Wei palace occupancy check *)
+palace_check    = "PALACE" "(" palace_name ")" "HAS" star_name
+                | "PALACE" "(" palace_name ")" "EMPTY" ;
+palace_name     = "命宫" | "兄弟宫" | "夫妻宫" | "子女宫" | "财帛宫"
+                | "疾厄宫" | "迁移宫" | "交友宫" | "官禄宫" | "田宅宫"
+                | "福德宫" | "父母宫" | identifier ;
+
+(* Sector condition: Qi Men / Feng Shui sector state check *)
+sector_check    = "SECTOR" "(" direction ")" "HAS" ( gate_name | star_name | deity_name | door_name )
+                | "SECTOR" "(" direction ")" "ELEMENT" "(" element ")" ;
+direction       = "N" | "NE" | "E" | "SE" | "S" | "SW" | "W" | "NW" | "CENTER"
+                | integer_literal ;  (* 1-9 for 九宫 *)
+
+(* Temporal condition: transit and timing checks *)
+(* TODO v3.1: Add full temporal window operators (WITHIN, BETWEEN, AFTER) *)
+temporal_check  = "DAYUN" "(" stem_branch ")" "ACTIVE"
+                | "LIUNNIAN" "(" stem_branch ")" "ACTIVE"
+                | "SOLAR_TERM" "(" solar_term_name ")" "CURRENT"
+                | "YEAR" "(" integer_literal ")" "IS" "CURRENT" ;
+
+(* Clash / Combine conditions *)
+clash_check     = "CLASH" "(" branch_name "," branch_name ")"
+                | "SELF_PUNISHMENT" "(" branch_name ")"
+                | "HARM" "(" branch_name "," branch_name ")" ;
+
+combine_check   = "COMBINE" "(" stem_name "," stem_name ")"
+                | "TRIPLE_HARMONY" "(" branch_name "," branch_name "," branch_name ")"
+                | "HALF_COMBINE" "(" branch_name "," branch_name ")" ;
+
+(* Qi Men / Da Liu Ren formation check *)
+formation_check = "FORMATION" "(" formation_name ")" "PRESENT"
+                | "FORMATION" "(" formation_name ")" "ABSENT" ;
+formation_name  = '"' { printable_char - '"' } '"' ;
+                  (* Examples: "三奇得使", "青龙返首", "飞鸟跌穴" *)
+
+(* Compound: boolean combinations *)
+compound_condition = "(" condition_expr { ( "AND" | "OR" ) condition_expr } ")"
+                   | "NOT" "(" condition_expr ")" ;
+
+
+(* ------------------------------------------------------------ *)
+(* ACTION BLOCK — Outputs (Stage 4-5 of epistemic chain)        *)
+(* ------------------------------------------------------------ *)
+
+action_block    = "THEN" newline { action_stmt } ;
+
+action_stmt     = emit_claim_action newline
+                | exclude_action newline
+                | trigger_fsm_action newline
+                | set_materiality_action newline
+                | add_conflict_action newline
+                | escalate_action newline ;
+
+(* Primary action: produce an Atomic Claim *)
+emit_claim_action = "EMIT_CLAIM" "{" newline
+                    "  statement:" string_literal newline
+                    "  claim_type:" claim_type_name newline
+                    "  materiality:" float_literal newline
+                    "  confidence:" "{" confidence_spec "}" newline
+                    [ "  tags:" "[" { string_literal "," } "]" newline ]
+                    "}" ;
+
+claim_type_name = "natal_structure" | "elemental_balance" | "temporal_transit"
+                | "spatial_energy" | "event_mutation" | "macro_context"
+                | "hard_exclusion" | "tactical_vector" ;
+
+confidence_spec = "calculation_integrity:" float_literal ","
+                  "rule_match_strength:"   float_literal ","
+                  "source_support:"        float_literal ","
+                  "interpretation_stability:" float_literal ","
+                  "cross_agent_agreement:" float_literal ;
+
+(* Ze Ji exclusion: hard veto of a candidate datetime *)
+exclude_action  = "EXCLUDE_CANDIDATE" "(" string_literal ")" "REASON" string_literal ;
+
+(* Trigger FSM constraint handler *)
+trigger_fsm_action = "TRIGGER_FSM" "(" fsm_level ")" [ "WITH" string_literal ] ;
+fsm_level       = "H0" | "H1" | "H2" | "H3" ;
+
+(* Override materiality weight mid-rule *)
+set_materiality_action = "SET_MATERIALITY" float_literal "FOR" string_literal ;
+
+(* Declare a conflict with another tradition domain *)
+add_conflict_action = "DECLARE_CONFLICT" "{" newline
+                      "  target_domain:" tradition_domain newline
+                      "  nature:"        string_literal newline
+                      "  severity:"      float_literal newline
+                      "}" ;
+
+(* Escalate unresolvable conflict to HITL queue *)
+escalate_action = "ESCALATE_TO_HITL" string_literal ;
+
+
+(* ------------------------------------------------------------ *)
+(* TERMINALS AND PRIMITIVES                                     *)
+(* ------------------------------------------------------------ *)
+
+comparator      = "==" | "!=" | ">" | "<" | ">=" | "<=" | "IS" | "IS_NOT" ;
+
+identifier      = letter { letter | digit | "_" } ;
+
+stem_name       = "甲" | "乙" | "丙" | "丁" | "戊" | "己" | "庚" | "辛" | "壬" | "癸" ;
+
+branch_name     = "子" | "丑" | "寅" | "卯" | "辰" | "巳" | "午" | "未" | "申" | "酉" | "戌" | "亥" ;
+
+stem_branch     = stem_name branch_name ;
+
+star_name       = identifier ;   (* e.g. 紫微, 天机, 太阳, 武曲 ... *)
+
+gate_name       = "开" | "休" | "生" | "伤" | "杜" | "景" | "死" | "惊" ;
+
+door_name       = gate_name ;   (* Alias *)
+
+deity_name      = "值符" | "螣蛇" | "太阴" | "六合" | "白虎" | "玄武" | "九地" | "九天" ;
+
+solar_term_name = identifier ;  (* 24 solar terms: 春分, 清明, etc. *)
+
+string_literal  = '"' { any_char - '"' } '"' ;
+
+float_literal   = [ "-" ] digit { digit } "." digit { digit }
+                | [ "-" ] digit { digit } ;
+
+integer_literal = [ "-" ] digit { digit } ;
+
+digit           = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+
+letter          = "A" | ... | "Z" | "a" | ... | "z" ;
+
+printable_char  = any unicode printable character ;
+
+any_char        = any unicode character ;
+
+newline         = "\n" | "\r\n" ;
+
+
+(* ============================================================ *)
+(* EXAMPLE RULE (conforming to this grammar):                  *)
+(*                                                              *)
+(* RULE BAZI-STRENGTH-001: "Day Master Strong Assessment"      *)
+(*   @tradition  ming_xue_bazi                                 *)
+(*   @corpus     "滴天髓"                                       *)
+(*   @locator    "论身强"                                       *)
+(*   @original_text "日主坐库，身旺无疑"                         *)
+(*   @interp_id  "INTERP-BAZI-0001"                            *)
+(*   @rule_id    BAZI-STRENGTH-001                             *)
+(*   @authority_tier 1                                         *)
+(*   @version    "3.0.0"                                       *)
+(*                                                              *)
+(* BEGIN                                                       *)
+(*   WHEN                                                      *)
+(*     IF ELEMENT(METAL) >= 0.35                               *)
+(*     AND ELEMENT(EARTH) >= 0.15                              *)
+(*     AND STRENGTH(DAY_MASTER) IS STRONG                      *)
+(*   THEN                                                      *)
+(*     EMIT_CLAIM {                                            *)
+(*       statement: "Day Master Geng-Metal assessed STRONG"    *)
+(*       claim_type: natal_structure                           *)
+(*       materiality: 0.90                                     *)
+(*       confidence: {                                         *)
+(*         calculation_integrity: 1.0,                        *)
+(*         rule_match_strength: 0.95,                         *)
+(*         source_support: 0.90,                              *)
+(*         interpretation_stability: 0.85,                    *)
+(*         cross_agent_agreement: 0.0                         *)
+(*       }                                                     *)
+(*       tags: ["day_master", "strong", "metal"]              *)
+(*     }                                                       *)
+(* END                                                         *)
+(* ============================================================ *)

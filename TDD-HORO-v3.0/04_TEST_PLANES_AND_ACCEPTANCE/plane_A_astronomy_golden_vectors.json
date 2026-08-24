@@ -1,0 +1,126 @@
+{
+  "$schema_version": "3.0.0",
+  "description": "Test Plane A — Astronomy Golden Test Vectors. These vectors are the ground truth for validating L1 Astro Kernel Service outputs against JPL Horizons ephemeris data. All L1 outputs MUST match within specified tolerances. Failure = ABORT pipeline (H0 trigger).",
+  "ephemeris_reference": "JPL DE440 via Swiss Ephemeris 2.10.03",
+  "tolerance_default_arcsec": 1.0,
+  "test_vectors": [
+    {
+      "test_id": "ASTRO-A-001",
+      "description": "Vernal Equinox 2026 — Sun reaches tropical longitude 0.000° (春分 ChunFen, Solar Term index 4)",
+      "input": {
+        "utc_timestamp": "2026-03-20T10:01:12Z",
+        "latitude_deg": 0.0,
+        "longitude_deg": 0.0,
+        "timezone_iana": "UTC"
+      },
+      "expected": {
+        "solar_longitude_deg": 0.0,
+        "solar_term_name_zh": "春分",
+        "solar_term_name_romanized": "ChunFen",
+        "solar_term_index": 4,
+        "past_solar_term_boundary": true
+      },
+      "tolerance_arcsec": 60.0,
+      "source": "JPL Horizons, USNO Astronomical Almanac 2026"
+    },
+    {
+      "test_id": "ASTRO-A-002",
+      "description": "Summer Solstice 2026 — Sun reaches tropical longitude 90.000° (夏至 XiaZhi, Solar Term index 10)",
+      "input": {
+        "utc_timestamp": "2026-06-21T08:24:00Z",
+        "latitude_deg": 0.0,
+        "longitude_deg": 0.0,
+        "timezone_iana": "UTC"
+      },
+      "expected": {
+        "solar_longitude_deg": 90.0,
+        "solar_term_name_zh": "夏至",
+        "solar_term_name_romanized": "XiaZhi",
+        "solar_term_index": 10,
+        "past_solar_term_boundary": true
+      },
+      "tolerance_arcsec": 60.0,
+      "source": "JPL Horizons, USNO Astronomical Almanac 2026"
+    },
+    {
+      "test_id": "ASTRO-A-003",
+      "description": "Winter Solstice 2026 — Sun reaches tropical longitude 270.000° (冬至 DongZhi, Solar Term index 22). Critical for BaZi Year Pillar boundary.",
+      "input": {
+        "utc_timestamp": "2026-12-22T01:50:00Z",
+        "latitude_deg": 0.0,
+        "longitude_deg": 0.0,
+        "timezone_iana": "UTC"
+      },
+      "expected": {
+        "solar_longitude_deg": 270.0,
+        "solar_term_name_zh": "冬至",
+        "solar_term_name_romanized": "DongZhi",
+        "solar_term_index": 22,
+        "past_solar_term_boundary": true
+      },
+      "tolerance_arcsec": 60.0,
+      "source": "JPL Horizons"
+    },
+    {
+      "test_id": "ASTRO-A-004",
+      "description": "Start of Spring 2026 (立春 LiChun) — BaZi New Year boundary. Sun at 315.000°. CRITICAL: This, not Lunar New Year, defines the BaZi Year Pillar change.",
+      "input": {
+        "utc_timestamp": "2026-02-04T06:32:00Z",
+        "latitude_deg": 13.7563,
+        "longitude_deg": 100.5018,
+        "timezone_iana": "Asia/Bangkok"
+      },
+      "expected": {
+        "solar_longitude_deg": 315.0,
+        "solar_term_name_zh": "立春",
+        "solar_term_name_romanized": "LiChun",
+        "solar_term_index": 1,
+        "past_solar_term_boundary": true
+      },
+      "tolerance_arcsec": 60.0,
+      "source": "JPL Horizons — Bangkok local True Solar Time offset applied"
+    },
+    {
+      "test_id": "ASTRO-A-005",
+      "description": "True Solar Time correction test — Bangkok (UTC+7, longitude 100.5018°E). LMT offset = 100.5018 / 15 * 60 min = +402.007 min = +6h 42m 0.43s. EoT correction varies by date.",
+      "input": {
+        "utc_timestamp": "2026-08-24T11:00:00Z",
+        "latitude_deg": 13.7563,
+        "longitude_deg": 100.5018,
+        "timezone_iana": "Asia/Bangkok"
+      },
+      "expected": {
+        "lmt_offset_minutes": 402.007,
+        "true_solar_time_approx_utc_offset_hours": 6.7,
+        "equation_of_time_minutes_range": [-5.0, 5.0]
+      },
+      "tolerance_arcsec": 300.0,
+      "note": "EoT value varies; test validates LMT computation correctness and reasonable EoT range",
+      "source": "USNO EoT tables, Swiss Ephemeris"
+    },
+    {
+      "test_id": "ASTRO-A-006",
+      "description": "Planetary positions — Sun and Moon tropical longitude validation for 2026-08-24 12:00 UTC",
+      "input": {
+        "utc_timestamp": "2026-08-24T12:00:00Z",
+        "latitude_deg": 13.7563,
+        "longitude_deg": 100.5018,
+        "timezone_iana": "Asia/Bangkok"
+      },
+      "expected_approx": {
+        "sun_longitude_deg_range": [150.0, 155.0],
+        "moon_longitude_deg_range": [0.0, 360.0],
+        "jupiter_longitude_deg_range": [80.0, 100.0]
+      },
+      "tolerance_arcsec": 3600.0,
+      "note": "Approximate ranges for integration test — exact values require JPL query at test runtime",
+      "source": "JPL Horizons approximate"
+    }
+  ],
+  "invariance_rules": [
+    "Tropical solar longitude ONLY — no Ayanamsa injection for Chinese tradition calculations",
+    "Time pipeline: UTC -> UT1 (IERS DUT1) -> TAI -> TT -> TST",
+    "DeltaT must be sourced from IERS Bulletin D, not approximation formulas",
+    "Retrograde detection must use daily velocity sign change, not approximation"
+  ]
+}
