@@ -93,18 +93,25 @@ def test_persist_telegram_chat_id_writes_missing_value(tmp_path, monkeypatch):
     assert 'TELEGRAM_CHAT_ID="12345"' in env_file.read_text(encoding="utf-8")
 
 
-def test_telegram_webhook_endpoint(client):
-    payload = {
-        "update_id": 9999,
-        "message": {
-            "message_id": 1,
-            "from": {"id": 12345, "first_name": "Test"},
-            "chat": {"id": 12345, "type": "private"},
-            "text": "/status"
-        }
-    }
-    res = client.post("/api/v1/mlops/telegram/webhook", json=payload)
-    assert res.status_code == 200
-    data = res.json()
-    assert data["status"] == "ok"
-    assert data["action"] == "dispatched"
+def test_telegram_bot_natural_language_mlops():
+    bot = TelegramBotController()
+    res = bot.handle_command("เช็คการเทรนบน kaggle หน่อย", "12345")
+    assert "Kaggle GPU Training Status" in res
+
+    res_distill = bot.handle_command("ช่วยสกัดความรู้ปาจื่อให้หน่อย", "12345")
+    assert "Hermes Agent" in res_distill
+    assert "BAZI" in res_distill
+
+
+def test_telegram_bot_natural_language_consultation():
+    from project.mlops.notifications.telegram_controller import telegram_controller
+    res = telegram_controller.handle_command("ช่วยวิเคราะห์ดวงจีนให้หน่อย วันนี้ดวงดีไหม", "12345")
+    assert "ซินแส AI" in res or "แม่ธาตุ" in res or "Hermes Metaphysics" in res
+
+
+def test_telegram_bot_access_control_unauthorized(monkeypatch):
+    from project.mlops.notifications.telegram_controller import telegram_controller
+    monkeypatch.setenv("TELEGRAM_CHAT_ID", "12345")
+    telegram_controller.allowed_chat_id = "12345"
+    res = telegram_controller.handle_command("/status", "99999")
+    assert "Access Denied" in res

@@ -95,11 +95,16 @@ class TelegramBotController:
         if chat_id:
             self._ensure_chat_id_synced(chat_id)
 
-        cmd_parts = text.strip().split()
-        if not cmd_parts:
+        clean_text = text.strip() if text else ""
+        if not clean_text:
             return "กรุณาระบุคำสั่ง เช่น /status หรือ /help"
 
-        cmd = cmd_parts[0].lower()
+        if not clean_text.startswith("/"):
+            from project.mlops.notifications.telegram_controller import telegram_controller
+            return telegram_controller._handle_conversational_and_intent(clean_text, chat_id)
+
+        cmd_parts = clean_text.split()
+        cmd = cmd_parts[0].lower() if cmd_parts else ""
         args = cmd_parts[1:] if len(cmd_parts) > 1 else []
 
         if cmd in ("/start", "/help"):

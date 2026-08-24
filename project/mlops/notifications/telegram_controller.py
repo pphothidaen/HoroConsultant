@@ -33,7 +33,20 @@ class TelegramBotController:
 
     def handle_command(self, text: str, from_chat_id: str) -> str:
         """Process incoming Telegram message command and return formatted HTML response."""
-        tokens = text.strip().split() if text else []
+        allowed = self.allowed_chat_id or os.getenv("TELEGRAM_CHAT_ID")
+        if allowed and from_chat_id and str(from_chat_id) != str(allowed):
+            logger.warning(f"[TELEGRAM SECURITY] Rejected unauthorized chat_id: {from_chat_id}")
+            return f"⛔ <b>Access Denied:</b> Unauthorized Chat ID (<code>{from_chat_id}</code>). Restricted to Whitelist Admin."
+
+        clean_text = text.strip() if text else ""
+        if not clean_text:
+            return "กรุณาระบุข้อความหรือคำสั่ง เช่น <code>/status</code> หรือ <code>/help</code>"
+
+        # If not starting with '/', route to Natural Language Conversational & Intent Engine
+        if not clean_text.startswith("/"):
+            return self._handle_conversational_and_intent(clean_text, from_chat_id)
+
+        tokens = clean_text.split()
         cmd = tokens[0].lower() if tokens else ""
         args = tokens[1:] if len(tokens) > 1 else []
 
@@ -166,6 +179,125 @@ class TelegramBotController:
 
         else:
             return f"❓ Unknown command: <code>{cmd}</code>. Type <code>/help</code> for available commands."
+
+    def _handle_conversational_and_intent(self, text: str, from_chat_id: str) -> str:
+        """
+        Process Natural Language text:
+        1. Identify MLOps/Hermes commands from Thai/English natural language phrases.
+        2. If not an MLOps command, route to ChatAssistantEngine for live Chinese Metaphysics AI consultation.
+        """
+        low = text.lower().strip()
+
+        # 1. Distill / Knowledge Extraction
+        if any(kw in low for kw in ["สกัด", "สกัดความรู้", "สกัดตำรา", "distill", "extract knowledge", "mine knowledge"]):
+            domain = "bazi"
+            force = any(kw in low for kw in ["force", "ซ้ำ", "บังคับ", "--force"])
+            if any(kw in low for kw in ["ziwei", "จื่อเว่ย", "จื่อเวย", "ม่วง"]):
+                domain = "ziwei"
+            elif any(kw in low for kw in ["fengshui", "feng shui", "ฮวงจุ้ย", "ฮวงจุย"]):
+                domain = "fengshui"
+            elif any(kw in low for kw in ["qimen", "qi men", "ฉีเหมิน", "คิเหมิน"]):
+                domain = "qimen"
+            elif any(kw in low for kw in ["all", "ทั้งหมด", "ทุกสำนัก"]):
+                domain = "all"
+            from project.mlops.notifications.telegram_bot import TelegramBotController as MLOpsBotController
+            mlops_bot = MLOpsBotController(token=self.token)
+            return mlops_bot._cmd_distill(domain, force=force)
+
+        # 2. Train / Fine-Tuning
+        if any(kw in low for kw in ["เริ่มเทรน", "สั่งเทรน", "เทรนโมเดล", "fine-tune", "finetune", "train model", "รันเทรน"]):
+            from project.mlops.notifications.telegram_bot import TelegramBotController as MLOpsBotController
+            mlops_bot = MLOpsBotController(token=self.token)
+            return mlops_bot._cmd_train()
+
+        # 3. Kaggle GPU Status
+        if any(kw in low for kw in ["สถานะ kaggle", "เช็ค gpu", "เช็คการเทรน", "สถานะ gpu", "kaggle status", "gpu status"]):
+            from project.mlops.notifications.telegram_bot import TelegramBotController as MLOpsBotController
+            mlops_bot = MLOpsBotController(token=self.token)
+            return mlops_bot._cmd_kaggle_status()
+
+        # 4. Kaggle Sync / Pull Logs
+        if any(kw in low for kw in ["ดึง log", "ดึง output", "ดึงโมเดล", "sync kaggle", "kaggle sync", "pull log"]):
+            from project.mlops.notifications.telegram_bot import TelegramBotController as MLOpsBotController
+            mlops_bot = MLOpsBotController(token=self.token)
+            return mlops_bot._cmd_kaggle_sync()
+
+        # 5. Hugging Face Status
+        if any(kw in low for kw in ["hugging face", "huggingface", "เช็คโมเดล", "hf status", "model status"]):
+            from project.mlops.notifications.telegram_bot import TelegramBotController as MLOpsBotController
+            mlops_bot = MLOpsBotController(token=self.token)
+            return mlops_bot._cmd_hf_status()
+
+        # 6. Distillation Checklist
+        if any(kw in low for kw in ["checklist", "เช็คลิสต์", "รายการตำรา", "หัวข้อที่สกัด"]):
+            from project.mlops.notifications.telegram_bot import TelegramBotController as MLOpsBotController
+            mlops_bot = MLOpsBotController(token=self.token)
+            return mlops_bot._cmd_checklist()
+
+        # 7. Sample Q&A Preview
+        if any(kw in low for kw in ["ขอดูตัวอย่าง", "ตัวอย่างที่สกัด", "sample record", "tri-thinking", "ตัวอย่างชุดข้อมูล", "ขอดู sample"]):
+            from project.mlops.notifications.telegram_bot import TelegramBotController as MLOpsBotController
+            mlops_bot = MLOpsBotController(token=self.token)
+            return mlops_bot._cmd_sample()
+
+        # 8. Cookie Status & Health
+        if any(kw in low for kw in ["เช็คคุกกี้", "สถานะคุกกี้", "cookie status", "เช็ค cookie", "คุกกี้ google"]):
+            from project.mlops.notifications.telegram_bot import TelegramBotController as MLOpsBotController
+            mlops_bot = MLOpsBotController(token=self.token)
+            return mlops_bot._cmd_cookie()
+
+        # 9. Refresh Cookie
+        if any(kw in low for kw in ["รีเฟรชคุกกี้", "ต่ออายุคุกกี้", "refresh cookie", "renew cookie", "ขอคุกกี้ใหม่"]):
+            from project.mlops.notifications.telegram_bot import TelegramBotController as MLOpsBotController
+            mlops_bot = MLOpsBotController(token=self.token)
+            return mlops_bot._cmd_refresh_cookie()
+
+        # 10. HITL Status / Queue / Export / Trigger
+        if any(kw in low for kw in ["สถานะ hitl", "hitl status"]):
+            return self._cmd_hitl_status()
+        if any(kw in low for kw in ["คิว hitl", "hitl queue"]):
+            return self._cmd_hitl_queue()
+        if any(kw in low for kw in ["export hitl", "hitl export"]):
+            return self._cmd_hitl_export()
+        if any(kw in low for kw in ["trigger hitl", "hitl trigger"]):
+            return self._cmd_hitl_trigger(force=True)
+
+        # 11. System Status & Metrics
+        if any(kw in low for kw in ["สถานะระบบ", "system status", "health check", "เช็คระบบ"]):
+            return self.handle_command("/status", from_chat_id)
+        if any(kw in low for kw in ["สถิติ", "metrics", "rpm", "error rate"]):
+            return self.handle_command("/metrics", from_chat_id)
+
+        # 12. Help / Commands list
+        if any(kw in low for kw in ["คู่มือ", "คำสั่งทั้งหมด", "มีคำสั่งอะไรบ้าง", "ช่วยหน่อย", "help me"]):
+            return self.handle_command("/help", from_chat_id)
+
+        # 13. Metaphysics Live AI Consultation (ChatAssistantEngine)
+        try:
+            from project.core.chat_assistant_engine import chat_assistant_engine
+            consult = chat_assistant_engine.generate_consultation_sync(query=text)
+            raw_content = consult.get("content", "")
+            # Convert markdown style to Telegram HTML
+            html_content = (
+                raw_content
+                .replace("### ", "🔮 <b>")
+                .replace("#### ", "\n📌 <b>")
+                .replace("**", "<b>")
+            )
+            html_lines = []
+            for line in html_content.split("\n"):
+                if line.startswith("🔮 <b>") or line.startswith("📌 <b>"):
+                    if not line.endswith("</b>"):
+                        line += "</b>"
+                html_lines.append(line)
+            return "\n".join(html_lines)
+        except Exception as e:
+            logger.error(f"[TELEGRAM CHAT] Consultation engine error: {e}", exc_info=True)
+            return (
+                f"🔮 <b>Hermes Metaphysics Assistant</b>\n\n"
+                f"ได้รับข้อความ: <i>\"{text}\"</i>\n\n"
+                "ท่านสามารถพิมพ์คำถามปรึกษาดวงจีน ฮวงจุ้ย ฤกษ์ยาม หรือพิมพ์ <code>/help</code> เพื่อดูแผงคำสั่ง MLOps ทั้งหมดได้ครับ"
+            )
 
     def _cmd_hitl_status(self) -> str:
         from project.hitl_router import HITL_AUTOTRAIN_ENABLED, HITL_AUTOTRAIN_THRESHOLD, load_hitl_db, _approved_hitl_count
