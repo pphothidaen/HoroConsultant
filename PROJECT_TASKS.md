@@ -485,3 +485,46 @@ Full historical completion details are tracked in [docs/RELEASE_NOTES.md](docs/R
 
 ## 📋 Release Handoff Checklist
 Use [docs/RELEASE_HANDOFF_CHECKLIST.md](docs/RELEASE_HANDOFF_CHECKLIST.md) for the current gate-by-gate closure matrix and remaining operator actions before marking final ticket completion.
+
+---
+
+## 🚀 SPRINT: Horo Architecture v3.0 — Data Contracts & WBS Bootstrap — 2026-08-24
+**Grill Gate Status**: ✅ APPROVED (Ref: `/plans/plan.md` — GRILL REPORT 2026-08-24T18:11:30+07:00)  
+**Sprint Tracking Lead**: orchestrator (agy2)  
+**Commit**: `7e6cbe7` | **Git Tag**: `v3.0-data-contracts`
+
+| Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
+|---|---|---|---|---|
+| `TICKET-HORO30-001` | `agy2` (orchestrator) | สร้าง WBS `TDD-HORO-v3.0/` structure + `01_DATA_CONTRACTS/` เต็ม + `04_TEST_PLANES/` เต็ม + `02/03` placeholder | ✅ DONE | None |
+| `TICKET-HORO30-002` | `agy2` (orchestrator) | pytest validation suite (69 tests) + secret scan (0 leaks) | ✅ DONE | TICKET-HORO30-001 |
+| `TICKET-HORO30-003` | `agy2` (orchestrator) | sync_ai_agent_ecosystem.py --check PASS + PROJECT_TASKS.md update | ✅ DONE | TICKET-HORO30-002 |
+| `TICKET-HORO30-004` | `agy2` (orchestrator) | git commit `7e6cbe7` + tag `v3.0-data-contracts` + prepend GRILL REPORT | ✅ DONE | TICKET-HORO30-003 |
+
+### Sprint Deliverables — All DONE ✅
+
+| File | Description |
+|---|---|
+| `TDD-HORO-v3.0/01_DATA_CONTRACTS/proto/astro_kernel_service.proto` | gRPC proto3 — L1 Astro Kernel Service (5 methods, 11 messages, 2 enums) |
+| `TDD-HORO-v3.0/01_DATA_CONTRACTS/schemas/claim_emission_v3.0.json` | JSON Schema draft-07 — Common Claim Emission (AtomicClaim, EpistemicTrace, ConfidenceVector, PotentialConflict) |
+| `TDD-HORO-v3.0/01_DATA_CONTRACTS/schemas/convention_profile.json` | JSON Schema — Convention Profile (profile_hash, CanonicalBook, CalculationConventions, CrossDomainFirewall) |
+| `TDD-HORO-v3.0/01_DATA_CONTRACTS/schemas/tri_graph_node_edge.json` | JSON Schema — Tri-Graph Ontology (G_deriv/G_sem/L_event, EdgeOntologyRegistry, LCIw/RNIw metrics) |
+| `TDD-HORO-v3.0/01_DATA_CONTRACTS/grammar/horo_rule_dsl.ebnf` | EBNF Grammar — Horo Rule DSL (5-stage epistemic chain, 30+ production rules) |
+| `TDD-HORO-v3.0/02_ENGINE_INTERFACES/README.md` | Placeholder — Sprint TODO |
+| `TDD-HORO-v3.0/03_STORAGE_AND_EVENT_SOURCING/README.md` | Placeholder — Sprint TODO |
+| `TDD-HORO-v3.0/04_TEST_PLANES_AND_ACCEPTANCE/plane_A_astronomy_golden_vectors.json` | 6 JPL DE440 golden test vectors |
+| `TDD-HORO-v3.0/04_TEST_PLANES_AND_ACCEPTANCE/plane_B_tradition_conformance_cases.json` | 7 canonical conformance cases (BaZi/ZiWei/QiMen/DaLiuRen/XuanKong) |
+| `TDD-HORO-v3.0/04_TEST_PLANES_AND_ACCEPTANCE/plane_C_adversarial_conflict_cases.json` | 5 adversarial/inversion attack cases |
+| `TDD-HORO-v3.0/04_TEST_PLANES_AND_ACCEPTANCE/plane_D_empirical_isolation_policy.md` | Observational Data Firewall Policy (Rules D-1 through D-5) |
+| `TDD-HORO-v3.0/tests/test_data_contracts.py` | 69 pytest tests — 69/69 PASSED |
+
+### Gate Evidence
+- pytest: **69/69 PASSED** in 0.03s
+- Secret scan: **0 leaks**
+- Ecosystem check: **[OK] All sync**
+- Git commit: `7e6cbe7`
+- Git tag: `v3.0-data-contracts`
+
+### Next Sprint (BLOCKED — awaiting ACR for 02_ENGINE_INTERFACES)
+- `TICKET-HORO30-005`: Implement FSM `constraint_state_machine.json` in `02_ENGINE_INTERFACES/`
+- `TICKET-HORO30-006`: Implement `dynamic_arbitration.json` policies
+- `TICKET-HORO30-007`: Implement Neo4j Cypher schema in `03_STORAGE_AND_EVENT_SOURCING/`
