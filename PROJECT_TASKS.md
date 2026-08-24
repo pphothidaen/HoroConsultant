@@ -637,4 +637,13 @@ Use [docs/RELEASE_HANDOFF_CHECKLIST.md](docs/RELEASE_HANDOFF_CHECKLIST.md) for t
 - **`codex2` (Account 2, OpenAI Plus, `gpt-5.6-luna`)**:
   - **Task D1 (Telegram Dirty Files)**: 11 unit tests passed (`test_telegram_bot.py`), scoped commit created (`2638d84`).
   - **Task D2 (Quality Gate & Security Scan)**: 1,694 files scanned (0 leaks), 4-stage strict quality gate 100% passed, ecosystem sync passed.
-  - **Quota Offloading**: 49,425 tokens successfully offloaded to OpenAI Plus account, preserving Antigravity session quota.
+  - **Task D3 (Playwright Smoke Verification)**: Location search verified passing (`BTN-PROD-01` PASSED), triage report generated in `project/tests/prod_button_regression_report.json`.
+  - **Quota Offloading**: 96,313 tokens offloaded to OpenAI Plus account (`task-284` + `task-323`).
+
+- **`agy1` (Account 1, Gemini 3.7 Flash Low — Replaced `codex1` for Lane 2)**:
+  - **Task Q2 (Live Canonical Health Probes)**:
+    - Vercel: 3/3 checks PASSED (Static UI 200, Docker Backend 200, Deterministic API 200) $\rightarrow$ `project/tests/vercel_reprobe_2026-08-24.json`
+    - HF Canonical: 3/3 checks PASSED (Static UI 200, Docker Backend 200, Deterministic API 200) $\rightarrow$ `project/tests/hf_canonical_reprobe_2026-08-24.json`
+  - **Task Q3 (Doppler Dry-Run)**: 50+ production secrets validated & categorized.
+  - **Task Q4 (Ecosystem Check)**: 100% synchronized across all platform definitions.
+  - **Quota Efficiency**: Executed via high-efficiency Gemini Flash Low model, saving Claude/GPT quotas.
