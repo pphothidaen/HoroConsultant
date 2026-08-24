@@ -154,6 +154,7 @@ if os.path.exists(STATIC_DIR):
 
 from project.core.rate_limiter import rate_limiter
 from project.routers.v2 import v2_router
+from project.routers.v3 import v3_router
 
 # Rate Limiting Middleware
 @app.middleware("http")
@@ -177,6 +178,7 @@ app.include_router(astrology_router)
 app.include_router(debate_router)
 app.include_router(mlops_router)
 app.include_router(v2_router, prefix="/api/v2")
+app.include_router(v3_router, prefix="/api/v3")
 app.include_router(synastry_router)
 app.include_router(calendar_router)
 app.include_router(luopan_dream_router)
