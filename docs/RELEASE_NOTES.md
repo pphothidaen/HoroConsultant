@@ -1,5 +1,12 @@
 # Release Notes
 
+## 2026-08-24 — v3 visual-integrity production release
+
+- ✅ Vercel production deployment completed: `dpl_EGC8zXBVCc1oRfGRMU932zaZHkc5`, READY and aliased to `https://horo-consultant-psi.vercel.app`.
+- ✅ Deployed `public/app.js` and `public/v3_tokens.css` match the local validated assets byte-for-byte.
+- ✅ Post-deploy production path: 3/3 checks passed; Vercel curl regression: 100% (health, CORS preflight, interpretation POST).
+- ⚠️ Hugging Face Docker republish was attempted but rejected by the existing Space repository 1 GB storage quota; the live HF Space remained healthy on its prior runtime. Vercel is the verified production edge for this release.
+
 ## Completed Plan Milestones (historical)
 `PROJECT_TASKS.md` now tracks only active execution and open release gates.
 `docs/RELEASE_NOTES.md` is the historical archive for completed plans.
@@ -67,3 +74,9 @@
 - Ongoing release tracking and task details remain indexed in [PROJECT_TASKS.md](../PROJECT_TASKS.md).
 - Checkpoint evidence is cataloged in `project/tests/` and [plans/plan.md](../plans/plan.md).
 
+## 2026-08-24 Planning Continuation — v3 Visual Integrity
+
+- Local post-fix QA is green: `792 passed, 9 skipped, 12 warnings`; pre-deployment review is `READY_FOR_PROD` with zero secret leaks.
+- Telegram QA became deterministic by resolving the default chat ID at request time and isolating notifier tests from real credentials/network delivery.
+- Dependency lockfile updates were resolver-generated and validated for Python and Rust compatibility.
+- Production deployment was not performed. The v3 five-viewport post-deploy verification remains an explicit HITL gate; the tracked pre-final visual report remains `WARNING` and is retained as historical evidence.

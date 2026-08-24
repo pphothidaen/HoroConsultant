@@ -29,11 +29,15 @@ class TelegramBotController:
 
     def __init__(self, token: Optional[str] = None, allowed_chat_id: Optional[str] = None):
         self.token = token or os.getenv("TELEGRAM_BOT_TOKEN")
-        self.allowed_chat_id = allowed_chat_id or os.getenv("TELEGRAM_CHAT_ID")
+        # Keep an explicit constructor override stable, but resolve the default
+        # environment value at request time.  The singleton is imported during
+        # application startup while deployment/test environments may populate or
+        # rotate TELEGRAM_CHAT_ID afterwards.
+        self.allowed_chat_id = allowed_chat_id
 
     def handle_command(self, text: str, from_chat_id: str) -> str:
         """Process incoming Telegram message command and return formatted HTML response."""
-        allowed = self.allowed_chat_id or os.getenv("TELEGRAM_CHAT_ID")
+        allowed = self.allowed_chat_id if self.allowed_chat_id is not None else os.getenv("TELEGRAM_CHAT_ID")
         if allowed and from_chat_id and str(from_chat_id) != str(allowed):
             logger.warning(f"[TELEGRAM SECURITY] Rejected unauthorized chat_id: {from_chat_id}")
             return f"⛔ <b>Access Denied:</b> Unauthorized Chat ID (<code>{from_chat_id}</code>). Restricted to Whitelist Admin."

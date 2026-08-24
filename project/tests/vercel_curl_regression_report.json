@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-08-23T12:42:52.257831+00:00",
+  "timestamp": "2026-08-24T15:46:28.916561+00:00",
   "target_url": "https://horo-consultant-psi.vercel.app",
   "total_checks": 3,
   "passed_count": 3,
@@ -13,9 +13,9 @@
       "method": "GET",
       "status_code": 200,
       "passed": true,
-      "latency_ms": 1007.6936670000001,
+      "latency_ms": 431.701,
       "cors_ok": true,
-      "details": "JSON OK: true, Body length: 370"
+      "details": "JSON OK: true, Body length: 362"
     },
     {
       "id": "CHK-02",
@@ -24,7 +24,7 @@
       "method": "OPTIONS",
       "status_code": 204,
       "passed": true,
-      "latency_ms": 405.456708,
+      "latency_ms": 336.75020900000004,
       "cors_ok": true,
       "details": "Status: 204"
     },
@@ -35,9 +35,9 @@
       "method": "POST",
       "status_code": 200,
       "passed": true,
-      "latency_ms": 7215.4153750000005,
+      "latency_ms": 5519.005125,
       "cors_ok": true,
-      "details": "Chart Present: true, Response Length: 6114"
+      "details": "Chart Present: true, Response Length: 5221"
     }
   ]
 }

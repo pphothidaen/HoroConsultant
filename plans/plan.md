@@ -1,3 +1,95 @@
+## 🔥 GRILL REPORT — Production UI Visual Integrity: Horo v3.0 Consensus Engine
+**Date**: 2026-08-24T22:00:00+07:00
+**Grilled By**: root orchestrator
+**Gate Status**: ✅ RELEASED — v3 visual-integrity patch deployed to Vercel production; Hugging Face Docker republish remains quota-blocked
+
+### D1 — Scope Boundary
+- **IN**: read-only Production baseline at the supplied Hugging Face Space; select `🏛️ Horo v3.0 Consensus Engine`; inspect readability, WCAG contrast, clipping, horizontal overflow, sibling collisions, responsive wrapping, stacking/layers, focus state, loading/error state, and long-content behavior; repair the matching local frontend; add deterministic regression checks; capture before/after evidence.
+- **OUT**: metaphysics calculation semantics, API schemas, model/RAG behavior, secrets, infrastructure changes, and Production publish/deploy. Deployment remains an explicit HITL action after local evidence is green.
+- **Stable interfaces**: existing tab label, `switchTab('tab-v3-engine')`, API routes, payloads, and public DOM identifiers remain backward compatible.
+
+### D2 — Requirement Delta
+- Reopens the completed Horo v3 visualizer as a production-defect sprint because the supplied 3024×28800 image and live iframe show a dense long-form result surface not covered by the current generic main/admin screenshot scenarios.
+- Extends visual coverage from page-load-only checks to the selected v3 tab, populated/loading/error states, contrast checks, and child-layout checks.
+- No dead-code cleanup outside the affected visual-audit and v3 presentation paths.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification | Owner |
+|---|---|---|---|
+| 1 | Five canonical viewports render the selected v3 tab with zero unexpected horizontal document overflow | `scripts/run_visual_layout_audit.py` + report JSON | `ui_visual_tester` |
+| 2 | Zero unintended visible sibling collisions; nested parent/child layout is not reported as a false positive | DOM bounding-rect audit | `ui_visual_tester` |
+| 3 | Normal text contrast is ≥4.5:1, large text/UI boundaries ≥3:1; status meaning is not color-only | automated contrast audit + token inspection | `ux_ui_designer` / `developer` |
+| 4 | Thai/English/Chinese text, long claim IDs, rule tags, provenance text, and five confidence dimensions wrap without clipping | populated v3 fixture screenshots at 1920, 1366, 768, 390, 360 widths | `developer` / `qa_tester` |
+| 5 | Selected/loading/success/error states remain readable; button stays operable and active state is visible | button regression + targeted browser test | `qa_tester` |
+| 6 | Console has no new unhandled error and frontend tests pass | browser logs + targeted/full pytest proportional to risk | `qa_tester` |
+| 7 | Before/after screenshots, JSON report, root-cause lesson, and ticket evidence are recorded | artifact/doc review | `orchestrator` |
+
+### D4 — Constraints & Safeguards
+- Locked ML dependencies, Kaggle accelerator, secrets, API contracts, and calculation engines are unchanged `[AUTO]`.
+- Python/subprocess logs use ASCII status tags; UI copy may retain multilingual glyphs.
+- Preserve user work and current dirty-state boundaries. Do not edit generated `.codex/agents/*.toml`.
+- No Production deployment/push without a separate explicit authorization and post-deploy verification.
+
+### D5 — Sub-Agent Allocation & Dependencies
+- `root/orchestrator`: Production browser evidence, plan/task/lesson integration, final decision.
+- `ux_ui_designer`: read-only color/typography/spacing audit and remediation specification.
+- `developer`: local v3 presentation fix, restricted to assigned frontend files.
+- `ui_visual_tester`: v3 scenario automation and multi-viewport artifacts, restricted to audit script/tests/artifacts.
+- Dependency chain: baseline + plan → parallel UX/dev/audit lanes → root integration → QA gates → optional HITL deploy → post-deploy recheck.
+
+### D6 — Assumption Register
+| # | Assumption | Status |
+|---|---|---|
+| 1 | The supplied Hugging Face Space is the requested Production target | `[CONFIRMED]` by user URL |
+| 2 | The active local repository is the canonical source to repair | `[CONFIRMED]` by workspace context and matching tab implementation |
+| 3 | “แก้ไขได้จริง” authorizes local source/test changes but not deployment | `[AUTO]` safeguard; deploy is out-of-scope |
+| 4 | UI remediation must not alter v3 calculation meaning | `[CONFIRMED]` scope boundary |
+| 5 | Live asset/version drift may exist and must be captured as evidence, not hidden | `[AUTO]` risk control |
+
+### D7 — Risk & Rollback
+- **Risks**: stale service-worker asset mix; iframe/direct-origin behavior differences; false-positive overlap detection; inline style specificity; mobile long-token overflow; theme token mismatch; async loading masking the results; full-page screenshots becoming excessively tall.
+- **Rollback**: revert only the scoped frontend/audit/doc patch; retain baseline artifacts; do not roll back unrelated user changes. Production rollback, if later deployed, must target the exact release SHA.
+
+### D8 — Token & Quota Strategy
+- Root keeps orchestration, browser decisions, and integration. Three bounded lanes run concurrently: UX read-only audit, frontend repair, and test-harness/evidence work.
+- Agents return concise evidence only; long logs are trimmed. No extra agents are spawned unless a lane blocks or a release review is explicitly authorized.
+
+### D9 — Metaphysics Domain Alignment
+- Presentation only: Horo v3 consensus output from ten traditions is displayed, but no canonical rule, claim computation, arbitration, or HITL threshold is changed.
+- Domain-master review is not required unless a UI fix would modify interpretation text or calculation output.
+
+### Waivers / Blockers
+- **Waivers**: none.
+- **Current blocker**: none for local audit/fix. Production publish and post-deploy verification remain a later HITL gate.
+
+### Execution Outcome — Local Remediation Gate
+
+| Requirement | Result | Evidence |
+|---|---|---|
+| Exact Production v3 tab selected and audited | PASS | Five baseline screenshots and `project/tests/artifacts/production_v3_visual_baseline_2026-08-24.json` |
+| Mobile clipping/layout repair | PASS locally | 390 px and 360 px final measurements: 0 out-of-bounds, 0 clipping, 0 sibling collisions, all 4 tabs visible |
+| Light/dark contrast repair | PASS locally | PASS light 7.18:1, TENSION explicit-dark 5.29:1, chevron ~6.53:1 |
+| Deterministic visual regression | PASS for implementation/tests | `v3-consensus` scenario; audit unit tests 8/8; `WARNING`/`FAILED` now exit non-zero |
+| Frontend parity/syntax | PASS | app.js and v3 token CSS mirror checks passed; `node --check` on both JS copies; `git diff --check` clean |
+| Broad regression | PASS locally | 792 passed, 9 skipped, 12 warnings after Telegram QA remediation |
+| Production corrected | NOT YET | Deployment is not authorized; post-deploy five-viewport verification is pending HITL |
+
+Decision: **RELEASED VIA VERCEL; HF REPUBLISH BLOCKED BY QUOTA**. The pre-final tracked visual report remains `WARNING` and is retained as honest evidence. Final local browser measurements and screenshots are recorded in `project/tests/artifacts/v3_visual_post_fix_evidence_2026-08-24.json`; Vercel deployment `dpl_EGC8zXBVCc1oRfGRMU932zaZHkc5` is READY, live asset hashes match, and post-deploy request-path verification is 3/3.
+
+### Planning Continuation Checkpoint — 2026-08-24
+
+- Governance synchronization remains green: `python3 scripts/sync_ai_agent_ecosystem.py --check`.
+- Focused v3 engine/router, visual-audit, rendering, and frontend regression tests pass: `41 passed`.
+- Production-version/PWA/report-export regression tests pass with `11 passed, 5 skipped`; the skips are the existing optional-browser cases.
+- JavaScript syntax checks for `project/static/app.js` and `public/app.js`, plus `git diff --check`, pass.
+- `TICKET-META-009` is complete: resolver-only updates are recorded in `uv.lock` and `rust_core/Cargo.lock`; no manifest or source changes were introduced.
+- Dependency evidence: Python `19 passed`; Rust `cargo test --locked` `40 passed, 7 ignored`; `uv lock --check`, locked dry-run, and `git diff --check` pass.
+- Post-upgrade QA evidence: full pytest `792 passed, 9 skipped, 12 warnings`; button regression passed all controls; code review status is `READY_FOR_PROD` with secret/Kaggle/notebook audits passing and `0` leaks. Telegram controller environment resolution and notifier test isolation closed the prior three failures.
+- Final visual evidence review: post-fix light PASS and explicit-dark TENSION screenshots were inspected across the long populated v3 surface; readability is preserved. The tracked pre-final `visual_layout_report.json` remains `WARNING` by design, while `v3_visual_post_fix_evidence_2026-08-24.json` records the final local measurements.
+- `CP-06-HANDOFF` is complete for the Vercel production edge. Hugging Face Docker quota remediation remains a follow-up operational issue.
+
+---
+
 ## Current Execution Control — 2026-08-24
 
 This file is the historical architecture/phase record. Current execution is controlled by the checkpoint board in [`PROJECT_TASKS.md`](../PROJECT_TASKS.md), not by reopening completed historical phases.

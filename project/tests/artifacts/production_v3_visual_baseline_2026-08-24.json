@@ -1,0 +1,1108 @@
+{
+  "target": "https://huggingface.co/spaces/pphothidaen/horoconsultant-core-backend",
+  "capturedAt": "2026-08-24T14:06:52.846Z",
+  "scenarios": [
+    {
+      "name": "desktop-4k",
+      "width": 1920,
+      "height": 1080,
+      "screenshot": "project/tests/screenshots/visual_audit/production_baseline/desktop-4k_v3_tab_selected.png",
+      "audit": {
+        "activeTab": true,
+        "contrastFailures": [
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 59,
+              "g": 41,
+              "r": 30
+            },
+            "fg": "rgb(46, 125, 50)",
+            "min": 4.5,
+            "ratio": 2.85,
+            "tag": "strong",
+            "text": "1.0000"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 59,
+              "g": 41,
+              "r": 30
+            },
+            "fg": "rgb(46, 125, 50)",
+            "min": 4.5,
+            "ratio": 2.85,
+            "tag": "strong",
+            "text": "0.0000"
+          },
+          {
+            "cls": "v3-epistemic-disclaimer__icon",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(255, 183, 77)",
+            "min": 4.5,
+            "ratio": 1.73,
+            "tag": "span",
+            "text": "⚖️"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(248, 250, 252)",
+            "min": 4.5,
+            "ratio": 1.05,
+            "tag": "strong",
+            "text": "พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)"
+          },
+          {
+            "cls": "v3-epistemic-disclaimer__body",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(226, 232, 240)",
+            "min": 4.5,
+            "ratio": 1.23,
+            "tag": "div",
+            "text": "ผลการวิเคราะห์นี้เกิดขึ้นจากการประมวลผลตรรกะตามกฎของสำนักวิชาที่เลือก (Tradition-Rule Validity) และค"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(203, 213, 225)",
+            "min": 4.5,
+            "ratio": 1.48,
+            "tag": "span",
+            "text": "🔒 Architecture: Horo Metaphysics Engine v3.0"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(203, 213, 225)",
+            "min": 4.5,
+            "ratio": 1.48,
+            "tag": "span",
+            "text": "🏛️ Epistemic Chain: 5-Stage Traceable"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(203, 213, 225)",
+            "min": 4.5,
+            "ratio": 1.48,
+            "tag": "span",
+            "text": "🛡️ Integrity Guard: Merkle DAG Verified"
+          }
+        ],
+        "document": {
+          "clientWidth": 1920,
+          "horizontalOverflow": false,
+          "scrollWidth": 1920
+        },
+        "outOfBounds": [],
+        "overlaps": [],
+        "root": {
+          "clientWidth": 840,
+          "horizontalOverflow": false,
+          "left": 771,
+          "right": 1611,
+          "scrollWidth": 840,
+          "width": 840
+        },
+        "viewport": {
+          "height": 1030,
+          "width": 1920
+        },
+        "visibleElements": 531
+      }
+    },
+    {
+      "name": "laptop-standard",
+      "width": 1366,
+      "height": 768,
+      "screenshot": "project/tests/screenshots/visual_audit/production_baseline/laptop-standard_v3_tab_selected.png",
+      "audit": {
+        "activeTab": true,
+        "contrastFailures": [
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 59,
+              "g": 41,
+              "r": 30
+            },
+            "fg": "rgb(46, 125, 50)",
+            "min": 4.5,
+            "ratio": 2.85,
+            "tag": "strong",
+            "text": "1.0000"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 59,
+              "g": 41,
+              "r": 30
+            },
+            "fg": "rgb(46, 125, 50)",
+            "min": 4.5,
+            "ratio": 2.85,
+            "tag": "strong",
+            "text": "0.0000"
+          },
+          {
+            "cls": "v3-epistemic-disclaimer__icon",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(255, 183, 77)",
+            "min": 4.5,
+            "ratio": 1.73,
+            "tag": "span",
+            "text": "⚖️"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(248, 250, 252)",
+            "min": 4.5,
+            "ratio": 1.05,
+            "tag": "strong",
+            "text": "พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)"
+          },
+          {
+            "cls": "v3-epistemic-disclaimer__body",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(226, 232, 240)",
+            "min": 4.5,
+            "ratio": 1.23,
+            "tag": "div",
+            "text": "ผลการวิเคราะห์นี้เกิดขึ้นจากการประมวลผลตรรกะตามกฎของสำนักวิชาที่เลือก (Tradition-Rule Validity) และค"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(203, 213, 225)",
+            "min": 4.5,
+            "ratio": 1.48,
+            "tag": "span",
+            "text": "🔒 Architecture: Horo Metaphysics Engine v3.0"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(203, 213, 225)",
+            "min": 4.5,
+            "ratio": 1.48,
+            "tag": "span",
+            "text": "🏛️ Epistemic Chain: 5-Stage Traceable"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(203, 213, 225)",
+            "min": 4.5,
+            "ratio": 1.48,
+            "tag": "span",
+            "text": "🛡️ Integrity Guard: Merkle DAG Verified"
+          }
+        ],
+        "document": {
+          "clientWidth": 1366,
+          "horizontalOverflow": false,
+          "scrollWidth": 1366
+        },
+        "outOfBounds": [],
+        "overlaps": [],
+        "root": {
+          "clientWidth": 806,
+          "horizontalOverflow": false,
+          "left": 511,
+          "right": 1317,
+          "scrollWidth": 806,
+          "width": 806
+        },
+        "viewport": {
+          "height": 718,
+          "width": 1366
+        },
+        "visibleElements": 531
+      }
+    },
+    {
+      "name": "tablet-portrait",
+      "width": 768,
+      "height": 1024,
+      "screenshot": "project/tests/screenshots/visual_audit/production_baseline/tablet-portrait_v3_tab_selected.png",
+      "audit": {
+        "activeTab": true,
+        "contrastFailures": [
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 59,
+              "g": 41,
+              "r": 30
+            },
+            "fg": "rgb(46, 125, 50)",
+            "min": 4.5,
+            "ratio": 2.85,
+            "tag": "strong",
+            "text": "1.0000"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 59,
+              "g": 41,
+              "r": 30
+            },
+            "fg": "rgb(46, 125, 50)",
+            "min": 4.5,
+            "ratio": 2.85,
+            "tag": "strong",
+            "text": "0.0000"
+          },
+          {
+            "cls": "v3-epistemic-disclaimer__icon",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(255, 183, 77)",
+            "min": 4.5,
+            "ratio": 1.73,
+            "tag": "span",
+            "text": "⚖️"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(248, 250, 252)",
+            "min": 4.5,
+            "ratio": 1.05,
+            "tag": "strong",
+            "text": "พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)"
+          },
+          {
+            "cls": "v3-epistemic-disclaimer__body",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(226, 232, 240)",
+            "min": 4.5,
+            "ratio": 1.23,
+            "tag": "div",
+            "text": "ผลการวิเคราะห์นี้เกิดขึ้นจากการประมวลผลตรรกะตามกฎของสำนักวิชาที่เลือก (Tradition-Rule Validity) และค"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(203, 213, 225)",
+            "min": 4.5,
+            "ratio": 1.48,
+            "tag": "span",
+            "text": "🔒 Architecture: Horo Metaphysics Engine v3.0"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(203, 213, 225)",
+            "min": 4.5,
+            "ratio": 1.48,
+            "tag": "span",
+            "text": "🏛️ Epistemic Chain: 5-Stage Traceable"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(203, 213, 225)",
+            "min": 4.5,
+            "ratio": 1.48,
+            "tag": "span",
+            "text": "🛡️ Integrity Guard: Merkle DAG Verified"
+          }
+        ],
+        "document": {
+          "clientWidth": 768,
+          "horizontalOverflow": false,
+          "scrollWidth": 768
+        },
+        "outOfBounds": [],
+        "overlaps": [],
+        "root": {
+          "clientWidth": 707,
+          "horizontalOverflow": false,
+          "left": 30.59375,
+          "right": 737.40625,
+          "scrollWidth": 707,
+          "width": 706.8125
+        },
+        "viewport": {
+          "height": 949,
+          "width": 768
+        },
+        "visibleElements": 531
+      }
+    },
+    {
+      "name": "mobile-ios",
+      "width": 390,
+      "height": 844,
+      "screenshot": "project/tests/screenshots/visual_audit/production_baseline/mobile-ios_v3_tab_selected.png",
+      "audit": {
+        "activeTab": true,
+        "contrastFailures": [
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 59,
+              "g": 41,
+              "r": 30
+            },
+            "fg": "rgb(46, 125, 50)",
+            "min": 4.5,
+            "ratio": 2.85,
+            "tag": "strong",
+            "text": "1.0000"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 59,
+              "g": 41,
+              "r": 30
+            },
+            "fg": "rgb(46, 125, 50)",
+            "min": 4.5,
+            "ratio": 2.85,
+            "tag": "strong",
+            "text": "0.0000"
+          },
+          {
+            "cls": "v3-epistemic-disclaimer__icon",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(255, 183, 77)",
+            "min": 4.5,
+            "ratio": 1.73,
+            "tag": "span",
+            "text": "⚖️"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(248, 250, 252)",
+            "min": 4.5,
+            "ratio": 1.05,
+            "tag": "strong",
+            "text": "พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)"
+          },
+          {
+            "cls": "v3-epistemic-disclaimer__body",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(226, 232, 240)",
+            "min": 4.5,
+            "ratio": 1.23,
+            "tag": "div",
+            "text": "ผลการวิเคราะห์นี้เกิดขึ้นจากการประมวลผลตรรกะตามกฎของสำนักวิชาที่เลือก (Tradition-Rule Validity) และค"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(203, 213, 225)",
+            "min": 4.5,
+            "ratio": 1.48,
+            "tag": "span",
+            "text": "🔒 Architecture: Horo Metaphysics Engine v3.0"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(203, 213, 225)",
+            "min": 4.5,
+            "ratio": 1.48,
+            "tag": "span",
+            "text": "🏛️ Epistemic Chain: 5-Stage Traceable"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(203, 213, 225)",
+            "min": 4.5,
+            "ratio": 1.48,
+            "tag": "span",
+            "text": "🛡️ Integrity Guard: Merkle DAG Verified"
+          }
+        ],
+        "document": {
+          "clientWidth": 390,
+          "horizontalOverflow": false,
+          "scrollWidth": 390
+        },
+        "outOfBounds": [
+          {
+            "clientWidth": 322,
+            "cls": "v3-claim-card__node-tag",
+            "id": null,
+            "left": 71,
+            "right": 392,
+            "rootLeft": 31,
+            "rootRight": 359,
+            "scrollWidth": 322,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 102,
+            "cls": "",
+            "id": null,
+            "left": 282,
+            "right": 384,
+            "rootLeft": 31,
+            "rootRight": 359,
+            "scrollWidth": 102,
+            "tag": "span"
+          }
+        ],
+        "overlaps": [],
+        "root": {
+          "clientWidth": 329,
+          "horizontalOverflow": false,
+          "left": 30.59375,
+          "right": 359.40625,
+          "scrollWidth": 329,
+          "width": 328.8125
+        },
+        "viewport": {
+          "height": 728,
+          "width": 390
+        },
+        "visibleElements": 531
+      }
+    },
+    {
+      "name": "mobile-compact",
+      "width": 360,
+      "height": 740,
+      "screenshot": "project/tests/screenshots/visual_audit/production_baseline/mobile-compact_v3_tab_selected.png",
+      "audit": {
+        "activeTab": true,
+        "contrastFailures": [
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 59,
+              "g": 41,
+              "r": 30
+            },
+            "fg": "rgb(46, 125, 50)",
+            "min": 4.5,
+            "ratio": 2.85,
+            "tag": "strong",
+            "text": "1.0000"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 59,
+              "g": 41,
+              "r": 30
+            },
+            "fg": "rgb(46, 125, 50)",
+            "min": 4.5,
+            "ratio": 2.85,
+            "tag": "strong",
+            "text": "0.0000"
+          },
+          {
+            "cls": "v3-epistemic-disclaimer__icon",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(255, 183, 77)",
+            "min": 4.5,
+            "ratio": 1.73,
+            "tag": "span",
+            "text": "⚖️"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(248, 250, 252)",
+            "min": 4.5,
+            "ratio": 1.05,
+            "tag": "strong",
+            "text": "พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)"
+          },
+          {
+            "cls": "v3-epistemic-disclaimer__body",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(226, 232, 240)",
+            "min": 4.5,
+            "ratio": 1.23,
+            "tag": "div",
+            "text": "ผลการวิเคราะห์นี้เกิดขึ้นจากการประมวลผลตรรกะตามกฎของสำนักวิชาที่เลือก (Tradition-Rule Validity) และค"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(203, 213, 225)",
+            "min": 4.5,
+            "ratio": 1.48,
+            "tag": "span",
+            "text": "🔒 Architecture: Horo Metaphysics Engine v3.0"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(203, 213, 225)",
+            "min": 4.5,
+            "ratio": 1.48,
+            "tag": "span",
+            "text": "🏛️ Epistemic Chain: 5-Stage Traceable"
+          },
+          {
+            "cls": "",
+            "effectiveBg": {
+              "a": 1,
+              "b": 255,
+              "g": 255,
+              "r": 255
+            },
+            "fg": "rgb(203, 213, 225)",
+            "min": 4.5,
+            "ratio": 1.48,
+            "tag": "span",
+            "text": "🛡️ Integrity Guard: Merkle DAG Verified"
+          }
+        ],
+        "document": {
+          "clientWidth": 360,
+          "horizontalOverflow": false,
+          "scrollWidth": 360
+        },
+        "outOfBounds": [
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-label",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "span"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-track",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-label",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "span"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-track",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-label",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "span"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-track",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-label",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "span"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-track",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-label",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "span"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-track",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-label",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "span"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-track",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 264,
+            "cls": "v3-claim-card__node-tag",
+            "id": null,
+            "left": 71,
+            "right": 335,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 264,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-label",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "span"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-track",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-label",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "span"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-track",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-label",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "span"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-track",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 322,
+            "cls": "v3-claim-card__node-tag",
+            "id": null,
+            "left": 71,
+            "right": 392,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 322,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 102,
+            "cls": "",
+            "id": null,
+            "left": 282,
+            "right": 384,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 102,
+            "tag": "span"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-label",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "span"
+          },
+          {
+            "clientWidth": 57,
+            "cls": "v3-confidence-badge__dim-track",
+            "id": null,
+            "left": 275,
+            "right": 332,
+            "rootLeft": 31,
+            "rootRight": 329,
+            "scrollWidth": 57,
+            "tag": "div"
+          }
+        ],
+        "overlaps": [],
+        "root": {
+          "clientWidth": 299,
+          "horizontalOverflow": false,
+          "left": 30.59375,
+          "right": 329.40625,
+          "scrollWidth": 299,
+          "width": 298.8125
+        },
+        "viewport": {
+          "height": 624,
+          "width": 360
+        },
+        "visibleElements": 531
+      }
+    }
+  ]
+}

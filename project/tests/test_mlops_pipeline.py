@@ -136,7 +136,12 @@ def test_dataset_curator_validation_and_export(tmp_path, sample_synthetic_list):
     assert records[0]["messages"][0]["role"] == "system"
 
 
-def test_webhook_notifier_formatting():
+def test_webhook_notifier_formatting(monkeypatch):
+    # This contract covers formatting with delivery disabled; never inherit
+    # real local credentials or make network calls from the unit suite.
+    monkeypatch.delenv("TELEGRAM_BOT_TOKEN", raising=False)
+    monkeypatch.delenv("TELEGRAM_CHAT_ID", raising=False)
+    monkeypatch.delenv("DISCORD_WEBHOOK_URL", raising=False)
     notifier = WebhookNotifier()
     # Test that notify calls execute without throwing exceptions even with no secrets set
     res1 = notifier.notify_distillation_complete({"total_input": 10, "final_unique_count": 10, "output_path": "test.jsonl"})

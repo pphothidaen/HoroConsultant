@@ -4982,16 +4982,16 @@ function renderHoroV3Results(container, v3Data) {
             </div>
           </div>
         </div>
-        <div style="display: flex; gap: 10px; font-family: var(--v3-font-mono); font-size: 0.85rem; flex-wrap: wrap;">
-          <div style="background: var(--v3-bg-subtle); padding: 6px 14px; border-radius: var(--v3-radius-md); border: 1px solid var(--v3-border-subtle); display: flex; flex-direction: column; align-items: center;">
+        <div class="v3-audit-metrics" style="display: flex; gap: 10px; font-family: var(--v3-font-mono); font-size: 0.85rem; flex-wrap: wrap;">
+          <div class="v3-audit-metric" style="background: var(--v3-bg-subtle); padding: 6px 14px; border-radius: var(--v3-radius-md); border: 1px solid var(--v3-border-subtle); display: flex; flex-direction: column; align-items: center;">
             <span style="font-size: 0.7rem; color: var(--v3-text-muted); font-weight: 600; text-transform: uppercase;">LCIw Consistency</span>
-            <strong style="color: ${lciw >= 0.85 ? 'var(--elem-wood)' : 'var(--elem-fire)'}; font-size: 1rem;">${lciw.toFixed(4)}</strong>
+            <strong style="color: ${lciw >= 0.85 ? 'var(--elem-wood-text)' : 'var(--elem-fire-text)'}; font-size: 1rem;">${lciw.toFixed(4)}</strong>
           </div>
-          <div style="background: var(--v3-bg-subtle); padding: 6px 14px; border-radius: var(--v3-radius-md); border: 1px solid var(--v3-border-subtle); display: flex; flex-direction: column; align-items: center;">
+          <div class="v3-audit-metric" style="background: var(--v3-bg-subtle); padding: 6px 14px; border-radius: var(--v3-radius-md); border: 1px solid var(--v3-border-subtle); display: flex; flex-direction: column; align-items: center;">
             <span style="font-size: 0.7rem; color: var(--v3-text-muted); font-weight: 600; text-transform: uppercase;">RNIw Noise</span>
-            <strong style="color: ${rniw <= 0.15 ? 'var(--elem-wood)' : 'var(--elem-fire)'}; font-size: 1rem;">${rniw.toFixed(4)}</strong>
+            <strong style="color: ${rniw <= 0.15 ? 'var(--elem-wood-text)' : 'var(--elem-fire-text)'}; font-size: 1rem;">${rniw.toFixed(4)}</strong>
           </div>
-          <div style="background: var(--v3-bg-subtle); padding: 6px 14px; border-radius: var(--v3-radius-md); border: 1px solid var(--v3-border-subtle); display: flex; flex-direction: column; align-items: center;">
+          <div class="v3-audit-metric" style="background: var(--v3-bg-subtle); padding: 6px 14px; border-radius: var(--v3-radius-md); border: 1px solid var(--v3-border-subtle); display: flex; flex-direction: column; align-items: center;">
             <span style="font-size: 0.7rem; color: var(--v3-text-muted); font-weight: 600; text-transform: uppercase;">Verified Claims</span>
             <strong style="color: var(--v3-text-primary); font-size: 1rem;">${claimItems.length} / 10</strong>
           </div>
@@ -6436,7 +6436,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & PROMINENT UPDATE MODAL SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.2038bb3";
+const CLIENT_APP_VERSION = "1.0.0.e432e0d";
 let _versionModalDismissed = false;
 let _versionCountdownTimer = null;
 

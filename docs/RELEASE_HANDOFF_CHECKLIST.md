@@ -3,6 +3,32 @@
 **Branch/Run Baseline**: `/Users/kimlenglim/Project/HoroConsultant` · 2026-08-21
 **Objective**: finalize all project plan/task completion evidence for `TICKET-META-001`/`TICKET-META-005`/`TICKET-META-006`
 
+## Current authoritative handoff overlay — 2026-08-24
+
+### Deployment update — 2026-08-24 22:40 +07
+
+| Area | Evidence | Status |
+|---|---|---|
+| Vercel production publish | Deployment `dpl_EGC8zXBVCc1oRfGRMU932zaZHkc5`, READY, aliased to `https://horo-consultant-psi.vercel.app` | PASS |
+| Deployed visual assets | `public/app.js` and `public/v3_tokens.css` SHA-256 match live assets | PASS |
+| Post-deploy request path | `project/tests/production_verification_vercel_2026-08-24.json`, 3/3 | PASS |
+| Vercel API regression | `project/tests/vercel_curl_regression_report.json`, 100% | PASS |
+| Hugging Face Docker republish | Rejected by Space repository 1 GB storage quota; no remote deletion performed | BLOCKED |
+
+The release is production-active through Vercel. The Hugging Face Space remains a healthy backend target, but its repository quota must be remediated before another Docker payload can be committed.
+
+The historical 2026-08-21 matrix below is retained for traceability. Current status is governed by [PROJECT_TASKS.md](../PROJECT_TASKS.md) and the latest evidence in `plans/plan.md`:
+
+| Area | Current evidence | Status | Remaining action |
+|---|---|---|---|
+| Local QA and safety | `792 passed, 9 skipped, 12 warnings`; `code_reviewer --review --use-python` = `READY_FOR_PROD`; secret scan = `0` leaks | PASS | None locally |
+| Dependency lockfiles | Resolver-only updates in `uv.lock` and `rust_core/Cargo.lock`; locked resolution, Python `19 passed`, Rust `40 passed, 7 ignored` | PASS | Review/commit through normal release workflow |
+| UI visual remediation | Five-viewport baseline, local post-fix measurements, light/dark screenshots, v3 audit tests, and asset parity evidence | PASS locally | Managed-browser five-viewport rerun remains limited by local bind/Chromium permissions |
+| Production deployment | Vercel deployment `dpl_EGC8zXBVCc1oRfGRMU932zaZHkc5` is READY and aliased to the canonical production URL | PASS | HF Docker quota remediation remains follow-up |
+| Post-deploy verification | Vercel production path 3/3, curl regression 100%, and deployed visual asset hashes match | PASS | Repeat five-viewport browser capture when a browser-capable production runner is available |
+
+The current release disposition is **RELEASED VIA VERCEL / HF REPUBLISH QUOTA-BLOCKED**. No historical result is being used as a substitute for the current post-deploy request-path and asset-hash evidence.
+
 ## Evidence package produced in this run
 - [PROJECT_TASKS.md](/Users/kimlenglim/Project/HoroConsultant/PROJECT_TASKS.md)
 - [docs/RELEASE_NOTES.md](/Users/kimlenglim/Project/HoroConsultant/docs/RELEASE_NOTES.md)

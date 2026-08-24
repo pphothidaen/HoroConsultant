@@ -39,6 +39,13 @@ def test_public_and_static_style_css_are_synchronized():
     assert static_css == public_css, "public/style.css must match project/static/style.css"
 
 
+def test_public_and_static_v3_tokens_css_are_synchronized():
+    """Verify the deploy mirror includes every v3 visual-system correction."""
+    static_css = Path("project/static/v3_tokens.css").read_text(encoding="utf-8")
+    public_css = Path("public/v3_tokens.css").read_text(encoding="utf-8")
+    assert static_css == public_css, "public/v3_tokens.css must match project/static/v3_tokens.css"
+
+
 def test_public_and_static_index_html_are_synchronized():
     """Verify project/static/index.html and public/index.html are completely identical."""
     static_html = Path("project/static/index.html").read_text(encoding="utf-8")

@@ -1,0 +1,60 @@
+{
+  "target": "Horo v3.0 Consensus Engine",
+  "verification_scope": "local post-fix browser measurement",
+  "release_state": "not_deployed",
+  "final_mobile_results": {
+    "390x844": {
+      "document_client_height": 7006,
+      "document_scroll_height": 7006,
+      "horizontal_overflow": false,
+      "out_of_bounds_count": 0,
+      "clipped_count": 0,
+      "sibling_overlap_count": 0,
+      "visible_tab_count": 4
+    },
+    "360x800": {
+      "document_client_height": 7330,
+      "document_scroll_height": 7330,
+      "horizontal_overflow": false,
+      "out_of_bounds_count": 0,
+      "clipped_count": 0,
+      "sibling_overlap_count": 0,
+      "visible_tab_count": 4
+    }
+  },
+  "contrast_ratios": {
+    "light_pass_metric": 7.18,
+    "explicit_dark_tension_metric": 5.29,
+    "accordion_chevron": 6.53
+  },
+  "collapsed_state": {
+    "max_height_px": 0,
+    "content_hidden": true
+  },
+  "screenshots": [
+    {
+      "path": "project/tests/screenshots/visual_audit/post_fix/mobile-compact_PASS-light.png",
+      "pixel_dimensions": "300x7331",
+      "sha256": "254e3ae579cc2a55743e7215264ef24e2f2ae77da07105f1419b55adb32bbdad"
+    },
+    {
+      "path": "project/tests/screenshots/visual_audit/post_fix/mobile-compact_TENSION-explicit-dark.png",
+      "pixel_dimensions": "300x7331",
+      "sha256": "f99a7493535d65fd01ce946d5b450236618a9f008ea3e70bc687c9c85cbb0f76"
+    }
+  ],
+  "automated_checks": {
+    "visual_and_asset_tests": "13 passed (8 visual audit + 5 object/rendering and mirror checks)",
+    "asset_parity": "passed for app.js and v3_tokens.css",
+    "javascript_syntax": "passed for project/static/app.js and public/app.js",
+    "ecosystem_sync": "passed",
+    "git_diff_check": "passed"
+  },
+  "limitations": [
+    "The tracked visual_layout_report.json was generated before the final CSS corrections and remains warning evidence, not a green post-fix report.",
+    "A fresh managed-browser report was blocked by local bind and Chromium MachPort permissions.",
+    "The 2026-08-24 retry of python3 -m http.server 8899 --bind 127.0.0.1 --directory project/static failed with PermissionError: Operation not permitted.",
+    "A sandbox-safe data URL render was rejected by Browser URL policy, which explicitly prohibited alternate-browser or indirect workarounds.",
+    "Production has not been deployed or post-deploy verified."
+  ]
+}

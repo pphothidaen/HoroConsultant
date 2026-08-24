@@ -1,12 +1,26 @@
 {
-  "timestamp": "2026-08-24T13:15:16Z",
+  "timestamp": "2026-08-24T14:20:22Z",
   "base_url": "http://127.0.0.1:8899",
-  "total_scenarios": 10,
-  "passed_scenarios": 10,
-  "failed_scenarios": 0,
+  "scenario": "v3-consensus",
+  "scenario_description": "Selected Horo v3.0 Consensus Engine tab with deterministic populated fixture",
+  "canonical_viewports_expected": 5,
+  "viewports_audited": [
+    "desktop-4k",
+    "laptop-standard",
+    "tablet-portrait",
+    "mobile-ios",
+    "mobile-compact"
+  ],
+  "total_scenarios": 5,
+  "passed_scenarios": 0,
+  "failed_scenarios": 5,
   "horizontal_overflow_detected": 0,
   "total_dom_overlaps_detected": 0,
-  "overall_status": "PASSED",
+  "total_out_of_bounds_detected": 0,
+  "total_clipped_elements_detected": 2,
+  "total_contrast_failures_detected": 5,
+  "total_contrast_indeterminate": 30,
+  "overall_status": "WARNING",
   "scenarios": [
     {
       "viewport": "desktop-4k",
@@ -16,39 +30,124 @@
         "category": "desktop",
         "device_scale_factor": 1
       },
-      "page": "main_dashboard",
+      "page": "horo_v3_consensus",
+      "scenario": "v3-consensus",
+      "scenario_state": {
+        "fixtureInjected": true,
+        "selectedTab": "🏛️ Horo v3.0 Consensus Engine",
+        "v3TabVisible": true,
+        "claimCardCount": 10,
+        "auditMetricStyles": [
+          {
+            "text": "0.9125",
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
+          },
+          {
+            "text": "0.0875",
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
+          },
+          {
+            "text": "10 / 10",
+            "color": "rgb(248, 250, 252)",
+            "parentBackground": "rgb(30, 41, 59)"
+          }
+        ],
+        "calculateApiRequestsBlocked": 0
+      },
+      "audit_scope": "#interpretation-card",
       "url": "http://127.0.0.1:8899/",
       "http_status": 200,
-      "latency_ms": 1382.0,
-      "verdict": "LAYOUT_PASS",
+      "latency_ms": 1443.06,
+      "verdict": "LAYOUT_WARN",
       "has_horizontal_overflow": false,
-      "scroll_width": 1920,
-      "client_width": 1920,
-      "overlap_count": 0,
-      "overlaps": [],
-      "elements_audited": 52,
-      "screenshot_path": "project/tests/screenshots/visual_audit/desktop-4k_main_dashboard.png"
-    },
-    {
-      "viewport": "desktop-4k",
-      "viewport_config": {
-        "width": 1920,
-        "height": 1080,
-        "category": "desktop",
-        "device_scale_factor": 1
+      "document_metrics": {
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "hasHorizontalOverflow": false
       },
-      "page": "admin_panel",
-      "url": "http://127.0.0.1:8899/admin.html",
-      "http_status": 404,
-      "latency_ms": 330.49,
-      "verdict": "LAYOUT_PASS",
-      "has_horizontal_overflow": false,
+      "body_metrics": {
+        "scrollWidth": 1920,
+        "clientWidth": 1920,
+        "hasHorizontalOverflow": false
+      },
       "scroll_width": 1920,
       "client_width": 1920,
       "overlap_count": 0,
       "overlaps": [],
-      "elements_audited": 0,
-      "screenshot_path": "project/tests/screenshots/visual_audit/desktop-4k_admin_panel.png"
+      "out_of_bounds_count": 0,
+      "out_of_bounds": [],
+      "clipped_element_count": 0,
+      "clipped_elements": [],
+      "contrast_failure_count": 1,
+      "contrast_failures": [
+        {
+          "element": "span.acc-chevron",
+          "textSample": "▲",
+          "foreground": "rgb(220, 38, 38)",
+          "background": "rgb(251, 222, 222)",
+          "ratio": 3.8,
+          "requiredRatio": 4.5,
+          "fontSizePx": 12,
+          "fontWeight": 700,
+          "largeText": false
+        }
+      ],
+      "contrast_indeterminate_count": 6,
+      "contrast_indeterminate": [
+        {
+          "element": "span.v3-epistemic-disclaimer__icon",
+          "textSample": "⚖️",
+          "foreground": "rgb(255, 183, 77)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "strong",
+          "textSample": "พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)",
+          "foreground": "rgb(248, 250, 252)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "div.v3-epistemic-disclaimer__body",
+          "textSample": "ผลการวิเคราะห์นี้เกิดขึ้นจากการประมวลผลตรรกะตามกฎของสำนักวิชาและความสอดคล้องของแบบจำลองเท่านั้น ไม่ถ",
+          "foreground": "rgb(226, 232, 240)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🔒 Architecture: Horo Metaphysics Engine v3.0",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🏛️ Epistemic Chain: 5-Stage Traceable",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🛡️ Integrity Guard: Merkle DAG Verified",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        }
+      ],
+      "contrast_text_elements_audited": 288,
+      "elements_audited": 565,
+      "screenshot_path": "project/tests/screenshots/visual_audit/desktop-4k_horo_v3_consensus.png"
     },
     {
       "viewport": "laptop-standard",
@@ -58,39 +157,124 @@
         "category": "laptop",
         "device_scale_factor": 1
       },
-      "page": "main_dashboard",
+      "page": "horo_v3_consensus",
+      "scenario": "v3-consensus",
+      "scenario_state": {
+        "fixtureInjected": true,
+        "selectedTab": "🏛️ Horo v3.0 Consensus Engine",
+        "v3TabVisible": true,
+        "claimCardCount": 10,
+        "auditMetricStyles": [
+          {
+            "text": "0.9125",
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
+          },
+          {
+            "text": "0.0875",
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
+          },
+          {
+            "text": "10 / 10",
+            "color": "rgb(248, 250, 252)",
+            "parentBackground": "rgb(30, 41, 59)"
+          }
+        ],
+        "calculateApiRequestsBlocked": 0
+      },
+      "audit_scope": "#interpretation-card",
       "url": "http://127.0.0.1:8899/",
       "http_status": 200,
-      "latency_ms": 384.67,
-      "verdict": "LAYOUT_PASS",
+      "latency_ms": 772.44,
+      "verdict": "LAYOUT_WARN",
       "has_horizontal_overflow": false,
-      "scroll_width": 1366,
-      "client_width": 1366,
-      "overlap_count": 0,
-      "overlaps": [],
-      "elements_audited": 52,
-      "screenshot_path": "project/tests/screenshots/visual_audit/laptop-standard_main_dashboard.png"
-    },
-    {
-      "viewport": "laptop-standard",
-      "viewport_config": {
-        "width": 1366,
-        "height": 768,
-        "category": "laptop",
-        "device_scale_factor": 1
+      "document_metrics": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "hasHorizontalOverflow": false
       },
-      "page": "admin_panel",
-      "url": "http://127.0.0.1:8899/admin.html",
-      "http_status": 404,
-      "latency_ms": 316.95,
-      "verdict": "LAYOUT_PASS",
-      "has_horizontal_overflow": false,
+      "body_metrics": {
+        "scrollWidth": 1366,
+        "clientWidth": 1366,
+        "hasHorizontalOverflow": false
+      },
       "scroll_width": 1366,
       "client_width": 1366,
       "overlap_count": 0,
       "overlaps": [],
-      "elements_audited": 0,
-      "screenshot_path": "project/tests/screenshots/visual_audit/laptop-standard_admin_panel.png"
+      "out_of_bounds_count": 0,
+      "out_of_bounds": [],
+      "clipped_element_count": 0,
+      "clipped_elements": [],
+      "contrast_failure_count": 1,
+      "contrast_failures": [
+        {
+          "element": "span.acc-chevron",
+          "textSample": "▲",
+          "foreground": "rgb(220, 38, 38)",
+          "background": "rgb(251, 222, 222)",
+          "ratio": 3.8,
+          "requiredRatio": 4.5,
+          "fontSizePx": 12,
+          "fontWeight": 700,
+          "largeText": false
+        }
+      ],
+      "contrast_indeterminate_count": 6,
+      "contrast_indeterminate": [
+        {
+          "element": "span.v3-epistemic-disclaimer__icon",
+          "textSample": "⚖️",
+          "foreground": "rgb(255, 183, 77)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "strong",
+          "textSample": "พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)",
+          "foreground": "rgb(248, 250, 252)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "div.v3-epistemic-disclaimer__body",
+          "textSample": "ผลการวิเคราะห์นี้เกิดขึ้นจากการประมวลผลตรรกะตามกฎของสำนักวิชาและความสอดคล้องของแบบจำลองเท่านั้น ไม่ถ",
+          "foreground": "rgb(226, 232, 240)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🔒 Architecture: Horo Metaphysics Engine v3.0",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🏛️ Epistemic Chain: 5-Stage Traceable",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🛡️ Integrity Guard: Merkle DAG Verified",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        }
+      ],
+      "contrast_text_elements_audited": 288,
+      "elements_audited": 565,
+      "screenshot_path": "project/tests/screenshots/visual_audit/laptop-standard_horo_v3_consensus.png"
     },
     {
       "viewport": "tablet-portrait",
@@ -101,40 +285,124 @@
         "device_scale_factor": 2,
         "is_mobile": true
       },
-      "page": "main_dashboard",
+      "page": "horo_v3_consensus",
+      "scenario": "v3-consensus",
+      "scenario_state": {
+        "fixtureInjected": true,
+        "selectedTab": "🏛️ Horo v3.0 Consensus Engine",
+        "v3TabVisible": true,
+        "claimCardCount": 10,
+        "auditMetricStyles": [
+          {
+            "text": "0.9125",
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
+          },
+          {
+            "text": "0.0875",
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
+          },
+          {
+            "text": "10 / 10",
+            "color": "rgb(248, 250, 252)",
+            "parentBackground": "rgb(30, 41, 59)"
+          }
+        ],
+        "calculateApiRequestsBlocked": 0
+      },
+      "audit_scope": "#interpretation-card",
       "url": "http://127.0.0.1:8899/",
       "http_status": 200,
-      "latency_ms": 316.51,
-      "verdict": "LAYOUT_PASS",
+      "latency_ms": 788.8,
+      "verdict": "LAYOUT_WARN",
       "has_horizontal_overflow": false,
-      "scroll_width": 768,
-      "client_width": 768,
-      "overlap_count": 0,
-      "overlaps": [],
-      "elements_audited": 52,
-      "screenshot_path": "project/tests/screenshots/visual_audit/tablet-portrait_main_dashboard.png"
-    },
-    {
-      "viewport": "tablet-portrait",
-      "viewport_config": {
-        "width": 768,
-        "height": 1024,
-        "category": "tablet",
-        "device_scale_factor": 2,
-        "is_mobile": true
+      "document_metrics": {
+        "scrollWidth": 768,
+        "clientWidth": 768,
+        "hasHorizontalOverflow": false
       },
-      "page": "admin_panel",
-      "url": "http://127.0.0.1:8899/admin.html",
-      "http_status": 404,
-      "latency_ms": 312.18,
-      "verdict": "LAYOUT_PASS",
-      "has_horizontal_overflow": false,
+      "body_metrics": {
+        "scrollWidth": 768,
+        "clientWidth": 768,
+        "hasHorizontalOverflow": false
+      },
       "scroll_width": 768,
       "client_width": 768,
       "overlap_count": 0,
       "overlaps": [],
-      "elements_audited": 0,
-      "screenshot_path": "project/tests/screenshots/visual_audit/tablet-portrait_admin_panel.png"
+      "out_of_bounds_count": 0,
+      "out_of_bounds": [],
+      "clipped_element_count": 0,
+      "clipped_elements": [],
+      "contrast_failure_count": 1,
+      "contrast_failures": [
+        {
+          "element": "span.acc-chevron",
+          "textSample": "▲",
+          "foreground": "rgb(220, 38, 38)",
+          "background": "rgb(251, 222, 222)",
+          "ratio": 3.8,
+          "requiredRatio": 4.5,
+          "fontSizePx": 12,
+          "fontWeight": 700,
+          "largeText": false
+        }
+      ],
+      "contrast_indeterminate_count": 6,
+      "contrast_indeterminate": [
+        {
+          "element": "span.v3-epistemic-disclaimer__icon",
+          "textSample": "⚖️",
+          "foreground": "rgb(255, 183, 77)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "strong",
+          "textSample": "พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)",
+          "foreground": "rgb(248, 250, 252)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "div.v3-epistemic-disclaimer__body",
+          "textSample": "ผลการวิเคราะห์นี้เกิดขึ้นจากการประมวลผลตรรกะตามกฎของสำนักวิชาและความสอดคล้องของแบบจำลองเท่านั้น ไม่ถ",
+          "foreground": "rgb(226, 232, 240)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🔒 Architecture: Horo Metaphysics Engine v3.0",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🏛️ Epistemic Chain: 5-Stage Traceable",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🛡️ Integrity Guard: Merkle DAG Verified",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        }
+      ],
+      "contrast_text_elements_audited": 288,
+      "elements_audited": 565,
+      "screenshot_path": "project/tests/screenshots/visual_audit/tablet-portrait_horo_v3_consensus.png"
     },
     {
       "viewport": "mobile-ios",
@@ -146,41 +414,152 @@
         "is_mobile": true,
         "has_touch": true
       },
-      "page": "main_dashboard",
+      "page": "horo_v3_consensus",
+      "scenario": "v3-consensus",
+      "scenario_state": {
+        "fixtureInjected": true,
+        "selectedTab": "🏛️ Horo v3.0 Consensus Engine",
+        "v3TabVisible": true,
+        "claimCardCount": 10,
+        "auditMetricStyles": [
+          {
+            "text": "0.9125",
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
+          },
+          {
+            "text": "0.0875",
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
+          },
+          {
+            "text": "10 / 10",
+            "color": "rgb(248, 250, 252)",
+            "parentBackground": "rgb(30, 41, 59)"
+          }
+        ],
+        "calculateApiRequestsBlocked": 0
+      },
+      "audit_scope": "#interpretation-card",
       "url": "http://127.0.0.1:8899/",
       "http_status": 200,
-      "latency_ms": 324.51,
-      "verdict": "LAYOUT_PASS",
+      "latency_ms": 771.27,
+      "verdict": "LAYOUT_WARN",
       "has_horizontal_overflow": false,
-      "scroll_width": 390,
-      "client_width": 390,
-      "overlap_count": 0,
-      "overlaps": [],
-      "elements_audited": 52,
-      "screenshot_path": "project/tests/screenshots/visual_audit/mobile-ios_main_dashboard.png"
-    },
-    {
-      "viewport": "mobile-ios",
-      "viewport_config": {
-        "width": 390,
-        "height": 844,
-        "category": "mobile",
-        "device_scale_factor": 3,
-        "is_mobile": true,
-        "has_touch": true
+      "document_metrics": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "hasHorizontalOverflow": false
       },
-      "page": "admin_panel",
-      "url": "http://127.0.0.1:8899/admin.html",
-      "http_status": 404,
-      "latency_ms": 311.57,
-      "verdict": "LAYOUT_PASS",
-      "has_horizontal_overflow": false,
+      "body_metrics": {
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "hasHorizontalOverflow": false
+      },
       "scroll_width": 390,
       "client_width": 390,
       "overlap_count": 0,
       "overlaps": [],
-      "elements_audited": 0,
-      "screenshot_path": "project/tests/screenshots/visual_audit/mobile-ios_admin_panel.png"
+      "out_of_bounds_count": 0,
+      "out_of_bounds": [],
+      "clipped_element_count": 1,
+      "clipped_elements": [
+        {
+          "element": "div#tab-v3-engine.tab-content",
+          "ancestor": "div.accordion-card-body",
+          "axes": [
+            "y"
+          ],
+          "elementRect": {
+            "x": 30.59,
+            "y": 456.83,
+            "width": 328.81,
+            "height": 6737.81,
+            "right": 359.41,
+            "bottom": 7194.64
+          },
+          "ancestorRect": {
+            "x": 30.59,
+            "y": 231.83,
+            "width": 328.81,
+            "height": 5000,
+            "right": 359.41,
+            "bottom": 5231.83
+          },
+          "ancestorOverflow": {
+            "x": "hidden",
+            "y": "hidden"
+          }
+        }
+      ],
+      "contrast_failure_count": 1,
+      "contrast_failures": [
+        {
+          "element": "span.acc-chevron",
+          "textSample": "▲",
+          "foreground": "rgb(220, 38, 38)",
+          "background": "rgb(251, 222, 222)",
+          "ratio": 3.8,
+          "requiredRatio": 4.5,
+          "fontSizePx": 12,
+          "fontWeight": 700,
+          "largeText": false
+        }
+      ],
+      "contrast_indeterminate_count": 6,
+      "contrast_indeterminate": [
+        {
+          "element": "span.v3-epistemic-disclaimer__icon",
+          "textSample": "⚖️",
+          "foreground": "rgb(255, 183, 77)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "strong",
+          "textSample": "พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)",
+          "foreground": "rgb(248, 250, 252)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "div.v3-epistemic-disclaimer__body",
+          "textSample": "ผลการวิเคราะห์นี้เกิดขึ้นจากการประมวลผลตรรกะตามกฎของสำนักวิชาและความสอดคล้องของแบบจำลองเท่านั้น ไม่ถ",
+          "foreground": "rgb(226, 232, 240)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🔒 Architecture: Horo Metaphysics Engine v3.0",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🏛️ Epistemic Chain: 5-Stage Traceable",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🛡️ Integrity Guard: Merkle DAG Verified",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        }
+      ],
+      "contrast_text_elements_audited": 288,
+      "elements_audited": 565,
+      "screenshot_path": "project/tests/screenshots/visual_audit/mobile-ios_horo_v3_consensus.png"
     },
     {
       "viewport": "mobile-compact",
@@ -192,41 +571,152 @@
         "is_mobile": true,
         "has_touch": true
       },
-      "page": "main_dashboard",
+      "page": "horo_v3_consensus",
+      "scenario": "v3-consensus",
+      "scenario_state": {
+        "fixtureInjected": true,
+        "selectedTab": "🏛️ Horo v3.0 Consensus Engine",
+        "v3TabVisible": true,
+        "claimCardCount": 10,
+        "auditMetricStyles": [
+          {
+            "text": "0.9125",
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
+          },
+          {
+            "text": "0.0875",
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
+          },
+          {
+            "text": "10 / 10",
+            "color": "rgb(248, 250, 252)",
+            "parentBackground": "rgb(30, 41, 59)"
+          }
+        ],
+        "calculateApiRequestsBlocked": 0
+      },
+      "audit_scope": "#interpretation-card",
       "url": "http://127.0.0.1:8899/",
       "http_status": 200,
-      "latency_ms": 315.56,
-      "verdict": "LAYOUT_PASS",
+      "latency_ms": 1008.59,
+      "verdict": "LAYOUT_WARN",
       "has_horizontal_overflow": false,
-      "scroll_width": 360,
-      "client_width": 360,
-      "overlap_count": 0,
-      "overlaps": [],
-      "elements_audited": 52,
-      "screenshot_path": "project/tests/screenshots/visual_audit/mobile-compact_main_dashboard.png"
-    },
-    {
-      "viewport": "mobile-compact",
-      "viewport_config": {
-        "width": 360,
-        "height": 740,
-        "category": "mobile",
-        "device_scale_factor": 2,
-        "is_mobile": true,
-        "has_touch": true
+      "document_metrics": {
+        "scrollWidth": 360,
+        "clientWidth": 360,
+        "hasHorizontalOverflow": false
       },
-      "page": "admin_panel",
-      "url": "http://127.0.0.1:8899/admin.html",
-      "http_status": 404,
-      "latency_ms": 317.53,
-      "verdict": "LAYOUT_PASS",
-      "has_horizontal_overflow": false,
+      "body_metrics": {
+        "scrollWidth": 360,
+        "clientWidth": 360,
+        "hasHorizontalOverflow": false
+      },
       "scroll_width": 360,
       "client_width": 360,
       "overlap_count": 0,
       "overlaps": [],
-      "elements_audited": 0,
-      "screenshot_path": "project/tests/screenshots/visual_audit/mobile-compact_admin_panel.png"
+      "out_of_bounds_count": 0,
+      "out_of_bounds": [],
+      "clipped_element_count": 1,
+      "clipped_elements": [
+        {
+          "element": "div#tab-v3-engine.tab-content",
+          "ancestor": "div.accordion-card-body",
+          "axes": [
+            "y"
+          ],
+          "elementRect": {
+            "x": 30.59,
+            "y": 486.83,
+            "width": 298.81,
+            "height": 7061.31,
+            "right": 329.41,
+            "bottom": 7548.14
+          },
+          "ancestorRect": {
+            "x": 30.59,
+            "y": 261.83,
+            "width": 298.81,
+            "height": 5000,
+            "right": 329.41,
+            "bottom": 5261.83
+          },
+          "ancestorOverflow": {
+            "x": "hidden",
+            "y": "hidden"
+          }
+        }
+      ],
+      "contrast_failure_count": 1,
+      "contrast_failures": [
+        {
+          "element": "span.acc-chevron",
+          "textSample": "▲",
+          "foreground": "rgb(220, 38, 38)",
+          "background": "rgb(251, 222, 222)",
+          "ratio": 3.8,
+          "requiredRatio": 4.5,
+          "fontSizePx": 12,
+          "fontWeight": 700,
+          "largeText": false
+        }
+      ],
+      "contrast_indeterminate_count": 6,
+      "contrast_indeterminate": [
+        {
+          "element": "span.v3-epistemic-disclaimer__icon",
+          "textSample": "⚖️",
+          "foreground": "rgb(255, 183, 77)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "strong",
+          "textSample": "พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)",
+          "foreground": "rgb(248, 250, 252)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "div.v3-epistemic-disclaimer__body",
+          "textSample": "ผลการวิเคราะห์นี้เกิดขึ้นจากการประมวลผลตรรกะตามกฎของสำนักวิชาและความสอดคล้องของแบบจำลองเท่านั้น ไม่ถ",
+          "foreground": "rgb(226, 232, 240)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🔒 Architecture: Horo Metaphysics Engine v3.0",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🏛️ Epistemic Chain: 5-Stage Traceable",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🛡️ Integrity Guard: Merkle DAG Verified",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        }
+      ],
+      "contrast_text_elements_audited": 288,
+      "elements_audited": 565,
+      "screenshot_path": "project/tests/screenshots/visual_audit/mobile-compact_horo_v3_consensus.png"
     }
   ]
 }

@@ -125,7 +125,7 @@ body.dark-mode {
 
   --elem-fire-bg: rgba(239, 83, 80, 0.16);
   --elem-fire-border: rgba(229, 115, 115, 0.4);
-  --elem-fire-text: #ef5350;
+  --elem-fire-text: #f87171;
 
   --elem-earth-bg: rgba(255, 183, 77, 0.16);
   --elem-earth-border: rgba(255, 183, 77, 0.4);
@@ -157,64 +157,9 @@ body.dark-mode {
   --v3-status-info-border: #1565c0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --v3-bg-canvas: #090d16;
-    --v3-bg-surface: #111827;
-    --v3-bg-subtle: #1e293b;
-    --v3-bg-hover: #1f293d;
-
-    --v3-border-subtle: #1e293b;
-    --v3-border-default: #334155;
-    --v3-border-focus: #60a5fa;
-
-    --v3-text-primary: #f8fafc;
-    --v3-text-secondary: #e2e8f0;
-    --v3-text-muted: #cbd5e1;
-    --v3-text-disabled: #94a3b8;
-    --v3-text-inverse: #0f172a;
-
-    --v3-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
-    --v3-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.45), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
-    --v3-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.55), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
-
-    --elem-wood-bg: rgba(76, 175, 80, 0.16);
-    --elem-wood-border: rgba(129, 199, 132, 0.4);
-    --elem-wood-text: #81c784;
-
-    --elem-fire-bg: rgba(239, 83, 80, 0.16);
-    --elem-fire-border: rgba(229, 115, 115, 0.4);
-    --elem-fire-text: #ef5350;
-
-    --elem-earth-bg: rgba(255, 183, 77, 0.16);
-    --elem-earth-border: rgba(255, 183, 77, 0.4);
-    --elem-earth-text: #ffb74d;
-
-    --elem-metal-bg: rgba(144, 164, 174, 0.16);
-    --elem-metal-border: rgba(144, 164, 174, 0.4);
-    --elem-metal-text: #b0bec5;
-
-    --elem-water-bg: rgba(66, 165, 245, 0.16);
-    --elem-water-border: rgba(100, 181, 246, 0.4);
-    --elem-water-text: #64b5f6;
-
-    --v3-status-success-bg: rgba(46, 125, 50, 0.25);
-    --v3-status-success-text: #81c784;
-    --v3-status-success-border: #2e7d32;
-
-    --v3-status-warning-bg: rgba(245, 127, 23, 0.25);
-    --v3-status-warning-text: #ffb74d;
-    --v3-status-warning-border: #f57f17;
-
-    --v3-status-danger-bg: rgba(198, 40, 40, 0.25);
-    --v3-status-danger-text: #ef5350;
-    --v3-status-danger-border: #c62828;
-
-    --v3-status-info-bg: rgba(21, 101, 192, 0.25);
-    --v3-status-info-text: #64b5f6;
-    --v3-status-info-border: #1565c0;
-  }
-}
+/* The host application is explicitly light by default. Do not infer a v3-only
+   dark island from the operating-system preference; dark tokens activate only
+   when the application itself exposes an explicit dark theme state above. */
 
 /* ---------------------------------------------------------------------------
    3. Styled Component: .v3-claim-card (Structured Claim Container)
@@ -284,7 +229,10 @@ body.dark-mode {
 .v3-claim-card__node-tag {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: var(--v3-space-1);
+  min-width: 0;
+  max-width: 100%;
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -294,12 +242,19 @@ body.dark-mode {
   background-color: var(--v3-bg-subtle);
   color: var(--v3-text-secondary);
   font-family: var(--v3-font-mono);
+  overflow-wrap: anywhere;
 }
 
 .v3-claim-card__id {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--v3-space-1);
+  min-width: 0;
+  max-width: 100%;
   font-size: 0.75rem;
   font-family: var(--v3-font-mono);
   color: var(--v3-text-muted);
+  overflow-wrap: anywhere;
 }
 
 .v3-claim-card__statement {
@@ -327,6 +282,9 @@ body.dark-mode {
   align-items: center;
   gap: var(--v3-space-1);
   margin-bottom: var(--v3-space-1);
+  flex-wrap: wrap;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .v3-claim-card__original-text {
@@ -369,6 +327,9 @@ body.dark-mode {
 .v3-epistemic-disclaimer.mandatory {
   border-left-color: var(--elem-earth);
   background: linear-gradient(to right, var(--elem-earth-bg), var(--v3-bg-surface) 30%);
+  /* Keep an opaque computed base so contrast auditors do not see the white app
+     shell through the translucent gradient in dark color-scheme mode. */
+  background-color: var(--v3-bg-surface);
 }
 
 .v3-epistemic-disclaimer__header {
@@ -379,6 +340,13 @@ body.dark-mode {
   font-size: 0.95rem;
   color: var(--v3-text-primary);
   margin-bottom: var(--v3-space-2);
+  min-width: 0;
+}
+
+.v3-epistemic-disclaimer__header strong,
+.v3-epistemic-disclaimer__meta span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .v3-epistemic-disclaimer__icon {
@@ -422,7 +390,9 @@ body.dark-mode {
   padding: var(--v3-space-2) var(--v3-space-3);
   gap: var(--v3-space-2);
   font-family: var(--v3-font-sans);
-  min-width: 240px;
+  width: min(100%, 420px);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .v3-confidence-badge__header {
@@ -438,7 +408,7 @@ body.dark-mode {
 
 .v3-confidence-badge__grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: var(--v3-space-1);
 }
 
@@ -632,3 +602,144 @@ body.dark-mode {
 .border-elem-earth { border-color: var(--elem-earth); }
 .border-elem-metal { border-color: var(--elem-metal); }
 .border-elem-water { border-color: var(--elem-water); }
+
+/* ---------------------------------------------------------------------------
+   8. Consensus Renderer Containment & Responsive Tab Access
+   --------------------------------------------------------------------------- */
+#tab-v3-engine,
+#tab-v3-engine *,
+#tab-v3-engine *::before,
+#tab-v3-engine *::after {
+  box-sizing: border-box;
+}
+
+#tab-v3-engine,
+#v3-engine-results,
+.v3-visualizer-wrapper,
+.v3-claims-grid {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+#tab-v3-engine code,
+.v3-claim-card__id,
+.v3-veto-banner__rule-meta,
+.v3-veto-banner__rule-tag {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.v3-audit-summary-container > *,
+.v3-audit-metrics,
+.v3-audit-metric,
+.v3-claim-card__header > *,
+.v3-claim-card__footer > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.v3-audit-metrics {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(100%, 420px);
+}
+
+/* This menu owns the v3 entry, so it must expose every option without relying
+   on a clipped horizontal row. The interpretation-card scope protects other
+   tab systems in the application. */
+#interpretation-card .tab-buttons {
+  flex-wrap: wrap;
+  align-items: stretch;
+  max-width: 100%;
+}
+
+#interpretation-card .tab-btn {
+  min-width: 0;
+  min-height: 44px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+}
+
+/* The generic accordion limit is shorter than this card's ten-claim renderer.
+   Remove that ceiling only for the expanded interpretation card; the generic
+   .acc-collapsed rule still owns the closed state and remains max-height: 0. */
+#interpretation-card
+  .accordion-card-body:not(.acc-collapsed) {
+  max-height: none;
+}
+
+#interpretation-card .acc-chevron {
+  color: #991b1b;
+}
+
+@media (max-width: 768px) {
+  #interpretation-card .tab-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #interpretation-card .tab-btn {
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+  }
+
+  #v3-engine-results {
+    padding: var(--v3-space-2) !important;
+  }
+
+  .v3-claim-card {
+    padding: var(--v3-space-4);
+  }
+
+  .v3-claim-card__footer {
+    align-items: stretch;
+  }
+
+  .v3-confidence-badge {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  #interpretation-card .tab-buttons {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #v3-engine-results {
+    padding: var(--v3-space-1) !important;
+  }
+
+  .v3-audit-summary-container {
+    align-items: stretch !important;
+    padding: var(--v3-space-3) !important;
+  }
+
+  .v3-audit-metrics {
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+  }
+
+  .v3-audit-metric {
+    width: 100%;
+  }
+
+  .v3-epistemic-disclaimer,
+  .v3-veto-banner,
+  .v3-claim-card {
+    padding: var(--v3-space-3);
+  }
+
+  .v3-confidence-badge__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--v3-space-2);
+  }
+
+  .v3-confidence-badge__dim-label {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
