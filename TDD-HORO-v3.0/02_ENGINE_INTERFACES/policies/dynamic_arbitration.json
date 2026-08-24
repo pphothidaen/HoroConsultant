@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://horo-engine.org/schemas/dynamic-arbitration-v3.0.json",
+  "policy_id": "HORO_DYNAMIC_ARBITRATION_POLICY_V3",
+  "$schema_version": "3.0.0",
+  "title": "Horo Dynamic Cross-Domain Arbitration Policy Specification",
+  "description": "Deterministic rule matrix governing cross-tradition conflict resolution, intent-based priority dispatching, and edge mutation in the Semantic Property Graph (G_sem).",
+  "core_principles": {
+    "intent_driven_primacy": "The user's query intent dictates the authoritative hierarchy among tradition domains.",
+    "hard_veto_immunity": "Hard Exclusion filters (ZeJi / FengShui) cannot be overridden by higher intent priorities.",
+    "monotonic_supersession": "When a higher-priority domain resolves a conflict, a supersedes edge is created with temporal/priority monotonicity.",
+    "audit_trail_preservation": "All arbitrated claims retain their original conflict declarations in G_sem for audit traceability."
+  },
+  "intent_priority_matrix": {
+    "STRATEGIC_TIMING_ACTION": {
+      "description": "Selecting optimal timing or directional execution for business launch, negotiations, investments, or travel.",
+      "priority_hierarchy": [
+        {"rank": 1, "domain": "san_shi_qi_men", "role": "Tactical/Spatial/Timing Strategy Engine", "weight_multiplier": 1.25},
+        {"rank": 2, "domain": "ze_ji_xue", "role": "Hard Exclusion & Auspicious Calendar Filter", "weight_multiplier": 1.15},
+        {"rank": 3, "domain": "ming_xue_bazi", "role": "Personal Capacity & Elemental Favourability", "weight_multiplier": 1.0},
+        {"rank": 4, "domain": "ming_xue_ziwei", "role": "Palace Activation & Wealth Transit", "weight_multiplier": 0.85},
+        {"rank": 5, "domain": "san_shi_da_liu_ren", "role": "Event Evolution Dynamics", "weight_multiplier": 0.80}
+      ]
+    },
+    "NATAL_CHARACTER_PATH": {
+      "description": "Analyzing foundational life structure, innate temperament, psychological archetype, and long-term destiny path.",
+      "priority_hierarchy": [
+        {"rank": 1, "domain": "ming_xue_bazi", "role": "Root Five Elements & Day Master Anchor", "weight_multiplier": 1.30},
+        {"rank": 2, "domain": "ming_xue_ziwei", "role": "Life Palace Stars & 12 Palaces Structure", "weight_multiplier": 1.20},
+        {"rank": 3, "domain": "ming_xue_qi_zheng", "role": "Classical Astrological Coordinates & Virtual Points", "weight_multiplier": 1.0},
+        {"rank": 4, "domain": "xiang_xue_mian_xiang", "role": "Physiognomic Feature Verification", "weight_multiplier": 0.90}
+      ]
+    },
+    "SPATIAL_LOCATION_OFFICE": {
+      "description": "Evaluating residence/office energy, Qi flow, sector orientation, and directional auspiciousness.",
+      "priority_hierarchy": [
+        {"rank": 1, "domain": "xiang_xue_feng_shui", "role": "XuanKong Flying Stars & Period 9 Governance", "weight_multiplier": 1.35},
+        {"rank": 2, "domain": "san_shi_qi_men", "role": "Directional Eight Gates & Plate Configuration", "weight_multiplier": 1.15},
+        {"rank": 3, "domain": "ming_xue_bazi", "role": "Occupant Five Element Compatibility", "weight_multiplier": 0.95}
+      ]
+    },
+    "TACTICAL_DIVINATION_EVENT": {
+      "description": "Discrete situational forecast, binary query resolution, lost object recovery, or immediate crisis response.",
+      "priority_hierarchy": [
+        {"rank": 1, "domain": "bu_shi_liu_yao", "role": "Six Lines Hexagram Line-Transformation Dynamics", "weight_multiplier": 1.30},
+        {"rank": 2, "domain": "san_shi_da_liu_ren", "role": "Three Transmissions (San Chuan) Event Progression", "weight_multiplier": 1.25},
+        {"rank": 3, "domain": "san_shi_qi_men", "role": "Hourly Board Layout & Formations", "weight_multiplier": 1.10}
+      ]
+    },
+    "HEALTH_VITALITY": {
+      "description": "Assessing constitution, organ vulnerabilities, energetic imbalances, and seasonal health risks.",
+      "priority_hierarchy": [
+        {"rank": 1, "domain": "ming_xue_bazi", "role": "Five Elements Organ Mapping & Elemental Excess/Deficiency", "weight_multiplier": 1.30},
+        {"rank": 2, "domain": "ming_xue_ziwei", "role": "Health Palace (疾厄宫) Stars & Transformations", "weight_multiplier": 1.15},
+        {"rank": 3, "domain": "xiang_xue_mian_xiang", "role": "Facial Color & Palaces Vitality Manifestation", "weight_multiplier": 0.90}
+      ]
+    },
+    "RELATIONSHIP_SYNASTRY": {
+      "description": "Evaluating interpersonal harmony, partnership synergy, marriage compatibility, and conflict triggers.",
+      "priority_hierarchy": [
+        {"rank": 1, "domain": "ming_xue_bazi", "role": "Day Branch Compatibility, Ten Gods & Elemental Synergy", "weight_multiplier": 1.25},
+        {"rank": 2, "domain": "ming_xue_ziwei", "role": "Spouse & Karma Palaces Interaction", "weight_multiplier": 1.20},
+        {"rank": 3, "domain": "bu_shi_liu_yao", "role": "Specific Relationship Event Hexagram", "weight_multiplier": 0.90}
+      ]
+    }
+  },
+  "arbitration_rules": [
+    {
+      "rule_code": "ARB-01-PRIORITY-DOMINANCE",
+      "name": "Intent Priority Dominance",
+      "description": "When Domain A has higher intent rank than Domain B (rank_A < rank_B), Claim A supersedes or qualifies Claim B.",
+      "trigger": "edge_type == 'contradicts' && rank(domain_A) != rank(domain_B)",
+      "actions": [
+        "Create edge (Claim_A)-[:supersedes {subtype: 'direct_supersedes'}]->(Claim_B)",
+        "Reduce effective weight of Claim_B by factor: (rank_B - rank_A) * 0.25",
+        "Set edge status of contradicts to 'resolved_by_priority'"
+      ]
+    },
+    {
+      "rule_code": "ARB-02-EQUAL-RANK-TIEBREAKER",
+      "name": "Equal Rank Materiality & Confidence Tiebreaker",
+      "description": "When conflicting claims originate from domains of identical rank, compute composite score S = materiality * (0.4 * calc_integrity + 0.3 * source_support + 0.3 * rule_match).",
+      "trigger": "edge_type == 'contradicts' && rank(domain_A) == rank(domain_B)",
+      "actions": [
+        "If |S_A - S_B| >= 0.20: Winning claim qualifies losing claim; create [:qualifies] edge.",
+        "If |S_A - S_B| < 0.20 AND severity >= 0.70: Maintain active contradiction and trigger FSM_H3_HITL_ESCALATION."
+      ]
+    },
+    {
+      "rule_code": "ARB-03-HARD-VETO-ABSOLUTE",
+      "name": "Hard Exclusion Veto Absolute Precedence",
+      "description": "Any claim with claim_type == 'hard_exclusion' and action == 'EXCLUDE_CANDIDATE' immediately eliminates candidate without regard to positive affirmative claims.",
+      "trigger": "claim.claim_type == 'hard_exclusion'",
+      "actions": [
+        "Prune affected candidate moment/sector from recommendation list",
+        "Emit FSM_H2_EXCLUSION event with canonical citation",
+        "Suppress contradictory affirmative claims for this specific candidate"
+      ]
+    },
+    {
+      "rule_code": "ARB-04-CONFIRMATION-BIAS-AUDIT",
+      "name": "Echo Chamber / Confirmation Bias Guard",
+      "description": "When cross_agent_agreement > 0.90 but all agreeing agents have source_support < 0.50, flag as ungrounded consensus.",
+      "trigger": "avg(cross_agent_agreement) > 0.90 && avg(source_support) < 0.50",
+      "actions": [
+        "Cap collective materiality weight at 0.40",
+        "Emit audit warning flag: POTENTIAL_UNGROUNDED_CONSENSUS",
+        "Trigger L6 Audit condition: PASS_WITH_WARNINGS"
+      ]
+    }
+  ],
+  "hitl_escalation_criteria": {
+    "min_severity": 0.70,
+    "min_materiality": 0.75,
+    "max_score_delta": 0.15,
+    "timeout_seconds": 3600,
+    "default_fallback_on_timeout": "QUALIFY_BOTH_PERSPECTIVES_WITH_PROMINENT_DIVERGENCE_NOTE"
+  }
+}

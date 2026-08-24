@@ -1,0 +1,8 @@
+rule_id,lciw_min,lciw_max,rniw_min,rniw_max,unresolved_h0_h1_h2,false_provenance_flag,echo_chamber_detected,verdict,action_code,description
+AUDIT-01-PASS,0.85,1.00,0.00,0.15,false,false,false,AUDIT_PASS,COMPOSER_RELEASE,All quality metrics pass strict thresholds. Proceed to L7 Composer for final output.
+AUDIT-02-WARN-LCIW,0.70,0.85,0.00,0.20,false,false,false,AUDIT_PASS_WITH_WARNINGS,COMPOSER_RELEASE_WITH_DISCLAIMER,Minor logical inconsistency detected across domains. Release with domain divergence disclosure.
+AUDIT-03-WARN-ECHO,0.70,1.00,0.00,0.20,false,false,true,AUDIT_PASS_WITH_WARNINGS,ATTACH_ECHO_CHAMBER_WARNING,High multi-agent agreement with low canonical grounding. Flag potential echo chamber.
+AUDIT-04-FAIL-RNIW,0.00,1.00,0.20,1.00,false,false,ANY,AUDIT_FAIL_RECOMPUTE,TRIGGER_H1_RECOMPUTE,Residual noise too high (ungrounded claims exceed 20 percent). Trigger recompute.
+AUDIT-05-FAIL-LCIW,0.00,0.70,0.00,1.00,ANY,false,ANY,AUDIT_FAIL_ESCALATE,ESCALATE_TO_HITL,Severe logical contradiction across tradition domains (LCIw under 0.70). Escalate to human review.
+AUDIT-06-FAIL-PROVENANCE,0.00,1.00,0.00,1.00,ANY,true,ANY,AUDIT_FAIL_ESCALATE,QUARANTINE_AND_ESCALATE_HITL,False provenance or cross-corpus hallucination detected. Immediate security escalation.
+AUDIT-07-FAIL-UNRESOLVED-H2,0.00,1.00,0.00,1.00,true,ANY,ANY,AUDIT_FAIL_RECOMPUTE,ENFORCE_HARD_EXCLUSION_VETO,Unresolved H0 or H1 or H2 violations detected in candidate set. Re-filter immediately.

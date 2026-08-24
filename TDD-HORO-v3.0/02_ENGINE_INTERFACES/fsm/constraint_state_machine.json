@@ -1,0 +1,277 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://horo-engine.org/schemas/constraint-state-machine-v3.0.json",
+  "fsm_id": "HORO_FSM_CONSTRAINT_V3",
+  "fsm_version": "3.0.0",
+  "title": "Horo 4-Tier Constraint Finite State Machine (FSM) Specification",
+  "description": "Deterministic 4-Tier Constraint FSM governing the execution flow, error recovery, exclusion filtering, arbitration, and audit gating in Horo Architecture v3.0.",
+  "invariants": {
+    "deterministic_execution": "All state transitions must be purely deterministic based on input payload and state evaluation.",
+    "event_ledger_integrity": "Every transition must emit an immutable, hash-chained event to L_event.",
+    "hard_exclusion_supremacy": "Tier H2 hard exclusions (vetoes) cannot be overridden by statistical or heuristic weights.",
+    "bounded_recovery_loop": "Tier H1/Audit recompute loops are capped at a maximum of 3 attempts before escalating to HITL or quarantine."
+  },
+  "tier_definitions": {
+    "H0": {
+      "name": "Hard Invariance Failure / Physical Infeasibility",
+      "severity_level": "FATAL",
+      "trigger_conditions": [
+        "Astronomical calculation failure in L1 (e.g. Swiss Ephemeris / JPL kernel missing or out-of-range timestamp)",
+        "Invalid geographic coordinate range (Latitude not in [-90.0, 90.0] or Longitude not in [-180.0, 180.0])",
+        "Solar longitude anomaly (derivative discontinuity or value not in [0.0, 360.0))",
+        "Time pipeline breakdown (UT1 / TT / TST conversion discrepancy > tolerance)"
+      ],
+      "action": "ABORT_PIPELINE_IMMEDIATE",
+      "event_emitted": "FSM_H0_TRIGGERED",
+      "recovery_allowed": false,
+      "terminal_state": "PIPELINE_ABORTED"
+    },
+    "H1": {
+      "name": "Domain Integrity Violation / Single-Domain Inconsistency",
+      "severity_level": "HIGH",
+      "trigger_conditions": [
+        "Cross-domain firewall breach (e.g. BaZi node referencing ZiWei Si Hua terms or vice versa)",
+        "Missing epistemic provenance (e.g. ungrounded claim with no canonical source or rule ID)",
+        "L2 calculation state hash mismatch against L3 input state hash",
+        "Claim emission schema validation error"
+      ],
+      "action": "TRIGGER_RECOMPUTE_OR_QUARANTINE",
+      "event_emitted": "FSM_H1_TRIGGERED",
+      "max_retries": 3,
+      "fallback_action": "QUARANTINE_CLAIM_AND_PROCEED_WITH_WARNING",
+      "recovery_target": "L3_L4_CLAIM_EMISSION"
+    },
+    "H2": {
+      "name": "Hard Domain Exclusion / Canon Veto Filter",
+      "severity_level": "CRITICAL_FILTER",
+      "trigger_conditions": [
+        "ZeJi hard clash detection (e.g. Sui Po 岁破, San Sha 三煞, Yue Po 月破)",
+        "XuanKong Feng Shui fatal direction/period sha violation",
+        "Solar/Lunar eclipse direct conjunction for timing events"
+      ],
+      "action": "EXCLUDE_CANDIDATE_FROM_RECOMMENDATION_POOL",
+      "event_emitted": "FSM_H2_EXCLUSION",
+      "veto_override_allowed": false,
+      "effect": "Candidate datetime or spatial vector is permanently pruned from solution set with canonical explanation."
+    },
+    "H3": {
+      "name": "Cross-Domain Conflict / Multi-Domain Arbitration",
+      "severity_level": "ARBITRATION",
+      "trigger_conditions": [
+        "Symmetric contradicts edge created between claims from distinct tradition domains",
+        "Conflicting advice across Ming Xue and San Shi / Bu Shi domains"
+      ],
+      "action": "DYNAMIC_ARBITRATION_BY_INTENT_PRIORITY",
+      "event_emitted": "FSM_H3_ARBITRATION",
+      "escalation_policy": {
+        "condition": "Severity >= 0.70 AND domain priority delta == 0 AND materiality >= 0.75",
+        "action": "ESCALATE_TO_HITL",
+        "event_emitted": "FSM_H3_HITL_ESCALATION"
+      }
+    }
+  },
+  "states": [
+    {
+      "id": "INIT",
+      "type": "INITIAL",
+      "description": "Session initialized, request payload received and validated against schema."
+    },
+    {
+      "id": "L1_ASTRO_EVALUATION",
+      "type": "PROCESSING",
+      "description": "Executing pure deterministic L1 AstroKernelService calculation."
+    },
+    {
+      "id": "L2_TRADITION_EXECUTION",
+      "type": "PROCESSING",
+      "description": "Running deterministic L2 Tradition Engines based on active Convention Profiles."
+    },
+    {
+      "id": "L3_L4_INFERENCE",
+      "type": "PROCESSING",
+      "description": "L3/L4 Specialized LLM nodes generating Structured Atomic Claims adhering to Claim Emission Schema."
+    },
+    {
+      "id": "H1_INTEGRITY_AUDIT",
+      "type": "GATEWAY",
+      "description": "Validating domain firewalls, source groundings, and schema conformance of emitted claims."
+    },
+    {
+      "id": "H2_EXCLUSION_GATE",
+      "type": "FILTER",
+      "description": "Applying ZeJi and FengShui Hard Exclusion rules against candidate outcomes."
+    },
+    {
+      "id": "H3_CROSS_ARBITRATION",
+      "type": "ARBITRATION",
+      "description": "Synthesizing multi-agent claims, resolving conflicts via Dynamic Arbitration Priority Matrix."
+    },
+    {
+      "id": "L5_CONSENSUS_STABILIZATION",
+      "type": "PROCESSING",
+      "description": "Constructing Tri-Graph (G_deriv, G_sem, L_event), computing cross-agent agreement vectors."
+    },
+    {
+      "id": "L6_AUDIT_GATE",
+      "type": "QUALITY_GATE",
+      "description": "Evaluating weighted metrics (LCIw >= 0.85, RNIw <= 0.15), checking truth table conditions."
+    },
+    {
+      "id": "L7_COMPOSITION_EMISSION",
+      "type": "EMISSION",
+      "description": "Synthesizing final user report with mandatory Epistemic Disclaimer."
+    },
+    {
+      "id": "HITL_ESCALATION_QUEUE",
+      "type": "WAITING_HITL",
+      "description": "Pipeline suspended pending Human-In-The-Loop review of severe ambiguous conflicts."
+    },
+    {
+      "id": "PIPELINE_COMPLETED",
+      "type": "FINAL_SUCCESS",
+      "description": "Successful end of execution with verified Tri-Graph state and structured output."
+    },
+    {
+      "id": "PIPELINE_ABORTED",
+      "type": "FINAL_FAILURE",
+      "description": "Execution terminated due to H0 Fatal Invariance Failure or unrecoverable error."
+    }
+  ],
+  "transitions": [
+    {
+      "transition_id": "T01_START_TO_ASTRO",
+      "source": "INIT",
+      "target": "L1_ASTRO_EVALUATION",
+      "trigger_event": "PIPELINE_STARTED",
+      "guard": "payload.utc_timestamp != null && payload.coordinates_valid == true"
+    },
+    {
+      "transition_id": "T02_ASTRO_FAIL_H0",
+      "source": "L1_ASTRO_EVALUATION",
+      "target": "PIPELINE_ABORTED",
+      "trigger_event": "FSM_H0_TRIGGERED",
+      "guard": "astro_error != null || solar_longitude_anomaly == true",
+      "action": "LOG_H0_AND_TERMINATE"
+    },
+    {
+      "transition_id": "T03_ASTRO_SUCCESS_TO_L2",
+      "source": "L1_ASTRO_EVALUATION",
+      "target": "L2_TRADITION_EXECUTION",
+      "trigger_event": "ASTRO_COMPUTATION_COMPLETED",
+      "guard": "astro_state.solar_longitude >= 0.0 && astro_state.solar_longitude < 360.0"
+    },
+    {
+      "transition_id": "T04_L2_TO_L3L4",
+      "source": "L2_TRADITION_EXECUTION",
+      "target": "L3_L4_INFERENCE",
+      "trigger_event": "L2_CALCULATION_COMPLETED",
+      "guard": "l2_state_matrix != null && l2_state_matrix.input_hash != null"
+    },
+    {
+      "transition_id": "T05_L3L4_TO_H1_CHECK",
+      "source": "L3_L4_INFERENCE",
+      "target": "H1_INTEGRITY_AUDIT",
+      "trigger_event": "CLAIM_EMITTED",
+      "guard": "emitted_claims.count > 0"
+    },
+    {
+      "transition_id": "T06_H1_FAIL_RETRY",
+      "source": "H1_INTEGRITY_AUDIT",
+      "target": "L3_L4_INFERENCE",
+      "trigger_event": "FSM_H1_RECOMPUTE",
+      "guard": "h1_violations.count > 0 && session.retry_count < 3",
+      "action": "INCREMENT_RETRY_AND_TIGHTEN_CONSTRAINTS"
+    },
+    {
+      "transition_id": "T07_H1_FAIL_QUARANTINE",
+      "source": "H1_INTEGRITY_AUDIT",
+      "target": "H2_EXCLUSION_GATE",
+      "trigger_event": "FSM_H1_QUARANTINE",
+      "guard": "h1_violations.count > 0 && session.retry_count >= 3",
+      "action": "QUARANTINE_INVALID_CLAIMS_AND_LOG_WARNING"
+    },
+    {
+      "transition_id": "T08_H1_PASS_TO_H2",
+      "source": "H1_INTEGRITY_AUDIT",
+      "target": "H2_EXCLUSION_GATE",
+      "trigger_event": "H1_INTEGRITY_PASSED",
+      "guard": "h1_violations.count == 0"
+    },
+    {
+      "transition_id": "T09_H2_FILTER_APPLIED",
+      "source": "H2_EXCLUSION_GATE",
+      "target": "H3_CROSS_ARBITRATION",
+      "trigger_event": "FSM_H2_EXCLUSION",
+      "guard": "true",
+      "action": "PRUNE_VETOED_CANDIDATES_FROM_RESULT_SET"
+    },
+    {
+      "transition_id": "T10_H3_TO_CONSENSUS",
+      "source": "H3_CROSS_ARBITRATION",
+      "target": "L5_CONSENSUS_STABILIZATION",
+      "trigger_event": "FSM_H3_ARBITRATION",
+      "guard": "unresolved_critical_conflicts == 0"
+    },
+    {
+      "transition_id": "T11_H3_TO_HITL",
+      "source": "H3_CROSS_ARBITRATION",
+      "target": "HITL_ESCALATION_QUEUE",
+      "trigger_event": "FSM_H3_HITL_ESCALATION",
+      "guard": "unresolved_critical_conflicts > 0",
+      "action": "ENQUEUE_FOR_HUMAN_REVIEW"
+    },
+    {
+      "transition_id": "T12_HITL_RESOLVED_TO_CONSENSUS",
+      "source": "HITL_ESCALATION_QUEUE",
+      "target": "L5_CONSENSUS_STABILIZATION",
+      "trigger_event": "HITL_ARBITRATION_CONFIRMED",
+      "guard": "hitl_decision.is_approved == true"
+    },
+    {
+      "transition_id": "T13_CONSENSUS_TO_L6_AUDIT",
+      "source": "L5_CONSENSUS_STABILIZATION",
+      "target": "L6_AUDIT_GATE",
+      "trigger_event": "CONSENSUS_GRAPH_BUILT",
+      "guard": "tri_graph.is_valid == true"
+    },
+    {
+      "transition_id": "T14_L6_AUDIT_PASS_TO_L7",
+      "source": "L6_AUDIT_GATE",
+      "target": "L7_COMPOSITION_EMISSION",
+      "trigger_event": "AUDIT_PASS",
+      "guard": "audit_result.lciw >= 0.85 && audit_result.rniw <= 0.15"
+    },
+    {
+      "transition_id": "T15_L6_AUDIT_WARN_TO_L7",
+      "source": "L6_AUDIT_GATE",
+      "target": "L7_COMPOSITION_EMISSION",
+      "trigger_event": "AUDIT_PASS_WITH_WARNINGS",
+      "guard": "audit_result.lciw >= 0.70 && audit_result.lciw < 0.85 && audit_result.rniw <= 0.20",
+      "action": "ATTACH_AUDIT_WARNING_DISCLAIMERS"
+    },
+    {
+      "transition_id": "T16_L6_AUDIT_FAIL_RECOMPUTE",
+      "source": "L6_AUDIT_GATE",
+      "target": "L3_L4_INFERENCE",
+      "trigger_event": "AUDIT_FAIL_RECOMPUTE",
+      "guard": "audit_result.rniw > 0.20 && session.audit_retry_count < 2",
+      "action": "INCREMENT_AUDIT_RETRY_AND_RECOMPUTE_UNGROUNDED"
+    },
+    {
+      "transition_id": "T17_L6_AUDIT_FAIL_ESCALATE",
+      "source": "L6_AUDIT_GATE",
+      "target": "HITL_ESCALATION_QUEUE",
+      "trigger_event": "AUDIT_FAIL_ESCALATE",
+      "guard": "audit_result.lciw < 0.70 || audit_result.false_provenance == true",
+      "action": "ENQUEUE_AUDIT_FAILURE_FOR_HITL"
+    },
+    {
+      "transition_id": "T18_L7_TO_COMPLETED",
+      "source": "L7_COMPOSITION_EMISSION",
+      "target": "PIPELINE_COMPLETED",
+      "trigger_event": "COMPOSER_OUTPUT_EMITTED",
+      "guard": "composed_output.has_epistemic_disclaimer == true",
+      "action": "FINALIZE_EVENT_LEDGER"
+    }
+  ]
+}
