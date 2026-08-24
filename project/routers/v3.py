@@ -13,13 +13,25 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from project.core.bazi_engine import BaZiEngine
+from project.core.liu_ren_engine import LiuRenEngine
+from project.core.liu_yao_engine import LiuYaoEngine
+from project.core.mian_xiang_engine import MianXiangEngine
 from project.core.qi_men_engine import QiMenEngine
+from project.core.qi_zheng_engine import QiZhengSiYuEngine
+from project.core.tai_yi_engine import TaiYiEngine
 from project.core.v3_engine_adapter import (
     adapt_bazi_to_claims,
+    adapt_daliuren_to_claims,
     adapt_qimen_to_claims,
+    adapt_liuyao_to_claims,
+    adapt_mianxiang_to_claims,
+    adapt_qizheng_to_claims,
+    adapt_taiyi_to_claims,
+    adapt_xuankong_to_claims,
     adapt_zeji_to_claims,
     adapt_ziwei_to_claims,
 )
+from project.core.xuan_kong_engine import XuanKongEngine
 from project.core.ze_ji_engine import ZeJiEngine
 from project.core.zi_wei_engine import ZiWeiEngine
 
@@ -36,7 +48,7 @@ from runtimes.plan_composer import PlanComposer  # noqa: E402
 v3_router = APIRouter(tags=["Horo Architecture v3.0"])
 
 _SCHEMA_PATH = _RUNTIMES_DIR.parents[0] / "01_DATA_CONTRACTS" / "schemas" / "claim_emission_v3.0.json"
-_ACTIVE_DOMAINS = ["BaZi", "ZiWei", "QiMen", "ZeJi"]
+_ACTIVE_DOMAINS = ["BaZi", "ZiWei", "QiMen", "ZeJi", "XuanKong", "DaLiuRen", "LiuYao", "TaiYi", "QiZheng", "MianXiang"]
 
 
 class V3CalculateRequest(BaseModel):
@@ -79,6 +91,10 @@ def _birth_branch(chart: dict[str, Any], pillar: str) -> str:
     return chart["pillars"][pillar]["branch"]["char"]
 
 
+def _birth_stem(chart: dict[str, Any], pillar: str) -> str:
+    return chart["pillars"][pillar]["stem"]["char"]
+
+
 def _calculate_emissions(req: V3CalculateRequest) -> tuple[list[dict[str, Any]], dict[str, Any], str]:
     dt = _parse_birth_datetime(req.birth_datetime, req.tz_offset)
     session_id = str(uuid4())
@@ -92,13 +108,42 @@ def _calculate_emissions(req: V3CalculateRequest) -> tuple[list[dict[str, Any]],
         _birth_branch(bazi, "day"),
         _birth_branch(bazi, "year"),
     )
+    xuankong = XuanKongEngine().calculate_chart(req.longitude, period=9)
+    daliuren = LiuRenEngine().calculate_chart(
+        _birth_stem(bazi, "day"),
+        _birth_branch(bazi, "day"),
+        ["正月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"][dt.month - 1],
+        _birth_branch(bazi, "hour"),
+    )
+    # v3 requests do not yet carry a cast hexagram or facial feature payload.
+    # These canonical inputs keep the adapter pipeline deterministic until those
+    # request fields are introduced.
+    liuyao = LiuYaoEngine().calculate([6, 7, 8, 9, 7, 8], day_stem_idx=0, month_branch_idx=dt.month - 1)
+    taiyi = TaiYiEngine().calculate(dt.year, dt.month, dt.day, dt.hour)
+    qizheng = QiZhengSiYuEngine().calculate(
+        dt.year, dt.month, dt.day, dt.hour, req.longitude, req.latitude
+    )
+    mianxiang = MianXiangEngine().calculate(
+        {"face_shape": "oval", "forehead": "average", "nose": "average"},
+        birth_year=dt.year,
+    )
     emissions = [
         adapt_bazi_to_claims(bazi, session_id=session_id),
         adapt_ziwei_to_claims(ziwei, session_id=session_id),
         adapt_qimen_to_claims(qimen, session_id=session_id),
         adapt_zeji_to_claims(zeji, session_id=session_id),
+        adapt_xuankong_to_claims(xuankong, session_id=session_id),
+        adapt_daliuren_to_claims(daliuren, session_id=session_id),
+        adapt_liuyao_to_claims(liuyao, session_id=session_id),
+        adapt_taiyi_to_claims(taiyi, session_id=session_id),
+        adapt_qizheng_to_claims(qizheng, session_id=session_id),
+        adapt_mianxiang_to_claims(mianxiang, session_id=session_id),
     ]
-    charts = {"bazi": bazi, "ziwei": ziwei, "qimen": qimen, "zeji": zeji}
+    charts = {
+        "bazi": bazi, "ziwei": ziwei, "qimen": qimen, "zeji": zeji,
+        "xuankong": xuankong, "daliuren": daliuren, "liuyao": liuyao,
+        "taiyi": taiyi, "qizheng": qizheng, "mianxiang": mianxiang,
+    }
     return emissions, charts, session_id
 
 

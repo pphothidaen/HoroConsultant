@@ -166,9 +166,130 @@ def adapt_zeji_to_claims(zeji_result: dict, session_id: str | None = None) -> di
     )
 
 
+def adapt_xuankong_to_claims(xuankong_result: dict, session_id: str | None = None) -> dict:
+    """Adapt a Xuan Kong flying-stars chart into a v3 spatial emission."""
+    result = _as_dict(xuankong_result)
+    period = _value(result, "period")
+    facing = _value(result, "facing_mountain")
+    sitting = _value(result, "sitting_mountain")
+    return _emit(
+        result,
+        node_id="@Horo_FengShui_Node",
+        tradition_domain="xiang_xue_feng_shui",
+        source_corpus="沈氏玄空学",
+        locator="卷一·元运飞星",
+        interpretation_id="INTERP-XUANKONG-0001",
+        rule_id="XUANKONG-PERIOD-009",
+        statement=f"Xuan Kong Period {period} chart maps facing mountain {facing} and sitting mountain {sitting}, per rule XUANKONG-PERIOD-009.",
+        claim_type="event_mutation",
+        session_id=session_id,
+    )
+
+
+def adapt_daliuren_to_claims(daliuren_result: dict, session_id: str | None = None) -> dict:
+    """Adapt a Da Liu Ren chart into a v3 transmission emission."""
+    result = _as_dict(daliuren_result)
+    transmissions = _value(result, "three_transmissions", default={})
+    return _emit(
+        result,
+        node_id="@Horo_DaLiuRen_Node",
+        tradition_domain="san_shi_da_liu_ren",
+        source_corpus="六壬大全",
+        locator="卷一·三傳",
+        interpretation_id="INTERP-DALIUREN-0001",
+        rule_id="DALIUREN-GENERAL-001",
+        statement=f"Da Liu Ren three transmissions are {transmissions}, per rule DALIUREN-GENERAL-001.",
+        claim_type="tactical_vector",
+        session_id=session_id,
+    )
+
+
+def adapt_liuyao_to_claims(liuyao_result: dict, session_id: str | None = None) -> dict:
+    """Adapt a Liu Yao hexagram into a v3 divination emission."""
+    result = _as_dict(liuyao_result)
+    palace = _value(result, "palace")
+    shi_line = _value(result, "shi_line")
+    ying_line = _value(result, "ying_line")
+    return _emit(
+        result,
+        node_id="@Horo_BuShi_Node",
+        tradition_domain="bu_shi_liu_yao",
+        source_corpus="卜筮正宗",
+        locator="卷一·用神",
+        interpretation_id="INTERP-LIUYAO-0001",
+        rule_id="LIUYAO-YONGSHEN-001",
+        statement=f"Liu Yao palace is {palace}; Shi line {shi_line} and Ying line {ying_line} are identified, per rule LIUYAO-YONGSHEN-001.",
+        claim_type="tactical_vector",
+        session_id=session_id,
+    )
+
+
+def adapt_taiyi_to_claims(taiyi_result: dict, session_id: str | None = None) -> dict:
+    """Adapt a Tai Yi macro-cycle chart into a v3 strategic emission."""
+    result = _as_dict(taiyi_result)
+    number = _value(result, "tai_yi_number")
+    assessment = _value(result, "strategic_assessment")
+    return _emit(
+        result,
+        node_id="@Horo_TaiYi_Node",
+        tradition_domain="san_shi_tai_yi",
+        source_corpus="太乙金镜式经",
+        locator="卷一·太乙數",
+        interpretation_id="INTERP-TAIYI-0001",
+        rule_id="TAIYI-MACRO-001",
+        statement=f"Tai Yi number {number} gives strategic assessment {assessment}, per rule TAIYI-MACRO-001.",
+        claim_type="tactical_vector",
+        session_id=session_id,
+    )
+
+
+def adapt_qizheng_to_claims(qizheng_result: dict, session_id: str | None = None) -> dict:
+    """Adapt a Qi Zheng Si Yu ephemeris result into a v3 natal emission."""
+    result = _as_dict(qizheng_result)
+    planets = _value(result, "planets", default={})
+    mansions = _value(result, "lunar_mansions", default={})
+    return _emit(
+        result,
+        node_id="@Horo_QiZheng_Node",
+        tradition_domain="ming_xue_qi_zheng",
+        source_corpus="果老星宗",
+        locator="卷一·七政四餘",
+        interpretation_id="INTERP-QIZHENG-0001",
+        rule_id="QIZHENG-PLANET-001",
+        statement=f"Qi Zheng records {len(planets)} visible planets across lunar mansions {mansions}, per rule QIZHENG-PLANET-001.",
+        claim_type="natal_structure",
+        session_id=session_id,
+    )
+
+
+def adapt_mianxiang_to_claims(mianxiang_result: dict, session_id: str | None = None) -> dict:
+    """Adapt a Mian Xiang face analysis into a v3 physiognomy emission."""
+    result = _as_dict(mianxiang_result)
+    face_element = _value(result, "face_element")
+    palaces = _value(result, "twelve_palaces", default={})
+    return _emit(
+        result,
+        node_id="@Horo_MianXiang_Node",
+        tradition_domain="xiang_xue_mian_xiang",
+        source_corpus="麻衣神相",
+        locator="卷一·十二宮",
+        interpretation_id="INTERP-MIANXIANG-0001",
+        rule_id="MIANXIANG-PALACE-001",
+        statement=f"Mian Xiang classifies the face as {face_element} with {len(palaces)} analyzed palaces, per rule MIANXIANG-PALACE-001.",
+        claim_type="natal_structure",
+        session_id=session_id,
+    )
+
+
 __all__ = [
     "adapt_bazi_to_claims",
     "adapt_ziwei_to_claims",
     "adapt_qimen_to_claims",
     "adapt_zeji_to_claims",
+    "adapt_xuankong_to_claims",
+    "adapt_daliuren_to_claims",
+    "adapt_liuyao_to_claims",
+    "adapt_taiyi_to_claims",
+    "adapt_qizheng_to_claims",
+    "adapt_mianxiang_to_claims",
 ]
