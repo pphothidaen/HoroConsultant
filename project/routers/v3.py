@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -36,18 +37,52 @@ from project.core.ze_ji_engine import ZeJiEngine
 from project.core.zi_wei_engine import ZiWeiEngine
 
 
-_RUNTIMES_DIR = Path(__file__).resolve().parents[2] / "TDD-HORO-v3.0" / "05_AGENT_PROMPTS_AND_RUNTIMES"
-if str(_RUNTIMES_DIR) not in sys.path:
+def _find_v3_root() -> Path | None:
+    """Find the TDD runtime tree across local and container working directories."""
+    candidates = [
+        Path(os.getenv("HORO_TDD_ROOT", "")) if os.getenv("HORO_TDD_ROOT") else None,
+        Path(__file__).resolve().parents[2] / "TDD-HORO-v3.0",
+        Path.cwd() / "TDD-HORO-v3.0",
+        Path("/app/TDD-HORO-v3.0"),
+        Path("/code/TDD-HORO-v3.0"),
+    ]
+    for candidate in candidates:
+        if candidate and (candidate / "05_AGENT_PROMPTS_AND_RUNTIMES" / "runtimes").is_dir():
+            return candidate
+    return None
+
+
+_V3_ROOT = _find_v3_root()
+_RUNTIMES_DIR = (
+    _V3_ROOT / "05_AGENT_PROMPTS_AND_RUNTIMES"
+    if _V3_ROOT
+    else Path("/__missing_horo_tdd_v3_runtime__")
+)
+_RUNTIME_IMPORT_ERROR: ImportError | None = None
+
+if _RUNTIMES_DIR.is_dir() and str(_RUNTIMES_DIR) not in sys.path:
     sys.path.insert(0, str(_RUNTIMES_DIR))
 
-from runtimes.audit_node import AuditNode  # noqa: E402
-from runtimes.consensus_engine import ConsensusEngine  # noqa: E402
-from runtimes.plan_composer import PlanComposer  # noqa: E402
+try:
+    from runtimes.audit_node import AuditNode  # type: ignore[no-redef]  # noqa: E402
+    from runtimes.claim_validator import ClaimValidator  # type: ignore[no-redef]  # noqa: E402
+    from runtimes.consensus_engine import ConsensusEngine  # type: ignore[no-redef]  # noqa: E402
+    from runtimes.plan_composer import PlanComposer  # type: ignore[no-redef]  # noqa: E402
+except (ImportError, ModuleNotFoundError) as exc:
+    _RUNTIME_IMPORT_ERROR = exc
+    AuditNode = None  # type: ignore[assignment,misc]
+    ClaimValidator = None  # type: ignore[assignment,misc]
+    ConsensusEngine = None  # type: ignore[assignment,misc]
+    PlanComposer = None  # type: ignore[assignment,misc]
 
 
 v3_router = APIRouter(tags=["Horo Architecture v3.0"])
 
-_SCHEMA_PATH = _RUNTIMES_DIR.parents[0] / "01_DATA_CONTRACTS" / "schemas" / "claim_emission_v3.0.json"
+_SCHEMA_PATH = (
+    _V3_ROOT / "01_DATA_CONTRACTS" / "schemas" / "claim_emission_v3.0.json"
+    if _V3_ROOT
+    else Path("/__missing_horo_tdd_v3_schema__")
+)
 _ACTIVE_DOMAINS = ["BaZi", "ZiWei", "QiMen", "ZeJi", "XuanKong", "DaLiuRen", "LiuYao", "TaiYi", "QiZheng", "MianXiang"]
 
 
@@ -62,6 +97,12 @@ class V3CalculateRequest(BaseModel):
 
 class V3AuditRequest(BaseModel):
     emissions: list[dict[str, Any]] = Field(default_factory=list)
+
+
+def _require_v3_runtimes() -> None:
+    """Convert missing deployment assets into an explicit API error, not import failure."""
+    if _RUNTIME_IMPORT_ERROR is not None:
+        raise HTTPException(status_code=503, detail="v3 runtime assets are unavailable") from _RUNTIME_IMPORT_ERROR
 
 
 def _parse_birth_datetime(value: Any, tz_offset: float) -> datetime:
@@ -149,6 +190,7 @@ def _calculate_emissions(req: V3CalculateRequest) -> tuple[list[dict[str, Any]],
 
 @v3_router.post("/calculate")
 def calculate_v3(req: V3CalculateRequest) -> dict[str, Any]:
+    _require_v3_runtimes()
     emissions, charts, session_id = _calculate_emissions(req)
     consensus = ConsensusEngine(req.user_intent).arbitrate_claims(emissions)
     audit = AuditNode().evaluate_consensus_state(consensus)
@@ -174,6 +216,8 @@ def v3_health() -> dict[str, Any]:
 
 @v3_router.get("/schema")
 def v3_schema() -> dict[str, Any]:
+    if not _SCHEMA_PATH.is_file():
+        raise HTTPException(status_code=500, detail="v3 claim schema is unavailable")
     try:
         return json.loads(_SCHEMA_PATH.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
@@ -182,6 +226,7 @@ def v3_schema() -> dict[str, Any]:
 
 @v3_router.post("/audit")
 def audit_v3(req: V3AuditRequest) -> dict[str, Any]:
+    _require_v3_runtimes()
     consensus = ConsensusEngine().arbitrate_claims(req.emissions)
     audit = AuditNode().evaluate_consensus_state(consensus)
     return {"verdict": audit["verdict"], "metrics": audit["metrics"], "findings": audit["findings"]}

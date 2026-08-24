@@ -122,6 +122,7 @@ def audit_payload(sdk: str = "static") -> tuple[bool, dict[str, Any]]:
     dockerfile_path = ROOT / "Dockerfile.hf"
     req_path = ROOT / "requirements.txt"
     project_dir = ROOT / "project"
+    tdd_dir = ROOT / "TDD-HORO-v3.0"
 
     if not dockerfile_path.exists():
         logger.error(f"❌ Dockerfile.hf not found at {dockerfile_path}")
@@ -163,6 +164,23 @@ def audit_payload(sdk: str = "static") -> tuple[bool, dict[str, Any]]:
     payload_summary["files"].append({"name": "project/ directory", "size_bytes": project_bytes, "count": project_file_count})
     payload_summary["total_files"] += project_file_count
     payload_summary["total_bytes"] += project_bytes
+
+    if not tdd_dir.exists() or not tdd_dir.is_dir():
+        logger.error(f"[ERROR] TDD-HORO-v3.0/ directory not found at {tdd_dir}")
+        return False, payload_summary
+
+    tdd_file_count = 0
+    tdd_bytes = 0
+    for p in tdd_dir.rglob("*"):
+        if p.is_file() and not p.name.startswith("."):
+            rel_p = str(p.relative_to(tdd_dir))
+            if not should_ignore(f"TDD-HORO-v3.0/{rel_p}") and not should_ignore(rel_p):
+                tdd_file_count += 1
+                tdd_bytes += p.stat().st_size
+
+    payload_summary["files"].append({"name": "TDD-HORO-v3.0/ directory", "size_bytes": tdd_bytes, "count": tdd_file_count})
+    payload_summary["total_files"] += tdd_file_count
+    payload_summary["total_bytes"] += tdd_bytes
 
     is_valid = payload_summary["dockerfile_valid"] and payload_summary["project_valid"]
     return is_valid, payload_summary
@@ -453,6 +471,13 @@ High-Precision 10-Domain Computational Metaphysics Engine, True Solar Time Engin
             api.upload_folder(
                 folder_path=str(ROOT / "project"),
                 path_in_repo="project",
+                repo_id=space_id,
+                repo_type="space",
+                ignore_patterns=IGNORE_PATTERNS,
+            )
+            api.upload_folder(
+                folder_path=str(ROOT / "TDD-HORO-v3.0"),
+                path_in_repo="TDD-HORO-v3.0",
                 repo_id=space_id,
                 repo_type="space",
                 ignore_patterns=IGNORE_PATTERNS,

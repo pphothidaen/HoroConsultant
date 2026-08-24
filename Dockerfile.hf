@@ -67,6 +67,7 @@ WORKDIR /code
 
 # Copy project files
 COPY --chown=user:user project/  /code/project/
+COPY --chown=user:user TDD-HORO-v3.0/ /code/TDD-HORO-v3.0/
 COPY --chown=user:user tests/    /code/tests/
 COPY --chown=user:user scripts/  /code/scripts/
 COPY --chown=user:user .env.example /code/.env.example

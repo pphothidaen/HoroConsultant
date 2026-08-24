@@ -54,6 +54,7 @@ RUN python -m pip install --no-cache-dir --upgrade pip \
 # Copy application code (project/ and scripts/)
 # project/static/ and public/ are served by the horo_server at runtime
 COPY project ./project
+COPY TDD-HORO-v3.0 ./TDD-HORO-v3.0
 COPY scripts ./scripts
 COPY --from=rust-builder /src/rust_core/target/release/horo_server /app/horo_server
 RUN chown --recursive appuser:appuser /app \
