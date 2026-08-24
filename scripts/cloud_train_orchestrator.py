@@ -671,9 +671,20 @@ def run_training_pipeline(
             bnb_4bit_use_double_quant=True,
         )
 
-    hf_token = os.getenv("HF_TOKEN") or Config.HF_TOKEN
+    hf_token = os.getenv("HF_TOKEN") or Config.HF_TOKEN or os.getenv("HUGGINGFACE_TOKEN")
     logger.info(f"[MODEL] Loading tokenizer and base model '{base_model}'...")
-    tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True, token=hf_token)
+    tokenizer = None
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True, token=hf_token)
+    except Exception as tok_err:
+        logger.warning(f"[WARNING] Failed to load tokenizer for '{base_model}' ({tok_err}).")
+        if base_model != "Qwen/Qwen2.5-7B-Instruct":
+            logger.warning(f"[AUTH FALLBACK] Base model '{base_model}' cannot be accessed (private repository without valid HF_TOKEN). Automatically falling back to public base model 'Qwen/Qwen2.5-7B-Instruct'...")
+            base_model = "Qwen/Qwen2.5-7B-Instruct"
+            tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True, token=hf_token)
+        else:
+            raise tok_err
+
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
@@ -688,57 +699,74 @@ def run_training_pipeline(
         device_map = None
 
     model = None
-    max_download_retries = 5
-    if use_cuda and bnb_config is not None:
-        for attempt in range(1, max_download_retries + 1):
+    max_download_retries = 3
+    candidate_models = [base_model] if base_model == "Qwen/Qwen2.5-7B-Instruct" else [base_model, "Qwen/Qwen2.5-7B-Instruct"]
+
+    for candidate in candidate_models:
+        if model is not None:
+            break
+        if candidate != base_model:
+            logger.warning(f"[AUTH FALLBACK] Switching model loading to public base model '{candidate}'...")
+            base_model = candidate
             try:
-                logger.info(f"[CUDA] Attempting 4-bit BitsAndBytes quantization model load (Attempt {attempt}/{max_download_retries})...")
-                model = AutoModelForCausalLM.from_pretrained(
-                    base_model,
-                    quantization_config=bnb_config,
-                    torch_dtype=compute_dtype,
-                    device_map=device_map,
-                    low_cpu_mem_usage=(device_map is not None),
-                    trust_remote_code=True,
-                    attn_implementation="sdpa",
-                    token=hf_token,
-                )
-                model = prepare_model_for_kbit_training(model)
-                logger.info("[OK] Successfully loaded 4-bit quantized model.")
-                break
-            except Exception as e:
-                logger.warning(f"[WARNING] 4-bit BitsAndBytes quantization load attempt {attempt} failed ({e}).")
-                if attempt < max_download_retries:
-                    import time
-                    time.sleep(5 * attempt)
-                    continue
-                else:
-                    logger.warning("[WARNING] All 4-bit quantization load attempts exhausted. Falling back to standard precision loading...")
-                    model = None
+                tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True, token=hf_token)
+                if tokenizer.pad_token is None:
+                    tokenizer.pad_token = tokenizer.eos_token
+            except Exception:
+                pass
+
+        if use_cuda and bnb_config is not None:
+            for attempt in range(1, max_download_retries + 1):
+                try:
+                    logger.info(f"[CUDA] Attempting 4-bit BitsAndBytes quantization load for '{base_model}' (Attempt {attempt}/{max_download_retries})...")
+                    model = AutoModelForCausalLM.from_pretrained(
+                        base_model,
+                        quantization_config=bnb_config,
+                        torch_dtype=compute_dtype,
+                        device_map=device_map,
+                        low_cpu_mem_usage=(device_map is not None),
+                        trust_remote_code=True,
+                        attn_implementation="sdpa",
+                        token=hf_token,
+                    )
+                    model = prepare_model_for_kbit_training(model)
+                    logger.info(f"[OK] Successfully loaded 4-bit quantized model '{base_model}'.")
+                    break
+                except Exception as e:
+                    logger.warning(f"[WARNING] 4-bit BitsAndBytes load attempt {attempt} for '{base_model}' failed ({e}).")
+                    if ("401" in str(e) or "RepositoryNotFound" in str(e) or "404" in str(e)) and candidate != "Qwen/Qwen2.5-7B-Instruct":
+                        break
+                    if attempt < max_download_retries:
+                        import time
+                        time.sleep(3 * attempt)
+                    else:
+                        model = None
+
+        if model is None:
+            for attempt in range(1, max_download_retries + 1):
+                try:
+                    logger.info(f"[MODEL] Loading base model '{base_model}' in standard precision ({compute_dtype}) (Attempt {attempt}/{max_download_retries})...")
+                    model = AutoModelForCausalLM.from_pretrained(
+                        base_model,
+                        torch_dtype=compute_dtype,
+                        device_map=device_map,
+                        low_cpu_mem_usage=(device_map is not None),
+                        trust_remote_code=True,
+                        attn_implementation="sdpa" if use_cuda else None,
+                        token=hf_token,
+                    )
+                    logger.info(f"[OK] Successfully loaded model '{base_model}' with precision {compute_dtype}.")
+                    break
+                except Exception as e:
+                    logger.warning(f"[WARNING] Standard precision load attempt {attempt} for '{base_model}' failed ({e}).")
+                    if ("401" in str(e) or "RepositoryNotFound" in str(e) or "404" in str(e)) and candidate != "Qwen/Qwen2.5-7B-Instruct":
+                        break
+                    if attempt < max_download_retries:
+                        import time
+                        time.sleep(3 * attempt)
 
     if model is None:
-        for attempt in range(1, max_download_retries + 1):
-            try:
-                logger.info(f"[MODEL] Loading base model in standard precision ({compute_dtype}) (Attempt {attempt}/{max_download_retries})...")
-                model = AutoModelForCausalLM.from_pretrained(
-                    base_model,
-                    torch_dtype=compute_dtype,
-                    device_map=device_map,
-                    low_cpu_mem_usage=(device_map is not None),
-                    trust_remote_code=True,
-                    attn_implementation="sdpa" if use_cuda else None,
-                    token=hf_token,
-                )
-                logger.info(f"[OK] Successfully loaded model with precision {compute_dtype}.")
-                break
-            except Exception as e:
-                logger.warning(f"[WARNING] Standard precision load attempt {attempt} failed ({e}).")
-                if attempt < max_download_retries:
-                    import time
-                    time.sleep(5 * attempt)
-                    continue
-                else:
-                    raise e
+        raise RuntimeError(f"[FATAL] Failed to load base model weights for '{base_model}' and public fallback 'Qwen/Qwen2.5-7B-Instruct'.")
 
     if use_cuda and (is_kaggle or is_sm75 or cap < (8, 0)):
         compute_dtype = torch.float16

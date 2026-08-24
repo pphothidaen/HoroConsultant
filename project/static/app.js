@@ -6097,7 +6097,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & PROMINENT UPDATE MODAL SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.fe077aa";
+const CLIENT_APP_VERSION = "1.0.0.801f7f7";
 let _versionModalDismissed = false;
 let _versionCountdownTimer = null;
 
