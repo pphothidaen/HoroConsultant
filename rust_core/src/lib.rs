@@ -47,6 +47,7 @@ pub mod tai_yi;
 pub mod tfidf;
 pub mod thai_vedic;
 pub mod uranian;
+pub mod v3_merkle_dag;
 pub mod vector_search;
 pub mod zeji;
 pub mod ziwei;
