@@ -2421,6 +2421,138 @@
         }
       }
     },
+    "/api/v3/calculate": {
+      "post": {
+        "tags": [
+          "Horo Architecture v3.0"
+        ],
+        "summary": "Calculate V3",
+        "operationId": "calculate_v3_api_v3_calculate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/V3CalculateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Calculate V3 Api V3 Calculate Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/health": {
+      "get": {
+        "tags": [
+          "Horo Architecture v3.0"
+        ],
+        "summary": "V3 Health",
+        "operationId": "v3_health_api_v3_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response V3 Health Api V3 Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/schema": {
+      "get": {
+        "tags": [
+          "Horo Architecture v3.0"
+        ],
+        "summary": "V3 Schema",
+        "operationId": "v3_schema_api_v3_schema_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response V3 Schema Api V3 Schema Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v3/audit": {
+      "post": {
+        "tags": [
+          "Horo Architecture v3.0"
+        ],
+        "summary": "Audit V3",
+        "operationId": "audit_v3_api_v3_audit_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/V3AuditRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Audit V3 Api V3 Audit Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/synastry/analyze": {
       "post": {
         "tags": [
@@ -3375,7 +3507,7 @@
             "type": "string",
             "title": "Model Name",
             "description": "Base model name",
-            "default": "Qwen/Qwen2.5-7B-Instruct"
+            "default": "pphothidaen/qwen2.5-7b-bazi-instruct-4bit"
           },
           "dataset": {
             "type": "string",
@@ -4101,6 +4233,58 @@
           "birth_datetime"
         ],
         "title": "UnifiedCalculateRequest"
+      },
+      "V3AuditRequest": {
+        "properties": {
+          "emissions": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Emissions"
+          }
+        },
+        "type": "object",
+        "title": "V3AuditRequest"
+      },
+      "V3CalculateRequest": {
+        "properties": {
+          "birth_datetime": {
+            "title": "Birth Datetime",
+            "description": "ISO 8601 datetime string or Unix timestamp"
+          },
+          "latitude": {
+            "type": "number",
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude"
+          },
+          "tz_offset": {
+            "type": "number",
+            "title": "Tz Offset",
+            "default": 7.0
+          },
+          "user_intent": {
+            "type": "string",
+            "title": "User Intent",
+            "default": "STRATEGIC_TIMING_ACTION"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "default": "th"
+          }
+        },
+        "type": "object",
+        "required": [
+          "birth_datetime",
+          "latitude",
+          "longitude"
+        ],
+        "title": "V3CalculateRequest"
       },
       "ValidateRequest": {
         "properties": {

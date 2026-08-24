@@ -12,6 +12,13 @@ ROOT = Path(__file__).resolve().parents[2]
 CLI = ROOT / "scripts" / "v3_diagnostic_cli.py"
 
 
+def _meaningful_stderr(stderr: str) -> str:
+    """Ignore Doppler's credential fallback warnings on credential-less CI runners."""
+    return "\n".join(
+        line for line in stderr.splitlines() if "[WARNING] Secret" not in line
+    ).strip()
+
+
 def test_cli_argument_parsing_defaults_and_overrides():
     args = build_parser().parse_args(["--birth-date", "1990-05-15", "--birth-time", "14:30"])
     assert args.lat == 13.7563
@@ -35,7 +42,7 @@ def test_cli_execution_prints_diagnostic_sections():
     assert "10-DOMAIN CALCULATION SUMMARY" in completed.stdout
     assert "AUDIT METRICS" in completed.stdout
     assert "TRI-GRAPH DERIVATION SUMMARY" in completed.stdout
-    assert completed.stderr == ""
+    assert _meaningful_stderr(completed.stderr) == ""
 
 
 def test_cli_json_is_pure_structured_output():
@@ -47,4 +54,4 @@ def test_cli_json_is_pure_structured_output():
     assert len(payload["domains"]) == 10
     assert payload["audit"]["verdict"].startswith("AUDIT_")
     assert payload["composer"]["has_epistemic_disclaimer"] is True
-    assert completed.stderr == ""
+    assert _meaningful_stderr(completed.stderr) == ""
