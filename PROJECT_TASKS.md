@@ -654,11 +654,15 @@ Use [docs/RELEASE_HANDOFF_CHECKLIST.md](docs/RELEASE_HANDOFF_CHECKLIST.md) for t
 | `TICKET-HORO30-016` | `codex2` (Developer) | สร้าง `project/core/v3_engine_adapter.py` (BaZi, ZiWei, QiMen, ZeJi adapters $\rightarrow$ `claim_emission_v3.0.json`) + `project/tests/test_v3_engine_adapter.py` (9 tests, 100% PASS) | ✅ DONE |
 | `TICKET-HORO30-017` | `codex1` (QA) | Full Cross-Suite Regression & 33 UI/API Button Contracts Verification (100% PASS) | ✅ DONE |
 | `TICKET-HORO30-018` | `codex2` (Dev) / `codex1` (QA) | สร้าง `project/routers/v3.py` (POST /calculate, GET /health, GET /schema, POST /audit) + `project/tests/test_v3_router.py` (13 tests total, 100% PASS, Commit: `06d787b`) | ✅ DONE |
+| `TICKET-HORO30-019` | `codex1` (High Thinking) | เพิ่มเติม Domain Adapters ครบ 10 สำนักวิชา (XuanKong, DaLiuRen, LiuYao, TaiYi, QiZheng, MianXiang) + 10-engine pipeline router + 25 contract tests (Commit: `5339e1a`) | ✅ DONE |
+| `TICKET-HORO30-020` | `codex1` (High Thinking) | พัฒนา `rust_core/src/v3_merkle_dag.rs` (SHA-256 Merkle Hashing & BFS Acyclicity Cycle Guard, `cargo test` 40/40 tests PASS, Commit: `3eb0add`) | ✅ DONE |
+| `TICKET-HORO30-021` | `agy1` (UX/UI Design) | พัฒนา `project/static/v3_tokens.css` (Five Elements Semantic Color System, WCAG 2.1 AA Compliant Dark/Light Themes, Claim Card components, Commit: `3eb0add`) | ✅ DONE |
 
 ---
 
 ## 💎 Cumulative Multi-Agent Token Savings Matrix
-- **`codex2` (OpenAI Plus, `gpt-5.6-luna`)**: **164,457 tokens** offloaded across Tasks D1, D2, D3, Engine Adapter, and v3 Router.
-- **`codex1` (OpenAI Pro Lite, `gpt-5.6-luna`)**: **36,626 tokens** offloaded across QA Verification Suites.
-- **`agy1` (Antigravity Account 1, `Gemini 3.7 Flash Low`)**: 100% of Documentation, Doppler Dry-run & Health Probes.
-- **`agy2` (Orchestrator Session)**: **Zero code/test writing overhead**, pure orchestration & review mode.
+- **`codex1` (OpenAI Pro Lite, `gpt-5.6-luna` — High Thinking Priority)**: **142,499 tokens** offloaded across QA Verification, 10 Domain Adapters (`task-452`), and Rust Merkle DAG Engine (`task-463`).
+- **`codex2` (OpenAI Plus, `gpt-5.6-luna` — Heavy Implementation)**: **164,457 tokens** offloaded across Tasks D1, D2, D3, Engine Adapter, and v3 Router.
+- **`agy1` (Antigravity Account 1, `Gemini 3.7 Flash Low`)**: 100% of Documentation, Doppler Dry-run, Live Health Probes, and Web Color Design Tokens.
+- **`agy2` (Orchestrator Session)**: **Zero heavy code-writing overhead**, pure orchestration & review mode.
+- **Total Multi-Agent Tokens Offloaded**: **306,956+ tokens** (100% Zero-cost to this Antigravity session).
