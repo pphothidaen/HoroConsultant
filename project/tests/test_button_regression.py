@@ -58,6 +58,7 @@ class TestIndexHTMLButtons:
         assert "loadPreset('1990-05-15 14:30:00', 100.4930, 7.0, 'กรุงเทพฯ (1990)')" in html
         assert "loadPreset('1988-08-08 08:08:00', 103.8198, 8.0, 'สิงคโปร์ (1988)')" in html
         assert "loadPreset('1995-12-25 23:45:00', -74.0060, -5.0, 'นิวยอร์ก (1995)')" in html
+        assert html.count('type="button" class="btn-sm" onclick="loadPreset(') == 3
 
         # Verify 9 Metaphysics discipline buttons
         assert "calcZiWei()" in html
@@ -277,5 +278,4 @@ class TestOpenAPIDocumentationButtons:
         assert "info" in data
         assert "paths" in data
         assert "/api/v1/bazi/interpret" in data["paths"]
-
 
