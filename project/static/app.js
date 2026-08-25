@@ -2110,7 +2110,15 @@ function renderResults(data, svgContent) {
   if (svgCard) svgCard.classList.remove('hidden');
   if (pillarsCard) pillarsCard.classList.remove('hidden');
   if (elementsCard) elementsCard.classList.remove('hidden');
-  if (interpCard) interpCard.classList.remove('hidden');
+  if (interpCard) {
+    // A successful calculation must reveal its primary result, rather than
+    // leaving the populated reading behind the default-collapsed accordion.
+    interpCard.classList.remove('hidden');
+    const interpretationHeader = interpCard.querySelector('.accordion-card-header');
+    const interpretationBody = interpCard.querySelector('.accordion-card-body');
+    if (interpretationHeader) interpretationHeader.setAttribute('aria-expanded', 'true');
+    if (interpretationBody) interpretationBody.classList.remove('acc-collapsed');
+  }
 
   const mainContainer = document.getElementById('results-container');
   if (mainContainer) mainContainer.classList.remove('hidden');
@@ -6436,7 +6444,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & PROMINENT UPDATE MODAL SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.6c351ba";
+const CLIENT_APP_VERSION = "1.0.0.0a87282";
 let _versionModalDismissed = false;
 let _versionCountdownTimer = null;
 

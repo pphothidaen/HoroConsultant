@@ -194,6 +194,8 @@ class TestWebRegressionUI:
             assert page.locator("#btn-submit").is_disabled() is False
             assert page.locator("button[onclick='resolveLocation()']").is_disabled() is False
             assert "API is ready" in page.locator("#backend-status").inner_text()
+            assert page.locator("#reading-body").is_visible()
+            assert page.locator("#interpretation-card .accordion-card-header").get_attribute("aria-expanded") == "true"
 
     def test_cold_start_browser_preserves_input_and_exposes_retry_on_real_failure(self):
         """Replacing a failed API result with fabricated content must fail this browser contract."""
