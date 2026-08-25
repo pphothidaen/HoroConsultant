@@ -201,6 +201,69 @@ def test_invalid_local_static_metadata_makes_zero_hf_api_calls(monkeypatch):
     assert calls == ["release_identity"]
 
 
+def test_successful_static_publish_preserves_canonical_release_files(monkeypatch):
+    """A successful upload must not stamp or rewrite tracked release sources."""
+    from project.core import config
+
+    canonical_paths = (
+        ROOT / "project" / "static" / "app.js",
+        ROOT / "project" / "static" / "index.html",
+        ROOT / "project" / "static" / "sw.js",
+        ROOT / "project" / "static" / "version.json",
+        ROOT / "public" / "app.js",
+        ROOT / "public" / "index.html",
+        ROOT / "public" / "sw.js",
+        ROOT / "public" / "version.json",
+    )
+    before = {path: path.read_bytes() for path in canonical_paths}
+    identity = _release_metadata(version="1.0.0.c9f9161", commit="c9f9161")
+    identity["release_source_revision"] = "c9f916108f2302de20b28cf31ae1660e63f60394"
+    canonical = {
+        "release_source_commit": identity["release_source_commit"],
+        "release_source_metadata_path": identity["release_source_metadata_path"],
+        "release_source_revision": identity["release_source_revision"],
+        "version": identity["version"],
+    }
+    identity["release_source_metadata_sha256"] = hashlib.sha256(
+        json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    identity["metadata_path"] = str(ROOT / "project" / "static" / "version.json")
+    audit_calls: list[str] = []
+
+    class SuccessfulApi:
+        def __init__(self, token):
+            self.token = token
+
+        def whoami(self):
+            return {"name": "test-user"}
+
+        def upload_file(self, **kwargs):
+            return None
+
+        def upload_folder(self, **kwargs):
+            return None
+
+        def delete_file(self, *args, **kwargs):
+            return None
+
+    def valid_audit(sdk):
+        audit_calls.append(sdk)
+        return True, {"total_bytes": 0, "total_files": 0, "files": []}
+
+    monkeypatch.setattr(config, "get_release_source_identity", lambda: identity)
+    monkeypatch.setattr(publisher, "audit_payload", valid_audit)
+    monkeypatch.setattr(publisher, "get_packaging_commit", lambda: "a" * 40)
+    monkeypatch.setattr(publisher, "source_is_ancestor_of_packaging", lambda source, packaging: True)
+    monkeypatch.setattr(publisher, "HF_AVAILABLE", True)
+    monkeypatch.setattr(publisher, "HfApi", SuccessfulApi)
+    monkeypatch.setattr(publisher, "create_repo", lambda **kwargs: None)
+    monkeypatch.setattr(publisher, "get_hf_token", lambda: "test-token")
+
+    assert publish_space("pphothidaen/test-horoconsultant-backend", sdk="static") is True
+    assert audit_calls == ["static"]
+    assert {path: path.read_bytes() for path in canonical_paths} == before
+
+
 def test_stage_static_release_assets_writes_only_source_provenance(monkeypatch):
     """The staged upload metadata retains canonical source, never packaging, provenance."""
     from project.core import config

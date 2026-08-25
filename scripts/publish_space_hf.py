@@ -660,16 +660,6 @@ High-Precision 10-Domain Computational Metaphysics Engine, True Solar Time Engin
         logger.info("\n🎉 Demo successfully published to Hugging Face Space!")
         logger.info(f"🔗 View Live Demo Space: https://huggingface.co/spaces/{space_id}")
 
-        # Auto-stamp local source files to match the deployed version
-        try:
-            import subprocess as _sp
-            stamp_script = ROOT / "scripts" / "stamp_version.py"
-            if stamp_script.exists():
-                _sp.run([sys.executable, str(stamp_script)], cwd=str(ROOT), check=False)
-                logger.info("📌 Local source files stamped with deployed version.")
-        except Exception as stamp_err:
-            logger.warning(f"⚠️ Auto-stamp note: {stamp_err}")
-
         return True
 
     except Exception as e:
