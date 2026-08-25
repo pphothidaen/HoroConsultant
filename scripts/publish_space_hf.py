@@ -13,13 +13,16 @@ Usage
 from __future__ import annotations
 
 import argparse
+import datetime
 import fnmatch
 import json
 import logging
 import os
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 from typing import Any
@@ -162,6 +165,77 @@ def stamp_static_html_version(html_text: str, local_version: str, git_commit: st
             html_text,
         )
     return html_text
+
+
+def stage_static_release_assets() -> tuple[Path, dict[str, str], str]:
+    """Validate and stage a complete static release before any HF interaction."""
+    from project.core.config import get_release_source_identity
+
+    release_identity = get_release_source_identity()
+    packaging_commit = get_packaging_commit()
+    release_source_commit = release_identity["release_source_commit"]
+    if not source_is_ancestor_of_packaging(release_source_commit, packaging_commit):
+        raise ValueError(
+            "release_source_commit must be an ancestor of the Git HEAD packaging commit"
+        )
+
+    static_dir = ROOT / "project" / "static"
+    if not static_dir.is_dir():
+        raise ValueError(f"static release directory not found: {static_dir}")
+    temp_static_dir = Path(tempfile.mkdtemp(prefix="hf_static_staged_"))
+    try:
+        shutil.copytree(static_dir, temp_static_dir, dirs_exist_ok=True)
+        local_version = release_identity["version"]
+        version_meta = {
+            "version": local_version,
+            "release_source_commit": release_source_commit,
+            "release_source_revision": release_identity["release_source_revision"],
+            "release_source_metadata_path": release_identity["release_source_metadata_path"],
+            "release_source_metadata_sha256": release_identity["release_source_metadata_sha256"],
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "status": "production",
+        }
+        (temp_static_dir / "version.json").write_text(
+            json.dumps(version_meta, indent=2), encoding="utf-8"
+        )
+
+        sw_file = temp_static_dir / "sw.js"
+        if sw_file.exists():
+            sw_text = sw_file.read_text(encoding="utf-8")
+            sw_file.write_text(
+                re.sub(
+                    r"const CACHE_VERSION = ['\"][^'\"]+['\"];",
+                    f"const CACHE_VERSION = 'v{local_version}';",
+                    sw_text,
+                ),
+                encoding="utf-8",
+            )
+        app_file = temp_static_dir / "app.js"
+        if app_file.exists():
+            app_text = app_file.read_text(encoding="utf-8")
+            app_file.write_text(
+                re.sub(
+                    r"const CLIENT_APP_VERSION = ['\"][^'\"]+['\"];",
+                    f'const CLIENT_APP_VERSION = "{local_version}";',
+                    app_text,
+                ),
+                encoding="utf-8",
+            )
+        for html_name in ("index.html", "admin.html"):
+            html_path = temp_static_dir / html_name
+            if html_path.exists():
+                html_path.write_text(
+                    stamp_static_html_version(
+                        html_path.read_text(encoding="utf-8"),
+                        local_version,
+                        release_source_commit,
+                    ),
+                    encoding="utf-8",
+                )
+    except Exception:
+        shutil.rmtree(temp_static_dir, ignore_errors=True)
+        raise
+    return temp_static_dir, release_identity, packaging_commit
 
 
 def get_hf_token() -> str | None:
@@ -374,21 +448,27 @@ def publish_space(space_id: str, sdk: str = "static", private: bool = False, dry
         logger.error("❌ Payload validation failed. Aborting deployment.")
         return False
 
+    temp_static_dir: Path | None = None
+    release_identity: dict[str, str] | None = None
+    packaging_commit: str | None = None
+    if sdk == "static":
+        try:
+            temp_static_dir, release_identity, packaging_commit = stage_static_release_assets()
+        except ValueError as exc:
+            logger.error(f"[ERROR] Static release provenance validation failed. Aborting deployment: {exc}")
+            return False
+
     if dry_run:
         logger.info("🧪 [DRY-RUN MODE] Payload audit completed successfully. No remote changes made.")
-        token = get_hf_token()
-        if token and HF_AVAILABLE:
-            try:
-                api = HfApi(token=token)
-                user_info = api.whoami()
-                logger.info(f"🔐 HF API Token Verified (Authenticated as: {user_info.get('name')})")
-            except Exception as e:
-                logger.warning(f"⚠️ HF API Token Note: {e}")
+        if temp_static_dir is not None:
+            shutil.rmtree(temp_static_dir, ignore_errors=True)
         return True
 
     # Live Deployment Execution
     if not HF_AVAILABLE:
         logger.error("❌ huggingface_hub package not found. Run 'pip install huggingface_hub'")
+        if temp_static_dir is not None:
+            shutil.rmtree(temp_static_dir, ignore_errors=True)
         return False
 
     token = get_hf_token()
@@ -397,6 +477,8 @@ def publish_space(space_id: str, sdk: str = "static", private: bool = False, dry
             "❌ HF token environment variable not found. "
             "Set one of: HF_TOKEN, HUGGINGFACE_TOKEN, HF_API_TOKEN, HUGGINGFACE_API_KEY, HUGGING_FACE_TOKEN."
         )
+        if temp_static_dir is not None:
+            shutil.rmtree(temp_static_dir, ignore_errors=True)
         return False
 
     api = HfApi(token=token)
@@ -406,6 +488,8 @@ def publish_space(space_id: str, sdk: str = "static", private: bool = False, dry
         logger.info(f"🔐 Authenticated as Hugging Face user: {user_info['name']}")
     except Exception as e:
         logger.error(f"❌ HF Token authentication failed: {e}")
+        if temp_static_dir is not None:
+            shutil.rmtree(temp_static_dir, ignore_errors=True)
         return False
 
     logger.info(f"📦 Creating/verifying Hugging Face Space '{space_id}' (SDK: {sdk})...")
@@ -453,57 +537,11 @@ pinned: false
             except Exception:
                 pass
 
-            from project.core.config import get_release_source_identity
-            import json, datetime
-            release_identity = get_release_source_identity()
+            assert temp_static_dir is not None
+            assert release_identity is not None
+            assert packaging_commit is not None
             local_version = release_identity["version"]
             release_source_commit = release_identity["release_source_commit"]
-            packaging_commit = get_packaging_commit()
-            if not source_is_ancestor_of_packaging(release_source_commit, packaging_commit):
-                raise ValueError(
-                    "release_source_commit must be an ancestor of the Git HEAD packaging commit"
-                )
-            static_dir = ROOT / "project" / "static"
-
-            # Create temporary staged static assets folder with git version injected into all assets
-            import shutil
-            import tempfile
-            temp_static_dir = Path(tempfile.mkdtemp(prefix="hf_static_staged_"))
-            shutil.copytree(static_dir, temp_static_dir, dirs_exist_ok=True)
-
-            # 1. Generate version.json
-            version_meta = {
-                "version": local_version,
-                "release_source_commit": release_source_commit,
-                "release_source_revision": release_identity["release_source_revision"],
-                "release_source_metadata_path": release_identity["release_source_metadata_path"],
-                "release_source_metadata_sha256": release_identity["release_source_metadata_sha256"],
-                "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-                "status": "production"
-            }
-            (temp_static_dir / "version.json").write_text(json.dumps(version_meta, indent=2), encoding="utf-8")
-
-            # 2. Update sw.js cache name
-            sw_file = temp_static_dir / "sw.js"
-            if sw_file.exists():
-                sw_text = sw_file.read_text(encoding="utf-8")
-                sw_text = re.sub(r"const CACHE_VERSION = ['\"][^'\"]+['\"];", f"const CACHE_VERSION = 'v{local_version}';", sw_text)
-                sw_file.write_text(sw_text, encoding="utf-8")
-
-            # 3. Update app.js client version
-            app_file = temp_static_dir / "app.js"
-            if app_file.exists():
-                app_text = app_file.read_text(encoding="utf-8")
-                app_text = re.sub(r"const CLIENT_APP_VERSION = ['\"][^'\"]+['\"];", f'const CLIENT_APP_VERSION = "{local_version}";', app_text)
-                app_file.write_text(app_text, encoding="utf-8")
-
-            # 4. Inject cache-busting version query string to HTML files
-            for html_name in ["index.html", "admin.html"]:
-                html_path = temp_static_dir / html_name
-                if html_path.exists():
-                    html_text = html_path.read_text(encoding="utf-8")
-                    html_text = stamp_static_html_version(html_text, local_version, release_source_commit)
-                    html_path.write_text(html_text, encoding="utf-8")
 
             logger.info(
                 "[INFO] Staged static assets with source version "
@@ -637,6 +675,9 @@ High-Precision 10-Domain Computational Metaphysics Engine, True Solar Time Engin
     except Exception as e:
         logger.error(f"❌ Upload failed: {e}")
         return False
+    finally:
+        if temp_static_dir is not None:
+            shutil.rmtree(temp_static_dir, ignore_errors=True)
 
 
 def verify_live_deployment_version(

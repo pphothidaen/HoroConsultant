@@ -1,6 +1,9 @@
 {
   "version": "1.0.0.c9f9161",
-  "commit": "c9f9161",
+  "release_source_commit": "c9f9161",
+  "release_source_revision": "c9f916108f2302de20b28cf31ae1660e63f60394",
+  "release_source_metadata_path": "project/static/version.json",
+  "release_source_metadata_sha256": "98d8c39509cd83510514d82795d019765dfc28b1454f78e4f1af097db9010a40",
   "timestamp": "2026-08-25T08:30:06Z",
   "status": "production"
 }

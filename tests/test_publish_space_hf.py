@@ -173,6 +173,69 @@ def test_publish_space_dry_run():
     assert result is True
 
 
+def test_invalid_local_static_metadata_makes_zero_hf_api_calls(monkeypatch):
+    """Provenance must fail before an HF client, repository, or upload exists."""
+    from project.core import config
+
+    calls: list[str] = []
+
+    def invalid_identity():
+        calls.append("release_identity")
+        raise ValueError("legacy commit metadata is forbidden")
+
+    def forbidden_api(*args, **kwargs):
+        calls.append("HfApi")
+        raise AssertionError("HF API client must not be constructed")
+
+    def forbidden_remote(*args, **kwargs):
+        calls.append("remote_mutation")
+        raise AssertionError("remote mutation must not occur")
+
+    monkeypatch.setattr(config, "get_release_source_identity", invalid_identity)
+    monkeypatch.setattr(publisher, "HF_AVAILABLE", True)
+    monkeypatch.setattr(publisher, "HfApi", forbidden_api)
+    monkeypatch.setattr(publisher, "create_repo", forbidden_remote)
+    monkeypatch.setattr(publisher, "get_hf_token", lambda: "test-token")
+
+    assert publish_space("pphothidaen/test-horoconsultant-backend", sdk="static") is False
+    assert calls == ["release_identity"]
+
+
+def test_stage_static_release_assets_writes_only_source_provenance(monkeypatch):
+    """The staged upload metadata retains canonical source, never packaging, provenance."""
+    from project.core import config
+
+    identity = _release_metadata(version="1.0.0.c9f9161", commit="c9f9161")
+    identity["release_source_revision"] = "c9f916108f2302de20b28cf31ae1660e63f60394"
+    canonical = {
+        "release_source_commit": identity["release_source_commit"],
+        "release_source_metadata_path": identity["release_source_metadata_path"],
+        "release_source_revision": identity["release_source_revision"],
+        "version": identity["version"],
+    }
+    identity["release_source_metadata_sha256"] = hashlib.sha256(
+        json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    identity["metadata_path"] = str(ROOT / "project" / "static" / "version.json")
+    monkeypatch.setattr(config, "get_release_source_identity", lambda: identity)
+    monkeypatch.setattr(publisher, "get_packaging_commit", lambda: "a" * 40)
+    monkeypatch.setattr(publisher, "source_is_ancestor_of_packaging", lambda source, packaging: True)
+
+    staged_dir, staged_identity, packaging_commit = publisher.stage_static_release_assets()
+    try:
+        staged_metadata = json.loads((staged_dir / "version.json").read_text(encoding="utf-8"))
+        assert staged_identity == identity
+        assert packaging_commit == "a" * 40
+        assert staged_metadata["release_source_commit"] == "c9f9161"
+        assert staged_metadata["release_source_revision"] == identity["release_source_revision"]
+        assert staged_metadata["release_source_metadata_path"] == "project/static/version.json"
+        assert staged_metadata["release_source_metadata_sha256"] == identity["release_source_metadata_sha256"]
+        assert "commit" not in staged_metadata
+        assert "packaging_commit" not in staged_metadata
+    finally:
+        publisher.shutil.rmtree(staged_dir, ignore_errors=True)
+
+
 def test_packaging_commit_is_resolved_only_from_git_head(monkeypatch):
     observed = {}
 
