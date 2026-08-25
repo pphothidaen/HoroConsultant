@@ -2,8 +2,8 @@
 """Run health checks and incident notifications for production services.
 
 The monitor is intentionally dependency-light so it can run in GitHub Actions,
-a container, or a long-running host.  It checks the public static UI, the
-Vercel gateway, and the Hugging Face Docker backend.
+a container, or a long-running host. It checks Vercel static UI assets and
+release metadata separately from the Hugging Face Docker backend.
 
 Usage:
     python3 scripts/synthetic_health_monitor.py --once
@@ -32,9 +32,8 @@ from pathlib import Path
 from typing import Any, Mapping
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_VERCEL_GATEWAY_URL = "https://horo-consultant-psi.vercel.app"
-DEFAULT_HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
-DEFAULT_HF_BACKEND_URL = "https://horo-consultant-psi.vercel.app"
+DEFAULT_VERCEL_STATIC_URL = "https://horo-consultant-psi.vercel.app"
+DEFAULT_HF_BACKEND_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
 DEFAULT_PING_INTERVAL_SECONDS = 300
 DEFAULT_MAX_LATENCY_MS = float(os.getenv("MAX_LATENCY_THRESHOLD_MS", "5000.0"))
 
@@ -45,6 +44,39 @@ def _base_url(value: str) -> str:
     if "changeme" in normalized.lower() or "your_" in normalized.lower():
         return ""
     return normalized
+
+
+def _backend_url(env: Mapping[str, str]) -> str:
+    """Resolve the Docker backend, respecting an explicit local blank value."""
+    configured = _base_url(env.get("HF_BACKEND_URL", ""))
+    if configured:
+        return configured
+    if "HF_BACKEND_URL" in env:
+        return ""
+    return DEFAULT_HF_BACKEND_URL
+
+
+def _vercel_static_url(env: Mapping[str, str]) -> str:
+    """Resolve the public UI URL without accepting an HF Static fallback."""
+    configured = _base_url(env.get("VERCEL_STATIC_URL", ""))
+    if configured:
+        return configured
+    configured = _base_url(env.get("VERCEL_GATEWAY_URL", ""))
+    if configured:
+        return configured
+    return DEFAULT_VERCEL_STATIC_URL
+
+
+def _assert_separated_targets(env: Mapping[str, str], static_url: str, backend_url: str) -> None:
+    """Fail closed on legacy HF Static configuration or endpoint collisions."""
+    static_space_id = env.get("HF_STATIC_SPACE_ID", "").strip()
+    backend_space_id = env.get("HF_BACKEND_SPACE_ID", "").strip()
+    if static_space_id:
+        if static_space_id == backend_space_id:
+            raise ValueError("HF_STATIC_SPACE_ID must not equal HF_BACKEND_SPACE_ID; Vercel owns static UI")
+        raise ValueError("HF_STATIC_SPACE_ID is retired; configure VERCEL_STATIC_URL for the public UI")
+    if backend_url and static_url == backend_url:
+        raise ValueError("VERCEL_STATIC_URL must not equal HF_BACKEND_URL")
 
 
 def build_health_targets(
@@ -58,58 +90,48 @@ def build_health_targets(
     a dedicated Hugging Face Docker Space and is required in production.
     """
     env = os.environ if environment is None else environment
-    backend_url = _base_url(env.get("HF_BACKEND_URL", DEFAULT_HF_BACKEND_URL))
-    static_space_id = env.get("HF_STATIC_SPACE_ID", "").strip()
-    backend_space_id = env.get("HF_BACKEND_SPACE_ID", "").strip()
-    if static_space_id and static_space_id == backend_space_id and backend_url:
-        hf_static_url = backend_url
-    else:
-        hf_static_url = _base_url(env.get("HF_STATIC_CDN_URL", DEFAULT_HF_STATIC_CDN_URL))
+    backend_url = _backend_url(env)
+    static_url = _vercel_static_url(env)
 
-    if not hf_static_url:
-        raise ValueError("HF_STATIC_CDN_URL must not be empty")
+    if not static_url:
+        raise ValueError("VERCEL_STATIC_URL must not be empty")
     if require_backend and not backend_url:
         raise ValueError("HF_BACKEND_URL is required for this monitor run")
+    _assert_separated_targets(env, static_url, backend_url)
 
     static_candidates = [
-        f"{hf_static_url}/",
-        f"{hf_static_url}/index.html",
+        f"{static_url}/",
+        f"{static_url}/index.html",
     ]
-    for fallback in [
-        hf_static_url.replace(".static.hf.space", ".hf.space") if ".static.hf.space" in hf_static_url else None,
-        f"{backend_url}/" if backend_url else None,
-        f"{backend_url}/index.html" if backend_url else None,
-        "https://pphothidaen-horoconsultant-core-backend.hf.space/",
-        "https://pphothidaen-horoconsultant-core-backend.hf.space/index.html",
-        "https://horo-consultant-psi.vercel.app/",
-        "https://horo-consultant-psi.vercel.app/index.html",
-    ]:
-        if fallback and fallback not in static_candidates:
-            static_candidates.append(fallback)
 
     targets: list[dict[str, Any]] = [
         {
-            "name": "Hugging Face Static UI",
+            "name": "Vercel static UI",
             "urls": static_candidates,
             "url": static_candidates[0],
             "critical": True,
         },
+        {
+            "name": "Vercel static version metadata",
+            "url": f"{static_url}/version.json",
+            "critical": True,
+        },
+        {
+            "name": "Vercel static app.js asset",
+            "url": f"{static_url}/app.js",
+            "critical": True,
+        },
+        {
+            "name": "Vercel static service worker asset",
+            "url": f"{static_url}/sw.js",
+            "critical": True,
+        },
     ]
     if backend_url:
-        backend_candidates = [f"{backend_url}/health"]
-        for fallback in [
-            "https://pphothidaen-horoconsultant-core-backend.hf.space/health",
-            "https://horoconsult-env-new.mangoforest-3a921b17.westus2.azurecontainerapps.io/health",
-            "https://horo-consultant-psi.vercel.app/health",
-        ]:
-            if fallback not in backend_candidates:
-                backend_candidates.append(fallback)
-
         targets.append(
             {
                 "name": "Hugging Face Docker Backend /health",
-                "urls": backend_candidates,
-                "url": backend_candidates[0],
+                "url": f"{backend_url}/health",
                 "critical": True,
             }
         )
@@ -148,9 +170,23 @@ def _ping(url: str, timeout: int = 15, retries: int = 2) -> tuple[int, float, st
 
 def _target_response_is_valid(target_name: str, body: str) -> bool:
     """Require meaningful content, not only an HTTP 200 status."""
-    if "Static UI" in target_name:
+    lowered_target = target_name.lower()
+    if "static ui" in lowered_target:
         lowered = body.lower()
         return "<html" in lowered or "<!doctype html" in lowered
+    if "static version metadata" in lowered_target:
+        try:
+            payload = json.loads(body)
+        except json.JSONDecodeError:
+            return False
+        return bool(
+            isinstance(payload, dict)
+            and str(payload.get("version", "")).strip()
+            and str(payload.get("release_source_commit", "")).strip()
+        )
+    if "static app.js asset" in lowered_target or "static service worker asset" in lowered_target:
+        lowered = body.lower()
+        return bool(body.strip()) and "<html" not in lowered and "<!doctype html" not in lowered
     try:
         payload = json.loads(body)
     except json.JSONDecodeError:

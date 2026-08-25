@@ -1,94 +1,106 @@
-# Rule 17: Multi-Account Agent Orchestration & Quota Evidence
+# Rule 17: Multi-Account Dispatch and Orchestrator-Only Control
 
 ## Purpose
 
-Govern ownership-scoped dispatch across Codex, AGY, and Hermes accounts without
-mistaking an alias, configuration, or rendered command for execution proof.
+Govern auditable alias dispatch without mistaking a configured alias, route, or
+rendered prompt for execution. The current/root session is an orchestrator, not
+an implementation or release worker.
 
-## Scope and ownership
+## Ownership
 
-- The orchestrator owns decomposition, account selection, retry decisions,
-  conflict resolution, and final closure.
-- The assigned agent owns only the files and evidence named in its ticket.
-- The BSA owns `PROJECT_TASKS.md`, `plans/plan.md`, governance rules/skills, and
-  prompt templates; generated mirrors are changed only by the sync workflow.
-- No concurrent agents may edit the same file. Reviewers of a shared file are
-  read-only.
+- The root/current session may decompose, assign aliases or native sub-agents,
+  monitor, collect receipts, resolve ownership conflicts, request HITL, and
+  make a final gate decision.
+- An assigned child owns only the files, commands, and evidence in its ticket.
+- The BSA owns this rule, its skill/mirrors, `PROJECT_TASKS.md`, and
+  `plans/plan.md`; generated output changes only through ecosystem sync.
+- Give each writable file one editor. Any other participant is read-only.
 
-## Dispatch contract
+## Orchestrator-only hard boundary
 
-Every prompt must state objective, ownership, boundaries, evidence expected, and
-stop condition, include the non-reversion coordination warning, and require the
-standard result fields: `Status`, `Scope owned`, `Evidence`, `Findings`,
-`Changed files`, `Residual risk`, and `Recommended next action`.
+The root/current session MUST NOT directly edit implementation, run
+implementation or QA commands, stage, commit, push, deploy, publish, or claim
+that it performed a child's work. It delegates those actions to a bounded
+child, then reports the child's attributed receipt. Monitoring and read-only
+state collection are permitted only to coordinate the child work.
 
-PromptCommand is dry-run by default. An alias, Hermes route, model label,
-configured CLI home, or rendered command proves routing intent only. Execution
-proof requires the child process result plus provider/session telemetry where
-available; never record tokens, cookies, account-home secrets, or credential
-values.
+### Explicit user-waiver exception
 
-## Meaningful orchestration execution requirement
+Only a fresh, explicit user waiver can permit one otherwise-prohibited root
+action. Before acting, record in the active ticket and plan: the user's exact
+approval reference and timestamp, one action class and exact scope/target,
+reason delegation is not viable, owner, and a stop condition. The waiver is
+single-use, does not authorize related actions, does not bypass secrets or
+production safeguards, and expires when its recorded action ends. Missing any
+field means `NEEDS_HITL`; prior broad approval is not a standing waiver.
 
-For meaningful multi-agent orchestration, the orchestrator must explicitly select
-one configured alias and perform at least one bounded terminal dispatch
-through it: `codex1`, `codex2`, `agy1`, or `agy2`. Here, meaningful means a task
-that is represented as multi-agent work or has an agent-owned implementation,
-QA, review, research, or operations lane; planning-only discussion does not
-create an execution claim.
+## Dispatch contract and execution proof
 
-- Select **one** alias appropriate to the bounded task. `or` does not require
-  calling every alias, and aliases not selected must not be represented as
-  executed.
-- The dispatch record must identify the selected alias, bounded objective,
-  file/evidence ownership, command start and outcome, safe process or session
-  identifier when available, child result contract, and timestamp. A terminal
-  command that only renders a prompt is not execution proof.
-- A lane may be marked `DONE` only after its actual child result and required
-  evidence are retained. A configured alias, shell function, route label,
-  model name, or command text alone remains routing intent.
-- Never use an alias availability check to inspect, print, or repair
-  credentials. Record only safe availability/outcome metadata.
+Every child prompt names objective, one-editor ownership, boundaries, expected
+evidence, stop condition, and the non-reversion warning. Require: `Status`,
+`Scope owned`, `Evidence`, `Findings`, `Changed files`, `Residual risk`, and
+`Recommended next action`.
 
-### Alias-unavailable fallback
+For meaningful multi-agent work, explicitly select the required configured alias(es) from
+`codex1`, `codex2`, `agy1`, and `agy2` and execute a bounded terminal dispatch.
+When the user explicitly names multiple aliases, dispatch each named alias to a
+separate bounded lane; do not silently substitute, duplicate ownership, or
+claim unselected aliases ran. A valid receipt includes alias, provider,
+objective, ownership, timestamp, command outcome, safe process/session id when
+available, actual child result, and non-secret evidence. Prompt rendering,
+alias availability, route/model labels, or configuration alone are not proof.
 
-If the selected alias is unavailable before execution, record the alias,
-timestamp, safe failure class (for example `not configured`, `executable
-missing`, or `permission/authentication required`), and that no child ran.
-Then select one other explicitly configured alias for the same bounded task
-only when ownership, scope, and authorization remain unchanged. Record the new
-attempt separately; do not relabel it as execution by the unavailable alias.
+### Result Contract v2
 
-If no configured alias can execute the task, return `[ERROR] BLOCKED` with a
-safe operator command or configuration decision. Return `NEEDS_HITL`
-immediately for credentials, permissions, billing, production mutation, or an
-ambiguous ownership/alias decision. Do not invent an alias, silently fall back
-to the orchestrator session, or claim multi-agent execution without process and
-child-result evidence.
+The owner authorized Result Contract v2 on 2026-08-25 for a fresh four-alias
+dispatch. This authorization does not waive, relabel, or repair any earlier
+receipt. The three-attempt counters and `BLOCKED` outcomes from the earlier
+`codex1`, `codex2`, `agy1`, and `agy2` protocol remain immutable historical
+evidence. A v2 ticket starts a new attempt counter at 1 for each required alias.
 
-## Quota and account evidence
+Validate two bound objects independently and fail closed:
 
-Record quota/account state only as non-secret metadata: account alias, provider,
-remaining-quota band or status, route/session identifier when safe, command
-outcome, and timestamp. Below 10% remaining, stop broad work, update
-`TICKET-META-008`, preserve a safe resume command, and run the quota guard.
+1. `ExecutionReceipt` records `protocol_version`, dispatch ticket and attempt
+   ids, alias, provider, adapter, bounded objective, ownership, safe quota
+   status, start/end timestamps, exit/transport status, safe process/session id
+   when supplied by the provider, output byte count and SHA-256, and the
+   SHA-256 of the normalized `WorkResult`.
+2. `WorkResult` records `Status`, `Scope owned`, `Evidence`, `Findings`,
+   `Changed files`, `Residual risk`, and `Recommended next action`.
 
-## Retry and HITL policy
+Use a provider-native adapter: structured JSON/JSONL plus output-schema support
+for Codex, and native stream-JSON event parsing for AGY. Provider prose is
+evidence input, never the receipt itself. Reject a missing field, malformed
+event stream, schema/version mismatch, alias/ticket/attempt mismatch, digest
+mismatch, secret-bearing field, ambiguous final event, nonzero execution
+without a typed failure result, or exit zero without a valid `WorkResult`.
+Adapter fallback or free-form-output inference requires new HITL authorization.
 
-- Retry the same bounded task only when the failure is actionable and ownership
-  remains unambiguous; record attempt number and the exact failure evidence.
-- After three consecutive unsuccessful remediation attempts, pause and escalate
-  to HITL with the blocker, evidence, decision required, and next safe command.
-- Escalate immediately for credentials, platform permissions, billing,
-  production mutation, conflicting ownership, or unresolved high-impact
-  decisions. Investigation approval does not authorize mutation.
-- Do not mark a parent ticket `DONE` while a required child is pending or while
-  execution proof is inferred from configuration alone.
+Because the owner explicitly named all four aliases, v2 must dispatch
+`codex1`, `codex2`, `agy1`, and `agy2` as four distinct bounded lanes. A child
+lane may use a terminal CLI workaround and capture its safe receipt; the
+root/current session may only assign, monitor, collect, and decide the gate. It
+must not run the workaround itself.
 
-## Completion gate
+Before any v2 read-only review dispatch, validate an approved runtime config
+path and either an explicit read-only role or a provider-supported sandbox
+override proven to prevent writes. Example config is not execution config, and
+the default Codex `workspace-write` role cannot satisfy a read-only lane. If
+the approved config path or effective read-only boundary cannot be proved,
+return `BLOCKED` before starting the alias command; prompt text alone is not a
+sandbox control.
 
-Close PROMPT-GOV or a child dispatch only when ownership boundaries are met,
-required evidence is attached, all retries/HITL decisions are recorded, no
-secret values appear, generated mirrors are synchronized, and the final
-closure checklist is complete. Use only `[OK]`, `[ERROR]`, `[WARNING]`, and
-`[INFO]` status tags in command-oriented records.
+## Failure, quota, and closure
+
+If an alias cannot run, record alias, timestamp, safe failure class, and `no
+child ran`; return `BLOCKED` or obtain HITL before changing ownership. Recheck
+only a non-secret quota band before large work. Below 10%, stop broad work,
+update `TICKET-META-008` and the plan, and run the quota guard. Retry only the
+same bounded actionable failure; after three failures, or immediately for
+credentials, permissions, billing, production mutation, ownership conflict, or
+high-impact judgment, return `NEEDS_HITL`.
+
+Close a child only with its receipt and evidence. The root may close the parent
+only when every required child is `DONE` or explicitly `BLOCKED` with an
+operator action, mirrors are synchronized, no secrets are recorded, and the
+final record uses only `[OK]`, `[ERROR]`, `[WARNING]`, or `[INFO]` log tags.

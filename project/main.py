@@ -108,7 +108,12 @@ async def lifespan(app: FastAPI):
 from fastapi.middleware.cors import CORSMiddleware
 
 from project.core.config import get_app_version, get_git_commit_hash
-from project.core.cors import get_allowed_origins
+from project.core.cors import (
+    CORS_ALLOWED_HEADERS,
+    CORS_ALLOWED_METHODS,
+    get_allowed_origins,
+    get_cors_headers,
+)
 from project.core.observability import setup_observability_middleware
 
 app = FastAPI(
@@ -123,24 +128,18 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=get_allowed_origins(),
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["*"],
+    allow_methods=list(CORS_ALLOWED_METHODS),
+    allow_headers=list(CORS_ALLOWED_HEADERS),
     allow_credentials=True,
 )
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Global unhandled exception on {request.url.path}: {exc}", exc_info=True)
-    origin = request.headers.get("origin", "*")
-    headers = {"Access-Control-Allow-Credentials": "true"}
-    if origin:
-        headers["Access-Control-Allow-Origin"] = origin
-    headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
-    headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
     return JSONResponse(
         status_code=500,
         content={"detail": f"Internal Server Error: {exc!s}"},
-        headers=headers,
+        headers=get_cors_headers(request.headers.get("origin")),
     )
 
 setup_observability_middleware(app)

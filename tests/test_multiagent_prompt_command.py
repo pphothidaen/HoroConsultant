@@ -9,7 +9,11 @@ import subprocess
 import pytest
 import yaml
 
-from scripts import multiagent_prompt_command as command
+ROOT = Path(__file__).resolve().parents[1]
+import sys
+sys.path.insert(0, str(ROOT))
+
+import scripts.multiagent_prompt_command as command
 
 
 def _config(tmp_path: Path) -> Path:

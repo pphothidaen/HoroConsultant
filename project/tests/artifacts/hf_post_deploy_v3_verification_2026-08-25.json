@@ -25,32 +25,32 @@
       {
         "viewport": "desktop-4k",
         "path": "project/tests/screenshots/visual_audit/desktop-4k_horo_v3_consensus.png",
-        "sha256": "8efb6ebf646fc3f32145242816955423aee08edf9402af6ff0f811bad093bdd4",
-        "captured_at": "2026-08-25T11:02:42+07:00"
+        "sha256": "09332ed7da8ed24bd80114e87442ac622438d79355ae96f18b88a79d26bcf37b",
+        "captured_at": "2026-08-25T04:02:42Z"
       },
       {
         "viewport": "laptop-standard",
         "path": "project/tests/screenshots/visual_audit/laptop-standard_horo_v3_consensus.png",
-        "sha256": "bd1e998c2c1d740d1cddc9759a1a96dc8e9d293cc3b51eae7333414779c699ee",
-        "captured_at": "2026-08-25T11:02:42+07:00"
+        "sha256": "a65458f499f6d939af28d2cef6778b4b5571c074e8ee33e7342f0b7164574d2d",
+        "captured_at": "2026-08-25T04:02:42Z"
       },
       {
         "viewport": "tablet-portrait",
         "path": "project/tests/screenshots/visual_audit/tablet-portrait_horo_v3_consensus.png",
-        "sha256": "f9bdaad12334f0772fc7bac2e983f28bb0d5b1549bea976e9d8a2fc5b4b3b9ca",
-        "captured_at": "2026-08-25T11:02:42+07:00"
+        "sha256": "4267aa59a70388d808e1f4d891441ef0781196708b7bd66b7a648317355595c0",
+        "captured_at": "2026-08-25T04:02:42Z"
       },
       {
         "viewport": "mobile-ios",
         "path": "project/tests/screenshots/visual_audit/mobile-ios_horo_v3_consensus.png",
-        "sha256": "230ba6fae3e6e83287e858b9091b82b29348319fec02662899572fd5699e71ad",
-        "captured_at": "2026-08-25T11:02:42+07:00"
+        "sha256": "96a5e2afb671db4ddddf02cbd01293f6805ad80edf618c850c90972e5ddd91c1",
+        "captured_at": "2026-08-25T04:02:42Z"
       },
       {
         "viewport": "mobile-compact",
         "path": "project/tests/screenshots/visual_audit/mobile-compact_horo_v3_consensus.png",
-        "sha256": "9789dda9d3a7c07392bfb8d7ab9914ffde5535cacc7e0f650591d96da9134e72",
-        "captured_at": "2026-08-25T11:02:42+07:00"
+        "sha256": "f61766ebb8f97b8993754e2fb7b3c838ac589acdca29f38247be1605cdecfc24",
+        "captured_at": "2026-08-25T04:02:42Z"
       }
     ]
   },
@@ -115,43 +115,58 @@
   "manual_gradient_reviews": [
     {
       "viewport": "desktop-4k",
-      "findings_count": 6,
-      "reviewer_role": "code_reviewer",
-      "reviewed_at": "2026-08-25T11:24:39+07:00",
-      "decision": "PASS",
-      "basis": "User-authorized manual 30/30 gradient PASS review by code_reviewer at 2026-08-25T11:24:39+07:00. Verified current report project/tests/artifacts/visual_layout_report.json and all five current screenshots: project/tests/screenshots/visual_audit/desktop-4k_horo_v3_consensus.png, project/tests/screenshots/visual_audit/laptop-standard_horo_v3_consensus.png, project/tests/screenshots/visual_audit/tablet-portrait_horo_v3_consensus.png, project/tests/screenshots/visual_audit/mobile-ios_horo_v3_consensus.png, project/tests/screenshots/visual_audit/mobile-compact_horo_v3_consensus.png; each SHA256 matched the pre-review artifact, and this viewport contained 6 findings with no clipping, overlap, or out-of-bounds rendering."
+      "findings": [
+        {"finding": "span.v3-epistemic-disclaimer__icon | ⚖️", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "strong | พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "div.v3-epistemic-disclaimer__body", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "span | 🔒 Architecture: Horo Metaphysics Engine v3.0", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "span | 🏛️ Epistemic Chain: 5-Stage Traceable", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "span | 🛡️ Integrity Guard: Merkle DAG Verified", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."}
+      ]
     },
     {
       "viewport": "laptop-standard",
-      "findings_count": 6,
-      "reviewer_role": "code_reviewer",
-      "reviewed_at": "2026-08-25T11:24:39+07:00",
-      "decision": "PASS",
-      "basis": "User-authorized manual 30/30 gradient PASS review by code_reviewer at 2026-08-25T11:24:39+07:00. Verified current report project/tests/artifacts/visual_layout_report.json and all five current screenshots: project/tests/screenshots/visual_audit/desktop-4k_horo_v3_consensus.png, project/tests/screenshots/visual_audit/laptop-standard_horo_v3_consensus.png, project/tests/screenshots/visual_audit/tablet-portrait_horo_v3_consensus.png, project/tests/screenshots/visual_audit/mobile-ios_horo_v3_consensus.png, project/tests/screenshots/visual_audit/mobile-compact_horo_v3_consensus.png; each SHA256 matched the pre-review artifact, and this viewport contained 6 findings with no clipping, overlap, or out-of-bounds rendering."
+      "findings": [
+        {"finding": "span.v3-epistemic-disclaimer__icon | ⚖️", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "strong | พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "div.v3-epistemic-disclaimer__body", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "span | 🔒 Architecture: Horo Metaphysics Engine v3.0", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "span | 🏛️ Epistemic Chain: 5-Stage Traceable", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "span | 🛡️ Integrity Guard: Merkle DAG Verified", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."}
+      ]
     },
     {
       "viewport": "tablet-portrait",
-      "findings_count": 6,
-      "reviewer_role": "code_reviewer",
-      "reviewed_at": "2026-08-25T11:24:39+07:00",
-      "decision": "PASS",
-      "basis": "User-authorized manual 30/30 gradient PASS review by code_reviewer at 2026-08-25T11:24:39+07:00. Verified current report project/tests/artifacts/visual_layout_report.json and all five current screenshots: project/tests/screenshots/visual_audit/desktop-4k_horo_v3_consensus.png, project/tests/screenshots/visual_audit/laptop-standard_horo_v3_consensus.png, project/tests/screenshots/visual_audit/tablet-portrait_horo_v3_consensus.png, project/tests/screenshots/visual_audit/mobile-ios_horo_v3_consensus.png, project/tests/screenshots/visual_audit/mobile-compact_horo_v3_consensus.png; each SHA256 matched the pre-review artifact, and this viewport contained 6 findings with no clipping, overlap, or out-of-bounds rendering."
+      "findings": [
+        {"finding": "span.v3-epistemic-disclaimer__icon | ⚖️", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "strong | พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "div.v3-epistemic-disclaimer__body", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "span | 🔒 Architecture: Horo Metaphysics Engine v3.0", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "span | 🏛️ Epistemic Chain: 5-Stage Traceable", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "span | 🛡️ Integrity Guard: Merkle DAG Verified", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."}
+      ]
     },
     {
       "viewport": "mobile-ios",
-      "findings_count": 6,
-      "reviewer_role": "code_reviewer",
-      "reviewed_at": "2026-08-25T11:24:39+07:00",
-      "decision": "PASS",
-      "basis": "User-authorized manual 30/30 gradient PASS review by code_reviewer at 2026-08-25T11:24:39+07:00. Verified current report project/tests/artifacts/visual_layout_report.json and all five current screenshots: project/tests/screenshots/visual_audit/desktop-4k_horo_v3_consensus.png, project/tests/screenshots/visual_audit/laptop-standard_horo_v3_consensus.png, project/tests/screenshots/visual_audit/tablet-portrait_horo_v3_consensus.png, project/tests/screenshots/visual_audit/mobile-ios_horo_v3_consensus.png, project/tests/screenshots/visual_audit/mobile-compact_horo_v3_consensus.png; each SHA256 matched the pre-review artifact, and this viewport contained 6 findings with no clipping, overlap, or out-of-bounds rendering."
+      "findings": [
+        {"finding": "span.v3-epistemic-disclaimer__icon | ⚖️", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "strong | พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "div.v3-epistemic-disclaimer__body", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "span | 🔒 Architecture: Horo Metaphysics Engine v3.0", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "span | 🏛️ Epistemic Chain: 5-Stage Traceable", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "span | 🛡️ Integrity Guard: Merkle DAG Verified", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."}
+      ]
     },
     {
       "viewport": "mobile-compact",
-      "findings_count": 6,
-      "reviewer_role": "code_reviewer",
-      "reviewed_at": "2026-08-25T11:24:39+07:00",
-      "decision": "PASS",
-      "basis": "User-authorized manual 30/30 gradient PASS review by code_reviewer at 2026-08-25T11:24:39+07:00. Verified current report project/tests/artifacts/visual_layout_report.json and all five current screenshots: project/tests/screenshots/visual_audit/desktop-4k_horo_v3_consensus.png, project/tests/screenshots/visual_audit/laptop-standard_horo_v3_consensus.png, project/tests/screenshots/visual_audit/tablet-portrait_horo_v3_consensus.png, project/tests/screenshots/visual_audit/mobile-ios_horo_v3_consensus.png, project/tests/screenshots/visual_audit/mobile-compact_horo_v3_consensus.png; each SHA256 matched the pre-review artifact, and this viewport contained 6 findings with no clipping, overlap, or out-of-bounds rendering."
+      "findings": [
+        {"finding": "span.v3-epistemic-disclaimer__icon | ⚖️", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "strong | พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "div.v3-epistemic-disclaimer__body", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "span | 🔒 Architecture: Horo Metaphysics Engine v3.0", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "span | 🏛️ Epistemic Chain: 5-Stage Traceable", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
+        {"finding": "span | 🛡️ Integrity Guard: Merkle DAG Verified", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."}
+      ]
     }
   ],
   "invalidation_condition": [

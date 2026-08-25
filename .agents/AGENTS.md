@@ -38,7 +38,7 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 11. **`web-color-design`**: Color systems, Five Elements palettes, WCAG contrast validation, dark mode, and CSS design tokens for HoroConsultant UI. Used by `ux_ui_designer`.
 12. **`ui-visual-auditor`**: Multi-viewport screenshot capture, DOM overlap detection, and layout distortion auditing. Used by `ui_visual_tester`.
 13. **`hf-static-release-verification`**: Fail-closed HF Static release gate for payload, health, exact `release_source_commit` identity, source metadata digest/revision, source-ancestry proof, required assets, publisher regression, and five-viewport evidence. `packaging_commit` is evidence-only; legacy fallbacks and overrides are forbidden. Primary owner: `devops`; verification owners: `qa_tester`, `ui_visual_tester`, and `code_reviewer`; dispatch owner: `orchestrator`.
-14. **`multi-account-agent-orchestration`**: Route bounded work across Codex/AGY/Hermes accounts with non-secret quota evidence, retry limits, ownership isolation, HITL closure, and process-backed execution through one explicitly selected configured alias for meaningful multi-agent work.
+14. **`multi-account-agent-orchestration`**: Route bounded work across Codex/AGY/Hermes accounts with non-secret quota evidence, retry limits, ownership isolation, HITL closure, and process-backed execution through required explicitly selected aliases. Result Contract v2 binds a provider-native `ExecutionReceipt` to a schema-validated `WorkResult` and fails closed; read-only lanes additionally require an approved runtime config plus an explicit read-only role or validated sandbox override. The root/current session is orchestrator-only; child lanes alone may use terminal CLI workarounds, and any one-off root-action waiver needs current, recorded user authorization.
 
 ### Claude Code Governance Map
 
@@ -101,7 +101,7 @@ flowchart TD
 
 ## 🛡️ Core Rules & Safeguards
 
-1. **Strict Delegation**: The Orchestrator does not write substantial code directly unless emergency intervention is required.
+1. **Orchestrator-Only Delegation**: The root/current session may only decompose, dispatch, monitor, collect evidence, resolve conflicts, request HITL, and decide gates. It MUST NOT directly edit implementation, run implementation/QA commands, stage, commit, push, deploy, publish, or claim child work. Only a fresh explicit user waiver for one recorded action/target, with reason and stop condition in the active ticket and plan, permits an exception; it is not a standing approval.
 2. **Deterministic Execution**: Developer and QA agents must strictly follow specs provided by Orchestrator without altering architectural blueprints.
 3. **Pure ASCII Logging Guard**: Subprocess outputs must strictly use ASCII tags (`[OK]`, `[ERROR]`, `[WARNING]`, `[INFO]`) to avoid UTF-8 surrogate crashes.
 4. **Package Locks**: All Python scripts must respect locked versions in `.agent_rules.md` (`transformers==4.44.2`, `peft==0.12.0`, etc.).

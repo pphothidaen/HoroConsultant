@@ -2,6 +2,14 @@ const AZURE_API_ORIGIN = (process.env.AZURE_API_ORIGIN || "").replace(/\/$/, "")
 const SERVICE_UNAVAILABLE = "Service is temporarily unavailable.";
 const DEFAULT_UPSTREAM_TIMEOUT_MS = 25_000;
 const MAX_UPSTREAM_TIMEOUT_MS = 60_000;
+const DEFAULT_CORS_ORIGIN = "https://horo-consultant-psi.vercel.app";
+const DEFAULT_CORS_ALLOWED_ORIGINS = Object.freeze([DEFAULT_CORS_ORIGIN]);
+const DEFAULT_CORS_ALLOWED_HEADERS = Object.freeze([
+  "Content-Type",
+  "Authorization",
+  "X-Requested-With",
+  "X-Request-ID",
+]);
 
 const ALLOWED_PATHS = [
   /^api(?:\/|$)/,
@@ -30,6 +38,101 @@ function readHeader(headers = {}, name) {
   return entry ? String(entry[1]) : "";
 }
 
+function canonicalHttpsOrigin(value) {
+  if (typeof value !== "string") return null;
+  const candidate = value.trim();
+  if (!candidate) return null;
+
+  try {
+    const parsed = new URL(candidate);
+    if (parsed.protocol !== "https:"
+      || parsed.username
+      || parsed.password
+      || parsed.pathname !== "/"
+      || parsed.search
+      || parsed.hash
+      || parsed.origin !== candidate) {
+      return null;
+    }
+    return parsed.origin;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Return the canonical public CORS allowlist. An override is all-or-nothing:
+ * malformed entries fall back to the production default rather than creating a
+ * partially understood access policy.
+ */
+export function configuredCorsOrigins(environment = process.env) {
+  const configured = typeof environment?.CORS_ALLOWED_ORIGINS === "string"
+    ? environment.CORS_ALLOWED_ORIGINS.trim()
+    : "";
+  if (!configured) return DEFAULT_CORS_ALLOWED_ORIGINS;
+
+  const entries = configured.split(",").map(entry => canonicalHttpsOrigin(entry));
+  if (entries.length === 0 || entries.some(entry => !entry)) return DEFAULT_CORS_ALLOWED_ORIGINS;
+  return Object.freeze([...new Set(entries)]);
+}
+
+function appendVaryOrigin(res) {
+  const existing = typeof res.getHeader === "function" ? res.getHeader("Vary") : undefined;
+  const values = String(existing || "").split(",").map(value => value.trim()).filter(Boolean);
+  if (!values.some(value => value.toLowerCase() === "origin")) values.push("Origin");
+  res.setHeader("Vary", values.join(", "));
+}
+
+function preflightIsAllowed(req, allowedMethods) {
+  if (req.method !== "OPTIONS") return true;
+
+  const requestedMethod = readHeader(req.headers, "access-control-request-method").toUpperCase();
+  const methodSet = new Set(allowedMethods.map(method => method.toUpperCase()));
+  if (requestedMethod && !methodSet.has(requestedMethod)) return false;
+
+  const requestedHeaders = readHeader(req.headers, "access-control-request-headers");
+  const allowedHeaders = new Set(DEFAULT_CORS_ALLOWED_HEADERS.map(header => header.toLowerCase()));
+  return requestedHeaders.split(",")
+    .map(header => header.trim().toLowerCase())
+    .filter(Boolean)
+    .every(header => allowedHeaders.has(header));
+}
+
+/**
+ * Apply a CORS policy only for a configured, exact HTTPS origin. Requests with
+ * no Origin header are same-origin/non-browser requests and remain unaffected.
+ * Callers must return 403 when `allowed` is false before serving the request.
+ */
+export function applyCorsPolicy(req, res, {
+  methods,
+  environment = process.env,
+} = {}) {
+  const origin = readHeader(req.headers, "origin");
+  if (!origin) return { allowed: true, cors: false };
+
+  const canonicalOrigin = canonicalHttpsOrigin(origin);
+  const allowedMethods = String(methods || "GET, POST, OPTIONS")
+    .split(",")
+    .map(method => method.trim().toUpperCase())
+    .filter(Boolean);
+  if (!canonicalOrigin
+    || !configuredCorsOrigins(environment).includes(canonicalOrigin)
+    || !preflightIsAllowed(req, allowedMethods)) {
+    return { allowed: false, cors: true };
+  }
+
+  appendVaryOrigin(res);
+  res.setHeader("Access-Control-Allow-Origin", canonicalOrigin);
+  res.setHeader("Access-Control-Allow-Methods", allowedMethods.join(", "));
+  res.setHeader("Access-Control-Allow-Headers", DEFAULT_CORS_ALLOWED_HEADERS.join(", "));
+  if (environment?.CORS_ALLOW_CREDENTIALS === "true") {
+    // Credentials are only enabled after exact allowlist reflection; never use
+    // this with a wildcard allow-origin response.
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  }
+  return { allowed: true, cors: true };
+}
+
 function validCorrelationId(value) {
   return /^[A-Za-z0-9._:-]{1,128}$/.test(value);
 }
@@ -40,10 +143,8 @@ export function correlationIdFor(req, upstreamId = "") {
   return `gw-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-export function setCorsHeaders(res, methods) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", methods);
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, X-Request-ID");
+export function setCorsHeaders(res, methods, req, environment = process.env) {
+  return applyCorsPolicy(req, res, { methods, environment });
 }
 
 export function sendPublicError(res, status, correlationId, detail = SERVICE_UNAVAILABLE) {

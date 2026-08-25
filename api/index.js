@@ -7,18 +7,13 @@
 //   4. OpenAI Chat Completions                             — QUATERNARY
 //   5. Domain Template Fallback                              — LAST RESORT
 
+import { applyCorsPolicy } from "./gateway.js";
+
 const configuredBackend = process.env.HF_BACKEND_URL || "https://pphothidaen-horoconsultant-core-backend.hf.space";
 const BACKEND_URL = configuredBackend.replace(/\/$/, "");
 
 const TARGET_BAZI_MODEL = "pphothidaen/qwen2.5-7b-bazi-instruct-4bit";
 
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Credentials": "true",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE",
-  "Access-Control-Allow-Headers":
-    "Content-Type, Authorization, X-Requested-With, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, Referer, User-Agent",
-};
 const BACKEND_TIMEOUT_MS = Number(process.env.VERCEL_BACKEND_TIMEOUT_MS || 8000);
 const AI_PROVIDER_TIMEOUT_MS = Number(process.env.VERCEL_AI_PROVIDER_TIMEOUT_MS || 6000);
 const AI_ROUTE_BUDGET_MS = Number(process.env.VERCEL_AI_ROUTE_BUDGET_MS || 8000);
@@ -489,12 +484,6 @@ function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
       clearTimeout(timeoutId);
       throw error;
     });
-}
-
-function applyCors(response) {
-  for (const [name, value] of Object.entries(CORS_HEADERS)) {
-    response.setHeader(name, value);
-  }
 }
 
 function getRequestTarget(request) {
@@ -1600,7 +1589,10 @@ async function proxyRequest(request, response) {
 }
 
 export default async function handler(request, response) {
-  applyCors(response);
+  const cors = applyCorsPolicy(request, response, {
+    methods: "GET, POST, OPTIONS, PUT, PATCH, DELETE",
+  });
+  if (!cors.allowed) return response.status(403).json({ status: "error", code: "cors_origin_forbidden" });
   const gitCommit = (process.env.VERCEL_GIT_COMMIT_SHA || "").slice(0, 7);
   if (gitCommit) response.setHeader("X-Deploy-SHA", gitCommit);
 

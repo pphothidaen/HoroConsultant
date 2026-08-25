@@ -3,7 +3,7 @@ project/tests/test_api_integration_suite.py
 ===========================================
 Comprehensive Integration Test Suite for all HoroConsultant APIs:
 - Validates all v1 and v2 API endpoints
-- Validates CORS Headers & Preflight (OPTIONS) requests from Static HF Space origin
+- Validates CORS Headers & Preflight (OPTIONS) requests from the Vercel frontend origin
 - Validates full payload schemas, True Solar Time calculations, and error resilience
 """
 
@@ -13,15 +13,15 @@ from project.main import app
 
 client = TestClient(app)
 
-STATIC_SPACE_ORIGIN = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
+VERCEL_FRONTEND_ORIGIN = "https://horo-consultant-psi.vercel.app"
 BROWSER_HEADERS = {
     "accept": "*/*",
     "accept-language": "en-US,en;q=0.9,ja;q=0.8",
     "cache-control": "no-cache",
     "content-type": "application/json",
-    "origin": STATIC_SPACE_ORIGIN,
+    "origin": VERCEL_FRONTEND_ORIGIN,
     "pragma": "no-cache",
-    "referer": f"{STATIC_SPACE_ORIGIN}/",
+    "referer": f"{VERCEL_FRONTEND_ORIGIN}/",
     "sec-fetch-dest": "empty",
     "sec-fetch-mode": "cors",
     "sec-fetch-site": "cross-site",
@@ -37,13 +37,13 @@ def test_cors_preflight_bazi_calculate():
     res = client.options(
         "/api/v1/bazi/calculate",
         headers={
-            "Origin": STATIC_SPACE_ORIGIN,
+            "Origin": VERCEL_FRONTEND_ORIGIN,
             "Access-Control-Request-Method": "POST",
             "Access-Control-Request-Headers": "content-type",
         }
     )
     assert res.status_code == 200
-    assert res.headers.get("access-control-allow-origin") == STATIC_SPACE_ORIGIN or res.headers.get("access-control-allow-origin") == "*"
+    assert res.headers.get("access-control-allow-origin") == VERCEL_FRONTEND_ORIGIN
 
 
 def test_cors_preflight_bazi_interpret():
@@ -51,13 +51,13 @@ def test_cors_preflight_bazi_interpret():
     res = client.options(
         "/api/v1/bazi/interpret",
         headers={
-            "Origin": STATIC_SPACE_ORIGIN,
+            "Origin": VERCEL_FRONTEND_ORIGIN,
             "Access-Control-Request-Method": "POST",
             "Access-Control-Request-Headers": "content-type",
         }
     )
     assert res.status_code == 200
-    assert res.headers.get("access-control-allow-origin") == STATIC_SPACE_ORIGIN or res.headers.get("access-control-allow-origin") == "*"
+    assert res.headers.get("access-control-allow-origin") == VERCEL_FRONTEND_ORIGIN
 
 
 def test_cors_preflight_v2_unified():
@@ -65,7 +65,7 @@ def test_cors_preflight_v2_unified():
     res = client.options(
         "/api/v2/calculate/unified",
         headers={
-            "Origin": STATIC_SPACE_ORIGIN,
+            "Origin": VERCEL_FRONTEND_ORIGIN,
             "Access-Control-Request-Method": "POST",
             "Access-Control-Request-Headers": "content-type",
         }
@@ -92,7 +92,7 @@ def test_api_v1_bazi_calculate_full():
     assert "pillars" in data
     assert "five_elements" in data
     assert "solar_time_info" in data
-    assert res.headers.get("access-control-allow-origin") == STATIC_SPACE_ORIGIN or res.headers.get("access-control-allow-origin") == "*"
+    assert res.headers.get("access-control-allow-origin") == VERCEL_FRONTEND_ORIGIN
 
 
 def test_api_v1_bazi_interpret_full():
@@ -226,5 +226,4 @@ def test_api_v2_mian_xiang_analyze():
     res = client.post("/api/v2/mian_xiang/analyze", json=payload, headers=BROWSER_HEADERS)
     assert res.status_code == 200
     assert "twelve_palaces" in res.json()["analysis"]
-
 

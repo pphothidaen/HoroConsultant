@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Verify the complete public production request path.
+"""Verify the separated Vercel static UI and Hugging Face Docker backend.
 
-The checks deliberately cover static content, the public backend, and one
-deterministic calculation. A 200 response alone is not sufficient evidence
-that the public application works.
+The checks deliberately cover Vercel's static document, release metadata, and
+runtime assets separately from the public Hugging Face Docker API. A 200
+response alone is not sufficient evidence that either deployment works.
 """
 
 from __future__ import annotations
@@ -18,9 +18,8 @@ import urllib.request
 from pathlib import Path
 from typing import Any, Callable, Mapping
 
-DEFAULT_VERCEL_GATEWAY_URL = "https://horo-consultant-psi.vercel.app"
-DEFAULT_HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
-DEFAULT_HF_BACKEND_URL = "https://horo-consultant-psi.vercel.app"
+DEFAULT_VERCEL_STATIC_URL = "https://horo-consultant-psi.vercel.app"
+DEFAULT_HF_BACKEND_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
 
 
 def _backend_from_space_id(space_id: str) -> str:
@@ -56,7 +55,36 @@ def _backend_url_from_env(env: Mapping[str, str]) -> str:
     if space_url:
         return _configured_url(space_url)
 
+    # An explicit blank is meaningful for local static-only diagnostics. When
+    # the setting is absent entirely, retain the production Docker default.
+    if "HF_BACKEND_URL" in env:
+        return ""
     return _configured_url(DEFAULT_HF_BACKEND_URL)
+
+
+def _vercel_static_url_from_env(env: Mapping[str, str]) -> str:
+    """Resolve the canonical Vercel UI URL without falling back to HF Static."""
+    configured = _configured_url(env.get("VERCEL_STATIC_URL", ""))
+    if configured:
+        return configured
+    # VERCEL_GATEWAY_URL remains a compatibility alias while deployments move
+    # to VERCEL_STATIC_URL. It still resolves only to Vercel, never HF Static.
+    configured = _configured_url(env.get("VERCEL_GATEWAY_URL", ""))
+    if configured:
+        return configured
+    return _configured_url(DEFAULT_VERCEL_STATIC_URL)
+
+
+def _assert_separated_targets(env: Mapping[str, str], static_url: str, backend_url: str) -> None:
+    """Reject legacy HF Static routing and any UI/backend endpoint collision."""
+    static_space_id = env.get("HF_STATIC_SPACE_ID", "").strip()
+    backend_space_id = env.get("HF_BACKEND_SPACE_ID", "").strip()
+    if static_space_id:
+        if static_space_id == backend_space_id:
+            raise ValueError("HF_STATIC_SPACE_ID must not equal HF_BACKEND_SPACE_ID; Vercel owns static UI")
+        raise ValueError("HF_STATIC_SPACE_ID is retired; configure VERCEL_STATIC_URL for the public UI")
+    if static_url == backend_url:
+        raise ValueError("VERCEL_STATIC_URL must not equal HF_BACKEND_URL")
 
 
 def _request(url: str, timeout: int) -> tuple[int, str, float]:
@@ -91,6 +119,25 @@ def _is_html_response(body: str) -> bool:
     """Return whether a static UI response contains an HTML document."""
     lowered = body.lower()
     return "<html" in lowered or "<!doctype html" in lowered
+
+
+def _is_version_response(body: str) -> bool:
+    """Require immutable release identity metadata from Vercel static hosting."""
+    try:
+        payload = json.loads(body)
+    except json.JSONDecodeError:
+        return False
+    return bool(
+        isinstance(payload, dict)
+        and str(payload.get("version", "")).strip()
+        and str(payload.get("release_source_commit", "")).strip()
+    )
+
+
+def _is_javascript_response(body: str) -> bool:
+    """Reject empty documents and HTML error pages returned for JS assets."""
+    lowered = body.lower()
+    return bool(body.strip()) and "<html" not in lowered and "<!doctype html" not in lowered
 
 
 def _is_ziwei_response(body: str) -> bool:
@@ -139,22 +186,34 @@ def build_checks(
     """Build checks for the active production architecture."""
     env = os.environ if environment is None else environment
     backend_url = _backend_url_from_env(env)
-    static_space_id = env.get("HF_STATIC_SPACE_ID", "").strip()
-    backend_space_id = env.get("HF_BACKEND_SPACE_ID", "").strip()
-    if static_space_id and static_space_id == backend_space_id and backend_url:
-        static_url = backend_url
-    else:
-        static_url = _configured_url(env.get("HF_STATIC_CDN_URL", DEFAULT_HF_STATIC_CDN_URL))
+    static_url = _vercel_static_url_from_env(env)
     if not static_url:
-        raise ValueError("HF_STATIC_CDN_URL must be a valid URL")
+        raise ValueError("VERCEL_STATIC_URL must be a valid URL")
     if require_backend and not backend_url:
         raise ValueError("HF_BACKEND_URL must be configured for a production deployment verification")
+    if backend_url:
+        _assert_separated_targets(env, static_url, backend_url)
 
     checks: list[dict[str, Any]] = [
         {
-            "name": "Hugging Face static UI",
+            "name": "Vercel static UI",
             "urls": _static_candidates(static_url),
             "validator": _is_html_response,
+        },
+        {
+            "name": "Vercel static version metadata",
+            "url": f"{static_url}/version.json",
+            "validator": _is_version_response,
+        },
+        {
+            "name": "Vercel static app.js asset",
+            "url": f"{static_url}/app.js",
+            "validator": _is_javascript_response,
+        },
+        {
+            "name": "Vercel static service worker asset",
+            "url": f"{static_url}/sw.js",
+            "validator": _is_javascript_response,
         },
     ]
     if backend_url:

@@ -1,7 +1,97 @@
+## 🔥 GRILL REPORT — Shell Environment & Multi-Account Codex Standalone Remediation
+**Date**: 2026-08-25T14:15:00+07:00
+**Grilled By**: orchestrator
+**Gate Status**: ✅ APPROVED
+
+### D1 — Scope Boundary
+- **IN**: Install official Standalone Codex binary (`~/.codex/packages`); establish symlinks to all accounts in `~/.ai-accounts/codex/account*`; refactor `~/.zshrc` to eliminate redundant PATH declarations and intrusive terminal echo while maintaining 100% backward compatibility for all existing aliases/functions (`codex1-3`, `agy1-3`, `*_login`, `*_logout`, `*_status`, `ssh-node*`, `tailscale-restart`, `open-unifi-ui`, `claude-local*`, `agent-run`).
+- **OUT**: Modifying account auth tokens (`auth.json`), altering remote infrastructure, modifying repo production code/APIs, changing cloud secrets, or altering global Anthropic proxy variables.
+- **Stable interfaces**: All existing shell commands, aliases, sub-agent routing scripts (`scripts/multiagent_prompt_command.py`), and environment variables remain 100% backward compatible.
+
+### D2 — Requirement Delta
+- Fixes `Failed to start the background server: Error: managed standalone Codex install not found` by providing the standalone package structure expected by Codex daemon.
+- Cleans up duplicate `PATH` exports and suppresses startup echo in `~/.zshrc`.
+- Keeps all existing alias and function signatures intact.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification Tool | Responsible Agent |
+|---|---|---|---|
+| 1 | Standalone Codex installed at `~/.codex/packages/standalone/current/codex` | `ls -la` & execute test | `devops` |
+| 2 | `~/.ai-accounts/codex/account{1,2,3}/packages` correctly symlinked to `~/.codex/packages` | `ls -la` & path resolution | `devops` |
+| 3 | `CODEX_HOME=~/.ai-accounts/codex/account1 codex --version` runs without missing package error | CLI test | `qa_tester` |
+| 4 | `~/.zshrc` has 0 duplicate PATH exports and passes `zsh -n ~/.zshrc` syntax check | syntax validation | `developer` |
+| 5 | Backup `~/.zshrc.bak_<timestamp>` created before modification | filesystem check | `developer` |
+| 6 | All functions/aliases (`codex1-3`, `agy1-3`, `*_login`, `*_status`, `*_logout`, `claude-local*`, `ssh-*`) functional | zsh execution check | `qa_tester` |
+| 7 | Agent sync checks (`sync_sdlc_agents.py`, `sync_codex_agents.py`) pass | Python sync check | `qa_tester` |
+
+### D4 — Constraints & Safeguards
+- Backup created before touching `~/.zshrc`.
+- Auth files (`auth.json`), SQLite databases, and configs in `~/.ai-accounts/` remain untouched.
+- No plain-text secrets printed or committed.
+- Pure ASCII status logging tags enforced.
+
+### D5 — Sub-Agent Allocation & Dependencies
+- `orchestrator`: Requirement grilling, plan/task tracking, and end-to-end verification.
+- `developer`: `~/.zshrc` refactoring with 100% backward compatibility and backup.
+- `devops`: Standalone Codex installation and account symlinks creation.
+- `qa_tester`: Shell verification, alias test suite, and Codex daemon checks.
+- Dependency Chain: Backup & Install Standalone → Create Symlinks → Update `~/.zshrc` → QA Smoke Tests → Final Sync Check.
+
+### D6 — Assumption Register
+| # | Assumption | Status |
+|---|---|---|
+| 1 | Official OpenAI standalone install script `https://chatgpt.com/codex/install.sh` is safe and standard | [CONFIRMED] |
+| 2 | Symlinking `packages` preserves account separation for auth/sessions/DBs | [CONFIRMED] |
+| 3 | 100% backward compatibility of existing aliases and functions is required | [CONFIRMED] |
+| 4 | Global Anthropic proxy environment variables in `~/.zshrc` should be preserved | [CONFIRMED] |
+
+### D7 — Risk & Rollback
+- **Risk**: Syntax error in `~/.zshrc` breaking shell sessions.
+- **Mitigation/Rollback**: `~/.zshrc.bak_<timestamp>` is created prior to edits; syntax verified with `zsh -n` before concluding.
+
+### D8 — Token Efficiency Strategy
+- Direct execution with strict log trimming and ASCII logging tags.
+
+### D9 — Metaphysics Domain Alignment
+- N/A (Infrastructure & Shell configuration only; no metaphysics engine code altered).
+
+### ⚠️ Waivers
+- None.
+
+### 🚫 Blockers
+- None (Gate APPROVED).
+
+---
+
 ## 🔥 GRILL REPORT — Production UI Visual Integrity: Horo v3.0 Consensus Engine
 **Date**: 2026-08-24T22:00:00+07:00
 **Grilled By**: root orchestrator
-**Gate Status**: ✅ RELEASED — v3 visual-integrity patch deployed and verified on the authorized Hugging Face Static Space
+**Historical Gate Status**: ✅ RELEASED — `6c351ba` v3 visual-integrity baseline deployed and verified on the authorized Hugging Face Static Space
+
+### Current Release Control — `TICKET-V3UI-007`
+
+The only active authority for the current local candidate is
+[`TICKET-V3UI-007`](../PROJECT_TASKS.md) (`1.0.0.c9f9161` / `c9f9161`). It is
+**DOING — BLOCKED ON GATES / HITL**. The owner selected the
+`release_source_commit` identity model: immutable source metadata identifies
+the deployed payload, while a later `packaging_commit` records evidence. The
+two values must be recorded separately; `packaging_commit` is evidence-only and
+must never replace the deployed source identity. Committed source metadata must
+record its path, SHA-256 digest, version, `release_source_commit`, and source
+revision; evidence must prove the source commit is an ancestor of the packaging
+commit. No legacy commit/version/metadata fallback, environment, CLI-default,
+runtime-`HEAD`, or external override is allowed. The earlier `6c351ba` publication, HF
+revision, screenshots, report SHA, and manual gradient review are historical
+baseline evidence only. They must not prove a changed candidate.
+
+The current report was regenerated at `2026-08-25T07:13:49Z` with SHA-256
+`807d2609ca53da995bb9c1f89c565a67d867f91855a758dd139470adba9422c0` and 30
+gradient indeterminates. It differs from the `6c351ba` evidence report hash.
+Rule 16 therefore requires fresh hash-bound captures and a new named manual
+review before a release claim. The ticket owns the complete sequence: scoped
+allowlist and local verification; selective commit/push only after explicit
+HITL approval; SDK-aware Static publish/health/exact-version checks; fresh
+post-deploy captures and sign-off; and a new fail-closed reviewer verdict.
 
 ### D1 — Scope Boundary
 - **IN**: read-only Production baseline at the supplied Hugging Face Space; select `🏛️ Horo v3.0 Consensus Engine`; inspect readability, WCAG contrast, clipping, horizontal overflow, sibling collisions, responsive wrapping, stacking/layers, focus state, loading/error state, and long-content behavior; repair the matching local frontend; add deterministic regression checks; capture before/after evidence.
@@ -87,7 +177,7 @@ This release is the baseline for [Rule 16](../.agents/rules/16-hf-static-release
 | Publisher regression | `python3 -m pytest -q tests/test_publish_space_hf.py` | All tests pass; current baseline `16 passed` | `developer` |
 | Payload audit | `python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk static --dry-run` | Exit `0`; staged metadata and assets are coherent | `devops` |
 | Static health | `python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk static --check-health` | Root document and production `version.json` are reachable; exit `0` | `devops` |
-| Exact live version | `python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk static --verify-version` | HTML/footer/app/service-worker/cache references and required assets exactly match local version/commit; exit `0` | `devops` |
+| Exact live version | `python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk static --verify-version` | Every HTML/footer/app/service-worker/cache reference and required asset contains the metadata-derived version and `release_source_commit` exactly once; evidence separately records the later `packaging_commit`; exit `0` | `devops` |
 | Visual integrity | `python3 scripts/run_visual_layout_audit.py --url https://pphothidaen-horoconsultant-core-backend.static.hf.space --scenario v3-consensus --no-server` | Five canonical viewports pass with screenshots and JSON evidence | `ui_visual_tester` / `qa_tester` |
 | Combined focused regression | `python3 -m pytest -q tests/test_publish_space_hf.py project/tests/test_visual_layout_audit.py` | All tests pass; current baseline `24 passed` | `qa_tester` |
 | Governance contract | `python3 -m pytest -q tests/test_hf_release_governance.py` | Rule, skill, commands, owners, and artifact contract remain enforced | `qa_tester` / `business_analyst` |
@@ -161,6 +251,142 @@ artifact links; document the exact operator decision whenever HITL is required.
 passed; skill validation passed; the authoritative skill and Antigravity mirror
 match; and `git diff --check` passed for the owned governance files. No source,
 tests, credentials, or external systems were changed.
+
+---
+
+## Current Control — TICKET-ORCH-ONLY-002: Root Orchestrator Only
+
+**Scope**: the root/current session only decomposes, delegates, monitors,
+collects evidence, resolves conflicts, requests HITL, and makes release-gate
+decisions. It does not implement, run implementation/QA commands, stage,
+commit, push, deploy, publish, or claim child work. Those activities are owned
+by an assigned child. **Out of scope**: modifying application code or release
+state from the root session.
+
+**Dependencies and success**: configured `codex1`, `codex2`, `agy1`, and
+`agy2` aliases must each return one distinct bounded, terminal execution receipt
+for the active CORS/static-separation release lanes. Success requires Rule 17,
+the skill and mirrors, the board, Claude rule, and hook contract to agree, plus
+four actual results or explicit safe `BLOCKED` outcomes. Stop for credentials,
+ownership conflict, absent execution proof, or any unrecorded root action.
+
+### Enforcement hierarchy
+
+1. **Governance**: this plan and `TICKET-ORCH-ONLY-002` define allowed root
+   control-plane behavior, alias matrix, evidence, stop conditions, and waiver
+   ledger.
+2. **Rules**: Rule 17, the multi-account skill, `.agents/AGENTS.md`, and the
+   Claude mirror require ownership-scoped delegated execution and attributed
+   child receipts.
+3. **Hooks**: `.claude/settings.json` registers the existing safety guard and
+   the narrow `orchestrator_only_guard.py` PreToolUse guard. When launched with
+   `HORO_ORCHESTRATOR_ONLY=1`, it denies implementation edits, QA execution,
+   git mutation, and deploy/publish commands, but permits monitor/dispatch.
+
+### Waiver ledger
+
+No root-action waiver is active. A future exception is valid only if the user
+explicitly authorizes one action and, before it runs, both this plan and the
+active board ticket record `ROOT-WAIVER: ROOT-WAIVER-<id>`, user approval
+reference/timestamp, exact action/target, delegation-unavailable reason, owner,
+and stop condition. The marker is single-use and cannot bypass secret or
+production controls. A broad or historical approval is not a standing waiver.
+
+### Limitation and mirror expectation
+
+Claude hooks are not a native Codex control plane: they cannot automatically
+identify the Codex root session and do not execute for Codex tool calls. The
+Codex equivalent remains mandatory policy adherence, four alias receipts, and
+orchestrator gate review. Keep the authoritative `.agents` skill/rule and
+Antigravity skill mirror byte-aligned; update the Claude rule and hook contract
+in the same governance change, then run ecosystem `--sync` followed by
+`--check`.
+
+### Historical alias dispatch closure — BLOCKED after three attempts
+
+All explicitly requested alias lanes are `BLOCKED`; no further automatic retry
+is permitted. Safe receipt metadata only: `codex1` receipt
+`01a03849-759b-7b21-826e-35697a0743ee` returned `0` with `1123` bytes but an
+invalid result contract; `codex2` receipt
+`01a03849-75a8-7150-98a3-1b926b818477` returned `0` with `1799` bytes but an
+invalid result contract; `agy1` final child returned `1` with `376` bytes and
+an invalid result contract; `agy2` final child returned `1` with `374` bytes
+and an invalid result contract. No raw child output, paths, credentials, or
+unstated execution claims are retained here.
+
+**HITL resolution (2026-08-25)**: the owner authorized Result Contract v2 as a
+fresh protocol and did not waive these receipts. All four outcomes above remain
+historical `BLOCKED` evidence. V2 starts a new ticket and a new per-alias retry
+counter; it cannot relabel or validate an earlier attempt.
+
+### Result Contract v2 execution plan — `TICKET-ALIAS-RC2-003`
+
+**Status**: DOING — protocol implementation. Post-implementation QA, security
+review, and four-alias redispatch are pending.
+
+**Authorization and boundary**: the owner authorized v2 and a terminal CLI
+workaround in delegated child lanes. No receipt waiver or root-action waiver is
+active. The current/root session remains orchestrator-only: it assigns,
+monitors, collects evidence, resolves conflicts, and decides the gate. It must
+not implement the protocol, run tests/review, or invoke the alias CLI itself.
+
+**Scope grill**:
+
+- **IN**: v2 schema/config/provider adapters; independent QA and review; fresh
+  read-only dispatch through all explicitly named aliases (`codex1`, `codex2`,
+  `agy1`, `agy2`).
+- **OUT**: rewriting old receipts, credentials/secrets, application or release
+  mutation, commit, push, deploy, publish, and overlapping writable ownership.
+- **Inputs/dependencies**: Rule 17, dispatcher and provider-native output modes,
+  configured aliases, an approved runtime config path, an explicit read-only
+  role or validated sandbox override, CORS/static-separation review scopes,
+  and ecosystem sync.
+- **Success**: implementation/QA/review are green and four distinct, valid v2
+  receipts bind their execution metadata to their results.
+- **Stop**: credentials/permissions/billing, ownership conflict, secret
+  exposure, malformed/ambiguous provider output, invalid receipt, or prohibited
+  root execution.
+
+**Protocol**:
+
+1. `ExecutionReceipt` records `protocol_version`, dispatch ticket/attempt ids,
+   alias, provider/adapter, objective/ownership, safe quota status, timestamps,
+   exit/transport status, safe provider process/session id when available,
+   output bytes/SHA-256, and normalized `WorkResult` SHA-256.
+2. `WorkResult` records `Status`, `Scope owned`, `Evidence`, `Findings`,
+   `Changed files`, `Residual risk`, and `Recommended next action`.
+3. Codex uses provider-native structured JSON/JSONL with output-schema support;
+   AGY uses its native stream-JSON event format. Provider prose is not itself a
+   receipt.
+4. Validation fails closed on missing/malformed fields or events,
+   protocol/alias/ticket/attempt or digest mismatch, secret-bearing fields,
+   ambiguous final event, nonzero exit without a typed failure result, or exit
+   zero without a schema-valid result. Adapter fallback requires fresh HITL.
+5. A read-only review lane must prove its approved runtime config path and an
+   explicit read-only role or validated provider sandbox override before
+   invocation. Example config, prompt-only restrictions, and default Codex
+   `workspace-write` are insufficient and produce `BLOCKED` pre-dispatch.
+
+**Delegation sequence**:
+
+| Phase | Owner | State | Stop condition |
+|---|---|---|---|
+| V2 implementation | Ownership-scoped developer child | DOING | Schema/config/adapter contract plus approved config/read-only enforcement implemented without touching application/release state |
+| Focused QA | Independent QA child | PENDING | Valid and failure matrices pass, including redaction |
+| Safety review | Independent code-review child | PENDING | Fail-closed, retry/HITL, root separation, and compatibility accepted |
+| Four alias CLI lanes | Child execution owner(s), never root | PENDING | Four distinct v2 receipts or typed safe blockers |
+| Gate decision | Root/current orchestrator | PENDING | Receipt identity/digests and all acceptance evidence verified |
+
+Fresh redispatch counters begin at attempt 1 only after implementation, QA, and
+review are complete. The lane mapping remains: `codex1` Vercel gateway CORS;
+`codex2` HF/FastAPI CORS; `agy1` static frontend/HF Docker separation; `agy2`
+cross-lane release/CORS evidence. All are read-only and non-overlapping.
+
+**Governance sync evidence (2026-08-25)**: the authoritative and Antigravity
+skill mirrors are byte-aligned. `sync_ai_agent_ecosystem.py --sync` and
+`--check` returned `0`; 19 Codex definitions were synchronized with 0 updated
+and 0 obsolete, so no generated `.codex/agents` file changed. Earlier unrelated
+trailing whitespace remains outside this v2 change and was not normalized.
 
 ---
 

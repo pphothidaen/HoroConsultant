@@ -42,7 +42,7 @@ roles:
   research:
     alias: agy1
     cli: agy
-    model: gemini-pro
+    model: Gemini 3.7 Flash (High)
     mode: plan
     sandbox: true
 ```
@@ -63,7 +63,7 @@ python scripts/multiagent_prompt_command.py --config .agents/config/multiagent_p
 python scripts/multiagent_prompt_command.py --config .agents/config/multiagent_prompt_command.yaml --role qa_review --alias agy2 --objective "Audit release evidence" --ownership "Read-only verification"
 ```
 
-Inspect the rendered route before adding `--execute`. Execution uses `subprocess.run(argv, shell=False, input=prompt)` and inherits the current environment except for the process-local CLI home override. Codex consumes stdin through its `-` prompt argument; AGY consumes stdin through `--print --input-format text --output-format json`. Prompt content therefore never enters the process list. Execution requires both the executable and configured CLI-home directory to exist; dry-run remains portable and does not require the account directory.
+Inspect the rendered route before adding `--execute`. Execution uses `subprocess.run(argv, shell=False, input=prompt)` and inherits the current environment except for the process-local CLI home override. Codex consumes stdin through its `-` prompt argument. AGY consumes a one-line NDJSON `user` event through `--input-format stream-json --output-format stream-json`; PromptCommand validates the terminal AGY event and then validates its `response` against the shared JSON result contract. Prompt content therefore never enters the process list. Execution requires both the executable and configured CLI-home directory to exist; dry-run remains portable and does not require the account directory.
 
 ```bash
 python scripts/multiagent_prompt_command.py --config .agents/config/multiagent_prompt_command.yaml --role implementation --objective "Implement ticket T-101" --ownership "src/widget.py and tests/test_widget.py" --execute

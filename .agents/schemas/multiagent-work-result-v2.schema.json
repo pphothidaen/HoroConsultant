@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://horoconsultant.local/schemas/multiagent-work-result-v2.schema.json",
+  "title": "HoroConsultant Multi-agent WorkResult v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "status",
+    "scope_owned",
+    "evidence",
+    "findings",
+    "changed_files",
+    "residual_risk",
+    "recommended_next_action"
+  ],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["DONE", "BLOCKED", "NEEDS_HITL"]
+    },
+    "scope_owned": {
+      "oneOf": [
+        {"type": "string", "minLength": 1},
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        }
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commands", "outcomes", "artifacts"],
+      "properties": {
+        "commands": {"type": "array", "items": {"type": "string"}},
+        "outcomes": {"type": "array", "items": {"type": "string"}},
+        "artifacts": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "findings": {
+      "oneOf": [
+        {"type": "string"},
+        {"type": "array", "items": {"type": "string"}}
+      ]
+    },
+    "changed_files": {
+      "oneOf": [
+        {"type": "string"},
+        {"type": "array", "items": {"type": "string"}}
+      ]
+    },
+    "residual_risk": {"type": "string", "minLength": 1},
+    "recommended_next_action": {"type": "string", "minLength": 1}
+  }
+}

@@ -180,12 +180,17 @@ class TestSpecificWorkflowsIntegrity:
         assert "scripts/sync_ai_agent_ecosystem.py --check" in content
 
     def test_hf_backend_deploy_workflow(self):
-        """hf_backend_deploy.yml must configure Doppler sync, HF token resolution, and publish scripts."""
+        """Docker workflow must publish only HF Docker and verify Vercel static separately."""
         content = (WORKFLOWS_DIR / "hf_backend_deploy.yml").read_text(encoding="utf-8")
         assert "dopplerhq/secrets-fetch-action" in content
         assert "scripts/publish_space_hf.py" in content
         assert "scripts/run_live_health_verification.py" in content
         assert "scripts/synthetic_health_monitor.py" in content
+        assert "VERCEL_STATIC_URL" in content
+        assert "Enforce Vercel static and HF Docker target separation" in content
+        assert "--sdk docker" in content
+        assert "--sdk static" not in content
+        assert "Publish static frontend" not in content
 
     def test_kaggle_finetune_workflow(self):
         """kaggle_finetune.yml must trigger scripts/kaggle_notebook_manager.py --push."""

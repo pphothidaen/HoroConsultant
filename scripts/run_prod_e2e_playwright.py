@@ -509,7 +509,9 @@ async def run_live_e2e_production_regression(profile: str = "smoke"):
 
         await browser.close()
 
-    expected_controls = 22
+    # Smoke intentionally omits the nine expensive discipline checks; missing
+    # full-profile controls are not production failures in that profile.
+    expected_controls = 22 if is_full_profile else 13
     if len(button_results) < expected_controls:
         button_results.append({
             "id": "BTN-PROD-UNEXECUTED",

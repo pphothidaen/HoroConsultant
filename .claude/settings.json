@@ -7,6 +7,10 @@
           {
             "type": "command",
             "command": "python3 .claude/hooks/pre_tool_guard.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/orchestrator_only_guard.py"
           }
         ]
       },
@@ -16,6 +20,10 @@
           {
             "type": "command",
             "command": "python3 .claude/hooks/pre_tool_guard.py"
+          },
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/orchestrator_only_guard.py"
           }
         ]
       }

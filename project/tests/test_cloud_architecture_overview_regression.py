@@ -113,9 +113,13 @@ class TestPhase1RequestEntryAndEdge:
         """App must allow CORS preflight / responses."""
         resp = client.options(
             "/api/v2/health",
-            headers={"Origin": "https://horoconsultant.vercel.app", "Access-Control-Request-Method": "GET"}
+            headers={
+                "Origin": "https://horo-consultant-psi.vercel.app",
+                "Access-Control-Request-Method": "GET",
+            },
         )
-        assert resp.status_code in (200, 204, 405)
+        assert resp.status_code == 200
+        assert resp.headers.get("access-control-allow-origin") == "https://horo-consultant-psi.vercel.app"
 
 
 # ============================================================================

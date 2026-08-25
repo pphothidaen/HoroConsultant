@@ -18,6 +18,7 @@ from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
+from project.core.cors import DEFAULT_CORS_ALLOWED_ORIGIN
 from project.core.multi_agent_debate import MetaphysicsDebateEngine
 from project.main import app
 from scripts.cleanup_vector_store import audit_storage, purge_and_cleanup
@@ -26,20 +27,18 @@ ROOT = Path(__file__).resolve().parents[2]
 client = TestClient(app)
 
 
-def test_vercel_handler_supports_preflight_cors(monkeypatch):
+def test_vercel_handler_supports_preflight_cors():
     """Verify the Vercel handler returns CORS headers for preflight requests."""
-    monkeypatch.setenv("CORS_ALLOWED_ORIGINS", "https://example.com")
-
     response = client.options(
         "/health",
         headers={
-            "Origin": "https://example.com",
+            "Origin": DEFAULT_CORS_ALLOWED_ORIGIN,
             "Access-Control-Request-Method": "GET",
             "Access-Control-Request-Headers": "content-type",
         },
     )
     assert response.status_code in {200, 204}
-    assert response.headers.get("access-control-allow-origin") in {"https://example.com", "*"}
+    assert response.headers.get("access-control-allow-origin") == DEFAULT_CORS_ALLOWED_ORIGIN
     assert response.headers.get("access-control-allow-methods")
 
 
@@ -198,3 +197,7 @@ def test_prod_button_regression_report_pass_rate():
     elif "summary" in data:
         assert data["summary"]["failed"] == 0 or data["summary"]["passed"] > 0
 
+
+def test_smoke_profile_does_not_require_full_profile_controls():
+    source = (ROOT / "scripts" / "run_prod_e2e_playwright.py").read_text(encoding="utf-8")
+    assert "expected_controls = 22 if is_full_profile else 13" in source

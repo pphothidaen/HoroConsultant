@@ -19,13 +19,15 @@ jobs:
     environment: production
     env:
       HF_BACKEND_SPACE_ID: ${{ vars.HF_BACKEND_SPACE_ID || secrets.HF_BACKEND_SPACE_ID || 'pphothidaen/horoconsultant-core-backend' }}
-      HF_STATIC_SPACE_ID: ${{ vars.HF_STATIC_SPACE_ID || secrets.HF_STATIC_SPACE_ID || 'pphothidaen/horoconsultant-core-backend' }}
       HF_BACKEND_URL: ${{ secrets.HF_BACKEND_URL || vars.HF_BACKEND_URL || 'https://pphothidaen-horoconsultant-core-backend.hf.space' }}
-      HF_STATIC_CDN_URL: ${{ secrets.HF_STATIC_CDN_URL || vars.HF_STATIC_CDN_URL || 'https://pphothidaen-horoconsultant-core-backend.hf.space' }}
+      # Vercel owns the public static UI. The legacy HF static target is read
+      # only to fail closed while configurations are migrated; it is never a
+      # publishing destination in this Docker-backend workflow.
+      HF_STATIC_SPACE_ID: ${{ vars.HF_STATIC_SPACE_ID || secrets.HF_STATIC_SPACE_ID }}
+      VERCEL_STATIC_URL: ${{ vars.VERCEL_STATIC_URL || secrets.VERCEL_STATIC_URL || vars.VERCEL_GATEWAY_URL || secrets.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID || vars.AWS_ACCESS_KEY_ID || secrets.AWS_ACCESS_KEY || vars.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY || vars.AWS_SECRET_ACCESS_KEY || secrets.AWS_SECRET_KEY || vars.AWS_SECRET_KEY }}
       AWS_ENDPOINT_URL: ${{ secrets.AWS_ENDPOINT_URL || vars.AWS_ENDPOINT_URL }}
-      VERCEL_GATEWAY_URL: ${{ secrets.VERCEL_GATEWAY_URL || vars.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -45,6 +47,38 @@ jobs:
 
       - name: Install deployment dependencies
         run: pip install huggingface_hub httpx python-dotenv
+
+      - name: Enforce Vercel static and HF Docker target separation
+        run: |
+          python3 - <<'PY'
+          import os
+          import sys
+          from urllib.parse import urlsplit
+
+          def normalized_url(name: str) -> str:
+              value = os.environ.get(name, "").strip().rstrip("/")
+              parsed = urlsplit(value)
+              if parsed.scheme != "https" or not parsed.netloc:
+                  print(f"[ERROR] {name} must be an absolute HTTPS URL.")
+                  raise SystemExit(1)
+              return value
+
+          static_url = normalized_url("VERCEL_STATIC_URL")
+          backend_url = normalized_url("HF_BACKEND_URL")
+          static_space_id = os.environ.get("HF_STATIC_SPACE_ID", "").strip()
+          backend_space_id = os.environ.get("HF_BACKEND_SPACE_ID", "").strip()
+
+          if not backend_space_id:
+              print("[ERROR] HF_BACKEND_SPACE_ID is required for Docker publication.")
+              raise SystemExit(1)
+          if static_space_id:
+              print("[ERROR] HF_STATIC_SPACE_ID is retired: use VERCEL_STATIC_URL for the UI.")
+              raise SystemExit(1)
+          if static_url == backend_url:
+              print("[ERROR] VERCEL_STATIC_URL must not equal HF_BACKEND_URL.")
+              raise SystemExit(1)
+          print("[OK] Vercel static UI and HF Docker backend targets are distinct.")
+          PY
 
       - name: Resolve HF token source
         env:
@@ -133,25 +167,12 @@ jobs:
             raise SystemExit(1)
           PY
 
-      - name: Publish static frontend
-        if: ${{ env.HF_STATIC_SPACE_ID != '' && env.HF_STATIC_SPACE_ID != env.HF_BACKEND_SPACE_ID }}
-        run: python3 scripts/publish_space_hf.py --space-id "$HF_STATIC_SPACE_ID" --sdk static
-
       - name: Publish Docker API backend
-        if: ${{ env.HF_BACKEND_SPACE_ID != '' }}
         run: python3 scripts/publish_space_hf.py --space-id "$HF_BACKEND_SPACE_ID" --sdk docker
-
-      - name: Normalize same-space static origin
-        if: ${{ env.HF_STATIC_SPACE_ID != '' && env.HF_STATIC_SPACE_ID == env.HF_BACKEND_SPACE_ID }}
-        run: echo "HF_STATIC_CDN_URL=${HF_BACKEND_URL}" >> "$GITHUB_ENV"
 
       - name: Wait for public backend and verify complete path
         run: |
-          if [ -n "${HF_BACKEND_SPACE_ID}" ]; then
-            CHECK_CMD="python3 scripts/run_live_health_verification.py --json-output production-verification.json"
-          else
-            CHECK_CMD="python3 scripts/run_live_health_verification.py --allow-missing-backend --json-output production-verification.json"
-          fi
+          CHECK_CMD="python3 scripts/run_live_health_verification.py --json-output production-verification.json"
           for attempt in $(seq 1 18); do
             if ${CHECK_CMD}; then
               exit 0
@@ -185,12 +206,7 @@ jobs:
           PY
 
       - name: Run synthetic monitor
-        run: |
-          if [ -n "${HF_BACKEND_SPACE_ID}" ]; then
-            python3 scripts/synthetic_health_monitor.py --once --json-output synthetic-health.json
-          else
-            python3 scripts/synthetic_health_monitor.py --allow-missing-backend --once --json-output synthetic-health.json
-          fi
+        run: python3 scripts/synthetic_health_monitor.py --once --json-output synthetic-health.json
 
       - name: Upload verification reports
         if: always()

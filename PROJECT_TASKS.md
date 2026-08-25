@@ -101,6 +101,87 @@ python3 -m pytest -q project/tests/
 
 ## 📊 TASK BOARD (KANBAN)
 
+## 🚀 SPRINT: Shell Environment & Multi-Account Codex Standalone Remediation — 2026-08-25
+**Grill Gate Status**: ✅ APPROVED (Ref: [`plans/plan.md`](plans/plan.md))
+**Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)
+
+| Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
+|---|---|---|---|---|
+| `TICKET-SHELL-001` | `orchestrator` | Grill Gate Approval & Architecture Specification | DONE | None |
+| `TICKET-SHELL-002` | `developer` | Backup & Refactor `~/.zshrc` with 100% Backward Compatibility | DONE | `TICKET-SHELL-001` |
+| `TICKET-SHELL-003` | `devops` | Standalone Codex Installation & Account Symlink Creation | DONE | `TICKET-SHELL-002` |
+| `TICKET-SHELL-004` | `qa_tester` | Shell Environment & Multi-Account Execution Verification | DONE | `TICKET-SHELL-003` |
+| `TICKET-SHELL-005` | `code_reviewer` | Final Safety Review & AI Ecosystem Sync Verification | DONE | `TICKET-SHELL-004` |
+
+---
+
+### 🎫 TICKET-SHELL-001 | `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL
+**Depends On**: None
+**Blocks**: `TICKET-SHELL-002`
+#### Detailed Instructions
+1. Grill user on requirements, backward compatibility, and standalone strategy.
+2. Produce GRILL REPORT in `plans/plan.md`.
+#### Acceptance Criteria
+- [x] GRILL REPORT prepended to `plans/plan.md`.
+- [x] Sprint tickets decomposed in `PROJECT_TASKS.md`.
+
+---
+
+### 🎫 TICKET-SHELL-002 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL
+**Depends On**: `TICKET-SHELL-001`
+**Blocks**: `TICKET-SHELL-003`
+#### Detailed Instructions
+1. Create backup `~/.zshrc.bak_<timestamp>`.
+2. Refactor `~/.zshrc` to clean up duplicate PATH exports and remove intrusive startup echo.
+3. Preserve all existing aliases and functions (`codex1-3`, `agy1-3`, `*_login`, `*_logout`, `*_status`, `ssh-node*`, `tailscale-restart`, `open-unifi-ui`, `claude-local*`, `agent-run`).
+#### Acceptance Criteria
+- [x] Backup created and verified (`~/.zshrc.bak_20260825_142154`).
+- [x] `zsh -n ~/.zshrc` passes with zero syntax errors.
+
+---
+
+### 🎫 TICKET-SHELL-003 | `devops` | [STATUS: DONE]
+**Priority**: CRITICAL
+**Depends On**: `TICKET-SHELL-002`
+**Blocks**: `TICKET-SHELL-004`
+#### Detailed Instructions
+1. Install standalone Codex via `curl -fsSL https://chatgpt.com/codex/install.sh | sh`.
+2. Symlink `~/.codex/packages` to `~/.ai-accounts/codex/account{1,2,3}/packages`.
+#### Acceptance Criteria
+- [x] `~/.codex/packages/standalone/current/codex` executable exists (v0.149.1).
+- [x] `~/.ai-accounts/codex/account{1,2,3}/packages` symlinks point to `~/.codex/packages`.
+
+---
+
+### 🎫 TICKET-SHELL-004 | `qa_tester` | [STATUS: DONE]
+**Priority**: CRITICAL
+**Depends On**: `TICKET-SHELL-003`
+**Blocks**: `TICKET-SHELL-005`
+#### Detailed Instructions
+1. Execute `codex1 --version`, `codex2 --version`, `codex3 --version` via zsh.
+2. Verify absence of `managed standalone Codex install not found` error.
+3. Verify `agent-run`, `claude-local`, `agy1-3` aliases and syntax.
+#### Acceptance Criteria
+- [x] Multi-account codex executions succeed without standalone missing error (`codex-cli 0.149.1` across all 3 accounts).
+- [x] `codex1_status`, `codex2_status`, `codex3_status` report active login.
+
+---
+
+### 🎫 TICKET-SHELL-005 | `code_reviewer` | [STATUS: DONE]
+**Priority**: HIGH
+**Depends On**: `TICKET-SHELL-004`
+**Blocks**: None
+#### Detailed Instructions
+1. Run `python3 scripts/sync_sdlc_agents.py --check` and `python3 scripts/sync_codex_agents.py --check`.
+2. Ensure secret hygiene and zero regressions.
+#### Acceptance Criteria
+- [x] Agent ecosystem sync checks PASS (SDLC and Codex sync 100%).
+- [x] Secret scan passed (0 leaks across 1770 files).
+
+---
+
 Historic completion details have been archived to [docs/RELEASE_NOTES.md](docs/RELEASE_NOTES.md).
 Current sections below track active work and release gates only.
 ## 📋 PLANNED SPRINT: Metaphysics Learning Roadmap & Question-Forecast Alignment
@@ -132,7 +213,130 @@ Current sections below track active work and release gates only.
 | `TICKET-META-007` | `orchestrator` / `business_analyst` | Refresh sub-agent delegation governance and Claude Code three-level command-control examples | DONE | `TICKET-META-001` |
 | `TICKET-META-008` | `orchestrator` / `business_analyst` / `devops` | Preserve account-migration continuity and quota-exhaustion handoff, including active blockers, non-secret credential status, and safe resume commands | DONE | `TICKET-META-005`, `TICKET-META-006` |
 | `TICKET-META-009` | `developer` / `qa_tester` | Safely upgrade Python/Rust dependency lockfiles and validate compatibility after active release gates are clear | DONE | `CP-03-AZURE`, `CP-04-PW`, `CP-05-RELEASE` |
+| `TICKET-QA-PW-SMOKE-20260825` | `qa_tester` | Re-run and reconcile Vercel production smoke E2E | DONE | `G-META-006-PW` |
 | `PROMPT-GOV-001` | `business_analyst` / `orchestrator` | Govern multi-account PromptCommand routing, quota/account evidence, bounded retries, HITL escalation, and synchronized governance mirrors | DONE | `TICKET-META-008`, Rule 17 |
+| `TICKET-ORCH-ONLY-002` | `business_analyst` / `orchestrator`; aliases `codex1`, `codex2`, `agy1`, `agy2` | Enforce governance -> rules -> hooks hierarchy; keep root/current session orchestrator-only and obtain four distinct alias receipts | BLOCKED — HITL DISPATCH CONTRACT | Rule 17, current CORS/separation lanes |
+| `TICKET-ALIAS-RC2-003` | `developer` / `qa_tester` / `code_reviewer`; aliases `codex1`, `codex2`, `agy1`, `agy2`; monitored by `orchestrator` | Implement, validate, review, then redispatch four distinct lanes with Result Contract v2 | DOING — PROTOCOL IMPLEMENTATION | `TICKET-ORCH-ONLY-002`, Rule 17 |
+
+### TICKET-ORCH-ONLY-002 | Orchestrator-Only Control and Four-Alias Dispatch | [STATUS: BLOCKED — HITL DISPATCH CONTRACT]
+
+**Scope**: require the root/current session to delegate all implementation,
+QA, git mutation, deploy, and publish work. Its permitted work is decomposition,
+dispatch, monitoring, receipt collection, conflict resolution, HITL, and final
+gate decisions. **Out of scope**: application/workflow implementation by the
+root, credentials, secret values, staging, commits, pushes, deploys, and
+publishes. **Dependencies**: the current CORS and static/backend-separation
+lanes, configured aliases, and the Claude PreToolUse hook registration.
+
+**Success / stop condition**: Rule 17, skills/mirrors, board/plan, Claude rule,
+and hook contract agree; every explicitly requested alias returns its actual
+receipt or a safe `BLOCKED` result. Stop and return `NEEDS_HITL` for an
+unrecorded root action, missing alias execution evidence, credentials, or an
+ownership conflict.
+
+| Alias | Bounded lane | Writable ownership | Required receipt | Status |
+|---|---|---|---|---|
+| `codex1` | Vercel gateway CORS independent review | None; read-only gateway-source and test review | receipt `01a03849-759b-7b21-826e-35697a0743ee`; return `0`; `1123` bytes; invalid result contract | BLOCKED after 3 attempts |
+| `codex2` | HF/FastAPI CORS independent review | None; read-only backend-source and test review | receipt `01a03849-75a8-7150-98a3-1b926b818477`; return `0`; `1799` bytes; invalid result contract | BLOCKED after 3 attempts |
+| `agy1` | Static frontend/HF Docker separation review | None; read-only release-routing review | final child return `1`; `376` bytes; invalid result contract | BLOCKED after 3 attempts |
+| `agy2` | Cross-lane release-gate and CORS evidence review | None; read-only receipts and release boundaries | final child return `1`; `374` bytes; invalid result contract | BLOCKED after 3 attempts |
+
+**Hierarchy**: (1) governance policy defines the root-only boundary and waiver
+contract; (2) Rule 17, the multi-account skill, and Claude mirror define the
+dispatch contract; (3) `.claude/settings.json` registers PreToolUse hooks that
+enforce the marked Claude session. The hook is intentionally narrow and
+permits monitor/dispatch activity. It recognizes a waiver only when
+`HORO_ROOT_WAIVER_ID` matches `ROOT-WAIVER: <id>` recorded in both this board
+and `plans/plan.md`; no waiver marker is active for this ticket.
+
+**Runtime limitation**: Claude hooks apply only to Claude Code tool calls and
+only when the launcher sets `HORO_ORCHESTRATOR_ONLY=1`. They cannot determine a
+Codex root session or enforce Codex tools automatically. Codex relies on this
+governance contract, alias receipts, and final gate review until a native Codex
+hook exists. This limitation is a safeguard, not execution proof.
+
+**Acceptance checklist**:
+
+- [x] Governance -> rules -> hooks hierarchy is documented without changing application code.
+- [x] Existing Claude PreToolUse registration retains secret/destructive guard and adds an orchestrator-only guard.
+- [x] Guard blocks marked-root implementation edits, QA commands, git mutations, and deploy/publish commands unless a recorded waiver marker exists.
+- [x] Guard permits orchestration-safe monitoring and dispatch commands.
+- [x] All four alias attempts have safe terminal metadata recorded; every child result contract is invalid and every lane is `BLOCKED` after the three-attempt limit.
+- [x] Focused hook tests and ecosystem `--sync` followed by `--check` are green; sync changed no generated Codex files.
+
+**Historical closure**: these four receipts remain `BLOCKED` and do not close
+the CORS/static-separation release gate. On 2026-08-25 the owner authorized a
+fresh Result Contract v2 protocol and explicitly did not waive the receipts.
+The authorized work continues only under `TICKET-ALIAS-RC2-003`; its retry
+counters start at attempt 1 and cannot rewrite this historical record.
+
+### TICKET-ALIAS-RC2-003 | Result Contract v2 and Four-Alias Redispatch | [STATUS: DOING — PROTOCOL IMPLEMENTATION]
+
+**Authorization**: owner instruction received 2026-08-25 authorizes Result
+Contract v2 and a terminal CLI workaround in delegated child lanes. There is
+no receipt waiver and no root-action waiver. The current/root session remains
+orchestrator-only and may plan, delegate, monitor, collect receipts, and decide
+the gate; it must not implement, test, review, or invoke the alias CLI itself.
+
+**In scope**: v2 schema/config/adapter implementation by an ownership-scoped
+developer child; provider-native Codex structured JSON/JSONL with output-schema
+support; AGY native stream-JSON parsing; independent QA and security review;
+then four fresh read-only terminal dispatches. **Out of scope**: changing prior
+receipts, authentication or secret inspection, application/release mutation,
+commit, push, deploy, publish, or shared writable ownership.
+
+**Two-layer contract**:
+
+- `ExecutionReceipt` binds protocol version, dispatch ticket/attempt, alias,
+  provider/adapter, objective/ownership, safe quota status, timestamps,
+  exit/transport status, safe provider session/process id when available,
+  output byte count/SHA-256, and normalized `WorkResult` SHA-256.
+- `WorkResult` contains `Status`, `Scope owned`, `Evidence`, `Findings`,
+  `Changed files`, `Residual risk`, and `Recommended next action`.
+
+Validation is fail closed: missing/malformed fields or events, identity/digest
+mismatch, ambiguous final event, secret-bearing output, nonzero execution
+without a typed failure result, or exit zero without a valid `WorkResult` is
+not a receipt. Free-form inference and adapter fallback require fresh HITL.
+
+| Alias | Fresh v2 lane | Ownership | v2 attempt | Status |
+|---|---|---|---|---|
+| `codex1` | Vercel gateway CORS independent review | Read-only | Starts at 1 after implementation/QA/review | PENDING REDISPATCH |
+| `codex2` | HF/FastAPI CORS independent review | Read-only | Starts at 1 after implementation/QA/review | PENDING REDISPATCH |
+| `agy1` | Static frontend/HF Docker separation review | Read-only | Starts at 1 after implementation/QA/review | PENDING REDISPATCH |
+| `agy2` | Cross-lane release-gate and CORS evidence review | Read-only | Starts at 1 after implementation/QA/review | PENDING REDISPATCH |
+
+**Checklist**:
+
+- [x] Record fresh owner authorization for Result Contract v2; no waiver.
+- [x] Preserve all four prior attempts as immutable historical `BLOCKED` evidence.
+- [x] Define two-layer receipt/result governance, provider-native adapters, fail-closed rules, and fresh per-alias counters.
+- [x] Run ecosystem `--sync` then `--check`: 19 Codex definitions synchronized, 0 updated, 0 obsolete, and no generated `.codex/agents` change.
+- [ ] Developer child implements dispatcher/config/schema/template changes within exclusive ownership.
+- [ ] Developer/DevOps child supplies an approved runtime config path and an explicit read-only role or validated sandbox override; example config and default Codex `workspace-write` are rejected.
+- [ ] QA child validates valid, malformed, ambiguous, nonzero-exit, identity/digest mismatch, and secret-redaction cases.
+- [ ] Code reviewer verifies fail-closed behavior, retry/HITL boundaries, root-only separation, and backward compatibility.
+- [ ] Child execution lanes invoke `codex1`, `codex2`, `agy1`, and `agy2` through the terminal CLI and return four v2 receipts.
+- [ ] Orchestrator confirms four distinct valid receipts and decides the release gate.
+
+**Success / stop**: close only when implementation, QA, and review are green and
+all four fresh alias lanes provide distinct schema-valid v2 receipts. Stop on
+ownership conflict, authentication/permission/billing, secret exposure,
+adapter ambiguity, invalid receipt, or any root implementation/CLI execution.
+
+**Read-only execution gate**: QA found that only an example dispatch config is
+currently present and Codex roles default to `workspace-write`. No v2 review
+alias may start until a child proves an approved runtime config path and either
+an explicit read-only role or a validated provider sandbox override. Prompt
+instructions are not isolation. Missing proof is `BLOCKED`, not a waivable
+receipt validation warning.
+
+**Governance evidence (2026-08-25)**: authoritative and Antigravity skill
+mirrors are byte-identical. Ecosystem sync and check both returned `0`; the
+generator reported 19 Codex agent definitions, 0 updated, and 0 obsolete. No
+generated Codex agent file was manually edited or changed by this governance
+update. Existing trailing whitespace in unrelated earlier board additions is
+preserved and is not v2 evidence.
 
 ### 🎫 PROMPT-GOV-001 | `business_analyst` / `orchestrator` | [STATUS: DONE]
 
@@ -189,7 +393,7 @@ These checkpoints replace the previous single release-closure workstream. They a
 | `CP-01-LOCAL` | `qa_tester` / `code_reviewer` | Re-run local QA, secret scan, agent sync, quality gate | Timestamped command outputs and report paths | **DONE** — local evidence green; proceed only to separately gated external checkpoints |
 | `CP-02-HF` | `devops` | Verify canonical HF origin, `/health`, deterministic API | Fresh canonical probe JSON with explicit status (`project/tests/hf_canonical_reprobe_2026-08-24.json`, `vercel_reprobe_2026-08-24.json` 3/3 GREEN) | **PASS** — HF canonical & Vercel fallback verified |
 | `CP-03-AZURE` | `devops` | Validate complete Azure Actions credentials and deploy | Workflow proving login, provisioning, and `/health` (Run `32630424001` SUCCESS) | **PASS** — Azure Container Apps deploy healthy |
-| `CP-04-PW` | `qa_tester` | Obtain authorization and run production Playwright | Location search verified passing, smoke executed | **PASS** — Production Playwright verified |
+| `CP-04-PW` | `qa_tester` | Run the bounded production smoke Playwright profile | `project/tests/prod_button_regression_report.json` (2026-08-25 05:17:45 UTC): Vercel smoke 13/13 passed, 0 failed | **DONE** — `TICKET-QA-PW-SMOKE-20260825`; full-profile coverage remains separately unfinished |
 | `CP-05-RELEASE` | `orchestrator` / `devops` | Consolidate all green release gates | Single all-green release matrix across local, HF, Vercel, and Azure | **PASS** — All multi-cloud release gates cleared |
 | `CP-06-HANDOFF` | `business_analyst` | Final document sync, quota-safe handoff, parent transition | Updated board, plan links, evidence index | **READY** — Ready for operator final sign-off |
 
@@ -205,7 +409,7 @@ These checkpoints replace the previous single release-closure workstream. They a
 **Depends On**: None
 **Blocks**: Final production handoff only; implementation, QA, and local release evidence are complete.
 
-**Current status**: All child implementation and local QA tickets are complete. The parent remains blocked only by `TICKET-V3UI-006`: explicit human authorization to deploy the current patch and run post-deploy five-viewport verification.
+**Current status**: All historical child implementation and local QA tickets are complete. The active release candidate is governed solely by `TICKET-V3UI-007` (local version target `1.0.0.c9f9161` / `c9f9161`). It is blocked pending fresh, hash-bound evidence and explicit HITL authorization for any production mutation. `TICKET-V3UI-006` is a historical `6c351ba` baseline and cannot prove this candidate.
 
 #### Detailed Instructions
 1. **Scope and architecture** — implement the five roadmap branches and their calculation/knowledge surfaces: Three Cosmic Styles (Tai Yi, Da Liu Ren, Qi Men), Destiny Analysis (BaZi improvements, Zi Wei, Qi Zheng Si Yu), Divination (I Ching, Liu Yao, Mei Hua), Physiognomy/Feng Shui (Xuan Kong, San He, Mian Xiang), and Date Selection (Ze Ji).
@@ -448,7 +652,7 @@ Run the required unit, integration, UI/E2E, security, agent synchronization, pre
 - [x] Rust/Python full-review wrapper completion: wrapper command path confirmed; accepted commands are `--review --use-python` and `--review`.
   - **Current status:** `python3 project/core/code_reviewer.py --review --use-python` and `python3 project/core/code_reviewer.py --review` execute deterministically with `READY_FOR_PROD`.
   - **Gate Ref:** `G-META-006-WRAPPER`.
-- [x] Live production Playwright E2E: location search verified passing, smoke executed (`21/22 controls passed` + location search verified). `CP-04-PW` is **PASS**.
+- [x] Live production smoke Playwright E2E: `TICKET-QA-PW-SMOKE-20260825` completed against the Vercel fallback at 2026-08-25 05:17:45 UTC with **13/13 expected smoke controls passed** and 0 failed. The smoke scope excludes the nine full-profile discipline checks; full-profile coverage remains separately unfinished. `CP-04-PW` is **DONE** for smoke scope.
   - **Gate Ref:** `G-META-006-PW`.
 
 #### Acceptance Criteria
@@ -474,7 +678,7 @@ Run the required unit, integration, UI/E2E, security, agent synchronization, pre
 - Exact CI Bandit command passes locally; retain CI run evidence under `CP-01-LOCAL`/`G-META-005-RUSTCI`.
 - `CP-02-HF`: canonical artifact `project/tests/backend-release-check-hf-canonical-2026-08-23-latest.json` (2026-08-23 11:12 +07) is 3/3 GREEN, but fresh 5-sample multi-probe at 16:48 +07 shows HF **static UI (`static.hf.space`) consistently 404** while Docker backend `/health` and deterministic API remain stable 200. Vercel fallback is stable 3/3 GREEN. **Downgraded from PASS to FLAPPING** — backend healthy, static CDN path unstable. **Next action:** characterize flap window + operator decision (Vercel primary vs HF static repair); attach `project/tests/hf_static_ui_flap_characterization_2026-08-23.json`.
 - `CP-03-AZURE`: replace GitHub Azure credentials with complete non-secret field configuration, rerun the workflow, and verify provisioning plus `/health`.
-- `CP-04-PW`: Playwright `chromium` is installed and launchable in this workspace; a smoke E2E run against the verified Vercel fallback (`horo-consultant-psi.vercel.app`) completed with **12/14 controls passed** — reproducible artifact-grade results. Remaining gap: explicit operator authorization for full-profile (all 9 discipline buttons + full control set) production E2E, plus triage/acceptance of the 2 pre-existing smoke failures (location search fill timeout + 9 discipline buttons unexecuted in smoke profile).
+- `CP-04-PW`: `TICKET-QA-PW-SMOKE-20260825` is **DONE**. Playwright `chromium` ran the bounded smoke profile against the Vercel fallback (`horo-consultant-psi.vercel.app`) at 2026-08-25 05:17:45 UTC with **13/13 expected controls passed** and 0 failed; `project/tests/prod_button_regression_report.json` is the artifact. The smoke profile intentionally excludes nine discipline checks. **Separate unfinished gate:** obtain authorization and run the full profile (22 controls), then archive and assess that evidence independently.
 - `CP-05-RELEASE`: run only after CP-01 through CP-04 have current evidence.
 - `CP-06-HANDOFF`: synchronize docs and transition tickets only after the consolidated matrix is green.
 
@@ -485,7 +689,7 @@ Run the required unit, integration, UI/E2E, security, agent synchronization, pre
 | `G-META-005-AZURE` | `AZURE RBAC` remediation (`Azure Container Apps — Production Deployment`) | `devops` | RBAC is granted and local Resource Group read preflight passes; fix GitHub Azure credential secrets, rerun `Azure Container Apps — Production Deployment`, and confirm both login and provisioning stages pass. |
 | `G-META-005-RUSTCI` | Rust formatter + Bandit `B602` remediation (`project/mlops`) | `developer`, `code_reviewer` | Apply formatter/bandit fixes and rerun release CI to clear the red security/format gate. |
 | `G-META-006-WRAPPER` | Full-review wrapper convergence | `code_reviewer` | Confirm the wrapper target command, run `python3 project/core/code_reviewer.py --review --use-python`, and confirm deterministic completion. |
-||| `G-META-006-PW` | Production Playwright egress authorization + run | `qa_tester` | Capture permission evidence, rerun production Playwright E2E, and archive run logs/artifacts. **Status (2026-08-23 17:06 +07):** Full-profile E2E run against Vercel fallback completed 21/22 passed (95.45%, 73.81s) — 9 discipline buttons + all core controls pass; 1 pre-existing failure: `(BTN-PROD-01)` location search `#location_search` fill timeout (element not visible). **Substantially resolved** — remaining: operator sign-off on full-profile artifact + triage/accept 1 pre-existing location-search failure. |
+||| `G-META-006-PW` | Full-profile production Playwright authorization + run | `qa_tester` | Smoke scope is closed by `TICKET-QA-PW-SMOKE-20260825`: Vercel smoke artifact at 2026-08-25 05:17:45 UTC reports 13/13 expected controls passed. **Unfinished separate gate:** capture authorization, run the 22-control full profile, archive the result, and triage any failures independently. |
 | `G-META-006-FULLQA` | Full local QA + canonical-backend unavailable assertions | `qa_tester`, `code_reviewer` | Execute local full QA suite including BaZi 503-path assertions; record canonical timestamped report. |
 | `G-META-005-SECURE` | Provider/observability/CI/security convergence | `devops`, `developer` | Ensure provider/observability and CI/security checks green in consolidated release gate matrix. |
 | `G-META-001-CORE` | Core release gates (CI, E2E/UI, secret scan, agent sync) | `devops`, `qa_tester` | Re-run consolidated release gate matrix and verify all required gates are green before release. |
@@ -511,7 +715,7 @@ Run the required unit, integration, UI/E2E, security, agent synchronization, pre
 | `G-META-005-AZURE` | `gh workflow run "Azure Container Apps — Production Deployment" -f force_rebuild=true`<br/>`gh run list --workflow="Azure Container Apps — Production Deployment" --limit=1`<br/>`gh run view <run_id> --log-failed --job <deploy_job_id>` |
 | `G-META-005-RUSTCI` | `cd rust_core`<br/>`cargo fmt --all -- --check`<br/>`cargo test --no-default-features --test test_vector_search`<br/>`cd ..`<br/>`bandit -r project/mlops -x project/kaggle_kernel -s B101,B404,B603,B311,B324,B110 -lll` |
 | `G-META-006-WRAPPER` | `python3 project/core/code_reviewer.py --review --use-python` |
-|| `G-META-006-PW` | `python3 scripts/run_prod_e2e_playwright.py --profile full`<br/>`HORO_PUBLIC_URL=https://horo-consultant-psi.vercel.app python3 scripts/run_prod_e2e_playwright.py --profile smoke`<br/>**Verified 2026-08-23 16:27 +07:** smoke run against Vercel fallback completed 12/14 passed; `chromium` launched successfully. Remaining: full-profile authorization + triage of 2 pre-existing smoke failures. |
+|| `G-META-006-PW` | `python3 scripts/run_prod_e2e_playwright.py --profile full`<br/>`HORO_PUBLIC_URL=https://horo-consultant-psi.vercel.app python3 scripts/run_prod_e2e_playwright.py --profile smoke`<br/>**Smoke verified 2026-08-25 05:17:45 UTC:** Vercel fallback completed 13/13 expected smoke controls, 0 failed (`TICKET-QA-PW-SMOKE-20260825`). This gate remains for the separately unfinished 22-control full-profile run. |
 | `G-META-006-FULLQA` | `python3 -m pytest -q project/tests/` |
 | `G-META-005-SECURE` | `python3 -m pytest project/tests/test_ai_provider_router.py project/tests/test_ai_provider_router_tier3.py project/tests/test_llm_multirouter.py -q`<br/>`python3 -m pytest project/tests/test_observability.py project/tests/test_rust_extensions.py -q`<br/>`python3 scripts/grafana_cloud_exporter.py --check-connection --dry-run` |
 | `G-META-001-CORE` | `python3 scripts/run_quality_gate.py`<br/>`python3 project/core/code_reviewer.py --scan-secrets`<br/>`python3 scripts/run_button_regression.py` |
@@ -741,7 +945,8 @@ Use [docs/RELEASE_HANDOFF_CHECKLIST.md](docs/RELEASE_HANDOFF_CHECKLIST.md) for t
 | `TICKET-V3UI-003` | `developer` | Implement isolated v3 responsive/layout/contrast remediation | DONE | `TICKET-V3UI-001` |
 | `TICKET-V3UI-004` | `ui_visual_tester` | Add selected-v3 scenario, contrast/overflow/collision checks, and five-viewport captures | DONE | `TICKET-V3UI-001` |
 | `TICKET-V3UI-005` | `qa_tester` / `orchestrator` | Run targeted/full regression, compare before/after, and triage console/network failures | DONE | `TICKET-V3UI-003`, `TICKET-V3UI-004` |
-| `TICKET-V3UI-006` | `orchestrator` / `code_reviewer` | Record lesson learned, sync docs, audit release readiness, and request HITL deploy if desired | DONE — READY_FOR_PROD | `TICKET-V3UI-005` |
+| `TICKET-V3UI-006` | `orchestrator` / `code_reviewer` | Historical `6c351ba` release baseline: lesson learned, sync docs, and safety review | DONE — HISTORICAL BASELINE ONLY | `TICKET-V3UI-005` |
+| `TICKET-V3UI-007` | `orchestrator` / `business_analyst` / `devops` / `qa_tester` / `code_reviewer` | Release the current `c9f9161` candidate through user-authorized `release_source_commit` provenance, fail-closed local, evidence, HITL, publish, and post-deploy gates | DOING — BLOCKED ON GATES / HITL | `TICKET-V3UI-006` |
 
 ### TICKET-V3UI-001 | `orchestrator` | [STATUS: DONE]
 **Priority**: CRITICAL
@@ -777,12 +982,36 @@ Use [docs/RELEASE_HANDOFF_CHECKLIST.md](docs/RELEASE_HANDOFF_CHECKLIST.md) for t
 
 **Telegram QA remediation**: `TelegramBotController` now resolves the default `TELEGRAM_CHAT_ID` at request time while preserving explicit constructor overrides. The notifier unit contract clears external credentials before asserting formatting, preventing real DNS/network calls. Focused Telegram/config/security tests pass `16 passed` and the prior three full-suite failures are closed.
 
-### TICKET-V3UI-006 | `orchestrator` / `code_reviewer` | [STATUS: DONE — READY_FOR_PROD]
+### TICKET-V3UI-006 | `orchestrator` / `code_reviewer` | [STATUS: DONE — HISTORICAL BASELINE ONLY]
 **Priority**: HIGH
 **Ownership**: lesson/task/plan evidence and read-only safety review
-**Definition of Done**: 5-Whys/root cause, prevention protocol, regression guard, artifact links, residual risks, exact deployment SHA/HITL action, and `python3 scripts/sync_ai_agent_ecosystem.py --check` result are recorded. No `READY_FOR_PROD` claim without all evidence.
+**Definition of Done**: historical 5-Whys/root cause, prevention protocol, regression guard, artifact links, residual risks, deployed `6c351ba` SHA/HITL action, and `python3 scripts/sync_ai_agent_ecosystem.py --check` result are recorded. It is not evidence for a later candidate.
 
-**Evidence**: secret scan passed with 0 leaks; comprehensive review passed 801 tests with 0 secret/CUDA issues; publisher patch tests 5/5 passed; authorized publish completed with HTTP 200 commits; source version `1.0.0.6c351ba`, HF revision `f8aaa24ed36248c957ff35b405c3056626b28fc7`, runtime `RUNNING`. Remote app.js/v3_tokens.css/sw.js hashes match local deployed assets and all version surfaces are coherent. Detailed lessons and risks are recorded in `docs/lessons_learned_v3_visual_integrity_2026-08-24.md`. `.agents/LESSONS_LEARNED.md` records the prevention rule. Post-deploy visual QA is complete at five canonical viewports; the final manual screenshot review closes the 30 automated gradient indeterminates for this release.
+**Historical evidence only**: secret scan passed with 0 leaks; comprehensive review passed 801 tests with 0 secret/CUDA issues; publisher patch tests 5/5 passed; authorized publish completed with HTTP 200 commits; source version `1.0.0.6c351ba`, HF revision `f8aaa24ed36248c957ff35b405c3056626b28fc7`, runtime `RUNNING`. Its report, screenshot hashes, and manual review are bound to that release. Any changed source version, regenerated report, screenshot, or different HF revision requires `TICKET-V3UI-007` to repeat the applicable gates and obtain a new sign-off.
+
+### TICKET-V3UI-007 | Current `c9f9161` HF Static Release | [STATUS: DOING — BLOCKED ON GATES / HITL]
+
+**Sole authority**: this ticket is the only release checklist for local candidate `1.0.0.c9f9161` / `c9f9161`. Historical `TICKET-V3UI-006`, source `6c351ba`, HF revision `f8aaa24ed36248c957ff35b405c3056626b28fc7`, and their artifacts are baseline context only; none may close a row below.
+
+**Scope**: release-affecting files deliberately selected from the current dirty worktree, including mirrored Static assets and their tests/reports only after ownership review. **Out of scope**: unrelated dirty data/RAG/HITL files, secret access or mutation, infrastructure changes, generated agent definitions, and any unapproved production mutation. **User-authorized identity decision**: immutable `release_source_commit` identifies the deployed payload; the later `packaging_commit` is evidence-only. The packaging commit must not replace the source identity on version surfaces, and no legacy commit/version/metadata fallback or override is permitted.
+
+**Current evidence gate (open)**: `project/tests/artifacts/visual_layout_report.json` was regenerated at `2026-08-25T07:13:49Z` (SHA-256 `807d2609ca53da995bb9c1f89c565a67d867f91855a758dd139470adba9422c0`) and reports 30 gradient indeterminates. The historical post-deploy artifact records a different report hash (`083631501d9129574928fd1af8e386e706f1f20d407068adb5c4a22846bb2f68`) for `6c351ba`; therefore the historical manual review is invalid for this candidate under Rule 16.
+
+**Required release checklist**:
+
+- [ ] Confirm the exact release-file allowlist, exclude unrelated dirty files, and record the intended candidate version plus immutable `release_source_commit` after review.
+- [ ] Commit source metadata that names its path, SHA-256 digest, version, immutable `release_source_commit`, and source revision. Do not permit a legacy fallback, environment variable, CLI default, runtime `HEAD`, or external override to replace it.
+- [ ] Verify `project/static/**` and `public/**` mirrored release surfaces, including version, HTML, app, and service-worker references, are coherent for the intended commit.
+- [ ] Run and archive proportional local QA, publisher regression, visual-audit regression, JavaScript syntax/parity checks, `git diff --check`, secret/safety review, and `python3 scripts/sync_ai_agent_ecosystem.py --check`; stop on the first red result.
+- [ ] Capture a fresh five-viewport `v3-consensus` report and the five screenshots, record their SHA-256 values, and bind them to the immutable `release_source_commit` and timestamp.
+- [ ] Resolve every automated gradient indeterminate with a new reviewer record per viewport: six findings each (30 total), report/screenshot hashes, reviewer, timestamp, visual basis, and explicit PASS or FAIL. A regenerated artifact invalidates this row.
+- [ ] Obtain explicit HITL authorization before staging, selective commit, push, or publish. This ticket does not itself authorize any of those operations.
+- [ ] After authorization, selectively stage only the reviewed allowlist, create and record the later `packaging_commit`, then push it; do not include unrelated dirty files. Record both identities in evidence and prove `release_source_commit` is an ancestor of `packaging_commit`.
+- [ ] Publish the payload identified by `release_source_commit` to the HF Static Space, run SDK-aware Static health and exact-version verification, and save the resulting target, revision, version, both commit identities, source-metadata path/digest, and asset-parity evidence.
+- [ ] Re-capture the five production viewports after publish; verify report/screenshot hashes and all version surfaces correspond exactly once to `release_source_commit`, while the evidence records the later `packaging_commit`; repeat manual gradient sign-off for the post-deploy artifacts.
+- [ ] Code reviewer records a fresh fail-closed `READY_FOR_PROD` verdict only after every row above is green; orchestrator then updates the board/plan with the final evidence or records `[ERROR] BLOCKED`.
+
+**Owners and stop conditions**: `qa_tester` owns local regression and captures; `devops` owns payload/health/version/publish evidence after authorization; `code_reviewer` owns safety and the fail-closed verdict; `business_analyst` owns evidence/ticket synchronization; `orchestrator` owns allowlist, dispatch, HITL request, and final decision. Stop and return the first failing gate to its owner. After three failed remediation cycles or any missing authorization, return `NEEDS_HITL`; never infer a pass from the historical baseline.
 
 ### Sprint Evidence & Release Decision
 
@@ -791,7 +1020,7 @@ Use [docs/RELEASE_HANDOFF_CHECKLIST.md](docs/RELEASE_HANDOFF_CHECKLIST.md) for t
 - Confirmed Production risks: fourth tab/descendant clipping on compact mobile, v3-only dark-mode island, sub-AA semantic colors, fixed-height long-content clipping, UI/backend version-label drift, and stale `/index.html` PWA references.
 - Release decision: **READY_FOR_PROD**. Authorized deployment and post-deploy verification are complete. The documented final manual screenshot review resolves the 30 automated gradient indeterminates for this release; an indeterminate without equivalent named reviewer sign-off is a blocking risk. The expected static simulation API 404 remains a documented non-blocking Static-SDK behavior.
 
-### Post-Deploy Update — 2026-08-25
+### Historical Post-Deploy Update — `6c351ba` — 2026-08-25
 
 - Release authorization received and static HF Space published successfully.
 - Evidence: `project/tests/artifacts/hf_post_deploy_v3_verification_2026-08-25.json`.
@@ -800,7 +1029,7 @@ Use [docs/RELEASE_HANDOFF_CHECKLIST.md](docs/RELEASE_HANDOFF_CHECKLIST.md) for t
 - Post-redeploy version coherence is PASS: `CURRENT_PAGE_VERSION`, footer, `CLIENT_APP_VERSION`, service-worker cache, and cache-busting query strings all use `1.0.0.6c351ba` / `6c351ba`; no `e432e0d` or composite labels remain.
 - Fail-closed release verification requires exactly one matching value/reference on every version surface and rejects missing assets, malformed metadata, network errors, duplicate declarations, stale/composite labels, Docker version mismatches, and CLI mismatches. Publisher suite: `16 passed`; combined publisher and visual-audit regression: `24 passed`.
 - Live post-hardening checks: Static health `HEALTHY`; exact version verification `PASSED` for `1.0.0.6c351ba` / `6c351ba`.
-- **Current release state: DEPLOYED — READY_FOR_PROD.**
+- **Historical release state: `6c351ba` was DEPLOYED — READY_FOR_PROD. This does not authorize or verify `TICKET-V3UI-007`.**
 
 ### TICKET-HFSTATIC-GOV-001 | Mandatory Release Verification Governance | [STATUS: DONE]
 
@@ -835,7 +1064,7 @@ python3 scripts/sync_ai_agent_ecosystem.py --check
 
 **Release gate**: no `READY_FOR_PROD` if any command exits non-zero, any required artifact is missing, any version surface is stale/duplicate/composite, any required asset is unreachable, any viewport fails, or any result remains indeterminate. An indeterminate is resolved only by a named manual reviewer recording the current artifact, timestamp, review basis, and explicit pass/fail sign-off. Route failure to the responsible sub-agent; after three failed remediation cycles, stop and escalate to HITL.
 
-**Current evidence**: publisher `16 passed`; publisher + visual audit `24 passed`; governance contract suite passed in the implementation session (count may evolve with the contract); Static health and exact version green for `1.0.0.6c351ba` / `6c351ba`; visual report `PASSED` 5/5 with screenshots under `project/tests/screenshots/visual_audit/`; automated gradient indeterminates are closed by the documented final manual screenshot review.
+**Historical evidence**: publisher `16 passed`; publisher + visual audit `24 passed`; governance contract suite passed in the implementation session (count may evolve with the contract); Static health and exact version green for `1.0.0.6c351ba` / `6c351ba`; visual report `PASSED` 5/5 with screenshots under `project/tests/screenshots/visual_audit/`; automated gradient indeterminates are closed by the documented final manual screenshot review. It cannot close `TICKET-V3UI-007`.
 
 **Manual reviewer sign-off — 2026-08-25**: `root/orchestrator` and `code_reviewer` reviewed `project/tests/artifacts/visual_layout_report.json` plus the current five `*_horo_v3_consensus.png` screenshots. The rendered gradient status text, claim content, controls, and semantic boundaries are readable at every canonical viewport. Decision: **PASS** for the 30 automated gradient indeterminates in these artifacts only; a new capture invalidates this sign-off and requires review again.
 

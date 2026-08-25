@@ -21,14 +21,14 @@ if str(ROOT_DIR) not in sys.path:
 from project.main import app
 
 GATEWAY_BASE_URL = "https://horo-consultant-psi.vercel.app"
-STATIC_SPACE_ORIGIN = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
+VERCEL_FRONTEND_ORIGIN = "https://horo-consultant-psi.vercel.app"
 
 BROWSER_HEADERS = {
     "accept": "*/*",
     "accept-language": "en-US,en;q=0.9",
     "content-type": "application/json",
-    "origin": STATIC_SPACE_ORIGIN,
-    "referer": f"{STATIC_SPACE_ORIGIN}/",
+    "origin": VERCEL_FRONTEND_ORIGIN,
+    "referer": f"{VERCEL_FRONTEND_ORIGIN}/",
     "sec-fetch-dest": "empty",
     "sec-fetch-mode": "cors",
     "sec-fetch-site": "cross-site",
@@ -80,7 +80,7 @@ def test_live_remote_health(api_client: AdaptiveApiClient):
 def test_live_remote_cors_preflight(api_client: AdaptiveApiClient):
     """Verify OPTIONS preflight with CORS headers."""
     options_headers = {
-        "Origin": STATIC_SPACE_ORIGIN,
+        "Origin": VERCEL_FRONTEND_ORIGIN,
         "Access-Control-Request-Method": "POST",
         "Access-Control-Request-Headers": "content-type",
     }
