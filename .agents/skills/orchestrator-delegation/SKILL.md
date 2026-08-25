@@ -1,6 +1,6 @@
 ---
 name: orchestrator-delegation
-description: Coordinate sub-agent delegation with ownership, monitoring, result collection, and HITL gates.
+description: Coordinate safe parallel sub-agent work with ownership, evidence, and HITL gates.
 ---
 
 # Orchestrator Delegation Skill
@@ -20,6 +20,45 @@ Before spawning or assigning work, define:
 - Boundaries: files or external actions the sub-agent must not modify or trigger.
 - Evidence: command outputs, artifacts, or concise findings expected back.
 - Stop condition: when the sub-agent must report `DONE`, `BLOCKED`, or `NEEDS_HITL`.
+
+For executable lanes, first use `adaptive-model-effort-routing`: record the
+versioned `DispatchDecision`, preserve its quality floor, and require bound
+receipt proof. Static role model/effort values are hints, never runtime proof.
+
+## Ticket Scheduling Before Delegation
+
+Rule 11 is authoritative. At every checkpoint, first exclude tickets that are
+not `TODO`/`READY`, have missing scheduling fields, unmet dependencies, an
+ownership conflict, a quota/HITL failure, an explicit blocker, or an invalid
+Rule 18 decision. Sort only the remaining execution-eligible tickets by
+`(-severity_rank, work_effort_rank, ticket_id_ascii)`: Severity is
+`CRITICAL > HIGH > MEDIUM > LOW`, Work Effort is `XS < S < M < L < XL`, and
+an exact tie uses Ticket ID in ASCII ascending order. Select the first ticket;
+for parallel work, reserve its ownership and recompute before selecting again.
+These eligibility gates override the comparator, and running work is not
+preempted. Work Effort is delivery size, not model reasoning effort; model
+selection never changes scheduling order. Historical `Priority`-only text is
+superseded for scheduling and remains evidence only.
+
+## Maximum Useful Parallelism
+
+At every checkpoint, use available concurrency for useful independent,
+evidence-bearing lanes. Do not use slots merely to appear busy: reject
+redundant, stale, speculative, dependency-blocked, or ownership-conflicting
+work. Roles may have multiple instances, and a child may create another
+bounded lane, provided total active lanes never exceed the available slot limit.
+
+Decompose work to the smallest coherent ownership unit without artificial
+fragmentation. Select an eligible lane, reserve its file/module ownership,
+recompute Rule 11, and repeat until no slot or safe lane remains. Reuse freed
+slots for the next eligible independent lane. One editor owns each source file
+or module; for single-file work, prefer that editor plus a parallel read-only
+QA-prep or reviewer. Final QA and release decisions wait for source freeze and
+all declared dependencies.
+
+Live status must report `active/available` slots, each active lane and its
+ownership, plus waits/blockers. A lane may not bypass quota, HITL, dependency,
+or ownership gates to occupy capacity.
 
 Every delegated task must include this coordination sentence:
 
@@ -142,7 +181,12 @@ Use Claude Code three-level command governance:
 Use `/clear` when context becomes large, but first write a handoff summary with objective, latest commit, active run ids, changed files, verified checks, blockers, and next command.
 
 For every sub-agent, define objective, ownership, boundaries, evidence expected, and stop condition.
-Do not assign two agents to edit the same file.
+Use available concurrency only for useful independent evidence-bearing work.
+Reserve ownership and recompute Rule 11 after every selection; use rolling slot
+reuse. One editor owns each file/module. For a single-file change, pair the
+editor with a read-only QA-prep or review lane when useful; wait for source
+freeze and dependencies before final QA or any release verdict. Report active
+lanes, ownership, waits, and active/available slots in each live status update.
 Collect all results in the standard result format before changing PROJECT_TASKS.md status.
 ```
 

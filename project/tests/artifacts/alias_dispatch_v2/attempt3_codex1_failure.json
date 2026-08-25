@@ -1,0 +1,23 @@
+{
+  "ticket": "TICKET-ALIAS-RC2-003-CODEX1",
+  "attempt_id": 3,
+  "alias": "codex1",
+  "provider": "codex",
+  "policy_version": "2026-08-25.2",
+  "model": "gpt-5.6-sol",
+  "effort": "high",
+  "decision_sha256": "a5746abc6ca66556d941f4783808727383fb25ea638418de952c086da65f05c1",
+  "dispatch_identity": "9c16a659b123d14acf146fb476e51436bf3de88f5d3bac65845a4286e535e41e",
+  "effective_isolation": "sandbox=read-only",
+  "process_started": true,
+  "ended_at": "2026-08-25T14:41:20Z",
+  "dispatcher_exit_code": 3,
+  "failure_class": "invalid-child-result-contract",
+  "execution_receipt": null,
+  "work_result": null,
+  "adapter_fallback_used": false,
+  "prose_inference_used": false,
+  "stop_gate_applied": true,
+  "remaining_aliases_not_invoked": ["codex2", "agy1", "agy2"],
+  "status": "BLOCKED"
+}

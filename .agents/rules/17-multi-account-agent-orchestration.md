@@ -36,6 +36,9 @@ field means `NEEDS_HITL`; prior broad approval is not a standing waiver.
 
 ## Dispatch contract and execution proof
 
+Apply Rule 18 before executable dispatch: bind the versioned `DispatchDecision`
+digest and policy version to the receipt. Quota cannot silently lower its floor.
+
 Every child prompt names objective, one-editor ownership, boundaries, expected
 evidence, stop condition, and the non-reversion warning. Require: `Status`,
 `Scope owned`, `Evidence`, `Findings`, `Changed files`, `Residual risk`, and
@@ -75,6 +78,23 @@ event stream, schema/version mismatch, alias/ticket/attempt mismatch, digest
 mismatch, secret-bearing field, ambiguous final event, nonzero execution
 without a typed failure result, or exit zero without a valid `WorkResult`.
 Adapter fallback or free-form-output inference requires new HITL authorization.
+
+### Public outcome and portable-evidence boundary
+
+The public `ExecutionOutcome` is validated in-process. Its public
+`stdout`/`stderr` are elided, so the receipt, WorkResult, and public outcome
+together are not an independently portable or offline-verifiable evidence
+bundle. `portable=True` does not change that boundary: it still requires a
+separately retained, trusted, exact raw-stdout record for any portable/offline
+verification claim. No approved private retention channel exists now. Never
+restore, log, or persist raw streams to work around this limitation.
+
+For a successful AGY outcome, use the exact evidence language **validated
+in-process only**. Do not describe an AGY success as independently portable,
+offline verified, or receipt-only verified. This is a Medium residual risk.
+An encrypted, access-controlled raw-output sidecar is only a future design
+option requiring separate scope, retention/trust design, and HITL; do not
+implement it under this rule.
 
 Because the owner explicitly named all four aliases, v2 must dispatch
 `codex1`, `codex2`, `agy1`, and `agy2` as four distinct bounded lanes. A child

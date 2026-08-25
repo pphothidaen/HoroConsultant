@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-PRIORITY-003R5",
+  "phase": "qa",
+  "scope_rank": 2,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Session HITL approval is recorded without approver identity for the active, test-only R5 formal QA lane. It owns only tests/test_multiagent_prompt_command.py, tests/test_multiagent_prompt_command_r4.py, and tests/test_multiagent_receipt_schema.py; source, schema, policy, and dependency artifacts are read-only/frozen. All four prerequisites are complete. Update three obsolete fixtures/assertions, then validate the official AGY envelope/native fake execute path, strict duplicate/non-finite handling, sanitation before hash and public stdout/stderr elision, exact session binding, the full R5 migration matrix, and generated Codex/AGY receipt-v2 Draft 2020 conformance, tamper rejection, and field parity. Receipt-v1 remains legacy; no external AGY retry is authorized.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

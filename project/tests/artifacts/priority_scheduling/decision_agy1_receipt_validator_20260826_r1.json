@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-AGY1-RECEIPT-VALIDATOR-20260826-R1",
+  "phase": "implementation",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Session HITL approval is recorded without approver identity for the smallest reproducible Draft 2020-12 validator packaging prerequisite. Mutation is limited to pyproject.toml, requirements.txt, and uv.lock to declare jsonschema>=4.23,<5 consistently and regenerate the lock; no environment-only import is acceptance evidence. No source, schema, test, CI workflow, external retry, deploy, publish, push, credential, secret, account, or raw-PII action is authorized.",
+  "policy_version": "2026-08-25.2",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

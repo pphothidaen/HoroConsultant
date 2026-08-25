@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-AGY1-EVIDENCE-DOC-20260826-R1",
+  "phase": "implementation",
+  "scope_rank": 1,
+  "complexity_rank": 1,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 2,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-terra",
+  "selected_effort": "high",
+  "rationale": "Session HITL approval is recorded without approver identity for a documentation-only governance clarification. Mutation is limited to Rule 17, the multi-account orchestration skill, and the reusable prompt template: public ExecutionOutcome is validated in-process with stdout/stderr elided; portable=True requires separately retained trusted exact raw stdout; no private retention channel is approved; and a future encrypted sidecar is design-only. No source, schema, policy, dependency, test, external AGY, deploy, publish, push, credential, secret, account, or raw-stream action is authorized.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

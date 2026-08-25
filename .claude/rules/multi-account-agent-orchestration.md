@@ -31,6 +31,9 @@ ownership. Below 10% quota, update `TICKET-META-008` and plan, then run the
 quota guard. Escalate after three bounded failures or immediately for
 credentials, permissions, billing, production mutation, or ownership conflict.
 
+Before executable dispatch, apply Rule 18's bound, fail-closed
+`DispatchDecision`; quota cannot weaken its quality floor.
+
 For an authorized Result Contract v2 ticket, retain historical failed receipts
 unchanged and start a fresh per-alias retry counter. Validate a provider-native
 `ExecutionReceipt` independently from its schema-bound `WorkResult`; fail

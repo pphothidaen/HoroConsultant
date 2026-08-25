@@ -1,0 +1,38 @@
+{
+  "skill_name": "adaptive-model-effort-routing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Assign a child lane to run a deterministic, read-only parser test with known inputs and a healthy quota band.",
+      "expected_output": "Produces a rank 1-2 DispatchDecision with an approved medium profile, while requiring receipt evidence before claiming execution.",
+      "files": [],
+      "expectations": [
+        "Ranks all five semantic inputs and records a quality floor.",
+        "Distinguishes the rendered route from effective runtime proof.",
+        "Does not lower the root-medium or receipt requirements."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Route a multi-file production rollback review where evidence is incomplete but no mutation is yet authorized.",
+      "expected_output": "Selects at least a strong high-effort profile, records high evidence/risk ranks, and blocks release action pending proof and authorization.",
+      "files": [],
+      "expectations": [
+        "Uses the maximum rank as the quality floor.",
+        "Records a non-secret quota band without treating it as an exception.",
+        "Returns BLOCKED or NEEDS_HITL when authorization or evidence is missing."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "A low-quota provider suggests replacing a critical security investigation with a faster medium-effort model. Decide whether to dispatch.",
+      "expected_output": "Refuses the downgrade, preserves the critical-risk frontier floor, and requests HITL or a catalog-supported equivalent route.",
+      "files": [],
+      "expectations": [
+        "Treats quota as a routing input, not a quality override.",
+        "Requires a catalog-supported provider/model/effort pair.",
+        "Never reports static model metadata as runtime proof."
+      ]
+    }
+  ]
+}

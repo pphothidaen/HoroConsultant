@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-PRIORITY-002R3",
+  "phase": "implementation",
+  "scope_rank": 3,
+  "complexity_rank": 3,
+  "risk_rank": 3,
+  "ambiguity_rank": 2,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Session HITL approval is recorded without approver identity for exactly this local remediation and validation scope: eliminate intermediate .horo symlink TOCTOU from secure traversal then pathname reopen; make returned receipts verifiable after live-claim release; prevent a worktree-local .horo replay ledger from removal by git clean; prevent public execute_invocation from leaking the global lock; handle partial writes rather than one os.write; provide fail-closed fcntl/POSIX and macOS realpath-containment compatibility; and replace global store locking that prevents safe non-overlap concurrency. No unrelated refactor is authorized. Deploy, publish, push, secrets, account, external, destructive, configuration, generated-file, and PII actions are excluded; external actions remain unused and target-gated. The session authorization permits bounded workspace-ticket improvement, refactoring, fixes, and removal of explicitly identified obsolete code/tests, never a /root glob deletion or broad/unrelated destructive action. A new independent read-only TICKET-PRIORITY-004 re-review is required before final reconciliation.",
+  "policy_version": "2026-08-25.2",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true,
+  "status": "DOING"
+}

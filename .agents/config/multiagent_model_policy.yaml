@@ -1,0 +1,141 @@
+schema_version: 1
+policy_version: "2026-08-26.1"
+decision_schema_version: 1
+
+result_contract:
+  protocol_version: 2
+  work_result_schema: ../schemas/multiagent-work-result-v2.schema.json
+  # All newly governed execution receipts use the closed receipt-v2 contract.
+  receipt_schema: ../schemas/multiagent-dispatch-receipt-v2.schema.json
+  # Receipt-v1 is legacy-only: preserve its identity and handle it explicitly;
+  # never reinterpret or validate a historical v1 receipt as receipt-v2.
+  legacy_receipt_schema: ../schemas/multiagent-dispatch-receipt-v1.schema.json
+  adapters:
+    codex: codex-jsonl-output-schema-v2
+    agy: agy-stream-json-schema-v2
+  swap_support:
+    # allow_provider_swap: true on an account enables transparent codex<->agy
+    # alias swapping when a role or CLI override selects the other provider.
+    # Absent or false preserves strict mismatch rejection (fail-closed default).
+    allow_provider_swap_default: false
+
+# The orchestrator classifies a lane.  This catalog only validates the
+# resulting selection; it never lowers a quality floor because of quota.
+rank_dimensions:
+  - scope_rank
+  - complexity_rank
+  - risk_rank
+  - ambiguity_rank
+  - evidence_burden_rank
+rank_min: 0
+rank_max: 3
+broad_scope_rank: 2
+high_risk_rank: 2
+critical_rank: 3
+
+phases:
+  - planning
+  - implementation
+  - qa
+  - review
+  - release
+  - operations
+work_modes:
+  - read_only
+  - mutation
+quota_bands:
+  - healthy
+  - constrained
+  - below_10_percent
+  - unknown
+
+quality_floors:
+  0:
+    profile: gpt-5.6-luna/low
+  1:
+    profile: gpt-5.6-luna/medium
+  2:
+    profile: gpt-5.6-terra/high
+  3:
+    profile: gpt-5.6-sol/high
+
+# quality_rank is the strongest lane floor that an exact model/effort pair
+# may satisfy.  max/ultra are executable only on entries explicitly marked as
+# quality exceptions and require a decision-level quality_exception rationale.
+models:
+  gpt-5.6-luna:
+    cli: codex
+    availability: true
+    deprecated: false
+    fallback_order: 3
+    efforts:
+      low: {quality_rank: 0}
+      medium: {quality_rank: 1}
+      high: {quality_rank: 1}
+      xhigh: {quality_rank: 1}
+  gpt-5.6-terra:
+    cli: codex
+    availability: true
+    deprecated: false
+    fallback_order: 2
+    efforts:
+      low: {quality_rank: 0}
+      medium: {quality_rank: 1}
+      high: {quality_rank: 2}
+      xhigh: {quality_rank: 2}
+      max: {quality_rank: 2, quality_exception: true}
+      ultra: {quality_rank: 2, quality_exception: true}
+  gpt-5.6-sol:
+    cli: codex
+    availability: true
+    deprecated: false
+    fallback_order: 1
+    efforts:
+      low: {quality_rank: 0}
+      medium: {quality_rank: 2}
+      high: {quality_rank: 3}
+      xhigh: {quality_rank: 3}
+      max: {quality_rank: 3, quality_exception: true}
+      ultra: {quality_rank: 3, quality_exception: true}
+  gemini-3.7-flash-low:
+    cli: agy
+    availability: true
+    deprecated: false
+    fallback_order: 5
+    efforts:
+      low: {quality_rank: 0}
+  gemini-3.7-flash-medium:
+    cli: agy
+    availability: true
+    deprecated: false
+    fallback_order: 4
+    efforts:
+      medium: {quality_rank: 1}
+  gemini-3.7-flash-high:
+    cli: agy
+    availability: true
+    deprecated: false
+    fallback_order: 2
+    efforts:
+      high: {quality_rank: 2}
+  gemini-3.1-pro-low:
+    cli: agy
+    availability: true
+    deprecated: false
+    fallback_order: 3
+    efforts:
+      low: {quality_rank: 0}
+  gemini-3.1-pro-high:
+    cli: agy
+    availability: true
+    deprecated: false
+    fallback_order: 1
+    efforts:
+      high: {quality_rank: 2}
+
+# Rank-3 planning is the solution/ticket-design exception described by the
+# governance plan.  A normal rank-3 executable lane needs high; rank-3
+# planning needs xhigh (or an explicitly cataloged max/ultra exception).
+rank_3_planning:
+  model: gpt-5.6-sol
+  efforts: [xhigh, max, ultra]

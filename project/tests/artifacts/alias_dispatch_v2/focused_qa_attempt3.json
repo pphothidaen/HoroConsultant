@@ -1,0 +1,20 @@
+{
+  "ticket": "TICKET-ALIAS-RC2-003",
+  "phase": "Phase A",
+  "command": "python3 -m pytest -q tests/test_multiagent_prompt_command.py",
+  "completed_at": "2026-08-25T14:41:20Z",
+  "exit_code": 0,
+  "summary": "87 passed in 0.73s",
+  "coverage": [
+    "Codex JSONL provider-native success and failure parsing",
+    "AGY stream-json provider-native success and failure parsing",
+    "strict WorkResult string arrays and evidence types",
+    "malformed, ambiguous, bare prose, and secret-bearing output rejection",
+    "typed and untyped nonzero execution behavior",
+    "receipt identity and digest tamper rejection",
+    "unsupported schema, model, and effort rejection",
+    "effective read-only runtime gate",
+    "legacy dry-run compatibility"
+  ],
+  "status": "PASSED"
+}

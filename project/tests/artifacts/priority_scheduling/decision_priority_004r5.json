@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-PRIORITY-004R5",
+  "phase": "review",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "read_only",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Session HITL approval is recorded without approver identity for the fresh R5 read-only final review. It owns no writable files and reviews the frozen QA, source, schema, policy, dependency, and documentation evidence for a terminal safety/compatibility verdict. No implementation, test mutation, external AGY retry, deploy, publish, push, credential, secret, account, or raw-stream action is authorized. A later AGY R3 smoke remains separately pending and needs its own fresh decision and scheduling snapshot only after this review passes.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

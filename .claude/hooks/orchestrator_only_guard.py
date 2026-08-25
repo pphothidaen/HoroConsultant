@@ -15,6 +15,12 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from adaptive_dispatch_guard import (
+    enforce_adaptive_dispatch,
+    is_safe_monitoring_command,
+    is_standalone_dispatcher_dry_run,
+)
+
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 WAIVER_ID = re.compile(r"^ROOT-WAIVER-[A-Za-z0-9][A-Za-z0-9_-]{2,80}$")
@@ -28,12 +34,6 @@ GOVERNANCE_PREFIXES = (
     ".claude/rules/",
     ".claude/hooks/",
     ".claude/settings.json",
-)
-ROOT_BASH_BLOCKS = (
-    (re.compile(r"\bgit\s+(?:add|commit|push|merge|rebase|reset|restore|checkout|cherry-pick|tag)\b"), "git mutation"),
-    (re.compile(r"\b(?:pytest|playwright)\b|\bnode\s+--test\b|\b(?:npm|pnpm|yarn)\s+(?:run\s+)?(?:test|build|lint|typecheck)\b"), "QA or implementation command"),
-    (re.compile(r"\b(?:python\d*|uv)\s+-m\s+pytest\b|\b(?:scripts|project/tests|tests)/[^\s]*(?:test|qa|audit|verification|e2e|regression)[^\s]*"), "QA command"),
-    (re.compile(r"\b(?:vercel|huggingface-cli|hf\s+upload|kubectl\s+(?:apply|replace|rollout)|helm\s+(?:upgrade|install)|terraform\s+apply|docker\s+push|npm\s+publish|gh\s+workflow\s+run)\b|publish_space_hf\.py"), "deploy or publish command"),
 )
 
 
@@ -76,18 +76,26 @@ def main() -> int:
         event = json.load(sys.stdin)
     except json.JSONDecodeError:
         return 0
-    if os.getenv("HORO_ORCHESTRATOR_ONLY") != "1" or has_recorded_waiver():
+    if os.getenv("HORO_ORCHESTRATOR_ONLY") != "1":
         return 0
+    waived = has_recorded_waiver()
 
     tool_name = str(event.get("tool_name", ""))
     tool_input = event.get("tool_input", {})
     if tool_name == "Bash":
         command = str(tool_input.get("command", ""))
-        for pattern, label in ROOT_BASH_BLOCKS:
-            if pattern.search(command):
-                deny(f"{label} requires a delegated child or recorded user waiver")
-        return 0
+        try:
+            dispatch_only = enforce_adaptive_dispatch(event)
+        except Exception:
+            deny("adaptive multi-agent dispatch rejected: DISPATCH_EVIDENCE_INVALID")
+        if dispatch_only or is_standalone_dispatcher_dry_run(event):
+            return 0
+        if is_safe_monitoring_command(command):
+            return 0
+        deny("Bash command is outside the standalone read-only allowlist")
 
+    if waived:
+        return 0
     if tool_name in {"Edit", "Write", "MultiEdit"}:
         for path in iter_paths(tool_input):
             if not is_governance_path(path):

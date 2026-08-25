@@ -1,0 +1,260 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://horoconsultant.local/schemas/multiagent-dispatch-receipt-v2.schema.json",
+  "title": "HoroConsultant ExecutionReceipt Schema v2",
+  "description": "Closed structural contract for newly emitted ExecutionReceipt protocol-version 2 objects with an embedded ClaimProof. This schema version does not replace, mutate, or reinterpret the receipt-v1 schema or historical receipts. In receipt schema v2, dispatch_claim_sha256 and claim_proof_sha256 both identify the canonical embedded ClaimProof; neither field is the digest of the full persisted claim record. A historical receipt whose dispatch_claim_sha256 identified a persisted record remains a v1 receipt and must use explicit legacy handling, never validation under this schema. Privacy migration may preserve terminal replay state and the original record digest, but it does not convert or retroactively validate a historical receipt as v2; only a new governed execution can issue a new v2 receipt. The persisted-record digest is intentionally not represented by this contract. Runtime validation must additionally verify canonical digests, equality of duplicated bindings, time ordering, provider output bytes, WorkResult content, and any required local claim-store anchor.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol_version",
+    "policy_version",
+    "decision_sha256",
+    "scheduling_snapshot_sha256",
+    "dispatch_claim_key",
+    "dispatch_claim_sha256",
+    "claim_proof",
+    "claim_proof_sha256",
+    "claim_proof_scope",
+    "dispatch_identity",
+    "dispatch_ticket_id",
+    "attempt_id",
+    "alias",
+    "provider",
+    "adapter",
+    "model",
+    "effort",
+    "objective",
+    "ownership",
+    "quota_status",
+    "started_at",
+    "ended_at",
+    "exit_code",
+    "transport_status",
+    "output_bytes",
+    "output_sha256",
+    "work_result_sha256"
+  ],
+  "properties": {
+    "protocol_version": {
+      "type": "integer",
+      "const": 2,
+      "description": "ExecutionReceipt/WorkResult protocol version. This remains 2 independently of the receipt schema artifact version."
+    },
+    "policy_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Model-routing policy version bound by the validated DispatchDecision."
+    },
+    "decision_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 of the canonical validated DispatchDecision. It must equal claim_proof.decision_sha256."
+    },
+    "scheduling_snapshot_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 of the normalized, validated Rule 11 scheduling snapshot that selected this ticket. It is mandatory for schema-v2 receipts and must equal claim_proof.scheduling_snapshot_sha256; a receipt without this binding is not a v2 execution receipt."
+    },
+    "dispatch_claim_key": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 key derived from the decision digest, scheduling-snapshot digest, and dispatch identity. It must equal claim_proof.claim_key."
+    },
+    "dispatch_claim_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "Receipt-schema-v2 meaning: SHA-256 of the canonical embedded claim_proof object, byte-for-byte equal to claim_proof_sha256. It is not a persisted full-record digest. Historical v1 values that represented persisted records must not be reinterpreted as this field."
+    },
+    "claim_proof": {
+      "$ref": "#/$defs/claimProof"
+    },
+    "claim_proof_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 of canonical JSON for claim_proof. It must equal dispatch_claim_sha256; JSON Schema validates shape while runtime validation enforces digest equality."
+    },
+    "claim_proof_scope": {
+      "const": "digest-integrity-not-authenticity",
+      "description": "The embedded proof supports portable digest-integrity checks only. Authenticity requires the separate strict local claim-store validation path."
+    },
+    "dispatch_identity": {
+      "$ref": "#/$defs/sha256",
+      "description": "Attempt-independent digest of the authorized route, workspace, objective, ownership, decision, and scheduling bindings. It must equal claim_proof.dispatch_identity."
+    },
+    "dispatch_ticket_id": {
+      "$ref": "#/$defs/safeName"
+    },
+    "attempt_id": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "alias": {
+      "enum": ["codex1", "codex2", "agy1", "agy2"]
+    },
+    "provider": {
+      "enum": ["codex", "agy"]
+    },
+    "adapter": {
+      "enum": ["codex-jsonl-output-schema-v2", "agy-stream-json-schema-v2"]
+    },
+    "model": {
+      "$ref": "#/$defs/safeName"
+    },
+    "effort": {
+      "enum": ["low", "medium", "high", "xhigh", "max", "ultra"]
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ownership": {
+      "type": "string",
+      "minLength": 1
+    },
+    "quota_status": {
+      "enum": ["healthy", "constrained", "below_10_percent", "unknown"]
+    },
+    "started_at": {
+      "$ref": "#/$defs/utcTimestamp"
+    },
+    "ended_at": {
+      "$ref": "#/$defs/utcTimestamp"
+    },
+    "exit_code": {
+      "type": "integer"
+    },
+    "transport_status": {
+      "const": "completed"
+    },
+    "process_or_session_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.:-]{1,128}$",
+      "description": "Optional sanitized provider-native process or session identifier."
+    },
+    "output_bytes": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "output_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 of the exact provider output bytes. It must equal claim_proof.output_sha256."
+    },
+    "work_result_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "SHA-256 of the normalized canonical WorkResult. It must equal claim_proof.work_result_sha256."
+    }
+  },
+  "oneOf": [
+    {
+      "title": "Codex provider receipt",
+      "properties": {
+        "provider": {"const": "codex"},
+        "adapter": {"const": "codex-jsonl-output-schema-v2"}
+      }
+    },
+    {
+      "title": "AGY provider receipt",
+      "required": ["process_or_session_id"],
+      "properties": {
+        "provider": {"const": "agy"},
+        "adapter": {"const": "agy-stream-json-schema-v2"},
+        "effort": {"enum": ["low", "medium", "high"]}
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "safeName": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$"
+    },
+    "utcTimestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$",
+      "description": "RFC 3339 timestamp emitted in UTC using the Z suffix. Runtime validation also requires ended_at not to precede started_at."
+    },
+    "claimProof": {
+      "title": "Embedded ClaimProof v1 for Receipt Schema v2",
+      "description": "Closed, privacy-sanitized projection of the terminal persisted dispatch claim. schema_version is 1 because it versions the embedded ClaimProof shape independently from receipt schema v2. Its canonical digest is carried by both dispatch_claim_sha256 and claim_proof_sha256. It deliberately excludes raw ownership and the full persisted-record digest.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "claim_key",
+        "decision_sha256",
+        "scheduling_snapshot_sha256",
+        "dispatch_identity",
+        "ticket_sha256",
+        "route_sha256",
+        "ownership_tokens_sha256",
+        "ownership_key_id",
+        "started_at",
+        "ended_at",
+        "transport_status",
+        "exit_code",
+        "output_bytes",
+        "output_sha256",
+        "work_result_sha256",
+        "terminal_state"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "integer",
+          "const": 1,
+          "description": "Embedded ClaimProof shape version; independent of receipt schema v2 and protocol_version 2."
+        },
+        "claim_key": {
+          "$ref": "#/$defs/sha256"
+        },
+        "decision_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "scheduling_snapshot_sha256": {
+          "$ref": "#/$defs/sha256",
+          "description": "Bound scheduling-snapshot digest. It must equal the top-level scheduling_snapshot_sha256."
+        },
+        "dispatch_identity": {
+          "$ref": "#/$defs/sha256"
+        },
+        "ticket_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "route_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "ownership_tokens_sha256": {
+          "$ref": "#/$defs/sha256",
+          "description": "Digest of the privacy-preserving exact and ancestor HMAC ownership tokens; raw ownership paths are excluded."
+        },
+        "ownership_key_id": {
+          "$ref": "#/$defs/sha256",
+          "description": "Non-secret SHA-256 identifier of the ownership-token key used for this claim."
+        },
+        "started_at": {
+          "$ref": "#/$defs/utcTimestamp"
+        },
+        "ended_at": {
+          "$ref": "#/$defs/utcTimestamp"
+        },
+        "transport_status": {
+          "const": "completed"
+        },
+        "exit_code": {
+          "type": "integer"
+        },
+        "output_bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "output_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "work_result_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "terminal_state": {
+          "const": "completed"
+        }
+      }
+    }
+  }
+}

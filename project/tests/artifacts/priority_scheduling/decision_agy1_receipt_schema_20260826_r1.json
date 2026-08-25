@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-AGY1-RECEIPT-SCHEMA-20260826-R1",
+  "phase": "implementation",
+  "scope_rank": 2,
+  "complexity_rank": 3,
+  "risk_rank": 3,
+  "ambiguity_rank": 2,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Session HITL approval is recorded without approver identity for this bounded receipt-v2 schema-only remediation. Preserve receipt-v1 identity and create an explicit v2 contract that models all emitted and bound receipt fields. Do not silently reinterpret historical values: embedded ClaimProof digest and persisted-record digest have distinct semantics. Code, documentation, and tests are separate later ownership. No dispatcher, hook, configuration, generated-file, deploy, publish, push, credential, secret, account, external, raw-PII, or broad refactor action is authorized. No AGY retry may occur until both remediation lanes freeze, formal QA passes, and a fresh decision/snapshot is approved.",
+  "policy_version": "2026-08-25.2",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

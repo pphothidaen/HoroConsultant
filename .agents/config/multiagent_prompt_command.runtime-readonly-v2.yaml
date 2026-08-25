@@ -1,0 +1,58 @@
+version: 2
+model_policy: multiagent_model_policy.yaml
+
+runtime:
+  approved_for_execution: true
+  protocol_version: 2
+
+# Secret-free process routes. Account homes use the only dispatcher-supported
+# expansion and are never copied into receipts or evidence.
+accounts:
+  codex1:
+    cli: codex
+    command: codex
+    home_env: CODEX_HOME
+    home_path: ${HOME}/.ai-accounts/codex/account1
+  codex2:
+    cli: codex
+    command: codex
+    home_env: CODEX_HOME
+    home_path: ${HOME}/.ai-accounts/codex/account2
+  agy1:
+    cli: agy
+    command: agy
+    home_env: AGY_HOME
+    home_path: ${HOME}/.ai-accounts/agy/account1
+  agy2:
+    cli: agy
+    command: agy
+    home_env: AGY_HOME
+    home_path: ${HOME}/.ai-accounts/agy/account2
+
+roles:
+  codex1_gateway_review:
+    alias: codex1
+    cli: codex
+    model: gpt-5.6-sol
+    effort: high
+    sandbox: read-only
+  codex2_backend_review:
+    alias: codex2
+    cli: codex
+    model: gpt-5.6-sol
+    effort: high
+    sandbox: read-only
+  agy1_static_review:
+    alias: agy1
+    cli: agy
+    model: gemini-3.1-pro-high
+    effort: high
+    mode: plan
+    sandbox: true
+  agy2_release_review:
+    alias: agy2
+    cli: agy
+    model: gemini-3.1-pro-high
+    effort: high
+    mode: plan
+    sandbox: true

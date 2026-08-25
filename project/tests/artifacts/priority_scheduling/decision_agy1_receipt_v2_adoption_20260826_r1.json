@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-AGY1-RECEIPT-V2-ADOPTION-20260826-R1",
+  "phase": "implementation",
+  "scope_rank": 2,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 2,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Session HITL approval is recorded without approver identity for the receipt-v2 adoption gap. Mutation is limited to .agents/config/multiagent_model_policy.yaml and docs/templates/MULTIAGENT_PROMPT_COMMAND.md to select receipt-v2 as canonical for new governed receipts, keep receipt-v1 legacy, and align the required timestamp Z-suffix contract; generated mirrors may change only through the prescribed sync after source freeze. No dispatcher, schema, test, external retry, deploy, publish, push, credential, secret, account, or raw-PII action is authorized.",
+  "policy_version": "2026-08-25.2",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

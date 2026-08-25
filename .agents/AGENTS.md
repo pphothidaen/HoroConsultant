@@ -13,7 +13,7 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 
 | Agent Identifier | Role | Assigned Model | Reasoning Effort | Token Cost Profile | Primary Focus |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **`orchestrator` / `default` / `hermes`** | Coordination & autonomous execution | `gpt-5.6-sol` | **High / XHigh** | High (Strategic) | Requirements, architecture, delegation, complex recovery |
+| **`orchestrator` / `default` / `hermes`** | Coordination & autonomous execution | `gpt-5.6-sol` (default hint) | **Medium root; adaptive child floor** | High (Strategic) | Requirements, architecture, delegation, complex recovery |
 | **`business_analyst`** | Business System Analyst | `gpt-5.6-terra` | **Medium** | Mid (Analysis) | Specifications, dependency analysis, documentation governance |
 | **`developer`** | Senior Developer | `gpt-5.3-codex` | **High** | Mid-High (Execution) | Multi-file implementation, debugging, code-quality decisions |
 | **`qa_tester`** | QA Tester | `gpt-5.4-mini` | **Medium** | Low (Verification) | Test design, failure triage, concise evidence extraction |
@@ -34,16 +34,17 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 7. **`rag-search`**: Retrieve ranked metaphysics passages from FAISS index with configured embeddings.
 8. **`bsa-doc-skill-management`**: Own requirements decomposition, live docs sync, quota/account handoff, and skill-governance operations.
 9. **`metaphysical-domain-engine`**: Cross-train and route metaphysical queries among Zi Wei, Qi Men, Da Liu Ren, I Ching, feng shui, and astrology specialists.
-10. **`orchestrator-delegation`**: Coordinate bounded background sub-agent work with file ownership, evidence collection, external-action guardrails, and HITL escalation.
+10. **`orchestrator-delegation`**: Coordinate maximum useful safe parallel work with fail-closed eligibility, ownership, evidence, and HITL escalation.
 11. **`web-color-design`**: Color systems, Five Elements palettes, WCAG contrast validation, dark mode, and CSS design tokens for HoroConsultant UI. Used by `ux_ui_designer`.
 12. **`ui-visual-auditor`**: Multi-viewport screenshot capture, DOM overlap detection, and layout distortion auditing. Used by `ui_visual_tester`.
 13. **`hf-static-release-verification`**: Fail-closed HF Static release gate for payload, health, exact `release_source_commit` identity, source metadata digest/revision, source-ancestry proof, required assets, publisher regression, and five-viewport evidence. `packaging_commit` is evidence-only; legacy fallbacks and overrides are forbidden. Primary owner: `devops`; verification owners: `qa_tester`, `ui_visual_tester`, and `code_reviewer`; dispatch owner: `orchestrator`.
 14. **`multi-account-agent-orchestration`**: Route bounded work across Codex/AGY/Hermes accounts with non-secret quota evidence, retry limits, ownership isolation, HITL closure, and process-backed execution through required explicitly selected aliases. Result Contract v2 binds a provider-native `ExecutionReceipt` to a schema-validated `WorkResult` and fails closed; read-only lanes additionally require an approved runtime config plus an explicit read-only role or validated sandbox override. The root/current session is orchestrator-only; child lanes alone may use terminal CLI workarounds, and any one-off root-action waiver needs current, recorded user authorization.
+15. **`adaptive-model-effort-routing`**: Classify lane scope, complexity, risk, ambiguity, evidence, and quota into a versioned fail-closed `DispatchDecision`; Rule 18 owns policy, capability catalog, floors, receipt binding, and HITL behavior.
 
 ### Claude Code Governance Map
 
 - **Level 1 Hooks**: `.claude/settings.json` routes Bash calls through `.agents/hooks/pre_tool_check.py` and `.agents/hooks/post_tool_audit.py` for hard command controls.
-- **Level 2 Rules**: `.claude/rules/*.md` and `.agents/rules/*.md` provide path-aware guidance, including Rule 11 delegation, Rule 12 Claude Code three-level governance, Rule 13 ecosystem sync, and Rule 14 specialist decomposition mandate.
+- **Level 2 Rules**: `.claude/rules/*.md` and `.agents/rules/*.md` provide path-aware guidance, including Rule 11 delegation, Rule 12 Claude Code three-level governance, Rule 13 ecosystem sync, Rule 14 specialist decomposition, and Rule 18 adaptive routing.
 - **Level 3 Global Context**: `CLAUDE.md` remains the short baseline context and links to the detailed governance files.
 - **Quota Handoff Guard**: `/status` or runtime quota below 10% routes through `scripts/agent_quota_status_guard.py`; agents must update `PROJECT_TASKS.md` `TICKET-META-008` and `plans/plan.md` before continuing broad work.
 
@@ -91,7 +92,7 @@ flowchart TD
 
 ## ⚡ Model Routing Rules
 
-1. **Strategic reasoning**: Use `gpt-5.6-sol` for orchestration, cross-domain synthesis, autonomous recovery, and independent prediction validation. Reserve xhigh effort for the orchestrator; use high effort for other quality-critical tasks.
+1. **Adaptive routing**: Rule 18 selects each child lane from a versioned `DispatchDecision`; static role values are default hints, not runtime proof. The root effort is `medium` after the owner-confirmed planning gate, while child lanes independently retain their validated floor.
 2. **Coding and release control**: Use `gpt-5.3-codex` for implementation, code review, infrastructure, release, and rollback decisions. These tasks need code-aware tool use and careful verification.
 3. **Bounded high-volume work**: Use `gpt-5.4-mini` at medium effort for QA triage and deterministic, tool-grounded calculation roles. Escalate unresolved contradictions instead of increasing task scope.
 4. **Balanced analysis**: Use `gpt-5.6-terra` for specification analysis and interpretive domain work. Escalate only materially ambiguous or high-impact decisions to `gpt-5.6-sol`.

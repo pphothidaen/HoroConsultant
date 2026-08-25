@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-PRIORITY-002R2",
+  "phase": "implementation",
+  "scope_rank": 3,
+  "complexity_rank": 3,
+  "risk_rank": 3,
+  "ambiguity_rank": 2,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Fresh HITL approval is recorded exactly as 'อนุมัติ TICKET-PRIORITY-002R2'. It authorizes remediation of exactly these failed re-review findings: encoded decode-pipeline direct-child bypass; claim verify-to-spawn TOCTOU/deletion-reacquire; receipt binding to claim identity, completion, output, and workresult digests; durable temporary claim-store handling including parent-directory fsync; unsafe claim-reader symlink, mode, and special-file handling; and initial configuration/OSError ASCII-safe, path-safe errors. Scope is source remediation and local tests only; deploy, push, secrets, and account changes remain excluded. The developer lane is reserved, and a fresh independent re-review remains required before final reconciliation.",
+  "policy_version": "2026-08-25.2",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true,
+  "status": "DOING"
+}

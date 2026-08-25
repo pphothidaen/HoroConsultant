@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-PRIORITY-003R",
+  "phase": "qa",
+  "scope_rank": 2,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Work Effort S is the ticket delivery-size and scheduling input. Reasoning effort high is a separate runtime-quality setting for independent remediation security QA and cannot change scheduling order. HITL approval is covered by the approved source-remediation and local-test scope; this QA must independently validate the remediation before the blocked review can be re-run.",
+  "policy_version": "2026-08-25.2",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

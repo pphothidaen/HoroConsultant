@@ -1,0 +1,38 @@
+{
+  "skill_name": "orchestrator-delegation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Patch the authorization check in src/authz.py for a reported privilege-escalation bug. There are four slots, but only this source file can change. Prepare the strongest safe delegation round.",
+      "expected_output": "Assigns one editor for src/authz.py and, where useful, concurrent read-only security review and QA preparation; does not assign competing editors or claim a release verdict before the source freezes.",
+      "files": ["src/authz.py"],
+      "expectations": [
+        "Reserves src/authz.py to exactly one editing lane and gives reviewers read-only boundaries.",
+        "Uses useful parallel review/preparation without inventing redundant lanes to consume all slots.",
+        "Reports active/available slots, ownership, waits, standard result fields, and source-freeze dependency before final QA or release."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Implement independently scoped tickets: API validation in project/api/validators.py, dashboard empty-state styling in project/static/dashboard.css, and a release-evidence report with no source edits. Four slots are available and all Rule 18 decisions and dependencies are valid.",
+      "expected_output": "Schedules the independent evidence-bearing lanes in Rule 11 order, reserves and recomputes after each selection, and uses any remaining slot only for a non-overlapping useful lane.",
+      "files": ["project/api/validators.py", "project/static/dashboard.css"],
+      "expectations": [
+        "Uses multiple compatible role instances when needed while keeping one editor per file/module.",
+        "Reserves ownership and recomputes eligibility after each selection, then supports rolling reuse when a lane completes.",
+        "Includes live slot utilization, lane ownership, waits, and the seven standard result fields."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "A production migration ticket depends on an unapproved schema decision and a required human billing approval. Its only source file overlaps an active migration editor. Eight slots are available; decide whether any new lane may execute.",
+      "expected_output": "Fails closed and does not dispatch unsafe parallel implementation simply because capacity exists; it records the dependency, ownership, and HITL waits with the next operator action.",
+      "files": ["project/migrations/20260826_production.sql"],
+      "expectations": [
+        "Excludes the ticket before scheduling because dependency, HITL, and ownership gates fail.",
+        "Does not create speculative or redundant lanes merely to use available slots.",
+        "Returns BLOCKED or NEEDS_HITL with all standard result fields and live active/available slot status."
+      ]
+    }
+  ]
+}

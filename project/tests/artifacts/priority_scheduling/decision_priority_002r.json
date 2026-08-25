@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-PRIORITY-002R",
+  "phase": "implementation",
+  "scope_rank": 3,
+  "complexity_rank": 3,
+  "risk_rank": 3,
+  "ambiguity_rank": 2,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Fresh HITL approval recorded 2026-08-25 Asia/Bangkok selects and reserves the developer remediation lane for the five security findings. Scope is source remediation and local tests only; deploy, push, secrets, and account changes remain excluded. Remediation must be independently re-reviewed before the blocked review ticket can close.",
+  "policy_version": "2026-08-25.2",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true,
+  "status": "DOING"
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-PRIORITY-003R3",
+  "phase": "qa",
+  "scope_rank": 2,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Independent QA is reserved after TICKET-PRIORITY-002R3 completed its dispatcher-only remediation. The QA lane must cover the 30 expected contract-failure fixtures and the eleven direct reproductions using an isolated explicit state-location override: dirfd swap, durable outside-worktree derivation, independent receipt, lifecycle successful release, lifecycle failed release, write loop, unsupported platform, non-overlap concurrency, overlap, delete/reacquire, and replay. Work Effort S is the delivery-size scheduling input; reasoning effort high is a separate runtime-quality setting and cannot change scheduling order. Managed sandbox policy blocked default macOS user-state creation, so a later real-environment verification gate remains required before review closure.",
+  "policy_version": "2026-08-25.2",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true,
+  "status": "DOING"
+}

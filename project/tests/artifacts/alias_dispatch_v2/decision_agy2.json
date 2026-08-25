@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-ALIAS-RC2-003-AGY2",
+  "phase": "operations",
+  "scope_rank": 1,
+  "complexity_rank": 1,
+  "risk_rank": 1,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 2,
+  "quota_band": "unknown",
+  "work_mode": "read_only",
+  "selected_alias": "agy2",
+  "selected_model": "gemini-3.1-pro-high",
+  "selected_effort": "high",
+  "rationale": "Bounded read-only cross-lane release-gate evidence review; evidence integrity sets floor 2 and uses the strongest cataloged AGY profile.",
+  "policy_version": "2026-08-25.2",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

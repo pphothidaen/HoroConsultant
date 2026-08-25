@@ -9,7 +9,13 @@ inferred or modified.
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
+try:  # POSIX-only primitive; execution fails closed on unsupported platforms.
+    import fcntl  # type: ignore[import-not-found]
+except ImportError:  # pragma: no cover - exercised on non-POSIX hosts
+    fcntl = None  # type: ignore[assignment]
 import hashlib
+import hmac
 import json
 import os
 from dataclasses import dataclass
@@ -17,11 +23,29 @@ from pathlib import Path
 import re
 import shlex
 import shutil
+import stat
 import subprocess
 import sys
+import tempfile
+import threading
 from typing import Any, Mapping, Sequence
 
 import yaml
+
+try:
+    from scripts.multiagent_ticket_scheduler import (
+        SchedulingError,
+        canonicalize_ownership_resource,
+        enforce_dispatch as enforce_ticket_dispatch,
+        validate_snapshot as validate_scheduling_snapshot,
+    )
+except ModuleNotFoundError:  # Direct ``python scripts/...`` execution.
+    from multiagent_ticket_scheduler import (  # type: ignore[no-redef]
+        SchedulingError,
+        canonicalize_ownership_resource,
+        enforce_dispatch as enforce_ticket_dispatch,
+        validate_snapshot as validate_scheduling_snapshot,
+    )
 
 
 VALID_CLIS = {"codex", "agy"}
@@ -31,9 +55,52 @@ VALID_AGY_MODES = {"accept-edits", "plan"}
 VALID_SANDBOXES = {"read-only", "workspace-write", "danger-full-access"}
 VALID_HOME_ENV = {"codex": "CODEX_HOME", "agy": "AGY_HOME"}
 VALID_RESULT_STATUSES = {"DONE", "BLOCKED", "NEEDS_HITL"}
+PROVIDER_PARSE_REASONS = frozenset(
+    {
+        "terminal_shape",
+        "provider_failure_event",
+        "thread_id",
+        "final_message_cardinality",
+        "work_result_validation",
+        "secret_bearing",
+        "unknown",
+    }
+)
+RESULT_PROTOCOL_VERSION = 2
+MAX_PROVIDER_OUTPUT_BYTES = 2_000_000
+DISPATCH_DECISION_FIELDS = frozenset(
+    {
+        "schema_version",
+        "ticket",
+        "phase",
+        "scope_rank",
+        "complexity_rank",
+        "risk_rank",
+        "ambiguity_rank",
+        "evidence_burden_rank",
+        "quota_band",
+        "work_mode",
+        "selected_alias",
+        "selected_model",
+        "selected_effort",
+        "rationale",
+        "policy_version",
+        "planning_to_medium_confirmed",
+        "hitl_approved",
+    }
+)
+DISPATCH_DECISION_OPTIONAL_FIELDS = frozenset({"quality_exception"})
 # Configuration selects from this fixed, approved terminal-account set; it
 # cannot grant an additional account alias execution authority.
 GOVERNED_ACCOUNT_ALIASES = frozenset({"codex1", "codex2", "agy1", "agy2"})
+# Default alias-to-provider mapping (informational; runtime enforcement is at the
+# dispatcher level via resolve_route and allow_provider_swap account flag).
+ALIAS_PROVIDER_MAP: dict[str, str] = {
+    "codex1": "codex",
+    "codex2": "codex",
+    "agy1": "agy",
+    "agy2": "agy",
+}
 RESULT_FIELDS = {
     "status",
     "scope_owned",
@@ -43,12 +110,66 @@ RESULT_FIELDS = {
     "residual_risk",
     "recommended_next_action",
 }
+PROVIDER_ARRAY_RESULT_FIELDS = frozenset(
+    {"scope_owned", "findings", "changed_files"}
+)
+EXECUTION_RECEIPT_FIELDS = {
+    "protocol_version",
+    "policy_version",
+    "decision_sha256",
+    "dispatch_claim_key",
+    "dispatch_claim_sha256",
+    "claim_proof",
+    "claim_proof_sha256",
+    "claim_proof_scope",
+    "dispatch_identity",
+    "dispatch_ticket_id",
+    "attempt_id",
+    "alias",
+    "provider",
+    "adapter",
+    "model",
+    "effort",
+    "objective",
+    "ownership",
+    "quota_status",
+    "started_at",
+    "ended_at",
+    "exit_code",
+    "transport_status",
+    "output_bytes",
+    "output_sha256",
+    "work_result_sha256",
+}
 SAFE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
 SAFE_COMMAND = re.compile(r"^(?:[A-Za-z0-9_.-]+|/[A-Za-z0-9_./-]+)$")
-SAFE_SESSION_ID = re.compile(
-    r"(?:child[-_ ]?(?:process|session)|(?:process|session)[-_ ]?id)\s*[:=]\s*"
-    r"([A-Za-z0-9_.-]{1,128})",
-    re.IGNORECASE,
+SAFE_PROVIDER_ID = re.compile(r"^[A-Za-z0-9_.:-]{1,128}$")
+SECRET_VALUE_PATTERNS = (
+    re.compile(r"(?i)\b(?:authorization|cookie|api[_-]?key|access[_-]?token|refresh[_-]?token)\s*[:=]\s*\S+"),
+    re.compile(r"(?i)\bbearer\s+[A-Za-z0-9._~+/-]{12,}"),
+    re.compile(r"\bsk-[A-Za-z0-9_-]{12,}"),
+    re.compile(r"\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b"),
+)
+EMAIL_PATTERN = re.compile(
+    r"(?i)(?<![A-Za-z0-9.!#$%&'*+/=?^_`{|}~-])"
+    r"[A-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Z0-9-]+(?:\.[A-Z0-9-]+)+"
+)
+LABELED_PERSONAL_ID_PATTERN = re.compile(
+    r"(?i)\b(?:full[_ -]?name|name|e-?mail|phone|telephone|mobile|username|"
+    r"user[_ -]?id|customer[_ -]?id|person[_ -]?id|national[_ -]?id)\s*[:=]\s*"
+    r"(?:\"[^\"]*\"|'[^']*'|[^,;\r\n]+)"
+)
+HOME_PATH_PATTERN = re.compile(
+    r"(?i)(?:[A-Z]:[\\/](?:Users|Documents and Settings)[\\/]|/(?:Users|home)/)"
+    r"[^\\/\s]+"
+)
+IP_ADDRESS_PATTERN = re.compile(
+    r"(?<![0-9])(?:25[0-5]|2[0-4][0-9]|1?[0-9]{1,2})"
+    r"(?:\.(?:25[0-5]|2[0-4][0-9]|1?[0-9]{1,2})){3}(?![0-9])"
+)
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_WORK_RESULT_SCHEMA = (
+    REPOSITORY_ROOT / ".agents/schemas/multiagent-work-result-v2.schema.json"
 )
 
 DEFAULT_OWNERSHIP = "Only the files and responsibilities explicitly assigned in this prompt."
@@ -62,13 +183,135 @@ COORDINATION_SENTENCE = (
     "adjust your work to accommodate concurrent changes. Work only within the assigned ownership."
 )
 
-# A process-local guard prevents accidental duplicate dispatches while allowing
-# separate invocations of this utility to use the same configured account.
-_DISPATCHED_KEYS: set[str] = set()
+DISPATCH_CLAIM_VERSION = 2
+MAX_DISPATCH_CLAIM_BYTES = 16_384
+DISPATCH_CLAIM_STALE_SECONDS = 6 * 60 * 60
+DISPATCH_CLAIM_START_MAX_AGE_SECONDS = 30
+_STORE_LOCKS: dict[str, int] = {}
+_STORE_LOCKS_GUARD = threading.RLock()
+_PROCESS_START_NONCE = hashlib.sha256(os.urandom(32)).hexdigest()
+CLAIM_PROOF_FIELDS = frozenset(
+    {
+        "schema_version", "claim_key", "decision_sha256",
+        "scheduling_snapshot_sha256", "dispatch_identity", "ticket_sha256",
+        "route_sha256", "ownership_tokens_sha256", "started_at", "ended_at",
+        "ownership_key_id",
+        "transport_status", "exit_code", "output_bytes", "output_sha256",
+        "work_result_sha256", "terminal_state",
+    }
+)
 
 
 class ConfigurationError(ValueError):
     """Raised when routing configuration or an override is invalid."""
+
+
+class DispatchDecisionError(ConfigurationError):
+    """Raised when a DispatchDecision fails a deterministic policy gate."""
+
+    def __init__(self, message: str, *, status: str = "BLOCKED") -> None:
+        super().__init__(message)
+        self.status = status
+
+
+class ProviderParseError(ConfigurationError):
+    """A content-free classification for a rejected provider result stream."""
+
+    def __init__(self, provider_parse_reason: str, message: str) -> None:
+        if provider_parse_reason not in PROVIDER_PARSE_REASONS:
+            raise ValueError("unsupported provider parse reason")
+        super().__init__(message)
+        self.provider_parse_reason = provider_parse_reason
+
+
+class ExecutionContractError(ConfigurationError):
+    """A child ran but its parse/finalization/receipt contract failed."""
+
+    def __init__(self, reason: str = "unknown") -> None:
+        super().__init__("child execution contract failed")
+        self.provider_parse_reason = reason if reason in PROVIDER_PARSE_REASONS else "unknown"
+
+
+class LegacyReceiptRevalidationUnsupported(ConfigurationError):
+    """A migrated v1 receipt cannot be revalidated without retained raw PII."""
+
+    code = "LEGACY_RECEIPT_REVALIDATION_UNSUPPORTED"
+
+    def __init__(self) -> None:
+        super().__init__(
+            "legacy receipt revalidation is unavailable after privacy migration"
+        )
+
+
+class _StrictJSONError(ValueError):
+    """Content-free marker for ambiguous or non-standard JSON."""
+
+
+class _AmbiguousJSONError(_StrictJSONError):
+    """A syntactically accepted JSON extension that policy forbids."""
+
+
+def _strict_json_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    value: dict[str, Any] = {}
+    for key, item in pairs:
+        if key in value:
+            raise _AmbiguousJSONError("JSON object is ambiguous")
+        value[key] = item
+    return value
+
+
+def _reject_json_constant(_value: str) -> None:
+    raise _AmbiguousJSONError("JSON constant is non-standard")
+
+
+def _strict_json_loads(payload: str | bytes) -> Any:
+    """Decode RFC JSON while rejecting duplicate names and non-finite values."""
+
+    try:
+        return json.loads(
+            payload,
+            object_pairs_hook=_strict_json_object,
+            parse_constant=_reject_json_constant,
+        )
+    except _AmbiguousJSONError:
+        raise
+    except json.JSONDecodeError as exc:
+        raise _StrictJSONError("JSON input is invalid") from exc
+
+
+@dataclass
+class ClaimStore:
+    """A canonical durable ledger directory held open by validated descriptor."""
+
+    path: Path
+    dir_fd: int
+    identity: tuple[int, int]
+    namespace: str
+    closed: bool = False
+
+    def close(self) -> None:
+        if not self.closed:
+            self.closed = True
+            os.close(self.dir_fd)
+
+
+@dataclass
+class DispatchClaim:
+    """One atomically created, cross-process executable-dispatch claim."""
+
+    path: Path
+    store: ClaimStore
+    key: str
+    record: dict[str, Any]
+    lock_fd: int
+    claim_fd: int
+    lock_identity: tuple[int, int]
+    claim_identity: tuple[int, int]
+    closed: bool = False
+
+    @property
+    def dir_fd(self) -> int:
+        return self.store.dir_fd
 
 
 @dataclass(frozen=True)
@@ -96,6 +339,46 @@ class Invocation:
     prompt_stdin: str
     cwd: str
     env_overrides: Mapping[str, str]
+    decision: Mapping[str, Any] | None = None
+    model_policy: Mapping[str, Any] | None = None
+    decision_digest: str | None = None
+    attempt_id: int = 1
+    objective: str = "unspecified"
+    ownership: str = "Only the files and responsibilities explicitly assigned in this prompt."
+    runtime_config_path: str | None = None
+    runtime_config_approved: bool = False
+    work_result_schema_path: str | None = None
+    scheduling_snapshot: Mapping[str, Any] | None = None
+    scheduling_snapshot_digest: str | None = None
+    claim_store_override: str | None = None
+
+
+@dataclass(frozen=True)
+class ValidatedDispatchDecision:
+    """Normalized result of deterministic decision-policy validation."""
+
+    decision: Mapping[str, Any]
+    digest: str
+    policy_version: str
+    quality_floor: int
+    model_quality_rank: int
+
+
+@dataclass(frozen=True)
+class ProviderResult:
+    """A provider-native event stream reduced to one validated WorkResult."""
+
+    work_result: Mapping[str, Any]
+    adapter: str
+    process_or_session_id: str | None = None
+
+
+@dataclass(frozen=True)
+class ExecutionOutcome:
+    """One fully terminalized dispatch and its validated public result."""
+
+    process: subprocess.CompletedProcess[str]
+    completed: Mapping[str, Any]
 
 
 def _mapping(value: Any, label: str) -> Mapping[str, Any]:
@@ -138,6 +421,546 @@ def load_config(path: str | os.PathLike[str]) -> Mapping[str, Any]:
     return _mapping(data, "configuration")
 
 
+def _load_yaml_mapping(path: str | os.PathLike[str], label: str) -> Mapping[str, Any]:
+    source = Path(path)
+    data = yaml.safe_load(source.read_text(encoding="utf-8")) or {}
+    return _mapping(data, label)
+
+
+def load_model_policy(path: str | os.PathLike[str]) -> Mapping[str, Any]:
+    """Load the committed, secret-free model capability policy."""
+
+    return _load_yaml_mapping(path, "model policy")
+
+
+def load_dispatch_decision(path: str | os.PathLike[str]) -> Mapping[str, Any]:
+    """Load one orchestrator-authored DispatchDecision JSON or YAML document."""
+
+    return _load_yaml_mapping(path, "DispatchDecision")
+
+
+def load_scheduling_snapshot(path: str | os.PathLike[str]) -> Mapping[str, Any]:
+    """Load one orchestrator-authored Rule 11 scheduling checkpoint."""
+
+    return _load_yaml_mapping(path, "scheduling snapshot")
+
+
+def validate_scheduling_dispatch(
+    snapshot: Mapping[str, Any],
+    decision: Mapping[str, Any],
+    *,
+    role: str,
+    ownership: str,
+) -> str:
+    """Validate and select the current decision ticket under Rule 11."""
+
+    normalized = validate_scheduling_snapshot(snapshot)
+    enforce_ticket_dispatch(
+        normalized,
+        ticket_id=_required_string(decision.get("ticket"), "DispatchDecision ticket"),
+        owner=_required_string(role, "dispatch role"),
+        ownership=(_required_string(ownership, "ownership"),),
+        decision_valid=True,
+    )
+    return normalized.digest
+
+
+def _canonical_sha256(value: Mapping[str, Any]) -> str:
+    material = json.dumps(
+        value,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        sort_keys=True,
+    ).encode("utf-8")
+    return hashlib.sha256(material).hexdigest()
+
+
+def _utc_now() -> str:
+    """Return a stable RFC 3339 UTC timestamp for execution evidence."""
+
+    return datetime.now(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z")
+
+
+def _parse_utc_timestamp(value: Any, label: str) -> datetime:
+    text = _required_string(value, label)
+    try:
+        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ConfigurationError(f"{label} must be an RFC 3339 timestamp") from exc
+    if parsed.tzinfo is None or parsed.utcoffset() != timezone.utc.utcoffset(parsed):
+        raise ConfigurationError(f"{label} must use UTC")
+    return parsed
+
+
+def _secret_bearing_path(value: Any, path: str = "$") -> str | None:
+    """Return the first secret-shaped value path without exposing its content."""
+
+    if isinstance(value, str):
+        if any(pattern.search(value) for pattern in SECRET_VALUE_PATTERNS):
+            return path
+        return None
+    if isinstance(value, Mapping):
+        for key, item in value.items():
+            key_text = str(key)
+            if re.search(
+                r"(?i)(?:^|_)(?:password|secret|authorization|cookie|api_key|access_token|refresh_token)(?:$|_)",
+                key_text,
+            ):
+                return f"{path}.{key_text}"
+            found = _secret_bearing_path(item, f"{path}.{key_text}")
+            if found:
+                return found
+        return None
+    if isinstance(value, (list, tuple)):
+        for index, item in enumerate(value):
+            found = _secret_bearing_path(item, f"{path}[{index}]")
+            if found:
+                return found
+    return None
+
+
+def _reject_secret_bearing(value: Any, label: str) -> None:
+    secret_path = _secret_bearing_path(value)
+    if secret_path:
+        raise ConfigurationError(f"{label} contains secret-bearing content at {secret_path}")
+
+
+def _redact_personal_text(value: str) -> str:
+    """Remove common personal identifiers while retaining useful evidence."""
+
+    redacted = EMAIL_PATTERN.sub("<EMAIL_REDACTED>", value)
+    redacted = LABELED_PERSONAL_ID_PATTERN.sub("<PERSONAL_ID_REDACTED>", redacted)
+    redacted = HOME_PATH_PATTERN.sub("<USER_HOME_REDACTED>", redacted)
+    return IP_ADDRESS_PATTERN.sub("<IP_REDACTED>", redacted)
+
+
+def _validate_string_collection(
+    value: Any,
+    label: str,
+    *,
+    allow_string: bool = False,
+    require_non_empty: bool = False,
+    require_non_empty_items: bool = False,
+) -> None:
+    """Validate the exact JSON string/array shapes used by WorkResult v2."""
+
+    if allow_string and isinstance(value, str):
+        if require_non_empty and not value.strip():
+            raise ConfigurationError(f"{label} must not be empty")
+        return
+    if not isinstance(value, list):
+        expected = "text or a list" if allow_string else "a list"
+        raise ConfigurationError(f"{label} must be {expected} of strings")
+    if require_non_empty and not value:
+        raise ConfigurationError(f"{label} must not be empty")
+    for index, item in enumerate(value):
+        if not isinstance(item, str):
+            raise ConfigurationError(f"{label}[{index}] must be a string")
+        if require_non_empty_items and not item.strip():
+            raise ConfigurationError(f"{label}[{index}] must not be empty")
+
+
+def _provider_compatible_work_result_schema(
+    path: str | os.PathLike[str],
+) -> dict[str, Any]:
+    """Build the strict provider subset of the authoritative WorkResult schema.
+
+    Codex structured output rejects ``oneOf``. The authoritative local schema
+    permits text-or-array values for three fields, so provider generation uses
+    the array branch for those fields. This is a strict subset, not a relaxed
+    fallback: all required fields, closed objects, and string item types remain
+    mandatory, and ``normalize_result`` independently validates the returned
+    object after the provider exits.
+    """
+
+    source_path = Path(path)
+    try:
+        raw_schema = json.loads(source_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ConfigurationError("WorkResult v2 output schema is not valid JSON") from exc
+    source = _mapping(raw_schema, "WorkResult v2 output schema")
+    if source.get("type") != "object" or source.get("additionalProperties") is not False:
+        raise ConfigurationError("WorkResult v2 output schema must be a closed object")
+    required = source.get("required")
+    if (
+        not isinstance(required, list)
+        or len(required) != len(set(required))
+        or set(required) != RESULT_FIELDS
+    ):
+        raise ConfigurationError("WorkResult v2 output schema required fields are invalid")
+    source_properties = _mapping(
+        source.get("properties"), "WorkResult v2 output schema properties"
+    )
+    if set(source_properties) != RESULT_FIELDS:
+        raise ConfigurationError("WorkResult v2 output schema properties are invalid")
+
+    # JSON round-tripping provides a plain, detached JSON value without adding
+    # a runtime dependency on a JSON Schema implementation.
+    provider_schema = json.loads(json.dumps(source))
+    provider_schema.pop("$schema", None)
+    provider_schema.pop("$id", None)
+    provider_properties = provider_schema["properties"]
+    for field in PROVIDER_ARRAY_RESULT_FIELDS:
+        field_schema = _mapping(
+            source_properties[field], f"WorkResult v2 output schema properties.{field}"
+        )
+        choices = field_schema.get("oneOf")
+        if not isinstance(choices, list):
+            raise ConfigurationError(
+                f"WorkResult v2 output schema properties.{field} must declare oneOf"
+            )
+        array_choices = [
+            choice
+            for choice in choices
+            if isinstance(choice, Mapping) and choice.get("type") == "array"
+        ]
+        if len(array_choices) != 1:
+            raise ConfigurationError(
+                f"WorkResult v2 output schema properties.{field} must have one array branch"
+            )
+        array_schema = json.loads(json.dumps(array_choices[0]))
+        items = _mapping(
+            array_schema.get("items"),
+            f"WorkResult v2 output schema properties.{field}.items",
+        )
+        if items.get("type") != "string":
+            raise ConfigurationError(
+                f"WorkResult v2 output schema properties.{field} items must be strings"
+            )
+        provider_properties[field] = array_schema
+
+    evidence_schema = _mapping(
+        source_properties["evidence"], "WorkResult v2 output schema properties.evidence"
+    )
+    evidence_properties = _mapping(
+        evidence_schema.get("properties"),
+        "WorkResult v2 output schema properties.evidence.properties",
+    )
+    if (
+        evidence_schema.get("type") != "object"
+        or evidence_schema.get("additionalProperties") is not False
+        or set(evidence_schema.get("required", [])) != {"commands", "outcomes", "artifacts"}
+        or set(evidence_properties) != {"commands", "outcomes", "artifacts"}
+    ):
+        raise ConfigurationError("WorkResult v2 evidence schema is not strict")
+    for field, field_schema in evidence_properties.items():
+        field_schema = _mapping(
+            field_schema, f"WorkResult v2 output schema evidence.{field}"
+        )
+        items = _mapping(
+            field_schema.get("items"),
+            f"WorkResult v2 output schema evidence.{field}.items",
+        )
+        if field_schema.get("type") != "array" or items.get("type") != "string":
+            raise ConfigurationError(
+                f"WorkResult v2 output schema evidence.{field} must be a string array"
+            )
+
+    def reject_provider_unsupported_shape(value: Any, location: str = "$") -> None:
+        if isinstance(value, Mapping):
+            if "oneOf" in value:
+                raise ConfigurationError(
+                    f"provider WorkResult schema retains unsupported oneOf at {location}"
+                )
+            for key, item in value.items():
+                reject_provider_unsupported_shape(item, f"{location}.{key}")
+        elif isinstance(value, list):
+            for index, item in enumerate(value):
+                reject_provider_unsupported_shape(item, f"{location}[{index}]")
+
+    reject_provider_unsupported_shape(provider_schema)
+    return provider_schema
+
+
+def _required_string(value: Any, label: str, *, safe_name: bool = False) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise DispatchDecisionError(f"{label} must be non-empty text")
+    normalized = value.strip()
+    if safe_name and not SAFE_NAME.fullmatch(normalized):
+        raise DispatchDecisionError(f"{label} contains unsupported characters")
+    return normalized
+
+
+def _required_rank(value: Any, label: str, minimum: int, maximum: int) -> int:
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise DispatchDecisionError(f"{label} must be an integer")
+    if value < minimum or value > maximum:
+        raise DispatchDecisionError(f"{label} must be between {minimum} and {maximum}")
+    return value
+
+
+def _policy_sequence(policy: Mapping[str, Any], key: str) -> tuple[str, ...]:
+    value = policy.get(key)
+    if not isinstance(value, list) or not value or not all(isinstance(item, str) for item in value):
+        raise ConfigurationError(f"model policy {key} must be a non-empty string list")
+    return tuple(value)
+
+
+def _validated_model_catalog(
+    policy: Mapping[str, Any], minimum: int, maximum: int
+) -> Mapping[str, Mapping[str, Any]]:
+    """Reject incomplete, unavailable, deprecated, or provider-invalid models."""
+
+    models = _mapping(policy.get("models"), "model policy models")
+    if not models:
+        raise ConfigurationError("model policy models must not be empty")
+    provider_efforts = {"codex": VALID_EFFORTS, "agy": VALID_AGY_EFFORTS}
+    fallback_orders: set[tuple[str, int]] = set()
+    for model, raw_spec in models.items():
+        spec = _mapping(raw_spec, f"model policy models.{model}")
+        cli = spec.get("cli")
+        if cli not in VALID_CLIS:
+            raise ConfigurationError(f"model policy models.{model}.cli is invalid")
+        if spec.get("availability") is not True:
+            raise ConfigurationError(f"model policy models.{model}.availability must be true")
+        if spec.get("deprecated") is not False:
+            raise ConfigurationError(f"model policy models.{model}.deprecated must be false")
+        fallback_order = spec.get("fallback_order")
+        if isinstance(fallback_order, bool) or not isinstance(fallback_order, int) or fallback_order < 1:
+            raise ConfigurationError(
+                f"model policy models.{model}.fallback_order must be a positive integer"
+            )
+        fallback_key = (cli, fallback_order)
+        if fallback_key in fallback_orders:
+            raise ConfigurationError(f"model policy has duplicate {cli} fallback_order")
+        fallback_orders.add(fallback_key)
+        efforts = _mapping(spec.get("efforts"), f"model policy models.{model}.efforts")
+        if not efforts:
+            raise ConfigurationError(f"model policy models.{model}.efforts must not be empty")
+        for effort, raw_effort_spec in efforts.items():
+            if effort not in provider_efforts[cli]:
+                raise ConfigurationError(
+                    f"model policy models.{model} has unsupported {cli} effort: {effort}"
+                )
+            effort_spec = _mapping(
+                raw_effort_spec, f"model policy models.{model}.efforts.{effort}"
+            )
+            _required_rank(
+                effort_spec.get("quality_rank"),
+                f"model policy quality rank for {model}/{effort}",
+                minimum,
+                maximum,
+            )
+    return models
+
+
+def validate_dispatch_decision(
+    decision: Mapping[str, Any],
+    policy: Mapping[str, Any],
+    route: Route | None = None,
+) -> ValidatedDispatchDecision:
+    """Validate one decision against the versioned capability and safety policy.
+
+    This function is intentionally deterministic: the orchestrator owns the
+    classification and rationale, while this boundary computes the maximum
+    rank, supported provider/model/effort combination, and hard safety gates.
+    """
+
+    decision = _mapping(decision, "DispatchDecision")
+    policy = _mapping(policy, "model policy")
+    unknown = set(decision) - DISPATCH_DECISION_FIELDS - DISPATCH_DECISION_OPTIONAL_FIELDS
+    missing = DISPATCH_DECISION_FIELDS - set(decision)
+    if missing:
+        raise DispatchDecisionError(
+            "DispatchDecision missing fields: " + ", ".join(sorted(missing))
+        )
+    if unknown:
+        raise DispatchDecisionError(
+            "DispatchDecision contains unsupported fields: " + ", ".join(sorted(unknown))
+        )
+
+    policy_schema = policy.get("schema_version")
+    decision_schema = policy.get("decision_schema_version")
+    if policy_schema != 1 or decision_schema != 1:
+        raise ConfigurationError("model policy schema_version and decision_schema_version must be 1")
+    if decision.get("schema_version") != decision_schema:
+        raise DispatchDecisionError("DispatchDecision schema_version does not match model policy")
+
+    policy_version = _required_string(policy.get("policy_version"), "model policy policy_version")
+    selected_policy_version = _required_string(
+        decision.get("policy_version"), "DispatchDecision policy_version"
+    )
+    if selected_policy_version != policy_version:
+        raise DispatchDecisionError("DispatchDecision policy_version does not match loaded model policy")
+
+    rank_min = policy.get("rank_min")
+    rank_max = policy.get("rank_max")
+    if isinstance(rank_min, bool) or not isinstance(rank_min, int):
+        raise ConfigurationError("model policy rank_min must be an integer")
+    if isinstance(rank_max, bool) or not isinstance(rank_max, int) or rank_max < rank_min:
+        raise ConfigurationError("model policy rank_max must be an integer at or above rank_min")
+    rank_dimensions = _policy_sequence(policy, "rank_dimensions")
+    expected_dimensions = (
+        "scope_rank",
+        "complexity_rank",
+        "risk_rank",
+        "ambiguity_rank",
+        "evidence_burden_rank",
+    )
+    if rank_dimensions != expected_dimensions:
+        raise ConfigurationError("model policy rank_dimensions does not match DispatchDecision v1")
+    ranks = {
+        field: _required_rank(decision.get(field), f"DispatchDecision {field}", rank_min, rank_max)
+        for field in rank_dimensions
+    }
+    quality_floor = max(ranks.values())
+    quality_floors = _mapping(policy.get("quality_floors"), "model policy quality_floors")
+    if quality_floor not in quality_floors and str(quality_floor) not in quality_floors:
+        raise ConfigurationError(f"model policy has no quality floor {quality_floor}")
+    critical_rank = policy.get("critical_rank")
+    if isinstance(critical_rank, bool) or not isinstance(critical_rank, int):
+        raise ConfigurationError("model policy critical_rank must be an integer")
+
+    ticket = _required_string(decision.get("ticket"), "DispatchDecision ticket", safe_name=True)
+    phase = _required_string(decision.get("phase"), "DispatchDecision phase", safe_name=True)
+    if phase not in _policy_sequence(policy, "phases"):
+        raise DispatchDecisionError(f"DispatchDecision phase is unsupported: {phase}")
+    work_mode = _required_string(
+        decision.get("work_mode"), "DispatchDecision work_mode", safe_name=True
+    )
+    if work_mode not in _policy_sequence(policy, "work_modes"):
+        raise DispatchDecisionError(f"DispatchDecision work_mode is unsupported: {work_mode}")
+    quota_band = _required_string(
+        decision.get("quota_band"), "DispatchDecision quota_band", safe_name=True
+    )
+    if quota_band not in _policy_sequence(policy, "quota_bands"):
+        raise DispatchDecisionError(f"DispatchDecision quota_band is unsupported: {quota_band}")
+
+    selected_alias = _required_string(
+        decision.get("selected_alias"), "DispatchDecision selected_alias", safe_name=True
+    )
+    if selected_alias not in GOVERNED_ACCOUNT_ALIASES:
+        raise DispatchDecisionError("DispatchDecision selected_alias is outside the approved allowlist")
+    selected_model = _required_string(
+        decision.get("selected_model"), "DispatchDecision selected_model", safe_name=True
+    )
+    selected_effort = _required_string(
+        decision.get("selected_effort"), "DispatchDecision selected_effort", safe_name=True
+    )
+    if selected_effort not in VALID_EFFORTS:
+        raise DispatchDecisionError(f"DispatchDecision selected_effort is unsupported: {selected_effort}")
+    _required_string(decision.get("rationale"), "DispatchDecision rationale")
+    for boolean_field in ("planning_to_medium_confirmed", "hitl_approved"):
+        if not isinstance(decision.get(boolean_field), bool):
+            raise DispatchDecisionError(f"DispatchDecision {boolean_field} must be boolean")
+
+    models = _validated_model_catalog(policy, rank_min, rank_max)
+    if selected_model not in models:
+        raise DispatchDecisionError(
+            f"DispatchDecision selected_model is absent from the capability catalog: {selected_model}"
+        )
+    model_spec = _mapping(models[selected_model], f"model policy models.{selected_model}")
+    model_cli = model_spec.get("cli")
+    if model_cli not in VALID_CLIS:
+        raise ConfigurationError(f"model policy models.{selected_model}.cli is invalid")
+    efforts = _mapping(
+        model_spec.get("efforts"), f"model policy models.{selected_model}.efforts"
+    )
+    if selected_effort not in efforts:
+        raise DispatchDecisionError(
+            f"unsupported model/effort combination: {selected_model}/{selected_effort}"
+        )
+    effort_spec = _mapping(
+        efforts[selected_effort],
+        f"model policy models.{selected_model}.efforts.{selected_effort}",
+    )
+    model_quality_rank = _required_rank(
+        effort_spec.get("quality_rank"),
+        f"model policy quality rank for {selected_model}/{selected_effort}",
+        rank_min,
+        rank_max,
+    )
+    if model_quality_rank < quality_floor:
+        raise DispatchDecisionError(
+            f"selected route quality rank {model_quality_rank} is below required floor {quality_floor}; "
+            "quota must not silently downgrade quality"
+        )
+
+    quality_exception = decision.get("quality_exception")
+    if selected_effort in {"max", "ultra"}:
+        if effort_spec.get("quality_exception") is not True:
+            raise DispatchDecisionError(
+                f"{selected_model}/{selected_effort} is not a catalog-supported quality exception"
+            )
+        _required_string(quality_exception, "DispatchDecision quality_exception")
+    elif quality_exception is not None:
+        raise DispatchDecisionError("DispatchDecision quality_exception is valid only for max/ultra")
+
+    if phase == "planning" and quality_floor == critical_rank:
+        planning_profile = _mapping(policy.get("rank_3_planning"), "model policy rank_3_planning")
+        planning_model = planning_profile.get("model")
+        planning_efforts = planning_profile.get("efforts")
+        if (
+            selected_model != planning_model
+            or not isinstance(planning_efforts, list)
+            or selected_effort not in planning_efforts
+        ):
+            raise DispatchDecisionError(
+                "rank-3 planning requires the cataloged planning model with xhigh or an approved exception"
+            )
+
+    if phase != "planning" and decision["planning_to_medium_confirmed"] is not True:
+        raise DispatchDecisionError(
+            "NEEDS_HITL: non-planning execution requires fresh root medium confirmation",
+            status="NEEDS_HITL",
+        )
+    if (
+        max(ranks["risk_rank"], ranks["ambiguity_rank"]) >= critical_rank
+        and decision["hitl_approved"] is not True
+    ):
+        raise DispatchDecisionError(
+            "NEEDS_HITL: critical risk or ambiguity requires approval before dispatch",
+            status="NEEDS_HITL",
+        )
+
+    broad_scope_rank = policy.get("broad_scope_rank")
+    high_risk_rank = policy.get("high_risk_rank")
+    if not isinstance(broad_scope_rank, int) or not isinstance(high_risk_rank, int):
+        raise ConfigurationError("model policy quota thresholds must be integers")
+    if quota_band == "below_10_percent" and ranks["scope_rank"] >= broad_scope_rank:
+        raise DispatchDecisionError("quota below 10% blocks broad work")
+    if quota_band == "unknown" and (
+        ranks["scope_rank"] >= broad_scope_rank or ranks["risk_rank"] >= high_risk_rank
+    ):
+        raise DispatchDecisionError("unknown quota blocks large or high-risk work")
+
+    if route is not None:
+        disagreements = []
+        for field, actual, expected in (
+            ("alias", route.alias, selected_alias),
+            ("model", route.model, selected_model),
+            ("effort", route.effort, selected_effort),
+            ("provider", route.cli, model_cli),
+        ):
+            if actual != expected:
+                disagreements.append(f"{field}={actual!r} expected {expected!r}")
+        if disagreements:
+            raise DispatchDecisionError(
+                "resolved route disagrees with DispatchDecision: " + "; ".join(disagreements)
+            )
+
+    normalized = dict(decision)
+    normalized.update(
+        {
+            "ticket": ticket,
+            "phase": phase,
+            "work_mode": work_mode,
+            "quota_band": quota_band,
+            "selected_alias": selected_alias,
+            "selected_model": selected_model,
+            "selected_effort": selected_effort,
+            "policy_version": selected_policy_version,
+        }
+    )
+    return ValidatedDispatchDecision(
+        decision=normalized,
+        digest=_canonical_sha256(normalized),
+        policy_version=policy_version,
+        quality_floor=quality_floor,
+        model_quality_rank=model_quality_rank,
+    )
+
+
 def resolve_route(
     config: Mapping[str, Any],
     role: str,
@@ -175,9 +998,11 @@ def resolve_route(
     if account_cli not in VALID_CLIS:
         raise ConfigurationError(f"accounts.{alias}.cli must be codex or agy")
     if cli != account_cli:
-        raise ConfigurationError(
-            f"account alias {alias} is registered for {account_cli}, not {cli}"
-        )
+        allow_provider_swap = bool(account.get("allow_provider_swap", False))
+        if not allow_provider_swap:
+            raise ConfigurationError(
+                f"account alias {alias} is registered for {account_cli}, not {cli}"
+            )
 
     command = account.get("command", cli)
     if not isinstance(command, str) or not SAFE_COMMAND.fullmatch(command):
@@ -256,23 +1081,99 @@ def render_prompt(
             "",
             "Result contract:",
             "- status: DONE | BLOCKED | NEEDS_HITL",
-            "- scope_owned: files or responsibilities assigned",
+            "- scope_owned: non-empty JSON array of assigned files or responsibilities",
             "- evidence: commands, outcomes, and artifact references",
-            "- findings: verified conclusions",
-            "- changed_files: changed paths or none",
+            "- findings: JSON array of verified conclusions",
+            "- changed_files: JSON array of changed paths, or an empty JSON array",
             "- residual_risk: remaining risk or none",
             "- recommended_next_action: one concrete next action",
         ]
     )
 
 
-def build_invocation(route: Route, prompt: str, project_dir: str | os.PathLike[str]) -> Invocation:
-    """Build exact argv and process-local environment overrides; never a shell command."""
+def _decision_prompt_evidence(
+    validated: ValidatedDispatchDecision, attempt_id: int = 1
+) -> str:
+    decision = validated.decision
+    return "\n".join(
+        [
+            "Dispatch governance evidence (do not reinterpret or override):",
+            f"- protocol_version: {RESULT_PROTOCOL_VERSION}",
+            f"- ticket: {decision['ticket']}",
+            f"- attempt_id: {attempt_id}",
+            f"- phase: {decision['phase']}",
+            f"- policy_version: {validated.policy_version}",
+            f"- decision_sha256: {validated.digest}",
+            f"- quality_floor: {validated.quality_floor}",
+            f"- selected_alias: {decision['selected_alias']}",
+            f"- selected_model: {decision['selected_model']}",
+            f"- selected_effort: {decision['selected_effort']}",
+        ]
+    )
+
+
+def build_invocation(
+    route: Route,
+    prompt: str,
+    project_dir: str | os.PathLike[str],
+    *,
+    decision: Mapping[str, Any] | None = None,
+    model_policy: Mapping[str, Any] | None = None,
+    attempt_id: int = 1,
+    objective: str = "unspecified",
+    ownership: str = DEFAULT_OWNERSHIP,
+    runtime_config_path: str | os.PathLike[str] | None = None,
+    runtime_config_approved: bool = False,
+    work_result_schema_path: str | os.PathLike[str] | None = None,
+    scheduling_snapshot: Mapping[str, Any] | None = None,
+    claim_store_override: str | os.PathLike[str] | None = None,
+) -> Invocation:
+    """Build exact argv and process-local environment overrides; never a shell command.
+
+    Supplying neither decision nor policy is retained only for legacy v1
+    dry-runs.  Executable invocations are rejected by execute_invocation.
+    """
 
     project_path = Path(project_dir).resolve()
     if not project_path.exists() or not project_path.is_dir():
         raise ConfigurationError("project_dir must exist and be a directory")
     cwd = str(project_path)
+    if isinstance(attempt_id, bool) or not isinstance(attempt_id, int) or attempt_id < 1:
+        raise ConfigurationError("attempt_id must be a positive integer")
+    if not isinstance(runtime_config_approved, bool):
+        raise ConfigurationError("runtime_config_approved must be boolean")
+    objective = _required_string(objective, "objective")
+    ownership = _required_string(ownership, "ownership")
+    _reject_secret_bearing({"objective": objective, "ownership": ownership}, "dispatch scope")
+    validated: ValidatedDispatchDecision | None = None
+    resolved_schema_path: Path | None = None
+    scheduling_snapshot_digest: str | None = None
+    if (decision is None) != (model_policy is None):
+        raise ConfigurationError("DispatchDecision and model policy must be supplied together")
+    if decision is not None and model_policy is not None:
+        validated = validate_dispatch_decision(decision, model_policy, route)
+        prompt = prompt + "\n\n" + _decision_prompt_evidence(validated, attempt_id)
+        resolved_schema_path = Path(work_result_schema_path or DEFAULT_WORK_RESULT_SCHEMA).resolve()
+        if not resolved_schema_path.is_file():
+            raise ConfigurationError("WorkResult v2 output schema is unavailable")
+        _provider_compatible_work_result_schema(resolved_schema_path)
+    if scheduling_snapshot is not None:
+        if validated is None:
+            raise ConfigurationError("scheduling snapshot requires a DispatchDecision")
+        scheduling_snapshot_digest = validate_scheduling_dispatch(
+            scheduling_snapshot,
+            validated.decision,
+            role=route.role,
+            ownership=ownership,
+        )
+        prompt = prompt + "\n\n" + "\n".join(
+            [
+                "Rule 11 scheduling evidence (do not reinterpret or override):",
+                f"- scheduling_snapshot_sha256: {scheduling_snapshot_digest}",
+                f"- scheduled_ticket: {validated.decision['ticket']}",
+                f"- scheduled_owner: {route.role}",
+            ]
+        )
     argv = [route.command]
     if route.cli == "codex":
         argv.extend(["exec", "-C", cwd])
@@ -282,6 +1183,8 @@ def build_invocation(route: Route, prompt: str, project_dir: str | os.PathLike[s
             argv.extend(["-m", route.model])
         if route.effort:
             argv.extend(["-c", f'model_reasoning_effort="{route.effort}"'])
+        if validated is not None and resolved_schema_path is not None:
+            argv.extend(["--json", "--output-schema", str(resolved_schema_path)])
         argv.append("-")
     else:
         if route.mode:
@@ -292,7 +1195,30 @@ def build_invocation(route: Route, prompt: str, project_dir: str | os.PathLike[s
             argv.extend(["--model", route.model])
         if route.effort:
             argv.extend(["--effort", route.effort])
-        argv.extend(["--print", "--input-format", "text", "--output-format", "json"])
+        argv.append("--print")
+        if validated is not None and resolved_schema_path is not None:
+            argv.extend(
+                [
+                    "--input-format",
+                    "stream-json",
+                    "--output-format",
+                    "stream-json",
+                    "--json-schema",
+                    str(resolved_schema_path),
+                ]
+            )
+            prompt = json.dumps(
+                {
+                    "event": "user",
+                    "message": {
+                        "content": prompt,
+                    },
+                },
+                ensure_ascii=False,
+                separators=(",", ":"),
+            ) + "\n"
+        else:
+            argv.extend(["--input-format", "text", "--output-format", "json"])
 
     env_overrides: dict[str, str] = {}
     if route.home_env and route.home_path:
@@ -303,6 +1229,26 @@ def build_invocation(route: Route, prompt: str, project_dir: str | os.PathLike[s
         prompt_stdin=prompt,
         cwd=cwd,
         env_overrides=env_overrides,
+        decision=dict(validated.decision) if validated is not None else None,
+        model_policy=dict(model_policy) if model_policy is not None else None,
+        decision_digest=validated.digest if validated is not None else None,
+        attempt_id=attempt_id,
+        objective=objective,
+        ownership=ownership,
+        runtime_config_path=(
+            str(Path(runtime_config_path).resolve()) if runtime_config_path is not None else None
+        ),
+        runtime_config_approved=runtime_config_approved,
+        work_result_schema_path=(
+            str(resolved_schema_path) if resolved_schema_path is not None else None
+        ),
+        scheduling_snapshot=(
+            dict(scheduling_snapshot) if scheduling_snapshot is not None else None
+        ),
+        scheduling_snapshot_digest=scheduling_snapshot_digest,
+        claim_store_override=(
+            str(claim_store_override) if claim_store_override is not None else None
+        ),
     )
 
 
@@ -315,11 +1261,1275 @@ def _dispatch_key(invocation: Invocation) -> str:
             "cwd": invocation.cwd,
             "prompt": invocation.prompt_stdin,
             "env": sorted(invocation.env_overrides.items()),
+            "policy_version": (
+                invocation.decision.get("policy_version") if invocation.decision else None
+            ),
+            "decision_sha256": invocation.decision_digest,
+            "scheduling_snapshot_sha256": invocation.scheduling_snapshot_digest,
+            "model": invocation.route.model,
+            "effort": invocation.route.effort,
+            "attempt_id": invocation.attempt_id,
         },
         ensure_ascii=False,
         sort_keys=True,
     ).encode("utf-8")
     return hashlib.sha256(material).hexdigest()
+
+
+def _claim_dispatch_identity(invocation: Invocation) -> str:
+    """Return an attempt-independent identity for one authorized dispatch."""
+
+    material = {
+        "decision_sha256": invocation.decision_digest,
+        "scheduling_snapshot_sha256": invocation.scheduling_snapshot_digest,
+        "ticket": invocation.decision.get("ticket") if invocation.decision else None,
+        "route": {
+            "role": invocation.route.role,
+            "alias": invocation.route.alias,
+            "provider": invocation.route.cli,
+            "model": invocation.route.model,
+            "effort": invocation.route.effort,
+        },
+        "cwd_sha256": hashlib.sha256(invocation.cwd.encode("utf-8")).hexdigest(),
+        "objective_sha256": hashlib.sha256(invocation.objective.encode("utf-8")).hexdigest(),
+        "ownership_sha256": hashlib.sha256(invocation.ownership.encode("utf-8")).hexdigest(),
+    }
+    return _canonical_sha256(material)
+
+
+def _dispatch_claim_key(invocation: Invocation) -> str:
+    if not invocation.decision_digest or not invocation.scheduling_snapshot_digest:
+        raise SchedulingError(
+            "INVALID_DISPATCH_CLAIM", "claim requires decision and scheduling bindings"
+        )
+    return _canonical_sha256(
+        {
+            "decision_sha256": invocation.decision_digest,
+            "scheduling_snapshot_sha256": invocation.scheduling_snapshot_digest,
+            "dispatch_identity": _claim_dispatch_identity(invocation),
+        }
+    )
+
+
+def _directory_open_flags() -> int:
+    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_CLOEXEC", 0)
+    return flags | getattr(os, "O_NOFOLLOW", 0)
+
+
+def _file_open_flags(base: int) -> int:
+    return (
+        base
+        | getattr(os, "O_NOFOLLOW", 0)
+        | getattr(os, "O_NONBLOCK", 0)
+        | getattr(os, "O_CLOEXEC", 0)
+    )
+
+
+def _validate_owned_directory_fd(descriptor: int) -> os.stat_result:
+    value = os.fstat(descriptor)
+    if not stat.S_ISDIR(value.st_mode) or stat.S_IMODE(value.st_mode) != 0o700:
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim directory mode is unsafe")
+    if hasattr(os, "getuid") and value.st_uid != os.getuid():
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim directory owner is unsafe")
+    return value
+
+
+def _canonical_realpath(path: Path) -> Path:
+    return Path(os.path.realpath(os.path.abspath(path)))
+
+
+def _durable_claim_destination(invocation: Invocation) -> tuple[Path, int]:
+    project = _canonical_realpath(Path(invocation.cwd))
+    if not project.is_dir():
+        raise SchedulingError("INVALID_CLAIM_STORE", "canonical project is unavailable")
+    namespace = hashlib.sha256(os.fsencode(project)).hexdigest()
+    if invocation.claim_store_override is not None:
+        raw = Path(invocation.claim_store_override)
+        if not raw.is_absolute():
+            raise SchedulingError("INVALID_CLAIM_STORE", "claim store override must be absolute")
+        destination = _canonical_realpath(raw)
+        try:
+            relative = destination.relative_to(project)
+        except ValueError as exc:
+            raise SchedulingError(
+                "INVALID_CLAIM_STORE", "claim store override must remain inside project"
+            ) from exc
+        if not relative.parts or any(part in {"", ".", ".."} for part in relative.parts):
+            raise SchedulingError("INVALID_CLAIM_STORE", "claim store override is unsafe")
+        return destination, len(project.parts)
+    home = _canonical_realpath(Path.home())
+    if sys.platform == "darwin":
+        base = home / "Library" / "Application Support" / "HoroConsultant" / "dispatch-ledger"
+    else:
+        base = home / ".local" / "state" / "horoconsultant" / "dispatch-ledger"
+    return base / namespace, len(base.parts) - 2
+
+
+def _open_claim_store_path(
+    destination: Path, protected_from: int, namespace: str
+) -> ClaimStore:
+    parts = destination.parts
+    if not destination.is_absolute() or not parts:
+        raise SchedulingError("INVALID_CLAIM_STORE", "claim store location is invalid")
+    try:
+        parent_fd = os.open(parts[0], _directory_open_flags())
+    except OSError as exc:
+        raise SchedulingError("INVALID_CLAIM_STORE", "claim store root is unavailable") from exc
+    try:
+        for index, component in enumerate(parts[1:], start=1):
+            created = False
+            try:
+                child_fd = os.open(component, _directory_open_flags(), dir_fd=parent_fd)
+            except FileNotFoundError:
+                os.mkdir(component, 0o700, dir_fd=parent_fd)
+                os.fsync(parent_fd)
+                created = True
+                child_fd = os.open(component, _directory_open_flags(), dir_fd=parent_fd)
+            if created or index >= protected_from:
+                _validate_owned_directory_fd(child_fd)
+            os.close(parent_fd)
+            parent_fd = child_fd
+        value = _validate_owned_directory_fd(parent_fd)
+        os.fsync(parent_fd)
+        return ClaimStore(
+            destination, parent_fd, (value.st_dev, value.st_ino), namespace
+        )
+    except (OSError, SchedulingError) as exc:
+        os.close(parent_fd)
+        if isinstance(exc, SchedulingError):
+            raise
+        raise SchedulingError("INVALID_CLAIM_STORE", "claim store traversal failed") from exc
+
+
+def _secure_claim_directory(invocation: Invocation) -> ClaimStore:
+    """Create/open the ledger once and retain its validated directory descriptor."""
+
+    if fcntl is None or os.name != "posix":
+        raise SchedulingError(
+            "UNSUPPORTED_CLAIM_PLATFORM", "durable dispatch claims require POSIX locking"
+        )
+    destination, protected_from = _durable_claim_destination(invocation)
+    namespace = hashlib.sha256(
+        os.fsencode(_canonical_realpath(Path(invocation.cwd)))
+    ).hexdigest()
+    return _open_claim_store_path(destination, protected_from, namespace)
+
+
+def _coerce_claim_store(value: ClaimStore | Path, invocation: Invocation) -> ClaimStore:
+    """Upgrade legacy test-path injection without reopening a validated handle."""
+
+    if isinstance(value, ClaimStore):
+        return value
+    destination = _canonical_realpath(Path(value))
+    project = _canonical_realpath(Path(invocation.cwd))
+    try:
+        destination.relative_to(project)
+    except ValueError as exc:
+        raise SchedulingError("INVALID_CLAIM_STORE", "injected claim store is unsafe") from exc
+    namespace = hashlib.sha256(os.fsencode(project)).hexdigest()
+    return _open_claim_store_path(destination, len(project.parts), namespace)
+
+
+def _validate_regular_fd(
+    descriptor: int, *, allow_empty: bool = False
+) -> os.stat_result:
+    value = os.fstat(descriptor)
+    if (
+        not stat.S_ISREG(value.st_mode)
+        or stat.S_IMODE(value.st_mode) != 0o600
+        or value.st_nlink != 1
+        or (hasattr(os, "getuid") and value.st_uid != os.getuid())
+        or value.st_size > MAX_DISPATCH_CLAIM_BYTES
+        or (not allow_empty and value.st_size < 1)
+    ):
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim file metadata is unsafe")
+    return value
+
+
+def _bounded_read_fd(descriptor: int, *, allow_empty: bool = False) -> bytes:
+    os.lseek(descriptor, 0, os.SEEK_SET)
+    chunks: list[bytes] = []
+    remaining = MAX_DISPATCH_CLAIM_BYTES + 1
+    while remaining:
+        chunk = os.read(descriptor, min(4096, remaining))
+        if not chunk:
+            break
+        chunks.append(chunk)
+        remaining -= len(chunk)
+    raw = b"".join(chunks)
+    if (not raw and not allow_empty) or len(raw) > MAX_DISPATCH_CLAIM_BYTES:
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim file size is invalid")
+    return raw
+
+
+def _write_all(descriptor: int, payload: bytes) -> None:
+    """Write a complete claim payload, retrying EINTR and rejecting zero writes."""
+
+    view = memoryview(payload)
+    offset = 0
+    while offset < len(view):
+        try:
+            written = os.write(descriptor, view[offset:])
+        except InterruptedError:
+            continue
+        if written <= 0:
+            raise SchedulingError("CLAIM_WRITE_FAILED", "claim write made no progress")
+        offset += written
+
+
+def _validate_claim_record(value: Any) -> dict[str, Any]:
+    required = {
+        "version", "claim_key", "decision_sha256", "scheduling_snapshot_sha256",
+        "dispatch_identity", "ticket_sha256", "route_sha256",
+        "ownership_tokens_sha256", "ownership_exact_tokens",
+        "ownership_ancestor_tokens", "ownership_key_id", "state", "abandon_reason",
+        "legacy_claim_sha256",
+        "pid", "created_at", "updated_at", "started_at", "ended_at",
+        "process_start_binding",
+        "transport_status", "exit_code", "output_bytes", "output_sha256",
+        "work_result_sha256",
+    }
+    if not isinstance(value, Mapping) or set(value) != required:
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim record fields are invalid")
+    claim = dict(value)
+    if claim.get("version") != DISPATCH_CLAIM_VERSION:
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim record version is invalid")
+    for field in (
+        "claim_key", "decision_sha256", "scheduling_snapshot_sha256",
+        "dispatch_identity", "ticket_sha256", "route_sha256",
+        "ownership_tokens_sha256", "ownership_key_id", "process_start_binding",
+    ):
+        if not isinstance(claim.get(field), str) or not re.fullmatch(r"[a-f0-9]{64}", claim[field]):
+            raise SchedulingError("INVALID_DISPATCH_CLAIM", f"claim {field} is invalid")
+    if claim.get("state") not in {"active", "completed", "rejected", "unknown", "abandoned"}:
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim lifecycle state is invalid")
+    for field in ("ownership_exact_tokens", "ownership_ancestor_tokens"):
+        tokens = claim.get(field)
+        if not isinstance(tokens, list) or (field == "ownership_exact_tokens" and not tokens):
+            raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim ownership tokens are invalid")
+        if len(tokens) != len(set(tokens)) or not all(
+            isinstance(item, str) and re.fullmatch(r"[a-f0-9]{64}", item)
+            for item in tokens
+        ):
+            raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim ownership tokens are invalid")
+    if claim["ownership_tokens_sha256"] != _ownership_tokens_digest(
+        claim["ownership_exact_tokens"], claim["ownership_ancestor_tokens"]
+    ):
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim ownership digest is invalid")
+    if claim.get("abandon_reason") not in {None, "process_dead", "pid_reused", "stale_unlocked"}:
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim abandon reason is invalid")
+    legacy_digest = claim.get("legacy_claim_sha256")
+    if legacy_digest is not None and (
+        not isinstance(legacy_digest, str) or not re.fullmatch(r"[a-f0-9]{64}", legacy_digest)
+    ):
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "legacy claim digest is invalid")
+    if isinstance(claim.get("pid"), bool) or not isinstance(claim.get("pid"), int):
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim pid is invalid")
+    for field in ("created_at", "updated_at", "started_at"):
+        try:
+            _parse_utc_timestamp(claim.get(field), f"dispatch claim {field}")
+        except ConfigurationError as exc:
+            raise SchedulingError(
+                "INVALID_DISPATCH_CLAIM", "claim timestamp is invalid"
+            ) from exc
+    terminal = ("exit_code", "output_bytes", "output_sha256", "work_result_sha256")
+    if claim["state"] == "active":
+        if claim.get("abandon_reason") is not None:
+            raise SchedulingError("INVALID_DISPATCH_CLAIM", "active abandon reason is invalid")
+        if claim.get("transport_status") != "starting" or claim.get("ended_at") is not None:
+            raise SchedulingError("INVALID_DISPATCH_CLAIM", "active claim state is inconsistent")
+        if any(claim.get(field) is not None for field in terminal):
+            raise SchedulingError("INVALID_DISPATCH_CLAIM", "active claim proof is inconsistent")
+    else:
+        if claim["state"] == "abandoned" and claim.get("abandon_reason") is None:
+            raise SchedulingError("INVALID_DISPATCH_CLAIM", "abandoned claim reason is missing")
+        try:
+            _parse_utc_timestamp(claim.get("ended_at"), "dispatch claim ended_at")
+        except ConfigurationError as exc:
+            raise SchedulingError(
+                "INVALID_DISPATCH_CLAIM", "terminal claim timestamp is invalid"
+            ) from exc
+        expected_transport = {
+            "completed": "completed",
+            "rejected": "provider_result_rejected",
+            "unknown": "transport_unknown",
+            "abandoned": "abandoned",
+        }[claim["state"]]
+        if claim.get("transport_status") != expected_transport:
+            raise SchedulingError("INVALID_DISPATCH_CLAIM", "terminal claim state is inconsistent")
+        if claim["state"] in {"completed", "rejected"}:
+            if isinstance(claim.get("exit_code"), bool) or not isinstance(claim.get("exit_code"), int):
+                raise SchedulingError("INVALID_DISPATCH_CLAIM", "terminal exit code is invalid")
+            if isinstance(claim.get("output_bytes"), bool) or not isinstance(claim.get("output_bytes"), int):
+                raise SchedulingError("INVALID_DISPATCH_CLAIM", "terminal output size is invalid")
+            if not isinstance(claim.get("output_sha256"), str) or not re.fullmatch(r"[a-f0-9]{64}", claim["output_sha256"]):
+                raise SchedulingError("INVALID_DISPATCH_CLAIM", "terminal output digest is invalid")
+        if claim["state"] == "completed" and (
+            not isinstance(claim.get("work_result_sha256"), str)
+            or not re.fullmatch(r"[a-f0-9]{64}", claim["work_result_sha256"])
+        ):
+            raise SchedulingError("INVALID_DISPATCH_CLAIM", "completed result digest is invalid")
+    return claim
+
+
+def _read_claim_fd(descriptor: int) -> dict[str, Any]:
+    _validate_regular_fd(descriptor)
+    try:
+        return _validate_claim_record(json.loads(_bounded_read_fd(descriptor).decode("ascii")))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim content is invalid") from exc
+
+
+def _read_dispatch_claim(
+    source: ClaimStore | DispatchClaim | Invocation, claim_key: str | None = None
+) -> Mapping[str, Any]:
+    """Read through a retained, validated store descriptor only."""
+
+    close_store = False
+    if isinstance(source, DispatchClaim):
+        store = source.store
+        name = source.path.name
+    elif isinstance(source, ClaimStore):
+        store = source
+        if claim_key is None or not re.fullmatch(r"[a-f0-9]{64}", claim_key):
+            raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim key is invalid")
+        name = f"{claim_key}.json"
+    elif isinstance(source, Invocation):
+        store = _coerce_claim_store(_secure_claim_directory(source), source)
+        close_store = True
+        key = claim_key or _dispatch_claim_key(source)
+        if not re.fullmatch(r"[a-f0-9]{64}", key):
+            store.close()
+            raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim key is invalid")
+        name = f"{key}.json"
+    else:
+        raise SchedulingError(
+            "INVALID_DISPATCH_CLAIM", "claim reads require a validated store handle"
+        )
+    try:
+        descriptor = os.open(
+            name, _file_open_flags(os.O_RDONLY), dir_fd=store.dir_fd
+        )
+        try:
+            return _read_claim_fd(descriptor)
+        finally:
+            os.close(descriptor)
+    except OSError as exc:
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim read failed") from exc
+    finally:
+        if close_store:
+            store.close()
+
+
+def _optional_local_claim(invocation: Invocation, claim_key: str) -> Mapping[str, Any] | None:
+    store = _coerce_claim_store(_secure_claim_directory(invocation), invocation)
+    try:
+        try:
+            descriptor = os.open(
+                f"{claim_key}.json", _file_open_flags(os.O_RDONLY), dir_fd=store.dir_fd
+            )
+        except FileNotFoundError:
+            return None
+        try:
+            record = _read_claim_fd(descriptor)
+            ownership_key = _load_ownership_key(store)
+            if record.get("ownership_key_id") != hashlib.sha256(ownership_key).hexdigest():
+                raise SchedulingError(
+                    "INVALID_DISPATCH_CLAIM", "local claim key identity is invalid"
+                )
+            return record
+        finally:
+            os.close(descriptor)
+    finally:
+        store.close()
+
+
+def _claim_age_seconds(claim: Mapping[str, Any], field: str = "created_at") -> float:
+    try:
+        created = _parse_utc_timestamp(claim.get(field), f"dispatch claim {field}")
+    except ConfigurationError as exc:
+        raise SchedulingError(
+            "INVALID_DISPATCH_CLAIM", f"dispatch claim {field} is invalid"
+        ) from exc
+    age = (datetime.now(timezone.utc) - created).total_seconds()
+    if age < -60:
+        raise SchedulingError(
+            "INVALID_DISPATCH_CLAIM", "dispatch claim timestamp is in the future"
+        )
+    return max(0.0, age)
+
+
+def _pid_is_alive(value: Any) -> bool:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "dispatch claim pid is invalid")
+    try:
+        os.kill(value, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    except OSError:
+        return False
+    return True
+
+
+def _existing_claim_error(claim: Mapping[str, Any], expected_key: str) -> SchedulingError:
+    if claim.get("claim_key") != expected_key:
+        return SchedulingError(
+            "INVALID_DISPATCH_CLAIM", "dispatch claim identity is inconsistent"
+        )
+    age = _claim_age_seconds(claim)
+    state = claim.get("state")
+    if state == "completed":
+        return SchedulingError(
+            "DUPLICATE_DISPATCH_CLAIM", "authorized dispatch was already executed"
+        )
+    if state in {"rejected", "unknown", "abandoned"}:
+        return SchedulingError("STALE_DISPATCH_CLAIM", "claim requires fresh authorization")
+    alive = _pid_is_alive(claim.get("pid"))
+    if age > DISPATCH_CLAIM_STALE_SECONDS or not alive or state == "unknown":
+        return SchedulingError(
+            "STALE_DISPATCH_CLAIM",
+            "stale or ambiguous claim requires a fresh decision or scheduling snapshot",
+        )
+    return SchedulingError(
+        "CONCURRENT_DISPATCH_CLAIM", "authorized dispatch is already active"
+    )
+
+
+def _open_lock_fd(store: ClaimStore, name: str, *, blocking: bool) -> tuple[int, tuple[int, int]]:
+    if fcntl is None:
+        raise SchedulingError("UNSUPPORTED_CLAIM_PLATFORM", "POSIX claim locking is unavailable")
+    descriptor: int | None = None
+    try:
+        descriptor = os.open(
+            name, _file_open_flags(os.O_RDWR | os.O_CREAT), 0o600,
+            dir_fd=store.dir_fd,
+        )
+        value = _validate_regular_fd(descriptor, allow_empty=True)
+        operation = fcntl.LOCK_EX | (0 if blocking else fcntl.LOCK_NB)
+        fcntl.flock(descriptor, operation)
+        os.fsync(store.dir_fd)
+        return descriptor, (value.st_dev, value.st_ino)
+    except BlockingIOError as exc:
+        if descriptor is not None:
+            os.close(descriptor)
+        raise SchedulingError(
+            "CONCURRENT_DISPATCH_CLAIM", "authorized dispatch is already active"
+        ) from exc
+    except (OSError, SchedulingError) as exc:
+        if descriptor is not None:
+            os.close(descriptor)
+        if isinstance(exc, SchedulingError):
+            raise
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim lock failed") from exc
+
+
+def _acquire_store_lock(
+    store: ClaimStore, claim_name: str, claim_key: str
+) -> tuple[int, tuple[int, int]]:
+    """Acquire only this claim's execution lock; distinct claims may run."""
+
+    registry_key = f"{store.namespace}:{claim_key}"
+    with _STORE_LOCKS_GUARD:
+        if registry_key in _STORE_LOCKS:
+            raise SchedulingError(
+                "CONCURRENT_DISPATCH_CLAIM", "authorized dispatch is already active"
+            )
+        descriptor, identity = _open_lock_fd(
+            store, f"{claim_key}.lock", blocking=False
+        )
+        _STORE_LOCKS[registry_key] = descriptor
+        return descriptor, identity
+
+
+def _release_store_lock(store: ClaimStore, claim_key: str, descriptor: int) -> None:
+    registry_key = f"{store.namespace}:{claim_key}"
+    with _STORE_LOCKS_GUARD:
+        registered = _STORE_LOCKS.get(registry_key)
+        if registered != descriptor:
+            raise SchedulingError(
+                "INVALID_DISPATCH_CLAIM", "claim store lock registry is inconsistent"
+            )
+        _STORE_LOCKS.pop(registry_key, None)
+        try:
+            fcntl.flock(registered, fcntl.LOCK_UN)
+        finally:
+            os.close(registered)
+
+
+def _load_ownership_key(store: ClaimStore) -> bytes:
+    name = ".ownership.key"
+    try:
+        descriptor = os.open(name, _file_open_flags(os.O_RDONLY), dir_fd=store.dir_fd)
+    except FileNotFoundError:
+        claim_names = [
+            item for item in os.listdir(store.dir_fd)
+            if re.fullmatch(r"[a-f0-9]{64}\.json", item)
+        ]
+        for claim_name in claim_names:
+            claim_fd = os.open(
+                claim_name, _file_open_flags(os.O_RDONLY), dir_fd=store.dir_fd
+            )
+            try:
+                try:
+                    legacy = json.loads(_bounded_read_fd(claim_fd).decode("ascii"))
+                except (UnicodeError, json.JSONDecodeError) as exc:
+                    raise SchedulingError(
+                        "INVALID_DISPATCH_CLAIM", "ownership key bootstrap is unsafe"
+                    ) from exc
+                if not isinstance(legacy, Mapping) or legacy.get("version") != 1:
+                    raise SchedulingError(
+                        "INVALID_DISPATCH_CLAIM", "ownership key is missing from a v2 ledger"
+                    )
+            finally:
+                os.close(claim_fd)
+        descriptor = -1
+        created_identity: tuple[int, int] | None = None
+        try:
+            descriptor = os.open(
+                name, _file_open_flags(os.O_RDWR | os.O_CREAT | os.O_EXCL), 0o600,
+                dir_fd=store.dir_fd,
+            )
+            value = os.fstat(descriptor)
+            created_identity = (value.st_dev, value.st_ino)
+            secret = os.urandom(32)
+            _write_all(descriptor, secret)
+            os.fsync(descriptor)
+            os.fsync(store.dir_fd)
+        except BaseException:
+            if descriptor >= 0:
+                os.close(descriptor)
+            if created_identity is not None:
+                try:
+                    entry = os.stat(name, dir_fd=store.dir_fd, follow_symlinks=False)
+                    if (entry.st_dev, entry.st_ino) == created_identity:
+                        os.unlink(name, dir_fd=store.dir_fd)
+                        os.fsync(store.dir_fd)
+                except OSError:
+                    pass
+            raise
+    try:
+        value = _validate_regular_fd(descriptor)
+        os.lseek(descriptor, 0, os.SEEK_SET)
+        secret = os.read(descriptor, 33)
+        if value.st_size != 32 or len(secret) != 32:
+            raise SchedulingError("INVALID_DISPATCH_CLAIM", "ownership key is invalid")
+        return secret
+    finally:
+        os.close(descriptor)
+
+
+def _ownership_token(resource: str, secret: bytes) -> str:
+    return hmac.new(
+        secret, b"horo-ownership-resource-v2\0" + resource.encode("ascii"), hashlib.sha256
+    ).hexdigest()
+
+
+def _ownership_token_set(
+    ownership: str, secret: bytes
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    resource = canonicalize_ownership_resource(ownership, "dispatch ownership")
+    exact = (_ownership_token(resource, secret),)
+    parts = resource.replace("\\", "/").rstrip("/").split("/")
+    ancestors: list[str] = []
+    for index in range(1, len(parts)):
+        ancestor = "/".join(parts[:index])
+        if ancestor:
+            ancestors.append(_ownership_token(ancestor, secret))
+    return exact, tuple(sorted(set(ancestors)))
+
+
+def _ownership_tokens_for_resources(
+    resources: Sequence[str], secret: bytes
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    exact: set[str] = set()
+    ancestors: set[str] = set()
+    for resource in resources:
+        item_exact, item_ancestors = _ownership_token_set(resource, secret)
+        exact.update(item_exact)
+        ancestors.update(item_ancestors)
+    return tuple(sorted(exact)), tuple(sorted(ancestors))
+
+
+def _ownership_tokens_digest(exact: Sequence[str], ancestors: Sequence[str]) -> str:
+    return _canonical_sha256(
+        {"exact": list(exact), "ancestors": list(ancestors)}
+    )
+
+
+def _ownership_token_conflict(
+    exact: Sequence[str], ancestors: Sequence[str], record: Mapping[str, Any]
+) -> bool:
+    other_exact = set(record["ownership_exact_tokens"])
+    other_ancestors = set(record["ownership_ancestor_tokens"])
+    return bool(
+        set(exact) & other_exact
+        or set(exact) & other_ancestors
+        or set(ancestors) & other_exact
+    )
+
+
+def _process_start_binding(pid: int) -> str | None:
+    if sys.platform.startswith("linux"):
+        try:
+            fields = Path(f"/proc/{pid}/stat").read_text(encoding="ascii").split()
+            return hashlib.sha256(
+                f"linux-proc-start-v1:{fields[21]}".encode("ascii")
+            ).hexdigest()
+        except (OSError, IndexError, UnicodeError):
+            return None
+    if pid == os.getpid():
+        return _PROCESS_START_NONCE
+    return None
+
+
+def _abandon_active_record(
+    store: ClaimStore, descriptor: int, record: Mapping[str, Any], reason: str
+) -> None:
+    updated = dict(record)
+    timestamp = _utc_now()
+    updated.update(
+        {
+            "state": "abandoned",
+            "abandon_reason": reason,
+            "updated_at": timestamp,
+            "ended_at": timestamp,
+            "transport_status": "abandoned",
+            "exit_code": None,
+            "output_bytes": None,
+            "output_sha256": None,
+            "work_result_sha256": None,
+        }
+    )
+    payload = json.dumps(updated, ensure_ascii=True, separators=(",", ":"), sort_keys=True).encode("ascii")
+    if len(payload) > MAX_DISPATCH_CLAIM_BYTES:
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "abandoned claim is too large")
+    os.lseek(descriptor, 0, os.SEEK_SET)
+    os.ftruncate(descriptor, 0)
+    _write_all(descriptor, payload)
+    os.fsync(descriptor)
+    os.fsync(store.dir_fd)
+    if _read_claim_fd(descriptor)["state"] != "abandoned":
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "abandoned proof verification failed")
+
+
+def _store_entry_identity(store: ClaimStore, name: str) -> tuple[int, int]:
+    """Return a no-follow identity for one entry in the retained claim store."""
+
+    try:
+        value = os.stat(name, dir_fd=store.dir_fd, follow_symlinks=False)
+    except OSError as exc:
+        raise SchedulingError(
+            "INVALID_DISPATCH_CLAIM", "migration entry identity is unavailable"
+        ) from exc
+    return value.st_dev, value.st_ino
+
+
+def _unlink_open_migration_temp(
+    store: ClaimStore,
+    name: str,
+    descriptor: int,
+    identity: tuple[int, int],
+) -> None:
+    """Unlink only the migration inode held open by ``descriptor``."""
+
+    if _store_entry_identity(store, name) != identity:
+        raise SchedulingError(
+            "INVALID_DISPATCH_CLAIM", "migration temporary entry changed"
+        )
+    try:
+        os.unlink(name, dir_fd=store.dir_fd)
+        current = os.fstat(descriptor)
+    except OSError as exc:
+        raise SchedulingError(
+            "INVALID_DISPATCH_CLAIM", "migration temporary cleanup failed"
+        ) from exc
+    if (current.st_dev, current.st_ino) != identity or current.st_nlink != 0:
+        raise SchedulingError(
+            "INVALID_DISPATCH_CLAIM", "migration temporary cleanup raced"
+        )
+    os.fsync(store.dir_fd)
+
+
+def _migration_candidate_matches(
+    candidate: Mapping[str, Any], expected: Mapping[str, Any]
+) -> bool:
+    """Compare a recovered v2 candidate while allowing migration timestamps."""
+
+    dynamic = {"updated_at"}
+    if expected.get("state") == "abandoned":
+        dynamic.add("ended_at")
+    return all(
+        field in dynamic or candidate.get(field) == value
+        for field, value in expected.items()
+    )
+
+
+def _open_recovered_migration_temp(
+    store: ClaimStore,
+    name: str,
+    expected: Mapping[str, Any],
+) -> tuple[int, dict[str, Any]] | None:
+    """Open a complete candidate or remove an inode-safe incomplete write."""
+
+    try:
+        descriptor = os.open(name, _file_open_flags(os.O_RDWR), dir_fd=store.dir_fd)
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        raise SchedulingError(
+            "INVALID_DISPATCH_CLAIM", "migration temporary entry is unsafe"
+        ) from exc
+    try:
+        value = _validate_regular_fd(descriptor, allow_empty=True)
+        identity = (value.st_dev, value.st_ino)
+        raw = _bounded_read_fd(descriptor, allow_empty=True)
+        try:
+            decoded = json.loads(raw.decode("ascii"))
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            _unlink_open_migration_temp(store, name, descriptor, identity)
+            os.close(descriptor)
+            return None
+        candidate = _validate_claim_record(decoded)
+        if (
+            candidate.get("claim_key") != expected.get("claim_key")
+            or candidate.get("legacy_claim_sha256")
+            != expected.get("legacy_claim_sha256")
+            or candidate.get("ownership_key_id") != expected.get("ownership_key_id")
+            or not _migration_candidate_matches(candidate, expected)
+        ):
+            raise SchedulingError(
+                "INVALID_DISPATCH_CLAIM", "migration temporary binding is invalid"
+            )
+        if _store_entry_identity(store, name) != identity:
+            raise SchedulingError(
+                "INVALID_DISPATCH_CLAIM", "migration temporary entry changed"
+            )
+        return descriptor, candidate
+    except BaseException:
+        os.close(descriptor)
+        raise
+
+
+def _migrate_legacy_claim(
+    store: ClaimStore, descriptor: int, legacy: Mapping[str, Any], secret: bytes
+) -> dict[str, Any]:
+    """Sanitize an R3 record under metadata lock, or fail closed."""
+
+    if legacy.get("version") != 1 or legacy.get("state") not in {
+        "active", "completed", "rejected", "unknown"
+    }:
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "legacy claim is unsupported")
+    key = legacy.get("claim_key")
+    if not isinstance(key, str) or not re.fullmatch(r"[a-f0-9]{64}", key):
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "legacy claim key is invalid")
+    resources = legacy.get("ownership_resources")
+    if not isinstance(resources, list) or not resources or not all(
+        isinstance(item, str) for item in resources
+    ):
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "legacy ownership is invalid")
+    exact, ancestors = _ownership_tokens_for_resources(resources, secret)
+    state = str(legacy["state"])
+    recovery_fd: int | None = None
+    if state == "active":
+        recovery_fd, _ = _open_lock_fd(store, f"{key}.lock", blocking=False)
+        state = "abandoned"
+    now = _utc_now()
+    ticket = str(legacy.get("ticket", "legacy"))
+    migrated = {
+        "version": DISPATCH_CLAIM_VERSION,
+        "claim_key": key,
+        "decision_sha256": legacy.get("decision_sha256"),
+        "scheduling_snapshot_sha256": legacy.get("scheduling_snapshot_sha256"),
+        "dispatch_identity": legacy.get("dispatch_identity"),
+        "ticket_sha256": hashlib.sha256(ticket.encode("utf-8")).hexdigest(),
+        "route_sha256": legacy.get("route_sha256"),
+        "ownership_tokens_sha256": _ownership_tokens_digest(exact, ancestors),
+        "ownership_key_id": hashlib.sha256(secret).hexdigest(),
+        "ownership_exact_tokens": list(exact),
+        "ownership_ancestor_tokens": list(ancestors),
+        "state": state,
+        "abandon_reason": "stale_unlocked" if state == "abandoned" else None,
+        "legacy_claim_sha256": _canonical_sha256(dict(legacy)),
+        "pid": legacy.get("pid"),
+        "process_start_binding": hashlib.sha256(
+            f"legacy-process:{legacy.get('pid')}".encode("ascii")
+        ).hexdigest(),
+        "created_at": legacy.get("created_at"),
+        "updated_at": now,
+        "started_at": legacy.get("started_at"),
+        "ended_at": now if state == "abandoned" else legacy.get("ended_at"),
+        "transport_status": "abandoned" if state == "abandoned" else legacy.get("transport_status"),
+        "exit_code": None if state == "abandoned" else legacy.get("exit_code"),
+        "output_bytes": None if state == "abandoned" else legacy.get("output_bytes"),
+        "output_sha256": None if state == "abandoned" else legacy.get("output_sha256"),
+        "work_result_sha256": None if state == "abandoned" else legacy.get("work_result_sha256"),
+    }
+    try:
+        validated = _validate_claim_record(migrated)
+        payload = json.dumps(validated, ensure_ascii=True, separators=(",", ":"), sort_keys=True).encode("ascii")
+        temporary_name = f".{key}.migration-v2.tmp"
+        destination_name = f"{key}.json"
+        source_value = _validate_regular_fd(descriptor)
+        source_identity = (source_value.st_dev, source_value.st_ino)
+        if _store_entry_identity(store, destination_name) != source_identity:
+            raise SchedulingError(
+                "INVALID_DISPATCH_CLAIM", "legacy migration source changed"
+            )
+        recovered = _open_recovered_migration_temp(
+            store, temporary_name, validated
+        )
+        if recovered is None:
+            try:
+                temporary_fd = os.open(
+                    temporary_name,
+                    _file_open_flags(os.O_RDWR | os.O_CREAT | os.O_EXCL),
+                    0o600,
+                    dir_fd=store.dir_fd,
+                )
+            except OSError as exc:
+                raise SchedulingError(
+                    "INVALID_DISPATCH_CLAIM", "migration temporary creation failed"
+                ) from exc
+            candidate = validated
+        else:
+            temporary_fd, candidate = recovered
+        try:
+            if recovered is None:
+                _write_all(temporary_fd, payload)
+                os.fsync(temporary_fd)
+            temporary_value = _validate_regular_fd(temporary_fd)
+            temporary_identity = (temporary_value.st_dev, temporary_value.st_ino)
+            os.lseek(temporary_fd, 0, os.SEEK_SET)
+            try:
+                written = _validate_claim_record(
+                    json.loads(_bounded_read_fd(temporary_fd).decode("ascii"))
+                )
+            except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+                raise SchedulingError(
+                    "INVALID_DISPATCH_CLAIM", "migration temporary verification failed"
+                ) from exc
+            if written != candidate or not _migration_candidate_matches(written, validated):
+                raise SchedulingError(
+                    "INVALID_DISPATCH_CLAIM", "migration temporary verification failed"
+                )
+            current_temporary = _validate_regular_fd(temporary_fd)
+            if (
+                (current_temporary.st_dev, current_temporary.st_ino)
+                != temporary_identity
+                or _store_entry_identity(store, temporary_name)
+                != temporary_identity
+            ):
+                raise SchedulingError(
+                    "INVALID_DISPATCH_CLAIM", "migration temporary entry changed"
+                )
+            current_source = _validate_regular_fd(descriptor)
+            if (
+                (current_source.st_dev, current_source.st_ino) != source_identity
+                or _store_entry_identity(store, destination_name) != source_identity
+            ):
+                raise SchedulingError(
+                    "INVALID_DISPATCH_CLAIM", "legacy migration source changed"
+                )
+            os.rename(
+                temporary_name,
+                destination_name,
+                src_dir_fd=store.dir_fd,
+                dst_dir_fd=store.dir_fd,
+            )
+            os.fsync(store.dir_fd)
+            destination_fd = os.open(
+                destination_name, _file_open_flags(os.O_RDONLY), dir_fd=store.dir_fd
+            )
+            try:
+                destination_value = _validate_regular_fd(destination_fd)
+                if (
+                    (destination_value.st_dev, destination_value.st_ino)
+                    != temporary_identity
+                    or _read_claim_fd(destination_fd) != candidate
+                ):
+                    raise SchedulingError(
+                        "INVALID_DISPATCH_CLAIM", "migrated claim verification failed"
+                    )
+            finally:
+                os.close(destination_fd)
+        except OSError as exc:
+            raise SchedulingError(
+                "INVALID_DISPATCH_CLAIM", "migration commit failed"
+            ) from exc
+        finally:
+            os.close(temporary_fd)
+        return candidate
+    finally:
+        if recovery_fd is not None:
+            if fcntl is not None:
+                fcntl.flock(recovery_fd, fcntl.LOCK_UN)
+            os.close(recovery_fd)
+
+
+def _check_active_ownership_conflicts(
+    store: ClaimStore, exact: Sequence[str], ancestors: Sequence[str], secret: bytes
+) -> None:
+    try:
+        names = os.listdir(store.dir_fd)
+    except OSError as exc:
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim ledger scan failed") from exc
+    for name in names:
+        if not re.fullmatch(r"[a-f0-9]{64}\.json", name):
+            continue
+        descriptor = os.open(name, _file_open_flags(os.O_RDWR), dir_fd=store.dir_fd)
+        try:
+            try:
+                record = _read_claim_fd(descriptor)
+            except SchedulingError:
+                try:
+                    legacy = json.loads(_bounded_read_fd(descriptor).decode("ascii"))
+                except (UnicodeError, json.JSONDecodeError) as exc:
+                    raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim migration failed") from exc
+                if not isinstance(legacy, Mapping):
+                    raise SchedulingError("INVALID_DISPATCH_CLAIM", "legacy claim is invalid")
+                record = _migrate_legacy_claim(store, descriptor, legacy, secret)
+            if record["ownership_key_id"] != hashlib.sha256(secret).hexdigest():
+                raise SchedulingError(
+                    "INVALID_DISPATCH_CLAIM", "ownership key identity is inconsistent"
+                )
+            if record["state"] != "active":
+                continue
+            age = _claim_age_seconds(record)
+            alive = _pid_is_alive(record["pid"])
+            observed_start = _process_start_binding(record["pid"]) if alive else None
+            try:
+                recovery_fd, _ = _open_lock_fd(
+                    store, f"{record['claim_key']}.lock", blocking=False
+                )
+            except SchedulingError as exc:
+                if exc.code != "CONCURRENT_DISPATCH_CLAIM":
+                    raise
+            else:
+                reason = (
+                    "process_dead"
+                    if not alive
+                    else "pid_reused"
+                    if observed_start is not None
+                    and observed_start != record["process_start_binding"]
+                    else "stale_unlocked"
+                )
+                try:
+                    _abandon_active_record(store, descriptor, record, reason)
+                    record = _read_claim_fd(descriptor)
+                finally:
+                    if fcntl is not None:
+                        fcntl.flock(recovery_fd, fcntl.LOCK_UN)
+                    os.close(recovery_fd)
+            if record["state"] == "active" and _ownership_token_conflict(
+                exact, ancestors, record
+            ):
+                raise SchedulingError("OWNERSHIP_CONFLICT", "active dispatch ownership overlaps")
+        finally:
+            os.close(descriptor)
+
+
+def _acquire_dispatch_claim(invocation: Invocation) -> DispatchClaim:
+    key = _dispatch_claim_key(invocation)
+    store = _coerce_claim_store(_secure_claim_directory(invocation), invocation)
+    name = f"{key}.json"
+    exact_tokens: tuple[str, ...] = ()
+    ancestor_tokens: tuple[str, ...] = ()
+    metadata_fd: int | None = None
+    lock_fd: int | None = None
+    try:
+        metadata_fd, _ = _open_lock_fd(store, ".metadata.lock", blocking=True)
+        ownership_key = _load_ownership_key(store)
+        exact_tokens, ancestor_tokens = _ownership_token_set(
+            invocation.ownership, ownership_key
+        )
+        try:
+            os.stat(name, dir_fd=store.dir_fd, follow_symlinks=False)
+        except FileNotFoundError:
+            pass
+        else:
+            probe_fd, _ = _acquire_store_lock(store, name, key)
+            _release_store_lock(store, key, probe_fd)
+        _check_active_ownership_conflicts(
+            store, exact_tokens, ancestor_tokens, ownership_key
+        )
+        lock_fd, lock_identity = _acquire_store_lock(store, name, key)
+    except BaseException:
+        if lock_fd is not None:
+            _release_store_lock(store, key, lock_fd)
+        if metadata_fd is not None:
+            if fcntl is not None:
+                fcntl.flock(metadata_fd, fcntl.LOCK_UN)
+            os.close(metadata_fd)
+        store.close()
+        raise
+    path = store.path / name
+    timestamp = _utc_now()
+    record = {
+        "version": DISPATCH_CLAIM_VERSION,
+        "claim_key": key,
+        "decision_sha256": invocation.decision_digest,
+        "scheduling_snapshot_sha256": invocation.scheduling_snapshot_digest,
+        "dispatch_identity": _claim_dispatch_identity(invocation),
+        "ticket_sha256": hashlib.sha256(
+            str(invocation.decision["ticket"] if invocation.decision else "missing").encode("ascii")
+        ).hexdigest(),
+        "route_sha256": _canonical_sha256(
+            {
+                "role": invocation.route.role, "alias": invocation.route.alias,
+                "provider": invocation.route.cli, "model": invocation.route.model,
+                "effort": invocation.route.effort,
+            }
+        ),
+        "ownership_tokens_sha256": _ownership_tokens_digest(exact_tokens, ancestor_tokens),
+        "ownership_key_id": hashlib.sha256(ownership_key).hexdigest(),
+        "ownership_exact_tokens": list(exact_tokens),
+        "ownership_ancestor_tokens": list(ancestor_tokens),
+        "state": "active",
+        "abandon_reason": None,
+        "legacy_claim_sha256": None,
+        "pid": os.getpid(),
+        "process_start_binding": _process_start_binding(os.getpid()) or _PROCESS_START_NONCE,
+        "created_at": timestamp,
+        "updated_at": timestamp,
+        "started_at": timestamp,
+        "ended_at": None,
+        "transport_status": "starting",
+        "exit_code": None,
+        "output_bytes": None,
+        "output_sha256": None,
+        "work_result_sha256": None,
+    }
+    try:
+        descriptor = os.open(
+            name, _file_open_flags(os.O_RDWR | os.O_CREAT | os.O_EXCL), 0o600,
+            dir_fd=store.dir_fd,
+        )
+    except FileExistsError:
+        try:
+            existing_fd = os.open(name, _file_open_flags(os.O_RDONLY), dir_fd=store.dir_fd)
+            try:
+                error = _existing_claim_error(_read_claim_fd(existing_fd), key)
+            finally:
+                os.close(existing_fd)
+        finally:
+            _release_store_lock(store, key, lock_fd)
+            if fcntl is not None:
+                fcntl.flock(metadata_fd, fcntl.LOCK_UN)
+            os.close(metadata_fd)
+            store.close()
+        raise error
+    except OSError as exc:
+        _release_store_lock(store, key, lock_fd)
+        if fcntl is not None:
+            fcntl.flock(metadata_fd, fcntl.LOCK_UN)
+        os.close(metadata_fd)
+        store.close()
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim creation failed") from exc
+    try:
+        payload = json.dumps(
+            record, ensure_ascii=True, separators=(",", ":"), sort_keys=True
+        ).encode("ascii")
+        _write_all(descriptor, payload)
+        os.fsync(descriptor)
+        os.fsync(store.dir_fd)
+        value = _validate_regular_fd(descriptor)
+    except BaseException:
+        os.close(descriptor)
+        _release_store_lock(store, key, lock_fd)
+        if fcntl is not None:
+            fcntl.flock(metadata_fd, fcntl.LOCK_UN)
+        os.close(metadata_fd)
+        store.close()
+        raise
+    if fcntl is not None:
+        fcntl.flock(metadata_fd, fcntl.LOCK_UN)
+    os.close(metadata_fd)
+    return DispatchClaim(
+        path, store, key, record, lock_fd, descriptor, lock_identity,
+        (value.st_dev, value.st_ino),
+    )
+
+
+def _verify_dispatch_claim(
+    claim: DispatchClaim, *, require_start_freshness: bool = False
+) -> None:
+    if claim.closed:
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim is already closed")
+    directory = os.fstat(claim.dir_fd)
+    if (directory.st_dev, directory.st_ino) != claim.store.identity:
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim store identity changed")
+    lock_stat = os.stat(
+        f"{claim.key}.lock", dir_fd=claim.dir_fd, follow_symlinks=False
+    )
+    claim_stat = os.stat(claim.path.name, dir_fd=claim.dir_fd, follow_symlinks=False)
+    if (lock_stat.st_dev, lock_stat.st_ino) != claim.lock_identity or (
+        claim_stat.st_dev, claim_stat.st_ino
+    ) != claim.claim_identity:
+        raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim entry changed")
+    persisted = _read_claim_fd(claim.claim_fd)
+    if dict(persisted) != dict(claim.record):
+        raise SchedulingError(
+            "INVALID_DISPATCH_CLAIM", "dispatch claim changed before process creation"
+        )
+    if (
+        require_start_freshness
+        and _claim_age_seconds(persisted) > DISPATCH_CLAIM_START_MAX_AGE_SECONDS
+    ):
+        raise SchedulingError(
+            "STALE_DISPATCH_CLAIM", "dispatch claim expired before process creation"
+        )
+    if persisted.get("pid") != os.getpid() or not _pid_is_alive(persisted.get("pid")):
+        raise SchedulingError(
+            "INVALID_DISPATCH_CLAIM", "dispatch claim process binding is invalid"
+        )
+
+
+def _persist_dispatch_claim(claim: DispatchClaim, updated: Mapping[str, Any]) -> None:
+    metadata_fd, _ = _open_lock_fd(claim.store, ".metadata.lock", blocking=True)
+    try:
+        _verify_dispatch_claim(claim)
+        payload = json.dumps(
+            updated, ensure_ascii=True, separators=(",", ":"), sort_keys=True
+        ).encode("ascii")
+        if len(payload) > MAX_DISPATCH_CLAIM_BYTES:
+            raise SchedulingError("INVALID_DISPATCH_CLAIM", "claim content is too large")
+        os.lseek(claim.claim_fd, 0, os.SEEK_SET)
+        os.ftruncate(claim.claim_fd, 0)
+        _write_all(claim.claim_fd, payload)
+        os.fsync(claim.claim_fd)
+        os.fsync(claim.dir_fd)
+        claim.record = dict(updated)
+        _verify_dispatch_claim(claim)
+    finally:
+        if fcntl is not None:
+            fcntl.flock(metadata_fd, fcntl.LOCK_UN)
+        os.close(metadata_fd)
+
+
+def _finalize_dispatch_claim(
+    claim: DispatchClaim,
+    state: str,
+    result: subprocess.CompletedProcess[str] | None = None,
+    provider_result: ProviderResult | None = None,
+) -> str:
+    if state not in {"completed", "rejected", "unknown"}:
+        raise ValueError("unsupported claim terminal state")
+    if claim.record.get("state") != "active":
+        raise SchedulingError(
+            "INVALID_DISPATCH_CLAIM", "terminal dispatch proof is immutable"
+        )
+    output = _raw_output_bytes(result) if result is not None else b""
+    updated = dict(claim.record)
+    updated.update(
+        {
+            "state": state,
+            "updated_at": _utc_now(),
+            "ended_at": _utc_now(),
+            "transport_status": {
+                "completed": "completed",
+                "rejected": "provider_result_rejected",
+                "unknown": "transport_unknown",
+            }[state],
+            "exit_code": result.returncode if result is not None else None,
+            "output_bytes": len(output) if result is not None else None,
+            "output_sha256": hashlib.sha256(output).hexdigest() if result is not None else None,
+            "work_result_sha256": (
+                _canonical_sha256(provider_result.work_result)
+                if provider_result is not None
+                else None
+            ),
+        }
+    )
+    _persist_dispatch_claim(claim, updated)
+    return _canonical_sha256(updated)
+
+
+def _release_dispatch_claim(claim: DispatchClaim) -> None:
+    if claim.closed:
+        return
+    claim.closed = True
+    try:
+        os.close(claim.claim_fd)
+    finally:
+        try:
+            claim.store.close()
+        finally:
+            _release_store_lock(claim.store, claim.key, claim.lock_fd)
+
+
+def _update_dispatch_claim(claim: DispatchClaim, state: str) -> None:
+    """Compatibility wrapper for typed non-receipt terminal transitions."""
+
+    mapped = "unknown" if state == "unknown" else state
+    _finalize_dispatch_claim(claim, mapped)
+
+
+def _validated_invocation_decision(invocation: Invocation) -> ValidatedDispatchDecision:
+    """Revalidate governance data stored on an Invocation at the spawn boundary."""
+
+    if invocation.decision is None or invocation.model_policy is None:
+        raise DispatchDecisionError(
+            "executable dispatch requires --decision and the versioned model policy"
+        )
+    validated = validate_dispatch_decision(
+        invocation.decision,
+        invocation.model_policy,
+        invocation.route,
+    )
+    if invocation.decision_digest != validated.digest:
+        raise DispatchDecisionError("Invocation decision digest is missing or stale")
+    bound_evidence = _decision_prompt_evidence(validated, invocation.attempt_id)
+    if bound_evidence not in invocation.prompt_stdin:
+        if invocation.route.cli != "agy":
+            raise DispatchDecisionError("Invocation prompt is not bound to its DispatchDecision")
+        try:
+            agy_input = _strict_json_loads(invocation.prompt_stdin)
+            if not isinstance(agy_input, Mapping) or set(agy_input) != {
+                "event", "message"
+            } or agy_input.get("event") != "user":
+                raise TypeError
+            message = _mapping(agy_input.get("message"), "AGY input message")
+            if set(message) != {"content"}:
+                raise TypeError
+            content = message["content"]
+        except (ConfigurationError, _StrictJSONError, KeyError, TypeError) as exc:
+            raise DispatchDecisionError("AGY input is not a valid native user event") from exc
+        prompt_text = content
+        if not isinstance(prompt_text, str) or bound_evidence not in prompt_text:
+            raise DispatchDecisionError("Invocation prompt is not bound to its DispatchDecision")
+    return validated
+
+
+def _validated_invocation_schedule(
+    invocation: Invocation, validated: ValidatedDispatchDecision
+) -> str:
+    """Revalidate Rule 11 selection and its prompt binding at the spawn boundary."""
+
+    if invocation.scheduling_snapshot is None:
+        raise SchedulingError(
+            "INVALID_SCHEDULING_METADATA",
+            "executable dispatch requires --scheduling-snapshot",
+        )
+    digest = validate_scheduling_dispatch(
+        invocation.scheduling_snapshot,
+        validated.decision,
+        role=invocation.route.role,
+        ownership=invocation.ownership,
+    )
+    if invocation.scheduling_snapshot_digest != digest:
+        raise SchedulingError(
+            "INVALID_SCHEDULING_METADATA",
+            "Invocation scheduling snapshot digest is missing or stale",
+        )
+    evidence = f"- scheduling_snapshot_sha256: {digest}"
+    if evidence not in invocation.prompt_stdin:
+        raise SchedulingError(
+            "INVALID_SCHEDULING_METADATA",
+            "Invocation prompt is not bound to its scheduling snapshot",
+        )
+    return digest
 
 
 def normalize_result(
@@ -354,8 +2564,8 @@ def normalize_result(
         payload = payload.decode("utf-8", errors="replace")
     if isinstance(payload, str):
         try:
-            value = json.loads(payload)
-        except json.JSONDecodeError as exc:
+            value = _strict_json_loads(payload)
+        except _StrictJSONError as exc:
             raise ConfigurationError("sub-agent result is not valid JSON") from exc
     else:
         value = payload
@@ -365,19 +2575,45 @@ def normalize_result(
         raise ConfigurationError(
             "sub-agent result missing fields: " + ", ".join(sorted(missing))
         )
-    status = str(result["status"]).strip().upper().replace("-", "_").replace(" ", "_")
-    if status not in VALID_RESULT_STATUSES:
+    unknown = set(result) - RESULT_FIELDS
+    if unknown:
+        raise ConfigurationError(
+            "sub-agent result contains unsupported fields: " + ", ".join(sorted(unknown))
+        )
+    status = result["status"]
+    if not isinstance(status, str) or status not in VALID_RESULT_STATUSES:
         raise ConfigurationError("sub-agent result status must be DONE, BLOCKED, or NEEDS_HITL")
-    if not isinstance(result["scope_owned"], (str, list, tuple)) or not result["scope_owned"]:
-        raise ConfigurationError("sub-agent result scope_owned must be non-empty")
+    _validate_string_collection(
+        result["scope_owned"],
+        "sub-agent result scope_owned",
+        allow_string=True,
+        require_non_empty=True,
+        require_non_empty_items=True,
+    )
     evidence = _mapping(result["evidence"], "sub-agent result evidence")
+    evidence_fields = {"commands", "outcomes", "artifacts"}
+    unknown_evidence = set(evidence) - evidence_fields
+    missing_evidence = evidence_fields - set(evidence)
+    if missing_evidence:
+        raise ConfigurationError(
+            "sub-agent result evidence missing fields: "
+            + ", ".join(sorted(missing_evidence))
+        )
+    if unknown_evidence:
+        raise ConfigurationError(
+            "sub-agent result evidence contains unsupported fields: "
+            + ", ".join(sorted(unknown_evidence))
+        )
     for key in ("commands", "outcomes", "artifacts"):
-        if key not in evidence or not isinstance(evidence[key], list):
-            raise ConfigurationError(f"sub-agent result evidence.{key} must be a list")
-    if not isinstance(result["findings"], (str, list, tuple)):
-        raise ConfigurationError("sub-agent result findings must be text or a list")
-    if not isinstance(result["changed_files"], (str, list, tuple)):
-        raise ConfigurationError("sub-agent result changed_files must be text or a list")
+        _validate_string_collection(
+            evidence[key], f"sub-agent result evidence.{key}"
+        )
+    _validate_string_collection(
+        result["findings"], "sub-agent result findings", allow_string=True
+    )
+    _validate_string_collection(
+        result["changed_files"], "sub-agent result changed_files", allow_string=True
+    )
     if not isinstance(result["residual_risk"], str) or not result["residual_risk"].strip():
         raise ConfigurationError("sub-agent result residual_risk must be non-empty text")
     if (
@@ -388,7 +2624,297 @@ def normalize_result(
     normalized = dict(result)
     normalized["status"] = status
     normalized["evidence"] = dict(evidence)
+    _reject_secret_bearing(normalized, "WorkResult")
     return normalized
+
+
+def _jsonl_events(payload: str | bytes | None, label: str) -> tuple[list[Mapping[str, Any]], bytes]:
+    """Parse a bounded NDJSON provider stream without tolerating malformed lines."""
+
+    if payload is None:
+        raw = b""
+    elif isinstance(payload, bytes):
+        raw = payload
+    elif isinstance(payload, str):
+        try:
+            raw = payload.encode("utf-8")
+        except UnicodeError as exc:
+            raise ProviderParseError(
+                "terminal_shape", f"{label} event stream is not UTF-8"
+            ) from exc
+    else:
+        raise ProviderParseError("terminal_shape", f"{label} event stream has an invalid type")
+    if not raw:
+        raise ProviderParseError("terminal_shape", f"{label} event stream is empty")
+    if len(raw) > MAX_PROVIDER_OUTPUT_BYTES:
+        raise ProviderParseError(
+            "terminal_shape", f"{label} event stream exceeds the safe byte limit"
+        )
+    try:
+        text_payload = raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ProviderParseError("terminal_shape", f"{label} event stream is not UTF-8") from exc
+    events: list[Mapping[str, Any]] = []
+    for line_number, line in enumerate(text_payload.splitlines(), 1):
+        if not line.strip():
+            continue
+        try:
+            event = _strict_json_loads(line)
+        except _StrictJSONError as exc:
+            raise ProviderParseError(
+                "terminal_shape",
+                f"{label} event stream has malformed JSON at line {line_number}"
+            ) from exc
+        try:
+            events.append(_mapping(event, f"{label} event line {line_number}"))
+        except ConfigurationError as exc:
+            raise ProviderParseError(
+                "terminal_shape", f"{label} event line {line_number} must be a mapping"
+            ) from exc
+    if not events:
+        raise ProviderParseError("terminal_shape", f"{label} event stream has no events")
+    try:
+        _reject_secret_bearing(events, f"{label} event stream")
+    except ConfigurationError as exc:
+        raise ProviderParseError(
+            "secret_bearing", f"{label} event stream contains secret-bearing content"
+        ) from exc
+    return events, raw
+
+
+def _provider_id(value: Any, label: str) -> str | None:
+    if value is None:
+        return None
+    if not isinstance(value, str) or not SAFE_PROVIDER_ID.fullmatch(value):
+        raise ConfigurationError(f"{label} contains an unsafe provider identifier")
+    return value
+
+
+def _provider_stream_id(value: Any, label: str) -> str | None:
+    """Validate an opaque provider session identifier without exposing it."""
+
+    try:
+        return _provider_id(value, label)
+    except ConfigurationError as exc:
+        raise ProviderParseError("thread_id", f"{label} is invalid") from exc
+
+
+def _normalized_provider_work_result(value: Any, label: str) -> dict[str, Any]:
+    """Classify WorkResult validation errors without retaining provider content."""
+
+    try:
+        return normalize_result(_mapping(value, label))
+    except ConfigurationError as exc:
+        raise ProviderParseError(
+            "work_result_validation", "provider WorkResult validation failed"
+        ) from exc
+
+
+def _parse_codex_result(payload: str | bytes | None) -> ProviderResult:
+    events, _ = _jsonl_events(payload, "Codex JSONL")
+    terminal_indices = [index for index, event in enumerate(events) if event.get("type") == "turn.completed"]
+    if len(terminal_indices) != 1 or terminal_indices[0] != len(events) - 1:
+        raise ProviderParseError(
+            "terminal_shape", "Codex JSONL requires one unambiguous terminal turn.completed event"
+        )
+    if any(
+        isinstance(event.get("type"), str)
+        and event.get("type") in {"turn.failed", "error"}
+        for event in events
+    ):
+        raise ProviderParseError(
+            "provider_failure_event", "Codex JSONL contains a provider failure event"
+        )
+
+    thread_ids = [
+        event.get("thread_id")
+        for event in events
+        if event.get("type") == "thread.started" and event.get("thread_id") is not None
+    ]
+    if thread_ids and any(thread_id != thread_ids[0] for thread_id in thread_ids[1:]):
+        raise ProviderParseError("thread_id", "Codex JSONL contains conflicting thread identifiers")
+    session_id = _provider_stream_id(
+        thread_ids[0] if thread_ids else None, "Codex thread_id"
+    )
+
+    candidates: list[Mapping[str, Any]] = []
+    for event in events[: terminal_indices[0]]:
+        if event.get("type") != "item.completed":
+            continue
+        try:
+            item = _mapping(event.get("item"), "Codex completed item")
+        except ConfigurationError as exc:
+            raise ProviderParseError(
+                "final_message_cardinality", "Codex completed item is invalid"
+            ) from exc
+        if item.get("type") != "agent_message":
+            continue
+        text = item.get("text")
+        if not isinstance(text, str):
+            raise ProviderParseError(
+                "final_message_cardinality", "Codex agent_message text must be a string"
+            )
+        try:
+            candidate = _strict_json_loads(text)
+        except _AmbiguousJSONError as exc:
+            raise ProviderParseError(
+                "terminal_shape", "Codex final message contains ambiguous JSON"
+            ) from exc
+        except _StrictJSONError:
+            continue
+        if isinstance(candidate, Mapping):
+            candidates.append(candidate)
+    if len(candidates) != 1:
+        raise ProviderParseError(
+            "final_message_cardinality",
+            "Codex JSONL must contain exactly one structured final WorkResult",
+        )
+    work_result = _normalized_provider_work_result(candidates[0], "Codex WorkResult")
+    return ProviderResult(
+        work_result=work_result,
+        adapter="codex-jsonl-output-schema-v2",
+        process_or_session_id=session_id,
+    )
+
+
+def _parse_agy_result(payload: str | bytes | None) -> ProviderResult:
+    events, _ = _jsonl_events(payload, "AGY stream-json")
+    if any("type" in item for item in events):
+        raise ProviderParseError(
+            "terminal_shape", "AGY stream-json uses an unsupported event dialect"
+        )
+    event_names = [item.get("event") for item in events]
+    if any(not isinstance(name, str) for name in event_names):
+        raise ProviderParseError("terminal_shape", "AGY stream-json event name is missing")
+    if any(name == "error" for name in event_names):
+        raise ProviderParseError(
+            "provider_failure_event", "AGY stream-json contains a provider failure event"
+        )
+    if any(name not in {"init", "step_update", "result"} for name in event_names):
+        raise ProviderParseError(
+            "terminal_shape", "AGY stream-json contains an unsupported event name"
+        )
+    if event_names[0] != "init":
+        raise ProviderParseError("terminal_shape", "AGY stream-json must start with one init event")
+    if event_names.count("init") != 1:
+        raise ProviderParseError(
+            "terminal_shape", "AGY stream-json contains ambiguous init events"
+        )
+    terminal_indices = [
+        index for index, name in enumerate(event_names) if name == "result"
+    ]
+    if len(terminal_indices) != 1 or terminal_indices[0] != len(events) - 1:
+        raise ProviderParseError(
+            "terminal_shape", "AGY stream-json requires one unambiguous terminal result event"
+        )
+
+    init_event = events[0]
+    if set(init_event) != {"event", "conversation_id", "init"}:
+        raise ProviderParseError(
+            "terminal_shape", "AGY stream-json init envelope is invalid"
+        )
+    try:
+        _mapping(init_event.get("init"), "AGY init payload")
+    except ConfigurationError as exc:
+        raise ProviderParseError(
+            "terminal_shape", "AGY stream-json init payload is invalid"
+        ) from exc
+    session_id = _provider_stream_id(
+        init_event.get("conversation_id"), "AGY conversation_id"
+    )
+    if session_id is None:
+        raise ProviderParseError(
+            "thread_id", "AGY stream-json conversation identifier is missing"
+        )
+
+    for event in events[1:terminal_indices[0]]:
+        if set(event) != {"event", "step_update"}:
+            raise ProviderParseError(
+                "terminal_shape", "AGY stream-json step envelope is invalid"
+            )
+        try:
+            update = _mapping(event.get("step_update"), "AGY step payload")
+        except ConfigurationError as exc:
+            raise ProviderParseError(
+                "terminal_shape", "AGY stream-json step payload is invalid"
+            ) from exc
+        update_id = _provider_stream_id(
+            update.get("conversation_id"), "AGY step conversation_id"
+        )
+        if update_id is None or update_id != session_id:
+            raise ProviderParseError(
+                "thread_id", "AGY stream-json conversation identifiers are inconsistent"
+            )
+        state = update.get("state")
+        if state == "ERROR" or "error" in update:
+            raise ProviderParseError(
+                "provider_failure_event", "AGY stream-json contains a failed step"
+            )
+        if state not in {"ACTIVE", "DONE"}:
+            raise ProviderParseError(
+                "terminal_shape", "AGY stream-json step state is invalid"
+            )
+
+    terminal_event = events[-1]
+    if set(terminal_event) != {"event", "result"}:
+        raise ProviderParseError(
+            "terminal_shape", "AGY stream-json terminal envelope is invalid"
+        )
+    try:
+        terminal = _mapping(terminal_event.get("result"), "AGY result payload")
+    except ConfigurationError as exc:
+        raise ProviderParseError(
+            "terminal_shape", "AGY stream-json terminal payload is invalid"
+        ) from exc
+    terminal_id = _provider_stream_id(
+        terminal.get("conversation_id"), "AGY result conversation_id"
+    )
+    if terminal_id is None or terminal_id != session_id:
+        raise ProviderParseError(
+            "thread_id", "AGY stream-json conversation identifiers are inconsistent"
+        )
+    if terminal.get("status") != "SUCCESS" or "error" in terminal:
+        raise ProviderParseError(
+            "provider_failure_event", "AGY stream-json terminal status is not successful"
+        )
+    if "structured_output" not in terminal:
+        raise ProviderParseError(
+            "work_result_validation", "AGY structured output is missing"
+        )
+    work_result = _normalized_provider_work_result(
+        terminal.get("structured_output"), "AGY structured output"
+    )
+    return ProviderResult(
+        work_result=work_result,
+        adapter="agy-stream-json-schema-v2",
+        process_or_session_id=session_id,
+    )
+
+
+def parse_provider_result(invocation: Invocation, payload: str | bytes | None) -> ProviderResult:
+    """Apply exactly one provider-native adapter; no fallback or prose inference."""
+
+    try:
+        if invocation.route.cli == "codex":
+            parsed = _parse_codex_result(payload)
+        elif invocation.route.cli == "agy":
+            parsed = _parse_agy_result(payload)
+        else:
+            raise ConfigurationError(
+                "no Result Contract v2 adapter exists for the selected provider"
+            )
+        sanitized = normalize_result(
+            _redact_result_value(dict(parsed.work_result), invocation)
+        )
+        return ProviderResult(
+            work_result=sanitized,
+            adapter=parsed.adapter,
+            process_or_session_id=parsed.process_or_session_id,
+        )
+    except ProviderParseError:
+        raise
+    except ConfigurationError as exc:
+        raise ProviderParseError("unknown", "provider result validation failed") from exc
 
 
 def validate_execution_preflight(invocation: Invocation) -> None:
@@ -403,29 +2929,78 @@ def validate_execution_preflight(invocation: Invocation) -> None:
         raise ConfigurationError(f"configured {invocation.route.cli} executable is unavailable")
     if invocation.route.home_path and not Path(invocation.route.home_path).is_dir():
         raise ConfigurationError(f"configured {invocation.route.home_env} directory does not exist")
+    if invocation.decision and invocation.decision.get("work_mode") == "read_only":
+        if not invocation.runtime_config_approved or not invocation.runtime_config_path:
+            raise ConfigurationError("read-only dispatch requires an approved runtime config path")
+        runtime_path = Path(invocation.runtime_config_path)
+        if not runtime_path.is_file() or ".example." in runtime_path.name:
+            raise ConfigurationError("example or missing runtime config is not approved for execution")
+        if invocation.route.cli == "codex" and invocation.route.sandbox != "read-only":
+            raise ConfigurationError("Codex read-only dispatch requires sandbox=read-only")
+        if invocation.route.cli == "agy" and not (
+            invocation.route.mode == "plan" and invocation.route.sandbox is True
+        ):
+            raise ConfigurationError("AGY read-only dispatch requires mode=plan and sandbox=true")
 
 
-def execute_invocation(invocation: Invocation) -> subprocess.CompletedProcess[str]:
-    """Execute argv directly with a process-local environment and no shell."""
+def _execute_invocation_locked(invocation: Invocation) -> subprocess.CompletedProcess[str]:
+    """Revalidate governance, then execute argv with no shell."""
 
+    validated_decision = _validated_invocation_decision(invocation)
     validate_execution_preflight(invocation)
-    dispatch_key = _dispatch_key(invocation)
-    if dispatch_key in _DISPATCHED_KEYS:
-        raise ConfigurationError("duplicate dispatch rejected for this process")
-    _DISPATCHED_KEYS.add(dispatch_key)
     env = os.environ.copy()
     env.pop("CODEX_HOME", None)
     env.pop("AGY_HOME", None)
     env.update(invocation.env_overrides)
-    return subprocess.run(
-        list(invocation.argv),
-        cwd=invocation.cwd,
-        env=env,
-        input=invocation.prompt_stdin,
-        text=True,
-        check=False,
-        shell=False,
+    if not invocation.work_result_schema_path:
+        raise ConfigurationError("executable dispatch requires a WorkResult v2 output schema")
+    provider_schema = _provider_compatible_work_result_schema(
+        invocation.work_result_schema_path
     )
+    schema_flag = "--output-schema" if invocation.route.cli == "codex" else "--json-schema"
+    argv = list(invocation.argv)
+    if argv.count(schema_flag) != 1:
+        raise ConfigurationError("provider output schema flag is missing or ambiguous")
+    schema_index = argv.index(schema_flag) + 1
+    if (
+        schema_index >= len(argv)
+        or argv[schema_index] != invocation.work_result_schema_path
+    ):
+        raise ConfigurationError("provider output schema path is not bound to the invocation")
+    with tempfile.TemporaryDirectory(prefix="horo-provider-schema-") as temp_dir:
+        provider_schema_path = Path(temp_dir) / "work-result-v2.provider.json"
+        provider_schema_path.write_text(
+            json.dumps(provider_schema, ensure_ascii=True, separators=(",", ":")),
+            encoding="utf-8",
+        )
+        argv[schema_index] = str(provider_schema_path)
+        # This is the final executable dispatch boundary. Re-evaluate Rule 11
+        # after every other preflight and immediately before process creation.
+        _validated_invocation_schedule(invocation, validated_decision)
+        claim = _acquire_dispatch_claim(invocation)
+        try:
+            _verify_dispatch_claim(claim, require_start_freshness=True)
+            result = subprocess.run(
+                argv,
+                cwd=invocation.cwd,
+                env=env,
+                input=invocation.prompt_stdin,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+                shell=False,
+            )
+        except BaseException:
+            try:
+                _finalize_dispatch_claim(claim, "unknown")
+            finally:
+                _release_dispatch_claim(claim)
+            raise
+        result._dispatch_claim = claim  # type: ignore[attr-defined]
+        result._dispatch_started_at = claim.record["started_at"]  # type: ignore[attr-defined]
+        result._dispatch_ended_at = _utc_now()  # type: ignore[attr-defined]
+        return result
 
 
 def _redact_preview(value: str, invocation: Invocation) -> str:
@@ -434,28 +3009,9 @@ def _redact_preview(value: str, invocation: Invocation) -> str:
     redacted = value.replace(invocation.cwd, "<PROJECT_DIR>")
     for path in invocation.env_overrides.values():
         redacted = redacted.replace(path, "<CLI_HOME>")
-    return redacted
-
-
-def _safe_execution_evidence(
-    result: subprocess.CompletedProcess[str],
-) -> dict[str, Any]:
-    """Return non-secret proof produced by an actual completed child process."""
-
-    stdout = result.stdout or ""
-    stderr = result.stderr or ""
-    evidence: dict[str, Any] = {
-        "source": "actual-subprocess-result",
-        "returncode": result.returncode,
-        # A digest is safe to retain even if a provider response contains
-        # sensitive text; it proves a non-empty child result without logging it.
-        "child_result_sha256": hashlib.sha256(stdout.encode("utf-8")).hexdigest(),
-        "child_result_bytes": len(stdout.encode("utf-8")),
-    }
-    session_match = SAFE_SESSION_ID.search(stderr)
-    if session_match:
-        evidence["process_or_session_id"] = session_match.group(1)
-    return evidence
+    if invocation.work_result_schema_path:
+        redacted = redacted.replace(invocation.work_result_schema_path, "<WORK_RESULT_SCHEMA>")
+    return _redact_personal_text(redacted)
 
 
 def _canonical_blocked_result(
@@ -463,53 +3019,549 @@ def _canonical_blocked_result(
     *,
     failure_class: str,
     recommended_next_action: str,
+    invocation: Invocation | None = None,
+    provider_parse_reason: str | None = None,
 ) -> dict[str, Any]:
     """Create a safe canonical record for a failed preflight/start attempt."""
 
-    return {
+    if provider_parse_reason is not None and provider_parse_reason not in PROVIDER_PARSE_REASONS:
+        raise ValueError("unsupported provider parse reason")
+    child_ran = provider_parse_reason is not None
+    execution_evidence: dict[str, str] = {
+        "source": "child-ran-invalid-result-contract" if child_ran else "no-child-ran",
+        "failure_class": failure_class,
+    }
+    if provider_parse_reason is not None:
+        execution_evidence["provider_parse_reason"] = provider_parse_reason
+    blocked = {
         "status": "BLOCKED",
         "alias": route.alias,
-        "execution_evidence": {
-            "source": "no-child-ran",
-            "failure_class": failure_class,
-        },
+        "execution_evidence": execution_evidence,
         "scope_owned": "configured terminal dispatch",
         "evidence": {
             "commands": [],
-            "outcomes": ["configured child process did not start"],
+            "outcomes": [
+                "child result was rejected before a receipt could be issued"
+                if child_ran
+                else "configured child process did not start"
+            ],
             "artifacts": [],
         },
-        "findings": ["No actual child run is claimed."],
+        "findings": [
+            "No validated child result is available."
+            if child_ran
+            else "No actual child run is claimed."
+        ],
         "changed_files": [],
-        "residual_risk": "the selected account alias could not execute the bounded task",
+        "residual_risk": (
+            "the selected account alias returned an invalid result contract"
+            if child_ran
+            else "the selected account alias could not execute the bounded task"
+        ),
         "recommended_next_action": recommended_next_action,
     }
+    if invocation is not None and invocation.decision is not None:
+        blocked["dispatch_binding"] = _dispatch_binding(invocation)
+    return blocked
 
 
-def _completed_result(
-    normalized: Mapping[str, Any], result: subprocess.CompletedProcess[str]
-) -> dict[str, Any]:
-    """Attach subprocess proof and prevent unsupported DONE claims."""
+def _dispatch_binding(invocation: Invocation) -> dict[str, Any]:
+    """Return policy-bound route intent; this is not an ExecutionReceipt."""
 
-    completed = dict(normalized)
-    execution_evidence = _safe_execution_evidence(result)
-    completed["execution_evidence"] = execution_evidence
-    if completed["status"] == "DONE" and (
-        result.returncode != 0 or not execution_evidence["child_result_bytes"]
-    ):
-        completed["status"] = "BLOCKED"
-        completed["residual_risk"] = "child execution did not provide successful result evidence"
-        completed["recommended_next_action"] = (
-            "rerun the selected alias and retain a non-empty child result"
+    if invocation.decision is None or invocation.decision_digest is None:
+        raise DispatchDecisionError("cannot create a receipt without a DispatchDecision")
+    ranks = [
+        invocation.decision[field]
+        for field in (
+            "scope_rank",
+            "complexity_rank",
+            "risk_rank",
+            "ambiguity_rank",
+            "evidence_burden_rank",
         )
-    return completed
+    ]
+    binding = {
+        "schema_version": 1,
+        "policy_version": invocation.decision["policy_version"],
+        "decision_sha256": invocation.decision_digest,
+        "dispatch_identity": _dispatch_key(invocation),
+        "ticket": invocation.decision["ticket"],
+        "phase": invocation.decision["phase"],
+        "quality_floor": max(ranks),
+        "alias": invocation.route.alias,
+        "model": invocation.route.model,
+        "effort": invocation.route.effort,
+        "attempt_id": invocation.attempt_id,
+    }
+    if invocation.scheduling_snapshot_digest is not None:
+        binding["scheduling_snapshot_sha256"] = invocation.scheduling_snapshot_digest
+    return binding
+
+
+def _raw_output_bytes(result: subprocess.CompletedProcess[str]) -> bytes:
+    stdout = result.stdout or ""
+    return stdout if isinstance(stdout, bytes) else stdout.encode("utf-8")
+
+
+def _completed_result_claim(
+    result: subprocess.CompletedProcess[str] | None,
+) -> tuple[DispatchClaim, str]:
+    claim = getattr(result, "_dispatch_claim", None)
+    proof = getattr(result, "_dispatch_claim_sha256", None)
+    if not isinstance(claim, DispatchClaim) or claim.closed:
+        raise ConfigurationError("completed dispatch claim proof is required")
+    _verify_dispatch_claim(claim)
+    if claim.record.get("state") != "completed":
+        raise ConfigurationError("dispatch claim is not completed")
+    expected = _canonical_sha256(claim.record)
+    if proof != expected:
+        raise ConfigurationError("dispatch claim proof digest is invalid")
+    return claim, expected
+
+
+def _validate_completed_claim_binding(
+    claim: DispatchClaim,
+    invocation: Invocation,
+    result: subprocess.CompletedProcess[str],
+    provider_result: ProviderResult,
+) -> None:
+    """Require persisted terminal proof for every receipt-bound observation."""
+
+    output = _raw_output_bytes(result)
+    ownership_key = _load_ownership_key(claim.store)
+    exact_tokens, ancestor_tokens = _ownership_token_set(
+        invocation.ownership, ownership_key
+    )
+    expected = {
+        "claim_key": _dispatch_claim_key(invocation),
+        "decision_sha256": invocation.decision_digest,
+        "scheduling_snapshot_sha256": invocation.scheduling_snapshot_digest,
+        "dispatch_identity": _claim_dispatch_identity(invocation),
+        "ticket_sha256": hashlib.sha256(
+            str(invocation.decision["ticket"] if invocation.decision else "missing").encode("ascii")
+        ).hexdigest(),
+        "route_sha256": _canonical_sha256(
+            {
+                "role": invocation.route.role,
+                "alias": invocation.route.alias,
+                "provider": invocation.route.cli,
+                "model": invocation.route.model,
+                "effort": invocation.route.effort,
+            }
+        ),
+        "ownership_tokens_sha256": _ownership_tokens_digest(exact_tokens, ancestor_tokens),
+        "ownership_key_id": hashlib.sha256(ownership_key).hexdigest(),
+        "state": "completed",
+        "transport_status": "completed",
+        "exit_code": result.returncode,
+        "output_bytes": len(output),
+        "output_sha256": hashlib.sha256(output).hexdigest(),
+        "work_result_sha256": _canonical_sha256(provider_result.work_result),
+    }
+    for field, value in expected.items():
+        if claim.record.get(field) != value:
+            raise ConfigurationError(
+                f"completed dispatch claim {field} does not match receipt evidence"
+            )
+    started = _parse_utc_timestamp(claim.record.get("started_at"), "dispatch claim started_at")
+    ended = _parse_utc_timestamp(claim.record.get("ended_at"), "dispatch claim ended_at")
+    if ended < started:
+        raise ConfigurationError("completed dispatch claim timestamps are invalid")
+
+
+def _embedded_claim_proof(record: Mapping[str, Any]) -> dict[str, Any]:
+    proof = {
+        "schema_version": 1,
+        "claim_key": record["claim_key"],
+        "decision_sha256": record["decision_sha256"],
+        "scheduling_snapshot_sha256": record["scheduling_snapshot_sha256"],
+        "dispatch_identity": record["dispatch_identity"],
+        "ticket_sha256": record["ticket_sha256"],
+        "route_sha256": record["route_sha256"],
+        "ownership_tokens_sha256": record["ownership_tokens_sha256"],
+        "ownership_key_id": record["ownership_key_id"],
+        "started_at": record["started_at"],
+        "ended_at": record["ended_at"],
+        "transport_status": record["transport_status"],
+        "exit_code": record["exit_code"],
+        "output_bytes": record["output_bytes"],
+        "output_sha256": record["output_sha256"],
+        "work_result_sha256": record["work_result_sha256"],
+        "terminal_state": record["state"],
+    }
+    if set(proof) != CLAIM_PROOF_FIELDS:
+        raise ConfigurationError("embedded ClaimProof fields are invalid")
+    return proof
+
+
+def _build_execution_receipt(
+    invocation: Invocation,
+    result: subprocess.CompletedProcess[str],
+    provider_result: ProviderResult,
+    *,
+    started_at: str,
+    ended_at: str,
+) -> dict[str, Any]:
+    """Build receipt data from trusted dispatch and adapter observations."""
+
+    if invocation.decision is None or invocation.decision_digest is None:
+        raise DispatchDecisionError("cannot create an ExecutionReceipt without a DispatchDecision")
+    claim, claim_proof = _completed_result_claim(result)
+    _validate_completed_claim_binding(claim, invocation, result, provider_result)
+    embedded_proof = _embedded_claim_proof(claim.record)
+    embedded_digest = _canonical_sha256(embedded_proof)
+    output = _raw_output_bytes(result)
+    receipt: dict[str, Any] = {
+        "protocol_version": RESULT_PROTOCOL_VERSION,
+        "policy_version": invocation.decision["policy_version"],
+        "decision_sha256": invocation.decision_digest,
+        "dispatch_claim_key": claim.key,
+        "dispatch_claim_sha256": embedded_digest,
+        "claim_proof": embedded_proof,
+        "claim_proof_sha256": embedded_digest,
+        "claim_proof_scope": "digest-integrity-not-authenticity",
+        "dispatch_identity": _claim_dispatch_identity(invocation),
+        "dispatch_ticket_id": invocation.decision["ticket"],
+        "attempt_id": invocation.attempt_id,
+        "alias": invocation.route.alias,
+        "provider": invocation.route.cli,
+        "adapter": provider_result.adapter,
+        "model": invocation.route.model,
+        "effort": invocation.route.effort,
+        "objective": _redact_personal_text(invocation.objective),
+        "ownership": _redact_personal_text(invocation.ownership),
+        "quota_status": invocation.decision["quota_band"],
+        "started_at": claim.record["started_at"],
+        "ended_at": claim.record["ended_at"],
+        "exit_code": result.returncode,
+        "transport_status": "completed",
+        "output_bytes": len(output),
+        "output_sha256": hashlib.sha256(output).hexdigest(),
+        "work_result_sha256": _canonical_sha256(provider_result.work_result),
+    }
+    if invocation.scheduling_snapshot_digest is not None:
+        receipt["scheduling_snapshot_sha256"] = invocation.scheduling_snapshot_digest
+    if provider_result.process_or_session_id:
+        receipt["process_or_session_id"] = provider_result.process_or_session_id
+    return receipt
+
+
+def _raise_for_migrated_legacy_receipt(
+    receipt: Mapping[str, Any], invocation: Invocation
+) -> None:
+    """Classify only locally anchored v1 receipts that privacy migration retired."""
+
+    proof_fields = {"claim_proof", "claim_proof_sha256", "claim_proof_scope"}
+    if proof_fields & set(receipt):
+        return
+    claim_key = receipt.get("dispatch_claim_key")
+    legacy_digest = receipt.get("dispatch_claim_sha256")
+    if (
+        not isinstance(claim_key, str)
+        or not re.fullmatch(r"[a-f0-9]{64}", claim_key)
+        or claim_key != _dispatch_claim_key(invocation)
+        or not isinstance(legacy_digest, str)
+        or not re.fullmatch(r"[a-f0-9]{64}", legacy_digest)
+    ):
+        return
+    try:
+        local = _optional_local_claim(invocation, claim_key)
+    except (OSError, SchedulingError):
+        return
+    if (
+        local is not None
+        and local.get("version") == DISPATCH_CLAIM_VERSION
+        and local.get("claim_key") == claim_key
+        and local.get("state") == "completed"
+        and local.get("legacy_claim_sha256") == legacy_digest
+    ):
+        raise LegacyReceiptRevalidationUnsupported()
+
+
+def validate_execution_receipt(
+    receipt: Mapping[str, Any],
+    work_result: Mapping[str, Any],
+    invocation: Invocation,
+    raw_output: str | bytes | None,
+    *,
+    result: subprocess.CompletedProcess[str] | None = None,
+    portable: bool = False,
+) -> dict[str, Any]:
+    """Independently validate one v2 receipt and its digest-bound WorkResult."""
+
+    receipt = _mapping(receipt, "ExecutionReceipt")
+    _raise_for_migrated_legacy_receipt(receipt, invocation)
+    optional_fields = {"process_or_session_id", "scheduling_snapshot_sha256"}
+    missing = EXECUTION_RECEIPT_FIELDS - set(receipt)
+    unknown = set(receipt) - EXECUTION_RECEIPT_FIELDS - optional_fields
+    if missing:
+        raise ConfigurationError(
+            "ExecutionReceipt missing fields: " + ", ".join(sorted(missing))
+        )
+    if unknown:
+        raise ConfigurationError(
+            "ExecutionReceipt contains unsupported fields: " + ", ".join(sorted(unknown))
+        )
+    normalized_result = normalize_result(work_result)
+    try:
+        native_result = parse_provider_result(invocation, raw_output)
+    except ProviderParseError as exc:
+        raise ConfigurationError("native receipt evidence is invalid") from exc
+    if dict(native_result.work_result) != normalized_result:
+        raise ConfigurationError("native WorkResult does not match receipt evidence")
+    native_session_id = native_result.process_or_session_id
+    if native_session_id is None:
+        if "process_or_session_id" in receipt:
+            raise ConfigurationError("ExecutionReceipt session evidence is ungrounded")
+    elif receipt.get("process_or_session_id") != native_session_id:
+        raise ConfigurationError("ExecutionReceipt session evidence is mismatched")
+    embedded = _mapping(receipt.get("claim_proof"), "ExecutionReceipt ClaimProof")
+    if set(embedded) != CLAIM_PROOF_FIELDS or embedded.get("schema_version") != 1:
+        raise ConfigurationError("ExecutionReceipt ClaimProof fields are invalid")
+    embedded_digest = _canonical_sha256(embedded)
+    if receipt.get("claim_proof_sha256") != embedded_digest:
+        raise ConfigurationError("ExecutionReceipt ClaimProof digest is invalid")
+    for field in (
+        "claim_key", "decision_sha256", "scheduling_snapshot_sha256",
+        "dispatch_identity", "ticket_sha256", "route_sha256",
+        "ownership_tokens_sha256", "output_sha256", "work_result_sha256",
+        "ownership_key_id",
+    ):
+        if not isinstance(embedded.get(field), str) or not re.fullmatch(
+            r"[a-f0-9]{64}", embedded[field]
+        ):
+            raise ConfigurationError(f"ExecutionReceipt ClaimProof {field} is invalid")
+    if embedded.get("terminal_state") != "completed" or embedded.get("transport_status") != "completed":
+        raise ConfigurationError("ExecutionReceipt ClaimProof is not completed")
+    claim_key = receipt.get("dispatch_claim_key")
+    if not isinstance(claim_key, str) or not re.fullmatch(r"[a-f0-9]{64}", claim_key):
+        raise ConfigurationError("ExecutionReceipt dispatch_claim_key must be SHA-256")
+    if embedded.get("claim_key") != claim_key:
+        raise ConfigurationError("ExecutionReceipt ClaimProof key is mismatched")
+    claim_proof = receipt.get("dispatch_claim_sha256")
+    if claim_proof != embedded_digest or receipt.get("claim_proof_scope") != "digest-integrity-not-authenticity":
+        raise ConfigurationError("embedded claim digest reference is invalid")
+    try:
+        claim_record = _optional_local_claim(invocation, claim_key)
+    except SchedulingError as exc:
+        if exc.code in {"INVALID_CLAIM_STORE", "UNSUPPORTED_CLAIM_PLATFORM"}:
+            claim_record = None
+        else:
+            raise ConfigurationError("local dispatch proof is invalid") from exc
+    if claim_record is None and not portable:
+        raise ConfigurationError("strict local dispatch proof is unavailable")
+    if claim_record is not None:
+        if (
+            claim_record.get("state") != "completed"
+            or _embedded_claim_proof(claim_record) != dict(embedded)
+        ):
+            raise ConfigurationError("local dispatch proof mismatches embedded ClaimProof")
+    validated_decision = _validated_invocation_decision(invocation)
+    expected_adapter = {
+        "codex": "codex-jsonl-output-schema-v2",
+        "agy": "agy-stream-json-schema-v2",
+    }[invocation.route.cli]
+    expected_values = {
+        "protocol_version": RESULT_PROTOCOL_VERSION,
+        "policy_version": validated_decision.policy_version,
+        "decision_sha256": validated_decision.digest,
+        "dispatch_claim_key": claim_key,
+        "dispatch_claim_sha256": claim_proof,
+        "claim_proof": dict(embedded),
+        "claim_proof_sha256": embedded_digest,
+        "claim_proof_scope": "digest-integrity-not-authenticity",
+        "dispatch_identity": _claim_dispatch_identity(invocation),
+        "dispatch_ticket_id": validated_decision.decision["ticket"],
+        "attempt_id": invocation.attempt_id,
+        "alias": invocation.route.alias,
+        "provider": invocation.route.cli,
+        "adapter": expected_adapter,
+        "model": invocation.route.model,
+        "effort": invocation.route.effort,
+        "objective": _redact_personal_text(invocation.objective),
+        "ownership": _redact_personal_text(invocation.ownership),
+        "quota_status": validated_decision.decision["quota_band"],
+        "transport_status": "completed",
+        "work_result_sha256": _canonical_sha256(normalized_result),
+    }
+    for field, expected in expected_values.items():
+        if receipt.get(field) != expected:
+            raise ConfigurationError(f"ExecutionReceipt {field} does not match its dispatch binding")
+    for integer_field in ("attempt_id", "exit_code", "output_bytes"):
+        if isinstance(receipt.get(integer_field), bool) or not isinstance(
+            receipt.get(integer_field), int
+        ):
+            raise ConfigurationError(f"ExecutionReceipt {integer_field} must be an integer")
+    if receipt["attempt_id"] < 1 or receipt["output_bytes"] < 1:
+        raise ConfigurationError("ExecutionReceipt attempt_id/output_bytes must be positive")
+    digest_fields = [
+        "decision_sha256",
+        "dispatch_identity",
+        "output_sha256",
+        "work_result_sha256",
+        "dispatch_claim_key",
+        "dispatch_claim_sha256",
+        "claim_proof_sha256",
+    ]
+    if invocation.scheduling_snapshot_digest is not None:
+        if receipt.get("scheduling_snapshot_sha256") != invocation.scheduling_snapshot_digest:
+            raise ConfigurationError(
+                "ExecutionReceipt scheduling_snapshot_sha256 does not match its dispatch binding"
+            )
+        digest_fields.append("scheduling_snapshot_sha256")
+    elif "scheduling_snapshot_sha256" in receipt:
+        raise ConfigurationError(
+            "ExecutionReceipt scheduling_snapshot_sha256 has no dispatch binding"
+        )
+    for digest_field in digest_fields:
+        value = receipt.get(digest_field)
+        if not isinstance(value, str) or not re.fullmatch(r"[a-f0-9]{64}", value):
+            raise ConfigurationError(f"ExecutionReceipt {digest_field} must be SHA-256")
+    raw_bytes = b"" if raw_output is None else (
+        raw_output if isinstance(raw_output, bytes) else raw_output.encode("utf-8")
+    )
+    if receipt["output_bytes"] != len(raw_bytes):
+        raise ConfigurationError("ExecutionReceipt output_bytes does not match provider output")
+    if receipt["output_sha256"] != hashlib.sha256(raw_bytes).hexdigest():
+        raise ConfigurationError("ExecutionReceipt output_sha256 does not match provider output")
+    proof_expected = {
+        "claim_key": claim_key,
+        "decision_sha256": invocation.decision_digest,
+        "scheduling_snapshot_sha256": invocation.scheduling_snapshot_digest,
+        "dispatch_identity": _claim_dispatch_identity(invocation),
+        "ticket_sha256": hashlib.sha256(
+            str(invocation.decision["ticket"] if invocation.decision else "missing").encode("ascii")
+        ).hexdigest(),
+        "route_sha256": _canonical_sha256(
+            {
+                "role": invocation.route.role,
+                "alias": invocation.route.alias,
+                "provider": invocation.route.cli,
+                "model": invocation.route.model,
+                "effort": invocation.route.effort,
+            }
+        ),
+        "transport_status": "completed",
+        "exit_code": receipt["exit_code"],
+        "output_bytes": len(raw_bytes),
+        "output_sha256": hashlib.sha256(raw_bytes).hexdigest(),
+        "work_result_sha256": _canonical_sha256(normalized_result),
+        "terminal_state": "completed",
+    }
+    for field, expected in proof_expected.items():
+        if embedded.get(field) != expected:
+            raise ConfigurationError(f"embedded dispatch proof {field} is mismatched")
+    started = _parse_utc_timestamp(receipt.get("started_at"), "ExecutionReceipt started_at")
+    ended = _parse_utc_timestamp(receipt.get("ended_at"), "ExecutionReceipt ended_at")
+    if ended < started:
+        raise ConfigurationError("ExecutionReceipt ended_at precedes started_at")
+    if receipt["started_at"] != embedded["started_at"] or receipt["ended_at"] != embedded["ended_at"]:
+        raise ConfigurationError("ExecutionReceipt timestamps do not match dispatch claim")
+    provider_id = receipt.get("process_or_session_id")
+    _provider_id(provider_id, "ExecutionReceipt process_or_session_id")
+    if receipt["exit_code"] == 0:
+        pass
+    elif normalized_result["status"] == "DONE":
+        raise ConfigurationError("nonzero execution cannot carry a DONE WorkResult")
+    _reject_secret_bearing(receipt, "ExecutionReceipt")
+    return dict(receipt)
+
+
+def _completed_result_contract(
+    invocation: Invocation,
+    result: subprocess.CompletedProcess[str],
+    provider_result: ProviderResult,
+    *,
+    started_at: str,
+    ended_at: str,
+) -> dict[str, Any]:
+    claim = getattr(result, "_dispatch_claim", None)
+    if not isinstance(claim, DispatchClaim) or claim.closed:
+        raise ConfigurationError("active dispatch claim is required")
+    try:
+        proof = _finalize_dispatch_claim(claim, "completed", result, provider_result)
+        result._dispatch_claim_sha256 = proof  # type: ignore[attr-defined]
+        receipt = _build_execution_receipt(
+            invocation,
+            result,
+            provider_result,
+            started_at=started_at,
+            ended_at=ended_at,
+        )
+        validated_receipt = validate_execution_receipt(
+            receipt,
+            provider_result.work_result,
+            invocation,
+            result.stdout,
+            result=result,
+        )
+        return _redact_result_value(
+            {
+                "execution_receipt": validated_receipt,
+                "work_result": dict(provider_result.work_result),
+            },
+            invocation,
+        )
+    finally:
+        _release_dispatch_claim(claim)
+
+
+def _reject_result_claim(result: subprocess.CompletedProcess[str]) -> None:
+    """Persist provider rejection after parsing is known, then release the store."""
+
+    claim = getattr(result, "_dispatch_claim", None)
+    if not isinstance(claim, DispatchClaim) or claim.closed:
+        return
+    try:
+        _finalize_dispatch_claim(claim, "rejected", result)
+    except (SchedulingError, OSError):
+        pass
+    finally:
+        _release_dispatch_claim(claim)
+
+
+def _public_process_result(
+    result: subprocess.CompletedProcess[str],
+) -> subprocess.CompletedProcess[str]:
+    """Expose transport status without returning child-controlled streams."""
+
+    return subprocess.CompletedProcess(
+        result.args,
+        result.returncode,
+        "[PROVIDER_STDOUT_ELIDED]" if result.stdout else "",
+        "[PROVIDER_STDERR_ELIDED]" if result.stderr else "",
+    )
+
+
+def execute_invocation(invocation: Invocation) -> ExecutionOutcome:
+    """Execute, parse, terminalize, validate the receipt, and always release locks."""
+
+    result = _execute_invocation_locked(invocation)
+    try:
+        provider_result = parse_provider_result(invocation, result.stdout)
+        completed = _completed_result_contract(
+            invocation,
+            result,
+            provider_result,
+            started_at=getattr(result, "_dispatch_started_at", _utc_now()),
+            ended_at=getattr(result, "_dispatch_ended_at", _utc_now()),
+        )
+        return ExecutionOutcome(_public_process_result(result), completed)
+    except BaseException as exc:
+        _reject_result_claim(result)
+        if isinstance(exc, (KeyboardInterrupt, SystemExit)):
+            raise
+        reason = exc.provider_parse_reason if isinstance(exc, ProviderParseError) else "unknown"
+        raise ExecutionContractError(reason) from exc
 
 
 def _redact_result_value(value: Any, invocation: Invocation) -> Any:
     """Prevent child-controlled output from echoing prompt, homes, or secrets."""
 
     if isinstance(value, str):
-        redacted = value.replace(invocation.prompt_stdin, "<PROMPT_REDACTED>")
+        redacted = value
+        for prompt_value in _prompt_redaction_values(invocation):
+            redacted = redacted.replace(prompt_value, "<PROMPT_REDACTED>")
         redacted = _redact_preview(redacted, invocation)
         # Keep the filter deliberately narrow so ordinary findings remain
         # useful, while credential-shaped values are never emitted by this
@@ -519,14 +3571,97 @@ def _redact_result_value(value: Any, invocation: Invocation) -> Any:
             "<SECRET_REDACTED>",
             redacted,
         )
-        return redacted
+        return _redact_personal_text(redacted)
     if isinstance(value, list):
         return [_redact_result_value(item, invocation) for item in value]
     if isinstance(value, tuple):
         return [_redact_result_value(item, invocation) for item in value]
     if isinstance(value, Mapping):
-        return {str(key): _redact_result_value(item, invocation) for key, item in value.items()}
+        return {
+            _redact_personal_text(str(key)): _redact_result_value(item, invocation)
+            for key, item in value.items()
+        }
     return value
+
+
+def _prompt_redaction_values(invocation: Invocation) -> tuple[str, ...]:
+    """Return encoded and decoded prompt forms without exposing either value."""
+
+    values = {invocation.prompt_stdin}
+    if invocation.route.cli == "agy":
+        try:
+            event = _strict_json_loads(invocation.prompt_stdin)
+            if isinstance(event, Mapping):
+                message = event.get("message")
+                if isinstance(message, Mapping):
+                    content = message.get("content")
+                    if isinstance(content, str) and content:
+                        values.add(content)
+        except _StrictJSONError:
+            pass
+    return tuple(sorted((item for item in values if item), key=len, reverse=True))
+
+
+def _configured_policy_path(
+    config_path: str | os.PathLike[str],
+    config: Mapping[str, Any],
+    explicit_policy_path: str | None,
+) -> Path:
+    if explicit_policy_path:
+        return Path(explicit_policy_path)
+    configured = config.get("model_policy")
+    if not isinstance(configured, str) or not configured.strip():
+        raise ConfigurationError(
+            "a DispatchDecision requires --policy or config.model_policy"
+        )
+    path = Path(configured)
+    if not path.is_absolute():
+        path = Path(config_path).resolve().parent / path
+    return path
+
+
+def _configured_work_result_schema_path(
+    policy_path: str | os.PathLike[str], policy: Mapping[str, Any]
+) -> Path:
+    result_contract = _mapping(policy.get("result_contract"), "model policy result_contract")
+    if result_contract.get("protocol_version") != RESULT_PROTOCOL_VERSION:
+        raise ConfigurationError("model policy result_contract.protocol_version must be 2")
+    configured = result_contract.get("work_result_schema")
+    if not isinstance(configured, str) or not configured.strip():
+        raise ConfigurationError("model policy result_contract.work_result_schema is required")
+    path = Path(configured)
+    if not path.is_absolute():
+        path = Path(policy_path).resolve().parent / path
+    resolved = path.resolve()
+    if not resolved.is_file():
+        raise ConfigurationError("configured WorkResult v2 schema is unavailable")
+    return resolved
+
+
+def _runtime_config_approval(config: Mapping[str, Any]) -> bool:
+    runtime = config.get("runtime")
+    if runtime is None:
+        return False
+    runtime = _mapping(runtime, "runtime")
+    approved = runtime.get("approved_for_execution")
+    if not isinstance(approved, bool):
+        raise ConfigurationError("runtime.approved_for_execution must be boolean")
+    if approved and runtime.get("protocol_version") != RESULT_PROTOCOL_VERSION:
+        raise ConfigurationError("approved runtime config must declare protocol_version 2")
+    return approved is True
+
+
+def _reject_disagreeing_overrides(args: argparse.Namespace, decision: Mapping[str, Any]) -> None:
+    for argument, field in (
+        ("alias", "selected_alias"),
+        ("model", "selected_model"),
+        ("effort", "selected_effort"),
+    ):
+        override = getattr(args, argument)
+        if override is not None and override != decision.get(field):
+            raise DispatchDecisionError(
+                f"--{argument} override disagrees with DispatchDecision {field}"
+            )
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -543,6 +3678,16 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--cli", choices=sorted(VALID_CLIS), help="Validated CLI override")
     parser.add_argument("--model", help="Validated model override")
     parser.add_argument("--effort", choices=sorted(VALID_EFFORTS))
+    parser.add_argument("--attempt-id", type=int, default=1)
+    parser.add_argument("--decision", help="Path to a DispatchDecision v1 JSON/YAML document")
+    parser.add_argument(
+        "--scheduling-snapshot",
+        help="Path to the Rule 11 scheduling snapshot required for execution",
+    )
+    parser.add_argument(
+        "--policy",
+        help="Path to the versioned model policy (defaults to config.model_policy)",
+    )
     action = parser.add_mutually_exclusive_group()
     action.add_argument("--print-command", action="store_true", help="Render only (default)")
     action.add_argument("--execute", action="store_true", help="Run the rendered argv")
@@ -553,13 +3698,50 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
         config = load_config(args.config)
+        if args.execute and not args.decision:
+            raise DispatchDecisionError(
+                "legacy v1 execution is disabled; supply --decision with a versioned DispatchDecision"
+            )
+        if args.execute and not args.scheduling_snapshot:
+            raise SchedulingError(
+                "INVALID_SCHEDULING_METADATA",
+                "executable dispatch requires --scheduling-snapshot",
+            )
+        if args.policy and not args.decision:
+            raise DispatchDecisionError("--policy requires --decision")
+        if args.scheduling_snapshot and not args.decision:
+            raise SchedulingError(
+                "INVALID_SCHEDULING_METADATA",
+                "--scheduling-snapshot requires --decision",
+            )
+        decision: Mapping[str, Any] | None = None
+        model_policy: Mapping[str, Any] | None = None
+        scheduling_snapshot: Mapping[str, Any] | None = None
+        work_result_schema_path: Path | None = None
+        if args.decision:
+            decision = load_dispatch_decision(args.decision)
+            policy_path = _configured_policy_path(args.config, config, args.policy)
+            model_policy = load_model_policy(policy_path)
+            work_result_schema_path = _configured_work_result_schema_path(
+                policy_path, model_policy
+            )
+            _reject_disagreeing_overrides(args, decision)
+            decision = validate_dispatch_decision(decision, model_policy).decision
+            if args.scheduling_snapshot:
+                scheduling_snapshot = load_scheduling_snapshot(args.scheduling_snapshot)
         route = resolve_route(
             config,
             args.role,
-            alias_override=args.alias,
+            alias_override=(
+                decision.get("selected_alias") if decision is not None else args.alias
+            ),
             cli_override=args.cli,
-            model_override=args.model,
-            effort_override=args.effort,
+            model_override=(
+                decision.get("selected_model") if decision is not None else args.model
+            ),
+            effort_override=(
+                decision.get("selected_effort") if decision is not None else args.effort
+            ),
         )
         prompt = render_prompt(
             objective=args.objective,
@@ -568,9 +3750,34 @@ def main(argv: Sequence[str] | None = None) -> int:
             evidence=args.evidence,
             stop_condition=args.stop_condition,
         )
-        invocation = build_invocation(route, prompt, args.project_dir)
-    except (ConfigurationError, OSError, yaml.YAMLError) as exc:
-        print(f"[ERROR] {exc}", file=sys.stderr)
+        invocation = build_invocation(
+            route,
+            prompt,
+            args.project_dir,
+            decision=decision,
+            model_policy=model_policy,
+            attempt_id=args.attempt_id,
+            objective=args.objective,
+            ownership=args.ownership,
+            runtime_config_path=args.config,
+            runtime_config_approved=_runtime_config_approval(config),
+            work_result_schema_path=work_result_schema_path,
+            scheduling_snapshot=scheduling_snapshot,
+        )
+    except SchedulingError as exc:
+        print(f"[ERROR] BLOCKED: {exc.code}", file=sys.stderr)
+        return 5
+    except DispatchDecisionError:
+        print("[ERROR] BLOCKED: DISPATCH_DECISION_INVALID", file=sys.stderr)
+        return 2
+    except yaml.YAMLError:
+        print("[ERROR] BLOCKED: CONFIG_PARSE_ERROR", file=sys.stderr)
+        return 2
+    except OSError:
+        print("[ERROR] BLOCKED: CONFIG_IO_ERROR", file=sys.stderr)
+        return 2
+    except ConfigurationError:
+        print("[ERROR] BLOCKED: CONFIGURATION_INVALID", file=sys.stderr)
         return 2
 
     argv_preview = [_redact_preview(arg, invocation) for arg in invocation.argv]
@@ -585,13 +3792,74 @@ def main(argv: Sequence[str] | None = None) -> int:
         "argv": argv_preview,
         "command": shlex.join(argv_preview),
     }
+    if invocation.decision is not None:
+        # Kept under the historical key for dry-run consumers. This object is
+        # route intent only and never an ExecutionReceipt.
+        rendered["dispatch_receipt"] = _dispatch_binding(invocation)
+    if invocation.scheduling_snapshot_digest is not None:
+        rendered["scheduling_snapshot_sha256"] = invocation.scheduling_snapshot_digest
     print(json.dumps(rendered, ensure_ascii=False, indent=2))
     if not args.execute:
+        if invocation.decision is None:
+            print(
+                "[WARNING] Legacy v1 dry-run has no DispatchDecision; execution would be rejected.",
+                file=sys.stderr,
+            )
         print("[OK] Dry-run only; no subprocess was started.")
         return 0
 
     try:
-        result = execute_invocation(invocation)
+        outcome = execute_invocation(invocation)
+    except SchedulingError as exc:
+        print(
+            json.dumps(
+                _canonical_blocked_result(
+                    route,
+                    failure_class="rule11-scheduling-revalidation-failed",
+                    recommended_next_action=(
+                        "refresh the scheduling snapshot and dispatch the selected ticket"
+                    ),
+                    invocation=invocation,
+                ),
+                ensure_ascii=True,
+                indent=2,
+            )
+        )
+        print(f"[ERROR] BLOCKED: {exc.code}", file=sys.stderr)
+        return 5
+    except DispatchDecisionError:
+        print(
+            json.dumps(
+                _canonical_blocked_result(
+                    route,
+                    failure_class="dispatch-decision-revalidation-failed",
+                    recommended_next_action=(
+                        "regenerate the DispatchDecision and keep its route bound to the loaded policy"
+                    ),
+                    invocation=invocation,
+                ),
+                ensure_ascii=True,
+                indent=2,
+            )
+        )
+        print("[ERROR] DispatchDecision failed spawn-boundary revalidation.", file=sys.stderr)
+        return 4
+    except ExecutionContractError as exc:
+        print(
+            json.dumps(
+                _canonical_blocked_result(
+                    route,
+                    failure_class="invalid-child-result-contract",
+                    recommended_next_action="rerun the selected alias and require the JSON result contract",
+                    invocation=invocation,
+                    provider_parse_reason=exc.provider_parse_reason,
+                ),
+                ensure_ascii=True,
+                indent=2,
+            )
+        )
+        print("[ERROR] Invalid sub-agent result contract.", file=sys.stderr)
+        return 3
     except (ConfigurationError, OSError) as exc:
         print(
             json.dumps(
@@ -601,8 +3869,9 @@ def main(argv: Sequence[str] | None = None) -> int:
                     recommended_next_action=(
                         "verify the selected alias CLI installation and retry the same bounded task"
                     ),
+                    invocation=invocation,
                 ),
-                ensure_ascii=False,
+                ensure_ascii=True,
                 indent=2,
             )
         )
@@ -610,23 +3879,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         # details.  The canonical record above is the operator-facing outcome.
         print(f"[ERROR] Unable to start configured {route.cli} executable.", file=sys.stderr)
         return 127
-    try:
-        normalized = normalize_result(result.stdout, returncode=result.returncode)
-    except ConfigurationError as exc:
-        print(
-            json.dumps(
-                _canonical_blocked_result(
-                    route,
-                    failure_class="invalid-child-result-contract",
-                    recommended_next_action="rerun the selected alias and require the JSON result contract",
-                ),
-                ensure_ascii=False,
-                indent=2,
-            )
-        )
-        print("[ERROR] Invalid sub-agent result contract.", file=sys.stderr)
-        return 3
-    completed = _completed_result(normalized, result)
+    result = outcome.process
+    completed = outcome.completed
     print(json.dumps(_redact_result_value(completed, invocation), ensure_ascii=False, indent=2))
     if result.returncode == 0:
         print("[OK] Sub-agent command completed.")

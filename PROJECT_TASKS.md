@@ -101,6 +101,739 @@ python3 -m pytest -q project/tests/
 
 ## 📊 TASK BOARD (KANBAN)
 
+## SPRINT: Priority Governance Scheduling — 2026-08-25
+**Grill Gate Status**: APPROVED — session HITL recorded (Ref: [`plans/plan.md`](plans/plan.md)); the session approval covers the exact AGY native-protocol remediation reservation. No approver identity is retained.
+**Session-Scoped Approval**: approval covers the remaining local priority-sprint remediation, QA, read-only review, and final synchronization/reconciliation. It additionally permits bounded workspace-ticket improvement, refactoring, fixes, and removal of explicitly identified obsolete code/tests. It never authorizes a `/root` glob deletion or broad/unrelated destructive action. Deploy, publish, push, secret/account, external, or destructive actions otherwise require an exact in-scope target and all target-scoped safety gates. None is currently required or used by this sprint; external actions remain unused and target-gated. This approval does not broaden `TICKET-PRIORITY-004` or `TICKET-PRIORITY-005`.
+**Dispatch Status**: `TICKET-PRIORITY-002R`, `TICKET-PRIORITY-003R`, `TICKET-PRIORITY-002R2`, `TICKET-PRIORITY-003R2`, `TICKET-PRIORITY-002R3`, `TICKET-PRIORITY-003R3`, `TICKET-PRIORITY-003R3E`, `TICKET-PRIORITY-002R4`, `TICKET-PRIORITY-002R5`, `TICKET-AGY1-SMOKE-20260826-R2`, all four pre-QA remediation tickets, `TICKET-AGY1-EVIDENCE-DOC-20260826-R1`, and `TICKET-PRIORITY-003R5` are `DONE`; source, schema, policy, dependency, documentation, and QA artifacts are frozen. `TICKET-PRIORITY-004R5` is `DOING (RESERVED)` as the fresh read-only final review. `TICKET-AGY1-SMOKE-20260826-R3` remains pending behind that review; no external AGY retry is authorized.
+**Scheduling Authority**: Rule 11. Historical `Priority`-only fields below remain evidence but are superseded for scheduling.
+**Current Stop**: `TICKET-PRIORITY-004R5` owns the active read-only final review of frozen QA/source/schema/policy/dependency/documentation evidence. R5 QA passed combined `213` and focused `142` tests; sync, locked dependency, and diff checks passed, with no external AGY action. `TICKET-AGY1-SMOKE-20260826-R3` has no writable ownership or executable decision/snapshot until this review passes. No external AGY retry is authorized; final reconciliation remains blocked. This documentation handoff does not execute source edits, QA, reviews, deploy, push, authentication, secrets, or account changes.
+
+| Seq | Ticket ID | Owner | Severity | Work Effort | Model / Reasoning Effort | Status | Depends On |
+|---:|---|---|---|---|---|---|---|
+| 1 | `TICKET-PRIORITY-001` | `business_analyst` | CRITICAL | XL | `gpt-5.6-sol` / `xhigh` | DONE | None |
+| 2 | `TICKET-PRIORITY-002` | `developer` | CRITICAL | L | `gpt-5.6-sol` / `high` | DONE | `TICKET-PRIORITY-001` |
+| 3 | `TICKET-PRIORITY-003` | `qa_tester` | HIGH | M | `gpt-5.6-terra` / `high` | DONE | `TICKET-PRIORITY-002` |
+| 4 | `TICKET-PRIORITY-004` | `code_reviewer` | HIGH | S | `gpt-5.6-sol` / `high` | BLOCKED-AGY-R5-QA | `TICKET-PRIORITY-003R5` |
+| 5 | `TICKET-PRIORITY-002R` | `developer` | CRITICAL | M | `gpt-5.6-sol` / `high` | DONE | `TICKET-PRIORITY-003` |
+| 6 | `TICKET-PRIORITY-003R` | `qa_tester` | HIGH | S | `gpt-5.6-sol` / `high` | DONE | `TICKET-PRIORITY-002R` |
+| 7 | `TICKET-PRIORITY-005` | `business_analyst` | MEDIUM | XS | `gpt-5.6-terra` / `medium` | PENDING | `TICKET-PRIORITY-004R5` |
+| 8 | `TICKET-PRIORITY-002R2` | `developer` | CRITICAL | L | `gpt-5.6-sol` / `high` | DONE | `TICKET-PRIORITY-003R` |
+| 9 | `TICKET-PRIORITY-003R2` | `qa_tester` | HIGH | S | `gpt-5.6-sol` / `high` | DONE | `TICKET-PRIORITY-002R2` |
+| 10 | `TICKET-PRIORITY-002R3` | `developer` | CRITICAL | L | `gpt-5.6-sol` / `high` | DONE | `TICKET-PRIORITY-003R2` |
+| 11 | `TICKET-PRIORITY-003R3` | `qa_tester` | HIGH | S | `gpt-5.6-sol` / `high` | DONE | `TICKET-PRIORITY-002R3` |
+| 12 | `TICKET-PRIORITY-003R3E` | `root orchestrator` | HIGH | XS | `gpt-5.6-terra` / `high` | DONE | `TICKET-PRIORITY-003R3` |
+| 13 | `TICKET-PRIORITY-002R4` | `developer` | CRITICAL | M | `gpt-5.6-sol` / `high` | DONE | `TICKET-PRIORITY-003R3E` |
+| 14 | `TICKET-PRIORITY-002R5` | `developer` | HIGH | S | `gpt-5.6-sol` / `high` | DONE | `TICKET-PRIORITY-002R4` |
+| 15 | `TICKET-AGY1-SMOKE-20260826-R2` | `developer` | HIGH | S | `gpt-5.6-sol` / `high` | DONE | `TICKET-PRIORITY-002R5` |
+| 16 | `TICKET-AGY1-RECEIPT-SCHEMA-20260826-R1` | `developer` | HIGH | S | `gpt-5.6-sol` / `high` | DONE | `TICKET-PRIORITY-002R5` |
+| 17 | `TICKET-AGY1-RECEIPT-VALIDATOR-20260826-R1` | `developer` | HIGH | XS | `gpt-5.6-sol` / `high` | DONE | `TICKET-AGY1-RECEIPT-SCHEMA-20260826-R1` |
+| 18 | `TICKET-AGY1-DUPLICATE-JSON-20260826-R1` | `developer` | HIGH | S | `gpt-5.6-sol` / `high` | DONE | `TICKET-AGY1-SMOKE-20260826-R2` |
+| 19 | `TICKET-AGY1-RECEIPT-V2-ADOPTION-20260826-R1` | `developer` | HIGH | S | `gpt-5.6-sol` / `high` | DONE | `TICKET-AGY1-RECEIPT-SCHEMA-20260826-R1` |
+| 20 | `TICKET-AGY1-RECEIPT-V2-AGY-REQUIREMENT-20260826-R1` | `developer` | HIGH | XS | `gpt-5.6-sol` / `high` | DONE | `TICKET-AGY1-RECEIPT-SCHEMA-20260826-R1` |
+| 21 | `TICKET-PRIORITY-003R5` | `qa_tester` | HIGH | M | `gpt-5.6-sol` / `high` | DONE | combined `213`; focused `142`; sync/lock/diff passed |
+| 22 | `TICKET-AGY1-EVIDENCE-DOC-20260826-R1` | `business_analyst` | MEDIUM | XS | `gpt-5.6-terra` / `high` | DONE | None; disjoint from formal QA |
+| 23 | `TICKET-AGY1-SMOKE-20260826-R3` | `orchestrator` | HIGH | XS | `TBD — fresh decision required` | PENDING — QA + FINAL PRE-RETRY REVIEW | `TICKET-PRIORITY-003R5` + `TICKET-PRIORITY-004R5` |
+| 24 | `TICKET-PRIORITY-004R5` | `code_reviewer` | HIGH | S | `gpt-5.6-sol` / `high` | DOING (RESERVED) | `TICKET-PRIORITY-003R5` |
+
+### Scheduling Snapshot
+- `TICKET-PRIORITY-001` is complete and therefore not selectable.
+- `TICKET-PRIORITY-002` is complete: syntax compilation and scoped diff checks exited `0`; governance regression passed `11`; focused dispatcher regression passed `76` with `18` legacy execute-without-snapshot fixtures deselected; functional scheduler checks passed.
+- `TICKET-PRIORITY-003` reproduced the baseline `18` missing-snapshot fixture failures, then passed its focused regression: `python3 -m pytest -q tests/test_multiagent_ticket_scheduler.py tests/test_multiagent_prompt_command.py project/tests/test_claude_governance.py` exited `0` with `154 passed in 1.14s`; scoped diff check also exited `0`.
+- `TICKET-PRIORITY-002R` is complete. Its evidence is limited to `scripts/multiagent_prompt_command.py`, `scripts/multiagent_ticket_scheduler.py`, `.claude/hooks/adaptive_dispatch_guard.py`, and `.claude/hooks/orchestrator_only_guard.py`; `py_compile` and scoped diff checks exited `0`, focused pytest passed `106` in `1.13s`, and the five-review-findings plus shell-indirection reproductions were `OK`.
+- The remediation records atomic local-temp claim behavior. Stale or ambiguous claims fail closed; this behavior is included in the completed independent QA evidence.
+- `TICKET-PRIORITY-003R` completed independent remediation security regression QA: the combined focused pytest command over the three approved suites exited `0` with `173 passed` in `1.53s`; the scoped diff check exited `0`; all five remediation areas were covered and the Rule 11 matrix was green.
+- `TICKET-PRIORITY-002R2` is complete: the bounded source fix changed one file; the exact regression passed (`1 passed`), the claim subset passed (`31 passed, 83 deselected`), and deletion of the active locked entry is blocked from same-authorization reacquisition.
+- `TICKET-PRIORITY-003R2` completed independent QA: the exact combined three-suite command exited `0` with `185 passed in 2.01s`; scoped diff check exited `0`.
+- The prior `TICKET-PRIORITY-004` read-only review returned `NEEDS_HITL — NOT READY`; its findings were remediated in R3 and independently QA-validated. The subsequent final R3 read-only re-review failed with the three R4 findings below. Its R3 QA (`185 passed`) and R3E environment `PASS` evidence remain valid historical evidence; they do not close the new findings.
+- `TICKET-PRIORITY-002R3` is complete. This remediation edited only the dispatcher in this round; `py_compile` and scoped diff checks passed; scheduler plus Claude governance checks passed `71`; focused coverage passed `155` with `30` expected contract failures; and the eleven named direct reproductions passed: dirfd swap, durable outside-worktree derivation, independent receipt, lifecycle successful release, lifecycle failed release, write loop, unsupported platform, non-overlap concurrency, overlap, delete/reacquire, and replay.
+- The single permitted R3E root verification superseded the managed-sandbox environment boundary: sanitized result `exit 0`, status `PASS`; `outside_worktree`, `canonical_namespace`, `directory_mode_0700`, `owned_by_current_user`, `retained_dirfd`, and `repo_horo_absent` were all `true`. No claim or lock record was created and no provider was dispatched.
+- `TICKET-PRIORITY-003R3` completed independent QA: `python3 -m pytest -q tests/test_multiagent_ticket_scheduler.py tests/test_multiagent_prompt_command.py project/tests/test_claude_governance.py` exited `0` with `185 passed in 1.79s`; the scoped diff check exited `0`; only `tests/test_multiagent_prompt_command.py` changed. Lifecycle, isolated-store, and delete/reacquire coverage is green.
+- `TICKET-PRIORITY-003R3E` completed its exact, single-use root-waiver action. The waiver is preserved below as consumed and expired audit evidence. Completion releases only the final R3 read-only re-review; it does not make `TICKET-PRIORITY-005` eligible.
+- **Completed AGY and receipt-v2 remediations / R5 QA**: the source High-hardening lane passed `188` tests with three intentional obsolete-test deltas; the schema-v2 AGY conditional requirement passed; the validator dependency was isolated and locked successfully; and receipt-v2 policy/template adoption passed ecosystem sync/check, `16` focused governance tests, and the secret scan. Formal R5 QA is now complete: combined `213` and focused `142` tests passed; sync, locked dependency, and diff checks passed; no external AGY action occurred. `TICKET-PRIORITY-004R5` is the sole active fresh read-only review.
+- **Public-outcome evidence boundary**: the documentation-governance ticket is complete. Public `ExecutionOutcome` is validated in-process with elided stdout/stderr; receipt plus WorkResult plus public outcome is not independently portable/offline evidence. `portable=True` still needs separately retained trusted exact raw stdout, and no approved private retention channel exists. Never restore or log raw streams. This is a Medium residual; a future encrypted sidecar requires separate scope/HITL and is not implemented. Successful AGY language is limited to `validated in-process only`.
+
+### TICKET-PRIORITY-001 | Governance and Active Planning | [STATUS: DONE]
+**Severity**: CRITICAL
+**Work Effort**: XL
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `xhigh`
+**Depends On**: None
+**Blocks**: `TICKET-PRIORITY-002`
+**Ownership**: `PROJECT_TASKS.md`, `plans/plan.md`, `.agents/rules/11-orchestrator-subagent-delegation.md`, `.agents/skills/orchestrator-delegation/SKILL.md`, `.agents/AGENTS.md`, `.claude/rules/orchestrator-subagents.md`, `.antigravity/skills/orchestrator-delegation/SKILL.md`
+
+#### Objective, Evidence, and Stop Condition
+- Define Rule 11 as the sole policy authority and mirror eligibility, comparator, tie, override, non-preemption, and effort-separation semantics.
+- Preserve historical evidence and mark old `Priority`-only scheduling text superseded.
+- Evidence: `python3 scripts/sync_ai_agent_ecosystem.py --sync` and then `--check` both returned `[OK]` on 2026-08-25; generated Codex files were not edited manually.
+- Stop `DONE` after owned governance files and active planning artifacts are synchronized; do not implement enforcement code in this ticket.
+
+### TICKET-PRIORITY-002 | Hook and Dispatcher Enforcement | [STATUS: DONE]
+**Severity**: CRITICAL
+**Work Effort**: L
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-PRIORITY-001`
+**Blocks**: `TICKET-PRIORITY-003`
+**Ownership Reserved**: developer lane owns only the scheduler/dispatcher and hook files explicitly assigned by the root; this decision record does not authorize governance-file edits by that lane
+
+#### Objective, Acceptance, and Stop Condition
+- Enforce filter-before-sort using Rule 11's total-order key immediately before executable dispatch; reserve ownership and recompute for parallel selection.
+- Fail closed on invalid/missing Severity or Work Effort, duplicate Ticket ID, unmet dependencies, ownership conflict, quota/HITL failure, explicit blocker, or invalid Rule 18 decision.
+- Keep Work Effort independent from model/provider/reasoning-effort routing and do not preempt `DOING` work.
+- Fresh non-secret quota validation recorded band `healthy` for selected alias `codex1`, above the broad-work threshold. Executable decision: [`decision_priority_002.json`](project/tests/artifacts/priority_scheduling/decision_priority_002.json) (policy `2026-08-25.2`).
+- Completion evidence: syntax compilation and scoped diff checks exited `0`; governance regression passed `11`; focused dispatcher regression passed `76`, with `18` legacy execute-without-snapshot fixtures deselected; functional scheduler checks passed.
+- Residual risk: cross-process persistent reservation storage/locking is not yet present. This is retained for independent QA and read-only review; it is not a rollback condition for the completed implementation ticket.
+- Stop condition met: targeted implementation evidence is recorded. Return to `BLOCKED` only if later review establishes an invalid decision, quota/HITL failure, ownership conflict, or another failed pre-execution gate.
+
+### TICKET-PRIORITY-003 | Independent Scheduling QA | [STATUS: DONE]
+**Severity**: HIGH
+**Work Effort**: M
+**Model / Reasoning Effort**: `gpt-5.6-terra` / `high`
+**Depends On**: `TICKET-PRIORITY-002`
+**Blocks**: `TICKET-PRIORITY-004`
+**Ownership Reserved**: focused scheduler, dispatcher, and hook tests only
+
+#### Objective, Acceptance, and Stop Condition
+- Test every severity pair, every Work Effort pair, exact Ticket ID ties, empty eligible sets, recomputation after ownership reservation, and non-preemption.
+- Test each override independently and in combination; verify lower-severity eligible work can run while higher-severity work is ineligible.
+- Prove model reasoning effort cannot change order and invalid metadata fails before subprocess creation.
+- Executable QA decision: [`decision_priority_003.json`](project/tests/artifacts/priority_scheduling/decision_priority_003.json) (schema v1; policy `2026-08-25.2`; non-secret quota band `healthy`; mutation mode).
+- Work Effort `M` remains the delivery-size scheduling input. Reasoning effort `high` is a separate runtime-quality setting for independent QA and cannot change scheduling order.
+- Include the `18` legacy execute-without-snapshot fixtures previously deselected from focused dispatcher regression. Independently assess the residual lack of a cross-process persistent reservation store/lock.
+- Completion evidence: baseline `18` missing-snapshot fixture failures were reproduced. `python3 -m pytest -q tests/test_multiagent_ticket_scheduler.py tests/test_multiagent_prompt_command.py project/tests/test_claude_governance.py` exited `0` with `154 passed in 1.14s`; scoped diff check exited `0`. QA changes were limited to `tests/test_multiagent_ticket_scheduler.py`, `tests/test_multiagent_prompt_command.py`, and `project/tests/test_claude_governance.py`.
+- Stop condition met: focused QA evidence and its concise baseline-failure record are complete. Return to `BLOCKED` only if later review establishes an invalid decision, quota/HITL failure, ownership conflict, or another failed pre-execution gate.
+
+### TICKET-PRIORITY-004 | Final R3 Read-Only Safety and Compatibility Re-Review | [STATUS: BLOCKED-AGY-R5-QA]
+**Severity**: HIGH
+**Work Effort**: S
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-PRIORITY-003R5` formal QA after all pre-QA dependencies freeze
+**Blocks**: `TICKET-PRIORITY-005`
+**Ownership Reserved**: reviewer lane is reserved for final R3 read-only review only; no shared-file edits, implementation, test, hook, configuration, or generated-file changes are authorized
+
+#### Objective, Acceptance, and Stop Condition
+- The prior read-only review's `NEEDS_HITL — NOT READY` findings are historical evidence. The final R3 re-review was executed and failed: a crashed active-record ownership scan never evaluates liveness, age, or a per-claim lock and can permanently block fresh overlapping authorization; durable claim data persists raw PII in `ownership_resources`; and receipt validation is host/user-state dependent rather than portable archival evidence.
+- Executable review decision: [`decision_priority_004.json`](project/tests/artifacts/priority_scheduling/decision_priority_004.json) (schema v1; policy `2026-08-25.2`; non-secret quota band `healthy`; read-only mode).
+- Work Effort `S` remains the delivery-size scheduling input. Reasoning effort `high` is a separate runtime-quality setting for safety and compatibility review and cannot change scheduling order.
+- **R3 prerequisite evidence retained**: independent QA over the exact three suites exited `0` with `185 passed in 1.79s`; the single-use root environment verification returned sanitized `exit 0`, status `PASS`, with all required environment assertions `true`. No claim or lock record was created and no provider was dispatched.
+- R4 now meets its bounded acceptance evidence: `py_compile` and scoped diff checks passed; permanent R4 coverage passed `6`; scheduler plus Claude checks passed `71`; prompt-command plus R4 coverage passed `119` with one intentional legacy assertion delta. The frozen reviewer architecture check found no Critical or High finding.
+- R5 source is frozen: secure temporary recovery and a typed non-PII diagnostic are implemented; `py_compile` and scoped diff passed, R4 coverage passed `6`, combined coverage passed `190` with one known intentional legacy `ownership_sha256` assertion, and direct temporary recovery passed. No unresolved Critical or High pre-QA finding remains.
+- The review is `BLOCKED-AGY-R5-QA`. AGY native-protocol and all pre-QA remediation are frozen; the combined independent formal QA is now active. The sanitized-v1 raw-historical-receipt limitation remains a Medium compatibility/audit boundary; it does not make `TICKET-PRIORITY-005` eligible.
+- Stop `DONE` only after AGY remediation, independent formal QA, and a fresh evidence-backed read-only terminal verdict. This documentation handoff records status only and does not execute remediation, QA, or review.
+
+### TICKET-PRIORITY-002R4 | Fourth Safety Re-Review Remediation | [STATUS: DONE]
+**Severity**: CRITICAL
+**Work Effort**: M
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-PRIORITY-003R3E`
+**Blocks**: `TICKET-PRIORITY-004`
+**Ownership Reserved**: developer lane owns only the exact R4 source remediation and local validation assigned after implementation handoff. This governance record owns no source, test, hook, configuration, generated-file, external, or PII action.
+
+#### Objective, Acceptance, and Stop Condition
+- **Exact session-approved R4 scope**: remediate only the failed R3 review findings: (1) safely terminalize crashed active ownership records using liveness, age, and per-claim-lock checks before a fresh overlapping authorization may proceed, while exact replay remains blocked; (2) replace durable raw-PII `ownership_resources` with non-PII conflict tokens; and (3) make receipt validation portable archival evidence by embedding sanitized immutable proof rather than depending on host or user state.
+- Decision artifact: [`decision_priority_002r4.json`](project/tests/artifacts/priority_scheduling/decision_priority_002r4.json) (schema v1; policy `2026-08-25.2`; phase `implementation`; mutation mode; non-secret quota band `healthy`; `hitl_approved: true`). Session approval is recorded without approver identity.
+- **Explicit exclusions**: no unrelated remediation or refactor; no source/test/hook/configuration/generated-file action by this documentation lane; no deploy, publish, push, credentials, secrets, account, external, or PII action. The developer handoff must preserve the stated non-PII boundary.
+- **Completion evidence**: `py_compile` and scoped diff checks passed; permanent R4 coverage passed `6`; scheduler plus Claude checks passed `71`; prompt-command plus R4 coverage passed `119` with one intentional legacy assertion delta. The frozen reviewer architecture check found no Critical or High findings.
+- **Compatibility/audit boundary**: sanitized v1 migration preserves replay prevention and digest validation, but raw historical receipt revalidation is unsupported because durable PII is intentionally not retained. This is a Medium boundary, not a release approval.
+- Stop condition met for R4 implementation. The fixed migration temporary residue that can block future migration (Medium) and typed legacy diagnostic (Low/Medium) are reserved to R5; do not release formal QA, `TICKET-PRIORITY-004`, or `TICKET-PRIORITY-005`.
+
+### TICKET-PRIORITY-002R5 | Sanitized Migration Residue Remediation | [STATUS: DONE]
+**Severity**: HIGH
+**Work Effort**: S
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-PRIORITY-002R4`
+**Blocks**: `TICKET-AGY1-SMOKE-20260826-R2`
+**Ownership Reserved**: `scripts/multiagent_prompt_command.py` only. One developer editor; no test, hook, configuration, generated-file, deployment, push, credential, secret, account, external, or raw-PII action.
+
+#### Objective, Acceptance, and Stop Condition
+- Resolve only the fixed sanitized-v1 migration temporary residue that can block a later migration, and make the retained legacy diagnostic typed and actionable. Preserve replay prevention and digest validation; do not add durable raw PII or claim raw historical receipt revalidation support.
+- Decision artifact: [`decision_priority_002r5.json`](project/tests/artifacts/priority_scheduling/decision_priority_002r5.json) (schema v1; policy `2026-08-25.2`; phase `implementation`; mutation mode; non-secret quota band `healthy`; `codex1` / `gpt-5.6-sol` / `high`; `hitl_approved: true`). Session approval is recorded without approver identity.
+- **Completion evidence**: source API is frozen; `py_compile` and scoped diff checks passed; R4 coverage passed `6`; combined coverage passed `190` with one known intentional legacy `ownership_sha256` assertion; direct temporary recovery passed. Secure temporary recovery and a typed non-PII diagnostic are implemented. No unresolved Critical or High finding remains before QA.
+- Stop condition met for R5 source remediation. The same dispatcher source is now reserved by the bounded AGY native-protocol remediation. Formal QA cannot start until that lane freezes; this ticket does not release `TICKET-PRIORITY-004` or `TICKET-PRIORITY-005`.
+
+### TICKET-AGY1-SMOKE-20260826-R2 | AGY Native-Protocol Remediation | [STATUS: DONE]
+**Severity**: HIGH
+**Work Effort**: S
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-PRIORITY-002R5`
+**Blocks**: `TICKET-PRIORITY-003R5`, `TICKET-PRIORITY-004`, and `TICKET-PRIORITY-005`
+**Ownership Reserved**: `scripts/multiagent_prompt_command.py` only. One developer editor; no test, hook, configuration, generated-file, deployment, push, credential, secret, account, external retry, or raw-PII action.
+
+#### Objective, Acceptance, and Stop Condition
+- Correct only the HIGH availability/integration mismatch: align the outbound AGY user-event envelope with the installed AGY `1.1.20` native message shape and align terminal parsing with its native event/result nesting. The existing synthetic test dialect is not proof of the native protocol. Receipt-schema drift is expressly out of scope for this ticket.
+- Decision artifact: [`decision_agy1_smoke_20260826_r2.json`](project/tests/artifacts/priority_scheduling/decision_agy1_smoke_20260826_r2.json) (schema v1; policy `2026-08-25.2`; phase `implementation`; mutation mode; non-secret quota band `healthy`; `codex1` / `gpt-5.6-sol` / `high`; `hitl_approved: true`). Session approval is recorded without approver identity.
+- No external retry: the initial read-only smoke had a successful dry run, one ownership-conflict preflight without a child, and one fail-closed invalid-contract/terminal-shape child result. It produced no valid receipt, provider-execution proof, or quota proof, and no repository change.
+- **Completion evidence**: source is frozen; `py_compile` and scoped diff passed; native parser plus fake-execute reproduction passed; R4 plus scheduler plus governance coverage passed `77`; prompt plus R4 coverage passed `118` with two expected legacy failures (old AGY dialect and old `ownership_sha256`).
+- Stop condition met. The later pre-QA parser-hardening ticket has separate source ownership; do not broaden into receipt-schema drift or invoke another external child.
+
+### TICKET-AGY1-RECEIPT-SCHEMA-20260826-R1 | Receipt-v2 Contract Remediation | [STATUS: DONE]
+**Severity**: HIGH
+**Work Effort**: S
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-PRIORITY-002R5`
+**Blocks**: `TICKET-PRIORITY-003R5`, `TICKET-PRIORITY-004`, and `TICKET-PRIORITY-005`
+**Ownership Reserved**: new receipt-v2 schema artifact only. Receipt-v1 remains immutable; no dispatcher, docs, tests, hooks, configuration, generated-file, deployment, push, credential, secret, account, external, or raw-PII action.
+
+#### Objective, Acceptance, and Stop Condition
+- Resolve the HIGH contract/evidence defect: receipt-v1 uses `additionalProperties: false` but omits `dispatch_claim_key`, `dispatch_claim_sha256`, `claim_proof`, `claim_proof_sha256`, `claim_proof_scope`, and `scheduling_snapshot_sha256`, so no current receipt can satisfy both code and schema. The v2 contract must model those fields and preserve their distinct semantics.
+- Do not silently change the receipt-v1 identity. In particular, distinguish the embedded ClaimProof digest from the persisted-record digest; previous receipts used a different meaning for one of these values. Define explicit v2 meaning and migration rather than reinterpreting historical v1 receipts.
+- Decision artifact: [`decision_agy1_receipt_schema_20260826_r1.json`](project/tests/artifacts/priority_scheduling/decision_agy1_receipt_schema_20260826_r1.json) (schema v1; policy `2026-08-25.2`; phase `implementation`; mutation mode; non-secret quota band `healthy`; `codex1` / `gpt-5.6-sol` / `high`; `hitl_approved: true`).
+- **Completion evidence and v2 semantics**: receipt-v2 is a new schema only; receipt-v1 and its `$id` are unchanged. JSON and Draft 2020-12 metaschema validation, runtime/ClaimProof parity, two sanitized Codex/AGY valid samples, six invalid rejections, and scoped diff passed. In v2, `dispatch_claim_sha256` and `claim_proof_sha256` are both the canonical embedded ClaimProof digest, not a persisted-record digest; historical v1 receipts retain their original meaning and are not converted or retroactively revalidated as v2. Migration may retain terminal replay state/original record digest but cannot turn an old receipt into v2; only new governed execution emits v2.
+- Stop condition met at frozen schema and local validation. Packaging, contract-adoption, and QA are separately owned later; no AGY retry is authorized.
+
+### TICKET-AGY1-RECEIPT-VALIDATOR-20260826-R1 | Receipt-v2 Validator Packaging | [STATUS: DONE]
+**Severity**: HIGH
+**Work Effort**: XS
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-AGY1-RECEIPT-SCHEMA-20260826-R1`
+**Blocks**: `TICKET-PRIORITY-003R5`, `TICKET-PRIORITY-004`, and `TICKET-PRIORITY-005`
+**Ownership Reserved**: `pyproject.toml`, `requirements.txt`, and `uv.lock` only. One developer editor; no source, schema, test, workflow, generated-file, deployment, push, credential, secret, account, external, or raw-PII action.
+
+#### Objective, Acceptance, and Stop Condition
+- Make Draft 2020-12 validation reproducible in the repository rather than accepting an environment-only import. Add `jsonschema>=4.23,<5` consistently to the declared dependency sources and regenerate `uv.lock`; CI already derives its requirements and requires no workflow change.
+- Decision artifact: [`decision_agy1_receipt_validator_20260826_r1.json`](project/tests/artifacts/priority_scheduling/decision_agy1_receipt_validator_20260826_r1.json) (schema v1; policy `2026-08-25.2`; phase `implementation`; mutation mode; non-secret quota band `healthy`; `codex1` / `gpt-5.6-sol` / `high`; `hitl_approved: true`). Session approval is recorded without approver identity.
+- **Completion evidence**: the dependency declaration is isolated and the lock is regenerated successfully, making Draft 2020-12 validation reproducible rather than environment-only.
+- Stop condition met at frozen dependency declarations and lockfile. No source/schema/test/CI-workflow change or external retry is authorized.
+
+### TICKET-AGY1-DUPLICATE-JSON-20260826-R1 | AGY Parser and Evidence Hardening | [STATUS: DONE]
+**Severity**: HIGH
+**Work Effort**: S
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-AGY1-SMOKE-20260826-R2`
+**Blocks**: `TICKET-PRIORITY-003R5`, `TICKET-PRIORITY-004`, and `TICKET-PRIORITY-005`
+**Ownership Reserved**: `scripts/multiagent_prompt_command.py` only. One developer editor; no test, schema, hook, configuration, generated-file, deployment, push, credential, secret, account, external retry, or raw-PII action.
+
+#### Objective, Acceptance, and Stop Condition
+- Correct the smallest coherent HIGH AGY parser/evidence set: reject duplicate JSON member names rather than accepting ordinary `json.loads` last-key-wins semantics, and reject `NaN`/`Infinity` through `parse_constant`; ensure the resulting reason is content-free; redact decoded AGY prompt content as well as the encoded stdin envelope so arbitrary prompt text cannot echo in `structured_output`; sanitize before finalization, hashing, or persistence and use the exact sanitized `WorkResult` everywhere; and bind AGY `process_or_session_id` receipt validation to parsed native evidence so replacement/deletion fails. Preserve the frozen native-protocol behavior; receipt-v2 schema/adoption and tests are separate ownership.
+- Decision artifact: [`decision_agy1_duplicate_json_20260826_r1.json`](project/tests/artifacts/priority_scheduling/decision_agy1_duplicate_json_20260826_r1.json) (schema v1; policy `2026-08-25.2`; phase `implementation`; mutation mode; non-secret quota band `healthy`; `codex1` / `gpt-5.6-sol` / `high`; `hitl_approved: true`). Session approval is recorded without approver identity.
+- **Completion evidence**: source hardening is frozen and its focused evidence passed `188` tests with three intentional obsolete-test deltas. The local evidence covers strict duplicate/non-finite rejection, content-free/redacted result handling, sanitized-finalization binding, and exact AGY native process/session binding.
+- Stop condition met at source freeze. The three obsolete fixtures/assertions are QA-owned updates; no external retry is authorized.
+
+### TICKET-AGY1-RECEIPT-V2-ADOPTION-20260826-R1 | Receipt-v2 Contract Adoption | [STATUS: DONE]
+**Severity**: HIGH
+**Work Effort**: S
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-AGY1-RECEIPT-SCHEMA-20260826-R1`
+**Blocks**: `TICKET-PRIORITY-003R5`, `TICKET-PRIORITY-004`, and `TICKET-PRIORITY-005`
+**Ownership Reserved**: `.agents/config/multiagent_model_policy.yaml` and `docs/templates/MULTIAGENT_PROMPT_COMMAND.md` only. One developer editor; generated mirrors may change only through the prescribed ecosystem sync after the source files freeze. No dispatcher, schema, test, hook, deployment, push, credential, secret, account, external, or raw-PII action.
+
+#### Objective, Acceptance, and Stop Condition
+- Resolve the HIGH orphaned-contract defect: make receipt-v2 canonical for new governed receipts in policy and prompt-template contract language, while receipt-v1 remains explicitly legacy; align the timestamp contract to the required `Z` suffix. Do not alter receipt-v1 identity or alter generated files manually.
+- Decision artifact: [`decision_agy1_receipt_v2_adoption_20260826_r1.json`](project/tests/artifacts/priority_scheduling/decision_agy1_receipt_v2_adoption_20260826_r1.json) (schema v1; policy `2026-08-25.2`; phase `implementation`; mutation mode; non-secret quota band `healthy`; `codex1` / `gpt-5.6-sol` / `high`; `hitl_approved: true`). Session approval is recorded without approver identity.
+- **Completion evidence**: policy/template sources are frozen; ecosystem sync/check passed, `16` focused governance tests passed, and the secret scan passed. Receipt-v2 is canonical for new governed receipts; receipt-v1 remains explicit legacy/non-reinterpreted handling.
+- Stop condition met at prescribed synchronization evidence. Runtime schema loading and QA tests are separate ownership; no external retry is authorized.
+
+### TICKET-AGY1-RECEIPT-V2-AGY-REQUIREMENT-20260826-R1 | Receipt-v2 AGY Evidence Requirement | [STATUS: DONE]
+**Severity**: HIGH
+**Work Effort**: XS
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-AGY1-RECEIPT-SCHEMA-20260826-R1`
+**Blocks**: `TICKET-PRIORITY-003R5`, `TICKET-PRIORITY-004`, and `TICKET-PRIORITY-005`
+**Ownership Reserved**: `.agents/schemas/multiagent-dispatch-receipt-v2.schema.json` only. One developer editor; receipt-v1, dispatcher, policy, template, tests, hooks, configuration, generated files, deployment, push, credential, secret, account, external, and raw-PII actions are excluded.
+
+#### Objective, Acceptance, and Stop Condition
+- Correct only the HIGH receipt-v2 contract gaps: conditionally require `process_or_session_id` when `provider` is `agy`, retain Codex receipt compatibility, and align the timestamp contract to the required `Z` suffix. Do not mutate receipt-v1, broaden semantic migration, or hide provider-specific conditions.
+- Decision artifact: [`decision_agy1_receipt_v2_agy_requirement_20260826_r1.json`](project/tests/artifacts/priority_scheduling/decision_agy1_receipt_v2_agy_requirement_20260826_r1.json) (schema v1; policy `2026-08-25.2`; phase `implementation`; mutation mode; non-secret quota band `healthy`; `codex1` / `gpt-5.6-sol` / `high`; `hitl_approved: true`). Session approval is recorded without approver identity.
+- **Completion evidence**: the schema-v2 AGY conditional requirement passed: AGY requires `process_or_session_id`, Codex remains compatible, and the timestamp `Z` contract is enforced.
+- Stop condition met at frozen schema-v2 update and local validation. No external retry is authorized.
+
+### TICKET-PRIORITY-003R5 | R5 Combined Formal Regression QA | [STATUS: DONE]
+**Severity**: HIGH
+**Work Effort**: M
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: completed `TICKET-AGY1-SMOKE-20260826-R2`, `TICKET-AGY1-RECEIPT-SCHEMA-20260826-R1`, `TICKET-AGY1-RECEIPT-VALIDATOR-20260826-R1`, `TICKET-AGY1-DUPLICATE-JSON-20260826-R1`, `TICKET-AGY1-RECEIPT-V2-ADOPTION-20260826-R1`, and `TICKET-AGY1-RECEIPT-V2-AGY-REQUIREMENT-20260826-R1`
+**Blocks**: `TICKET-PRIORITY-004R5` and `TICKET-PRIORITY-005`
+**Ownership Reserved**: `tests/test_multiagent_prompt_command.py`, `tests/test_multiagent_prompt_command_r4.py`, and `tests/test_multiagent_receipt_schema.py` only. Dispatcher source and receipt schemas are read-only/frozen.
+
+#### Objective, Acceptance, and Stop Condition
+- Update the three obsolete fixtures/assertions, then independently validate: the official AGY envelope/native fake execute path; strict duplicate/non-finite JSON rejection; sanitation before hashing and public stdout/stderr elision; exact native process/session binding; the full R5 migration matrix; and real generated Codex plus AGY receipt-v2 Draft 2020 conformance, tamper rejection, and field parity. Receipt-v1 remains legacy coverage, not the v2 acceptance contract. No external AGY retry is part of QA.
+- Decision artifact: [`decision_priority_003r5.json`](project/tests/artifacts/priority_scheduling/decision_priority_003r5.json) (schema v1; policy `2026-08-26.1`; phase `qa`; mutation mode limited to the owned test updates; non-secret quota band `healthy`; `codex1` / `gpt-5.6-sol` / `high`; `hitl_approved: true`).
+- **Completion evidence**: combined `213` and focused `142` tests passed; ecosystem sync, locked dependency, and scoped diff checks passed. No external AGY action occurred.
+- Stop condition met. Release only `TICKET-PRIORITY-004R5` fresh read-only final review; no external AGY retry is part of QA.
+
+### TICKET-AGY1-EVIDENCE-DOC-20260826-R1 | Public Outcome Evidence Boundary | [STATUS: DONE]
+**Severity**: MEDIUM
+**Work Effort**: XS
+**Model / Reasoning Effort**: `gpt-5.6-terra` / `high`
+**Depends On**: None; explicitly disjoint from `TICKET-PRIORITY-003R5`
+**Blocks**: portable/offline evidence claims only; it does not block QA or source work
+**Ownership Reserved**: `.agents/rules/17-multi-account-agent-orchestration.md`, `.agents/skills/multi-account-agent-orchestration/SKILL.md`, and `docs/templates/MULTIAGENT_PROMPT_COMMAND.md` only. This governance lane also records its status in the owned board/plan and its decision artifact; generated mirrors change only through prescribed sync. No source, schema, policy, dependency, test, external, or raw-stream action.
+
+#### Objective, Acceptance, and Stop Condition
+- State precisely that public `ExecutionOutcome` is validated in-process and its stdout/stderr are elided; a receipt, WorkResult, and public outcome are not an independently portable/offline-verifiable evidence bundle. `portable=True` still requires separately retained trusted exact raw stdout. No approved private retention channel exists, and raw streams must never be restored, logged, or persisted.
+- Successful AGY evidence must say `validated in-process only`; it must not claim portable, offline, or receipt-only verification. Record the Medium residual and an encrypted, access-controlled raw-output sidecar only as a future, separately scoped/HITL-gated design option; do not implement it.
+- Decision artifact: [`decision_agy1_evidence_doc_20260826_r1.json`](project/tests/artifacts/priority_scheduling/decision_agy1_evidence_doc_20260826_r1.json) (schema v1; policy `2026-08-26.1`; phase `implementation`; mutation mode; non-secret quota band `healthy`; `codex1` / `gpt-5.6-terra` / `high`; `hitl_approved: true`).
+- **Completion evidence**: the rule, skill, and template contain the same boundary; ecosystem sync/check, focused governance tests, secret scan, and diff check passed. Stop condition met with no runtime, schema, policy, dependency, test, or external AGY change.
+
+### TICKET-PRIORITY-004R5 | Fresh R5 Read-Only Final Review | [STATUS: DOING (RESERVED)]
+**Severity**: HIGH
+**Work Effort**: S
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-PRIORITY-003R5`
+**Blocks**: `TICKET-AGY1-SMOKE-20260826-R3` and `TICKET-PRIORITY-005`
+**Ownership Reserved**: read-only review only; no writable ownership, implementation, test mutation, external AGY retry, generated-file edit, deployment, push, credential, secret, account, or raw-stream action.
+
+#### Objective, Acceptance, and Stop Condition
+- Independently issue a terminal safety/compatibility verdict on the frozen R5 QA/source/schema/policy/dependency/documentation evidence, including the public-outcome evidence boundary. Do not execute source or QA actions.
+- Decision artifact: [`decision_priority_004r5.json`](project/tests/artifacts/priority_scheduling/decision_priority_004r5.json) (schema v1; policy `2026-08-26.1`; phase `review`; read-only mode; non-secret quota band `healthy`; `codex1` / `gpt-5.6-sol` / `high`; `hitl_approved: true`).
+- Stop `DONE` only with an evidence-backed terminal read-only verdict. A successful verdict is necessary but not by itself sufficient for any later AGY R3 smoke: that lane must also obtain its own fresh decision/snapshot and pre-execution gates.
+
+### TICKET-AGY1-SMOKE-20260826-R3 | One-Shot Post-QA AGY Smoke | [STATUS: PENDING — QA + FINAL PRE-RETRY REVIEW]
+**Severity**: HIGH
+**Work Effort**: XS
+**Model / Reasoning Effort**: `TBD — fresh decision required after dependencies`
+**Depends On**: `TICKET-PRIORITY-003R5` formal QA and `TICKET-PRIORITY-004R5` final pre-retry read-only review
+**Blocks**: any external AGY retry only
+**Ownership Reserved**: read-only/no writable ownership. The future lane may make at most one AGY execute attempt only after its dependencies and all fresh pre-execution gates pass; it owns no source, schema, policy, dependency, test, generated, deployment, push, credential, secret, account, or raw-stream mutation.
+
+#### Objective, Acceptance, and Stop Condition
+- Do not dispatch now. After both dependencies pass, require a fresh Rule 18 `DispatchDecision`, fresh Rule 11 scheduling snapshot, quota/HITL/ownership validation, approved read-only runtime boundary, and the one-attempt cap before any execute action. No stale execution decision is created or reusable now.
+- If later authorized, record only safe outcome metadata and use successful AGY language `validated in-process only`; never claim independent portable/offline proof, and never restore or log raw streams.
+- Stop `PENDING` until all dependency and fresh-gate evidence exists. Any external AGY retry without that new decision/snapshot is prohibited.
+
+### TICKET-PRIORITY-002R3 | Third Safety Re-Review Remediation | [STATUS: DONE]
+**Severity**: CRITICAL
+**Work Effort**: L
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-PRIORITY-003R2`
+**Blocks**: `TICKET-PRIORITY-003R3`
+**Ownership Reserved**: developer lane for the exact R3 local source remediation and local validation only. Deploy, publish, push, secrets, account, external, destructive, configuration, generated-file, and PII actions are excluded; external actions remain unused and target-gated.
+
+#### Objective, Acceptance, and Stop Condition
+- **Exact R3 scope after session HITL approval**: remediate only the failed final re-review findings: (1) eliminate intermediate `.horo` symlink TOCTOU caused by secure traversal followed by pathname reopen; (2) make returned receipts verifiable after live-claim release; (3) prevent removal of the worktree-local `.horo` replay ledger through `git clean`; (4) prevent public `execute_invocation` from leaking the global lock; (5) handle partial writes rather than relying on one `os.write`; (6) provide fail-closed `fcntl`/POSIX and macOS realpath-containment compatibility; and (7) replace the global store lock behavior that prevents safe non-overlap concurrency. No unrelated refactor is authorized.
+- Decision artifact: [`decision_priority_002r3.json`](project/tests/artifacts/priority_scheduling/decision_priority_002r3.json) (schema v1; policy `2026-08-25.2`; phase `implementation`; mutation mode; non-secret quota band `healthy`; `hitl_approved: true`; status `DOING`).
+- Session HITL approval is recorded without approver identity. It authorizes only the exact R3 local remediation and local validation scope, including removal of explicitly identified obsolete code/tests if needed by the bounded workspace ticket. It does not authorize a `/root` glob deletion or broad/unrelated destructive action. External actions remain unused and may occur only with an exact target and all target-scoped safety gates.
+- Completion evidence: only the dispatcher was edited in this round. `py_compile` and scoped diff checks passed; scheduler plus Claude governance checks passed `71`; focused coverage passed `155` with `30` expected contract failures. All eleven named direct reproductions passed: dirfd swap, durable outside-worktree derivation, independent receipt, lifecycle successful release, lifecycle failed release, write loop, unsupported platform, non-overlap concurrency, overlap, delete/reacquire, and replay.
+- Residual environment boundary: managed sandbox policy blocked default macOS user-state creation, while the isolated explicit override worked. Record a later real-environment verification gate; do not treat the sandbox limitation as evidence of implementation failure.
+- Stop condition met: bounded developer remediation evidence is complete. This did not close `TICKET-PRIORITY-004`; `TICKET-PRIORITY-003R3` independently completed QA and `TICKET-PRIORITY-003R3E` verified the default environment before the later read-only re-review, which subsequently failed and opened R4.
+
+### TICKET-PRIORITY-003R3 | Third-Remediation Independent QA | [STATUS: DONE]
+**Severity**: HIGH
+**Work Effort**: S
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-PRIORITY-002R3`
+**Blocks**: `TICKET-PRIORITY-003R3E`
+**Ownership Reserved**: independent `qa_tester` lane for bounded R3 dispatcher QA only. This record authorizes no current source, test, hook, configuration, generated-file, external, or PII change.
+
+#### Objective, Acceptance, and Stop Condition
+- Independently validated the completed R3 dispatcher remediation using the isolated explicit state-location override. The exact three-suite command `python3 -m pytest -q tests/test_multiagent_ticket_scheduler.py tests/test_multiagent_prompt_command.py project/tests/test_claude_governance.py` exited `0` with `185 passed in 1.79s`; the scoped diff check exited `0`; the only QA change was `tests/test_multiagent_prompt_command.py`. Lifecycle, isolated-store, and delete/reacquire coverage is green.
+- Decision artifact: [`decision_priority_003r3.json`](project/tests/artifacts/priority_scheduling/decision_priority_003r3.json) (schema v1; policy `2026-08-25.2`; phase `qa`; mutation mode; non-secret quota band `healthy`; `hitl_approved: true`; status `DONE`). Work Effort `S` remains the delivery-size scheduling input; reasoning effort `high` is a separate runtime-quality setting.
+- The managed-sandbox block on default macOS user-state creation remains a residual environment limitation. The isolated override is valid only for QA; it does not establish default-state behavior.
+- Stop condition met: independent QA evidence is complete. It released only `TICKET-PRIORITY-003R3E`; that completed environment gate then released the later review, which subsequently failed and opened R4. R4 is now complete; R5 source remediation blocks formal QA and `TICKET-PRIORITY-004`, while `TICKET-PRIORITY-005` remains pending.
+
+### TICKET-PRIORITY-003R3E | Default macOS User-State Environment Verification | [STATUS: DONE]
+**Severity**: HIGH
+**Work Effort**: XS
+**Model / Reasoning Effort**: `gpt-5.6-terra` / `high`
+**Depends On**: `TICKET-PRIORITY-003R3`
+**Blocks**: `TICKET-PRIORITY-004` re-review
+**Owner**: `root orchestrator` completed exactly the one recorded waiver action. Delegation was not viable because the delegated `devops` attempt was sandbox-blocked and its escalation remained unapproved.
+
+#### Rule 17 Single-Use Root Waiver
+- `ROOT-WAIVER: ROOT-WAIVER-R3E-20260826` **[CONSUMED AND EXPIRED]**
+- **Approval reference / date**: session user authorization on `2026-08-26`, recorded without approver identity: “I approve all for this session include deploy, publish, push, secret/account changes หรือ destructive actions”; bounded `/root/*` improve/refactor/fix/remove was also approved. This is evidence only for the exact action below, not a standing or broad waiver.
+- **Executed one action / exact target**: root ran exactly one minimal Python verification for the current project invoking dispatcher `_secure_claim_directory` with no override. Sanitized result: `exit 0`, status `PASS`; `outside_worktree`, `canonical_namespace`, `directory_mode_0700`, `owned_by_current_user`, `retained_dirfd`, and `repo_horo_absent` were all `true`.
+- **Explicit exclusions**: no claim or lock record, provider dispatch, deletion, authentication, credential or secret access, source/test/config/generated-file change, external action, or PII handling.
+- **Stop / expiry**: the command returned the sanitized result above; the waiver was consumed by that one action and expired immediately. Any additional action requires fresh authorization.
+
+#### Objective, Acceptance, and Stop Condition
+- Verified the actual default macOS user-state claim directory derived by the dispatcher helper. This was an environment-evidence gate only; no claim or lock record was created and no provider was dispatched.
+- Decision artifact: [`decision_priority_003r3e.json`](project/tests/artifacts/priority_scheduling/decision_priority_003r3e.json) (schema v1; policy `2026-08-25.2`; phase `operations`; mutation mode; non-secret quota band `healthy`; `hitl_approved: true`; status `DOING`). Work Effort `XS` is the delivery-size scheduling input; reasoning effort `high` is a separate runtime-quality setting.
+- Acceptance met: sanitized `exit 0` / `PASS` evidence records the required environment assertions as `true`, without retaining credentials, authentication data, provider output, PII, or external execution evidence.
+- Stop condition met: completion released only the final R3 read-only `TICKET-PRIORITY-004` re-review; that review later failed and opened the reserved R4 remediation. R4 is now complete; R5 source remediation blocks formal QA and `TICKET-PRIORITY-004`, while `TICKET-PRIORITY-005` remains pending.
+
+### TICKET-PRIORITY-002R2 | Second Safety Re-Review Remediation | [STATUS: DONE]
+**Severity**: CRITICAL
+**Work Effort**: L
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-PRIORITY-003R`
+**Blocks**: `TICKET-PRIORITY-003R2`
+**Ownership Reserved**: completed `developer` lane for the bounded claim verify-to-spawn TOCTOU fix only. The approved scope remained source remediation and local tests only; deploy, push, secrets, and account changes remained excluded.
+
+#### Objective, Acceptance, and Stop Condition
+- **Exact proposed scope after approval**: remediate only the four High and two Medium findings recorded by the failed re-review: encoded decode-pipeline direct-child bypass; claim verify-to-spawn TOCTOU/deletion-reacquire; receipt binding to claim identity, completion, output, and workresult digests; durable temporary claim-store handling including parent-directory fsync; unsafe claim-reader symlink, mode, and special-file handling; and initial configuration/OSError ASCII-safe, path-safe errors.
+- Existing decision artifact: [`decision_priority_002r2.json`](project/tests/artifacts/priority_scheduling/decision_priority_002r2.json) (schema v1; policy `2026-08-25.2`; phase `implementation`; mutation mode; non-secret quota band `healthy`; `hitl_approved: true`). No new decision is required because the existing approval already covers the TOCTOU finding.
+- Existing HITL approval is recorded from the owner exactly as `อนุมัติ TICKET-PRIORITY-002R2`. It authorizes the exact scope, including claim verify-to-spawn TOCTOU/deletion-reacquire remediation, source remediation, and local tests only. Deploy, push, secrets, and account changes remain out of scope.
+- Completion evidence: the bounded source fix changed one file; the exact regression passed (`1 passed`), and the claim subset passed (`31 passed, 83 deselected`). The deleted active locked entry is blocked from same-authorization reacquisition.
+- Stop condition met: bounded remediation evidence is complete. `TICKET-PRIORITY-003R2` completed independent QA and released only the final read-only `TICKET-PRIORITY-004` re-review; `TICKET-PRIORITY-005` remains pending.
+
+### TICKET-PRIORITY-003R2 | Second-Remediation Independent QA | [STATUS: DONE]
+**Severity**: HIGH
+**Work Effort**: S
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-PRIORITY-002R2`
+**Blocks**: `TICKET-PRIORITY-004` re-review
+**Ownership Reserved**: completed independent QA lane; no remediation source, hook, configuration, or generated-file edits are authorized by this evidence record.
+
+#### Objective, Acceptance, and Stop Condition
+- Independently validate the completed second remediation, update the 16 intentional legacy-contract fixtures, and add permanent R2 regression coverage for the durable `.horo` claim protocol, cooperative-lock residual, and completed-claim/receipt persistence without reopening implementation scope.
+- Decision artifact: [`decision_priority_003r2.json`](project/tests/artifacts/priority_scheduling/decision_priority_003r2.json) (schema v1; policy `2026-08-25.2`; phase `qa`; mutation mode; non-secret quota band `healthy`; `hitl_approved: true`; historical `DOING` status).
+- Work Effort `S` is the delivery-size scheduling input. Reasoning effort `high` is a separate runtime-quality setting for independent QA and cannot change scheduling order.
+- Completion evidence: the exact combined three-suite QA command exited `0` with `185 passed in 2.01s`; scoped diff check exited `0`. The source-fix regression confirms that deleting the active locked entry blocks same-authorization reacquisition.
+- Stop condition met: independent QA closes the R2 defect path and releases only the final read-only `TICKET-PRIORITY-004` re-review. `TICKET-PRIORITY-005` remains pending until that review reaches its own terminal verdict.
+
+### TICKET-PRIORITY-002R | Safety-Review Remediation | [STATUS: DONE]
+**Severity**: CRITICAL
+**Work Effort**: M
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-PRIORITY-003`
+**Blocks**: `TICKET-PRIORITY-003R`
+**Ownership Reserved**: completed developer remediation lane; scope was source remediation and local tests only.
+
+#### Objective, Acceptance, and Stop Condition
+- Remediate all five review findings: atomic, non-replayable cross-process reservation/duplicate protection; shell redirection classification; shell-expanded direct-child coverage; prefix-overlap ownership detection; and PII redaction for receipts/results.
+- Decision artifact: [`decision_priority_002r.json`](project/tests/artifacts/priority_scheduling/decision_priority_002r.json) (schema v1; policy `2026-08-25.2`; mutation mode; non-secret quota band `healthy`; `hitl_approved: true`; status `DONE`).
+- Fresh approval record: approval was recorded on 2026-08-25 (Asia/Bangkok) after review of all five findings. It authorizes this developer lane only for source remediation and local tests; deploy, push, secrets, and account changes remain out of scope.
+- Completion evidence: only `scripts/multiagent_prompt_command.py`, `scripts/multiagent_ticket_scheduler.py`, `.claude/hooks/adaptive_dispatch_guard.py`, and `.claude/hooks/orchestrator_only_guard.py` were changed in the remediation lane. `py_compile` and scoped diff checks exited `0`; focused pytest passed `106` in `1.13s`; the five-review-findings reproductions and shell-indirection reproductions were `OK`.
+- Claim behavior: local-temp claims are atomic. Stale or ambiguous claims fail closed; that residual must be independently checked by `TICKET-PRIORITY-003R`.
+- Stop condition met for bounded implementation evidence. `TICKET-PRIORITY-003R` is complete with independent QA evidence; `TICKET-PRIORITY-004` is reserved for read-only re-review and `TICKET-PRIORITY-005` remains pending.
+
+### TICKET-PRIORITY-003R | Remediation Security Regression QA | [STATUS: DONE]
+**Severity**: HIGH
+**Work Effort**: S
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-PRIORITY-002R`
+**Blocks**: releases `TICKET-PRIORITY-004` re-review
+**Ownership Reserved**: independent `qa_tester` security-regression lane; no remediation source, hook, configuration, or generated-file edits.
+
+#### Objective, Acceptance, and Stop Condition
+- Independently validate the completed remediation against all five review findings, shell indirection, atomic local-temp claim behavior, and fail-closed stale or ambiguous claim handling without reopening implementation scope.
+- Decision artifact: [`decision_priority_003r.json`](project/tests/artifacts/priority_scheduling/decision_priority_003r.json) (schema v1; policy `2026-08-25.2`; phase `qa`; mutation mode; non-secret quota band `healthy`; `hitl_approved: true`).
+- Work Effort `S` is the delivery-size scheduling input. Reasoning effort `high` is a separate runtime-quality setting for independent remediation security QA and cannot change scheduling order.
+- Completion evidence: the combined focused pytest command over the three approved suites exited `0` with `173 passed` in `1.53s`; scoped diff check exited `0`; all five remediation areas were covered and the Rule 11 matrix was green.
+- Stop condition met: independent QA evidence releases `TICKET-PRIORITY-004` for reserved read-only re-review. `TICKET-PRIORITY-005` remains pending; this ticket did not authorize deploy, push, authentication, secret, or account actions.
+
+### TICKET-PRIORITY-005 | Final Sync and Reconciliation | [STATUS: PENDING]
+**Severity**: MEDIUM
+**Work Effort**: XS
+**Model / Reasoning Effort**: `gpt-5.6-terra` / `medium`
+**Depends On**: `TICKET-PRIORITY-004`
+**Blocks**: Sprint closure
+**Ownership**: generated ecosystem sync through prescribed script plus `PROJECT_TASKS.md` and `plans/plan.md` reconciliation
+
+#### Objective, Acceptance, and Stop Condition
+- After all legacy enforcement/governance edits, run `python3 scripts/sync_ai_agent_ecosystem.py --sync`, then `python3 scripts/sync_ai_agent_ecosystem.py --check`, focused governance tests, and `git diff --check`.
+- The preliminary sync under `TICKET-PRIORITY-001` does not close this final post-implementation checkpoint.
+- Stop `DONE` only after every upstream ticket has evidence and statuses match the repository; otherwise record the exact blocker/HITL action.
+
+### Sprint Checkpoints
+| Checkpoint | Owner | State | Required Evidence |
+|---|---|---|---|
+| `CP-PRIORITY-01` | `business_analyst` | DONE | authoritative/mirrored policy plus ecosystem sync/check `[OK]` |
+| `CP-PRIORITY-02` | `developer` | DONE | syntax and scoped diff checks exited `0`; governance regression `11` passed; dispatcher regression `76` passed with `18` legacy fixtures reserved for QA; scheduler functional checks passed |
+| `CP-PRIORITY-03` | `qa_tester` | DONE | baseline `18` missing-snapshot failures reproduced; focused regression `154 passed` in `1.14s`, exit `0`; scoped diff check exit `0` |
+| `CP-PRIORITY-04` | `code_reviewer` | BLOCKED-R3 | final re-review verdict `NEEDS_HITL — NOT READY`; blocked pending exact R3 remediation and a new independent re-review |
+| `CP-PRIORITY-04R` | `developer` | DONE | four owned remediation files; syntax and scoped diff checks exited `0`; focused pytest `106 passed` in `1.13s`; five-finding and shell-indirection reproductions `OK` |
+| `CP-PRIORITY-03R` | `qa_tester` | DONE | combined focused pytest exit `0`, `173 passed` in `1.53s`; scoped diff check exit `0`; five remediation areas covered and Rule 11 matrix green |
+| `CP-PRIORITY-04R2` | `developer` | DONE | one-file bounded source fix; exact regression `1 passed`; claim subset `31 passed, 83 deselected`; deleted active locked entry cannot be reacquired by the same authorization |
+| `CP-PRIORITY-03R2` | `qa_tester` | DONE | exact combined three-suite QA exit `0`, `185 passed in 2.01s`; scoped diff check exit `0`; deleted active-entry reacquisition is blocked |
+| `CP-PRIORITY-04R3` | `developer` | DONE | dispatcher-only change; `py_compile` and scoped diff passed; scheduler plus Claude checks `71`; focused coverage `155` with `30` expected contract failures; eleven direct reproductions passed |
+| `CP-PRIORITY-03R3` | `qa_tester` | DONE | exact three-suite QA exited `0` with `185 passed in 1.79s`; lifecycle, isolated-store, and delete/reacquire coverage green |
+| `CP-PRIORITY-04R4` | `developer` | DONE | `py_compile` and scoped diff passed; R4 `6`, scheduler plus Claude `71`, and prompt plus R4 `119` passed with one intentional legacy assertion delta; no Critical/High reviewer finding |
+| `CP-PRIORITY-04R5` | `developer` | DOING — RESERVED | one source file only; formal QA waits for source freeze; Medium migration residue and Low/Medium typed diagnostic only |
+| `CP-PRIORITY-05` | `business_analyst` | PENDING | final sync/check, diff check, status reconciliation |
+
+---
+
+## SPRINT: Zero-Cost Multi-Tier AI Provider Pipeline & Governance — 2026-08-25
+**Grill Gate Status**: APPROVED FOR PLANNING (Ref: [`plans/plan.md`](plans/plan.md))
+**Planning-to-Execution Gate**: `PLANNING_GATE: READY` (Awaiting user command to start)
+**Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)
+
+| Ticket ID | Assigned Owner | Model / Effort Floor | Task Summary | Status | Dependencies |
+|---|---|---|---|---|---|
+| `TICKET-ZERO-001` | `business_analyst` | `gpt-5.6-terra` / `medium` | Author API specs, Rule 19, Skill, and governance contracts | READY | None |
+| `TICKET-ZERO-002` | `developer` (Core AI Lane) | `gpt-5.3-codex` / `high` | Refactor AIProviderRouter with ProviderPool, CircuitBreakerState, and Free Filter | READY | `TICKET-ZERO-001` |
+| `TICKET-ZERO-003` | `developer` (Security Lane) | `gpt-5.3-codex` / `high` | Extend Rate Limiter (IP/User/Daily Budget) & Input Clamping (12k chars) | READY | `TICKET-ZERO-001` |
+| `TICKET-ZERO-004` | `developer` (Caching Lane) | `gpt-5.3-codex` / `high` | Implement Metaphysics Semantic Cache & Rust PyO3 Safe Net | READY | `TICKET-ZERO-001` |
+| `TICKET-ZERO-005` | `devops` (Admin Lane) | `gpt-5.3-codex` / `high` | Admin Dashboard Pool Health monitoring & Zero-Cost Badges | READY | `TICKET-ZERO-002` |
+| `TICKET-ZERO-006` | `qa_tester` | `gpt-5.4-mini` / `medium` | Comprehensive Zero-Cost & Fail-Closed Test Suite | READY | `TICKET-ZERO-002`..`005` |
+| `TICKET-ZERO-007` | `code_reviewer` & `business_analyst` | `gpt-5.3-codex` / `high` | Pre-deployment safety audit, secret scan (0 leaks), and ecosystem sync | READY | `TICKET-ZERO-006` |
+
+---
+
+### TICKET-ZERO-001 | `business_analyst` | [STATUS: READY]
+**Priority**: HIGH
+**Selected Route**: `gpt-5.6-terra` / `medium`
+**Depends On**: None
+**Blocks**: `TICKET-ZERO-002`, `TICKET-ZERO-003`, `TICKET-ZERO-004`
+**Owned Files**: `.agents/rules/19-zero-cost-ai-governance.md`, `.claude/rules/zero-cost-ai-governance.md`, `.agents/skills/zero-cost-ai-pipeline/SKILL.md`, `docs/specs/zero_cost_ai_spec.md`
+
+#### Objective and Ownership
+- Author and verify OpenAPI schema contracts for ProviderPool, Health Status, and Circuit Breaker states.
+- Ensure Rule 19 and `zero-cost-ai-pipeline` skill adhere to Rule 14 size boundaries.
+
+---
+
+### TICKET-ZERO-002 | `developer` (Core AI Lane) | [STATUS: READY]
+**Priority**: CRITICAL
+**Selected Route**: `gpt-5.3-codex` / `high`
+**Depends On**: `TICKET-ZERO-001`
+**Blocks**: `TICKET-ZERO-005`, `TICKET-ZERO-006`
+**Owned Files**: `project/core/ai_provider_router.py`, `project/api_router.py`
+
+#### Objective and Ownership
+- Implement `ProviderPool` separating key auth redundancy from multi-project quota pools.
+- Attach `CircuitBreakerState` with 60s cooldown for 0ms instant 429 bypass.
+- Enforce `BillingMode.FREE` fail-closed filter when `AI_ZERO_COST_ONLY=true`.
+
+---
+
+### TICKET-ZERO-003 | `developer` (Security Lane) | [STATUS: READY]
+**Priority**: HIGH
+**Selected Route**: `gpt-5.3-codex` / `high`
+**Depends On**: `TICKET-ZERO-001`
+**Blocks**: `TICKET-ZERO-006`
+**Owned Files**: `project/core/rate_limiter.py`
+
+#### Objective and Ownership
+- Implement multi-tier rate limiting: IP (10 RPM), User (20 RPM), Daily Budget (40-150 req/day).
+- Enforce input character clamping (<= 12,000 chars) and max output tokens (<= 1,200).
+
+---
+
+### TICKET-ZERO-004 | `developer` (Caching Lane) | [STATUS: READY]
+**Priority**: HIGH
+**Selected Route**: `gpt-5.3-codex` / `high`
+**Depends On**: `TICKET-ZERO-001`
+**Blocks**: `TICKET-ZERO-006`
+**Owned Files**: `project/core/semantic_cache.py`
+
+#### Objective and Ownership
+- Implement SHA-256 canonical query normalization for astrological prompts.
+- Integrate Rust PyO3 engine (<1ms) fallback safe net on full free LLM capacity exhaustion.
+
+---
+
+### TICKET-ZERO-005 | `devops` (Admin Lane) | [STATUS: READY]
+**Priority**: MEDIUM
+**Selected Route**: `gpt-5.3-codex` / `high`
+**Depends On**: `TICKET-ZERO-002`
+**Blocks**: `TICKET-ZERO-006`
+**Owned Files**: `project/admin_router.py`, `project/static/admin.html`
+
+#### Objective and Ownership
+- Expose `/api/admin/provider-pools` endpoint with live health status.
+- Render visual indicators and `🔒 BLOCKED BY ZERO-COST POLICY` badges in admin UI.
+
+---
+
+### TICKET-ZERO-006 | `qa_tester` | [STATUS: READY]
+**Priority**: HIGH
+**Selected Route**: `gpt-5.4-mini` / `medium`
+**Depends On**: `TICKET-ZERO-002`, `TICKET-ZERO-003`, `TICKET-ZERO-004`, `TICKET-ZERO-005`
+**Blocks**: `TICKET-ZERO-007`
+**Owned Files**: `project/tests/test_zero_cost_pipeline.py`, `project/tests/test_semantic_cache.py`
+
+#### Objective and Ownership
+- Write unit, integration, and stress tests verifying zero-cost fail-closed guarantee, circuit breakers, rate limits, and caching.
+
+---
+
+### TICKET-ZERO-007 | `code_reviewer` & `business_analyst` | [STATUS: READY]
+**Priority**: CRITICAL
+**Selected Route**: `gpt-5.3-codex` / `high`
+**Depends On**: `TICKET-ZERO-006`
+**Blocks**: Final Closure & Production Release
+**Owned Files**: `PROJECT_TASKS.md`, `plans/plan.md`
+
+#### Objective and Ownership
+- Run full pre-deployment safety audit (`python3 project/core/code_reviewer.py --review`).
+- Run parallel secret scan (0 leaks).
+- Run ecosystem sync check (`python3 scripts/sync_ai_agent_ecosystem.py --check`).
+
+---
+
+## SPRINT: Adaptive Multi-Agent Model & Effort Governance — 2026-08-25
+**Grill Gate Status**: APPROVED FOR PLANNING (Ref: [`plans/plan.md`](plans/plan.md))
+**Planning-to-Execution Gate**: `PLANNING_TO_MEDIUM_GATE: CONFIRMED` (owner confirmation received 2026-08-25)
+**Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)
+
+| Ticket ID | Assigned Owner | Model / Effort Floor | Task Summary | Status | Dependencies |
+|---|---|---|---|---|---|
+| `TICKET-ADAPT-001` | `orchestrator` | `gpt-5.6-sol` / `xhigh` | Inspect current routing; define rubric, solution, plan, and isolated tickets | DONE | None |
+| `TICKET-ADAPT-002` | Human owner / `orchestrator` | Root changes to `medium` | Confirm root orchestrator reasoning effort is `medium` | DONE | `TICKET-ADAPT-001` |
+| `TICKET-ADAPT-003` | `business_analyst` | `gpt-5.6-terra` / `high` | Dedicated rules, skill, mirrors, orchestrator contract, and governance docs | DONE | `TICKET-ADAPT-002` |
+| `TICKET-ADAPT-004` | `developer` | `gpt-5.6-sol` / `high` | Versioned policy/catalog/schema and fail-closed PromptCommand enforcement | DONE | `TICKET-ADAPT-003` |
+| `TICKET-ADAPT-005` | `developer` (security lane) | `gpt-5.6-sol` / `high` | Extend existing orchestrator-only hook and registration | DONE | `TICKET-ADAPT-004` |
+| `TICKET-ADAPT-006` | `qa_tester` | `gpt-5.6-terra` / `high` | Independent policy, dispatcher, hook, and governance regression tests | DONE | `TICKET-ADAPT-005` |
+| `TICKET-ADAPT-007` | `business_analyst` editor; `code_reviewer` read-only | `terra/medium` sync; `sol/high` review | Ecosystem sync, skill eval evidence, secret scan, compatibility and bypass review | DONE | `TICKET-ADAPT-006` |
+
+---
+
+### TICKET-ADAPT-001 | `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL
+**Selected Route**: `gpt-5.6-sol` / `xhigh`
+**Depends On**: None
+**Blocks**: `TICKET-ADAPT-002`
+
+#### Objective and Ownership
+- Read-only audit of model metadata, routing config, PromptCommand, hooks, rules, skills, schemas, templates, and tests.
+- Own only solution architecture, the GRILL REPORT, and ticket decomposition.
+
+#### Evidence / Acceptance Criteria
+- [x] Static role defaults distinguished from effective runtime proof.
+- [x] Judgment-based classification separated from deterministic enforcement.
+- [x] Five-dimension rank rubric and model/effort floors recorded.
+- [x] Planning-to-medium HITL gate retained independently from child routing.
+- [x] File ownership is isolated for every implementation lane.
+
+---
+
+### TICKET-ADAPT-002 | Human owner / `orchestrator` | [STATUS: DONE]
+**Priority**: CRITICAL
+**Depends On**: `TICKET-ADAPT-001`
+**Blocks**: `TICKET-ADAPT-003` through `TICKET-ADAPT-007`
+
+#### Required Owner Action
+1. Change the root orchestrator reasoning effort from `xhigh` to `medium` in the active Codex session/runtime.
+2. Provide fresh confirmation in this conversation.
+
+#### Acceptance Criteria
+- [x] Owner explicitly confirmed the active root orchestrator effort is `medium` on 2026-08-25.
+- [x] Confirmation is fresh and occurs after solution, plan, and tickets were completed.
+- [x] No repository setting, historical approval, or ticket status is treated as runtime proof.
+
+#### Stop Condition
+- Confirmation satisfied the planning-to-medium gate; child selection remains independently governed by Rule 18.
+
+---
+
+### TICKET-ADAPT-003 | `business_analyst` | [STATUS: DONE]
+**Priority**: HIGH
+**Recommended Route**: `gpt-5.6-terra` / `high`
+**Depends On**: `TICKET-ADAPT-002`
+**Blocks**: `TICKET-ADAPT-004`
+
+#### File Ownership
+- New `.agents/rules/18-adaptive-model-effort-routing.md`.
+- New `.agents/skills/adaptive-model-effort-routing/SKILL.md` and its `evals/evals.json`.
+- Narrow cross-references in `.agents/rules/11-orchestrator-subagent-delegation.md`, `.agents/rules/17-multi-account-agent-orchestration.md`, `.agents/skills/orchestrator-delegation/SKILL.md`, and `.agents/skills/multi-account-agent-orchestration/SKILL.md`.
+- `.claude/rules/orchestrator-subagents.md`, `.claude/rules/multi-account-agent-orchestration.md`, and a new scoped Claude adaptive-routing rule.
+- `.agents/AGENTS.md`, `docs/templates/MULTIAGENT_PROMPT_COMMAND.md`, and the authoritative orchestrator agent definition.
+
+#### Boundaries
+- Do not edit dispatcher/hook/test code or generated `.codex/agents/*.toml`.
+- Keep specialist artifact size limits and existing dirty/user changes intact.
+
+#### Acceptance Criteria
+- [x] Rule/skill define required decision fields, rank rubric, floor matrix, quota behavior, override rules, and planning-to-medium gate.
+- [x] Skill has 3 realistic eval prompts with expected routing outcomes.
+- [x] Orchestrator contract requires an explicit `DispatchDecision` before every executable lane.
+- [x] Static model metadata is documented as a fallback hint, not runtime proof.
+
+#### Evidence / Handoff
+- Added Rule 18, the specialist skill/evals, required cross-references, scoped Claude mirror, catalog entry, prompt-template handoff, and static orchestrator default update.
+- `git diff --check` passed. Ecosystem synchronization, dispatcher/schema enforcement, hook changes, and focused regression remain owned by `TICKET-ADAPT-004` through `TICKET-ADAPT-007`.
+
+---
+
+### TICKET-ADAPT-004 | `developer` | [STATUS: DONE]
+**Priority**: CRITICAL
+**Recommended Route**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-ADAPT-003`
+**Blocks**: `TICKET-ADAPT-005`
+
+#### File Ownership
+- `scripts/multiagent_prompt_command.py`.
+- `.agents/config/multiagent_prompt_command.example.yaml`.
+- New versioned `.agents/config/multiagent_model_policy.yaml`.
+- New decision/receipt JSON schema under `.agents/schemas/` and narrowly required schema helpers only.
+
+#### Detailed Instructions
+1. Model a versioned lane assessment and `DispatchDecision` containing ticket/phase, five dimension ranks, quota band, alias, model, effort, rationale, policy version, and medium-gate state.
+2. Compute the minimum profile from the maximum rank; validate provider/model/effort support and hard HITL blockers.
+3. Revalidate inside `execute_invocation` so direct Python callers cannot bypass the gate.
+4. Bind the policy version and decision digest into dry-run output, dispatch identity, prompt evidence, and execution receipt.
+5. Allow legacy v1 dry-run with a warning; reject legacy execution with an actionable migration error.
+
+#### Acceptance Criteria
+- [x] Missing/invalid decisions fail before subprocess creation.
+- [x] CLI overrides cannot disagree with or weaken the validated decision.
+- [x] Quota can reroute only at or above the quality floor.
+- [x] Provider-specific effort restrictions are enforced.
+- [x] Child lane effort is evaluated independently from the root medium gate.
+
+---
+
+### TICKET-ADAPT-005 | `developer` (security lane) | [STATUS: DONE]
+**Priority**: CRITICAL
+**Recommended Route**: `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-ADAPT-004`
+**Blocks**: `TICKET-ADAPT-006`
+
+#### File Ownership
+- `.claude/hooks/orchestrator_only_guard.py`.
+- `.claude/settings.json` only if an installed native dispatch matcher is verified.
+- Hook-specific tests are owned by QA in `TICKET-ADAPT-006`, not this lane.
+
+#### Boundaries
+- Do not duplicate the scoring matrix in regex and do not expand the secrets/destructive-command guard.
+- Reuse the dispatcher/policy validator; keep existing waiver and `HORO_ORCHESTRATOR_ONLY=1` behavior.
+
+#### Acceptance Criteria
+- [x] Executable dispatch without a decision or confirmed medium gate is denied.
+- [x] Planning-only dry-run remains allowed.
+- [x] Native Claude matcher is added only after verification against the installed tool schema.
+- [x] Codex/native-runtime limitation is documented; dispatcher remains authoritative.
+
+---
+
+### TICKET-ADAPT-006 | `qa_tester` | [STATUS: DONE]
+**Priority**: CRITICAL
+**Recommended Route**: `gpt-5.6-terra` / `high`
+**Depends On**: `TICKET-ADAPT-005`
+**Blocks**: `TICKET-ADAPT-007`
+
+#### File Ownership
+- `tests/test_multiagent_prompt_command.py`.
+- `project/tests/test_claude_governance.py`.
+- `project/tests/test_agent_configurations.py`.
+- `project/tests/test_ai_agent_ecosystem_sync.py`.
+- New focused policy/hook test files only when needed to avoid monolithic tests.
+
+#### Minimum Test Matrix
+- [x] Missing assessment, unsupported pair, below-floor route, and mismatched CLI overrides are rejected.
+- [x] Critical risk/ambiguity, low quota, unknown quota on broad work, and unconfirmed medium gate fail closed.
+- [x] Confirmed root medium permits a valid lane; child high/xhigh remains independently selectable by its own floor.
+- [x] Legacy dry-run compatibility and legacy execution rejection are explicit.
+- [x] Decision digest/model/effort/policy version are bound to route and receipt evidence.
+- [x] Hook blocks invalid execution and allows planning dry-run.
+
+#### Evidence Expected
+- Exact focused pytest command, pass count, exit code, and concise failure evidence if blocked.
+
+---
+
+### TICKET-ADAPT-007 | `business_analyst` + `code_reviewer` | [STATUS: DONE]
+**Priority**: HIGH
+**Recommended Routes**: sync/documentation `gpt-5.6-terra` / `medium`; read-only safety review `gpt-5.6-sol` / `high`
+**Depends On**: `TICKET-ADAPT-006`
+**Blocks**: Sprint closure
+
+#### Ownership and Sequence
+1. `business_analyst` is the sole editor for generated mirrors and governance/task status through the prescribed ecosystem sync.
+2. `code_reviewer` is read-only and verifies bypass resistance, secret hygiene, model/effort support, compatibility behavior, and planning-gate evidence.
+
+#### Verification Commands
+```bash
+python3 -m pytest -q tests/test_multiagent_prompt_command.py project/tests/test_claude_governance.py project/tests/test_agent_configurations.py project/tests/test_ai_agent_ecosystem_sync.py
+python3 scripts/sync_ai_agent_ecosystem.py --sync
+python3 scripts/sync_ai_agent_ecosystem.py --check
+python3 project/core/code_reviewer.py --scan-secrets
+git diff --check
+```
+
+#### Acceptance Criteria
+- [x] All focused regression and ecosystem sync gates pass: `77 passed`.
+- [x] New/updated skill evals demonstrate correct low-, medium-, and critical-risk routing behavior.
+- [x] Secret scan reports zero leaks (1,783 files).
+- [x] Code reviewer reports no bypass that can start a child below the validated quality floor.
+- [x] Generated Codex files were synced, never hand-edited.
+
+#### Closure Evidence
+- Legacy local static metadata was migrated to its existing immutable source provenance without changing the source commit. Full repository suite: `904 passed, 9 skipped`.
+
+---
+
 ## 🚀 SPRINT: Shell Environment & Multi-Account Codex Standalone Remediation — 2026-08-25
 **Grill Gate Status**: ✅ APPROVED (Ref: [`plans/plan.md`](plans/plan.md))
 **Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)
@@ -216,7 +949,8 @@ Current sections below track active work and release gates only.
 | `TICKET-QA-PW-SMOKE-20260825` | `qa_tester` | Re-run and reconcile Vercel production smoke E2E | DONE | `G-META-006-PW` |
 | `PROMPT-GOV-001` | `business_analyst` / `orchestrator` | Govern multi-account PromptCommand routing, quota/account evidence, bounded retries, HITL escalation, and synchronized governance mirrors | DONE | `TICKET-META-008`, Rule 17 |
 | `TICKET-ORCH-ONLY-002` | `business_analyst` / `orchestrator`; aliases `codex1`, `codex2`, `agy1`, `agy2` | Enforce governance -> rules -> hooks hierarchy; keep root/current session orchestrator-only and obtain four distinct alias receipts | BLOCKED — HITL DISPATCH CONTRACT | Rule 17, current CORS/separation lanes |
-| `TICKET-ALIAS-RC2-003` | `developer` / `qa_tester` / `code_reviewer`; aliases `codex1`, `codex2`, `agy1`, `agy2`; monitored by `orchestrator` | Implement, validate, review, then redispatch four distinct lanes with Result Contract v2 | DOING — PROTOCOL IMPLEMENTATION | `TICKET-ORCH-ONLY-002`, Rule 17 |
+| `TICKET-ALIAS-RC2-003` | `developer` / `qa_tester` / `code_reviewer`; aliases `codex1`, `codex2`, `agy1`, `agy2`; monitored by `orchestrator` | Implement, validate, review, then redispatch four distinct lanes with Result Contract v2 | BLOCKED — CODEX1 ATTEMPTS EXHAUSTED | `TICKET-ORCH-ONLY-002`, Rule 17 |
+| `TICKET-ALIAS-RC2-004` | `developer` / `qa_tester` / `code_reviewer`; aliases are bounded read-only diagnostics, monitored by `orchestrator` | Content-free provider parse-reason taxonomy and one fresh `codex1` diagnostic authorization | TODO — OWNER AUTHORIZED / QUOTA UNKNOWN | `TICKET-ALIAS-RC2-003` immutable blocker, QA/retry gate, Rule 17 |
 
 ### TICKET-ORCH-ONLY-002 | Orchestrator-Only Control and Four-Alias Dispatch | [STATUS: BLOCKED — HITL DISPATCH CONTRACT]
 
@@ -270,7 +1004,7 @@ fresh Result Contract v2 protocol and explicitly did not waive the receipts.
 The authorized work continues only under `TICKET-ALIAS-RC2-003`; its retry
 counters start at attempt 1 and cannot rewrite this historical record.
 
-### TICKET-ALIAS-RC2-003 | Result Contract v2 and Four-Alias Redispatch | [STATUS: DOING — PROTOCOL IMPLEMENTATION]
+### TICKET-ALIAS-RC2-003 | Result Contract v2 and Four-Alias Redispatch | [STATUS: BLOCKED — CODEX1 ATTEMPTS EXHAUSTED]
 
 **Authorization**: owner instruction received 2026-08-25 authorizes Result
 Contract v2 and a terminal CLI workaround in delegated child lanes. There is
@@ -301,10 +1035,10 @@ not a receipt. Free-form inference and adapter fallback require fresh HITL.
 
 | Alias | Fresh v2 lane | Ownership | v2 attempt | Status |
 |---|---|---|---|---|
-| `codex1` | Vercel gateway CORS independent review | Read-only | Starts at 1 after implementation/QA/review | PENDING REDISPATCH |
-| `codex2` | HF/FastAPI CORS independent review | Read-only | Starts at 1 after implementation/QA/review | PENDING REDISPATCH |
-| `agy1` | Static frontend/HF Docker separation review | Read-only | Starts at 1 after implementation/QA/review | PENDING REDISPATCH |
-| `agy2` | Cross-lane release-gate and CORS evidence review | Read-only | Starts at 1 after implementation/QA/review | PENDING REDISPATCH |
+| `codex1` | Vercel gateway CORS independent review | Read-only | 3 executed | BLOCKED — `invalid-child-result-contract`; no valid receipt; retry limit exhausted |
+| `codex2` | HF/FastAPI CORS independent review | Read-only | 3 not invoked | NOT DISPATCHED — held after `codex1` exhaustion |
+| `agy1` | Static frontend/HF Docker separation review | Read-only | 3 not invoked | NOT DISPATCHED — held after `codex1` exhaustion |
+| `agy2` | Cross-lane release-gate and CORS evidence review | Read-only | 3 not invoked | NOT DISPATCHED — held after `codex1` exhaustion |
 
 **Checklist**:
 
@@ -316,11 +1050,23 @@ not a receipt. Free-form inference and adapter fallback require fresh HITL.
 - [ ] Developer/DevOps child supplies an approved runtime config path and an explicit read-only role or validated sandbox override; example config and default Codex `workspace-write` are rejected.
 - [ ] QA child validates valid, malformed, ambiguous, nonzero-exit, identity/digest mismatch, and secret-redaction cases.
 - [ ] Code reviewer verifies fail-closed behavior, retry/HITL boundaries, root-only separation, and backward compatibility.
-- [ ] Child execution lanes invoke `codex1`, `codex2`, `agy1`, and `agy2` through the terminal CLI and return four v2 receipts.
-- [ ] Orchestrator confirms four distinct valid receipts and decides the release gate.
+- [x] Focused QA completed with `87 passed`.
+- [x] `codex1` attempt 3 was executed through its read-only lane and failed closed as `invalid-child-result-contract`; it produced no valid receipt.
+- [x] Hold `codex2`, `agy1`, and `agy2` attempt 3: none was invoked after the terminal `codex1` failure.
+- [ ] Child execution lanes return four distinct schema-valid v2 receipts. BLOCKED: `codex1` has exhausted its three attempts.
+- [ ] Orchestrator confirms four distinct valid receipts and decides the release gate. BLOCKED pending a fresh owner decision and new ticket.
+
+**Checkpoint evidence (2026-08-25)**: focused QA passed (`87 passed`). The
+`codex1` read-only lane executed attempt 3 and failed closed with
+`invalid-child-result-contract`; no valid receipt exists. `codex2`, `agy1`, and
+`agy2` attempt 3 were not invoked. Historical attempts and release evidence are
+preserved above and are not relabeled by this checkpoint.
 
 **Success / stop**: close only when implementation, QA, and review are green and
-all four fresh alias lanes provide distinct schema-valid v2 receipts. Stop on
+all four fresh alias lanes provide distinct schema-valid v2 receipts. This ticket
+is now `BLOCKED`: `codex1` has exhausted its three-attempt limit, so no further
+alias dispatch may occur under `TICKET-ALIAS-RC2-003`. A fresh owner decision
+and new ticket are required before any additional alias dispatch. Stop on
 ownership conflict, authentication/permission/billing, secret exposure,
 adapter ambiguity, invalid receipt, or any root implementation/CLI execution.
 
@@ -337,6 +1083,62 @@ generator reported 19 Codex agent definitions, 0 updated, and 0 obsolete. No
 generated Codex agent file was manually edited or changed by this governance
 update. Existing trailing whitespace in unrelated earlier board additions is
 preserved and is not v2 evidence.
+
+### TICKET-ALIAS-RC2-004 | Content-Free Parse-Reason Diagnostic Follow-On | [STATUS: TODO — OWNER AUTHORIZED / QUOTA UNKNOWN]
+
+**Fresh authorization checkpoint (2026-08-25)**: after the exhausted
+`TICKET-ALIAS-RC2-003` `codex1` attempts, the owner gave fresh `approve all`
+authorization for this new, bounded follow-on ticket only. `RC2-003` remains
+immutable `BLOCKED` history: this ticket neither reopens it nor changes any
+prior counter, result, receipt, or release-gate state.
+
+**Scheduling metadata**: **Severity: CRITICAL**. **Work Effort: S**. Quota is
+`unknown`; this is a bounded-lane-only authorization, not authority for broad
+dispatch. Stop immediately if the runtime reports less than 10% remaining.
+
+**Scope grill**:
+
+- **IN**: content-free `provider_parse_reason` taxonomy and its focused tests;
+  one fresh, explicitly recorded `codex1` read-only diagnostic attempt under
+  this ticket; safe terminal classification and retry/HITL documentation.
+- **OUT**: raw JSONL or provider text; receipt/session/process identifiers;
+  artifact or runtime paths; secrets or credentials; application/release
+  changes; deployment, publishing, staging, commits, pushes, or other git
+  mutation. Do not retain any of those values in the board, plan, tests, or
+  diagnostic evidence.
+- **Dependencies / assumptions**: `RC2-003` remains blocked; the taxonomy is
+  implemented and focused-tested by separately owned developer/QA lanes; the
+  read-only isolation gate and result-contract validation must pass before an
+  alias is invoked; quota is still `unknown` and may not be inferred.
+- **Success**: a content-free, typed parse-reason classification is covered by
+  focused tests and one new `codex1` read-only attempt returns only an approved
+  terminal status. A valid result may permit separately recorded, bounded
+  `codex2`, `agy1`, then `agy2` attempts; it does not authorize them by itself.
+- **Stop**: runtime quota below 10%, unknown/failed read-only isolation,
+  invalid or ambiguous result contract, permission/authentication/billing
+  issue, ownership conflict, secret exposure, or any attempt to retain
+  prohibited content. Return `NEEDS_HITL` where the next action is not already
+  explicitly authorized below.
+
+**Dependency and retry sequence**:
+
+| Order | Owner / alias | Authorized action | Gate / next state |
+|---|---|---|---|
+| 1 | `developer` / `qa_tester` | Implement and test only the content-free `provider_parse_reason` taxonomy. | Focused QA must pass; no provider payload retention. |
+| 2 | `code_reviewer` | Read-only review of taxonomy, test coverage, redaction boundary, and retry gate. | Must accept fail-closed boundary before any alias attempt. |
+| 3 | `codex1` | Exactly one fresh, read-only diagnostic attempt, recorded as `RC2-004/codex1/attempt-1`. | If invalid/ambiguous/blocked, stop this ticket and return `NEEDS_HITL`; no automatic retry. |
+| 4 | `codex2` | One separately recorded, bounded read-only attempt only after a valid `codex1` result and an explicit recorded attempt authorization. | Otherwise not dispatched. |
+| 5 | `agy1` | One separately recorded, bounded read-only attempt only after the preceding valid gate and explicit recorded attempt authorization. | Otherwise not dispatched. |
+| 6 | `agy2` | One separately recorded, bounded read-only attempt only after the preceding valid gate and explicit recorded attempt authorization. | Otherwise not dispatched. |
+
+**Acceptance checklist**:
+
+- [ ] Taxonomy uses only approved, content-free `provider_parse_reason` values; no raw output, identifiers, paths, or secrets are persisted.
+- [ ] Focused taxonomy tests pass under their separately owned QA lane.
+- [ ] Independent review confirms read-only isolation, fail-closed parsing, and the no-retention boundary.
+- [ ] Exactly one fresh `codex1` diagnostic attempt is recorded under `RC2-004`; it does not alter `RC2-003` history.
+- [ ] `codex2`, `agy1`, and `agy2` remain undispatched unless each prerequisite valid result and separately recorded attempt authorization exists.
+- [ ] No deploy/publish/git mutation occurred; only documentation/scheduling evidence and separately owned taxonomy/test work are permitted.
 
 ### 🎫 PROMPT-GOV-001 | `business_analyst` / `orchestrator` | [STATUS: DONE]
 
@@ -1078,3 +1880,124 @@ python3 scripts/sync_ai_agent_ecosystem.py --check
 - Full-suite safety review: `READY_FOR_PROD`; secret scan PASS with `0` leaks. Test-generated fixture mutations were restored before this evidence update.
 - Final visual evidence review: the light PASS and explicit-dark TENSION post-fix screenshots were inspected and remain readable across the long populated v3 result surface. The tracked `visual_layout_report.json` remains the honest pre-final `WARNING` artifact; the separate post-fix evidence JSON is the authoritative local measurement record.
 - No deployment, publish, credential, or secret mutation was performed; the authorized lockfile changes are limited to `uv.lock` and `rust_core/Cargo.lock` and are documented in the ticket above.
+
+---
+
+## 🚀 SPRINT: Pre-QA Receipt-v2 Lanes, Alias Smoke Dispatch, Formal QA & Push — 2026-08-26
+**Grill Gate Status**: ✅ APPROVED (Ref: `/plans/plan.md` — GRILL REPORT 2026-08-26T02:14:00+07:00)
+**Sprint Tracking Lead**: `orchestrator` (Antigravity / Claude Sonnet 4.6 Thinking)
+
+| Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
+|---|---|---|---|---|
+| `TICKET-ORCH-SPRINT-001` | `developer` | Execute 4 serial pre-QA lanes (validator pkg → parser hardening → v2 adoption → v2 AGY condition) | TODO | None |
+| `TICKET-ORCH-SPRINT-002` | `qa_tester` | Combined formal QA — 4-suite pytest exit 0 | TODO | `TICKET-ORCH-SPRINT-001` |
+| `TICKET-ORCH-SPRINT-003` | `devops` | `git diff --check`, secret scan, ecosystem `--sync`/`--check`, atomic commit + push | TODO | `TICKET-ORCH-SPRINT-002` |
+| `TICKET-ORCH-SPRINT-004` | `orchestrator` | HITL-gated `codex1` alias dispatch (RC2-004/attempt-1); chain to `codex2`/`agy1`/`agy2` only on valid receipt | TODO | `TICKET-ORCH-SPRINT-003` |
+
+---
+
+### 🎫 TICKET-ORCH-SPRINT-001 | `developer` | [STATUS: TODO]
+**Priority**: HIGH
+**Severity**: HIGH
+**Work Effort**: M (serial execution of 4 bounded lanes)
+**Depends On**: None
+**Blocks**: `TICKET-ORCH-SPRINT-002`
+
+#### Lane 1 — Validator Packaging (XS)
+- **Owned files**: `pyproject.toml`, `requirements.txt`, `uv.lock`
+- **Action**: Declare `jsonschema>=4.23,<5`; regenerate `uv.lock`; no CI workflow, source, schema, or test changes.
+- **Acceptance**: `py_compile` on owned files passes; `git diff --name-only HEAD -- pyproject.toml requirements.txt uv.lock` shows only those three files; scoped diff exits 0.
+
+#### Lane 2 — AGY Parser/Evidence Hardening (S)
+- **Owned files**: `scripts/multiagent_prompt_command.py` only
+- **Action**: Reject duplicate/non-finite JSON; keep failure reasons content-free; redact decoded prompt content; sanitize before finalization/hash/persistence; bind AGY process/session evidence. One sanitized `WorkResult`. No external retry.
+- **Acceptance**: `py_compile scripts/multiagent_prompt_command.py` exits 0; scoped diff shows only that file; all lane-2 targeted tests remain green.
+
+#### Lane 3 — Receipt-v2 Policy/Template Adoption (S)
+- **Owned files**: `.agents/config/multiagent_model_policy.yaml`, `docs/templates/MULTIAGENT_PROMPT_COMMAND.md`
+- **Action**: New governed receipts use canonical v2; v1 remains legacy; `Z` timestamp contract aligned; generated mirrors change only through prescribed sync.
+- **Acceptance**: YAML and Markdown parse cleanly; scoped diff shows only those two files; no `.codex/agents/` file hand-edited.
+
+#### Lane 4 — Receipt-v2 AGY Conditional Requirement (XS)
+- **Owned files**: `.agents/schemas/multiagent-dispatch-receipt-v2.schema.json` only
+- **Action**: Require `process_or_session_id` for `provider: agy`; enforce `Z` timestamp contract; preserve Codex compatibility and receipt-v1.
+- **Acceptance**: Schema parses as valid JSON; `jsonschema` Draft 2020-12 metaschema validates; scoped diff shows only that file.
+
+#### Combined Evidence
+- All four lanes frozen, `py_compile` per owned file exits 0, scoped diff per lane exits 0, no unowned file changed.
+
+---
+
+### 🎫 TICKET-ORCH-SPRINT-002 | `qa_tester` | [STATUS: TODO]
+**Priority**: HIGH
+**Severity**: HIGH
+**Work Effort**: M
+**Depends On**: `TICKET-ORCH-SPRINT-001` (all four lanes DONE)
+**Blocks**: `TICKET-ORCH-SPRINT-003`
+
+#### Detailed Instructions
+1. Run exact combined formal QA command:
+   ```bash
+   python3 -m pytest -q tests/test_multiagent_ticket_scheduler.py tests/test_multiagent_prompt_command.py project/tests/test_claude_governance.py tests/test_multiagent_prompt_command_r4.py
+   ```
+2. Record: exit code, total passed/failed/skipped counts, wall-clock duration.
+3. Confirm: no new test file was modified by the QA runner.
+4. Trim output to summary line only before reporting to orchestrator.
+
+#### Acceptance Criteria
+- [ ] Exit code `0`.
+- [ ] Zero test failures (pre-documented expected legacy assertion deltas are allowed only if explicitly named in lane evidence).
+- [ ] Scoped diff over test files exits 0 (no test modification by QA runner).
+
+---
+
+### 🎫 TICKET-ORCH-SPRINT-003 | `devops` | [STATUS: TODO]
+**Priority**: HIGH
+**Severity**: HIGH
+**Work Effort**: S
+**Depends On**: `TICKET-ORCH-SPRINT-002` (QA DONE)
+**Blocks**: `TICKET-ORCH-SPRINT-004`
+
+#### Detailed Instructions
+1. **Diff check**: `git diff --check HEAD` — must exit 0.
+2. **Secret scan**: `python3 project/core/code_reviewer.py --scan-secrets` — must report 0 leaks.
+3. **Ecosystem sync**: `python3 scripts/sync_ai_agent_ecosystem.py --sync` — must exit 0 with `[OK]` for all required checks.
+4. **Ecosystem verify**: `python3 scripts/sync_ai_agent_ecosystem.py --check` — must exit 0 with all `[OK]`.
+5. **Stage and commit** (excluding `project/api_router.py`, `project/static/version.json`, `project/data/distillation_checklist.json`):
+   ```bash
+   git add -A
+   git reset HEAD project/api_router.py project/static/version.json project/data/distillation_checklist.json
+   git commit -m "feat(orchestration): implement pre-QA receipt-v2 lanes, parser hardening, and formal QA verification"
+   ```
+6. **Push**: `git push origin main` — must complete without error.
+
+#### Acceptance Criteria
+- [ ] `git diff --check HEAD` exits 0.
+- [ ] Secret scan: 0 leaks.
+- [ ] Ecosystem `--sync` + `--check` both exit 0 with all `[OK]`.
+- [ ] Commit created with exact message; excluded files not included.
+- [ ] `git push origin main` exits 0.
+- [ ] `git log --oneline -1` confirms the commit SHA and message.
+
+---
+
+### 🎫 TICKET-ORCH-SPRINT-004 | `orchestrator` | [STATUS: TODO]
+**Priority**: HIGH
+**Severity**: HIGH
+**Work Effort**: S
+**Depends On**: `TICKET-ORCH-SPRINT-003` (commit + push DONE)
+**Blocks**: None (final gate)
+
+#### Detailed Instructions
+1. Verify `TICKET-ORCH-SPRINT-003` push evidence is confirmed.
+2. Confirm RC2-004 dispatch prerequisites: focused taxonomy QA (from RC2-004 spec) and read-only isolation review are satisfied or explicitly waived with reason.
+3. If prerequisites met: authorize `codex1` read-only CLI lane dispatch, recording as `RC2-004/codex1/attempt-1`.
+4. Gate decision on `codex1` result:
+   - Valid receipt → record metadata (content-free), authorize bounded `codex2` attempt, and proceed per the RC2-004 chain.
+   - Invalid contract / `NEEDS_HITL` → fail closed; record as terminal for this session; do NOT dispatch `codex2`/`agy1`/`agy2`.
+
+#### Acceptance Criteria
+- [ ] RC2-004 dispatch prerequisites evaluated and decision recorded.
+- [ ] `codex1` attempt result recorded as `RC2-004/codex1/attempt-1` (valid receipt OR typed `NEEDS_HITL`).
+- [ ] Gate decision documented in `plans/plan.md` and this ticket.
+- [ ] No automatic retry or root-session alias invocation.

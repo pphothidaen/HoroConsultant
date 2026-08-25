@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-PRIORITY-003R3E",
+  "phase": "operations",
+  "scope_rank": 1,
+  "complexity_rank": 1,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 2,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-terra",
+  "selected_effort": "high",
+  "rationale": "Bounded real-environment verification follows independent R3 QA. Verify only the dispatcher helper's actual default macOS user-state directory derivation, creation, modes, and outside-worktree location. Do not dispatch a provider or access credentials, authentication, secrets, PII, deletion, deployment, publishing, push, or any other external action. Completion provides environment evidence only and does not execute or close the later read-only review.",
+  "policy_version": "2026-08-25.2",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true,
+  "status": "DOING"
+}

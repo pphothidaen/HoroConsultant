@@ -1,4 +1,9 @@
-version: 1
+version: 2
+model_policy: multiagent_model_policy.yaml
+
+# Execution also requires --decision with a DispatchDecision v1 document.
+# The role routes below remain legacy dry-run defaults and are not runtime
+# authority for executable model or effort selection.
 
 # Account aliases are explicit process routes, not shell aliases and not proof
 # that a command ran. Keep credentials out of this file.

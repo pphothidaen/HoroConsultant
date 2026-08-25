@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-PRIORITY-002R4",
+  "phase": "implementation",
+  "scope_rank": 3,
+  "complexity_rank": 3,
+  "risk_rank": 3,
+  "ambiguity_rank": 2,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Session HITL approval is recorded without approver identity for exactly this bounded R4 remediation. Terminalize a crashed active ownership record only after liveness, age, and per-claim-lock checks, while keeping exact replay blocked; replace durable raw-PII ownership_resources with non-PII conflict tokens; and embed sanitized immutable proof so receipt validation is portable archival evidence independent of host or user state. R3 independent QA (185 passed) and sanitized R3E environment PASS remain retained evidence but do not close these findings. No unrelated refactor, deployment, publishing, push, credential, secret, account, external, configuration, generated-file, or PII action is authorized. A fresh independent QA and read-only TICKET-PRIORITY-004 re-review are required before final reconciliation.",
+  "policy_version": "2026-08-25.2",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true,
+  "status": "DOING"
+}

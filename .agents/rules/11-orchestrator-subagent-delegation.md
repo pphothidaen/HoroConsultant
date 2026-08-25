@@ -2,75 +2,74 @@
 
 ## Purpose
 
-This rule governs how the `orchestrator` distributes work to sub-agents, monitors background tasks, collects results, and prevents overlapping edits or unsafe external actions.
+This rule governs safe, evidence-bearing parallel work. The `orchestrator`
+remains accountable for scheduling, user updates, conflict resolution, and the
+final decision.
 
-## Mandatory Delegation Controls
+## Eligibility and Scheduling
 
-1. **Bounded Task Requirement**
-   - Every sub-agent task must have a concrete objective, ownership boundary, expected evidence, and stop condition.
-   - Vague instructions such as "continue everything" are not enough for sub-agent assignment; the orchestrator must decompose them first.
+Before rendering an executable lane, apply Rule 18 and record its versioned
+`DispatchDecision`; static role hints are not runtime proof. At each scheduling
+checkpoint, exclude tickets that are not `TODO`/`READY`, lack valid `Severity`
+or `Work Effort`, have unmet dependencies, an explicit blocker, ownership
+conflict, quota/HITL failure, or invalid Rule 18 decision. Missing/invalid
+metadata or duplicate IDs fail closed as `BLOCKED: INVALID_SCHEDULING_METADATA`.
 
-2. **File Ownership Isolation**
-   - Do not assign concurrent agents to edit the same file or module.
-   - If shared files such as `PROJECT_TASKS.md`, release handoff docs, or workflow files are involved, assign one editor and make other agents read-only reviewers.
+Sort only the eligible set by `(-severity_rank, work_effort_rank,
+ticket_id_ascii)`: `CRITICAL > HIGH > MEDIUM > LOW`, then `XS < S < M < L <
+XL`, then exact ASCII ticket ID. `Work Effort` is delivery size, not model
+reasoning effort; model selection never changes the order. Historical
+`Priority` is evidence only. Do not preempt `DOING` work.
 
-3. **Non-Reversion Mandate**
-   - Every delegated task must tell the sub-agent that other agents may be working in the same tree and that it must not revert user or peer changes.
+## Maximum Useful Parallelism
 
-4. **Evidence-First Result Collection**
-   - Sub-agent outputs must include command results, artifact paths, workflow run ids, or exact file references.
-   - The orchestrator must verify release and production claims against evidence before marking any gate `DONE`.
+Use available concurrency whenever there are useful, independent,
+evidence-bearing lanes. This is a standard, not a requirement to create work:
+do not fill slots with redundant, stale, speculative, or dependency-blocked
+lanes. A role may have multiple instances and children may create further
+bounded lanes, but total active work must stay within the available slot limit.
 
-5. **External Mutation Authorization**
-   - Sub-agents must not publish, deploy, rotate secrets, push commits, or run production-impacting actions unless the user or root orchestrator explicitly authorized that action class and target.
-   - Authorization for investigation does not authorize deployment or secret propagation.
+Decompose to the smallest coherent ownership unit without artificial
+fragmentation. Permit one editor per file or module; reserve each selected
+lane's ownership, recompute Rule 11 eligibility, then select the next lane.
+Reuse a freed slot for the next eligible independent lane (rolling reuse).
+For single-file work, prefer one source editor plus a parallel read-only
+QA-prep or reviewer lane; final QA and any release verdict wait for source
+freeze and every declared dependency.
 
-6. **Secret Handling**
-   - Sub-agents must never print secret values.
-   - If a command unexpectedly prints a secret, the secret is compromised. Stop using it, require rotation, and document only that leakage occurred without repeating the value.
+## Delegation Contract
 
-7. **Background Monitoring**
-   - Long-running workflows may be monitored by DevOps or QA sub-agents, but the root orchestrator remains responsible for user updates and final synthesis.
-   - Poll at reasonable intervals and report only meaningful state changes: job started, job passed, job failed, blocker identified, or artifact produced.
+Every lane must state objective, ownership, boundaries/exclusions, expected
+evidence, and stop condition (`DONE`, `BLOCKED`, or `NEEDS_HITL`), and include:
 
-8. **HITL Escalation**
-   - Escalate to Human-in-the-Loop when progress requires a credential value, platform permission, production approval, external billing decision, or unresolved high-impact domain judgment.
-   - Provide the human operator with the exact command, UI path, or decision needed, and wait for fresh evidence after completion.
+```text
+You are not alone in the codebase; do not revert edits made by others. Work only within your assigned ownership and adapt to visible changes from other agents.
+```
 
-9. **Context Hygiene and `/clear`**
-   - Use `/clear` or equivalent context reset when logs, polling output, completed sub-agent transcripts, or stale branches make the working context too large.
-   - Before clearing, write a compact handoff summary with objective/current phase, latest commit and branch, active workflow run ids, intentional file changes, staged state, completed checks, blockers/HITL actions, and the next safe command.
-   - After clearing, resume from authoritative current state. Re-check `git status`, active workflow status, and relevant task files before acting.
-   - Never clear away an unresolved secret incident, destructive operation, production deploy, or HITL decision without preserving the exact non-secret evidence and next operator action.
+No concurrent editors may own the same file or module. Make additional agents
+read-only reviewers. Never bypass quota, HITL, dependencies, ownership, or
+external-mutation authorization gates. Sub-agents must never print secrets;
+unexpected disclosure is a compromise requiring rotation and HITL.
 
-## Required Sub-Agent Handoff Fields
+## Monitoring and Results
 
-Each sub-agent final response must include:
+Announce and maintain live status with active lanes, their ownership, waits or
+blockers, and `active/available` slot utilization. Poll only for meaningful
+changes. Merge by verified evidence, not seniority or majority.
 
-- `Status`: `DONE`, `BLOCKED`, or `NEEDS_HITL`.
-- `Scope owned`: the files, systems, or evidence areas handled.
-- `Evidence`: commands, logs, artifact paths, or run ids.
-- `Findings`: concise conclusions.
-- `Changed files`: exact paths, or `None`.
-- `Residual risk`: known remaining risks or external dependencies.
-- `Recommended next action`: the next concrete step.
+Each result must contain:
+
+- `Status`: `DONE`, `BLOCKED`, or `NEEDS_HITL`
+- `Scope owned`
+- `Evidence`
+- `Findings`
+- `Changed files`
+- `Residual risk`
+- `Recommended next action`
 
 ## Completion Gate
 
-The orchestrator may close a parent task only after all delegated items are either `DONE` with evidence or explicitly `BLOCKED` with a documented operator action. A parent release task cannot be closed from local checks alone when external CI, production deployment, or live endpoint verification remains pending.
-
-## Claude Code Governance Layering
-
-For Claude Code, distribute orchestration controls across three layers:
-
-1. **Level 1 Hooks (`.claude/settings.json`)**
-   - Use `PreToolUse` hooks for hard blocks before execution.
-   - Block secret-file reads, plaintext token output, force push, `rm -rf`, hard resets, and unsafe destructive cleanup.
-
-2. **Level 2 Rules (`.claude/rules/*.md`)**
-   - Use frontmatter `paths` so task-specific rules load only for matching files.
-   - Keep separate files for API, frontend, testing/release, secrets/devops, and orchestrator/sub-agent governance.
-
-3. **Level 3 Global Context (`.claude/CLAUDE.md` or root `CLAUDE.md`)**
-   - Keep global context short: project priorities, generated-file boundaries, release evidence requirements, and the sub-agent result format.
-   - Do not place detailed implementation standards here when they can live in path-scoped rules.
+Close a delegated item only when its evidence meets acceptance criteria and its
+changes stay within ownership. Close a parent only when every lane is `DONE`
+with evidence or `BLOCKED` with the exact operator/HITL action. Local checks
+cannot replace pending CI, production, deployment, or live-endpoint evidence.

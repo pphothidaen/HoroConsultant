@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import json
+import multiprocessing
 import os
 import shlex
+from copy import deepcopy
+from dataclasses import replace
 from pathlib import Path
 import subprocess
 
@@ -15,12 +18,25 @@ sys.path.insert(0, str(ROOT))
 
 import scripts.multiagent_prompt_command as command
 
+ORIGINAL_CLAIM_STORE = command._secure_claim_directory
+
+
+@pytest.fixture(autouse=True)
+def _isolated_claim_store(tmp_path, monkeypatch):
+    """Every executable fixture uses a writable, explicit in-project state root."""
+
+    monkeypatch.setattr(command, "_secure_claim_directory", lambda _invocation: tmp_path / "claim-store")
+
 
 def _config(tmp_path: Path) -> Path:
     path = tmp_path / "routes.yaml"
     path.write_text(
         yaml.safe_dump(
             {
+                "runtime": {
+                    "approved_for_execution": True,
+                    "protocol_version": 2,
+                },
                 "accounts": {
                     "codex1": {
                         "cli": "codex",
@@ -61,18 +77,225 @@ def _config(tmp_path: Path) -> Path:
     return path
 
 
+def _policy() -> dict[str, object]:
+    return command.load_model_policy(ROOT / ".agents/config/multiagent_model_policy.yaml")
+
+
+def _decision(**overrides: object) -> dict[str, object]:
+    """Return a small, valid v1 decision for the local codex1 test route."""
+
+    decision: dict[str, object] = {
+        "schema_version": 1,
+        "ticket": "TICKET-ADAPT-TEST",
+        "phase": "implementation",
+        "scope_rank": 1,
+        "complexity_rank": 1,
+        "risk_rank": 1,
+        "ambiguity_rank": 1,
+        "evidence_burden_rank": 1,
+        "quota_band": "healthy",
+        "work_mode": "mutation",
+        "selected_alias": "codex1",
+        "selected_model": "gpt-5.6-luna",
+        "selected_effort": "medium",
+        "rationale": "bounded regression coverage",
+        "policy_version": _policy()["policy_version"],
+        "planning_to_medium_confirmed": True,
+        "hitl_approved": False,
+    }
+    decision.update(overrides)
+    return decision
+
+
+def _decision_path(tmp_path: Path, **overrides: object) -> Path:
+    path = tmp_path / "dispatch-decision.json"
+    path.write_text(json.dumps(_decision(**overrides)), encoding="utf-8")
+    return path
+
+
+def _scheduling_snapshot(
+    *,
+    ticket_id: str = "TICKET-ADAPT-TEST",
+    owner: str = "developer",
+    ownership: str = command.DEFAULT_OWNERSHIP,
+) -> dict[str, object]:
+    """Return the smallest executable Rule 11 checkpoint for a test lane."""
+
+    return {
+        "schema_version": 1,
+        "tickets": [
+            {
+                "ticket_id": ticket_id,
+                "severity": "HIGH",
+                "work_effort": "M",
+                "status": "READY",
+                "dependencies": [],
+                "blockers": [],
+                "owner": owner,
+                "ownership": [ownership],
+                "quota_passed": True,
+                "hitl_passed": True,
+                "rule18_decision_valid": True,
+            }
+        ],
+        "reservations": [],
+    }
+
+
+def _scheduling_snapshot_path(tmp_path: Path, **overrides: object) -> Path:
+    path = tmp_path / "scheduling-snapshot.json"
+    path.write_text(json.dumps(_scheduling_snapshot(**overrides)), encoding="utf-8")
+    return path
+
+
+def _execute_args(config_path: Path, decision_path: Path, tmp_path: Path) -> list[str]:
+    scheduling_snapshot_path = _scheduling_snapshot_path(tmp_path)
+    return [
+        "--config",
+        str(config_path),
+        "--role",
+        "developer",
+        "--objective",
+        "Execute safely",
+        "--project-dir",
+        str(tmp_path),
+        "--decision",
+        str(decision_path),
+        "--policy",
+        str(ROOT / ".agents/config/multiagent_model_policy.yaml"),
+        "--scheduling-snapshot",
+        str(scheduling_snapshot_path),
+        "--execute",
+    ]
+
+
 def _valid_result_stdout() -> str:
-    return json.dumps(
+    return _codex_stdout(_work_result())
+
+
+def _work_result(status: str = "DONE") -> dict[str, object]:
+    return {
+        "status": status,
+        "scope_owned": ["tests only"],
+        "evidence": {
+            "commands": ["python3 -m pytest -q tests/test_multiagent_prompt_command.py"],
+            "outcomes": ["focused contract check completed"],
+            "artifacts": [],
+        },
+        "findings": ["provider-native v2 result"],
+        "changed_files": [],
+        "residual_risk": "none",
+        "recommended_next_action": "retain the receipt",
+    }
+
+
+def _jsonl(*events: dict[str, object]) -> str:
+    return "\n".join(json.dumps(event, separators=(",", ":")) for event in events) + "\n"
+
+
+def _codex_stdout(result: dict[str, object], thread_id: str = "thread-safe-1") -> str:
+    return _jsonl(
+        {"type": "thread.started", "thread_id": thread_id},
         {
-            "status": "DONE",
-            "scope_owned": "tests only",
-            "evidence": {"commands": [], "outcomes": [], "artifacts": []},
-            "findings": "none",
-            "changed_files": "none",
-            "residual_risk": "none",
-            "recommended_next_action": "none",
-        }
+            "type": "item.completed",
+            "item": {
+                "type": "agent_message",
+                "text": json.dumps(result, separators=(",", ":")),
+            },
+        },
+        {"type": "turn.completed"},
     )
+
+
+def _agy_stdout(result: dict[str, object], conversation_id: str = "agy-safe-1") -> str:
+    """Synthetic official AGY stream-json output; no external provider data."""
+
+    return _jsonl(
+        {"event": "init", "conversation_id": conversation_id, "init": {}},
+        {
+            "event": "step_update",
+            "step_update": {"conversation_id": conversation_id, "state": "ACTIVE"},
+        },
+        {
+            "event": "result",
+            "result": {
+                "conversation_id": conversation_id,
+                "status": "SUCCESS",
+                "structured_output": result,
+            },
+        },
+    )
+
+
+def _read_only_codex_invocation(tmp_path: Path, *, attempt_id: int = 3):
+    config_path = _config(tmp_path)
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    config["roles"]["developer"]["sandbox"] = "read-only"
+    config_path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+    route = command.resolve_route(config, "developer")
+    decision = _decision(work_mode="read_only")
+    return command.build_invocation(
+        route,
+        command.render_prompt(objective="Read-only v2 verification"),
+        tmp_path,
+        decision=decision,
+        model_policy=_policy(),
+        attempt_id=attempt_id,
+        objective="Read-only v2 verification",
+        ownership="repository review only",
+        runtime_config_path=config_path,
+        runtime_config_approved=True,
+        scheduling_snapshot=_scheduling_snapshot(ownership="repository review only"),
+        claim_store_override=str(tmp_path / "claim-store"),
+    )
+
+
+def _hold_cross_process_claim(invocation, claim_root: str, ready, release, outcome) -> None:
+    """Acquire one real claim in a child process until the parent checks it."""
+
+    claim_dir = Path(claim_root)
+    claim_dir.mkdir(mode=0o700)
+    command._secure_claim_directory = lambda _invocation: claim_dir
+    try:
+        command._acquire_dispatch_claim(invocation)
+    except Exception as exc:  # pragma: no cover - surfaced through outcome
+        outcome.put(("error", type(exc).__name__, getattr(exc, "code", None)))
+    else:
+        outcome.put(("acquired",))
+        ready.set()
+        release.wait(timeout=10)
+
+
+def _active_claimed_process(tmp_path: Path, monkeypatch, invocation, *, returncode: int = 0):
+    """Exercise the real acquire/lock/spawn path and return its live claim."""
+
+    invocation = replace(
+        invocation,
+        claim_store_override=str(tmp_path / "claim-store"),
+    )
+    monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
+    monkeypatch.setattr(
+        command.subprocess,
+        "run",
+        lambda argv, **kwargs: subprocess.CompletedProcess(
+            argv, returncode, stdout=_valid_result_stdout(), stderr=""
+        ),
+    )
+    return invocation, command._execute_invocation_locked(invocation)
+
+
+def _finalized_claimed_process(tmp_path: Path, monkeypatch, invocation, *, returncode: int = 0):
+    """Return open persisted-completed proof for receipt mutation tests."""
+
+    invocation, result = _active_claimed_process(
+        tmp_path, monkeypatch, invocation, returncode=returncode
+    )
+    provider_result = command.parse_provider_result(invocation, result.stdout)
+    claim = result._dispatch_claim  # type: ignore[attr-defined]
+    result._dispatch_claim_sha256 = command._finalize_dispatch_claim(  # type: ignore[attr-defined]
+        claim, "completed", result, provider_result
+    )
+    return invocation, result, provider_result
 
 
 def test_codex_defaults_produce_exact_argv_and_account_env(tmp_path, monkeypatch):
@@ -228,6 +451,7 @@ def test_dry_run_never_starts_subprocess(tmp_path, monkeypatch, capsys):
 
 def test_execute_uses_argv_cwd_and_process_local_env(tmp_path, monkeypatch):
     config_path = _config(tmp_path)
+    decision_path = _decision_path(tmp_path)
     monkeypatch.setenv("HOME", str(tmp_path))
     (tmp_path / ".codex-one").mkdir()
     observed = {}
@@ -238,19 +462,7 @@ def test_execute_uses_argv_cwd_and_process_local_env(tmp_path, monkeypatch):
         return subprocess.CompletedProcess(argv, 0, stdout=_valid_result_stdout(), stderr="")
 
     monkeypatch.setattr(command.subprocess, "run", fake_run)
-    result = command.main(
-        [
-            "--config",
-            str(config_path),
-            "--role",
-            "developer",
-            "--objective",
-            "Execute safely",
-            "--project-dir",
-            str(tmp_path),
-            "--execute",
-        ]
-    )
+    result = command.main(_execute_args(config_path, decision_path, tmp_path))
     assert result == 0
     assert observed["argv"][0:4] == ["codex", "exec", "-C", str(tmp_path)]
     assert observed["cwd"] == str(tmp_path)
@@ -265,10 +477,10 @@ def test_execute_transports_malicious_unicode_prompt_byte_for_byte_on_stdin(
     tmp_path, monkeypatch, capsys
 ):
     config_path = _config(tmp_path)
+    decision_path = _decision_path(tmp_path)
     monkeypatch.setenv("HOME", str(tmp_path))
     (tmp_path / ".codex-one").mkdir()
     objective = "ลับมาก\n$(touch /tmp/must-not-run); 'quoted'"
-    expected_prompt = command.render_prompt(objective=objective)
     observed = {}
 
     def fake_run(argv, **kwargs):
@@ -277,25 +489,18 @@ def test_execute_transports_malicious_unicode_prompt_byte_for_byte_on_stdin(
         return subprocess.CompletedProcess(argv, 0, stdout=_valid_result_stdout(), stderr="")
 
     monkeypatch.setattr(command.subprocess, "run", fake_run)
-    result = command.main(
-        [
-            "--config",
-            str(config_path),
-            "--role",
-            "developer",
-            "--objective",
-            objective,
-            "--project-dir",
-            str(tmp_path),
-            "--execute",
-        ]
-    )
+    args = _execute_args(config_path, decision_path, tmp_path)
+    args[args.index("Execute safely")] = objective
+    result = command.main(args)
     output = capsys.readouterr().out
     assert result == 0
-    assert observed["input"] == expected_prompt
+    assert observed["input"].startswith(command.render_prompt(objective=objective))
+    assert "Dispatch governance evidence" in observed["input"]
     assert all(objective not in argument for argument in observed["argv"])
-    assert "ลับมาก" not in output
-    assert "$(touch /tmp/must-not-run)" not in output
+    completed_text = "{" + output.split("\n{", 1)[1].split("\n[OK]", 1)[0]
+    completed = json.loads(completed_text)
+    assert completed["execution_receipt"]["objective"] == objective
+    assert completed["work_result"] == _work_result()
     assert str(tmp_path / ".codex-one") not in output
     assert observed["shell"] is False
 
@@ -337,22 +542,15 @@ def test_repository_example_resolves_every_role(monkeypatch):
 
 def test_execute_reports_missing_executable_without_traceback(tmp_path, monkeypatch, capsys):
     config_path = _config(tmp_path)
+    decision_path = _decision_path(tmp_path)
     monkeypatch.setattr(
         command,
         "execute_invocation",
         lambda invocation: (_ for _ in ()).throw(FileNotFoundError("not installed")),
     )
-    result = command.main(
-        [
-            "--config",
-            str(config_path),
-            "--role",
-            "developer",
-            "--objective",
-            "Run",
-            "--execute",
-        ]
-    )
+    args = _execute_args(config_path, decision_path, tmp_path)
+    args[args.index("Execute safely")] = "Run"
+    result = command.main(args)
     assert result == 127
     assert "Unable to start configured codex executable" in capsys.readouterr().err
 
@@ -366,7 +564,9 @@ def test_missing_project_directory_is_rejected(tmp_path):
 def test_execute_preflight_requires_configured_home_directory(tmp_path, monkeypatch):
     monkeypatch.setenv("HOME", str(tmp_path))
     route = command.resolve_route(command.load_config(_config(tmp_path)), "developer")
-    invocation = command.build_invocation(route, "prompt", tmp_path)
+    invocation = command.build_invocation(
+        route, "prompt", tmp_path, decision=_decision(), model_policy=_policy()
+    )
     monkeypatch.setattr(command.shutil, "which", lambda executable: "/usr/bin/codex")
     with pytest.raises(command.ConfigurationError, match="CODEX_HOME"):
         command.validate_execution_preflight(invocation)
@@ -485,26 +685,20 @@ def test_duplicate_dispatch_is_one_subprocess_with_account_session_evidence(
     tmp_path, monkeypatch
 ):
     config_path = _config(tmp_path)
+    decision_path = _decision_path(tmp_path)
     monkeypatch.setenv("HOME", str(tmp_path))
     (tmp_path / ".codex-one").mkdir()
     calls = []
 
     def fake_run(argv, **kwargs):
         calls.append((argv, kwargs["cwd"], kwargs["env"]["CODEX_HOME"], kwargs["input"]))
-        return subprocess.CompletedProcess(argv, 0, stdout="", stderr="")
+        return subprocess.CompletedProcess(
+            argv, 0, stdout=_valid_result_stdout(), stderr=""
+        )
 
     monkeypatch.setattr(command.subprocess, "run", fake_run)
-    args = [
-        "--config",
-        str(config_path),
-        "--role",
-        "developer",
-        "--objective",
-        "one dispatch",
-        "--project-dir",
-        str(tmp_path),
-        "--execute",
-    ]
+    args = _execute_args(config_path, decision_path, tmp_path)
+    args[args.index("Execute safely")] = "one dispatch"
     assert command.main(args) == 0
     assert len(calls) == 1
     argv, cwd, home, stdin = calls[0]
@@ -515,24 +709,20 @@ def test_duplicate_dispatch_is_one_subprocess_with_account_session_evidence(
 
 
 def test_nonzero_exit_is_normalized_and_reported(tmp_path, monkeypatch, capsys):
+    typed_failure = _codex_stdout(_work_result("BLOCKED"))
+    monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
     monkeypatch.setattr(
-        command,
-        "execute_invocation",
-        lambda invocation: subprocess.CompletedProcess(invocation.argv, 23),
+        command.subprocess,
+        "run",
+        lambda argv, **kwargs: subprocess.CompletedProcess(
+            argv, 23, stdout=typed_failure, stderr="safe failure"
+        ),
     )
-    result = command.main(
-        [
-            "--config",
-            str(_config(tmp_path)),
-            "--role",
-            "developer",
-            "--objective",
-            "fails",
-            "--project-dir",
-            str(tmp_path),
-            "--execute",
-        ]
-    )
+    config_path = _config(tmp_path)
+    decision_path = _decision_path(tmp_path)
+    args = _execute_args(config_path, decision_path, tmp_path)
+    args[args.index("Execute safely")] = "fails"
+    result = command.main(args)
     assert result == 23
     assert "exited with code 23" in capsys.readouterr().err
 
@@ -555,7 +745,16 @@ def test_timeout_from_account_process_is_not_silently_normalized(tmp_path, monke
     monkeypatch.setenv("HOME", str(tmp_path))
     (tmp_path / ".codex-one").mkdir()
     route = command.resolve_route(command.load_config(_config(tmp_path)), "developer")
-    invocation = command.build_invocation(route, "prompt", tmp_path)
+    invocation = command.build_invocation(
+        route,
+        "prompt",
+        tmp_path,
+        decision=_decision(),
+        model_policy=_policy(),
+        runtime_config_path=_config(tmp_path),
+        runtime_config_approved=True,
+        scheduling_snapshot=_scheduling_snapshot(),
+    )
     monkeypatch.setattr(command.shutil, "which", lambda executable: "/usr/bin/codex")
 
     def timed_out(*args, **kwargs):
@@ -568,7 +767,14 @@ def test_timeout_from_account_process_is_not_silently_normalized(tmp_path, monke
 
 def test_unavailable_cli_is_rejected_before_account_process_start(tmp_path, monkeypatch):
     route = command.resolve_route(command.load_config(_config(tmp_path)), "developer")
-    invocation = command.build_invocation(route, "prompt", tmp_path)
+    invocation = command.build_invocation(
+        route,
+        "prompt",
+        tmp_path,
+        decision=_decision(),
+        model_policy=_policy(),
+        scheduling_snapshot=_scheduling_snapshot(),
+    )
     monkeypatch.setattr(command.shutil, "which", lambda executable: None)
     with pytest.raises(command.ConfigurationError, match="executable is unavailable"):
         command.execute_invocation(invocation)
@@ -576,39 +782,77 @@ def test_unavailable_cli_is_rejected_before_account_process_start(tmp_path, monk
 
 def test_real_agy_argument_order_is_verified_with_fake_executable(tmp_path, monkeypatch):
     capture = tmp_path / "agy-argv.txt"
+    stdin_capture = tmp_path / "agy-stdin.json"
     fake = tmp_path / "agy-fake"
+    terminal = _agy_stdout(_work_result())
     fake.write_text(
-        "#!/bin/sh\nprintf '%s\\n' \"$@\" > \"$CAPTURE\"\n",
+        "#!/bin/sh\n"
+        "printf '%s\\n' \"$@\" > \"$CAPTURE\"\n"
+        "cat > \"$INPUT_CAPTURE\"\n"
+        f"printf '%s' '{terminal}'\n",
         encoding="utf-8",
     )
     fake.chmod(fake.stat().st_mode | 0o100)
     monkeypatch.setenv("CAPTURE", str(capture))
+    monkeypatch.setenv("INPUT_CAPTURE", str(stdin_capture))
     config = yaml.safe_load(_config(tmp_path).read_text(encoding="utf-8"))
     config["accounts"]["agy2"]["command"] = str(fake)
     config["roles"]["researcher"].update(
-        {"alias": "agy2", "model": "gemini-pro", "mode": "plan", "sandbox": True, "effort": "medium"}
+        {
+            "alias": "agy2",
+            "model": "gemini-3.1-pro-high",
+            "mode": "plan",
+            "sandbox": True,
+            "effort": "high",
+        }
     )
     route = command.resolve_route(config, "researcher")
     prompt = command.render_prompt(objective="fake AGY invocation")
-    invocation = command.build_invocation(route, prompt, tmp_path)
+    invocation = command.build_invocation(
+        route,
+        prompt,
+        tmp_path,
+        decision=_decision(
+            selected_alias="agy2",
+            selected_model="gemini-3.1-pro-high",
+            selected_effort="high",
+            scope_rank=2,
+        ),
+        model_policy=_policy(),
+        runtime_config_path=_config(tmp_path),
+        runtime_config_approved=True,
+        scheduling_snapshot=_scheduling_snapshot(owner="researcher"),
+    )
 
-    result = command.execute_invocation(invocation)
+    outcome = command.execute_invocation(invocation)
 
-    assert result.returncode == 0
-    assert capture.read_text(encoding="utf-8").splitlines() == [
+    assert outcome.process.returncode == 0
+    assert outcome.process.stdout == "[PROVIDER_STDOUT_ELIDED]"
+    assert outcome.completed["work_result"] == _work_result()
+    captured_argv = capture.read_text(encoding="utf-8").splitlines()
+    assert captured_argv[:-1] == [
         "--mode",
         "plan",
         "--sandbox",
         "--model",
-        "gemini-pro",
+        "gemini-3.1-pro-high",
         "--effort",
-        "medium",
+        "high",
         "--print",
         "--input-format",
-        "text",
+        "stream-json",
         "--output-format",
-        "json",
+        "stream-json",
+        "--json-schema",
     ]
+    assert Path(captured_argv[-1]).name == "work-result-v2.provider.json"
+    assert "fake AGY invocation" not in captured_argv
+    sent_event = json.loads(stdin_capture.read_text(encoding="utf-8"))
+    assert sent_event == json.loads(invocation.prompt_stdin)
+    assert set(sent_event) == {"event", "message"}
+    assert sent_event["event"] == "user"
+    assert set(sent_event["message"]) == {"content"}
+    assert sent_event["message"]["content"].startswith(prompt)
 
 
 @pytest.mark.parametrize(
@@ -646,21 +890,12 @@ def test_unavailable_selected_alias_returns_canonical_blocked_result(
     """A missing account executable is a blocked dispatch, never execution proof."""
 
     config_path = _config(tmp_path)
+    decision_path = _decision_path(tmp_path)
     monkeypatch.setattr(command.shutil, "which", lambda executable: None)
 
-    result = command.main(
-        [
-            "--config",
-            str(config_path),
-            "--role",
-            "developer",
-            "--objective",
-            "Run bounded terminal task",
-            "--project-dir",
-            str(tmp_path),
-            "--execute",
-        ]
-    )
+    args = _execute_args(config_path, decision_path, tmp_path)
+    args[args.index("Execute safely")] = "Run bounded terminal task"
+    result = command.main(args)
 
     output = capsys.readouterr()
     assert result != 0
@@ -675,6 +910,7 @@ def test_completed_process_evidence_is_emitted_separately_from_route_label(
     """A configured alias is routing intent; process evidence must be explicit."""
 
     config_path = _config(tmp_path)
+    decision_path = _decision_path(tmp_path)
     monkeypatch.setenv("HOME", str(tmp_path))
     (tmp_path / ".codex-one").mkdir()
 
@@ -685,24 +921,937 @@ def test_completed_process_evidence_is_emitted_separately_from_route_label(
 
     monkeypatch.setattr(command.subprocess, "run", fake_run)
     assert (
-        command.main(
-            [
-                "--config",
-                str(config_path),
-                "--role",
-                "developer",
-                "--objective",
-                "Run bounded terminal task",
-                "--project-dir",
-                str(tmp_path),
-                "--execute",
-            ]
-        )
+        command.main(_execute_args(config_path, decision_path, tmp_path))
         == 0
     )
 
     output = capsys.readouterr().out
     assert '"alias": "codex1"' in output
-    assert '"execution_evidence"' in output
-    assert '"source": "actual-subprocess-result"' in output
-    assert '"returncode": 0' in output
+    assert '"execution_receipt"' in output
+    assert '"adapter": "codex-jsonl-output-schema-v2"' in output
+    assert '"exit_code": 0' in output
+    assert '"work_result"' in output
+
+
+def test_execute_rejects_missing_dispatch_decision_but_legacy_dry_run_warns(
+    tmp_path, capsys
+):
+    config_path = _config(tmp_path)
+    base = [
+        "--config", str(config_path), "--role", "developer", "--objective", "legacy",
+        "--project-dir", str(tmp_path),
+    ]
+
+    assert command.main(base) == 0
+    dry_run = capsys.readouterr()
+    assert "Legacy v1 dry-run" in dry_run.err
+    assert "rendered-route-not-execution-proof" in dry_run.out
+
+    assert command.main([*base, "--execute"]) == 2
+    assert "DISPATCH_DECISION_INVALID" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize(
+    ("overrides", "message"),
+    [
+        (
+            {"selected_model": "gpt-5.6-luna", "selected_effort": "max"},
+            "unsupported model/effort combination",
+        ),
+        (
+            {
+                "scope_rank": 2,
+                "selected_model": "gpt-5.6-luna",
+                "selected_effort": "medium",
+            },
+            "below required floor",
+        ),
+    ],
+)
+def test_policy_rejects_unsupported_or_below_floor_profiles(overrides, message):
+    with pytest.raises(command.DispatchDecisionError, match=message):
+        command.validate_dispatch_decision(_decision(**overrides), _policy())
+
+
+def test_cli_override_cannot_disagree_with_decision(tmp_path, capsys):
+    config_path = _config(tmp_path)
+    decision_path = _decision_path(tmp_path)
+    args = _execute_args(config_path, decision_path, tmp_path)
+    args[args.index("--execute"):args.index("--execute")] = ["--model", "gpt-5.6-terra"]
+
+    assert command.main(args) == 2
+    assert "DISPATCH_DECISION_INVALID" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("field", ["risk_rank", "ambiguity_rank"])
+@pytest.mark.parametrize("work_mode", ["mutation", "read_only"])
+def test_critical_risk_or_ambiguity_requires_hitl_for_every_work_mode(field, work_mode):
+    decision = _decision(
+        work_mode=work_mode,
+        selected_model="gpt-5.6-sol",
+        selected_effort="high",
+        **{field: 3},
+    )
+
+    with pytest.raises(command.DispatchDecisionError, match="critical risk or ambiguity") as exc:
+        command.validate_dispatch_decision(decision, _policy())
+
+    assert exc.value.status == "NEEDS_HITL"
+
+
+@pytest.mark.parametrize("quota_band", ["below_10_percent", "unknown"])
+def test_low_or_unknown_quota_blocks_broad_work(quota_band):
+    decision = _decision(scope_rank=2, quota_band=quota_band)
+
+    with pytest.raises(command.DispatchDecisionError, match="quota"):
+        command.validate_dispatch_decision(decision, _policy())
+
+
+def test_execution_requires_root_medium_confirmation_but_valid_confirmation_passes():
+    blocked = _decision(planning_to_medium_confirmed=False)
+    with pytest.raises(command.DispatchDecisionError, match="root medium confirmation") as exc:
+        command.validate_dispatch_decision(blocked, _policy())
+    assert exc.value.status == "NEEDS_HITL"
+
+    validated = command.validate_dispatch_decision(_decision(), _policy())
+    assert validated.quality_floor == 1
+    assert validated.decision["planning_to_medium_confirmed"] is True
+
+    planning = _decision(
+        phase="planning",
+        scope_rank=3,
+        complexity_rank=3,
+        evidence_burden_rank=3,
+        selected_model="gpt-5.6-sol",
+        selected_effort="xhigh",
+        planning_to_medium_confirmed=False,
+    )
+    assert command.validate_dispatch_decision(planning, _policy()).quality_floor == 3
+
+
+def test_confirmed_medium_root_does_not_cap_independent_high_effort_child():
+    decision = _decision(
+        scope_rank=3,
+        phase="implementation",
+        selected_model="gpt-5.6-sol",
+        selected_effort="high",
+        planning_to_medium_confirmed=True,
+    )
+
+    validated = command.validate_dispatch_decision(decision, _policy())
+
+    assert validated.quality_floor == 3
+    assert validated.model_quality_rank == 3
+    assert validated.decision["selected_effort"] == "high"
+
+
+def test_dry_run_receipt_binds_policy_digest_model_and_effort(tmp_path, capsys):
+    config_path = _config(tmp_path)
+    decision = _decision()
+    decision_path = _decision_path(tmp_path)
+    args = _execute_args(config_path, decision_path, tmp_path)[:-1]
+
+    assert command.main(args) == 0
+    rendered_text = capsys.readouterr().out.split("\n[OK]", 1)[0]
+    receipt = json.loads(rendered_text)["dispatch_receipt"]
+    expected = command.validate_dispatch_decision(decision, _policy())
+    assert receipt["policy_version"] == decision["policy_version"]
+    assert receipt["decision_sha256"] == expected.digest
+    assert receipt["model"] == decision["selected_model"]
+    assert receipt["effort"] == decision["selected_effort"]
+
+
+def test_provider_catalog_controls_pairs_not_static_role_metadata(tmp_path):
+    config = command.load_config(_config(tmp_path))
+    agy_route = command.resolve_route(
+        config,
+        "researcher",
+        model_override="gemini-3.1-pro-high",
+        effort_override="high",
+    )
+    agy_decision = _decision(
+        selected_alias="agy1",
+        selected_model="gemini-3.1-pro-high",
+        selected_effort="high",
+        scope_rank=2,
+    )
+    assert command.validate_dispatch_decision(agy_decision, _policy(), agy_route).model_quality_rank == 2
+
+    with pytest.raises(command.DispatchDecisionError, match="unsupported model/effort combination"):
+        command.validate_dispatch_decision(
+            _decision(
+                selected_model="gemini-3.1-pro-low", selected_effort="high"
+            ),
+            _policy(),
+        )
+    codex_route = command.resolve_route(config, "developer")
+    with pytest.raises(command.DispatchDecisionError, match="provider"):
+        command.validate_dispatch_decision(agy_decision, _policy(), codex_route)
+
+
+@pytest.mark.parametrize("field", ["availability", "deprecated", "fallback_order"])
+def test_capability_catalog_requires_runtime_status_and_fallback_metadata(field):
+    """Catalog metadata is a fail-closed runtime contract, not documentation."""
+
+    policy = deepcopy(_policy())
+    del policy["models"]["gpt-5.6-luna"][field]
+
+    with pytest.raises(command.ConfigurationError, match=field):
+        command.validate_dispatch_decision(_decision(), policy)
+
+
+def test_provider_schema_is_strict_codex_compatible_subset():
+    schema = command._provider_compatible_work_result_schema(
+        ROOT / ".agents/schemas/multiagent-work-result-v2.schema.json"
+    )
+
+    assert schema["additionalProperties"] is False
+    assert set(schema["required"]) == command.RESULT_FIELDS
+    assert "oneOf" not in json.dumps(schema)
+    for field in ("scope_owned", "findings", "changed_files"):
+        assert schema["properties"][field]["type"] == "array"
+        assert schema["properties"][field]["items"]["type"] == "string"
+    assert schema["properties"]["scope_owned"]["items"]["minLength"] == 1
+    evidence = schema["properties"]["evidence"]
+    assert evidence["additionalProperties"] is False
+    for field in ("commands", "outcomes", "artifacts"):
+        assert evidence["properties"][field] == {
+            "type": "array",
+            "items": {"type": "string"},
+        }
+
+
+def test_valid_provider_native_codex_jsonl_and_agy_stream_json(tmp_path):
+    codex_invocation = _read_only_codex_invocation(tmp_path)
+    work_result = _work_result()
+    codex = command.parse_provider_result(
+        codex_invocation, _codex_stdout(work_result, "codex-session-3")
+    )
+    assert codex.work_result == work_result
+    assert codex.adapter == "codex-jsonl-output-schema-v2"
+    assert codex.process_or_session_id == "codex-session-3"
+
+    agy_config = yaml.safe_load(_config(tmp_path).read_text(encoding="utf-8"))
+    agy_config["roles"]["researcher"].update(
+        {
+            "model": "gemini-3.1-pro-high",
+            "effort": "high",
+            "mode": "plan",
+            "sandbox": True,
+        }
+    )
+    agy_route = command.resolve_route(agy_config, "researcher")
+    agy_invocation = command.build_invocation(
+        agy_route,
+        command.render_prompt(objective="AGY stream check"),
+        tmp_path,
+        decision=_decision(
+            selected_alias="agy1",
+            selected_model="gemini-3.1-pro-high",
+            selected_effort="high",
+            scope_rank=2,
+        ),
+        model_policy=_policy(),
+        attempt_id=3,
+        runtime_config_path=_config(tmp_path),
+        runtime_config_approved=True,
+    )
+    agy = command.parse_provider_result(
+        agy_invocation, _agy_stdout(work_result, "agy-session-3")
+    )
+    assert agy.work_result == work_result
+    assert agy.adapter == "agy-stream-json-schema-v2"
+    assert agy.process_or_session_id == "agy-session-3"
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("scope_owned", ["ok", 7], r"scope_owned\[1\] must be a string"),
+        ("findings", {"claim": "bad"}, "findings must be text or a list"),
+        ("changed_files", [None], r"changed_files\[0\] must be a string"),
+        ("evidence", [], "evidence must be a mapping"),
+    ],
+)
+def test_work_result_rejects_non_string_arrays_and_evidence_types(
+    field, value, message
+):
+    result = _work_result()
+    result[field] = value
+    with pytest.raises(command.ConfigurationError, match=message):
+        command.normalize_result(result)
+
+
+@pytest.mark.parametrize("evidence_field", ["commands", "outcomes", "artifacts"])
+def test_work_result_evidence_requires_string_arrays(evidence_field):
+    result = _work_result()
+    result["evidence"][evidence_field] = "not-an-array"
+    with pytest.raises(command.ConfigurationError, match=f"evidence.{evidence_field}"):
+        command.normalize_result(result)
+
+
+@pytest.mark.parametrize(
+    ("payload", "message"),
+    [
+        ("bare prose", "malformed JSON"),
+        (
+            _jsonl(
+                {"type": "thread.started", "thread_id": "one"},
+                {"type": "turn.completed"},
+                {"type": "turn.completed"},
+            ),
+            "unambiguous terminal",
+        ),
+        (
+            _jsonl(
+                {"type": "thread.started", "thread_id": "one"},
+                {
+                    "type": "item.completed",
+                    "item": {"type": "agent_message", "text": "plain prose"},
+                },
+                {"type": "turn.completed"},
+            ),
+            "exactly one structured final",
+        ),
+        (
+            _jsonl(
+                {"type": "thread.started", "thread_id": "one"},
+                {
+                    "type": "item.completed",
+                    "item": {
+                        "type": "agent_message",
+                        "text": json.dumps(_work_result()),
+                    },
+                },
+                {
+                    "type": "item.completed",
+                    "item": {
+                        "type": "agent_message",
+                        "text": json.dumps(_work_result()),
+                    },
+                },
+                {"type": "turn.completed"},
+            ),
+            "exactly one structured final",
+        ),
+    ],
+)
+def test_codex_adapter_rejects_malformed_ambiguous_and_bare_prose(
+    tmp_path, payload, message
+):
+    with pytest.raises(command.ConfigurationError, match=message):
+        command.parse_provider_result(_read_only_codex_invocation(tmp_path), payload)
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        _jsonl(
+            {"type": "result", "conversation_id": "agy-1", "response": _work_result()}
+        ),
+        _jsonl(
+            {"type": "init", "conversation_id": "agy-1"},
+            {"type": "result", "conversation_id": "agy-1", "response": _work_result()},
+            {"type": "result", "conversation_id": "agy-1", "response": _work_result()},
+        ),
+        _jsonl(
+            {"type": "init", "conversation_id": "agy-1"},
+            {"type": "result", "conversation_id": "agy-1", "response": "bare prose"},
+        ),
+    ],
+)
+def test_agy_adapter_rejects_malformed_or_ambiguous_streams(tmp_path, payload):
+    config = command.load_config(_config(tmp_path))
+    route = command.resolve_route(config, "researcher")
+    invocation = command.build_invocation(route, "legacy parse fixture", tmp_path)
+    with pytest.raises(command.ConfigurationError):
+        command.parse_provider_result(invocation, payload)
+
+
+@pytest.mark.parametrize(
+    ("payload", "reason"),
+    [
+        (_jsonl({"type": "init", "conversation_id": "safe"}), "terminal_shape"),
+        (
+            _jsonl(
+                {"event": "init", "conversation_id": "safe", "init": {}},
+                {"event": "result", "result": {"conversation_id": "safe", "status": "SUCCESS", "structured_output": _work_result()}},
+                {"event": "step_update", "step_update": {"conversation_id": "safe", "state": "DONE"}},
+            ),
+            "terminal_shape",
+        ),
+        (
+            _jsonl(
+                {"event": "init", "conversation_id": "safe", "init": {}},
+                {"event": "result", "result": {"conversation_id": "other", "status": "SUCCESS", "structured_output": _work_result()}},
+            ),
+            "thread_id",
+        ),
+        (
+            _jsonl(
+                {"event": "init", "conversation_id": "safe", "init": {}},
+                {"event": "result", "result": {"conversation_id": "safe", "status": "SUCCESS", "response": _work_result()}},
+            ),
+            "work_result_validation",
+        ),
+        (
+            '{"event":"init","event":"init","conversation_id":"safe","init":{}}\n',
+            "terminal_shape",
+        ),
+        (
+            '{"event":"init","conversation_id":"safe","init":NaN}\n',
+            "terminal_shape",
+        ),
+    ],
+)
+def test_official_agy_adapter_rejects_legacy_nonfinite_duplicate_postterminal_and_session_tampering(
+    tmp_path, payload, reason
+):
+    route = command.resolve_route(command.load_config(_config(tmp_path)), "researcher")
+    invocation = command.build_invocation(route, "safe parser fixture", tmp_path)
+    with pytest.raises(command.ProviderParseError) as exc:
+        command.parse_provider_result(invocation, payload)
+    assert exc.value.provider_parse_reason == reason
+
+
+def test_agy_decoded_and_encoded_prompt_echoes_are_redacted_before_receipt_evidence(tmp_path, monkeypatch):
+    pii = "email=person@example.com; user_id=123456; /Users/person/private; 192.0.2.42"
+    config = yaml.safe_load(_config(tmp_path).read_text(encoding="utf-8"))
+    config["roles"]["researcher"].update(
+        {"model": "gemini-3.1-pro-high", "effort": "high", "mode": "plan", "sandbox": True}
+    )
+    route = command.resolve_route(config, "researcher")
+    invocation = command.build_invocation(
+        route, command.render_prompt(objective=pii, ownership="tests/safe.py"), tmp_path,
+        decision=_decision(selected_alias="agy1", selected_model="gemini-3.1-pro-high", selected_effort="high", scope_rank=2, work_mode="read_only"),
+        model_policy=_policy(), objective=pii, ownership="tests/safe.py",
+        runtime_config_path=_config(tmp_path), runtime_config_approved=True,
+        scheduling_snapshot=_scheduling_snapshot(owner="researcher", ownership="tests/safe.py"),
+    )
+    echoed = _work_result()
+    echoed["findings"] = [pii, invocation.prompt_stdin]
+    parsed = command.parse_provider_result(invocation, _agy_stdout(echoed))
+    rendered = json.dumps(parsed.work_result)
+    for forbidden in ("person@example.com", "123456", "/Users/person", "192.0.2.42", '"event":"user"'):
+        assert forbidden not in rendered
+    assert "<PROMPT_REDACTED>" in rendered
+
+    observed: dict[str, object] = {}
+
+    def fake_run(argv, **kwargs):
+        observed["argv"] = argv
+        return subprocess.CompletedProcess(
+            argv, 0, _agy_stdout(echoed), "email=person@example.com"
+        )
+
+    monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
+    monkeypatch.setattr(command.subprocess, "run", fake_run)
+    outcome = command.execute_invocation(
+        replace(invocation, claim_store_override=str(tmp_path / "pii-ledger"))
+    )
+    public = json.dumps(outcome.completed)
+    durable = "\n".join(
+        path.read_text(encoding="ascii", errors="ignore")
+        for path in (tmp_path / "pii-ledger").rglob("*") if path.is_file()
+    )
+    for forbidden in ("person@example.com", "123456", "/Users/person", "192.0.2.42"):
+        assert forbidden not in public + durable + " ".join(observed["argv"])
+    assert outcome.process.stdout == "[PROVIDER_STDOUT_ELIDED]"
+    assert outcome.process.stderr == "[PROVIDER_STDERR_ELIDED]"
+
+
+def test_provider_stream_and_work_result_reject_secret_bearing_output(tmp_path):
+    result = _work_result()
+    result["findings"] = ["authorization: Bearer abcdefghijklmnop"]
+    with pytest.raises(command.ConfigurationError, match="secret-bearing"):
+        command.parse_provider_result(
+            _read_only_codex_invocation(tmp_path), _codex_stdout(result)
+        )
+
+
+def test_nonzero_without_typed_failure_result_is_rejected(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(command, "execute_invocation", lambda invocation: (_ for _ in ()).throw(command.ExecutionContractError("terminal_shape")))
+    args = _execute_args(_config(tmp_path), _decision_path(tmp_path), tmp_path)
+    assert command.main(args) == 3
+    output = capsys.readouterr()
+    assert "invalid-child-result-contract" in output.out
+    assert "Invalid sub-agent result contract" in output.err
+
+
+@pytest.mark.parametrize("provider_parse_reason", sorted(command.PROVIDER_PARSE_REASONS))
+def test_invalid_provider_contract_emits_only_content_free_parse_reason(
+    tmp_path, monkeypatch, capsys, provider_parse_reason
+):
+    """Every provider rejection taxonomy value must remain safe to serialize."""
+
+    config_path = _config(tmp_path)
+    decision_path = _decision_path(tmp_path)
+    prompt_sentinel = "PROMPT-BODY-MUST-NOT-APPEAR"
+    raw_payload_sentinel = "RAW-PROVIDER-PAYLOAD-MUST-NOT-APPEAR"
+    provider_id_sentinel = "provider-session-id-must-not-appear"
+    exception_sentinel = "PARSER-EXCEPTION-MUST-NOT-APPEAR"
+    secret_sentinel = "authorization: Bearer abcdefghijklmnop"
+    raw_provider_output = _jsonl(
+        {
+            "type": "thread.started",
+            "thread_id": provider_id_sentinel,
+            "payload": raw_payload_sentinel,
+            "credential": secret_sentinel,
+        }
+    )
+
+    monkeypatch.setattr(command, "execute_invocation", lambda invocation: (_ for _ in ()).throw(command.ExecutionContractError(provider_parse_reason)))
+
+    def reject_provider_result(invocation, payload):
+        assert payload == raw_provider_output
+        raise command.ProviderParseError(
+            provider_parse_reason,
+            (
+                f"{exception_sentinel}: {raw_payload_sentinel}; "
+                f"prompt={invocation.prompt_stdin}; path={tmp_path}; "
+                f"id={provider_id_sentinel}; secret={secret_sentinel}"
+            ),
+        )
+
+    monkeypatch.setattr(command, "parse_provider_result", reject_provider_result)
+    args = _execute_args(config_path, decision_path, tmp_path)
+    args[args.index("Execute safely")] = prompt_sentinel
+
+    assert command.main(args) == 3
+    captured = capsys.readouterr()
+    first_document, second_document = captured.out.split("\n{", 1)
+    rendered_route = json.loads(first_document)
+    blocked_result = json.loads("{" + second_document)
+
+    assert rendered_route["status"] == "rendered-route-not-execution-proof"
+    assert blocked_result["status"] == "BLOCKED"
+    assert blocked_result["execution_evidence"] == {
+        "source": "child-ran-invalid-result-contract",
+        "failure_class": "invalid-child-result-contract",
+        "provider_parse_reason": provider_parse_reason,
+    }
+    assert "execution_receipt" not in blocked_result
+    assert "work_result" not in blocked_result
+    assert "Invalid sub-agent result contract" in captured.err
+
+    combined_output = captured.out + captured.err
+    for forbidden in (
+        exception_sentinel,
+        raw_payload_sentinel,
+        prompt_sentinel,
+        str(tmp_path),
+        provider_id_sentinel,
+        secret_sentinel,
+    ):
+        assert forbidden not in combined_output
+
+
+@pytest.mark.parametrize(
+    ("field", "replacement"),
+    [
+        ("protocol_version", 1),
+        ("attempt_id", 2),
+        ("alias", "codex2"),
+        ("dispatch_identity", "0" * 64),
+        ("decision_sha256", "1" * 64),
+        ("output_sha256", "2" * 64),
+        ("work_result_sha256", "3" * 64),
+    ],
+)
+def test_execution_receipt_rejects_identity_and_digest_tampering(
+    tmp_path, monkeypatch, field, replacement
+):
+    invocation, process, provider_result = _finalized_claimed_process(
+        tmp_path, monkeypatch, _read_only_codex_invocation(tmp_path, attempt_id=3)
+    )
+    try:
+        receipt = command._build_execution_receipt(
+            invocation, process, provider_result,
+            started_at="2026-08-25T10:00:00Z", ended_at="2026-08-25T10:00:01Z",
+        )
+        receipt[field] = replacement
+        with pytest.raises(command.ConfigurationError, match=field):
+            command.validate_execution_receipt(
+                receipt, provider_result.work_result, invocation, process.stdout, result=process
+            )
+    finally:
+        command._release_dispatch_claim(process._dispatch_claim)  # type: ignore[attr-defined]
+
+
+def test_execution_receipt_accepts_bound_attempt_three_pair(tmp_path, monkeypatch):
+    invocation, process = _active_claimed_process(
+        tmp_path, monkeypatch, _read_only_codex_invocation(tmp_path, attempt_id=3)
+    )
+    provider_result = command.parse_provider_result(invocation, process.stdout)
+    completed = command._completed_result_contract(
+        invocation,
+        process,
+        provider_result,
+        started_at="2026-08-25T10:00:00Z",
+        ended_at="2026-08-25T10:00:01Z",
+    )
+    assert completed["execution_receipt"]["attempt_id"] == 3
+    assert completed["execution_receipt"]["process_or_session_id"] == "thread-safe-1"
+    assert completed["work_result"] == _work_result()
+
+
+def test_provider_schema_rejects_weakened_or_unsupported_shape(tmp_path):
+    schema = json.loads(
+        (ROOT / ".agents/schemas/multiagent-work-result-v2.schema.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    schema["additionalProperties"] = True
+    path = tmp_path / "weakened.schema.json"
+    path.write_text(json.dumps(schema), encoding="utf-8")
+    with pytest.raises(command.ConfigurationError, match="closed object"):
+        command._provider_compatible_work_result_schema(path)
+
+
+@pytest.mark.parametrize(
+    ("approved", "runtime_name", "sandbox", "message"),
+    [
+        (False, "runtime.yaml", "read-only", "approved runtime config"),
+        (True, "routes.example.yaml", "read-only", "example or missing"),
+        (True, "runtime.yaml", "workspace-write", "sandbox=read-only"),
+    ],
+)
+def test_read_only_dispatch_gate_is_effective_not_prompt_only(
+    tmp_path, monkeypatch, approved, runtime_name, sandbox, message
+):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    config_path = _config(tmp_path)
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    config["roles"]["developer"]["sandbox"] = sandbox
+    route = command.resolve_route(config, "developer")
+    runtime_path = tmp_path / runtime_name
+    if ".example." not in runtime_name:
+        runtime_path.write_text("runtime: true\n", encoding="utf-8")
+    invocation = command.build_invocation(
+        route,
+        command.render_prompt(objective="Read-only gate"),
+        tmp_path,
+        decision=_decision(work_mode="read_only"),
+        model_policy=_policy(),
+        runtime_config_path=runtime_path,
+        runtime_config_approved=approved,
+    )
+    (tmp_path / ".codex-one").mkdir()
+    monkeypatch.setattr(command.shutil, "which", lambda executable: "/usr/bin/codex")
+    with pytest.raises(command.ConfigurationError, match=message):
+        command.validate_execution_preflight(invocation)
+
+
+def test_completed_claim_and_attempt_replay_block_before_a_second_subprocess(tmp_path, monkeypatch):
+    invocation = _read_only_codex_invocation(tmp_path, attempt_id=1)
+    claim_root = tmp_path / "isolated-claims"
+    claim_root.mkdir(mode=0o700)
+    monkeypatch.setattr(command, "_secure_claim_directory", lambda _invocation: claim_root)
+    monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
+    runs = []
+
+    def fake_run(*args, **kwargs):
+        runs.append((args, kwargs))
+        return subprocess.CompletedProcess(args[0], 0, stdout=_valid_result_stdout(), stderr="")
+
+    monkeypatch.setattr(command.subprocess, "run", fake_run)
+    outcome = command.execute_invocation(invocation)
+    assert isinstance(outcome, command.ExecutionOutcome)
+    assert outcome.completed["execution_receipt"]["dispatch_claim_key"]
+
+    validated = command.validate_dispatch_decision(
+        invocation.decision, invocation.model_policy, invocation.route
+    )
+    replay = replace(
+        invocation,
+        attempt_id=2,
+        prompt_stdin=invocation.prompt_stdin.replace(
+            command._decision_prompt_evidence(validated, 1),
+            command._decision_prompt_evidence(validated, 2),
+        ),
+    )
+    assert command._dispatch_claim_key(replay) == command._dispatch_claim_key(invocation)
+    with pytest.raises(command.SchedulingError, match="already executed") as exc:
+        command.execute_invocation(replay)
+    assert exc.value.code == "DUPLICATE_DISPATCH_CLAIM"
+    assert len(runs) == 1
+
+
+def test_cross_process_active_claim_blocks_second_subprocess(tmp_path, monkeypatch):
+    invocation = _read_only_codex_invocation(tmp_path)
+    claim_root = tmp_path / "cross-process-claims"
+    context = multiprocessing.get_context("spawn")
+    ready = context.Event()
+    release = context.Event()
+    outcome = context.Queue()
+    child = context.Process(
+        target=_hold_cross_process_claim,
+        args=(invocation, str(claim_root), ready, release, outcome),
+    )
+    child.start()
+    try:
+        assert ready.wait(timeout=10), outcome.get(timeout=1)
+        assert outcome.get(timeout=1) == ("acquired",)
+        monkeypatch.setattr(command, "_secure_claim_directory", lambda _invocation: claim_root)
+        monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
+        monkeypatch.setattr(
+            command.subprocess,
+            "run",
+            lambda *args, **kwargs: pytest.fail("concurrent claim reached subprocess"),
+        )
+        with pytest.raises(command.SchedulingError, match="already active") as exc:
+            command.execute_invocation(invocation)
+        assert exc.value.code == "CONCURRENT_DISPATCH_CLAIM"
+    finally:
+        release.set()
+        child.join(timeout=10)
+        if child.is_alive():  # pragma: no cover - defensive cleanup for a stuck child
+            child.terminate()
+            child.join(timeout=5)
+    assert child.exitcode == 0
+
+
+@pytest.mark.parametrize(
+    ("state", "created_at", "raw", "expected_code"),
+    [
+        ("completed", None, None, "CONCURRENT_DISPATCH_CLAIM"),
+        ("active", None, None, "CONCURRENT_DISPATCH_CLAIM"),
+        ("active", "2000-01-01T00:00:00Z", None, "CONCURRENT_DISPATCH_CLAIM"),
+        ("unknown", None, None, "CONCURRENT_DISPATCH_CLAIM"),
+        ("active", None, b"not-json", "CONCURRENT_DISPATCH_CLAIM"),
+    ],
+)
+def test_claim_states_fail_closed_with_typed_results(
+    tmp_path, monkeypatch, state, created_at, raw, expected_code
+):
+    invocation = _read_only_codex_invocation(tmp_path)
+    claim_root = tmp_path / "typed-claims"
+    claim_root.mkdir(mode=0o700)
+    monkeypatch.setattr(command, "_secure_claim_directory", lambda _invocation: claim_root)
+    claim = command._acquire_dispatch_claim(invocation)
+    if raw is not None:
+        claim.path.write_bytes(raw)
+    else:
+        record = dict(claim.record)
+        record["state"] = state
+        if created_at:
+            record["created_at"] = created_at
+            record["updated_at"] = created_at
+        claim.path.write_text(json.dumps(record), encoding="ascii")
+
+    try:
+        with pytest.raises(command.SchedulingError) as exc:
+            command._acquire_dispatch_claim(invocation)
+        assert exc.value.code == expected_code
+    finally:
+        command._release_dispatch_claim(claim)
+
+
+def test_final_persisted_claim_recheck_rejects_tampering(tmp_path, monkeypatch):
+    invocation = _read_only_codex_invocation(tmp_path)
+    claim_root = tmp_path / "recheck-claims"
+    claim_root.mkdir(mode=0o700)
+    monkeypatch.setattr(command, "_secure_claim_directory", lambda _invocation: claim_root)
+    claim = command._acquire_dispatch_claim(invocation)
+    tampered = dict(claim.record)
+    tampered["state"] = "completed"
+    claim.path.write_text(json.dumps(tampered), encoding="ascii")
+
+    with pytest.raises(command.SchedulingError, match="terminal claim timestamp is invalid") as exc:
+        command._verify_dispatch_claim(claim)
+    assert exc.value.code == "INVALID_DISPATCH_CLAIM"
+
+
+def test_personal_data_is_redacted_from_preview_receipt_result_and_mapping_keys(tmp_path, monkeypatch):
+    invocation = _read_only_codex_invocation(tmp_path)
+    personal = (
+        "email=person@example.com; user_id=123456; /Users/person/private; "
+        "192.0.2.42"
+    )
+    pii_invocation = command.build_invocation(
+        invocation.route,
+        command.render_prompt(objective=personal, ownership=personal),
+        tmp_path,
+        decision=invocation.decision,
+        model_policy=invocation.model_policy,
+        attempt_id=invocation.attempt_id,
+        objective=personal,
+        ownership=personal,
+        runtime_config_path=invocation.runtime_config_path,
+        runtime_config_approved=True,
+        work_result_schema_path=invocation.work_result_schema_path,
+        scheduling_snapshot=_scheduling_snapshot(ownership=personal),
+    )
+    preview = command._redact_preview(personal, pii_invocation)
+    assert "person@example.com" not in preview
+    assert "123456" not in preview
+    assert "/Users/person" not in preview
+    assert "192.0.2.42" not in preview
+
+    invocation, process, provider_result = _finalized_claimed_process(
+        tmp_path, monkeypatch, pii_invocation
+    )
+    try:
+        receipt = command._build_execution_receipt(
+            invocation, process, provider_result,
+            started_at="2026-08-25T10:00:00Z", ended_at="2026-08-25T10:00:01Z",
+        )
+        result = command._redact_result_value(
+            {personal: {"personal": personal}}, pii_invocation
+        )
+        rendered = json.dumps({"preview": preview, "receipt": receipt, "result": result})
+        for forbidden in ("person@example.com", "123456", "/Users/person", "192.0.2.42"):
+            assert forbidden not in rendered
+        assert "<EMAIL_REDACTED>" in rendered
+        assert "<PERSONAL_ID_REDACTED>" in rendered
+        assert "<USER_HOME_REDACTED>" in rendered
+        assert "<IP_REDACTED>" in rendered
+    finally:
+        command._release_dispatch_claim(process._dispatch_claim)  # type: ignore[attr-defined]
+
+
+def test_claim_store_uses_namespaced_state_outside_worktree_or_safe_override(tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    worktree = tmp_path / "worktree"
+    worktree.mkdir()
+    invocation = replace(_read_only_codex_invocation(worktree), claim_store_override=None)
+    store = ORIGINAL_CLAIM_STORE(invocation)
+    try:
+        assert store.path.is_absolute()
+        assert store.path.is_relative_to(tmp_path / "home")
+        assert not store.path.is_relative_to(worktree)
+        assert not (worktree / ".horo").exists()
+    finally:
+        store.close()
+
+    for override in ("relative", str(tmp_path.parent / "outside")):
+        with pytest.raises(command.SchedulingError) as exc:
+            ORIGINAL_CLAIM_STORE(replace(invocation, claim_store_override=override))
+        assert exc.value.code == "INVALID_CLAIM_STORE"
+
+
+def test_claim_files_are_0600_and_parent_fsync_is_observable(tmp_path, monkeypatch):
+    invocation = replace(
+        _read_only_codex_invocation(tmp_path), claim_store_override=str(tmp_path / "claims")
+    )
+    fsync_calls = []
+    original_fsync = command.os.fsync
+    monkeypatch.setattr(command.os, "fsync", lambda descriptor: fsync_calls.append(descriptor) or original_fsync(descriptor))
+    claim = command._acquire_dispatch_claim(invocation)
+    try:
+        assert claim.path.stat().st_mode & 0o777 == 0o600
+        assert fsync_calls
+    finally:
+        command._release_dispatch_claim(claim)
+
+
+def test_lock_lifetime_and_toctou_recheck_cover_spawn_parse_and_deleted_entry(tmp_path, monkeypatch):
+    invocation, process = _active_claimed_process(
+        tmp_path, monkeypatch, _read_only_codex_invocation(tmp_path)
+    )
+    claim = process._dispatch_claim  # type: ignore[attr-defined]
+    assert claim.closed is False
+    provider_result = command.parse_provider_result(invocation, process.stdout)
+    assert claim.closed is False
+    completed = command._completed_result_contract(
+        invocation, process, provider_result,
+        started_at="2026-08-25T10:00:00Z", ended_at="2026-08-25T10:00:01Z",
+    )
+    assert completed["execution_receipt"]["dispatch_claim_key"] == claim.key
+    assert claim.closed is True
+
+    invocation = replace(
+        _read_only_codex_invocation(tmp_path), claim_store_override=str(tmp_path / "toctou")
+    )
+    monkeypatch.setattr(command, "_secure_claim_directory", lambda _invocation: tmp_path / "toctou")
+    claim = command._acquire_dispatch_claim(invocation)
+    try:
+        claim.path.unlink()
+        with pytest.raises((command.SchedulingError, OSError)):
+            command._verify_dispatch_claim(claim)
+        with pytest.raises(command.SchedulingError):
+            command._acquire_dispatch_claim(invocation)
+    finally:
+        command._release_dispatch_claim(claim)
+
+
+@pytest.mark.parametrize("kind", ["symlink", "fifo", "large", "mode", "hardlink"])
+def test_claim_reader_rejects_unsafe_file_types_and_sizes(tmp_path, kind):
+    store = tmp_path / "claims"
+    store.mkdir(mode=0o700)
+    path = store / "unsafe.json"
+    if kind == "symlink":
+        path.symlink_to(tmp_path / "missing-target")
+    elif kind == "fifo":
+        os.mkfifo(path, 0o600)
+    elif kind == "mode":
+        path.write_text("{}", encoding="ascii")
+        path.chmod(0o644)
+    elif kind == "hardlink":
+        original = store / "original.json"
+        original.write_text("{}", encoding="ascii")
+        original.chmod(0o600)
+        os.link(original, path)
+    else:
+        path.write_bytes(b"x" * (command.MAX_DISPATCH_CLAIM_BYTES + 1))
+        path.chmod(0o600)
+    with pytest.raises(command.SchedulingError) as exc:
+        command._read_dispatch_claim(path)
+    assert exc.value.code == "INVALID_DISPATCH_CLAIM"
+
+
+def test_claim_file_open_flags_require_nofollow_nonblock_and_fstat_validation():
+    flags = command._file_open_flags(os.O_RDONLY)
+    assert flags & getattr(os, "O_NOFOLLOW", 0)
+    assert flags & getattr(os, "O_NONBLOCK", 0)
+
+
+def test_completed_claim_binds_receipt_and_rejects_missing_or_mismatched_proof(tmp_path, monkeypatch):
+    invocation, process, provider_result = _finalized_claimed_process(
+        tmp_path, monkeypatch, _read_only_codex_invocation(tmp_path)
+    )
+    try:
+        receipt = command._build_execution_receipt(
+            invocation, process, provider_result,
+            started_at="2026-08-25T10:00:00Z", ended_at="2026-08-25T10:00:01Z",
+        )
+        persisted = process._dispatch_claim.record  # type: ignore[attr-defined]
+        for field in (
+            "dispatch_identity", "route_sha256", "ownership_tokens_sha256",
+            "ownership_key_id", "started_at", "ended_at", "transport_status",
+            "output_sha256", "work_result_sha256",
+        ):
+            assert persisted[field]
+        assert command.validate_execution_receipt(
+            receipt, provider_result.work_result, invocation, process.stdout, result=process
+        )["dispatch_claim_key"] == persisted["claim_key"]
+        for field, value in (("dispatch_claim_key", None), ("dispatch_claim_sha256", "0" * 64)):
+            tampered = dict(receipt)
+            if value is None:
+                del tampered[field]
+            else:
+                tampered[field] = value
+            with pytest.raises(command.ConfigurationError):
+                command.validate_execution_receipt(
+                    tampered, provider_result.work_result, invocation, process.stdout, result=process
+                )
+    finally:
+        command._release_dispatch_claim(process._dispatch_claim)  # type: ignore[attr-defined]
+
+
+def test_startup_config_yaml_and_os_errors_are_sanitized(tmp_path, monkeypatch, capsys):
+    config_path = tmp_path / "person@example.com" / "bad.yaml"
+    monkeypatch.setattr(command, "load_config", lambda path: (_ for _ in ()).throw(OSError(str(config_path))))
+    assert command.main([
+        "--config", str(config_path), "--role", "developer", "--objective", "/Users/person 192.0.2.42"
+    ]) == 2
+    output = capsys.readouterr().err
+    assert output == "[ERROR] BLOCKED: CONFIG_IO_ERROR\n"
+    assert all(item not in output for item in (str(config_path), "person@example.com", "/Users/person", "192.0.2.42"))
+
+    monkeypatch.setattr(command, "load_config", lambda path: (_ for _ in ()).throw(yaml.YAMLError("/Users/person person@example.com")))
+    assert command.main([
+        "--config", str(config_path), "--role", "developer", "--objective", "safe"
+    ]) == 2
+    output = capsys.readouterr().err
+    assert output == "[ERROR] BLOCKED: CONFIG_PARSE_ERROR\n"

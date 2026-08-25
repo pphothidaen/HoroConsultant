@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-PRIORITY-003R2",
+  "phase": "qa",
+  "scope_rank": 2,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Independent QA must update 16 intentional legacy-contract fixtures and add permanent R2 regression coverage for the completed second remediation. Work Effort S is the delivery-size scheduling input; reasoning effort high is a separate runtime-quality setting and cannot change scheduling order. The completed developer evidence permits this QA lane only; TICKET-PRIORITY-004 remains blocked until the independent QA result is complete and a fresh re-review is performed.",
+  "policy_version": "2026-08-25.2",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true,
+  "status": "DOING"
+}

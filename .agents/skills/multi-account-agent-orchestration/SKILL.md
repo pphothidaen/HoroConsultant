@@ -20,6 +20,10 @@ Before dispatch, record:
 - account alias/provider and non-secret quota band or status;
 - evidence expected and stop condition.
 
+For an executable lane, additionally require the Rule 18 versioned
+`DispatchDecision`, decision digest, policy version, semantic ranks, quality
+floor, and root-medium state. Quota may not silently reduce that floor.
+
 ## Root/current-session restriction
 
 The root/current session is an orchestrator-only control plane. It may
@@ -67,6 +71,22 @@ malformed fields/events, protocol/alias/ticket/attempt mismatch, digest
 mismatch, secrets, ambiguous final events, nonzero execution without a typed
 failure result, or exit zero without a valid `WorkResult`. Do not infer a pass
 from prose or apply an adapter fallback without fresh HITL authorization.
+
+### Public outcome and portable-evidence boundary
+
+Validate the public `ExecutionOutcome` in-process only. Its public
+`stdout`/`stderr` are elided; therefore a receipt, WorkResult, and public
+outcome are not by themselves an independently portable or offline-verifiable
+evidence bundle. `portable=True` still requires a separately retained,
+trusted, exact raw-stdout record for any portable/offline verification claim.
+No approved private retention channel currently exists. Never restore, log, or
+persist raw streams.
+
+For a successful AGY result, report **validated in-process only**. Never claim
+that it is portable, offline verified, or receipt-only verified. Treat this as
+a Medium residual risk. A future encrypted, access-controlled sidecar may be
+designed only under separate scope, retention/trust design, and HITL; do not
+implement it in a dispatch lane.
 
 When the user names `codex1`, `codex2`, `agy1`, and `agy2`, all four are
 required as distinct lanes. A bounded child may invoke the terminal CLI

@@ -1,0 +1,50 @@
+{
+  "ticket": "TICKET-ALIAS-RC2-003",
+  "protocol_version": 2,
+  "runtime_config": ".agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml",
+  "authorization": "Explicit current-session user authorization for four read-only alias executions",
+  "aggregate_dispatch_assessment": {
+    "scope_rank": 3,
+    "complexity_rank": 3,
+    "risk_rank": 3,
+    "ambiguity_rank": 2,
+    "evidence_burden_rank": 3,
+    "quality_floor": 3
+  },
+  "lane_classification": {
+    "scope_rank": 1,
+    "complexity_rank": 1,
+    "risk_rank": 1,
+    "ambiguity_rank": 1,
+    "evidence_burden_rank": 2,
+    "quality_floor": 2,
+    "basis": "Each child objective is a distinct deterministic read-only repository review with no writable ownership or external action. The aggregate coordination risk is retained separately and is not used to weaken a child floor."
+  },
+  "quota": {
+    "band": "unknown",
+    "signal_present": false,
+    "below_10_percent": false,
+    "source": "secret-safe local quota guard"
+  },
+  "policy_version": "2026-08-25.2",
+  "attempt_id": 3,
+  "selected_profiles": {
+    "codex1": "gpt-5.6-sol/high",
+    "codex2": "gpt-5.6-sol/high",
+    "agy1": "gemini-3.1-pro-high/high",
+    "agy2": "gemini-3.1-pro-high/high"
+  },
+  "isolation": {
+    "codex1": "sandbox=read-only",
+    "codex2": "sandbox=read-only",
+    "agy1": "mode=plan and sandbox=true",
+    "agy2": "mode=plan and sandbox=true"
+  },
+  "boundaries": [
+    "No file edits",
+    "No network access",
+    "No deployment or publication",
+    "No git mutation",
+    "No credential output"
+  ]
+}

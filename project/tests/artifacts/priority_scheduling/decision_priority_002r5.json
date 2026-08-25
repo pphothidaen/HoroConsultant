@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-PRIORITY-002R5",
+  "phase": "implementation",
+  "scope_rank": 2,
+  "complexity_rank": 2,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 2,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Session HITL approval is recorded without approver identity for exactly this smallest R5 source remediation. Own only scripts/multiagent_prompt_command.py to clear a fixed sanitized-v1 migration temporary residue that can block a future migration and return a typed, actionable non-PII legacy diagnostic. Preserve replay prevention and digest validation. Raw historical receipt revalidation remains unsupported because durable PII must not be retained. No test, hook, configuration, generated-file, deploy, publish, push, credential, secret, account, external, or broad refactor action is authorized. Formal QA and the read-only TICKET-PRIORITY-004 verdict wait for source freeze and fresh dependency evidence.",
+  "policy_version": "2026-08-25.2",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

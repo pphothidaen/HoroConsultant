@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-PRIORITY-004",
+  "phase": "review",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 2,
+  "quota_band": "healthy",
+  "work_mode": "read_only",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Final R3 read-only safety and compatibility re-review is reserved after R3 independent QA exited 0 with 185 passed in 1.79s and the single-use R3E root environment verification returned sanitized exit 0, status PASS.",
+  "policy_version": "2026-08-25.2",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}
