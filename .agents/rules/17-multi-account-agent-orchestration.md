@@ -28,6 +28,44 @@ proof requires the child process result plus provider/session telemetry where
 available; never record tokens, cookies, account-home secrets, or credential
 values.
 
+## Meaningful orchestration execution requirement
+
+For meaningful multi-agent orchestration, the orchestrator must explicitly select
+one configured alias and perform at least one bounded terminal dispatch
+through it: `codex1`, `codex2`, `agy1`, or `agy2`. Here, meaningful means a task
+that is represented as multi-agent work or has an agent-owned implementation,
+QA, review, research, or operations lane; planning-only discussion does not
+create an execution claim.
+
+- Select **one** alias appropriate to the bounded task. `or` does not require
+  calling every alias, and aliases not selected must not be represented as
+  executed.
+- The dispatch record must identify the selected alias, bounded objective,
+  file/evidence ownership, command start and outcome, safe process or session
+  identifier when available, child result contract, and timestamp. A terminal
+  command that only renders a prompt is not execution proof.
+- A lane may be marked `DONE` only after its actual child result and required
+  evidence are retained. A configured alias, shell function, route label,
+  model name, or command text alone remains routing intent.
+- Never use an alias availability check to inspect, print, or repair
+  credentials. Record only safe availability/outcome metadata.
+
+### Alias-unavailable fallback
+
+If the selected alias is unavailable before execution, record the alias,
+timestamp, safe failure class (for example `not configured`, `executable
+missing`, or `permission/authentication required`), and that no child ran.
+Then select one other explicitly configured alias for the same bounded task
+only when ownership, scope, and authorization remain unchanged. Record the new
+attempt separately; do not relabel it as execution by the unavailable alias.
+
+If no configured alias can execute the task, return `[ERROR] BLOCKED` with a
+safe operator command or configuration decision. Return `NEEDS_HITL`
+immediately for credentials, permissions, billing, production mutation, or an
+ambiguous ownership/alias decision. Do not invent an alias, silently fall back
+to the orchestrator session, or claim multi-agent execution without process and
+child-result evidence.
+
 ## Quota and account evidence
 
 Record quota/account state only as non-secret metadata: account alias, provider,

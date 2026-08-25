@@ -31,6 +31,9 @@ VALID_AGY_MODES = {"accept-edits", "plan"}
 VALID_SANDBOXES = {"read-only", "workspace-write", "danger-full-access"}
 VALID_HOME_ENV = {"codex": "CODEX_HOME", "agy": "AGY_HOME"}
 VALID_RESULT_STATUSES = {"DONE", "BLOCKED", "NEEDS_HITL"}
+# Configuration selects from this fixed, approved terminal-account set; it
+# cannot grant an additional account alias execution authority.
+GOVERNED_ACCOUNT_ALIASES = frozenset({"codex1", "codex2", "agy1", "agy2"})
 RESULT_FIELDS = {
     "status",
     "scope_owned",
@@ -42,6 +45,11 @@ RESULT_FIELDS = {
 }
 SAFE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
 SAFE_COMMAND = re.compile(r"^(?:[A-Za-z0-9_.-]+|/[A-Za-z0-9_./-]+)$")
+SAFE_SESSION_ID = re.compile(
+    r"(?:child[-_ ]?(?:process|session)|(?:process|session)[-_ ]?id)\s*[:=]\s*"
+    r"([A-Za-z0-9_.-]{1,128})",
+    re.IGNORECASE,
+)
 
 DEFAULT_OWNERSHIP = "Only the files and responsibilities explicitly assigned in this prompt."
 DEFAULT_BOUNDARIES = "Do not modify credentials, authentication state, or files outside ownership."
@@ -143,6 +151,8 @@ def resolve_route(
 
     roles = _mapping(config.get("roles"), "roles")
     accounts = _mapping(config.get("accounts"), "accounts")
+    if set(accounts) - GOVERNED_ACCOUNT_ALIASES:
+        raise ConfigurationError("accounts contains an alias outside the approved account alias allowlist")
     if role not in roles:
         raise ConfigurationError(f"unknown role: {role}")
     role_config = _mapping(roles[role], f"roles.{role}")
@@ -153,6 +163,8 @@ def resolve_route(
         raise ConfigurationError("role alias is missing or invalid")
     if alias not in accounts:
         raise ConfigurationError(f"unknown account alias: {alias}")
+    if alias not in GOVERNED_ACCOUNT_ALIASES:
+        raise ConfigurationError(f"alias is outside the approved account alias allowlist: {alias}")
     account = _mapping(accounts[alias], f"accounts.{alias}")
 
     account_cli = account.get("cli")
@@ -425,6 +437,98 @@ def _redact_preview(value: str, invocation: Invocation) -> str:
     return redacted
 
 
+def _safe_execution_evidence(
+    result: subprocess.CompletedProcess[str],
+) -> dict[str, Any]:
+    """Return non-secret proof produced by an actual completed child process."""
+
+    stdout = result.stdout or ""
+    stderr = result.stderr or ""
+    evidence: dict[str, Any] = {
+        "source": "actual-subprocess-result",
+        "returncode": result.returncode,
+        # A digest is safe to retain even if a provider response contains
+        # sensitive text; it proves a non-empty child result without logging it.
+        "child_result_sha256": hashlib.sha256(stdout.encode("utf-8")).hexdigest(),
+        "child_result_bytes": len(stdout.encode("utf-8")),
+    }
+    session_match = SAFE_SESSION_ID.search(stderr)
+    if session_match:
+        evidence["process_or_session_id"] = session_match.group(1)
+    return evidence
+
+
+def _canonical_blocked_result(
+    route: Route,
+    *,
+    failure_class: str,
+    recommended_next_action: str,
+) -> dict[str, Any]:
+    """Create a safe canonical record for a failed preflight/start attempt."""
+
+    return {
+        "status": "BLOCKED",
+        "alias": route.alias,
+        "execution_evidence": {
+            "source": "no-child-ran",
+            "failure_class": failure_class,
+        },
+        "scope_owned": "configured terminal dispatch",
+        "evidence": {
+            "commands": [],
+            "outcomes": ["configured child process did not start"],
+            "artifacts": [],
+        },
+        "findings": ["No actual child run is claimed."],
+        "changed_files": [],
+        "residual_risk": "the selected account alias could not execute the bounded task",
+        "recommended_next_action": recommended_next_action,
+    }
+
+
+def _completed_result(
+    normalized: Mapping[str, Any], result: subprocess.CompletedProcess[str]
+) -> dict[str, Any]:
+    """Attach subprocess proof and prevent unsupported DONE claims."""
+
+    completed = dict(normalized)
+    execution_evidence = _safe_execution_evidence(result)
+    completed["execution_evidence"] = execution_evidence
+    if completed["status"] == "DONE" and (
+        result.returncode != 0 or not execution_evidence["child_result_bytes"]
+    ):
+        completed["status"] = "BLOCKED"
+        completed["residual_risk"] = "child execution did not provide successful result evidence"
+        completed["recommended_next_action"] = (
+            "rerun the selected alias and retain a non-empty child result"
+        )
+    return completed
+
+
+def _redact_result_value(value: Any, invocation: Invocation) -> Any:
+    """Prevent child-controlled output from echoing prompt, homes, or secrets."""
+
+    if isinstance(value, str):
+        redacted = value.replace(invocation.prompt_stdin, "<PROMPT_REDACTED>")
+        redacted = _redact_preview(redacted, invocation)
+        # Keep the filter deliberately narrow so ordinary findings remain
+        # useful, while credential-shaped values are never emitted by this
+        # governance command.
+        redacted = re.sub(
+            r"(?i)\b(?:token|cookie|api[_-]?key|authorization)\s*[:=]\s*[^\s,;]+",
+            "<SECRET_REDACTED>",
+            redacted,
+        )
+        return redacted
+    if isinstance(value, list):
+        return [_redact_result_value(item, invocation) for item in value]
+    if isinstance(value, tuple):
+        return [_redact_result_value(item, invocation) for item in value]
+    if isinstance(value, Mapping):
+        return {str(key): _redact_result_value(item, invocation) for key, item in value.items()}
+    return value
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True, help="Path to PromptCommand YAML")
@@ -489,14 +593,41 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         result = execute_invocation(invocation)
     except (ConfigurationError, OSError) as exc:
-        print(f"[ERROR] Unable to start configured {route.cli} executable: {exc}", file=sys.stderr)
+        print(
+            json.dumps(
+                _canonical_blocked_result(
+                    route,
+                    failure_class="executable-unavailable-or-preflight-failed",
+                    recommended_next_action=(
+                        "verify the selected alias CLI installation and retry the same bounded task"
+                    ),
+                ),
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        # Do not expose the exception: it may contain account-home or host
+        # details.  The canonical record above is the operator-facing outcome.
+        print(f"[ERROR] Unable to start configured {route.cli} executable.", file=sys.stderr)
         return 127
     try:
         normalized = normalize_result(result.stdout, returncode=result.returncode)
     except ConfigurationError as exc:
-        print(f"[ERROR] Invalid sub-agent result: {exc}", file=sys.stderr)
+        print(
+            json.dumps(
+                _canonical_blocked_result(
+                    route,
+                    failure_class="invalid-child-result-contract",
+                    recommended_next_action="rerun the selected alias and require the JSON result contract",
+                ),
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        print("[ERROR] Invalid sub-agent result contract.", file=sys.stderr)
         return 3
-    print(json.dumps(normalized, ensure_ascii=False, indent=2))
+    completed = _completed_result(normalized, result)
+    print(json.dumps(_redact_result_value(completed, invocation), ensure_ascii=False, indent=2))
     if result.returncode == 0:
         print("[OK] Sub-agent command completed.")
     else:

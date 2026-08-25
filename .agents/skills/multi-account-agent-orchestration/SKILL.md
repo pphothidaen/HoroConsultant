@@ -39,6 +39,37 @@ For execution proof, retain the child result and safe provider/session
 telemetry. Never print or store tokens, cookies, passwords, emails, raw home
 paths, or credential values.
 
+## Meaningful multi-agent dispatch gate
+
+When reporting or carrying out meaningful multi-agent orchestration, explicitly select
+one configured alias and perform at least one bounded terminal dispatch
+through it: `codex1`, `codex2`, `agy1`, or `agy2`. Meaningful work has an
+agent-owned implementation, QA, review, research, or operations lane; a
+planning-only discussion is not execution and must not be described as such.
+
+1. Select one alias for the bounded task. The `or` list means one selected
+   alias, not a requirement to call all four.
+2. Record the selected alias, objective, ownership, timestamp, command start
+   and outcome, safe process/session identifier when available, child result,
+   and evidence. Rendering PromptCommand alone is not a dispatch.
+3. Close the lane only after the child result satisfies the normal result
+   contract. A shell function, configured account, route/model label, or
+   rendered command is routing intent, never execution proof.
+
+### Alias-unavailable fallback
+
+If the selected alias cannot run, record its alias, timestamp, a safe failure
+class (`not configured`, `executable missing`, or `permission/authentication
+required`), and `no child ran`. Do not claim the selected alias executed.
+
+One other explicitly configured alias may be selected for the same bounded task
+only if ownership, scope, and authorization are unchanged; record it as a new
+attempt. If no alias can run the task, return `[ERROR] BLOCKED` with a safe
+operator command or configuration decision. Return `NEEDS_HITL` immediately
+for credentials, permissions, billing, production mutation, or ambiguous
+alias/ownership choice. Never invent an alias or silently substitute the
+orchestrator session.
+
 ## Quota, retries, and HITL
 
 - Re-check quota before a large dispatch and record only a safe band/status.
@@ -58,7 +89,9 @@ python3 scripts/agent_quota_status_guard.py --remaining-percent <percent> --enfo
 ## Closure
 
 Return `DONE` only when evidence matches acceptance criteria, ownership is clean,
-all required children are closed, and sync checks pass. Return `BLOCKED` when a
-safe in-scope action cannot resolve missing evidence. Return `NEEDS_HITL` when a
-human authorization or decision is required. Use only ASCII log tags:
+all required children are closed, and sync checks pass. For meaningful
+multi-agent work, this includes the selected-alias process/session evidence and
+actual child result. Return `BLOCKED` when a safe in-scope action cannot resolve
+missing evidence. Return `NEEDS_HITL` when a human authorization or decision is
+required. Use only ASCII log tags:
 `[OK]`, `[ERROR]`, `[WARNING]`, and `[INFO]`.

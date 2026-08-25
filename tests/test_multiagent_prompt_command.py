@@ -605,3 +605,100 @@ def test_real_agy_argument_order_is_verified_with_fake_executable(tmp_path, monk
         "--output-format",
         "json",
     ]
+
+
+@pytest.mark.parametrize(
+    "policy_path",
+    [
+        Path(".agents/rules/17-multi-account-agent-orchestration.md"),
+        Path(".agents/skills/multi-account-agent-orchestration/SKILL.md"),
+    ],
+)
+def test_terminal_dispatch_policy_requires_a_governed_account_alias(policy_path):
+    """Governance must make the terminal routing choice explicit and finite."""
+
+    policy = policy_path.read_text(encoding="utf-8").lower()
+
+    assert "bounded terminal dispatch" in policy
+    assert "explicitly select" in policy
+    for alias in ("codex1", "codex2", "agy1", "agy2"):
+        assert alias in policy
+
+
+def test_config_cannot_register_an_alias_outside_the_governed_account_set(tmp_path):
+    """A YAML label must not extend the approved terminal account allowlist."""
+
+    config = yaml.safe_load(_config(tmp_path).read_text(encoding="utf-8"))
+    config["accounts"]["rogue"] = {"cli": "codex", "command": "codex"}
+    config["roles"]["developer"]["alias"] = "rogue"
+
+    with pytest.raises(command.ConfigurationError, match="approved account alias"):
+        command.resolve_route(config, "developer")
+
+
+def test_unavailable_selected_alias_returns_canonical_blocked_result(
+    tmp_path, monkeypatch, capsys
+):
+    """A missing account executable is a blocked dispatch, never execution proof."""
+
+    config_path = _config(tmp_path)
+    monkeypatch.setattr(command.shutil, "which", lambda executable: None)
+
+    result = command.main(
+        [
+            "--config",
+            str(config_path),
+            "--role",
+            "developer",
+            "--objective",
+            "Run bounded terminal task",
+            "--project-dir",
+            str(tmp_path),
+            "--execute",
+        ]
+    )
+
+    output = capsys.readouterr()
+    assert result != 0
+    assert '"status": "BLOCKED"' in output.out
+    assert "rendered-route-not-execution-proof" in output.out
+    assert "Unable to start configured codex executable" in output.err
+
+
+def test_completed_process_evidence_is_emitted_separately_from_route_label(
+    tmp_path, monkeypatch, capsys
+):
+    """A configured alias is routing intent; process evidence must be explicit."""
+
+    config_path = _config(tmp_path)
+    monkeypatch.setenv("HOME", str(tmp_path))
+    (tmp_path / ".codex-one").mkdir()
+
+    def fake_run(argv, **kwargs):
+        return subprocess.CompletedProcess(
+            argv, 0, stdout=_valid_result_stdout(), stderr="child-session=safe-123"
+        )
+
+    monkeypatch.setattr(command.subprocess, "run", fake_run)
+    assert (
+        command.main(
+            [
+                "--config",
+                str(config_path),
+                "--role",
+                "developer",
+                "--objective",
+                "Run bounded terminal task",
+                "--project-dir",
+                str(tmp_path),
+                "--execute",
+            ]
+        )
+        == 0
+    )
+
+    output = capsys.readouterr().out
+    assert '"alias": "codex1"' in output
+    assert '"execution_evidence"' in output
+    assert '"source": "actual-subprocess-result"' in output
+    assert '"returncode": 0' in output
