@@ -11,6 +11,7 @@ Priority Order:
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import os
@@ -18,10 +19,16 @@ import subprocess
 import urllib.request
 from functools import lru_cache
 from pathlib import Path
+import re
 
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+_RELEASE_SOURCE_COMMIT_RE = re.compile(r"^[0-9a-f]{7,40}$")
+_RELEASE_SOURCE_REVISION_RE = re.compile(r"^[0-9a-f]{40}$")
+_RELEASE_SOURCE_DIGEST_RE = re.compile(r"^[0-9a-f]{64}$")
+_RELEASE_VERSION_RE = re.compile(r"^\d+\.\d+\.\d+\.([0-9a-f]{7,40})$")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("config_manager")
@@ -76,6 +83,114 @@ def get_git_commit_hash() -> str:
 def get_app_version() -> str:
     """Return full application version string with dynamic Git commit hash, e.g. 1.0.0.fe6a2aa."""
     return f"1.0.0.{get_git_commit_hash()}"
+
+
+def get_release_source_identity() -> dict[str, str]:
+    """Return the immutable source identity declared by static release metadata.
+
+    A release can be packaged or evidenced in a later commit. Consequently,
+    the current repository ``HEAD`` is not release provenance and must never be
+    used as a fallback here. The source identity is deliberately explicit: the
+    abbreviated commit, resolved full revision, and digest of the canonical
+    source-metadata payload must all agree. Legacy ``commit`` and deployment
+    ``packaging_commit`` fields are rejected rather than silently interpreted.
+
+    Raises:
+        ValueError: If local metadata is missing, malformed, ambiguous, or does
+            not bind its version suffix to exactly one valid source commit.
+    """
+    metadata_path = BASE_DIR / "project" / "static" / "version.json"
+
+    def reject_duplicate_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
+        metadata: dict[str, object] = {}
+        for key, value in pairs:
+            if key in metadata:
+                raise ValueError(f"duplicate local release metadata key: {key}")
+            metadata[key] = value
+        return metadata
+
+    try:
+        raw_metadata = json.loads(
+            metadata_path.read_text(encoding="utf-8"),
+            object_pairs_hook=reject_duplicate_keys,
+        )
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"local release metadata unavailable: {exc}") from exc
+
+    if not isinstance(raw_metadata, dict):
+        raise ValueError("local release metadata must contain a JSON object")
+
+    required_fields = (
+        "version",
+        "release_source_commit",
+        "release_source_revision",
+        "release_source_metadata_path",
+        "release_source_metadata_sha256",
+    )
+    missing_fields = [key for key in required_fields if key not in raw_metadata]
+    if missing_fields:
+        raise ValueError(f"local release metadata missing required fields: {missing_fields}")
+    forbidden_fields = [key for key in ("commit", "packaging_commit") if key in raw_metadata]
+    if forbidden_fields:
+        raise ValueError(f"local release metadata contains forbidden fields: {forbidden_fields}")
+
+    version = raw_metadata["version"]
+    if not isinstance(version, str):
+        raise ValueError("local release metadata requires one string version")
+    version_match = _RELEASE_VERSION_RE.fullmatch(version)
+    if version_match is None:
+        raise ValueError("local release version must end with one lowercase source commit")
+
+    source_commit = raw_metadata["release_source_commit"]
+    source_revision = raw_metadata["release_source_revision"]
+    source_metadata_path = raw_metadata["release_source_metadata_path"]
+    source_metadata_digest = raw_metadata["release_source_metadata_sha256"]
+    if not isinstance(source_commit, str) or _RELEASE_SOURCE_COMMIT_RE.fullmatch(source_commit) is None:
+        raise ValueError("local release source commit must be lowercase hexadecimal")
+    if not isinstance(source_revision, str) or _RELEASE_SOURCE_REVISION_RE.fullmatch(source_revision) is None:
+        raise ValueError("local release source revision must be a full lowercase Git revision")
+    if not isinstance(source_metadata_path, str) or source_metadata_path != "project/static/version.json":
+        raise ValueError("local release source metadata path must be project/static/version.json")
+    if not isinstance(source_metadata_digest, str) or _RELEASE_SOURCE_DIGEST_RE.fullmatch(source_metadata_digest) is None:
+        raise ValueError("local release source metadata digest must be lowercase SHA-256")
+    if version_match.group(1) != source_commit:
+        raise ValueError("local release version suffix must equal release source commit")
+
+    canonical_source_metadata = json.dumps(
+        {
+            "release_source_commit": source_commit,
+            "release_source_metadata_path": source_metadata_path,
+            "release_source_revision": source_revision,
+            "version": version,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    expected_digest = hashlib.sha256(canonical_source_metadata).hexdigest()
+    if source_metadata_digest != expected_digest:
+        raise ValueError("local release source metadata digest does not match canonical source metadata")
+
+    try:
+        resolved_revision = subprocess.check_output(
+            ["git", "rev-parse", "--verify", f"{source_commit}^{{commit}}"],
+            cwd=str(BASE_DIR),
+            stderr=subprocess.DEVNULL,
+            timeout=2,
+            text=True,
+        ).strip()
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise ValueError("local release source commit cannot be resolved in Git") from exc
+    if resolved_revision != source_revision:
+        raise ValueError("local release source revision conflicts with release source commit")
+
+    return {
+        "version": version,
+        "release_source_commit": source_commit,
+        "release_source_revision": source_revision,
+        "release_source_metadata_path": source_metadata_path,
+        "release_source_metadata_sha256": source_metadata_digest,
+        "metadata_path": str(metadata_path),
+    }
 
 
 _DOPPLER_CACHE: dict[str, str] = {}

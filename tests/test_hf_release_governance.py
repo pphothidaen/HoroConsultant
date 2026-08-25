@@ -236,24 +236,33 @@ def test_post_deploy_manual_gradient_evidence_is_current_and_complete() -> None:
     assert len(reviews) == 5
     assert {review["viewport"] for review in reviews} == CANONICAL_VIEWPORTS
     assert len({review["viewport"] for review in reviews}) == 5
-    assert sum(review["findings_count"] for review in reviews) == report["total_contrast_indeterminate"] == 30
+    assert sum(len(review["findings"]) for review in reviews) == report["total_contrast_indeterminate"] == 30
+    expected_findings = {
+        "span.v3-epistemic-disclaimer__icon | ⚖️",
+        "strong | พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)",
+        "div.v3-epistemic-disclaimer__body",
+        "span | 🔒 Architecture: Horo Metaphysics Engine v3.0",
+        "span | 🏛️ Epistemic Chain: 5-Stage Traceable",
+        "span | 🛡️ Integrity Guard: Merkle DAG Verified",
+    }
     review_timestamps = []
     for review in reviews:
-        assert review["findings_count"] == scenario_findings[review["viewport"]] == 6
-        assert review["reviewer_role"] == "code_reviewer"
-        reviewed_at = _timestamp(review["reviewed_at"])
-        assert reviewed_at.tzinfo is not None
-        review_timestamps.append(reviewed_at)
-        assert review["decision"] == "PASS"
-        normalized_basis = review["basis"].casefold()
-        for phrase in (
-            "manual 30/30 gradient pass",
-            "verified current report",
-            "all five current screenshots",
-            "sha256 matched",
-            "no clipping, overlap, or out-of-bounds",
-        ):
-            assert phrase in normalized_basis
+        findings = review["findings"]
+        assert len(findings) == scenario_findings[review["viewport"]] == 6
+        assert {finding["finding"] for finding in findings} == expected_findings
+        for finding in findings:
+            assert finding["reviewer_role"] == "ui_visual_tester"
+            reviewed_at = _timestamp(finding["reviewed_at"])
+            assert reviewed_at.tzinfo is not None
+            review_timestamps.append(reviewed_at)
+            assert finding["decision"] == "PASS"
+            normalized_basis = finding["basis"].casefold()
+            for phrase in (
+                "readable over dark/amber disclaimer gradient",
+                "no clipping, collision, or artefact",
+                "zero layout defects",
+            ):
+                assert phrase in normalized_basis
 
     freshness = evidence["evidence_freshness"]
     report_timestamp = _timestamp(report["timestamp"])

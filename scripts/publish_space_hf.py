@@ -14,9 +14,11 @@ from __future__ import annotations
 
 import argparse
 import fnmatch
+import json
 import logging
 import os
 import re
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -44,6 +46,57 @@ except ImportError:
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+
+
+def get_packaging_commit() -> str:
+    """Return the immutable packaging commit directly from the Git repository.
+
+    Packaging provenance must never be supplied by environment variables,
+    metadata files, or CLI defaults: those sources can describe a different
+    checkout. A full revision makes the source-ancestor proof unambiguous.
+    """
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "--verify", "HEAD^{commit}"],
+            cwd=str(ROOT),
+            stderr=subprocess.DEVNULL,
+            timeout=2,
+            text=True,
+        ).strip()
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise ValueError("packaging commit cannot be resolved directly from Git HEAD") from exc
+
+
+def source_is_ancestor_of_packaging(source_commit: str, packaging_commit: str) -> bool:
+    """Return whether immutable source provenance is reachable from packaging HEAD."""
+    try:
+        result = subprocess.run(
+            ["git", "merge-base", "--is-ancestor", source_commit, packaging_commit],
+            cwd=str(ROOT),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=2,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return result.returncode == 0
+
+
+def _parse_version_metadata(raw_text: str) -> dict[str, Any]:
+    """Parse a version JSON object without accepting duplicate keys."""
+    def reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        parsed: dict[str, Any] = {}
+        for key, value in pairs:
+            if key in parsed:
+                raise ValueError(f"duplicate version.json key: {key}")
+            parsed[key] = value
+        return parsed
+
+    parsed = json.loads(raw_text, object_pairs_hook=reject_duplicate_keys)
+    if not isinstance(parsed, dict):
+        raise ValueError("version.json must contain a JSON object")
+    return parsed
 
 # Patterns to ignore during Docker payload calculation and HF upload
 IGNORE_PATTERNS = [
@@ -259,18 +312,25 @@ def verify_space_health(
                 if version_res.status_code != 200:
                     return False, f"version.json HTTP {version_res.status_code}", latency_ms
                 try:
-                    version_meta = version_res.json()
+                    version_meta = _parse_version_metadata(version_res.text)
                 except ValueError as exc:
                     return False, f"version.json is not valid JSON: {exc}", latency_ms
-                if not isinstance(version_meta, dict):
-                    return False, "version.json must contain a JSON object", latency_ms
-                required_meta = ("version", "commit", "status")
+                required_meta = (
+                    "version",
+                    "release_source_commit",
+                    "release_source_revision",
+                    "release_source_metadata_path",
+                    "release_source_metadata_sha256",
+                    "status",
+                )
                 missing_meta = [key for key in required_meta if not version_meta.get(key)]
-                if missing_meta or version_meta.get("status") != "production":
+                forbidden_meta = [key for key in ("commit", "packaging_commit") if key in version_meta]
+                if missing_meta or forbidden_meta or version_meta.get("status") != "production":
                     return False, f"Invalid production version metadata (missing={missing_meta})", latency_ms
                 return (
                     True,
-                    f"Static root and version.json OK (version={version_meta['version']}, commit={version_meta['commit']})",
+                    "Static root and version.json OK "
+                    f"(version={version_meta['version']}, source={version_meta['release_source_commit']})",
                     latency_ms,
                 )
 
@@ -393,10 +453,16 @@ pinned: false
             except Exception:
                 pass
 
-            from project.core.config import get_app_version
+            from project.core.config import get_release_source_identity
             import json, datetime
-            local_version = get_app_version()
-            git_commit = local_version.split(".")[-1] if "." in local_version else local_version
+            release_identity = get_release_source_identity()
+            local_version = release_identity["version"]
+            release_source_commit = release_identity["release_source_commit"]
+            packaging_commit = get_packaging_commit()
+            if not source_is_ancestor_of_packaging(release_source_commit, packaging_commit):
+                raise ValueError(
+                    "release_source_commit must be an ancestor of the Git HEAD packaging commit"
+                )
             static_dir = ROOT / "project" / "static"
 
             # Create temporary staged static assets folder with git version injected into all assets
@@ -408,7 +474,10 @@ pinned: false
             # 1. Generate version.json
             version_meta = {
                 "version": local_version,
-                "commit": git_commit,
+                "release_source_commit": release_source_commit,
+                "release_source_revision": release_identity["release_source_revision"],
+                "release_source_metadata_path": release_identity["release_source_metadata_path"],
+                "release_source_metadata_sha256": release_identity["release_source_metadata_sha256"],
                 "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
                 "status": "production"
             }
@@ -433,10 +502,13 @@ pinned: false
                 html_path = temp_static_dir / html_name
                 if html_path.exists():
                     html_text = html_path.read_text(encoding="utf-8")
-                    html_text = stamp_static_html_version(html_text, local_version, git_commit)
+                    html_text = stamp_static_html_version(html_text, local_version, release_source_commit)
                     html_path.write_text(html_text, encoding="utf-8")
 
-            logger.info(f"📦 Staged static assets with full cache-busting version 'v{local_version}' (Commit: {git_commit})...")
+            logger.info(
+                "[INFO] Staged static assets with source version "
+                f"'v{local_version}' (source={release_source_commit}, packaging={packaging_commit})..."
+            )
 
             # Upload static assets to root
             api.upload_folder(
@@ -580,13 +652,16 @@ def verify_live_deployment_version(
     is not consulted because it is not evidence for the deployed Static Space.
     Returns (is_matched, message, details).
     """
-    from project.core.config import get_app_version, get_git_commit_hash
-    local_commit = get_git_commit_hash()
-    local_version = get_app_version()
+    from project.core.config import get_release_source_identity
 
     details = {
-        "expected_commit": local_commit,
-        "expected_version": local_version,
+        # expected_commit is retained as a compatibility alias for the source
+        # identity. Packaging HEAD is reported separately and is never a gate.
+        "expected_commit": None,
+        "expected_version": None,
+        "expected_release_source_commit": None,
+        "expected_release_version": None,
+        "packaging_commit": None,
         "sdk": sdk,
         "base_url": _space_base_url(space_id, sdk),
         "checks": {},
@@ -598,6 +673,35 @@ def verify_live_deployment_version(
     if not HTTPX_AVAILABLE:
         details["errors"].append("httpx package not installed")
         return False, "[ERROR] Live verification requires httpx.", details
+
+    try:
+        release_identity = get_release_source_identity()
+        packaging_commit = get_packaging_commit()
+        if not source_is_ancestor_of_packaging(
+            release_identity["release_source_commit"], packaging_commit
+        ):
+            raise ValueError(
+                "release_source_commit is not an ancestor of the Git HEAD packaging commit"
+            )
+    except ValueError as exc:
+        details["errors"].append(f"local release identity invalid: {exc}")
+        return False, "[ERROR] Live verification requires valid local release metadata.", details
+
+    local_commit = release_identity["release_source_commit"]
+    local_version = release_identity["version"]
+    details.update(
+        {
+            "expected_commit": local_commit,
+            "expected_version": local_version,
+            "expected_release_source_commit": local_commit,
+            "expected_release_version": local_version,
+            "expected_release_source_revision": release_identity["release_source_revision"],
+            "expected_release_source_metadata_path": release_identity["release_source_metadata_path"],
+            "expected_release_source_metadata_sha256": release_identity["release_source_metadata_sha256"],
+            "release_metadata_path": release_identity["metadata_path"],
+            "packaging_commit": packaging_commit,
+        }
+    )
 
     base_url = details["base_url"]
     try:
@@ -621,11 +725,8 @@ def verify_live_deployment_version(
                 version_meta: dict[str, Any] = {}
                 if responses["version.json"].status_code == 200:
                     try:
-                        parsed_version_meta = responses["version.json"].json()
-                        if isinstance(parsed_version_meta, dict):
-                            version_meta = parsed_version_meta
-                        else:
-                            details["errors"].append("version.json must contain a JSON object")
+                        version_text = responses["version.json"].text
+                        version_meta = _parse_version_metadata(version_text)
                     except ValueError as exc:
                         details["errors"].append(f"version.json invalid JSON: {exc}")
 
@@ -657,10 +758,34 @@ def verify_live_deployment_version(
                         index_text,
                     )
 
+                live_source_commit = version_meta.get("release_source_commit")
+
                 details["checks"].update(
                     {
                         "version_json_version_exact": version_meta.get("version") == local_version,
-                        "version_json_commit_exact": version_meta.get("commit") == local_commit,
+                        "version_json_source_commit_exact": live_source_commit == local_commit,
+                        "version_json_source_commit_exactly_once": (
+                            isinstance(live_source_commit, str)
+                            and re.fullmatch(r"[0-9a-f]{7,40}", live_source_commit) is not None
+                            and "commit" not in version_meta
+                            and "packaging_commit" not in version_meta
+                        ),
+                        "version_json_version_binds_source_commit": (
+                            isinstance(version_meta.get("version"), str)
+                            and version_meta.get("version", "").endswith(f".{live_source_commit}")
+                        ),
+                        "version_json_source_revision_exact": (
+                            version_meta.get("release_source_revision")
+                            == release_identity["release_source_revision"]
+                        ),
+                        "version_json_source_metadata_path_exact": (
+                            version_meta.get("release_source_metadata_path")
+                            == release_identity["release_source_metadata_path"]
+                        ),
+                        "version_json_source_metadata_digest_exact": (
+                            version_meta.get("release_source_metadata_sha256")
+                            == release_identity["release_source_metadata_sha256"]
+                        ),
                         "version_json_production": version_meta.get("status") == "production",
                         "current_page_version_exact": page_versions == [local_version],
                         "footer_version_exact": footer_versions == [local_version],
@@ -684,7 +809,10 @@ def verify_live_deployment_version(
     details["failed_checks"] = failed_checks
 
     if is_matched:
-        msg = f"[OK] Live deployment matches commit '{local_commit}' and version '{local_version}'."
+        msg = (
+            f"[OK] Live deployment matches release source '{local_commit}' and version "
+            f"'{local_version}' (packaging commit '{packaging_commit}')."
+        )
     else:
         failure_summary = ", ".join(failed_checks + details["errors"]) or "no verification evidence"
         msg = f"[ERROR] Live deployment does not match the expected release: {failure_summary}."

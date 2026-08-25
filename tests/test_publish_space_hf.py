@@ -12,6 +12,7 @@ Tests:
 from __future__ import annotations
 
 import json
+import hashlib
 import sys
 from pathlib import Path
 
@@ -73,6 +74,26 @@ def _install_fake_client(monkeypatch, responses):
     return requested_urls
 
 
+def _release_metadata(version="1.0.0.6c351ba", commit="6c351ba"):
+    revision = f"{commit}{'0' * (40 - len(commit))}"
+    canonical = {
+        "release_source_commit": commit,
+        "release_source_metadata_path": "project/static/version.json",
+        "release_source_revision": revision,
+        "version": version,
+    }
+    return {
+        "version": version,
+        "release_source_commit": commit,
+        "release_source_revision": revision,
+        "release_source_metadata_path": "project/static/version.json",
+        "release_source_metadata_sha256": hashlib.sha256(
+            json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest(),
+        "status": "production",
+    }
+
+
 def _static_release_responses(version="1.0.0.6c351ba", commit="6c351ba"):
     base_url = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
     index = f'''
@@ -85,7 +106,7 @@ def _static_release_responses(version="1.0.0.6c351ba", commit="6c351ba"):
     '''
     return {
         f"{base_url}/version.json": _FakeResponse(
-            json_data={"version": version, "commit": commit, "status": "production"},
+            text=json.dumps(_release_metadata(version, commit)),
             content_type="application/json",
         ),
         f"{base_url}/index.html": _FakeResponse(text=index),
@@ -98,8 +119,15 @@ def _static_release_responses(version="1.0.0.6c351ba", commit="6c351ba"):
 def _set_expected_release(monkeypatch, version="1.0.0.6c351ba", commit="6c351ba"):
     from project.core import config
 
-    monkeypatch.setattr(config, "get_app_version", lambda: version)
-    monkeypatch.setattr(config, "get_git_commit_hash", lambda: commit)
+    metadata = _release_metadata(version, commit)
+    monkeypatch.setattr(
+        config,
+        "get_release_source_identity",
+        lambda: {
+            **metadata,
+            "metadata_path": "/release/version.json",
+        },
+    )
 
 
 def test_should_ignore_patterns():
@@ -145,6 +173,108 @@ def test_publish_space_dry_run():
     assert result is True
 
 
+def test_packaging_commit_is_resolved_only_from_git_head(monkeypatch):
+    observed = {}
+
+    def fake_check_output(command, **kwargs):
+        observed["command"] = command
+        observed["cwd"] = kwargs["cwd"]
+        return "a" * 40
+
+    monkeypatch.setenv("GIT_COMMIT_HASH", "b" * 40)
+    monkeypatch.setenv("VERCEL_GIT_COMMIT_SHA", "c" * 40)
+    monkeypatch.setattr(publisher.subprocess, "check_output", fake_check_output)
+
+    assert publisher.get_packaging_commit() == "a" * 40
+    assert observed["command"] == ["git", "rev-parse", "--verify", "HEAD^{commit}"]
+    assert observed["cwd"] == str(ROOT)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "error_fragment"),
+    [
+        (lambda metadata: metadata.pop("release_source_commit"), "missing required fields"),
+        (lambda metadata: metadata.__setitem__("commit", "6c351ba"), "forbidden fields"),
+        (lambda metadata: metadata.__setitem__("packaging_commit", "c9f9161"), "forbidden fields"),
+        (lambda metadata: metadata.__setitem__("release_source_metadata_sha256", "0" * 64), "digest does not match"),
+        (lambda metadata: metadata.__setitem__("release_source_revision", "0" * 40), "digest does not match"),
+    ],
+)
+def test_release_source_identity_fails_closed_for_malformed_or_legacy_metadata(
+    monkeypatch, tmp_path, mutation, error_fragment
+):
+    from project.core import config
+
+    metadata = _release_metadata(version="1.0.0.c9f9161", commit="c9f9161")
+    metadata["release_source_revision"] = "c9f916108f2302de20b28cf31ae1660e63f60394"
+    canonical = {
+        "release_source_commit": metadata["release_source_commit"],
+        "release_source_metadata_path": metadata["release_source_metadata_path"],
+        "release_source_revision": metadata["release_source_revision"],
+        "version": metadata["version"],
+    }
+    metadata["release_source_metadata_sha256"] = hashlib.sha256(
+        json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    mutation(metadata)
+    metadata_path = tmp_path / "project" / "static" / "version.json"
+    metadata_path.parent.mkdir(parents=True)
+    metadata_path.write_text(json.dumps(metadata), encoding="utf-8")
+    monkeypatch.setattr(config, "BASE_DIR", tmp_path)
+    monkeypatch.setattr(
+        config.subprocess,
+        "check_output",
+        lambda *args, **kwargs: "c9f916108f2302de20b28cf31ae1660e63f60394",
+    )
+
+    with pytest.raises(ValueError, match=error_fragment):
+        config.get_release_source_identity()
+
+
+def test_release_source_identity_rejects_duplicate_release_source_commit(monkeypatch, tmp_path):
+    from project.core import config
+
+    metadata_path = tmp_path / "project" / "static" / "version.json"
+    metadata_path.parent.mkdir(parents=True)
+    metadata_path.write_text(
+        '{"version":"1.0.0.c9f9161","release_source_commit":"c9f9161",'
+        '"release_source_commit":"e432e0d"}',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(config, "BASE_DIR", tmp_path)
+
+    with pytest.raises(ValueError, match="duplicate local release metadata key"):
+        config.get_release_source_identity()
+
+
+def test_release_source_identity_rejects_source_revision_conflict(monkeypatch, tmp_path):
+    from project.core import config
+
+    metadata = _release_metadata(version="1.0.0.c9f9161", commit="c9f9161")
+    metadata["release_source_revision"] = "0" * 40
+    canonical = {
+        "release_source_commit": metadata["release_source_commit"],
+        "release_source_metadata_path": metadata["release_source_metadata_path"],
+        "release_source_revision": metadata["release_source_revision"],
+        "version": metadata["version"],
+    }
+    metadata["release_source_metadata_sha256"] = hashlib.sha256(
+        json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    metadata_path = tmp_path / "project" / "static" / "version.json"
+    metadata_path.parent.mkdir(parents=True)
+    metadata_path.write_text(json.dumps(metadata), encoding="utf-8")
+    monkeypatch.setattr(config, "BASE_DIR", tmp_path)
+    monkeypatch.setattr(
+        config.subprocess,
+        "check_output",
+        lambda *args, **kwargs: "c9f916108f2302de20b28cf31ae1660e63f60394",
+    )
+
+    with pytest.raises(ValueError, match="revision conflicts"):
+        config.get_release_source_identity()
+
+
 def test_stamp_static_html_version_normalizes_stale_and_composite_labels():
     """Static staging must emit one coherent version on every HTML surface."""
     source = '''
@@ -178,7 +308,7 @@ def test_verify_static_health_checks_root_and_production_version_metadata(monkey
     responses = {
         f"{base_url}/": _FakeResponse(text="<html>HoroConsultant</html>"),
         f"{base_url}/version.json": _FakeResponse(
-            json_data={"version": "1.0.0.6c351ba", "commit": "6c351ba", "status": "production"},
+            text=json.dumps(_release_metadata()),
             content_type="application/json",
         ),
     }
@@ -245,6 +375,8 @@ def test_verify_live_static_release_requires_all_exact_version_surfaces(monkeypa
     assert matched is True
     assert message.startswith("[OK]")
     assert details["matched"] is True
+    assert details["expected_release_source_commit"] == "6c351ba"
+    assert details["packaging_commit"] == publisher.get_packaging_commit()
     assert details["failed_checks"] == []
     assert all(details["checks"].values())
     assert len(requested_urls) == 5
@@ -435,3 +567,108 @@ def test_verify_live_docker_release_rejects_version_and_commit_mismatch(monkeypa
     assert details["checks"]["health_commit_exact"] is False
     assert details["checks"]["health_version_exact"] is False
     assert details["failed_checks"] == ["health_commit_exact", "health_version_exact"]
+
+
+def test_verify_live_static_release_accepts_source_metadata_when_packaging_head_differs(monkeypatch):
+    """A later evidence commit must not invalidate immutable source provenance."""
+    _set_expected_release(monkeypatch, version="1.0.0.6c351ba", commit="6c351ba")
+    monkeypatch.setattr(publisher, "get_packaging_commit", lambda: "c9f9161" * 5 + "c9f91")
+    monkeypatch.setattr(publisher, "source_is_ancestor_of_packaging", lambda source, packaging: True)
+    responses = _static_release_responses(version="1.0.0.6c351ba", commit="6c351ba")
+    responses[
+        "https://pphothidaen-horoconsultant-core-backend.static.hf.space/version.json"
+    ] = _FakeResponse(
+        text=json.dumps(_release_metadata()),
+        content_type="application/json",
+    )
+    _install_fake_client(monkeypatch, responses)
+
+    matched, message, details = verify_live_deployment_version(
+        "pphothidaen/horoconsultant-core-backend",
+        sdk="static",
+    )
+
+    assert matched is True
+    assert message.startswith("[OK]")
+    assert details["expected_release_source_commit"] == "6c351ba"
+    assert details["packaging_commit"] == "c9f9161" * 5 + "c9f91"
+
+
+def test_verify_live_static_release_rejects_conflicting_source_provenance(monkeypatch):
+    _set_expected_release(monkeypatch)
+    responses = _static_release_responses()
+    responses[
+        "https://pphothidaen-horoconsultant-core-backend.static.hf.space/version.json"
+    ] = _FakeResponse(
+        text=json.dumps(_release_metadata(commit="e432e0d")),
+        content_type="application/json",
+    )
+    _install_fake_client(monkeypatch, responses)
+
+    matched, message, details = verify_live_deployment_version(
+        "pphothidaen/horoconsultant-core-backend",
+        sdk="static",
+    )
+
+    assert matched is False
+    assert message.startswith("[ERROR]")
+    assert details["checks"]["version_json_source_commit_exactly_once"] is True
+    assert details["checks"]["version_json_source_commit_exact"] is False
+
+
+def test_verify_live_static_release_rejects_duplicate_version_metadata_keys(monkeypatch):
+    """JSON parsing must not silently accept a duplicate source identity field."""
+    _set_expected_release(monkeypatch)
+    responses = _static_release_responses()
+    responses[
+        "https://pphothidaen-horoconsultant-core-backend.static.hf.space/version.json"
+    ] = _FakeResponse(
+        text=(
+            '{"version":"1.0.0.6c351ba",'
+            '"release_source_commit":"6c351ba",'
+            '"release_source_commit":"e432e0d","status":"production"}'
+        ),
+        content_type="application/json",
+    )
+    _install_fake_client(monkeypatch, responses)
+
+    matched, message, details = verify_live_deployment_version(
+        "pphothidaen/horoconsultant-core-backend",
+        sdk="static",
+    )
+
+    assert matched is False
+    assert message.startswith("[ERROR]")
+    assert any("duplicate version.json key" in error for error in details["errors"])
+
+
+def test_verify_live_static_release_rejects_packaging_commit_on_version_surface(monkeypatch):
+    """Packaging provenance belongs to publisher evidence, never deployed metadata."""
+    _set_expected_release(monkeypatch)
+    responses = _static_release_responses()
+    base_url = "https://pphothidaen-horoconsultant-core-backend.static.hf.space"
+    version_meta = _release_metadata()
+    version_meta["packaging_commit"] = "c9f9161"
+    responses[f"{base_url}/version.json"] = _FakeResponse(text=json.dumps(version_meta))
+    _install_fake_client(monkeypatch, responses)
+
+    matched, _, details = verify_live_deployment_version(
+        "pphothidaen/horoconsultant-core-backend", sdk="static"
+    )
+
+    assert matched is False
+    assert details["checks"]["version_json_source_commit_exactly_once"] is False
+
+
+def test_verify_live_static_release_fails_when_source_is_not_packaging_ancestor(monkeypatch):
+    _set_expected_release(monkeypatch)
+    monkeypatch.setattr(publisher, "get_packaging_commit", lambda: "c9f9161" * 5 + "c9f91")
+    monkeypatch.setattr(publisher, "source_is_ancestor_of_packaging", lambda source, packaging: False)
+
+    matched, message, details = verify_live_deployment_version(
+        "pphothidaen/horoconsultant-core-backend", sdk="static"
+    )
+
+    assert matched is False
+    assert message.startswith("[ERROR]")
+    assert any("not an ancestor" in error for error in details["errors"])

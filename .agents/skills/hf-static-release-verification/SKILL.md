@@ -37,9 +37,11 @@ approval, or investigation of stale, duplicate, or composite frontend versions.
    python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --verify-version --sdk static
    ```
 
-   Require the expected version and commit exactly once in each required identity
-   location. Treat missing, duplicate, composite, stale, malformed, unreachable,
-   or indeterminate values as failures.
+   Read the committed release metadata first. Require its immutable
+   `release_source_commit` and expected version exactly once in each required
+   deployed identity location. Treat missing, duplicate, composite, stale,
+   malformed, unreachable, or indeterminate values as failures. Do not use the
+   later packaging/evidence commit as a deployed identity.
 
 3. Run regression and governance tests:
 
@@ -65,6 +67,27 @@ approval, or investigation of stale, duplicate, or composite frontend versions.
    finding. Do not publish or claim a successful release. Report `[ERROR] BLOCKED`
    to the Orchestrator.
 
+## Release source provenance
+
+The user-selected model for `TICKET-V3UI-007` separates two immutable audit
+identities:
+
+- `release_source_commit`: the Git source identity selected for the deployed
+  release payload. It is the sole commit value permitted on deployed version
+  surfaces and must be exactly cardinal once per required surface.
+- `packaging_commit`: the later Git commit that contains release metadata and
+  evidence. It must be recorded in the evidence artifact, but must not appear
+  in place of `release_source_commit` on deployed version surfaces.
+
+Before verification, read the committed source metadata and record its path,
+SHA-256 digest, version, `release_source_commit`, source revision, and
+`packaging_commit` in the evidence. Verify that `release_source_commit` is an
+ancestor of `packaging_commit`; `packaging_commit` remains evidence-only. Derive
+expected deployed values only from that metadata. There is no legacy commit,
+version, or metadata fallback. Environment variables, CLI defaults, runtime
+`HEAD`, or any other external override cannot bypass this provenance or
+exact-cardinality contract.
+
 Use only ASCII log tags: `[OK]`, `[ERROR]`, `[WARNING]`, and `[INFO]`.
 
 ## Standard report
@@ -74,7 +97,9 @@ Use only ASCII log tags: `[OK]`, `[ERROR]`, `[WARNING]`, and `[INFO]`.
 [INFO] SDK: static
 [INFO] Revision: <revision>
 [INFO] Expected version: <version>
-[INFO] Expected commit: <commit>
+[INFO] Release source commit: <release_source_commit>
+[INFO] Packaging commit: <packaging_commit>
+[INFO] Source metadata: <path> sha256=<digest>
 [OK|ERROR] Health gate: <result>
 [OK|ERROR] Exact-cardinality version gate: <result>
 [OK|ERROR] Publisher tests: <result>

@@ -13,10 +13,11 @@ must satisfy all of these checks:
 1. Run SDK-aware health verification. A Static Space is checked through its
    root document and `version.json`; it must not be judged by a Docker-only
    `/health` endpoint.
-2. Run fail-closed live version verification. The expected version and commit
-   must each occur exactly once in every required identity location. Missing,
-   duplicate, composite, stale, malformed, or unreachable identity evidence is
-   a failure.
+2. Run fail-closed live version verification using the immutable
+   `release_source_commit`, not the later packaging/evidence commit. The
+   expected version and `release_source_commit` must each occur exactly once in
+   every required deployed identity location. Missing, duplicate, composite,
+   stale, malformed, or unreachable identity evidence is a failure.
 3. Run the publisher regression suite and the production visual layout audit.
 4. Capture all five canonical viewport screenshots and store the machine-readable
    report and post-deploy evidence artifact.
@@ -39,22 +40,36 @@ python3 -m pytest -q tests/test_hf_release_governance.py
 ## Evidence contract
 
 The release evidence must identify the target Space, SDK, deployed revision,
-expected version and commit, command outcomes, per-asset cardinality checks,
-visual report path, five screenshot paths, timestamp, and responsible agents.
-Document every manual gradient review with its viewport, finding, reviewer,
-decision, and timestamp.
-Use only ASCII status tags: `[OK]`, `[ERROR]`, `[WARNING]`, and `[INFO]`.
+expected version, immutable `release_source_commit`, source-metadata path and
+SHA-256 digest, source revision, later `packaging_commit`, command outcomes,
+per-asset cardinality checks, report/screenshots, timestamp, and responsible
+agents. `packaging_commit` is evidence-only. Record every manual review's
+viewport, finding, reviewer, decision, and timestamp. Use `[OK]`, `[ERROR]`,
+`[WARNING]`, `[INFO]`.
+
+## Release identity model
+
+The owner authorized this model for `TICKET-V3UI-007`:
+`release_source_commit` is the immutable deployed-payload identity;
+`packaging_commit` is the later metadata/evidence commit. They are distinct:
+record both values, but never put `packaging_commit` on a version surface.
+
+Committed release metadata is the provenance authority. It records the metadata
+path and SHA-256 digest, version, `release_source_commit`, and source revision;
+the verifier derives deployed values only from it, proves
+`release_source_commit` is an ancestor of `packaging_commit`, and checks
+version/source exact cardinality on every surface. There is no legacy commit,
+version, or metadata fallback. No environment variable, CLI default, runtime
+`HEAD`, or external override may substitute either identity. An absent,
+conflicting, mutable, overridden, or unproven value blocks release; do not weaken
+checks because packaging follows source.
 
 ## Ownership
 
-- `devops`: runs SDK-aware health and fail-closed live version gates and assembles
-  the release evidence.
-- `qa_tester`: runs publisher tests and the live five-viewport visual audit,
-  captures screenshots, and reports failures without weakening assertions.
-- `code_reviewer`: blocks `READY_FOR_PROD` when any check fails or evidence is
-  absent, stale, unresolved indeterminate, or inconsistent.
-- `orchestrator`: owns the final release decision after reviewing green evidence
-  from DevOps, QA, and Code Reviewer.
+- `devops`: health/version gates and release evidence.
+- `qa_tester`: publisher tests, five-viewport audit, screenshots, strict failures.
+- `code_reviewer`: blocks failed, absent, stale, indeterminate, inconsistent evidence.
+- `orchestrator`: final decision after green DevOps, QA, and reviewer evidence.
 
 ## Generated-source boundary
 
@@ -66,7 +81,6 @@ outputs; never hand-edit them. After an intentional source change, run
 
 ## Completion gate
 
-A production release may be claimed only when every mandatory command exits zero,
-the exact-cardinality checks all pass, the five screenshots and reports exist,
-every indeterminate gradient has documented manual sign-off, and the Code Reviewer
-records `READY_FOR_PROD`. Otherwise report `[ERROR] BLOCKED`.
+A production release may be claimed only when commands, exact-cardinality,
+screenshots/reports, manual indeterminate sign-off, and Code Reviewer
+`READY_FOR_PROD` are all green. Otherwise report `[ERROR] BLOCKED`.
