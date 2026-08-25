@@ -3,9 +3,39 @@
 **Branch/Run Baseline**: `/Users/kimlenglim/Project/HoroConsultant` · 2026-08-21
 **Objective**: finalize all project plan/task completion evidence for `TICKET-META-001`/`TICKET-META-005`/`TICKET-META-006`
 
-## Current authoritative handoff overlay — 2026-08-24
+## Current authoritative handoff overlay — 2026-08-25
 
-### Deployment update — 2026-08-24 22:40 +07
+### Hugging Face Static release update — 2026-08-25
+
+The authorized HF Static release is complete and is separate from the stale HF
+Docker republish/quota issue below. The Static release passed the Rule 16 and
+`hf-static-release-verification` gates for source commit `6c351ba`, version
+`1.0.0.6c351ba`, and HF revision
+`f8aaa24ed36248c957ff35b405c3056626b28fc7`.
+
+| Area | Current evidence | Status |
+|---|---|---|
+| Static publish and runtime | [`hf_post_deploy_v3_verification_2026-08-25.json`](../project/tests/artifacts/hf_post_deploy_v3_verification_2026-08-25.json): `PUBLISHED`, runtime `RUNNING` | PASS |
+| SDK-aware Static health | Root document and `version.json` HTTP 200 in the same artifact | PASS |
+| Exact version identity | `1.0.0.6c351ba` / `6c351ba`; fail-closed exact-cardinality verifier `PASSED` | PASS |
+| Publisher and focused regression | 16 publisher tests; 24 combined publisher and visual-audit tests | PASS |
+| Five-viewport visual audit | [`visual_layout_report.json`](../project/tests/artifacts/visual_layout_report.json): `PASSED`, 5/5, zero layout failures | PASS |
+| Manual gradient review | Five named `code_reviewer` viewport reviews, 30 indeterminates resolved for this artifact only | PASS |
+
+Current HF Static evidence includes these five reviewed screenshots: [`desktop-4k`](../project/tests/screenshots/visual_audit/desktop-4k_horo_v3_consensus.png), [`laptop-standard`](../project/tests/screenshots/visual_audit/laptop-standard_horo_v3_consensus.png), [`tablet-portrait`](../project/tests/screenshots/visual_audit/tablet-portrait_horo_v3_consensus.png), [`mobile-ios`](../project/tests/screenshots/visual_audit/mobile-ios_horo_v3_consensus.png), and [`mobile-compact`](../project/tests/screenshots/visual_audit/mobile-compact_horo_v3_consensus.png).
+
+The HF Static disposition is **DEPLOYED — READY_FOR_PROD** for the reviewed
+revision and evidence package. A new deploy, revision, report, or screenshot
+invalidates the manual review and requires a new fail-closed verification.
+
+**Current evidence recheck caveat — 2026-08-25:** the focused governance test
+currently reports one evidence-integrity failure because the post-deploy
+artifact's recorded `visual_layout_report.json` SHA-256 is malformed/stale.
+The deployment record remains historical evidence of the completed publish, but
+the current release evidence package is **BLOCKED** until the evidence owner
+regenerates or corrects that digest and reruns the fail-closed governance test.
+
+### Historical multi-cloud/Vercel overlay — 2026-08-24 22:40 +07
 
 | Area | Evidence | Status |
 |---|---|---|
@@ -15,9 +45,13 @@
 | Vercel API regression | `project/tests/vercel_curl_regression_report.json`, 100% | PASS |
 | Hugging Face Docker republish | Rejected by Space repository 1 GB storage quota; no remote deletion performed | BLOCKED |
 
-The release is production-active through Vercel. The Hugging Face Space remains a healthy backend target, but its repository quota must be remediated before another Docker payload can be committed.
+The Vercel release claims in this historical overlay remain unchanged. The HF
+Docker repository-quota issue is a separate follow-up and does not block the
+completed HF Static release documented above.
 
-The historical 2026-08-21 matrix below is retained for traceability. Current status is governed by [PROJECT_TASKS.md](../PROJECT_TASKS.md) and the latest evidence in `plans/plan.md`:
+The historical 2026-08-21 matrix below is retained for traceability. Its old
+pending statements are historical and must not override the current HF Static
+evidence above. Current status is governed by [PROJECT_TASKS.md](../PROJECT_TASKS.md) and the latest evidence in `plans/plan.md`:
 
 | Area | Current evidence | Status | Remaining action |
 |---|---|---|---|
@@ -27,14 +61,23 @@ The historical 2026-08-21 matrix below is retained for traceability. Current sta
 | Production deployment | Vercel deployment `dpl_EGC8zXBVCc1oRfGRMU932zaZHkc5` is READY and aliased to the canonical production URL | PASS | HF Docker quota remediation remains follow-up |
 | Post-deploy verification | Vercel production path 3/3, curl regression 100%, and deployed visual asset hashes match | PASS | Repeat five-viewport browser capture when a browser-capable production runner is available |
 
-The current release disposition is **RELEASED VIA VERCEL / HF REPUBLISH QUOTA-BLOCKED**. No historical result is being used as a substitute for the current post-deploy request-path and asset-hash evidence.
+The historical Vercel disposition remains **RELEASED VIA VERCEL**. The separate
+HF Docker republish remains **QUOTA-BLOCKED**; no remote deletion was performed.
+This Docker follow-up is not the HF Static release status. No historical result
+is being used as a substitute for the current post-deploy request-path,
+asset-hash, or Static release evidence above.
 
 ## Evidence package produced in this run
 - [PROJECT_TASKS.md](/Users/kimlenglim/Project/HoroConsultant/PROJECT_TASKS.md)
 - [docs/RELEASE_NOTES.md](/Users/kimlenglim/Project/HoroConsultant/docs/RELEASE_NOTES.md)
 - [project/tests/local_release_readiness_2026-08-17.md](/Users/kimlenglim/Project/HoroConsultant/project/tests/local_release_readiness_2026-08-17.md)
 
-## Gate-by-Gate Closure Matrix
+## Historical Gate-by-Gate Closure Matrix
+
+The following matrix is retained for traceability to the 2026-08-21 handoff.
+Rows marked pending describe the historical broader release scope (including
+HF Docker and production Playwright); they are not current HF Static gate
+failures. The current HF Static gate evidence is the 2026-08-25 package above.
 
 | Gate | Command(s) (as executed or to execute) | Evidence file(s) | Status (Current / Target) | Owner | Next operator action |
 |---|---|---|---|---|---|
@@ -47,7 +90,7 @@ The current release disposition is **RELEASED VIA VERCEL / HF REPUBLISH QUOTA-BL
 | `G-META-005-RUSTCI` | `cd rust_core && cargo fmt --all -- --check`<br/>`cargo test --no-default-features --test test_vector_search`<br/>`cd ..`<br/>`bandit -r project/ scripts/ -x project/kaggle_kernel -s B101,B404,B603,B311,B324,B110 -lll` | local stdout 2026-08-21 + Unified CI run `32571990179` | ✅ local Rust/Bandit/MLOps checks passed (`36,112` lines, no issues); external Unified CI passed for `056b1aa` | `developer`, `code_reviewer` | none unless release-affecting files change |
 | `G-META-005-SECURE` | `python3 -m pytest project/tests/test_ai_provider_router.py project/tests/test_ai_provider_router_tier3.py project/tests/test_llm_multirouter.py -q`<br/>`python3 -m pytest project/tests/test_observability.py project/tests/test_rust_extensions.py -q`<br/>`python3 scripts/grafana_cloud_exporter.py --check-connection --dry-run` | local pytest outputs + `project/tests/local_release_readiness_2026-08-17.md` | ✅ done locally / ⚠ remote Grafana connectivity remains external | `devops`, `developer` | confirm externally with reachable Grafana endpoint |
 
-## External environment blockers (this run)
+## Historical External Environment Blockers (2026-08-21)
 - Fresh local recheck at 16:24 (+07) passed all local gates (`621 passed` reviewer suite, `582 passed` project suite, quality `4/4`, secret scan `0`, button regression `25/25`), while both canonical HF and Vercel live verifiers returned `0/3` with HTTP status `0`; this confirms the remaining failure is external DNS/egress or target availability, not local test regressions.
 - 2026-08-21 17:12 (+07): Azure RBAC was granted by the operator for service principal `2e0f6d36-99da-4c75-a07c-bf6299da2180` / object id `d730cc3c-aa0d-4b01-98db-828ec4a6eeda` as `Contributor` on `/subscriptions/0aca09b2-2917-4d8f-aef8-1a4da965d7dc/resourceGroups/rg-horoconsult`; `az group show` confirms `rg-horoconsult` is readable and `provisioningState` is `Succeeded`.
 - 2026-08-21 17:24 (+07): Azure workflow run `32472307078` built/pushed the Docker image successfully, then failed at `Azure Login` because `creds` did not provide all required service-principal fields. This did not reach the RBAC preflight.
@@ -67,7 +110,7 @@ The current release disposition is **RELEASED VIA VERCEL / HF REPUBLISH QUOTA-BL
 - DNS/socket resolution to external hosts is currently intermittent in this runtime (`huggingface.co`, `api.huggingface.co`, and Hugging Face namespace targets). Canonical HF publish/verification attempts therefore remain blocked until executed in a network-enabled environment with a stable network path.
 - Playwright full-pass authorization gaps remain the remaining external blocker after endpoint/API assertions are considered.
 
-## Blocker investigation and remediation matrix (2026-08-21)
+## Historical Blocker Investigation and Remediation Matrix (2026-08-21)
 
 | Gate | Evidence-backed cause | Repository action | Required external solution / recheck |
 |---|---|---|---|
@@ -76,7 +119,7 @@ The current release disposition is **RELEASED VIA VERCEL / HF REPUBLISH QUOTA-BL
 | `G-META-005-RUSTCI` | Local formatter, Rust tests, Bandit, and CI contract tests pass; Unified CI run `32571990179` also passed for `056b1aa`. | CI workflow and `test_cicd_workflow.py` enforce the same commands. | No action unless release-affecting files change. |
 | `G-META-006-PW` | Production API fallback and browser/network authorization prevent a full Playwright pass in this environment. | Browser contract and local regression coverage remain green; no product fallback is substituted. | Run the authorized Playwright profile from an environment with browser binaries and production egress, then archive the report. |
 
-## Completion condition
+## Historical Completion Condition
 - `TICKET-META-005` and `TICKET-META-006` may transition to `DONE` only when all `⬜`/`⏳` gates above have attached pass artifacts and no required evidence remains pending.
 
 ## Human-in-the-Loop readiness

@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-08-24T14:20:22Z",
-  "base_url": "http://127.0.0.1:8899",
+  "timestamp": "2026-08-25T04:02:42Z",
+  "base_url": "https://pphothidaen-horoconsultant-core-backend.static.hf.space",
   "scenario": "v3-consensus",
   "scenario_description": "Selected Horo v3.0 Consensus Engine tab with deterministic populated fixture",
   "canonical_viewports_expected": 5,
@@ -12,15 +12,15 @@
     "mobile-compact"
   ],
   "total_scenarios": 5,
-  "passed_scenarios": 0,
-  "failed_scenarios": 5,
+  "passed_scenarios": 5,
+  "failed_scenarios": 0,
   "horizontal_overflow_detected": 0,
   "total_dom_overlaps_detected": 0,
   "total_out_of_bounds_detected": 0,
-  "total_clipped_elements_detected": 2,
-  "total_contrast_failures_detected": 5,
+  "total_clipped_elements_detected": 0,
+  "total_contrast_failures_detected": 0,
   "total_contrast_indeterminate": 30,
-  "overall_status": "WARNING",
+  "overall_status": "PASSED",
   "scenarios": [
     {
       "viewport": "desktop-4k",
@@ -57,10 +57,10 @@
         "calculateApiRequestsBlocked": 0
       },
       "audit_scope": "#interpretation-card",
-      "url": "http://127.0.0.1:8899/",
+      "url": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/",
       "http_status": 200,
-      "latency_ms": 1443.06,
-      "verdict": "LAYOUT_WARN",
+      "latency_ms": 2357.98,
+      "verdict": "LAYOUT_PASS",
       "has_horizontal_overflow": false,
       "document_metrics": {
         "scrollWidth": 1920,
@@ -80,20 +80,8 @@
       "out_of_bounds": [],
       "clipped_element_count": 0,
       "clipped_elements": [],
-      "contrast_failure_count": 1,
-      "contrast_failures": [
-        {
-          "element": "span.acc-chevron",
-          "textSample": "▲",
-          "foreground": "rgb(220, 38, 38)",
-          "background": "rgb(251, 222, 222)",
-          "ratio": 3.8,
-          "requiredRatio": 4.5,
-          "fontSizePx": 12,
-          "fontWeight": 700,
-          "largeText": false
-        }
-      ],
+      "contrast_failure_count": 0,
+      "contrast_failures": [],
       "contrast_indeterminate_count": 6,
       "contrast_indeterminate": [
         {
@@ -184,10 +172,10 @@
         "calculateApiRequestsBlocked": 0
       },
       "audit_scope": "#interpretation-card",
-      "url": "http://127.0.0.1:8899/",
+      "url": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/",
       "http_status": 200,
-      "latency_ms": 772.44,
-      "verdict": "LAYOUT_WARN",
+      "latency_ms": 1759.13,
+      "verdict": "LAYOUT_PASS",
       "has_horizontal_overflow": false,
       "document_metrics": {
         "scrollWidth": 1366,
@@ -207,20 +195,8 @@
       "out_of_bounds": [],
       "clipped_element_count": 0,
       "clipped_elements": [],
-      "contrast_failure_count": 1,
-      "contrast_failures": [
-        {
-          "element": "span.acc-chevron",
-          "textSample": "▲",
-          "foreground": "rgb(220, 38, 38)",
-          "background": "rgb(251, 222, 222)",
-          "ratio": 3.8,
-          "requiredRatio": 4.5,
-          "fontSizePx": 12,
-          "fontWeight": 700,
-          "largeText": false
-        }
-      ],
+      "contrast_failure_count": 0,
+      "contrast_failures": [],
       "contrast_indeterminate_count": 6,
       "contrast_indeterminate": [
         {
@@ -312,10 +288,10 @@
         "calculateApiRequestsBlocked": 0
       },
       "audit_scope": "#interpretation-card",
-      "url": "http://127.0.0.1:8899/",
+      "url": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/",
       "http_status": 200,
-      "latency_ms": 788.8,
-      "verdict": "LAYOUT_WARN",
+      "latency_ms": 1806.74,
+      "verdict": "LAYOUT_PASS",
       "has_horizontal_overflow": false,
       "document_metrics": {
         "scrollWidth": 768,
@@ -335,20 +311,8 @@
       "out_of_bounds": [],
       "clipped_element_count": 0,
       "clipped_elements": [],
-      "contrast_failure_count": 1,
-      "contrast_failures": [
-        {
-          "element": "span.acc-chevron",
-          "textSample": "▲",
-          "foreground": "rgb(220, 38, 38)",
-          "background": "rgb(251, 222, 222)",
-          "ratio": 3.8,
-          "requiredRatio": 4.5,
-          "fontSizePx": 12,
-          "fontWeight": 700,
-          "largeText": false
-        }
-      ],
+      "contrast_failure_count": 0,
+      "contrast_failures": [],
       "contrast_indeterminate_count": 6,
       "contrast_indeterminate": [
         {
@@ -441,10 +405,10 @@
         "calculateApiRequestsBlocked": 0
       },
       "audit_scope": "#interpretation-card",
-      "url": "http://127.0.0.1:8899/",
+      "url": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/",
       "http_status": 200,
-      "latency_ms": 771.27,
-      "verdict": "LAYOUT_WARN",
+      "latency_ms": 1946.94,
+      "verdict": "LAYOUT_PASS",
       "has_horizontal_overflow": false,
       "document_metrics": {
         "scrollWidth": 390,
@@ -462,50 +426,10 @@
       "overlaps": [],
       "out_of_bounds_count": 0,
       "out_of_bounds": [],
-      "clipped_element_count": 1,
-      "clipped_elements": [
-        {
-          "element": "div#tab-v3-engine.tab-content",
-          "ancestor": "div.accordion-card-body",
-          "axes": [
-            "y"
-          ],
-          "elementRect": {
-            "x": 30.59,
-            "y": 456.83,
-            "width": 328.81,
-            "height": 6737.81,
-            "right": 359.41,
-            "bottom": 7194.64
-          },
-          "ancestorRect": {
-            "x": 30.59,
-            "y": 231.83,
-            "width": 328.81,
-            "height": 5000,
-            "right": 359.41,
-            "bottom": 5231.83
-          },
-          "ancestorOverflow": {
-            "x": "hidden",
-            "y": "hidden"
-          }
-        }
-      ],
-      "contrast_failure_count": 1,
-      "contrast_failures": [
-        {
-          "element": "span.acc-chevron",
-          "textSample": "▲",
-          "foreground": "rgb(220, 38, 38)",
-          "background": "rgb(251, 222, 222)",
-          "ratio": 3.8,
-          "requiredRatio": 4.5,
-          "fontSizePx": 12,
-          "fontWeight": 700,
-          "largeText": false
-        }
-      ],
+      "clipped_element_count": 0,
+      "clipped_elements": [],
+      "contrast_failure_count": 0,
+      "contrast_failures": [],
       "contrast_indeterminate_count": 6,
       "contrast_indeterminate": [
         {
@@ -598,10 +522,10 @@
         "calculateApiRequestsBlocked": 0
       },
       "audit_scope": "#interpretation-card",
-      "url": "http://127.0.0.1:8899/",
+      "url": "https://pphothidaen-horoconsultant-core-backend.static.hf.space/",
       "http_status": 200,
-      "latency_ms": 1008.59,
-      "verdict": "LAYOUT_WARN",
+      "latency_ms": 2310.07,
+      "verdict": "LAYOUT_PASS",
       "has_horizontal_overflow": false,
       "document_metrics": {
         "scrollWidth": 360,
@@ -619,50 +543,10 @@
       "overlaps": [],
       "out_of_bounds_count": 0,
       "out_of_bounds": [],
-      "clipped_element_count": 1,
-      "clipped_elements": [
-        {
-          "element": "div#tab-v3-engine.tab-content",
-          "ancestor": "div.accordion-card-body",
-          "axes": [
-            "y"
-          ],
-          "elementRect": {
-            "x": 30.59,
-            "y": 486.83,
-            "width": 298.81,
-            "height": 7061.31,
-            "right": 329.41,
-            "bottom": 7548.14
-          },
-          "ancestorRect": {
-            "x": 30.59,
-            "y": 261.83,
-            "width": 298.81,
-            "height": 5000,
-            "right": 329.41,
-            "bottom": 5261.83
-          },
-          "ancestorOverflow": {
-            "x": "hidden",
-            "y": "hidden"
-          }
-        }
-      ],
-      "contrast_failure_count": 1,
-      "contrast_failures": [
-        {
-          "element": "span.acc-chevron",
-          "textSample": "▲",
-          "foreground": "rgb(220, 38, 38)",
-          "background": "rgb(251, 222, 222)",
-          "ratio": 3.8,
-          "requiredRatio": 4.5,
-          "fontSizePx": 12,
-          "fontWeight": 700,
-          "largeText": false
-        }
-      ],
+      "clipped_element_count": 0,
+      "clipped_elements": [],
+      "contrast_failure_count": 0,
+      "contrast_failures": [],
       "contrast_indeterminate_count": 6,
       "contrast_indeterminate": [
         {

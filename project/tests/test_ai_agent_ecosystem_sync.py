@@ -27,5 +27,6 @@ def test_ai_agent_ecosystem_sync_check_passes() -> None:
         "Antigravity/Gemini/AGY sync",
         "Codex/OpenAI sync",
         "hermes/thClaws contract",
+        "HF Static release governance",
     ):
         assert expected_gate in result.stdout

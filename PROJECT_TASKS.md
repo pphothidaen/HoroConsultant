@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff — Central Kanban Board for ALL Project Work**  
-> *Last Updated: 2026-08-24 22:40 +07 (Asia/Bangkok) — v3 visual-integrity patch deployed to Vercel production as `dpl_EGC8zXBVCc1oRfGRMU932zaZHkc5` and verified 3/3 request path plus 100% Vercel curl regression. Hugging Face Docker republish was blocked by the existing 1 GB repository quota; no remote history was deleted. Local QA remains 792 passed, 9 skipped, 12 warnings; code review READY_FOR_PROD; secret scan 0 leaks; agent sync green.*
+> *Last Updated: 2026-08-25 +07 (Asia/Bangkok) — authorized HF Static release is deployed and verified at version `1.0.0.6c351ba` / commit `6c351ba`. Publisher regression is `16 passed`; combined publisher and visual-audit regression is `24 passed`; all five canonical viewports pass. Rule 16 and the `hf-static-release-verification` skill now govern subsequent fail-closed release evidence.*
 
 ---
 
@@ -132,6 +132,52 @@ Current sections below track active work and release gates only.
 | `TICKET-META-007` | `orchestrator` / `business_analyst` | Refresh sub-agent delegation governance and Claude Code three-level command-control examples | DONE | `TICKET-META-001` |
 | `TICKET-META-008` | `orchestrator` / `business_analyst` / `devops` | Preserve account-migration continuity and quota-exhaustion handoff, including active blockers, non-secret credential status, and safe resume commands | DONE | `TICKET-META-005`, `TICKET-META-006` |
 | `TICKET-META-009` | `developer` / `qa_tester` | Safely upgrade Python/Rust dependency lockfiles and validate compatibility after active release gates are clear | DONE | `CP-03-AZURE`, `CP-04-PW`, `CP-05-RELEASE` |
+| `PROMPT-GOV-001` | `business_analyst` / `orchestrator` | Govern multi-account PromptCommand routing, quota/account evidence, bounded retries, HITL escalation, and synchronized governance mirrors | DONE | `TICKET-META-008`, Rule 17 |
+
+### 🎫 PROMPT-GOV-001 | `business_analyst` / `orchestrator` | [STATUS: DONE]
+
+**Objective**: establish auditable, ownership-scoped multi-account agent orchestration without treating routing configuration as execution proof.
+
+**In scope**: `PROJECT_TASKS.md`, `plans/plan.md`, Rule 17, the
+`multi-account-agent-orchestration` skill, its synchronized governance mirrors,
+and `docs/templates/MULTIAGENT_PROMPT_COMMAND.md`.
+
+**Out of scope**: source code, tests, deployments, publishing, authentication,
+credential mutation, secret values, and external systems.
+
+**Required evidence**: account alias/provider, non-secret quota band or status,
+safe route/session metadata when available, child result, attempt number,
+artifact paths, and timestamps. A rendered alias/route/model/configuration is
+routing intent only and cannot close a dispatch.
+
+**Retry/HITL policy**: retry only the same bounded actionable failure; after
+three consecutive failures, or immediately for credentials, permissions,
+billing, production mutation, ownership conflict, or high-impact judgment,
+return `NEEDS_HITL` with the exact decision or safe operator command.
+
+**Acceptance criteria**:
+
+1. Rule 17 defines ownership isolation, non-secret quota/account evidence,
+   retry limits, HITL triggers, result contract, and closure gate.
+2. The skill has valid frontmatter, ASCII status-tag guidance, exact safe
+   command paths, and `DONE`/`BLOCKED`/`NEEDS_HITL` semantics.
+3. PromptCommand documentation states dry-run default, explicit execution,
+   no-secret handling, and execution-proof requirements.
+4. `.agents/AGENTS.md` catalogs the skill and synchronized mirrors match the
+   authoritative skill/rule content.
+5. `python3 scripts/sync_ai_agent_ecosystem.py --sync` completes and the final
+   `--check` passes without source/test edits.
+
+**Final closure checklist**:
+
+- [x] Board and plan status include ticket owner, evidence, blockers, and next action.
+- [x] Rule, skill, Claude mirror, and Antigravity skill mirror are synchronized.
+- [x] PromptCommand template preserves ownership, quota, retry, and HITL fields.
+- [x] No secret values, credential files, source, or tests were changed.
+- [x] Sync, focused governance checks, and `git diff --check` pass.
+- [x] Any unresolved external permission or account decision is marked `NEEDS_HITL`.
+
+**Closure evidence (2026-08-25)**: `python3 scripts/sync_ai_agent_ecosystem.py --sync` and its embedded checks passed; the new skill quick validator passed; the authoritative skill and Antigravity mirror match; and `git diff --check` passed for the owned governance files.
 
 ## 🧩 Decoupled Release Closure Checkpoints
 
@@ -693,9 +739,9 @@ Use [docs/RELEASE_HANDOFF_CHECKLIST.md](docs/RELEASE_HANDOFF_CHECKLIST.md) for t
 | `TICKET-V3UI-001` | `orchestrator` | Baseline Production inspection, acceptance matrix, screenshot/version evidence | DONE | None |
 | `TICKET-V3UI-002` | `ux_ui_designer` | WCAG/color/typography/spacing and hierarchy audit | DONE | `TICKET-V3UI-001` |
 | `TICKET-V3UI-003` | `developer` | Implement isolated v3 responsive/layout/contrast remediation | DONE | `TICKET-V3UI-001` |
-| `TICKET-V3UI-004` | `ui_visual_tester` | Add selected-v3 scenario, contrast/overflow/collision checks, and five-viewport captures | DONE WITH RERUN LIMITATION | `TICKET-V3UI-001` |
-| `TICKET-V3UI-005` | `qa_tester` / `orchestrator` | Run targeted/full regression, compare before/after, and triage console/network failures | DONE WITH BROWSER RERUN LIMITATION | `TICKET-V3UI-003`, `TICKET-V3UI-004` |
-| `TICKET-V3UI-006` | `orchestrator` / `code_reviewer` | Record lesson learned, sync docs, audit release readiness, and request HITL deploy if desired | PARTIAL — HITL DEPLOY | `TICKET-V3UI-005` |
+| `TICKET-V3UI-004` | `ui_visual_tester` | Add selected-v3 scenario, contrast/overflow/collision checks, and five-viewport captures | DONE | `TICKET-V3UI-001` |
+| `TICKET-V3UI-005` | `qa_tester` / `orchestrator` | Run targeted/full regression, compare before/after, and triage console/network failures | DONE | `TICKET-V3UI-003`, `TICKET-V3UI-004` |
+| `TICKET-V3UI-006` | `orchestrator` / `code_reviewer` | Record lesson learned, sync docs, audit release readiness, and request HITL deploy if desired | DONE — READY_FOR_PROD | `TICKET-V3UI-005` |
 
 ### TICKET-V3UI-001 | `orchestrator` | [STATUS: DONE]
 **Priority**: CRITICAL
@@ -714,36 +760,84 @@ Use [docs/RELEASE_HANDOFF_CHECKLIST.md](docs/RELEASE_HANDOFF_CHECKLIST.md) for t
 **Boundaries**: do not edit audit scripts/tests/docs, backend routes, computation logic, public payloads, or deploy files.
 **Definition of Done**: targeted patch removes identified overflow/clipping/collision/contrast risks at all five viewports; inline styles are minimized only where required; targeted frontend tests pass.
 
-### TICKET-V3UI-004 | `ui_visual_tester` | [STATUS: DONE WITH RERUN LIMITATION]
+### TICKET-V3UI-004 | `ui_visual_tester` | [STATUS: DONE]
 **Priority**: CRITICAL
 **Ownership**: `scripts/run_visual_layout_audit.py`, `project/tests/test_visual_layout_audit.py`, generated `project/tests/screenshots/visual_audit/**`, and `project/tests/artifacts/visual_layout_report.json`
 **Boundaries**: do not edit production frontend source or governance docs; do not publish/deploy.
 **Definition of Done**: selected-v3 populated scenario is deterministic; five canonical viewports captured; horizontal overflow, unintended overlap, clipping, and WCAG contrast results are present in JSON; targeted audit tests pass.
 
-**Evidence**: deterministic `v3-consensus` scenario, descendant bounds/clipping/WCAG logic, five viewport outputs, and fail-closed summary exit are implemented. `project/tests/test_visual_layout_audit.py` passes 8/8. The tracked report is the pre-final-fix `WARNING` run; the final browser measurements are recorded separately because the managed sandbox denied a new local bind and Chromium MachPort connection. A root retry reproduced `PermissionError: Operation not permitted`, while Browser URL policy rejected local `data:` rendering and prohibited workaround paths.
+**Evidence**: deployed remote `v3-consensus` scenario ran at five canonical viewports; exact tab selected, 10 populated claims each, HTTP 200, `LAYOUT_PASS`, zero overflow/overlap/out-of-bounds/clipping/contrast failures. The current `visual_layout_report.json` is `PASSED` 5/5. Its 30 automated gradient indeterminates were closed by the documented manual screenshot review; unresolved indeterminates block release under Rule 16.
 
-### TICKET-V3UI-005 | `qa_tester` / `orchestrator` | [STATUS: DONE WITH BROWSER RERUN LIMITATION]
+### TICKET-V3UI-005 | `qa_tester` / `orchestrator` | [STATUS: DONE]
 **Priority**: CRITICAL
 **Ownership**: read-only verification and generated test reports
 **Definition of Done**: targeted tests, button regression, visual suite, console-error audit, `git diff --check`, and full pytest proportional to change pass; failures include concise selector/file/error evidence.
 
-**Evidence**: visual-audit and mirrored-asset tests 13/13 passed (including app.js and v3 token CSS parity); governance/frontend regression tests 26 passed and 5 skipped; button regression passed all controls; JavaScript syntax, `git diff --check`, fixture cleanliness, and ecosystem sync passed. After the Telegram remediation, full pytest passes `792 passed, 9 skipped, 12 warnings`; the code reviewer returns `READY_FOR_PROD`, with secret/Kaggle/notebook audits passed and `0` leaks. The browser-based five-viewport rerun remains limited by the managed environment documented under `TICKET-V3UI-004`; no v3/UI or dependency-compatibility failure remains.
+**Evidence**: visual-audit and mirrored-asset tests 13/13 passed; governance/frontend regression tests 26 passed and 5 skipped; button regression passed all controls; JavaScript syntax, `git diff --check`, fixture cleanliness, and ecosystem sync passed. Full pytest passes `792 passed, 9 skipped, 12 warnings`; code reviewer returns `READY_FOR_PROD`, with secret/Kaggle/notebook audits passed and `0` leaks. Post-deploy visual QA is 5/5 exact-tab PASS with zero layout failures.
 
 **Telegram QA remediation**: `TelegramBotController` now resolves the default `TELEGRAM_CHAT_ID` at request time while preserving explicit constructor overrides. The notifier unit contract clears external credentials before asserting formatting, preventing real DNS/network calls. Focused Telegram/config/security tests pass `16 passed` and the prior three full-suite failures are closed.
 
-### TICKET-V3UI-006 | `orchestrator` / `code_reviewer` | [STATUS: PARTIAL — HITL DEPLOY]
+### TICKET-V3UI-006 | `orchestrator` / `code_reviewer` | [STATUS: DONE — READY_FOR_PROD]
 **Priority**: HIGH
 **Ownership**: lesson/task/plan evidence and read-only safety review
 **Definition of Done**: 5-Whys/root cause, prevention protocol, regression guard, artifact links, residual risks, exact deployment SHA/HITL action, and `python3 scripts/sync_ai_agent_ecosystem.py --check` result are recorded. No `READY_FOR_PROD` claim without all evidence.
 
-**Evidence**: `python3 project/core/code_reviewer.py --review --use-python` returns `READY_FOR_PROD`; full pytest passes `792 passed, 9 skipped, 12 warnings`, secret scan reports `0` leaks, and Kaggle CUDA/notebook audits pass. Static contrast math, selector scope, collapsed state, syntax, asset parity, and ecosystem checks passed. Detailed lessons and risks are recorded in `docs/lessons_learned_v3_visual_integrity_2026-08-24.md`. `.agents/LESSONS_LEARNED.md` is read-only in the current managed workspace and could not be updated. Production deployment, exact release SHA, and post-deploy five-viewport verification remain explicit HITL gates; no production deployment claim is made.
+**Evidence**: secret scan passed with 0 leaks; comprehensive review passed 801 tests with 0 secret/CUDA issues; publisher patch tests 5/5 passed; authorized publish completed with HTTP 200 commits; source version `1.0.0.6c351ba`, HF revision `f8aaa24ed36248c957ff35b405c3056626b28fc7`, runtime `RUNNING`. Remote app.js/v3_tokens.css/sw.js hashes match local deployed assets and all version surfaces are coherent. Detailed lessons and risks are recorded in `docs/lessons_learned_v3_visual_integrity_2026-08-24.md`. `.agents/LESSONS_LEARNED.md` records the prevention rule. Post-deploy visual QA is complete at five canonical viewports; the final manual screenshot review closes the 30 automated gradient indeterminates for this release.
 
 ### Sprint Evidence & Release Decision
 
 - Production baseline: `project/tests/artifacts/production_v3_visual_baseline_2026-08-24.json` and five selected-tab screenshots under `project/tests/screenshots/visual_audit/production_baseline/`.
 - Local post-fix evidence: `project/tests/artifacts/v3_visual_post_fix_evidence_2026-08-24.json` and final compact-mobile PASS/TENSION screenshots under `project/tests/screenshots/visual_audit/post_fix/`.
 - Confirmed Production risks: fourth tab/descendant clipping on compact mobile, v3-only dark-mode island, sub-AA semantic colors, fixed-height long-content clipping, UI/backend version-label drift, and stale `/index.html` PWA references.
-- Release decision: **HOLD FOR HITL DEPLOY**. Source remediation is locally verified, but the Production Space is unchanged until an operator authorizes deployment and post-deploy verification.
+- Release decision: **READY_FOR_PROD**. Authorized deployment and post-deploy verification are complete. The documented final manual screenshot review resolves the 30 automated gradient indeterminates for this release; an indeterminate without equivalent named reviewer sign-off is a blocking risk. The expected static simulation API 404 remains a documented non-blocking Static-SDK behavior.
+
+### Post-Deploy Update — 2026-08-25
+
+- Release authorization received and static HF Space published successfully.
+- Evidence: `project/tests/artifacts/hf_post_deploy_v3_verification_2026-08-25.json`.
+- Remote asset parity: app.js, v3_tokens.css, and sw.js all match local SHA-256 values; version.json reports `1.0.0.6c351ba`.
+- Release tooling is now SDK-aware: Static health checks `/` plus production `version.json`; Docker alone checks `/health`.
+- Post-redeploy version coherence is PASS: `CURRENT_PAGE_VERSION`, footer, `CLIENT_APP_VERSION`, service-worker cache, and cache-busting query strings all use `1.0.0.6c351ba` / `6c351ba`; no `e432e0d` or composite labels remain.
+- Fail-closed release verification requires exactly one matching value/reference on every version surface and rejects missing assets, malformed metadata, network errors, duplicate declarations, stale/composite labels, Docker version mismatches, and CLI mismatches. Publisher suite: `16 passed`; combined publisher and visual-audit regression: `24 passed`.
+- Live post-hardening checks: Static health `HEALTHY`; exact version verification `PASSED` for `1.0.0.6c351ba` / `6c351ba`.
+- **Current release state: DEPLOYED — READY_FOR_PROD.**
+
+### TICKET-HFSTATIC-GOV-001 | Mandatory Release Verification Governance | [STATUS: DONE]
+
+**Priority**: CRITICAL
+**Rule / skill**: `.agents/rules/16-hf-static-release-verification.md` and `.agents/skills/hf-static-release-verification/SKILL.md`
+**Scope**: make HF Static health, exact-version, publisher regression, visual regression, safety review, and ecosystem synchronization mandatory and fail-closed. No deployment is performed by this governance ticket.
+
+| Work item | Responsible sub-agent | Acceptance evidence | Status |
+|---|---|---|---|
+| Publisher verifier implementation and regression coverage | `developer` | `python3 -m pytest -q tests/test_publish_space_hf.py` → `16 passed` | DONE |
+| Payload, Static health, exact-version and release evidence | `devops` | Dry-run plus `--sdk static --check-health` and `--sdk static --verify-version` exit `0` | DONE |
+| Five-viewport visual capture and report | `ui_visual_tester` | `desktop-4k`, `laptop-standard`, `tablet-portrait`, `mobile-ios`, `mobile-compact`; report `PASSED` 5/5 | DONE |
+| Independent focused regression | `qa_tester` | Publisher + visual-audit suite → `24 passed` | DONE |
+| Secret/safety verdict | `code_reviewer` | No leaks or unresolved red gate; release evidence reviewed | DONE |
+| Rule, skill, ticket, plan, and catalog synchronization | `business_analyst` | Paths documented and `sync_ai_agent_ecosystem.py --check` green | DONE |
+| Dispatch, retry/HITL control, final decision | `orchestrator` | No `READY_FOR_PROD` until every row is green | DONE |
+
+**RACI**: `orchestrator` is Accountable; the listed sub-agents are Responsible for their rows; `code_reviewer`, `qa_tester`, and `business_analyst` are Consulted on safety, test, and governance evidence; the owner is Informed and becomes the HITL approver when production mutation or a three-cycle unresolved defect requires authorization.
+
+**Mandatory release sequence**:
+
+```bash
+python3 -m pytest -q tests/test_publish_space_hf.py
+python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk static --dry-run
+python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk static --check-health
+python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk static --verify-version
+python3 scripts/run_visual_layout_audit.py --url https://pphothidaen-horoconsultant-core-backend.static.hf.space --scenario v3-consensus --no-server
+python3 -m pytest -q tests/test_publish_space_hf.py project/tests/test_visual_layout_audit.py
+python3 -m pytest -q tests/test_hf_release_governance.py
+python3 scripts/sync_ai_agent_ecosystem.py --check
+```
+
+**Release gate**: no `READY_FOR_PROD` if any command exits non-zero, any required artifact is missing, any version surface is stale/duplicate/composite, any required asset is unreachable, any viewport fails, or any result remains indeterminate. An indeterminate is resolved only by a named manual reviewer recording the current artifact, timestamp, review basis, and explicit pass/fail sign-off. Route failure to the responsible sub-agent; after three failed remediation cycles, stop and escalate to HITL.
+
+**Current evidence**: publisher `16 passed`; publisher + visual audit `24 passed`; governance contract suite passed in the implementation session (count may evolve with the contract); Static health and exact version green for `1.0.0.6c351ba` / `6c351ba`; visual report `PASSED` 5/5 with screenshots under `project/tests/screenshots/visual_audit/`; automated gradient indeterminates are closed by the documented final manual screenshot review.
+
+**Manual reviewer sign-off — 2026-08-25**: `root/orchestrator` and `code_reviewer` reviewed `project/tests/artifacts/visual_layout_report.json` plus the current five `*_horo_v3_consensus.png` screenshots. The rendered gradient status text, claim content, controls, and semantic boundaries are readable at every canonical viewport. Decision: **PASS** for the 30 automated gradient indeterminates in these artifacts only; a new capture invalidates this sign-off and requires review again.
 
 ### Planning continuation evidence — 2026-08-24
 

@@ -1,0 +1,36 @@
+{
+  "skill_name": "hf-static-release-verification",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Verify the production Hugging Face Static Space after deploy and decide whether it is safe to claim READY_FOR_PROD.",
+      "expected_output": "Runs SDK-aware health, exact-cardinality version, publisher regression, and five-viewport visual gates; reports evidence and blocks on any failure.",
+      "files": [],
+      "expectations": [
+        "Uses the explicit Space ID and Static SDK for health and version verification.",
+        "Requires publisher regressions, five viewport screenshots, and machine-readable evidence.",
+        "Emits READY_FOR_PROD only when every required gate is green."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Production shows a composite footer version and version.json is temporarily unreachable. Approve the release if the page still loads.",
+      "expected_output": "Refuses approval, treats composite and unreachable identity evidence as fail-closed blockers, and reports [ERROR] BLOCKED.",
+      "files": [],
+      "expectations": [
+        "Reports [ERROR] BLOCKED instead of approving the release.",
+        "Identifies both the composite version and unreachable version.json as fail-closed blockers."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The HF Space uses the Static SDK but /health returns 404. Diagnose the release gate and provide the required evidence report.",
+      "expected_output": "Uses the Static root and version.json health contract rather than Docker /health, then runs all remaining mandatory gates.",
+      "files": [],
+      "expectations": [
+        "Does not require the Docker-only /health endpoint for a Static SDK Space.",
+        "Checks the Static root and version.json before continuing through the remaining release gates."
+      ]
+    }
+  ]
+}

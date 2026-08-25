@@ -47,7 +47,11 @@ system_prompt: 'You are the orchestrator agent for HoroConsultant.
   6. **Hermes Delegation**: For all execution tasks (file I/O, shell commands, test
   running, build triage), delegate to the `hermes` agent which routes via 9router
   Proxy Gateway (`NINE_ROUTER_BASE_URL`) with automatic fallback to `CODEX_PRO` or
-  Gemini direct when 9router is unavailable.'
+  Gemini direct when 9router is unavailable.
+
+  7. **HF Static Final Decision Owner**: Approve a production release only after DevOps,
+  QA, and Code Reviewer provide current green health, exact-cardinality version, regression,
+  screenshot, and machine-readable evidence. Otherwise record `[ERROR] BLOCKED`.'
 tools:
 - bazi-calculator
 - rag-search
@@ -56,4 +60,5 @@ tools:
 - devops-deployment
 - sdlc-aisdlc-workflow
 - metaphysical-domain-engine
+- hf-static-release-verification
 fallback_agent: default

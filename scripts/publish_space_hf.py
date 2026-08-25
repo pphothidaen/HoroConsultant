@@ -16,6 +16,7 @@ import argparse
 import fnmatch
 import logging
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -74,6 +75,40 @@ def should_ignore(rel_path: str) -> bool:
         if fnmatch.fnmatch(p_str, f"*{pattern}*"):
             return True
     return False
+
+
+def stamp_static_html_version(html_text: str, local_version: str, git_commit: str) -> str:
+    """Stamp one static HTML document with an exact release version.
+
+    The publisher previously replaced every ``v1.0.0`` substring. Re-publishing an
+    already stamped document therefore produced composite labels such as
+    ``v1.0.0.<new>.<old>`` while leaving ``CURRENT_PAGE_VERSION`` stale because
+    that JavaScript value does not include a leading ``v``. Keep the rewrite
+    scoped to the two version surfaces and the supported cache-busting assets.
+    """
+    html_text = re.sub(
+        r'(window\.CURRENT_PAGE_VERSION\s*=\s*["\'])[^"\']+(["\'])',
+        rf'\g<1>{local_version}\g<2>',
+        html_text,
+    )
+    html_text = re.sub(
+        r'(<p\b[^>]*\bid=["\']footer-version-text["\'][^>]*>[^<]*?\bv)[^\s<—]+',
+        rf'\g<1>{local_version}',
+        html_text,
+    )
+
+    html_text = re.sub(
+        r'href="style\.css(\?v=[^"]*)?"',
+        f'href="style.css?v={git_commit}"',
+        html_text,
+    )
+    for asset in ("i18n.js", "voice_engine.js", "app.js"):
+        html_text = re.sub(
+            rf'src="{re.escape(asset)}(\?v=[^"]*)?"',
+            f'src="{asset}?v={git_commit}"',
+            html_text,
+        )
+    return html_text
 
 
 def get_hf_token() -> str | None:
@@ -186,7 +221,23 @@ def audit_payload(sdk: str = "static") -> tuple[bool, dict[str, Any]]:
     return is_valid, payload_summary
 
 
-def verify_space_health(space_id: str, timeout_seconds: float = 10.0) -> tuple[bool, str, float]:
+def _space_base_url(space_id: str, sdk: str) -> str:
+    """Return the public runtime URL for a Hugging Face Space."""
+    parts = space_id.split("/", maxsplit=1)
+    if len(parts) == 2:
+        user, repo = parts[0].lower(), parts[1].lower().replace("_", "-").replace(".", "-")
+        host_name = f"{user}-{repo}"
+    else:
+        host_name = space_id.lower().replace("/", "-").replace("_", "-").replace(".", "-")
+    host_suffix = "static.hf.space" if sdk == "static" else "hf.space"
+    return f"https://{host_name}.{host_suffix}"
+
+
+def verify_space_health(
+    space_id: str,
+    timeout_seconds: float = 10.0,
+    sdk: str = "static",
+) -> tuple[bool, str, float]:
     """
     Verify live health check status of a deployed HuggingFace Space.
     Returns (is_healthy, status_message, latency_ms).
@@ -194,19 +245,36 @@ def verify_space_health(space_id: str, timeout_seconds: float = 10.0) -> tuple[b
     if not HTTPX_AVAILABLE:
         return False, "httpx package not installed", 0.0
 
-    parts = space_id.split("/")
-    if len(parts) == 2:
-        user, repo = parts[0].lower(), parts[1].lower().replace("_", "-").replace(".", "-")
-        space_host = f"https://{user}-{repo}.hf.space"
-    else:
-        space_host = f"https://{space_id.lower().replace('/', '-')}.hf.space"
-
-    health_url = f"{space_host}/health"
+    space_host = _space_base_url(space_id, sdk)
     t0 = time.monotonic()
 
     try:
         with httpx.Client(timeout=timeout_seconds, follow_redirects=True) as client:
-            res = client.get(health_url)
+            if sdk == "static":
+                root_res = client.get(f"{space_host}/")
+                version_res = client.get(f"{space_host}/version.json")
+                latency_ms = round((time.monotonic() - t0) * 1000, 2)
+                if root_res.status_code != 200:
+                    return False, f"Static root HTTP {root_res.status_code}", latency_ms
+                if version_res.status_code != 200:
+                    return False, f"version.json HTTP {version_res.status_code}", latency_ms
+                try:
+                    version_meta = version_res.json()
+                except ValueError as exc:
+                    return False, f"version.json is not valid JSON: {exc}", latency_ms
+                if not isinstance(version_meta, dict):
+                    return False, "version.json must contain a JSON object", latency_ms
+                required_meta = ("version", "commit", "status")
+                missing_meta = [key for key in required_meta if not version_meta.get(key)]
+                if missing_meta or version_meta.get("status") != "production":
+                    return False, f"Invalid production version metadata (missing={missing_meta})", latency_ms
+                return (
+                    True,
+                    f"Static root and version.json OK (version={version_meta['version']}, commit={version_meta['commit']})",
+                    latency_ms,
+                )
+
+            res = client.get(f"{space_host}/health")
             latency_ms = round((time.monotonic() - t0) * 1000, 2)
 
             if res.status_code == 200:
@@ -326,7 +394,7 @@ pinned: false
                 pass
 
             from project.core.config import get_app_version
-            import json, datetime, re
+            import json, datetime
             local_version = get_app_version()
             git_commit = local_version.split(".")[-1] if "." in local_version else local_version
             static_dir = ROOT / "project" / "static"
@@ -365,11 +433,7 @@ pinned: false
                 html_path = temp_static_dir / html_name
                 if html_path.exists():
                     html_text = html_path.read_text(encoding="utf-8")
-                    html_text = html_text.replace("v1.0.0", f"v{local_version}")
-                    html_text = re.sub(r'href="style\.css(\?v=[^"]*)?"', f'href="style.css?v={git_commit}"', html_text)
-                    html_text = re.sub(r'src="i18n\.js(\?v=[^"]*)?"', f'src="i18n.js?v={git_commit}"', html_text)
-                    html_text = re.sub(r'src="voice_engine\.js(\?v=[^"]*)?"', f'src="voice_engine.js?v={git_commit}"', html_text)
-                    html_text = re.sub(r'src="app\.js(\?v=[^"]*)?"', f'src="app.js?v={git_commit}"', html_text)
+                    html_text = stamp_static_html_version(html_text, local_version, git_commit)
                     html_path.write_text(html_text, encoding="utf-8")
 
             logger.info(f"📦 Staged static assets with full cache-busting version 'v{local_version}' (Commit: {git_commit})...")
@@ -503,9 +567,17 @@ High-Precision 10-Domain Computational Metaphysics Engine, True Solar Time Engin
         return False
 
 
-def verify_live_deployment_version(space_id: str, timeout_seconds: float = 10.0) -> tuple[bool, str, dict[str, Any]]:
+def verify_live_deployment_version(
+    space_id: str,
+    timeout_seconds: float = 10.0,
+    sdk: str = "static",
+) -> tuple[bool, str, dict[str, Any]]:
     """
-    Verify that live deployment (backend API & static space) is running the latest git commit version.
+    Verify that the live Space is running the exact local release version.
+
+    Static verification is intentionally fail-closed: every release metadata and
+    client cache surface must be reachable and match. A retired external backend
+    is not consulted because it is not evidence for the deployed Static Space.
     Returns (is_matched, message, details).
     """
     from project.core.config import get_app_version, get_git_commit_hash
@@ -515,52 +587,107 @@ def verify_live_deployment_version(space_id: str, timeout_seconds: float = 10.0)
     details = {
         "expected_commit": local_commit,
         "expected_version": local_version,
-        "backend_health": None,
-        "static_hf_space": None,
+        "sdk": sdk,
+        "base_url": _space_base_url(space_id, sdk),
+        "checks": {},
+        "errors": [],
+        "failed_checks": [],
         "matched": False,
     }
 
-    # Check 1: Production Core Backend API (Fly.io)
-    backend_url = "https://horoconsultant-core-backend.fly.dev/health"
-    backend_commit = None
+    if not HTTPX_AVAILABLE:
+        details["errors"].append("httpx package not installed")
+        return False, "[ERROR] Live verification requires httpx.", details
+
+    base_url = details["base_url"]
     try:
-        if HTTPX_AVAILABLE:
-            with httpx.Client(timeout=timeout_seconds, follow_redirects=True) as client:
-                res = client.get(backend_url)
-                if res.status_code == 200:
-                    data = res.json()
-                    backend_commit = data.get("git_commit")
-                    details["backend_health"] = data
-    except Exception as e:
-        logger.warning(f"Backend health check note: {e}")
+        with httpx.Client(timeout=timeout_seconds, follow_redirects=True) as client:
+            if sdk == "docker":
+                res = client.get(f"{base_url}/health")
+                health_data = res.json() if res.status_code == 200 else {}
+                if not isinstance(health_data, dict):
+                    health_data = {}
+                details["checks"] = {
+                    "health_http_200": res.status_code == 200,
+                    "health_commit_exact": health_data.get("git_commit") == local_commit,
+                    "health_version_exact": health_data.get("version") == local_version,
+                }
+            else:
+                paths = ("version.json", "index.html", "app.js", "sw.js", "v3_tokens.css")
+                responses = {path: client.get(f"{base_url}/{path}") for path in paths}
+                for path, response in responses.items():
+                    details["checks"][f"{path}_http_200"] = response.status_code == 200
 
-    # Check 2: Static HF Space UI app.js
-    parts = space_id.split("/")
-    if len(parts) == 2:
-        user, repo = parts[0].lower(), parts[1].lower().replace("_", "-").replace(".", "-")
-        space_url = f"https://{user}-{repo}.static.hf.space/app.js"
-    else:
-        space_url = f"https://{space_id.lower().replace('/', '-')}.static.hf.space/app.js"
+                version_meta: dict[str, Any] = {}
+                if responses["version.json"].status_code == 200:
+                    try:
+                        parsed_version_meta = responses["version.json"].json()
+                        if isinstance(parsed_version_meta, dict):
+                            version_meta = parsed_version_meta
+                        else:
+                            details["errors"].append("version.json must contain a JSON object")
+                    except ValueError as exc:
+                        details["errors"].append(f"version.json invalid JSON: {exc}")
 
-    hf_has_app_js = False
-    try:
-        if HTTPX_AVAILABLE:
-            with httpx.Client(timeout=timeout_seconds, follow_redirects=True) as client:
-                res = client.get(space_url)
-                if res.status_code == 200 and "updateVersionFooter" in res.text:
-                    hf_has_app_js = True
-                    details["static_hf_space"] = {"status": "ok", "app_js_loaded": True}
-    except Exception as e:
-        logger.warning(f"HF Space static JS check note: {e}")
+                index_text = responses["index.html"].text
+                app_text = responses["app.js"].text
+                sw_text = responses["sw.js"].text
+                css_text = responses["v3_tokens.css"].text
 
-    backend_matched = (backend_commit == local_commit) if backend_commit else True
-    is_matched = backend_matched and hf_has_app_js
+                page_versions = re.findall(
+                    r'window\.CURRENT_PAGE_VERSION\s*=\s*["\']([^"\']+)["\']',
+                    index_text,
+                )
+                footer_versions = re.findall(
+                    r'<p\b[^>]*\bid=["\']footer-version-text["\'][^>]*>[^<]*?\bv([^\s<—]+)',
+                    index_text,
+                )
+                client_versions = re.findall(
+                    r'const CLIENT_APP_VERSION\s*=\s*["\']([^"\']+)["\'];',
+                    app_text,
+                )
+                cache_versions = re.findall(
+                    r'const CACHE_VERSION\s*=\s*["\']([^"\']+)["\'];',
+                    sw_text,
+                )
+
+                def cache_ref_versions(attribute: str, asset: str) -> list[str]:
+                    return re.findall(
+                        rf'{attribute}=["\']{re.escape(asset)}(?:\?v=([^"\']*))?["\']',
+                        index_text,
+                    )
+
+                details["checks"].update(
+                    {
+                        "version_json_version_exact": version_meta.get("version") == local_version,
+                        "version_json_commit_exact": version_meta.get("commit") == local_commit,
+                        "version_json_production": version_meta.get("status") == "production",
+                        "current_page_version_exact": page_versions == [local_version],
+                        "footer_version_exact": footer_versions == [local_version],
+                        "style_cache_ref_exact": cache_ref_versions("href", "style.css") == [local_commit],
+                        "i18n_cache_ref_exact": cache_ref_versions("src", "i18n.js") == [local_commit],
+                        "voice_cache_ref_exact": cache_ref_versions("src", "voice_engine.js") == [local_commit],
+                        "app_cache_ref_exact": cache_ref_versions("src", "app.js") == [local_commit],
+                        "client_app_version_exact": client_versions == [local_version],
+                        "service_worker_cache_version_exact": cache_versions == [f"v{local_version}"],
+                        "v3_tokens_css_nonempty": (
+                            responses["v3_tokens.css"].status_code == 200 and bool(css_text.strip())
+                        ),
+                    }
+                )
+    except (httpx.HTTPError, TypeError, ValueError) as exc:
+        details["errors"].append(f"request failure: {exc}")
+
+    failed_checks = [name for name, passed in details["checks"].items() if not passed]
+    is_matched = bool(details["checks"]) and not failed_checks and not details["errors"]
     details["matched"] = is_matched
+    details["failed_checks"] = failed_checks
 
     if is_matched:
-        msg = f"✅ Live deployment verified! Running latest commit '{local_commit}' (Version: {local_version})."
+        msg = f"[OK] Live deployment matches commit '{local_commit}' and version '{local_version}'."
     else:
-        msg = f"⚠️ Live deployment verification note: Expected commit '{local_commit}', Backend API reports '{backend_commit or 'initializing/pending CI'}'. Static HF Space loaded: {hf_has_app_js}."
+        failure_summary = ", ".join(failed_checks + details["errors"]) or "no verification evidence"
+        msg = f"[ERROR] Live deployment does not match the expected release: {failure_summary}."
 
     return is_matched, msg, details
 
@@ -581,7 +708,7 @@ def main():
 
     if args.verify_version:
         logger.info(f"🔎 Verifying live deployment version against git commit for '{args.space_id}'...")
-        is_matched, msg, details = verify_live_deployment_version(args.space_id)
+        is_matched, msg, details = verify_live_deployment_version(args.space_id, sdk=args.sdk)
         print("\n" + "=" * 70)
         print("  LIVE DEPLOYMENT VERSION VERIFICATION SUMMARY")
         print("=" * 70)
@@ -595,7 +722,7 @@ def main():
 
     if args.check_health:
         logger.info(f"📡 Checking live health status for Space '{args.space_id}'...")
-        is_healthy, status_msg, latency_ms = verify_space_health(args.space_id)
+        is_healthy, status_msg, latency_ms = verify_space_health(args.space_id, sdk=args.sdk)
         print("\n" + "=" * 65)
         print("  HUGGING FACE SPACE HEALTH CHECK SUMMARY")
         print("=" * 65)

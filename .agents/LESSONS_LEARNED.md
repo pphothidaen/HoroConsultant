@@ -169,3 +169,14 @@
   - Vercel returns HTTP 503 `canonical_bazi_unavailable` instead of fabricated chart data when the backend is unavailable.
   - API responses preserve Ten Gods, Pillar Phase, Stars, and hidden-stem metadata.
   - The golden vector `1985-08-26 23:03:00`, Ratchaburi, UTC+7 must equal `辛亥 / 丁酉 / 甲申 / 乙丑` and remain covered by Python/Rust parity tests.
+
+### 17. 🧾 Static-Space Health and Version Gates Must Be SDK-Aware and Fail Closed
+- **Issue Experienced**: The release command treated a Static Hugging Face Space as a Docker API by probing `/health`, while version verification could pass when the retired Fly backend was unavailable or when only one client asset loaded. Re-publishing also risked stale or composite version labels.
+- **Root Cause**: Health topology and release evidence were not separated by SDK. The verifier used first-match and substring checks, so duplicate version declarations could hide a later stale runtime value.
+- **Lesson Learned**: Static health is evidence from the rendered root plus valid production `version.json`; Docker health is evidence from `/health`. A production version gate must require every declared version/cache surface exactly once and match the expected release.
+- **Prevention Protocol**:
+  - Static `--check-health` checks `/` and `/version.json`; Docker retains `/health`.
+  - Static `--verify-version` requires HTTP 200 and exact version/commit coherence across `version.json`, `index.html`, `app.js`, `sw.js`, and `v3_tokens.css`.
+  - `CURRENT_PAGE_VERSION`, footer version, four cache-busting references, `CLIENT_APP_VERSION`, and service-worker cache version must each occur exactly once; missing, duplicate, stale, composite, malformed, or unreachable evidence fails the command with a non-zero exit code.
+  - Regression coverage includes idempotent stamping, duplicate declarations, missing assets, network errors, SDK-specific health behavior, and CLI failure exit status.
+  - Post-change evidence: publisher suite `16 passed`; combined publisher and visual-audit regression `24 passed`; live Static health and exact-version checks passed for `1.0.0.6c351ba` / `6c351ba`.

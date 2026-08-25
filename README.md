@@ -400,8 +400,13 @@ The production environment operates under a **Decoupled Multi-Cloud Architecture
    python3 scripts/publish_space_hf.py --sdk static
 
    # Perform live Space health check
-   python3 scripts/publish_space_hf.py --check-health
+   python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk static --check-health
+
+   # Fail closed unless every live version surface and required asset matches
+   python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk static --verify-version
    ```
+
+   HF Static releases are governed by [Rule 16](.agents/rules/16-hf-static-release-verification.md) and the [`hf-static-release-verification` skill](.agents/skills/hf-static-release-verification/SKILL.md). Before `READY_FOR_PROD`, publisher tests, payload dry-run, Static health, exact live version, five-viewport visual audit, combined regression, governance contract, secret/safety review, and agent-ecosystem sync must all be green. An automated `indeterminate` result blocks release unless a named manual reviewer records the current artifact, timestamp, review basis, and explicit pass/fail sign-off. The verified baseline is `16 passed` publisher tests, `24 passed` combined publisher/visual tests, a green governance contract suite, and five passing viewports: 1920×1080, 1366×768, 768×1024, 390×844, and 360×740.
 
 ---
 

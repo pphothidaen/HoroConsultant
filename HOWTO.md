@@ -291,12 +291,31 @@ Edit `.agents/agents/*/agent.json` for role content. Do not manually edit `.code
 # 1. ตรวจสอบ Payload Audit และ Publish ขึ้น Hugging Face Static Space (0% CPU Quota / 24/7 Unlimited Uptime)
 python3 scripts/publish_space_hf.py --sdk static
 
-# 2. ตรวจสอบสถานะการเชื่อมต่อสด (Live Health Check)
-python3 scripts/publish_space_hf.py --check-health
+# 2. ตรวจสอบสถานะ Static สด: root document + production version.json
+python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk static --check-health
 
 # 3. ทดสอบ Payload Audit แบบ Dry-Run (ไม่เปลี่ยนแปลงไฟล์บน Cloud)
-python3 scripts/publish_space_hf.py --dry-run
+python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk static --dry-run
+
+# 4. ตรวจทุก version surface และ required asset แบบ fail-closed
+python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk static --verify-version
 ```
+
+#### Mandatory HF Static release gate
+
+ทุก HF Static release ต้องใช้ [Rule 16](.agents/rules/16-hf-static-release-verification.md) และ skill [hf-static-release-verification](.agents/skills/hf-static-release-verification/SKILL.md) ห้ามประกาศ `READY_FOR_PROD` หาก publisher tests, dry-run, Static health, exact live version, visual audit 5 viewports, focused regression, safety review หรือ ecosystem sync รายการใดรายการหนึ่งไม่ผ่านหรือไม่มีหลักฐาน ค่า `indeterminate` ต้องถือว่าไม่ผ่าน จนกว่าจะมี named manual reviewer บันทึก artifact ปัจจุบัน, timestamp, หลักฐานที่ใช้ตรวจ และผล pass/fail อย่างชัดเจน
+
+```bash
+python3 -m pytest -q tests/test_publish_space_hf.py
+python3 scripts/run_visual_layout_audit.py --url https://pphothidaen-horoconsultant-core-backend.static.hf.space --scenario v3-consensus --no-server
+python3 -m pytest -q tests/test_publish_space_hf.py project/tests/test_visual_layout_audit.py
+python3 -m pytest -q tests/test_hf_release_governance.py
+python3 scripts/sync_ai_agent_ecosystem.py --check
+```
+
+ผู้รับผิดชอบ: `developer` ดูแล publisher fix/tests, `devops` ดูแล dry-run/publish/health/version/rollback, `ui_visual_tester` ดูแล screenshots 1920×1080, 1366×768, 768×1024, 390×844 และ 360×740, `qa_tester` ตรวจ regression อิสระ, `code_reviewer` ให้ safety verdict, `business_analyst` ซิงก์ governance และ `orchestrator` เป็นผู้ตัดสินใจสุดท้าย หากแก้ไม่ผ่าน 3 รอบให้หยุดและส่ง HITL
+
+Baseline ที่ยืนยันแล้ว: publisher `16 passed`, publisher + visual audit `24 passed`, governance contract suite ผ่าน, visual report `PASSED` 5/5 และหลักฐานอยู่ที่ `project/tests/artifacts/visual_layout_report.json` กับ `project/tests/screenshots/visual_audit/`. ค่า gradient ที่ automated audit ตัดสินไม่ได้ใน release นี้ถูกปิดด้วย documented final manual screenshot review; release ถัดไปต้องมี sign-off ใหม่ตาม artifact ปัจจุบัน
 
 **ลิงก์ใช้งานระบบบน Hugging Face Static Edge CDN:**
 - 🔮 **Main Dashboard**: `https://pphothidaen-horoconsultant-core-backend.hf.space/index.html`
@@ -445,4 +464,3 @@ https://dashboard.doppler.com/workplace/4e65e3d95e9f71174b4e/projects/horo-consu
 4. **GitHub Actions Scheduled Automation:**
    - ตารางเวลาอัตโนมัติ: รันทุกวันอาทิตย์ เวลา 02:00 UTC ผ่าน `.github/workflows/scheduled_distill_finetune.yml`
    - รองรับการ Trigger แบบ Manual พร้อมเลือก Domain และ Format ได้ทันที
-

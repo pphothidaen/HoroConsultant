@@ -209,6 +209,110 @@ def check_hermes_and_thclaws_contract() -> CheckResult:
     return CheckResult("hermes/thClaws contract", True, "routing and bridge markers present")
 
 
+def check_hf_static_release_governance() -> CheckResult:
+    """Validate the source-of-truth policy, skill, catalog, and release owners."""
+    rule_path = ROOT / ".agents" / "rules" / "16-hf-static-release-verification.md"
+    claude_rule_path = ROOT / ".claude" / "rules" / "hf-static-release-verification.md"
+    skill_path = ROOT / ".agents" / "skills" / "hf-static-release-verification" / "SKILL.md"
+    evals_path = skill_path.parent / "evals" / "evals.json"
+    catalog_path = ROOT / ".agents" / "AGENTS.md"
+    required_files = (rule_path, claude_rule_path, skill_path, evals_path, catalog_path)
+    missing = [relative(path) for path in required_files if not path.is_file()]
+    if missing:
+        return CheckResult("HF Static release governance", False, f"missing: {', '.join(missing)}")
+
+    skill_text = skill_path.read_text(encoding="utf-8")
+    try:
+        _, frontmatter, _ = skill_text.split("---", 2)
+        skill_data = yaml.safe_load(frontmatter) or {}
+        eval_data = load_json(evals_path)
+    except Exception as error:
+        return CheckResult("HF Static release governance", False, f"invalid skill package: {error}")
+    if skill_data.get("name") != "hf-static-release-verification":
+        return CheckResult("HF Static release governance", False, "skill name is not canonical")
+    if not skill_data.get("description") or len(str(skill_data["description"]).strip()) > 100:
+        return CheckResult("HF Static release governance", False, "skill description must be 1-100 chars")
+    if eval_data.get("skill_name") != skill_data["name"] or not eval_data.get("evals"):
+        return CheckResult("HF Static release governance", False, "skill evals are missing or misaligned")
+    if "hf-static-release-verification" not in catalog_path.read_text(encoding="utf-8"):
+        return CheckResult("HF Static release governance", False, "skill is missing from .agents/AGENTS.md")
+
+    policy_terms = (
+        "SDK-aware",
+        "fail-closed",
+        "exact-cardinality",
+        "five canonical viewport",
+        "a release claim on failure",
+    )
+    rule_text = rule_path.read_text(encoding="utf-8")
+    normalized_rule_text = rule_text.casefold()
+    missing_terms = [term for term in policy_terms if term.casefold() not in normalized_rule_text]
+    if missing_terms:
+        return CheckResult("HF Static release governance", False, f"rule missing: {', '.join(missing_terms)}")
+    claude_text = claude_rule_path.read_text(encoding="utf-8")
+    for shared_term in ("SDK-aware", "fail-closed", "exact-cardinality", "five canonical viewports"):
+        if shared_term not in claude_text:
+            return CheckResult("HF Static release governance", False, f"Claude mirror missing: {shared_term}")
+
+    owner_contracts = {
+        "devops": "HF Static Release Gate Owner",
+        "qa_tester": "HF Static QA Evidence Owner",
+        "code_reviewer": "HF Static Evidence Guard",
+        "orchestrator": "HF Static Final Decision Owner",
+    }
+    alias_files = {
+        "devops": ("devops.agent",),
+        "qa_tester": ("qa-tester.agent", "qa_tester.agent"),
+        "code_reviewer": ("code-reviewer.agent", "code_reviewer.agent"),
+        "orchestrator": ("orchestrator.agent",),
+    }
+    for owner, filenames in alias_files.items():
+        definitions = []
+        for filename in filenames:
+            path = ROOT / ".antigravity" / "agents" / filename
+            try:
+                data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+            except Exception as error:
+                return CheckResult("HF Static release governance", False, f"invalid {relative(path)}: {error}")
+            if "hf-static-release-verification" not in data.get("tools", []):
+                return CheckResult("HF Static release governance", False, f"{filename} missing release skill")
+            if owner_contracts[owner] not in str(data.get("system_prompt", "")):
+                return CheckResult("HF Static release governance", False, f"{filename} missing owner contract")
+            definitions.append(data)
+        if len(definitions) == 2 and definitions[0] != definitions[1]:
+            return CheckResult("HF Static release governance", False, f"{owner} alias definitions differ")
+
+        downstream_json = ROOT / ".agents" / "agents" / owner / "agent.json"
+        downstream_codex = ROOT / ".codex" / "agents" / f"{owner}.toml"
+        try:
+            downstream_data = load_json(downstream_json)
+            codex_text = downstream_codex.read_text(encoding="utf-8")
+        except Exception as error:
+            return CheckResult(
+                "HF Static release governance",
+                False,
+                f"stale or missing generated role for {owner}: {error}",
+            )
+        if "hf-static-release-verification" not in downstream_data.get("tools", []):
+            return CheckResult(
+                "HF Static release governance", False, f"{relative(downstream_json)} missing release skill"
+            )
+        if owner_contracts[owner] not in str(downstream_data.get("system_prompt", "")):
+            return CheckResult(
+                "HF Static release governance", False, f"{relative(downstream_json)} missing owner contract"
+            )
+        if "hf-static-release-verification" not in codex_text or owner_contracts[owner] not in codex_text:
+            return CheckResult(
+                "HF Static release governance", False, f"{relative(downstream_codex)} is stale"
+            )
+
+    return CheckResult(
+        "HF Static release governance",
+        True,
+        "rule, Claude mirror, skill, evals, catalog, and four owner contracts aligned",
+    )
+
+
 def run_checks() -> list[CheckResult]:
     return [
         check_required_files(),
@@ -220,6 +324,7 @@ def run_checks() -> list[CheckResult]:
         check_claude_rules(),
         check_codex_agents_present(),
         check_hermes_and_thclaws_contract(),
+        check_hf_static_release_governance(),
         run_command("Antigravity/Gemini/AGY sync", [sys.executable, "scripts/sync_sdlc_agents.py", "--check", "--use-python"]),
         run_command("Codex/OpenAI sync", [sys.executable, "scripts/sync_codex_agents.py", "--check"]),
     ]
