@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-14-WORKFLOWS-PREP",
+  "phase": "review",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "read_only",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Prepare a bounded CI/workflow remediation plan only. Inspect .github/workflows/azure_cost_guard.yml, azure_deploy.yml, deploy.yml, fly_deploy.yml, and hf_backend_deploy.yml read-only. Plan how to disable or neutralize prohibited Azure public auto-deploy and unsafe Fly manual paths while retaining history, and align the remaining production workflow with the Docker backend plus Vercel UI. Do not modify workflows, credentials, secrets, remote targets, generated files, or any external system. A later executable developer ticket will own this exact workflow group exclusively.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

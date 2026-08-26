@@ -27,9 +27,17 @@ def _policy() -> dict[str, object]:
 
 
 def _route(tmp_path: Path) -> command.Route:
+    home = tmp_path / "codex-home"
+    home.mkdir(mode=0o700, exist_ok=True)
+    home.chmod(0o700)
     config = {
         "runtime": {"approved_for_execution": True, "protocol_version": 2},
-        "accounts": {"codex1": {"cli": "codex", "command": "codex"}},
+        "accounts": {
+            "codex1": {
+                "cli": "codex", "command": "codex", "home_env": "CODEX_HOME",
+                "home_path": str(home),
+            }
+        },
         "roles": {"developer": {"alias": "codex1", "cli": "codex", "model": "gpt-5.6-luna", "effort": "medium", "sandbox": "read-only"}},
     }
     path = tmp_path / "routes.yaml"

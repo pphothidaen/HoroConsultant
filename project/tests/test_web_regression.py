@@ -110,8 +110,15 @@ class TestWebRegressionUI:
         assert "renderResults" in res.text
         assert "updateVersionFooter" in res.text
         assert "fetchApi('/health" in res.text
-        assert "horoconsult-env-new.mangoforest-3a921b17.westus2.azurecontainerapps.io" in res.text
-        assert "res.status === 503" in res.text
+        assert "function getApiBaseUrl()" in res.text
+        assert "parsed.hostname.endsWith('.hf.space')" in res.text
+        assert "const base = getApiBaseUrl();" in res.text
+        assert "return await fetch(`${base}${endpoint}`" in res.text
+        assert "Invalid API endpoint configuration." in res.text
+        assert "Backend request failed." in res.text
+        assert "BACKEND_API_HOSTS" not in res.text
+        assert "candidateBases" not in res.text
+        assert "azurecontainerapps" not in res.text.lower()
 
     def test_browser_regressions_lazy_load_playwright_for_clean_ci(self):
         """A pytest-only job must collect this file without Playwright installed."""
@@ -212,7 +219,11 @@ class TestWebRegressionUI:
                     status=503,
                     content_type="application/json",
                     headers={"x-request-id": "upstream-correlation"},
-                    body='{"detail":"Azure is waking","correlation_id":"upstream-correlation"}',
+                    body=(
+                        '{"detail":"private@example.invalid from '
+                        ' /Users/private-user/report at 203.0.113.42",'
+                        '"correlation_id":"upstream-correlation"}'
+                    ),
                 )
 
             page.route("**/api/v1/bazi/interpret", route_interpret)
@@ -224,8 +235,12 @@ class TestWebRegressionUI:
             assert mutation_requests >= 1
             assert page.input_value("#query") == "do not replace failed input"
             assert page.locator("#interpretation-card").evaluate("node => node.classList.contains('hidden')")
-            assert "Azure is waking" in page.locator("#backend-status").inner_text()
-            assert "503" in page.locator("#backend-status").inner_text()
+            status_text = page.locator("#backend-status").inner_text()
+            assert "HF backend request failed (HTTP 503)" in status_text
+            assert "upstream-correlation" in status_text
+            assert "Azure" not in status_text
+            assert "private@example.invalid" not in status_text
+            assert "/Users/private-user" not in status_text
             assert page.locator("#backend-retry").is_visible()
             assert page.locator("#btn-submit").is_disabled() is False
 

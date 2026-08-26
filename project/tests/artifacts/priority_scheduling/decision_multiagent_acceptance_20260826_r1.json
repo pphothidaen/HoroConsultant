@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-MULTIAGENT-ACCEPTANCE-20260826-R1",
+  "phase": "qa",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "read_only",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Explicit user authorization covers a real, bounded, read-only multi-agent acceptance proof. After the current quota lane releases capacity, root supplies distinct non-secret nonces to two same-role explorer parents on disjoint repository questions; one parent must spawn exactly one explorer child after starting. Root plus the two parents and child is the entire 4-slot allocation. Every result must contain its nonce, monotonic start/end timestamps, scope_owned, commands/read evidence, and changed_files=[]; root verifies parent overlap, parent-child forwarding, unchanged worktree fingerprint, and slot utilization. No external CLI/network action, writable ownership, work prompt, or repository mutation is authorized.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

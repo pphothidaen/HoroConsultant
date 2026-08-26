@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-44-PRE-SOURCE-INTEGRATION-QA",
+  "phase": "qa",
+  "scope_rank": 2,
+  "complexity_rank": 2,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "read_only",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Run only the documented offline pre-source integration matrix over frozen dispatcher, workflow, publisher, gateway, local-runner, and 41A/41B diagnostic contracts, followed by JSON parsing, ecosystem sync check, and git diff check. Use the approved codex1_gateway_review sandbox=read-only runtime role and retain only concise command, exit, and summary evidence. Do not edit files, stage, commit, push, deploy, publish, access credentials or secrets, call the network, retain raw streams, or infer final metadata/package/release approval. This lane gates a separately authorized local immutable source commit; it does not authorize that mutation.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

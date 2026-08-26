@@ -1,4 +1,3 @@
-const AZURE_API_ORIGIN = (process.env.AZURE_API_ORIGIN || "").replace(/\/$/, "");
 const SERVICE_UNAVAILABLE = "Service is temporarily unavailable.";
 const DEFAULT_UPSTREAM_TIMEOUT_MS = 25_000;
 const MAX_UPSTREAM_TIMEOUT_MS = 60_000;
@@ -24,8 +23,8 @@ const ALLOWED_PATHS = [
   /^bazi(?:\/|$)/,
 ];
 
-function configuredUpstreamTimeoutMs() {
-  const configured = Number.parseInt(process.env.AZURE_API_TIMEOUT_MS || "", 10);
+function configuredUpstreamTimeoutMs(environment = process.env) {
+  const configured = Number.parseInt(environment?.HF_BACKEND_TIMEOUT_MS || "", 10);
   if (!Number.isFinite(configured) || configured <= 0) return DEFAULT_UPSTREAM_TIMEOUT_MS;
   return Math.min(configured, MAX_UPSTREAM_TIMEOUT_MS);
 }
@@ -59,6 +58,35 @@ function canonicalHttpsOrigin(value) {
     return null;
   }
 }
+
+/**
+ * Resolve the single configured HF Docker backend. Missing or malformed
+ * configuration remains unavailable; the gateway never selects another host.
+ */
+export function configuredBackendOrigin(environment = process.env) {
+  const configured = typeof environment?.HF_BACKEND_URL === "string"
+    ? environment.HF_BACKEND_URL.trim()
+    : "";
+  if (!configured) return null;
+
+  try {
+    const parsed = new URL(configured);
+    if (parsed.protocol !== "https:"
+      || parsed.username
+      || parsed.password
+      || !parsed.hostname.endsWith(".hf.space")
+      || (parsed.pathname !== "/" && parsed.pathname !== "")
+      || parsed.search
+      || parsed.hash) {
+      return null;
+    }
+    return parsed.origin;
+  } catch {
+    return null;
+  }
+}
+
+const HF_BACKEND_ORIGIN = configuredBackendOrigin(process.env);
 
 /**
  * Return the canonical public CORS allowlist. An override is all-or-nothing:
@@ -217,7 +245,7 @@ function upstreamUrl(path, query) {
     for (const item of Array.isArray(value) ? value : [value]) search.append(key, String(item));
   }
   const suffix = search.size ? `?${search.toString()}` : "";
-  return `${AZURE_API_ORIGIN}/${path}${suffix}`;
+  return `${HF_BACKEND_ORIGIN}/${path}${suffix}`;
 }
 
 function requestBody(req) {
@@ -230,7 +258,10 @@ function safePublicText(value, limit = 240) {
   if (typeof value !== "string") return null;
   const candidate = value.trim();
   if (!candidate || candidate.length > limit
-    || /https?:\/\/|localhost|azure|traceback|exception|stack trace|[\u0000-\u001F\u007F]/i.test(candidate)) {
+    || /https?:\/\/|localhost|traceback|exception|stack trace|[\u0000-\u001F\u007F]/i.test(candidate)
+    || /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i.test(candidate)
+    || /\b(?:\d{1,3}\.){3}\d{1,3}\b|\b\d{9,13}\b/.test(candidate)
+    || /(?:^|\s)\/(?:Users|home|private|tmp|var)\/|[A-Za-z]:\\/i.test(candidate)) {
     return null;
   }
   return candidate;
@@ -263,14 +294,14 @@ function safeValidationDetail(detail) {
   return issues;
 }
 
-function safeDetail(payload, status) {
-  const candidate = safePublicText(payload && payload.detail);
-  if (status >= 400 && status < 500 && candidate) return candidate;
+function safeDetail(_payload, status) {
+  if (status === 400) return "The API rejected the request.";
   if (status === 404) return "The requested API route was not found.";
   if (status === 401) return "Authentication is required.";
   if (status === 403) return "You are not allowed to use this API route.";
   if (status === 422) return "The API rejected the request data.";
   if (status === 429) return "The API is busy. Try again shortly.";
+  if (status >= 400 && status < 500) return "The API rejected the request.";
   return "The API is temporarily unavailable.";
 }
 
@@ -290,8 +321,8 @@ async function errorPayload(response) {
   }
 }
 
-export async function proxyToAzure(req, res, path, correlationId) {
-  if (!AZURE_API_ORIGIN) return sendPublicError(res, 503, correlationId);
+export async function proxyToBackend(req, res, path, correlationId) {
+  if (!HF_BACKEND_ORIGIN) return sendPublicError(res, 503, correlationId);
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
@@ -319,7 +350,7 @@ export async function proxyToAzure(req, res, path, correlationId) {
     if (contentType) res.setHeader("content-type", contentType);
     return res.status(response.status).send(body);
   } catch (error) {
-    console.error("[ERROR] Azure gateway request failed", {
+    console.error("[ERROR] HF backend gateway request failed", {
       correlation_id: correlationId,
       error_type: controller.signal.aborted ? "timeout" : (error && error.name ? error.name : "unknown"),
     });

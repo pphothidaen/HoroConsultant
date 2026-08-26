@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-21A-PUBLISHER-CORE",
+  "status": "DONE_FROZEN",
+  "ownership": ["scripts/publish_space_hf.py"],
+  "source_sha256": "3483b2df51fb2b6e2127ed286c58b733ae9cb73855397c6f6d9cf33da3601da0",
+  "source_diff": {"additions": 1544, "deletions": 344},
+  "cli_contract": {
+    "dry_run": "--dry-run persists the immutable manifest through --manifest-path",
+    "live_binding": "live publish consumes --manifest-path, --receipt-path, and --expected-parent-revision",
+    "rollback": "--rollback-from accepts a validated receipt",
+    "unsupported": ["--approve", "--expected-manifest-digest"]
+  },
+  "evidence_contract": "The source validates manifest/receipt bindings, persists only sanitized receipt material, guards evidence-path collisions, uses atomic CAS/rollback, and makes no remote chmod claim.",
+  "fixture_boundary": "Three intentional stale publisher fixtures are owned only by ticket22A.",
+  "external_actions": "none"
+}

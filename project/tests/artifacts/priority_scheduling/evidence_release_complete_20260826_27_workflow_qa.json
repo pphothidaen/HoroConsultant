@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-27-WORKFLOW-QA",
+  "status": "DONE_FROZEN",
+  "ownership": [
+    "project/tests/test_azure_release.py",
+    "project/tests/test_github_actions_regression.py"
+  ],
+  "verification": {
+    "focused_workflow_contract": "70 passed",
+    "workflow_regression": "33 passed",
+    "ecosystem_sync_check": "pass",
+    "secret_scan": "pass"
+  },
+  "external_actions": "none"
+}

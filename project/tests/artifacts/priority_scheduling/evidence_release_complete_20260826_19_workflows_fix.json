@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-19-WORKFLOWS-FIX",
+  "status": "DONE_FROZEN",
+  "ownership": [
+    ".github/workflows/azure_cost_guard.yml",
+    ".github/workflows/azure_deploy.yml",
+    ".github/workflows/deploy.yml",
+    ".github/workflows/fly_deploy.yml",
+    ".github/workflows/hf_backend_deploy.yml"
+  ],
+  "evidence": {
+    "yaml_bash_python_policy_secret_diff": "pass",
+    "local_no_network_smoke": "pass",
+    "focused_checks": "2 passed",
+    "workflow_suite": "55 passed; 4 stale Azure assertions deferred to ticket 27"
+  },
+  "external_actions": "none",
+  "next_gate": "TICKET-RELEASE-COMPLETE-20260826-27-WORKFLOW-QA"
+}

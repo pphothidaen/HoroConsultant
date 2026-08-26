@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-41B-UI-DIAGNOSTICS",
+  "phase": "implementation",
+  "scope_rank": 2,
+  "complexity_rank": 2,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 2,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "The BSA handoff frees one rolling slot, reserving only the four UI diagnostic scripts. Align their local diagnostic contracts with the canonical Vercel UI and HF Docker backend; prohibit retired Static-to-backend, Azure, Fly, and workstation-path references. Do not run network or external commands, edit source outside the four owned scripts, modify tests, schemas, workflows, publisher files, metadata, rules, skills, generated files, credentials, secrets, or deployment targets. Freeze source evidence for the isolated 41B QA ticket.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

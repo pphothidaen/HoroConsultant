@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-AGY1-QUOTA-20260826-R1",
+  "phase": "operations",
+  "scope_rank": 1,
+  "complexity_rank": 1,
+  "risk_rank": 1,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 2,
+  "quota_band": "unknown",
+  "work_mode": "read_only",
+  "selected_alias": "agy1",
+  "selected_model": "gemini-3.7-flash-high",
+  "selected_effort": "high",
+  "rationale": "Explicit user authorization covers one read-only, sanitized interactive/status-only AGY quota query. The pre-query quota band is truthfully unknown and is permitted solely to discover a safe band. Send no work prompt and retain or report no account email, session identifier, raw TUI/transcript, or path. The durable result is only a safe quota-band classification or sanitized failure classification. This decision does not authorize an AGY work dispatch, an R3 execution decision, or an R3 scheduling snapshot.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

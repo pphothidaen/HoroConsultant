@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-18-DISPATCHER-QA",
+  "phase": "qa",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Update only tests/test_multiagent_prompt_command.py and tests/test_multiagent_prompt_command_r4.py after the frozen dispatcher source result. Replace exactly 23 stale marker-oriented fixtures/assertions with the structural isolated-home helper, remove marker APIs from the affected tests, and run the full focused dispatcher suite. Do not edit dispatcher source/config, workflows, rules, skills, publisher, router, data, generated files, credentials, or external systems. Preserve path-free ASCII diagnostics and structural/symlink/four-role coverage.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

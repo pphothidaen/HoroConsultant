@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-44-PRE-SOURCE-INTEGRATION-QA",
+  "attempt_id": 1,
+  "status": "BLOCKED",
+  "failure_class": "stale_governance_test_path",
+  "content_free_reason": "Documented command 3 referenced project/tests/test_hf_release_governance.py, but the tracked test is tests/test_hf_release_governance.py; pytest exited 4 and collected no tests for the stale path.",
+  "completed_commands": {
+    "command_1": "151 passed",
+    "command_2": "70 passed"
+  },
+  "failed_command": {
+    "command_id": 3,
+    "exit_code": 4,
+    "tests_collected": 0
+  },
+  "inventory_digest": "f372695e92ff025edccc35f47007ce53cea275b39d34c7c1c55c73c026a6889e",
+  "inventory_changed": false,
+  "source_or_test_mutation": "none",
+  "external_actions": "none",
+  "retry_authorized": false,
+  "replacement_ticket": "TICKET-RELEASE-COMPLETE-20260826-44R2-PRE-SOURCE-INTEGRATION-QA"
+}

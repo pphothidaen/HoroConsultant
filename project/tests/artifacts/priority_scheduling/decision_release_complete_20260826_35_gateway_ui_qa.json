@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-35-GATEWAY-UI-QA",
+  "phase": "qa",
+  "scope_rank": 2,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "When a slot is free, modify only tests/api_gateway_cors_contract.test.mjs and create only project/tests/test_gateway_ui_release_contract.py. Verify no Azure fallback and exact project/static to public UI mirror parity. Do not expand into api/index, admin, or HITL routing: those require a separate ownership and human-review audit. Do not edit source, workflows, other tests, rules, skills, publisher, metadata, credentials, or external systems.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

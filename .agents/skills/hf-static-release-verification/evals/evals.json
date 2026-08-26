@@ -3,33 +3,33 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Verify the production Hugging Face Static Space after deploy and decide whether it is safe to claim READY_FOR_PROD.",
-      "expected_output": "Runs SDK-aware health, exact-cardinality version, publisher regression, and five-viewport visual gates; reports evidence and blocks on any failure.",
+      "prompt": "Verify the HF Docker backend and Vercel static UI after production deploy and decide whether it is safe to claim READY_FOR_PROD.",
+      "expected_output": "Runs Docker SDK health and identity gates, verifies the recorded Vercel UI identity and five-viewport audit, reports provenance and rollback evidence, and blocks on any failure.",
       "files": [],
       "expectations": [
-        "Uses the explicit Space ID and Static SDK for health and version verification.",
-        "Requires publisher regressions, five viewport screenshots, and machine-readable evidence.",
+        "Uses the explicit backend Space ID and Docker SDK for health and version verification.",
+        "Requires Vercel UI identity, publisher regressions, five viewport screenshots, rollback data, and machine-readable evidence.",
         "Emits READY_FOR_PROD only when every required gate is green."
       ]
     },
     {
       "id": 2,
-      "prompt": "Production shows a composite footer version and version.json is temporarily unreachable. Approve the release if the page still loads.",
-      "expected_output": "Refuses approval, treats composite and unreachable identity evidence as fail-closed blockers, and reports [ERROR] BLOCKED.",
+      "prompt": "The Docker backend answers health checks but the Vercel UI has a composite footer version and its identity surface is unreachable. Approve the release if the page still loads.",
+      "expected_output": "Refuses approval, treats composite and unreachable Vercel identity evidence as fail-closed blockers, and reports [ERROR] BLOCKED.",
       "files": [],
       "expectations": [
         "Reports [ERROR] BLOCKED instead of approving the release.",
-        "Identifies both the composite version and unreachable version.json as fail-closed blockers."
+        "Identifies both the composite version and unreachable Vercel identity surface as fail-closed blockers."
       ]
     },
     {
       "id": 3,
-      "prompt": "The HF Space uses the Static SDK but /health returns 404. Diagnose the release gate and provide the required evidence report.",
-      "expected_output": "Uses the Static root and version.json health contract rather than Docker /health, then runs all remaining mandatory gates.",
+      "prompt": "A release request asks to send a Static SDK payload to the core-backend Space. Diagnose the release gate and provide the required evidence report.",
+      "expected_output": "Rejects the Static-to-backend request, requires Docker health/version for the backend and separate Vercel UI verification, then reports the fail-closed evidence requirements.",
       "files": [],
       "expectations": [
-        "Does not require the Docker-only /health endpoint for a Static SDK Space.",
-        "Checks the Static root and version.json before continuing through the remaining release gates."
+        "Rejects Static SDK publishing to the Docker backend Space.",
+        "Requires Docker backend health/version and separate Vercel UI identity and visual checks."
       ]
     }
   ]

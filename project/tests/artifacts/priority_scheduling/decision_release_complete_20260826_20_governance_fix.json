@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-20-GOVERNANCE-FIX",
+  "phase": "implementation",
+  "scope_rank": 2,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Align only Rule 07, Rule 16, and the devops-deployment, qa-e2e-testing, and hf-static-release-verification skills with the approved HF Docker backend pphothidaen/horoconsultant-core-backend plus Vercel static UI architecture. Retire static publishing to that backend Space and prohibit Azure/Fly public release paths without renaming legacy directories or manually editing generated mirrors. Add focused skill evaluations when they materially verify the new Docker/Vercel, provenance, rollback, and validated-in-process rules. Run the required ecosystem sync and scoped governance verification, but do not edit workflows, source, tests, publisher, README, HOWTO, router, data, credentials, or any external target.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

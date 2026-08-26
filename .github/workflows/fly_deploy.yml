@@ -1,37 +1,19 @@
-# ==============================================================================
-# HoroConsultant — DECOMMISSIONED: Fly.io Deployment Workflow
-# ==============================================================================
-# STATUS: RETIRED on 2026-08-14 — Platform migrated to Azure Container Apps.
-# See azure_deploy.yml for the active production deployment pipeline.
-# This file is preserved for audit history only. Do NOT re-enable.
-# ==============================================================================
+name: "[RETIRED] Fly.io Deployment"
 
-name: "[RETIRED] Fly.io Deployment — DO NOT USE"
-
+# Audit-only tombstone. The job is statically disabled and receives no
+# credentials. Git history remains the recovery source for the retired lane.
 on:
   workflow_dispatch:
-    inputs:
-      confirm_retired:
-        description: 'This workflow is retired. Use azure_deploy.yml instead.'
-        required: true
-        default: 'no'
+
+permissions: {}
 
 jobs:
-  deploy:
-    name: Deploy FastAPI Container to Fly.io (Singapore Region)
+  retired:
+    name: Fly.io deployment is permanently retired
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
-
-      - name: Setup Flyctl CLI
-        uses: superfly/flyctl-actions/setup-flyctl@master
-
-      - name: Extract Short Git Commit Hash
-        id: git_hash
-        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-
-      - name: Deploy to Fly.io Singapore Region
-        run: flyctl deploy --remote-only --config fly.toml --build-arg GIT_COMMIT_HASH=${{ steps.git_hash.outputs.sha_short }}
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - name: Retirement notice
+        run: |
+          echo "::error::Fly.io is not an approved HoroConsultant deployment target."
+          exit 1

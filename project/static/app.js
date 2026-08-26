@@ -361,12 +361,6 @@ function detectDisciplineKeyFromTitle(title) {
 }
 
 
-const BACKEND_API_HOSTS = [
-  "https://horo-consultant-psi.vercel.app", // Primary Vercel Production Serverless API Gateway
-  "https://horoconsult-env-new.mangoforest-3a921b17.westus2.azurecontainerapps.io", // Azure Container Apps Docker backend fallback
-  "", // Relative origin (local server / same-origin proxy)
-];
-
 let activeApiCallCount = 0;
 let backendChangeVerifyTimer = null;
 let backendChangeVerifyController = null;
@@ -404,16 +398,42 @@ function endApiRequest() {
 }
 
 function getApiBaseUrl() {
-  if (typeof window !== 'undefined' && window.API_BASE_URL) {
-    return window.API_BASE_URL;
+  if (typeof window === 'undefined') return '';
+  const configured = window.API_BASE_URL;
+  if (configured === undefined || configured === null || configured === '') return '';
+  if (typeof configured !== 'string') throw new Error('Invalid API endpoint configuration.');
+
+  const candidate = configured.trim();
+  if (!candidate) return '';
+  try {
+    const parsed = new URL(candidate);
+    const sameOrigin = window.location && typeof window.location.origin === 'string'
+      ? window.location.origin
+      : '';
+    if (parsed.protocol !== 'https:'
+      || parsed.username
+      || parsed.password
+      || (parsed.origin !== sameOrigin && !parsed.hostname.endsWith('.hf.space'))
+      || (parsed.pathname !== '/' && parsed.pathname !== '')
+      || parsed.search
+      || parsed.hash) {
+      throw new Error('Invalid API endpoint configuration.');
+    }
+    return parsed.origin;
+  } catch (_) {
+    throw new Error('Invalid API endpoint configuration.');
   }
-  if (typeof window !== 'undefined' && window.location && window.location.hostname.includes('static.hf.space')) {
-    return 'https://horo-consultant-psi.vercel.app';
-  }
-  return '';
 }
 
 async function fetchApi(endpoint, options = {}) {
+  if (typeof endpoint !== 'string'
+    || !endpoint.startsWith('/')
+    || endpoint.startsWith('//')
+    || endpoint.includes('\\')
+    || endpoint.includes('#')
+    || /[\u0000-\u001F\u007F]/.test(endpoint)) {
+    throw new Error('Invalid API request path.');
+  }
   const requestOptions = { ...options };
   const shouldShowLoader = requestOptions.showLoader !== false;
   const loaderMessage = requestOptions.loaderMessage || 'กำลังรอผลจาก API...';
@@ -427,41 +447,19 @@ async function fetchApi(endpoint, options = {}) {
   }
 
   try {
-    const customBase = getApiBaseUrl();
-    const candidateBases = customBase
-      ? [customBase, ...BACKEND_API_HOSTS.filter(b => b !== customBase)]
-      : BACKEND_API_HOSTS;
-
-    let lastError = null;
-    for (const base of candidateBases) {
-      if (!base && typeof window !== 'undefined' && window.location && window.location.hostname.includes('static.hf.space')) {
-        continue;
-      }
-      const url = base ? `${base}${endpoint}` : endpoint;
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => {
-          try {
-            controller.abort(new Error(`Timeout of ${timeoutMs}ms exceeded for ${url}`));
-          } catch (_) {
-            controller.abort();
-          }
-        }, timeoutMs);
-        const res = await fetch(url, { ...requestOptions, signal: requestOptions.signal || controller.signal });
-        clearTimeout(timeoutId);
-        if (res.ok) {
-          return res;
-        }
-        lastError = new Error(`HTTP ${res.status} from ${url}`);
-        if (res.status === 404 || res.status === 500 || res.status === 502 || res.status === 503) {
-          continue;
-        }
-        return res;
-      } catch (err) {
-        lastError = err;
-      }
+    const base = getApiBaseUrl();
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(`${base}${endpoint}`, {
+        ...requestOptions,
+        signal: requestOptions.signal || controller.signal,
+      });
+    } catch (_) {
+      throw new Error('Backend request failed.');
+    } finally {
+      clearTimeout(timeoutId);
     }
-    throw lastError || new Error(`All API hosts failed for ${endpoint}`);
   } finally {
     if (shouldShowLoader) {
       endApiRequest();
@@ -924,7 +922,7 @@ async function updateVersionFooter() {
       const versionStr = rawVer.startsWith('v') ? rawVer : `v${rawVer}`;
       const footerEl = document.getElementById('footer-version-text');
       if (footerEl && versionStr) {
-        footerEl.textContent = `Computational Metaphysics Engine ${versionStr} — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) & Dual Gemini API Fallback`;
+        footerEl.textContent = `Computational Metaphysics Engine ${versionStr} — Powered by the canonical HF Docker backend`;
       }
       if (healthBadge) {
         healthBadge.className = 'status-badge health-badge';
@@ -935,7 +933,7 @@ async function updateVersionFooter() {
     } else {
       if (healthBadge) {
         healthBadge.className = 'status-badge health-badge amber-badge';
-        healthBadge.innerHTML = `<span class="pulse-dot amber"></span><span class="health-text">Health: Standby (Local Engine Fallback)</span>`;
+        healthBadge.innerHTML = `<span class="pulse-dot amber"></span><span class="health-text">Health: Unavailable (Authoritative Backend Required)</span>`;
       }
     }
   } catch (err) {
@@ -943,7 +941,7 @@ async function updateVersionFooter() {
     const healthBadge = document.getElementById('health-status-badge');
     if (healthBadge) {
       healthBadge.className = 'status-badge health-badge amber-badge';
-      healthBadge.innerHTML = `<span class="pulse-dot amber"></span><span class="health-text">Health: Standby (Local Engine Fallback)</span>`;
+      healthBadge.innerHTML = `<span class="pulse-dot amber"></span><span class="health-text">Health: Unavailable (Authoritative Backend Required)</span>`;
     }
   }
 }
@@ -1865,12 +1863,12 @@ async function wakeBackend(options = {}) {
       break;
     }
     const delay = Math.min(delays[i], 60000 - elapsed);
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), deadlineMs);
     try {
-      const healthUrl = getApiBaseUrl() ? `${getApiBaseUrl()}/health` : '/health';
-      const res = await fetch(healthUrl, { signal: controller.signal, cache: 'no-store' });
-      clearTimeout(timer);
+      const res = await fetchApi('/health', {
+        showLoader: false,
+        timeoutMs: deadlineMs,
+        cache: 'no-store',
+      });
       if (res.ok) {
         if (statusEl) {
           statusEl.classList.remove('hidden');
@@ -1880,13 +1878,11 @@ async function wakeBackend(options = {}) {
         if (retryBtn) retryBtn.classList.add('hidden');
         return true;
       }
-    } catch (e) {
-      clearTimeout(timer);
-    }
+    } catch (e) {}
     if (statusEl) {
       statusEl.classList.remove('hidden');
       statusEl.setAttribute('data-state', 'waking');
-      statusEl.innerText = 'Azure is waking (backend starting)';
+      statusEl.innerText = 'HF Docker backend is unavailable; retrying';
     }
     if (retryBtn) retryBtn.classList.remove('hidden');
     await waitFor(delay);
@@ -1901,7 +1897,7 @@ async function ensureBackendReady() {
   if (statusEl) {
     statusEl.classList.remove('hidden');
     statusEl.setAttribute('data-state', 'waking');
-    statusEl.innerText = 'Azure is waking (backend starting)';
+    statusEl.innerText = 'Checking HF Docker backend';
   }
   if (submitBtn) submitBtn.disabled = true;
   const ready = await wakeBackend();
@@ -1925,16 +1921,15 @@ async function verifyBackendOnChange() {
   if (statusEl) {
     statusEl.classList.remove('hidden');
     statusEl.setAttribute('data-state', 'waking');
-    statusEl.innerText = 'กำลังตรวจสอบ/ปลุกบริการคำนวณ...';
+    statusEl.innerText = 'กำลังตรวจสอบบริการคำนวณหลัก...';
   }
 
   try {
-    const base = getApiBaseUrl();
-    const healthUrl = base ? `${base}/health` : '/health';
-    const response = await fetch(healthUrl, {
+    const response = await fetchApi('/health', {
       method: 'GET',
       cache: 'no-store',
       signal: controller.signal,
+      showLoader: false,
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     if (statusEl) {
@@ -1971,6 +1966,9 @@ function showCalculationBlocker(reason = 'backend_unavailable') {
   if (existing) existing.remove();
 
   const incidentId = `BAZI-${Date.now().toString(36).toUpperCase()}`;
+  const safeReason = /^[a-z0-9_:-]{1,80}$/i.test(String(reason))
+    ? String(reason)
+    : 'backend_unavailable';
   const modal = document.createElement('div');
   modal.id = 'calculation-blocker-modal';
   modal.setAttribute('role', 'alertdialog');
@@ -1981,7 +1979,7 @@ function showCalculationBlocker(reason = 'backend_unavailable') {
       <h2>ไม่สามารถยืนยันผลการคำนวณได้</h2>
       <p>การคำนวณ BaZi ถูกหยุดไว้ชั่วคราว เนื่องจากระบบหลักไม่พร้อมใช้งานหรือส่งผลลัพธ์ไม่ครบถ้วน</p>
       <p class="calculation-blocker-critical">ระดับเหตุขัดข้อง: BLOCKER</p>
-      <p class="calculation-blocker-meta">Incident: ${incidentId} | Reason: ${String(reason).replace(/[<>]/g, '')}</p>
+      <p class="calculation-blocker-meta">Incident: ${incidentId} | Reason: ${safeReason}</p>
       <div class="calculation-blocker-actions">
         <button type="button" class="btn btn-primary" id="calculation-blocker-retry">ลองใหม่อีกครั้ง</button>
         <a class="btn btn-sm" href="admin.html">แจ้ง Admin</a>
@@ -2038,13 +2036,14 @@ async function calculateChart(event) {
     const corrId = res.headers.get('x-request-id') || '';
 
     if (!res.ok) {
-      let errDetail = 'Azure is waking';
+      let errDetail = `HF backend request failed (HTTP ${res.status})`;
       try {
         const errJson = await res.json();
-        if (errJson.detail) errDetail = errJson.detail;
-        if (errJson.correlation_id) errDetail += ` (correlation_id: ${errJson.correlation_id})`;
+        if (/^[A-Za-z0-9._:-]{1,128}$/.test(errJson.correlation_id || '')) {
+          errDetail += ` (correlation_id: ${errJson.correlation_id})`;
+        }
       } catch (_) {}
-      if (corrId && !errDetail.includes(corrId)) {
+      if (/^[A-Za-z0-9._:-]{1,128}$/.test(corrId) && !errDetail.includes(corrId)) {
         errDetail += ` ${corrId}`;
       }
       if (statusEl) {
@@ -2089,10 +2088,10 @@ async function calculateChart(event) {
     if (statusEl) {
       statusEl.classList.remove('hidden');
       statusEl.setAttribute('data-state', 'error');
-      statusEl.innerText = `Azure is waking (${err.message})`;
+      statusEl.innerText = 'HF backend request failed. Please retry.';
     }
     if (retryBtn) retryBtn.classList.remove('hidden');
-    showCalculationBlocker(err.message || 'backend_request_failed');
+    showCalculationBlocker('backend_request_failed');
   } finally {
     if (spinner) spinner.classList.add('hidden');
     if (btnText) btnText.textContent = '🔮 คำนวณผังดวง & ตีความด้วย AI';
@@ -6444,7 +6443,7 @@ window.renderDreamResult = renderDreamResult;
 // 🔄 HYBRID VERSION GUARD & PROMINENT UPDATE MODAL SYSTEM
 // ======================================================================
 
-const CLIENT_APP_VERSION = "1.0.0.93f51cf";
+const CLIENT_APP_VERSION = "1.0.0.3b8d9f1";
 let _versionModalDismissed = false;
 let _versionCountdownTimer = null;
 

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-02-TARGET",
+  "status": "DONE",
+  "push_target": "origin/main",
+  "production_architecture": {
+    "hf_backend": "pphothidaen/horoconsultant-core-backend",
+    "hf_sdk": "docker",
+    "static_ui": "vercel"
+  },
+  "retire_static_deployment_to_backend_space": true,
+  "azure_public_auto_deploy": "prohibited",
+  "fly_manual_deploy": "prohibited",
+  "external_actions": "none"
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-16-PUBLISHER-PREP",
+  "status": "DONE_FROZEN",
+  "work_mode": "read_only",
+  "canonical_architecture": {
+    "backend": "HF Docker backend",
+    "static_ui": "Vercel",
+    "static_publish_to_backend": "prohibited"
+  },
+  "validated_contract": {
+    "publisher_core": "21A owns only scripts/publish_space_hf.py",
+    "versioned_schemas": "21B owns only new release manifest and receipt schemas",
+    "canonical_metadata": "21C owns only project/static/version.json and public/version.json",
+    "workflow_handoff": "21D owns only the HF Docker workflow after the CLI contract freezes",
+    "qa": "22 owns publisher and governance tests after every upstream unit freezes"
+  },
+  "hfapi_mode_boundary": {
+    "limitation": "HfApi upload does not provide a trustworthy portable remote POSIX mode control",
+    "enforcement": "publisher must reject non-regular or non-100644 local payload files before upload and record that verified local baseline in release evidence",
+    "prohibited_claim": "do not claim that a remote chmod was set or independently verified"
+  },
+  "baseline_matrix": {
+    "passed": 134,
+    "unresolved": 1,
+    "classification": "provenance failure",
+    "owner": "21A-PUBLISHER-CORE"
+  },
+  "external_actions": "none"
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-MULTIAGENT-ACCEPTANCE-20260826-R2",
+  "status": "FAILED",
+  "failure_class": "no_exact_4_of_4_simultaneous_peak",
+  "scope_contract": "passed",
+  "fresh_nonces_verified": true,
+  "worktree_fingerprint_equal": true,
+  "changed_files": [],
+  "intervals_monotonic": {
+    "B": [526622835607125, 526630510648125],
+    "child": [526638962397125, 526638984734625]
+  },
+  "timing_finding": "B ended before child started, so root plus A, B, and child were never proven simultaneously running.",
+  "external_actions": "none"
+}

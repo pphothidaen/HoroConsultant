@@ -1,9 +1,14 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import test from "node:test";
 
 import indexHandler from "../api/index.js";
 import healthHandler from "../api/health.js";
-import { applyCorsPolicy, configuredCorsOrigins } from "../api/gateway.js";
+import {
+  applyCorsPolicy,
+  configuredBackendOrigin,
+  configuredCorsOrigins,
+} from "../api/gateway.js";
 
 function responseRecorder() {
   const headers = new Map();
@@ -27,6 +32,54 @@ function request({ method = "OPTIONS", origin, requestMethod = "GET", requestHea
   return { method, headers, url: "/api/index" };
 }
 
+function runGatewayProbe({ backend, status, payload }) {
+  const moduleUrl = new URL("../api/gateway.js", import.meta.url).href;
+  const script = `
+    const { proxyToBackend } = await import(${JSON.stringify(moduleUrl)});
+    const headers = new Map();
+    const response = {
+      statusCode: null,
+      body: undefined,
+      setHeader(name, value) { headers.set(name.toLowerCase(), value); },
+      status(code) { this.statusCode = code; return this; },
+      json(body) { this.body = body; return this; },
+      send(body) { this.body = body; return this; },
+    };
+    const calls = [];
+    globalThis.fetch = async (url) => {
+      calls.push(url);
+      return new Response(JSON.stringify(${JSON.stringify(payload)}), {
+        status: ${JSON.stringify(status)},
+        headers: { "content-type": "application/json", "x-request-id": "upstream-id" },
+      });
+    };
+    await proxyToBackend(
+      { method: "GET", headers: {}, query: { subject: "private@example.invalid" } },
+      response,
+      "health",
+      "caller-id",
+    );
+    process.stdout.write(JSON.stringify({
+      calls,
+      statusCode: response.statusCode,
+      body: response.body,
+      requestId: headers.get("x-request-id"),
+    }));
+  `;
+  const environment = { ...process.env, AZURE_API_ORIGIN: "https://ignored.azure.example" };
+  if (backend === null) {
+    delete environment.HF_BACKEND_URL;
+  } else {
+    environment.HF_BACKEND_URL = backend;
+  }
+  const result = spawnSync(process.execPath, ["--input-type=module", "--eval", script], {
+    env: environment,
+    encoding: "utf8",
+  });
+  assert.equal(result.status, 0, result.stderr);
+  return JSON.parse(result.stdout);
+}
+
 test("default CORS allowlist is exactly the canonical Vercel frontend", () => {
   assert.deepEqual(configuredCorsOrigins({}), ["https://horo-consultant-psi.vercel.app"]);
   assert.deepEqual(
@@ -37,6 +90,62 @@ test("default CORS allowlist is exactly the canonical Vercel frontend", () => {
     configuredCorsOrigins({ CORS_ALLOWED_ORIGINS: "https://app.example, http://unsafe.example" }),
     ["https://horo-consultant-psi.vercel.app"],
   );
+});
+
+test("backend target accepts only an absolute HTTPS Hugging Face Space origin", () => {
+  assert.equal(
+    configuredBackendOrigin({ HF_BACKEND_URL: "https://horo-backend.hf.space" }),
+    "https://horo-backend.hf.space",
+  );
+  for (const value of [
+    undefined,
+    "http://horo-backend.hf.space",
+    "https://horo-backend.static.hf.space/path",
+    "https://horo-backend.hf.space/?unexpected=query",
+    "https://user:password@horo-backend.hf.space",
+    "https://horo-backend.azurecontainerapps.io",
+    "https://not-hf.example",
+  ]) {
+    assert.equal(configuredBackendOrigin({ HF_BACKEND_URL: value }), null, value);
+  }
+});
+
+test("gateway fails closed without a backend and exposes no alternate provider", () => {
+  const result = runGatewayProbe({ backend: null, status: 200, payload: { detail: "unused" } });
+
+  assert.deepEqual(result.calls, []);
+  assert.equal(result.statusCode, 503);
+  assert.deepEqual(result.body, {
+    detail: "Service is temporarily unavailable.",
+    correlation_id: "caller-id",
+  });
+});
+
+test("gateway makes one HF request and replaces upstream 4xx or PII with a public error", () => {
+  const result = runGatewayProbe({
+    backend: "https://canonical-backend.hf.space",
+    status: 422,
+    payload: {
+      detail: [{
+        type: "validation_error",
+        loc: ["body", "email"],
+        msg: "private@example.invalid from /Users/private-user/report at 203.0.113.42",
+      }],
+    },
+  });
+
+  assert.deepEqual(result.calls, ["https://canonical-backend.hf.space/health?subject=private%40example.invalid"]);
+  assert.equal(result.statusCode, 422);
+  assert.deepEqual(result.body, {
+    detail: "The API rejected the request data.",
+    correlation_id: "upstream-id",
+  });
+  const publicResponse = JSON.stringify({
+    statusCode: result.statusCode,
+    body: result.body,
+    requestId: result.requestId,
+  });
+  assert.doesNotMatch(publicResponse, /private@example\.invalid|\/Users\/private-user|203\.0\.113\.42/);
 });
 
 test("allowed origin receives exact reflection, Vary, and a constrained header subset", () => {

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-19-WORKFLOWS-FIX",
+  "phase": "implementation",
+  "scope_rank": 2,
+  "complexity_rank": 3,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Apply the validated deployment-architecture remediation only to .github/workflows/azure_cost_guard.yml, azure_deploy.yml, deploy.yml, fly_deploy.yml, and hf_backend_deploy.yml. Retain repository history while neutralizing prohibited Azure public auto-deploy and Fly manual deployment paths, and align the approved path to the HF Docker backend plus Vercel static UI. Do not edit rules, skills, source, publisher, tests, generated mirrors, router, data, credentials, or external systems. Freeze workflow evidence before release QA.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

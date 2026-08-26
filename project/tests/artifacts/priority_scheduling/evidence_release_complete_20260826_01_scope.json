@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-01-SCOPE",
+  "status": "DONE",
+  "branch": "main",
+  "staged_changes": false,
+  "scope_findings": {
+    "dispatcher_preflight_and_runtime_config": "requires security/provenance remediation before QA",
+    "deployment_architecture": "requires CI/governance migration to Docker backend plus Vercel UI",
+    "publisher_metadata_and_atomicity": "requires Docker-targeted provenance/dry-run/rollback remediation",
+    "router_provenance": "blocked and preserved; excluded from current release staging",
+    "data_provenance": "blocked and preserved; excluded from current release staging"
+  },
+  "cleanup_or_overwrite_authorized": false,
+  "external_actions": "none"
+}

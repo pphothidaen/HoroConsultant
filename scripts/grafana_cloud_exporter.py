@@ -1,690 +1,454 @@
-#!/usr/bin/env python3
-"""
-scripts/grafana_cloud_exporter.py — CLI Exporter for Grafana Cloud & Prometheus Integration
-Computational Metaphysics Engine
+"""Read-only backend observability diagnostic with a legacy filename.
 
-Supports CLI flags:
-  --dry-run                 Format & display payloads without sending live HTTP requests.
-  --check-connection        Test connection to Grafana Cloud & metrics endpoint.
-  --push-metrics            Scrape metrics from project/core/observability.py or /metrics,
-                             format OTLP/Prometheus JSON payload, and push to Grafana Cloud.
-  --export-dashboard        Validate and export project/grafana/horoconsultant_dashboard.json to Grafana.
-  --push-gateway-telemetry  Collect Vercel/HF/Fly.io gateway response latencies and HTTP
-                             status distribution (2xx/4xx/5xx) and push to Grafana Cloud.
-
-Pure ASCII logging tags enforced: [OK], [ERROR], [INFO], [WARNING].
+The tool validates offline dashboard JSON and probes only the canonical Hugging
+Face Docker backend health and metrics endpoints. Network access requires the
+explicit ``--live`` flag. The implementation contains no remote write path,
+request-identity handling, local-service fallback, response dump, or implicit
+environment loading.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
-import os
-import sys
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from collections.abc import Callable, Sequence
+from contextlib import AbstractContextManager
 from pathlib import Path
-from typing import Any
-from unittest.mock import MagicMock
+from typing import Any, Literal, TypedDict
 
-# Ensure project root is in Python path for direct imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
-DEFAULT_DASHBOARD_PATH = PROJECT_ROOT / "project" / "grafana" / "horoconsultant_dashboard.json"
+CANONICAL_HF_DOCKER_BACKEND = "https://pphothidaen-horoconsultant-core-backend.hf.space"
+DEFAULT_TIMEOUT_SECONDS = 5.0
+MAX_TIMEOUT_SECONDS = 10.0
+MAX_RESPONSE_BYTES = 262_144
 
 
-def log_info(msg: str) -> None:
-    """Log informational message with pure ASCII tag [INFO]."""
-    print(f"[INFO] {msg}")
+class EndpointContract(TypedDict):
+    """Fixed read-only endpoint definition."""
+
+    name: str
+    url: str
+    response_kind: Literal["json", "prometheus"]
 
 
-def log_ok(msg: str) -> None:
-    """Log success message with pure ASCII tag [OK]."""
-    print(f"[OK] {msg}")
+class DiagnosticResult(TypedDict):
+    """Sanitized probe evidence without response or exception text."""
+
+    name: str
+    outcome: Literal["PASSED", "FAILED"]
+    classification: Literal[
+        "OK",
+        "HTTP_ERROR",
+        "TIMEOUT",
+        "NETWORK_ERROR",
+        "INVALID_RESPONSE",
+    ]
+    http_status: int
+    latency_ms: float
+    response_bytes: int
 
 
-def log_warning(msg: str) -> None:
-    """Log warning message with pure ASCII tag [WARNING]."""
-    print(f"[WARNING] {msg}")
+READ_ONLY_ENDPOINTS: tuple[EndpointContract, ...] = (
+    {
+        "name": "backend_health",
+        "url": f"{CANONICAL_HF_DOCKER_BACKEND}/health",
+        "response_kind": "json",
+    },
+    {
+        "name": "backend_metrics",
+        "url": f"{CANONICAL_HF_DOCKER_BACKEND}/metrics",
+        "response_kind": "prometheus",
+    },
+)
 
-
-def log_error(msg: str) -> None:
-    """Log error message with pure ASCII tag [ERROR]."""
-    print(f"[ERROR] {msg}")
-
-
-def fetch_metrics_text(metrics_url: str = "http://localhost:8000/metrics") -> str:
-    """
-    Fetch Prometheus exposition text.
-    First attempts HTTP GET request to metrics_url. If unsuccessful,
-    falls back to direct import of observability_manager from project.core.observability.
-    """
-    try:
-        req = urllib.request.Request(metrics_url, headers={"User-Agent": "HoroConsultant-Exporter/1.0"})
-        with urllib.request.urlopen(req, timeout=2) as resp:
-            status_code = getattr(resp, "status", 200)
-            if isinstance(status_code, MagicMock):
-                status_code = 200
-            if status_code == 200:
-                text = resp.read().decode("utf-8")
-                log_info(f"Successfully scraped HTTP metrics from {metrics_url}")
-                return text
-    except Exception as e:
-        log_info(f"HTTP metrics endpoint unreachable at {metrics_url} ({e}); using direct module fallback.")
-
-    # Fallback to direct Python module import
-    try:
-        from project.core.observability import observability_manager
-        text = observability_manager.generate_metrics_text()
-        log_info("Successfully generated metrics from project.core.observability engine")
-        return text
-    except Exception as err:
-        log_error(f"Failed to load metrics from observability engine: {err}")
-        return ""
-
-
-def format_otlp_json_payload(metrics_text: str) -> dict[str, Any]:
-    """
-    Format OTLP/Prometheus JSON payload from Prometheus exposition format text.
-    """
-    now_nano = int(time.time() * 1e9)
-    metric_entries: list[dict[str, Any]] = []
-
-    for line in metrics_text.splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-
-        try:
-            if "{" in line and "}" in line:
-                name_part, rest = line.split("{", 1)
-                labels_str, val_str = rest.split("}", 1)
-                metric_name = name_part.strip()
-                metric_val = float(val_str.strip())
-
-                attributes: list[dict[str, Any]] = []
-                for kv in labels_str.split(","):
-                    if "=" in kv:
-                        k, v = kv.split("=", 1)
-                        attributes.append({
-                            "key": k.strip(),
-                            "value": {"stringValue": v.strip().strip('"')}
-                        })
-            else:
-                parts = line.split()
-                metric_name = parts[0].strip()
-                metric_val = float(parts[1].strip())
-                attributes = []
-
-            entry = {
-                "name": metric_name,
-                "gauge": {
-                    "dataPoints": [
-                        {
-                            "timeUnixNano": str(now_nano),
-                            "asDouble": metric_val,
-                            "attributes": attributes,
-                        }
-                    ]
-                }
-            }
-            metric_entries.append(entry)
-        except Exception:
-            continue
-
-    payload: dict[str, Any] = {
-        "resourceMetrics": [
-            {
-                "resource": {
-                    "attributes": [
-                        {"key": "service.name", "value": {"stringValue": "horoconsultant"}},
-                        {"key": "service.namespace", "value": {"stringValue": "computational-metaphysics"}},
-                        {"key": "exporter", "value": {"stringValue": "grafana_cloud_exporter"}}
-                    ]
-                },
-                "scopeMetrics": [
-                    {
-                        "scope": {
-                            "name": "horoconsultant_exporter",
-                            "version": "1.0.0"
-                        },
-                        "metrics": metric_entries
-                    }
-                ]
-            }
-        ]
-    }
-    return payload
-
-
-def load_dashboard_schema(dashboard_path: str | Path) -> dict[str, Any]:
-    """
-    Load and parse Grafana dashboard JSON schema from file.
-    Raises FileNotFoundError if file does not exist.
-    """
-    path = Path(dashboard_path)
-    if not path.is_absolute():
-        path = PROJECT_ROOT / dashboard_path
-
-    if not path.exists():
-        log_error(f"Dashboard JSON schema file not found at {path}")
-        raise FileNotFoundError(f"Dashboard JSON file not found at {path}")
-
-    with open(path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    return data
-
-
-def format_grafana_payload(dashboard: dict[str, Any], overwrite: bool = True, folder_uid: str = "") -> dict[str, Any]:
-    """
-    Format payload for Grafana Cloud API /api/dashboards/db endpoint.
-    """
-    dash_copy = dict(dashboard)
-    dash_copy["id"] = None
-    return {
-        "dashboard": dash_copy,
-        "overwrite": overwrite,
-        "folderUid": folder_uid,
-        "message": "Exported via HoroConsultant Grafana Cloud Exporter"
-    }
-
-
-def check_connection(grafana_url: str, api_key: str, metrics_url: str) -> bool:
-    """
-    Check connectivity to local metrics endpoint and Grafana Cloud API.
-    """
-    log_info("Checking connectivity status...")
-    status = True
-
-    try:
-        m_text = fetch_metrics_text(metrics_url)
-        if m_text:
-            log_ok("Local metrics source is reachable and active")
-        else:
-            log_warning("Local metrics source returned empty exposition data")
-            status = False
-    except Exception as e:
-        log_error(f"Local metrics source error: {e}")
-        status = False
-
-    if grafana_url and api_key:
-        try:
-            health_url = urllib.parse.urljoin(grafana_url, "/api/health")
-            req = urllib.request.Request(
-                health_url,
-                headers={
-                    "Authorization": f"Bearer {api_key}",
-                    "User-Agent": "HoroConsultant-Exporter/1.0"
-                }
-            )
-            with urllib.request.urlopen(req, timeout=5) as resp:
-                status_code = getattr(resp, "status", 200)
-                if isinstance(status_code, MagicMock):
-                    status_code = 200
-                if status_code == 200:
-                    log_ok(f"Grafana Cloud connection verified at {grafana_url}")
-                else:
-                    log_warning(f"Grafana Cloud returned HTTP status {status_code}")
-                    status = False
-        except Exception as err:
-            log_warning(f"Grafana Cloud URL {grafana_url} unreachable or invalid credentials: {err}")
-    else:
-        log_info("Grafana Cloud URL or API key not supplied; set GRAFANA_CLOUD_URL and GRAFANA_API_KEY for remote push")
-
-    return status
-
-
-def push_metrics(grafana_url: str, api_key: str, payload: dict[str, Any], dry_run: bool = False) -> bool:
-    """
-    Push OTLP/Prometheus JSON payload to Grafana Cloud metrics endpoint.
-    """
-    metric_count = len(payload.get("resourceMetrics", [{}])[0].get("scopeMetrics", [{}])[0].get("metrics", []))
-    log_info(f"Prepared OTLP/Prometheus JSON payload containing {metric_count} metric data points")
-
-    if dry_run:
-        log_info("Dry run enabled (dry_run mode): Skipping HTTP POST request to Grafana Cloud")
-        print("\n--- OTLP/Prometheus JSON Payload Preview ---")
-        print(json.dumps(payload, indent=2))
-        print("-------------------------------------------\n")
-        log_ok("Dry-run push metrics completed successfully")
-        return True
-
-    if not grafana_url or not api_key:
-        log_warning("GRAFANA_CLOUD_URL or GRAFANA_API_KEY environment variable missing; performing dry-run push")
-        print("\n--- OTLP/Prometheus JSON Payload Preview ---")
-        print(json.dumps(payload, indent=2))
-        print("-------------------------------------------\n")
-        log_ok("Metrics push simulated cleanly")
-        return True
-
-    otlp_endpoint = os.getenv("GRAFANA_OTLP_ENDPOINT", "").strip()
-    if otlp_endpoint:
-        if not otlp_endpoint.endswith("/v1/metrics") and not otlp_endpoint.endswith("/v1/metrics/"):
-            push_endpoint = otlp_endpoint.rstrip("/") + "/v1/metrics"
-        else:
-            push_endpoint = otlp_endpoint
-    else:
-        push_endpoint = urllib.parse.urljoin(grafana_url, "/otlp/v1/metrics")
-
-    headers = {
-        "Content-Type": "application/json",
-        "User-Agent": "HoroConsultant-Exporter/1.0"
-    }
-
-    user_id = os.getenv("GRAFANA_USER_ID", "").strip()
-    prom_key = os.getenv("GRAFANA_PROMETHEUS_API", "").strip() or api_key
-    if user_id and "your_grafana" not in user_id.lower():
-        import base64
-        cred = base64.b64encode(f"{user_id}:{prom_key}".encode()).decode("utf-8")
-        headers["Authorization"] = f"Basic {cred}"
-    else:
-        headers["Authorization"] = f"Bearer {prom_key}"
-
-    data_bytes = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(
-        push_endpoint,
-        data=data_bytes,
-        headers=headers,
-        method="POST"
-    )
-
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            status_code = getattr(resp, "status", 200)
-            if isinstance(status_code, MagicMock):
-                status_code = 200
-            if status_code in (200, 202, 204):
-                log_ok(f"Successfully pushed {metric_count} metrics to {push_endpoint} (HTTP {status_code})")
-                return True
-            else:
-                log_error(f"Failed to push metrics to {push_endpoint}: HTTP status {status_code}")
-                return False
-    except Exception as e:
-        log_warning(f"Metrics OTLP push notice ({push_endpoint}): {e}")
-        return True
-
-
-def export_dashboard_to_grafana(
-    dashboard_path: str | Path = DEFAULT_DASHBOARD_PATH,
-    url: str | None = None,
-    token: str | None = None,
-    dry_run: bool = False,
-    overwrite: bool = True,
-    folder_uid: str = ""
-) -> dict[str, Any]:
-    """
-    Export dashboard to Grafana Cloud API.
-    Returns status dictionary.
-    """
-    token_val = (
-        token
-        or os.getenv("GRAFANA_API_KEY")
-        or os.getenv("GRAFANA_SERVICE_ACCOUNT_TOKEN")
-        or os.getenv("GRAFANA_INCIDENT_TOKEN")
-        or os.getenv("GRAFANA_TOKEN", "")
-    )
-    url = url or os.getenv("GRAFANA_CLOUD_URL", os.getenv("GRAFANA_URL", ""))
-    token = token_val
-
-    try:
-        dash_json = load_dashboard_schema(dashboard_path)
-    except Exception as e:
-        log_error(f"Failed to load dashboard schema: {e}")
-        raise
-
-    payload = format_grafana_payload(dash_json, overwrite=overwrite, folder_uid=folder_uid)
-
-    if dry_run:
-        log_info("Dry run enabled (dry_run mode): Dashboard JSON validated successfully")
-        log_ok("Dashboard JSON file structure verified and dry-run export complete")
-        return {
-            "status": "dry_run",
-            "message": "Dashboard JSON validated successfully (Dry run enabled)",
-            "payload": payload
-        }
-
-    if not url or not token:
-        log_warning("Missing Grafana Cloud URL or API token")
-        return {
-            "status": "missing_credentials",
-            "message": "Missing Grafana Cloud URL or API Token",
-            "payload": payload
-        }
-
-    api_endpoint = urllib.parse.urljoin(url, "/api/dashboards/db")
-    data_bytes = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(
-        api_endpoint,
-        data=data_bytes,
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {token}",
-            "User-Agent": "HoroConsultant-Exporter/1.0"
-        },
-        method="POST"
-    )
-
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            status_code = getattr(resp, "status", 200)
-            if isinstance(status_code, MagicMock):
-                status_code = 200
-            resp_body = resp.read() if hasattr(resp, "read") else b"{}"
-            if isinstance(resp_body, MagicMock):
-                resp_body = b'{"status": "success", "slug": "horoconsultant-observability", "version": 1}'
-            res_data = json.loads(resp_body.decode("utf-8")) if isinstance(resp_body, bytes) else {}
-            if status_code in (200, 201):
-                log_ok(f"Successfully published dashboard '{dash_json.get('title')}' to Grafana Cloud")
-                return {
-                    "status": "success",
-                    "message": "Dashboard published successfully",
-                    "response": res_data
-                }
-            else:
-                log_error(f"Failed to publish dashboard: HTTP status {status_code}")
-                return {"status": "error", "message": f"HTTP status {status_code}", "response": res_data}
-    except Exception as err:
-        log_error(f"Error publishing dashboard to Grafana Cloud: {err}")
-        return {"status": "error", "message": str(err)}
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Gateway Telemetry Collection
-# ──────────────────────────────────────────────────────────────────────────────
-
-# Production gateway endpoints to probe
-_GATEWAY_TARGETS = [
-    {"name": "vercel_gateway", "url": os.getenv("VERCEL_GATEWAY_URL", "https://horo-consultant-psi.vercel.app") + "/health"},
-    {"name": "hf_backend", "url": os.getenv("HF_BACKEND_URL", "https://pphothidaen-horoconsultant-core-backend.static.hf.space/index.html")},
-    {"name": "fly_backend", "url": os.getenv("FLY_BACKEND_URL", "https://horoconsultant-core-backend.fly.dev") + "/health"},
+OpenRequest = Callable[
+    [urllib.request.Request, float],
+    AbstractContextManager[Any],
 ]
 
 
-def fetch_gateway_telemetry(targets: list[dict[str, Any]] | None = None, timeout: int = 10) -> dict[str, Any]:
-    """
-    Probe each gateway health endpoint, measure response latency, and bucket
-    HTTP status codes into 2xx/4xx/5xx categories.
+class _RejectRedirects(urllib.request.HTTPRedirectHandler):
+    """Prevent observability probes from leaving the canonical origin."""
 
-    Returns an OTLP resourceMetrics payload containing:
-      - gateway_response_latency_ms  (gauge, per gateway target)
-      - gateway_http_status_code     (gauge, actual HTTP status per target)
-      - gateway_http_requests_total  (gauge, bucketed by status_class: 2xx/4xx/5xx/error)
-    """
-    if targets is None:
-        targets = _GATEWAY_TARGETS
+    def redirect_request(
+        self,
+        req: urllib.request.Request,
+        fp: Any,
+        code: int,
+        msg: str,
+        headers: Any,
+        newurl: str,
+    ) -> None:
+        return None
 
-    now_nano = str(int(time.time() * 1e9))
-    latency_points: list[dict[str, Any]] = []
-    status_points: list[dict[str, Any]] = []
-    bucket_points: list[dict[str, Any]] = []
 
-    for target in targets:
-        name = target["name"]
-        url = target["url"]
-        log_info(f"Probing gateway target '{name}' at {url}")
+def _ascii_text(value: object) -> str:
+    """Return printable ASCII for all diagnostic output."""
+    return str(value).encode("ascii", errors="backslashreplace").decode("ascii")
 
-        t0 = time.perf_counter()
-        status_code = 0
-        try:
-            req = urllib.request.Request(
-                url,
-                headers={"User-Agent": "HoroConsultant-GatewayExporter/1.0", "Accept": "application/json"},
-                method="GET",
-            )
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                status_code = getattr(resp, "status", 200)
-                if isinstance(status_code, MagicMock):
-                    status_code = 200
-                resp.read()  # consume body
-        except urllib.error.HTTPError as e:
-            status_code = e.code
-            e.read()
-        except Exception as exc:
-            status_code = 0
-            log_warning(f"Gateway probe error for '{name}': {exc}")
 
-        latency_ms = (time.perf_counter() - t0) * 1000
+def log_info(message: str) -> None:
+    """Write one sanitized informational line."""
+    print(f"[INFO] {_ascii_text(message)}")
 
-        # Determine HTTP status class bucket
-        if 200 <= status_code < 300:
-            status_class = "2xx"
-            log_ok(f"  {name}: HTTP {status_code} | {latency_ms:.0f}ms")
-        elif 400 <= status_code < 500:
-            status_class = "4xx"
-            log_warning(f"  {name}: HTTP {status_code} | {latency_ms:.0f}ms")
-        elif 500 <= status_code < 600:
-            status_class = "5xx"
-            log_error(f"  {name}: HTTP {status_code} | {latency_ms:.0f}ms")
-        else:
-            status_class = "error"
-            log_error(f"  {name}: Unreachable | {latency_ms:.0f}ms")
 
-        attrs = [{"key": "gateway", "value": {"stringValue": name}}]
+def log_ok(message: str) -> None:
+    """Write one sanitized success line."""
+    print(f"[OK] {_ascii_text(message)}")
 
-        latency_points.append({
-            "timeUnixNano": now_nano,
-            "asDouble": round(latency_ms, 2),
-            "attributes": attrs,
-        })
-        status_points.append({
-            "timeUnixNano": now_nano,
-            "asDouble": float(status_code),
-            "attributes": attrs,
-        })
-        bucket_points.append({
-            "timeUnixNano": now_nano,
-            "asDouble": 1.0,
-            "attributes": attrs + [{"key": "status_class", "value": {"stringValue": status_class}}],
-        })
 
-    payload: dict[str, Any] = {
-        "resourceMetrics": [
-            {
-                "resource": {
-                    "attributes": [
-                        {"key": "service.name", "value": {"stringValue": "horoconsultant"}},
-                        {"key": "service.namespace", "value": {"stringValue": "gateway-telemetry"}},
-                        {"key": "exporter", "value": {"stringValue": "grafana_cloud_exporter"}},
-                    ]
-                },
-                "scopeMetrics": [
-                    {
-                        "scope": {"name": "gateway_telemetry", "version": "1.0.0"},
-                        "metrics": [
-                            {
-                                "name": "gateway_response_latency_ms",
-                                "description": "Gateway health endpoint response latency in milliseconds",
-                                "gauge": {"dataPoints": latency_points},
-                            },
-                            {
-                                "name": "gateway_http_status_code",
-                                "description": "HTTP status code returned by gateway health endpoint",
-                                "gauge": {"dataPoints": status_points},
-                            },
-                            {
-                                "name": "gateway_http_requests_total",
-                                "description": "Gateway health check requests bucketed by HTTP status class (2xx/4xx/5xx/error)",
-                                "gauge": {"dataPoints": bucket_points},
-                            },
-                        ],
-                    }
-                ],
-            }
-        ]
+def log_error(message: str) -> None:
+    """Write one sanitized error line."""
+    print(f"[ERROR] {_ascii_text(message)}")
+
+
+def _timeout_value(value: str) -> float:
+    """Parse a bounded positive network timeout."""
+    try:
+        timeout = float(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("timeout must be numeric") from exc
+    if not 0.1 <= timeout <= MAX_TIMEOUT_SECONDS:
+        raise argparse.ArgumentTypeError(
+            f"timeout must be between 0.1 and {MAX_TIMEOUT_SECONDS:.1f} seconds"
+        )
+    return timeout
+
+
+def load_dashboard_schema(dashboard_path: str | Path) -> dict[str, Any]:
+    """Read one caller-selected dashboard JSON file without logging its path."""
+    path = Path(dashboard_path)
+    if not path.is_file():
+        raise FileNotFoundError("dashboard JSON file was not found")
+    with path.open("r", encoding="utf-8") as stream:
+        data = json.load(stream)
+    if not isinstance(data, dict):
+        raise TypeError("dashboard JSON root must be an object")
+    return data
+
+
+def format_grafana_payload(
+    dashboard: dict[str, Any],
+    overwrite: bool = True,
+    folder_uid: str = "",
+) -> dict[str, Any]:
+    """Format dashboard JSON in memory; this function performs no I/O."""
+    dashboard_copy = dict(dashboard)
+    dashboard_copy["id"] = None
+    return {
+        "dashboard": dashboard_copy,
+        "overwrite": overwrite,
+        "folderUid": folder_uid,
+        "message": "Validated by HoroConsultant read-only exporter",
     }
-    return payload
+
+
+def export_dashboard_to_grafana(
+    dashboard_path: str | Path,
+    *,
+    dry_run: bool = True,
+    overwrite: bool = True,
+    folder_uid: str = "",
+    **_legacy_options: object,
+) -> dict[str, Any]:
+    """Compatibility wrapper that validates only and never exports remotely."""
+    dashboard = load_dashboard_schema(dashboard_path)
+    payload = format_grafana_payload(
+        dashboard,
+        overwrite=overwrite,
+        folder_uid=folder_uid,
+    )
+    if dry_run:
+        return {
+            "status": "dry_run",
+            "message": "Dashboard JSON validated successfully in read-only mode",
+            "payload": payload,
+        }
+    return {
+        "status": "mutation_disabled",
+        "message": "Remote dashboard mutation is disabled",
+        "payload": payload,
+    }
+
+
+def _validate_contract(contract: EndpointContract) -> None:
+    """Require one exact canonical HTTPS endpoint."""
+    if set(contract) != {"name", "url", "response_kind"}:
+        raise ValueError("observability endpoint contract is not closed")
+    parsed_base = urllib.parse.urlsplit(CANONICAL_HF_DOCKER_BACKEND)
+    parsed_url = urllib.parse.urlsplit(contract["url"])
+    allowed_contracts = {
+        (endpoint["name"], endpoint["url"], endpoint["response_kind"])
+        for endpoint in READ_ONLY_ENDPOINTS
+    }
+    if (
+        (
+            contract["name"],
+            contract["url"],
+            contract["response_kind"],
+        )
+        not in allowed_contracts
+        or parsed_url.scheme != "https"
+        or parsed_url.netloc != parsed_base.netloc
+        or parsed_url.username is not None
+        or parsed_url.password is not None
+        or parsed_url.port not in (None, 443)
+        or parsed_url.query
+        or parsed_url.fragment
+    ):
+        raise ValueError("observability endpoint is outside the fixed allowlist")
+
+
+def _open_read_only(
+    request: urllib.request.Request,
+    timeout: float,
+) -> AbstractContextManager[Any]:
+    """Open one direct GET without ambient proxies or redirects."""
+    return urllib.request.build_opener(
+        urllib.request.ProxyHandler({}),
+        _RejectRedirects(),
+    ).open(
+        request,
+        timeout=timeout,
+    )
+
+
+def _failed_result(
+    name: str,
+    classification: Literal[
+        "HTTP_ERROR", "TIMEOUT", "NETWORK_ERROR", "INVALID_RESPONSE"
+    ],
+    started: float,
+    clock: Callable[[], float],
+    *,
+    http_status: int = 0,
+) -> DiagnosticResult:
+    """Build sanitized failure evidence."""
+    return {
+        "name": name,
+        "outcome": "FAILED",
+        "classification": classification,
+        "http_status": http_status,
+        "latency_ms": round(max(0.0, (clock() - started) * 1000), 2),
+        "response_bytes": 0,
+    }
+
+
+def _valid_response_body(contract: EndpointContract, body: bytes) -> bool:
+    """Validate bounded response structure without retaining or returning it."""
+    try:
+        text = body.decode("utf-8")
+    except UnicodeDecodeError:
+        return False
+    if contract["response_kind"] == "json":
+        try:
+            return isinstance(json.loads(text), dict)
+        except json.JSONDecodeError:
+            return False
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    return bool(lines) and "\x00" not in text
+
+
+def probe_observability_endpoint(
+    contract: EndpointContract,
+    *,
+    timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    open_request: OpenRequest | None = None,
+    clock: Callable[[], float] = time.perf_counter,
+) -> DiagnosticResult:
+    """Probe one fixed endpoint with a bounded body and sanitized result."""
+    _validate_contract(contract)
+    if not 0.1 <= timeout <= MAX_TIMEOUT_SECONDS:
+        raise ValueError("timeout is outside the safe diagnostic range")
+    accept = "application/json" if contract["response_kind"] == "json" else "text/plain"
+    request = urllib.request.Request(
+        contract["url"],
+        headers={
+            "Accept": accept,
+            "User-Agent": "HoroConsultant-ReadOnly-Observability/1.0",
+        },
+        method="GET",
+    )
+    started = clock()
+    opener = open_request or _open_read_only
+    try:
+        with opener(request, timeout) as response:
+            status = int(getattr(response, "status", 0))
+            body = response.read(MAX_RESPONSE_BYTES + 1)
+    except urllib.error.HTTPError as exc:
+        return _failed_result(
+            contract["name"],
+            "HTTP_ERROR",
+            started,
+            clock,
+            http_status=int(exc.code),
+        )
+    except TimeoutError:
+        return _failed_result(contract["name"], "TIMEOUT", started, clock)
+    except (OSError, urllib.error.URLError):
+        return _failed_result(contract["name"], "NETWORK_ERROR", started, clock)
+    except Exception:  # noqa: BLE001 - elide provider/adapter exception text.
+        return _failed_result(contract["name"], "NETWORK_ERROR", started, clock)
+
+    if (
+        status != 200
+        or not isinstance(body, bytes)
+        or not body
+        or len(body) > MAX_RESPONSE_BYTES
+        or not _valid_response_body(contract, body)
+    ):
+        return _failed_result(
+            contract["name"],
+            "INVALID_RESPONSE",
+            started,
+            clock,
+            http_status=status,
+        )
+    return {
+        "name": contract["name"],
+        "outcome": "PASSED",
+        "classification": "OK",
+        "http_status": status,
+        "latency_ms": round(max(0.0, (clock() - started) * 1000), 2),
+        "response_bytes": len(body),
+    }
+
+
+def run_read_only_diagnostics(
+    *,
+    live: bool = False,
+    timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    open_request: OpenRequest | None = None,
+) -> list[DiagnosticResult]:
+    """Run no requests by default; live mode executes the fixed GET matrix."""
+    if not live:
+        for contract in READ_ONLY_ENDPOINTS:
+            _validate_contract(contract)
+        return []
+    return [
+        probe_observability_endpoint(
+            contract,
+            timeout=timeout,
+            open_request=open_request,
+        )
+        for contract in READ_ONLY_ENDPOINTS
+    ]
 
 
 def build_cli_parser() -> argparse.ArgumentParser:
-    """Build CLI argument parser."""
+    """Build arguments without reading environment state."""
     parser = argparse.ArgumentParser(
-        description="Grafana Cloud & Prometheus Metrics Exporter for HoroConsultant."
+        prog="grafana_cloud_exporter.py",
+        description="Read-only canonical HF Docker observability diagnostics.",
     )
-    parser.add_argument(
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--live",
+        action="store_true",
+        help="Opt in to bounded backend HTTPS GET probes.",
+    )
+    mode.add_argument(
         "--dry-run",
         action="store_true",
-        help="Format & display payloads without sending live HTTP requests to Grafana Cloud."
+        help="Validate the plan without network access (default).",
     )
     parser.add_argument(
         "--check-connection",
         action="store_true",
-        help="Test network & API connectivity to local metrics source and Grafana Cloud."
+        help="Retained alias for the read-only diagnostic plan.",
     )
     parser.add_argument(
-        "--push-metrics",
-        action="store_true",
-        help="Scrape metrics, format OTLP/Prometheus JSON payload, and push to Grafana Cloud."
-    )
-    parser.add_argument(
-        "--inject-dummy",
-        "--inject-incident-metrics",
-        dest="inject_dummy",
-        action="store_true",
-        help="Seed dummy telemetry metrics (Alert Groups, Incident stats, HTTP, LLM, RAG) and push to Grafana Cloud."
-    )
-    parser.add_argument(
-        "--push-gateway-telemetry",
-        action="store_true",
-        help="Probe Vercel/HF/Fly.io gateway health endpoints, collect response latencies and "
-             "HTTP status distribution (2xx/4xx/5xx), and push OTLP payload to Grafana Cloud."
-    )
-    parser.add_argument(
-        "--reset-metrics",
-        "--clean-metrics",
-        dest="reset_metrics",
-        action="store_true",
-        help="Clear and reset all local in-memory telemetry metrics to zero baseline before collecting fresh data."
+        "--timeout",
+        type=_timeout_value,
+        default=DEFAULT_TIMEOUT_SECONDS,
+        help="Per-request timeout from 0.1 through 10 seconds.",
     )
     parser.add_argument(
         "--export-dashboard",
         action="store_true",
-        help="Validate and export horoconsultant_dashboard.json to Grafana Cloud API."
+        help="Validate a local dashboard JSON file without remote export.",
     )
     parser.add_argument(
-        "--dashboard",
         "--dashboard-path",
-        dest="dashboard_path",
-        type=str,
-        default=str(DEFAULT_DASHBOARD_PATH),
-        help="Path to Grafana dashboard JSON file."
+        help="Caller-selected dashboard JSON input for offline validation.",
     )
     parser.add_argument(
-        "--metrics-url",
-        type=str,
-        default=os.getenv("METRICS_URL", "http://localhost:8000/metrics"),
-        help="URL of the local Prometheus metrics endpoint."
-    )
-    parser.add_argument(
-        "--grafana-url",
-        "--url",
-        dest="grafana_url",
-        type=str,
-        default=os.getenv("GRAFANA_CLOUD_URL", os.getenv("GRAFANA_URL", "")),
-        help="Grafana Cloud Base URL (e.g., https://myinstance.grafana.net)."
-    )
-    parser.add_argument(
-        "--api-key",
-        "--token",
-        dest="api_key",
-        type=str,
-        default=os.getenv(
-            "GRAFANA_API_KEY",
-            os.getenv("GRAFANA_SERVICE_ACCOUNT_TOKEN", os.getenv("GRAFANA_INCIDENT_TOKEN", os.getenv("GRAFANA_TOKEN", "")))
-        ),
-        help="Grafana Cloud API Token / Key."
+        "--json",
+        action="store_true",
+        help="Print sanitized JSON evidence.",
     )
     return parser
 
 
-
-def main() -> int:
-    try:
-        from dotenv import load_dotenv
-        env_file = PROJECT_ROOT / ".env"
-        if env_file.exists():
-            load_dotenv(env_file)
-    except ImportError:
-        pass
-
-    parser = build_cli_parser()
-    args = parser.parse_args()
-
-    # If no specific action is supplied, default to running dry-run mode for metrics and dashboard export
-    if not (args.check_connection or args.push_metrics or args.export_dashboard or args.inject_dummy or args.push_gateway_telemetry):
-        log_info("No action flag specified. Executing dry-run verification for metrics and dashboard...")
-        args.dry_run = True
-        args.check_connection = True
-        args.push_metrics = True
-        args.export_dashboard = True
-
-    overall_success = True
-
-    if args.reset_metrics:
-        log_info("Resetting and clearing all local in-memory telemetry metrics...")
-        try:
-            from project.core.observability import observability_manager
-            observability_manager.clear_metrics()
-            log_ok("Successfully cleared and reset in-memory metrics to baseline zero")
-        except Exception as e:
-            log_warning(f"Could not clear in-memory metrics directly: {e}")
-
-    if args.inject_dummy:
-        log_info("Seeding dummy telemetry metrics into ObservabilityManager engine...")
-        try:
-            from project.core.observability import observability_manager
-            observability_manager.seed_dummy_metrics()
-            log_ok("Successfully seeded dummy metrics (Alert Groups, Incident stats, HTTP, LLM, RAG)")
-        except Exception as e:
-            log_warning(f"Could not seed dummy metrics directly: {e}")
-
-    if args.check_connection:
-        conn_ok = check_connection(args.grafana_url, args.api_key, args.metrics_url)
-        if not conn_ok:
-            overall_success = False
-
-    if args.push_metrics or args.inject_dummy:
-        metrics_text = fetch_metrics_text(args.metrics_url)
-        payload = format_otlp_json_payload(metrics_text)
-        push_ok = push_metrics(args.grafana_url, args.api_key, payload, dry_run=args.dry_run)
-        if not push_ok:
-            overall_success = False
-
-    if args.push_gateway_telemetry:
-        log_info("Collecting gateway response latency and HTTP status distribution telemetry...")
-        gw_payload = fetch_gateway_telemetry()
-        metric_count = sum(
-            len(m.get("gauge", {}).get("dataPoints", []))
-            for sm in gw_payload.get("resourceMetrics", [{}])[0].get("scopeMetrics", [{}])
-            for m in sm.get("metrics", [])
-        )
-        log_info(f"Prepared gateway telemetry OTLP payload with {metric_count} data points")
-        gw_ok = push_metrics(args.grafana_url, args.api_key, gw_payload, dry_run=args.dry_run)
-        if not gw_ok:
-            overall_success = False
-
+def main(argv: Sequence[str] | None = None) -> int:
+    """Validate offline by default or run the explicit live GET matrix."""
+    args = build_cli_parser().parse_args(argv)
+    dashboard_status: str | None = None
     if args.export_dashboard:
-        res = export_dashboard_to_grafana(
-            dashboard_path=args.dashboard_path,
-            url=args.grafana_url,
-            token=args.api_key,
-            dry_run=args.dry_run
-        )
-        if res.get("status") in ("error",):
-            overall_success = False
+        if not args.dashboard_path:
+            log_error("dashboard input is required for offline validation")
+            return 2
+        try:
+            dashboard_result = export_dashboard_to_grafana(
+                args.dashboard_path,
+                dry_run=True,
+            )
+        except Exception:  # noqa: BLE001 - elide parser/filesystem details.
+            log_error("dashboard JSON validation failed")
+            return 1
+        dashboard_status = str(dashboard_result["status"])
 
-    if overall_success:
-        log_ok("All requested Grafana exporter tasks finished successfully.")
+    if not args.live:
+        run_read_only_diagnostics(live=False, timeout=args.timeout)
+        evidence: dict[str, Any] = {
+            "mode": "DRY_RUN",
+            "target": CANONICAL_HF_DOCKER_BACKEND,
+            "method": "GET",
+            "network_requests": 0,
+            "probes": [contract["name"] for contract in READ_ONLY_ENDPOINTS],
+        }
+        if dashboard_status is not None:
+            evidence["dashboard"] = dashboard_status
+        if args.json:
+            print(json.dumps(evidence, sort_keys=True))
+        else:
+            log_info("mode=DRY_RUN target=" + CANONICAL_HF_DOCKER_BACKEND)
+            log_info("method=GET network_requests=0")
+            if dashboard_status is not None:
+                log_ok("dashboard JSON validated in read-only mode")
+            log_ok("observability diagnostic plan validated")
         return 0
+
+    results = run_read_only_diagnostics(live=True, timeout=args.timeout)
+    passed = bool(results) and all(item["outcome"] == "PASSED" for item in results)
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "method": "GET",
+                    "mode": "LIVE_READ_ONLY",
+                    "network_requests": len(results),
+                    "results": results,
+                    "target": CANONICAL_HF_DOCKER_BACKEND,
+                },
+                sort_keys=True,
+            )
+        )
     else:
-        log_error("One or more exporter tasks encountered errors.")
-        return 1
+        log_info("mode=LIVE_READ_ONLY target=" + CANONICAL_HF_DOCKER_BACKEND)
+        for result in results:
+            tag = "[OK]" if result["outcome"] == "PASSED" else "[ERROR]"
+            print(
+                f"{tag} probe={_ascii_text(result['name'])} "
+                f"status={result['http_status']} "
+                f"class={result['classification']} "
+                f"latency_ms={result['latency_ms']:.2f}"
+            )
+    return 0 if passed else 1
 
 
 if __name__ == "__main__":
-    sys.exit(main())
-
+    raise SystemExit(main())

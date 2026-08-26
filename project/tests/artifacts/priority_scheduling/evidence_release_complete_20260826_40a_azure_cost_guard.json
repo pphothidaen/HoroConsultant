@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-40A-AZURE-COST-GUARD",
+  "status": "DONE_FROZEN",
+  "ownership": [".github/workflows/azure_cost_guard.yml"],
+  "acceptance_contract": {
+    "dormant_tombstone": true,
+    "schedule": "absent",
+    "authentication": "absent",
+    "actions": "absent",
+    "network": "absent",
+    "permissions": "empty"
+  },
+  "external_actions": "none"
+}

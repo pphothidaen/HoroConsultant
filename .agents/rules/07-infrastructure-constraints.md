@@ -1,60 +1,58 @@
-# Rule 07 — Infrastructure & Deployment Constraints
+# Rule 07 — Production Infrastructure Constraints
 
-> **Effective Date:** 2026-08-15  
-> **Last Updated:** 2026-08-15  
-> **Scope:** All agents (Orchestrator, Developer, DevOps, QA, Code Reviewer)
+> **Effective Date:** 2026-08-15
+> **Last Updated:** 2026-08-26
+> **Scope:** All agents and every release-affecting change
 
----
+## Purpose
 
-## 🚫 Fly.io — REMOVED FROM PROJECT
+Keep production routing on one auditable architecture: the Hugging Face Docker
+backend `pphothidaen/horoconsultant-core-backend` serves the backend API, and
+Vercel owns the public static UI. A legacy filename, historical workflow, or
+CLI default is never authority to select another target.
 
-Fly.io has been **permanently removed** from the HoroConsultant project.
+## Prohibited release paths
 
-### Mandatory Actions
-1. **Do NOT** create, reference, or suggest Fly.io deployments.
-2. **Do NOT** generate or modify `fly.toml`, `.fly/` directory, or any Fly.io configuration files.
-3. **Do NOT** reference `FLY_API_TOKEN` or any Fly.io secrets in code, docs, or configs.
-4. **Ignore** any legacy Fly.io references found in existing files — treat them as deprecated artifacts to be cleaned up.
-5. When performing deployment tasks, **skip Fly.io entirely** and use the approved deployment targets below.
+- **Fly.io is retired.** Do not create, restore, suggest, or deploy Fly
+  configuration; do not use Fly secrets. Preserve legacy files only when an
+  owned migration ticket neutralizes them without deleting history.
+- **Azure Container Apps is not a public production route.** Do not enable
+  ingress, proxy Vercel traffic to it, or run an Azure public auto-deploy.
+  Azure variables may remain as inactive historical configuration only.
+- **The backend Space is Docker-only.** Never publish a Static SDK payload to
+  `pphothidaen/horoconsultant-core-backend`; never use its old Static hostname
+  as the public UI target.
 
-### Cleanup Mandate
-Any agent encountering Fly.io references in codebase files (configs, docs, scripts, env files) **MUST** flag them for removal during the current task or create a cleanup sub-task.
+## Approved architecture
 
----
-
-## ⚠️ Azure Container Apps — INGRESS BLOCKED
-
-Azure Container Apps **cannot enable ingress** in the current environment configuration.
-
-### Constraints
-1. **Do NOT** rely on Azure Container Apps as a publicly reachable backend endpoint.
-2. **Do NOT** configure Vercel gateway or any reverse proxy to route traffic to Azure Container Apps URLs.
-3. **Do NOT** suggest Azure Container Apps as a production deployment target until the ingress issue is explicitly resolved by the user.
-4. Azure-related environment variables (`AZURE_RESOURCE_GROUP`, `AZURE_CONTAINER_APP`, `AZURE_CONTAINER_APP_URL`, `AZURE_CREDENTIALS`) remain in `.env.example` for future reference but are **non-functional** for production routing.
-
-### Impact on Architecture
-- The Vercel serverless middleend gateway (`api/index.js`) **MUST NOT** proxy to Azure Container Apps.
-- Backend traffic routing must use the approved deployment targets listed below.
-
----
-
-## ✅ Approved Deployment Targets
-
-| Target | Role | Status |
+| Target | Production role | Release status |
 |---|---|---|
-| **Hugging Face Spaces** | Static UI hosting + Backend API | ✅ Active |
-| **Vercel Serverless** | Edge middleend gateway & health checks | ✅ Active |
-| **Docker (Local)** | Local development & testing | ✅ Active |
-| **Fly.io** | ~~Container hosting~~ | ❌ **REMOVED** |
-| **Azure Container Apps** | ~~Backend hosting~~ | ❌ **INGRESS BLOCKED** |
+| HF Space `pphothidaen/horoconsultant-core-backend` | Docker backend API | approved when gated |
+| Vercel | Static UI and browser-facing visual checks | approved when gated |
+| Docker local | Build, package, and dry-run verification | approved |
+| Azure Container Apps | Historical/inactive | prohibited for public release |
+| Fly.io | Retired | prohibited |
 
----
-
-## 🔄 Deployment Architecture (Current)
-
-```
-Client → Vercel Edge Gateway → Hugging Face Spaces Backend (FastAPI/Uvicorn)
-                             → /health (Vercel standalone handler)
+```text
+Browser -> Vercel static UI -> HF Docker backend API
 ```
 
-All production traffic MUST route through the Vercel → HF Spaces pipeline until alternative backend hosting is approved by the user.
+## Release and evidence gate
+
+1. Select the HF target with `--sdk docker`; verify backend health and version
+   against committed provenance before any release claim.
+2. Verify the separately recorded Vercel UI target for version identity, E2E,
+   and all required visual evidence. Do not substitute an HF Static URL.
+3. Require a bounded owner, source freeze, QA, package dry-run, secret scan,
+   reviewer verdict, and target-scoped approval before any external mutation.
+4. Record only sanitized evidence. Provider results and public outcomes are
+   validated in-process with elided stdout/stderr; they are not independently
+   portable or offline proof.
+
+## Rollback and completion
+
+Rollback uses the exact release-commit revert, the recorded prior HF Docker
+revision, and the recorded prior Vercel production revision. Stop on a missing,
+stale, mismatched, or unapproved target; do not fall back to Azure, Fly, or a
+Static backend publish. Rule 16 supplies the fail-closed release-verification
+contract.

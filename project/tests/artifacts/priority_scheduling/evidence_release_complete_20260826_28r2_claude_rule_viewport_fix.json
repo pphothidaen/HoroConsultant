@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-28R2-CLAUDE-RULE-VIEWPORT-FIX",
+  "status": "DONE_FROZEN",
+  "ownership": [
+    ".claude/rules/hf-static-release-verification.md"
+  ],
+  "restored_viewports": [
+    "desktop-4k",
+    "laptop-standard",
+    "tablet-portrait",
+    "mobile-ios",
+    "mobile-compact"
+  ],
+  "verification": {
+    "ecosystem_sync_check": "pass"
+  },
+  "external_actions": "none"
+}

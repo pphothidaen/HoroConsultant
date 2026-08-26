@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-40B2-QA",
+  "phase": "qa",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "After this BSA handoff, sequentially modify only project/tests/test_fly_artifact_retirement.py and project/tests/test_trigger_inventory_retirement.py. Reopen the previously frozen Fly-only test under ticket40B2-QA to replace the obsolete 13-active/Fly-only expectation with exactly 11 active and four historical typed RETIRED entries, then cover the trigger inventory. Do not edit source, workflows, active QA files, credentials, or external systems.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

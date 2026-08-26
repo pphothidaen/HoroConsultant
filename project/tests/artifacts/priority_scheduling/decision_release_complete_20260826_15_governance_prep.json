@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-15-GOVERNANCE-PREP",
+  "phase": "review",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "read_only",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Prepare a bounded release-governance migration plan only. Inspect Rule 07, Rule 16, and the devops-deployment, qa-e2e-testing, and hf-static-release-verification skills read-only. Plan their alignment to the Docker HF backend plus Vercel UI and retirement of static deployment to that backend Space, without deleting history. Do not modify rules/skills/docs, manually edit generated mirrors, run sync, or perform any external action. A later executable documentation-governance ticket will own this exact rule/skill group exclusively; task boards and user-facing docs remain separate ownership.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-MULTIAGENT-ACCEPTANCE-20260826-R1",
+  "status": "FAILED",
+  "failure_class": "child_scope_overlap",
+  "topology": {
+    "root_slots": 1,
+    "explorer_subagents": 3,
+    "active_slots": 4,
+    "slot_limit": 4,
+    "triple_subagent_overlap_verified": true
+  },
+  "intervals_monotonic": {
+    "B": [526129134989708, 526195340109541],
+    "A": [526130546883708, 526185334543958],
+    "child": [526152378570250, 526164771804291]
+  },
+  "nonces_verified": {
+    "A": true,
+    "B": true,
+    "C": true
+  },
+  "parent_forwarded_child": true,
+  "worktree_fingerprint": {
+    "equal": true,
+    "safe_prefix": "00ab...d71a"
+  },
+  "changed_files": [],
+  "governance_tests": {
+    "passed": 15
+  },
+  "sync_check": "passed",
+  "scope_contract": {
+    "parent_A_required": ".agents/rules/11-orchestrator-subagent-delegation.md",
+    "child_required": ".agents/skills/orchestrator-delegation/SKILL.md",
+    "child_observed": ".agents/rules/11-orchestrator-subagent-delegation.md",
+    "disjoint": false
+  },
+  "external_actions": "none"
+}

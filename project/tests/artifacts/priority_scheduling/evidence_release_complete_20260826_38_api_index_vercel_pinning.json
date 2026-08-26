@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-38-API-INDEX-VERCEL-PINNING",
+  "status": "DONE_FROZEN",
+  "ownership": ["api/index.js", "vercel.json"],
+  "source_delta": {
+    "canonical_target_pinning": true,
+    "legacy_lines_removed": 1540,
+    "out_of_scope_expansion": false
+  },
+  "external_actions": "none"
+}

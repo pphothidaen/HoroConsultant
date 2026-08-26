@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-41B-QA",
+  "phase": "qa",
+  "scope_rank": 1,
+  "complexity_rank": 1,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 2,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "The frozen 41B UI-diagnostics source releases one rolling slot for isolated contract QA. The computed quality floor is gpt-5.6-terra/high; codex1/gpt-5.6-sol/high is an approved strengthened selection. Create only project/tests/test_ui_diagnostic_release_contract.py to verify canonical Vercel UI and HF Docker backend targets, the diagnostic read-only contract, retired Static-to-backend/Azure/Fly exclusions, and workstation-path exclusion. Do not edit source, other tests, schemas, workflows, publisher files, metadata, rules, skills, generated files, credentials, or secrets, and do not run network, deploy, publish, push, or other external actions.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

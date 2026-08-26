@@ -2917,8 +2917,91 @@ def parse_provider_result(invocation: Invocation, payload: str | bytes | None) -
         raise ProviderParseError("unknown", "provider result validation failed") from exc
 
 
+def _validate_account_home_stat(value: os.stat_result) -> tuple[int, int]:
+    """Validate an isolated account-home descriptor without reading its files."""
+
+    if (
+        not stat.S_ISDIR(value.st_mode)
+        or stat.S_IMODE(value.st_mode) & 0o700 != 0o700
+        or stat.S_IMODE(value.st_mode) & 0o022
+        or (hasattr(os, "getuid") and value.st_uid != os.getuid())
+    ):
+        raise ConfigurationError("ACCOUNT_HOME_INVALID")
+    return value.st_dev, value.st_ino
+
+
+def _open_account_home_path(home_path: str) -> tuple[int, tuple[int, int]]:
+    """Open every account-home path component without following symbolic links."""
+
+    path = Path(home_path)
+    raw_parts = home_path.split(os.sep)
+    if (
+        not path.is_absolute()
+        or any(part in {".", ".."} for part in raw_parts)
+        or any(not part for part in raw_parts[1:-1])
+    ):
+        raise ConfigurationError("ACCOUNT_HOME_INVALID")
+    parts = path.parts
+    if len(parts) < 2:
+        raise ConfigurationError("ACCOUNT_HOME_INVALID")
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+    descriptor: int | None = None
+    try:
+        descriptor = os.open(parts[0], flags)
+        for component in parts[1:]:
+            child = os.open(component, flags, dir_fd=descriptor)
+            parent = descriptor
+            descriptor = child
+            os.close(parent)
+        identity = _validate_account_home_stat(os.fstat(descriptor))
+        return descriptor, identity
+    except (ConfigurationError, OSError):
+        if descriptor is not None:
+            os.close(descriptor)
+        raise ConfigurationError("ACCOUNT_HOME_INVALID") from None
+
+
+def _open_isolated_account_home(invocation: Invocation) -> tuple[int, tuple[int, int]]:
+    """Open and retain one structurally safe account home; never inspect auth data."""
+
+    expected_env = VALID_HOME_ENV.get(invocation.route.cli)
+    home_path = invocation.route.home_path
+    if (
+        invocation.route.alias not in GOVERNED_ACCOUNT_ALIASES
+        or expected_env is None
+        or invocation.route.home_env != expected_env
+        or not home_path
+    ):
+        raise ConfigurationError("ACCOUNT_HOME_REQUIRED")
+    required_flags = ("O_DIRECTORY", "O_NOFOLLOW", "O_CLOEXEC")
+    if any(not hasattr(os, name) for name in required_flags):
+        raise ConfigurationError("ACCOUNT_HOME_UNSUPPORTED")
+    return _open_account_home_path(home_path)
+
+
+def _verify_isolated_account_home(
+    invocation: Invocation, descriptor: int, identity: tuple[int, int]
+) -> None:
+    """Revalidate the held home and its no-follow pathname before process creation."""
+
+    home_path = invocation.route.home_path
+    if not isinstance(home_path, str) or not home_path:
+        raise ConfigurationError("ACCOUNT_HOME_REQUIRED")
+    path_descriptor: int | None = None
+    try:
+        descriptor_identity = _validate_account_home_stat(os.fstat(descriptor))
+        path_descriptor, path_identity = _open_account_home_path(home_path)
+    except (ConfigurationError, OSError):
+        raise ConfigurationError("ACCOUNT_HOME_INVALID") from None
+    finally:
+        if path_descriptor is not None:
+            os.close(path_descriptor)
+    if descriptor_identity != identity or path_identity != identity:
+        raise ConfigurationError("ACCOUNT_HOME_INVALID")
+
+
 def validate_execution_preflight(invocation: Invocation) -> None:
-    """Require a runnable executable and existing configured CLI home before launch."""
+    """Require a runnable executable and a structurally isolated account home."""
 
     executable = invocation.route.command
     if "/" in executable:
@@ -2927,8 +3010,11 @@ def validate_execution_preflight(invocation: Invocation) -> None:
             raise ConfigurationError(f"configured {invocation.route.cli} executable is unavailable")
     elif shutil.which(executable) is None:
         raise ConfigurationError(f"configured {invocation.route.cli} executable is unavailable")
-    if invocation.route.home_path and not Path(invocation.route.home_path).is_dir():
-        raise ConfigurationError(f"configured {invocation.route.home_env} directory does not exist")
+    home_fd, home_identity = _open_isolated_account_home(invocation)
+    try:
+        _verify_isolated_account_home(invocation, home_fd, home_identity)
+    finally:
+        os.close(home_fd)
     if invocation.decision and invocation.decision.get("work_mode") == "read_only":
         if not invocation.runtime_config_approved or not invocation.runtime_config_path:
             raise ConfigurationError("read-only dispatch requires an approved runtime config path")
@@ -2948,59 +3034,64 @@ def _execute_invocation_locked(invocation: Invocation) -> subprocess.CompletedPr
 
     validated_decision = _validated_invocation_decision(invocation)
     validate_execution_preflight(invocation)
-    env = os.environ.copy()
-    env.pop("CODEX_HOME", None)
-    env.pop("AGY_HOME", None)
-    env.update(invocation.env_overrides)
-    if not invocation.work_result_schema_path:
-        raise ConfigurationError("executable dispatch requires a WorkResult v2 output schema")
-    provider_schema = _provider_compatible_work_result_schema(
-        invocation.work_result_schema_path
-    )
-    schema_flag = "--output-schema" if invocation.route.cli == "codex" else "--json-schema"
-    argv = list(invocation.argv)
-    if argv.count(schema_flag) != 1:
-        raise ConfigurationError("provider output schema flag is missing or ambiguous")
-    schema_index = argv.index(schema_flag) + 1
-    if (
-        schema_index >= len(argv)
-        or argv[schema_index] != invocation.work_result_schema_path
-    ):
-        raise ConfigurationError("provider output schema path is not bound to the invocation")
-    with tempfile.TemporaryDirectory(prefix="horo-provider-schema-") as temp_dir:
-        provider_schema_path = Path(temp_dir) / "work-result-v2.provider.json"
-        provider_schema_path.write_text(
-            json.dumps(provider_schema, ensure_ascii=True, separators=(",", ":")),
-            encoding="utf-8",
+    home_fd, home_identity = _open_isolated_account_home(invocation)
+    try:
+        env = os.environ.copy()
+        env.pop("CODEX_HOME", None)
+        env.pop("AGY_HOME", None)
+        env.update(invocation.env_overrides)
+        if not invocation.work_result_schema_path:
+            raise ConfigurationError("executable dispatch requires a WorkResult v2 output schema")
+        provider_schema = _provider_compatible_work_result_schema(
+            invocation.work_result_schema_path
         )
-        argv[schema_index] = str(provider_schema_path)
-        # This is the final executable dispatch boundary. Re-evaluate Rule 11
-        # after every other preflight and immediately before process creation.
-        _validated_invocation_schedule(invocation, validated_decision)
-        claim = _acquire_dispatch_claim(invocation)
-        try:
-            _verify_dispatch_claim(claim, require_start_freshness=True)
-            result = subprocess.run(
-                argv,
-                cwd=invocation.cwd,
-                env=env,
-                input=invocation.prompt_stdin,
-                text=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                check=False,
-                shell=False,
+        schema_flag = "--output-schema" if invocation.route.cli == "codex" else "--json-schema"
+        argv = list(invocation.argv)
+        if argv.count(schema_flag) != 1:
+            raise ConfigurationError("provider output schema flag is missing or ambiguous")
+        schema_index = argv.index(schema_flag) + 1
+        if (
+            schema_index >= len(argv)
+            or argv[schema_index] != invocation.work_result_schema_path
+        ):
+            raise ConfigurationError("provider output schema path is not bound to the invocation")
+        with tempfile.TemporaryDirectory(prefix="horo-provider-schema-") as temp_dir:
+            provider_schema_path = Path(temp_dir) / "work-result-v2.provider.json"
+            provider_schema_path.write_text(
+                json.dumps(provider_schema, ensure_ascii=True, separators=(",", ":")),
+                encoding="utf-8",
             )
-        except BaseException:
+            argv[schema_index] = str(provider_schema_path)
+            # This is the final executable dispatch boundary. Re-evaluate Rule 11
+            # after every other preflight and immediately before process creation.
+            _validated_invocation_schedule(invocation, validated_decision)
+            claim = _acquire_dispatch_claim(invocation)
             try:
-                _finalize_dispatch_claim(claim, "unknown")
-            finally:
-                _release_dispatch_claim(claim)
-            raise
-        result._dispatch_claim = claim  # type: ignore[attr-defined]
-        result._dispatch_started_at = claim.record["started_at"]  # type: ignore[attr-defined]
-        result._dispatch_ended_at = _utc_now()  # type: ignore[attr-defined]
-        return result
+                _verify_dispatch_claim(claim, require_start_freshness=True)
+                _verify_isolated_account_home(invocation, home_fd, home_identity)
+                result = subprocess.run(
+                    argv,
+                    cwd=invocation.cwd,
+                    env=env,
+                    input=invocation.prompt_stdin,
+                    text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    check=False,
+                    shell=False,
+                )
+            except BaseException:
+                try:
+                    _finalize_dispatch_claim(claim, "unknown")
+                finally:
+                    _release_dispatch_claim(claim)
+                raise
+            result._dispatch_claim = claim  # type: ignore[attr-defined]
+            result._dispatch_started_at = claim.record["started_at"]  # type: ignore[attr-defined]
+            result._dispatch_ended_at = _utc_now()  # type: ignore[attr-defined]
+            return result
+    finally:
+        os.close(home_fd)
 
 
 def _redact_preview(value: str, invocation: Invocation) -> str:

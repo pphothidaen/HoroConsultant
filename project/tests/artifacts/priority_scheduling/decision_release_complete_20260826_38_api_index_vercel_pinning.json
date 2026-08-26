@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-38-API-INDEX-VERCEL-PINNING",
+  "phase": "implementation",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Modify only api/index.js and vercel.json. Pin canonical API and Vercel target behavior without expanding into gateway, admin, HITL, tests, workflows, publisher, credentials, or external actions. Freeze source evidence for ticket38 QA.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-28-CLAUDE-RULE-FIX",
+  "status": "DONE_FROZEN",
+  "ownership": [
+    ".claude/rules/hf-static-release-verification.md"
+  ],
+  "alignment": {
+    "hf_backend_sdk": "docker",
+    "static_ui": "vercel",
+    "static_publish_to_backend": "prohibited",
+    "azure_public_release": "prohibited",
+    "fly_release": "prohibited",
+    "public_outcome_boundary": "validated-in-process; stdout/stderr elided; not portable/offline proof",
+    "publisher_prerequisite": "atomic manifest/CAS and recorded rollback revisions remain required"
+  },
+  "verification": {
+    "rule_and_governance_tests": "25 passed",
+    "secret_scan": "pass; 0 leaks",
+    "diff_check": "pass",
+    "ecosystem_sync": "not run; would risk out-of-scope generated outputs"
+  },
+  "external_actions": "none"
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-41A-QA2-GRAFANA-LEGACY",
+  "phase": "qa",
+  "scope_rank": 1,
+  "complexity_rank": 1,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 2,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Modify only project/tests/test_grafana_cloud_exporter.py to replace obsolete credential and POST expectations with assertions for the frozen read-only canonical HF Docker backend and offline contract. The computed quality floor is gpt-5.6-terra/high; codex1/gpt-5.6-sol/high is an approved strengthened selection. Preserve fail-closed behavior without weakening the frozen source contract. Do not edit source, the new 41A contract test, other tests, documentation, workflows, credentials, or secrets, and do not run network, push, deploy, publish, or other external actions.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

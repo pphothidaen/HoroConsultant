@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-41A-BACKEND-DIAGNOSTICS",
+  "phase": "implementation",
+  "scope_rank": 1,
+  "complexity_rank": 1,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 2,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Complete the offline migration and freeze of canonical HF Docker backend diagnostics in exactly scripts/grafana_cloud_exporter.py, scripts/run_remote_api_live_test.py, and scripts/test_live_e2e_network.py. The computed quality floor is gpt-5.6-terra/high; codex1/gpt-5.6-sol/high is an approved strengthened selection. Preserve read-only diagnostic behavior and exclude the Vercel UI, retired Static/Azure/Fly targets, workstation paths, tests, workflows, other source, credentials, and secrets. Do not run network, deploy, publish, push, or other external actions, and do not schedule QA in this lane.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

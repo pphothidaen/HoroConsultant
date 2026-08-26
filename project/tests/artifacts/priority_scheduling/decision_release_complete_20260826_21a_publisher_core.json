@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-21A-PUBLISHER-CORE",
+  "phase": "implementation",
+  "scope_rank": 2,
+  "complexity_rank": 3,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Modify only scripts/publish_space_hf.py after an exclusive rolling slot is available. Implement the canonical HF Docker publisher's metadata/provenance, dry-run, atomic manifest/CAS, and rollback bindings. HfApi has no portable remote POSIX mode control: enforce a local regular-file 100644 payload baseline before upload, bind it into release evidence, and never claim a remote chmod. Do not edit schemas, version metadata, workflows, tests, rules, skills, generated files, credentials, or external targets. Freeze source evidence for ticket 22.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

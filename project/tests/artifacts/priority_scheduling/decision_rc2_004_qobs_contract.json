@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-ALIAS-RC2-004-QOBS-CONTRACT",
+  "phase": "implementation",
+  "scope_rank": 3,
+  "complexity_rank": 3,
+  "risk_rank": 3,
+  "ambiguity_rank": 3,
+  "evidence_burden_rank": 3,
+  "quota_band": "constrained",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Implement only the fail-closed QuotaObservation v1 contract in .agents/schemas/multiagent-quota-observation-v1.schema.json, .agents/schemas/multiagent-quota-observation-artifact-v1.schema.json, and .agents/config/multiagent_model_policy.yaml. This normal executable rank-3 source lane uses gpt-5.6-sol/high, not the planning-only xhigh exception. The constrained band is a conservative local-native execution band and is not a provider quota observation; RC2-004 remains quota unknown. Define strict domain-separated canonical JSON, provenance/digest/nonce binding, <=60-second age, <=5-second future tolerance, single use, complete legacy/bucket signal coverage, fail-closed classification, version pinning, decision-v1 legacy non-executability, scheduler contradiction rejection, and receipt-v2 transitive exact-artifact revalidation. Do not edit dispatcher, scheduler, probes, tests, workflows, documentation, rules, skills, generated files, credentials, secrets, accounts, or external systems, and do not run provider/network, sync, git, or release actions.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

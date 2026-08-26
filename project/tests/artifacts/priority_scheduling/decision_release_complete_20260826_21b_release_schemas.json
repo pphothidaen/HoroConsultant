@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-21B-RELEASE-SCHEMAS",
+  "phase": "implementation",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Create only project/schemas/release-manifest-v1.schema.json and project/schemas/release-receipt-v1.schema.json in an exclusive source lane. Define new versioned release manifest and receipt contracts for canonical Docker provenance, evidence, CAS/rollback, and the locally verified 100644 payload baseline. Existing multi-agent receipt schemas remain unchanged and non-reinterpreted. Do not edit publisher source, metadata, workflows, tests, rules, skills, generated files, credentials, or external targets. Freeze schema evidence for ticket 22.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

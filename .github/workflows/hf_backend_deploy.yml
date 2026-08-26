@@ -1,9 +1,19 @@
 name: Hugging Face Docker Backend - Production Deployment
 
+# Production publication is CI-gated. A direct push never publishes; the
+# successful CI workflow supplies the immutable source commit.
 on:
-  push:
-    branches: [main]
+  workflow_run:
+    workflows:
+      - Unified CI & Quality Audit Pipeline
+    types:
+      - completed
   workflow_dispatch:
+    inputs:
+      source_sha:
+        description: "Optional full commit SHA to publish; defaults to the dispatch commit"
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -14,24 +24,252 @@ concurrency:
 
 jobs:
   publish-and-verify:
-    name: Publish public API and verify production path
+    name: Publish Docker API and verify Vercel-to-HF production path
+    if: >-
+      ${{
+        github.event_name == 'workflow_dispatch' ||
+        (
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.head_branch == 'main'
+        )
+      }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment: production
     env:
-      HF_BACKEND_SPACE_ID: ${{ vars.HF_BACKEND_SPACE_ID || secrets.HF_BACKEND_SPACE_ID || 'pphothidaen/horoconsultant-core-backend' }}
-      HF_BACKEND_URL: ${{ secrets.HF_BACKEND_URL || vars.HF_BACKEND_URL || 'https://pphothidaen-horoconsultant-core-backend.hf.space' }}
-      # Vercel owns the public static UI. The legacy HF static target is read
-      # only to fail closed while configurations are migrated; it is never a
-      # publishing destination in this Docker-backend workflow.
-      HF_STATIC_SPACE_ID: ${{ vars.HF_STATIC_SPACE_ID || secrets.HF_STATIC_SPACE_ID }}
-      VERCEL_STATIC_URL: ${{ vars.VERCEL_STATIC_URL || secrets.VERCEL_STATIC_URL || vars.VERCEL_GATEWAY_URL || secrets.VERCEL_GATEWAY_URL || 'https://horo-consultant-psi.vercel.app' }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID || vars.AWS_ACCESS_KEY_ID || secrets.AWS_ACCESS_KEY || vars.AWS_ACCESS_KEY }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY || vars.AWS_SECRET_ACCESS_KEY || secrets.AWS_SECRET_KEY || vars.AWS_SECRET_KEY }}
-      AWS_ENDPOINT_URL: ${{ secrets.AWS_ENDPOINT_URL || vars.AWS_ENDPOINT_URL }}
-    steps:
-      - uses: actions/checkout@v4
+      CANONICAL_HF_BACKEND_SPACE_ID: pphothidaen/horoconsultant-core-backend
+      HF_BACKEND_SPACE_ID: ${{ secrets.HF_BACKEND_SPACE_ID || 'pphothidaen/horoconsultant-core-backend' }}
+      HF_BACKEND_URL: ${{ secrets.HF_BACKEND_URL || 'https://pphothidaen-horoconsultant-core-backend.hf.space' }}
+      HF_STATIC_SPACE_ID: ${{ secrets.HF_STATIC_SPACE_ID }}
+      VERCEL_STATIC_URL: ${{ secrets.VERCEL_STATIC_URL || 'https://horo-consultant-psi.vercel.app' }}
 
-      - name: Doppler Secret Sync (1st Priority)
+    steps:
+      - name: Resolve immutable release source
+        id: source
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+          DEFAULT_BRANCH_SHA: ${{ github.sha }}
+          MANUAL_SOURCE_SHA: ${{ inputs.source_sha }}
+          DISPATCH_SHA: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+
+          if os.environ["EVENT_NAME"] == "workflow_run":
+              source_sha = os.environ.get("WORKFLOW_RUN_SHA", "").strip()
+          else:
+              source_sha = (
+                  os.environ.get("MANUAL_SOURCE_SHA", "").strip()
+                  or os.environ.get("DISPATCH_SHA", "").strip()
+              )
+
+          if not re.fullmatch(r"[0-9a-f]{40}", source_sha):
+              print("[ERROR] Release source must be a full lowercase Git commit SHA.")
+              raise SystemExit(1)
+          if (
+              os.environ["EVENT_NAME"] == "workflow_run"
+              and source_sha != os.environ.get("DEFAULT_BRANCH_SHA", "").strip()
+          ):
+              print("[ERROR] CI completed for a stale main commit; publication is skipped.")
+              raise SystemExit(1)
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"sha={source_sha}\n")
+          print("[OK] Immutable release source selected.")
+          PY
+
+      - name: Checkout exact CI-verified source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ steps.source.outputs.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify source identity and clean checkout
+        env:
+          EXPECTED_SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
+          git diff --quiet
+          git diff --cached --quiet
+          test -z "$(git status --porcelain --untracked-files=all)"
+          echo "[OK] Checkout matches the CI-verified source and is clean."
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install pinned release dependencies
+        run: |
+          python3 -m pip install --disable-pip-version-check \
+            huggingface_hub==0.25.1 \
+            httpx==0.27.2 \
+            python-dotenv==1.0.1 \
+            jsonschema==4.26.0
+
+      - name: Enforce Vercel static and HF Docker target separation (canonical)
+        run: |
+          python3 - <<'PY'
+          import os
+          from urllib.parse import urlsplit
+
+          def normalized_url(name):
+              value = os.environ.get(name, "").strip().rstrip("/")
+              parsed = urlsplit(value)
+              if (
+                  parsed.scheme != "https"
+                  or not parsed.netloc
+                  or parsed.username is not None
+                  or parsed.password is not None
+                  or parsed.query
+                  or parsed.fragment
+                  or parsed.path not in ("", "/")
+              ):
+                  print(f"[ERROR] {name} must be a credential-free HTTPS origin.")
+                  raise SystemExit(1)
+              return value, parsed.hostname or ""
+
+          backend_space_id = os.environ.get("HF_BACKEND_SPACE_ID", "").strip()
+          canonical_space_id = os.environ["CANONICAL_HF_BACKEND_SPACE_ID"]
+          static_space_id = os.environ.get("HF_STATIC_SPACE_ID", "").strip()
+          backend_url, backend_host = normalized_url("HF_BACKEND_URL")
+          static_url, static_host = normalized_url("VERCEL_STATIC_URL")
+          expected_backend_host = canonical_space_id.replace("/", "-") + ".hf.space"
+
+          if backend_space_id != canonical_space_id:
+              print("[ERROR] HF_BACKEND_SPACE_ID is not the approved Docker backend target.")
+              raise SystemExit(1)
+          if static_space_id:
+              print("[ERROR] HF_STATIC_SPACE_ID is retired; Vercel owns the production UI.")
+              raise SystemExit(1)
+          if backend_host != expected_backend_host:
+              print("[ERROR] HF_BACKEND_URL does not match the approved Docker Space.")
+              raise SystemExit(1)
+          if backend_url != f"https://{expected_backend_host}":
+              print("[ERROR] HF_BACKEND_URL must be the canonical Docker Space origin.")
+              raise SystemExit(1)
+          if static_host.endswith(".hf.space"):
+              print("[ERROR] VERCEL_STATIC_URL must never resolve to a Hugging Face Space.")
+              raise SystemExit(1)
+          if not static_host.endswith(".vercel.app"):
+              print("[ERROR] VERCEL_STATIC_URL must resolve to an approved Vercel origin.")
+              raise SystemExit(1)
+          if static_url == backend_url:
+              print("[ERROR] Vercel UI and HF Docker backend targets must be distinct.")
+              raise SystemExit(1)
+          print("[OK] Vercel UI and canonical HF Docker backend are distinct.")
+          PY
+
+      - name: Initialize isolated release evidence paths
+        id: evidence_paths
+        run: |
+          set -euo pipefail
+          evidence_dir="$(mktemp -d "$RUNNER_TEMP/hf-release-evidence.XXXXXX")"
+          chmod 0700 "$evidence_dir"
+          {
+            echo "HF_RELEASE_EVIDENCE_DIR=$evidence_dir"
+            echo "HF_RELEASE_MANIFEST_PATH=$evidence_dir/manifest.json"
+            echo "HF_RELEASE_RECEIPT_PATH=$evidence_dir/receipt.json"
+          } >> "$GITHUB_ENV"
+          {
+            echo "manifest=$evidence_dir/manifest.json"
+            echo "receipt=$evidence_dir/receipt.json"
+          } >> "$GITHUB_OUTPUT"
+          echo "[OK] Isolated release evidence paths initialized."
+
+      - name: Build deterministic Docker release manifest (offline)
+        env:
+          EXPECTED_SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
+          git diff --quiet
+          git diff --cached --quiet
+          test -z "$(git status --porcelain --untracked-files=all)"
+          python3 scripts/publish_space_hf.py \
+            --space-id "$HF_BACKEND_SPACE_ID" \
+            --sdk docker \
+            --dry-run \
+            --manifest-path "$HF_RELEASE_MANIFEST_PATH"
+
+      - name: Validate and approve immutable release manifest
+        id: manifest
+        env:
+          EXPECTED_SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          import re
+          import stat
+          from pathlib import Path
+
+          from scripts.publish_space_hf import validate_release_manifest
+
+          def reject_pairs(pairs):
+              value = {}
+              for key, member in pairs:
+                  if key in value:
+                      raise ValueError("duplicate JSON member")
+                  value[key] = member
+              return value
+
+          def reject_constant(_value):
+              raise ValueError("non-finite JSON value")
+
+          path = Path(os.environ["HF_RELEASE_MANIFEST_PATH"])
+          expected_dir = Path(os.environ["HF_RELEASE_EVIDENCE_DIR"]).resolve()
+          file_stat = path.lstat()
+          if (
+              not stat.S_ISREG(file_stat.st_mode)
+              or stat.S_IMODE(file_stat.st_mode) != 0o600
+              or not 0 < file_stat.st_size <= 16 * 1024 * 1024
+              or path.resolve().parent != expected_dir
+          ):
+              print("[ERROR] Release manifest evidence path is unsafe.")
+              raise SystemExit(1)
+
+          manifest = json.loads(
+              path.read_text(encoding="utf-8"),
+              object_pairs_hook=reject_pairs,
+              parse_constant=reject_constant,
+          )
+          validate_release_manifest(manifest)
+          claimed_digest = manifest.get("manifest_sha256", "")
+          digest_input = dict(manifest)
+          digest_input.pop("manifest_sha256", None)
+          approved_digest = hashlib.sha256(
+              json.dumps(
+                  digest_input,
+                  ensure_ascii=False,
+                  sort_keys=True,
+                  separators=(",", ":"),
+                  allow_nan=False,
+              ).encode("utf-8")
+          ).hexdigest()
+          if (
+              manifest.get("packaging_commit") != os.environ["EXPECTED_SOURCE_SHA"]
+              or manifest.get("space_id") != os.environ["CANONICAL_HF_BACKEND_SPACE_ID"]
+              or manifest.get("sdk") != "docker"
+              or manifest.get("branch") != "main"
+              or re.fullmatch(r"[0-9a-f]{64}", claimed_digest) is None
+              or claimed_digest != approved_digest
+          ):
+              print("[ERROR] Release manifest is not bound to the approved source and target.")
+              raise SystemExit(1)
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"sha256={approved_digest}\n")
+          print("[OK] Release manifest digest and immutable source binding are approved.")
+          PY
+
+      - name: Load Doppler environment (optional first source)
         uses: dopplerhq/secrets-fetch-action@v1.2.0
         continue-on-error: true
         with:
@@ -39,182 +277,291 @@ jobs:
           doppler-project: horo-consultant
           doppler-config: prd
           inject-env-vars: true
-        id: doppler
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install deployment dependencies
-        run: pip install huggingface_hub httpx python-dotenv
-
-      - name: Enforce Vercel static and HF Docker target separation
-        run: |
-          python3 - <<'PY'
-          import os
-          import sys
-          from urllib.parse import urlsplit
-
-          def normalized_url(name: str) -> str:
-              value = os.environ.get(name, "").strip().rstrip("/")
-              parsed = urlsplit(value)
-              if parsed.scheme != "https" or not parsed.netloc:
-                  print(f"[ERROR] {name} must be an absolute HTTPS URL.")
-                  raise SystemExit(1)
-              return value
-
-          static_url = normalized_url("VERCEL_STATIC_URL")
-          backend_url = normalized_url("HF_BACKEND_URL")
-          static_space_id = os.environ.get("HF_STATIC_SPACE_ID", "").strip()
-          backend_space_id = os.environ.get("HF_BACKEND_SPACE_ID", "").strip()
-
-          if not backend_space_id:
-              print("[ERROR] HF_BACKEND_SPACE_ID is required for Docker publication.")
-              raise SystemExit(1)
-          if static_space_id:
-              print("[ERROR] HF_STATIC_SPACE_ID is retired: use VERCEL_STATIC_URL for the UI.")
-              raise SystemExit(1)
-          if static_url == backend_url:
-              print("[ERROR] VERCEL_STATIC_URL must not equal HF_BACKEND_URL.")
-              raise SystemExit(1)
-          print("[OK] Vercel static UI and HF Docker backend targets are distinct.")
-          PY
-
-      - name: Resolve HF token source
+      - name: Resolve and mask HF deployment token
         env:
-          HF_TOKEN_FALLBACK: ${{ secrets.HF_TOKEN || vars.HF_TOKEN }}
-          HUGGINGFACE_TOKEN_FALLBACK: ${{ secrets.HUGGINGFACE_TOKEN || vars.HUGGINGFACE_TOKEN }}
-          HF_API_TOKEN_FALLBACK: ${{ secrets.HF_API_TOKEN || vars.HF_API_TOKEN }}
-          HUGGINGFACE_API_KEY_FALLBACK: ${{ secrets.HUGGINGFACE_API_KEY || vars.HUGGINGFACE_API_KEY }}
-          HUGGING_FACE_TOKEN_FALLBACK: ${{ secrets.HUGGING_FACE_TOKEN || vars.HUGGING_FACE_TOKEN }}
-        run: |
-          python3 - <<'PY'
-          import os
-          import urllib.error
-          import urllib.request
-
-          try:
-              from dotenv import dotenv_values
-          except Exception:
-              dotenv_values = None
-
-          if os.getenv("GITHUB_ACTIONS") != "true" and dotenv_values is not None:
-              local_env = dotenv_values(".env")
-              local_token_candidates = [
-                  ("HF_TOKEN_LOCAL", local_env.get("HF_TOKEN")),
-                  ("HUGGINGFACE_TOKEN_LOCAL", local_env.get("HUGGINGFACE_TOKEN")),
-                  ("HF_API_TOKEN_LOCAL", local_env.get("HF_API_TOKEN")),
-                  ("HUGGINGFACE_API_KEY_LOCAL", local_env.get("HUGGINGFACE_API_KEY")),
-                  ("HUGGING_FACE_TOKEN_LOCAL", local_env.get("HUGGING_FACE_TOKEN")),
-              ]
-
-          token_candidates = local_token_candidates if os.getenv("GITHUB_ACTIONS") != "true" and dotenv_values is not None else []
-          token_candidates += [
-              ("HF_TOKEN", os.getenv("HF_TOKEN")),
-              ("HUGGINGFACE_TOKEN", os.getenv("HUGGINGFACE_TOKEN")),
-              ("HF_API_TOKEN", os.getenv("HF_API_TOKEN")),
-              ("HUGGINGFACE_API_KEY", os.getenv("HUGGINGFACE_API_KEY")),
-              ("HUGGING_FACE_TOKEN", os.getenv("HUGGING_FACE_TOKEN")),
-          ]
-
-          token_candidates.extend([
-              ("HF_TOKEN_FALLBACK", os.getenv("HF_TOKEN_FALLBACK")),
-              ("HUGGINGFACE_TOKEN_FALLBACK", os.getenv("HUGGINGFACE_TOKEN_FALLBACK")),
-              ("HF_API_TOKEN_FALLBACK", os.getenv("HF_API_TOKEN_FALLBACK")),
-              ("HUGGINGFACE_API_KEY_FALLBACK", os.getenv("HUGGINGFACE_API_KEY_FALLBACK")),
-              ("HUGGING_FACE_TOKEN_FALLBACK", os.getenv("HUGGING_FACE_TOKEN_FALLBACK")),
-          ])
-
-          token = None
-          token_source = "not-found"
-
-          def is_token_valid(candidate: str) -> bool:
-            req = urllib.request.Request(
-              "https://huggingface.co/api/whoami-v2",
-              headers={"Authorization": f"Bearer {candidate}"},
-            )
-            try:
-                with urllib.request.urlopen(req, timeout=8) as res:
-                    return res.status == 200
-            except urllib.error.HTTPError as e:
-                if e.code == 401:
-                    print("[WARN] Candidate token returned 401 (invalid token).")
-                else:
-                    print(f"[WARN] Candidate token validation failed with HTTP {e.code}: {e.reason}")
-            except Exception as e:
-                print(f"[WARN] Candidate token validation exception: {e}")
-            return False
-
-          for name, value in token_candidates:
-              if not value:
-                  continue
-              if is_token_valid(value):
-                  token = value
-                  token_source = name
-                  break
-              print(f"[WARN] Skipping {name} due invalid token.")
-
-          env_file = os.getenv("GITHUB_ENV")
-          print(f"[INFO] Token resolved from: {token_source}")
-          if token:
-            print("[OK] HF token resolved for deployment.")
-            if env_file:
-              with open(env_file, "a", encoding="utf-8") as f:
-                  f.write(f"HF_TOKEN={token}\n")
-                  f.write("HF_TOKEN_SOURCE=resolve-step\n")
-          else:
-            print("[ERROR] HF token could not be resolved from env/secrets.")
-            raise SystemExit(1)
-          PY
-
-      - name: Publish Docker API backend
-        run: python3 scripts/publish_space_hf.py --space-id "$HF_BACKEND_SPACE_ID" --sdk docker
-
-      - name: Wait for public backend and verify complete path
-        run: |
-          CHECK_CMD="python3 scripts/run_live_health_verification.py --json-output production-verification.json"
-          for attempt in $(seq 1 18); do
-            if ${CHECK_CMD}; then
-              exit 0
-            fi
-            echo "[INFO] Public backend still starting; retrying in 20 seconds"
-            sleep 20
-          done
-          exit 1
-
-      - name: Capture final redacted HF build log
-        if: always()
-        continue-on-error: true
+          HF_TOKEN_SECRET: ${{ secrets.HF_TOKEN }}
+          HUGGINGFACE_TOKEN_SECRET: ${{ secrets.HUGGINGFACE_TOKEN }}
+          HF_API_TOKEN_SECRET: ${{ secrets.HF_API_TOKEN }}
+          HUGGINGFACE_API_KEY_SECRET: ${{ secrets.HUGGINGFACE_API_KEY }}
+          HUGGING_FACE_TOKEN_SECRET: ${{ secrets.HUGGING_FACE_TOKEN }}
         run: |
           python3 - <<'PY'
           import os
           import re
-          from pathlib import Path
+
+          candidates = (
+              ("DOPPLER_HF_TOKEN", os.getenv("HF_TOKEN")),
+              ("DOPPLER_HUGGINGFACE_TOKEN", os.getenv("HUGGINGFACE_TOKEN")),
+              ("DOPPLER_HF_API_TOKEN", os.getenv("HF_API_TOKEN")),
+              ("DOPPLER_HUGGINGFACE_API_KEY", os.getenv("HUGGINGFACE_API_KEY")),
+              ("DOPPLER_HUGGING_FACE_TOKEN", os.getenv("HUGGING_FACE_TOKEN")),
+              ("GITHUB_HF_TOKEN", os.getenv("HF_TOKEN_SECRET")),
+              ("GITHUB_HUGGINGFACE_TOKEN", os.getenv("HUGGINGFACE_TOKEN_SECRET")),
+              ("GITHUB_HF_API_TOKEN", os.getenv("HF_API_TOKEN_SECRET")),
+              ("GITHUB_HUGGINGFACE_API_KEY", os.getenv("HUGGINGFACE_API_KEY_SECRET")),
+              ("GITHUB_HUGGING_FACE_TOKEN", os.getenv("HUGGING_FACE_TOKEN_SECRET")),
+          )
+          source, token = next(
+              ((name, value.strip()) for name, value in candidates if value and value.strip()),
+              ("not-found", ""),
+          )
+          if not token:
+              print("[ERROR] HF deployment token is unavailable from Doppler or GitHub Secrets.")
+              raise SystemExit(1)
+          if not re.fullmatch(r"hf_[A-Za-z0-9_-]{20,}", token):
+              print("[ERROR] HF deployment token has an invalid shape.")
+              raise SystemExit(1)
+
+          print(f"::add-mask::{token}")
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env_file:
+              env_file.write(f"HF_TOKEN={token}\n")
+          print(f"[OK] HF token resolved from managed CI source: {source}.")
+          PY
+
+      - name: Capture expected parent HF revision
+        id: parent
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
           from huggingface_hub import HfApi
 
-          log_text = "".join(
-              HfApi(token=os.environ["HF_TOKEN"]).fetch_space_logs(
-                  os.environ["HF_BACKEND_SPACE_ID"],
-                  build=True,
-                  follow=False,
-              )
+          api = HfApi(token=os.environ["HF_TOKEN"])
+          info = api.repo_info(
+              repo_id=os.environ["HF_BACKEND_SPACE_ID"],
+              repo_type="space",
+              revision="main",
           )
-          log_text = re.sub(r"hf_[A-Za-z0-9_-]{8,}", "[REDACTED_HF_TOKEN]", log_text)
-          log_text = re.sub(r"Bearer\s+\S+", "Bearer [REDACTED]", log_text, flags=re.IGNORECASE)
-          Path("hf-build.log").write_text(log_text, encoding="utf-8")
-          print(f"[INFO] Captured final redacted HF build log ({len(log_text)} bytes)")
+          parent_revision = str(info.sha or "").strip()
+          if not re.fullmatch(r"[0-9a-f]{40}", parent_revision):
+              print("[ERROR] Could not resolve an immutable parent HF revision.")
+              raise SystemExit(1)
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"revision={parent_revision}\n")
+          print("[OK] Expected parent HF revision captured for CAS-aware publication.")
           PY
+
+      - name: Publish canonical Docker API backend
+        env:
+          EXPECTED_SOURCE_SHA: ${{ steps.source.outputs.sha }}
+          EXPECTED_MANIFEST_SHA256: ${{ steps.manifest.outputs.sha256 }}
+          EXPECTED_PARENT_REVISION: ${{ steps.parent.outputs.revision }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SOURCE_SHA"
+          git diff --quiet
+          git diff --cached --quiet
+          test -z "$(git status --porcelain --untracked-files=all)"
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          from scripts.publish_space_hf import validate_release_manifest
+
+          def reject_pairs(pairs):
+              value = {}
+              for key, member in pairs:
+                  if key in value:
+                      raise ValueError("duplicate JSON member")
+                  value[key] = member
+              return value
+
+          def reject_constant(_value):
+              raise ValueError("non-finite JSON value")
+
+          manifest = json.loads(
+              Path(os.environ["HF_RELEASE_MANIFEST_PATH"]).read_text(encoding="utf-8"),
+              object_pairs_hook=reject_pairs,
+              parse_constant=reject_constant,
+          )
+          validate_release_manifest(manifest)
+          if (
+              manifest.get("manifest_sha256") != os.environ["EXPECTED_MANIFEST_SHA256"]
+              or manifest.get("packaging_commit") != os.environ["EXPECTED_SOURCE_SHA"]
+          ):
+              print("[ERROR] Approved manifest digest changed before publication.")
+              raise SystemExit(1)
+          print("[OK] Approved manifest digest is unchanged before publication.")
+          PY
+          python3 scripts/publish_space_hf.py \
+            --space-id "$HF_BACKEND_SPACE_ID" \
+            --sdk docker \
+            --manifest-path "$HF_RELEASE_MANIFEST_PATH" \
+            --receipt-path "$HF_RELEASE_RECEIPT_PATH" \
+            --expected-parent-revision "$EXPECTED_PARENT_REVISION" 2>&1 | sed -E \
+              -e 's/hf_[A-Za-z0-9_-]{8,}/[REDACTED_HF_TOKEN]/g' \
+              -e 's/(Authenticated as Hugging Face user: ).*/\1[REDACTED]/' \
+              -e 's/(Bearer )[A-Za-z0-9._~+\/-]+/\1[REDACTED]/g'
+
+      - name: Validate bound publisher receipt and artifact safety
+        id: release_evidence
+        env:
+          EXPECTED_SOURCE_SHA: ${{ steps.source.outputs.sha }}
+          EXPECTED_MANIFEST_SHA256: ${{ steps.manifest.outputs.sha256 }}
+          EXPECTED_PARENT_REVISION: ${{ steps.parent.outputs.revision }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import stat
+          from pathlib import Path
+
+          from scripts.publish_space_hf import (
+              validate_release_manifest,
+              validate_release_receipt,
+          )
+
+          def reject_pairs(pairs):
+              value = {}
+              for key, member in pairs:
+                  if key in value:
+                      raise ValueError("duplicate JSON member")
+                  value[key] = member
+              return value
+
+          def reject_constant(_value):
+              raise ValueError("non-finite JSON value")
+
+          def load_guarded(name, max_bytes):
+              path = Path(os.environ[name])
+              expected_dir = Path(os.environ["HF_RELEASE_EVIDENCE_DIR"]).resolve()
+              file_stat = path.lstat()
+              if (
+                  not stat.S_ISREG(file_stat.st_mode)
+                  or stat.S_IMODE(file_stat.st_mode) != 0o600
+                  or not 0 < file_stat.st_size <= max_bytes
+                  or path.resolve().parent != expected_dir
+              ):
+                  raise ValueError("unsafe release evidence path")
+              return json.loads(
+                  path.read_text(encoding="utf-8"),
+                  object_pairs_hook=reject_pairs,
+                  parse_constant=reject_constant,
+              )
+
+          manifest = load_guarded("HF_RELEASE_MANIFEST_PATH", 16 * 1024 * 1024)
+          receipt = load_guarded("HF_RELEASE_RECEIPT_PATH", 1024 * 1024)
+          validate_release_manifest(manifest)
+          validate_release_receipt(receipt, manifest)
+          if (
+              manifest.get("manifest_sha256") != os.environ["EXPECTED_MANIFEST_SHA256"]
+              or manifest.get("packaging_commit") != os.environ["EXPECTED_SOURCE_SHA"]
+              or receipt.get("manifest_sha256") != os.environ["EXPECTED_MANIFEST_SHA256"]
+              or receipt.get("packaging_commit") != os.environ["EXPECTED_SOURCE_SHA"]
+              or receipt.get("parent_revision") != os.environ["EXPECTED_PARENT_REVISION"]
+              or receipt.get("prior_revision") != os.environ["EXPECTED_PARENT_REVISION"]
+              or receipt.get("action") != "publish"
+              or receipt.get("status") != "SUCCEEDED"
+              or receipt.get("failure_class") != "none"
+          ):
+              print("[ERROR] Publisher receipt is not bound to the approved release inputs.")
+              raise SystemExit(1)
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write("ready=true\n")
+          print("[OK] Publisher receipt is sanitized and bound to manifest, source, and parent.")
+          PY
+
+      - name: Upload sanitized release evidence
+        if: ${{ always() && steps.release_evidence.outputs.ready == 'true' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: hf-docker-release-evidence-${{ steps.source.outputs.sha }}
+          path: |
+            ${{ steps.evidence_paths.outputs.manifest }}
+            ${{ steps.evidence_paths.outputs.receipt }}
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Wait for public backend and verify complete path
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 18); do
+            if python3 scripts/run_live_health_verification.py --json-output production-verification.json; then
+              exit 0
+            fi
+            echo "[INFO] Public backend is not ready; retrying in 20 seconds."
+            sleep 20
+          done
+          exit 1
 
       - name: Run synthetic monitor
         run: python3 scripts/synthetic_health_monitor.py --once --json-output synthetic-health.json
 
-      - name: Upload verification reports
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: Validate sanitized post-deploy reports
+        id: postdeploy_evidence
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import stat
+          from pathlib import Path
+
+          token_pattern = re.compile(r"hf_[A-Za-z0-9_-]{20,}")
+          authorization_pattern = re.compile(
+              r"(?i)(?:bearer|basic)\s+[A-Za-z0-9._~+\/-]{12,}"
+          )
+          forbidden_keys = re.compile(
+              r"(?i)(?:token|secret|credential|authorization|cookie|password|api[_-]?key)"
+          )
+
+          def reject_pairs(pairs):
+              value = {}
+              for key, member in pairs:
+                  if key in value:
+                      raise ValueError("duplicate JSON member")
+                  value[key] = member
+              return value
+
+          def reject_constant(_value):
+              raise ValueError("non-finite JSON value")
+
+          def inspect(value):
+              if isinstance(value, dict):
+                  for key, member in value.items():
+                      if forbidden_keys.search(str(key)):
+                          raise ValueError("forbidden evidence member")
+                      inspect(member)
+              elif isinstance(value, list):
+                  for member in value:
+                      inspect(member)
+              elif isinstance(value, str) and (
+                  token_pattern.search(value) or authorization_pattern.search(value)
+              ):
+                  raise ValueError("secret-shaped evidence value")
+
+          for raw_path in ("production-verification.json", "synthetic-health.json"):
+              path = Path(raw_path)
+              file_stat = path.lstat()
+              if (
+                  not stat.S_ISREG(file_stat.st_mode)
+                  or not 0 < file_stat.st_size <= 1024 * 1024
+              ):
+                  print("[ERROR] Post-deploy evidence path is unsafe.")
+                  raise SystemExit(1)
+              report = json.loads(
+                  path.read_text(encoding="utf-8"),
+                  object_pairs_hook=reject_pairs,
+                  parse_constant=reject_constant,
+              )
+              inspect(report)
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write("ready=true\n")
+          print("[OK] Post-deploy reports are strict JSON without secret-shaped fields.")
+          PY
+
+      - name: Upload sanitized post-deploy verification
+        if: ${{ steps.postdeploy_evidence.outputs.ready == 'true' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: hf-production-verification-${{ github.sha }}
+          name: hf-production-verification-${{ steps.source.outputs.sha }}
           path: |
             production-verification.json
             synthetic-health.json
-            hf-build.log
-          if-no-files-found: warn
+          if-no-files-found: error
+          retention-days: 30

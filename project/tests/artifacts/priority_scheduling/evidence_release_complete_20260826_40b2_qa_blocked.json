@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-40B2-QA",
+  "status": "BLOCKED",
+  "defect": "trigger inventory matches only *.yml and ignores unreviewed .yaml files",
+  "verification": {"focused": "21 passed, 1 failed", "full": "91 passed, 1 failed", "other_gates": "green"},
+  "remediation": "40B2R1 owns only scripts/trigger_all_github_actions.py; 40B2R2 reuses the two frozen QA files"
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "tickets": [
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-20-GOVERNANCE-FIX",
+      "severity": "HIGH",
+      "work_effort": "M",
+      "status": "DONE",
+      "dependencies": [],
+      "blockers": [],
+      "owner": "business_analyst",
+      "ownership": [
+        "governance-fix-evidence"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-41A-BACKEND-DIAGNOSTICS",
+      "severity": "MEDIUM",
+      "work_effort": "XS",
+      "status": "DONE",
+      "dependencies": [
+        "TICKET-RELEASE-COMPLETE-20260826-20-GOVERNANCE-FIX"
+      ],
+      "blockers": [],
+      "owner": "developer",
+      "ownership": [
+        "scripts/grafana_cloud_exporter.py",
+        "scripts/run_remote_api_live_test.py",
+        "scripts/test_live_e2e_network.py"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-41A-QA",
+      "severity": "MEDIUM",
+      "work_effort": "XS",
+      "status": "DOING",
+      "dependencies": [
+        "TICKET-RELEASE-COMPLETE-20260826-41A-BACKEND-DIAGNOSTICS"
+      ],
+      "blockers": [],
+      "owner": "qa_tester",
+      "ownership": [
+        "project/tests/test_backend_diagnostic_release_contract.py"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    }
+  ],
+  "reservations": [
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-41A-QA",
+      "owner": "qa_tester",
+      "ownership": [
+        "project/tests/test_backend_diagnostic_release_contract.py"
+      ]
+    }
+  ]
+}

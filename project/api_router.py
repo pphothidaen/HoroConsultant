@@ -41,14 +41,17 @@ GOOGLE_AI_STUDIO_API_KEY2 = os.getenv("GOOGLE_AI_STUDIO_API_KEY2", "")
 
 GEMINI_BASE_URL         = "https://generativelanguage.googleapis.com/v1beta"
 DEFAULT_GEMINI_ROTATION = [
-    "gemini-3.5-flash-lite",
     "gemini-flash-latest",
+    "gemma-4-26b-a4b-it",
+    "gemma-4-31b-it",
+    "gemini-2.5-flash",
+    "gemini-3.5-flash-lite",
     "gemini-3.6-flash",
 ]
 
-GEMINI_PRIMARY_MODEL    = os.getenv("PRIMARY_MODEL",   "gemini-3.5-flash-lite")
-GEMINI_SECONDARY_MODEL  = os.getenv("SECONDARY_MODEL", "gemini-flash-latest")
-GEMINI_TERTIARY_MODEL   = os.getenv("TERTIARY_MODEL",  "gemini-3.6-flash")
+GEMINI_PRIMARY_MODEL    = os.getenv("PRIMARY_MODEL",   "gemini-flash-latest")
+GEMINI_SECONDARY_MODEL  = os.getenv("SECONDARY_MODEL", "gemma-4-26b-a4b-it")
+GEMINI_TERTIARY_MODEL   = os.getenv("TERTIARY_MODEL",  "gemma-4-31b-it")
 
 GEMINI_MODELS_ROTATION: list[str] = []
 for m in [GEMINI_PRIMARY_MODEL, GEMINI_SECONDARY_MODEL, GEMINI_TERTIARY_MODEL, *DEFAULT_GEMINI_ROTATION]:
@@ -56,21 +59,42 @@ for m in [GEMINI_PRIMARY_MODEL, GEMINI_SECONDARY_MODEL, GEMINI_TERTIARY_MODEL, *
         GEMINI_MODELS_ROTATION.append(m)
 
 GEMINI_MODEL_FALLBACK_CANDIDATES: dict[str, list[str]] = {
-    "gemini-3.5-flash-lite": ["gemini-2.0-flash-lite", "gemini-2.0-flash", "gemini-1.5-flash"],
-    "gemini-flash-latest": ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-flash-latest"],
-    "gemini-3.6-flash": ["gemini-2.0-flash", "gemini-1.5-pro", "gemini-2.0-flash-lite"],
-    "gemini-3.7-flash": ["gemini-2.0-flash", "gemini-1.5-pro"],
+    "gemma-4-31b-it": ["gemma-4-26b-a4b-it", "gemini-2.5-flash", "gemini-flash-latest"],
+    "gemma-4-26b-a4b-it": ["gemma-4-31b-it", "gemini-2.5-flash", "gemini-flash-latest"],
+    "gemini-2.5-flash": ["gemma-4-31b-it", "gemma-4-26b-a4b-it", "gemini-flash-latest"],
+    "gemini-3.5-flash-lite": ["gemma-4-31b-it", "gemma-4-26b-a4b-it", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"],
+    "gemini-flash-latest": ["gemma-4-31b-it", "gemma-4-26b-a4b-it", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-flash-latest"],
+    "gemini-3.6-flash": ["gemma-4-31b-it", "gemma-4-26b-a4b-it", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-pro", "gemini-2.0-flash-lite"],
+    "gemini-3.7-flash": ["gemma-4-31b-it", "gemma-4-26b-a4b-it", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"],
 }
 
 OPENAI_MODEL            = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 CLOUDFLARE_ACCOUNT_ID   = os.getenv("CLOUDFLARE_ACCOUNT_ID", "")
 CLOUDFLARE_AI_TOKEN     = os.getenv("CLOUDFLARE_AI_TOKEN", "")
-CLOUDFLARE_AI_MODEL     = os.getenv("CLOUDFLARE_AI_MODEL", "@cf/qwen/qwen1.5-7b-chat-awq")
+CLOUDFLARE_AI_MODEL     = os.getenv("CLOUDFLARE_AI_MODEL", "@cf/meta/llama-3.1-8b-instruct")
 
 TIMEOUT_LOCAL_S         = float(os.getenv("LOCAL_TIMEOUT_SECONDS", "3.0"))
-TIMEOUT_CLOUD_S         = float(os.getenv("API_TIMEOUT_SECONDS",   "8.0"))
+TIMEOUT_CLOUD_S         = float(os.getenv("API_TIMEOUT_SECONDS",   "12.0"))
 RETRY_DELAY_S           = 2.0
+
+# ---------------------------------------------------------------------------
+# Rate Limit (429) Circuit Breaker
+# ---------------------------------------------------------------------------
+_ROUTE_CIRCUIT_BREAKER: dict[str, float] = {}
+CIRCUIT_BREAKER_COOLDOWN_SECONDS: float = 60.0
+
+
+def _is_route_circuit_open(route_key: str) -> bool:
+    """Return True if route recently failed with 429 rate limit and is in cooldown."""
+    cooldown_until = _ROUTE_CIRCUIT_BREAKER.get(route_key, 0.0)
+    return time.monotonic() < cooldown_until
+
+
+def _trip_route_circuit(route_key: str, cooldown: float = CIRCUIT_BREAKER_COOLDOWN_SECONDS) -> None:
+    """Trip circuit breaker for a rate-limited route to avoid latency bottlenecks."""
+    _ROUTE_CIRCUIT_BREAKER[route_key] = time.monotonic() + cooldown
+    logger.info(f"[CircuitBreaker] Tripped route '{route_key}' for {cooldown}s cooldown.")
 
 
 def _gemini_keys() -> list[str]:
@@ -189,7 +213,7 @@ def _call_gemini(
         url = f"{GEMINI_BASE_URL}/models/{candidate}:generateContent?key={api_key}"
         payload: dict[str, Any] = {
             "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0.2, "maxOutputTokens": 8192},
+            "generationConfig": {"temperature": 0.2, "maxOutputTokens": 2048},
         }
         if system_instruction:
             payload["systemInstruction"] = {"parts": [{"text": system_instruction}]}
@@ -627,6 +651,11 @@ class HybridRouter:
                 else f"cloud:{model}"
             )
 
+            # Fast Circuit Breaker check — skip recently rate-limited route immediately (0ms)
+            if _is_route_circuit_open(label):
+                logger.debug(f"[Router] ⚡ Circuit Open: Skipping '{label}' (cooldown active)")
+                continue
+
             t0 = time.monotonic()
             if rtype == "ollama":
                 text, reason = _call_ollama(model, prompt, system_instruction)
@@ -669,8 +698,9 @@ class HybridRouter:
             attempted.append({"route": label, "reason": reason, "latency_ms": latency_ms})
             logger.warning(f"[Router] ❌ {label} → {reason}")
 
+            # Trip circuit breaker on rate limit for immediate bypass on next calls
             if reason == "429":
-                time.sleep(RETRY_DELAY_S)
+                _trip_route_circuit(label)
 
         # Trigger Telegram alert if all Gemini cloud routes failed
         if any("cloud:" in r.get("route", "") for r in attempted):

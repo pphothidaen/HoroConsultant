@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-31-GATEWAY-UI-FALLBACK-FIX",
+  "status": "DONE_FROZEN",
+  "ownership": ["api/gateway.js", "api/health.js", "project/static/app.js", "public/app.js"],
+  "source_delta": "Azure fallback selection was removed and the static/public UI mirrors are equal",
+  "known_residual": "api/index and admin/HITL routing require a separate ownership and human-review audit; this source freeze does not cover them",
+  "source_lane_tests": "none; isolated QA ticket 35 is reserved",
+  "external_actions": "none"
+}

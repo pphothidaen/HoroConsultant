@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-30-FLY-ARTIFACT-RETIREMENT",
+  "phase": "implementation",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Correct only fly.toml and scripts/trigger_all_github_actions.py after its exclusive source ticket starts. Preserve history while removing active Fly deploy and inventory behavior, with no deployment, network, credential, or broad cleanup action. Do not edit workflows, tests, source, rules, skills, publisher, router, data, generated files, or external systems. Freeze source evidence for ticket 34 before release QA.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-28R2-CLAUDE-RULE-VIEWPORT-FIX",
+  "phase": "implementation",
+  "scope_rank": 1,
+  "complexity_rank": 1,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 2,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Correct only .claude/rules/hf-static-release-verification.md. Restore the exact five canonical viewport names desktop-4k, laptop-standard, tablet-portrait, mobile-ios, and mobile-compact while preserving the canonical HF Docker backend, Vercel UI, no Static-to-backend/Azure/Fly deployment, atomic rollback, and validated-in-process boundaries. Do not edit tests, source, workflows, publisher, other rules or skills, generated files, credentials, or external systems. Validate with the read-only ecosystem check.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

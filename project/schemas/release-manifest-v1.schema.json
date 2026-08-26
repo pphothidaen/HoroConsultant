@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://horoconsultant.local/schemas/release-manifest-v1.schema.json",
+  "title": "HoroConsultant HF Docker Release Manifest v1",
+  "description": "Closed deterministic bundle contract for the canonical Hugging Face Docker backend. The publisher must build this exact object from one clean packaging commit in both dry-run and live modes. Entries must be unique and sorted by destination path using UTF-8 byte order; total_files must equal the entry count and total_bytes must equal the sum of staged_bytes. JSON Schema validates shape while the publisher enforces sorting, cross-field equality, sums, source ancestry, source/staged parity, and path collision rules.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "space_id",
+    "repo_type",
+    "sdk",
+    "branch",
+    "version",
+    "packaging_commit",
+    "release_source_commit",
+    "release_source_revision",
+    "release_source_metadata_path",
+    "release_source_metadata_sha256",
+    "entries",
+    "total_files",
+    "total_bytes",
+    "manifest_sha256"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "space_id": {
+      "const": "pphothidaen/horoconsultant-core-backend"
+    },
+    "repo_type": {
+      "const": "space"
+    },
+    "sdk": {
+      "const": "docker"
+    },
+    "branch": {
+      "const": "main"
+    },
+    "version": {
+      "$ref": "#/$defs/releaseVersion"
+    },
+    "packaging_commit": {
+      "$ref": "#/$defs/gitRevision",
+      "description": "Full clean Git revision whose tracked blobs and generator code produced the staged bundle."
+    },
+    "release_source_commit": {
+      "$ref": "#/$defs/sourceCommit",
+      "description": "Lowercase abbreviated or full source commit carried by the canonical release metadata and version suffix."
+    },
+    "release_source_revision": {
+      "$ref": "#/$defs/gitRevision",
+      "description": "Full revision resolved from release_source_commit; it must be an ancestor of packaging_commit."
+    },
+    "release_source_metadata_path": {
+      "const": "project/static/version.json"
+    },
+    "release_source_metadata_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/manifestEntry"
+      },
+      "description": "Complete desired remote tree, sorted by path. Duplicate destination paths are forbidden even when the remaining entry fields differ."
+    },
+    "total_files": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Exact number of entries."
+    },
+    "total_bytes": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Exact sum of staged_bytes across entries."
+    },
+    "manifest_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "Lowercase SHA-256 of json.dumps(the complete object with manifest_sha256 omitted, ensure_ascii=False, sort_keys=True, separators=(',', ':'), allow_nan=False).encode('utf-8'), with no trailing newline. The digest is identical for approved dry-run and live staging."
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "gitRevision": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "gitBlobOid": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sourceCommit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{7,40}$"
+    },
+    "releaseVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9a-f]{7,40}$"
+    },
+    "bundlePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))(?!.*\\\\)(?!.*//)[^\\u0000-\\u001f\\u007f]+$"
+    },
+    "manifestEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "source_kind",
+        "source_path",
+        "source_revision",
+        "source_blob_oid",
+        "source_mode",
+        "source_bytes",
+        "source_sha256",
+        "staged_mode",
+        "staged_bytes",
+        "staged_sha256",
+        "staged_blob_oid"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/bundlePath",
+          "description": "Canonical POSIX destination path in the Space repository."
+        },
+        "source_kind": {
+          "enum": ["tracked", "generated"]
+        },
+        "source_path": {
+          "$ref": "#/$defs/bundlePath",
+          "description": "Tracked repository path or stable in-source generator locator; never a temporary or absolute path."
+        },
+        "source_revision": {
+          "$ref": "#/$defs/gitRevision",
+          "description": "Must equal the top-level packaging_commit."
+        },
+        "source_blob_oid": {
+          "oneOf": [
+            {"$ref": "#/$defs/gitBlobOid"},
+            {"type": "null"}
+          ],
+          "description": "Git blob OID for tracked input; null only for a deterministic generated entry."
+        },
+        "source_mode": {
+          "const": "100644",
+          "description": "Required local regular-file baseline. HfApi does not provide portable remote chmod control."
+        },
+        "source_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "source_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "staged_mode": {
+          "const": "100644"
+        },
+        "staged_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "staged_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "staged_blob_oid": {
+          "$ref": "#/$defs/gitBlobOid",
+          "description": "Expected Git blob OID calculated from the exact staged bytes."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "source_kind": {"const": "tracked"}
+            },
+            "required": ["source_kind"]
+          },
+          "then": {
+            "properties": {
+              "source_blob_oid": {"$ref": "#/$defs/gitBlobOid"}
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source_kind": {"const": "generated"}
+            },
+            "required": ["source_kind"]
+          },
+          "then": {
+            "properties": {
+              "source_blob_oid": {"type": "null"}
+            }
+          }
+        }
+      ]
+    }
+  }
+}

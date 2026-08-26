@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "tickets": [
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-21A-PUBLISHER-CORE",
+      "severity": "CRITICAL",
+      "work_effort": "M",
+      "status": "DONE",
+      "dependencies": [],
+      "blockers": [],
+      "owner": "developer",
+      "ownership": [
+        "scripts/publish_space_hf.py"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-21B-RELEASE-SCHEMAS",
+      "severity": "CRITICAL",
+      "work_effort": "S",
+      "status": "DONE",
+      "dependencies": [],
+      "blockers": [],
+      "owner": "developer",
+      "ownership": [
+        "project/schemas/release-manifest-v1.schema.json",
+        "project/schemas/release-receipt-v1.schema.json"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-21D-PUBLISHER-WORKFLOW",
+      "severity": "HIGH",
+      "work_effort": "XS",
+      "status": "DONE",
+      "dependencies": [],
+      "blockers": [],
+      "owner": "developer",
+      "ownership": [
+        ".github/workflows/hf_backend_deploy.yml"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-22A-PUBLISHER-CORE-FIXTURE-QA",
+      "severity": "HIGH",
+      "work_effort": "XS",
+      "status": "DONE",
+      "dependencies": [],
+      "blockers": [],
+      "owner": "qa_tester",
+      "ownership": [
+        "tests/test_publish_space_hf.py"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-41A-QA",
+      "severity": "MEDIUM",
+      "work_effort": "XS",
+      "status": "DONE",
+      "dependencies": [],
+      "blockers": [],
+      "owner": "qa_tester",
+      "ownership": [
+        "project/tests/test_backend_diagnostic_release_contract.py"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-41A-QA2-GRAFANA-LEGACY",
+      "severity": "MEDIUM",
+      "work_effort": "XS",
+      "status": "DONE",
+      "dependencies": [],
+      "blockers": [],
+      "owner": "qa_tester",
+      "ownership": [
+        "project/tests/test_grafana_cloud_exporter.py"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-41B-QA",
+      "severity": "HIGH",
+      "work_effort": "XS",
+      "status": "DONE",
+      "dependencies": [],
+      "blockers": [],
+      "owner": "qa_tester",
+      "ownership": [
+        "project/tests/test_ui_diagnostic_release_contract.py"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-44-PRE-SOURCE-INTEGRATION-QA",
+      "severity": "CRITICAL",
+      "work_effort": "S",
+      "status": "BLOCKED",
+      "dependencies": [],
+      "blockers": [
+        "STALE_GOVERNANCE_TEST_PATH"
+      ],
+      "owner": "codex1_gateway_review",
+      "ownership": [
+        "pre-source-integration-qa-readonly"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-44R2-PRE-SOURCE-INTEGRATION-QA",
+      "severity": "CRITICAL",
+      "work_effort": "S",
+      "status": "DOING",
+      "dependencies": [
+        "TICKET-RELEASE-COMPLETE-20260826-21A-PUBLISHER-CORE",
+        "TICKET-RELEASE-COMPLETE-20260826-21B-RELEASE-SCHEMAS",
+        "TICKET-RELEASE-COMPLETE-20260826-21D-PUBLISHER-WORKFLOW",
+        "TICKET-RELEASE-COMPLETE-20260826-22A-PUBLISHER-CORE-FIXTURE-QA",
+        "TICKET-RELEASE-COMPLETE-20260826-41A-QA",
+        "TICKET-RELEASE-COMPLETE-20260826-41A-QA2-GRAFANA-LEGACY",
+        "TICKET-RELEASE-COMPLETE-20260826-41B-QA"
+      ],
+      "blockers": [],
+      "owner": "codex1_gateway_review",
+      "ownership": [
+        "pre-source-integration-qa-r2-readonly"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    }
+  ],
+  "reservations": [
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-44R2-PRE-SOURCE-INTEGRATION-QA",
+      "owner": "codex1_gateway_review",
+      "ownership": [
+        "pre-source-integration-qa-r2-readonly"
+      ]
+    }
+  ]
+}

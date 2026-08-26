@@ -1,7 +1,7 @@
-// api/health.js -- Vercel health gateway for the Azure Container Apps origin.
+// api/health.js -- Vercel health gateway for the canonical HF Docker backend.
 import {
   correlationIdFor,
-  proxyToAzure,
+  proxyToBackend,
   sendPublicError,
   setCorsHeaders,
 } from "./gateway.js";
@@ -15,5 +15,5 @@ export default async function handler(req, res) {
   if (req.method !== "GET") {
     return sendPublicError(res, 405, correlationId, "Method not allowed.");
   }
-  return proxyToAzure(req, res, "health", correlationId);
+  return proxyToBackend(req, res, "health", correlationId);
 }

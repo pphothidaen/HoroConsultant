@@ -1,0 +1,36 @@
+{
+  "skill_name": "devops-deployment",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Prepare the production package gate for the core backend and UI after source freeze. Do not deploy yet.",
+      "expected_output": "Uses the HF Docker backend and separately verified Vercel UI, runs only secret scan, Docker-targeted dry-run, and review gates, and leaves external mutation blocked.",
+      "files": [],
+      "expectations": [
+        "Selects --sdk docker for the HF backend payload dry-run.",
+        "Does not publish a Static payload or route the UI through the backend Space.",
+        "Keeps credentials and external mutation gated."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The Docker backend release passed locally but Vercel version evidence is stale. Can we push the backend revision now?",
+      "expected_output": "Blocks the release claim and explains that local success cannot replace current Vercel UI identity evidence.",
+      "files": [],
+      "expectations": [
+        "Reports a fail-closed blocker.",
+        "Requires current backend and Vercel evidence before external mutation."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Production needs rollback after a bad release. Which exact rollback identifiers are required?",
+      "expected_output": "Uses the exact release commit plus recorded prior HF Docker and Vercel production revisions; rejects Azure, Fly, and raw provider streams as substitutes.",
+      "files": [],
+      "expectations": [
+        "Names all three bounded rollback identities.",
+        "Keeps evidence sanitized and validated-in-process only."
+      ]
+    }
+  ]
+}

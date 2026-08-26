@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-37-DISPATCHER-SCHEMA-FIXTURE-QA",
+  "status": "DONE_FROZEN",
+  "ownership": [
+    "tests/test_multiagent_receipt_schema.py"
+  ],
+  "verification": {
+    "focused_schema": "3 passed",
+    "combined_dispatcher": "222 passed",
+    "uv_lock": "pass",
+    "py_compile": "pass",
+    "diff_check": "pass",
+    "ecosystem_sync_dependency": "cleared by 28R2"
+  },
+  "external_actions": "none"
+}

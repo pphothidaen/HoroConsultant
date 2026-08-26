@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-40A-AZURE-COST-GUARD",
+  "phase": "implementation",
+  "scope_rank": 1,
+  "complexity_rank": 1,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Modify only .github/workflows/azure_cost_guard.yml. Retain non-deploying legacy history while preventing public release behavior; do not edit other workflows, scripts, config, tests, credentials, or external systems. Freeze source evidence for ticket40A QA.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

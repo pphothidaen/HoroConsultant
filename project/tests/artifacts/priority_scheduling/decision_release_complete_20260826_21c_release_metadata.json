@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-21C-RELEASE-METADATA",
+  "phase": "implementation",
+  "scope_rank": 1,
+  "complexity_rank": 1,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 2,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Modify only project/static/version.json and public/version.json after the new release schemas freeze. Align canonical release identity fields with exact mirror parity; retain immutable release-source semantics and forbid packaging identity on deployed version surfaces. Do not edit publisher source, schemas, workflows, tests, rules, skills, generated files, credentials, or external targets. Freeze metadata evidence for ticket 22.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

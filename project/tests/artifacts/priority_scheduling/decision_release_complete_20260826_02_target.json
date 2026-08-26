@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-02-TARGET",
+  "phase": "operations",
+  "scope_rank": 1,
+  "complexity_rank": 1,
+  "risk_rank": 1,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 2,
+  "quota_band": "healthy",
+  "work_mode": "read_only",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-terra",
+  "selected_effort": "high",
+  "rationale": "Explicit user authorization covers the initial read-only release-target audit. Verify local repository branch and configured origin/main target plus the repository-defined Hugging Face production target and publish/health/version command availability without network calls, credential reads, payload upload, push, deploy, or environment mutation. Report target/provenance readiness and exact external gates that remain blocked.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

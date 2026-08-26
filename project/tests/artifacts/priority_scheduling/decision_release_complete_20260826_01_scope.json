@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-01-SCOPE",
+  "phase": "review",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "read_only",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Explicit user authorization covers the initial read-only release change-scope and commit-provenance audit. Inspect the current branch, staged and unstaged names, untracked names, diff/stat provenance, and ownership boundaries; do not stage, commit, modify, clean, push, deploy, read secrets, or alter generated files. The audit must classify every candidate change as in-scope, pending-owner, or excluded and report whether a clean/safe release commit can later be assembled. External mutations remain blocked pending all release gates.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

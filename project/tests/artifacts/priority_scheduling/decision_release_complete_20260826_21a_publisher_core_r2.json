@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-21A-PUBLISHER-CORE",
+  "phase": "implementation",
+  "scope_rank": 2,
+  "complexity_rank": 3,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Modify only scripts/publish_space_hf.py after this BSA handoff. Adopt release schemas frozen by 21B and enforce runtime ordering, duplicate-path detection, totals, digest recomputation, ancestry, timestamp ordering, and tree equality, plus atomic CAS/rollback. Never claim remote chmod; enforce only the local 100644 baseline. Do not fabricate provenance: select immutable existing committed release-source metadata, reject dirty HEAD fallback and placeholders, and use the two-commit source-then-packaging evidence process when final release identity cannot yet be known.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

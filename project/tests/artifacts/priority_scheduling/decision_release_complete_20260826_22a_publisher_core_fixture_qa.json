@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-22A-PUBLISHER-CORE-FIXTURE-QA",
+  "phase": "qa",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "When a rolling slot is free, modify only tests/test_publish_space_hf.py. Update exactly the three obsolete publisher fixtures and test the frozen publisher core through mocks with temporary canonical metadata; do not use committed release metadata, network, real credentials, source edits, workflow edits, schema edits, or external calls. project/tests/test_hf_release_governance.py remains exclusively reserved for final QA22 unless a fresh non-overlapping decision reassigns it.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

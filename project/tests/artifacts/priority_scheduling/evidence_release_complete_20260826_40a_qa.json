@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-40A-QA",
+  "status": "DONE_FROZEN",
+  "ownership": ["project/tests/test_azure_release.py", "project/tests/test_github_actions_regression.py"],
+  "verification": {"azure_release": "70 passed", "github_actions": "114 passed", "sync": "pass", "secret_scan": "pass", "diff_check": "pass"},
+  "external_actions": "none"
+}

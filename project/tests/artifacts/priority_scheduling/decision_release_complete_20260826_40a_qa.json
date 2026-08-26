@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-40A-QA",
+  "phase": "qa",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "After ticket40A freezes and this BSA lane yields, modify only project/tests/test_azure_release.py and project/tests/test_github_actions_regression.py. These previously frozen files are reopened solely under ticket40A-QA and corrected sequentially for both stale assertions. Assert the Azure-cost-guard tombstone has no schedule, authentication, actions, network, or permissions. Do not edit workflow/source, other tests, credentials, or external systems; add a new contract file only if a focused gap is demonstrated.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

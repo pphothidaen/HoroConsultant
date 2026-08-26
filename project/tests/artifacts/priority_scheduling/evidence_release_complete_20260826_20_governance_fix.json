@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-20-GOVERNANCE-FIX",
+  "status": "DONE_FROZEN",
+  "canonical_architecture": {
+    "hf_backend": "pphothidaen/horoconsultant-core-backend",
+    "hf_sdk": "docker",
+    "static_ui": "vercel",
+    "static_publish_to_backend": "prohibited",
+    "azure_public_release": "prohibited",
+    "fly_release": "prohibited"
+  },
+  "owned_changes": [
+    ".agents/rules/07-infrastructure-constraints.md",
+    ".agents/rules/16-hf-static-release-verification.md",
+    ".agents/skills/devops-deployment/SKILL.md",
+    ".agents/skills/devops-deployment/evals/evals.json",
+    ".agents/skills/qa-e2e-testing/SKILL.md",
+    ".agents/skills/qa-e2e-testing/evals/evals.json",
+    ".agents/skills/hf-static-release-verification/SKILL.md",
+    ".agents/skills/hf-static-release-verification/evals/evals.json"
+  ],
+  "compatibility": {
+    "legacy_rule_filename_preserved": true,
+    "legacy_skill_directory_and_id_preserved": true,
+    "generated_outputs_manually_edited": false
+  },
+  "verification": {
+    "ecosystem_sync": "pass",
+    "ecosystem_check": "pass",
+    "focused_governance_tests": "26 passed",
+    "secret_scan": "pass; 0 leaks",
+    "diff_check": "pass"
+  },
+  "external_actions": "none",
+  "residual": {
+    "severity": "medium",
+    "scope": "unowned Claude release-rule target language",
+    "effect": "the legacy Claude rule remains outside ticket 20 ownership and cannot be treated as canonical Docker/Vercel routing authority",
+    "release_gate": "requires a separate owned remediation before any release claim"
+  }
+}

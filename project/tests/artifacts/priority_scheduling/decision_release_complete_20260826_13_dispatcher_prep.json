@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-13-DISPATCHER-PREP",
+  "phase": "review",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "read_only",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Prepare a bounded remediation plan for dispatcher session-preflight security and provenance only. Inspect scripts/multiagent_prompt_command.py and .agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml read-only; identify how marker existence/mtime is treated as active, how paths/non-ASCII leak, and how roles broaden. Do not modify source/config/tests, run providers, stage, commit, push, deploy, or access credentials. The later executable developer ticket may be created only after this plan validates and will own the same two files exclusively.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

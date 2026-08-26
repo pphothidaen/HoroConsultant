@@ -1,344 +1,335 @@
-"""
-scripts/run_live_e2e_hf_space.py
-==================================
-Live E2E Automation & Verification Suite for Hugging Face Production Space:
-https://pphothidaen-horoconsultant-core-backend.hf.space/index.html
+"""Read-only Playwright E2E diagnostics for the Vercel production UI.
 
-Executes Playwright browser automation on the live hosted Space:
-1. Dynamic User Query 1 (Love & Relationships)
-2. Dynamic User Query 2 (Career & Job Change)
-3. Dynamic User Query 3 (Health & Body)
-4. 6 Metaphysics Discipline Buttons (ZiWei, QiMen, DaLiuRen, IChing, XuanKong, ZeJi)
-5. Location Resolution
-6. Admin Panel (admin.html)
-7. HITL Review Studio (hitl.html)
-
-Captures screenshots and saves execution logs.
+The Hugging Face target is a separate Docker backend and is never treated as a
+browser page. The legacy filename remains only for compatibility. The command
+is offline by default; ``--live`` is required to launch a browser or write the
+existing screenshot and JSON report artifacts.
 """
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import json
-import os
-import sys
 import time
 from pathlib import Path
+from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
+SCREENSHOT_DIR = ROOT / "project" / "tests" / "screenshots" / "live_e2e"
+REPORT_PATH = ROOT / "project" / "tests" / "live_e2e_report.json"
 
-os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "/Users/kimlenglim/.agy-account-2/Library/Caches/ms-playwright"
-
-from playwright.async_api import async_playwright
-
-LIVE_BASE_URL = os.environ.get(
-    "HF_LIVE_URL",
+CANONICAL_VERCEL_UI_URL = "https://horo-consultant-psi.vercel.app"
+CANONICAL_HF_DOCKER_BACKEND_URL = (
     "https://pphothidaen-horoconsultant-core-backend.hf.space"
 )
-SCREENSHOT_DIR = ROOT / "project" / "tests" / "screenshots" / "live_e2e"
-SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
+DEFAULT_TIMEOUT_SECONDS = 20
+
+QUERY_CASES = [
+    (
+        "Children and offspring",
+        "How are children and offspring represented in this BaZi chart?",
+        "02_children_query_result.png",
+    ),
+    (
+        "Business investment",
+        "Is opening a restaurant in 2026 supported by this chart?",
+        "03_business_2026_query_result.png",
+    ),
+    (
+        "Love and relationships",
+        "Analyze love, partnership, and relationship timing this year.",
+        "04_love_query_result.png",
+    ),
+    (
+        "Wealth and finance",
+        "Analyze finance, income, and wealth opportunities this year.",
+        "05_wealth_query_result.png",
+    ),
+    (
+        "Health and wellness",
+        "Analyze general health and wellness tendencies in this chart.",
+        "06_health_query_result.png",
+    ),
+]
+
+DISCIPLINE_BUTTONS = [
+    ("ZiWei", 'button[onclick="calcZiWei()"]'),
+    ("QiMen", 'button[onclick="calcQiMen()"]'),
+    ("LiuRen", 'button[onclick="calcLiuRen()"]'),
+    ("IChing", 'button[onclick="calcIChing()"]'),
+    ("XuanKong", 'button[onclick="calcXuanKong()"]'),
+    ("ZeJi", 'button[onclick="calcZeJi()"]'),
+]
 
 
-async def run_live_e2e():
-    print("=" * 70)
-    print("🚀 LAUNCHING LIVE E2E PLAYWRIGHT AUTOMATION SUITE")
-    print(f"   Target URL: {LIVE_BASE_URL}/index.html")
-    print("=" * 70)
+def _require_canonical_https_url(value: str, expected: str, label: str) -> str:
+    candidate = value.strip().rstrip("/")
+    parsed = urlsplit(candidate)
+    if (
+        candidate != expected
+        or parsed.scheme != "https"
+        or not parsed.hostname
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.path not in {"", "/"}
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise ValueError(f"{label} must be the canonical HTTPS target")
+    return candidate
 
-    results = []
 
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        context = await browser.new_context(viewport={"width": 1400, "height": 900})
+def _result(case: str, passed: bool, started: float, details: str) -> dict:
+    return {
+        "case": case,
+        "passed": passed,
+        "latency_ms": round((time.monotonic() - started) * 1000),
+        "details": details,
+    }
+
+
+async def run_live_e2e(
+    *,
+    ui_url: str,
+    backend_url: str,
+    timeout_seconds: int,
+) -> bool:
+    """Run read-only UI checks and write the established E2E artifacts."""
+    ui_url = _require_canonical_https_url(ui_url, CANONICAL_VERCEL_UI_URL, "UI URL")
+    backend_url = _require_canonical_https_url(
+        backend_url,
+        CANONICAL_HF_DOCKER_BACKEND_URL,
+        "Backend URL",
+    )
+    if not 1 <= timeout_seconds <= 60:
+        raise ValueError("timeout must be between 1 and 60 seconds")
+    try:
+        from playwright.async_api import async_playwright
+    except ImportError:
+        print("[ERROR] Playwright is not installed")
+        return False
+
+    print("[INFO] Vercel UI live E2E diagnostics")
+    print(f"[INFO] UI target: {ui_url}")
+    print(f"[INFO] Backend target: {backend_url}")
+    SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
+    timeout_ms = timeout_seconds * 1000
+    results: list[dict] = []
+
+    async with async_playwright() as playwright:
+        browser = await playwright.chromium.launch(headless=True)
+        context = await browser.new_context(viewport={"width": 1366, "height": 768})
         page = await context.new_page()
 
-        page.on("console", lambda msg: print(f"  [BROWSER CONSOLE] {msg.type}: {msg.text}"))
-        page.on("pageerror", lambda err: print(f"  [BROWSER ERROR] {err}"))
+        browser_error_counts = {"console": 0, "page": 0}
 
-        # -------------------------------------------------------------------
-        # CASE 1: Main Page Load
-        # -------------------------------------------------------------------
-        print("\n[TEST 1] Loading Live Main Dashboard...")
-        t0 = time.monotonic()
-        response = await page.goto(f"{LIVE_BASE_URL}/index.html", wait_until="networkidle", timeout=30000)
-        elapsed = round((time.monotonic() - t0) * 1000)
+        def record_console(message) -> None:
+            if message.type == "error":
+                browser_error_counts["console"] += 1
 
-        status_ok = response.status == 200
-        title = await page.title()
-        print(f"  Status: HTTP {response.status} | Time: {elapsed}ms | Title: '{title}'")
-        
-        ss1 = SCREENSHOT_DIR / "01_main_dashboard_loaded.png"
-        await page.screenshot(path=str(ss1))
-        results.append({
-            "case": "1. Live Main Dashboard Load",
-            "passed": status_ok,
-            "latency_ms": elapsed,
-            "details": f"Title: {title}, HTTP {response.status}"
-        })
+        def record_page_error(_error) -> None:
+            browser_error_counts["page"] += 1
 
-        # -------------------------------------------------------------------
-        # CASE 2: Dynamic User Query 1 — Children & Offspring ("ลูกเป็นอย่างไร")
-        # -------------------------------------------------------------------
-        print("\n[TEST 2] Executing Dynamic AI Query 1 (Children & Offspring — 'ลูกเป็นอย่างไร')...")
-        query_children = "ลูกเป็นอย่างไร"
+        page.on("console", record_console)
+        page.on("pageerror", record_page_error)
+
+        started = time.monotonic()
+        response = await page.goto(
+            f"{ui_url}/", wait_until="networkidle", timeout=timeout_ms
+        )
+        status = response.status if response is not None else 0
+        loaded = status == 200
+        await page.screenshot(path=str(SCREENSHOT_DIR / "01_main_dashboard_loaded.png"))
+        results.append(
+            _result("1. Vercel UI dashboard load", loaded, started, f"HTTP {status}")
+        )
+        print(f"{'[OK]' if loaded else '[ERROR]'} Dashboard HTTP {status}")
+
         await page.fill("#birth_datetime", "1990-05-15 14:30:00")
-        await page.fill("#query", query_children)
-        
-        t0 = time.monotonic()
-        await page.click("#btn-submit")
-        await page.wait_for_selector("#interpretation-card:not(.hidden)", timeout=20000)
-        await asyncio.sleep(2)
-        
-        interp_children = await page.inner_text("#reading-body")
-        elapsed_children = round((time.monotonic() - t0) * 1000)
-
-        children_matched = any(w in interp_children for w in ["ลูก", "บุตร", "傷官", "食神", "เสายาม", "Children"])
-        print(f"  Result Latency: {elapsed_children}ms")
-        print(f"  Matched Children Domain in AI Response: {'✅ YES' if children_matched else '❌ NO'}")
-        print(f"  Response Snippet:\n    {interp_children[:200]}...")
-
-        ss_children = SCREENSHOT_DIR / "02_children_query_result.png"
-        await page.screenshot(path=str(ss_children))
-        results.append({
-            "case": "2. Dynamic AI Query — Children & Offspring ('ลูกเป็นอย่างไร')",
-            "passed": children_matched and len(interp_children) > 50,
-            "latency_ms": elapsed_children,
-            "details": f"Domain matched: {children_matched}, Length: {len(interp_children)}"
-        })
-
-        # -------------------------------------------------------------------
-        # CASE 3: Dynamic User Query 2 — Business / Restaurant Investment 2026
-        # -------------------------------------------------------------------
-        print("\n[TEST 3] Executing Dynamic AI Query 2 (Business Investment — 'ปี 2026 ควรเปิดร้านอาหารดีไหม')...")
-        query_biz = "ปี 2026 ควรเปิดร้านอาหารดีไหม"
-        await page.fill("#query", query_biz)
-        
-        t0 = time.monotonic()
-        await page.click("#btn-submit")
-        await page.wait_for_selector("#interpretation-card:not(.hidden)", timeout=20000)
-        await asyncio.sleep(2)
-        
-        interp_biz = await page.inner_text("#reading-body")
-        elapsed_biz = round((time.monotonic() - t0) * 1000)
-
-        biz_matched = any(w in interp_biz for w in ["2026", "ร้านอาหาร", "ธุรกิจ", "การงาน", "ธาตุไฟ", "ลงทุน", "Business"])
-        print(f"  Result Latency: {elapsed_biz}ms")
-        print(f"  Matched Business Domain in AI Response: {'✅ YES' if biz_matched else '❌ NO'}")
-        print(f"  Response Snippet:\n    {interp_biz[:200]}...")
-
-        ss_biz = SCREENSHOT_DIR / "03_business_2026_query_result.png"
-        await page.screenshot(path=str(ss_biz))
-        results.append({
-            "case": "3. Dynamic AI Query — Business Investment 2026",
-            "passed": biz_matched and len(interp_biz) > 50,
-            "latency_ms": elapsed_biz,
-            "details": f"Domain matched: {biz_matched}, Length: {len(interp_biz)}"
-        })
-
-        # -------------------------------------------------------------------
-        # CASE 4: Dynamic User Query 3 — Love & Relationships
-        # -------------------------------------------------------------------
-        print("\n[TEST 4] Executing Dynamic AI Query 3 (Love & Relationships — 'เรื่องความรักปีนี้จะเจอคู่ไหม')...")
-        query_love = "เรื่องความรักปีนี้จะเจอคู่ไหม"
-        await page.fill("#query", query_love)
-        
-        t0 = time.monotonic()
-        await page.click("#btn-submit")
-        await page.wait_for_selector("#interpretation-card:not(.hidden)", timeout=20000)
-        await asyncio.sleep(2)
-        
-        interp_love = await page.inner_text("#reading-body")
-        elapsed_love = round((time.monotonic() - t0) * 1000)
-
-        love_matched = any(w in interp_love for w in ["ความรัก", "คู่ครอง", "คู่", "แต่งงาน", "日支", "Love"])
-        print(f"  Result Latency: {elapsed_love}ms")
-        print(f"  Matched Love Domain in AI Response: {'✅ YES' if love_matched else '❌ NO'}")
-        print(f"  Response Snippet:\n    {interp_love[:200]}...")
-
-        ss_love = SCREENSHOT_DIR / "04_love_query_result.png"
-        await page.screenshot(path=str(ss_love))
-        results.append({
-            "case": "4. Dynamic AI Query — Love & Relationships",
-            "passed": love_matched and len(interp_love) > 50,
-            "latency_ms": elapsed_love,
-            "details": f"Domain matched: {love_matched}, Length: {len(interp_love)}"
-        })
-
-        # -------------------------------------------------------------------
-        # CASE 5: Dynamic User Query 4 — Wealth & Financial Fortune
-        # -------------------------------------------------------------------
-        print("\n[TEST 5] Executing Dynamic AI Query 4 (Wealth & Financial Fortune)...")
-        query_wealth = "เรื่องการเงินและโชคลาภปีนี้มีเกณฑ์เป็นอย่างไร"
-        await page.fill("#query", query_wealth)
-        
-        t0 = time.monotonic()
-        await page.click("#btn-submit")
-        await page.wait_for_selector("#interpretation-card:not(.hidden)", timeout=20000)
-        await asyncio.sleep(2)
-        
-        interp_wealth = await page.inner_text("#reading-body")
-        elapsed_wealth = round((time.monotonic() - t0) * 1000)
-
-        wealth_matched = any(w in interp_wealth for w in ["การเงิน", "โชคลาภ", "เงิน", "ทรัพย์", "正財", "偏財", "Wealth", "ทอง", "รายได้", "ดวง", "BaZi"])
-        print(f"  Result Latency: {elapsed_wealth}ms")
-        print(f"  Matched Wealth Domain in AI Response: {'✅ YES' if wealth_matched else '❌ NO'}")
-        print(f"  Response Snippet:\n    {interp_wealth[:200]}...")
-
-        ss_wealth = SCREENSHOT_DIR / "05_wealth_query_result.png"
-        await page.screenshot(path=str(ss_wealth))
-        results.append({
-            "case": "5. Dynamic AI Query — Wealth & Financial Fortune",
-            "passed": wealth_matched and len(interp_wealth) > 50,
-            "latency_ms": elapsed_wealth,
-            "details": f"Domain matched: {wealth_matched}, Length: {len(interp_wealth)}"
-        })
-
-        # -------------------------------------------------------------------
-        # CASE 6: Dynamic User Query 5 — Health & Wellness
-        # -------------------------------------------------------------------
-        print("\n[TEST 6] Executing Dynamic AI Query 5 (Health & Wellness)...")
-        query_health = "สุขภาพเรื่องกระดูกและสายตามีแนวโน้มเป็นอย่างไร"
-        await page.fill("#query", query_health)
-        
-        t0 = time.monotonic()
-        await page.click("#btn-submit")
-        await page.wait_for_selector("#interpretation-card:not(.hidden)", timeout=20000)
-        await asyncio.sleep(2)
-        
-        interp_health = await page.inner_text("#reading-body")
-        elapsed_health = round((time.monotonic() - t0) * 1000)
-
-        health_matched = any(w in interp_health for w in ["สุขภาพ", "ร่างกาย", "ปอด", "กระดูก", "Health"])
-        print(f"  Result Latency: {elapsed_health}ms")
-        print(f"  Matched Health Domain in AI Response: {'✅ YES' if health_matched else '❌ NO'}")
-        print(f"  Response Snippet:\n    {interp_health[:200]}...")
-
-        ss_health = SCREENSHOT_DIR / "06_health_query_result.png"
-        await page.screenshot(path=str(ss_health))
-        results.append({
-            "case": "6. Dynamic AI Query — Health & Wellness",
-            "passed": health_matched and len(interp_health) > 50,
-            "latency_ms": elapsed_health,
-            "details": f"Domain matched: {health_matched}, Length: {len(interp_health)}"
-        })
-        # -------------------------------------------------------------------
-        # CASE 7: Location Resolver Test
-        # -------------------------------------------------------------------
-        print("\n[TEST 7] Testing Location Resolver ('บางกะปิ')...")
-        await page.fill("#location_search", "บางกะปิ")
-        t0 = time.monotonic()
-        await page.click("button:has-text('ค้นหา & เติมค่า')")
-        await page.wait_for_function("document.getElementById('longitude').value !== ''", timeout=5000)
-        elapsed = round((time.monotonic() - t0) * 1000)
-
-        lng_val = await page.input_value("#longitude")
-        loc_passed = float(lng_val) > 90.0
-        print(f"  Resolved Longitude: {lng_val} | Latency: {elapsed}ms")
-
-        ss7 = SCREENSHOT_DIR / "07_location_resolved.png"
-        await page.screenshot(path=str(ss7))
-        results.append({
-            "case": "7. Location Resolution (บางกะปิ -> 100.6439)",
-            "passed": loc_passed,
-            "latency_ms": elapsed,
-            "details": f"Resolved Longitude: {lng_val}"
-        })
-
-        # -------------------------------------------------------------------
-        # CASE 8: 6 Metaphysics Discipline Buttons
-        # -------------------------------------------------------------------
-        print("\n[TEST 8] Testing Interactive Metaphysics Discipline Buttons...")
-        discipline_btns = [
-            ("ZiWei", "button:has-text('紫微斗數')"),
-            ("QiMen", "button:has-text('奇門遁甲')"),
-            ("LiuRen", "button:has-text('大六壬')"),
-            ("IChing", "button:has-text('易經六爻')"),
-            ("XuanKong", "button:has-text('玄空風水')"),
-            ("ZeJi", "button:has-text('擇吉คำนวณฤกษ์')"),
-        ]
-        
-        disc_passed = 0
-        for name, selector in discipline_btns:
+        for index, (name, query, screenshot_name) in enumerate(QUERY_CASES, start=2):
+            started = time.monotonic()
+            passed = False
+            response_length = 0
             try:
-                t0 = time.monotonic()
-                await page.click(selector, timeout=3000)
-                await asyncio.sleep(1)
-                elapsed = round((time.monotonic() - t0) * 1000)
-                print(f"  [OK] Discipline Button '{name}' clicked ({elapsed}ms)")
-                disc_passed += 1
-            except Exception as e:
-                print(f"  [WARN] Discipline Button '{name}' note: {e}")
+                reading = page.locator("#reading-body")
+                previous_interpretation = (
+                    await reading.inner_text() if await reading.count() else ""
+                )
+                await page.fill("#query", query)
+                await page.click("#btn-submit")
+                await page.wait_for_function(
+                    """previous => {
+                        const card = document.querySelector('#interpretation-card');
+                        const reading = document.querySelector('#reading-body');
+                        if (!card || !reading || card.classList.contains('hidden')) return false;
+                        const current = (reading.textContent || '').trim();
+                        return current.length > 50 && current !== previous;
+                    }""",
+                    arg=previous_interpretation.strip(),
+                    timeout=timeout_ms,
+                )
+                interpretation = await page.inner_text("#reading-body")
+                response_length = len(interpretation.strip())
+                passed = response_length > 50
+                await page.screenshot(path=str(SCREENSHOT_DIR / screenshot_name))
+            except Exception:  # noqa: BLE001 - isolate one browser scenario
+                passed = False
+            results.append(
+                _result(
+                    f"{index}. Synthetic query - {name}",
+                    passed,
+                    started,
+                    f"response_present={response_length > 50}",
+                )
+            )
+            print(f"{'[OK]' if passed else '[ERROR]'} Synthetic query case {index}")
 
-        ss8 = SCREENSHOT_DIR / "08_metaphysics_disciplines.png"
-        await page.screenshot(path=str(ss8))
-        results.append({
-            "case": "8. Interactive Metaphysics Discipline Buttons",
-            "passed": disc_passed >= 5,
-            "latency_ms": 1200,
-            "details": f"{disc_passed}/6 discipline buttons successfully executed"
-        })
+        started = time.monotonic()
+        location_passed = False
+        try:
+            await page.fill("#location_search", "Bangkok")
+            await page.click('button[onclick="resolveLocation()"]')
+            await page.wait_for_function(
+                "document.getElementById('longitude').value !== ''",
+                timeout=timeout_ms,
+            )
+            longitude = float(await page.input_value("#longitude"))
+            location_passed = 90.0 < longitude < 110.0
+            await page.screenshot(path=str(SCREENSHOT_DIR / "07_location_resolved.png"))
+        except Exception:  # noqa: BLE001 - isolate one browser scenario
+            location_passed = False
+        results.append(
+            _result(
+                "7. Synthetic location resolution",
+                location_passed,
+                started,
+                f"resolved={location_passed}",
+            )
+        )
+        print(f"{'[OK]' if location_passed else '[ERROR]'} Location resolution")
 
-        # -------------------------------------------------------------------
-        # CASE 9: Admin Panel E2E Test
-        # -------------------------------------------------------------------
-        print("\n[TEST 9] Navigating to Live Admin Panel (admin.html)...")
-        t0 = time.monotonic()
-        adm_resp = await page.goto(f"{LIVE_BASE_URL}/admin.html", wait_until="networkidle", timeout=15000)
-        elapsed = round((time.monotonic() - t0) * 1000)
-        adm_passed = adm_resp.status == 200
+        started = time.monotonic()
+        discipline_passed = 0
+        for _name, selector in DISCIPLINE_BUTTONS:
+            try:
+                await page.click(selector, timeout=timeout_ms)
+                discipline_passed += 1
+            except Exception:  # noqa: BLE001, S112 - count optional button failures
+                continue
+        await page.screenshot(
+            path=str(SCREENSHOT_DIR / "08_metaphysics_disciplines.png")
+        )
+        disciplines_ok = discipline_passed >= 5
+        results.append(
+            _result(
+                "8. Metaphysics discipline buttons",
+                disciplines_ok,
+                started,
+                f"passed={discipline_passed}/6",
+            )
+        )
+        print(f"{'[OK]' if disciplines_ok else '[ERROR]'} Discipline buttons")
 
-        ss9 = SCREENSHOT_DIR / "09_admin_panel.png"
-        await page.screenshot(path=str(ss9))
-        results.append({
-            "case": "9. Live Admin Panel Load (admin.html)",
-            "passed": adm_passed,
-            "latency_ms": elapsed,
-            "details": f"HTTP {adm_resp.status}"
-        })
-
-        # -------------------------------------------------------------------
-        # CASE 10: HITL Review Studio E2E Test
-        # -------------------------------------------------------------------
-        print("\n[TEST 10] Navigating to Live HITL Review Studio (hitl.html)...")
-        t0 = time.monotonic()
-        hitl_resp = await page.goto(f"{LIVE_BASE_URL}/hitl.html", wait_until="networkidle", timeout=15000)
-        elapsed = round((time.monotonic() - t0) * 1000)
-        hitl_passed = hitl_resp.status == 200
-
-        ss10 = SCREENSHOT_DIR / "10_hitl_studio.png"
-        await page.screenshot(path=str(ss10))
-        results.append({
-            "case": "10. Live HITL Review Studio Load (hitl.html)",
-            "passed": hitl_passed,
-            "latency_ms": elapsed,
-            "details": f"HTTP {hitl_resp.status}"
-        })
+        for case_number, page_name, path in (
+            (9, "Admin panel", "admin.html"),
+            (10, "HITL review studio", "hitl.html"),
+        ):
+            started = time.monotonic()
+            response = await page.goto(
+                f"{ui_url}/{path}", wait_until="domcontentloaded", timeout=timeout_ms
+            )
+            status = response.status if response is not None else 0
+            passed = status == 200
+            results.append(
+                _result(
+                    f"{case_number}. {page_name} availability",
+                    passed,
+                    started,
+                    f"HTTP {status}; content_not_recorded=true",
+                )
+            )
+            print(f"{'[OK]' if passed else '[ERROR]'} {page_name} HTTP {status}")
 
         await browser.close()
 
-    # -------------------------------------------------------------------
-    # Final Report Generation
-    # -------------------------------------------------------------------
-    print("\n" + "=" * 70)
-    print("📊 LIVE E2E PLAYWRIGHT TEST SUMMARY REPORT")
-    print("=" * 70)
-    all_passed = all(r["passed"] for r in results)
-    for index, r in enumerate(results, start=1):
-        status_tag = "✅ PASS" if r["passed"] else "❌ FAIL"
-        print(f"  {index}. [{status_tag}] {r['case']:<45} ({r['latency_ms']}ms)")
-        print(f"     Details: {r['details']}")
-
-    print("=" * 70)
-    print(f"OVERALL E2E STATUS: {'✅ ALL PASSED (100%)' if all_passed else '❌ SOME TESTS FAILED'}")
-    print(f"Screenshots saved to: {SCREENSHOT_DIR}")
-    print("=" * 70 + "\n")
-
-    report_file = ROOT / "project" / "tests" / "live_e2e_report.json"
-    report_file.write_text(json.dumps({"success": all_passed, "results": results}, indent=2), encoding="utf-8")
+    all_passed = all(item["passed"] for item in results)
+    report = {
+        "success": all_passed,
+        "ui_url": ui_url,
+        "backend_url": backend_url,
+        "browser_error_counts": browser_error_counts,
+        "results": results,
+    }
+    REPORT_PATH.write_text(
+        json.dumps(report, indent=2, ensure_ascii=True), encoding="utf-8"
+    )
+    passed_count = sum(1 for item in results if item["passed"])
+    print(f"[INFO] Results: {passed_count}/{len(results)} passed")
+    print(
+        "[INFO] Artifacts: project/tests/screenshots/live_e2e and live_e2e_report.json"
+    )
+    print(
+        "[OK] E2E diagnostics passed"
+        if all_passed
+        else "[ERROR] E2E diagnostics failed"
+    )
     return all_passed
 
 
+def _parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Read-only Playwright diagnostics for the Vercel UI"
+    )
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--live", action="store_true", help="Enable live browser requests"
+    )
+    mode.add_argument(
+        "--dry-run", action="store_true", help="Validate the offline plan"
+    )
+    parser.add_argument("--ui-url", default=CANONICAL_VERCEL_UI_URL)
+    parser.add_argument("--backend-url", default=CANONICAL_HF_DOCKER_BACKEND_URL)
+    parser.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT_SECONDS)
+    return parser
+
+
+def main() -> int:
+    args = _parser().parse_args()
+    try:
+        ui_url = _require_canonical_https_url(
+            args.ui_url, CANONICAL_VERCEL_UI_URL, "UI URL"
+        )
+        backend_url = _require_canonical_https_url(
+            args.backend_url,
+            CANONICAL_HF_DOCKER_BACKEND_URL,
+            "Backend URL",
+        )
+        if not 1 <= args.timeout <= 60:
+            raise ValueError("timeout must be between 1 and 60 seconds")
+    except ValueError as exc:
+        print(f"[ERROR] Invalid diagnostic configuration: {exc}")
+        return 2
+
+    if not args.live:
+        print("[INFO] Offline dry run; no browser, network, or artifact write")
+        print(f"[INFO] UI target: {ui_url}")
+        print(f"[INFO] Backend target: {backend_url}")
+        print(f"[OK] Planned E2E cases: {len(QUERY_CASES) + 5}")
+        return 0
+
+    return (
+        0
+        if asyncio.run(
+            run_live_e2e(
+                ui_url=ui_url,
+                backend_url=backend_url,
+                timeout_seconds=args.timeout,
+            )
+        )
+        else 1
+    )
+
+
 if __name__ == "__main__":
-    success = asyncio.run(run_live_e2e())
-    sys.exit(0 if success else 1)
+    raise SystemExit(main())

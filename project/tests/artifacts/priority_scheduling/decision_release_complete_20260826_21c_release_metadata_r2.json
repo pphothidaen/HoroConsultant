@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-21C-RELEASE-METADATA",
+  "phase": "implementation",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Modify only project/static/version.json and public/version.json after this BSA handoff. Keep exact mirror parity for version and canonical release_source_commit, release_source_revision, release_source_metadata_path, and release_source_metadata_sha256; forbid legacy commit, timestamp, and status fields. Resolve the source identity only from immutable committed metadata under policy, never dirty HEAD. If the final release source cannot be known before candidate commit, implement no placeholder: use a two-commit process with committed source metadata first and later publisher packaging evidence proving ancestry.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

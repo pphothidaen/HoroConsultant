@@ -14,20 +14,16 @@
       "destination": "/api/index?path=/api/v2/:path*"
     },
     {
-      "source": "/admin/:path*",
-      "destination": "/api/index?path=/admin/:path*"
-    },
-    {
-      "source": "/hitl/:path*",
-      "destination": "/api/index?path=/hitl/:path*"
+      "source": "/api/v3/:path*",
+      "destination": "/api/index?path=/api/v3/:path*"
     },
     {
       "source": "/docs",
-      "destination": "/api/index?path=docs"
+      "destination": "/api/index?path=/docs"
     },
     {
       "source": "/openapi.json",
-      "destination": "/api/index?path=openapi.json"
+      "destination": "/api/index?path=/openapi.json"
     }
   ]
 }

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-21D-PUBLISHER-WORKFLOW",
+  "phase": "implementation",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Modify only .github/workflows/hf_backend_deploy.yml after frozen publisher source SHA-256 3483b2df51fb2b6e2127ed286c58b733ae9cb73855397c6f6d9cf33da3601da0 and release schemas. Use only supported publisher arguments: dry-run plus manifest path, then live manifest path, receipt path, and expected parent revision. The workflow must approve and bind the expected manifest digest itself, guard sanitized manifest/receipt artifacts, and not invent --approve or --expected-manifest-digest publisher arguments. Do not edit publisher source, schemas, metadata, tests, other workflows, rules, skills, generated files, credentials, or external targets. No network, publish, or deploy action is authorized.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

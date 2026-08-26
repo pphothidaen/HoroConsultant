@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-40B2R2-QA",
+  "status": "DONE_FROZEN",
+  "ownership": [
+    "project/tests/test_fly_artifact_retirement.py",
+    "project/tests/test_trigger_inventory_retirement.py"
+  ],
+  "verification": {
+    "focused": "22 passed",
+    "combined": "81 passed"
+  },
+  "scope_boundary": "An unrelated publisher assertion is not evidence against this trigger-inventory QA ticket.",
+  "external_actions": "none"
+}

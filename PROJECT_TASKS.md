@@ -104,9 +104,9 @@ python3 -m pytest -q project/tests/
 ## SPRINT: Priority Governance Scheduling — 2026-08-25
 **Grill Gate Status**: APPROVED — session HITL recorded (Ref: [`plans/plan.md`](plans/plan.md)); the session approval covers the exact AGY native-protocol remediation reservation. No approver identity is retained.
 **Session-Scoped Approval**: approval covers the remaining local priority-sprint remediation, QA, read-only review, and final synchronization/reconciliation. It additionally permits bounded workspace-ticket improvement, refactoring, fixes, and removal of explicitly identified obsolete code/tests. It never authorizes a `/root` glob deletion or broad/unrelated destructive action. Deploy, publish, push, secret/account, external, or destructive actions otherwise require an exact in-scope target and all target-scoped safety gates. None is currently required or used by this sprint; external actions remain unused and target-gated. This approval does not broaden `TICKET-PRIORITY-004` or `TICKET-PRIORITY-005`.
-**Dispatch Status**: `TICKET-PRIORITY-002R`, `TICKET-PRIORITY-003R`, `TICKET-PRIORITY-002R2`, `TICKET-PRIORITY-003R2`, `TICKET-PRIORITY-002R3`, `TICKET-PRIORITY-003R3`, `TICKET-PRIORITY-003R3E`, `TICKET-PRIORITY-002R4`, `TICKET-PRIORITY-002R5`, `TICKET-AGY1-SMOKE-20260826-R2`, all four pre-QA remediation tickets, `TICKET-AGY1-EVIDENCE-DOC-20260826-R1`, and `TICKET-PRIORITY-003R5` are `DONE`; source, schema, policy, dependency, documentation, and QA artifacts are frozen. `TICKET-PRIORITY-004R5` is `DOING (RESERVED)` as the fresh read-only final review. `TICKET-AGY1-SMOKE-20260826-R3` remains pending behind that review; no external AGY retry is authorized.
+**Dispatch Status**: the completed R5 evidence and review remain frozen at `READY_FOR_PROD`, and the multi-agent standard is operationally accepted. Ticket44 attempt-1 is `BLOCKED` solely because command3 used the stale governance-test path; command1 passed `151`, command2 passed `70`, command3 exited `4` with no tests, and inventory digest `f372695e92ff025edccc35f47007ce53cea275b39d34c7c1c55c73c026a6889e` is unchanged. Ticket44R2 is the sole newly executable read-only lane. Ticket45 local source commit, metadata21C, packaging commit/push, deploy, and external health/UI actions remain blocked in that order. RC2-004 remains a separate quota-unknown HITL blocker.
 **Scheduling Authority**: Rule 11. Historical `Priority`-only fields below remain evidence but are superseded for scheduling.
-**Current Stop**: `TICKET-PRIORITY-004R5` owns the active read-only final review of frozen QA/source/schema/policy/dependency/documentation evidence. R5 QA passed combined `213` and focused `142` tests; sync, locked dependency, and diff checks passed, with no external AGY action. `TICKET-AGY1-SMOKE-20260826-R3` has no writable ownership or executable decision/snapshot until this review passes. No external AGY retry is authorized; final reconciliation remains blocked. This documentation handoff does not execute source edits, QA, reviews, deploy, push, authentication, secrets, or account changes.
+**Current Stop**: Rule 11 selects ticket44R2 (`CRITICAL/S`) under the approved `codex1_gateway_review` read-only sandbox. It preserves attempt-1 history and changes only command3 to the tracked `tests/test_hf_release_governance.py`. Ticket45 is dependency-blocked on ticket44R2 green evidence and has no executable decision/snapshot. Metadata21C remains strictly after the immutable local source commit; no staging, commit, push, deploy, publish, credential, secret, or external action occurs in this remediation.
 
 | Seq | Ticket ID | Owner | Severity | Work Effort | Model / Reasoning Effort | Status | Depends On |
 |---:|---|---|---|---|---|---|---|
@@ -116,7 +116,7 @@ python3 -m pytest -q project/tests/
 | 4 | `TICKET-PRIORITY-004` | `code_reviewer` | HIGH | S | `gpt-5.6-sol` / `high` | BLOCKED-AGY-R5-QA | `TICKET-PRIORITY-003R5` |
 | 5 | `TICKET-PRIORITY-002R` | `developer` | CRITICAL | M | `gpt-5.6-sol` / `high` | DONE | `TICKET-PRIORITY-003` |
 | 6 | `TICKET-PRIORITY-003R` | `qa_tester` | HIGH | S | `gpt-5.6-sol` / `high` | DONE | `TICKET-PRIORITY-002R` |
-| 7 | `TICKET-PRIORITY-005` | `business_analyst` | MEDIUM | XS | `gpt-5.6-terra` / `medium` | PENDING | `TICKET-PRIORITY-004R5` |
+| 7 | `TICKET-PRIORITY-005` | `business_analyst` | MEDIUM | XS | `gpt-5.6-terra` / `medium` | PENDING — RELEASE COMPLETION | Release Completion closure |
 | 8 | `TICKET-PRIORITY-002R2` | `developer` | CRITICAL | L | `gpt-5.6-sol` / `high` | DONE | `TICKET-PRIORITY-003R` |
 | 9 | `TICKET-PRIORITY-003R2` | `qa_tester` | HIGH | S | `gpt-5.6-sol` / `high` | DONE | `TICKET-PRIORITY-002R2` |
 | 10 | `TICKET-PRIORITY-002R3` | `developer` | CRITICAL | L | `gpt-5.6-sol` / `high` | DONE | `TICKET-PRIORITY-003R2` |
@@ -132,8 +132,12 @@ python3 -m pytest -q project/tests/
 | 20 | `TICKET-AGY1-RECEIPT-V2-AGY-REQUIREMENT-20260826-R1` | `developer` | HIGH | XS | `gpt-5.6-sol` / `high` | DONE | `TICKET-AGY1-RECEIPT-SCHEMA-20260826-R1` |
 | 21 | `TICKET-PRIORITY-003R5` | `qa_tester` | HIGH | M | `gpt-5.6-sol` / `high` | DONE | combined `213`; focused `142`; sync/lock/diff passed |
 | 22 | `TICKET-AGY1-EVIDENCE-DOC-20260826-R1` | `business_analyst` | MEDIUM | XS | `gpt-5.6-terra` / `high` | DONE | None; disjoint from formal QA |
-| 23 | `TICKET-AGY1-SMOKE-20260826-R3` | `orchestrator` | HIGH | XS | `TBD — fresh decision required` | PENDING — QA + FINAL PRE-RETRY REVIEW | `TICKET-PRIORITY-003R5` + `TICKET-PRIORITY-004R5` |
-| 24 | `TICKET-PRIORITY-004R5` | `code_reviewer` | HIGH | S | `gpt-5.6-sol` / `high` | DOING (RESERVED) | `TICKET-PRIORITY-003R5` |
+| 23 | `TICKET-AGY1-SMOKE-20260826-R3` | `orchestrator` | HIGH | XS | `TBD — fresh alias-specific decision required` | BLOCKED — FRESH GATES | successful acceptance R3 + current-session attested `agy1` Gemini band |
+| 24 | `TICKET-PRIORITY-004R5` | `code_reviewer` | HIGH | S | `gpt-5.6-sol` / `high` | DONE — READY_FOR_PROD | `TICKET-PRIORITY-003R5` |
+| 25 | `TICKET-AGY1-QUOTA-20260826-R1` | `devops` | HIGH | XS | `gemini-3.7-flash-high` / `high` | BLOCKED — CONSUMED / SANITIZATION_FAILURE | one query only; current-session attestation supersedes it for dispatch gating |
+| 26 | `TICKET-MULTIAGENT-ACCEPTANCE-20260826-R1` | `orchestrator` | HIGH | S | `gpt-5.6-sol` / `high` | FAILED — CHILD SCOPE OVERLAP | timing/nonces/forwarding/fingerprint/no-change passed; exact child scope failed |
+| 27 | `TICKET-MULTIAGENT-ACCEPTANCE-20260826-R2` | `orchestrator` | HIGH | S | `gpt-5.6-sol` / `high` | FAILED — NO EXACT 4/4 PEAK | B ended before child began; scope/nonces/fingerprint/no-change passed |
+| 28 | `TICKET-MULTIAGENT-ACCEPTANCE-20260826-R3` | `orchestrator` | HIGH | S | `gpt-5.6-sol` / `high` | DONE | barrier captured root/A/B/child `running`; exact scopes/nonces/fingerprint/no-change and triple overlap passed |
 
 ### Scheduling Snapshot
 - `TICKET-PRIORITY-001` is complete and therefore not selectable.
@@ -149,7 +153,9 @@ python3 -m pytest -q project/tests/
 - The single permitted R3E root verification superseded the managed-sandbox environment boundary: sanitized result `exit 0`, status `PASS`; `outside_worktree`, `canonical_namespace`, `directory_mode_0700`, `owned_by_current_user`, `retained_dirfd`, and `repo_horo_absent` were all `true`. No claim or lock record was created and no provider was dispatched.
 - `TICKET-PRIORITY-003R3` completed independent QA: `python3 -m pytest -q tests/test_multiagent_ticket_scheduler.py tests/test_multiagent_prompt_command.py project/tests/test_claude_governance.py` exited `0` with `185 passed in 1.79s`; the scoped diff check exited `0`; only `tests/test_multiagent_prompt_command.py` changed. Lifecycle, isolated-store, and delete/reacquire coverage is green.
 - `TICKET-PRIORITY-003R3E` completed its exact, single-use root-waiver action. The waiver is preserved below as consumed and expired audit evidence. Completion releases only the final R3 read-only re-review; it does not make `TICKET-PRIORITY-005` eligible.
-- **Completed AGY and receipt-v2 remediations / R5 QA**: the source High-hardening lane passed `188` tests with three intentional obsolete-test deltas; the schema-v2 AGY conditional requirement passed; the validator dependency was isolated and locked successfully; and receipt-v2 policy/template adoption passed ecosystem sync/check, `16` focused governance tests, and the secret scan. Formal R5 QA is now complete: combined `213` and focused `142` tests passed; sync, locked dependency, and diff checks passed; no external AGY action occurred. `TICKET-PRIORITY-004R5` is the sole active fresh read-only review.
+- **Completed AGY and receipt-v2 remediations / R5 QA and review**: the source High-hardening lane passed `188` tests with three intentional obsolete-test deltas; the schema-v2 AGY conditional requirement passed; the validator dependency was isolated and locked successfully; and receipt-v2 policy/template adoption passed ecosystem sync/check, `16` focused governance tests, and the secret scan. Formal R5 QA completed with combined `213` and focused `142` tests plus sync, locked dependency, and diff checks. The final review is `DONE — READY_FOR_PROD`, with no Critical/High finding and completed sync, lock, secret, and diff checks. The wrapper-timeout residual is Medium; reviewer-recorded Medium/Low residuals remain tracked. No external AGY action occurred.
+- **Consumed quota and attested dispatch bands**: the single allowed status query is consumed and blocked as `sanitization_failure` with alias quota `unknown`; no retry is permitted. Its fingerprint window is recorded only as `changed=true/confounded`, never as a raw digest. Current-session user attestation now supplies safe dispatch bands: `agy1` Gemini weekly/5h `healthy`; `agy1` Claude/GPT `exhausted`; `agy2` Gemini weekly/5h `healthy`; `agy2` Claude/GPT weekly `critical` and 5h `healthy`. The later R3 path is limited to `agy1` Gemini, subject to R2 plus a fresh decision/snapshot.
+- **R1 failed / R2 reserved acceptance**: R1 did prove triple explorer overlap plus root `4/4`, verified A/B/C nonces, parent-child forwarding, equal safe fingerprint marker `00ab...d71a`, empty changed-file lists, `15` governance tests, and sync check. Its child nevertheless inspected Rule 11, overlapping parent A, rather than its assigned skill; no completion is inferred. R2 reserves Parent A only Rule 11, Parent B only the prompt template (and generated/catalog checks only after inspecting it), and child only the orchestration skill. Root plus the three explorers will again use exactly `4/4` without file mutation.
 - **Public-outcome evidence boundary**: the documentation-governance ticket is complete. Public `ExecutionOutcome` is validated in-process with elided stdout/stderr; receipt plus WorkResult plus public outcome is not independently portable/offline evidence. `portable=True` still needs separately retained trusted exact raw stdout, and no approved private retention channel exists. Never restore or log raw streams. This is a Medium residual; a future encrypted sidecar requires separate scope/HITL and is not implemented. Successful AGY language is limited to `validated in-process only`.
 
 ### TICKET-PRIORITY-001 | Governance and Active Planning | [STATUS: DONE]
@@ -363,7 +369,7 @@ python3 -m pytest -q project/tests/
 - Decision artifact: [`decision_agy1_evidence_doc_20260826_r1.json`](project/tests/artifacts/priority_scheduling/decision_agy1_evidence_doc_20260826_r1.json) (schema v1; policy `2026-08-26.1`; phase `implementation`; mutation mode; non-secret quota band `healthy`; `codex1` / `gpt-5.6-terra` / `high`; `hitl_approved: true`).
 - **Completion evidence**: the rule, skill, and template contain the same boundary; ecosystem sync/check, focused governance tests, secret scan, and diff check passed. Stop condition met with no runtime, schema, policy, dependency, test, or external AGY change.
 
-### TICKET-PRIORITY-004R5 | Fresh R5 Read-Only Final Review | [STATUS: DOING (RESERVED)]
+### TICKET-PRIORITY-004R5 | Fresh R5 Read-Only Final Review | [STATUS: DONE — READY_FOR_PROD]
 **Severity**: HIGH
 **Work Effort**: S
 **Model / Reasoning Effort**: `gpt-5.6-sol` / `high`
@@ -372,20 +378,78 @@ python3 -m pytest -q project/tests/
 **Ownership Reserved**: read-only review only; no writable ownership, implementation, test mutation, external AGY retry, generated-file edit, deployment, push, credential, secret, account, or raw-stream action.
 
 #### Objective, Acceptance, and Stop Condition
-- Independently issue a terminal safety/compatibility verdict on the frozen R5 QA/source/schema/policy/dependency/documentation evidence, including the public-outcome evidence boundary. Do not execute source or QA actions.
+- **Terminal verdict**: `READY_FOR_PROD`. The frozen R5 QA/source/schema/policy/dependency/documentation evidence, including the public-outcome evidence boundary, has no Critical/High reviewer finding. Do not execute source or QA actions.
 - Decision artifact: [`decision_priority_004r5.json`](project/tests/artifacts/priority_scheduling/decision_priority_004r5.json) (schema v1; policy `2026-08-26.1`; phase `review`; read-only mode; non-secret quota band `healthy`; `codex1` / `gpt-5.6-sol` / `high`; `hitl_approved: true`).
-- Stop `DONE` only with an evidence-backed terminal read-only verdict. A successful verdict is necessary but not by itself sufficient for any later AGY R3 smoke: that lane must also obtain its own fresh decision/snapshot and pre-execution gates.
+- **Completion evidence**: combined `213` tests passed; sync, locked-dependency, secret, and diff checks passed. The wrapper timeout is a Medium residual, and reviewer-recorded Medium/Low residuals remain tracked. No external AGY action occurred.
+- Stop condition met. The later AGY R3 smoke is still not eligible: it first requires the reserved quota audit, then its own fresh decision/snapshot and every pre-execution gate.
 
-### TICKET-AGY1-SMOKE-20260826-R3 | One-Shot Post-QA AGY Smoke | [STATUS: PENDING — QA + FINAL PRE-RETRY REVIEW]
+### TICKET-AGY1-QUOTA-20260826-R1 | Sanitized AGY Quota Discovery | [STATUS: BLOCKED — CONSUMED / SANITIZATION_FAILURE]
+**Severity**: HIGH
+**Work Effort**: XS
+**Model / Reasoning Effort**: `gemini-3.7-flash-high` / `high` (`agy1`)
+**Depends On**: completed `TICKET-PRIORITY-004R5` and explicit session authorization for this one status-only query
+**Blocks**: retry of this quota query; it does not block use of later user-attested alias-specific bands
+**Ownership Reserved**: `devops` read-only/no writable ownership only. One interactive/status-only AGY query is permitted to establish a safe quota band. It must not send a work prompt or mutate source, schemas, policy, dependencies, tests, generated files, deployment, credentials, secrets, accounts, or raw-stream storage.
+
+#### Objective, Acceptance, and Stop Condition
+- The one permitted query is consumed with alias quota `unknown` and `sanitization_failure`; it produced no work prompt, work dispatch, or durable account/session/raw-TUI/path data. No retry is authorized.
+- Decision artifact: [`decision_agy1_quota_20260826_r1.json`](project/tests/artifacts/priority_scheduling/decision_agy1_quota_20260826_r1.json) (schema v1; policy `2026-08-26.1`; phase `operations`; read-only mode; pre-query quota band `unknown` is permitted solely for discovery; `agy1` / `gemini-3.7-flash-high` / `high`; `hitl_approved: true`).
+- Outcome artifact: [`evidence_agy1_quota_20260826_r1.json`](project/tests/artifacts/priority_scheduling/evidence_agy1_quota_20260826_r1.json). The fingerprint window is reported only as `changed=true/confounded` because concurrent governance edits make attribution impossible; no raw hash is retained.
+- **Superseding dispatch input**: current-session user attestation supplies safe bands only: `agy1` Gemini weekly/5h `healthy`; `agy1` Claude/GPT `exhausted`; `agy2` Gemini weekly/5h `healthy`; `agy2` Claude/GPT weekly `critical` and 5h `healthy`. R3 may be considered only for `agy1` Gemini after R2 and a fresh alias-specific decision/snapshot; never route `agy1` Claude/GPT.
+- Stop condition met as `BLOCKED`: this reservation does not authorize a work dispatch or the R3 smoke.
+
+### TICKET-MULTIAGENT-ACCEPTANCE-20260826-R1 | Read-Only Multi-Agent Concurrency Acceptance | [STATUS: FAILED — CHILD SCOPE OVERLAP]
+**Severity**: HIGH
+**Work Effort**: S
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high` (`codex1`)
+**Depends On**: consumed quota lane; declared no-editor window; explicit user authorization
+**Blocks**: no product/release gate; it is independent acceptance evidence only
+**Ownership Reserved**: read-only repository questions and orchestration evidence only; no writable ownership. Exclude external CLI/network, work prompts, source/test/configuration/generated-file edits, commits, deployment, credentials, secrets, accounts, raw-provider streams, and any action beyond bounded local reads.
+
+#### Objective, Acceptance, and Stop Condition
+- **Evidence that passed**: B `[526129134989708, 526195340109541]`, A `[526130546883708, 526185334543958]`, and child `[526152378570250, 526164771804291]` are monotonic and have a triple intersection. A/B/C nonces were verified; parent forwarding, equal safe fingerprint marker `00ab...d71a`, `changed_files=[]`, `15` governance tests, and sync check passed. Root plus three explorers used `4/4`.
+- **Exact failure**: the child authoritatively inspected `.agents/rules/11-orchestrator-subagent-delegation.md`, overlapping parent A, instead of the required `.agents/skills/orchestrator-delegation/SKILL.md`. Timing or topology cannot substitute for the declared disjoint scope contract.
+- Decision artifact: [`decision_multiagent_acceptance_20260826_r1.json`](project/tests/artifacts/priority_scheduling/decision_multiagent_acceptance_20260826_r1.json); outcome artifact: [`evidence_multiagent_acceptance_20260826_r1.json`](project/tests/artifacts/priority_scheduling/evidence_multiagent_acceptance_20260826_r1.json).
+- Stop condition met as `FAILED`; use fresh R2 only.
+
+### TICKET-MULTIAGENT-ACCEPTANCE-20260826-R2 | Corrected Read-Only Multi-Agent Concurrency Acceptance | [STATUS: FAILED — NO EXACT 4/4 PEAK]
+**Severity**: HIGH
+**Work Effort**: S
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high` (`codex1`)
+**Depends On**: consumed quota lane, explicit user authorization, and a declared no-editor window
+**Blocks**: `TICKET-PRIORITY-005` documentation reconciliation
+**Ownership Reserved**: Parent A may inspect only `.agents/rules/11-orchestrator-subagent-delegation.md`; Parent B may inspect only `docs/templates/MULTIAGENT_PROMPT_COMMAND.md`, then only after that inspection may run generated/catalog sync checks; the exactly one nested child may inspect only `.agents/skills/orchestrator-delegation/SKILL.md`. All ownership is read-only. Source/tests/config/schema/dependency/generated-file edits, external CLI/network, work prompts, commits, deployment, credentials, secrets, accounts, and raw-provider streams are excluded.
+
+#### Objective, Acceptance, and Stop Condition
+- **Evidence that passed**: exact disjoint scopes, fresh nonces, equal worktree fingerprint, and `changed_files=[]`.
+- **Exact failure**: B `[526622835607125,526630510648125]` ended before child `[526638962397125,526638984734625]` began. Consequently, R2 cannot prove root plus A, B, and child simultaneously active at `4/4`, even though the evidence contract otherwise passed.
+- Decision artifact: [`decision_multiagent_acceptance_20260826_r2.json`](project/tests/artifacts/priority_scheduling/decision_multiagent_acceptance_20260826_r2.json); outcome artifact: [`evidence_multiagent_acceptance_20260826_r2.json`](project/tests/artifacts/priority_scheduling/evidence_multiagent_acceptance_20260826_r2.json).
+- Stop condition met as `FAILED`; use the final barrier-controlled R3. A third failure must be `BLOCKED` and escalated to HITL.
+
+### TICKET-MULTIAGENT-ACCEPTANCE-20260826-R3 | Final Barrier-Controlled Multi-Agent Acceptance | [STATUS: DONE]
+**Severity**: HIGH
+**Work Effort**: S
+**Model / Reasoning Effort**: `gpt-5.6-sol` / `high` (`codex1`)
+**Depends On**: failed R1/R2 evidence, explicit user authorization, and a declared no-editor window
+**Blocks**: `TICKET-PRIORITY-005` documentation reconciliation; a third failure blocks the acceptance sequence and requires HITL
+**Ownership Reserved**: Parent A only `.agents/rules/11-orchestrator-subagent-delegation.md`; Parent B only `docs/templates/MULTIAGENT_PROMPT_COMMAND.md`; the exactly one nested child only `.agents/skills/orchestrator-delegation/SKILL.md`. All ownership is read-only. No source/test/config/schema/dependency/generated-file edit, external CLI/network, work prompt, commit, deploy, credential, secret, account, or raw-provider stream action is permitted.
+
+#### Objective, Acceptance, and Stop Condition
+- **Completion evidence**: A nonce `MAG_R3_A_4B91` owned only `.agents/rules/11-orchestrator-subagent-delegation.md` over `[526892398954541,526942163463791]`; B nonce `MAG_R3_B_72CE` owned only `docs/templates/MULTIAGENT_PROMPT_COMMAND.md` over `[526894784557666,526928042686666]`; child nonce `MAG_R3_C_AF30` owned only `.agents/skills/orchestrator-delegation/SKILL.md` over `[526908527668291,526926446552541]`. The child interval is the exact three-subagent overlap: `17,918,884,250 ns`.
+- The root received `R3_B_READY` and `R3_CHILD_READY`, then captured exactly `/root`, `parent_a`, `parent_a/nested_child_r3`, and `parent_b` with every status `running` before sending `RELEASE_R3_CHILD` and `RELEASE_R3_B`. A forwarded the exact child result and nonce. Before/after fingerprints are equal under safe marker `ef0e56c4...27000`; A/B/child all reported `changed_files=[]`.
+- Decision artifact: [`decision_multiagent_acceptance_20260826_r3.json`](project/tests/artifacts/priority_scheduling/decision_multiagent_acceptance_20260826_r3.json); sanitized outcome artifact: [`evidence_multiagent_acceptance_20260826_r3.json`](project/tests/artifacts/priority_scheduling/evidence_multiagent_acceptance_20260826_r3.json). The standard is operationally accepted with no external action or repository mutation.
+- Stop condition met `DONE`.
+
+### TICKET-AGY1-SMOKE-20260826-R3 | One-Shot Post-QA AGY Smoke | [STATUS: BLOCKED — FRESH GATES]
 **Severity**: HIGH
 **Work Effort**: XS
 **Model / Reasoning Effort**: `TBD — fresh decision required after dependencies`
-**Depends On**: `TICKET-PRIORITY-003R5` formal QA and `TICKET-PRIORITY-004R5` final pre-retry read-only review
+**Depends On**: completed formal QA/review, successful R3 acceptance, and a current-session user-attested `agy1` Gemini `healthy` band
 **Blocks**: any external AGY retry only
 **Ownership Reserved**: read-only/no writable ownership. The future lane may make at most one AGY execute attempt only after its dependencies and all fresh pre-execution gates pass; it owns no source, schema, policy, dependency, test, generated, deployment, push, credential, secret, account, or raw-stream mutation.
 
 #### Objective, Acceptance, and Stop Condition
-- Do not dispatch now. After both dependencies pass, require a fresh Rule 18 `DispatchDecision`, fresh Rule 11 scheduling snapshot, quota/HITL/ownership validation, approved read-only runtime boundary, and the one-attempt cap before any execute action. No stale execution decision is created or reusable now.
+- Do not dispatch now. Acceptance R3 is complete, but a fresh Rule 18 alias-specific `DispatchDecision`, fresh Rule 11 scheduling snapshot, `agy1` Gemini `healthy` band/HITL/ownership validation, approved read-only runtime boundary, and the one-attempt cap are still required. `agy1` Claude/GPT is exhausted and is never a route. No stale execution decision or snapshot is created or reusable now.
 - If later authorized, record only safe outcome metadata and use successful AGY language `validated in-process only`; never claim independent portable/offline proof, and never restore or log raw streams.
 - Stop `PENDING` until all dependency and fresh-gate evidence exists. Any external AGY retry without that new decision/snapshot is prohibited.
 
@@ -528,8 +592,150 @@ python3 -m pytest -q project/tests/
 | `CP-PRIORITY-04R3` | `developer` | DONE | dispatcher-only change; `py_compile` and scoped diff passed; scheduler plus Claude checks `71`; focused coverage `155` with `30` expected contract failures; eleven direct reproductions passed |
 | `CP-PRIORITY-03R3` | `qa_tester` | DONE | exact three-suite QA exited `0` with `185 passed in 1.79s`; lifecycle, isolated-store, and delete/reacquire coverage green |
 | `CP-PRIORITY-04R4` | `developer` | DONE | `py_compile` and scoped diff passed; R4 `6`, scheduler plus Claude `71`, and prompt plus R4 `119` passed with one intentional legacy assertion delta; no Critical/High reviewer finding |
-| `CP-PRIORITY-04R5` | `developer` | DOING — RESERVED | one source file only; formal QA waits for source freeze; Medium migration residue and Low/Medium typed diagnostic only |
-| `CP-PRIORITY-05` | `business_analyst` | PENDING | final sync/check, diff check, status reconciliation |
+| `CP-PRIORITY-04R5` | `developer` | DONE | source frozen; `py_compile` and scoped diff passed; R4 `6`, combined `190` with one intentional legacy `ownership_sha256` assertion, and direct temporary recovery passed |
+| `CP-PRIORITY-04R5-REVIEW` | `code_reviewer` | DONE — READY_FOR_PROD | no Critical/High finding; combined `213`, sync, locked-dependency, secret, and diff checks passed; wrapper timeout Medium plus reviewer Medium/Low residuals retained |
+| `CP-AGY1-QUOTA-R1` | `devops` | BLOCKED — CONSUMED | one query ended `sanitization_failure`; no retry; later routing uses safe user-attested alias bands |
+| `CP-MULTIAGENT-ACCEPTANCE-R1` | `orchestrator` | FAILED — SCOPE | child scope overlapped Parent A |
+| `CP-MULTIAGENT-ACCEPTANCE-R2` | `orchestrator` | FAILED — PEAK | B ended before child began, so no exact `4/4` peak |
+| `CP-MULTIAGENT-ACCEPTANCE-R3` | `orchestrator` | DONE | root barrier captured all four agents `running`; exact scopes/nonces/forwarding/fingerprint/no-change and triple overlap passed |
+| `CP-PRIORITY-05` | `business_analyst` | PENDING — RELEASE COMPLETION | final sync/check, diff check, status reconciliation after Release Completion gates |
+
+---
+
+## SPRINT: Release Completion — 2026-08-26
+**Grill Gate Status**: APPROVED — explicit user objective covers completing current governed changes and tickets, a safe commit/push to provisional `origin/main`, and production deployment. The audit-confirmed canonical architecture is Hugging Face Docker backend `pphothidaen/horoconsultant-core-backend` plus Vercel static UI; static deployment to that backend Space is retired. This approval authorizes planning and reservations only at this checkpoint; every external mutation remains blocked until its preceding evidence gates pass.
+**Scope Audit Baseline**: branch `main`, configured `origin`, no staged changes, and a dirty worktree containing governed configuration/source/test/data/documentation changes plus new scheduling artifacts. Dispatcher preflight, CI/governance architecture, and Docker publisher provenance each require a bounded remediation. `project/api_router.py` and the two dirty data files are preserved/excluded in separate provenance blockers; no clean-up, staging, or overwrite is authorized.
+**Rollback**: after a later verified release commit, use an exact `git revert <release-commit>` and restore the Hugging Face Space to its recorded prior revision; no broad reset, cleanup, or secret operation is authorized.
+**Live Slots**: root coordination plus BSA reconciliation are observed; prior workflow/publisher/diagnostic lanes are frozen. Rule 11 reserves only ticket44R2 as the next useful read-only lane. Ticket45, metadata21C, final QA22, package, and every external lane remain dependency-blocked.
+
+| Ticket ID | Owner | Severity / Work | Status | Depends On | Ownership and gate |
+|---|---|---|---|---|---|
+| `TICKET-RELEASE-COMPLETE-20260826-01-SCOPE` | `code_reviewer` | HIGH / S | DONE | R3 acceptance DONE | Read-only provenance audit completed; dispatcher/architecture/publisher remediations required and router/data remain excluded |
+| `TICKET-RELEASE-COMPLETE-20260826-02-TARGET` | `devops` | HIGH / XS | DONE | R3 acceptance DONE | Read-only target audit completed: `origin/main`, HF Docker backend, Vercel static UI; Azure/Fly prohibited |
+| `TICKET-RELEASE-COMPLETE-20260826-03-RECONCILE` | `business_analyst` | HIGH / S | DOING (RESERVED — ROLLING) | validated remediation plans | Current-ticket/status/decision reconciliation and release documentation only; source/schema/test/dependency edits excluded |
+| `TICKET-RELEASE-COMPLETE-20260826-04-RELEVANT-QA` | `qa_tester` | HIGH / M | PENDING | 18 + 22 + 27 + 28 + 33 + 34 + 35 + 36 + 37 + 03 | Relevant governed-change and regression matrix; read-only test execution and sanitized evidence only |
+| `TICKET-RELEASE-COMPLETE-20260826-05-FULL-QA` | `qa_tester` | HIGH / L | PENDING | 18 + 22 + 27 + 28 + 33 + 34 + 35 + 36 + 37 + 03 | Full repository QA; read-only test execution and sanitized evidence only |
+| `TICKET-RELEASE-COMPLETE-20260826-06-PACKAGE` | `devops` | HIGH / S | PENDING | 04 + 05 + 26 | Secret scan and Docker HF payload dry-run only; no publish/upload |
+| `TICKET-RELEASE-COMPLETE-20260826-07-REVIEW` | `code_reviewer` | CRITICAL / S | PENDING | 03 + 04 + 05 + 06 + 26 | Final code-review `READY_FOR_PROD`, commit provenance, and release-gate verdict; read-only |
+| `TICKET-RELEASE-COMPLETE-20260826-08-COMMIT-PUSH` | `devops` | CRITICAL / XS | BLOCKED — EXTERNAL MUTATION | 07 | Exact scoped commit and push verification to `origin/main`; no action until all gates pass |
+| `TICKET-RELEASE-COMPLETE-20260826-09-HF-DEPLOY` | `devops` | CRITICAL / S | BLOCKED — EXTERNAL MUTATION | 08 | Publish only to HF Docker backend `pphothidaen/horoconsultant-core-backend`; no action until push verification passes |
+| `TICKET-RELEASE-COMPLETE-20260826-10-HEALTH-VERSION` | `devops` | HIGH / S | BLOCKED — POST-DEPLOY | 09 | Live Docker backend health and exact version verification only |
+| `TICKET-RELEASE-COMPLETE-20260826-11-UI-VISUAL` | `ui_visual_tester` | HIGH / M | BLOCKED — POST-DEPLOY | 09 | Post-deploy Vercel static UI E2E/button/visual evidence only |
+| `TICKET-RELEASE-COMPLETE-20260826-12-CLOSURE` | `business_analyst` | HIGH / XS | BLOCKED — FINAL EVIDENCE | 10 + 11 | Final task/plan/README/HOWTO reconciliation only after all release evidence is present |
+
+### Release Completion Acceptance and Stop Conditions
+- Every current ticket must be reconciled to evidence-backed `DONE` or an exact retained blocker; `TICKET-AGY1-SMOKE-20260826-R3` must retain its independent fresh-decision gate and cannot be inferred from acceptance success.
+- Release gates are: source freeze and scope/provenance audit; relevant and full QA; zero-leak secret scan; payload dry-run; reviewer `READY_FOR_PROD`; safe exact commit; push verification; HF publish; live health/version; and post-deploy E2E/visual evidence.
+- Do not stage, commit, push, upload, deploy, use credentials, or call external production endpoints before the preceding ticket evidence is `DONE`. On any failed gate, stop and return only the owning remediation ticket; do not perform unrelated destructive cleanup.
+
+### Pre-QA Remediation Reservations
+| Ticket ID | Owner | Severity / Work | Status | Exact ownership | Depends On |
+|---|---|---|---|---|---|
+| `TICKET-RELEASE-COMPLETE-20260826-13-DISPATCHER-PREP` | `developer` | HIGH / S | DONE — PLAN VALIDATED | `scripts/multiagent_prompt_command.py`; `.agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml` read-only | 01 + 02 |
+| `TICKET-RELEASE-COMPLETE-20260826-14-WORKFLOWS-PREP` | `developer` | HIGH / S | DONE — PLAN VALIDATED | `.github/workflows/azure_cost_guard.yml`, `azure_deploy.yml`, `deploy.yml`, `fly_deploy.yml`, `hf_backend_deploy.yml` read-only | 01 + 02 |
+| `TICKET-RELEASE-COMPLETE-20260826-15-GOVERNANCE-PREP` | `business_analyst` | HIGH / S | DONE — PLAN VALIDATED | Rule 07, Rule 16, and the DevOps/QA/HF release skills read-only | 01 + 02 |
+| `TICKET-RELEASE-COMPLETE-20260826-16-PUBLISHER-PREP` | `developer` | HIGH / S | DONE — FROZEN | Detailed Docker publisher contract validated; split into 21A–21D with one editor per source/schema/metadata/workflow unit | 01 + 02 |
+| `TICKET-RELEASE-COMPLETE-20260826-17-DISPATCHER-FIX` | `developer` | CRITICAL / S | DONE — FROZEN | same two dispatcher/config files, one editor | 13 |
+| `TICKET-RELEASE-COMPLETE-20260826-18-DISPATCHER-QA` | `qa_tester` | HIGH / S | DONE — FROZEN | `tests/test_multiagent_prompt_command.py`; `tests/test_multiagent_prompt_command_r4.py`; 23 structural isolated-home fixtures and marker removal accepted through ticket 37's focused/combined green evidence | 17 + 37 |
+| `TICKET-RELEASE-COMPLETE-20260826-19-WORKFLOWS-FIX` | `developer` | CRITICAL / M | DONE — FROZEN | exact five-workflow group, one editor | 14 |
+| `TICKET-RELEASE-COMPLETE-20260826-20-GOVERNANCE-FIX` | `business_analyst` | HIGH / M | DONE — FROZEN | Rule 07/16 and exact DevOps/QA/HF skill group; generated mirrors via sync only | 15 |
+| `TICKET-RELEASE-COMPLETE-20260826-21A-PUBLISHER-CORE` | `developer` | CRITICAL / M | DONE — FROZEN | `scripts/publish_space_hf.py` only. Source SHA-256 `3483b2df51fb2b6e2127ed286c58b733ae9cb73855397c6f6d9cf33da3601da0`; source diff `1544 additions/344 deletions`. Frozen CLI persists dry-run manifest, binds live publish to manifest plus expected parent revision, persists sanitized receipt, and guards artifacts; three intentional stale publisher fixtures move only to 22A | 16 + 21B |
+| `TICKET-RELEASE-COMPLETE-20260826-21B-RELEASE-SCHEMAS` | `developer` | CRITICAL / S | DONE — FROZEN | `project/schemas/release-manifest-v1.schema.json`; `project/schemas/release-receipt-v1.schema.json` only. Closed Draft 2020-12 release contract; runtime invariants remain 21A responsibility | 16 |
+| `TICKET-RELEASE-COMPLETE-20260826-21C-RELEASE-METADATA` | `developer` | HIGH / XS | BLOCKED — TICKET45 IMMUTABLE SOURCE COMMIT | `project/static/version.json`; `public/version.json` only. Exact mirrors with version plus canonical `release_source_*` identity fields; no legacy commit/timestamp/status or dirty-HEAD fallback. Run only after ticket45 records the immutable local source identity; never fabricate a placeholder | 16 + 21B + 45 |
+| `TICKET-RELEASE-COMPLETE-20260826-21D-PUBLISHER-WORKFLOW` | `developer` | HIGH / XS | DONE — FROZEN | `.github/workflows/hf_backend_deploy.yml` only. SHA-256 `276899e3dd6cec5531b3eb97e731f096a8998b08ec8830c81237c31b17dbf0a0`; diff 495 additions/148 deletions. YAML/Ruby, 14 shell and 8 Python/static interface checks, Actions regression 59, ecosystem check, diff check, and secret scan 0/1,913 passed; no network/deploy/push | 21A + 21B |
+| `TICKET-RELEASE-COMPLETE-20260826-21D-QA2-WORKFLOW-LEGACY` | `qa_tester` | HIGH / XS | DONE — FROZEN | `project/tests/test_azure_release.py` only. The two legacy publisher/workflow assertions align with the frozen manifest/receipt/expected-parent CLI and guarded validated artifacts; independent read-only review passed against workflow SHA-256 `276899e3dd6cec5531b3eb97e731f096a8998b08ec8830c81237c31b17dbf0a0` | 21D |
+| `TICKET-RELEASE-COMPLETE-20260826-22A-PUBLISHER-CORE-FIXTURE-QA` | `qa_tester` | HIGH / XS | DONE — FROZEN | `tests/test_publish_space_hf.py` only. Frozen publisher fixtures passed `34`; combined publisher plus governance pre-metadata coverage passed `44`. No final metadata/package claim is inferred | 21A + 21B |
+| `TICKET-RELEASE-COMPLETE-20260826-22-PUBLISHER-QA` | `qa_tester` | HIGH / S | BLOCKED — 21C METADATA | `project/tests/test_hf_release_governance.py` only. Final integration verifies committed metadata parity, workflow handoff, HfApi-mode limitation, and the enforced `100644` baseline after ticket21C freezes | 21A + 21B + 21C + 21D + 21D-QA2 + 22A |
+| `TICKET-RELEASE-COMPLETE-20260826-23-DOCS` | `business_analyst` | HIGH / S | PENDING — SOURCE FREEZE | `PROJECT_TASKS.md`, `plans/plan.md`, `README.md`, `HOWTO.md` only | 17 + 19 + 20 + 21A + 21B + 21C + 21D + 29 + 30 + 31 + 32 |
+| `TICKET-RELEASE-COMPLETE-20260826-24-ROUTER-PROVENANCE` | `developer` | HIGH / XS | BLOCKED — OWNER/PROVENANCE | `project/api_router.py` preserved; never stage/edit in current release | explicit owner/provenance decision |
+| `TICKET-RELEASE-COMPLETE-20260826-25-DATA-PROVENANCE` | `business_analyst` | HIGH / XS | BLOCKED — OWNER/PROVENANCE | `project/data/bazi_bazi_manual_chatml.jsonl`; `project/data/distillation_checklist.json` preserved; never stage/edit in current release | explicit owner/provenance decision |
+| `TICKET-RELEASE-COMPLETE-20260826-26-CLEAN-CHECKOUT-GATE` | `qa_tester` | HIGH / M | PENDING — SOURCE FREEZE | Validated temporary clean checkout only; read-only relevant/full QA and Docker package dry-run evidence; no workspace edit, staging, publish, or upload | 18 + 22 + 23 + 27 + 28 + 33 + 34 + 35 + 36 + 37 |
+| `TICKET-RELEASE-COMPLETE-20260826-27-WORKFLOW-QA` | `qa_tester` | HIGH / S | DONE — FROZEN | `project/tests/test_azure_release.py`; `project/tests/test_github_actions_regression.py` only. Azure/Fly tombstone and HF Docker workflow contract evidence: 70 + 33 passed; sync and secret scan green | 19 |
+| `TICKET-RELEASE-COMPLETE-20260826-28-CLAUDE-RULE-FIX` | `business_analyst` | HIGH / XS | DONE — FROZEN | `.claude/rules/hf-static-release-verification.md` only. Docker/Vercel, Static-to-backend/Azure/Fly prohibition, atomic manifest/CAS/rollback expectation, and validated-in-process/elided-stream boundary verified | 20 |
+| `TICKET-RELEASE-COMPLETE-20260826-28R2-CLAUDE-RULE-VIEWPORT-FIX` | `business_analyst` | HIGH / XS | DONE — FROZEN | `.claude/rules/hf-static-release-verification.md` only. Restored exact five canonical viewports: `desktop-4k`, `laptop-standard`, `tablet-portrait`, `mobile-ios`, `mobile-compact`; sync check green | 28 |
+| `TICKET-RELEASE-COMPLETE-20260826-29-PRODUCTION-MONITOR-FIX` | `developer` | HIGH / S | DONE — FROZEN | `.github/workflows/production_monitor.yml` only. Canonical HF Docker backend and separate Vercel UI monitor contract; source freeze is complete. Live-green verification remains gated by canonical metadata ticket 21C | 19; 21C for live green |
+| `TICKET-RELEASE-COMPLETE-20260826-30-FLY-ARTIFACT-RETIREMENT` | `developer` | HIGH / S | DONE — FROZEN | `fly.toml`; `scripts/trigger_all_github_actions.py` only. Active Fly config retired; dispatch script retains a non-dispatching Fly tombstone and Git preserves history | 19 |
+| `TICKET-RELEASE-COMPLETE-20260826-31-GATEWAY-UI-FALLBACK-FIX` | `developer` | CRITICAL / M | DONE — FROZEN | `api/gateway.js`; `api/health.js`; `project/static/app.js`; `public/app.js` only. Azure fallback removed and static/public UI mirrors match. Separate `api/index`/admin/HITL routing audit is pending and does not expand this frozen owner scope | 20 |
+| `TICKET-RELEASE-COMPLETE-20260826-32-LOCAL-RUNNER-NEUTRALIZATION` | `developer` | HIGH / S | DONE — FROZEN | `scripts/auto_deploy_all.sh`; `scripts/hermes_sdlc_runner.sh`; `scripts/agentic_pipeline.sh` only. Neutralized legacy Azure/Fly/public release behavior with retained audit output | 20 |
+| `TICKET-RELEASE-COMPLETE-20260826-33-PRODUCTION-MONITOR-QA` | `qa_tester` | HIGH / XS | DONE — FROZEN | New `project/tests/test_production_monitor_release_contract.py` only; new contract completion reported after completed 33R2 | 29 + 33R2 |
+| `TICKET-RELEASE-COMPLETE-20260826-33R2-WORKFLOW-ASSERTION-CORRECTION` | `qa_tester` | HIGH / XS | DONE — FROZEN | `project/tests/test_github_actions_regression.py` only. Stale LuoPan assertion corrected: 59 + 103 passed; sync/secret/diff green | 27 |
+| `TICKET-RELEASE-COMPLETE-20260826-34-FLY-ARTIFACT-QA` | `qa_tester` | HIGH / XS | DONE — FROZEN | New `project/tests/test_fly_artifact_retirement.py` only; retirement/tombstone boundary passed: 74; sync/secret/diff green | 30 |
+| `TICKET-RELEASE-COMPLETE-20260826-35-GATEWAY-UI-QA` | `qa_tester` | HIGH / S | DONE — FROZEN | `tests/api_gateway_cors_contract.test.mjs`; new `project/tests/test_gateway_ui_release_contract.py` only; Node 8 + Python 33 passed; sync/secret/diff green | 31 + 35R2 |
+| `TICKET-RELEASE-COMPLETE-20260826-35R2-WEB-REGRESSION-ASSERTION-CORRECTION` | `qa_tester` | HIGH / XS | DONE — FROZEN | `project/tests/test_web_regression.py` only. Obsolete Azure hostname assertion corrected: 15 plus focused coverage passed; sync/secret/diff green | 31 |
+| `TICKET-RELEASE-COMPLETE-20260826-36-LOCAL-RUNNER-QA` | `qa_tester` | HIGH / XS | DONE — FROZEN | New `project/tests/test_local_release_runner_contract.py` only; 15 + 16 passed; sync/secret/diff green | 32 |
+| `TICKET-RELEASE-COMPLETE-20260826-37-DISPATCHER-SCHEMA-FIXTURE-QA` | `qa_tester` | HIGH / XS | DONE — FROZEN | `tests/test_multiagent_receipt_schema.py` only. Temporary mode-0700 isolated `CODEX_HOME`/`AGY_HOME` route fields without credential files; focused 3 and combined 222 passed, with uv/pycompile/diff green | 17 |
+| `TICKET-RELEASE-COMPLETE-20260826-38-API-INDEX-VERCEL-PINNING` | `developer` | HIGH / S | DONE — FROZEN | `api/index.js`; `vercel.json` only. Canonical target pinning complete; removed 1,540 legacy lines without expanding into gateway/admin/HITL | 31 |
+| `TICKET-RELEASE-COMPLETE-20260826-38-QA` | `qa_tester` | HIGH / S | DONE — FROZEN | `project/tests/test_cors_security.py`; `tests/api_index_vercel_contract.test.mjs` only. Node 7 + Python 5 focused, Node 15 + Python 37 adjacent; sync/diff/secret green | 38 |
+| `TICKET-RELEASE-COMPLETE-20260826-39-ADMIN-HITL-ROUTING` | `developer` | HIGH / M | BLOCKED — HITL SCOPE AUDIT | `project/admin_router.py`; `project/hitl_router.py` only. Align backend security/routing only after `required_human_review=true`, `/hitl/scope-audit?source_domain=metaphysical-domain-engine` passes, and owner sign-off is recorded | 38 + HITL scope audit |
+| `TICKET-RELEASE-COMPLETE-20260826-39-QA` | `qa_tester` | HIGH / S | PENDING — SOURCE FREEZE | New `project/tests/test_admin_hitl_release_routing.py` only; verify backend security/routing and required-human-review behavior | 39 |
+| `TICKET-RELEASE-COMPLETE-20260826-39S-ADMIN-HITL-STATIC-AUDIT` | `code_reviewer` | HIGH / XS | BLOCKED — HITL SCOPE AUDIT | `project/static/admin.html`; `project/static/hitl.html` read-only only. Separate static-page audit; no mutation before the mandatory HITL scope audit and owner sign-off | 38 + HITL scope audit |
+| `TICKET-RELEASE-COMPLETE-20260826-39S-QA` | `qa_tester` | HIGH / XS | PENDING — 39S AUDIT | New `project/tests/test_admin_hitl_static_release_contract.py` only | 39S |
+| `TICKET-RELEASE-COMPLETE-20260826-40A-AZURE-COST-GUARD` | `developer` | HIGH / XS | DONE — FROZEN | `.github/workflows/azure_cost_guard.yml` only. Dormant legacy tombstone: no schedule, authentication, actions, network, or permissions | 27 |
+| `TICKET-RELEASE-COMPLETE-20260826-40A-QA` | `qa_tester` | HIGH / XS | DONE — FROZEN | `project/tests/test_azure_release.py`; `project/tests/test_github_actions_regression.py` only. Reopened sequentially for both stale assertions: 70 + 114 passed; sync/secret/diff green | 40A + 27 + 33R2 |
+| `TICKET-RELEASE-COMPLETE-20260826-40B1-SECRET-SYNC-ENV` | `developer` | HIGH / S | DONE — FROZEN | `scripts/sync_doppler_secrets.py`; `.env.example` only. Default validation is opt-in/no implicit `.env` or network; apply requires explicit env file; retired Azure/Fly keys are excluded while HF/Vercel entries remain | 20 |
+| `TICKET-RELEASE-COMPLETE-20260826-40B1-QA` | `qa_tester` | HIGH / XS | DONE — FROZEN | New `project/tests/test_secret_sync_release_contract.py` only. Opt-in apply/env-file, no implicit `.env`/network, retired-key exclusion, HF/Vercel preservation, value redaction, and environment-example contract passed: focused 6 + adjacent 24; all gates green. The active 11-vs-13 failure remains QA40B2-only | 40B1 |
+| `TICKET-RELEASE-COMPLETE-20260826-40B2-TRIGGER-INVENTORY` | `developer` | HIGH / XS | DONE — FROZEN | `scripts/trigger_all_github_actions.py` only. Final inventory is 11 active and 4 historical typed `RETIRED` entries; active dispatch has no Azure cost guard/tombstone path | 30 + 34 |
+| `TICKET-RELEASE-COMPLETE-20260826-40B2-QA` | `qa_tester` | HIGH / XS | SUPERSEDED — 40B2R2 PASSED | Its original 21/1 and 91/1 source-defect result is preserved. The repair and re-run are frozen in 40B2R1/40B2R2; the unrelated publisher assertion is excluded | 40B2 + 34 + 40B2R1 |
+| `TICKET-RELEASE-COMPLETE-20260826-40B2R1-TRIGGER-YAML-INVENTORY` | `developer` | HIGH / XS | DONE — FROZEN | `scripts/trigger_all_github_actions.py` only. Both `.yml` and `.yaml` candidates are inventoried and unreviewed YAML fails closed; no subprocess/network execution. Released 40B2R2 only | 40B2 |
+| `TICKET-RELEASE-COMPLETE-20260826-40B2R2-QA` | `qa_tester` | HIGH / XS | DONE — FROZEN | Reused only `project/tests/test_fly_artifact_retirement.py`; `project/tests/test_trigger_inventory_retirement.py`. Frozen 11-active/4-retired contract passed focused 22/22 + combined 81/81; unrelated publisher assertion remains outside this ticket | 40B2R1 |
+| `TICKET-RELEASE-COMPLETE-20260826-40C-TRIGGER-INVENTORY` | `developer` | HIGH / XS | SUPERSEDED — 40B2 | No active ownership; consolidated into 40B2 to keep one editor for `scripts/trigger_all_github_actions.py` | 40B2 |
+| `TICKET-RELEASE-COMPLETE-20260826-40C-QA` | `qa_tester` | HIGH / XS | SUPERSEDED — 40B2-QA | No active ownership; consolidated into 40B2-QA | 40B2-QA |
+| `TICKET-RELEASE-COMPLETE-20260826-41A-BACKEND-DIAGNOSTICS` | `developer` | MEDIUM / XS | DONE — FROZEN | `scripts/grafana_cloud_exporter.py`; `scripts/run_remote_api_live_test.py`; `scripts/test_live_e2e_network.py` only. Final hashes begin `b0b2f4b9`, `2fb600f4`, and `f4a00dcf`; lint/format/compile/diff, 3 dry CLIs, 39 mocked assertions, and 14 compatible regressions passed; secret scan was 0/1,910 with no forbidden target, PII, non-ASCII, or network action | 20 |
+| `TICKET-RELEASE-COMPLETE-20260826-41A-QA` | `qa_tester` | MEDIUM / XS | DONE — FROZEN | New `project/tests/test_backend_diagnostic_release_contract.py` only. Canonical Docker/read-only/offline/fail-closed contract passed `74`; adjacent compatibility passed `16` | 41A |
+| `TICKET-RELEASE-COMPLETE-20260826-41A-QA2-GRAFANA-LEGACY` | `qa_tester` | MEDIUM / XS | DONE — FROZEN | `project/tests/test_grafana_cloud_exporter.py` only. Four obsolete credential/POST expectations now enforce rejection/no-I/O behavior and canonical sanitized messages; `24 passed` | 41A |
+| `TICKET-RELEASE-COMPLETE-20260826-41B-UI-DIAGNOSTICS` | `developer` | HIGH / XS | DONE — FROZEN | `scripts/test_static_hf_space_questions.py`; `scripts/run_live_e2e_hf_space.py`; `scripts/audit_ui_overlap.py`; `scripts/run_vercel_prod_curl_regression.py` only. Offline evidence passed lint/format/compile/diff; six 4/4 CLI/target/mock groups; curl 3/3; Playwright 10/10; overlap 5/5; exact five viewports; adjacent Python 15 and Node 15; ASCII/secret/PII/retired-target scans green. No live network/browser or artifact write occurred | 20 |
+| `TICKET-RELEASE-COMPLETE-20260826-41B-QA` | `qa_tester` | HIGH / XS | DONE — FROZEN | New `project/tests/test_ui_diagnostic_release_contract.py` only. Canonical Vercel/Docker, offline/live opt-in, five-viewport, retired-target, and workstation exclusions passed `53`; adjacent compatibility passed `23` | 41B |
+| `TICKET-RELEASE-COMPLETE-20260826-42-OPERATIONAL-DOCS` | `business_analyst` | HIGH / XS | PENDING — POST-SOURCE METADATA | `docs/RELEASE_HANDOFF_CHECKLIST.md`; `docs/RELEASE_ROLLBACK_RUNBOOK.md` only; historical docs excluded and neither file may enter ticket45 | 21A + 21B + 21C + 21D + 41A + 41B |
+| `TICKET-RELEASE-COMPLETE-20260826-42-QA` | `code_reviewer` | HIGH / XS | PENDING — DOCS FREEZE | Read-only review of ticket42's two files only | 42 |
+| `TICKET-RELEASE-COMPLETE-20260826-43-AI-INFERENCE-SKILL-REF` | `business_analyst` | HIGH / XS | PENDING — POST-SOURCE PACKAGING | `.agents/skills/ai-inference-verifier/SKILL.md` only; generated mirrors only through mandated sync. It and ticket43-QA are excluded from ticket45 | 41B |
+| `TICKET-RELEASE-COMPLETE-20260826-43-QA` | `qa_tester` | HIGH / XS | PENDING — SKILL FREEZE | New `project/tests/test_ai_inference_skill_reference.py` only | 43 |
+| `TICKET-RELEASE-COMPLETE-20260826-44-PRE-SOURCE-INTEGRATION-QA` | `qa_tester` / runtime `codex1_gateway_review` | CRITICAL / S | BLOCKED — ATTEMPT1 STALE PATH | Command1 `151 passed`; command2 `70 passed`; command3 referenced stale `project/tests/test_hf_release_governance.py`, exited `4`, and collected no tests. No source/test mutation or external action; inventory digest unchanged. Original decision/snapshot are immutable | frozen prerequisites |
+| `TICKET-RELEASE-COMPLETE-20260826-44R2-PRE-SOURCE-INTEGRATION-QA` | `qa_tester` / runtime `codex1_gateway_review` | CRITICAL / S | DOING (RESERVED — READ ONLY) | Same exact matrix with only command3 corrected to `tests/test_hf_release_governance.py`. Decision digest `bc04be568ba08607365d99fd0ec6adfd40f4370e1ed0576675959534df5b3953`; snapshot digest `ab58c0d03d5c5c65e48da8c16d39026ddc2b57fb67b4d4c9eabecd7b7841e427` | 21A + 21B + 21D + 22A + 41A-QA + 41A-QA2 + 41B-QA |
+| `TICKET-RELEASE-COMPLETE-20260826-45-LOCAL-IMMUTABLE-SOURCE-COMMIT` | `devops` | CRITICAL / XS | BLOCKED — TICKET44R2 GREEN + FRESH MUTATION DECISION | Selectively stage exactly the frozen allowlist below and create one local commit only; record its SHA as `release_source_commit`. No push, metadata, docs, evidence artifact, unresolved path, deployment, or adjacent mutation | 44R2 |
+
+### Current Release DAG and Rule 11 Queue
+
+- `21A + 21B -> {21D + 21D-QA2 + 22A} (FROZEN) -> 44 (BLOCKED history) -> 44R2 -> 45 -> 21C -> 22`.
+- `20 -> 41A -> {41A-QA, 41A-QA2}` and `20 -> 41B -> 41B-QA` are frozen and feed ticket44.
+- `21A + 21B + 21C + 21D + 41A + 41B -> 42 -> 42-QA`; `41B -> 43 -> 43-QA`.
+- Current Rule 11 result is ticket44R2 only. Ticket45 is not executable until ticket44R2 is green and a fresh mutation decision/snapshot is issued; 21C remains dependency-blocked on ticket45. RC2-004 is excluded by its quota/HITL blocker.
+
+### Ticket44R2 exact read-only matrix
+
+Each command must exit `0`; retain only command, exit status, and summary. Stop on the first failure. No network, secret access, file mutation, staging, or external action is allowed.
+
+1. `python3 -m pytest -q tests/test_multiagent_prompt_command.py tests/test_multiagent_prompt_command_r4.py tests/test_multiagent_receipt_schema.py`
+2. `python3 -m pytest -q project/tests/test_azure_release.py project/tests/test_github_actions_regression.py`
+3. `python3 -m pytest -q tests/test_publish_space_hf.py tests/test_hf_release_governance.py`
+4. `python3 -m pytest -q project/tests/test_production_monitor_release_contract.py project/tests/test_fly_artifact_retirement.py project/tests/test_gateway_ui_release_contract.py project/tests/test_local_release_runner_contract.py project/tests/test_secret_sync_release_contract.py project/tests/test_trigger_inventory_retirement.py project/tests/test_web_regression.py`
+5. `python3 -m pytest -q project/tests/test_backend_diagnostic_release_contract.py project/tests/test_grafana_cloud_exporter.py project/tests/test_ui_diagnostic_release_contract.py`
+6. `node --test tests/api_gateway_cors_contract.test.mjs tests/api_index_vercel_contract.test.mjs`
+7. `python3 -m json.tool project/schemas/release-manifest-v1.schema.json` and `python3 -m json.tool project/schemas/release-receipt-v1.schema.json`
+8. `python3 scripts/sync_ai_agent_ecosystem.py --check`
+9. `git diff --check`
+
+### Ticket45 exact source allowlist
+
+The read-only Git inventory maps every currently modified/untracked non-evidence path below to a frozen release ticket. Ticket45 may stage only these exact paths after ticket44R2 passes; `fly.toml` is an intended deletion. A fresh status/diff must match this list byte-for-path before dispatch or ticket45 remains blocked.
+
+- Governance20/28: `.agents/rules/07-infrastructure-constraints.md`, `.agents/rules/16-hf-static-release-verification.md`, `.agents/skills/devops-deployment/SKILL.md`, `.agents/skills/devops-deployment/evals/evals.json`, `.agents/skills/hf-static-release-verification/SKILL.md`, `.agents/skills/hf-static-release-verification/evals/evals.json`, `.agents/skills/qa-e2e-testing/SKILL.md`, `.agents/skills/qa-e2e-testing/evals/evals.json`, `.antigravity/skills/devops-deployment/SKILL.md`, `.antigravity/skills/hf-static-release-verification/SKILL.md`, `.antigravity/skills/qa-e2e-testing/SKILL.md`, `.claude/rules/hf-static-release-verification.md`.
+- Workflows19/21D/29/40A: `.github/workflows/azure_cost_guard.yml`, `.github/workflows/azure_deploy.yml`, `.github/workflows/deploy.yml`, `.github/workflows/fly_deploy.yml`, `.github/workflows/hf_backend_deploy.yml`, `.github/workflows/production_monitor.yml`.
+- Dispatcher17 and release schemas21B: `scripts/multiagent_prompt_command.py`, `project/schemas/release-manifest-v1.schema.json`, `project/schemas/release-receipt-v1.schema.json`.
+- Publisher21A and release-safety40B: `scripts/publish_space_hf.py`, `.env.example`, `scripts/sync_doppler_secrets.py`.
+- Gateway/UI31/38: `api/gateway.js`, `api/health.js`, `api/index.js`, `project/static/app.js`, `public/app.js`, `vercel.json`.
+- Retirement/local-runner30/32/40B2: `fly.toml` (delete), `scripts/trigger_all_github_actions.py`, `scripts/auto_deploy_all.sh`, `scripts/hermes_sdlc_runner.sh`, `scripts/agentic_pipeline.sh`.
+- Diagnostics41A/41B: `scripts/grafana_cloud_exporter.py`, `scripts/run_remote_api_live_test.py`, `scripts/test_live_e2e_network.py`, `scripts/test_static_hf_space_questions.py`, `scripts/run_live_e2e_hf_space.py`, `scripts/audit_ui_overlap.py`, `scripts/run_vercel_prod_curl_regression.py`.
+- Frozen Python QA: `project/tests/test_azure_release.py`, `project/tests/test_github_actions_regression.py`, `project/tests/test_grafana_cloud_exporter.py`, `project/tests/test_web_regression.py`, `project/tests/test_backend_diagnostic_release_contract.py`, `project/tests/test_fly_artifact_retirement.py`, `project/tests/test_gateway_ui_release_contract.py`, `project/tests/test_local_release_runner_contract.py`, `project/tests/test_production_monitor_release_contract.py`, `project/tests/test_secret_sync_release_contract.py`, `project/tests/test_trigger_inventory_retirement.py`, `project/tests/test_ui_diagnostic_release_contract.py`.
+- Frozen dispatcher/publisher/Node QA: `tests/test_multiagent_prompt_command.py`, `tests/test_multiagent_prompt_command_r4.py`, `tests/test_multiagent_receipt_schema.py`, `tests/test_publish_space_hf.py`, `tests/api_gateway_cors_contract.test.mjs`, `tests/api_index_vercel_contract.test.mjs`.
+
+### Ticket45 mandatory exclusions
+
+- Provenance blockers: `project/api_router.py`, `project/data/bazi_bazi_manual_chatml.jsonl`, `project/data/distillation_checklist.json`.
+- HITL/admin blockers: `project/admin_router.py`, `project/hitl_router.py`, `project/static/admin.html`, `project/static/hitl.html`, `project/tests/test_admin_hitl_release_routing.py`, `project/tests/test_admin_hitl_static_release_contract.py`.
+- Post-source metadata: `project/static/version.json`, `public/version.json`.
+- Final QA/docs/skill: `project/tests/test_hf_release_governance.py`, `PROJECT_TASKS.md`, `plans/plan.md`, `README.md`, `HOWTO.md`, `docs/RELEASE_HANDOFF_CHECKLIST.md`, `docs/RELEASE_ROLLBACK_RUNBOOK.md`, `.agents/skills/ai-inference-verifier/SKILL.md`, `project/tests/test_ai_inference_skill_reference.py`.
+- Packaging/evidence only: every path under `project/tests/artifacts/priority_scheduling/`, including ticket44's decision/snapshot; these do not define the deployed source identity.
+- Any path not enumerated in the allowlist, any new path appearing after this inventory, and every unresolved/unknown-provenance path. Fail closed; do not infer ownership from directory proximity.
 
 ---
 
@@ -1137,6 +1343,42 @@ dispatch. Stop immediately if the runtime reports less than 10% remaining.
 - [ ] Focused taxonomy tests pass under their separately owned QA lane.
 - [ ] Independent review confirms read-only isolation, fail-closed parsing, and the no-retention boundary.
 - [ ] Exactly one fresh `codex1` diagnostic attempt is recorded under `RC2-004`; it does not alter `RC2-003` history.
+
+#### RC2-004 QuotaObservation remediation | [STATUS: FROZEN PLAN — RC2-004 REMAINS BLOCKED/HITL]
+
+The completed root-cause and security review requires a version-pinned, content-free QuotaObservation artifact before any RC2-004 provider attempt can be reconsidered. This plan does not observe quota, authorize a provider child, or relabel the existing `unknown` band. The native QOBS-CONTRACT lane uses a conservative local `constrained` execution band only; it is not provider quota evidence.
+
+| Ticket ID | One editor | Severity / Work | Status | Exact ownership | Depends On |
+|---|---|---|---|---|---|
+| `TICKET-ALIAS-RC2-004-QOBS-CONTRACT` | `developer` | CRITICAL / S | DOING (RESERVED) | `.agents/schemas/multiagent-quota-observation-v1.schema.json`; `.agents/schemas/multiagent-quota-observation-artifact-v1.schema.json`; `.agents/config/multiagent_model_policy.yaml` only | completed root-cause + security review |
+| `TICKET-ALIAS-RC2-004-QOBS-PROBE` | `developer` | CRITICAL / S | TODO | `scripts/agent_quota_status_guard.py` only | QOBS-CONTRACT |
+| `TICKET-ALIAS-RC2-004-QOBS-DISPATCH` | `developer` | CRITICAL / M | TODO | `scripts/multiagent_prompt_command.py` only | QOBS-CONTRACT + QOBS-PROBE |
+| `TICKET-ALIAS-RC2-004-QOBS-SCHEDULER` | `developer` | CRITICAL / S | TODO | `scripts/multiagent_ticket_scheduler.py` only | QOBS-CONTRACT + QOBS-DISPATCH |
+| `TICKET-ALIAS-RC2-004-QOBS-QA` | `qa_tester` | CRITICAL / M | TODO | new `tests/test_quota_observation_contract.py`; new `tests/test_quota_observation_integration.py` only | QOBS-CONTRACT + QOBS-PROBE + QOBS-DISPATCH + QOBS-SCHEDULER |
+| `TICKET-ALIAS-RC2-004-QOBS-GOVERNANCE` | `business_analyst` | HIGH / S | TODO | `.agents/rules/17-multi-account-agent-orchestration.md`; `.agents/rules/18-adaptive-model-effort-routing.md`; `.agents/skills/multi-account-agent-orchestration/SKILL.md`; `.agents/skills/adaptive-model-effort-routing/SKILL.md`; `docs/templates/MULTIAGENT_PROMPT_COMMAND.md` only | QOBS-QA |
+
+**Rule 18 / Rule 11 reservation**: QOBS-CONTRACT is the only eligible lane. Decision digest `16a0a2b5c810dfe1eaa8eb799637557acbe0238e2bfaeb8fef1fb31d7ad527a2`; snapshot digest `07988a56fdb531884f1e3888d1b1b931176b2f9c5d2a75de9e23a7bd6af2af7c`. All ranks are `3`; normal executable `codex1/gpt-5.6-sol/high` is selected, not the planning-only `xhigh` exception. Later lanes require their predecessor freeze plus fresh decisions/snapshots.
+
+**Frozen security contract**:
+
+- Retain zero raw provider stream, raw/error text, account-home/runtime path, credential, identifier, or unsanitized exception; retained errors are typed content-free codes only.
+- Bind alias/provider, SHA-256 account-home digest, SHA-256 resolved-executable digest, ticket, attempt, policy version, and a one-use nonce to the exact artifact. Plain paths and executable contents are forbidden.
+- Use strict domain-separated canonical JSON: UTF-8, sorted keys, minimal separators, duplicate-key/non-finite rejection, and pinned schema/protocol/canonicalization/domain/policy versions.
+- Enforce maximum age `<=60s`, future tolerance `<=5s`, and atomic single use. Replay, stale/future evidence, nonce mismatch, or provenance substitution is invalid.
+- Inspect every applicable safe signal: all legacy and bucket primary/secondary `usedPercent`, every individual `remainingPercent`, reached/limit markers, and spend/remaining controls. Missing/invalid applicable signal, bad unit/range, or contradiction yields `unknown`.
+- Exactly `10%` is `constrained`; below `10%` is `below_10_percent`. QuotaObservation protocol v1 never emits `healthy`; greater-than-10 evidence remains `constrained` pending a later approved protocol.
+- DispatchDecision v1 is legacy/non-executable for QOBS-bound provider dispatch. Scheduler input rejects any observation/ticket/decision/reservation/policy contradiction; `unknown` never becomes executable by sorting.
+- ExecutionReceipt v2 transitively binds and revalidates the exact artifact, digest, provenance, nonce consumption, decision, scheduling snapshot, executable, and policy at spawn and receipt validation. A copied quota band or receipt summary is insufficient.
+
+**Acceptance / stop gates**:
+
+- QOBS-CONTRACT freezes only the two closed Draft 2020-12 schemas and policy pins; JSON/metaschema plus deterministic valid/invalid samples must pass.
+- QOBS-PROBE emits exactly one schema-valid content-free artifact or typed `unknown`, covers all signals/controls, digests paths without retention, and performs no dispatch/retry.
+- QOBS-DISPATCH consumes the exact nonce atomically, rejects v1/provenance/digest/age/version/replay/contradiction/unknown failures, and binds receipt-v2 without fallback.
+- QOBS-SCHEDULER fails before selection/reservation on contradiction and applies Rule 11 only after all quota gates pass.
+- QOBS-QA covers canonicalization, all signals/controls, 10% boundaries, v1-never-healthy, age/future/replay, provenance digests, contradiction rejection, v1 non-execution, and receipt-v2 transitive tamper/revalidation; existing suites are read-only adjacent checks.
+- QOBS-GOVERNANCE updates only authoritative rule/skill/template sources after QA freeze; generated mirrors require a separately authorized later sync lane.
+- Any prohibited retention, missing signal, contradiction, unpinned version/domain, replay, digest mismatch, scope overlap, provider/network/secret/account/git/release action, sync, or generated edit is `BLOCKED`/`NEEDS_HITL`. No QOBS completion alone authorizes RC2-004.
 - [ ] `codex2`, `agy1`, and `agy2` remain undispatched unless each prerequisite valid result and separately recorded attempt authorization exists.
 - [ ] No deploy/publish/git mutation occurred; only documentation/scheduling evidence and separately owned taxonomy/test work are permitted.
 
@@ -1889,9 +2131,9 @@ python3 scripts/sync_ai_agent_ecosystem.py --check
 
 | Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
 |---|---|---|---|---|
-| `TICKET-ORCH-SPRINT-001` | `developer` | Execute 4 serial pre-QA lanes (validator pkg → parser hardening → v2 adoption → v2 AGY condition) | TODO | None |
-| `TICKET-ORCH-SPRINT-002` | `qa_tester` | Combined formal QA — 4-suite pytest exit 0 | TODO | `TICKET-ORCH-SPRINT-001` |
-| `TICKET-ORCH-SPRINT-003` | `devops` | `git diff --check`, secret scan, ecosystem `--sync`/`--check`, atomic commit + push | TODO | `TICKET-ORCH-SPRINT-002` |
+| `TICKET-ORCH-SPRINT-001` | `developer` | Execute 4 serial pre-QA lanes (validator pkg → parser hardening → v2 adoption → v2 AGY condition) | DONE | None |
+| `TICKET-ORCH-SPRINT-002` | `qa_tester` | Combined formal QA — 4-suite pytest exit 0 | DONE | `TICKET-ORCH-SPRINT-001` |
+| `TICKET-ORCH-SPRINT-003` | `devops` | `git diff --check`, secret scan, ecosystem `--sync`/`--check`, atomic commit + push | DONE | `TICKET-ORCH-SPRINT-002` |
 | `TICKET-ORCH-SPRINT-004` | `orchestrator` | HITL-gated `codex1` alias dispatch (RC2-004/attempt-1); chain to `codex2`/`agy1`/`agy2` only on valid receipt | TODO | `TICKET-ORCH-SPRINT-003` |
 
 ---
@@ -2001,3 +2243,158 @@ python3 scripts/sync_ai_agent_ecosystem.py --check
 - [ ] `codex1` attempt result recorded as `RC2-004/codex1/attempt-1` (valid receipt OR typed `NEEDS_HITL`).
 - [ ] Gate decision documented in `plans/plan.md` and this ticket.
 - [ ] No automatic retry or root-session alias invocation.
+
+<!-- MAREF-C0-SPRINT:START -->
+## SPRINT — Multi-agent Control Plane Refactor (`MAREF-000..057`)
+
+**Date**: 2026-08-26 (Asia/Bangkok)
+**Tracking lead**: `orchestrator`; C0 documents owned by `business_analyst`
+**Grill Gate**: `C0 FREEZE PASS — TWO INDEPENDENT REVIEWS`;
+`MAREF-010 READY — NW-SESSION-001 CHILD GRANT REQUIRED`;
+`MAREF-011+ BLOCKED`
+**Architecture package**: [`docs/architecture/multiagent-control-plane/README.md`](docs/architecture/multiagent-control-plane/README.md)
+**Detailed acceptance/evidence/stop authority**: [C0](docs/architecture/multiagent-control-plane/tickets/c0.md), [C1](docs/architecture/multiagent-control-plane/tickets/c1.md), [C2](docs/architecture/multiagent-control-plane/tickets/c2.md), [C3](docs/architecture/multiagent-control-plane/tickets/c3.md), [C4](docs/architecture/multiagent-control-plane/tickets/c4.md), [C5](docs/architecture/multiagent-control-plane/tickets/c5.md)
+
+The current-session Parent Grant covers frozen `MAREF-000..055` in-workspace
+mutations only through per-ticket child grants bound to ticket/action/files/
+owner/scope digest/max-use/expiry. It expires on new root session, `/clear`, or
+app/control-process restart. It excludes MAREF-056, root direct implementation,
+external/secret/paid/destructive/Git/deploy/publish/force-bypass actions. An
+unchanged authenticated canonical session survives transport reconnect only;
+missing proof fails closed.
+
+The new architecture handoff is design input, not execution authorization.
+Authority is CP while reads/notifications may be eventual with disclosed
+staleness; implementation is modular-monolith-first with one composition root
+and no Redis/Kafka/NATS or mandatory internal network hop through C5.
+
+The security/architecture and structural native-review WorkResults both report
+`PASS`. The reviewed pre-reconciliation digest set and exact evidence are in
+[C0](docs/architecture/multiagent-control-plane/tickets/c0.md): 39 rows/IDs,
+100 internal edges, zero cycles/missing dependencies/metadata mismatches/
+relative-link failures, nine ADRs and a clean C0 scoped diff. The latest
+current-session user message `เริ่ม delegate งาน` authorizes only MAREF-010 and
+its exact one-file target
+`docs/architecture/multiagent-control-plane/contracts/lifecycle-v1.md`.
+Configured route `codex1` was selected but failed closed before alias execution.
+Native collaboration is WorkResult evidence; no governed alias/provider receipt
+is claimed and MAREF-011+ remains blocked.
+
+The MAREF-010 decision digest is
+`cb2cf84444b699a642969e5fb4be43829d39548b87b66531ab8f87fff5b01d6d`;
+snapshot digest
+`5611f252f987aef0e6f5c54c0d60e19d0aacce2cc110e5ba3d2989a4934fc39b`
+is candidate/non-live. Only read-only/high runtime config is approved; mutation
+mode does not enforce it, objective text is arbitrary/unbound, and temporary
+self-declared approval is prohibited. No alias executed and no lifecycle file
+was created.
+
+Current-session native-fallback parent waiver `NW-SESSION-001` covers
+`MAREF-010..055` in-workspace native collaboration only when governed alias
+execution is unavailable for the same objective/scope-binding/receipt
+limitation. Each use still requires a derived one-ticket child with exact
+action/path/role/scope digest, `max_uses=1`, current-session expiry, satisfied
+dependencies/ownership/Rule18, native WorkResult, scoped diff/evidence and an
+independent reviewer `PASS`. Planned child `NW-SESSION-001/MAREF-010/1` is not
+issued and is limited to the lifecycle-contract action and exact lifecycle path
+with native `business_analyst` `gpt-5.6-sol/xhigh` intent. No execution has
+occurred. The waiver accepts no alias/provider ExecutionReceipt for that native
+child but waives no other gate.
+
+Approval was recorded at `2026-08-26T12:11:01+07:00` and binds canonical
+session `current runtime-enforced collaboration root thread /root`; no opaque
+provider/session ID is claimed. Each numbered MAREF-010..055 completion must,
+after implementation WorkResult `DONE` and independent reviewer `PASS`, receive
+a separate delegated `max_uses=1` local-commit child restricted to that ticket's
+reviewed files/hunks. Never commit `BLOCKED`/`NEEDS_HITL` or unrelated dirty
+content; root remains orchestrator-only and no push is automatic. This support-
+metadata waiver record is not a numbered MAREF completion and receives no
+commit.
+
+### Frozen checkpoint registry
+
+Every row's measurable acceptance criteria, required evidence and exact
+`DONE`/`BLOCKED`/`NEEDS_HITL` stop condition are mandatory in its linked
+detailed register; the compact board row never overrides them.
+
+| Ticket | Severity / Work Effort | Owner | Status | Depends On | Exact ownership |
+|---|---|---|---|---|---|
+| `MAREF-000-SESSION-SCOPE` | CRITICAL / XS | `business_analyst` | DONE — DOCUMENTATION | none | ADR-004 + MAREF delimited plan/board blocks |
+| `MAREF-001-PLATFORM-MATRIX` | HIGH / S | `business_analyst` | DONE — DOCUMENTATION | 000 | platform capability matrix only |
+| `MAREF-002-LEDGER-REUSE-ADR` | CRITICAL / XS | `business_analyst` | DONE — DOCUMENTATION | 001 | ADR-005 only |
+| `MAREF-003-STORE-TRANSPORT-ADR` | CRITICAL / M | `business_analyst` | DONE — DOCUMENTATION (RECONCILED) | 001,002 | ADR-001/003/007/CAP-001 only |
+| `MAREF-004-SECURITY-APPROVAL-ADR` | CRITICAL / M | `business_analyst` | DONE — DOCUMENTATION (RECONCILED) | 000,003 | ADR-002/004/006 only |
+| `MAREF-005-SERVICE-BOUNDARY-ADR` | CRITICAL / S | `business_analyst` | DONE — DOCUMENTATION (RECONCILED) | 003,004 | ADR-008 + C0 index/DAG only |
+| `MAREF-010-LIFECYCLE-CONTRACT` | CRITICAL / M | `business_analyst` | READY — NW-SESSION-001 CHILD GRANT REQUIRED | 000..005 + two C0 PASS WorkResults; planned child unissued | new lifecycle-v1 contract doc only |
+| `MAREF-011-EVENT-ENVELOPE` | CRITICAL / M | `developer` | BLOCKED — 010 | 010 | new event-envelope-v1 schema only |
+| `MAREF-012-APPROVAL-GRANT` | CRITICAL / M | `developer` | BLOCKED — 010 | 010 | new approval-grant-v1 schema only |
+| `MAREF-013-EFFECT-SAGA-CONTRACTS` | CRITICAL / L | `developer` | BLOCKED — 010 | 010 | new effect-lease + SagaCommand/SagaReceipt schemas only |
+| `MAREF-014-COMPATIBILITY-CONTRACT` | HIGH / M | `developer` | BLOCKED — 010 | 011..013 | new capability/loss schemas only |
+| `MAREF-015-CONTRACT-QA` | CRITICAL / XL | `qa_tester` | BLOCKED — 011..014 | 011..014 | new control-plane contract tests/fixtures only |
+| `MAREF-020-DOMAIN-CORE` | CRITICAL / L | `developer` | BLOCKED — C1 | 015 | new `project/orchestration/domain/**` + `ports/**` only |
+| `MAREF-021-POSTGRES-STORE` | CRITICAL / XL | `developer` | BLOCKED — 020 | 020 | new persistence/Postgres+migrations, then sequential `pyproject.toml`/`requirements.txt`/`uv.lock` |
+| `MAREF-022-SQLITE-DEV-STORE` | HIGH / M | `developer` | BLOCKED — 020 | 020 | new `adapters/persistence/sqlite.py` only |
+| `MAREF-023-COMMAND-HANDLER` | CRITICAL / L | `developer` | BLOCKED — 021,022 | 020..022 | new `application/command_handler.py` only |
+| `MAREF-024-LEASE-CAPACITY` | CRITICAL / L | `developer` | BLOCKED — 023 | 021,023 | new application lease/capacity allocators only |
+| `MAREF-025-CORE-QA` | CRITICAL / XL | `qa_tester` | BLOCKED — 020..024 | 020..024 | new core/store/concurrency tests only |
+| `MAREF-030-NATIVE-ADAPTER` | HIGH / M | `developer` | BLOCKED — C2 | 023,025 | new platform/native adapter only |
+| `MAREF-031-CODEX-ADAPTER` | CRITICAL / M | `developer` | BLOCKED — C2 | 014,023,025 | new platform/Codex adapter only |
+| `MAREF-032-AGY-ADAPTER` | CRITICAL / M | `developer` | BLOCKED — C2 | 014,023,025 | new platform/AGY adapter only |
+| `MAREF-033-DISPATCHER-BRIDGE` | CRITICAL / L | `developer` | BLOCKED — QOBS FREEZE | 024,030..032 + QOBS-DISPATCH/QA | `scripts/multiagent_prompt_command.py` only |
+| `MAREF-034-SCHEDULER-BRIDGE` | CRITICAL / L | `developer` | BLOCKED — QOBS FREEZE | 024,033 + QOBS-SCHEDULER/QA | `scripts/multiagent_ticket_scheduler.py` only |
+| `MAREF-035-OPENAI-RESPONSES` | HIGH / L | `developer` | BLOCKED — C2/021 MANIFEST FREEZE | 014,021,023,025 | new platform/OpenAI adapter; conditional later dependency-manifest sublane only |
+| `MAREF-036-NOTIFICATION-API` | CRITICAL / L | `developer` | BLOCKED — C2 | 021,023,025 | new adapters/API + bootstrap + one bounded `project/main.py` router hunk |
+| `MAREF-037-PLATFORM-CONFORMANCE` | CRITICAL / XL | `qa_tester` | BLOCKED — 030..036 | 030..036 | new platform conformance tests/fixtures only |
+| `MAREF-040-APPROVAL-SERVICE` | CRITICAL / L | `developer` security lane | BLOCKED — C2/AUTH | 012,021,023,025 + Ticket39 auth | new application approval service only |
+| `MAREF-041-EFFECT-SAGA` | CRITICAL / XL | `developer` | BLOCKED — 013,040 | 013,023,024,040 | new application effect Saga/models only |
+| `MAREF-042-HITL-INTEGRATION` | CRITICAL / L | `developer` | BLOCKED — TICKET39 | 040,041 + Ticket39/scope audit/QA freeze | `project/hitl_router.py` only |
+| `MAREF-043-COMPENSATION-ADAPTERS` | CRITICAL / XL | `developer` | BLOCKED — 041/042 FREEZE | 041,042 | declared external-finetune/vector/training + new adapters/effects |
+| `MAREF-044-GOVERNANCE-QA` | CRITICAL / XL | `qa_tester` + read-only reviewer | BLOCKED — 040..043 | 040..043 | new approval/Saga/HITL tests only |
+| `MAREF-050-SHADOW-MODE` | CRITICAL / XL | `developer` | BLOCKED — 033/036/C3/C4 | 033,036,037,044 | new orchestration config + migration/shadow + one frozen bootstrap hunk |
+| `MAREF-051-LEGACY-IMPORT` | HIGH / L | sequential `developer` / `business_analyst` | BLOCKED — 050 | 050 | exact import/verify/rollback scripts + import/cutover schemas and non-executable templates |
+| `MAREF-052-REPLAY-RECONCILE-QA` | CRITICAL / XL | `qa_tester` | BLOCKED — 025,050,051 | 025,050,051 | exact shadow/migration-tool tests + migration fixtures |
+| `MAREF-053-LOAD-CAPACITY-QA` | CRITICAL / L | `qa_tester` source; `devops` run-only | BLOCKED — 052 | 024,037,052 | exact load test + five named YAML profiles; content-addressed report only |
+| `MAREF-054-GOVERNANCE-SYNC` | HIGH / L | sequential `developer` / `business_analyst` / scoped sync | BLOCKED — REPO-ONLY SYNC + FREEZE | 052,053 | exact scoped-sync tooling/test, rule/Claude rule/skill/evals/catalog/template and one mirror |
+| `MAREF-055-SAFETY-REVIEW` | CRITICAL / M | `code_reviewer` | BLOCKED — 054 | 044,052..054 | read-only MAREF changed-file manifest |
+| `MAREF-056-PRODUCTION-CUTOVER` | CRITICAL / L | no current owner; fresh-P4 `devops` artifacts only | BLOCKED — FRESH HITL/LATE BINDING | 055 + new target/session approval | content-addressed v1 manifest + backup/deployment/cutover receipts; no live source edit |
+| `MAREF-057-POST-CUTOVER` | CRITICAL / L | `qa_tester` verification / separate-fresh-P4 `devops` rollback receipt / read-only `orchestrator` | BLOCKED — 056 + FRESH P4 DRILL | 056 | same cutover directory: versioned verification/rollback receipts only |
+
+### Checkpoint gates and current decision
+
+- C0: `DONE — FREEZE PASS`; independent security/architecture and structural
+  review evidence is recorded without releasing C1 execution.
+- MAREF-010 is `READY — NW-SESSION-001 CHILD GRANT REQUIRED`; it remains
+  non-executable until exact child `NW-SESSION-001/MAREF-010/1` is issued.
+  MAREF-011+ is not source/schema execution-eligible. Later lanes still require
+  dependencies, ownership,
+  QOBS/quota and HITL at their own scheduling checkpoints. Architecture uses
+  `gpt-5.6-sol/xhigh`; normal rank-3 implementation/security uses
+  `gpt-5.6-sol/high`; static config is intent only.
+- PostgreSQL is production canonical authority; SQLite WAL is local/single-host
+  only. REST commands + SSE notifications are default. OpenAI Responses WS is
+  optional server-side model I/O with mandatory HTTP fallback, never authority.
+- P0-P4 apply. `NEEDS_HITL` freezes E2-E4. Automatic/forced training remains
+  blocked until the approval service/Saga is implemented and approved.
+- MAREF-056/057 have no current execution ownership or concrete argv. Fresh P4
+  approval must late-bind exact target/revision/files/commands/digests before
+  cutover; MAREF-057 rollback/restoration needs a separate fresh P4 grant. The
+  compatibility clock starts only after MAREF-057 acceptance.
+- Rule18 record for this metadata-only reconciliation: schema v1,
+  `MAREF-005-C0-FREEZE-EVIDENCE`, planning ranks `1/1/1/0/2`, bounded
+  `quota_band=unknown`, mutation, configured intent
+  `codex1/gpt-5.6-sol/xhigh`, policy `2026-08-26.1`, medium confirmation and
+  HITL true. This native WorkResult is not a governed alias ExecutionReceipt.
+- MAREF-010 release-metadata Rule18 record: schema v1,
+  `ticket=MAREF-010-RELEASE-METADATA`, planning/mutation ranks `1/1/1/0/2`,
+  bounded unknown quota, selected `codex1/gpt-5.6-sol/xhigh`, policy
+  `2026-08-26.1`, root-medium confirmed and HITL approved. The decision digest
+  above validates planning input only; the candidate snapshot is non-live and
+  no alias receipt exists.
+- `NW-SESSION-001` expires on a new root session, `/clear`, or app/control
+  restart and excludes MAREF-056/057, production/external/deploy/publish/Git,
+  secret/credential, paid/billing, destructive/history/permission, root
+  implementation, out-of-ticket tests and force-bypass actions, except for the
+  separately delegated exact post-PASS local commit described above.
+  QOBS/MAREF-033 governed binding remains the non-waiver alternative.
+
+<!-- MAREF-C0-SPRINT:END -->

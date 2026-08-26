@@ -28,6 +28,17 @@ def _isolated_claim_store(tmp_path, monkeypatch):
     monkeypatch.setattr(command, "_secure_claim_directory", lambda _invocation: tmp_path / "claim-store")
 
 
+@pytest.fixture(autouse=True)
+def _isolated_account_homes(tmp_path, monkeypatch):
+    """Create only owned 0700 account-home directories; never auth material."""
+
+    monkeypatch.setenv("HOME", str(tmp_path))
+    for name in (".codex-one", ".agy-one", ".agy-two"):
+        home = tmp_path / name
+        home.mkdir(mode=0o700, exist_ok=True)
+        home.chmod(0o700)
+
+
 def _config(tmp_path: Path) -> Path:
     path = tmp_path / "routes.yaml"
     path.write_text(
@@ -51,7 +62,10 @@ def _config(tmp_path: Path) -> Path:
                         "home_env": "AGY_HOME",
                         "home_path": "${HOME}/.agy-one",
                     },
-                    "agy2": {"cli": "agy", "command": "agy-two"},
+                    "agy2": {
+                        "cli": "agy", "command": "agy-two",
+                        "home_env": "AGY_HOME", "home_path": "${HOME}/.agy-two",
+                    },
                 },
                 "roles": {
                     "developer": {
@@ -453,7 +467,6 @@ def test_execute_uses_argv_cwd_and_process_local_env(tmp_path, monkeypatch):
     config_path = _config(tmp_path)
     decision_path = _decision_path(tmp_path)
     monkeypatch.setenv("HOME", str(tmp_path))
-    (tmp_path / ".codex-one").mkdir()
     observed = {}
 
     def fake_run(argv, **kwargs):
@@ -479,7 +492,6 @@ def test_execute_transports_malicious_unicode_prompt_byte_for_byte_on_stdin(
     config_path = _config(tmp_path)
     decision_path = _decision_path(tmp_path)
     monkeypatch.setenv("HOME", str(tmp_path))
-    (tmp_path / ".codex-one").mkdir()
     objective = "ลับมาก\n$(touch /tmp/must-not-run); 'quoted'"
     observed = {}
 
@@ -562,14 +574,112 @@ def test_missing_project_directory_is_rejected(tmp_path):
 
 
 def test_execute_preflight_requires_configured_home_directory(tmp_path, monkeypatch):
-    monkeypatch.setenv("HOME", str(tmp_path))
     route = command.resolve_route(command.load_config(_config(tmp_path)), "developer")
     invocation = command.build_invocation(
         route, "prompt", tmp_path, decision=_decision(), model_policy=_policy()
     )
     monkeypatch.setattr(command.shutil, "which", lambda executable: "/usr/bin/codex")
-    with pytest.raises(command.ConfigurationError, match="CODEX_HOME"):
+    missing = replace(route, home_path=str(tmp_path / "missing-home"))
+    with pytest.raises(command.ConfigurationError, match="ACCOUNT_HOME_INVALID"):
+        command.validate_execution_preflight(replace(invocation, route=missing))
+
+
+def test_safe_account_home_requires_no_marker_or_credential_files(tmp_path, monkeypatch):
+    route = command.resolve_route(command.load_config(_config(tmp_path)), "developer")
+    invocation = command.build_invocation(
+        route, "prompt", tmp_path, decision=_decision(), model_policy=_policy()
+    )
+    monkeypatch.setattr(command.shutil, "which", lambda executable: "/usr/bin/codex")
+    assert list((tmp_path / ".codex-one").iterdir()) == []
+    command.validate_execution_preflight(invocation)
+
+
+@pytest.mark.parametrize("shape", ["final_symlink", "intermediate_symlink", "not_directory"])
+def test_account_home_rejects_symlinked_or_nondirectory_paths(tmp_path, monkeypatch, shape):
+    route = command.resolve_route(command.load_config(_config(tmp_path)), "developer")
+    target = tmp_path / "safe-target"
+    target.mkdir(mode=0o700)
+    target.chmod(0o700)
+    if shape == "final_symlink":
+        home = tmp_path / "final-link"
+        home.symlink_to(target, target_is_directory=True)
+    elif shape == "intermediate_symlink":
+        intermediate = tmp_path / "intermediate-link"
+        intermediate.symlink_to(tmp_path, target_is_directory=True)
+        home = intermediate / "safe-target"
+    else:
+        home = tmp_path / "not-a-directory"
+        home.write_text("safe", encoding="ascii")
+        home.chmod(0o600)
+    invocation = command.build_invocation(route, "prompt", tmp_path)
+    monkeypatch.setattr(command.shutil, "which", lambda executable: "/usr/bin/codex")
+    with pytest.raises(command.ConfigurationError) as exc:
+        command.validate_execution_preflight(replace(invocation, route=replace(route, home_path=str(home))))
+    assert str(exc.value) == "ACCOUNT_HOME_INVALID"
+    assert str(exc.value).isascii()
+
+
+def test_account_home_rejects_unsafe_mode_wrong_owner_and_inode_race(tmp_path, monkeypatch):
+    route = command.resolve_route(command.load_config(_config(tmp_path)), "developer")
+    invocation = command.build_invocation(route, "prompt", tmp_path)
+    home = tmp_path / ".codex-one"
+    monkeypatch.setattr(command.shutil, "which", lambda executable: "/usr/bin/codex")
+    home.chmod(0o722)
+    with pytest.raises(command.ConfigurationError, match="ACCOUNT_HOME_INVALID"):
         command.validate_execution_preflight(invocation)
+    home.chmod(0o700)
+
+    original_fstat = command.os.fstat
+
+    def foreign_owner(descriptor):
+        value = original_fstat(descriptor)
+        if (value.st_dev, value.st_ino) == (home.stat().st_dev, home.stat().st_ino):
+            fields = list(value)
+            fields[4] = value.st_uid + 1
+            return os.stat_result(fields)
+        return value
+
+    monkeypatch.setattr(command.os, "fstat", foreign_owner)
+    with pytest.raises(command.ConfigurationError, match="ACCOUNT_HOME_INVALID"):
+        command.validate_execution_preflight(invocation)
+    monkeypatch.setattr(command.os, "fstat", original_fstat)
+
+    descriptor, identity = command._open_isolated_account_home(invocation)
+    other = tmp_path / ".agy-one"
+    other_fd = os.open(other, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC)
+    other_stat = os.fstat(other_fd)
+    monkeypatch.setattr(
+        command, "_open_account_home_path",
+        lambda _path: (other_fd, (other_stat.st_dev, other_stat.st_ino)),
+    )
+    try:
+        with pytest.raises(command.ConfigurationError, match="ACCOUNT_HOME_INVALID"):
+            command._verify_isolated_account_home(invocation, descriptor, identity)
+    finally:
+        os.close(descriptor)
+
+
+def test_missing_home_path_is_execute_only_failure_but_dry_run_still_renders(tmp_path, monkeypatch, capsys):
+    config = yaml.safe_load(_config(tmp_path).read_text(encoding="utf-8"))
+    config["accounts"]["codex1"].pop("home_env")
+    config["accounts"]["codex1"].pop("home_path")
+    path = tmp_path / "missing-home-routes.yaml"
+    path.write_text(yaml.safe_dump(config), encoding="utf-8")
+    decision = _decision_path(tmp_path)
+    snapshot = _scheduling_snapshot_path(tmp_path)
+    monkeypatch.setattr(command.shutil, "which", lambda executable: "/usr/bin/codex")
+    assert command.main([
+        "--config", str(path), "--role", "developer", "--objective", "safe",
+        "--project-dir", str(tmp_path), "--decision", str(decision),
+        "--policy", str(ROOT / ".agents/config/multiagent_model_policy.yaml"),
+        "--scheduling-snapshot", str(snapshot), "--execute",
+    ]) == 127
+    assert capsys.readouterr().err == "[ERROR] Unable to start configured codex executable.\n"
+    assert command.main([
+        "--config", str(path), "--role", "developer", "--objective", "safe",
+        "--project-dir", str(tmp_path), "--print-command",
+    ]) == 0
+    assert "rendered-route-not-execution-proof" in capsys.readouterr().out
 
 
 @pytest.mark.parametrize(
@@ -687,7 +797,6 @@ def test_duplicate_dispatch_is_one_subprocess_with_account_session_evidence(
     config_path = _config(tmp_path)
     decision_path = _decision_path(tmp_path)
     monkeypatch.setenv("HOME", str(tmp_path))
-    (tmp_path / ".codex-one").mkdir()
     calls = []
 
     def fake_run(argv, **kwargs):
@@ -727,6 +836,26 @@ def test_nonzero_exit_is_normalized_and_reported(tmp_path, monkeypatch, capsys):
     assert "exited with code 23" in capsys.readouterr().err
 
 
+def test_native_auth_failure_remains_child_authority_and_public_streams_are_elided(
+    tmp_path, monkeypatch, capsys
+):
+    config_path = _config(tmp_path)
+    decision_path = _decision_path(tmp_path)
+    args = _execute_args(config_path, decision_path, tmp_path)
+    monkeypatch.setattr(command.shutil, "which", lambda executable: "/usr/bin/codex")
+    monkeypatch.setattr(
+        command.subprocess,
+        "run",
+        lambda argv, **kwargs: subprocess.CompletedProcess(
+            argv, 1, _codex_stdout(_work_result("BLOCKED")), "native authentication denied"
+        ),
+    )
+    assert command.main(args) == 1
+    captured = capsys.readouterr()
+    assert "native authentication denied" not in captured.out + captured.err
+    assert "[ERROR] Sub-agent command exited with code 1." in captured.err
+
+
 def test_empty_success_stdout_requires_missing_result_evidence_not_done():
     result = command.normalize_result("", returncode=0)
 
@@ -743,7 +872,6 @@ def test_empty_success_stdout_requires_missing_result_evidence_not_done():
 
 def test_timeout_from_account_process_is_not_silently_normalized(tmp_path, monkeypatch):
     monkeypatch.setenv("HOME", str(tmp_path))
-    (tmp_path / ".codex-one").mkdir()
     route = command.resolve_route(command.load_config(_config(tmp_path)), "developer")
     invocation = command.build_invocation(
         route,
@@ -778,6 +906,14 @@ def test_unavailable_cli_is_rejected_before_account_process_start(tmp_path, monk
     monkeypatch.setattr(command.shutil, "which", lambda executable: None)
     with pytest.raises(command.ConfigurationError, match="executable is unavailable"):
         command.execute_invocation(invocation)
+
+
+@pytest.mark.parametrize("role", ["developer", "researcher"])
+def test_all_configured_review_roles_accept_safe_empty_account_homes(tmp_path, monkeypatch, role):
+    route = command.resolve_route(command.load_config(_config(tmp_path)), role)
+    invocation = command.build_invocation(route, "prompt", tmp_path)
+    monkeypatch.setattr(command.shutil, "which", lambda executable: "/usr/bin/fake")
+    command.validate_execution_preflight(invocation)
 
 
 def test_real_agy_argument_order_is_verified_with_fake_executable(tmp_path, monkeypatch):
@@ -912,7 +1048,6 @@ def test_completed_process_evidence_is_emitted_separately_from_route_label(
     config_path = _config(tmp_path)
     decision_path = _decision_path(tmp_path)
     monkeypatch.setenv("HOME", str(tmp_path))
-    (tmp_path / ".codex-one").mkdir()
 
     def fake_run(argv, **kwargs):
         return subprocess.CompletedProcess(
@@ -1536,7 +1671,6 @@ def test_read_only_dispatch_gate_is_effective_not_prompt_only(
         runtime_config_path=runtime_path,
         runtime_config_approved=approved,
     )
-    (tmp_path / ".codex-one").mkdir()
     monkeypatch.setattr(command.shutil, "which", lambda executable: "/usr/bin/codex")
     with pytest.raises(command.ConfigurationError, match=message):
         command.validate_execution_preflight(invocation)

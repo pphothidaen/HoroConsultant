@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-21B-RELEASE-SCHEMAS",
+  "status": "DONE_FROZEN",
+  "ownership": [
+    "project/schemas/release-manifest-v1.schema.json",
+    "project/schemas/release-receipt-v1.schema.json"
+  ],
+  "sha256": {
+    "manifest": "7055f6b371900c0c7ab6912fc54f052db8dd247dc07af6b60d3c31f091668079",
+    "receipt": "d816e7fea5230a24ccf9fd98c58e7fa8f91d2eb10ad345ccb9a8620faf932343"
+  },
+  "contract": {
+    "draft": "2020-12 closed schemas, schema_version 1",
+    "backend": "exact HF Docker target and main branch",
+    "provenance": "release source, local 100644 baseline, canonical digest, tree bindings, sanitized receipts, CAS parent, and recorded prior tree",
+    "dry_run": "manifest only; no publish receipt",
+    "existing_receipts": "unchanged"
+  },
+  "validation": {
+    "schema_and_samples": "positive publish/rollback/preflight/indeterminate and rollback-required samples passed; negative target/SDK/mode/path/blob/timestamp/action/status/revision/tree/extra-field/sensitive-field cases rejected",
+    "parity_and_digest": "required/property parity, closed nested entry, canonical digest, and full-tree projection checks passed",
+    "diff_check": "pass",
+    "secret_scan": "zero findings across 1885 files"
+  },
+  "runtime_residual": "schema cannot enforce ordering, duplicate paths, totals, digest recomputation, ancestry, timestamp ordering, or tree equality; ticket21A owns these checks",
+  "external_actions": "none"
+}

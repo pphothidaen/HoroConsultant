@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-41A-QA",
+  "phase": "qa",
+  "scope_rank": 1,
+  "complexity_rank": 1,
+  "risk_rank": 2,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 2,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "After the three 41A diagnostic scripts freeze, create only project/tests/test_backend_diagnostic_release_contract.py for offline contract QA. The computed quality floor is gpt-5.6-terra/high; codex1/gpt-5.6-sol/high is an approved strengthened selection. Verify the canonical HF Docker backend only, exclude Vercel/Static/Azure/Fly/workstation targets, require read-only routes and methods, preserve offline defaults, and fail closed on invalid targets. Do not edit source, other tests, workflows, metadata, credentials, or secrets; do not run network, deploy, publish, or push actions. The legacy Grafana test correction is explicitly excluded.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

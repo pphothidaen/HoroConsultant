@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-21D-PUBLISHER-WORKFLOW",
+  "phase": "implementation",
+  "scope_rank": 1,
+  "complexity_rank": 1,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 2,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Modify only .github/workflows/hf_backend_deploy.yml after the publisher CLI, new schemas, and canonical metadata freeze. Align the HF Docker workflow to the finalized publisher interface and its atomic manifest/receipt handoff without running network, publish, or deploy actions. Do not edit publisher source, schema files, version metadata, tests, other workflows, rules, skills, generated files, credentials, or external targets. Freeze workflow evidence for ticket 22.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

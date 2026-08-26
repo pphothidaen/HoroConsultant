@@ -1,3 +1,251 @@
+<!-- MAREF-C0-GRILL:START -->
+## GRILL REPORT — Multi-agent Control Plane C0 Architecture Freeze
+
+**Date**: 2026-08-26 (Asia/Bangkok)
+**Grilled By**: `orchestrator` / `business_analyst`
+**Gate Status**: `C0 FREEZE PASS — TWO INDEPENDENT REVIEWS`;
+`MAREF-010 READY — NW-SESSION-001 CHILD GRANT REQUIRED`; `MAREF-011+ BLOCKED`
+**Authority**: current-root-session Parent Grant for frozen `MAREF-000..055`
+in-workspace mutations through bounded derived child grants only. It excludes
+MAREF-056, external/paid/secret/destructive/Git/deploy/publish actions, force
+bypass and root direct implementation.
+
+### D1 — Scope Boundary
+
+- **IN**: architecture facts/decisions, active-platform matrix, session grant,
+  PostgreSQL/SQLite, CP Authority/eventual-read, REST/SSE/OpenAI-WS and modular-
+  monolith boundaries, C0-C5 DAG and detailed acceptance/evidence/stop tickets.
+- **OUT**: source, schemas, tests, rules, skills, generated files, configs,
+  dependencies, artifacts, Git/external/production mutation and frozen v3
+  history. Existing dirty work is preserved.
+- **Stability**: Result Contract v2 remains active for at least two production
+  releases and 90 days after MAREF-057 final authority acceptance, whichever is
+  later; historical verifiers remain for record lifetime.
+- **Authorization**: the architecture handoff remains design input only.
+  Current-session native-fallback parent waiver `NW-SESSION-001` covers
+  `MAREF-010..055` in-workspace only when the selected governed alias is
+  unavailable for the same objective/scope-binding/receipt limitation. Every
+  use requires an exact, single-use, one-ticket child and independent review.
+  Planned child `NW-SESSION-001/MAREF-010/1` is unissued and limited to the
+  lifecycle-contract action and
+  `docs/architecture/multiagent-control-plane/contracts/lifecycle-v1.md`, with
+  native `business_analyst` intent `gpt-5.6-sol/xhigh`, a frozen-input scope
+  digest, `max_uses=1`, and this root-session expiry. No execution has occurred.
+  Approval was recorded at `2026-08-26T12:11:01+07:00` and binds canonical
+  session `current runtime-enforced collaboration root thread /root`; no opaque
+  provider/session ID is inferred.
+  MAREF-011+, external actions and cutover remain unauthorized/blocked.
+
+### D2 — Requirement Delta
+
+Target authority changes from snapshots/local claims/copied gate booleans to one
+ControlPlane command handler backed by PostgreSQL transactional append-only
+events, projections and outbox. SQLite WAL is single-host dev/test only.
+Workers/providers/transports submit proposals/evidence and cannot transition
+canonical state. Authority is CP under `No Authority -> No Mutation -> No New
+Lease -> No New Approval -> No Blind Retry`; eventual reads expose staleness.
+Implementation starts as Domain/Application/Ports/Adapters modules with one
+composition root/handler in the HF Docker unit. Outbox polling plus SSE needs no
+Redis/Kafka/NATS or mandatory internal network hop through C5.
+
+### D3 — Acceptance Criteria
+
+| Criterion | Verification | Owner |
+|---|---|---|
+| C0 current facts and target decisions are separate and repository-cited | [C0 package](../docs/architecture/multiagent-control-plane/README.md) | `business_analyst` |
+| Every active platform has capability/fallback/authority/conformance disposition | [matrix](../docs/architecture/multiagent-control-plane/platform-capability-matrix.md) | `business_analyst` / `qa_tester` |
+| Every MAREF ticket has severity, effort, owner, exact ownership, status/dependencies, acceptance, evidence and stop | [DAG/registers](../docs/architecture/multiagent-control-plane/sprint-dag.md) | `orchestrator` / `business_analyst` |
+| Shared dirty docs retain all prior content and scoped diff is clean | `git diff --check` plus scoped diff/status | `business_analyst` |
+| Two independent reviews freeze the reconciled nine-ADR package without releasing C1 | security/architecture and structural native WorkResults plus reviewed digest set | `code_reviewer` / `orchestrator` |
+
+### D4 — Constraints and Safeguards
+
+Rules 05/06/07/08/11/14/17/18/19 apply. Production is HF Docker backend plus
+Vercel static UI. Fly.io, public Azure, HF Static backend, direct browser
+provider keys and Realtime/WebRTC are excluded/prohibited. No secret values are
+recorded and zero-cost policy remains fail-closed. No initial broker is a
+hidden dependency. No PostgreSQL or optional WS package/version is selected in
+C0; future sequential lanes must pin direct dependencies consistently.
+
+### D5 — Allocation and Dependencies
+
+`C0 -> C1 contracts -> C2 core -> C3 adapters -> C4 approval/effect Saga -> C5
+shadow/cutover`. QOBS retains dispatcher/scheduler ownership until source/QA
+freeze. Ticket39 retains `project/hitl_router.py` until mandatory scope audit,
+owner sign-off and QA freeze. C2 uses literal Domain/Application/Ports/Adapters
+packages plus `bootstrap.py`; C5 migration is isolated. One editor owns every
+file/module. MAREF-013 precedes 041; MAREF-025 precedes 052; MAREF-021 manifest
+edits freeze before conditional MAREF-035 manifest edits.
+
+### D6 — Assumption Register
+
+| Assumption | State |
+|---|---|
+| Multi-host target; tenant=`system` until authenticated tenant identity exists | `CONFIRMED` |
+| Execution, Approval and Lease are orthogonal; CAS/idempotency/DB attempts/fences mandatory | `CONFIRMED` |
+| Session ends on new root session, `/clear`, app/process restart; unchanged authenticated-session WS reconnect alone does not | `CONFIRMED` |
+| Lease profile TTL 120s, renew by 40s, DB clock, no grace; telemetry-tune before production | `CONFIRMED-PROVISIONAL` |
+| Authority Plane is CP; eventual reads expose version/sequence/authority epoch/read time/lag | `CONFIRMED` |
+| Modular-monolith-first, one composition root/handler; no initial broker/internal network hop | `CONFIRMED` |
+| No direct PostgreSQL driver is declared; Supabase REST is insufficient for transactions/`SKIP LOCKED` | `CONFIRMED-CURRENT-FACT` |
+| PostgreSQL driver/pool and optional WS direct pins are future sequential ticket choices | `CONFIRMED-LATE-BOUND` |
+| Planning floor `gpt-5.6-sol/xhigh`; normal rank-3 implementation/security `gpt-5.6-sol/high` | `CONFIRMED`; static config is intent only |
+
+No C0 question remains open. Package versions and exact production target/argv
+are intentionally late-bound; missing values keep MAREF-021/035/056/057 blocked.
+
+### D7 — Risk and Rollback
+
+Use CAS/fencing against stale workers, disclosed stale reads, durable-before-202
+acceptance, session-bound grants, exact E0→P0 through E4→P4 gates and reject
+unknown/ambiguous effects to `NEEDS_HITL`. Migration uses effect-free shadow,
+checksum-locked monotonic expand/contract steps, one migrator lock, immutable
+manifests and monotonic `authority_epoch`; no dual authority or history deletion.
+Failing executions compensate before terminalization; post-terminal remediation
+is a new linked execution. Cutover and rollback/restoration drill use separate
+fresh P4 grants, and no concrete production argv exists before late binding.
+
+### D8 — Model, Quota and Cost
+
+Every executable lane still needs a fresh bound Rule 18 decision, valid QOBS/
+quota, child grant, ownership reservation and receipt. Config/model labels do
+not prove execution. Paid/billing routes are outside this grant.
+
+This bounded planning-metadata reconciliation records Rule18 v1 input:
+`ticket=MAREF-005-C0-FREEZE-EVIDENCE`, `phase=planning`, semantic ranks
+`scope=1/complexity=1/risk=1/ambiguity=0/evidence_burden=2`,
+`quota_band=unknown` (permitted only for this bounded below-threshold scope),
+`work_mode=mutation`, configured intent `codex1` / `gpt-5.6-sol` / `xhigh`,
+policy `2026-08-26.1`, `planning_to_medium_confirmed=true`, and
+`hitl_approved=true`. Native collaboration supplied WorkResults; no governed
+alias/provider execution or ExecutionReceipt is claimed.
+
+The MAREF-010 mutation decision validated with digest
+`cb2cf84444b699a642969e5fb4be43829d39548b87b66531ab8f87fff5b01d6d`.
+Candidate scheduling snapshot digest
+`5611f252f987aef0e6f5c54c0d60e19d0aacce2cc110e5ba3d2989a4934fc39b`
+is explicitly candidate/non-live. The only approved runtime config is
+read-only/high; mutation mode does not enforce that approved config, and its
+objective remains unbound arbitrary CLI text. A self-declared temporary
+approval is prohibited. No alias executed and no lifecycle file exists.
+
+`NW-SESSION-001` is the approved native-fallback parent waiver, not an issued
+implementation child. It expressly accepts the absence of an alias/provider
+ExecutionReceipt for an issued native child, while preserving native
+WorkResult, scoped diff/evidence, independent review, dependency, ownership and
+Rule 18 gates. The alternative governed path remains QOBS/MAREF-033 binding.
+Neither path has executed MAREF-010 yet.
+
+Every numbered MAREF-010..055 completion requires a separately delegated,
+single-use, post-PASS local-commit child restricted to the independently
+reviewed ticket files/hunks. Its implementation WorkResult must already be
+`DONE` and review must be `PASS`; `BLOCKED`, `NEEDS_HITL`, unrelated dirty
+content, automatic push and root commit/implementation are prohibited. This
+waiver-record support mutation is not a numbered MAREF completion and receives
+no commit.
+
+### D9 — Domain/HITL Impact
+
+No metaphysical formula changes. C4 changes HITL/export/index/training effects;
+`required_human_review=true` and
+`/hitl/scope-audit?source_domain=metaphysical-domain-engine` with
+`summary.pass_gate_check=true` plus owner sign-off are mandatory. P0-P4 apply;
+`NEEDS_HITL` freezes E2-E4 and auto/forced training stays blocked until Saga.
+
+### C0 Verdict
+
+`DONE — C0 FREEZE PASS, DOCUMENTATION EVIDENCE ONLY`. The independent
+security/architecture and structural reviews both returned `PASS`. Their
+reviewed pre-reconciliation 21-path digest-set manifest is recorded in
+[tickets/c0.md](../docs/architecture/multiagent-control-plane/tickets/c0.md)
+with aggregate SHA-256
+`74db1fe74fe9b3a59a24b34cad6bb318d89259dcf7105ca6759ea6fb0610d673`.
+The structural result records 39 rows/IDs, 100 internal dependency edges, zero
+cycles, missing dependencies, metadata mismatches or relative-link failures,
+nine ADRs and a clean scoped diff. MAREF-010 is `READY — NW-SESSION-001 CHILD
+GRANT REQUIRED`; its validated decision and candidate snapshot do not prove
+execution, and no child has been issued. MAREF-011+ and every source/schema lane
+remain blocked.
+
+<!-- MAREF-C0-GRILL:END -->
+
+## GRILL REPORT — Release Completion
+**Date**: 2026-08-26
+**Grilled By**: `orchestrator` / `business_analyst`
+**Gate Status**: APPROVED — the user explicitly authorized completion of current governed plans/tickets, a safe commit and push to `origin/main`, and deployment. This gate approves planning and reservation; it does not bypass any audit, test, secret, review, or external-mutation gate.
+**Authoritative Policy**: Rule 11, Rule 18 decision validation, Rule 05 security/privacy, Rule 06 secrets, Rule 07 infrastructure constraints, and the release skills.
+
+### D1 — Scope Boundary
+- **IN**: current governed working-tree changes and active/current-session tickets; exact R3 acceptance reconciliation; dispatcher preflight, deployment architecture, Docker publisher provenance/atomicity, and documentation remediation plans; ticket/documentation reconciliation; relevant/full QA; secret scan; payload dry-run; reviewer verdict; safe commit/push; HF publish; live health/version and E2E/visual verification; final closure.
+- **OUT**: unrelated destructive cleanup, broad reset, secret/credential disclosure or mutation, deployment to unapproved targets, API/schema/source refactors outside an owning remediation ticket, and manual generated-file edits.
+- **Interfaces**: retain receipt-v2 canonical/new-only and receipt-v1 legacy/non-reinterpreted behavior; public outcomes remain validated in-process with elided streams, not portable/offline evidence.
+
+### D2 — Requirement Delta
+- R3 acceptance is now operationally accepted: A only Rule 11, B only the prompt template, and child only the orchestration skill; the root barrier observed root/A/B/child running before release, with a `17,918,884,250 ns` triple overlap, forwarded child result, equal safe fingerprint marker, and no changed files.
+- Audit-confirmed target assumption: Hugging Face Docker backend `pphothidaen/horoconsultant-core-backend` plus Vercel static UI. Static deployment to that backend Space is retired; Azure public auto-deploy and Fly manual deployment are prohibited.
+- The scope audit found three pre-QA remediation groups: dispatcher session-preflight security/provenance, deployment architecture CI/governance, and Docker publisher metadata/provenance/dry-run/rollback atomicity. Router and data changes are preserved but excluded pending provenance/owner decisions.
+
+### D3 — Acceptance Criteria
+| # | Criterion | Verification | Owner |
+|---|---|---|---|
+| 1 | Dispatcher plan removes marker/mtime-as-active, path/non-ASCII disclosure, and role broadening | developer plan then owned tests | `developer` / `qa_tester` |
+| 2 | Deployment plan retires static-to-backend publishing and neutralizes Azure/Fly release paths without history deletion | workflow/rule/skill plans | `developer` / `business_analyst` |
+| 3 | Docker publisher plan binds metadata/provenance and dry-run/rollback atomically | publisher plan then owned tests | `developer` / `qa_tester` |
+| 4 | Router/data are excluded and preserved until provenance/ownership decisions | scope evidence and blocked tickets | `developer` / `business_analyst` |
+| 5 | An isolated clean-checkout gate runs the relevant/full QA and Docker package dry-run after every source/docs freeze; then secret scan, review, safe commit/push, Docker HF publish, health/version, and Vercel UI E2E/visual gates pass sequentially | per-ticket fresh evidence | designated release owners |
+
+### D4 — Constraints & Safeguards
+- Current branch is `main`; configured remote is `origin`; the canonical production pair is HF Docker backend plus Vercel static UI. The worktree is dirty and no staged changes were observed at the planning audit; no clean-up or overwrite is authorized.
+- Do not disclose or modify secrets. Fly.io remains removed and Azure ingress is blocked; no alternate target may be substituted.
+- The first two audit lanes are read-only and independent. All external mutations are `BLOCKED` until their declared dependencies, quota/HITL conditions, and evidence gates pass.
+
+### D5 — Allocation and Dependency Chain
+- Completed audits: `...-01-SCOPE` classified three remediation groups and router/data exclusions; `...-02-TARGET` confirmed `origin/main`, HF Docker backend, Vercel UI, and Azure/Fly prohibition.
+- Dispatcher17/18/37, workflows19/21D/27, governance20/28/28R2, source/QA tickets29–38 and40A–41B, publisher21A/21B/22A, and the 21D/41A/41B corrections are frozen with their recorded evidence. Workflow21D remains bound to SHA-256 `276899e3dd6cec5531b3eb97e731f096a8998b08ec8830c81237c31b17dbf0a0`; publisher core21A remains bound to SHA-256 `3483b2df51fb2b6e2127ed286c58b733ae9cb73855397c6f6d9cf33da3601da0`. Ticket21C is deliberately deferred until ticket45 creates the immutable source identity; ticket22 then performs final metadata-aware publisher QA. Ticket39 remains HITL-blocked, and tickets42/43 plus their QA are post-source packaging work excluded from ticket45.
+- Then each source freeze releases its separate QA: `19 -> 27`, `21A + 21B + 21C + 21D -> 22`, `29 -> 33` (with 21C before live green), `30 -> 34`, `31 -> 35`, `32 -> 36`, then docs `23`, isolated clean-checkout gate `26`, release package/review, and only then external gates `08` through `12`.
+- `TICKET-AGY1-SMOKE-20260826-R3` remains an independent fresh-decision gate; acceptance R3 does not authorize its execution or a different provider route.
+- **Superseding rolling handoff**: ticket44 attempt-1 is immutable `BLOCKED`: commands1/2 passed `151`/`70`, command3 used stale `project/tests/test_hf_release_governance.py`, exited `4`, and collected no tests; inventory digest `f372695e92ff025edccc35f47007ce53cea275b39d34c7c1c55c73c026a6889e` did not change. Rule 11 now selects ticket44R2 with only command3 corrected to `tests/test_hf_release_governance.py`. The strict sequence is `frozen source/QA -> 44R2 -> 45 -> 21C -> 22 -> later packaging commit/push`. RC2-004 remains separate `BLOCKED/NEEDS_HITL` because quota is unknown.
+
+### D6 — Assumption Register
+| # | Assumption | Status |
+|---|---|---|
+| 1 | User authorization covers release planning and later target-scoped external actions only after all gates | `[CONFIRMED]` |
+| 2 | `origin/main` is the provisional push target | `[CONFIRMED]`; local target audit completed; push still needs final re-verification |
+| 3 | Canonical production is HF Docker backend `pphothidaen/horoconsultant-core-backend` plus Vercel static UI | `[CONFIRMED]`; static deployment to that backend Space is retired pending owned remediation |
+| 4 | Dirty tracked/untracked files are not safe to commit until scope/provenance audit classifies each item | `[CONFIRMED]`; router/data are explicitly excluded and preserved |
+| 5 | R3 acceptance result is complete and sanitized | `[CONFIRMED]`; [`evidence_multiagent_acceptance_20260826_r3.json`](../project/tests/artifacts/priority_scheduling/evidence_multiagent_acceptance_20260826_r3.json) is authoritative |
+| 6 | No metaphysical computation or interpretation is part of this release plan | `[CONFIRMED]` |
+
+### D7 — Risk and Rollback
+- **Risk**: concurrent dirty work is accidentally included or overwritten. **Mitigation**: scope/provenance audit and source freeze before staging; `project/api_router.py` and the two data files remain blocked/excluded; no cleanup/reset.
+- **Risk**: session marker existence/mtime is mistaken for authenticated authority or emits unsafe diagnostics. **Mitigation**: dispatcher/config plan before any source mutation, then owned QA.
+- **Risk**: CI or publisher still chooses Azure/Fly/static-to-backend paths. **Mitigation**: disjoint workflow, governance, and publisher plans before QA; no history deletion.
+- **Risk**: a local pass is mistaken for deployment evidence. **Mitigation**: separate QA, package, review, push, publish, health/version, and UI/visual gates.
+- **Risk**: external mutation has an unsafe target. **Mitigation**: target audit and explicit target-bound ticket before each mutation.
+- **Rollback**: revert only the exact later release commit (`git revert <release-commit>`) and restore the HF Space to its recorded prior revision; preserve unrelated work.
+
+### D8 — Token and Capacity Strategy
+- At this checkpoint only root coordination, BSA reconciliation, and the reserved read-only ticket44R2 lane are useful. All earlier publisher/workflow/diagnostic editors are frozen. Ticket45 is a separate future mutation lane, and ticket21C, final QA22, docs/skill packaging, clean-checkout, push, deploy, and external verification remain blocked behind it.
+- Trim test/release logs to commands, exit statuses, summaries, and non-secret evidence. Do not retain raw provider streams, credentials, or account identifiers.
+- **Superseding Rule 11 checkpoint**: ticket44R2 (`CRITICAL/S`) is reserved under the approved `codex1_gateway_review` read-only sandbox. Decision digest `bc04be568ba08607365d99fd0ec6adfd40f4370e1ed0576675959534df5b3953`; snapshot digest `ab58c0d03d5c5c65e48da8c16d39026ddc2b57fb67b4d4c9eabecd7b7841e427`. Ticket45 remains `BLOCKED` and has no executable decision/snapshot until ticket44R2 is green. Ticket21C stays after ticket45 and may never use dirty `HEAD` or a placeholder.
+
+### Pre-source integration and immutable-source boundary
+
+- Ticket44 attempt-1 evidence is immutable and content-free. Ticket44R2 runs the same exact offline Python/Node/schema/sync/diff matrix recorded in `PROJECT_TASKS.md`, changing only the stale command3 path; it edits nothing and retains concise summaries only.
+- The read-only Git inventory maps the current candidate paths to frozen release tickets. Ticket45's exact allowlist and exclusions are authoritative in `PROJECT_TASKS.md`; it must recheck byte-for-path identity immediately before any later staging.
+- Ticket45 is a local commit only. It must exclude router/data provenance, HITL/admin files, `project/static/version.json`, `public/version.json`, final QA/docs/skill files, scheduling evidence, and every path absent from the closed allowlist. Any new or unresolved path blocks the ticket.
+- After ticket45 records `release_source_commit`, ticket21C may update only the two version mirrors. Those metadata files and later QA/docs/evidence belong to the later `packaging_commit`; push remains ticket08 after all review gates.
+
+### D9 — Domain Scope and HITL
+- `source_domain`: governance/release, not `metaphysical-domain-engine`; no metaphysical HITL applies.
+- Release HITL is satisfied only to plan/reserve. Each later external mutation still requires its listed prerequisite evidence and target validation.
+- Exception: ticket39 touches the HITL router. It is blocked until `required_human_review=true`, `/hitl/scope-audit?source_domain=metaphysical-domain-engine` reports `summary.pass_gate_check=true`, and owner sign-off is recorded; no reservation overrides that gate.
+
+### Blockers
+- External mutation tickets are intentionally blocked pending current scope/target audit outputs, source freeze, QA, package, and review gates.
+
+---
+
 ## GRILL REPORT — Pre-QA Receipt-v2 Lanes, Alias Smoke Dispatch, Formal QA & Push
 **Date**: 2026-08-26T02:14:00+07:00
 **Grilled By**: `orchestrator` (Antigravity / Claude Sonnet 4.6 Thinking)
@@ -88,7 +336,7 @@ Dependency chain: `developer` (4 serial lanes) → `qa_tester` → `devops` (syn
 ## GRILL REPORT — Priority Governance Scheduling
 **Date**: 2026-08-25
 **Grilled By**: `orchestrator` / `business_analyst`
-**Gate Status**: APPROVED — session HITL is recorded without approver identity. AGY native-protocol, receipt-v2 schema, all four High pre-QA remediation lanes, and formal R5 QA are complete and frozen. `TICKET-PRIORITY-004R5` is reserved/active as the fresh read-only final review; final reconciliation remains blocked.
+**Gate Status**: APPROVED — session HITL is recorded without approver identity. AGY native-protocol, receipt-v2 schema, all four High pre-QA remediation lanes, formal R5 QA, and `TICKET-PRIORITY-004R5` final review are complete and frozen. The final review is `READY_FOR_PROD`; the only active lane is sanitized, read-only AGY quota discovery. A separate multi-agent acceptance proof is reserved behind that lane so its three explorer instances can use the complete four-slot budget safely.
 **Authoritative Policy**: `.agents/rules/11-orchestrator-subagent-delegation.md`
 
 ### D1 — Scope Boundary
@@ -122,7 +370,7 @@ Dependency chain: `developer` (4 serial lanes) → `qa_tester` → `devops` (syn
 - `TICKET-PRIORITY-001` (`business_analyst`): governance and documentation.
 - `TICKET-PRIORITY-002` (`developer`): hook/dispatcher enforcement after governance and quota validation.
 - `TICKET-PRIORITY-003` (`qa_tester`): focused comparator, eligibility, tie, invalid-metadata, and model-effort separation tests.
-- `TICKET-PRIORITY-004R5` (`code_reviewer`): `DOING (RESERVED)`; fresh read-only final review after completed R5 QA; it is the final pre-retry review gate.
+- `TICKET-PRIORITY-004R5` (`code_reviewer`): `DONE — READY_FOR_PROD`; no Critical/High finding, combined `213` tests plus sync, locked-dependency, secret, and diff checks passed. Wrapper timeout is Medium, with reviewer-recorded Medium/Low residuals retained.
 - `TICKET-PRIORITY-002R` (`developer`): approval-gated remediation of the five review findings; complete with bounded local evidence.
 - `TICKET-PRIORITY-003R` (`qa_tester`): independent remediation security regression QA; complete and releases `TICKET-PRIORITY-004` for re-review.
 - `TICKET-PRIORITY-002R2` (`developer`): `DONE`; one-file bounded source fix, exact regression `1 passed`, claim subset `31 passed, 83 deselected`, and deleted active-entry reacquisition blocked.
@@ -140,9 +388,13 @@ Dependency chain: `developer` (4 serial lanes) → `qa_tester` → `devops` (syn
 - `TICKET-AGY1-RECEIPT-V2-AGY-REQUIREMENT-20260826-R1` (`developer`): `DONE`; schema-v2 conditional requirement passed, requiring AGY process/session ID while retaining Codex compatibility and `Z` timestamps.
 - `TICKET-PRIORITY-003R5` (`qa_tester`): `DONE`; combined `213` and focused `142` passed; sync, lock, and diff passed; no external AGY action.
 - `TICKET-AGY1-EVIDENCE-DOC-20260826-R1` (`business_analyst`): `DONE`; a disjoint governance clarification records that public outcomes are validated in-process only, elided, and not portable/offline evidence bundles.
-- `TICKET-AGY1-SMOKE-20260826-R3` (`orchestrator`): `PENDING — QA + FINAL PRE-RETRY REVIEW`; QA is complete, but it still needs `TICKET-PRIORITY-004R5`, then fresh decision/snapshot gates. No execution decision exists now.
-- `TICKET-PRIORITY-005` (`business_analyst`): final ecosystem sync/check and status reconciliation; remains pending.
-- Dependency chain: `001 -> 002 -> 003 -> 002R (fresh HITL) -> 003R -> 004 failed re-review -> 002R2 (fresh HITL, DONE) -> 003R2 (DONE) -> 004 failed final re-review (NEEDS_HITL, NOT READY) -> 002R3 (session HITL, DONE) -> 003R3 (DONE) -> 003R3E (DONE) -> 004 failed R3 re-review -> 002R4 (DONE) -> 002R5 (DONE) -> AGY native-protocol remediation (DONE) + receipt-v2 schema remediation (DONE) -> validator packaging + parser/evidence hardening + v2 adoption + AGY schema condition (all DONE) -> combined formal QA (DONE) -> fresh R5 read-only review (RESERVED) -> one-shot AGY smoke R3 (PENDING, fresh decision/snapshot only) -> 005`. The documentation-evidence boundary is complete and disjoint from QA. Dependencies and HITL override the scheduling comparator at every checkpoint.
+- `TICKET-AGY1-QUOTA-20260826-R1` (`devops`): `BLOCKED — CONSUMED / SANITIZATION_FAILURE`; one query only, no retry. User-attested safe alias bands supersede it for later routing; no personal/account data is recorded.
+- `TICKET-MULTIAGENT-ACCEPTANCE-20260826-R1` (`orchestrator`): `FAILED — CHILD SCOPE OVERLAP`; topology/timing/nonces/fingerprint/no-change evidence passed but the child inspected parent A's Rule 11 scope.
+- `TICKET-MULTIAGENT-ACCEPTANCE-20260826-R2` (`orchestrator`): `FAILED — NO EXACT 4/4 PEAK`; exact scopes/nonces/fingerprint/no-change passed, but B ended before the child began.
+- `TICKET-MULTIAGENT-ACCEPTANCE-20260826-R3` (`orchestrator`): `DONE`; exact A/B/child scopes and nonces, child-interval triple overlap, root barrier `running` capture, forwarding, equal safe fingerprint, and empty changes passed.
+- `TICKET-AGY1-SMOKE-20260826-R3` (`orchestrator`): `BLOCKED — FRESH GATES`; it needs its own fresh alias-specific decision/snapshot. No execution decision exists now.
+- `TICKET-PRIORITY-005` (`business_analyst`): final ecosystem sync/check and status reconciliation; superseded by pending Release Completion closure.
+- Dependency chain: `001 -> 002 -> 003 -> 002R (fresh HITL) -> 003R -> 004 failed re-review -> 002R2 (fresh HITL, DONE) -> 003R2 (DONE) -> 004 failed final re-review (NEEDS_HITL, NOT READY) -> 002R3 (session HITL, DONE) -> 003R3 (DONE) -> 003R3E (DONE) -> 004 failed R3 re-review -> 002R4 (DONE) -> 002R5 (DONE) -> AGY native-protocol remediation (DONE) + receipt-v2 schema remediation (DONE) -> validator packaging + parser/evidence hardening + v2 adoption + AGY schema condition (all DONE) -> combined formal QA (DONE) -> fresh R5 read-only review (DONE — READY_FOR_PROD) -> sanitized quota discovery (RESERVED) -> multi-agent acceptance proof (PENDING, three-slot window) and one-shot AGY smoke R3 (PENDING, fresh decision/snapshot only) -> 005`. The documentation-evidence boundary is complete and disjoint from QA. Dependencies, quota, ownership, and the total-slot limit override the scheduling comparator at every checkpoint.
 
 ### D6 — Inputs, Assumptions, and Blockers
 | # | Item | Status |
@@ -171,7 +423,11 @@ Dependency chain: `developer` (4 serial lanes) → `qa_tester` → `devops` (syn
 | 22 | High AGY parser/evidence hardening is complete and frozen | `[CONFIRMED]`; focused source-hardening evidence passed `188` tests with three intentional obsolete-test deltas. Strict duplicate/non-finite rejection, content-free/redacted result handling, sanitation before hashing/persistence, and exact AGY process/session binding are implemented. The three obsolete fixtures/assertions are QA-owned; no external AGY retry. |
 | 23 | Receipt-v2 reproducibility, adoption, and provider-condition prerequisites are complete and frozen | `[CONFIRMED]`; isolated validator declaration/lock passed; policy/template adoption passed ecosystem sync/check, `16` focused governance tests, and secret scan; schema-v2 conditional requirement passed. Receipt-v2 remains new-only with v1 unchanged; the next gate is test-only formal QA. |
 | 24 | Public outcome evidence is intentionally not portable/offline proof | `[CONFIRMED]`; public `ExecutionOutcome` is validated in-process with stdout/stderr elided. `portable=True` still needs separately retained trusted exact raw stdout; no approved private retention channel exists, raw streams must never be restored/logged, and AGY success wording is `validated in-process only`. This is a Medium residual; any encrypted sidecar is a future separately scoped/HITL-gated design. |
-| 25 | A later AGY smoke is bounded but not yet eligible | `[CONFIRMED]`; `TICKET-AGY1-SMOKE-20260826-R3` has no writable ownership and no execution decision. It requires formal QA plus final pre-retry review, then a fresh Rule 18 decision and Rule 11 snapshot before one maximum read-only execute attempt. |
+| 25 | The R5 final review is terminally complete | `[CONFIRMED]`; `TICKET-PRIORITY-004R5` is `DONE — READY_FOR_PROD` with no Critical/High finding; combined `213`, sync, locked-dependency, secret, and diff checks passed. Wrapper timeout is Medium and reviewer Medium/Low residuals remain tracked. |
+| 26 | The CLI quota lane is terminally blocked | `[CONFIRMED]`; its one status query is consumed as `sanitization_failure` with `unknown` quota and no retry. The fingerprint window is only `changed/confounded`; current-session user attestation supplies safe alias bands for later gating. |
+| 27 | R1/R2 acceptance both failed their exact criteria | `[CONFIRMED]`; R1 child scope overlapped Parent A; R2 B `[526622835607125,526630510648125]` ended before child `[526638962397125,526638984734625]`, so no exact `4/4` peak was proven. |
+| 28 | Final R3 acceptance uses a root barrier | `[CONFIRMED]`; B must remain `READY` until release, the child must remain `READY` until release, and root must capture all root/A/B/child as `running`. Exact disjoint scopes, fresh nonces, fingerprint equality, and no changes remain required; a third failure escalates to HITL. |
+| 29 | A later AGY smoke remains bounded and blocked | `[CONFIRMED]`; it needs successful R3 plus a fresh alias-specific decision/snapshot. No execution decision exists now. |
 
 ### D7 — Risk and Rollback
 - **Risk**: A high-severity ticket bypasses an eligibility gate. **Mitigation**: filter first, compare second, re-evaluate after every reservation.
@@ -180,6 +436,8 @@ Dependency chain: `developer` (4 serial lanes) → `qa_tester` → `devops` (syn
 - **Residual risk**: default macOS user-state creation remains unverified because managed sandbox policy blocked it. **Mitigation**: `TICKET-PRIORITY-003R3E` verifies only actual default directory derivation, creation, modes, and outside-worktree location through the dispatcher helper, then a new independent read-only `TICKET-PRIORITY-004` re-review is required before `TICKET-PRIORITY-005` can become eligible.
 - **AGY/schema residual risk**: the completed remediation evidence has not yet independently exercised the integrated R5 matrix, the official AGY/fake path, or real generated Codex/AGY receipt-v2 conformance. **Mitigation**: the reserved formal QA lane updates the three obsolete fixtures/assertions and tests strict parsing, sanitation/redaction, exact session binding, migration, Draft 2020 conformance, tamper rejection, and field parity. Prohibit external retry until fresh QA and a decision/snapshot are complete.
 - **Public-evidence residual risk**: in-process validation and elided public streams cannot create independent portable/offline evidence. **Mitigation**: use successful AGY language `validated in-process only`; `portable=True` requires separately retained trusted exact raw stdout, but no approved retention channel exists. Never restore/log raw streams. A future encrypted sidecar is optional and requires separate scope, trust/retention design, and HITL; it is not implemented.
+- **Quota-discovery residual risk**: the `agy1` quota band is unknown before the status query, and any raw interactive evidence could expose account or session data. **Mitigation**: allow only the reserved one-shot sanitized status query; send no work prompt and retain only a safe quota-band or sanitized failure classification. R3 remains blocked until a fresh decision/snapshot validates the resulting band.
+- **Acceptance-proof result**: R3 satisfies the barrier standard: root observed root/A/B/child all `running` after B and child `READY` and before release; exact scopes/nonces, forwarding, equal safe fingerprint, no changes, and a `17,918,884,250 ns` triple overlap passed. The standard is operationally accepted; no external provider action is implied.
 - **Rollback**: Revert only the owned governance insertions and regenerate mirrors through the sync script; no production or data rollback is involved.
 
 ### D8 — DispatchDecision v1 and Effort Separation
@@ -305,7 +563,8 @@ Dependency chain: `developer` (4 serial lanes) → `qa_tester` → `devops` (syn
 ### D8.17 — Public Outcome Evidence and Post-QA Smoke Checkpoints
 - **Completed documentation decision**: [`decision_agy1_evidence_doc_20260826_r1.json`](../project/tests/artifacts/priority_scheduling/decision_agy1_evidence_doc_20260826_r1.json) records the Medium/XS governance clarification under current policy `2026-08-26.1`. It selected `codex1` / `gpt-5.6-terra` / `high`, non-secret quota `healthy`, mutation mode, and session HITL approval. Rule 17, the orchestration skill, and the reusable template now agree: public `ExecutionOutcome` is validated in-process with elided stdout/stderr; receipt plus WorkResult plus public outcome is not independently portable/offline evidence.
 - **Portable-evidence boundary**: `portable=True` still requires separately retained trusted exact raw stdout; no approved private retention channel exists. Never restore, log, or persist raw streams. Successful AGY language is `validated in-process only`. This is a Medium residual; an encrypted access-controlled sidecar is only a future separately scoped/HITL-gated design and is not implemented.
-- **Fresh final review / pending AGY smoke R3**: [`decision_priority_004r5.json`](../project/tests/artifacts/priority_scheduling/decision_priority_004r5.json) reserves `TICKET-PRIORITY-004R5` for a High/S read-only final verdict under policy `2026-08-26.1`. `TICKET-AGY1-SMOKE-20260826-R3` remains read-only/no writable ownership and may make one execute attempt at most only after this review passes. Create its fresh Rule 18 decision and fresh Rule 11 scheduling snapshot then; no execution decision exists now and no external retry is authorized.
+- **Completed final review / active quota audit**: [`decision_priority_004r5.json`](../project/tests/artifacts/priority_scheduling/decision_priority_004r5.json) records the completed High/S final verdict under policy `2026-08-26.1`: `READY_FOR_PROD`, no Critical/High finding, combined `213` and sync/lock/secret/diff checks passed, with a Medium wrapper-timeout residual plus reviewer Medium/Low residuals. [`decision_agy1_quota_20260826_r1.json`](../project/tests/artifacts/priority_scheduling/decision_agy1_quota_20260826_r1.json) reserves the sole active High/XS `agy1` read-only quota audit with pre-query band `unknown` solely for discovery. It allows one sanitized interactive/status-only query, no work prompt, and no email/session/raw-TUI/path retention.
+- **Accepted R3 / pending AGY smoke**: [`evidence_multiagent_acceptance_20260826_r3.json`](../project/tests/artifacts/priority_scheduling/evidence_multiagent_acceptance_20260826_r3.json) records A/B/child exact scopes and nonces, child interval `[526908527668291,526926446552541]` as the `17,918,884,250 ns` triple overlap, READY/RELEASE barrier capture of root/A/B/child all `running`, forwarding, equal safe fingerprint marker, and empty change lists. AGY smoke remains blocked with no execution decision/snapshot.
 
 ### D9 — Metaphysical Domain and HITL
 - `source_domain`: governance, not `metaphysical-domain-engine`.
@@ -318,7 +577,7 @@ Dependency chain: `developer` (4 serial lanes) → `qa_tester` → `devops` (syn
 | `CP-PRIORITY-01` | Authoritative policy, mirrors, active plan/sprint | `DONE` | ecosystem `--sync` and `--check` returned `[OK]` on 2026-08-25 |
 | `CP-PRIORITY-02` | Hook/dispatcher enforcement | `DONE` | syntax and scoped diff checks exited `0`; governance regression `11` passed; dispatcher regression `76` passed with `18` legacy fixtures retained for QA; scheduler functional checks passed |
 | `CP-PRIORITY-03` | Independent QA | `DONE` | baseline `18` missing-snapshot failures reproduced; focused regression `154 passed` in `1.14s`, exit `0`; scoped diff check exit `0` |
-| `CP-PRIORITY-04` | Historical final R3 read-only safety re-review | `SUPERSEDED — FRESH R5 REVIEW` | fresh terminal verdict is reserved as `CP-PRIORITY-04R5-REVIEW` after completed R5 QA |
+| `CP-PRIORITY-04` | Historical final R3 read-only safety re-review | `SUPERSEDED — FRESH R5 REVIEW` | fresh terminal verdict completed as `CP-PRIORITY-04R5-REVIEW` after R5 QA |
 | `CP-PRIORITY-04R` | Safety-review remediation | `DONE` | four owned remediation files; syntax and scoped diff checks exited `0`; focused pytest `106 passed` in `1.13s`; five-finding and shell-indirection reproductions `OK` |
 | `CP-PRIORITY-03R` | Remediation security regression QA | `DONE` | combined focused pytest exit `0`, `173 passed` in `1.53s`; scoped diff check exit `0`; five remediation areas covered and Rule 11 matrix green |
 | `CP-PRIORITY-04R2` | Second safety re-review remediation | `DONE` | one-file source fix; exact regression `1 passed`; claim subset `31 passed, 83 deselected`; deleted active-entry reacquisition blocked |
@@ -336,12 +595,16 @@ Dependency chain: `developer` (4 serial lanes) → `qa_tester` → `devops` (syn
 | `CP-AGY1-V2-AGY-R1` | Receipt-v2 AGY conditional requirement | `DONE` | schema conditional passed; AGY session ID and `Z` timestamp required, Codex compatible |
 | `CP-PRIORITY-03R5` | Combined formal QA | `DONE` | combined `213` and focused `142` passed; sync, lock, and diff passed; no external AGY action |
 | `CP-AGY1-EVIDENCE-DOC-R1` | Public outcome evidence boundary | `DONE` | rule, skill, and template aligned; public outcomes are in-process-only/elided, Medium residual recorded; sync/test/secret/diff evidence required |
-| `CP-PRIORITY-04R5-REVIEW` | Fresh R5 read-only final review | `DOING (RESERVED)` | fresh decision under policy `2026-08-26.1`; no writable or external actions |
-| `CP-AGY1-SMOKE-R3` | One-shot post-QA AGY smoke | `PENDING — FINAL PRE-RETRY REVIEW` | read-only/no writable ownership; one attempt maximum, fresh decision/snapshot only after review passes |
+| `CP-PRIORITY-04R5-REVIEW` | Fresh R5 read-only final review | `DONE — READY_FOR_PROD` | no Critical/High finding; combined `213`, sync, locked-dependency, secret, and diff checks passed; wrapper timeout Medium plus reviewer Medium/Low residuals retained |
+| `CP-AGY1-QUOTA-R1` | Sanitized AGY quota discovery | `BLOCKED — CONSUMED` | one query ended `sanitization_failure`; no retry; later safe alias bands are user-attested |
+| `CP-MULTIAGENT-ACCEPTANCE-R1` | Read-only multi-agent acceptance proof | `FAILED — SCOPE` | timing/nonces/fingerprint/no-change passed; child scope overlapped Parent A |
+| `CP-MULTIAGENT-ACCEPTANCE-R2` | Read-only multi-agent acceptance proof | `FAILED — PEAK` | B ended before child began; exact `4/4` was not proven |
+| `CP-MULTIAGENT-ACCEPTANCE-R3` | Final barrier-controlled acceptance proof | `DONE` | root observed root/A/B/child all `running`; exact scopes/nonces/forwarding/fingerprint/no-change and triple overlap passed |
+| `CP-AGY1-SMOKE-R3` | One-shot post-QA AGY smoke | `BLOCKED — FRESH GATES` | acceptance passed, but no fresh alias-specific decision/snapshot exists |
 | `CP-PRIORITY-05` | Final ecosystem sync and task reconciliation | `PENDING` | final `--sync`, `--check`, diff check, and evidence-backed statuses |
 
 ### Current Stop Condition
-- `TICKET-PRIORITY-002R5`, AGY native-protocol remediation, receipt-v2 remediation, all four pre-QA tickets, the public-outcome evidence documentation ticket, and R5 formal QA are `DONE` and frozen. `TICKET-PRIORITY-004R5` is the active read-only final review; `TICKET-PRIORITY-005` remains blocked. The later R3 AGY smoke has no writable ownership or executable decision/snapshot until that review passes. No external AGY retry is authorized. Stop this documentation handoff here; do not execute source changes, tests, review execution, deploy, push, authentication, secrets, or account changes.
+- R3 acceptance remains operationally accepted. Publisher/workflow/diagnostic sources and their owned QA are frozen with the evidence summarized above. Ticket44R2 is the only executable next lane; ticket45 waits for ticket44R2 green plus a fresh mutation decision/snapshot, then ticket21C follows the resulting immutable source identity. Ticket39 and RC2-004 remain separate HITL blockers; router/data and all closed-list exclusions remain outside the source commit. No commit, metadata edit, packaging, push, deploy, or post-deploy action is authorized by this reconciliation.
 
 ---
 
@@ -936,6 +1199,16 @@ content-free taxonomy/test evidence plus one terminal `codex1` classification;
 it does not close the four-alias receipt or release gate. Stop on any failed
 gate or unauthorized continuation. Board-level details and acceptance checklist
 are authoritative in `TICKET-ALIAS-RC2-004`.
+
+### QuotaObservation remediation checkpoint
+
+RC2-004 remains `BLOCKED/NEEDS_HITL` with quota `unknown`; no provider child is authorized. The security-reviewed local remediation is frozen as `QOBS-CONTRACT -> QOBS-PROBE -> QOBS-DISPATCH -> QOBS-SCHEDULER -> QOBS-QA -> QOBS-GOVERNANCE`, with one editor and exact ownership recorded in `PROJECT_TASKS.md`.
+
+- QOBS-CONTRACT is the only Rule 11-eligible lane. Its all-rank-3 normal executable decision selects `codex1/gpt-5.6-sol/high` with conservative local band `constrained`, not RC2 provider quota evidence. Decision digest `16a0a2b5c810dfe1eaa8eb799637557acbe0238e2bfaeb8fef1fb31d7ad527a2`; snapshot digest `07988a56fdb531884f1e3888d1b1b931176b2f9c5d2a75de9e23a7bd6af2af7c`.
+- The contract retains no raw stream/error/home path; binds alias/provider, account-home and executable digests, ticket/attempt/policy, and a one-use nonce through strict domain-separated canonical JSON; pins versions; and enforces age `<=60s`, future tolerance `<=5s`, and single use.
+- All legacy and bucket primary/secondary `usedPercent`, individual `remainingPercent`, reached/limit, and spend controls are evaluated. Invalid/missing/contradictory applicable evidence is `unknown`; exactly `10%` is `constrained`, below `10%` is `below_10_percent`, and protocol v1 never emits `healthy`.
+- QOBS-bound DispatchDecision v1 is legacy/non-executable; the scheduler rejects contradictions; receipt-v2 transitively revalidates the exact artifact, provenance, nonce, decision, snapshot, executable, and policy. No copied-band or receipt-summary shortcut is valid.
+- No later lane starts before its predecessor freezes and receives a fresh Rule 18/11 pair. No sync, provider/network/secret/account/git/release action is part of this plan.
 
 ---
 

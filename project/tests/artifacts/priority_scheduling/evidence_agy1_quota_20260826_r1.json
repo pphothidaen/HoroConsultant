@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-AGY1-QUOTA-20260826-R1",
+  "status": "BLOCKED",
+  "consumed": true,
+  "attempt_count": 1,
+  "quota_band": "unknown",
+  "failure_class": "sanitization_failure",
+  "retry_authorized": false,
+  "work_prompt_sent": false,
+  "raw_account_or_session_data_persisted": false,
+  "fingerprint_window": {
+    "changed": true,
+    "confounded": true
+  },
+  "external_work_dispatch": "none"
+}

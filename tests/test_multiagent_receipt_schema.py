@@ -45,15 +45,37 @@ def _stream(provider: str, work_result: dict[str, object]) -> str:
     return "\n".join(json.dumps(event, separators=(",", ":")) for event in events) + "\n"
 
 
+def _isolated_account_homes(tmp_path: Path) -> dict[str, Path]:
+    """Create structurally safe account homes without any auth artifacts."""
+    homes = {
+        "codex": tmp_path / "codex-home",
+        "agy": tmp_path / "agy-home",
+    }
+    for home in homes.values():
+        home.mkdir(mode=0o700, exist_ok=True)
+        home.chmod(0o700)
+    return homes
+
+
 def _invocation(tmp_path: Path, provider: str) -> command.Invocation:
     policy = _policy()
+    homes = _isolated_account_homes(tmp_path)
     is_agy = provider == "agy"
     role = "researcher" if is_agy else "developer"
     ticket = "TICKET-SCHEMA-AGY" if is_agy else "TICKET-SCHEMA-CODEX"
     ownership = "tests/schema/agy.py" if is_agy else "tests/schema/codex.py"
     config = {
         "runtime": {"approved_for_execution": True, "protocol_version": 2},
-        "accounts": {"codex1": {"cli": "codex", "command": "codex"}, "agy1": {"cli": "agy", "command": "agy"}},
+        "accounts": {
+            "codex1": {
+                "cli": "codex", "command": "codex", "home_env": "CODEX_HOME",
+                "home_path": str(homes["codex"]),
+            },
+            "agy1": {
+                "cli": "agy", "command": "agy", "home_env": "AGY_HOME",
+                "home_path": str(homes["agy"]),
+            },
+        },
         "roles": {
             "developer": {"alias": "codex1", "cli": "codex", "model": "gpt-5.6-luna", "effort": "medium", "sandbox": "read-only"},
             "researcher": {"alias": "agy1", "cli": "agy", "model": "gemini-3.1-pro-high", "effort": "high", "mode": "plan", "sandbox": True},

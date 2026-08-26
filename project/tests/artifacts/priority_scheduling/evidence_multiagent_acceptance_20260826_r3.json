@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-MULTIAGENT-ACCEPTANCE-20260826-R3",
+  "status": "DONE",
+  "topology": {
+    "root_slots": 1,
+    "explorer_subagents": 3,
+    "active_slots": 4,
+    "slot_limit": 4,
+    "triple_subagent_overlap_ns": 17918884250
+  },
+  "agents": {
+    "A": {
+      "nonce": "MAG_R3_A_4B91",
+      "scope_owned": ".agents/rules/11-orchestrator-subagent-delegation.md",
+      "interval": [526892398954541, 526942163463791],
+      "changed_files": []
+    },
+    "B": {
+      "nonce": "MAG_R3_B_72CE",
+      "scope_owned": "docs/templates/MULTIAGENT_PROMPT_COMMAND.md",
+      "interval": [526894784557666, 526928042686666],
+      "changed_files": []
+    },
+    "child": {
+      "nonce": "MAG_R3_C_AF30",
+      "scope_owned": ".agents/skills/orchestrator-delegation/SKILL.md",
+      "interval": [526908527668291, 526926446552541],
+      "changed_files": []
+    }
+  },
+  "barrier": {
+    "B_ready_received": true,
+    "child_ready_received": true,
+    "live_agents_before_release": ["/root", "parent_a", "parent_a/nested_child_r3", "parent_b"],
+    "all_status_running": true,
+    "release_sent_after_live_capture": true
+  },
+  "parent_forwarded_exact_child_result_and_nonce": true,
+  "worktree_fingerprint": {
+    "equal": true,
+    "safe_marker": "ef0e56c4...27000"
+  },
+  "external_actions": "none"
+}

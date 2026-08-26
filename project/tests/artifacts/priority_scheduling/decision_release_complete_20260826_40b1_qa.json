@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-40B1-QA",
+  "phase": "qa",
+  "scope_rank": 1,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "After this BSA handoff, create only project/tests/test_secret_sync_release_contract.py. Verify opt-in --apply with explicit --env-file, default no implicit .env or network, retired Azure/Fly exclusion, HF/Vercel preservation, value redaction, and .env.example contract. Do not read real environment files or secret values, edit source, overlap QA40B2 files, or make external calls. The active 11-vs-13 inventory failure stays QA40B2-only.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

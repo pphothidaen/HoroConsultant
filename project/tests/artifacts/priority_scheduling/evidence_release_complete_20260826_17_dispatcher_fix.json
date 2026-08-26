@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-17-DISPATCHER-FIX",
+  "status": "DONE_FROZEN",
+  "ownership": [
+    "scripts/multiagent_prompt_command.py",
+    ".agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml"
+  ],
+  "evidence": {
+    "source_only_final_diff": "pass",
+    "focused_result": "192 passed; 23 stale fixture deltas retained for ticket 18",
+    "scheduler_and_governance": "71 passed",
+    "dry_run_reproductions": "4 passed",
+    "structural_symlink_four_role_reproductions": "pass",
+    "diagnostics": "path-free ASCII; no marker API"
+  },
+  "external_actions": "none",
+  "next_gate": "TICKET-RELEASE-COMPLETE-20260826-18-DISPATCHER-QA"
+}

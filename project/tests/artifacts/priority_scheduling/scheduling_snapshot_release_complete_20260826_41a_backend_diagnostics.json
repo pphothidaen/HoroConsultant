@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "tickets": [
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-16-PUBLISHER-PREP",
+      "severity": "HIGH",
+      "work_effort": "S",
+      "status": "DONE",
+      "dependencies": [],
+      "blockers": [],
+      "owner": "business_analyst",
+      "ownership": [
+        "publisher-prep-evidence"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-20-GOVERNANCE-FIX",
+      "severity": "HIGH",
+      "work_effort": "M",
+      "status": "DONE",
+      "dependencies": [],
+      "blockers": [],
+      "owner": "business_analyst",
+      "ownership": [
+        "governance-fix-evidence"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-21B-RELEASE-SCHEMAS",
+      "severity": "CRITICAL",
+      "work_effort": "S",
+      "status": "DONE",
+      "dependencies": [
+        "TICKET-RELEASE-COMPLETE-20260826-16-PUBLISHER-PREP"
+      ],
+      "blockers": [],
+      "owner": "developer",
+      "ownership": [
+        "project/schemas/release-manifest-v1.schema.json",
+        "project/schemas/release-receipt-v1.schema.json"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-21A-PUBLISHER-CORE",
+      "severity": "CRITICAL",
+      "work_effort": "M",
+      "status": "DONE",
+      "dependencies": [
+        "TICKET-RELEASE-COMPLETE-20260826-16-PUBLISHER-PREP",
+        "TICKET-RELEASE-COMPLETE-20260826-21B-RELEASE-SCHEMAS"
+      ],
+      "blockers": [],
+      "owner": "developer",
+      "ownership": [
+        "scripts/publish_space_hf.py"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-41A-BACKEND-DIAGNOSTICS",
+      "severity": "MEDIUM",
+      "work_effort": "XS",
+      "status": "DOING",
+      "dependencies": [
+        "TICKET-RELEASE-COMPLETE-20260826-20-GOVERNANCE-FIX"
+      ],
+      "blockers": [],
+      "owner": "developer",
+      "ownership": [
+        "scripts/grafana_cloud_exporter.py",
+        "scripts/run_remote_api_live_test.py",
+        "scripts/test_live_e2e_network.py"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-41B-UI-DIAGNOSTICS",
+      "severity": "HIGH",
+      "work_effort": "XS",
+      "status": "DONE",
+      "dependencies": [
+        "TICKET-RELEASE-COMPLETE-20260826-20-GOVERNANCE-FIX"
+      ],
+      "blockers": [],
+      "owner": "developer",
+      "ownership": [
+        "scripts/test_static_hf_space_questions.py",
+        "scripts/run_live_e2e_hf_space.py",
+        "scripts/audit_ui_overlap.py",
+        "scripts/run_vercel_prod_curl_regression.py"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-21D-PUBLISHER-WORKFLOW",
+      "severity": "HIGH",
+      "work_effort": "XS",
+      "status": "DOING",
+      "dependencies": [
+        "TICKET-RELEASE-COMPLETE-20260826-21A-PUBLISHER-CORE",
+        "TICKET-RELEASE-COMPLETE-20260826-21B-RELEASE-SCHEMAS"
+      ],
+      "blockers": [],
+      "owner": "developer",
+      "ownership": [
+        ".github/workflows/hf_backend_deploy.yml"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-41B-QA",
+      "severity": "HIGH",
+      "work_effort": "XS",
+      "status": "DOING",
+      "dependencies": [
+        "TICKET-RELEASE-COMPLETE-20260826-41B-UI-DIAGNOSTICS"
+      ],
+      "blockers": [],
+      "owner": "qa_tester",
+      "ownership": [
+        "project/tests/test_ui_diagnostic_release_contract.py"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    }
+  ],
+  "reservations": [
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-41A-BACKEND-DIAGNOSTICS",
+      "owner": "developer",
+      "ownership": [
+        "scripts/grafana_cloud_exporter.py",
+        "scripts/run_remote_api_live_test.py",
+        "scripts/test_live_e2e_network.py"
+      ]
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-21D-PUBLISHER-WORKFLOW",
+      "owner": "developer",
+      "ownership": [
+        ".github/workflows/hf_backend_deploy.yml"
+      ]
+    },
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260826-41B-QA",
+      "owner": "qa_tester",
+      "ownership": [
+        "project/tests/test_ui_diagnostic_release_contract.py"
+      ]
+    }
+  ]
+}

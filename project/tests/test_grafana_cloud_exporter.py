@@ -6,9 +6,9 @@ Computational Metaphysics Engine
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 import sys
+import urllib.request
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -20,9 +20,15 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.grafana_cloud_exporter import (
+    CANONICAL_HF_DOCKER_BACKEND,
+    READ_ONLY_ENDPOINTS,
+    _open_read_only,
+    _RejectRedirects,
     export_dashboard_to_grafana,
     format_grafana_payload,
     load_dashboard_schema,
+    probe_observability_endpoint,
+    run_read_only_diagnostics,
 )
 from scripts.grafana_cloud_exporter import (
     main as exporter_main,
@@ -175,7 +181,7 @@ class TestGrafanaCloudExporterCLI:
             load_dashboard_schema(ROOT / "non_existent_dashboard.json")
 
     def test_format_grafana_payload(self):
-        """Verify Grafana API payload structure formatting."""
+        """Verify read-only in-memory dashboard payload formatting."""
         mock_dashboard = {"title": "Test Dashboard", "uid": "test-uid"}
         payload = format_grafana_payload(mock_dashboard, overwrite=True, folder_uid="test-folder")
 
@@ -184,7 +190,7 @@ class TestGrafanaCloudExporterCLI:
         assert payload["dashboard"]["id"] is None
         assert payload["overwrite"] is True
         assert payload["folderUid"] == "test-folder"
-        assert "Exported via HoroConsultant" in payload["message"]
+        assert payload["message"] == "Validated by HoroConsultant read-only exporter"
 
     def test_export_dashboard_dry_run(self):
         """Verify export_dashboard_to_grafana with dry_run=True."""
@@ -194,33 +200,161 @@ class TestGrafanaCloudExporterCLI:
         assert res["payload"]["dashboard"]["uid"] == "horoconsultant-observability"
 
     def test_export_dashboard_missing_credentials(self):
-        """Verify export_dashboard_to_grafana handles missing env vars/credentials cleanly."""
-        with patch.dict(os.environ, {}, clear=True):
+        """Verify legacy credentials cannot enable a remote mutation."""
+        with (
+            patch("urllib.request.urlopen") as direct_open,
+            patch("urllib.request.build_opener") as opener_builder,
+        ):
             res = export_dashboard_to_grafana(
                 dashboard_path=str(DASHBOARD_FILE_PATH),
                 url=None,
                 token=None,
                 dry_run=False,
             )
-            assert res["status"] == "missing_credentials"
-            assert "missing" in res["message"].lower()
+        direct_open.assert_not_called()
+        opener_builder.assert_not_called()
+        assert res["status"] == "mutation_disabled"
+        assert res["message"] == "Remote dashboard mutation is disabled"
+        assert res["payload"]["dashboard"]["uid"] == "horoconsultant-observability"
 
     def test_export_dashboard_http_success_mock(self):
-        """Verify export_dashboard_to_grafana HTTP POST logic with mocked urlopen."""
-        mock_response = MagicMock()
-        mock_response.status = 200
-        mock_response.read.return_value = json.dumps({"status": "success", "slug": "horoconsultant-observability", "version": 1}).encode("utf-8")
-        mock_response.__enter__.return_value = mock_response
-
-        with patch("urllib.request.urlopen", return_value=mock_response):
+        """Verify legacy write options cannot enable HTTP mutation."""
+        with (
+            patch("urllib.request.urlopen") as direct_open,
+            patch("urllib.request.build_opener") as opener_builder,
+        ):
             res = export_dashboard_to_grafana(
                 dashboard_path=str(DASHBOARD_FILE_PATH),
-                url="https://horo.grafana.net",
-                token="test-api-token-123",
+                url="https://write.invalid",
+                token=object(),
                 dry_run=False,
             )
-            assert res["status"] == "success"
-            assert res["response"]["slug"] == "horoconsultant-observability"
+        direct_open.assert_not_called()
+        opener_builder.assert_not_called()
+        assert res["status"] == "mutation_disabled"
+        assert res["message"] == "Remote dashboard mutation is disabled"
+        assert "response" not in res
+
+    def test_read_only_endpoint_allowlist_is_exact_canonical_get_matrix(self):
+        """Verify the live matrix contains only canonical health and metrics GETs."""
+        assert READ_ONLY_ENDPOINTS == (
+            {
+                "name": "backend_health",
+                "url": f"{CANONICAL_HF_DOCKER_BACKEND}/health",
+                "response_kind": "json",
+            },
+            {
+                "name": "backend_metrics",
+                "url": f"{CANONICAL_HF_DOCKER_BACKEND}/metrics",
+                "response_kind": "prometheus",
+            },
+        )
+        assert all("grafana" not in endpoint["url"] for endpoint in READ_ONLY_ENDPOINTS)
+        assert all("dashboard" not in endpoint["url"] for endpoint in READ_ONLY_ENDPOINTS)
+
+    def test_live_diagnostics_use_get_only_after_explicit_opt_in(self):
+        """Verify explicit live mode probes the exact allowlist using only GET."""
+        requests = []
+
+        def open_request(request, timeout):
+            requests.append((request, timeout))
+            response = MagicMock()
+            response.status = 200
+            response.read.return_value = (
+                b'{"status":"ok"}'
+                if request.full_url.endswith("/health")
+                else b"process_uptime_seconds 1\n"
+            )
+            response.__enter__.return_value = response
+            return response
+
+        assert run_read_only_diagnostics(live=False, open_request=open_request) == []
+        assert requests == []
+
+        results = run_read_only_diagnostics(live=True, open_request=open_request)
+
+        assert [result["outcome"] for result in results] == ["PASSED", "PASSED"]
+        assert [request.full_url for request, _timeout in requests] == [
+            endpoint["url"] for endpoint in READ_ONLY_ENDPOINTS
+        ]
+        assert all(request.get_method() == "GET" for request, _timeout in requests)
+        assert all(timeout == 5.0 for _request, timeout in requests)
+
+    @pytest.mark.parametrize(
+        "url",
+        [
+            f"{CANONICAL_HF_DOCKER_BACKEND}/api/dashboards/db",
+            f"{CANONICAL_HF_DOCKER_BACKEND}/health?redirect=1",
+            "https://example.invalid/health",
+        ],
+    )
+    def test_probe_rejects_non_allowlisted_or_mutating_targets(self, url):
+        """Verify target validation fails before any network opener can run."""
+        contract = {
+            "name": "backend_health",
+            "url": url,
+            "response_kind": "json",
+        }
+        with (
+            patch("urllib.request.urlopen") as direct_open,
+            patch("urllib.request.build_opener") as opener_builder,
+            pytest.raises(ValueError, match="outside the fixed allowlist"),
+        ):
+            probe_observability_endpoint(contract)
+        direct_open.assert_not_called()
+        opener_builder.assert_not_called()
+
+    def test_direct_opener_disables_ambient_proxy_and_redirects(self):
+        """Verify the production opener is direct and refuses redirects."""
+        request = urllib.request.Request(
+            f"{CANONICAL_HF_DOCKER_BACKEND}/health",
+            method="GET",
+        )
+        opener = MagicMock()
+        response = MagicMock()
+        opener.open.return_value = response
+
+        with patch("urllib.request.build_opener", return_value=opener) as builder:
+            assert _open_read_only(request, 2.5) is response
+
+        proxy_handler, redirect_handler = builder.call_args.args
+        assert isinstance(proxy_handler, urllib.request.ProxyHandler)
+        assert proxy_handler.proxies == {}
+        assert isinstance(redirect_handler, _RejectRedirects)
+        opener.open.assert_called_once_with(request, timeout=2.5)
+
+    def test_cli_live_flag_is_the_only_network_opt_in(self, capsys):
+        """Verify the CLI forwards live=True only for the explicit --live flag."""
+        live_results = [
+            {
+                "name": "backend_health",
+                "outcome": "PASSED",
+                "classification": "OK",
+                "http_status": 200,
+                "latency_ms": 1.0,
+                "response_bytes": 15,
+            },
+            {
+                "name": "backend_metrics",
+                "outcome": "PASSED",
+                "classification": "OK",
+                "http_status": 200,
+                "latency_ms": 1.0,
+                "response_bytes": 25,
+            },
+        ]
+        with patch(
+            "scripts.grafana_cloud_exporter.run_read_only_diagnostics",
+            return_value=live_results,
+        ) as diagnostics:
+            assert exporter_main(["--live", "--json"]) == 0
+
+        diagnostics.assert_called_once_with(live=True, timeout=5.0)
+        evidence = json.loads(capsys.readouterr().out)
+        assert evidence["mode"] == "LIVE_READ_ONLY"
+        assert evidence["target"] == CANONICAL_HF_DOCKER_BACKEND
+        assert evidence["method"] == "GET"
+        assert evidence["network_requests"] == 2
 
     def test_cli_dry_run_flag(self):
         """Verify CLI invocation with --dry-run and --export-dashboard args."""
@@ -235,7 +369,7 @@ class TestGrafanaCloudExporterCLI:
             assert exit_code == 0
 
     def test_cli_execution_via_subprocess(self):
-        """Verify executing scripts/grafana_cloud_exporter.py directly via python process."""
+        """Verify direct CLI execution stays sanitized and offline by default."""
         script_path = ROOT / "scripts" / "grafana_cloud_exporter.py"
         cmd = [
             sys.executable,
@@ -244,6 +378,13 @@ class TestGrafanaCloudExporterCLI:
             "--dry-run",
             "--export-dashboard",
         ]
-        res = subprocess.run(cmd, capture_output=True, text=True)
+        res = subprocess.run(cmd, capture_output=True, text=True, check=False)
         assert res.returncode == 0
-        assert "Dry-run mode enabled" in res.stdout or "Dry run" in res.stdout or "dry_run" in res.stdout
+        assert res.stderr == ""
+        assert res.stdout.splitlines() == [
+            f"[INFO] mode=DRY_RUN target={CANONICAL_HF_DOCKER_BACKEND}",
+            "[INFO] method=GET network_requests=0",
+            "[OK] dashboard JSON validated in read-only mode",
+            "[OK] observability diagnostic plan validated",
+        ]
+        assert res.stdout.isascii()

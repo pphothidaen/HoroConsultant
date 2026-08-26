@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260826-38-QA",
+  "phase": "qa",
+  "scope_rank": 2,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "healthy",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "After this BSA handoff yields, modify only project/tests/test_cors_security.py and create only tests/api_index_vercel_contract.test.mjs. Verify canonical HF target pinning with no configuration, allowed paths/methods/body handling, denial of admin/HITL/traversal/unauthorized mutation, sanitized errors and correlation IDs, and Vercel rewrites. Do not edit QA40A files, source, workflows, admin/HITL static pages, credentials, or external systems.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

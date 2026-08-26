@@ -11,10 +11,13 @@ Tests:
 
 from __future__ import annotations
 
-import json
+import copy
 import hashlib
+import json
+import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -130,6 +133,287 @@ def _set_expected_release(monkeypatch, version="1.0.0.6c351ba", commit="6c351ba"
     )
 
 
+def _git(repo: Path, *args: str) -> str:
+    return subprocess.check_output(
+        ["git", *args],
+        cwd=repo,
+        stderr=subprocess.DEVNULL,
+        text=True,
+    ).strip()
+
+
+def _init_canonical_git_release(monkeypatch, tmp_path, metadata_mutator=None):
+    """Create a clean two-commit Docker release with immutable source metadata."""
+    repo = tmp_path / "release-repo"
+    (repo / "project" / "static").mkdir(parents=True)
+    _git(repo.parent, "init", "--quiet", str(repo))
+    _git(repo, "config", "user.email", "qa@example.invalid")
+    _git(repo, "config", "user.name", "Publisher QA")
+    _git(repo, "config", "commit.gpgsign", "false")
+
+    dockerfile = repo / "Dockerfile.hf"
+    source_file = repo / "project" / "static" / "source.txt"
+    dockerfile.write_text("FROM python:3.12-slim\n", encoding="utf-8")
+    source_file.write_text("immutable release source\n", encoding="utf-8")
+    dockerfile.chmod(0o644)
+    source_file.chmod(0o644)
+    _git(repo, "add", "Dockerfile.hf", "project/static/source.txt")
+    _git(repo, "commit", "--quiet", "-m", "release source")
+    source_revision = _git(repo, "rev-parse", "HEAD")
+    source_commit = source_revision[:12]
+
+    canonical = {
+        "release_source_commit": source_commit,
+        "release_source_metadata_path": "project/static/version.json",
+        "release_source_revision": source_revision,
+        "version": f"1.0.0.{source_commit}",
+    }
+    metadata = {
+        **canonical,
+        "release_source_metadata_sha256": hashlib.sha256(
+            json.dumps(
+                canonical,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            ).encode("utf-8")
+        ).hexdigest(),
+    }
+    if metadata_mutator is not None:
+        metadata_mutator(metadata)
+    metadata_path = repo / "project" / "static" / "version.json"
+    metadata_path.write_bytes(publisher._canonical_json(metadata) + b"\n")
+    metadata_path.chmod(0o644)
+    _git(repo, "add", "project/static/version.json")
+    _git(repo, "commit", "--quiet", "-m", "package release metadata")
+    packaging_commit = _git(repo, "rev-parse", "HEAD")
+    assert _git(repo, "status", "--porcelain=v1", "--untracked-files=all") == ""
+
+    monkeypatch.setattr(publisher, "ROOT", repo)
+    return repo, source_revision, source_commit, packaging_commit
+
+
+class _FakeAddOperation:
+    def __init__(self, *, path_in_repo, path_or_fileobj):
+        self.path_in_repo = path_in_repo
+        self.path_or_fileobj = path_or_fileobj
+
+
+class _FakeDeleteOperation:
+    def __init__(self, *, path_in_repo, is_folder=False):
+        self.path_in_repo = path_in_repo
+        self.is_folder = is_folder
+
+
+class _MockHfApi:
+    """In-memory exact-tree HF API double; it never performs network I/O."""
+
+    def __init__(
+        self,
+        cache_root: Path,
+        initial_revision: str,
+        initial_files: dict[str, bytes],
+        commit_behaviors,
+        *,
+        download_overrides=None,
+        post_commit_mutators=None,
+    ):
+        self.cache_root = cache_root
+        self.current_revision = initial_revision
+        self.snapshots = {initial_revision: dict(initial_files)}
+        self.commit_behaviors = list(commit_behaviors)
+        self.download_overrides = dict(download_overrides or {})
+        self.post_commit_mutators = dict(post_commit_mutators or {})
+        self.create_calls = []
+        self.repo_info_calls = []
+        self.tree_calls = []
+        self.download_calls = []
+
+    def repo_info(self, **kwargs):
+        self.repo_info_calls.append(kwargs)
+        assert kwargs == {
+            "repo_id": publisher.CANONICAL_SPACE_ID,
+            "revision": publisher.CANONICAL_BRANCH,
+            "repo_type": publisher.REPO_TYPE,
+            "files_metadata": False,
+        }
+        return SimpleNamespace(
+            sha=self.current_revision,
+            sdk=publisher.CANONICAL_SDK,
+            private=False,
+        )
+
+    def list_repo_tree(self, **kwargs):
+        self.tree_calls.append(kwargs)
+        revision = kwargs["revision"]
+        files = self.snapshots[revision]
+        return [
+            SimpleNamespace(
+                path=path,
+                size=len(data),
+                blob_id=publisher._git_blob_oid(data),
+            )
+            for path, data in reversed(sorted(files.items()))
+        ]
+
+    def hf_hub_download(self, **kwargs):
+        revision = kwargs["revision"]
+        filename = kwargs["filename"]
+        self.download_calls.append(kwargs)
+        data = self.download_overrides.get(
+            (revision, filename), self.snapshots[revision][filename]
+        )
+        destination = self.cache_root / revision / filename
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(data)
+        return str(destination)
+
+    def create_commit(self, **kwargs):
+        self.create_calls.append(kwargs)
+        assert kwargs["repo_id"] == publisher.CANONICAL_SPACE_ID
+        assert kwargs["repo_type"] == publisher.REPO_TYPE
+        assert kwargs["revision"] == publisher.CANONICAL_BRANCH
+        assert kwargs["create_pr"] is False
+        assert kwargs["run_as_future"] is False
+        assert kwargs["parent_commit"] == self.current_revision
+        assert self.commit_behaviors
+        behavior = self.commit_behaviors.pop(0)
+        if isinstance(behavior, BaseException):
+            raise behavior
+
+        next_files = dict(self.snapshots[self.current_revision])
+        for operation in kwargs["operations"]:
+            if isinstance(operation, _FakeDeleteOperation):
+                next_files.pop(operation.path_in_repo, None)
+            elif isinstance(operation, _FakeAddOperation):
+                assert isinstance(operation.path_or_fileobj, bytes)
+                next_files[operation.path_in_repo] = operation.path_or_fileobj
+            else:
+                raise AssertionError("unexpected commit operation")
+        mutator = self.post_commit_mutators.get(behavior)
+        if mutator is not None:
+            mutator(next_files)
+        self.snapshots[behavior] = next_files
+        self.current_revision = behavior
+        return SimpleNamespace(oid=behavior)
+
+
+def _install_fake_commit_operations(monkeypatch):
+    monkeypatch.setattr(publisher, "CommitOperationAdd", _FakeAddOperation)
+    monkeypatch.setattr(publisher, "CommitOperationDelete", _FakeDeleteOperation)
+
+
+def _desired_files(bundle):
+    return {item.path: item.data for item in bundle.files}
+
+
+def test_canonical_docker_manifest_is_deterministic_and_git_bound(monkeypatch, tmp_path):
+    _, source_revision, source_commit, packaging_commit = _init_canonical_git_release(
+        monkeypatch, tmp_path
+    )
+
+    first = publisher.build_release_bundle()
+    second = publisher.build_release_bundle()
+
+    assert first == second
+    assert first.manifest["space_id"] == publisher.CANONICAL_SPACE_ID
+    assert first.manifest["sdk"] == publisher.CANONICAL_SDK
+    assert first.manifest["packaging_commit"] == packaging_commit
+    assert first.manifest["release_source_commit"] == source_commit
+    assert first.manifest["release_source_revision"] == source_revision
+    assert [item.path for item in first.files] == [
+        "Dockerfile",
+        "project/static/source.txt",
+        "project/static/version.json",
+    ]
+    assert [entry["path"] for entry in first.manifest["entries"]] == [
+        item.path for item in first.files
+    ]
+    assert first.manifest["total_files"] == len(first.files)
+    assert first.manifest["total_bytes"] == sum(len(item.data) for item in first.files)
+    publisher.validate_release_manifest(first.manifest)
+
+    tampered = copy.deepcopy(first.manifest)
+    tampered["entries"][0]["staged_sha256"] = "0" * 64
+    tampered["manifest_sha256"] = publisher._object_digest(
+        tampered, "manifest_sha256"
+    )
+    with pytest.raises(publisher.PublisherError, match="MANIFEST_MISMATCH"):
+        publisher.validate_release_manifest(tampered)
+
+
+def test_canonical_docker_publish_receipt_and_rollback_restore_prior_tree(
+    monkeypatch, tmp_path
+):
+    _init_canonical_git_release(monkeypatch, tmp_path)
+    _install_fake_commit_operations(monkeypatch)
+    bundle = publisher.build_release_bundle()
+    prior_revision = "1" * 40
+    published_revision = "2" * 40
+    rollback_revision = "3" * 40
+    prior_files = {
+        "README.md": b"previous release\n",
+        "obsolete.txt": b"remove during publish\n",
+    }
+    api = _MockHfApi(
+        tmp_path / "hf-cache",
+        prior_revision,
+        prior_files,
+        [published_revision, rollback_revision],
+    )
+    manifest_path = tmp_path / "release-manifest.json"
+    publish_receipt_path = tmp_path / "publish-receipt.json"
+    rollback_receipt_path = tmp_path / "rollback-receipt.json"
+
+    assert publish_space(
+        publisher.CANONICAL_SPACE_ID,
+        sdk=publisher.CANONICAL_SDK,
+        manifest_path=manifest_path,
+        receipt_path=publish_receipt_path,
+        expected_parent_revision=prior_revision,
+        api=api,
+    ) is True
+
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    publish_receipt = json.loads(publish_receipt_path.read_text(encoding="utf-8"))
+    assert manifest == bundle.manifest
+    publisher.validate_release_manifest(manifest)
+    publisher.validate_release_receipt(publish_receipt, manifest)
+    assert publish_receipt["action"] == "publish"
+    assert publish_receipt["status"] == "SUCCEEDED"
+    assert publish_receipt["failure_class"] == "none"
+    assert publish_receipt["parent_revision"] == prior_revision
+    assert publish_receipt["prior_revision"] == prior_revision
+    assert publish_receipt["new_revision"] == published_revision
+    assert api.snapshots[published_revision] == _desired_files(bundle)
+    assert len(api.create_calls) == 1
+    assert api.create_calls[0]["commit_message"] == "Publish canonical Docker release"
+
+    assert publish_space(
+        publisher.CANONICAL_SPACE_ID,
+        sdk=publisher.CANONICAL_SDK,
+        manifest_path=manifest_path,
+        receipt_path=rollback_receipt_path,
+        rollback_from=publish_receipt_path,
+        api=api,
+    ) is True
+
+    rollback_receipt = json.loads(rollback_receipt_path.read_text(encoding="utf-8"))
+    publisher.validate_release_receipt(rollback_receipt, manifest)
+    assert rollback_receipt["action"] == "rollback"
+    assert rollback_receipt["status"] == "SUCCEEDED"
+    assert rollback_receipt["failure_class"] == "none"
+    assert rollback_receipt["parent_revision"] == published_revision
+    assert rollback_receipt["prior_revision"] == prior_revision
+    assert rollback_receipt["new_revision"] == rollback_revision
+    assert rollback_receipt["new_tree_sha256"] == publish_receipt["prior_tree_sha256"]
+    assert api.snapshots[rollback_revision] == prior_files
+    assert len(api.create_calls) == 2
+    assert api.create_calls[1]["commit_message"] == "Rollback canonical Docker release"
+    assert api.commit_behaviors == []
+
+
 def test_should_ignore_patterns():
     """Verify that heavy model files and cache directories are properly ignored."""
     assert should_ignore("project/models/qwen2.5-bazi-fused/model.safetensors") is True
@@ -167,21 +451,64 @@ def test_docker_build_context_dependencies_exist():
     assert "python3-venv patchelf" in dockerfile
 
 
-def test_publish_space_dry_run():
-    """Verify dry-run mode returns True without throwing exception."""
-    result = publish_space("pphothidaen/test-horoconsultant-backend", dry_run=True)
+def test_publish_space_dry_run(monkeypatch, tmp_path):
+    """Canonical Docker dry-run builds and persists one manifest without an API call."""
+    manifest_path = tmp_path / "release-manifest.json"
+    receipt_path = tmp_path / "release-receipt.json"
+    bundle = publisher.ReleaseBundle(
+        files=(),
+        manifest={
+            "space_id": publisher.CANONICAL_SPACE_ID,
+            "sdk": publisher.CANONICAL_SDK,
+        },
+    )
+    calls: list[str] = []
+
+    def canonical_bundle(space_id, sdk, *, private, create, whoami):
+        calls.append("build_release_bundle")
+        assert space_id == publisher.CANONICAL_SPACE_ID
+        assert sdk == publisher.CANONICAL_SDK
+        assert (private, create, whoami) == (False, False, False)
+        return bundle
+
+    def persist_manifest(path, manifest):
+        calls.append("write_manifest")
+        assert path == manifest_path
+        assert manifest is bundle.manifest
+
+    def forbidden_api(*args, **kwargs):
+        calls.append("api")
+        raise AssertionError("dry-run must not construct an HF API client")
+
+    monkeypatch.setattr(publisher, "build_release_bundle", canonical_bundle)
+    monkeypatch.setattr(publisher, "_write_manifest", persist_manifest)
+    monkeypatch.setattr(publisher, "_api_client", forbidden_api)
+
+    result = publish_space(
+        publisher.CANONICAL_SPACE_ID,
+        sdk=publisher.CANONICAL_SDK,
+        dry_run=True,
+        manifest_path=manifest_path,
+        receipt_path=receipt_path,
+    )
     assert result is True
+    assert calls == ["build_release_bundle", "write_manifest"]
+    assert not receipt_path.exists()
 
 
-def test_invalid_local_static_metadata_makes_zero_hf_api_calls(monkeypatch):
-    """Provenance must fail before an HF client, repository, or upload exists."""
+def test_retired_static_publish_makes_zero_metadata_or_hf_api_calls(monkeypatch):
+    """Static-to-backend is rejected before metadata, bundle, or remote access."""
     from project.core import config
 
     calls: list[str] = []
 
-    def invalid_identity():
+    def forbidden_identity():
         calls.append("release_identity")
-        raise ValueError("legacy commit metadata is forbidden")
+        raise AssertionError("retired Static mode must not inspect release metadata")
+
+    def forbidden_bundle(*args, **kwargs):
+        calls.append("build_release_bundle")
+        raise AssertionError("retired Static mode must not build a release bundle")
 
     def forbidden_api(*args, **kwargs):
         calls.append("HfApi")
@@ -191,20 +518,19 @@ def test_invalid_local_static_metadata_makes_zero_hf_api_calls(monkeypatch):
         calls.append("remote_mutation")
         raise AssertionError("remote mutation must not occur")
 
-    monkeypatch.setattr(config, "get_release_source_identity", invalid_identity)
+    monkeypatch.setattr(config, "get_release_source_identity", forbidden_identity)
+    monkeypatch.setattr(publisher, "build_release_bundle", forbidden_bundle)
     monkeypatch.setattr(publisher, "HF_AVAILABLE", True)
     monkeypatch.setattr(publisher, "HfApi", forbidden_api)
     monkeypatch.setattr(publisher, "create_repo", forbidden_remote)
     monkeypatch.setattr(publisher, "get_hf_token", lambda: "test-token")
 
-    assert publish_space("pphothidaen/test-horoconsultant-backend", sdk="static") is False
-    assert calls == ["release_identity"]
+    assert publish_space(publisher.CANONICAL_SPACE_ID, sdk="static") is False
+    assert calls == []
 
 
-def test_successful_static_publish_preserves_canonical_release_files(monkeypatch):
-    """A successful upload must not stamp or rewrite tracked release sources."""
-    from project.core import config
-
+def test_successful_docker_publish_preserves_canonical_release_files(monkeypatch, tmp_path):
+    """A canonical Docker publish must not stamp or rewrite tracked release sources."""
     canonical_paths = (
         ROOT / "project" / "static" / "app.js",
         ROOT / "project" / "static" / "index.html",
@@ -216,51 +542,55 @@ def test_successful_static_publish_preserves_canonical_release_files(monkeypatch
         ROOT / "public" / "version.json",
     )
     before = {path: path.read_bytes() for path in canonical_paths}
-    identity = _release_metadata(version="1.0.0.c9f9161", commit="c9f9161")
-    identity["release_source_revision"] = "c9f916108f2302de20b28cf31ae1660e63f60394"
-    canonical = {
-        "release_source_commit": identity["release_source_commit"],
-        "release_source_metadata_path": identity["release_source_metadata_path"],
-        "release_source_revision": identity["release_source_revision"],
-        "version": identity["version"],
-    }
-    identity["release_source_metadata_sha256"] = hashlib.sha256(
-        json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    ).hexdigest()
-    identity["metadata_path"] = str(ROOT / "project" / "static" / "version.json")
-    audit_calls: list[str] = []
+    manifest_path = tmp_path / "release-manifest.json"
+    receipt_path = tmp_path / "release-receipt.json"
+    expected_parent_revision = "b" * 40
+    api = object()
+    bundle = publisher.ReleaseBundle(
+        files=(),
+        manifest={
+            "space_id": publisher.CANONICAL_SPACE_ID,
+            "sdk": publisher.CANONICAL_SDK,
+        },
+    )
+    calls: list[str] = []
 
-    class SuccessfulApi:
-        def __init__(self, token):
-            self.token = token
+    def canonical_bundle(space_id, sdk, *, private, create, whoami):
+        calls.append("build_release_bundle")
+        assert space_id == publisher.CANONICAL_SPACE_ID
+        assert sdk == publisher.CANONICAL_SDK
+        assert (private, create, whoami) == (False, False, False)
+        return bundle
 
-        def whoami(self):
-            return {"name": "test-user"}
+    def persist_manifest(path, manifest):
+        calls.append("write_manifest")
+        assert path == manifest_path
+        assert manifest is bundle.manifest
 
-        def upload_file(self, **kwargs):
-            return None
+    def successful_publish(
+        release_bundle, *, api, expected_parent_revision, receipt_path
+    ):
+        calls.append("publish_bundle")
+        assert release_bundle is bundle
+        assert api is api_client
+        assert expected_parent_revision == "b" * 40
+        assert receipt_path == tmp_path / "release-receipt.json"
+        return True
 
-        def upload_folder(self, **kwargs):
-            return None
+    api_client = api
+    monkeypatch.setattr(publisher, "build_release_bundle", canonical_bundle)
+    monkeypatch.setattr(publisher, "_write_manifest", persist_manifest)
+    monkeypatch.setattr(publisher, "_publish_bundle", successful_publish)
 
-        def delete_file(self, *args, **kwargs):
-            return None
-
-    def valid_audit(sdk):
-        audit_calls.append(sdk)
-        return True, {"total_bytes": 0, "total_files": 0, "files": []}
-
-    monkeypatch.setattr(config, "get_release_source_identity", lambda: identity)
-    monkeypatch.setattr(publisher, "audit_payload", valid_audit)
-    monkeypatch.setattr(publisher, "get_packaging_commit", lambda: "a" * 40)
-    monkeypatch.setattr(publisher, "source_is_ancestor_of_packaging", lambda source, packaging: True)
-    monkeypatch.setattr(publisher, "HF_AVAILABLE", True)
-    monkeypatch.setattr(publisher, "HfApi", SuccessfulApi)
-    monkeypatch.setattr(publisher, "create_repo", lambda **kwargs: None)
-    monkeypatch.setattr(publisher, "get_hf_token", lambda: "test-token")
-
-    assert publish_space("pphothidaen/test-horoconsultant-backend", sdk="static") is True
-    assert audit_calls == ["static"]
+    assert publish_space(
+        publisher.CANONICAL_SPACE_ID,
+        sdk=publisher.CANONICAL_SDK,
+        manifest_path=manifest_path,
+        receipt_path=receipt_path,
+        expected_parent_revision=expected_parent_revision,
+        api=api_client,
+    ) is True
+    assert calls == ["build_release_bundle", "write_manifest", "publish_bundle"]
     assert {path: path.read_bytes() for path in canonical_paths} == before
 
 

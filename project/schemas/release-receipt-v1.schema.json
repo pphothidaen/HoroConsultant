@@ -1,0 +1,448 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://horoconsultant.local/schemas/release-receipt-v1.schema.json",
+  "title": "HoroConsultant HF Docker Publish and Rollback Receipt v1",
+  "description": "Closed sanitized evidence contract for one canonical HF Docker publish or rollback attempt. Target, release identity, manifest digest, and totals are copied exactly from the validated release-manifest-v1 object and remain unchanged on rollback. Every field is explicit; unavailable revision/tree values are null rather than omitted. The receipt contains no provider account, user, session, process, URL, token, raw output, exception text, or secret-bearing free text. JSON Schema validates shape and action/status branches while the publisher validates revision relationships, tree parity, manifest binding, timestamps, totals, and canonical receipt digest.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "action",
+    "space_id",
+    "repo_type",
+    "sdk",
+    "branch",
+    "version",
+    "packaging_commit",
+    "release_source_commit",
+    "release_source_revision",
+    "release_source_metadata_path",
+    "release_source_metadata_sha256",
+    "manifest_sha256",
+    "parent_revision",
+    "new_revision",
+    "prior_revision",
+    "parent_tree_sha256",
+    "new_tree_sha256",
+    "prior_tree_sha256",
+    "total_files",
+    "total_bytes",
+    "started_at",
+    "ended_at",
+    "status",
+    "failure_class",
+    "receipt_sha256"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "action": {
+      "enum": ["publish", "rollback"],
+      "description": "publish records the one atomic manifest commit; rollback records one atomic CAS restoration of the recorded prior tree. Dry-run produces a manifest but no publish receipt."
+    },
+    "space_id": {
+      "const": "pphothidaen/horoconsultant-core-backend"
+    },
+    "repo_type": {
+      "const": "space"
+    },
+    "sdk": {
+      "const": "docker"
+    },
+    "branch": {
+      "const": "main"
+    },
+    "version": {
+      "$ref": "#/$defs/releaseVersion"
+    },
+    "packaging_commit": {
+      "$ref": "#/$defs/gitRevision"
+    },
+    "release_source_commit": {
+      "$ref": "#/$defs/sourceCommit"
+    },
+    "release_source_revision": {
+      "$ref": "#/$defs/gitRevision"
+    },
+    "release_source_metadata_path": {
+      "const": "project/static/version.json"
+    },
+    "release_source_metadata_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "manifest_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "Digest of the validated release-manifest-v1 object that authorized the publish; rollback retains the original publish manifest binding."
+    },
+    "parent_revision": {
+      "$ref": "#/$defs/nullableGitRevision",
+      "description": "CAS parent for the attempted commit. For publish success it equals prior_revision; for rollback it is the revision being replaced."
+    },
+    "new_revision": {
+      "$ref": "#/$defs/nullableGitRevision",
+      "description": "Created publish or rollback commit; null when no unique committed revision is established."
+    },
+    "prior_revision": {
+      "$ref": "#/$defs/nullableGitRevision",
+      "description": "Recorded pre-publish revision whose exact tree is the rollback target."
+    },
+    "parent_tree_sha256": {
+      "$ref": "#/$defs/nullableSha256",
+      "description": "Digest of the full file-tree projection at parent_revision, or null with parent_revision. The projection is an array of objects containing exactly blob_id, path, and size, sorted by path using UTF-8 byte order; folders are excluded. Its digest uses the canonical JSON algorithm defined by receipt_sha256."
+    },
+    "new_tree_sha256": {
+      "$ref": "#/$defs/nullableSha256",
+      "description": "Digest of the full file-tree projection at new_revision; null when new_revision is null. The expected publish projection maps each manifest entry's staged_blob_oid, path, and staged_bytes to blob_id, path, and size before applying the canonical tree digest. A successful rollback must equal prior_tree_sha256."
+    },
+    "prior_tree_sha256": {
+      "$ref": "#/$defs/nullableSha256",
+      "description": "Digest of the full prior file-tree projection used for exact rollback restoration, or null with prior_revision. It uses the same projection and canonical tree digest as parent_tree_sha256."
+    },
+    "total_files": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Exact total_files copied from the bound release manifest, including on rollback."
+    },
+    "total_bytes": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Exact total_bytes copied from the bound release manifest, including on rollback."
+    },
+    "started_at": {
+      "$ref": "#/$defs/utcTimestamp"
+    },
+    "ended_at": {
+      "$ref": "#/$defs/utcTimestamp"
+    },
+    "status": {
+      "enum": ["SUCCEEDED", "FAILED", "INDETERMINATE", "ROLLBACK_REQUIRED"],
+      "description": "SUCCEEDED means the created revision and full tree were verified; FAILED is a determinate non-success; INDETERMINATE is reserved for an ambiguous create_commit transport result with no established new revision; ROLLBACK_REQUIRED means a publish revision exists but its verified tree mismatches the manifest."
+    },
+    "failure_class": {
+      "$ref": "#/$defs/failureClass",
+      "description": "Closed machine-readable failure taxonomy; never free-form provider or exception text."
+    },
+    "receipt_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "Lowercase SHA-256 of json.dumps(the complete object with receipt_sha256 omitted, ensure_ascii=False, sort_keys=True, separators=(',', ':'), allow_nan=False).encode('utf-8'), with no trailing newline. Tree digests apply the same encoding to their projection arrays without omitting any projection field."
+    }
+  },
+  "allOf": [
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "parent_revision": {"$ref": "#/$defs/gitRevision"},
+            "parent_tree_sha256": {"$ref": "#/$defs/sha256"}
+          }
+        },
+        {
+          "properties": {
+            "parent_revision": {"type": "null"},
+            "parent_tree_sha256": {"type": "null"}
+          }
+        }
+      ]
+    },
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "new_revision": {"$ref": "#/$defs/gitRevision"},
+            "new_tree_sha256": {"$ref": "#/$defs/sha256"}
+          }
+        },
+        {
+          "properties": {
+            "new_revision": {"type": "null"},
+            "new_tree_sha256": {"type": "null"}
+          }
+        }
+      ]
+    },
+    {
+      "oneOf": [
+        {
+          "properties": {
+            "prior_revision": {"$ref": "#/$defs/gitRevision"},
+            "prior_tree_sha256": {"$ref": "#/$defs/sha256"}
+          }
+        },
+        {
+          "properties": {
+            "prior_revision": {"type": "null"},
+            "prior_tree_sha256": {"type": "null"}
+          }
+        }
+      ]
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {"const": "SUCCEEDED"}
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "failure_class": {"const": "none"},
+          "parent_revision": {"$ref": "#/$defs/gitRevision"},
+          "new_revision": {"$ref": "#/$defs/gitRevision"},
+          "prior_revision": {"$ref": "#/$defs/gitRevision"},
+          "parent_tree_sha256": {"$ref": "#/$defs/sha256"},
+          "new_tree_sha256": {"$ref": "#/$defs/sha256"},
+          "prior_tree_sha256": {"$ref": "#/$defs/sha256"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "failure_class": {"const": "transport_ambiguous"}
+        },
+        "required": ["failure_class"]
+      },
+      "then": {
+        "properties": {
+          "status": {"const": "INDETERMINATE"},
+          "parent_revision": {"$ref": "#/$defs/gitRevision"},
+          "new_revision": {"type": "null"},
+          "prior_revision": {"$ref": "#/$defs/gitRevision"},
+          "parent_tree_sha256": {"$ref": "#/$defs/sha256"},
+          "new_tree_sha256": {"type": "null"},
+          "prior_tree_sha256": {"$ref": "#/$defs/sha256"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "failure_class": {"const": "postflight_mismatch"},
+          "action": {"const": "publish"}
+        },
+        "required": ["failure_class", "action"]
+      },
+      "then": {
+        "properties": {
+          "status": {"const": "ROLLBACK_REQUIRED"},
+          "parent_revision": {"$ref": "#/$defs/gitRevision"},
+          "new_revision": {"$ref": "#/$defs/gitRevision"},
+          "prior_revision": {"$ref": "#/$defs/gitRevision"},
+          "parent_tree_sha256": {"$ref": "#/$defs/sha256"},
+          "new_tree_sha256": {"$ref": "#/$defs/sha256"},
+          "prior_tree_sha256": {"$ref": "#/$defs/sha256"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {"const": "ROLLBACK_REQUIRED"}
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "action": {"const": "publish"},
+          "failure_class": {"const": "postflight_mismatch"},
+          "parent_revision": {"$ref": "#/$defs/gitRevision"},
+          "new_revision": {"$ref": "#/$defs/gitRevision"},
+          "prior_revision": {"$ref": "#/$defs/gitRevision"},
+          "parent_tree_sha256": {"$ref": "#/$defs/sha256"},
+          "new_tree_sha256": {"$ref": "#/$defs/sha256"},
+          "prior_tree_sha256": {"$ref": "#/$defs/sha256"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {"const": "INDETERMINATE"}
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "failure_class": {"const": "transport_ambiguous"},
+          "parent_revision": {"$ref": "#/$defs/gitRevision"},
+          "new_revision": {"type": "null"},
+          "prior_revision": {"$ref": "#/$defs/gitRevision"},
+          "parent_tree_sha256": {"$ref": "#/$defs/sha256"},
+          "new_tree_sha256": {"type": "null"},
+          "prior_tree_sha256": {"$ref": "#/$defs/sha256"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {"const": "FAILED"}
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "failure_class": {
+            "$ref": "#/$defs/nonSuccessFailureClass"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "failure_class": {"const": "none"}
+        },
+        "required": ["failure_class"]
+      },
+      "then": {
+        "properties": {
+          "status": {"const": "SUCCEEDED"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "action": {"const": "rollback"}
+        },
+        "required": ["action"]
+      },
+      "then": {
+        "properties": {
+          "parent_revision": {"$ref": "#/$defs/gitRevision"},
+          "prior_revision": {"$ref": "#/$defs/gitRevision"},
+          "parent_tree_sha256": {"$ref": "#/$defs/sha256"},
+          "prior_tree_sha256": {"$ref": "#/$defs/sha256"},
+          "status": {
+            "enum": ["SUCCEEDED", "FAILED", "INDETERMINATE"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "failure_class": {
+            "enum": [
+              "dirty_worktree",
+              "invalid_provenance",
+              "invalid_manifest",
+              "manifest_mismatch",
+              "invalid_target",
+              "repository_unavailable",
+              "sdk_mismatch",
+              "parent_conflict",
+              "payload_limit",
+              "commit_rejected",
+              "prior_tree_unavailable",
+              "rollback_conflict"
+            ]
+          }
+        },
+        "required": ["failure_class"]
+      },
+      "then": {
+        "properties": {
+          "new_revision": {"type": "null"},
+          "new_tree_sha256": {"type": "null"}
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "failure_class": {"const": "postflight_mismatch"},
+          "action": {"const": "rollback"}
+        },
+        "required": ["failure_class", "action"]
+      },
+      "then": {
+        "properties": {
+          "status": {"const": "FAILED"},
+          "new_revision": {"$ref": "#/$defs/gitRevision"},
+          "new_tree_sha256": {"$ref": "#/$defs/sha256"}
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "gitRevision": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "nullableSha256": {
+      "oneOf": [
+        {"$ref": "#/$defs/sha256"},
+        {"type": "null"}
+      ]
+    },
+    "nullableGitRevision": {
+      "oneOf": [
+        {"$ref": "#/$defs/gitRevision"},
+        {"type": "null"}
+      ]
+    },
+    "sourceCommit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{7,40}$"
+    },
+    "releaseVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9a-f]{7,40}$"
+    },
+    "utcTimestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$",
+      "description": "RFC 3339 timestamp in UTC using Z. The publisher must enforce ended_at >= started_at."
+    },
+    "failureClass": {
+      "enum": [
+        "none",
+        "dirty_worktree",
+        "invalid_provenance",
+        "invalid_manifest",
+        "manifest_mismatch",
+        "invalid_target",
+        "repository_unavailable",
+        "sdk_mismatch",
+        "parent_conflict",
+        "payload_limit",
+        "commit_rejected",
+        "transport_ambiguous",
+        "postflight_mismatch",
+        "prior_tree_unavailable",
+        "rollback_conflict",
+        "receipt_persistence_failure",
+        "internal_error"
+      ]
+    },
+    "nonSuccessFailureClass": {
+      "enum": [
+        "dirty_worktree",
+        "invalid_provenance",
+        "invalid_manifest",
+        "manifest_mismatch",
+        "invalid_target",
+        "repository_unavailable",
+        "sdk_mismatch",
+        "parent_conflict",
+        "payload_limit",
+        "commit_rejected",
+        "transport_ambiguous",
+        "postflight_mismatch",
+        "prior_tree_unavailable",
+        "rollback_conflict",
+        "receipt_persistence_failure",
+        "internal_error"
+      ]
+    }
+  }
+}

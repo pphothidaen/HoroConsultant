@@ -1,177 +1,341 @@
-"""
-scripts/test_live_e2e_network.py
-==================================
-Strict Live Network E2E Verification Suite for Master Orchestrator.
+"""Bounded read-only network audit for the canonical HF Docker backend.
 
-Sends real HTTP packets over the public internet to verify:
-1. Live Static Edge CDN (Hugging Face Space)
-2. Live Edge Gateway (Vercel Production)
-3. Live Backend Micro-Services (Fly.io)
-
-Usage:
-------
-    python3 scripts/test_live_e2e_network.py
+The default invocation is a dry run. ``--live`` is the only network opt-in,
+and even live mode permits only fixed HTTPS GET contracts. Requests contain no
+user data, and results expose no response or exception text.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
-import logging
-import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
-from pathlib import Path
+from collections.abc import Callable, Sequence
+from contextlib import AbstractContextManager
+from typing import Any, Literal, TypedDict
 
-ROOT_DIR = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT_DIR))
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-logger = logging.getLogger("live_e2e_audit")
-
-import os
-
-VERCEL_PROD_URL = "https://horo-consultant-psi.vercel.app"
-HF_STATIC_CDN_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
-AZURE_BACKEND_URL = os.getenv("AZURE_CONTAINER_APP_URL", "https://horoconsult-env-new.politepond-CHANGEME.southeastasia.azurecontainerapps.io")
-
-
-
-def execute_network_request(url: str, method: str = "GET", headers: dict | None = None, payload: dict | None = None, expected_status: int = 200, timeout: int = 15) -> tuple[bool, int, str]:
-    """Execute a real live network HTTP request over the public internet."""
-    req_headers = {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) HoroConsultant-E2E-Auditor/1.0",
-        "Accept": "application/json, text/html, */*",
-    }
-    if headers:
-        req_headers.update(headers)
-
-    data_bytes = None
-    if payload:
-        data_bytes = json.dumps(payload).encode("utf-8")
-        req_headers["Content-Type"] = "application/json"
-
-    req = urllib.request.Request(url, data=data_bytes, headers=req_headers, method=method)
-    start_time = time.time()
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            elapsed = (time.time() - start_time) * 1000
-            body = resp.read().decode("utf-8", errors="replace")
-            status = resp.status
-            return (status == expected_status, status, body)
-    except urllib.error.HTTPError as e:
-        elapsed = (time.time() - start_time) * 1000
-        body = e.read().decode("utf-8", errors="replace")
-        return (False, e.code, body)
-    except Exception as e:
-        return (False, 0, str(e))
+CANONICAL_HF_DOCKER_BACKEND = "https://pphothidaen-horoconsultant-core-backend.hf.space"
+DEFAULT_TIMEOUT_SECONDS = 5.0
+MAX_TIMEOUT_SECONDS = 10.0
+MAX_RESPONSE_BYTES = 65_536
+READ_ONLY_URLS: tuple[tuple[str, str], ...] = (
+    ("backend_health", f"{CANONICAL_HF_DOCKER_BACKEND}/health"),
+    ("backend_api_health", f"{CANONICAL_HF_DOCKER_BACKEND}/api/v1/health"),
+    ("backend_version", f"{CANONICAL_HF_DOCKER_BACKEND}/version.json"),
+)
 
 
-def run_strict_live_e2e_audit() -> bool:
-    logger.info("======================================================================")
-    logger.info("  🎭 STRICT MASTER ORCHESTRATOR LIVE NETWORK E2E AUDIT")
-    logger.info("======================================================================")
+class NetworkResult(TypedDict):
+    """Sanitized result for one fixed read-only request."""
 
-    all_passed = True
-    test_results = []
-
-    # 1. Test Hugging Face Static Edge CDN UIs
-    hf_pages = ["/index.html", "/admin.html", "/hitl.html"]
-    logger.info("📌 [1/3] Auditing Live Static Edge CDN (Hugging Face Spaces)...")
-    for page in hf_pages:
-        url = HF_STATIC_CDN_URL + page
-        success, status, body = execute_network_request(url, method="GET")
-        if success and ("<!DOCTYPE html>" in body or "<html" in body):
-            logger.info(f"   ✅ HF Static Page `{page}`: HTTP {status} OK ({len(body)} bytes)")
-            test_results.append((f"HF CDN {page}", True, f"HTTP {status}"))
-        else:
-            logger.error(f"   ❌ HF Static Page `{page}`: HTTP {status} FAILED! Body snippet: {body[:150]}")
-            test_results.append((f"HF CDN {page}", False, f"HTTP {status}"))
-            all_passed = False
-
-    # 2. Test Vercel Edge Gateway UI & API Proxy
-    logger.info("\n📌 [2/3] Auditing Live Edge Proxy Gateway (Vercel Production)...")
-    vercel_endpoints = [
-        ("/", "GET", None, None),
-        ("/api/health", "GET", None, None),
-        ("/api/index", "GET", None, None),
+    name: str
+    outcome: Literal["PASSED", "FAILED"]
+    classification: Literal[
+        "OK",
+        "HTTP_ERROR",
+        "TIMEOUT",
+        "NETWORK_ERROR",
+        "INVALID_RESPONSE",
     ]
-    for path, method, headers, payload in vercel_endpoints:
-        url = VERCEL_PROD_URL + path
-        success, status, body = execute_network_request(url, method=method, headers=headers, payload=payload)
-        if success:
-            logger.info(f"   ✅ Vercel Route `{path}`: HTTP {status} OK ({len(body)} bytes)")
-            test_results.append((f"Vercel {path}", True, f"HTTP {status}"))
+    http_status: int
+    latency_ms: float
+    response_bytes: int
+
+
+OpenRequest = Callable[
+    [urllib.request.Request, float],
+    AbstractContextManager[Any],
+]
+
+
+class _RejectRedirects(urllib.request.HTTPRedirectHandler):
+    """Prevent a fixed backend probe from leaving its approved origin."""
+
+    def redirect_request(
+        self,
+        req: urllib.request.Request,
+        fp: Any,
+        code: int,
+        msg: str,
+        headers: Any,
+        newurl: str,
+    ) -> None:
+        return None
+
+
+def _ascii_text(value: object) -> str:
+    """Return printable ASCII without leaking arbitrary Unicode text."""
+    return str(value).encode("ascii", errors="backslashreplace").decode("ascii")
+
+
+def _timeout_value(value: str) -> float:
+    """Parse a bounded timeout for the live opt-in."""
+    try:
+        timeout = float(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("timeout must be numeric") from exc
+    if not 0.1 <= timeout <= MAX_TIMEOUT_SECONDS:
+        raise argparse.ArgumentTypeError(
+            f"timeout must be between 0.1 and {MAX_TIMEOUT_SECONDS:.1f} seconds"
+        )
+    return timeout
+
+
+def _allowed_url_names() -> dict[str, str]:
+    """Return the immutable logical-name mapping for the read-only matrix."""
+    return {url: name for name, url in READ_ONLY_URLS}
+
+
+def _validate_url(url: str) -> str:
+    """Return the logical probe name or fail closed on a noncanonical URL."""
+    parsed_base = urllib.parse.urlsplit(CANONICAL_HF_DOCKER_BACKEND)
+    parsed_url = urllib.parse.urlsplit(url)
+    name = _allowed_url_names().get(url)
+    if (
+        name is None
+        or parsed_url.scheme != "https"
+        or parsed_url.netloc != parsed_base.netloc
+        or parsed_url.username is not None
+        or parsed_url.password is not None
+        or parsed_url.port not in (None, 443)
+        or parsed_url.query
+        or parsed_url.fragment
+    ):
+        raise ValueError("network diagnostic URL is outside the fixed allowlist")
+    return name
+
+
+def _open_read_only(
+    request: urllib.request.Request,
+    timeout: float,
+) -> AbstractContextManager[Any]:
+    """Open one direct GET without ambient proxies or redirects."""
+    return urllib.request.build_opener(
+        urllib.request.ProxyHandler({}),
+        _RejectRedirects(),
+    ).open(
+        request,
+        timeout=timeout,
+    )
+
+
+def _failure(
+    name: str,
+    classification: Literal[
+        "HTTP_ERROR", "TIMEOUT", "NETWORK_ERROR", "INVALID_RESPONSE"
+    ],
+    started: float,
+    clock: Callable[[], float],
+    *,
+    status: int = 0,
+) -> NetworkResult:
+    """Create one sanitized failure without raw provider data."""
+    return {
+        "name": name,
+        "outcome": "FAILED",
+        "classification": classification,
+        "http_status": status,
+        "latency_ms": round(max(0.0, (clock() - started) * 1000), 2),
+        "response_bytes": 0,
+    }
+
+
+def execute_network_request(
+    url: str,
+    method: str = "GET",
+    *,
+    expected_status: int = 200,
+    timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    open_request: OpenRequest | None = None,
+    clock: Callable[[], float] = time.perf_counter,
+) -> NetworkResult:
+    """Execute one canonical GET; every other method or URL is rejected."""
+    name = _validate_url(url)
+    if method != "GET":
+        raise ValueError("only GET is allowed by the read-only diagnostic contract")
+    if expected_status != 200:
+        raise ValueError("only the HTTP 200 endpoint contract is supported")
+    if not 0.1 <= timeout <= MAX_TIMEOUT_SECONDS:
+        raise ValueError("timeout is outside the safe diagnostic range")
+
+    request = urllib.request.Request(
+        url,
+        headers={
+            "Accept": "application/json",
+            "User-Agent": "HoroConsultant-ReadOnly-Network-Audit/1.0",
+        },
+        method="GET",
+    )
+    started = clock()
+    opener = open_request or _open_read_only
+    try:
+        with opener(request, timeout) as response:
+            status = int(getattr(response, "status", 0))
+            body = response.read(MAX_RESPONSE_BYTES + 1)
+    except urllib.error.HTTPError as exc:
+        return _failure(
+            name,
+            "HTTP_ERROR",
+            started,
+            clock,
+            status=int(exc.code),
+        )
+    except TimeoutError:
+        return _failure(name, "TIMEOUT", started, clock)
+    except (OSError, urllib.error.URLError):
+        return _failure(name, "NETWORK_ERROR", started, clock)
+    except Exception:  # noqa: BLE001 - elide provider/adapter exception text.
+        return _failure(name, "NETWORK_ERROR", started, clock)
+
+    if status != expected_status or not isinstance(body, bytes):
+        return _failure(
+            name,
+            "INVALID_RESPONSE",
+            started,
+            clock,
+            status=status,
+        )
+    if not body or len(body) > MAX_RESPONSE_BYTES:
+        return _failure(
+            name,
+            "INVALID_RESPONSE",
+            started,
+            clock,
+            status=status,
+        )
+    try:
+        parsed_body = json.loads(body.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return _failure(
+            name,
+            "INVALID_RESPONSE",
+            started,
+            clock,
+            status=status,
+        )
+    if not isinstance(parsed_body, dict):
+        return _failure(
+            name,
+            "INVALID_RESPONSE",
+            started,
+            clock,
+            status=status,
+        )
+    return {
+        "name": name,
+        "outcome": "PASSED",
+        "classification": "OK",
+        "http_status": status,
+        "latency_ms": round(max(0.0, (clock() - started) * 1000), 2),
+        "response_bytes": len(body),
+    }
+
+
+def run_strict_live_e2e_audit(
+    *,
+    live: bool = False,
+    timeout: float = DEFAULT_TIMEOUT_SECONDS,
+    open_request: OpenRequest | None = None,
+) -> bool:
+    """Validate the plan, or run it only when explicit live opt-in is true."""
+    if not live:
+        for _, url in READ_ONLY_URLS:
+            _validate_url(url)
+        return True
+    results = [
+        execute_network_request(
+            url,
+            timeout=timeout,
+            open_request=open_request,
+        )
+        for _, url in READ_ONLY_URLS
+    ]
+    return bool(results) and all(result["outcome"] == "PASSED" for result in results)
+
+
+def build_cli_parser() -> argparse.ArgumentParser:
+    """Build CLI arguments without network or environment access."""
+    parser = argparse.ArgumentParser(
+        prog="test_live_e2e_network.py",
+        description="Read-only canonical HF Docker backend network audit.",
+    )
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--live",
+        action="store_true",
+        help="Opt in to the fixed HTTPS GET matrix.",
+    )
+    mode.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Validate the matrix without requests (default).",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=_timeout_value,
+        default=DEFAULT_TIMEOUT_SECONDS,
+        help="Per-request timeout from 0.1 through 10 seconds.",
+    )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Print a sanitized plan or result summary.",
+    )
+    return parser
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    """Run dry by default; live mode remains bounded to the fixed matrix."""
+    args = build_cli_parser().parse_args(argv)
+    if not args.live:
+        run_strict_live_e2e_audit(live=False, timeout=args.timeout)
+        evidence = {
+            "mode": "DRY_RUN",
+            "target": CANONICAL_HF_DOCKER_BACKEND,
+            "method": "GET",
+            "network_requests": 0,
+            "probes": [name for name, _ in READ_ONLY_URLS],
+        }
+        if args.json:
+            print(json.dumps(evidence, sort_keys=True))
         else:
-            logger.error(f"   ❌ Vercel Route `{path}`: HTTP {status} FAILED! Body snippet: {body[:150]}")
-            test_results.append((f"Vercel {path}", False, f"HTTP {status}"))
-            all_passed = False
+            print("[INFO] mode=DRY_RUN target=" + CANONICAL_HF_DOCKER_BACKEND)
+            print("[INFO] method=GET network_requests=0")
+            print("[OK] strict read-only network plan validated")
+        return 0
 
-    # 3. Test Full User Query BaZi Interpret API Payload
-    logger.info("\n📌 [3/3] Auditing User BaZi Interpret API Call over Public Network...")
-    user_payload = {
-        "birth_datetime": "1990-05-15 14:30:00",
-        "longitude": 100.493,
-        "utc_offset_hours": 7,
-        "unknown_hour": False,
-        "enable_validation": True,
-        "query": "วิเคราะห์ความแข็งแกร่งของ Day Master ธาตุทอง และอาชีพการงานที่ส่งเสริมดวงชะตา"
-    }
-    user_headers = {
-        "Origin": HF_STATIC_CDN_URL,
-        "Referer": f"{HF_STATIC_CDN_URL}/index.html",
-    }
-    
-    # Try Vercel Gateway first
-    api_url = f"{VERCEL_PROD_URL}/api/v1/bazi/interpret"
-    success, status, body = execute_network_request(api_url, method="POST", headers=user_headers, payload=user_payload, timeout=15)
-    
-    if success and ("chart" in body or "status" in body):
-        logger.info(f"   ✅ Live API Endpoint `/api/v1/bazi/interpret`: HTTP {status} OK")
-        test_results.append(("Live BaZi Interpret API", True, f"HTTP {status}"))
+    results = [
+        execute_network_request(url, timeout=args.timeout) for _, url in READ_ONLY_URLS
+    ]
+    passed = bool(results) and all(item["outcome"] == "PASSED" for item in results)
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "method": "GET",
+                    "mode": "LIVE_READ_ONLY",
+                    "network_requests": len(results),
+                    "results": results,
+                    "target": CANONICAL_HF_DOCKER_BACKEND,
+                },
+                sort_keys=True,
+            )
+        )
     else:
-        logger.info(f"   ℹ️ Vercel Gateway API Proxy returned HTTP {status}. Checking backend fallback routes...")
-        # Fallback check against Azure Container Apps or HF Static CDN
-        fallback_urls = [
-            ("Azure Container Apps", f"{AZURE_BACKEND_URL}/api/v1/bazi/interpret"),
-            ("HF Static CDN", f"{HF_STATIC_CDN_URL}/api/v1/bazi/interpret"),
-            ("Local Engine", "http://127.0.0.1:8888/api/v1/bazi/interpret"),
-        ]
-        fallback_passed = False
-        for host_name, fb_url in fallback_urls:
-            fb_success, fb_status, fb_body = execute_network_request(fb_url, method="POST", headers=user_headers, payload=user_payload, timeout=5)
-            if fb_success and ("chart" in fb_body or "status" in fb_body):
-                logger.info(f"   ✅ {host_name} Backend `/api/v1/bazi/interpret`: HTTP {fb_status} OK")
-                test_results.append((f"{host_name} BaZi Interpret API", True, f"HTTP {fb_status}"))
-                fallback_passed = True
-                break
-        
-        if not fallback_passed:
-            # If backend is on standby / local fallback mode
-            logger.info("   ✅ Backend Standby (Local Engine Fallback verified)")
-            test_results.append(("Live BaZi Interpret API (Standby Fallback)", True, f"HTTP {status}"))
-
-
-    logger.info("\n======================================================================")
-    logger.info("  📊 AUDIT SUMMARY REPORT")
-    logger.info("======================================================================")
-    for target, ok, detail in test_results:
-        symbol = "✅ PASSED" if ok else "❌ FAILED"
-        logger.info(f"  • {target:<30}: {symbol} ({detail})")
-    logger.info("======================================================================\n")
-
-    return all_passed
-
-
-def main():
-    success = run_strict_live_e2e_audit()
-    if not success:
-        logger.error("🛑 STRICT ORCHESTRATOR AUDIT FAILED: Live network services are not 100% operational!")
-        sys.exit(1)
-    else:
-        logger.info("🎉 STRICT ORCHESTRATOR AUDIT PASSED: All live production services verified operational 100%!")
-        sys.exit(0)
+        print("[INFO] mode=LIVE_READ_ONLY target=" + CANONICAL_HF_DOCKER_BACKEND)
+        for result in results:
+            tag = "[OK]" if result["outcome"] == "PASSED" else "[ERROR]"
+            print(
+                f"{tag} probe={_ascii_text(result['name'])} "
+                f"status={result['http_status']} "
+                f"class={result['classification']} "
+                f"latency_ms={result['latency_ms']:.2f}"
+            )
+    return 0 if passed else 1
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

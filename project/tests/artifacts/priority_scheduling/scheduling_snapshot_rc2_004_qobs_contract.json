@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "tickets": [
+    {
+      "ticket_id": "TICKET-ALIAS-RC2-004",
+      "severity": "CRITICAL",
+      "work_effort": "S",
+      "status": "BLOCKED",
+      "dependencies": [],
+      "blockers": [
+        "QUOTA_UNKNOWN",
+        "QOBS_CONTRACT_NOT_FROZEN"
+      ],
+      "owner": "orchestrator",
+      "ownership": [
+        "rc2-004-blocked-history"
+      ],
+      "quota_passed": false,
+      "hitl_passed": true,
+      "rule18_decision_valid": false
+    },
+    {
+      "ticket_id": "TICKET-ALIAS-RC2-004-QOBS-CONTRACT",
+      "severity": "CRITICAL",
+      "work_effort": "S",
+      "status": "DOING",
+      "dependencies": [],
+      "blockers": [],
+      "owner": "developer",
+      "ownership": [
+        ".agents/schemas/multiagent-quota-observation-v1.schema.json",
+        ".agents/schemas/multiagent-quota-observation-artifact-v1.schema.json",
+        ".agents/config/multiagent_model_policy.yaml"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    }
+  ],
+  "reservations": [
+    {
+      "ticket_id": "TICKET-ALIAS-RC2-004-QOBS-CONTRACT",
+      "owner": "developer",
+      "ownership": [
+        ".agents/schemas/multiagent-quota-observation-v1.schema.json",
+        ".agents/schemas/multiagent-quota-observation-artifact-v1.schema.json",
+        ".agents/config/multiagent_model_policy.yaml"
+      ]
+    }
+  ]
+}

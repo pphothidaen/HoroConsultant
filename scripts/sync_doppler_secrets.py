@@ -1,21 +1,21 @@
 """
 scripts/sync_doppler_secrets.py
 ================================
-Automated Production Secret Sync Script for Doppler Secrets Management.
+Opt-in administrative secret bootstrap for Doppler and GitHub Secrets.
 
-Reads secrets from `.env` in local/dev contexts, and falls back to
-`.env.production` for CI/CD/prod-style runs.
-Syncs all keys into Doppler Secrets Manager for `horo-consultant` project
-(config: `prd` or `dev`), then syncs platform secrets.
-as well as GitHub Repository Secrets for GitHub Actions CI/CD automation.
+This utility is not a production-release prerequisite. Production deployment
+reads CI-managed GitHub Secrets or a Doppler-injected environment directly.
+The default command validates `.env.example` without reading a local secret file
+or mutating an external system. External writes require both `--apply` and an
+explicit `--env-file`.
 
 Usage:
 ------
     # Dry-run validation
     python3 scripts/sync_doppler_secrets.py --dry-run
 
-    # Production Sync
-    python3 scripts/sync_doppler_secrets.py --env-file .env.production --project horo-consultant --config prd
+    # Explicit administrative sync
+    python3 scripts/sync_doppler_secrets.py --apply --env-file .env.production --project horo-consultant --config prd
 """
 
 from __future__ import annotations
@@ -33,8 +33,12 @@ from dotenv import dotenv_values
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT_DIR))
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
+)
 logger = logging.getLogger("doppler_sync")
+
+RETIRED_RELEASE_PREFIXES = ("AZURE_", "FLY_")
 
 
 def get_doppler_cli_path() -> str:
@@ -53,17 +57,14 @@ def sync_github_secrets(valid_secrets: dict[str, str], dry_run: bool = False) ->
         return
 
     target_secrets = [
-        "AZURE_CREDENTIALS",
-        "AZURE_CONTAINER_APP",
-        "AZURE_RESOURCE_GROUP",
-        "AZURE_CONTAINER_APP_URL",
-        "DOCKER_USERNAME",
-        "DOCKER_PASSWORD",
         "ROUTER_BASE_URL",
         "NINE_ROUTER_BASE_URL",
-        "FLY_API_TOKEN",
         "VERCEL_TOKEN",
         "HF_TOKEN",
+        "HUGGINGFACE_TOKEN",
+        "HF_API_TOKEN",
+        "HUGGINGFACE_API_KEY",
+        "HUGGING_FACE_TOKEN",
         "GH_TOKEN",
         "GH_PASSWORD",
         "GH_TOTP_SECRET",
@@ -91,11 +92,12 @@ def sync_github_secrets(valid_secrets: dict[str, str], dry_run: bool = False) ->
                         logger.info("[OK] Synced GitHub repository secret: %s", key)
                     else:
                         logger.warning(
-                            "[WARN] GitHub rejected secret %s; details redacted.", key
+                            "[WARNING] GitHub rejected secret %s; details redacted.",
+                            key,
                         )
                 except OSError:
                     logger.warning(
-                        "[WARN] GitHub secret sync failed locally for %s; details redacted.",
+                        "[WARNING] GitHub secret sync failed locally for %s; details redacted.",
                         key,
                     )
 
@@ -106,22 +108,22 @@ def sync_secrets_to_doppler(
     config: str = "prd",
     dry_run: bool = False,
 ) -> bool:
-    """Parse environment file and set secrets in Doppler via Doppler CLI / API."""
+    """Parse one explicit environment file and optionally sync allowlisted targets."""
     if not env_file.exists():
-        fallback = ROOT_DIR / ".env"
-        if fallback.exists():
-            logger.info(
-                "[INFO] Requested file '%s' not found; using '%s'.",
-                env_file.name,
-                fallback.name,
-            )
-            env_file = fallback
-        else:
-            logger.error("[ERROR] Secret environment file not found: %s", env_file)
-            return False
+        logger.error(
+            "[ERROR] Requested environment file was not found: %s", env_file.name
+        )
+        return False
 
     secrets = dotenv_values(env_file)
-    ignored_keys = {k for k in secrets.keys() if isinstance(k, str) and k.startswith("DOPPLER_")}
+    ignored_keys = {
+        k for k in secrets if isinstance(k, str) and k.startswith("DOPPLER_")
+    }
+    retired_keys = {
+        k
+        for k in secrets
+        if isinstance(k, str) and k.startswith(RETIRED_RELEASE_PREFIXES)
+    }
     valid_secrets = {
         k: v
         for k, v in secrets.items()
@@ -131,8 +133,15 @@ def sync_secrets_to_doppler(
             and not k.startswith("#")
             and "REPLACE" not in str(v)
             and k not in ignored_keys
+            and k not in retired_keys
         )
     }
+
+    if retired_keys:
+        logger.warning(
+            "[WARNING] Ignored %d retired release-platform keys; names and values were not logged.",
+            len(retired_keys),
+        )
 
     logger.info(
         "[INFO] Categorized %d production secrets from %s.",
@@ -140,14 +149,49 @@ def sync_secrets_to_doppler(
         env_file.name,
     )
     categories = {
-        "Cloud AI Fallback (Gemini)": ["GOOGLE_AI_STUDIO_API_KEY", "GOOGLE_AI_STUDIO_API_KEY2", "GOOGLE_APPLICATION_CREDENTIALS", "PRIMARY_MODEL"],
-        "Production Database (Supabase)": ["APP_SUPABASE_URL", "APP_SUPABASE_KEY", "SUPABASE_URL", "SUPABASE_ANON_KEY"],
+        "Cloud AI Fallback (Gemini)": [
+            "GOOGLE_AI_STUDIO_API_KEY",
+            "GOOGLE_AI_STUDIO_API_KEY2",
+            "GOOGLE_APPLICATION_CREDENTIALS",
+            "PRIMARY_MODEL",
+        ],
+        "Production Database (Supabase)": [
+            "APP_SUPABASE_URL",
+            "APP_SUPABASE_KEY",
+            "SUPABASE_URL",
+            "SUPABASE_ANON_KEY",
+        ],
         "Model Repository (Hugging Face)": ["HF_TOKEN", "HF_USERNAME", "HF_REPO_ID"],
-        "Cloud & Edge Deployments (Azure, Fly.io & Vercel)": ["AZURE_RESOURCE_GROUP", "AZURE_CONTAINER_APP", "AZURE_CREDENTIALS", "AZURE_CONTAINER_APP_URL", "FLY_API_TOKEN", "VERCEL_TOKEN", "VERCEL_ORG_ID", "VERCEL_PROJECT_ID"],
-        "Cloud GPU Training (Lightning AI & Kaggle)": ["LIGHTNING_API_KEY", "LIGHTNING_PROD_API_KEY", "KAGGLE_USERNAME", "KAGGLE_TOKEN"],
+        "HF Docker Backend and Vercel UI": [
+            "HF_TOKEN",
+            "HUGGINGFACE_TOKEN",
+            "HF_API_TOKEN",
+            "HUGGINGFACE_API_KEY",
+            "HUGGING_FACE_TOKEN",
+            "VERCEL_TOKEN",
+            "VERCEL_ORG_ID",
+            "VERCEL_PROJECT_ID",
+        ],
+        "Cloud GPU Training (Lightning AI & Kaggle)": [
+            "LIGHTNING_API_KEY",
+            "LIGHTNING_PROD_API_KEY",
+            "KAGGLE_USERNAME",
+            "KAGGLE_TOKEN",
+        ],
         "MLOps & GitHub": ["WANDB_KEY", "GH_TOKEN", "GH_TOTP_SECRET"],
-        "Incident Notifications": ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "DISCORD_WEBHOOK_URL", "SLACK_WEBHOOK_URL", "HEALTH_ALERT_WEBHOOK_URL"],
-        "Infrastructure & Security": ["APP_ENV", "SECRET_KEY", "REDIS_URL", "AUTO_SYNC_ENABLED"],
+        "Incident Notifications": [
+            "TELEGRAM_BOT_TOKEN",
+            "TELEGRAM_CHAT_ID",
+            "DISCORD_WEBHOOK_URL",
+            "SLACK_WEBHOOK_URL",
+            "HEALTH_ALERT_WEBHOOK_URL",
+        ],
+        "Infrastructure & Security": [
+            "APP_ENV",
+            "SECRET_KEY",
+            "REDIS_URL",
+            "AUTO_SYNC_ENABLED",
+        ],
     }
 
     for cat_name, keys in categories.items():
@@ -167,7 +211,7 @@ def sync_secrets_to_doppler(
         return True
 
     doppler_bin = get_doppler_cli_path()
-    
+
     # Execute setup & creation
     cmd = [doppler_bin, "secrets", "set", "--project", project, "--config", config]
     for k, v in valid_secrets.items():
@@ -187,7 +231,7 @@ def sync_secrets_to_doppler(
         else:
             if "must provide a token" in res.stderr or "auth login" in res.stderr:
                 logger.warning(
-                    "[WARN] Doppler authentication is required; no values were printed."
+                    "[WARNING] Doppler authentication is required; no values were printed."
                 )
                 logger.info(
                     "[INFO] Authenticate with 'doppler login' or DOPPLER_TOKEN, then rerun."
@@ -202,25 +246,39 @@ def sync_secrets_to_doppler(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Sync HoroConsultant Production Secrets to Doppler & GitHub Secrets")
-    default_env_file = ROOT_DIR / (".env" if os.getenv("GITHUB_ACTIONS") != "true" else ".env.production")
+    parser = argparse.ArgumentParser(
+        description="Validate or explicitly bootstrap active HoroConsultant CI secrets"
+    )
     parser.add_argument(
         "--env-file",
         type=Path,
-        default=default_env_file,
-        help="Path to local/prod env file (defaults to .env locally, .env.production in CI)",
+        help="Explicit input file; required with --apply (default dry-run uses .env.example)",
     )
-    parser.add_argument("--project", default="horo-consultant", help="Doppler project name")
-    parser.add_argument("--config", default="prd", help="Doppler config name ('dev' or 'prd')")
-    parser.add_argument("--dry-run", action="store_true", help="Validate without sending to Doppler")
+    parser.add_argument(
+        "--project", default="horo-consultant", help="Doppler project name"
+    )
+    parser.add_argument(
+        "--config", default="prd", help="Doppler config name ('dev' or 'prd')"
+    )
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--dry-run", action="store_true", help="Validate only (default)")
+    mode.add_argument(
+        "--apply", action="store_true", help="Explicitly sync active keys"
+    )
 
     args = parser.parse_args()
 
+    if args.apply and args.env_file is None:
+        logger.error("[ERROR] --apply requires an explicit --env-file.")
+        raise SystemExit(2)
+
+    env_file = args.env_file or (ROOT_DIR / ".env.example")
+
     success = sync_secrets_to_doppler(
-        env_file=args.env_file,
+        env_file=env_file,
         project=args.project,
         config=args.config,
-        dry_run=args.dry_run,
+        dry_run=not args.apply,
     )
     sys.exit(0 if success else 1)
 
