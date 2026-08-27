@@ -25,7 +25,14 @@ project/kaggle_kernel/HoroConsultant/
 wandb/
 .fly/
 .vercel
-project/tests/screenshots/
+project/tests/screenshots/*
+!project/tests/screenshots/visual_audit/
+project/tests/screenshots/visual_audit/*
+!project/tests/screenshots/visual_audit/desktop-4k_horo_v3_consensus.png
+!project/tests/screenshots/visual_audit/laptop-standard_horo_v3_consensus.png
+!project/tests/screenshots/visual_audit/mobile-compact_horo_v3_consensus.png
+!project/tests/screenshots/visual_audit/mobile-ios_horo_v3_consensus.png
+!project/tests/screenshots/visual_audit/tablet-portrait_horo_v3_consensus.png
 project/tests/e2e_results_report.json
 project/tests/button_regression_report.json
 project/tests/artifacts_screenshots/*.png

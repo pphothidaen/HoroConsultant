@@ -1,0 +1,47 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-TPG-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "8071323ce05ff5e0ed1153110ec5940bf305ac9b",
+  "test_files": [
+    {
+      "path": "tests/test_test_provenance_guard.py",
+      "sha256": "089eea1750eadab8e201e585af67a66f0a6fa837ec871379d013dcb30b3a3246"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_test_provenance_guard.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "15 failed, 2 passed; implementation guard, CI workflow, schema, reviewer flags, and frozen governance rules were absent"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/test_provenance_guard.py",
+    "project/core/code_reviewer.py",
+    ".githooks/pre-commit",
+    ".github/workflows/test_provenance.yml",
+    ".agents/schemas/test-provenance-v1.schema.json",
+    ".agents/rules/02-testing-standards.md",
+    ".agents/skills/qa-e2e-testing/SKILL.md",
+    ".agents/skills/orchestrator-delegation/SKILL.md",
+    ".claude/rules/testing-and-release.md",
+    "README.md",
+    "HOWTO.md",
+    "PROJECT_TASKS.md",
+    "plans/plan.md",
+    ".agents/LESSONS_LEARNED.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Black-box Git-history and integration contracts were frozen before implementation. This bootstrap baseline was committed with the legacy mutating hook bypassed so the commit contains tests and its manifest only."
+}

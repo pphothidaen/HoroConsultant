@@ -12,25 +12,30 @@ Static publish to the backend Space, Azure public routing, or Fly deployment.
 
 ## Test sequence
 
-1. Run the bounded owned regression matrix after source freeze, then full
+1. Before source work starts, freeze the problem contract in a test-only Git
+   commit plus a `test-provenance-v1` manifest. Record the red test or negative
+   control and do not release the source lane until the ticket is
+   `TEST_BASELINE_VERIFIED`.
+
+2. Run the bounded owned regression matrix after source freeze, then full
    repository QA when its release ticket is unlocked:
 
    ```bash
    python3 -m pytest -v --ignore=project/kaggle_kernel
    ```
 
-2. Run the local UI/API contract suite:
+3. Run the local UI/API contract suite:
 
    ```bash
    python3 scripts/run_button_regression.py
    ```
 
-3. Before production E2E, require DevOps evidence that the exact HF backend is
+4. Before production E2E, require DevOps evidence that the exact HF backend is
    Docker, healthy, provenance-bound, and version-verified. Record the Vercel UI
    target from the same release metadata/evidence; do not infer it from a legacy
    HF Static hostname.
 
-4. Run Docker publisher/governance regressions and the five-viewport audit on
+5. Run Docker publisher/governance regressions and the five-viewport audit on
    the verified Vercel UI target:
 
    ```bash
@@ -38,7 +43,7 @@ Static publish to the backend Space, Azure public routing, or Fly deployment.
    python3 scripts/run_visual_layout_audit.py --url <verified-vercel-static-ui-url> --scenario v3-consensus --no-server
    ```
 
-5. Capture only current machine-readable reports, five canonical viewport
+6. Capture only current machine-readable reports, five canonical viewport
    screenshots, and concise failure evidence. A network error, missing report,
    stale evidence, or unresolved indeterminate result is `[ERROR] BLOCKED`.
 
@@ -49,6 +54,13 @@ Static publish to the backend Space, Azure public routing, or Fly deployment.
   visuals for Vercel.
 - Do not comment out assertions, delete tests, add dummy fallbacks, or swallow
   exceptions. Return root-cause evidence to the owning editor.
+- Do not edit a frozen test during source remediation. Stop the source lane and
+  use an independently reviewed, test-only superseding baseline with the prior
+  SHA and correction reason. Reconstructed history remains
+  `NON_TDD_RECONSTRUCTED`, never verified TDD evidence.
+- Before sign-off, verify the exact baseline and frozen hashes with
+  `scripts/test_provenance_guard.py`, then pass the same ticket, baseline, and
+  manifest to `project/core/code_reviewer.py`.
 - Validate real model inference where in scope; do not accept static-template
   substitution as a successful AI response.
 - Public ExecutionOutcome data is validated in-process with stdout/stderr

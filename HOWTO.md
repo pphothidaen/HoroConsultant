@@ -10,6 +10,29 @@
 
 ---
 
+## Test provenance workflow for developers and agents
+
+1. Write black-box acceptance tests before implementation and run them to
+   capture a real failing result or negative control.
+2. Create a closed manifest under `plans/test_provenance/` with the exact test
+   SHA-256 values, baseline parent, allowed source paths, and failure evidence.
+3. Commit only tests, fixtures, and that manifest. Use
+   `Test-Baseline-Ticket: <ticket>` in the baseline commit message.
+4. Start source coding only after the commit is marked
+   `TEST_BASELINE_VERIFIED`. Add `Test-Baseline: <full-sha>` to every owned
+   source commit.
+5. Do not edit a frozen test from the source lane. If it is wrong, stop work
+   and create an independently reviewed, test-only superseding baseline.
+6. Finish with `scripts/test_provenance_guard.py`, full QA,
+   `sync_ai_agent_ecosystem.py --check`, the secret scan, and
+   `project/core/code_reviewer.py` using the same ticket/baseline/manifest.
+
+The repository pre-commit hook performs read-only early checks and never runs
+version stamping or stages files. Configure `.githooks` locally if desired,
+but rely on the required `Test Provenance` CI check for merge enforcement.
+
+---
+
 ## 📑 สารบัญ (Table of Contents)
 
 1. [🌐 คู่มือสำหรับ End-User (Website User Guide)](#1-คู่มือสำหรับ-end-user-website-user-guide)

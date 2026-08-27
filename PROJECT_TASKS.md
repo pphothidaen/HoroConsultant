@@ -1,6 +1,42 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff — Central Kanban Board for ALL Project Work**  
-> *Last Updated: 2026-08-25 +07 (Asia/Bangkok) — authorized HF Static release is deployed and verified at version `1.0.0.6c351ba` / commit `6c351ba`. Publisher regression is `16 passed`; combined publisher and visual-audit regression is `24 passed`; all five canonical viewports pass. Rule 16 and the `hf-static-release-verification` skill now govern subsequent fail-closed release evidence.*
+> *Last Updated: 2026-08-27 +07 (Asia/Bangkok) — PR `#1` source head `f759004` passed the required GitHub provenance gate and all repository CI; Vercel preview was canceled externally; production release state is unchanged.*
+
+---
+
+## Sprint TPG — Test-First Git Provenance and TDD-Trap Prevention
+
+**Grill status**: `APPROVED` from the signed implementation plan. The initial
+scope covered local repository code, tests, Git history, CI definition,
+governance, and docs. Follow-up exact authorization covered pushing the feature
+branch and activating the `Test Provenance` required check for `main`; the
+subsequent `continue` authorized PR creation and bounded clean-checkout CI
+remediation. No merge, deploy, provider/AGY execution, secret action, or
+production mutation was authorized or performed.
+
+| Ticket | Severity / Effort | Owner | Status | Evidence / Dependency |
+|---|---|---|---|---|
+| `TICKET-TPG-000` | CRITICAL / XS | orchestrator | DONE — REMOTE EVIDENCE | Recovery snapshot `ebfeee9` is pushed on `recovery/pre-test-provenance-20260827`, explicitly `NON_TDD_RECONSTRUCTED`; both remote full-suite jobs restored and verified the immutable ref |
+| `TICKET-TPG-001` | CRITICAL / M | developer | DONE — LOCAL | Original baseline `b84989d` is preserved through cutoff `49f81bf`; full QA exposed a workflow-inventory design trap, so test-only baseline `4e13490` explicitly superseded it. Final test SHA-256 `72bc50d7cb661e6fa806eea4c12a338faebf67cbae22ba03d25294ecb15d8645`; source commits `f012519`, `83ce2a0`, `3179919` |
+| `TICKET-TPG-002` | HIGH / S | business_analyst | DONE — LOCAL | Test-only baseline `11ff774` captured `2 failed`; generated skill mirrors were the only sync mutations in `49f81bf`; final SHA-256 `da116624ff7db828987c6ec1889760a1354055faa8349e24f04da71363ed2362`; ecosystem check passes |
+| `TICKET-TPG-003` | CRITICAL / S | qa_tester | DONE — LOCAL | Focused workflow/provenance matrix `98 passed`; full QA `1275 passed, 12 warnings`; aggregate history verified 3 baseline records with the original cutoff preserved; secret scan 0/1,954 |
+| `TICKET-TPG-004` | CRITICAL / XS | repository owner | DONE — REMOTE POLICY | Initial activation receipt used branch SHA `77e373ab41adf32ee18d552e8e214c1eb09fa324`; current PR head is recorded in TPG-006. Active ruleset `Require Test Provenance` (`21626253`) applies to `refs/heads/main`, requires exact context `Test Provenance`, uses strict mode, has no bypass actors, and reports `current_user_can_bypass: never` |
+| `TICKET-TPG-005` | CRITICAL / XS | code_reviewer | DONE — LOCAL | `code_reviewer.py --review --use-python` returned `READY_FOR_PROD`; full suite `1275 passed`; TPG-001 baseline `4e13490`, manifest, ticket, and frozen hash all verified |
+| `TICKET-TPG-006` | CRITICAL / S | developer / qa_tester | DONE — REMOTE QA | Initial PR CI exposed 15 clean-checkout failures. Test-only baseline `4c08782` recorded `3 failed, 4 passed`; atomic source commits `ef3557c` and `f759004` preserved its 7 frozen files. Local full suite passed `1278` with 12 warnings. GitHub runs `33043972950` and `33043972995` passed; remote provenance artifact reports `PASSED`, `issues: []`, and 10 verified test files across 4 baselines |
+
+**Platform boundary**: native `spawn_agent` pre-spawn enforcement remains
+`BLOCKED` under `DSG-009A` until the platform exposes an authoritative hook and
+receipt API. This gate catches repository history/merge violations but does not
+claim native runtime interception.
+
+**Remote enforcement state**: repository ruleset `21626253` is authoritative
+on GitHub. PR `#1` is open at source head `f759004`; required job
+`Test Provenance` passed in run `33043972950` (job `98423605962`) and its
+artifact verified all four baseline records with no issues. All repository
+GitHub workflows passed. The PR remains `UNSTABLE` only because the external
+Vercel preview reports `Canceled from the Vercel Dashboard`; Vercel is not a
+required context in ruleset `21626253`. Merge, deployment, and unrelated
+external actions remain outside this approval.
 
 ---
 

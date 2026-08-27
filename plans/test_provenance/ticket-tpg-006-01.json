@@ -1,0 +1,69 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-TPG-006",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "55a40da7a2637a035e506e789f8da2b6200285a0",
+  "test_files": [
+    {
+      "path": "tests/test_ci_clean_checkout_contract.py",
+      "sha256": "3c5e6cec3e3bb51ee9c9db5483bf3fdce4932fb59d4182028e6cad433cd064da"
+    },
+    {
+      "path": "tests/test_multiagent_prompt_command.py",
+      "sha256": "560f6ad68b98fcda71249f864a190e6a492cd10b0722fd3a4eab58bbf396a943"
+    },
+    {
+      "path": "project/tests/screenshots/visual_audit/desktop-4k_horo_v3_consensus.png",
+      "sha256": "09332ed7da8ed24bd80114e87442ac622438d79355ae96f18b88a79d26bcf37b"
+    },
+    {
+      "path": "project/tests/screenshots/visual_audit/laptop-standard_horo_v3_consensus.png",
+      "sha256": "a65458f499f6d939af28d2cef6778b4b5571c074e8ee33e7342f0b7164574d2d"
+    },
+    {
+      "path": "project/tests/screenshots/visual_audit/mobile-compact_horo_v3_consensus.png",
+      "sha256": "f61766ebb8f97b8993754e2fb7b3c838ac589acdca29f38247be1605cdecfc24"
+    },
+    {
+      "path": "project/tests/screenshots/visual_audit/mobile-ios_horo_v3_consensus.png",
+      "sha256": "96a5e2afb671db4ddddf02cbd01293f6805ad80edf618c850c90972e5ddd91c1"
+    },
+    {
+      "path": "project/tests/screenshots/visual_audit/tablet-portrait_horo_v3_consensus.png",
+      "sha256": "4267aa59a70388d808e1f4d891441ef0781196708b7bd66b7a648317355595c0"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_ci_clean_checkout_contract.py",
+        "tests/test_multiagent_prompt_command.py::test_execute_uses_argv_cwd_and_process_local_env",
+        "tests/test_multiagent_prompt_command.py::test_execute_transports_malicious_unicode_prompt_byte_for_byte_on_stdin",
+        "tests/test_multiagent_prompt_command.py::test_duplicate_dispatch_is_one_subprocess_with_account_session_evidence",
+        "tests/test_multiagent_prompt_command.py::test_completed_process_evidence_is_emitted_separately_from_route_label"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "3 failed, 4 passed; both full-suite workflows lacked complete Git history and recovery-ref restoration, while the canonical post-deploy screenshots were not tracked"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/ci.yml",
+    ".github/workflows/ai_cicd.yml",
+    ".gitignore",
+    "README.md",
+    "HOWTO.md",
+    "PROJECT_TASKS.md",
+    "plans/plan.md",
+    ".agents/LESSONS_LEARNED.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Make the required remote CI reproducible from a clean Linux checkout without weakening full-suite, provider-boundary, release-provenance, visual-evidence, or recovery-history assertions."
+}

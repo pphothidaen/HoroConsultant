@@ -1,3 +1,98 @@
+<!-- TPG-GRILL:START -->
+## GRILL REPORT — Test-First Git Provenance
+
+**Date**: 2026-08-27 (Asia/Bangkok)
+**Gate status**: `IMPLEMENTATION + LOCAL/REMOTE QA PASS / REQUIRED CHECK PASS / PR OPEN — NOT MERGED`
+**Decision authority**: user-approved implementation plan and follow-up
+authorization for root execution when governed delegation cannot produce a
+native pre-spawn receipt, exact authorization to push the feature branch and
+activate the repository required-check ruleset, and the subsequent `continue`
+instruction authorizing PR creation plus bounded clean-checkout CI remediation.
+
+### Goal and acceptance
+
+- Preserve the original dirty work without rewriting its provenance; label it
+  `NON_TDD_RECONSTRUCTED`.
+- Require a committed test-only baseline with hashes and red/negative-control
+  evidence before source coding.
+- Reject mixed source/test commits, frozen-test mutation, untracked tests,
+  invalid ancestry/hashes, missing trailers, and unreviewed correction paths.
+- Keep the local hook read-only and make CI plus final Git review authoritative.
+- Retain `DSG-009A` as blocked; repository policy is not native runtime proof.
+
+### Locked decisions
+
+- Enforcement: local read-only hook plus required CI.
+- Current mixed work: recovery branch, no retroactive TDD claim.
+- Wrong frozen test: stop source work and use a test-only superseding baseline.
+- External actions: the initial implementation session excluded push and
+  GitHub mutation. Follow-up authorization covered only pushing
+  `feature/test-provenance-gate` and activating the exact `Test Provenance`
+  required check for `main`. A later `continue` authorized PR creation and the
+  minimum test-first remediation needed to obtain authoritative remote CI. It
+  did not authorize merge, deployment, provider/AGY execution, secret action,
+  or production mutation.
+
+### Evidence sequence
+
+1. Recovery commit `ebfeee9` preserves the pre-gate worktree.
+2. Baseline commit `b84989d` contains only the frozen contract test and manifest.
+3. Baseline red run returned `15 failed, 2 passed`; the first implementation
+   reached `17 passed` without changing that test.
+4. The actual `.git/hooks/pre-commit` copy injected eight version files into
+   `175545a`. That commit is preserved on
+   `evidence/mutating-precommit-caught-20260827`; the clean implementation was
+   rebuilt from the baseline as `f012519`, and `core.hooksPath=.githooks` now
+   selects the read-only hook.
+5. Ecosystem baseline `11ff774` recorded `2 failed` before sync. Commit
+   `49f81bf` changed only the two generated Antigravity skill mirrors and the
+   full ecosystem check now passes.
+6. Full QA initially returned `1269 passed / 6 failed`, exposing that a new
+   standalone workflow violated the exact reviewed inventory. Source work
+   stopped; test-only baseline `4e13490` explicitly superseded `b84989d`, then
+   commit `83ce2a0` embedded the job in `ci.yml` without weakening inventory
+   assertions.
+7. Final full QA passed `1275` with `12` warnings. Secret scan passed `0/1,954`,
+   aggregate history verified both active baselines plus the preserved cutoff,
+   and code reviewer returned `READY_FOR_PROD` with exact ticket/baseline/
+   manifest binding.
+8. `feature/test-provenance-gate` was pushed and independently read back at
+   `77e373ab41adf32ee18d552e8e214c1eb09fa324`.
+9. GitHub ruleset `Require Test Provenance` (`21626253`) is active on
+   `refs/heads/main`. Effective-rules read-back confirms exact required context
+   `Test Provenance`, strict mode, no bypass actors, and
+   `current_user_can_bypass: never`.
+10. PR `#1` was opened without auto-merge. Its first clean Linux run exposed
+    15 failures: shallow history broke nine release-provenance checks, four
+    provider unit tests depended on a host `codex` executable, five referenced
+    visual-evidence images were ignored, and the recovery ref was local-only.
+11. Source work stopped. Test-only baseline `4c08782` recorded
+    `3 failed, 4 passed` and froze two test files plus five canonical screenshot
+    artifacts. Source commits `ef3557c` and `f759004` then separated overlapping
+    baseline ownership. Their final tree matched the pre-split tree byte for
+    byte; local full QA passed `1278` with 12 warnings and aggregate provenance
+    verified 10 test files across four baseline records.
+12. Atomic push created remote recovery ref `ebfeee9` and advanced the feature
+    branch to `f759004`. Both remote full-suite jobs restored and verified the
+    immutable recovery ref.
+13. GitHub Unified CI run `33043972950` and AI Safety run `33043972995` passed.
+    Required job `Test Provenance` (`98423605962`) passed and uploaded an
+    artifact with `status: PASSED`, `issues: []`, four baselines, and 10 frozen
+    test files. Vercel preview alone reports `Canceled from the Vercel
+    Dashboard`; it is not required by ruleset `21626253`. PR `#1` remains open
+    and unmerged.
+
+### Rollback
+
+Branches and commits are additive. Revert the owned implementation commits
+while retaining immutable/superseded baselines, the recovery branch, and the
+mutating-hook evidence branch as audit evidence. Ruleset `21626253` is the
+isolated remote rollback target; changing or deleting it requires fresh exact
+authorization.
+<!-- TPG-GRILL:END -->
+
+---
+
 <!-- MAREF-C0-GRILL:START -->
 ## GRILL REPORT — Multi-agent Control Plane C0 Architecture Freeze
 
