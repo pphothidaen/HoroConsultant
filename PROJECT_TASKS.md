@@ -1418,7 +1418,7 @@ dispatch. Stop immediately if the runtime reports less than 10% remaining.
 - [ ] Independent review confirms read-only isolation, fail-closed parsing, and the no-retention boundary.
 - [ ] Exactly one fresh `codex1` diagnostic attempt is recorded under `RC2-004`; it does not alter `RC2-003` history.
 
-#### `TICKET-ALIAS-RC2-004-QOBS-01` | QOBS test-first umbrella | [STATUS: READY_FOR_TEST_BASELINE]
+#### `TICKET-ALIAS-RC2-004-QOBS-01` | QOBS test-first umbrella | [STATUS: TEST_BASELINE_VERIFIED]
 
 The completed root-cause and security review requires a version-pinned,
 content-free QuotaObservation artifact before any RC2-004 provider attempt can
@@ -1447,8 +1447,8 @@ Git review pass. QOBS completion still does not authorize four-alias execution.
 
 | Child lane | One mutation editor | Severity / Work | Status | Exact ownership | Depends On |
 |---|---|---|---|---|---|
-| `QOBS-01-TEST-BASELINE` | `qa_tester` | CRITICAL / S | READY_FOR_TEST_BASELINE | new `tests/test_quota_observation_contract.py`; new `tests/test_quota_observation_integration.py`; new `plans/test_provenance/ticket-alias-rc2-004-qobs-01.json` only | owner confirmation + this grill |
-| `QOBS-01-CONTRACT` | `developer` | CRITICAL / S | GATED | `.agents/schemas/multiagent-quota-observation-v1.schema.json`; `.agents/schemas/multiagent-quota-observation-artifact-v1.schema.json`; `.agents/config/multiagent_model_policy.yaml` only | TEST-BASELINE committed and verified |
+| `QOBS-01-TEST-BASELINE` | `qa_tester` | CRITICAL / S | DONE — TEST_BASELINE_VERIFIED | new `tests/test_quota_observation_contract.py`; new `tests/test_quota_observation_integration.py`; new `plans/test_provenance/ticket-alias-rc2-004-qobs-01.json` only | owner confirmation + this grill |
+| `QOBS-01-CONTRACT` | `developer` | CRITICAL / S | READY | `.agents/schemas/multiagent-quota-observation-v1.schema.json`; `.agents/schemas/multiagent-quota-observation-artifact-v1.schema.json`; `.agents/config/multiagent_model_policy.yaml` only | TEST-BASELINE committed and verified |
 | `QOBS-01-PROBE` | `developer` | CRITICAL / S | GATED | `scripts/agent_quota_status_guard.py` only | CONTRACT frozen |
 | `QOBS-01-DISPATCH` | `developer` | CRITICAL / M | GATED | `scripts/multiagent_prompt_command.py` only | CONTRACT + PROBE frozen |
 | `QOBS-01-SCHEDULER` | `developer` | CRITICAL / S | GATED | `scripts/multiagent_ticket_scheduler.py` only | CONTRACT + DISPATCH frozen |
@@ -1460,14 +1460,14 @@ Git review pass. QOBS completion still does not authorize four-alias execution.
    manifest, records the exact red/negative-control argv, non-zero result, and
    concise failure fingerprint, then runs:
    `python3 scripts/test_provenance_guard.py staged`.
-2. Commit the test-only baseline before any source mutation. Until then, the
-   exact baseline is `<PENDING_TEST_BASELINE_COMMIT_SHA>` and the umbrella must
-   not advance beyond `READY_FOR_TEST_BASELINE`.
+2. The test-only baseline was committed before any source mutation at
+   `9847234f3f2537d0b65ecb1fc9afca87ceb517a2`; the umbrella is
+   `TEST_BASELINE_VERIFIED`.
 3. After commit, verify with
-   `python3 scripts/test_provenance_guard.py verify --manifest plans/test_provenance/ticket-alias-rc2-004-qobs-01.json --baseline <PENDING_TEST_BASELINE_COMMIT_SHA> --head HEAD`.
+   `python3 scripts/test_provenance_guard.py verify --manifest plans/test_provenance/ticket-alias-rc2-004-qobs-01.json --baseline 9847234f3f2537d0b65ecb1fc9afca87ceb517a2 --head HEAD`.
 4. Frozen tests are immutable. Every later source/governance commit must first
    pass `python3 scripts/test_provenance_guard.py staged` and carry the exact
-   trailer `Test-Baseline: <PENDING_TEST_BASELINE_COMMIT_SHA>`.
+   trailer `Test-Baseline: 9847234f3f2537d0b65ecb1fc9afca87ceb517a2`.
 5. If a frozen test is wrong, stop all source work. A QA-owned, independently
    reviewed, test-only superseding baseline must preserve the original and
    record its SHA, correction reason, new hashes, and new red evidence. Never
@@ -1478,8 +1478,8 @@ Git review pass. QOBS completion still does not authorize four-alias execution.
 ```bash
 git add -- tests/test_quota_observation_contract.py tests/test_quota_observation_integration.py plans/test_provenance/ticket-alias-rc2-004-qobs-01.json
 python3 scripts/test_provenance_guard.py staged
-python3 scripts/test_provenance_guard.py verify --manifest plans/test_provenance/ticket-alias-rc2-004-qobs-01.json --baseline <PENDING_TEST_BASELINE_COMMIT_SHA> --head HEAD
-python3 scripts/test_provenance_guard.py verify --manifest plans/test_provenance/ticket-alias-rc2-004-qobs-01.json --baseline <PENDING_TEST_BASELINE_COMMIT_SHA> --head HEAD --include-worktree
+python3 scripts/test_provenance_guard.py verify --manifest plans/test_provenance/ticket-alias-rc2-004-qobs-01.json --baseline 9847234f3f2537d0b65ecb1fc9afca87ceb517a2 --head HEAD
+python3 scripts/test_provenance_guard.py verify --manifest plans/test_provenance/ticket-alias-rc2-004-qobs-01.json --baseline 9847234f3f2537d0b65ecb1fc9afca87ceb517a2 --head HEAD --include-worktree
 python3 scripts/sync_ai_agent_ecosystem.py --sync
 python3 scripts/sync_ai_agent_ecosystem.py --check
 git diff --check
@@ -1487,13 +1487,19 @@ git diff --check
 
 The baseline commit itself contains tests/fixtures/manifest only. Each later
 commit message includes a separate trailer line:
-`Test-Baseline: <PENDING_TEST_BASELINE_COMMIT_SHA>`.
+`Test-Baseline: 9847234f3f2537d0b65ecb1fc9afca87ceb517a2`.
+
+**Verified baseline evidence**: commit
+`9847234f3f2537d0b65ecb1fc9afca87ceb517a2`, parent
+`21f8a92fa30803568faeff23cfe9c8e5c7f98ecc`; the closed manifest records the
+expected red result (`67 failed`, exit `1`). The history guard returned
+`PASSED`, verified both frozen test hashes, and reported no issues.
 
 **Rule 18 / Rule 11 gate**: the previous CONTRACT reservation/digests are
-historical and are superseded by the missing baseline gate. TEST-BASELINE is
-the only currently eligible child. After its exact SHA is frozen, each later
-child requires a new bound decision/snapshot and predecessor freeze; no old
-decision, snapshot, or planning proof is reusable.
+historical. TEST-BASELINE is `DONE — TEST_BASELINE_VERIFIED`; CONTRACT alone is
+`READY`. PROBE, DISPATCH, SCHEDULER, and QA-GOVERNANCE-SYNC remain gated. Each
+later child requires a new bound decision/snapshot and predecessor freeze; no
+old decision, snapshot, or planning proof is reusable.
 
 **Frozen security contract**:
 

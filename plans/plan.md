@@ -4,7 +4,7 @@
 **Date**: 2026-08-27 (Asia/Bangkok)
 **Grilled by**: `orchestrator` with `business_analyst` documentation lane
 **Umbrella ticket**: `TICKET-ALIAS-RC2-004-QOBS-01`
-**Gate status**: `APPROVED — READY_FOR_TEST_BASELINE ONLY`
+**Gate status**: `TEST_BASELINE_VERIFIED — CONTRACT READY`
 **Owner confirmation**: the owner's `continue` instruction confirmed this
 bounded QOBS remediation after the orchestrator stated that QOBS must be
 implemented before four-alias execution.
@@ -73,9 +73,9 @@ coordination-only.
 |---|---|---|
 | 1 | The owner-approved outcome is the bounded QOBS chain needed before any four-alias proof. | `[CONFIRMED]` |
 | 2 | The active root runtime was verified as `gpt-5.6-sol/medium` for this planning handoff. | `[CONFIRMED]` |
-| 3 | Existing QOBS files/tests do not yet constitute a committed test-first baseline for this umbrella ticket. | `[CONFIRMED]` |
+| 3 | The QOBS tests and closed manifest are frozen in the committed test-first baseline for this umbrella ticket. | `[CONFIRMED: 9847234f3f2537d0b65ecb1fc9afca87ceb517a2]` |
 | 4 | QOBS completion alone does not authorize `codex1`, `codex2`, `agy1`, or `agy2`. | `[CONFIRMED]` |
-| 5 | The exact baseline SHA is unavailable until the test-only commit exists. | `[CONFIRMED: <PENDING_TEST_BASELINE_COMMIT_SHA>]` |
+| 5 | The exact test-only baseline SHA is frozen and verified against Git history. | `[CONFIRMED: 9847234f3f2537d0b65ecb1fc9afca87ceb517a2]` |
 
 ### D7 — Risk and rollback
 
@@ -109,19 +109,26 @@ coordination-only.
    `plans/test_provenance/ticket-alias-rc2-004-qobs-01.json`.
 2. Run the manifest-recorded red/negative-control pytest command, then
    `python3 scripts/test_provenance_guard.py staged`.
-3. Commit that test-only baseline. Replace
-   `<PENDING_TEST_BASELINE_COMMIT_SHA>` with the exact full SHA and verify:
-   `python3 scripts/test_provenance_guard.py verify --manifest plans/test_provenance/ticket-alias-rc2-004-qobs-01.json --baseline <PENDING_TEST_BASELINE_COMMIT_SHA> --head HEAD`.
+3. The test-only baseline is commit
+   `9847234f3f2537d0b65ecb1fc9afca87ceb517a2`; verify it with:
+   `python3 scripts/test_provenance_guard.py verify --manifest plans/test_provenance/ticket-alias-rc2-004-qobs-01.json --baseline 9847234f3f2537d0b65ecb1fc9afca87ceb517a2 --head HEAD`.
 4. Before every later source/governance commit, run
    `python3 scripts/test_provenance_guard.py staged`; every such commit must
-   carry the exact trailer `Test-Baseline: <PENDING_TEST_BASELINE_COMMIT_SHA>`.
+   carry the exact trailer `Test-Baseline: 9847234f3f2537d0b65ecb1fc9afca87ceb517a2`.
 5. After source freeze, run focused then applicable full regression, execute
    `python3 scripts/sync_ai_agent_ecosystem.py --sync`, then
    `python3 scripts/sync_ai_agent_ecosystem.py --check`, rerun provenance with
    `--include-worktree`, and complete read-only Git/code review.
 
-**Current stop condition**: documentation governance is complete only to
-`READY_FOR_TEST_BASELINE`. No source implementation, QA claim, provider action,
+**Baseline evidence**: commit
+`9847234f3f2537d0b65ecb1fc9afca87ceb517a2` has parent
+`21f8a92fa30803568faeff23cfe9c8e5c7f98ecc`; the closed manifest records the
+expected red run (`67 failed`, exit `1`), and the provenance guard verified both
+frozen hashes with no issues.
+
+**Current stop condition**: `TEST_BASELINE_VERIFIED`; only `QOBS-01-CONTRACT`
+is `READY`. PROBE, DISPATCH, SCHEDULER, and QA/GOVERNANCE+SYNC remain gated. No
+source implementation or final QA success is claimed, and no provider action,
 sync, deploy, publish, push, secret, or account action is authorized or claimed.
 <!-- QOBS-01-GRILL:END -->
 
@@ -1512,13 +1519,14 @@ are authoritative in `TICKET-ALIAS-RC2-004`.
 RC2-004 remains `BLOCKED/NEEDS_HITL` with quota `unknown`; no provider child is
 authorized. The earlier outline is reconciled under umbrella
 `TICKET-ALIAS-RC2-004-QOBS-01`, currently
-`READY_FOR_TEST_BASELINE` only. Its dependency chain is
+`TEST_BASELINE_VERIFIED`; only `QOBS-01-CONTRACT` is `READY`. Its dependency chain is
 `TEST-BASELINE -> CONTRACT -> PROBE -> DISPATCH -> SCHEDULER -> QA/GOVERNANCE+SYNC`,
 with one editor and exact ownership recorded in `PROJECT_TASKS.md`.
 
-- The prior CONTRACT reservation is superseded by the test-baseline gate; no
-  source lane is Rule 11-eligible until the test-only commit exists and its
-  exact SHA replaces `<PENDING_TEST_BASELINE_COMMIT_SHA>`.
+- Baseline `9847234f3f2537d0b65ecb1fc9afca87ceb517a2` is verified against parent
+  `21f8a92fa30803568faeff23cfe9c8e5c7f98ecc`, the manifest-recorded red run
+  (`67 failed`, exit `1`), and both frozen test hashes. CONTRACT alone is
+  Rule 11-eligible; all later lanes remain dependency-gated.
 - Root planning proof `ROOT-RUNTIME-PROOF-20260827-QOBS-01` records a freshly
   verified `gpt-5.6-sol/medium` session without sensitive paths. It cannot be
   reused for later child dispatch; each lane requires fresh Rule 18/11 evidence.
