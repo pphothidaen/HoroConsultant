@@ -1,0 +1,50 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-PROD-503-001",
+  "sequence": 3,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "d626e2d61bdaf886b0963cbccad3952a9b548473",
+  "test_files": [
+    {
+      "path": "tests/test_publish_space_hf_executable_mode_contract.py",
+      "sha256": "c0fddd52d0c2ec418055a788ebf3060322962e1676ec276afd409ba3b1948181"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_publish_space_hf_executable_mode_contract.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "2 failed; publisher accepted a 100755 payload source and the committed release tree contained 14 paths outside the frozen 100644 baseline"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/publish_space_hf.py",
+    "scripts/agentic_pipeline.sh",
+    "scripts/auto_deploy_all.sh",
+    "scripts/azure_usage_guard.py",
+    "scripts/call_codex_api.py",
+    "scripts/docker_bootstrap.sh",
+    "scripts/dockerhub_tag_policy.py",
+    "scripts/hermes_agy_router.py",
+    "scripts/inject_grafana_incident_data.py",
+    "scripts/post_train_fuse.py",
+    "scripts/run_luopan_e2e_regression.py",
+    "scripts/run_prod_version_e2e.py",
+    "scripts/setup_doppler_project.sh",
+    "scripts/setup_production_secrets.sh",
+    "scripts/test_provenance_guard.py",
+    "PROJECT_TASKS.md",
+    "plans/plan.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "7741b4fc9dfc6afce1925a1321a14d5cc2f20fdb",
+  "correction_reason": "The original baseline contradicted the already-frozen manifest schema and release decision by treating Git mode 100755 as an acceptable local HF payload baseline. The corrected contract preserves the mandated regular-file 100644 source and staged modes instead of weakening provenance or claiming portable remote chmod.",
+  "rationale": "Restore the frozen HF Docker payload-mode contract by rejecting executable source modes and normalizing the 14 selected historical script modes without changing their bytes or the release schema."
+}
