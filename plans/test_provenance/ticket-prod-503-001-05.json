@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-PROD-503-001",
+  "sequence": 5,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "b0042b2f1b963f40a6acd75833c814b7fe25273f",
+  "test_files": [
+    {
+      "path": "tests/test_accordion_expanded_content_contract.py",
+      "sha256": "843aa64f985cd349aaa37ea1b75d61a57b62bedcb248f832b1ae61c4b8855e15"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_accordion_expanded_content_contract.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "1 failed; expanded accordion was capped at 5000px while deterministic mobile V3 content measured above 6000px"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/static/style.css",
+    "public/style.css",
+    "PROJECT_TASKS.md",
+    "plans/plan.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Prevent expanded result accordions from clipping deterministic long-form mobile content while preserving the explicit zero-height collapsed state."
+}
