@@ -2,11 +2,12 @@
 ## GRILL REPORT — Test-First Git Provenance
 
 **Date**: 2026-08-27 (Asia/Bangkok)
-**Gate status**: `IMPLEMENTATION + QA PASS / GITHUB REQUIRED CHECK ACTIVE / PR CI NOT RUN`
+**Gate status**: `IMPLEMENTATION + LOCAL/REMOTE QA PASS / REQUIRED CHECK PASS / PR OPEN — NOT MERGED`
 **Decision authority**: user-approved implementation plan and follow-up
 authorization for root execution when governed delegation cannot produce a
-native pre-spawn receipt, plus exact authorization to push the feature branch
-and activate the repository required-check ruleset.
+native pre-spawn receipt, exact authorization to push the feature branch and
+activate the repository required-check ruleset, and the subsequent `continue`
+instruction authorizing PR creation plus bounded clean-checkout CI remediation.
 
 ### Goal and acceptance
 
@@ -27,8 +28,10 @@ and activate the repository required-check ruleset.
 - External actions: the initial implementation session excluded push and
   GitHub mutation. Follow-up authorization covered only pushing
   `feature/test-provenance-gate` and activating the exact `Test Provenance`
-  required check for `main`. It did not authorize a PR, merge, deployment,
-  provider/AGY execution, secret action, or production mutation.
+  required check for `main`. A later `continue` authorized PR creation and the
+  minimum test-first remediation needed to obtain authoritative remote CI. It
+  did not authorize merge, deployment, provider/AGY execution, secret action,
+  or production mutation.
 
 ### Evidence sequence
 
@@ -59,10 +62,25 @@ and activate the repository required-check ruleset.
    `refs/heads/main`. Effective-rules read-back confirms exact required context
    `Test Provenance`, strict mode, no bypass actors, and
    `current_user_can_bypass: never`.
-10. No remote CI receipt exists yet: a feature-branch push does not match the
-    workflow's `push` filter, and no pull request was authorized or created.
-    This does not weaken the active merge policy; the check must pass when a
-    future PR targets `main`.
+10. PR `#1` was opened without auto-merge. Its first clean Linux run exposed
+    15 failures: shallow history broke nine release-provenance checks, four
+    provider unit tests depended on a host `codex` executable, five referenced
+    visual-evidence images were ignored, and the recovery ref was local-only.
+11. Source work stopped. Test-only baseline `4c08782` recorded
+    `3 failed, 4 passed` and froze two test files plus five canonical screenshot
+    artifacts. Source commits `ef3557c` and `f759004` then separated overlapping
+    baseline ownership. Their final tree matched the pre-split tree byte for
+    byte; local full QA passed `1278` with 12 warnings and aggregate provenance
+    verified 10 test files across four baseline records.
+12. Atomic push created remote recovery ref `ebfeee9` and advanced the feature
+    branch to `f759004`. Both remote full-suite jobs restored and verified the
+    immutable recovery ref.
+13. GitHub Unified CI run `33043972950` and AI Safety run `33043972995` passed.
+    Required job `Test Provenance` (`98423605962`) passed and uploaded an
+    artifact with `status: PASSED`, `issues: []`, four baselines, and 10 frozen
+    test files. Vercel preview alone reports `Canceled from the Vercel
+    Dashboard`; it is not required by ruleset `21626253`. PR `#1` remains open
+    and unmerged.
 
 ### Rollback
 
