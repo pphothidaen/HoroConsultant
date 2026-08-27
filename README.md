@@ -415,30 +415,53 @@ python3 project/mcp_server.py
 
 ---
 
-## 🌐 Hugging Face Spaces & Production Multi-Cloud Architecture
+## 🌐 Canonical Production Architecture
 
-The production environment operates under a **Decoupled Multi-Cloud Architecture**:
+Production uses two fail-closed targets:
 
-1. **Hugging Face Static Edge CDN (`sdk: static`)**:
-   - Serves static Web UIs 24/7 with zero CPU hardware quota limits:
-     - 🔮 **Main Dashboard**: `https://pphothidaen-horoconsultant-core-backend.hf.space/index.html`
-     - 🔐 **Admin Panel**: `https://pphothidaen-horoconsultant-core-backend.hf.space/admin.html`
-     - 🔬 **HITL Review Studio**: `https://pphothidaen-horoconsultant-core-backend.hf.space/hitl.html`
-2. **Local Edge & Fast Math Engine (`http://localhost:8000`)**:
-   - FastAPI + PyO3 Rust compiled extension for sub-millisecond astronomical calculations, Julian Day conversions, Equation of Time (EoT), and local FAISS vector retrieval.
-3. **Automated HF Spaces Publishing CLI**:
-   ```bash
-   # Audit payload and publish to HF Static Edge CDN
-   python3 scripts/publish_space_hf.py --sdk static
+1. **Vercel UI and lightweight gateway** —
+   `https://horo-consultant-psi.vercel.app`. The project must define the
+   non-secret production config
+   `HF_BACKEND_URL=https://pphothidaen-horoconsultant-core-backend.hf.space`.
+   The gateway rejects a missing or non-canonical origin with HTTP 503; it does
+   not substitute a local/static calculation.
+2. **Hugging Face Docker backend** —
+   `pphothidaen/horoconsultant-core-backend` (`sdk: docker`) runs FastAPI,
+   PyO3/Rust math, FAISS/RAG, and the canonical calculation APIs.
 
-   # Perform live Space health check
-   python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk static --check-health
+Static deployment to the backend Space, public Azure, and Fly are retired
+release lanes. Local development remains available at `http://localhost:8000`.
 
-   # Fail closed unless every live version surface and required asset matches
-   python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk static --verify-version
-   ```
+```bash
+# Immutable Docker payload audit; no upload
+python3 scripts/publish_space_hf.py \
+  --space-id pphothidaen/horoconsultant-core-backend \
+  --sdk docker \
+  --dry-run
 
-   HF Static releases are governed by [Rule 16](.agents/rules/16-hf-static-release-verification.md) and the [`hf-static-release-verification` skill](.agents/skills/hf-static-release-verification/SKILL.md). Before `READY_FOR_PROD`, publisher tests, payload dry-run, Static health, exact live version, five-viewport visual audit, combined regression, governance contract, secret/safety review, and agent-ecosystem sync must all be green. An automated `indeterminate` result blocks release unless a named manual reviewer records the current artifact, timestamp, review basis, and explicit pass/fail sign-off. The verified baseline is `16 passed` publisher tests, `24 passed` combined publisher/visual tests, a green governance contract suite, and five passing viewports: 1920×1080, 1366×768, 768×1024, 390×844, and 360×740.
+# Read-only live Docker health and exact release identity
+python3 scripts/publish_space_hf.py \
+  --space-id pphothidaen/horoconsultant-core-backend \
+  --sdk docker \
+  --check-health
+python3 scripts/publish_space_hf.py \
+  --space-id pphothidaen/horoconsultant-core-backend \
+  --sdk docker \
+  --verify-version
+
+# Five canonical Vercel UI viewports
+python3 scripts/run_visual_layout_audit.py \
+  --url https://horo-consultant-psi.vercel.app \
+  --scenario v3-consensus \
+  --no-server
+```
+
+The release is fail-closed: publisher/governance tests, Docker payload dry-run,
+secret scan, code review, exact backend health/version, production API E2E,
+Vercel version consistency, five-viewport visual audit, and
+`scripts/sync_ai_agent_ecosystem.py --check` must all pass before a full
+`READY_FOR_PROD` claim. A healthy HTTP status does not substitute for exact
+version evidence.
 
 ---
 
