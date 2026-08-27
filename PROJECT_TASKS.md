@@ -13,16 +13,20 @@ no push, deploy, provider/AGY execution, secrets, or production mutation.
 | Ticket | Severity / Effort | Owner | Status | Evidence / Dependency |
 |---|---|---|---|---|
 | `TICKET-TPG-000` | CRITICAL / XS | orchestrator | DONE | Recovery snapshot `ebfeee9` on `recovery/pre-test-provenance-20260827`, explicitly `NON_TDD_RECONSTRUCTED`; secret scan 0/1,967 |
-| `TICKET-TPG-001` | CRITICAL / M | developer | DOING | Test-only baseline `b84989d`; red evidence `15 failed, 2 passed`; frozen test SHA-256 `089eea1750eadab8e201e585af67a66f0a6fa837ec871379d013dcb30b3a3246`; implementation must use its exact trailer |
-| `TICKET-TPG-002` | HIGH / S | business_analyst | TODO | Sync canonical skill/rule changes into generated ecosystem only after a separate test baseline proves the stale-mirror failure |
-| `TICKET-TPG-003` | CRITICAL / S | qa_tester | TODO | Focused provenance suite, ecosystem check, full relevant regression, secret scan, and immutable test/history audit after source freeze |
+| `TICKET-TPG-001` | CRITICAL / M | developer | DONE — LOCAL | Original baseline `b84989d` is preserved through cutoff `49f81bf`; full QA exposed a workflow-inventory design trap, so test-only baseline `4e13490` explicitly superseded it. Final test SHA-256 `72bc50d7cb661e6fa806eea4c12a338faebf67cbae22ba03d25294ecb15d8645`; source commits `f012519`, `83ce2a0`, `3179919` |
+| `TICKET-TPG-002` | HIGH / S | business_analyst | DONE — LOCAL | Test-only baseline `11ff774` captured `2 failed`; generated skill mirrors were the only sync mutations in `49f81bf`; final SHA-256 `da116624ff7db828987c6ec1889760a1354055faa8349e24f04da71363ed2362`; ecosystem check passes |
+| `TICKET-TPG-003` | CRITICAL / S | qa_tester | DONE — LOCAL | Focused workflow/provenance matrix `98 passed`; full QA `1275 passed, 12 warnings`; aggregate history verified 3 baseline records with the original cutoff preserved; secret scan 0/1,954 |
 | `TICKET-TPG-004` | CRITICAL / XS | repository owner | NEEDS_HITL | After push, configure the GitHub ruleset so job `Test Provenance` is a required merge check; workflow presence alone is not platform enforcement |
-| `TICKET-TPG-005` | CRITICAL / XS | code_reviewer | TODO | Final Git review must bind ticket, baseline SHA, manifest, unchanged test hashes, and source-only commits |
+| `TICKET-TPG-005` | CRITICAL / XS | code_reviewer | DONE — LOCAL | `code_reviewer.py --review --use-python` returned `READY_FOR_PROD`; full suite `1275 passed`; TPG-001 baseline `4e13490`, manifest, ticket, and frozen hash all verified |
 
 **Platform boundary**: native `spawn_agent` pre-spawn enforcement remains
 `BLOCKED` under `DSG-009A` until the platform exposes an authoritative hook and
 receipt API. This gate catches repository history/merge violations but does not
 claim native runtime interception.
+
+**Residual owner gate**: repository implementation is complete locally, but
+the merge gate is not authoritative on GitHub until `TICKET-TPG-004` receives a
+push/CI run and the repository owner marks job `Test Provenance` as required.
 
 ---
 

@@ -2,7 +2,7 @@
 ## GRILL REPORT — Test-First Git Provenance
 
 **Date**: 2026-08-27 (Asia/Bangkok)
-**Gate status**: `APPROVED`
+**Gate status**: `LOCAL IMPLEMENTATION + QA PASS / GITHUB REQUIRED CHECK NEEDS_HITL`
 **Decision authority**: user-approved implementation plan and follow-up
 authorization for root execution when governed delegation cannot produce a
 native pre-spawn receipt.
@@ -30,15 +30,33 @@ native pre-spawn receipt.
 
 1. Recovery commit `ebfeee9` preserves the pre-gate worktree.
 2. Baseline commit `b84989d` contains only the frozen contract test and manifest.
-3. Baseline red run returned `15 failed, 2 passed`; implementation then reached
-   `17 passed` without changing the frozen test.
-4. Canonical skill changes require a separately proven ecosystem-sync ticket;
-   no generated mirror is silently folded into the implementation commit.
+3. Baseline red run returned `15 failed, 2 passed`; the first implementation
+   reached `17 passed` without changing that test.
+4. The actual `.git/hooks/pre-commit` copy injected eight version files into
+   `175545a`. That commit is preserved on
+   `evidence/mutating-precommit-caught-20260827`; the clean implementation was
+   rebuilt from the baseline as `f012519`, and `core.hooksPath=.githooks` now
+   selects the read-only hook.
+5. Ecosystem baseline `11ff774` recorded `2 failed` before sync. Commit
+   `49f81bf` changed only the two generated Antigravity skill mirrors and the
+   full ecosystem check now passes.
+6. Full QA initially returned `1269 passed / 6 failed`, exposing that a new
+   standalone workflow violated the exact reviewed inventory. Source work
+   stopped; test-only baseline `4e13490` explicitly superseded `b84989d`, then
+   commit `83ce2a0` embedded the job in `ci.yml` without weakening inventory
+   assertions.
+7. Final full QA passed `1275` with `12` warnings. Secret scan passed `0/1,954`,
+   aggregate history verified both active baselines plus the preserved cutoff,
+   and code reviewer returned `READY_FOR_PROD` with exact ticket/baseline/
+   manifest binding.
+8. GitHub ruleset activation and a remote CI receipt remain
+   `NEEDS_HITL`; local workflow content is not platform enforcement.
 
 ### Rollback
 
-Branches and commits are additive. Revert the implementation commit while
-retaining both the immutable baseline and recovery branch as audit evidence.
+Branches and commits are additive. Revert the owned implementation commits
+while retaining immutable/superseded baselines, the recovery branch, and the
+mutating-hook evidence branch as audit evidence.
 <!-- TPG-GRILL:END -->
 
 ---
