@@ -2,7 +2,7 @@
 ## Production 503 Recovery and Concern Closure Plan
 
 **Date**: 2026-08-27 (Asia/Bangkok)
-**Status**: `RUNTIME RECOVERED / LOCAL HOTFIX GREEN / PR #2 CHECKS GREEN / MERGE GATED`
+**Status**: `PR #2 MERGED / VERCEL LIVE + VERIFIED / HF + POST-MERGE CI GATED`
 
 ### Goal and scope
 
@@ -12,8 +12,8 @@
   when the first payload-mode test was proven wrong.
 - Close release-gate drift in payload modes, canonical metadata, mobile visual
   behavior, and HF runtime identity.
-- Exclude HF publish and unreviewed hotfix merge from the completed runtime
-  recovery; both remain separate exact-target external gates.
+- Exclude HF publish from the completed Vercel release; it remains a separate
+  exact-target external gate.
 
 ### Root causes and implemented solution
 
@@ -35,21 +35,26 @@
 6. Unused Vercel Preview deployments were still attempted on every non-main
    push. Freeze the failure in test-only baseline `062289e`, disable automatic
    Git deployment for `*`, and explicitly retain it for production `main`.
+7. Once the canonical schema became live, the full suite exposed one stale
+   network test that still required `commit/timestamp`; the live E2E runner also
+   accepted missing identity fields. Preserve red baseline `2b195a6`, correct
+   only the stale test contract, and harden the runner before restoring main CI.
 
 ### Evidence and release boundary
 
-- Live: Vercel deployment `dpl_2gEijnyqedG1Bn2XVcWZvWJ6amaZ` is Ready;
-  `/health` is 200; LuoPan is `8/8`; production version E2E passes; Unified CI
-  rerun `33048014471` passes all jobs.
+- Live: PR `#2` merged as `85428c8`; Vercel deployment
+  `dpl_FWVpyuKbY9iWs2rrVxEGKmmp8Qm4` is Ready and aliased. `/health` is 200;
+  LuoPan is `8/8`; canonical version/UI consistency passes; five-viewport audit
+  is `5/5` with zero overflow, overlap, clipping, bounds, or contrast findings.
 - Local: final full reviewer returned `READY_FOR_PROD` with `1288 passed`; the
   focused release suite passed `73`; Docker dry-run, ecosystem synchronization,
   aggregate provenance, secret scan, and the deterministic five-viewport visual
   audit are green.
-- Rollback: Vercel env ID `gTpSlwb3RL3Fr94e`; prior deployment
-  `dpl_8nywahyt5ga3FiBajjRBtHozQU8w`.
-- Remote review: PR `#2` is open from `hotfix/prod-503-recovery` without
-  auto-merge. All required GitHub workflows are green; ruleset `21626253`
-  requires only `Test Provenance`.
+- Rollback: Vercel env ID `gTpSlwb3RL3Fr94e`; immediate prior deployment
+  `dpl_2gEijnyqedG1Bn2XVcWZvWJ6amaZ`.
+- Remote review: PR `#2` is merged. Main lint, ecosystem, Rust, provenance, and
+  live E2E gates pass, but runs `33054316810` and `33054316732` block on one
+  stale legacy-field network test after the canonical schema became live.
 - Preview retirement: the Vercel notification was canceled because local
   commits are cryptographically unverified, not because the build failed. The
   two canceled artifacts were removed, production stayed `READY`, and the
@@ -58,19 +63,20 @@
   trailers before push. The rejected lineage is preserved on
   `evidence/prod-503-preview-trailer-caught-20260827`; the corrected lineage
   retains the same test-only baseline and exact full-SHA source trailers.
-- Pending: explicit merge decision, Vercel UI release, owner-gated HF Docker
-  publish, and exact live backend version plus
-  five-viewport re-verification.
+- Post-merge correction: baseline `2b195a6` preserved `3 failed, 5 passed` before
+  source commit `45c635e`; focused QA now passes `8`. A separate review/CI merge
+  gate is required before main is green again.
+- Pending: post-merge correction review, owner-gated HF Docker publish, and exact
+  live backend identity verification.
 
 ### Safe resume order
 
-1. Obtain an explicit decision for PR `#2`; do not auto-merge and do not treat
-   Vercel Preview as a required gate.
-2. After explicit merge approval, verify the Vercel production deployment and rerun the
-   five canonical visual viewports.
-3. Publish the canonical HF Docker target only through its owner-gated release
+1. Route the isolated post-merge test/E2E correction through required provenance,
+   reviewer, and remote CI; do not push directly to `main`.
+2. Publish the canonical HF Docker target only through its owner-gated release
    workflow, then require `/health` commit/version to equal the stamped source.
-4. Close `TICKET-PROD-503-001F` only when both live targets are exact and green.
+3. Close `TICKET-PROD-503-001F` only when main CI and both live targets are exact
+   and green.
 <!-- PROD-503-HANDOFF:END -->
 
 ---
