@@ -1,0 +1,41 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-PROD-503-002",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "85428c839e99a906090fd2a14bdebd3a9c305d8d",
+  "test_files": [
+    {
+      "path": "project/tests/test_prod_version_regression.py",
+      "sha256": "2be6b7210f4b27fdcf4b72681c0f5e395f47c1942b88d156393856c36d6d9db0"
+    },
+    {
+      "path": "project/tests/test_prod_version_e2e_release_identity.py",
+      "sha256": "4eaad8b83fbb17ae8fbdc6867c4d7379be358af8984200bd26adde2f4751a3c1"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_prod_version_regression.py",
+        "project/tests/test_prod_version_e2e_release_identity.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "3 failed, 5 passed; the live regression still required legacy commit/timestamp fields while the E2E runner accepted legacy or tampered metadata and omitted canonical release identity from its report"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/run_prod_version_e2e.py",
+    "PROJECT_TASKS.md",
+    "plans/plan.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Restore post-merge CI by aligning the stale live regression with the already-frozen closed five-field release metadata contract and make the production E2E runner reject legacy, duplicate, malformed, or digest-tampered identity data."
+}

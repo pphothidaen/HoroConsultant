@@ -14,6 +14,7 @@ Verifies:
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import time
@@ -52,16 +53,39 @@ def fetch_url(url: str, cache_buster: bool = True) -> tuple[int, str, dict[str, 
 
 @pytest.mark.network
 def test_prod_version_json_contract():
-    """Verify live /version.json endpoint returns valid semantic version & commit hash."""
+    """Verify live /version.json exposes the closed canonical release identity."""
     status, body, _ = fetch_url(f"{PROD_BASE_URL}/version.json")
     assert status == 200, f"Expected 200 from /version.json, got {status}"
-    
+
     data = json.loads(body)
-    assert "version" in data, "Missing 'version' in /version.json"
-    assert "commit" in data, "Missing 'commit' in /version.json"
-    assert "timestamp" in data, "Missing 'timestamp' in /version.json"
-    assert data["version"].startswith("1.0.0."), f"Unexpected version format: {data['version']}"
-    assert len(data["commit"]) >= 7, f"Invalid commit length: {data['commit']}"
+    assert set(data) == {
+        "version",
+        "release_source_commit",
+        "release_source_revision",
+        "release_source_metadata_path",
+        "release_source_metadata_sha256",
+    }
+    source_commit = data["release_source_commit"]
+    source_revision = data["release_source_revision"]
+    assert re.fullmatch(r"[0-9a-f]{7}", source_commit)
+    assert re.fullmatch(r"[0-9a-f]{40}", source_revision)
+    assert source_revision.startswith(source_commit)
+    assert data["version"] == f"1.0.0.{source_commit}"
+    assert data["release_source_metadata_path"] == "project/static/version.json"
+    canonical_identity = {
+        "release_source_commit": source_commit,
+        "release_source_metadata_path": data["release_source_metadata_path"],
+        "release_source_revision": source_revision,
+        "version": data["version"],
+    }
+    canonical_bytes = json.dumps(
+        canonical_identity,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    assert data["release_source_metadata_sha256"] == hashlib.sha256(
+        canonical_bytes
+    ).hexdigest()
 
 
 @pytest.mark.network
