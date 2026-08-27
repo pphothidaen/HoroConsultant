@@ -1,6 +1,28 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff — Central Kanban Board for ALL Project Work**  
-> *Last Updated: 2026-08-25 +07 (Asia/Bangkok) — authorized HF Static release is deployed and verified at version `1.0.0.6c351ba` / commit `6c351ba`. Publisher regression is `16 passed`; combined publisher and visual-audit regression is `24 passed`; all five canonical viewports pass. Rule 16 and the `hf-static-release-verification` skill now govern subsequent fail-closed release evidence.*
+> *Last Updated: 2026-08-27 +07 (Asia/Bangkok) — test-provenance gate implementation is active on `feature/test-provenance-gate`; production release state is unchanged.*
+
+---
+
+## Sprint TPG — Test-First Git Provenance and TDD-Trap Prevention
+
+**Grill status**: `APPROVED` from the signed implementation plan. Scope is
+local repository code, tests, Git history, CI definition, governance, and docs;
+no push, deploy, provider/AGY execution, secrets, or production mutation.
+
+| Ticket | Severity / Effort | Owner | Status | Evidence / Dependency |
+|---|---|---|---|---|
+| `TICKET-TPG-000` | CRITICAL / XS | orchestrator | DONE | Recovery snapshot `ebfeee9` on `recovery/pre-test-provenance-20260827`, explicitly `NON_TDD_RECONSTRUCTED`; secret scan 0/1,967 |
+| `TICKET-TPG-001` | CRITICAL / M | developer | DOING | Test-only baseline `b84989d`; red evidence `15 failed, 2 passed`; frozen test SHA-256 `089eea1750eadab8e201e585af67a66f0a6fa837ec871379d013dcb30b3a3246`; implementation must use its exact trailer |
+| `TICKET-TPG-002` | HIGH / S | business_analyst | TODO | Sync canonical skill/rule changes into generated ecosystem only after a separate test baseline proves the stale-mirror failure |
+| `TICKET-TPG-003` | CRITICAL / S | qa_tester | TODO | Focused provenance suite, ecosystem check, full relevant regression, secret scan, and immutable test/history audit after source freeze |
+| `TICKET-TPG-004` | CRITICAL / XS | repository owner | NEEDS_HITL | After push, configure the GitHub ruleset so job `Test Provenance` is a required merge check; workflow presence alone is not platform enforcement |
+| `TICKET-TPG-005` | CRITICAL / XS | code_reviewer | TODO | Final Git review must bind ticket, baseline SHA, manifest, unchanged test hashes, and source-only commits |
+
+**Platform boundary**: native `spawn_agent` pre-spawn enforcement remains
+`BLOCKED` under `DSG-009A` until the platform exposes an authoritative hook and
+receipt API. This gate catches repository history/merge violations but does not
+claim native runtime interception.
 
 ---
 

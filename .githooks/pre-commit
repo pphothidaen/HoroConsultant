@@ -1,56 +1,37 @@
 #!/bin/sh
-# .githooks/pre-commit — Pre-Commit Safety & Syntax Quality Gate
-# Validates:
-# 1. Zero SyntaxError / Unterminated String Literals in all repository Notebooks (.ipynb)
-# 2. Dependency Matrix Compliance (NumPy 2.x & PyArrow 15+ ABI integrity)
-# 3. Automatic Version Stamping
+# Read-only pre-commit gate. It must never edit or stage repository files.
 
-echo "🔎 [Pre-Commit] Validating Notebook AST & Python Syntax..."
+set -u
 
-# Prefer project venv python (has pytest); fall back to system python3
-PYTHON=""
 if [ -x ".venv/bin/python3" ]; then
     PYTHON=".venv/bin/python3"
 elif command -v python3 >/dev/null 2>&1; then
-    PYTHON=python3
+    PYTHON="python3"
+else
+    echo "[ERROR] Pre-commit blocked: Python is required for repository gates."
+    exit 1
 fi
 
-if [ -z "$PYTHON" ]; then
-    echo "[WARN] Python not available; skipping notebook AST check."
-    exit 0
+echo "[INFO] Pre-commit: checking staged test provenance."
+if [ -f "scripts/test_provenance_guard.py" ]; then
+    "$PYTHON" "scripts/test_provenance_guard.py" staged
+    STATUS=$?
+    if [ "$STATUS" -ne 0 ]; then
+        echo "[ERROR] Pre-commit blocked: test provenance validation failed."
+        exit "$STATUS"
+    fi
 fi
 
-# Run the fast dedicated notebook syntax test suite (<0.05s)
 if [ -f "tests/test_notebook_syntax.py" ]; then
+    echo "[INFO] Pre-commit: checking notebook syntax."
     "$PYTHON" -m pytest tests/test_notebook_syntax.py -q >/dev/null 2>&1
     STATUS=$?
-    if [ $STATUS -ne 0 ]; then
-        echo ""
-        echo "❌ [Pre-Commit BLOCKED] Notebook Syntax or Dependency Conflict detected!"
-        echo "   Run: $PYTHON -m pytest tests/test_notebook_syntax.py -v"
-        echo "   Fix: $PYTHON scripts/sync_notebook_cells.py"
-        echo ""
-        exit 1
+    if [ "$STATUS" -ne 0 ]; then
+        echo "[ERROR] Pre-commit blocked: notebook syntax checks failed."
+        echo "[INFO] Run: $PYTHON -m pytest tests/test_notebook_syntax.py -v"
+        exit "$STATUS"
     fi
-    echo "✅ [Pre-Commit] Notebook AST & Dependency Matrix Passed 100%!"
 fi
 
-# Auto-stamp git version into all local source files
-STAMP_SCRIPT="scripts/stamp_version.py"
-if [ -f "$STAMP_SCRIPT" ]; then
-    python3 "$STAMP_SCRIPT" 2>/dev/null
-    
-    # Stage the stamped files if they were modified
-    git add \
-        project/static/version.json \
-        public/version.json \
-        project/static/app.js \
-        public/app.js \
-        project/static/sw.js \
-        public/sw.js \
-        project/static/index.html \
-        public/index.html \
-        2>/dev/null
-fi
-
+echo "[OK] Pre-commit read-only gates passed."
 exit 0

@@ -1,3 +1,48 @@
+<!-- TPG-GRILL:START -->
+## GRILL REPORT — Test-First Git Provenance
+
+**Date**: 2026-08-27 (Asia/Bangkok)
+**Gate status**: `APPROVED`
+**Decision authority**: user-approved implementation plan and follow-up
+authorization for root execution when governed delegation cannot produce a
+native pre-spawn receipt.
+
+### Goal and acceptance
+
+- Preserve the original dirty work without rewriting its provenance; label it
+  `NON_TDD_RECONSTRUCTED`.
+- Require a committed test-only baseline with hashes and red/negative-control
+  evidence before source coding.
+- Reject mixed source/test commits, frozen-test mutation, untracked tests,
+  invalid ancestry/hashes, missing trailers, and unreviewed correction paths.
+- Keep the local hook read-only and make CI plus final Git review authoritative.
+- Retain `DSG-009A` as blocked; repository policy is not native runtime proof.
+
+### Locked decisions
+
+- Enforcement: local read-only hook plus required CI.
+- Current mixed work: recovery branch, no retroactive TDD claim.
+- Wrong frozen test: stop source work and use a test-only superseding baseline.
+- External actions: no push, deployment, provider/AGY execution, secret action,
+  or GitHub ruleset mutation in this local implementation session.
+
+### Evidence sequence
+
+1. Recovery commit `ebfeee9` preserves the pre-gate worktree.
+2. Baseline commit `b84989d` contains only the frozen contract test and manifest.
+3. Baseline red run returned `15 failed, 2 passed`; implementation then reached
+   `17 passed` without changing the frozen test.
+4. Canonical skill changes require a separately proven ecosystem-sync ticket;
+   no generated mirror is silently folded into the implementation commit.
+
+### Rollback
+
+Branches and commits are additive. Revert the implementation commit while
+retaining both the immutable baseline and recovery branch as audit evidence.
+<!-- TPG-GRILL:END -->
+
+---
+
 <!-- MAREF-C0-GRILL:START -->
 ## GRILL REPORT — Multi-agent Control Plane C0 Architecture Freeze
 
