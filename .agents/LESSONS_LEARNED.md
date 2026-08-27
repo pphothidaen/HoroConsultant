@@ -196,3 +196,40 @@
   - `CURRENT_PAGE_VERSION`, footer version, four cache-busting references, `CLIENT_APP_VERSION`, and service-worker cache version must each occur exactly once; missing, duplicate, stale, composite, malformed, or unreachable evidence fails the command with a non-zero exit code.
   - Regression coverage includes idempotent stamping, duplicate declarations, missing assets, network errors, SDK-specific health behavior, and CLI failure exit status.
   - Post-change evidence: publisher suite `16 passed`; combined publisher and visual-audit regression `24 passed`; live Static health and exact-version checks passed for `1.0.0.6c351ba` / `6c351ba`.
+
+### 18. 🧭 Ready Deployment Does Not Prove Gateway Configuration or Release Identity
+
+- **Issue Experienced**: A Vercel production deployment was `READY` and served
+  the correct merged SHA, but every proxied API call returned HTTP 503. The
+  canonical HF Docker backend itself returned 200. Separately, its health body
+  exposed `version/git_commit=unknown`, and the five-viewport audit found a
+  clipped mobile tab, long-content clipping, and a 3.8:1 chevron contrast pair.
+- **Root Cause**:
+  1. Vercel production had no `HF_BACKEND_URL`; the gateway correctly rejected
+     the absent canonical origin as `backend_not_configured`.
+  2. Historical executable bits contradicted the frozen `100644` HF payload
+     contract, while a first remediation test incorrectly tried to weaken that
+     contract.
+  3. The version stamper still emitted legacy metadata after the publisher had
+     moved to immutable `release_source_*` provenance.
+  4. HF runtime images have neither provider commit environment data nor a Git
+     checkout, so dynamic Git lookup alone cannot expose release identity.
+- **Lesson Learned**: Deployment readiness, backend reachability, gateway
+  configuration, exact release identity, API behavior, and rendered UI quality
+  are distinct gates. A green result from one may not substitute for another.
+- **Prevention Protocol**:
+  - Verify required environment-variable **names/scopes** before redeploying;
+    never print values or assume a prior deployment inherited a missing entry.
+  - Keep an exact env-entry ID and prior production deployment as rollback
+    anchors, then prove the canonical alias and `x-deploy-sha` after redeploy.
+  - When a frozen test conflicts with an established contract, stop source
+    work and use a test-only superseding baseline. Preserve the original commit
+    and cutoff; never amend or silently rewrite it.
+  - Stamp a closed five-field metadata object from one immutable source commit,
+    keep public/backend UI surfaces mirrored, and validate its SHA-256 digest.
+  - In a Git-less image, accept baked identity only after env/file/Git fallbacks
+    are exhausted and the closed metadata schema, version binding, full source
+    revision, and digest all validate. Tampered metadata returns `unknown`.
+  - Require live API E2E plus all five visual viewports. Mobile content height
+    and contrast failures block a full `READY_FOR_PROD` claim even when API
+    recovery is complete.
