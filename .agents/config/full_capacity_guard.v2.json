@@ -1,0 +1,65 @@
+{
+  "schema_version": "full-capacity-guard-config-v2",
+  "governance_schema_version": "full-capacity-governance-v2",
+  "enabled": true,
+  "normative_short_lane_max_seconds": 600,
+  "effective_short_lane_max_seconds": 300,
+  "max_slots": 64,
+  "max_tickets": 256,
+  "ledger_schema_version": 3,
+  "ledger_relative_directory": [
+    ".local",
+    "state",
+    "horoconsultant",
+    "full-capacity-guard-v2"
+  ],
+  "ledger_filename": "lifecycle.sqlite3",
+  "ledger_limits": {
+    "max_rows": 4096,
+    "max_sessions": 256,
+    "max_bytes": 16777216,
+    "retention_seconds": 2592000,
+    "busy_timeout_ms": 2500
+  },
+  "policy_path": ".agents/config/multiagent_model_policy.yaml",
+  "dependency_pins": {
+    "dispatcher_validator": {
+      "path": "scripts/multiagent_prompt_command.py",
+      "sha256": "48b0aee8400ce59add3d4f0575ea8d6ba533be0b89f02e7cef476f10361735e1"
+    },
+    "scheduler_validator": {
+      "path": "scripts/multiagent_ticket_scheduler.py",
+      "sha256": "6108cb7044ce30e4cac8d7973f8a15491c189ea996912b10e808a9791c6a9f8a"
+    },
+    "model_policy": {
+      "path": ".agents/config/multiagent_model_policy.yaml",
+      "sha256": "e480ad33b8a27c20a456c3f5141ec6ef408a630cc5a9d59e48e3118b2bcf2379"
+    },
+    "governance_schema": {
+      "path": ".agents/schemas/full-capacity-governance-v2.schema.json",
+      "uri": "https://horoconsultant.local/schemas/full-capacity-governance-v2.schema.json",
+      "sha256": "90f0c18bec385f83d50fffeb69e136f1b6b21fca4c350bb62778695287dedde9"
+    },
+    "rule18_schema": {
+      "path": ".agents/schemas/multiagent-dispatch-decision-v1.schema.json",
+      "uri": "https://horoconsultant.local/schemas/multiagent-dispatch-decision-v1.schema.json",
+      "sha256": "fa521294932da91db233c2e253db3efa15b3231a71cf453fcea73216da4ec44f"
+    }
+  },
+  "provider_aliases": [
+    "agy1",
+    "agy2"
+  ],
+  "positive_alias_runtime_proof_available": false,
+  "authoritative_snapshot_proof_available": false,
+  "native_hook_interception_proven": false,
+  "provider_runtime_proven": false,
+  "provider_provenance_proven": false,
+  "wall_clock_enforcement_proven": false,
+  "natural_exit_enforcement_proven": false,
+  "feature_flags": {
+    "enable_agy_parity": false,
+    "enable_module_level_source_isolation": false,
+    "enable_granular_lane_roles": false
+  }
+}

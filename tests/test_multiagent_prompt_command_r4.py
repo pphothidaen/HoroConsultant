@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+from types import SimpleNamespace
 
 import pytest
 import yaml
@@ -20,6 +21,56 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 import scripts.multiagent_prompt_command as command
+
+
+@pytest.fixture(autouse=True)
+def _synthetic_preauth_for_historical_r4_r5(monkeypatch):
+    claim = {"claim_id": "1" * 64}
+    grant = {"grant_id": "2" * 64}
+
+    class Prepared:
+        def __init__(self, invocation):
+            ledger = command._coerce_claim_store(
+                command._secure_claim_directory(invocation), invocation
+            )
+            stores = {
+                "probe_claim_store": "4" * 64,
+                "approval_grant_store": "5" * 64,
+                "approval_consume_store": "6" * 64,
+                "dispatch_ledger_store": ledger.identity_sha256,
+            }
+            self.claim = SimpleNamespace(record=claim, raw=command._canonical_json_bytes(claim))
+            self.grant = SimpleNamespace(record=grant, raw=command._canonical_json_bytes(grant))
+            self.binding = {"preauthorization_stores": stores}
+            self.dispatch_ledger_store = ledger
+            self.consume_artifact = None
+            self.anchor_artifact = None
+
+        def take_dispatch_ledger(self):
+            ledger = self.dispatch_ledger_store
+            self.dispatch_ledger_store = None
+            return ledger
+
+        def close(self):
+            if self.dispatch_ledger_store is not None:
+                self.dispatch_ledger_store.close()
+                self.dispatch_ledger_store = None
+
+    def fake_consume(_invocation, prepared, *_args):
+        receipt = {"consume_id": "3" * 64}
+        anchor = {"anchor_id": "7" * 64}
+        prepared.consume_artifact = SimpleNamespace(
+            record=receipt, raw=command._canonical_json_bytes(receipt)
+        )
+        prepared.anchor_artifact = SimpleNamespace(
+            record=anchor, raw=command._canonical_json_bytes(anchor)
+        )
+        return receipt
+
+    monkeypatch.setattr(command, "_prepare_probe_authorization", lambda invocation, **_k: Prepared(invocation))
+    monkeypatch.setattr(command, "_consume_prepared_approval", fake_consume)
+    monkeypatch.setattr(command, "_reverify_retained_artifact", lambda *_a, **_k: None)
+    monkeypatch.setattr(command, "_validate_receipt_v3_preauthorization", lambda *_a, **_k: None)
 
 
 def _policy() -> dict[str, object]:
@@ -185,11 +236,23 @@ def test_r4_legacy_or_mixed_raw_ledger_record_fails_closed(tmp_path):
 def test_r4_portable_claim_proof_validates_without_ledger_and_rejects_tamper_or_local_mismatch(tmp_path, monkeypatch):
     invocation = _invocation(tmp_path)
     monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
-    output = "\n".join((json.dumps({"type": "thread.started", "thread_id": "r4"}), json.dumps({"type": "item.completed", "item": {"type": "agent_message", "text": json.dumps({"status": "DONE", "scope_owned": ["tests/r4"], "evidence": {"commands": ["pytest"], "outcomes": ["ok"], "artifacts": []}, "findings": ["ok"], "changed_files": [], "residual_risk": "none", "recommended_next_action": "none"})}}), json.dumps({"type": "turn.completed"}))) + "\n"
-    monkeypatch.setattr(command.subprocess, "run", lambda argv, **kwargs: subprocess.CompletedProcess(argv, 0, output, ""))
+    work_result = {"status": "DONE", "scope_owned": ["tests/r4"], "evidence": {"commands": ["pytest"], "outcomes": ["ok"], "artifacts": []}, "findings": ["ok"], "changed_files": [], "residual_risk": "none", "recommended_next_action": "none"}
+    work_result_json = json.dumps(work_result, separators=(",", ":"))
+    output = "\n".join((json.dumps({"type": "thread.started", "thread_id": "r4"}), json.dumps({"type": "item.completed", "item": {"type": "agent_message", "text": work_result_json}}), json.dumps({"type": "turn.completed"}))) + "\n"
+
+    def fake_run(argv, **kwargs):
+        flag = "--output-last-message" if "--output-last-message" in argv else "-o"
+        Path(argv[argv.index(flag) + 1]).write_text(work_result_json, encoding="utf-8")
+        return subprocess.CompletedProcess(argv, 0, output, "")
+
+    monkeypatch.setattr(command, "_run_provider_process", fake_run)
     outcome = command.execute_invocation(invocation)
     receipt = dict(outcome.completed["execution_receipt"])
     work_result = outcome.completed["work_result"]
+    invocation = replace(
+        invocation,
+        preauthorization_store_binding=receipt["preauthorization_stores"],
+    )
     persisted_path = tmp_path / "ledger" / f"{receipt['dispatch_claim_key']}.json"
     persisted = json.loads(persisted_path.read_text(encoding="ascii"))
     persisted_path.unlink()
@@ -220,7 +283,7 @@ def test_r4_recursive_durable_pii_scan_contains_only_redacted_receipt_and_tokens
     pii = "email=person@example.com; user_id=123456; /Users/person/private; 192.0.2.42"
     invocation = _invocation(tmp_path, ownership="tests/r4/pii-safe.py", objective=pii)
     monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
-    monkeypatch.setattr(command.subprocess, "run", lambda argv, **kwargs: subprocess.CompletedProcess(argv, 0, "", ""))
+    monkeypatch.setattr(command, "_run_provider_process", lambda argv, **kwargs: subprocess.CompletedProcess(argv, 0, "", ""))
     claim = command._acquire_dispatch_claim(invocation)
     try:
         durable = "\n".join(path.read_text(encoding="ascii", errors="ignore") for path in (tmp_path / "ledger").rglob("*") if path.is_file())

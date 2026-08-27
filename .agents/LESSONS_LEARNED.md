@@ -179,4 +179,23 @@
   - Static `--verify-version` requires HTTP 200 and exact version/commit coherence across `version.json`, `index.html`, `app.js`, `sw.js`, and `v3_tokens.css`.
   - `CURRENT_PAGE_VERSION`, footer version, four cache-busting references, `CLIENT_APP_VERSION`, and service-worker cache version must each occur exactly once; missing, duplicate, stale, composite, malformed, or unreachable evidence fails the command with a non-zero exit code.
   - Regression coverage includes idempotent stamping, duplicate declarations, missing assets, network errors, SDK-specific health behavior, and CLI failure exit status.
-  - Post-change evidence: publisher suite `16 passed`; combined publisher and visual-audit regression `24 passed`; live Static health and exact-version checks passed for `1.0.0.6c351ba` / `6c351ba`.
+  - Historical evidence only: publisher suite `16 passed`; combined publisher and visual-audit regression `24 passed`; prior Static health and exact-version checks referenced `1.0.0.6c351ba` / `6c351ba`. The current live target/version is mismatched, so fresh release verification remains required.
+
+---
+
+### 18. 🛡️ Multi-Agent Parity Governance, Feature-Flag Isolation & Owner Gate Boundary
+- **Issue Experienced**: Discrepancy between Approach C sprint tickets marked as DONE while platform-native `spawn_agent` pre-spawn hook was still blocked (`DSG-009A`), with design spec phrasing implying local token anchor could bypass external host API requirements.
+- **Root Cause**: Architectural consensus documentation used aspirational parity phrasing without explicitly anchoring the owner-enforced boundary on native platform pre-spawn hooks.
+- **Lesson Learned**: A local repository token anchor provides internal
+  structural validation and test-harness capability, but NEVER bypasses or
+  substitutes for a host platform pre-spawn hook/receipt API, and never makes
+  AGY eligible. Feature flags stay `false`; the 5/11 drift, `543/545` baseline,
+  and C/H/M/L `1/5/1/0` review are superseded historical failed-candidate
+  evidence. `DSG-009` is now `DONE — LOCAL FAIL-CLOSED RE-FREEZE / QA +
+  SECURITY PASS; RUNTIME NOT_PROVEN`; `DSG-009A/B` remain `BLOCKED` until the
+  required host API and trusted telemetry are verified.
+- **Prevention Protocol**:
+  - All parity enhancements are strictly guarded by feature flags in `.agents/config/full_capacity_guard.v2.json` (`enable_agy_parity: false` by default).
+  - Hook verifies cryptographic token anchor when `enable_agy_parity` is active, but blocks live execution by default.
+  - `DSG-009A` remains permanently `BLOCKED` until native platform host APIs are delivered.
+  - Document operational state accurately across `PROJECT_TASKS.md`, `plans/plan.md`, `README.md`, and `HOWTO.md`.

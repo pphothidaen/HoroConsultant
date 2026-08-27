@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-DSG-001R-SPARK-SMOKE-20260826",
+  "phase": "qa",
+  "scope_rank": 0,
+  "complexity_rank": 1,
+  "risk_rank": 1,
+  "ambiguity_rank": 0,
+  "evidence_burden_rank": 1,
+  "quota_band": "healthy",
+  "work_mode": "read_only",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.3-codex-spark",
+  "selected_effort": "high",
+  "rationale": "one bounded requested-only experimental exact-model transport smoke",
+  "policy_version": "2026-08-26.spark-probe.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

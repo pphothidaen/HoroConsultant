@@ -283,6 +283,27 @@ python3 scripts/sync_codex_agents.py --check
 
 Edit `.agents/agents/*/agent.json` for role content. Do not manually edit `.codex/agents/*.toml`; the Codex generator will overwrite generated files. Provider-specific model names in legacy prompts are historical context, while Codex subagents use the active Codex model.
 
+### 3.5.2 Approach C: Feature-Flagged Multi-Agent Parity & Concurrency Controls
+
+สถาปัตยกรรม **Approach C** ช่วยบริหารจัดการ Multi-Agent Concurrency ข้ามแพลตฟอร์มอย่างปลอดภัย:
+- **Feature Flags ควบคุมระบบ**: อยู่ใน `.agents/config/full_capacity_guard.v2.json` และ `.agents/config/multiagent_model_policy.yaml` (`enable_agy_parity`, `enable_module_level_source_isolation`, `enable_granular_lane_roles`)
+- **หลักฐาน historical ที่ถูกแทนที่แล้ว**: baseline ก่อน remediation คือ
+  `543/545` (token failures 2 รายการ), rejected design review คือ C/H/M/L
+  `1/5/1/0`, และมี hash drift 5/11 รายการ; ทั้งหมดเป็น historical failed
+  candidate เท่านั้น ไม่ใช่สถานะของไฟล์ปัจจุบัน.
+- **สถานะ local re-freeze ปัจจุบัน**: `DSG-009` เป็น `DONE — LOCAL FAIL-CLOSED
+  RE-FREEZE / QA + SECURITY PASS; RUNTIME NOT_PROVEN`. Guard QA ผ่าน `552`,
+  integrated safe mocked QA ผ่าน `823` (`552 + 271`, deselect local-child
+  โดยเจตนา 4 tests), PromptCommand QA `275` และ adversarial `33`, named
+  security regression `761` ที่ C/H/M/L `0/0/0/0`; sync/check green และ secret
+  scan `1,967` files / `0` leaks. ผล local นี้ไม่ปล่อย runtime/provider/AGY
+  authority.
+- **ข้อกำหนดความปลอดภัย (Owner Gate)**: flags ทั้งหมดยัง `false`
+  (Fail-Closed). Local token anchor ไม่ทำให้ AGY eligible; `DSG-009A`/
+  `DSG-009B` ยัง `BLOCKED` จนกว่า Platform Host จะมี native pre-spawn
+  hook/receipt API และ trusted telemetry ที่ตรวจสอบได้. ทุก native
+  `spawn_agent` ยังคง owner-gated.
+
 ---
 
 ### 3.6 Hugging Face Spaces Deployment Platform CLI

@@ -26,6 +26,26 @@
             "command": "python3 .claude/hooks/orchestrator_only_guard.py"
           }
         ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/full_capacity_guard.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/full_capacity_guard.py"
+          }
+        ]
       }
     ]
   }

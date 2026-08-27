@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "probe_only": true,
+  "permanent_policy": false,
+  "session_scope": "current-user-approved-session-2026-08-26",
+  "ticket": "TICKET-DSG-001R-SPARK-SMOKE-20260826",
+  "attempt": 1,
+  "max_uses": 1,
+  "issued_at": "2026-08-26T07:49:30Z",
+  "expires_at": "2026-08-26T11:35:00Z",
+  "requested": {
+    "alias": "codex1",
+    "provider": "codex",
+    "model": "gpt-5.3-codex-spark",
+    "effort": "high",
+    "sandbox": "read-only"
+  },
+  "effective": {
+    "model": "NOT PROVEN",
+    "effort": "NOT PROVEN",
+    "account": "NOT PROVEN",
+    "quota": "NOT PROVEN"
+  },
+  "sha256": {
+    "scripts/multiagent_prompt_command.py": "2f64a7eacedbd9166c9591be3270428dec78ecf94efba571b8dde71d4e118f11",
+    "tests/test_multiagent_prompt_command.py": "9b22637202fd144104f59fd7242407c29f4dbd2ef143ca240a371da38c2dec3f",
+    "tests/test_multiagent_prompt_command_r4.py": "1c5197d8c7a5778c324b38faf273f56caaf25eae2af2bfbb4a554bb459ace567",
+    "tests/test_multiagent_receipt_schema.py": "6d7397e635735d80f778b48aa4af6a3f9159d30a728e366265d330db882d204c",
+    ".agents/schemas/multiagent-work-result-v2.schema.json": "01db16738ff11647a30485f33f66f815deb02e338c51cbf324a5ce8ad988f01c",
+    "policy.yaml": "344f49ce94115cd542c5722516a80ca884241684fbb08806ec29ac962202d22d",
+    "decision.json": "4ccaaaee45f6404086d125ad61278d91d5cca1ad7980566924e412873168b3f3",
+    "snapshot.json": "185bbedb0f636165301eeaf49947cec17b8fc77661c7ad974a78dba15d3fa441",
+    "runtime.yaml": "5a4dc9fe5553bb9043e26672c876019197b808d0252809f01cd8a194a58a9f2e"
+  },
+  "stop": "no retry, provider substitution, policy promotion, or second use"
+}

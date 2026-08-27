@@ -1,0 +1,18 @@
+version: 2
+model_policy: policy.yaml
+runtime:
+  approved_for_execution: true
+  protocol_version: 2
+accounts:
+  codex1:
+    cli: codex
+    command: codex
+    home_env: CODEX_HOME
+    home_path: ${HOME}/.ai-accounts/codex/account1
+roles:
+  spark_probe:
+    alias: codex1
+    cli: codex
+    model: gpt-5.3-codex-spark
+    effort: high
+    sandbox: read-only

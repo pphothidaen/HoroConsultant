@@ -1,12 +1,19 @@
 schema_version: 1
-policy_version: "2026-08-26.1"
+policy_version: "2026-08-26.2"
 decision_schema_version: 1
+
+feature_flags:
+  enable_agy_parity: false
+  enable_module_level_source_isolation: false
+  enable_granular_lane_roles: false
 
 result_contract:
   protocol_version: 2
+  receipt_schema_version: 3
   work_result_schema: ../schemas/multiagent-work-result-v2.schema.json
-  # All newly governed execution receipts use the closed receipt-v2 contract.
-  receipt_schema: ../schemas/multiagent-dispatch-receipt-v2.schema.json
+  # New governed execution requires the locally anchored preauthorization v3 contract.
+  receipt_schema: ../schemas/multiagent-dispatch-receipt-v3.schema.json
+  historical_receipt_v2_schema: ../schemas/multiagent-dispatch-receipt-v2.schema.json
   # Receipt-v1 is legacy-only: preserve its identity and handle it explicitly;
   # never reinterpret or validate a historical v1 receipt as receipt-v2.
   legacy_receipt_schema: ../schemas/multiagent-dispatch-receipt-v1.schema.json
@@ -18,6 +25,34 @@ result_contract:
     # alias swapping when a role or CLI override selects the other provider.
     # Absent or false preserves strict mismatch rejection (fail-closed default).
     allow_provider_swap_default: false
+
+preauthorization:
+  probe_claim_schema_version: 1
+  probe_claim_schema: ../schemas/multiagent-probe-claim-v1.schema.json
+  probe_claim_ttl_seconds: 600
+  approval_grant_schema_version: 1
+  approval_grant_schema: ../schemas/multiagent-probe-approval-v1.schema.json
+  approval_grant_ttl_seconds: 120
+  approval_consume_schema_version: 1
+  approval_consume_schema: ../schemas/multiagent-approval-consume-receipt-v1.schema.json
+  bind_store_identities:
+    - probe_claim_store
+    - approval_grant_store
+    - approval_consume_store
+    - dispatch_ledger_store
+  reject_symlink_rename_copy_aliases: true
+  retain_verified_descriptors_through_spawn: true
+  dispatch_ledger_consume_anchor_required: true
+  consume_raw_digest_and_timestamp_anchored: true
+  max_uses: 1
+  expiry_grace_seconds: 0
+  current_session_only: true
+  attestation_scope: local-single-host-nonportable-noncryptographic-attestation
+  authenticity_claimed: false
+  metadata_retention_days: 90
+  manual_compaction_only: true
+  indefinite_tombstone: true
+  raw_streams_retained: false
 
 # The orchestrator classifies a lane.  This catalog only validates the
 # resulting selection; it never lowers a quality floor because of quota.

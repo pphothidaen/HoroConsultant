@@ -1,6 +1,1187 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff — Central Kanban Board for ALL Project Work**  
-> *Last Updated: 2026-08-25 +07 (Asia/Bangkok) — authorized HF Static release is deployed and verified at version `1.0.0.6c351ba` / commit `6c351ba`. Publisher regression is `16 passed`; combined publisher and visual-audit regression is `24 passed`; all five canonical viewports pass. Rule 16 and the `hf-static-release-verification` skill now govern subsequent fail-closed release evidence.*
+> *Last reconciled: 2026-08-27 +07 (Asia/Bangkok). The prior Static release claim for `6c351ba` is historical-only. Current live target/version identity is mismatched and requires fresh release verification; do not treat any prior publisher, viewport, or version result as current.*
+
+## Current-session evidence reconciliation — 2026-08-27
+
+- **Historical failed candidate**: pre-remediation QA was `543/545` with two
+  token failures; the failed Approach C design review recorded C/H/M/L
+  `1/5/1/0`; and 5/11 then-current DSG-009 hashes drifted. These are superseded
+  historical failure evidence only.
+- **DSG-009 current local re-freeze**: `DONE — LOCAL FAIL-CLOSED RE-FREEZE / QA
+  + SECURITY PASS; RUNTIME NOT_PROVEN`. Guard QA passed `552`; integrated safe
+  mocked QA passed `823` (`552 + 271`, with four intentional local-child tests
+  deselected); PromptCommand developer QA passed `275` plus focused adversarial
+  `33`; named security regression passed `761` with C/H/M/L `0/0/0/0`.
+  Ecosystem sync/check is green and the secret scan reports `1,967` files / `0`
+  leaks. Local verification releases no runtime, native-spawn, provider, or AGY
+  authority.
+- **Approach C**: its historical failed design review recorded C/H/M/L
+  `1/5/1/0`. `PARITY-001` remains `IN_REVIEW` with the design rejected;
+  `PARITY-002` through `PARITY-006` remain `BLOCKED` by that dependency chain.
+  All feature flags remain `false`.
+- **DSG**: `DSG-009` is `DONE — LOCAL FAIL-CLOSED RE-FREEZE / QA + SECURITY
+  PASS; RUNTIME NOT_PROVEN`. `DSG-009A` and `DSG-009B` remain `BLOCKED`;
+  `DSG-001R` remains `NEEDS_HITL — ONE-SHOT CONSUMED` with no retry,
+  substitution, or reuse.
+- **Ledger scope**: the scoped 32-ticket ledger has 21 outstanding. Project-wide,
+  the deduplicated outstanding inventory is 106 (85 outside this scope): 61
+  `BLOCKED`, 13 `PENDING`, 12 `READY`, 6 `TODO`, 5 `IN_REVIEW`, 4 `DOING`, 2
+  `NEEDS_HITL`, and 3 conflict/unverified.
+- **Native-spawn owner gate**: no local token, static flag, route label, or repository hook grants AGY eligibility. Every native `spawn_agent` remains covered by the owner gate; positive AGY/provider dispatch is disabled.
+
+### Current DSG-009 re-freeze manifest (verified current bytes)
+
+The exact 11-file Stage-A manifest below is stable at the listed SHA-256
+values. `scripts/multiagent_prompt_command.py` is a final dependency outside
+that 11-file manifest and is recorded separately. This local re-freeze does not
+prove runtime/native interception, trusted provider telemetry, actual dispatch,
+trusted clock, or natural exit.
+
+| Current file | SHA-256 |
+|---|---|
+| `.agents/rules/11-orchestrator-subagent-delegation.md` | `d7ea9f79aea2ea3d8737a44329ef7eecd05e4166b78ca56af7a1fdf2b4f6b278` |
+| `.agents/skills/orchestrator-delegation/SKILL.md` | `7521cf8fb254245ff9ad41ec451899130a30e43cd1586c1390d27e60e53a75cf` |
+| `.agents/skills/orchestrator-delegation/evals/evals.json` | `7ad0aa7fee4b06d1609400d439e863d1dfd03df1470474d4a41361a5f3ba9faa` |
+| `.agents/hooks/full_capacity_guard.py` | `352bb05f221b4c7feb36561bb307b482209aabc95e19e7539aca58c350f073f1` |
+| `.agents/hooks/full_capacity_test_harness.py` | `1bd1475f319a5d4aeb4d1ff9c64b43ba0ce8031b445f39326d975bbedc169b40` |
+| `.claude/hooks/full_capacity_guard.py` | `69345184490918d5076a8d501670ad246a31ae00af472fd97e95d67cc34a5a4f` |
+| `project/tests/test_full_capacity_governance.py` | `7d10469b44266dc093105fc8640beb6ecf9d643a421046cb33238c4a0fc00321` |
+| `.agents/config/full_capacity_guard.v2.json` | `d3f73601e539bcfe85e9096700c69be25a42ea8d27d6b2f4f02ab7eae9cb37a4` |
+| `.agents/schemas/full-capacity-governance-v2.schema.json` | `90f0c18bec385f83d50fffeb69e136f1b6b21fca4c350bb62778695287dedde9` |
+| `.agents/hooks.json` | `d744fc95bd1ea44b06e0f1b1c82b230a4216003c9b2bc1da2ab8d353988505cb` |
+| `.claude/settings.json` | `735e43dbe0930a6688593edc44256a20b7de4dc39dc30f5c6b7ae9b484c9202a` |
+| `scripts/multiagent_prompt_command.py` (final dependency) | `48b0aee8400ce59add3d4f0575ea8d6ba533be0b89f02e7cef476f10361735e1` |
+
+<!-- SPRINT-APPROACH-C:START -->
+## 🚀 SPRINT: Approach C — Feature-Flagged AGY Parity, Module Isolation & Rule 10 Cleanup — 2026-08-27
+
+**Grill Gate**: `IN_REVIEW — DESIGN REJECTED; IMPLEMENTATION BLOCKED` ([plan](plans/plan.md#--grill-report--approach-c-feature-flagged-agy-parity-module-isolation--rule-10-purge))
+**Tracking Lead**: `orchestrator` (`gpt-5.6-sol`) 🤝 `hermes` (`Gemini 3.7 Pro`)
+**Operational Status**: `IN_REVIEW / NOT ACCEPTED AS DONE` (the historical
+failed design review recorded C/H/M/L `1/5/1/0`; all feature flags remain
+`false`; a local token anchor grants no AGY eligibility; `DSG-009A` remains
+strictly `BLOCKED` pending a host-native pre-spawn hook/receipt API.)
+
+| Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
+|---|---|---|---|---|
+| `TICKET-PARITY-001-DESIGN-SPEC` | `orchestrator` / `hermes` | Dual-Orchestrator Spec Finalization | IN_REVIEW | None |
+| `TICKET-PARITY-002-FEATURE-FLAG-CONFIG-SCHEMA` | `developer` | Configuration & Schema Definitions | BLOCKED | `TICKET-PARITY-001` design rejected |
+| `TICKET-PARITY-003-GOVERNANCE-RULES-REFACTOR` | `business_analyst` | Rules 11, 17, 18 Updates | BLOCKED | `TICKET-PARITY-001` design rejected |
+| `TICKET-PARITY-004-SCHEDULER-GUARD-ENGINE` | `developer` | Scheduler & Capacity Guard Engine Logic | BLOCKED | `TICKET-PARITY-002`, `003` |
+| `TICKET-PARITY-005-QA-REGRESSION-SUITE` | `qa_tester` | Test Suite & 4-Alias Concurrency Verification | BLOCKED | `TICKET-PARITY-004` |
+| `TICKET-PARITY-006-DEAD-CODE-PURGE-SYNC` | `business_analyst` / `developer` | Core Rule 10 Dead-Code Purge & Ecosystem Sync | BLOCKED | `TICKET-PARITY-005` |
+
+---
+
+<!-- DELEGATE-SPARK-SPRINT:START -->
+## SPRINT: Delegate-First and GPT-5.3-Codex-Spark Governance — 2026-08-26
+
+**Grill Gate**: `APPROVED — IMPLEMENTATION TICKETS READY` ([plan](plans/plan.md#grill-report--delegate-first-and-gpt-53-codex-spark-governance))
+**Tracking Lead**: `orchestrator`
+**Current DSG-009A override gate**: `BLOCKED — PLATFORM NATIVE PRE-SPAWN
+HOOK/RECEIPT API REQUIRED`. The current-session owner decision
+`อนุญาติตามแผนงาน ต้องการครอบคลุม native spawn_agent ทุกตัว งานต้องคง BLOCKED จนแพลตฟอร์มมี pre-spawn hook/receipt API`
+supersedes the earlier recommended repository-managed-only approval before any
+mutation. It releases no source ownership and completed no provider action.
+
+**Current TODO / DOING / DONE**:
+
+- **DONE**: read-only platform-boundary map, governed deep-reasoning advice and
+  nine-dimension owner-scope grill.
+- **DONE (documentation)**: the three-file BSA reconciliation is closed by the
+  current-session evidence record above; no implementation or external action
+  occurred.
+- **TODO / BLOCKED**: DSG-009A native platform hook/receipt API, DSG-009B
+  trusted provider telemetry, and provider/AGY proof. The future `agy1`
+  one-shot is `NOT DISPATCHED — no child ran`; `agy2` is disabled.
+
+**Current Rule 11 Planning Order**: the first Spark smoke is frozen `BLOCKED`.
+`TICKET-DSG-001R-SPARK-PROVENANCE` consumed its only authorized one-shot and is
+terminal `NEEDS_HITL`; it cannot be retried or reused. `TICKET-DSG-002-DELEGATE-GOVERNANCE`
+remains `DONE — SOURCE FROZEN`. `TICKET-DSG-007-FULL-CAPACITY-GOVERNANCE` is
+`DONE — SOURCE FROZEN / REVIEW PASS`; its reviewed Rule 11 and skill sources
+are bound to the final 15-case eval remediation in `TICKET-DSG-007A-FULL-CAPACITY-EVALS`.
+`TICKET-DSG-008-FULL-CAPACITY-HOOKS` is now `DONE — SOURCE FROZEN / REVIEW PASS`.
+`TICKET-DSG-009-SHORT-FALLBACK-CAPACITY-HOOK` is `DONE — LOCAL FAIL-CLOSED
+RE-FREEZE / QA + SECURITY PASS; RUNTIME NOT_PROVEN`. The 5/11 drift and its
+`543/545` baseline are historical failed-candidate evidence; the verified
+current manifest and re-freeze evidence are recorded above. It releases no
+runtime authority. Its BSA governance/docs
+editor and separate hook/test
+developer have disjoint ownership from each other and from the frozen DSG-001T
+source surface. It permanently adds short, read-only/evidence-bearing fallback-lane
+selection while QA waits for a source freeze, plus per-scan `agy1`/`agy2`
+eligibility and rejection evidence. It never treats a static alias/model label
+as runtime, provider, account, quota or role/config proof and never forces
+provider dispatch. A short-fallback lease is normatively an integer `1..600`
+seconds inclusive; a scan/config may set a stricter ceiling but can never raise
+the hard `600s` maximum.
+The prior DSG-009 candidate failed QA/security freeze with QA C/H/M/L
+`0/3/0/0` and security C/H/M/L `0/6/1/0`; Stage A is the only active remediation.
+Its first Stage A source candidate then passed `288` tests and static checks,
+but independent QA failed C/H/M/L `0/1/1/0` and security failed `0/1/3/1`.
+That failed historical freeze was reopened for bounded H1/M1-M3 remediation.
+A later functional candidate closed M1-M3 and passed functional QA C/H/M/L
+`0/0/0/1` with `446` plus targeted checks and green static checks, but its
+integrated freeze failed security C/H/M/L `0/1/0/1` because pathless benign
+shell commands could bypass the closed governance envelope. A superseding
+candidate closed that bypass and passed independent functional QA C/H/M/L
+`0/0/0/1` (`382` focused plus `248` adjacent, `630` combined), but integrated
+security again failed `0/1/0/1`: execution-family matching was case-sensitive,
+conflicting top-level versus `toolCall`/`toolResult` representations could
+conceal execution, and Claude Pre/Post registration was not universal `.*`.
+The final frozen candidate closed this narrow H1. Independent QA and security
+both pass C/H/M/L `0/0/0/1`; QA passed focused `540`, adjacent `248`, combined
+`788`, H1 adversarial `163`, and M1-M3 subset `21`, while security passed its
+focused `540`. Historical failed candidate hashes below remain non-current.
+Positive AGY/provider paths and actual dispatch remain disabled, while runtime,
+native pre-spawn interception, authoritative snapshot completeness, trusted
+wall clock and natural-exit enforcement remain `NOT_PROVEN`. DSG-009A is
+`BLOCKED — PLATFORM NATIVE PRE-SPAWN HOOK/RECEIPT API REQUIRED`; DSG-009B is
+`BLOCKED — 009A + TRUSTED PROVIDER TELEMETRY`.
+The authoritative registry remains exactly 18 unique DSG ticket definitions
+with the unchanged acyclic 33-edge graph: 20 DSG edges plus 13 DRG edges;
+`009 -> 009A -> 003` and `009A -> 009B` remain in force without blocking T/U/V/W.
+`TICKET-DSG-001S-SPARK-TELEMETRY` is now `DONE — OFFLINE FREEZE / REVIEW PASS`:
+its source/test freeze, developer focused `15`, owned `169`, combined `190`,
+pycompile/diff checks, final QA `190` plus synthetic matrix/privacy/invalid-count
+checks, and independent review `190` with zero Critical/High findings passed.
+Its live smoke remains `BLOCKED`: no fresh content-addressed claim, separate
+one-shot authorization, valid live WorkResult or bound ExecutionReceipt exists.
+The previous procedural claim-first wording is superseded. A live `ProbeClaim`
+is forbidden even though DSG-001T local source freeze and DSG-001U independent
+QA/review are now `DONE — LOCAL PASS`; the late-bound DSG-001V owner gate has
+not passed, and only DSG-001W may consume
+the exact grant, run the one probe, and release DSG-003/004. DSG-003 also keeps
+its frozen 002 predecessor and the future reviewed 009A predecessor.
+MAREF-011..013 remain separately gated and are not released by this sprint. The
+separate deep-reasoning design is `DRG-001 DONE` with no file changes; the
+owner lease policy in DRG-002 is `DONE — POLICY RECORDED`, with max/ultra
+leases `600s`/`900s`, one attempt and no auto-retry. Runtime proof remains
+`NOT_PROVEN`; DRG-003..008 remain blocked on DRG-002 and DSG-006. Deep-reasoning mutation
+is not `READY`.
+**User quota input**: Spark five-hour window reported `100% left`, reset `18:40`
+on 2026-08-26 Asia/Bangkok. This prioritizes the bounded smoke; it does not
+prove availability or authorize a quality downgrade.
+
+| Ticket | Severity | Work Effort | Owner | Status | Depends On | Exact ownership |
+|---|---|---|---|---|---|---|
+| `TICKET-DSG-001-SPARK-CAPABILITY` | CRITICAL | XS | `orchestrator` with `qa_tester` read-only verification | BLOCKED — INVALID STRUCTURED AUDIT | none | exact-model capability/effort/quota probe and returned receipt/WorkResult only; no repository edit |
+| `TICKET-DSG-001R-SPARK-PROVENANCE` | CRITICAL | S | `developer` | NEEDS_HITL — ONE-SHOT CONSUMED | 001 blocked evidence | immutable bundle `5cfdce4b12a79b77afb967f4e71e83f0ebf9c0845653d6ff8c2a804ee8f1438b`; no retry, substitution or second process |
+| `TICKET-DSG-001S-SPARK-TELEMETRY` | CRITICAL | S | `developer`, then independent `code_reviewer` | DONE — OFFLINE FREEZE / REVIEW PASS; LIVE SMOKE BLOCKED | 001R terminal evidence | historical offline parser telemetry only; it cannot create a live claim or release 003/004 |
+| `TICKET-DSG-001T-PREAUTH-CONTRACT-V3` | CRITICAL | M | one `developer` source/test/schema/config editor | DONE — LOCAL SOURCE FROZEN / U PASS | 001S | 11-file fail-closed preauthorization/Receipt-v3 local freeze; no provider/claim/approval execution |
+| `TICKET-DSG-001U-PREAUTH-QA-REVIEW` | CRITICAL | M | `qa_tester`, then independent `code_reviewer`, read-only | DONE — LOCAL QA + REVIEW PASS | 001T | stable-hash security/replay/expiry/atomicity/privacy QA and review C/H/M/L 0/0/0/0; no live action |
+| `TICKET-DSG-001V-PROBECLAIM-APPROVAL` | CRITICAL | S | `orchestrator` / owner only | BLOCKED — FUTURE HITL / EXACT CLAIM+GRANT | 001U | create exactly one fresh `ProbeClaim v1` and a late-bound exact `ApprovalGrant v1`; no consume or provider spawn |
+| `TICKET-DSG-001W-ATOMIC-PROBE-VERIFY` | CRITICAL | S | `orchestrator`, then independent `qa_tester` verification | BLOCKED — 001V + EXACT AUTHORIZATION | 001V | atomic consume and exactly one read-only/ephemeral probe; require WorkResult, Receipt-v3, and consume receipt before any release |
+| `TICKET-DSG-002-DELEGATE-GOVERNANCE` | CRITICAL | S | `business_analyst` | DONE — SOURCE FROZEN | none | `.agents/rules/11-orchestrator-subagent-delegation.md`; `.agents/skills/orchestrator-delegation/SKILL.md`; `.agents/skills/orchestrator-delegation/evals/evals.json` |
+| `TICKET-DSG-003-ROUTING-HOOKS` | CRITICAL | L | `developer` | BLOCKED — 001W RESULT/RECEIPT + 009A FREEZE | 001W,002,009A | Rule 18/policy/adaptive skill/evals and dispatcher paths already listed below; `.agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml`; `scripts/sync_ai_agent_ecosystem.py`; `.agents/hooks/{pre_tool_check,post_tool_audit,spark_specialist_guard}.py`; `.agents/hooks.json`; `.claude/hooks/{adaptive_dispatch_guard,orchestrator_only_guard,spark_specialist_guard}.py`; `.claude/settings.json`; root `settings.json` |
+| `TICKET-DSG-004-ROLE-SOURCES` | HIGH | M | `business_analyst` role/skill-source editor | BLOCKED — 001W STRUCTURED RESULT/RECEIPT | 001W,002 | existing default/orchestrator/hermes role sources; new `.antigravity/agents/spark_specialist.agent`; `.agents/skills/codex-spark-specialist/{SKILL.md,evals/evals.json}`; `.agents/rules/20-codex-spark-specialist.md`; `.claude/rules/codex-spark-specialist.md`; `.agents/AGENTS.md`; compatibility sources only via governed sync |
+| `TICKET-DSG-005-QA` | CRITICAL | L | `qa_tester` | BLOCKED — SOURCE FREEZE | 003,004 | new `project/tests/test_delegate_spark_governance.py`; existing dispatcher/scheduler/agent/sync suites run read-only; new artifacts under `project/tests/artifacts/delegate_spark_governance/` |
+| `TICKET-DSG-006-SYNC-REVIEW` | CRITICAL | M | same `business_analyst` role-source editor as sequential sync owner, then `code_reviewer` read-only | BLOCKED — QA | 005 | sync-generated existing-role mirrors plus `.agents/agents/spark_specialist.{md,json}`, `.agents/agents/spark_specialist/agent.{md,json}`, `.codex/agents/spark_specialist.toml`, generated `.antigravity/agents/spark-specialist.agent` hyphen alias, `.antigravity/skills/codex-spark-specialist/SKILL.md`, and registration manifests only |
+| `TICKET-DSG-007-FULL-CAPACITY-GOVERNANCE` | CRITICAL | S | `full_capacity_governance` | DONE — SOURCE FROZEN / REVIEW PASS | 002 frozen baseline | `.agents/rules/11-orchestrator-subagent-delegation.md`; `.agents/skills/orchestrator-delegation/SKILL.md`; `.agents/skills/orchestrator-delegation/evals/evals.json` only |
+| `TICKET-DSG-007A-FULL-CAPACITY-EVALS` | CRITICAL | S | `full_capacity_governance` with independent `code_reviewer` | DONE — SOURCE FROZEN / REVIEW PASS | 007 review findings | `.agents/skills/orchestrator-delegation/evals/evals.json` only; final 15 contiguous cases |
+| `TICKET-DSG-008-FULL-CAPACITY-HOOKS` | CRITICAL | M | separate `developer` lane | DONE — SOURCE FROZEN / REVIEW PASS | 007A | new `.agents/hooks/full_capacity_guard.py`; new `.claude/hooks/full_capacity_guard.py`; new `project/tests/test_full_capacity_governance.py`; `.agents/hooks.json`; `.claude/settings.json` |
+| `TICKET-DSG-009-SHORT-FALLBACK-CAPACITY-HOOK` | CRITICAL | M | disjoint `business_analyst` governance/docs editor plus `developer` hook/test editor, then read-only `qa_tester` / `code_reviewer` | DONE — LOCAL FAIL-CLOSED RE-FREEZE / QA + SECURITY PASS; RUNTIME NOT_PROVEN | 008 | current stable 11-file manifest plus PromptCommand dependency verified; prior 5/11 drift is historical; no runtime/native/provider/AGY authority |
+| `TICKET-DSG-009A-AUTHORITATIVE-SCHEDULER-NATIVE-BOUNDARY` | CRITICAL | M | future platform/runtime owner, then read-only QA/security review | BLOCKED — PLATFORM NATIVE PRE-SPAWN HOOK/RECEIPT API REQUIRED | 009 | every collaboration-platform native `spawn_agent` call; no repository source ownership is released while the host API/receipt boundary is absent |
+| `TICKET-DSG-009B-TRUSTED-PROVIDER-VERIFIER-AGY` | CRITICAL | M | future trusted-verifier owner, security QA/reviewer, owner HITL | BLOCKED — 009A + TRUSTED PROVIDER TELEMETRY | 009A | trusted effective provider telemetry and positive AGY proof only after reviewed 009A; future `agy1` intent is not executable and `agy2` is disabled |
+
+### TICKET-DSG-001-SPARK-CAPABILITY | [STATUS: BLOCKED — INVALID STRUCTURED AUDIT]
+
+**Severity**: CRITICAL
+**Work Effort**: XS
+**Owner / ownership**: `orchestrator` executes one bounded exact-model smoke;
+`qa_tester` verifies identity/receipt read-only. No repository file may change.
+**Depends On**: none
+**Blocks**: `TICKET-DSG-001R-SPARK-PROVENANCE`
+
+#### Acceptance, Evidence and Stop
+
+- Executed read-only/ephemeral exact CLI flag `gpt-5.3-codex-spark` with effort
+  `high`; transport exited `0`.
+- Result is `BLOCKED`: `invalid_structured_audit` and no qualifying WorkResult.
+  The ad-hoc smoke merged stderr via `2>&1`; tail/`jq` extraction invalidated
+  structured output, so do not infer that no final event existed. Codex CLI
+  0.149.1 exposes no effective model/effort telemetry; existing receipt
+  model/effort are requested invocation values, never effective proof.
+- Historical stop condition is met as `BLOCKED`; remediation continues only in
+  `TICKET-DSG-001R-SPARK-PROVENANCE`, with no retry storm or live policy entry.
+
+### TICKET-DSG-001R-SPARK-PROVENANCE | [STATUS: NEEDS_HITL — ONE-SHOT CONSUMED]
+
+**Severity**: CRITICAL
+**Work Effort**: S
+**Owner / ownership**: immutable historical attempt; no further editor or
+process is authorized under this ticket.
+**Depends On**: frozen blocked evidence from
+`TICKET-DSG-001-SPARK-CAPABILITY`
+**Blocks**: `TICKET-DSG-001S-SPARK-TELEMETRY`
+
+#### Terminal Evidence and Stop
+
+- Exactly one authorized bundle claim
+  `5cfdce4b12a79b77afb967f4e71e83f0ebf9c0845653d6ff8c2a804ee8f1438b`
+  was consumed. The requested invocation was exact
+  `gpt-5.3-codex-spark` / `high`, read-only and ephemeral. These requested argv
+  values do not prove effective execution identity, account or quota.
+- The child exited `0`; the dispatcher exited `3` with
+  `provider_parse_reason=final_message_cardinality`. No normalized WorkResult or
+  ExecutionReceipt was produced. Effective model, effort, account and quota are
+  all `NOT PROVEN`.
+- This attempt is immutable and terminal `NEEDS_HITL`, not `DONE`. No retry,
+  substitution, second process, reuse of its claim, or reuse/overwrite of its
+  artifact bundle is permitted.
+
+### TICKET-DSG-001S-SPARK-TELEMETRY | [STATUS: DONE — OFFLINE FREEZE / REVIEW PASS; LIVE SMOKE BLOCKED]
+
+**Severity**: CRITICAL
+**Work Effort**: S
+**Owner / ownership**: `developer` owned only the dispatcher and focused test
+paths listed in the table; independent `code_reviewer` completed read-only
+review. This historical offline ticket owns no live claim or authorization.
+**Depends On**: terminal evidence from
+`TICKET-DSG-001R-SPARK-PROVENANCE`
+**Blocks**: `TICKET-DSG-001T-PREAUTH-CONTRACT-V3`
+
+#### Scope, Acceptance and Stop
+
+- Offline diagnosis identified the three content-free branches
+  `completed_item_shape`, `agent_message_text_shape`, and
+  `multiple_structured_candidates`; it did not authorize selecting a last
+  candidate or weakening cardinality validation.
+- Added the bounded, content-free subreason enum for those three branches and a
+  saturated `candidate_count` in `{0,1,2}`, where `2` means two or more, with
+  focused positive/negative tests. Fail-closed cardinality remains intact:
+  duplicate candidates, message content retention, and weakened receipt or
+  WorkResult validation are prohibited.
+- The minimal evidence-supported dispatcher correction is complete. Focused
+  implementation tests, final QA and separate independent review passed before
+  the offline source/test freeze; any live probe remains separately gated.
+- **Offline freeze evidence**: dispatcher SHA256
+  `5e0a07069899db68227f28cab902bad73c653580ffccb7e5e6043674d012c120` and
+  focused test SHA256
+  `df53da50dd55b96b7b188b09434e239edef664703098dca950cee835208114f4`.
+  Developer focused tests passed `15`, the owned dispatcher/test suites passed
+  `169`, and the combined suite passed `190`; pycompile and scoped diff checks
+  passed. Final QA at stable hashes passed `190` plus the synthetic
+  matrix/privacy/invalid-count checks. Independent review passed `190` with
+  zero Critical/High findings and confirmed exact semantics and privacy.
+- An initial QA attempt invalidated only because hashes moved during the lane;
+  it is superseded audit history and is not current evidence.
+- The prior claim-first procedural instruction is superseded by DSG-001T through
+  DSG-001W. No durable live `ProbeClaim`, approval, consume record, provider,
+  Spark, or alias action is permitted under DSG-001S.
+- The offline source/test freeze is `DONE — OFFLINE FREEZE / REVIEW PASS`, but
+  the live smoke remains `BLOCKED`. No fresh content-addressed claim, separate
+  one-shot authorization, valid live normalized WorkResult or bound
+  ExecutionReceipt exists. A later `DONE` live-probe state requires a valid
+  normalized structured WorkResult and bound ExecutionReceipt from that
+  separately authorized fresh probe, while effective
+  model/effort/account/quota remain `NOT PROVEN` unless independently exposed.
+  Any unresolved branch, failed test/review, absent fresh claim/authorization,
+  invalid cardinality, or missing result/receipt stops `BLOCKED` or
+  `NEEDS_HITL` without running a smoke.
+
+### TICKET-DSG-001T-PREAUTH-CONTRACT-V3 | [STATUS: DONE — LOCAL SOURCE FROZEN / U PASS]
+
+**Owner / exact writable ownership**: one `developer` owns
+`scripts/multiagent_prompt_command.py`, `tests/test_multiagent_prompt_command.py`,
+`tests/test_multiagent_prompt_command_r4.py`, `tests/test_multiagent_receipt_schema.py`,
+`.agents/config/multiagent_model_policy.yaml`, new
+`.agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml`, and new
+`.agents/schemas/{multiagent-probe-claim-v1,multiagent-probe-approval-v1,multiagent-approval-consume-receipt-v1,multiagent-dispatch-receipt-v3}.schema.json`.
+All other lanes are read-only; v1/v2 receipt artifacts and schemas are frozen.
+**Reservation**: that one developer has the exclusive writable DSG-001T source
+surface until a terminal freeze or explicitly recorded ownership release.
+
+**Contract and stop**: implement central fail-closed enforcement before every
+live claim: `ProbeClaim v1`, `ProbeApproval`/`ApprovalGrant v1`,
+`ApprovalConsumeReceipt v1`, and `ExecutionReceipt v3`. Bind the exact
+ticket/attempt/session, requested route/objective/ownership, decision/snapshot,
+runtime-config/schema digests, nonce, expiry and content address. A local,
+single-host operator attestation is explicitly nonportable and non-cryptographic
+human-authenticity proof. It must never be represented as asymmetric signing or
+portable identity proof. No claim, grant, consume, provider, Spark, alias,
+sync, or external action is authorized by this ticket.
+
+**Approved defaults**: claim TTL `10m`; grant TTL `2m`; zero grace; current
+session only; `max_uses=1`. Preflight must complete deterministically before
+the durable consume; consume is fsynced immediately before spawn and any
+post-consume failure burns the attempt with no retry. Persist content-free
+metadata for `90d`, then permit explicit manual compaction only to an
+indefinite anti-replay tombstone; raw provider streams are never retained.
+
+**Acceptance**: exact schema/validator/CLI and spawn-boundary coverage passes;
+every malformed, altered, expired, replayed, wrong-session, wrong-route,
+duplicate, race, failed-consume, post-consume-failure, privacy, v1/v2 misuse,
+and receipt-binding case fails closed. Freeze source/tests only after the
+developer's focused evidence and no Critical/High finding.
+
+**Local freeze evidence**: the authoritative 11-file SHA256 manifest is:
+
+| File | SHA256 |
+|---|---|
+| `scripts/multiagent_prompt_command.py` | `4416d09cb64065302d4dc9a76b9af3d462a9b2baa00a4b0c251580f27b23ebf4` |
+| `tests/test_multiagent_prompt_command.py` | `35b263dffe1dd9b14370499b17a40747fc488c34c36b5bf7b8b19ae379390c94` |
+| `tests/test_multiagent_prompt_command_r4.py` | `235c1c63e0647727857d156b8ad5e90c469cc2c904b92d98d52d35750c16794f` |
+| `tests/test_multiagent_receipt_schema.py` | `8eaf5195188bc37799dbb83503906ddd55cc65651945f144a73333cffdb7a343` |
+| `tests/test_multiagent_probe_approval.py` | `f4988fedbbdbc1d3e0654cec21669e27cff8b38006e27b9ca81ae967e7944e45` |
+| `.agents/config/multiagent_model_policy.yaml` | `66f54e411d90e21494665d20cdd86a6b79b04b543beef28190fa78a43e780a38` |
+| `.agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml` | `f4b848d6c0c511c4fa0c8b88b9254f4a31b023421413fde2b2136ae005551546` |
+| `.agents/schemas/multiagent-probe-claim-v1.schema.json` | `612f179315ab808323aefdda2b2a57f8c9c9e06653794e92ae4c1da4a11e7b27` |
+| `.agents/schemas/multiagent-probe-approval-v1.schema.json` | `99d5778cbd74ce61aa1683c2ea9262b27a7e4e7319d85d1dd93ceefb82e61012` |
+| `.agents/schemas/multiagent-approval-consume-receipt-v1.schema.json` | `31ab1bd3958fc644251f2f64e0bc55bd8110726010e34c72b533da18f47d6416` |
+| `.agents/schemas/multiagent-dispatch-receipt-v3.schema.json` | `12885e42c2ee6bb27a3583373ecfb85b38319e60e31eb3f5c1a763ae4d32d093` |
+
+Developer checks passed focused `53` and combined `240`. The broad local run
+reported `1382 passed`, `2` known sync-drift failures and `1 deselected`; this
+is not a clean sync or release claim and no sync was authorized or run here.
+
+### TICKET-DSG-001U-PREAUTH-QA-REVIEW | [STATUS: DONE — LOCAL QA + REVIEW PASS]
+
+**Owner / boundary**: `qa_tester` runs the frozen-hash matrix; independent
+`code_reviewer` audits the implementation read-only. Neither may edit the
+DSG-001T surface or create a durable live artifact.
+
+**Acceptance and stop**: verify the complete negative security/replay/expiry/
+atomicity/privacy matrix, all schema/receipt migration checks, and that v1/v2
+cannot authorize a new probe. Require all selected checks to pass with zero
+Critical/High findings at stable hashes. Any failure remains `BLOCKED`; no
+waiver can advance to a claim or provider action.
+
+**Local sign-off evidence**: independent QA revalidated all 11 stable hashes,
+passed focused `53`, combined `240`, and adversarial `38`, with C/H/M/L
+`0/0/0/0`. Independent review revalidated the same manifest and passed
+`pytest -q tests/test_multiagent_probe_approval.py
+tests/test_multiagent_receipt_schema.py` with `53 passed`, C/H/M/L `0/0/0/0`.
+This closes only local T/U. It creates no claim/grant, approval, provider/AGY
+authority, dispatch or runtime proof; DSG-001V and DSG-001W remain blocked.
+
+### TICKET-DSG-001V-PROBECLAIM-APPROVAL | [STATUS: BLOCKED — FUTURE HITL / EXACT CLAIM+GRANT]
+
+**Owner / boundary**: only `orchestrator` under a fresh future owner HITL may
+create exactly one content-addressed `ProbeClaim v1` and its late-bound exact
+`ApprovalGrant v1`. The present session sign-off does not authorize either
+artifact, does not authorize consume, and does not authorize a provider.
+
+**Acceptance and stop**: revalidate T/U freeze hashes and all exact bindings;
+record local-attestation scope, current session, `10m`/`2m` TTLs, zero grace and
+`max_uses=1`. Any stale/mismatched/ambiguous request is `NEEDS_HITL`; no
+automatic renewal, substitution or retry exists.
+
+### TICKET-DSG-001W-ATOMIC-PROBE-VERIFY | [STATUS: BLOCKED — 001V + EXACT AUTHORIZATION]
+
+**Owner / boundary**: only after a distinct exact future authorization may the
+`orchestrator` run deterministic preflight, atomically consume once, and start
+exactly one read-only/ephemeral requested `gpt-5.3-codex-spark` / `high` probe.
+Independent `qa_tester` verifies only the resulting content-free records.
+
+**Acceptance and stop**: require a valid normalized WorkResult, bound
+`ExecutionReceipt v3`, and bound `ApprovalConsumeReceipt v1`; all three must
+match the exact claim/grant/consumption bindings. A post-consume failure remains
+burned and produces no retry. Only this completed ticket may release DSG-003
+and DSG-004; effective model, effort, account and quota remain `NOT PROVEN`
+unless independently exposed.
+
+### TICKET-DSG-002-DELEGATE-GOVERNANCE | [STATUS: DONE — SOURCE FROZEN]
+
+**Severity**: CRITICAL
+**Work Effort**: S
+**Owner / ownership**: `business_analyst`; only the three files in the table.
+**Depends On**: none
+**Blocks**: `TICKET-DSG-003-ROUTING-HOOKS`,
+`TICKET-DSG-004-ROLE-SOURCES`,
+`TICKET-DSG-007-FULL-CAPACITY-GOVERNANCE`
+
+#### Acceptance, Evidence and Stop
+
+- Define delegate-first for meaningful mutation/QA/review/operations, the
+  trivial no-tool and root read-only exceptions, narrowest specialist routing,
+  rolling maximum useful concurrency, one-editor ownership and all fail-closed
+  dependency/quota/HITL/Rule 11/Rule 18 gates.
+- Apply `skill-creator` to the existing orchestration skill. Its `evals.json`
+  must contain realistic positive and negative routing prompts plus objective
+  assertions for: required delegation, allowed trivial/root-read-only work,
+  useful parallelism, blocked/redundant lanes and ownership conflict. Run
+  deterministic skill structure/trigger tests now; heavyweight viewer
+  benchmarking may follow only if that workflow requires user feedback.
+- Historical DSG-002 source-freeze evidence is complete: Rule 11 is `80` lines;
+  the orchestration skill is `261/300` lines; `evals.json` has `9` cases and
+  `28` expectations.
+  SHA256 is
+  `55a839c0699c0980435cbf2a58357e3752037faed5d4d4fcc11ee3d058cca60b`
+  for Rule 11,
+  `0f6e5e439aacac820cd510eeaa8d8be7f37ac8bc45311da4d0c3700a1e158917`
+  for the skill, and
+  `79e54af6f37d2a707d305cb94617869a1647454ddb396d53925adafbc077fb41`
+  for `evals.json`. These are the immutable predecessor baseline digests, not
+  the current DSG-007 working-tree digests. At DSG-002 freeze time, JSON, YAML
+  frontmatter, referenced-path and scoped-diff checks passed.
+- Stop condition is met as `DONE — SOURCE FROZEN` on the clean three-file
+  governance diff. Hooks, model policy, role definitions, generated mirrors and
+  Git remain outside this ticket.
+
+### TICKET-DSG-007-FULL-CAPACITY-GOVERNANCE | [STATUS: DONE — SOURCE FROZEN / REVIEW PASS]
+
+**Severity**: CRITICAL
+**Work Effort**: S
+**Owner / ownership**: lane `full_capacity_governance`; only Rule 11 and the
+orchestrator skill/evals paths listed in the board. It is the sole editor of
+those files for this ticket and must preserve the immutable DSG-002 baseline
+hashes as predecessor evidence.
+**Depends On**: `TICKET-DSG-002-DELEGATE-GOVERNANCE`
+**Blocks**: `TICKET-DSG-007A-FULL-CAPACITY-EVALS`
+
+#### Scope, Acceptance and Stop
+
+- Make full-capacity scheduling an explicit invariant: while actionable session
+  work remains, the orchestrator continuously observes state, decomposes work,
+  dispatches every eligible collaboration slot, and refills each slot after a
+  terminal child result.
+- If implementation is dependency-blocked, form useful bounded lanes from
+  verification, QA baselines, risk review, documentation/evidence
+  reconciliation, process audit, test design, or dependency resolution. Every
+  lane still requires a concrete output, one owner, satisfied prerequisites and
+  current evidence.
+- Never create duplicate, fake, conflicting, stale or dependency-bypassing
+  work. Never start a daemon, background poller or quota-burning placeholder.
+  Existing quality, HITL, quota, Rule 11, Rule 18 and ownership gates remain
+  fail-closed.
+- If any slot is idle while actionable session work remains and no useful safe
+  lane can be formed, return a typed `capacity_violation` and immediately
+  replan or escalate; silent idle is forbidden. Idle is valid only after the
+  orchestrator records that no actionable safe lane remains.
+- Add positive/negative evals for continuous refill, blocked-implementation
+  fallback lanes, stale/duplicate/conflicting rejection, no daemon/quota burn,
+  and typed capacity violation. Stop `DONE — SOURCE FROZEN / REVIEW PASS` only
+  after focused structure/trigger checks, independent review, and a new
+  three-file digest manifest pass.
+
+#### Current Freeze Evidence
+
+- Source changes and independent review are complete. Rule 11 SHA256 is
+  `50bf92ab82ef0108e8c5081ce2d6d465aba55b26227323facaa56c53939c51b5`;
+  orchestrator skill SHA256 is
+  `daa95fef8746f29916e6ef265b8dcf2e440e5adbfcb0f7c477027894c5e9e5dd`;
+  the final eval remediation is recorded under DSG-007A below. Independent
+  review passed with zero Critical/High/Medium/Low findings. JSON and scoped
+  diff checks passed; no sync ran and no child process was started.
+- The skill remains `283` lines. The former eval digest
+  `18420f0306702ff74c03ea06a3f5e31dc04a01d833647d8ea16705ff95d4420b` was an
+  unsupported handoff claim and is superseded by the reviewed DSG-007A digest;
+  it is not current evidence. The immutable DSG-002 baseline hashes remain
+  historical predecessor evidence and are not rewritten.
+
+### TICKET-DSG-007A-FULL-CAPACITY-EVALS | [STATUS: DONE — SOURCE FROZEN / REVIEW PASS]
+
+**Severity**: CRITICAL
+**Work Effort**: S
+**Owner / ownership**: `full_capacity_governance`, with independent
+`code_reviewer`; only the orchestration evals file may change under this
+remediation ticket.
+**Depends On**: findings from the DSG-007 independent review
+**Blocks**: `TICKET-DSG-008-FULL-CAPACITY-HOOKS`
+
+#### Scope, Acceptance and Stop
+
+- Close the DSG-007 eval-coverage findings with `15` contiguous cases in
+  `.agents/skills/orchestrator-delegation/evals/evals.json`, preserving the
+  full-capacity, fallback-lane, duplicate/conflict, daemon/quota and typed
+  `capacity_violation` assertions.
+- Final eval SHA256 is
+  `be2264545016ea67875fd5ef075c67b64d8ef6ab30958fda56d5b2bf02d06c70`.
+  JSON and scoped diff checks passed. Independent review passed with zero
+  Critical/High/Medium/Low findings.
+- Stop condition is met as `DONE — SOURCE FROZEN / REVIEW PASS`. The former
+  `18420f0306702ff74c03ea06a3f5e31dc04a01d833647d8ea16705ff95d4420b` digest
+  is retained only as an unsupported superseded handoff claim, not as freeze
+  evidence.
+
+### TICKET-DSG-008-FULL-CAPACITY-HOOKS | [STATUS: DONE — SOURCE FROZEN / REVIEW PASS]
+
+**Severity**: CRITICAL
+**Work Effort**: M
+**Owner / ownership**: separate `developer` lane after DSG-007 freezes; it did
+not edit Rule 11 or the orchestrator skill. New hook/test files were disjoint
+from DSG-007; shared registration/config files were reserved after ownership
+recomputation.
+**Depends On**: `TICKET-DSG-007-FULL-CAPACITY-GOVERNANCE`,
+`TICKET-DSG-007A-FULL-CAPACITY-EVALS`
+**Blocks**: `TICKET-DSG-009-SHORT-FALLBACK-CAPACITY-HOOK`
+
+#### Scope, Acceptance and Stop
+
+- Enforce the frozen full-capacity contract at orchestration boundaries and
+  emit content-free evidence for slot state, eligible/actionable work,
+  refill/replan decisions and typed `capacity_violation` stops.
+- Focused tests must cover terminal-child refill, dependency-blocked fallback
+  lanes, duplicate/stale/conflict rejection, dependency and ownership gates,
+  no background/daemon process, and no placeholder quota consumption.
+- Stop `DONE — SOURCE FROZEN / REVIEW PASS` on focused tests, a scoped diff and
+  independent read-only review. Do not start or authorize any Spark smoke.
+
+#### Current Freeze Evidence
+
+- `.agents/hooks/full_capacity_guard.py` SHA256:
+  `b84c1ad54368890d595c78e192700fa28eecb14a6a75cdf2acc4f401e75466a2`.
+- `.claude/hooks/full_capacity_guard.py` SHA256:
+  `94c62fd171f60eb68ca4ca74930a9c7f6c24938168c5f427eea8d4423c0d8e28`.
+- `.agents/hooks.json` SHA256:
+  `36f94a13a5d133ab5e737757ee04a1cdf951f3c9109a2f587a54a6b291efd460`.
+- `.claude/settings.json` SHA256:
+  `ad877b9aeefc897e7b43d3b6c2d00c28203933680d2ead7bb8bb1f48afde9ec2`.
+- `project/tests/test_full_capacity_governance.py` SHA256:
+  `9bd6c5d0b9eb3af6f0c97af8949d17ae2f81c1da759b05823169439bbb6c648b`.
+- Developer focused tests passed `13`; adjacent tests passed `36`; final QA
+  passed `28`. Independent review passed with zero Critical/High/Medium/Low
+  findings, and all H1-H4 findings are closed. No live Claude/provider
+  execution and no sync were performed.
+
+### TICKET-DSG-009-SHORT-FALLBACK-CAPACITY-HOOK | [STATUS: DONE — LOCAL FAIL-CLOSED RE-FREEZE / QA + SECURITY PASS; RUNTIME NOT_PROVEN]
+
+**Severity**: CRITICAL
+**Work Effort**: M
+**Owner / ownership**: this BSA lane owns only `PROJECT_TASKS.md`,
+`plans/plan.md`, `plans/RESTART_HANDOFF.md`,
+`.agents/rules/11-orchestrator-subagent-delegation.md`, and
+`.agents/skills/orchestrator-delegation/{SKILL.md,evals/evals.json}`. A
+separate single `developer` lane owns only `.agents/hooks/full_capacity_guard.py`,
+`.agents/hooks/full_capacity_test_harness.py`,
+`.claude/hooks/full_capacity_guard.py`,
+`.agents/hooks.json`, `.claude/settings.json`,
+`.agents/config/full_capacity_guard.v2.json`,
+`.agents/schemas/full-capacity-governance-v2.schema.json`, and
+`project/tests/test_full_capacity_governance.py`; later QA and review are
+read-only. This surface is disjoint from the frozen DSG-001T dispatcher,
+receipt-test, model-policy, runtime-v3 and schema ownership. No concurrent docs
+or source editor may overlap either reservation.
+**Depends On**: `TICKET-DSG-008-FULL-CAPACITY-HOOKS`
+**Blocks**: `TICKET-DSG-009A-AUTHORITATIVE-SCHEDULER-NATIVE-BOUNDARY`. It does
+not block or overlap frozen DSG-001T/001U.
+
+#### Scope, Acceptance and Stop
+
+- While an active source editor is running and QA is waiting for that source
+  freeze, every unused slot must trigger a fresh short-fallback capacity scan.
+  A candidate is eligible only when its ticket is `TODO`/`READY`, all
+  dependencies are complete, ownership is disjoint from every active source
+  and docs editor, and the work is read-only, evidence-bearing, provider/quota
+  independent unless a separate authorization and current proof exist, covered
+  by an explicit integer `lease_seconds` in `1..600` inclusive and at or below
+  the scan's configured short-lane limit, naturally terminating, and
+  non-preemptive. The configured limit may be stricter but must never exceed or
+  override the normative `600s` hard ceiling; a missing, non-integer, zero,
+  negative or greater-than-`600` lease is ineligible.
+- A source freeze immediately makes its dependent QA lane eligible and causes a
+  scheduler recomputation. Never cancel or preempt an already-running fallback;
+  it must finish under its bounded lease. QA receives the first available or
+  next released slot after that bounded completion and recomputation, and no
+  new fallback may starve it.
+- Each capacity scan must consider both `agy1` and `agy2`. Give either alias an
+  eligible bounded lane only when it has a separately `PROVEN`, alias-specific
+  role/config binding whose evidence binds the effective runtime identity,
+  account, provider, current non-secret quota, authorization, session, ticket,
+  ownership, Rule 11 snapshot/decision, Rule 18 decision/policy digest and
+  receipt contract. The resulting receipt/WorkResult must bind the same tuple
+  before utilization can be claimed. The selected ticket must pass all normal
+  dependency, ownership, HITL and receipt gates. Do not repeatedly starve one
+  proven eligible alias when independent work and capacity exist.
+- Static alias/model/config labels, rendered commands, prior-session evidence,
+  or an AGY/Hermes topology description never prove dispatch or utilization.
+  A missing, mismatched, stale or non-alias-specific role/config proof makes
+  that alias `NOT_ELIGIBLE` and requires `no child ran`. If `agy1` or `agy2` is
+  unavailable, quota-blocked, conflict-blocked, or has no eligible ticket,
+  record that exact per-lane reason too; never invent a dispatch, silently
+  substitute an alias, or consume quota merely to fill a slot.
+- The hooks validate the capacity snapshot, selected/rejected candidate
+  metadata, short-lease/non-preemption decision, QA-return decision, and
+  per-alias evidence payload. Each hook is an evidence/decision guard, not a
+  scheduler, and cannot claim that a child or provider ran.
+- If exhaustive scanning finds no eligible candidate, emit exactly
+  `CAPACITY_EXCEPTION: NO_SAFE_USEFUL_LANE` with the capacity snapshot,
+  dependency/ownership/HITL/quota state, and candidate rejection evidence.
+  This typed exception triggers replanning; fake work or silent idle is not a
+  substitute.
+- Focused deterministic tests/evals must cover eligible dispatch, dependency
+  and ownership rejection, mutating/non-evidence/provider-quota rejection,
+  missing/unbounded lease, no preemption, source-freeze QA priority, both AGY
+  aliases considered, the normative `1..600s` ceiling and stricter-config case,
+  proven alias-specific role/config bindings, missing/mismatched/stale role
+  proof as per-alias `NOT_ELIGIBLE`, per-alias unavailable reasons,
+  false-utilization rejection, and the typed no-safe-lane exception.
+- Stop `DONE — SOURCE FROZEN / REVIEW PASS` only after stable source hashes,
+  focused tests, independent read-only QA/review with zero Critical/High
+  findings, scoped diff evidence, and documentation reconciliation. Stop
+  `BLOCKED` on an unmet deterministic dependency or ownership collision and
+  `NEEDS_HITL` for credentials, provider/account/quota authority, an external
+  action, or ambiguous high-impact policy. This session authorizes only local
+  documentation, source implementation and QA/review for DSG-009; it does not
+  authorize a provider call, sync, deploy, external action, claim/probe,
+  commit, push, or secret operation.
+
+#### Current AGY1 / AGY2 Utilization Audit
+
+Capacity scan captured `2026-08-26T15:13:44Z`:
+
+| Lane | Considered | Dispatch / utilization status | Evidence-backed reason |
+|---|---|---|---|
+| `agy1` | yes | `NOT_ELIGIBLE`; `NOT DISPATCHED — no child ran` | current alias-specific role/config plus effective runtime identity, account, provider, quota, authorization/session/ticket/ownership/Rule 11/18/receipt binding are `NOT_PROVEN`; this session does not authorize an AGY/provider execution |
+| `agy2` | yes | `NOT_ELIGIBLE`; `NOT DISPATCHED — no child ran` | current alias-specific role/config plus effective runtime identity, account, provider, quota, authorization/session/ticket/ownership/Rule 11/18/receipt binding are `NOT_PROVEN`; this session does not authorize an AGY/provider execution |
+
+This is not efficient provider utilization yet, but it is the only truthful
+fail-closed result. The active local documentation lane and frozen DSG-001T/U
+evidence do not
+prove either AGY alias ran. Reconsider both on every subsequent capacity scan;
+positive dispatch remains disabled until DSG-009B and a fresh exact HITL pass.
+
+#### Idle-Slot Evidence Distinction
+
+- The `2026-08-26T15:13:44Z` AGY scan above is durable evidence that both
+  aliases were considered and rejected. It is not an event-specific record of
+  the earlier interval in which QA waited for source freeze and documentation
+  review had ended.
+- Repository audit found no durable snapshot bound to that earlier idle-slot
+  event: no exact short-fallback candidate inventory/rejection record and no
+  `CAPACITY_EXCEPTION: NO_SAFE_USEFUL_LANE` receipt. Do not infer that the scan
+  required by governance occurred, that no safe candidate existed, or that any
+  fallback ran. Any narrative claim about that episode is documentary only;
+  current Rule 11/skill/evals prevent treating it as machine-proven. Stage A
+  remains a structural/manual hook, not authoritative native scheduler or
+  historical world-state proof.
+- At the current checkpoint, an independent read-only audit lane was selected
+  as a safe fallback candidate, but its spawn was rejected with
+  `CAPACITY_BLOCKED: AGENT_THREAD_LIMIT`. No child ran and no execution receipt
+  exists; this is a capacity-limit rejection, not a fabricated
+  `NO_SAFE_USEFUL_LANE` result.
+- When the active source freezes, QA keeps first-idle/next-released-slot
+  priority. Do not preempt a running fallback, and do not start a new fallback
+  ahead of eligible QA.
+
+#### Initial Failed Candidate and Ultra Decision
+
+- Independent candidate QA failed C/H/M/L `0/3/0/0`: H1 allowed a `LOW/S`
+  ticket to bypass `CRITICAL/XS` with one slot; H2 accepted a contradictory
+  alias `NOT_ELIGIBLE` reason despite `dependencies_passed`; H3 did not bind
+  `provider_authorization.authorization_id` and its evidence to the alias
+  receipt.
+- Independent security review failed C/H/M/L `0/6/1/0`: H1 trusted caller
+  Rule 11/18 declarations; H2 did not reconcile derived `NOT_ELIGIBLE` reasons;
+  H3 allowed forgeable self-attested positive provider/AGY proof; H4 lacked
+  durable exact replay and bound Pre/Post lifecycle chaining; H5 could not
+  verify caller-supplied snapshot completeness/omission; H6 lacked a trusted
+  stricter limit, start/deadline and exact unknown-control rejection. M1 records
+  that structural hooks, native interception and provider-looking unenveloped
+  event coverage remain `NOT_PROVEN`.
+- The advisory requested `gpt-5.6-sol` / `ultra`, lease `<=900s`, one attempt
+  and no retry. Effective model, effort, account, quota and receipt are
+  `NOT_PROVEN`; requested labels are advisory intent only. Its decision is to
+  keep positive AGY/provider and actual dispatch disabled while Stage A repairs
+  only structural fail-closed enforcement.
+
+#### First Stage A Source Freeze — Failed Historical Candidate
+
+The first Stage A source candidate passed `288` tests and its reported static
+checks were green. The following hashes bind only that failed historical review
+candidate; reopened remediation may move them and must publish a new manifest:
+
+| First Stage A candidate source | Historical SHA256 |
+|---|---|
+| `.agents/rules/11-orchestrator-subagent-delegation.md` | `f686d2307cf508e784d109a5cf495bd84a855cbcd35101daae29012f2fb1ddd2` |
+| `.agents/skills/orchestrator-delegation/SKILL.md` | `d1436443f0bbc0c5eddcd3b9de63c7fe71e9969031c435c1e7eee86b95f4eb2d` |
+| `.agents/skills/orchestrator-delegation/evals/evals.json` | `e6d81218023ad0645a015bec85e06bbb284763db67ed452b403d74a27032af24` |
+| `.agents/hooks/full_capacity_guard.py` | `e749f7a92a31393835db748490c8d25736cbcb3eff0bf122d40582f309116277` |
+| `.claude/hooks/full_capacity_guard.py` | `69345184490918d5076a8d501670ad246a31ae00af472fd97e95d67cc34a5a4f` |
+| `project/tests/test_full_capacity_governance.py` | `047da361fa813ded965a0f59bfdb809a1ae318fbcf5504b13348c2bb634392dc` |
+| `.agents/config/full_capacity_guard.v2.json` | `28fea665b0c89093dba14d2515f669b1157ef3144faeecfaf30e4f7a7596f7da` |
+| `.agents/schemas/full-capacity-governance-v2.schema.json` | `c1d8d09965234814df44234f96477ec3beb7a255b2a22d481e86826200c4743a` |
+| `.agents/hooks.json` | `d744fc95bd1ea44b06e0f1b1c82b230a4216003c9b2bc1da2ab8d353988505cb` |
+| `.claude/settings.json` | `ad877b9aeefc897e7b43d3b6c2d00c28203933680d2ead7bb8bb1f48afde9ec2` |
+
+- Independent QA failed C/H/M/L `0/1/1/0`: H1 found a wrapper path that could
+  bypass the required conservative governed envelope; M1 found an unbounded
+  lifecycle ledger rather than constant-space continuity.
+- Independent security review failed C/H/M/L `0/1/3/1`: H1 confirmed the
+  wrapper/envelope bypass; M1 confirmed unbounded ledger growth; M2 found a
+  production environment override for local state; M3 found unpinned
+  transitive validation dependencies and no exact schema-digest binding to a
+  local registry. L1 records the full-capacity hook's monolithic maintenance
+  risk; it is residual review evidence, not authority to widen this patch or
+  claim a freeze.
+- The source candidate is therefore reopened `DOING` for bounded H1/M1-M3
+  remediation. `288 passed` and green static checks prove only that historical
+  candidate's local suite; they do not overrule the independent failures.
+
+#### Final Functional Candidate — Failed Integrated H1 Freeze
+
+The next functional candidate closed M1-M3. Functional QA passed C/H/M/L
+`0/0/0/1`; `446` plus targeted checks passed and static checks were green.
+The integrated freeze nevertheless failed security C/H/M/L `0/1/0/1`: H1
+found that pathless benign shell commands could use an allowlist to bypass the
+closed governance envelope. L1 retains the already documented monolithic-hook
+maintainability risk. This exact 11-file manifest is failed, superseded
+historical evidence only; it is not a statement of current bytes:
+
+| Failed H1 candidate source | Historical SHA256 |
+|---|---|
+| `.agents/rules/11-orchestrator-subagent-delegation.md` | `f686d2307cf508e784d109a5cf495bd84a855cbcd35101daae29012f2fb1ddd2` |
+| `.agents/skills/orchestrator-delegation/SKILL.md` | `d1436443f0bbc0c5eddcd3b9de63c7fe71e9969031c435c1e7eee86b95f4eb2d` |
+| `.agents/skills/orchestrator-delegation/evals/evals.json` | `e6d81218023ad0645a015bec85e06bbb284763db67ed452b403d74a27032af24` |
+| `.agents/hooks/full_capacity_guard.py` | `42c9a217a4fd537699d9fd94093e89955d467c8b0ecff613a12cb3b848e6970f` |
+| `.agents/hooks/full_capacity_test_harness.py` | `1bd1475f319a5d4aeb4d1ff9c64b43ba0ce8031b445f39326d975bbedc169b40` |
+| `.claude/hooks/full_capacity_guard.py` | `69345184490918d5076a8d501670ad246a31ae00af472fd97e95d67cc34a5a4f` |
+| `project/tests/test_full_capacity_governance.py` | `75b79e7bf882fa79394a3fa9ba2d8322cb67dfce54aed50fe2f5ae307c9eb970` |
+| `.agents/config/full_capacity_guard.v2.json` | `1330f59e682597d3cf7c9096194b90911772b300f1c2ce63cf3993bb01e6fbda` |
+| `.agents/schemas/full-capacity-governance-v2.schema.json` | `cd6abd3ce954a6ec4c88783956183e3337c2268e4611617c9cbb06b1393ac645` |
+| `.agents/hooks.json` | `d744fc95bd1ea44b06e0f1b1c82b230a4216003c9b2bc1da2ab8d353988505cb` |
+| `.claude/settings.json` | `ad877b9aeefc897e7b43d3b6c2d00c28203933680d2ead7bb8bb1f48afde9ec2` |
+
+- M1 is closed by the `O(1)` bounded lifecycle ledger; M2 is closed by
+  forbidding a production environment state override; M3 is closed by exact
+  dependency/schema-digest binding through the local registry. These closures
+  do not overrule H1 or the L1 residual.
+- H1-only final acceptance is normative: every `Pre` and `Post` event in
+  `Bash`, `run_command`, `shell`, or any `terminal*` family requires the exact
+  closed governance envelope. This includes pathless `pwd`, `echo`,
+  `git status`, and commands expressed with absolute binary paths. There is no
+  command-, path-, benign-command-, or wrapper-based shell bypass. Only
+  unrelated non-shell tools such as `Read`, `Grep`, and `Edit` may pass this
+  capacity-envelope boundary, while their ordinary gates still apply.
+- Even a structurally valid governed shell envelope cannot authorize actual
+  dispatch in Stage A. It must fail closed as
+  `AUTHORITATIVE_SNAPSHOT_NOT_PROVEN` until DSG-009A proves the authoritative
+  scheduler/native pre-spawn boundary. At that failed checkpoint DSG-009 was
+  reopened `DOING` H1-only; no downstream, provider, or AGY gate was released.
+
+#### Normalized Event-Representation Candidate — Failed Integrated H1 Freeze
+
+The next candidate closed the pathless-shell bypass and passed independent
+functional QA C/H/M/L `0/0/0/1`: targeted H1 checks passed `327`, the focused
+suite passed `382`, the adjacent suite passed `248`, and the combined suite
+passed `630`. Integrated security nevertheless failed C/H/M/L `0/1/0/1`:
+execution-family names were compared case-sensitively; conflicting top-level
+`tool_name`/`tool_input` versus native `toolCall.name`/`toolCall.args` and
+top-level `tool_response` versus native `toolResult` could conceal an execution
+event; and Claude did not register the full-capacity guard universally under
+matcher `.*` in both Pre and Post. L1 remains the previously accepted
+monolithic-hook maintenance residual. This exact manifest is failed historical
+evidence only:
+
+| Failed normalized-envelope candidate source | Historical SHA256 |
+|---|---|
+| `.agents/rules/11-orchestrator-subagent-delegation.md` | `3dac38065702af2f0c75e97be5bad3d61bd9c1e786942184e732cc1f66ee165d` |
+| `.agents/skills/orchestrator-delegation/SKILL.md` | `d816d94e35dc4c250d455195504d5ec09adcabe9ac321384af82da80dee0dea2` |
+| `.agents/skills/orchestrator-delegation/evals/evals.json` | `ea1c6209c5a254691a01fb0e7eb93f3a2bf2b44d4b673349b975f2a05a3cb6b6` |
+| `.agents/hooks/full_capacity_guard.py` | `b93af9b9617d4553adaa4ad8c28868c9d36f9326057ec7bf453636e32d5b7d85` |
+| `.agents/hooks/full_capacity_test_harness.py` | `1bd1475f319a5d4aeb4d1ff9c64b43ba0ce8031b445f39326d975bbedc169b40` |
+| `.claude/hooks/full_capacity_guard.py` | `69345184490918d5076a8d501670ad246a31ae00af472fd97e95d67cc34a5a4f` |
+| `project/tests/test_full_capacity_governance.py` | `251ca8c79888562f709eff42f1a6be83de2b1d8100b2f450070b80fbcbe6cee7` |
+| `.agents/config/full_capacity_guard.v2.json` | `1330f59e682597d3cf7c9096194b90911772b300f1c2ce63cf3993bb01e6fbda` |
+| `.agents/schemas/full-capacity-governance-v2.schema.json` | `cd6abd3ce954a6ec4c88783956183e3337c2268e4611617c9cbb06b1393ac645` |
+| `.agents/hooks.json` | `d744fc95bd1ea44b06e0f1b1c82b230a4216003c9b2bc1da2ab8d353988505cb` |
+| `.claude/settings.json` | `ad877b9aeefc897e7b43d3b6c2d00c28203933680d2ead7bb8bb1f48afde9ec2` |
+
+- Final narrow H1 acceptance normalizes `Task`, `Bash`, `run_command`, `shell`
+  and `terminal*` case-insensitively before classifying an execution event.
+- Recognize top-level and native forms, including nested-only `toolCall`/
+  `toolResult`. If both forms exist, normalized names and canonical payloads
+  must be exactly equivalent; conflicting name, input, or response fails
+  `CAPACITY_TOOL_ENVELOPE_CONFLICT` rather than allowing either form to win.
+- A normalized execution event missing its required envelope fails
+  `CAPACITY_PROVIDER_EVENT_ENVELOPE_REQUIRED`. Claude must register
+  `full_capacity_guard` exactly once under matcher `.*` in both `PreToolUse`
+  and `PostToolUse`, preserving all unrelated hooks.
+- These changes remain structural Stage A controls. Governed execution still
+  fails `AUTHORITATIVE_SNAPSHOT_NOT_PROVEN` until DSG-009A; runtime/native/
+  provider/AGY claims remain `NOT_PROVEN` or disabled.
+
+#### H1-Only Stage A Remediation and Stage B Freeze Gate
+
+- Deterministically enforce Rule 11 comparator priority and validate bound
+  Rule 11/18 evidence rather than caller booleans. Derive and reconcile all
+  ineligibility reasons; bind authorization id/evidence to the exact alias and
+  receipt contract.
+- Add owner-only SQLite local lifecycle continuity with durable exact replay
+  protection and bound Pre/Post chaining; use an exact snapshot/control schema,
+  reject omitted or unknown control fields, and require trusted start/deadline.
+  The Stage A configured effective short cap is `300s`, stricter than the
+  normative `600s` hard ceiling.
+- Normalize every execution-family name case-insensitively; reconcile
+  top-level and native tool/input/response forms by exact canonical equivalence
+  or `CAPACITY_TOOL_ENVELOPE_CONFLICT`; recognize nested-only forms; and require
+  the closed governance envelope for every normalized execution-family
+  `Pre`/`Post` event. Pathless or benign commands and absolute paths have no
+  allowlist bypass. Register the Claude guard exactly once under matcher `.*`
+  in both phases while preserving other hooks. Positive AGY/provider
+  eligibility and actual dispatch remain disabled.
+  Runtime/native interception and authoritative snapshot completeness remain
+  `NOT_PROVEN` and cannot be closed by structural hook tests.
+- M1-M3 are closed at the failed H1 candidates; do not reopen them without new
+  contrary evidence. Final Stage A acceptance is now H1-only: no normalized
+  execution-family `Pre`/`Post` event may omit the envelope or use a conflicting
+  representation, and structural validation still cannot prove runtime/native/
+  provider execution or snapshot completeness.
+- Stage B independent stable-hash QA/security review passed with no Critical/
+  High/Medium finding. The accepted L1 monolithic-hook maintenance residual
+  cannot authorize dispatch. No external action, provider/AGY call, sync,
+  claim/probe, commit, push, deploy or secret is authorized.
+
+#### Historical Stage A Structural Freeze Evidence (not current-byte evidence)
+
+The prior DSG-009 status was `DONE — STAGE A STRUCTURAL SOURCE FREEZE / QA +
+SECURITY PASS; RUNTIME NOT_PROVEN` at this exact 11-file historical manifest.
+At the prior reconciliation, 5 of 11 then-current hashes drifted; that failed
+candidate and its fresh-QA requirement are superseded by the verified current
+local re-freeze recorded at the top of this board.
+
+| Final Stage A frozen source | SHA256 |
+|---|---|
+| `.agents/rules/11-orchestrator-subagent-delegation.md` | `6e76f4ea1ea348b47397ba5b9996c55c60498f873726dcfd2b7933043f89d5b1` |
+| `.agents/skills/orchestrator-delegation/SKILL.md` | `7521cf8fb254245ff9ad41ec451899130a30e43cd1586c1390d27e60e53a75cf` |
+| `.agents/skills/orchestrator-delegation/evals/evals.json` | `7ad0aa7fee4b06d1609400d439e863d1dfd03df1470474d4a41361a5f3ba9faa` |
+| `.agents/hooks/full_capacity_guard.py` | `496cb5096598f3fafe40a878fb0af4e9853ff8094471286a0d485ebacda668aa` |
+| `.agents/hooks/full_capacity_test_harness.py` | `1bd1475f319a5d4aeb4d1ff9c64b43ba0ce8031b445f39326d975bbedc169b40` |
+| `.claude/hooks/full_capacity_guard.py` | `69345184490918d5076a8d501670ad246a31ae00af472fd97e95d67cc34a5a4f` |
+| `project/tests/test_full_capacity_governance.py` | `bc0a27701fda863b593e4b6fcdb35627605811468c4c2335d9d05897cbe7290c` |
+| `.agents/config/full_capacity_guard.v2.json` | `1330f59e682597d3cf7c9096194b90911772b300f1c2ce63cf3993bb01e6fbda` |
+| `.agents/schemas/full-capacity-governance-v2.schema.json` | `cd6abd3ce954a6ec4c88783956183e3337c2268e4611617c9cbb06b1393ac645` |
+| `.agents/hooks.json` | `d744fc95bd1ea44b06e0f1b1c82b230a4216003c9b2bc1da2ab8d353988505cb` |
+| `.claude/settings.json` | `735e43dbe0930a6688593edc44256a20b7de4dc39dc30f5c6b7ae9b484c9202a` |
+
+- Independent QA PASS C/H/M/L `0/0/0/1`: focused `540`, adjacent `248`,
+  combined `788`, H1 adversarial `163`, M1-M3 subset `21`; all frozen hashes
+  remained stable.
+- Independent security PASS C/H/M/L `0/0/0/1`: focused `540`; the prior H1 is
+  closed. L1 is only the monolithic-hook maintainability residual.
+- This closes structural Stage A/B only. Authoritative snapshot/native
+  interception, provider runtime/provenance, actual dispatch, world state,
+  trusted wall clock and natural-exit enforcement remain `NOT_PROVEN`;
+  positive AGY/provider remains disabled. DSG-009A and DSG-009B remain
+  `BLOCKED` and no downstream authority is released by local tests.
+
+### TICKET-DSG-009A-AUTHORITATIVE-SCHEDULER-NATIVE-BOUNDARY | [STATUS: BLOCKED — PLATFORM NATIVE PRE-SPAWN HOOK/RECEIPT API REQUIRED]
+
+**Severity**: CRITICAL
+**Work Effort**: M
+**Owner / boundary**: future platform/runtime owner, followed by read-only
+QA/security review. No repository source/config/schema/test/generated-file
+ownership is released. Frozen DSG-001T/009 manifests remain immutable evidence.
+**Depends On**: `TICKET-DSG-009-SHORT-FALLBACK-CAPACITY-HOOK`
+**Blocks**: `TICKET-DSG-003-ROUTING-HOOKS`,
+`TICKET-DSG-009B-TRUSTED-PROVIDER-VERIFIER-AGY`
+
+**Stage C acceptance and stop**: require a platform-supported pre-spawn
+enforcement API covering every collaboration-platform native `spawn_agent`
+call; a host-issued pre-child receipt binding session, ticket, attempt, owner,
+ownership, Rule 11, Rule 18 and authoritative snapshot revision; zero-child
+denial evidence; and an independently documented API/trust root. Repository
+PromptCommand/`subprocess.Popen` hooks and wrappers cannot prove platform
+interception. Fresh HITL cannot manufacture the missing API or runtime
+evidence. The prior recommended repository-managed-only approval was
+superseded before mutation and completed no action. This ticket authorizes no
+provider, AGY, quota preflight, claim/probe, network, sync, deploy, commit,
+push, secret operation or source mutation.
+
+### TICKET-DSG-009B-TRUSTED-PROVIDER-VERIFIER-AGY | [STATUS: BLOCKED — 009A + TRUSTED PROVIDER TELEMETRY]
+
+**Severity**: CRITICAL
+**Work Effort**: M
+**Owner / boundary**: future trusted-verifier owner, independent security
+QA/reviewer and owner HITL. No writable paths or provider account are reserved
+before a frozen/reviewed 009A and independently documented trusted effective
+provider telemetry source.
+**Depends On**: `TICKET-DSG-009A-AUTHORITATIVE-SCHEDULER-NATIVE-BOUNDARY`
+
+**Stage D acceptance and stop**: replace self-attestation with a trusted,
+alias-specific provider verifier and bind role/config, runtime/account/provider/
+quota/authorization/session/ticket/ownership/Rule 11/Rule 18 evidence to the
+resulting receipt/WorkResult. Future owner intent is dependency-blocked: only
+after frozen/reviewed 009A, trusted telemetry and a fresh sanitized quota gate
+may exactly one `agy1`/`research`/`agy`/`gemini-3.7-flash-high`/`high`
+read-only plan+sandbox attempt run for at most `300s`, attempt `1`, with no
+retry or substitution. `agy2` is disabled. Missing trusted effective telemetry
+burns that attempt and returns `BLOCKED / NOT_PROVEN`. It is currently
+`NOT DISPATCHED — no child ran`; no provider, quota preflight or network action
+occurred.
+
+### TICKET-DSG-003-ROUTING-HOOKS | [STATUS: BLOCKED — 001W RESULT/RECEIPT + 009A FREEZE]
+
+**Severity**: CRITICAL
+**Work Effort**: L
+**Owner / ownership**: `developer`; only the routing/rule/skill/hook files in
+the table.
+**Exact files**: `.agents/rules/18-adaptive-model-effort-routing.md`;
+`.agents/config/multiagent_model_policy.yaml`;
+`.agents/skills/adaptive-model-effort-routing/SKILL.md` and
+`.agents/skills/adaptive-model-effort-routing/evals/evals.json`;
+`.agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml`;
+`scripts/multiagent_prompt_command.py`;
+`scripts/sync_ai_agent_ecosystem.py`;
+`.agents/hooks/pre_tool_check.py`, `.agents/hooks/post_tool_audit.py`, new
+`.agents/hooks/spark_specialist_guard.py`, `.agents/hooks.json`;
+`.claude/hooks/adaptive_dispatch_guard.py`,
+`.claude/hooks/orchestrator_only_guard.py`, new
+`.claude/hooks/spark_specialist_guard.py`, `.claude/settings.json`; root
+`settings.json`.
+**Depends On**: `TICKET-DSG-001W-ATOMIC-PROBE-VERIFY`,
+`TICKET-DSG-009A-AUTHORITATIVE-SCHEDULER-NATIVE-BOUNDARY`,
+`TICKET-DSG-002-DELEGATE-GOVERNANCE`
+**Blocks**: `TICKET-DSG-005-QA`
+
+#### Acceptance, Evidence and Stop
+
+- Enforce meaningful-execution delegation before root mutation while allowing
+  trivial no-tool answers and bounded root read-only orchestration. Enforce
+  reserve-and-recompute maximum useful concurrency without manufacturing work.
+- Register `spark_specialist` for explicit orchestrator dispatch and add
+  dedicated specialist pre-tool guards. Registration must never auto-start,
+  poll, run in background or consume quota. Guards allow only requested-only
+  rank-0/1 Spark work at exact requested `high` after ticket/Rule 11/Rule 18,
+  ownership, quota, valid WorkResult and receipt gates; effective model and
+  effort remain `NOT PROVEN`.
+- Enforce configured max concurrency, exact parent/session/ticket binding,
+  bounded timeout/lease, terminal cleanup, orphan/zombie detection, no
+  persistent child process and a typed quota-safe stop. Unknown lifecycle state
+  fails closed without retry or detached/background continuation.
+- Extend the existing adaptive routing skill/policy, not a duplicate skill.
+  After ticket001W's valid WorkResult, Receipt-v3 and consume receipt, catalog only requested
+  `gpt-5.3-codex-spark` / `high` as experimental quality rank 1. Receipt model
+  and effort remain requested values; effective model/effort/account/quota are
+  `NOT PROVEN`. Selection preserves the lane floor; Spark cannot close
+  Critical/High or rank-2/3 lanes.
+- Apply `skill-creator`; update adaptive routing `evals.json` with realistic
+  positive/negative prompts and objective assertions for eligible Spark use,
+  unsupported effort, rank-2/3 and Critical/High rejection, requested-versus-
+  effective labeling, `NOT PROVEN` fields, missing WorkResult/provenance and no
+  static-label proof. Deterministic structure/trigger tests are mandatory now.
+- Stop `DONE` after syntax/JSON/YAML validation and focused hook/dispatcher
+  tests pass with ASCII-tagged logs. Stop `BLOCKED` on missing predecessor
+  evidence; stop `NEEDS_HITL` on quality downgrade, ambiguous hook blast radius
+  or unsupported capability. Do not edit roles, QA-owned files or mirrors.
+
+### TICKET-DSG-004-ROLE-SOURCES | [STATUS: BLOCKED — 001W STRUCTURED RESULT/RECEIPT]
+
+**Severity**: HIGH
+**Work Effort**: M
+**Owner / ownership**: `business_analyst` role/skill-source editor; only the
+role, skill, Rule 20, Claude mirror and catalog sources named in the table.
+**Exact files**: `.antigravity/agents/default.agent`,
+`.antigravity/agents/orchestrator.agent`, `.antigravity/agents/hermes.agent`,
+new `.antigravity/agents/spark_specialist.agent`; new
+`.agents/skills/codex-spark-specialist/SKILL.md` and
+`.agents/skills/codex-spark-specialist/evals/evals.json`; new
+`.agents/rules/20-codex-spark-specialist.md`; new
+`.claude/rules/codex-spark-specialist.md`; `.agents/AGENTS.md`.
+**Depends On**: `TICKET-DSG-001W-ATOMIC-PROBE-VERIFY`,
+`TICKET-DSG-002-DELEGATE-GOVERNANCE`
+**Blocks**: `TICKET-DSG-005-QA`
+
+#### Acceptance, Evidence and Stop
+
+- Make `default`, `orchestrator` and `hermes` prompts delegate meaningful work
+  by default, choose the narrowest specialist and occupy only useful independent
+  slots. Static model text stays a hint and references the adaptive skill.
+- Create permanent `.antigravity/agents/spark_specialist.agent`, Rule 20 and
+  `codex-spark-specialist` skill. The role is available only for explicit
+  orchestrator dispatch; it is never an auto-run/background/quota daemon and
+  accepts only requested-only experimental rank-0/1 work at exact requested
+  `high`, with ticket/Rule 11/Rule 18/ownership/quota/valid WorkResult/receipt
+  gates; effective model and effort remain `NOT PROVEN`.
+- Define max concurrency, parent/session/ticket binding, bounded timeout/lease,
+  terminal cleanup, orphan/zombie handling, zero persistent process and typed
+  quota-safe stop in Rule 20, the role and specialist skill.
+- Mention Spark only as ticket001S-validated requested-only experimental rank 1,
+  exact `high`, with effective model/effort/account/quota `NOT PROVEN`. Do not
+  describe requested receipt values as effective telemetry.
+- Apply `skill-creator`; the new skill `evals.json` needs realistic positive and
+  negative prompts with objective assertions for allowed rank-0/1 dispatch,
+  Critical/High or rank-2/3 rejection, unsupported effort, missing gates and
+  forbidden auto/background invocation.
+- Reconcile the legacy role source with the `.agents/agents/*/agent.json` Codex
+  compatibility source through the governed source/sync flow; never hand-edit
+  `.codex/agents/*.toml`. Freeze sources before QA/sync.
+- Stop `DONE` on valid YAML/JSON and a scoped source diff; stop `NEEDS_HITL` if
+  the sync source hierarchy conflicts or ticket001S lacks a valid requested-only
+  bound WorkResult.
+
+### TICKET-DSG-005-QA | [STATUS: BLOCKED — SOURCE FREEZE]
+
+**Severity**: CRITICAL
+**Work Effort**: L
+**Owner / ownership**: `qa_tester`; owns only the new DSG QA module/artifacts;
+existing focused suites are read-only execution.
+**Depends On**: `TICKET-DSG-003-ROUTING-HOOKS`,
+`TICKET-DSG-004-ROLE-SOURCES`
+**Blocks**: `TICKET-DSG-006-SYNC-REVIEW`
+
+#### Acceptance, Evidence and Stop
+
+- After both source lanes freeze, test delegate-required and allowed-exception
+  matrices, narrowest-role routing, maximum useful concurrency, one-editor
+  conflict, Rule 11 ordering, Rule 18/quota/HITL failures and non-preemption.
+- Test exact requested Spark `high`, rank-1 ceiling, Critical/High and rank-2/3
+  rejection, unsupported effort, requested-versus-effective labeling, all four
+  effective fields `NOT PROVEN`, missing receipt/WorkResult/provenance and
+  static-label/dry-run rejection. Assert no prohibited lane starts.
+- Test specialist registration, explicit orchestrator-only invocation,
+  dedicated guards, Rule 20/skill/evals/catalog alignment and absence of any
+  auto-run/background/daemon trigger.
+- Test max concurrency, parent/session/ticket mismatch, timeout/lease expiry,
+  terminal cleanup, orphan/zombie detection, zero persistent process and typed
+  quota-safe stop. The independent read-only DevOps process audit remains
+  `PENDING`; do not count it as a pass before its WorkResult is returned.
+- Validate all three skill `evals.json` packages have realistic positive/negative
+  prompts and objective assertions; run deterministic trigger/structure tests.
+- Stop `DONE` only when focused suites pass and a concise artifact records exact
+  commands/counts. Any source edit returns to its owning ticket; any unsupported
+  capability or quality conflict is `NEEDS_HITL`.
+
+### TICKET-DSG-006-SYNC-REVIEW | [STATUS: BLOCKED — QA]
+
+**Severity**: CRITICAL
+**Work Effort**: M
+**Owner / ownership**: the same `business_analyst` role-source editor performs
+the sequential generated-mirror sync, followed by `code_reviewer` read-only;
+no second mirror editor.
+**Exact generated ownership**: `.agents/agents/{default,orchestrator,hermes,
+spark_specialist}.{md,json}` and matching subdirectory `agent.{md,json}`;
+`.codex/agents/{default,orchestrator,hermes,spark_specialist}.toml`;
+generated `.antigravity/agents/spark-specialist.agent` hyphen alias;
+`.antigravity/skills/{orchestrator-delegation,adaptive-model-effort-routing,
+codex-spark-specialist}/SKILL.md`; `.agents/agents.json` and
+`.agents/agents/agents.json`. Only paths actually changed by sync are in scope;
+any other changed path stops for review.
+**Depends On**: `TICKET-DSG-005-QA`
+**Blocks**: sprint closure
+
+#### Acceptance, Evidence and Stop
+
+- With all sources/tests frozen, run
+  `python3 scripts/sync_ai_agent_ecosystem.py --sync` once. Inspect the scoped
+  manifest and stop on any unexpected path; generated `.codex` files are never
+  edited manually. Then run `python3 scripts/sync_ai_agent_ecosystem.py --check`,
+  the focused governance suites, `git diff --check`, duplicate-ticket-ID check,
+  and `python3 project/core/code_reviewer.py --scan-secrets`.
+- The governed sync has external local-global side effects under
+  `~/.gemini/config/agents` and `~/.agy-account-1/.gemini/config/agents`. It may
+  run only under the user's existing session-wide in-scope approval after both
+  source and QA freeze. Capture sanitized pre/post path inventories, file
+  digests and scoped diff evidence for both external targets; stop before sync
+  if that evidence cannot be captured safely.
+- Independent review must verify requested-model evidence, rank-1 experimental
+  ceiling, transparent `NOT PROVEN` effective fields,
+  meaningful-execution delegation, allowed exceptions, narrowest-role routing,
+  maximum useful concurrency, bounded on-demand `spark_specialist`, source/
+  mirror alignment and no unrelated changes.
+- Consume the read-only DevOps process-audit WorkResult when available. Missing
+  evidence keeps lifecycle closure pending; it must never be restated as pass.
+- Stop `DONE` only on all green evidence and a reviewed scoped manifest. Stop
+  `NEEDS_HITL` on unexpected sync output, secret finding, unsafe recovery,
+  capability mismatch or unrelated dirty overlap. No commit, push, deploy,
+  publish or history rewrite is authorized by this sprint.
+
+<!-- DEEP-REASONING-GRILL:START -->
+## DEEP-REASONING ADVISORY DESIGN — DEFERRED IMPLEMENTATION
+
+This is a separate design/task block. It does not mark deep-reasoning
+implementation `READY` and does not release any DSG ticket. The read-only
+architecture decision is to refactor the existing adaptive lane-level router,
+reuse the orchestrator child, and add a `deep-reasoning-advisory` skill/rule;
+no static agent role is introduced. The advisory is non-authoritative and may
+not approve HITL, bypass the DAG, sync, deploy, or infer execution proof.
+
+| Ticket | Severity | Work Effort | Owner | Status | Depends On | Exact ownership |
+|---|---|---|---|---|---|---|
+| `TICKET-DRG-001-DEEP-REASONING-ARCHITECTURE` | HIGH | M | `deep_reasoning_arch` read-only | DONE — ARCHITECTURE / NO FILE CHANGES | none | read-only adaptive lane-level router design and advisory boundary |
+| `TICKET-DRG-002-DEEP-REASONING-LEASE-DECISION` | HIGH | XS | owner / `orchestrator` | DONE — POLICY RECORDED; RUNTIME NOT_PROVEN | DRG-001 | max lease `600s`, ultra lease `900s`, one attempt/no auto-retry; not execution proof |
+| `TICKET-DRG-003-ADAPTIVE-LANE-ROUTER` | CRITICAL | L | `developer` | BLOCKED — DRG-002 + DSG-006 | DRG-002,DSG-006 | adaptive lane-level router mutation only after owner policy and sync/review freeze |
+| `TICKET-DRG-004-DEEP-REASONING-ADVISORY` | HIGH | M | `business_analyst` / `developer` | BLOCKED — DRG-002 + DSG-006 | DRG-002,DSG-006 | new advisory skill/rule, advisory-only and non-authoritative |
+| `TICKET-DRG-005-DEEP-REASONING-GUARDRAILS` | HIGH | S | `developer` | BLOCKED — DRG-002 + DSG-006 | DRG-002,DSG-006 | severity-blocker max advice; ultra cross-system/multi-owner or prior-max deadlock routing |
+| `TICKET-DRG-006-DEEP-REASONING-TESTS` | CRITICAL | L | `qa_tester` | BLOCKED — DRG-002 + DSG-006 | DRG-002,DSG-006 | bounded lease/attempt, authority, privacy, and no-auto-retry tests |
+| `TICKET-DRG-007-DEEP-REASONING-QA` | CRITICAL | M | `qa_tester` / `code_reviewer` | BLOCKED — DRG-002 + DSG-006 | DRG-002,DSG-006 | independent QA/review after implementation sources freeze |
+| `TICKET-DRG-008-DEEP-REASONING-SYNC-REVIEW` | CRITICAL | M | `business_analyst` / `code_reviewer` | BLOCKED — DRG-002 + DSG-006 | DRG-002,DSG-006 | governed sync/review only after all deep-reasoning and DSG predecessors freeze |
+
+### TICKET-DRG-001-DEEP-REASONING-ARCHITECTURE | [STATUS: DONE — ARCHITECTURE / NO FILE CHANGES]
+
+**Scope and decision**: complete a read-only architecture audit. Refactor the
+existing adaptive lane-level router, reuse the orchestrator child, and add a
+new `deep-reasoning-advisory` skill/rule; do not add a static agent role.
+Provide bounded Severity blocker root-cause/options advice with `max`; use
+`ultra` only for cross-system/multi-owner blockers or a prior-max decision
+deadlock. The advisory is non-authoritative and advisory-only.
+
+**Evidence and stop**: architecture design is `DONE`; no file changes were
+made. The design cannot approve HITL, become implementation owner or decision
+maker, bypass the DAG, sync, deploy, or claim provider execution proof.
+
+### TICKET-DRG-002-DEEP-REASONING-LEASE-DECISION | [STATUS: DONE — POLICY RECORDED; RUNTIME NOT_PROVEN]
+
+**Scope and stop**: owner session sign-off records maximum lease `600s`, ultra
+lease `900s`, one attempt, and no automatic retry. Hard token and effective
+runtime telemetry for native collaboration remain `NOT PROVEN`; policy is not
+execution authority. DRG-003..008 remain blocked on DRG-002 and DSG-006.
+
+### TICKET-DRG-003-ADAPTIVE-LANE-ROUTER | [STATUS: BLOCKED — DRG-002 + DSG-006]
+
+Depends on `TICKET-DRG-002-DEEP-REASONING-LEASE-DECISION` and
+`TICKET-DSG-006-SYNC-REVIEW`. Mutation overlaps DSG-003..006 and remains
+blocked until both predecessors are complete; no implementation is `READY`.
+
+### TICKET-DRG-004-DEEP-REASONING-ADVISORY | [STATUS: BLOCKED — DRG-002 + DSG-006]
+
+Depends on DRG-002 and DSG-006. Create the advisory skill/rule only after the
+owner policy and DSG sync/review freeze; it remains non-authoritative.
+
+### TICKET-DRG-005-DEEP-REASONING-GUARDRAILS | [STATUS: BLOCKED — DRG-002 + DSG-006]
+
+Depends on DRG-002 and DSG-006. Define only bounded Severity blocker `max`
+advice and `ultra` escalation for cross-system/multi-owner or prior-max
+deadlock cases; no auto-retry or authority is permitted.
+
+### TICKET-DRG-006-DEEP-REASONING-TESTS | [STATUS: BLOCKED — DRG-002 + DSG-006]
+
+Depends on DRG-002 and DSG-006. Tests remain deferred until implementation
+scope is owner-approved and all overlapping DSG sources have frozen.
+
+### TICKET-DRG-007-DEEP-REASONING-QA | [STATUS: BLOCKED — DRG-002 + DSG-006]
+
+Depends on DRG-002 and DSG-006. Independent QA and review are not authorized
+until the design decision is recorded and implementation sources freeze.
+
+### TICKET-DRG-008-DEEP-REASONING-SYNC-REVIEW | [STATUS: BLOCKED — DRG-002 + DSG-006]
+
+Depends on DRG-002 and DSG-006. Governed sync/review remains deferred; no
+generated mirror, external local-global write, provider, or release action is
+authorized by this design block.
+
+<!-- DEEP-REASONING-GRILL:END -->
+
+### MAREF Continuity — Current Superseding Status Only
+
+Session-wide recovery approval was recorded around 2026-08-26 14:15 +07. The
+published contaminated attempt
+`07704aedcc16ad84404b92fc6795d1ecad21fd79` remains immutable history. Forward
+corrective delete-only commit
+`b296a23c8b4a6e291de0bb5c40620e1b882a9c1c` and exact one-file lifecycle freeze
+commit `8071323ce05ff5e0ed1153110ec5940bf305ac9b` are on both local `main` and
+`origin/main`. Final tree `0f12027efd1714a9cbd3fb88a427a4dd1ed3a18f`
+equals the contaminated attempt tree; lifecycle digest is
+`67ec5db06136e481c3f3914ac67db311763603a1cdaf9108824b463b4f9d4ef2`; BSA doc
+hashes were preserved. No force push or history rewrite occurred.
+
+| Ticket | Current status | Gate |
+|---|---|---|
+| `MAREF-010-LIFECYCLE-CONTRACT` | DONE — CONTRACT FREEZE PASS | exact one-file commit and reviewed digest |
+| `MAREF-011-EVENT-ENVELOPE` | READY — DERIVED CHILD + RULE18 REQUIRED | separate fresh child, decision, Rule 11, quota, ownership and receipt |
+| `MAREF-012-APPROVAL-GRANT` | READY — DERIVED CHILD + RULE18 REQUIRED | separate fresh child, decision, Rule 11, quota, ownership and receipt |
+| `MAREF-013-EFFECT-SAGA-CONTRACTS` | READY — DERIVED CHILD + RULE18 REQUIRED | separate fresh child, decision, Rule 11, quota, ownership and receipt |
+| `MAREF-014-COMPATIBILITY-CONTRACT` | BLOCKED — 011..013 | all three predecessor freezes |
+| `MAREF-015-CONTRACT-QA` | BLOCKED — 011..014 | all contract sources frozen |
+
+This is the canonical current checkpoint. It supersedes older C0 status rows
+and assertions without rewriting their immutable evidence or authorizing any
+additional commit, push, or recovery.
+
+<!-- DELEGATE-SPARK-SPRINT:END -->
 
 ---
 
@@ -2057,12 +3238,17 @@ Use [docs/RELEASE_HANDOFF_CHECKLIST.md](docs/RELEASE_HANDOFF_CHECKLIST.md) for t
 
 **Owners and stop conditions**: `qa_tester` owns local regression and captures; `devops` owns payload/health/version/publish evidence after authorization; `code_reviewer` owns safety and the fail-closed verdict; `business_analyst` owns evidence/ticket synchronization; `orchestrator` owns allowlist, dispatch, HITL request, and final decision. Stop and return the first failing gate to its owner. After three failed remediation cycles or any missing authorization, return `NEEDS_HITL`; never infer a pass from the historical baseline.
 
-### Sprint Evidence & Release Decision
+### Historical Sprint Evidence & Release Decision — `6c351ba` Only
 
 - Production baseline: `project/tests/artifacts/production_v3_visual_baseline_2026-08-24.json` and five selected-tab screenshots under `project/tests/screenshots/visual_audit/production_baseline/`.
 - Local post-fix evidence: `project/tests/artifacts/v3_visual_post_fix_evidence_2026-08-24.json` and final compact-mobile PASS/TENSION screenshots under `project/tests/screenshots/visual_audit/post_fix/`.
 - Confirmed Production risks: fourth tab/descendant clipping on compact mobile, v3-only dark-mode island, sub-AA semantic colors, fixed-height long-content clipping, UI/backend version-label drift, and stale `/index.html` PWA references.
-- Release decision: **READY_FOR_PROD**. Authorized deployment and post-deploy verification are complete. The documented final manual screenshot review resolves the 30 automated gradient indeterminates for this release; an indeterminate without equivalent named reviewer sign-off is a blocking risk. The expected static simulation API 404 remains a documented non-blocking Static-SDK behavior.
+- **Historical `6c351ba` release decision only**: **READY_FOR_PROD**. Its
+  authorized deployment and post-deploy verification were complete for that
+  source revision only. The documented final manual screenshot review resolved
+  the 30 automated gradient indeterminates for that historical release. It
+  cannot authorize, close, or verify the current blocked `TICKET-V3UI-007`
+  candidate; current release evidence and HITL remain required.
 
 ### Historical Post-Deploy Update — `6c351ba` — 2026-08-25
 
@@ -2131,19 +3317,23 @@ python3 scripts/sync_ai_agent_ecosystem.py --check
 
 | Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
 |---|---|---|---|---|
-| `TICKET-ORCH-SPRINT-001` | `developer` | Execute 4 serial pre-QA lanes (validator pkg → parser hardening → v2 adoption → v2 AGY condition) | DONE | None |
-| `TICKET-ORCH-SPRINT-002` | `qa_tester` | Combined formal QA — 4-suite pytest exit 0 | DONE | `TICKET-ORCH-SPRINT-001` |
-| `TICKET-ORCH-SPRINT-003` | `devops` | `git diff --check`, secret scan, ecosystem `--sync`/`--check`, atomic commit + push | DONE | `TICKET-ORCH-SPRINT-002` |
-| `TICKET-ORCH-SPRINT-004` | `orchestrator` | HITL-gated `codex1` alias dispatch (RC2-004/attempt-1); chain to `codex2`/`agy1`/`agy2` only on valid receipt | TODO | `TICKET-ORCH-SPRINT-003` |
+| `TICKET-ORCH-SPRINT-001` | `developer` | Execute 4 serial pre-QA lanes (validator pkg → parser hardening → v2 adoption → v2 AGY condition) | DONE — D8.16 completion evidence | None |
+| `TICKET-ORCH-SPRINT-002` | `qa_tester` | Combined formal QA — 4-suite pytest exit 0 | DONE — D8.14 (`213` combined / `142` focused) | `TICKET-ORCH-SPRINT-001` |
+| `TICKET-ORCH-SPRINT-003` | `devops` | `git diff --check`, secret scan, ecosystem `--sync`/`--check`, atomic commit + push | NEEDS_HITL — COMMIT/PUSH PROOF MISSING | `TICKET-ORCH-SPRINT-002` |
+| `TICKET-ORCH-SPRINT-004` | `orchestrator` | HITL-gated `codex1` alias dispatch (RC2-004/attempt-1); chain to `codex2`/`agy1`/`agy2` only on valid receipt | BLOCKED — 003 COMMIT/PUSH PROOF MISSING | `TICKET-ORCH-SPRINT-003` |
 
 ---
 
-### 🎫 TICKET-ORCH-SPRINT-001 | `developer` | [STATUS: TODO]
+### 🎫 TICKET-ORCH-SPRINT-001 | `developer` | [STATUS: DONE]
 **Priority**: HIGH
 **Severity**: HIGH
 **Work Effort**: M (serial execution of 4 bounded lanes)
 **Depends On**: None
 **Blocks**: `TICKET-ORCH-SPRINT-002`
+
+**Completion evidence**: see `plans/plan.md` D8.16: validator packaging,
+parser/evidence hardening, receipt-v2 adoption, and the AGY conditional
+requirement are each recorded `DONE` with their frozen evidence.
 
 #### Lane 1 — Validator Packaging (XS)
 - **Owned files**: `pyproject.toml`, `requirements.txt`, `uv.lock`
@@ -2170,12 +3360,15 @@ python3 scripts/sync_ai_agent_ecosystem.py --check
 
 ---
 
-### 🎫 TICKET-ORCH-SPRINT-002 | `qa_tester` | [STATUS: TODO]
+### 🎫 TICKET-ORCH-SPRINT-002 | `qa_tester` | [STATUS: DONE]
 **Priority**: HIGH
 **Severity**: HIGH
 **Work Effort**: M
 **Depends On**: `TICKET-ORCH-SPRINT-001` (all four lanes DONE)
 **Blocks**: `TICKET-ORCH-SPRINT-003`
+
+**Completion evidence**: `plans/plan.md` D8.14 records `213` combined and
+`142` focused tests passed, plus ecosystem sync, lock, and scoped-diff checks.
 
 #### Detailed Instructions
 1. Run exact combined formal QA command:
@@ -2187,18 +3380,23 @@ python3 scripts/sync_ai_agent_ecosystem.py --check
 4. Trim output to summary line only before reporting to orchestrator.
 
 #### Acceptance Criteria
-- [ ] Exit code `0`.
-- [ ] Zero test failures (pre-documented expected legacy assertion deltas are allowed only if explicitly named in lane evidence).
-- [ ] Scoped diff over test files exits 0 (no test modification by QA runner).
+- [x] Exit code `0`.
+- [x] Zero test failures (pre-documented expected legacy assertion deltas are named in the completion evidence).
+- [x] Scoped diff over test files exited `0` (no test modification by QA runner).
 
 ---
 
-### 🎫 TICKET-ORCH-SPRINT-003 | `devops` | [STATUS: TODO]
+### 🎫 TICKET-ORCH-SPRINT-003 | `devops` | [STATUS: NEEDS_HITL — COMMIT/PUSH PROOF MISSING]
 **Priority**: HIGH
 **Severity**: HIGH
 **Work Effort**: S
 **Depends On**: `TICKET-ORCH-SPRINT-002` (QA DONE)
 **Blocks**: `TICKET-ORCH-SPRINT-004`
+
+**Current gate and stop**: completion cannot be inferred. No authoritative
+commit SHA or push receipt is recorded for this ticket, so it is
+`NEEDS_HITL — COMMIT/PUSH PROOF MISSING`. Do not invent commit/push evidence or
+release `TICKET-ORCH-SPRINT-004`.
 
 #### Detailed Instructions
 1. **Diff check**: `git diff --check HEAD` — must exit 0.
@@ -2223,15 +3421,16 @@ python3 scripts/sync_ai_agent_ecosystem.py --check
 
 ---
 
-### 🎫 TICKET-ORCH-SPRINT-004 | `orchestrator` | [STATUS: TODO]
+### 🎫 TICKET-ORCH-SPRINT-004 | `orchestrator` | [STATUS: BLOCKED — 003 COMMIT/PUSH PROOF MISSING]
 **Priority**: HIGH
 **Severity**: HIGH
 **Work Effort**: S
-**Depends On**: `TICKET-ORCH-SPRINT-003` (commit + push DONE)
+**Depends On**: `TICKET-ORCH-SPRINT-003` (currently `NEEDS_HITL — COMMIT/PUSH PROOF MISSING`)
 **Blocks**: None (final gate)
 
 #### Detailed Instructions
-1. Verify `TICKET-ORCH-SPRINT-003` push evidence is confirmed.
+1. Stop: `TICKET-ORCH-SPRINT-003` has no authoritative commit/push proof, so
+   this ticket is blocked and must not dispatch an alias.
 2. Confirm RC2-004 dispatch prerequisites: focused taxonomy QA (from RC2-004 spec) and read-only isolation review are satisfied or explicitly waived with reason.
 3. If prerequisites met: authorize `codex1` read-only CLI lane dispatch, recording as `RC2-004/codex1/attempt-1`.
 4. Gate decision on `codex1` result:
@@ -2245,13 +3444,18 @@ python3 scripts/sync_ai_agent_ecosystem.py --check
 - [ ] No automatic retry or root-session alias invocation.
 
 <!-- MAREF-C0-SPRINT:START -->
-## SPRINT — Multi-agent Control Plane Refactor (`MAREF-000..057`)
+## Historical SPRINT — Multi-agent Control Plane Refactor (`MAREF-000..057`)
 
 **Date**: 2026-08-26 (Asia/Bangkok)
 **Tracking lead**: `orchestrator`; C0 documents owned by `business_analyst`
-**Grill Gate**: `C0 FREEZE PASS — TWO INDEPENDENT REVIEWS`;
-`MAREF-010 READY — NW-SESSION-001 CHILD GRANT REQUIRED`;
-`MAREF-011+ BLOCKED`
+> **Historical-status notice:** Preserve the C0 rows below as evidence only.
+> Current MAREF status is the superseding continuity checkpoint above:
+> `MAREF-010 DONE — CONTRACT FREEZE PASS`; `MAREF-011..013 READY — DERIVED
+> CHILD + RULE18 REQUIRED`.
+
+**Historical Grill Gate**: `C0 FREEZE PASS — TWO INDEPENDENT REVIEWS`;
+historical values: `MAREF-010 READY — NW-SESSION-001 CHILD GRANT REQUIRED`;
+`HISTORICAL MAREF-011+ BLOCKED`
 **Architecture package**: [`docs/architecture/multiagent-control-plane/README.md`](docs/architecture/multiagent-control-plane/README.md)
 **Detailed acceptance/evidence/stop authority**: [C0](docs/architecture/multiagent-control-plane/tickets/c0.md), [C1](docs/architecture/multiagent-control-plane/tickets/c1.md), [C2](docs/architecture/multiagent-control-plane/tickets/c2.md), [C3](docs/architecture/multiagent-control-plane/tickets/c3.md), [C4](docs/architecture/multiagent-control-plane/tickets/c4.md), [C5](docs/architecture/multiagent-control-plane/tickets/c5.md)
 
@@ -2278,7 +3482,8 @@ its exact one-file target
 `docs/architecture/multiagent-control-plane/contracts/lifecycle-v1.md`.
 Configured route `codex1` was selected but failed closed before alias execution.
 Native collaboration is WorkResult evidence; no governed alias/provider receipt
-is claimed and MAREF-011+ remains blocked.
+is claimed. Historical C0 recorded MAREF-011+ as blocked; current MAREF status
+is defined by the superseding continuity checkpoint above.
 
 The MAREF-010 decision digest is
 `cb2cf84444b699a642969e5fb4be43829d39548b87b66531ab8f87fff5b01d6d`;
@@ -2311,13 +3516,13 @@ content; root remains orchestrator-only and no push is automatic. This support-
 metadata waiver record is not a numbered MAREF completion and receives no
 commit.
 
-### Frozen checkpoint registry
+### Historical C0 checkpoint registry
 
 Every row's measurable acceptance criteria, required evidence and exact
 `DONE`/`BLOCKED`/`NEEDS_HITL` stop condition are mandatory in its linked
 detailed register; the compact board row never overrides them.
 
-| Ticket | Severity / Work Effort | Owner | Status | Depends On | Exact ownership |
+| Ticket | Severity / Work Effort | Owner | Historical status (preserved) | Depends On | Exact ownership |
 |---|---|---|---|---|---|
 | `MAREF-000-SESSION-SCOPE` | CRITICAL / XS | `business_analyst` | DONE — DOCUMENTATION | none | ADR-004 + MAREF delimited plan/board blocks |
 | `MAREF-001-PLATFORM-MATRIX` | HIGH / S | `business_analyst` | DONE — DOCUMENTATION | 000 | platform capability matrix only |
@@ -2325,10 +3530,10 @@ detailed register; the compact board row never overrides them.
 | `MAREF-003-STORE-TRANSPORT-ADR` | CRITICAL / M | `business_analyst` | DONE — DOCUMENTATION (RECONCILED) | 001,002 | ADR-001/003/007/CAP-001 only |
 | `MAREF-004-SECURITY-APPROVAL-ADR` | CRITICAL / M | `business_analyst` | DONE — DOCUMENTATION (RECONCILED) | 000,003 | ADR-002/004/006 only |
 | `MAREF-005-SERVICE-BOUNDARY-ADR` | CRITICAL / S | `business_analyst` | DONE — DOCUMENTATION (RECONCILED) | 003,004 | ADR-008 + C0 index/DAG only |
-| `MAREF-010-LIFECYCLE-CONTRACT` | CRITICAL / M | `business_analyst` | READY — NW-SESSION-001 CHILD GRANT REQUIRED | 000..005 + two C0 PASS WorkResults; planned child unissued | new lifecycle-v1 contract doc only |
-| `MAREF-011-EVENT-ENVELOPE` | CRITICAL / M | `developer` | BLOCKED — 010 | 010 | new event-envelope-v1 schema only |
-| `MAREF-012-APPROVAL-GRANT` | CRITICAL / M | `developer` | BLOCKED — 010 | 010 | new approval-grant-v1 schema only |
-| `MAREF-013-EFFECT-SAGA-CONTRACTS` | CRITICAL / L | `developer` | BLOCKED — 010 | 010 | new effect-lease + SagaCommand/SagaReceipt schemas only |
+| `MAREF-010-LIFECYCLE-CONTRACT` | CRITICAL / M | `business_analyst` | HISTORICAL — READY — NW-SESSION-001 CHILD GRANT REQUIRED | 000..005 + two C0 PASS WorkResults; planned child unissued | new lifecycle-v1 contract doc only |
+| `MAREF-011-EVENT-ENVELOPE` | CRITICAL / M | `developer` | HISTORICAL — BLOCKED — 010 | 010 | new event-envelope-v1 schema only |
+| `MAREF-012-APPROVAL-GRANT` | CRITICAL / M | `developer` | HISTORICAL — BLOCKED — 010 | 010 | new approval-grant-v1 schema only |
+| `MAREF-013-EFFECT-SAGA-CONTRACTS` | CRITICAL / L | `developer` | HISTORICAL — BLOCKED — 010 | 010 | new effect-lease + SagaCommand/SagaReceipt schemas only |
 | `MAREF-014-COMPATIBILITY-CONTRACT` | HIGH / M | `developer` | BLOCKED — 010 | 011..013 | new capability/loss schemas only |
 | `MAREF-015-CONTRACT-QA` | CRITICAL / XL | `qa_tester` | BLOCKED — 011..014 | 011..014 | new control-plane contract tests/fixtures only |
 | `MAREF-020-DOMAIN-CORE` | CRITICAL / L | `developer` | BLOCKED — C1 | 015 | new `project/orchestration/domain/**` + `ports/**` only |
@@ -2359,13 +3564,13 @@ detailed register; the compact board row never overrides them.
 | `MAREF-056-PRODUCTION-CUTOVER` | CRITICAL / L | no current owner; fresh-P4 `devops` artifacts only | BLOCKED — FRESH HITL/LATE BINDING | 055 + new target/session approval | content-addressed v1 manifest + backup/deployment/cutover receipts; no live source edit |
 | `MAREF-057-POST-CUTOVER` | CRITICAL / L | `qa_tester` verification / separate-fresh-P4 `devops` rollback receipt / read-only `orchestrator` | BLOCKED — 056 + FRESH P4 DRILL | 056 | same cutover directory: versioned verification/rollback receipts only |
 
-### Checkpoint gates and current decision
+### Historical C0 checkpoint gates and decision
 
-- C0: `DONE — FREEZE PASS`; independent security/architecture and structural
+- Historical C0: `DONE — FREEZE PASS`; independent security/architecture and structural
   review evidence is recorded without releasing C1 execution.
-- MAREF-010 is `READY — NW-SESSION-001 CHILD GRANT REQUIRED`; it remains
+- Historical C0 MAREF-010 was `READY — NW-SESSION-001 CHILD GRANT REQUIRED`; it remained
   non-executable until exact child `NW-SESSION-001/MAREF-010/1` is issued.
-  MAREF-011+ is not source/schema execution-eligible. Later lanes still require
+  Historical C0 MAREF-011+ was not source/schema execution-eligible. Later lanes still require
   dependencies, ownership,
   QOBS/quota and HITL at their own scheduling checkpoints. Architecture uses
   `gpt-5.6-sol/xhigh`; normal rank-3 implementation/security uses

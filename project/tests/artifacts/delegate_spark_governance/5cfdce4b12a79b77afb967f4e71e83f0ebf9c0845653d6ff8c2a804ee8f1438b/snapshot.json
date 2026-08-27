@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "tickets": [
+    {
+      "ticket_id": "TICKET-DSG-001R-SPARK-SMOKE-20260826",
+      "severity": "HIGH",
+      "work_effort": "XS",
+      "status": "READY",
+      "dependencies": [],
+      "blockers": [],
+      "owner": "spark_probe",
+      "ownership": ["read-only exact Spark transport smoke; no repository changes"],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    }
+  ],
+  "reservations": []
+}
