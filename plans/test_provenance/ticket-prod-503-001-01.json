@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-PROD-503-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "db1231e430c39360226d6289afa8a4e665a0cbb1",
+  "test_files": [
+    {
+      "path": "tests/test_publish_space_hf_executable_mode_contract.py",
+      "sha256": "67ac8548a1b4b707dceccb8b739389ab0e156d80c417ed570bf51c914c321ec6"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_publish_space_hf_executable_mode_contract.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "1 failed; tracked regular executable mode 100755 was rejected as INVALID_PAYLOAD_FILE before source remediation"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/publish_space_hf.py",
+    "PROJECT_TASKS.md",
+    "plans/plan.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Restore the mandatory HF Docker payload dry-run without weakening path, blob, regular-file, or local permission checks by accepting tracked executable payload files only when Git mode 100755 and local mode 0755 agree."
+}
