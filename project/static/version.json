@@ -1,6 +1,7 @@
 {
-  "version": "1.0.0.628c27d",
-  "commit": "628c27d",
-  "timestamp": "2026-08-26T07:06:43Z",
-  "status": "production"
+  "version": "1.0.0.e015e35",
+  "release_source_commit": "e015e35",
+  "release_source_revision": "e015e35c324b1ac7d3db0bf19fb1934adf127fa8",
+  "release_source_metadata_path": "project/static/version.json",
+  "release_source_metadata_sha256": "ca7a549dc042d2cc0c74de41ca0d51b97abecfff6ff93f75e9aa60e1091bd45c"
 }
