@@ -1,0 +1,53 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-ALIAS-RC2-004-QOBS-01",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "21f8a92fa30803568faeff23cfe9c8e5c7f98ecc",
+  "test_files": [
+    {
+      "path": "tests/test_quota_observation_contract.py",
+      "sha256": "6d5ff2a42d35c3facb4f32f43a907ae3f4eb8f38e477e8b2a0edee56fdd07e60"
+    },
+    {
+      "path": "tests/test_quota_observation_integration.py",
+      "sha256": "80a2638229562413129419338533e7987376ab5732cd003942a7a6338d8d86e1"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_quota_observation_contract.py",
+        "tests/test_quota_observation_integration.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "67 failed; QOBS schemas and the public canonicalization, probe, validation, dispatch-binding, nonce-consumption, and scheduler-gate APIs are absent (FileNotFoundError/AttributeError)"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/schemas/multiagent-quota-observation-v1.schema.json",
+    ".agents/schemas/multiagent-quota-observation-artifact-v1.schema.json",
+    ".agents/config/multiagent_model_policy.yaml",
+    "scripts/agent_quota_status_guard.py",
+    "scripts/multiagent_prompt_command.py",
+    "scripts/multiagent_ticket_scheduler.py",
+    ".agents/rules/17-multi-account-agent-orchestration.md",
+    ".agents/rules/18-adaptive-model-effort-routing.md",
+    ".agents/skills/multi-account-agent-orchestration/SKILL.md",
+    ".agents/skills/adaptive-model-effort-routing/SKILL.md",
+    ".antigravity/skills/multi-account-agent-orchestration/SKILL.md",
+    ".antigravity/skills/adaptive-model-effort-routing/SKILL.md",
+    "docs/templates/MULTIAGENT_PROMPT_COMMAND.md",
+    "PROJECT_TASKS.md",
+    "plans/plan.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze the documented QOBS v1 security boundary before any schema, policy, probe, dispatcher, scheduler, or governance source mutation."
+}
