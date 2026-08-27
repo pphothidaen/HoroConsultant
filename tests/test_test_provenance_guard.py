@@ -318,7 +318,7 @@ def test_precommit_hook_is_non_mutating_and_runs_provenance_guard() -> None:
 
 
 def test_ci_uses_full_history_and_fail_closed_provenance_job() -> None:
-    workflow = (ROOT / ".github" / "workflows" / "test_provenance.yml").read_text(
+    workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(
         encoding="utf-8"
     )
 
