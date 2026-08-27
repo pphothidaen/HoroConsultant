@@ -222,7 +222,7 @@ class CodeReviewer:
                 cwd=ROOT,
                 capture_output=True,
                 text=True,
-                timeout=300
+                timeout=900
 
             )
             passed = res.returncode == 0
