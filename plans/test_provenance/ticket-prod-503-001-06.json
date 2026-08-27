@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-PROD-503-001",
+  "sequence": 6,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "6047ee0e41990bac815d7b277954a0caee239a5d",
+  "test_files": [
+    {
+      "path": "tests/test_runtime_release_identity_fallback.py",
+      "sha256": "092a06416c36626ffad505592cd0c6e02a3fa475a03f15468809ce04c5ba61d7"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_runtime_release_identity_fallback.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "1 failed; a runtime without provider commit env, git_commit.txt, or .git returned unknown despite valid baked canonical release metadata"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/core/config.py",
+    "PROJECT_TASKS.md",
+    "plans/plan.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Expose an exact release identity from validated baked metadata in immutable HF runtime images that intentionally lack provider commit environment variables and a Git checkout, while rejecting tampered metadata."
+}
