@@ -245,7 +245,100 @@ class CodeReviewer:
                 "status": "FAILED"
             }
 
-    def run_full_review(self) -> dict[str, Any]:
+    @staticmethod
+    def audit_test_provenance(
+        ticket: str | None,
+        baseline: str | None,
+        manifest: str | None,
+    ) -> dict[str, Any]:
+        """Verify immutable test history when provenance inputs are supplied."""
+        supplied = (ticket, baseline, manifest)
+        if not any(supplied):
+            return {
+                "status": "NOT_REQUESTED",
+                "ticket_id": None,
+                "baseline_commit": None,
+                "issues": [],
+            }
+        if not all(supplied):
+            return {
+                "status": "FAILED",
+                "ticket_id": ticket,
+                "baseline_commit": baseline,
+                "issues": [
+                    {
+                        "code": "PROVENANCE_ARGUMENTS_INCOMPLETE",
+                        "message": "--ticket, --test-baseline, and --test-manifest are required together",
+                    }
+                ],
+            }
+
+        guard = ROOT / "scripts" / "test_provenance_guard.py"
+        command = [
+            sys.executable,
+            str(guard),
+            "verify",
+            "--repo",
+            str(ROOT),
+            "--manifest",
+            str(manifest),
+            "--baseline",
+            str(baseline),
+            "--head",
+            "HEAD",
+            "--include-worktree",
+        ]
+        try:
+            result = subprocess.run(
+                command,
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                timeout=60,
+                check=False,
+            )
+            payload = json.loads(result.stdout)
+        except (OSError, subprocess.SubprocessError, json.JSONDecodeError) as exc:
+            return {
+                "status": "FAILED",
+                "ticket_id": ticket,
+                "baseline_commit": baseline,
+                "issues": [
+                    {
+                        "code": "PROVENANCE_GUARD_ERROR",
+                        "message": str(exc),
+                    }
+                ],
+            }
+
+        issues = list(payload.get("issues", []))
+        if payload.get("ticket_id") != ticket:
+            issues.append(
+                {
+                    "code": "PROVENANCE_TICKET_MISMATCH",
+                    "message": "manifest ticket_id does not match --ticket",
+                }
+            )
+        if payload.get("baseline_commit") != baseline:
+            issues.append(
+                {
+                    "code": "PROVENANCE_BASELINE_MISMATCH",
+                    "message": "verified baseline does not match --test-baseline",
+                }
+            )
+        return {
+            **payload,
+            "status": "PASSED" if result.returncode == 0 and not issues else "FAILED",
+            "issues": issues,
+        }
+
+    def run_full_review(
+        self,
+        *,
+        ticket: str | None = None,
+        test_baseline: str | None = None,
+        test_manifest: str | None = None,
+    ) -> dict[str, Any]:
         """Execute comprehensive pre-deployment review."""
         log.info("🔎 Running Pre-Deployment Code Review & Safety Audit...")
 
@@ -253,12 +346,18 @@ class CodeReviewer:
         kaggle_report = CodeReviewer.audit_kaggle_dependencies()
         notebook_report = CodeReviewer.audit_notebooks()
         test_report = CodeReviewer.run_tests()
+        provenance_report = CodeReviewer.audit_test_provenance(
+            ticket,
+            test_baseline,
+            test_manifest,
+        )
 
         all_passed = (
             secret_report["status"] == "PASSED" and
             notebook_report["status"] == "PASSED" and
             test_report["status"] == "PASSED" and
-            kaggle_report["status"] in ("PASSED", "WARNING")
+            kaggle_report["status"] in ("PASSED", "WARNING") and
+            provenance_report["status"] in ("PASSED", "NOT_REQUESTED")
         )
 
         audit_report = {
@@ -269,6 +368,7 @@ class CodeReviewer:
             "kaggle_cuda_audit": kaggle_report,
             "notebook_audit": notebook_report,
             "test_suite": test_report,
+            "test_provenance": provenance_report,
         }
 
         log.info(f"📊 Audit Complete — Overall Status: {audit_report['overall_status']}")
@@ -281,10 +381,14 @@ def main():
     parser.add_argument("--review", action="store_true", help="Run full code review & safety audit")
     parser.add_argument("--scan-secrets", action="store_true", help="Scan for secret leaks only")
     parser.add_argument("--use-python", action="store_true", help="Force python execution instead of Rust binary")
+    parser.add_argument("--ticket", help="Ticket ID bound to a test-provenance manifest")
+    parser.add_argument("--test-baseline", help="Exact committed test-baseline SHA")
+    parser.add_argument("--test-manifest", help="Repository-relative test-provenance manifest path")
     args = parser.parse_args()
 
     rust_binary = ROOT / "rust_core" / "target" / "release" / "code_reviewer"
-    if args.review and rust_binary.exists() and not args.use_python:
+    provenance_requested = any((args.ticket, args.test_baseline, args.test_manifest))
+    if args.review and rust_binary.exists() and not args.use_python and not provenance_requested:
         import subprocess
         res = subprocess.run([str(rust_binary)])
         sys.exit(res.returncode)
@@ -295,7 +399,11 @@ def main():
         print(json.dumps(report, indent=2, ensure_ascii=False))
         sys.exit(0 if report["status"] == "PASSED" else 1)
 
-    report = reviewer.run_full_review()
+    report = reviewer.run_full_review(
+        ticket=args.ticket,
+        test_baseline=args.test_baseline,
+        test_manifest=args.test_manifest,
+    )
     print(json.dumps(report, indent=2, ensure_ascii=False))
     sys.exit(0 if report["overall_status"] == "READY_FOR_PROD" else 1)
 

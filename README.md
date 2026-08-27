@@ -31,6 +31,38 @@ Do not hand-edit `.codex/agents/*.toml`. Each file preserves the legacy role pro
 
 ---
 
+## Test-First Git Provenance
+
+Every feature or bug-fix ticket must freeze its black-box contract before
+source coding. Commit tests and `plans/test_provenance/<ticket>-<sequence>.json`
+first, record the red test or negative control, and use that commit SHA in each
+later source commit:
+
+```text
+Test-Baseline: <full-baseline-commit-sha>
+```
+
+Verify the history before review:
+
+```bash
+python3 scripts/test_provenance_guard.py verify \
+  --manifest plans/test_provenance/<manifest>.json \
+  --baseline <full-baseline-commit-sha> \
+  --head HEAD --include-worktree
+
+python3 project/core/code_reviewer.py --review --use-python \
+  --ticket <ticket-id> \
+  --test-baseline <full-baseline-commit-sha> \
+  --test-manifest plans/test_provenance/<manifest>.json
+```
+
+The local pre-commit hook is read-only. Required CI remains authoritative
+because `--no-verify` can bypass a local hook. Work reconstructed after coding
+must retain the label `NON_TDD_RECONSTRUCTED` and cannot be claimed as verified
+test-first history.
+
+---
+
 ## 🏛️ C4 Software Architecture Levels
 
 ### Level 1: System Context Diagram (บริบทระบบภายนอก)

@@ -6,6 +6,22 @@
 
 ## 📌 Critical Lessons & Prevention Protocols
 
+### 0. Test history must be evidence, not a green-suite narrative
+
+- **Issue experienced**: source and tests were changed together in a dirty
+  worktree, while the configured pre-commit hook also ran version stamping and
+  staged unrelated files. A later green suite could not prove that tests were
+  written before implementation or remained unchanged.
+- **Lesson learned**: passing tests do not establish test-first provenance.
+  Preserve a test-only commit, exact hashes, red or negative-control evidence,
+  ancestry, and separated source commits in Git history.
+- **Prevention protocol**: use `test-provenance-v1`, the read-only hook,
+  required `Test Provenance` CI, controlled superseding baselines, and the final
+  code-reviewer history audit. Mark reconstructed history
+  `NON_TDD_RECONSTRUCTED`; never rewrite it into a false TDD claim.
+
+---
+
 ### 1. 🔒 Kaggle Accelerator & Metadata Stage Locking
 - **Issue Experienced**: `create_kernel_files()` was overwriting `kernel-metadata.json` with custom `machine_shape` strings on every `--push`, causing accelerator settings to toggle or fail when Kaggle quotas changed.
 - **Lesson Learned**: Never mutate or recreate `kernel-metadata.json` if it already exists on disk.
