@@ -1,3 +1,132 @@
+<!-- QOBS-01-GRILL:START -->
+## GRILL REPORT — QOBS test-first implementation governance
+
+**Date**: 2026-08-27 (Asia/Bangkok)
+**Grilled by**: `orchestrator` with `business_analyst` documentation lane
+**Umbrella ticket**: `TICKET-ALIAS-RC2-004-QOBS-01`
+**Gate status**: `APPROVED — READY_FOR_TEST_BASELINE ONLY`
+**Owner confirmation**: the owner's `continue` instruction confirmed this
+bounded QOBS remediation after the orchestrator stated that QOBS must be
+implemented before four-alias execution.
+**Root runtime proof**: `ROOT-RUNTIME-PROOF-20260827-QOBS-01` — the root
+orchestrator verified the active platform runtime as `gpt-5.6-sol` with
+reasoning effort `medium` before this planning handoff. This reference contains
+no account-home, credential, or secret path and is not reusable as proof for a
+later executable lane; Rule 18/Rule 11 evidence must be fresh at every handoff.
+
+### D1 — Scope boundary
+
+- **IN**: test-first QOBS contract, content-free quota probe, dispatcher
+  consumption and receipt-v2 binding, scheduler fail-closed integration,
+  focused/full QA, authoritative Rule 17/18 and skill/template updates, then
+  ecosystem sync/check.
+- **OUT**: provider or alias invocation; deploy, publish, push, PR/merge,
+  credentials, secrets, account mutation, production mutation, raw provider
+  streams, and any work outside the exact lane ownership recorded on the board.
+- **Compatibility**: DispatchDecision v1 remains legacy/non-executable for
+  QOBS-bound execution; receipt-v1 history is not reinterpreted; receipt-v2
+  stays canonical for new governed execution.
+
+### D2 — Requirement delta
+
+- Reconcile the prior six-part frozen QOBS outline into one auditable umbrella
+  mutation ticket with six ownership-scoped child lanes.
+- Add the missing committed test-only baseline before all source coding; combine
+  final QA, governance documentation, and generated ecosystem sync into the
+  last lane after source freeze.
+- Preserve `TICKET-ALIAS-RC2-003` and `RC2-004` history and blockers; no old
+  attempt, authorization, receipt, or quota state is reopened.
+
+### D3 — Acceptance criteria
+
+| # | Criterion | Verification | Owner |
+|---|---|---|---|
+| 1 | A test-only baseline commit freezes both new QOBS tests and one closed provenance manifest, with a recorded red run or explicit negative control. | `python3 scripts/test_provenance_guard.py staged`; baseline pytest command; Git inspection | `qa_tester` |
+| 2 | Closed Draft 2020-12 contracts and pinned policy reject malformed, non-finite, stale/future, replayed, contradictory, or provenance-mismatched observations. | focused schema/contract pytest | `developer` / `qa_tester` |
+| 3 | Probe retains only typed, content-free evidence and never dispatches or retries. | focused probe/integration pytest | `developer` / `qa_tester` |
+| 4 | Dispatcher atomically consumes the exact nonce and binds receipt-v2 transitively without v1 or copied-band fallback. | focused dispatch/integration pytest | `developer` / `qa_tester` |
+| 5 | Scheduler rejects all contradictions before selection/reservation and applies Rule 11 only after QOBS gates pass. | focused scheduler/integration pytest | `developer` / `qa_tester` |
+| 6 | Frozen-test hashes, source trailers, focused/full regression, governance sources, generated mirrors, and ecosystem sync/check all pass. | provenance guard, pytest, `sync_ai_agent_ecosystem.py --sync/--check`, Git review | `qa_tester` / `business_analyst` / `code_reviewer` |
+
+### D4 — Constraints and safeguards
+
+- Locked dependencies and Kaggle accelerator are unchanged; no dependency,
+  notebook, deployment, or infrastructure mutation is in scope.
+- Subprocess logs use only `[OK]`, `[ERROR]`, `[WARNING]`, and `[INFO]` tags.
+- No secret, credential, raw provider output, account-home path, executable
+  content, or unsanitized exception may be persisted.
+- Tests are immutable after the baseline commit. A wrong frozen test stops all
+  source lanes and requires an independently reviewed, test-only superseding
+  baseline; it may never be silently edited, amended, squashed, or weakened.
+
+### D5 — Agent allocation and dependency graph
+
+Six isolated lanes execute serially:
+`TEST-BASELINE -> CONTRACT -> PROBE -> DISPATCH -> SCHEDULER -> QA/GOVERNANCE+SYNC`.
+Each lane has one editor, exact ownership, predecessor freeze, and a fresh Rule
+18 decision plus Rule 11 snapshot before dispatch. The root orchestrator remains
+coordination-only.
+
+### D6 — Assumption register
+
+| # | Assumption | Status |
+|---|---|---|
+| 1 | The owner-approved outcome is the bounded QOBS chain needed before any four-alias proof. | `[CONFIRMED]` |
+| 2 | The active root runtime was verified as `gpt-5.6-sol/medium` for this planning handoff. | `[CONFIRMED]` |
+| 3 | Existing QOBS files/tests do not yet constitute a committed test-first baseline for this umbrella ticket. | `[CONFIRMED]` |
+| 4 | QOBS completion alone does not authorize `codex1`, `codex2`, `agy1`, or `agy2`. | `[CONFIRMED]` |
+| 5 | The exact baseline SHA is unavailable until the test-only commit exists. | `[CONFIRMED: <PENDING_TEST_BASELINE_COMMIT_SHA>]` |
+
+### D7 — Risk and rollback
+
+- **Primary risks**: TDD reconstruction, test mutation after seeing source,
+  nonce replay, quota-state contradiction, sensitive path/output retention,
+  receipt-v1 fallback, scheduler selection before validation, and generated
+  mirror drift.
+- **Rollback**: stop at the first failed gate and revert only the failing
+  source/governance commit while retaining the immutable baseline and evidence.
+  A defective frozen test uses an additive superseding baseline, never history
+  rewrite. No external state exists to roll back under this plan.
+
+### D8 — Model/effort and cost strategy
+
+- Root planning proof is `gpt-5.6-sol/medium`; every implementation lane must
+  independently satisfy adaptive model-effort routing and quota evidence.
+- Use bounded focused tests first, trimmed ASCII failure evidence, short leases,
+  and no speculative provider calls. Severity/decision blockers escalate
+  through the governed deep-reasoning lane only with fresh evidence.
+
+### D9 — Metaphysics/domain check
+
+- No BaZi, Zi Wei Dou Shu, Qi Men, I Ching, Feng Shui, Western, Vedic, or other
+  metaphysical interpretation engine is touched. Domain HITL routing is not
+  applicable; orchestration/security HITL remains fail-closed where required.
+
+### Test-first execution contract
+
+1. Stage only `tests/test_quota_observation_contract.py`,
+   `tests/test_quota_observation_integration.py`, and
+   `plans/test_provenance/ticket-alias-rc2-004-qobs-01.json`.
+2. Run the manifest-recorded red/negative-control pytest command, then
+   `python3 scripts/test_provenance_guard.py staged`.
+3. Commit that test-only baseline. Replace
+   `<PENDING_TEST_BASELINE_COMMIT_SHA>` with the exact full SHA and verify:
+   `python3 scripts/test_provenance_guard.py verify --manifest plans/test_provenance/ticket-alias-rc2-004-qobs-01.json --baseline <PENDING_TEST_BASELINE_COMMIT_SHA> --head HEAD`.
+4. Before every later source/governance commit, run
+   `python3 scripts/test_provenance_guard.py staged`; every such commit must
+   carry the exact trailer `Test-Baseline: <PENDING_TEST_BASELINE_COMMIT_SHA>`.
+5. After source freeze, run focused then applicable full regression, execute
+   `python3 scripts/sync_ai_agent_ecosystem.py --sync`, then
+   `python3 scripts/sync_ai_agent_ecosystem.py --check`, rerun provenance with
+   `--include-worktree`, and complete read-only Git/code review.
+
+**Current stop condition**: documentation governance is complete only to
+`READY_FOR_TEST_BASELINE`. No source implementation, QA claim, provider action,
+sync, deploy, publish, push, secret, or account action is authorized or claimed.
+<!-- QOBS-01-GRILL:END -->
+
+---
+
 <!-- PROD-503-HANDOFF:START -->
 ## Production 503 Recovery and Concern Closure Plan
 
@@ -1380,13 +1509,26 @@ are authoritative in `TICKET-ALIAS-RC2-004`.
 
 ### QuotaObservation remediation checkpoint
 
-RC2-004 remains `BLOCKED/NEEDS_HITL` with quota `unknown`; no provider child is authorized. The security-reviewed local remediation is frozen as `QOBS-CONTRACT -> QOBS-PROBE -> QOBS-DISPATCH -> QOBS-SCHEDULER -> QOBS-QA -> QOBS-GOVERNANCE`, with one editor and exact ownership recorded in `PROJECT_TASKS.md`.
+RC2-004 remains `BLOCKED/NEEDS_HITL` with quota `unknown`; no provider child is
+authorized. The earlier outline is reconciled under umbrella
+`TICKET-ALIAS-RC2-004-QOBS-01`, currently
+`READY_FOR_TEST_BASELINE` only. Its dependency chain is
+`TEST-BASELINE -> CONTRACT -> PROBE -> DISPATCH -> SCHEDULER -> QA/GOVERNANCE+SYNC`,
+with one editor and exact ownership recorded in `PROJECT_TASKS.md`.
 
-- QOBS-CONTRACT is the only Rule 11-eligible lane. Its all-rank-3 normal executable decision selects `codex1/gpt-5.6-sol/high` with conservative local band `constrained`, not RC2 provider quota evidence. Decision digest `16a0a2b5c810dfe1eaa8eb799637557acbe0238e2bfaeb8fef1fb31d7ad527a2`; snapshot digest `07988a56fdb531884f1e3888d1b1b931176b2f9c5d2a75de9e23a7bd6af2af7c`.
+- The prior CONTRACT reservation is superseded by the test-baseline gate; no
+  source lane is Rule 11-eligible until the test-only commit exists and its
+  exact SHA replaces `<PENDING_TEST_BASELINE_COMMIT_SHA>`.
+- Root planning proof `ROOT-RUNTIME-PROOF-20260827-QOBS-01` records a freshly
+  verified `gpt-5.6-sol/medium` session without sensitive paths. It cannot be
+  reused for later child dispatch; each lane requires fresh Rule 18/11 evidence.
 - The contract retains no raw stream/error/home path; binds alias/provider, account-home and executable digests, ticket/attempt/policy, and a one-use nonce through strict domain-separated canonical JSON; pins versions; and enforces age `<=60s`, future tolerance `<=5s`, and single use.
 - All legacy and bucket primary/secondary `usedPercent`, individual `remainingPercent`, reached/limit, and spend controls are evaluated. Invalid/missing/contradictory applicable evidence is `unknown`; exactly `10%` is `constrained`, below `10%` is `below_10_percent`, and protocol v1 never emits `healthy`.
 - QOBS-bound DispatchDecision v1 is legacy/non-executable; the scheduler rejects contradictions; receipt-v2 transitively revalidates the exact artifact, provenance, nonce, decision, snapshot, executable, and policy. No copied-band or receipt-summary shortcut is valid.
-- No later lane starts before its predecessor freezes and receives a fresh Rule 18/11 pair. No sync, provider/network/secret/account/git/release action is part of this plan.
+- No later lane starts before its predecessor freezes and receives a fresh Rule
+  18/11 pair. Sync is restricted to the final QA/GOVERNANCE+SYNC lane; provider,
+  network, secret, account, deploy, publish, push, and release actions remain
+  excluded.
 
 ---
 
