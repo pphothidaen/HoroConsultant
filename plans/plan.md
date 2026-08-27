@@ -4,7 +4,7 @@
 **Date**: 2026-08-27 (Asia/Bangkok)
 **Grilled by**: `orchestrator` with `business_analyst` documentation lane
 **Umbrella ticket**: `TICKET-ALIAS-RC2-004-QOBS-01`
-**Gate status**: `TEST_BASELINE_VERIFIED — CONTRACT READY`
+**Gate status**: `CONTRACT FROZEN — PROBE READY`
 **Owner confirmation**: the owner's `continue` instruction confirmed this
 bounded QOBS remediation after the orchestrator stated that QOBS must be
 implemented before four-alias execution.
@@ -126,10 +126,15 @@ coordination-only.
 expected red run (`67 failed`, exit `1`), and the provenance guard verified both
 frozen hashes with no issues.
 
-**Current stop condition**: `TEST_BASELINE_VERIFIED`; only `QOBS-01-CONTRACT`
-is `READY`. PROBE, DISPATCH, SCHEDULER, and QA/GOVERNANCE+SYNC remain gated. No
-source implementation or final QA success is claimed, and no provider action,
-sync, deploy, publish, push, secret, or account action is authorized or claimed.
+**CONTRACT freeze evidence**: commit
+`1515380b436fe4d676766a62bd4de4ce1db22126` contains exactly the two planned
+schemas and pinned policy, carries the exact frozen-baseline trailer, and
+passes provenance verification with no issues.
+
+**Current stop condition**: `CONTRACT FROZEN`; only `QOBS-01-PROBE` is
+`READY`. DISPATCH, SCHEDULER, and QA/GOVERNANCE+SYNC remain gated. No final QA
+success is claimed, and no provider action, sync, deploy, publish, push, secret,
+or account action is authorized or claimed.
 <!-- QOBS-01-GRILL:END -->
 
 ---
@@ -1519,13 +1524,16 @@ are authoritative in `TICKET-ALIAS-RC2-004`.
 RC2-004 remains `BLOCKED/NEEDS_HITL` with quota `unknown`; no provider child is
 authorized. The earlier outline is reconciled under umbrella
 `TICKET-ALIAS-RC2-004-QOBS-01`, currently
-`TEST_BASELINE_VERIFIED`; only `QOBS-01-CONTRACT` is `READY`. Its dependency chain is
+`CONTRACT FROZEN`; only `QOBS-01-PROBE` is `READY`. Its dependency chain is
 `TEST-BASELINE -> CONTRACT -> PROBE -> DISPATCH -> SCHEDULER -> QA/GOVERNANCE+SYNC`,
 with one editor and exact ownership recorded in `PROJECT_TASKS.md`.
 
 - Baseline `9847234f3f2537d0b65ecb1fc9afca87ceb517a2` is verified against parent
   `21f8a92fa30803568faeff23cfe9c8e5c7f98ecc`, the manifest-recorded red run
-  (`67 failed`, exit `1`), and both frozen test hashes. CONTRACT alone is
+  (`67 failed`, exit `1`), and both frozen test hashes.
+- CONTRACT commit `1515380b436fe4d676766a62bd4de4ce1db22126`
+  contains exactly the two planned schemas and pinned policy, carries the exact
+  frozen-baseline trailer, and passes provenance verification. PROBE alone is
   Rule 11-eligible; all later lanes remain dependency-gated.
 - Root planning proof `ROOT-RUNTIME-PROOF-20260827-QOBS-01` records a freshly
   verified `gpt-5.6-sol/medium` session without sensitive paths. It cannot be

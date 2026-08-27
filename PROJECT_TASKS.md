@@ -1418,7 +1418,7 @@ dispatch. Stop immediately if the runtime reports less than 10% remaining.
 - [ ] Independent review confirms read-only isolation, fail-closed parsing, and the no-retention boundary.
 - [ ] Exactly one fresh `codex1` diagnostic attempt is recorded under `RC2-004`; it does not alter `RC2-003` history.
 
-#### `TICKET-ALIAS-RC2-004-QOBS-01` | QOBS test-first umbrella | [STATUS: TEST_BASELINE_VERIFIED]
+#### `TICKET-ALIAS-RC2-004-QOBS-01` | QOBS test-first umbrella | [STATUS: CONTRACT_FROZEN — PROBE_READY]
 
 The completed root-cause and security review requires a version-pinned,
 content-free QuotaObservation artifact before any RC2-004 provider attempt can
@@ -1448,8 +1448,8 @@ Git review pass. QOBS completion still does not authorize four-alias execution.
 | Child lane | One mutation editor | Severity / Work | Status | Exact ownership | Depends On |
 |---|---|---|---|---|---|
 | `QOBS-01-TEST-BASELINE` | `qa_tester` | CRITICAL / S | DONE — TEST_BASELINE_VERIFIED | new `tests/test_quota_observation_contract.py`; new `tests/test_quota_observation_integration.py`; new `plans/test_provenance/ticket-alias-rc2-004-qobs-01.json` only | owner confirmation + this grill |
-| `QOBS-01-CONTRACT` | `developer` | CRITICAL / S | READY | `.agents/schemas/multiagent-quota-observation-v1.schema.json`; `.agents/schemas/multiagent-quota-observation-artifact-v1.schema.json`; `.agents/config/multiagent_model_policy.yaml` only | TEST-BASELINE committed and verified |
-| `QOBS-01-PROBE` | `developer` | CRITICAL / S | GATED | `scripts/agent_quota_status_guard.py` only | CONTRACT frozen |
+| `QOBS-01-CONTRACT` | `developer` | CRITICAL / S | DONE — FROZEN (`1515380b436fe4d676766a62bd4de4ce1db22126`) | `.agents/schemas/multiagent-quota-observation-v1.schema.json`; `.agents/schemas/multiagent-quota-observation-artifact-v1.schema.json`; `.agents/config/multiagent_model_policy.yaml` only | TEST-BASELINE committed and verified |
+| `QOBS-01-PROBE` | `developer` | CRITICAL / S | READY | `scripts/agent_quota_status_guard.py` only | CONTRACT frozen |
 | `QOBS-01-DISPATCH` | `developer` | CRITICAL / M | GATED | `scripts/multiagent_prompt_command.py` only | CONTRACT + PROBE frozen |
 | `QOBS-01-SCHEDULER` | `developer` | CRITICAL / S | GATED | `scripts/multiagent_ticket_scheduler.py` only | CONTRACT + DISPATCH frozen |
 | `QOBS-01-QA-GOVERNANCE-SYNC` | `business_analyst` mutation editor; `qa_tester` and `code_reviewer` read-only verifiers | CRITICAL / M | GATED | authoritative `.agents/rules/17-multi-account-agent-orchestration.md`; `.agents/rules/18-adaptive-model-effort-routing.md`; `.agents/skills/multi-account-agent-orchestration/SKILL.md`; `.agents/skills/adaptive-model-effort-routing/SKILL.md`; `docs/templates/MULTIAGENT_PROMPT_COMMAND.md`; generated ecosystem mirrors only through the sync script; frozen tests are read-only | all source lanes frozen |
@@ -1495,11 +1495,20 @@ commit message includes a separate trailer line:
 expected red result (`67 failed`, exit `1`). The history guard returned
 `PASSED`, verified both frozen test hashes, and reported no issues.
 
+**Verified CONTRACT evidence**: commit
+`1515380b436fe4d676766a62bd4de4ce1db22126` contains exactly
+`.agents/schemas/multiagent-quota-observation-v1.schema.json`,
+`.agents/schemas/multiagent-quota-observation-artifact-v1.schema.json`, and
+`.agents/config/multiagent_model_policy.yaml`; its separate trailer is
+`Test-Baseline: 9847234f3f2537d0b65ecb1fc9afca87ceb517a2`. The provenance
+guard returned `PASSED`, verified both frozen test hashes, and reported no
+issues.
+
 **Rule 18 / Rule 11 gate**: the previous CONTRACT reservation/digests are
-historical. TEST-BASELINE is `DONE — TEST_BASELINE_VERIFIED`; CONTRACT alone is
-`READY`. PROBE, DISPATCH, SCHEDULER, and QA-GOVERNANCE-SYNC remain gated. Each
-later child requires a new bound decision/snapshot and predecessor freeze; no
-old decision, snapshot, or planning proof is reusable.
+historical. TEST-BASELINE is `DONE — TEST_BASELINE_VERIFIED`; CONTRACT is `DONE
+— FROZEN`; PROBE alone is `READY`. DISPATCH, SCHEDULER, and QA-GOVERNANCE-SYNC
+remain gated. Each later child requires a new bound decision/snapshot and
+predecessor freeze; no old decision, snapshot, or planning proof is reusable.
 
 **Frozen security contract**:
 
