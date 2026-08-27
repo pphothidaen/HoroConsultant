@@ -33,6 +33,11 @@ from typing import Any, Mapping, Sequence
 import yaml
 
 try:
+    from scripts import agent_quota_status_guard as quota_guard
+except ImportError:  # Direct ``python scripts/...`` execution.
+    import agent_quota_status_guard as quota_guard  # type: ignore[no-redef]
+
+try:
     from scripts.multiagent_ticket_scheduler import (
         SchedulingError,
         canonicalize_ownership_resource,
@@ -473,6 +478,195 @@ def _canonical_sha256(value: Mapping[str, Any]) -> str:
         sort_keys=True,
     ).encode("utf-8")
     return hashlib.sha256(material).hexdigest()
+
+
+def _qobs_digest(value: object) -> str:
+    try:
+        return quota_guard.quota_artifact_sha256(value)
+    except quota_guard.QuotaObservationError as exc:
+        raise ConfigurationError("quota observation artifact digest is invalid") from exc
+
+
+def _qobs_context_digest(context: Mapping[str, object]) -> str:
+    return _canonical_sha256(
+        {
+            "alias": context.get("alias"),
+            "provider": context.get("provider"),
+            "account_home_sha256": quota_guard.sha256_text(str(context.get("account_home"))),
+            "resolved_executable_sha256": quota_guard.sha256_text(
+                str(context.get("resolved_executable"))
+            ),
+            "ticket_id": context.get("ticket_id"),
+            "attempt_id": context.get("attempt_id"),
+            "policy_version": context.get("policy_version"),
+        }
+    )
+
+
+def _consume_qobs_nonce(nonce: str, nonce_store: Path) -> None:
+    if not nonce_store.is_absolute():
+        raise quota_guard.QuotaObservationError("INVALID_NONCE_STORE")
+    try:
+        nonce_store.mkdir(mode=0o700, parents=True, exist_ok=True)
+        os.chmod(nonce_store, 0o700)
+        nonce_path = nonce_store / f"{quota_guard.sha256_text(nonce)}.nonce"
+        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+        if hasattr(os, "O_NOFOLLOW"):
+            flags |= os.O_NOFOLLOW
+        descriptor = os.open(nonce_path, flags, 0o600)
+        try:
+            os.write(descriptor, b"consumed\n")
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+    except FileExistsError as exc:
+        raise quota_guard.QuotaObservationError("REPLAYED_OBSERVATION") from exc
+    except OSError as exc:
+        raise quota_guard.QuotaObservationError("NONCE_STORE_INVALID") from exc
+
+
+def consume_quota_observation(
+    artifact: object,
+    expected_context: dict[str, object],
+    *,
+    nonce_store: Path | str | os.PathLike[str] | None,
+    now: datetime | None = None,
+) -> dict[str, str]:
+    """Validate and atomically consume one executable QOBS nonce."""
+
+    try:
+        observation = quota_guard.validate_quota_observation(
+            artifact, expected_context, now=now
+        )
+    except quota_guard.QuotaObservationError:
+        raise
+    if observation.get("quota_band") == "unknown":
+        raise quota_guard.QuotaObservationError("UNKNOWN_QUOTA")
+    if observation.get("quota_band") != "constrained":
+        raise quota_guard.QuotaObservationError("QUOTA_NOT_DISPATCHABLE")
+    nonce = expected_context.get("nonce")
+    if not isinstance(nonce, str):
+        raise quota_guard.QuotaObservationError("INVALID_CONTEXT")
+    if nonce_store is None:
+        raise quota_guard.QuotaObservationError("NONCE_STORE_REQUIRED")
+    _consume_qobs_nonce(nonce, Path(nonce_store))
+    return {
+        "artifact_sha256": _qobs_digest(artifact),
+        "nonce_sha256": quota_guard.sha256_text(nonce),
+        "quota_band": str(observation["quota_band"]),
+    }
+
+
+def quota_bound_dispatch_identity(
+    artifact: object,
+    consumption: Mapping[str, object],
+    dispatch_context: Mapping[str, object],
+) -> str:
+    """Derive the receipt identity from exact QOBS and dispatch bindings."""
+
+    artifact_digest = _qobs_digest(artifact)
+    if consumption.get("artifact_sha256") != artifact_digest:
+        raise ConfigurationError("quota consumption is not bound to the artifact")
+    required = {
+        "decision_sha256",
+        "scheduling_snapshot_sha256",
+        "resolved_executable_sha256",
+        "policy_version",
+    }
+    if set(dispatch_context) != required:
+        raise ConfigurationError("quota dispatch context fields are invalid")
+    if consumption.get("quota_band") != "constrained":
+        raise ConfigurationError("quota consumption is not dispatchable")
+    if not isinstance(consumption.get("nonce_sha256"), str):
+        raise ConfigurationError("quota nonce consumption proof is invalid")
+    return _canonical_sha256(
+        {
+            "protocol_version": 2,
+            "artifact_sha256": artifact_digest,
+            "nonce_sha256": consumption["nonce_sha256"],
+            "quota_band": consumption["quota_band"],
+            **dict(dispatch_context),
+        }
+    )
+
+
+def validate_quota_receipt_binding(
+    receipt: Mapping[str, object],
+    artifact: object,
+    consumption: Mapping[str, object],
+    dispatch_context: Mapping[str, object],
+    expected_context: dict[str, object],
+    *,
+    now: datetime | None = None,
+) -> Mapping[str, object]:
+    """Revalidate every transitive QOBS binding carried by a v2 receipt."""
+
+    try:
+        observation = quota_guard.validate_quota_observation(
+            artifact, expected_context, now=now
+        )
+    except quota_guard.QuotaObservationError as exc:
+        raise ConfigurationError("receipt quota observation is invalid") from exc
+    expected_artifact = _qobs_digest(artifact)
+    if (
+        receipt.get("protocol_version") != 2
+        or receipt.get("quota_status") != observation.get("quota_band")
+        or receipt.get("quota_status") != consumption.get("quota_band")
+        or consumption.get("artifact_sha256") != expected_artifact
+        or consumption.get("nonce_sha256") != quota_guard.sha256_text(str(expected_context.get("nonce")))
+    ):
+        raise ConfigurationError("receipt quota binding is invalid")
+    identity = quota_bound_dispatch_identity(artifact, consumption, dispatch_context)
+    if receipt.get("dispatch_identity") != identity:
+        raise ConfigurationError("receipt dispatch identity is invalid")
+    if dispatch_context.get("policy_version") != observation.get("policy_version"):
+        raise ConfigurationError("receipt policy binding is invalid")
+    if dispatch_context.get("resolved_executable_sha256") != observation.get(
+        "resolved_executable_sha256"
+    ):
+        raise ConfigurationError("receipt executable binding is invalid")
+    return receipt
+
+
+def validate_quota_bound_dispatch(
+    decision: Mapping[str, object],
+    artifact: object,
+    expected_context: dict[str, object],
+    *,
+    nonce_store: Path | str | os.PathLike[str] | None,
+    now: datetime | None = None,
+) -> dict[str, object]:
+    """Validate QOBS and reject legacy v1 decisions before execution."""
+
+    if decision.get("schema_version") == 1:
+        raise DispatchDecisionError(
+            "DispatchDecision v1 is non-executable for quota-bound dispatch"
+        )
+    try:
+        policy = load_model_policy(REPOSITORY_ROOT / ".agents/config/multiagent_model_policy.yaml")
+        validated = validate_dispatch_decision(decision, policy)
+    except (ConfigurationError, TypeError) as exc:
+        raise DispatchDecisionError("DispatchDecision is invalid") from exc
+    observation = quota_guard.validate_quota_observation(
+        artifact, expected_context, now=now
+    )
+    if validated.decision.get("quota_band") != observation.get("quota_band"):
+        raise DispatchDecisionError("DispatchDecision quota band contradicts observation")
+    consumption = consume_quota_observation(
+        artifact, expected_context, nonce_store=nonce_store, now=now
+    )
+    dispatch_context = {
+        "decision_sha256": validated.digest,
+        "scheduling_snapshot_sha256": "" * 64,
+        "resolved_executable_sha256": observation["resolved_executable_sha256"],
+        "policy_version": observation["policy_version"],
+    }
+    return {
+        "decision": dict(validated.decision),
+        "decision_sha256": validated.digest,
+        "consumption": consumption,
+        "dispatch_context": dispatch_context,
+    }
 
 
 def _utc_now() -> str:

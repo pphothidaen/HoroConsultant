@@ -4,11 +4,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 import hashlib
 import json
 import posixpath
 import re
 from typing import Any, Mapping, Sequence
+
+try:
+    from scripts import agent_quota_status_guard as quota_guard
+except ImportError:  # Direct ``python scripts/...`` execution.
+    import agent_quota_status_guard as quota_guard  # type: ignore[no-redef]
 
 
 SEVERITY_RANKS = {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}
@@ -402,6 +408,88 @@ def select_tickets(snapshot: SchedulingSnapshot, capacity: int = 1) -> tuple[Sel
         reservations.append(reservation)
         selections.append(Selection(selected, tuple(reservations)))
     return tuple(selections)
+
+
+def select_tickets_with_quota(
+    snapshot: SchedulingSnapshot,
+    quota_gate: Mapping[str, Any],
+    capacity: int = 1,
+) -> tuple[Selection, ...]:
+    """Validate quota-bound scheduling evidence before applying Rule 11."""
+
+    gate = _closed_mapping(
+        quota_gate,
+        "quota scheduling gate",
+        {"artifact", "context", "decision", "reservation_ticket_id", "now"},
+    )
+    artifact = gate["artifact"]
+    context = gate["context"]
+    decision = gate["decision"]
+    reservation_ticket_id = gate["reservation_ticket_id"]
+    now = gate["now"]
+    if not isinstance(context, dict) or not isinstance(decision, Mapping):
+        raise SchedulingError(
+            "INVALID_QUOTA_OBSERVATION", "quota scheduling gate context or decision is invalid"
+        )
+    if now is not None and not isinstance(now, datetime):
+        raise SchedulingError("INVALID_QUOTA_OBSERVATION", "quota observation time is invalid")
+    if reservation_ticket_id is not None:
+        try:
+            reservation_ticket_id = _required_ascii(
+                reservation_ticket_id, "quota reservation_ticket_id", ticket_id=True
+            )
+        except SchedulingError as exc:
+            raise SchedulingError("QUOTA_CONTRADICTION", str(exc)) from exc
+    try:
+        observation = quota_guard.validate_quota_observation(
+            artifact, context, now=now if isinstance(now, datetime) else None
+        )
+    except quota_guard.QuotaObservationError as exc:
+        raise SchedulingError("INVALID_QUOTA_OBSERVATION", "quota observation is invalid") from exc
+
+    if observation.get("quota_band") != "constrained":
+        raise SchedulingError(
+            "INVALID_QUOTA_OBSERVATION", "quota observation is not dispatchable"
+        )
+
+    try:
+        from scripts import multiagent_prompt_command as command
+
+        policy = command.load_model_policy(
+            command.REPOSITORY_ROOT / ".agents/config/multiagent_model_policy.yaml"
+        )
+        validated_decision = command.validate_dispatch_decision(decision, policy)
+    except (command.ConfigurationError, command.DispatchDecisionError, TypeError) as exc:
+        raise SchedulingError("QUOTA_CONTRADICTION", "quota scheduling evidence contradicts policy") from exc
+
+    decision_value = validated_decision.decision
+    decision_ticket = decision_value.get("ticket")
+    snapshot_ticket = next(
+        (ticket for ticket in snapshot.tickets if ticket.ticket_id == decision_ticket),
+        None,
+    )
+    reserved_ids = {reservation.ticket_id for reservation in snapshot.reservations}
+    if (
+        snapshot_ticket is None
+        or decision_ticket != context.get("ticket_id")
+        or decision_value.get("policy_version") != observation.get("policy_version")
+        or decision_value.get("quota_band") != observation.get("quota_band")
+        or snapshot_ticket.quota_passed is not True
+        or snapshot_ticket.rule18_decision_valid is not True
+        or (
+            reservation_ticket_id is not None
+            and reservation_ticket_id not in reserved_ids
+        )
+        or (
+            reservation_ticket_id is not None
+            and reservation_ticket_id != snapshot_ticket.ticket_id
+        )
+    ):
+        raise SchedulingError(
+            "QUOTA_CONTRADICTION", "quota scheduling evidence contradicts the snapshot"
+        )
+
+    return select_tickets(snapshot, capacity=capacity)
 
 
 def enforce_dispatch(
