@@ -2,7 +2,7 @@
 ## Production 503 Recovery and Concern Closure Plan
 
 **Date**: 2026-08-27 (Asia/Bangkok)
-**Status**: `RUNTIME RECOVERED / LOCAL HOTFIX GREEN / CODE RELEASE PENDING`
+**Status**: `RUNTIME RECOVERED / LOCAL HOTFIX GREEN / PR #2 OPEN / CI PENDING`
 
 ### Goal and scope
 
@@ -38,26 +38,27 @@
 - Live: Vercel deployment `dpl_2gEijnyqedG1Bn2XVcWZvWJ6amaZ` is Ready;
   `/health` is 200; LuoPan is `8/8`; production version E2E passes; Unified CI
   rerun `33048014471` passes all jobs.
-- Local: full reviewer returned `READY_FOR_PROD` with `1282 passed` before the
-  subsequent bounded UI/identity follow-ups; focused follow-up tests and a
-  deterministic local five-viewport visual audit are green. Final reviewer is
-  rerun after documentation/source freeze.
+- Local: final full reviewer returned `READY_FOR_PROD` with `1288 passed`; the
+  focused release suite passed `73`; Docker dry-run, ecosystem synchronization,
+  aggregate provenance, secret scan, and the deterministic five-viewport visual
+  audit are green.
 - Rollback: Vercel env ID `gTpSlwb3RL3Fr94e`; prior deployment
   `dpl_8nywahyt5ga3FiBajjRBtHozQU8w`.
-- Pending: push/open PR, required remote CI, explicit merge decision, Vercel UI
-  release, owner-gated HF Docker publish, and exact live backend version plus
+- Remote review: PR `#2` is open from `hotfix/prod-503-recovery` without
+  auto-merge. Vercel Preview is not required before merge.
+- Pending: required remote CI, explicit merge decision, Vercel UI release,
+  owner-gated HF Docker publish, and exact live backend version plus
   five-viewport re-verification.
 
 ### Safe resume order
 
-1. Run aggregate provenance, focused/full QA, secret scan, Docker dry-run,
-   ecosystem sync, and final reviewer on the clean hotfix head.
-2. Push/open a PR only under exact repository authorization; do not auto-merge.
-3. After explicit merge approval, verify the Vercel UI deployment and rerun the
+1. Monitor required checks on PR `#2`; do not auto-merge and do not treat a
+   Vercel Preview as a required gate.
+2. After explicit merge approval, verify the Vercel UI deployment and rerun the
    five canonical visual viewports.
-4. Publish the canonical HF Docker target only through its owner-gated release
+3. Publish the canonical HF Docker target only through its owner-gated release
    workflow, then require `/health` commit/version to equal the stamped source.
-5. Close `TICKET-PROD-503-001F` only when both live targets are exact and green.
+4. Close `TICKET-PROD-503-001F` only when both live targets are exact and green.
 <!-- PROD-503-HANDOFF:END -->
 
 ---

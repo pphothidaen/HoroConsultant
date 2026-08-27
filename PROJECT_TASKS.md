@@ -1,6 +1,6 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff — Central Kanban Board for ALL Project Work**  
-> *Last Updated: 2026-08-27 14:55 +07 (Asia/Bangkok) — production gateway 503 is recovered on Vercel deployment `dpl_2gEijnyqedG1Bn2XVcWZvWJ6amaZ`; local visual and HF runtime-identity remediations are committed on `hotfix/vercel-backend-env` and remain pending PR/merge plus target-gated release.*
+> *Last Updated: 2026-08-27 15:10 +07 (Asia/Bangkok) — production gateway 503 is recovered on Vercel deployment `dpl_2gEijnyqedG1Bn2XVcWZvWJ6amaZ`; local visual and HF runtime-identity remediations are published for review in PR `#2` from `hotfix/prod-503-recovery` and remain pending required CI, explicit merge, and target-gated release.*
 
 ---
 
@@ -20,7 +20,7 @@ deployments occur.
 | `TICKET-PROD-503-001C` publisher/provenance gate | CRITICAL / M | DONE — LOCAL | Docker payload dry-run passes; payload source modes match frozen `100644`; release metadata uses the closed five-field immutable schema; history guard passes all active/superseded baselines |
 | `TICKET-PROD-503-001D` mobile visual/accessibility | HIGH / S | DONE — LOCAL / PENDING RELEASE | Source fixes wrapping tabs, long expanded-content clipping, and chevron contrast. Deterministic local audit passed `5/5` viewports with zero overflow, overlaps, out-of-bounds, clipping, or contrast failures. Live UI still has the pre-fix warning until merge/Vercel release |
 | `TICKET-PROD-503-001E` HF runtime identity | HIGH / S | DONE — LOCAL / PENDING HF RELEASE | A runtime without provider commit env or `.git` now validates baked canonical metadata before exposing commit/version; live HF remains `version/git_commit=unknown` until reviewed merge and owner-gated Docker publish |
-| `TICKET-PROD-503-001F` PR/release closure | CRITICAL / XS | TODO — EXACT EXTERNAL GATES | Push/open PR, required CI, explicit merge decision, Vercel UI release, owner-gated HF Docker publish, then live health/version and five-viewport re-verification. Do not conflate the already-complete gateway env recovery with these pending code releases |
+| `TICKET-PROD-503-001F` PR/release closure | CRITICAL / XS | DOING — PR #2 OPEN / CI PENDING | PR `#2` is open from `hotfix/prod-503-recovery` without auto-merge. Remaining gates are required remote CI, explicit merge decision, Vercel UI release, owner-gated HF Docker publish, then live health/version and five-viewport re-verification. Vercel Preview is not a merge prerequisite. Do not conflate the already-complete gateway env recovery with these pending code releases |
 
 **Rollback anchors**:
 
