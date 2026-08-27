@@ -1,3 +1,67 @@
+<!-- PROD-503-HANDOFF:START -->
+## Production 503 Recovery and Concern Closure Plan
+
+**Date**: 2026-08-27 (Asia/Bangkok)
+**Status**: `RUNTIME RECOVERED / LOCAL HOTFIX GREEN / CODE RELEASE PENDING`
+
+### Goal and scope
+
+- Restore the canonical Vercel gateway without changing the healthy HF Docker
+  backend or fabricating a fallback.
+- Preserve test-first Git history, including a governed superseding baseline
+  when the first payload-mode test was proven wrong.
+- Close release-gate drift in payload modes, canonical metadata, mobile visual
+  behavior, and HF runtime identity.
+- Exclude HF publish and unreviewed hotfix merge from the completed runtime
+  recovery; both remain separate exact-target external gates.
+
+### Root causes and implemented solution
+
+1. Vercel production had no `HF_BACKEND_URL`, so the gateway correctly failed
+   closed with `backend_not_configured` and HTTP 503. Add the canonical public
+   backend origin only to production and redeploy the exact merged deployment.
+2. The HF payload selected 14 historical `100755` scripts while the frozen
+   manifest requires regular `100644` source/staged modes. Preserve that
+   contract and normalize only Git modes; do not weaken schema provenance.
+3. `stamp_version.py` rewrote canonical metadata into legacy
+   `commit/timestamp/status`. Emit the exact five-field immutable source
+   identity and stamp mirrored UI version surfaces from one committed source.
+4. Mobile interpretation tabs and long V3 content were clipped; the chevron
+   contrast was below WCAG AA. Allow tab wrapping, raise the expanded-content
+   ceiling, and use a darker accessible red.
+5. HF runtime images lack provider commit env and `.git`. Use baked metadata
+   only as a final fallback after validating its closed schema, source binding,
+   and SHA-256 digest; tampered metadata returns `unknown`.
+
+### Evidence and release boundary
+
+- Live: Vercel deployment `dpl_2gEijnyqedG1Bn2XVcWZvWJ6amaZ` is Ready;
+  `/health` is 200; LuoPan is `8/8`; production version E2E passes; Unified CI
+  rerun `33048014471` passes all jobs.
+- Local: full reviewer returned `READY_FOR_PROD` with `1282 passed` before the
+  subsequent bounded UI/identity follow-ups; focused follow-up tests and a
+  deterministic local five-viewport visual audit are green. Final reviewer is
+  rerun after documentation/source freeze.
+- Rollback: Vercel env ID `gTpSlwb3RL3Fr94e`; prior deployment
+  `dpl_8nywahyt5ga3FiBajjRBtHozQU8w`.
+- Pending: push/open PR, required remote CI, explicit merge decision, Vercel UI
+  release, owner-gated HF Docker publish, and exact live backend version plus
+  five-viewport re-verification.
+
+### Safe resume order
+
+1. Run aggregate provenance, focused/full QA, secret scan, Docker dry-run,
+   ecosystem sync, and final reviewer on the clean hotfix head.
+2. Push/open a PR only under exact repository authorization; do not auto-merge.
+3. After explicit merge approval, verify the Vercel UI deployment and rerun the
+   five canonical visual viewports.
+4. Publish the canonical HF Docker target only through its owner-gated release
+   workflow, then require `/health` commit/version to equal the stamped source.
+5. Close `TICKET-PROD-503-001F` only when both live targets are exact and green.
+<!-- PROD-503-HANDOFF:END -->
+
+---
+
 <!-- TPG-GRILL:START -->
 ## GRILL REPORT — Test-First Git Provenance
 

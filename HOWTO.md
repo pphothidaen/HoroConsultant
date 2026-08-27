@@ -308,42 +308,63 @@ Edit `.agents/agents/*/agent.json` for role content. Do not manually edit `.code
 
 ---
 
-### 3.6 Hugging Face Spaces Deployment Platform CLI
-**การสั่งงานจัดส่งโค้ดและแอปพลิเคชันขึ้น Hugging Face Spaces (Static Edge CDN & Docker):**
+### 3.6 Canonical HF Docker + Vercel Release CLI
+
+Production แยกเป็น Vercel UI/gateway และ HF Docker backend เท่านั้น:
+
+- UI/gateway: `https://horo-consultant-psi.vercel.app`
+- Backend: `pphothidaen/horoconsultant-core-backend` (`sdk: docker`)
+- Vercel production config ที่บังคับ:
+  `HF_BACKEND_URL=https://pphothidaen-horoconsultant-core-backend.hf.space`
+  (เป็น public config ไม่ใช่ secret)
+
+หากตัวแปรหายหรือไม่ตรง canonical origin gateway จะตอบ 503
+`backend_not_configured` แบบ fail-closed ห้ามแทนด้วย static/local calculation.
+
 ```bash
-# 1. ตรวจสอบ Payload Audit และ Publish ขึ้น Hugging Face Static Space (0% CPU Quota / 24/7 Unlimited Uptime)
-python3 scripts/publish_space_hf.py --sdk static
+# 1. Payload + provenance audit โดยไม่ upload
+python3 scripts/publish_space_hf.py \
+  --space-id pphothidaen/horoconsultant-core-backend \
+  --sdk docker \
+  --dry-run
 
-# 2. ตรวจสอบสถานะ Static สด: root document + production version.json
-python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk static --check-health
+# 2. ตรวจ backend สดแบบ read-only
+python3 scripts/publish_space_hf.py \
+  --space-id pphothidaen/horoconsultant-core-backend \
+  --sdk docker \
+  --check-health
+python3 scripts/publish_space_hf.py \
+  --space-id pphothidaen/horoconsultant-core-backend \
+  --sdk docker \
+  --verify-version
 
-# 3. ทดสอบ Payload Audit แบบ Dry-Run (ไม่เปลี่ยนแปลงไฟล์บน Cloud)
-python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk static --dry-run
-
-# 4. ตรวจทุก version surface และ required asset แบบ fail-closed
-python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk static --verify-version
+# 3. ตรวจ Vercel UI ทั้งห้า viewport
+python3 scripts/run_visual_layout_audit.py \
+  --url https://horo-consultant-psi.vercel.app \
+  --scenario v3-consensus \
+  --no-server
 ```
 
-#### Mandatory HF Static release gate
-
-ทุก HF Static release ต้องใช้ [Rule 16](.agents/rules/16-hf-static-release-verification.md) และ skill [hf-static-release-verification](.agents/skills/hf-static-release-verification/SKILL.md) ห้ามประกาศ `READY_FOR_PROD` หาก publisher tests, dry-run, Static health, exact live version, visual audit 5 viewports, focused regression, safety review หรือ ecosystem sync รายการใดรายการหนึ่งไม่ผ่านหรือไม่มีหลักฐาน ค่า `indeterminate` ต้องถือว่าไม่ผ่าน จนกว่าจะมี named manual reviewer บันทึก artifact ปัจจุบัน, timestamp, หลักฐานที่ใช้ตรวจ และผล pass/fail อย่างชัดเจน
+#### Mandatory fail-closed release gate
 
 ```bash
-python3 -m pytest -q tests/test_publish_space_hf.py
-python3 scripts/run_visual_layout_audit.py --url https://pphothidaen-horoconsultant-core-backend.static.hf.space --scenario v3-consensus --no-server
-python3 -m pytest -q tests/test_publish_space_hf.py project/tests/test_visual_layout_audit.py
-python3 -m pytest -q tests/test_hf_release_governance.py
+python3 -m pytest -q \
+  tests/test_publish_space_hf.py \
+  tests/test_hf_release_governance.py \
+  project/tests/test_production_monitor_release_contract.py
+python3 project/core/code_reviewer.py --scan-secrets
 python3 scripts/sync_ai_agent_ecosystem.py --check
 ```
 
-ผู้รับผิดชอบ: `developer` ดูแล publisher fix/tests, `devops` ดูแล dry-run/publish/health/version/rollback, `ui_visual_tester` ดูแล screenshots 1920×1080, 1366×768, 768×1024, 390×844 และ 360×740, `qa_tester` ตรวจ regression อิสระ, `code_reviewer` ให้ safety verdict, `business_analyst` ซิงก์ governance และ `orchestrator` เป็นผู้ตัดสินใจสุดท้าย หากแก้ไม่ผ่าน 3 รอบให้หยุดและส่ง HITL
+ต้องมี Docker dry-run, reviewer, exact live health/version, production API E2E,
+version consistency และ visual `5/5` เป็นสีเขียวทั้งหมดก่อนประกาศ
+`READY_FOR_PROD`. ค่า `unknown`, `warning`, `indeterminate`, 503 หรือ version
+ไม่ตรงถือว่าไม่ผ่าน. การ push/merge, Vercel production deploy และ HF publish
+เป็นคนละ external gate และต้องผูก exact target/rollback ทุกครั้ง.
 
-Baseline ที่ยืนยันแล้ว: publisher `16 passed`, publisher + visual audit `24 passed`, governance contract suite ผ่าน, visual report `PASSED` 5/5 และหลักฐานอยู่ที่ `project/tests/artifacts/visual_layout_report.json` กับ `project/tests/screenshots/visual_audit/`. ค่า gradient ที่ automated audit ตัดสินไม่ได้ใน release นี้ถูกปิดด้วย documented final manual screenshot review; release ถัดไปต้องมี sign-off ใหม่ตาม artifact ปัจจุบัน
-
-**ลิงก์ใช้งานระบบบน Hugging Face Static Edge CDN:**
-- 🔮 **Main Dashboard**: `https://pphothidaen-horoconsultant-core-backend.hf.space/index.html`
-- 🔐 **Admin Panel**: `https://pphothidaen-horoconsultant-core-backend.hf.space/admin.html`
-- 🔬 **HITL Review Studio**: `https://pphothidaen-horoconsultant-core-backend.hf.space/hitl.html`
+Vercel rollback ให้เก็บ deployment ก่อนหน้าและ env-entry ID ที่เพิ่มไว้ ห้ามลบ
+production deployments. HF rollback ต้องใช้ validated receipt/CAS ตาม publisher
+workflow; ห้าม publish จาก dirty worktree.
 
 ---
 
@@ -353,11 +374,11 @@ Baseline ที่ยืนยันแล้ว: publisher `16 passed`, publish
 
 | Platform | Deployment Type | Suitable Use Case | Latency (TH) | Cost & SLA Profile |
 | :--- | :--- | :--- | :--- | :--- |
-| **Hugging Face Static Edge CDN** | Frontend UIs (`sdk: static`) | Web UIs, Admin Panel, HITL Studio | Global Edge (< 20ms) | Zero Cost, 24/7 Unlimited Uptime, No Quota Limit |
-| **Azure Container Apps** | Docker Container (`Dockerfile.hf`) | FastAPI API + Rust Math | Southeast Asia production backend | Production deployment via GitHub Actions |
-| **Hugging Face Spaces Docker** | Full Backend Container (`sdk: docker`) | FastAPI API + Rust Fast Math + FAISS | Mid (~200ms US) | Free Tier (16GB RAM, 2 vCPU Container) |
-| **Vercel Edge Network** | Gateway Rewrites (`vercel.json`) | Global Edge Proxy & Reverse Proxy | Global Edge (< 20ms) | Free Tier (Unlimited Static & Serverless) |
-| **Render.com / Railway.app** | Docker Web Service (`Dockerfile.hf`) | Full-stack FastAPI Production Container | Mid (~150ms) | Low Cost ($5/mo), Auto SSL & Custom Domain |
+| **Hugging Face Static Edge CDN** | Retired backend lane | Historical evidence only; never deploy static bytes to the canonical backend Space | N/A | **PROHIBITED** |
+| **Azure Container Apps / Fly** | Retired public lanes | Historical evidence only | N/A | **PROHIBITED** |
+| **Hugging Face Spaces Docker** | Canonical backend (`sdk: docker`) | FastAPI API + Rust Fast Math + FAISS | Mid (~200ms US) | **ACTIVE TARGET** |
+| **Vercel Edge Network** | Static UI + lightweight gateway | Browser UI and canonical backend proxy | Global Edge (< 20ms) | **ACTIVE TARGET** |
+| **Render.com / Railway.app** | Unselected research options | No production authority | N/A | **NOT CONFIGURED** |
 | **Kaggle GPU Accelerator** | GPU Fine-Tuning Notebook (`T4 Machine`) | LLM Fine-Tuning & Model Weight Fusion | Batch Pipeline | Free 30h/week Nvidia T4 GPU |
 
 #### 🧩 เพิ่มเติม: Hugging Face S3-Compatible Storage Credentials
