@@ -326,12 +326,8 @@ def _tracked_release_files(packaging_commit: str) -> tuple[BundleFile, ...]:
         destination = _payload_destination(source_path)
         if destination is None:
             continue
-        expected_local_mode = {
-            b"100644": 0o644,
-            b"100755": 0o755,
-        }.get(mode)
         if (
-            expected_local_mode is None
+            mode != b"100644"
             or object_type != b"blob"
             or re.fullmatch(r"[0-9a-f]{40}", oid) is None
             or not _safe_bundle_path(source_path)
@@ -348,7 +344,7 @@ def _tracked_release_files(packaging_commit: str) -> tuple[BundleFile, ...]:
             raise PublisherError("INVALID_PAYLOAD_FILE", "invalid_manifest") from exc
         if (
             not stat.S_ISREG(local_stat.st_mode)
-            or stat.S_IMODE(local_stat.st_mode) != expected_local_mode
+            or stat.S_IMODE(local_stat.st_mode) != 0o644
             or local_stat.st_nlink < 1
         ):
             raise PublisherError("INVALID_PAYLOAD_FILE", "invalid_manifest")
