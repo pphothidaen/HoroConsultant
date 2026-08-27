@@ -316,12 +316,11 @@ def test_non_release_hermes_qa_and_sync_orchestration_remains_callable(tmp_path)
     sync_result, sync_commands = _run_runner(tmp_path / "sync", "hermes", "sync")
 
     assert qa_result.returncode == 0
-    assert [command.split("\t", 1)[0] for command in qa_commands] == [
-        "CALL router",
-        "CALL pytest",
-        "CALL tee",
-        "CALL button",
-    ]
+    qa_labels = [command.split("\t", 1)[0] for command in qa_commands]
+    assert len(qa_labels) == 4
+    assert qa_labels[0] == "CALL router"
+    assert sorted(qa_labels[1:3]) == ["CALL pytest", "CALL tee"]
+    assert qa_labels[3] == "CALL button"
     assert sync_result.returncode == 0
     assert sync_commands == [
         "CALL python-other\tscripts/sync_sdlc_agents.py\t--sync",

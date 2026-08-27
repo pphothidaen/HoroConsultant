@@ -5,7 +5,7 @@ scripts/run_prod_version_e2e.py
 Live Production E2E Version Regression & Alignment Verification Suite.
 
 Features:
-1. Fetches server version from https://horo-consultant-psi.vercel.app/version.json
+1. Validates the closed release identity from https://horo-consultant-psi.vercel.app/version.json
 2. Scans live HTML (<head> and footer), /app.js, and /sw.js for version consistency.
 3. Validates Hard Reset & Version Update Modal architecture on client side.
 4. Auto-update option: If mismatch is detected and --auto-update is specified,
@@ -22,8 +22,8 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import hashlib
 import json
-import os
 import re
 import subprocess
 import sys
@@ -35,6 +35,74 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_URL = "https://horo-consultant-psi.vercel.app"
 REPORT_PATH = ROOT / "project" / "tests" / "prod_version_regression_report.json"
+RELEASE_IDENTITY_FIELDS = (
+    "version",
+    "release_source_commit",
+    "release_source_revision",
+    "release_source_metadata_path",
+    "release_source_metadata_sha256",
+)
+RELEASE_VERSION_RE = re.compile(r"^1\.0\.0\.([0-9a-f]{7})$")
+RELEASE_REVISION_RE = re.compile(r"^[0-9a-f]{40}$")
+RELEASE_DIGEST_RE = re.compile(r"^[0-9a-f]{64}$")
+
+
+def parse_release_identity(raw_text: str) -> dict[str, str]:
+    """Return one validated canonical release identity or fail closed."""
+
+    def reject_duplicate_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
+        parsed: dict[str, object] = {}
+        for key, value in pairs:
+            if key in parsed:
+                raise ValueError("duplicate release identity key")
+            parsed[key] = value
+        return parsed
+
+    parsed = json.loads(raw_text, object_pairs_hook=reject_duplicate_keys)
+    if not isinstance(parsed, dict) or set(parsed) != set(RELEASE_IDENTITY_FIELDS):
+        raise ValueError("release identity must use the closed canonical schema")
+    if not all(isinstance(parsed[field], str) for field in RELEASE_IDENTITY_FIELDS):
+        raise ValueError("release identity fields must be strings")
+
+    identity = {field: parsed[field] for field in RELEASE_IDENTITY_FIELDS}
+    version = identity["version"]
+    source_commit = identity["release_source_commit"]
+    source_revision = identity["release_source_revision"]
+    source_path = identity["release_source_metadata_path"]
+    source_digest = identity["release_source_metadata_sha256"]
+    version_match = RELEASE_VERSION_RE.fullmatch(version)
+    if (
+        version_match is None
+        or version_match.group(1) != source_commit
+        or RELEASE_REVISION_RE.fullmatch(source_revision) is None
+        or not source_revision.startswith(source_commit)
+        or source_path != "project/static/version.json"
+        or RELEASE_DIGEST_RE.fullmatch(source_digest) is None
+    ):
+        raise ValueError("release identity fields are malformed or inconsistent")
+
+    canonical = json.dumps(
+        {
+            "release_source_commit": source_commit,
+            "release_source_metadata_path": source_path,
+            "release_source_revision": source_revision,
+            "version": version,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    if hashlib.sha256(canonical).hexdigest() != source_digest:
+        raise ValueError("release identity digest mismatch")
+    return identity
+
+
+def write_report(report: dict) -> None:
+    """Persist one current machine-readable audit report."""
+    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    REPORT_PATH.write_text(
+        json.dumps(report, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
 
 
 def fetch_resource(url: str, timeout: int = 25) -> tuple[int, str, float]:
@@ -92,22 +160,30 @@ def run_version_e2e_audit(base_url: str = DEFAULT_URL) -> dict:
         return report
 
     try:
-        ver_data = json.loads(body_ver)
-        server_ver = ver_data.get("version", "").strip()
-        server_commit = ver_data.get("commit", "").strip()
+        release_identity = parse_release_identity(body_ver)
+        server_ver = release_identity["version"]
+        source_commit = release_identity["release_source_commit"]
+        report.update(release_identity)
         report["server_version"] = server_ver
-        report["server_commit"] = server_commit
-        print(f"✅ [OK] Server Authoritative Version: {server_ver} (Commit: {server_commit}) [{lat_ver:.1f}ms]")
+        print(
+            f"[OK] Server release identity: {server_ver} "
+            f"(source: {source_commit}) [{lat_ver:.1f}ms]"
+        )
         report["checks"].append({
             "name": "version_json_contract",
             "status": "PASSED",
-            "version": server_ver,
-            "commit": server_commit,
+            **release_identity,
             "latency_ms": lat_ver,
         })
-    except Exception as ex:
-        print(f"❌ [FAIL] JSON parsing /version.json failed: {ex}")
+    except (json.JSONDecodeError, TypeError, ValueError):
+        print("[ERROR] /version.json contains an invalid release identity")
         report["status"] = "FAILED"
+        report["checks"].append({
+            "name": "version_json_contract",
+            "status": "FAILED",
+            "error": "invalid_release_identity",
+        })
+        write_report(report)
         return report
 
     # 2. Fetch live HTML and check <head> script + footer version
@@ -240,8 +316,7 @@ def run_version_e2e_audit(base_url: str = DEFAULT_URL) -> dict:
         report["status"] = "MISMATCH_DETECTED"
         print(f"\n⚠️ [WARNING] Detected {len(report['mismatches'])} version mismatch(es)!")
 
-    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_PATH.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    write_report(report)
     print(f"📊 Detailed Report Saved to: {REPORT_PATH}\n" + "=" * 70)
     return report
 
