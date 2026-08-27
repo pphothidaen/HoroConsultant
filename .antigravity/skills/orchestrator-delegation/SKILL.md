@@ -25,6 +25,18 @@ For executable lanes, first use `adaptive-model-effort-routing`: record the
 versioned `DispatchDecision`, preserve its quality floor, and require bound
 receipt proof. Static role model/effort values are hints, never runtime proof.
 
+For a source-mutation ticket, require a committed test-only baseline and closed
+provenance manifest before dispatch. The baseline must be an ancestor of the
+source branch, bind exact test hashes, and record red or negative-control
+evidence. The source lane remains ineligible until the ticket is
+`TEST_BASELINE_VERIFIED`. A split reconstructed after coding is
+`NON_TDD_RECONSTRUCTED` and cannot satisfy this gate.
+
+If a frozen test is wrong, stop the source lane. Route a separate QA-owned,
+test-only correction for an independently reviewed superseding baseline that
+records the prior SHA, correction reason, new hashes, and new evidence. Resume
+source work only after the superseding baseline passes the history guard.
+
 ## Ticket Scheduling Before Delegation
 
 Rule 11 is authoritative. At every checkpoint, first exclude tickets that are
@@ -230,6 +242,8 @@ The orchestrator may mark a delegated item `DONE` only when:
 - The assigned evidence exists and matches the acceptance criteria.
 - Any changed files are within the assigned ownership.
 - Required checks have passed or a documented waiver exists.
+- Source tickets retain a verified baseline, immutable test hashes, and exact
+  `Test-Baseline` commit trailers through final Git review.
 - No external gate is being inferred from local-only results.
 
 Mark the item `BLOCKED` when the same external permission, credential, service availability, or human decision is required and no safe in-scope action remains. Provide the exact next human/operator command or decision needed.
