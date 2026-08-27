@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-PROD-503-001",
+  "sequence": 4,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "311dbd1f10bea3c260783e8f9d05910bf07b76dc",
+  "test_files": [
+    {
+      "path": "tests/test_mobile_tabs_accessibility_contract.py",
+      "sha256": "734316fca704be8ee19942779c4fffb9b3149a28209544648e2fddd469e4de7e"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_mobile_tabs_accessibility_contract.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "2 failed; interpretation tabs could not wrap within narrow cards and the accordion chevron foreground/background pair did not meet WCAG AA 4.5:1"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/static/style.css",
+    "public/style.css",
+    "PROJECT_TASKS.md",
+    "plans/plan.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Close the post-recovery visual gate by preserving mirrored styles, allowing interpretation tabs to wrap inside 360/390px cards, and enforcing WCAG AA contrast for the accordion chevron."
+}
