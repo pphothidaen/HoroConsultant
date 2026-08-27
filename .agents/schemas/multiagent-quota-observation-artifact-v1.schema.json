@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://horoconsultant.local/schemas/multiagent-quota-observation-artifact-v1.schema.json",
+  "title": "HoroConsultant QuotaObservation Artifact v1",
+  "description": "Closed canonical envelope for one QuotaObservation v1. observation_sha256 is the domain-separated SHA-256 of the canonical nested observation; runtime validation must recompute it and revalidate every transitive binding before receipt-v2 acceptance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "protocol_version",
+    "canonicalization_version",
+    "domain",
+    "observation_sha256",
+    "observation"
+  ],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "protocol_version": {"type": "integer", "const": 1},
+    "canonicalization_version": {"type": "integer", "const": 1},
+    "domain": {"const": "horoconsultant.multiagent.quota-observation-artifact.v1"},
+    "observation_sha256": {
+      "$ref": "#/$defs/sha256",
+      "description": "Domain-separated digest of canonical JSON for observation."
+    },
+    "observation": {"$ref": "#/$defs/quotaObservation"}
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "safeName": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$"
+    },
+    "utcTimestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "quotaObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "protocol_version",
+        "canonicalization_version",
+        "domain",
+        "alias",
+        "provider",
+        "account_home_sha256",
+        "resolved_executable_sha256",
+        "ticket_id",
+        "attempt_id",
+        "policy_version",
+        "nonce",
+        "observed_at",
+        "quota_band",
+        "reason_code",
+        "signal_path_sha256"
+      ],
+      "properties": {
+        "schema_version": {"type": "integer", "const": 1},
+        "protocol_version": {"type": "integer", "const": 1},
+        "canonicalization_version": {"type": "integer", "const": 1},
+        "domain": {"const": "horoconsultant.multiagent.quota-observation.v1"},
+        "alias": {"enum": ["codex1", "codex2", "agy1", "agy2"]},
+        "provider": {"enum": ["codex", "agy"]},
+        "account_home_sha256": {"$ref": "#/$defs/sha256"},
+        "resolved_executable_sha256": {"$ref": "#/$defs/sha256"},
+        "ticket_id": {"$ref": "#/$defs/safeName"},
+        "attempt_id": {"type": "integer", "minimum": 1},
+        "policy_version": {"$ref": "#/$defs/safeName"},
+        "nonce": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        },
+        "observed_at": {"$ref": "#/$defs/utcTimestamp"},
+        "quota_band": {
+          "enum": ["constrained", "below_10_percent", "unknown"]
+        },
+        "reason_code": {
+          "enum": [
+            "signals_consistent",
+            "malformed_status",
+            "duplicate_key_status",
+            "non_finite_status",
+            "missing_signal",
+            "invalid_signal",
+            "contradictory_signal"
+          ]
+        },
+        "signal_path_sha256": {
+          "type": "array",
+          "minItems": 18,
+          "maxItems": 18,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/sha256"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "quota_band": {"enum": ["constrained", "below_10_percent"]}
+            },
+            "required": ["quota_band"]
+          },
+          "then": {
+            "properties": {"reason_code": {"const": "signals_consistent"}}
+          }
+        },
+        {
+          "if": {
+            "properties": {"quota_band": {"const": "unknown"}},
+            "required": ["quota_band"]
+          },
+          "then": {
+            "properties": {
+              "reason_code": {
+                "enum": [
+                  "malformed_status",
+                  "duplicate_key_status",
+                  "non_finite_status",
+                  "missing_signal",
+                  "invalid_signal",
+                  "contradictory_signal"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "oneOf": [
+        {
+          "properties": {
+            "provider": {"const": "codex"},
+            "alias": {"enum": ["codex1", "codex2"]}
+          }
+        },
+        {
+          "properties": {
+            "provider": {"const": "agy"},
+            "alias": {"enum": ["agy1", "agy2"]}
+          }
+        }
+      ]
+    }
+  }
+}
