@@ -1,0 +1,35 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-TPG-002",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "f012519ca4911f765013aa90be2e3e2be87d98ee",
+  "test_files": [
+    {
+      "path": "tests/test_test_provenance_ecosystem_sync.py",
+      "sha256": "da116624ff7db828987c6ec1889760a1354055faa8349e24f04da71363ed2362"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_test_provenance_ecosystem_sync.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "2 failed; orchestrator-delegation and qa-e2e-testing Antigravity mirrors were stale and the full ecosystem check reported two synchronization issues"
+    }
+  ],
+  "allowed_source_paths": [
+    ".antigravity/skills/orchestrator-delegation/SKILL.md",
+    ".antigravity/skills/qa-e2e-testing/SKILL.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Canonical governance skills changed under TICKET-TPG-001. This separate baseline proves the generated compatibility mirrors are stale before running the mandated ecosystem sync."
+}
