@@ -1,0 +1,44 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-PROD-503-001",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "e015e35c324b1ac7d3db0bf19fb1934adf127fa8",
+  "test_files": [
+    {
+      "path": "tests/test_release_metadata_stamping_contract.py",
+      "sha256": "f1ab425f2b6d9e364a201dc6b4ee04da8ef5fe9104acfae3e574a91ea1dcf293"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_release_metadata_stamping_contract.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "2 failed; committed metadata used legacy commit/timestamp/status fields and stamp_version_json could not emit immutable source revision provenance"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/stamp_version.py",
+    "project/static/version.json",
+    "public/version.json",
+    "project/static/app.js",
+    "public/app.js",
+    "project/static/sw.js",
+    "public/sw.js",
+    "project/static/index.html",
+    "public/index.html",
+    "PROJECT_TASKS.md",
+    "plans/plan.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Eliminate release metadata drift by requiring the stamping tool and committed mirror files to use the publisher's closed immutable source-provenance schema while preserving version parity across UI assets."
+}

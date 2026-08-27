@@ -39,6 +39,73 @@ if env_file.exists():
     load_dotenv(env_file, override=False)
 
 
+def _get_baked_release_identity() -> tuple[str, str] | None:
+    """Return validated baked ``(commit, version)`` without requiring Git."""
+    metadata_path = BASE_DIR / "project" / "static" / "version.json"
+
+    def reject_duplicate_keys(
+        pairs: list[tuple[str, object]],
+    ) -> dict[str, object]:
+        metadata: dict[str, object] = {}
+        for key, value in pairs:
+            if key in metadata:
+                raise ValueError("duplicate baked release metadata key")
+            metadata[key] = value
+        return metadata
+
+    try:
+        metadata = json.loads(
+            metadata_path.read_text(encoding="utf-8"),
+            object_pairs_hook=reject_duplicate_keys,
+        )
+    except (OSError, json.JSONDecodeError, ValueError):
+        return None
+
+    required = {
+        "version",
+        "release_source_commit",
+        "release_source_revision",
+        "release_source_metadata_path",
+        "release_source_metadata_sha256",
+    }
+    if not isinstance(metadata, dict) or set(metadata) != required:
+        return None
+    if not all(isinstance(metadata[key], str) for key in required):
+        return None
+
+    version = metadata["version"]
+    source_commit = metadata["release_source_commit"]
+    source_revision = metadata["release_source_revision"]
+    source_path = metadata["release_source_metadata_path"]
+    source_digest = metadata["release_source_metadata_sha256"]
+    version_match = _RELEASE_VERSION_RE.fullmatch(version)
+    if (
+        version_match is None
+        or _RELEASE_SOURCE_COMMIT_RE.fullmatch(source_commit) is None
+        or _RELEASE_SOURCE_REVISION_RE.fullmatch(source_revision) is None
+        or _RELEASE_SOURCE_DIGEST_RE.fullmatch(source_digest) is None
+        or version_match.group(1) != source_commit
+        or not source_revision.startswith(source_commit)
+        or source_path != "project/static/version.json"
+    ):
+        return None
+
+    canonical = json.dumps(
+        {
+            "release_source_commit": source_commit,
+            "release_source_metadata_path": source_path,
+            "release_source_revision": source_revision,
+            "version": version,
+        },
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    if hashlib.sha256(canonical).hexdigest() != source_digest:
+        return None
+    return source_commit[:7], version
+
+
 @lru_cache(maxsize=1)
 def get_git_commit_hash() -> str:
     """
@@ -76,6 +143,10 @@ def get_git_commit_hash() -> str:
             return cmd_out
     except Exception:
         pass
+
+    baked_identity = _get_baked_release_identity()
+    if baked_identity is not None:
+        return baked_identity[0]
 
     return "unknown"
 

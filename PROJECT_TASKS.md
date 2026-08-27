@@ -1,6 +1,43 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff — Central Kanban Board for ALL Project Work**  
-> *Last Updated: 2026-08-27 +07 (Asia/Bangkok) — PR `#1` source head `f759004` passed the required GitHub provenance gate and all repository CI; Vercel preview was canceled externally; production release state is unchanged.*
+> *Last Updated: 2026-08-27 15:21 +07 (Asia/Bangkok) — production gateway 503 is recovered on Vercel deployment `dpl_2gEijnyqedG1Bn2XVcWZvWJ6amaZ`; PR `#2` from `hotfix/prod-503-recovery` has green required GitHub workflows and remains gated on explicit merge plus target-bound releases.*
+
+---
+
+## Sprint PROD-503 — Vercel Gateway Recovery and Remaining Release Concerns
+
+**Current verdict**: `RUNTIME RECOVERED / CODE READY LOCALLY / NOT FULLY RELEASED`.
+The production alias is serving the merged `db1231e` UI/gateway and proxies the
+healthy canonical HF Docker backend again. The local hotfix branch contains the
+follow-up release-provenance, five-viewport visual, and runtime-identity fixes;
+those bytes are not live until a reviewed merge and the relevant target-bound
+deployments occur.
+
+| Ticket | Severity / Effort | Status | Evidence / Next Gate |
+|---|---|---|---|
+| `TICKET-PROD-503-001A` Vercel gateway config | BLOCKER / XS | DONE — LIVE | Root cause was an absent production-only `HF_BACKEND_URL`; exact config entry `gTpSlwb3RL3Fr94e` now targets only `production`. Redeploy `dpl_2gEijnyqedG1Bn2XVcWZvWJ6amaZ` is `READY`, alias is canonical, and `x-deploy-sha=db1231e` |
+| `TICKET-PROD-503-001B` API recovery QA | BLOCKER / S | DONE — LIVE | `/health` is `200/status=ok`; canonical HF Docker health is `200`; LuoPan live E2E passed `8/8`; production version/UI consistency passed; rerun of Unified CI `33048014471` passed every job |
+| `TICKET-PROD-503-001C` publisher/provenance gate | CRITICAL / M | DONE — LOCAL | Docker payload dry-run passes; payload source modes match frozen `100644`; release metadata uses the closed five-field immutable schema; history guard passes all active/superseded baselines |
+| `TICKET-PROD-503-001D` mobile visual/accessibility | HIGH / S | DONE — LOCAL / PENDING RELEASE | Source fixes wrapping tabs, long expanded-content clipping, and chevron contrast. Deterministic local audit passed `5/5` viewports with zero overflow, overlaps, out-of-bounds, clipping, or contrast failures. Live UI still has the pre-fix warning until merge/Vercel release |
+| `TICKET-PROD-503-001E` HF runtime identity | HIGH / S | DONE — LOCAL / PENDING HF RELEASE | A runtime without provider commit env or `.git` now validates baked canonical metadata before exposing commit/version; live HF remains `version/git_commit=unknown` until reviewed merge and owner-gated Docker publish |
+| `TICKET-PROD-503-001F` PR/release closure | CRITICAL / XS | DOING — PR #2 CHECKS GREEN / MERGE GATED | PR `#2` is open from `hotfix/prod-503-recovery` without auto-merge; required GitHub workflows, including `Test Provenance`, are green. Remaining gates are explicit merge, Vercel UI release, owner-gated HF Docker publish, then live health/version and five-viewport re-verification. Do not conflate the already-complete gateway env recovery with these pending code releases |
+| `TICKET-PROD-503-001G` Vercel Preview retirement | MEDIUM / XS | DONE — LOCAL / PENDING MERGE | Test-only baseline `062289e` froze the red contract before `vercel.json` changed. Automatic Git deployment is disabled for `*` and explicitly retained for `main`; focused Node tests passed `8`, architecture regressions passed `31`, and the two canceled PR `#2` preview artifacts were deleted without touching production. The guard rejected abbreviated baseline trailers before push; that bad lineage is preserved at `evidence/prod-503-preview-trailer-caught-20260827`, while the corrected source commit uses the full SHA. The canceled GitHub Vercel status was caused by the enforced `unverified commit` policy, not a build failure, and is not required by ruleset `21626253` |
+
+**Rollback anchors**:
+
+- Remove only Vercel environment entry `gTpSlwb3RL3Fr94e` to restore the prior
+  absent-variable state.
+- Prior production deployment `dpl_8nywahyt5ga3FiBajjRBtHozQU8w` remains the
+  exact Vercel rollback deployment; never delete either production deployment.
+- The hotfix branch is additive. Revert owned source commits while retaining
+  test baselines and supersede history; no HF rollback is needed because no HF
+  publish occurred in this incident.
+
+**TDD-trap prevention evidence**: the first executable-mode test contradicted
+the already-frozen `100644` release contract. Source work stopped; baseline
+`7741b4f` was preserved, and test-only baseline `e3f7ebc` explicitly superseded
+it before remediation. No baseline was amended, squashed, deleted, or silently
+rewritten.
 
 ---
 
@@ -30,13 +67,12 @@ receipt API. This gate catches repository history/merge violations but does not
 claim native runtime interception.
 
 **Remote enforcement state**: repository ruleset `21626253` is authoritative
-on GitHub. PR `#1` is open at source head `f759004`; required job
-`Test Provenance` passed in run `33043972950` (job `98423605962`) and its
-artifact verified all four baseline records with no issues. All repository
-GitHub workflows passed. The PR remains `UNSTABLE` only because the external
-Vercel preview reports `Canceled from the Vercel Dashboard`; Vercel is not a
-required context in ruleset `21626253`. Merge, deployment, and unrelated
-external actions remain outside this approval.
+on GitHub. PR `#1` was merged as `db1231e430c39360226d6289afa8a4e665a0cbb1`
+after required job `Test Provenance` passed. The canceled preview was not a
+required context. Main Unified CI run `33048014471` initially failed only on
+the live 503, then passed every job after the production gateway configuration
+was restored. Native pre-spawn enforcement remains a separate blocked platform
+boundary.
 
 ---
 
