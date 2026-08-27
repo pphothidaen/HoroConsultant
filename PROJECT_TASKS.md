@@ -1,14 +1,17 @@
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff — Central Kanban Board for ALL Project Work**  
-> *Last Updated: 2026-08-27 +07 (Asia/Bangkok) — test-provenance gate implementation is active on `feature/test-provenance-gate`; production release state is unchanged.*
+> *Last Updated: 2026-08-27 +07 (Asia/Bangkok) — `feature/test-provenance-gate` is pushed at `77e373a`; GitHub ruleset `Require Test Provenance` is active for `main`; production release state is unchanged.*
 
 ---
 
 ## Sprint TPG — Test-First Git Provenance and TDD-Trap Prevention
 
-**Grill status**: `APPROVED` from the signed implementation plan. Scope is
-local repository code, tests, Git history, CI definition, governance, and docs;
-no push, deploy, provider/AGY execution, secrets, or production mutation.
+**Grill status**: `APPROVED` from the signed implementation plan. The initial
+scope covered local repository code, tests, Git history, CI definition,
+governance, and docs. Follow-up exact authorization covered only pushing
+`feature/test-provenance-gate` and activating the `Test Provenance` required
+check for `main`; no PR, merge, deploy, provider/AGY execution, secret action,
+or production mutation was authorized or performed.
 
 | Ticket | Severity / Effort | Owner | Status | Evidence / Dependency |
 |---|---|---|---|---|
@@ -16,7 +19,7 @@ no push, deploy, provider/AGY execution, secrets, or production mutation.
 | `TICKET-TPG-001` | CRITICAL / M | developer | DONE — LOCAL | Original baseline `b84989d` is preserved through cutoff `49f81bf`; full QA exposed a workflow-inventory design trap, so test-only baseline `4e13490` explicitly superseded it. Final test SHA-256 `72bc50d7cb661e6fa806eea4c12a338faebf67cbae22ba03d25294ecb15d8645`; source commits `f012519`, `83ce2a0`, `3179919` |
 | `TICKET-TPG-002` | HIGH / S | business_analyst | DONE — LOCAL | Test-only baseline `11ff774` captured `2 failed`; generated skill mirrors were the only sync mutations in `49f81bf`; final SHA-256 `da116624ff7db828987c6ec1889760a1354055faa8349e24f04da71363ed2362`; ecosystem check passes |
 | `TICKET-TPG-003` | CRITICAL / S | qa_tester | DONE — LOCAL | Focused workflow/provenance matrix `98 passed`; full QA `1275 passed, 12 warnings`; aggregate history verified 3 baseline records with the original cutoff preserved; secret scan 0/1,954 |
-| `TICKET-TPG-004` | CRITICAL / XS | repository owner | NEEDS_HITL | After push, configure the GitHub ruleset so job `Test Provenance` is a required merge check; workflow presence alone is not platform enforcement |
+| `TICKET-TPG-004` | CRITICAL / XS | repository owner | DONE — REMOTE POLICY | Remote branch SHA is `77e373ab41adf32ee18d552e8e214c1eb09fa324`. Active ruleset `Require Test Provenance` (`21626253`) applies to `refs/heads/main`, requires exact context `Test Provenance`, uses strict mode, has no bypass actors, and reports `current_user_can_bypass: never` |
 | `TICKET-TPG-005` | CRITICAL / XS | code_reviewer | DONE — LOCAL | `code_reviewer.py --review --use-python` returned `READY_FOR_PROD`; full suite `1275 passed`; TPG-001 baseline `4e13490`, manifest, ticket, and frozen hash all verified |
 
 **Platform boundary**: native `spawn_agent` pre-spawn enforcement remains
@@ -24,9 +27,12 @@ no push, deploy, provider/AGY execution, secrets, or production mutation.
 receipt API. This gate catches repository history/merge violations but does not
 claim native runtime interception.
 
-**Residual owner gate**: repository implementation is complete locally, but
-the merge gate is not authoritative on GitHub until `TICKET-TPG-004` receives a
-push/CI run and the repository owner marks job `Test Provenance` as required.
+**Remote enforcement state**: the repository ruleset is now authoritative on
+GitHub. No remote CI receipt exists yet because the authorized feature-branch
+push does not match the workflow's `push` filter and no pull request was
+authorized or created. The required job will run and gate a future PR targeting
+`main`; PR creation, merge, deployment, and unrelated external actions remain
+outside this approval.
 
 ---
 

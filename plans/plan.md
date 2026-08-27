@@ -2,10 +2,11 @@
 ## GRILL REPORT — Test-First Git Provenance
 
 **Date**: 2026-08-27 (Asia/Bangkok)
-**Gate status**: `LOCAL IMPLEMENTATION + QA PASS / GITHUB REQUIRED CHECK NEEDS_HITL`
+**Gate status**: `IMPLEMENTATION + QA PASS / GITHUB REQUIRED CHECK ACTIVE / PR CI NOT RUN`
 **Decision authority**: user-approved implementation plan and follow-up
 authorization for root execution when governed delegation cannot produce a
-native pre-spawn receipt.
+native pre-spawn receipt, plus exact authorization to push the feature branch
+and activate the repository required-check ruleset.
 
 ### Goal and acceptance
 
@@ -23,8 +24,11 @@ native pre-spawn receipt.
 - Enforcement: local read-only hook plus required CI.
 - Current mixed work: recovery branch, no retroactive TDD claim.
 - Wrong frozen test: stop source work and use a test-only superseding baseline.
-- External actions: no push, deployment, provider/AGY execution, secret action,
-  or GitHub ruleset mutation in this local implementation session.
+- External actions: the initial implementation session excluded push and
+  GitHub mutation. Follow-up authorization covered only pushing
+  `feature/test-provenance-gate` and activating the exact `Test Provenance`
+  required check for `main`. It did not authorize a PR, merge, deployment,
+  provider/AGY execution, secret action, or production mutation.
 
 ### Evidence sequence
 
@@ -49,14 +53,24 @@ native pre-spawn receipt.
    aggregate history verified both active baselines plus the preserved cutoff,
    and code reviewer returned `READY_FOR_PROD` with exact ticket/baseline/
    manifest binding.
-8. GitHub ruleset activation and a remote CI receipt remain
-   `NEEDS_HITL`; local workflow content is not platform enforcement.
+8. `feature/test-provenance-gate` was pushed and independently read back at
+   `77e373ab41adf32ee18d552e8e214c1eb09fa324`.
+9. GitHub ruleset `Require Test Provenance` (`21626253`) is active on
+   `refs/heads/main`. Effective-rules read-back confirms exact required context
+   `Test Provenance`, strict mode, no bypass actors, and
+   `current_user_can_bypass: never`.
+10. No remote CI receipt exists yet: a feature-branch push does not match the
+    workflow's `push` filter, and no pull request was authorized or created.
+    This does not weaken the active merge policy; the check must pass when a
+    future PR targets `main`.
 
 ### Rollback
 
 Branches and commits are additive. Revert the owned implementation commits
 while retaining immutable/superseded baselines, the recovery branch, and the
-mutating-hook evidence branch as audit evidence.
+mutating-hook evidence branch as audit evidence. Ruleset `21626253` is the
+isolated remote rollback target; changing or deleting it requires fresh exact
+authorization.
 <!-- TPG-GRILL:END -->
 
 ---
