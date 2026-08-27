@@ -467,6 +467,7 @@ def test_execute_uses_argv_cwd_and_process_local_env(tmp_path, monkeypatch):
     config_path = _config(tmp_path)
     decision_path = _decision_path(tmp_path)
     monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setattr(command.shutil, "which", lambda executable: f"/usr/bin/{executable}")
     observed = {}
 
     def fake_run(argv, **kwargs):
@@ -492,6 +493,7 @@ def test_execute_transports_malicious_unicode_prompt_byte_for_byte_on_stdin(
     config_path = _config(tmp_path)
     decision_path = _decision_path(tmp_path)
     monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setattr(command.shutil, "which", lambda executable: f"/usr/bin/{executable}")
     objective = "ลับมาก\n$(touch /tmp/must-not-run); 'quoted'"
     observed = {}
 
@@ -797,6 +799,7 @@ def test_duplicate_dispatch_is_one_subprocess_with_account_session_evidence(
     config_path = _config(tmp_path)
     decision_path = _decision_path(tmp_path)
     monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setattr(command.shutil, "which", lambda executable: f"/usr/bin/{executable}")
     calls = []
 
     def fake_run(argv, **kwargs):
@@ -1048,6 +1051,7 @@ def test_completed_process_evidence_is_emitted_separately_from_route_label(
     config_path = _config(tmp_path)
     decision_path = _decision_path(tmp_path)
     monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setattr(command.shutil, "which", lambda executable: f"/usr/bin/{executable}")
 
     def fake_run(argv, **kwargs):
         return subprocess.CompletedProcess(
