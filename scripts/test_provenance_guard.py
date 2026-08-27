@@ -549,22 +549,48 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
     allowed_sets: list[list[str]] = []
     tickets: list[str] = []
     baselines: list[str] = []
+    records: list[tuple[str, dict[str, Any], str]] = []
     for manifest_path in manifests:
         try:
             manifest = _load_manifest_from_worktree(repo, manifest_path)
+            baseline = _find_baseline(repo, manifest_path)
             allowed = manifest.get("allowed_source_paths")
             if isinstance(allowed, list):
                 allowed_sets.append([str(path) for path in allowed])
+            records.append((manifest_path, manifest, baseline))
+        except GuardFailure as exc:
+            report.add("PR_PROVENANCE_ERROR", str(exc), manifest_path)
+
+    superseded_at: dict[str, str] = {}
+    for manifest_path, manifest, _baseline in records:
+        supersedes = manifest.get("supersedes")
+        parent = manifest.get("baseline_parent")
+        if isinstance(supersedes, str) and isinstance(parent, str):
+            if supersedes in superseded_at:
+                report.add(
+                    "PR_BASELINE_SUPERSEDED_TWICE",
+                    "one baseline cannot be superseded by multiple manifests",
+                    manifest_path,
+                )
+            superseded_at[supersedes] = parent
+
+    for manifest_path, _manifest, baseline in records:
+        verification_head = superseded_at.get(baseline, head)
+        try:
             nested = verify_history(
                 repo,
                 manifest_path,
-                head_revision=head,
-                baseline_revision=None,
+                head_revision=verification_head,
+                baseline_revision=baseline,
                 include_worktree=True,
             )
         except GuardFailure as exc:
             report.add("PR_PROVENANCE_ERROR", str(exc), manifest_path)
             continue
+        if baseline in superseded_at:
+            nested.notes.append(
+                f"baseline {baseline} verified only through its preserved supersede cutoff {verification_head}"
+            )
         if nested.ticket_id:
             tickets.append(nested.ticket_id)
         if nested.baseline_commit:
