@@ -1,0 +1,183 @@
+{
+  "protocol_version": 2,
+  "artifact_type": "DispatchDecision_HITL_Record",
+  "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828",
+  "attempt_id": 4,
+  "phase": "fresh_preflight_and_dispatch_authorization",
+  "work_mode": "read_only",
+  "created_at": "2026-08-28T01:40:45Z",
+  "timezone": "Asia/Bangkok",
+  "objective": "Resolve the two remaining quota-proof blockers through one sanitized interactive AGY /usage capture per AGY alias and a Codex Usage Dashboard/export availability preflight only.",
+  "authorization": {
+    "type": "HITL",
+    "status": "granted",
+    "approval_reference": "Approve solution to fix both of blocker 2 รายการ",
+    "scope": [
+      "agy1: exactly one interactive /usage capture in a detached tmux session",
+      "agy2: exactly one interactive /usage capture in a detached tmux session",
+      "codex1: discover whether a user-controlled authenticated browser and provider-documented Usage Dashboard/export are available, without accessing the dashboard",
+      "codex2: discover whether a user-controlled authenticated browser and provider-documented Usage Dashboard/export are available, without accessing the dashboard"
+    ],
+    "prohibited": [
+      "model task or work prompt",
+      "provider execution outside the specified quota/status display",
+      "provider, account, or settings mutation",
+      "real transaction, billing action, or plan change",
+      "retry or fallback subprocess",
+      "reading authentication files, tokens, cookies, passwords, emails, or raw account-home paths",
+      "raw provider-stream or raw TUI persistence",
+      "using the OpenAI Organization Usage API as a substitute for ChatGPT/Codex plan proof",
+      "dashboard access, export download, or dashboard data capture unless a fresh decision explicitly authorizes it"
+    ]
+  },
+  "independent_pools": ["codex1", "codex2", "agy1", "agy2"],
+  "dispatch_decision": {
+    "schema_version": 1,
+    "scope_rank": 1,
+    "complexity_rank": 2,
+    "risk_rank": 2,
+    "ambiguity_rank": 2,
+    "evidence_burden_rank": 3,
+    "quality_floor": "gpt-5.6-sol/high",
+    "quota_band": "unknown",
+    "root_medium_confirmed": true,
+    "hitl_approved": true,
+    "policy_version": "2026-08-26.1",
+    "required_human_review": true,
+    "rationale": "The user approved an exact remedy for both blockers. AGY may make one interactive, sanitized quota-panel capture per independent alias. Codex has no documented CLI quota/concurrency endpoint; provider-documented Usage Dashboard/export availability may be preflighted but not opened or read under this authorization."
+  },
+  "runtime_preconditions": {
+    "runtime_config_path": ".agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml",
+    "runtime_config_role": "approved read-only alias routing only",
+    "tmux_required": true,
+    "tmux_path": "/opt/homebrew/bin/tmux",
+    "tmux_version": "3.7c",
+    "tmux_execution_requirement": "Use one detached tmux session per AGY alias and capture only an approved short sanitized summary with capture-pane.",
+    "root_execution_restriction": "The root/current session may validate this decision and collect child receipts only; a separately owned bounded child must perform any authorized provider-facing action."
+  },
+  "official_sources": [
+    {
+      "provider": "AGY",
+      "url": "https://www.agy.dev/docs/cli/commands/usage/",
+      "purpose": "Documents /usage and its /quota alias as the model quota/status display."
+    },
+    {
+      "provider": "OpenAI Codex",
+      "url": "https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan",
+      "purpose": "Documents ChatGPT-plan Codex usage limits and reset information through Settings or the usage dashboard, not a Codex CLI quota/concurrency endpoint."
+    },
+    {
+      "provider": "OpenAI API",
+      "url": "https://developers.openai.com/api/reference/python/resources/admin/subresources/organization/subresources/usage",
+      "purpose": "Documents the Organization Usage API boundary; it is not approved and must not be substituted for ChatGPT-plan Codex quota/concurrency evidence."
+    }
+  ],
+  "aliases": {
+    "agy1": {
+      "provider": "AGY",
+      "attempt_id": 4,
+      "status": "READY_TO_VALIDATE",
+      "quota_band": "unknown",
+      "concurrency_evidence": "unknown",
+      "authorized_action": {
+        "session": "one detached tmux session",
+        "account_binding": "set the AGY account home through the approved runtime config for this launch only; do not persist or record the path",
+        "steps": [
+          "launch literal agy interactive CLI without -p and without a model prompt",
+          "send the literal command /usage once",
+          "wait only for the quota panel",
+          "capture-pane only for sanitized remaining, reset, and model-label lines when visible",
+          "exit using q or Esc"
+        ],
+        "attempt_limit": 1,
+        "no_model_prompt": true,
+        "no_tool_use": true,
+        "no_raw_stream": true,
+        "no_retry": true
+      },
+      "expected_execution_receipt": "required",
+      "expected_work_result": "required",
+      "stop_condition": "Close after the first successful sanitized capture or the first interactive/malformed/receipt-binding failure."
+    },
+    "agy2": {
+      "provider": "AGY",
+      "attempt_id": 4,
+      "status": "READY_TO_VALIDATE",
+      "quota_band": "unknown",
+      "concurrency_evidence": "unknown",
+      "authorized_action": {
+        "session": "one detached tmux session",
+        "account_binding": "set the AGY account home through the approved runtime config for this launch only; do not persist or record the path",
+        "steps": [
+          "launch literal agy interactive CLI without -p and without a model prompt",
+          "send the literal command /usage once",
+          "wait only for the quota panel",
+          "capture-pane only for sanitized remaining, reset, and model-label lines when visible",
+          "exit using q or Esc"
+        ],
+        "attempt_limit": 1,
+        "no_model_prompt": true,
+        "no_tool_use": true,
+        "no_raw_stream": true,
+        "no_retry": true
+      },
+      "expected_execution_receipt": "required",
+      "expected_work_result": "required",
+      "stop_condition": "Close after the first successful sanitized capture or the first interactive/malformed/receipt-binding failure."
+    },
+    "codex1": {
+      "provider": "OpenAI Codex",
+      "attempt_id": 4,
+      "status": "NEEDS_HITL/PENDING_BROWSER",
+      "quota_band": "unknown",
+      "concurrency_evidence": "unknown",
+      "authorized_action": "Availability preflight only: establish whether a user-controlled authenticated browser/session and a provider-documented Usage Dashboard/export surface are demonstrably available. Do not open, access, read, export, or capture dashboard content.",
+      "no_child_ran_until_browser_preflight_passes": true,
+      "expected_execution_receipt": "required only if a separately owned availability-preflight child runs",
+      "expected_work_result": "required only if a separately owned availability-preflight child runs",
+      "stop_condition": "If a user-controlled authenticated browser/export is not demonstrably available, remain BLOCKED/no child ran. If available, stop and request a fresh decision before dashboard access or export."
+    },
+    "codex2": {
+      "provider": "OpenAI Codex",
+      "attempt_id": 4,
+      "status": "NEEDS_HITL/PENDING_BROWSER",
+      "quota_band": "unknown",
+      "concurrency_evidence": "unknown",
+      "authorized_action": "Availability preflight only: establish whether a user-controlled authenticated browser/session and a provider-documented Usage Dashboard/export surface are demonstrably available. Do not open, access, read, export, or capture dashboard content.",
+      "no_child_ran_until_browser_preflight_passes": true,
+      "expected_execution_receipt": "required only if a separately owned availability-preflight child runs",
+      "expected_work_result": "required only if a separately owned availability-preflight child runs",
+      "stop_condition": "If a user-controlled authenticated browser/export is not demonstrably available, remain BLOCKED/no child ran. If available, stop and request a fresh decision before dashboard access or export."
+    }
+  },
+  "receipt_and_result_contract": {
+    "protocol_version": 2,
+    "execution_receipt_required_fields": ["ticket", "attempt_id", "alias", "provider", "objective", "ownership", "started_at", "ended_at", "process_or_session_id", "quota_status", "concurrency_status", "output_bytes", "output_sha256", "normalized_work_result_sha256", "transport_status"],
+    "work_result_required_fields": ["Status", "Scope owned", "Evidence", "Findings", "Changed files", "Residual risk", "Recommended next action"],
+    "binding_rule": "Fail closed on missing/malformed receipt or WorkResult, alias/ticket/attempt mismatch, digest mismatch, secret exposure, ambiguous final state, or an unsanitized capture. Record only sanitized failure metadata; do not retry."
+  },
+  "immutability_evidence": {
+    "prior_attempt1": {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828.json",
+      "sha256": "2fcfa5a543ebe0d6c63959957c7365913f073bc5ed3f3f521f7eb4085c7b8e5a"
+    },
+    "prior_attempt2": {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt2.json",
+      "sha256": "7eb6135f66db1107e53f8e70f495bd3dabbbe25b38ad56b5e2fc4e47769c5314"
+    },
+    "prior_attempt3": {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt3.json",
+      "sha256": "1c569643709473391eddb9e944f7958a61e108daeb06640acc9c3965dfceeea8"
+    },
+    "prior_attempt3_closure": {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt3_closure_v2.json",
+      "sha256": "078862fa3af5bacc8c69bdbe209a567a3e5d59b7ed09e1439a77869a55867959"
+    },
+    "preservation_requirement": "Earlier attempts are immutable history. Attempt 4 does not validate, replace, or retry attempt 3."
+  },
+  "out_of_scope": ["source or documentation edits", "commit", "push", "deployment", "provider task execution", "provider mutation"],
+  "stop_condition": "DONE when this fresh decision artifact is written and JSON syntax, immutable prior-digest, and diff checks pass. No provider action is performed by this artifact-creation lane.",
+  "overall_status": "READY_TO_VALIDATE",
+  "required_human_review": true,
+  "review_reason": "AGY capture and Codex browser/export availability remain evidence-bound, account-isolated actions. Dashboard access/export requires a new explicit decision even when availability is confirmed."
+}

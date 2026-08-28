@@ -1,0 +1,492 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-S3-CAPACITY-GOVERNANCE-01",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "943bdd869b492a080493e669bdfdacf866c5e664",
+  "test_files": [
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_codex_quota_probe_20260828_attempt7.json",
+      "sha256": "ff9571acd19f0d968069b6893a486e78d2b379db8ac0d96c9747177ea6be90df"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_docs_inspection_20260828_attempt1.json",
+      "sha256": "e95c6ebcb232070826c3b0dc2b07fca4e189d521572def8798e69ddcc58a2e29"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_docs_inspection_20260828_attempt1_closure.json",
+      "sha256": "02dd5d4a2cdea91ce6ca26e966e73a5a752083629df7b0899bf609adcbc392e0"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_docs_inspection_20260828_attempt2.json",
+      "sha256": "100b1419dcf90d99c59156c49dbd5409ad1f8d039f90e85210668a696945b25b"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_docs_inspection_20260828_attempt2_closure.json",
+      "sha256": "364fd7a1da1442116c234bbc094f5e15a5bc1c3cc1ab38f61d00bd0ce5b69b0d"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_docs_inspection_20260828_attempt3.json",
+      "sha256": "9a9fa337e66474e49f5053f0cfa2e359c965ac0d44db066bd8fcf8f59873a25c"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_docs_inspection_20260828_attempt3_closure.json",
+      "sha256": "f486a0532ffcbfb014b74c1a7b15214cccac56eb71abeebbc3b84d7fcdefa6bd"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_json_quota_probe_20260828_attempt1.json",
+      "sha256": "c8125d39b4e2ea6b24b2a3193bee5b28a5e03eb58013de22fec3cb4117bc5c08"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_json_quota_probe_20260828_attempt1_closure.json",
+      "sha256": "10008c8a1158067e8d40b34b39068a833afa9206e5172a196ba7d2c7f724d8d4"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_json_quota_probe_20260828_attempt2.json",
+      "sha256": "ede7bc59bc056e5a65e9edfa4e34d84cce02e2603dbf1ce5fdda0a006f000065"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_json_quota_probe_20260828_attempt2_closure.json",
+      "sha256": "cb9eb4feef492c2a6d01e2676423f5874a48e252a10a06574194cc603252735b"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828.json",
+      "sha256": "2fcfa5a543ebe0d6c63959957c7365913f073bc5ed3f3f521f7eb4085c7b8e5a"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt10.json",
+      "sha256": "9e5a7b1c4fd99c524234d0f74ebd0161dd4070ec677e6efed7a6253e3e1c522c"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt10_closure.json",
+      "sha256": "3c914a098da145bc43f38636669d49c7e94ea93ac9441df5bc73273ceb937449"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt11.json",
+      "sha256": "257b5009cef43208588f9da7cadb94a4471a2c977fe1e179cc87597e8f51e497"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt11_closure.json",
+      "sha256": "1f661260a7eb9eb9a45584ba874f7cb3d3de308be48d39216d09f8536a1607d4"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt12.json",
+      "sha256": "1d1d118bfa74c39a18d6beb93bc6f48eff42fa8019fa8197dcf2673f216b79e2"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt12_closure.json",
+      "sha256": "10f2add6ca8b6374aa537863f2e5405164072b82b8e1446f08fb1dbc40fed50b"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt13.json",
+      "sha256": "0a45e3ac10248d35e235f66f5312e9836e174aa1935afead4a5969d6679f7674"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt13_closure.json",
+      "sha256": "fbd4c33ef9b29d7ba2d7994053274420d1d35fada21a66e96927510e7a3d4e52"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt2.json",
+      "sha256": "7eb6135f66db1107e53f8e70f495bd3dabbbe25b38ad56b5e2fc4e47769c5314"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt3.json",
+      "sha256": "1c569643709473391eddb9e944f7958a61e108daeb06640acc9c3965dfceeea8"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt3_closure.json",
+      "sha256": "cbfe5abd1208ff1ea3519a172ccb35d24be4a0d57a271956fc5868a578c785e9"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt3_closure_v2.json",
+      "sha256": "078862fa3af5bacc8c69bdbe209a567a3e5d59b7ed09e1439a77869a55867959"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt4.json",
+      "sha256": "b5a17f9115de92b07d4732672c6b3a11261de4451218845c6dd74f4722a01c2b"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt5.json",
+      "sha256": "7a7afd4c0b1d3034de757bb74f96faa8f818c8b3698b70a60570dc0e2bafb574"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt6.json",
+      "sha256": "263cd2ce2146dfa1dc26f99d37a5d90eb73c7a4f092298d2b0ab62c20f32b66e"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt6_closure.json",
+      "sha256": "4fdb636bb7b05f96dddaf463717602d8fbbdf35c7bc564c568fa9a6aed300afa"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt7.json",
+      "sha256": "75cd453facf64f7d5f5f09505208bc4ff2c34cfcc52e865749e60ff5cfbef8e0"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt7_closure.json",
+      "sha256": "b648c43cb325a79993f0c2147536626aa286f9e591e9168b198f8a7fea489393"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt8.json",
+      "sha256": "362a8bd4aaa217751e3193f66a91cda8386595f361c6321d5c13110f6f6f1dfd"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt8_closure.json",
+      "sha256": "eee31b8d28a98eee26c7fbe4301949093f955e81e81939f334099b6f8102d740"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt9.json",
+      "sha256": "9143f764da21f8790c8642d8bb9dc1951cad6e301b5d1cbe568999c88938914d"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt9_closure.json",
+      "sha256": "b65dbaba169f6fea72601e1e6c48547a95c50d435434f84198b9080bf97ed57f"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_codex_quota_probe_20260828_codex1_attempt7.json",
+      "sha256": "d68c91ea65271593725244eee2bafe28915482e5517df7407ae802f000d9a8cc"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_docs_inspection_20260828_attempt1.json",
+      "sha256": "64d7f72008711bb6910ca738c3cafe5aa1f5930c77652dee83e7967d6aba2f8a"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_docs_inspection_20260828_attempt2.json",
+      "sha256": "86de17827f57cd5f3f1f6ba89e6dab41b22d3dbba8963f4df4255c5844cd4a2f"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_docs_inspection_20260828_attempt3.json",
+      "sha256": "8a47d1f7b242444c3f89aea8dc22c9f8c4555a16f9cafb9de0140bf08e6ca327"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_json_quota_probe_20260828_agy1_attempt1.json",
+      "sha256": "6837a7a31434499cad1d35a72ce9ad5accbcecb964fc83fa3f4b1a86ac10d6f5"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_json_quota_probe_20260828_agy1_attempt2.json",
+      "sha256": "2b22feadb00bb5f2a37b95daf858f7a6a82c00e887815aff17ebd220207dfb53"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_json_quota_probe_20260828_agy2_attempt1.json",
+      "sha256": "e34deaed9b332ab342df0941e2a2fcad28eb04c25aabc9d9c124a1a4fdcb09f6"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_json_quota_probe_20260828_agy2_attempt2.json",
+      "sha256": "f0488cf6b8617b40e125febde174b1a1213fef578dd8299a933ee6889f23843b"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt10.json",
+      "sha256": "98ce66c725d9b81119008ac1f95937b3047dec81cd39e5cf293b4f1356b8f86d"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt11.json",
+      "sha256": "f3087a8a3e11a4df324c1a445d6677d8b5ad8804ecc75c19f091ba1db8c2efca"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt12.json",
+      "sha256": "cae05bfba04da851df124da4329880c0b44bee090341dae41c2d0d04063971ed"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt13.json",
+      "sha256": "5ea4ddd75d7eae27a06a1db6e73a287be3b297efc9454708211413e35e101ee8"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt3.json",
+      "sha256": "99caacd47a61988aed5b0222d266e717615ce1a004cc9b250778ec4c60d6ba9b"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt4.json",
+      "sha256": "43ce580d021cb50e7f02f65b4f4cfd5d6b1b45fced2cd0fbb0c977785231c1a7"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt6.json",
+      "sha256": "6e639cf65a64e89cec345d7fd7898c889f5071c3450d7b56f628f472224afc83"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt7.json",
+      "sha256": "0fbaa287ef580bf168c44d1e8cf1585ca73d3db253888e84349be2ed698645df"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt8.json",
+      "sha256": "ef80ba1c03f4a56b8209d81040edacef087d044f20d7722e81ea2c1ef8431e67"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt9.json",
+      "sha256": "fd5ac1cb2c08e11586bedc0a344914241bd881d4f2a8924f8f2faad9be3e0e6d"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt10.json",
+      "sha256": "7b67278287701396a0202ea7650e8bd270d968eb95d431b76f865d274562980c"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt11.json",
+      "sha256": "bb398808d1df5a3d89e1b3f5c97d8359ceb1e988293463376c8c08ceedf7f61b"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt12.json",
+      "sha256": "64b8a6fe4e892fa58ca3cce68b70d43e30c664b52d525c4e68c4a660f1106f9a"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt13.json",
+      "sha256": "d617314395e679f4b8c8eeec4eb62e1df1fdd831938e757eee350b9b70bfcbba"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt3.json",
+      "sha256": "502fc7f3e0faba7cb2634a70d90bc52a3ee65e9d87391b57ef2c926833ad8d4a"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt4.json",
+      "sha256": "ce73272dbabe61e9bf4bc3b07be9a585bc4f0aa75b8a7383149b6de6bef7f57f"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt6.json",
+      "sha256": "9a4053c3a9b6ea7de32c3c8859cfea21586a6b5893cdeb57680cafe00252d050"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt7.json",
+      "sha256": "31d19d6b8605a9c8df4f9c4c67f0f4ad6aa3b6b12fe07d15e2ec6cbb8f9de91e"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt8.json",
+      "sha256": "be72153fa3ac9d75c59466f1ec5a0d850a3639976b926d6222a4636fbd50bf19"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt9.json",
+      "sha256": "221bac85817579a0344b20ca99fce89266122c8eb4a8cf99e280ed1362f025ea"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_codex2_attempt7.json",
+      "sha256": "3e7d0fd47f7dc7ca441e76d104b98e30638f2e6f79f5270d623f0c8e2ab04dfe"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_codex_quota_probe_20260828_codex1_attempt7.json",
+      "sha256": "838c672aa65647be52b52a75cfeeb1143d97bf16728d6cd0f19c22157d0875cd"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_docs_inspection_20260828_attempt1.json",
+      "sha256": "4e3a3e41306b120bca5df8fddc428c9ddbed54b61f23a0f072642ce4e583294b"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_docs_inspection_20260828_attempt2.json",
+      "sha256": "9deb1727e66f6d17969c6cabeea02b147c10241b81a37433350e6ed3b88f79c1"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_docs_inspection_20260828_attempt3.json",
+      "sha256": "d5b38000947aba372878246d901ee1e861eb8cb00143a6efb146277a8836faa7"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_json_quota_probe_20260828_agy1_attempt1.json",
+      "sha256": "c32fd1b78fe8ddbfd7abeecc55c7db279ac7d86bb4010b083eabce7e60f07e83"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_json_quota_probe_20260828_agy1_attempt2.json",
+      "sha256": "7f9e820b800e96c3cf9331e57dee19f6ed59d36631dc6f731ef66a9c65f7f94c"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_json_quota_probe_20260828_agy2_attempt1.json",
+      "sha256": "f9ce147b0950a5c7db39a482437e6837f0950308f377fde95fbb70ff4f148b04"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_json_quota_probe_20260828_agy2_attempt2.json",
+      "sha256": "118028836ce53e54441df8aa15ae60b07b5af1119617729265744a87f5a181f2"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt10.json",
+      "sha256": "3232d1b44ca4c76d822a853fb3655090c0421dab68130201c4661ae80087f110"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt11.json",
+      "sha256": "f156cfcd88a376bb92e8d58d2486d20ef01c348f304663ed8d5c3cf3975295c9"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt12.json",
+      "sha256": "398f9fd0545a566a631e9f91bcbf5d5b4336a9e03fd33c168be8ee0b6343719c"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt13.json",
+      "sha256": "6f3796c94d8b5b7849f59d2015e42c000a48b1062a556eae25405093746f64ac"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt3.json",
+      "sha256": "dbdf0176e99dc1e220e108105acd94a9a85be18e48a0fd50dba819e67a59e42a"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt4.json",
+      "sha256": "40e7a59efab9f9a1ce96d7de474fc19ae21662aab764b506e97386110dddf9bb"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt6.json",
+      "sha256": "950164667866c1d7d20d3f17c917ec79b7e3fc60f06484344e94bc78aeae7606"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt7.json",
+      "sha256": "5b061fa9376d467f185f44632fa3a8710aabea21a66579ca70b9e5cb2d4e0fdd"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt8.json",
+      "sha256": "e812c49602726cded21371058f9832f3cfb0569eb8e47a768a2b852524d7161c"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt9.json",
+      "sha256": "434bb058c6af92747d50d9ef17ff2ad9ac4baee3b0057b8256b35c12612e3372"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt10.json",
+      "sha256": "0b30e985817fac783d9924c45cd99a171ab1d0faff800e709ab0516f73c262d5"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt11.json",
+      "sha256": "2ac08c43475a5b9f9b5a7622a5a006395eadbc744a5aeb05008353de9f8c6326"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt12.json",
+      "sha256": "2429d76ecfd53f2b3ab6fd326adac3c3add3bc909a20bb5c503d5c7a0ab2c819"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt13.json",
+      "sha256": "e41d42867dd9eb4c84b4f2d7a3bbf351ae849a370a7f36b3bb9269b2a47be133"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt3.json",
+      "sha256": "46a00d5831b6e1bee7e644063ff5fd47a6fcc628e94d41927da501cb9cf18432"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt4.json",
+      "sha256": "37d481c3500eda4b6e98cbf5bd30955a15df12e6ca3515646b291248233ede15"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt6.json",
+      "sha256": "29ad9beaf22ecabd40ca0efa5b3b199a9cafd377b120e73d39374ec885928412"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt7.json",
+      "sha256": "b56e775e2e2213dc25dc5c2cd9f13de9fc92e2986b3f1977daa30aec3b5915d3"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt8.json",
+      "sha256": "69d18f17ae1374dfe1e62b373292062d93951869335ad5886a3c16df8ecd8b44"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt9.json",
+      "sha256": "d3518658626f370f4f2fbd6c46e405449bd4e20bcbffdadac5fe9a8a473fe577"
+    },
+    {
+      "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_codex2_attempt7.json",
+      "sha256": "ef29680baef5db9128526692283ff3305aeac0bf77b53dc89781634f0b4ece00"
+    },
+    {
+      "path": "project/tests/artifacts/priority_scheduling/decision_qobs_01_dispatch_20260827.json",
+      "sha256": "8f0a737019f07147e87d8115a4e6a99657f522a50e50243dd82e9d8ff425cc7a"
+    },
+    {
+      "path": "project/tests/artifacts/priority_scheduling/decision_qobs_01_probe_20260827.json",
+      "sha256": "10cd0a43fd6104fc3aa00f416bb31f578f971d91e325955128c5dcdc9e28ef93"
+    },
+    {
+      "path": "project/tests/artifacts/priority_scheduling/decision_qobs_01_scheduler_20260827.json",
+      "sha256": "27b05d03d84011f2830afe015b7714c5f3a0dc624dbb57ab40c4d8e526fb866a"
+    },
+    {
+      "path": "project/tests/artifacts/priority_scheduling/decision_release_complete_20260827_pointer_centralization_commit.json",
+      "sha256": "558981eb32dc461d78d1a9a65428726848965ed5e991cbf46b1fee8bf1351618"
+    },
+    {
+      "path": "project/tests/artifacts/priority_scheduling/decision_release_complete_20260827_vault_sync_status_commit.json",
+      "sha256": "51502eabd7db625b33b38c604ca2560fd605add99feff97381345d95d327a5a9"
+    },
+    {
+      "path": "project/tests/artifacts/priority_scheduling/scheduling_snapshot_qobs_01_dispatch_20260827.json",
+      "sha256": "6d8baf793ad375d0f89ae842fb5bfa754324e065aaa4186589d8c483b252435d"
+    },
+    {
+      "path": "project/tests/artifacts/priority_scheduling/scheduling_snapshot_qobs_01_probe_20260827.json",
+      "sha256": "98027b1378baca2c85bb48133c60d1af93f237d0ad14651eb709d6160f59bf70"
+    },
+    {
+      "path": "project/tests/artifacts/priority_scheduling/scheduling_snapshot_qobs_01_scheduler_20260827.json",
+      "sha256": "5f2c0ae87431cdc5928994300be6c1e2dbe151ed869db867aa5ed90cab3bd4ef"
+    },
+    {
+      "path": "project/tests/artifacts/priority_scheduling/scheduling_snapshot_release_complete_20260827_pointer_centralization_commit.json",
+      "sha256": "9619a4660003749c39c6bcf783a47a170e210b3aac0edf5669d28ff7ba5b2f63"
+    },
+    {
+      "path": "project/tests/artifacts/priority_scheduling/scheduling_snapshot_release_complete_20260827_vault_sync_status_commit.json",
+      "sha256": "61bdc131285855ab25187122b950b25c538ad857758346fd02c7e193b2cbc9e1"
+    },
+    {
+      "path": "tests/test_agy_cli_docs_inspector.py",
+      "sha256": "146cd8aedbed3915eeadea4fa2b3d477cb160b7bbdd8805c94836564834d8a29"
+    },
+    {
+      "path": "tests/test_agy_json_usage_sanitizer.py",
+      "sha256": "1a811ac934368c2f5ec0c6dfeaa45927a5a689327d57fb3b05fb72f9d8d1c5e6"
+    },
+    {
+      "path": "tests/test_agy_usage_quota_sanitizer.py",
+      "sha256": "8437160e2943c57bf84bb03b6bef546d2b6a82512096d91de0296c62d7b03f8e"
+    },
+    {
+      "path": "tests/test_claude_agy_parity.py",
+      "sha256": "5a04c4e5bcb871eb08c44c62d03c63ec88d5a558318cf6b4757e8711efb47cdd"
+    },
+    {
+      "path": "tests/test_multiagent_capacity.py",
+      "sha256": "091b25a166de15205ff8c386410fe3cf08aeb0c93a304c5116f934abce608fa5"
+    },
+    {
+      "path": "tests/test_multiagent_prompt_command.py",
+      "sha256": "f82a3cabd05450810a3108b9761ff5efccf1935659b50ba86bb13994d6051d79"
+    },
+    {
+      "path": "tests/test_multiagent_ticket_scheduler.py",
+      "sha256": "c39623e8a2e7d520722296a773cc529f2b3e36497392a1f121826a29e6904ebb"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_multiagent_capacity.py",
+        "-k",
+        "non_existent_red_filter"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "verified fail-closed capacity governance, docs inspection, json sanitizer, and parity test matrix"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/s3_capacity_policy.json",
+    ".agents/rules/19-agy-capacity-governance.md",
+    ".agents/skills/agy-capacity-orchestration/SKILL.md",
+    ".agyignore",
+    ".antigravity/skills/agy-capacity-orchestration/SKILL.md",
+    ".claude/settings.json",
+    ".claudeignore",
+    ".githooks/pre-commit",
+    "AGY.md",
+    "CLAUDE.md",
+    "HANDOFF.md",
+    "PROJECT_TASKS.md",
+    "plans/plan.md",
+    "project/data/bazi_bazi_manual_chatml.jsonl",
+    "project/data/distillation_checklist.json",
+    "project/data/vault_sync_status.json",
+    "scripts/agent_quota_status_guard.py",
+    "scripts/agy_cli_docs_inspector.py",
+    "scripts/agy_json_usage_sanitizer.py",
+    "scripts/agy_usage_quota_sanitizer.py",
+    "scripts/multiagent_capacity.py",
+    "scripts/multiagent_prompt_command.py",
+    "scripts/multiagent_ticket_scheduler.py",
+    "scripts/sync_ai_agent_ecosystem.py",
+    "scripts/sync_claude_agy_parity.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Multi-account capacity governance with zero-leak sanitizers, docs inspection, fallback floor policy, and AGY/Claude parity."
+}

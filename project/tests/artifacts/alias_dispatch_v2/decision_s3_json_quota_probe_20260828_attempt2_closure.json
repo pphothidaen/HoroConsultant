@@ -1,0 +1,83 @@
+{
+  "artifact_type": "Decision/HITL-Closure",
+  "protocol_version": 2,
+  "ticket": "TICKET-S3-AGY-JSON-PROBE-20260828-ATTEMPT2",
+  "attempt_id": 2,
+  "closure_status": "COMPLETED",
+  "closed_at": "2026-08-28T04:41:00Z",
+  "immutable_decision": {
+    "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_json_quota_probe_20260828_attempt2.json",
+    "physical_sha256": "ede7bc59bc056e5a65e9edfa4e34d84cce02e2603dbf1ce5fdda0a006f000065",
+    "normalized_sha256": "d03626561228e744de8f41c7024dfcc40e7f01ae0df23716240b9afe830806c1",
+    "approval": "Approve AGY json-probe attempt-2 exactly",
+    "approval_scope": "one read-only invocation of literal `agy --output-format json -p /usage` per alias (agy1, agy2) under the Decision; inspecting inner response field; no retry, mutation, raw output, model task, transaction, or concurrency inference"
+  },
+  "sanitizer_binding": {
+    "path": "scripts/agy_json_usage_sanitizer.py",
+    "version": "agy-json-usage-sanitizer-v1.2.0",
+    "version_sha256": "cfc8bb95443f58957ea5bf4da60163acb998865529cbf809c72fa114aed8a3b4",
+    "file_sha256": "f86a96a20c704f36cd2f4b638d70c74eb5088fc27624141dff0c6d094f1ff87e",
+    "tests_path": "tests/test_agy_json_usage_sanitizer.py",
+    "tests_sha256": "1a811ac934368c2f5ec0c6dfeaa45927a5a689327d57fb3b05fb72f9d8d1c5e6"
+  },
+  "drift_evidence": {
+    "environment_normalization_effective": true,
+    "has_ansi_escape": false,
+    "root_type": "dict",
+    "top_level_keys": [
+      "command",
+      "conversation_id",
+      "duration_seconds",
+      "num_turns",
+      "response",
+      "status",
+      "usage"
+    ],
+    "key_count": 7,
+    "response_type": "string",
+    "has_session_overhead_usage": true,
+    "has_account_quota_metrics": false,
+    "account_quota_buckets_count": 0,
+    "sanitizer_version": "agy-json-usage-sanitizer-v1.2.0"
+  },
+  "results": {
+    "agy1": {
+      "receipt_path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_json_quota_probe_20260828_agy1_attempt2.json",
+      "receipt_sha256": "2b22feadb00bb5f2a37b95daf858f7a6a82c00e887815aff17ebd220207dfb53",
+      "workresult_path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_json_quota_probe_20260828_agy1_attempt2.json",
+      "workresult_sha256": "7f9e820b800e96c3cf9331e57dee19f6ed59d36631dc6f731ef66a9c65f7f94c",
+      "status": "COMPLETED",
+      "quota_status": "unknown",
+      "provider_invocation_count": 1,
+      "tmux_session": "s3-agy1-json-probe-a2",
+      "tmux_closed": true,
+      "raw_provider_stream_persisted": false
+    },
+    "agy2": {
+      "receipt_path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_json_quota_probe_20260828_agy2_attempt2.json",
+      "receipt_sha256": "f0488cf6b8617b40e125febde174b1a1213fef578dd8299a933ee6889f23843b",
+      "workresult_path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_json_quota_probe_20260828_agy2_attempt2.json",
+      "workresult_sha256": "118028836ce53e54441df8aa15ae60b07b5af1119617729265744a87f5a181f2",
+      "status": "COMPLETED",
+      "quota_status": "unknown",
+      "provider_invocation_count": 1,
+      "tmux_session": "s3-agy2-json-probe-a2",
+      "tmux_closed": true,
+      "raw_provider_stream_persisted": false
+    }
+  },
+  "invariants": {
+    "command": ["agy", "--output-format", "json", "-p", "/usage"],
+    "transport": "detached_tmux",
+    "provider_invocations_total": 2,
+    "model_tasks": 0,
+    "retries": 0,
+    "mutations": 0,
+    "concurrency_inference": false,
+    "evidence_boundary": "validated in-process only",
+    "attempt_3_created": false,
+    "provider_call_after_closure": false
+  },
+  "summary": "Exact one-shot JSON quota probe attempt 2 completed for both agy1 and agy2 (exit 0) under environment normalization. Inner response field was inspected by sanitizer v1.2.0; it contains qualitative status text rather than numeric ratio/percentage quotas. Per governance rules, quota_status is recorded as unknown without false claims. Both lanes completed cleanly. JSON Quota Probe Attempt 2 is successfully COMPLETED.",
+  "next_action": "JSON Quota Probe is successfully closed with quota_status=unknown. Proceed to Option B Dynamic Capacity Management with conservative floor 1 worker/account."
+}

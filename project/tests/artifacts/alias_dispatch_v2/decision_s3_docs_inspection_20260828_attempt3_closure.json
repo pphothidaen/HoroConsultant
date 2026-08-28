@@ -1,0 +1,93 @@
+{
+  "artifact_type": "Decision/HITL-Closure",
+  "protocol_version": 2,
+  "ticket": "TICKET-S3-AGY-DOCS-INSPECT-20260828-ATTEMPT3",
+  "attempt_id": 3,
+  "closure_status": "COMPLETED",
+  "closed_at": "2026-08-28T04:24:00Z",
+  "immutable_decision": {
+    "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_docs_inspection_20260828_attempt3.json",
+    "physical_sha256": "9a9fa337e66474e49f5053f0cfa2e359c965ac0d44db066bd8fcf8f59873a25c",
+    "normalized_sha256": "9cab7201094a5f5cb79f91fd32d8e8fad6d5e011279f1ef9c43ea91a44fc9b8c",
+    "approval": "Approve AGY docs-inspect attempt-3 exactly",
+    "approval_scope": "one read-only invocation of literal `agy --help` under the Decision; no retry, mutation, raw output, model task, transaction, or quota/concurrency inference"
+  },
+  "inspector_binding": {
+    "path": "scripts/agy_cli_docs_inspector.py",
+    "version": "agy-cli-docs-inspector-v1.5.0",
+    "version_sha256": "5ea88c4fbdc3bddcb8b93462cab371832c7e38dd912fb5dc9304a40675184af6",
+    "file_sha256": "546f656bbefda59f920329967574f99e6c99843d0818ffb87f2d5b7e32bc6307",
+    "tests_path": "tests/test_agy_cli_docs_inspector.py",
+    "tests_sha256": "146cd8aedbed3915eeadea4fa2b3d477cb160b7bbdd8805c94836564834d8a29"
+  },
+  "drift_evidence": {
+    "environment_normalization_effective": true,
+    "has_ansi_escape": false,
+    "flag_count": 23,
+    "subcommand_count": 0,
+    "stdout_nonempty": false,
+    "stderr_nonempty": true,
+    "combined_stream_bytes": 2675,
+    "flag_aliases": {
+      "--continue": ["-c"],
+      "--prompt-interactive": ["-i"],
+      "--print": ["-p"],
+      "--prompt": ["--print"]
+    },
+    "flag_semantics": {
+      "--disable-slash-commands": {
+        "short_purpose": "Disable slash command and skill expansion in print mode"
+      },
+      "--output-format": {
+        "short_purpose": "Output format for print mode text json stream-json default text",
+        "choices": ["json", "stream-json", "text"]
+      },
+      "--input-format": {
+        "short_purpose": "Input format for print mode text stream-json stream-json reads one NDJSON message",
+        "choices": ["stream-json", "text"]
+      },
+      "--print": {
+        "short_purpose": "Alias for --print"
+      },
+      "-p": {
+        "short_purpose": "Short alias for --print"
+      },
+      "--effort": {
+        "short_purpose": "Reasoning effort for the current CLI session",
+        "choices": ["high", "low", "medium"]
+      },
+      "--mode": {
+        "short_purpose": "Set the agent execution mode for this session accept-edits plan",
+        "choices": ["accept-edits", "plan"]
+      }
+    },
+    "inspector_version": "agy-cli-docs-inspector-v1.5.0"
+  },
+  "results": {
+    "docs_inspect": {
+      "receipt_path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_docs_inspection_20260828_attempt3.json",
+      "receipt_sha256": "8a47d1f7b242444c3f89aea8dc22c9f8c4555a16f9cafb9de0140bf08e6ca327",
+      "workresult_path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_docs_inspection_20260828_attempt3.json",
+      "workresult_sha256": "d5b38000947aba372878246d901ee1e861eb8cb00143a6efb146277a8836faa7",
+      "status": "COMPLETED",
+      "provider_invocation_count": 1,
+      "tmux_session": "s3-agy-docs-inspect-a3",
+      "tmux_closed": true,
+      "raw_provider_stream_persisted": false
+    }
+  },
+  "invariants": {
+    "command": ["agy", "--help"],
+    "transport": "detached_tmux",
+    "provider_invocations_total": 1,
+    "model_tasks": 0,
+    "retries": 0,
+    "mutations": 0,
+    "concurrency_inference": false,
+    "evidence_boundary": "validated in-process only",
+    "attempt_4_created": false,
+    "provider_call_after_closure": false
+  },
+  "summary": "Exact one-shot docs inspection completed provider invocation (exit 0) under environment normalization. Captured and verified flag aliases and semantics: --disable-slash-commands proves slash commands ARE active by default in print mode; -p is an alias for --print; --output-format supports ['json', 'stream-json', 'text']. Attempt 3 is successfully COMPLETED.",
+  "next_action": "Docs Inspection Attempt 3 is successfully closed. With flag semantics confirmed, formulate next step: probe structured output via `agy --output-format json -p /usage` under strict governance or transition to Option B capacity policy."
+}

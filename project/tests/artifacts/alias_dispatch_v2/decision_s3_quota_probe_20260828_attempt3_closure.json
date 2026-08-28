@@ -1,0 +1,81 @@
+{
+  "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828",
+  "artifact_type": "immutable_closure_summary",
+  "attempt": 3,
+  "status": "BLOCKED",
+  "decision": {
+    "scope": "one-shot read-only quota/status probe only",
+    "targets": ["codex1", "codex2", "agy1", "agy2"],
+    "constraints": {
+      "provider_execution": false,
+      "account_or_provider_mutation": false,
+      "retries": false,
+      "raw_stream_capture": false,
+      "required_human_review": true
+    },
+    "runtime": {
+      "tmux_version": "3.7c",
+      "parallel_lanes": true
+    }
+  },
+  "aliases": {
+    "agy1": {
+      "status": "BLOCKED",
+      "child_ran": true,
+      "invocation_count": 1,
+      "command": "agy -p \"/usage\" --output-format json",
+      "lane": "separate tmux lane",
+      "capture_pane": {
+        "result": "NO_SAFE_QUOTA_METADATA",
+        "parsed_objects": 0
+      },
+      "quota_concurrency": "unknown",
+      "receipt_path": "project/tests/artifacts/alias_dispatch_v2/agy1_execution_receipt.json",
+      "workresult_path": "project/tests/artifacts/alias_dispatch_v2/agy1_workresult.json",
+      "artifacts_json_validated": true
+    },
+    "agy2": {
+      "status": "BLOCKED",
+      "child_ran": true,
+      "invocation_count": 1,
+      "command": "agy -p \"/usage\" --output-format json",
+      "lane": "separate tmux lane",
+      "capture_pane": {
+        "result": "NO_SAFE_QUOTA_METADATA",
+        "parsed_objects": 0
+      },
+      "quota_concurrency": "unknown",
+      "receipt_path": "project/tests/artifacts/alias_dispatch_v2/agy2_execution_receipt.json",
+      "workresult_path": "project/tests/artifacts/alias_dispatch_v2/agy2_workresult.json",
+      "artifacts_json_validated": true
+    },
+    "codex1": {
+      "status": "BLOCKED",
+      "child_ran": false,
+      "no_child_ran": true,
+      "quota_concurrency": "unknown",
+      "finding": "Official OpenAI documentation provides /status for current session configuration and the Usage Dashboard for account limits, but no documented Codex CLI quota/concurrency endpoint."
+    },
+    "codex2": {
+      "status": "BLOCKED",
+      "child_ran": false,
+      "no_child_ran": true,
+      "quota_concurrency": "unknown",
+      "finding": "Official OpenAI documentation provides /status for current session configuration and the Usage Dashboard for account limits, but no documented Codex CLI quota/concurrency endpoint."
+    }
+  },
+  "official_sources": [
+    "https://www.agy.dev/docs/cli/commands/usage/",
+    "https://www.agy.dev/docs/cli/headless/",
+    "https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan",
+    "https://developers.openai.com/api/reference/python/resources/admin/subresources/organization/subresources/usage"
+  ],
+  "research_boundary": "The OpenAI Organization Usage API is for API organization analytics and requires an admin key; it is not proof of ChatGPT Codex account quota or concurrency.",
+  "integrity": {
+    "raw_streams": "not retained",
+    "mutation_detected": false,
+    "retries": 0,
+    "closure_basis": "verified receipts/workresults and official documentation finding"
+  },
+  "next_action": "Obtain a provider-documented Codex quota/concurrency endpoint or dashboard export, then create a fresh decision before any new probe."
+}

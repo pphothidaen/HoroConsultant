@@ -1,0 +1,138 @@
+{
+  "protocol_version": 2,
+  "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828",
+  "phase": "operations",
+  "work_mode": "read_only",
+  "objective": "one-shot quota/status and concurrency evidence collection only",
+  "authorization": {
+    "type": "HITL",
+    "status": "granted",
+    "authorized_at": "2026-08-28T00:00:00+07:00",
+    "timezone": "Asia/Bangkok",
+    "scope": "one-shot read-only quota/status probe for codex1, codex2, agy1, and agy2",
+    "prohibited": [
+      "provider execution",
+      "real transactions",
+      "account mutation",
+      "provider setting changes",
+      "secret collection or output",
+      "network access outside the approved read-only probe",
+      "tmux launch when no approved probe command exists"
+    ]
+  },
+  "independent_pools": ["codex1", "codex2", "agy1", "agy2"],
+  "classification": {
+    "scope_rank": 1,
+    "complexity_rank": 1,
+    "risk_rank": 1,
+    "ambiguity_rank": 1,
+    "evidence_burden_rank": 3,
+    "quota_band": "unknown",
+    "root_medium_gate": {
+      "required": true,
+      "satisfied": true,
+      "basis": "Fresh explicit user HITL authorization is recorded for this exact read-only scope."
+    },
+    "rationale": "The request is limited to one bounded status/quota/concurrency observation per independent account pool. Provider-native proof is unavailable locally, so execution is fail-closed and each lane remains blocked pending an approved provider probe and resulting evidence."
+  },
+  "probe_discovery": {
+    "approved_probe_available": false,
+    "approved_probe_path": null,
+    "runtime_config_path": ".agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml",
+    "runtime_config_found": true,
+    "runtime_config_finding": "The config defines read-only alias routes for all four pools and approved model/effort routes, but it is a dispatch runtime config and contains no provider-native quota/status probe command or concurrency-status endpoint.",
+    "local_observation_helper": "scripts/agent_quota_status_guard.py::probe_quota_observation",
+    "local_observation_finding": "The helper validates/builds a content-free artifact from caller-supplied status; it does not query a provider and cannot establish provider quota or concurrency evidence.",
+    "tmux_runner_path": ".agy/scripts/tmux-runner.sh",
+    "tmux_runner_finding": "Generic background runner exists, but no approved quota/status probe command was found to pass to it; it was not invoked.",
+    "discovery_boundary": "Read-only repository inspection only; no provider, account, network, or subprocess command was run."
+  },
+  "aliases": {
+    "codex1": {
+      "attempt_id": 1,
+      "provider": "codex",
+      "selected_model": "gpt-5.6-sol",
+      "selected_effort": "high",
+      "model_effort_catalog_status": "SUPPORTED",
+      "status": "BLOCKED",
+      "failure_class": "missing_runtime_proof",
+      "no_child_ran": true,
+      "quota_band": "unknown",
+      "concurrency_evidence": null,
+      "block_reason": "No approved provider-native read-only quota/status probe or concurrency-status path is available."
+    },
+    "codex2": {
+      "attempt_id": 1,
+      "provider": "codex",
+      "selected_model": "gpt-5.6-sol",
+      "selected_effort": "high",
+      "model_effort_catalog_status": "SUPPORTED",
+      "status": "BLOCKED",
+      "failure_class": "missing_runtime_proof",
+      "no_child_ran": true,
+      "quota_band": "unknown",
+      "concurrency_evidence": null,
+      "block_reason": "No approved provider-native read-only quota/status probe or concurrency-status path is available."
+    },
+    "agy1": {
+      "attempt_id": 1,
+      "provider": "agy",
+      "selected_model": "gemini-3.1-pro-high",
+      "selected_effort": "high",
+      "model_effort_catalog_status": "SUPPORTED",
+      "status": "BLOCKED",
+      "failure_class": "missing_runtime_proof",
+      "no_child_ran": true,
+      "quota_band": "unknown",
+      "concurrency_evidence": null,
+      "block_reason": "No approved provider-native read-only quota/status probe or concurrency-status path is available."
+    },
+    "agy2": {
+      "attempt_id": 1,
+      "provider": "agy",
+      "selected_model": "gemini-3.1-pro-high",
+      "selected_effort": "high",
+      "model_effort_catalog_status": "SUPPORTED",
+      "status": "BLOCKED",
+      "failure_class": "missing_runtime_proof",
+      "no_child_ran": true,
+      "quota_band": "unknown",
+      "concurrency_evidence": null,
+      "block_reason": "No approved provider-native read-only quota/status probe or concurrency-status path is available."
+    }
+  },
+  "expected_execution_receipt": {
+    "required": true,
+    "protocol_version": 2,
+    "fields": [
+      "ticket",
+      "alias",
+      "provider",
+      "attempt_id",
+      "status",
+      "started_at",
+      "ended_at",
+      "process_or_session_id",
+      "quota_status",
+      "concurrency_status",
+      "output_bytes",
+      "output_sha256",
+      "scheduling_snapshot_sha256",
+      "claim_proof"
+    ],
+    "not_emitted": true,
+    "reason": "No child ran because no approved probe command exists."
+  },
+  "expected_work_result": {
+    "required": true,
+    "protocol_version": 2,
+    "fields": ["status", "summary", "evidence", "blockers"],
+    "not_emitted": true,
+    "reason": "No provider-native result exists without an approved probe execution."
+  },
+  "stop_condition": "Stop immediately after one read-only observation per alias; do not retry, execute a provider task, mutate account/provider state, or infer quota/concurrency from local configuration. If the approved probe/config is absent, record BLOCKED with no child ran and await a fresh exact authorization and approved probe path.",
+  "overall_status": "BLOCKED",
+  "required_human_review": true,
+  "review_reason": "Unknown quota and missing provider-native proof require human review before any future provider probe or execution.",
+  "created_at": "2026-08-28T00:00:00+07:00"
+}

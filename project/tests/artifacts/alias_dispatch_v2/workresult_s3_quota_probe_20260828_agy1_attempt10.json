@@ -1,0 +1,48 @@
+{
+  "Status": "BLOCKED",
+  "Scope owned": "agy1 attempt 10 only: one account-isolated read-only AGY quota observation through the bound in-memory sanitizer with structural fingerprinting",
+  "Evidence": {
+    "decision_file_sha256": "9e5a7b1c4fd99c524234d0f74ebd0161dd4070ec677e6efed7a6253e3e1c522c",
+    "decision_normalized_sha256": "2f8ba6696821ab15515885724e47a930f0ae694b176936ea3aeadc7e60d84e5c",
+    "sanitizer_version": "agy-usage-sanitizer-v1.3.0",
+    "sanitizer_version_sha256": "1fc2afcd469a7c14a2ceccc6c14e59d67e84dbb414036462ae6f13dc73348ac9",
+    "sanitizer_sha256": "55b7b7d43247fd23cf21c03fe366d07c044626f15a62b098add011eb8169eeaa",
+    "tmux_session_id": "s3-agy1-quota-a10",
+    "provider_invocation_count": 1,
+    "sanitized_failure_type": "parse_failure:unexpected_key_value",
+    "structural_fingerprint": {
+      "line_count": 4,
+      "has_ansi_escape": false,
+      "detected_layout": "key_value",
+      "line_structures": [
+        "key_value",
+        "key_value",
+        "key_value",
+        "unclassified"
+      ],
+      "first_token_types": [
+        "key",
+        "key",
+        "key",
+        "unclassified"
+      ]
+    },
+    "sanitized_output_bytes": 467,
+    "sanitized_output_sha256": "065b16068f804b072e30690fe6a99cba95230b001f2fd547c3e6727ceb413bd9",
+    "raw_provider_stream_persisted": false,
+    "evidence_boundary": "validated in-process only"
+  },
+  "Findings": [
+    "The exact approved one-shot command was admitted and executed in the account-isolated tmux session; provider returned exit status 0.",
+    "Environment normalization succeeded (NO_COLOR=1, TERM=dumb, LC_ALL=C: has_ansi_escape is false).",
+    "Structural fingerprint captured a 4-line key_value layout; parser failed on unexpected_key_value and emitted no quota bucket; agy1 quota and concurrency remain unknown.",
+    "No raw provider output, account-home value, credential, retry, fallback, model task, provider transaction, or configuration mutation was retained or used."
+  ],
+  "Changed files": [
+    "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt10.json",
+    "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt10.json"
+  ],
+  "Residual risk": "The provider output did not produce safe allowlisted quota metadata; quota and concurrency cannot be inferred from this attempt.",
+  "Recommended next action": "Close attempt 10 as BLOCKED/NEEDS_HITL. Use the structural fingerprint (4 lines, key_value layout) to adapt the parser for key-value pair extraction in Attempt 11.",
+  "Status_reason": "BLOCKED: sanitizer parse_failure:unexpected_key_value; no quota bucket crossed the in-memory evidence boundary."
+}

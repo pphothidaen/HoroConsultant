@@ -1,0 +1,71 @@
+{
+  "Status": "COMPLETED",
+  "Scope owned": "agy2 json-quota-probe attempt 1 only: structured JSON usage observation via agy --output-format json -p /usage through in-memory sanitizer v1.1.0",
+  "Evidence": {
+    "decision_file_sha256": "c8125d39b4e2ea6b24b2a3193bee5b28a5e03eb58013de22fec3cb4117bc5c08",
+    "decision_normalized_sha256": "bd71d8e9186c84e29ad98e9fb5227eb83f816a53d1cb596c7bff497ff0fd27dd",
+    "sanitizer_version": "agy-json-usage-sanitizer-v1.1.0",
+    "sanitizer_version_sha256": "9325d9137980e0411bfcff82128771b5407ada2f52c2bba4659780a3a8aa2ddf",
+    "sanitizer_sha256": "16dc58eb881405cfd9f2f938ab960c1ac52a2f43e069d0a93e2b8752245360a8",
+    "tmux_session_id": "s3-agy2-json-probe-a1",
+    "command_argv": ["agy", "--output-format", "json", "-p", "/usage"],
+    "account_alias": "agy2",
+    "provider_invocation_count": 1,
+    "sanitized_status": "completed",
+    "quota_status": "observed",
+    "extracted_quota_metrics": [
+      {
+        "bucket": "duration_seconds",
+        "value": 0
+      },
+      {
+        "bucket": "usage",
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "thinking_tokens": 0,
+        "cache_read_tokens": 0,
+        "total_tokens": 0
+      }
+    ],
+    "structural_fingerprint": {
+      "root_type": "dict",
+      "top_level_keys": [
+        "command",
+        "conversation_id",
+        "duration_seconds",
+        "num_turns",
+        "response",
+        "status",
+        "usage"
+      ],
+      "key_count": 7,
+      "has_quota_data": true,
+      "has_percent": false,
+      "has_ratio": false,
+      "has_duration": false,
+      "sanitized_buckets_count": 2,
+      "stdout_nonempty": true,
+      "stderr_nonempty": false,
+      "combined_stream_bytes": 2066,
+      "capture_boundary": "stdout_stderr_in_memory"
+    },
+    "sanitized_output_bytes": 890,
+    "sanitized_output_sha256": "32b8ead86f64510ab77459b673d70bec95fa93642dbddaf26506ecfdc55747cc",
+    "raw_provider_stream_persisted": false,
+    "evidence_boundary": "validated in-process only"
+  },
+  "Findings": [
+    "The exact approved one-shot command agy --output-format json -p /usage executed successfully in detached tmux for agy2 (exit code 0).",
+    "In JSON print mode, AGY outputs a structured JSON envelope with 7 keys: command, conversation_id, duration_seconds, num_turns, response, status, usage.",
+    "Session token usage was extracted safely (0 input/output/thinking/cache tokens used for slash command).",
+    "The response field contains the output body of /usage.",
+    "No raw JSON dump, account home, path, credential, retry, fallback, model task, or mutation was retained or used."
+  ],
+  "Changed files": [
+    "project/tests/artifacts/alias_dispatch_v2/workresult_s3_json_quota_probe_20260828_agy2_attempt1.json",
+    "project/tests/artifacts/alias_dispatch_v2/receipt_s3_json_quota_probe_20260828_agy2_attempt1.json"
+  ],
+  "Residual risk": "AGY structured JSON output encapsulates per-session token metrics and response text without exposing raw system credentials.",
+  "Recommended next action": "Record agy2 JSON probe receipt and workresult. Close JSON Quota Probe Attempt 1.",
+  "Status_reason": "COMPLETED: successfully observed structured JSON usage response for agy2."
+}

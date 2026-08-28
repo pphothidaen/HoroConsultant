@@ -1,0 +1,126 @@
+{
+  "protocol_version": 2,
+  "artifact_type": "DispatchDecision_HITL_Record",
+  "ticket": "TICKET-S3-CODEX-QUOTA-PROBE-20260828",
+  "attempt_id": 7,
+  "created_at": "2026-08-28T02:31:57Z",
+  "timezone": "Asia/Bangkok",
+  "phase": "fresh_preflight_and_terminal_status_dispatch",
+  "work_mode": "read_only",
+  "overall_status": "READY_FOR_CHILD_DISPATCH",
+  "required_human_review": true,
+  "objective": "Make one fresh, account-isolated Codex CLI /status observation for codex1 and codex2, without a model task, transaction, mutation, or raw-output persistence.",
+  "authorization": {
+    "type": "fresh_HITL_terminal_only_quota_status_authorization",
+    "status": "granted_for_attempt7_exact_status_command_only",
+    "approval_reference": "User-authorized terminal workaround when no authenticated browser connector/export exists; quota/status only.",
+    "scope": [
+      "codex1: one literal /status command in its own approved account runtime",
+      "codex2: one literal /status command in its own approved account runtime"
+    ],
+    "transport_rule": "Use detached tmux first; direct terminal fallback is allowed once only when tmux setup fails before /status starts.",
+    "prohibited": [
+      "model prompt, model task, tool task, or provider transaction",
+      "dashboard access, dashboard export, Organization Usage API, or browser access",
+      "provider/account/settings/configuration mutation",
+      "retry or fallback after /status starts, or more than one invocation per alias",
+      "reading or persisting credentials, cookies, email, account-home paths, raw pane, or raw stdout/stderr",
+      "inferring concurrency when it is not explicitly displayed",
+      "using any command other than interactive codex followed by literal /status"
+    ]
+  },
+  "account_scope": {
+    "provider": "OpenAI Codex",
+    "aliases": ["codex1", "codex2"],
+    "distinct_accounts": true,
+    "approved_runtime_config": ".agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml",
+    "runtime_config_sha256": "60cdc745f1292a23418e1ed3f9bee08d44a55775e14e4139c9fc001e5ddd72e0",
+    "quota_status": {"codex1": "unknown_fresh_observation_required", "codex2": "unknown_fresh_observation_required"},
+    "concurrency_status": {"codex1": "unknown", "codex2": "unknown", "rule": "Only explicit provider-displayed concurrency may be recorded."}
+  },
+  "dispatch_decisions": {
+    "codex1": {
+      "schema_version": 1,
+      "dispatch_ticket_id": "TICKET-S3-CODEX-QUOTA-PROBE-20260828-CODEX1-A7",
+      "selected_alias": "codex1",
+      "selected_model": "gpt-5.6-sol",
+      "selected_effort": "high",
+      "quality_floor": "gpt-5.6-sol/high",
+      "scope_rank": 1,
+      "complexity_rank": 2,
+      "risk_rank": 3,
+      "ambiguity_rank": 3,
+      "evidence_burden_rank": 3,
+      "policy_version": "2026-08-26.1",
+      "hitl_approved": true,
+      "required_human_review": true,
+      "exact_command_argv": ["codex", "/status"],
+      "child_owner": "codex1-provider-child-attempt7",
+      "tmux_session": "s3-codex1-quota-a7"
+    },
+    "codex2": {
+      "schema_version": 1,
+      "dispatch_ticket_id": "TICKET-S3-CODEX-QUOTA-PROBE-20260828-CODEX2-A7",
+      "selected_alias": "codex2",
+      "selected_model": "gpt-5.6-sol",
+      "selected_effort": "high",
+      "quality_floor": "gpt-5.6-sol/high",
+      "scope_rank": 1,
+      "complexity_rank": 2,
+      "risk_rank": 3,
+      "ambiguity_rank": 3,
+      "evidence_burden_rank": 3,
+      "policy_version": "2026-08-26.1",
+      "hitl_approved": true,
+      "required_human_review": true,
+      "exact_command_argv": ["codex", "/status"],
+      "child_owner": "codex2-provider-child-attempt7",
+      "tmux_session": "s3-codex2-quota-a7"
+    }
+  },
+  "capacity_requests": {
+    "codex1": {"request_id": "capacity-codex-quota-observation-codex1-attempt7-20260828t023157z", "pool": "codex1", "owner": "codex1-provider-child-attempt7", "maximum_provider_invocations": 1, "maximum_model_tasks": 0, "maximum_retries": 0},
+    "codex2": {"request_id": "capacity-codex-quota-observation-codex2-attempt7-20260828t023157z", "pool": "codex2", "owner": "codex2-provider-child-attempt7", "maximum_provider_invocations": 1, "maximum_model_tasks": 0, "maximum_retries": 0}
+  },
+  "capacity_leases": {
+    "codex1": {"lease_id": "lease-codex-quota-observation-codex1-attempt7-20260828t023157z", "request_id": "capacity-codex-quota-observation-codex1-attempt7-20260828t023157z", "pool": "codex1", "lane": 1, "owner": "codex1-provider-child-attempt7", "ttl_seconds": 900, "model_floor": "gpt-5.6-sol/high", "consumed": false},
+    "codex2": {"lease_id": "lease-codex-quota-observation-codex2-attempt7-20260828t023157z", "request_id": "capacity-codex-quota-observation-codex2-attempt7-20260828t023157z", "pool": "codex2", "lane": 1, "owner": "codex2-provider-child-attempt7", "ttl_seconds": 900, "model_floor": "gpt-5.6-sol/high", "consumed": false}
+  },
+  "transport_binding": {
+    "order": ["tmux", "direct_terminal_pre_invocation_setup_failure_only"],
+    "tmux_path": "/opt/homebrew/bin/tmux",
+    "tmux_version": "3.7c",
+    "sessions": {"codex1": "s3-codex1-quota-a7", "codex2": "s3-codex2-quota-a7"},
+    "capture_rule": "capture-pane may return only sanitized remaining-limit/window/reset fields and parser metadata; raw content must not be persisted or reported."
+  },
+  "receipt_binding_contract": {
+    "contract_version": "codex_status_observation_receipt_v1",
+    "required_fields": ["protocol_version", "ticket", "dispatch_ticket_id", "attempt_id", "alias", "provider", "command_argv", "capacity_request_id", "capacity_lease_id", "decision_file_sha256", "provider_invocation_started", "provider_invocation_count", "transport_mode", "tmux_session_id_or_null", "quota_status", "concurrency_status", "sanitized_fields", "raw_provider_stream_persisted", "required_human_review"],
+    "evidence_boundary": "validated in-process only",
+    "success_wording": "validated in-process only",
+    "failure_rule": "Interactive, malformed, ambiguous, nonzero, auth-prompt, timeout, or binding failure is BLOCKED/NEEDS_HITL with quota and concurrency unknown."
+  },
+  "stop_conditions": [
+    "Stop before invocation on invalid/expired/mismatched lease, runtime config, exact command, ownership, or tmux setup.",
+    "Stop immediately after the first /status outcome for each alias.",
+    "Never retry, infer a unit or concurrency, inspect auth material, persist raw output, or run a model task.",
+    "Close only after each child returns provider-native ExecutionReceipt and typed WorkResult and Root A validates all bindings and hashes."
+  ],
+  "preflight": {
+    "runtime_config_presence": "PASS",
+    "runtime_config_mutation": false,
+    "tmux_presence": "PASS",
+    "codex_executable_presence": "PASS_command_v_only",
+    "provider_calls": 0,
+    "network_calls": 0,
+    "dashboard_or_api_access": false,
+    "raw_output_inspection": false
+  },
+  "integrity": {
+    "normalization_method": "Remove integrity.normalized_decision_sha256, serialize recursively sorted compact JSON as UTF-8 without trailing newline, then SHA-256.",
+    "normalized_decision_sha256": "4b7788648a7be0a44c9127bf5ae90d28484b09d7d3176d46e5d04842757adbfb",
+    "physical_file_sha256": "Reported externally after final write."
+  },
+  "out_of_scope": ["AGY", "OpenAI Organization Usage API", "dashboard/browser", "model task", "transaction", "configuration mutation", "raw output", "retry", "commit", "push", "deploy"],
+  "readiness_basis": "READY is limited to two child-owned, one-shot, tmux-first interactive /status observations under separate account leases; any result is human-reviewable and any ambiguity remains blocked."
+}

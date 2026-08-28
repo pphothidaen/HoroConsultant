@@ -1,0 +1,27 @@
+{
+  "Status": "NEEDS_HITL",
+  "Scope owned": "agy2 attempt 6 only: one account-isolated terminal quota observation through the direct in-memory sanitizer boundary",
+  "Evidence": {
+    "decision_file_sha256": "263cd2ce2146dfa1dc26f99d37a5d90eb73c7a4f092298d2b0ab62c20f32b66e",
+    "decision_normalized_sha256": "b997d048b903a8e23b0d3afb242fc5b5f07fd2753e5b48e51e5d0bccc3f1825b",
+    "sanitizer_sha256": "9250262384fbec956f6853a00aa5cb5e3e8a447ff284ffb96627b155a685458b",
+    "tmux_session_id": "s3-agy2-quota-a6",
+    "provider_invocation_count": 1,
+    "sanitized_failure_type": "parse_failure:unexpected_line",
+    "sanitized_output_bytes": 240,
+    "sanitized_output_sha256": "eda4082705574f7b27136aa2ec123a7b6f86119026f539f3f0e4f34090beabdc",
+    "raw_provider_stream_persisted": false,
+    "evidence_boundary": "validated in-process only"
+  },
+  "Findings": [
+    "The single authorized provider invocation ran in the child-owned detached tmux transport and returned a content-free sanitizer parse-drift failure.",
+    "No unit-bearing quota bucket passed the allowlist, so agy2 quota and concurrency remain unknown.",
+    "No raw provider stdout, stderr, pane content, account-home value, credential, retry, fallback, model task, provider transaction, or configuration mutation was retained or used."
+  ],
+  "Changed files": [
+    "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt6.json",
+    "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt6.json"
+  ],
+  "Residual risk": "The provider's current plain-text quota format did not match the fail-closed parser, and the raw response is intentionally unavailable. Quota and concurrency cannot be inferred; this attempt is not dispatch entitlement or portable/offline proof.",
+  "Recommended next action": "Do not retry attempt 6. Human review is required to decide whether to authorize a separate provider-documentation-based parser update and a fresh one-shot attempt; keep agy2 quota and concurrency unknown meanwhile."
+}

@@ -1,0 +1,67 @@
+{
+  "artifact_type": "Decision/HITL-Closure",
+  "protocol_version": 2,
+  "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828-ATTEMPT8",
+  "attempt_id": 8,
+  "closure_status": "BLOCKED/NEEDS_HITL",
+  "closed_at": "2026-08-28T02:50:10Z",
+  "immutable_decision": {
+    "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt8.json",
+    "physical_sha256": "362a8bd4aaa217751e3193f66a91cda8386595f361c6321d5c13110f6f6f1dfd",
+    "normalized_sha256": "0332a6716b65d551e7bf3b96db73d2f4711a4c0925ce8744f00461a0e6b61056",
+    "approval": "Approve AGY attempt-8 exactly",
+    "approval_scope": "exact one-shot read-only invocation per AGY alias under the Decision; no retry, mutation, raw output, model task, transaction, dashboard/API, or concurrency inference"
+  },
+  "parser_binding": {
+    "path": "scripts/agy_usage_quota_sanitizer.py",
+    "version": "agy-usage-sanitizer-v1.1.0",
+    "version_sha256": "899eaeceb00518624ccfb2fc064e73637167b5abd45cf78aebcac9b725661d10",
+    "file_sha256": "f9e2b5e88837d6e70566be91b2128f5061c12d188c785bc775bb32308610c99e",
+    "tests_path": "tests/test_agy_usage_quota_sanitizer.py",
+    "tests_sha256": "b1b0f40240613ac390b89bcaeb50600304e5e0c9601d2d15cec8972604e46e5c"
+  },
+  "results": {
+    "agy1": {
+      "receipt_path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt8.json",
+      "receipt_sha256": "ef80ba1c03f4a56b8209d81040edacef087d044f20d7722e81ea2c1ef8431e67",
+      "workresult_path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt8.json",
+      "workresult_sha256": "e812c49602726cded21371058f9832f3cfb0569eb8e47a768a2b852524d7161c",
+      "status": "BLOCKED",
+      "failure": "no_safe_sanitizer_object_across_capture_boundary",
+      "provider_invocation_count": 1,
+      "quota_status": "unknown",
+      "concurrency_status": "unknown",
+      "tmux_session": "s3-agy1-quota-a8",
+      "tmux_closed": true,
+      "raw_provider_stream_persisted": false
+    },
+    "agy2": {
+      "receipt_path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt8.json",
+      "receipt_sha256": "be72153fa3ac9d75c59466f1ec5a0d850a3639976b926d6222a4636fbd50bf19",
+      "workresult_path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt8.json",
+      "workresult_sha256": "69d18f17ae1374dfe1e62b373292062d93951869335ad5886a3c16df8ecd8b44",
+      "status": "BLOCKED",
+      "failure": "parse_failure:unexpected_line",
+      "provider_invocation_count": 1,
+      "quota_status": "unknown",
+      "concurrency_status": "unknown",
+      "tmux_session": "s3-agy2-quota-a8",
+      "tmux_closed": true,
+      "raw_provider_stream_persisted": false
+    }
+  },
+  "invariants": {
+    "command_per_alias": ["agy", "-p", "/usage"],
+    "transport": "detached_tmux",
+    "provider_invocations_total": 2,
+    "model_tasks": 0,
+    "retries": 0,
+    "mutations": 0,
+    "concurrency_inference": false,
+    "evidence_boundary": "validated in-process only",
+    "attempt_9_created": false,
+    "provider_call_after_closure": false
+  },
+  "summary": "Both exact one-shot probes completed provider invocation but produced no safe quota metadata. AGY output drift/capture-boundary failure was fail-closed; quota and concurrency remain unknown. No further action is authorized under attempt 8.",
+  "next_action": "Human analysis only. Any further observation requires a new Decision, fresh HITL authorization, new leases, and a new parser binding."
+}

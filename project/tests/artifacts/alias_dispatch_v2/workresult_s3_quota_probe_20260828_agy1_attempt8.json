@@ -1,0 +1,30 @@
+{
+  "Status": "BLOCKED",
+  "Scope owned": "agy1 attempt 8 only: one account-isolated read-only AGY quota observation through the bound in-memory sanitizer",
+  "Evidence": {
+    "decision_file_sha256": "362a8bd4aaa217751e3193f66a91cda8386595f361c6321d5c13110f6f6f1dfd",
+    "decision_normalized_sha256": "0332a6716b65d551e7bf3b96db73d2f4711a4c0925ce8744f00461a0e6b61056",
+    "sanitizer_version": "agy-usage-sanitizer-v1.1.0",
+    "sanitizer_version_sha256": "899eaeceb00518624ccfb2fc064e73637167b5abd45cf78aebcac9b725661d10",
+    "sanitizer_sha256": "f9e2b5e88837d6e70566be91b2128f5061c12d188c785bc775bb32308610c99e",
+    "tmux_session_id": "s3-agy1-quota-a8",
+    "provider_invocation_count": 1,
+    "sanitized_failure_type": "capture_boundary_failure",
+    "sanitized_output_bytes": 0,
+    "sanitized_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "raw_provider_stream_persisted": false,
+    "evidence_boundary": "validated in-process only"
+  },
+  "Findings": [
+    "The exact approved one-shot command was admitted and invoked in the account-isolated tmux session; no second invocation was attempted.",
+    "The safe sanitized result did not cross the capture boundary; no quota bucket was accepted, and agy1 quota and concurrency remain unknown.",
+    "No raw provider output, account-home value, credential, retry, fallback, model task, provider transaction, or configuration mutation was retained or used."
+  ],
+  "Changed files": [
+    "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt8.json",
+    "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt8.json"
+  ],
+  "Residual risk": "The provider output did not produce safe allowlisted quota metadata; quota and concurrency cannot be inferred from this attempt.",
+  "Recommended next action": "Close attempt 8 as BLOCKED/NEEDS_HITL. Any further observation requires a fresh Decision, HITL authorization, request, lease, and parser binding.",
+  "Status_reason": "BLOCKED: sanitized capture boundary failure; no quota bucket crossed the in-memory evidence boundary."
+}

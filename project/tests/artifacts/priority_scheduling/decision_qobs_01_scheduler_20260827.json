@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "QOBS-01-SCHEDULER",
+  "phase": "implementation",
+  "scope_rank": 2,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "unknown",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Fresh bounded implementation decision for QOBS-01-SCHEDULER. Reserve one developer lane to implement the fail-closed quota-aware selection API in scripts/multiagent_ticket_scheduler.py against the frozen QOBS-01-CONTRACT schemas, policy, and tests, then run the focused QOBS suite. Execution is dependency-gated until QOBS-01-DISPATCH is green, frozen, and its own source-only provenance/trailer gate is satisfied. Preserve ticket45's frozen allowlist and the protected data provenance blockers project/data/bazi_bazi_manual_chatml.jsonl and project/data/distillation_checklist.json. No other path, staging, commit, push, deploy, publish, credentials, secrets, provider/account action, sync, generated-file edit, or external action is authorized.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

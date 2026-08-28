@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "QOBS-01-DISPATCH",
+  "phase": "implementation",
+  "scope_rank": 2,
+  "complexity_rank": 3,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "unknown",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Fresh bounded remediation for the four missing fail-closed dispatcher and receipt APIs reported by the frozen QOBS integration suite: exact artifact nonce consumption, quota-bound dispatch validation, and transitive receipt-v2 binding helpers. The developer may edit only scripts/multiagent_prompt_command.py, implement against the frozen QOBS schemas/policy and tests, run the required focused suite, and create one local commit carrying Test-Baseline: 9847234f3f2537d0b65ecb1fc9afca87ceb517a2. Preserve ticket45's frozen allowlist and the protected data provenance blockers project/data/bazi_bazi_manual_chatml.jsonl and project/data/distillation_checklist.json. Scheduler work is explicitly excluded; no push, deploy, publish, credentials, secrets, provider/account action, sync, generated-file edit, or other external action is authorized.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

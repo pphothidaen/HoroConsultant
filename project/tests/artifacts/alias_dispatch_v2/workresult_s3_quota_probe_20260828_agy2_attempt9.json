@@ -1,0 +1,30 @@
+{
+  "Status": "BLOCKED",
+  "Scope owned": "agy2 attempt 9 only: one account-isolated read-only AGY quota observation through the bound in-memory sanitizer",
+  "Evidence": {
+    "decision_file_sha256": "9143f764da21f8790c8642d8bb9dc1951cad6e301b5d1cbe568999c88938914d",
+    "decision_normalized_sha256": "3bd853bd0e80948de99471dfdf201837533fef1f8c51f763c6e0efa505f20da7",
+    "sanitizer_version": "agy-usage-sanitizer-v1.2.0",
+    "sanitizer_version_sha256": "d587dbb4dd6807e01fa05c67595fc8b37f5c44ea375c7ac80c7c1860c0335004",
+    "sanitizer_sha256": "a9340dffad102d569c583ccec3907990416846c9055b5d0091112348ce775d3f",
+    "tmux_session_id": "s3-agy2-quota-a9",
+    "provider_invocation_count": 1,
+    "sanitized_failure_type": "parse_failure:unexpected_line",
+    "sanitized_output_bytes": 240,
+    "sanitized_output_sha256": "f9de2841f3b150329922c741b9e6f9e1ee41f93d6dd435042e2cf4a43410a56e",
+    "raw_provider_stream_persisted": false,
+    "evidence_boundary": "validated in-process only"
+  },
+  "Findings": [
+    "The exact approved one-shot command was admitted and executed in the account-isolated tmux session; the provider returned exit status 0.",
+    "The bound sanitizer v1.2.0 rejected the observed output grammar as unexpected_line and emitted no quota bucket; agy2 quota and concurrency remain unknown.",
+    "No raw provider output, account-home value, credential, retry, fallback, model task, provider transaction, or configuration mutation was retained or used."
+  ],
+  "Changed files": [
+    "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt9.json",
+    "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt9.json"
+  ],
+  "Residual risk": "The provider output did not produce safe allowlisted quota metadata; quota and concurrency cannot be inferred from this attempt.",
+  "Recommended next action": "Close attempt 9 as BLOCKED/NEEDS_HITL. Any further observation requires a fresh Decision, HITL authorization, request, lease, and parser binding.",
+  "Status_reason": "BLOCKED: sanitizer parse_failure:unexpected_line; no quota bucket crossed the in-memory evidence boundary."
+}

@@ -1,0 +1,41 @@
+{
+  "Changed files": [
+    "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_codex2_attempt7.json",
+    "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_codex2_attempt7.json"
+  ],
+  "Evidence": {
+    "decision_file_sha256": "ff9571acd19f0d968069b6893a486e78d2b379db8ac0d96c9747177ea6be90df",
+    "evidence_boundary": "validated in-process only",
+    "pre_invocation_tmux_failure_class": null,
+    "provider_invocation_count": 1,
+    "provider_invocation_started": true,
+    "raw_provider_stream_persisted": false,
+    "safe_sanitized_output": {
+      "bytes": 0,
+      "sha256": null
+    },
+    "sanitizer_process_exit_status": 1,
+    "tmux_session_id": "s3-codex2-quota-a7",
+    "transport_mode": "tmux",
+    "transport_status": "parse_failure:no_safe_quota_or_concurrency_fields"
+  },
+  "Findings": {
+    "concurrency_status": "unknown",
+    "quota_status": "unknown",
+    "required_human_review": true,
+    "sanitized_fields": []
+  },
+  "Recommended next action": "Hold Codex2 admission for human review of the content-free /status observation; any further observation requires a fresh authorization, request, lease, and immutable attempt.",
+  "Residual risk": "The interactive /status output contained no safely recognized remaining-limit, window, or reset fields; Codex2 quota and concurrency therefore remain unknown. Raw provider output was not persisted.",
+  "Scope owned": {
+    "alias": "codex2",
+    "attempt_id": 7,
+    "objective": "Exactly one read-only provider-native Codex CLI /status observation with no model task, dashboard access, inference, or transaction.",
+    "provider": "OpenAI Codex",
+    "writable_artifacts": [
+      "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_codex2_attempt7.json",
+      "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_codex2_attempt7.json"
+    ]
+  },
+  "Status": "BLOCKED"
+}

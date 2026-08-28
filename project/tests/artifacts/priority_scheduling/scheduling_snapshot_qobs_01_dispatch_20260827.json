@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "tickets": [
+    {
+      "ticket_id": "QOBS-01-DISPATCH",
+      "severity": "CRITICAL",
+      "work_effort": "M",
+      "status": "READY",
+      "dependencies": [
+        "QOBS-01-CONTRACT",
+        "QOBS-01-PROBE",
+        "9847234f3f2537d0b65ecb1fc9afca87ceb517a2"
+      ],
+      "blockers": [],
+      "owner": "developer",
+      "ownership": [
+        "scripts/multiagent_prompt_command.py"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    }
+  ],
+  "reservations": [
+    {
+      "ticket_id": "QOBS-01-DISPATCH",
+      "owner": "developer",
+      "ownership": [
+        "scripts/multiagent_prompt_command.py"
+      ]
+    }
+  ]
+}

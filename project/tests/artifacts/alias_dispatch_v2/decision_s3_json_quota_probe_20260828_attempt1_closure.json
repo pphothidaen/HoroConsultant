@@ -1,0 +1,79 @@
+{
+  "artifact_type": "Decision/HITL-Closure",
+  "protocol_version": 2,
+  "ticket": "TICKET-S3-AGY-JSON-PROBE-20260828-ATTEMPT1",
+  "attempt_id": 1,
+  "closure_status": "COMPLETED",
+  "closed_at": "2026-08-28T04:34:00Z",
+  "immutable_decision": {
+    "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_json_quota_probe_20260828_attempt1.json",
+    "physical_sha256": "c8125d39b4e2ea6b24b2a3193bee5b28a5e03eb58013de22fec3cb4117bc5c08",
+    "normalized_sha256": "bd71d8e9186c84e29ad98e9fb5227eb83f816a53d1cb596c7bff497ff0fd27dd",
+    "approval": "Approve AGY json-probe attempt-1 exactly",
+    "approval_scope": "one read-only invocation of literal `agy --output-format json -p /usage` per alias (agy1, agy2) under the Decision; no retry, mutation, raw output, model task, transaction, or concurrency inference"
+  },
+  "sanitizer_binding": {
+    "path": "scripts/agy_json_usage_sanitizer.py",
+    "version": "agy-json-usage-sanitizer-v1.1.0",
+    "version_sha256": "9325d9137980e0411bfcff82128771b5407ada2f52c2bba4659780a3a8aa2ddf",
+    "file_sha256": "16dc58eb881405cfd9f2f938ab960c1ac52a2f43e069d0a93e2b8752245360a8",
+    "tests_path": "tests/test_agy_json_usage_sanitizer.py",
+    "tests_sha256": "61205473c9270ef7fd006a0d5b8e0e3f18e7fd39c77f4eec00d753be3e8f861a"
+  },
+  "drift_evidence": {
+    "environment_normalization_effective": true,
+    "has_ansi_escape": false,
+    "root_type": "dict",
+    "top_level_keys": [
+      "command",
+      "conversation_id",
+      "duration_seconds",
+      "num_turns",
+      "response",
+      "status",
+      "usage"
+    ],
+    "key_count": 7,
+    "sanitizer_version": "agy-json-usage-sanitizer-v1.1.0"
+  },
+  "results": {
+    "agy1": {
+      "receipt_path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_json_quota_probe_20260828_agy1_attempt1.json",
+      "receipt_sha256": "6837a7a31434499cad1d35a72ce9ad5accbcecb964fc83fa3f4b1a86ac10d6f5",
+      "workresult_path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_json_quota_probe_20260828_agy1_attempt1.json",
+      "workresult_sha256": "c32fd1b78fe8ddbfd7abeecc55c7db279ac7d86bb4010b083eabce7e60f07e83",
+      "status": "COMPLETED",
+      "quota_status": "observed",
+      "provider_invocation_count": 1,
+      "tmux_session": "s3-agy1-json-probe-a1",
+      "tmux_closed": true,
+      "raw_provider_stream_persisted": false
+    },
+    "agy2": {
+      "receipt_path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_json_quota_probe_20260828_agy2_attempt1.json",
+      "receipt_sha256": "e34deaed9b332ab342df0941e2a2fcad28eb04c25aabc9d9c124a1a4fdcb09f6",
+      "workresult_path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_json_quota_probe_20260828_agy2_attempt1.json",
+      "workresult_sha256": "f9ce147b0950a5c7db39a482437e6837f0950308f377fde95fbb70ff4f148b04",
+      "status": "COMPLETED",
+      "quota_status": "observed",
+      "provider_invocation_count": 1,
+      "tmux_session": "s3-agy2-json-probe-a1",
+      "tmux_closed": true,
+      "raw_provider_stream_persisted": false
+    }
+  },
+  "invariants": {
+    "command": ["agy", "--output-format", "json", "-p", "/usage"],
+    "transport": "detached_tmux",
+    "provider_invocations_total": 2,
+    "model_tasks": 0,
+    "retries": 0,
+    "mutations": 0,
+    "concurrency_inference": false,
+    "evidence_boundary": "validated in-process only",
+    "attempt_2_created": false,
+    "provider_call_after_closure": false
+  },
+  "summary": "Exact one-shot JSON quota probe completed for both agy1 and agy2 (exit 0) under environment normalization. AGY structured JSON output successfully captured token metrics and session status without exposing credentials or paths. Both lanes completed cleanly. JSON Quota Probe Attempt 1 is successfully COMPLETED.",
+  "next_action": "JSON Quota Probe is successfully closed. Both aliases are verified operational with clean structured telemetry. Proceed to integrate with Option B dynamic capacity manager."
+}

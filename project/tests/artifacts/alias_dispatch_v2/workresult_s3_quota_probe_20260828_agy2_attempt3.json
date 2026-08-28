@@ -1,0 +1,31 @@
+{
+  "status": "BLOCKED",
+  "scope_owned": "agy2 provider-native read-only quota/status/concurrency probe only",
+  "evidence": {
+    "commands": [
+      "/opt/homebrew/bin/tmux new-session -d -s s3-quota-agy2-attempt3 -e AGY_HOME=... -- agy -p \"/usage\" --output-format json",
+      "/opt/homebrew/bin/tmux capture-pane -p -t s3-quota-agy2-attempt3 -S -"
+    ],
+    "outcomes": [
+      "tmux session started for one invocation; pane did not yield a machine-readable JSON object within the one-shot timeout",
+      "sanitized capture contained NO_SAFE_QUOTA_METADATA",
+      "Quota status is unknown; concurrency status is unknown",
+      "No retry, provider mutation, transaction, or fallback subprocess occurred"
+    ],
+    "artifacts": [
+      "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt3.json",
+      "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt3.json"
+    ]
+  },
+  "findings": [
+    "The approved one-shot AGY /usage candidate did not produce safe machine-readable quota metadata in the captured pane.",
+    "Quota status is unknown; concurrency status is unknown.",
+    "AGY execution evidence is not accepted as a successful result; no provider-native quota claim was made."
+  ],
+  "changed_files": [
+    "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt3.json",
+    "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt3.json"
+  ],
+  "residual_risk": "Provider quota and concurrency remain unverified for agy2; the sanitized capture cannot distinguish an empty result from an interactive or non-machine-readable provider response.",
+  "recommended_next_action": "Hold agy2 at BLOCKED/NEEDS_HITL and require a fresh approved provider-native read-only probe contract before any future attempt; do not retry this attempt."
+}

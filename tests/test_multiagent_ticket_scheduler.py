@@ -395,3 +395,110 @@ def test_invalid_metadata_is_blocked_before_subprocess_creation(tmp_path, monkey
     ]) == 5
     assert started is False
     assert "INVALID_SCHEDULING_METADATA" in capsys.readouterr().err
+
+
+def test_capacity_admission_keeps_selected_route_account_local(tmp_path):
+    policy = json.loads((ROOT / ".agents/config/s3_capacity_policy.json").read_text())
+    ticket = _ticket("TICKET-CAPACITY", ownership=["owned/capacity.py"])
+    lease = scheduler.admit_dispatch_capacity(
+        _snapshot(ticket),
+        ticket_id="TICKET-CAPACITY",
+        owner="developer",
+        ownership=("owned/capacity.py",),
+        decision_valid=True,
+        store_path=str(tmp_path / "capacity"),
+        account="codex1",
+        request_id="capacity-ticket-1",
+        lane=1,
+        request_budget=1,
+        model_quality_floor="1",
+        policy=policy,
+    )
+
+    assert lease.account == "codex1"
+    with pytest.raises(scheduler.SchedulingError) as exc:
+        scheduler.admit_dispatch_capacity(
+            _snapshot(ticket),
+            ticket_id="TICKET-CAPACITY",
+            owner="developer",
+            ownership=("owned/capacity.py",),
+            decision_valid=True,
+            store_path=str(tmp_path / "capacity"),
+            account="codex1",
+            request_id="capacity-ticket-1",
+            lane=1,
+            request_budget=1,
+            model_quality_floor="1",
+            policy=policy,
+        )
+    assert exc.value.code == "CAPACITY_REQUEST_ALREADY_LEASED"
+
+
+@pytest.mark.parametrize(
+    ("pressure", "expected_code"),
+    (
+        ("burn", "CAPACITY_BURN_RATE_EXCEEDED"),
+        ("block", "CAPACITY_BACKPRESSURE_BLOCKED"),
+        ("queue", "CAPACITY_BACKPRESSURE_QUEUED"),
+        ("circuit", "CAPACITY_CIRCUIT_OPEN"),
+    ),
+)
+def test_capacity_pressure_rejects_only_the_selected_account(  # noqa: PLR0915
+    tmp_path, pressure, expected_code
+):
+    """S3/S4/S5 pressure never permits cross-account fallback."""
+
+    policy = json.loads((ROOT / ".agents/config/s3_capacity_policy.json").read_text())
+    store = tmp_path / "capacity"
+    ticket = _ticket("TICKET-PRESSURE", ownership=["owned/pressure.py"])
+    common = {
+        "snapshot": _snapshot(ticket),
+        "ticket_id": "TICKET-PRESSURE",
+        "owner": "developer",
+        "ownership": ("owned/pressure.py",),
+        "decision_valid": True,
+        "store_path": str(store),
+        "lane": 1,
+        "request_budget": 1,
+        "model_quality_floor": "1",
+        "policy": policy,
+    }
+
+    if pressure == "burn":
+        burner = scheduler.capacity.acquire_lease(
+            store,
+            account="codex1",
+            request_id="burner",
+            owner="developer",
+            lane=2,
+            request_budget=policy["accounts"]["codex1"]["burn_rate"]["max_requests"],
+            model_quality_floor="1",
+            policy=policy,
+        )
+        consumed = scheduler.capacity.consume_lease(
+            store, burner, requests=burner.request_budget, policy=policy
+        )
+        scheduler.capacity.release_lease(store, consumed, policy=policy)
+    elif pressure in {"block", "queue"}:
+        scheduler.capacity.set_backpressure(
+            store, account="codex1", mode=pressure, policy=policy
+        )
+    else:
+        threshold = policy["accounts"]["codex1"]["circuit_breaker"]["failure_threshold"]
+        for _ in range(threshold):
+            scheduler.capacity.record_failure(
+                store, account="codex1", failure_type="timeout", policy=policy
+            )
+
+    with pytest.raises(scheduler.SchedulingError) as exc:
+        scheduler.admit_dispatch_capacity(
+            **common, account="codex1", request_id=f"blocked-{pressure}"
+        )
+    assert exc.value.code == expected_code
+
+    # A safe, separately owned pool remains usable but is never selected as a
+    # fallback for the rejected codex1 request.
+    isolated = scheduler.admit_dispatch_capacity(
+        **common, account="codex2", request_id=f"isolated-{pressure}"
+    )
+    assert isolated.account == "codex2"

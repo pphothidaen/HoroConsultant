@@ -1,0 +1,44 @@
+{
+  "Status": "BLOCKED",
+  "Scope owned": "agy docs-inspection attempt 1 only: account-agnostic static CLI documentation inspection via agy --help through in-memory sanitizer v1.2.0",
+  "Evidence": {
+    "decision_file_sha256": "e95c6ebcb232070826c3b0dc2b07fca4e189d521572def8798e69ddcc58a2e29",
+    "decision_normalized_sha256": "3554a0de818f01e6dc5286e33365a15311ff16690c5300700c1217f43d6a5707",
+    "inspector_version": "agy-cli-docs-inspector-v1.2.0",
+    "inspector_version_sha256": "0eed2698adc0e8294c4d74c5c7fc4ab3210d4edcc6d5313a95de6b50a3820e5d",
+    "inspector_sha256": "594070e8f996551d0de36ed8113f43251e2d5b07077eccc61a5943e0c6fd7f16",
+    "tmux_session_id": "s3-agy-docs-inspect-a1",
+    "command_argv": ["agy", "--help"],
+    "provider_invocation_count": 1,
+    "sanitized_failure_type": "parse_failure:empty_output",
+    "structural_fingerprint": {
+      "line_count": 0,
+      "has_ansi_escape": false,
+      "help_sections": [],
+      "flag_count": 0,
+      "subcommand_count": 0,
+      "has_json_flag": false,
+      "has_quota_subcommand": false,
+      "has_status_subcommand": false,
+      "has_usage_subcommand": false
+    },
+    "sanitized_output_bytes": 580,
+    "sanitized_output_sha256": "b58ff67ea9e4dc465581424a5a034a172958b692c7a436ad0922143e1a720a87",
+    "raw_provider_stream_persisted": false,
+    "evidence_boundary": "validated in-process only"
+  },
+  "Findings": [
+    "The exact approved one-shot docs inspection command agy --help was admitted and executed in detached tmux; provider returned exit status 0.",
+    "Environment normalization succeeded (NO_COLOR=1, TERM=dumb, LC_ALL=C, PAGER=cat, AGY_PAGER=cat).",
+    "Captured stdout stream in memory was empty, resulting in parse_failure:empty_output (likely CLI output directed to stderr or requiring stderr combination).",
+    "No flags or subcommands were extracted; no quota or concurrency inference occurred.",
+    "No raw provider output, account-home value, credential, retry, fallback, model task, provider transaction, or configuration mutation was retained or used."
+  ],
+  "Changed files": [
+    "project/tests/artifacts/alias_dispatch_v2/workresult_s3_docs_inspection_20260828_attempt1.json",
+    "project/tests/artifacts/alias_dispatch_v2/receipt_s3_docs_inspection_20260828_attempt1.json"
+  ],
+  "Residual risk": "Static CLI documentation was not captured from stdout alone; available flags and subcommands remain unconfirmed.",
+  "Recommended next action": "Close Docs Inspection Attempt 1 as BLOCKED/NEEDS_HITL. Upgrade inspector to combine in-memory stdout/stderr streams and prepare Attempt 2.",
+  "Status_reason": "BLOCKED: inspector parse_failure:empty_output; no stdout stream captured from agy --help."
+}

@@ -1,0 +1,65 @@
+{
+  "Status": "COMPLETED",
+  "Scope owned": "agy1 json-quota-probe attempt 2 only: structured JSON usage observation with response field inspection via agy --output-format json -p /usage through in-memory sanitizer v1.2.0",
+  "Evidence": {
+    "decision_file_sha256": "ede7bc59bc056e5a65e9edfa4e34d84cce02e2603dbf1ce5fdda0a006f000065",
+    "decision_normalized_sha256": "d03626561228e744de8f41c7024dfcc40e7f01ae0df23716240b9afe830806c1",
+    "sanitizer_version": "agy-json-usage-sanitizer-v1.2.0",
+    "sanitizer_version_sha256": "cfc8bb95443f58957ea5bf4da60163acb998865529cbf809c72fa114aed8a3b4",
+    "sanitizer_sha256": "f86a96a20c704f36cd2f4b638d70c74eb5088fc27624141dff0c6d094f1ff87e",
+    "tmux_session_id": "s3-agy1-json-probe-a2",
+    "command_argv": ["agy", "--output-format", "json", "-p", "/usage"],
+    "account_alias": "agy1",
+    "provider_invocation_count": 1,
+    "sanitized_status": "completed",
+    "quota_status": "unknown",
+    "account_quota_metrics": [],
+    "session_token_usage": {
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "thinking_tokens": 0,
+      "cache_read_tokens": 0,
+      "total_tokens": 0
+    },
+    "structural_fingerprint": {
+      "root_type": "dict",
+      "top_level_keys": [
+        "command",
+        "conversation_id",
+        "duration_seconds",
+        "num_turns",
+        "response",
+        "status",
+        "usage"
+      ],
+      "key_count": 7,
+      "response_type": "string",
+      "has_session_overhead_usage": true,
+      "has_account_quota_metrics": false,
+      "account_quota_buckets_count": 0,
+      "stdout_nonempty": true,
+      "stderr_nonempty": false,
+      "combined_stream_bytes": 2066,
+      "capture_boundary": "stdout_stderr_in_memory"
+    },
+    "sanitized_output_bytes": 869,
+    "sanitized_output_sha256": "ef3a44f8e5a63179ba3472e4e5c405eac1268b8abb7a5db95aaeeeb257bd5e73",
+    "raw_provider_stream_persisted": false,
+    "evidence_boundary": "validated in-process only"
+  },
+  "Findings": [
+    "The exact approved one-shot command agy --output-format json -p /usage executed successfully in detached tmux for agy1 (exit code 0).",
+    "Sanitizer v1.2.0 inspected both session token usage and the inner response string.",
+    "Session token usage confirmed 0 overhead tokens consumed by /usage.",
+    "Inner response string contained non-numeric/non-quota status text rather than percentage/ratio metrics; true account quota remains unobserved.",
+    "Per strict rule, quota_status is recorded as unknown without claiming success.",
+    "No raw JSON dump, account home, path, credential, retry, fallback, model task, or mutation was retained or used."
+  ],
+  "Changed files": [
+    "project/tests/artifacts/alias_dispatch_v2/workresult_s3_json_quota_probe_20260828_agy1_attempt2.json",
+    "project/tests/artifacts/alias_dispatch_v2/receipt_s3_json_quota_probe_20260828_agy1_attempt2.json"
+  ],
+  "Residual risk": "Account quota limits are not exposed numerically via non-interactive print mode; capacity policy must remain in conservative fallback mode.",
+  "Recommended next action": "Record agy1 JSON probe attempt 2 receipt and workresult. Transition to Option B Dynamic Capacity Management.",
+  "Status_reason": "COMPLETED: execution succeeded, response field inspected, quota_status accurately recorded as unknown."
+}
