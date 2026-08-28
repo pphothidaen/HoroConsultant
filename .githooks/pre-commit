@@ -29,6 +29,16 @@ if [ -f "tests/test_notebook_syntax.py" ]; then
     if [ "$STATUS" -ne 0 ]; then
         echo "[ERROR] Pre-commit blocked: notebook syntax checks failed."
         echo "[INFO] Run: $PYTHON -m pytest tests/test_notebook_syntax.py -v"
+    fi
+fi
+
+if [ -f "scripts/sync_claude_agy_parity.py" ]; then
+    echo "[INFO] Pre-commit: checking Claude Code <-> AGY CLI parity."
+    "$PYTHON" scripts/sync_claude_agy_parity.py --check
+    STATUS=$?
+    if [ "$STATUS" -ne 0 ]; then
+        echo "[ERROR] Pre-commit blocked: Claude Code vs. AGY CLI parity check failed."
+        echo "[INFO] Run '$PYTHON scripts/sync_claude_agy_parity.py --sync' to synchronize."
         exit "$STATUS"
     fi
 fi

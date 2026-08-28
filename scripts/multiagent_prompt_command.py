@@ -18,7 +18,7 @@ import hashlib
 import hmac
 import json
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 import re
 import shlex
@@ -38,8 +38,14 @@ except ImportError:  # Direct ``python scripts/...`` execution.
     import agent_quota_status_guard as quota_guard  # type: ignore[no-redef]
 
 try:
+    from scripts import multiagent_capacity as capacity
+except ImportError:  # Direct ``python scripts/...`` execution.
+    import multiagent_capacity as capacity  # type: ignore[no-redef]
+
+try:
     from scripts.multiagent_ticket_scheduler import (
         SchedulingError,
+        admit_dispatch_capacity,
         canonicalize_ownership_resource,
         enforce_dispatch as enforce_ticket_dispatch,
         validate_snapshot as validate_scheduling_snapshot,
@@ -47,6 +53,7 @@ try:
 except ModuleNotFoundError:  # Direct ``python scripts/...`` execution.
     from multiagent_ticket_scheduler import (  # type: ignore[no-redef]
         SchedulingError,
+        admit_dispatch_capacity,
         canonicalize_ownership_resource,
         enforce_dispatch as enforce_ticket_dispatch,
         validate_snapshot as validate_scheduling_snapshot,
@@ -356,6 +363,13 @@ class Invocation:
     scheduling_snapshot: Mapping[str, Any] | None = None
     scheduling_snapshot_digest: str | None = None
     claim_store_override: str | None = None
+    # Capacity data is intentionally kept out of prompts, argv, receipts, and
+    # public result objects.  A lease is consumed only at the spawn boundary.
+    capacity_lease: capacity.CapacityLease | Mapping[str, Any] | None = None
+    capacity_store_path: str | None = None
+    capacity_policy: Mapping[str, Any] | None = None
+    capacity_request_id: str | None = None
+    capacity_required: bool = False
 
 
 @dataclass(frozen=True)
@@ -1321,6 +1335,11 @@ def build_invocation(
     work_result_schema_path: str | os.PathLike[str] | None = None,
     scheduling_snapshot: Mapping[str, Any] | None = None,
     claim_store_override: str | os.PathLike[str] | None = None,
+    capacity_lease: capacity.CapacityLease | Mapping[str, Any] | None = None,
+    capacity_store_path: str | os.PathLike[str] | None = None,
+    capacity_policy: Mapping[str, Any] | None = None,
+    capacity_request_id: str | None = None,
+    capacity_required: bool = False,
 ) -> Invocation:
     """Build exact argv and process-local environment overrides; never a shell command.
 
@@ -1336,6 +1355,21 @@ def build_invocation(
         raise ConfigurationError("attempt_id must be a positive integer")
     if not isinstance(runtime_config_approved, bool):
         raise ConfigurationError("runtime_config_approved must be boolean")
+    if not isinstance(capacity_required, bool):
+        raise ConfigurationError("capacity_required must be boolean")
+    supplied_capacity = (capacity_lease, capacity_store_path, capacity_policy, capacity_request_id)
+    if capacity_required and any(value is None for value in supplied_capacity):
+        raise SchedulingError("CAPACITY_LEASE_REQUIRED", "capacity lease binding is required")
+    if any(value is not None for value in supplied_capacity) and any(
+        value is None for value in supplied_capacity
+    ):
+        raise SchedulingError("CAPACITY_LEASE_REQUIRED", "capacity lease binding is incomplete")
+    if capacity_store_path is not None and not isinstance(capacity_store_path, (str, os.PathLike)):
+        raise ConfigurationError("capacity_store_path is invalid")
+    if capacity_request_id is not None and (
+        not isinstance(capacity_request_id, str) or not capacity_request_id.isascii()
+    ):
+        raise ConfigurationError("capacity_request_id is invalid")
     objective = _required_string(objective, "objective")
     ownership = _required_string(ownership, "ownership")
     _reject_secret_bearing({"objective": objective, "ownership": ownership}, "dispatch scope")
@@ -1443,6 +1477,13 @@ def build_invocation(
         claim_store_override=(
             str(claim_store_override) if claim_store_override is not None else None
         ),
+        capacity_lease=capacity_lease,
+        capacity_store_path=(
+            str(Path(capacity_store_path).resolve()) if capacity_store_path is not None else None
+        ),
+        capacity_policy=dict(capacity_policy) if capacity_policy is not None else None,
+        capacity_request_id=capacity_request_id,
+        capacity_required=capacity_required,
     )
 
 
@@ -3223,6 +3264,70 @@ def validate_execution_preflight(invocation: Invocation) -> None:
             raise ConfigurationError("AGY read-only dispatch requires mode=plan and sandbox=true")
 
 
+def _consume_spawn_capacity(
+    invocation: Invocation, validated: ValidatedDispatchDecision,
+) -> capacity.CapacityLease | None:
+    """Atomically charge the one provider request at the final spawn boundary."""
+
+    fields = (
+        invocation.capacity_lease,
+        invocation.capacity_store_path,
+        invocation.capacity_policy,
+        invocation.capacity_request_id,
+    )
+    if all(value is None for value in fields):
+        if invocation.capacity_required:
+            raise SchedulingError("CAPACITY_LEASE_REQUIRED", "capacity lease is missing")
+        return None
+    if any(value is None for value in fields):
+        raise SchedulingError("CAPACITY_LEASE_REQUIRED", "capacity lease binding is incomplete")
+    try:
+        candidate = capacity.consume_lease(
+            invocation.capacity_store_path,  # type: ignore[arg-type]
+            invocation.capacity_lease,  # type: ignore[arg-type]
+            requests=1,
+            policy=invocation.capacity_policy,  # type: ignore[arg-type]
+        )
+    except capacity.CapacityLeaseError as exc:
+        raise SchedulingError(f"CAPACITY_{exc.code}", "capacity lease was rejected") from exc
+    expected_floor = str(validated.quality_floor)
+    if (
+        candidate.account != invocation.route.alias
+        or candidate.provider != invocation.route.cli
+        or candidate.owner != invocation.route.role
+        or candidate.request_id != invocation.capacity_request_id
+        or candidate.lane != invocation.attempt_id
+        or candidate.model_quality_floor != expected_floor
+    ):
+        # The ledger is authoritative, so a matching but wrongly-bound lease is
+        # released before rejecting.  No cross-account fallback is attempted.
+        try:
+            capacity.release_lease(
+                invocation.capacity_store_path, candidate,
+                policy=invocation.capacity_policy,  # type: ignore[arg-type]
+            )
+        except capacity.CapacityLeaseError:
+            pass
+        raise SchedulingError("CAPACITY_LEASE_MISMATCH", "capacity lease does not bind this route")
+    return candidate
+
+
+def _release_spawn_capacity(invocation: Invocation, lease: capacity.CapacityLease | None) -> None:
+    """Release a consumed lease after the child exits; never mask its outcome."""
+
+    if lease is None:
+        return
+    try:
+        capacity.release_lease(
+            invocation.capacity_store_path, lease,
+            policy=invocation.capacity_policy,  # type: ignore[arg-type]
+        )
+    except capacity.CapacityLeaseError:
+        # The capacity ledger is fail-closed at admission/consume.  A terminal
+        # cleanup race must not expose the prompt or alter child evidence.
+        pass
+
+
 def _execute_invocation_locked(invocation: Invocation) -> subprocess.CompletedProcess[str]:
     """Revalidate governance, then execute argv with no shell."""
 
@@ -3260,9 +3365,11 @@ def _execute_invocation_locked(invocation: Invocation) -> subprocess.CompletedPr
             # after every other preflight and immediately before process creation.
             _validated_invocation_schedule(invocation, validated_decision)
             claim = _acquire_dispatch_claim(invocation)
+            consumed_lease: capacity.CapacityLease | None = None
             try:
                 _verify_dispatch_claim(claim, require_start_freshness=True)
                 _verify_isolated_account_home(invocation, home_fd, home_identity)
+                consumed_lease = _consume_spawn_capacity(invocation, validated_decision)
                 result = subprocess.run(
                     argv,
                     cwd=invocation.cwd,
@@ -3280,6 +3387,8 @@ def _execute_invocation_locked(invocation: Invocation) -> subprocess.CompletedPr
                 finally:
                     _release_dispatch_claim(claim)
                 raise
+            finally:
+                _release_spawn_capacity(invocation, consumed_lease)
             result._dispatch_claim = claim  # type: ignore[attr-defined]
             result._dispatch_started_at = claim.record["started_at"]  # type: ignore[attr-defined]
             result._dispatch_ended_at = _utc_now()  # type: ignore[attr-defined]
@@ -3981,6 +4090,7 @@ def _parser() -> argparse.ArgumentParser:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
+    admission_lease: capacity.CapacityLease | None = None
     try:
         config = load_config(args.config)
         if args.execute and not args.decision:
@@ -4049,6 +4159,43 @@ def main(argv: Sequence[str] | None = None) -> int:
             work_result_schema_path=work_result_schema_path,
             scheduling_snapshot=scheduling_snapshot,
         )
+        if args.execute:
+            # The CLI owns admission rather than accepting an untrusted lease
+            # document.  The local ledger remains account-specific and is never
+            # a reason to select a different alias, model, or provider.
+            if invocation.decision is None or invocation.scheduling_snapshot is None:
+                raise SchedulingError("CAPACITY_LEASE_REQUIRED", "capacity admission requires dispatch evidence")
+            policy_path = REPOSITORY_ROOT / ".agents/config/s3_capacity_policy.json"
+            try:
+                capacity_policy = json.loads(policy_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as exc:
+                raise SchedulingError("CAPACITY_POLICY_INVALID", "capacity policy is unavailable") from exc
+            validated = validate_dispatch_decision(
+                invocation.decision, invocation.model_policy, invocation.route
+            )
+            lease = admit_dispatch_capacity(
+                validate_scheduling_snapshot(invocation.scheduling_snapshot),
+                ticket_id=str(validated.decision["ticket"]),
+                owner=invocation.route.role,
+                ownership=(invocation.ownership,),
+                decision_valid=True,
+                store_path=str(Path(invocation.cwd) / ".horo-capacity"),
+                account=invocation.route.alias,
+                request_id=_dispatch_key(invocation),
+                lane=invocation.attempt_id,
+                request_budget=1,
+                model_quality_floor=str(validated.quality_floor),
+                policy=capacity_policy,
+            )
+            admission_lease = lease
+            invocation = replace(
+                invocation,
+                capacity_lease=lease,
+                capacity_store_path=str(Path(invocation.cwd) / ".horo-capacity"),
+                capacity_policy=capacity_policy,
+                capacity_request_id=_dispatch_key(invocation),
+                capacity_required=True,
+            )
     except SchedulingError as exc:
         print(f"[ERROR] BLOCKED: {exc.code}", file=sys.stderr)
         return 5
@@ -4164,6 +4311,20 @@ def main(argv: Sequence[str] | None = None) -> int:
         # details.  The canonical record above is the operator-facing outcome.
         print(f"[ERROR] Unable to start configured {route.cli} executable.", file=sys.stderr)
         return 127
+    finally:
+        # Admission happens before executable preflight.  Always return an
+        # unconsumed lease on a later preflight/start failure; consumed leases
+        # are already terminalized by _execute_invocation_locked, and that
+        # replay-safe cleanup must never replace the original failure.
+        if admission_lease is not None and invocation.capacity_store_path and invocation.capacity_policy:
+            try:
+                capacity.release_lease(
+                    invocation.capacity_store_path,
+                    admission_lease,
+                    policy=invocation.capacity_policy,
+                )
+            except capacity.CapacityLeaseError:
+                pass
     result = outcome.process
     completed = outcome.completed
     print(json.dumps(_redact_result_value(completed, invocation), ensure_ascii=False, indent=2))

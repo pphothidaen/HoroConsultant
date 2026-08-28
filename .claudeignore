@@ -1,0 +1,73 @@
+# Auto-synchronized Token Sustainability & Context Exclusion Filter
+# Shared between Claude Code (.claudeignore) and AGY CLI (.agyignore)
+
+# Secrets and credentials
+.env*
+!.env.example
+*.pem
+*.key
+*.cert
+*.p12
+credentials.json
+secrets.json
+
+# Lockfiles and dependency caches
+*.lock
+package-lock.json
+uv.lock
+Pipfile.lock
+poetry.lock
+
+# Dependency Directories
+node_modules/
+vendor/
+.venv/
+venv/
+env/
+__pypackages__/
+
+# Build and Distribution Outputs
+dist/
+build/
+*.egg-info/
+target/
+out/
+.next/
+.nuxt/
+
+# Caches and Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.cache/
+
+# Test and Coverage Outputs
+coverage/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.nyc_output/
+
+# Logs and Runtime State
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+wandb/
+
+# OS and Editor Specifics
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

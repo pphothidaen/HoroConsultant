@@ -41,8 +41,11 @@ REQUIRED_AGENT_ROLES = {
 REQUIRED_PLATFORM_FILES = {
     "global_codex_context": ROOT / "AGENTS.md",
     "global_claude_context": ROOT / "CLAUDE.md",
+    "global_agy_context": ROOT / "AGY.md",
     "claude_project_settings": ROOT / ".claude" / "settings.json",
     "claude_short_context": ROOT / ".claude" / "CLAUDE.md",
+    "agy_hooks_manifest": ROOT / ".agy" / "hooks.json",
+    "sync_claude_agy": ROOT / "scripts" / "sync_claude_agy_parity.py",
     "gemini_parity_config": ROOT / ".agents" / "config" / "gemini_parity.yaml",
     "hermes_router": ROOT / "scripts" / "hermes_agy_router.py",
     "hermes_runner": ROOT / "scripts" / "hermes_sdlc_runner.sh",
@@ -327,6 +330,7 @@ def run_checks() -> list[CheckResult]:
         check_hf_static_release_governance(),
         run_command("Antigravity/Gemini/AGY sync", [sys.executable, "scripts/sync_sdlc_agents.py", "--check", "--use-python"]),
         run_command("Codex/OpenAI sync", [sys.executable, "scripts/sync_codex_agents.py", "--check"]),
+        run_command("Claude Code <-> AGY CLI Parity", [sys.executable, "scripts/sync_claude_agy_parity.py", "--check"]),
     ]
 
 
@@ -340,6 +344,7 @@ def sync_then_check() -> int:
     sync_results = [
         run_command("Antigravity/Gemini/AGY sync write", [sys.executable, "scripts/sync_sdlc_agents.py", "--sync"]),
         run_command("Codex/OpenAI sync write", [sys.executable, "scripts/sync_codex_agents.py", "--sync"]),
+        run_command("Claude Code <-> AGY CLI Parity sync write", [sys.executable, "scripts/sync_claude_agy_parity.py", "--sync"]),
     ]
     print_results(sync_results)
     if not all(result.ok for result in sync_results):

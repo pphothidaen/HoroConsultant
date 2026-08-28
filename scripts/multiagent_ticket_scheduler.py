@@ -16,6 +16,11 @@ try:
 except ImportError:  # Direct ``python scripts/...`` execution.
     import agent_quota_status_guard as quota_guard  # type: ignore[no-redef]
 
+try:
+    from scripts import multiagent_capacity as capacity
+except ImportError:  # Direct ``python scripts/...`` execution.
+    import multiagent_capacity as capacity  # type: ignore[no-redef]
+
 
 SEVERITY_RANKS = {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1}
 WORK_EFFORT_RANKS = {"XS": 0, "S": 1, "M": 2, "L": 3, "XL": 4}
@@ -567,3 +572,46 @@ def enforce_dispatch(
             f"current ticket is not next; selected {selected.ticket.ticket_id}",
         )
     return selected
+
+
+def admit_dispatch_capacity(
+    snapshot: SchedulingSnapshot,
+    *,
+    ticket_id: str,
+    owner: str,
+    ownership: Sequence[str],
+    decision_valid: bool,
+    store_path: str,
+    account: str,
+    request_id: str,
+    lane: int,
+    request_budget: int,
+    model_quality_floor: str,
+    policy: Mapping[str, Any],
+) -> capacity.CapacityLease:
+    """Reserve account-local capacity after Rule 11/18 admission.
+
+    This is deliberately account-bound: the requested account is passed straight
+    to the capacity ledger and no alternate alias is selected on saturation.
+    """
+
+    enforce_dispatch(
+        snapshot,
+        ticket_id=ticket_id,
+        owner=owner,
+        ownership=ownership,
+        decision_valid=decision_valid,
+    )
+    try:
+        return capacity.acquire_lease(
+            store_path,
+            account=account,
+            request_id=request_id,
+            owner=owner,
+            lane=lane,
+            request_budget=request_budget,
+            model_quality_floor=model_quality_floor,
+            policy=policy,
+        )
+    except capacity.CapacityLeaseError as exc:
+        raise SchedulingError(f"CAPACITY_{exc.code}", "capacity admission was rejected") from exc

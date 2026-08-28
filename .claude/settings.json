@@ -24,6 +24,40 @@
           {
             "type": "command",
             "command": "python3 .claude/hooks/orchestrator_only_guard.py"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-tool-use-safeguard.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/pre-tool-use-safeguard.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/post-tool-use-formatter.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/stop-monitor.sh"
           }
         ]
       }
