@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-SUBAGENT-FAIL-CLOSED-20260828",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "6851ce51db873036aaeed2dde55cbe51810ce286",
+  "test_files": [
+    {
+      "path": "tests/test_subagent_fail_closed_runtime.py",
+      "sha256": "71bc9f29d3adf33b451e93234de8fee0da83ef21d62d70c4947ed0d95b35f1e0"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_subagent_fail_closed_runtime.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "16 failed, 1 passed; runtime activation fields are absent, invalid/closed activation and missing provider state reach admission or lease acquisition, NEEDS_HITL is flattened to BLOCKED, and spawn-boundary results omit the typed reason code"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/multiagent_prompt_command.py",
+    "scripts/multiagent_ticket_scheduler.py",
+    ".agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Black-box fail-closed CLI and runtime-config contracts captured at 2026-08-28T12:57:24Z before source work. Source-before SHA-256: scripts/multiagent_prompt_command.py=816c36f75236e391673d4689b11692a63bed1dd2b5b58d75e0dbe5a248bb2452; scripts/multiagent_ticket_scheduler.py=efb90b3a4929ecd448b7b6f013b24fc0927c8a2913fa3d991c415f2ac0b09eb3; .agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml=60cdc745f1292a23418e1ed3f9bee08d44a55775e14e4139c9fc001e5ddd72e0. Source-before contract markers: scheduler.validate_activation_state=ABSENT; scheduler.validate_provider_account_state=ABSENT; runtime activation_prohibited=ABSENT; runtime dispatcher_execution=ABSENT; typed spawn-boundary reason propagation=ABSENT."
+}
