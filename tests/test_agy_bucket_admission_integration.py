@@ -10,6 +10,8 @@ from scripts.agy_bucket_admission import AdmissionError, admit_and_dispatch
 
 def request():
     return {
+        "protocol": "receipt-v3",
+        "protocol_version": 3,
         "alias": "agy1",
         "model_id": "gemini-3.1-pro-high",
         "bucket_availability": "available",

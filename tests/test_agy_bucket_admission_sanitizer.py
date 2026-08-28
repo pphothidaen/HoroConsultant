@@ -19,6 +19,8 @@ NOW = datetime(2026, 8, 28, 5, 0, tzinfo=UTC)
 
 def bucket(alias="agy1", **overrides):
     value = {
+        "protocol": "horoconsultant.agy-bucket-admission.v1",
+        "protocol_version": 1,
         "alias": alias,
         "model_id": "gemini-3.1-pro-high",
         "buckets": {

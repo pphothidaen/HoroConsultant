@@ -43,6 +43,8 @@ def test_v3_schema_exists_and_is_closed():
     assert not list(validator.iter_errors(receipt()))
     extra = dict(receipt(), raw_output="secret", reset_time="2026-08-28T00:00:00Z")
     assert list(validator.iter_errors(extra))
+    with pytest.raises(ReceiptV3Error):
+        validate_receipt_v3(dict(receipt(), protocol_version=3))
 
 
 def test_v1_and_v2_are_not_accepted_or_converted():

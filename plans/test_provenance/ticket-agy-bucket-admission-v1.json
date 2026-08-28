@@ -1,25 +1,25 @@
 {
   "schema_version": "test-provenance-v1",
   "ticket_id": "TICKET-AGY-BUCKET-ADMISSION-V1",
-  "sequence": 2,
+  "sequence": 3,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "acbe196bc4b93294ed5c35060907567e45f67ece",
+  "baseline_parent": "23140e93769779182f431e72571ae401dbd563d8",
   "test_files": [
     {
       "path": "tests/test_agy_bucket_admission_sanitizer.py",
-      "sha256": "2bc03af8538b7ba74c25fd6f98dbd8c76d86c4112b7640d97d611cc28e64aae7"
+      "sha256": "916d86dac4a80760d640cc2af642f9ad412a8b1df91b730bc4b8f0e37c6fb7cd"
     },
     {
       "path": "tests/test_agy_bucket_admission_guard.py",
-      "sha256": "7ee67c6b73166c58e42c794a6c92164d3b34cbd767bd7bc6833d7a21deeb427b"
+      "sha256": "e707ac2dbabd377bada9fe062bb601ed13a45a6a797e7e9bec626eafe89bc5ca"
     },
     {
       "path": "tests/test_agy_bucket_admission_integration.py",
-      "sha256": "f626bf30b48c1390658f71eda5282dbfad9d6a30e20123195e934fdabcaa542e"
+      "sha256": "87fccad6f43d5198638d0d09e5d01f2581d08ca1c44dbe5bb0bebf33adba48fd"
     },
     {
       "path": "tests/test_multiagent_receipt_v3_schema.py",
-      "sha256": "f1b73603f526355f74bbacbeb5d6b1a1326fa00f70d1f31a65274cb158b75e8c"
+      "sha256": "fb682991cfb9ea1d16628b9403f4bdbb131e61b5008a3a9d1a22aceacb9b9a96"
     }
   ],
   "red_tests": [
@@ -35,7 +35,7 @@
         "tests/test_multiagent_receipt_v3_schema.py"
       ],
         "expected_exit": 1,
-        "failure_fingerprint": "41 passed, 4 failed, exit 1; prior fixtures lacked mandatory receipt-v3 transitive bindings and observation_digest; no raw output recorded"
+        "failure_fingerprint": "50 passed, 2 failed, exit 1; valid fixtures omitted mandatory protocol_version after runtime/schema parity hardening; no raw output recorded"
     }
   ],
   "allowed_source_paths": [
@@ -46,7 +46,7 @@
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": "acbe196bc4b93294ed5c35060907567e45f67ece",
-  "correction_reason": "prior fixtures lacked mandatory receipt-v3 transitive bindings and observation_digest",
-  "rationale": "Superseding test-only baseline for HITL-ABO-02R. Old baseline SHA: acbe196bc4b93294ed5c35060907567e45f67ece. Old baseline file hashes: tests/test_agy_bucket_admission_sanitizer.py=dae35395e5e01064ffea5719ad644164afde75629e948edb4e0565d66708e5ac; tests/test_agy_bucket_admission_guard.py=f0042fbb434de8a2bc4ccea4b5437485747e88a2d4846fd88917bdac33718dd4; tests/test_agy_bucket_admission_integration.py=234a63b01c8a71df0f511085a3e15debe2ae65a2fd28b35155ccc45ac4e6cf02; tests/test_multiagent_receipt_v3_schema.py=de9c129a501a58586b3b03b44bc60a62df14fffcdc157eb401fb0fe2d4e4934b. Observed red correction evidence: 41 passed, 4 failed, exit 1; raw output intentionally omitted. Corrected fixtures retain forbidden-data, replay, nonce, fractions/resets, QOBS/receipt-v2, path, credential, and closed-schema rejection coverage."
+  "supersedes": "23140e93769779182f431e72571ae401dbd563d8",
+  "correction_reason": "valid fixtures omitted mandatory protocol_version after runtime/schema parity hardening",
+  "rationale": "Superseding test-only baseline. Prior baseline SHA: 23140e93769779182f431e72571ae401dbd563d8; prior baseline parent: acbe196bc4b93294ed5c35060907567e45f67ece. Prior baseline file hashes: tests/test_agy_bucket_admission_sanitizer.py=2bc03af8538b7ba74c25fd6f98dbd8c76d86c4112b7640d97d611cc28e64aae7; tests/test_agy_bucket_admission_guard.py=7ee67c6b73166c58e42c794a6c92164d3b34cbd767bd7bc6833d7a21deeb427b; tests/test_agy_bucket_admission_integration.py=f626bf30b48c1390658f71eda5282dbfad9d6a30e20123195e934fdabcaa542e; tests/test_multiagent_receipt_v3_schema.py=f1b73603f526355f74bbacbeb5d6b1a1326fa00f70d1f31a65274cb158b75e8c. Prior red evidence: 41 passed, 4 failed, exit 1; prior fixtures lacked mandatory receipt-v3 transitive bindings and observation_digest; no raw output recorded. New correction adds mandatory AGY protocol metadata to valid fixtures and retains forbidden-data, replay, nonce, fractions/resets, QOBS/receipt-v2, path, credential, and closed-schema rejection coverage."
 }
