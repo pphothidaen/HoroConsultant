@@ -356,7 +356,7 @@ def test_snapshot_and_decision_digest_tampering_block_before_subprocess(tmp_path
 def test_invalid_metadata_is_blocked_before_subprocess_creation(tmp_path, monkeypatch, capsys):
     config_path = tmp_path / "routes.yaml"
     config_path.write_text(
-        "runtime:\n  approved_for_execution: true\n  protocol_version: 2\naccounts:\n  codex1:\n    cli: codex\nroles:\n  developer:\n    alias: codex1\n    cli: codex\n    model: gpt-5.6-luna\n    effort: medium\n    sandbox: workspace-write\n",
+        "activation_prohibited: false\ndispatcher_execution: OPEN\nruntime:\n  approved_for_execution: true\n  protocol_version: 2\naccounts:\n  codex1:\n    cli: codex\nroles:\n  developer:\n    alias: codex1\n    cli: codex\n    model: gpt-5.6-luna\n    effort: medium\n    sandbox: workspace-write\nprovider_account_state:\n  providers:\n    codex:\n      state: healthy\n  accounts:\n    codex1:\n      state: healthy\n",
         encoding="utf-8",
     )
     policy_path = ROOT / ".agents/config/multiagent_model_policy.yaml"

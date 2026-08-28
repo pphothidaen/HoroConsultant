@@ -44,6 +44,8 @@ def _config(tmp_path: Path) -> Path:
     path.write_text(
         yaml.safe_dump(
             {
+                "activation_prohibited": False,
+                "dispatcher_execution": "OPEN",
                 "runtime": {
                     "approved_for_execution": True,
                     "protocol_version": 2,
@@ -81,6 +83,18 @@ def _config(tmp_path: Path) -> Path:
                         "model": "gemini-pro",
                         "mode": "plan",
                         "sandbox": True,
+                    },
+                },
+                "provider_account_state": {
+                    "providers": {
+                        "codex": {"state": "healthy"},
+                        "agy": {"state": "healthy"},
+                    },
+                    "accounts": {
+                        "codex1": {"state": "healthy"},
+                        "codex2": {"state": "healthy"},
+                        "agy1": {"state": "healthy"},
+                        "agy2": {"state": "healthy"},
                     },
                 },
             },

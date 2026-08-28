@@ -1,0 +1,42 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-SUBAGENT-FAIL-CLOSED-20260828",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "3b8bf9683b65c3edb3e062681372a14b1596e576",
+  "test_files": [
+    {
+      "path": "tests/test_multiagent_prompt_command.py",
+      "sha256": "28e101f59cd9d60d44465b79b763ce818eaceb5b9e72ce40f493d58d4d7230a2"
+    },
+    {
+      "path": "tests/test_multiagent_ticket_scheduler.py",
+      "sha256": "21a157b0def28348283c26d995667b20d0e076f17f582db77ddae1c8cb203c26"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_subagent_fail_closed_runtime.py",
+        "tests/test_multiagent_prompt_command.py",
+        "tests/test_multiagent_ticket_scheduler.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "16 failed, 203 passed; only the unchanged frozen fail-closed acceptance cases remain red for absent activation gates, missing provider-state rejection, flattened NEEDS_HITL, and missing spawn-boundary reason codes"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/multiagent_prompt_command.py",
+    "scripts/multiagent_ticket_scheduler.py",
+    ".agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "3b8bf9683b65c3edb3e062681372a14b1596e576",
+  "correction_reason": "The verified source WIP exposed 27 legacy execute fixtures that relied on implicit activation and provider defaults. This correction makes positive execution intent explicit and keeps the original fail-closed acceptance test immutable.",
+  "rationale": "QA-owned superseding test-only baseline captured at 2026-08-28T13:07:49Z. The unchanged frozen test remains tests/test_subagent_fail_closed_runtime.py=71bc9f29d3adf33b451e93234de8fee0da83ef21d62d70c4947ed0d95b35f1e0 and prior manifest remains 7ff71c12c06246b381071c6ad55e871810944490f7c41abd4a5c81a060d74c8b. Corrected-test prior hashes: tests/test_multiagent_prompt_command.py=f82a3cabd05450810a3108b9761ff5efccf1935659b50ba86bb13994d6051d79; tests/test_multiagent_ticket_scheduler.py=c39623e8a2e7d520722296a773cc529f2b3e36497392a1f121826a29e6904ebb. Source-before SHA-256 at baseline parent: scripts/multiagent_prompt_command.py=816c36f75236e391673d4689b11692a63bed1dd2b5b58d75e0dbe5a248bb2452; scripts/multiagent_ticket_scheduler.py=efb90b3a4929ecd448b7b6f013b24fc0927c8a2913fa3d991c415f2ac0b09eb3; .agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml=60cdc745f1292a23418e1ed3f9bee08d44a55775e14e4139c9fc001e5ddd72e0. Positive fixtures now explicitly declare False/OPEN activation and healthy selected-route provider/account state; the scheduling-metadata case satisfies those prerequisite gates so its original no-subprocess scheduling assertion remains meaningful."
+}
