@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 import hashlib
+import json
 from pathlib import Path
 import subprocess
 
@@ -74,7 +75,25 @@ def _request(alias: str = "codex1", **overrides: object) -> dict[str, object]:
     return request
 
 
+def _canonical_work_result_sha256(work_result: dict[str, object]) -> str:
+    """The receipt binds the canonical normalized typed result, never a label."""
+
+    material = json.dumps(
+        work_result, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode("utf-8")
+    return hashlib.sha256(material).hexdigest()
+
+
 def _receipt(admission: object) -> tuple[dict[str, object], dict[str, object]]:
+    result = {
+        "status": "DONE",
+        "scope_owned": ["read-only repository inventory"],
+        "evidence": {"commands": [], "outcomes": ["synthetic"], "artifacts": []},
+        "findings": ["synthetic typed result"],
+        "changed_files": [],
+        "residual_risk": "none",
+        "recommended_next_action": "stop",
+    }
     receipt = {
         "protocol_version": 2,
         "ticket": TICKET,
@@ -87,16 +106,7 @@ def _receipt(admission: object) -> tuple[dict[str, object], dict[str, object]]:
         "scheduling_snapshot_sha256": admission.scheduling_snapshot_sha256,
         "resolved_executable_sha256": admission.resolved_executable_sha256,
         "account_identity_sha256": admission.account_identity_sha256,
-        "work_result_sha256": _digest("work-result:codex1"),
-    }
-    result = {
-        "status": "DONE",
-        "scope_owned": ["read-only repository inventory"],
-        "evidence": {"commands": [], "outcomes": ["synthetic"], "artifacts": []},
-        "findings": ["synthetic typed result"],
-        "changed_files": [],
-        "residual_risk": "none",
-        "recommended_next_action": "stop",
+        "work_result_sha256": _canonical_work_result_sha256(result),
     }
     return receipt, result
 
@@ -196,6 +206,10 @@ def test_idq_mvp_080_requires_receipt_v2_and_typed_workresult_to_rebind_all_dige
         tampered[field] = _digest(f"tampered:{field}")
         with pytest.raises(command.ConfigurationError):
             command.validate_idq_mvp_080_receipt(admission, tampered, work_result)
+    substituted_result = deepcopy(work_result)
+    substituted_result["findings"] = ["substituted typed result"]
+    with pytest.raises(command.ConfigurationError):
+        command.validate_idq_mvp_080_receipt(admission, receipt, substituted_result)
     with pytest.raises(command.ConfigurationError):
         command.validate_idq_mvp_080_receipt(
             admission, dict(receipt, raw_stream="forbidden"), work_result
