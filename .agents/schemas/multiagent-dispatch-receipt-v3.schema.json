@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://horoconsultant.local/schemas/multiagent-dispatch-receipt-v3.schema.json",
+  "title": "HoroConsultant AGY dispatch receipt v3",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "protocol", "request_id", "alias", "model_id", "nonce", "artifact_digest", "availability", "freshness", "provenance", "policy_digest", "observation_digest", "bucket_binding", "decision", "scheduling_snapshot_sha256", "provider_native_result_digest", "work_result_digest"],
+  "properties": {
+    "schema_version": {"const": 3}, "protocol": {"const": "multiagent-dispatch-receipt-v3"},
+    "request_id": {"$ref": "#/$defs/safeName"}, "alias": {"enum": ["agy1", "agy2"]}, "model_id": {"$ref": "#/$defs/safeName"}, "nonce": {"type": "string", "minLength": 8, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "artifact_digest": {"$ref": "#/$defs/sha256"}, "availability": {"enum": ["available", "blocked"]}, "freshness": {"enum": ["fresh", "stale-or-invalid"]}, "provenance": {"$ref": "#/$defs/safeName"},
+    "policy_digest": {"$ref": "#/$defs/sha256"}, "observation_digest": {"$ref": "#/$defs/sha256"}, "bucket_binding": {"oneOf": [{"const": ["gemini-weekly", "gemini-5h"]}, {"const": ["3p-weekly", "3p-5h"]}]}, "decision": {"enum": ["admit", "block"]}, "scheduling_snapshot_sha256": {"$ref": "#/$defs/sha256"}, "provider_native_result_digest": {"$ref": "#/$defs/sha256"}, "work_result_digest": {"$ref": "#/$defs/sha256"}
+  },
+  "$defs": {"sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "safeName": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"}}
+}
