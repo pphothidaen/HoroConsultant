@@ -1,0 +1,46 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-S3-CAPACITY-CLEANUP-01",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "0e9a147ab9041302ba85397272a55c13ba51af50",
+  "test_files": [
+    {
+      "path": "tests/test_agy_cli_docs_inspector.py",
+      "sha256": "901009b7a82211be3dfa98d36747b9d4d8b46627f4a1852b5ebca47e7963bb86"
+    },
+    {
+      "path": "tests/test_agy_json_usage_sanitizer.py",
+      "sha256": "7ca799a386bb13aa31ef8ef791f8aba521a4cb1c492be2baa1454f9c40d3597a"
+    },
+    {
+      "path": "tests/test_claude_agy_parity.py",
+      "sha256": "4a8563731e310957851a2257a5c32ac841410f7fce16ece9a62a6cfa423ba19d"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_claude_agy_parity.py",
+        "-k",
+        "non_existent_red_filter"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "verified clean imports in test suite"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/agy_cli_docs_inspector.py",
+    "scripts/agy_json_usage_sanitizer.py",
+    "scripts/sync_claude_agy_parity.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Clean up unused imports in docs inspector, json sanitizer, and parity bridge scripts."
+}

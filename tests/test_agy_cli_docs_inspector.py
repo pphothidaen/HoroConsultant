@@ -5,7 +5,6 @@ import json
 from pathlib import Path
 import sys
 from types import SimpleNamespace
-import pytest
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "scripts"))
 import agy_cli_docs_inspector as inspector  # noqa: E402

@@ -9,39 +9,23 @@ Verifies:
 6. Auto-sync trigger functions cleanly with 100% fail-closed guarantee.
 """
 
-from __future__ import annotations
-
 import os
 import subprocess
 import sys
-from pathlib import Path
-
-import pytest
-import yaml
 
 from scripts.sync_claude_agy_parity import (
     AGY_AGENTS_DIR,
-    AGY_DIR,
     AGY_HOOKS_DIR,
     AGY_IGNORE,
     AGY_MD,
     AGY_RULES_DIR,
     AGY_SKILLS_DIR,
-    CLAUDE_AGENTS_DIR,
-    CLAUDE_DIR,
-    CLAUDE_HOOKS_DIR,
     CLAUDE_IGNORE,
     CLAUDE_MD,
     CLAUDE_RULES_DIR,
-    CLAUDE_SKILLS_DIR,
     ROOT,
     parse_frontmatter,
     run_all_parity_checks,
-    sync_ignore_files,
-    sync_rules,
-    sync_skills,
-    sync_agents,
-    sync_hooks_and_permissions,
 )
 
 
