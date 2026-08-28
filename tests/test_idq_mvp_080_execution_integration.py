@@ -19,6 +19,7 @@ is validated through the frozen receipt-v2 and typed WorkResult contract.
 from __future__ import annotations
 
 from copy import deepcopy
+from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
@@ -26,6 +27,7 @@ from pathlib import Path
 import pytest
 
 import scripts.multiagent_prompt_command as command
+import scripts.agent_quota_status_guard as quota
 
 
 TICKET = "IDQ-MVP-080"
@@ -76,21 +78,40 @@ def _request(alias: str) -> dict[str, object]:
     }
 
 
-def _context(request: dict[str, object]) -> dict[str, object]:
+def _signals() -> dict[str, object]:
+    values = {"usedPercent": 90.0, "remainingPercent": 10.0, "reached": False,
+              "limit": 100.0, "spend": 90.0, "remaining": 10.0}
+    return {**values, "buckets": {"primary": dict(values), "secondary": dict(values)}}
+
+
+def _fixture(alias: str) -> tuple[dict[str, object], dict[str, object]]:
+    """Build a genuine synthetic QOBS artifact through the quota guard."""
+
+    request = _request(alias)
     provider = str(request["provider"])
+    qobs_context: dict[str, object] = {
+        "alias": alias, "provider": provider, "account_home": f"/private/idq/{alias}",
+        "resolved_executable": f"/opt/idq/{provider}", "ticket_id": TICKET,
+        "attempt_id": 1, "policy_version": "2026-08-26.1",
+        "nonce": f"idq-mvp-080-{alias}-nonce",
+        "observed_at": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
+    }
+    artifact = quota.probe_quota_observation(_signals(), qobs_context)
+    request.update({
+        "qobs_artifact_sha256": quota.quota_artifact_sha256(artifact),
+        "nonce_sha256": quota.sha256_text(str(qobs_context["nonce"])),
+        "resolved_executable_sha256": quota.sha256_text(str(qobs_context["resolved_executable"])),
+        "account_identity_sha256": quota.sha256_text(str(qobs_context["account_home"])),
+    })
     return {
-        "qobs": {"known": True, "quota_band": "constrained", "sha256": request["qobs_artifact_sha256"]},
-        "decision": {"fresh": True, "sha256": request["decision_sha256"]},
-        "scheduling_snapshot": {"non_placeholder": True, "sha256": request["scheduling_snapshot_sha256"]},
-        "resolved_executable": {"safe": True, "sha256": request["resolved_executable_sha256"]},
-        "account_identity": {"safe": True, "sha256": request["account_identity_sha256"]},
-        "nonce": {"unused": True, "sha256": request["nonce_sha256"]},
+        "qobs_artifact": artifact,
+        "qobs_expected_context": qobs_context,
         "runtime": (
             {"read_only": True, "mode": "plan", "sandbox": True}
             if provider == "agy"
             else {"read_only": True, "sandbox": "read-only"}
         ),
-    }
+    }, request
 
 
 def _work_result() -> dict[str, object]:
@@ -132,7 +153,7 @@ def _payload(request: dict[str, object]) -> dict[str, object]:
 def test_execution_uses_the_new_admission_gate_at_the_atomic_spawn_boundary(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    request = _request("codex1")
+    context, request = _fixture("codex1")
     events: list[str] = []
     original_gate = command.validate_idq_mvp_080_execution_admission
     original_consume = command._consume_idq_mvp_080_marker
@@ -154,7 +175,7 @@ def test_execution_uses_the_new_admission_gate_at_the_atomic_spawn_boundary(
         return _payload(request)
 
     completed = command.execute_idq_mvp_080_execution(
-        _config(), request, _context(request), tmp_path, runner
+        _config(), request, context, tmp_path, runner
     )
     assert events == ["admission", "marker", "spawn"]
     assert completed["receipt"]["alias"] == "codex1"
@@ -166,25 +187,27 @@ def test_execution_accepts_only_the_four_one_shot_read_only_routes_and_safe_pref
     tmp_path: Path,
 ) -> None:
     calls: list[str] = []
+    requests: dict[str, dict[str, object]] = {}
 
     def runner(admission: object) -> dict[str, object]:
         alias = str(getattr(admission, "alias"))
         calls.append(alias)
-        return _payload(_request(alias))
+        return _payload(requests[alias])
 
     for alias in ALIASES:
-        request = _request(alias)
+        context, request = _fixture(alias)
+        requests[alias] = request
         completed = command.execute_idq_mvp_080_execution(
-            _config(), request, _context(request), tmp_path, runner
+            _config(), request, context, tmp_path, runner
         )
         assert completed["receipt"]["provider"] == ALIASES[alias]
     assert calls == list(ALIASES)
 
     rejected = [
-        (_request("codex3"), _context(_request("codex3"))),
-        (dict(_request("codex1"), attempt=2), _context(_request("codex1"))),
-        (dict(_request("codex2"), qobs_quota_band="unknown"), _context(_request("codex2"))),
-        (_request("agy1"), dict(_context(_request("agy1")), runtime={"read_only": True, "mode": "plan", "sandbox": False})),
+        (lambda c, r: (dict(r, alias="codex3"), c))(*_fixture("codex1")),
+        (lambda c, r: (dict(r, attempt=2), c))(*_fixture("codex1")),
+        (lambda c, r: (dict(r, qobs_quota_band="unknown"), c))(*_fixture("codex2")),
+        (lambda c, r: (r, dict(c, runtime={"read_only": True, "mode": "plan", "sandbox": False})))(*_fixture("agy1")),
     ]
     for request, context in rejected:
         with pytest.raises(command.ConfigurationError):
@@ -196,7 +219,7 @@ def test_execution_accepts_only_the_four_one_shot_read_only_routes_and_safe_pref
 def test_execution_rejects_raw_or_unbound_provider_payloads(
     tmp_path: Path, malformation: str
 ) -> None:
-    request = _request("codex1")
+    context, request = _fixture("codex1")
 
     def runner(_admission: object) -> dict[str, object]:
         payload = _payload(request)
@@ -212,20 +235,20 @@ def test_execution_rejects_raw_or_unbound_provider_payloads(
 
     with pytest.raises(command.ConfigurationError):
         command.execute_idq_mvp_080_execution(
-            _config(), request, _context(request), tmp_path, runner
+            _config(), request, context, tmp_path, runner
         )
 
 
 def test_execution_consumes_only_after_complete_preflight_and_never_retries(
     tmp_path: Path,
 ) -> None:
-    request = _request("agy2")
+    context, request = _fixture("agy2")
     marker = tmp_path / "idq-mvp-080-agy2.used"
     calls: list[object] = []
 
     with pytest.raises(command.ConfigurationError):
         command.execute_idq_mvp_080_execution(
-            _config(), request, dict(_context(request), qobs={"known": False}), tmp_path,
+            _config(), request, dict(context, qobs_artifact={}), tmp_path,
             lambda admission: calls.append(admission),
         )
     assert not marker.exists()
@@ -237,11 +260,11 @@ def test_execution_consumes_only_after_complete_preflight_and_never_retries(
 
     with pytest.raises(command.ConfigurationError, match="synthetic provider failure"):
         command.execute_idq_mvp_080_execution(
-            _config(), request, _context(request), tmp_path, failing_runner
+            _config(), request, context, tmp_path, failing_runner
         )
     assert marker.exists()
     with pytest.raises(command.ConfigurationError, match="consumed|one.use"):
         command.execute_idq_mvp_080_execution(
-            _config(), request, _context(request), tmp_path, failing_runner
+            _config(), request, context, tmp_path, failing_runner
         )
     assert len(calls) == 1

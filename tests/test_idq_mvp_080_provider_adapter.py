@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 import subprocess
 from typing import Any
@@ -16,6 +17,7 @@ from typing import Any
 import pytest
 
 import scripts.multiagent_prompt_command as command
+import scripts.agent_quota_status_guard as quota
 
 
 TICKET = "IDQ-MVP-080"
@@ -67,20 +69,40 @@ def _request(alias: str) -> dict[str, object]:
     }
 
 
-def _context(request: dict[str, object]) -> dict[str, object]:
+def _signals() -> dict[str, object]:
+    values = {"usedPercent": 90.0, "remainingPercent": 10.0, "reached": False,
+              "limit": 100.0, "spend": 90.0, "remaining": 10.0}
+    return {**values, "buckets": {"primary": dict(values), "secondary": dict(values)}}
+
+
+def _fixture(alias: str) -> tuple[dict[str, object], dict[str, object]]:
+    """Build a genuine synthetic QOBS artifact through the quota guard."""
+
+    request = _request(alias)
+    provider = str(request["provider"])
+    qobs_context: dict[str, object] = {
+        "alias": alias, "provider": provider, "account_home": f"/private/idq/{alias}",
+        "resolved_executable": f"/opt/idq/{provider}", "ticket_id": TICKET,
+        "attempt_id": 1, "policy_version": "2026-08-26.1",
+        "nonce": f"idq-mvp-080-{alias}-nonce",
+        "observed_at": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
+    }
+    artifact = quota.probe_quota_observation(_signals(), qobs_context)
+    request.update({
+        "qobs_artifact_sha256": quota.quota_artifact_sha256(artifact),
+        "nonce_sha256": quota.sha256_text(str(qobs_context["nonce"])),
+        "resolved_executable_sha256": quota.sha256_text(str(qobs_context["resolved_executable"])),
+        "account_identity_sha256": quota.sha256_text(str(qobs_context["account_home"])),
+    })
     return {
-        "qobs": {"known": True, "quota_band": "constrained", "sha256": request["qobs_artifact_sha256"]},
-        "decision": {"fresh": True, "sha256": request["decision_sha256"]},
-        "scheduling_snapshot": {"non_placeholder": True, "sha256": request["scheduling_snapshot_sha256"]},
-        "resolved_executable": {"safe": True, "sha256": request["resolved_executable_sha256"]},
-        "account_identity": {"safe": True, "sha256": request["account_identity_sha256"]},
-        "nonce": {"unused": True, "sha256": request["nonce_sha256"]},
+        "qobs_artifact": artifact,
+        "qobs_expected_context": qobs_context,
         "runtime": (
             {"read_only": True, "sandbox": "read-only"}
-            if request["provider"] == "codex"
+            if provider == "codex"
             else {"read_only": True, "mode": "plan", "sandbox": True}
         ),
-    }
+    }, request
 
 
 def _work_result(status: str = "DONE") -> dict[str, object]:
@@ -148,7 +170,7 @@ def _fake_runner(payload: str, *, exit_code: int = 0) -> tuple[list[tuple[tuple[
 def test_adapter_runs_only_exact_provider_native_read_only_argv_after_marker(
     tmp_path: Path, alias: str
 ) -> None:
-    request = _request(alias)
+    context, request = _fixture(alias)
     events: list[str] = []
     original_admission = command.validate_idq_mvp_080_execution_admission
     original_consume = command._consume_idq_mvp_080_marker
@@ -169,7 +191,7 @@ def test_adapter_runs_only_exact_provider_native_read_only_argv_after_marker(
     calls, runner = _fake_runner(payload)
     try:
         completed = command.execute_idq_mvp_080_provider_adapter(
-            _config(), request, _context(request), tmp_path, runner
+            _config(), request, context, tmp_path, runner
         )
     finally:
         monkeypatch.undo()
@@ -210,20 +232,21 @@ def test_adapter_rejects_raw_malformed_or_nonzero_done_streams_without_persistin
     tmp_path: Path, payload: str, exit_code: int
 ) -> None:
     calls, runner = _fake_runner(payload, exit_code=exit_code)
+    context, request = _fixture("codex1")
     with pytest.raises(command.ConfigurationError):
         command.execute_idq_mvp_080_provider_adapter(
-            _config(), _request("codex1"), _context(_request("codex1")), tmp_path, runner
+            _config(), request, context, tmp_path, runner
         )
     assert len(calls) == 1
     assert not any(payload.encode("utf-8") in path.read_bytes() for path in tmp_path.rglob("*") if path.is_file())
 
 
 def test_adapter_accepts_nonzero_only_with_a_typed_terminal_failure(tmp_path: Path) -> None:
-    request = _request("agy1")
+    context, request = _fixture("agy1")
     payload = _agy_jsonl(_work_result("BLOCKED"))
     calls, runner = _fake_runner(payload, exit_code=9)
     completed = command.execute_idq_mvp_080_provider_adapter(
-        _config(), request, _context(request), tmp_path, runner
+        _config(), request, context, tmp_path, runner
     )
     assert len(calls) == 1
     assert completed["work_result"]["status"] == "BLOCKED"
