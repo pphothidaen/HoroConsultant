@@ -13,7 +13,21 @@ def request():
         "alias": "agy1",
         "model_id": "gemini-3.1-pro-high",
         "bucket_availability": "available",
-        "receipt_binding": {"protocol": "receipt-v3", "request_id": "r-1", "nonce": "nonce-123456789"},
+        "receipt_binding": {
+            "protocol": "receipt-v3",
+            "request_id": "r-1",
+            "alias": "agy1",
+            "model_id": "gemini-3.1-pro-high",
+            "nonce": "nonce-123456789",
+            "artifact_digest": "a" * 64,
+            "policy_digest": "b" * 64,
+            "observation_digest": "c" * 64,
+            "bucket_binding": ["gemini-weekly", "gemini-5h"],
+            "decision": "admit",
+            "scheduling_snapshot_sha256": "d" * 64,
+            "provider_native_result_digest": "e" * 64,
+            "work_result_digest": "f" * 64,
+        },
         "safe_input": {"objective_digest": "a" * 64, "scope_digest": "b" * 64},
     }
 

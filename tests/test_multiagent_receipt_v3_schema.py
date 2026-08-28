@@ -26,6 +26,13 @@ def receipt():
         "availability": "available",
         "freshness": "fresh",
         "provenance": "provider-status",
+        "policy_digest": "b" * 64,
+        "observation_digest": "c" * 64,
+        "bucket_binding": ["gemini-weekly", "gemini-5h"],
+        "decision": "admit",
+        "scheduling_snapshot_sha256": "d" * 64,
+        "provider_native_result_digest": "e" * 64,
+        "work_result_digest": "f" * 64,
     }
 
 
@@ -45,7 +52,11 @@ def test_v1_and_v2_are_not_accepted_or_converted():
             validate_receipt_v3(old)
 
 
-@pytest.mark.parametrize("field", ["nonce", "request_id", "alias", "artifact_digest", "availability", "freshness", "provenance"])
+@pytest.mark.parametrize("field", [
+    "nonce", "request_id", "alias", "artifact_digest", "availability", "freshness", "provenance",
+    "policy_digest", "observation_digest", "bucket_binding", "decision", "scheduling_snapshot_sha256",
+    "provider_native_result_digest", "work_result_digest",
+])
 def test_v3_binding_fields_are_required_and_tamper_evident(field):
     candidate = copy.deepcopy(receipt())
     candidate.pop(field)

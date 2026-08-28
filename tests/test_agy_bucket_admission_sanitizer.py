@@ -53,7 +53,7 @@ def test_safe_input_does_not_retain_raw_or_sensitive_values():
     encoded = json.dumps(result, sort_keys=True)
     for secret in ("provider secret output", "verbatim response", "bearer secret", "/home/user/.config/token", "person@example.com"):
         assert secret not in encoded
-    assert set(result) <= {"alias", "model_id", "availability", "observed_at", "provenance_digest"}
+    assert set(result) <= {"alias", "model_id", "availability", "observed_at", "observation_digest", "provenance_digest"}
 
 
 @pytest.mark.parametrize("fraction", [0.10, 0, -0.1])
