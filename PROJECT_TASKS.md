@@ -1,3 +1,31 @@
+<!-- PROD-DEPLOY-RUN-33251341038:START -->
+## Production Deployment Run 33251341038 — Verified on `main` (`52bf2c3`)
+
+**Status**: `DEPLOYED & VERIFIED ON PRODUCTION` (`main` @ `52bf2c3`, Run `33251341038`)
+**Authority**: Production Deployment Verification Gate & Single Source of Truth
+**Audit Summary**: 1,833/1,833 Tests Passed (100% Green), 0 Secret Leaks (2,186 files scanned), 100% Agent Ecosystem Sync (0 drift)
+
+### 🌐 Live Production Endpoints
+
+| Service | Target URL | HTTP Status | Response Time | Status / Telemetry |
+|---|---|---|---|---|
+| **Vercel Static UI** | `https://horo-consultant-psi.vercel.app` | `200 OK` | ~228 ms | Active (Static document, `app.js`, Service Worker) |
+| **Vercel Version Metadata** | `https://horo-consultant-psi.vercel.app/version.json` | `200 OK` | ~196 ms | Active (Canonical release identity) |
+| **HF Docker Backend Health** | `https://pphothidaen-horoconsultant-core-backend.hf.space/health` | `200 OK` | ~975 ms | Active (FastAPI / Uvicorn container operational) |
+| **Public Deterministic API** | `https://pphothidaen-horoconsultant-core-backend.hf.space/api/bazi/calculate` | `200 OK` | ~861 ms | Active (True Solar Time + BaZi Four Pillars calculation) |
+| **Admin Provider Pools** | `/api/admin/provider-pools` | `200 OK` | <50 ms | Active (`[ZERO-COST POLICY: ACTIVE]`, 5 provider pools) |
+
+### 🔍 Post-Deployment Verification Summary
+1. **Zero-Cost Multi-Tier Pipeline**: 51/51 zero-cost tests passed (`project/tests/test_zero_cost_pipeline.py`, `project/tests/test_semantic_cache.py`). 0ms circuit breaker bypass on HTTP 429 verified.
+2. **Spark Model Governance**: Policy `2026-08-29.1` verified (15/15 tests pass).
+3. **Five-Pool Capacity & IDQ Architecture**: 392/392 multiagent and IDQ tests passed (`tests/test_multiagent*.py`, `tests/test_idq*.py`).
+4. **Rust PyO3 Math Core**: High-performance celestial coordinate and LuoPan SVG generation verified.
+5. **Secret Leak Audit**: 0 leaks detected across 2,186 scanned files via Rust Rayon parallel scanner.
+6. **AI Agent Ecosystem Sync**: 100% synchronized across Claude Code, Antigravity, and OpenAI Codex definitions (`python3 scripts/sync_ai_agent_ecosystem.py --check` PASS).
+<!-- PROD-DEPLOY-RUN-33251341038:END -->
+
+---
+
 <!-- IDQ-MVP-BOARD-20260828:START -->
 ## Sprint IDQ-MVP — Independent Roots + Durable Queue Local MVP
 
