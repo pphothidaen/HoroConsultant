@@ -1,0 +1,53 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-IDQ-MVP-010-BASELINE",
+  "sequence": 1,
+  "provenance_status": "RECONSTRUCTED",
+  "baseline_parent": "80a39b592564b7af4e4970672ae924cd0efb94ca",
+  "test_files": [
+    {
+      "path": "tests/test_multiagent_durable_queue.py",
+      "sha256": "40981ca883bd545c0c7d5bf03d656169406104363b70173368ea2e005e25bc48"
+    },
+    {
+      "path": "tests/test_multiagent_root_worker.py",
+      "sha256": "287e3f3eb97aafa866a4c8f4fd0e8aba437abf4a1017f588fc3d05308fbf0e0b"
+    },
+    {
+      "path": "tests/test_multiagent_root_supervisor.py",
+      "sha256": "b57be129ba48582446fde6f6c1c9528481c24d21c64f94a3fc05da20598edb19"
+    },
+    {
+      "path": "tests/test_multiagent_bootstrap_dispatch.py",
+      "sha256": "88fc039a6cfb591857f04110f799b32416af7efbd99a4a7eacca8e796c267e5f"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-c",
+        "raise SystemExit(1)"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Explicit schema-required negative control only. It is not a historical test run and does not assert historical source absence or red-test evidence."
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/multiagent_durable_queue.py",
+    "scripts/multiagent_root_worker.py",
+    "scripts/multiagent_root_supervisor.py",
+    "scripts/multiagent_prompt_command.py",
+    "scripts/multiagent_capacity.py",
+    "scripts/multiagent_ticket_scheduler.py",
+    ".agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml",
+    ".agents/config/s3_capacity_policy.json",
+    "PROJECT_TASKS.md",
+    "plans/plan.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "NON_TDD_RECONSTRUCTED: the four tests were assembled while their corresponding source already existed as untracked working-tree files. This is an honest test-only reconstruction baseline, not TEST_BASELINE_VERIFIED evidence and not evidence of historical red behavior. The schema-required negative control is explicitly non-historical; any current green suite result is post-baseline worktree evidence only."
+}
