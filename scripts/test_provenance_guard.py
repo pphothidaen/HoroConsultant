@@ -575,7 +575,15 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
             superseded_at[supersedes] = parent
 
     for manifest_path, _manifest, baseline in records:
-        verification_head = superseded_at.get(baseline, head)
+        if baseline in superseded_at:
+            verification_head = superseded_at[baseline]
+        else:
+            subsequent_parents = [
+                str(m.get("baseline_parent"))
+                for _, m, b2 in records
+                if b2 != baseline and _is_ancestor(repo, baseline, b2) and m.get("baseline_parent")
+            ]
+            verification_head = subsequent_parents[0] if subsequent_parents else head
         try:
             nested = verify_history(
                 repo,
