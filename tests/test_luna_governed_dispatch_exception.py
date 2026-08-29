@@ -24,13 +24,28 @@ from datetime import datetime, timedelta, timezone
 import hashlib
 import json
 from pathlib import Path
+import shutil
 import subprocess
+import sys
 
 import pytest
 
 import scripts.agent_quota_status_guard as quota
 import scripts.multiagent_prompt_command as command
 import scripts.multiagent_ticket_scheduler as scheduler
+
+
+@pytest.fixture(autouse=True)
+def _mock_codex_executable(monkeypatch: pytest.MonkeyPatch) -> None:
+    original_which = command.shutil.which
+    monkeypatch.setattr(
+        command.shutil,
+        "which",
+        lambda cmd, *args, **kwargs: (
+            original_which(cmd, *args, **kwargs)
+            or (sys.executable if "codex" in str(cmd) else None)
+        ),
+    )
 
 
 ROOT = Path(__file__).resolve().parents[1]
