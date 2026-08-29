@@ -490,3 +490,4 @@ class TestZeroCostPipelineIntegration:
         assert allowed_count == 50
         assert blocked_count == 50
         assert len(results) == 100
+# Baseline 03 provenance marker
