@@ -1,5 +1,5 @@
 schema_version: 1
-policy_version: "2026-08-26.1"
+policy_version: "2026-08-29.1"
 decision_schema_version: 1
 
 result_contract:
@@ -18,6 +18,25 @@ result_contract:
     # alias swapping when a role or CLI override selects the other provider.
     # Absent or false preserves strict mismatch rejection (fail-closed default).
     allow_provider_swap_default: false
+
+# QuotaObservation v1 is content-free, canonical, and single-use. Runtime
+# consumers must reject stale/future/replayed or contradictory observations,
+# revalidate the exact artifact and provenance, and bind those values
+# transitively into receipt protocol v2. DispatchDecision schema v1 is
+# deliberately absent from executable_decision_schema_versions.
+quota_observation:
+  schema_version: 1
+  protocol_version: 1
+  canonicalization_version: 1
+  observation_schema: ../schemas/multiagent-quota-observation-v1.schema.json
+  artifact_schema: ../schemas/multiagent-quota-observation-artifact-v1.schema.json
+  observation_domain: horoconsultant.multiagent.quota-observation.v1
+  artifact_domain: horoconsultant.multiagent.quota-observation-artifact.v1
+  maximum_age_seconds: 60
+  future_tolerance_seconds: 5
+  threshold_percent: 10
+  executable_decision_schema_versions: []
+  receipt_protocol_version: 2
 
 # The orchestrator classifies a lane.  This catalog only validates the
 # resulting selection; it never lowers a quality floor because of quota.
@@ -51,40 +70,22 @@ quota_bands:
 
 quality_floors:
   0:
+    reference_profile: gpt-5.6-luna/low
     profile: gpt-5.6-luna/low
   1:
+    reference_profile: gpt-5.6-luna/medium
     profile: gpt-5.6-luna/medium
   2:
+    reference_profile: gpt-5.6-terra/high
     profile: gpt-5.6-terra/high
   3:
+    reference_profile: gpt-5.6-sol/high
     profile: gpt-5.6-sol/high
 
 # quality_rank is the strongest lane floor that an exact model/effort pair
 # may satisfy.  max/ultra are executable only on entries explicitly marked as
 # quality exceptions and require a decision-level quality_exception rationale.
 models:
-  gpt-5.6-luna:
-    cli: codex
-    availability: true
-    deprecated: false
-    fallback_order: 3
-    efforts:
-      low: {quality_rank: 0}
-      medium: {quality_rank: 1}
-      high: {quality_rank: 1}
-      xhigh: {quality_rank: 1}
-  gpt-5.6-terra:
-    cli: codex
-    availability: true
-    deprecated: false
-    fallback_order: 2
-    efforts:
-      low: {quality_rank: 0}
-      medium: {quality_rank: 1}
-      high: {quality_rank: 2}
-      xhigh: {quality_rank: 2}
-      max: {quality_rank: 2, quality_exception: true}
-      ultra: {quality_rank: 2, quality_exception: true}
   gpt-5.6-sol:
     cli: codex
     availability: true
@@ -97,6 +98,39 @@ models:
       xhigh: {quality_rank: 3}
       max: {quality_rank: 3, quality_exception: true}
       ultra: {quality_rank: 3, quality_exception: true}
+  gpt-5.6-terra:
+    cli: codex
+    availability: true
+    deprecated: false
+    fallback_order: 2
+    efforts:
+      low: {quality_rank: 0}
+      medium: {quality_rank: 1}
+      high: {quality_rank: 2}
+      xhigh: {quality_rank: 2}
+      max: {quality_rank: 2, quality_exception: true}
+      ultra: {quality_rank: 2, quality_exception: true}
+  gpt-5.6-luna:
+    cli: codex
+    availability: true
+    deprecated: false
+    fallback_order: 3
+    efforts:
+      low: {quality_rank: 0}
+      medium: {quality_rank: 1}
+      high: {quality_rank: 1}
+      xhigh: {quality_rank: 1}
+  # First-priority Codex profile for the DevOps and code-review safety lanes.
+  # Runtime availability still requires a provider-native receipt.
+  gpt-5.3-codex-spark:
+    cli: codex
+    availability: true
+    deprecated: false
+    fallback_order: 4
+    allowed_roles: ["devops", "code_reviewer"]
+    allowed_phases: ["qa", "review", "release", "operations"]
+    efforts:
+      high: {quality_rank: 3}
   gemini-3.7-flash-low:
     cli: agy
     availability: true

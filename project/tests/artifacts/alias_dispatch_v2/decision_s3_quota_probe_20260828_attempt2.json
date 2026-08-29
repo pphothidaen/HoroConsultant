@@ -1,0 +1,159 @@
+{
+  "protocol_version": 2,
+  "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828",
+  "attempt_id": 2,
+  "phase": "preflight",
+  "work_mode": "read_only",
+  "objective": "one-shot quota/status/concurrency evidence collection only",
+  "authorization": {
+    "type": "HITL",
+    "status": "granted",
+    "authorized_at": "2026-08-28T01:29:09Z",
+    "timezone": "Asia/Bangkok",
+    "scope": "one-shot read-only quota/status/concurrency probe for codex1, codex2, agy1, and agy2",
+    "prohibited": [
+      "provider execution",
+      "real transactions",
+      "account mutation",
+      "provider setting changes",
+      "secret collection or output",
+      "network access outside the approved read-only probe"
+    ]
+  },
+  "independent_pools": ["codex1", "codex2", "agy1", "agy2"],
+  "dispatch_decision": {
+    "schema_version": 1,
+    "scope_rank": 1,
+    "complexity_rank": 1,
+    "risk_rank": 2,
+    "ambiguity_rank": 2,
+    "evidence_burden_rank": 3,
+    "quality_floor": "gpt-5.6-sol/high",
+    "selected_alias": "all-four-distinct-required",
+    "selected_models": {
+      "codex1": "gpt-5.6-sol",
+      "codex2": "gpt-5.6-sol",
+      "agy1": "gemini-3.1-pro-high",
+      "agy2": "gemini-3.1-pro-high"
+    },
+    "selected_effort": "high",
+    "agy_quality_floor": "gemini-3.1-pro-high/high",
+    "quota_band": "unknown",
+    "planning_to_medium_confirmed": true,
+    "hitl_approved": true,
+    "rationale": "tmux prerequisite is satisfied, but agy --help and codex --help expose no documented provider-native quota/status/concurrency command; no probe is guessed or executed.",
+    "status": "BLOCKED",
+    "policy_version": "2026-08-26.1"
+  },
+  "runtime": {
+    "config_path": ".agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml",
+    "config_present": true,
+    "config_approved_for_execution": true,
+    "protocol_version": 2,
+    "tmux_path": "/opt/homebrew/bin/tmux",
+    "tmux_version": "3.7c",
+    "tmux_verification": {
+      "command": "command -v tmux && /opt/homebrew/bin/tmux -V",
+      "output": "/opt/homebrew/bin/tmux\ntmux 3.7c",
+      "verified_at": "2026-08-28T01:29:09Z"
+    },
+    "session_started": false
+  },
+  "probe_discovery": {
+    "approved_probe_available": false,
+    "approved_probe_path": null,
+    "discovery_boundary": "Read-only local CLI discovery only; no provider, network, account, or execution command was run.",
+    "cli_help_checks": [
+      {
+        "alias_group": ["agy1", "agy2"],
+        "command": "agy --help",
+        "finding": "No documented provider-native quota, status, or concurrency command exposed."
+      },
+      {
+        "alias_group": ["codex1", "codex2"],
+        "command": "codex --help",
+        "finding": "No documented provider-native quota, status, or concurrency command exposed."
+      }
+    ],
+    "not_guessed": ["/usage", "/agents", "login status"],
+    "runtime_config_finding": "Runtime config provides secret-free read-only alias routes and model/effort routes, but no provider-native quota/status/concurrency probe command or endpoint."
+  },
+  "aliases": {
+    "codex1": {
+      "attempt_id": 2,
+      "provider": "codex",
+      "selected_model": "gpt-5.6-sol",
+      "selected_effort": "high",
+      "model_effort_catalog_status": "SUPPORTED",
+      "status": "BLOCKED",
+      "failure_class": "missing_runtime_proof",
+      "no_child_ran": true,
+      "quota_band": "unknown",
+      "concurrency_evidence": null,
+      "block_reason": "No documented provider-native read-only quota/status/concurrency probe command or endpoint is available."
+    },
+    "codex2": {
+      "attempt_id": 2,
+      "provider": "codex",
+      "selected_model": "gpt-5.6-sol",
+      "selected_effort": "high",
+      "model_effort_catalog_status": "SUPPORTED",
+      "status": "BLOCKED",
+      "failure_class": "missing_runtime_proof",
+      "no_child_ran": true,
+      "quota_band": "unknown",
+      "concurrency_evidence": null,
+      "block_reason": "No documented provider-native read-only quota/status/concurrency probe command or endpoint is available."
+    },
+    "agy1": {
+      "attempt_id": 2,
+      "provider": "agy",
+      "selected_model": "gemini-3.1-pro-high",
+      "selected_effort": "high",
+      "model_effort_catalog_status": "SUPPORTED",
+      "status": "BLOCKED",
+      "failure_class": "missing_runtime_proof",
+      "no_child_ran": true,
+      "quota_band": "unknown",
+      "concurrency_evidence": null,
+      "block_reason": "No documented provider-native read-only quota/status/concurrency probe command or endpoint is available."
+    },
+    "agy2": {
+      "attempt_id": 2,
+      "provider": "agy",
+      "selected_model": "gemini-3.1-pro-high",
+      "selected_effort": "high",
+      "model_effort_catalog_status": "SUPPORTED",
+      "status": "BLOCKED",
+      "failure_class": "missing_runtime_proof",
+      "no_child_ran": true,
+      "quota_band": "unknown",
+      "concurrency_evidence": null,
+      "block_reason": "No documented provider-native read-only quota/status/concurrency probe command or endpoint is available."
+    }
+  },
+  "expected_execution_receipt": {
+    "required": true,
+    "protocol_version": 2,
+    "not_emitted": true,
+    "reason": "No child ran because the approved provider-native probe command is absent.",
+    "required_fields": ["ticket", "alias", "provider", "attempt_id", "status", "started_at", "ended_at", "process_or_session_id", "quota_status", "concurrency_status", "output_bytes", "output_sha256", "scheduling_snapshot_sha256", "claim_proof"]
+  },
+  "expected_work_result": {
+    "required": true,
+    "protocol_version": 2,
+    "not_emitted": true,
+    "reason": "No provider-native result exists without an approved probe execution.",
+    "required_fields": ["status", "summary", "evidence", "blockers"]
+  },
+  "evidence": {
+    "prior_attempt1_artifact": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828.json",
+    "prior_attempt1_sha256": "2fcfa5a543ebe0d6c63959957c7365913f073bc5ed3f3f521f7eb4085c7b8e5a",
+    "prior_attempt1_preserved": true
+  },
+  "stop_condition": "DONE when this preflight artifact is written and JSON syntax/diff checks pass; otherwise BLOCKED. Do not create a tmux session or execute a provider/network/account command while the approved probe path is absent.",
+  "overall_status": "BLOCKED",
+  "required_human_review": true,
+  "review_reason": "Provider-native quota/concurrency runtime proof is missing despite tmux availability.",
+  "created_at": "2026-08-28T01:29:09Z"
+}

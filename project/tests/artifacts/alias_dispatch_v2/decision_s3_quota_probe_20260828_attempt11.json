@@ -1,0 +1,218 @@
+{
+  "protocol_version": 2,
+  "artifact_type": "Decision/HITL",
+  "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828-ATTEMPT11",
+  "attempt_id": 11,
+  "created_at": "2026-08-28T03:35:00Z",
+  "timezone": "UTC",
+  "phase": "fresh_preflight_pending_human_approval",
+  "work_mode": "read_only",
+  "overall_status": "NEEDS_HITL/PENDING_EXECUTION",
+  "required_human_review": true,
+  "objective": "One fresh account-isolated AGY quota observation per alias through the v1.4.0 fail-closed value-driven sanitizer with structural & value-shape fingerprinting and environment normalization (NO_COLOR=1, TERM=dumb, LC_ALL=C); no model task, transaction, mutation, retry, raw output, or concurrency inference.",
+  "prior_attempt_boundary": {
+    "attempt10_closure": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt10_closure.json",
+    "attempt10_closure_sha256": "3c914a098da145bc43f38636669d49c7e94ea93ac9441df5bc73273ceb937449",
+    "attempt10_status": "BLOCKED/NEEDS_HITL",
+    "preserve_immutable": true
+  },
+  "authorization": {
+    "status": "pending_fresh_HITL",
+    "approval_required_before_provider": true,
+    "approval_text_required": "Approve AGY attempt-11 exactly: one read-only invocation of literal `agy -p /usage` for each of `agy1` and `agy2`, each in its own detached tmux session with environment normalization (NO_COLOR=1, TERM=dumb, LC_ALL=C), through parser agy-usage-sanitizer-v1.4.0 with the bound hashes in this Decision; no model task, transaction, mutation, dashboard/API, retry, fallback after provider start, raw output, or concurrency inference. Persist only allowlisted sanitized metadata, safe structural fingerprint with value shapes, and bound ExecutionReceipt/WorkResult. If preflight, capture, parse, or binding fails, stop and mark BLOCKED/NEEDS_HITL.",
+    "prohibited": [
+      "any other command or argument",
+      "provider/account/configuration mutation",
+      "model task or transaction",
+      "retry or alternate command",
+      "raw stdout/stderr or secrets",
+      "concurrency claim"
+    ]
+  },
+  "account_scope": {
+    "provider": "AGY",
+    "aliases": [
+      "agy1",
+      "agy2"
+    ],
+    "distinct_accounts": true,
+    "runtime_config": ".agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml",
+    "runtime_config_sha256": "60cdc745f1292a23418e1ed3f9bee08d44a55775e14e4139c9fc001e5ddd72e0",
+    "quota_status": {
+      "agy1": "unknown_fresh_observation_required",
+      "agy2": "unknown_fresh_observation_required"
+    },
+    "concurrency_status": {
+      "agy1": "unknown",
+      "agy2": "unknown"
+    }
+  },
+  "environment_normalization": {
+    "NO_COLOR": "1",
+    "TERM": "dumb",
+    "LC_ALL": "C"
+  },
+  "parser_binding": {
+    "path": "scripts/agy_usage_quota_sanitizer.py",
+    "version": "agy-usage-sanitizer-v1.4.0",
+    "parser_version_sha256": "8f2ad07b5590136a5f2249ae0aea9739501af279ff1c71d072bbcfe016f54df0",
+    "parser_file_sha256": "6a9bec99584e928170f3b6242deaf15f192ac8877a69dc1ed623626b005aabcf",
+    "tests_path": "tests/test_agy_usage_quota_sanitizer.py",
+    "tests_sha256": "7f928bd24a22d9ecf956fb8a893db7d0416612747a3eb75eb4d530050a213873",
+    "boundary": "Only allowlisted compact sanitizer JSON and safe structural fingerprint may cross the in-memory boundary; raw provider output is never retained."
+  },
+  "dispatch_decisions": {
+    "agy1": {
+      "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828-AGY1-A11",
+      "selected_alias": "agy1",
+      "quality_floor": "gpt-5.6-sol/high",
+      "ranks": {
+        "scope": 1,
+        "complexity": 2,
+        "risk": 3,
+        "ambiguity": 3,
+        "evidence": 3
+      },
+      "quota_band": "unknown",
+      "root_medium_gate": "confirmed",
+      "hitl_approved": false,
+      "required_human_review": true
+    },
+    "agy2": {
+      "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828-AGY2-A11",
+      "selected_alias": "agy2",
+      "quality_floor": "gpt-5.6-sol/high",
+      "ranks": {
+        "scope": 1,
+        "complexity": 2,
+        "risk": 3,
+        "ambiguity": 3,
+        "evidence": 3
+      },
+      "quota_band": "unknown",
+      "root_medium_gate": "confirmed",
+      "hitl_approved": false,
+      "required_human_review": true
+    }
+  },
+  "capacity_requests": {
+    "agy1": {
+      "request_id": "capacity-quota-observation-agy1-attempt11-20260828t033500z",
+      "parent_root_id": "rootb-agy-quota-attempt11",
+      "owner": "agy1-provider-child-attempt11",
+      "target_pool": "agy1",
+      "lane": 1,
+      "maximum_provider_invocations": 1,
+      "maximum_model_tasks": 0,
+      "maximum_retries": 0,
+      "command_argv": [
+        "agy",
+        "-p",
+        "/usage"
+      ]
+    },
+    "agy2": {
+      "request_id": "capacity-quota-observation-agy2-attempt11-20260828t033500z",
+      "parent_root_id": "rootb-agy-quota-attempt11",
+      "owner": "agy2-provider-child-attempt11",
+      "target_pool": "agy2",
+      "lane": 1,
+      "maximum_provider_invocations": 1,
+      "maximum_model_tasks": 0,
+      "maximum_retries": 0,
+      "command_argv": [
+        "agy",
+        "-p",
+        "/usage"
+      ]
+    }
+  },
+  "capacity_leases": {
+    "agy1": {
+      "lease_id": "lease-capacity-quota-observation-agy1-attempt11-20260828t033500z",
+      "request_id": "capacity-quota-observation-agy1-attempt11-20260828t033500z",
+      "pool": "agy1",
+      "owner": "agy1-provider-child-attempt11",
+      "issued_at": "2026-08-28T03:35:00Z",
+      "expires_at": "2026-08-28T03:50:00Z",
+      "ttl_seconds": 900,
+      "consumed": false,
+      "model_floor": "gpt-5.6-sol/high",
+      "policy_version": "s3-capacity-v2"
+    },
+    "agy2": {
+      "lease_id": "lease-capacity-quota-observation-agy2-attempt11-20260828t033500z",
+      "request_id": "capacity-quota-observation-agy2-attempt11-20260828t033500z",
+      "pool": "agy2",
+      "owner": "agy2-provider-child-attempt11",
+      "issued_at": "2026-08-28T03:35:00Z",
+      "expires_at": "2026-08-28T03:50:00Z",
+      "ttl_seconds": 900,
+      "consumed": false,
+      "model_floor": "gpt-5.6-sol/high",
+      "policy_version": "s3-capacity-v2"
+    }
+  },
+  "transport_binding": {
+    "order": [
+      "tmux",
+      "direct_terminal_pre_invocation_setup_failure_only"
+    ],
+    "sessions": {
+      "agy1": "s3-agy1-quota-a11",
+      "agy2": "s3-agy2-quota-a11"
+    },
+    "pane_inspection": false,
+    "post_start_fallback": false
+  },
+  "receipt_binding_contract": {
+    "contract_version": "attempt11_quota_observation_receipt_v1",
+    "decision_hash_must_match": true,
+    "sanitized_output_only": true,
+    "required_work_result_fields": [
+      "Status",
+      "Scope owned",
+      "Evidence",
+      "Findings",
+      "Changed files",
+      "Residual risk",
+      "Recommended next action"
+    ],
+    "evidence_boundary": "validated in-process only"
+  },
+  "preflight": {
+    "json_syntax": "PASS",
+    "runtime_config_present": true,
+    "runtime_config_sha256_verified": true,
+    "parser_version_sha256_verified": true,
+    "parser_file_sha256_verified": true,
+    "tests_sha256_verified": true,
+    "tmux_available": true,
+    "provider_calls": 0,
+    "network_calls": 0,
+    "all_pre_invocation_gates_passed": true,
+    "execution_admission": "HOLD_FOR_HITL",
+    "lease_ttl_seconds": 900
+  },
+  "stop_conditions": [
+    "No provider invocation until fresh HITL approval is recorded and this Decision normalized digest is validated by each child.",
+    "Stop before invocation on any preflight, lease, ownership, parser/hash, or tmux setup failure; direct terminal is allowed only for tmux setup failure before invocation.",
+    "After one invocation per alias, stop regardless of outcome; no retry, fallback, raw output, alternate command, model task, transaction, mutation, or concurrency inference."
+  ],
+  "out_of_scope": [
+    "Codex accounts",
+    "dashboard/API/browser",
+    "model task",
+    "provider transaction",
+    "configuration mutation",
+    "raw output retention",
+    "retry",
+    "concurrency claim"
+  ],
+  "integrity": {
+    "normalization_method": "Remove integrity.normalized_decision_sha256; recursively sort keys; compact UTF-8 JSON without trailing newline; SHA-256.",
+    "normalized_decision_sha256": "d8633e9532626888dcaa554cf5635000a89ab2ce4724c23686f707274e066ed3"
+  },
+  "residual_risk": "Until fresh HITL approval and successful bound sanitized results, both quota and concurrency remain unknown; any output drift fails closed.",
+  "recommended_next_action": "Human must approve the exact authorization text above. Only then dispatch the two isolated one-shot tmux lanes."
+}

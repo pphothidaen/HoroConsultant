@@ -44,6 +44,8 @@ def _config(tmp_path: Path) -> Path:
     path.write_text(
         yaml.safe_dump(
             {
+                "activation_prohibited": False,
+                "dispatcher_execution": "OPEN",
                 "runtime": {
                     "approved_for_execution": True,
                     "protocol_version": 2,
@@ -81,6 +83,18 @@ def _config(tmp_path: Path) -> Path:
                         "model": "gemini-pro",
                         "mode": "plan",
                         "sandbox": True,
+                    },
+                },
+                "provider_account_state": {
+                    "providers": {
+                        "codex": {"state": "healthy"},
+                        "agy": {"state": "healthy"},
+                    },
+                    "accounts": {
+                        "codex1": {"state": "healthy"},
+                        "codex2": {"state": "healthy"},
+                        "agy1": {"state": "healthy"},
+                        "agy2": {"state": "healthy"},
                     },
                 },
             },
@@ -1239,6 +1253,205 @@ def test_capability_catalog_requires_runtime_status_and_fallback_metadata(field)
         command.validate_dispatch_decision(_decision(), policy)
 
 
+def test_codex_spark_model_policy_and_fallback_isolation():
+    """Spark is reserved for safety lanes with high effort and is not global fallback #1."""
+    policy = _policy()
+    models = policy["models"]
+
+    assert "gpt-5.3-codex-spark" in models
+    spark_spec = models["gpt-5.3-codex-spark"]
+    assert spark_spec["cli"] == "codex"
+    assert spark_spec["availability"] is True
+    assert spark_spec["deprecated"] is False
+    assert spark_spec["fallback_order"] == 4
+    assert set(spark_spec["efforts"].keys()) == {"high"}
+    assert spark_spec["efforts"]["high"]["quality_rank"] == 3
+
+    assert spark_spec["allowed_roles"] == ["devops", "code_reviewer"]
+    assert spark_spec["allowed_phases"] == ["qa", "review", "release", "operations"]
+
+    # General codex fallbacks default in proper ladder order
+    assert models["gpt-5.6-sol"]["fallback_order"] == 1
+    assert models["gpt-5.6-terra"]["fallback_order"] == 2
+    assert models["gpt-5.6-luna"]["fallback_order"] == 3
+
+
+def test_restricted_model_rejected_without_route():
+    """Verifies that a model with allowed_roles (like Spark) fails if validated with route=None."""
+    policy = _policy()
+    decision = _decision(
+        selected_model="gpt-5.3-codex-spark",
+        selected_effort="high",
+        phase="release",
+        scope_rank=3,
+        complexity_rank=3,
+        evidence_burden_rank=3,
+    )
+    with pytest.raises(
+        command.DispatchDecisionError,
+        match="role-restricted and requires a bound Route",
+    ):
+        command.validate_dispatch_decision(decision, policy, route=None)
+
+
+@pytest.mark.parametrize("unauthorized_role", ["developer", "qa_tester", "business_analyst"])
+def test_spark_rejected_for_unauthorized_role(unauthorized_role):
+    """Verifies that an unauthorized role attempting to use gpt-5.3-codex-spark is rejected."""
+    policy = _policy()
+    route = command.Route(
+        role=unauthorized_role,
+        alias="codex1",
+        cli="codex",
+        command="codex",
+        home_env="CODEX_HOME",
+        home_path=None,
+        model="gpt-5.3-codex-spark",
+        effort="high",
+        mode=None,
+        sandbox="workspace-write",
+    )
+    decision = _decision(
+        selected_model="gpt-5.3-codex-spark",
+        selected_effort="high",
+        phase="release",
+        scope_rank=3,
+        complexity_rank=3,
+        evidence_burden_rank=3,
+    )
+    with pytest.raises(
+        command.DispatchDecisionError,
+        match=r"restricted to roles: .*; got " + unauthorized_role,
+    ):
+        command.validate_dispatch_decision(decision, policy, route=route)
+
+
+@pytest.mark.parametrize("unauthorized_phase", ["planning", "implementation"])
+def test_spark_rejected_for_unauthorized_phase(unauthorized_phase):
+    """Verifies that an unauthorized phase attempting to use gpt-5.3-codex-spark is rejected."""
+    policy = _policy()
+    route = command.Route(
+        role="devops",
+        alias="codex1",
+        cli="codex",
+        command="codex",
+        home_env="CODEX_HOME",
+        home_path=None,
+        model="gpt-5.3-codex-spark",
+        effort="high",
+        mode=None,
+        sandbox="workspace-write",
+    )
+    decision = _decision(
+        selected_model="gpt-5.3-codex-spark",
+        selected_effort="high",
+        phase=unauthorized_phase,
+        scope_rank=3,
+        complexity_rank=3,
+        evidence_burden_rank=3,
+    )
+    with pytest.raises(
+        command.DispatchDecisionError,
+        match=r"restricted to phases: .*; got " + unauthorized_phase,
+    ):
+        command.validate_dispatch_decision(decision, policy, route=route)
+
+
+@pytest.mark.parametrize("role", ["devops", "code_reviewer"])
+@pytest.mark.parametrize("phase", ["review", "release", "operations", "qa"])
+def test_spark_allowed_for_authorized_role_and_phase(role, phase):
+    """Verifies that devops or code_reviewer in authorized phases is approved."""
+    policy = _policy()
+    route = command.Route(
+        role=role,
+        alias="codex1",
+        cli="codex",
+        command="codex",
+        home_env="CODEX_HOME",
+        home_path=None,
+        model="gpt-5.3-codex-spark",
+        effort="high",
+        mode=None,
+        sandbox="workspace-write",
+    )
+    decision = _decision(
+        selected_model="gpt-5.3-codex-spark",
+        selected_effort="high",
+        phase=phase,
+        scope_rank=3,
+        complexity_rank=3,
+        evidence_burden_rank=3,
+    )
+    validated = command.validate_dispatch_decision(decision, policy, route=route)
+    assert validated.quality_floor == 3
+    assert validated.model_quality_rank == 3
+    assert validated.decision["selected_model"] == "gpt-5.3-codex-spark"
+    assert validated.decision["selected_effort"] == "high"
+    assert validated.decision["phase"] == phase
+
+
+def test_developer_rank_3_planning_requires_xhigh():
+    """Verifies that rank-3 planning phase enforces xhigh effort for gpt-5.6-sol."""
+    policy = _policy()
+    route_xhigh = command.Route(
+        role="developer",
+        alias="codex1",
+        cli="codex",
+        command="codex",
+        home_env="CODEX_HOME",
+        home_path=None,
+        model="gpt-5.6-sol",
+        effort="xhigh",
+        mode=None,
+        sandbox="workspace-write",
+    )
+
+    # Valid xhigh planning succeeds
+    planning_xhigh = _decision(
+        phase="planning",
+        scope_rank=3,
+        complexity_rank=3,
+        evidence_burden_rank=3,
+        selected_model="gpt-5.6-sol",
+        selected_effort="xhigh",
+        planning_to_medium_confirmed=False,
+    )
+    validated = command.validate_dispatch_decision(planning_xhigh, policy, route=route_xhigh)
+    assert validated.quality_floor == 3
+    assert validated.model_quality_rank == 3
+
+    # High effort (quality_rank 3, but not xhigh/max/ultra) is rejected for rank-3 planning
+    route_high = replace(route_xhigh, effort="high")
+    planning_high = _decision(
+        phase="planning",
+        scope_rank=3,
+        complexity_rank=3,
+        evidence_burden_rank=3,
+        selected_model="gpt-5.6-sol",
+        selected_effort="high",
+        planning_to_medium_confirmed=False,
+    )
+    with pytest.raises(
+        command.DispatchDecisionError,
+        match="rank-3 planning requires the cataloged planning model with xhigh",
+    ):
+        command.validate_dispatch_decision(planning_high, policy, route=route_high)
+
+    # Lower efforts (medium, low) are rejected as below quality floor
+    for lower_effort in ("medium", "low"):
+        route_lower = replace(route_xhigh, effort=lower_effort)
+        planning_lower = _decision(
+            phase="planning",
+            scope_rank=3,
+            complexity_rank=3,
+            evidence_burden_rank=3,
+            selected_model="gpt-5.6-sol",
+            selected_effort=lower_effort,
+            planning_to_medium_confirmed=False,
+        )
+        with pytest.raises(command.DispatchDecisionError):
+            command.validate_dispatch_decision(planning_lower, policy, route=route_lower)
+
+
 def test_provider_schema_is_strict_codex_compatible_subset():
     schema = command._provider_compatible_work_result_schema(
         ROOT / ".agents/schemas/multiagent-work-result-v2.schema.json"
@@ -1993,3 +2206,244 @@ def test_startup_config_yaml_and_os_errors_are_sanitized(tmp_path, monkeypatch, 
     ]) == 2
     output = capsys.readouterr().err
     assert output == "[ERROR] BLOCKED: CONFIG_PARSE_ERROR\n"
+
+
+def _capacity_bound_invocation(tmp_path: Path):
+    invocation = _read_only_codex_invocation(tmp_path, attempt_id=7)
+    Path(invocation.claim_store_override).mkdir(mode=0o700)
+    policy = json.loads((ROOT / ".agents/config/s3_capacity_policy.json").read_text())
+    quality_floor = str(command.validate_dispatch_decision(
+        invocation.decision, invocation.model_policy, invocation.route
+    ).quality_floor)
+    store = tmp_path / "capacity-store"
+    lease = command.capacity.acquire_lease(
+        store,
+        account="codex1",
+        request_id="capacity-dispatch-7",
+        owner="developer",
+        lane=7,
+        request_budget=2,
+        model_quality_floor=quality_floor,
+        policy=policy,
+    )
+    return replace(
+        invocation,
+        capacity_lease=lease,
+        capacity_store_path=str(store),
+        capacity_policy=policy,
+        capacity_request_id="capacity-dispatch-7",
+        capacity_required=True,
+    )
+
+
+def test_capacity_missing_tampered_and_mismatched_leases_block_before_spawn(tmp_path, monkeypatch):
+    for index, kind in enumerate(("missing", "expired", "mismatched", "tampered")):
+        invocation_root = tmp_path / str(index)
+        invocation_root.mkdir()
+        invocation = _capacity_bound_invocation(invocation_root)
+        if kind == "missing":
+            invalid = replace(invocation, capacity_lease=None)
+        elif kind == "expired":
+            expired = command.capacity.acquire_lease(
+                invocation.capacity_store_path,
+                account="codex1",
+                request_id="expired-dispatch-7",
+                owner="developer",
+                lane=7,
+                request_budget=1,
+                model_quality_floor=str(command.validate_dispatch_decision(
+                    invocation.decision, invocation.model_policy, invocation.route
+                ).quality_floor),
+                policy=invocation.capacity_policy,
+                now=1,
+            )
+            invalid = replace(
+                invocation, capacity_lease=expired, capacity_request_id="expired-dispatch-7"
+            )
+        elif kind == "mismatched":
+            invalid = replace(invocation, capacity_request_id="wrong-request")
+        else:
+            invalid = replace(
+                invocation,
+                capacity_lease={**invocation.capacity_lease.to_dict(), "owner": "tampered"},
+            )
+        validated = command.validate_dispatch_decision(
+            invalid.decision, invalid.model_policy, invalid.route
+        )
+        with pytest.raises(command.SchedulingError, match="capacity lease"):
+            command._consume_spawn_capacity(invalid, validated)
+
+
+def test_capacity_is_consumed_at_spawn_and_released_after_process(tmp_path, monkeypatch):
+    invocation = _capacity_bound_invocation(tmp_path)
+    monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
+    observed: list[int] = []
+
+    def fake_run(*args, **kwargs):
+        state = json.loads((Path(invocation.capacity_store_path) / ".capacity.json").read_text())
+        observed.append(next(iter(state["leases"].values()))["requests_used"])
+        return subprocess.CompletedProcess(args[0], 0, stdout=_valid_result_stdout(), stderr="")
+
+    monkeypatch.setattr(command.subprocess, "run", fake_run)
+    outcome = command.execute_invocation(invocation)
+    assert outcome.process.returncode == 0
+    assert observed == [1]
+    state = json.loads((Path(invocation.capacity_store_path) / ".capacity.json").read_text())
+    assert state["leases"] == {}
+    with pytest.raises(command.capacity.LeaseRejectedError, match="REPLAY_REJECTED"):
+        command.capacity.consume_lease(
+            invocation.capacity_store_path, invocation.capacity_lease, requests=1,
+            policy=invocation.capacity_policy,
+        )
+
+
+@pytest.mark.parametrize("fault", ("missing", "expired", "tampered", "mismatched"))
+def test_main_execute_rejects_bad_capacity_before_subprocess_and_releases_admission(
+    tmp_path, monkeypatch, fault
+):
+    config_path = _config(tmp_path)
+    decision_path = _decision_path(tmp_path)
+    original_replace = command.replace
+    captured: dict[str, object] = {}
+
+    def inject_bad_capacity(value, **changes):
+        if changes.get("capacity_required") is True:
+            lease = changes["capacity_lease"]
+            store = changes["capacity_store_path"]
+            policy = changes["capacity_policy"]
+            captured.update(store=store, policy=policy, lease=lease)
+            if fault == "missing":
+                changes["capacity_lease"] = None
+            elif fault == "mismatched":
+                changes["capacity_request_id"] = "wrong-request"
+            elif fault == "tampered":
+                changes["capacity_lease"] = {**lease.to_dict(), "owner": "tampered"}
+            else:
+                changes["capacity_lease"] = command.capacity.acquire_lease(
+                    store,
+                    account="codex1",
+                    request_id="expired-main-dispatch",
+                    owner="developer",
+                    lane=1,
+                    request_budget=1,
+                    model_quality_floor=lease.model_quality_floor,
+                    policy=policy,
+                    now=1,
+                )
+                changes["capacity_request_id"] = "expired-main-dispatch"
+        return original_replace(value, **changes)
+
+    monkeypatch.setattr(command, "replace", inject_bad_capacity)
+    monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
+    monkeypatch.setattr(command.subprocess, "run", lambda *args, **kwargs: pytest.fail("spawned"))
+    assert command.main(_execute_args(config_path, decision_path, tmp_path)) == 5
+    assert captured
+    fresh = command.capacity.acquire_lease(
+        captured["store"], account="codex1", request_id=f"reusable-{fault}",
+        owner="developer", lane=1, request_budget=1,
+        model_quality_floor=captured["lease"].model_quality_floor,
+        policy=captured["policy"],
+    )
+    command.capacity.release_lease(captured["store"], fresh, policy=captured["policy"])
+
+
+def test_main_execute_releases_admission_when_preflight_fails(tmp_path, monkeypatch):
+    config_path = _config(tmp_path)
+    decision_path = _decision_path(tmp_path)
+    captured: dict[str, object] = {}
+    original_admit = command.admit_dispatch_capacity
+
+    def capture_admission(*args, **kwargs):
+        lease = original_admit(*args, **kwargs)
+        captured.update(lease=lease, store=kwargs["store_path"], policy=kwargs["policy"])
+        return lease
+
+    monkeypatch.setattr(command, "admit_dispatch_capacity", capture_admission)
+    monkeypatch.setattr(
+        command, "validate_execution_preflight",
+        lambda _invocation: (_ for _ in ()).throw(command.ConfigurationError("preflight failed")),
+    )
+    monkeypatch.setattr(command.subprocess, "run", lambda *args, **kwargs: pytest.fail("spawned"))
+    assert command.main(_execute_args(config_path, decision_path, tmp_path)) == 127
+    fresh = command.capacity.acquire_lease(
+        captured["store"], account="codex1", request_id="reusable-preflight",
+        owner="developer", lane=1, request_budget=1,
+        model_quality_floor=captured["lease"].model_quality_floor,
+        policy=captured["policy"],
+    )
+    command.capacity.release_lease(captured["store"], fresh, policy=captured["policy"])
+
+
+@pytest.mark.parametrize(
+    ("pressure", "expected_code"),
+    (
+        ("burn", "CAPACITY_BURN_RATE_EXCEEDED"),
+        ("block", "CAPACITY_BACKPRESSURE_BLOCKED"),
+        ("queue", "CAPACITY_BACKPRESSURE_QUEUED"),
+        ("circuit", "CAPACITY_CIRCUIT_OPEN"),
+    ),
+)
+def test_main_pressure_admission_blocks_before_subprocess(
+    tmp_path, monkeypatch, capsys, pressure, expected_code
+):
+    """CLI admission evaluates the selected pool before executable preflight."""
+
+    policy = json.loads((ROOT / ".agents/config/s3_capacity_policy.json").read_text())
+    store = tmp_path / ".horo-capacity"
+    if pressure == "burn":
+        burner = command.capacity.acquire_lease(
+            store,
+            account="codex1",
+            request_id="burner",
+            owner="developer",
+            lane=2,
+            request_budget=policy["accounts"]["codex1"]["burn_rate"]["max_requests"],
+            model_quality_floor="1",
+            policy=policy,
+        )
+        consumed = command.capacity.consume_lease(
+            store, burner, requests=burner.request_budget, policy=policy
+        )
+        command.capacity.release_lease(store, consumed, policy=policy)
+    elif pressure in {"block", "queue"}:
+        command.capacity.set_backpressure(
+            store, account="codex1", mode=pressure, policy=policy
+        )
+    else:
+        threshold = policy["accounts"]["codex1"]["circuit_breaker"]["failure_threshold"]
+        for _ in range(threshold):
+            command.capacity.record_failure(
+                store, account="codex1", failure_type="timeout", policy=policy
+            )
+
+    monkeypatch.setattr(command.subprocess, "run", lambda *args, **kwargs: pytest.fail("spawned"))
+    assert command.main(_execute_args(_config(tmp_path), _decision_path(tmp_path), tmp_path)) == 5
+    assert expected_code in capsys.readouterr().err
+
+
+def test_main_requires_declared_healthy_selected_provider_account_state(tmp_path, monkeypatch, capsys):
+    config_path = _config(tmp_path)
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    config["provider_account_state"] = {
+        "providers": {"codex": {"state": "unknown"}},
+        "accounts": {"codex1": {"state": "healthy"}},
+    }
+    config_path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+    monkeypatch.setattr(command.subprocess, "run", lambda *args, **kwargs: pytest.fail("spawned"))
+    assert command.main(_execute_args(config_path, _decision_path(tmp_path), tmp_path)) == 5
+    assert "PROVIDER_ACCOUNT_STATE_UNKNOWN" in capsys.readouterr().err
+
+
+def test_main_does_not_fallback_when_selected_account_state_is_exhausted(tmp_path, monkeypatch, capsys):
+    config_path = _config(tmp_path)
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    config["provider_account_state"] = {
+        "providers": {"codex": {"state": "healthy"}},
+        "accounts": {"codex1": {"state": "exhausted"}, "codex2": {"state": "healthy"}},
+    }
+    config_path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+    monkeypatch.setattr(command.subprocess, "run", lambda *args, **kwargs: pytest.fail("spawned"))
+    assert command.main(_execute_args(config_path, _decision_path(tmp_path), tmp_path)) == 5
+    captured = capsys.readouterr()
+    assert "PROVIDER_ACCOUNT_EXHAUSTED" in captured.err
+    assert "codex2" not in captured.out + captured.err

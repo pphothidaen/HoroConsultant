@@ -1,0 +1,60 @@
+{
+  "artifact_type": "Decision/HITL-Closure",
+  "protocol_version": 2,
+  "ticket": "TICKET-S3-AGY-DOCS-INSPECT-20260828-ATTEMPT1",
+  "attempt_id": 1,
+  "closure_status": "BLOCKED/NEEDS_HITL",
+  "closed_at": "2026-08-28T04:10:00Z",
+  "immutable_decision": {
+    "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_docs_inspection_20260828_attempt1.json",
+    "physical_sha256": "e95c6ebcb232070826c3b0dc2b07fca4e189d521572def8798e69ddcc58a2e29",
+    "normalized_sha256": "3554a0de818f01e6dc5286e33365a15311ff16690c5300700c1217f43d6a5707",
+    "approval": "Approve AGY docs-inspect attempt-1 exactly",
+    "approval_scope": "one read-only invocation of literal `agy --help` under the Decision; no retry, mutation, raw output, model task, transaction, or quota/concurrency inference"
+  },
+  "inspector_binding": {
+    "path": "scripts/agy_cli_docs_inspector.py",
+    "version": "agy-cli-docs-inspector-v1.2.0",
+    "version_sha256": "0eed2698adc0e8294c4d74c5c7fc4ab3210d4edcc6d5313a95de6b50a3820e5d",
+    "file_sha256": "594070e8f996551d0de36ed8113f43251e2d5b07077eccc61a5943e0c6fd7f16",
+    "tests_path": "tests/test_agy_cli_docs_inspector.py",
+    "tests_sha256": "c614f843801a4dee465838b2242e260433cfb0c43344accb9c4a556599784442"
+  },
+  "drift_evidence": {
+    "environment_normalization_effective": true,
+    "has_ansi_escape": false,
+    "line_count": 0,
+    "failure_taxonomy": "parse_failure:empty_output",
+    "inspector_version": "agy-cli-docs-inspector-v1.2.0"
+  },
+  "results": {
+    "docs_inspect": {
+      "receipt_path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_docs_inspection_20260828_attempt1.json",
+      "receipt_sha256": "64d7f72008711bb6910ca738c3cafe5aa1f5930c77652dee83e7967d6aba2f8a",
+      "workresult_path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_docs_inspection_20260828_attempt1.json",
+      "workresult_sha256": "4e3a3e41306b120bca5df8fddc428c9ddbed54b61f23a0f072642ce4e583294b",
+      "status": "BLOCKED",
+      "failure": "parse_failure:empty_output",
+      "provider_invocation_count": 1,
+      "available_flags": [],
+      "available_subcommands": [],
+      "tmux_session": "s3-agy-docs-inspect-a1",
+      "tmux_closed": true,
+      "raw_provider_stream_persisted": false
+    }
+  },
+  "invariants": {
+    "command": ["agy", "--help"],
+    "transport": "detached_tmux",
+    "provider_invocations_total": 1,
+    "model_tasks": 0,
+    "retries": 0,
+    "mutations": 0,
+    "concurrency_inference": false,
+    "evidence_boundary": "validated in-process only",
+    "attempt_2_created": false,
+    "provider_call_after_closure": false
+  },
+  "summary": "Exact one-shot docs inspection completed provider invocation (exit 0) under environment normalization. In-memory stdout stream was empty, yielding parse_failure:empty_output. No flags or subcommands were captured. Attempt 1 is closed.",
+  "next_action": "Docs Inspection Attempt 1 is closed. Prepare Attempt 2 with combined in-memory stdout/stderr streams to capture CLI help text emitted to standard error."
+}

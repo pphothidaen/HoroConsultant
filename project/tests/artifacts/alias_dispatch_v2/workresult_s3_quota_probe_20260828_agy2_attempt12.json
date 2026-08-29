@@ -1,0 +1,55 @@
+{
+  "Status": "BLOCKED",
+  "Scope owned": "agy2 attempt 12 only: one account-isolated read-only AGY quota observation through the bound in-memory sanitizer with anchored progress-bar & embedded metric extraction",
+  "Evidence": {
+    "decision_file_sha256": "1d1d118bfa74c39a18d6beb93bc6f48eff42fa8019fa8197dcf2673f216b79e2",
+    "decision_normalized_sha256": "2e8498ed8fe2b7b7f5847d5e372df8c84ec3d016163f9c4f9f697d2a227e85e9",
+    "sanitizer_version": "agy-usage-sanitizer-v1.5.0",
+    "sanitizer_version_sha256": "33bcaddd4ff426f94748fa16ba52c784cc9533a0e05cbb952c19bd8c91b6e5a4",
+    "sanitizer_sha256": "e7c4ac3e85e94211fe20c1bf9d1e30ff04bce5fd10628f0efabc2ed99009a4be",
+    "tmux_session_id": "s3-agy2-quota-a12",
+    "provider_invocation_count": 1,
+    "sanitized_failure_type": "parse_failure:unexpected_key_value",
+    "structural_fingerprint": {
+      "line_count": 4,
+      "has_ansi_escape": false,
+      "detected_layout": "key_value",
+      "line_structures": [
+        "key_value",
+        "key_value",
+        "key_value",
+        "unclassified"
+      ],
+      "first_token_types": [
+        "key",
+        "key",
+        "key",
+        "unclassified"
+      ],
+      "value_shapes": [
+        "unclassified_value",
+        "unclassified_value",
+        "unclassified_value",
+        "unclassified_value"
+      ]
+    },
+    "sanitized_output_bytes": 568,
+    "sanitized_output_sha256": "9ab73106af53624f3f9f08a8238d0dfaba02ecf1510ab04fc7a319661392f978",
+    "raw_provider_stream_persisted": false,
+    "evidence_boundary": "validated in-process only"
+  },
+  "Findings": [
+    "The exact approved one-shot command was admitted and executed in the account-isolated tmux session; provider returned exit status 0.",
+    "Environment normalization succeeded (NO_COLOR=1, TERM=dumb, LC_ALL=C: has_ansi_escape is false).",
+    "Structural fingerprint confirmed a 4-line key_value layout with value_shapes = ['unclassified_value', 'unclassified_value', 'unclassified_value', 'unclassified_value'].",
+    "Parser rejected the unclassified key-value lines and emitted no quota bucket; agy2 quota and concurrency remain unknown.",
+    "No raw provider output, account-home value, credential, retry, fallback, model task, provider transaction, or configuration mutation was retained or used."
+  ],
+  "Changed files": [
+    "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt12.json",
+    "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt12.json"
+  ],
+  "Residual risk": "The provider key-value lines did not contain percentage, ratio, fraction, progress bar, or known safe bands; quota and concurrency cannot be inferred from this attempt.",
+  "Recommended next action": "Close attempt 12 as BLOCKED/NEEDS_HITL. Per Point 6 of User Proposal, request explicit separate HITL for documentation inspection or structured CLI flags.",
+  "Status_reason": "BLOCKED: sanitizer parse_failure:unexpected_key_value; value_shapes remain unclassified; no quota bucket crossed the in-memory evidence boundary."
+}

@@ -1,0 +1,34 @@
+{
+  "Status": "DONE",
+  "Scope owned": "agy2 only: one interactive provider-native read-only /usage quota-panel capture in a detached tmux session",
+  "Evidence": {
+    "decision": "TICKET-S3-AGY-QUOTA-PROBE-20260828 attempt 4",
+    "session": "s3-quota-agy2-attempt4",
+    "commands": [
+      "/opt/homebrew/bin/tmux new-session -d -s s3-quota-agy2-attempt4 -e AGY_HOME=[REDACTED] agy",
+      "/opt/homebrew/bin/tmux send-keys -t s3-quota-agy2-attempt4 /usage Enter",
+      "/opt/homebrew/bin/tmux capture-pane -p -t s3-quota-agy2-attempt4 -S -100"
+    ],
+    "sanitized_panel_metadata": [
+      "model=gemini-3.7",
+      "model=gemini-flash",
+      "model=gemini-models",
+      "model=gemini-pro",
+      "remaining=39"
+    ],
+    "safe_output_bytes": 86,
+    "safe_output_sha256": "70957d03a8f4c058fb75a2d8d7d93e1b9ca54cd9dc84646f6e7bae20675b2f0e",
+    "validation_boundary": "validated in-process only"
+  },
+  "Findings": [
+    "The one authorized interactive /usage observation displayed a sanitized remaining field of 39.",
+    "The sanitized capture identified Gemini model labels but did not retain a quota unit, reset time, period, or explicit concurrency value.",
+    "Concurrency remains unknown; no inference was made from the quota panel."
+  ],
+  "Changed files": [
+    "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt4.json",
+    "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt4.json"
+  ],
+  "Residual risk": "The remaining value is validated in-process only and lacks a safely captured unit/reset period. Quota capacity and concurrency cannot be generalized or used as a portable dispatch entitlement.",
+  "Recommended next action": "Keep agy2 account-isolated. A fresh explicit HITL decision is required before any further quota probe, retry, or provider-facing work."
+}

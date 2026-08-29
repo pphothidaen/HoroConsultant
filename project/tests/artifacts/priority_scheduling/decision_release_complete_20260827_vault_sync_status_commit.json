@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "TICKET-RELEASE-COMPLETE-20260827-VAULT-SYNC-STATUS-COMMIT",
+  "phase": "implementation",
+  "scope_rank": 0,
+  "complexity_rank": 0,
+  "risk_rank": 1,
+  "ambiguity_rank": 0,
+  "evidence_burden_rank": 1,
+  "quota_band": "unknown",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-luna",
+  "selected_effort": "medium",
+  "rationale": "Bounded local commit for the explicitly owned generated report project/data/vault_sync_status.json. The lane may stage and commit exactly this one path after confirming the diff remains limited to last_sync_timestamp and inventory counts/folder configuration are unchanged. Preserve ticket45's frozen allowlist and the protected provenance blockers project/data/bazi_bazi_manual_chatml.jsonl and project/data/distillation_checklist.json. No source eligibility, release approval, push, deploy, publish, credentials, secrets, or other path is authorized. Fresh user authorization on 2026-08-27 is limited to clearing this release inventory blocker through a separate local commit.",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

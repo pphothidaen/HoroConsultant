@@ -1,0 +1,361 @@
+{
+  "protocol_version": 2,
+  "artifact_type": "DispatchDecision_HITL_Record",
+  "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828",
+  "attempt_id": 6,
+  "created_at": "2026-08-28T02:07:34Z",
+  "timezone": "Asia/Bangkok",
+  "phase": "terminal_only_pre_admission_quota_observation",
+  "work_mode": "read_only",
+  "overall_status": "READY",
+  "required_human_review": true,
+  "objective": "Make one fresh, sanitized, terminal-only quota observation for each isolated AGY alias without a model task, provider transaction, or raw-output persistence.",
+  "authorization": {
+    "type": "fresh_HITL_terminal_only_quota_authorization",
+    "status": "granted_for_attempt6_exact_quota_command_only",
+    "recorded_at": "2026-08-28T02:07:34Z",
+    "approval_reference": "Root A relay of the latest user clarification: minimal immutable attempt 6 is explicitly approved under the already-granted fresh terminal-only quota authorization.",
+    "transport_approval_reference": "Use tmux first. Direct terminal fallback is allowed only if tmux transport or session setup fails before any provider invocation. Once /usage starts, no fallback or retry is authorized.",
+    "scope": [
+      "agy1: at most one exact literal agy -p /usage invocation in its distinct approved runtime-config account environment",
+      "agy2: at most one exact literal agy -p /usage invocation in its distinct approved runtime-config account environment"
+    ],
+    "prohibited": [
+      "any provider command or argument vector other than exact literal agy -p /usage",
+      "model prompt, model task, tool task, or provider transaction",
+      "provider, account, authentication, runtime-config, or settings mutation",
+      "fallback or retry after provider invocation starts, or more than one provider invocation per alias",
+      "alternative command, shell pipeline, or raw stdout/stderr persistence",
+      "provider stream or tmux pane inspection or capture",
+      "credentials, account-home contents, or raw account path inspection or persistence",
+      "retroactive validation, repair, replacement, or overwrite of attempt 5 or earlier history"
+    ]
+  },
+  "account_scope": {
+    "aliases": ["agy1", "agy2"],
+    "provider": "AGY",
+    "distinct_accounts": true,
+    "runtime_config_binding": {
+      "approved_config": ".agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml",
+      "sha256": "60cdc745f1292a23418e1ed3f9bee08d44a55775e14e4139c9fc001e5ddd72e0",
+      "binding_rule": "Each alias must inherit only its own approved runtime-config account binding; raw resolved account or home path values must not be read, compared, printed, or persisted. Cross-alias borrowing or rerouting is forbidden."
+    },
+    "pool_isolation": "Quota, invocation budget, lease, result, and failure state remain account-local and may not be aggregated, borrowed, or silently rerouted.",
+    "quota_status": {
+      "agy1": "unknown_fresh_observation_required",
+      "agy2": "unknown_fresh_observation_required"
+    },
+    "concurrency_status": {
+      "agy1": "unknown",
+      "agy2": "unknown",
+      "rule": "Concurrency remains unknown unless explicitly documented in sanitized provider output; the approved sanitizer does not expose concurrency."
+    }
+  },
+  "prior_attempt_boundary": {
+    "source_decision": {
+      "attempt_id": 5,
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt5.json",
+      "physical_sha256": "7a7afd4c0b1d3034de757bb74f96faa8f818c8b3698b70a60570dc0e2bafb574",
+      "normalized_decision_sha256": "c66bcc6a6bfac7f34d3bdd708090ea309a411ae7a26fbe868fd48ec1611a7394"
+    },
+    "attempt5_outcome": "BLOCKED",
+    "provider_invocation_count": 0,
+    "provider_invocation_started": false,
+    "blocker": "Attempt-5 capacity leases expired before provider dispatch.",
+    "preservation": "Attempt 5 remains immutable. Attempt 6 does not validate, repair, replace, renew, or overwrite attempt 5 or earlier history."
+  },
+  "dispatch_decisions": {
+    "agy1": {
+      "schema_version": 1,
+      "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828-AGY1-A6",
+      "phase": "operations",
+      "scope_rank": 1,
+      "complexity_rank": 2,
+      "risk_rank": 3,
+      "ambiguity_rank": 3,
+      "evidence_burden_rank": 3,
+      "quality_floor": "gpt-5.6-sol/high",
+      "quota_band": "unknown",
+      "work_mode": "read_only",
+      "selected_alias": "agy1",
+      "selected_model": "gpt-5.6-sol",
+      "selected_effort": "high",
+      "governance_profile": "gpt-5.6-sol/high",
+      "rationale": "The one-command observation is narrow, but secret and raw-output exposure, ambiguous quota units, and receipt binding are rank-3 fail-closed concerns. This profile is governance classification only; no model task or provider transaction is authorized.",
+      "policy_version": "2026-08-26.1",
+      "planning_to_medium_confirmed": true,
+      "root_medium_gate": "confirmed",
+      "hitl_approved": true,
+      "required_human_review": true
+    },
+    "agy2": {
+      "schema_version": 1,
+      "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828-AGY2-A6",
+      "phase": "operations",
+      "scope_rank": 1,
+      "complexity_rank": 2,
+      "risk_rank": 3,
+      "ambiguity_rank": 3,
+      "evidence_burden_rank": 3,
+      "quality_floor": "gpt-5.6-sol/high",
+      "quota_band": "unknown",
+      "work_mode": "read_only",
+      "selected_alias": "agy2",
+      "selected_model": "gpt-5.6-sol",
+      "selected_effort": "high",
+      "governance_profile": "gpt-5.6-sol/high",
+      "rationale": "The one-command observation is narrow, but secret and raw-output exposure, ambiguous quota units, and receipt binding are rank-3 fail-closed concerns. This profile is governance classification only; no model task or provider transaction is authorized.",
+      "policy_version": "2026-08-26.1",
+      "planning_to_medium_confirmed": true,
+      "root_medium_gate": "confirmed",
+      "hitl_approved": true,
+      "required_human_review": true
+    }
+  },
+  "capacity_requests": {
+    "agy1": {
+      "schema_version": 1,
+      "request_id": "capacity-quota-observation-agy1-attempt6-20260828t020734z",
+      "parent_root_id": "rootb-agy-quota-attempt6",
+      "target_pool": "agy1",
+      "owner": "agy1-provider-child-attempt6",
+      "objective": "One pre-admission quota observation only; no provider model task or transaction.",
+      "exact_scope": "exact literal argv agy -p /usage through the in-memory sanitizer boundary",
+      "quality_floor": "gpt-5.6-sol/high",
+      "selected_model_tier": "governance_only_gpt-5.6-sol/high",
+      "semantic_rationale": "scope=1, complexity=2, risk=3, ambiguity=3, evidence=3",
+      "requested_lane_count": 1,
+      "request_budget": {"maximum_provider_invocations": 1, "maximum_model_tasks": 0, "maximum_retries": 0},
+      "expected_evidence": "One allowlisted sanitizer JSON object or content-free typed failure metadata.",
+      "stop_state": "Stop after the first invocation outcome, or before invocation on any preflight, lease, ownership, or transport failure.",
+      "lease_ttl_seconds": 2700,
+      "required_contract": "attempt6_quota_observation_receipt_v1"
+    },
+    "agy2": {
+      "schema_version": 1,
+      "request_id": "capacity-quota-observation-agy2-attempt6-20260828t020734z",
+      "parent_root_id": "rootb-agy-quota-attempt6",
+      "target_pool": "agy2",
+      "owner": "agy2-provider-child-attempt6",
+      "objective": "One pre-admission quota observation only; no provider model task or transaction.",
+      "exact_scope": "exact literal argv agy -p /usage through the in-memory sanitizer boundary",
+      "quality_floor": "gpt-5.6-sol/high",
+      "selected_model_tier": "governance_only_gpt-5.6-sol/high",
+      "semantic_rationale": "scope=1, complexity=2, risk=3, ambiguity=3, evidence=3",
+      "requested_lane_count": 1,
+      "request_budget": {"maximum_provider_invocations": 1, "maximum_model_tasks": 0, "maximum_retries": 0},
+      "expected_evidence": "One allowlisted sanitizer JSON object or content-free typed failure metadata.",
+      "stop_state": "Stop after the first invocation outcome, or before invocation on any preflight, lease, ownership, or transport failure.",
+      "lease_ttl_seconds": 2700,
+      "required_contract": "attempt6_quota_observation_receipt_v1"
+    }
+  },
+  "capacity_leases": {
+    "agy1": {
+      "schema_version": 1,
+      "lease_id": "lease-capacity-quota-observation-agy1-attempt6-20260828t020734z",
+      "request_id": "capacity-quota-observation-agy1-attempt6-20260828t020734z",
+      "pool": "agy1",
+      "account": "agy1",
+      "lane": 1,
+      "owner": "agy1-provider-child-attempt6",
+      "request_budget": {"maximum_provider_invocations": 1, "maximum_model_tasks": 0, "maximum_retries": 0},
+      "issued_at": "2026-08-28T02:07:34Z",
+      "expires_at": "2026-08-28T02:52:34Z",
+      "ttl_seconds": 2700,
+      "model_floor": "gpt-5.6-sol/high",
+      "policy_version": "s3-capacity-v2",
+      "admission_scope": "pre-admission quota observation only; no provider model task or transaction",
+      "consumed": false,
+      "silent_renewal_allowed": false,
+      "validation_rule": "Fail closed when expired, consumed, mismatched, over budget, or not bound to the exact request, alias, owner, and decision digests. Never renew silently."
+    },
+    "agy2": {
+      "schema_version": 1,
+      "lease_id": "lease-capacity-quota-observation-agy2-attempt6-20260828t020734z",
+      "request_id": "capacity-quota-observation-agy2-attempt6-20260828t020734z",
+      "pool": "agy2",
+      "account": "agy2",
+      "lane": 1,
+      "owner": "agy2-provider-child-attempt6",
+      "request_budget": {"maximum_provider_invocations": 1, "maximum_model_tasks": 0, "maximum_retries": 0},
+      "issued_at": "2026-08-28T02:07:34Z",
+      "expires_at": "2026-08-28T02:52:34Z",
+      "ttl_seconds": 2700,
+      "model_floor": "gpt-5.6-sol/high",
+      "policy_version": "s3-capacity-v2",
+      "admission_scope": "pre-admission quota observation only; no provider model task or transaction",
+      "consumed": false,
+      "silent_renewal_allowed": false,
+      "validation_rule": "Fail closed when expired, consumed, mismatched, over budget, or not bound to the exact request, alias, owner, and decision digests. Never renew silently."
+    }
+  },
+  "transport_binding": {
+    "order": ["tmux", "direct_terminal_pre_invocation_setup_failure_only"],
+    "tmux_sessions": {
+      "agy1": "s3-agy1-quota-a6",
+      "agy2": "s3-agy2-quota-a6"
+    },
+    "fallback_rule": "Direct terminal fallback is allowed only if tmux transport or session setup fails before provider_invocation_started becomes true, with a safe content-free pre-invocation failure class recorded.",
+    "post_invocation_rule": "Once /usage starts, no fallback, retry, alternate transport, or second invocation is authorized.",
+    "pane_inspection": false
+  },
+  "sanitizer_boundary": {
+    "path": "scripts/agy_usage_quota_sanitizer.py",
+    "version": "agy-usage-sanitizer-v1.0.0",
+    "sha256": "9250262384fbec956f6853a00aa5cb5e3e8a447ff284ffb96627b155a685458b",
+    "execution_boundary": "Direct in-memory subprocess sanitizer; no shell pipeline and no raw stdout/stderr persistence.",
+    "exact_command_argv": ["agy", "-p", "/usage"],
+    "exact_command_display": "agy -p /usage",
+    "timeout_seconds": 60,
+    "timeout_upper_bound_seconds": 300,
+    "attempt_limit_per_alias": 1,
+    "fallback_or_retry_after_invocation": false,
+    "allowed_output_fields": ["alias", "captured_at", "timezone", "buckets", "exit_status", "transport_status", "parser_version", "required_human_review"],
+    "allowed_bucket_fields": ["label", "remaining_fraction", "remaining_percent", "safe_band", "reset_time", "reset_in_seconds"],
+    "bucket_metric_rule": "Each unique bucket has label plus exactly one of remaining_fraction, remaining_percent, or safe_band, with at most one reset_time or reset_in_seconds.",
+    "safe_failure_rule": "Unexpected fields, auth prompts, PII, paths, credential-like text, missing or duplicate buckets, unitless values, ANSI-obscured drift, malformed output, timeout, nonzero exit, decode failure, or ambiguity emits only content-free typed failure metadata with an empty buckets array; quota and concurrency stay unknown.",
+    "raw_persistence": false,
+    "stderr_contract": "content-free and empty",
+    "provider_transaction": false,
+    "model_task": false,
+    "configuration_mutation": false
+  },
+  "receipt_binding_contract": {
+    "contract_version": "attempt6_quota_observation_receipt_v1",
+    "protocol_version": 2,
+    "exact_required_fields": [
+      "protocol_version",
+      "ticket",
+      "dispatch_ticket_id",
+      "attempt_id",
+      "alias",
+      "provider",
+      "adapter",
+      "objective",
+      "ownership",
+      "policy_version",
+      "capacity_policy_version",
+      "capacity_request_id",
+      "capacity_lease_id",
+      "decision_normalized_sha256",
+      "decision_file_sha256",
+      "sanitizer_path",
+      "sanitizer_version",
+      "sanitizer_sha256",
+      "command_argv",
+      "transport_mode",
+      "tmux_session_id_or_null",
+      "pre_invocation_tmux_failure_class_or_null",
+      "provider_invocation_started",
+      "provider_invocation_count",
+      "started_at",
+      "ended_at",
+      "exit_status",
+      "transport_status",
+      "quota_status",
+      "sanitized_output_bytes",
+      "sanitized_output_sha256",
+      "normalized_work_result_sha256",
+      "raw_provider_stream_persisted",
+      "required_human_review"
+    ],
+    "required_values": {
+      "attempt_id": 6,
+      "provider": "AGY",
+      "adapter": "agy-direct-usage-in-memory-sanitizer-v1",
+      "policy_version": "2026-08-26.1",
+      "capacity_policy_version": "s3-capacity-v2",
+      "sanitizer_path": "scripts/agy_usage_quota_sanitizer.py",
+      "sanitizer_version": "agy-usage-sanitizer-v1.0.0",
+      "sanitizer_sha256": "9250262384fbec956f6853a00aa5cb5e3e8a447ff284ffb96627b155a685458b",
+      "command_argv": ["agy", "-p", "/usage"],
+      "provider_invocation_count_allowed": [0, 1],
+      "raw_provider_stream_persisted": false,
+      "required_human_review": true
+    },
+    "alias_bindings": {
+      "agy1": {
+        "dispatch_ticket_id": "TICKET-S3-AGY-QUOTA-PROBE-20260828-AGY1-A6",
+        "capacity_request_id": "capacity-quota-observation-agy1-attempt6-20260828t020734z",
+        "capacity_lease_id": "lease-capacity-quota-observation-agy1-attempt6-20260828t020734z",
+        "tmux_session_id": "s3-agy1-quota-a6"
+      },
+      "agy2": {
+        "dispatch_ticket_id": "TICKET-S3-AGY-QUOTA-PROBE-20260828-AGY2-A6",
+        "capacity_request_id": "capacity-quota-observation-agy2-attempt6-20260828t020734z",
+        "capacity_lease_id": "lease-capacity-quota-observation-agy2-attempt6-20260828t020734z",
+        "tmux_session_id": "s3-agy2-quota-a6"
+      }
+    },
+    "sanitized_output_binding": "Hash and byte-count the exact compact sanitizer JSON bytes only. Never hash, retain, copy, or expose raw provider stdout/stderr as receipt evidence.",
+    "work_result_required_fields": ["Status", "Scope owned", "Evidence", "Findings", "Changed files", "Residual risk", "Recommended next action"],
+    "binding_rule": "Fail closed on missing fields, mismatched ticket, attempt, alias, request, lease, decision, sanitizer, command, or tmux identity; expired or consumed lease; provider invocation count outside 0..1; secret-bearing data; raw-output evidence; ambiguous quota unit; nonzero exit presented as success; or invalid normalized WorkResult digest.",
+    "evidence_boundary": "validated in-process only"
+  },
+  "stop_conditions": [
+    "Stop before provider invocation when the alias is not exactly agy1 or agy2, approved runtime config is missing, the lease is invalid, expired, consumed, or mismatched, sanitizer digest differs, exact command binding differs, tmux setup fails without an allowed safe pre-invocation fallback classification, or any ownership ambiguity exists.",
+    "Stop immediately after the first provider invocation outcome for the alias, whether success, timeout, parse failure, nonzero exit, auth prompt, PII, path, token rejection, or ambiguity.",
+    "Never retry, use a second provider process, switch accounts, infer a unit, infer concurrency, persist raw output, issue an alternative command, or issue a model task or provider transaction.",
+    "Keep quota and concurrency unknown and require human review on any content-free failure or receipt-binding failure."
+  ],
+  "preflight": {
+    "checked_at": "2026-08-28T02:07:34Z",
+    "json_syntax": "PASS_pending_final_revalidation",
+    "policy_catalog": {
+      "policy_version": "2026-08-26.1",
+      "selected_profile_catalog_supported": true
+    },
+    "runtime_config": {
+      "approved_config": ".agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml",
+      "sha256": "60cdc745f1292a23418e1ed3f9bee08d44a55775e14e4139c9fc001e5ddd72e0",
+      "presence": "PASS",
+      "mutation": false,
+      "raw_account_path_values_persisted": false
+    },
+    "agy_executable": {
+      "check": "command -v only; executable was not run",
+      "presence": "PASS",
+      "resolved_path_persisted": false
+    },
+    "tmux": {
+      "executable_presence": "PASS",
+      "version": "3.7c",
+      "session_name_check_only": "PASS",
+      "matching_stale_session_names": [],
+      "expected_session_names": ["s3-agy1-quota-a6", "s3-agy2-quota-a6"],
+      "pane_capture_or_content_inspection": false
+    },
+    "sanitizer": {
+      "path": "scripts/agy_usage_quota_sanitizer.py",
+      "version": "agy-usage-sanitizer-v1.0.0",
+      "sha256": "9250262384fbec956f6853a00aa5cb5e3e8a447ff284ffb96627b155a685458b",
+      "digest_verified": true
+    },
+    "focused_tests": {
+      "path": "tests/test_agy_usage_quota_sanitizer.py",
+      "sha256": "4ba4f926282d5f507d3e7ffed1a73febd412120f563a692c0c9b43e1f118b0cb",
+      "result": "25 passed in attempt-5 validated preflight",
+      "test_file_digest_verified": true,
+      "rerun_for_attempt6": false,
+      "provider_calls": 0
+    },
+    "source_decision": {
+      "physical_sha256_verified": true,
+      "normalized_sha256_verified": true
+    },
+    "provider_calls": 0,
+    "network_calls": 0,
+    "raw_prior_pane_or_stream_inspection": false,
+    "all_preflight_gates_passed": true
+  },
+  "integrity": {
+    "normalization_method": "Remove integrity.normalized_decision_sha256, serialize recursively sorted compact JSON as UTF-8 without a trailing newline, then compute SHA-256.",
+    "normalized_decision_sha256": "b997d048b903a8e23b0d3afb242fc5b5f07fd2753e5b48e51e5d0bccc3f1825b",
+    "physical_file_sha256": "Reported externally after final write because a file cannot contain its own non-self-referential physical SHA-256. Receipts must bind the externally handed-off exact file digest plus normalized_decision_sha256."
+  },
+  "readiness_basis": "READY is limited to the exact HITL-gated, account-isolated, one-shot attempt-6 quota observations. It is not provider execution proof. Admission remains bound to the unexpired attempt-6 leases, exact command, sanitizer, tmux-first transport rule, and receipt contract.",
+  "residual_risk": "Quota and concurrency remain unknown until each fresh sanitized result and bound receipt pass human review. Any failure is content-free with quota unknown. A lease may expire before admission and must then fail closed without silent renewal. Any AGY success is validated in-process only and is not portable or offline proof.",
+  "out_of_scope": ["commit", "push", "deploy", "publish", "provider model task", "provider transaction", "configuration mutation", "raw output retention", "retry", "alternative command"],
+  "stop_condition": "This decision lane is DONE after final JSON syntax, normalized digest, external physical file digest, embedded source and sanitizer hashes, future TTL, exact command binding, and owned-file git diff/status validation pass. Provider children remain separately gated by their leases and receipt contract."
+}

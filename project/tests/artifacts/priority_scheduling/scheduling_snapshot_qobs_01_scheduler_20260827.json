@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "tickets": [
+    {
+      "ticket_id": "QOBS-01-SCHEDULER",
+      "severity": "CRITICAL",
+      "work_effort": "S",
+      "status": "READY",
+      "dependencies": ["QOBS-01-DISPATCH"],
+      "blockers": ["QOBS-01-DISPATCH_NOT_FROZEN_AND_GREEN"],
+      "owner": "developer",
+      "ownership": ["scripts/multiagent_ticket_scheduler.py"],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    }
+  ],
+  "reservations": []
+}

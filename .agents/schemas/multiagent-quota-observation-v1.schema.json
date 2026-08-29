@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://horoconsultant.local/schemas/multiagent-quota-observation-v1.schema.json",
+  "title": "HoroConsultant QuotaObservation v1",
+  "description": "Closed, content-free quota observation bound to one provider attempt. Runtime validation additionally verifies canonical digests, provenance equality, age and future tolerance, and atomic single use of the nonce.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "protocol_version",
+    "canonicalization_version",
+    "domain",
+    "alias",
+    "provider",
+    "account_home_sha256",
+    "resolved_executable_sha256",
+    "ticket_id",
+    "attempt_id",
+    "policy_version",
+    "nonce",
+    "observed_at",
+    "quota_band",
+    "reason_code",
+    "signal_path_sha256"
+  ],
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "protocol_version": {"type": "integer", "const": 1},
+    "canonicalization_version": {"type": "integer", "const": 1},
+    "domain": {"const": "horoconsultant.multiagent.quota-observation.v1"},
+    "alias": {"enum": ["codex1", "codex2", "agy1", "agy2"]},
+    "provider": {"enum": ["codex", "agy"]},
+    "account_home_sha256": {"$ref": "#/$defs/sha256"},
+    "resolved_executable_sha256": {"$ref": "#/$defs/sha256"},
+    "ticket_id": {"$ref": "#/$defs/safeName"},
+    "attempt_id": {"type": "integer", "minimum": 1},
+    "policy_version": {"$ref": "#/$defs/safeName"},
+    "nonce": {
+      "type": "string",
+      "minLength": 16,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9_.:-]+$",
+      "description": "One-use nonce bound to this observation. Runtime consumption must be atomic and reject replay."
+    },
+    "observed_at": {"$ref": "#/$defs/utcTimestamp"},
+    "quota_band": {
+      "enum": ["constrained", "below_10_percent", "unknown"],
+      "description": "Protocol v1 never emits healthy. Exactly 10 percent and any greater usable evidence remain constrained; only values below 10 percent emit below_10_percent."
+    },
+    "reason_code": {
+      "enum": [
+        "signals_consistent",
+        "malformed_status",
+        "duplicate_key_status",
+        "non_finite_status",
+        "missing_signal",
+        "invalid_signal",
+        "contradictory_signal"
+      ]
+    },
+    "signal_path_sha256": {
+      "type": "array",
+      "minItems": 18,
+      "maxItems": 18,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/sha256"},
+      "description": "Digests of all six legacy signals and all six signals in each primary and secondary bucket. Raw paths and signal values are forbidden."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "quota_band": {"enum": ["constrained", "below_10_percent"]}
+        },
+        "required": ["quota_band"]
+      },
+      "then": {
+        "properties": {"reason_code": {"const": "signals_consistent"}}
+      }
+    },
+    {
+      "if": {
+        "properties": {"quota_band": {"const": "unknown"}},
+        "required": ["quota_band"]
+      },
+      "then": {
+        "properties": {
+          "reason_code": {
+            "enum": [
+              "malformed_status",
+              "duplicate_key_status",
+              "non_finite_status",
+              "missing_signal",
+              "invalid_signal",
+              "contradictory_signal"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "oneOf": [
+    {
+      "properties": {
+        "provider": {"const": "codex"},
+        "alias": {"enum": ["codex1", "codex2"]}
+      }
+    },
+    {
+      "properties": {
+        "provider": {"const": "agy"},
+        "alias": {"enum": ["agy1", "agy2"]}
+      }
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "safeName": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$"
+    },
+    "utcTimestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$",
+      "description": "RFC 3339 timestamp in UTC with a Z suffix. Runtime validation enforces the policy maximum age and future tolerance."
+    }
+  }
+}

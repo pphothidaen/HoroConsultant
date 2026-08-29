@@ -15,9 +15,9 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **`orchestrator` / `default` / `hermes`** | Coordination & autonomous execution | `gpt-5.6-sol` (default hint) | **Medium root; adaptive child floor** | High (Strategic) | Requirements, architecture, delegation, complex recovery |
 | **`business_analyst`** | Business System Analyst | `gpt-5.6-terra` | **Medium** | Mid (Analysis) | Specifications, dependency analysis, documentation governance |
-| **`developer`** | Senior Developer | `gpt-5.3-codex` | **High** | Mid-High (Execution) | Multi-file implementation, debugging, code-quality decisions |
+| **`developer`** | Senior Developer | `gpt-5.6-luna` | **Medium** | Low-Mid (Execution) | Bounded rank-0/rank-1 reversible development; adaptive escalation for higher ranks |
 | **`qa_tester`** | QA Tester | `gpt-5.4-mini` | **Medium** | Low (Verification) | Test design, failure triage, concise evidence extraction |
-| **`devops` / `code_reviewer`** | Release & safety gates | `gpt-5.3-codex` | **High** | Mid-High (Safety) | Infrastructure, security review, deployment and rollback decisions |
+| **`devops` / `code_reviewer`** | Release & safety gates | `gpt-5.3-codex-spark` | **High** | Mid-High (Safety) | Infrastructure, security review, deployment and rollback decisions |
 | **Interpretive domain masters** | Canonical metaphysics reasoning | `gpt-5.6-terra` | **High** | Mid-High (Domain) | Textual interpretation, contradictory evidence, consensus |
 | **Deterministic domain masters** | Calculation-led metaphysics | `gpt-5.4-mini` | **Medium** | Low (Domain) | Tool-grounded calculations and structured result checks |
 
@@ -25,7 +25,7 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 
 ## 🧰 Modular Skills Catalog for SDLC / AI SDLC
 
-1. **`requirement-grill-gate`**: Pre-planning requirement grilling gate with 9-dimension interview, blocker enforcement, GRILL REPORT generation, and sub-agent task ticket decomposition.
+1. **`requirement-grill-gate`**: Powers BSA-owned `/grill-me` with context auto-scan, one-question-at-a-time 9-dimension intake, fail-closed `APPROVED` / `WAIVED` / `BLOCKED` decisions, measurable stop conditions, and scoped GRILL REPORT output before planning or implementation.
 2. **`sdlc-aisdlc-workflow`**: AI SDLC governance from planning through implementation, QA, release, and post-deploy verification.
 3. **`qa-e2e-testing`**: Pytest, API/UI contract, and Playwright E2E regression matrix for production validation.
 4. **`ai-inference-verifier`**: Verify interpretation output is real model inference, not static template fallback.
@@ -93,7 +93,7 @@ flowchart TD
 ## ⚡ Model Routing Rules
 
 1. **Adaptive routing**: Rule 18 selects each child lane from a versioned `DispatchDecision`; static role values are default hints, not runtime proof. The root effort is `medium` after the owner-confirmed planning gate, while child lanes independently retain their validated floor.
-2. **Coding and release control**: Use `gpt-5.3-codex` for implementation, code review, infrastructure, release, and rollback decisions. These tasks need code-aware tool use and careful verification.
+2. **Coding and release control**: Use `gpt-5.6-luna` at medium effort for bounded rank-0/rank-1 reversible development. Adaptive routing escalates rank 2 to `gpt-5.6-terra` at high effort and rank 3 to `gpt-5.6-sol` at high effort. Static role metadata is routing intent and never runtime proof. Preserve `gpt-5.3-codex` at high effort for DevOps and code-review release, infrastructure, rollback, and safety gates.
 3. **Bounded high-volume work**: Use `gpt-5.4-mini` at medium effort for QA triage and deterministic, tool-grounded calculation roles. Escalate unresolved contradictions instead of increasing task scope.
 4. **Balanced analysis**: Use `gpt-5.6-terra` for specification analysis and interpretive domain work. Escalate only materially ambiguous or high-impact decisions to `gpt-5.6-sol`.
 5. **Validation over assumptions**: Benchmark any later model or effort change against representative tasks before adopting it. QA and DevOps must trim logs before escalation.
@@ -127,10 +127,10 @@ flowchart TD
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **`orchestrator` / `default` / `hermes`** | Coordination & execution | `gpt-5.6-sol` | `orchestrator.agent` / `default.agent` | `orchestrator/agent.md` | Master Brain |
 | **`business_analyst`** | Business System Analyst | `gpt-5.6-terra` | `business-analyst.agent` | `business_analyst/agent.md` | **Doc & Skill Watchdog** |
-| **`developer`** | Senior Full-Stack Developer | `gpt-5.3-codex` | `developer.agent` | `developer/agent.md` | Code Writing |
+| **`developer`** | Senior Full-Stack Developer | `gpt-5.6-luna` (medium; adaptive Terra/Sol escalation) | `developer.agent` | `developer/agent.md` | Code Writing |
 | **`qa_tester`** | QA Tester & Verification Guard | `gpt-5.4-mini` | `qa-tester.agent` | `qa_tester/agent.md` | Test Execution Guard |
-| **`devops`** | DevOps & Release Agent | `gpt-5.3-codex` | `devops.agent` | `devops/agent.md` | Release & Deploy |
-| **`code_reviewer`** | Pre-Deployment Safety Auditor | `gpt-5.3-codex` | `code-reviewer.agent` | `code_reviewer/agent.md` | Safety Audit |
+| **`devops`** | DevOps & Release Agent | `gpt-5.3-codex-spark` | `devops.agent` | `devops/agent.md` | Release & Deploy |
+| **`code_reviewer`** | Pre-Deployment Safety Auditor | `gpt-5.3-codex-spark` | `code-reviewer.agent` | `code_reviewer/agent.md` | Safety Audit |
 | **`ux_ui_designer`** | UX/UI Designer & Color Architect | `gpt-5.6-terra` | `ux-ui-designer.agent` | `ux_ui_designer/agent.md` | Color & Design System |
 | **`ui_visual_tester`** | UI Visual Tester & Layout Auditor | `gpt-5.4-mini` | `ui-visual-tester.agent` | `ui_visual_tester/agent.md` | Visual Layout QA |
 | **Interpretive / deterministic domain masters** | Metaphysics Experts | `gpt-5.6-terra` / `gpt-5.4-mini` | `[domain]-master.agent` | `[domain_master]/agent.md` | Domain Analysis |

@@ -1,0 +1,123 @@
+{
+  "protocol_version": 2,
+  "artifact_type": "Decision/HITL",
+  "ticket": "TICKET-S3-AGY-JSON-PROBE-20260828-ATTEMPT2",
+  "attempt_id": 2,
+  "created_at": "2026-08-28T04:35:00Z",
+  "timezone": "UTC",
+  "phase": "fresh_preflight_pending_human_approval",
+  "work_mode": "read_only",
+  "overall_status": "NEEDS_HITL/PENDING_EXECUTION",
+  "required_human_review": true,
+  "timeout_seconds": 60.0,
+  "objective": "Option F: Inspect inner `response` field in AGY structured JSON envelope via literal `agy --output-format json -p /usage` under detached tmux and environment normalization (NO_COLOR=1, TERM=dumb, LC_ALL=C, PAGER=cat, AGY_PAGER=cat) and bounded timeout 60s, sequentially for agy1 and agy2; extracting true account quota metrics (remaining, limit, percent, fraction); no model task, transaction, mutation, retry, raw output, or unproven concurrency claim.",
+  "account_scope": {
+    "mode": "account_bound_read_only_probe",
+    "aliases": [
+      "agy1",
+      "agy2"
+    ],
+    "statement": "Isolated read-only usage probes for agy1 and agy2 sequentially in dedicated tmux sessions; no credential logging, no account mutation."
+  },
+  "prior_attempt_boundary": {
+    "attempt1_closure": "project/tests/artifacts/alias_dispatch_v2/decision_s3_json_quota_probe_20260828_attempt1_closure.json",
+    "attempt1_closure_sha256": "10008c8a1158067e8d40b34b39068a833afa9206e5172a196ba7d2c7f724d8d4",
+    "attempt1_status": "COMPLETED",
+    "preserve_immutable": true
+  },
+  "authorization": {
+    "status": "pending_fresh_HITL",
+    "approval_required_before_provider": true,
+    "approval_text_required": "Approve AGY json-probe attempt-2 exactly: one read-only invocation of literal `agy --output-format json -p /usage` per alias (agy1, agy2) in detached tmux sessions with environment normalization (NO_COLOR=1, TERM=dumb, LC_ALL=C, PAGER=cat, AGY_PAGER=cat) and bounded timeout 60s, through sanitizer agy-json-usage-sanitizer-v1.2.0 with the bound hashes in this Decision; inspecting the inner response field for true account quota metrics; no model task, transaction, mutation, dashboard/API, retry, fallback after provider start, raw output, or concurrency inference. Persist only allowlisted quota metrics, structural fingerprint, and bound ExecutionReceipt/WorkResult. No raw stdout/stderr, JSON dump, path, credential, PII, or prompt text may be persisted or exposed. If preflight, capture, parse, timeout, or binding fails, stop and mark BLOCKED/NEEDS_HITL. If no true account quota data is found in response, record quota_status unknown.",
+    "prohibited": [
+      "any other command or argument",
+      "provider/account/configuration mutation",
+      "model task or transaction",
+      "retry or alternate command",
+      "raw stdout/stderr, JSON dump, or secrets",
+      "concurrency claim",
+      "concurrency inference from num_turns or key_count"
+    ]
+  },
+  "command_argv": [
+    "agy",
+    "--output-format",
+    "json",
+    "-p",
+    "/usage"
+  ],
+  "environment_normalization": {
+    "NO_COLOR": "1",
+    "TERM": "dumb",
+    "LC_ALL": "C",
+    "PAGER": "cat",
+    "AGY_PAGER": "cat"
+  },
+  "sanitizer_binding": {
+    "path": "scripts/agy_json_usage_sanitizer.py",
+    "version": "agy-json-usage-sanitizer-v1.2.0",
+    "version_sha256": "cfc8bb95443f58957ea5bf4da60163acb998865529cbf809c72fa114aed8a3b4",
+    "file_sha256": "f86a96a20c704f36cd2f4b638d70c74eb5088fc27624141dff0c6d094f1ff87e",
+    "tests_path": "tests/test_agy_json_usage_sanitizer.py",
+    "tests_sha256": "1a811ac934368c2f5ec0c6dfeaa45927a5a689327d57fb3b05fb72f9d8d1c5e6",
+    "boundary": "Only allowlisted numeric quota metrics, safe bucket labels, and structural fingerprint may cross the in-memory boundary; raw JSON payloads and raw provider streams are never retained."
+  },
+  "transport_binding": {
+    "order": [
+      "tmux",
+      "direct_terminal_pre_invocation_setup_failure_only"
+    ],
+    "sessions": {
+      "agy1": "s3-agy1-json-probe-a2",
+      "agy2": "s3-agy2-json-probe-a2"
+    },
+    "pane_inspection": false,
+    "post_start_fallback": false
+  },
+  "receipt_binding_contract": {
+    "contract_version": "json_quota_probe_receipt_v1",
+    "decision_hash_must_match": true,
+    "sanitized_output_only": true,
+    "required_work_result_fields": [
+      "Status",
+      "Scope owned",
+      "Evidence",
+      "Findings",
+      "Changed files",
+      "Residual risk",
+      "Recommended next action"
+    ],
+    "evidence_boundary": "validated in-process only"
+  },
+  "preflight": {
+    "json_syntax": "PASS",
+    "sanitizer_version_sha256_verified": true,
+    "sanitizer_file_sha256_verified": true,
+    "tests_sha256_verified": true,
+    "tmux_available": true,
+    "provider_calls": 0,
+    "network_calls": 0,
+    "all_pre_invocation_gates_passed": true,
+    "execution_admission": "HOLD_FOR_HITL"
+  },
+  "stop_conditions": [
+    "No provider invocation until fresh HITL approval is recorded and this Decision normalized digest is validated.",
+    "Stop before invocation on any preflight, sanitizer/hash, or tmux setup failure.",
+    "After one invocation per alias, stop regardless of outcome; no retry, fallback, raw output, model task, transaction, mutation, or concurrency inference."
+  ],
+  "out_of_scope": [
+    "model task",
+    "provider transaction",
+    "configuration mutation",
+    "raw output retention",
+    "retry",
+    "concurrency claim",
+    "concurrency inference"
+  ],
+  "integrity": {
+    "normalization_method": "Remove integrity.normalized_decision_sha256; recursively sort keys; compact UTF-8 JSON without trailing newline; SHA-256.",
+    "normalized_decision_sha256": "d03626561228e744de8f41c7024dfcc40e7f01ae0df23716240b9afe830806c1"
+  },
+  "residual_risk": "If response contains no recognizable quota patterns, quota_status will be recorded as unknown without leak.",
+  "recommended_next_action": "Human must approve the exact authorization text above. Only then dispatch the one-shot tmux lanes for agy1 and agy2."
+}

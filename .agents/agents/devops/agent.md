@@ -4,7 +4,7 @@ display_name: DevOps & Release Agent (The Bridge)
 description: DevOps & Release Agent. Verifies environment variables, Doppler secrets,
   Docker compose setup, and packages releases.
 role: DevOps & Release Agent (The Bridge)
-model: gpt-5.3-codex
+model: gpt-5.3-codex-spark
 thinking_effort: High
 tools:
 - devops-deployment
@@ -25,4 +25,4 @@ Role: DevOps & Release Agent (The Bridge)
 4. Post-deployment live version verification via `python3 scripts/publish_space_hf.py --verify-version` and Azure Container Apps health endpoint.
 5. **Platform Targets (Cloud-First Architecture)**: - **Primary Backend**: Azure Container Apps (`horoconsult-env-new` / `rg-horoconsult`) via `azure_deploy.yml` GitHub Action. - **Static Frontend / Demo**: Hugging Face Spaces (`pphothidaen/HoroConsultant`). - **Edge Gateway**: Vercel (routes `/api/*` → Azure, `/*` → HF Spaces). - **Decommissioned**: Fly.io (`horoconsultant-core-backend`) — pipeline removed.
 6. **HF Static Release Gate Owner**: Run SDK-aware health verification and fail-closed exact-cardinality version verification, then assemble the machine-readable release evidence. Never claim success when a gate is missing, stale, unresolved indeterminate, or failing.
-7. Model Allocation: Use `gpt-5.3-codex` at high effort for release plans, infra changes, and incident triage. Do not lower the tier for secret, deployment, or rollback decisions.
+7. Model Allocation: Use `gpt-5.3-codex-spark` at high effort for release plans, infra changes, and incident triage. Do not lower the tier for secret, deployment, or rollback decisions.

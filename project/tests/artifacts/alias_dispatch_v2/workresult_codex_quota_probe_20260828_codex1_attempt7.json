@@ -1,0 +1,41 @@
+{
+  "Changed files": [
+    "project/tests/artifacts/alias_dispatch_v2/workresult_codex_quota_probe_20260828_codex1_attempt7.json",
+    "project/tests/artifacts/alias_dispatch_v2/receipt_codex_quota_probe_20260828_codex1_attempt7.json"
+  ],
+  "Evidence": {
+    "decision_file_sha256": "ff9571acd19f0d968069b6893a486e78d2b379db8ac0d96c9747177ea6be90df",
+    "decision_normalized_sha256": "4b7788648a7be0a44c9127bf5ae90d28484b09d7d3176d46e5d04842757adbfb",
+    "evidence_boundary": "validated in-process only",
+    "provider_invocation_started": true,
+    "provider_invocation_count": 1,
+    "raw_provider_stream_persisted": false,
+    "safe_sanitized_output": {
+      "bytes": 163,
+      "sha256": "ef20fca75d3d21762242c5c6e66c6898d27c073f947f9c50b44a23f1b95006d0"
+    },
+    "tmux_session_id": "s3-codex1-quota-a7",
+    "transport_mode": "tmux",
+    "transport_status": "parse_failure:ambiguous_startup_text_before_status_panel"
+  },
+  "Findings": {
+    "concurrency_status": "unknown",
+    "quota_status": "unknown",
+    "required_human_review": true,
+    "sanitized_fields": [],
+    "ambiguous_safe_observation": "A less-than-5-percent monthly-limit warning was present, but it could not be bound unambiguously to the /status panel; no numeric remaining/window/reset field was accepted."
+  },
+  "Recommended next action": "Hold Codex1 quota admission for human review; any further observation requires a fresh authorization, request, lease, and immutable attempt.",
+  "Residual risk": "The interactive pane contained startup text before a verifiable /status panel. Raw provider output was intentionally not persisted, so quota and concurrency remain unknown.",
+  "Scope owned": {
+    "alias": "codex1",
+    "attempt_id": 7,
+    "objective": "Exactly one read-only provider-native Codex CLI /status observation with no model task, inference, or transaction.",
+    "provider": "OpenAI Codex",
+    "writable_artifacts": [
+      "project/tests/artifacts/alias_dispatch_v2/workresult_codex_quota_probe_20260828_codex1_attempt7.json",
+      "project/tests/artifacts/alias_dispatch_v2/receipt_codex_quota_probe_20260828_codex1_attempt7.json"
+    ]
+  },
+  "Status": "BLOCKED"
+}

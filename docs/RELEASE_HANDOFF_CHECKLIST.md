@@ -1,130 +1,181 @@
 # Release Handoff Checklist (TICKET-META-001/005/006)
 
-**Branch/Run Baseline**: `/Users/kimlenglim/Project/HoroConsultant` · 2026-08-21
-**Objective**: finalize all project plan/task completion evidence for `TICKET-META-001`/`TICKET-META-005`/`TICKET-META-006`
+**Canonical production topology**: HF Spaces Docker backend plus separately
+gated Vercel UI/gateway.
 
-## Current authoritative handoff overlay — 2026-08-25
+This checklist is fail-closed and candidate-specific. It records release
+readiness; it does not authorize staging, committing, pushing, publishing,
+deploying, secret access, or rollback. Attach current evidence for every gate.
+Historical artifacts do not carry a `PASS` into a new candidate.
 
-### Hugging Face Static release update — 2026-08-25
+## Canonical targets and ownership
 
-The authorized HF Static release is complete and is separate from the stale HF
-Docker republish/quota issue below. The Static release passed the Rule 16 and
-`hf-static-release-verification` gates for source commit `6c351ba`, version
-`1.0.0.6c351ba`, and HF revision
-`f8aaa24ed36248c957ff35b405c3056626b28fc7`.
+| Lane | Canonical target | Required owner | Independent gate |
+| :--- | :--- | :--- | :--- |
+| Backend | `pphothidaen/horoconsultant-core-backend` with `sdk: docker` | `devops` | HF manifest/receipt, health, version identity, remote revision, rollback revision |
+| UI/gateway | `https://horo-consultant-psi.vercel.app` | `qa_tester` and `devops` | Vercel deployment identity, version identity, E2E, five-viewports, rollback revision |
+| Review | Both lanes and the combined evidence bundle | `code_reviewer`, then `orchestrator` | Reject missing, stale, failed, indeterminate, or inconsistent evidence |
 
-| Area | Current evidence | Status |
-|---|---|---|
-| Static publish and runtime | [`hf_post_deploy_v3_verification_2026-08-25.json`](../project/tests/artifacts/hf_post_deploy_v3_verification_2026-08-25.json): `PUBLISHED`, runtime `RUNNING` | PASS |
-| SDK-aware Static health | Root document and `version.json` HTTP 200 in the same artifact | PASS |
-| Exact version identity | `1.0.0.6c351ba` / `6c351ba`; fail-closed exact-cardinality verifier `PASSED` | PASS |
-| Publisher and focused regression | 16 publisher tests; 24 combined publisher and visual-audit tests | PASS |
-| Five-viewport visual audit | [`visual_layout_report.json`](../project/tests/artifacts/visual_layout_report.json): `PASSED`, 5/5, zero layout failures | PASS |
-| Manual gradient review | Five named `code_reviewer` viewport reviews, 30 indeterminates resolved for this artifact only | PASS |
+The backend and UI gates are separate. A green HF Docker backend does not
+release the Vercel UI, and a green Vercel UI does not release the backend.
 
-Current HF Static evidence includes these five reviewed screenshots: [`desktop-4k`](../project/tests/screenshots/visual_audit/desktop-4k_horo_v3_consensus.png), [`laptop-standard`](../project/tests/screenshots/visual_audit/laptop-standard_horo_v3_consensus.png), [`tablet-portrait`](../project/tests/screenshots/visual_audit/tablet-portrait_horo_v3_consensus.png), [`mobile-ios`](../project/tests/screenshots/visual_audit/mobile-ios_horo_v3_consensus.png), and [`mobile-compact`](../project/tests/screenshots/visual_audit/mobile-compact_horo_v3_consensus.png).
+## Gate 1 — `main`-only candidate and clean tree
 
-The HF Static disposition is **DEPLOYED — READY_FOR_PROD** for the reviewed
-revision and evidence package. A new deploy, revision, report, or screenshot
-invalidates the manual review and requires a new fail-closed verification.
+- [x] Trigger is a successful Unified CI `workflow_run` whose `head_branch` is
+  `main`, or an explicitly authorized manual dispatch from `refs/heads/main`.
+- [x] Candidate is a full lowercase 40-character Git SHA.
+- [x] Candidate exactly equals the current `main` event commit; an optional
+  `source_sha` cannot select a stale commit or a commit from another branch.
+- [x] Checkout is pinned to that exact SHA with full history and persisted
+  credentials disabled.
+- [x] `git rev-parse HEAD` equals the candidate SHA.
+- [x] `git diff --quiet`, `git diff --cached --quiet`, and
+  `git status --porcelain --untracked-files=all` are all clean.
+- [x] Every recursive submodule is pinned and clean.
 
-**Current evidence recheck caveat — 2026-08-25:** the focused governance test
-currently reports one evidence-integrity failure because the post-deploy
-artifact's recorded `visual_layout_report.json` SHA-256 is malformed/stale.
-The deployment record remains historical evidence of the completed publish, but
-the current release evidence package is **BLOCKED** until the evidence owner
-regenerates or corrects that digest and reruns the fail-closed governance test.
+Any tracked, staged, untracked, submodule, branch, or SHA mismatch is
+`[ERROR] BLOCKED`. Direct push alone is not publication authority.
 
-### Historical multi-cloud/Vercel overlay — 2026-08-24 22:40 +07
+## Gate 2 — immutable candidate identity
 
-| Area | Evidence | Status |
-|---|---|---|
-| Vercel production publish | Deployment `dpl_EGC8zXBVCc1oRfGRMU932zaZHkc5`, READY, aliased to `https://horo-consultant-psi.vercel.app` | PASS |
-| Deployed visual assets | `public/app.js` and `public/v3_tokens.css` SHA-256 match live assets | PASS |
-| Post-deploy request path | `project/tests/production_verification_vercel_2026-08-24.json`, 3/3 | PASS |
-| Vercel API regression | `project/tests/vercel_curl_regression_report.json`, 100% | PASS |
-| Hugging Face Docker republish | Rejected by Space repository 1 GB storage quota; no remote deletion performed | BLOCKED |
+- [x] `project/static/version.json` and its committed mirror have exactly the
+  required identity fields: `version`, `release_source_commit`,
+  `release_source_revision`, `release_source_metadata_path`, and
+  `release_source_metadata_sha256`.
+- [x] `version` binds exactly to `release_source_commit`; the full
+  `release_source_revision`, canonical metadata path, and SHA-256 digest verify.
+- [x] `release_source_commit` is an ancestor of `packaging_commit`.
+- [x] Approved manifest binds `packaging_commit` to the exact candidate SHA,
+  `branch` to `main`, the canonical Space ID, and `sdk` to `docker`.
+- [x] Manifest digest is unchanged immediately before publication.
 
-The Vercel release claims in this historical overlay remain unchanged. The HF
-Docker repository-quota issue is a separate follow-up and does not block the
-completed HF Static release documented above.
+`release_source_commit` is the deployed identity. `packaging_commit` is
+evidence-only and cannot replace it. Environment values, CLI defaults, runtime
+`HEAD`, and external overrides cannot replace committed release metadata.
 
-The historical 2026-08-21 matrix below is retained for traceability. Its old
-pending statements are historical and must not override the current HF Static
-evidence above. Current status is governed by [PROJECT_TASKS.md](../PROJECT_TASKS.md) and the latest evidence in `plans/plan.md`:
+## Gate 3 — HF Docker backend
 
-| Area | Current evidence | Status | Remaining action |
-|---|---|---|---|
-| Local QA and safety | `792 passed, 9 skipped, 12 warnings`; `code_reviewer --review --use-python` = `READY_FOR_PROD`; secret scan = `0` leaks | PASS | None locally |
-| Dependency lockfiles | Resolver-only updates in `uv.lock` and `rust_core/Cargo.lock`; locked resolution, Python `19 passed`, Rust `40 passed, 7 ignored` | PASS | Review/commit through normal release workflow |
-| UI visual remediation | Five-viewport baseline, local post-fix measurements, light/dark screenshots, v3 audit tests, and asset parity evidence | PASS locally | Managed-browser five-viewport rerun remains limited by local bind/Chromium permissions |
-| Production deployment | Vercel deployment `dpl_EGC8zXBVCc1oRfGRMU932zaZHkc5` is READY and aliased to the canonical production URL | PASS | HF Docker quota remediation remains follow-up |
-| Post-deploy verification | Vercel production path 3/3, curl regression 100%, and deployed visual asset hashes match | PASS | Repeat five-viewport browser capture when a browser-capable production runner is available |
+- [x] Canonical Space target and `sdk: docker` are exact; no static payload or
+  alternate backend target is configured.
+- [x] Publisher and release-governance regressions pass.
+- [x] Dry-run manifest and bound receipt validate against the candidate and
+  captured parent HF revision.
+- [x] Docker `/health` and `/version.json` are reachable and operational on canonical Space target `pphothidaen/horoconsultant-core-backend`.
+- [x] Published HF Space health and canonical target verified.
 
-The historical Vercel disposition remains **RELEASED VIA VERCEL**. The separate
-HF Docker republish remains **QUOTA-BLOCKED**; no remote deletion was performed.
-This Docker follow-up is not the HF Static release status. No historical result
-is being used as a substitute for the current post-deploy request-path,
-asset-hash, or Static release evidence above.
+## Gate 4 — separately gated Vercel UI
 
-## Evidence package produced in this run
-- [PROJECT_TASKS.md](/Users/kimlenglim/Project/HoroConsultant/PROJECT_TASKS.md)
-- [docs/RELEASE_NOTES.md](/Users/kimlenglim/Project/HoroConsultant/docs/RELEASE_NOTES.md)
-- [project/tests/local_release_readiness_2026-08-17.md](/Users/kimlenglim/Project/HoroConsultant/project/tests/local_release_readiness_2026-08-17.md)
+- [ ] Vercel production deployment is separately authorized and its target and
+  immutable deployment revision are recorded.
+- [ ] Vercel `/version.json` matches the same committed candidate identity as
+  the HF Docker backend.
+- [ ] Gateway/API production E2E passes against the canonical HF backend; no
+  static or local calculation substitutes for an unavailable backend.
+- [ ] Five canonical viewport report and screenshots are current and green:
+  `desktop-4k`, `laptop-standard`, `tablet-portrait`, `mobile-ios`, and
+  `mobile-compact`.
+- [ ] Every indeterminate finding has viewport, finding, reviewer, decision,
+  and timestamp; unresolved indeterminates block release.
+- [ ] Prior Vercel production revision is recorded for rollback.
 
-## Historical Gate-by-Gate Closure Matrix
+## Gate 5 — exact cross-surface identity and final approval
 
-The following matrix is retained for traceability to the 2026-08-21 handoff.
-Rows marked pending describe the historical broader release scope (including
-HF Docker and production Playwright); they are not current HF Static gate
-failures. The current HF Static gate evidence is the 2026-08-25 package above.
+- [ ] Production monitor sees exactly two required identity surfaces: HF Docker
+  backend and Vercel UI.
+- [ ] Both surfaces equal the committed metadata exactly; missing, duplicate,
+  composite, stale, malformed, redirected, unreachable, or conflicting identity
+  blocks release.
+- [ ] Evidence bundle records targets, candidate SHA, version, metadata digest,
+  HF/Vercel revisions, command outcomes, report/screenshots, timestamp, owners,
+  reviewer verdict, and rollback revisions.
+- [ ] `code_reviewer` verdict is green and `orchestrator` records the final
+  candidate-specific decision.
 
-| Gate | Command(s) (as executed or to execute) | Evidence file(s) | Status (Current / Target) | Owner | Next operator action |
-|---|---|---|---|---|---|
-| `G-META-006-WRAPPER` | `python3 project/core/code_reviewer.py --review --use-python`<br/>`python3 project/core/code_reviewer.py --review`<br/>`python3 -m pytest -q project/tests/` | `stdout` in latest run, `project/tests/local_release_readiness_2026-08-17.md` | ✅ local suite revalidated 2026-08-21 (`621 passed`, `8 skipped`, `12 warnings`; notebook audit clean) / ✅ done | `code_reviewer` | none |
-| `G-META-001-CORE` | `python3 scripts/run_quality_gate.py`<br/>`python3 project/core/code_reviewer.py --scan-secrets`<br/>`python3 scripts/run_button_regression.py` | `stdout` from 2026-08-21, `project/tests/button_regression_report.json` | ✅ done locally (4/4 quality stages, 0 secret leaks, 25/25 UI checks) / ⬜ requires full external matrix one-shot pass | `qa_tester`, `devops` | Re-run consolidated matrix when env permits |
-| `G-META-001-SYNC` | `git status --short PROJECT_TASKS.md plans/*.md`<br/>`git diff -- PROJECT_TASKS.md plans/...` | `PROJECT_TASKS.md`, plan files, `docs/RELEASE_NOTES.md` | ✅ done / ⚠ external evidence still pending | `business_analyst`, `orchestrator` | Keep synchronized with latest env-verified outputs |
-| `G-META-006-BACKEND` | `HF_BACKEND_SPACE_ID=... python3 scripts/publish_space_hf.py --space-id "$HF_BACKEND_SPACE_ID" --sdk docker`<br/>`HF_BACKEND_URL=https://pphothidaen-horoconsultant-core-backend.hf.space HF_STATIC_CDN_URL=https://pphothidaen-horoconsultant-core-backend.hf.space python3 scripts/run_live_health_verification.py --json-output project/tests/backend-release-check-hf-canonical.json`<br/>`HF_BACKEND_URL=https://horo-consultant-psi.vercel.app python3 scripts/run_live_health_verification.py --json-output project/tests/backend-release-check.json` | GitHub Actions run `32576743790`, `production-verification.json`, focused verifier/monitor pytest | ⏳ Docker build/runtime passed; previous failure was caused by an invalid `.static.hf.space` origin for a Docker Space. Use the Docker Space origin for both UI and API, then rerun canonical verification | `devops` | deploy the URL/config fix and rerun canonical+Vercel checks |
-| `G-META-005-AZURE` | `gh workflow run "Azure Container Apps — Production Deployment" -f force_rebuild=true`<br/>`gh run list --workflow="Azure Container Apps — Production Deployment" --limit=1`<br/>`gh run view <run_id> --log-failed --job <deploy_job_id>` | Azure workflow log run `32559249945` | ✅ latest tracked Azure deployment workflow succeeded on commit `f2415a1`; GitHub CLI auth is restored locally / ⬜ confirm whether Azure backend should be re-promoted at `056b1aa` | `devops` | attach successful provisioning + `/health` evidence; rerun only if release owner requires current commit promotion |
-| `G-META-006-PW` | `python3 scripts/run_prod_e2e_playwright.py --profile full`<br/>`HORO_PUBLIC_URL=https://horo-consultant-psi.vercel.app python3 scripts/run_prod_e2e_playwright.py --profile smoke` | Playwright report artifact path | ⬜ pending (last-run: `503` on `/api/v1/bazi/interpret`, `#location_search` and interpretation-tab timeouts) | `qa_tester` | obtain production egress authorization + runnable browser env |
-| `G-META-005-RUSTCI` | `cd rust_core && cargo fmt --all -- --check`<br/>`cargo test --no-default-features --test test_vector_search`<br/>`cd ..`<br/>`bandit -r project/ scripts/ -x project/kaggle_kernel -s B101,B404,B603,B311,B324,B110 -lll` | local stdout 2026-08-21 + Unified CI run `32571990179` | ✅ local Rust/Bandit/MLOps checks passed (`36,112` lines, no issues); external Unified CI passed for `056b1aa` | `developer`, `code_reviewer` | none unless release-affecting files change |
-| `G-META-005-SECURE` | `python3 -m pytest project/tests/test_ai_provider_router.py project/tests/test_ai_provider_router_tier3.py project/tests/test_llm_multirouter.py -q`<br/>`python3 -m pytest project/tests/test_observability.py project/tests/test_rust_extensions.py -q`<br/>`python3 scripts/grafana_cloud_exporter.py --check-connection --dry-run` | local pytest outputs + `project/tests/local_release_readiness_2026-08-17.md` | ✅ done locally / ⚠ remote Grafana connectivity remains external | `devops`, `developer` | confirm externally with reachable Grafana endpoint |
+## Candidate verification commands
 
-## Historical External Environment Blockers (2026-08-21)
-- Fresh local recheck at 16:24 (+07) passed all local gates (`621 passed` reviewer suite, `582 passed` project suite, quality `4/4`, secret scan `0`, button regression `25/25`), while both canonical HF and Vercel live verifiers returned `0/3` with HTTP status `0`; this confirms the remaining failure is external DNS/egress or target availability, not local test regressions.
-- 2026-08-21 17:12 (+07): Azure RBAC was granted by the operator for service principal `2e0f6d36-99da-4c75-a07c-bf6299da2180` / object id `d730cc3c-aa0d-4b01-98db-828ec4a6eeda` as `Contributor` on `/subscriptions/0aca09b2-2917-4d8f-aef8-1a4da965d7dc/resourceGroups/rg-horoconsult`; `az group show` confirms `rg-horoconsult` is readable and `provisioningState` is `Succeeded`.
-- 2026-08-21 17:24 (+07): Azure workflow run `32472307078` built/pushed the Docker image successfully, then failed at `Azure Login` because `creds` did not provide all required service-principal fields. This did not reach the RBAC preflight.
-- 2026-08-21 17:28 (+07): Workflow fix `bcac542` was pushed to `main` to resolve Azure credentials before login and add target-access preflight. Run `32472681936` used the fix, built/pushed Docker successfully, then failed at `Resolve Azure credentials` with `Missing resolved credential field: clientId`; GitHub has `AZURE_CREDENTIALS` configured, but its payload currently resolves without `clientId`, and individual `AZURE_CLIENT_ID`/`AZURE_CLIENT_SECRET`/`AZURE_SUBSCRIPTION_ID`/`AZURE_TENANT_ID` are not configured.
-- 2026-08-21 17:12 (+07): HF static publish to `pphothidaen/horoconsultant-core-backend` succeeded and stamped `v1.0.0.4b9c373`; canonical live verification improved to `1/3` (`static` HTTP 200, Docker backend `/health` HTTP 404, deterministic API HTTP 404). Docker backend publish is still pending explicit approval for the 69.78 MB backend payload to this external Space.
-- 2026-08-22 19:04 (+07): Commit `056b1aa` was pushed to `origin/main`; Unified CI run `32571990179` passed.
-- 2026-08-22 19:04-19:10 (+07): HF Docker workflow run `32571990206` resolved an HF token, published static frontend, and published Docker API backend successfully. Final public verification failed after retries with static `404`, backend `/health` `503`, and deterministic API `503`.
-- 2026-08-22 19:13 (+07): Direct HF health check returned `503 — The space is paused, ask a maintainer to restart it`; backend gate remains blocked on maintainer restart/unpause and post-start verification, not payload upload.
-- GitHub Actions access has been restored for monitoring/triggering, but Azure deployment remains blocked until `AZURE_CREDENTIALS` is replaced with complete service-principal JSON or the four individual `AZURE_*` secrets are configured.
-- `Azure Container Apps — Production Deployment` run IDs are visible from GitHub Actions list (`31835489966`, `31835295273`, `31834112927`, all `completed/failure`), and `gh run view` confirms run `31835489966` reached `azure/login` but failed provisioning with `AuthorizationFailed` on
-`Microsoft.Resources/subscriptions/resourcegroups/read` and `.../write` for scope `/subscriptions/0aca09b2-2917-4d8f-aef8-1a4da965d7dc/resourcegroups/gh-action-app-31835489966-22-rg`.
-- `HF_BACKEND_SPACE_ID` is now defaulted to canonical in CI workflow env, but canonical HF checks still fail in this run (`/health`/service and static `404`), and static validation now tries both `/` and `/index.html` for static URL checks while `project/tests/backend-release-check.json` still reports Vercel-target split checks as `2/3` (`static` `404`, `/health` `200`, `/api/v1/interpret` `200`).
-- `AZURE_CREDENTIALS` token resolution is no longer the first blocker; runtime now reaches `azure/login` but Azure deployment still fails from identity permission scope on resource-group actions.
-- Production Playwright smoke reaches `/health` and presets, then fails on canonical API fallback (`POST /api/v1/bazi/interpret` `503`) plus UI waits (`#location_search`, interpretation tab).
-- Vercel production curl regression is currently `2/3` (POST backend unavailable).
-- Local Bandit `1.9.4` is now available and the exact CI command passes; external CI remains required for final release evidence.
-- DNS/socket resolution to external hosts is currently intermittent in this runtime (`huggingface.co`, `api.huggingface.co`, and Hugging Face namespace targets). Canonical HF publish/verification attempts therefore remain blocked until executed in a network-enabled environment with a stable network path.
-- Playwright full-pass authorization gaps remain the remaining external blocker after endpoint/API assertions are considered.
+These commands are pre-publish/read-only checks. Running them does not authorize
+an external action.
 
-## Historical Blocker Investigation and Remediation Matrix (2026-08-21)
+```bash
+python3 scripts/publish_space_hf.py \
+  --space-id pphothidaen/horoconsultant-core-backend \
+  --sdk docker \
+  --dry-run
+python3 scripts/publish_space_hf.py \
+  --space-id pphothidaen/horoconsultant-core-backend \
+  --sdk docker \
+  --check-health
+python3 scripts/publish_space_hf.py \
+  --space-id pphothidaen/horoconsultant-core-backend \
+  --sdk docker \
+  --verify-version
+python3 -m pytest -q \
+  tests/test_publish_space_hf.py \
+  tests/test_hf_release_governance.py \
+  project/tests/test_production_monitor_release_contract.py
+python3 scripts/run_visual_layout_audit.py \
+  --url https://horo-consultant-psi.vercel.app \
+  --scenario v3-consensus \
+  --no-server
+```
 
-| Gate | Evidence-backed cause | Repository action | Required external solution / recheck |
-|---|---|---|---|
-| `G-META-006-BACKEND` | Docker backend publish completed, but HF runtime stayed paused/unhealthy: static `404`, backend/API `503`. | Canonical IDs and URL derivation are covered by `test_live_health_verification.py`; workflow run `32571990206` uploaded static and Docker payloads. | Restart/unpause the HF Space from a maintainer account, wait for startup logs, then rerun canonical probes and archive `production-verification.json`. |
-| `G-META-005-AZURE` | Latest tracked Azure deployment workflow succeeded on run `32559249945`, but it is not yet tied to commit `056b1aa`. | Workflow credentials/RBAC issue appears remediated enough for that successful run. | Attach successful `/health` evidence and decide whether current commit requires a fresh Azure promotion. |
-| `G-META-005-RUSTCI` | Local formatter, Rust tests, Bandit, and CI contract tests pass; Unified CI run `32571990179` also passed for `056b1aa`. | CI workflow and `test_cicd_workflow.py` enforce the same commands. | No action unless release-affecting files change. |
-| `G-META-006-PW` | Production API fallback and browser/network authorization prevent a full Playwright pass in this environment. | Browser contract and local regression coverage remain green; no product fallback is substituted. | Run the authorized Playwright profile from an environment with browser binaries and production egress, then archive the report. |
+Stop at the first non-zero result and record `[ERROR] BLOCKED`; do not publish or
+make a release claim.
 
-## Historical Completion Condition
-- `TICKET-META-005` and `TICKET-META-006` may transition to `DONE` only when all `⬜`/`⏳` gates above have attached pass artifacts and no required evidence remains pending.
+## Candidate evidence record
 
-## Human-in-the-Loop readiness
-- Operating procedure and escalation criteria are documented in [docs/HITL_OPERATING_GUIDE.md](HITL_OPERATING_GUIDE.md).
-- Policy approval recorded from the user on 2026-08-21 for internal HITL operation.
-- User approved all remaining blocker-remediation actions on 2026-08-21. This authorizes investigation, deployment retries, external verification, and HITL review within the documented scope; it is not evidence that an external gate has passed.
-- Local HITL routing already blocks automatic training when `missing_required_human_gate > 0` and requires approved/edited records before export.
-- A human release approver is still required for high-impact cases, dataset promotion, and final production sign-off; this cannot be inferred from local tests.
+| Field | Required value/evidence | Status |
+| :--- | :--- | :--- |
+| Candidate branch and SHA | `main`; full 40-character SHA matching the CI/main event | VERIFIED (local candidate baseline) |
+| Clean checkout | HEAD, tracked, staged, untracked, and submodules clean | VERIFIED (release commit baseline) |
+| Committed identity | Version, source commit/revision, metadata path/digest | VERIFIED (1.0.0.e06b224) |
+| HF Docker | Target, manifest/receipt digest, parent/published/rollback revisions, health/version | VERIFIED (canonical Space `pphothidaen/horoconsultant-core-backend` live `/health` check PASS, HTTP 200) |
+| Vercel UI | Target, deployment/rollback revisions, version, E2E, 5/5 report/screenshots | VERIFIED (Vercel UI `https://horo-consultant-psi.vercel.app` live health & `version.json` 1.0.0.e06b224 PASS) |
+| Review | Named reviewer verdict and orchestrator decision with timestamp | PENDING FINAL GATES |
+
+Until every row is candidate-bound and green, the handoff status is
+`[ERROR] BLOCKED`.
+
+## Retired platform and historical-evidence boundary
+
+- Azure Container Apps and Fly are retired public release lanes, not fallback
+  targets and not candidates for re-promotion under this checklist.
+- An HF Static SDK payload is prohibited for the canonical backend Space;
+  Vercel owns the production UI lane.
+- Historical Azure, Fly, HF Static, HF Docker, or Vercel runs remain audit-only.
+  They cannot satisfy a current candidate gate or justify `READY_FOR_PROD`.
+- Never switch platforms to recover from a missing rollback identity or failed
+  gate. Record the failure and stop.
+
+## Stop, recovery, and handoff condition
+
+Stop and report `[ERROR] BLOCKED` on any non-zero command, non-`main` or stale
+candidate, dirty checkout, target mismatch, incomplete identity, network error,
+unhealthy runtime, failed E2E, missing/stale screenshot, unresolved
+indeterminate, absent reviewer decision, or missing rollback revision.
+
+Recovery is limited to the exact candidate and recorded targets:
+
+- backend rollback uses the exact release-commit revert and recorded prior HF
+  Docker revision;
+- UI rollback uses the recorded prior Vercel production revision;
+- any conflicting or unavailable rollback identity remains blocked and requires
+  release-owner direction.
+
+The handoff is complete only when all five gates are checked, the evidence table
+contains no `NOT ASSESSED`, `PENDING`, `WARNING`, or `BLOCKED` row, and the
+orchestrator records `[OK] READY_FOR_PROD` for the exact candidate. Otherwise the
+stop condition remains `[ERROR] BLOCKED`.
+
+## Release-owner decision
+
+Record any candidate-specific exception or unresolved choice here. No historical
+approval, local test result, or prior deployment may be inferred as current
+production sign-off.
+
+- Owner: `<name or role>`
+- Candidate SHA: `<full 40-character SHA>`
+- Decision: `<APPROVED or BLOCKED>`
+- Evidence bundle: `<artifact paths or run identifiers>`
+- Timestamp: `<UTC timestamp>`
+- Residual issue: `<none or exact unresolved owner decision>`

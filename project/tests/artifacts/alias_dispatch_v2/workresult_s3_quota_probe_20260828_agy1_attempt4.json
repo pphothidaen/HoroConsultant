@@ -1,0 +1,40 @@
+{
+  "status": "DONE",
+  "scope_owned": "agy1 only; one interactive provider-native read-only /usage quota-panel capture under attempt-4 HITL",
+  "evidence": {
+    "commands": [
+      "/opt/homebrew/bin/tmux new-session -d -s s3_agy1_quota_a4 -e AGY_HOME=... -- agy",
+      "/opt/homebrew/bin/tmux send-keys -t s3_agy1_quota_a4:0.0 -l /usage; Enter",
+      "/opt/homebrew/bin/tmux capture-pane -p -t s3_agy1_quota_a4:0.0 -S -160"
+    ],
+    "sanitized_capture": [
+      "model_family=gemini",
+      "remaining_percent=63%"
+    ],
+    "output_bytes": 41,
+    "output_sha256": "f6f2a67d6f4e7ee455b07436dbfd6bc084cbb521c3fbe5962da26ba9ac8c63e4",
+    "evidence_boundary": "validated in-process only",
+    "outcomes": [
+      "One detached tmux session launched literal interactive agy with the approved agy1 runtime binding.",
+      "The literal /usage command was sent exactly once, with no prompt, model task, retry, fallback subprocess, or provider mutation.",
+      "The sanitized panel capture exposed a Gemini model family and 63% remaining quota.",
+      "No reset value or explicit concurrency value was safely observed; neither is inferred.",
+      "The panel was exited and the tmux session was closed."
+    ],
+    "artifacts": [
+      "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt4.json",
+      "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt4.json"
+    ]
+  },
+  "findings": [
+    "agy1 has a provider-displayed remaining quota observation of 63% at the recorded capture time.",
+    "Concurrency remains unknown because the panel did not explicitly display it.",
+    "This AGY evidence is validated in-process only."
+  ],
+  "changed_files": [
+    "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt4.json",
+    "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt4.json"
+  ],
+  "residual_risk": "The single observation is time-bound; reset timing and concurrency are not evidenced, and the result must not be treated as portable or offline proof.",
+  "recommended_next_action": "Do not retry agy1 under attempt 4. Keep concurrency unknown and use the recorded 63% remaining observation only for the current in-process capacity decision."
+}

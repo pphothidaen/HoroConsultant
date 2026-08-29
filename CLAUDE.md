@@ -133,3 +133,16 @@ HoroConsultant/
 ├── scripts/                     # Automation & Cloud Fine-Tuning Scripts
 └── tests/                       # Automated Pytest Test Suite
 ```
+
+---
+
+## Active Hooks Configuration
+
+!`find .claude/hooks -name "*.sh" -type f 2>/dev/null || true`
+
+## Git workflow
+
+- Check `git status --short` before edits and preserve unrelated work.
+- Use focused atomic semantic commits (`feat:`, `fix:`, `docs:`, `test:`).
+- Create a draft PR with `gh pr create --draft` only when remote publication is
+  explicitly authorized.

@@ -1,0 +1,75 @@
+{
+  "protocol_version": 2,
+  "artifact_type": "Decision/HITL-Closure",
+  "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828-ATTEMPT7",
+  "attempt_id": 7,
+  "closed_at": "2026-08-28T02:40:41Z",
+  "overall_status": "BLOCKED",
+  "required_human_review": true,
+  "immutable_decision": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt7.json",
+  "decision_physical_sha256": "75cd453facf64f7d5f5f09505208bc4ff2c34cfcc52e865749e60ff5cfbef8e0",
+  "decision_integrity": {
+    "declared_normalized_sha256": "e201027d8d3514717e3bcbdc2c6416fd52b82c7c4a3a85c6819af4405af152c3",
+    "recomputed_normalized_sha256": "ded1f325eeb0ca1e3a9a425f6c56947e7b38d049518ea44660066c87e348bf1b",
+    "match": false,
+    "classification": "preflight_integrity_failure"
+  },
+  "scope_owned": "Close attempt-7 AGY1 and AGY2 one-shot quota observations; preserve all prior artifacts; no provider call, retry, repair, or mutation.",
+  "child_outcomes": {
+    "agy1": {
+      "status": "BLOCKED",
+      "reason": "empty_output plus decision normalized-hash mismatch",
+      "receipt": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt7.json",
+      "receipt_sha256": "0fbaa287ef580bf168c44d1e8cf1585ca73d3db253888e84349be2ed698645df",
+      "workresult": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt7.json",
+      "workresult_sha256": "5b061fa9376d467f185f44632fa3a8710aabea21a66579ca70b9e5cb2d4e0fdd",
+      "provider_invocation_count": 1,
+      "transport": "tmux",
+      "sanitized_failure": "parse_failure:empty_output",
+      "quota_status": "unknown",
+      "concurrency_status": "unknown",
+      "receipt_binding": "REJECTED: decision normalized hash mismatch"
+    },
+    "agy2": {
+      "status": "BLOCKED",
+      "reason": "no safe capture at sanitizer boundary",
+      "receipt": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt7.json",
+      "receipt_sha256": "31d19d6b8605a9c8df4f9c4c67f0f4ad6aa3b6b12fe07d15e2ec6cbb8f9de91e",
+      "workresult": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt7.json",
+      "workresult_sha256": "b56e775e2e2213dc25dc5c2cd9f13de9fc92e2986b3f1977daa30aec3b5915d3",
+      "provider_invocation_count": 1,
+      "transport": "tmux",
+      "sanitized_failure": "capture_race_content_unavailable",
+      "quota_status": "unknown",
+      "concurrency_status": "unknown",
+      "receipt_binding": "REJECTED: no safe sanitized output and receipt_valid=false"
+    }
+  },
+  "evidence": {
+    "parser_version": "agy-usage-sanitizer-v1.1.0",
+    "parser_version_sha256": "899eaeceb00518624ccfb2fc064e73637167b5abd45cf78aebcac9b725661d10",
+    "parser_file_sha256": "f9e2b5e88837d6e70566be91b2128f5061c12d188c785bc775bb32308610c99e",
+    "command_argv": ["agy", "-p", "/usage"],
+    "raw_provider_stream_persisted": false,
+    "provider_transaction": false,
+    "model_task": false,
+    "configuration_mutation": false,
+    "retry_count": 0,
+    "evidence_boundary": "validated in-process only"
+  },
+  "findings": [
+    "Neither account produced allowlisted quota metadata.",
+    "Quota and concurrency remain unknown for agy1 and agy2.",
+    "This attempt is not quota proof and does not establish dispatch entitlement."
+  ],
+  "changed_files": [
+    "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt7_closure.json"
+  ],
+  "residual_risk": "Attempt-7 cannot be analyzed as quota evidence because AGY1 failed empty-output/integrity preflight and AGY2 had no safe capture. Raw output was intentionally not retained.",
+  "recommended_next_action": "Human review only. Do not retry or modify attempt-7. Any future probe requires a fresh Decision/HITL, new request IDs, new leases, corrected integrity binding, and an approved capture strategy.",
+  "integrity": {
+    "normalization_method": "Remove integrity.normalized_closure_sha256; recursively sort keys; compact UTF-8 JSON without trailing newline; SHA-256.",
+    "normalized_closure_sha256": "9e80df58fdc47341403e9d0e5a6117227623037f9f38dfeb9d150f85e8979d25",
+    "physical_file_sha256": "external handoff digest after final write"
+  }
+}

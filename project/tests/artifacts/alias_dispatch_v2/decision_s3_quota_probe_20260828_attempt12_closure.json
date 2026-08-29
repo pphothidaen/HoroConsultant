@@ -1,0 +1,93 @@
+{
+  "artifact_type": "Decision/HITL-Closure",
+  "protocol_version": 2,
+  "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828-ATTEMPT12",
+  "attempt_id": 12,
+  "closure_status": "BLOCKED/NEEDS_HITL",
+  "closed_at": "2026-08-28T03:46:00Z",
+  "immutable_decision": {
+    "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt12.json",
+    "physical_sha256": "1d1d118bfa74c39a18d6beb93bc6f48eff42fa8019fa8197dcf2673f216b79e2",
+    "normalized_sha256": "2e8498ed8fe2b7b7f5847d5e372df8c84ec3d016163f9c4f9f697d2a227e85e9",
+    "approval": "Approve AGY attempt-12 exactly",
+    "approval_scope": "exact one-shot read-only invocation per AGY alias under the Decision; no retry, mutation, raw output, model task, transaction, dashboard/API, or concurrency inference"
+  },
+  "parser_binding": {
+    "path": "scripts/agy_usage_quota_sanitizer.py",
+    "version": "agy-usage-sanitizer-v1.5.0",
+    "version_sha256": "33bcaddd4ff426f94748fa16ba52c784cc9533a0e05cbb952c19bd8c91b6e5a4",
+    "file_sha256": "e7c4ac3e85e94211fe20c1bf9d1e30ff04bce5fd10628f0efabc2ed99009a4be",
+    "tests_path": "tests/test_agy_usage_quota_sanitizer.py",
+    "tests_sha256": "641986c832b4c701ccf470188e4b52529ce3a82698bb5390ec8f42cdfd8f57a0"
+  },
+  "drift_evidence": {
+    "environment_normalization_effective": true,
+    "has_ansi_escape": false,
+    "detected_layout": "key_value",
+    "line_count": 4,
+    "line_structures": [
+      "key_value",
+      "key_value",
+      "key_value",
+      "unclassified"
+    ],
+    "first_token_types": [
+      "key",
+      "key",
+      "key",
+      "unclassified"
+    ],
+    "value_shapes": [
+      "unclassified_value",
+      "unclassified_value",
+      "unclassified_value",
+      "unclassified_value"
+    ],
+    "failure_taxonomy": "parse_failure:unexpected_key_value",
+    "parser_version": "agy-usage-sanitizer-v1.5.0"
+  },
+  "results": {
+    "agy1": {
+      "receipt_path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt12.json",
+      "receipt_sha256": "cae05bfba04da851df124da4329880c0b44bee090341dae41c2d0d04063971ed",
+      "workresult_path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt12.json",
+      "workresult_sha256": "398f9fd0545a566a631e9f91bcbf5d5b4336a9e03fd33c168be8ee0b6343719c",
+      "status": "BLOCKED",
+      "failure": "parse_failure:unexpected_key_value",
+      "provider_invocation_count": 1,
+      "quota_status": "unknown",
+      "concurrency_status": "unknown",
+      "tmux_session": "s3-agy1-quota-a12",
+      "tmux_closed": true,
+      "raw_provider_stream_persisted": false
+    },
+    "agy2": {
+      "receipt_path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt12.json",
+      "receipt_sha256": "64b8a6fe4e892fa58ca3cce68b70d43e30c664b52d525c4e68c4a660f1106f9a",
+      "workresult_path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt12.json",
+      "workresult_sha256": "2429d76ecfd53f2b3ab6fd326adac3c3add3bc909a20bb5c503d5c7a0ab2c819",
+      "status": "BLOCKED",
+      "failure": "parse_failure:unexpected_key_value",
+      "provider_invocation_count": 1,
+      "quota_status": "unknown",
+      "concurrency_status": "unknown",
+      "tmux_session": "s3-agy2-quota-a12",
+      "tmux_closed": true,
+      "raw_provider_stream_persisted": false
+    }
+  },
+  "invariants": {
+    "command_per_alias": ["agy", "-p", "/usage"],
+    "transport": "detached_tmux",
+    "provider_invocations_total": 2,
+    "model_tasks": 0,
+    "retries": 0,
+    "mutations": 0,
+    "concurrency_inference": false,
+    "evidence_boundary": "validated in-process only",
+    "attempt_13_created": false,
+    "provider_call_after_closure": false
+  },
+  "summary": "Both exact one-shot probes completed provider invocation (exit 0) under environment normalization. Structural fingerprint confirmed a 4-line key_value layout. Values on the right of colon remain unclassified. Quota and concurrency remain unknown. Attempt 12 is closed.",
+  "next_action": "Attempt 12 is closed. Transition to Step 6 of User Proposal: request explicit separate HITL for documentation inspection or structured flags."
+}

@@ -2,7 +2,7 @@ name: devops
 display_name: DevOps & Release Agent (The Bridge)
 description: DevOps & Release Agent. Verifies environment variables, Doppler secrets,
   Docker compose setup, and packages releases.
-model: gpt-5.3-codex
+model: gpt-5.3-codex-spark
 effort: high
 thinking: true
 system_prompt: 'You are the devops agent for HoroConsultant.
@@ -36,9 +36,9 @@ system_prompt: 'You are the devops agent for HoroConsultant.
   evidence. Never claim success when a gate is missing, stale, unresolved indeterminate,
   or failing.
 
-  7. Model Allocation: Use `gpt-5.3-codex` at high effort for release plans, infra
-  changes, and incident triage. Do not lower the tier for secret, deployment, or rollback
-  decisions.'
+  7. Model Allocation: Use `gpt-5.3-codex-spark` at high effort for release plans,
+  infra changes, and incident triage. Do not lower the tier for secret, deployment,
+  or rollback decisions.'
 tools:
 - devops-deployment
 - sdlc-aisdlc-workflow

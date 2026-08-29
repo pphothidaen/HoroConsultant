@@ -1,0 +1,179 @@
+{
+  "protocol_version": 2,
+  "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828",
+  "attempt_id": 3,
+  "phase": "preflight",
+  "work_mode": "read_only",
+  "objective": "one-shot quota/status/concurrency evidence collection only",
+  "authorization": {
+    "type": "HITL",
+    "status": "granted",
+    "authorized_at": "2026-08-28T01:29:09Z",
+    "timezone": "Asia/Bangkok",
+    "scope": "one-shot read-only quota/status/concurrency probe for codex1, codex2, agy1, and agy2",
+    "prohibited": [
+      "provider execution",
+      "real transactions",
+      "account mutation",
+      "provider setting changes",
+      "secret collection or output",
+      "network access outside the approved read-only probe"
+    ]
+  },
+  "independent_pools": ["codex1", "codex2", "agy1", "agy2"],
+  "dispatch_decision": {
+    "schema_version": 1,
+    "scope_rank": 1,
+    "complexity_rank": 1,
+    "risk_rank": 2,
+    "ambiguity_rank": 2,
+    "evidence_burden_rank": 3,
+    "quality_floor": "gpt-5.6-sol/high",
+    "selected_alias": "agy1/agy2 distinct lanes (codex aliases blocked)",
+    "selected_models": {
+      "codex1": "gpt-5.6-sol",
+      "codex2": "gpt-5.6-sol",
+      "agy1": "gemini-3.1-pro-high",
+      "agy2": "gemini-3.1-pro-high"
+    },
+    "selected_effort": "high",
+    "agy_quality_floor": "gemini-3.1-pro-high/high",
+    "quota_band": "unknown",
+    "planning_to_medium_confirmed": true,
+    "hitl_approved": true,
+    "rationale": "Official AGY documentation establishes /usage (alias /quota) as the model-quota refresh surface and documents -p/--print with JSON output. Codex documentation identifies /status for active session status, while usage limits are accessed through Settings/usage dashboard; no documented CLI quota/concurrency endpoint is established.",
+    "status": "READY_TO_VALIDATE",
+    "policy_version": "2026-08-26.1"
+  },
+  "runtime": {
+    "config_path": ".agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml",
+    "config_present": true,
+    "config_approved_for_execution": true,
+    "protocol_version": 2,
+    "tmux_path": "/opt/homebrew/bin/tmux",
+    "tmux_version": "3.7c",
+    "tmux_verification": {
+      "command": "command -v tmux && /opt/homebrew/bin/tmux -V",
+      "output": "/opt/homebrew/bin/tmux\ntmux 3.7c",
+      "verified_at": "2026-08-28T01:29:09Z"
+    },
+    "session_started": false,
+    "execution_rule": "If executed, each approved AGY candidate must run in its own tmux lane and only the short metadata summary may be captured with capture-pane. No provider execution or transaction is authorized."
+  },
+  "probe_discovery": {
+    "official_sources": [
+      {
+        "provider": "agy",
+        "url": "https://www.agy.dev/docs/cli/commands/usage/",
+        "finding": "The official docs define /usage (alias /quota), refresh model configuration and quota status from the backend, and display model limits and remaining requests/tokens."
+      },
+      {
+        "provider": "agy",
+        "url": "https://www.agy.dev/docs/cli/headless/",
+        "finding": "The official docs define -p/--print for one-shot headless prompts and --output-format json for a machine-readable envelope."
+      },
+      {
+        "provider": "codex",
+        "url": "https://help.openai.com/en/articles/11369540-using-codex-with-your-chatgpt-plan",
+        "finding": "The official help states that usage limits and reset information are accessed in Settings or the usage dashboard; /status is available in an active Codex CLI session but does not establish a quota/concurrency endpoint."
+      }
+    ],
+    "approved_probe_available": true,
+    "approved_probe_path": "agy -p \"/usage\" --output-format json",
+    "approved_probe_candidate": "agy -p \"/usage\" --output-format json",
+    "approved_probe_status": "READY_TO_VALIDATE_PENDING_EXECUTION",
+    "probe_scope": "AGY only; candidate must be validated in an approved tmux lane before any result is accepted. Interactive /usage or /quota equivalent through tmux is permitted by the same read-only scope.",
+    "codex_probe_status": "BLOCKED",
+    "discovery_boundary": "Official documentation discovery and read-only local preflight only; no provider, network, account, or execution command was run.",
+    "not_guessed": ["Codex /status as quota proof", "undocumented Codex endpoint", "concurrency values absent from provider output"],
+    "runtime_config_finding": "Runtime config provides secret-free read-only alias routes and model/effort routes; provider-native quota evidence is available as an AGY candidate only and remains pending validation."
+  },
+  "aliases": {
+    "codex1": {
+      "attempt_id": 3,
+      "provider": "codex",
+      "selected_model": "gpt-5.6-sol",
+      "selected_effort": "high",
+      "model_effort_catalog_status": "SUPPORTED",
+      "status": "BLOCKED",
+      "failure_class": "missing_runtime_proof",
+      "no_child_ran": true,
+      "quota_band": "unknown",
+      "concurrency_evidence": null,
+      "approved_probe_candidate": null,
+      "block_reason": "OpenAI documentation provides /status for active session status and Settings/usage dashboard for usage limits, but no provider-documented CLI quota/concurrency probe endpoint."
+    },
+    "codex2": {
+      "attempt_id": 3,
+      "provider": "codex",
+      "selected_model": "gpt-5.6-sol",
+      "selected_effort": "high",
+      "model_effort_catalog_status": "SUPPORTED",
+      "status": "BLOCKED",
+      "failure_class": "missing_runtime_proof",
+      "no_child_ran": true,
+      "quota_band": "unknown",
+      "concurrency_evidence": null,
+      "approved_probe_candidate": null,
+      "block_reason": "OpenAI documentation provides /status for active session status and Settings/usage dashboard for usage limits, but no provider-documented CLI quota/concurrency probe endpoint."
+    },
+    "agy1": {
+      "attempt_id": 3,
+      "provider": "agy",
+      "selected_model": "gemini-3.1-pro-high",
+      "selected_effort": "high",
+      "model_effort_catalog_status": "SUPPORTED",
+      "status": "READY_TO_VALIDATE_PENDING_EXECUTION",
+      "failure_class": null,
+      "no_child_ran": true,
+      "quota_band": "unknown",
+      "concurrency_evidence": null,
+      "approved_probe_candidate": "agy -p \"/usage\" --output-format json",
+      "source_urls": ["https://www.agy.dev/docs/cli/commands/usage/", "https://www.agy.dev/docs/cli/headless/"],
+      "block_reason": null
+    },
+    "agy2": {
+      "attempt_id": 3,
+      "provider": "agy",
+      "selected_model": "gemini-3.1-pro-high",
+      "selected_effort": "high",
+      "model_effort_catalog_status": "SUPPORTED",
+      "status": "READY_TO_VALIDATE_PENDING_EXECUTION",
+      "failure_class": null,
+      "no_child_ran": true,
+      "quota_band": "unknown",
+      "concurrency_evidence": null,
+      "approved_probe_candidate": "agy -p \"/usage\" --output-format json",
+      "source_urls": ["https://www.agy.dev/docs/cli/commands/usage/", "https://www.agy.dev/docs/cli/headless/"],
+      "block_reason": null
+    }
+  },
+  "expected_execution_receipt": {
+    "required": true,
+    "protocol_version": 2,
+    "not_emitted": true,
+    "reason": "No child ran; AGY candidates await validation in isolated tmux lanes and Codex lanes have no approved quota endpoint.",
+    "required_fields": ["ticket", "alias", "provider", "attempt_id", "status", "started_at", "ended_at", "process_or_session_id", "quota_status", "concurrency_status", "output_bytes", "output_sha256", "scheduling_snapshot_sha256", "claim_proof"]
+  },
+  "expected_work_result": {
+    "required": true,
+    "protocol_version": 2,
+    "not_emitted": true,
+    "reason": "No provider-native result exists before approved AGY candidate validation/execution.",
+    "required_fields": ["status", "summary", "evidence", "blockers"]
+  },
+  "evidence": {
+    "prior_attempt1_artifact": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828.json",
+    "prior_attempt1_sha256": "2fcfa5a543ebe0d6c63959957c7365913f073bc5ed3f3f521f7eb4085c7b8e5a",
+    "prior_attempt2_artifact": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt2.json",
+    "prior_attempt2_sha256": "7eb6135f66db1107e53f8e70f495bd3dabbbe25b38ad56b5e2fc4e47769c5314",
+    "prior_attempts_preserved": true,
+    "source_discovery_date": "2026-08-28",
+    "concurrency_evidence": "unknown until explicitly shown by provider output; no value inferred from CLI availability or model configuration"
+  },
+  "stop_condition": "DONE when this preflight artifact is written and JSON syntax/SHA-256/diff checks pass. Do not create a tmux session or execute a provider/network/account command in this artifact-creation lane.",
+  "overall_status": "READY_TO_VALIDATE",
+  "required_human_review": true,
+  "review_reason": "AGY has an official quota command candidate pending validation; Codex quota/concurrency proof remains unavailable. Human review remains required until each lane validates or is formally blocked.",
+  "created_at": "2026-08-28T02:00:00Z"
+}

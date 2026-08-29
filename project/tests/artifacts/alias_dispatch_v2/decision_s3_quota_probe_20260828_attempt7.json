@@ -1,0 +1,75 @@
+{
+  "protocol_version": 2,
+  "artifact_type": "Decision/HITL",
+  "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828-ATTEMPT7",
+  "attempt_id": 7,
+  "created_at": "2026-08-28T02:37:41Z",
+  "timezone": "UTC",
+  "phase": "fresh_terminal_only_quota_observation",
+  "work_mode": "read_only",
+  "overall_status": "READY",
+  "required_human_review": true,
+  "objective": "One fresh quota observation for each isolated AGY account through the fixed in-memory sanitizer; no model task, transaction, mutation, retry, or raw-output persistence.",
+  "authorization": {
+    "type": "fresh_HITL_one_shot_quota_probe",
+    "status": "granted_for_attempt7_exact_command_only",
+    "scope": [
+      "agy1: at most one exact literal agy -p /usage invocation",
+      "agy2: at most one exact literal agy -p /usage invocation"
+    ],
+    "transport": "tmux first; direct terminal only for setup failure before provider invocation",
+    "prohibited": [
+      "any command or argument other than agy -p /usage",
+      "model task, provider transaction, configuration or account mutation",
+      "retry, fallback after provider start, second invocation, dashboard or API",
+      "raw provider stdout/stderr, credentials, paths, or pane-content persistence",
+      "concurrency inference"
+    ]
+  },
+  "prior_attempt_boundary": {
+    "attempt6_path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt6.json",
+    "attempt6_status": "BLOCKED",
+    "preserve_immutable": true,
+    "reason": "Attempt-6 parse_failure:unexpected_line; no retroactive repair or replacement."
+  },
+  "account_scope": {
+    "provider": "AGY",
+    "aliases": ["agy1", "agy2"],
+    "distinct_accounts": true,
+    "runtime_config": ".agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml",
+    "runtime_config_sha256": "60cdc745f1292a23418e1ed3f9bee08d44a55775e14e4139c9fc001e5ddd72e0",
+    "quota_status": {"agy1": "unknown_fresh_observation_required", "agy2": "unknown_fresh_observation_required"},
+    "concurrency_status": {"agy1": "unknown", "agy2": "unknown"}
+  },
+  "parser_binding": {
+    "path": "scripts/agy_usage_quota_sanitizer.py",
+    "version": "agy-usage-sanitizer-v1.1.0",
+    "parser_version_sha256": "899eaeceb00518624ccfb2fc064e73637167b5abd45cf78aebcac9b725661d10",
+    "parser_file_sha256": "f9e2b5e88837d6e70566be91b2128f5061c12d188c785bc775bb32308610c99e",
+    "tests_path": "tests/test_agy_usage_quota_sanitizer.py",
+    "tests_sha256": "b1b0f40240613ac390b89bcaeb50600304e5e0c9601d2d15cec8972604e46e5c",
+    "tests_result": "28 passed",
+    "boundary": "provider output is consumed in memory; only allowlisted compact metadata may be persisted"
+  },
+  "dispatch_decisions": {
+    "agy1": {"schema_version": 1, "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828-AGY1-A7", "selected_alias": "agy1", "quality_floor": "gpt-5.6-sol/high", "selected_profile": "governance_only/gpt-5.6-sol/high", "ranks": {"scope": 1, "complexity": 2, "risk": 3, "ambiguity": 3, "evidence": 3}, "quota_band": "unknown", "root_medium_gate": "confirmed", "hitl_approved": true, "required_human_review": true},
+    "agy2": {"schema_version": 1, "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828-AGY2-A7", "selected_alias": "agy2", "quality_floor": "gpt-5.6-sol/high", "selected_profile": "governance_only/gpt-5.6-sol/high", "ranks": {"scope": 1, "complexity": 2, "risk": 3, "ambiguity": 3, "evidence": 3}, "quota_band": "unknown", "root_medium_gate": "confirmed", "hitl_approved": true, "required_human_review": true}
+  },
+  "capacity_requests": {
+    "agy1": {"request_id": "capacity-quota-observation-agy1-attempt7-20260828t023741z", "parent_root_id": "rootb-agy-quota-attempt7", "owner": "agy1-provider-child-attempt7", "target_pool": "agy1", "lane_count": 1, "maximum_provider_invocations": 1, "maximum_model_tasks": 0, "maximum_retries": 0, "exact_command_argv": ["agy", "-p", "/usage"]},
+    "agy2": {"request_id": "capacity-quota-observation-agy2-attempt7-20260828t023741z", "parent_root_id": "rootb-agy-quota-attempt7", "owner": "agy2-provider-child-attempt7", "target_pool": "agy2", "lane_count": 1, "maximum_provider_invocations": 1, "maximum_model_tasks": 0, "maximum_retries": 0, "exact_command_argv": ["agy", "-p", "/usage"]}
+  },
+  "capacity_leases": {
+    "agy1": {"lease_id": "lease-capacity-quota-observation-agy1-attempt7-20260828t023741z", "request_id": "capacity-quota-observation-agy1-attempt7-20260828t023741z", "pool": "agy1", "owner": "agy1-provider-child-attempt7", "lane": 1, "issued_at": "2026-08-28T02:37:41Z", "expires_at": "2026-08-28T02:52:41Z", "ttl_seconds": 900, "consumed": false, "model_floor": "gpt-5.6-sol/high", "policy_version": "s3-capacity-v2"},
+    "agy2": {"lease_id": "lease-capacity-quota-observation-agy2-attempt7-20260828t023741z", "request_id": "capacity-quota-observation-agy2-attempt7-20260828t023741z", "pool": "agy2", "owner": "agy2-provider-child-attempt7", "lane": 1, "issued_at": "2026-08-28T02:37:41Z", "expires_at": "2026-08-28T02:52:41Z", "ttl_seconds": 900, "consumed": false, "model_floor": "gpt-5.6-sol/high", "policy_version": "s3-capacity-v2"}
+  },
+  "transport_binding": {"order": ["tmux", "direct_terminal_pre_invocation_setup_failure_only"], "sessions": {"agy1": "s3-agy1-quota-a7", "agy2": "s3-agy2-quota-a7"}, "pane_inspection": false},
+  "receipt_binding_contract": {"contract_version": "attempt7_quota_observation_receipt_v1", "required_fields": ["protocol_version", "ticket", "dispatch_ticket_id", "attempt_id", "alias", "provider", "adapter", "capacity_request_id", "capacity_lease_id", "decision_normalized_sha256", "decision_file_sha256", "sanitizer_path", "sanitizer_version", "sanitizer_sha256", "command_argv", "transport_mode", "tmux_session_id_or_null", "provider_invocation_started", "provider_invocation_count", "started_at", "ended_at", "exit_status", "transport_status", "quota_status", "sanitized_output_bytes", "sanitized_output_sha256", "normalized_work_result_sha256", "raw_provider_stream_persisted", "required_human_review"], "sanitized_output_only": true, "evidence_boundary": "validated in-process only"},
+  "stop_conditions": ["Stop before invocation on invalid alias, missing approved config, invalid/expired lease, parser/hash mismatch, ownership ambiguity, or tmux setup failure without safe pre-invocation classification.", "Stop immediately after the one provider invocation, including success, timeout, parse failure, nonzero exit, or auth prompt.", "Never retry, infer concurrency, persist raw output, or present a parser failure as quota evidence."],
+  "preflight": {"json_syntax": "PASS", "runtime_config_sha256_verified": true, "parser_version_sha256_verified": true, "parser_file_sha256_verified": true, "focused_tests": "28 passed", "provider_calls": 0, "network_calls": 0, "tmux_available": true, "all_pre_invocation_gates_passed": true},
+  "integrity": {"normalization_method": "Remove integrity.normalized_decision_sha256; recursively sort keys; compact UTF-8 JSON without trailing newline; SHA-256.", "normalized_decision_sha256": "e201027d8d3514717e3bcbdc2c6416fd52b82c7c4a3a85c6819af4405af152c3", "physical_file_sha256": "external handoff digest after final write"},
+  "out_of_scope": ["Codex accounts", "dashboard/API/browser", "model task", "provider transaction", "configuration mutation", "raw output retention", "retry", "concurrency claim"],
+  "readiness_basis": "READY only for the exact fresh HITL-gated one-shot AGY probes while leases are unexpired; successful metadata is validated in-process only.",
+  "residual_risk": "The provider may still emit grammar outside the fixed allowlist; any such drift remains content-free BLOCKED and quota/concurrency unknown.",
+  "stop_condition": "Close only after both child receipt/result pairs, digest bindings, alias isolation, and immutable closure summary validate; otherwise BLOCKED/NEEDS_HITL."
+}

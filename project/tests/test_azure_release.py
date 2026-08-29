@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import re
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -32,6 +34,33 @@ def _step(job: dict[str, Any], name: str) -> dict[str, Any]:
     matches = [step for step in job["steps"] if step.get("name") == name]
     assert len(matches) == 1, f"expected one step named {name!r}, found {len(matches)}"
     return matches[0]
+
+
+def _run_inline_python_step(
+    step: dict[str, Any], env: dict[str, str], output_path: Path
+) -> tuple[subprocess.CompletedProcess[str], str]:
+    """Execute one workflow Python heredoc with an isolated event environment."""
+    match = re.fullmatch(
+        r"python3 - <<'PY'\n(?P<script>.*)\nPY\n?",
+        step["run"],
+        flags=re.DOTALL,
+    )
+    assert match is not None
+    completed = subprocess.run(
+        [sys.executable, "-c", match.group("script")],
+        cwd=ROOT,
+        env={
+            **env,
+            "GITHUB_OUTPUT": str(output_path),
+            "PYTHONIOENCODING": "utf-8",
+            "PYTHONUTF8": "1",
+        },
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    output = output_path.read_text(encoding="utf-8") if output_path.exists() else ""
+    return completed, output
 
 
 @pytest.mark.parametrize("workflow_name", RETIRED_DEPLOYMENT_WORKFLOWS)
@@ -109,8 +138,8 @@ def test_azure_cost_guard_is_a_dormant_manual_tombstone():
     )
 
 
-def test_hf_release_is_ci_gated_and_checks_out_one_exact_source_sha():
-    """Automated publication requires successful main CI and immutable checkout."""
+def test_hf_release_is_ci_gated_and_checks_out_one_exact_source_sha(tmp_path: Path):
+    """CI and manual publication require the immutable main event commit."""
     text, workflow = _workflow("hf_backend_deploy.yml")
     triggers = workflow["on"]
     job = workflow["jobs"]["publish-and-verify"]
@@ -131,16 +160,59 @@ def test_hf_release_is_ci_gated_and_checks_out_one_exact_source_sha():
         "cancel-in-progress": "false",
     }
     assert job["environment"] == "production"
+    assert "github.event_name == 'workflow_dispatch'" in job["if"]
+    assert "github.ref == 'refs/heads/main'" in job["if"]
     assert "github.event.workflow_run.conclusion == 'success'" in job["if"]
     assert "github.event.workflow_run.head_branch == 'main'" in job["if"]
 
     source = _step(job, "Resolve immutable release source")
+    assert source["env"]["DEFAULT_BRANCH_SHA"] == "${{ github.sha }}"
     assert source["env"]["WORKFLOW_RUN_SHA"] == (
         "${{ github.event.workflow_run.head_sha }}"
     )
     assert source["env"]["MANUAL_SOURCE_SHA"] == "${{ inputs.source_sha }}"
+    assert source["env"]["DISPATCH_SHA"] == "${{ github.sha }}"
+    assert source["env"]["DISPATCH_REF"] == "${{ github.ref }}"
     assert 're.fullmatch(r"[0-9a-f]{40}", source_sha)' in source["run"]
     assert 'source_sha != os.environ.get("DEFAULT_BRANCH_SHA", "").strip()' in source["run"]
+
+    main_event_sha = "e06b224a2c8d3ff103e662598830353700799b65"
+    experimental_sha = "153170770b0830e85a5b413f11782583bb0c8f3b"
+    dispatch_env = {
+        "EVENT_NAME": "workflow_dispatch",
+        "WORKFLOW_RUN_SHA": "",
+        "DEFAULT_BRANCH_SHA": main_event_sha,
+        "MANUAL_SOURCE_SHA": "",
+        "DISPATCH_SHA": main_event_sha,
+        "DISPATCH_REF": "refs/heads/main",
+    }
+    accepted, accepted_output = _run_inline_python_step(
+        source,
+        dispatch_env,
+        tmp_path / "accepted-output.txt",
+    )
+    assert accepted.returncode == 0, accepted.stdout + accepted.stderr
+    assert accepted_output == f"sha={main_event_sha}\n"
+
+    wrong_ref, wrong_ref_output = _run_inline_python_step(
+        source,
+        {**dispatch_env, "DISPATCH_REF": "refs/heads/experimental"},
+        tmp_path / "wrong-ref-output.txt",
+    )
+    assert wrong_ref.returncode == 1
+    assert "Manual production publication is restricted to main." in wrong_ref.stdout
+    assert wrong_ref_output == ""
+
+    wrong_sha, wrong_sha_output = _run_inline_python_step(
+        source,
+        {**dispatch_env, "MANUAL_SOURCE_SHA": experimental_sha},
+        tmp_path / "wrong-sha-output.txt",
+    )
+    assert wrong_sha.returncode == 1
+    assert "Release source does not match the current main event commit." in (
+        wrong_sha.stdout
+    )
+    assert wrong_sha_output == ""
 
     checkout = _step(job, "Checkout exact CI-verified source")
     assert checkout["uses"] == (

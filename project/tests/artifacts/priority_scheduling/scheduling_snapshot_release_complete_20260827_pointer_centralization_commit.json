@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "tickets": [
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260827-POINTER-CENTRALIZATION-COMMIT",
+      "severity": "HIGH",
+      "work_effort": "XS",
+      "status": "READY",
+      "dependencies": [],
+      "blockers": [],
+      "owner": "devops",
+      "ownership": [
+        "project_tickets.md"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    }
+  ],
+  "reservations": []
+}

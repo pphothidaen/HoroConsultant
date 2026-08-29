@@ -233,3 +233,32 @@
   - Require live API E2E plus all five visual viewports. Mobile content height
     and contrast failures block a full `READY_FOR_PROD` claim even when API
     recovery is complete.
+
+### 19. Revoked Codex OAuth Tokens Block Native Delegation Before Project Aliases
+
+- **Issue experienced**: native delegated-agent creation and official OpenAI
+  documentation access both failed with HTTP `401` and `token_revoked`, while
+  local repository commands still worked. The failure was initially easy to
+  confuse with the project routes `codex1`, `codex2`, `agy1`, or `agy2`.
+- **Root cause**: the active Codex runtime used ChatGPT OAuth credentials under
+  `~/.ai-accounts/codex/account3`; its refresh token had been revoked. Native
+  collaboration failed before any project alias, provider route, model, quota,
+  or ticket command was invoked.
+- **Lesson learned**: distinguish the Codex runtime account directory from
+  project provider aliases. A native collaboration error that explicitly says
+  `token_revoked` is an authentication failure of the active Codex account, not
+  evidence that a project alias or provider account is broken.
+- **Recovery protocol**:
+  1. Inspect only non-secret metadata: active account directory, `auth_mode`,
+     credential-file presence/mtime, and the exact sanitized error. Never print
+     access, identity, or refresh tokens.
+  2. Re-authenticate only the affected account:
+     `CODEX_HOME=~/.ai-accounts/codex/account3 codex logout`, followed by
+     `CODEX_HOME=~/.ai-accounts/codex/account3 codex login --device-auth`.
+  3. The human opens `https://auth.openai.com/codex/device` and enters the
+     one-time code. Never persist that code in repository evidence or logs.
+  4. Verify with the same account directory and `codex login status`; require
+     `Logged in using ChatGPT` before retrying native delegation.
+  5. Retry the smallest bounded delegated action first. Preserve the original
+     ticket scope and do not treat re-authentication as new provider, Git,
+     deployment, or production authorization.

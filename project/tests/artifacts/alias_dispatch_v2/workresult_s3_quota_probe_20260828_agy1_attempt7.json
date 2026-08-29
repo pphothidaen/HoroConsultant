@@ -1,0 +1,45 @@
+{
+  "Changed files": [
+    "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt7.json",
+    "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt7.json"
+  ],
+  "Evidence": {
+    "decision_file_sha256": "75cd453facf64f7d5f5f09505208bc4ff2c34cfcc52e865749e60ff5cfbef8e0",
+    "decision_declared_normalized_sha256": "e201027d8d3514717e3bcbdc2c6416fd52b82c7c4a3a85c6819af4405af152c3",
+    "decision_computed_normalized_sha256": "ded1f325eeb0ca1e3a9a425f6c56947e7b38d049518ea44660066c87e348bf1b",
+    "decision_integrity_match": false,
+    "evidence_boundary": "validated in-process only",
+    "provider_invocation_started": true,
+    "provider_invocation_count": 1,
+    "raw_provider_stream_persisted": false,
+    "safe_sanitized_output": {
+      "bytes": 236,
+      "sha256": "03bd0c6fa5d08abfbb45a1269e5059cc4ff756eaa3bb4097279289cd4b20a7c3"
+    },
+    "sanitizer_process_exit_status": 1,
+    "sanitizer_sha256": "f9e2b5e88837d6e70566be91b2128f5061c12d188c785bc775bb32308610c99e",
+    "sanitizer_version": "agy-usage-sanitizer-v1.1.0",
+    "tmux_session_id": "s3-agy1-quota-a7",
+    "transport_mode": "tmux",
+    "transport_status": "preflight_failure:decision_normalized_hash_mismatch;parse_failure:empty_output"
+  },
+  "Findings": {
+    "concurrency_status": "unknown",
+    "quota_status": "unknown",
+    "required_human_review": true,
+    "sanitized_buckets": []
+  },
+  "Recommended next action": "Do not accept this observation. Correct and rebind the immutable attempt-7 Decision integrity hash, then require a fresh HITL attempt and lease before any further provider invocation.",
+  "Residual risk": "The provider output yielded no allowlisted quota metadata, and the Decision integrity preflight was invalid. No quota or concurrency claim is permissible.",
+  "Scope owned": {
+    "alias": "agy1",
+    "attempt_id": 7,
+    "objective": "Exactly one read-only provider-native quota/status observation with no model task, inference, or transaction.",
+    "provider": "AGY",
+    "writable_artifacts": [
+      "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt7.json",
+      "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt7.json"
+    ]
+  },
+  "Status": "BLOCKED"
+}

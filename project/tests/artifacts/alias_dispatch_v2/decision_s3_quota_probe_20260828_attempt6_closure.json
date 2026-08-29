@@ -1,0 +1,138 @@
+{
+  "protocol_version": 2,
+  "artifact_type": "immutable_attempt_closure",
+  "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828",
+  "attempt_id": 6,
+  "Status": "NEEDS_HITL",
+  "quota_proof_status": "BLOCKED",
+  "Scope owned": "Root B attempt-6 closure validation only; no provider, account, authentication, runtime configuration, raw output, pane, or deployment access",
+  "Evidence": {
+    "validation_result": "PASS",
+    "decision": {
+      "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt6.json",
+      "physical_sha256": "263cd2ce2146dfa1dc26f99d37a5d90eb73c7a4f092298d2b0ab62c20f32b66e",
+      "normalized_sha256": "b997d048b903a8e23b0d3afb242fc5b5f07fd2753e5b48e51e5d0bccc3f1825b",
+      "json_syntax_valid": true
+    },
+    "aliases": {
+      "agy1": {
+        "status": "BLOCKED",
+        "dispatch_ticket_id": "TICKET-S3-AGY-QUOTA-PROBE-20260828-AGY1-A6",
+        "capacity_request_id": "capacity-quota-observation-agy1-attempt6-20260828t020734z",
+        "capacity_lease_id": "lease-capacity-quota-observation-agy1-attempt6-20260828t020734z",
+        "tmux_session_id": "s3-agy1-quota-a6",
+        "provider_invocation_started": true,
+        "provider_invocation_count": 1,
+        "retry_count": 0,
+        "fallback_count": 0,
+        "transport_status": "parse_failure:unexpected_line",
+        "quota_status": "unknown",
+        "concurrency_status": "unknown",
+        "raw_provider_stream_persisted": false,
+        "required_human_review": true,
+        "sanitized_output": {
+          "bytes": 239,
+          "sha256": "e6d4afef7f7d936f25baf0a31c9ebdb9e6c765030d2dc60a77a005deb22364eb",
+          "reconstruction_validation": "PASS: safe content-free compact sanitizer object without trailing newline"
+        },
+        "receipt": {
+          "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt6.json",
+          "physical_sha256": "6e639cf65a64e89cec345d7fd7898c889f5071c3450d7b56f628f472224afc83",
+          "json_syntax_valid": true,
+          "exact_required_fields_valid": true,
+          "decision_and_alias_bindings_valid": true
+        },
+        "work_result": {
+          "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt6.json",
+          "physical_sha256": "950164667866c1d7d20d3f17c917ec79b7e3fc60f06484344e94bc78aeae7606",
+          "normalized_sha256": "950164667866c1d7d20d3f17c917ec79b7e3fc60f06484344e94bc78aeae7606",
+          "required_fields_valid": true
+        }
+      },
+      "agy2": {
+        "status": "NEEDS_HITL",
+        "dispatch_ticket_id": "TICKET-S3-AGY-QUOTA-PROBE-20260828-AGY2-A6",
+        "capacity_request_id": "capacity-quota-observation-agy2-attempt6-20260828t020734z",
+        "capacity_lease_id": "lease-capacity-quota-observation-agy2-attempt6-20260828t020734z",
+        "tmux_session_id": "s3-agy2-quota-a6",
+        "provider_invocation_started": true,
+        "provider_invocation_count": 1,
+        "retry_count": 0,
+        "fallback_count": 0,
+        "transport_status": "parse_failure:unexpected_line",
+        "quota_status": "unknown",
+        "concurrency_status": "unknown",
+        "raw_provider_stream_persisted": false,
+        "required_human_review": true,
+        "sanitized_output": {
+          "bytes": 240,
+          "sha256": "eda4082705574f7b27136aa2ec123a7b6f86119026f539f3f0e4f34090beabdc",
+          "reconstruction_validation": "PASS: safe content-free compact sanitizer object with one trailing newline"
+        },
+        "receipt": {
+          "path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt6.json",
+          "physical_sha256": "9a4053c3a9b6ea7de32c3c8859cfea21586a6b5893cdeb57680cafe00252d050",
+          "json_syntax_valid": true,
+          "exact_required_fields_valid": true,
+          "decision_and_alias_bindings_valid": true
+        },
+        "work_result": {
+          "path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt6.json",
+          "physical_sha256": "29ad9beaf22ecabd40ca0efa5b3b199a9cafd377b120e73d39374ec885928412",
+          "normalized_sha256": "86f985310de14ea08a3cba7f2a1829a0919d109d96622b23f3f068c587f322c4",
+          "required_fields_valid": true
+        }
+      }
+    },
+    "identity_isolation": {
+      "distinct_aliases": true,
+      "distinct_dispatch_ticket_ids": true,
+      "distinct_capacity_request_ids": true,
+      "distinct_capacity_lease_ids": true,
+      "distinct_tmux_session_ids": true
+    },
+    "tmux_session_name_metadata_only": {
+      "expected_session_names": [
+        "s3-agy1-quota-a6",
+        "s3-agy2-quota-a6"
+      ],
+      "active_matching_session_names": [],
+      "temporary_cleanup_and_session_close_confirmed": true,
+      "pane_or_content_inspected": false
+    },
+    "evidence_boundary": "validated in-process only",
+    "evidence_boundary_scope": "process-validation boundary only; it is not quota success, concurrency proof, portable proof, or offline proof"
+  },
+  "Findings": [
+    "Both exact provider commands ran once through distinct tmux sessions. There was no retry, fallback, model task, inference, or provider transaction.",
+    "The attempt is not an execution failure: both provider processes completed, but each sanitized result was the content-free failure parse_failure:unexpected_line.",
+    "No allowlisted quota bucket survived sanitization. Current attempt-6 quota and concurrency remain unknown for both aliases, raw provider output was not persisted, and human review is required.",
+    "Attempt 4 remains immutable and is not retroactively validated: agy1 recorded a time-bound sanitized 63% observation, while agy2 recorded only unitless 39, which remains unknown and ambiguous. Neither observation proves current attempt-6 quota or concurrency, and attempt 6 does not repair or revalidate either one.",
+    "Attempt 5 remains immutable history. Its sanitizer/static preflight passed 25 tests, but no provider invocation occurred because both leases expired before dispatch.",
+    "No approval beyond the fresh attempt-6 authorization was needed or consumed for the two completed one-shot probes, and attempt 6 authorizes no retry.",
+    "HANDOFF.md, files under plans, and PROJECT_TASKS.md were not edited because they are outside the assigned Root B closure ownership; the parent owns any exact status update.",
+    "Future AGY complex or system-critical model work must select the newest catalog-supported model at high effort or above and fail closed when unsupported, with no silent downgrade. This quota-only attempt performed zero model tasks or inference and did not mutate routing configuration."
+  ],
+  "approval_and_future_change_boundary": {
+    "attempt6_authorization_consumed": "exactly two completed account-local one-shot probes, one per alias",
+    "additional_approval_needed_for_completed_attempt6_probes": false,
+    "attempt6_retry_authorized": false,
+    "fresh_exact_immutable_Decision_HITL_and_request_lease_required_for": [
+      "parser update",
+      "provider-documentation-based grammar change",
+      "pane or raw capture",
+      "status-line hook",
+      "any new provider attempt"
+    ]
+  },
+  "Changed files": [
+    "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt6_closure.json"
+  ],
+  "Residual risk": "The current provider output grammar is unavailable by design because raw output and pane content were not persisted or inspected. Quota and concurrency remain unknown, so AGY admission must stay fail-closed pending HITL and a separately authorized evidence path.",
+  "Recommended next action": "Keep attempt 6 closed with no retry and hold quota-based AGY admission. The parent may update handoff/task status; any parser, documentation-grammar, capture-hook, or fresh probe work requires a new exact immutable Decision/HITL plus fresh account-local requests and leases.",
+  "integrity": {
+    "normalization_method": "Delete only integrity.normalized_closure_sha256, serialize recursively sorted compact JSON as UTF-8 with arrays retaining order and no trailing newline, then compute SHA-256.",
+    "normalized_closure_sha256": "0a24e042c56d00ac88feb224a3f6040bf01e056f09277b7c83fb03e8d0ac215e",
+    "physical_file_sha256": "Reported externally after final write because the file cannot contain its own non-self-referential physical SHA-256."
+  }
+}

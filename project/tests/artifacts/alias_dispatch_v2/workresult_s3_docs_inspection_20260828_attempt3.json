@@ -1,0 +1,67 @@
+{
+  "Status": "COMPLETED",
+  "Scope owned": "agy docs-inspection attempt 3 only: static CLI flag semantics & aliases inspection via agy --help combining in-memory stdout/stderr streams through in-memory sanitizer v1.5.0",
+  "Evidence": {
+    "decision_file_sha256": "9a9fa337e66474e49f5053f0cfa2e359c965ac0d44db066bd8fcf8f59873a25c",
+    "decision_normalized_sha256": "9cab7201094a5f5cb79f91fd32d8e8fad6d5e011279f1ef9c43ea91a44fc9b8c",
+    "inspector_version": "agy-cli-docs-inspector-v1.5.0",
+    "inspector_version_sha256": "5ea88c4fbdc3bddcb8b93462cab371832c7e38dd912fb5dc9304a40675184af6",
+    "inspector_sha256": "546f656bbefda59f920329967574f99e6c99843d0818ffb87f2d5b7e32bc6307",
+    "tmux_session_id": "s3-agy-docs-inspect-a3",
+    "command_argv": ["agy", "--help"],
+    "provider_invocation_count": 1,
+    "sanitized_status": "completed",
+    "flag_aliases": {
+      "--continue": ["-c"],
+      "--prompt-interactive": ["-i"],
+      "--print": ["-p"],
+      "--prompt": ["--print"]
+    },
+    "flag_semantics": {
+      "--disable-slash-commands": {
+        "short_purpose": "Disable slash command and skill expansion in print mode"
+      },
+      "--output-format": {
+        "short_purpose": "Output format for print mode text json stream-json default text",
+        "choices": ["json", "stream-json", "text"]
+      },
+      "--input-format": {
+        "short_purpose": "Input format for print mode text stream-json stream-json reads one NDJSON message",
+        "choices": ["stream-json", "text"]
+      },
+      "--print": {
+        "short_purpose": "Alias for --print"
+      },
+      "-p": {
+        "short_purpose": "Short alias for --print"
+      },
+      "--effort": {
+        "short_purpose": "Reasoning effort for the current CLI session",
+        "choices": ["high", "low", "medium"]
+      },
+      "--mode": {
+        "short_purpose": "Set the agent execution mode for this session accept-edits plan",
+        "choices": ["accept-edits", "plan"]
+      }
+    },
+    "sanitized_output_bytes": 2484,
+    "sanitized_output_sha256": "6ae869e202326d30bf28f1c77a43b67eeb9a3f5eeb810b4ab38fb73d8e148a41",
+    "raw_provider_stream_persisted": false,
+    "evidence_boundary": "validated in-process only"
+  },
+  "Findings": [
+    "The exact approved one-shot docs inspection command agy --help completed successfully (exit code 0).",
+    "Key Discovery 1: --disable-slash-commands explicitly confirms that slash command and skill expansion is ACTIVE BY DEFAULT in print mode (-p / --print).",
+    "Key Discovery 2: -p is confirmed as the short alias for --print.",
+    "Key Discovery 3: --output-format supports ['json', 'stream-json', 'text'] with default 'text'.",
+    "Key Discovery 4: --input-format supports ['stream-json', 'text'].",
+    "No raw provider output, account-home value, credential, retry, fallback, model task, provider transaction, or configuration mutation was retained or used."
+  ],
+  "Changed files": [
+    "project/tests/artifacts/alias_dispatch_v2/workresult_s3_docs_inspection_20260828_attempt3.json",
+    "project/tests/artifacts/alias_dispatch_v2/receipt_s3_docs_inspection_20260828_attempt3.json"
+  ],
+  "Residual risk": "This was a static flag semantics inspection; no account quota status was evaluated by this step.",
+  "Recommended next action": "Record COMPLETED Docs Inspection Attempt 3 receipt and closure. Formulate Option E (Structured Quota Probe via agy --output-format json -p /usage) with strict JSON parser.",
+  "Status_reason": "COMPLETED: successfully captured and extracted exact flag semantics and aliases from agy --help."
+}

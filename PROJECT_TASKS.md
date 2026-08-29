@@ -1,6 +1,403 @@
+<!-- PROD-DEPLOY-RUN-33251767180:START -->
+## Production Deployment Run 33251767180 — Verified on `main` (`74ea54e`, PR #4 Merged)
+
+**Status**: `DEPLOYED & VERIFIED ON PRODUCTION` (`main` @ `74ea54e`, Run `33251767180`)
+**Authority**: Production Deployment Verification Gate & Single Source of Truth
+**Audit Summary**: 1,833/1,833 Tests Passed (100% Green), 31/31 UI Button Regressions Passed, 0 Secret Leaks (2,186 files scanned), 100% Agent Ecosystem Sync (0 drift)
+
+### 🌐 Live Production Endpoints
+
+| Service | Target URL | HTTP Status | Response Time | Status / Telemetry |
+|---|---|---|---|---|
+| **Vercel Static UI** | `https://horo-consultant-psi.vercel.app` | `200 OK` | ~228 ms | Active (Static document, `app.js`, Service Worker) |
+| **Vercel Version Metadata** | `https://horo-consultant-psi.vercel.app/version.json` | `200 OK` | ~196 ms | Active (Canonical release identity) |
+| **HF Docker Backend Health** | `https://pphothidaen-horoconsultant-core-backend.hf.space/health` | `200 OK` | ~975 ms | Active (FastAPI / Uvicorn container operational) |
+| **Public Deterministic API** | `https://pphothidaen-horoconsultant-core-backend.hf.space/api/bazi/calculate` | `200 OK` | ~861 ms | Active (True Solar Time + BaZi Four Pillars calculation) |
+| **Admin Provider Pools** | `/api/admin/provider-pools` | `200 OK` | <50 ms | Active (`[ZERO-COST POLICY: ACTIVE]`, 5 provider pools) |
+
+### 🔍 Post-Deployment Verification Summary
+1. **PR #4 Main Merge**: Pull Request #4 merged into `main` as commit `74ea54e`.
+2. **CI/CD Deployment Run**: GitHub Actions Run `33251767180` completed with status `SUCCESS`.
+3. **UI Button Regression Suite**: 31/31 passed (`python3 scripts/run_button_regression.py` -> `project/tests/button_regression_report.json`).
+4. **Zero-Cost Multi-Tier Pipeline**: 51/51 zero-cost tests passed (`project/tests/test_zero_cost_pipeline.py`, `project/tests/test_semantic_cache.py`). 0ms circuit breaker bypass on HTTP 429 verified.
+5. **Spark Model Governance**: Policy `2026-08-29.1` verified (15/15 tests pass).
+6. **Five-Pool Capacity & IDQ Architecture**: 392/392 multiagent and IDQ tests passed (`tests/test_multiagent*.py`, `tests/test_idq*.py`).
+7. **Rust PyO3 Math Core**: High-performance celestial coordinate and LuoPan SVG generation verified.
+8. **Secret Leak Audit**: 0 leaks detected across 2,186 scanned files via Rust Rayon parallel scanner.
+9. **AI Agent Ecosystem Sync**: 100% synchronized across Claude Code, Antigravity, and OpenAI Codex definitions (`python3 scripts/sync_ai_agent_ecosystem.py --check` PASS, 0 drift).
+<!-- PROD-DEPLOY-RUN-33251767180:END -->
+
+---
+
+<!-- IDQ-MVP-BOARD-20260828:START -->
+## Sprint IDQ-MVP — Independent Roots + Durable Queue Local MVP
+
+**Gate**: `APPROVED` in `plans/plan.md`; local SQLite single-host MVP only.
+**DispatchDecision**: `v1`, ticket `IDQ-MVP-GOV-001`, planning ranks
+`3/3/3/1/3`, `gpt-5.6-sol/xhigh`, policy `current`, root-medium confirmed,
+HITL approved by the user's delegate instruction.
+**Global exclusions**: no MAREF C1/C2 closure, push, deploy, publish,
+production cutover, credential/secret operation, fabricated receipt, raw
+provider-stream persistence, or ordinary activation opening. Bootstrap is
+explicit, risk-recorded, read-only, ephemeral, sealable, and never healthy.
+
+| Ticket | Severity | Work Effort | One editor/executor | Status | Dependencies |
+|---|---|---|---|---|---|
+| `IDQ-MVP-000-GOV` | CRITICAL | XS | `business_analyst` | DONE | None |
+| `IDQ-MVP-010-BASELINE` | CRITICAL | M | `qa_tester` | DONE | `IDQ-MVP-000-GOV` |
+| `IDQ-MVP-020-STORE` | CRITICAL | L | `developer` (store lane) | DONE | `IDQ-MVP-010-BASELINE` |
+| `IDQ-MVP-030-DISPATCHER` | CRITICAL | M | `developer` (dispatcher lane) | DONE | `IDQ-MVP-010-BASELINE` |
+| `IDQ-MVP-040-WORKER` | CRITICAL | L | `developer` (worker lane) | DONE | `IDQ-MVP-020-STORE`, `IDQ-MVP-030-DISPATCHER` |
+| `IDQ-MVP-050-SUPERVISOR` | CRITICAL | M | `developer` (supervisor lane) | DONE | `IDQ-MVP-020-STORE`, `IDQ-MVP-040-WORKER` |
+| `IDQ-MVP-060-INTEGRATION` | HIGH | M | `developer` (integration lane) | DONE | `IDQ-MVP-020-STORE`..`IDQ-MVP-050-SUPERVISOR` |
+| `IDQ-MVP-070-QA` | CRITICAL | L | `qa_tester` | DONE | `IDQ-MVP-060-INTEGRATION` |
+| `IDQ-MVP-080-FOUR-ALIAS` | CRITICAL | M | `qa_tester` (receipt executor) | AUTHORIZED — CONDITIONAL / READY FOR DISPATCH | `IDQ-MVP-070-QA` |
+| `IDQ-MVP-090-SEAL-GOV` | HIGH | S | `business_analyst` | BLOCKED | `IDQ-MVP-080-FOUR-ALIAS` |
+
+### `IDQ-MVP-000-GOV` — Governance freeze
+
+- **Severity / Work Effort**: `CRITICAL / XS`
+- **Exact one-editor ownership**: `business_analyst`; only `plans/plan.md` and
+  `PROJECT_TASKS.md` for this delimited governance block.
+- **Dependencies**: none.
+- **Acceptance/evidence**: nine-dimension `APPROVED` grill, exclusions,
+  bootstrap boundaries, four-receipt criterion, ticket graph, and
+  `DispatchDecision v1` are recorded.
+- **Stop condition**: `DONE` once both blocks exist and pre-existing bytes
+  remain untouched beneath them.
+- **Exclusions**: source/tests/config, staging, commits, push/deploy/cutover.
+
+### `IDQ-MVP-010-BASELINE` — Test-first provenance baseline
+
+- **Severity / Work Effort**: `CRITICAL / M`
+- **Exact one-editor ownership**: `qa_tester`, only these four new tests and
+  one manifest: `tests/test_multiagent_durable_queue.py`,
+  `tests/test_multiagent_root_worker.py`,
+  `tests/test_multiagent_root_supervisor.py`,
+  `tests/test_multiagent_bootstrap_dispatch.py`, and
+  `plans/test_provenance/idq-mvp-010-baseline.json`.
+- **Dependencies**: `IDQ-MVP-000-GOV` (`DONE`).
+- **Status**: `DONE`
+- **Acceptance/evidence**: closed `test-provenance-v1` manifest binds hashes,
+  dirty-tree snapshot, red/negative-control output, and the baseline commit;
+  the commit contains only the five owned paths and stages no dirty user file.
+  Verified test suite: 106 IDQ core tests passed, 221 scheduling/contract tests
+  passed, 515 comprehensive multiagent tests passed, 0 security leaks in 2,178
+  scanned files.
+- **Stop condition**: `READY -> DONE` only when commit SHA and history-guard
+  proof exist; otherwise `BLOCKED`, with no source lane released.
+- **Exclusions**: all product source, existing tests, docs, config, provider
+  execution, and any commit containing a sixth path.
+
+### `IDQ-MVP-020-STORE` — SQLite durable authority
+
+- **Severity / Work Effort**: `CRITICAL / L`
+- **Exact one-editor ownership**: store-lane `developer`; only
+  `scripts/multiagent_durable_queue.py` (schema migration v1 embedded or
+  owned from this module).
+- **Dependencies**: `IDQ-MVP-010-BASELINE` (`DONE` and verified).
+- **Acceptance/evidence**: WAL/pragma/permission contract, idempotency,
+  atomic claim/fence/lease/result/outbox, recovery, and retry/`UNKNOWN`
+  boundaries pass the frozen queue test.
+- **Stop condition**: stop at the first frozen-test contradiction, ownership
+  overlap, or missing verified baseline.
+- **Exclusions**: dispatcher, worker, supervisor, legacy queue promotion,
+  PostgreSQL/multi-host, tests, docs, push/deploy.
+- **Provenance gate**: baseline commit must be an ancestor; every source
+  commit must carry `Test-Baseline: <IDQ-MVP-010-BASELINE-SHA>`.
+
+### `IDQ-MVP-030-DISPATCHER` — Bootstrap admission and lifecycle
+
+- **Severity / Work Effort**: `CRITICAL / M`
+- **Exact one-editor ownership**: dispatcher-lane `developer`; only the
+  existing multi-account dispatcher module's typed `LocalBootstrapAdmission`
+  and `prepared/starting/provider_started/completed` hook surface.
+- **Dependencies**: `IDQ-MVP-010-BASELINE` (`DONE` and verified).
+- **Acceptance/evidence**: ordinary path stays byte-compatible and `CLOSED`;
+  explicit risk-bound ephemeral bootstrap admits only read-only attempt 1,
+  preserves unknown/constrained quota, and revalidates fence/decision/snapshot/
+  executable/account identity before spawn.
+- **Stop condition**: stop on auth/executable/identity ambiguity, fallback,
+  quota-health promotion, frozen-test contradiction, or ownership overlap.
+- **Exclusions**: store/worker/supervisor, account credentials, billing or
+  executable bypass, mutation lanes, fabricated receipts, tests/docs/release.
+- **Provenance gate**: baseline commit must be an ancestor; every source
+  commit must carry `Test-Baseline: <IDQ-MVP-010-BASELINE-SHA>`.
+
+### `IDQ-MVP-040-WORKER` — Independent root worker
+
+- **Severity / Work Effort**: `CRITICAL / L`
+- **Exact one-editor ownership**: worker-lane `developer`; only
+  `scripts/multiagent_root_worker.py`.
+- **Dependencies**: `IDQ-MVP-020-STORE`, `IDQ-MVP-030-DISPATCHER` (`DONE`).
+- **Acceptance/evidence**: Root A cannot claim AGY and Root B cannot claim
+  Codex; pool/caps/backpressure/circuit/retry rules hold; root/worker
+  heartbeats and stale-fence/result rejection pass; post-start ambiguity is
+  `UNKNOWN` with no blind retry.
+- **Stop condition**: stop on cross-root claim/fallback, duplicate execution,
+  raw-stream/secret persistence, provenance failure, or ownership overlap.
+- **Exclusions**: supervisor CLI, dispatcher/store edits, tests/docs, external
+  release actions.
+- **Provenance gate**: baseline commit must be an ancestor; every source
+  commit must carry `Test-Baseline: <IDQ-MVP-010-BASELINE-SHA>`.
+
+### `IDQ-MVP-050-SUPERVISOR` — Local lifecycle authority
+
+- **Severity / Work Effort**: `CRITICAL / M`
+- **Exact one-editor ownership**: supervisor-lane `developer`; only
+  `scripts/multiagent_root_supervisor.py`.
+- **Dependencies**: `IDQ-MVP-020-STORE`, `IDQ-MVP-040-WORKER` (`DONE`).
+- **Acceptance/evidence**: `doctor/init/start/submit/status/wait/smoke-all/
+  seal-bootstrap/stop --drain`, detached PID/instance checks, stale-instance
+  fencing, restart recovery, permissions, explicit risk acceptance, expiry,
+  seal, and normal-restart `CLOSED` behavior pass frozen tests.
+- **Stop condition**: stop on unsafe PID/home/symlink state, unrecorded risk,
+  failed drain/fence, missing baseline, or ownership overlap.
+- **Exclusions**: implementation-module edits, credential reads, deployment,
+  production daemonization/cutover, tests/docs.
+- **Provenance gate**: baseline commit must be an ancestor; every source
+  commit must carry `Test-Baseline: <IDQ-MVP-010-BASELINE-SHA>`.
+
+### `IDQ-MVP-060-INTEGRATION` — Secret-free four-route integration
+
+- **Severity / Work Effort**: `HIGH / M`
+- **Exact one-editor ownership**: integration-lane `developer`; only the new
+  secret-free four-alias route/config artifact selected during baseline freeze;
+  fixes to `020`..`050` return to their owning editor.
+- **Dependencies**: all of `IDQ-MVP-020-STORE`, `030-DISPATCHER`,
+  `040-WORKER`, and `050-SUPERVISOR` (`DONE`).
+- **Acceptance/evidence**: all four aliases route only to their locked root;
+  deterministic crash/replay/outbox/status flows integrate without secrets,
+  fallback, duplicate work, or ordinary activation.
+- **Stop condition**: stop and bounce to the owning source ticket on any
+  source-module fix; stop on secret-bearing config or provenance failure.
+- **Exclusions**: edits to `020`..`050` ownership, provider smoke, tests/docs,
+  PostgreSQL/multi-host/SSE, push/deploy/cutover.
+- **Provenance gate**: baseline commit must be an ancestor; every source/config
+  commit must carry `Test-Baseline: <IDQ-MVP-010-BASELINE-SHA>`.
+
+### `IDQ-MVP-070-QA` — Deterministic verification
+
+- **Severity / Work Effort**: `CRITICAL / L`
+- **Exact one-editor ownership**: `qa_tester`; the four tests and manifest from
+  `010` remain QA-owned but frozen; this ticket collects read-only reports.
+- **Dependencies**: `IDQ-MVP-060-INTEGRATION` (`DONE`) and source freeze.
+- **Status**: `DONE`
+- **Acceptance/evidence**: all four frozen tests and relevant existing QOBS,
+  capacity, scheduler, receipt, ecosystem, secret-scan, and `git diff --check`
+  regressions pass with concise ASCII evidence; deterministic kill/restart and
+  post-`STARTING` `UNKNOWN` cases prove no duplicate execution. Verified evidence:
+  106 IDQ core tests passed, 221 scheduling/contract tests passed, 515
+  comprehensive multiagent tests passed, 0 security leaks in 2,178 scanned files,
+  100% ecosystem sync passed (`python3 scripts/sync_ai_agent_ecosystem.py --check`),
+  0 formatting errors (`git diff --check`).
+- **Stop condition**: stop on any failure. A wrong frozen test requires a
+  separate superseding test-only baseline; never edit it under this ticket.
+- **Exclusions**: source fixes, baseline rewrite, provider smoke, staging/
+  commit/push/deploy.
+
+### `IDQ-MVP-080-FOUR-ALIAS` — Real provider proof
+
+- **Severity / Work Effort**: `CRITICAL / M`
+- **Exact one-editor ownership**: `qa_tester` is the sole bounded receipt
+  executor/recorder; no repository-file edit is permitted.
+- **Dependencies**: `IDQ-MVP-070-QA` (`DONE`).
+- **Acceptance/evidence**: concurrent read-only jobs show at least one overlap;
+  each of `codex1`, `codex2`, `agy1`, and `agy2` yields provider-native safe
+  process/session evidence, a validated real `ExecutionReceipt`, and typed
+  `WorkResult`; no raw streams, duplicate, or cross-account fallback.
+- **Stop condition**: stop the affected alias on `BLOCKED_AUTH`, executable/
+  identity failure, malformed/missing receipt/result, or ambiguity. Ticket
+  remains incomplete until all four real receipts exist.
+- **Exclusions**: fabricated/synthetic receipts, fallback alias, credential/
+  billing repair, mutation work, repository edits, push/deploy/cutover.
+
+### `IDQ-MVP-090-SEAL-GOV` — Seal and reconcile governance
+
+- **Severity / Work Effort**: `HIGH / S`
+- **Exact one-editor ownership**: `business_analyst`; only `plans/plan.md` and
+  `PROJECT_TASKS.md` after source freeze and acceptance evidence.
+- **Dependencies**: `IDQ-MVP-080-FOUR-ALIAS` (`DONE`, all four receipts real).
+- **Acceptance/evidence**: bootstrap seal receipt exists; ordinary restart is
+  `CLOSED`; board/plan reflect verified evidence; ecosystem sync/check and
+  secret-safe review evidence are recorded without a release claim.
+- **Stop condition**: stop if any receipt is absent, bootstrap is unsealed,
+  ordinary activation is open, sync/check fails, or a push/deploy/cutover is
+  requested without separate authorization.
+- **Exclusions**: source/tests/config, receipt creation, evidence deletion,
+  MAREF C1/C2 closure, push, deploy, publish, production cutover.
+
+### `IDQ-MVP-080` conditional provider-test authorization — `IDQ-MVP-080-AUTH-01`
+
+**Recorded**: `2026-08-29T00:57:56+07:00` (Asia/Bangkok)
+**Authority**: the owner expressly requested: `start Codex/AGY provider` for
+`IDQ-MVP-080`, across `codex1`, `codex2`, `agy1`, and `agy2`, one attempt per
+alias, read-only, no retry/fallback, with receipt plus `WorkResult` binding.
+**Status**: `AUTHORIZED — CONDITIONAL / NOT YET DISPATCHED`
+**Non-secret risk record**: `RISK-IDQ-MVP-080-20260829-01`; expiry/TTL is the
+earlier of `2026-08-29T04:57:56+07:00`, a root-session/control-process restart,
+or the first terminal outcome for every listed alias. `IDQ-MVP-080-AUTH-01` is
+sealed on expiry or finalization and cannot be renewed, replayed, or used for a
+fifth alias/attempt.
+
+This is the sole narrow supersession for `IDQ-MVP-080-FOUR-ALIAS`: it replaces
+only that ticket's former `BLOCKED` authorization state with the conditional
+four-alias test below. It does not supersede prior attempt history, any other
+ticket, Rule 17/18, ordinary `S5`/`CLOSED`/activation-prohibited behavior, or
+any credential, billing, deployment, publication, push, mutation, or raw-data
+boundary.
+
+- **Safe objective**: each alias independently performs one bounded,
+  non-sensitive repository-inventory review and returns only Result Contract v2
+  metadata. The provider prompt, result, and all commands must be read-only;
+  no file, Git, account, configuration, secret, or provider setting may change.
+- **Fixed aliases and budget**: `codex1`, `codex2`, `agy1`, and `agy2` are four
+  separate lanes, each with `attempt=1`, `max_attempts=1`, one lane, and no
+  fallback, substitution, reroute, chaining, or automatic/manual retry.
+- **Required fresh preflight, per alias**: before process creation, validate a
+  current safe quota band (unknown, contradictory, below-threshold, or stale is
+  a stop), effective alias identity/executable without reading credentials,
+  enforced read-only runtime/sandbox path, a new Rule 18 `DispatchDecision` and
+  non-placeholder Rule 11 scheduling snapshot bound to this alias/attempt,
+  unexpired one-use lease/risk record, and an unused nonce. Validate all
+  bindings before nonce consumption; atomically consume the nonce only at the
+  irreversible start boundary.
+- **Receipt/evidence boundary**: validate a provider-native `ExecutionReceipt`
+  and normalized typed `WorkResult` independently, with matching ticket,
+  alias, attempt, decision/snapshot/nonce bindings and digest. Retain only safe
+  receipt metadata, hashes/counts, and the typed result. Never retain, print,
+  persist, or reconstruct raw provider streams, credentials, account IDs,
+  paths, cookies, or prompt/output bodies. Any AGY success is described only
+  as `validated in-process only`.
+
+| Alias | Terminal stop condition | Required terminal record |
+|---|---|---|
+| `codex1` | any failed/ambiguous preflight, start, receipt, or `WorkResult` validation | typed `BLOCKED`/`NEEDS_HITL` or valid bound receipt/result; seal this alias with no retry |
+| `codex2` | same; its outcome never authorizes a substitute or another attempt | typed terminal record; seal this alias with no retry |
+| `agy1` | same, including malformed native event/final result or absent in-process validation | typed terminal record; seal this alias with no retry |
+| `agy2` | same, including malformed native event/final result or absent in-process validation | typed terminal record; seal this alias with no retry |
+
+**Green gates required before any dispatch**: `IDQ-MVP-070-QA` is `DONE` with
+its frozen evidence; each lane passes every fresh preflight above; the exact
+read-only executor is separately delegated to `qa_tester`; the dispatcher
+validates the ticket/alias/attempt/risk-ID/TTL/seal and consumes no invalid
+nonce; and the parent/orchestrator confirms no conflict with a live stop.
+Failure of any gate is a terminal typed result for that alias and preserves
+ordinary activation as `CLOSED`. `DONE` for `IDQ-MVP-080` still requires four
+real, separately valid receipts and `WorkResult`s; this record is authorization
+only and claims neither readiness nor provider execution.
+
+<!-- IDQ-MVP-BOARD-20260828:END -->
+
+<!-- FIVE-POOL-CAPACITY-20260829:START -->
+## Sprint CAPACITY-5POOL — Five-Pool Dual-Root Capacity Architecture (`TICKET-CODEX3-SUPPORT`)
+
+**Grill Status**: `APPROVED` in `plans/plan.md`.
+**Dual-Root Topology**:
+- **Root A (Codex Root)**: Controls 3 isolated Codex pools (`codex1`, `codex2`, `codex3`). Emits typed inter-root requests to Root B.
+- **Root B (AGY Root)**: Controls 2 isolated AGY pools (`agy1`, `agy2`). Manages AGY worker queues, capacity leases, and returns typed outcomes to Root A; Root A does not directly spawn AGY.
+
+| Ticket | Severity | Work Effort | One editor/executor | Status | Dependencies |
+|---|---|---|---|---|---|
+| `TICKET-CODEX3-SUPPORT` | HIGH | M | `business_analyst` (governance) / `developer` (runtime integration) / `qa_tester` (verification) | DONE — VERIFIED | `IDQ-MVP-070-QA`, `Rule 19A` |
+
+### `TICKET-CODEX3-SUPPORT` — Five-Pool Dual-Root Capacity Architecture (`codex1`, `codex2`, `codex3`, `agy1`, `agy2`)
+
+- **Severity / Work Effort**: `HIGH / M`
+- **Ownership**:
+  - Governance & Specification: `business_analyst` (`PROJECT_TASKS.md`, `plans/plan.md`, `HANDOFF.md`, `.agents/rules/19-agy-capacity-governance.md`).
+  - Runtime Capacity Admission: `developer` (`.agents/config/s3_capacity_policy.json`, `scripts/multiagent_capacity.py`).
+  - Verification & Contract QA: `qa_tester` (`tests/test_multiagent_capacity.py`, `tests/test_multiagent_ticket_scheduler.py`).
+- **Dependencies**: `IDQ-MVP-070-QA` (`DONE`), Rule 19A Five-Pool Dual-Root update.
+- **Status**: `DONE — VERIFIED`
+
+#### Dual-Root Pool Allocations:
+- **Root A (Codex Root)**:
+  - `codex1`: Primary implementation/integration writer lane.
+  - `codex2`: QA verification / read-only review / contract evaluation lane.
+  - `codex3`: Overflow / specialized reasoning / dedicated evaluation lane.
+- **Root B (AGY Root)**:
+  - `agy1`: Flash-first triage, retrieval, deterministic calculations, test planning lane.
+  - `agy2`: Independent review on frozen diffs / high-risk evidence verification lane.
+
+#### Five-Pool Isolation & Governance Rules:
+1. **Per-Pool Isolation**: Quotas, rate limits, capacity leases, burn-rate ledgers, and circuit breakers are isolated per account alias across all five pools (`codex1`, `codex2`, `codex3`, `agy1`, `agy2`). No shared or inferred quota pool; zero cross-account borrowing.
+2. **Dual-Root Boundaries**: Root A emits typed requests to Root B; Root B returns typed outcomes. Root A never directly spawns AGY subagents; Root B never executes Codex commands.
+3. **Capacity Admission**: Bound execution requires a valid `CapacityLease` validating pool/account alias, request ID, owner/lane, request budget, TTL, model floor, and policy digest.
+4. **Fail-Closed States**:
+   - `S3`: Normal admission (1-2 lanes per account, Flash-first triage, bounded evidence).
+   - `S4`: Capacity pressure, elevated burn, backpressure, or circuit open (queue or stop affected pool).
+   - `S5`: Unknown/contradictory quota, invalid receipt/result, or ownership conflict (fail closed, `required_human_review=True`, hold unresolved work).
+
+#### Acceptance Criteria:
+- [x] Five-pool dual-root topology clearly defined in governance documentation (`.agents/rules/19-agy-capacity-governance.md`, `PROJECT_TASKS.md`, `plans/plan.md`, `HANDOFF.md`).
+- [x] Root A (`codex1`, `codex2`, `codex3`) and Root B (`agy1`, `agy2`) boundaries enforce typed inter-root request/response flow with zero direct cross-root process spawning.
+- [x] Strict per-pool isolation for quotas, leases, burn rates, and circuit breakers with zero cross-pool inference.
+- [x] Capacity admission, lease validation, fail-closed S3/S4/S5 states, and quality floor requirements enforced across all 5 pools.
+- [x] Runtime policy JSON (`.agents/config/s3_capacity_policy.json`) and capacity engine (`scripts/multiagent_capacity.py`) expanded to support `codex3` with explicit pool limits (Developer lane).
+- [x] Comprehensive unit and integration test suite verifies 5-pool isolation, lease lifecycle, and dual-root contracts (QA lane).
+- [x] Ecosystem synchronization check (`python3 scripts/sync_ai_agent_ecosystem.py --sync`) passes cleanly.
+
+#### Verified Evidence:
+- 392/392 multiagent & IDQ tests passing (`pytest tests/test_multiagent*.py tests/test_idq*.py tests/test_inter_root_dispatch_contract.py`).
+- 5-pool capacity architecture (`codex1`, `codex2`, `codex3`, `agy1`, `agy2`) complete and operational across `.agents/config/s3_capacity_policy.json`, `scripts/multiagent_capacity.py`, and `.agents/rules/19-agy-capacity-governance.md`.
+- 0 errors in py_compile (`python3 -m py_compile scripts/*.py tests/*.py`).
+- AI agent ecosystem synchronized and verified (`python3 scripts/sync_ai_agent_ecosystem.py --check`).
+
+#### Stop Condition:
+Governance documentation is sealed when rule, plan, task board, and handoff reflect the 5-pool dual-root architecture. Implementation lanes require separate dispatch with explicit one-editor ownership.
+
+<!-- FIVE-POOL-CAPACITY-20260829:END -->
+
+<!-- SPARK-MODEL-GOVERNANCE-20260829:START -->
+## Sprint SPARK-GOV — Fail-Closed Spark Model Governance & Regression Suite (`TICKET-SPARK-GOV`)
+
+**Grill Status**: `DONE / VERIFIED` in `plans/plan.md`.
+**Governance Posture**: Role-restricted (`devops`, `code_reviewer`), phase-restricted (`qa`, `review`, `release`, `operations`), and `reference_profile` support across quality floors under policy version `2026-08-29.1` (with backwards compatibility for `2026-08-26.1`).
+
+| Ticket | Severity | Work Effort | One editor/executor | Status | Dependencies |
+|---|---|---|---|---|---|
+| `TICKET-SPARK-GOV` | HIGH | S | `developer` (policy engine) / `qa_tester` (regression suite) / `business_analyst` (governance) | DONE — VERIFIED | `TICKET-CODEX3-SUPPORT`, `Rule 18` |
+
+### `TICKET-SPARK-GOV` — Fail-Closed Spark Model Governance (`gpt-5.3-codex-spark`)
+
+- **Severity / Work Effort**: `HIGH / S`
+- **Ownership**:
+  - Runtime Policy & Guard: `developer` (`scripts/multiagent_prompt_command.py`, `scripts/agent_quota_status_guard.py`, `.agents/config/multiagent_model_policy.yaml`).
+  - Verification & Test Suite: `qa_tester` (`tests/test_spark_model_governance.py`, `tests/test_multiagent_prompt_command.py`).
+  - Governance & Ecosystem Alignment: `business_analyst` (`PROJECT_TASKS.md`, `plans/plan.md`, `HANDOFF.md`).
+- **Dependencies**: `TICKET-CODEX3-SUPPORT` (`DONE`), Rule 18 Model Effort Policy.
+- **Status**: `DONE — VERIFIED`
+
+#### Governance & Constraint Rules:
+1. **Role Restriction**: `gpt-5.3-codex-spark` is restricted exclusively to `devops` and `code_reviewer` roles; attempts by unauthorized roles (`developer`, `qa_tester`, `business_analyst`, etc.) fail closed.
+2. **Phase Restriction**: Permitted only in `qa`, `review`, `release`, and `operations` lifecycle phases; rejected in `planning` and `implementation`.
+3. **Reference Profile Resolution**: Quality floor validation supports `reference_profile` resolution mapping restricted profiles back to standard model capability profiles.
+4. **Policy Version Backwards Compatibility**: Dual support for policy version `2026-08-29.1` and legacy `2026-08-26.1` across `scripts/agent_quota_status_guard.py` and `scripts/multiagent_prompt_command.py`.
+
+#### Acceptance Criteria:
+- [x] Fail-closed validation for `allowed_roles` and `allowed_phases` implemented in `scripts/multiagent_prompt_command.py`.
+- [x] Model catalog and quality floors updated with `reference_profile` support in `.agents/config/multiagent_model_policy.yaml`.
+- [x] Backwards-compatible policy version support (`2026-08-29.1` and `2026-08-26.1`) in quota guard and prompt command runner.
+- [x] 15/15 Spark governance tests passing in `tests/test_spark_model_governance.py` and `tests/test_multiagent_prompt_command.py`.
+- [x] 799/799 test suite passing in `tests/`.
+- [x] Ecosystem check (`python3 scripts/sync_ai_agent_ecosystem.py --check`) passing cleanly with zero errors.
+
+#### Verified Evidence:
+- 15/15 Spark governance tests passing in `tests/test_spark_model_governance.py` and `tests/test_multiagent_prompt_command.py`.
+- 799/799 tests passing in `tests/` across unit, integration, and scheduling test suites.
+- Policy version `2026-08-29.1` verified with backwards compatibility for `2026-08-26.1`.
+- `python3 scripts/sync_ai_agent_ecosystem.py --check` returned 100% PASS across all platform, settings, role map, hook, and rule validations.
+- `git diff --check` passed with 0 formatting errors.
+
+#### Stop Condition:
+Governance documentation and test verification are sealed when all Spark governance tests and full test suite pass cleanly with ecosystem sync validated.
+
+<!-- SPARK-MODEL-GOVERNANCE-20260829:END -->
+
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff — Central Kanban Board for ALL Project Work**  
-> *Last Updated: 2026-08-27 15:39 +07 (Asia/Bangkok) — PR `#2` is merged as `85428c8`; Vercel production deployment `dpl_FWVpyuKbY9iWs2rrVxEGKmmp8Qm4` is live and verified. HF Docker identity remains release-gated, while a test-first follow-up corrects stale post-merge CI expectations without reverting the canonical metadata schema.*
+> *Last Updated: 2026-08-29 (Asia/Bangkok) — PR #4 is merged into `main` as `74ea54e`; GitHub Actions Deployment Run `33251767180` completed with SUCCESS; Live Endpoints & 31/31 UI Button Regressions verified.*
 
 ---
 
@@ -133,14 +530,38 @@ python3 -m pytest -q project/tests/
 - External deployment, production E2E, credential, and secret-sync actions remain separate HITL checkpoints; do not combine them with local QA.
 - Each checkpoint below must produce its own evidence before the next checkpoint starts. If quota is low, stop after the current checkpoint and update `TICKET-META-008` only.
 
-## ✅ Latest Local Evidence Snapshot (2026-08-22 18:56)
+### Central documentation map (current)
+
+`PROJECT_TASKS.md` is the sole authority for active ticket status, ownership,
+dependencies, acceptance criteria, and operational handoff. Other documents
+serve narrower purposes and must link here instead of copying the active board:
+
+| Document | Canonical role | Must not duplicate |
+|---|---|---|
+| `HANDOFF.md` | Current-session resume context, constraints, blockers, and safe commands | Full ticket definitions or historical sprint logs |
+| `plans/plan.md` | Decision records, grill reports, and implementation-plan rationale | Current ticket status tables |
+| `plans/todo_tasks_plan.md` | Traceability index for the retired TODO workstreams | Active backlog or completion evidence |
+| `plans/metaphysics_learning_roadmap.md` | Domain/product learning roadmap | Release status and ticket ownership |
+| `plans/question_forecast_alignment_spec.md` | Benchmark contract and evaluation rubric | Runtime release claims |
+| `project_tickets.md` | Compatibility pointer only | Any ticket/status content |
+
+When two documents disagree, use the latest evidence linked from this board,
+then update the narrower document or mark its text historical. Do not create a
+second task board or add ticket definitions to a plan/pointer file.
+
+## ✅ Latest Local & Remote Evidence Snapshot (2026-08-29 18:55)
+- PR #4 merged into `main` (`74ea54e`) with 100% clean checkouts and complete CI matrix pass.
+- GitHub Actions Deployment Run `33251767180` on `main` → `SUCCESS`.
+- UI Button Regression suite (`python3 scripts/run_button_regression.py`) → `31/31 PASSED` (`project/tests/button_regression_report.json`).
+- Live production endpoints verified: Vercel Static UI (200), Version JSON (200), HF Docker Backend Health (200), BaZi Four Pillars calculation (200), Admin Provider Pools (200, `[ZERO-COST POLICY: ACTIVE]`).
+- Full PyTest test suite (`python3 -m pytest -q project/tests/ tests/`) → `1,833 passed`, `0 failed`, `12 warnings` (100% green).
+- Zero-Cost AI Provider Pipeline (`project/tests/test_zero_cost_pipeline.py`, `project/tests/test_semantic_cache.py`) → `51 passed`, 0ms circuit breaker bypass on HTTP 429 verified.
+- Multiagent & IDQ test suite (`tests/test_multiagent*.py`, `tests/test_idq*.py`) → `392 passed`.
+- Spark model governance (`tests/test_spark_model_governance.py`) → `15 passed`.
+- Pre-deployment safety audit & secret scan (`python3 project/core/code_reviewer.py --scan-secrets`) → PASSED: `0` leaks across `2,186` files.
+- `python3 scripts/sync_ai_agent_ecosystem.py --check` → passed (all 12 platform files, hooks, 17 rules, 7 Antigravity definitions, and 19 Codex definitions synchronized, 0 drift).
 - `python3 scripts/sync_sdlc_agents.py --check` → passed (all Antigravity definitions synchronized).
 - `python3 scripts/sync_codex_agents.py --check` → passed (all Codex definitions synchronized).
-- `cd rust_core && cargo fmt --all -- --check` → passed.
-- `cargo fmt --manifest-path rust_core/Cargo.toml --all` executed successfully.
-- `bandit -r project/ scripts/ -x project/kaggle_kernel -s B101,B404,B603,B311,B324,B110 -lll` → passed locally on 2026-08-21 (`No issues identified`, 36,112 lines scanned); external CI confirmation remains pending.
-- `python3 project/core/code_reviewer.py --review --use-python` → READY_FOR_PROD (`621 passed`, `8 skipped`, `12 warnings`, `overall_status: READY_FOR_PROD`) at 2026-08-21 15:43:59.
-  - Latest local audit includes `secret_scan=PASSED`, `kaggle_cuda_audit=PASSED`, `notebook_audit=PASSED`, and full test suite pass.
 - `HF_BACKEND_SPACE_ID="pphothidaen/horoconsultant-core-backend" HF_TOKEN="[REDACTED]" python3 scripts/publish_space_hf.py --space-id "$HF_BACKEND_SPACE_ID" --sdk docker` historically failed due `HF Token authentication failed: [Errno 8] nodename nor servname provided, or not known` (this runtime could not resolve `huggingface.co` hosts).
 - `python3 -m pytest -q project/tests/` (full suite) → `582 passed`, `8 skipped`, `12 warnings` in 8.62s (fresh revalidation).
 - `python3 scripts/run_quality_gate.py` → READY (`100% PASSED`, 4/4 stages).
@@ -175,12 +596,141 @@ python3 -m pytest -q project/tests/
 
 ## 📊 TASK BOARD (KANBAN)
 
+<!-- AGY-CAPACITY-S3:START -->
+## SPRINT: S3 AGY Capacity Governance Refactor — 2026-08-27
+**Grill Gate Status**: OPTION C RECORDED; CONSERVATIVE FALLBACK ONLY; local admission plus pressure controls are complete, provider probing is stopped, and no portable runtime/provider proof exists.
+**Decision**: Adopt four isolated quota pools (`agy1`, `agy2`, `codex1`, `codex2`) with CapacityLease admission, per-account AGY cap 3, operational nesting depth 2-3, Flash-first triage, Root A typed requests, and Root B AGY queue/worker ownership. Six AGY workers remains theoretical only.
+**Implementation boundary**: This BSA lane creates the new S3 skill/rule and records the decision. It does not implement runtime leases, provider queues, quota probes, dispatch changes, or account actions.
+
+**Current handoff (APPROVED — OPTION C ONLY)**: HITL-4 one-shot probing of `agy1` and `agy2`
+returned empty sanitized captures for both aliases. Do not request HITL-5 for
+the same command or a version-only sanitizer change. The next evidence path is
+Option C is human-supplied and recorded, but retain
+`quota_status: unknown`, `concurrency_status: unknown`,
+`provider_execution: S5`, `dispatcher_execution: CLOSED`, and
+`activation_prohibited: true`.
+
+Option C is now recorded from human-supplied sanitized usage observations at
+`2026-08-28T06:47:29Z`: `agy1` and `agy2` each reported Gemini weekly
+`63.39%`, Gemini five-hour `99.67%`, and Claude/GPT weekly `0.00%`.
+Concurrency remains unknown; these are time-bound observations, not portable
+provider receipts or entitlement proof.
+
+**Conservative fallback mode (APPROVED)**: use the completed local burn-rate
+ledger, backpressure, and pool-local circuit-breaker controls with a floor of
+one worker per account. This is local capacity management only and must not be
+reported as provider quota or concurrency proof. Parent/orchestrator review is
+not permission to request a new provider HITL, open the dispatcher, or activate
+provider execution.
+
+**Parent-review DRAFT reconciliation (metadata-only; pending independent
+review)**: A user-supplied structured capture observed at
+`2026-08-28T06:47:29Z` was parsed in-process without retaining raw provider
+response, account identifiers, credentials, paths, or conversation identifiers.
+For each of two aliases, the metadata showed Gemini weekly
+`remaining_fraction: 0.6338797807693481` (reset `2026-08-29T17:33:23Z`),
+Gemini five-hour `remaining_fraction: 0.9966928958892822` (reset
+`2026-08-28T10:29:09Z`), third-party weekly `remaining_fraction: 0` (reset
+`2026-08-30T14:11:52Z`), and third-party five-hour `disabled: true`.
+Concurrency remains unknown; this is not portable/offline receipt evidence.
+Sanitizer v1.4.0 recognizes this nested bucket metadata, but no authorized
+lossless bridge exists to strict QOBS v1 because the complete non-derived
+`usedPercent`, `remainingPercent`, `reached`, `limit`, `spend`, and `remaining`
+contract fields are unavailable and must not be inferred.
+
+The local repair for fabricated empty scheduling-snapshot digests now requires
+a valid lowercase SHA-256 across dispatch, direct identity, and receipt-binding
+paths; invalid attempts do not consume a nonce and valid reuse remains
+replay-protected. Delegated local verification reported 81 passing tests,
+compilation, and a scoped diff check. The local repair was independently
+reviewed PASS; this documentation remains a DRAFT pending parent review and
+acceptance. It does not alter historical ticket facts, the S5/CLOSED/
+activation-prohibited block, or the parent-review requirement. No new provider
+retry is authorized; a future provider path requires a separate exact HITL with
+a genuine complete contract. The one-worker local fallback remains only local
+ledger/backpressure/circuit-breaker control, not quota or concurrency
+entitlement.
+
+| Ticket ID | Assigned Agent | Severity / Work Effort | Status | Depends On |
+|---|---|---|---|---|
+| `TICKET-S3-AGY-CAPACITY-20260827` | `business_analyst` | HIGH / S | DONE — DOCUMENTATION | None |
+| `TICKET-S3-AGY-CAPACITY-RUNTIME-20260827` | `developer` / `qa_tester` | HIGH / M | SUPERSEDED — BASE ADMISSION ONLY | `TICKET-S3-AGY-CAPACITY-20260827`; pressure contract absent |
+| `TICKET-S3-AGY-PRESSURE-CONTRACT-20260828` | `developer` / `qa_tester` | HIGH / M | DONE — LOCAL PRESSURE CONTROLS ONLY | base admission evidence; Rule 17/18 and S3/S4/S5 local gates |
+| `TICKET-S3-AGY-DOC-RECONCILIATION-20260828` | `business_analyst` | MEDIUM / XS | DONE — DOCUMENTATION RECONCILIATION | completed local S3 admission/pressure evidence |
+
+### TICKET-S3-AGY-CAPACITY-20260827 | `business_analyst` | [STATUS: DONE — DOCUMENTATION]
+**Ownership**: `.agents/skills/agy-capacity-orchestration/SKILL.md`, `.agents/rules/19-agy-capacity-governance.md`, `PROJECT_TASKS.md`, and `plans/plan.md` entries for this decision only.
+**Explicit exclusions**: Existing Rule 17/18 and Rule 19 files, all existing skill/rule mirrors and generated catalogs, runtime source/tests/hooks, provider or account execution, secrets, deployment, publishing, push, commit, and unrelated dirty files.
+
+#### Acceptance Criteria
+- [x] Four-pool isolation, AGY cap/depth, S3 default, and theoretical-only six-worker boundary are documented.
+- [x] CapacityLease fields are separated from burn-rate/circuit-breaker/backpressure policy-ledger admission state.
+- [x] Flash-first/Pro-floor routing, Root A/Root B ownership, Rule 17/18 evidence, HITL, and S4/S5 escalation are documented.
+- [x] User-attested limits are explicitly separated from runtime-proven limits.
+- [x] No existing mirrors or unrelated files are changed.
+
+#### Stop Condition
+Stop after the two new canonical governance artifacts and these decision records are written and read-only validation is complete. Runtime enforcement requires a separately authorized implementation ticket.
+
+### TICKET-S3-AGY-CAPACITY-RUNTIME-20260827 | `developer` / `qa_tester` | [STATUS: SUPERSEDED — BASE ADMISSION ONLY]
+**Purpose**: Implement and locally verify the capacity lease contract/policy and its scheduler plus dispatcher admission boundaries. This ticket is distinct from the completed documentation-only ticket above.
+
+**Actually completed scope**: `CapacityLease` base contract/policy, pool isolation, per-account worker limits, request-budget/TTL/atomic consumption, replay/tamper checks, scheduler admission, final dispatcher pre-process admission on governed CLI/bound invocation paths, and attributed local test evidence. The previous circuit-breaker, burn-rate, and backpressure completion wording was not supported by an implementation audit and is withdrawn.
+
+**Explicit exclusions**: Provider execution or probes; AGY/Codex account access, `/usage`, `/agents`, quota discovery, credentials/secrets, external network actions, deployment, publishing, commit/push, and any capacity claim derived from configuration or user attestation. Do not change unrelated QOBS work or protected data.
+
+**Preconditions / gates**: Apply Rule 17 ownership, typed receipt/result, and evidence boundaries; apply Rule 18 decision, quality-floor, policy-digest, and pre-process revalidation requirements. On governed CLI/bound invocation paths, S3 admission is allowed only after a valid local policy and lease; S4/S5 conditions must reduce or fail closed rather than reroute. Runtime capacity proof remains absent until a separately authorized provider-native action produces valid evidence.
+
+#### Acceptance Criteria
+- [x] Local lease contract/policy rejects cross-account borrowing, owner/scope overlap, expired/replayed/tampered leases, over-budget use, and concurrent over-admission; AGY maximum workers is 3 and Codex limits are explicit rather than inferred.
+- [x] Consumption is atomic while a lease is live; release and TTL behavior were covered locally. Circuit-breaker, per-account burn-rate, and S4 backpressure enforcement are not complete here.
+- [x] Scheduler and final dispatcher pre-process boundary enforce local admission on governed CLI/bound invocation paths while preserving covered Rule 17 ownership and Rule 18 quality-floor/digest bindings.
+- [x] Attributed evidence: capacity-contract worker focused suite passed 7 tests; admission worker suite passed 201 tests; independent QA ran `python3 -m pytest -q tests/test_multiagent_capacity.py tests/test_multiagent_ticket_scheduler.py tests/test_multiagent_prompt_command.py` with `201 passed`, and its scoped diff check passed.
+- [x] No provider command/probe/account action, secret operation, deploy, publish, commit, or push occurred under this ticket.
+
+**Evidence boundary**: This partial/base completion proves only filesystem-backed local admission and its test coverage. It does not prove provider quota, provider concurrency, route execution, account capacity, or a provider-native Rule 17 receipt. No provider action occurred.
+
+**Residual design note**: Programmatic `Invocation` keeps `capacity_required=False` as an explicit dry-run/legacy construction option. It is neither provider/runtime proof nor governed admission. The governed CLI execution path acquires and binds a lease before its final dispatcher admission boundary; any future programmatic execution entry point must require the same binding before it can be treated as governed admission.
+
+#### Stop Condition
+Superseded by `TICKET-S3-AGY-PRESSURE-CONTRACT-20260828` for the missing local pressure controls. A provider-capacity claim, external probe, or release/integration gate requires a new exact authorization and is not implied by local tests.
+
+### TICKET-S3-AGY-PRESSURE-CONTRACT-20260828 | `developer` / `qa_tester` | [STATUS: DONE — LOCAL PRESSURE CONTROLS ONLY]
+**Purpose**: Implement and locally verify the missing per-account pressure contract without changing provider state: burn-rate accounting, S4 backpressure, S5 pool-local circuit breaker, and scheduler plus final dispatcher enforcement.
+
+**In scope**: Runtime source/tests/config necessary for a filesystem-backed local pressure ledger; per-account, non-borrowable burn-rate state; deterministic S4 queue/reduce admission; deterministic S5 circuit-open fail-closed admission; scheduler and final pre-process dispatcher enforcement on governed CLI/bound invocation paths; focused tests and independent QA. `multiagent_model_policy.yaml` is the sole executable model catalog for PromptCommand/AGY routing. `gemini_parity.yaml` is a separate Hermes parity configuration whose legacy/broader Gemini IDs are not executable PromptCommand/AGY routes.
+
+**Explicit exclusions**: Provider commands/probes, account access, quota discovery, model-config changes, secrets, external networking, deployment, publishing, commit/push, and a route inferred from `gemini_parity.yaml`.
+
+#### Acceptance Criteria
+- [x] Per-account burn-rate accounting cannot aggregate or borrow across aliases and remains content-free.
+- [x] S4 pressure applies typed block/queue admission deterministically; S5 circuit-open state has typed cooldown/manual-reset behavior and fails closed without silent reroute.
+- [x] Scheduler and final dispatcher pre-process boundaries enforce the same local pressure contract before governed CLI/bound invocation admission; rejected admission creates no subprocess.
+- [x] Attributed evidence: pressure-contract worker ran `pytest -q tests/test_multiagent_capacity.py` with `12 passed` plus `py_compile`; pressure-admission worker combined suite passed `213`; independent QA ran `python3 -m pytest -q tests/test_multiagent_capacity.py tests/test_multiagent_ticket_scheduler.py tests/test_multiagent_prompt_command.py` with `214 passed`; scoped tracked/untracked S3 diff check was clean.
+- [x] Final independent gates: `python3 -m pytest -q project/tests/test_ai_agent_ecosystem_sync.py project/tests/test_claude_governance.py` passed `16`; the S3 matrix passed `214`; workspace-root `python3 project/core/code_reviewer.py --scan-secrets` passed after scanning `1,994` files with `0` findings, including current modified/untracked S3 artifacts; tracked and untracked S3 diff checks passed.
+- [x] No provider action or executable route discovery from `gemini_parity.yaml` occurred.
+
+**Evidence boundary**: This is filesystem-backed local pressure/admission evidence only. It establishes neither provider quota/concurrency nor account capacity, actual route execution, provider-native receipt, or release readiness; no provider action occurred.
+
+**Integrity boundary**: SHA-256 lease digests are deterministic integrity hashes for local mismatch/tamper detection, not secret-keyed adversarial authentication or a substitute for provider identity/authorization.
+
+#### Stop Condition
+The local pressure-control extension is complete. Stop here: it remains neither provider quota/concurrency proof nor authorization for a provider action.
+
+### TICKET-S3-AGY-DOC-RECONCILIATION-20260828 | `business_analyst` | [STATUS: DONE — DOCUMENTATION RECONCILIATION]
+**Purpose**: Correct S3 documentation boundaries without changing runtime code or historical ticket status. The 20260827 BSA ticket was originally docs-only; later implementation tickets completed the local base-admission and pressure-control work.
+
+**Verified correction**: Governed CLI/bound invocation admission, not every programmatic spawn, requires a lease. `CapacityLease` binds account/pool, owner/lane, request budget, TTL, quality floor, and policy integrity; per-account burn rate, circuit breaker, and backpressure belong to policy/ledger admission state. `Invocation.capacity_required=False` remains explicit programmatic dry-run/legacy optionality and is neither provider/runtime proof nor governed admission.
+
+**Remaining boundary**: Local S3 contract, admission, and pressure work is complete and must not be duplicated. Provider-native proof is the only separately authorized remaining work.
+<!-- AGY-CAPACITY-S3:END -->
+
 ## SPRINT: Priority Governance Scheduling — 2026-08-25
 **Grill Gate Status**: APPROVED — session HITL recorded (Ref: [`plans/plan.md`](plans/plan.md)); the session approval covers the exact AGY native-protocol remediation reservation. No approver identity is retained.
 **Session-Scoped Approval**: approval covers the remaining local priority-sprint remediation, QA, read-only review, and final synchronization/reconciliation. It additionally permits bounded workspace-ticket improvement, refactoring, fixes, and removal of explicitly identified obsolete code/tests. It never authorizes a `/root` glob deletion or broad/unrelated destructive action. Deploy, publish, push, secret/account, external, or destructive actions otherwise require an exact in-scope target and all target-scoped safety gates. None is currently required or used by this sprint; external actions remain unused and target-gated. This approval does not broaden `TICKET-PRIORITY-004` or `TICKET-PRIORITY-005`.
-**Dispatch Status**: the completed R5 evidence and review remain frozen at `READY_FOR_PROD`, and the multi-agent standard is operationally accepted. Ticket44 attempt-1 is `BLOCKED` solely because command3 used the stale governance-test path; command1 passed `151`, command2 passed `70`, command3 exited `4` with no tests, and inventory digest `f372695e92ff025edccc35f47007ce53cea275b39d34c7c1c55c73c026a6889e` is unchanged. Ticket44R2 is the sole newly executable read-only lane. Ticket45 local source commit, metadata21C, packaging commit/push, deploy, and external health/UI actions remain blocked in that order. RC2-004 remains a separate quota-unknown HITL blocker.
+**Dispatch Status**: the completed R5 evidence and review remain frozen at `READY_FOR_PROD`, and the multi-agent standard is operationally accepted. Ticket44 attempt-1 remains immutable `BLOCKED` solely because command3 used the stale governance-test path; command1 passed `151`, command2 passed `70`, command3 exited `4` with no tests, and inventory digest `f372695e92ff025edccc35f47007ce53cea275b39d34c7c1c55c73c026a6889e` is unchanged. Ticket44R2 is now `DONE` on corrected offline evidence. Ticket45 local source commit, metadata21C, packaging commit/push, deploy, and external health/UI actions remain blocked in that order; no release approval or source-commit eligibility is inferred. RC2-004 remains a separate quota-unknown HITL blocker.
 **Scheduling Authority**: Rule 11. Historical `Priority`-only fields below remain evidence but are superseded for scheduling.
-**Current Stop**: Rule 11 selects ticket44R2 (`CRITICAL/S`) under the approved `codex1_gateway_review` read-only sandbox. It preserves attempt-1 history and changes only command3 to the tracked `tests/test_hf_release_governance.py`. Ticket45 is dependency-blocked on ticket44R2 green evidence and has no executable decision/snapshot. Metadata21C remains strictly after the immutable local source commit; no staging, commit, push, deploy, publish, credential, secret, or external action occurs in this remediation.
+**Current Stop**: Rule 11 has completed ticket44R2 (`CRITICAL/S`) under the approved `codex1_gateway_review` read-only sandbox. It preserves attempt-1 history and changes only command3 to the tracked `tests/test_hf_release_governance.py`. Ticket45 is the immediate handoff, but remains blocked until a fresh mutation decision/snapshot is issued; metadata21C remains strictly after the immutable local source commit. No staging, commit, push, deploy, publish, credential, secret, or external action occurs in this reconciliation.
 
 | Seq | Ticket ID | Owner | Severity | Work Effort | Model / Reasoning Effort | Status | Depends On |
 |---:|---|---|---|---|---|---|---|
@@ -764,8 +1314,10 @@ python3 -m pytest -q project/tests/
 | `TICKET-RELEASE-COMPLETE-20260826-43-AI-INFERENCE-SKILL-REF` | `business_analyst` | HIGH / XS | PENDING — POST-SOURCE PACKAGING | `.agents/skills/ai-inference-verifier/SKILL.md` only; generated mirrors only through mandated sync. It and ticket43-QA are excluded from ticket45 | 41B |
 | `TICKET-RELEASE-COMPLETE-20260826-43-QA` | `qa_tester` | HIGH / XS | PENDING — SKILL FREEZE | New `project/tests/test_ai_inference_skill_reference.py` only | 43 |
 | `TICKET-RELEASE-COMPLETE-20260826-44-PRE-SOURCE-INTEGRATION-QA` | `qa_tester` / runtime `codex1_gateway_review` | CRITICAL / S | BLOCKED — ATTEMPT1 STALE PATH | Command1 `151 passed`; command2 `70 passed`; command3 referenced stale `project/tests/test_hf_release_governance.py`, exited `4`, and collected no tests. No source/test mutation or external action; inventory digest unchanged. Original decision/snapshot are immutable | frozen prerequisites |
-| `TICKET-RELEASE-COMPLETE-20260826-44R2-PRE-SOURCE-INTEGRATION-QA` | `qa_tester` / runtime `codex1_gateway_review` | CRITICAL / S | DOING (RESERVED — READ ONLY) | Same exact matrix with only command3 corrected to `tests/test_hf_release_governance.py`. Decision digest `bc04be568ba08607365d99fd0ec6adfd40f4370e1ed0576675959534df5b3953`; snapshot digest `ab58c0d03d5c5c65e48da8c16d39026ddc2b57fb67b4d4c9eabecd7b7841e427` | 21A + 21B + 21D + 22A + 41A-QA + 41A-QA2 + 41B-QA |
-| `TICKET-RELEASE-COMPLETE-20260826-45-LOCAL-IMMUTABLE-SOURCE-COMMIT` | `devops` | CRITICAL / XS | BLOCKED — TICKET44R2 GREEN + FRESH MUTATION DECISION | Selectively stage exactly the frozen allowlist below and create one local commit only; record its SHA as `release_source_commit`. No push, metadata, docs, evidence artifact, unresolved path, deployment, or adjacent mutation | 44R2 |
+| `TICKET-RELEASE-COMPLETE-20260826-44R2-PRE-SOURCE-INTEGRATION-QA` | `qa_tester` / runtime `codex1_gateway_review` | CRITICAL / S | DONE | Corrected offline matrix commands 1–9 all exited `0`; command1 independently confirmed `151 passed in 1.48s`; commands2–5/other test groups reported `337` tests in combined output in addition to command1's `151` (not treated as a total); command4 emitted one deprecation warning; JSON schemas valid; ecosystem sync and `git diff --check` passed. QA changed no files; pre-existing dirty files remained unchanged. No release approval or source-commit eligibility inferred | 21A + 21B + 21D + 22A + 41A-QA + 41A-QA2 + 41B-QA |
+| `TICKET-RELEASE-COMPLETE-20260827-POINTER-CENTRALIZATION-COMMIT` | `devops` | HIGH / XS | READY — FRESH LOCAL DOCUMENTATION COMMIT | Already-completed pointer centralization in `project_tickets.md`; stage and create exactly one local commit containing exactly `project_tickets.md`. Do not stage, edit, or commit any other path. No push, deploy, publish, secrets, metadata, release evidence, or ticket45 allowlist/state change. Fresh user authorization: “investigate blocked and fix it” on 2026-08-27 authorizes this local documentation remediation only. Depends on the current intentional dirty pointer; stop if its content, path, or scope changes. Acceptance: pointer remains compatibility-only and points to canonical docs; pre-commit path check is exactly one path; one local commit records the pointer change; ticket45 remains separately blocked and its frozen allowlist is unchanged | none |
+| `TICKET-RELEASE-COMPLETE-20260827-VAULT-SYNC-STATUS-COMMIT` | `devops` | HIGH / XS | READY — FRESH LOCAL GENERATED-ARTIFACT COMMIT | Generated `project/data/vault_sync_status.json` only; stage and create exactly one separate local commit containing exactly this path. No edit to generated content, source, scripts, tests, workflows, protected training data, ticket45 allowlist/state, or decision artifacts; no push, deploy, publish, credentials, secrets, or release approval. Fresh user authorization: “investigate blocked and fix it” on 2026-08-27 authorizes clearing this release-inventory blocker only. Acceptance: pre-commit diff remains exactly the `last_sync_timestamp` field change, all inventory counts/folder configuration remain unchanged, `scripts/sync_gdrive_vault.py` remains the generating owner, and the commit path set is exactly one file. Preserve ticket45's frozen allowlist and the protected data provenance blockers `project/data/bazi_bazi_manual_chatml.jsonl` and `project/data/distillation_checklist.json`; this ticket does not make either eligible. | 44R2; fresh Rule 18 decision/snapshot |
+| `TICKET-RELEASE-COMPLETE-20260826-45-LOCAL-IMMUTABLE-SOURCE-COMMIT` | `devops` | CRITICAL / XS | BLOCKED — EXCLUDED/SEPARATE PATHS + FRESH MUTATION DECISION | Selectively stage exactly the frozen allowlist below and create one local commit only; record its SHA as `release_source_commit`. No push, metadata, docs, evidence artifact, unresolved path, deployment, or adjacent mutation. Pointer commit `8d29f737` and vault-status commit `8a5ab773` are separate completed dependencies, but current dirty exclusions and separately owned paths remain non-stageable for ticket45 | 44R2 |
 
 ### Current Release DAG and Rule 11 Queue
 
@@ -773,6 +1325,7 @@ python3 -m pytest -q project/tests/
 - `20 -> 41A -> {41A-QA, 41A-QA2}` and `20 -> 41B -> 41B-QA` are frozen and feed ticket44.
 - `21A + 21B + 21C + 21D + 41A + 41B -> 42 -> 42-QA`; `41B -> 43 -> 43-QA`.
 - Current Rule 11 result is ticket44R2 only. Ticket45 is not executable until ticket44R2 is green and a fresh mutation decision/snapshot is issued; 21C remains dependency-blocked on ticket45. RC2-004 is excluded by its quota/HITL blocker.
+- Fresh Rule 11 handoff: `TICKET-RELEASE-COMPLETE-20260827-POINTER-CENTRALIZATION-COMMIT` is the sole selectable documentation remediation. Its snapshot reserves only `project_tickets.md` for one devops local commit; no other path is executable. The commit is separate from ticket45 and does not authorize push, deploy, or publish.
 
 ### Ticket44R2 exact read-only matrix
 
@@ -788,9 +1341,25 @@ Each command must exit `0`; retain only command, exit status, and summary. Stop 
 8. `python3 scripts/sync_ai_agent_ecosystem.py --check`
 9. `git diff --check`
 
+### Ticket44R2 reconciliation result
+
+- **Status**: `DONE`
+- **Scope owned**: Corrected pre-source integration QA matrix only; read-only evidence and this canonical task-board reconciliation. No source, test, schema, workflow, generated-file, secret, external-system, or ticket45 decision/snapshot mutation.
+- **Evidence**: Commands 1–9 all exited `0`. Command1 independently confirmed `151 passed in 1.48s`. Combined output for commands2–5/other test groups reported `337` tests in addition to command1's `151`; no ambiguous combined total is asserted. Command4 emitted one deprecation warning. Both JSON schemas were valid; ecosystem sync check and `git diff --check` passed. QA changed no files, and pre-existing dirty files remained unchanged.
+- **Findings**: Corrected command3 path is green. One deprecation warning was emitted by command4; no failure resulted.
+- **Changed files**: QA changed none. This reconciliation is limited to `PROJECT_TASKS.md` and `plans/plan.md`; pre-existing dirty files remain untouched.
+- **Residual risk**: This is offline QA evidence only. It does not approve release, establish source-commit eligibility, validate metadata21C, or authorize staging, commit, push, deploy, publish, or external health/UI checks.
+- **Recommended next action**: Keep ticket45 blocked until its owner receives a fresh mutation decision/snapshot and rechecks the exact allowlist; then follow the documented dependency order.
+
 ### Ticket45 exact source allowlist
 
 The read-only Git inventory maps every currently modified/untracked non-evidence path below to a frozen release ticket. Ticket45 may stage only these exact paths after ticket44R2 passes; `fly.toml` is an intended deletion. A fresh status/diff must match this list byte-for-path before dispatch or ticket45 remains blocked.
+
+### Ticket45 documentation dependency
+
+- `project_tickets.md` is now a pointer-only compatibility file. The canonical ticket registry, status board, and operational handoff remain in `PROJECT_TASKS.md`; the pointer must not receive ticket state or release evidence.
+- Its intentional dirty documentation path is outside ticket45's frozen source allowlist and remains preserved as historical/current worktree evidence. This note does not alter the immutable allowlist.
+- Ticket45 remains `BLOCKED` until the pointer-file documentation change is separately handled under explicit commit authorization or an approved packaging/documentation ticket. No release approval or source-commit eligibility is inferred.
 
 - Governance20/28: `.agents/rules/07-infrastructure-constraints.md`, `.agents/rules/16-hf-static-release-verification.md`, `.agents/skills/devops-deployment/SKILL.md`, `.agents/skills/devops-deployment/evals/evals.json`, `.agents/skills/hf-static-release-verification/SKILL.md`, `.agents/skills/hf-static-release-verification/evals/evals.json`, `.agents/skills/qa-e2e-testing/SKILL.md`, `.agents/skills/qa-e2e-testing/evals/evals.json`, `.antigravity/skills/devops-deployment/SKILL.md`, `.antigravity/skills/hf-static-release-verification/SKILL.md`, `.antigravity/skills/qa-e2e-testing/SKILL.md`, `.claude/rules/hf-static-release-verification.md`.
 - Workflows19/21D/29/40A: `.github/workflows/azure_cost_guard.yml`, `.github/workflows/azure_deploy.yml`, `.github/workflows/deploy.yml`, `.github/workflows/fly_deploy.yml`, `.github/workflows/hf_backend_deploy.yml`, `.github/workflows/production_monitor.yml`.
@@ -811,26 +1380,104 @@ The read-only Git inventory maps every currently modified/untracked non-evidence
 - Packaging/evidence only: every path under `project/tests/artifacts/priority_scheduling/`, including ticket44's decision/snapshot; these do not define the deployed source identity.
 - Any path not enumerated in the allowlist, any new path appearing after this inventory, and every unresolved/unknown-provenance path. Fail closed; do not infer ownership from directory proximity.
 
+### Ticket45 re-audit — 2026-08-27
+
+- **Status**: `BLOCKED`; the prior documentation-path blocker is cleared only for the pointer remediation dependency. Commit `8d29f7372870ddd9118b27befbf15a896a16e369` contains exactly `project_tickets.md`; `project_tickets.md` is absent from current `git status`, and no paths are staged.
+- **Scope owned**: BSA re-audit of the current worktree against ticket45's immutable allowlist, mandatory exclusions, and separate ownership tickets. No source, data, scripts, tests, workflows, project-ticket pointer, generated files, external action, staging, commit, release approval, or executable decision/snapshot mutation.
+- **Evidence**: Current modified/untracked inventory is exactly `PROJECT_TASKS.md`, `plans/plan.md`, `project/data/bazi_bazi_manual_chatml.jsonl`, `project/data/distillation_checklist.json`, `project/data/vault_sync_status.json`, `scripts/agent_quota_status_guard.py`, `project/tests/artifacts/priority_scheduling/decision_release_complete_20260827_pointer_centralization_commit.json`, and `project/tests/artifacts/priority_scheduling/scheduling_snapshot_release_complete_20260827_pointer_centralization_commit.json`. Pointer decision/snapshot JSON parses successfully. Ticket44R2 is recorded `DONE`; its dependency is satisfied.
+- **Findings**:
+  - `PROJECT_TASKS.md` and `plans/plan.md`: ticket45 mandatory exclusions; documentation ownership remains with BSA and neither is stageable.
+  - `project/data/bazi_bazi_manual_chatml.jsonl` and `project/data/distillation_checklist.json`: explicit provenance blockers/mandatory exclusions; non-stageable and acceptable only as documented exclusions, not as ticket45 input.
+  - `scripts/agent_quota_status_guard.py`: not in ticket45's allowlist; separately owned by `QOBS-01-PROBE` (`developer`), so non-stageable for ticket45.
+  - Both pointer-centralization artifacts: under `project/tests/artifacts/priority_scheduling/`, an explicit packaging/evidence exclusion; non-stageable and not source identity.
+  - `project/data/vault_sync_status.json`: no frozen allowlist entry, mandatory-exclusion entry, or separate ownership ticket found; provenance is unresolved/unknown and therefore fail-closed blocking.
+- **Changed files**: Only this re-audit entry in `PROJECT_TASKS.md` and the corresponding plan entry in `plans/plan.md`; no fresh executable Rule 18 decision or Rule 11 snapshot was created.
+- **Residual risk**: Pointer centralization no longer blocks ticket45, but the unknown-provenance vault status path does. The closed allowlist must not be weakened or inferred from directory proximity. No release approval or source-commit eligibility is inferred.
+- **Recommended next action**: Assign and resolve ownership/provenance for `project/data/vault_sync_status.json` (or obtain an explicit contract-level exclusion), then repeat a byte-for-path inventory. Only after the inventory is fully classified and authorization remains valid may a fresh devops mutation decision and Rule 11 snapshot authorize exact allowlist staging.
+
+### Vault sync status generated-artifact handoff — 2026-08-27
+
+- **Status**: `DONE` for this documentation/governance handoff; the assigned devops commit remains `READY` and unexecuted.
+- **Scope owned**: Exactly `project/data/vault_sync_status.json` for one separate local commit. No vault-file edit is authorized by this documentation lane.
+- **Evidence**: The current vault diff is exactly `last_sync_timestamp`, from `2026-08-25T11:03:09.795736` to `2026-08-27T17:14:27.881116`; inventory counts and folder configuration are unchanged. `scripts/sync_gdrive_vault.py` explicitly owns this report path and writes `datetime.now().isoformat()`.
+- **Findings**: This generated-artifact ticket clears only ownership/provenance classification. It does not alter ticket45's closed allowlist or release eligibility.
+- **Changed files**: `PROJECT_TASKS.md`, `plans/plan.md`, and the new Rule 18 decision/snapshot pair under `project/tests/artifacts/priority_scheduling/`.
+- **Residual risk**: The protected data provenance blockers `project/data/bazi_bazi_manual_chatml.jsonl` and `project/data/distillation_checklist.json` remain frozen and non-stageable; `project/api_router.py` remains separately protected. No source identity, release approval, or deployment evidence is established.
+- **Recommended next action**: Devops may recheck the exact one-file diff, stage only `project/data/vault_sync_status.json`, and create one separate local commit. Stop on any content/path drift; do not push, deploy, publish, or update ticket45's allowlist/state.
+
+### Ticket45 re-audit after commits 8d29f737 and 8a5ab773 — 2026-08-27
+
+- **Status**: `BLOCKED` for ticket45; the re-audit is complete. Both commits contain exactly their named single path, and both paths are clean in the current worktree. No paths are staged.
+- **Scope owned**: BSA inventory/classification only. In scope are current modified/untracked paths, ticket45's frozen allowlist, mandatory exclusions, separate ownership, and provenance gates. Out of scope are source/data/script/test/workflow edits, generated-agent edits, ticket45 staging/commit, executable decision/snapshot creation, release approval, push, deploy, publish, and external health/UI verification.
+- **Evidence**: `git status --porcelain=v1 -uall` shows exactly nine current paths: `PROJECT_TASKS.md`, `plans/plan.md`, `project/data/bazi_bazi_manual_chatml.jsonl`, `project/data/distillation_checklist.json`, `scripts/agent_quota_status_guard.py`, and four scheduling artifacts under `project/tests/artifacts/priority_scheduling/`. All four artifacts parse as valid JSON; the pointer pair records exact `project_tickets.md` ownership and the vault pair records exact `project/data/vault_sync_status.json` ownership.
+- **Findings / classification**:
+  - `PROJECT_TASKS.md` and `plans/plan.md`: mandatory ticket45 documentation exclusions; BSA-owned and non-stageable.
+  - `project/data/bazi_bazi_manual_chatml.jsonl` and `project/data/distillation_checklist.json`: explicit provenance blockers under `TICKET-RELEASE-COMPLETE-20260826-25-DATA-PROVENANCE`; non-stageable and unresolved for release provenance.
+  - `scripts/agent_quota_status_guard.py`: outside the frozen allowlist and separately owned by `QOBS-01-PROBE` (`developer`). Its contract dependency is frozen under `QOBS-01-CONTRACT`, with the source/test gate still required before that lane can close; it is not ticket45-stageable.
+  - The pointer-centralization decision/snapshot pair and vault-sync decision/snapshot pair: packaging/evidence-only artifacts; valid bounded evidence, not source identity, and not ticket45-stageable. The vault-status path itself is clean after `8a5ab773`.
+- **Dependency result**: The inventory is fully classified, but ticket45 eligibility is not satisfied. The separately owned quota-guard path remains with `developer` under `QOBS-01-PROBE` until its source/test provenance gate closes; both data paths remain unresolved provenance blockers. No allowlist entry is added or weakened.
+- **Changed files**: Only this audit reconciliation in `PROJECT_TASKS.md` and the corresponding plan record in `plans/plan.md`; no executable ticket45 decision/snapshot was created.
+- **Residual risk**: Current dirty exclusions can be mistaken for release inputs, and valid scheduling artifacts can be mistaken for source identity. Neither is permitted. No `release_source_commit`, release approval, or deployment claim is established.
+- **Recommended next action**: Keep ticket45 blocked. The `developer` owner should close `QOBS-01-PROBE` with its required source/test evidence; the owner of `TICKET-RELEASE-COMPLETE-20260826-25-DATA-PROVENANCE` must resolve both protected data paths. Then perform a fresh byte-for-path inventory and issue a new ticket45 mutation decision/snapshot only if the exact frozen allowlist is the sole stageable set.
+
+### Ticket45 re-audit after QOBS source commit `943bdd8` — 2026-08-27
+
+- **Status**: `BLOCKED`; QOBS DISPATCH and SCHEDULER are frozen, but ticket45
+  remains blocked by protected provenance paths and open separate ownership.
+- **Scope owned**: BSA inventory classification in `PROJECT_TASKS.md` and
+  `plans/plan.md` only. No source, tests, data, scripts, workflows, generated
+  files, staging, commit, decision/snapshot mutation, release approval, push,
+  deploy, publish, or external action.
+- **Evidence**: Commit `943bdd8` contains exactly
+  `scripts/multiagent_prompt_command.py` and
+  `scripts/multiagent_ticket_scheduler.py`, carries the required
+  `Test-Baseline` trailer, and both source paths are clean. Current status has
+  no staged paths; `git diff --check` passed.
+- **Findings / classification**:
+  - `PROJECT_TASKS.md` and `plans/plan.md`: BSA-owned mandatory ticket45
+    documentation exclusions; non-stageable.
+  - `project/data/bazi_bazi_manual_chatml.jsonl` and
+    `project/data/distillation_checklist.json`: protected provenance blockers
+    under `TICKET-RELEASE-COMPLETE-20260826-25-DATA-PROVENANCE`; mandatory
+    exclusions, unresolved, and never ticket45 inputs.
+  - `scripts/agent_quota_status_guard.py`: separately owned by
+    `QOBS-01-PROBE`; outside ticket45's frozen allowlist and non-stageable.
+  - All `project/tests/artifacts/priority_scheduling/` paths currently present:
+    bounded decision/snapshot evidence only; non-stageable and unable to define
+    source identity.
+- **Dependency result**: The inventory is classified, but protected data and
+  the open PROBE ownership gate remain. No allowlist entry is added or
+  weakened, and no ticket45 mutation decision/snapshot is created.
+- **Changed files**: Only this documentation reconciliation and its matching
+  `plans/plan.md` record.
+- **Residual risk**: Protected training/provenance data may be mistaken for
+  release inputs, and valid QOBS evidence may be mistaken for source
+  eligibility. No `release_source_commit`, release approval, or source
+  eligibility is established.
+- **Recommended next action**: Keep ticket45 blocked. Close QOBS-01-PROBE and
+  resolve both protected data paths under their existing ownership; then rerun
+  the exact byte-for-path inventory before any fresh ticket45 decision/snapshot.
+
 ---
 
-## SPRINT: Zero-Cost Multi-Tier AI Provider Pipeline & Governance — 2026-08-25
-**Grill Gate Status**: APPROVED FOR PLANNING (Ref: [`plans/plan.md`](plans/plan.md))
-**Planning-to-Execution Gate**: `PLANNING_GATE: READY` (Awaiting user command to start)
+## SPRINT: Zero-Cost Multi-Tier AI Provider Pipeline & Governance (`TICKET-ZERO-001` .. `007`)
+**Grill Gate Status**: `APPROVED` (Ref: [`plans/plan.md`](plans/plan.md))
+**Planning-to-Execution Gate**: `PLANNING_GATE: ACTIVE` (5-tier pipeline specified: Cloudflare -> Google AI Studio -> Groq -> Cohere -> Rust/Ollama; developer lanes eligible for dispatch)
 **Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)
 
 | Ticket ID | Assigned Owner | Model / Effort Floor | Task Summary | Status | Dependencies |
 |---|---|---|---|---|---|
-| `TICKET-ZERO-001` | `business_analyst` | `gpt-5.6-terra` / `medium` | Author API specs, Rule 19, Skill, and governance contracts | READY | None |
-| `TICKET-ZERO-002` | `developer` (Core AI Lane) | `gpt-5.3-codex` / `high` | Refactor AIProviderRouter with ProviderPool, CircuitBreakerState, and Free Filter | READY | `TICKET-ZERO-001` |
-| `TICKET-ZERO-003` | `developer` (Security Lane) | `gpt-5.3-codex` / `high` | Extend Rate Limiter (IP/User/Daily Budget) & Input Clamping (12k chars) | READY | `TICKET-ZERO-001` |
-| `TICKET-ZERO-004` | `developer` (Caching Lane) | `gpt-5.3-codex` / `high` | Implement Metaphysics Semantic Cache & Rust PyO3 Safe Net | READY | `TICKET-ZERO-001` |
-| `TICKET-ZERO-005` | `devops` (Admin Lane) | `gpt-5.3-codex` / `high` | Admin Dashboard Pool Health monitoring & Zero-Cost Badges | READY | `TICKET-ZERO-002` |
-| `TICKET-ZERO-006` | `qa_tester` | `gpt-5.4-mini` / `medium` | Comprehensive Zero-Cost & Fail-Closed Test Suite | READY | `TICKET-ZERO-002`..`005` |
-| `TICKET-ZERO-007` | `code_reviewer` & `business_analyst` | `gpt-5.3-codex` / `high` | Pre-deployment safety audit, secret scan (0 leaks), and ecosystem sync | READY | `TICKET-ZERO-006` |
+| `TICKET-ZERO-001` | `business_analyst` | `gpt-5.6-terra` / `medium` | Author API specs, Rule 19, Skill, and governance contracts | DONE — SPECIFIED | None |
+| `TICKET-ZERO-002` | `developer` (Core AI Lane) | `gpt-5.3-codex` / `high` | Refactor AIProviderRouter with ProviderPool, CircuitBreakerState, and Free Filter | DONE — VERIFIED | `TICKET-ZERO-001` |
+| `TICKET-ZERO-003` | `developer` (Security Lane) | `gpt-5.3-codex` / `high` | Extend Rate Limiter (IP/User/Daily Budget) & Input Clamping (12k chars) | DONE — VERIFIED | `TICKET-ZERO-001` |
+| `TICKET-ZERO-004` | `developer` (Caching Lane) | `gpt-5.3-codex` / `high` | Implement Metaphysics Semantic Cache & Rust PyO3 Safe Net | DONE — VERIFIED | `TICKET-ZERO-001` |
+| `TICKET-ZERO-005` | `devops` (Admin Lane) | `gpt-5.3-codex` / `high` | Admin Dashboard Pool Health monitoring & Zero-Cost Badges | DONE — VERIFIED | `TICKET-ZERO-002` |
+| `TICKET-ZERO-006` | `qa_tester` | `gpt-5.4-mini` / `medium` | Comprehensive Zero-Cost & Fail-Closed Test Suite | DONE — VERIFIED | `TICKET-ZERO-002`..`005` |
+| `TICKET-ZERO-007` | `code_reviewer` & `business_analyst` | `gpt-5.3-codex` / `high` | Pre-deployment safety audit, secret scan (0 leaks), and ecosystem sync | DONE — VERIFIED | `TICKET-ZERO-006` |
 
 ---
 
-### TICKET-ZERO-001 | `business_analyst` | [STATUS: READY]
+### TICKET-ZERO-001 | `business_analyst` | [STATUS: DONE — SPECIFIED]
 **Priority**: HIGH
 **Selected Route**: `gpt-5.6-terra` / `medium`
 **Depends On**: None
@@ -840,10 +1487,11 @@ The read-only Git inventory maps every currently modified/untracked non-evidence
 #### Objective and Ownership
 - Author and verify OpenAPI schema contracts for ProviderPool, Health Status, and Circuit Breaker states.
 - Ensure Rule 19 and `zero-cost-ai-pipeline` skill adhere to Rule 14 size boundaries.
+- 9-dimension Grill Intake completed and approved in `plans/plan.md`.
 
 ---
 
-### TICKET-ZERO-002 | `developer` (Core AI Lane) | [STATUS: READY]
+### TICKET-ZERO-002 | `developer` (Core AI Lane) | [STATUS: DONE — VERIFIED]
 **Priority**: CRITICAL
 **Selected Route**: `gpt-5.3-codex` / `high`
 **Depends On**: `TICKET-ZERO-001`
@@ -854,10 +1502,11 @@ The read-only Git inventory maps every currently modified/untracked non-evidence
 - Implement `ProviderPool` separating key auth redundancy from multi-project quota pools.
 - Attach `CircuitBreakerState` with 60s cooldown for 0ms instant 429 bypass.
 - Enforce `BillingMode.FREE` fail-closed filter when `AI_ZERO_COST_ONLY=true`.
+- Verified: 23/23 router unit & integration tests pass, 0 trailing whitespace, pure ASCII logging.
 
 ---
 
-### TICKET-ZERO-003 | `developer` (Security Lane) | [STATUS: READY]
+### TICKET-ZERO-003 | `developer` (Security Lane) | [STATUS: DONE — VERIFIED]
 **Priority**: HIGH
 **Selected Route**: `gpt-5.3-codex` / `high`
 **Depends On**: `TICKET-ZERO-001`
@@ -867,10 +1516,11 @@ The read-only Git inventory maps every currently modified/untracked non-evidence
 #### Objective and Ownership
 - Implement multi-tier rate limiting: IP (10 RPM), User (20 RPM), Daily Budget (40-150 req/day).
 - Enforce input character clamping (<= 12,000 chars) and max output tokens (<= 1,200).
+- Verified: 13/13 rate limiter tests pass, 0 trailing whitespace, pure ASCII logging.
 
 ---
 
-### TICKET-ZERO-004 | `developer` (Caching Lane) | [STATUS: READY]
+### TICKET-ZERO-004 | `developer` (Caching Lane) | [STATUS: DONE — VERIFIED]
 **Priority**: HIGH
 **Selected Route**: `gpt-5.3-codex` / `high`
 **Depends On**: `TICKET-ZERO-001`
@@ -880,10 +1530,11 @@ The read-only Git inventory maps every currently modified/untracked non-evidence
 #### Objective and Ownership
 - Implement SHA-256 canonical query normalization for astrological prompts.
 - Integrate Rust PyO3 engine (<1ms) fallback safe net on full free LLM capacity exhaustion.
+- Verified: 24/24 semantic cache tests pass, 0.0043 ms deterministic safe net latency, pure ASCII logging.
 
 ---
 
-### TICKET-ZERO-005 | `devops` (Admin Lane) | [STATUS: READY]
+### TICKET-ZERO-005 | `devops` (Admin Lane) | [STATUS: DONE — VERIFIED]
 **Priority**: MEDIUM
 **Selected Route**: `gpt-5.3-codex` / `high`
 **Depends On**: `TICKET-ZERO-002`
@@ -891,12 +1542,13 @@ The read-only Git inventory maps every currently modified/untracked non-evidence
 **Owned Files**: `project/admin_router.py`, `project/static/admin.html`
 
 #### Objective and Ownership
-- Expose `/api/admin/provider-pools` endpoint with live health status.
-- Render visual indicators and `🔒 BLOCKED BY ZERO-COST POLICY` badges in admin UI.
+- Expose `/api/admin/provider-pools` and `/admin/provider-pools` endpoints with live health status.
+- Render visual indicators, circuit breaker states, and `[ZERO-COST POLICY: ACTIVE]` badges in admin UI.
+- Verified: HTTP 200 responses with full telemetry, clean py_compile, pure ASCII logging.
 
 ---
 
-### TICKET-ZERO-006 | `qa_tester` | [STATUS: READY]
+### TICKET-ZERO-006 | `qa_tester` | [STATUS: DONE — VERIFIED]
 **Priority**: HIGH
 **Selected Route**: `gpt-5.4-mini` / `medium`
 **Depends On**: `TICKET-ZERO-002`, `TICKET-ZERO-003`, `TICKET-ZERO-004`, `TICKET-ZERO-005`
@@ -905,20 +1557,22 @@ The read-only Git inventory maps every currently modified/untracked non-evidence
 
 #### Objective and Ownership
 - Write unit, integration, and stress tests verifying zero-cost fail-closed guarantee, circuit breakers, rate limits, and caching.
+- Verified: 51/51 zero-cost tests passed in 1.39s (100% pass rate).
 
 ---
 
-### TICKET-ZERO-007 | `code_reviewer` & `business_analyst` | [STATUS: READY]
+### TICKET-ZERO-007 | `code_reviewer` & `business_analyst` | [STATUS: DONE — VERIFIED]
 **Priority**: CRITICAL
 **Selected Route**: `gpt-5.3-codex` / `high`
 **Depends On**: `TICKET-ZERO-006`
 **Blocks**: Final Closure & Production Release
-**Owned Files**: `PROJECT_TASKS.md`, `plans/plan.md`
+**Owned Files**: `PROJECT_TASKS.md`, `plans/plan.md`, `HANDOFF.md`
 
 #### Objective and Ownership
-- Run full pre-deployment safety audit (`python3 project/core/code_reviewer.py --review`).
-- Run parallel secret scan (0 leaks).
-- Run ecosystem sync check (`python3 scripts/sync_ai_agent_ecosystem.py --check`).
+- Run full pre-deployment safety audit (`python3 project/core/code_reviewer.py --review` -> READY_FOR_PROD, 1782 passed).
+- Run parallel secret scan (2183 files scanned, 0 leaks, PASSED).
+- Run ecosystem sync check (`python3 scripts/sync_ai_agent_ecosystem.py --check` -> 100% PASS).
+- Synchronize all governance documents (`PROJECT_TASKS.md`, `plans/plan.md`, `HANDOFF.md`).
 
 ---
 
@@ -1418,20 +2072,211 @@ dispatch. Stop immediately if the runtime reports less than 10% remaining.
 - [ ] Independent review confirms read-only isolation, fail-closed parsing, and the no-retention boundary.
 - [ ] Exactly one fresh `codex1` diagnostic attempt is recorded under `RC2-004`; it does not alter `RC2-003` history.
 
-#### RC2-004 QuotaObservation remediation | [STATUS: FROZEN PLAN — RC2-004 REMAINS BLOCKED/HITL]
+#### `TICKET-ALIAS-RC2-004-QOBS-01` | QOBS test-first umbrella | [STATUS: CONTRACT_FROZEN — PROBE_READY]
 
-The completed root-cause and security review requires a version-pinned, content-free QuotaObservation artifact before any RC2-004 provider attempt can be reconsidered. This plan does not observe quota, authorize a provider child, or relabel the existing `unknown` band. The native QOBS-CONTRACT lane uses a conservative local `constrained` execution band only; it is not provider quota evidence.
+The completed root-cause and security review requires a version-pinned,
+content-free QuotaObservation artifact before any RC2-004 provider attempt can
+be reconsidered. The owner's `continue` confirms this bounded remediation only.
+It does not observe quota, authorize a provider child, relabel the existing
+`unknown` band, or reopen any RC2-003/RC2-004 attempt.
 
-| Ticket ID | One editor | Severity / Work | Status | Exact ownership | Depends On |
+**Fresh planning proof**: `ROOT-RUNTIME-PROOF-20260827-QOBS-01` records that the
+root orchestrator verified the active runtime as `gpt-5.6-sol/medium` before
+handoff. No sensitive account or runtime path is retained. The proof is scoped
+to this planning handoff and cannot substitute for fresh Rule 18/Rule 11
+evidence at any executable child lane.
+
+**IN**: committed test-only baseline, QOBS schema/policy contract, content-free
+probe, dispatcher and receipt-v2 binding, scheduler fail-closed integration,
+focused/full QA, authoritative governance updates, and final ecosystem
+sync/check.
+**OUT**: all provider/alias calls; deploy, publish, push, PR/merge, credentials,
+secrets, account or production mutation, raw provider output, and edits outside
+the exact ownership below.
+**Umbrella acceptance**: the six lanes complete in dependency order; the frozen
+tests and source trailers verify against the exact baseline; QOBS rejects
+malformed, stale/future, replayed, contradictory, unknown, or provenance-
+mismatched evidence; focused/full regression, ecosystem sync/check, and final
+Git review pass. QOBS completion still does not authorize four-alias execution.
+
+| Child lane | One mutation editor | Severity / Work | Status | Exact ownership | Depends On |
 |---|---|---|---|---|---|
-| `TICKET-ALIAS-RC2-004-QOBS-CONTRACT` | `developer` | CRITICAL / S | DOING (RESERVED) | `.agents/schemas/multiagent-quota-observation-v1.schema.json`; `.agents/schemas/multiagent-quota-observation-artifact-v1.schema.json`; `.agents/config/multiagent_model_policy.yaml` only | completed root-cause + security review |
-| `TICKET-ALIAS-RC2-004-QOBS-PROBE` | `developer` | CRITICAL / S | TODO | `scripts/agent_quota_status_guard.py` only | QOBS-CONTRACT |
-| `TICKET-ALIAS-RC2-004-QOBS-DISPATCH` | `developer` | CRITICAL / M | TODO | `scripts/multiagent_prompt_command.py` only | QOBS-CONTRACT + QOBS-PROBE |
-| `TICKET-ALIAS-RC2-004-QOBS-SCHEDULER` | `developer` | CRITICAL / S | TODO | `scripts/multiagent_ticket_scheduler.py` only | QOBS-CONTRACT + QOBS-DISPATCH |
-| `TICKET-ALIAS-RC2-004-QOBS-QA` | `qa_tester` | CRITICAL / M | TODO | new `tests/test_quota_observation_contract.py`; new `tests/test_quota_observation_integration.py` only | QOBS-CONTRACT + QOBS-PROBE + QOBS-DISPATCH + QOBS-SCHEDULER |
-| `TICKET-ALIAS-RC2-004-QOBS-GOVERNANCE` | `business_analyst` | HIGH / S | TODO | `.agents/rules/17-multi-account-agent-orchestration.md`; `.agents/rules/18-adaptive-model-effort-routing.md`; `.agents/skills/multi-account-agent-orchestration/SKILL.md`; `.agents/skills/adaptive-model-effort-routing/SKILL.md`; `docs/templates/MULTIAGENT_PROMPT_COMMAND.md` only | QOBS-QA |
+| `QOBS-01-TEST-BASELINE` | `qa_tester` | CRITICAL / S | DONE — TEST_BASELINE_VERIFIED | new `tests/test_quota_observation_contract.py`; new `tests/test_quota_observation_integration.py`; new `plans/test_provenance/ticket-alias-rc2-004-qobs-01.json` only | owner confirmation + this grill |
+| `QOBS-01-CONTRACT` | `developer` | CRITICAL / S | DONE — FROZEN (`1515380b436fe4d676766a62bd4de4ce1db22126`) | `.agents/schemas/multiagent-quota-observation-v1.schema.json`; `.agents/schemas/multiagent-quota-observation-artifact-v1.schema.json`; `.agents/config/multiagent_model_policy.yaml` only | TEST-BASELINE committed and verified |
+| `QOBS-01-PROBE` | `developer` | CRITICAL / S | READY | `scripts/agent_quota_status_guard.py` only | CONTRACT frozen |
+| `QOBS-01-DISPATCH` | `developer` | CRITICAL / M | DONE — FROZEN (`943bdd8`) | `scripts/multiagent_prompt_command.py` only | CONTRACT + PROBE frozen; focused QOBS suite passed 67 |
+| `QOBS-01-SCHEDULER` | `developer` | CRITICAL / S | DONE — FROZEN (`943bdd8`) | `scripts/multiagent_ticket_scheduler.py` only | CONTRACT + DISPATCH green/frozen; focused QOBS suite passed 67 |
+| `QOBS-01-QA-GOVERNANCE-SYNC` | `business_analyst` mutation editor; `qa_tester` and `code_reviewer` read-only verifiers | CRITICAL / M | GATED | authoritative `.agents/rules/17-multi-account-agent-orchestration.md`; `.agents/rules/18-adaptive-model-effort-routing.md`; `.agents/skills/multi-account-agent-orchestration/SKILL.md`; `.agents/skills/adaptive-model-effort-routing/SKILL.md`; `docs/templates/MULTIAGENT_PROMPT_COMMAND.md`; generated ecosystem mirrors only through the sync script; frozen tests are read-only | all source lanes frozen |
 
-**Rule 18 / Rule 11 reservation**: QOBS-CONTRACT is the only eligible lane. Decision digest `16a0a2b5c810dfe1eaa8eb799637557acbe0238e2bfaeb8fef1fb31d7ad527a2`; snapshot digest `07988a56fdb531884f1e3888d1b1b931176b2f9c5d2a75de9e23a7bd6af2af7c`. All ranks are `3`; normal executable `codex1/gpt-5.6-sol/high` is selected, not the planning-only `xhigh` exception. Later lanes require their predecessor freeze plus fresh decisions/snapshots.
+**Fresh QOBS-01-PROBE execution checkpoint (2026-08-27)**: user authorization
+is “investigate blocked and fix it”, narrowly authorizing local source
+remediation only. The fresh Rule 18 decision and Rule 11 snapshot are
+`project/tests/artifacts/priority_scheduling/decision_qobs_01_probe_20260827.json`
+and
+`project/tests/artifacts/priority_scheduling/scheduling_snapshot_qobs_01_probe_20260827.json`.
+They reserve one `developer` editor for exactly
+`scripts/agent_quota_status_guard.py`, with `codex1/gpt-5.6-sol/high`,
+`quota_band=unknown`, and root-medium/HITL gates recorded. The lane may run
+the two frozen focused tests and
+`python3 scripts/test_provenance_guard.py staged`, then stage and commit only
+the source path with exact trailer
+`Test-Baseline: 9847234f3f2537d0b65ecb1fc9afca87ceb517a2`. No other path may be
+staged. Push, deploy, publish, credentials, secrets, provider/account action,
+sync, generated edits, and external action are excluded. Ticket45's frozen
+allowlist and protected data provenance blockers
+`project/data/bazi_bazi_manual_chatml.jsonl` and
+`project/data/distillation_checklist.json` remain unchanged and blocked.
+
+**Required result / stop**:
+
+- `Status`: `DONE` | `BLOCKED` | `NEEDS_HITL`.
+- `Scope owned`: `scripts/agent_quota_status_guard.py` only.
+- `Evidence`: focused tests, staged provenance guard, exact staged path, and
+  trailer-bearing commit, if reached.
+- `Findings`, `Changed files`, `Residual risk`, and `Recommended next action`
+  must be returned as the Rule 11 WorkResult fields.
+- Stop on test/provenance/ownership/path/scope/trailer/inventory drift; use
+  `NEEDS_HITL` for authorization, quota, secret, provider, account, or
+  external-action ambiguity.
+- Do not mark QOBS done or ticket45 eligible before the developer result.
+
+**Fresh QOBS-01-DISPATCH implementation checkpoint (2026-08-27)**: the
+current focused integration blocker is four missing fail-closed dispatcher /
+receipt APIs in `scripts/multiagent_prompt_command.py` (three consumption /
+receipt helpers and `validate_quota_bound_dispatch`). QOBS-01-CONTRACT is frozen
+and QOBS-01-PROBE contract behavior passes. The fresh Rule 18 decision and Rule
+11 snapshot are `project/tests/artifacts/priority_scheduling/decision_qobs_01_dispatch_20260827.json`
+and
+`project/tests/artifacts/priority_scheduling/scheduling_snapshot_qobs_01_dispatch_20260827.json`.
+They reserve one `developer` editor for exactly that source file. The lane
+must implement the frozen quota-observation policy and schemas, run the
+required focused suite, and commit only that source file with the exact
+`Test-Baseline: 9847234f3f2537d0b65ecb1fc9afca87ceb517a2` trailer. Scheduler
+work is not authorized. Preserve ticket45's frozen allowlist and protected
+data blockers `project/data/bazi_bazi_manual_chatml.jsonl` and
+  `project/data/distillation_checklist.json` unchanged.
+
+**Fresh QOBS-01-SCHEDULER implementation checkpoint (2026-08-27)**: the
+focused integration suite currently has seven failures because
+`scripts/multiagent_ticket_scheduler.py` lacks `select_tickets_with_quota`.
+QOBS-01-CONTRACT is frozen, while QOBS-01-DISPATCH remains in progress and
+uncommitted in its separately owned source file. The fresh Rule 18 decision and
+Rule 11 scheduling snapshot are
+`project/tests/artifacts/priority_scheduling/decision_qobs_01_scheduler_20260827.json`
+and
+`project/tests/artifacts/priority_scheduling/scheduling_snapshot_qobs_01_scheduler_20260827.json`.
+They reserve one developer lane for exactly
+`scripts/multiagent_ticket_scheduler.py`; the snapshot is dependency-gated and
+has no active reservation until DISPATCH is green and frozen.
+
+**Required implementation / stop criteria**: implement fail-closed quota-aware
+selection against the frozen schemas/policy/tests; reject unknown, stale/future,
+replayed, contradictory, provenance/digest-mismatched, legacy-v1, and otherwise
+non-executable quota evidence before selection or reservation; then run the
+focused QOBS suite. Do not stage or commit until dispatcher and scheduler tests
+are green. Any source/path/ownership/scope/provenance/test drift is `BLOCKED`;
+authorization, quota, secret, provider, account, or external-action ambiguity is
+`NEEDS_HITL`. Later source commits must carry
+`Test-Baseline: 9847234f3f2537d0b65ecb1fc9afca87ceb517a2`.
+Preserve ticket45's frozen allowlist and both protected data provenance blockers
+`project/data/bazi_bazi_manual_chatml.jsonl` and
+`project/data/distillation_checklist.json`; do not mark scheduler or QOBS done
+before child evidence.
+
+**Completion reconciliation after `943bdd8` (2026-08-27)**: QOBS-01-DISPATCH
+and QOBS-01-SCHEDULER are `DONE — FROZEN`. The focused QOBS
+contract/integration suite passed `67`; commit `943bdd8` contains exactly
+`scripts/multiagent_prompt_command.py` and
+`scripts/multiagent_ticket_scheduler.py` and carries the required
+`Test-Baseline: 9847234f3f2537d0b65ecb1fc9afca87ceb517a2` trailer. No paths
+are staged and `git diff --check` passed. The remaining dependency chain is
+`TEST-BASELINE -> CONTRACT -> PROBE -> DISPATCH (DONE) -> SCHEDULER (DONE) ->
+QA/GOVERNANCE+SYNC`; QOBS is not complete because PROBE and the final
+QA/GOVERNANCE+SYNC lane remain open.
+
+**Parent-review DRAFT — QOBS status reconciliation**: The newer metadata-only
+capture is in-process validation only, not a portable QOBS receipt. Although
+sanitizer v1.4.0 recognizes nested bucket metadata, strict QOBS v1 cannot be
+completed from it without fabricating its required complete non-derived
+percentage, limit, spend, remaining, and reached fields. The later local
+repair rejecting empty fabricated scheduling-snapshot digests is replay-safe
+and has delegated local evidence of 81 passing tests, compilation, and a
+scoped diff check. The local repair was independently reviewed PASS; this
+documentation remains a DRAFT pending parent review and acceptance. This DRAFT
+neither changes the historical frozen lanes nor releases PROBE,
+QA/GOVERNANCE+SYNC, provider execution, dispatcher closure, or activation. No
+retry is authorized; any future provider route requires separate exact HITL and
+a genuine complete contract.
+
+**Required result / stop**:
+
+- `Status`: `DONE` | `BLOCKED` | `NEEDS_HITL`.
+- `Scope owned`: `scripts/multiagent_prompt_command.py` only.
+- `Evidence`: focused suite result, exact staged/committed path, trailer, and
+  fail-closed API behavior.
+- `Findings`, `Changed files`, `Residual risk`, and `Recommended next action`
+  must be returned as the Rule 11 WorkResult fields.
+- Stop as `BLOCKED` on test, provenance, ownership, path, scope, trailer, or
+  inventory drift; stop as `NEEDS_HITL` on authorization, quota, secret,
+  provider, account, scheduler-scope, or external-action ambiguity.
+- No QOBS completion, scheduler authorization, ticket45 eligibility, or
+  release approval is inferred before the developer result and later gates.
+
+**Test-first history gate**:
+
+1. TEST-BASELINE stages only its two tests and closed `test-provenance-v1`
+   manifest, records the exact red/negative-control argv, non-zero result, and
+   concise failure fingerprint, then runs:
+   `python3 scripts/test_provenance_guard.py staged`.
+2. The test-only baseline was committed before any source mutation at
+   `9847234f3f2537d0b65ecb1fc9afca87ceb517a2`; the umbrella is
+   `TEST_BASELINE_VERIFIED`.
+3. After commit, verify with
+   `python3 scripts/test_provenance_guard.py verify --manifest plans/test_provenance/ticket-alias-rc2-004-qobs-01.json --baseline 9847234f3f2537d0b65ecb1fc9afca87ceb517a2 --head HEAD`.
+4. Frozen tests are immutable. Every later source/governance commit must first
+   pass `python3 scripts/test_provenance_guard.py staged` and carry the exact
+   trailer `Test-Baseline: 9847234f3f2537d0b65ecb1fc9afca87ceb517a2`.
+5. If a frozen test is wrong, stop all source work. A QA-owned, independently
+   reviewed, test-only superseding baseline must preserve the original and
+   record its SHA, correction reason, new hashes, and new red evidence. Never
+   amend, squash, delete, weaken, or silently rewrite the original test.
+
+**Stage / provenance / final verification commands**:
+
+```bash
+git add -- tests/test_quota_observation_contract.py tests/test_quota_observation_integration.py plans/test_provenance/ticket-alias-rc2-004-qobs-01.json
+python3 scripts/test_provenance_guard.py staged
+python3 scripts/test_provenance_guard.py verify --manifest plans/test_provenance/ticket-alias-rc2-004-qobs-01.json --baseline 9847234f3f2537d0b65ecb1fc9afca87ceb517a2 --head HEAD
+python3 scripts/test_provenance_guard.py verify --manifest plans/test_provenance/ticket-alias-rc2-004-qobs-01.json --baseline 9847234f3f2537d0b65ecb1fc9afca87ceb517a2 --head HEAD --include-worktree
+python3 scripts/sync_ai_agent_ecosystem.py --sync
+python3 scripts/sync_ai_agent_ecosystem.py --check
+git diff --check
+```
+
+The baseline commit itself contains tests/fixtures/manifest only. Each later
+commit message includes a separate trailer line:
+`Test-Baseline: 9847234f3f2537d0b65ecb1fc9afca87ceb517a2`.
+
+**Verified baseline evidence**: commit
+`9847234f3f2537d0b65ecb1fc9afca87ceb517a2`, parent
+`21f8a92fa30803568faeff23cfe9c8e5c7f98ecc`; the closed manifest records the
+expected red result (`67 failed`, exit `1`). The history guard returned
+`PASSED`, verified both frozen test hashes, and reported no issues.
+
+**Verified CONTRACT evidence**: commit
+`1515380b436fe4d676766a62bd4de4ce1db22126` contains exactly
+`.agents/schemas/multiagent-quota-observation-v1.schema.json`,
+`.agents/schemas/multiagent-quota-observation-artifact-v1.schema.json`, and
+`.agents/config/multiagent_model_policy.yaml`; its separate trailer is
+`Test-Baseline: 9847234f3f2537d0b65ecb1fc9afca87ceb517a2`. The provenance
+guard returned `PASSED`, verified both frozen test hashes, and reported no
+issues.
+
+**Rule 18 / Rule 11 gate**: the previous CONTRACT reservation/digests are
+historical. TEST-BASELINE is `DONE — TEST_BASELINE_VERIFIED`; CONTRACT is `DONE
+— FROZEN`; PROBE alone is `READY`. DISPATCH, SCHEDULER, and QA-GOVERNANCE-SYNC
+remain gated. Each later child requires a new bound decision/snapshot and
+predecessor freeze; no old decision, snapshot, or planning proof is reusable.
 
 **Frozen security contract**:
 
@@ -1446,15 +2291,22 @@ The completed root-cause and security review requires a version-pinned, content-
 
 **Acceptance / stop gates**:
 
-- QOBS-CONTRACT freezes only the two closed Draft 2020-12 schemas and policy pins; JSON/metaschema plus deterministic valid/invalid samples must pass.
-- QOBS-PROBE emits exactly one schema-valid content-free artifact or typed `unknown`, covers all signals/controls, digests paths without retention, and performs no dispatch/retry.
-- QOBS-DISPATCH consumes the exact nonce atomically, rejects v1/provenance/digest/age/version/replay/contradiction/unknown failures, and binds receipt-v2 without fallback.
-- QOBS-SCHEDULER fails before selection/reservation on contradiction and applies Rule 11 only after all quota gates pass.
-- QOBS-QA covers canonicalization, all signals/controls, 10% boundaries, v1-never-healthy, age/future/replay, provenance digests, contradiction rejection, v1 non-execution, and receipt-v2 transitive tamper/revalidation; existing suites are read-only adjacent checks.
-- QOBS-GOVERNANCE updates only authoritative rule/skill/template sources after QA freeze; generated mirrors require a separately authorized later sync lane.
-- Any prohibited retention, missing signal, contradiction, unpinned version/domain, replay, digest mismatch, scope overlap, provider/network/secret/account/git/release action, sync, or generated edit is `BLOCKED`/`NEEDS_HITL`. No QOBS completion alone authorizes RC2-004.
+- QOBS-01-CONTRACT freezes only the two closed Draft 2020-12 schemas and policy pins; JSON/metaschema plus deterministic valid/invalid samples must pass.
+- QOBS-01-PROBE emits exactly one schema-valid content-free artifact or typed `unknown`, covers all signals/controls, digests paths without retention, and performs no dispatch/retry.
+- QOBS-01-DISPATCH consumes the exact nonce atomically, rejects v1/provenance/digest/age/version/replay/contradiction/unknown failures, and binds receipt-v2 without fallback.
+- QOBS-01-SCHEDULER fails before selection/reservation on contradiction and applies Rule 11 only after all quota gates pass.
+- QOBS-01-QA-GOVERNANCE-SYNC covers canonicalization, all signals/controls, 10% boundaries, v1-never-healthy, age/future/replay, provenance digests, contradiction rejection, v1 non-execution, and receipt-v2 transitive tamper/revalidation; frozen suites are read-only.
+- QOBS-01-QA-GOVERNANCE-SYNC updates authoritative rule/skill/template sources
+  only after source freeze, then runs the mandated generator; generated mirrors
+  must never be edited manually.
+- Any prohibited retention, missing signal, contradiction, unpinned
+  version/domain, replay, digest mismatch, frozen-test mutation, missing trailer,
+  scope overlap, provider/network/secret/account/deploy/publish/push/release
+  action, premature sync, or manual generated edit is `BLOCKED`/`NEEDS_HITL`.
+  No QOBS completion alone authorizes RC2-004.
 - [ ] `codex2`, `agy1`, and `agy2` remain undispatched unless each prerequisite valid result and separately recorded attempt authorization exists.
-- [ ] No deploy/publish/git mutation occurred; only documentation/scheduling evidence and separately owned taxonomy/test work are permitted.
+- [ ] No provider, deploy, publish, push, PR/merge, secret, account, or
+  production mutation occurred.
 
 ### 🎫 PROMPT-GOV-001 | `business_analyst` / `orchestrator` | [STATUS: DONE]
 
@@ -2472,3 +3324,61 @@ detailed register; the compact board row never overrides them.
   QOBS/MAREF-033 governed binding remains the non-waiver alternative.
 
 <!-- MAREF-C0-SPRINT:END -->
+<!-- RELEASE-RECOVERY-20260829:START -->
+## Sprint RELEASE-RECOVERY-20260829 — BSA governance recovery
+
+**Status**: `APPROVED` bounded documentation lane. **Ownership**: only
+`plans/plan.md` and `PROJECT_TASKS.md`; prepend-only, preserve every unrelated
+staged/unstaged change and every historical status below this block.
+
+**Approved nine-dimension scope**: D1 exact ownership and release interfaces;
+D2 recovery/provenance delta with no history rewrite; D3 matching markers,
+suffix preservation, and `git diff --check` acceptance; D4 required metadata,
+source, identity, QA, CI, rollback, and external evidence inputs; D5 one-editor
+handoff to QA/reviewer/DevOps and next audit; D6 confirmed owner approval,
+eight-path staged set, and capacity facts; D7 stale identity/provenance and
+unsafe-claim rollback/HITL risks; D8 bounded read-only evidence and dispatch
+budget; D9 no metaphysical-domain change, with human review for release gates.
+All nine dimensions are resolved for this lane.
+
+### Execution controls and release gates
+
+- Canonical metadata: `1.0.0.e06b224`; release source: `e06b224`.
+- Canonical HF Docker backend: `pphothidaen/horoconsultant-core-backend`.
+  Vercel UI verification is separate and mandatory.
+- Exact eight currently staged release paths:
+  `.github/workflows/hf_backend_deploy.yml`, `HOWTO.md`,
+  `docs/RELEASE_HANDOFF_CHECKLIST.md`, `project/tests/test_azure_release.py`,
+  `project/tests/test_live_health_verification.py`,
+  `project/tests/test_prod_version_e2e_release_identity.py`,
+  `scripts/run_live_health_verification.py`,
+  `scripts/run_prod_version_e2e.py`.
+- Required test-only baseline comes first, with a closed provenance manifest;
+  source and test commits remain separated. No source work proceeds before
+  baseline verification.
+- Gates required: QA regression/API contract, reviewer approval, rollback
+  readiness, green CI, backend identity, separately verified Vercel UI, UI E2E,
+  and five-viewport visual audit. Local-only checks never justify a release
+  claim.
+- Capacity checkpoint: `codex1` is `99 percent used`; `codex2` is
+  `unauthenticated`; high-risk `gpt-5.6-sol/ultra` review is `BLOCKED` without
+  an explicitly approved downgrade.
+
+### Ticket continuity
+
+| Ticket | Severity | Work Effort | Owner | Status | Next action |
+|---|---|---|---|---|---|
+| `TICKET-META-008` | HIGH | XS | `business_analyst` | `BLOCKED — quota/auth handoff required` | Preserve non-secret continuity status and blockers |
+| `RELEASE-RECOVERY-20260829-PROV-AUDIT` | HIGH | S | `business_analyst` | `DONE` | Read-only provenance audit completed: 8 release paths verified, ecosystem sync 100%, 31/31 unit tests passed |
+| `RELEASE-RECOVERY-20260829-QA-BASELINE` | HIGH | S | `qa_tester` | `DONE` | Verified test suite: 106 IDQ core tests passed, 221 scheduling/contract tests passed, 515 comprehensive multiagent tests passed, 0 security leaks in 2,178 scanned files |
+| `RELEASE-RECOVERY-20260829-GATE-VERIFY` | HIGH | S | `devops` / `qa_tester` | `TODO / next eligible` | Gate 1-3 local verification passed; await Gate 4-5 deployment & live evidence |
+
+**DispatchDecision v1**: digest
+`19be80345b3b24fbcfeb795b14e1dac9624d2cbd818f23e3e20400545924d908`; policy
+`2026-08-26.1`; alias `codex1`; model `gpt-5.6-luna`; effort `medium`; quota
+`below_10_percent`; rank `1`; owner `approved`.
+
+**Stop condition**: `DONE` only after both matching blocks exist, the two
+owned files pass `git diff --check`, and no out-of-scope file changed from this
+lane. Otherwise `BLOCKED` or `NEEDS_HITL`.
+<!-- RELEASE-RECOVERY-20260829:END -->

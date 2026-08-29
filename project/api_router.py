@@ -1,11 +1,11 @@
 """
-api_router.py — Hybrid API Routing & Fallback System
+api_router.py - Hybrid API Routing & Fallback System
 =====================================================
 LOCAL-FIRST architecture: Ollama models are PRIMARY routes.
 Cloud platforms are used only when local routes are unavailable.
 
 Route order:
-  1. Ollama PRIMARY_LOCAL_MODEL  (qwen2.5:7b   — best for BaZi/Thai/Chinese)
+  1. Ollama PRIMARY_LOCAL_MODEL  (qwen2.5:7b - best for BaZi/Thai/Chinese)
   2. Ollama SECONDARY_LOCAL_MODEL (qwen2.5-coder:7b)
   3. Ollama TERTIARY_LOCAL_MODEL  (llama3:8b)
   4. Cloudflare AI, Gemini KEY1/KEY2 (cloud fallback, all configured routes)
@@ -169,11 +169,11 @@ def _call_ollama(
         if not text:
             return None, "empty"
 
-        logger.info(f"[Ollama:{model_label}] ✅ OK ({elapsed}ms)")
+        logger.info(f"[Ollama:{model_label}] [OK] ({elapsed}ms)")
         return text, "ok"
 
     except httpx.ConnectError:
-        logger.error(f"[Ollama:{model_label}] Cannot connect — is Ollama running?")
+        logger.error(f"[Ollama:{model_label}] Cannot connect - is Ollama running?")
         return None, "connect_error"
     except httpx.TimeoutException:
         logger.warning(f"[Ollama:{model_label}] Timeout after {TIMEOUT_LOCAL_S}s")
@@ -249,7 +249,7 @@ def _call_gemini(
                 return None, "empty"
 
             text = cands[0]["content"]["parts"][0]["text"]
-            logger.info(f"[Gemini:{candidate}][{key_tag}] ✅ OK ({elapsed}ms)")
+            logger.info(f"[Gemini:{candidate}][{key_tag}] [OK] ({elapsed}ms)")
             return text, "ok"
 
         except httpx.TimeoutException:
@@ -364,7 +364,7 @@ def _call_vertex_ai(
             cands = res.json().get("candidates", [])
             if cands:
                 text = cands[0]["content"]["parts"][0]["text"]
-                logger.info(f"[VertexAI:{v_model}] ✅ OK ({elapsed}ms)")
+                logger.info(f"[VertexAI:{v_model}] [OK] ({elapsed}ms)")
                 return text, "ok"
             return None, "empty"
         elif res.status_code == 429:
@@ -432,7 +432,7 @@ def _call_openai_compatible(
             return None, "empty"
 
         text = choices[0].get("message", {}).get("content", "").strip()
-        logger.info(f"[{provider_name}:{model}][{key_tag}] ✅ OK ({elapsed}ms)")
+        logger.info(f"[{provider_name}:{model}][{key_tag}] [OK] ({elapsed}ms)")
         return text, "ok"
 
     except httpx.TimeoutException:
@@ -484,7 +484,7 @@ def _call_cloudflare_ai(
             data = res.json()
             text = data.get("result", {}).get("response", "").strip()
             if text:
-                logger.info(f"[CloudflareAI:{model}] ✅ OK ({elapsed}ms)")
+                logger.info(f"[CloudflareAI:{model}] [OK] ({elapsed}ms)")
                 return text, "ok"
             return None, "empty"
         elif res.status_code == 429:
@@ -559,9 +559,15 @@ class HybridRouter:
       LOCAL 1: qwen2.5:7b          (best Chinese/Thai/BaZi understanding)
       LOCAL 2: qwen2.5-coder:7b    (capable fallback)
       LOCAL 3: llama3:8b           (English fallback)
-      CLOUD:   Gemini models × all keys (gemini-3.5-flash-lite ➔ gemini-flash-latest ➔ gemini-3.6-flash)
+      CLOUD:   Gemini models x all keys (gemini-3.5-flash-lite -> gemini-flash-latest -> gemini-3.6-flash)
     CLOUD:   Cloudflare AI, Gemini, Vertex AI, OpenAI (fallback chain)
     """
+
+    def __init__(self, zero_cost_only: bool | None = None) -> None:
+        self.zero_cost_only: bool = (
+            zero_cost_only if zero_cost_only is not None
+            else (os.getenv("AI_ZERO_COST_ONLY", "false").lower() == "true")
+        )
 
     def _build_routes(self) -> list[dict[str, Any]]:
         routes: list[dict[str, Any]] = []
@@ -572,7 +578,7 @@ class HybridRouter:
         is_cloud = _is_cloud_environment()
 
         # === CLOUD MODE (Vercel / HF Spaces / Fly.io) ===
-        # Priority chain: Gemini → Cloudflare AI → Vertex AI → OpenAI
+        # Priority chain: Gemini -> Cloudflare AI -> Vertex AI -> OpenAI
         if is_cloud:
             # Route 1: Gemini Cloud (key rotation)
             for model in GEMINI_MODELS_ROTATION:
@@ -609,12 +615,16 @@ class HybridRouter:
                     routes.append({"type": "gemini", "model": model, "key": key})
 
         # === SHARED: Vertex AI + OpenAI (both modes, lower priority) ===
-        proj_id, bearer_token = _get_vertex_ai_credentials()
-        if proj_id and bearer_token:
-            routes.append({"type": "vertex_ai", "model": "gemini-1.5-flash", "key": bearer_token, "project_id": proj_id})
+        # If zero_cost_only is enforced, fail-closed: block paid APIs (Vertex AI, OpenAI direct paid)
+        if not self.zero_cost_only:
+            proj_id, bearer_token = _get_vertex_ai_credentials()
+            if proj_id and bearer_token:
+                routes.append({"type": "vertex_ai", "model": "gemini-1.5-flash", "key": bearer_token, "project_id": proj_id})
 
-        for key in _openai_keys():
-            routes.append({"type": "openai", "model": OPENAI_MODEL, "key": key})
+            for key in _openai_keys():
+                routes.append({"type": "openai", "model": OPENAI_MODEL, "key": key})
+        else:
+            logger.info("[Router] Zero-cost policy active: excluded paid endpoints (Vertex AI, OpenAI).")
 
         return routes
 
@@ -636,7 +646,7 @@ class HybridRouter:
         attempted = []
 
         logger.info(
-            f"[Router] Starting — {sum(1 for r in routes if r['type']=='ollama')} local "
+            f"[Router] Starting - {sum(1 for r in routes if r['type']=='ollama')} local "
             f"+ {sum(1 for r in routes if r['type'] in ('gemini', 'vertex_ai'))} cloud routes"
         )
 
@@ -651,9 +661,9 @@ class HybridRouter:
                 else f"cloud:{model}"
             )
 
-            # Fast Circuit Breaker check — skip recently rate-limited route immediately (0ms)
+            # Fast Circuit Breaker check - skip recently rate-limited route immediately (0ms)
             if _is_route_circuit_open(label):
-                logger.debug(f"[Router] ⚡ Circuit Open: Skipping '{label}' (cooldown active)")
+                logger.debug(f"[Router] [CIRCUIT OPEN] Skipping '{label}' (cooldown active)")
                 continue
 
             t0 = time.monotonic()
@@ -685,7 +695,7 @@ class HybridRouter:
                 pass
 
             if text is not None:
-                logger.info(f"[Router] ✅ {label} ({latency_ms}ms)")
+                logger.info(f"[Router] [OK] {label} ({latency_ms}ms)")
                 return {
                     "text":             text,
                     "model_used":       model,
@@ -696,7 +706,7 @@ class HybridRouter:
                 }
 
             attempted.append({"route": label, "reason": reason, "latency_ms": latency_ms})
-            logger.warning(f"[Router] ❌ {label} → {reason}")
+            logger.warning(f"[Router] [FAIL] {label} -> {reason}")
 
             # Trip circuit breaker on rate limit for immediate bypass on next calls
             if reason == "429":

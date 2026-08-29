@@ -1,286 +1,191 @@
 ---
 name: requirement-grill-gate
-description: "Pre-plan 9-dim grill gate, block unconfirmed scope, and decompose sub-agent tickets."
+description: Run fail-closed 9-dimension intake before planning, delegation, or implementation.
 ---
 
-# 🔥 Requirement-Grill Gate Skill
+# Requirement Grill Gate
 
-> **Purpose**: Proactively interview the user with clarifying questions before every task to establish a crystal-clear, granular scope, blocking all code work until requirements are fully grilled, signed off, and decomposed into agent-specific tickets.  
-> **Gate Enforcer**: Orchestrator agent (`orchestrator`) / Requirement Grill Agent  
-> **Gate Status Badges**: `✅ APPROVED` · `⚠️ WAIVED` · `🚫 BLOCKED`
+## Purpose and invocation
 
----
+Use this skill when `/grill-me <request>` is invoked or when a task needs its
+requirements validated before planning, delegation, or implementation.
 
-## 🏛️ Architecture & Process Flow
+- `business_analyst` owns the canonical command and skill contract.
+- `orchestrator` owns the final gate decision and any downstream dispatch.
+- The gate validates authority and scope; it does not grant new authority.
+- Running the gate is intake-only. Do not implement, delegate implementation,
+  deploy, publish, or perform external mutations while grilling.
+- Preserve explicit user scope and exclusions. Do not turn generic governance
+  defaults into permission to edit files that the request excludes.
 
-```
-User Request
-     │
-     ▼
-┌────────────────────────────────────────────────────────┐
-│               REQUIREMENT-GRILL GATE                   │
-│                                                        │
-│  Step 1 ─ Context Auto-Scan (Orchestrator)             │
-│  Step 2 ─ Grill Interview (9 Dimensions, 1-by-1)       │
-│  Step 3 ─ Gate Decision (APPROVED / WAIVED / BLOCKED)  │
-│  Step 4 ─ Prepend GRILL REPORT → /plans/plan.md        │
-│  Step 5 ─ Decompose Tickets → PROJECT_TASKS.md         │
-│  Step 6 ─ Post-Grill Task Flow Tracking Verification   │
-└────────────────────────────────────────────────────────┘
-     │
-     ▼  (only if ✅ APPROVED or ⚠️ WAIVED)
-Phase 1: Planning & Implementation Delegation
-```
+The only valid terminal states are `APPROVED`, `WAIVED`, and `BLOCKED`.
 
----
+## Required inputs
 
-## 📋 Step 1 — Context Auto-Scan (Orchestrator Autonomy)
+Start with:
 
-Before prompting the user with questions, the Orchestrator MUST read the codebase and rule files to auto-populate low-risk answers:
+- the raw task or change request;
+- the current workspace and applicable instructions;
+- any owner answers, approvals, or waivers already present in the conversation.
 
-| Source File | Data Extracted |
-|---|---|
-| `/plans/plan.md` | Existing scope baseline, previous architecture decisions |
-| `PROJECT_TASKS.md` | Active sprint status, unfinished tickets in `DOING`/`TODO` |
-| `.agent_rules.md` | Locked dependencies (`transformers==4.44.2`, `peft==0.12.0`, `accelerate>=0.34.0,<1.0.0`) |
-| `.agents/rules/05-security-privacy.md` | Security and data privacy requirements |
-| `.agents/rules/06-secrets-policy.md` | 2-tier secrets policy & Doppler integration |
-| `.agents/rules/07-infrastructure-constraints.md` | Infrastructure limits, Fly.io, HF Spaces constraints |
-| `project/`, `rust_core/`, `api/` | Impacted code modules and API endpoints |
+If no task was supplied, ask exactly one question: "What outcome should
+`/grill-me` define?" Then stop and wait.
 
-**Auto-Answer & Tiering Rules**:
-- **LOW Risk** (locked dependencies, standard SLA, unchanged infra): Auto-populate and tag as `[AUTO]` in the Grill Report.
-- **HIGH Risk** (architecture impact, affected sub-agents, risk & rollback): Auto-populate recommendations from context and ask user to confirm or adjust.
-- **CRITICAL Risk** (scope boundaries, acceptance criteria, unconfirmed assumptions, breaking changes): Explicitly ask the user one question at a time using `ask_question`.
+## Workflow
 
----
+### 1. Auto-scan relevant context
 
-## 🎯 Step 2 — The 9-Dimension Grill Interview
+Before asking the owner, inspect only the context needed to answer safely:
 
-The Orchestrator conducts an interactive interview asking questions **one at a time**:
+1. Root and nearest `AGENTS.md` files plus applicable `.agents/rules/` files.
+2. `plans/plan.md` and `PROJECT_TASKS.md` when they contain an active baseline
+   relevant to the request; read-only exclusions do not imply edit permission.
+3. `git status --short` to identify concurrent or pre-existing changes.
+4. Targeted code, interfaces, schemas, tests, and docs named by the request or
+   found through narrow repository search.
+5. Current dependency, infrastructure, security, model-routing, and domain
+   policies only when the corresponding dimension applies.
 
-### Dimension 1 — Scope Boundary `[CRITICAL]`
-- **In-Scope**: Explicit list of features, components, and files to be added or modified.
-- **Out-of-Scope**: Explicit exclusions (what must NOT be touched or refactored).
-- **Interface Stability**: Public APIs, CLI commands, or schemas that must remain backward-compatible.
+Do not read secret values, use the network, mutate files, or run destructive or
+production commands during the scan. Do not infer an answer from a missing or
+stale artifact.
 
-### Dimension 2 — Requirement Delta `[HIGH]`
-- **Deltas**: What changed compared to the previous sprint/plan in `plans/plan.md`.
-- **Deprecations**: Any deprecated code or dead code to be removed per the Migration Dead-Code Cleanup Mandate.
+Record each material answer with one of these evidence states:
 
-### Dimension 3 — Acceptance Criteria `[CRITICAL]`
-- **Measurable Thresholds**: Every deliverable must have at least one testable acceptance criterion (e.g. 100% pytest pass rate, zero secret leaks, specific API status 200).
-- **Verification Mapping**: Map each criterion to its test runner (`pytest`, `scripts/run_button_regression.py`, `scripts/run_e2e_screenshots.py`, or manual review).
+- `[AUTO]`: directly supported by a current repository source; cite its path.
+- `[CONFIRMED]`: explicitly confirmed by the owner in the current context.
+- `[PENDING-OWNER]`: material ambiguity that needs an owner answer.
+- `[WAIVED]`: explicitly waived by the owner, with impact recorded.
+- `[NOT-APPLICABLE]`: assessed and excluded with a reason.
 
-### Dimension 4 — Constraint Checks `[HIGH]` (Auto-Scanned + Confirmed)
-- **Dependency Locks**: Strict verification that locked versions (`transformers==4.44.2`, `peft==0.12.0`, `accelerate>=0.34.0,<1.0.0`) are respected.
-- **Secrets Policy**: Adherence to 2-Tier Priority Secrets Policy (`.agents/rules/06-secrets-policy.md`).
-- **Kaggle Accelerator Lock**: Confirmation that `kernel-metadata.json` accelerator (`NvidiaTeslaT4`) is untouched.
-- **Pure ASCII Logging**: Subprocess log outputs strictly follow `[OK]`, `[ERROR]`, `[WARNING]`, `[INFO]`.
+### 2. Assess all nine dimensions
 
-### Dimension 5 — Architecture & Sub-Agent Impact `[HIGH]`
-- **Assigned Agents**: Identify which sub-agents are required (`orchestrator`, `developer`, `qa_tester`, `devops`, `domain_master`).
-- **Dependency Graph**: Specify execution sequence (e.g. Orchestrator Plan → Developer Code → QA Test → DevOps Release → Code Reviewer Audit).
-- **Sync Requirement**: Check if agent definitions or skills require `python3 scripts/sync_sdlc_agents.py --sync` and `python3 scripts/sync_codex_agents.py --sync`.
+Assess every dimension. Never silently skip one.
 
-### Dimension 6 — Assumption Register `[CRITICAL]`
-- **Identification**: Uncover unverified assumptions in the user request.
-- **Classification**: Tag each item as `[CONFIRMED]`, `[PENDING-OWNER]`, or `[WAIVED]`.
-- **Gate Blocker**: Any unresolved `[PENDING-OWNER]` item blocks the gate unless explicitly waived.
-
-### Dimension 7 — Risk Assessment & Rollback Strategy `[HIGH]`
-- **Failure Modes**: Top failure risks (e.g. test breakage, deployment timeout, PyO3 compilation error).
-- **Rollback Strategy**: Git commit revert plan, env rollback, or feature flag toggle.
-
-### Dimension 8 — Token & Cost Budget Strategy `[HIGH]`
-- **Model Routing**: Ensure high-reasoning models (`Claude 3.7 Sonnet` / `Gemini 3.6 Flash High`) handle planning/grilling, while execution delegates to efficient models (`DeepSeek-V3` / `Gemini 3.6 Flash Standard` / `Gemini 3.5 Flash-Lite`).
-- **Log Trimming**: Mandate QA/DevOps log filtering to conserve token quota.
-
-### Dimension 9 — Metaphysics & Domain Engine Check `[HIGH]`
-- **Domain Scope**: Does this task touch BaZi (`bazi-calculator`), Zi Wei Dou Shu, Qi Men Dun Jia, Da Liu Ren, I Ching, Feng Shui, Western Astro, or Vedic Astro?
-- **Canonical Alignment**: Textual validation against canonical classics (`滴天髓`, `子平真詮`, `煙波釣叟歌`, `協紀辨方書`).
-- **HITL Routing**: Determine if conflicting interpretations need routing to the HITL Review Queue (`project/hitl_router.py`).
-
----
-
-## 🚦 Step 3 — Gate Decision & Enforcement
-
-The Orchestrator evaluates the gate status:
-
-| Gate Status | Trigger Condition | SDLC Action |
-|---|---|---|
-| ✅ **APPROVED** | All CRITICAL dimensions answered + all `[PENDING-OWNER]` items resolved | Proceed to Step 4, 5, 6 and Phase 1 Planning |
-| ⚠️ **WAIVED** | Non-critical questions skipped with explicit user confirmation | Proceed with logged waivers in GRILL REPORT |
-| 🚫 **BLOCKED** | Any CRITICAL dimension unanswered OR unconfirmed `[PENDING-OWNER]` assumption | **HALT EXECUTION**. Do NOT assign Phase 2 implementation |
-
----
-
-## 📄 Step 4 — Write GRILL REPORT to `/plans/plan.md`
-
-Prepend the structured report at the top of `/plans/plan.md`:
-
-```markdown
----
-## 🔥 GRILL REPORT — <TASK_TITLE>
-**Date**: <ISO-8601 timestamp>  
-**Grilled By**: orchestrator  
-**Gate Status**: ✅ APPROVED | ⚠️ WAIVED | 🚫 BLOCKED  
-
-### D1 — Scope Boundary
-- **IN**: ...
-- **OUT**: ...
-
-### D2 — Requirement Delta
-- **Changed**: ...
-- **Cleaned Up (Dead Code)**: ...
-
-### D3 — Acceptance Criteria
-| # | Criterion | Verification Tool | Responsible Agent |
+| ID | Dimension | Default severity | Required result |
 |---|---|---|---|
-| 1 | ... | pytest / script / UI | qa_tester |
+| D1 | Scope boundary | CRITICAL | Explicit in-scope outcomes/files, out-of-scope exclusions, and interfaces that must remain stable. |
+| D2 | Requirement delta | HIGH | What changes from the current baseline, including intentional compatibility or deprecation behavior. |
+| D3 | Acceptance and stop conditions | CRITICAL | Measurable criteria mapped to verification, plus the exact success and stop conditions. |
+| D4 | Inputs, constraints, and dependencies | HIGH | Required inputs, dependency/runtime/security constraints, prerequisites, and unavailable dependencies. |
+| D5 | Architecture, ownership, and handoff | HIGH | Impacted components, single-editor ownership, execution order, and downstream consumers. |
+| D6 | Assumption register | CRITICAL | Every material assumption classified as confirmed, pending, waived, or not applicable. |
+| D7 | Risk and recovery | HIGH | Material failure modes, blast radius, rollback or recovery path, and escalation threshold. |
+| D8 | Budget and evidence strategy | HIGH | Model/effort or cost constraints when relevant, bounded evidence, and trimmed ASCII logs. |
+| D9 | Domain and HITL check | HIGH | Metaphysics scope, canonical-source needs, conflicts, and human-review requirements. |
 
-### D4 — Constraints & Safeguards
-- Locked Deps: Confirmed unchanged
-- Secrets: Doppler Tier-2 compliant
-- Kaggle Accelerator: Locked (NvidiaTeslaT4)
-- Pure ASCII Logging: Enforced
+For `metaphysical-domain-engine`, elevate D9 to `CRITICAL` and require all of
+the following before handoff:
 
-### D5 — Sub-Agent Allocation & Dependencies
-- Assigned Sub-Agents: `orchestrator`, `developer`, `qa_tester`, `devops`, `domain_master`
-- Dependency Chain: Plan → Dev → QA → DevOps → Review
+- confirmed `source_domain` and explicit out-of-scope exclusions;
+- `required_human_review=True` for conflict, low-consensus, or force-review
+  cases;
+- a passing `/hitl/scope-audit?source_domain=metaphysical-domain-engine`
+  result with `summary.pass_gate_check=true`;
+- recorded owner sign-off for every previously unresolved item.
 
-### D6 — Assumption Register
-| # | Assumption | Status |
+Missing evidence for any of these requirements keeps the gate `BLOCKED`.
+
+### 3. Resolve ambiguity one question at a time
+
+After the auto-scan, build an internal queue ordered by:
+
+1. unresolved CRITICAL items;
+2. HIGH items that can change scope, safety, ownership, or acceptance;
+3. optional refinements.
+
+Ask exactly one owner-facing question per interaction. When supported, offer
+two or three mutually exclusive choices and identify the recommended choice
+and its tradeoff. Include the affected dimension and why the answer matters.
+Do not bundle subquestions, repeat answered questions, or treat silence as a
+waiver.
+
+Before approval, at least these three controls must be confirmed or explicitly
+waived where waiver is permitted:
+
+- in-scope and out-of-scope boundaries;
+- required inputs, assumptions, and dependencies;
+- measurable success criteria and the stop condition.
+
+After each answer, update the register, recompute the gate, ask the next single
+question if needed, and stop to await the reply.
+
+### 4. Decide the gate
+
+Use these definitions exactly:
+
+| State | Decision rule | Required action |
 |---|---|---|
-| 1 | ... | [CONFIRMED] / [WAIVED] |
+| `APPROVED` | All CRITICAL items are resolved, no waivers remain, acceptance and stop conditions are measurable, and no authority or safety blocker exists. | Emit the final report and identify only the next already-authorized phase. |
+| `WAIVED` | All CRITICAL items are resolved and the owner explicitly accepted one or more non-critical omissions or risks. | Emit the final report with waiver owner, reason, impact, and boundary. |
+| `BLOCKED` | Any CRITICAL item, required authority, required dependency, owner decision, or mandatory HITL evidence is unresolved. | Emit the partial report, ask at most the next single question, and halt downstream work. |
 
-### D7 — Risk & Rollback
-- Risk: ...
-- Rollback: `git revert HEAD` / config rollback
+A waiver never bypasses unresolved scope, acceptance criteria, required
+authorization, secrets/privacy controls, destructive or external action
+approval, or mandatory metaphysics HITL review. Never invent or silently infer
+a waiver.
 
-### D8 — Token Efficiency Strategy
-- Orchestrator: High Reasoning
-- Developer / QA: Standard / Flash-Lite with Log Trimming
+### 5. Produce a clear report
 
-### D9 — Metaphysics Domain Alignment
-- Engines Involved: ...
-- HITL Review Required: Yes / No
+Return a `GRILL REPORT` in the conversation with this minimum contract:
 
-### ⚠️ Waivers (if any)
-- None
+```text
+GRILL REPORT
+Request: <normalized task>
+Status: APPROVED | WAIVED | BLOCKED
+Authorized next phase: <bounded phase or NONE>
 
-### 🚫 Blockers (if any)
-- None
----
+Context evidence: <paths scanned and material AUTO findings>
+Nine-dimension matrix: <D1-D9 result, evidence state, remaining issue>
+Scope: <IN / OUT / stable interfaces>
+Inputs and dependencies: <required / available / missing>
+Assumptions: <status and owner for each material assumption>
+Acceptance matrix: <criterion / verification / owner / stop threshold>
+Risks and recovery: <risk / mitigation / rollback or escalation>
+Waivers: <owner / reason / impact / boundary, or NONE>
+Blockers: <actionable blockers, or NONE>
+Next question: <one question when BLOCKED, otherwise NONE>
 ```
 
----
+Every deliverable needs at least one observable acceptance criterion. A vague
+criterion such as "works correctly" is not measurable. Verification may be an
+existing focused test, a read-only check, or named manual review; do not invent
+a nonexistent script.
 
-## 🎫 Step 5 — Deconstruct into Sub-Agent Tickets in `PROJECT_TASKS.md`
+Repository persistence is conditional:
 
-Upon achieving `✅ APPROVED` or `⚠️ WAIVED`, the Orchestrator MUST append a new **Sprint / Session Block** in `PROJECT_TASKS.md` containing dedicated, specialized tickets for each assigned sub-agent:
+- By default, return the report in conversation only.
+- Update `plans/plan.md`, `PROJECT_TASKS.md`, or another artifact only when the
+  current request or higher-priority instruction explicitly includes that file.
+- If an artifact is explicitly excluded, do not write it. Record the exclusion
+  in the inline report; the exclusion alone is not a blocker unless delivery
+  requires that artifact.
+- If persistence is authorized, write only after `APPROVED` or `WAIVED`, retain
+  the exact gate state, and preserve unrelated worktree changes.
 
-```markdown
-## 🚀 SPRINT: <Sprint Name / Goal Title> — <Date>
-**Grill Gate Status**: ✅ APPROVED (Ref: `/plans/plan.md`)  
-**Sprint Tracking Lead**: Master Orchestrator (`orchestrator`)  
+## Acceptance and stop conditions for `/grill-me`
 
-| Ticket ID | Assigned Agent | Task Summary | Status | Dependencies |
-|---|---|---|---|---|
-| `TICKET-001` | `orchestrator` | Architecture Blueprint & Spec Finalization | TODO | None |
-| `TICKET-002` | `developer` | Code Implementation & Unit Tests | TODO | `TICKET-001` |
-| `TICKET-003` | `qa_tester` | E2E & Regression Suite Verification | TODO | `TICKET-002` |
-| `TICKET-004` | `devops` | Release Packaging & Environment Audit | TODO | `TICKET-003` |
-| `TICKET-005` | `code_reviewer` | Pre-Deploy Audit & Post-Deploy E2E Check | TODO | `TICKET-004` |
+The command succeeds only when:
 
----
+- all nine dimensions were assessed with an evidence state;
+- D1, D3, and D6 have no unresolved item;
+- required inputs, dependencies, assumptions, owners, and interfaces are clear;
+- every output has measurable verification and a stop threshold;
+- waivers and blockers are explicit and attributable; and
+- the report identifies the exact next authorized phase without executing it.
 
-### 🎫 TICKET-001 | `orchestrator` | [STATUS: TODO]
-**Priority**: CRITICAL  
-**Depends On**: None  
-**Blocks**: `TICKET-002`  
-#### Detailed Instructions
-1. Finalize `/plans/plan.md` with complete technical specifications.
-2. Verify dependency constraints and agent tool configurations.
-#### Acceptance Criteria
-- [ ] `/plans/plan.md` complete and signed off.
-- [ ] Task handoff to `developer` initiated.
+Stop immediately when one of these conditions is reached:
 
----
+- `APPROVED` or `WAIVED`: return the final report; do not begin the next phase.
+- `BLOCKED`: return the partial report, ask no more than one question, and wait.
+- Scope expansion or conflicting new evidence: reopen affected dimensions and
+  return to `BLOCKED` until they are resolved.
 
-### 🎫 TICKET-002 | `developer` | [STATUS: TODO]
-**Priority**: CRITICAL  
-**Depends On**: `TICKET-001`  
-**Blocks**: `TICKET-003`  
-#### Detailed Instructions
-1. Implement features according to technical specifications in `project/`, `rust_core/`, or `api/`.
-2. Follow Pure ASCII logging standard (`[OK]`, `[ERROR]`, `[INFO]`).
-3. Remove dead code / legacy functions as mandated.
-#### Acceptance Criteria
-- [ ] Source code implemented without syntax/lint errors.
-- [ ] Module inline documentation completed.
+## Gotchas
 
----
-
-### 🎫 TICKET-003 | `qa_tester` | [STATUS: TODO]
-**Priority**: CRITICAL  
-**Depends On**: `TICKET-002`  
-**Blocks**: `TICKET-004`  
-#### Detailed Instructions
-1. Run pytest suite: `python3 -m pytest -v --ignore=project/kaggle_kernel`.
-2. Run UI button regression suite: `python3 scripts/run_button_regression.py`.
-3. Run Playwright E2E screenshots: `python3 scripts/run_e2e_screenshots.py`.
-4. Provide trimmed ASCII log snippets for any failures.
-#### Acceptance Criteria
-- [ ] 100% test pass rate across all suites.
-
----
-
-### 🎫 TICKET-004 | `devops` | [STATUS: TODO]
-**Priority**: HIGH  
-**Depends On**: `TICKET-003`  
-**Blocks**: `TICKET-005`  
-#### Detailed Instructions
-1. Audit environment variables (`.env`, `.env.production`).
-2. Run secret scan: `python3 project/core/code_reviewer.py --scan-secrets`.
-3. Verify HF Space publishing payload: `python3 scripts/publish_space_hf.py --dry-run`.
-#### Acceptance Criteria
-- [ ] Zero secret leaks detected.
-- [ ] Deploy payload dry-run succeeds.
-
----
-
-### 🎫 TICKET-005 | `code_reviewer` / `orchestrator` | [STATUS: TODO]
-**Priority**: CRITICAL  
-**Depends On**: `TICKET-004`  
-**Blocks**: None (Delivery Gateway)  
-#### Detailed Instructions
-1. Run pre-deployment review: `python3 project/core/code_reviewer.py --review`.
-2. Ensure status is `READY_FOR_PROD`.
-3. Post-deployment verification and final summary delivery.
-#### Acceptance Criteria
-- [ ] Status `READY_FOR_PROD` verified.
-- [ ] Live docs updated and synchronized.
-```
-
----
-
-## 🔍 Step 6 — Post-Grill Task Flow Tracking Verification
-
-The Orchestrator acts as the continuous Task Manager to guarantee work flows seamlessly to completion:
-
-1. **Active Assignment Guard**: Before dispatching work to a sub-agent, the Orchestrator updates the ticket from `TODO` to `DOING`.
-2. **Handoff Verification**: When a sub-agent finishes its task, it returns results to Orchestrator. The Orchestrator verifies output against the ticket's Acceptance Criteria and updates ticket to `DONE`.
-3. **Blocker Escalation**: If a sub-agent hits an error, the ticket is marked `BLOCKED`, and the Orchestrator bounces the bug report back to the responsible agent (e.g. QA fail → Developer fix).
-4. **End-to-End Closure**: No goal is marked complete until all sprint tickets reach `DONE` and post-deploy E2E verification passes 100%.
-
----
-
-## ⚡ Quick Reference
-
-- **Mandatory Trigger**: Before any planning or code modification.
-- **Gate Controller**: `orchestrator`
-- **Output Artifacts**:
-  - GRILL REPORT in `/plans/plan.md`
-  - Specialized Sub-Agent Tickets in `PROJECT_TASKS.md`
-- **Hard Rule**: Strict blocking if CRITICAL dimensions or assumptions are unconfirmed.
+- Approval of the gate is not approval to commit, push, deploy, publish, access
+  credentials, spend money, or perform destructive/external actions.
+- Do not copy stale model names, dependency locks, test counts, or deployment
+  claims from old plans; verify current sources or mark them pending.
+- For subprocess evidence, keep logs trimmed and use ASCII tags only:
+  `[INFO]`, `[OK]`, `[WARNING]`, and `[ERROR]`.

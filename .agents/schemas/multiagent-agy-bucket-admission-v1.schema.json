@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://horoconsultant.local/schemas/multiagent-agy-bucket-admission-v1.schema.json",
+  "title": "HoroConsultant isolated AGY bucket admission v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol", "protocol_version", "alias", "model_id", "buckets", "observed_at", "provenance"],
+  "properties": {
+    "protocol": {"const": "horoconsultant.agy-bucket-admission.v1"}, "protocol_version": {"const": 1},
+    "alias": {"enum": ["agy1", "agy2"]}, "model_id": {"$ref": "#/$defs/safeName"},
+    "observed_at": {"$ref": "#/$defs/utcTimestamp"},
+    "buckets": {"type": "object", "minProperties": 1, "maxProperties": 4, "propertyNames": {"enum": ["gemini-weekly", "gemini-5h", "3p-weekly", "3p-5h"]}, "additionalProperties": {"$ref": "#/$defs/bucket"}},
+    "provenance": {"type": "object", "additionalProperties": false, "required": ["kind", "fresh"], "properties": {"kind": {"const": "provider_status"}, "fresh": {"const": true}}}
+  },
+  "$defs": {
+    "safeName": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "utcTimestamp": {"type": "string", "format": "date-time", "pattern": "Z$"},
+    "resetTimestamp": {"type": "string", "format": "date-time", "maxLength": 36, "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,15})?Z$"},
+    "bucket": {"type": "object", "additionalProperties": false, "required": ["remaining_fraction", "disabled"], "properties": {"remaining_fraction": {"type": "number", "minimum": 0, "maximum": 1}, "disabled": {"type": "boolean"}, "reset_time": {"$ref": "#/$defs/resetTimestamp"}, "unit": {"const": "fraction"}}}
+  }
+}

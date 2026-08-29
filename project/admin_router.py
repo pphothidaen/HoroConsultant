@@ -5,18 +5,19 @@ Admin Panel API Router for Knowledge Source Management,
 Gray-Zone Answer Collection, and Fine-Tune Pipeline Control.
 
 Endpoints:
-  GET  /admin/                           → Admin Dashboard UI
-  GET  /admin/catalog                    → Full knowledge catalog
-  GET  /admin/catalog/summary            → Coverage summary report
-  GET  /admin/grayzone                   → All gray-zone questions
-  POST /admin/grayzone/answer            → Submit answer for a gray-zone question
-  PUT  /admin/grayzone/answer/{source_id} → Update existing answer
-  DELETE /admin/grayzone/answer/{source_id} → Delete answer
-  GET  /admin/finetune/status            → Fine-tune dataset statistics
-  POST /admin/finetune/export-grayzone   → Build JSONL from answered gray-zone
-  POST /admin/finetune/merge             → Merge all datasets into combined_train.jsonl
-  POST /admin/finetune/trigger           → Trigger external AI fine-tune job
-  GET  /admin/finetune/download          → Download combined_train.jsonl
+  GET  /admin/                           -> Admin Dashboard UI
+  GET  /admin/catalog                    -> Full knowledge catalog
+  GET  /admin/catalog/summary            -> Coverage summary report
+  GET  /admin/provider-pools             -> Live AI provider pools, circuit breakers & stats
+  GET  /admin/grayzone                   -> All gray-zone questions
+  POST /admin/grayzone/answer            -> Submit answer for a gray-zone question
+  PUT  /admin/grayzone/answer/{source_id} -> Update existing answer
+  DELETE /admin/grayzone/answer/{source_id} -> Delete answer
+  GET  /admin/finetune/status            -> Fine-tune dataset statistics
+  POST /admin/finetune/export-grayzone   -> Build JSONL from answered gray-zone
+  POST /admin/finetune/merge             -> Merge all datasets into combined_train.jsonl
+  POST /admin/finetune/trigger           -> Trigger external AI fine-tune job
+  GET  /admin/finetune/download          -> Download combined_train.jsonl
 """
 
 from __future__ import annotations
@@ -215,7 +216,71 @@ def get_dataset_stats() -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
-# Routes — Catalog
+# Routes - Provider Pools & Health
+# ---------------------------------------------------------------------------
+
+@admin_router.get("/provider-pools", summary="Live AI provider pools, circuit breakers, and rate limiter stats")
+@admin_router.get("/api/admin/provider-pools", summary="Live AI provider pools alias", include_in_schema=False)
+@admin_router.get("/api/provider-pools", summary="Live AI provider pools alias", include_in_schema=False)
+async def get_provider_pools():
+    """
+    Return live AI provider pool health, circuit breaker states,
+    quota rotation pools, rate limiter metrics, and semantic cache stats.
+    """
+    from project.core.ai_provider_router import ai_router
+    from project.core.rate_limiter import rate_limiter
+    from project.core.semantic_cache import semantic_cache
+
+    cb_stats: dict[str, Any] = {}
+    for name, cb in ai_router.circuit_breakers.items():
+        cb_stats[name] = {
+            "name": cb.name,
+            "state": cb.state,
+            "is_open": cb.is_open(),
+            "failure_count": cb.failure_count,
+            "cooldown_seconds": cb.cooldown_seconds,
+            "last_failure_time": cb.last_failure_time,
+        }
+
+    pools_data: dict[str, Any] = {}
+    for name, pool in ai_router.provider_pools.items():
+        active_proj = pool.get_active_project()
+        pools_data[name] = {
+            "provider_name": pool.provider_name,
+            "billing_mode": pool.billing_mode.value if hasattr(pool.billing_mode, "value") else str(pool.billing_mode),
+            "is_available": pool.is_available(),
+            "active_project_index": pool.active_project_index,
+            "active_project_id": active_proj.project_id if active_proj else None,
+            "projects_count": len(pool.projects),
+            "projects": [
+                {
+                    "project_id": p.project_id,
+                    "key_count": len(p.api_keys),
+                    "active_key_index": p.active_key_index,
+                    "is_rate_limited": p.is_rate_limited,
+                    "is_available": p.is_available(),
+                }
+                for p in pool.projects
+            ],
+        }
+
+    return JSONResponse(
+        content={
+            "status": "healthy",
+            "zero_cost_only": ai_router.zero_cost_only,
+            "zero_cost_policy": "ACTIVE" if ai_router.zero_cost_only else "DISABLED",
+            "circuit_breakers": cb_stats,
+            "provider_pools": pools_data,
+            "provider_health": ai_router.get_provider_health(),
+            "rate_limiter_stats": rate_limiter.get_stats(),
+            "semantic_cache_stats": semantic_cache.get_stats(),
+            "timestamp": datetime.now().isoformat(),
+        }
+    )
+
+
+# ---------------------------------------------------------------------------
+# Routes - Catalog
 # ---------------------------------------------------------------------------
 
 @admin_router.get("/catalog", summary="Full knowledge source catalog")

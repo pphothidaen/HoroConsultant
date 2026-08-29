@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "ticket": "QOBS-01-PROBE",
+  "phase": "implementation",
+  "scope_rank": 2,
+  "complexity_rank": 2,
+  "risk_rank": 3,
+  "ambiguity_rank": 1,
+  "evidence_burden_rank": 3,
+  "quota_band": "unknown",
+  "work_mode": "mutation",
+  "selected_alias": "codex1",
+  "selected_model": "gpt-5.6-sol",
+  "selected_effort": "high",
+  "rationale": "Fresh bounded source remediation for QOBS-01-PROBE. The developer may inspect and fix only scripts/agent_quota_status_guard.py, run the frozen focused quota-observation tests, run python3 scripts/test_provenance_guard.py staged, and then stage and commit only that source path with the exact Test-Baseline: 9847234f3f2537d0b65ecb1fc9afca87ceb517a2 trailer. Preserve the ticket45 frozen allowlist and the protected data provenance blockers project/data/bazi_bazi_manual_chatml.jsonl and project/data/distillation_checklist.json. No other path may be staged; no push, deploy, publish, credentials, secrets, provider/account action, sync, or generated-file edit is authorized. Fresh user authorization is investigate blocked and fix it (2026-08-27).",
+  "policy_version": "2026-08-26.1",
+  "planning_to_medium_confirmed": true,
+  "hitl_approved": true
+}

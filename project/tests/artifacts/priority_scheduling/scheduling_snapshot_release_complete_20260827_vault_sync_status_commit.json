@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "tickets": [
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260827-VAULT-SYNC-STATUS-COMMIT",
+      "severity": "HIGH",
+      "work_effort": "XS",
+      "status": "READY",
+      "dependencies": [
+        "TICKET-RELEASE-COMPLETE-20260826-44R2-PRE-SOURCE-INTEGRATION-QA"
+      ],
+      "blockers": [],
+      "owner": "devops",
+      "ownership": [
+        "project/data/vault_sync_status.json"
+      ],
+      "quota_passed": true,
+      "hitl_passed": true,
+      "rule18_decision_valid": true
+    }
+  ],
+  "reservations": [
+    {
+      "ticket_id": "TICKET-RELEASE-COMPLETE-20260827-VAULT-SYNC-STATUS-COMMIT",
+      "owner": "devops",
+      "action": "stage_and_commit",
+      "paths": [
+        "project/data/vault_sync_status.json"
+      ],
+      "max_uses": 1,
+      "commit_scope": "exactly one separate local commit; no push, deploy, publish, credentials, secrets, release approval, or source eligibility",
+      "preconditions": [
+        "current diff remains exactly the last_sync_timestamp change",
+        "inventory counts and folder configuration remain unchanged",
+        "ticket45 frozen allowlist remains unchanged",
+        "project/data/bazi_bazi_manual_chatml.jsonl and project/data/distillation_checklist.json remain protected and unstaged"
+      ],
+      "stop_on_drift": true
+    }
+  ]
+}

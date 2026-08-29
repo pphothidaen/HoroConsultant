@@ -1,0 +1,89 @@
+{
+  "artifact_type": "Decision/HITL-Closure",
+  "protocol_version": 2,
+  "ticket": "TICKET-S3-AGY-DOCS-INSPECT-20260828-ATTEMPT2",
+  "attempt_id": 2,
+  "closure_status": "COMPLETED",
+  "closed_at": "2026-08-28T04:18:00Z",
+  "immutable_decision": {
+    "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_docs_inspection_20260828_attempt2.json",
+    "physical_sha256": "100b1419dcf90d99c59156c49dbd5409ad1f8d039f90e85210668a696945b25b",
+    "normalized_sha256": "1dd78e63d7a18a7b4d9650b3a2efdbedf94ab1408ae819b10e4fd8dba6ce675d",
+    "approval": "Approve AGY docs-inspect attempt-2 exactly",
+    "approval_scope": "one read-only invocation of literal `agy --help` under the Decision; no retry, mutation, raw output, model task, transaction, or quota/concurrency inference"
+  },
+  "inspector_binding": {
+    "path": "scripts/agy_cli_docs_inspector.py",
+    "version": "agy-cli-docs-inspector-v1.4.0",
+    "version_sha256": "5edd48b6bc998951c4fb06bc6df599ee2ac7135cf8678e711665fc9514e19aa3",
+    "file_sha256": "f026ba0585c6e44f97393348e72f08bf8585dc9813440a85c2d24ee71200c92c",
+    "tests_path": "tests/test_agy_cli_docs_inspector.py",
+    "tests_sha256": "33cd5f363579da33a7d84b98f12bb57eb3704dc4d9b344c444dc5ddf530a05f3"
+  },
+  "drift_evidence": {
+    "environment_normalization_effective": true,
+    "has_ansi_escape": false,
+    "line_count": 36,
+    "flag_count": 23,
+    "subcommand_count": 0,
+    "stdout_nonempty": false,
+    "stderr_nonempty": true,
+    "combined_stream_bytes": 2675,
+    "available_flags": [
+      "--add-dir",
+      "--agent",
+      "--continue",
+      "--conversation",
+      "--dangerously-skip-permissions",
+      "--disable-slash-commands",
+      "--effort",
+      "--input-format",
+      "--json-schema",
+      "--log-file",
+      "--mode",
+      "--model",
+      "--new-project",
+      "--output-format",
+      "--print",
+      "--print-timeout",
+      "--project",
+      "--prompt",
+      "--prompt-interactive",
+      "--sandbox",
+      "-c",
+      "-i",
+      "-p"
+    ],
+    "available_subcommands": [],
+    "inspector_version": "agy-cli-docs-inspector-v1.4.0"
+  },
+  "results": {
+    "docs_inspect": {
+      "receipt_path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_docs_inspection_20260828_attempt2.json",
+      "receipt_sha256": "86de17827f57cd5f3f1f6ba89e6dab41b22d3dbba8963f4df4255c5844cd4a2f",
+      "workresult_path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_docs_inspection_20260828_attempt2.json",
+      "workresult_sha256": "9deb1727e66f6d17969c6cabeea02b147c10241b81a37433350e6ed3b88f79c1",
+      "status": "COMPLETED",
+      "provider_invocation_count": 1,
+      "available_flags_count": 23,
+      "available_subcommands_count": 0,
+      "tmux_session": "s3-agy-docs-inspect-a2",
+      "tmux_closed": true,
+      "raw_provider_stream_persisted": false
+    }
+  },
+  "invariants": {
+    "command": ["agy", "--help"],
+    "transport": "detached_tmux",
+    "provider_invocations_total": 1,
+    "model_tasks": 0,
+    "retries": 0,
+    "mutations": 0,
+    "concurrency_inference": false,
+    "evidence_boundary": "validated in-process only",
+    "attempt_3_created": false,
+    "provider_call_after_closure": false
+  },
+  "summary": "Exact one-shot docs inspection completed provider invocation (exit 0) under environment normalization. Captured 23 supported CLI flags from in-memory stderr stream. No subcommands exist. Key discovery: --output-format, --input-format, --json-schema, --disable-slash-commands. Docs Inspection Attempt 2 is successfully COMPLETED.",
+  "next_action": "Docs Inspection is successfully closed. Analyze the discovered flags (--output-format, --json-schema, --disable-slash-commands) to formulate the next governed step for quota observation or capacity policy."
+}

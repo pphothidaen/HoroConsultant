@@ -1,0 +1,87 @@
+{
+  "artifact_type": "Decision/HITL-Closure",
+  "protocol_version": 2,
+  "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828-ATTEMPT10",
+  "attempt_id": 10,
+  "closure_status": "BLOCKED/NEEDS_HITL",
+  "closed_at": "2026-08-28T03:20:00Z",
+  "immutable_decision": {
+    "path": "project/tests/artifacts/alias_dispatch_v2/decision_s3_quota_probe_20260828_attempt10.json",
+    "physical_sha256": "9e5a7b1c4fd99c524234d0f74ebd0161dd4070ec677e6efed7a6253e3e1c522c",
+    "normalized_sha256": "2f8ba6696821ab15515885724e47a930f0ae694b176936ea3aeadc7e60d84e5c",
+    "approval": "Approve AGY attempt-10 exactly",
+    "approval_scope": "exact one-shot read-only invocation per AGY alias under the Decision; no retry, mutation, raw output, model task, transaction, dashboard/API, or concurrency inference"
+  },
+  "parser_binding": {
+    "path": "scripts/agy_usage_quota_sanitizer.py",
+    "version": "agy-usage-sanitizer-v1.3.0",
+    "version_sha256": "1fc2afcd469a7c14a2ceccc6c14e59d67e84dbb414036462ae6f13dc73348ac9",
+    "file_sha256": "55b7b7d43247fd23cf21c03fe366d07c044626f15a62b098add011eb8169eeaa",
+    "tests_path": "tests/test_agy_usage_quota_sanitizer.py",
+    "tests_sha256": "7361951029180c228efdc63bf1c2957250034033564701a24cabed202915fbb1"
+  },
+  "drift_evidence": {
+    "environment_normalization_effective": true,
+    "has_ansi_escape": false,
+    "detected_layout": "key_value",
+    "line_count": 4,
+    "line_structures": [
+      "key_value",
+      "key_value",
+      "key_value",
+      "unclassified"
+    ],
+    "first_token_types": [
+      "key",
+      "key",
+      "key",
+      "unclassified"
+    ],
+    "failure_taxonomy": "parse_failure:unexpected_key_value",
+    "parser_version": "agy-usage-sanitizer-v1.3.0"
+  },
+  "results": {
+    "agy1": {
+      "receipt_path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy1_attempt10.json",
+      "receipt_sha256": "98ce66c725d9b81119008ac1f95937b3047dec81cd39e5cf293b4f1356b8f86d",
+      "workresult_path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy1_attempt10.json",
+      "workresult_sha256": "3232d1b44ca4c76d822a853fb3655090c0421dab68130201c4661ae80087f110",
+      "status": "BLOCKED",
+      "failure": "parse_failure:unexpected_key_value",
+      "provider_invocation_count": 1,
+      "quota_status": "unknown",
+      "concurrency_status": "unknown",
+      "tmux_session": "s3-agy1-quota-a10",
+      "tmux_closed": true,
+      "raw_provider_stream_persisted": false
+    },
+    "agy2": {
+      "receipt_path": "project/tests/artifacts/alias_dispatch_v2/receipt_s3_quota_probe_20260828_agy2_attempt10.json",
+      "receipt_sha256": "7b67278287701396a0202ea7650e8bd270d968eb95d431b76f865d274562980c",
+      "workresult_path": "project/tests/artifacts/alias_dispatch_v2/workresult_s3_quota_probe_20260828_agy2_attempt10.json",
+      "workresult_sha256": "0b30e985817fac783d9924c45cd99a171ab1d0faff800e709ab0516f73c262d5",
+      "status": "BLOCKED",
+      "failure": "parse_failure:unexpected_key_value",
+      "provider_invocation_count": 1,
+      "quota_status": "unknown",
+      "concurrency_status": "unknown",
+      "tmux_session": "s3-agy2-quota-a10",
+      "tmux_closed": true,
+      "raw_provider_stream_persisted": false
+    }
+  },
+  "invariants": {
+    "command_per_alias": ["agy", "-p", "/usage"],
+    "transport": "detached_tmux",
+    "provider_invocations_total": 2,
+    "model_tasks": 0,
+    "retries": 0,
+    "mutations": 0,
+    "concurrency_inference": false,
+    "evidence_boundary": "validated in-process only",
+    "attempt_11_created": false,
+    "provider_call_after_closure": false
+  },
+  "summary": "Both exact one-shot probes completed provider invocation (exit 0) under environment normalization. Structural fingerprint successfully captured a 4-line key_value layout with 0 ANSI escapes. Sanitizer v1.3.0 rejected unexpected key-value tokens without leaking raw content. Quota and concurrency remain unknown. Attempt 10 is closed.",
+  "next_action": "Use the captured structural fingerprint (4 lines, key_value layout) to expand the key_value extraction grammar in parser v1.4.0, update unit tests, and prepare Attempt 11 Decision."
+}

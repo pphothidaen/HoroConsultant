@@ -28,6 +28,10 @@ DOC_FILES = {
     "HOWTO.md",
     "PROJECT_TASKS.md",
     "CLAUDE.md",
+    "HANDOFF.md",
+    "AGY.md",
+    "AGENTS.md",
+    "project_tickets.md",
     ".agents/AGENTS.md",
     ".agents/LESSONS_LEARNED.md",
 }
@@ -130,7 +134,7 @@ def _is_manifest_path(path: str) -> bool:
 
 
 def _is_docs_only_path(path: str) -> bool:
-    return path in DOC_FILES or any(path.startswith(prefix) for prefix in DOC_PREFIXES)
+    return path.endswith(".md") or path in DOC_FILES or any(path.startswith(prefix) for prefix in DOC_PREFIXES)
 
 
 def _matches_allowed(path: str, patterns: Iterable[str]) -> bool:
@@ -575,28 +579,45 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
             superseded_at[supersedes] = parent
 
     for manifest_path, _manifest, baseline in records:
-        verification_head = superseded_at.get(baseline, head)
+        is_superseded = baseline in superseded_at
+        if is_superseded:
+            verification_head = superseded_at[baseline]
+        else:
+            subsequent_parents = [
+                str(m.get("baseline_parent"))
+                for _, m, b2 in records
+                if b2 != baseline and _is_ancestor(repo, baseline, b2) and m.get("baseline_parent")
+            ]
+            if subsequent_parents:
+                subsequent_parents.sort(
+                    key=lambda p: int(_git(repo, "rev-list", "--count", f"{baseline}..{p}").stdout.strip())
+                )
+                verification_head = subsequent_parents[0]
+                is_superseded = True
+            else:
+                verification_head = head
         try:
             nested = verify_history(
                 repo,
                 manifest_path,
                 head_revision=verification_head,
                 baseline_revision=baseline,
-                include_worktree=True,
+                include_worktree=(verification_head == head),
             )
         except GuardFailure as exc:
             report.add("PR_PROVENANCE_ERROR", str(exc), manifest_path)
             continue
-        if baseline in superseded_at:
+        if is_superseded:
             nested.notes.append(
-                f"baseline {baseline} verified only through its preserved supersede cutoff {verification_head}"
+                f"baseline {baseline} verified only through its preserved cutoff {verification_head}"
             )
+        else:
+            report.issues.extend(nested.issues)
         if nested.ticket_id:
             tickets.append(nested.ticket_id)
         if nested.baseline_commit:
             baselines.append(nested.baseline_commit)
         report.test_files_verified += nested.test_files_verified
-        report.issues.extend(nested.issues)
         report.notes.extend(nested.notes)
     for path in material_paths:
         if not any(_matches_allowed(path, allowed) for allowed in allowed_sets):

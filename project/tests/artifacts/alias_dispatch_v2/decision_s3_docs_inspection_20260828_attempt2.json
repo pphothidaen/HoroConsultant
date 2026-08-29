@@ -1,0 +1,118 @@
+{
+  "protocol_version": 2,
+  "artifact_type": "Decision/HITL",
+  "ticket": "TICKET-S3-AGY-DOCS-INSPECT-20260828-ATTEMPT2",
+  "attempt_id": 2,
+  "created_at": "2026-08-28T04:20:00Z",
+  "timezone": "UTC",
+  "phase": "fresh_preflight_pending_human_approval",
+  "work_mode": "read_only",
+  "overall_status": "NEEDS_HITL/PENDING_EXECUTION",
+  "required_human_review": true,
+  "timeout_seconds": 60.0,
+  "objective": "Static CLI flag & subcommand documentation inspection via `agy --help` combining in-memory stdout/stderr streams under detached tmux and environment normalization (NO_COLOR=1, TERM=dumb, LC_ALL=C, PAGER=cat, AGY_PAGER=cat) and bounded timeout 60s; no model task, transaction, mutation, retry, raw output, or quota claim.",
+  "account_scope": {
+    "mode": "account_agnostic_static_docs_only",
+    "statement": "This docs-inspect invocation is account-agnostic and must not read, compare, print, or persist any account home, runtime-config path, or credential. No AGY account quota is consumed or observed by agy --help; this is a local CLI help inspection only."
+  },
+  "prior_attempt_boundary": {
+    "attempt1_closure": "project/tests/artifacts/alias_dispatch_v2/decision_s3_docs_inspection_20260828_attempt1_closure.json",
+    "attempt1_closure_sha256": "02dd5d4a2cdea91ce6ca26e966e73a5a752083629df7b0899bf609adcbc392e0",
+    "attempt1_status": "BLOCKED/NEEDS_HITL",
+    "preserve_immutable": true
+  },
+  "authorization": {
+    "status": "pending_fresh_HITL",
+    "approval_required_before_provider": true,
+    "approval_text_required": "Approve AGY docs-inspect attempt-2 exactly: one read-only invocation of literal `agy --help` in a detached tmux session with environment normalization (NO_COLOR=1, TERM=dumb, LC_ALL=C, PAGER=cat, AGY_PAGER=cat) and bounded timeout 60s, through inspector agy-cli-docs-inspector-v1.4.0 with the bound hashes in this Decision; no model task, transaction, mutation, dashboard/API, retry, fallback after provider start, raw output, or concurrency inference. Persist only allowlisted flag/subcommand names, safe structural fingerprint, and bound ExecutionReceipt/WorkResult. No raw stdout/stderr, path, credential, PII, or descriptive text may be persisted or exposed. If preflight, capture, parse, timeout, or binding fails, stop and mark BLOCKED/NEEDS_HITL.",
+    "prohibited": [
+      "any other command or argument",
+      "provider/account/configuration mutation",
+      "model task or transaction",
+      "retry or alternate command",
+      "raw stdout/stderr or secrets",
+      "concurrency claim",
+      "quota inference from help text"
+    ]
+  },
+  "command_argv": [
+    "agy",
+    "--help"
+  ],
+  "environment_normalization": {
+    "NO_COLOR": "1",
+    "TERM": "dumb",
+    "LC_ALL": "C",
+    "PAGER": "cat",
+    "AGY_PAGER": "cat"
+  },
+  "inspector_binding": {
+    "path": "scripts/agy_cli_docs_inspector.py",
+    "version": "agy-cli-docs-inspector-v1.4.0",
+    "version_sha256": "5edd48b6bc998951c4fb06bc6df599ee2ac7135cf8678e711665fc9514e19aa3",
+    "file_sha256": "f026ba0585c6e44f97393348e72f08bf8585dc9813440a85c2d24ee71200c92c",
+    "tests_path": "tests/test_agy_cli_docs_inspector.py",
+    "tests_sha256": "33cd5f363579da33a7d84b98f12bb57eb3704dc4d9b344c444dc5ddf530a05f3",
+    "boundary": "Only allowlisted flag/subcommand names and safe structural fingerprint may cross the in-memory boundary; raw provider output is never retained."
+  },
+  "transport_binding": {
+    "order": [
+      "tmux",
+      "direct_terminal_pre_invocation_setup_failure_only"
+    ],
+    "session": "s3-agy-docs-inspect-a2",
+    "pane_inspection": false,
+    "post_start_fallback": false
+  },
+  "receipt_binding_contract": {
+    "contract_version": "docs_inspection_receipt_v1",
+    "decision_hash_must_match": true,
+    "sanitized_output_only": true,
+    "required_work_result_fields": [
+      "Status",
+      "Scope owned",
+      "Evidence",
+      "Findings",
+      "Changed files",
+      "Residual risk",
+      "Recommended next action"
+    ],
+    "evidence_boundary": "validated in-process only"
+  },
+  "preflight": {
+    "json_syntax": "PASS",
+    "inspector_version_sha256_verified": true,
+    "inspector_file_sha256_verified": true,
+    "tests_sha256_verified": true,
+    "tmux_available": true,
+    "provider_calls": 0,
+    "network_calls": 0,
+    "all_pre_invocation_gates_passed": true,
+    "execution_admission": "HOLD_FOR_HITL"
+  },
+  "branch_plan": {
+    "if_status_subcommand_found": "Request separate fresh HITL for agy status --help",
+    "if_json_flag_found": "Request separate fresh HITL for agy -p /usage --json",
+    "if_no_subcommands_or_flags": "Proceed to Option B (conservative fallback capacity with unknown quota) or request human-supplied schema"
+  },
+  "stop_conditions": [
+    "No provider invocation until fresh HITL approval is recorded and this Decision normalized digest is validated.",
+    "Stop before invocation on any preflight, inspector/hash, or tmux setup failure.",
+    "After one invocation, stop regardless of outcome; no retry, fallback, raw output, model task, transaction, mutation, or concurrency inference."
+  ],
+  "out_of_scope": [
+    "model task",
+    "provider transaction",
+    "configuration mutation",
+    "raw output retention",
+    "retry",
+    "concurrency claim",
+    "quota inference from help output"
+  ],
+  "integrity": {
+    "normalization_method": "Remove integrity.normalized_decision_sha256; recursively sort keys; compact UTF-8 JSON without trailing newline; SHA-256.",
+    "normalized_decision_sha256": "1dd78e63d7a18a7b4d9650b3a2efdbedf94ab1408ae819b10e4fd8dba6ce675d"
+  },
+  "residual_risk": "Documentation inspection only discovers static CLI flags; no quota status or concurrency is proven by this step.",
+  "recommended_next_action": "Human must approve the exact authorization text above. Only then dispatch the one-shot tmux lane."
+}

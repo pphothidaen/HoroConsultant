@@ -1,0 +1,224 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-ZERO-006-BASELINE",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "f7866c9381cddfd6ea221194c09525b94a083335",
+  "test_files": [
+    {
+      "path": "project/tests/goldens/openapi.json",
+      "sha256": "326c17cdd405a7ac4dfb7d96095386e6d178ba1d132981dc113603a5d0a2d199"
+    },
+    {
+      "path": "project/tests/prod_version_regression_report.json",
+      "sha256": "86f8db43b078e3ef564da1e8638a87ed64b82e1aeb7715bb7e7c8658964034ef"
+    },
+    {
+      "path": "project/tests/test_ai_agent_ecosystem_sync.py",
+      "sha256": "251c80962879b58d527a5ae310ec3cb1c177c2f8647dbdfea2e162edecc1b95b"
+    },
+    {
+      "path": "project/tests/test_azure_release.py",
+      "sha256": "14049a8ece640d98292343633dc39a6edf3bdd3f719adbc4f47c20517b09e1d5"
+    },
+    {
+      "path": "project/tests/test_live_health_verification.py",
+      "sha256": "b77a3323145733c4d371455cb838ca0638f22cb76b246e36697ea657c7302571"
+    },
+    {
+      "path": "project/tests/test_prod_version_e2e_release_identity.py",
+      "sha256": "548c993488013a571217607a3af4be72276f1594c73d001a858d0f10bef750ec"
+    },
+    {
+      "path": "project/tests/test_semantic_cache.py",
+      "sha256": "5f20cedadd9f3f15f5107ea14190437482f65edec6e6998f3d52fa1f06cf4aed"
+    },
+    {
+      "path": "project/tests/test_zero_cost_pipeline.py",
+      "sha256": "5cd4d93d6a8767cb4eccad0dc03c5606f6127adbd7c8724663c628b5e96cb4d0"
+    },
+    {
+      "path": "tests/test_agy_json_usage_sanitizer.py",
+      "sha256": "d163c2c7ecc8dda3d86ef6c2daef1eb0aae62a2ea50cb652fe652b82fce7fad1"
+    },
+    {
+      "path": "tests/test_four_pool_two_root_capacity.py",
+      "sha256": "c69adc1ec439f261999a94378167ea4b1cd5251d04897d2da8f952065d2a9923"
+    },
+    {
+      "path": "tests/test_idq_mvp_010_release_cycle.py",
+      "sha256": "10290b46cc5127360cf5b0feca383a12762f010b3d9b93a6224442160f14cd65"
+    },
+    {
+      "path": "tests/test_inter_root_dispatch_contract.py",
+      "sha256": "cd35b3b686f6553e3c47b1df495ab5b175d98117ebbdd7f9fec4ac12f32cba6d"
+    },
+    {
+      "path": "tests/test_luna_governed_dispatch_exception.py",
+      "sha256": "616b4eb8f06445c42132747ec289bf440a685e98b2388a57b1f3186e69b9aa5f"
+    },
+    {
+      "path": "tests/test_multiagent_capacity.py",
+      "sha256": "f612558fd38af64ff5eaffaac2e3259fbfbae99e6a7b03580ee49f5e118ace16"
+    },
+    {
+      "path": "tests/test_multiagent_prompt_command.py",
+      "sha256": "eed90ae139e57f9962b1a7fd341667e920432fa9f4db7e63c08343fd4d38664b"
+    },
+    {
+      "path": "tests/test_multiagent_root_worker.py",
+      "sha256": "7170cdf70d22d3ee3835fc84b3c45341e0753ef4e7f366865a4cbea7fdc1b8b5"
+    },
+    {
+      "path": "tests/test_multiagent_ticket_scheduler.py",
+      "sha256": "1aa608bc884678bb52f8f4cc6da615467527775a0876671bdfdbfc76740b97cf"
+    },
+    {
+      "path": "tests/test_quota_observation_integration.py",
+      "sha256": "ff03b49c7fc54abce48ee51679eb81ce999509755a6b0fce9dc356ed0192333a"
+    },
+    {
+      "path": "tests/test_spark_model_governance.py",
+      "sha256": "7a2502675984a2039900ed7712f08d654bdbda68e727b5ae4cb1ee1d0a5108c4"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_zero_cost_pipeline.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Negative control: initial zero-cost pipeline verification requires fail-closed mock and circuit breaker state."
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/AGENTS.md",
+    ".agents/LESSONS_LEARNED.md",
+    ".agents/agents/business_analyst.json",
+    ".agents/agents/business_analyst.md",
+    ".agents/agents/business_analyst/agent.json",
+    ".agents/agents/business_analyst/agent.md",
+    ".agents/agents/code_reviewer.json",
+    ".agents/agents/code_reviewer.md",
+    ".agents/agents/code_reviewer/agent.json",
+    ".agents/agents/code_reviewer/agent.md",
+    ".agents/agents/developer.json",
+    ".agents/agents/developer.md",
+    ".agents/agents/developer/agent.json",
+    ".agents/agents/developer/agent.md",
+    ".agents/agents/devops.json",
+    ".agents/agents/devops.md",
+    ".agents/agents/devops/agent.json",
+    ".agents/agents/devops/agent.md",
+    ".agents/commands/grill-me.md",
+    ".agents/config/multiagent_model_policy.yaml",
+    ".agents/config/multiagent_prompt_command.luna-one-shot.yaml",
+    ".agents/config/multiagent_prompt_command.runtime-readonly-v2.yaml",
+    ".agents/config/s3_capacity_policy.json",
+    ".agents/rules/19-agy-capacity-governance.md",
+    ".agents/skills/requirement-grill-gate/SKILL.md",
+    ".agy/agents/code-reviewer.md",
+    ".agy/agents/security-auditor.md",
+    ".agy/hooks.json",
+    ".agy/hooks/post-tool-use.sh",
+    ".agy/hooks/pre-tool-use.sh",
+    ".agy/hooks/stop-monitor.sh",
+    ".agy/rules/adaptive-model-effort-routing.md",
+    ".agy/rules/api-contract.md",
+    ".agy/rules/api-rules.md",
+    ".agy/rules/ci-debugging.md",
+    ".agy/rules/core-rules.md",
+    ".agy/rules/database-rules.md",
+    ".agy/rules/frontend-contract.md",
+    ".agy/rules/hf-static-release-verification.md",
+    ".agy/rules/multi-account-agent-orchestration.md",
+    ".agy/rules/orchestrator-subagents.md",
+    ".agy/rules/secrets-and-devops.md",
+    ".agy/rules/security-rules.md",
+    ".agy/rules/specialist-decomposition.md",
+    ".agy/rules/testing-and-release.md",
+    ".agy/rules/testing-rules.md",
+    ".agy/rules/ui-visual-layout-testing.md",
+    ".agy/rules/zero-cost-ai-governance.md",
+    ".agy/scripts/tmux-runner.sh",
+    ".agy/skills/anti-cognitive-decay/SKILL.md",
+    ".agy/skills/conventional-flow/SKILL.md",
+    ".agy/skills/vulnerability-scanner/SKILL.md",
+    ".antigravity/agents/business-analyst.agent",
+    ".antigravity/agents/business_analyst.agent",
+    ".antigravity/agents/code-reviewer.agent",
+    ".antigravity/agents/code_reviewer.agent",
+    ".antigravity/agents/developer.agent",
+    ".antigravity/agents/devops.agent",
+    ".antigravity/skills/requirement-grill-gate/SKILL.md",
+    ".claude/agents/code-reviewer.md",
+    ".claude/agents/security-auditor.md",
+    ".claude/hooks/post-tool-use-formatter.sh",
+    ".claude/hooks/pre-tool-use-safeguard.sh",
+    ".claude/hooks/stop-monitor.sh",
+    ".claude/rules/api-rules.md",
+    ".claude/rules/ci-debugging.md",
+    ".claude/rules/core-rules.md",
+    ".claude/rules/database-rules.md",
+    ".claude/rules/security-rules.md",
+    ".claude/rules/testing-rules.md",
+    ".claude/skills/anti-cognitive-decay/SKILL.md",
+    ".claude/skills/conventional-flow/SKILL.md",
+    ".claude/skills/vulnerability-scanner/SKILL.md",
+    ".codex/agents/business_analyst.toml",
+    ".codex/agents/developer.toml",
+    ".codex/agents/devops.toml",
+    ".github/workflows/hf_backend_deploy.yml",
+    "HANDOFF.md",
+    "HOWTO.md",
+    "PROJECT_TASKS.md",
+    "docs/RELEASE_HANDOFF_CHECKLIST.md",
+    "docs/contracts/agy_bucket_admission_v1.md",
+    "docs/contracts/inter_root_dispatch_contract.md",
+    "hf-release-manifest.json",
+    "plans/metaphysics_learning_roadmap.md",
+    "plans/plan.md",
+    "plans/todo_tasks_plan.md",
+    "project/admin_router.py",
+    "project/api_router.py",
+    "project/core/ai_provider_router.py",
+    "project/core/rate_limiter.py",
+    "project/core/semantic_cache.py",
+    "project/data/distillation_checklist.json",
+    "project/data/grayzone_answers.json",
+    "project/data/hitl_reviews.json",
+    "project/data/vault_sync_status.json",
+    "project/rag/datasets/hitl_approved.jsonl",
+    "project/rag/datasets/hitl_approved_with_metadata.jsonl",
+    "project/static/admin.html",
+    "project/tests/goldens/openapi.json",
+    "project_tickets.md",
+    "scripts/agent_quota_status_guard.py",
+    "scripts/agy_bucket_admission.py",
+    "scripts/agy_cli_docs_inspector.py",
+    "scripts/agy_json_usage_sanitizer.py",
+    "scripts/agy_usage_quota_sanitizer.py",
+    "scripts/multiagent_capacity.py",
+    "scripts/multiagent_durable_queue.py",
+    "scripts/multiagent_prompt_command.py",
+    "scripts/multiagent_receipt_v3.py",
+    "scripts/multiagent_root_supervisor.py",
+    "scripts/multiagent_root_worker.py",
+    "scripts/multiagent_ticket_scheduler.py",
+    "scripts/publish_space_hf.py",
+    "scripts/run_live_health_verification.py",
+    "scripts/run_prod_version_e2e.py",
+    "scripts/sync_ai_agent_ecosystem.py",
+    "scripts/sync_claude_agy_parity.py",
+    "settings.json"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "5f9a68f2ac57ab3257e73b03cbfdb6773c174fb6",
+  "correction_reason": "Supersede zero-cost baseline 01 to update test_luna_governed_dispatch_exception mock test hash and register all 32 synchronized ecosystem governance paths in allowed_source_paths.",
+  "rationale": "Register synchronized ecosystem paths and fix executable mocking for CI runners."
+}

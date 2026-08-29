@@ -1,0 +1,39 @@
+{
+  "protocol_version": 2,
+  "ticket": "TICKET-S3-AGY-QUOTA-PROBE-20260828",
+  "alias": "agy2",
+  "provider": "agy",
+  "attempt_id": 3,
+  "adapter": "agy-stream-json-schema-v2",
+  "objective": "one-shot quota/status/concurrency evidence collection only",
+  "ownership": "agy2 provider-native read-only quota/status/concurrency probe only",
+  "policy_version": "2026-08-26.1",
+  "model": "gemini-3.1-pro-high",
+  "effort": "high",
+  "status": "BLOCKED",
+  "quota_status": "unknown",
+  "concurrency_status": "unknown",
+  "started_at": "2026-08-28T01:35:07Z",
+  "ended_at": "2026-08-28T01:35:34Z",
+  "exit_code": null,
+  "transport_status": "timed_out_no_machine_readable_result",
+  "process_or_session_id": "s3-quota-agy2-attempt3",
+  "tmux_capture": {
+    "session_id": "s3-quota-agy2-attempt3",
+    "pane_status": "stopped_after_one_shot_timeout",
+    "summary": "{\"provider\":\"agy\",\"alias\":\"agy2\",\"probe\":\"/usage\",\"format\":\"json\",\"parsed_objects\":0,\"metadata\":[]}",
+    "summary_bytes": 99,
+    "summary_sha256": "94e25dd749aab488035daef07c01b1359996a3a45435609bf3ecf4b9a5dae7ad"
+  },
+  "scheduling_snapshot_sha256": null,
+  "normalized_work_result_sha256": "934f7ad18d2edb28ed36a616968e23a4e28f1e85bb3013b7ac7eddb1d49e87f2",
+  "receipt_valid": false,
+  "claim_proof": null,
+  "findings": [
+    "The approved one-shot AGY /usage candidate did not produce safe machine-readable quota metadata in the captured pane.",
+    "No quota, remaining, reset, or explicit concurrency fields were available for recording.",
+    "No retry, provider mutation, transaction, or fallback subprocess occurred."
+  ],
+  "raw_provider_stream_persisted": false,
+  "next_action": "Hold agy2 at BLOCKED/NEEDS_HITL; do not retry this attempt."
+}
