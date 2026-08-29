@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-IDQ-MVP-010-BASELINE",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "07a874d3a9507a23bf44f51c82087378632844d9",
+  "test_files": [
+    {
+      "path": "tests/test_idq_mvp_010_release_cycle.py",
+      "sha256": "dc1321bda10941f198005f539890caf789cba5f3958ddb1ab6f0192becc4cfe4"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_idq_mvp_010_release_cycle.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Pytest summary: 3 failed, 1 passed. The capacity policy positive control passed; the release-cycle contracts failed with ModuleNotFoundError for scripts.multiagent_durable_queue, scripts.multiagent_root_worker, and scripts.multiagent_root_supervisor."
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/multiagent_durable_queue.py",
+    "scripts/multiagent_root_worker.py",
+    "scripts/multiagent_root_supervisor.py",
+    "scripts/multiagent_capacity.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "0946bdec65173edacbaf4044b4198d55136c33ca",
+  "correction_reason": "The superseded baseline is correctly labeled RECONSTRUCTED because its tests were assembled after untracked source candidates existed, and its red_tests entry is an explicit schema negative control rather than historical red evidence. This QA-owned baseline adds an independently authored release-cycle cohort in a clean worktree from committed HEAD, where the three IDQ runtime modules are absent, and records a genuine missing-module red result without modifying the reconstructed tests or copying the historical source candidates.",
+  "rationale": "Freeze the smallest coherent release-intended IDQ cohort before source enters this isolated branch. The cohort keeps the existing four-account capacity policy as a passing control, binds a capacity lease to the same queue request and alias, requires worker root policies to match account-local caps without borrowing, and requires the supervisor to start distinct detached Root A and Root B processes. The exact source allowlist is limited to queue, worker, supervisor, and capacity; provider execution, secrets, push, deploy, and release claims remain out of scope."
+}
