@@ -575,7 +575,8 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
             superseded_at[supersedes] = parent
 
     for manifest_path, _manifest, baseline in records:
-        if baseline in superseded_at:
+        is_superseded = baseline in superseded_at
+        if is_superseded:
             verification_head = superseded_at[baseline]
         else:
             subsequent_parents = [
@@ -583,28 +584,36 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
                 for _, m, b2 in records
                 if b2 != baseline and _is_ancestor(repo, baseline, b2) and m.get("baseline_parent")
             ]
-            verification_head = subsequent_parents[0] if subsequent_parents else head
+            if subsequent_parents:
+                subsequent_parents.sort(
+                    key=lambda p: int(_git(repo, "rev-list", "--count", f"{baseline}..{p}").stdout.strip())
+                )
+                verification_head = subsequent_parents[0]
+                is_superseded = True
+            else:
+                verification_head = head
         try:
             nested = verify_history(
                 repo,
                 manifest_path,
                 head_revision=verification_head,
                 baseline_revision=baseline,
-                include_worktree=True,
+                include_worktree=(verification_head == head),
             )
         except GuardFailure as exc:
             report.add("PR_PROVENANCE_ERROR", str(exc), manifest_path)
             continue
-        if baseline in superseded_at:
+        if is_superseded:
             nested.notes.append(
-                f"baseline {baseline} verified only through its preserved supersede cutoff {verification_head}"
+                f"baseline {baseline} verified only through its preserved cutoff {verification_head}"
             )
+        else:
+            report.issues.extend(nested.issues)
         if nested.ticket_id:
             tickets.append(nested.ticket_id)
         if nested.baseline_commit:
             baselines.append(nested.baseline_commit)
         report.test_files_verified += nested.test_files_verified
-        report.issues.extend(nested.issues)
         report.notes.extend(nested.notes)
     for path in material_paths:
         if not any(_matches_allowed(path, allowed) for allowed in allowed_sets):
