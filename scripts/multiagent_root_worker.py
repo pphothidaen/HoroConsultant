@@ -10,7 +10,7 @@ class RootPolicy:
     aliases: frozenset[str]; max_workers: int; account_caps: Mapping[str,int]
     @classmethod
     def for_root(cls, root: str):
-        if root == "A": return cls(frozenset(("codex1","codex2")),3,{"codex1":2,"codex2":2})
+        if root == "A": return cls(frozenset(("codex1","codex2","codex3")),3,{"codex1":2,"codex2":2,"codex3":2})
         if root == "B": return cls(frozenset(("agy1","agy2")),3,{"agy1":3,"agy2":3})
         raise ValueError("unknown root")
 

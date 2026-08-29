@@ -52,7 +52,9 @@ but rely on the required `Test Provenance` CI check for merge enforcement.
    - [3.4 Kaggle GPU Fine-Tuning Platform CLI](#34-kaggle-gpu-fine-tuning-platform-cli)
    - [3.5 Model Context Protocol (MCP) Server Platform](#35-model-context-protocol-mcp-server-platform)
    - [3.5.1 Codex AI Agent Platform](#351-codex-ai-agent-platform)
-   - [3.6 Hugging Face Spaces Deployment Platform CLI](#36-hugging-face-spaces-deployment-platform-cli)
+   - [3.6 Canonical HF Docker + Vercel Release CLI](#36-canonical-hf-docker--vercel-release-cli)
+   - [3.7 Canonical Production Targets and Retired Platform Matrix](#37-canonical-production-targets-and-retired-platform-matrix)
+   - [3.8 Release Execution Boundary](#38-release-execution-boundary)
 
 ---
 
@@ -321,6 +323,26 @@ Production แยกเป็น Vercel UI/gateway และ HF Docker backend �
 หากตัวแปรหายหรือไม่ตรง canonical origin gateway จะตอบ 503
 `backend_not_configured` แบบ fail-closed ห้ามแทนด้วย static/local calculation.
 
+Production publication ต้องมาจาก candidate ที่ผ่าน CI บน `main` เท่านั้น.
+`.github/workflows/hf_backend_deploy.yml` รับ successful `workflow_run` ของ
+`main` หรือ manual dispatch จาก `refs/heads/main`; direct push อย่างเดียวไม่
+publish. Candidate SHA ต้องเป็น full lowercase 40-character SHA และต้องตรงกับ
+current `main` event commit. ค่า `source_sha` ห้ามเลือก stale commit หรือ commit
+จาก branch อื่น.
+
+หลัง checkout candidate แบบ exact แล้ว gate ต้องยืนยันครบทั้งหมดก่อนสร้าง
+manifest และยืนยันซ้ำทันทีก่อน publish:
+
+- `git rev-parse HEAD` ตรงกับ candidate SHA;
+- ไม่มี tracked, staged หรือ untracked change;
+- recursive submodule state สะอาดและ pinned;
+- manifest ระบุ `packaging_commit` ตรงกับ candidate SHA, `branch: main`,
+  canonical Space ID และ `sdk: docker`.
+
+หากข้อใดไม่ผ่านให้รายงาน `[ERROR] BLOCKED`. Local dry-run ใช้ตรวจ payload
+และ provenance ได้เฉพาะ clean worktree; ห้ามใช้ output จาก dirty worktree เป็น
+release evidence.
+
 ```bash
 # 1. Payload + provenance audit โดยไม่ upload
 python3 scripts/publish_space_hf.py \
@@ -362,15 +384,36 @@ version consistency และ visual `5/5` เป็นสีเขียวท�
 ไม่ตรงถือว่าไม่ผ่าน. การ push/merge, Vercel production deploy และ HF publish
 เป็นคนละ external gate และต้องผูก exact target/rollback ทุกครั้ง.
 
+Candidate identity มาจาก committed release metadata เท่านั้น:
+
+- `version` ต้อง bind กับ `release_source_commit` แบบ exact;
+- `release_source_revision`, metadata path และ SHA-256 digest ต้องถูกต้อง;
+- `release_source_commit` ต้องเป็น ancestor ของ `packaging_commit`;
+- `packaging_commit` เป็น packaging evidence เท่านั้น ไม่ใช่ deployed identity;
+- environment value, CLI default, runtime `HEAD` หรือ external override ห้ามแทน
+  committed identity.
+
+HF Docker backend และ Vercel UI เป็นคนละ gate:
+
+| Gate | Required evidence | Stop condition |
+| :--- | :--- | :--- |
+| HF Docker backend | Canonical Space/`sdk: docker`, approved manifest and receipt, exact `/health` and `/version.json`, remote revision, prior rollback revision | Block on stale/missing identity, unhealthy runtime, receipt mismatch, or unavailable rollback identity |
+| Vercel UI | Approved production deployment and revision, exact `/version.json`, gateway/API E2E, five canonical viewport report and screenshots, reviewer decision, prior rollback revision | Block on stale/missing identity, failed E2E, fewer than 5/5 viewports, unresolved indeterminate, or unavailable rollback identity |
+
+Backend gate ที่ผ่านแล้วไม่อนุมัติ Vercel UI และ Vercel gate ที่ผ่านแล้วไม่
+อนุมัติ backend. Production monitor ต้องพบ identity surface exactly two รายการ
+(HF Docker และ Vercel) ที่ตรงกับ candidate เดียวกันก่อน final approval.
+
 Vercel rollback ให้เก็บ deployment ก่อนหน้าและ env-entry ID ที่เพิ่มไว้ ห้ามลบ
 production deployments. HF rollback ต้องใช้ validated receipt/CAS ตาม publisher
 workflow; ห้าม publish จาก dirty worktree.
 
 ---
 
-### 🌐 3.7 Production Deployment Options & Platform Research Matrix
+### 🌐 3.7 Canonical Production Targets and Retired Platform Matrix
 
-ตารางสรุปผลวิจัยและทางเลือกในการนำบริการไปติดตั้งบนระบบ Production เพิ่มเติม:
+ตารางนี้แยก canonical production targets ออกจาก historical/research platforms;
+แถวที่ retired หรือ unselected ไม่ใช่ release alternative:
 
 | Platform | Deployment Type | Suitable Use Case | Latency (TH) | Cost & SLA Profile |
 | :--- | :--- | :--- | :--- | :--- |
@@ -414,25 +457,20 @@ aws_access_key_id = ${AWS_ACCESS_KEY_ID}
 aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}
 ```
 
-### 🛠️ 3.8 การสั่งงานอัตโนมัติ 100% ทั้งระบบในคำสั่งเดียว (Master 1-Command Production Automation)
+### 🛠️ 3.8 Release Execution Boundary
 
-#### 🚀 คำสั่งปล่อยระบบขึ้น Production ทั้งหมดแบบอัตโนมัติ (1-Command Full Pipeline):
-```bash
-# รันสคริปต์ Master Automation เพื่อตรวจสอบความปลอดภัย ซิงค์ Secrets และ Deploy ไปยังทุก Platform
-bash scripts/auto_deploy_all.sh
-```
+ไม่มีคำสั่ง "deploy all platforms" ที่เป็น canonical production authority.
+Legacy automation และ retired Azure/Fly workflows ใช้เป็น release path ไม่ได้.
+Production handoff ต้องแยก approval และ evidence ดังนี้:
 
-#### 🔑 คำสั่งซิงค์ Secrets ไปทุก Platform (Secrets Sync Only):
-```bash
-bash scripts/setup_production_secrets.sh
-```
+1. HF Docker backend ใช้ CI-gated workflow จาก exact `main` candidate ที่สะอาด.
+2. Vercel UI ใช้ production deployment gate แยกต่างหากสำหรับ candidate เดียวกัน.
+3. Code Reviewer และ Orchestrator อนุมัติ final release เมื่อ evidence bundle ของ
+   ทั้งสอง targets ผ่านครบเท่านั้น.
 
-#### 🔗 ลิงก์จัดการ Secrets บน Doppler (Production - `prd`)
-เปิด Workspace/Project ที่ใช้งานจริงได้ที่:
-https://dashboard.doppler.com/workplace/4e65e3d95e9f71174b4e/projects/horo-consultant/configs/prd
-
-#### 🚀 การจัดส่ง Backend ขึ้น Azure Container Apps:
-การ push เข้า `main` จะเรียก `.github/workflows/azure_deploy.yml` ซึ่ง build image, deploy Azure และรัน strict production verification โดยอัตโนมัติ ต้องตั้งค่า `AZURE_CREDENTIALS`, `AZURE_RESOURCE_GROUP`, `AZURE_CONTAINER_APP`, `AZURE_CONTAINER_APP_URL` และ Docker credentials ใน GitHub/Doppler ก่อนใช้งาน
+การอ่านสถานะหรือรัน local dry-run ไม่ได้ให้สิทธิ์ stage, commit, push, publish,
+deploy, secret sync หรือ rollback. การกระทำภายนอกแต่ละรายการต้องมี owner
+authorization และ candidate-bound evidence ของตัวเอง.
 
 ---
 

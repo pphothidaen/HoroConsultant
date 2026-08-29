@@ -28,6 +28,21 @@ ACTIVE_STATUSES = frozenset({"TODO", "READY", "DOING"})
 SELECTABLE_STATUSES = frozenset({"TODO", "READY"})
 KNOWN_STATUSES = ACTIVE_STATUSES | frozenset({"DONE", "BLOCKED"})
 SAFE_TICKET_ID = re.compile(r"^[\x21-\x7e]{1,128}$")
+DISPATCHABLE_ACCOUNT_STATE = "healthy"
+FROZEN_MAX_ATTEMPTS = 3
+ROOT_B_ROLE_BINDINGS = {
+    "primary": ("agy", "agy1"),
+    "secondary": ("agy", "agy2"),
+}
+
+
+def validate_activation_state(
+    *, activation_prohibited: bool, dispatcher_execution: str
+) -> None:
+    """Reject activation unless a later phase explicitly opens the dispatcher."""
+
+    if activation_prohibited is not False or dispatcher_execution != "OPEN":
+        raise SchedulingError("ACTIVATION_PROHIBITED", "ACTIVATION_PROHIBITED: dispatcher activation is closed")
 
 
 class SchedulingError(ValueError):
@@ -94,6 +109,153 @@ class Selection:
     ticket: Ticket
     reservations: tuple[Reservation, ...]
     continued_reservation: bool = False
+
+
+def _state_value(value: Any, label: str) -> str:
+    """Extract a safe state label without accepting an absent/ambiguous state."""
+
+    if isinstance(value, Mapping):
+        value = value.get("state", value.get("admission_state"))
+    if not isinstance(value, str) or not value.isascii() or not value:
+        raise SchedulingError("PROVIDER_ACCOUNT_STATE_UNKNOWN", f"{label} state is unknown")
+    return value.lower()
+
+
+def validate_provider_account_state(
+    state: Mapping[str, Any], *, provider: str, account: str
+) -> None:
+    """Require explicit healthy state for the selected provider and account.
+
+    State is deliberately checked for the selected route only.  A different
+    healthy account is not considered a fallback and is never consulted.
+    """
+
+    if not isinstance(state, Mapping):
+        raise SchedulingError("PROVIDER_ACCOUNT_STATE_UNKNOWN", "provider/account state is unknown")
+    providers = state.get("providers")
+    accounts = state.get("accounts")
+    if not isinstance(providers, Mapping) or not isinstance(accounts, Mapping):
+        raise SchedulingError("PROVIDER_ACCOUNT_STATE_UNKNOWN", "provider/account state is incomplete")
+    provider_state = _state_value(providers.get(provider), f"provider {provider}")
+    account_state = _state_value(accounts.get(account), f"account {account}")
+    if provider_state == "unknown" or account_state == "unknown":
+        raise SchedulingError("PROVIDER_ACCOUNT_STATE_UNKNOWN", "provider/account state is unknown")
+    if provider_state == "exhausted" or account_state == "exhausted":
+        raise SchedulingError("PROVIDER_ACCOUNT_EXHAUSTED", "selected provider/account is exhausted")
+    if provider_state != DISPATCHABLE_ACCOUNT_STATE or account_state != DISPATCHABLE_ACCOUNT_STATE:
+        raise SchedulingError("PROVIDER_ACCOUNT_STATE_BLOCKED", "selected provider/account is not healthy")
+
+
+def validate_root_b_role(
+    root_role: str | None, *, provider: str, account: str
+) -> None:
+    """Enforce RootB's fixed AGY primary/secondary account ownership."""
+
+    if root_role is None:
+        return
+    if root_role not in ROOT_B_ROLE_BINDINGS:
+        raise SchedulingError("ROOT_B_ROLE_MISMATCH", "unknown RootB role")
+    expected_provider, expected_account = ROOT_B_ROLE_BINDINGS[root_role]
+    if (provider, account) != (expected_provider, expected_account):
+        raise SchedulingError("ROOT_B_ROLE_MISMATCH", "selected route does not match RootB role")
+
+
+def validate_retry_attempt(
+    attempt: int, retry_limit: int = 3, *, allow_one_shot: bool = False
+) -> None:
+    """Bound attempts before admission; attempt one is the initial try."""
+
+    if isinstance(attempt, bool) or not isinstance(attempt, int) or attempt < 1:
+        raise SchedulingError("INVALID_RETRY_ATTEMPT", "retry attempt must be a positive integer")
+    allowed_limit = 1 if allow_one_shot else FROZEN_MAX_ATTEMPTS
+    if (
+        isinstance(retry_limit, bool)
+        or not isinstance(retry_limit, int)
+        or retry_limit != allowed_limit
+    ):
+        raise SchedulingError(
+            "INVALID_RETRY_LIMIT",
+            (
+                "retry limit is frozen at one total attempt for the consumed QOBS admission"
+                if allow_one_shot
+                else "retry limit is frozen at three total attempts"
+            ),
+        )
+    if attempt > retry_limit:
+        raise SchedulingError("RETRY_LIMIT_EXCEEDED", "dispatch retry limit exceeded")
+
+
+def _validated_luna_qobs_admission(
+    admission: object,
+    *,
+    ticket_id: str,
+    owner: str,
+    account: str,
+    provider: str,
+    attempt: int,
+    decision_sha256: str | None = None,
+    scheduling_snapshot_sha256: str | None = None,
+    route: object = None,
+) -> bool:
+    """Accept only the typed, already-consumed Luna one-shot admission.
+
+    The import is deliberately local: the command module imports this scheduler
+    at module load time, so a top-level import would create a cycle.
+    """
+
+    if admission is None:
+        return False
+    try:
+        from scripts.multiagent_prompt_command import QobsAdmission, is_validated_qobs_admission
+    except ImportError:  # Direct ``python scripts/...`` execution.
+        from multiagent_prompt_command import QobsAdmission, is_validated_qobs_admission  # type: ignore[no-redef]
+    if not isinstance(admission, QobsAdmission) or not is_validated_qobs_admission(admission):
+        return False
+    coherent = (
+        admission.ticket_id == "TICKET-LUNA-DELEGATE-001"
+        and admission.execution_exception_id == "luna-delegate-001-codex2-attempt-1"
+        and admission.ticket_id == ticket_id
+        and admission.role == owner
+        and admission.alias == account
+        and admission.provider == provider
+        and admission.attempt_id == attempt == 1
+        and admission.quota_band == "constrained"
+        and admission.model == "gpt-5.6-luna"
+        and admission.effort == "xhigh"
+        and isinstance(admission.decision_sha256, str)
+        and re.fullmatch(r"[a-f0-9]{64}", admission.decision_sha256) is not None
+        and isinstance(admission.exception_consumption_sha256, str)
+        and re.fullmatch(r"[a-f0-9]{64}", admission.exception_consumption_sha256)
+        is not None
+    )
+    if not coherent:
+        return False
+    if decision_sha256 is None and scheduling_snapshot_sha256 is None and route is None:
+        return True
+    if (
+        not isinstance(decision_sha256, str)
+        or not isinstance(scheduling_snapshot_sha256, str)
+        or route is None
+        or admission.decision_sha256 != decision_sha256
+        or admission.scheduling_snapshot_sha256 != scheduling_snapshot_sha256
+        or getattr(route, "role", None) != admission.role
+        or getattr(route, "alias", None) != admission.alias
+        or getattr(route, "cli", None) != admission.provider
+        or getattr(route, "model", None) != admission.model
+        or getattr(route, "effort", None) != admission.effort
+        or getattr(route, "sandbox", None) != admission.sandbox
+        or getattr(route, "command", None) is None
+    ):
+        return False
+    command = getattr(route, "command")
+    return (
+        isinstance(command, str)
+        and command.startswith("/")
+        and re.fullmatch(r"[a-f0-9]{64}", admission.resolved_executable_sha256)
+        is not None
+        and quota_guard.sha256_text(command) == admission.resolved_executable_sha256
+        and admission.work_mode == "read_only"
+    )
 
 
 def _mapping(value: Any, label: str) -> Mapping[str, Any]:
@@ -574,6 +736,39 @@ def enforce_dispatch(
     return selected
 
 
+def release_reservation(
+    snapshot: SchedulingSnapshot, *, ticket_id: str, owner: str, ownership: Sequence[str]
+) -> SchedulingSnapshot:
+    """Release a selection reservation while retaining all ticket gates.
+
+    DOING work cannot release its reservation: that would create an invalid
+    snapshot and silently orphan active work.  READY/TODO reservations may be
+    released after a bounded admission failure and become selectable again.
+    """
+
+    ticket_id = _required_ascii(ticket_id, "reservation ticket_id", ticket_id=True)
+    owner = _required_ascii(owner, "reservation owner")
+    normalized = tuple(
+        canonicalize_ownership_resource(item, f"reservation ownership[{index}]")
+        for index, item in enumerate(ownership)
+    )
+    current = next((item for item in snapshot.tickets if item.ticket_id == ticket_id), None)
+    if current is None:
+        raise SchedulingError("INVALID_SCHEDULING_METADATA", "reservation ticket is unknown")
+    if current.status == "DOING":
+        raise SchedulingError("RESERVATION_RELEASE_BLOCKED", "DOING work requires its reservation")
+    matching = [item for item in snapshot.reservations if item.ticket_id == ticket_id]
+    if len(matching) != 1 or matching[0].owner != owner or matching[0].ownership != normalized:
+        raise SchedulingError("OWNERSHIP_CONFLICT", "reservation release does not match ownership")
+    remaining = tuple(item for item in snapshot.reservations if item.ticket_id != ticket_id)
+    material = {
+        "schema_version": 1,
+        "tickets": [item.__dict__ for item in snapshot.tickets],
+        "reservations": [item.__dict__ for item in remaining],
+    }
+    return SchedulingSnapshot(snapshot.tickets, remaining, _canonical_digest(material))
+
+
 def admit_dispatch_capacity(
     snapshot: SchedulingSnapshot,
     *,
@@ -588,6 +783,16 @@ def admit_dispatch_capacity(
     request_budget: int,
     model_quality_floor: str,
     policy: Mapping[str, Any],
+    provider: str | None = None,
+    provider_account_state: Mapping[str, Any] | None = None,
+    qobs_admission: object = None,
+    decision_sha256: str | None = None,
+    scheduling_snapshot_sha256: str | None = None,
+    route: object = None,
+    root_b_role: str | None = None,
+    attempt: int = 1,
+    retry_limit: int = 3,
+    retry_request_id: str | None = None,
 ) -> capacity.CapacityLease:
     """Reserve account-local capacity after Rule 11/18 admission.
 
@@ -595,6 +800,36 @@ def admit_dispatch_capacity(
     to the capacity ledger and no alternate alias is selected on saturation.
     """
 
+    selected_provider = provider or capacity.ACCOUNT_PROVIDERS.get(account)
+    if selected_provider is None:
+        raise SchedulingError("PROVIDER_ACCOUNT_STATE_UNKNOWN", "selected account provider is unknown")
+    if selected_provider != capacity.ACCOUNT_PROVIDERS.get(account):
+        raise SchedulingError("PROVIDER_ACCOUNT_MISMATCH", "provider does not own selected account")
+    constrained_qobs = _validated_luna_qobs_admission(
+        qobs_admission,
+        ticket_id=ticket_id,
+        owner=owner,
+        account=account,
+        provider=selected_provider,
+        attempt=attempt,
+        decision_sha256=decision_sha256,
+        scheduling_snapshot_sha256=scheduling_snapshot_sha256,
+        route=route,
+    )
+    if qobs_admission is not None and not constrained_qobs:
+        raise SchedulingError("QOBS_ADMISSION_INVALID", "QOBS admission is not coherent")
+    if provider is not None and provider_account_state is None:
+        if not constrained_qobs:
+            raise SchedulingError(
+                "PROVIDER_ACCOUNT_STATE_UNKNOWN",
+                "provider/account state is required for provider-bound admission",
+            )
+    if provider_account_state is not None:
+        validate_provider_account_state(
+            provider_account_state, provider=selected_provider, account=account
+        )
+    validate_retry_attempt(attempt, retry_limit, allow_one_shot=constrained_qobs)
+    validate_root_b_role(root_b_role, provider=selected_provider, account=account)
     enforce_dispatch(
         snapshot,
         ticket_id=ticket_id,
@@ -602,6 +837,24 @@ def admit_dispatch_capacity(
         ownership=ownership,
         decision_valid=decision_valid,
     )
+    retry_key = retry_request_id or request_id
+    try:
+        capacity.reserve_retry(
+            store_path,
+            account=account,
+            request_id=retry_key,
+            owner=owner,
+            policy=policy,
+            max_attempts=retry_limit,
+        )
+        capacity.record_retry(
+            store_path,
+            account=account,
+            request_id=retry_key,
+            policy=policy,
+        )
+    except capacity.CapacityLeaseError as exc:
+        raise SchedulingError(f"CAPACITY_{exc.code}", "retry reservation was rejected") from exc
     try:
         return capacity.acquire_lease(
             store_path,

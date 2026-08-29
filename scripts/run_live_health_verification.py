@@ -9,17 +9,101 @@ response alone is not sufficient evidence that either deployment works.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any, Callable, Mapping
 
 DEFAULT_VERCEL_STATIC_URL = "https://horo-consultant-psi.vercel.app"
 DEFAULT_HF_BACKEND_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+APPROVED_CANDIDATE_METADATA_PATH = PROJECT_ROOT / "project" / "static" / "version.json"
+RELEASE_IDENTITY_FIELDS = (
+    "version",
+    "release_source_commit",
+    "release_source_revision",
+    "release_source_metadata_path",
+    "release_source_metadata_sha256",
+)
+RELEASE_VERSION_RE = re.compile(r"^\d+\.\d+\.\d+\.([0-9a-f]{7,40})$")
+RELEASE_COMMIT_RE = re.compile(r"^[0-9a-f]{7,40}$")
+RELEASE_REVISION_RE = re.compile(r"^[0-9a-f]{40}$")
+RELEASE_DIGEST_RE = re.compile(r"^[0-9a-f]{64}$")
+RETIRED_HOST_SUFFIXES = (
+    ".static.hf.space",
+    ".azurecontainerapps.io",
+    ".azurewebsites.net",
+    ".fly.dev",
+)
+
+
+def parse_release_identity(raw_text: str) -> dict[str, str]:
+    """Return one validated canonical release identity or fail closed."""
+
+    def reject_duplicate_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
+        parsed: dict[str, object] = {}
+        for key, value in pairs:
+            if key in parsed:
+                raise ValueError("duplicate release identity key")
+            parsed[key] = value
+        return parsed
+
+    parsed = json.loads(raw_text, object_pairs_hook=reject_duplicate_keys)
+    if not isinstance(parsed, dict) or set(parsed) != set(RELEASE_IDENTITY_FIELDS):
+        raise ValueError("release identity must use the closed canonical schema")
+    if not all(isinstance(parsed[field], str) for field in RELEASE_IDENTITY_FIELDS):
+        raise ValueError("release identity fields must be strings")
+
+    identity = {field: parsed[field] for field in RELEASE_IDENTITY_FIELDS}
+    version = identity["version"]
+    source_commit = identity["release_source_commit"]
+    source_revision = identity["release_source_revision"]
+    source_path = identity["release_source_metadata_path"]
+    source_digest = identity["release_source_metadata_sha256"]
+    version_match = RELEASE_VERSION_RE.fullmatch(version)
+    if (
+        version_match is None
+        or RELEASE_COMMIT_RE.fullmatch(source_commit) is None
+        or version_match.group(1) != source_commit
+        or RELEASE_REVISION_RE.fullmatch(source_revision) is None
+        or not source_revision.startswith(source_commit)
+        or source_path != "project/static/version.json"
+        or RELEASE_DIGEST_RE.fullmatch(source_digest) is None
+    ):
+        raise ValueError("release identity fields are malformed or inconsistent")
+
+    canonical = json.dumps(
+        {
+            "release_source_commit": source_commit,
+            "release_source_metadata_path": source_path,
+            "release_source_revision": source_revision,
+            "version": version,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    if hashlib.sha256(canonical).hexdigest() != source_digest:
+        raise ValueError("release identity digest mismatch")
+    return identity
+
+
+def load_approved_candidate_identity() -> dict[str, str]:
+    """Load the one committed candidate identity used by post-deploy gates."""
+    try:
+        raw_text = APPROVED_CANDIDATE_METADATA_PATH.read_text(encoding="utf-8")
+    except OSError as error:
+        raise ValueError("approved candidate release metadata is unavailable") from error
+    try:
+        return parse_release_identity(raw_text)
+    except (json.JSONDecodeError, TypeError, ValueError) as error:
+        raise ValueError("approved candidate release metadata is invalid") from error
 
 
 def _backend_from_space_id(space_id: str) -> str:
@@ -85,6 +169,31 @@ def _assert_separated_targets(env: Mapping[str, str], static_url: str, backend_u
         raise ValueError("HF_STATIC_SPACE_ID is retired; configure VERCEL_STATIC_URL for the public UI")
     if static_url == backend_url:
         raise ValueError("VERCEL_STATIC_URL must not equal HF_BACKEND_URL")
+    _assert_active_origin(static_url, role="ui")
+    if backend_url:
+        _assert_active_origin(backend_url, role="backend")
+
+
+def _assert_active_origin(url: str, *, role: str) -> None:
+    """Reject malformed origins and known retired production platforms."""
+    parsed = urllib.parse.urlsplit(url)
+    hostname = (parsed.hostname or "").lower()
+    retired = any(hostname.endswith(suffix) for suffix in RETIRED_HOST_SUFFIXES)
+    if role == "ui" and hostname.endswith(".hf.space"):
+        retired = True
+    if retired:
+        raise ValueError(f"retired production {role} target is not permitted")
+    if (
+        parsed.scheme != "https"
+        or not hostname
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.port is not None
+        or parsed.path not in {"", "/"}
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise ValueError(f"production {role} target must be one HTTPS origin")
 
 
 def _request(url: str, timeout: int) -> tuple[int, str, float]:
@@ -121,17 +230,16 @@ def _is_html_response(body: str) -> bool:
     return "<html" in lowered or "<!doctype html" in lowered
 
 
-def _is_version_response(body: str) -> bool:
-    """Require immutable release identity metadata from Vercel static hosting."""
+def _is_version_response(
+    body: str,
+    expected_release_identity: Mapping[str, str],
+) -> bool:
+    """Require the exact approved candidate identity on one live surface."""
     try:
-        payload = json.loads(body)
-    except json.JSONDecodeError:
+        payload = parse_release_identity(body)
+    except (json.JSONDecodeError, TypeError, ValueError):
         return False
-    return bool(
-        isinstance(payload, dict)
-        and str(payload.get("version", "")).strip()
-        and str(payload.get("release_source_commit", "")).strip()
-    )
+    return payload == dict(expected_release_identity)
 
 
 def _is_javascript_response(body: str) -> bool:
@@ -191,8 +299,11 @@ def build_checks(
         raise ValueError("VERCEL_STATIC_URL must be a valid URL")
     if require_backend and not backend_url:
         raise ValueError("HF_BACKEND_URL must be configured for a production deployment verification")
-    if backend_url:
-        _assert_separated_targets(env, static_url, backend_url)
+    _assert_separated_targets(env, static_url, backend_url)
+    approved_candidate = load_approved_candidate_identity()
+
+    def candidate_validator(body: str) -> bool:
+        return _is_version_response(body, approved_candidate)
 
     checks: list[dict[str, Any]] = [
         {
@@ -203,7 +314,8 @@ def build_checks(
         {
             "name": "Vercel static version metadata",
             "url": f"{static_url}/version.json",
-            "validator": _is_version_response,
+            "validator": candidate_validator,
+            "expected_release_identity": approved_candidate,
         },
         {
             "name": "Vercel static app.js asset",
@@ -222,6 +334,15 @@ def build_checks(
                 "name": "Hugging Face Docker backend health",
                 "url": f"{backend_url}/health",
                 "validator": _is_health_response,
+            }
+        )
+    if backend_url:
+        checks.append(
+            {
+                "name": "Hugging Face Docker backend version metadata",
+                "url": f"{backend_url}/version.json",
+                "validator": candidate_validator,
+                "expected_release_identity": approved_candidate,
             }
         )
     if backend_url:
@@ -263,6 +384,10 @@ def run_verification(
             "status": status,
             "latency_ms": round(latency_ms, 1),
         }
+        if "expected_release_identity" in check:
+            result["expected_release_identity"] = check[
+                "expected_release_identity"
+            ]
         results.append(result)
         tag = "[OK]" if passed else "[ERROR]"
         print(f"{tag} [{index}/{len(checks)}] {check['name']}: HTTP {status} | {latency_ms:.0f}ms")
@@ -293,9 +418,25 @@ def main() -> int:
         print(f"[ERROR] {error}")
         return 2
     if args.json_output:
+        candidate_identity = next(
+            (
+                result["expected_release_identity"]
+                for result in results
+                if "expected_release_identity" in result
+            ),
+            None,
+        )
         args.json_output.parent.mkdir(parents=True, exist_ok=True)
         args.json_output.write_text(
-            json.dumps({"success": success, "results": results}, indent=2) + "\n",
+            json.dumps(
+                {
+                    "success": success,
+                    "approved_candidate_identity": candidate_identity,
+                    "results": results,
+                },
+                indent=2,
+            )
+            + "\n",
             encoding="utf-8",
         )
         print(f"[INFO] Verification report written to {args.json_output}")

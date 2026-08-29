@@ -27,7 +27,10 @@ jobs:
     name: Publish Docker API and verify Vercel-to-HF production path
     if: >-
       ${{
-        github.event_name == 'workflow_dispatch' ||
+        (
+          github.event_name == 'workflow_dispatch' &&
+          github.ref == 'refs/heads/main'
+        ) ||
         (
           github.event.workflow_run.conclusion == 'success' &&
           github.event.workflow_run.head_branch == 'main'
@@ -52,6 +55,7 @@ jobs:
           DEFAULT_BRANCH_SHA: ${{ github.sha }}
           MANUAL_SOURCE_SHA: ${{ inputs.source_sha }}
           DISPATCH_SHA: ${{ github.sha }}
+          DISPATCH_REF: ${{ github.ref }}
         run: |
           python3 - <<'PY'
           import os
@@ -69,10 +73,15 @@ jobs:
               print("[ERROR] Release source must be a full lowercase Git commit SHA.")
               raise SystemExit(1)
           if (
-              os.environ["EVENT_NAME"] == "workflow_run"
-              and source_sha != os.environ.get("DEFAULT_BRANCH_SHA", "").strip()
+              os.environ["EVENT_NAME"] == "workflow_dispatch"
+              and os.environ.get("DISPATCH_REF", "").strip() != "refs/heads/main"
           ):
-              print("[ERROR] CI completed for a stale main commit; publication is skipped.")
+              print("[ERROR] Manual production publication is restricted to main.")
+              raise SystemExit(1)
+          if (
+              source_sha != os.environ.get("DEFAULT_BRANCH_SHA", "").strip()
+          ):
+              print("[ERROR] Release source does not match the current main event commit.")
               raise SystemExit(1)
 
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:

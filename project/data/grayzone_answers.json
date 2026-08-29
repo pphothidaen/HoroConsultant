@@ -7,7 +7,7 @@
       "reviewer": "QA_Tester",
       "confidence": 1.0,
       "notes": "HITL reviewed: approve",
-      "answered_at": "2026-08-25T11:36:27.023029"
+      "answered_at": "2026-08-29T15:57:56.153119"
     },
     "CM-BZ-004::สรุปกฎ 六親 (Liù Qīn / Six Relationships) และวิธีการตีความ": {
       "source_id": "CM-BZ-004",
@@ -21,6 +21,6 @@
   },
   "metadata": {
     "total_answered": 2,
-    "last_updated": "2026-08-25T11:36:27.023047"
+    "last_updated": "2026-08-29T15:57:56.153212"
   }
 }

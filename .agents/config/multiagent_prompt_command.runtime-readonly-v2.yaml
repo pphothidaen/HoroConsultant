@@ -1,5 +1,7 @@
 version: 2
 model_policy: multiagent_model_policy.yaml
+activation_prohibited: true
+dispatcher_execution: CLOSED
 
 runtime:
   approved_for_execution: true

@@ -1,6 +1,9 @@
 ---
 description: REST and WebSocket API architecture, response envelope, and authentication standards.
-paths: "api/**/*, project/api/**/*, project/main.py"
+paths:
+  - "api/**/*"
+  - "project/api/**/*"
+  - "project/main.py"
 ---
 
 # API Governance & Contract Standards

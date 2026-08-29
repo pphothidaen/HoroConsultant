@@ -1,6 +1,6 @@
 ---
 description: 2-Tier secrets policy, zero credential leakage, and sandboxed execution boundaries.
-paths: "**/*"
+paths: ["**/*"]
 ---
 
 # Security, Privacy & Secret Governance

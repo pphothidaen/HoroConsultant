@@ -1,6 +1,8 @@
 ---
 description: Astronomical algorithms, NOAA Spencer 1971, BaZi calculations, and deterministic math integrity.
-paths: "project/core/**/*, rust_core/**/*"
+paths:
+  - "project/core/**/*"
+  - "rust_core/**/*"
 ---
 
 # Core Astrological & Deterministic Math Governance

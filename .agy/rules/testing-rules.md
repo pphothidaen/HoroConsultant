@@ -1,6 +1,6 @@
 ---
 description: Test quality gates, regression requirements, and zero-mock verification standards.
-paths: "tests/**/*, scripts/*regression*.py"
+paths: ["tests/**/*, scripts/*regression*.py"]
 ---
 
 # Testing & Quality Assurance Standards

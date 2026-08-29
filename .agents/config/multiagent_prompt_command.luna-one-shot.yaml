@@ -1,0 +1,41 @@
+version: 2
+model_policy: multiagent_model_policy.yaml
+activation_prohibited: true
+dispatcher_execution: CLOSED
+
+runtime:
+  approved_for_execution: true
+  protocol_version: 2
+
+# This route is secret-free.  The actual home is derived locally at execution
+# preflight and only its digest is bound into QOBS/receipts.
+accounts:
+  codex2:
+    cli: codex
+    command: codex
+    home_env: CODEX_HOME
+    home_path: ${HOME}/.ai-accounts/codex/account2
+
+roles:
+  codex2_luna_diagnostic:
+    alias: codex2
+    cli: codex
+    model: gpt-5.6-luna
+    effort: xhigh
+    sandbox: read-only
+
+execution_exceptions:
+  luna-delegate-001-codex2-attempt-1:
+    ticket: TICKET-LUNA-DELEGATE-001
+    attempt_id: 1
+    role: codex2_luna_diagnostic
+    alias: codex2
+    provider: codex
+    decision_schema_version: 1
+    model: gpt-5.6-luna
+    effort: xhigh
+    work_mode: read_only
+    sandbox: read-only
+    quota_band: constrained
+    maximum_uses: 1
+    automatic_retry: false

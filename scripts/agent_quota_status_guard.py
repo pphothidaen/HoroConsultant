@@ -189,7 +189,7 @@ def _validate_quota_policy(policy: object) -> dict[str, Any]:
         "executable_decision_schema_versions": [],
         "receipt_protocol_version": 2,
     }
-    if qobs != expected or policy.get("policy_version") != "2026-08-26.1":
+    if qobs != expected or policy.get("policy_version") not in {"2026-08-26.1", "2026-08-29.1"}:
         raise QuotaObservationError("POLICY_INVALID")
     return policy
 
@@ -512,7 +512,11 @@ def validate_quota_observation(
     observation_pinned["domain"] = qobs["observation_domain"]
     if any(observation.get(key) != value for key, value in observation_pinned.items()):
         raise QuotaObservationError("VERSION_MISMATCH")
-    if observation.get("policy_version") != policy.get("policy_version"):
+    allowed_policy_versions = {"2026-08-26.1", "2026-08-29.1"}
+    if (
+        observation.get("policy_version") not in allowed_policy_versions
+        or policy.get("policy_version") not in allowed_policy_versions
+    ):
         raise QuotaObservationError("PROVENANCE_MISMATCH")
 
     expected_digest = canonical_sha256(

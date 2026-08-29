@@ -23,7 +23,7 @@ from typing import Any, Callable, Mapping, Sequence
 from zoneinfo import ZoneInfo
 
 
-SANITIZER_VERSION = "agy-json-usage-sanitizer-v1.2.0"
+SANITIZER_VERSION = "agy-json-usage-sanitizer-v1.4.0"
 SANITIZER_VERSION_SHA256 = hashlib.sha256(SANITIZER_VERSION.encode("ascii")).hexdigest()
 TIMEZONE = "Asia/Bangkok"
 DEFAULT_TIMEOUT_SECONDS = 60.0
@@ -85,6 +85,11 @@ _RATIO_RE = re.compile(
     r"(?i)(?:[\[(]|\b)(?P<num>\d{1,3}(?:,\d{3})+|\d+)\s*(?:/|\bof\b)\s*(?P<den>\d{1,3}(?:,\d{3})+|\d+)(?:[\])]|\s+remaining|\s+used|\s+requests|\b)"
 )
 _KV_LINE_RE = re.compile(r"^(?P<key>[a-zA-Z0-9_ -]{1,40})\s*[:=]\s*(?P<val>.+)$")
+_DOCUMENTED_QUOTA_FIELDS = frozenset(
+    {"remaining_fraction", "remaining_percent", "remaining_ratio", "reset_time", "reset_in_seconds", "disabled"}
+)
+_COMMAND_BUCKET_METADATA_FIELDS = frozenset({"id", "name", "description", "window"})
+_RESET_TIME_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$")
 
 
 class _SanitizeFailure(Exception):
@@ -115,6 +120,10 @@ def _is_safe_bucket_label(val: str) -> bool:
 
 
 def _clean_numeric(val: Any) -> float | int | None:
+    # ``bool`` is an ``int`` subclass in Python, but it is never an
+    # unambiguous quota value.
+    if isinstance(val, bool):
+        return None
     if isinstance(val, (int, float)):
         return val
     if isinstance(val, str):
@@ -128,6 +137,101 @@ def _clean_numeric(val: Any) -> float | int | None:
         except ValueError:
             return None
     return None
+
+
+def _documented_quota_metric(bucket: str, value: Mapping[str, Any], source: str) -> dict[str, Any] | None:
+    """Extract one explicitly unit-bearing AGY status-line quota bucket."""
+    if not _is_safe_bucket_label(bucket) or not isinstance(value, Mapping):
+        return None
+
+    metric: dict[str, Any] = {"bucket": bucket, "source": source}
+    fraction = value.get("remaining_fraction")
+    if fraction is not None:
+        fraction_num = _clean_numeric(fraction)
+        if fraction_num is None or not 0 <= float(fraction_num) <= 1:
+            return None
+        metric["remaining_fraction"] = fraction_num
+
+    percent = value.get("remaining_percent")
+    if percent is not None:
+        percent_num = _clean_numeric(percent)
+        if percent_num is None or not 0 <= float(percent_num) <= 100:
+            return None
+        metric["remaining_percent"] = percent_num
+
+    ratio = value.get("remaining_ratio")
+    if ratio is not None:
+        ratio_num = _clean_numeric(ratio)
+        if ratio_num is None or not 0 <= float(ratio_num) <= 1:
+            return None
+        metric["remaining_ratio"] = ratio_num
+
+    reset_time = value.get("reset_time")
+    if reset_time is not None:
+        if not isinstance(reset_time, str) or not _RESET_TIME_RE.fullmatch(reset_time):
+            return None
+        metric["reset_time"] = reset_time
+
+    reset_seconds = value.get("reset_in_seconds")
+    if reset_seconds is not None:
+        reset_num = _clean_numeric(reset_seconds)
+        if reset_num is None or float(reset_num) < 0:
+            return None
+        metric["reset_in_seconds"] = reset_num
+
+    disabled = value.get("disabled")
+    if disabled is not None:
+        if not isinstance(disabled, bool):
+            return None
+        metric["disabled"] = disabled
+
+    quota_fields = _DOCUMENTED_QUOTA_FIELDS & set(value)
+    remaining_fields = quota_fields & {"remaining_fraction", "remaining_percent", "remaining_ratio"}
+    if len(remaining_fields) != 1:
+        return None
+    if set(value) - _DOCUMENTED_QUOTA_FIELDS:
+        return None
+    return metric
+
+
+def _extract_documented_quota(value: Any, source: str) -> list[dict[str, Any]]:
+    """Extract only nested ``quota.<bucket>`` objects from a JSON mapping."""
+    if not isinstance(value, Mapping) or not isinstance(value.get("quota"), Mapping):
+        return []
+    metrics: list[dict[str, Any]] = []
+    for bucket, bucket_value in value["quota"].items():
+        metric = _documented_quota_metric(str(bucket), bucket_value, source)
+        if metric is not None:
+            metrics.append(metric)
+    return metrics
+
+
+def _extract_command_quota(data: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Extract AGY's machine-readable command.data.groups[].buckets[] payload."""
+    command = data.get("command")
+    if not isinstance(command, Mapping) or not isinstance(command.get("data"), Mapping):
+        return []
+    groups = command["data"].get("groups")
+    if not isinstance(groups, list):
+        return []
+
+    metrics: list[dict[str, Any]] = []
+    for group in groups:
+        if not isinstance(group, Mapping) or not isinstance(group.get("buckets"), list):
+            continue
+        for bucket in group["buckets"]:
+            if not isinstance(bucket, Mapping):
+                continue
+            bucket_id = bucket.get("id")
+            if not isinstance(bucket_id, str):
+                continue
+            if set(bucket) - _DOCUMENTED_QUOTA_FIELDS - _COMMAND_BUCKET_METADATA_FIELDS:
+                continue
+            fields = {key: bucket[key] for key in _DOCUMENTED_QUOTA_FIELDS if key in bucket}
+            metric = _documented_quota_metric(bucket_id, fields, "command_data_groups")
+            if metric is not None:
+                metrics.append(metric)
+    return metrics
 
 
 def _parse_response_string_for_quota(text: str) -> list[dict[str, Any]]:
@@ -172,6 +276,14 @@ def _parse_response_string_for_quota(text: str) -> list[dict[str, Any]]:
                     continue
                 except ValueError:
                     pass
+
+            # Explicit documented scalar fields retain their units.
+            if k in {"remaining_fraction", "remaining_ratio", "remaining_percent"}:
+                num = _clean_numeric(v)
+                upper = 100 if k == "remaining_percent" else 1
+                if num is not None and 0 <= float(num) <= upper:
+                    metrics.append({"bucket": k, k: num, "source": "response_text"})
+                    continue
 
             # Clean numeric if key is allowlisted
             if any(stem in k for stem in ALLOWLISTED_QUOTA_STEMS):
@@ -261,6 +373,8 @@ def sanitize_json_usage_payload(
 
         # 2. Extract true account quota metrics from inner `response` or top-level quota keys
         account_quota_metrics: list[dict[str, Any]] = []
+        account_quota_metrics.extend(_extract_documented_quota(data, "top_level_quota_schema"))
+        account_quota_metrics.extend(_extract_command_quota(data))
         response_val = data.get("response")
         response_type = "none"
 
@@ -274,8 +388,11 @@ def sanitize_json_usage_payload(
 
             elif isinstance(response_val, dict):
                 response_type = "dict"
+                account_quota_metrics.extend(_extract_documented_quota(response_val, "response_quota_schema"))
                 for rk, rv in response_val.items():
                     rk_l = str(rk).lower().strip()
+                    if rk_l == "quota":
+                        continue
                     if _SAFE_KEY_RE.match(rk_l) and any(stem in rk_l for stem in ALLOWLISTED_QUOTA_STEMS):
                         num = _clean_numeric(rv)
                         if num is not None:
@@ -298,7 +415,7 @@ def sanitize_json_usage_payload(
         # Also check top-level keys for quota metrics (excluding 'usage' overhead)
         for key, val in data.items():
             k_str = str(key).lower().strip()
-            if k_str in ("usage", "command", "conversation_id", "status", "num_turns", "duration_seconds", "response"):
+            if k_str in ("usage", "command", "conversation_id", "status", "num_turns", "duration_seconds", "response", "quota"):
                 continue
             if _SAFE_KEY_RE.match(k_str) and any(stem in k_str for stem in ALLOWLISTED_QUOTA_STEMS):
                 num = _clean_numeric(val)

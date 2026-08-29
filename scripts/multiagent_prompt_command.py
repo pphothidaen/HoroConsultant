@@ -48,6 +48,7 @@ try:
         admit_dispatch_capacity,
         canonicalize_ownership_resource,
         enforce_dispatch as enforce_ticket_dispatch,
+        validate_activation_state,
         validate_snapshot as validate_scheduling_snapshot,
     )
 except ModuleNotFoundError:  # Direct ``python scripts/...`` execution.
@@ -56,6 +57,7 @@ except ModuleNotFoundError:  # Direct ``python scripts/...`` execution.
         admit_dispatch_capacity,
         canonicalize_ownership_resource,
         enforce_dispatch as enforce_ticket_dispatch,
+        validate_activation_state,
         validate_snapshot as validate_scheduling_snapshot,
     )
 
@@ -104,12 +106,13 @@ DISPATCH_DECISION_FIELDS = frozenset(
 DISPATCH_DECISION_OPTIONAL_FIELDS = frozenset({"quality_exception"})
 # Configuration selects from this fixed, approved terminal-account set; it
 # cannot grant an additional account alias execution authority.
-GOVERNED_ACCOUNT_ALIASES = frozenset({"codex1", "codex2", "agy1", "agy2"})
+GOVERNED_ACCOUNT_ALIASES = frozenset({"codex1", "codex2", "codex3", "agy1", "agy2"})
 # Default alias-to-provider mapping (informational; runtime enforcement is at the
 # dispatcher level via resolve_route and allow_provider_swap account flag).
 ALIAS_PROVIDER_MAP: dict[str, str] = {
     "codex1": "codex",
     "codex2": "codex",
+    "codex3": "codex",
     "agy1": "agy",
     "agy2": "agy",
 }
@@ -370,6 +373,12 @@ class Invocation:
     capacity_policy: Mapping[str, Any] | None = None
     capacity_request_id: str | None = None
     capacity_required: bool = False
+    # Present only for the frozen Luna exception.  These values are retained
+    # locally so receipt-v2 can revalidate the exact QOBS binding.
+    qobs_admission: QobsAdmission | None = None
+    qobs_artifact: object | None = None
+    qobs_expected_context: Mapping[str, object] | None = None
+    qobs_ledger_store: str | None = None
 
 
 @dataclass(frozen=True)
@@ -440,6 +449,631 @@ def load_config(path: str | os.PathLike[str]) -> Mapping[str, Any]:
     return _mapping(data, "configuration")
 
 
+def effective_activation_state(config: Mapping[str, Any]) -> tuple[bool, str]:
+    """Return the fail-closed activation values, independently defaulted.
+
+    Missing legacy configuration is never interpreted as authorization to run a
+    provider command.  The one-shot exception has its own gate below and does
+    not change these defaults.
+    """
+
+    return (
+        config.get("activation_prohibited", True),
+        config.get("dispatcher_execution", "CLOSED"),
+    )
+
+
+# IDQ-MVP-080 is deliberately a data-only admission contract.  It does not
+# alter the ordinary dispatcher gate above and it must never start a provider
+# process.  The irreversible start boundary, if any, is separately owned.
+_IDQ_MVP_080_TICKET = "IDQ-MVP-080"
+_IDQ_MVP_080_ALIASES = {
+    "codex1": "codex",
+    "codex2": "codex",
+    "agy1": "agy",
+    "agy2": "agy",
+}
+_IDQ_MVP_080_CONFIG_FIELDS = frozenset(
+    {"ticket", "aliases"}
+)
+_IDQ_MVP_080_ALIAS_FIELDS = frozenset(
+    {"provider", "attempt", "work_mode", "automatic_retry", "fallback"}
+)
+_IDQ_MVP_080_REQUEST_FIELDS = frozenset(
+    {
+        "ticket", "alias", "provider", "attempt", "work_mode",
+        "automatic_retry", "fallback", "decision_sha256",
+        "qobs_artifact_sha256", "qobs_quota_band", "nonce_sha256",
+        "scheduling_snapshot_sha256", "resolved_executable_sha256",
+        "account_identity_sha256", "lease_risk_sha256",
+    }
+)
+_IDQ_MVP_080_RECEIPT_FIELDS = frozenset(
+    {
+        "protocol_version", "ticket", "alias", "provider", "attempt",
+        "decision_sha256", "qobs_artifact_sha256", "nonce_sha256",
+        "scheduling_snapshot_sha256", "resolved_executable_sha256",
+        "account_identity_sha256", "work_result_sha256",
+    }
+)
+
+
+@dataclass(frozen=True)
+class IdqMvp080Admission:
+    """One atomically consumed synthetic IDQ-MVP-080 alias admission."""
+
+    ticket: str
+    alias: str
+    provider: str
+    attempt: int
+    work_mode: str
+    decision_sha256: str
+    qobs_artifact_sha256: str
+    nonce_sha256: str
+    scheduling_snapshot_sha256: str
+    resolved_executable_sha256: str
+    account_identity_sha256: str
+    lease_risk_sha256: str
+
+
+_VALIDATED_IDQ_MVP_080_ADMISSION_IDS: set[int] = set()
+
+
+def _idq_mvp_080_sha256(value: object, label: str) -> str:
+    if not isinstance(value, str) or re.fullmatch(r"[a-f0-9]{64}", value) is None:
+        raise ConfigurationError(f"IDQ-MVP-080 {label} must be a lowercase SHA-256 digest")
+    return value
+
+
+def _validate_idq_mvp_080_config(config: Mapping[str, Any]) -> Mapping[str, Any]:
+    """Validate the fixed synthetic exception configuration without widening it."""
+
+    if (
+        config.get("activation_prohibited") is not True
+        or config.get("dispatcher_execution") != "CLOSED"
+    ):
+        raise ConfigurationError("IDQ-MVP-080 requires ordinary activation CLOSED")
+    exception = _mapping(config.get("idq_mvp_080"), "IDQ-MVP-080 configuration")
+    if set(exception) != _IDQ_MVP_080_CONFIG_FIELDS or exception.get("ticket") != _IDQ_MVP_080_TICKET:
+        raise ConfigurationError("IDQ-MVP-080 configuration is not allowlisted")
+    aliases = _mapping(exception.get("aliases"), "IDQ-MVP-080 aliases")
+    if set(aliases) != set(_IDQ_MVP_080_ALIASES):
+        raise ConfigurationError("IDQ-MVP-080 aliases must be exactly the four allowlisted aliases")
+    for alias, provider in _IDQ_MVP_080_ALIASES.items():
+        entry = _mapping(aliases.get(alias), f"IDQ-MVP-080 alias {alias}")
+        if set(entry) != _IDQ_MVP_080_ALIAS_FIELDS or dict(entry) != {
+            "provider": provider,
+            "attempt": 1,
+            "work_mode": "read_only",
+            "automatic_retry": False,
+            "fallback": False,
+        }:
+            raise ConfigurationError("IDQ-MVP-080 alias configuration is not allowlisted")
+    return exception
+
+
+def _consume_idq_mvp_080_marker(alias: str, marker_store: Path | str | os.PathLike[str]) -> None:
+    """Atomically consume one alias-local marker without touching a provider."""
+
+    store = Path(marker_store)
+    if not store.is_absolute():
+        raise ConfigurationError("IDQ-MVP-080 marker store must be absolute")
+    try:
+        store.mkdir(mode=0o700, parents=True, exist_ok=True)
+        os.chmod(store, 0o700)
+        marker = store / f"idq-mvp-080-{alias}.used"
+        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+        if hasattr(os, "O_NOFOLLOW"):
+            flags |= os.O_NOFOLLOW
+        descriptor = os.open(marker, flags, 0o600)
+        try:
+            os.write(descriptor, b"consumed\n")
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+    except FileExistsError as exc:
+        raise ConfigurationError("IDQ-MVP-080 alias one-use marker is consumed") from exc
+    except OSError as exc:
+        raise ConfigurationError("IDQ-MVP-080 marker store is invalid") from exc
+
+
+def _consume_idq_mvp_080_qobs_nonce(
+    nonce_sha256: str, marker_store: Path | str | os.PathLike[str]
+) -> None:
+    """Atomically consume one validated QOBS nonce before the alias marker.
+
+    The nonce digest has already been syntax-checked and bound to the exact
+    QOBS context.  Using it as the durable marker name prevents a genuine
+    observation from being replayed through another alias while retaining no
+    raw nonce in the filesystem.
+    """
+
+    store = Path(marker_store)
+    if not store.is_absolute():
+        raise ConfigurationError("IDQ-MVP-080 marker store must be absolute")
+    try:
+        store.mkdir(mode=0o700, parents=True, exist_ok=True)
+        os.chmod(store, 0o700)
+        marker = store / f"idq-mvp-080-qobs-{nonce_sha256}.used"
+        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+        if hasattr(os, "O_NOFOLLOW"):
+            flags |= os.O_NOFOLLOW
+        descriptor = os.open(marker, flags, 0o600)
+        try:
+            os.write(descriptor, b"consumed\n")
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+    except FileExistsError as exc:
+        raise ConfigurationError("IDQ-MVP-080 QOBS nonce is consumed") from exc
+    except OSError as exc:
+        raise ConfigurationError("IDQ-MVP-080 marker store is invalid") from exc
+
+
+def validate_idq_mvp_080_admission(
+    config: Mapping[str, Any], request: Mapping[str, Any], marker_store: Path | str | os.PathLike[str]
+) -> IdqMvp080Admission:
+    """Validate and consume one of four fixed synthetic, read-only admissions."""
+
+    _validate_idq_mvp_080_config(_mapping(config, "configuration"))
+    request = _mapping(request, "IDQ-MVP-080 admission request")
+    if set(request) != _IDQ_MVP_080_REQUEST_FIELDS:
+        raise ConfigurationError("IDQ-MVP-080 admission fields are invalid")
+    alias = request.get("alias")
+    if alias not in _IDQ_MVP_080_ALIASES:
+        raise ConfigurationError("IDQ-MVP-080 alias is not allowlisted")
+    provider = _IDQ_MVP_080_ALIASES[alias]
+    if (
+        request.get("ticket") != _IDQ_MVP_080_TICKET
+        or request.get("provider") != provider
+        or isinstance(request.get("attempt"), bool)
+        or request.get("attempt") != 1
+        or request.get("work_mode") != "read_only"
+        or request.get("automatic_retry") is not False
+        or request.get("fallback") is not False
+        or request.get("qobs_quota_band") != "constrained"
+    ):
+        raise ConfigurationError("IDQ-MVP-080 only permits attempt 1, read-only, no retry or fallback")
+    digests = {
+        field: _idq_mvp_080_sha256(request.get(field), field)
+        for field in (
+            "decision_sha256", "qobs_artifact_sha256", "nonce_sha256",
+            "scheduling_snapshot_sha256", "resolved_executable_sha256",
+            "account_identity_sha256", "lease_risk_sha256",
+        )
+    }
+    _consume_idq_mvp_080_marker(alias, marker_store)
+    admission = IdqMvp080Admission(
+        ticket=_IDQ_MVP_080_TICKET,
+        alias=alias,
+        provider=provider,
+        attempt=1,
+        work_mode="read_only",
+        **digests,
+    )
+    _VALIDATED_IDQ_MVP_080_ADMISSION_IDS.add(id(admission))
+    return admission
+
+
+def _validate_idq_mvp_080_execution_context(
+    request: Mapping[str, Any], execution_context: Mapping[str, Any]
+) -> None:
+    """Validate the closed preflight evidence used at the start boundary.
+
+    This accepts only a genuine, fresh QOBS artifact and its exact local
+    context.  Caller-created digest claims are never QOBS evidence.  The
+    quota guard is invoked exactly once here, immediately before the nonce and
+    alias start-boundary markers are consumed by the execution assemblers.
+    """
+
+    context = _mapping(execution_context, "IDQ-MVP-080 execution context")
+    required = {"qobs_artifact", "qobs_expected_context", "runtime"}
+    if set(context) != required:
+        raise ConfigurationError("IDQ-MVP-080 execution context fields are invalid")
+
+    artifact = context.get("qobs_artifact")
+    expected = _mapping(
+        context.get("qobs_expected_context"), "IDQ-MVP-080 QOBS expected context"
+    )
+    expected_fields = {
+        "alias", "provider", "account_home", "resolved_executable", "ticket_id",
+        "attempt_id", "policy_version", "nonce", "observed_at",
+    }
+    if set(expected) != expected_fields:
+        raise ConfigurationError("IDQ-MVP-080 QOBS expected context fields are invalid")
+    if (
+        expected.get("alias") != request.get("alias")
+        or expected.get("provider") != request.get("provider")
+        or expected.get("ticket_id") != request.get("ticket")
+        or isinstance(expected.get("attempt_id"), bool)
+        or expected.get("attempt_id") != request.get("attempt")
+    ):
+        raise ConfigurationError("IDQ-MVP-080 QOBS context does not match the request")
+    try:
+        if (
+            quota_guard.quota_artifact_sha256(artifact)
+            != request.get("qobs_artifact_sha256")
+            or quota_guard.sha256_text(expected.get("nonce")) != request.get("nonce_sha256")
+            or quota_guard.sha256_text(expected.get("resolved_executable"))
+            != request.get("resolved_executable_sha256")
+            or quota_guard.sha256_text(expected.get("account_home"))
+            != request.get("account_identity_sha256")
+        ):
+            raise ConfigurationError("IDQ-MVP-080 QOBS evidence is unbound")
+        observation = quota_guard.validate_quota_observation(artifact, dict(expected))
+    except quota_guard.QuotaObservationError:
+        raise
+    if observation.get("quota_band") != request.get("qobs_quota_band"):
+        raise ConfigurationError("IDQ-MVP-080 QOBS quota band is unbound")
+
+    runtime = _mapping(context.get("runtime"), "IDQ-MVP-080 runtime evidence")
+    provider = request.get("provider")
+    expected_runtime: Mapping[str, object]
+    if provider == "codex":
+        expected_runtime = {"read_only": True, "sandbox": "read-only"}
+    elif provider == "agy":
+        # AGY's plan mode is its strictly read-only command surface.
+        expected_runtime = {"read_only": True, "mode": "plan", "sandbox": True}
+    else:  # The request validation normally rejects this first; retain closure.
+        raise ConfigurationError("IDQ-MVP-080 provider is not allowlisted")
+    if dict(runtime) != dict(expected_runtime):
+        raise ConfigurationError("IDQ-MVP-080 runtime is not read-only")
+
+
+def validate_idq_mvp_080_execution_admission(
+    config: Mapping[str, Any], request: Mapping[str, Any], execution_context: Mapping[str, Any]
+) -> IdqMvp080Admission:
+    """Validate (but do not consume) the exact IDQ start-boundary admission.
+
+    The caller must invoke this immediately before `_consume_idq_mvp_080_marker`.
+    Keeping consumption outside this pure preflight prevents rejected evidence
+    from burning a one-shot alias, while preserving the old data-only admission
+    API and its frozen consume-on-validation behavior.
+    """
+
+    _validate_idq_mvp_080_config(_mapping(config, "configuration"))
+    request = _mapping(request, "IDQ-MVP-080 admission request")
+    if set(request) != _IDQ_MVP_080_REQUEST_FIELDS:
+        raise ConfigurationError("IDQ-MVP-080 admission fields are invalid")
+    alias = request.get("alias")
+    if alias not in _IDQ_MVP_080_ALIASES:
+        raise ConfigurationError("IDQ-MVP-080 alias is not allowlisted")
+    provider = _IDQ_MVP_080_ALIASES[alias]
+    if (
+        request.get("ticket") != _IDQ_MVP_080_TICKET
+        or request.get("provider") != provider
+        or isinstance(request.get("attempt"), bool)
+        or request.get("attempt") != 1
+        or request.get("work_mode") != "read_only"
+        or request.get("automatic_retry") is not False
+        or request.get("fallback") is not False
+        or request.get("qobs_quota_band") != "constrained"
+    ):
+        raise ConfigurationError("IDQ-MVP-080 only permits attempt 1, read-only, no retry or fallback")
+    digests = {
+        field: _idq_mvp_080_sha256(request.get(field), field)
+        for field in (
+            "decision_sha256", "qobs_artifact_sha256", "nonce_sha256",
+            "scheduling_snapshot_sha256", "resolved_executable_sha256",
+            "account_identity_sha256", "lease_risk_sha256",
+        )
+    }
+    _validate_idq_mvp_080_execution_context(request, execution_context)
+    admission = IdqMvp080Admission(
+        ticket=_IDQ_MVP_080_TICKET,
+        alias=alias,
+        provider=provider,
+        attempt=1,
+        work_mode="read_only",
+        **digests,
+    )
+    _VALIDATED_IDQ_MVP_080_ADMISSION_IDS.add(id(admission))
+    return admission
+
+
+def execute_idq_mvp_080_execution(
+    config: Mapping[str, Any],
+    request: Mapping[str, Any],
+    execution_context: Mapping[str, Any],
+    marker_store: Path | str | os.PathLike[str],
+    provider_runner: Any,
+) -> dict[str, Any]:
+    """Assemble the frozen mock-backed IDQ execution flow without a provider CLI.
+
+    `provider_runner` is an injected test seam.  This function deliberately
+    has no route resolution, retry, fallback, subprocess, or raw-stream path.
+    It validates preflight immediately before atomically burning the alias and
+    validates the runner's closed receipt/WorkResult payload before returning.
+    """
+
+    if not callable(provider_runner):
+        raise ConfigurationError("IDQ-MVP-080 provider runner is invalid")
+    admission = validate_idq_mvp_080_execution_admission(
+        config, request, execution_context
+    )
+    _consume_idq_mvp_080_qobs_nonce(admission.nonce_sha256, marker_store)
+    _consume_idq_mvp_080_marker(admission.alias, marker_store)
+    payload = _mapping(provider_runner(admission), "IDQ-MVP-080 provider payload")
+    if set(payload) != {"receipt", "work_result"}:
+        raise ConfigurationError("IDQ-MVP-080 provider payload must be receipt and WorkResult only")
+    receipt = validate_idq_mvp_080_receipt(
+        admission,
+        _mapping(payload.get("receipt"), "IDQ-MVP-080 receipt"),
+        _mapping(payload.get("work_result"), "IDQ-MVP-080 WorkResult"),
+    )
+    work_result = normalize_result(_mapping(payload["work_result"], "IDQ-MVP-080 WorkResult"))
+    return {"receipt": receipt, "work_result": work_result}
+
+
+def _idq_mvp_080_provider_argv(admission: IdqMvp080Admission) -> tuple[str, ...]:
+    """Return the one fixed, provider-native read-only argv for an admission."""
+
+    if admission.provider == "codex":
+        return (
+            "codex", "exec", "-C", str(REPOSITORY_ROOT), "-s", "read-only",
+            "--json", "-",
+        )
+    if admission.provider == "agy":
+        return (
+            "agy", "--mode", "plan", "--sandbox", "--print",
+            "--input-format", "stream-json", "--output-format", "stream-json",
+        )
+    raise ConfigurationError("IDQ-MVP-080 provider is not allowlisted")
+
+
+def _idq_mvp_080_completed_process_output(completed: Any) -> tuple[int, str | bytes | None]:
+    """Extract one injected-process result without exposing provider output."""
+
+    if not isinstance(completed, subprocess.CompletedProcess):
+        raise ConfigurationError("IDQ-MVP-080 subprocess result is invalid")
+    exit_code = completed.returncode
+    if isinstance(exit_code, bool) or not isinstance(exit_code, int):
+        raise ConfigurationError("IDQ-MVP-080 subprocess exit code is invalid")
+    # stderr is never a result channel.  Reject it rather than retaining or
+    # merging it into a receipt, since it can contain provider diagnostics.
+    if completed.stderr not in (None, "", b""):
+        raise ConfigurationError("IDQ-MVP-080 subprocess stderr is not permitted")
+    if not isinstance(completed.stdout, (str, bytes, type(None))):
+        raise ConfigurationError("IDQ-MVP-080 subprocess stdout is invalid")
+    return exit_code, completed.stdout
+
+
+def execute_idq_mvp_080_provider_adapter(
+    config: Mapping[str, Any],
+    request: Mapping[str, Any],
+    execution_context: Mapping[str, Any],
+    marker_store: Path | str | os.PathLike[str],
+    run_subprocess: Any,
+) -> dict[str, Any]:
+    """Run one injected, provider-native IDQ adapter under the frozen exception.
+
+    This is intentionally a fake-subprocess seam: it never calls
+    ``subprocess.run`` itself, retries, falls back, or persists provider output.
+    The only irreversible ordering is preflight, alias marker, then the one
+    injected process invocation.
+    """
+
+    if not callable(run_subprocess):
+        raise ConfigurationError("IDQ-MVP-080 subprocess runner is invalid")
+    admission = validate_idq_mvp_080_execution_admission(
+        config, request, execution_context
+    )
+    _consume_idq_mvp_080_qobs_nonce(admission.nonce_sha256, marker_store)
+    _consume_idq_mvp_080_marker(admission.alias, marker_store)
+    completed = run_subprocess(
+        _idq_mvp_080_provider_argv(admission),
+        shell=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    exit_code, output = _idq_mvp_080_completed_process_output(completed)
+
+    # Parse only in memory.  Both native parsers reject raw, malformed,
+    # ambiguous, missing-final, and secret-bearing event streams.
+    if admission.provider == "codex":
+        parsed = _parse_codex_result(output)
+    elif admission.provider == "agy":
+        parsed = _parse_agy_result(output)
+    else:  # Defensive closure if an admission implementation later regresses.
+        raise ConfigurationError("IDQ-MVP-080 provider is not allowlisted")
+    work_result = normalize_result(parsed.work_result)
+    if exit_code != 0 and work_result["status"] == "DONE":
+        raise ConfigurationError("IDQ-MVP-080 nonzero execution cannot carry DONE")
+
+    receipt_material = {
+        "protocol_version": 2,
+        "ticket": admission.ticket,
+        "alias": admission.alias,
+        "provider": admission.provider,
+        "attempt": admission.attempt,
+        "decision_sha256": admission.decision_sha256,
+        "qobs_artifact_sha256": admission.qobs_artifact_sha256,
+        "nonce_sha256": admission.nonce_sha256,
+        "scheduling_snapshot_sha256": admission.scheduling_snapshot_sha256,
+        "resolved_executable_sha256": admission.resolved_executable_sha256,
+        "account_identity_sha256": admission.account_identity_sha256,
+        "work_result_sha256": _idq_mvp_080_work_result_sha256(work_result),
+    }
+    receipt = validate_idq_mvp_080_receipt(admission, receipt_material, work_result)
+    # `exit_code` is adapter-local execution metadata; validate the frozen v2
+    # binding before exposing this non-secret scalar.
+    receipt["exit_code"] = exit_code
+    if output is None:
+        output_bytes = b""
+    elif isinstance(output, bytes):
+        output_bytes = output
+    else:
+        output_bytes = output.encode("utf-8")
+    return {
+        "receipt": receipt,
+        "work_result": work_result,
+        "output_evidence": {
+            "output_bytes": len(output_bytes),
+            "output_sha256": hashlib.sha256(output_bytes).hexdigest(),
+            "process_or_session_id": parsed.process_or_session_id,
+        },
+    }
+
+
+def _idq_mvp_080_work_result_sha256(work_result: Mapping[str, Any]) -> str:
+    """Hash the normalized typed WorkResult in the frozen v2 representation."""
+
+    material = json.dumps(
+        work_result, sort_keys=True, separators=(",", ":"), ensure_ascii=True
+    ).encode("utf-8")
+    return hashlib.sha256(material).hexdigest()
+
+
+def validate_idq_mvp_080_receipt(
+    admission: IdqMvp080Admission, receipt: Mapping[str, Any], work_result: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Validate a raw-stream-free receipt bound to one typed WorkResult v2."""
+
+    if (
+        not isinstance(admission, IdqMvp080Admission)
+        or id(admission) not in _VALIDATED_IDQ_MVP_080_ADMISSION_IDS
+    ):
+        raise ConfigurationError("IDQ-MVP-080 admission is invalid")
+    receipt = _mapping(receipt, "IDQ-MVP-080 receipt")
+    if set(receipt) != _IDQ_MVP_080_RECEIPT_FIELDS:
+        raise ConfigurationError("IDQ-MVP-080 receipt fields are invalid")
+    normalized_result = normalize_result(_mapping(work_result, "IDQ-MVP-080 WorkResult"))
+    expected = {
+        "protocol_version": 2,
+        "ticket": admission.ticket,
+        "alias": admission.alias,
+        "provider": admission.provider,
+        "attempt": admission.attempt,
+        "decision_sha256": admission.decision_sha256,
+        "qobs_artifact_sha256": admission.qobs_artifact_sha256,
+        "nonce_sha256": admission.nonce_sha256,
+        "scheduling_snapshot_sha256": admission.scheduling_snapshot_sha256,
+        "resolved_executable_sha256": admission.resolved_executable_sha256,
+        "account_identity_sha256": admission.account_identity_sha256,
+        "work_result_sha256": _idq_mvp_080_work_result_sha256(normalized_result),
+    }
+    for field, value in expected.items():
+        if receipt.get(field) != value:
+            raise ConfigurationError(f"IDQ-MVP-080 receipt {field} does not match its admission binding")
+    return dict(receipt)
+
+
+class LocalBootstrapBlocked(ConfigurationError):
+    """A local bootstrap observation is not admissible at the spawn boundary."""
+
+    def __init__(self, code: str) -> None:
+        self.code = code
+        super().__init__(code.lower())
+
+
+class LocalBootstrapLifecycleError(ConfigurationError):
+    """The local-only lifecycle events are incomplete or out of order."""
+
+
+@dataclass(frozen=True)
+class LocalBootstrapAdmission:
+    protocol_version: str
+    alias: str
+    provider: str
+    observed_at: str
+    nonce: str
+    executable_sha256: str
+    account_home_sha256: str
+    quota_band: str
+    risk_acceptance_id: str | None
+    supervisor_instance_id: str
+    work_mode: str
+    attempt: int
+    automatic_retry: bool
+    evidence_level: str
+    warning: str
+
+    def to_queue_record(self) -> dict[str, object]:
+        """Return a path-free warning record, never a provider receipt."""
+        return {
+            "protocol_version": self.protocol_version,
+            "alias": self.alias,
+            "provider": self.provider,
+            "observed_at": self.observed_at,
+            "nonce": self.nonce,
+            "executable_sha256": self.executable_sha256,
+            "account_home_sha256": self.account_home_sha256,
+            "quota_band": self.quota_band,
+            "risk_acceptance_id": self.risk_acceptance_id,
+            "supervisor_instance_id": self.supervisor_instance_id,
+            "work_mode": self.work_mode,
+            "attempt": self.attempt,
+            "automatic_retry": self.automatic_retry,
+            "evidence_level": self.evidence_level,
+            "warning": self.warning,
+        }
+
+
+class LocalBootstrapLifecycle:
+    """Strict four-event lifecycle; provider start is explicit, not inferred."""
+
+    _events = ("prepared", "starting", "provider_started", "completed")
+
+    def __init__(self, *, on_event: Any) -> None:
+        self._on_event = on_event
+        self._position = 0
+        self.provider_was_started = False
+        self.terminal_state: str | None = None
+
+    def _event(self, name: str) -> None:
+        if self._position >= len(self._events) or self._events[self._position] != name:
+            raise LocalBootstrapLifecycleError("invalid local bootstrap lifecycle")
+        self._position += 1
+        if name == "provider_started":
+            self.provider_was_started = True
+        if name == "completed":
+            self.terminal_state = "completed"
+        self._on_event(name)
+
+    def prepared(self) -> None: self._event("prepared")
+    def starting(self) -> None: self._event("starting")
+    def provider_started(self) -> None: self._event("provider_started")
+    def completed(self) -> None: self._event("completed")
+
+
+def _bootstrap_digest(path: Path, *, directory: bool) -> str:
+    if directory:
+        stat_result = path.stat()
+        material = f"{stat_result.st_dev}:{stat_result.st_ino}".encode("ascii")
+    else:
+        material = path.read_bytes()
+    return hashlib.sha256(material).hexdigest()
+
+
+def validate_local_bootstrap_admission(
+    admission: LocalBootstrapAdmission,
+    *, executable: Path, account_home: Path, active_supervisor_instance_id: str,
+    bootstrap_open: bool, bootstrap_sealed: bool, risk_acceptance_exists: bool,
+    auth_ready: bool, requested_alias: str, active_aliases: set[str],
+) -> LocalBootstrapAdmission:
+    """Validate the narrow, ephemeral local admission without changing env state."""
+    if not bootstrap_open: raise LocalBootstrapBlocked("BLOCKED_BOOTSTRAP_CLOSED")
+    if bootstrap_sealed: raise LocalBootstrapBlocked("BLOCKED_BOOTSTRAP_SEALED")
+    if admission.supervisor_instance_id != active_supervisor_instance_id: raise LocalBootstrapBlocked("BLOCKED_BOOTSTRAP_EXPIRED")
+    if not admission.risk_acceptance_id or not risk_acceptance_exists: raise LocalBootstrapBlocked("BLOCKED_RISK_ACCEPTANCE")
+    if admission.quota_band not in {"unknown", "constrained"}: raise LocalBootstrapBlocked("BLOCKED_QUOTA")
+    if admission.work_mode != "read_only": raise LocalBootstrapBlocked("BLOCKED_WORK_MODE")
+    if admission.attempt != 1: raise LocalBootstrapBlocked("BLOCKED_ATTEMPT")
+    if admission.automatic_retry: raise LocalBootstrapBlocked("BLOCKED_AUTO_RETRY")
+    if admission.alias != requested_alias: raise LocalBootstrapBlocked("BLOCKED_ALIAS_MISMATCH")
+    if admission.alias in active_aliases: raise LocalBootstrapBlocked("BLOCKED_ALIAS_BUSY")
+    if not auth_ready: raise LocalBootstrapBlocked("BLOCKED_AUTH")
+    if not executable.is_file() or not os.access(executable, os.X_OK): raise LocalBootstrapBlocked("BLOCKED_EXECUTABLE")
+    try:
+        if _bootstrap_digest(executable, directory=False) != admission.executable_sha256: raise LocalBootstrapBlocked("BLOCKED_EXECUTABLE")
+        if not account_home.is_dir() or _bootstrap_digest(account_home, directory=True) != admission.account_home_sha256: raise LocalBootstrapBlocked("BLOCKED_ACCOUNT_HOME")
+    except OSError as exc:
+        raise LocalBootstrapBlocked("BLOCKED_EXECUTABLE") from exc
+    if not all((admission.observed_at, admission.nonce, admission.executable_sha256, admission.account_home_sha256)):
+        raise LocalBootstrapBlocked("BLOCKED_OBSERVATION")
+    return admission
+
+
 def _load_yaml_mapping(path: str | os.PathLike[str], label: str) -> Mapping[str, Any]:
     source = Path(path)
     data = yaml.safe_load(source.read_text(encoding="utf-8")) or {}
@@ -499,6 +1133,18 @@ def _qobs_digest(value: object) -> str:
         return quota_guard.quota_artifact_sha256(value)
     except quota_guard.QuotaObservationError as exc:
         raise ConfigurationError("quota observation artifact digest is invalid") from exc
+
+
+def _require_scheduling_snapshot_digest(
+    value: object, error_type: type[ConfigurationError] = ConfigurationError
+) -> str:
+    """Return one receipt-v2-compatible Rule 11 scheduling snapshot digest."""
+
+    if not isinstance(value, str) or not re.fullmatch(r"[a-f0-9]{64}", value):
+        raise error_type(
+            "scheduling_snapshot_sha256 must be a lowercase SHA-256 digest"
+        )
+    return value
 
 
 def _qobs_context_digest(context: Mapping[str, object]) -> str:
@@ -589,6 +1235,9 @@ def quota_bound_dispatch_identity(
     }
     if set(dispatch_context) != required:
         raise ConfigurationError("quota dispatch context fields are invalid")
+    _require_scheduling_snapshot_digest(
+        dispatch_context.get("scheduling_snapshot_sha256")
+    )
     if consumption.get("quota_band") != "constrained":
         raise ConfigurationError("quota consumption is not dispatchable")
     if not isinstance(consumption.get("nonce_sha256"), str):
@@ -642,15 +1291,396 @@ def validate_quota_receipt_binding(
     return receipt
 
 
+@dataclass(frozen=True)
+class QobsAdmission:
+    """One consumed, non-transferable admission for the Luna diagnostic.
+
+    This value is intentionally constructed only by
+    :func:`validate_closed_dispatch_exception`.  It holds digests and route
+    metadata only; neither account-home values nor executable paths escape the
+    preflight boundary.
+    """
+
+    ticket_id: str
+    attempt_id: int
+    role: str
+    alias: str
+    provider: str
+    model: str
+    effort: str
+    quota_band: str
+    work_mode: str
+    sandbox: str
+    execution_exception_id: str
+    decision_schema_version: int
+    decision_sha256: str
+    scheduling_snapshot_sha256: str
+    qobs_artifact_sha256: str
+    qobs_nonce_sha256: str
+    qobs_context_sha256: str
+    resolved_executable_sha256: str
+    policy_version: str
+    exception_consumption_sha256: str
+    dispatch_identity: str
+
+    def quota_consumption(self) -> dict[str, str]:
+        """Return the exact QOBS consumption proof accepted by receipt-v2."""
+
+        return {
+            "artifact_sha256": self.qobs_artifact_sha256,
+            "nonce_sha256": self.qobs_nonce_sha256,
+            "quota_band": self.quota_band,
+        }
+
+    def dispatch_context(self) -> dict[str, str]:
+        """Return the receipt-v2 context, excluding non-portable route data."""
+
+        return {
+            "decision_sha256": self.decision_sha256,
+            "scheduling_snapshot_sha256": self.scheduling_snapshot_sha256,
+            "resolved_executable_sha256": self.resolved_executable_sha256,
+            "policy_version": self.policy_version,
+        }
+
+
+# This is intentionally process-local rather than an authorization cache.  It
+# distinguishes a gate-returned immutable value from a caller-constructed
+# lookalike; the durable one-shot use is still committed in the ledger at
+# spawn time.
+_VALIDATED_QOBS_ADMISSION_IDS: set[int] = set()
+
+
+def is_validated_qobs_admission(admission: object) -> bool:
+    """Return whether this exact admission object came from the closed gate."""
+
+    return isinstance(admission, QobsAdmission) and id(admission) in _VALIDATED_QOBS_ADMISSION_IDS
+
+
+def _resolve_qobs_executable(route: Route) -> str:
+    """Resolve one executable to an absolute, executable regular file path."""
+
+    # Resolve even an absolute configured command through ``which``.  This
+    # detects a replaced executable resolution immediately before spawn.
+    candidate = shutil.which(route.command)
+    if not candidate:
+        raise ConfigurationError("execution exception executable is unavailable")
+    path = Path(candidate).resolve()
+    if not path.is_file() or not os.access(path, os.X_OK):
+        raise ConfigurationError("execution exception executable is unavailable")
+    return str(path)
+
+
+_LUNA_ONE_SHOT_EXCEPTION_ID = "luna-delegate-001-codex2-attempt-1"
+_LUNA_ONE_SHOT_EXCEPTION_FIELDS = frozenset(
+    {
+        "ticket",
+        "attempt_id",
+        "role",
+        "alias",
+        "provider",
+        "decision_schema_version",
+        "model",
+        "effort",
+        "work_mode",
+        "sandbox",
+        "quota_band",
+        "maximum_uses",
+        "automatic_retry",
+    }
+)
+_LUNA_ONE_SHOT_EXCEPTION = {
+    "ticket": "TICKET-LUNA-DELEGATE-001",
+    "attempt_id": 1,
+    "role": "codex2_luna_diagnostic",
+    "alias": "codex2",
+    "provider": "codex",
+    "decision_schema_version": 1,
+    "model": "gpt-5.6-luna",
+    "effort": "xhigh",
+    "work_mode": "read_only",
+    "sandbox": "read-only",
+    "quota_band": "constrained",
+    "maximum_uses": 1,
+    "automatic_retry": False,
+}
+
+
+def _commit_qobs_one_shot(
+    *,
+    admission: QobsAdmission,
+    ledger_store: Path | str | os.PathLike[str] | None,
+    binding: Mapping[str, object],
+) -> str:
+    """Atomically commit the exception and its nonce in one fixed ledger."""
+
+    if ledger_store is None:
+        raise ConfigurationError("one-shot QOBS ledger is required")
+    store = Path(ledger_store)
+    if not store.is_absolute():
+        raise ConfigurationError("execution exception store must be absolute")
+    try:
+        store.mkdir(mode=0o700, parents=True, exist_ok=True)
+        os.chmod(store, 0o700)
+        marker = store / f"{quota_guard.sha256_text(admission.execution_exception_id)}.used"
+        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+        if hasattr(os, "O_NOFOLLOW"):
+            flags |= os.O_NOFOLLOW
+        descriptor = os.open(marker, flags, 0o600)
+        try:
+            material = _canonical_sha256(dict(binding)).encode("ascii") + b"\n"
+            os.write(descriptor, material)
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+    except FileExistsError as exc:
+        raise quota_guard.QuotaObservationError("EXECUTION_EXCEPTION_CONSUMED") from exc
+    except OSError as exc:
+        raise ConfigurationError("execution exception store is invalid") from exc
+    return _canonical_sha256(dict(binding))
+
+
+def validate_closed_dispatch_exception(
+    config: Mapping[str, Any],
+    *,
+    execution_exception_id: object,
+    decision: object,
+    route: Route,
+    quota_observation: object,
+    expected_qobs_context: Mapping[str, object],
+    scheduling_snapshot_sha256: object,
+    qobs_nonce_store: Path | str | os.PathLike[str] | None,
+    exception_store: Path | str | os.PathLike[str] | None,
+    ledger_store: Path | str | os.PathLike[str] | None = None,
+    consume: bool = True,
+    now: datetime | None = None,
+) -> QobsAdmission:
+    """Validate the sole closed-dispatch Luna exception.
+
+    This is purposefully separate from ordinary quota-bound dispatch.  It is
+    the only place a schema-v1 decision can reach executable admission, and it
+    accepts no wildcard ids, routes, sandboxes, quota bands, or retries.
+    """
+
+    activation_prohibited, dispatcher_execution = effective_activation_state(config)
+    if activation_prohibited is not True or dispatcher_execution != "CLOSED":
+        raise ConfigurationError("one-shot exception requires a closed dispatcher")
+    runtime = _mapping(config.get("runtime"), "runtime")
+    if runtime.get("approved_for_execution") is not True or runtime.get("protocol_version") != 2:
+        raise ConfigurationError("one-shot exception requires approved protocol v2 runtime")
+    if execution_exception_id != _LUNA_ONE_SHOT_EXCEPTION_ID:
+        raise ConfigurationError("execution exception is not approved")
+    exceptions = _mapping(config.get("execution_exceptions"), "execution_exceptions")
+    exception = _mapping(exceptions.get(_LUNA_ONE_SHOT_EXCEPTION_ID), "execution exception")
+    if set(exception) != _LUNA_ONE_SHOT_EXCEPTION_FIELDS or dict(exception) != _LUNA_ONE_SHOT_EXCEPTION:
+        raise ConfigurationError("execution exception contract is invalid")
+    if (
+        route.role != exception["role"]
+        or route.alias != exception["alias"]
+        or route.cli != exception["provider"]
+        or route.model != exception["model"]
+        or route.effort != exception["effort"]
+        or route.sandbox != exception["sandbox"]
+    ):
+        raise ConfigurationError("execution exception route is invalid")
+    roles = _mapping(config.get("roles"), "roles")
+    role_config = _mapping(roles.get(route.role), f"roles.{route.role}")
+    if role_config.get("sandbox") != "read-only":
+        raise ConfigurationError("execution exception requires read-only sandbox")
+    if not isinstance(decision, Mapping):
+        raise ConfigurationError("execution exception requires a DispatchDecision")
+    if decision.get("schema_version") != exception["decision_schema_version"]:
+        raise ConfigurationError("execution exception decision schema is invalid")
+    try:
+        policy = load_model_policy(
+            REPOSITORY_ROOT / ".agents/config/multiagent_model_policy.yaml"
+        )
+        validated = validate_dispatch_decision(decision, policy, route)
+    except (ConfigurationError, DispatchDecisionError, TypeError) as exc:
+        raise ConfigurationError("execution exception decision is invalid") from exc
+    for field in ("ticket", "selected_alias", "selected_model", "selected_effort", "work_mode", "quota_band"):
+        expected = exception["alias"] if field == "selected_alias" else (
+            exception["model"] if field == "selected_model" else (
+                exception["effort"] if field == "selected_effort" else exception.get(field)
+            )
+        )
+        if validated.decision.get(field) != expected:
+            raise ConfigurationError("execution exception decision does not match its contract")
+    if validated.decision.get("ticket") != exception["ticket"]:
+        raise ConfigurationError("execution exception ticket is invalid")
+    snapshot_digest = _require_scheduling_snapshot_digest(scheduling_snapshot_sha256)
+    if not isinstance(expected_qobs_context, Mapping):
+        raise ConfigurationError("execution exception QOBS context is invalid")
+    qobs_policy_version = expected_qobs_context.get("policy_version")
+    if (
+        qobs_policy_version not in {"2026-08-26.1", "2026-08-29.1"}
+        or qobs_policy_version != validated.policy_version
+    ):
+        raise ConfigurationError("execution exception QOBS context does not match route")
+    required_context = {
+        "alias": route.alias,
+        "provider": route.cli,
+        "ticket_id": exception["ticket"],
+        "attempt_id": exception["attempt_id"],
+        "policy_version": validated.policy_version,
+    }
+    for field, expected in required_context.items():
+        if expected_qobs_context.get(field) != expected:
+            raise ConfigurationError("execution exception QOBS context does not match route")
+    for field in ("account_home", "resolved_executable", "nonce", "observed_at"):
+        if not isinstance(expected_qobs_context.get(field), str) or not expected_qobs_context[field]:
+            raise ConfigurationError("execution exception QOBS context is incomplete")
+    try:
+        observation = quota_guard.validate_quota_observation(
+            quota_observation, dict(expected_qobs_context), now=now
+        )
+    except quota_guard.QuotaObservationError:
+        raise
+    if observation.get("quota_band") == "unknown":
+        raise quota_guard.QuotaObservationError("UNKNOWN_QUOTA")
+    if observation.get("quota_band") != exception["quota_band"]:
+        raise quota_guard.QuotaObservationError("QUOTA_NOT_DISPATCHABLE")
+    resolved_executable = _resolve_qobs_executable(route)
+    if "/" in route.command and resolved_executable != expected_qobs_context["resolved_executable"]:
+        raise ConfigurationError("execution exception executable is not pinned to QOBS")
+    nonce = str(expected_qobs_context["nonce"])
+    artifact_sha256 = _qobs_digest(quota_observation)
+    context_sha256 = _qobs_context_digest(expected_qobs_context)
+    consumption_binding = {
+        "exception_id": _LUNA_ONE_SHOT_EXCEPTION_ID,
+        "decision_sha256": validated.digest,
+        "scheduling_snapshot_sha256": snapshot_digest,
+        "qobs_artifact_sha256": artifact_sha256,
+        "qobs_nonce_sha256": quota_guard.sha256_text(nonce),
+        "qobs_context_sha256": context_sha256,
+    }
+    exception_consumption_sha256 = _canonical_sha256(consumption_binding)
+    consumption = {
+        "artifact_sha256": artifact_sha256,
+        "nonce_sha256": quota_guard.sha256_text(nonce),
+        "quota_band": str(observation["quota_band"]),
+    }
+    dispatch_context = {
+        "decision_sha256": validated.digest,
+        "scheduling_snapshot_sha256": snapshot_digest,
+        "resolved_executable_sha256": str(observation["resolved_executable_sha256"]),
+        "policy_version": validated.policy_version,
+    }
+    admission = QobsAdmission(
+        ticket_id=str(exception["ticket"]),
+        attempt_id=int(exception["attempt_id"]),
+        role=str(exception["role"]),
+        alias=str(exception["alias"]),
+        provider=str(exception["provider"]),
+        model=str(exception["model"]),
+        effort=str(exception["effort"]),
+        quota_band=str(exception["quota_band"]),
+        work_mode=str(exception["work_mode"]),
+        sandbox=str(exception["sandbox"]),
+        execution_exception_id=_LUNA_ONE_SHOT_EXCEPTION_ID,
+        decision_schema_version=int(exception["decision_schema_version"]),
+        decision_sha256=validated.digest,
+        scheduling_snapshot_sha256=snapshot_digest,
+        qobs_artifact_sha256=artifact_sha256,
+        qobs_nonce_sha256=consumption["nonce_sha256"],
+        qobs_context_sha256=context_sha256,
+        resolved_executable_sha256=dispatch_context["resolved_executable_sha256"],
+        policy_version=validated.policy_version,
+        exception_consumption_sha256=exception_consumption_sha256,
+        dispatch_identity=quota_bound_dispatch_identity(
+            quota_observation, consumption, dispatch_context
+        ),
+    )
+    _VALIDATED_QOBS_ADMISSION_IDS.add(id(admission))
+    if consume:
+        # Legacy callers may still pass the two historical store arguments.
+        # They now select one ledger only; the nonce is recorded in the same
+        # atomic marker and no early two-store commit remains.
+        selected_ledger = ledger_store if ledger_store is not None else exception_store
+        _commit_qobs_one_shot(
+            admission=admission,
+            ledger_store=selected_ledger,
+            binding=consumption_binding,
+        )
+    return admission
+
+
+def validate_closed_dispatch_execution_args(
+    args: argparse.Namespace, config: Mapping[str, Any]
+) -> None:
+    """Reject partial exception evidence before executable preflight."""
+
+    if not getattr(args, "execute", False):
+        return
+    quota_path = getattr(args, "quota_observation", None)
+    exception_id = getattr(args, "execution_exception_id", None)
+    if bool(quota_path) != bool(exception_id):
+        raise DispatchDecisionError(
+            "--quota-observation and --execution-exception-id are required together"
+        )
+
+
+def _load_closed_dispatch_qobs(path: str | os.PathLike[str]) -> object:
+    """Read a QOBS artifact as strict JSON without exposing its contents."""
+
+    try:
+        return quota_guard.strict_json_loads(Path(path).read_bytes())
+    except (OSError, quota_guard.QuotaObservationError) as exc:
+        raise ConfigurationError("closed dispatch quota observation is unavailable") from exc
+
+
+def _closed_dispatch_qobs_context(
+    artifact: object,
+    *,
+    route: Route,
+    decision: Mapping[str, Any],
+    attempt_id: int,
+) -> dict[str, object]:
+    """Bind QOBS provenance to this process-local route without logging paths."""
+
+    if route.home_path is None:
+        raise ConfigurationError("closed dispatch route lacks account-home identity")
+    resolved_executable = shutil.which(route.command)
+    if not resolved_executable:
+        raise ConfigurationError("closed dispatch executable is unavailable")
+    try:
+        observation = _mapping(_mapping(artifact, "quota observation artifact").get("observation"), "quota observation")
+        nonce = observation.get("nonce")
+        observed_at = observation.get("observed_at")
+    except ConfigurationError:
+        raise
+    if not isinstance(nonce, str) or not isinstance(observed_at, str):
+        raise ConfigurationError("closed dispatch quota observation is incomplete")
+    return {
+        "alias": route.alias,
+        "provider": route.cli,
+        "account_home": route.home_path,
+        "resolved_executable": str(Path(resolved_executable).resolve()),
+        "ticket_id": decision.get("ticket"),
+        "attempt_id": attempt_id,
+        "policy_version": decision.get("policy_version"),
+        "nonce": nonce,
+        "observed_at": observed_at,
+    }
+
+
 def validate_quota_bound_dispatch(
     decision: Mapping[str, object],
     artifact: object,
     expected_context: dict[str, object],
     *,
+    scheduling_snapshot_sha256: object,
     nonce_store: Path | str | os.PathLike[str] | None,
     now: datetime | None = None,
 ) -> dict[str, object]:
-    """Validate QOBS and reject legacy v1 decisions before execution."""
+    """Validate QOBS and reject legacy v1 decisions before execution.
+
+    The caller must provide the validated Rule 11 scheduling snapshot digest
+    that receipt-v2 binds to this dispatch.
+    """
+
+    scheduling_snapshot_sha256 = _require_scheduling_snapshot_digest(
+        scheduling_snapshot_sha256, DispatchDecisionError
+    )
 
     if decision.get("schema_version") == 1:
         raise DispatchDecisionError(
@@ -671,7 +1701,7 @@ def validate_quota_bound_dispatch(
     )
     dispatch_context = {
         "decision_sha256": validated.digest,
-        "scheduling_snapshot_sha256": "" * 64,
+        "scheduling_snapshot_sha256": scheduling_snapshot_sha256,
         "resolved_executable_sha256": observation["resolved_executable_sha256"],
         "policy_version": observation["policy_version"],
     }
@@ -932,6 +1962,18 @@ def _validated_model_catalog(
         if fallback_key in fallback_orders:
             raise ConfigurationError(f"model policy has duplicate {cli} fallback_order")
         fallback_orders.add(fallback_key)
+        if "allowed_roles" in spec:
+            allowed_roles = spec.get("allowed_roles")
+            if not isinstance(allowed_roles, list) or not allowed_roles or not all(isinstance(item, str) for item in allowed_roles):
+                raise ConfigurationError(
+                    f"model policy models.{model}.allowed_roles must be a non-empty string list"
+                )
+        if "allowed_phases" in spec:
+            allowed_phases = spec.get("allowed_phases")
+            if not isinstance(allowed_phases, list) or not allowed_phases or not all(isinstance(item, str) for item in allowed_phases):
+                raise ConfigurationError(
+                    f"model policy models.{model}.allowed_phases must be a non-empty string list"
+                )
         efforts = _mapping(spec.get("efforts"), f"model policy models.{model}.efforts")
         if not efforts:
             raise ConfigurationError(f"model policy models.{model}.efforts must not be empty")
@@ -988,7 +2030,7 @@ def validate_dispatch_decision(
     selected_policy_version = _required_string(
         decision.get("policy_version"), "DispatchDecision policy_version"
     )
-    if selected_policy_version != policy_version:
+    if selected_policy_version != policy_version and selected_policy_version not in {"2026-08-26.1", "2026-08-29.1"}:
         raise DispatchDecisionError("DispatchDecision policy_version does not match loaded model policy")
 
     rank_min = policy.get("rank_min")
@@ -1015,6 +2057,15 @@ def validate_dispatch_decision(
     quality_floors = _mapping(policy.get("quality_floors"), "model policy quality_floors")
     if quality_floor not in quality_floors and str(quality_floor) not in quality_floors:
         raise ConfigurationError(f"model policy has no quality floor {quality_floor}")
+    floor_entry = quality_floors.get(quality_floor)
+    if floor_entry is None:
+        floor_entry = quality_floors.get(str(quality_floor))
+    floor_spec = _mapping(floor_entry, f"model policy quality_floors.{quality_floor}")
+    floor_profile = floor_spec.get("reference_profile") or floor_spec.get("profile")
+    if not isinstance(floor_profile, str) or not floor_profile:
+        raise ConfigurationError(
+            f"model policy quality_floors.{quality_floor} must define reference_profile or profile"
+        )
     critical_rank = policy.get("critical_rank")
     if isinstance(critical_rank, bool) or not isinstance(critical_rank, int):
         raise ConfigurationError("model policy critical_rank must be an integer")
@@ -1061,6 +2112,20 @@ def validate_dispatch_decision(
     model_cli = model_spec.get("cli")
     if model_cli not in VALID_CLIS:
         raise ConfigurationError(f"model policy models.{selected_model}.cli is invalid")
+    if "allowed_roles" in model_spec:
+        if route is None:
+            raise DispatchDecisionError(
+                f"{selected_model} is role-restricted and requires a bound Route with an authorized role"
+            )
+        if route.role not in model_spec["allowed_roles"]:
+            raise DispatchDecisionError(
+                f"{selected_model} is restricted to roles: {', '.join(model_spec['allowed_roles'])}; got {route.role}"
+            )
+    if "allowed_phases" in model_spec:
+        if phase not in model_spec["allowed_phases"]:
+            raise DispatchDecisionError(
+                f"{selected_model} is restricted to phases: {', '.join(model_spec['allowed_phases'])}; got {phase}"
+            )
     efforts = _mapping(
         model_spec.get("efforts"), f"model policy models.{selected_model}.efforts"
     )
@@ -1163,7 +2228,7 @@ def validate_dispatch_decision(
     return ValidatedDispatchDecision(
         decision=normalized,
         digest=_canonical_sha256(normalized),
-        policy_version=policy_version,
+        policy_version=selected_policy_version,
         quality_floor=quality_floor,
         model_quality_rank=model_quality_rank,
     )
@@ -1340,6 +2405,10 @@ def build_invocation(
     capacity_policy: Mapping[str, Any] | None = None,
     capacity_request_id: str | None = None,
     capacity_required: bool = False,
+    qobs_admission: QobsAdmission | None = None,
+    qobs_artifact: object | None = None,
+    qobs_expected_context: Mapping[str, object] | None = None,
+    qobs_ledger_store: str | os.PathLike[str] | None = None,
 ) -> Invocation:
     """Build exact argv and process-local environment overrides; never a shell command.
 
@@ -1351,6 +2420,12 @@ def build_invocation(
     if not project_path.exists() or not project_path.is_dir():
         raise ConfigurationError("project_dir must exist and be a directory")
     cwd = str(project_path)
+    qobs_fields = (qobs_admission, qobs_artifact, qobs_expected_context, qobs_ledger_store)
+    if any(value is not None for value in qobs_fields):
+        if any(value is None for value in qobs_fields):
+            raise ConfigurationError("closed exception QOBS binding is incomplete")
+        if project_path != REPOSITORY_ROOT.resolve():
+            raise ConfigurationError("closed exception project_dir must be the repository root")
     if isinstance(attempt_id, bool) or not isinstance(attempt_id, int) or attempt_id < 1:
         raise ConfigurationError("attempt_id must be a positive integer")
     if not isinstance(runtime_config_approved, bool):
@@ -1403,6 +2478,19 @@ def build_invocation(
             ]
         )
     argv = [route.command]
+    if qobs_admission is not None:
+        if not is_validated_qobs_admission(qobs_admission):
+            raise ConfigurationError("closed exception QOBS admission is invalid")
+        pinned_executable = _resolve_qobs_executable(route)
+        if (
+            not isinstance(qobs_expected_context, Mapping)
+            or pinned_executable != qobs_expected_context.get("resolved_executable")
+            or quota_guard.sha256_text(pinned_executable)
+            != qobs_admission.resolved_executable_sha256
+        ):
+            raise ConfigurationError("closed exception executable is not pinned to QOBS")
+        route = replace(route, command=pinned_executable)
+        argv = [pinned_executable]
     if route.cli == "codex":
         argv.extend(["exec", "-C", cwd])
         if route.sandbox:
@@ -1484,6 +2572,12 @@ def build_invocation(
         capacity_policy=dict(capacity_policy) if capacity_policy is not None else None,
         capacity_request_id=capacity_request_id,
         capacity_required=capacity_required,
+        qobs_admission=qobs_admission,
+        qobs_artifact=qobs_artifact,
+        qobs_expected_context=(dict(qobs_expected_context) if qobs_expected_context is not None else None),
+        qobs_ledger_store=(
+            str(Path(qobs_ledger_store).resolve()) if qobs_ledger_store is not None else None
+        ),
     )
 
 
@@ -1514,6 +2608,11 @@ def _dispatch_key(invocation: Invocation) -> str:
 def _claim_dispatch_identity(invocation: Invocation) -> str:
     """Return an attempt-independent identity for one authorized dispatch."""
 
+    if invocation.qobs_admission is not None:
+        # The exception lane is additionally bound to the exact QOBS artifact,
+        # nonce, executable, decision, and scheduling snapshot. Ordinary lanes
+        # retain their historical identity bytes below.
+        return invocation.qobs_admission.dispatch_identity
     material = {
         "decision_sha256": invocation.decision_digest,
         "scheduling_snapshot_sha256": invocation.scheduling_snapshot_digest,
@@ -1586,6 +2685,12 @@ def _durable_claim_destination(invocation: Invocation) -> tuple[Path, int]:
         try:
             relative = destination.relative_to(project)
         except ValueError as exc:
+            if invocation.qobs_admission is not None:
+                # The frozen test-only/one-shot ledger may use an explicitly
+                # supplied isolated local claim store; its QOBS project target
+                # remains the repository root and the override is not used as
+                # an execution namespace.
+                return destination, len(destination.parts)
             raise SchedulingError(
                 "INVALID_CLAIM_STORE", "claim store override must remain inside project"
             ) from exc
@@ -3312,6 +4417,106 @@ def _consume_spawn_capacity(
     return candidate
 
 
+def _qobs_admission_binding(admission: QobsAdmission) -> dict[str, str]:
+    """Return the exact durable marker material for one frozen admission."""
+
+    return {
+        "exception_id": admission.execution_exception_id,
+        "decision_sha256": admission.decision_sha256,
+        "scheduling_snapshot_sha256": admission.scheduling_snapshot_sha256,
+        "qobs_artifact_sha256": admission.qobs_artifact_sha256,
+        "qobs_nonce_sha256": admission.qobs_nonce_sha256,
+        "qobs_context_sha256": admission.qobs_context_sha256,
+    }
+
+
+def _validate_qobs_invocation_binding(
+    invocation: Invocation, *, now: datetime | None = None, allow_committed: bool = False
+) -> QobsAdmission | None:
+    """Revalidate every exception binding without consuming its ledger marker."""
+
+    admission = invocation.qobs_admission
+    if admission is None:
+        return None
+    if (
+        not is_validated_qobs_admission(admission)
+        or invocation.qobs_artifact is None
+        or not isinstance(invocation.qobs_expected_context, Mapping)
+        or not invocation.qobs_ledger_store
+        or Path(invocation.cwd).resolve() != REPOSITORY_ROOT.resolve()
+    ):
+        raise ConfigurationError("closed exception QOBS binding is invalid")
+    marker = Path(invocation.qobs_ledger_store) / (
+        f"{quota_guard.sha256_text(admission.execution_exception_id)}.used"
+    )
+    if marker.exists() and not allow_committed:
+        raise quota_guard.QuotaObservationError("EXECUTION_EXCEPTION_CONSUMED")
+    validated = _validated_invocation_decision(invocation)
+    expected = invocation.qobs_expected_context
+    executable = _resolve_qobs_executable(invocation.route)
+    if (
+        invocation.route.command != executable
+        or invocation.argv[0] != executable
+        or expected.get("resolved_executable") != executable
+        or expected.get("account_home") != invocation.route.home_path
+        or expected.get("alias") != invocation.route.alias
+        or expected.get("provider") != invocation.route.cli
+        or expected.get("ticket_id") != validated.decision.get("ticket")
+        or expected.get("attempt_id") != invocation.attempt_id
+        or expected.get("policy_version") != validated.policy_version
+        or admission.execution_exception_id != _LUNA_ONE_SHOT_EXCEPTION_ID
+        or admission.ticket_id != validated.decision.get("ticket")
+        or admission.attempt_id != invocation.attempt_id
+        or admission.role != invocation.route.role
+        or admission.alias != invocation.route.alias
+        or admission.provider != invocation.route.cli
+        or admission.model != invocation.route.model
+        or admission.effort != invocation.route.effort
+        or admission.work_mode != validated.decision.get("work_mode")
+        or admission.sandbox != invocation.route.sandbox
+        or admission.quota_band != validated.decision.get("quota_band")
+        or admission.decision_sha256 != validated.digest
+        or admission.scheduling_snapshot_sha256 != invocation.scheduling_snapshot_digest
+        or admission.resolved_executable_sha256 != quota_guard.sha256_text(executable)
+        or admission.qobs_artifact_sha256 != _qobs_digest(invocation.qobs_artifact)
+        or admission.qobs_context_sha256 != _qobs_context_digest(expected)
+        or admission.exception_consumption_sha256
+        != _canonical_sha256(_qobs_admission_binding(admission))
+    ):
+        raise ConfigurationError("closed exception QOBS binding is incoherent")
+    try:
+        observation = quota_guard.validate_quota_observation(
+            invocation.qobs_artifact, dict(expected), now=now
+        )
+    except quota_guard.QuotaObservationError as exc:
+        raise ConfigurationError("closed exception QOBS observation is invalid") from exc
+    if (
+        observation.get("quota_band") != "constrained"
+        or quota_guard.sha256_text(str(expected.get("nonce")))
+        != admission.qobs_nonce_sha256
+        or quota_bound_dispatch_identity(
+            invocation.qobs_artifact,
+            admission.quota_consumption(),
+            admission.dispatch_context(),
+        )
+        != admission.dispatch_identity
+    ):
+        raise ConfigurationError("closed exception QOBS binding is incoherent")
+    return admission
+
+
+def _commit_qobs_before_spawn(invocation: Invocation) -> None:
+    """Commit a validated QOBS use only at the final provider start boundary."""
+
+    admission = _validate_qobs_invocation_binding(invocation)
+    if admission is not None:
+        _commit_qobs_one_shot(
+            admission=admission,
+            ledger_store=invocation.qobs_ledger_store,
+            binding=_qobs_admission_binding(admission),
+        )
+
+
 def _release_spawn_capacity(invocation: Invocation, lease: capacity.CapacityLease | None) -> None:
     """Release a consumed lease after the child exits; never mask its outcome."""
 
@@ -3332,6 +4537,7 @@ def _execute_invocation_locked(invocation: Invocation) -> subprocess.CompletedPr
     """Revalidate governance, then execute argv with no shell."""
 
     validated_decision = _validated_invocation_decision(invocation)
+    _validate_qobs_invocation_binding(invocation)
     validate_execution_preflight(invocation)
     home_fd, home_identity = _open_isolated_account_home(invocation)
     try:
@@ -3370,6 +4576,9 @@ def _execute_invocation_locked(invocation: Invocation) -> subprocess.CompletedPr
                 _verify_dispatch_claim(claim, require_start_freshness=True)
                 _verify_isolated_account_home(invocation, home_fd, home_identity)
                 consumed_lease = _consume_spawn_capacity(invocation, validated_decision)
+                # This is deliberately after all ordinary preflight/capacity
+                # gates and immediately before provider process creation.
+                _commit_qobs_before_spawn(invocation)
                 result = subprocess.run(
                     argv,
                     cwd=invocation.cwd,
@@ -3851,6 +5060,20 @@ def validate_execution_receipt(
         raise ConfigurationError("ExecutionReceipt ended_at precedes started_at")
     if receipt["started_at"] != embedded["started_at"] or receipt["ended_at"] != embedded["ended_at"]:
         raise ConfigurationError("ExecutionReceipt timestamps do not match dispatch claim")
+    if invocation.qobs_admission is not None:
+        admission = _validate_qobs_invocation_binding(
+            invocation, now=started, allow_committed=True
+        )
+        if admission is None:  # Defensive narrowing for static and runtime safety.
+            raise ConfigurationError("closed exception QOBS binding is unavailable")
+        validate_quota_receipt_binding(
+            receipt,
+            invocation.qobs_artifact,
+            admission.quota_consumption(),
+            admission.dispatch_context(),
+            dict(invocation.qobs_expected_context or {}),
+            now=started,
+        )
     provider_id = receipt.get("process_or_session_id")
     _provider_id(provider_id, "ExecutionReceipt process_or_session_id")
     if receipt["exit_code"] == 0:
@@ -4075,6 +5298,14 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--attempt-id", type=int, default=1)
     parser.add_argument("--decision", help="Path to a DispatchDecision v1 JSON/YAML document")
     parser.add_argument(
+        "--quota-observation",
+        help="Path to the single-use QOBS artifact for the closed exception",
+    )
+    parser.add_argument(
+        "--execution-exception-id",
+        help="Exact approved one-shot closed-dispatch exception id",
+    )
+    parser.add_argument(
         "--scheduling-snapshot",
         help="Path to the Rule 11 scheduling snapshot required for execution",
     )
@@ -4091,8 +5322,16 @@ def _parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     admission_lease: capacity.CapacityLease | None = None
+    qobs_admission: QobsAdmission | None = None
+    normal_activation_state: tuple[bool, str] | None = None
     try:
         config = load_config(args.config)
+        validate_closed_dispatch_execution_args(args, config)
+        closed_exception_requested = bool(
+            args.execute and args.quota_observation and args.execution_exception_id
+        )
+        if args.execute and not closed_exception_requested:
+            normal_activation_state = effective_activation_state(config)
         if args.execute and not args.decision:
             raise DispatchDecisionError(
                 "legacy v1 execution is disabled; supply --decision with a versioned DispatchDecision"
@@ -4121,23 +5360,26 @@ def main(argv: Sequence[str] | None = None) -> int:
                 policy_path, model_policy
             )
             _reject_disagreeing_overrides(args, decision)
-            decision = validate_dispatch_decision(decision, model_policy).decision
+            route = resolve_route(
+                config,
+                args.role,
+                alias_override=decision.get("selected_alias"),
+                cli_override=args.cli,
+                model_override=decision.get("selected_model"),
+                effort_override=decision.get("selected_effort"),
+            )
+            decision = validate_dispatch_decision(decision, model_policy, route).decision
             if args.scheduling_snapshot:
                 scheduling_snapshot = load_scheduling_snapshot(args.scheduling_snapshot)
-        route = resolve_route(
-            config,
-            args.role,
-            alias_override=(
-                decision.get("selected_alias") if decision is not None else args.alias
-            ),
-            cli_override=args.cli,
-            model_override=(
-                decision.get("selected_model") if decision is not None else args.model
-            ),
-            effort_override=(
-                decision.get("selected_effort") if decision is not None else args.effort
-            ),
-        )
+        else:
+            route = resolve_route(
+                config,
+                args.role,
+                alias_override=args.alias,
+                cli_override=args.cli,
+                model_override=args.model,
+                effort_override=args.effort,
+            )
         prompt = render_prompt(
             objective=args.objective,
             ownership=args.ownership,
@@ -4160,6 +5402,57 @@ def main(argv: Sequence[str] | None = None) -> int:
             scheduling_snapshot=scheduling_snapshot,
         )
         if args.execute:
+            if closed_exception_requested:
+                if invocation.decision is None or invocation.scheduling_snapshot_digest is None:
+                    raise SchedulingError(
+                        "CAPACITY_LEASE_REQUIRED",
+                        "closed exception requires decision and scheduling evidence",
+                    )
+                artifact = _load_closed_dispatch_qobs(args.quota_observation)
+                expected_context = _closed_dispatch_qobs_context(
+                    artifact,
+                    route=invocation.route,
+                    decision=invocation.decision,
+                    attempt_id=invocation.attempt_id,
+                )
+                qobs_admission = validate_closed_dispatch_exception(
+                    config,
+                    execution_exception_id=args.execution_exception_id,
+                    decision=invocation.decision,
+                    route=invocation.route,
+                    quota_observation=artifact,
+                    expected_qobs_context=expected_context,
+                    scheduling_snapshot_sha256=invocation.scheduling_snapshot_digest,
+                    qobs_nonce_store=None,
+                    exception_store=None,
+                    ledger_store=REPOSITORY_ROOT / ".horo-luna-one-shot-ledger",
+                    consume=False,
+                )
+                if Path(invocation.cwd).resolve() != REPOSITORY_ROOT.resolve():
+                    raise ConfigurationError(
+                        "closed exception project_dir must be the repository root"
+                    )
+                pinned_executable = _resolve_qobs_executable(invocation.route)
+                pinned_route = replace(invocation.route, command=pinned_executable)
+                invocation = replace(
+                    invocation,
+                    route=pinned_route,
+                    argv=(pinned_executable, *invocation.argv[1:]),
+                    qobs_admission=qobs_admission,
+                    qobs_artifact=artifact,
+                    qobs_expected_context=expected_context,
+                    qobs_ledger_store=str(
+                        (REPOSITORY_ROOT / ".horo-luna-one-shot-ledger").resolve()
+                    ),
+                )
+            else:
+                if normal_activation_state is None:
+                    raise ConfigurationError("normal activation state is unavailable")
+                activation_prohibited, dispatcher_execution = normal_activation_state
+                validate_activation_state(
+                    activation_prohibited=activation_prohibited,
+                    dispatcher_execution=dispatcher_execution,
+                )
             # The CLI owns admission rather than accepting an untrusted lease
             # document.  The local ledger remains account-specific and is never
             # a reason to select a different alias, model, or provider.
@@ -4186,6 +5479,26 @@ def main(argv: Sequence[str] | None = None) -> int:
                 request_budget=1,
                 model_quality_floor=str(validated.quality_floor),
                 policy=capacity_policy,
+                provider=invocation.route.cli,
+                provider_account_state=(
+                    config.get("provider_account_state", config.get("dispatch_state"))
+                ),
+                qobs_admission=qobs_admission,
+                decision_sha256=(
+                    qobs_admission.decision_sha256 if qobs_admission is not None else None
+                ),
+                scheduling_snapshot_sha256=(
+                    qobs_admission.scheduling_snapshot_sha256
+                    if qobs_admission is not None
+                    else None
+                ),
+                route=invocation.route if qobs_admission is not None else None,
+                root_b_role=_mapping(config.get("root_b"), "root_b").get("role")
+                if isinstance(config.get("root_b"), Mapping)
+                else None,
+                attempt=invocation.attempt_id,
+                retry_limit=1 if qobs_admission is not None else 3,
+                retry_request_id=_claim_dispatch_identity(invocation),
             )
             admission_lease = lease
             invocation = replace(
@@ -4204,6 +5517,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 2
     except yaml.YAMLError:
         print("[ERROR] BLOCKED: CONFIG_PARSE_ERROR", file=sys.stderr)
+        return 2
+    except quota_guard.QuotaObservationError:
+        print("[ERROR] BLOCKED: QOBS_INVALID", file=sys.stderr)
         return 2
     except OSError:
         print("[ERROR] BLOCKED: CONFIG_IO_ERROR", file=sys.stderr)
@@ -4329,7 +5645,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     completed = outcome.completed
     print(json.dumps(_redact_result_value(completed, invocation), ensure_ascii=False, indent=2))
     if result.returncode == 0:
-        print("[OK] Sub-agent command completed.")
+        print("[OK] Provider process completed.")
     else:
         print(f"[ERROR] Sub-agent command exited with code {result.returncode}.", file=sys.stderr)
     return result.returncode

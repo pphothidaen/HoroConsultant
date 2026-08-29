@@ -5,16 +5,15 @@ scripts/run_prod_version_e2e.py
 Live Production E2E Version Regression & Alignment Verification Suite.
 
 Features:
-1. Validates the closed release identity from https://horo-consultant-psi.vercel.app/version.json
+1. Binds the live release identity to committed project/static/version.json.
 2. Scans live HTML (<head> and footer), /app.js, and /sw.js for version consistency.
 3. Validates Hard Reset & Version Update Modal architecture on client side.
-4. Auto-update option: If mismatch is detected and --auto-update is specified,
-   automatically stamps local files and triggers production deployment via Vercel CLI.
-5. Generates structured JSON report at project/tests/prod_version_regression_report.json.
+4. Rejects retired deployment targets before any network request.
+5. Generates a read-only structured audit report at
+   project/tests/prod_version_regression_report.json.
 
 Usage:
   python3 scripts/run_prod_version_e2e.py
-  python3 scripts/run_prod_version_e2e.py --auto-update
   python3 scripts/run_prod_version_e2e.py --url https://horo-consultant-psi.vercel.app
 """
 
@@ -25,16 +24,16 @@ import datetime
 import hashlib
 import json
 import re
-import subprocess
-import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_URL = "https://horo-consultant-psi.vercel.app"
 REPORT_PATH = ROOT / "project" / "tests" / "prod_version_regression_report.json"
+APPROVED_CANDIDATE_METADATA_PATH = ROOT / "project" / "static" / "version.json"
 RELEASE_IDENTITY_FIELDS = (
     "version",
     "release_source_commit",
@@ -42,9 +41,16 @@ RELEASE_IDENTITY_FIELDS = (
     "release_source_metadata_path",
     "release_source_metadata_sha256",
 )
-RELEASE_VERSION_RE = re.compile(r"^1\.0\.0\.([0-9a-f]{7})$")
+RELEASE_VERSION_RE = re.compile(r"^\d+\.\d+\.\d+\.([0-9a-f]{7,40})$")
+RELEASE_COMMIT_RE = re.compile(r"^[0-9a-f]{7,40}$")
 RELEASE_REVISION_RE = re.compile(r"^[0-9a-f]{40}$")
 RELEASE_DIGEST_RE = re.compile(r"^[0-9a-f]{64}$")
+RETIRED_UI_HOST_SUFFIXES = (
+    ".hf.space",
+    ".azurecontainerapps.io",
+    ".azurewebsites.net",
+    ".fly.dev",
+)
 
 
 def parse_release_identity(raw_text: str) -> dict[str, str]:
@@ -73,6 +79,7 @@ def parse_release_identity(raw_text: str) -> dict[str, str]:
     version_match = RELEASE_VERSION_RE.fullmatch(version)
     if (
         version_match is None
+        or RELEASE_COMMIT_RE.fullmatch(source_commit) is None
         or version_match.group(1) != source_commit
         or RELEASE_REVISION_RE.fullmatch(source_revision) is None
         or not source_revision.startswith(source_commit)
@@ -94,6 +101,39 @@ def parse_release_identity(raw_text: str) -> dict[str, str]:
     if hashlib.sha256(canonical).hexdigest() != source_digest:
         raise ValueError("release identity digest mismatch")
     return identity
+
+
+def load_approved_candidate_identity() -> dict[str, str]:
+    """Load the one committed candidate identity used by post-deploy gates."""
+    try:
+        raw_text = APPROVED_CANDIDATE_METADATA_PATH.read_text(encoding="utf-8")
+    except OSError as error:
+        raise ValueError("approved candidate release metadata is unavailable") from error
+    try:
+        return parse_release_identity(raw_text)
+    except (json.JSONDecodeError, TypeError, ValueError) as error:
+        raise ValueError("approved candidate release metadata is invalid") from error
+
+
+def _validated_vercel_url(value: str) -> str:
+    """Return one active HTTPS UI origin and reject retired release targets."""
+    normalized = value.strip().rstrip("/")
+    parsed = urllib.parse.urlsplit(normalized)
+    hostname = (parsed.hostname or "").lower()
+    if any(hostname.endswith(suffix) for suffix in RETIRED_UI_HOST_SUFFIXES):
+        raise ValueError("retired production UI target is not permitted")
+    if (
+        parsed.scheme != "https"
+        or not hostname
+        or parsed.username is not None
+        or parsed.password is not None
+        or parsed.port is not None
+        or parsed.path not in {"", "/"}
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise ValueError("production UI target must be one HTTPS origin")
+    return normalized
 
 
 def write_report(report: dict) -> None:
@@ -134,8 +174,8 @@ def fetch_resource(url: str, timeout: int = 25) -> tuple[int, str, float]:
 
 def run_version_e2e_audit(base_url: str = DEFAULT_URL) -> dict:
     """Perform comprehensive E2E version verification across all endpoints and assets."""
-    base_url = base_url.rstrip("/")
-    print(f"\n🚀 Running Production Version E2E Regression Audit on: {base_url}\n" + "=" * 70)
+    base_url = _validated_vercel_url(base_url)
+    print(f"[INFO] Running production version E2E audit on: {base_url}")
 
     report: dict = {
         "target_url": base_url,
@@ -146,10 +186,29 @@ def run_version_e2e_audit(base_url: str = DEFAULT_URL) -> dict:
         "mismatches": [],
     }
 
+    try:
+        approved_candidate = load_approved_candidate_identity()
+    except ValueError:
+        print("[ERROR] Approved candidate release identity is invalid")
+        report["status"] = "FAILED"
+        report["checks"].append({
+            "name": "approved_candidate_contract",
+            "status": "FAILED",
+            "error": "invalid_approved_candidate_identity",
+        })
+        write_report(report)
+        return report
+
+    report["approved_candidate_identity"] = approved_candidate
+    print(
+        f"[INFO] Approved candidate: {approved_candidate['version']} "
+        f"(source: {approved_candidate['release_source_commit']})"
+    )
+
     # 1. Fetch server authoritative /version.json
     status_ver, body_ver, lat_ver = fetch_resource(f"{base_url}/version.json")
     if status_ver != 200:
-        print(f"❌ [FAIL] /version.json returned status {status_ver} ({lat_ver:.1f}ms)")
+        print(f"[ERROR] /version.json returned status {status_ver} ({lat_ver:.1f}ms)")
         report["status"] = "FAILED"
         report["checks"].append({
             "name": "version_json_fetch",
@@ -157,10 +216,21 @@ def run_version_e2e_audit(base_url: str = DEFAULT_URL) -> dict:
             "error": f"HTTP {status_ver}",
             "latency_ms": lat_ver,
         })
+        write_report(report)
         return report
 
     try:
         release_identity = parse_release_identity(body_ver)
+        if release_identity != approved_candidate:
+            print("[ERROR] /version.json does not match the approved candidate")
+            report["status"] = "FAILED"
+            report["checks"].append({
+                "name": "version_json_contract",
+                "status": "FAILED",
+                "error": "candidate_release_identity_mismatch",
+            })
+            write_report(report)
+            return report
         server_ver = release_identity["version"]
         source_commit = release_identity["release_source_commit"]
         report.update(release_identity)
@@ -189,17 +259,33 @@ def run_version_e2e_audit(base_url: str = DEFAULT_URL) -> dict:
     # 2. Fetch live HTML and check <head> script + footer version
     status_html, body_html, lat_html = fetch_resource(f"{base_url}/")
     if status_html == 200:
-        head_match = re.search(r'window\.CURRENT_PAGE_VERSION\s*=\s*["\']([^"\']+)["\']', body_html)
-        head_ver = head_match.group(1).strip() if head_match else "NOT_FOUND"
+        head_versions = [
+            value.strip()
+            for value in re.findall(
+                r'window\.CURRENT_PAGE_VERSION\s*=\s*["\']([^"\']+)["\']',
+                body_html,
+            )
+        ]
+        footer_texts = [
+            value.strip()
+            for value in re.findall(
+                r'id=["\']footer-version-text["\'][^>]*>([^<]+)</',
+                body_html,
+            )
+        ]
+        footer_versions = (
+            re.findall(r"\bv?(\d+\.\d+\.\d+\.[0-9a-f]{7,40})\b", footer_texts[0])
+            if len(footer_texts) == 1
+            else []
+        )
+        head_ver = head_versions[0] if len(head_versions) == 1 else "NOT_FOUND_OR_DUPLICATE"
+        footer_text = footer_texts[0] if len(footer_texts) == 1 else "NOT_FOUND_OR_DUPLICATE"
 
-        footer_match = re.search(r'id=["\']footer-version-text["\'][^>]*>([^<]+)</', body_html)
-        footer_text = footer_match.group(1).strip() if footer_match else "NOT_FOUND"
-
-        head_ok = (head_ver == server_ver)
-        footer_ok = (server_ver in footer_text)
+        head_ok = head_versions == [server_ver]
+        footer_ok = footer_versions == [server_ver]
 
         if head_ok and footer_ok:
-            print(f"✅ [OK] Live HTML Head & Footer match server version: {head_ver} [{lat_html:.1f}ms]")
+            print(f"[OK] Live HTML head and footer match candidate version: {head_ver} [{lat_html:.1f}ms]")
             report["checks"].append({
                 "name": "html_version_match",
                 "status": "PASSED",
@@ -208,7 +294,7 @@ def run_version_e2e_audit(base_url: str = DEFAULT_URL) -> dict:
                 "latency_ms": lat_html,
             })
         else:
-            print(f"❌ [FAIL] HTML Version Drift: Head='{head_ver}', Expected='{server_ver}'")
+            print(f"[ERROR] HTML version drift: head='{head_ver}', expected='{server_ver}'")
             report["mismatches"].append({
                 "asset": "index.html",
                 "actual": head_ver,
@@ -222,17 +308,23 @@ def run_version_e2e_audit(base_url: str = DEFAULT_URL) -> dict:
                 "footer_text": footer_text,
             })
     else:
-        print(f"❌ [FAIL] Live HTML fetch failed: HTTP {status_html}")
+        print(f"[ERROR] Live HTML fetch failed: HTTP {status_html}")
         report["checks"].append({"name": "html_version_match", "status": "FAILED", "http_status": status_html})
 
     # 3. Fetch live /app.js and check CLIENT_APP_VERSION
     status_js, body_js, lat_js = fetch_resource(f"{base_url}/app.js")
     if status_js == 200:
-        js_match = re.search(r'const CLIENT_APP_VERSION\s*=\s*["\']([^"\']+)["\']', body_js)
-        js_ver = js_match.group(1).strip() if js_match else "NOT_FOUND"
+        js_versions = [
+            value.strip()
+            for value in re.findall(
+                r'const CLIENT_APP_VERSION\s*=\s*["\']([^"\']+)["\']',
+                body_js,
+            )
+        ]
+        js_ver = js_versions[0] if len(js_versions) == 1 else "NOT_FOUND_OR_DUPLICATE"
 
-        if js_ver == server_ver:
-            print(f"✅ [OK] Live app.js CLIENT_APP_VERSION matches: {js_ver} [{lat_js:.1f}ms]")
+        if js_versions == [server_ver]:
+            print(f"[OK] Live app.js CLIENT_APP_VERSION matches: {js_ver} [{lat_js:.1f}ms]")
             report["checks"].append({
                 "name": "app_js_version_match",
                 "status": "PASSED",
@@ -242,7 +334,7 @@ def run_version_e2e_audit(base_url: str = DEFAULT_URL) -> dict:
                 "latency_ms": lat_js,
             })
         else:
-            print(f"❌ [FAIL] app.js Version Drift: Found='{js_ver}', Expected='{server_ver}'")
+            print(f"[ERROR] app.js version drift: found='{js_ver}', expected='{server_ver}'")
             report["mismatches"].append({
                 "asset": "app.js",
                 "actual": js_ver,
@@ -255,17 +347,23 @@ def run_version_e2e_audit(base_url: str = DEFAULT_URL) -> dict:
                 "expected": server_ver,
             })
     else:
-        print(f"❌ [FAIL] Live app.js fetch failed: HTTP {status_js}")
+        print(f"[ERROR] Live app.js fetch failed: HTTP {status_js}")
         report["checks"].append({"name": "app_js_version_match", "status": "FAILED", "http_status": status_js})
 
     # 4. Fetch live /sw.js and check CACHE_VERSION
     status_sw, body_sw, lat_sw = fetch_resource(f"{base_url}/sw.js")
     if status_sw == 200:
-        sw_match = re.search(r'const CACHE_VERSION\s*=\s*["\']v?([^"\']+)["\']', body_sw)
-        sw_ver = sw_match.group(1).strip() if sw_match else "NOT_FOUND"
+        sw_versions = [
+            value.strip()
+            for value in re.findall(
+                r'const CACHE_VERSION\s*=\s*["\']v?([^"\']+)["\']',
+                body_sw,
+            )
+        ]
+        sw_ver = sw_versions[0] if len(sw_versions) == 1 else "NOT_FOUND_OR_DUPLICATE"
 
-        if sw_ver == server_ver:
-            print(f"✅ [OK] Live sw.js CACHE_VERSION matches: {sw_ver} [{lat_sw:.1f}ms]")
+        if sw_versions == [server_ver]:
+            print(f"[OK] Live sw.js CACHE_VERSION matches: {sw_ver} [{lat_sw:.1f}ms]")
             report["checks"].append({
                 "name": "sw_js_version_match",
                 "status": "PASSED",
@@ -273,7 +371,7 @@ def run_version_e2e_audit(base_url: str = DEFAULT_URL) -> dict:
                 "latency_ms": lat_sw,
             })
         else:
-            print(f"❌ [FAIL] sw.js CACHE_VERSION Drift: Found='{sw_ver}', Expected='{server_ver}'")
+            print(f"[ERROR] sw.js CACHE_VERSION drift: found='{sw_ver}', expected='{server_ver}'")
             report["mismatches"].append({
                 "asset": "sw.js",
                 "actual": sw_ver,
@@ -286,67 +384,54 @@ def run_version_e2e_audit(base_url: str = DEFAULT_URL) -> dict:
                 "expected": server_ver,
             })
     else:
-        print(f"❌ [FAIL] Live sw.js fetch failed: HTTP {status_sw}")
+        print(f"[ERROR] Live sw.js fetch failed: HTTP {status_sw}")
         report["checks"].append({"name": "sw_js_version_match", "status": "FAILED", "http_status": status_sw})
 
     # 5. Fetch live /favicon.ico and /favicon.svg
     status_ico, _, lat_ico = fetch_resource(f"{base_url}/favicon.ico")
     if status_ico == 200:
-        print(f"✅ [OK] Live /favicon.ico available: HTTP 200 [{lat_ico:.1f}ms]")
+        print(f"[OK] Live /favicon.ico available: HTTP 200 [{lat_ico:.1f}ms]")
         report["checks"].append({"name": "favicon_ico_available", "status": "PASSED", "latency_ms": lat_ico})
     else:
-        print(f"❌ [FAIL] Live /favicon.ico failed: HTTP {status_ico}")
+        print(f"[ERROR] Live /favicon.ico failed: HTTP {status_ico}")
         report["mismatches"].append({"asset": "favicon.ico", "actual": f"HTTP {status_ico}", "expected": "HTTP 200"})
         report["checks"].append({"name": "favicon_ico_available", "status": "FAILED", "http_status": status_ico})
 
     status_svg, _, lat_svg = fetch_resource(f"{base_url}/favicon.svg")
     if status_svg == 200:
-        print(f"✅ [OK] Live /favicon.svg available: HTTP 200 [{lat_svg:.1f}ms]")
+        print(f"[OK] Live /favicon.svg available: HTTP 200 [{lat_svg:.1f}ms]")
         report["checks"].append({"name": "favicon_svg_available", "status": "PASSED", "latency_ms": lat_svg})
     else:
-        print(f"❌ [FAIL] Live /favicon.svg failed: HTTP {status_svg}")
+        print(f"[ERROR] Live /favicon.svg failed: HTTP {status_svg}")
         report["mismatches"].append({"asset": "favicon.svg", "actual": f"HTTP {status_svg}", "expected": "HTTP 200"})
         report["checks"].append({"name": "favicon_svg_available", "status": "FAILED", "http_status": status_svg})
 
     # 5. Determine overall status
     if len(report["mismatches"]) == 0 and all(c.get("status") == "PASSED" for c in report["checks"]):
         report["status"] = "ALL_PASSED_READY_FOR_PROD"
-        print("\n🎉 [SUCCESS] 100% Version Consistency Verified Across All Live Production Assets!")
+        print("[OK] Candidate identity and live production assets are consistent")
     else:
         report["status"] = "MISMATCH_DETECTED"
-        print(f"\n⚠️ [WARNING] Detected {len(report['mismatches'])} version mismatch(es)!")
+        print(f"[WARNING] Detected {len(report['mismatches'])} version mismatch(es)")
 
     write_report(report)
-    print(f"📊 Detailed Report Saved to: {REPORT_PATH}\n" + "=" * 70)
+    print(f"[INFO] Detailed report saved to: {REPORT_PATH}")
     return report
 
 
-def main():
+def main() -> int:
+    """Run the read-only production version audit."""
     parser = argparse.ArgumentParser(description="Live Production E2E Version Regression & Alignment Suite")
     parser.add_argument("--url", type=str, default=DEFAULT_URL, help="Base production URL")
-    parser.add_argument("--auto-update", action="store_true", help="Auto-remediate version drift by stamping and redeploying")
     args = parser.parse_args()
 
-    report = run_version_e2e_audit(args.url)
-
-    if report["status"] == "ALL_PASSED_READY_FOR_PROD":
-        sys.exit(0)
-
-    if args.auto_update and report["status"] == "MISMATCH_DETECTED":
-        print("\n🔧 Auto-Remediation Triggered: Stamping and Re-deploying to Vercel...")
-        subprocess.run([sys.executable, "scripts/stamp_version.py"], check=True)
-        subprocess.run(["npx", "vercel", "--prod", "--yes"], check=True)
-        print("🔄 Re-testing after auto-update...")
-        second_report = run_version_e2e_audit(args.url)
-        if second_report["status"] == "ALL_PASSED_READY_FOR_PROD":
-            print("✅ Auto-Remediation Successful!")
-            sys.exit(0)
-        else:
-            print("❌ Version mismatch still detected after deployment.")
-            sys.exit(1)
-    else:
-        sys.exit(1)
+    try:
+        report = run_version_e2e_audit(args.url)
+    except ValueError as error:
+        print(f"[ERROR] {error}")
+        return 2
+    return 0 if report["status"] == "ALL_PASSED_READY_FOR_PROD" else 1
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

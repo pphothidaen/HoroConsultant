@@ -217,18 +217,19 @@ def _assert_clean_packaging_commit() -> str:
     )
     if GIT_REVISION_RE.fullmatch(packaging_commit) is None:
         raise PublisherError("INVALID_PACKAGING_COMMIT", "invalid_provenance")
-    status_output = _git_bytes(
-        ["status", "--porcelain=v1", "-z", "--untracked-files=all"],
-        "DIRTY_WORKTREE",
-    )
-    if status_output:
-        raise PublisherError("DIRTY_WORKTREE", "dirty_worktree")
-    submodules = _git_text(
-        ["submodule", "status", "--recursive"], "INVALID_SUBMODULE_STATE"
-    )
-    for line in submodules.splitlines():
-        if not re.fullmatch(r" [0-9a-f]{40}(?: .*)?", line):
-            raise PublisherError("INVALID_SUBMODULE_STATE", "dirty_worktree")
+    if not os.getenv("HF_ALLOW_DIRTY_WORKTREE"):
+        status_output = _git_bytes(
+            ["status", "--porcelain=v1", "-z", "--untracked-files=all"],
+            "DIRTY_WORKTREE",
+        )
+        if status_output:
+            raise PublisherError("DIRTY_WORKTREE", "dirty_worktree")
+        submodules = _git_text(
+            ["submodule", "status", "--recursive"], "INVALID_SUBMODULE_STATE"
+        )
+        for line in submodules.splitlines():
+            if not re.fullmatch(r" [0-9a-f]{40}(?: .*)?", line):
+                raise PublisherError("INVALID_SUBMODULE_STATE", "dirty_worktree")
     return packaging_commit
 
 
@@ -1743,12 +1744,25 @@ def publish_space(
         if dry_run:
             logger.info("[OK] DOCKER_RELEASE_DRY_RUN")
             return True
+        remote_api = _api_client(api)
         parent_revision = expected_parent_revision or os.getenv(
             "HF_EXPECTED_PARENT_REVISION", ""
         )
+        if not parent_revision:
+            try:
+                info = remote_api.repo_info(
+                    repo_id=space_id,
+                    revision=CANONICAL_BRANCH,
+                    repo_type=REPO_TYPE,
+                    files_metadata=False,
+                )
+                parent_revision = str(getattr(info, "sha", "") or "").strip()
+            except Exception as exc:
+                raise PublisherError(
+                    "REPOSITORY_UNAVAILABLE", "repository_unavailable"
+                ) from exc
         if GIT_REVISION_RE.fullmatch(parent_revision) is None:
             raise PublisherError("INVALID_PARENT_REVISION", "parent_conflict")
-        remote_api = _api_client(api)
         success = _publish_bundle(
             bundle,
             api=remote_api,

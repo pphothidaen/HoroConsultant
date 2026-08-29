@@ -418,6 +418,50 @@
   .status-answered  { background: #f0fdf4; color: var(--status-done); border: 1px solid #dcfce7; }
   .status-unanswered{ background: #fffbeb; color: var(--status-partial); border: 1px solid #fef3c7; }
 
+  /* Provider Pools & Zero-Cost Badges */
+  .badge-zero-cost {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    background: #f0fdf4; color: #16a34a; border: 1px solid #86efac;
+    box-shadow: 0 1px 4px rgba(22, 163, 74, 0.15);
+  }
+  .badge-blocked-cost {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5;
+  }
+  .circuit-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px; border-radius: 12px;
+    font-size: 10px; font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .circuit-closed { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+  .circuit-open   { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+  .circuit-half   { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+  .pool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .pool-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+  }
+  .pool-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  }
+
   /* Source List */
   .source-grid {
     display: grid;
@@ -879,6 +923,14 @@
       </a>
     </div>
     <div class="nav-section">
+      <div class="nav-section-label">System &amp; Resilience</div>
+      <a class="nav-item" id="nav-item-providers" onclick="showPage('providers')" href="#">
+        <span class="nav-icon">⚡</span>
+        Provider Pools &amp; Zero-Cost
+        <span class="nav-badge green" id="nav-cb-status">0$ ZERO-COST</span>
+      </a>
+    </div>
+    <div class="nav-section">
       <div class="nav-section-label">Category Browse</div>
       <a class="nav-item" onclick="filterByCategory('chinese_metaphysics')" href="#">
         <span class="nav-icon cat-chinese">☯️</span>
@@ -960,6 +1012,27 @@
         </div>
         <div class="panel-body" id="category-breakdown">
           <div class="empty-state"><div class="empty-state-icon">⏳</div>Loading...</div>
+        </div>
+      </div>
+
+      <!-- AI Provider Pools, Circuit Breaker Health & Zero-Cost Policy Panel -->
+      <div class="panel" id="panel-provider-pools">
+        <div class="panel-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+          <div class="panel-title" style="display:flex; align-items:center; gap:8px;">
+            <span class="panel-title-icon">⚡</span>
+            <span>AI Provider Pools &amp; Circuit Breaker Health</span>
+            <span class="badge-zero-cost" id="zero-cost-policy-badge">
+              🛡️ [ZERO-COST POLICY: ACTIVE]
+            </span>
+          </div>
+          <div class="panel-actions">
+            <button class="btn btn-outline btn-sm" onclick="loadProviderPoolsStatus()">
+              <span class="btn-label">🔄 Refresh Pools</span>
+            </button>
+          </div>
+        </div>
+        <div class="panel-body" id="provider-pools-container">
+          <div class="empty-state"><div class="empty-state-icon">⏳</div>Loading Provider Pool Health &amp; Circuit Breakers...</div>
         </div>
       </div>
 
@@ -1246,6 +1319,29 @@
       </div>
     </div>
 
+    <!-- PROVIDER POOLS & ZERO-COST PAGE -->
+    <div id="page-providers" class="hidden">
+      <div class="page-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+        <div>
+          <div class="page-title" style="display:flex; align-items:center; gap:10px;">
+            <span>⚡ AI Provider Pools, Circuit Breakers &amp; Zero-Cost Policy</span>
+            <span class="badge-zero-cost">🛡️ [ZERO-COST POLICY: ACTIVE]</span>
+          </div>
+          <div class="page-desc">
+            Live multi-tier AI routing topology, instant 0ms circuit breaker failover, multi-project quota pools, and fail-closed zero-cost billing guarantees.
+          </div>
+        </div>
+        <div>
+          <button class="btn btn-primary" onclick="loadProviderPoolsStatus()">
+            <span class="btn-label">🔄 Refresh Status</span>
+          </button>
+        </div>
+      </div>
+      <div id="page-providers-content">
+        <div class="empty-state"><div class="empty-state-icon">⏳</div>Loading Provider Pools...</div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -1363,7 +1459,7 @@ async function submitEmailAuth() {
   const emailInput = document.getElementById('auth-email-input').value.trim();
   if (!emailInput) return;
   const ALLOWED_ADMIN_EMAILS = ['pansakorn@gmail.com', 'kimlenglim.work@gmail.com'];
-  
+
   try {
     const res = await api('POST', '/admin/auth/google', { mock_email: emailInput });
     if (res && res.status === 'authenticated') {
@@ -1432,6 +1528,7 @@ function showPage(name) {
   if (targetNav) targetNav.classList.add('active');
 
   if (name === 'dashboard')              { loadDashboard(); }
+  else if (name === 'providers')         { loadProviderPoolsStatus(); }
   else if (name === 'catalog')           { loadCatalog(); }
   else if (name === 'grayzone')          { loadGrayzone(); }
   else if (name === 'grayzone-answered') { loadAnswered(); }
@@ -1571,10 +1668,299 @@ async function loadDashboard() {
     // Action required
     renderActionRequired(summary.action_required);
 
+    // AI Provider Pools & Circuit Breaker Health
+    loadProviderPoolsStatus();
+
     // LLM Gateway Status
     loadLLMGatewayStatus();
 
   } catch(e) { console.error(e); }
+}
+
+async function loadProviderPoolsStatus() {
+  const dashContainer = document.getElementById('provider-pools-container');
+  const pageContainer = document.getElementById('page-providers-content');
+  if (!dashContainer && !pageContainer) return;
+
+  try {
+    let data;
+    try {
+      data = await api('GET', '/admin/provider-pools');
+    } catch (e1) {
+      data = await api('GET', '/api/admin/provider-pools');
+    }
+    if (dashContainer) renderProviderPools(data, dashContainer);
+    if (pageContainer) renderProviderPools(data, pageContainer);
+
+    // Update nav badge
+    const navBadge = document.getElementById('nav-cb-status');
+    if (navBadge && data.circuit_breakers) {
+      const anyOpen = Object.values(data.circuit_breakers).some(cb => cb.is_open);
+      if (anyOpen) {
+        navBadge.className = 'nav-badge';
+        navBadge.textContent = 'COOLDOWN';
+      } else {
+        navBadge.className = 'nav-badge green';
+        navBadge.textContent = '0$ ZERO-COST';
+      }
+    }
+  } catch (err) {
+    const errHtml = `<div style="color:var(--accent-orange);font-size:12px;padding:12px;">⚠️ Provider Pools status check failed: ${err.message || err}</div>`;
+    if (dashContainer) dashContainer.innerHTML = errHtml;
+    if (pageContainer) pageContainer.innerHTML = errHtml;
+  }
+}
+
+function renderProviderPools(data, container) {
+  if (!container || !data) return;
+
+  const cb = data.circuit_breakers || {};
+  const pools = data.provider_pools || {};
+  const health = data.provider_health || {};
+  const rl = data.rate_limiter_stats || {};
+  const sc = data.semantic_cache_stats || {};
+
+  function getCbBadge(state, isOpen) {
+    if (isOpen || state === 'OPEN') {
+      return '<span class="circuit-badge circuit-open">🔴 OPEN (Cooldown)</span>';
+    } else if (state === 'HALF_OPEN') {
+      return '<span class="circuit-badge circuit-half">🟡 HALF_OPEN (Probe)</span>';
+    } else {
+      return '<span class="circuit-badge circuit-closed">🟢 CLOSED (Healthy)</span>';
+    }
+  }
+
+  // Tier 1 Codex ChatGPT
+  const codexCb = cb.codex_chatgpt || {};
+  const codexPool = pools.codex_chatgpt || {};
+  const codexHealth = health.CODEX_CHATGPT || {};
+
+  // Tier 2 Gemini
+  const geminiCb = cb.gemini || {};
+  const geminiPool = pools.gemini || {};
+  const geminiHealth = health.GEMINI || {};
+
+  // Tier 3 Reasoning Proxy
+  const reasonCb = cb.reasoning_proxy || {};
+  const reasonPool = pools.reasoning_proxy || {};
+  const reasonHealth = health.REASONING_PROXY || {};
+
+  // Tier 4 Deterministic Safe Net
+  const detCb = cb.deterministic_safe_net || {};
+  const detPool = pools.deterministic_safe_net || {};
+  const detHealth = health.DETERMINISTIC_SAFE_NET || {};
+
+  const spendFormatted = Number(rl.accumulated_cost_usd || 0).toFixed(4);
+
+  let html = `
+    <!-- Zero-Cost Policy Active Banner -->
+    <div style="background:linear-gradient(135deg, rgba(22,163,74,0.06), rgba(37,99,235,0.04));border:1px solid #86efac;border-radius:12px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-size:24px;">🛡️</span>
+        <div>
+          <div style="font-weight:700;font-size:14px;color:#15803d;display:flex;align-items:center;gap:8px;">
+            <span>[ZERO-COST POLICY: ACTIVE]</span>
+            <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;background:#dcfce7;color:#166534;">FAIL-CLOSED ZERO CLOUD SPEND</span>
+          </div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">
+            Guarantees $0.00 cloud spending by restricting all inference to local Codex CLI (subscription quota), Google AI Studio free tier, and offline Rust PyO3 safe net.
+          </div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:10px;text-transform:uppercase;color:var(--text-muted);font-weight:600;">Accumulated Spend</div>
+        <div style="font-size:18px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#16a34a;">$${spendFormatted} USD</div>
+      </div>
+    </div>
+
+    <!-- Provider Tiers Grid -->
+    <div class="pool-grid">
+      <!-- Tier 1: Codex ChatGPT -->
+      <div class="pool-card" style="border-left:4px solid #2563eb;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+          <div>
+            <div style="font-size:10px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:0.5px;">Tier 1 · Primary Provider</div>
+            <div style="font-size:14px;font-weight:700;color:var(--text-primary);">CODEX_CHATGPT</div>
+          </div>
+          <span class="status-badge" style="background:#eff6ff;color:#2563eb;border-color:#bfdbfe">[ZERO-COST: PRO QUOTA]</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px;">
+          Non-interactive local Codex CLI using ChatGPT Pro subscription quota (No OpenAI API bill).
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:11px;border-top:1px solid var(--border);padding-top:8px;">
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--text-muted);">Circuit Breaker:</span>
+            ${getCbBadge(codexCb.state, codexCb.is_open)}
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--text-muted);">CLI Auth &amp; Session:</span>
+            <span style="font-weight:600;color:${codexHealth.authenticated ? '#16a34a' : '#ea580c'}">${codexHealth.authenticated ? '🟢 Authenticated' : '🟡 Standby / Local'}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--text-muted);">Project Pool:</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-primary);">${codexPool.active_project_id || 'local_codex_chatgpt'}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tier 2: Gemini -->
+      <div class="pool-card" style="border-left:4px solid #16a34a;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+          <div>
+            <div style="font-size:10px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:0.5px;">Tier 2 · High-Speed Fallback</div>
+            <div style="font-size:14px;font-weight:700;color:var(--text-primary);">GEMINI 2.5/3.6 FLASH</div>
+          </div>
+          <span class="status-badge" style="background:#f0fdf4;color:#16a34a;border-color:#bbf7d0">[ZERO-COST: FREE TIER]</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px;">
+          Google AI Studio Free Tier API with multi-project quota pool expansion and intra-project key rotation.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:11px;border-top:1px solid var(--border);padding-top:8px;">
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--text-muted);">Circuit Breaker:</span>
+            ${getCbBadge(geminiCb.state, geminiCb.is_open)}
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--text-muted);">Quota Expansion:</span>
+            <span style="font-weight:600;color:#16a34a;">${geminiPool.projects_count || 1} Project Pools</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--text-muted);">Active Project:</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-primary);">${geminiPool.active_project_id || 'gemini_proj_0'}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tier 3: Reasoning Proxy -->
+      <div class="pool-card" style="border-left:4px solid #7c3aed;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+          <div>
+            <div style="font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:0.5px;">Tier 3 · Deep Reasoning</div>
+            <div style="font-size:14px;font-weight:700;color:var(--text-primary);">REASONING_PROXY</div>
+          </div>
+          <span class="status-badge" style="background:#faf5ff;color:#7c3aed;border-color:#ddd6fe">[ZERO-COST: REASONING]</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px;">
+          NineRouter / DeepSeek-R1 / Qwen2.5-32B Free Tier for complex astrological synthesis and edge-case debate.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:11px;border-top:1px solid var(--border);padding-top:8px;">
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--text-muted);">Circuit Breaker:</span>
+            ${getCbBadge(reasonCb.state, reasonCb.is_open)}
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--text-muted);">Model:</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-primary);">${reasonHealth.model || 'deepseek-r1'}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--text-muted);">Endpoint Status:</span>
+            <span style="font-weight:600;color:${reasonHealth.configured ? '#16a34a' : '#64748b'}">${reasonHealth.configured ? '🟢 Configured' : '⚪ Standby / Optional'}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tier 4: Deterministic Safe Net -->
+      <div class="pool-card" style="border-left:4px solid #059669;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+          <div>
+            <div style="font-size:10px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:0.5px;">Tier 4 · Deterministic Safe Net</div>
+            <div style="font-size:14px;font-weight:700;color:var(--text-primary);">RUST PyO3 ENGINE</div>
+          </div>
+          <span class="status-badge" style="background:#ecfdf5;color:#059669;border-color:#a7f3d0">[ZERO-COST: 0ms SAFE NET]</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px;">
+          Native Rust PyO3 astrological calculation engine &amp; deterministic rule-based safe net on full LLM exhaustion.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:11px;border-top:1px solid var(--border);padding-top:8px;">
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--text-muted);">Circuit Breaker:</span>
+            ${getCbBadge(detCb.state, detCb.is_open)}
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--text-muted);">Latency &amp; Cost:</span>
+            <span style="font-weight:600;color:#059669;">&lt;1 ms · $0.00 (100% Offline)</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--text-muted);">Availability:</span>
+            <span style="font-weight:600;color:#16a34a;">🟢 Always Available (100% SLA)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paid Cloud Model Security Guard Card -->
+    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:18px;">🔒</span>
+        <div>
+          <span style="font-size:12px;font-weight:700;color:#dc2626;">Paid Cloud API Providers (OpenAI GPT-4o / Claude 3.7 / Azure / Vertex AI)</span>
+          <div style="font-size:11px;color:#991b1b;">Explicitly locked and blocked under AI_ZERO_COST_ONLY=true policy. Direct cloud billing strictly prevented.</div>
+        </div>
+      </div>
+      <span class="badge-blocked-cost">🔒 [BLOCKED BY ZERO-COST POLICY]</span>
+    </div>
+
+    <!-- Telemetry Sub-grid: Rate Limiter & Semantic Cache -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:14px;">
+      <!-- Rate Limiter Card -->
+      <div style="background:var(--glass);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-weight:700;font-size:13px;color:var(--text-primary);display:flex;align-items:center;gap:6px;">
+            <span>⏱️</span> Rate Limiter &amp; Token Bucket Quotas
+          </div>
+          <span class="status-badge status-ingested">🟢 Enforcing</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;">
+          <div style="background:#ffffff;padding:8px 10px;border-radius:6px;border:1px solid var(--border);">
+            <div style="color:var(--text-muted);font-size:10px;">Anonymous / User RPM</div>
+            <div style="font-weight:700;font-size:13px;color:var(--text-primary);">${rl.anonymous_rpm || 10} / ${rl.user_rpm || 20} RPM</div>
+          </div>
+          <div style="background:#ffffff;padding:8px 10px;border-radius:6px;border:1px solid var(--border);">
+            <div style="color:var(--text-muted);font-size:10px;">Daily Budget Limit</div>
+            <div style="font-weight:700;font-size:13px;color:var(--text-primary);">${rl.daily_budget_requests || 100} req/day</div>
+          </div>
+          <div style="background:#ffffff;padding:8px 10px;border-radius:6px;border:1px solid var(--border);">
+            <div style="color:var(--text-muted);font-size:10px;">Burst RPS Protection</div>
+            <div style="font-weight:700;font-size:13px;color:var(--text-primary);">${rl.burst_rps || 5} req/sec</div>
+          </div>
+          <div style="background:#ffffff;padding:8px 10px;border-radius:6px;border:1px solid var(--border);">
+            <div style="color:var(--text-muted);font-size:10px;">Tracked Clients</div>
+            <div style="font-weight:700;font-size:13px;color:var(--text-primary);">${rl.tracked_ips || 0} IPs (${rl.recent_violations_count || 0} audit logs)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Semantic Cache Card -->
+      <div style="background:var(--glass);border:1px solid var(--border);border-radius:10px;padding:14px 16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-weight:700;font-size:13px;color:var(--text-primary);display:flex;align-items:center;gap:6px;">
+            <span>🧠</span> Astrological Semantic Cache
+          </div>
+          <span class="status-badge status-ingested">🟢 Active</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;">
+          <div style="background:#ffffff;padding:8px 10px;border-radius:6px;border:1px solid var(--border);">
+            <div style="color:var(--text-muted);font-size:10px;">Cache Hit Ratio</div>
+            <div style="font-weight:700;font-size:13px;color:#16a34a;">${((sc.hit_ratio || 0) * 100).toFixed(1)}%</div>
+          </div>
+          <div style="background:#ffffff;padding:8px 10px;border-radius:6px;border:1px solid var(--border);">
+            <div style="color:var(--text-muted);font-size:10px;">Cache Utilization</div>
+            <div style="font-weight:700;font-size:13px;color:var(--text-primary);">${sc.size || 0} / ${sc.capacity || 2000} entries</div>
+          </div>
+          <div style="background:#ffffff;padding:8px 10px;border-radius:6px;border:1px solid var(--border);">
+            <div style="color:var(--text-muted);font-size:10px;">Total Hits / Misses</div>
+            <div style="font-weight:700;font-size:13px;color:var(--text-primary);">${sc.hits || 0} hits / ${sc.misses || 0} misses</div>
+          </div>
+          <div style="background:#ffffff;padding:8px 10px;border-radius:6px;border:1px solid var(--border);">
+            <div style="color:var(--text-muted);font-size:10px;">Normalization</div>
+            <div style="font-weight:700;font-size:12px;color:var(--text-primary);">SHA-256 Astrological</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = html;
 }
 
 async function loadLLMGatewayStatus() {

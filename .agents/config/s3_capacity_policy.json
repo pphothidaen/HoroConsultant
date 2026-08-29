@@ -3,9 +3,17 @@
     "agy1": {"burn_rate": {"max_requests": 30, "window_seconds": 60}, "circuit_breaker": {"allow_manual_reset": false, "cooldown_seconds": 120, "failure_threshold": 3, "failure_types": ["quota_exhausted", "rate_limit", "timeout", "invalid_provider_event", "missing_runtime_proof"], "failure_window_seconds": 60}, "max_workers": 3, "provider": "agy"},
     "agy2": {"burn_rate": {"max_requests": 30, "window_seconds": 60}, "circuit_breaker": {"allow_manual_reset": false, "cooldown_seconds": 120, "failure_threshold": 3, "failure_types": ["quota_exhausted", "rate_limit", "timeout", "invalid_provider_event", "missing_runtime_proof"], "failure_window_seconds": 60}, "max_workers": 3, "provider": "agy"},
     "codex1": {"burn_rate": {"max_requests": 30, "window_seconds": 60}, "circuit_breaker": {"allow_manual_reset": false, "cooldown_seconds": 120, "failure_threshold": 3, "failure_types": ["quota_exhausted", "rate_limit", "timeout", "invalid_provider_event", "missing_runtime_proof"], "failure_window_seconds": 60}, "max_workers": 2, "provider": "codex"},
-    "codex2": {"burn_rate": {"max_requests": 30, "window_seconds": 60}, "circuit_breaker": {"allow_manual_reset": false, "cooldown_seconds": 120, "failure_threshold": 3, "failure_types": ["quota_exhausted", "rate_limit", "timeout", "invalid_provider_event", "missing_runtime_proof"], "failure_window_seconds": 60}, "max_workers": 2, "provider": "codex"}
+    "codex2": {"burn_rate": {"max_requests": 30, "window_seconds": 60}, "circuit_breaker": {"allow_manual_reset": false, "cooldown_seconds": 120, "failure_threshold": 3, "failure_types": ["quota_exhausted", "rate_limit", "timeout", "invalid_provider_event", "missing_runtime_proof"], "failure_window_seconds": 60}, "max_workers": 2, "provider": "codex"},
+    "codex3": {"burn_rate": {"max_requests": 30, "window_seconds": 60}, "circuit_breaker": {"allow_manual_reset": false, "cooldown_seconds": 120, "failure_threshold": 3, "failure_types": ["quota_exhausted", "rate_limit", "timeout", "invalid_provider_event", "missing_runtime_proof"], "failure_window_seconds": 60}, "max_workers": 2, "provider": "codex"}
   },
   "backpressure": {"allow_manual_reset": false, "max_duration_seconds": 300},
+  "reserve_ratio": 0.10,
+  "quota_basis": "verified_quota_only",
+  "unknown_quota_behavior": "configured_placeholder",
+  "quota_source": "configured_placeholder",
+  "daily_request_limit": 1500,
+  "idempotency_ttl_seconds": 86400,
+  "retry_max_attempts": 3,
   "lease_ttl_seconds": 300,
   "max_requests_per_lease": 30,
   "policy_version": "s3-capacity-v2",

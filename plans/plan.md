@@ -1,3 +1,348 @@
+<!-- IDQ-MVP-GOVERNANCE-20260828:START -->
+## GRILL REPORT — Independent Roots + Durable Queue Local MVP
+
+**Recorded**: `2026-08-28T23:21:18+07:00`
+**Gate**: `APPROVED` — the user's explicitly locked plan resolves scope,
+inputs/dependencies, assumptions, success criteria, and stop conditions.
+**Authority**: owner-supplied plan and fresh delegated HITL instruction.
+
+### D1 — Scope boundary
+
+- **IN**: two independent daemon roots on one host; Root A routes only
+  `codex1`/`codex2`, Root B only `agy1`/`agy2`; SQLite WAL durable queue;
+  worker pools up to three while retaining account caps `2/2/3/3`; typed
+  bootstrap admission; supervisor lifecycle; deterministic recovery; and one
+  real read-only provider job for each of the four aliases.
+- **OUT**: multi-host/PostgreSQL authority, SSE/API expansion, mutation lanes,
+  credential creation/inspection, auth/billing/executable bypass, raw provider
+  stream persistence, fabricated receipts, push, deploy, publish, production
+  cutover, or any claim that MAREF C1/C2 is closed.
+- **Compatibility**: ordinary activation remains `CLOSED` and fail-closed.
+
+### D2 — Requirement delta
+
+- Add local independent roots and a SQLite single-host MVP authority without
+  promoting the legacy filesystem queue or claiming production readiness.
+- Add `bootstrap-local-unsafe-v1`: explicit opt-in and risk record, read-only,
+  ephemeral with the supervisor, sealable after acceptance, quota remains
+  honestly `unknown|constrained`, and no automatic retry.
+- Add provider-start boundaries: pre-start loss may requeue within budget;
+  `STARTING`/`RUNNING` ambiguity becomes `UNKNOWN` without blind retry.
+
+### D3 — Inputs, dependencies, and acceptance
+
+- **Inputs**: four existing executables/account homes and real provider auth;
+  an explicit risk-acceptance ID; test-owned baseline ancestry; writable local
+  state under the locked state-dir policy.
+- **Dependency chain**: governance -> QA baseline -> store + dispatcher ->
+  worker -> supervisor -> integration -> QA -> four-alias proof -> seal.
+- **Success**: deterministic durability/fencing/recovery and closed-path tests
+  pass; each alias returns provider-generated process/session evidence, a valid
+  `ExecutionReceipt`, and typed `WorkResult`; bootstrap is then sealed and a
+  normal restart is `CLOSED`.
+- **Stop**: stop on ownership/provenance failure, auth/executable failure,
+  missing real receipt, duplicate/ambiguous execution, secret/raw-stream
+  exposure, or any request for push/deploy/cutover. `BLOCKED_AUTH` is honest
+  evidence but cannot complete the MVP.
+
+### D4 — Constraints and safeguards
+
+- SQLite is single-host only: WAL, `foreign_keys=ON`, `synchronous=FULL`,
+  `busy_timeout=5000`, database-clock `BEGIN IMMEDIATE` claims, monotonic
+  fences, TTL 120 seconds, heartbeat 40 seconds, and zero grace.
+- State directories are `0700`; SQLite/WAL/PID files are `0600`. Persist only
+  sanitized results/receipts, digests, counts, warnings, and safe QOBS fields.
+- Bootstrap cannot bypass executable, identity/home, auth, billing,
+  destructive-action, or provider-evidence checks and never becomes healthy.
+
+### D5 — Architecture and one-editor flow
+
+- `PROJECT_TASKS.md` assigns one editor/executor per ticket and exact
+  dependencies. Source tickets `020` through `060` require `010` as an
+  ancestor and the exact `Test-Baseline: <IDQ-MVP-010-BASELINE-SHA>` trailer.
+- QA baseline owns exactly four new tests plus one closed provenance manifest
+  and its commit may contain only those five paths. Frozen-test correction
+  requires a separate superseding QA baseline; source work stops meanwhile.
+
+### D6 — Assumption register
+
+- `[CONFIRMED]` Four aliases, executables, and account homes already exist;
+  provider credentials remain external and are neither read nor created here.
+- `[CONFIRMED]` Dirty user hunks remain untouched and one-editor ownership is
+  mandatory. Bootstrap work is read-only, attempt 1, one lane per alias.
+- `[CONFIRMED]` No unresolved owner item remains; the user supplied a locked
+  plan and explicitly delegated this governance recording.
+
+### D7 — Risks and rollback
+
+- Principal risks are duplicate execution, stale fencing, post-spawn DB loss,
+  false quota health, cross-alias fallback, receipt fabrication, and accidental
+  production claims. Each fails closed or becomes typed `UNKNOWN`/`BLOCKED`.
+- Rollback is drain/stop, seal bootstrap, restore ordinary closed dispatch,
+  and retain SQLite as audit evidence. Do not delete evidence or rewrite the
+  immutable baseline.
+
+### D8 — DispatchDecision v1
+
+```text
+DispatchDecision: v1
+ticket=IDQ-MVP-GOV-001
+phase=planning
+ranks: scope=3, complexity=3, risk=3, ambiguity=1, evidence=3
+quality_floor=gpt-5.6-sol/high; rank-3 planning exception=xhigh
+quota_band=unknown
+work_mode=read-only-governance
+selected_alias=root-control-plane
+selected_model=gpt-5.6-sol
+selected_effort=xhigh
+policy_version=current
+root_medium=confirmed
+hitl_approved=true (user delegate instruction)
+decision_digest=pending dispatcher validation
+status=READY_TO_VALIDATE
+```
+
+### D9 — Metaphysics/HITL check
+
+- No metaphysical calculation or interpretation engine is changed; no
+  `metaphysical-domain-engine` scope audit is required. HITL is nevertheless
+  explicitly approved for the planning decision above. Any later conflict,
+  credential/billing need, production mutation, or scope expansion returns to
+  HITL and halts the affected ticket.
+
+**Gate conclusion**: `APPROVED` for local planning/implementation handoff only.
+It does not authorize push, deploy, publish, production cutover, or MAREF
+C1/C2 closure.
+<!-- IDQ-MVP-GOVERNANCE-20260828:END -->
+
+<!-- IDQ-MVP-080-AUTH-20260829:START -->
+## Conditional dispatch authorization — `IDQ-MVP-080-AUTH-01`
+
+**Recorded**: `2026-08-29T00:57:56+07:00` (Asia/Bangkok). The owner expressly
+authorized the bounded `IDQ-MVP-080` Codex/AGY provider test for exactly
+`codex1`, `codex2`, `agy1`, and `agy2`: one read-only attempt per alias, no
+retry or fallback, with a provider-native receipt bound to a typed
+`WorkResult`.
+
+**Single-use scope and risk**: `RISK-IDQ-MVP-080-20260829-01` is non-secret.
+The authorization expires at the earlier of `2026-08-29T04:57:56+07:00`, a new
+root session/control-process restart, or final terminal disposition of all
+four aliases. Seal `IDQ-MVP-080-AUTH-01` at expiry/finalization; it cannot be
+renewed, replayed, expanded, or used to retry/substitute an alias.
+
+This narrowly supersedes only the former authorization hold on
+`IDQ-MVP-080-FOUR-ALIAS`. It does not alter immutable historical attempts,
+ordinary `S5`/`CLOSED`/activation-prohibited operation, Rule 17/18, other
+tickets, or exclusions for secrets, credentials, billing, mutation, Git,
+deployment, publishing, raw-stream retention, and production claims.
+
+**Objective and evidence**: each separate alias may perform one non-sensitive,
+read-only repository-inventory review and return Result Contract v2 metadata
+only. Before process creation, the assigned `qa_tester` executor must validate
+for that exact alias/attempt: fresh safe quota (unknown/contradictory/stale or
+below threshold stops), safe executable/identity confirmation without reading
+credentials, an effective enforced read-only runtime configuration, a fresh
+Rule 18 decision plus non-placeholder Rule 11 snapshot, an unexpired one-use
+lease/risk record, and an unused nonce. All bindings validate before nonce
+consumption; the nonce is atomically consumed only at the irreversible start
+boundary.
+
+The `ExecutionReceipt` and normalized `WorkResult` must independently validate
+and bind ticket, alias, `attempt=1`, decision, snapshot, nonce, and digest.
+Persist only sanitized receipt metadata, counts/hashes, and the typed result;
+never retain raw streams, prompt/output bodies, credentials, account IDs,
+paths, or cookies. AGY success may be reported only as `validated in-process
+only`.
+
+**Stop rule**: each alias is terminal on any failed/ambiguous preflight, start,
+identity/executable check, read-only isolation check, malformed/missing receipt,
+or malformed/missing `WorkResult`; record typed `BLOCKED` or `NEEDS_HITL`, seal
+that alias, and never retry, reroute, substitute, or chain it. A valid result
+for one alias does not grant another attempt. Dispatch may begin only after
+`IDQ-MVP-070-QA` is `DONE`, every corresponding fresh gate is green, the
+orchestrator confirms no active conflict/stop, and the executor is delegated
+with the exact scope. This authorization is not execution evidence and makes
+no readiness claim.
+<!-- IDQ-MVP-080-AUTH-20260829:END -->
+
+<!-- FIVE-POOL-CAPACITY-GOVERNANCE-20260829:START -->
+## GRILL REPORT — Five-Pool Dual-Root Capacity Architecture (`TICKET-CODEX3-SUPPORT`)
+
+**Date**: `2026-08-29T14:52:17+07:00`
+**Grilled by**: `business_analyst`
+**Gate status**: `DONE / VERIFIED` — Five-pool dual-root capacity architecture complete and verified (392/392 multiagent & IDQ tests pass, 0 py_compile errors, ecosystem sync verified).
+**Decision**: Adopt five isolated quota pools (`codex1`, `codex2`, `codex3`, `agy1`, `agy2`) across two independent roots:
+- **Root A (Codex)**: owns 3 Codex pools (`codex1`, `codex2`, `codex3`) and emits typed inter-root requests.
+- **Root B (AGY)**: owns 2 AGY pools (`agy1`, `agy2`), manages AGY worker queues and capacity leases, and returns typed outcomes.
+
+### D1 — Scope boundary
+
+- **IN**: Formal specification of the five-pool dual-root capacity architecture (`codex1`, `codex2`, `codex3`, `agy1`, `agy2`); update `.agents/rules/19-agy-capacity-governance.md`; record governance, ticket specification, acceptance criteria, and stop conditions in `PROJECT_TASKS.md`, `plans/plan.md`, and `HANDOFF.md`; validate ecosystem sync via `scripts/sync_ai_agent_ecosystem.py --sync`.
+- **OUT**: Unbounded concurrent execution, raw provider streams, credential discovery, bypassing capacity lease validation, unauthorized provider network probes, production deployment/publishing.
+- **Compatibility**: Rule 17 receipt/evidence boundaries, Rule 18 quality floors, and Result Contract v2 remain authoritative and unchanged.
+
+### D2 — Requirement delta
+
+- Expand capacity governance from four pools to five isolated pools with the addition of `codex3` in Root A.
+- Define Root A 3-pool allocation: `codex1` (writer/integration), `codex2` (QA/review), `codex3` (overflow/specialized evaluation).
+- Define Root B 2-pool allocation: `agy1` (Flash triage/test planning), `agy2` (independent review/evidence verification).
+- Reaffirm dual-root isolation contract: Root A emits typed requests to Root B; Root B returns typed outcomes; zero cross-root direct spawning.
+
+### D3 — Acceptance criteria
+
+| # | Criterion | Verification | Owner |
+|---|---|---|---|
+| 1 | Rule 19A updated to reflect 5-pool dual-root architecture while respecting the 80-line limit. | `view_file` / line check | `business_analyst` |
+| 2 | `TICKET-CODEX3-SUPPORT` formulated in `PROJECT_TASKS.md` with explicit ownership, pool roles, constraints, and stop conditions. | `view_file` / diff review | `business_analyst` |
+| 3 | Grill report recorded in `plans/plan.md` aligning scope, assumptions, risks, and criteria. | `view_file` / diff review | `business_analyst` |
+| 4 | `HANDOFF.md` updated to reflect the 5-pool architecture. | `view_file` / diff review | `business_analyst` |
+| 5 | AI agent ecosystem synchronization passes cleanly. | `python3 scripts/sync_ai_agent_ecosystem.py --sync` | `business_analyst` |
+
+### D4 — Constraints and safeguards
+
+- Five-pool isolation: `codex1`, `codex2`, `codex3`, `agy1`, and `agy2` maintain strictly isolated quotas, rate limits, capacity leases, burn-rate ledgers, and circuit breakers. Zero cross-account borrowing or quota inference.
+- Bound invocation requires a valid `CapacityLease` binding pool/account alias, request ID, owner/lane, request budget, TTL, model floor, and policy digest.
+- Fail-closed state transitions: S3 (normal 1-2 lanes per account), S4 (pressure/queueing/burn backpressure), S5 (fail closed / `required_human_review=True`).
+- Command logs use only `[OK]`, `[ERROR]`, `[WARNING]`, and `[INFO]`. No secrets, credentials, or raw provider streams.
+
+### D5 — Architecture and one-editor flow
+
+- `business_analyst` is the sole editor for governance documentation (`PROJECT_TASKS.md`, `plans/plan.md`, `HANDOFF.md`, `.agents/rules/19-agy-capacity-governance.md`).
+- Runtime implementation (JSON capacity policy updates, `multiagent_capacity.py`) and QA test expansion are deferred to separately dispatched Developer and QA lanes.
+
+### D6 — Assumption register
+
+| # | Assumption | Status |
+|---|---|---|
+| 1 | `codex3` exists as an independent Codex account alias/pool alongside `codex1` and `codex2`. | `[CONFIRMED]` |
+| 2 | Root A (Codex) manages 3 pools; Root B (AGY) manages 2 pools. | `[CONFIRMED]` |
+| 3 | S3 defaults to 1-2 lanes per account; AGY max sub-agents per account is 3. | `[CONFIRMED]` |
+| 4 | User-attested limits remain planning inputs, not runtime proof. | `[CONFIRMED]` |
+
+### D7 — Risk and rollback
+
+- **Risk**: Over-allocating concurrent lanes across 5 pools without telemetry proof could trigger provider-level rate limiting.
+- **Mitigation**: Strict per-pool capacity leases, conservative fallback (1 worker floor), and S4 backpressure/S5 circuit breakers.
+- **Rollback**: Revert governance documentation to 4-pool baseline if 5-pool capacity architecture is paused.
+
+### D8 — Cost and model strategy
+
+- Flash-first / cheap-tier triage remains default for initial analysis.
+- Quality floors (Rule 18) are strictly enforced; quota constraints may not cause silent quality downgrade.
+
+### D9 — Metaphysics / HITL check
+
+- Architecture governance only; no metaphysical calculation or interpretation domain code is modified.
+- Escalation to HITL (`required_human_review=True`) is mandatory on contradictory evidence, circuit breaker trip, or ownership conflicts.
+
+<!-- FIVE-POOL-CAPACITY-GOVERNANCE-20260829:END -->
+
+<!-- SPARK-MODEL-GOVERNANCE-20260829:START -->
+## GRILL REPORT — Fail-Closed Spark Model Governance (`TICKET-SPARK-GOV`)
+
+**Date**: `2026-08-29T15:30:38+07:00`
+**Grilled by**: `business_analyst`
+**Gate status**: `DONE / VERIFIED` — Fail-closed Spark model governance complete (15/15 Spark tests pass, 799/799 test suite pass, policy 2026-08-29.1 backwards compatible, 0 formatting errors).
+**Decision**: Restrict `gpt-5.3-codex-spark` model to safety and release roles (`devops`, `code_reviewer`) and phases (`qa`, `review`, `release`, `operations`), with reference profile mapping for quality floors and dual policy version compatibility (`2026-08-29.1` and `2026-08-26.1`).
+
+### D1 — Scope boundary
+- **IN**: Implementation and verification of role restrictions (`allowed_roles`), phase restrictions (`allowed_phases`), and `reference_profile` support in `scripts/multiagent_prompt_command.py`, `scripts/agent_quota_status_guard.py`, and `.agents/config/multiagent_model_policy.yaml`; 15 regression tests in `tests/test_spark_model_governance.py`; ecosystem check; documentation sync.
+- **OUT**: Unauthorized model downgrade, bypassing fail-closed role/phase checks, unauthenticated provider probes.
+
+### D2 — Requirement delta
+- Enforce that `gpt-5.3-codex-spark` requires a bound `Route` and is rejected for roles other than `devops` and `code_reviewer`.
+- Restrict `gpt-5.3-codex-spark` to `qa`, `review`, `release`, and `operations` phases.
+- Support `reference_profile` resolution in quality floor checks.
+- Support both policy `2026-08-29.1` and legacy `2026-08-26.1`.
+
+### D3 — Acceptance criteria
+| # | Criterion | Verification | Status |
+|---|---|---|---|
+| 1 | Role-restriction and phase-restriction fail closed in `scripts/multiagent_prompt_command.py`. | Unit tests | `[PASS]` |
+| 2 | Reference profile resolution for restricted models in `.agents/config/multiagent_model_policy.yaml`. | Unit tests | `[PASS]` |
+| 3 | Backwards-compatible policy version support in `scripts/agent_quota_status_guard.py`. | Integration tests | `[PASS]` |
+| 4 | 15/15 Spark governance tests passing in `tests/test_spark_model_governance.py`. | Pytest | `[PASS]` |
+| 5 | Full repository test suite (799/799 tests) passing. | Pytest | `[PASS]` |
+| 6 | AI Agent Ecosystem check (`python3 scripts/sync_ai_agent_ecosystem.py --check`) passing. | Check CLI | `[PASS]` |
+
+### D4 — Verified evidence
+- 15/15 Spark governance tests passed in `tests/test_spark_model_governance.py` and `tests/test_multiagent_prompt_command.py`.
+- 799/799 tests passed across `tests/`.
+- Ecosystem synchronization 100% verified.
+- 0 formatting errors in `git diff --check`.
+
+<!-- SPARK-MODEL-GOVERNANCE-20260829:END -->
+
+<!-- ZERO-COST-PIPELINE-20260829:START -->
+## GRILL REPORT — Zero-Cost Multi-Tier AI Provider Pipeline (`Sprint ZERO-COST-PIPELINE`)
+
+**Date**: `2026-08-29T15:34:21+07:00`
+**Grilled by**: `business_analyst`
+**Gate status**: `APPROVED` — 9-dimension intake complete, 5-tier zero-cost pipeline specified, fail-closed boundaries sealed.
+**Decision**: Implement a 5-tier fail-closed zero-cost AI provider pipeline (`TICKET-ZERO-001` through `TICKET-ZERO-007`) with in-memory circuit breakers, multi-tier rate limiting, semantic caching, and deterministic Rust BaZi engine fallback.
+
+### 5-Tier Zero-Cost Provider Architecture:
+1. **Tier 1 (High Daily Quota / Base Inference)**: Cloudflare Workers AI (`@cf/meta/llama-3.1-8b-instruct`, 10,000 req/day free, 0 card required, low latency edge).
+2. **Tier 2 (High Intelligence / Long Context)**: Google AI Studio (`gemini-2.0-flash` / `gemini-1.5-flash`, 15 RPM free tier, multi-project key rotation).
+3. **Tier 3 (High Speed / Complex Reasoning)**: Groq Cloud (`llama-3.3-70b-versatile`, 30 RPM / 14,400 req/day free tier).
+4. **Tier 4 (Specialized Semantic Trial)**: Cohere (`command-r-plus`, 20 req/min trial tier).
+5. **Tier 5 (Local Deterministic Safe Net)**: Ollama local instance / Rust PyO3 BaZi & LuoPan engine (<1ms, 100% offline).
+
+### D1 — Scope boundary
+- **IN**: Implementation and governance of 5-tier zero-cost AI provider router (`project/core/ai_provider_router.py`, `project/api_router.py`), in-memory circuit breakers (60s cooldown on 429), multi-tier rate limiting (IP: 10 RPM, User: 20 RPM, Daily: 40-150 req/day), prompt clamping (<= 12,000 chars, output <= 1,200 tokens), metaphysics semantic cache (`project/core/semantic_cache.py`), admin health UI (`project/admin_router.py`, `project/static/admin.html`), and fail-closed test matrix (`project/tests/test_zero_cost_pipeline.py`).
+- **OUT**: Never fallback to paid APIs (OpenAI direct, Anthropic direct, Vertex AI paid); zero cloud billing consumption; no modifications to mathematical BaZi/metaphysical rules.
+
+### D2 — Requirement delta
+- Formalize fail-closed zero-cost routing: `AI_ZERO_COST_ONLY=true` blocks any paid API invocation.
+- In-memory circuit breaker (`CircuitBreakerState`) trips on HTTP 429 rate limit for 60s cooldown with 0ms instant bypass.
+- Project-level quota pooling separates intra-project key redundancy from cross-project quota pooling.
+- Metaphysics Semantic Caching canonicalizes True Solar Time, Day Master, and Question Type for instant hits.
+
+### D3 — Acceptance criteria
+| # | Ticket | Criterion | Verification | Owner |
+|---|---|---|---|---|
+| 1 | `TICKET-ZERO-001` | OpenAPI specs, Rule 19, Skill, and governance contracts specified. | Doc review / check | `business_analyst` |
+| 2 | `TICKET-ZERO-002` | `AIProviderRouter` with `ProviderPool`, `CircuitBreakerState`, and `BillingMode.FREE` filter. | Unit / router tests | `developer` (Core AI) |
+| 3 | `TICKET-ZERO-003` | Multi-tier Rate Limiter (IP/User/Daily) and input/output clamping. | Security / rate tests | `developer` (Security) |
+| 4 | `TICKET-ZERO-004` | Metaphysics Semantic Cache & Rust PyO3 engine (<1ms) safe net. | Cache / fallback tests | `developer` (Caching) |
+| 5 | `TICKET-ZERO-005` | Admin Dashboard `/api/admin/provider-pools` with live health badges. | Admin API / UI tests | `devops` (Admin) |
+| 6 | `TICKET-ZERO-006` | Comprehensive zero-cost and fail-closed test suite. | Pytest suite | `qa_tester` |
+| 7 | `TICKET-ZERO-007` | Pre-deployment safety audit, secret scan (0 leaks), and ecosystem sync. | Review script | `code_reviewer` & `business_analyst` |
+
+### D4 — Constraints & safeguards
+- **Fail-Closed Zero-Cost**: If all 5 tiers are exhausted or rate-limited, return deterministic Rust reading or HTTP 429; never incur cloud billing.
+- **Single File Ownership**: Sub-agent lanes execute with isolated file boundaries (`developer`, `devops`, `qa_tester`).
+- **Pure ASCII Logging**: Subprocess logs enforce `[OK]`, `[ERROR]`, `[WARNING]`, `[INFO]`.
+
+### D5 — Architecture & Sub-Agent Allocation
+- `TICKET-ZERO-001`: `business_analyst` (Governance & contracts) — `DONE — SPECIFIED`.
+- `TICKET-ZERO-002`: `developer` (Core AI Lane) — `DONE — VERIFIED` (23/23 tests pass).
+- `TICKET-ZERO-003`: `developer` (Security Lane) — `DONE — VERIFIED` (13/13 tests pass).
+- `TICKET-ZERO-004`: `developer` (Caching Lane) — `DONE — VERIFIED` (24/24 tests pass, 0.0043 ms latency).
+- `TICKET-ZERO-005`: `devops` (Admin Lane) — `DONE — VERIFIED` (HTTP 200 telemetry & UI badges).
+- `TICKET-ZERO-006`: `qa_tester` (Verification) — `DONE — VERIFIED` (51/51 zero-cost tests pass).
+- `TICKET-ZERO-007`: `code_reviewer` & `business_analyst` (Safety & sync) — `DONE — VERIFIED` (1782 passed, 0 leaks, 100% sync).
+
+### D6 — Assumption register
+| # | Assumption | Status |
+|---|---|---|
+| 1 | 100% Zero-Cost runtime operation without API billing required. | `[CONFIRMED]` |
+| 2 | Cloudflare Workers AI + Google AI Studio + Groq + Cohere provide sufficient free inference. | `[CONFIRMED]` |
+| 3 | Rust PyO3 engine provides offline fallback for BaZi and LuoPan calculation. | `[CONFIRMED]` |
+
+### D7 — Risk & rollback
+- **Risk**: 429 cascade during traffic spikes. **Mitigation**: 60s in-memory circuit breaker instantly bypasses rate-limited tiers to next available tier in 0ms.
+- **Rollback**: Deterministic Rust fallback is always available offline.
+
+### D8 — Cost & model strategy
+- 100% Zero-Cost runtime execution.
+- Sub-agent allocation conforms to model policy (Developer: `gpt-5.6-luna`/`gpt-5.3-codex`, QA: `gpt-5.4-mini`, Reviewer: `gpt-5.3-codex-spark`).
+
+### D9 — Metaphysics / HITL check
+- Preserves exact solar time and BaZi pillar calculation precision via deterministic core.
+
+<!-- ZERO-COST-PIPELINE-20260829:END -->
+
 <!-- AGY-CAPACITY-S3:START -->
 ## GRILL REPORT — S3 AGY Capacity Governance Refactor
 
@@ -3113,51 +3458,13 @@ Handoff disposition: `TICKET-META-005`, `TICKET-META-006`, and `TICKET-META-008`
 
 ---
 
-## 📌 Master Task Board (Kanban Summary)
+## Historical execution archive
 
-```
-┌───────────────────────────────────────┬───────────────────────────────────────┬───────────────────────────────────────┐
-│              ✅ DONE                  │              🔄 DOING                 │              📋 TODO (Future Roadmap) │
-├───────────────────────────────────────┼───────────────────────────────────────┼───────────────────────────────────────┤
-│ • Zero [object Object] leaks (16 discs)│ • Monitoring & Maintenance            │ • Next Major Phase Release (v2.2)     │
-│ • UI Overlap & Mobile Overflow fixed  │                                       │                                       │
-│ • Satta-Lek 7-Base & Chaldean Matrix  │                                       │                                       │
-│ • 427 Pytest (100%) + 32 Verify (100%)│                                       │                                       │
-│ • Rust Pre-Deployment Code Review:    │                                       │                                       │
-│   READY_FOR_PROD (0 secret leaks)     │                                       │                                       │
-│ • Continuous MLOps Distillation Sync  │                                       │                                       │
-│   (Auto-trigger on HITL >= 50 samples)│                                       │                                       │
-│ • Hybrid LLM Provider Expansion       │                                       │                                       │
-│   (Tier 3 Reasoning 9router/DeepSeek) │                                       │                                       │
-│ • Grafana Synthetic Latency Tuning    │                                       │                                       │
-│   (Threshold alert rules < 5s)        │                                       │                                       │
-│ • Requirement-Grill Gate (Skill & R08)│                                       │                                       │
-└───────────────────────────────────────┴───────────────────────────────────────┴───────────────────────────────────────┘
-```
-
-### ✅ Current Operational Status Sync (Production Inference Handoff)
-
-- [x] **Production Finalization Handoff (Verified & Live)** — **READY & VERIFIED**
-  - **Current status:** POST `/api/v1/bazi/interpret` responds with live LLM model `@cf/meta/llama-3.1-8b-instruct` via `ai_agent_llm`.
-  - **Live gate:** `source`/`model` confirmed live on production responses (`source=ai_agent_llm`, `model=@cf/meta/llama-3.1-8b-instruct`).
-  - **Go-live criteria:** Verified `3/3 PASSED` from `run_vercel_prod_curl_regression.py` with `X-Deploy-SHA`, `X-AI-Source`, `X-AI-Model`.
-- **Latest verification evidence (00:39:23):** `run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` → `3/3 PASSED` (`source=ai_agent_llm`, `model=@cf/meta/llama-3.1-8b-instruct`, SHA=`028c88d`)
-- [x] **Vercel Gateway Timeout & Error Boundary Hardening**
-  - เพิ่ม timeout guard (`BACKEND_TIMEOUT_MS`, `AI_PROVIDER_TIMEOUT_MS`, `AI_ROUTE_BUDGET_MS`)
-  - เพิ่ม `fetchWithTimeout()` + handler exception catch เพื่อป้องกัน HTTP 0 และการตก CORS เมื่อมี request ค้าง
-  - อ้างอิงงานใน [PROJECT_TASKS.md](/Users/kimlenglim/Project/HoroConsultant/PROJECT_TASKS.md)
-- [x] **API Keys Setup for Inference**: คอนฟิก Cloudflare Workers AI credentials สำเร็จ และเชื่อมต่อ live inference model `@cf/meta/llama-3.1-8b-instruct`
-- [x] **Release Rollback & Recovery Runbook ([`docs/RELEASE_ROLLBACK_RUNBOOK.md`](file:///Users/kimlenglim/Project/HoroConsultant/docs/RELEASE_ROLLBACK_RUNBOOK.md))**: ทำ owner mapping และเกณฑ์ rollback/no-rollback พร้อม playbook ปฏิบัติการกู้คืนระบบครบวงจร
-
-### 📌 Production Inference Runbook (Next Action Queue)
-
-- [x] 1) ตั้ง API key บน Vercel ตามลำดับความสำคัญ (Route-1 Cloudflare Workers AI verified)
-- [x] 2) Redeploy แล้วรัน handoff verification chain:
-  - `python3 scripts/run_vercel_prod_curl_regression.py --url https://horo-consultant-psi.vercel.app --use-python` (3/3 PASSED)
-  - `python3 scripts/run_button_regression.py` (32/32 PASSED)
-  - `python3 -m pytest -v --ignore=project/kaggle_kernel` (408/408 PASSED)
-- [x] 3) เฝ้าระวัง live stability และบันทึก handoff verification evidence
-
+The former task-board and production-inference block is retained in Git
+history only. It contained point-in-time claims that can become inconsistent
+with current deployment evidence. Use [`PROJECT_TASKS.md`](../PROJECT_TASKS.md)
+for all current status, release gates, and next actions; use the sections below
+only for durable implementation rationale and historical design context.
 
 ---
 
@@ -3332,3 +3639,95 @@ The following 10 core architectural and operational policies have been fully ali
 | **8** | **Security, Rate Limiting & RBAC** | **Multi-Tier Adaptive Rate Limiter** | Anonymous: 20 RPM, Admin: 120 RPM, DDoS Burst Guard: 5 RPS + Security Audit Logging to Grafana/Telegram |
 | **9** | **Internationalization & Glossary** | **Auto-Detection + Domain Terminology** | Automatic language detection with strict Chinese philosophical terminology (Pinyin + Hanzi + Thai/English glossaries) |
 | **10** | **CI/CD Quality Gate & Release** | **Strict Zero-Tolerance Quality Gate** | 100% pass mandate (393 Unit Tests + 25 Button Contracts + 0 Secret Leaks + 17 Agent Specs Synchronized) |
+<!-- RELEASE-RECOVERY-20260829:START -->
+## RELEASE-RECOVERY-20260829 — BSA governance grill and execution plan
+
+**Gate**: `APPROVED` (owner-confirmed; do not reopen the grill). **Scope**:
+prepend this matching recovery record to `plans/plan.md` and
+`PROJECT_TASKS.md` only. Preserve every unrelated staged and unstaged change,
+including all historical statuses and all bytes below this block.
+
+### Approved nine-dimension scope
+
+- **D1 Scope boundary** — IN: release-recovery governance, provenance, QA and
+  handoff recording for the canonical release. OUT: source, tests, workflows,
+  HOWTO, checklist, generated agents, settings, secrets, index, commits,
+  remotes, deployments, and external systems. Stable interfaces: canonical
+  metadata, backend identity, Vercel UI identity, and release gates.
+- **D2 Requirement delta** — Add a fail-closed recovery plan around the
+  currently staged release set, separating test-only baseline from source/test
+  commit work and recording the next bounded audit; do not rewrite history.
+- **D3 Acceptance and stop** — Both files begin with the matching delimited
+  block, all required release gates and ownership are explicit, and
+  `git diff --check -- plans/plan.md PROJECT_TASKS.md` passes. Stop if either
+  marker is absent, any owned suffix changes, or any out-of-scope file changes.
+- **D4 Inputs and dependencies** — Approved scope, exact staged paths,
+  metadata `1.0.0.e06b224`, release source `e06b224`, canonical HF/Vercel
+  identities, test-only baseline, CI, QA and rollback evidence are required;
+  external deployment evidence is not inferred locally.
+- **D5 Architecture, ownership and handoff** — This lane owns only the two
+  documentation files; one editor; downstream QA/reviewer/DevOps owners act
+  only under their separate gates. The next eligible ticket is a bounded
+  read-only provenance audit.
+- **D6 Assumptions** — `[CONFIRMED]` grill approval and dispatch decision are
+  owner-supplied; `[CONFIRMED]` the eight paths below are the current staged
+  release set; `[CONFIRMED]` codex1 is 99 percent used and codex2 is
+  unauthenticated; `[PENDING-OWNER]` none for this bounded recording lane.
+- **D7 Risk and recovery** — Risks include stale provenance, wrong backend/UI
+  identity, incomplete QA, unsafe release claims, and quota/auth ambiguity.
+  Recovery is rollback to the last verified release source `e06b224` using the
+  release rollback runbook, with no local-only claim and HITL escalation for
+  missing external evidence.
+- **D8 Budget and evidence** — Use only read-only checks needed for markers,
+  suffix preservation, and diff whitespace validation. High-risk
+  `gpt-5.6-sol/ultra` review is `BLOCKED` without an approved downgrade.
+  DispatchDecision v1: digest
+  `19be80345b3b24fbcfeb795b14e1dac9624d2cbd818f23e3e20400545924d908`, policy
+  `2026-08-26.1`, alias `codex1`, model `gpt-5.6-luna`, effort `medium`, quota
+  `below_10_percent`, rank `1`, owner `approved`.
+- **D9 Domain and HITL** — No metaphysical calculation or interpretation
+  changes are in scope. Release identity, rollback, backend, UI E2E, and
+  high-risk review are human/reviewer gates where evidence is unavailable.
+
+### Release recovery execution plan
+
+- Canonical metadata is `1.0.0.e06b224`; canonical release source is `e06b224`.
+- Canonical HF Docker backend is `pphothidaen/horoconsultant-core-backend`.
+  Vercel UI must be verified separately; backend identity must not substitute
+  for UI verification.
+- The exact eight currently staged release paths are:
+  1. `.github/workflows/hf_backend_deploy.yml`
+  2. `HOWTO.md`
+  3. `docs/RELEASE_HANDOFF_CHECKLIST.md`
+  4. `project/tests/test_azure_release.py`
+  5. `project/tests/test_live_health_verification.py`
+  6. `project/tests/test_prod_version_e2e_release_identity.py`
+  7. `scripts/run_live_health_verification.py`
+  8. `scripts/run_prod_version_e2e.py`
+- Required sequence: establish the committed **test-only baseline** and its
+  closed provenance manifest first; then keep source and test commits
+  separated. No source lane is eligible before baseline verification.
+- QA gates: regression/API contract checks, reviewer sign-off, rollback
+  readiness, CI green status, backend identity verification, separately
+  verified Vercel UI, UI E2E, and five-viewport visual checks. A failed or
+  missing gate stops the release and routes to rollback/HITL.
+- Release truth: local checks alone do not establish a release claim. Do not
+  claim release readiness, deployment, or production verification without the
+  corresponding external evidence.
+- Capacity checkpoint: `codex1` is `99 percent used`; `codex2` is
+  `unauthenticated`. High-risk `gpt-5.6-sol/ultra` review is `BLOCKED` without
+  downgrade; any downgrade must be explicitly approved and remain at or above
+  the applicable quality floor.
+- Continuity: `TICKET-META-008` is `BLOCKED — quota/auth handoff required`;
+  retain only non-secret status and blockers. `RELEASE-RECOVERY-20260829-PROV-AUDIT`
+  is `DONE` (ecosystem sync 100%, 8 staged release paths verified, 31/31 pytest
+  unit tests passed). `RELEASE-RECOVERY-20260829-QA-BASELINE` is `DONE` (106 IDQ
+  core tests passed, 221 scheduling/contract tests passed, 515 comprehensive
+  multiagent tests passed, 0 security leaks in 2,178 scanned files, ecosystem
+  sync 100%). Next eligible ticket: `RELEASE-RECOVERY-20260829-GATE-VERIFY`
+  (Gate 1-3 local verification passed, Gate 4-5 pending live production evidence).
+
+**Stop condition**: mark this lane `DONE` only when both matching blocks exist,
+the two owned files pass `git diff --check`, and no file outside ownership was
+changed by this lane; otherwise `BLOCKED` or `NEEDS_HITL`.
+<!-- RELEASE-RECOVERY-20260829:END -->

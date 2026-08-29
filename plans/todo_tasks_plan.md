@@ -1,58 +1,39 @@
-# Implementation Plan: Fulfill TODO Tasks in PROJECT_TASKS.md
+# Retired TODO Workstreams — Traceability Pointer
 
-**Goal**: Execute the remaining tasks in the `📋 TODO` section of `PROJECT_TASKS.md` following the AI SDLC Workflow (`.agents/workflows/aisdlc.md`).
+**Disposition (2026-08-28):** This file is a historical pointer, not an active
+backlog or execution plan. The six TODO workstreams were retained for intent
+and are closed or superseded by the evidence-backed tickets below. Do not copy
+status, ownership, acceptance criteria, or release claims into this file.
 
-> **Current disposition (2026-08-21):** Tasks 1–6 have implementation and focused-test evidence under `TICKET-META-003`/`004`. CI/CD release verification remains explicitly blocked under `TICKET-META-005`/`006`; see [`PROJECT_TASKS.md`](../PROJECT_TASKS.md) for owner, gate, and recovery action. This plan is retained for traceability, not as an unstarted backlog.
+## Authority map
 
-> **Execution decomposition (2026-08-22 21:12 +07):** Tasks 1–6 are closed implementation workstreams. `CP-00-DOCS` is complete for this session. The next executable checkpoint is `CP-01-LOCAL` (QA/code-review ownership); remaining external checkpoints are `CP-02-HF` / `CP-03-AZURE` / `CP-04-PW` → `CP-05-RELEASE` → `CP-06-HANDOFF`. Do not restart Tasks 1–6 unless new evidence shows regression.
+- **Active authority:** [`PROJECT_TASKS.md`](../PROJECT_TASKS.md) is the sole
+  authority for current ticket status, ownership, dependencies, acceptance
+  criteria, evidence, checkpoints, and operational handoff.
+- **Decision authority:** [`plans/plan.md`](plan.md) contains decision records,
+  grill reports, and implementation rationale; it does not replace the board.
+- **Resume authority:** [`HANDOFF.md`](../HANDOFF.md) contains current-session
+  constraints, blockers, and safe commands.
 
----
+## Historical workstream links
 
-## Task Breakdown & Roadmap
+| Historical workstream | Current traceability authority |
+|---|---|
+| 1. Model fusion and GGUF/Ollama export | [`TICKET-META-003`](../PROJECT_TASKS.md#-ticket-meta-003--developer---status-done), [`TICKET-META-004`](../PROJECT_TASKS.md#-ticket-meta-004--developer--qa_tester---status-done) |
+| 2. External AI provider integration | [`TICKET-META-003`](../PROJECT_TASKS.md#-ticket-meta-003--developer---status-done), [`TICKET-META-005`](../PROJECT_TASKS.md#-ticket-meta-005--devops--developer---status-done) |
+| 3. Swiss Ephemeris integration | [`TICKET-META-003`](../PROJECT_TASKS.md#-ticket-meta-003--developer---status-done), [`TICKET-META-004`](../PROJECT_TASKS.md#-ticket-meta-004--developer--qa_tester---status-done) |
+| 4. Additional source ingestion and vault expansion | [`TICKET-META-003`](../PROJECT_TASKS.md#-ticket-meta-003--developer---status-done), [`TICKET-META-004`](../PROJECT_TASKS.md#-ticket-meta-004--developer--qa_tester---status-done) |
+| 5. CI/CD automation audit | [`TICKET-META-005`](../PROJECT_TASKS.md#-ticket-meta-005--devops--developer---status-done), [`TICKET-META-006`](../PROJECT_TASKS.md#-ticket-meta-006--qa_tester--code_reviewer--business_analyst---status-done) |
+| 6. Consultant web UI enhancements | [`TICKET-META-004`](../PROJECT_TASKS.md#-ticket-meta-004--developer--qa_tester---status-done), [`TICKET-META-006`](../PROJECT_TASKS.md#-ticket-meta-006--qa_tester--code_reviewer--business_analyst---status-done) |
 
-### Task 1: Model Fusion & GGUF Ollama Export Pipeline
-- **Objective**: Create `scripts/post_train_fuse.py` and Modelfile tooling to support model fusion and GGUF/Ollama model export when adapter weights are available or mock fallback is specified.
-- **Deliverables**:
-  - `scripts/post_train_fuse.py` with robust CLI options, checks for MLX / PyTorch adapters, and convert/create pipeline.
-  - `project/models/Modelfile` for Ollama configuration.
-  - Test suite covering fusion script execution and Modelfile validation.
+The retired SDLC intent was the [AI SDLC workflow](../.agents/workflows/aisdlc.md):
+planning, implementation, QA, release verification, then board/handoff update.
+Its current checkpoint state and evidence are maintained on the board and in
+the linked plan/handoff records.
 
-### Task 2: External AI Provider Integration (Cloud / Gemini / OpenAI Fallback)
-- **Objective**: Extend `project/api_router.py` to support external AI providers (Cloudflare AI, Gemini, Vertex AI, and OpenAI fallback) alongside Ollama.
-- **Deliverables**:
-  - Update `project/api_router.py` with configurable providers (`OpenAI`, `Gemini`, `Cloudflare AI`, `Vertex AI`).
-  - Add tests in `project/tests/test_api_router_external.py`.
+## Safe resume rule
 
-### Task 3: Swiss Ephemeris Integration (`pyswisseph` / `swisseph`)
-- **Objective**: Integrate Swiss Ephemeris calculation fallback/enhancement into planetary & TST / solar time modules (`project/core/solar_time.py` or new `project/core/swiss_ephemeris.py`).
-- **Deliverables**:
-  - `project/core/swiss_ephemeris.py` module with graceful fallback to pure python NOAA algorithms when C library is unavailable.
-  - Integration with BaZi calculation for precise planetary/solar positions.
-  - Unit tests in `project/tests/test_swiss_ephemeris.py`.
-
-### Task 4: Additional Source Ingestion (Vault Expansion & Batch Ingest Enhancements)
-- **Objective**: Enhance `project/rag/ingest_vault.py` with multi-source batch ingestion capabilities, enhanced metadata tracking, and CLI batch mode.
-- **Deliverables**:
-  - Updates to `project/rag/ingest_vault.py`.
-  - Tests for new ingestion options in `project/tests/test_ingest_vault.py`.
-
-### Task 5: CI/CD Automation (GitHub Actions Pipeline Audit & Workflow Update)
-- **Objective**: Ensure `.github/workflows/ci.yml` exists, runs `pytest`, linting (`ruff`), and security checks on push/PR.
-- **Deliverables**:
-  - `.github/workflows/ci.yml`.
-
-### Task 6: Consultant Web UI Enhancements (Frontend Glassmorphism)
-- **Objective**: Enhance `project/static/` web interface with interactive 4-Pillar visual display, element dynamic balance graphs, and consultant chat interaction UI.
-- **Deliverables**:
-  - UI updates in `project/static/index.html`, `project/static/app.js`, `project/static/style.css`.
-  - Verified with Web Regression test suite.
-
----
-
-## Execution Phases & SDLC Compliance
-
-1. **Phase 1: Planning** -> Plan documented in `plans/todo_tasks_plan.md`.
-2. **Phase 2: Feature Implementation** -> Develop core modules & scripts.
-3. **Phase 3: QA & Testing** -> Run unit tests and pytest regression.
-4. **Phase 4: DevOps & Release Verification** -> Audit configs, dependencies, Docker build compatibility.
-5. **Phase 5: Task Board Update & Delivery Summary** -> Update `PROJECT_TASKS.md` status to DONE and report results.
+Resume only from the latest status and evidence in [`PROJECT_TASKS.md`](../PROJECT_TASKS.md),
+using [`HANDOFF.md`](../HANDOFF.md) for session constraints. Reopen a workstream
+only when the board records a new ticket or contrary evidence; otherwise do not
+restart Tasks 1–6 or infer release approval from this historical pointer.

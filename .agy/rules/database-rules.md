@@ -1,6 +1,6 @@
 ---
 description: Vector database FAISS indexing, embedding governance, and RAG retrieval optimization.
-paths: "project/rag/**/*, data/**/*"
+paths: ["project/rag/**/*, data/**/*"]
 ---
 
 # Vector Database & RAG Governance

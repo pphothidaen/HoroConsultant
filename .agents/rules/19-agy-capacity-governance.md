@@ -1,18 +1,19 @@
-# Rule 19A: S3 AGY Capacity Governance
+# Rule 19A: S3 Capacity Governance (Five-Pool Dual-Root)
 
 ## Purpose
 
-Define balanced S3 capacity governance for the four isolated pools
-`agy1`, `agy2`, `codex1`, and `codex2`. This rule complements existing Rule 19
-zero-cost controls and does not replace Rule 17 dispatch/evidence ownership or
-Rule 18 adaptive model-effort routing.
+Define balanced S3 capacity governance for the five isolated pools
+`codex1`, `codex2`, `codex3`, `agy1`, and `agy2`. This rule complements existing
+Rule 19 zero-cost controls and does not replace Rule 17 dispatch/evidence
+ownership or Rule 18 adaptive model-effort routing.
 
-## Four-pool isolation
+## Five-pool dual-root isolation
 
 - Quota, rate limits, leases, burn state, circuit breakers, and queues are
   isolated per account alias. There is no shared or inferred quota pool.
-- Root A (Codex) emits typed requests. Root B owns AGY account queues and
-  workers and returns typed outcomes; Root A does not directly spawn AGY.
+- Root A (Codex) owns `codex1`, `codex2`, and `codex3`, and emits typed
+  requests. Root B owns `agy1` and `agy2` account queues and workers, and
+  returns typed outcomes; Root A does not directly spawn AGY.
 - Each lane has one owner and an exact non-overlapping scope. Duplicate
   implementation is not useful parallelism and is rejected.
 
