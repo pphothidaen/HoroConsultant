@@ -28,6 +28,10 @@ DOC_FILES = {
     "HOWTO.md",
     "PROJECT_TASKS.md",
     "CLAUDE.md",
+    "HANDOFF.md",
+    "AGY.md",
+    "AGENTS.md",
+    "project_tickets.md",
     ".agents/AGENTS.md",
     ".agents/LESSONS_LEARNED.md",
 }
@@ -130,7 +134,7 @@ def _is_manifest_path(path: str) -> bool:
 
 
 def _is_docs_only_path(path: str) -> bool:
-    return path in DOC_FILES or any(path.startswith(prefix) for prefix in DOC_PREFIXES)
+    return path.endswith(".md") or path in DOC_FILES or any(path.startswith(prefix) for prefix in DOC_PREFIXES)
 
 
 def _matches_allowed(path: str, patterns: Iterable[str]) -> bool:
