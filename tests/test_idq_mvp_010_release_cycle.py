@@ -17,6 +17,7 @@ from pathlib import Path
 EXPECTED_ACCOUNT_CAPS = {
     "codex1": 2,
     "codex2": 2,
+    "codex3": 2,
     "agy1": 3,
     "agy2": 3,
 }
@@ -96,7 +97,7 @@ def test_worker_root_policy_matches_capacity_without_cross_account_borrowing() -
     root_a = worker.RootPolicy.for_root("A")
     root_b = worker.RootPolicy.for_root("B")
 
-    assert set(root_a.aliases) == {"codex1", "codex2"}
+    assert set(root_a.aliases) == {"codex1", "codex2", "codex3"}
     assert set(root_b.aliases) == {"agy1", "agy2"}
     assert dict(root_a.account_caps) == {
         alias: policy["accounts"][alias]["max_workers"] for alias in root_a.aliases

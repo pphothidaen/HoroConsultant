@@ -44,6 +44,8 @@ def _config(tmp_path: Path) -> Path:
     path.write_text(
         yaml.safe_dump(
             {
+                "activation_prohibited": False,
+                "dispatcher_execution": "OPEN",
                 "runtime": {
                     "approved_for_execution": True,
                     "protocol_version": 2,
@@ -81,6 +83,18 @@ def _config(tmp_path: Path) -> Path:
                         "model": "gemini-pro",
                         "mode": "plan",
                         "sandbox": True,
+                    },
+                },
+                "provider_account_state": {
+                    "providers": {
+                        "codex": {"state": "healthy"},
+                        "agy": {"state": "healthy"},
+                    },
+                    "accounts": {
+                        "codex1": {"state": "healthy"},
+                        "codex2": {"state": "healthy"},
+                        "agy1": {"state": "healthy"},
+                        "agy2": {"state": "healthy"},
                     },
                 },
             },
@@ -1239,6 +1253,205 @@ def test_capability_catalog_requires_runtime_status_and_fallback_metadata(field)
         command.validate_dispatch_decision(_decision(), policy)
 
 
+def test_codex_spark_model_policy_and_fallback_isolation():
+    """Spark is reserved for safety lanes with high effort and is not global fallback #1."""
+    policy = _policy()
+    models = policy["models"]
+
+    assert "gpt-5.3-codex-spark" in models
+    spark_spec = models["gpt-5.3-codex-spark"]
+    assert spark_spec["cli"] == "codex"
+    assert spark_spec["availability"] is True
+    assert spark_spec["deprecated"] is False
+    assert spark_spec["fallback_order"] == 4
+    assert set(spark_spec["efforts"].keys()) == {"high"}
+    assert spark_spec["efforts"]["high"]["quality_rank"] == 3
+
+    assert spark_spec["allowed_roles"] == ["devops", "code_reviewer"]
+    assert spark_spec["allowed_phases"] == ["qa", "review", "release", "operations"]
+
+    # General codex fallbacks default in proper ladder order
+    assert models["gpt-5.6-sol"]["fallback_order"] == 1
+    assert models["gpt-5.6-terra"]["fallback_order"] == 2
+    assert models["gpt-5.6-luna"]["fallback_order"] == 3
+
+
+def test_restricted_model_rejected_without_route():
+    """Verifies that a model with allowed_roles (like Spark) fails if validated with route=None."""
+    policy = _policy()
+    decision = _decision(
+        selected_model="gpt-5.3-codex-spark",
+        selected_effort="high",
+        phase="release",
+        scope_rank=3,
+        complexity_rank=3,
+        evidence_burden_rank=3,
+    )
+    with pytest.raises(
+        command.DispatchDecisionError,
+        match="role-restricted and requires a bound Route",
+    ):
+        command.validate_dispatch_decision(decision, policy, route=None)
+
+
+@pytest.mark.parametrize("unauthorized_role", ["developer", "qa_tester", "business_analyst"])
+def test_spark_rejected_for_unauthorized_role(unauthorized_role):
+    """Verifies that an unauthorized role attempting to use gpt-5.3-codex-spark is rejected."""
+    policy = _policy()
+    route = command.Route(
+        role=unauthorized_role,
+        alias="codex1",
+        cli="codex",
+        command="codex",
+        home_env="CODEX_HOME",
+        home_path=None,
+        model="gpt-5.3-codex-spark",
+        effort="high",
+        mode=None,
+        sandbox="workspace-write",
+    )
+    decision = _decision(
+        selected_model="gpt-5.3-codex-spark",
+        selected_effort="high",
+        phase="release",
+        scope_rank=3,
+        complexity_rank=3,
+        evidence_burden_rank=3,
+    )
+    with pytest.raises(
+        command.DispatchDecisionError,
+        match=r"restricted to roles: .*; got " + unauthorized_role,
+    ):
+        command.validate_dispatch_decision(decision, policy, route=route)
+
+
+@pytest.mark.parametrize("unauthorized_phase", ["planning", "implementation"])
+def test_spark_rejected_for_unauthorized_phase(unauthorized_phase):
+    """Verifies that an unauthorized phase attempting to use gpt-5.3-codex-spark is rejected."""
+    policy = _policy()
+    route = command.Route(
+        role="devops",
+        alias="codex1",
+        cli="codex",
+        command="codex",
+        home_env="CODEX_HOME",
+        home_path=None,
+        model="gpt-5.3-codex-spark",
+        effort="high",
+        mode=None,
+        sandbox="workspace-write",
+    )
+    decision = _decision(
+        selected_model="gpt-5.3-codex-spark",
+        selected_effort="high",
+        phase=unauthorized_phase,
+        scope_rank=3,
+        complexity_rank=3,
+        evidence_burden_rank=3,
+    )
+    with pytest.raises(
+        command.DispatchDecisionError,
+        match=r"restricted to phases: .*; got " + unauthorized_phase,
+    ):
+        command.validate_dispatch_decision(decision, policy, route=route)
+
+
+@pytest.mark.parametrize("role", ["devops", "code_reviewer"])
+@pytest.mark.parametrize("phase", ["review", "release", "operations", "qa"])
+def test_spark_allowed_for_authorized_role_and_phase(role, phase):
+    """Verifies that devops or code_reviewer in authorized phases is approved."""
+    policy = _policy()
+    route = command.Route(
+        role=role,
+        alias="codex1",
+        cli="codex",
+        command="codex",
+        home_env="CODEX_HOME",
+        home_path=None,
+        model="gpt-5.3-codex-spark",
+        effort="high",
+        mode=None,
+        sandbox="workspace-write",
+    )
+    decision = _decision(
+        selected_model="gpt-5.3-codex-spark",
+        selected_effort="high",
+        phase=phase,
+        scope_rank=3,
+        complexity_rank=3,
+        evidence_burden_rank=3,
+    )
+    validated = command.validate_dispatch_decision(decision, policy, route=route)
+    assert validated.quality_floor == 3
+    assert validated.model_quality_rank == 3
+    assert validated.decision["selected_model"] == "gpt-5.3-codex-spark"
+    assert validated.decision["selected_effort"] == "high"
+    assert validated.decision["phase"] == phase
+
+
+def test_developer_rank_3_planning_requires_xhigh():
+    """Verifies that rank-3 planning phase enforces xhigh effort for gpt-5.6-sol."""
+    policy = _policy()
+    route_xhigh = command.Route(
+        role="developer",
+        alias="codex1",
+        cli="codex",
+        command="codex",
+        home_env="CODEX_HOME",
+        home_path=None,
+        model="gpt-5.6-sol",
+        effort="xhigh",
+        mode=None,
+        sandbox="workspace-write",
+    )
+
+    # Valid xhigh planning succeeds
+    planning_xhigh = _decision(
+        phase="planning",
+        scope_rank=3,
+        complexity_rank=3,
+        evidence_burden_rank=3,
+        selected_model="gpt-5.6-sol",
+        selected_effort="xhigh",
+        planning_to_medium_confirmed=False,
+    )
+    validated = command.validate_dispatch_decision(planning_xhigh, policy, route=route_xhigh)
+    assert validated.quality_floor == 3
+    assert validated.model_quality_rank == 3
+
+    # High effort (quality_rank 3, but not xhigh/max/ultra) is rejected for rank-3 planning
+    route_high = replace(route_xhigh, effort="high")
+    planning_high = _decision(
+        phase="planning",
+        scope_rank=3,
+        complexity_rank=3,
+        evidence_burden_rank=3,
+        selected_model="gpt-5.6-sol",
+        selected_effort="high",
+        planning_to_medium_confirmed=False,
+    )
+    with pytest.raises(
+        command.DispatchDecisionError,
+        match="rank-3 planning requires the cataloged planning model with xhigh",
+    ):
+        command.validate_dispatch_decision(planning_high, policy, route=route_high)
+
+    # Lower efforts (medium, low) are rejected as below quality floor
+    for lower_effort in ("medium", "low"):
+        route_lower = replace(route_xhigh, effort=lower_effort)
+        planning_lower = _decision(
+            phase="planning",
+            scope_rank=3,
+            complexity_rank=3,
+            evidence_burden_rank=3,
+            selected_model="gpt-5.6-sol",
+            selected_effort=lower_effort,
+            planning_to_medium_confirmed=False,
+        )
+        with pytest.raises(command.DispatchDecisionError):
+            command.validate_dispatch_decision(planning_lower, policy, route=route_lower)
+
+
 def test_provider_schema_is_strict_codex_compatible_subset():
     schema = command._provider_compatible_work_result_schema(
         ROOT / ".agents/schemas/multiagent-work-result-v2.schema.json"
@@ -2206,3 +2419,31 @@ def test_main_pressure_admission_blocks_before_subprocess(
     monkeypatch.setattr(command.subprocess, "run", lambda *args, **kwargs: pytest.fail("spawned"))
     assert command.main(_execute_args(_config(tmp_path), _decision_path(tmp_path), tmp_path)) == 5
     assert expected_code in capsys.readouterr().err
+
+
+def test_main_requires_declared_healthy_selected_provider_account_state(tmp_path, monkeypatch, capsys):
+    config_path = _config(tmp_path)
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    config["provider_account_state"] = {
+        "providers": {"codex": {"state": "unknown"}},
+        "accounts": {"codex1": {"state": "healthy"}},
+    }
+    config_path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+    monkeypatch.setattr(command.subprocess, "run", lambda *args, **kwargs: pytest.fail("spawned"))
+    assert command.main(_execute_args(config_path, _decision_path(tmp_path), tmp_path)) == 5
+    assert "PROVIDER_ACCOUNT_STATE_UNKNOWN" in capsys.readouterr().err
+
+
+def test_main_does_not_fallback_when_selected_account_state_is_exhausted(tmp_path, monkeypatch, capsys):
+    config_path = _config(tmp_path)
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    config["provider_account_state"] = {
+        "providers": {"codex": {"state": "healthy"}},
+        "accounts": {"codex1": {"state": "exhausted"}, "codex2": {"state": "healthy"}},
+    }
+    config_path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+    monkeypatch.setattr(command.subprocess, "run", lambda *args, **kwargs: pytest.fail("spawned"))
+    assert command.main(_execute_args(config_path, _decision_path(tmp_path), tmp_path)) == 5
+    captured = capsys.readouterr()
+    assert "PROVIDER_ACCOUNT_EXHAUSTED" in captured.err
+    assert "codex2" not in captured.out + captured.err

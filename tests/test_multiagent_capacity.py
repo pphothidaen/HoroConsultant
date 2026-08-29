@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import concurrent.futures
 import copy
+from datetime import datetime, timezone
 import json
 from pathlib import Path
 import sys
@@ -17,11 +18,17 @@ from multiagent_capacity import (  # noqa: E402
     capacity_snapshot,
     clear_backpressure,
     consume_lease,
+    drain_queue,
+    enqueue_request,
     record_failure,
+    record_retry,
     release_lease,
+    release_retry,
+    reserve_retry,
     reset_circuit,
     set_backpressure,
     validate_capacity_policy,
+    validate_capacity_state,
 )
 
 
@@ -35,8 +42,18 @@ def acquire(tmp_path: Path, policy: dict, account: str = "agy1", request_id: str
                          request_budget=5, model_quality_floor="flash", policy=policy, now=now)
 
 
-def test_policy_requires_explicit_four_account_caps(policy: dict) -> None:
-    assert validate_capacity_policy(policy)["accounts"]["codex1"]["max_workers"] == 2
+def test_policy_requires_explicit_five_account_caps(policy: dict) -> None:
+    assert policy["reserve_ratio"] == 0.10
+    assert policy["quota_basis"] == "verified_quota_only"
+    assert policy["unknown_quota_behavior"] == "configured_placeholder"
+    assert policy["idempotency_ttl_seconds"] == 86400
+    assert policy["retry_max_attempts"] == 3
+    validated = validate_capacity_policy(policy)
+    assert validated["accounts"]["codex1"]["max_workers"] == 2
+    assert validated["accounts"]["codex2"]["max_workers"] == 2
+    assert validated["accounts"]["codex3"]["max_workers"] == 2
+    assert validated["accounts"]["agy1"]["max_workers"] == 3
+    assert validated["accounts"]["agy2"]["max_workers"] == 3
     broken = copy.deepcopy(policy)
     del broken["accounts"]["codex1"]["max_workers"]
     with pytest.raises(InvalidPolicyError, match="ACCOUNT_POLICY_INVALID"):
@@ -193,3 +210,84 @@ def test_pressure_state_tampering_rejected_and_concurrent_failures_are_atomic(tm
     assert outcomes.count(True) >= 1
     with pytest.raises(LeaseRejectedError, match="CIRCUIT_OPEN"):
         acquire(fresh, constrained, request_id="concurrent-circuit", now=101)
+
+
+def test_daily_ledger_is_local_calendar_and_request_idempotent(tmp_path: Path, policy: dict) -> None:
+    lease = acquire(tmp_path, policy, request_id="daily-lease", now=100)
+    charged = consume_lease(tmp_path, lease, requests=2, request_id="charge-1", policy=policy, now=100)
+    repeated = consume_lease(tmp_path, lease, requests=2, request_id="charge-1", policy=policy, now=101)
+    assert repeated.to_dict() == charged.to_dict()
+    snap = capacity_snapshot(tmp_path, policy=policy, now=101)
+    assert snap["accounts"]["agy1"]["daily_ledger"]["requests"] == 2
+    # The local calendar day rolls over without carrying yesterday's count.
+    next_day = capacity_snapshot(tmp_path, policy=policy, now=86400 + 100)
+    assert next_day["accounts"]["agy1"]["daily_ledger"]["requests"] == 0
+
+
+def test_daily_ledger_rolls_over_at_bangkok_midnight(tmp_path: Path, policy: dict) -> None:
+    before_midnight = datetime(2026, 1, 1, 16, 59, tzinfo=timezone.utc).timestamp()
+    midnight = datetime(2026, 1, 1, 17, 0, tzinfo=timezone.utc).timestamp()
+    lease = acquire(tmp_path, policy, request_id="bangkok-midnight", now=before_midnight)
+    consume_lease(tmp_path, lease, requests=1, request_id="bangkok-charge", policy=policy, now=before_midnight)
+
+    before = capacity_snapshot(tmp_path, policy=policy, now=before_midnight)
+    after = capacity_snapshot(tmp_path, policy=policy, now=midnight)
+
+    assert before["accounts"]["agy1"]["daily_ledger"]["local_day"] == "2026-01-01"
+    assert after["accounts"]["agy1"]["daily_ledger"]["local_day"] == "2026-01-02"
+    assert after["accounts"]["agy1"]["daily_ledger"]["requests"] == 0
+
+
+def test_daily_limit_is_fail_closed_and_account_local(tmp_path: Path, policy: dict, monkeypatch: pytest.MonkeyPatch) -> None:
+    policy["daily_request_limit"] = 2
+    lease = acquire(tmp_path, policy, request_id="daily-limit")
+    charged = consume_lease(tmp_path, lease, requests=2, policy=policy, now=100)
+    with pytest.raises(LeaseRejectedError, match="DAILY_LIMIT_EXCEEDED"):
+        consume_lease(tmp_path, charged, requests=1, policy=policy, now=101)
+    other = acquire(tmp_path, policy, account="agy2", request_id="daily-other")
+    assert consume_lease(tmp_path, other, requests=1, policy=policy, now=101).requests_used == 1
+
+
+def test_queue_is_fifo_bounded_and_drain_fails_closed_under_pressure(tmp_path: Path, policy: dict) -> None:
+    enqueue_request(tmp_path, account="agy1", request_id="q-2", owner="root-a", lane=1, policy=policy, now=102)
+    enqueue_request(tmp_path, account="agy1", request_id="q-1", owner="root-a", lane=1, policy=policy, now=101)
+    assert [item["request_id"] for item in drain_queue(tmp_path, account="agy1", policy=policy, max_items=1, now=103)] == ["q-1"]
+    set_backpressure(tmp_path, account="agy1", mode="queue", policy=policy, now=104)
+    with pytest.raises(LeaseRejectedError, match="BACKPRESSURE_QUEUED"):
+        drain_queue(tmp_path, account="agy1", policy=policy, now=105)
+    assert capacity_snapshot(tmp_path, policy=policy, now=105)["accounts"]["agy1"]["queue_depth"] == 1
+
+
+def test_state_invariant_validator_rejects_daily_queue_and_retry_tampering(tmp_path: Path, policy: dict) -> None:
+    acquire(tmp_path, policy, request_id="invariant")
+    state_path = tmp_path / ".capacity.json"
+    state = json.loads(state_path.read_text())
+    state["daily_ledger"]["agy1"]["requests"] = 1
+    state_path.write_text(json.dumps(state))
+    with pytest.raises(LeaseRejectedError, match="STATE_INVALID"):
+        capacity_snapshot(tmp_path, policy=policy, now=101)
+    with pytest.raises(LeaseRejectedError, match="STATE_INVALID"):
+        validate_capacity_state(state, policy)
+
+
+def test_retry_reservation_is_bounded_idempotent_and_expiry_is_terminal(tmp_path: Path, policy: dict) -> None:
+    reservation = reserve_retry(tmp_path, account="agy1", request_id="retry-1", owner="root-a", policy=policy, max_attempts=2, ttl_seconds=10, now=100)
+    assert record_retry(tmp_path, account="agy1", request_id="retry-1", policy=policy, now=101)["attempts"] == 1
+    assert record_retry(tmp_path, account="agy1", request_id="retry-1", policy=policy, now=102)["attempts"] == 2
+    with pytest.raises(LeaseRejectedError, match="RETRY_LIMIT_EXCEEDED"):
+        record_retry(tmp_path, account="agy1", request_id="retry-1", policy=policy, now=103)
+    release_retry(tmp_path, account="agy1", request_id="retry-1", policy=policy, now=103)
+    assert reserve_retry(tmp_path, account="agy1", request_id="retry-expired", owner="root-a", policy=policy, ttl_seconds=1, now=100) ["expires_at"] == 101
+    with pytest.raises(LeaseRejectedError, match="RETRY_RESERVATION_EXPIRED"):
+        record_retry(tmp_path, account="agy1", request_id="retry-expired", policy=policy, now=101)
+
+
+def test_hitl2_quota_source_is_explicit_and_retry_budget_is_total_attempts(tmp_path: Path, policy: dict) -> None:
+    assert capacity_snapshot(tmp_path, policy=policy, now=100)["accounts"]["agy1"]["daily_ledger"]["quota_source"] == "configured_placeholder"
+    with pytest.raises(LeaseRejectedError, match="RETRY_LIMIT_EXCEEDED"):
+        reserve_retry(tmp_path, account="agy1", request_id="retry-over", owner="root-a", policy=policy, max_attempts=4, now=100)
+    state = json.loads((tmp_path / ".capacity.json").read_text())
+    state["daily_ledger"]["agy1"]["quota_source"] = "verified"
+    (tmp_path / ".capacity.json").write_text(json.dumps(state))
+    with pytest.raises(LeaseRejectedError, match="STATE_INVALID"):
+        capacity_snapshot(tmp_path, policy=policy, now=101)

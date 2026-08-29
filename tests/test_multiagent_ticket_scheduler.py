@@ -502,3 +502,120 @@ def test_capacity_pressure_rejects_only_the_selected_account(  # noqa: PLR0915
         **common, account="codex2", request_id=f"isolated-{pressure}"
     )
     assert isolated.account == "codex2"
+
+
+def _healthy_state(provider: str = "agy", account: str = "agy1") -> dict[str, object]:
+    return {"providers": {provider: {"state": "healthy"}}, "accounts": {account: {"state": "healthy"}}}
+
+
+@pytest.mark.parametrize(
+    ("state", "code"),
+    [
+        ({}, "PROVIDER_ACCOUNT_STATE_UNKNOWN"),
+        (_healthy_state(account="agy1") | {"accounts": {"agy1": {"state": "exhausted"}}}, "PROVIDER_ACCOUNT_EXHAUSTED"),
+    ],
+)
+def test_provider_account_state_is_required_and_exhaustion_blocks_admission(tmp_path, state, code):
+    ticket = _ticket("TICKET-STATE", ownership=["state-owned"])
+    policy = json.loads((ROOT / ".agents/config/s3_capacity_policy.json").read_text())
+    with pytest.raises(scheduler.SchedulingError) as exc:
+        scheduler.admit_dispatch_capacity(
+            _snapshot(ticket), ticket_id=ticket["ticket_id"], owner="developer",
+            ownership=("state-owned",), decision_valid=True,
+            store_path=str(tmp_path / "capacity"), account="agy1", request_id="state-1",
+            lane=1, request_budget=1, model_quality_floor="1", policy=policy,
+            provider="agy", provider_account_state=state,
+        )
+    assert exc.value.code == code
+
+
+def test_healthy_state_and_root_b_role_are_admissible_but_mismatch_is_blocked(tmp_path):
+    ticket = _ticket("TICKET-ROOTB", ownership=["rootb-owned"])
+    policy = json.loads((ROOT / ".agents/config/s3_capacity_policy.json").read_text())
+    lease = scheduler.admit_dispatch_capacity(
+        _snapshot(ticket), ticket_id=ticket["ticket_id"], owner="developer",
+        ownership=("rootb-owned",), decision_valid=True,
+        store_path=str(tmp_path / "capacity"), account="agy1", request_id="rootb-1",
+        lane=1, request_budget=1, model_quality_floor="1", policy=policy,
+        provider="agy", provider_account_state=_healthy_state(), root_b_role="primary",
+    )
+    assert lease.account == "agy1"
+    with pytest.raises(scheduler.SchedulingError) as exc:
+        scheduler.admit_dispatch_capacity(
+            _snapshot(ticket), ticket_id=ticket["ticket_id"], owner="developer",
+            ownership=("rootb-owned",), decision_valid=True,
+            store_path=str(tmp_path / "other"), account="agy1", request_id="rootb-2",
+            lane=1, request_budget=1, model_quality_floor="1", policy=policy,
+            provider="agy", provider_account_state=_healthy_state(), root_b_role="secondary",
+        )
+    assert exc.value.code == "ROOT_B_ROLE_MISMATCH"
+
+
+def test_retry_limit_and_reservation_release_are_bounded(tmp_path):
+    ticket = _ticket("TICKET-RETRY", ownership=["retry-owned"])
+    policy = json.loads((ROOT / ".agents/config/s3_capacity_policy.json").read_text())
+    with pytest.raises(scheduler.SchedulingError) as exc:
+        scheduler.admit_dispatch_capacity(
+            _snapshot(ticket), ticket_id=ticket["ticket_id"], owner="developer",
+            ownership=("retry-owned",), decision_valid=True,
+            store_path=str(tmp_path / "capacity"), account="agy1", request_id="retry-4",
+            lane=4, request_budget=1, model_quality_floor="1", policy=policy,
+            provider="agy", provider_account_state=_healthy_state(), attempt=4, retry_limit=3,
+        )
+    assert exc.value.code == "RETRY_LIMIT_EXCEEDED"
+    reserved = scheduler.validate_snapshot({
+        "schema_version": 1, "tickets": [ticket],
+        "reservations": [_reservation(ticket)],
+    })
+    released = scheduler.release_reservation(
+        reserved, ticket_id="TICKET-RETRY", owner="developer", ownership=("retry-owned",)
+    )
+    assert released.reservations == ()
+    assert scheduler.select_tickets(released)[0].ticket.ticket_id == "TICKET-RETRY"
+
+
+def test_activation_guard_is_closed_until_a_later_phase():
+    with pytest.raises(scheduler.SchedulingError, match="ACTIVATION_PROHIBITED"):
+        scheduler.validate_activation_state(
+            activation_prohibited=True, dispatcher_execution="CLOSED"
+        )
+    with pytest.raises(scheduler.SchedulingError, match="ACTIVATION_PROHIBITED"):
+        scheduler.validate_activation_state(
+            activation_prohibited=False, dispatcher_execution="CLOSED"
+        )
+    scheduler.validate_activation_state(
+        activation_prohibited=False, dispatcher_execution="OPEN"
+    )
+
+
+def test_dispatch_consumes_one_frozen_retry_slot_per_attempt_without_fallback(tmp_path):
+    ticket = _ticket("TICKET-FROZEN-RETRY", ownership=["frozen-retry-owned"])
+    policy = json.loads((ROOT / ".agents/config/s3_capacity_policy.json").read_text())
+    store = str(tmp_path / "capacity")
+    common = dict(
+        snapshot=_snapshot(ticket), ticket_id=ticket["ticket_id"], owner="developer",
+        ownership=("frozen-retry-owned",), decision_valid=True, store_path=store,
+        account="agy1", lane=1, request_budget=1, model_quality_floor="1", policy=policy,
+        provider="agy", provider_account_state=_healthy_state(),
+        retry_request_id="logical-frozen-retry",
+    )
+
+    for attempt in (1, 2, 3):
+        lease = scheduler.admit_dispatch_capacity(
+            **common, request_id=f"attempt-{attempt}", attempt=attempt
+        )
+        assert lease.account == "agy1"
+        scheduler.capacity.release_lease(store, lease, policy=policy)
+
+    with pytest.raises(scheduler.SchedulingError) as exc:
+        scheduler.admit_dispatch_capacity(
+            **common, request_id="attempt-4", attempt=4
+        )
+    assert exc.value.code == "RETRY_LIMIT_EXCEEDED"
+
+
+def test_retry_limit_is_frozen_at_three_total_attempts():
+    for retry_limit in (4, 3.0, True):
+        with pytest.raises(scheduler.SchedulingError) as exc:
+            scheduler.validate_retry_attempt(1, retry_limit=retry_limit)
+        assert exc.value.code == "INVALID_RETRY_LIMIT"

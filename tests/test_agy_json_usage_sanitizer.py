@@ -1,4 +1,4 @@
-"""Synthetic unit tests for the AGY JSON usage quota sanitizer v1.2.0."""
+"""Synthetic unit tests for the AGY JSON usage quota sanitizer v1.4.0."""
 from __future__ import annotations
 
 import json
@@ -57,6 +57,164 @@ def test_sanitize_response_dict_with_quota_fields() -> None:
     assert len(metrics) == 3
     fp = res["structural_fingerprint"]
     assert fp["response_type"] == "dict"
+
+
+def test_sanitize_documented_nested_quota_schema() -> None:
+    sample_json = json.dumps({
+        "status": "completed",
+        "usage": {"total_tokens": 0},
+        "quota": {
+            "gemini-weekly": {
+                "remaining_fraction": 0.9378,
+                "reset_time": "2026-07-06T07:50:32Z",
+                "reset_in_seconds": 560580,
+            }
+        },
+    })
+    res = sanitizer.sanitize_json_usage_payload(sample_json, ("agy", "--output-format", "json", "-p", "/usage"))
+    assert res["quota_status"] == "observed"
+    assert res["account_quota_metrics"] == [{
+        "bucket": "gemini-weekly",
+        "source": "top_level_quota_schema",
+        "remaining_fraction": 0.9378,
+        "reset_time": "2026-07-06T07:50:32Z",
+        "reset_in_seconds": 560580,
+    }]
+
+
+def test_sanitize_nested_quota_in_response_and_percent() -> None:
+    sample_json = json.dumps({
+        "response": {
+            "quota": {"gemini-daily": {"remaining_percent": "63%"}},
+        }
+    })
+    res = sanitizer.sanitize_json_usage_payload(sample_json, ("agy", "--output-format", "json", "-p", "/usage"))
+    assert res["quota_status"] == "observed"
+    assert res["account_quota_metrics"] == [{
+        "bucket": "gemini-daily",
+        "source": "response_quota_schema",
+        "remaining_percent": 63,
+    }]
+
+
+def test_sanitize_response_string_preserves_documented_units() -> None:
+    sample_json = json.dumps({
+        "response": "remaining_fraction: 0.5\nremaining_ratio: 0.25\nremaining_percent: 63%\n"
+    })
+    res = sanitizer.sanitize_json_usage_payload(sample_json, ("agy", "--output-format", "json", "-p", "/usage"))
+    assert res["quota_status"] == "observed"
+    assert [m["remaining_fraction"] for m in res["account_quota_metrics"] if "remaining_fraction" in m] == [0.5]
+    assert [m["remaining_ratio"] for m in res["account_quota_metrics"] if "remaining_ratio" in m] == [0.25]
+    assert [m["remaining_percent"] for m in res["account_quota_metrics"] if "remaining_percent" in m] == [63]
+
+
+def test_sanitize_actual_command_data_groups_buckets_payload() -> None:
+    sample_json = json.dumps({
+        "conversation_id": "",
+        "status": "SUCCESS",
+        "response": "Gemini Models\\tWeekly Limit Remaining\\t63%\\t2026-08-29T17:33:23Z",
+        "usage": {"total_tokens": 0},
+        "command": {
+            "name": "usage",
+            "data": {
+                "groups": [{
+                    "name": "Gemini Models",
+                    "buckets": [
+                        {
+                            "id": "gemini-weekly",
+                            "name": "Weekly Limit Remaining",
+                            "window": "weekly",
+                            "remaining_fraction": 0.6338797807693481,
+                            "reset_time": "2026-08-29T17:33:23Z",
+                        },
+                        {
+                            "id": "gemini-5h",
+                            "name": "Five Hour Limit Remaining",
+                            "window": "5h",
+                            "remaining_fraction": 0.9966928958892822,
+                            "reset_time": "2026-08-28T10:29:09Z",
+                        },
+                    ],
+                }, {
+                    "name": "Claude and GPT models",
+                    "buckets": [{
+                        "id": "3p-weekly",
+                        "name": "Weekly Limit Remaining",
+                        "window": "weekly",
+                        "remaining_fraction": 0,
+                        "reset_time": "2026-08-30T14:11:52Z",
+                    }, {
+                        "id": "3p-5h",
+                        "name": "Five Hour Limit Remaining",
+                        "window": "5h",
+                        "disabled": True,
+                        "remaining_fraction": 1,
+                    }],
+                }]
+            }
+        },
+    })
+    res = sanitizer.sanitize_json_usage_payload(sample_json, ("agy", "--output-format", "json", "-p", "/usage"))
+    assert res["quota_status"] == "observed"
+    metrics = {m["bucket"]: m for m in res["account_quota_metrics"] if m["source"] == "command_data_groups"}
+    assert metrics["gemini-weekly"]["remaining_fraction"] == 0.6338797807693481
+    assert metrics["gemini-5h"]["reset_time"] == "2026-08-28T10:29:09Z"
+    assert metrics["3p-weekly"]["remaining_fraction"] == 0
+    assert metrics["3p-5h"]["disabled"] is True
+
+
+def test_sanitize_command_bucket_rejects_ambiguous_or_unknown_fields() -> None:
+    for bucket in [
+        {"id": "gemini-weekly", "remaining_fraction": 63},
+        {"id": "gemini-weekly", "remaining_fraction": 0.5, "concurrency": 3},
+        {"id": "gemini-weekly", "remaining_fraction": 0.5, "disabled": "false"},
+    ]:
+        payload = {"command": {"data": {"groups": [{"buckets": [bucket]}]}}}
+        res = sanitizer.sanitize_json_usage_payload(
+            json.dumps(payload), ("agy", "--output-format", "json", "-p", "/usage")
+        )
+        assert res["quota_status"] == "unknown"
+        assert res["account_quota_metrics"] == []
+
+
+def test_sanitize_rejects_ambiguous_documented_quota_units() -> None:
+    for quota_bucket in [
+        {"remaining_fraction": 63},
+        {"remaining_ratio": 63},
+        {"remaining_fraction": 0.5, "remaining_percent": 50},
+        {"reset_time": "5 hours"},
+    ]:
+        res = sanitizer.sanitize_json_usage_payload(
+            json.dumps({"quota": {"gemini-weekly": quota_bucket}}),
+            ("agy", "--output-format", "json", "-p", "/usage"),
+        )
+        assert res["quota_status"] == "unknown"
+        assert res["account_quota_metrics"] == []
+
+
+def test_sanitize_rejects_boolean_documented_quota_values() -> None:
+    for quota_bucket in [
+        {"remaining_fraction": True},
+        {"remaining_percent": True},
+        {"remaining_ratio": True},
+        {"remaining_fraction": 0.5, "reset_in_seconds": True},
+    ]:
+        res = sanitizer.sanitize_json_usage_payload(
+            json.dumps({"quota": {"gemini-weekly": quota_bucket}}),
+            ("agy", "--output-format", "json", "-p", "/usage"),
+        )
+        assert res["quota_status"] == "unknown"
+        assert res["account_quota_metrics"] == []
+
+
+def test_sanitize_documented_schema_never_infers_concurrency() -> None:
+    sample_json = json.dumps({
+        "quota": {"gemini-weekly": {"remaining_fraction": 0.5, "concurrent": 3}}
+    })
+    res = sanitizer.sanitize_json_usage_payload(sample_json, ("agy", "--output-format", "json", "-p", "/usage"))
+    assert res["quota_status"] == "unknown"
+    assert res["account_quota_metrics"] == []
+    assert "concurrency" not in json.dumps(res).lower()
 
 
 def test_sanitize_empty_response_marks_quota_unknown() -> None:

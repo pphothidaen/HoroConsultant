@@ -244,10 +244,147 @@ def test_dispatch_decision_v1_cannot_execute_even_with_valid_qobs(monkeypatch, t
             _decision(),
             artifact,
             _context(),
+            scheduling_snapshot_sha256="a" * 64,
             nonce_store=tmp_path / "qobs-nonces",
             now=NOW,
         )
     assert calls == []
+
+
+@pytest.mark.parametrize("digest", ["", None, "A" * 64, "a" * 63, "a" * 65])
+def test_quota_bound_dispatch_rejects_invalid_scheduling_snapshot_digest(
+    digest: object, tmp_path
+) -> None:
+    with pytest.raises(
+        command.DispatchDecisionError, match="scheduling_snapshot_sha256"
+    ):
+        command.validate_quota_bound_dispatch(
+            _decision(schema_version=2),
+            _artifact(),
+            _context(),
+            scheduling_snapshot_sha256=digest,
+            nonce_store=tmp_path / "qobs-nonces",
+            now=NOW,
+        )
+
+
+def test_quota_bound_dispatch_requires_scheduling_snapshot_digest(tmp_path) -> None:
+    with pytest.raises(TypeError, match="scheduling_snapshot_sha256"):
+        command.validate_quota_bound_dispatch(
+            _decision(schema_version=2),
+            _artifact(),
+            _context(),
+            nonce_store=tmp_path / "qobs-nonces",
+            now=NOW,
+        )
+
+
+def test_quota_bound_dispatch_binds_valid_scheduling_snapshot_digest(
+    monkeypatch, tmp_path
+) -> None:
+    decision = _decision(schema_version=2)
+    validated = command.ValidatedDispatchDecision(
+        decision=decision,
+        digest="d" * 64,
+        policy_version="2026-08-26.1",
+        quality_floor=3,
+        model_quality_rank=3,
+    )
+    monkeypatch.setattr(command, "load_model_policy", lambda _path: {})
+    monkeypatch.setattr(
+        command, "validate_dispatch_decision", lambda _decision, _policy: validated
+    )
+
+    result = command.validate_quota_bound_dispatch(
+        decision,
+        _artifact(),
+        _context(),
+        scheduling_snapshot_sha256="e" * 64,
+        nonce_store=tmp_path / "qobs-nonces",
+        now=NOW,
+    )
+
+    assert result["dispatch_context"]["scheduling_snapshot_sha256"] == "e" * 64
+    assert result["dispatch_context"]["decision_sha256"] == "d" * 64
+
+
+def test_invalid_snapshot_digest_does_not_consume_nonce(monkeypatch, tmp_path) -> None:
+    decision = _decision(schema_version=2)
+    validated = command.ValidatedDispatchDecision(
+        decision=decision,
+        digest="d" * 64,
+        policy_version="2026-08-26.1",
+        quality_floor=3,
+        model_quality_rank=3,
+    )
+    monkeypatch.setattr(command, "load_model_policy", lambda _path: {})
+    monkeypatch.setattr(
+        command, "validate_dispatch_decision", lambda _decision, _policy: validated
+    )
+    artifact = _artifact()
+    nonce_store = tmp_path / "qobs-nonces"
+
+    with pytest.raises(command.DispatchDecisionError, match="scheduling_snapshot_sha256"):
+        command.validate_quota_bound_dispatch(
+            decision,
+            artifact,
+            _context(),
+            scheduling_snapshot_sha256="g" * 64,
+            nonce_store=nonce_store,
+            now=NOW,
+        )
+
+    assert command.validate_quota_bound_dispatch(
+        decision,
+        artifact,
+        _context(),
+        scheduling_snapshot_sha256="e" * 64,
+        nonce_store=nonce_store,
+        now=NOW,
+    )["consumption"]["quota_band"] == "constrained"
+    with pytest.raises(quota.QuotaObservationError) as exc:
+        command.validate_quota_bound_dispatch(
+            decision,
+            artifact,
+            _context(),
+            scheduling_snapshot_sha256="e" * 64,
+            nonce_store=nonce_store,
+            now=NOW,
+        )
+    assert exc.value.code == "REPLAYED_OBSERVATION"
+
+
+@pytest.mark.parametrize("digest", ["g" * 64, " " * 64, 123])
+def test_receipt_binding_helpers_reject_invalid_scheduling_snapshot_digest(
+    digest: object, tmp_path
+) -> None:
+    artifact = _artifact()
+    consumption = command.consume_quota_observation(
+        artifact, _context(), nonce_store=tmp_path / "qobs-nonces", now=NOW
+    )
+    dispatch_context = {
+        "decision_sha256": "d" * 64,
+        "scheduling_snapshot_sha256": "e" * 64,
+        "resolved_executable_sha256": artifact["observation"][
+            "resolved_executable_sha256"
+        ],
+        "policy_version": "2026-08-26.1",
+    }
+    receipt = {
+        "protocol_version": 2,
+        "dispatch_identity": command.quota_bound_dispatch_identity(
+            artifact, consumption, dispatch_context
+        ),
+        "quota_status": "constrained",
+    }
+    invalid_context = dict(dispatch_context, scheduling_snapshot_sha256=digest)
+
+    with pytest.raises(command.ConfigurationError, match="scheduling_snapshot_sha256"):
+        command.quota_bound_dispatch_identity(artifact, consumption, invalid_context)
+    with pytest.raises(command.ConfigurationError, match="scheduling_snapshot_sha256"):
+        command.validate_quota_receipt_binding(
+            receipt, artifact, consumption, invalid_context, _context(), now=NOW
+        )
 
 
 def test_receipt_v2_transitively_binds_exact_artifact_consumption_and_dispatch_context(
