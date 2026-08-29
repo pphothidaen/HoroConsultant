@@ -28,6 +28,7 @@ ACTIVE_STATUSES = frozenset({"TODO", "READY", "DOING"})
 SELECTABLE_STATUSES = frozenset({"TODO", "READY"})
 KNOWN_STATUSES = ACTIVE_STATUSES | frozenset({"DONE", "BLOCKED"})
 SAFE_TICKET_ID = re.compile(r"^[\x21-\x7e]{1,128}$")
+VALID_DISPATCHER_EXECUTION_STATES = frozenset({"CLOSED", "OPEN"})
 
 
 class SchedulingError(ValueError):
@@ -185,6 +186,49 @@ def _required_bool(value: Any, label: str) -> bool:
     if not isinstance(value, bool):
         raise SchedulingError("INVALID_SCHEDULING_METADATA", f"{label} must be boolean")
     return value
+
+
+def validate_activation_state(config: Mapping[str, Any]) -> None:
+    """Require explicit dispatcher activation metadata before admission."""
+
+    activation_prohibited = config.get("activation_prohibited")
+    dispatcher_execution = config.get("dispatcher_execution")
+    if (
+        not isinstance(activation_prohibited, bool)
+        or not isinstance(dispatcher_execution, str)
+        or dispatcher_execution not in VALID_DISPATCHER_EXECUTION_STATES
+    ):
+        raise SchedulingError(
+            "ACTIVATION_STATE_INVALID",
+            "dispatcher activation metadata is missing or invalid",
+        )
+    if activation_prohibited or dispatcher_execution != "OPEN":
+        raise SchedulingError(
+            "ACTIVATION_PROHIBITED",
+            "dispatcher activation is prohibited",
+        )
+
+
+def validate_provider_account_state(
+    config: Mapping[str, Any], *, account: str, provider: str
+) -> None:
+    """Require explicit healthy provider and account state before leasing."""
+
+    state = config.get("provider_account_state")
+    providers = state.get("providers") if isinstance(state, Mapping) else None
+    accounts = state.get("accounts") if isinstance(state, Mapping) else None
+    provider_state = providers.get(provider) if isinstance(providers, Mapping) else None
+    account_state = accounts.get(account) if isinstance(accounts, Mapping) else None
+    if (
+        not isinstance(provider_state, Mapping)
+        or provider_state.get("state") != "healthy"
+        or not isinstance(account_state, Mapping)
+        or account_state.get("state") != "healthy"
+    ):
+        raise SchedulingError(
+            "PROVIDER_ACCOUNT_STATE_UNKNOWN",
+            "provider or account state is not explicitly healthy",
+        )
 
 
 def _canonical_digest(snapshot: Mapping[str, Any]) -> str:

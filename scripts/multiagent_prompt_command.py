@@ -48,6 +48,8 @@ try:
         admit_dispatch_capacity,
         canonicalize_ownership_resource,
         enforce_dispatch as enforce_ticket_dispatch,
+        validate_activation_state,
+        validate_provider_account_state,
         validate_snapshot as validate_scheduling_snapshot,
     )
 except ModuleNotFoundError:  # Direct ``python scripts/...`` execution.
@@ -56,6 +58,8 @@ except ModuleNotFoundError:  # Direct ``python scripts/...`` execution.
         admit_dispatch_capacity,
         canonicalize_ownership_resource,
         enforce_dispatch as enforce_ticket_dispatch,
+        validate_activation_state,
+        validate_provider_account_state,
         validate_snapshot as validate_scheduling_snapshot,
     )
 
@@ -3415,11 +3419,17 @@ def _canonical_blocked_result(
     recommended_next_action: str,
     invocation: Invocation | None = None,
     provider_parse_reason: str | None = None,
+    status: str = "BLOCKED",
+    reason_code: str | None = None,
 ) -> dict[str, Any]:
     """Create a safe canonical record for a failed preflight/start attempt."""
 
     if provider_parse_reason is not None and provider_parse_reason not in PROVIDER_PARSE_REASONS:
         raise ValueError("unsupported provider parse reason")
+    if status not in {"BLOCKED", "NEEDS_HITL"}:
+        raise ValueError("unsupported terminal failure status")
+    if reason_code is not None and re.fullmatch(r"[A-Z][A-Z0-9_]*", reason_code) is None:
+        raise ValueError("unsupported terminal failure reason code")
     child_ran = provider_parse_reason is not None
     execution_evidence: dict[str, str] = {
         "source": "child-ran-invalid-result-contract" if child_ran else "no-child-ran",
@@ -3427,8 +3437,10 @@ def _canonical_blocked_result(
     }
     if provider_parse_reason is not None:
         execution_evidence["provider_parse_reason"] = provider_parse_reason
+    if reason_code is not None:
+        execution_evidence["reason_code"] = reason_code
     blocked = {
-        "status": "BLOCKED",
+        "status": status,
         "alias": route.alias,
         "execution_evidence": execution_evidence,
         "scope_owned": "configured terminal dispatch",
@@ -4124,6 +4136,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             decision = validate_dispatch_decision(decision, model_policy).decision
             if args.scheduling_snapshot:
                 scheduling_snapshot = load_scheduling_snapshot(args.scheduling_snapshot)
+        if args.execute:
+            validate_activation_state(config)
         route = resolve_route(
             config,
             args.role,
@@ -4138,6 +4152,12 @@ def main(argv: Sequence[str] | None = None) -> int:
                 decision.get("selected_effort") if decision is not None else args.effort
             ),
         )
+        if args.execute:
+            validate_provider_account_state(
+                config,
+                account=route.alias,
+                provider=route.cli,
+            )
         prompt = render_prompt(
             objective=args.objective,
             ownership=args.ownership,
@@ -4199,8 +4219,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     except SchedulingError as exc:
         print(f"[ERROR] BLOCKED: {exc.code}", file=sys.stderr)
         return 5
-    except DispatchDecisionError:
-        print("[ERROR] BLOCKED: DISPATCH_DECISION_INVALID", file=sys.stderr)
+    except DispatchDecisionError as exc:
+        print(f"[ERROR] {exc.status}: DISPATCH_DECISION_INVALID", file=sys.stderr)
         return 2
     except yaml.YAMLError:
         print("[ERROR] BLOCKED: CONFIG_PARSE_ERROR", file=sys.stderr)
@@ -4259,7 +4279,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         print(f"[ERROR] BLOCKED: {exc.code}", file=sys.stderr)
         return 5
-    except DispatchDecisionError:
+    except DispatchDecisionError as exc:
         print(
             json.dumps(
                 _canonical_blocked_result(
@@ -4269,12 +4289,14 @@ def main(argv: Sequence[str] | None = None) -> int:
                         "regenerate the DispatchDecision and keep its route bound to the loaded policy"
                     ),
                     invocation=invocation,
+                    status=exc.status,
+                    reason_code="DISPATCH_DECISION_INVALID",
                 ),
                 ensure_ascii=True,
                 indent=2,
             )
         )
-        print("[ERROR] DispatchDecision failed spawn-boundary revalidation.", file=sys.stderr)
+        print(f"[ERROR] {exc.status}: DISPATCH_DECISION_INVALID", file=sys.stderr)
         return 4
     except ExecutionContractError as exc:
         print(
