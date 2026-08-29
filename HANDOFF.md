@@ -1,8 +1,8 @@
 # HoroConsultant Handoff
 
-Updated: 2026-08-29 (PR #4 Merged into `main` @ `b4c91ea`; Deployment Run `33251508240` Success; 1,833/1,833 Tests Verified PASS)
-Branch: `main` (`b4c91ea`)
-Status: PRODUCTION RELEASE MERGED & VERIFIED — PR #4 MERGED (`b4c91ea`), RUN 33251508240 SUCCESS, LIVE ENDPOINTS + 31/31 BUTTON REGRESSIONS VERIFIED, 100% ECOSYSTEM SYNC, 0 SECRET LEAKS
+Updated: 2026-08-29 (PR #4 Merged into `main` @ `74ea54e`; Deployment Run `33251767180` Success; 1,833/1,833 Tests Verified PASS)
+Branch: `main` (`74ea54e`)
+Status: PRODUCTION RELEASE MERGED & VERIFIED — PR #4 MERGED (`74ea54e`), RUN 33251767180 SUCCESS, LIVE ENDPOINTS + 31/31 BUTTON REGRESSIONS VERIFIED, 100% ECOSYSTEM SYNC, 0 SECRET LEAKS
 
 ---
 
@@ -22,8 +22,8 @@ Status: PRODUCTION RELEASE MERGED & VERIFIED — PR #4 MERGED (`b4c91ea`), RUN 3
 | **Public Deterministic API** | `https://pphothidaen-horoconsultant-core-backend.hf.space/api/bazi/calculate` | `200 OK` | ~861 ms | Active (True Solar Time + BaZi Four Pillars calculation) |
 | **Admin Provider Pools** | `/api/admin/provider-pools` | `200 OK` | <50 ms | Active (`[ZERO-COST POLICY: ACTIVE]`, 5 provider pools) |
 
-- **PR #4 Main Merge**: Pull Request #4 merged into `main` as commit `b4c91ea`.
-- **Deployment Run**: GitHub Actions Run `33251508240` on `main` — `SUCCESS`.
+- **PR #4 Main Merge**: Pull Request #4 merged into `main` as commit `74ea54e`.
+- **Deployment Run**: GitHub Actions Run `33251767180` on `main` — `SUCCESS`.
 - **UI & Button Regressions**: 31/31 passed (`python3 scripts/run_button_regression.py` -> `project/tests/button_regression_report.json`).
 - **Live Health Verification**: `python3 scripts/run_live_health_verification.py` confirms live public request paths and end-to-end response delivery across edge and container backends.
 
