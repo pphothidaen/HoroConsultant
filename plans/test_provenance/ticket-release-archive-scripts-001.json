@@ -1,0 +1,46 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-RELEASE-ARCHIVE-SCRIPTS-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "1d7c151c94e8317f648f71ae85c2bfbfdd26d81a",
+  "test_files": [
+    {
+      "path": "project/tests/test_release_archive_scripts_contract.py",
+      "sha256": "6d7b83d99a00b363843237d21a00b55fa97d7b50e7003318842863826be6d222"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "scripts/branch_migration_action_priority_guard.py",
+        "--phase",
+        "invalid",
+        "--check"
+      ],
+      "expected_exit": 2,
+      "failure_fingerprint": "invalid choice: 'invalid'"
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/smart_quality_gate.py",
+        "--tier",
+        "9"
+      ],
+      "expected_exit": 2,
+      "failure_fingerprint": "invalid choice: 9"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/audit_canonical_5_viewports.py",
+    "scripts/branch_migration_action_priority_guard.py",
+    "scripts/smart_quality_gate.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Test-first provenance baseline for the archived release scripts. The contract stays offline and read-only: it parses the audit script AST without importing it, confirms the guarded entrypoint shape, checks the branch migration guard CLI help contract, and verifies the smart quality gate CLI help plus deterministic tier classification. Ownership is intentionally limited to the three archived script paths and does not expand to unrelated source."
+}
