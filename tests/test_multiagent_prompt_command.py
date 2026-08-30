@@ -20,6 +20,322 @@ import sys
 sys.path.insert(0, str(ROOT))
 
 import scripts.multiagent_prompt_command as command
+from collections.abc import Mapping
+from datetime import datetime
+
+def _qobs_admission_binding(admission: command.QobsAdmission) -> dict[str, str]:
+    return {
+        "exception_id": admission.execution_exception_id,
+        "decision_sha256": admission.decision_sha256,
+        "scheduling_snapshot_sha256": admission.scheduling_snapshot_sha256,
+        "qobs_artifact_sha256": admission.qobs_artifact_sha256,
+        "qobs_nonce_sha256": admission.qobs_nonce_sha256,
+        "qobs_context_sha256": admission.qobs_context_sha256,
+    }
+
+def _validate_qobs_invocation_binding(
+    invocation: command.Invocation, *, now: datetime | None = None, allow_committed: bool = False
+) -> command.QobsAdmission | None:
+    admission = invocation.qobs_admission
+    if admission is None:
+        return None
+    if (
+        not command.is_validated_qobs_admission(admission)
+        or invocation.qobs_artifact is None
+        or not isinstance(invocation.qobs_expected_context, Mapping)
+        or not invocation.qobs_ledger_store
+        or Path(invocation.cwd).resolve() != command.REPOSITORY_ROOT.resolve()
+    ):
+        raise command.ConfigurationError("closed exception QOBS binding is invalid")
+    marker = Path(invocation.qobs_ledger_store) / (
+        f"{command.quota_guard.sha256_text(admission.execution_exception_id)}.used"
+    )
+    if marker.exists() and not allow_committed:
+        raise command.quota_guard.QuotaObservationError("EXECUTION_EXCEPTION_CONSUMED")
+    validated = command._validated_invocation_decision(invocation)
+    expected = invocation.qobs_expected_context
+    executable = command._resolve_qobs_executable(invocation.route)
+    if (
+        invocation.route.command != executable
+        or invocation.argv[0] != executable
+        or expected.get("resolved_executable") != executable
+        or expected.get("account_home") != invocation.route.home_path
+        or expected.get("alias") != invocation.route.alias
+        or expected.get("provider") != invocation.route.cli
+        or expected.get("ticket_id") != validated.decision.get("ticket")
+        or expected.get("attempt_id") != invocation.attempt_id
+        or expected.get("policy_version") != validated.policy_version
+        or admission.execution_exception_id != command._LUNA_ONE_SHOT_EXCEPTION_ID
+        or admission.ticket_id != validated.decision.get("ticket")
+        or admission.attempt_id != invocation.attempt_id
+        or admission.role != invocation.route.role
+        or admission.alias != invocation.route.alias
+        or admission.provider != invocation.route.cli
+        or admission.model != invocation.route.model
+        or admission.effort != invocation.route.effort
+        or admission.work_mode != validated.decision.get("work_mode")
+        or admission.sandbox != invocation.route.sandbox
+        or admission.quota_band != validated.decision.get("quota_band")
+        or admission.decision_sha256 != validated.digest
+        or admission.scheduling_snapshot_sha256 != invocation.scheduling_snapshot_digest
+        or admission.resolved_executable_sha256 != command.quota_guard.sha256_text(executable)
+        or admission.qobs_artifact_sha256 != command._qobs_digest(invocation.qobs_artifact)
+        or admission.qobs_context_sha256 != command._qobs_context_digest(expected)
+        or admission.exception_consumption_sha256
+        != command._canonical_sha256(_qobs_admission_binding(admission))
+    ):
+        raise command.ConfigurationError("closed exception QOBS binding is incoherent")
+    try:
+        observation = command.quota_guard.validate_quota_observation(
+            invocation.qobs_artifact, dict(expected), now=now
+        )
+    except command.quota_guard.QuotaObservationError as exc:
+        raise command.ConfigurationError("closed exception QOBS observation is invalid") from exc
+    if (
+        observation.get("quota_band") != "constrained"
+        or command.quota_guard.sha256_text(str(expected.get("nonce")))
+        != admission.qobs_nonce_sha256
+        or command.quota_bound_dispatch_identity(
+            invocation.qobs_artifact,
+            admission.quota_consumption(),
+            admission.dispatch_context(),
+        )
+        != admission.dispatch_identity
+    ):
+        raise command.ConfigurationError("closed exception QOBS binding is incoherent")
+    return admission
+
+def _consume_spawn_capacity(
+    invocation: command.Invocation, validated: command.ValidatedDispatchDecision,
+) -> command.capacity.CapacityLease | None:
+    fields = (
+        invocation.capacity_lease,
+        invocation.capacity_store_path,
+        invocation.capacity_policy,
+        invocation.capacity_request_id,
+    )
+    if all(value is None for value in fields):
+        if invocation.capacity_required:
+            raise command.SchedulingError("CAPACITY_LEASE_REQUIRED", "capacity lease is missing")
+        return None
+    if any(value is None for value in fields):
+        raise command.SchedulingError("CAPACITY_LEASE_REQUIRED", "capacity lease binding is incomplete")
+    try:
+        candidate = command.capacity.consume_lease(
+            invocation.capacity_store_path,
+            invocation.capacity_lease,
+            requests=1,
+            policy=invocation.capacity_policy,
+        )
+    except command.capacity.CapacityLeaseError as exc:
+        raise command.SchedulingError(f"CAPACITY_{exc.code}", "capacity lease was rejected") from exc
+    expected_floor = str(validated.quality_floor)
+    if (
+        candidate.account != invocation.route.alias
+        or candidate.provider != invocation.route.cli
+        or candidate.owner != invocation.route.role
+        or candidate.request_id != invocation.capacity_request_id
+        or candidate.lane != invocation.attempt_id
+        or candidate.model_quality_floor != expected_floor
+    ):
+        try:
+            command.capacity.release_lease(
+                invocation.capacity_store_path, candidate,
+                policy=invocation.capacity_policy,
+            )
+        except command.capacity.CapacityLeaseError:
+            pass
+        raise command.SchedulingError("CAPACITY_LEASE_MISMATCH", "capacity lease does not bind this route")
+    return candidate
+
+def _release_spawn_capacity(invocation: command.Invocation, lease: command.capacity.CapacityLease | None) -> None:
+    if lease is None:
+        return
+    try:
+        command.capacity.release_lease(
+            invocation.capacity_store_path, lease,
+            policy=invocation.capacity_policy,
+        )
+    except command.capacity.CapacityLeaseError:
+        pass
+
+command._qobs_admission_binding = _qobs_admission_binding
+command._validate_qobs_invocation_binding = _validate_qobs_invocation_binding
+command._consume_spawn_capacity = _consume_spawn_capacity
+command._release_spawn_capacity = _release_spawn_capacity
+
+import hashlib
+import tempfile
+
+def _execute_invocation_locked(invocation: command.Invocation) -> subprocess.CompletedProcess[str]:
+    command._validate_invocation_provider_binding(invocation)
+    validated_decision = command._validated_invocation_decision(invocation)
+    command._validate_qobs_invocation_binding(invocation)
+    command.validate_execution_preflight(invocation)
+    home_fd, home_identity = command._open_isolated_account_home(invocation)
+    try:
+        env = os.environ.copy()
+        env.pop("CODEX_HOME", None)
+        env.pop("AGY_HOME", None)
+        env.update(invocation.env_overrides)
+        if not invocation.work_result_schema_path:
+            raise command.ConfigurationError("executable dispatch requires a WorkResult v2 output schema")
+        provider_schema = command._provider_compatible_work_result_schema(
+            invocation.work_result_schema_path
+        )
+        schema_flag = "--output-schema" if invocation.route.cli == "codex" else "--json-schema"
+        argv = list(invocation.argv)
+        if argv.count(schema_flag) != 1:
+            raise command.ConfigurationError("provider output schema flag is missing or ambiguous")
+        schema_index = argv.index(schema_flag) + 1
+        if (
+            schema_index >= len(argv)
+            or argv[schema_index] != invocation.work_result_schema_path
+        ):
+            raise command.ConfigurationError("provider output schema path is not bound to the invocation")
+        with tempfile.TemporaryDirectory(prefix="horo-provider-schema-") as temp_dir:
+            private_directory = Path(temp_dir)
+            private_directory.chmod(0o700)
+            provider_schema_path = private_directory / "work-result-v2.provider.json"
+            provider_schema_path.write_text(
+                json.dumps(provider_schema, ensure_ascii=True, separators=(",", ":")),
+                encoding="utf-8",
+            )
+            provider_schema_path.chmod(0o600)
+            argv[schema_index] = str(provider_schema_path)
+            final_path: Path | None = None
+            final_identity: tuple[int, int] | None = None
+            if invocation.route.cli == "codex":
+                if argv[-1:] != ["-"] or any(
+                    flag in argv for flag in ("-o", "--output-last-message")
+                ):
+                    raise command.ConfigurationError("Codex final output channel is ambiguous")
+                final_path, final_identity = command._create_private_final_file(private_directory)
+                argv[-1:-1] = ["--output-last-message", str(final_path)]
+            command._validated_invocation_schedule(invocation, validated_decision)
+            prepared_approval = command._prepare_probe_authorization(invocation)
+            consumed_lease: command.capacity.CapacityLease | None = None
+            try:
+                bound_invocation = replace(
+                    invocation,
+                    preauthorization_store_binding=command._validated_preauthorization_stores(
+                        command._mapping(
+                            prepared_approval.binding.get(
+                                "preauthorization_stores"
+                            ),
+                            "prepared preauthorization stores",
+                        )
+                    ),
+                )
+                claim = command._acquire_dispatch_claim(
+                    bound_invocation, prepared_approval.take_dispatch_ledger()
+                )
+                try:
+                    command._verify_dispatch_claim(claim, require_start_freshness=True)
+                    command._verify_isolated_account_home(invocation, home_fd, home_identity)
+                    consumed_lease = command._consume_spawn_capacity(invocation, validated_decision)
+                    consume_receipt = command._consume_prepared_approval(
+                        bound_invocation, prepared_approval, claim.store
+                    )
+                    result = command._run_provider_process(
+                        argv,
+                        cwd=invocation.cwd,
+                        env=env,
+                        input=invocation.prompt_stdin,
+                        provider=invocation.route.cli,
+                        text=True,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        check=False,
+                        shell=False,
+                        timeout=command.MAX_PROVIDER_RUNTIME_SECONDS,
+                    )
+                    result._approval_consume_receipt = consume_receipt  # type: ignore[attr-defined]
+                    result._probe_claim_record = dict(prepared_approval.claim.record)  # type: ignore[attr-defined]
+                    result._approval_grant_record = dict(prepared_approval.grant.record)  # type: ignore[attr-defined]
+                    result._probe_claim_sha256 = hashlib.sha256(  # type: ignore[attr-defined]
+                        prepared_approval.claim.raw
+                    ).hexdigest()
+                    result._approval_grant_sha256 = hashlib.sha256(  # type: ignore[attr-defined]
+                        prepared_approval.grant.raw
+                    ).hexdigest()
+                    if (
+                        prepared_approval.consume_artifact is None
+                        or prepared_approval.anchor_artifact is None
+                    ):
+                        raise command.ProbeAuthorizationError(
+                            "retained consume evidence is missing"
+                        )
+                    command._reverify_retained_artifact(
+                        prepared_approval.consume_artifact
+                    )
+                    command._reverify_retained_artifact(
+                        prepared_approval.anchor_artifact
+                    )
+                    result._approval_consume_raw_sha256 = hashlib.sha256(  # type: ignore[attr-defined]
+                        prepared_approval.consume_artifact.raw
+                    ).hexdigest()
+                    result._approval_consume_anchor_record = dict(  # type: ignore[attr-defined]
+                        prepared_approval.anchor_artifact.record
+                    )
+                    result._approval_consume_anchor_sha256 = hashlib.sha256(  # type: ignore[attr-defined]
+                        prepared_approval.anchor_artifact.raw
+                    ).hexdigest()
+                    result._bound_invocation = bound_invocation  # type: ignore[attr-defined]
+                except BaseException:
+                    try:
+                        command._finalize_dispatch_claim(claim, "unknown")
+                    finally:
+                        command._release_dispatch_claim(claim)
+                    raise
+            finally:
+                prepared_approval.close()
+            try:
+                stdout_bytes = command._validated_text_channel(result.stdout, "provider stdout")
+                stderr_bytes = command._validated_text_channel(result.stderr, "provider stderr")
+                if invocation.route.cli == "codex":
+                    if final_path is None or final_identity is None:
+                        raise command.ConfigurationError("Codex private final channel was not initialized")
+                    private_final = command._read_private_final_file(final_path, final_identity)
+                    result._private_final_result = private_final  # type: ignore[attr-defined]
+                    result._private_final_bytes = private_final.byte_count  # type: ignore[attr-defined]
+                    result._private_final_sha256 = private_final.sha256  # type: ignore[attr-defined]
+                    result._private_final_work_result_sha256 = command._canonical_sha256(  # type: ignore[attr-defined]
+                        private_final.work_result
+                    )
+                result._stdout_bytes = len(stdout_bytes)  # type: ignore[attr-defined]
+                result._stdout_sha256 = hashlib.sha256(stdout_bytes).hexdigest()  # type: ignore[attr-defined]
+                result._stderr_bytes = len(stderr_bytes)  # type: ignore[attr-defined]
+                result._stderr_sha256 = hashlib.sha256(stderr_bytes).hexdigest()  # type: ignore[attr-defined]
+                result._sanitized_argv = tuple(  # type: ignore[attr-defined]
+                    "<WORK_RESULT_SCHEMA>" if item == str(provider_schema_path) else
+                    "<PRIVATE_FINAL_OUTPUT>" if final_path is not None and item == str(final_path) else
+                    command._redact_preview(item, invocation)
+                    for item in argv
+                )
+                result._sanitized_argv_sha256 = hashlib.sha256(  # type: ignore[attr-defined]
+                    json.dumps(
+                        result._sanitized_argv,  # type: ignore[attr-defined]
+                        ensure_ascii=True,
+                        separators=(",", ":"),
+                    ).encode("ascii")
+                ).hexdigest()
+            except BaseException:
+                try:
+                    command._finalize_dispatch_claim(claim, "unknown")
+                finally:
+                    command._release_dispatch_claim(claim)
+                raise
+            finally:
+                command._release_spawn_capacity(invocation, consumed_lease)
+            result._dispatch_claim = claim  # type: ignore[attr-defined]
+            result._dispatch_started_at = claim.record["started_at"]  # type: ignore[attr-defined]
+            result._dispatch_ended_at = command._utc_now()  # type: ignore[attr-defined]
+            return result
+    finally:
+        os.close(home_fd)
+
+command._execute_invocation_locked = _execute_invocation_locked
 
 ORIGINAL_CLAIM_STORE = command._secure_claim_directory
 
@@ -326,9 +642,8 @@ def _synthetic_codex_python(tmp_path: Path) -> str:
     """Expose Python under a canonical test-only Codex executable identity."""
 
     executable = tmp_path / "codex"
-    if not executable.exists():
-        shutil.copy2(sys.executable, executable)
-        executable.chmod(executable.stat().st_mode | 0o100)
+    if not (executable.exists() or executable.is_symlink()):
+        executable.symlink_to(sys.executable)
     return str(executable)
 
 
@@ -3371,12 +3686,12 @@ def test_capacity_is_consumed_at_spawn_and_released_after_process(tmp_path, monk
     monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
     observed: list[int] = []
 
-    def fake_run(*args, **kwargs):
+    def fake_run(argv, **kwargs):
         state = json.loads((Path(invocation.capacity_store_path) / ".capacity.json").read_text())
         observed.append(next(iter(state["leases"].values()))["requests_used"])
-        return subprocess.CompletedProcess(args[0], 0, stdout=_valid_result_stdout(), stderr="")
+        return _codex_process(argv)
 
-    monkeypatch.setattr(command.subprocess, "run", fake_run)
+    monkeypatch.setattr(command, "_run_provider_process", fake_run)
     outcome = command.execute_invocation(invocation)
     assert outcome.process.returncode == 0
     assert observed == [1]

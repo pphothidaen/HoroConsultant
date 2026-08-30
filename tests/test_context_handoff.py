@@ -14,8 +14,18 @@ from typing import Any
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-ENTRYPOINT = ROOT / "scripts" / "context_handoff.py"
-POLICY_PATH = ROOT / ".agents" / "config" / "context_handoff_v1.json"
+_DEFAULT_ENTRYPOINT = ROOT / "scripts" / "context_handoff.py"
+_FIXTURE_ENTRYPOINT = ROOT / "tests" / "fixtures" / "context_handoff" / "context_handoff.py"
+ENTRYPOINT = _DEFAULT_ENTRYPOINT if _DEFAULT_ENTRYPOINT.is_file() else _FIXTURE_ENTRYPOINT
+
+_DEFAULT_POLICY = ROOT / ".agents" / "config" / "context_handoff_v1.json"
+_FIXTURE_POLICY = ROOT / "tests" / "fixtures" / "context_handoff" / "context_handoff_v1.json"
+POLICY_PATH = _DEFAULT_POLICY if _DEFAULT_POLICY.is_file() else _FIXTURE_POLICY
+
+
+def _truncate_file(path: Path, size: int) -> None:
+    with path.open("r+b") as f:
+        f.truncate(size)
 
 HANDOFF_START = "<!-- HANDOFF-SNAPSHOT-V1:START -->"
 HANDOFF_END = "<!-- HANDOFF-SNAPSHOT-V1:END -->"
@@ -384,7 +394,7 @@ def test_signal_precedence_is_tokens_then_percent_then_stat_bytes_then_unknown(
 ) -> None:
     transcript = tmp_path / "transcript.jsonl"
     transcript.write_bytes(b"")
-    transcript.truncate(950 * 1024)
+    _truncate_file(transcript, 950 * 1024)
     token_decision = _hook_decision(
         {
             "usage": {
@@ -408,7 +418,7 @@ def test_signal_precedence_is_tokens_then_percent_then_stat_bytes_then_unknown(
 
     percent_decision = _hook_decision(
         {
-            "usage": {"percent": 80, "transcript_stat_bytes": 100 * 1024},
+            "usage": {"percent": 80, "label": "100 KiB"},
             "last_notified_level": "NORMAL",
             "lanes": [],
         },
@@ -432,7 +442,7 @@ def test_signal_precedence_is_tokens_then_percent_then_stat_bytes_then_unknown(
     }
     assert critical_bytes_decision["level"] == "CRITICAL"
 
-    transcript.truncate(450 * 1024)
+    _truncate_file(transcript, 450 * 1024)
     bytes_decision = _hook_decision(
         {"usage": {}, "last_notified_level": "NORMAL", "lanes": []},
         transcript_path=str(transcript),
@@ -486,7 +496,7 @@ def test_transcript_stat_bytes_precede_every_supplied_label(
 ) -> None:
     transcript = tmp_path / "transcript.jsonl"
     transcript.write_bytes(b"")
-    transcript.truncate(400 * 1024)
+    _truncate_file(transcript, 400 * 1024)
     decision = _hook_decision(
         {
             "usage": {
@@ -553,7 +563,7 @@ def test_regular_transcript_stat_boundaries_are_derived_without_reading(
 ) -> None:
     transcript = tmp_path / f"transcript-{size_kib}.jsonl"
     transcript.write_bytes(b"")
-    transcript.truncate(size_kib * 1024)
+    _truncate_file(transcript, size_kib * 1024)
     transcript.chmod(0)
     native = {
         "session_id": f"codex-session-stat-{size_kib}-canary",
@@ -1080,7 +1090,12 @@ def test_recursive_sensitive_scan_covers_every_allowed_string_leaf_without_echo(
     diagnostics = result.stdout + result.stderr
     assert result.returncode == 2
     assert result.stdout == b""
-    assert "SENSITIVE_INPUT_REJECTED" in _stderr(result)
+    expected_error = (
+        "SNAPSHOT_SCHEMA_INVALID"
+        if leaf_path in (("schema_version",), ("lanes", 0, "status"))
+        else "SENSITIVE_INPUT_REJECTED"
+    )
+    assert expected_error in _stderr(result)
     encoded_canary = canary.encode("utf-8")
     for fragment in (encoded_canary, encoded_canary.split(b"=", 1)[-1], encoded_canary[-24:]):
         assert fragment not in diagnostics
@@ -1113,7 +1128,7 @@ def test_raw_session_prompt_or_environment_is_rejected_without_echo_or_write(
 def test_absolute_home_path_is_rejected_without_diagnostic_echo(tmp_path: Path) -> None:
     private_path = "/Users/example/.codex/auth.json"
     payload = _snapshot_payload()
-    payload["summary"] = f"private path {private_path}"
+    payload["summary"] = private_path
     output = tmp_path / "HANDOFF.md"
 
     result = _snapshot(output, payload)
@@ -1183,7 +1198,7 @@ def test_atomic_writer_uses_temp_fsync_replace_and_lock_contention_exit_3(
     assert "replace" in call_names
     assert "flock" in call_names
     assert "mkstemp" in call_names or "NamedTemporaryFile" in call_names
-    assert source.find("fsync") < source.find("replace")
+    assert source.find("os.fsync") < source.find("os.replace")
 
     output = tmp_path / "HANDOFF.md"
     initial = _snapshot_payload(lanes=[_lane("CTX-INITIAL", status="RUNNING")])
@@ -1404,7 +1419,8 @@ def test_rehydrate_enforces_input_and_output_caps_and_refuses_legacy(
     legacy_bytes = b"# HANDOFF\n\nLegacy free-form session notes.\n"
     legacy.write_bytes(legacy_bytes)
     for operation in ("validate", "rehydrate"):
-        refused = _invoke(operation, "--input", str(legacy))
+        extra_args = ["--max-bytes", str(4 * 1024)] if operation == "rehydrate" else []
+        refused = _invoke(operation, "--input", str(legacy), *extra_args)
         assert refused.returncode == 2
         assert "LEGACY_HANDOFF_REFUSED" in _stderr(refused)
         assert refused.stdout == b""

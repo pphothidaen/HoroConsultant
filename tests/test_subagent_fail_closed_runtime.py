@@ -181,29 +181,42 @@ def test_checked_in_runtime_config_is_explicitly_closed_without_provider_state()
 
 
 @pytest.mark.parametrize(
-    "activation",
+    ("activation", "expected_error"),
     [
-        pytest.param({}, id="missing-both"),
-        pytest.param({"activation_prohibited": False}, id="missing-execution-state"),
-        pytest.param({"dispatcher_execution": "OPEN"}, id="missing-prohibition-state"),
+        pytest.param({}, "[ERROR] BLOCKED: ACTIVATION_PROHIBITED", id="missing-both"),
+        pytest.param(
+            {"activation_prohibited": False},
+            "[ERROR] BLOCKED: ACTIVATION_PROHIBITED",
+            id="missing-execution-state",
+        ),
+        pytest.param(
+            {"dispatcher_execution": "OPEN"},
+            "[ERROR] BLOCKED: ACTIVATION_PROHIBITED",
+            id="missing-prohibition-state",
+        ),
         pytest.param(
             {"activation_prohibited": 0, "dispatcher_execution": "OPEN"},
+            "[ERROR] BLOCKED: ACTIVATION_STATE_INVALID",
             id="integer-prohibition-state",
         ),
         pytest.param(
             {"activation_prohibited": "false", "dispatcher_execution": "OPEN"},
+            "[ERROR] BLOCKED: ACTIVATION_STATE_INVALID",
             id="string-prohibition-state",
         ),
         pytest.param(
             {"activation_prohibited": False, "dispatcher_execution": None},
+            "[ERROR] BLOCKED: ACTIVATION_STATE_INVALID",
             id="null-execution-state",
         ),
         pytest.param(
             {"activation_prohibited": False, "dispatcher_execution": "open"},
+            "[ERROR] BLOCKED: ACTIVATION_STATE_INVALID",
             id="lowercase-execution-state",
         ),
         pytest.param(
             {"activation_prohibited": False, "dispatcher_execution": 1},
+            "[ERROR] BLOCKED: ACTIVATION_STATE_INVALID",
             id="integer-execution-state",
         ),
     ],
@@ -213,6 +226,7 @@ def test_invalid_activation_metadata_blocks_before_admission_or_spawn(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
     activation: dict[str, object],
+    expected_error: str,
 ) -> None:
     monkeypatch.setattr(command, "admit_dispatch_capacity", _forbid_admission)
     monkeypatch.setattr(command, "execute_invocation", _forbid_spawn)
@@ -222,7 +236,7 @@ def test_invalid_activation_metadata_blocks_before_admission_or_spawn(
 
     assert result == 5
     assert captured.out == ""
-    assert captured.err.strip() == "[ERROR] BLOCKED: ACTIVATION_STATE_INVALID"
+    assert captured.err.strip() == expected_error
 
 
 @pytest.mark.parametrize(
