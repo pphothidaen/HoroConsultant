@@ -33,6 +33,8 @@ import pytest
 import scripts.agent_quota_status_guard as quota
 import scripts.multiagent_prompt_command as command
 import scripts.multiagent_ticket_scheduler as scheduler
+import tests.test_multiagent_prompt_command
+
 
 
 @pytest.fixture(autouse=True)
@@ -637,6 +639,26 @@ def _codex_stdout() -> str:
     return "\n".join(json.dumps(item, separators=(",", ":")) for item in lines) + "\n"
 
 
+def _codex_process(
+    argv: list[str] | tuple[str, ...],
+    *,
+    returncode: int = 0,
+    stdout: str | None = None,
+    stderr: str = "",
+) -> subprocess.CompletedProcess[str]:
+    if "--output-last-message" in argv:
+        output_path = Path(argv[argv.index("--output-last-message") + 1])
+        output_path.write_text(
+            json.dumps(_work_result(), separators=(",", ":")), encoding="utf-8"
+        )
+    return subprocess.CompletedProcess(
+        argv,
+        returncode,
+        stdout=_codex_stdout() if stdout is None else stdout,
+        stderr=stderr,
+    )
+
+
 def _qobs_invocation(
     tmp_path: Path,
     *,
@@ -694,6 +716,11 @@ def _qobs_invocation(
             exception_store=tmp_path / "legacy-exception",
             now=observed,
         )
+    claim_path = tmp_path / "probe-claim.json"
+    grant_path = tmp_path / "approval-grant.json"
+    store = tmp_path / "consume-store"
+    store.mkdir(mode=0o700, exist_ok=True)
+    session_id = f"session-luna-{tmp_path.name}"
     invocation = command.build_invocation(
         route,
         command.render_prompt(objective="Run mocked Luna diagnostic"),
@@ -714,7 +741,13 @@ def _qobs_invocation(
         qobs_artifact=artifact,
         qobs_expected_context=context,
         qobs_ledger_store=ledger,
+        probe_claim_path=str(claim_path),
+        approval_grant_path=str(grant_path),
+        approval_store_path=str(store),
+        approval_session_id=session_id,
     )
+    command.emit_probe_claim(invocation, claim_path, session_id=session_id)
+    command.emit_probe_approval(invocation, claim_path, grant_path, session_id=session_id)
     return invocation, admission, artifact, context, ledger
 
 
@@ -813,11 +846,9 @@ def test_review_qobs_execute_receipt_is_bound_and_revalidated(
 
     monkeypatch.setattr(command, "validate_quota_receipt_binding", quota_spy)
     monkeypatch.setattr(
-        command.subprocess,
-        "run",
-        lambda argv, **kwargs: subprocess.CompletedProcess(
-            argv, 0, stdout=_codex_stdout(), stderr=""
-        ),
+        command,
+        "_run_provider_process",
+        lambda argv, **kwargs: _codex_process(argv),
     )
     outcome = command.execute_invocation(invocation)
     receipt = outcome.completed["execution_receipt"]
@@ -868,11 +899,9 @@ def test_review_real_receipt_validation_blocks_qobs_tampering(
 ) -> None:
     invocation, _, _, _, _ = _qobs_invocation(tmp_path)
     monkeypatch.setattr(
-        command.subprocess,
-        "run",
-        lambda argv, **kwargs: subprocess.CompletedProcess(
-            argv, 0, stdout=_codex_stdout(), stderr=""
-        ),
+        command,
+        "_run_provider_process",
+        lambda argv, **kwargs: _codex_process(argv),
     )
     outcome = command.execute_invocation(invocation)
     receipt = outcome.completed["execution_receipt"]
@@ -1099,10 +1128,12 @@ def test_review_provider_start_failure_burns_combined_use_and_never_retries(
         starts += 1
         raise OSError("mocked provider start failure")
 
-    monkeypatch.setattr(command.subprocess, "run", start_failure)
+    monkeypatch.setattr(command, "_run_provider_process", start_failure)
     for _ in range(2):
         with pytest.raises((OSError, command.ConfigurationError, quota.QuotaObservationError)):
             command.execute_invocation(invocation)
     assert starts == 1
-    assert ledger.is_dir()
-    assert len([path for path in ledger.iterdir() if path.is_file()]) == 1
+    store = Path(invocation.approval_store_path)
+    assert store.is_dir()
+    assert len(list(store.glob("*.consume.json"))) == 1
+

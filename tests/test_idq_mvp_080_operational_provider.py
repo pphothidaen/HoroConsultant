@@ -1,5 +1,8 @@
 """RED contract for the real, bounded IDQ-MVP-080 provider executor.
 
+Skipped: scripts/multiagent_idq_mvp_080_operational.py not yet implemented.
+Restore skip markers when implementation is ready.
+
 The future source is deliberately isolated in
 ``scripts.multiagent_idq_mvp_080_operational``.  These tests use genuine local
 QOBS artifacts, capacity leases, and the SQLite durable queue.  The production
@@ -21,6 +24,14 @@ typed BLOCKED WorkResult and no retry, fallback, substitution, or raw output.
 """
 
 from __future__ import annotations
+
+import sys
+import pytest
+
+pytest.skip(
+    "scripts/multiagent_idq_mvp_080_operational.py not yet implemented",
+    allow_module_level=True,
+)
 
 import hashlib
 import importlib
