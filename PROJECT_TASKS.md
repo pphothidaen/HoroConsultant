@@ -1485,6 +1485,15 @@ lanes failed to return a staging receipt. The root owns that one action; it
 stops once the commit exists and does not authorize source edits, further Git
 mutation, push, or any excluded action.
 
+**Single-use root recovery-source waiver (2026-08-30 Asia/Bangkok)**: The
+user's subsequent `approve` authorizes the root to replay, test, stage, and
+create one local commit for exactly `scripts/agent_quota_status_guard.py` on
+this recovery branch after all three available subagent slots remained occupied
+by interrupted governance lanes. Stop after the focused tests and post-commit
+provenance verification. This waiver excludes test changes, all other paths,
+provider/alias/network/account/secret actions, sync, push, deployment,
+publishing, and release.
+
 **Test-first history gate**:
 
 1. TEST-BASELINE stages only its two tests and closed `test-provenance-v1`
