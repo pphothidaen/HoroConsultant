@@ -1,0 +1,26 @@
+{
+  "schema_version": "context-handoff-native-fixtures-v4",
+  "source_contract": "Gemini CLI AfterAgent hook 2026-08-30",
+  "wire_event": "AfterAgent",
+  "normalized_event": "Stop",
+  "normalized_state_channel": {"kind":"json_file","path_environment":"CONTEXT_HANDOFF_STATE_FILE","cli_flag":"--state-file","max_bytes":65536,"unset_behavior":"empty_state"},
+  "cases": [
+    {
+      "id": "agy-after-agent-warning",
+      "input": {"session_id":"agy-session-warning-canary","transcript_path":"/runtime/agy/after-agent-warning-canary.jsonl","cwd":"/workspace/HoroConsultant","hook_event_name":"AfterAgent","timestamp":"2026-08-30T00:00:00Z","prompt":"agy-prompt-warning-canary","prompt_response":"agy-response-warning-canary","stop_hook_active":false},
+      "normalized_state": {"usage":{"percent":45},"last_notified_level":"ALERT","lanes":[]},
+      "expected": {},
+      "expected_output_keys": ["systemMessage"],
+      "max_field_bytes": {"systemMessage": 4096},
+      "contains": ["snapshot", "operator", "45%"]
+    },
+    {
+      "id": "agy-after-agent-recursion-safe",
+      "input": {"session_id":"agy-session-recursion-canary","transcript_path":"/runtime/agy/after-agent-recursion-canary.jsonl","cwd":"/workspace/HoroConsultant","hook_event_name":"AfterAgent","timestamp":"2026-08-30T00:00:01Z","prompt":"agy-prompt-recursion-canary","prompt_response":"agy-response-recursion-canary","stop_hook_active":true},
+      "normalized_state": {"usage":{"percent":95},"last_notified_level":"SNAPSHOT","lanes":[]},
+      "expected": {},
+      "expected_output_keys": [],
+      "contains": []
+    }
+  ]
+}

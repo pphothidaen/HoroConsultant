@@ -1,0 +1,25 @@
+{
+  "schema_version": "context-handoff-native-fixtures-v4",
+  "source_contract": "Claude Code Stop hook 2026-08-30",
+  "wire_event": "Stop",
+  "normalized_state_channel": {"kind":"json_file","path_environment":"CONTEXT_HANDOFF_STATE_FILE","cli_flag":"--state-file","max_bytes":65536,"unset_behavior":"empty_state"},
+  "cases": [
+    {
+      "id": "claude-stop-warning",
+      "input": {"session_id":"claude-session-warning-canary","transcript_path":"/runtime/claude/stop-warning-canary.jsonl","cwd":"/workspace/HoroConsultant","permission_mode":"default","hook_event_name":"Stop","stop_hook_active":false,"last_assistant_message":"claude-last-message-warning-canary","background_tasks":[{"id":"claude-background-job-warning-canary","type":"shell","status":"running","description":"claude-background-description-warning-canary","command":"printf claude-background-command-warning-canary"}],"session_crons":[{"id":"claude-session-cron-warning-canary","schedule":"0 9 * * 1-5","recurring":true,"prompt":"claude-session-cron-prompt-warning-canary"}]},
+      "normalized_state": {"usage":{"percent":45},"last_notified_level":"ALERT","lanes":[]},
+      "expected": {},
+      "expected_output_keys": ["systemMessage"],
+      "max_field_bytes": {"systemMessage": 4096},
+      "contains": ["snapshot", "operator", "45%"]
+    },
+    {
+      "id": "claude-stop-recursion-safe",
+      "input": {"session_id":"claude-session-recursion-canary","transcript_path":"/runtime/claude/stop-recursion-canary.jsonl","cwd":"/workspace/HoroConsultant","permission_mode":"default","hook_event_name":"Stop","stop_hook_active":true,"last_assistant_message":"claude-last-message-recursion-canary","background_tasks":[{"id":"claude-background-job-recursion-canary","type":"subagent","status":"running","description":"claude-background-description-recursion-canary","agent_type":"claude-background-agent-type-recursion-canary"}],"session_crons":[{"id":"claude-session-cron-recursion-canary","schedule":"30 10 * * 1-5","recurring":true,"prompt":"claude-session-cron-prompt-recursion-canary"}]},
+      "normalized_state": {"usage":{"percent":95},"last_notified_level":"SNAPSHOT","lanes":[]},
+      "expected": {},
+      "expected_output_keys": [],
+      "contains": []
+    }
+  ]
+}

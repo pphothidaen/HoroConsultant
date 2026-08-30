@@ -1,3 +1,366 @@
+<!-- CTX-HANDOFF-V1-20260830:START -->
+## Cross-runtime context handoff v1 - local-only governance
+
+**Recorded**: `2026-08-30` (Asia/Bangkok). **Gate**: `APPROVED` for the
+`CTX-010-REVIEW-RECONCILE` documentation correction only. **Independent
+review**: `BLOCKED`. **CTX-010 status**:
+`CORRECTION REQUIRED / BASELINE 05cd685 RETAINED`. **Retained sequence-1
+baseline**: `05cd6854cd5a749d10cfb12e9c08fffd6b576d80`. **Baseline parent**:
+`5d61b7c68a2c4b5691e3a2ea47eeed2660570a67`. **Isolated branch**:
+`feat/context-handoff-v1-20260830`.
+
+**Review reconciliation**: the immutable Git and provenance evidence for
+sequence 1 is retained, but independent review rejected its Codex hook and
+trust contract as implementation authority. `CTX-020-CORE` is back to
+`BLOCKED` pending a superseding test-only sequence-2 baseline with planned
+manifest `plans/test_provenance/ctx-handoff-20260830-b01.json` and a green
+independent review. Every descendant remains dependency-gated and `BLOCKED`.
+This correction does not relabel the current release, and release 120 remains
+blocked and not production-green. Merge or cherry-pick into the current
+release, push, deploy, publish, production activation, and any external
+mutation remain prohibited until independent QA and review are green and
+`CTX-100-INTEGRATION-HOLD` passes the existing release-120 and
+ownership-overlap integration gate.
+
+### GRILL REPORT
+
+- **Request**: reconcile the local-only context-handoff graph after an
+  independent `BLOCKED` review, retain sequence-1 evidence without accepting
+  its defective contract, and close the core lane until sequence 2 is green.
+- **Status / authorized next phase**: `APPROVED` for this two-document
+  correction; after this commit, only the QA-owned `CTX-010-RED` sequence-2
+  test correction may be dispatched. No source lane is authorized.
+- **D1 scope `[CONFIRMED]`**: this correction changes only `PROJECT_TASKS.md`
+  and `plans/plan.md`. The follow-on sequence-2 lane owns only the frozen
+  CTX test/fixture cohort and planned manifest
+  `plans/test_provenance/ctx-handoff-20260830-b01.json`. Source, config,
+  adapters, hooks, skills, generated mirrors, `HANDOFF.md`, provider/network
+  access, credentials, push, deploy, publish, merge, and production activation
+  are out of scope for this lane.
+- **D2 delta `[CONFIRMED]`**: `CTX-010-RED` changes from
+  `TEST_BASELINE_VERIFIED` to
+  `CORRECTION REQUIRED / BASELINE 05cd685 RETAINED`; `CTX-020-CORE` changes
+  from `READY` to `BLOCKED`; `CTX-030-ADAPTERS` onward remain `BLOCKED`,
+  including `CTX-100-INTEGRATION-HOLD`.
+- **D3 acceptance / stop `[CONFIRMED]`**: one commit with subject
+  `docs(context): record baseline review blocker` changes exactly the two
+  governance files, passes exact staged-path and cached-diff checks, and leaves
+  the feature worktree clean. The test-running pre-commit hook may be `SKIPPED`
+  via `--no-verify` under this no-tests lane only when labeled as skipped; it
+  is never reported as passed. Stop on extra paths, ownership overlap, trust
+  ambiguity, a failed check, any core/source start, or any attempt to cross the
+  integration hold.
+- **D4 inputs / dependencies `[CONFIRMED]`**: the exact retained SHA and
+  parent, sequence-1 manifest and receipts, independent review findings,
+  official Codex hook trust/config contract, planned sequence-2 manifest, and
+  later gates are bound below. No credential, provider, network, managed-hook,
+  or production input is required or authorized.
+- **D5 architecture / ownership `[CONFIRMED]`**: one editor owns each lane;
+  shared paths are serial; generated refresh has one owner; the existing
+  release integration owner is not duplicated.
+- **D6 assumptions `[CONFIRMED]`**: sequence-1 provenance proves exact artifact
+  identity and test-first history, not contract correctness or native Codex
+  trust. Static routing metadata is intent only, never runtime/provider proof.
+  `HANDOFF.md` is derived state and cannot override `PROJECT_TASKS.md`.
+  Silence, `UNKNOWN`, or local green checks never waive a dependency or
+  release gate.
+- **D7 risk / recovery `[CONFIRMED]`**: fail closed on missing native
+  exact-hash hook review/trust, any repository invocation or recommendation of
+  a trust bypass, raw transcript access, oversized/partial capsules,
+  active-lane clear attempts, provenance drift, or overlap. Recovery is to
+  stop descendants and revert only the isolated owned commit or abandon the
+  isolated branch; current release history remains untouched.
+- **D8 budget / evidence `[CONFIRMED]`**: evidence is bounded to exact paths,
+  immutable Git/provenance receipts, concise ASCII-safe output, and the
+  DispatchDecision below. No runtime/provider claim is inferred.
+- **D9 domain / HITL `[NOT-APPLICABLE]`**: no metaphysical behavior, source
+  domain, prediction, or training data changes. Owner HITL is satisfied for
+  this bounded reconciliation; integration authority remains held by
+  `CTX-100-INTEGRATION-HOLD`.
+- **Waivers**: none. **Feature blockers**: the sequence-2 baseline SHA and
+  manifest do not yet exist, its corrected RED receipts are not yet verified,
+  and independent review is not yet green.
+
+### Architecture invariants
+
+1. `PROJECT_TASKS.md` is the ticket and current-state authority.
+   `HANDOFF.md` is a derived, replaceable capsule and never an authority.
+2. `.agents/config/context_handoff_v1.json` is the canonical machine policy;
+   `.agents/skills/anti-cognitive-decay/SKILL.md` is the canonical skill, with
+   `.agents/rules/20-context-handoff.md` the human-readable normative rule.
+   Runtime mirrors are generated artifacts only.
+3. `scripts/context_handoff.py` is a Python-standard-library-only shared engine
+   with deterministic `hook`, `snapshot`, `rehydrate`, and `validate`
+   operations. Runtime adapters call this engine and do not fork policy.
+4. The engine never reads a raw chat/session transcript. It accepts only
+   bounded structured state and repository metadata expressly allowed by the
+   canonical policy.
+5. Trigger evidence uses strict precedence: `tokens > percent > bytes >
+   UNKNOWN`. Signals are never averaged,
+   guessed, or silently promoted; `UNKNOWN` cannot authorize clear.
+6. A derived capsule is capped at `16 KiB` and written atomically. The engine
+   must bound content before replacement and must never leave a partial file.
+7. No runtime automatically invokes compact, `/clear`, or reset. The engine
+   may recommend an operator action only. Any active lane denies clear.
+8. Codex project hooks use Codex-native trust: the user reviews and trusts the
+   exact non-managed hook definition, and trust is recorded against its current
+   hash. New, changed, unsupported, or untrusted definitions are skipped until
+   reviewed. Repository fields cannot self-declare that trust.
+9. Codex CLI may expose `--dangerously-bypass-hook-trust`; therefore this
+   governance makes no platform-level bypass-impossibility claim. This
+   repository, its scripts, documentation, hooks, tests, and normal operator
+   instructions must never invoke or recommend that bypass. Managed hooks are
+   outside this local MVP.
+
+### Frozen ownership and path allowlists
+
+The retained sequence-1 test-only baseline is owned solely by `CTX-010-RED`, is
+frozen at `05cd6854cd5a749d10cfb12e9c08fffd6b576d80`, and contains exactly these
+nine committed paths. Its Git/provenance receipts remain valid historical
+evidence, but its contract is correction-required and cannot authorize source:
+
+- `plans/test_provenance/ctx-handoff-20260830-b00.json`
+- `tests/fixtures/context_handoff/agy/registrations.json`
+- `tests/fixtures/context_handoff/agy/stop_mappings.json`
+- `tests/fixtures/context_handoff/claude/registrations.json`
+- `tests/fixtures/context_handoff/claude/stop_mappings.json`
+- `tests/fixtures/context_handoff/codex/hooks_config.json`
+- `tests/fixtures/context_handoff/codex/native_mappings.json`
+- `tests/test_context_handoff.py`
+- `tests/test_context_handoff_hooks.py`
+
+### Retained sequence-1 evidence and blocking review
+
+- **Commit / parent**: baseline
+  `05cd6854cd5a749d10cfb12e9c08fffd6b576d80`, subject
+  `test(context): freeze cross-runtime handoff baseline`, has exact parent
+  `5d61b7c68a2c4b5691e3a2ea47eeed2660570a67` and the exact nine-path delta
+  above.
+- **Manifest-recorded sentinel RED**: `python3 -m pytest -q
+  tests/test_context_handoff.py::test_context_handoff_entrypoint_missing_before_source`
+  exited `1` with `AssertionError: CONTEXT_HANDOFF_ENTRYPOINT_MISSING` and
+  `1 failed`.
+- **Manifest-recorded full RED**: `python3 -m pytest -q tests/test_context_handoff.py
+  tests/test_context_handoff_hooks.py` exited `1` with `55 failed, 2 passed`;
+  failures are rooted in the intentionally absent engine and canonical
+  policy/config/skill/sync behavior, while fixture closure and unchanged
+  Claude/AGY registrations pass.
+- **Manifest-recorded existing negative control**: `python3 -m pytest -q
+  tests/test_claude_agy_parity.py::test_lifecycle_hooks_executable` exited `0`
+  with `1 passed`, preserving the pre-existing lifecycle-hook control.
+- **Provenance**: `python3 scripts/test_provenance_guard.py verify --manifest
+  plans/test_provenance/ctx-handoff-20260830-b00.json --baseline
+  05cd6854cd5a749d10cfb12e9c08fffd6b576d80 --head
+  05cd6854cd5a749d10cfb12e9c08fffd6b576d80` is `PASSED` with no issues and
+  `test_files_verified=8`; the ninth baseline path is the manifest itself.
+- **Sequence-1 pre-commit**: the test-running hook for commit `f838613` was
+  `SKIPPED` via `--no-verify` because tests were outside that docs lane. This
+  is not a hook pass, test pass, source-readiness proof, or release claim.
+- **Independent review**: `BLOCKED`. The sequence-1 Codex fixture uses a
+  non-native direct-handler shape, treats repository-authored
+  `trusted_project_only` / `untrusted_project_behavior` fields as trust
+  controls, and tests absence of bypass wording as though the CLI could not
+  expose a bypass. It does not bind the native three-level hook shape or the
+  native exact-hash user review/trust flow. The current contract also fails to
+  state that managed hooks are outside the local MVP.
+- **Product evidence**: the
+  [official OpenAI Codex hooks documentation](https://learn.chatgpt.com/docs/hooks)
+  requires review/trust for exact non-managed hook definitions, records trust
+  against the current hash, documents the native three-level config shape,
+  distinguishes managed hooks, and documents the dangerous one-off CLI bypass.
+
+### Required sequence-2 correction
+
+The QA owner must create a new test-only commit and
+`plans/test_provenance/ctx-handoff-20260830-b01.json` with `sequence: 2`,
+`supersedes: 05cd6854cd5a749d10cfb12e9c08fffd6b576d80`, a non-null correction reason,
+updated hashes, and fresh deterministic RED receipts. The corrected tests and
+fixtures must bind the native Codex three-level hook configuration and event
+I/O shapes; treat project hook trust as explicit user review of the exact
+current hash; remove repository fields that purport to grant trust; preserve
+normal untrusted/changed-hook fail-closed behavior; and verify that repository
+artifacts and normal operator instructions neither invoke nor recommend the
+dangerous bypass. They must not assert that Codex CLI lacks such a capability,
+must exclude managed hooks, and must preserve operator-only compact/clear/reset.
+Independent review must be green before the sequence-2 baseline can open core.
+
+`CTX-020-CORE` continues to own exactly
+`.agents/config/context_handoff_v1.json` and `scripts/context_handoff.py`, but
+it is not authorized to start. Once sequence 2 is verified and independently
+approved, every core-lane commit must carry a trailer bound to that exact new
+baseline SHA:
+
+```text
+Test-Baseline: <exact verified sequence-2 baseline SHA>
+```
+
+The source allowlist is exactly the canonical files assigned to
+`CTX-020-CORE`, `CTX-030-ADAPTERS`, `CTX-040-POLICY`, and `CTX-050-SYNC`:
+
+- `.agents/config/context_handoff_v1.json`
+- `scripts/context_handoff.py`
+- `.codex/hooks.json`
+- `.claude/hooks/stop-monitor.sh`
+- `.agy/hooks/stop-monitor.sh`
+- `.agents/skills/anti-cognitive-decay/SKILL.md`
+- `.agents/rules/20-context-handoff.md`
+- `.agents/AGENTS.md`
+- `scripts/sync_claude_agy_parity.py`
+- `scripts/sync_ai_agent_ecosystem.py`
+
+Generated mirrors and documentation are excluded from that source allowlist
+until their serial lanes. `CTX-060-GENERATED` owns exactly these three files:
+
+- `.antigravity/skills/anti-cognitive-decay/SKILL.md`
+- `.claude/skills/anti-cognitive-decay/SKILL.md`
+- `.agy/skills/anti-cognitive-decay/SKILL.md`
+
+After source and generated freeze, `CTX-070-DOCS` owns exactly:
+
+- `README.md`
+- `HOWTO.md`
+- `HANDOFF.md`
+- `AGENTS.md`
+- `CLAUDE.md`
+- `AGY.md`
+
+### Canonical local-only ticket graph
+
+| ID | Severity / effort | One owner | Status | Dependencies | Exact scope and measurable acceptance | Stop condition / exclusions |
+|---|---|---|---|---|---|---|
+| `CTX-000-GOV` | HIGH / S | `business_analyst` | DONE | fresh owner instruction | historical two-document graph freeze remains authoritative for invariants, serial ownership, and the release hold; this reconciliation does not reopen it | stop on any extra path or current-release mutation; no tests/source/config/hooks/skills/generated/`HANDOFF.md`/provider/network/credential/push/deploy action |
+| `CTX-010-RED` | CRITICAL / S | `qa_tester` | CORRECTION REQUIRED / BASELINE 05cd685 RETAINED | `CTX-000-GOV`; independent review `BLOCKED` | retain immutable sequence-1 SHA `05cd6854cd5a749d10cfb12e9c08fffd6b576d80`; create test-only sequence 2 and planned manifest `plans/test_provenance/ctx-handoff-20260830-b01.json` with corrected native Codex shape, exact-hash user trust, honest bypass boundary, managed-hook exclusion, hashes, and fresh RED receipts | stop on source/generated/docs mixing, missing correction reason/RED evidence, non-native trust claims, bypass invocation/recommendation, automatic compact/clear/reset, manifest drift, or ownership overlap |
+| `CTX-020-CORE` | CRITICAL / M | `developer` | BLOCKED | superseding sequence-2 baseline is verified and independently review-green | only `.agents/config/context_handoff_v1.json` and `scripts/context_handoff.py`; after the gate opens, the stdlib engine implements and validates the frozen policy and all four operations, and every lane commit carries `Test-Baseline: <exact verified sequence-2 baseline SHA>` | do not start from retained baseline `05cd685`; stop on missing sequence-2 SHA/hash/trailer, raw-transcript read, non-stdlib dependency, automatic clear/compact, partial/over-cap write, or extra path |
+| `CTX-030-ADAPTERS` | HIGH / S | `developer` | BLOCKED | `CTX-020-CORE` | `.codex/hooks.json`, `.claude/hooks/stop-monitor.sh`, `.agy/hooks/stop-monitor.sh` only; all three call the shared engine with equivalent fail-closed behavior; Codex project hooks use native exact-hash user review/trust and managed hooks remain out of scope | stop on duplicated policy, repository trust self-declaration, bypass invocation/recommendation, automatic clear/compact, swallowed failure, repository write outside the derived capsule, or extra path |
+| `CTX-040-POLICY` | HIGH / S | `skill_rule_owner` | BLOCKED | `CTX-020-CORE` | `.agents/skills/anti-cognitive-decay/SKILL.md`, `.agents/rules/20-context-handoff.md`, `.agents/AGENTS.md` only; canonical skill/rule/catalog match machine policy and preserve operator-only clear | stop on policy divergence, generated-file edit, unsafe invocation, ownership overlap, or extra path |
+| `CTX-050-SYNC` | HIGH / M | `developer` | BLOCKED | `CTX-030-ADAPTERS`, `CTX-040-POLICY` | `scripts/sync_claude_agy_parity.py`, `scripts/sync_ai_agent_ecosystem.py` only; deterministic sync/check recognizes canonical policy and produces only the declared mirrors with check mode read-only | stop on unrelated generation, out-of-repo/global write, source overwrite, parity drift, active current-release ownership, or extra path |
+| `CTX-060-GENERATED` | HIGH / XS | `generated_refresh_owner` | BLOCKED | `CTX-050-SYNC` | exact three mirrored skill files above in one generated-refresh lane; bytes and provenance match canonical output and sync check is clean | stop on manual divergent edits, any fourth generated path, canonical-source mutation, or non-determinism |
+| `CTX-070-DOCS` | HIGH / S | `business_analyst` | BLOCKED | `CTX-020-CORE` through `CTX-060-GENERATED` source/generated freeze | exact six documentation/global-guidance files above; operator guidance matches frozen behavior, labels `HANDOFF.md` derived, and makes no release/provider claim | stop on source/test/generated mutation, stale behavior, authority inversion, ownership overlap, or extra path |
+| `CTX-080-QA` | CRITICAL / M | `qa_tester` | BLOCKED | corrected sequence-2 `CTX-010-RED` through `CTX-070-DOCS` green | read-only independent QA runs frozen focused tests, provenance/history guards, native hook-shape and trust negatives, adapter negatives, ecosystem parity/check, security scan, and applicable regression; every required command exits 0 with bounded evidence | any fail, skip, stale fixture/hash, trust ambiguity, bypass recommendation, or source/test edit blocks review |
+| `CTX-090-REVIEW` | CRITICAL / S | `code_reviewer` | BLOCKED | `CTX-080-QA` green | read-only independent review verifies architecture, security/privacy, native exact-hash trust, bypass policy, managed-hook exclusion, one-editor history, exact-path provenance, and QA receipts; explicit approval required | any critical/high finding, missing evidence, raw transcript risk, trust ambiguity, bypass invocation/recommendation, or scope drift blocks integration |
+| `CTX-100-INTEGRATION-HOLD` | CRITICAL / S | `release_integrator` (existing current-release owner; no duplicate) | BLOCKED | release 120 production-green and every `CTX-000` through `CTX-090` gate green | after explicit owner handoff, revalidate ancestry, exact commits, overlap, independent QA/review, current-release CI, and merge plan before any integration action | no integration, merge/cherry-pick, push, deploy, publish, or production activation while release 120, a prior CTX gate, ownership, or overlap is not green |
+
+### DispatchDecision v1
+
+`ticket=CTX-010-REVIEW-RECONCILE`; `phase=planning/governance`; ranks
+`1/2/2/1/2`;
+floor `gpt-5.6-terra/high`; selected `gpt-5.6-sol/ultra`; quota `unknown` with
+bounded native mutation; `work_mode=mutation`; `selected_alias=native-bsa`;
+policy `2026-08-29.1`; `root-medium=true`; `hitl=true`; digest `pending`;
+status `READY_TO_VALIDATE`. This static label is routing intent only, not
+provider execution proof.
+<!-- CTX-HANDOFF-V1-20260830:END -->
+
+<!-- IDQ-AUTH02-OPERATIONAL-PLAN-20260830:START -->
+## GRILL REPORT — IDQ operational correction and `AUTH-02` intent
+
+**Recorded**: `2026-08-30` (Asia/Bangkok). **Status**: `APPROVED`.
+**Authorized next phase**: documentation governance only. This plan does not
+authorize an executor, daemon, provider process, release, or production action.
+
+### Nine-dimension decision
+
+- **D1 scope `[CONFIRMED]`**: correct current IDQ truth, freeze the operational
+  ticket graph, preserve the dirty primary tree through an isolated worktree,
+  and record the owner-approved `AUTH-02` intent. In scope for follow-on work is
+  a real bounded executor/daemon route with explicit cross-runtime handoff.
+  Out of scope are source/tests/config in this lane, credentials, billing,
+  raw-stream retention, mutation-capable provider work, push, deploy, publish,
+  production cutover, and fabricated receipts.
+- **D2 delta `[AUTO]`**: stale `DONE` and dispatch-ready labels are replaced by
+  evidence-bounded states. `IDQ-MVP-000-GOV` is historical `DONE`;
+  `IDQ-MVP-010` separates verified `0e1941528c0c8f49ef50a14fd046db2163d33379`
+  from reconstructed `0946bdec65173edacbaf4044b4198d55136c33ca`;
+  `020` has a local contract but awaits fresh QA; `030`-`060` are reopened and
+  blocked on the real executor/daemon route; `070` is reopened; `080` and `090`
+  are blocked.
+- **D3 acceptance `[CONFIRMED]`**: only the two governance files change in the
+  first commit and only `HANDOFF.md` in the second; exact staged paths and
+  `git diff --cached --check` pass before each commit; the primary dirty paths
+  remain byte/status-preserved. Stop on worktree/branch conflict or unowned
+  overlap.
+- **D4 inputs/dependencies `[AUTO/CONFIRMED]`**: exact base
+  `784291788560c4cd4d2bf5f6d2bea39577dac07d`, owner authorization dated
+  `2026-08-30`, verified baseline `0e194152`, and the required exact aliases
+  `codex1`, `codex2`, `agy1`, `agy2` are available. Fresh operational QA,
+  effective read-only isolation, real-path proof, activation values, and
+  provider receipts are not available and remain dependency gates.
+- **D5 ownership `[CONFIRMED]`**: BSA owns current governance and the final
+  seal; developer owns the executor/daemon and cross-runtime handoff path; QA
+  owns fresh evidence and four-alias execution; orchestrator owns final
+  preflight. One editor per path remains mandatory.
+- **D6 assumptions `[CONFIRMED]`**: static route/model labels and local source
+  presence are intent/readiness evidence only, not provider or production
+  proof. Silence and historical test counts are not waivers or fresh evidence.
+- **D7 risk/recovery `[CONFIRMED]`**: fail closed on stale ancestry, alias
+  fallback, post-start ambiguity, duplicate execution, secret/raw-stream
+  exposure, malformed receipts, or authority replay. Recovery is to stop before
+  process creation, retain evidence, seal temporary authority, and keep the
+  ordinary path closed.
+- **D8 budget/evidence `[CONFIRMED]`**: bounded native mutation with concise
+  ASCII evidence; no tests or provider calls in this lane. DispatchDecision
+  labels remain unproved until a bound runtime receipt exists.
+- **D9 domain/HITL `[NOT-APPLICABLE]`**: no metaphysical engine or canonical
+  source changes. Owner HITL approval applies only to this scoped governance
+  intent; conflict, credentials, production action, or scope expansion returns
+  to HITL.
+
+### Current evidence and authorization truth
+
+`IDQ-MVP-080-AUTH-01` is `SEALED / EXPIRED`; it cannot be renewed, replayed,
+or inherited. The owner's `2026-08-30` instruction records `AUTH-02` approval
+intent only. There is no active TTL, nonce, risk lease, or dispatch lease.
+Fresh single-use activation values may be issued only in `IDQ-OP-050-PREFLIGHT`
+after `IDQ-OP-020-EXECUTOR` and `IDQ-OP-030-QA` are green and the effective
+read-only path is proved.
+
+Exactly four future proof lanes are permitted: `codex1`, `codex2`, `agy1`, and
+`agy2`. Each is distinct, read-only, single-attempt, and no-fallback. Evidence
+must bind fresh decision/snapshot/nonce/lease/alias/ticket/attempt values and
+validate `ExecutionReceipt` independently from typed `WorkResult`. Never read,
+persist, print, or reconstruct credentials, account identifiers, prompt/output
+bodies, or raw provider streams. AGY success language is limited to
+`validated in-process only`.
+
+### Canonical dependency graph
+
+| Ticket | Status | Dependency | Owner and measurable exit |
+|---|---|---|---|
+| `IDQ-OP-000-GOV` | DONE | owner authorization | BSA: current plan/board truth and exact checks committed |
+| `IDQ-OP-010-BASELINE` | DONE — VERIFIED | `IDQ-OP-000-GOV` | QA: verified `0e194152`; reconstructed `0946bde` remains historical only |
+| `IDQ-OP-020-EXECUTOR` | BLOCKED | `IDQ-OP-010-BASELINE` | developer: real bounded executor/daemon and cross-runtime handoff path implemented without fallback or raw-stream handling |
+| `IDQ-OP-030-QA` | BLOCKED | `IDQ-OP-020-EXECUTOR` | QA: fresh deterministic lifecycle, handoff, read-only, and receipt-integrity evidence all green |
+| `IDQ-OP-040-AUTH02-GOV` | INTENT RECORDED — HOLD | `IDQ-OP-030-QA` | BSA: activate only after fresh QA; predecessor remains sealed |
+| `IDQ-OP-050-PREFLIGHT` | BLOCKED | `IDQ-OP-030-QA`, `IDQ-OP-040-AUTH02-GOV` | orchestrator: prove real path/read-only isolation/fresh quota and atomically bind new single-use TTL, nonce, and lease |
+| `IDQ-OP-060-FOUR-ALIAS` | BLOCKED | `IDQ-OP-050-PREFLIGHT` | QA: four distinct valid provider-native receipts and typed results, exactly one per alias |
+| `IDQ-OP-090-SEAL` | BLOCKED | `IDQ-OP-060-FOUR-ALIAS` | BSA: seal all temporary authority and reconcile evidence without a release claim |
+
+### DispatchDecision v1
+
+```text
+ticket=IDQ-OP-000-GOV-20260830
+phase=planning/governance
+ranks: scope=2, complexity=2, risk=2, ambiguity=1, evidence=2
+quality_floor=gpt-5.6-terra/high
+selected_alias=native-bsa
+selected_model=gpt-5.6-sol
+selected_effort=ultra
+quality_exception=owner quality override
+quota_band=unknown (bounded native mutation)
+work_mode=mutation
+policy_version=2026-08-29.1
+planning_to_medium_confirmed=true
+hitl_approved=true
+decision_digest=pending native runtime
+status=READY_TO_VALIDATE
+```
+
+The decision is static routing intent, not provider execution proof. Success is
+both scoped commits plus exact staged checks and unchanged primary dirty paths.
+Stop at any branch/worktree conflict, unowned overlap, failed staged check, or
+request to cross the stated authorization boundary.
+<!-- IDQ-AUTH02-OPERATIONAL-PLAN-20260830:END -->
+
 <!-- RELEASE-VERIFIED-20260830-000-GOV:START -->
 ## Verified-only production release program - RELEASE-VERIFIED-20260830-000-GOV
 Gate: DONE / VERIFIED ON PRODUCTION. Scope: active/releasable tickets only. Historical, superseded, and future-roadmap work is ARCHIVED or DEFERRED by evidence, never falsely DONE.
@@ -171,9 +534,12 @@ Explicit blockers and exclusions: `.agents/config/multiagent_prompt_command.exam
 ---
 
 <!-- IDQ-MVP-GOVERNANCE-20260828:START -->
-## GRILL REPORT — Independent Roots + Durable Queue Local MVP
+## Historical GRILL REPORT — Independent Roots + Durable Queue Local MVP
 
 **Recorded**: `2026-08-28T23:21:18+07:00`
+**Current classification**: retained as historical planning evidence. The
+canonical `2026-08-30` block at the top of this file reopens `020`-`070`, blocks
+`080`/`090`, and does not adopt the historical pass counts as fresh proof.
 **Gate**: `APPROVED` — the user's explicitly locked plan resolves scope,
 inputs/dependencies, assumptions, success criteria, and stop conditions.
 **Authority**: owner-supplied plan and fresh delegated HITL instruction.
@@ -288,7 +654,7 @@ C1/C2 closure.
 <!-- IDQ-MVP-GOVERNANCE-20260828:END -->
 
 <!-- IDQ-MVP-080-AUTH-20260829:START -->
-## Conditional dispatch authorization — `IDQ-MVP-080-AUTH-01`
+## Historical conditional dispatch authorization — `IDQ-MVP-080-AUTH-01`
 
 **Recorded**: `2026-08-29T00:57:56+07:00` (Asia/Bangkok). The owner expressly
 authorized the bounded `IDQ-MVP-080` Codex/AGY provider test for exactly
@@ -296,14 +662,18 @@ authorized the bounded `IDQ-MVP-080` Codex/AGY provider test for exactly
 retry or fallback, with a provider-native receipt bound to a typed
 `WorkResult`.
 
-**Single-use scope and risk**: `RISK-IDQ-MVP-080-20260829-01` is non-secret.
-The authorization expires at the earlier of `2026-08-29T04:57:56+07:00`, a new
-root session/control-process restart, or final terminal disposition of all
-four aliases. Seal `IDQ-MVP-080-AUTH-01` at expiry/finalization; it cannot be
-renewed, replayed, expanded, or used to retry/substitute an alias.
+**Current status**: `SEALED / EXPIRED — NOT DISPATCH AUTHORITY`. This record
+cannot be replayed, renewed, inherited by `AUTH-02`, or treated as a current
+TTL, nonce, risk lease, or dispatch lease.
 
-This narrowly supersedes only the former authorization hold on
-`IDQ-MVP-080-FOUR-ALIAS`. It does not alter immutable historical attempts,
+**Single-use scope and risk**: `RISK-IDQ-MVP-080-20260829-01` is non-secret.
+The authorization expired at `2026-08-29T04:57:56+07:00` at the latest and is
+sealed. It cannot be renewed, replayed, expanded, or used to retry/substitute
+an alias.
+
+This historically superseded only the former authorization hold on
+`IDQ-MVP-080-FOUR-ALIAS`; expiry restored the ticket to `BLOCKED`. It does not
+alter immutable historical attempts,
 ordinary `S5`/`CLOSED`/activation-prohibited operation, Rule 17/18, other
 tickets, or exclusions for secrets, credentials, billing, mutation, Git,
 deployment, publishing, raw-stream retention, and production claims.
@@ -330,11 +700,11 @@ only`.
 identity/executable check, read-only isolation check, malformed/missing receipt,
 or malformed/missing `WorkResult`; record typed `BLOCKED` or `NEEDS_HITL`, seal
 that alias, and never retry, reroute, substitute, or chain it. A valid result
-for one alias does not grant another attempt. Dispatch may begin only after
-`IDQ-MVP-070-QA` is `DONE`, every corresponding fresh gate is green, the
-orchestrator confirms no active conflict/stop, and the executor is delegated
-with the exact scope. This authorization is not execution evidence and makes
-no readiness claim.
+for one alias does not grant another attempt. No dispatch may use this sealed
+record. The new `AUTH-02` intent remains on hold until `IDQ-OP-020-EXECUTOR`,
+`IDQ-OP-030-QA`, `IDQ-OP-040-AUTH02-GOV`, and `IDQ-OP-050-PREFLIGHT` satisfy
+their fresh gates. This authorization is not execution evidence and makes no
+current readiness claim.
 <!-- IDQ-MVP-080-AUTH-20260829:END -->
 
 <!-- FIVE-POOL-CAPACITY-GOVERNANCE-20260829:START -->

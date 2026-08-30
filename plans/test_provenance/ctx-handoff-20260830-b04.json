@@ -1,0 +1,62 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-CTX-010-RED",
+  "sequence": 5,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "2184039aad706391d1927083fc3f866f77b5781f",
+  "test_files": [
+    {
+      "path": "tests/test_context_handoff_hooks.py",
+      "sha256": "8bfaa1850390ac45f684990f5aae9fddba550e247e4672b32541998fd31d06ae"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=no",
+        "tests/test_context_handoff.py::test_context_handoff_entrypoint_missing_before_source"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Pytest summary: 1 failed; AssertionError: CONTEXT_HANDOFF_ENTRYPOINT_MISSING"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=no",
+        "tests/test_context_handoff.py",
+        "tests/test_context_handoff_hooks.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Pytest summary: 127 failed, 3 passed; source is intentionally absent and registration/governance/generated-mirror contracts remain unsatisfied, while the three closed fixture and non-steering controls pass."
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/context_handoff_v1.json",
+    "scripts/context_handoff.py",
+    ".codex/hooks.json",
+    ".claude/settings.json",
+    ".claude/hooks/stop-monitor.sh",
+    ".agy/hooks.json",
+    ".agy/hooks/stop-monitor.sh",
+    ".agents/skills/anti-cognitive-decay/SKILL.md",
+    ".antigravity/skills/anti-cognitive-decay/SKILL.md",
+    ".claude/skills/anti-cognitive-decay/SKILL.md",
+    ".agy/skills/anti-cognitive-decay/SKILL.md",
+    ".agents/rules/20-context-handoff.md",
+    ".agents/AGENTS.md",
+    "scripts/sync_claude_agy_parity.py",
+    "scripts/sync_ai_agent_ecosystem.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "2184039aad706391d1927083fc3f866f77b5781f",
+  "correction_reason": "Sequence 4 executed the registered Claude and AGY wrappers but rewrote each normalized-state input immediately before invocation and did not prove byte preservation, unset behavior, the exact 65536-byte boundary, pre-parse rejection at 65537 bytes, recursive temporary-artifact nonleak, or refusal to read symlink, FIFO, and device paths.",
+  "rationale": "Seal the existing CONTEXT_HANDOFF_STATE_FILE channel without expanding the 15-path source boundary. Both actual registered wrappers must preserve every regular state input byte-for-byte; treat an unset path exactly as empty normalized state without creating artifacts; accept a valid JSON state padded to exactly 65536 bytes; reject a 65537-byte syntactically invalid input as NORMALIZED_STATE_TOO_LARGE before parsing; and reject symlink, FIFO, and device paths without reading them. All failure paths keep stdout empty, bound diagnostics, preserve HANDOFF.md and Git state, and recursively exclude native sensitive canaries from every non-input artifact under the state temporary directory. Collection remains 130 cases. Fresh controls: the sentinel exited 1 with 1 failed; the full suite exited 1 with 127 failed and 3 passed; three closed fixture controls exited 0 with 3 passed. DispatchDecision CTX-010-RED-B04: final bounded QA correction; test-only commit; no provider, credentials, deployment, documentation, runtime, or source mutation."
+}

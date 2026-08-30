@@ -1,0 +1,75 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-CTX-010-RED",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "8c14ad3d6f66fb9209b756544ee03e4ebb4cf75c",
+  "test_files": [
+    {
+      "path": "tests/fixtures/context_handoff/agy/stop_mappings.json",
+      "sha256": "88d1b006057079ea088f0d58ab12c872c24a60a3c290755548882f973874e11c"
+    },
+    {
+      "path": "tests/fixtures/context_handoff/claude/stop_mappings.json",
+      "sha256": "94fab8bf630b573f937ee9a0c705f81b309b036f05dc486d936a91792a6b5c77"
+    },
+    {
+      "path": "tests/fixtures/context_handoff/codex/hooks_config.json",
+      "sha256": "5d13d26fbb3e3381d35c3b7bda6a630bd882fa548a7a6cf1495ce8806beea50d"
+    },
+    {
+      "path": "tests/fixtures/context_handoff/codex/native_mappings.json",
+      "sha256": "579d96603d6a4d5c9e4615c4a792d3402097f0be46e7b5d7fd3eb4285707c4b4"
+    },
+    {
+      "path": "tests/test_context_handoff.py",
+      "sha256": "07201b3b2b84fe75c1b175321db5f125573212cf0510791d888bdfa25d570750"
+    },
+    {
+      "path": "tests/test_context_handoff_hooks.py",
+      "sha256": "9abbaf73147858197af542b5aba08d259f46998451c01acc4152ac1edda597a1"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_context_handoff.py::test_context_handoff_entrypoint_missing_before_source"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: CONTEXT_HANDOFF_ENTRYPOINT_MISSING; pytest summary: 1 failed"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_context_handoff.py",
+        "tests/test_context_handoff_hooks.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Pytest summary: 123 failed, 4 passed; failures are rooted in the intentionally absent canonical engine, policy, native hook adapters, governance, generated mirrors, and context-aware sync behavior, while the corrected trust/request fixtures, unchanged registrations, and closed fixture controls pass."
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/context_handoff_v1.json",
+    "scripts/context_handoff.py",
+    ".codex/hooks.json",
+    ".claude/hooks/stop-monitor.sh",
+    ".agy/hooks/stop-monitor.sh",
+    ".agents/skills/anti-cognitive-decay/SKILL.md",
+    ".agents/rules/20-context-handoff.md",
+    ".agents/AGENTS.md",
+    "scripts/sync_claude_agy_parity.py",
+    "scripts/sync_ai_agent_ecosystem.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "05cd6854cd5a749d10cfb12e9c08fffd6b576d80",
+  "correction_reason": "The sequence-1 Codex fixture uses a non-native direct-handler shape, treats repository-authored `trusted_project_only` / `untrusted_project_behavior` fields as trust controls, and tests absence of bypass wording as though the CLI could not expose a bypass. It does not bind the native three-level hook shape or the native exact-hash user review/trust flow. The current contract also fails to state that managed hooks are outside the local MVP.",
+  "rationale": "Supersede only the retained sequence-1 contract with a source-blocking QA baseline that freezes native Codex hook nesting and event I/O, external exact-hash user trust, non-managed scope, bounded cross-runtime context signals, recursive non-echo security, atomic no-loss merge behavior, and deterministic temp-repository sync. Fresh controls passed: the four corrected fixture/trust/request/unchanged-registration tests exited 0 with 4 passed; the pre-existing lifecycle-hook executable control exited 0 with 1 passed; and both live read-only sync checks exited 0 without expanding the six-path test delta. DispatchDecision CTX-010-RED-B01: qa ranks 2/3/3/2/3; Sol/high floor; Sol/ultra selected; quota unknown; bounded mutation; native-qa; policy 2026-08-29.1; root-medium true; hitl true. This is static routing intent only, never provider execution proof."
+}

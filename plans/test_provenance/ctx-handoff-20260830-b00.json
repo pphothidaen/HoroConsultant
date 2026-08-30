@@ -1,0 +1,83 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-CTX-010-RED",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "5d61b7c68a2c4b5691e3a2ea47eeed2660570a67",
+  "test_files": [
+    {
+      "path": "tests/fixtures/context_handoff/agy/registrations.json",
+      "sha256": "3126bda2eb82adff611b0e9502b7884364f1a1538ca3b26d4e21a42653d62dd3"
+    },
+    {
+      "path": "tests/fixtures/context_handoff/agy/stop_mappings.json",
+      "sha256": "f07c547a2fd90e162a38d5dc4a0f76f8eb4ce3646eab8f8b62cfca856a7c93e5"
+    },
+    {
+      "path": "tests/fixtures/context_handoff/claude/registrations.json",
+      "sha256": "0eec62b27482e12e73cb14be3f780ce97772b358a1b0a177bbb6c89fa324dd39"
+    },
+    {
+      "path": "tests/fixtures/context_handoff/claude/stop_mappings.json",
+      "sha256": "d6b1a61bdeb23c08160efd2d3f577690874e584847ee9563bb84ab3fa8586c43"
+    },
+    {
+      "path": "tests/fixtures/context_handoff/codex/hooks_config.json",
+      "sha256": "14f2db0ae19c1b2685ecaf92609c0d86eee79ee5402fc74869aa0540df05acd7"
+    },
+    {
+      "path": "tests/fixtures/context_handoff/codex/native_mappings.json",
+      "sha256": "5ec29b31be7ba988f6748c092d50d3bf89a6fb0766ff2195e9bfd45722ce7945"
+    },
+    {
+      "path": "tests/test_context_handoff.py",
+      "sha256": "0bfde5917c33a266c6147290f73962961c74ac94a40f2a2d3ac811302a992713"
+    },
+    {
+      "path": "tests/test_context_handoff_hooks.py",
+      "sha256": "88a44a1b9e8f4e09d0142cae0ef75a089c3c5e502568c12b667f5d483a5a883b"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_context_handoff.py::test_context_handoff_entrypoint_missing_before_source"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: CONTEXT_HANDOFF_ENTRYPOINT_MISSING; pytest summary: 1 failed"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_context_handoff.py",
+        "tests/test_context_handoff_hooks.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Pytest summary: 55 failed, 2 passed; failures are rooted in the intentionally absent scripts/context_handoff.py and canonical policy/config/skill/sync behavior, while fixture closure and unchanged Claude/AGY registrations pass."
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/context_handoff_v1.json",
+    "scripts/context_handoff.py",
+    ".codex/hooks.json",
+    ".claude/hooks/stop-monitor.sh",
+    ".agy/hooks/stop-monitor.sh",
+    ".agents/skills/anti-cognitive-decay/SKILL.md",
+    ".agents/rules/20-context-handoff.md",
+    ".agents/AGENTS.md",
+    "scripts/sync_claude_agy_parity.py",
+    "scripts/sync_ai_agent_ecosystem.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze the genuine clean-worktree RED contract for CTX-010-RED before any context-handoff source, configuration, hook, skill, rule, sync, generated, or documentation mutation. The black-box suite binds stdlib CLI operations, bounded signal precedence and thresholds, canonical HandoffSnapshotV1 security and atomicity, no-loss lane merging, authority and operator-only safety, native Codex/Claude/AGY mappings, trusted-project denial, unchanged existing registrations, and acceptance-focused sync/skill behavior. Relevant existing negative control `python3 -m pytest -q tests/test_claude_agy_parity.py::test_lifecycle_hooks_executable` exited 0 with `1 passed`, proving the pre-existing lifecycle hook executability control remains green. DispatchDecision v1 remains the supplied READY_TO_VALIDATE static routing intent only and is not provider proof."
+}
