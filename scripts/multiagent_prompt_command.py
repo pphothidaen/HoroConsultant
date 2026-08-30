@@ -5381,8 +5381,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             decision = validate_dispatch_decision(decision, model_policy, route).decision
             if args.scheduling_snapshot:
                 scheduling_snapshot = load_scheduling_snapshot(args.scheduling_snapshot)
-        if args.execute:
-            validate_activation_state(config)
+        if args.execute and not closed_exception_requested:
+            if normal_activation_state is None:
+                raise ConfigurationError("normal activation state is unavailable")
+            activation_prohibited, dispatcher_execution = normal_activation_state
+            validate_activation_state(
+                activation_prohibited=activation_prohibited,
+                dispatcher_execution=dispatcher_execution,
+            )
         route = resolve_route(
             config,
             args.role,
@@ -5397,7 +5403,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 decision.get("selected_effort") if decision is not None else args.effort
             ),
         )
-        if args.execute:
+        if args.execute and not closed_exception_requested:
             validate_provider_account_state(
                 config,
                 account=route.alias,

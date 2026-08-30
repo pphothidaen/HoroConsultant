@@ -2423,9 +2423,10 @@ trailing whitespace remains outside this v2 change and was not normalized.
 
 ### Follow-on authorization checkpoint — `TICKET-ALIAS-RC2-004`
 
-**Status**: TODO — fresh owner `approve all` authorization recorded after
-`RC2-003` attempt exhaustion. `RC2-003` stays immutable `BLOCKED` history;
-this checkpoint cannot relabel its results, receipts, retries, or gate state.
+**Status**: `codex1` attempt-1 completed. `RC2-003` stays immutable `BLOCKED`
+history; this checkpoint cannot relabel its results, receipts, retries, or gate
+state. `codex2`, `agy1`, and `agy2` remain uninvoked and require separate
+recorded authorization.
 
 **Scheduling**: Severity `CRITICAL`; Work Effort `S`; quota `unknown` and
 bounded-lane-only. Stop before any further work if runtime reports below 10%.
@@ -2451,11 +2452,14 @@ redispatch is authorized. Invalid, ambiguous, isolation, auth/permission,
 billing, ownership, secret, or under-10%-quota conditions stop and return
 `NEEDS_HITL`.
 
-**Success / stop condition**: success for this checkpoint is limited to
-content-free taxonomy/test evidence plus one terminal `codex1` classification;
-it does not close the four-alias receipt or release gate. Stop on any failed
-gate or unauthorized continuation. Board-level details and acceptance checklist
-are authoritative in `TICKET-ALIAS-RC2-004`.
+**Success / stop condition**: one approved read-only
+`RC2-004/codex1/attempt-1` completed with exit `0`, terminal completed status,
+a schema-valid `WorkResult` and `ExecutionReceipt`, `WorkResult` `DONE`, no
+provider parse failure, changed files `[]`, and maintained read-only isolation.
+No retry or alias switch occurred. This does not close the four-alias receipt
+or release gate; each remaining alias requires separate recorded authorization.
+Board-level details and acceptance checklist are authoritative in
+`TICKET-ALIAS-RC2-004`.
 
 ### QuotaObservation remediation checkpoint
 
@@ -2483,6 +2487,67 @@ with one editor and exact ownership recorded in `PROJECT_TASKS.md`.
   18/11 pair. Sync is restricted to the final QA/GOVERNANCE+SYNC lane; provider,
   network, secret, account, deploy, publish, push, and release actions remain
   excluded.
+
+### QOBS recovery authorization checkpoint -- 2026-08-30
+
+The user explicitly authorized a history-preserving recovery branch for the
+isolated QOBS replay: `recovery/ticket-alias-rc2-004-qobs-probe`, based exactly
+on `943bdd869b492a080493e669bdfdacf866c5e664`. The recovery-base provenance
+verification passed against baseline `9847234f3f2537d0b65ecb1fc9afca87ceb517a2`
+with two frozen tests verified; historical records are preserved.
+
+`QOBS-01-PROBE` remains the ticket's only eligible mutation lane, with sole
+developer ownership of `scripts/agent_quota_status_guard.py`. The frozen tests
+and manifest are read-only, and every later QOBS lane is read-only/gated until
+its own predecessor freezes and fresh evidence authorizes it. Provider/alias,
+network, secret, account, sync, push, deploy, publish, and release actions are
+excluded.
+
+**Inline DispatchDecision v1 / Rule 11 snapshot**: ranks `2/2/3/1/3`; quality
+floor `gpt-5.6-sol/high`; selected `codex1/gpt-5.6-sol/high`; local-native
+non-provider quota band `constrained`; `work_mode` `mutation`; policy
+`2026-08-26.1`; planning-to-medium confirmed; and HITL approved through this
+user's explicit recovery-branch authorization. This is planning authorization
+only, not provider-execution proof. No JSON decision or snapshot artifact is
+created or reusable from this checkpoint.
+
+### QOBS isolated recovery completion checkpoint -- 2026-08-30
+
+The isolated replay reached
+`4670fc40dda88bc1dbc12c582eb99dc21133479d`. The focused QOBS suites passed
+`67`, and the provenance verifier returned `PASSED` against baseline
+`9847234f3f2537d0b65ecb1fc9afca87ceb517a2` with two frozen tests verified.
+`QOBS-01-PROBE` is frozen at that commit; the dispatcher and scheduler source
+lanes remain frozen at `943bdd869b492a080493e669bdfdacf866c5e664`.
+
+The active final lane is QOBS QA/GOVERNANCE+SYNC: it updates only the
+authoritative governance rule/skill/template records and its generated mirrors
+through the mandatory local sync tool. This remains local-only planning and
+verification work. It does not authorize or prove provider/alias, network,
+secret, account, push, deploy, publish, or release execution; frozen tests,
+manifest, schemas, policy, and source scripts remain read-only.
+
+Final local governance evidence is commit
+`ac55aee1c07ecdbcbe2b7febf18a28f21eaceee4`: its staged provenance check,
+mandatory ecosystem sync/check, and final focused/provenance verification all
+passed. This completes QOBS QA/GOVERNANCE+SYNC locally without changing the
+no-provider boundary.
+
+**Single-use root waiver (2026-08-30 Asia/Bangkok)**: The user's `approve`
+reply authorizes the root only to stage and create the immediately following
+local governance commit for these exact two files after delegated governance
+lanes failed to return a staging receipt. The root owns that one action; it
+stops once the commit exists and does not authorize source edits, further Git
+mutation, push, or any excluded action.
+
+**Single-use root recovery-source waiver (2026-08-30 Asia/Bangkok)**: The
+user's subsequent `approve` authorizes the root to replay, test, stage, and
+create one local commit for exactly `scripts/agent_quota_status_guard.py` on
+this recovery branch after all three available subagent slots remained occupied
+by interrupted governance lanes. Stop after the focused tests and post-commit
+provenance verification. This waiver excludes test changes, all other paths,
+provider/alias/network/account/secret actions, sync, push, deployment,
+publishing, and release.
 
 ---
 

@@ -54,6 +54,14 @@ unlisted pairs or provider-specific unsupported efforts are rejected.
 - Quota is a planning input, not a quality exception. Record only a safe band;
   below 10% stops broad work under the quota handoff rule.
 
+### QOBS v1 planning boundary
+
+For `TICKET-ALIAS-RC2-004-QOBS-01`, a local-native non-provider quota band is
+planning input only. The QOBS v1 observation contract is non-executable for
+provider dispatch; a selected alias/model/effort documents an eligible local
+lane but does not prove a provider ran. Require fresh, separately authorized
+execution evidence before any provider or alias action.
+
 ## Overrides and proof
 
 Overrides may strengthen a valid decision only when supported by the catalog

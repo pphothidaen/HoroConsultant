@@ -13,6 +13,8 @@ Copy these files while preserving their relative paths:
 - `.agents/schemas/multiagent-dispatch-decision-v1.schema.json`
 - `.agents/schemas/multiagent-dispatch-receipt-v2.schema.json`
 - `.agents/schemas/multiagent-dispatch-receipt-v1.schema.json`
+- `.agents/schemas/multiagent-quota-observation-v1.schema.json`
+- `.agents/schemas/multiagent-quota-observation-artifact-v1.schema.json`
 
 Install PyYAML in the target project's environment, copy the example to a project-local configuration, and replace the example home paths with existing CLI homes. Do not put tokens, cookies, emails, or passwords in YAML.
 
@@ -141,6 +143,12 @@ are routing intent only; bind the policy version and digest to the actual route,
 receipt, and child result for runtime proof. The historical dry-run
 `dispatch_receipt` key is retained for consumers, but its value is route intent,
 not an `ExecutionReceipt`.
+
+For `TICKET-ALIAS-RC2-004-QOBS-01`, local QuotaObservation v1 data is
+content-free planning input and is non-executable for provider dispatch. It
+does not make `--execute` eligible or prove an alias ran. Provider/alias,
+network, secret, account, sync, push, deploy, publish, and release actions
+remain separately authorized boundaries.
 
 ## Ticket, retry, and HITL fields
 

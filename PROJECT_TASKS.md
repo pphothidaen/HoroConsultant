@@ -2076,7 +2076,7 @@ Current sections below track active work and release gates only.
 | `PROMPT-GOV-001` | `business_analyst` / `orchestrator` | Govern multi-account PromptCommand routing, quota/account evidence, bounded retries, HITL escalation, and synchronized governance mirrors | DONE | `TICKET-META-008`, Rule 17 |
 | `TICKET-ORCH-ONLY-002` | `business_analyst` / `orchestrator`; aliases `codex1`, `codex2`, `agy1`, `agy2` | Enforce governance -> rules -> hooks hierarchy; keep root/current session orchestrator-only and obtain four distinct alias receipts | BLOCKED — HITL DISPATCH CONTRACT | Rule 17, current CORS/separation lanes |
 | `TICKET-ALIAS-RC2-003` | `developer` / `qa_tester` / `code_reviewer`; aliases `codex1`, `codex2`, `agy1`, `agy2`; monitored by `orchestrator` | Implement, validate, review, then redispatch four distinct lanes with Result Contract v2 | BLOCKED — CODEX1 ATTEMPTS EXHAUSTED | `TICKET-ORCH-ONLY-002`, Rule 17 |
-| `TICKET-ALIAS-RC2-004` | `developer` / `qa_tester` / `code_reviewer`; aliases are bounded read-only diagnostics, monitored by `orchestrator` | Content-free provider parse-reason taxonomy and one fresh `codex1` diagnostic authorization | TODO — OWNER AUTHORIZED / QUOTA UNKNOWN | `TICKET-ALIAS-RC2-003` immutable blocker, QA/retry gate, Rule 17 |
+| `TICKET-ALIAS-RC2-004` | `developer` / `qa_tester` / `code_reviewer`; aliases are bounded read-only diagnostics, monitored by `orchestrator` | Content-free provider parse-reason taxonomy and one fresh `codex1` diagnostic authorization | CODEX1 ATTEMPT-1 COMPLETED — FOLLOW-ON ALIASES UNAUTHORIZED | `TICKET-ALIAS-RC2-003` immutable blocker, separate recorded authorization for each follow-on alias, Rule 17 |
 
 ### TICKET-ORCH-ONLY-002 | Orchestrator-Only Control and Four-Alias Dispatch | [STATUS: BLOCKED — HITL DISPATCH CONTRACT]
 
@@ -2210,7 +2210,7 @@ generated Codex agent file was manually edited or changed by this governance
 update. Existing trailing whitespace in unrelated earlier board additions is
 preserved and is not v2 evidence.
 
-### TICKET-ALIAS-RC2-004 | Content-Free Parse-Reason Diagnostic Follow-On | [STATUS: TODO — OWNER AUTHORIZED / QUOTA UNKNOWN]
+### TICKET-ALIAS-RC2-004 | Content-Free Parse-Reason Diagnostic Follow-On | [STATUS: CODEX1 ATTEMPT-1 COMPLETED — FOLLOW-ON ALIASES UNAUTHORIZED]
 
 **Fresh authorization checkpoint (2026-08-25)**: after the exhausted
 `TICKET-ALIAS-RC2-003` `codex1` attempts, the owner gave fresh `approve all`
@@ -2252,7 +2252,7 @@ dispatch. Stop immediately if the runtime reports less than 10% remaining.
 |---|---|---|---|
 | 1 | `developer` / `qa_tester` | Implement and test only the content-free `provider_parse_reason` taxonomy. | Focused QA must pass; no provider payload retention. |
 | 2 | `code_reviewer` | Read-only review of taxonomy, test coverage, redaction boundary, and retry gate. | Must accept fail-closed boundary before any alias attempt. |
-| 3 | `codex1` | Exactly one fresh, read-only diagnostic attempt, recorded as `RC2-004/codex1/attempt-1`. | If invalid/ambiguous/blocked, stop this ticket and return `NEEDS_HITL`; no automatic retry. |
+| 3 | `codex1` | Completed one approved read-only diagnostic attempt, recorded as `RC2-004/codex1/attempt-1`. | Terminal completed; no retry or alias switch. |
 | 4 | `codex2` | One separately recorded, bounded read-only attempt only after a valid `codex1` result and an explicit recorded attempt authorization. | Otherwise not dispatched. |
 | 5 | `agy1` | One separately recorded, bounded read-only attempt only after the preceding valid gate and explicit recorded attempt authorization. | Otherwise not dispatched. |
 | 6 | `agy2` | One separately recorded, bounded read-only attempt only after the preceding valid gate and explicit recorded attempt authorization. | Otherwise not dispatched. |
@@ -2262,7 +2262,14 @@ dispatch. Stop immediately if the runtime reports less than 10% remaining.
 - [ ] Taxonomy uses only approved, content-free `provider_parse_reason` values; no raw output, identifiers, paths, or secrets are persisted.
 - [ ] Focused taxonomy tests pass under their separately owned QA lane.
 - [ ] Independent review confirms read-only isolation, fail-closed parsing, and the no-retention boundary.
-- [ ] Exactly one fresh `codex1` diagnostic attempt is recorded under `RC2-004`; it does not alter `RC2-003` history.
+- [x] Exactly one fresh `codex1` diagnostic attempt is recorded under `RC2-004`; it does not alter `RC2-003` history.
+
+**Attempt outcome -- `RC2-004/codex1/attempt-1`**: one approved read-only
+`codex1` attempt completed with exit `0`. Its terminal completed result had a
+schema-valid `WorkResult` and `ExecutionReceipt`; the `WorkResult` was `DONE`,
+reported no provider parse failure, and reported changed files `[]`. Read-only
+isolation was maintained. No retry or alias switch occurred. `codex2`, `agy1`,
+and `agy2` remain uninvoked and each requires separate recorded authorization.
 
 #### `TICKET-ALIAS-RC2-004-QOBS-01` | QOBS test-first umbrella | [STATUS: CONTRACT_FROZEN — PROBE_READY]
 
@@ -2295,11 +2302,65 @@ Git review pass. QOBS completion still does not authorize four-alias execution.
 |---|---|---|---|---|---|
 | `QOBS-01-TEST-BASELINE` | `qa_tester` | CRITICAL / S | DONE — TEST_BASELINE_VERIFIED | new `tests/test_quota_observation_contract.py`; new `tests/test_quota_observation_integration.py`; new `plans/test_provenance/ticket-alias-rc2-004-qobs-01.json` only | owner confirmation + this grill |
 | `QOBS-01-CONTRACT` | `developer` | CRITICAL / S | DONE — FROZEN (`1515380b436fe4d676766a62bd4de4ce1db22126`) | `.agents/schemas/multiagent-quota-observation-v1.schema.json`; `.agents/schemas/multiagent-quota-observation-artifact-v1.schema.json`; `.agents/config/multiagent_model_policy.yaml` only | TEST-BASELINE committed and verified |
-| `QOBS-01-PROBE` | `developer` | CRITICAL / S | READY | `scripts/agent_quota_status_guard.py` only | CONTRACT frozen |
-| `QOBS-01-DISPATCH` | `developer` | CRITICAL / M | DONE — FROZEN (`943bdd8`) | `scripts/multiagent_prompt_command.py` only | CONTRACT + PROBE frozen; focused QOBS suite passed 67 |
-| `QOBS-01-SCHEDULER` | `developer` | CRITICAL / S | DONE — FROZEN (`943bdd8`) | `scripts/multiagent_ticket_scheduler.py` only | CONTRACT + DISPATCH green/frozen; focused QOBS suite passed 67 |
-| `QOBS-01-QA-GOVERNANCE-SYNC` | `business_analyst` mutation editor; `qa_tester` and `code_reviewer` read-only verifiers | CRITICAL / M | GATED | authoritative `.agents/rules/17-multi-account-agent-orchestration.md`; `.agents/rules/18-adaptive-model-effort-routing.md`; `.agents/skills/multi-account-agent-orchestration/SKILL.md`; `.agents/skills/adaptive-model-effort-routing/SKILL.md`; `docs/templates/MULTIAGENT_PROMPT_COMMAND.md`; generated ecosystem mirrors only through the sync script; frozen tests are read-only | all source lanes frozen |
+| `QOBS-01-PROBE` | `developer` | CRITICAL / S | DONE — FROZEN (`4670fc40dda88bc1dbc12c582eb99dc21133479d`) | `scripts/agent_quota_status_guard.py` only | CONTRACT frozen; focused/provenance evidence passed |
+| `QOBS-01-DISPATCH` | `developer` | CRITICAL / M | DONE — FROZEN (`943bdd869b492a080493e669bdfdacf866c5e664`) | `scripts/multiagent_prompt_command.py` only | CONTRACT + PROBE frozen |
+| `QOBS-01-SCHEDULER` | `developer` | CRITICAL / S | DONE — FROZEN (`943bdd869b492a080493e669bdfdacf866c5e664`) | `scripts/multiagent_ticket_scheduler.py` only | CONTRACT + DISPATCH frozen |
+| `QOBS-01-QA-GOVERNANCE-SYNC` | `business_analyst` mutation editor; `qa_tester` and `code_reviewer` read-only verifiers | CRITICAL / M | DONE — LOCAL GOVERNANCE VERIFIED (`ac55aee1c07ecdbcbe2b7febf18a28f21eaceee4`) | authoritative `.agents/rules/17-multi-account-agent-orchestration.md`; `.agents/rules/18-adaptive-model-effort-routing.md`; `.agents/skills/multi-account-agent-orchestration/SKILL.md`; `.agents/skills/adaptive-model-effort-routing/SKILL.md`; `docs/templates/MULTIAGENT_PROMPT_COMMAND.md`; generated ecosystem mirrors only through the sync script; frozen tests are read-only | all source lanes frozen |
 
+**Recovery checkpoint (2026-08-30) -- planning authorization only**: the user
+explicitly authorized a history-preserving recovery branch for this isolated
+replay: `recovery/ticket-alias-rc2-004-qobs-probe`, based exactly on
+`943bdd869b492a080493e669bdfdacf866c5e664`. Recovery-base provenance against
+baseline `9847234f3f2537d0b65ecb1fc9afca87ceb517a2` passed with both frozen
+tests verified. Historical records remain preserved. `QOBS-01-PROBE` is the
+ticket's only eligible mutation lane, with sole developer ownership of
+`scripts/agent_quota_status_guard.py`. The frozen tests and manifest are
+read-only; every later QOBS lane remains read-only/gated pending its own
+predecessor freeze and fresh evidence.
+
+**Inline DispatchDecision v1 / Rule 11 snapshot**: ranks are scope `2`,
+complexity `2`, risk `3`, ambiguity `1`, and evidence `3`; the quality floor is
+`gpt-5.6-sol` / `high`, and the selected route is `codex1` /
+`gpt-5.6-sol` / `high`. The local-native non-provider quota band is
+`constrained`; `work_mode` is `mutation`; policy is `2026-08-26.1`; and
+planning-to-medium is confirmed. HITL is approved by this user's explicit
+recovery-branch authorization. This snapshot authorizes recovery planning and
+the isolated local mutation lane only; it is not provider-execution proof.
+
+**Recovery exclusions**: provider/alias, network, secret, account, push,
+deploy, publish, and release actions are excluded. The final governance lane may
+run only the mandatory local ecosystem sync/check; no JSON decision or snapshot
+artifact is created by this checkpoint.
+
+**Recovery completion evidence (2026-08-30)**: the isolated replay reached
+`4670fc40dda88bc1dbc12c582eb99dc21133479d`. Focused QOBS tests passed
+`67`; the provenance verifier returned `PASSED` against baseline
+`9847234f3f2537d0b65ecb1fc9afca87ceb517a2` with two frozen tests verified.
+This records only local source and verification evidence. It does not permit or
+prove a provider/alias, network, account, secret, push, deploy, publish, or
+release action. The final lane's local ecosystem sync/check remains a separate
+governance requirement, not execution proof.
+
+**Final local governance evidence**: recovery governance commit
+`ac55aee1c07ecdbcbe2b7febf18a28f21eaceee4` passed staged provenance, the
+mandatory ecosystem sync and sync check, `git diff --check`, and the final
+focused/provenance verification. The no-provider boundary remains in force.
+
+**Single-use root waiver (2026-08-30 Asia/Bangkok)**: The user's `approve`
+reply authorizes the root only to stage and create the immediately following
+local governance commit for these exact two files after delegated governance
+lanes failed to return a staging receipt. The root owns that one action; it
+stops once the commit exists and does not authorize source edits, further Git
+mutation, push, or any excluded action.
+
+**Single-use root recovery-source waiver (2026-08-30 Asia/Bangkok)**: The
+user's subsequent `approve` authorizes the root to replay, test, stage, and
+create one local commit for exactly `scripts/agent_quota_status_guard.py` on
+this recovery branch after all three available subagent slots remained occupied
+by interrupted governance lanes. Stop after the focused tests and post-commit
+provenance verification. This waiver excludes test changes, all other paths,
+provider/alias/network/account/secret actions, sync, push, deployment,
+publishing, and release.
 **Fresh QOBS-01-PROBE execution checkpoint (2026-08-27)**: user authorization
 is “investigate blocked and fix it”, narrowly authorizing local source
 remediation only. The fresh Rule 18 decision and Rule 11 snapshot are
@@ -2495,7 +2556,8 @@ predecessor freeze; no old decision, snapshot, or planning proof is reusable.
   version/domain, replay, digest mismatch, frozen-test mutation, missing trailer,
   scope overlap, provider/network/secret/account/deploy/publish/push/release
   action, premature sync, or manual generated edit is `BLOCKED`/`NEEDS_HITL`.
-  No QOBS completion alone authorizes RC2-004.
+  No QOBS completion alone authorizes RC2-004; the separately recorded
+  `codex1` attempt above does not authorize any follow-on alias.
 - [ ] `codex2`, `agy1`, and `agy2` remain undispatched unless each prerequisite valid result and separately recorded attempt authorization exists.
 - [ ] No provider, deploy, publish, push, PR/merge, secret, account, or
   production mutation occurred.
