@@ -255,8 +255,10 @@ provider execution proof.
 ## GRILL REPORT — IDQ operational correction and `AUTH-02` intent
 
 **Recorded**: `2026-08-30` (Asia/Bangkok). **Status**: `APPROVED`.
-**Authorized next phase**: documentation governance only. This plan does not
-authorize an executor, daemon, provider process, release, or production action.
+**Authorized current phase**: documentation governance only. After its clean
+commit, `IDQ-OP-020-EXECUTOR` is ready for a separate baseline-bound source
+dispatch. This plan does not itself authorize a provider process, release, or
+production action.
 
 ### Nine-dimension decision
 
@@ -267,28 +269,31 @@ authorize an executor, daemon, provider process, release, or production action.
   Out of scope are source/tests/config in this lane, credentials, billing,
   raw-stream retention, mutation-capable provider work, push, deploy, publish,
   production cutover, and fabricated receipts.
-- **D2 delta `[AUTO]`**: stale `DONE` and dispatch-ready labels are replaced by
-  evidence-bounded states. `IDQ-MVP-000-GOV` is historical `DONE`;
-  `IDQ-MVP-010` separates verified `0e1941528c0c8f49ef50a14fd046db2163d33379`
-  from reconstructed `0946bdec65173edacbaf4044b4198d55136c33ca`;
-  `020` has a local contract but awaits fresh QA; `030`-`060` are reopened and
-  blocked on the real executor/daemon route; `070` is reopened; `080` and `090`
-  are blocked.
-- **D3 acceptance `[CONFIRMED]`**: only the two governance files change in the
-  first commit and only `HANDOFF.md` in the second; exact staged paths and
-  `git diff --cached --check` pass before each commit; the primary dirty paths
-  remain byte/status-preserved. Stop on worktree/branch conflict or unowned
-  overlap.
-- **D4 inputs/dependencies `[AUTO/CONFIRMED]`**: exact base
-  `784291788560c4cd4d2bf5f6d2bea39577dac07d`, owner authorization dated
-  `2026-08-30`, verified baseline `0e194152`, and the required exact aliases
-  `codex1`, `codex2`, `agy1`, `agy2` are available. Fresh operational QA,
-  effective read-only isolation, real-path proof, activation values, and
-  provider receipts are not available and remain dependency gates.
-- **D5 ownership `[CONFIRMED]`**: BSA owns current governance and the final
-  seal; developer owns the executor/daemon and cross-runtime handoff path; QA
-  owns fresh evidence and four-alias execution; orchestrator owns final
-  preflight. One editor per path remains mandatory.
+- **D2 delta `[AUTO]`**: the genuine operational-provider test baseline for
+  `TICKET-IDQ-MVP-080-OPERATIONAL-PROVIDER` is verified at exact commit
+  `717005d266601df76646d072a637beadd89e99ed`; `IDQ-OP-020-EXECUTOR` advances
+  to `READY`, while every later gate remains blocked or held. Historical
+  `0e1941528c0c8f49ef50a14fd046db2163d33379` stays the verified release-cycle
+  baseline and `0946bdec65173edacbaf4044b4198d55136c33ca` stays the reconstructed
+  `NON_TDD_RECONSTRUCTED` five-path baseline; neither is relabeled as the new
+  operational-provider baseline.
+- **D3 acceptance `[CONFIRMED]`**: only `PROJECT_TASKS.md` and `plans/plan.md`
+  change in one commit; the exact staged-path assertion and
+  `git diff --cached --check` must pass before commit. `HANDOFF.md` is outside
+  this ownership and remains a later checkpoint. Stop on worktree/branch
+  conflict or unowned overlap.
+- **D4 inputs/dependencies `[AUTO/CONFIRMED]`**: exact base and test baseline
+  `717005d266601df76646d072a637beadd89e99ed`, owner authorization dated
+  `2026-08-30`, and the required exact aliases `codex1`, `codex2`, `agy1`,
+  `agy2` are available. Fresh implementation and operational QA, effective
+  read-only isolation, real-path proof, activation values, and provider
+  receipts are not available and remain dependency gates.
+- **D5 ownership `[CONFIRMED]`**: BSA owns only the two current governance
+  blocks in this lane; the developer source lane owns only
+  `scripts/multiagent_idq_mvp_080_operational.py` and must carry exact trailer
+  `Test-Baseline: 717005d266601df76646d072a637beadd89e99ed`. QA owns fresh evidence
+  and four-alias execution; the orchestrator owns final preflight. One editor
+  per path remains mandatory, and `HANDOFF.md` stays outside this checkpoint.
 - **D6 assumptions `[CONFIRMED]`**: static route/model labels and local source
   presence are intent/readiness evidence only, not provider or production
   proof. Silence and historical test counts are not waivers or fresh evidence.
@@ -306,6 +311,21 @@ authorize an executor, daemon, provider process, release, or production action.
   to HITL.
 
 ### Current evidence and authorization truth
+
+`IDQ-OP-010-BASELINE` is `TEST_BASELINE_VERIFIED` for
+`TICKET-IDQ-MVP-080-OPERATIONAL-PROVIDER` at
+`717005d266601df76646d072a637beadd89e99ed`. The commit contains exactly
+`tests/test_idq_mvp_080_operational_provider.py` and
+`plans/test_provenance/idq-mvp-080-operational-provider-baseline.json`; the
+test SHA-256 is
+`e9b1f4adec8ba9cc9afd3389c0834dc80173f326ebac362d32282db6fa3ef38e`.
+The manifest is `VERIFIED` and records focused RED exit `1` with
+`1 failed; AssertionError: IDQ_MVP_080_OPERATIONAL_ENTRYPOINT_MISSING`, plus
+full-file RED exit `1` with `7 failed; one sentinel AssertionError plus six
+lazy-import ModuleNotFoundError failures for
+scripts.multiagent_idq_mvp_080_operational`. This genuine operational-provider
+baseline is separate from historical release-cycle `0e194152` and historical
+reconstructed `0946bde` evidence.
 
 `IDQ-MVP-080-AUTH-01` is `SEALED / EXPIRED`; it cannot be renewed, replayed,
 or inherited. The owner's `2026-08-30` instruction records `AUTH-02` approval
@@ -327,8 +347,8 @@ bodies, or raw provider streams. AGY success language is limited to
 | Ticket | Status | Dependency | Owner and measurable exit |
 |---|---|---|---|
 | `IDQ-OP-000-GOV` | DONE | owner authorization | BSA: current plan/board truth and exact checks committed |
-| `IDQ-OP-010-BASELINE` | DONE — VERIFIED | `IDQ-OP-000-GOV` | QA: verified `0e194152`; reconstructed `0946bde` remains historical only |
-| `IDQ-OP-020-EXECUTOR` | BLOCKED | `IDQ-OP-010-BASELINE` | developer: real bounded executor/daemon and cross-runtime handoff path implemented without fallback or raw-stream handling |
+| `IDQ-OP-010-BASELINE` | `TEST_BASELINE_VERIFIED` | `IDQ-OP-000-GOV` | QA: `TICKET-IDQ-MVP-080-OPERATIONAL-PROVIDER` exact baseline `717005d266601df76646d072a637beadd89e99ed`; exact paths `tests/test_idq_mvp_080_operational_provider.py` and `plans/test_provenance/idq-mvp-080-operational-provider-baseline.json`; test SHA-256 `e9b1f4adec8ba9cc9afd3389c0834dc80173f326ebac362d32282db6fa3ef38e`; manifest `VERIFIED` with focused/full RED exit `1` evidence above |
+| `IDQ-OP-020-EXECUTOR` | READY | exact `717005d266601df76646d072a637beadd89e99ed` | developer: only `scripts/multiagent_idq_mvp_080_operational.py`; commit with exact trailer `Test-Baseline: 717005d266601df76646d072a637beadd89e99ed` |
 | `IDQ-OP-030-QA` | BLOCKED | `IDQ-OP-020-EXECUTOR` | QA: fresh deterministic lifecycle, handoff, read-only, and receipt-integrity evidence all green |
 | `IDQ-OP-040-AUTH02-GOV` | INTENT RECORDED — HOLD | `IDQ-OP-030-QA` | BSA: activate only after fresh QA; predecessor remains sealed |
 | `IDQ-OP-050-PREFLIGHT` | BLOCKED | `IDQ-OP-030-QA`, `IDQ-OP-040-AUTH02-GOV` | orchestrator: prove real path/read-only isolation/fresh quota and atomically bind new single-use TTL, nonce, and lease |
@@ -338,14 +358,14 @@ bodies, or raw provider streams. AGY success language is limited to
 ### DispatchDecision v1
 
 ```text
-ticket=IDQ-OP-000-GOV-20260830
-phase=planning/governance
-ranks: scope=2, complexity=2, risk=2, ambiguity=1, evidence=2
+ticket=IDQ-OP-010-RECONCILE
+phase=governance
+ranks: scope=1, complexity=2, risk=2, ambiguity=1, evidence=2
 quality_floor=gpt-5.6-terra/high
 selected_alias=native-bsa
 selected_model=gpt-5.6-sol
 selected_effort=ultra
-quality_exception=owner quality override
+quality_exception=owner override
 quota_band=unknown (bounded native mutation)
 work_mode=mutation
 policy_version=2026-08-29.1
@@ -356,9 +376,9 @@ status=READY_TO_VALIDATE
 ```
 
 The decision is static routing intent, not provider execution proof. Success is
-both scoped commits plus exact staged checks and unchanged primary dirty paths.
-Stop at any branch/worktree conflict, unowned overlap, failed staged check, or
-request to cross the stated authorization boundary.
+one scoped documentation commit with exact staged checks; `HANDOFF.md` remains
+a later checkpoint. Stop at any branch/worktree conflict, unowned overlap,
+failed staged check, or request to cross the stated authorization boundary.
 <!-- IDQ-AUTH02-OPERATIONAL-PLAN-20260830:END -->
 
 <!-- RELEASE-VERIFIED-20260830-000-GOV:START -->

@@ -268,11 +268,23 @@ the final fresh preflight after every predecessor gate is green.
 ### Current evidence correction
 
 - `IDQ-MVP-000-GOV` remains `DONE` as historical governance only.
-- `IDQ-MVP-010-BASELINE`: `0e1941528c0c8f49ef50a14fd046db2163d33379`
-  is the verified release-cycle baseline in current ancestry. Commit
-  `0946bdec65173edacbaf4044b4198d55136c33ca` is a separately retained
-  reconstructed five-path baseline and is `NON_TDD_RECONSTRUCTED`; it is not a
-  substitute for, or proof of, the verified baseline.
+- `IDQ-OP-010-BASELINE` is `TEST_BASELINE_VERIFIED` for
+  `TICKET-IDQ-MVP-080-OPERATIONAL-PROVIDER` at
+  `717005d266601df76646d072a637beadd89e99ed`. Its exact two-path commit is
+  `tests/test_idq_mvp_080_operational_provider.py` and
+  `plans/test_provenance/idq-mvp-080-operational-provider-baseline.json`; the
+  test SHA-256 is
+  `e9b1f4adec8ba9cc9afd3389c0834dc80173f326ebac362d32282db6fa3ef38e`.
+  The `VERIFIED` manifest records deterministic RED evidence: focused exit `1`
+  with `1 failed; AssertionError: IDQ_MVP_080_OPERATIONAL_ENTRYPOINT_MISSING`,
+  and full-file exit `1` with `7 failed; one sentinel AssertionError plus six
+  lazy-import ModuleNotFoundError failures for
+  scripts.multiagent_idq_mvp_080_operational`.
+- Historical evidence remains distinct: `0e1941528c0c8f49ef50a14fd046db2163d33379`
+  is the historical verified release-cycle baseline, while
+  `0946bdec65173edacbaf4044b4198d55136c33ca` is the historical reconstructed
+  five-path baseline classified `NON_TDD_RECONSTRUCTED`. Neither is the
+  operational-provider test baseline or a substitute for `717005d`.
 - `IDQ-MVP-020-STORE` has a local contract in current ancestry, but fresh QA
   against the intended operational path is pending. No current production or
   provider-readiness claim follows from local source presence.
@@ -291,8 +303,8 @@ the final fresh preflight after every predecessor gate is green.
 | ID | Severity / Effort | One owner | Status | Dependencies | Exact scope and acceptance | Stop condition / exclusions |
 |---|---|---|---|---|---|---|
 | `IDQ-OP-000-GOV` | HIGH / S | `business_analyst` | DONE | owner authorization | only `PROJECT_TASKS.md` and `plans/plan.md`; current truth, graph, authorization boundary, and diff checks recorded | stop on overlap or evidence conflict; no source/tests/config/provider/release action |
-| `IDQ-OP-010-BASELINE` | CRITICAL / S | `qa_tester` | DONE — VERIFIED | `IDQ-OP-000-GOV` | use verified baseline `0e1941528c0c8f49ef50a14fd046db2163d33379`; retain `0946bde` only as reconstructed history | stop on ancestry/hash/provenance drift; no baseline relabeling |
-| `IDQ-OP-020-EXECUTOR` | CRITICAL / M | `developer` | BLOCKED | `IDQ-OP-010-BASELINE` | implement the real bounded executor/daemon route and explicit cross-runtime handoff with no alias fallback | stop on mutation-capable provider work, secret/raw-stream handling, ownership overlap, or missing baseline |
+| `IDQ-OP-010-BASELINE` | CRITICAL / S | `qa_tester` | `TEST_BASELINE_VERIFIED` | `IDQ-OP-000-GOV` | `TICKET-IDQ-MVP-080-OPERATIONAL-PROVIDER` at exact baseline `717005d266601df76646d072a637beadd89e99ed`; exact paths `tests/test_idq_mvp_080_operational_provider.py` and `plans/test_provenance/idq-mvp-080-operational-provider-baseline.json`; test SHA-256 `e9b1f4adec8ba9cc9afd3389c0834dc80173f326ebac362d32282db6fa3ef38e`; manifest `VERIFIED` with focused/full RED exit `1` fingerprints recorded above | stop on ancestry/path/hash/provenance drift; keep `0e194152` release-cycle and `0946bde` reconstructed evidence historical |
+| `IDQ-OP-020-EXECUTOR` | CRITICAL / M | `developer` | READY | exact `717005d266601df76646d072a637beadd89e99ed` | source ownership only `scripts/multiagent_idq_mvp_080_operational.py`; implement the baseline-bounded operational executor and commit with exact trailer `Test-Baseline: 717005d266601df76646d072a637beadd89e99ed` | stop on any other changed path, missing/mismatched trailer, mutation-capable provider work, secret/raw-stream handling, or ownership overlap |
 | `IDQ-OP-030-QA` | CRITICAL / M | `qa_tester` | BLOCKED | `IDQ-OP-020-EXECUTOR` | fresh deterministic queue, lifecycle, cross-runtime handoff, receipt-integrity, and read-only-boundary evidence is green | any stale, missing, ambiguous, or failing result stops descendants |
 | `IDQ-OP-040-AUTH02-GOV` | CRITICAL / XS | `business_analyst` | INTENT RECORDED — HOLD | `IDQ-OP-030-QA` | convert owner approval intent into a bounded activation only after QA is fresh; keep `AUTH-01` sealed | no TTL, nonce, or lease before final preflight; no inherited/replayed authority |
 | `IDQ-OP-050-PREFLIGHT` | CRITICAL / S | `orchestrator` | BLOCKED | `IDQ-OP-030-QA`, `IDQ-OP-040-AUTH02-GOV` | prove the real executor path, effective read-only isolation, safe fresh quota, alias/executable identity, fresh decision/snapshot, then atomically issue and bind single-use TTL/nonce/lease | any stale/unknown/contradictory binding, auth/billing need, or secret exposure stops before process creation |
@@ -307,10 +319,10 @@ bounded executor/daemon feature and QA contract; multi-host authority,
 credentials, billing, push, deploy, publish, production cutover, and fabricated
 or reconstructed provider evidence remain out of scope.
 
-**DispatchDecision evidence label**: `IDQ-OP-000-GOV-20260830`; phase
-`planning/governance`; ranks `scope=2`, `complexity=2`, `risk=2`,
+**DispatchDecision evidence label**: `IDQ-OP-010-RECONCILE`; phase
+`governance`; ranks `scope=1`, `complexity=2`, `risk=2`,
 `ambiguity=1`, `evidence=2`; floor `gpt-5.6-terra/high`; selected quality
-override `native-bsa / gpt-5.6-sol / ultra`; quota `unknown` with bounded native
+owner override `native-bsa / gpt-5.6-sol / ultra`; quota `unknown` with bounded native
 mutation; policy `2026-08-29.1`; root-medium confirmed; HITL approved; digest
 pending native runtime; status `READY_TO_VALIDATE`. This is routing intent,
 not provider execution proof.

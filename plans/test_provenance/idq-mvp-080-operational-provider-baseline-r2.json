@@ -1,0 +1,45 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-IDQ-MVP-080-OPERATIONAL-PROVIDER",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "a78aa5f70f2c0ae160292da3b7000c68eee7ff73",
+  "test_files": [
+    {
+      "path": "tests/test_idq_mvp_080_operational_provider.py",
+      "sha256": "4a93713d37ef97b58898f41267a20991c3d86a796ce5aedf8d294c15a91d2a0a"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_idq_mvp_080_operational_provider.py::test_operational_entrypoint_exists_before_source"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "1 failed; AssertionError: IDQ_MVP_080_OPERATIONAL_ENTRYPOINT_MISSING"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_idq_mvp_080_operational_provider.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "87 failed, 1 passed; one stable missing-entrypoint AssertionError plus 86 lazy-import ModuleNotFoundError failures for scripts.multiagent_idq_mvp_080_operational; the temporary-Git integrity negative control passed"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/multiagent_idq_mvp_080_operational.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "717005d266601df76646d072a637beadd89e99ed",
+  "correction_reason": "Independent review found five gaps in sequence 1: (1) it did not prove that a completed AUTH-02 record cannot be replayed, or that every authorization state other than UNUSED, including SEALED, is rejected without Popen or nonce-marker side effects; (2) it tampered binding fields only for agy2 instead of parameterizing both authorization bindings and actual lane preflight values across codex1, codex2, agy1, and agy2 with a zero-group-start barrier; (3) its leak assertions did not cover marker-store files, captured stdout, deliberately nonempty raw stderr, receipts, queue and capacity state files, and public exceptions/results for both raw prompt and raw stream material; (4) its receipt assertions did not bind exact objective, ownership, safe provider session identity, injected start/end timestamps, every authorization/risk/digest field, or reject missing, malformed, and ambiguous terminal WorkResult events for both native adapters; and (5) its repository snapshot excluded Git status plus .git index, refs, and HEAD metadata. This sequence-2 test-only correction freezes all five gaps while preserving the original acceptance contract and sole source allowlist.",
+  "rationale": "Freeze the independently reviewed real IDQ-MVP-080 operational provider contract before any source exists. The corrected fake-Popen-only cohort retains the stable missing-entrypoint RED sentinel and lazy imports, a closed fresh single-use AUTH-02 record, exact four-alias all-preflight barrier, one read-only attempt with no retry/fallback/substitution, native provider argv/stdin/environment controls, durable lifecycle ordering and overlap, post-start UNKNOWN handling, exact authorization-bound safe receipts and typed WorkResults, comprehensive non-retention checks for prompt/stdout/stderr material, malformed native-event rejection, and repository immutability that binds temporary-Git worktree status plus index/refs/HEAD metadata without inspecting or mutating provider credentials, networks, or the real repository metadata. The passing temporary-Git negative control proves the evidence oracle detects both worktree and Git-metadata drift; the absent owned source produces the recorded deterministic RED evidence."
+}
