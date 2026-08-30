@@ -1,16 +1,21 @@
 <!-- CTX-HANDOFF-V1-20260830:START -->
 ## Cross-runtime context handoff v1 - local-only governance
 
-**Recorded**: `2026-08-30` (Asia/Bangkok). **Gate**: `APPROVED` for
-`CTX-010-RECONCILE` planning/governance only. **Exact genuine test baseline**:
-`05cd6854cd5a749d10cfb12e9c08fffd6b576d80`. **Baseline parent**:
+**Recorded**: `2026-08-30` (Asia/Bangkok). **Gate**: `APPROVED` for the
+`CTX-010-REVIEW-RECONCILE` documentation correction only. **Independent
+review**: `BLOCKED`. **CTX-010 status**:
+`CORRECTION REQUIRED / BASELINE 05cd685 RETAINED`. **Retained sequence-1
+baseline**: `05cd6854cd5a749d10cfb12e9c08fffd6b576d80`. **Baseline parent**:
 `5d61b7c68a2c4b5691e3a2ea47eeed2660570a67`. **Isolated branch**:
 `feat/context-handoff-v1-20260830`.
 
-**Baseline reconciliation**: `CTX-010-RED=TEST_BASELINE_VERIFIED` at the
-exact immutable commit above. Only `CTX-020-CORE` is now `READY`; every ticket
-from `CTX-030-ADAPTERS` onward remains dependency-gated and `BLOCKED`. This
-reconciliation does not relabel the current release, and release 120 remains
+**Review reconciliation**: the immutable Git and provenance evidence for
+sequence 1 is retained, but independent review rejected its Codex hook and
+trust contract as implementation authority. `CTX-020-CORE` is back to
+`BLOCKED` pending a superseding test-only sequence-2 baseline with planned
+manifest `plans/test_provenance/ctx-handoff-20260830-b01.json` and a green
+independent review. Every descendant remains dependency-gated and `BLOCKED`.
+This correction does not relabel the current release, and release 120 remains
 blocked and not production-green. Merge or cherry-pick into the current
 release, push, deploy, publish, production activation, and any external
 mutation remain prohibited until independent QA and review are green and
@@ -19,45 +24,52 @@ ownership-overlap integration gate.
 
 ### GRILL REPORT
 
-- **Request**: reconcile the current local-only context-handoff graph to the
-  committed genuine test-first baseline and open only its exact core lane.
-- **Status / authorized next phase**: `APPROVED`; after this docs-only commit,
-  only `CTX-020-CORE` is authorized to start.
-- **D1 scope `[CONFIRMED]`**: this reconciliation changes only
-  `PROJECT_TASKS.md` and `plans/plan.md`. The authorized follow-on core lane
-  owns only `.agents/config/context_handoff_v1.json` and
-  `scripts/context_handoff.py`. Tests, other source, adapters, hooks, skills,
-  generated mirrors, `HANDOFF.md`, provider/network access, credentials, push,
-  deploy, publish, merge, and production activation are out of scope.
-- **D2 delta `[CONFIRMED]`**: `CTX-010-RED` changes from `READY` to
-  `TEST_BASELINE_VERIFIED` at the exact immutable baseline;
-  `CTX-020-CORE` changes from `BLOCKED` to `READY`; `CTX-030-ADAPTERS` onward
-  remain `BLOCKED`, including `CTX-100-INTEGRATION-HOLD`.
+- **Request**: reconcile the local-only context-handoff graph after an
+  independent `BLOCKED` review, retain sequence-1 evidence without accepting
+  its defective contract, and close the core lane until sequence 2 is green.
+- **Status / authorized next phase**: `APPROVED` for this two-document
+  correction; after this commit, only the QA-owned `CTX-010-RED` sequence-2
+  test correction may be dispatched. No source lane is authorized.
+- **D1 scope `[CONFIRMED]`**: this correction changes only `PROJECT_TASKS.md`
+  and `plans/plan.md`. The follow-on sequence-2 lane owns only the frozen
+  CTX test/fixture cohort and planned manifest
+  `plans/test_provenance/ctx-handoff-20260830-b01.json`. Source, config,
+  adapters, hooks, skills, generated mirrors, `HANDOFF.md`, provider/network
+  access, credentials, push, deploy, publish, merge, and production activation
+  are out of scope for this lane.
+- **D2 delta `[CONFIRMED]`**: `CTX-010-RED` changes from
+  `TEST_BASELINE_VERIFIED` to
+  `CORRECTION REQUIRED / BASELINE 05cd685 RETAINED`; `CTX-020-CORE` changes
+  from `READY` to `BLOCKED`; `CTX-030-ADAPTERS` onward remain `BLOCKED`,
+  including `CTX-100-INTEGRATION-HOLD`.
 - **D3 acceptance / stop `[CONFIRMED]`**: one commit with subject
-  `docs(context): bind handoff baseline` changes exactly the two governance
-  files, passes exact staged-path and cached-diff checks, and leaves the
-  feature worktree clean. The test-running pre-commit hook is `SKIPPED` via
-  `--no-verify` under this no-tests lane and is not reported as passed. Stop on
-  baseline drift, extra paths, ownership overlap, a failed check, or any
-  attempt to cross the integration hold.
-- **D4 inputs / dependencies `[CONFIRMED]`**: the exact baseline SHA, parent,
-  nine committed paths, RED sentinel/full receipts, green negative control,
-  passing provenance receipt, core ownership, exact trailer, and later gates
-  are bound below. No credential, provider, network, or production input is
-  required or authorized.
+  `docs(context): record baseline review blocker` changes exactly the two
+  governance files, passes exact staged-path and cached-diff checks, and leaves
+  the feature worktree clean. The test-running pre-commit hook may be `SKIPPED`
+  via `--no-verify` under this no-tests lane only when labeled as skipped; it
+  is never reported as passed. Stop on extra paths, ownership overlap, trust
+  ambiguity, a failed check, any core/source start, or any attempt to cross the
+  integration hold.
+- **D4 inputs / dependencies `[CONFIRMED]`**: the exact retained SHA and
+  parent, sequence-1 manifest and receipts, independent review findings,
+  official Codex hook trust/config contract, planned sequence-2 manifest, and
+  later gates are bound below. No credential, provider, network, managed-hook,
+  or production input is required or authorized.
 - **D5 architecture / ownership `[CONFIRMED]`**: one editor owns each lane;
   shared paths are serial; generated refresh has one owner; the existing
   release integration owner is not duplicated.
-- **D6 assumptions `[CONFIRMED]`**: the committed manifest and verified Git
-  ancestry are the baseline authority. Static routing metadata is intent only,
-  never runtime/provider proof. `HANDOFF.md` is derived state and cannot
-  override `PROJECT_TASKS.md`. Silence, `UNKNOWN`, or local green checks never
-  waive a dependency or release gate.
-- **D7 risk / recovery `[CONFIRMED]`**: fail closed on untrusted hooks, raw
-  transcript access, oversized/partial capsules, active-lane clear attempts,
-  provenance drift, or overlap. Recovery is to stop descendants and revert
-  only the isolated owned commit or abandon the isolated branch; current
-  release history remains untouched.
+- **D6 assumptions `[CONFIRMED]`**: sequence-1 provenance proves exact artifact
+  identity and test-first history, not contract correctness or native Codex
+  trust. Static routing metadata is intent only, never runtime/provider proof.
+  `HANDOFF.md` is derived state and cannot override `PROJECT_TASKS.md`.
+  Silence, `UNKNOWN`, or local green checks never waive a dependency or
+  release gate.
+- **D7 risk / recovery `[CONFIRMED]`**: fail closed on missing native
+  exact-hash hook review/trust, any repository invocation or recommendation of
+  a trust bypass, raw transcript access, oversized/partial capsules,
+  active-lane clear attempts, provenance drift, or overlap. Recovery is to
+  stop descendants and revert only the isolated owned commit or abandon the
+  isolated branch; current release history remains untouched.
 - **D8 budget / evidence `[CONFIRMED]`**: evidence is bounded to exact paths,
   immutable Git/provenance receipts, concise ASCII-safe output, and the
   DispatchDecision below. No runtime/provider claim is inferred.
@@ -65,7 +77,9 @@ ownership-overlap integration gate.
   domain, prediction, or training data changes. Owner HITL is satisfied for
   this bounded reconciliation; integration authority remains held by
   `CTX-100-INTEGRATION-HOLD`.
-- **Waivers / unresolved questions**: none.
+- **Waivers**: none. **Feature blockers**: the sequence-2 baseline SHA and
+  manifest do not yet exist, its corrected RED receipts are not yet verified,
+  and independent review is not yet green.
 
 ### Architecture invariants
 
@@ -88,15 +102,22 @@ ownership-overlap integration gate.
    must bound content before replacement and must never leave a partial file.
 7. No runtime automatically invokes compact, `/clear`, or reset. The engine
    may recommend an operator action only. Any active lane denies clear.
-8. Codex hook execution requires an explicitly trusted hook configuration.
-   Missing, unsupported, or untrusted hook state fails closed; no flag,
-   fallback, adapter, or documentation may bypass trust.
+8. Codex project hooks use Codex-native trust: the user reviews and trusts the
+   exact non-managed hook definition, and trust is recorded against its current
+   hash. New, changed, unsupported, or untrusted definitions are skipped until
+   reviewed. Repository fields cannot self-declare that trust.
+9. Codex CLI may expose `--dangerously-bypass-hook-trust`; therefore this
+   governance makes no platform-level bypass-impossibility claim. This
+   repository, its scripts, documentation, hooks, tests, and normal operator
+   instructions must never invoke or recommend that bypass. Managed hooks are
+   outside this local MVP.
 
 ### Frozen ownership and path allowlists
 
-The genuine test-only baseline is owned solely by `CTX-010-RED`, is frozen at
-`05cd6854cd5a749d10cfb12e9c08fffd6b576d80`, and contains exactly these nine
-committed paths:
+The retained sequence-1 test-only baseline is owned solely by `CTX-010-RED`, is
+frozen at `05cd6854cd5a749d10cfb12e9c08fffd6b576d80`, and contains exactly these
+nine committed paths. Its Git/provenance receipts remain valid historical
+evidence, but its contract is correction-required and cannot authorize source:
 
 - `plans/test_provenance/ctx-handoff-20260830-b00.json`
 - `tests/fixtures/context_handoff/agy/registrations.json`
@@ -108,7 +129,7 @@ committed paths:
 - `tests/test_context_handoff.py`
 - `tests/test_context_handoff_hooks.py`
 
-### Verified `CTX-010-RED` evidence binding
+### Retained sequence-1 evidence and blocking review
 
 - **Commit / parent**: baseline
   `05cd6854cd5a749d10cfb12e9c08fffd6b576d80`, subject
@@ -132,16 +153,45 @@ committed paths:
   05cd6854cd5a749d10cfb12e9c08fffd6b576d80 --head
   05cd6854cd5a749d10cfb12e9c08fffd6b576d80` is `PASSED` with no issues and
   `test_files_verified=8`; the ninth baseline path is the manifest itself.
-- **Pre-commit**: the test-running hook for this docs reconciliation commit is
-  `SKIPPED` via `--no-verify` because tests are outside this lane. This is not a
-  hook pass, test pass, source-readiness proof, or release claim.
+- **Sequence-1 pre-commit**: the test-running hook for commit `f838613` was
+  `SKIPPED` via `--no-verify` because tests were outside that docs lane. This
+  is not a hook pass, test pass, source-readiness proof, or release claim.
+- **Independent review**: `BLOCKED`. The sequence-1 Codex fixture uses a
+  non-native direct-handler shape, treats repository-authored
+  `trusted_project_only` / `untrusted_project_behavior` fields as trust
+  controls, and tests absence of bypass wording as though the CLI could not
+  expose a bypass. It does not bind the native three-level hook shape or the
+  native exact-hash user review/trust flow. The current contract also fails to
+  state that managed hooks are outside the local MVP.
+- **Product evidence**: the
+  [official OpenAI Codex hooks documentation](https://learn.chatgpt.com/docs/hooks)
+  requires review/trust for exact non-managed hook definitions, records trust
+  against the current hash, documents the native three-level config shape,
+  distinguishes managed hooks, and documents the dangerous one-off CLI bypass.
 
-`CTX-020-CORE` owns exactly `.agents/config/context_handoff_v1.json` and
-`scripts/context_handoff.py`. Every commit in that lane must carry this exact
-trailer:
+### Required sequence-2 correction
+
+The QA owner must create a new test-only commit and
+`plans/test_provenance/ctx-handoff-20260830-b01.json` with `sequence: 2`,
+`supersedes: 05cd6854cd5a749d10cfb12e9c08fffd6b576d80`, a non-null correction reason,
+updated hashes, and fresh deterministic RED receipts. The corrected tests and
+fixtures must bind the native Codex three-level hook configuration and event
+I/O shapes; treat project hook trust as explicit user review of the exact
+current hash; remove repository fields that purport to grant trust; preserve
+normal untrusted/changed-hook fail-closed behavior; and verify that repository
+artifacts and normal operator instructions neither invoke nor recommend the
+dangerous bypass. They must not assert that Codex CLI lacks such a capability,
+must exclude managed hooks, and must preserve operator-only compact/clear/reset.
+Independent review must be green before the sequence-2 baseline can open core.
+
+`CTX-020-CORE` continues to own exactly
+`.agents/config/context_handoff_v1.json` and `scripts/context_handoff.py`, but
+it is not authorized to start. Once sequence 2 is verified and independently
+approved, every core-lane commit must carry a trailer bound to that exact new
+baseline SHA:
 
 ```text
-Test-Baseline: 05cd6854cd5a749d10cfb12e9c08fffd6b576d80
+Test-Baseline: <exact verified sequence-2 baseline SHA>
 ```
 
 The source allowlist is exactly the canonical files assigned to
@@ -179,20 +229,21 @@ After source and generated freeze, `CTX-070-DOCS` owns exactly:
 | ID | Severity / effort | One owner | Status | Dependencies | Exact scope and measurable acceptance | Stop condition / exclusions |
 |---|---|---|---|---|---|---|
 | `CTX-000-GOV` | HIGH / S | `business_analyst` | DONE | fresh owner instruction | historical two-document graph freeze remains authoritative for invariants, serial ownership, and the release hold; this reconciliation does not reopen it | stop on any extra path or current-release mutation; no tests/source/config/hooks/skills/generated/`HANDOFF.md`/provider/network/credential/push/deploy action |
-| `CTX-010-RED` | CRITICAL / S | `qa_tester` | TEST_BASELINE_VERIFIED | `CTX-000-GOV` | exact nine-path `test-provenance-v1` baseline `05cd6854cd5a749d10cfb12e9c08fffd6b576d80`, parent `5d61b7c68a2c4b5691e3a2ea47eeed2660570a67`; sentinel/full RED, green negative control, immutable hashes, and passing provenance are bound above | stop on source/generated/docs mixing, missing RED evidence, manifest drift, or test ownership overlap |
-| `CTX-020-CORE` | CRITICAL / M | `developer` | READY | exact baseline `05cd6854cd5a749d10cfb12e9c08fffd6b576d80` is `TEST_BASELINE_VERIFIED` | only `.agents/config/context_handoff_v1.json` and `scripts/context_handoff.py`; stdlib engine implements and validates the frozen policy and all four operations, and every lane commit carries exact trailer `Test-Baseline: 05cd6854cd5a749d10cfb12e9c08fffd6b576d80` | stop on baseline/hash/trailer drift, raw-transcript read, non-stdlib dependency, automatic clear/compact, partial/over-cap write, or extra path |
-| `CTX-030-ADAPTERS` | HIGH / S | `developer` | BLOCKED | `CTX-020-CORE` | `.codex/hooks.json`, `.claude/hooks/stop-monitor.sh`, `.agy/hooks/stop-monitor.sh` only; all three call the shared engine with equivalent fail-closed behavior and Codex trust is proven | stop on duplicated policy, trust bypass, automatic clear/compact, swallowed failure, repository write outside the derived capsule, or extra path |
+| `CTX-010-RED` | CRITICAL / S | `qa_tester` | CORRECTION REQUIRED / BASELINE 05cd685 RETAINED | `CTX-000-GOV`; independent review `BLOCKED` | retain immutable sequence-1 SHA `05cd6854cd5a749d10cfb12e9c08fffd6b576d80`; create test-only sequence 2 and planned manifest `plans/test_provenance/ctx-handoff-20260830-b01.json` with corrected native Codex shape, exact-hash user trust, honest bypass boundary, managed-hook exclusion, hashes, and fresh RED receipts | stop on source/generated/docs mixing, missing correction reason/RED evidence, non-native trust claims, bypass invocation/recommendation, automatic compact/clear/reset, manifest drift, or ownership overlap |
+| `CTX-020-CORE` | CRITICAL / M | `developer` | BLOCKED | superseding sequence-2 baseline is verified and independently review-green | only `.agents/config/context_handoff_v1.json` and `scripts/context_handoff.py`; after the gate opens, the stdlib engine implements and validates the frozen policy and all four operations, and every lane commit carries `Test-Baseline: <exact verified sequence-2 baseline SHA>` | do not start from retained baseline `05cd685`; stop on missing sequence-2 SHA/hash/trailer, raw-transcript read, non-stdlib dependency, automatic clear/compact, partial/over-cap write, or extra path |
+| `CTX-030-ADAPTERS` | HIGH / S | `developer` | BLOCKED | `CTX-020-CORE` | `.codex/hooks.json`, `.claude/hooks/stop-monitor.sh`, `.agy/hooks/stop-monitor.sh` only; all three call the shared engine with equivalent fail-closed behavior; Codex project hooks use native exact-hash user review/trust and managed hooks remain out of scope | stop on duplicated policy, repository trust self-declaration, bypass invocation/recommendation, automatic clear/compact, swallowed failure, repository write outside the derived capsule, or extra path |
 | `CTX-040-POLICY` | HIGH / S | `skill_rule_owner` | BLOCKED | `CTX-020-CORE` | `.agents/skills/anti-cognitive-decay/SKILL.md`, `.agents/rules/20-context-handoff.md`, `.agents/AGENTS.md` only; canonical skill/rule/catalog match machine policy and preserve operator-only clear | stop on policy divergence, generated-file edit, unsafe invocation, ownership overlap, or extra path |
 | `CTX-050-SYNC` | HIGH / M | `developer` | BLOCKED | `CTX-030-ADAPTERS`, `CTX-040-POLICY` | `scripts/sync_claude_agy_parity.py`, `scripts/sync_ai_agent_ecosystem.py` only; deterministic sync/check recognizes canonical policy and produces only the declared mirrors with check mode read-only | stop on unrelated generation, out-of-repo/global write, source overwrite, parity drift, active current-release ownership, or extra path |
 | `CTX-060-GENERATED` | HIGH / XS | `generated_refresh_owner` | BLOCKED | `CTX-050-SYNC` | exact three mirrored skill files above in one generated-refresh lane; bytes and provenance match canonical output and sync check is clean | stop on manual divergent edits, any fourth generated path, canonical-source mutation, or non-determinism |
 | `CTX-070-DOCS` | HIGH / S | `business_analyst` | BLOCKED | `CTX-020-CORE` through `CTX-060-GENERATED` source/generated freeze | exact six documentation/global-guidance files above; operator guidance matches frozen behavior, labels `HANDOFF.md` derived, and makes no release/provider claim | stop on source/test/generated mutation, stale behavior, authority inversion, ownership overlap, or extra path |
-| `CTX-080-QA` | CRITICAL / M | `qa_tester` | BLOCKED | `CTX-010-RED` through `CTX-070-DOCS` green | read-only independent QA runs frozen focused tests, provenance/history guards, adapter negatives, ecosystem parity/check, security scan, and applicable regression; every required command exits 0 with bounded evidence | any fail, skip, stale fixture/hash, trust ambiguity, or source/test edit blocks review |
-| `CTX-090-REVIEW` | CRITICAL / S | `code_reviewer` | BLOCKED | `CTX-080-QA` green | read-only independent review verifies architecture, security/privacy, trust, one-editor history, exact-path provenance, and QA receipts; explicit approval required | any critical/high finding, missing evidence, raw transcript risk, trust bypass, or scope drift blocks integration |
+| `CTX-080-QA` | CRITICAL / M | `qa_tester` | BLOCKED | corrected sequence-2 `CTX-010-RED` through `CTX-070-DOCS` green | read-only independent QA runs frozen focused tests, provenance/history guards, native hook-shape and trust negatives, adapter negatives, ecosystem parity/check, security scan, and applicable regression; every required command exits 0 with bounded evidence | any fail, skip, stale fixture/hash, trust ambiguity, bypass recommendation, or source/test edit blocks review |
+| `CTX-090-REVIEW` | CRITICAL / S | `code_reviewer` | BLOCKED | `CTX-080-QA` green | read-only independent review verifies architecture, security/privacy, native exact-hash trust, bypass policy, managed-hook exclusion, one-editor history, exact-path provenance, and QA receipts; explicit approval required | any critical/high finding, missing evidence, raw transcript risk, trust ambiguity, bypass invocation/recommendation, or scope drift blocks integration |
 | `CTX-100-INTEGRATION-HOLD` | CRITICAL / S | `release_integrator` (existing current-release owner; no duplicate) | BLOCKED | release 120 production-green and every `CTX-000` through `CTX-090` gate green | after explicit owner handoff, revalidate ancestry, exact commits, overlap, independent QA/review, current-release CI, and merge plan before any integration action | no integration, merge/cherry-pick, push, deploy, publish, or production activation while release 120, a prior CTX gate, ownership, or overlap is not green |
 
 ### DispatchDecision v1
 
-`ticket=CTX-010-RECONCILE`; `phase=planning/governance`; ranks `1/2/2/1/2`;
+`ticket=CTX-010-REVIEW-RECONCILE`; `phase=planning/governance`; ranks
+`1/2/2/1/2`;
 floor `gpt-5.6-terra/high`; selected `gpt-5.6-sol/ultra`; quota `unknown` with
 bounded native mutation; `work_mode=mutation`; `selected_alias=native-bsa`;
 policy `2026-08-29.1`; `root-medium=true`; `hitl=true`; digest `pending`;
