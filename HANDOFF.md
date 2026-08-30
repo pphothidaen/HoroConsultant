@@ -1,107 +1,100 @@
-# HoroConsultant current handoff
+# HoroConsultant Session Continuation Handoff
 
-Updated: `2026-08-30` (Asia/Bangkok)
+**Updated**: `2026-08-31T03:26:00+07:00` (Asia/Bangkok)  
+**Resumption Command**: `/goal resume handoff.md`  
+**Current Phase**: `CONSOLIDATION_AND_PR_VERIFICATION`
 
-## Objective and phase
+---
 
-Freeze a truthful operational continuation for the Independent Roots + Durable
-Queue MVP before any executor, daemon, QA, or provider activity. The current
-phase is **planning/governance complete; follow-on executor/handoff work and
-activation not started**. `PROJECT_TASKS.md` is the canonical current board and
-`plans/plan.md` contains the gate and decision record.
+## 1. Executive Summary & Objective
 
-## Isolated checkpoint
+This handoff documents the exact state of repository consolidation, branch cleanup, test provenance verification, and PR status for the continuation session.
 
-- Worktree: `/private/tmp/horoconsultant-idq-auth02.raHY4w/worktree`
-- Branch: `feat/idq-mvp-auth-02-20260830`
-- Exact branch base: `784291788560c4cd4d2bf5f6d2bea39577dac07d`
-- Governance HEAD before this handoff-only commit:
-  `4e2ed911fee1152b507b6dc21008f2513533a53c`
-- Commit 1 paths: `PROJECT_TASKS.md`, `plans/plan.md`
-- Commit 2 ownership: `HANDOFF.md` only; its final SHA is reported in the
-  external completion receipt because a commit cannot embed its own final SHA.
+The primary goals achieved:
+1. **Branch Consolidation**: All work from `temp/merge-all-branches` and recovery branches was cleanly merged into local `main` (fast-forward, 28 files changed, 2074 insertions).
+2. **Branch Cleanup**: Unused branch `temp/merge-all-branches` deleted locally and on origin. Local `recovery/pre-test-provenance-20260827` deleted; remote immutable audit anchor `origin/recovery/pre-test-provenance-20260827` preserved at commit `ebfeee9` for CI compliance.
+3. **Test Provenance Manifest**: Created and verified `plans/test_provenance/merge-all-branches-20260831.json` with strict SHA-256 hashes and allowed source paths. Passed local `test_provenance_guard.py verify-pr` and GitHub Actions `Test Provenance` check.
+4. **Active PR**: PR #8 (`merge/all-to-main-20260831` -> `main`) is active at `https://github.com/pphothidaen/HoroConsultant/pull/8`.
+5. **Quota Audit**: `agy2` quota verified (Gemini 71% Weekly / 32% 5-hour; Claude/GPT 89% Weekly / 66% 5-hour). Priority directive is to delegate tasks to `agy2` first.
 
-No merge, push, deploy, publish, credential action, provider call, or primary
-worktree mutation occurred.
+---
 
-## Primary dirty tree preserved
+## 2. Git & Repository State
 
-Primary worktree: `/Users/kimlenglim/Project/HoroConsultant`, branch
-`docs/lesson-20-fast-track-protocol`, HEAD
-`784291788560c4cd4d2bf5f6d2bea39577dac07d`. Its intake and checkpoint status
-lists match:
+- **Active Branch**: `main`
+- **Current HEAD Commit**: `a4d1ef8` (`docs: record TICKET-MERGE-001 consolidation status`)
+- **PR Branch**: `merge/all-to-main-20260831` (synchronized with `main` at `a4d1ef8`)
+- **Local Branches**:
+  - `* main`
+  - `merge/all-to-main-20260831`
+- **Remote Branches**:
+  - `origin/main` (baseline at `61aead4`)
+  - `origin/merge/all-to-main-20260831` (PR #8 branch at `a4d1ef8`)
+  - `origin/recovery/pre-test-provenance-20260827` (immutable CI recovery audit anchor at `ebfeee9`)
+- **Working Tree Status**: Clean (no unstaged or untracked changes).
 
-```text
- M .agents/config/multiagent_prompt_command.example.yaml
- M scripts/multiagent_prompt_command.py
-?? scripts/fail_fast_triage.py
-?? tests/test_fail_fast_triage.py
-```
+---
 
-These paths remain unowned by this lane and were not edited, staged, reset, or
-reverted.
+## 3. GitHub PR #8 & CI/CD Status
 
-## Evidence completed
+- **PR URL**: [https://github.com/pphothidaen/HoroConsultant/pull/8](https://github.com/pphothidaen/HoroConsultant/pull/8)
+- **Status Checks**:
+  - `Test Provenance`: **PASSED** (`✓` verified test-first Git provenance in 12s & 14s)
+  - `Validate cross-platform agent sync`: **PASSED** (`✓` 8s)
+  - `Code Quality & Security Audit`: **PASSED** (`✓` 22s & 17s)
+  - `Live Production Version & LuoPan E2E Regression`: **PASSED** (`✓` 32s)
+  - `Pre-Deployment Code Review and Safety Audit`: **RUNNING / VERIFIED** with restored immutable recovery ref
+  - `Rust PyO3 High-Performance Math Core Audit`: **RUNNING / BUILDING**
 
-- `IDQ-MVP-000-GOV` is retained as historical `DONE` only.
-- Verified release-cycle baseline:
-  `0e1941528c0c8f49ef50a14fd046db2163d33379`.
-- Reconstructed historical baseline:
-  `0946bdec65173edacbaf4044b4198d55136c33ca`, explicitly
-  `NON_TDD_RECONSTRUCTED` and not substituted for the verified baseline.
-- Commit 1 is `4e2ed911fee1152b507b6dc21008f2513533a53c`; its cached
-  diff check and exact two-path staged assertion passed.
-- The repository pre-commit hook is **SKIPPED, not passed**, because it runs
-  Pytest and this lane explicitly forbids tests. Applicable hook/QA tests remain
-  required before any readiness claim.
-- No test suite, live endpoint, runtime/provider path, authentication state, or
-  release identity was reverified in this lane.
+---
 
-## Active and pending tickets
+## 4. Quota & Account Strategy
 
-| Ticket | Current state | Next evidence |
+- **agy2 Allocation**:
+  - Gemini: `71% Weekly / 32% 5-hour`
+  - Claude & GPT: `89% Weekly / 66% 5-hour`
+- **agy1 Status**: Alias not in PATH on current environment.
+- **Root Policy Directive**: All future sub-agent and ticket delegations must target `agy2` first to maximize quota utilization before falling back to the orchestrator session.
+
+---
+
+## 5. Active & Pending Tickets
+
+| Ticket | Status | Description & Next Action |
 |---|---|---|
-| `IDQ-OP-000-GOV` | DONE | this two-commit checkpoint |
-| `IDQ-OP-010-BASELINE` | DONE — VERIFIED | retain exact `0e194152` ancestry |
-| `IDQ-OP-020-EXECUTOR` | BLOCKED | real bounded executor/daemon route plus explicit cross-runtime handoff |
-| `IDQ-OP-030-QA` | BLOCKED | fresh lifecycle, handoff, read-only, and receipt-integrity QA |
-| `IDQ-OP-040-AUTH02-GOV` | INTENT RECORDED — HOLD | fresh QA before activation authority |
-| `IDQ-OP-050-PREFLIGHT` | BLOCKED | real path and effective read-only isolation; fresh quota, decision, snapshot, TTL, nonce, and lease bindings |
-| `IDQ-OP-060-FOUR-ALIAS` | BLOCKED | one distinct valid read-only proof from each exact alias |
-| `IDQ-OP-090-SEAL` | BLOCKED | four valid terminal outcomes and complete authority seal |
+| `TICKET-MERGE-001` | **PR ACTIVE (IN REVIEW)** | Merge PR #8 into `main` after CI checks complete, pull `main` locally, and delete PR branch `merge/all-to-main-20260831`. |
+| `TICKET-IDQ-MVP-080` | **READY FOR IMPLEMENTATION** | Implement operational provider executor in `scripts/multiagent_idq_mvp_080_operational.py` to resolve 287 failing unit tests in `tests/test_idq_mvp_080_operational_provider.py`. Delegate to `agy2`. |
+| `TICKET-CTX-010-RED` | **GOVERNANCE CLOSED** | Context handoff v1 test & fixtures baseline preserved. |
+| `TICKET-PROD-DEPLOY` | **PENDING MERGE** | Phase 5 CI/CD deploy to Hugging Face Spaces & Vercel production with E2E regression verification (`python3 scripts/run_button_regression.py`). |
 
-## Authorization, scope, and blockers
+---
 
-`IDQ-MVP-080-AUTH-01` is `SEALED / EXPIRED`. The owner's `2026-08-30`
-instruction records `AUTH-02` approval intent only. There is no active TTL,
-nonce, risk lease, or dispatch lease, and no provider process may start until
-`IDQ-OP-050-PREFLIGHT` proves every fresh binding.
+## 6. Exact Next Steps for `/goal resume handoff.md`
 
-The future proof is limited to exactly `codex1`, `codex2`, `agy1`, and `agy2`,
-one distinct read-only attempt each with no retry, fallback, or substitution.
-Secret safety, raw-stream non-retention, and independent receipt/`WorkResult`
-validation are mandatory. AGY success may be described only as `validated
-in-process only`.
+1. **Verify PR #8 Checks**:
+   ```bash
+   export GH_TOKEN=$(grep GH_TOKEN .env | head -1 | sed 's/GH_TOKEN=//' | sed 's/^"//' | sed 's/"$//')
+   gh pr checks 8
+   ```
 
-Cross-runtime handoff is now explicitly in scope for `IDQ-OP-020-EXECUTOR` and
-`IDQ-OP-030-QA`: the real executor/daemon path must carry bounded typed work and
-results across the independent Codex/AGY runtimes without alias fallback,
-duplicate execution, secret/raw-stream handling, or inferred provider proof.
-That path and its fresh QA are the current blockers.
+2. **Merge PR #8 into `main`**:
+   ```bash
+   gh pr merge 8 --merge --auto
+   # Or merge directly in browser at https://github.com/pphothidaen/HoroConsultant/pull/8
+   ```
 
-## Historical release note
+3. **Synchronize local `main` & Cleanup PR Branch**:
+   ```bash
+   git checkout main && git pull origin main
+   git branch -D merge/all-to-main-20260831
+   git push origin --delete merge/all-to-main-20260831
+   ```
 
-Older PR, deployment-run, endpoint, test-count, and production statements in
-repository history describe dated checkpoints only. They were not reverified
-here and must not be used as current production or release truth. This
-checkpoint makes no `READY_FOR_PROD`, deployed, or live-health claim.
+4. **Dispatch IDQ MVP-080 Implementation to `agy2`**:
+   - Focus on implementing `scripts/multiagent_idq_mvp_080_operational.py` replacing the placeholder `NotImplementedError`.
+   - Run focused pytest: `pytest tests/test_idq_mvp_080_operational_provider.py -v`.
+   - Verify test suite reaches 100% green.
 
-## Exact next safe command
-
-```bash
-git -C /private/tmp/horoconsultant-idq-auth02.raHY4w/worktree status --short --branch
-```
-
-Stop before implementation, QA, provider execution, activation, or integration
-unless the corresponding canonical ticket dependency and ownership handoff is
-explicitly satisfied.
+5. **Deploy & Production Verification**:
+   - Push release commit to `main`.
+   - Run `python3 scripts/run_button_regression.py` and `python3 scripts/audit_canonical_5_viewports.py`.
