@@ -34,15 +34,7 @@ ROOT_B_ROLE_BINDINGS = {
     "primary": ("agy", "agy1"),
     "secondary": ("agy", "agy2"),
 }
-
-
-def validate_activation_state(
-    *, activation_prohibited: bool, dispatcher_execution: str
-) -> None:
-    """Reject activation unless a later phase explicitly opens the dispatcher."""
-
-    if activation_prohibited is not False or dispatcher_execution != "OPEN":
-        raise SchedulingError("ACTIVATION_PROHIBITED", "ACTIVATION_PROHIBITED: dispatcher activation is closed")
+VALID_DISPATCHER_EXECUTION_STATES = frozenset({"CLOSED", "OPEN"})
 
 
 class SchedulingError(ValueError):
@@ -347,6 +339,78 @@ def _required_bool(value: Any, label: str) -> bool:
     if not isinstance(value, bool):
         raise SchedulingError("INVALID_SCHEDULING_METADATA", f"{label} must be boolean")
     return value
+
+
+def validate_activation_state(
+    config: Mapping[str, Any] | None = None,
+    *,
+    activation_prohibited: bool | None = None,
+    dispatcher_execution: str | None = None,
+) -> None:
+    """Require explicit dispatcher activation metadata before admission.
+
+    The function accepts the legacy explicit keyword form and the newer config
+    mapping form so the scheduler remains compatible with existing tests while
+    the prompt command can pass the full runtime config.
+    """
+
+    if config is not None:
+        if activation_prohibited is None:
+            activation_prohibited = config.get("activation_prohibited")
+        if dispatcher_execution is None:
+            dispatcher_execution = config.get("dispatcher_execution")
+    if (
+        not isinstance(activation_prohibited, bool)
+        or not isinstance(dispatcher_execution, str)
+        or dispatcher_execution not in VALID_DISPATCHER_EXECUTION_STATES
+    ):
+        raise SchedulingError(
+            "ACTIVATION_STATE_INVALID",
+            "dispatcher activation metadata is missing or invalid",
+        )
+    if activation_prohibited or dispatcher_execution != "OPEN":
+        raise SchedulingError(
+            "ACTIVATION_PROHIBITED",
+            "ACTIVATION_PROHIBITED: dispatcher activation is prohibited",
+        )
+
+
+def validate_provider_account_state(
+    config: Mapping[str, Any], *, account: str, provider: str
+) -> None:
+    """Require explicit healthy provider and account state before leasing.
+
+    The input may be either the full runtime config or the already-extracted
+    provider/account state mapping.
+    """
+
+    state = config
+    if not (
+        isinstance(state, Mapping)
+        and isinstance(state.get("providers"), Mapping)
+        and isinstance(state.get("accounts"), Mapping)
+    ):
+        provider_account_state = config.get("provider_account_state")
+        if isinstance(provider_account_state, Mapping):
+            state = provider_account_state
+        else:
+            dispatch_state = config.get("dispatch_state")
+            if isinstance(dispatch_state, Mapping):
+                state = dispatch_state
+    if not isinstance(state, Mapping):
+        raise SchedulingError("PROVIDER_ACCOUNT_STATE_UNKNOWN", "provider/account state is unknown")
+    providers = state.get("providers")
+    accounts = state.get("accounts")
+    if not isinstance(providers, Mapping) or not isinstance(accounts, Mapping):
+        raise SchedulingError("PROVIDER_ACCOUNT_STATE_UNKNOWN", "provider/account state is incomplete")
+    provider_state = _state_value(providers.get(provider), f"provider {provider}")
+    account_state = _state_value(accounts.get(account), f"account {account}")
+    if provider_state == "unknown" or account_state == "unknown":
+        raise SchedulingError("PROVIDER_ACCOUNT_STATE_UNKNOWN", "provider/account state is unknown")
+    if provider_state == "exhausted" or account_state == "exhausted":
+        raise SchedulingError("PROVIDER_ACCOUNT_EXHAUSTED", "selected provider/account is exhausted")
+    if provider_state != DISPATCHABLE_ACCOUNT_STATE or account_state != DISPATCHABLE_ACCOUNT_STATE:
+        raise SchedulingError("PROVIDER_ACCOUNT_STATE_BLOCKED", "selected provider/account is not healthy")
 
 
 def _canonical_digest(snapshot: Mapping[str, Any]) -> str:
