@@ -73,15 +73,15 @@ LEDGER_LIMIT_FIELDS = frozenset(
 EXPECTED_DEPENDENCY_PINS = {
     "dispatcher_validator": {
         "path": "scripts/multiagent_prompt_command.py",
-        "sha256": "48b0aee8400ce59add3d4f0575ea8d6ba533be0b89f02e7cef476f10361735e1",
+        "sha256": "3e2cdd02ceea571dd695dc5349b1651b6611e07d6b323078edf07ee63b650cfe",
     },
     "scheduler_validator": {
         "path": "scripts/multiagent_ticket_scheduler.py",
-        "sha256": "6108cb7044ce30e4cac8d7973f8a15491c189ea996912b10e808a9791c6a9f8a",
+        "sha256": "86fefe7831b5b51c35c1ee7295a7480fc50ffa7c8ed1b55d681a723e217f4945",
     },
     "model_policy": {
         "path": ".agents/config/multiagent_model_policy.yaml",
-        "sha256": "e480ad33b8a27c20a456c3f5141ec6ef408a630cc5a9d59e48e3118b2bcf2379",
+        "sha256": "de43c8d5240fb23e1c83fcb2a12dd47175805595dc6f5cfc864f428be0366816",
     },
     "governance_schema": {
         "path": ".agents/schemas/full-capacity-governance-v2.schema.json",
@@ -419,6 +419,9 @@ FORBIDDEN_CONTROL_KEYS = frozenset(
     {"force_cancel", "cancel", "cancellations", "preempt", "preemptions", "kill"}
 )
 
+
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 class CapacityViolation(ValueError):
     """Content-free capacity contract rejection."""
