@@ -1,0 +1,45 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-IDQ-MVP-080-OPERATIONAL-PROVIDER",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "b643d35243ad94949500c7627d46e27f580a020f",
+  "test_files": [
+    {
+      "path": "tests/test_idq_mvp_080_operational_provider.py",
+      "sha256": "e9b1f4adec8ba9cc9afd3389c0834dc80173f326ebac362d32282db6fa3ef38e"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_idq_mvp_080_operational_provider.py::test_operational_entrypoint_exists_before_source"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "1 failed; AssertionError: IDQ_MVP_080_OPERATIONAL_ENTRYPOINT_MISSING"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_idq_mvp_080_operational_provider.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "7 failed; one sentinel AssertionError plus six lazy-import ModuleNotFoundError failures for scripts.multiagent_idq_mvp_080_operational"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/multiagent_idq_mvp_080_operational.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze the new real IDQ-MVP-080 operational provider executor as a genuine test-first baseline, separate from every historical or reconstructed release-cycle and synthetic adapter baseline. The fake-Popen-only cohort requires a closed, fresh AUTH-02 record and rejects sealed AUTH-01; exactly codex1, codex2, agy1, and agy2; an all-four preflight barrier; one read-only attempt with no retry, fallback, or substitution; exact decision, scheduling snapshot, QOBS, nonce, absolute executable, account identity, capacity lease, lease-risk, and repository-snapshot bindings; isolated account environments; provider-native Codex output-schema and AGY json-schema argv; explicit stdin, cwd, timeout, and shell-false process controls; durable PREPARED to STARTING to Popen to RUNNING ordering with overlap; post-start UNKNOWN without retry; authorization-bound safe receipts, typed WorkResults, output hashes, AGY validated-in-process-only language, and no raw stream or prompt persistence. Ordinary dispatcher activation remains CLOSED and repository drift invalidates every result. The module is absent at the clean parent, producing the recorded deterministic red evidence without provider or credential access."
+}
