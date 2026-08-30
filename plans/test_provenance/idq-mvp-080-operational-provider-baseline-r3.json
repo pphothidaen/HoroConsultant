@@ -1,0 +1,45 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-IDQ-MVP-080-OPERATIONAL-PROVIDER",
+  "sequence": 3,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "a263b09a389348ea7931835f97405991f6002018",
+  "test_files": [
+    {
+      "path": "tests/test_idq_mvp_080_operational_provider.py",
+      "sha256": "b9a7d7ea74cb2b14c110adbc5f706ee041cd01b025a483b0078a1106aaae8106"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_idq_mvp_080_operational_provider.py::test_operational_entrypoint_exists_before_source"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "1 failed; AssertionError: IDQ_MVP_080_OPERATIONAL_ENTRYPOINT_MISSING"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_idq_mvp_080_operational_provider.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "157 failed, 23 passed; one stable missing-entrypoint AssertionError plus 156 lazy-import ModuleNotFoundError failures for scripts.multiagent_idq_mvp_080_operational; all 23 general side-effect and normal/linked Git mutation negative controls passed"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/multiagent_idq_mvp_080_operational.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "a263b09a389348ea7931835f97405991f6002018",
+  "correction_reason": "Independent sequence-3 review found five residual gaps in the sequence-2 superseding baseline: (1) failed all-four preflights, non-UNUSED AUTH-02 states, and replay did not share one byte-for-byte zero-side-effect oracle covering the SQLite queue database and any WAL/SHM files, capacity and nonce-marker stores, all fixture input/config/authorization files, captured stdout/stderr, and normal or linked Git worktree, gitdir, common-dir refs, HEAD, index, and status authority; (2) request_id, root, provider, and the actual job, request, QOBS, and capacity-lease lane identities were not parameterized across all four aliases; (3) provider-native malformed-output coverage omitted schema-invalid mapping WorkResults and two distinct competing terminal WorkResults for both Codex and AGY; (4) no single exact oracle asserted every required receipt key and value for every DONE and UNKNOWN result, especially timeout and repository drift; and (5) fake execution mutated only a tracked worktree file and did not separately exercise index-only, per-worktree-ref-only, HEAD-only, and common-ref drift under both normal and linked-worktree semantics. This test-only correction closes those gaps without changing the acceptance scope or source allowlist.",
+  "rationale": "Freeze the third independently reviewed IDQ-MVP-080 operational-provider contract before the sole owned source exists. The fake-Popen-only suite preserves the stable missing-entrypoint RED sentinel and lazy imports while adding exact state snapshots and targeted negative controls, all-field AUTH-02 and actual-lane binding barriers for codex1, codex2, agy1, and agy2, native schema-invalid and competing-terminal WorkResult rejection, one complete receipt oracle for every successful and ambiguous lane, and one-shot bounded cleanup after tracked-file, index-only, per-worktree-ref-only, HEAD-only, and common-ref drift in normal and linked Git fixtures. It performs no provider, network, credential, source, documentation, deployment, or release action; the only eligible later source remains scripts/multiagent_idq_mvp_080_operational.py."
+}

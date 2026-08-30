@@ -30,6 +30,7 @@ import subprocess
 import threading
 from collections.abc import Mapping
 from copy import deepcopy
+from dataclasses import asdict, is_dataclass, replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -139,6 +140,24 @@ RECEIPT_FIELDS = {
     "work_result_sha256",
     "evidence_scope",
 }
+WORK_RESULT_FIELDS = {
+    "status",
+    "scope_owned",
+    "evidence",
+    "findings",
+    "changed_files",
+    "residual_risk",
+    "recommended_next_action",
+}
+WORK_RESULT_EVIDENCE_FIELDS = {"commands", "outcomes", "artifacts"}
+REPOSITORY_KINDS = ("normal", "linked")
+REPOSITORY_MUTATIONS = (
+    "tracked_file",
+    "index_only",
+    "ref_only",
+    "head_only",
+    "common_ref",
+)
 
 
 def _operational() -> Any:
@@ -147,15 +166,18 @@ def _operational() -> Any:
     return importlib.import_module("scripts.multiagent_idq_mvp_080_operational")
 
 
-def _canonical_sha256(value: object) -> str:
-    material = json.dumps(
+def _canonical_bytes(value: object) -> bytes:
+    return json.dumps(
         value,
         sort_keys=True,
         separators=(",", ":"),
         ensure_ascii=True,
         allow_nan=False,
     ).encode("ascii")
-    return hashlib.sha256(material).hexdigest()
+
+
+def _canonical_sha256(value: object) -> str:
+    return hashlib.sha256(_canonical_bytes(value)).hexdigest()
 
 
 def _digest(label: str) -> str:
@@ -163,8 +185,10 @@ def _digest(label: str) -> str:
 
 
 def _timestamp(value: datetime) -> str:
-    return value.astimezone(timezone.utc).isoformat(timespec="seconds").replace(
-        "+00:00", "Z"
+    return (
+        value.astimezone(timezone.utc)
+        .isoformat(timespec="seconds")
+        .replace("+00:00", "Z")
     )
 
 
@@ -183,44 +207,157 @@ def _git(root: Path, *args: str) -> subprocess.CompletedProcess[str]:
     return completed
 
 
+def _portable(value: object) -> object:
+    """Return a closed JSON-safe view of every invocation input."""
+
+    if is_dataclass(value) and not isinstance(value, type):
+        return _portable(asdict(value))
+    if isinstance(value, Mapping):
+        return {str(key): _portable(item) for key, item in sorted(value.items())}
+    if isinstance(value, (list, tuple)):
+        return [_portable(item) for item in value]
+    if isinstance(value, (set, frozenset)):
+        return sorted(_portable(item) for item in value)
+    if isinstance(value, Path):
+        return str(value)
+    if isinstance(value, datetime):
+        return _timestamp(value)
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    raise AssertionError(f"unsupported fixture input type: {type(value).__name__}")
+
+
+def _exact_path_snapshot(
+    root: Path, *, exclude_top_level: frozenset[str] = frozenset()
+) -> dict[str, object]:
+    """Capture exact names, modes, link targets, and file bytes under ``root``."""
+
+    root = Path(root)
+    if not root.exists() and not root.is_symlink():
+        return {"kind": "missing", "entries": ()}
+    if root.is_symlink():
+        return {
+            "kind": "symlink",
+            "mode": stat.S_IMODE(root.lstat().st_mode),
+            "target": os.readlink(root),
+        }
+    if root.is_file():
+        return {
+            "kind": "file",
+            "mode": stat.S_IMODE(root.stat().st_mode),
+            "bytes": root.read_bytes(),
+        }
+
+    entries: list[tuple[object, ...]] = []
+    for path in sorted(root.rglob("*")):
+        relative = path.relative_to(root)
+        if relative.parts and relative.parts[0] in exclude_top_level:
+            continue
+        mode = stat.S_IMODE(path.lstat().st_mode)
+        if path.is_symlink():
+            entries.append((relative.as_posix(), "symlink", mode, os.readlink(path)))
+        elif path.is_dir():
+            entries.append((relative.as_posix(), "directory", mode))
+        elif path.is_file():
+            entries.append((relative.as_posix(), "file", mode, path.read_bytes()))
+        else:  # pragma: no cover - fixtures create only regular filesystem entries
+            entries.append((relative.as_posix(), "other", mode))
+    return {
+        "kind": "directory",
+        "mode": stat.S_IMODE(root.stat().st_mode),
+        "entries": tuple(entries),
+    }
+
+
+def _digestable_snapshot(value: object) -> object:
+    if isinstance(value, bytes):
+        return {
+            "bytes": len(value),
+            "sha256": hashlib.sha256(value).hexdigest(),
+        }
+    if isinstance(value, Mapping):
+        return {str(key): _digestable_snapshot(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_digestable_snapshot(item) for item in value]
+    return value
+
+
+def _snapshot_sha256(value: object) -> str:
+    return _canonical_sha256(_digestable_snapshot(value))
+
+
+def _git_paths(root: Path) -> tuple[Path, Path]:
+    git_dir = Path(_git(root, "rev-parse", "--absolute-git-dir").stdout.strip())
+    common_dir = Path(
+        _git(
+            root,
+            "rev-parse",
+            "--path-format=absolute",
+            "--git-common-dir",
+        ).stdout.strip()
+    )
+    return git_dir.resolve(), common_dir.resolve()
+
+
+def _git_control_snapshot(root: Path) -> dict[str, object]:
+    """Capture Git worktree, gitdir, and common-dir authority byte-for-byte."""
+
+    git_dir, common_dir = _git_paths(root)
+
+    def selected(directory: Path) -> dict[str, object]:
+        return {
+            "HEAD": _exact_path_snapshot(directory / "HEAD"),
+            "index": _exact_path_snapshot(directory / "index"),
+            "packed-refs": _exact_path_snapshot(directory / "packed-refs"),
+            "refs": _exact_path_snapshot(directory / "refs"),
+            "commondir": _exact_path_snapshot(directory / "commondir"),
+            "gitdir": _exact_path_snapshot(directory / "gitdir"),
+        }
+
+    environment = dict(os.environ)
+    environment["GIT_OPTIONAL_LOCKS"] = "0"
+    status = subprocess.run(
+        ["git", "status", "--porcelain=v1", "--untracked-files=all"],
+        cwd=root,
+        capture_output=True,
+        text=False,
+        check=False,
+        env=environment,
+    )
+    assert status.returncode == 0, status.stderr.decode("utf-8", errors="replace")
+    return {
+        "worktree": _exact_path_snapshot(root, exclude_top_level=frozenset({".git"})),
+        "dot_git": _exact_path_snapshot(root / ".git"),
+        "git_dir": str(git_dir),
+        "common_dir": str(common_dir),
+        "gitdir_control": selected(git_dir),
+        "common_control": selected(common_dir),
+        "status_stdout": status.stdout,
+        "status_stderr": status.stderr,
+    }
+
+
 def _worktree_snapshot(root: Path) -> str:
     """Hash sorted relative path, mode, and bytes for every non-Git file."""
 
-    entries: list[dict[str, object]] = []
-    for path in sorted(root.rglob("*")):
-        relative = path.relative_to(root)
-        if ".git" in relative.parts or not path.is_file():
-            continue
-        entries.append(
-            {
-                "path": relative.as_posix(),
-                "mode": stat.S_IMODE(path.stat().st_mode),
-                "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-            }
-        )
-    return _canonical_sha256(entries)
+    return _snapshot_sha256(
+        _exact_path_snapshot(root, exclude_top_level=frozenset({".git"}))
+    )
 
 
 def _git_metadata_snapshot(root: Path) -> str:
-    """Hash the exact Git index, refs, and HEAD content without touching Git."""
+    """Hash exact linked-worktree gitdir and common refs/HEAD/index content."""
 
-    git_dir = Path(_git(root, "rev-parse", "--absolute-git-dir").stdout.strip())
-    paths = [git_dir / "HEAD", git_dir / "index", git_dir / "packed-refs"]
-    refs = git_dir / "refs"
-    if refs.exists():
-        paths.extend(path for path in sorted(refs.rglob("*")) if path.is_file())
-    entries = []
-    for path in paths:
-        if not path.is_file():
-            continue
-        entries.append(
-            {
-                "path": path.relative_to(git_dir).as_posix(),
-                "mode": stat.S_IMODE(path.stat().st_mode),
-                "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-            }
-        )
-    return _canonical_sha256(entries)
+    evidence = _git_control_snapshot(root)
+    return _snapshot_sha256(
+        {
+            "dot_git": evidence["dot_git"],
+            "git_dir": evidence["git_dir"],
+            "common_dir": evidence["common_dir"],
+            "gitdir_control": evidence["gitdir_control"],
+            "common_control": evidence["common_control"],
+        }
+    )
 
 
 def _repository_integrity_evidence(root: Path) -> dict[str, str]:
@@ -282,7 +419,9 @@ def _codex_output(alias: str) -> str:
         },
         {"type": "turn.completed"},
     )
-    return "\n".join(json.dumps(event, separators=(",", ":")) for event in events) + "\n"
+    return (
+        "\n".join(json.dumps(event, separators=(",", ":")) for event in events) + "\n"
+    )
 
 
 def _agy_output(alias: str) -> str:
@@ -301,12 +440,22 @@ def _agy_output(alias: str) -> str:
             },
         },
     )
-    return "\n".join(json.dumps(event, separators=(",", ":")) for event in events) + "\n"
+    return (
+        "\n".join(json.dumps(event, separators=(",", ":")) for event in events) + "\n"
+    )
 
 
 def _invalid_provider_output(alias: str, malformation: str) -> str:
     provider = ALIASES[alias][0]
     valid_result = _work_result(alias)
+    competing_result = deepcopy(valid_result)
+    competing_result["findings"] = [f"competing typed result for {alias}"]
+    schema_invalid_result = deepcopy(valid_result)
+    schema_invalid_result["evidence"] = {
+        "commands": [],
+        "outcomes": "mapping violates WorkResult evidence schema",
+        "artifacts": [],
+    }
     if provider == "codex":
         start = {"type": "thread.started", "thread_id": f"codex-operational-{alias}"}
         raw = {"type": "item.started", "raw_marker": RAW_SENTINEL}
@@ -324,10 +473,22 @@ def _invalid_provider_output(alias: str, malformation: str) -> str:
             malformed_item = deepcopy(valid_item)
             malformed_item["item"]["text"] = "{not-json"
             events = (start, raw, malformed_item, terminal)
+        elif malformation == "schema_invalid_mapping":
+            invalid_item = deepcopy(valid_item)
+            invalid_item["item"]["text"] = json.dumps(
+                schema_invalid_result, separators=(",", ":")
+            )
+            events = (start, raw, invalid_item, terminal)
         elif malformation == "missing_terminal_event":
             events = (start, raw, valid_item)
         elif malformation == "duplicate_terminal_event":
             events = (start, raw, valid_item, terminal, terminal)
+        elif malformation == "competing_terminal_work_results":
+            competing_item = deepcopy(valid_item)
+            competing_item["item"]["text"] = json.dumps(
+                competing_result, separators=(",", ":")
+            )
+            events = (start, raw, valid_item, competing_item, terminal)
         else:  # pragma: no cover - test data is closed above
             raise AssertionError(f"unknown malformation {malformation}")
     else:
@@ -352,21 +513,34 @@ def _invalid_provider_output(alias: str, malformation: str) -> str:
             malformed_result = deepcopy(valid_terminal)
             malformed_result["result"]["structured_output"] = "not-a-work-result"
             events = (start, malformed_result)
+        elif malformation == "schema_invalid_mapping":
+            invalid_result = deepcopy(valid_terminal)
+            invalid_result["result"]["structured_output"] = schema_invalid_result
+            events = (start, invalid_result)
         elif malformation == "missing_terminal_event":
             events = (start,)
         elif malformation == "duplicate_terminal_event":
             events = (start, valid_terminal, valid_terminal)
+        elif malformation == "competing_terminal_work_results":
+            competing_terminal = deepcopy(valid_terminal)
+            competing_terminal["result"]["structured_output"] = competing_result
+            events = (start, valid_terminal, competing_terminal)
         else:  # pragma: no cover - test data is closed above
             raise AssertionError(f"unknown malformation {malformation}")
-    return "\n".join(json.dumps(event, separators=(",", ":")) for event in events) + "\n"
+    return (
+        "\n".join(json.dumps(event, separators=(",", ":")) for event in events) + "\n"
+    )
 
 
 def _agy_stdin(prompt: str) -> str:
-    return json.dumps(
-        {"event": "user", "message": {"content": prompt}},
-        ensure_ascii=False,
-        separators=(",", ":"),
-    ) + "\n"
+    return (
+        json.dumps(
+            {"event": "user", "message": {"content": prompt}},
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
+        + "\n"
+    )
 
 
 class _RecordingQueue(DurableQueue):
@@ -399,7 +573,9 @@ class _RecordingQueue(DurableQueue):
 
 
 class _FakeProcess:
-    def __init__(self, factory: _PopenFactory, alias: str, argv: tuple[str, ...]) -> None:
+    def __init__(
+        self, factory: _PopenFactory, alias: str, argv: tuple[str, ...]
+    ) -> None:
         self.factory = factory
         self.alias = alias
         self.args = argv
@@ -427,10 +603,8 @@ class _FakeProcess:
             with self.factory.lock:
                 if not self.factory.repository_mutated:
                     self.factory.repository_mutated = True
-                    assert self.factory.mutate_path is not None
-                    self.factory.mutate_path.write_text(
-                        "provider mutation must invalidate every result\n", encoding="utf-8"
-                    )
+                    assert self.factory.repository_mutation is not None
+                    self.factory.repository_mutation()
                     self.factory.outputs_ready.set()
         elif self.factory.mutate_alias is None:
             self.factory.outputs_ready.set()
@@ -442,7 +616,12 @@ class _FakeProcess:
 
         if self.factory.failure_alias == self.alias and not self._timed_out:
             self._timed_out = True
-            raise subprocess.TimeoutExpired(self.args, timeout)
+            raise subprocess.TimeoutExpired(
+                self.args,
+                timeout,
+                output=self.factory.payloads[self.alias],
+                stderr=self.factory.stderr_payloads[self.alias],
+            )
         if self._timed_out:
             self.returncode = -9
             self._finish()
@@ -450,7 +629,9 @@ class _FakeProcess:
 
         self.returncode = 0
         self._finish()
-        return self.factory.payloads[self.alias], self.factory.stderr_payloads[self.alias]
+        return self.factory.payloads[self.alias], self.factory.stderr_payloads[
+            self.alias
+        ]
 
     def poll(self) -> int | None:
         return self.returncode
@@ -483,13 +664,13 @@ class _PopenFactory:
         executable_aliases: Mapping[str, str],
         failure_alias: str | None = None,
         mutate_alias: str | None = None,
-        mutate_path: Path | None = None,
+        repository_mutation: Any | None = None,
     ) -> None:
         self.store = store
         self.executable_aliases = dict(executable_aliases)
         self.failure_alias = failure_alias
         self.mutate_alias = mutate_alias
-        self.mutate_path = mutate_path
+        self.repository_mutation = repository_mutation
         self.repository_mutated = False
         self.lock = threading.Lock()
         self.all_started = threading.Event()
@@ -507,6 +688,7 @@ class _PopenFactory:
         self.max_active = 0
         self.killed: list[str] = []
         self.terminated: list[str] = []
+        self.processes: list[_FakeProcess] = []
 
     def __call__(self, *args: Any, **kwargs: Any) -> _FakeProcess:
         raw_argv = args[0] if args else kwargs.get("args")
@@ -522,7 +704,10 @@ class _PopenFactory:
             self.store.events.append((alias, "POPEN"))
             if sum(len(items) for items in self.calls.values()) == len(ALIASES):
                 self.all_started.set()
-        return _FakeProcess(self, alias, argv)
+        process = _FakeProcess(self, alias, argv)
+        with self.lock:
+            self.processes.append(process)
+        return process
 
 
 def _config() -> dict[str, object]:
@@ -545,32 +730,114 @@ def _config() -> dict[str, object]:
     }
 
 
+def _initialize_repository(
+    tmp_path: Path, repository_kind: str
+) -> tuple[Path, Path, Path, Path, str]:
+    assert repository_kind in REPOSITORY_KINDS
+    seed = (
+        tmp_path / "repository-common"
+        if repository_kind == "linked"
+        else tmp_path / "repository"
+    )
+    seed.mkdir()
+    _git(seed, "init", "--quiet")
+    _git(seed, "config", "user.name", "IDQ Fixture")
+    _git(seed, "config", "user.email", "idq-fixture@example.invalid")
+    seed_schema = seed / ".agents/schemas/multiagent-work-result-v2.schema.json"
+    seed_schema.parent.mkdir(parents=True)
+    seed_schema.write_bytes(
+        (
+            REPOSITORY_ROOT / ".agents/schemas/multiagent-work-result-v2.schema.json"
+        ).read_bytes()
+    )
+    seed_tracked = seed / "tracked.txt"
+    seed_tracked.write_text("immutable repository fixture\n", encoding="utf-8")
+    _git(seed, "add", "--all")
+    _git(seed, "commit", "--quiet", "-m", "fixture")
+
+    if repository_kind == "linked":
+        repository = tmp_path / "repository"
+        _git(seed, "worktree", "add", "--quiet", "--detach", str(repository), "HEAD")
+    else:
+        repository = seed
+
+    head = _git(repository, "rev-parse", "HEAD").stdout.strip()
+    tree = _git(repository, "rev-parse", "HEAD^{tree}").stdout.strip()
+    alternate_head = _git(
+        repository,
+        "commit-tree",
+        tree,
+        "-p",
+        head,
+        "-m",
+        "same-tree alternate HEAD for mutation fixture",
+    ).stdout.strip()
+    assert alternate_head != head
+    return (
+        repository,
+        seed,
+        repository / ".agents/schemas/multiagent-work-result-v2.schema.json",
+        repository / "tracked.txt",
+        alternate_head,
+    )
+
+
+def _inject_repository_mutation(
+    *,
+    repository: Path,
+    tracked: Path,
+    alternate_head: str,
+    mutation_kind: str,
+) -> None:
+    """Inject one bounded Git-authority mutation after every lane has started."""
+
+    assert mutation_kind in REPOSITORY_MUTATIONS
+    git_dir, common_dir = _git_paths(repository)
+    if mutation_kind == "tracked_file":
+        tracked.write_text(
+            "provider mutation must invalidate every result\n", encoding="utf-8"
+        )
+    elif mutation_kind == "index_only":
+        _git(repository, "update-index", "--assume-unchanged", "tracked.txt")
+    elif mutation_kind == "ref_only":
+        ref = git_dir / "refs/worktree/idq-provider-drift"
+        ref.parent.mkdir(parents=True, exist_ok=True)
+        ref.write_text(f"{alternate_head}\n", encoding="ascii")
+    elif mutation_kind == "head_only":
+        (git_dir / "HEAD").write_text(f"{alternate_head}\n", encoding="ascii")
+    else:
+        ref = common_dir / "refs/idq/common-provider-drift"
+        ref.parent.mkdir(parents=True, exist_ok=True)
+        ref.write_text(f"{alternate_head}\n", encoding="ascii")
+
+
+def _write_input_file(path: Path, value: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(_canonical_bytes(_portable(value)) + b"\n")
+
+
 def _fixture(
     tmp_path: Path,
     *,
     failure_alias: str | None = None,
     mutate_alias: str | None = None,
+    mutation_kind: str = "tracked_file",
+    repository_kind: str = "normal",
 ) -> dict[str, Any]:
     now = datetime.now(timezone.utc).replace(microsecond=0)
-    repository = tmp_path / "repository"
-    repository.mkdir()
-    _git(repository, "init", "--quiet")
-    _git(repository, "config", "user.name", "IDQ Fixture")
-    _git(repository, "config", "user.email", "idq-fixture@example.invalid")
-    schema_path = repository / ".agents/schemas/multiagent-work-result-v2.schema.json"
-    schema_path.parent.mkdir(parents=True)
-    schema_path.write_bytes(
-        (REPOSITORY_ROOT / ".agents/schemas/multiagent-work-result-v2.schema.json").read_bytes()
-    )
-    tracked = repository / "tracked.txt"
-    tracked.write_text("immutable repository fixture\n", encoding="utf-8")
-    _git(repository, "add", "--all")
-    _git(repository, "commit", "--quiet", "-m", "fixture")
-
+    (
+        repository,
+        repository_seed,
+        schema_path,
+        tracked,
+        alternate_head,
+    ) = _initialize_repository(tmp_path, repository_kind)
     provider_root = tmp_path / "providers"
     account_root = tmp_path / "accounts"
+    input_store = tmp_path / "inputs"
     provider_root.mkdir()
     account_root.mkdir(mode=0o700)
+    input_store.mkdir(mode=0o700)
     executable_aliases: dict[str, str] = {}
 
     store = _RecordingQueue(tmp_path / "queue/durable.sqlite3")
@@ -708,16 +975,32 @@ def _fixture(
         "repository_snapshot_sha256": snapshot,
         "bindings": bindings,
     }
+    _write_input_file(input_store / "config.json", config)
+    _write_input_file(input_store / "authorization.json", authorization)
+    for alias, lane in lanes.items():
+        _write_input_file(input_store / "lanes" / f"{alias}.json", lane)
+
+    repository_mutation = None
+    if mutate_alias is not None:
+        repository_mutation = lambda: _inject_repository_mutation(
+            repository=repository,
+            tracked=tracked,
+            alternate_head=alternate_head,
+            mutation_kind=mutation_kind,
+        )
     factory = _PopenFactory(
         store=store,
         executable_aliases=executable_aliases,
         failure_alias=failure_alias,
         mutate_alias=mutate_alias,
-        mutate_path=tracked if mutate_alias else None,
+        repository_mutation=repository_mutation,
     )
     return {
         "now": now,
         "repository": repository,
+        "repository_seed": repository_seed,
+        "repository_kind": repository_kind,
+        "alternate_head": alternate_head,
         "schema_path": schema_path.resolve(),
         "tracked": tracked,
         "snapshot": snapshot,
@@ -728,12 +1011,17 @@ def _fixture(
         "store": store,
         "marker_store": marker_store,
         "capacity_store": capacity_store,
+        "input_store": input_store,
+        "provider_root": provider_root,
+        "account_root": account_root,
         "factory": factory,
     }
 
 
-def _run(operational: Any, fixture: Mapping[str, Any], **overrides: object):
-    arguments = {
+def _invocation_arguments(
+    fixture: Mapping[str, Any], **overrides: object
+) -> dict[str, object]:
+    arguments: dict[str, object] = {
         "config": fixture["config"],
         "authorization": fixture["authorization"],
         "lanes": fixture["lanes"],
@@ -745,6 +1033,11 @@ def _run(operational: Any, fixture: Mapping[str, Any], **overrides: object):
         "now": fixture["now"],
     }
     arguments.update(overrides)
+    return arguments
+
+
+def _run(operational: Any, fixture: Mapping[str, Any], **overrides: object):
+    arguments = _invocation_arguments(fixture, **overrides)
     return operational.execute_idq_mvp_080_operational(**arguments)
 
 
@@ -791,92 +1084,354 @@ def _assert_no_raw_material(value: object) -> None:
         assert sentinel not in material
 
 
-def _assert_prestart_rejection_has_no_group_side_effect(
-    fixture: Mapping[str, Any], before_markers: Mapping[str, str]
+def _captured_bytes(capsys: pytest.CaptureFixture[str]) -> dict[str, bytes]:
+    captured = capsys.readouterr()
+    return {
+        "stdout": captured.out.encode("utf-8"),
+        "stderr": captured.err.encode("utf-8"),
+    }
+
+
+def _invocation_input_snapshot(arguments: Mapping[str, object]) -> bytes:
+    return _canonical_bytes(
+        _portable(
+            {
+                "config": arguments["config"],
+                "authorization": arguments["authorization"],
+                "lanes": arguments["lanes"],
+                "marker_store": arguments["marker_store"],
+                "repository_root": arguments["repository_root"],
+                "timeout_seconds": arguments["timeout_seconds"],
+                "now": arguments["now"],
+            }
+        )
+    )
+
+
+def _zero_side_effect_snapshot(
+    fixture: Mapping[str, Any],
+    arguments: Mapping[str, object],
+    captured: Mapping[str, bytes],
+) -> dict[str, object]:
+    """General byte oracle for every failed four-lane preflight/replay."""
+
+    factory = fixture["factory"]
+    store = fixture["store"]
+    repository_seed = fixture["repository_seed"]
+    seed_worktree = _exact_path_snapshot(
+        repository_seed, exclude_top_level=frozenset({".git"})
+    )
+    return {
+        "queue_db_wal_shm": _exact_path_snapshot(store.path.parent),
+        "capacity_store": _exact_path_snapshot(fixture["capacity_store"]),
+        "marker_store": _exact_path_snapshot(fixture["marker_store"]),
+        "input_config_auth_files": _exact_path_snapshot(fixture["input_store"]),
+        "provider_input_files": _exact_path_snapshot(fixture["provider_root"]),
+        "account_input_files": _exact_path_snapshot(fixture["account_root"]),
+        "repository": _git_control_snapshot(fixture["repository"]),
+        "common_repository_worktree": seed_worktree,
+        "invocation_inputs": _invocation_input_snapshot(arguments),
+        "queue_observer": {
+            "events": tuple(store.events),
+            "alias_by_request": dict(store.alias_by_request),
+        },
+        "process_observer": {
+            "calls": _portable(factory.calls),
+            "communicate_calls": _portable(factory.communicate_calls),
+            "active": factory.active,
+            "max_active": factory.max_active,
+            "terminated": tuple(factory.terminated),
+            "killed": tuple(factory.killed),
+            "processes": tuple(
+                (
+                    process.alias,
+                    process.returncode,
+                    process._finished,
+                    process._timed_out,
+                )
+                for process in factory.processes
+            ),
+            "all_started": factory.all_started.is_set(),
+            "outputs_ready": factory.outputs_ready.is_set(),
+            "repository_mutated": factory.repository_mutated,
+        },
+        "captured": dict(captured),
+    }
+
+
+def _assert_rejected_without_side_effect(
+    operational: Any,
+    fixture: Mapping[str, Any],
+    capsys: pytest.CaptureFixture[str],
+    **overrides: object,
+) -> Exception:
+    arguments = _invocation_arguments(fixture, **overrides)
+    captured_before = _captured_bytes(capsys)
+    assert captured_before == {"stdout": b"", "stderr": b""}
+    before = _zero_side_effect_snapshot(fixture, arguments, captured_before)
+
+    with pytest.raises(ValueError) as raised:
+        operational.execute_idq_mvp_080_operational(**arguments)
+
+    captured_after = _captured_bytes(capsys)
+    after = _zero_side_effect_snapshot(fixture, arguments, captured_after)
+    assert after == before
+    return raised.value
+
+
+def _assert_work_result_contract(
+    result: Mapping[str, Any], *, expected_status: str
 ) -> None:
-    assert _process_call_count(fixture) == 0
-    assert _tree_snapshot(fixture["marker_store"]) == dict(before_markers)
-    assert {
-        fixture["store"].get_job(lane["job"].request_id).state
-        for lane in fixture["lanes"].values()
-    } == {"CLAIMED"}
+    assert set(result) == WORK_RESULT_FIELDS
+    assert result["status"] == expected_status
+    assert set(result["evidence"]) == WORK_RESULT_EVIDENCE_FIELDS
+    assert all(
+        isinstance(result["evidence"][field], list)
+        for field in WORK_RESULT_EVIDENCE_FIELDS
+    )
+    assert isinstance(result["changed_files"], (str, list))
+    if expected_status == "BLOCKED":
+        assert result["changed_files"] == []
 
 
-def _assert_safe_unknown_outcome(
-    fixture: Mapping[str, Any], completed: Mapping[str, Any], alias: str
+def _adapter_and_scope(alias: str, *, status: str) -> tuple[str, str]:
+    provider = ALIASES[alias][0]
+    adapter = (
+        "codex-jsonl-output-schema-v2"
+        if provider == "codex"
+        else "agy-stream-json-schema-v2"
+    )
+    if status == "UNKNOWN":
+        return adapter, "not validated"
+    return adapter, (
+        "provider-native validated"
+        if provider == "codex"
+        else "validated in-process only"
+    )
+
+
+def _assert_exact_outcome_receipt(
+    fixture: Mapping[str, Any],
+    completed: Mapping[str, Any],
+    alias: str,
+    *,
+    status: str,
 ) -> None:
     outcome = completed["aliases"][alias]
     assert set(outcome) == {"status", "receipt", "work_result"}
-    assert outcome["status"] == "UNKNOWN"
+    assert outcome["status"] == status
     result = outcome["work_result"]
-    assert result["status"] == "BLOCKED"
-    assert result["changed_files"] == []
+    expected_result_status = "DONE" if status == "DONE" else "BLOCKED"
+    _assert_work_result_contract(result, expected_status=expected_result_status)
+    if status == "DONE":
+        assert result == _work_result(alias)
+
     receipt = outcome["receipt"]
-    assert set(receipt) == RECEIPT_FIELDS
     provider, root = ALIASES[alias]
     lane = fixture["lanes"][alias]
-    assert receipt["protocol_version"] == 2
-    assert receipt["authorization_id"] == AUTHORIZATION_ID
-    assert receipt["authorization_sha256"] == fixture["authorization_sha256"]
-    assert receipt["risk_id"] == fixture["authorization"]["risk_id"]
-    assert receipt["control_session_nonce_sha256"] == fixture["authorization"][
-        "control_session_nonce_sha256"
-    ]
-    assert receipt["ticket"] == TICKET
-    assert receipt["request_id"] == lane["job"].request_id
-    assert receipt["root"] == root
-    assert receipt["alias"] == alias
-    assert receipt["provider"] == provider
-    assert receipt["attempt"] == receipt["max_attempts"] == 1
-    assert receipt["work_mode"] == "read_only"
-    assert receipt["objective"] == fixture["authorization"]["objective"]
-    assert receipt["ownership"] == fixture["authorization"]["ownership"]
-    assert receipt["qobs_quota_band"] == "constrained"
-    assert receipt["process_or_session_id"] == f"{provider}-operational-{alias}"
-    assert receipt["started_at"] == _timestamp(fixture["now"])
-    assert receipt["ended_at"] == _timestamp(fixture["now"])
-    assert receipt["exit_code"] == 0
-    assert receipt["transport_status"] == "UNKNOWN"
-    assert receipt["evidence_scope"] == "not validated"
+    binding = fixture["authorization"]["bindings"][alias]
+    adapter, evidence_scope = _adapter_and_scope(alias, status=status)
     payload = fixture["factory"].payloads[alias]
-    assert receipt["output_bytes"] == len(payload.encode("utf-8"))
-    assert receipt["output_sha256"] == hashlib.sha256(payload.encode("utf-8")).hexdigest()
-    assert receipt["work_result_sha256"] == _canonical_sha256(result)
-    for field in AUTHORIZATION_BINDING_FIELDS - {"request_id", "root", "provider"}:
-        assert receipt[field] == fixture["authorization"]["bindings"][alias][field]
-    assert receipt["repository_snapshot_sha256"] == fixture["snapshot"]
+    payload_bytes = payload.encode("utf-8")
+    processes = [
+        process for process in fixture["factory"].processes if process.alias == alias
+    ]
+    assert len(processes) == 1
+    assert processes[0].returncode is not None
+    expected = {
+        "protocol_version": 2,
+        "authorization_id": AUTHORIZATION_ID,
+        "authorization_sha256": fixture["authorization_sha256"],
+        "risk_id": fixture["authorization"]["risk_id"],
+        "control_session_nonce_sha256": fixture["authorization"][
+            "control_session_nonce_sha256"
+        ],
+        "ticket": TICKET,
+        "request_id": lane["job"].request_id,
+        "root": root,
+        "alias": alias,
+        "provider": provider,
+        "attempt": 1,
+        "max_attempts": 1,
+        "work_mode": "read_only",
+        "objective": fixture["authorization"]["objective"],
+        "ownership": fixture["authorization"]["ownership"],
+        "qobs_quota_band": lane["request"]["qobs_quota_band"],
+        "decision_sha256": binding["decision_sha256"],
+        "scheduling_snapshot_sha256": binding["scheduling_snapshot_sha256"],
+        "qobs_artifact_sha256": binding["qobs_artifact_sha256"],
+        "nonce_sha256": binding["nonce_sha256"],
+        "resolved_executable_sha256": binding["resolved_executable_sha256"],
+        "account_identity_sha256": binding["account_identity_sha256"],
+        "capacity_lease_sha256": binding["capacity_lease_sha256"],
+        "lease_risk_sha256": binding["lease_risk_sha256"],
+        "repository_snapshot_sha256": fixture["snapshot"],
+        "adapter": adapter,
+        "process_or_session_id": f"{provider}-operational-{alias}",
+        "started_at": _timestamp(fixture["now"]),
+        "ended_at": _timestamp(fixture["now"]),
+        "exit_code": processes[0].returncode,
+        "transport_status": "COMPLETED" if status == "DONE" else "UNKNOWN",
+        "output_bytes": len(payload_bytes),
+        "output_sha256": hashlib.sha256(payload_bytes).hexdigest(),
+        "work_result_sha256": _canonical_sha256(result),
+        "evidence_scope": evidence_scope,
+    }
+    assert set(receipt) == RECEIPT_FIELDS
+    assert receipt == expected
     _assert_no_raw_material(outcome)
+
+
+def _assert_batch_receipts(
+    fixture: Mapping[str, Any],
+    completed: Mapping[str, Any],
+    *,
+    unknown_aliases: frozenset[str] = frozenset(),
+) -> None:
+    assert set(completed["aliases"]) == set(ALIASES)
+    for alias in ALIASES:
+        _assert_exact_outcome_receipt(
+            fixture,
+            completed,
+            alias,
+            status="UNKNOWN" if alias in unknown_aliases else "DONE",
+        )
+
+
+def _assert_one_shot_bounded_cleanup(fixture: Mapping[str, Any]) -> None:
+    factory = fixture["factory"]
+    assert _process_call_count(fixture) == len(ALIASES)
+    assert all(len(factory.calls[alias]) == 1 for alias in ALIASES)
+    assert len(factory.processes) == len(ALIASES)
+    assert factory.active == 0
+    assert all(process.returncode is not None for process in factory.processes)
 
 
 def test_operational_entrypoint_exists_before_source() -> None:
     assert ENTRYPOINT.is_file(), "IDQ_MVP_080_OPERATIONAL_ENTRYPOINT_MISSING"
 
 
-def test_repository_integrity_negative_control_detects_worktree_and_git_tamper(
-    tmp_path: Path,
+def test_general_zero_side_effect_oracle_accepts_an_exact_clean_rejection(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    """Prove the temporary-repository oracle detects both drift classes."""
-
     fixture = _fixture(tmp_path)
+
+    class RejectingOperational:
+        @staticmethod
+        def execute_idq_mvp_080_operational(**_arguments: object) -> None:
+            raise ValueError("closed negative-control rejection")
+
+    error = _assert_rejected_without_side_effect(
+        RejectingOperational(), fixture, capsys
+    )
+    assert str(error) == "closed negative-control rejection"
+
+
+@pytest.mark.parametrize(
+    "surface",
+    (
+        "queue_db_wal_shm",
+        "capacity_store",
+        "marker_store",
+        "input_config_auth_files",
+        "provider_input_files",
+        "account_input_files",
+        "repository",
+        "common_repository_worktree",
+        "invocation_inputs",
+        "queue_observer",
+        "process_observer",
+        "captured",
+    ),
+)
+def test_general_zero_side_effect_oracle_detects_every_state_surface(
+    tmp_path: Path, surface: str
+) -> None:
+    fixture = _fixture(tmp_path, repository_kind="linked")
+    arguments = _invocation_arguments(fixture)
+    empty_capture = {"stdout": b"", "stderr": b""}
+    before = _zero_side_effect_snapshot(fixture, arguments, empty_capture)
+    captured = empty_capture
+
+    if surface == "queue_db_wal_shm":
+        wal = fixture["store"].path.with_name(f"{fixture['store'].path.name}-wal")
+        wal.write_bytes(b"negative-control WAL bytes")
+    elif surface == "capacity_store":
+        (fixture["capacity_store"] / "negative-control").write_bytes(b"changed")
+    elif surface == "marker_store":
+        fixture["marker_store"].mkdir()
+        (fixture["marker_store"] / "negative-control.used").write_bytes(b"changed")
+    elif surface == "input_config_auth_files":
+        (fixture["input_store"] / "config.json").write_bytes(b"changed")
+    elif surface == "provider_input_files":
+        next(fixture["provider_root"].iterdir()).write_bytes(b"changed")
+    elif surface == "account_input_files":
+        (fixture["account_root"] / "codex1" / "changed").write_bytes(b"changed")
+    elif surface == "repository":
+        fixture["tracked"].write_bytes(b"changed")
+    elif surface == "common_repository_worktree":
+        (fixture["repository_seed"] / "tracked.txt").write_bytes(b"changed")
+    elif surface == "invocation_inputs":
+        changed_config = deepcopy(fixture["config"])
+        changed_config["dispatcher_execution"] = "CHANGED"
+        arguments = _invocation_arguments(fixture, config=changed_config)
+    elif surface == "queue_observer":
+        fixture["store"].events.append(("codex1", "CHANGED"))
+    elif surface == "process_observer":
+        fixture["factory"].killed.append("codex1")
+    else:
+        captured = {"stdout": b"changed", "stderr": b""}
+
+    after = _zero_side_effect_snapshot(fixture, arguments, captured)
+    assert after != before
+    assert after[surface] != before[surface]
+
+
+@pytest.mark.parametrize("repository_kind", REPOSITORY_KINDS)
+@pytest.mark.parametrize("mutation_kind", REPOSITORY_MUTATIONS)
+def test_repository_integrity_negative_control_detects_every_git_surface(
+    tmp_path: Path, repository_kind: str, mutation_kind: str
+) -> None:
+    """Prove normal and linked-worktree byte oracles detect every drift class."""
+
+    fixture = _fixture(tmp_path, repository_kind=repository_kind)
     repository = fixture["repository"]
-    before = _repository_integrity_evidence(repository)
+    before_exact = _git_control_snapshot(repository)
+    before_digest = _repository_snapshot(repository)
+    git_dir, common_dir = _git_paths(repository)
+    if repository_kind == "linked":
+        assert (repository / ".git").is_file()
+        assert git_dir != common_dir
+        assert (git_dir / "commondir").is_file()
+    else:
+        assert (repository / ".git").is_dir()
+        assert git_dir == common_dir
 
-    fixture["tracked"].write_text("negative-control worktree drift\n", encoding="utf-8")
-    worktree_drift = _repository_integrity_evidence(repository)
-    assert worktree_drift["worktree_sha256"] != before["worktree_sha256"]
-    assert worktree_drift["git_status_sha256"] != before["git_status_sha256"]
-    assert worktree_drift["git_metadata_sha256"] == before["git_metadata_sha256"]
+    _inject_repository_mutation(
+        repository=repository,
+        tracked=fixture["tracked"],
+        alternate_head=fixture["alternate_head"],
+        mutation_kind=mutation_kind,
+    )
 
-    _git(repository, "add", "--all")
-    staged_drift = _repository_integrity_evidence(repository)
-    assert staged_drift["git_status_sha256"] != before["git_status_sha256"]
-    assert staged_drift["git_metadata_sha256"] != before["git_metadata_sha256"]
+    after_exact = _git_control_snapshot(repository)
+    assert after_exact != before_exact
+    assert _repository_snapshot(repository) != before_digest
+    changed_surface = {
+        "tracked_file": "worktree",
+        "index_only": "gitdir_control",
+        "ref_only": "gitdir_control",
+        "head_only": "gitdir_control",
+        "common_ref": "common_control",
+    }[mutation_kind]
+    assert after_exact[changed_surface] != before_exact[changed_surface]
 
 
-def test_auth02_is_closed_and_auth01_is_rejected_before_any_process(tmp_path: Path) -> None:
+def test_auth02_is_closed_and_auth01_is_rejected_before_any_process(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     operational = _operational()
     fixture = _fixture(tmp_path)
-    before_markers = _tree_snapshot(fixture["marker_store"])
     assert set(fixture["authorization"]) == AUTHORIZATION_FIELDS
     assert set(fixture["authorization"]["bindings"]) == set(ALIASES)
     assert all(
@@ -886,35 +1441,39 @@ def test_auth02_is_closed_and_auth01_is_rejected_before_any_process(tmp_path: Pa
 
     auth01 = deepcopy(fixture["authorization"])
     auth01["authorization_id"] = "IDQ-MVP-080-AUTH-01"
-    with pytest.raises(ValueError) as raised:
-        _run(operational, fixture, authorization=auth01)
-    _assert_no_raw_material(raised.value)
+    error = _assert_rejected_without_side_effect(
+        operational, fixture, capsys, authorization=auth01
+    )
+    _assert_no_raw_material(error)
 
     widened = deepcopy(fixture["authorization"])
     widened["adjacent_authority"] = True
-    with pytest.raises(ValueError) as raised:
-        _run(operational, fixture, authorization=widened)
-    _assert_no_raw_material(raised.value)
+    error = _assert_rejected_without_side_effect(
+        operational, fixture, capsys, authorization=widened
+    )
+    _assert_no_raw_material(error)
 
     widened_binding = deepcopy(fixture["authorization"])
     widened_binding["bindings"]["codex1"]["raw_account_home"] = "/forbidden"
-    with pytest.raises(ValueError) as raised:
-        _run(operational, fixture, authorization=widened_binding)
-    _assert_no_raw_material(raised.value)
+    error = _assert_rejected_without_side_effect(
+        operational, fixture, capsys, authorization=widened_binding
+    )
+    _assert_no_raw_material(error)
 
     expired = deepcopy(fixture["authorization"])
     expired["expires_at"] = _timestamp(fixture["now"] - timedelta(seconds=1))
-    with pytest.raises(ValueError) as raised:
-        _run(operational, fixture, authorization=expired)
-    _assert_no_raw_material(raised.value)
+    error = _assert_rejected_without_side_effect(
+        operational, fixture, capsys, authorization=expired
+    )
+    _assert_no_raw_material(error)
 
     opened = deepcopy(fixture["config"])
     opened["dispatcher_execution"] = "OPEN"
-    with pytest.raises(ValueError) as raised:
-        _run(operational, fixture, config=opened)
-    _assert_no_raw_material(raised.value)
+    error = _assert_rejected_without_side_effect(
+        operational, fixture, capsys, config=opened
+    )
+    _assert_no_raw_material(error)
 
-    _assert_prestart_rejection_has_no_group_side_effect(fixture, before_markers)
     assert command.effective_activation_state(fixture["config"]) == (True, "CLOSED")
 
 
@@ -922,19 +1481,18 @@ def test_auth02_is_closed_and_auth01_is_rejected_before_any_process(tmp_path: Pa
     "status", ("SEALED", "ACTIVE", "USED", "EXPIRED", "REVOKED", "")
 )
 def test_auth02_rejects_every_state_other_than_unused_without_side_effect(
-    tmp_path: Path, status: str
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], status: str
 ) -> None:
     operational = _operational()
     fixture = _fixture(tmp_path)
-    before_markers = _tree_snapshot(fixture["marker_store"])
     authorization = deepcopy(fixture["authorization"])
     authorization["status"] = status
 
-    with pytest.raises(ValueError) as raised:
-        _run(operational, fixture, authorization=authorization)
+    error = _assert_rejected_without_side_effect(
+        operational, fixture, capsys, authorization=authorization
+    )
 
-    _assert_no_raw_material(raised.value)
-    _assert_prestart_rejection_has_no_group_side_effect(fixture, before_markers)
+    _assert_no_raw_material(error)
 
 
 def test_successful_auth02_cannot_be_replayed_or_consume_another_nonce(
@@ -946,22 +1504,33 @@ def test_successful_auth02_cannot_be_replayed_or_consume_another_nonce(
 
     completed = _run(operational, fixture)
     assert completed["authorization_status"] == "SEALED"
-    assert _process_call_count(fixture) == len(ALIASES)
+    _assert_batch_receipts(fixture, completed)
+    _assert_one_shot_bounded_cleanup(fixture)
     sealed_markers = _tree_snapshot(fixture["marker_store"])
     assert len(_marker_files(fixture)) == 9
+    captured = _captured_bytes(capsys)
+    assert captured == {"stdout": b"", "stderr": b""}
 
-    with pytest.raises(ValueError, match="(?i:authorization|nonce|replay|used|sealed)") as raised:
-        _run(operational, fixture, authorization=unused_authorization)
+    error = _assert_rejected_without_side_effect(
+        operational,
+        fixture,
+        capsys,
+        authorization=unused_authorization,
+    )
 
-    _assert_no_raw_material(raised.value)
+    assert any(
+        word in str(error).lower()
+        for word in ("authorization", "nonce", "replay", "used", "sealed")
+    )
+    _assert_no_raw_material(error)
     assert _process_call_count(fixture) == len(ALIASES)
     assert _tree_snapshot(fixture["marker_store"]) == sealed_markers
     _assert_no_raw_material(completed)
-    captured = capsys.readouterr()
-    _assert_no_raw_material({"stdout": captured.out, "stderr": captured.err})
 
 
-def test_exact_four_one_shot_read_only_lanes_cannot_retry_or_substitute(tmp_path: Path) -> None:
+def test_exact_four_one_shot_read_only_lanes_cannot_retry_or_substitute(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     operational = _operational()
     fixture = _fixture(tmp_path)
     invalid_authorizations: list[dict[str, object]] = []
@@ -984,54 +1553,66 @@ def test_exact_four_one_shot_read_only_lanes_cannot_retry_or_substitute(tmp_path
     invalid_authorizations.append(substituted_alias)
 
     for authorization in invalid_authorizations:
-        with pytest.raises(ValueError):
-            _run(operational, fixture, authorization=authorization)
+        _assert_rejected_without_side_effect(
+            operational, fixture, capsys, authorization=authorization
+        )
 
     changed_lanes = deepcopy(fixture["lanes"])
     changed_lanes["codex1"]["request"]["attempt"] = 2
-    with pytest.raises(ValueError):
-        _run(operational, fixture, lanes=changed_lanes)
+    _assert_rejected_without_side_effect(
+        operational, fixture, capsys, lanes=changed_lanes
+    )
 
     incomplete_lanes = dict(fixture["lanes"])
     incomplete_lanes.pop("agy2")
-    with pytest.raises(ValueError):
-        _run(operational, fixture, lanes=incomplete_lanes)
+    _assert_rejected_without_side_effect(
+        operational, fixture, capsys, lanes=incomplete_lanes
+    )
 
     assert _process_call_count(fixture) == 0
     assert _marker_files(fixture) == []
-    assert {fixture["store"].get_job(lane["job"].request_id).state for lane in fixture["lanes"].values()} == {"CLAIMED"}
 
 
 @pytest.mark.parametrize("surface", ("authorization_binding", "lane_preflight"))
 @pytest.mark.parametrize("alias", tuple(ALIASES))
 @pytest.mark.parametrize(
     "field",
-    (
-        "decision_sha256",
-        "scheduling_snapshot_sha256",
-        "qobs_artifact_sha256",
-        "nonce_sha256",
-        "resolved_executable_sha256",
-        "account_identity_sha256",
-        "capacity_lease_sha256",
-        "lease_risk_sha256",
-    ),
+    tuple(sorted(AUTHORIZATION_BINDING_FIELDS)),
 )
 def test_all_bindings_preflight_as_one_barrier_before_nonce_or_popen(
-    tmp_path: Path, surface: str, alias: str, field: str
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    surface: str,
+    alias: str,
+    field: str,
 ) -> None:
     operational = _operational()
     fixture = _fixture(tmp_path)
-    before_markers = _tree_snapshot(fixture["marker_store"])
     if surface == "authorization_binding":
         authorization = deepcopy(fixture["authorization"])
-        authorization["bindings"][alias][field] = _digest(
-            f"tampered:{surface}:{alias}:{field}"
-        )
+        changed_value = {
+            "request_id": f"tampered-request-{alias}",
+            "root": "B" if ALIASES[alias][1] == "A" else "A",
+            "provider": "agy" if ALIASES[alias][0] == "codex" else "codex",
+        }.get(field, _digest(f"tampered:{surface}:{alias}:{field}"))
+        authorization["bindings"][alias][field] = changed_value
         overrides = {"authorization": authorization}
     else:
         lanes = deepcopy(fixture["lanes"])
-        if field == "capacity_lease_sha256":
+        if field == "request_id":
+            lanes[alias]["job"] = replace(
+                lanes[alias]["job"], request_id=f"tampered-request-{alias}"
+            )
+        elif field == "root":
+            lanes[alias]["job"] = replace(
+                lanes[alias]["job"],
+                root="B" if ALIASES[alias][1] == "A" else "A",
+            )
+        elif field == "provider":
+            lanes[alias]["request"]["provider"] = (
+                "agy" if ALIASES[alias][0] == "codex" else "codex"
+            )
+        elif field == "capacity_lease_sha256":
             lanes[alias]["capacity_lease"]["lease_sha256"] = _digest(
                 f"tampered:{surface}:{alias}:{field}"
             )
@@ -1041,25 +1622,82 @@ def test_all_bindings_preflight_as_one_barrier_before_nonce_or_popen(
             )
         overrides = {"lanes": lanes}
 
-    with pytest.raises(ValueError) as raised:
-        _run(operational, fixture, **overrides)
+    error = _assert_rejected_without_side_effect(
+        operational, fixture, capsys, **overrides
+    )
 
-    _assert_no_raw_material(raised.value)
-    _assert_prestart_rejection_has_no_group_side_effect(fixture, before_markers)
+    _assert_no_raw_material(error)
 
 
-def test_repository_binding_is_preflighted_before_nonce_or_popen(tmp_path: Path) -> None:
+@pytest.mark.parametrize("alias", tuple(ALIASES))
+@pytest.mark.parametrize(
+    "identity_surface",
+    (
+        "job_alias",
+        "request_alias",
+        "qobs_alias",
+        "qobs_provider",
+        "lease_account",
+        "lease_pool",
+        "lease_provider",
+        "lease_request_id",
+    ),
+)
+def test_every_actual_lane_identity_is_bound_before_group_start(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    alias: str,
+    identity_surface: str,
+) -> None:
     operational = _operational()
     fixture = _fixture(tmp_path)
-    before_markers = _tree_snapshot(fixture["marker_store"])
+    lanes = deepcopy(fixture["lanes"])
+    lane = lanes[alias]
+    other_alias = next(candidate for candidate in ALIASES if candidate != alias)
+    other_provider = "agy" if ALIASES[alias][0] == "codex" else "codex"
+    mutations = {
+        "job_alias": lambda: lane.update(
+            {"job": replace(lane["job"], alias=other_alias)}
+        ),
+        "request_alias": lambda: lane["request"].update({"alias": other_alias}),
+        "qobs_alias": lambda: lane["execution_context"]["qobs_expected_context"].update(
+            {"alias": other_alias}
+        ),
+        "qobs_provider": lambda: lane["execution_context"][
+            "qobs_expected_context"
+        ].update({"provider": other_provider}),
+        "lease_account": lambda: lane["capacity_lease"].update(
+            {"account": other_alias}
+        ),
+        "lease_pool": lambda: lane["capacity_lease"].update({"pool": other_alias}),
+        "lease_provider": lambda: lane["capacity_lease"].update(
+            {"provider": other_provider}
+        ),
+        "lease_request_id": lambda: lane["capacity_lease"].update(
+            {"request_id": f"tampered-lease-request-{alias}"}
+        ),
+    }
+    mutations[identity_surface]()
+
+    error = _assert_rejected_without_side_effect(
+        operational, fixture, capsys, lanes=lanes
+    )
+    _assert_no_raw_material(error)
+
+
+def test_repository_binding_is_preflighted_before_nonce_or_popen(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    operational = _operational()
+    fixture = _fixture(tmp_path)
 
     stale_repository = deepcopy(fixture["authorization"])
     stale_repository["repository_snapshot_sha256"] = _digest("stale repository")
-    with pytest.raises(ValueError) as raised:
-        _run(operational, fixture, authorization=stale_repository)
+    error = _assert_rejected_without_side_effect(
+        operational, fixture, capsys, authorization=stale_repository
+    )
 
-    _assert_no_raw_material(raised.value)
-    _assert_prestart_rejection_has_no_group_side_effect(fixture, before_markers)
+    _assert_no_raw_material(error)
 
 
 def test_operational_batch_uses_isolated_native_popen_and_safe_durable_receipts(
@@ -1070,7 +1708,6 @@ def test_operational_batch_uses_isolated_native_popen_and_safe_durable_receipts(
     operational = _operational()
     fixture = _fixture(tmp_path)
     original_config = deepcopy(fixture["config"])
-    authorization_sha256 = _canonical_sha256(fixture["authorization"])
     before_integrity = _repository_integrity_evidence(fixture["repository"])
     before_snapshot = _repository_snapshot(fixture["repository"])
     monkeypatch.setenv("IDQ_PROVIDER_SECRET_SENTINEL", INHERITED_ENV_SENTINEL)
@@ -1124,8 +1761,6 @@ def test_operational_batch_uses_isolated_native_popen_and_safe_durable_receipts(
             )
             expected_stdin = lane["prompt_stdin"]
             home_env = "CODEX_HOME"
-            expected_adapter = "codex-jsonl-output-schema-v2"
-            expected_scope = "provider-native validated"
         else:
             assert argv == (
                 executable,
@@ -1142,8 +1777,6 @@ def test_operational_batch_uses_isolated_native_popen_and_safe_durable_receipts(
             )
             expected_stdin = _agy_stdin(lane["prompt_stdin"])
             home_env = "AGY_HOME"
-            expected_adapter = "agy-stream-json-schema-v2"
-            expected_scope = "validated in-process only"
 
         environment = kwargs.pop("env")
         assert kwargs == {
@@ -1164,67 +1797,30 @@ def test_operational_batch_uses_isolated_native_popen_and_safe_durable_receipts(
         assert raw_stderr.strip()
         assert STDERR_SENTINEL in raw_stderr
 
-        alias_events = [event for event_alias, event in fixture["store"].events if event_alias == alias]
+        alias_events = [
+            event
+            for event_alias, event in fixture["store"].events
+            if event_alias == alias
+        ]
         assert alias_events.index("PREPARED") < alias_events.index("STARTING")
         assert alias_events.index("STARTING") < alias_events.index("POPEN")
         assert alias_events.index("POPEN") < alias_events.index("RUNNING")
         assert alias_events.index("RUNNING") < alias_events.index("COMMUNICATE")
         assert alias_events.index("COMMUNICATE") < alias_events.index("DONE")
 
+        _assert_exact_outcome_receipt(fixture, completed, alias, status="DONE")
         outcome = completed["aliases"][alias]
-        assert set(outcome) == {"status", "receipt", "work_result"}
-        assert outcome["status"] == "DONE"
-        assert outcome["work_result"] == _work_result(alias)
         receipt = outcome["receipt"]
-        assert set(receipt) == RECEIPT_FIELDS
-        assert receipt["protocol_version"] == 2
-        assert receipt["authorization_id"] == AUTHORIZATION_ID
-        assert receipt["authorization_sha256"] == authorization_sha256
-        assert receipt["risk_id"] == fixture["authorization"]["risk_id"]
-        assert (
-            receipt["control_session_nonce_sha256"]
-            == fixture["authorization"]["control_session_nonce_sha256"]
-        )
-        assert receipt["ticket"] == TICKET
-        assert receipt["request_id"] == lane["job"].request_id
-        assert receipt["root"] == root
-        assert receipt["alias"] == alias
-        assert receipt["provider"] == provider
-        assert receipt["attempt"] == receipt["max_attempts"] == 1
-        assert receipt["work_mode"] == "read_only"
-        assert receipt["objective"] == fixture["authorization"]["objective"]
-        assert receipt["ownership"] == fixture["authorization"]["ownership"]
-        assert receipt["qobs_quota_band"] == "constrained"
-        assert receipt["adapter"] == expected_adapter
-        assert receipt["evidence_scope"] == expected_scope
-        assert receipt["process_or_session_id"] == f"{provider}-operational-{alias}"
-        assert receipt["started_at"] == _timestamp(fixture["now"])
-        assert receipt["ended_at"] == _timestamp(fixture["now"])
-        assert receipt["exit_code"] == 0
-        assert receipt["transport_status"] == "COMPLETED"
-        payload = fixture["factory"].payloads[alias]
-        assert receipt["output_bytes"] == len(payload.encode("utf-8"))
-        assert receipt["output_sha256"] == hashlib.sha256(payload.encode("utf-8")).hexdigest()
-        assert receipt["work_result_sha256"] == _canonical_sha256(_work_result(alias))
-        for field in (
-            "decision_sha256",
-            "scheduling_snapshot_sha256",
-            "qobs_artifact_sha256",
-            "nonce_sha256",
-            "resolved_executable_sha256",
-            "account_identity_sha256",
-            "capacity_lease_sha256",
-            "lease_risk_sha256",
-        ):
-            assert receipt[field] == fixture["authorization"]["bindings"][alias][field]
-        assert receipt["repository_snapshot_sha256"] == before_snapshot
         _assert_no_raw_material(receipt)
         _assert_no_raw_material(outcome)
         assert str(account_home) not in json.dumps(receipt, sort_keys=True)
         assert str(executable) not in json.dumps(receipt, sort_keys=True)
         assert fixture["store"].get_job(lane["job"].request_id).state == "DONE"
-        assert fixture["store"].get_result(lane["job"].request_id) == _work_result(alias)
+        assert fixture["store"].get_result(lane["job"].request_id) == _work_result(
+            alias
+        )
 
+    _assert_one_shot_bounded_cleanup(fixture)
     assert len(_marker_files(fixture)) == 9
     _assert_no_raw_material(_tree_artifact_bytes(fixture["marker_store"]))
     _assert_no_raw_material(_queue_artifact_bytes(fixture))
@@ -1244,8 +1840,10 @@ def test_operational_batch_uses_isolated_native_popen_and_safe_durable_receipts(
     (
         "missing_work_result",
         "malformed_work_result",
+        "schema_invalid_mapping",
         "missing_terminal_event",
         "duplicate_terminal_event",
+        "competing_terminal_work_results",
     ),
 )
 def test_malformed_or_missing_work_result_and_terminal_events_are_rejected(
@@ -1262,12 +1860,12 @@ def test_malformed_or_missing_work_result_and_terminal_events_are_rejected(
 
     assert completed["authorization_status"] == "SEALED"
     assert completed["status"] == "UNKNOWN"
-    assert set(completed["aliases"]) == set(ALIASES)
-    assert all(len(fixture["factory"].calls[item]) == 1 for item in ALIASES)
-    _assert_safe_unknown_outcome(fixture, completed, alias)
-    assert fixture["store"].get_job(
-        fixture["lanes"][alias]["job"].request_id
-    ).state == "UNKNOWN"
+    _assert_batch_receipts(fixture, completed, unknown_aliases=frozenset({alias}))
+    _assert_one_shot_bounded_cleanup(fixture)
+    assert (
+        fixture["store"].get_job(fixture["lanes"][alias]["job"].request_id).state
+        == "UNKNOWN"
+    )
     assert len(_marker_files(fixture)) == 9
     _assert_no_raw_material(completed)
     _assert_no_raw_material(_tree_artifact_bytes(fixture["marker_store"]))
@@ -1277,27 +1875,22 @@ def test_malformed_or_missing_work_result_and_terminal_events_are_rejected(
     _assert_no_raw_material({"stdout": captured.out, "stderr": captured.err})
 
 
-def test_post_start_timeout_is_unknown_with_no_retry_or_substitution(tmp_path: Path) -> None:
+def test_post_start_timeout_is_unknown_with_no_retry_or_substitution(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     operational = _operational()
     fixture = _fixture(tmp_path, failure_alias="agy2")
 
     completed = _run(operational, fixture)
 
     assert completed["status"] == "UNKNOWN"
-    assert set(completed["aliases"]) == set(ALIASES)
-    for alias in ALIASES:
-        assert len(fixture["factory"].calls[alias]) == 1
-    failed = completed["aliases"]["agy2"]
-    assert failed["status"] == "UNKNOWN"
-    assert failed["work_result"]["status"] == "BLOCKED"
-    assert failed["receipt"]["authorization_id"] == AUTHORIZATION_ID
-    assert failed["receipt"]["alias"] == "agy2"
-    assert failed["receipt"]["attempt"] == failed["receipt"]["max_attempts"] == 1
-    assert failed["receipt"]["transport_status"] == "UNKNOWN"
-    assert failed["receipt"]["evidence_scope"] == "not validated"
+    _assert_batch_receipts(fixture, completed, unknown_aliases=frozenset({"agy2"}))
+    _assert_one_shot_bounded_cleanup(fixture)
     request_id = fixture["lanes"]["agy2"]["job"].request_id
     assert fixture["store"].get_job(request_id).state == "UNKNOWN"
-    assert fixture["factory"].killed == ["agy2"] or fixture["factory"].terminated == ["agy2"]
+    assert fixture["factory"].killed == ["agy2"] or fixture["factory"].terminated == [
+        "agy2"
+    ]
     assert all(
         completed["aliases"][alias]["status"] == "DONE"
         for alias in ("codex1", "codex2", "agy1")
@@ -1307,39 +1900,51 @@ def test_post_start_timeout_is_unknown_with_no_retry_or_substitution(tmp_path: P
     _assert_no_raw_material(_tree_artifact_bytes(fixture["marker_store"]))
     _assert_no_raw_material(_queue_artifact_bytes(fixture))
     _assert_no_raw_material(_tree_artifact_bytes(fixture["capacity_store"]))
+    captured = capsys.readouterr()
+    _assert_no_raw_material({"stdout": captured.out, "stderr": captured.err})
 
 
-def test_repository_snapshot_drift_invalidates_every_started_result(tmp_path: Path) -> None:
+@pytest.mark.parametrize("repository_kind", REPOSITORY_KINDS)
+@pytest.mark.parametrize("mutation_kind", REPOSITORY_MUTATIONS)
+def test_repository_snapshot_drift_invalidates_every_started_result(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    repository_kind: str,
+    mutation_kind: str,
+) -> None:
     operational = _operational()
-    fixture = _fixture(tmp_path, mutate_alias="codex1")
+    fixture = _fixture(
+        tmp_path,
+        mutate_alias="codex1",
+        mutation_kind=mutation_kind,
+        repository_kind=repository_kind,
+    )
 
     completed = _run(operational, fixture)
 
     assert completed["status"] == "UNKNOWN"
     assert _repository_snapshot(fixture["repository"]) != fixture["snapshot"]
-    assert set(completed["aliases"]) == set(ALIASES)
-    assert all(item["status"] == "UNKNOWN" for item in completed["aliases"].values())
-    assert all(
-        item["work_result"]["status"] == "BLOCKED"
-        for item in completed["aliases"].values()
-    )
+    _assert_batch_receipts(fixture, completed, unknown_aliases=frozenset(ALIASES))
     assert all(
         fixture["store"].get_job(lane["job"].request_id).state == "UNKNOWN"
         for lane in fixture["lanes"].values()
     )
-    assert all(len(fixture["factory"].calls[alias]) == 1 for alias in ALIASES)
+    _assert_one_shot_bounded_cleanup(fixture)
     _assert_no_raw_material(completed)
     _assert_no_raw_material(_tree_artifact_bytes(fixture["marker_store"]))
     _assert_no_raw_material(_queue_artifact_bytes(fixture))
     _assert_no_raw_material(_tree_artifact_bytes(fixture["capacity_store"]))
     assert command.effective_activation_state(fixture["config"]) == (True, "CLOSED")
+    captured = capsys.readouterr()
+    _assert_no_raw_material({"stdout": captured.out, "stderr": captured.err})
 
 
+@pytest.mark.parametrize("repository_kind", REPOSITORY_KINDS)
 def test_git_worktree_index_refs_and_head_metadata_remain_exactly_immutable(
-    tmp_path: Path,
+    tmp_path: Path, repository_kind: str
 ) -> None:
     operational = _operational()
-    fixture = _fixture(tmp_path)
+    fixture = _fixture(tmp_path, repository_kind=repository_kind)
     repository = fixture["repository"]
     before_evidence = _repository_integrity_evidence(repository)
     before_status = _git(
@@ -1354,6 +1959,8 @@ def test_git_worktree_index_refs_and_head_metadata_remain_exactly_immutable(
     ).stdout
     after_evidence = _repository_integrity_evidence(repository)
     assert completed["status"] == "DONE"
+    _assert_batch_receipts(fixture, completed)
+    _assert_one_shot_bounded_cleanup(fixture)
     assert completed["repository_snapshot_sha256"] == fixture["snapshot"]
     assert after_status == before_status
     assert after_evidence == before_evidence
