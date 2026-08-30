@@ -12,63 +12,24 @@
 
 ## Test provenance workflow for developers and agents
 
-1. **Preflight Triage**: When the lane's `GateImpactDecision` selects release
-   triage, run `python3 scripts/fail_fast_triage.py` as the first diagnostic
-   step for a failure, CI block, or ecosystem drift.
-2. Write black-box acceptance tests before implementation and run them to
+1. Write black-box acceptance tests before implementation and run them to
    capture a real failing result or negative control.
-3. Create a closed manifest under `plans/test_provenance/` with the exact test
+2. Create a closed manifest under `plans/test_provenance/` with the exact test
    SHA-256 values, baseline parent, allowed source paths, and failure evidence.
-4. Commit only tests, fixtures, and that manifest. Use
+3. Commit only tests, fixtures, and that manifest. Use
    `Test-Baseline-Ticket: <ticket>` in the baseline commit message.
-5. Start source coding only after the commit is marked
+4. Start source coding only after the commit is marked
    `TEST_BASELINE_VERIFIED`. Add `Test-Baseline: <full-sha>` to every owned
    source commit.
-6. Do not edit a frozen test from the source lane. If it is wrong, stop work
+5. Do not edit a frozen test from the source lane. If it is wrong, stop work
    and create an independently reviewed, test-only superseding baseline.
-7. Finish only with the gates listed under `RUN` in the lane's versioned
-   `GateImpactDecision`. Include provenance for changed source and all directly
-   or transitively affected QA, security, ecosystem, reviewer, and release
-   gates. Do not run a full suite solely because it is a legacy checklist item.
+6. Finish with `scripts/test_provenance_guard.py`, full QA,
+   `sync_ai_agent_ecosystem.py --check`, the secret scan, and
+   `project/core/code_reviewer.py` using the same ticket/baseline/manifest.
 
 The repository pre-commit hook performs read-only early checks and never runs
 version stamping or stages files. Configure `.githooks` locally if desired,
 but rely on the required `Test Provenance` CI check for merge enforcement.
-
-## Impact-based gate selection for operators
-
-This policy is effective immediately. Before testing, every lane records a
-versioned `GateImpactDecision` with:
-
-- base revision, head revision, and deterministic diff digest;
-- changed paths, contracts, dependencies, and runtime/deployment surfaces;
-- gates to `RUN` and gates that are `NOT_APPLICABLE`, each with a reason;
-- unknown-impact fallback, policy version, and reviewer or owner.
-
-Run only gates affected directly or through a dependency or contract. Unknown
-impact, a stale or missing impact map, or a cross-cutting security/release
-boundary fails closed to the broader applicable set. Never use
-`NOT_APPLICABLE` to bypass provenance for changed source, a relevant security
-check, independent reviewer evidence, or post-deploy identity/health for a
-touched deployment surface.
-
-For the current release, the decision is manual and evidence-backed. The
-deterministic selector, versioned impact map, Rule 02/Claude integration,
-skills, and unified-hook/CI enforcement are `DEFERRED_NEXT_PHASE` until current
-production post-deploy is green. This does not create a new hook process and it
-does not weaken the rule that only `main` may trigger production publication.
-
-### PR Verification & Triage Operational Contract
-
-Diagnostics and PR provenance verification follow strict operational contracts:
-- Execution is **POSIX-only** using `os.killpg` for bounded process group management. Unsupported platforms fail closed before subprocess execution.
-- PR provenance verification runs the `test_provenance_guard.py verify-pr` command against immutable git commit SHAs resolved via `git rev-parse origin/main` and `git rev-parse HEAD`.
-- PR verification command syntax:
-```bash
-python3 scripts/test_provenance_guard.py verify-pr \
-  --base "$(git rev-parse origin/main)" \
-  --head "$(git rev-parse HEAD)"
-```
 
 ---
 

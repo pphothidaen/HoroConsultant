@@ -28,10 +28,6 @@ DOC_FILES = {
     "HOWTO.md",
     "PROJECT_TASKS.md",
     "CLAUDE.md",
-    "HANDOFF.md",
-    "AGY.md",
-    "AGENTS.md",
-    "project_tickets.md",
     ".agents/AGENTS.md",
     ".agents/LESSONS_LEARNED.md",
 }
@@ -70,9 +66,6 @@ class Report:
     test_files_verified: int = 0
     issues: list[dict[str, str]] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
-    requested_base: str | None = None
-    base_commit: str | None = None
-    requested_head: str | None = None
 
     def add(self, code: str, message: str, path: str | None = None) -> None:
         issue = {"code": code, "message": message}
@@ -81,21 +74,6 @@ class Report:
         self.issues.append(issue)
 
     def as_dict(self) -> dict[str, Any]:
-        if self.command == "verify-pr":
-            return {
-                "schema_version": "test-provenance-report-v2",
-                "command": self.command,
-                "status": "FAILED" if self.issues else "PASSED",
-                "requested_base": self.requested_base or "",
-                "base_commit": self.base_commit or "",
-                "requested_head": self.requested_head or "",
-                "head_commit": self.head_commit or "",
-                "ticket_id": self.ticket_id or "",
-                "baseline_commit": self.baseline_commit or "",
-                "test_files_verified": self.test_files_verified,
-                "issues": self.issues,
-                "notes": self.notes,
-            }
         return {
             "schema_version": "test-provenance-report-v1",
             "command": self.command,
@@ -152,7 +130,7 @@ def _is_manifest_path(path: str) -> bool:
 
 
 def _is_docs_only_path(path: str) -> bool:
-    return path.endswith(".md") or path in DOC_FILES or any(path.startswith(prefix) for prefix in DOC_PREFIXES)
+    return path in DOC_FILES or any(path.startswith(prefix) for prefix in DOC_PREFIXES)
 
 
 def _matches_allowed(path: str, patterns: Iterable[str]) -> bool:
@@ -550,23 +528,10 @@ def verify_staged(repo: Path) -> Report:
 
 
 def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
-    report = Report(
-        command="verify-pr",
-        requested_base=base_revision,
-        requested_head=head_revision,
-    )
-    try:
-        base = _resolve_commit(repo, base_revision)
-        report.base_commit = base
-    except GuardFailure as exc:
-        report.add("PR_PROVENANCE_ERROR", str(exc))
-        return report
-    try:
-        head = _resolve_commit(repo, head_revision)
-        report.head_commit = head
-    except GuardFailure as exc:
-        report.add("PR_PROVENANCE_ERROR", str(exc))
-        return report
+    report = Report(command="verify-pr")
+    base = _resolve_commit(repo, base_revision)
+    head = _resolve_commit(repo, head_revision)
+    report.head_commit = head
     paths = _changed_paths(repo, base, head, merge_base=True)
     manifests = [path for path in paths if _is_manifest_path(path)]
     material_paths = [
@@ -584,71 +549,28 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
     allowed_sets: list[list[str]] = []
     tickets: list[str] = []
     baselines: list[str] = []
-    records: list[tuple[str, dict[str, Any], str]] = []
     for manifest_path in manifests:
         try:
             manifest = _load_manifest_from_worktree(repo, manifest_path)
-            baseline = _find_baseline(repo, manifest_path)
             allowed = manifest.get("allowed_source_paths")
             if isinstance(allowed, list):
                 allowed_sets.append([str(path) for path in allowed])
-            records.append((manifest_path, manifest, baseline))
-        except GuardFailure as exc:
-            report.add("PR_PROVENANCE_ERROR", str(exc), manifest_path)
-
-    superseded_at: dict[str, str] = {}
-    for manifest_path, manifest, _baseline in records:
-        supersedes = manifest.get("supersedes")
-        parent = manifest.get("baseline_parent")
-        if isinstance(supersedes, str) and isinstance(parent, str):
-            if supersedes in superseded_at:
-                report.add(
-                    "PR_BASELINE_SUPERSEDED_TWICE",
-                    "one baseline cannot be superseded by multiple manifests",
-                    manifest_path,
-                )
-            superseded_at[supersedes] = parent
-
-    for manifest_path, _manifest, baseline in records:
-        is_superseded = baseline in superseded_at
-        if is_superseded:
-            verification_head = superseded_at[baseline]
-        else:
-            subsequent_parents = [
-                str(m.get("baseline_parent"))
-                for _, m, b2 in records
-                if b2 != baseline and _is_ancestor(repo, baseline, b2) and m.get("baseline_parent")
-            ]
-            if subsequent_parents:
-                subsequent_parents.sort(
-                    key=lambda p: int(_git(repo, "rev-list", "--count", f"{baseline}..{p}").stdout.strip())
-                )
-                verification_head = subsequent_parents[0]
-                is_superseded = True
-            else:
-                verification_head = head
-        try:
             nested = verify_history(
                 repo,
                 manifest_path,
-                head_revision=verification_head,
-                baseline_revision=baseline,
-                include_worktree=(verification_head == head),
+                head_revision=head,
+                baseline_revision=None,
+                include_worktree=True,
             )
         except GuardFailure as exc:
             report.add("PR_PROVENANCE_ERROR", str(exc), manifest_path)
             continue
-        if is_superseded:
-            nested.notes.append(
-                f"baseline {baseline} verified only through its preserved cutoff {verification_head}"
-            )
-        else:
-            report.issues.extend(nested.issues)
         if nested.ticket_id:
             tickets.append(nested.ticket_id)
         if nested.baseline_commit:
             baselines.append(nested.baseline_commit)
         report.test_files_verified += nested.test_files_verified
+        report.issues.extend(nested.issues)
         report.notes.extend(nested.notes)
     for path in material_paths:
         if not any(_matches_allowed(path, allowed) for allowed in allowed_sets):
@@ -714,11 +636,7 @@ def main() -> int:
             report = verify_pr(repo, args.base, args.head)
         return _emit(report, args.json_out)
     except GuardFailure as exc:
-        report = Report(
-            command=args.command,
-            requested_base=getattr(args, "base", None),
-            requested_head=getattr(args, "head", None),
-        )
+        report = Report(command=args.command)
         report.add("GUARD_EVIDENCE_ERROR", str(exc))
         return _emit(report, getattr(args, "json_out", None))
 

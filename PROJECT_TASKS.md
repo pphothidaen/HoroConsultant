@@ -940,81 +940,29 @@ Governance, integration into `scripts/smart_quality_gate.py`, HOWTO documentatio
 
 # 📌 PROJECT_TASKS.md — Computational Metaphysics Engine
 > **Source of Truth for Project Status & Operational Handoff — Central Kanban Board for ALL Project Work**  
-> *Last Updated: 2026-08-30 (Asia/Bangkok) — Action Priority Guard Integrated into Smart Quality Gate Tier 3.*
-
----
-
-## Sprint PROD-503 — Vercel Gateway Recovery and Remaining Release Concerns
-
-**Current verdict**: `VERCEL UI LIVE / HF IDENTITY RELEASE-GATED / POST-MERGE CI REMEDIATION IN REVIEW`.
-The production alias serves merge `85428c8` and proxies the healthy canonical HF
-Docker backend. Static identity, LuoPan, and five-viewport visual checks are
-green. The backend still exposes `version/git_commit=unknown` because no HF
-Docker publish was authorized. Main CI correctly blocks on one stale live test;
-the isolated correction retains the closed five-field schema and hardens the E2E
-runner against legacy or tampered metadata.
-
-| Ticket | Severity / Effort | Status | Evidence / Next Gate |
-|---|---|---|---|
-| `TICKET-PROD-503-001A` Vercel gateway config | BLOCKER / XS | DONE — LIVE | Production-only `HF_BACKEND_URL` entry `gTpSlwb3RL3Fr94e` is retained; deployment `dpl_FWVpyuKbY9iWs2rrVxEGKmmp8Qm4` is `READY`, owns the canonical alias, and returns `x-deploy-sha=85428c8` |
-| `TICKET-PROD-503-001B` API recovery QA | BLOCKER / S | DONE — LIVE | `/health` is `200/status=ok`; canonical HF Docker health is `200`; post-merge LuoPan live E2E passed `8/8`; canonical static version and all mirrored UI assets agree at `1.0.0.e06b224` |
-| `TICKET-PROD-503-001C` publisher/provenance gate | CRITICAL / M | DONE — MERGED | Docker payload dry-run passes; payload source modes match frozen `100644`; release metadata uses the closed five-field immutable schema; history guard passes all active/superseded baselines |
-| `TICKET-PROD-503-001D` mobile visual/accessibility | HIGH / S | DONE — LIVE | Post-merge deterministic audit passed all five canonical viewports with zero overflow, overlaps, out-of-bounds, clipping, contrast failures, or indeterminate contrast |
-| `TICKET-PROD-503-001E` HF runtime identity | HIGH / S | DONE — MERGED / PENDING HF RELEASE | Runtime fallback is merged, but live HF remains `version/git_commit=unknown` until a separately authorized owner-gated Docker publish |
-| `TICKET-PROD-503-001F` release closure | CRITICAL / XS | DOING — HF + POST-MERGE CI GATED | PR `#2` merged as `85428c8` and Vercel UI release is verified. Remaining gates are the isolated stale-test correction, explicit HF Docker publish authorization, then exact backend identity verification |
-| `TICKET-PROD-503-001G` Vercel Preview retirement | MEDIUM / XS | DONE — MERGED | Test-only baseline `062289e` preceded the `vercel.json` policy; `*` auto-deploy is disabled while `main` remains enabled. All canceled preview artifacts were deleted and the current preview deployment count is zero |
-| `TICKET-PROD-503-002A` post-merge identity CI correction | HIGH / S | DOING — LOCAL GREEN / REVIEW GATED | Main runs `33054316810` and `33054316732` exposed the stale `commit/timestamp` network-test expectation after the canonical UI became live. Test-only baseline `2b195a6` recorded `3 failed, 5 passed`; source commit `45c635e` makes the focused matrix `8 passed` and makes `run_prod_version_e2e.py` reject legacy or digest-tampered metadata. No production source or frozen test was silently rewritten |
-
-**Rollback anchors**:
-
-- Remove only Vercel environment entry `gTpSlwb3RL3Fr94e` to restore the prior
-  absent-variable state.
-- Prior production deployment `dpl_2gEijnyqedG1Bn2XVcWZvWJ6amaZ` remains the
-  immediate Vercel rollback deployment; never delete either production deployment.
-- The hotfix branch is additive. Revert owned source commits while retaining
-  test baselines and supersede history; no HF rollback is needed because no HF
-  publish occurred in this incident.
-
-**TDD-trap prevention evidence**: the first executable-mode test contradicted
-the already-frozen `100644` release contract. Source work stopped; baseline
-`7741b4f` was preserved, and test-only baseline `e3f7ebc` explicitly superseded
-it before remediation. No baseline was amended, squashed, deleted, or silently
-rewritten.
+> *Last Updated: 2026-08-27 +07 (Asia/Bangkok) — test-provenance gate implementation is active on `feature/test-provenance-gate`; production release state is unchanged.*
 
 ---
 
 ## Sprint TPG — Test-First Git Provenance and TDD-Trap Prevention
 
-**Grill status**: `APPROVED` from the signed implementation plan. The initial
-scope covered local repository code, tests, Git history, CI definition,
-governance, and docs. Follow-up exact authorization covered pushing the feature
-branch and activating the `Test Provenance` required check for `main`; the
-subsequent `continue` authorized PR creation and bounded clean-checkout CI
-remediation. No merge, deploy, provider/AGY execution, secret action, or
-production mutation was authorized or performed.
+**Grill status**: `APPROVED` from the signed implementation plan. Scope is
+local repository code, tests, Git history, CI definition, governance, and docs;
+no push, deploy, provider/AGY execution, secrets, or production mutation.
 
 | Ticket | Severity / Effort | Owner | Status | Evidence / Dependency |
 |---|---|---|---|---|
-| `TICKET-TPG-000` | CRITICAL / XS | orchestrator | DONE — REMOTE EVIDENCE | Recovery snapshot `ebfeee9` is pushed on `recovery/pre-test-provenance-20260827`, explicitly `NON_TDD_RECONSTRUCTED`; both remote full-suite jobs restored and verified the immutable ref |
-| `TICKET-TPG-001` | CRITICAL / M | developer | DONE — LOCAL | Original baseline `b84989d` is preserved through cutoff `49f81bf`; full QA exposed a workflow-inventory design trap, so test-only baseline `4e13490` explicitly superseded it. Final test SHA-256 `72bc50d7cb661e6fa806eea4c12a338faebf67cbae22ba03d25294ecb15d8645`; source commits `f012519`, `83ce2a0`, `3179919` |
-| `TICKET-TPG-002` | HIGH / S | business_analyst | DONE — LOCAL | Test-only baseline `11ff774` captured `2 failed`; generated skill mirrors were the only sync mutations in `49f81bf`; final SHA-256 `da116624ff7db828987c6ec1889760a1354055faa8349e24f04da71363ed2362`; ecosystem check passes |
-| `TICKET-TPG-003` | CRITICAL / S | qa_tester | DONE — LOCAL | Focused workflow/provenance matrix `98 passed`; full QA `1275 passed, 12 warnings`; aggregate history verified 3 baseline records with the original cutoff preserved; secret scan 0/1,954 |
-| `TICKET-TPG-004` | CRITICAL / XS | repository owner | DONE — REMOTE POLICY | Initial activation receipt used branch SHA `77e373ab41adf32ee18d552e8e214c1eb09fa324`; current PR head is recorded in TPG-006. Active ruleset `Require Test Provenance` (`21626253`) applies to `refs/heads/main`, requires exact context `Test Provenance`, uses strict mode, has no bypass actors, and reports `current_user_can_bypass: never` |
-| `TICKET-TPG-005` | CRITICAL / XS | code_reviewer | DONE — LOCAL | `code_reviewer.py --review --use-python` returned `READY_FOR_PROD`; full suite `1275 passed`; TPG-001 baseline `4e13490`, manifest, ticket, and frozen hash all verified |
-| `TICKET-TPG-006` | CRITICAL / S | developer / qa_tester | DONE — REMOTE QA | Initial PR CI exposed 15 clean-checkout failures. Test-only baseline `4c08782` recorded `3 failed, 4 passed`; atomic source commits `ef3557c` and `f759004` preserved its 7 frozen files. Local full suite passed `1278` with 12 warnings. GitHub runs `33043972950` and `33043972995` passed; remote provenance artifact reports `PASSED`, `issues: []`, and 10 verified test files across 4 baselines |
+| `TICKET-TPG-000` | CRITICAL / XS | orchestrator | DONE | Recovery snapshot `ebfeee9` on `recovery/pre-test-provenance-20260827`, explicitly `NON_TDD_RECONSTRUCTED`; secret scan 0/1,967 |
+| `TICKET-TPG-001` | CRITICAL / M | developer | DOING | Test-only baseline `b84989d`; red evidence `15 failed, 2 passed`; frozen test SHA-256 `089eea1750eadab8e201e585af67a66f0a6fa837ec871379d013dcb30b3a3246`; implementation must use its exact trailer |
+| `TICKET-TPG-002` | HIGH / S | business_analyst | TODO | Sync canonical skill/rule changes into generated ecosystem only after a separate test baseline proves the stale-mirror failure |
+| `TICKET-TPG-003` | CRITICAL / S | qa_tester | TODO | Focused provenance suite, ecosystem check, full relevant regression, secret scan, and immutable test/history audit after source freeze |
+| `TICKET-TPG-004` | CRITICAL / XS | repository owner | NEEDS_HITL | After push, configure the GitHub ruleset so job `Test Provenance` is a required merge check; workflow presence alone is not platform enforcement |
+| `TICKET-TPG-005` | CRITICAL / XS | code_reviewer | TODO | Final Git review must bind ticket, baseline SHA, manifest, unchanged test hashes, and source-only commits |
 
 **Platform boundary**: native `spawn_agent` pre-spawn enforcement remains
 `BLOCKED` under `DSG-009A` until the platform exposes an authoritative hook and
 receipt API. This gate catches repository history/merge violations but does not
 claim native runtime interception.
-
-**Remote enforcement state**: repository ruleset `21626253` is authoritative
-on GitHub. PR `#1` was merged as `db1231e430c39360226d6289afa8a4e665a0cbb1`
-after required job `Test Provenance` passed. The canceled preview was not a
-required context. Main Unified CI run `33048014471` initially failed only on
-the live 503, then passed every job after the production gateway configuration
-was restored. Native pre-spawn enforcement remains a separate blocked platform
-boundary.
 
 ---
 
