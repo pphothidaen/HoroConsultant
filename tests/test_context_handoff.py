@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import base64
+import copy
 import fcntl
 import json
 import os
@@ -11,7 +12,6 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-
 
 ROOT = Path(__file__).resolve().parents[1]
 ENTRYPOINT = ROOT / "scripts" / "context_handoff.py"
@@ -80,10 +80,11 @@ EXPECTED_POLICY = {
     "runtimes": ["codex", "claude", "agy"],
     "operations": ["hook", "snapshot", "rehydrate", "validate"],
     "operator_only_actions": ["compact", "clear", "reset"],
-    "codex_trust": {
-        "trusted_project_required": True,
-        "untrusted_behavior": "deny",
-        "bypass_allowed": False,
+    "codex_hooks": {
+        "scope": "non-managed_project_hooks",
+        "trust": "native_user_review_exact_current_hash",
+        "unreviewed_or_changed": "skip",
+        "repository_bypass_policy": "never_invoke_or_recommend",
     },
 }
 
@@ -172,6 +173,49 @@ def _snapshot(
     return _invoke("snapshot", "--output", str(output), *extra_args, payload=payload)
 
 
+def _start_snapshot(
+    output: Path,
+    payload: dict[str, Any],
+    *extra_args: str,
+) -> subprocess.Popen[bytes]:
+    _require_entrypoint()
+    return subprocess.Popen(
+        [
+            sys.executable,
+            str(ENTRYPOINT),
+            "snapshot",
+            "--output",
+            str(output),
+            *extra_args,
+        ],
+        cwd=ROOT,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+
+def _finish_concurrent_snapshots(
+    pending: list[tuple[subprocess.Popen[bytes], dict[str, Any]]],
+) -> list[subprocess.CompletedProcess[bytes]]:
+    for process, payload in pending:
+        assert process.stdin is not None
+        process.stdin.write(json.dumps(payload, separators=(",", ":")).encode("utf-8"))
+        process.stdin.close()
+
+    completed: list[subprocess.CompletedProcess[bytes]] = []
+    for process, _ in pending:
+        assert process.stdout is not None
+        assert process.stderr is not None
+        stdout = process.stdout.read()
+        stderr = process.stderr.read()
+        returncode = process.wait(timeout=5)
+        completed.append(
+            subprocess.CompletedProcess(process.args, returncode, stdout, stderr)
+        )
+    return completed
+
+
 def _decode_handoff(path: Path) -> tuple[bytes, dict[str, Any]]:
     raw = path.read_bytes()
     text = raw.decode("utf-8")
@@ -181,6 +225,17 @@ def _decode_handoff(path: Path) -> tuple[bytes, dict[str, Any]]:
     value = json.loads(encoded)
     assert isinstance(value, dict)
     return raw, value
+
+
+def _replace_leaf(value: dict[str, Any], path: tuple[str | int, ...], leaf: str) -> None:
+    target: Any = value
+    for part in path[:-1]:
+        target = target[part]
+    target[path[-1]] = leaf
+
+
+def _temp_artifacts(output: Path) -> list[Path]:
+    return sorted(output.parent.glob(f".{output.name}.*"))
 
 
 def _hook_decision(payload: dict[str, Any]) -> dict[str, Any]:
@@ -249,7 +304,8 @@ def test_canonical_policy_is_closed_and_freezes_limits_precedence_and_authority(
 
 
 def test_hook_rejects_input_over_64_kib() -> None:
-    raw = b'{"padding":"' + (b"x" * (64 * 1024)) + b'"}'
+    canary = ("oversize-canary-" + ("Q" * 80)).encode("ascii")
+    raw = b'{"padding":"' + canary + (b"x" * (64 * 1024)) + b'"}'
     assert len(raw) > 64 * 1024
 
     result = _invoke(
@@ -264,6 +320,36 @@ def test_hook_rejects_input_over_64_kib() -> None:
     assert result.returncode == 2
     assert result.stdout == b""
     assert "HOOK_INPUT_TOO_LARGE" in _stderr(result)
+    assert canary not in result.stderr
+    assert b"oversize-canary" not in result.stderr
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        b"{",
+        b"[]",
+        b"null",
+        b'\xff{"usage":{}}',
+        b'{"usage":{},"diagnostic_canary":"malformed-canary-' + (b"Z" * 64),
+    ],
+    ids=["truncated", "array", "null", "invalid-utf8", "non-echo-canary"],
+)
+def test_hook_rejects_malformed_or_non_object_input_without_echo(raw: bytes) -> None:
+    result = _invoke(
+        "hook",
+        "--runtime",
+        "codex",
+        "--event",
+        "Stop",
+        raw_input=raw,
+    )
+
+    assert result.returncode == 2
+    assert result.stdout == b""
+    assert "HOOK_INPUT_INVALID" in _stderr(result)
+    if b"malformed-canary" in raw:
+        assert b"malformed-canary" not in result.stderr
 
 
 def test_signal_precedence_is_tokens_then_percent_then_stat_bytes_then_unknown() -> None:
@@ -349,9 +435,38 @@ def test_label_bytes_are_a_transcript_size_fallback_and_never_a_percent() -> Non
     assert decision["level"] == "SNAPSHOT"
 
 
+@pytest.mark.parametrize("label", ["1 B", "999 KiB", "80%", "unknown", "999999999 GiB"])
+def test_transcript_stat_bytes_precede_every_supplied_label(label: str) -> None:
+    decision = _hook_decision(
+        {
+            "usage": {
+                "transcript_stat_bytes": 400 * 1024,
+                "label": label,
+            },
+            "last_notified_level": "NORMAL",
+            "lanes": [],
+        }
+    )
+
+    assert decision["signal"] == {
+        "kind": "bytes",
+        "source": "transcript_stat_bytes",
+        "value": 400 * 1024,
+        "limit": None,
+        "normalized_percent": None,
+    }
+    assert decision["level"] == "ALERT"
+
+
 @pytest.mark.parametrize(
     ("usage", "expected_level"),
     [
+        ({"tokens": {"used": 39, "limit": 100}}, "NORMAL"),
+        ({"tokens": {"used": 40, "limit": 100}}, "ALERT"),
+        ({"tokens": {"used": 44, "limit": 100}}, "ALERT"),
+        ({"tokens": {"used": 45, "limit": 100}}, "SNAPSHOT"),
+        ({"tokens": {"used": 79, "limit": 100}}, "SNAPSHOT"),
+        ({"tokens": {"used": 80, "limit": 100}}, "CRITICAL"),
         ({"percent": 39}, "NORMAL"),
         ({"percent": 40}, "ALERT"),
         ({"percent": 44}, "ALERT"),
@@ -367,7 +482,7 @@ def test_label_bytes_are_a_transcript_size_fallback_and_never_a_percent() -> Non
     ],
 )
 def test_default_threshold_boundaries(
-    usage: dict[str, int],
+    usage: dict[str, Any],
     expected_level: str,
 ) -> None:
     decision = _hook_decision(
@@ -404,25 +519,26 @@ def test_notifications_realert_only_on_a_new_boundary(
     assert decision["notify"] is notify
 
 
-def test_running_or_unknown_lanes_force_clear_ready_false() -> None:
-    for status in ("RUNNING", "UNKNOWN"):
-        decision = _hook_decision(
-            {
-                "usage": {"percent": 80},
-                "last_notified_level": "SNAPSHOT",
-                "lanes": [_lane("CTX-ACTIVE", status=status)],
-            }
-        )
-        assert decision["level"] == "CRITICAL"
-        assert decision["clear_ready"] is False
-        assert "operator" in decision["recommendation"].casefold()
+@pytest.mark.parametrize("status", ["READY", "BLOCKED", "RUNNING", "UNKNOWN"])
+def test_every_unresolved_lane_status_forces_clear_ready_false(status: str) -> None:
+    decision = _hook_decision(
+        {
+            "usage": {"percent": 80},
+            "last_notified_level": "SNAPSHOT",
+            "lanes": [_lane("CTX-ACTIVE", status=status)],
+        }
+    )
+
+    assert decision["level"] == "CRITICAL"
+    assert decision["clear_ready"] is False
+    assert "operator" in decision["recommendation"].casefold()
 
 
 def test_hook_never_reads_transcript_content(tmp_path: Path) -> None:
     transcript_fifo = tmp_path / "raw-transcript.fifo"
     os.mkfifo(transcript_fifo)
     payload = {
-        "usage": {"percent": 45, "transcript_stat_bytes": 450 * 1024},
+        "usage": {"transcript_stat_bytes": 450 * 1024},
         "transcript_path": str(transcript_fifo),
         "last_notified_level": "ALERT",
         "lanes": [],
@@ -439,7 +555,7 @@ def test_hook_never_reads_transcript_content(tmp_path: Path) -> None:
     )
 
     decision = _json_stdout(result)
-    assert decision["signal"]["source"] == "percent"
+    assert decision["signal"]["source"] == "transcript_stat_bytes"
     assert decision["level"] == "SNAPSHOT"
 
 
@@ -470,6 +586,24 @@ def test_snapshot_writes_closed_canonical_handoff_with_authority_pointers(
     assert report["valid"] is True
     assert report["snapshot_schema"] == "HandoffSnapshotV1"
     assert report["bytes"] == len(raw)
+
+
+@pytest.mark.parametrize("status", ["READY", "BLOCKED", "RUNNING", "UNKNOWN"])
+def test_snapshot_denies_clear_for_every_unresolved_lane_status(
+    tmp_path: Path,
+    status: str,
+) -> None:
+    output = tmp_path / f"{status}.md"
+    payload = _snapshot_payload(
+        lanes=[_lane(f"CTX-{status}", status=status)],
+        clear_ready=True,
+    )
+
+    result = _snapshot(output, payload)
+
+    assert result.returncode == 0, _stderr(result)
+    _, snapshot = _decode_handoff(output)
+    assert snapshot["clear_ready"] is False
 
 
 @pytest.mark.parametrize(
@@ -521,6 +655,83 @@ def test_snapshot_is_canonical_deterministic_and_capped_at_16_kib(tmp_path: Path
     assert not any(path.name.startswith(f".{oversized.name}.") for path in tmp_path.iterdir())
 
 
+@pytest.mark.parametrize(
+    ("case_name", "expected_error"),
+    [
+        ("malformed", "SNAPSHOT_SCHEMA_INVALID"),
+        ("secret", "SENSITIVE_INPUT_REJECTED"),
+        ("oversize", "HANDOFF_TOO_LARGE"),
+    ],
+)
+def test_rejected_snapshot_preserves_preexisting_handoff_byte_for_byte(
+    tmp_path: Path,
+    case_name: str,
+    expected_error: str,
+) -> None:
+    output = tmp_path / "HANDOFF.md"
+    initial = _snapshot_payload(lanes=[_lane("CTX-EXISTING", status="RUNNING")])
+    assert _snapshot(output, initial).returncode == 0
+    before = output.read_bytes()
+    before_inode = output.stat().st_ino
+
+    payload = _snapshot_payload(lanes=[_lane("CTX-INCOMING")])
+    if case_name == "malformed":
+        payload["unexpected"] = "closed schema"
+    elif case_name == "secret":
+        payload["summary"] = "credential=" + "sk" + "-" + ("Q" * 64)
+    else:
+        payload["summary"] = "bounded oversize context " * 3000
+
+    result = _snapshot(output, payload)
+
+    assert result.returncode == 2
+    assert expected_error in _stderr(result)
+    assert result.stdout == b""
+    assert output.read_bytes() == before
+    assert output.stat().st_ino == before_inode
+    assert _temp_artifacts(output) == []
+
+
+def _bulky_lanes(prefix: str, count: int) -> list[dict[str, str]]:
+    lanes: list[dict[str, str]] = []
+    for index in range(count):
+        lane = _lane(f"{prefix}-{index:02d}", status="BLOCKED")
+        lane["summary"] = (
+            f"Bounded unresolved state for {prefix}-{index:02d}; " * 8
+        ).strip()
+        lane["next_action"] = (
+            f"Wait for the explicit dependency gate for {prefix}-{index:02d}; " * 8
+        ).strip()
+        lanes.append(lane)
+    return lanes
+
+
+def test_merge_over_cap_preserves_preexisting_handoff_and_cleans_temp(
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "HANDOFF.md"
+    initial = _snapshot_payload(lanes=_bulky_lanes("EXISTING", 14))
+    initial_result = _snapshot(output, initial)
+    assert initial_result.returncode == 0, _stderr(initial_result)
+    before = output.read_bytes()
+    assert 8 * 1024 < len(before) <= 16 * 1024
+    before_inode = output.stat().st_ino
+
+    incoming = _snapshot_payload(
+        runtime="claude",
+        lanes=_bulky_lanes("INCOMING", 14),
+    )
+    assert len(json.dumps(incoming).encode("utf-8")) < 16 * 1024
+    result = _snapshot(output, incoming)
+
+    assert result.returncode == 2
+    assert "HANDOFF_TOO_LARGE" in _stderr(result)
+    assert result.stdout == b""
+    assert output.read_bytes() == before
+    assert output.stat().st_ino == before_inode
+    assert _temp_artifacts(output) == []
+
+
 def test_snapshot_merges_active_lanes_without_loss_and_conflicts_fail_closed(
     tmp_path: Path,
 ) -> None:
@@ -558,6 +769,67 @@ def test_snapshot_merges_active_lanes_without_loss_and_conflicts_fail_closed(
     assert not any(path.name.startswith(f".{output.name}.") for path in tmp_path.iterdir())
 
 
+def test_concurrent_disjoint_lane_writers_preserve_the_complete_union(
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "HANDOFF.md"
+    assert _snapshot(output, _snapshot_payload()).returncode == 0
+    lane_ids = [f"CTX-CONCURRENT-{index}" for index in range(6)]
+    pending = [
+        (
+            _start_snapshot(output, payload, "--lock-timeout", "2"),
+            payload,
+        )
+        for payload in (
+            _snapshot_payload(
+                runtime=("codex", "claude", "agy")[index % 3],
+                lanes=[_lane(lane_id, status="RUNNING")],
+            )
+            for index, lane_id in enumerate(lane_ids)
+        )
+    ]
+
+    results = _finish_concurrent_snapshots(pending)
+
+    assert [result.returncode for result in results] == [0] * len(results), [
+        _stderr(result) for result in results
+    ]
+    _, merged = _decode_handoff(output)
+    assert [lane["id"] for lane in merged["lanes"]] == sorted(lane_ids)
+    assert len(merged["lanes"]) == len(lane_ids)
+    assert merged["clear_ready"] is False
+    assert _temp_artifacts(output) == []
+
+
+def test_concurrent_same_lane_conflict_has_one_winner_and_one_failure(
+    tmp_path: Path,
+) -> None:
+    output = tmp_path / "HANDOFF.md"
+    assert _snapshot(output, _snapshot_payload()).returncode == 0
+    first = _snapshot_payload(
+        lanes=[_lane("CTX-SAME-LANE", status="RUNNING", owner="developer-a")]
+    )
+    second = _snapshot_payload(
+        lanes=[_lane("CTX-SAME-LANE", status="RUNNING", owner="developer-b")]
+    )
+    pending = [
+        (_start_snapshot(output, first, "--lock-timeout", "2"), first),
+        (_start_snapshot(output, second, "--lock-timeout", "2"), second),
+    ]
+
+    results = _finish_concurrent_snapshots(pending)
+
+    assert sorted(result.returncode for result in results) == [0, 2]
+    loser = next(result for result in results if result.returncode == 2)
+    assert loser.stdout == b""
+    assert "HANDOFF_LANE_CONFLICT" in _stderr(loser)
+    _, merged = _decode_handoff(output)
+    assert len(merged["lanes"]) == 1
+    assert merged["lanes"][0]["id"] == "CTX-SAME-LANE"
+    assert merged["lanes"][0]["owner"] in {"developer-a", "developer-b"}
+    assert _temp_artifacts(output) == []
+
+
 def test_dirty_paths_are_informational_and_snapshot_does_not_mutate_git(tmp_path: Path) -> None:
     before = _status_bytes()
     output = tmp_path / "HANDOFF.md"
@@ -573,52 +845,126 @@ def test_dirty_paths_are_informational_and_snapshot_does_not_mutate_git(tmp_path
     assert snapshot["dirty_paths"] == ["owned/path.py", "untracked/note.txt"]
 
 
-def _sensitive_payloads() -> list[tuple[str, dict[str, Any]]]:
-    secret = _snapshot_payload()
-    secret["summary"] = "credential=" + "sk" + "-" + ("A" * 48)
+SENSITIVE_LEAF_PATHS: tuple[tuple[str | int, ...], ...] = (
+    ("schema_version",),
+    ("created_at",),
+    ("runtime",),
+    ("ticket_id",),
+    ("reason",),
+    ("objective",),
+    ("summary",),
+    ("next_action",),
+    ("authority", "current_state"),
+    ("authority", "implementation_plan"),
+    ("authority", "derived_handoff"),
+    ("lanes", 0, "id"),
+    ("lanes", 0, "owner"),
+    ("lanes", 0, "status"),
+    ("lanes", 0, "summary"),
+    ("lanes", 0, "next_action"),
+    ("dirty_paths", 0),
+    ("risks", 0),
+    ("decisions", 0),
+)
 
-    high_entropy = _snapshot_payload()
+
+def _sensitive_canaries() -> tuple[tuple[str, str], ...]:
+    secret = "credential=" + "sk" + "-" + ("Qa" * 32)
     deterministic_bytes = bytes(range(33, 127))
-    high_entropy["summary"] = "opaque=" + base64.b64encode(deterministic_bytes).decode("ascii")
-
-    raw_session = _snapshot_payload()
-    raw_session["session"] = {"messages": [{"role": "user", "content": "raw"}]}
-
-    raw_prompt = _snapshot_payload()
-    raw_prompt["prompt"] = "verbatim user prompt must not be retained"
-
-    raw_env = _snapshot_payload()
-    raw_env["env"] = {"CONTEXT_TEST_TOKEN": "must-not-be-retained"}
-
-    absolute_home = _snapshot_payload()
-    absolute_home["summary"] = "private path /Users/example/.codex/auth.json"
-
-    return [
-        ("secret", secret),
-        ("high-entropy", high_entropy),
-        ("raw-session", raw_session),
-        ("raw-prompt", raw_prompt),
-        ("raw-env", raw_env),
-        ("absolute-home", absolute_home),
-    ]
+    high_entropy = "opaque=" + base64.b64encode(deterministic_bytes).decode("ascii")
+    return (("secret", secret), ("high-entropy", high_entropy))
 
 
-@pytest.mark.parametrize(("case_name", "payload"), _sensitive_payloads())
-def test_sensitive_or_raw_input_is_rejected_before_any_temp_write(
+@pytest.mark.parametrize("leaf_path", SENSITIVE_LEAF_PATHS, ids=lambda p: "-".join(map(str, p)))
+@pytest.mark.parametrize(
+    ("canary_kind", "canary"),
+    _sensitive_canaries(),
+    ids=["secret", "high-entropy"],
+)
+def test_recursive_sensitive_scan_covers_every_allowed_string_leaf_without_echo(
     tmp_path: Path,
-    case_name: str,
-    payload: dict[str, Any],
+    leaf_path: tuple[str | int, ...],
+    canary_kind: str,
+    canary: str,
 ) -> None:
-    case_dir = tmp_path / case_name
-    case_dir.mkdir()
-    output = case_dir / "HANDOFF.md"
+    payload = _snapshot_payload(lanes=[_lane("CTX-SENSITIVE")])
+    payload = copy.deepcopy(payload)
+    _replace_leaf(payload, leaf_path, canary)
+    output = tmp_path / canary_kind / "HANDOFF.md"
+    output.parent.mkdir()
+
+    result = _snapshot(output, payload)
+
+    diagnostics = result.stdout + result.stderr
+    assert result.returncode == 2
+    assert result.stdout == b""
+    assert "SENSITIVE_INPUT_REJECTED" in _stderr(result)
+    encoded_canary = canary.encode("utf-8")
+    for fragment in (encoded_canary, encoded_canary.split(b"=", 1)[-1], encoded_canary[-24:]):
+        assert fragment not in diagnostics
+    assert not output.exists()
+    assert _temp_artifacts(output) == []
+
+
+@pytest.mark.parametrize("field", ["session", "prompt", "env"])
+def test_raw_session_prompt_or_environment_is_rejected_without_echo_or_write(
+    tmp_path: Path,
+    field: str,
+) -> None:
+    canary = "raw-input-canary-" + ("R" * 48)
+    payload = _snapshot_payload()
+    payload[field] = {"nested": [{"content": canary}]}
+    output = tmp_path / field / "HANDOFF.md"
+    output.parent.mkdir()
+
+    result = _snapshot(output, payload)
+
+    assert result.returncode == 2
+    assert result.stdout == b""
+    assert "SENSITIVE_INPUT_REJECTED" in _stderr(result)
+    assert canary.encode("utf-8") not in result.stderr
+    assert canary[-24:].encode("utf-8") not in result.stderr
+    assert not output.exists()
+    assert _temp_artifacts(output) == []
+
+
+def test_absolute_home_path_is_rejected_without_diagnostic_echo(tmp_path: Path) -> None:
+    private_path = "/Users/example/.codex/auth.json"
+    payload = _snapshot_payload()
+    payload["summary"] = f"private path {private_path}"
+    output = tmp_path / "HANDOFF.md"
 
     result = _snapshot(output, payload)
 
     assert result.returncode == 2
     assert "SENSITIVE_INPUT_REJECTED" in _stderr(result)
+    assert private_path.encode("utf-8") not in result.stderr
     assert result.stdout == b""
-    assert list(case_dir.iterdir()) == []
+    assert not output.exists()
+
+
+def test_hook_recursive_sensitive_input_fails_closed_without_echo() -> None:
+    canary = "credential=" + "sk" + "-" + ("HookQa" * 12)
+    lane = _lane("CTX-HOOK-SENSITIVE")
+    lane["next_action"] = canary
+    result = _invoke(
+        "hook",
+        "--runtime",
+        "codex",
+        "--event",
+        "Stop",
+        payload={
+            "usage": {"percent": 45},
+            "last_notified_level": "ALERT",
+            "lanes": [lane],
+        },
+    )
+
+    assert result.returncode == 2
+    assert result.stdout == b""
+    assert "SENSITIVE_INPUT_REJECTED" in _stderr(result)
+    assert canary.encode("utf-8") not in result.stderr
+    assert ("sk" + "-").encode("ascii") not in result.stderr
 
 
 def test_atomic_writer_uses_temp_fsync_replace_and_lock_contention_exit_3(
@@ -645,6 +991,7 @@ def test_atomic_writer_uses_temp_fsync_replace_and_lock_contention_exit_3(
     initial = _snapshot_payload(lanes=[_lane("CTX-INITIAL", status="RUNNING")])
     assert _snapshot(output, initial).returncode == 0
     before = output.read_bytes()
+    before_inode = output.stat().st_ino
 
     lock_path = Path(f"{output}.lock")
     with lock_path.open("a+b") as lock_handle:
@@ -657,13 +1004,124 @@ def test_atomic_writer_uses_temp_fsync_replace_and_lock_contention_exit_3(
         )
         assert contender.returncode == 3
         assert "HANDOFF_LOCK_CONTENDED" in _stderr(contender)
+        assert contender.stdout == b""
         assert output.read_bytes() == before
+        assert output.stat().st_ino == before_inode
+
+    replacement = _snapshot(
+        output,
+        _snapshot_payload(lanes=[_lane("CTX-REPLACEMENT", status="BLOCKED")]),
+    )
+    assert replacement.returncode == 0, _stderr(replacement)
+    assert output.stat().st_ino != before_inode
+    raw, merged = _decode_handoff(output)
+    assert raw != before
+    assert {lane["id"] for lane in merged["lanes"]} == {
+        "CTX-INITIAL",
+        "CTX-REPLACEMENT",
+    }
+    assert _temp_artifacts(output) == []
+    validation = _invoke("validate", "--input", str(output))
+    assert _json_stdout(validation)["valid"] is True
 
 
-def test_rehydrate_is_bounded_and_legacy_handoffs_are_refused(tmp_path: Path) -> None:
+def test_atomic_writer_runtime_trace_proves_lock_temp_fsync_replace_order(
+    tmp_path: Path,
+) -> None:
+    _require_entrypoint()
+    probe_dir = tmp_path / "probe"
+    probe_dir.mkdir()
+    trace_path = tmp_path / "atomic.trace"
+    sitecustomize = probe_dir / "sitecustomize.py"
+    sitecustomize.write_text(
+        """
+import fcntl
+import os
+import tempfile
+
+_trace = os.environ["CTX_ATOMIC_TRACE"]
+_real_flock = fcntl.flock
+_real_fsync = os.fsync
+_real_replace = os.replace
+_real_mkstemp = tempfile.mkstemp
+_real_named_temporary_file = tempfile.NamedTemporaryFile
+
+def _record(operation, detail=""):
+    with open(_trace, "a", encoding="utf-8") as handle:
+        handle.write(f"{operation}|{detail}\\n")
+
+def _flock(fd, operation):
+    _record("flock", str(operation))
+    return _real_flock(fd, operation)
+
+def _fsync(fd):
+    _record("fsync", str(fd))
+    return _real_fsync(fd)
+
+def _replace(source, destination):
+    _record("replace", f"{source}|{destination}")
+    return _real_replace(source, destination)
+
+def _mkstemp(*args, **kwargs):
+    fd, path = _real_mkstemp(*args, **kwargs)
+    _record("temp", path)
+    return fd, path
+
+def _named_temporary_file(*args, **kwargs):
+    value = _real_named_temporary_file(*args, **kwargs)
+    _record("temp", value.name)
+    return value
+
+fcntl.flock = _flock
+os.fsync = _fsync
+os.replace = _replace
+tempfile.mkstemp = _mkstemp
+tempfile.NamedTemporaryFile = _named_temporary_file
+""".lstrip(),
+        encoding="utf-8",
+    )
+    output = tmp_path / "HANDOFF.md"
+    environment = os.environ.copy()
+    environment["CTX_ATOMIC_TRACE"] = str(trace_path)
+    existing_pythonpath = environment.get("PYTHONPATH")
+    environment["PYTHONPATH"] = (
+        str(probe_dir)
+        if not existing_pythonpath
+        else str(probe_dir) + os.pathsep + existing_pythonpath
+    )
+    result = subprocess.run(
+        [sys.executable, str(ENTRYPOINT), "snapshot", "--output", str(output)],
+        cwd=ROOT,
+        input=json.dumps(_snapshot_payload(), separators=(",", ":")).encode("utf-8"),
+        capture_output=True,
+        check=False,
+        timeout=5,
+        env=environment,
+    )
+
+    assert result.returncode == 0, _stderr(result)
+    trace = trace_path.read_text(encoding="utf-8").splitlines()
+    operations = [line.split("|", 1)[0] for line in trace]
+    lock_index = operations.index("flock")
+    temp_index = operations.index("temp")
+    fsync_index = operations.index("fsync")
+    replace_index = operations.index("replace")
+    assert lock_index < temp_index < fsync_index < replace_index
+    replace_record = trace[replace_index].split("|", 1)[1]
+    source, destination = replace_record.rsplit("|", 1)
+    assert Path(source) != output
+    assert Path(destination) == output
+    assert Path(source).parent == output.parent
+    assert not Path(source).exists()
+    assert _temp_artifacts(output) == []
+    assert _json_stdout(_invoke("validate", "--input", str(output)))["valid"] is True
+
+
+def test_rehydrate_enforces_input_and_output_caps_and_refuses_legacy(
+    tmp_path: Path,
+) -> None:
     canonical = tmp_path / "canonical.md"
     payload = _snapshot_payload(lanes=[_lane("CTX-020-CORE", status="RUNNING")])
-    payload["summary"] = "bounded rehydration context " * 350
     assert _snapshot(canonical, payload).returncode == 0
 
     rehydrated = _invoke(
@@ -671,13 +1129,78 @@ def test_rehydrate_is_bounded_and_legacy_handoffs_are_refused(tmp_path: Path) ->
         "--input",
         str(canonical),
         "--max-bytes",
-        str(64 * 1024),
+        str(4 * 1024),
     )
     assert rehydrated.returncode == 0, _stderr(rehydrated)
     assert 0 < len(rehydrated.stdout) <= 4 * 1024
     rehydrated_text = rehydrated.stdout.decode("utf-8")
     assert "PROJECT_TASKS.md" in rehydrated_text
     assert "plans/plan.md" in rehydrated_text
+
+    oversized_output_candidate = tmp_path / "oversized-output-candidate.md"
+    verbose_payload = _snapshot_payload(
+        lanes=[_lane("CTX-020-CORE", status="RUNNING")]
+    )
+    verbose_payload["summary"] = "bounded rehydration context " * 350
+    verbose_snapshot = _snapshot(oversized_output_candidate, verbose_payload)
+    assert verbose_snapshot.returncode == 0, _stderr(verbose_snapshot)
+    oversized_output = _invoke(
+        "rehydrate",
+        "--input",
+        str(oversized_output_candidate),
+        "--max-bytes",
+        str(4 * 1024),
+    )
+    assert oversized_output.returncode == 2
+    assert oversized_output.stdout == b""
+    assert "REHYDRATE_OUTPUT_TOO_LARGE" in _stderr(oversized_output)
+
+    excessive_output_limit = _invoke(
+        "rehydrate",
+        "--input",
+        str(canonical),
+        "--max-bytes",
+        str((4 * 1024) + 1),
+    )
+    assert excessive_output_limit.returncode == 2
+    assert excessive_output_limit.stdout == b""
+    assert "REHYDRATE_LIMIT_TOO_LARGE" in _stderr(excessive_output_limit)
+
+    raw, decoded = _decode_handoff(canonical)
+    oversized_decoded = copy.deepcopy(decoded)
+    oversized_decoded["summary"] = "canonical bounded field " * 1500
+    canonical_json = json.dumps(
+        oversized_decoded,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    raw_text = raw.decode("utf-8")
+    before_marker, after_start = raw_text.split(HANDOFF_START, 1)
+    _, after_marker = after_start.split(HANDOFF_END, 1)
+    oversized_canonical = tmp_path / "oversized-canonical.md"
+    oversized_canonical.write_text(
+        before_marker
+        + HANDOFF_START
+        + "\n"
+        + canonical_json
+        + "\n"
+        + HANDOFF_END
+        + after_marker,
+        encoding="utf-8",
+    )
+    assert oversized_canonical.stat().st_size > 16 * 1024
+
+    oversized_input = _invoke(
+        "rehydrate",
+        "--input",
+        str(oversized_canonical),
+        "--max-bytes",
+        str(4 * 1024),
+    )
+    assert oversized_input.returncode == 2
+    assert oversized_input.stdout == b""
+    assert "HANDOFF_INPUT_TOO_LARGE" in _stderr(oversized_input)
 
     legacy = tmp_path / "legacy.md"
     legacy_bytes = b"# HANDOFF\n\nLegacy free-form session notes.\n"
@@ -706,7 +1229,7 @@ def test_validate_rejects_noncanonical_trailing_content(tmp_path: Path) -> None:
     assert "HANDOFF_NONCANONICAL" in _stderr(result)
 
 
-def test_no_automatic_compact_clear_reset_or_hook_trust_bypass_path() -> None:
+def test_no_automatic_compact_clear_reset_or_shell_feed_path() -> None:
     _require_entrypoint()
     source = ENTRYPOINT.read_text(encoding="utf-8")
     tree = ast.parse(source)
@@ -735,6 +1258,17 @@ def test_no_automatic_compact_clear_reset_or_hook_trust_bypass_path() -> None:
         elif isinstance(node.func, ast.Name):
             observed.add(node.func.id)
     assert observed.isdisjoint(prohibited_calls)
+    source_lower = source.casefold()
+    for shell_feed in (
+        "tmux send-keys",
+        "screen -x",
+        "write_stdin",
+        "osascript",
+        "/compact",
+        "/clear",
+        "/reset",
+    ):
+        assert shell_feed not in source_lower
 
     critical = _hook_decision(
         {
@@ -745,4 +1279,7 @@ def test_no_automatic_compact_clear_reset_or_hook_trust_bypass_path() -> None:
     )
     assert critical["level"] == "CRITICAL"
     assert "operator" in critical["recommendation"].casefold()
+    assert "snapshot" in critical["recommendation"].casefold()
     assert critical["recommendation"].casefold().startswith("operator_")
+    for automatic_action in ("/compact", "/clear", "/reset", "send-keys"):
+        assert automatic_action not in critical["recommendation"].casefold()

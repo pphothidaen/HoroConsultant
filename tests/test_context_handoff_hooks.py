@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -10,10 +11,13 @@ from typing import Any
 
 import pytest
 
-
 ROOT = Path(__file__).resolve().parents[1]
 ENTRYPOINT = ROOT / "scripts" / "context_handoff.py"
 FIXTURES = ROOT / "tests" / "fixtures" / "context_handoff"
+CODEX_HOOKS_FIXTURE = FIXTURES / "codex" / "hooks_config.json"
+CODEX_NATIVE_FIXTURE = FIXTURES / "codex" / "native_mappings.json"
+CLAUDE_STOP_FIXTURE = FIXTURES / "claude" / "stop_mappings.json"
+AGY_STOP_FIXTURE = FIXTURES / "agy" / "stop_mappings.json"
 
 CODEX_CONFIG = ROOT / ".codex" / "hooks.json"
 CLAUDE_SETTINGS = ROOT / ".claude" / "settings.json"
@@ -33,6 +37,13 @@ GENERATED_SKILLS = (
     ROOT / ".agy" / "skills" / "anti-cognitive-decay" / "SKILL.md",
 )
 
+CANONICAL_FIXTURES = (
+    CODEX_HOOKS_FIXTURE,
+    CODEX_NATIVE_FIXTURE,
+    CLAUDE_STOP_FIXTURE,
+    AGY_STOP_FIXTURE,
+)
+
 
 def _load_json(path: Path) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8"))
@@ -42,6 +53,17 @@ def _load_json(path: Path) -> dict[str, Any]:
 
 def _fixture(runtime: str, name: str) -> dict[str, Any]:
     return _load_json(FIXTURES / runtime / name)
+
+
+def _codex_handler(event: str) -> dict[str, Any]:
+    config = _load_json(CODEX_HOOKS_FIXTURE)
+    groups = config["hooks"][event]
+    assert len(groups) == 1
+    handlers = groups[0]["hooks"]
+    assert len(handlers) == 1
+    handler = handlers[0]
+    assert isinstance(handler, dict)
+    return handler
 
 
 def _minimal_snapshot() -> dict[str, Any]:
@@ -112,9 +134,18 @@ def _assert_native_mapping(output: dict[str, Any], case: dict[str, Any]) -> None
     assert set(output) == set(case["expected_output_keys"]), case["id"]
     for key, expected in case.get("expected", {}).items():
         assert output[key] == expected, case["id"]
+    if "expected_hook_event_name" in case:
+        hook_output = output["hookSpecificOutput"]
+        assert set(hook_output) == {"hookEventName", "additionalContext"}, case["id"]
+        assert hook_output["hookEventName"] == case["expected_hook_event_name"]
+        additional_context = hook_output["additionalContext"]
+        assert isinstance(additional_context, str), case["id"]
+        assert len(additional_context.encode("utf-8")) <= case[
+            "max_additional_context_bytes"
+        ]
     for field, max_bytes in case.get("max_field_bytes", {}).items():
         assert len(output[field].encode("utf-8")) <= max_bytes, case["id"]
-    joined = "\n".join(str(value) for value in output.values()).casefold()
+    joined = json.dumps(output, ensure_ascii=False, sort_keys=True).casefold()
     for marker in case.get("contains", []):
         assert marker.casefold() in joined, case["id"]
 
@@ -122,6 +153,8 @@ def _assert_native_mapping(output: dict[str, Any], case: dict[str, Any]) -> None
 def _run_wrapper(
     wrapper: Path,
     payload: dict[str, Any],
+    *,
+    cwd: Path = ROOT,
 ) -> subprocess.CompletedProcess[str]:
     safe_env = {
         "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
@@ -129,7 +162,7 @@ def _run_wrapper(
     }
     return subprocess.run(
         ["bash", str(wrapper)],
-        cwd=ROOT,
+        cwd=cwd,
         input=json.dumps(payload, separators=(",", ":")),
         capture_output=True,
         text=True,
@@ -155,12 +188,13 @@ def _status_bytes() -> bytes:
     ).stdout
 
 
-def test_codex_hooks_config_matches_exact_events_and_denies_untrusted_projects() -> None:
-    expected = _fixture("codex", "hooks_config.json")
+def test_codex_hooks_config_uses_native_three_level_shape_without_trust_fields() -> None:
+    expected = _load_json(CODEX_HOOKS_FIXTURE)
     assert CODEX_CONFIG.is_file(), "CODEX_CONTEXT_HANDOFF_HOOKS_MISSING"
     actual = _load_json(CODEX_CONFIG)
 
     assert actual == expected
+    assert set(actual) == {"description", "hooks"}
     assert set(actual["hooks"]) == {
         "SessionStart",
         "PreCompact",
@@ -168,24 +202,107 @@ def test_codex_hooks_config_matches_exact_events_and_denies_untrusted_projects()
         "Stop",
         "SessionEnd",
     }
-    assert actual["trusted_project_only"] is True
-    assert actual["untrusted_project_behavior"] == "deny"
+    expected_matchers = {
+        "SessionStart": "startup|resume|clear|compact",
+        "PreCompact": "manual|auto",
+        "PostCompact": "manual|auto",
+        "Stop": None,
+        "SessionEnd": "other",
+    }
+    observed_keys: set[str] = set()
+    for event, groups in actual["hooks"].items():
+        assert len(groups) == 1
+        group = groups[0]
+        assert set(group) == ({"hooks"} if expected_matchers[event] is None else {"matcher", "hooks"})
+        if expected_matchers[event] is not None:
+            assert group["matcher"] == expected_matchers[event]
+        assert len(group["hooks"]) == 1
+        handler = group["hooks"][0]
+        assert set(handler) == {"type", "command", "timeout"}
+        observed_keys.update(handler)
+        assert handler["type"] == "command"
+        expected_command = (
+            'python3 "$(git rev-parse --show-toplevel)/scripts/context_handoff.py" '
+            f"hook --runtime codex --event {event} --native"
+        )
+        assert handler["command"] == expected_command
+        assert isinstance(handler["timeout"], int)
+        assert 0 < handler["timeout"] <= (3 if event == "SessionEnd" else 10)
 
-    serialized = json.dumps(actual, sort_keys=True).casefold()
-    for prohibited in ("bypass", "skip-trust", "allow-untrusted", "--force", "|| true"):
-        assert prohibited not in serialized
-    for event, registrations in actual["hooks"].items():
-        assert len(registrations) == 1
-        registration = registrations[0]
-        assert registration["type"] == "command"
-        assert registration["timeout"] == 10
-        assert registration["command"].endswith(f"--event {event} --native")
-        assert "scripts/context_handoff.py hook --runtime codex" in registration["command"]
+    serialized_keys = " ".join(sorted(set(actual) | set(actual["hooks"]) | observed_keys))
+    for invented_trust_key in (
+        "trusted_project_only",
+        "untrusted_project_behavior",
+        "trusted",
+        "trust_hash",
+        "managed",
+        "bypass",
+    ):
+        assert invented_trust_key not in serialized_keys.casefold()
+
+
+def test_codex_registered_command_resolves_git_root_from_nested_cwd() -> None:
+    assert ENTRYPOINT.is_file(), "CONTEXT_HANDOFF_ENTRYPOINT_MISSING"
+    fixture = _load_json(CODEX_NATIVE_FIXTURE)
+    case = next(case for case in fixture["cases"] if case["id"] == "stop-recursion-safe")
+    nested_cwd = ROOT / "tests" / "fixtures" / "context_handoff" / "codex"
+    before = _status_bytes()
+    result = subprocess.run(
+        ["bash", "-c", _codex_handler("Stop")["command"]],
+        cwd=nested_cwd,
+        input=json.dumps(case["input"], separators=(",", ":")),
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=5,
+        env={
+            "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
+            "PYTHONUTF8": "1",
+        },
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout) == {}
+    assert _status_bytes() == before
+
+
+def test_repository_only_acknowledges_native_dangerous_bypass_and_never_uses_it() -> None:
+    dangerous_flag = "--dangerously-" + "bypass-hook-trust"
+    tracked = subprocess.run(
+        ["git", "ls-files", "-z"],
+        cwd=ROOT,
+        capture_output=True,
+        check=True,
+    ).stdout.decode("utf-8").split("\0")
+    acknowledgements: list[tuple[str, str]] = []
+    for relative_path in tracked:
+        if not relative_path:
+            continue
+        path = ROOT / relative_path
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        if dangerous_flag in text:
+            for line in text.splitlines():
+                if dangerous_flag in line:
+                    acknowledgements.append((relative_path, line))
+                    assert "may expose" in line.casefold(), relative_path
+            normalized = text.casefold()
+            assert "never invoke or recommend" in normalized, relative_path
+            assert "managed hooks" in normalized and "outside" in normalized, relative_path
+
+        if not relative_path.startswith("tests/"):
+            compacted = re.sub(r"[\s'\"`+\\]", "", text)
+            if dangerous_flag in compacted:
+                assert dangerous_flag in text, f"assembled bypass flag in {relative_path}"
+
+    assert acknowledgements, "native CLI bypass boundary must be acknowledged honestly"
 
 
 def test_codex_native_mappings_cover_session_compaction_stop_and_end(tmp_path: Path) -> None:
-    fixture = _fixture("codex", "native_mappings.json")
-    assert fixture["schema_version"] == "context-handoff-native-fixtures-v1"
+    fixture = _load_json(CODEX_NATIVE_FIXTURE)
+    assert fixture["schema_version"] == "context-handoff-native-fixtures-v2"
     cases = fixture["cases"]
     assert {case["id"] for case in cases} == {
         "session-start-startup",
@@ -204,11 +321,34 @@ def test_codex_native_mappings_cover_session_compaction_stop_and_end(tmp_path: P
     handoff = tmp_path / "HANDOFF.md"
     _create_handoff(handoff)
     for case in cases:
+        assert case["input"]["hook_event_name"] == case["event"]
+        if case["event"] == "Stop":
+            assert "stop_hook_active" in case["input"]
+            assert "hook_active" not in case["input"]
         result = _native_codex(case["event"], case["input"], handoff)
         assert result.returncode == 0, f"{case['id']}: {result.stderr}"
         output = json.loads(result.stdout)
         assert isinstance(output, dict), case["id"]
         _assert_native_mapping(output, case)
+
+
+def test_codex_hook_outputs_only_request_operator_actions() -> None:
+    fixture = _load_json(CODEX_NATIVE_FIXTURE)
+    for case in fixture["cases"]:
+        expected_keys = set(case["expected_output_keys"])
+        assert "decision" not in expected_keys, case["id"]
+        assert "continue" not in expected_keys, case["id"]
+        serialized = json.dumps(case, sort_keys=True).casefold()
+        for automatic_action in (
+            '"continue": false',
+            '"decision": "block"',
+            "/compact",
+            "/clear",
+            "/reset",
+            "send-keys",
+            "write_stdin",
+        ):
+            assert automatic_action not in serialized, case["id"]
 
 
 @pytest.mark.parametrize(
@@ -228,6 +368,7 @@ def test_codex_native_mapping_rejects_unknown_start_or_compact_signals(
     handoff = tmp_path / "HANDOFF.md"
     _create_handoff(handoff)
     payload = {
+        "hook_event_name": event,
         field: bad_value,
         "usage": {},
         "last_notified_level": "NORMAL",
@@ -247,21 +388,23 @@ def test_claude_and_agy_hook_registrations_remain_byte_semantically_unchanged() 
 
 
 @pytest.mark.parametrize(
-    ("runtime", "wrapper", "fixture_name"),
+    ("runtime", "wrapper", "fixture_path"),
     [
-        ("claude", CLAUDE_WRAPPER, "stop_mappings.json"),
-        ("agy", AGY_WRAPPER, "stop_mappings.json"),
+        ("claude", CLAUDE_WRAPPER, CLAUDE_STOP_FIXTURE),
+        ("agy", AGY_WRAPPER, AGY_STOP_FIXTURE),
     ],
 )
 def test_stop_adapters_match_native_fixtures_and_prevent_recursion(
     runtime: str,
     wrapper: Path,
-    fixture_name: str,
+    fixture_path: Path,
 ) -> None:
-    fixture = _fixture(runtime, fixture_name)
-    assert fixture["schema_version"] == "context-handoff-native-fixtures-v1"
+    fixture = _load_json(fixture_path)
+    assert fixture["schema_version"] == "context-handoff-native-fixtures-v2"
     for case in fixture["cases"]:
-        result = _run_wrapper(wrapper, case["input"])
+        assert "stop_hook_active" in case["input"]
+        assert "hook_active" not in case["input"]
+        result = _run_wrapper(wrapper, case["input"], cwd=FIXTURES / runtime)
         output = _parse_json_output(result, case["id"])
         _assert_native_mapping(output, case)
 
@@ -282,7 +425,10 @@ def test_stop_wrappers_are_thin_fail_closed_shared_engine_adapters(
         for line in text.splitlines()
         if line.split("#", 1)[0].strip()
     )
-    expected = f"scripts/context_handoff.py hook --runtime {runtime} --event Stop --native"
+    expected = (
+        'python3 "$(git rev-parse --show-toplevel)/scripts/context_handoff.py" '
+        f"hook --runtime {runtime} --event Stop --native"
+    )
     assert expected in command_lines
     assert "set -euo pipefail" in command_lines
 
@@ -295,7 +441,10 @@ def test_stop_wrappers_are_thin_fail_closed_shared_engine_adapters(
         "|| true",
         "eval ",
         "/clear",
+        "/compact",
         "/reset",
+        "send-keys",
+        "write_stdin",
     ):
         assert duplicated_or_unsafe not in command_lines
 
@@ -323,6 +472,11 @@ def test_skill_rule_catalog_and_generated_mirrors_freeze_one_operator_only_polic
         "900 KiB",
         "raw transcript",
         "operator",
+        "non-managed",
+        "user review",
+        "exact current hash",
+        "managed hooks",
+        "outside",
     )
     for marker in required_markers:
         assert marker.casefold() in skill.casefold(), f"skill missing {marker}"
@@ -339,35 +493,107 @@ def test_skill_rule_catalog_and_generated_mirrors_freeze_one_operator_only_polic
         assert mirror.read_bytes() == canonical_bytes
 
 
-def test_sync_checks_cover_context_handoff_and_are_read_only() -> None:
-    parity_source = SYNC_PARITY.read_text(encoding="utf-8")
-    ecosystem_source = SYNC_ECOSYSTEM.read_text(encoding="utf-8")
-    combined = parity_source + ecosystem_source
-    for marker in (
-        "context_handoff_v1.json",
-        "context_handoff.py",
-        "anti-cognitive-decay",
-        "20-context-handoff.md",
-        ".codex/hooks.json",
-    ):
-        assert marker in combined, f"sync acceptance missing {marker}"
+def _copy_sync_test_repo(destination: Path) -> Path:
+    def ignore_heavy(directory: str, names: list[str]) -> set[str]:
+        ignored = {
+            name
+            for name in names
+            if name in {".git", ".pytest_cache", "__pycache__", "node_modules", ".venv"}
+        }
+        if Path(directory).resolve() == ROOT:
+            ignored.update(
+                name
+                for name in names
+                if name in {"project", "public", "rust_core", "TDD-HORO-v3.0"}
+            )
+        return ignored
 
-    before = _status_bytes()
-    commands = (
-        [sys.executable, str(SYNC_PARITY), "--check"],
-        [sys.executable, str(SYNC_ECOSYSTEM), "--check"],
+    replica = destination / "repo"
+    shutil.copytree(ROOT, replica, ignore=ignore_heavy, copy_function=shutil.copy2)
+    return replica
+
+
+def test_sync_is_exact_deterministic_and_drift_negative_in_temp_repo(
+    tmp_path: Path,
+) -> None:
+    assert CANONICAL_SKILL.is_file(), "CANONICAL_CONTEXT_HANDOFF_SKILL_MISSING"
+    replica = _copy_sync_test_repo(tmp_path)
+    canonical = replica / ".agents" / "skills" / "anti-cognitive-decay" / "SKILL.md"
+    canonical_bytes = (
+        b"---\n"
+        b"name: anti-cognitive-decay\n"
+        b"description: Canonical deterministic context handoff sync canary.\n"
+        b"---\n\n"
+        b"# Canonical context handoff sync canary\n\n"
+        b"Generated mirrors must equal these bytes exactly.\n"
+        b"\n## Gotchas\n\n"
+        b"- Never select a generated mirror as the canonical source.\n"
     )
-    for command in commands:
-        result = subprocess.run(
-            command,
-            cwd=ROOT,
+    canonical.write_bytes(canonical_bytes)
+    replica_mirrors = tuple(replica / path.relative_to(ROOT) for path in GENERATED_SKILLS)
+    for index, mirror in enumerate(replica_mirrors):
+        mirror.parent.mkdir(parents=True, exist_ok=True)
+        mirror.write_bytes(f"stale-generated-{index}\n".encode("ascii"))
+
+    sync_command = [
+        sys.executable,
+        str(replica / "scripts" / "sync_ai_agent_ecosystem.py"),
+        "--sync",
+    ]
+    first = subprocess.run(
+        sync_command,
+        cwd=replica,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=120,
+    )
+    assert first.returncode == 0, first.stdout + first.stderr
+    assert canonical.read_bytes() == canonical_bytes
+    assert [path.read_bytes() for path in replica_mirrors] == [canonical_bytes] * 3
+    first_generated = {path.relative_to(replica): path.read_bytes() for path in replica_mirrors}
+
+    second = subprocess.run(
+        sync_command,
+        cwd=replica,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=120,
+    )
+    assert second.returncode == 0, second.stdout + second.stderr
+    assert canonical.read_bytes() == canonical_bytes
+    assert {
+        path.relative_to(replica): path.read_bytes() for path in replica_mirrors
+    } == first_generated
+
+    for script in ("sync_claude_agy_parity.py", "sync_ai_agent_ecosystem.py"):
+        check_result = subprocess.run(
+            [sys.executable, str(replica / "scripts" / script), "--check"],
+            cwd=replica,
             capture_output=True,
             text=True,
             check=False,
-            timeout=60,
+            timeout=120,
         )
-        assert result.returncode == 0, result.stdout + result.stderr
-    assert _status_bytes() == before
+        assert check_result.returncode == 0, check_result.stdout + check_result.stderr
+
+    replica_mirrors[0].write_bytes(canonical_bytes + b"drift\n")
+    drift_check = subprocess.run(
+        [
+            sys.executable,
+            str(replica / "scripts" / "sync_ai_agent_ecosystem.py"),
+            "--check",
+        ],
+        cwd=replica,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=120,
+    )
+    assert drift_check.returncode != 0
+    assert "anti-cognitive-decay" in (drift_check.stdout + drift_check.stderr).casefold()
+    assert canonical.read_bytes() == canonical_bytes
 
 
 def test_fixture_files_are_closed_json_and_contain_no_absolute_home_or_secret_material() -> None:

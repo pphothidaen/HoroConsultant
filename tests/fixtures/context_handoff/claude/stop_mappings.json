@@ -1,5 +1,5 @@
 {
-  "schema_version": "context-handoff-native-fixtures-v1",
+  "schema_version": "context-handoff-native-fixtures-v2",
   "cases": [
     {
       "id": "claude-stop-warning",

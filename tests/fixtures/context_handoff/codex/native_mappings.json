@@ -1,62 +1,71 @@
 {
-  "schema_version": "context-handoff-native-fixtures-v1",
+  "schema_version": "context-handoff-native-fixtures-v2",
   "cases": [
     {
       "id": "session-start-startup",
       "event": "SessionStart",
       "input": {
+        "hook_event_name": "SessionStart",
         "source": "startup",
         "usage": {},
         "last_notified_level": "NORMAL",
         "lanes": []
       },
-      "expected_output_keys": ["additionalContext"],
-      "max_field_bytes": {"additionalContext": 4096},
+      "expected_output_keys": ["hookSpecificOutput"],
+      "expected_hook_event_name": "SessionStart",
+      "max_additional_context_bytes": 4096,
       "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
     },
     {
       "id": "session-start-resume",
       "event": "SessionStart",
       "input": {
+        "hook_event_name": "SessionStart",
         "source": "resume",
         "usage": {},
         "last_notified_level": "NORMAL",
         "lanes": []
       },
-      "expected_output_keys": ["additionalContext"],
-      "max_field_bytes": {"additionalContext": 4096},
+      "expected_output_keys": ["hookSpecificOutput"],
+      "expected_hook_event_name": "SessionStart",
+      "max_additional_context_bytes": 4096,
       "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
     },
     {
       "id": "session-start-clear",
       "event": "SessionStart",
       "input": {
+        "hook_event_name": "SessionStart",
         "source": "clear",
         "usage": {},
         "last_notified_level": "NORMAL",
         "lanes": []
       },
-      "expected_output_keys": ["additionalContext"],
-      "max_field_bytes": {"additionalContext": 4096},
+      "expected_output_keys": ["hookSpecificOutput"],
+      "expected_hook_event_name": "SessionStart",
+      "max_additional_context_bytes": 4096,
       "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
     },
     {
       "id": "session-start-compact",
       "event": "SessionStart",
       "input": {
+        "hook_event_name": "SessionStart",
         "source": "compact",
         "usage": {},
         "last_notified_level": "NORMAL",
         "lanes": []
       },
-      "expected_output_keys": ["additionalContext"],
-      "max_field_bytes": {"additionalContext": 4096},
+      "expected_output_keys": ["hookSpecificOutput"],
+      "expected_hook_event_name": "SessionStart",
+      "max_additional_context_bytes": 4096,
       "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
     },
     {
       "id": "pre-compact-manual",
       "event": "PreCompact",
       "input": {
+        "hook_event_name": "PreCompact",
         "trigger": "manual",
         "usage": {"percent": 45},
         "last_notified_level": "ALERT",
@@ -70,6 +79,7 @@
       "id": "pre-compact-auto",
       "event": "PreCompact",
       "input": {
+        "hook_event_name": "PreCompact",
         "trigger": "auto",
         "usage": {"percent": 45},
         "last_notified_level": "ALERT",
@@ -83,6 +93,7 @@
       "id": "post-compact-manual",
       "event": "PostCompact",
       "input": {
+        "hook_event_name": "PostCompact",
         "trigger": "manual",
         "usage": {},
         "last_notified_level": "SNAPSHOT",
@@ -96,6 +107,7 @@
       "id": "post-compact-auto",
       "event": "PostCompact",
       "input": {
+        "hook_event_name": "PostCompact",
         "trigger": "auto",
         "usage": {},
         "last_notified_level": "SNAPSHOT",
@@ -109,7 +121,8 @@
       "id": "stop-warning",
       "event": "Stop",
       "input": {
-        "hook_active": false,
+        "hook_event_name": "Stop",
+        "stop_hook_active": false,
         "usage": {"percent": 45},
         "last_notified_level": "ALERT",
         "lanes": []
@@ -122,7 +135,8 @@
       "id": "stop-recursion-safe",
       "event": "Stop",
       "input": {
-        "hook_active": true,
+        "hook_event_name": "Stop",
+        "stop_hook_active": true,
         "usage": {"percent": 95},
         "last_notified_level": "SNAPSHOT",
         "lanes": []
@@ -135,6 +149,8 @@
       "id": "session-end-warning",
       "event": "SessionEnd",
       "input": {
+        "hook_event_name": "SessionEnd",
+        "reason": "other",
         "usage": {},
         "last_notified_level": "NORMAL",
         "lanes": []

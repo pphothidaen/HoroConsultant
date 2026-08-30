@@ -1,11 +1,11 @@
 {
-  "schema_version": "context-handoff-native-fixtures-v1",
+  "schema_version": "context-handoff-native-fixtures-v2",
   "cases": [
     {
       "id": "agy-stop-warning",
       "input": {
         "hook_event_name": "Stop",
-        "hook_active": false,
+        "stop_hook_active": false,
         "usage": {"transcript_stat_bytes": 460800},
         "last_notified_level": "ALERT",
         "lanes": []
@@ -18,7 +18,7 @@
       "id": "agy-stop-recursion-safe",
       "input": {
         "hook_event_name": "Stop",
-        "hook_active": true,
+        "stop_hook_active": true,
         "usage": {"transcript_stat_bytes": 921600},
         "last_notified_level": "SNAPSHOT",
         "lanes": []
