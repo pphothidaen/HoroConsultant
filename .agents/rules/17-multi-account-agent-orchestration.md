@@ -98,18 +98,18 @@ separately retained, trusted, exact raw-stdout record for any portable/offline
 verification claim. No approved private retention channel exists now. Never
 restore, log, or persist raw streams to work around this limitation.
 
-For a successful AGY outcome, use the exact evidence language **validated
-in-process only**. Do not describe an AGY success as independently portable,
-offline verified, or receipt-only verified. This is a Medium residual risk.
-An encrypted, access-controlled raw-output sidecar is only a future design
-option requiring separate scope, retention/trust design, and HITL; do not
-implement it under this rule.
+For a historical baseline AGY outcome, use the exact evidence language
+**validated in-process only**. All parity flags currently remain `false`: a
+local token anchor, Result Contract v3, repository hook, configuration, or
+in-process result cannot make AGY eligible for native `spawn_agent`. Every
+native spawn remains covered by the owner gate, with `DSG-009A` and `DSG-009B`
+`BLOCKED` pending a host-native pre-spawn API/receipt and trusted provider
+telemetry. Do not describe an AGY result as independently portable without
+offline evidence or as authorization for a current dispatch.
 
-Because the owner explicitly named all four aliases, v2 must dispatch
-`codex1`, `codex2`, `agy1`, and `agy2` as four distinct bounded lanes. A child
-lane may use a terminal CLI workaround and capture its safe receipt; the
-root/current session may only assign, monitor, collect, and decide the gate. It
-must not run the workaround itself.
+The four-alias v2 language above is historical authorization context only; it
+does not authorize a current dispatch. Before any future dispatch, re-run every
+current dependency, owner, native-spawn, telemetry, quota, and Rule 18 gate.
 
 Before any v2 read-only review dispatch, validate an approved runtime config
 path and either an explicit read-only role or a provider-supported sandbox

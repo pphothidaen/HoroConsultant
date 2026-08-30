@@ -29,6 +29,27 @@ python3 scripts/sync_codex_agents.py --check
 
 Do not hand-edit `.codex/agents/*.toml`. Each file preserves the legacy role prompt but makes Codex inherit the active model rather than copying provider-specific model names.
 
+### 🚀 Approach C: Feature-Flagged Multi-Agent Parity Governance
+
+The **Approach C** material is an `IN_REVIEW` design record, not an accepted
+implementation: its historical failed design review recorded C/H/M/L
+`1/5/1/0`; `PARITY-001` remains rejected and `PARITY-002..006` remain `BLOCKED`
+by that dependency chain.
+- **Zero-Risk Feature Flags**: Defined in `.agents/config/full_capacity_guard.v2.json` and `.agents/config/multiagent_model_policy.yaml` (`enable_agy_parity`, `enable_module_level_source_isolation`, `enable_granular_lane_roles` default to `false`).
+- **Module-Bounded Path Isolation**: Proposed only; it is not an active
+  concurrency permission.
+- **Cryptographic Token Anchor & Owner Gate**: A local token anchor never makes
+  AGY eligible. Every native `spawn_agent` remains owner-gated; `DSG-009A` and
+  `DSG-009B` are `BLOCKED` pending the host-native API and trusted telemetry.
+- **Current local re-freeze**: `DSG-009` is `DONE — LOCAL FAIL-CLOSED RE-FREEZE
+  / QA + SECURITY PASS; RUNTIME NOT_PROVEN`. The 5/11 drift and `543/545`
+  pre-remediation result are superseded historical failed-candidate evidence.
+  Final local evidence is guard QA `552`, integrated safe mocked QA `823`
+  (`552 + 271`, four intentional local-child deselections), PromptCommand QA
+  `275` plus adversarial `33`, named security `761` at C/H/M/L `0/0/0/0`, green
+  sync/check, and a `1,967`-file/`0`-leak secret scan. It grants no runtime,
+  provider, or AGY authority.
+
 ---
 
 ## Test-First Git Provenance
@@ -439,29 +460,7 @@ python3 scripts/publish_space_hf.py \
   --sdk docker \
   --dry-run
 
-# Read-only live Docker health and exact release identity
-python3 scripts/publish_space_hf.py \
-  --space-id pphothidaen/horoconsultant-core-backend \
-  --sdk docker \
-  --check-health
-python3 scripts/publish_space_hf.py \
-  --space-id pphothidaen/horoconsultant-core-backend \
-  --sdk docker \
-  --verify-version
-
-# Five canonical Vercel UI viewports
-python3 scripts/run_visual_layout_audit.py \
-  --url https://horo-consultant-psi.vercel.app \
-  --scenario v3-consensus \
-  --no-server
-```
-
-The release is fail-closed: publisher/governance tests, Docker payload dry-run,
-secret scan, code review, exact backend health/version, production API E2E,
-Vercel version consistency, five-viewport visual audit, and
-`scripts/sync_ai_agent_ecosystem.py --check` must all pass before a full
-`READY_FOR_PROD` claim. A healthy HTTP status does not substitute for exact
-version evidence.
+   HF Static releases are governed by [Rule 16](.agents/rules/16-hf-static-release-verification.md) and the [`hf-static-release-verification` skill](.agents/skills/hf-static-release-verification/SKILL.md). Before `READY_FOR_PROD`, publisher tests, payload dry-run, Static health, exact live version, five-viewport visual audit, combined regression, governance contract, secret/safety review, and agent-ecosystem sync must all be green. An automated `indeterminate` result blocks release unless a named manual reviewer records the current artifact, timestamp, review basis, and explicit pass/fail sign-off. Earlier `6c351ba`/publisher/viewport results are historical-only: the current live target/version mismatch requires fresh release verification.
 
 ---
 

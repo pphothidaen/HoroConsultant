@@ -1,0 +1,59 @@
+runtime:
+  approved_for_execution: true
+  protocol_version: 2
+  receipt_schema_version: 3
+  preauthorization_required: true
+  approval_attestation_scope: local-single-host-nonportable-noncryptographic-attestation
+  probe_claim_ttl_seconds: 600
+  approval_grant_ttl_seconds: 120
+  expiry_grace_seconds: 0
+  current_session_only: true
+  max_uses: 1
+  bind_store_identities: true
+  reject_store_path_aliases: true
+  retain_verified_descriptors_through_spawn: true
+  dispatch_ledger_consume_anchor_required: true
+  consume_raw_digest_and_timestamp_anchored: true
+  metadata_retention_days: 90
+  raw_streams_retained: false
+  provider_execution_denials:
+    agy: PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED
+
+model_policy: multiagent_model_policy.yaml
+
+accounts:
+  codex1:
+    cli: codex
+    command: codex
+    home_env: CODEX_HOME
+    home_path: ${HOME}/.codex-account1
+  codex2:
+    cli: codex
+    command: codex
+    home_env: CODEX_HOME
+    home_path: ${HOME}/.codex-account2
+  agy1:
+    cli: agy
+    command: agy
+    home_env: AGY_HOME
+    home_path: ${HOME}/.agy-account1
+  agy2:
+    cli: agy
+    command: agy
+    home_env: AGY_HOME
+    home_path: ${HOME}/.agy-account2
+
+roles:
+  implementation:
+    alias: codex1
+    cli: codex
+    model: gpt-5.6-sol
+    effort: high
+    sandbox: read-only
+  research:
+    alias: agy1
+    cli: agy
+    model: gemini-3.7-flash-high
+    effort: high
+    mode: plan
+    sandbox: true

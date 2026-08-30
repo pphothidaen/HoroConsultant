@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "ticket_status": "NEEDS_HITL",
+  "attempt_consumed": true,
+  "attempt": 1,
+  "max_uses": 1,
+  "retry_permitted": false,
+  "substitution_permitted": false,
+  "bundle_claim_sha256": "5cfdce4b12a79b77afb967f4e71e83f0ebf9c0845653d6ff8c2a804ee8f1438b",
+  "requested": {
+    "alias": "codex1",
+    "provider": "codex",
+    "model": "gpt-5.3-codex-spark",
+    "effort": "high",
+    "sandbox": "read-only",
+    "ephemeral": true
+  },
+  "effective": {
+    "model": "NOT PROVEN",
+    "effort": "NOT PROVEN",
+    "account": "NOT PROVEN",
+    "quota": "NOT PROVEN"
+  },
+  "terminal": {
+    "dispatcher_exit_code": 3,
+    "child_exit_code": 0,
+    "transport_status": "provider_result_rejected",
+    "provider_parse_reason": "final_message_cardinality",
+    "started_at": "2026-08-26T08:09:07.987818Z",
+    "ended_at": "2026-08-26T08:09:50.556912Z"
+  },
+  "receipt": "NOT ISSUED",
+  "normalized_work_result": "NOT AVAILABLE",
+  "channel_evidence": {
+    "stdout": {
+      "bytes": 450941,
+      "sha256": "70a754a0b431a2622c4a53dea0228ab6ba5fde5ea4005b99b90e6acfd397353b"
+    },
+    "stderr": {
+      "bytes": "NOT RETAINED AFTER REJECTION",
+      "sha256": "NOT RETAINED AFTER REJECTION"
+    },
+    "private_final": {
+      "bytes": "NOT RETAINED AFTER REJECTION",
+      "sha256": "NOT RETAINED AFTER REJECTION"
+    },
+    "normalized_work_result_sha256": null
+  },
+  "claim_evidence": {
+    "version": 2,
+    "claim_key": "97e6fda024aae17896c78788315dc7fd25dafb8603aec99e91c26bea60e21d0c",
+    "decision_sha256": "7ea18ae2847b494a909f25ba2f277e8bde42ee534569068564db62fba2cb5b75",
+    "scheduling_snapshot_sha256": "5b3df23827c7ad6beef1876e0040ad8f1c077f8f65325fb95e55ac5037b8c8e9",
+    "state": "rejected"
+  },
+  "finding": "The one authorized child ran, but deterministic telemetry candidate cardinality rejected the result before a receipt could be issued.",
+  "recommended_next_action": "HITL must decide whether to authorize a new ticket and investigate Spark telemetry candidate behavior; this attempt cannot be retried."
+}

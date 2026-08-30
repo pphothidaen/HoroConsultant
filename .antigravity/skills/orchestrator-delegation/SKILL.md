@@ -1,13 +1,25 @@
 ---
 name: orchestrator-delegation
-description: Coordinate safe parallel sub-agent work with ownership, evidence, and HITL gates.
+description: Use for meaningful mutation, QA, review, operations, or requested multi-agent delegation.
 ---
 
 # Orchestrator Delegation Skill
 
-Use this skill when the user asks the orchestrator to distribute work to sub-agents, run background agent work, coordinate blockers, or collect results from parallel specialist roles.
+Use this skill by default when a request requires meaningful mutation, QA,
+review, operations, or multi-agent coordination, including requests to
+distribute work, coordinate blockers, or collect specialist results.
 
 Primary owner: `orchestrator`. Supporting agents: `business_analyst`, `developer`, `qa_tester`, `devops`, and `code_reviewer`.
+
+## Default Decision Boundary
+
+Delegate meaningful executable work to the narrowest relevant specialist.
+Root may directly answer a trivial no-tool question or perform bounded
+read-only orchestration such as intake, scheduling, status synthesis, and result
+collection. These exceptions do not permit root implementation, QA mutation,
+review closure, deployment, publishing, or another operation. Do not delegate
+when a child would only repeat an answer already available to root.
+Use `[OK]`, `[ERROR]`, `[WARNING]`, or `[INFO]` for command-facing status/logs.
 
 ## Delegation Contract
 
@@ -24,6 +36,8 @@ Before spawning or assigning work, define:
 For executable lanes, first use `adaptive-model-effort-routing`: record the
 versioned `DispatchDecision`, preserve its quality floor, and require bound
 receipt proof. Static role model/effort values are hints, never runtime proof.
+Missing dependency, ownership, quota, HITL, Rule 11, Rule 18, or receipt gates
+fail closed before spawn.
 
 For a source-mutation ticket, require a committed test-only baseline and closed
 provenance manifest before dispatch. The baseline must be an ancestor of the
@@ -52,51 +66,159 @@ preempted. Work Effort is delivery size, not model reasoning effort; model
 selection never changes scheduling order. Historical `Priority`-only text is
 superseded for scheduling and remains evidence only.
 
-## Critical-Path-First Admission
+## Full-Capacity Invariant
 
-Apply policy `GOV_CRITICAL_PATH_FIRST_V1` before reserving any executable lane.
-Every implementation, QA, or operations objective must identify the named
-dependency or acceptance gate it unlocks on the current critical path with:
-
-```text
-CRITICAL_PATH_UNLOCK=<dependency-or-gate-id>
-SPECULATIVE_ATOMIC_TICKET=DENY
-```
-
-Do not create a new atomic ticket merely to consume capacity. A bounded
-read-only evidence lane is the only exception, and only when it resolves a
-named blocker. Its objective must declare both fields:
+While actionable session work remains, continuously recompute live capacity and
+MUST keep every available collaboration slot assigned to a useful, independent,
+evidence-bearing lane. Run this dispatcher loop until terminal session
+completion:
 
 ```text
-BLOCKER_EVIDENCE_ONLY=<named-blocker-id>
-BLOCKER_EVIDENCE_MODE=READ_ONLY
+observe capacity -> inventory useful work -> decompose -> reserve ownership -> dispatch -> collect -> immediately refill
 ```
 
-After every lane completes or blocks, recompute Rule 11 and backfill only the
-next eligible lane that unlocks a current critical-path dependency. Preserve
-quota, HITL, ownership, immutable test-baseline, and release gates. These
-markers prove static admission readiness only; provider execution still needs
-the bound receipt and child result.
+A lane completion, failure, cancellation, or capacity change immediately
+re-enters the loop. Decompose current tickets into the smallest coherent bounded
+lanes without artificial fragmentation. Select a lane, reserve its file/module
+ownership, recompute Rule 11 and capacity, and dispatch again. One editor owns
+each file/module; final QA and release wait for source freeze and dependencies.
 
-## Maximum Useful Parallelism
+If primary implementation is dependency-blocked, create useful non-mutating
+fallback tickets from independent verification, QA baseline, risk/threat
+review, documentation/evidence reconciliation, lifecycle/process audit, test
+design, or dependency-resolution analysis. Every fallback lane needs a ticket,
+objective, scope/ownership, boundaries, evidence, acceptance criteria, and stop
+condition. Do not consume a provider or quota merely to fill a slot unless the
+user explicitly authorized it.
 
-At every checkpoint, use available concurrency for useful independent,
-evidence-bearing lanes. Do not use slots merely to appear busy: reject
-redundant, stale, speculative, dependency-blocked, or ownership-conflicting
-work. Roles may have multiple instances, and a child may create another
-bounded lane, provided total active lanes never exceed the available slot limit.
-
-Decompose work to the smallest coherent ownership unit without artificial
-fragmentation. Select an eligible lane, reserve its file/module ownership,
-recompute Rule 11, and repeat until no slot or safe lane remains. Reuse freed
-slots for the next eligible independent lane. One editor owns each source file
-or module; for single-file work, prefer that editor plus a parallel read-only
-QA-prep or reviewer. Final QA and release decisions wait for source freeze and
-all declared dependencies.
+Never dispatch duplicate/redundant work, same-file concurrent editors, stale or
+fake busywork, dependency bypass, daemons/background quota burn, or work that
+could create false completion. If exhaustive decomposition cannot form a useful
+safe lane, emit `CAPACITY_EXCEPTION: NO_SAFE_USEFUL_LANE` with the capacity
+snapshot, ticket/dependency inventory, rejected candidates/reasons, and
+quota/HITL evidence, then immediately escalate to orchestrator replanning. This
+is a blocking invariant violation requiring action, not ordinary allowed idle.
 
 Live status must report `active/available` slots, each active lane and its
-ownership, plus waits/blockers. A lane may not bypass quota, HITL, dependency,
-or ownership gates to occupy capacity.
+ownership, plus waits/blockers and any typed capacity exception. A lane may not
+bypass quota, HITL, dependency, or ownership gates to occupy capacity.
+
+Registered specialists are on-demand capabilities, never auto-started daemon
+or background quota consumers. Spawn one only for a selected ticket with
+parent/session/ticket, ownership, timeout/lease, concurrency, and receipt
+bindings. Clean up terminal children, detect orphan/zombie state, and return a
+typed quota-safe stop rather than detach, persist, or blindly retry.
+
+### Governed short fallback while QA waits
+
+Use an idle slot during an active source edit only for a short fallback that
+passes all of these gates:
+
+- Its ticket is `TODO`/`READY`, dependencies are complete, and Rule 11/18,
+  quota, HITL, and decision gates pass.
+- Its ownership is disjoint from every active source and documentation editor.
+- `work_mode` is `READ_ONLY`, `evidence_bearing` and `freeze_independent` are
+  true, and current Stage A provider mode is `NONE`.
+- Its lease is `1..600` seconds, `natural_termination` is true,
+  `preemption_policy` is `NEVER`, and it is neither a daemon nor background
+  work.
+
+The normative hard ceiling is `600` seconds. Current Stage A uses an effective
+maximum of `300` seconds; a trusted configured limit may be stricter, but a
+scan, prompt, ticket, or caller field can never raise either ceiling. Require
+exact `started_at`, `deadline_at`, and lease agreement, while keeping trusted
+wall-clock and natural-exit enforcement `NOT_PROVEN`.
+
+Do not cancel or preempt a running fallback when source freezes. If QA becomes
+eligible and a slot is idle, dispatch QA before any new fallback. When all
+slots are busy, record next-slot QA priority; the next completion/refill must
+select QA first. A short lease exists so the fallback releases capacity by
+itself, not so the orchestrator can force-cancel it.
+
+If no candidate passes, emit `CAPACITY_EXCEPTION: NO_SAFE_USEFUL_LANE`. Include
+the exact candidate tickets and typed rejection reasons, plus evidence bound to
+the current snapshot digest. Do not create a duplicate or speculative lane to
+avoid reporting the exception.
+
+### Governed Stage A capacity checkpoint
+
+Use `full-capacity-governance-v2` as a structural record, not an execution
+receipt. Stage A computes and validates:
+
+- The exact capacity and complete `TODO`/`READY` ticket inventory, dependency,
+  blocker, quota, HITL, active ownership, and source-to-QA state.
+- Rule 11 order from severity, work effort, ASCII ticket ID, eligibility, and
+  reservations; a lower-ranked lane cannot bypass the selected ticket.
+- Rule 18 by normalizing the full decision against the bound policy and digest;
+  a caller `rule18_passed` boolean is not evidence.
+- Exact ticket and per-alias rejection reasons derived from that normalized
+  state. A reason contradicting its inputs rejects the checkpoint.
+- Provider-authorization structure bound across authorization ID, evidence
+  digest, provider, alias, session, ticket, role, ownership, Rule 18 decision,
+  policy version, and policy digest. The result remains
+  `STRUCTURALLY_BOUND_NOT_PROVEN`.
+
+Treat the capacity record as a closed schema: missing, duplicate, omitted,
+unknown, or extra controls fail closed. Caller-supplied inventory completeness,
+pass/fail declarations, proof booleans, timestamps, aliases, models, hashes, or
+receipts cannot establish external truth.
+
+Resolve the event tool identity before classifying its family. Normalize
+execution-family names case-insensitively to canonical `Task`, `Bash`,
+`run_command`, `shell`, or `terminal*`. Recognize both top-level
+`tool_name`/`tool_input` and native `toolCall.name`/`toolCall.args`, including
+nested-only events. When both forms are present, require their normalized names
+and canonical JSON payloads to be exactly equivalent; reject a partial,
+malformed, or contradictory pair with `CAPACITY_TOOL_ENVELOPE_CONFLICT`. Apply
+the same exact canonical-equivalence rule when both `tool_response` and
+`toolResult` represent a Post response.
+
+Accept only exact governed envelopes for every `Pre` and `Post` event in a
+normalized execution family. Do not maintain a command-content or path
+allowlist: pathless input, `pwd`, `echo`, `git status`, and absolute binary
+paths all remain shell events. Reject a missing envelope with
+`CAPACITY_PROVIDER_EVENT_ENVELOPE_REQUIRED`; reject unknown fields, wrapper
+translations that drop the envelope, representation conflicts, and
+normalized-name mismatches. Unrelated non-execution `Read`, `Grep`, and `Edit`
+events may pass this capacity envelope boundary without an envelope, but still
+obey their ordinary mutation, ownership, and authorization gates. Require the
+Claude full-capacity guard exactly once under matcher `.*` in both `PreToolUse`
+and `PostToolUse`, preserving every other hook registration.
+
+A complete shell envelope permits structural validation only. Stage A rejects
+every attempted governed-shell dispatch with
+`AUTHORITATIVE_SNAPSHOT_NOT_PROVEN` until Stage C / `DSG-009A` proves the
+authoritative scheduler and native pre-spawn boundary.
+
+Persist local lifecycle continuity only in a regular non-symlink SQLite file
+inside an owner-only `0700` directory, with `0600` file permissions. In one
+transaction, bind session and monotonically increasing sequence to the previous
+record, exact `PRE` tool-input record, and exact `POST` tool-result record.
+Reject replay, fork, duplicate, stale sequence, session mismatch, missing phase,
+or digest mismatch. This same-principal local ledger is continuity evidence;
+it is neither a trusted external receipt nor native/world-state proof.
+
+Every Stage A checkpoint contains exactly one `EVALUATED` entry for `agy1` and
+one for `agy2`. Both MUST be `NOT_ELIGIBLE`, `dispatched: false`, receipt-free,
+and carry the exact derived reasons, even when a caller supplies internally
+consistent positive-looking authorization. Fairness metadata remains empty and
+cannot select an alias. Positive AGY/provider eligibility and actual dispatch
+fail closed until the later boundaries below are proven.
+
+Stage A MUST keep authoritative snapshot completeness, native hook/pre-spawn
+interception, provider runtime/provenance, actual dispatch, world state, trusted
+wall-clock enforcement, and natural-exit enforcement `NOT_PROVEN`. A requested
+`gpt-5.6-sol` with `ultra` or `max` effort is advisory routing intent only; it
+does not prove effective model, effort, account, quota, or receipt.
+
+- Stage C / `DSG-009A`: authoritative scheduler snapshot and native pre-spawn
+  boundary.
+- Stage D / `DSG-009B`: trusted provider verifier and positive AGY/provider
+  routing, enabled only after Stage C and fresh exact HITL authorization.
+
+The Stage A hook validates submitted structure and owner-local continuity. It
+must not claim to be the authoritative scheduler, native interception layer,
+trusted provider verifier, or actual dispatcher.
 
 Every delegated task must include this coordination sentence:
 
@@ -119,7 +241,9 @@ Do not assign two agents to edit the same file. If multiple agents need the same
 
 ## Standard Delegation Round
 
-When the user asks to "กระจายงาน", "run background agents", "continue until done", or "ตรวจสอบ plans/project tasks", start with this default split unless the task is smaller:
+For meaningful work, start with the smallest applicable subset of this split;
+explicit requests such as "กระจายงาน", "run agents", "continue until done", or
+"ตรวจสอบ plans/project tasks" also trigger it:
 
 | Lane | Sub-agent | Ownership | Default stop condition |
 |---|---|---|---|
@@ -141,12 +265,15 @@ When the user asks to adapt delegation into Claude Code prompts, apply this stru
 
 Do not put hard safety controls only in `CLAUDE.md`; if an action must be blocked before reasoning, put it in hooks.
 
-## Background Process Flow
+## On-Demand Process Flow
 
 1. Announce the delegation plan to the user with the active agents and ownership.
-2. Spawn only concrete, bounded tasks that can progress independently.
+2. Enter the full-capacity dispatcher loop and spawn only concrete, selected,
+   bounded tasks that can progress independently; registration alone never
+   starts a specialist.
 3. Continue useful root work while sub-agents run, such as monitoring a primary workflow or validating local evidence.
-4. Poll for sub-agent results at natural checkpoints, not in a tight loop.
+4. Poll for sub-agent results at natural checkpoints, not in a tight loop; clean
+   up terminal state or timeout/lease expiry and immediately refill the slot.
 5. Merge results by evidence, not by majority. If two agents conflict, inspect the underlying commands/logs before deciding.
 6. Update `PROJECT_TASKS.md`, release handoff docs, or plan files only after the evidence is stable and the user has authorized any required external action.
 
@@ -219,12 +346,12 @@ Use Claude Code three-level command governance:
 Use `/clear` when context becomes large, but first write a handoff summary with objective, latest commit, active run ids, changed files, verified checks, blockers, and next command.
 
 For every sub-agent, define objective, ownership, boundaries, evidence expected, and stop condition.
-Use available concurrency only for useful independent evidence-bearing work.
-Reserve ownership and recompute Rule 11 after every selection; use rolling slot
-reuse. One editor owns each file/module. For a single-file change, pair the
-editor with a read-only QA-prep or review lane when useful; wait for source
-freeze and dependencies before final QA or any release verdict. Report active
-lanes, ownership, waits, and active/available slots in each live status update.
+Keep every available slot assigned while actionable session work remains. Run
+the full dispatcher loop, reserve ownership, and recompute Rule 11/capacity
+after every selection or terminal lane. One editor owns each file/module; use
+bounded non-mutating fallback tickets when implementation is blocked. Report
+active lanes, ownership, waits, active/available slots, and any typed capacity
+exception in each live status update.
 Collect all results in the standard result format before changing PROJECT_TASKS.md status.
 ```
 
@@ -268,8 +395,12 @@ The orchestrator may mark a delegated item `DONE` only when:
 - The assigned evidence exists and matches the acceptance criteria.
 - Any changed files are within the assigned ownership.
 - Required checks have passed or a documented waiver exists.
-- Source tickets retain a verified baseline, immutable test hashes, and exact
-  `Test-Baseline` commit trailers through final Git review.
+- Required dependency, ownership, quota, HITL, Rule 11, Rule 18, and receipt
+  gates remain valid.
 - No external gate is being inferred from local-only results.
+
+A capacity exception is never completion. Continue replanning until a safe lane
+is dispatched or a separately evidenced terminal blocker/HITL condition ends
+the session.
 
 Mark the item `BLOCKED` when the same external permission, credential, service availability, or human decision is required and no safe in-scope action remains. Provide the exact next human/operator command or decision needed.

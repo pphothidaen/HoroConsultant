@@ -1,0 +1,51 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://horoconsultant.local/schemas/multiagent-approval-consume-receipt-v1.schema.json",
+  "title":"ApprovalConsumeReceipt v1",
+  "description":"Two fully closed local/noncryptographic variants: durable one-use receipt and manually compacted indefinite anti-replay tombstone.",
+  "type":"object",
+  "additionalProperties":false,
+  "properties": {
+    "schema_version":{"const":1},"artifact_type":{"enum":["ApprovalConsumeReceipt","ApprovalConsumeTombstone"]},
+    "consume_id":{"$ref":"#/$defs/sha256"},"claim_id":{"$ref":"#/$defs/sha256"},"claim_sha256":{"$ref":"#/$defs/sha256"},
+    "grant_id":{"$ref":"#/$defs/sha256"},"grant_sha256":{"$ref":"#/$defs/sha256"},"binding":{"$ref":"#/$defs/binding"},
+    "consumed_at":{"$ref":"#/$defs/time"},"use_number":{"const":1},"max_uses":{"const":1},"consume_status":{"const":"consumed"},
+    "attestation_scope":{"const":"local-single-host-nonportable-noncryptographic-attestation"},"authenticity_claimed":{"const":false},
+    "retention_days":{"const":90},"raw_streams_retained":{"const":false},"original_receipt_sha256":{"$ref":"#/$defs/sha256"},
+    "consume_anchor_id":{"$ref":"#/$defs/sha256"},"consume_anchor_sha256":{"$ref":"#/$defs/sha256"},
+    "compacted_at":{"$ref":"#/$defs/time"},"anti_replay":{"const":true},"retention":{"const":"indefinite"}
+  },
+  "oneOf":[
+    {
+      "type":"object","additionalProperties":false,
+      "required":["schema_version","artifact_type","consume_id","claim_id","claim_sha256","grant_id","grant_sha256","binding","consumed_at","use_number","max_uses","consume_status","attestation_scope","authenticity_claimed","retention_days","raw_streams_retained"],
+      "properties": {
+        "schema_version":{"const":1},"artifact_type":{"const":"ApprovalConsumeReceipt"},"consume_id":{"$ref":"#/$defs/sha256"},
+        "claim_id":{"$ref":"#/$defs/sha256"},"claim_sha256":{"$ref":"#/$defs/sha256"},"grant_id":{"$ref":"#/$defs/sha256"},
+        "grant_sha256":{"$ref":"#/$defs/sha256"},"binding":{"$ref":"#/$defs/binding"},"consumed_at":{"$ref":"#/$defs/time"},
+        "use_number":{"const":1},"max_uses":{"const":1},"consume_status":{"const":"consumed"},
+        "attestation_scope":{"const":"local-single-host-nonportable-noncryptographic-attestation"},"authenticity_claimed":{"const":false},
+        "retention_days":{"const":90},"raw_streams_retained":{"const":false}
+      }
+    },
+    {
+      "type":"object","additionalProperties":false,
+      "required":["schema_version","artifact_type","consume_id","grant_id","original_receipt_sha256","consume_anchor_id","consume_anchor_sha256","consumed_at","compacted_at","anti_replay","retention","attestation_scope","authenticity_claimed","raw_streams_retained"],
+      "properties": {
+        "schema_version":{"const":1},"artifact_type":{"const":"ApprovalConsumeTombstone"},"consume_id":{"$ref":"#/$defs/sha256"},
+        "grant_id":{"$ref":"#/$defs/sha256"},"original_receipt_sha256":{"$ref":"#/$defs/sha256"},
+        "consume_anchor_id":{"$ref":"#/$defs/sha256"},"consume_anchor_sha256":{"$ref":"#/$defs/sha256"},
+        "consumed_at":{"$ref":"#/$defs/time"},"compacted_at":{"$ref":"#/$defs/time"},"anti_replay":{"const":true},
+        "retention":{"const":"indefinite"},"attestation_scope":{"const":"local-single-host-nonportable-noncryptographic-attestation"},
+        "authenticity_claimed":{"const":false},"raw_streams_retained":{"const":false}
+      }
+    }
+  ],
+  "$defs": {
+    "sha256":{"type":"string","pattern":"^[a-f0-9]{64}$"},"time":{"type":"string","format":"date-time","pattern":"Z$"},
+    "name":{"type":"string","pattern":"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$"},
+    "route":{"type":"object","additionalProperties":false,"required":["role","alias","provider","command_sha256","model","effort","mode","sandbox"],"properties":{"role":{"$ref":"#/$defs/name"},"alias":{"enum":["codex1","codex2","agy1","agy2"]},"provider":{"enum":["codex","agy"]},"command_sha256":{"$ref":"#/$defs/sha256"},"model":{"type":["string","null"]},"effort":{"type":["string","null"]},"mode":{"type":["string","null"]},"sandbox":{"type":["string","boolean","null"]}}},
+    "stores":{"type":"object","additionalProperties":false,"required":["probe_claim_store","approval_grant_store","approval_consume_store","dispatch_ledger_store"],"properties":{"probe_claim_store":{"$ref":"#/$defs/sha256"},"approval_grant_store":{"$ref":"#/$defs/sha256"},"approval_consume_store":{"$ref":"#/$defs/sha256"},"dispatch_ledger_store":{"$ref":"#/$defs/sha256"}}},
+    "binding":{"type":"object","additionalProperties":false,"required":["ticket","attempt_id","session_sha256","policy_version","model_policy_sha256","dispatcher_source_sha256","decision_sha256","scheduling_snapshot_sha256","runtime_config_sha256","work_result_schema_sha256","probe_claim_schema_sha256","probe_approval_schema_sha256","approval_consume_schema_sha256","execution_receipt_schema_sha256","prompt_sha256","objective_sha256","ownership_sha256","route","route_sha256","preauthorization_stores","dispatch_identity"],"properties":{"ticket":{"$ref":"#/$defs/name"},"attempt_id":{"type":"integer","minimum":1},"session_sha256":{"$ref":"#/$defs/sha256"},"policy_version":{"type":"string","minLength":1},"model_policy_sha256":{"$ref":"#/$defs/sha256"},"dispatcher_source_sha256":{"$ref":"#/$defs/sha256"},"decision_sha256":{"$ref":"#/$defs/sha256"},"scheduling_snapshot_sha256":{"$ref":"#/$defs/sha256"},"runtime_config_sha256":{"$ref":"#/$defs/sha256"},"work_result_schema_sha256":{"$ref":"#/$defs/sha256"},"probe_claim_schema_sha256":{"$ref":"#/$defs/sha256"},"probe_approval_schema_sha256":{"$ref":"#/$defs/sha256"},"approval_consume_schema_sha256":{"$ref":"#/$defs/sha256"},"execution_receipt_schema_sha256":{"$ref":"#/$defs/sha256"},"prompt_sha256":{"$ref":"#/$defs/sha256"},"objective_sha256":{"$ref":"#/$defs/sha256"},"ownership_sha256":{"$ref":"#/$defs/sha256"},"route":{"$ref":"#/$defs/route"},"route_sha256":{"$ref":"#/$defs/sha256"},"preauthorization_stores":{"$ref":"#/$defs/stores"},"dispatch_identity":{"$ref":"#/$defs/sha256"}}}
+  }
+}

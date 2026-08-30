@@ -156,3 +156,23 @@ The Antigravity definitions remain the cross-framework source. Codex uses the sa
    ```
 
 Do not hand-edit `.codex/agents/*.toml`; their headers identify the legacy source file. Legacy provider model names are retained only for Antigravity compatibility. Codex roles inherit the active Codex model.
+
+---
+
+## 🚀 Approach C: Multi-Agent Parity & Concurrency Governance Matrix
+
+The **Approach C** record remains `IN_REVIEW`: its historical failed design
+review recorded C/H/M/L `1/5/1/0`; the `PARITY-001` design is rejected and
+`PARITY-002..006` are `BLOCKED`. It is not an active cross-provider parity
+implementation.
+- **Feature Flags (`.agents/config/full_capacity_guard.v2.json`)**: `enable_agy_parity`, `enable_module_level_source_isolation`, `enable_granular_lane_roles` (all default `false`).
+- **Module Path Isolation**: Proposed only; it grants no concurrent source-editing authority.
+- **Cryptographic Token Anchor**: Local structural evidence grants no AGY eligibility. Every native `spawn_agent` remains under the owner gate.
+- **Operational Status**: flags are `false`; `543/545` with two token failures
+  and the 5/11 drift are superseded historical failed-candidate evidence.
+  `DSG-009` is `DONE — LOCAL FAIL-CLOSED RE-FREEZE / QA + SECURITY PASS;
+  RUNTIME NOT_PROVEN`, based on guard QA `552`, integrated safe mocked QA `823`,
+  PromptCommand QA `275` plus adversarial `33`, named security `761` at
+  C/H/M/L `0/0/0/0`, green sync/check, and a `1,967`-file/`0`-leak secret scan.
+  `DSG-009A/B` remain `BLOCKED`; no local result grants runtime or AGY
+  eligibility.

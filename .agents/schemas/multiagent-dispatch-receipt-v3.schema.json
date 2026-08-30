@@ -1,14 +1,51 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://horoconsultant.local/schemas/multiagent-dispatch-receipt-v3.schema.json",
-  "title": "HoroConsultant AGY dispatch receipt v3",
-  "type": "object", "additionalProperties": false,
-  "required": ["schema_version", "protocol", "request_id", "alias", "model_id", "nonce", "artifact_digest", "availability", "freshness", "provenance", "policy_digest", "observation_digest", "bucket_binding", "decision", "scheduling_snapshot_sha256", "provider_native_result_digest", "work_result_digest"],
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"https://horoconsultant.local/schemas/multiagent-dispatch-receipt-v3.schema.json",
+  "title":"HoroConsultant ExecutionReceipt Schema v3",
+  "description":"Closed receipt for a new governed execution. Receipt v3 binds strict local ProbeClaim, ApprovalGrant, and ApprovalConsumeReceipt evidence. Its embedded dispatch proof remains digest-integrity-only and neither it nor local attestation is portable authenticity proof. Receipt v1/v2 semantics are unchanged.",
+  "type":"object","additionalProperties":false,
+  "required":["receipt_schema_version","protocol_version","policy_version","decision_sha256","scheduling_snapshot_sha256","dispatch_claim_key","dispatch_claim_sha256","claim_proof","claim_proof_sha256","claim_proof_scope","dispatch_identity","dispatch_ticket_id","attempt_id","alias","provider","adapter","model","effort","objective","ownership","quota_status","started_at","ended_at","exit_code","transport_status","output_bytes","output_sha256","work_result_sha256","probe_claim_id","probe_claim_sha256","approval_grant_id","approval_grant_sha256","approval_consume_receipt_id","approval_consume_receipt_sha256","approval_consume_anchor_id","approval_consume_anchor_sha256","preauthorization_stores","preauthorization_scope"],
   "properties": {
-    "schema_version": {"const": 3}, "protocol": {"const": "multiagent-dispatch-receipt-v3"},
-    "request_id": {"$ref": "#/$defs/safeName"}, "alias": {"enum": ["agy1", "agy2"]}, "model_id": {"$ref": "#/$defs/safeName"}, "nonce": {"type": "string", "minLength": 8, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
-    "artifact_digest": {"$ref": "#/$defs/sha256"}, "availability": {"enum": ["available", "blocked"]}, "freshness": {"enum": ["fresh", "stale-or-invalid"]}, "provenance": {"$ref": "#/$defs/safeName"},
-    "policy_digest": {"$ref": "#/$defs/sha256"}, "observation_digest": {"$ref": "#/$defs/sha256"}, "bucket_binding": {"oneOf": [{"const": ["gemini-weekly", "gemini-5h"]}, {"const": ["3p-weekly", "3p-5h"]}]}, "decision": {"enum": ["admit", "block"]}, "scheduling_snapshot_sha256": {"$ref": "#/$defs/sha256"}, "provider_native_result_digest": {"$ref": "#/$defs/sha256"}, "work_result_digest": {"$ref": "#/$defs/sha256"}
+    "receipt_schema_version":{"const":3},"protocol_version":{"const":2},"policy_version":{"type":"string","minLength":1},
+    "decision_sha256":{"$ref":"#/$defs/sha256"},"scheduling_snapshot_sha256":{"$ref":"#/$defs/sha256"},
+    "dispatch_claim_key":{"$ref":"#/$defs/sha256"},"dispatch_claim_sha256":{"$ref":"#/$defs/sha256"},
+    "claim_proof":{"$ref":"#/$defs/claimProof"},"claim_proof_sha256":{"$ref":"#/$defs/sha256"},
+    "claim_proof_scope":{"const":"digest-integrity-not-authenticity"},"dispatch_identity":{"$ref":"#/$defs/sha256"},
+    "dispatch_ticket_id":{"$ref":"#/$defs/name"},"attempt_id":{"type":"integer","minimum":1},
+    "alias":{"enum":["codex1","codex2","agy1","agy2"]},"provider":{"enum":["codex","agy"]},
+    "adapter":{"enum":["codex-jsonl-output-schema-v2","agy-stream-json-schema-v2"]},"model":{"$ref":"#/$defs/name"},
+    "effort":{"enum":["low","medium","high","xhigh","max","ultra"]},"objective":{"type":"string","minLength":1},
+    "ownership":{"type":"string","minLength":1},"quota_status":{"enum":["healthy","constrained","below_10_percent","unknown"]},
+    "started_at":{"$ref":"#/$defs/time"},"ended_at":{"$ref":"#/$defs/time"},"exit_code":{"type":"integer"},
+    "transport_status":{"const":"completed"},"process_or_session_id":{"type":"string","pattern":"^[A-Za-z0-9_.:-]{1,128}$"},
+    "output_bytes":{"type":"integer","minimum":1},"output_sha256":{"$ref":"#/$defs/sha256"},"work_result_sha256":{"$ref":"#/$defs/sha256"},
+    "probe_claim_id":{"$ref":"#/$defs/sha256"},"probe_claim_sha256":{"$ref":"#/$defs/sha256"},
+    "approval_grant_id":{"$ref":"#/$defs/sha256"},"approval_grant_sha256":{"$ref":"#/$defs/sha256"},
+    "approval_consume_receipt_id":{"$ref":"#/$defs/sha256"},"approval_consume_receipt_sha256":{"$ref":"#/$defs/sha256"},
+    "approval_consume_anchor_id":{"$ref":"#/$defs/sha256"},"approval_consume_anchor_sha256":{"$ref":"#/$defs/sha256"},
+    "preauthorization_stores":{"$ref":"#/$defs/stores"},
+    "preauthorization_scope":{"const":"local-single-host-nonportable-noncryptographic-attestation"}
   },
-  "$defs": {"sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "safeName": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"}}
+  "oneOf":[
+    {"properties":{"provider":{"const":"codex"},"adapter":{"const":"codex-jsonl-output-schema-v2"}}},
+    {"required":["process_or_session_id"],"properties":{"provider":{"const":"agy"},"adapter":{"const":"agy-stream-json-schema-v2"},"effort":{"enum":["low","medium","high"]}}}
+  ],
+  "$defs": {
+    "sha256":{"type":"string","pattern":"^[a-f0-9]{64}$"},"name":{"type":"string","pattern":"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$"},
+    "time":{"type":"string","format":"date-time","pattern":"Z$"},
+    "stores":{"type":"object","additionalProperties":false,"required":["probe_claim_store","approval_grant_store","approval_consume_store","dispatch_ledger_store"],"properties":{"probe_claim_store":{"$ref":"#/$defs/sha256"},"approval_grant_store":{"$ref":"#/$defs/sha256"},"approval_consume_store":{"$ref":"#/$defs/sha256"},"dispatch_ledger_store":{"$ref":"#/$defs/sha256"}}},
+    "claimProof": {
+      "type":"object","additionalProperties":false,
+      "required":["schema_version","claim_key","decision_sha256","scheduling_snapshot_sha256","dispatch_identity","ticket_sha256","route_sha256","ownership_tokens_sha256","ownership_key_id","started_at","ended_at","transport_status","exit_code","output_bytes","output_sha256","work_result_sha256","terminal_state"],
+      "properties": {
+        "schema_version":{"const":1},"claim_key":{"$ref":"#/$defs/sha256"},"decision_sha256":{"$ref":"#/$defs/sha256"},
+        "scheduling_snapshot_sha256":{"$ref":"#/$defs/sha256"},"dispatch_identity":{"$ref":"#/$defs/sha256"},
+        "ticket_sha256":{"$ref":"#/$defs/sha256"},"route_sha256":{"$ref":"#/$defs/sha256"},
+        "ownership_tokens_sha256":{"$ref":"#/$defs/sha256"},"ownership_key_id":{"$ref":"#/$defs/sha256"},
+        "started_at":{"$ref":"#/$defs/time"},"ended_at":{"$ref":"#/$defs/time"},"transport_status":{"const":"completed"},
+        "exit_code":{"type":"integer"},"output_bytes":{"type":"integer","minimum":1},"output_sha256":{"$ref":"#/$defs/sha256"},
+        "work_result_sha256":{"$ref":"#/$defs/sha256"},"terminal_state":{"const":"completed"}
+      }
+    }
+  }
 }

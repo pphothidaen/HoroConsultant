@@ -1,0 +1,34 @@
+schema_version: 1
+policy_version: "2026-08-26.spark-probe.1"
+decision_schema_version: 1
+result_contract:
+  protocol_version: 2
+  work_result_schema: ../../../../../.agents/schemas/multiagent-work-result-v2.schema.json
+rank_dimensions:
+  - scope_rank
+  - complexity_rank
+  - risk_rank
+  - ambiguity_rank
+  - evidence_burden_rank
+rank_min: 0
+rank_max: 3
+broad_scope_rank: 2
+high_risk_rank: 2
+critical_rank: 3
+phases: [planning, implementation, qa, review, release, operations]
+work_modes: [read_only, mutation]
+quota_bands: [healthy, constrained, below_10_percent, unknown]
+quality_floors:
+  0: {profile: gpt-5.3-codex-spark/high}
+  1: {profile: gpt-5.3-codex-spark/high}
+models:
+  gpt-5.3-codex-spark:
+    cli: codex
+    availability: true
+    deprecated: false
+    fallback_order: 1
+    efforts:
+      high: {quality_rank: 1}
+rank_3_planning:
+  model: gpt-5.3-codex-spark
+  efforts: [high]

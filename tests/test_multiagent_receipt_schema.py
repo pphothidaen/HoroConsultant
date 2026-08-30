@@ -1,4 +1,4 @@
-"""Receipt-schema v2 parity tests for synthetic Codex and AGY executions."""
+"""Receipt-schema v3 parity tests for synthetic Codex and AGY executions."""
 from __future__ import annotations
 
 from dataclasses import replace
@@ -92,39 +92,119 @@ def _invocation(tmp_path: Path, provider: str) -> command.Invocation:
     snapshot = {"schema_version": 1, "tickets": [{"ticket_id": ticket, "severity": "HIGH", "work_effort": "M", "status": "READY", "dependencies": [], "blockers": [], "owner": role, "ownership": [ownership], "quota_passed": True, "hitl_passed": True, "rule18_decision_valid": True}], "reservations": []}
     runtime = tmp_path / f"{provider}.runtime.yaml"
     runtime.write_text("runtime: true\n", encoding="utf-8")
-    return command.build_invocation(
+    base = command.build_invocation(
         route, command.render_prompt(objective=f"schema {provider}", ownership=ownership), tmp_path,
         decision=decision, model_policy=policy, objective=f"schema {provider}", ownership=ownership,
         runtime_config_path=runtime, runtime_config_approved=True, scheduling_snapshot=snapshot,
         claim_store_override=str(tmp_path / f"{provider}-ledger"),
     )
+    claim = tmp_path / f"{provider}-probe-claim.json"
+    grant = tmp_path / f"{provider}-approval-grant.json"
+    consume = tmp_path / f"{provider}-consume"
+    consume.mkdir(mode=0o700, exist_ok=True)
+    configured = replace(
+        base,
+        probe_claim_path=str(claim),
+        approval_grant_path=str(grant),
+        approval_store_path=str(consume),
+        approval_session_id=f"schema-{provider}",
+    )
+    command.emit_probe_claim(
+        configured, claim, session_id=f"schema-{provider}"
+    )
+    command.emit_probe_approval(
+        configured, claim, grant, session_id=f"schema-{provider}"
+    )
+    return configured
 
 
 def _outcome(tmp_path: Path, monkeypatch, provider: str):
     invocation = _invocation(tmp_path, provider)
-    raw = _stream(provider, _work_result())
+    work_result = _work_result()
+    raw = _stream(provider, work_result)
     monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
-    monkeypatch.setattr(command.subprocess, "run", lambda argv, **kwargs: subprocess.CompletedProcess(argv, 0, raw, ""))
+
+    def fake_run(argv, **kwargs):
+        if provider == "codex":
+            flag = "--output-last-message" if "--output-last-message" in argv else "-o"
+            Path(argv[argv.index(flag) + 1]).write_text(
+                json.dumps(work_result), encoding="utf-8"
+            )
+        return subprocess.CompletedProcess(argv, 0, raw, "")
+
+    monkeypatch.setattr(command, "_run_provider_process", fake_run)
     return invocation, raw, command.execute_invocation(invocation)
 
 
 def _validator() -> Draft202012Validator:
     policy = _policy()
     schema_path = (ROOT / ".agents/config" / policy["result_contract"]["receipt_schema"]).resolve()
-    assert schema_path.name == "multiagent-dispatch-receipt-v2.schema.json"
+    assert schema_path.name == "multiagent-dispatch-receipt-v3.schema.json"
     return Draft202012Validator(json.loads(schema_path.read_text(encoding="utf-8")), format_checker=FormatChecker())
 
 
-def test_generated_codex_and_agy_receipts_match_policy_selected_v2_schema(tmp_path, monkeypatch):
+def test_v3_policy_references_four_valid_closed_preauthorization_schemas():
+    policy = _policy()
+    configured = [
+        policy["result_contract"]["receipt_schema"],
+        policy["preauthorization"]["probe_claim_schema"],
+        policy["preauthorization"]["approval_grant_schema"],
+        policy["preauthorization"]["approval_consume_schema"],
+    ]
+    for relative in configured:
+        path = (ROOT / ".agents/config" / relative).resolve()
+        schema = json.loads(path.read_text(encoding="utf-8"))
+        Draft202012Validator.check_schema(schema)
+        assert schema["additionalProperties"] is False
+    assert policy["result_contract"]["historical_receipt_v2_schema"].endswith(
+        "multiagent-dispatch-receipt-v2.schema.json"
+    )
+
+
+def test_emitted_claim_and_grant_match_their_policy_selected_schemas(tmp_path):
+    invocation = _invocation(tmp_path, "codex")
+    claim = json.loads(Path(invocation.probe_claim_path).read_text(encoding="ascii"))
+    grant = json.loads(Path(invocation.approval_grant_path).read_text(encoding="ascii"))
+    policy = _policy()["preauthorization"]
+    for configured, value in (
+        (policy["probe_claim_schema"], claim),
+        (policy["approval_grant_schema"], grant),
+    ):
+        schema = json.loads(
+            (ROOT / ".agents/config" / configured).resolve().read_text(encoding="utf-8")
+        )
+        validator = Draft202012Validator(schema, format_checker=FormatChecker())
+        assert not list(validator.iter_errors(value))
+
+
+def test_generated_codex_receipt_matches_v3_schema_and_agy_generates_no_receipt(
+    tmp_path, monkeypatch
+):
     validator = _validator()
-    for provider in ("codex", "agy"):
-        invocation, raw, outcome = _outcome(tmp_path, monkeypatch, provider)
-        receipt = outcome.completed["execution_receipt"]
-        assert not list(validator.iter_errors(receipt))
-        assert receipt["started_at"].endswith("Z") and receipt["ended_at"].endswith("Z")
-        assert receipt["claim_proof_scope"] == "digest-integrity-not-authenticity"
-        assert command.validate_execution_receipt(receipt, outcome.completed["work_result"], invocation, raw) == receipt
-        assert outcome.process.stdout == "[PROVIDER_STDOUT_ELIDED]"
+    invocation, raw, outcome = _outcome(tmp_path, monkeypatch, "codex")
+    receipt = outcome.completed["execution_receipt"]
+    assert receipt["receipt_schema_version"] == 3
+    assert not list(validator.iter_errors(receipt))
+    assert receipt["started_at"].endswith("Z") and receipt["ended_at"].endswith("Z")
+    assert receipt["claim_proof_scope"] == "digest-integrity-not-authenticity"
+    assert command.validate_execution_receipt(
+        receipt, outcome.completed["work_result"], invocation, raw
+    ) == receipt
+    assert outcome.process.stdout == "[PROVIDER_STDOUT_ELIDED]"
+
+    agy_invocation = _invocation(tmp_path, "agy")
+    transport_calls = 0
+
+    def forbidden_transport(*args, **kwargs):
+        nonlocal transport_calls
+        transport_calls += 1
+        raise AssertionError("AGY transport must remain unreachable")
+
+    monkeypatch.setattr(command, "_run_provider_process", forbidden_transport)
+    with pytest.raises(command.PlatformNativePrespawnReceiptRequired) as exc:
+        command.execute_invocation(agy_invocation)
+    assert exc.value.code == "PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED"
+    assert transport_calls == 0
 
 
 def test_receipt_schema_requires_all_receipt_and_claim_proof_fields_and_rejects_extra_data(tmp_path, monkeypatch):
@@ -148,11 +228,20 @@ def test_receipt_schema_requires_all_receipt_and_claim_proof_fields_and_rejects_
 def test_receipt_schema_enforces_provider_session_conditionals_and_runtime_digest_tamper_rejection(tmp_path, monkeypatch):
     validator = _validator()
     codex_invocation, codex_raw, codex = _outcome(tmp_path, monkeypatch, "codex")
-    agy_invocation, agy_raw, agy = _outcome(tmp_path, monkeypatch, "agy")
     codex_without_session = dict(codex.completed["execution_receipt"])
     codex_without_session.pop("process_or_session_id")
     assert not list(validator.iter_errors(codex_without_session))
-    agy_without_session = dict(agy.completed["execution_receipt"])
+    static_agy_receipt = dict(
+        codex.completed["execution_receipt"],
+        alias="agy1",
+        provider="agy",
+        adapter="agy-stream-json-schema-v2",
+        model="gemini-3.1-pro-high",
+        effort="high",
+        process_or_session_id="schema-agy",
+    )
+    assert not list(validator.iter_errors(static_agy_receipt))
+    agy_without_session = dict(static_agy_receipt)
     agy_without_session.pop("process_or_session_id")
     assert list(validator.iter_errors(agy_without_session))
     bad_pair = dict(codex.completed["execution_receipt"], provider="agy")
@@ -165,4 +254,8 @@ def test_receipt_schema_enforces_provider_session_conditionals_and_runtime_diges
     assert command._parse_utc_timestamp("2026-08-26T00:00:00+00:00", "test")
     plus_zero = dict(codex.completed["execution_receipt"], started_at="2026-08-26T00:00:00+00:00")
     assert list(validator.iter_errors(plus_zero))
-    assert agy_raw and agy_invocation
+    agy_invocation = _invocation(tmp_path, "agy")
+    agy_raw = _stream("agy", _work_result())
+    parsed_agy = command.parse_provider_result(agy_invocation, agy_raw)
+    assert parsed_agy.adapter == "agy-stream-json-schema-v2"
+    assert parsed_agy.process_or_session_id == "schema-agy"

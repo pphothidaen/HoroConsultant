@@ -60,6 +60,26 @@
             "command": "bash .claude/hooks/stop-monitor.sh"
           }
         ]
+      },
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/full_capacity_guard.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/full_capacity_guard.py"
+          }
+        ]
       }
     ]
   }

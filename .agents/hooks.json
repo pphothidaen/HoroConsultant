@@ -1,8 +1,16 @@
 {
-  "description": "HoroConsultant Antigravity Lifecycle Hooks Configuration",
-  "version": "1.0.0",
+  "description": "HoroConsultant Antigravity Lifecycle Hooks Configuration with governed capacity validation",
+  "version": "1.1.0",
   "hooks": {
     "PreToolUse": [
+      {
+        "matcher": ".*",
+        "handler": {
+          "type": "command",
+          "command": "python3 .agents/hooks/full_capacity_guard.py",
+          "timeout": 10
+        }
+      },
       {
         "matcher": "run_command|shell|terminal.*",
         "handler": {
@@ -13,6 +21,14 @@
       }
     ],
     "PostToolUse": [
+      {
+        "matcher": ".*",
+        "handler": {
+          "type": "command",
+          "command": "python3 .agents/hooks/full_capacity_guard.py",
+          "timeout": 10
+        }
+      },
       {
         "matcher": ".*",
         "handler": {

@@ -9,7 +9,7 @@ inferred or modified.
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 try:  # POSIX-only primitive; execution fails closed on unsupported platforms.
     import fcntl  # type: ignore[import-not-found]
 except ImportError:  # pragma: no cover - exercised on non-POSIX hosts
@@ -21,6 +21,7 @@ import os
 from dataclasses import dataclass, replace
 from pathlib import Path
 import re
+import signal
 import shlex
 import shutil
 import stat
@@ -28,6 +29,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 from typing import Any, Mapping, Sequence
 
 import yaml
@@ -82,8 +84,28 @@ PROVIDER_PARSE_REASONS = frozenset(
         "unknown",
     }
 )
+FINAL_MESSAGE_CARDINALITY_SUBREASONS = frozenset(
+    {
+        "completed_item_shape",
+        "agent_message_text_shape",
+        "multiple_structured_candidates",
+    }
+)
+FINAL_MESSAGE_CANDIDATE_COUNTS = frozenset({0, 1, 2})
 RESULT_PROTOCOL_VERSION = 2
+EXECUTION_RECEIPT_SCHEMA_VERSION = 3
+PROBE_CLAIM_SCHEMA_VERSION = 1
+PROBE_APPROVAL_SCHEMA_VERSION = 1
+APPROVAL_CONSUME_SCHEMA_VERSION = 1
+PROBE_CLAIM_TTL_SECONDS = 10 * 60
+APPROVAL_GRANT_TTL_SECONDS = 2 * 60
+PREAUTH_RETENTION_DAYS = 90
+MAX_PREAUTH_ARTIFACT_BYTES = 65_536
+PREAUTH_SCOPE = "local-single-host-nonportable-noncryptographic-attestation"
 MAX_PROVIDER_OUTPUT_BYTES = 2_000_000
+MAX_PRIVATE_FINAL_BYTES = 262_144
+MAX_PROVIDER_RUNTIME_SECONDS = 900
+PROCESS_GROUP_TERMINATE_SECONDS = 2.0
 DISPATCH_DECISION_FIELDS = frozenset(
     {
         "schema_version",
@@ -108,9 +130,9 @@ DISPATCH_DECISION_FIELDS = frozenset(
 DISPATCH_DECISION_OPTIONAL_FIELDS = frozenset({"quality_exception"})
 # Configuration selects from this fixed, approved terminal-account set; it
 # cannot grant an additional account alias execution authority.
-GOVERNED_ACCOUNT_ALIASES = frozenset({"codex1", "codex2", "codex3", "agy1", "agy2"})
-# Default alias-to-provider mapping (informational; runtime enforcement is at the
-# dispatcher level via resolve_route and allow_provider_swap account flag).
+GOVERNED_ACCOUNT_ALIASES = frozenset({"codex1", "codex2", "agy1", "agy2"})
+# Canonical alias-to-provider binding. Configuration may select an alias but
+# cannot relabel its provider.
 ALIAS_PROVIDER_MAP: dict[str, str] = {
     "codex1": "codex",
     "codex2": "codex",
@@ -158,6 +180,44 @@ EXECUTION_RECEIPT_FIELDS = {
     "output_sha256",
     "work_result_sha256",
 }
+EXECUTION_RECEIPT_V3_FIELDS = EXECUTION_RECEIPT_FIELDS | {
+    "receipt_schema_version",
+    "probe_claim_id",
+    "probe_claim_sha256",
+    "approval_grant_id",
+    "approval_grant_sha256",
+    "approval_consume_receipt_id",
+    "approval_consume_receipt_sha256",
+    "approval_consume_anchor_id",
+    "approval_consume_anchor_sha256",
+    "preauthorization_stores",
+    "preauthorization_scope",
+}
+PREAUTH_STORE_NAMES = (
+    "probe_claim_store",
+    "approval_grant_store",
+    "approval_consume_store",
+    "dispatch_ledger_store",
+)
+PREAUTH_BINDING_FIELDS = frozenset(
+    {
+        "ticket", "attempt_id", "session_sha256", "policy_version",
+        "model_policy_sha256", "dispatcher_source_sha256", "decision_sha256",
+        "scheduling_snapshot_sha256", "runtime_config_sha256",
+        "work_result_schema_sha256", "probe_claim_schema_sha256",
+        "probe_approval_schema_sha256", "approval_consume_schema_sha256",
+        "execution_receipt_schema_sha256", "prompt_sha256",
+        "objective_sha256", "ownership_sha256", "route", "route_sha256",
+        "preauthorization_stores", "dispatch_identity",
+    }
+)
+PREAUTH_BINDING_SHA256_FIELDS = frozenset(
+    PREAUTH_BINDING_FIELDS
+    - {"ticket", "attempt_id", "policy_version", "route", "preauthorization_stores"}
+)
+PREAUTH_ROUTE_FIELDS = frozenset(
+    {"role", "alias", "provider", "command_sha256", "model", "effort", "mode", "sandbox"}
+)
 SAFE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
 SAFE_COMMAND = re.compile(r"^(?:[A-Za-z0-9_.-]+|/[A-Za-z0-9_./-]+)$")
 SAFE_PROVIDER_ID = re.compile(r"^[A-Za-z0-9_.:-]{1,128}$")
@@ -188,6 +248,43 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_WORK_RESULT_SCHEMA = (
     REPOSITORY_ROOT / ".agents/schemas/multiagent-work-result-v2.schema.json"
 )
+DEFAULT_PROBE_CLAIM_SCHEMA = (
+    REPOSITORY_ROOT / ".agents/schemas/multiagent-probe-claim-v1.schema.json"
+)
+DEFAULT_PROBE_APPROVAL_SCHEMA = (
+    REPOSITORY_ROOT / ".agents/schemas/multiagent-probe-approval-v1.schema.json"
+)
+DEFAULT_APPROVAL_CONSUME_SCHEMA = (
+    REPOSITORY_ROOT / ".agents/schemas/multiagent-approval-consume-receipt-v1.schema.json"
+)
+DEFAULT_EXECUTION_RECEIPT_V3_SCHEMA = (
+    REPOSITORY_ROOT / ".agents/schemas/multiagent-dispatch-receipt-v3.schema.json"
+)
+
+
+def _validate_final_message_cardinality_telemetry(
+    provider_parse_reason: str,
+    final_message_cardinality_subreason: str | None,
+    candidate_count: int | None,
+) -> None:
+    """Accept only closed, content-free details for cardinality rejections."""
+
+    if provider_parse_reason != "final_message_cardinality":
+        if final_message_cardinality_subreason is not None or candidate_count is not None:
+            raise ValueError("cardinality telemetry requires final_message_cardinality")
+        return
+    if (
+        final_message_cardinality_subreason is not None
+        and final_message_cardinality_subreason
+        not in FINAL_MESSAGE_CARDINALITY_SUBREASONS
+    ):
+        raise ValueError("unsupported final-message cardinality subreason")
+    if (
+        not isinstance(candidate_count, int)
+        or isinstance(candidate_count, bool)
+        or candidate_count not in FINAL_MESSAGE_CANDIDATE_COUNTS
+    ):
+        raise ValueError("final-message candidate count must be saturated")
 
 DEFAULT_OWNERSHIP = "Only the files and responsibilities explicitly assigned in this prompt."
 DEFAULT_BOUNDARIES = "Do not modify credentials, authentication state, or files outside ownership."
@@ -234,19 +331,70 @@ class DispatchDecisionError(ConfigurationError):
 class ProviderParseError(ConfigurationError):
     """A content-free classification for a rejected provider result stream."""
 
-    def __init__(self, provider_parse_reason: str, message: str) -> None:
+    def __init__(
+        self,
+        provider_parse_reason: str,
+        message: str,
+        *,
+        final_message_cardinality_subreason: str | None = None,
+        candidate_count: int | None = None,
+    ) -> None:
         if provider_parse_reason not in PROVIDER_PARSE_REASONS:
             raise ValueError("unsupported provider parse reason")
+        _validate_final_message_cardinality_telemetry(
+            provider_parse_reason,
+            final_message_cardinality_subreason,
+            candidate_count,
+        )
         super().__init__(message)
         self.provider_parse_reason = provider_parse_reason
+        self.final_message_cardinality_subreason = final_message_cardinality_subreason
+        self.candidate_count = candidate_count
 
 
 class ExecutionContractError(ConfigurationError):
     """A child ran but its parse/finalization/receipt contract failed."""
 
-    def __init__(self, reason: str = "unknown") -> None:
+    def __init__(
+        self,
+        reason: str = "unknown",
+        *,
+        final_message_cardinality_subreason: str | None = None,
+        candidate_count: int | None = None,
+    ) -> None:
         super().__init__("child execution contract failed")
         self.provider_parse_reason = reason if reason in PROVIDER_PARSE_REASONS else "unknown"
+        _validate_final_message_cardinality_telemetry(
+            self.provider_parse_reason,
+            final_message_cardinality_subreason,
+            candidate_count,
+        )
+        self.final_message_cardinality_subreason = final_message_cardinality_subreason
+        self.candidate_count = candidate_count
+
+
+class ProbeAuthorizationError(ConfigurationError):
+    """A content-free preauthorization rejection raised before provider spawn."""
+
+    code = "PROBE_AUTHORIZATION_INVALID"
+
+
+class PlatformNativePrespawnReceiptRequired(ConfigurationError):
+    """AGY is denied until the external native pre-spawn boundary is proven."""
+
+    code = "PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED"
+
+    def __init__(self) -> None:
+        super().__init__(self.code)
+
+
+class ProviderExecutableBindingError(ConfigurationError):
+    """Declared provider metadata contradicts the effective executable."""
+
+    code = "PROVIDER_EXECUTABLE_BINDING_INVALID"
+
+    def __init__(self) -> None:
+        super().__init__(self.code)
 
 
 class LegacyReceiptRevalidationUnsupported(ConfigurationError):
@@ -296,6 +444,281 @@ def _strict_json_loads(payload: str | bytes) -> Any:
         raise _StrictJSONError("JSON input is invalid") from exc
 
 
+def _canonical_json_bytes(value: Mapping[str, Any]) -> bytes:
+    return json.dumps(
+        value, ensure_ascii=True, separators=(",", ":"), sort_keys=True
+    ).encode("ascii")
+
+
+def _artifact_address(value: Mapping[str, Any], id_field: str) -> str:
+    body = dict(value)
+    body.pop(id_field, None)
+    return hashlib.sha256(_canonical_json_bytes(body)).hexdigest()
+
+
+@dataclass
+class RetainedDirectory:
+    """A no-symlink private directory retained by descriptor and local identity."""
+
+    path: Path
+    fd: int
+    identity: tuple[int, int]
+    identity_sha256: str
+
+    def duplicate_fd(self) -> int:
+        if self.fd < 0:
+            raise ProbeAuthorizationError("preauthorization store is closed")
+        return os.dup(self.fd)
+
+    def close(self) -> None:
+        if self.fd >= 0:
+            os.close(self.fd)
+            self.fd = -1
+
+
+def _normalized_private_path(path_value: str | os.PathLike[str]) -> Path:
+    raw = Path(os.fspath(path_value))
+    if not os.fspath(path_value) or any(part in {".", ".."} for part in raw.parts):
+        raise ProbeAuthorizationError("preauthorization path alias is invalid")
+    return Path(os.path.abspath(os.fspath(raw)))
+
+
+def _directory_identity_sha256(path: Path, metadata: os.stat_result) -> str:
+    """Hash local path plus inode identity without persisting either value."""
+
+    return _canonical_sha256(
+        {
+            "scope": "local-directory-identity-v1",
+            "path_sha256": hashlib.sha256(os.fsencode(path)).hexdigest(),
+            "device": metadata.st_dev,
+            "inode": metadata.st_ino,
+            "mode": stat.S_IMODE(metadata.st_mode),
+        }
+    )
+
+
+def _open_retained_private_directory(
+    path_value: str | os.PathLike[str], label: str
+) -> RetainedDirectory:
+    """Traverse every component without symlinks and retain an owned 0700 dir."""
+
+    path = _normalized_private_path(path_value)
+    parts = path.parts
+    if not path.is_absolute() or not parts:
+        raise ProbeAuthorizationError(f"{label} path is invalid")
+    descriptor = -1
+    try:
+        descriptor = os.open(parts[0], _directory_open_flags())
+        for component in parts[1:]:
+            child_fd = os.open(component, _directory_open_flags(), dir_fd=descriptor)
+            os.close(descriptor)
+            descriptor = child_fd
+        metadata = _validate_owned_directory_fd(descriptor)
+        return RetainedDirectory(
+            path=path,
+            fd=descriptor,
+            identity=(metadata.st_dev, metadata.st_ino),
+            identity_sha256=_directory_identity_sha256(path, metadata),
+        )
+    except (OSError, SchedulingError) as exc:
+        if descriptor >= 0:
+            os.close(descriptor)
+        raise ProbeAuthorizationError(f"{label} cannot be traversed safely") from exc
+
+
+def _secure_json_artifact(
+    path_value: str | os.PathLike[str],
+    *,
+    retained_parent: RetainedDirectory | None = None,
+) -> RetainedJSONArtifact:
+    """Open one private artifact without following its final path component."""
+
+    path = _normalized_private_path(path_value)
+    if not SAFE_NAME.fullmatch(path.name):
+        raise ProbeAuthorizationError("preauthorization artifact name is invalid")
+    parent_fd = -1
+    descriptor = -1
+    try:
+        if retained_parent is None:
+            parent = _open_retained_private_directory(
+                path.parent, "preauthorization artifact store"
+            )
+            parent_fd = parent.duplicate_fd()
+            parent.close()
+        else:
+            if path.parent != retained_parent.path:
+                raise ProbeAuthorizationError(
+                    "preauthorization artifact store path is mismatched"
+                )
+            parent_fd = retained_parent.duplicate_fd()
+        descriptor = os.open(
+            path.name, _file_open_flags(os.O_RDONLY), dir_fd=parent_fd
+        )
+        metadata = os.fstat(descriptor)
+        if (
+            not stat.S_ISREG(metadata.st_mode)
+            or metadata.st_nlink != 1
+            or stat.S_IMODE(metadata.st_mode) != 0o600
+            or metadata.st_size < 2
+            or metadata.st_size > MAX_PREAUTH_ARTIFACT_BYTES
+            or (hasattr(os, "getuid") and metadata.st_uid != os.getuid())
+        ):
+            raise ProbeAuthorizationError("preauthorization artifact metadata is invalid")
+        raw = _bounded_read_fd(descriptor)
+        final = os.fstat(descriptor)
+        path_stat = os.stat(path.name, dir_fd=parent_fd, follow_symlinks=False)
+        metadata_tuple = (
+            metadata.st_size,
+            metadata.st_mtime_ns,
+            metadata.st_ctime_ns,
+            stat.S_IMODE(metadata.st_mode),
+        )
+        if (
+            (metadata.st_dev, metadata.st_ino) != (final.st_dev, final.st_ino)
+            or (metadata.st_dev, metadata.st_ino)
+            != (path_stat.st_dev, path_stat.st_ino)
+            or metadata_tuple
+            != (
+                final.st_size,
+                final.st_mtime_ns,
+                final.st_ctime_ns,
+                stat.S_IMODE(final.st_mode),
+            )
+        ):
+            raise ProbeAuthorizationError("preauthorization artifact changed while loading")
+        try:
+            value = _strict_json_loads(raw)
+        except _StrictJSONError as exc:
+            raise ProbeAuthorizationError("preauthorization artifact JSON is invalid") from exc
+        if not isinstance(value, dict):
+            raise ProbeAuthorizationError("preauthorization artifact must be an object")
+        return RetainedJSONArtifact(
+            path=path,
+            parent_fd=parent_fd,
+            fd=descriptor,
+            identity=(metadata.st_dev, metadata.st_ino),
+            metadata=metadata_tuple,
+            raw=raw,
+            record=value,
+        )
+    except OSError as exc:
+        if descriptor >= 0:
+            os.close(descriptor)
+        if parent_fd >= 0:
+            os.close(parent_fd)
+        raise ProbeAuthorizationError("preauthorization artifact cannot be opened safely") from exc
+    except BaseException:
+        if descriptor >= 0:
+            os.close(descriptor)
+        if parent_fd >= 0:
+            os.close(parent_fd)
+        raise
+
+
+def _reverify_retained_artifact(artifact: RetainedJSONArtifact) -> None:
+    metadata = os.fstat(artifact.fd)
+    path_metadata = os.stat(
+        artifact.path.name, dir_fd=artifact.parent_fd, follow_symlinks=False
+    )
+    if (
+        (metadata.st_dev, metadata.st_ino) != artifact.identity
+        or (path_metadata.st_dev, path_metadata.st_ino) != artifact.identity
+        or (
+            metadata.st_size,
+            metadata.st_mtime_ns,
+            metadata.st_ctime_ns,
+            stat.S_IMODE(metadata.st_mode),
+        )
+        != artifact.metadata
+        or metadata.st_nlink != 1
+        or stat.S_IMODE(metadata.st_mode) != 0o600
+    ):
+        raise ProbeAuthorizationError("preauthorization artifact changed before consume")
+
+
+def _durable_private_json_create(
+    destination: str | os.PathLike[str],
+    record: Mapping[str, Any],
+    *,
+    retained_parent: RetainedDirectory | None = None,
+) -> Path:
+    """Create one immutable private JSON artifact and fsync file plus directory."""
+
+    path = _normalized_private_path(destination)
+    if not SAFE_NAME.fullmatch(path.name):
+        raise ProbeAuthorizationError("preauthorization artifact name is invalid")
+    parent: RetainedDirectory | None = None
+    if retained_parent is None:
+        parent = _open_retained_private_directory(
+            path.parent, "preauthorization artifact store"
+        )
+        directory_fd = parent.duplicate_fd()
+    else:
+        if path.parent != retained_parent.path:
+            raise ProbeAuthorizationError(
+                "preauthorization artifact store path is mismatched"
+            )
+        directory_fd = retained_parent.duplicate_fd()
+    descriptor = -1
+    try:
+        descriptor = os.open(
+            path.name,
+            _file_open_flags(os.O_WRONLY | os.O_CREAT | os.O_EXCL),
+            0o600,
+            dir_fd=directory_fd,
+        )
+        payload = _canonical_json_bytes(record)
+        if len(payload) > MAX_PREAUTH_ARTIFACT_BYTES:
+            raise ProbeAuthorizationError("preauthorization artifact is too large")
+        _write_all(descriptor, payload)
+        os.fsync(descriptor)
+        metadata = os.fstat(descriptor)
+        if (
+            not stat.S_ISREG(metadata.st_mode)
+            or metadata.st_nlink != 1
+            or stat.S_IMODE(metadata.st_mode) != 0o600
+            or metadata.st_size != len(payload)
+        ):
+            raise ProbeAuthorizationError("created preauthorization artifact is unsafe")
+        os.fsync(directory_fd)
+        return path
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+        os.close(directory_fd)
+        if parent is not None:
+            parent.close()
+
+
+def _sha256_regular_file(path_value: str | os.PathLike[str], label: str) -> str:
+    path = Path(os.path.abspath(os.fspath(path_value)))
+    flags = _file_open_flags(os.O_RDONLY)
+    descriptor = os.open(path, flags)
+    try:
+        metadata = os.fstat(descriptor)
+        if not stat.S_ISREG(metadata.st_mode) or metadata.st_size > 2_000_000:
+            raise ProbeAuthorizationError(f"{label} is not a bounded regular file")
+        payload = bytearray()
+        while True:
+            chunk = os.read(descriptor, 65_536)
+            if not chunk:
+                break
+            payload.extend(chunk)
+            if len(payload) > 2_000_000:
+                raise ProbeAuthorizationError(f"{label} is too large")
+        final = os.fstat(descriptor)
+        if (
+            (metadata.st_dev, metadata.st_ino) != (final.st_dev, final.st_ino)
+            or metadata.st_size != final.st_size
+            or metadata.st_mtime_ns != final.st_mtime_ns
+            or metadata.st_ctime_ns != final.st_ctime_ns
+        ):
+            raise ProbeAuthorizationError(f"{label} changed while hashing")
+        return hashlib.sha256(bytes(payload)).hexdigest()
+    finally:
+        os.close(descriptor)
+
+
 @dataclass
 class ClaimStore:
     """A canonical durable ledger directory held open by validated descriptor."""
@@ -303,6 +726,7 @@ class ClaimStore:
     path: Path
     dir_fd: int
     identity: tuple[int, int]
+    identity_sha256: str
     namespace: str
     closed: bool = False
 
@@ -368,19 +792,68 @@ class Invocation:
     scheduling_snapshot: Mapping[str, Any] | None = None
     scheduling_snapshot_digest: str | None = None
     claim_store_override: str | None = None
-    # Capacity data is intentionally kept out of prompts, argv, receipts, and
-    # public result objects.  A lease is consumed only at the spawn boundary.
-    capacity_lease: capacity.CapacityLease | Mapping[str, Any] | None = None
-    capacity_store_path: str | None = None
-    capacity_policy: Mapping[str, Any] | None = None
-    capacity_request_id: str | None = None
-    capacity_required: bool = False
-    # Present only for the frozen Luna exception.  These values are retained
-    # locally so receipt-v2 can revalidate the exact QOBS binding.
-    qobs_admission: QobsAdmission | None = None
-    qobs_artifact: object | None = None
-    qobs_expected_context: Mapping[str, object] | None = None
-    qobs_ledger_store: str | None = None
+    probe_claim_path: str | None = None
+    approval_grant_path: str | None = None
+    approval_store_path: str | None = None
+    approval_session_id: str | None = None
+    preauthorization_store_binding: Mapping[str, str] | None = None
+
+
+@dataclass
+class RetainedJSONArtifact:
+    """Strict JSON artifact retained by descriptor across preflight and consume."""
+
+    path: Path
+    parent_fd: int
+    fd: int
+    identity: tuple[int, int]
+    metadata: tuple[int, int, int, int]
+    raw: bytes
+    record: dict[str, Any]
+
+    def close(self) -> None:
+        if self.fd >= 0:
+            os.close(self.fd)
+            self.fd = -1
+        if self.parent_fd >= 0:
+            os.close(self.parent_fd)
+            self.parent_fd = -1
+
+
+@dataclass
+class PreparedProbeAuthorization:
+    """Exact claim and grant held open until their one-shot is consumed."""
+
+    claim: RetainedJSONArtifact
+    grant: RetainedJSONArtifact
+    binding: dict[str, Any]
+    probe_claim_store: RetainedDirectory
+    approval_grant_store: RetainedDirectory
+    approval_consume_store: RetainedDirectory
+    dispatch_ledger_store: ClaimStore | None
+    consume_artifact: RetainedJSONArtifact | None = None
+    anchor_artifact: RetainedJSONArtifact | None = None
+
+    def take_dispatch_ledger(self) -> ClaimStore:
+        store = self.dispatch_ledger_store
+        if store is None:
+            raise ProbeAuthorizationError("dispatch ledger descriptor is unavailable")
+        self.dispatch_ledger_store = None
+        return store
+
+    def close(self) -> None:
+        if self.consume_artifact is not None:
+            self.consume_artifact.close()
+        if self.anchor_artifact is not None:
+            self.anchor_artifact.close()
+        self.claim.close()
+        self.grant.close()
+        self.probe_claim_store.close()
+        self.approval_grant_store.close()
+        self.approval_consume_store.close()
+        if self.dispatch_ledger_store is not None:
+            self.dispatch_ledger_store.close()
+            self.dispatch_ledger_store = None
 
 
 @dataclass(frozen=True)
@@ -401,6 +874,15 @@ class ProviderResult:
     work_result: Mapping[str, Any]
     adapter: str
     process_or_session_id: str | None = None
+
+
+@dataclass(frozen=True)
+class PrivateFinalResult:
+    """Validated content-free evidence for Codex's private final channel."""
+
+    work_result: Mapping[str, Any]
+    byte_count: int
+    sha256: str
 
 
 @dataclass(frozen=True)
@@ -1130,595 +1612,22 @@ def _canonical_sha256(value: Mapping[str, Any]) -> str:
     return hashlib.sha256(material).hexdigest()
 
 
-def _qobs_digest(value: object) -> str:
-    try:
-        return quota_guard.quota_artifact_sha256(value)
-    except quota_guard.QuotaObservationError as exc:
-        raise ConfigurationError("quota observation artifact digest is invalid") from exc
+def _utc_datetime() -> datetime:
+    """Capture one timezone-aware UTC instant for a validation transaction."""
+
+    return datetime.now(timezone.utc)
 
 
-def _require_scheduling_snapshot_digest(
-    value: object, error_type: type[ConfigurationError] = ConfigurationError
-) -> str:
-    """Return one receipt-v2-compatible Rule 11 scheduling snapshot digest."""
-
-    if not isinstance(value, str) or not re.fullmatch(r"[a-f0-9]{64}", value):
-        raise error_type(
-            "scheduling_snapshot_sha256 must be a lowercase SHA-256 digest"
-        )
-    return value
-
-
-def _qobs_context_digest(context: Mapping[str, object]) -> str:
-    return _canonical_sha256(
-        {
-            "alias": context.get("alias"),
-            "provider": context.get("provider"),
-            "account_home_sha256": quota_guard.sha256_text(str(context.get("account_home"))),
-            "resolved_executable_sha256": quota_guard.sha256_text(
-                str(context.get("resolved_executable"))
-            ),
-            "ticket_id": context.get("ticket_id"),
-            "attempt_id": context.get("attempt_id"),
-            "policy_version": context.get("policy_version"),
-        }
-    )
-
-
-def _consume_qobs_nonce(nonce: str, nonce_store: Path) -> None:
-    if not nonce_store.is_absolute():
-        raise quota_guard.QuotaObservationError("INVALID_NONCE_STORE")
-    try:
-        nonce_store.mkdir(mode=0o700, parents=True, exist_ok=True)
-        os.chmod(nonce_store, 0o700)
-        nonce_path = nonce_store / f"{quota_guard.sha256_text(nonce)}.nonce"
-        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
-        if hasattr(os, "O_NOFOLLOW"):
-            flags |= os.O_NOFOLLOW
-        descriptor = os.open(nonce_path, flags, 0o600)
-        try:
-            os.write(descriptor, b"consumed\n")
-            os.fsync(descriptor)
-        finally:
-            os.close(descriptor)
-    except FileExistsError as exc:
-        raise quota_guard.QuotaObservationError("REPLAYED_OBSERVATION") from exc
-    except OSError as exc:
-        raise quota_guard.QuotaObservationError("NONCE_STORE_INVALID") from exc
-
-
-def consume_quota_observation(
-    artifact: object,
-    expected_context: dict[str, object],
-    *,
-    nonce_store: Path | str | os.PathLike[str] | None,
-    now: datetime | None = None,
-) -> dict[str, str]:
-    """Validate and atomically consume one executable QOBS nonce."""
-
-    try:
-        observation = quota_guard.validate_quota_observation(
-            artifact, expected_context, now=now
-        )
-    except quota_guard.QuotaObservationError:
-        raise
-    if observation.get("quota_band") == "unknown":
-        raise quota_guard.QuotaObservationError("UNKNOWN_QUOTA")
-    if observation.get("quota_band") != "constrained":
-        raise quota_guard.QuotaObservationError("QUOTA_NOT_DISPATCHABLE")
-    nonce = expected_context.get("nonce")
-    if not isinstance(nonce, str):
-        raise quota_guard.QuotaObservationError("INVALID_CONTEXT")
-    if nonce_store is None:
-        raise quota_guard.QuotaObservationError("NONCE_STORE_REQUIRED")
-    _consume_qobs_nonce(nonce, Path(nonce_store))
-    return {
-        "artifact_sha256": _qobs_digest(artifact),
-        "nonce_sha256": quota_guard.sha256_text(nonce),
-        "quota_band": str(observation["quota_band"]),
-    }
-
-
-def quota_bound_dispatch_identity(
-    artifact: object,
-    consumption: Mapping[str, object],
-    dispatch_context: Mapping[str, object],
-) -> str:
-    """Derive the receipt identity from exact QOBS and dispatch bindings."""
-
-    artifact_digest = _qobs_digest(artifact)
-    if consumption.get("artifact_sha256") != artifact_digest:
-        raise ConfigurationError("quota consumption is not bound to the artifact")
-    required = {
-        "decision_sha256",
-        "scheduling_snapshot_sha256",
-        "resolved_executable_sha256",
-        "policy_version",
-    }
-    if set(dispatch_context) != required:
-        raise ConfigurationError("quota dispatch context fields are invalid")
-    _require_scheduling_snapshot_digest(
-        dispatch_context.get("scheduling_snapshot_sha256")
-    )
-    if consumption.get("quota_band") != "constrained":
-        raise ConfigurationError("quota consumption is not dispatchable")
-    if not isinstance(consumption.get("nonce_sha256"), str):
-        raise ConfigurationError("quota nonce consumption proof is invalid")
-    return _canonical_sha256(
-        {
-            "protocol_version": 2,
-            "artifact_sha256": artifact_digest,
-            "nonce_sha256": consumption["nonce_sha256"],
-            "quota_band": consumption["quota_band"],
-            **dict(dispatch_context),
-        }
-    )
-
-
-def validate_quota_receipt_binding(
-    receipt: Mapping[str, object],
-    artifact: object,
-    consumption: Mapping[str, object],
-    dispatch_context: Mapping[str, object],
-    expected_context: dict[str, object],
-    *,
-    now: datetime | None = None,
-) -> Mapping[str, object]:
-    """Revalidate every transitive QOBS binding carried by a v2 receipt."""
-
-    try:
-        observation = quota_guard.validate_quota_observation(
-            artifact, expected_context, now=now
-        )
-    except quota_guard.QuotaObservationError as exc:
-        raise ConfigurationError("receipt quota observation is invalid") from exc
-    expected_artifact = _qobs_digest(artifact)
-    if (
-        receipt.get("protocol_version") != 2
-        or receipt.get("quota_status") != observation.get("quota_band")
-        or receipt.get("quota_status") != consumption.get("quota_band")
-        or consumption.get("artifact_sha256") != expected_artifact
-        or consumption.get("nonce_sha256") != quota_guard.sha256_text(str(expected_context.get("nonce")))
-    ):
-        raise ConfigurationError("receipt quota binding is invalid")
-    identity = quota_bound_dispatch_identity(artifact, consumption, dispatch_context)
-    if receipt.get("dispatch_identity") != identity:
-        raise ConfigurationError("receipt dispatch identity is invalid")
-    if dispatch_context.get("policy_version") != observation.get("policy_version"):
-        raise ConfigurationError("receipt policy binding is invalid")
-    if dispatch_context.get("resolved_executable_sha256") != observation.get(
-        "resolved_executable_sha256"
-    ):
-        raise ConfigurationError("receipt executable binding is invalid")
-    return receipt
-
-
-@dataclass(frozen=True)
-class QobsAdmission:
-    """One consumed, non-transferable admission for the Luna diagnostic.
-
-    This value is intentionally constructed only by
-    :func:`validate_closed_dispatch_exception`.  It holds digests and route
-    metadata only; neither account-home values nor executable paths escape the
-    preflight boundary.
-    """
-
-    ticket_id: str
-    attempt_id: int
-    role: str
-    alias: str
-    provider: str
-    model: str
-    effort: str
-    quota_band: str
-    work_mode: str
-    sandbox: str
-    execution_exception_id: str
-    decision_schema_version: int
-    decision_sha256: str
-    scheduling_snapshot_sha256: str
-    qobs_artifact_sha256: str
-    qobs_nonce_sha256: str
-    qobs_context_sha256: str
-    resolved_executable_sha256: str
-    policy_version: str
-    exception_consumption_sha256: str
-    dispatch_identity: str
-
-    def quota_consumption(self) -> dict[str, str]:
-        """Return the exact QOBS consumption proof accepted by receipt-v2."""
-
-        return {
-            "artifact_sha256": self.qobs_artifact_sha256,
-            "nonce_sha256": self.qobs_nonce_sha256,
-            "quota_band": self.quota_band,
-        }
-
-    def dispatch_context(self) -> dict[str, str]:
-        """Return the receipt-v2 context, excluding non-portable route data."""
-
-        return {
-            "decision_sha256": self.decision_sha256,
-            "scheduling_snapshot_sha256": self.scheduling_snapshot_sha256,
-            "resolved_executable_sha256": self.resolved_executable_sha256,
-            "policy_version": self.policy_version,
-        }
-
-
-# This is intentionally process-local rather than an authorization cache.  It
-# distinguishes a gate-returned immutable value from a caller-constructed
-# lookalike; the durable one-shot use is still committed in the ledger at
-# spawn time.
-_VALIDATED_QOBS_ADMISSION_IDS: set[int] = set()
-
-
-def is_validated_qobs_admission(admission: object) -> bool:
-    """Return whether this exact admission object came from the closed gate."""
-
-    return isinstance(admission, QobsAdmission) and id(admission) in _VALIDATED_QOBS_ADMISSION_IDS
-
-
-def _resolve_qobs_executable(route: Route) -> str:
-    """Resolve one executable to an absolute, executable regular file path."""
-
-    # Resolve even an absolute configured command through ``which``.  This
-    # detects a replaced executable resolution immediately before spawn.
-    candidate = shutil.which(route.command)
-    if not candidate:
-        raise ConfigurationError("execution exception executable is unavailable")
-    path = Path(candidate).resolve()
-    if not path.is_file() or not os.access(path, os.X_OK):
-        raise ConfigurationError("execution exception executable is unavailable")
-    return str(path)
-
-
-_LUNA_ONE_SHOT_EXCEPTION_ID = "luna-delegate-001-codex2-attempt-1"
-_LUNA_ONE_SHOT_EXCEPTION_FIELDS = frozenset(
-    {
-        "ticket",
-        "attempt_id",
-        "role",
-        "alias",
-        "provider",
-        "decision_schema_version",
-        "model",
-        "effort",
-        "work_mode",
-        "sandbox",
-        "quota_band",
-        "maximum_uses",
-        "automatic_retry",
-    }
-)
-_LUNA_ONE_SHOT_EXCEPTION = {
-    "ticket": "TICKET-LUNA-DELEGATE-001",
-    "attempt_id": 1,
-    "role": "codex2_luna_diagnostic",
-    "alias": "codex2",
-    "provider": "codex",
-    "decision_schema_version": 1,
-    "model": "gpt-5.6-luna",
-    "effort": "xhigh",
-    "work_mode": "read_only",
-    "sandbox": "read-only",
-    "quota_band": "constrained",
-    "maximum_uses": 1,
-    "automatic_retry": False,
-}
-
-
-def _commit_qobs_one_shot(
-    *,
-    admission: QobsAdmission,
-    ledger_store: Path | str | os.PathLike[str] | None,
-    binding: Mapping[str, object],
-) -> str:
-    """Atomically commit the exception and its nonce in one fixed ledger."""
-
-    if ledger_store is None:
-        raise ConfigurationError("one-shot QOBS ledger is required")
-    store = Path(ledger_store)
-    if not store.is_absolute():
-        raise ConfigurationError("execution exception store must be absolute")
-    try:
-        store.mkdir(mode=0o700, parents=True, exist_ok=True)
-        os.chmod(store, 0o700)
-        marker = store / f"{quota_guard.sha256_text(admission.execution_exception_id)}.used"
-        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
-        if hasattr(os, "O_NOFOLLOW"):
-            flags |= os.O_NOFOLLOW
-        descriptor = os.open(marker, flags, 0o600)
-        try:
-            material = _canonical_sha256(dict(binding)).encode("ascii") + b"\n"
-            os.write(descriptor, material)
-            os.fsync(descriptor)
-        finally:
-            os.close(descriptor)
-    except FileExistsError as exc:
-        raise quota_guard.QuotaObservationError("EXECUTION_EXCEPTION_CONSUMED") from exc
-    except OSError as exc:
-        raise ConfigurationError("execution exception store is invalid") from exc
-    return _canonical_sha256(dict(binding))
-
-
-def validate_closed_dispatch_exception(
-    config: Mapping[str, Any],
-    *,
-    execution_exception_id: object,
-    decision: object,
-    route: Route,
-    quota_observation: object,
-    expected_qobs_context: Mapping[str, object],
-    scheduling_snapshot_sha256: object,
-    qobs_nonce_store: Path | str | os.PathLike[str] | None,
-    exception_store: Path | str | os.PathLike[str] | None,
-    ledger_store: Path | str | os.PathLike[str] | None = None,
-    consume: bool = True,
-    now: datetime | None = None,
-) -> QobsAdmission:
-    """Validate the sole closed-dispatch Luna exception.
-
-    This is purposefully separate from ordinary quota-bound dispatch.  It is
-    the only place a schema-v1 decision can reach executable admission, and it
-    accepts no wildcard ids, routes, sandboxes, quota bands, or retries.
-    """
-
-    activation_prohibited, dispatcher_execution = effective_activation_state(config)
-    if activation_prohibited is not True or dispatcher_execution != "CLOSED":
-        raise ConfigurationError("one-shot exception requires a closed dispatcher")
-    runtime = _mapping(config.get("runtime"), "runtime")
-    if runtime.get("approved_for_execution") is not True or runtime.get("protocol_version") != 2:
-        raise ConfigurationError("one-shot exception requires approved protocol v2 runtime")
-    if execution_exception_id != _LUNA_ONE_SHOT_EXCEPTION_ID:
-        raise ConfigurationError("execution exception is not approved")
-    exceptions = _mapping(config.get("execution_exceptions"), "execution_exceptions")
-    exception = _mapping(exceptions.get(_LUNA_ONE_SHOT_EXCEPTION_ID), "execution exception")
-    if set(exception) != _LUNA_ONE_SHOT_EXCEPTION_FIELDS or dict(exception) != _LUNA_ONE_SHOT_EXCEPTION:
-        raise ConfigurationError("execution exception contract is invalid")
-    if (
-        route.role != exception["role"]
-        or route.alias != exception["alias"]
-        or route.cli != exception["provider"]
-        or route.model != exception["model"]
-        or route.effort != exception["effort"]
-        or route.sandbox != exception["sandbox"]
-    ):
-        raise ConfigurationError("execution exception route is invalid")
-    roles = _mapping(config.get("roles"), "roles")
-    role_config = _mapping(roles.get(route.role), f"roles.{route.role}")
-    if role_config.get("sandbox") != "read-only":
-        raise ConfigurationError("execution exception requires read-only sandbox")
-    if not isinstance(decision, Mapping):
-        raise ConfigurationError("execution exception requires a DispatchDecision")
-    if decision.get("schema_version") != exception["decision_schema_version"]:
-        raise ConfigurationError("execution exception decision schema is invalid")
-    try:
-        policy = load_model_policy(
-            REPOSITORY_ROOT / ".agents/config/multiagent_model_policy.yaml"
-        )
-        validated = validate_dispatch_decision(decision, policy, route)
-    except (ConfigurationError, DispatchDecisionError, TypeError) as exc:
-        raise ConfigurationError("execution exception decision is invalid") from exc
-    for field in ("ticket", "selected_alias", "selected_model", "selected_effort", "work_mode", "quota_band"):
-        expected = exception["alias"] if field == "selected_alias" else (
-            exception["model"] if field == "selected_model" else (
-                exception["effort"] if field == "selected_effort" else exception.get(field)
-            )
-        )
-        if validated.decision.get(field) != expected:
-            raise ConfigurationError("execution exception decision does not match its contract")
-    if validated.decision.get("ticket") != exception["ticket"]:
-        raise ConfigurationError("execution exception ticket is invalid")
-    snapshot_digest = _require_scheduling_snapshot_digest(scheduling_snapshot_sha256)
-    if not isinstance(expected_qobs_context, Mapping):
-        raise ConfigurationError("execution exception QOBS context is invalid")
-    qobs_policy_version = expected_qobs_context.get("policy_version")
-    if (
-        qobs_policy_version not in {"2026-08-26.1", "2026-08-29.1"}
-        or qobs_policy_version != validated.policy_version
-    ):
-        raise ConfigurationError("execution exception QOBS context does not match route")
-    required_context = {
-        "alias": route.alias,
-        "provider": route.cli,
-        "ticket_id": exception["ticket"],
-        "attempt_id": exception["attempt_id"],
-        "policy_version": validated.policy_version,
-    }
-    for field, expected in required_context.items():
-        if expected_qobs_context.get(field) != expected:
-            raise ConfigurationError("execution exception QOBS context does not match route")
-    for field in ("account_home", "resolved_executable", "nonce", "observed_at"):
-        if not isinstance(expected_qobs_context.get(field), str) or not expected_qobs_context[field]:
-            raise ConfigurationError("execution exception QOBS context is incomplete")
-    try:
-        observation = quota_guard.validate_quota_observation(
-            quota_observation, dict(expected_qobs_context), now=now
-        )
-    except quota_guard.QuotaObservationError:
-        raise
-    if observation.get("quota_band") == "unknown":
-        raise quota_guard.QuotaObservationError("UNKNOWN_QUOTA")
-    if observation.get("quota_band") != exception["quota_band"]:
-        raise quota_guard.QuotaObservationError("QUOTA_NOT_DISPATCHABLE")
-    resolved_executable = _resolve_qobs_executable(route)
-    if "/" in route.command and resolved_executable != expected_qobs_context["resolved_executable"]:
-        raise ConfigurationError("execution exception executable is not pinned to QOBS")
-    nonce = str(expected_qobs_context["nonce"])
-    artifact_sha256 = _qobs_digest(quota_observation)
-    context_sha256 = _qobs_context_digest(expected_qobs_context)
-    consumption_binding = {
-        "exception_id": _LUNA_ONE_SHOT_EXCEPTION_ID,
-        "decision_sha256": validated.digest,
-        "scheduling_snapshot_sha256": snapshot_digest,
-        "qobs_artifact_sha256": artifact_sha256,
-        "qobs_nonce_sha256": quota_guard.sha256_text(nonce),
-        "qobs_context_sha256": context_sha256,
-    }
-    exception_consumption_sha256 = _canonical_sha256(consumption_binding)
-    consumption = {
-        "artifact_sha256": artifact_sha256,
-        "nonce_sha256": quota_guard.sha256_text(nonce),
-        "quota_band": str(observation["quota_band"]),
-    }
-    dispatch_context = {
-        "decision_sha256": validated.digest,
-        "scheduling_snapshot_sha256": snapshot_digest,
-        "resolved_executable_sha256": str(observation["resolved_executable_sha256"]),
-        "policy_version": validated.policy_version,
-    }
-    admission = QobsAdmission(
-        ticket_id=str(exception["ticket"]),
-        attempt_id=int(exception["attempt_id"]),
-        role=str(exception["role"]),
-        alias=str(exception["alias"]),
-        provider=str(exception["provider"]),
-        model=str(exception["model"]),
-        effort=str(exception["effort"]),
-        quota_band=str(exception["quota_band"]),
-        work_mode=str(exception["work_mode"]),
-        sandbox=str(exception["sandbox"]),
-        execution_exception_id=_LUNA_ONE_SHOT_EXCEPTION_ID,
-        decision_schema_version=int(exception["decision_schema_version"]),
-        decision_sha256=validated.digest,
-        scheduling_snapshot_sha256=snapshot_digest,
-        qobs_artifact_sha256=artifact_sha256,
-        qobs_nonce_sha256=consumption["nonce_sha256"],
-        qobs_context_sha256=context_sha256,
-        resolved_executable_sha256=dispatch_context["resolved_executable_sha256"],
-        policy_version=validated.policy_version,
-        exception_consumption_sha256=exception_consumption_sha256,
-        dispatch_identity=quota_bound_dispatch_identity(
-            quota_observation, consumption, dispatch_context
-        ),
-    )
-    _VALIDATED_QOBS_ADMISSION_IDS.add(id(admission))
-    if consume:
-        # Legacy callers may still pass the two historical store arguments.
-        # They now select one ledger only; the nonce is recorded in the same
-        # atomic marker and no early two-store commit remains.
-        selected_ledger = ledger_store if ledger_store is not None else exception_store
-        _commit_qobs_one_shot(
-            admission=admission,
-            ledger_store=selected_ledger,
-            binding=consumption_binding,
-        )
-    return admission
-
-
-def validate_closed_dispatch_execution_args(
-    args: argparse.Namespace, config: Mapping[str, Any]
-) -> None:
-    """Reject partial exception evidence before executable preflight."""
-
-    if not getattr(args, "execute", False):
-        return
-    quota_path = getattr(args, "quota_observation", None)
-    exception_id = getattr(args, "execution_exception_id", None)
-    if bool(quota_path) != bool(exception_id):
-        raise DispatchDecisionError(
-            "--quota-observation and --execution-exception-id are required together"
-        )
-
-
-def _load_closed_dispatch_qobs(path: str | os.PathLike[str]) -> object:
-    """Read a QOBS artifact as strict JSON without exposing its contents."""
-
-    try:
-        return quota_guard.strict_json_loads(Path(path).read_bytes())
-    except (OSError, quota_guard.QuotaObservationError) as exc:
-        raise ConfigurationError("closed dispatch quota observation is unavailable") from exc
-
-
-def _closed_dispatch_qobs_context(
-    artifact: object,
-    *,
-    route: Route,
-    decision: Mapping[str, Any],
-    attempt_id: int,
-) -> dict[str, object]:
-    """Bind QOBS provenance to this process-local route without logging paths."""
-
-    if route.home_path is None:
-        raise ConfigurationError("closed dispatch route lacks account-home identity")
-    resolved_executable = shutil.which(route.command)
-    if not resolved_executable:
-        raise ConfigurationError("closed dispatch executable is unavailable")
-    try:
-        observation = _mapping(_mapping(artifact, "quota observation artifact").get("observation"), "quota observation")
-        nonce = observation.get("nonce")
-        observed_at = observation.get("observed_at")
-    except ConfigurationError:
-        raise
-    if not isinstance(nonce, str) or not isinstance(observed_at, str):
-        raise ConfigurationError("closed dispatch quota observation is incomplete")
-    return {
-        "alias": route.alias,
-        "provider": route.cli,
-        "account_home": route.home_path,
-        "resolved_executable": str(Path(resolved_executable).resolve()),
-        "ticket_id": decision.get("ticket"),
-        "attempt_id": attempt_id,
-        "policy_version": decision.get("policy_version"),
-        "nonce": nonce,
-        "observed_at": observed_at,
-    }
-
-
-def validate_quota_bound_dispatch(
-    decision: Mapping[str, object],
-    artifact: object,
-    expected_context: dict[str, object],
-    *,
-    scheduling_snapshot_sha256: object,
-    nonce_store: Path | str | os.PathLike[str] | None,
-    now: datetime | None = None,
-) -> dict[str, object]:
-    """Validate QOBS and reject legacy v1 decisions before execution.
-
-    The caller must provide the validated Rule 11 scheduling snapshot digest
-    that receipt-v2 binds to this dispatch.
-    """
-
-    scheduling_snapshot_sha256 = _require_scheduling_snapshot_digest(
-        scheduling_snapshot_sha256, DispatchDecisionError
-    )
-
-    if decision.get("schema_version") == 1:
-        raise DispatchDecisionError(
-            "DispatchDecision v1 is non-executable for quota-bound dispatch"
-        )
-    try:
-        policy = load_model_policy(REPOSITORY_ROOT / ".agents/config/multiagent_model_policy.yaml")
-        validated = validate_dispatch_decision(decision, policy)
-    except (ConfigurationError, TypeError) as exc:
-        raise DispatchDecisionError("DispatchDecision is invalid") from exc
-    observation = quota_guard.validate_quota_observation(
-        artifact, expected_context, now=now
-    )
-    if validated.decision.get("quota_band") != observation.get("quota_band"):
-        raise DispatchDecisionError("DispatchDecision quota band contradicts observation")
-    consumption = consume_quota_observation(
-        artifact, expected_context, nonce_store=nonce_store, now=now
-    )
-    dispatch_context = {
-        "decision_sha256": validated.digest,
-        "scheduling_snapshot_sha256": scheduling_snapshot_sha256,
-        "resolved_executable_sha256": observation["resolved_executable_sha256"],
-        "policy_version": observation["policy_version"],
-    }
-    return {
-        "decision": dict(validated.decision),
-        "decision_sha256": validated.digest,
-        "consumption": consumption,
-        "dispatch_context": dispatch_context,
-    }
+def _format_utc(value: datetime) -> str:
+    if value.tzinfo is None or value.utcoffset() != timezone.utc.utcoffset(value):
+        raise ConfigurationError("UTC evidence timestamp is invalid")
+    return value.isoformat(timespec="microseconds").replace("+00:00", "Z")
 
 
 def _utc_now() -> str:
     """Return a stable RFC 3339 UTC timestamp for execution evidence."""
 
-    return datetime.now(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z")
+    return _format_utc(_utc_datetime())
 
 
 def _parse_utc_timestamp(value: Any, label: str) -> datetime:
@@ -2266,6 +2175,8 @@ def resolve_route(
     account = _mapping(accounts[alias], f"accounts.{alias}")
 
     account_cli = account.get("cli")
+    if account_cli != ALIAS_PROVIDER_MAP[alias]:
+        raise ProviderExecutableBindingError()
     role_cli = role_config.get("cli", account_cli)
     cli = role_cli if cli_override is None else cli_override
     if cli not in VALID_CLIS:
@@ -2273,11 +2184,7 @@ def resolve_route(
     if account_cli not in VALID_CLIS:
         raise ConfigurationError(f"accounts.{alias}.cli must be codex or agy")
     if cli != account_cli:
-        allow_provider_swap = bool(account.get("allow_provider_swap", False))
-        if not allow_provider_swap:
-            raise ConfigurationError(
-                f"account alias {alias} is registered for {account_cli}, not {cli}"
-            )
+        raise ProviderExecutableBindingError()
 
     command = account.get("command", cli)
     if not isinstance(command, str) or not SAFE_COMMAND.fullmatch(command):
@@ -2316,7 +2223,7 @@ def resolve_route(
         if sandbox is not None and sandbox not in VALID_SANDBOXES:
             raise ConfigurationError(f"unsupported sandbox: {sandbox}")
 
-    return Route(
+    route = Route(
         role=role,
         alias=alias,
         cli=cli,
@@ -2328,6 +2235,8 @@ def resolve_route(
         mode=mode,
         sandbox=sandbox,
     )
+    _validate_route_provider_binding(route)
+    return route
 
 
 def render_prompt(
@@ -2402,15 +2311,10 @@ def build_invocation(
     work_result_schema_path: str | os.PathLike[str] | None = None,
     scheduling_snapshot: Mapping[str, Any] | None = None,
     claim_store_override: str | os.PathLike[str] | None = None,
-    capacity_lease: capacity.CapacityLease | Mapping[str, Any] | None = None,
-    capacity_store_path: str | os.PathLike[str] | None = None,
-    capacity_policy: Mapping[str, Any] | None = None,
-    capacity_request_id: str | None = None,
-    capacity_required: bool = False,
-    qobs_admission: QobsAdmission | None = None,
-    qobs_artifact: object | None = None,
-    qobs_expected_context: Mapping[str, object] | None = None,
-    qobs_ledger_store: str | os.PathLike[str] | None = None,
+    probe_claim_path: str | os.PathLike[str] | None = None,
+    approval_grant_path: str | os.PathLike[str] | None = None,
+    approval_store_path: str | os.PathLike[str] | None = None,
+    approval_session_id: str | None = None,
 ) -> Invocation:
     """Build exact argv and process-local environment overrides; never a shell command.
 
@@ -2418,6 +2322,7 @@ def build_invocation(
     dry-runs.  Executable invocations are rejected by execute_invocation.
     """
 
+    _validate_route_provider_binding(route)
     project_path = Path(project_dir).resolve()
     if not project_path.exists() or not project_path.is_dir():
         raise ConfigurationError("project_dir must exist and be a directory")
@@ -2432,21 +2337,8 @@ def build_invocation(
         raise ConfigurationError("attempt_id must be a positive integer")
     if not isinstance(runtime_config_approved, bool):
         raise ConfigurationError("runtime_config_approved must be boolean")
-    if not isinstance(capacity_required, bool):
-        raise ConfigurationError("capacity_required must be boolean")
-    supplied_capacity = (capacity_lease, capacity_store_path, capacity_policy, capacity_request_id)
-    if capacity_required and any(value is None for value in supplied_capacity):
-        raise SchedulingError("CAPACITY_LEASE_REQUIRED", "capacity lease binding is required")
-    if any(value is not None for value in supplied_capacity) and any(
-        value is None for value in supplied_capacity
-    ):
-        raise SchedulingError("CAPACITY_LEASE_REQUIRED", "capacity lease binding is incomplete")
-    if capacity_store_path is not None and not isinstance(capacity_store_path, (str, os.PathLike)):
-        raise ConfigurationError("capacity_store_path is invalid")
-    if capacity_request_id is not None and (
-        not isinstance(capacity_request_id, str) or not capacity_request_id.isascii()
-    ):
-        raise ConfigurationError("capacity_request_id is invalid")
+    if approval_session_id is not None:
+        _required_string(approval_session_id, "approval session id", safe_name=True)
     objective = _required_string(objective, "objective")
     ownership = _required_string(ownership, "ownership")
     _reject_secret_bearing({"objective": objective, "ownership": ownership}, "dispatch scope")
@@ -2458,9 +2350,12 @@ def build_invocation(
     if decision is not None and model_policy is not None:
         validated = validate_dispatch_decision(decision, model_policy, route)
         prompt = prompt + "\n\n" + _decision_prompt_evidence(validated, attempt_id)
-        resolved_schema_path = Path(work_result_schema_path or DEFAULT_WORK_RESULT_SCHEMA).resolve()
+        resolved_schema_path = Path(
+            os.path.abspath(os.fspath(work_result_schema_path or DEFAULT_WORK_RESULT_SCHEMA))
+        )
         if not resolved_schema_path.is_file():
             raise ConfigurationError("WorkResult v2 output schema is unavailable")
+        _sha256_regular_file(resolved_schema_path, "WorkResult schema")
         _provider_compatible_work_result_schema(resolved_schema_path)
     if scheduling_snapshot is not None:
         if validated is None:
@@ -2502,7 +2397,9 @@ def build_invocation(
         if route.effort:
             argv.extend(["-c", f'model_reasoning_effort="{route.effort}"'])
         if validated is not None and resolved_schema_path is not None:
-            argv.extend(["--json", "--output-schema", str(resolved_schema_path)])
+            argv.extend(
+                ["--ephemeral", "--json", "--output-schema", str(resolved_schema_path)]
+            )
         argv.append("-")
     else:
         if route.mode:
@@ -2554,7 +2451,8 @@ def build_invocation(
         objective=objective,
         ownership=ownership,
         runtime_config_path=(
-            str(Path(runtime_config_path).resolve()) if runtime_config_path is not None else None
+            os.path.abspath(os.fspath(runtime_config_path))
+            if runtime_config_path is not None else None
         ),
         runtime_config_approved=runtime_config_approved,
         work_result_schema_path=(
@@ -2567,19 +2465,16 @@ def build_invocation(
         claim_store_override=(
             str(claim_store_override) if claim_store_override is not None else None
         ),
-        capacity_lease=capacity_lease,
-        capacity_store_path=(
-            str(Path(capacity_store_path).resolve()) if capacity_store_path is not None else None
+        probe_claim_path=(
+            os.path.abspath(os.fspath(probe_claim_path)) if probe_claim_path is not None else None
         ),
-        capacity_policy=dict(capacity_policy) if capacity_policy is not None else None,
-        capacity_request_id=capacity_request_id,
-        capacity_required=capacity_required,
-        qobs_admission=qobs_admission,
-        qobs_artifact=qobs_artifact,
-        qobs_expected_context=(dict(qobs_expected_context) if qobs_expected_context is not None else None),
-        qobs_ledger_store=(
-            str(Path(qobs_ledger_store).resolve()) if qobs_ledger_store is not None else None
+        approval_grant_path=(
+            os.path.abspath(os.fspath(approval_grant_path)) if approval_grant_path is not None else None
         ),
+        approval_store_path=(
+            os.path.abspath(os.fspath(approval_store_path)) if approval_store_path is not None else None
+        ),
+        approval_session_id=approval_session_id,
     )
 
 
@@ -2630,7 +2525,384 @@ def _claim_dispatch_identity(invocation: Invocation) -> str:
         "objective_sha256": hashlib.sha256(invocation.objective.encode("utf-8")).hexdigest(),
         "ownership_sha256": hashlib.sha256(invocation.ownership.encode("utf-8")).hexdigest(),
     }
+    if invocation.preauthorization_store_binding is not None:
+        material["preauthorization_stores"] = _validated_preauthorization_stores(
+            invocation.preauthorization_store_binding
+        )
     return _canonical_sha256(material)
+
+
+def _validated_preauthorization_stores(value: Mapping[str, Any]) -> dict[str, str]:
+    stores = _mapping(value, "preauthorization stores")
+    if set(stores) != set(PREAUTH_STORE_NAMES):
+        raise ProbeAuthorizationError("preauthorization store identities are invalid")
+    normalized: dict[str, str] = {}
+    for name in PREAUTH_STORE_NAMES:
+        digest = stores.get(name)
+        if not isinstance(digest, str) or not re.fullmatch(r"[a-f0-9]{64}", digest):
+            raise ProbeAuthorizationError("preauthorization store identity is invalid")
+        normalized[name] = digest
+    return normalized
+
+
+def _validate_preauthorization_binding_shape(
+    value: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Validate the complete closed nested binding used by every v1 artifact."""
+
+    binding = _mapping(value, "preauthorization binding")
+    if set(binding) != PREAUTH_BINDING_FIELDS:
+        raise ProbeAuthorizationError("preauthorization binding fields are invalid")
+    ticket = binding.get("ticket")
+    if not isinstance(ticket, str) or not SAFE_NAME.fullmatch(ticket):
+        raise ProbeAuthorizationError("preauthorization ticket is invalid")
+    attempt = binding.get("attempt_id")
+    if isinstance(attempt, bool) or not isinstance(attempt, int) or attempt < 1:
+        raise ProbeAuthorizationError("preauthorization attempt is invalid")
+    if not isinstance(binding.get("policy_version"), str) or not binding[
+        "policy_version"
+    ]:
+        raise ProbeAuthorizationError("preauthorization policy version is invalid")
+    for field in PREAUTH_BINDING_SHA256_FIELDS:
+        digest = binding.get(field)
+        if not isinstance(digest, str) or not re.fullmatch(r"[a-f0-9]{64}", digest):
+            raise ProbeAuthorizationError("preauthorization digest field is invalid")
+    stores = _validated_preauthorization_stores(
+        _mapping(binding.get("preauthorization_stores"), "preauthorization stores")
+    )
+    route = _mapping(binding.get("route"), "preauthorization route")
+    if set(route) != PREAUTH_ROUTE_FIELDS:
+        raise ProbeAuthorizationError("preauthorization route fields are invalid")
+    if (
+        not isinstance(route.get("role"), str)
+        or not SAFE_NAME.fullmatch(route["role"])
+        or route.get("alias") not in GOVERNED_ACCOUNT_ALIASES
+        or route.get("provider") not in VALID_CLIS
+        or not isinstance(route.get("command_sha256"), str)
+        or not re.fullmatch(r"[a-f0-9]{64}", route["command_sha256"])
+        or route.get("effort") not in VALID_EFFORTS | {None}
+        or route.get("mode") is not None
+        and not isinstance(route.get("mode"), str)
+        or route.get("sandbox") is not None
+        and not isinstance(route.get("sandbox"), (str, bool))
+        or route.get("model") is not None
+        and not isinstance(route.get("model"), str)
+    ):
+        raise ProbeAuthorizationError("preauthorization route is invalid")
+    if binding.get("route_sha256") != _canonical_sha256(route):
+        raise ProbeAuthorizationError("preauthorization route digest is invalid")
+    normalized = dict(binding)
+    normalized["route"] = dict(route)
+    normalized["preauthorization_stores"] = stores
+    _reject_secret_bearing(normalized, "preauthorization binding")
+    return normalized
+
+
+def _preauthorization_binding(
+    invocation: Invocation, session_id: str | None = None
+) -> dict[str, Any]:
+    """Return the complete content-free binding for one exact provider attempt."""
+
+    validated = _validated_invocation_decision(invocation)
+    schedule_digest = _validated_invocation_schedule(invocation, validated)
+    session = session_id or invocation.approval_session_id
+    if session is None:
+        raise ProbeAuthorizationError("current approval session is required")
+    _required_string(session, "approval session id", safe_name=True)
+    if not invocation.runtime_config_path:
+        raise ProbeAuthorizationError("runtime config binding is required")
+    if not invocation.work_result_schema_path:
+        raise ProbeAuthorizationError("WorkResult schema binding is required")
+    if invocation.preauthorization_store_binding is None:
+        raise ProbeAuthorizationError("preauthorization store binding is required")
+    stores = _validated_preauthorization_stores(
+        invocation.preauthorization_store_binding
+    )
+    route = {
+        "role": invocation.route.role,
+        "alias": invocation.route.alias,
+        "provider": invocation.route.cli,
+        "command_sha256": hashlib.sha256(
+            invocation.route.command.encode("utf-8")
+        ).hexdigest(),
+        "model": invocation.route.model,
+        "effort": invocation.route.effort,
+        "mode": invocation.route.mode,
+        "sandbox": invocation.route.sandbox,
+    }
+    binding = {
+        "ticket": validated.decision["ticket"],
+        "attempt_id": invocation.attempt_id,
+        "session_sha256": hashlib.sha256(session.encode("utf-8")).hexdigest(),
+        "policy_version": validated.policy_version,
+        "model_policy_sha256": _canonical_sha256(invocation.model_policy),
+        "dispatcher_source_sha256": _sha256_regular_file(
+            Path(__file__).resolve(), "dispatcher source"
+        ),
+        "decision_sha256": validated.digest,
+        "scheduling_snapshot_sha256": schedule_digest,
+        "runtime_config_sha256": _sha256_regular_file(
+            invocation.runtime_config_path, "runtime config"
+        ),
+        "work_result_schema_sha256": _sha256_regular_file(
+            invocation.work_result_schema_path, "WorkResult schema"
+        ),
+        "probe_claim_schema_sha256": _sha256_regular_file(
+            DEFAULT_PROBE_CLAIM_SCHEMA, "ProbeClaim schema"
+        ),
+        "probe_approval_schema_sha256": _sha256_regular_file(
+            DEFAULT_PROBE_APPROVAL_SCHEMA, "ProbeApproval schema"
+        ),
+        "approval_consume_schema_sha256": _sha256_regular_file(
+            DEFAULT_APPROVAL_CONSUME_SCHEMA, "ApprovalConsumeReceipt schema"
+        ),
+        "execution_receipt_schema_sha256": _sha256_regular_file(
+            DEFAULT_EXECUTION_RECEIPT_V3_SCHEMA, "ExecutionReceipt v3 schema"
+        ),
+        "prompt_sha256": hashlib.sha256(
+            invocation.prompt_stdin.encode("utf-8")
+        ).hexdigest(),
+        "objective_sha256": hashlib.sha256(
+            invocation.objective.encode("utf-8")
+        ).hexdigest(),
+        "ownership_sha256": hashlib.sha256(
+            invocation.ownership.encode("utf-8")
+        ).hexdigest(),
+        "route": route,
+        "route_sha256": _canonical_sha256(route),
+        "preauthorization_stores": stores,
+        "dispatch_identity": _claim_dispatch_identity(invocation),
+    }
+    return _validate_preauthorization_binding_shape(binding)
+
+
+def _rfc3339_after(started: str, seconds: int) -> str:
+    value = _parse_utc_timestamp(started, "created_at")
+    return datetime.fromtimestamp(
+        value.timestamp() + seconds, timezone.utc
+    ).isoformat(timespec="microseconds").replace("+00:00", "Z")
+
+
+def build_probe_claim(
+    invocation: Invocation,
+    *,
+    session_id: str,
+    created_at: str | None = None,
+    nonce: str | None = None,
+) -> dict[str, Any]:
+    """Build, but do not persist or execute, one exact offline ProbeClaim v1."""
+
+    created = created_at or _utc_now()
+    _parse_utc_timestamp(created, "ProbeClaim created_at")
+    nonce_value = nonce or os.urandom(32).hex()
+    if not re.fullmatch(r"[a-f0-9]{64}", nonce_value):
+        raise ProbeAuthorizationError("ProbeClaim nonce must be 256-bit lowercase hex")
+    claim: dict[str, Any] = {
+        "schema_version": PROBE_CLAIM_SCHEMA_VERSION,
+        "artifact_type": "ProbeClaim",
+        "binding": _preauthorization_binding(invocation, session_id),
+        "nonce": nonce_value,
+        "created_at": created,
+        "expires_at": _rfc3339_after(created, PROBE_CLAIM_TTL_SECONDS),
+        "ttl_seconds": PROBE_CLAIM_TTL_SECONDS,
+        "max_uses": 1,
+        "retention_days": PREAUTH_RETENTION_DAYS,
+        "raw_streams_retained": False,
+    }
+    claim["claim_id"] = _artifact_address(claim, "claim_id")
+    return claim
+
+
+def emit_probe_claim(
+    invocation: Invocation,
+    destination: str | os.PathLike[str],
+    *,
+    session_id: str,
+) -> dict[str, Any]:
+    """Durably emit a ProbeClaim; this function has no provider-spawn path."""
+
+    stores = _open_preauthorization_stores(
+        invocation, probe_claim_path=destination
+    )
+    claim_store, grant_store, consume_store, dispatch_store, store_binding = stores
+    try:
+        bound = replace(
+            invocation,
+            probe_claim_path=os.path.abspath(os.fspath(destination)),
+            preauthorization_store_binding=store_binding,
+        )
+        claim = build_probe_claim(bound, session_id=session_id)
+        _durable_private_json_create(
+            destination, claim, retained_parent=claim_store
+        )
+        return claim
+    finally:
+        claim_store.close()
+        grant_store.close()
+        consume_store.close()
+        dispatch_store.close()
+
+
+def _validate_claim_record_v1(
+    claim: Mapping[str, Any], expected_binding: Mapping[str, Any] | None = None,
+    *,
+    enforce_fresh: bool = True,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    required = {
+        "schema_version", "artifact_type", "claim_id", "binding", "nonce",
+        "created_at", "expires_at", "ttl_seconds", "max_uses",
+        "retention_days", "raw_streams_retained",
+    }
+    if set(claim) != required:
+        raise ProbeAuthorizationError("ProbeClaim fields are invalid")
+    if claim.get("schema_version") != 1 or claim.get("artifact_type") != "ProbeClaim":
+        raise ProbeAuthorizationError("ProbeClaim version is invalid")
+    if claim.get("ttl_seconds") != PROBE_CLAIM_TTL_SECONDS:
+        raise ProbeAuthorizationError("ProbeClaim TTL is invalid")
+    if (
+        claim.get("max_uses") != 1
+        or claim.get("retention_days") != PREAUTH_RETENTION_DAYS
+        or claim.get("raw_streams_retained") is not False
+    ):
+        raise ProbeAuthorizationError("ProbeClaim policy is invalid")
+    if not isinstance(claim.get("nonce"), str) or not re.fullmatch(
+        r"[a-f0-9]{64}", claim["nonce"]
+    ):
+        raise ProbeAuthorizationError("ProbeClaim nonce is invalid")
+    binding = _validate_preauthorization_binding_shape(
+        _mapping(claim.get("binding"), "ProbeClaim binding")
+    )
+    if expected_binding is not None and dict(binding) != dict(expected_binding):
+        raise ProbeAuthorizationError("ProbeClaim binding is stale or mismatched")
+    created = _parse_utc_timestamp(claim.get("created_at"), "ProbeClaim created_at")
+    expires = _parse_utc_timestamp(claim.get("expires_at"), "ProbeClaim expires_at")
+    if expires - created != timedelta(seconds=PROBE_CLAIM_TTL_SECONDS):
+        raise ProbeAuthorizationError("ProbeClaim expiry is invalid")
+    if enforce_fresh:
+        captured_now = now or _utc_datetime()
+        if created > captured_now:
+            raise ProbeAuthorizationError("ProbeClaim is not yet valid")
+        if captured_now >= expires:
+            raise ProbeAuthorizationError("ProbeClaim is expired")
+    if claim.get("claim_id") != _artifact_address(claim, "claim_id"):
+        raise ProbeAuthorizationError("ProbeClaim content address is invalid")
+    return dict(claim)
+
+
+def build_probe_approval(
+    claim: Mapping[str, Any],
+    *,
+    session_id: str,
+    created_at: str | None = None,
+    nonce: str | None = None,
+    claim_artifact_sha256: str | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    """Build a separate local attestation grant for one exact valid claim."""
+
+    captured_now = now or _utc_datetime()
+    normalized_claim = _validate_claim_record_v1(claim, now=captured_now)
+    binding = _mapping(normalized_claim["binding"], "ProbeClaim binding")
+    if binding.get("session_sha256") != hashlib.sha256(
+        session_id.encode("utf-8")
+    ).hexdigest():
+        raise ProbeAuthorizationError("approval session does not match ProbeClaim")
+    _required_string(session_id, "approval session id", safe_name=True)
+    created = created_at or _format_utc(captured_now)
+    grant_created = _parse_utc_timestamp(created, "ApprovalGrant created_at")
+    claim_created = _parse_utc_timestamp(
+        normalized_claim["created_at"], "ProbeClaim created_at"
+    )
+    claim_expires = _parse_utc_timestamp(
+        normalized_claim["expires_at"], "ProbeClaim expires_at"
+    )
+    grant_expires = grant_created + timedelta(seconds=APPROVAL_GRANT_TTL_SECONDS)
+    if grant_created > captured_now:
+        raise ProbeAuthorizationError("ApprovalGrant is not yet valid")
+    if grant_created < claim_created:
+        raise ProbeAuthorizationError("ApprovalGrant predates ProbeClaim")
+    if grant_expires > claim_expires:
+        raise ProbeAuthorizationError("cannot approve an expired ProbeClaim")
+    nonce_value = nonce or os.urandom(32).hex()
+    if not re.fullmatch(r"[a-f0-9]{64}", nonce_value):
+        raise ProbeAuthorizationError("ApprovalGrant nonce is invalid")
+    if claim_artifact_sha256 is not None and not re.fullmatch(
+        r"[a-f0-9]{64}", claim_artifact_sha256
+    ):
+        raise ProbeAuthorizationError("ProbeClaim artifact digest is invalid")
+    grant: dict[str, Any] = {
+        "schema_version": PROBE_APPROVAL_SCHEMA_VERSION,
+        "artifact_type": "ApprovalGrant",
+        "approval_type": "ProbeApproval",
+        "claim_id": normalized_claim["claim_id"],
+        "claim_sha256": claim_artifact_sha256 or hashlib.sha256(
+            _canonical_json_bytes(normalized_claim)
+        ).hexdigest(),
+        "binding": dict(binding),
+        "nonce": nonce_value,
+        "created_at": created,
+        "expires_at": _format_utc(grant_expires),
+        "ttl_seconds": APPROVAL_GRANT_TTL_SECONDS,
+        "max_uses": 1,
+        "revoked": False,
+        "attestation_scope": PREAUTH_SCOPE,
+        "authenticity_claimed": False,
+        "retention_days": PREAUTH_RETENTION_DAYS,
+        "raw_streams_retained": False,
+    }
+    grant["grant_id"] = _artifact_address(grant, "grant_id")
+    return grant
+
+
+def emit_probe_approval(
+    invocation: Invocation,
+    claim_path: str | os.PathLike[str],
+    destination: str | os.PathLike[str],
+    *,
+    session_id: str,
+) -> dict[str, Any]:
+    """Load a claim and durably emit its separate local ApprovalGrant."""
+
+    stores = _open_preauthorization_stores(
+        invocation,
+        probe_claim_path=claim_path,
+        approval_grant_path=destination,
+    )
+    claim_store, grant_store, consume_store, dispatch_store, store_binding = stores
+    try:
+        bound = replace(
+            invocation,
+            probe_claim_path=os.path.abspath(os.fspath(claim_path)),
+            approval_grant_path=os.path.abspath(os.fspath(destination)),
+            preauthorization_store_binding=store_binding,
+        )
+        artifact = _secure_json_artifact(
+            claim_path, retained_parent=claim_store
+        )
+        try:
+            captured_now = _utc_datetime()
+            expected_binding = _preauthorization_binding(bound, session_id)
+            claim = _validate_claim_record_v1(
+                artifact.record, expected_binding, now=captured_now
+            )
+            grant = build_probe_approval(
+                claim,
+                session_id=session_id,
+                claim_artifact_sha256=hashlib.sha256(artifact.raw).hexdigest(),
+                now=captured_now,
+            )
+        finally:
+            artifact.close()
+        _durable_private_json_create(
+            destination, grant, retained_parent=grant_store
+        )
+        return grant
+    finally:
+        claim_store.close()
+        grant_store.close()
+        consume_store.close()
+        dispatch_store.close()
 
 
 def _dispatch_claim_key(invocation: Invocation) -> str:
@@ -2683,7 +2955,9 @@ def _durable_claim_destination(invocation: Invocation) -> tuple[Path, int]:
         raw = Path(invocation.claim_store_override)
         if not raw.is_absolute():
             raise SchedulingError("INVALID_CLAIM_STORE", "claim store override must be absolute")
-        destination = _canonical_realpath(raw)
+        if any(part in {".", ".."} for part in raw.parts):
+            raise SchedulingError("INVALID_CLAIM_STORE", "claim store path alias is unsafe")
+        destination = Path(os.path.abspath(raw))
         try:
             relative = destination.relative_to(project)
         except ValueError as exc:
@@ -2734,7 +3008,11 @@ def _open_claim_store_path(
         value = _validate_owned_directory_fd(parent_fd)
         os.fsync(parent_fd)
         return ClaimStore(
-            destination, parent_fd, (value.st_dev, value.st_ino), namespace
+            destination,
+            parent_fd,
+            (value.st_dev, value.st_ino),
+            _directory_identity_sha256(destination, value),
+            namespace,
         )
     except (OSError, SchedulingError) as exc:
         os.close(parent_fd)
@@ -2762,7 +3040,10 @@ def _coerce_claim_store(value: ClaimStore | Path, invocation: Invocation) -> Cla
 
     if isinstance(value, ClaimStore):
         return value
-    destination = _canonical_realpath(Path(value))
+    raw = Path(value)
+    if any(part in {".", ".."} for part in raw.parts):
+        raise SchedulingError("INVALID_CLAIM_STORE", "injected claim store alias is unsafe")
+    destination = Path(os.path.abspath(raw))
     project = _canonical_realpath(Path(invocation.cwd))
     try:
         destination.relative_to(project)
@@ -2770,6 +3051,78 @@ def _coerce_claim_store(value: ClaimStore | Path, invocation: Invocation) -> Cla
         raise SchedulingError("INVALID_CLAIM_STORE", "injected claim store is unsafe") from exc
     namespace = hashlib.sha256(os.fsencode(project)).hexdigest()
     return _open_claim_store_path(destination, len(project.parts), namespace)
+
+
+def _open_preauthorization_stores(
+    invocation: Invocation,
+    *,
+    probe_claim_path: str | os.PathLike[str] | None = None,
+    approval_grant_path: str | os.PathLike[str] | None = None,
+) -> tuple[
+    RetainedDirectory,
+    RetainedDirectory,
+    RetainedDirectory,
+    ClaimStore,
+    dict[str, str],
+]:
+    """Open all four local stores once and return their closed identity set."""
+
+    claim_path = probe_claim_path or invocation.probe_claim_path
+    grant_path = approval_grant_path or invocation.approval_grant_path
+    if not claim_path or not grant_path or not invocation.approval_store_path:
+        raise ProbeAuthorizationError(
+            "claim, grant, consume, and dispatch-ledger stores are required"
+        )
+    claim_store: RetainedDirectory | None = None
+    grant_store: RetainedDirectory | None = None
+    consume_store: RetainedDirectory | None = None
+    dispatch_store: ClaimStore | None = None
+    try:
+        claim_store = _open_retained_private_directory(
+            _normalized_private_path(claim_path).parent, "ProbeClaim store"
+        )
+        grant_store = _open_retained_private_directory(
+            _normalized_private_path(grant_path).parent, "ApprovalGrant store"
+        )
+        consume_store = _open_retained_private_directory(
+            invocation.approval_store_path, "approval consume store"
+        )
+        dispatch_store = _coerce_claim_store(
+            _secure_claim_directory(invocation), invocation
+        )
+        stores = {
+            "probe_claim_store": claim_store.identity_sha256,
+            "approval_grant_store": grant_store.identity_sha256,
+            "approval_consume_store": consume_store.identity_sha256,
+            "dispatch_ledger_store": dispatch_store.identity_sha256,
+        }
+        return claim_store, grant_store, consume_store, dispatch_store, stores
+    except BaseException:
+        if claim_store is not None:
+            claim_store.close()
+        if grant_store is not None:
+            grant_store.close()
+        if consume_store is not None:
+            consume_store.close()
+        if dispatch_store is not None:
+            dispatch_store.close()
+        raise
+
+
+def _bind_invocation_to_current_stores(invocation: Invocation) -> Invocation:
+    """Reopen all local stores safely and bind their current identities."""
+
+    stores = _open_preauthorization_stores(invocation)
+    claim_store, grant_store, consume_store, dispatch_store, store_binding = stores
+    try:
+        return replace(
+            invocation, preauthorization_store_binding=store_binding
+        )
+    finally:
+        claim_store.close()
+        grant_store.close()
+        consume_store.close()
+        dispatch_store.close()
 
 
 def _validate_regular_fd(
@@ -3572,9 +3925,15 @@ def _check_active_ownership_conflicts(
             os.close(descriptor)
 
 
-def _acquire_dispatch_claim(invocation: Invocation) -> DispatchClaim:
+def _acquire_dispatch_claim(
+    invocation: Invocation, retained_store: ClaimStore | None = None
+) -> DispatchClaim:
     key = _dispatch_claim_key(invocation)
-    store = _coerce_claim_store(_secure_claim_directory(invocation), invocation)
+    store = (
+        retained_store
+        if retained_store is not None
+        else _coerce_claim_store(_secure_claim_directory(invocation), invocation)
+    )
     name = f"{key}.json"
     exact_tokens: tuple[str, ...] = ()
     ancestor_tokens: tuple[str, ...] = ()
@@ -4052,7 +4411,16 @@ def _normalized_provider_work_result(value: Any, label: str) -> dict[str, Any]:
         ) from exc
 
 
-def _parse_codex_result(payload: str | bytes | None) -> ProviderResult:
+def _saturated_candidate_count(candidates: Sequence[Mapping[str, Any]]) -> int:
+    """Return only the closed 0/1/2+ cardinality signal, never candidate content."""
+
+    return min(len(candidates), 2)
+
+
+def _parse_codex_result(
+    payload: str | bytes | None,
+    private_final: Mapping[str, Any] | None = None,
+) -> ProviderResult:
     events, _ = _jsonl_events(payload, "Codex JSONL")
     terminal_indices = [index for index, event in enumerate(events) if event.get("type") == "turn.completed"]
     if len(terminal_indices) != 1 or terminal_indices[0] != len(events) - 1:
@@ -4079,7 +4447,7 @@ def _parse_codex_result(payload: str | bytes | None) -> ProviderResult:
         thread_ids[0] if thread_ids else None, "Codex thread_id"
     )
 
-    candidates: list[Mapping[str, Any]] = []
+    candidates: list[dict[str, Any]] = []
     for event in events[: terminal_indices[0]]:
         if event.get("type") != "item.completed":
             continue
@@ -4087,14 +4455,20 @@ def _parse_codex_result(payload: str | bytes | None) -> ProviderResult:
             item = _mapping(event.get("item"), "Codex completed item")
         except ConfigurationError as exc:
             raise ProviderParseError(
-                "final_message_cardinality", "Codex completed item is invalid"
+                "final_message_cardinality",
+                "Codex completed item is invalid",
+                final_message_cardinality_subreason="completed_item_shape",
+                candidate_count=_saturated_candidate_count(candidates),
             ) from exc
         if item.get("type") != "agent_message":
             continue
         text = item.get("text")
         if not isinstance(text, str):
             raise ProviderParseError(
-                "final_message_cardinality", "Codex agent_message text must be a string"
+                "final_message_cardinality",
+                "Codex agent_message text must be a string",
+                final_message_cardinality_subreason="agent_message_text_shape",
+                candidate_count=_saturated_candidate_count(candidates),
             )
         try:
             candidate = _strict_json_loads(text)
@@ -4102,16 +4476,50 @@ def _parse_codex_result(payload: str | bytes | None) -> ProviderResult:
             raise ProviderParseError(
                 "terminal_shape", "Codex final message contains ambiguous JSON"
             ) from exc
-        except _StrictJSONError:
+        except _StrictJSONError as exc:
+            # Ordinary prose is telemetry, not a structured candidate. Text
+            # that starts like JSON is a malformed candidate and fails closed.
+            if text.lstrip().startswith(("{", "[")):
+                raise ProviderParseError(
+                    "work_result_validation",
+                    "Codex structured agent_message candidate is malformed",
+                ) from exc
             continue
-        if isinstance(candidate, Mapping):
-            candidates.append(candidate)
-    if len(candidates) != 1:
+        if not isinstance(candidate, Mapping):
+            raise ProviderParseError(
+                "work_result_validation",
+                "Codex structured agent_message candidate is not a WorkResult",
+            )
+        candidates.append(
+            _normalized_provider_work_result(candidate, "Codex telemetry WorkResult")
+        )
+    if len(candidates) > 1:
         raise ProviderParseError(
             "final_message_cardinality",
-            "Codex JSONL must contain exactly one structured final WorkResult",
+            "Codex JSONL must not contain more than exactly one structured final WorkResult",
+            final_message_cardinality_subreason="multiple_structured_candidates",
+            candidate_count=_saturated_candidate_count(candidates),
         )
-    work_result = _normalized_provider_work_result(candidates[0], "Codex WorkResult")
+    if private_final is None:
+        # Retained for standalone v2 receipt revalidation and parser callers.
+        # Governed execution always supplies the independently validated -o
+        # channel and never relies on JSONL extraction.
+        if len(candidates) != 1:
+            raise ProviderParseError(
+                "final_message_cardinality",
+                "Codex JSONL must contain exactly one structured final WorkResult",
+                candidate_count=_saturated_candidate_count(candidates),
+            )
+        work_result = candidates[0]
+    else:
+        work_result = _normalized_provider_work_result(
+            private_final, "Codex private final WorkResult"
+        )
+        if candidates and candidates[0] != work_result:
+            raise ProviderParseError(
+                "work_result_validation",
+                "Codex telemetry and private final WorkResults conflict",
+            )
     return ProviderResult(
         work_result=work_result,
         adapter="codex-jsonl-output-schema-v2",
@@ -4233,12 +4641,17 @@ def _parse_agy_result(payload: str | bytes | None) -> ProviderResult:
     )
 
 
-def parse_provider_result(invocation: Invocation, payload: str | bytes | None) -> ProviderResult:
+def parse_provider_result(
+    invocation: Invocation,
+    payload: str | bytes | None,
+    *,
+    private_final: Mapping[str, Any] | None = None,
+) -> ProviderResult:
     """Apply exactly one provider-native adapter; no fallback or prose inference."""
 
     try:
         if invocation.route.cli == "codex":
-            parsed = _parse_codex_result(payload)
+            parsed = _parse_codex_result(payload, private_final)
         elif invocation.route.cli == "agy":
             parsed = _parse_agy_result(payload)
         else:
@@ -4345,6 +4758,7 @@ def _verify_isolated_account_home(
 def validate_execution_preflight(invocation: Invocation) -> None:
     """Require a runnable executable and a structurally isolated account home."""
 
+    _validate_invocation_provider_binding(invocation)
     executable = invocation.route.command
     if "/" in executable:
         executable_path = Path(executable)
@@ -4371,173 +4785,1082 @@ def validate_execution_preflight(invocation: Invocation) -> None:
             raise ConfigurationError("AGY read-only dispatch requires mode=plan and sandbox=true")
 
 
-def _consume_spawn_capacity(
-    invocation: Invocation, validated: ValidatedDispatchDecision,
-) -> capacity.CapacityLease | None:
-    """Atomically charge the one provider request at the final spawn boundary."""
+def _create_private_final_file(directory: Path) -> tuple[Path, tuple[int, int]]:
+    """Create a private regular file and return its immutable identity."""
 
-    fields = (
-        invocation.capacity_lease,
-        invocation.capacity_store_path,
-        invocation.capacity_policy,
-        invocation.capacity_request_id,
-    )
-    if all(value is None for value in fields):
-        if invocation.capacity_required:
-            raise SchedulingError("CAPACITY_LEASE_REQUIRED", "capacity lease is missing")
-        return None
-    if any(value is None for value in fields):
-        raise SchedulingError("CAPACITY_LEASE_REQUIRED", "capacity lease binding is incomplete")
+    path = directory / "codex-final-work-result.json"
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    descriptor = os.open(path, flags, 0o600)
     try:
-        candidate = capacity.consume_lease(
-            invocation.capacity_store_path,  # type: ignore[arg-type]
-            invocation.capacity_lease,  # type: ignore[arg-type]
-            requests=1,
-            policy=invocation.capacity_policy,  # type: ignore[arg-type]
-        )
-    except capacity.CapacityLeaseError as exc:
-        raise SchedulingError(f"CAPACITY_{exc.code}", "capacity lease was rejected") from exc
-    expected_floor = str(validated.quality_floor)
-    if (
-        candidate.account != invocation.route.alias
-        or candidate.provider != invocation.route.cli
-        or candidate.owner != invocation.route.role
-        or candidate.request_id != invocation.capacity_request_id
-        or candidate.lane != invocation.attempt_id
-        or candidate.model_quality_floor != expected_floor
-    ):
-        # The ledger is authoritative, so a matching but wrongly-bound lease is
-        # released before rejecting.  No cross-account fallback is attempted.
-        try:
-            capacity.release_lease(
-                invocation.capacity_store_path, candidate,
-                policy=invocation.capacity_policy,  # type: ignore[arg-type]
+        metadata = os.fstat(descriptor)
+        if (
+            not stat.S_ISREG(metadata.st_mode)
+            or stat.S_IMODE(metadata.st_mode) != 0o600
+            or metadata.st_nlink != 1
+            or (hasattr(os, "getuid") and metadata.st_uid != os.getuid())
+        ):
+            raise ConfigurationError("private final output file is unsafe")
+        return path, (metadata.st_dev, metadata.st_ino)
+    finally:
+        os.close(descriptor)
+
+
+def _read_private_final_file(
+    path: Path, expected_identity: tuple[int, int]
+) -> PrivateFinalResult:
+    """Read one bounded no-follow final WorkResult without retaining raw content."""
+
+    flags = os.O_RDONLY | os.O_CLOEXEC | os.O_NONBLOCK
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        descriptor = os.open(path, flags)
+    except OSError as exc:
+        raise ProviderParseError(
+            "work_result_validation", "Codex private final output is unavailable"
+        ) from exc
+    try:
+        metadata = os.fstat(descriptor)
+        if (
+            not stat.S_ISREG(metadata.st_mode)
+            or (metadata.st_dev, metadata.st_ino) != expected_identity
+            or metadata.st_nlink != 1
+            or stat.S_IMODE(metadata.st_mode) & 0o077
+            or (hasattr(os, "getuid") and metadata.st_uid != os.getuid())
+        ):
+            raise ProviderParseError(
+                "work_result_validation", "Codex private final output identity is invalid"
             )
-        except capacity.CapacityLeaseError:
-            pass
-        raise SchedulingError("CAPACITY_LEASE_MISMATCH", "capacity lease does not bind this route")
-    return candidate
-
-
-def _qobs_admission_binding(admission: QobsAdmission) -> dict[str, str]:
-    """Return the exact durable marker material for one frozen admission."""
-
-    return {
-        "exception_id": admission.execution_exception_id,
-        "decision_sha256": admission.decision_sha256,
-        "scheduling_snapshot_sha256": admission.scheduling_snapshot_sha256,
-        "qobs_artifact_sha256": admission.qobs_artifact_sha256,
-        "qobs_nonce_sha256": admission.qobs_nonce_sha256,
-        "qobs_context_sha256": admission.qobs_context_sha256,
-    }
-
-
-def _validate_qobs_invocation_binding(
-    invocation: Invocation, *, now: datetime | None = None, allow_committed: bool = False
-) -> QobsAdmission | None:
-    """Revalidate every exception binding without consuming its ledger marker."""
-
-    admission = invocation.qobs_admission
-    if admission is None:
-        return None
-    if (
-        not is_validated_qobs_admission(admission)
-        or invocation.qobs_artifact is None
-        or not isinstance(invocation.qobs_expected_context, Mapping)
-        or not invocation.qobs_ledger_store
-        or Path(invocation.cwd).resolve() != REPOSITORY_ROOT.resolve()
-    ):
-        raise ConfigurationError("closed exception QOBS binding is invalid")
-    marker = Path(invocation.qobs_ledger_store) / (
-        f"{quota_guard.sha256_text(admission.execution_exception_id)}.used"
+        if metadata.st_size < 1 or metadata.st_size > MAX_PRIVATE_FINAL_BYTES:
+            raise ProviderParseError(
+                "work_result_validation", "Codex private final output size is invalid"
+            )
+        raw = bytearray()
+        while len(raw) <= MAX_PRIVATE_FINAL_BYTES:
+            chunk = os.read(descriptor, min(65_536, MAX_PRIVATE_FINAL_BYTES + 1 - len(raw)))
+            if not chunk:
+                break
+            raw.extend(chunk)
+        if len(raw) != metadata.st_size or len(raw) > MAX_PRIVATE_FINAL_BYTES:
+            raise ProviderParseError(
+                "work_result_validation", "Codex private final output changed while reading"
+            )
+        final_metadata = os.fstat(descriptor)
+        if (
+            (final_metadata.st_dev, final_metadata.st_ino)
+            != (metadata.st_dev, metadata.st_ino)
+            or final_metadata.st_size != metadata.st_size
+            or final_metadata.st_nlink != 1
+            or not stat.S_ISREG(final_metadata.st_mode)
+            or stat.S_IMODE(final_metadata.st_mode) != stat.S_IMODE(metadata.st_mode)
+            or final_metadata.st_mtime_ns != metadata.st_mtime_ns
+            or final_metadata.st_ctime_ns != metadata.st_ctime_ns
+            or final_metadata.st_uid != metadata.st_uid
+            or (hasattr(os, "getuid") and final_metadata.st_uid != os.getuid())
+        ):
+            raise ProviderParseError(
+                "work_result_validation", "Codex private final output changed while reading"
+            )
+    finally:
+        os.close(descriptor)
+    try:
+        text = bytes(raw).decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ProviderParseError(
+            "work_result_validation", "Codex private final output is not UTF-8"
+        ) from exc
+    try:
+        decoded = _strict_json_loads(text)
+    except _StrictJSONError as exc:
+        raise ProviderParseError(
+            "work_result_validation", "Codex private final output is malformed JSON"
+        ) from exc
+    normalized = _normalized_provider_work_result(decoded, "Codex private final WorkResult")
+    return PrivateFinalResult(
+        work_result=normalized,
+        byte_count=len(raw),
+        sha256=hashlib.sha256(raw).hexdigest(),
     )
-    if marker.exists() and not allow_committed:
-        raise quota_guard.QuotaObservationError("EXECUTION_EXCEPTION_CONSUMED")
-    validated = _validated_invocation_decision(invocation)
-    expected = invocation.qobs_expected_context
-    executable = _resolve_qobs_executable(invocation.route)
-    if (
-        invocation.route.command != executable
-        or invocation.argv[0] != executable
-        or expected.get("resolved_executable") != executable
-        or expected.get("account_home") != invocation.route.home_path
-        or expected.get("alias") != invocation.route.alias
-        or expected.get("provider") != invocation.route.cli
-        or expected.get("ticket_id") != validated.decision.get("ticket")
-        or expected.get("attempt_id") != invocation.attempt_id
-        or expected.get("policy_version") != validated.policy_version
-        or admission.execution_exception_id != _LUNA_ONE_SHOT_EXCEPTION_ID
-        or admission.ticket_id != validated.decision.get("ticket")
-        or admission.attempt_id != invocation.attempt_id
-        or admission.role != invocation.route.role
-        or admission.alias != invocation.route.alias
-        or admission.provider != invocation.route.cli
-        or admission.model != invocation.route.model
-        or admission.effort != invocation.route.effort
-        or admission.work_mode != validated.decision.get("work_mode")
-        or admission.sandbox != invocation.route.sandbox
-        or admission.quota_band != validated.decision.get("quota_band")
-        or admission.decision_sha256 != validated.digest
-        or admission.scheduling_snapshot_sha256 != invocation.scheduling_snapshot_digest
-        or admission.resolved_executable_sha256 != quota_guard.sha256_text(executable)
-        or admission.qobs_artifact_sha256 != _qobs_digest(invocation.qobs_artifact)
-        or admission.qobs_context_sha256 != _qobs_context_digest(expected)
-        or admission.exception_consumption_sha256
-        != _canonical_sha256(_qobs_admission_binding(admission))
-    ):
-        raise ConfigurationError("closed exception QOBS binding is incoherent")
+
+
+def _validated_text_channel(value: str | bytes | None, label: str) -> bytes:
+    """Validate one bounded UTF-8 transport channel and reject secret findings."""
+
+    if value is None:
+        raw = b""
+        text = ""
+    elif isinstance(value, str):
+        try:
+            raw = value.encode("utf-8")
+        except UnicodeError as exc:
+            raise ProviderParseError("terminal_shape", f"{label} is not UTF-8") from exc
+        text = value
+    elif isinstance(value, bytes):
+        raw = value
+        try:
+            text = raw.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            raise ProviderParseError("terminal_shape", f"{label} is not UTF-8") from exc
+    else:
+        raise ProviderParseError("terminal_shape", f"{label} has an invalid type")
+    if len(raw) > MAX_PROVIDER_OUTPUT_BYTES:
+        raise ProviderParseError("terminal_shape", f"{label} exceeds the safe byte limit")
     try:
-        observation = quota_guard.validate_quota_observation(
-            invocation.qobs_artifact, dict(expected), now=now
+        _reject_secret_bearing(text, label)
+    except ConfigurationError as exc:
+        raise ProviderParseError("secret_bearing", f"{label} contains a secret finding") from exc
+    return raw
+
+
+def _private_final_from_process(
+    result: subprocess.CompletedProcess[str],
+) -> PrivateFinalResult:
+    value = getattr(result, "_private_final_result", None)
+    if not isinstance(value, PrivateFinalResult):
+        raise ProviderParseError(
+            "work_result_validation", "Codex private final evidence is missing"
         )
-    except quota_guard.QuotaObservationError as exc:
-        raise ConfigurationError("closed exception QOBS observation is invalid") from exc
     if (
-        observation.get("quota_band") != "constrained"
-        or quota_guard.sha256_text(str(expected.get("nonce")))
-        != admission.qobs_nonce_sha256
-        or quota_bound_dispatch_identity(
-            invocation.qobs_artifact,
-            admission.quota_consumption(),
-            admission.dispatch_context(),
-        )
-        != admission.dispatch_identity
+        value.byte_count < 1
+        or value.byte_count > MAX_PRIVATE_FINAL_BYTES
+        or not re.fullmatch(r"[a-f0-9]{64}", value.sha256)
+        or value.byte_count != getattr(result, "_private_final_bytes", None)
+        or value.sha256 != getattr(result, "_private_final_sha256", None)
+        or _canonical_sha256(value.work_result)
+        != getattr(result, "_private_final_work_result_sha256", None)
     ):
-        raise ConfigurationError("closed exception QOBS binding is incoherent")
-    return admission
-
-
-def _commit_qobs_before_spawn(invocation: Invocation) -> None:
-    """Commit a validated QOBS use only at the final provider start boundary."""
-
-    admission = _validate_qobs_invocation_binding(invocation)
-    if admission is not None:
-        _commit_qobs_one_shot(
-            admission=admission,
-            ledger_store=invocation.qobs_ledger_store,
-            binding=_qobs_admission_binding(admission),
+        raise ProviderParseError(
+            "work_result_validation", "Codex private final digest evidence is invalid"
         )
+    return value
 
 
-def _release_spawn_capacity(invocation: Invocation, lease: capacity.CapacityLease | None) -> None:
-    """Release a consumed lease after the child exits; never mask its outcome."""
+def _validated_process_channel_evidence(
+    result: subprocess.CompletedProcess[str],
+) -> dict[str, dict[str, str | int]]:
+    """Recompute and verify the in-memory transport channel digest bindings."""
 
-    if lease is None:
-        return
+    evidence: dict[str, dict[str, str | int]] = {}
+    for name in ("stdout", "stderr"):
+        raw = _validated_text_channel(getattr(result, name), f"provider {name}")
+        byte_count = len(raw)
+        digest = hashlib.sha256(raw).hexdigest()
+        if (
+            byte_count != getattr(result, f"_{name}_bytes", None)
+            or digest != getattr(result, f"_{name}_sha256", None)
+        ):
+            raise ProviderParseError(
+                "terminal_shape", f"provider {name} digest evidence is invalid"
+            )
+        evidence[name] = {"bytes": byte_count, "sha256": digest}
+    return evidence
+
+
+def _terminate_owned_process_group(process: subprocess.Popen[bytes]) -> None:
+    """Terminate, then kill and reap, the distinct session owned by this dispatch."""
+
+    process_group = process.pid
+
+    def group_exists() -> bool:
+        try:
+            os.killpg(process_group, 0)
+        except ProcessLookupError:
+            return False
+        except PermissionError:
+            # POSIX reports EPERM for an existing group with no signalable
+            # member (for example, an unreaped leader). Reap/poll below before
+            # deciding that cleanup failed.
+            return True
+        return True
+
+    if group_exists():
+        try:
+            os.killpg(process_group, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+        except PermissionError:
+            pass
+    grace_deadline = time.monotonic() + PROCESS_GROUP_TERMINATE_SECONDS
+    while group_exists() and time.monotonic() < grace_deadline:
+        process.poll()
+        time.sleep(0.02)
+    if group_exists():
+        try:
+            os.killpg(process_group, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        except PermissionError:
+            pass
     try:
-        capacity.release_lease(
-            invocation.capacity_store_path, lease,
-            policy=invocation.capacity_policy,  # type: ignore[arg-type]
+        process.wait(timeout=PROCESS_GROUP_TERMINATE_SECONDS)
+    except subprocess.TimeoutExpired as exc:
+        raise ConfigurationError("owned provider process leader could not be reaped") from exc
+    reap_deadline = time.monotonic() + PROCESS_GROUP_TERMINATE_SECONDS
+    while group_exists() and time.monotonic() < reap_deadline:
+        time.sleep(0.02)
+    if group_exists():
+        raise ConfigurationError("owned provider process group did not terminate")
+
+
+def _validate_approval_grant_v1(
+    grant: Mapping[str, Any],
+    claim: Mapping[str, Any],
+    expected_binding: Mapping[str, Any],
+    *,
+    enforce_fresh: bool = True,
+    claim_artifact_sha256: str | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    required = {
+        "schema_version", "artifact_type", "approval_type", "grant_id",
+        "claim_id", "claim_sha256", "binding", "nonce", "created_at",
+        "expires_at", "ttl_seconds", "max_uses", "revoked",
+        "attestation_scope", "authenticity_claimed", "retention_days",
+        "raw_streams_retained",
+    }
+    if set(grant) != required:
+        raise ProbeAuthorizationError("ApprovalGrant fields are invalid")
+    if (
+        grant.get("schema_version") != 1
+        or grant.get("artifact_type") != "ApprovalGrant"
+        or grant.get("approval_type") != "ProbeApproval"
+        or grant.get("ttl_seconds") != APPROVAL_GRANT_TTL_SECONDS
+        or grant.get("max_uses") != 1
+        or grant.get("revoked") is not False
+        or grant.get("attestation_scope") != PREAUTH_SCOPE
+        or grant.get("authenticity_claimed") is not False
+        or grant.get("retention_days") != PREAUTH_RETENTION_DAYS
+        or grant.get("raw_streams_retained") is not False
+    ):
+        raise ProbeAuthorizationError("ApprovalGrant policy is invalid")
+    if grant.get("binding") != dict(expected_binding):
+        raise ProbeAuthorizationError("ApprovalGrant binding is stale or mismatched")
+    if grant.get("claim_id") != claim.get("claim_id"):
+        raise ProbeAuthorizationError("ApprovalGrant claim binding is invalid")
+    expected_claim_sha256 = claim_artifact_sha256 or hashlib.sha256(
+        _canonical_json_bytes(claim)
+    ).hexdigest()
+    if grant.get("claim_sha256") != expected_claim_sha256:
+        raise ProbeAuthorizationError("ApprovalGrant claim digest is invalid")
+    if not isinstance(grant.get("nonce"), str) or not re.fullmatch(
+        r"[a-f0-9]{64}", grant["nonce"]
+    ):
+        raise ProbeAuthorizationError("ApprovalGrant nonce is invalid")
+    created = _parse_utc_timestamp(grant.get("created_at"), "ApprovalGrant created_at")
+    expires = _parse_utc_timestamp(grant.get("expires_at"), "ApprovalGrant expires_at")
+    claim_created = _parse_utc_timestamp(
+        claim.get("created_at"), "ProbeClaim created_at"
+    )
+    claim_expires = _parse_utc_timestamp(
+        claim.get("expires_at"), "ProbeClaim expires_at"
+    )
+    if expires - created != timedelta(seconds=APPROVAL_GRANT_TTL_SECONDS):
+        raise ProbeAuthorizationError("ApprovalGrant expiry is invalid")
+    if created < claim_created or expires > claim_expires:
+        raise ProbeAuthorizationError("ApprovalGrant temporal binding is invalid")
+    if enforce_fresh:
+        captured_now = now or _utc_datetime()
+        if created > captured_now:
+            raise ProbeAuthorizationError("ApprovalGrant is not yet valid")
+        if captured_now >= expires:
+            raise ProbeAuthorizationError("ApprovalGrant is expired")
+    if grant.get("grant_id") != _artifact_address(grant, "grant_id"):
+        raise ProbeAuthorizationError("ApprovalGrant content address is invalid")
+    return dict(grant)
+
+
+def _prepare_probe_authorization(
+    invocation: Invocation, *, enforce_fresh: bool = True,
+    reject_consumed: bool = True,
+) -> PreparedProbeAuthorization:
+    """Load and retain exact claim/grant artifacts for final spawn-boundary consume."""
+
+    if not all(
+        (
+            invocation.probe_claim_path,
+            invocation.approval_grant_path,
+            invocation.approval_store_path,
+            invocation.approval_session_id,
         )
-    except capacity.CapacityLeaseError:
-        # The capacity ledger is fail-closed at admission/consume.  A terminal
-        # cleanup race must not expose the prompt or alter child evidence.
-        pass
+    ):
+        raise ProbeAuthorizationError(
+            "--execute requires exact ProbeClaim, ApprovalGrant, store, and session"
+    )
+    stores = _open_preauthorization_stores(invocation)
+    claim_store, grant_store, consume_store, dispatch_store, store_binding = stores
+    try:
+        bound = replace(
+            invocation, preauthorization_store_binding=store_binding
+        )
+        binding = _preauthorization_binding(bound)
+        captured_now = _utc_datetime()
+        claim_artifact = _secure_json_artifact(
+            invocation.probe_claim_path, retained_parent=claim_store
+        )
+    except BaseException:
+        claim_store.close()
+        grant_store.close()
+        consume_store.close()
+        dispatch_store.close()
+        raise
+    try:
+        claim = _validate_claim_record_v1(
+            claim_artifact.record,
+            binding,
+            enforce_fresh=False,
+            now=captured_now,
+        )
+        grant_artifact = _secure_json_artifact(
+            invocation.approval_grant_path, retained_parent=grant_store
+        )
+        try:
+            _validate_approval_grant_v1(
+                grant_artifact.record, claim, binding,
+                enforce_fresh=False,
+                claim_artifact_sha256=hashlib.sha256(claim_artifact.raw).hexdigest(),
+                now=captured_now,
+            )
+            if reject_consumed:
+                names = (
+                    (
+                        consume_store.fd,
+                        f"{grant_artifact.record['grant_id']}.consume.json",
+                    ),
+                    (
+                        dispatch_store.dir_fd,
+                        _consume_anchor_name(grant_artifact.record["grant_id"]),
+                    ),
+                )
+                for descriptor, name in names:
+                    try:
+                        os.stat(name, dir_fd=descriptor, follow_symlinks=False)
+                    except FileNotFoundError:
+                        continue
+                    raise ProbeAuthorizationError("ApprovalGrant is already consumed")
+            if enforce_fresh:
+                claim = _validate_claim_record_v1(
+                    claim_artifact.record,
+                    binding,
+                    enforce_fresh=True,
+                    now=captured_now,
+                )
+                _validate_approval_grant_v1(
+                    grant_artifact.record,
+                    claim,
+                    binding,
+                    enforce_fresh=True,
+                    claim_artifact_sha256=hashlib.sha256(
+                        claim_artifact.raw
+                    ).hexdigest(),
+                    now=captured_now,
+                )
+        except BaseException:
+            grant_artifact.close()
+            raise
+    except BaseException:
+        claim_artifact.close()
+        claim_store.close()
+        grant_store.close()
+        consume_store.close()
+        dispatch_store.close()
+        raise
+    return PreparedProbeAuthorization(
+        claim_artifact,
+        grant_artifact,
+        binding,
+        claim_store,
+        grant_store,
+        consume_store,
+        dispatch_store,
+    )
+
+
+def _approval_store_fd(invocation: Invocation) -> int:
+    if not invocation.approval_store_path:
+        raise ProbeAuthorizationError("approval consume store is required")
+    return _approval_store_path_fd(invocation.approval_store_path)
+
+
+def _approval_store_path_fd(path: str | os.PathLike[str]) -> int:
+    retained = _open_retained_private_directory(path, "approval consume store")
+    try:
+        return retained.duplicate_fd()
+    finally:
+        retained.close()
+
+
+CONSUME_RECEIPT_FIELDS = frozenset(
+    {
+        "schema_version", "artifact_type", "consume_id", "claim_id",
+        "claim_sha256", "grant_id", "grant_sha256", "binding",
+        "consumed_at", "use_number", "max_uses", "consume_status",
+        "attestation_scope", "authenticity_claimed", "retention_days",
+        "raw_streams_retained",
+    }
+)
+CONSUME_TOMBSTONE_FIELDS = frozenset(
+    {
+        "schema_version", "artifact_type", "consume_id", "grant_id",
+        "original_receipt_sha256", "consume_anchor_id",
+        "consume_anchor_sha256", "consumed_at", "compacted_at",
+        "anti_replay", "retention", "attestation_scope",
+        "authenticity_claimed", "raw_streams_retained",
+    }
+)
+CONSUME_ANCHOR_FIELDS = frozenset(
+    {
+        "schema_version", "artifact_type", "anchor_id", "consume_id",
+        "claim_id", "grant_id", "consume_receipt_sha256", "consumed_at",
+        "preauthorization_stores", "dispatch_identity",
+        "attestation_scope", "authenticity_claimed",
+        "raw_streams_retained",
+    }
+)
+
+
+def _consume_anchor_name(grant_id: str) -> str:
+    if not isinstance(grant_id, str) or not re.fullmatch(r"[a-f0-9]{64}", grant_id):
+        raise ProbeAuthorizationError("grant id is invalid")
+    return f"preauth-{grant_id}.consume-anchor.json"
+
+
+def _validate_consume_record_v1(record: Mapping[str, Any]) -> dict[str, Any]:
+    """Validate one fully closed consume-receipt or tombstone variant."""
+
+    value = _mapping(record, "approval consume record")
+    artifact_type = value.get("artifact_type")
+    expected_fields = {
+        "ApprovalConsumeReceipt": CONSUME_RECEIPT_FIELDS,
+        "ApprovalConsumeTombstone": CONSUME_TOMBSTONE_FIELDS,
+    }.get(artifact_type)
+    if expected_fields is None or set(value) != expected_fields:
+        raise ProbeAuthorizationError("approval consume variant fields are invalid")
+    if value.get("schema_version") != APPROVAL_CONSUME_SCHEMA_VERSION:
+        raise ProbeAuthorizationError("approval consume version is invalid")
+    variant_digest_fields = (
+        ("claim_id", "claim_sha256", "grant_sha256")
+        if artifact_type == "ApprovalConsumeReceipt"
+        else ("original_receipt_sha256", "consume_anchor_id", "consume_anchor_sha256")
+    )
+    for field in ("consume_id", "grant_id", *variant_digest_fields):
+        if not isinstance(value.get(field), str) or not re.fullmatch(
+            r"[a-f0-9]{64}", value[field]
+        ):
+            raise ProbeAuthorizationError("approval consume digest field is invalid")
+    if artifact_type == "ApprovalConsumeReceipt":
+        if (
+            value.get("use_number") != 1
+            or value.get("max_uses") != 1
+            or value.get("consume_status") != "consumed"
+            or value.get("attestation_scope") != PREAUTH_SCOPE
+            or value.get("authenticity_claimed") is not False
+            or value.get("retention_days") != PREAUTH_RETENTION_DAYS
+            or value.get("raw_streams_retained") is not False
+            or value.get("consume_id") != _artifact_address(value, "consume_id")
+        ):
+            raise ProbeAuthorizationError("ApprovalConsumeReceipt policy is invalid")
+        _validate_preauthorization_binding_shape(
+            _mapping(value.get("binding"), "ApprovalConsumeReceipt binding")
+        )
+        _parse_utc_timestamp(value.get("consumed_at"), "consumed_at")
+    else:
+        consumed = _parse_utc_timestamp(value.get("consumed_at"), "consumed_at")
+        compacted = _parse_utc_timestamp(value.get("compacted_at"), "compacted_at")
+        if (
+            compacted < consumed
+            or value.get("anti_replay") is not True
+            or value.get("retention") != "indefinite"
+            or value.get("attestation_scope") != PREAUTH_SCOPE
+            or value.get("authenticity_claimed") is not False
+            or value.get("raw_streams_retained") is not False
+        ):
+            raise ProbeAuthorizationError("ApprovalConsumeTombstone policy is invalid")
+    return dict(value)
+
+
+def _validate_consume_anchor_v1(
+    record: Mapping[str, Any],
+    *,
+    consume: Mapping[str, Any],
+    consume_raw: bytes,
+    expected_stores: Mapping[str, Any],
+    dispatch_identity: str,
+) -> dict[str, Any]:
+    value = _mapping(record, "approval consume anchor")
+    if set(value) != CONSUME_ANCHOR_FIELDS:
+        raise ProbeAuthorizationError("approval consume anchor fields are invalid")
+    stores = _validated_preauthorization_stores(
+        _mapping(value.get("preauthorization_stores"), "anchor stores")
+    )
+    expected = {
+        "schema_version": 1,
+        "artifact_type": "ApprovalConsumeAnchor",
+        "consume_id": consume.get("consume_id"),
+        "claim_id": consume.get("claim_id"),
+        "grant_id": consume.get("grant_id"),
+        "consume_receipt_sha256": hashlib.sha256(consume_raw).hexdigest(),
+        "consumed_at": consume.get("consumed_at"),
+        "preauthorization_stores": _validated_preauthorization_stores(
+            expected_stores
+        ),
+        "dispatch_identity": dispatch_identity,
+        "attestation_scope": PREAUTH_SCOPE,
+        "authenticity_claimed": False,
+        "raw_streams_retained": False,
+    }
+    for field, expected_value in expected.items():
+        actual = stores if field == "preauthorization_stores" else value.get(field)
+        if actual != expected_value:
+            raise ProbeAuthorizationError("approval consume anchor binding is invalid")
+    if value.get("anchor_id") != _artifact_address(value, "anchor_id"):
+        raise ProbeAuthorizationError("approval consume anchor address is invalid")
+    _parse_utc_timestamp(value.get("consumed_at"), "anchor consumed_at")
+    return dict(value)
+
+
+def _claim_store_as_retained(store: ClaimStore) -> RetainedDirectory:
+    return RetainedDirectory(
+        store.path,
+        os.dup(store.dir_fd),
+        store.identity,
+        store.identity_sha256,
+    )
+
+
+def _consume_prepared_approval(
+    invocation: Invocation,
+    prepared: PreparedProbeAuthorization,
+    dispatch_store: ClaimStore | None = None,
+) -> dict[str, Any]:
+    """Atomically burn the exact grant and return its durable consume receipt."""
+
+    if prepared.consume_artifact is not None or prepared.anchor_artifact is not None:
+        raise ProbeAuthorizationError("ApprovalGrant is already consumed")
+    _reverify_retained_artifact(prepared.claim)
+    _reverify_retained_artifact(prepared.grant)
+    store_binding = _validated_preauthorization_stores(
+        _mapping(
+            prepared.binding.get("preauthorization_stores"),
+            "prepared preauthorization stores",
+        )
+    )
+    bound_invocation = replace(
+        invocation, preauthorization_store_binding=store_binding
+    )
+    final_binding = _preauthorization_binding(bound_invocation)
+    if final_binding != prepared.binding:
+        raise ProbeAuthorizationError("preauthorization binding changed before consume")
+    captured_now = _utc_datetime()
+    claim = _validate_claim_record_v1(
+        prepared.claim.record, final_binding, now=captured_now
+    )
+    grant = _validate_approval_grant_v1(
+        prepared.grant.record, claim, final_binding,
+        claim_artifact_sha256=hashlib.sha256(prepared.claim.raw).hexdigest(),
+        now=captured_now,
+    )
+    ledger = dispatch_store or prepared.dispatch_ledger_store
+    if ledger is None:
+        raise ProbeAuthorizationError("dispatch ledger descriptor is unavailable")
+    if ledger.identity_sha256 != store_binding["dispatch_ledger_store"]:
+        raise ProbeAuthorizationError("dispatch ledger identity is mismatched")
+    if (
+        prepared.approval_consume_store.identity_sha256
+        != store_binding["approval_consume_store"]
+    ):
+        raise ProbeAuthorizationError("approval consume store identity is mismatched")
+    store_fd = prepared.approval_consume_store.fd
+    lock_fd = -1
+    temporary_fd = -1
+    temporary_name: str | None = None
+    try:
+        try:
+            lock_fd = os.open(
+                ".consume.lock", _file_open_flags(os.O_RDWR), dir_fd=store_fd
+            )
+        except FileNotFoundError:
+            try:
+                lock_fd = os.open(
+                    ".consume.lock",
+                    _file_open_flags(os.O_RDWR | os.O_CREAT | os.O_EXCL),
+                    0o600,
+                    dir_fd=store_fd,
+                )
+                os.fsync(lock_fd)
+                os.fsync(store_fd)
+            except FileExistsError:
+                lock_fd = os.open(
+                    ".consume.lock", _file_open_flags(os.O_RDWR), dir_fd=store_fd
+                )
+        lock_meta = os.fstat(lock_fd)
+        if (
+            not stat.S_ISREG(lock_meta.st_mode)
+            or stat.S_IMODE(lock_meta.st_mode) != 0o600
+            or lock_meta.st_nlink != 1
+        ):
+            raise ProbeAuthorizationError("approval consume lock is invalid")
+        if fcntl is None:
+            raise ProbeAuthorizationError("approval consume requires POSIX locking")
+        fcntl.flock(lock_fd, fcntl.LOCK_EX)
+        final_name = f"{grant['grant_id']}.consume.json"
+        anchor_name = _consume_anchor_name(grant["grant_id"])
+        try:
+            existing = os.stat(final_name, dir_fd=store_fd, follow_symlinks=False)
+        except FileNotFoundError:
+            existing = None
+        if existing is not None:
+            raise ProbeAuthorizationError("ApprovalGrant is already consumed")
+        try:
+            os.stat(anchor_name, dir_fd=ledger.dir_fd, follow_symlinks=False)
+        except FileNotFoundError:
+            pass
+        else:
+            raise ProbeAuthorizationError("ApprovalGrant is already consumed")
+        consumed_at = _format_utc(captured_now)
+        receipt: dict[str, Any] = {
+            "schema_version": APPROVAL_CONSUME_SCHEMA_VERSION,
+            "artifact_type": "ApprovalConsumeReceipt",
+            "claim_id": claim["claim_id"],
+            "claim_sha256": hashlib.sha256(prepared.claim.raw).hexdigest(),
+            "grant_id": grant["grant_id"],
+            "grant_sha256": hashlib.sha256(prepared.grant.raw).hexdigest(),
+            "binding": final_binding,
+            "consumed_at": consumed_at,
+            "use_number": 1,
+            "max_uses": 1,
+            "consume_status": "consumed",
+            "attestation_scope": PREAUTH_SCOPE,
+            "authenticity_claimed": False,
+            "retention_days": PREAUTH_RETENTION_DAYS,
+            "raw_streams_retained": False,
+        }
+        receipt["consume_id"] = _artifact_address(receipt, "consume_id")
+        receipt = _validate_consume_record_v1(receipt)
+        payload = _canonical_json_bytes(receipt)
+        temporary_name = f".{grant['grant_id']}.{os.urandom(8).hex()}.tmp"
+        temporary_fd = os.open(
+            temporary_name,
+            _file_open_flags(os.O_WRONLY | os.O_CREAT | os.O_EXCL),
+            0o600,
+            dir_fd=store_fd,
+        )
+        _write_all(temporary_fd, payload)
+        os.fsync(temporary_fd)
+        metadata = os.fstat(temporary_fd)
+        if (
+            not stat.S_ISREG(metadata.st_mode)
+            or stat.S_IMODE(metadata.st_mode) != 0o600
+            or metadata.st_nlink != 1
+            or metadata.st_size != len(payload)
+        ):
+            raise ProbeAuthorizationError("consume receipt temporary is invalid")
+        os.close(temporary_fd)
+        temporary_fd = -1
+        try:
+            os.link(
+                temporary_name,
+                final_name,
+                src_dir_fd=store_fd,
+                dst_dir_fd=store_fd,
+                follow_symlinks=False,
+            )
+        except FileExistsError as exc:
+            raise ProbeAuthorizationError("ApprovalGrant is already consumed") from exc
+        os.unlink(temporary_name, dir_fd=store_fd)
+        temporary_name = None
+        os.fsync(store_fd)
+        consume_artifact = _secure_json_artifact(
+            prepared.approval_consume_store.path / final_name,
+            retained_parent=prepared.approval_consume_store,
+        )
+        try:
+            persisted_consume = _validate_consume_record_v1(
+                consume_artifact.record
+            )
+            if persisted_consume != receipt or consume_artifact.raw != payload:
+                raise ProbeAuthorizationError(
+                    "durable ApprovalConsumeReceipt is mismatched"
+                )
+            anchor: dict[str, Any] = {
+                "schema_version": 1,
+                "artifact_type": "ApprovalConsumeAnchor",
+                "consume_id": receipt["consume_id"],
+                "claim_id": claim["claim_id"],
+                "grant_id": grant["grant_id"],
+                "consume_receipt_sha256": hashlib.sha256(payload).hexdigest(),
+                "consumed_at": consumed_at,
+                "preauthorization_stores": store_binding,
+                "dispatch_identity": _claim_dispatch_identity(bound_invocation),
+                "attestation_scope": PREAUTH_SCOPE,
+                "authenticity_claimed": False,
+                "raw_streams_retained": False,
+            }
+            anchor["anchor_id"] = _artifact_address(anchor, "anchor_id")
+            ledger_parent = _claim_store_as_retained(ledger)
+            try:
+                _durable_private_json_create(
+                    ledger.path / anchor_name,
+                    anchor,
+                    retained_parent=ledger_parent,
+                )
+                anchor_artifact = _secure_json_artifact(
+                    ledger.path / anchor_name,
+                    retained_parent=ledger_parent,
+                )
+            finally:
+                ledger_parent.close()
+            try:
+                validated_anchor = _validate_consume_anchor_v1(
+                    anchor_artifact.record,
+                    consume=receipt,
+                    consume_raw=consume_artifact.raw,
+                    expected_stores=store_binding,
+                    dispatch_identity=_claim_dispatch_identity(bound_invocation),
+                )
+                if validated_anchor != anchor:
+                    raise ProbeAuthorizationError(
+                        "durable approval consume anchor is mismatched"
+                    )
+            except BaseException:
+                anchor_artifact.close()
+                raise
+        except BaseException:
+            consume_artifact.close()
+            raise
+        prepared.consume_artifact = consume_artifact
+        prepared.anchor_artifact = anchor_artifact
+        return receipt
+    finally:
+        if temporary_fd >= 0:
+            os.close(temporary_fd)
+        if temporary_name is not None:
+            try:
+                os.unlink(temporary_name, dir_fd=store_fd)
+            except OSError:
+                pass
+        if lock_fd >= 0:
+            try:
+                if fcntl is not None:
+                    fcntl.flock(lock_fd, fcntl.LOCK_UN)
+            finally:
+                os.close(lock_fd)
+        # The consume-store descriptor remains retained through provider spawn.
+
+
+def compact_approval_consume_tombstone(
+    store_path: str | os.PathLike[str],
+    grant_id: str,
+    *,
+    invocation: Invocation | None = None,
+) -> dict[str, Any]:
+    """Manually compact 90-day-old consume metadata to an indefinite tombstone."""
+
+    if not re.fullmatch(r"[a-f0-9]{64}", grant_id):
+        raise ProbeAuthorizationError("grant id is invalid")
+    if invocation is None:
+        raise ProbeAuthorizationError(
+            "consume compaction requires its bound dispatch ledger"
+        )
+    consume_store = _open_retained_private_directory(
+        store_path, "approval consume store"
+    )
+    try:
+        dispatch_store = _coerce_claim_store(
+            _secure_claim_directory(invocation), invocation
+        )
+    except BaseException:
+        consume_store.close()
+        raise
+    store_fd = consume_store.fd
+    lock_fd = -1
+    original_fd = -1
+    temporary_fd = -1
+    temporary_name: str | None = None
+    try:
+        lock_fd = os.open(
+            ".consume.lock", _file_open_flags(os.O_RDWR), dir_fd=store_fd
+        )
+        lock_metadata = os.fstat(lock_fd)
+        if (
+            not stat.S_ISREG(lock_metadata.st_mode)
+            or stat.S_IMODE(lock_metadata.st_mode) != 0o600
+            or lock_metadata.st_nlink != 1
+        ):
+            raise ProbeAuthorizationError("approval consume lock is invalid")
+        if fcntl is None:
+            raise ProbeAuthorizationError("consume compaction requires POSIX locking")
+        fcntl.flock(lock_fd, fcntl.LOCK_EX)
+        final_name = f"{grant_id}.consume.json"
+        original_fd = os.open(final_name, _file_open_flags(os.O_RDONLY), dir_fd=store_fd)
+        metadata = os.fstat(original_fd)
+        if (
+            not stat.S_ISREG(metadata.st_mode)
+            or metadata.st_nlink != 1
+            or stat.S_IMODE(metadata.st_mode) != 0o600
+        ):
+            raise ProbeAuthorizationError("consume receipt is unsafe")
+        raw = _bounded_read_fd(original_fd)
+        try:
+            record = _strict_json_loads(raw)
+        except _StrictJSONError as exc:
+            raise ProbeAuthorizationError("consume receipt is invalid") from exc
+        if not isinstance(record, Mapping):
+            raise ProbeAuthorizationError("consume receipt is invalid")
+        if record.get("artifact_type") == "ApprovalConsumeTombstone":
+            raise ProbeAuthorizationError("consume receipt is already compacted")
+        record = _validate_consume_record_v1(record)
+        if record.get("grant_id") != grant_id:
+            raise ProbeAuthorizationError("consume receipt binding is invalid")
+        binding = _mapping(record.get("binding"), "consume receipt binding")
+        stores = _validated_preauthorization_stores(
+            _mapping(
+                binding.get("preauthorization_stores"),
+                "consume receipt stores",
+            )
+        )
+        if (
+            stores["approval_consume_store"] != consume_store.identity_sha256
+            or stores["dispatch_ledger_store"] != dispatch_store.identity_sha256
+        ):
+            raise ProbeAuthorizationError("consume receipt store identity is invalid")
+        ledger_parent = _claim_store_as_retained(dispatch_store)
+        try:
+            anchor_artifact = _secure_json_artifact(
+                dispatch_store.path / _consume_anchor_name(grant_id),
+                retained_parent=ledger_parent,
+            )
+        finally:
+            ledger_parent.close()
+        try:
+            anchor = _validate_consume_anchor_v1(
+                anchor_artifact.record,
+                consume=record,
+                consume_raw=raw,
+                expected_stores=stores,
+                dispatch_identity=_required_string(
+                    binding.get("dispatch_identity"),
+                    "consume dispatch identity",
+                ),
+            )
+            anchor_sha256 = hashlib.sha256(anchor_artifact.raw).hexdigest()
+        finally:
+            anchor_artifact.close()
+        consumed = _parse_utc_timestamp(record.get("consumed_at"), "consumed_at")
+        compacted_time = _utc_datetime()
+        compacted = _format_utc(compacted_time)
+        if compacted_time < consumed + timedelta(days=PREAUTH_RETENTION_DAYS):
+            raise ProbeAuthorizationError("consume receipt is not eligible for compaction")
+        tombstone: dict[str, Any] = {
+            "schema_version": 1,
+            "artifact_type": "ApprovalConsumeTombstone",
+            "consume_id": record.get("consume_id"),
+            "grant_id": grant_id,
+            "original_receipt_sha256": hashlib.sha256(raw).hexdigest(),
+            "consume_anchor_id": anchor["anchor_id"],
+            "consume_anchor_sha256": anchor_sha256,
+            "consumed_at": record["consumed_at"],
+            "compacted_at": compacted,
+            "anti_replay": True,
+            "retention": "indefinite",
+            "attestation_scope": PREAUTH_SCOPE,
+            "authenticity_claimed": False,
+            "raw_streams_retained": False,
+        }
+        tombstone = _validate_consume_record_v1(tombstone)
+        payload = _canonical_json_bytes(tombstone)
+        temporary_name = f".{grant_id}.{os.urandom(8).hex()}.compact.tmp"
+        temporary_fd = os.open(
+            temporary_name,
+            _file_open_flags(os.O_WRONLY | os.O_CREAT | os.O_EXCL),
+            0o600,
+            dir_fd=store_fd,
+        )
+        _write_all(temporary_fd, payload)
+        os.fsync(temporary_fd)
+        os.close(temporary_fd)
+        temporary_fd = -1
+        current = os.stat(final_name, dir_fd=store_fd, follow_symlinks=False)
+        if (current.st_dev, current.st_ino) != (metadata.st_dev, metadata.st_ino):
+            raise ProbeAuthorizationError("consume receipt changed before compaction")
+        os.rename(
+            temporary_name, final_name,
+            src_dir_fd=store_fd, dst_dir_fd=store_fd,
+        )
+        temporary_name = None
+        os.fsync(store_fd)
+        persisted = _secure_json_artifact(
+            consume_store.path / final_name,
+            retained_parent=consume_store,
+        )
+        try:
+            if (
+                _validate_consume_record_v1(persisted.record) != tombstone
+                or persisted.raw != payload
+            ):
+                raise ProbeAuthorizationError(
+                    "compacted consume tombstone is mismatched"
+                )
+        finally:
+            persisted.close()
+        return tombstone
+    finally:
+        if original_fd >= 0:
+            os.close(original_fd)
+        if temporary_fd >= 0:
+            os.close(temporary_fd)
+        if temporary_name is not None:
+            try:
+                os.unlink(temporary_name, dir_fd=store_fd)
+            except OSError:
+                pass
+        if lock_fd >= 0:
+            try:
+                if fcntl is not None:
+                    fcntl.flock(lock_fd, fcntl.LOCK_UN)
+            finally:
+                os.close(lock_fd)
+        dispatch_store.close()
+        consume_store.close()
+
+
+def _run_provider_process(
+    argv: Sequence[str],
+    *,
+    cwd: str,
+    env: Mapping[str, str],
+    input: str,
+    provider: str | None = None,
+    timeout: float = MAX_PROVIDER_RUNTIME_SECONDS,
+    **_unused: Any,
+) -> subprocess.CompletedProcess[str]:
+    """Capture provider channels with bounds and terminate the owned group on failure."""
+
+    # Defense in depth at the last local process-creation boundary. The
+    # invocation executor supplies the selected provider; a runtime config,
+    # acknowledgement, or same-principal approval artifact cannot bypass it.
+    _validate_transport_provider_binding(provider, argv)
+    if timeout <= 0:
+        raise ConfigurationError("provider timeout must be positive")
+    try:
+        prompt_bytes = input.encode("utf-8")
+    except UnicodeError as exc:
+        raise ConfigurationError("provider prompt is not UTF-8") from exc
+    process = subprocess.Popen(
+        list(argv), cwd=cwd, env=dict(env), stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=False, shell=False,
+        start_new_session=True,
+    )
+    stdout_buffer = bytearray()
+    stderr_buffer = bytearray()
+    stop = threading.Event()
+    oversize = threading.Event()
+    reader_error = threading.Event()
+
+    def read_channel(stream: Any, destination: bytearray) -> None:
+        try:
+            while True:
+                chunk = os.read(stream.fileno(), 65_536)
+                if not chunk:
+                    break
+                remaining = MAX_PROVIDER_OUTPUT_BYTES + 1 - len(destination)
+                if remaining > 0:
+                    destination.extend(chunk[:remaining])
+                if len(destination) > MAX_PROVIDER_OUTPUT_BYTES:
+                    oversize.set()
+                    stop.set()
+                    break
+        except BaseException:
+            reader_error.set()
+            stop.set()
+        finally:
+            try:
+                stream.close()
+            except OSError:
+                pass
+
+    def write_prompt() -> None:
+        stream = process.stdin
+        if stream is None:
+            reader_error.set()
+            stop.set()
+            return
+        try:
+            stream.write(prompt_bytes)
+            stream.flush()
+        except BrokenPipeError:
+            pass
+        except BaseException:
+            reader_error.set()
+            stop.set()
+        finally:
+            try:
+                stream.close()
+            except OSError:
+                pass
+
+    if process.stdout is None or process.stderr is None:
+        _terminate_owned_process_group(process)
+        raise ConfigurationError("provider transport pipes are unavailable")
+    threads = [
+        threading.Thread(target=read_channel, args=(process.stdout, stdout_buffer), daemon=True),
+        threading.Thread(target=read_channel, args=(process.stderr, stderr_buffer), daemon=True),
+        threading.Thread(target=write_prompt, daemon=True),
+    ]
+    for thread in threads:
+        thread.start()
+    deadline = time.monotonic() + timeout
+    failure_reason: str | None = None
+    try:
+        while process.poll() is None:
+            if oversize.is_set():
+                failure_reason = "provider output exceeded its safe byte limit"
+                break
+            if reader_error.is_set():
+                failure_reason = "provider transport channel failed"
+                break
+            if time.monotonic() >= deadline:
+                failure_reason = "provider execution exceeded its time limit"
+                break
+            stop.wait(0.05)
+        if failure_reason is None and oversize.is_set():
+            failure_reason = "provider output exceeded its safe byte limit"
+        if failure_reason is None and reader_error.is_set():
+            failure_reason = "provider transport channel failed"
+        if failure_reason is not None:
+            _terminate_owned_process_group(process)
+        else:
+            process.wait()
+        for thread in threads:
+            thread.join(timeout=PROCESS_GROUP_TERMINATE_SECONDS)
+        if any(thread.is_alive() for thread in threads):
+            _terminate_owned_process_group(process)
+            failure_reason = failure_reason or "provider transport thread did not terminate"
+        if failure_reason is not None:
+            raise ProviderParseError("terminal_shape", failure_reason)
+        try:
+            stdout = bytes(stdout_buffer).decode("utf-8")
+            stderr = bytes(stderr_buffer).decode("utf-8")
+        except UnicodeDecodeError as exc:
+            raise ProviderParseError(
+                "terminal_shape", "provider transport channel is not UTF-8"
+            ) from exc
+        return subprocess.CompletedProcess(list(argv), process.returncode, stdout, stderr)
+    except BaseException:
+        _terminate_owned_process_group(process)
+        for thread in threads:
+            thread.join(timeout=PROCESS_GROUP_TERMINATE_SECONDS)
+        raise
 
 
 def _execute_invocation_locked(invocation: Invocation) -> subprocess.CompletedProcess[str]:
     """Revalidate governance, then execute argv with no shell."""
 
+    # DSG-009A/009B are external prerequisites. This repository-local denial
+    # is defense in depth only and deliberately runs before all executable
+    # preflight, approval consumption, dispatch-ledger mutation, and Popen.
+    _validate_invocation_provider_binding(invocation)
     validated_decision = _validated_invocation_decision(invocation)
     _validate_qobs_invocation_binding(invocation)
     validate_execution_preflight(invocation)
@@ -4563,35 +5886,134 @@ def _execute_invocation_locked(invocation: Invocation) -> subprocess.CompletedPr
         ):
             raise ConfigurationError("provider output schema path is not bound to the invocation")
         with tempfile.TemporaryDirectory(prefix="horo-provider-schema-") as temp_dir:
-            provider_schema_path = Path(temp_dir) / "work-result-v2.provider.json"
+            private_directory = Path(temp_dir)
+            private_directory.chmod(0o700)
+            provider_schema_path = private_directory / "work-result-v2.provider.json"
             provider_schema_path.write_text(
                 json.dumps(provider_schema, ensure_ascii=True, separators=(",", ":")),
                 encoding="utf-8",
             )
+            provider_schema_path.chmod(0o600)
             argv[schema_index] = str(provider_schema_path)
+            final_path: Path | None = None
+            final_identity: tuple[int, int] | None = None
+            if invocation.route.cli == "codex":
+                if argv[-1:] != ["-"] or any(
+                    flag in argv for flag in ("-o", "--output-last-message")
+                ):
+                    raise ConfigurationError("Codex final output channel is ambiguous")
+                final_path, final_identity = _create_private_final_file(private_directory)
+                argv[-1:-1] = ["--output-last-message", str(final_path)]
             # This is the final executable dispatch boundary. Re-evaluate Rule 11
             # after every other preflight and immediately before process creation.
             _validated_invocation_schedule(invocation, validated_decision)
-            claim = _acquire_dispatch_claim(invocation)
-            consumed_lease: capacity.CapacityLease | None = None
+            prepared_approval = _prepare_probe_authorization(invocation)
             try:
-                _verify_dispatch_claim(claim, require_start_freshness=True)
-                _verify_isolated_account_home(invocation, home_fd, home_identity)
-                consumed_lease = _consume_spawn_capacity(invocation, validated_decision)
-                # This is deliberately after all ordinary preflight/capacity
-                # gates and immediately before provider process creation.
-                _commit_qobs_before_spawn(invocation)
-                result = subprocess.run(
-                    argv,
-                    cwd=invocation.cwd,
-                    env=env,
-                    input=invocation.prompt_stdin,
-                    text=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    check=False,
-                    shell=False,
+                bound_invocation = replace(
+                    invocation,
+                    preauthorization_store_binding=_validated_preauthorization_stores(
+                        _mapping(
+                            prepared_approval.binding.get(
+                                "preauthorization_stores"
+                            ),
+                            "prepared preauthorization stores",
+                        )
+                    ),
                 )
+                claim = _acquire_dispatch_claim(
+                    bound_invocation, prepared_approval.take_dispatch_ledger()
+                )
+                try:
+                    _verify_dispatch_claim(claim, require_start_freshness=True)
+                    _verify_isolated_account_home(invocation, home_fd, home_identity)
+                    # The consume receipt and its dispatch-ledger anchor are the
+                    # final irreversible operation before provider creation.
+                    consume_receipt = _consume_prepared_approval(
+                        bound_invocation, prepared_approval, claim.store
+                    )
+                    result = _run_provider_process(
+                        argv,
+                        cwd=invocation.cwd,
+                        env=env,
+                        input=invocation.prompt_stdin,
+                        provider=invocation.route.cli,
+                        text=True,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        check=False,
+                        shell=False,
+                        timeout=MAX_PROVIDER_RUNTIME_SECONDS,
+                    )
+                    result._approval_consume_receipt = consume_receipt  # type: ignore[attr-defined]
+                    result._probe_claim_record = dict(prepared_approval.claim.record)  # type: ignore[attr-defined]
+                    result._approval_grant_record = dict(prepared_approval.grant.record)  # type: ignore[attr-defined]
+                    result._probe_claim_sha256 = hashlib.sha256(  # type: ignore[attr-defined]
+                        prepared_approval.claim.raw
+                    ).hexdigest()
+                    result._approval_grant_sha256 = hashlib.sha256(  # type: ignore[attr-defined]
+                        prepared_approval.grant.raw
+                    ).hexdigest()
+                    if (
+                        prepared_approval.consume_artifact is None
+                        or prepared_approval.anchor_artifact is None
+                    ):
+                        raise ProbeAuthorizationError(
+                            "retained consume evidence is missing"
+                        )
+                    _reverify_retained_artifact(
+                        prepared_approval.consume_artifact
+                    )
+                    _reverify_retained_artifact(
+                        prepared_approval.anchor_artifact
+                    )
+                    result._approval_consume_raw_sha256 = hashlib.sha256(  # type: ignore[attr-defined]
+                        prepared_approval.consume_artifact.raw
+                    ).hexdigest()
+                    result._approval_consume_anchor_record = dict(  # type: ignore[attr-defined]
+                        prepared_approval.anchor_artifact.record
+                    )
+                    result._approval_consume_anchor_sha256 = hashlib.sha256(  # type: ignore[attr-defined]
+                        prepared_approval.anchor_artifact.raw
+                    ).hexdigest()
+                    result._bound_invocation = bound_invocation  # type: ignore[attr-defined]
+                except BaseException:
+                    try:
+                        _finalize_dispatch_claim(claim, "unknown")
+                    finally:
+                        _release_dispatch_claim(claim)
+                    raise
+            finally:
+                prepared_approval.close()
+            try:
+                stdout_bytes = _validated_text_channel(result.stdout, "provider stdout")
+                stderr_bytes = _validated_text_channel(result.stderr, "provider stderr")
+                if invocation.route.cli == "codex":
+                    if final_path is None or final_identity is None:
+                        raise ConfigurationError("Codex private final channel was not initialized")
+                    private_final = _read_private_final_file(final_path, final_identity)
+                    result._private_final_result = private_final  # type: ignore[attr-defined]
+                    result._private_final_bytes = private_final.byte_count  # type: ignore[attr-defined]
+                    result._private_final_sha256 = private_final.sha256  # type: ignore[attr-defined]
+                    result._private_final_work_result_sha256 = _canonical_sha256(  # type: ignore[attr-defined]
+                        private_final.work_result
+                    )
+                result._stdout_bytes = len(stdout_bytes)  # type: ignore[attr-defined]
+                result._stdout_sha256 = hashlib.sha256(stdout_bytes).hexdigest()  # type: ignore[attr-defined]
+                result._stderr_bytes = len(stderr_bytes)  # type: ignore[attr-defined]
+                result._stderr_sha256 = hashlib.sha256(stderr_bytes).hexdigest()  # type: ignore[attr-defined]
+                result._sanitized_argv = tuple(  # type: ignore[attr-defined]
+                    "<WORK_RESULT_SCHEMA>" if item == str(provider_schema_path) else
+                    "<PRIVATE_FINAL_OUTPUT>" if final_path is not None and item == str(final_path) else
+                    _redact_preview(item, invocation)
+                    for item in argv
+                )
+                result._sanitized_argv_sha256 = hashlib.sha256(  # type: ignore[attr-defined]
+                    json.dumps(
+                        result._sanitized_argv,  # type: ignore[attr-defined]
+                        ensure_ascii=True,
+                        separators=(",", ":"),
+                    ).encode("ascii")
+                ).hexdigest()
             except BaseException:
                 try:
                     _finalize_dispatch_claim(claim, "unknown")
@@ -4626,26 +6048,31 @@ def _canonical_blocked_result(
     recommended_next_action: str,
     invocation: Invocation | None = None,
     provider_parse_reason: str | None = None,
-    status: str = "BLOCKED",
-    reason_code: str | None = None,
+    final_message_cardinality_subreason: str | None = None,
+    candidate_count: int | None = None,
 ) -> dict[str, Any]:
     """Create a safe canonical record for a failed preflight/start attempt."""
 
     if provider_parse_reason is not None and provider_parse_reason not in PROVIDER_PARSE_REASONS:
         raise ValueError("unsupported provider parse reason")
-    if status not in {"BLOCKED", "NEEDS_HITL"}:
-        raise ValueError("unsupported terminal failure status")
-    if reason_code is not None and re.fullmatch(r"[A-Z][A-Z0-9_]*", reason_code) is None:
-        raise ValueError("unsupported terminal failure reason code")
+    _validate_final_message_cardinality_telemetry(
+        provider_parse_reason,
+        final_message_cardinality_subreason,
+        candidate_count,
+    )
     child_ran = provider_parse_reason is not None
-    execution_evidence: dict[str, str] = {
+    execution_evidence: dict[str, str | int] = {
         "source": "child-ran-invalid-result-contract" if child_ran else "no-child-ran",
         "failure_class": failure_class,
     }
     if provider_parse_reason is not None:
         execution_evidence["provider_parse_reason"] = provider_parse_reason
-    if reason_code is not None:
-        execution_evidence["reason_code"] = reason_code
+    if final_message_cardinality_subreason is not None:
+        execution_evidence["final_message_cardinality_subreason"] = (
+            final_message_cardinality_subreason
+        )
+    if candidate_count is not None:
+        execution_evidence["candidate_count"] = candidate_count
     blocked = {
         "status": status,
         "alias": route.alias,
@@ -4824,7 +6251,22 @@ def _build_execution_receipt(
     embedded_proof = _embedded_claim_proof(claim.record)
     embedded_digest = _canonical_sha256(embedded_proof)
     output = _raw_output_bytes(result)
+    probe_claim = getattr(result, "_probe_claim_record", None)
+    approval_grant = getattr(result, "_approval_grant_record", None)
+    consume_receipt = getattr(result, "_approval_consume_receipt", None)
+    consume_anchor = getattr(result, "_approval_consume_anchor_record", None)
+    if not all(isinstance(item, Mapping) for item in (
+        probe_claim, approval_grant, consume_receipt, consume_anchor
+    )):
+        raise ProbeAuthorizationError("preauthorization execution evidence is missing")
+    stores = _validated_preauthorization_stores(
+        _mapping(
+            invocation.preauthorization_store_binding,
+            "execution preauthorization stores",
+        )
+    )
     receipt: dict[str, Any] = {
+        "receipt_schema_version": EXECUTION_RECEIPT_SCHEMA_VERSION,
         "protocol_version": RESULT_PROTOCOL_VERSION,
         "policy_version": invocation.decision["policy_version"],
         "decision_sha256": invocation.decision_digest,
@@ -4851,12 +6293,217 @@ def _build_execution_receipt(
         "output_bytes": len(output),
         "output_sha256": hashlib.sha256(output).hexdigest(),
         "work_result_sha256": _canonical_sha256(provider_result.work_result),
+        "probe_claim_id": probe_claim["claim_id"],
+        "probe_claim_sha256": getattr(result, "_probe_claim_sha256", None),
+        "approval_grant_id": approval_grant["grant_id"],
+        "approval_grant_sha256": getattr(result, "_approval_grant_sha256", None),
+        "approval_consume_receipt_id": consume_receipt["consume_id"],
+        "approval_consume_receipt_sha256": getattr(
+            result, "_approval_consume_raw_sha256", None
+        ),
+        "approval_consume_anchor_id": consume_anchor["anchor_id"],
+        "approval_consume_anchor_sha256": getattr(
+            result, "_approval_consume_anchor_sha256", None
+        ),
+        "preauthorization_stores": stores,
+        "preauthorization_scope": PREAUTH_SCOPE,
     }
     if invocation.scheduling_snapshot_digest is not None:
         receipt["scheduling_snapshot_sha256"] = invocation.scheduling_snapshot_digest
     if provider_result.process_or_session_id:
         receipt["process_or_session_id"] = provider_result.process_or_session_id
     return receipt
+
+
+def _validate_receipt_v3_preauthorization(
+    receipt: Mapping[str, Any], invocation: Invocation
+) -> None:
+    """Bind Receipt v3 to the persisted exact claim, grant, and consume record."""
+
+    if not all((invocation.probe_claim_path, invocation.approval_grant_path,
+                invocation.approval_store_path, invocation.approval_session_id)):
+        raise ConfigurationError("Receipt v3 requires strict local preauthorization evidence")
+    prepared = _prepare_probe_authorization(
+        invocation, enforce_fresh=False, reject_consumed=False
+    )
+    try:
+        claim = prepared.claim.record
+        grant = prepared.grant.record
+        stores = _validated_preauthorization_stores(
+            _mapping(
+                prepared.binding.get("preauthorization_stores"),
+                "prepared preauthorization stores",
+            )
+        )
+        expected = {
+            "receipt_schema_version": EXECUTION_RECEIPT_SCHEMA_VERSION,
+            "probe_claim_id": claim["claim_id"],
+            "probe_claim_sha256": hashlib.sha256(prepared.claim.raw).hexdigest(),
+            "approval_grant_id": grant["grant_id"],
+            "approval_grant_sha256": hashlib.sha256(prepared.grant.raw).hexdigest(),
+            "preauthorization_stores": stores,
+            "preauthorization_scope": PREAUTH_SCOPE,
+        }
+        for field, value in expected.items():
+            if receipt.get(field) != value:
+                raise ConfigurationError(f"ExecutionReceipt {field} is mismatched")
+        consume_path = (
+            prepared.approval_consume_store.path
+            / f"{grant['grant_id']}.consume.json"
+        )
+        consume_artifact = _secure_json_artifact(
+            consume_path,
+            retained_parent=prepared.approval_consume_store,
+        )
+        try:
+            try:
+                consume = _validate_consume_record_v1(
+                    consume_artifact.record
+                )
+            except ProbeAuthorizationError as exc:
+                raise ConfigurationError(
+                    "persisted approval consume record is invalid"
+                ) from exc
+            ledger = prepared.dispatch_ledger_store
+            if ledger is None:
+                raise ConfigurationError("dispatch ledger evidence is unavailable")
+            ledger_parent = _claim_store_as_retained(ledger)
+            try:
+                anchor_artifact = _secure_json_artifact(
+                    ledger.path / _consume_anchor_name(grant["grant_id"]),
+                    retained_parent=ledger_parent,
+                )
+            finally:
+                ledger_parent.close()
+            try:
+                anchor = anchor_artifact.record
+                if consume.get("artifact_type") == "ApprovalConsumeTombstone":
+                    if (
+                        consume.get("grant_id") != grant["grant_id"]
+                        or consume.get("consume_id")
+                        != receipt.get("approval_consume_receipt_id")
+                        or consume.get("original_receipt_sha256")
+                        != receipt.get("approval_consume_receipt_sha256")
+                        or consume.get("consume_anchor_id")
+                        != receipt.get("approval_consume_anchor_id")
+                        or consume.get("consume_anchor_sha256")
+                        != receipt.get("approval_consume_anchor_sha256")
+                    ):
+                        raise ConfigurationError(
+                            "ApprovalConsumeTombstone receipt binding is invalid"
+                        )
+                    if set(anchor) != CONSUME_ANCHOR_FIELDS:
+                        raise ConfigurationError(
+                            "ApprovalConsumeAnchor fields are invalid"
+                        )
+                    anchor_expected = {
+                        "schema_version": 1,
+                        "artifact_type": "ApprovalConsumeAnchor",
+                        "anchor_id": consume["consume_anchor_id"],
+                        "consume_id": consume["consume_id"],
+                        "grant_id": grant["grant_id"],
+                        "consume_receipt_sha256": consume[
+                            "original_receipt_sha256"
+                        ],
+                        "consumed_at": consume["consumed_at"],
+                        "preauthorization_stores": stores,
+                        "dispatch_identity": prepared.binding[
+                            "dispatch_identity"
+                        ],
+                        "attestation_scope": PREAUTH_SCOPE,
+                        "authenticity_claimed": False,
+                        "raw_streams_retained": False,
+                    }
+                    for field, value in anchor_expected.items():
+                        if anchor.get(field) != value:
+                            raise ConfigurationError(
+                                "ApprovalConsumeAnchor tombstone binding is invalid"
+                            )
+                    if anchor.get("claim_id") != claim["claim_id"]:
+                        raise ConfigurationError(
+                            "ApprovalConsumeAnchor claim binding is invalid"
+                        )
+                    if anchor.get("anchor_id") != _artifact_address(
+                        anchor, "anchor_id"
+                    ):
+                        raise ConfigurationError(
+                            "ApprovalConsumeAnchor address is invalid"
+                        )
+                else:
+                    if (
+                        consume.get("claim_id") != claim["claim_id"]
+                        or consume.get("claim_sha256")
+                        != expected["probe_claim_sha256"]
+                        or consume.get("grant_id") != grant["grant_id"]
+                        or consume.get("grant_sha256")
+                        != expected["approval_grant_sha256"]
+                        or consume.get("binding") != prepared.binding
+                    ):
+                        raise ConfigurationError(
+                            "ApprovalConsumeReceipt binding is invalid"
+                        )
+                    consumed_at = _parse_utc_timestamp(
+                        consume.get("consumed_at"), "consumed_at"
+                    )
+                    claim_created = _parse_utc_timestamp(
+                        claim.get("created_at"), "ProbeClaim created_at"
+                    )
+                    claim_expires = _parse_utc_timestamp(
+                        claim.get("expires_at"), "ProbeClaim expires_at"
+                    )
+                    grant_created = _parse_utc_timestamp(
+                        grant.get("created_at"), "ApprovalGrant created_at"
+                    )
+                    grant_expires = _parse_utc_timestamp(
+                        grant.get("expires_at"), "ApprovalGrant expires_at"
+                    )
+                    if not (
+                        claim_created <= consumed_at < claim_expires
+                        and grant_created <= consumed_at < grant_expires
+                    ):
+                        raise ConfigurationError(
+                            "ApprovalConsumeReceipt timestamp is unanchored"
+                        )
+                    try:
+                        _validate_consume_anchor_v1(
+                            anchor,
+                            consume=consume,
+                            consume_raw=consume_artifact.raw,
+                            expected_stores=stores,
+                            dispatch_identity=prepared.binding[
+                                "dispatch_identity"
+                            ],
+                        )
+                    except ProbeAuthorizationError as exc:
+                        raise ConfigurationError(
+                            "ApprovalConsumeAnchor binding is invalid"
+                        ) from exc
+                    if (
+                        receipt.get("approval_consume_receipt_id")
+                        != consume["consume_id"]
+                        or receipt.get("approval_consume_receipt_sha256")
+                        != hashlib.sha256(consume_artifact.raw).hexdigest()
+                        or receipt.get("approval_consume_anchor_id")
+                        != anchor["anchor_id"]
+                        or receipt.get("approval_consume_anchor_sha256")
+                        != hashlib.sha256(anchor_artifact.raw).hexdigest()
+                    ):
+                        raise ConfigurationError(
+                            "ExecutionReceipt consume evidence is mismatched"
+                        )
+                if (
+                    receipt.get("approval_consume_anchor_sha256")
+                    != hashlib.sha256(anchor_artifact.raw).hexdigest()
+                ):
+                    raise ConfigurationError(
+                        "ExecutionReceipt consume anchor digest is mismatched"
+                    )
+            finally:
+                anchor_artifact.close()
+        finally:
+            consume_artifact.close()
+    finally:
+        prepared.close()
 
 
 def _raise_for_migrated_legacy_receipt(
@@ -4900,13 +6547,17 @@ def validate_execution_receipt(
     result: subprocess.CompletedProcess[str] | None = None,
     portable: bool = False,
 ) -> dict[str, Any]:
-    """Independently validate one v2 receipt and its digest-bound WorkResult."""
+    """Validate frozen v2 or strict locally anchored preauthorization receipt v3."""
 
     receipt = _mapping(receipt, "ExecutionReceipt")
     _raise_for_migrated_legacy_receipt(receipt, invocation)
     optional_fields = {"process_or_session_id", "scheduling_snapshot_sha256"}
-    missing = EXECUTION_RECEIPT_FIELDS - set(receipt)
-    unknown = set(receipt) - EXECUTION_RECEIPT_FIELDS - optional_fields
+    is_v3 = receipt.get("receipt_schema_version") == EXECUTION_RECEIPT_SCHEMA_VERSION
+    if is_v3 and invocation.preauthorization_store_binding is None:
+        invocation = _bind_invocation_to_current_stores(invocation)
+    required_fields = EXECUTION_RECEIPT_V3_FIELDS if is_v3 else EXECUTION_RECEIPT_FIELDS
+    missing = required_fields - set(receipt)
+    unknown = set(receipt) - required_fields - optional_fields
     if missing:
         raise ConfigurationError(
             "ExecutionReceipt missing fields: " + ", ".join(sorted(missing))
@@ -4916,8 +6567,13 @@ def validate_execution_receipt(
             "ExecutionReceipt contains unsupported fields: " + ", ".join(sorted(unknown))
         )
     normalized_result = normalize_result(work_result)
+    private_final: Mapping[str, Any] | None = None
+    if invocation.route.cli == "codex" and result is not None:
+        private_final = _private_final_from_process(result).work_result
     try:
-        native_result = parse_provider_result(invocation, raw_output)
+        native_result = parse_provider_result(
+            invocation, raw_output, private_final=private_final
+        )
     except ProviderParseError as exc:
         raise ConfigurationError("native receipt evidence is invalid") from exc
     if dict(native_result.work_result) != normalized_result:
@@ -5090,8 +6746,74 @@ def validate_execution_receipt(
         pass
     elif normalized_result["status"] == "DONE":
         raise ConfigurationError("nonzero execution cannot carry a DONE WorkResult")
+    if is_v3:
+        for field in (
+            "probe_claim_sha256", "approval_grant_sha256",
+            "approval_consume_receipt_sha256", "approval_consume_anchor_sha256",
+        ):
+            if not isinstance(receipt.get(field), str) or not re.fullmatch(
+                r"[a-f0-9]{64}", receipt[field]
+            ):
+                raise ConfigurationError(f"ExecutionReceipt {field} must be SHA-256")
+        _validated_preauthorization_stores(
+            _mapping(
+                receipt.get("preauthorization_stores"),
+                "ExecutionReceipt preauthorization stores",
+            )
+        )
+        _validate_receipt_v3_preauthorization(receipt, invocation)
     _reject_secret_bearing(receipt, "ExecutionReceipt")
     return dict(receipt)
+
+
+def _execution_provenance(
+    invocation: Invocation,
+    result: subprocess.CompletedProcess[str],
+    provider_result: ProviderResult,
+) -> dict[str, Any]:
+    """Validate and render non-secret evidence outside the closed v2 receipt."""
+
+    channel_evidence = _validated_process_channel_evidence(result)
+    sanitized_argv = list(getattr(result, "_sanitized_argv", ()))
+    if not sanitized_argv:
+        raise ProviderParseError("terminal_shape", "sanitized argv evidence is missing")
+    sanitized_argv_sha256 = hashlib.sha256(
+        json.dumps(
+            sanitized_argv,
+            ensure_ascii=True,
+            separators=(",", ":"),
+        ).encode("ascii")
+    ).hexdigest()
+    if sanitized_argv_sha256 != getattr(result, "_sanitized_argv_sha256", None):
+        raise ProviderParseError("terminal_shape", "sanitized argv digest is invalid")
+    if invocation.route.cli == "codex":
+        private_final = _private_final_from_process(result)
+        channel_evidence["private_final"] = {
+            "bytes": private_final.byte_count,
+            "sha256": private_final.sha256,
+        }
+    return {
+        "cli_version": "NOT PROVEN",
+        "sanitized_argv": sanitized_argv,
+        "sanitized_argv_sha256": sanitized_argv_sha256,
+        "requested": {
+            "alias": invocation.route.alias,
+            "provider": invocation.route.cli,
+            "model": invocation.route.model,
+            "effort": invocation.route.effort,
+            "sandbox": invocation.route.sandbox,
+            "quota_band": invocation.decision.get("quota_band") if invocation.decision else None,
+        },
+        "effective": {
+            "model": "NOT PROVEN",
+            "effort": "NOT PROVEN",
+            "account": "NOT PROVEN",
+            "quota": "NOT PROVEN",
+        },
+        "channels": channel_evidence,
+        "normalized_work_result_sha256": _canonical_sha256(provider_result.work_result),
+        "safe_thread_id": provider_result.process_or_session_id,
+    }
 
 
 def _completed_result_contract(
@@ -5106,6 +6828,13 @@ def _completed_result_contract(
     if not isinstance(claim, DispatchClaim) or claim.closed:
         raise ConfigurationError("active dispatch claim is required")
     try:
+        # Validate every non-secret channel binding before making the claim's
+        # terminal completed state immutable.
+        try:
+            provenance = _execution_provenance(invocation, result, provider_result)
+        except BaseException:
+            _finalize_dispatch_claim(claim, "rejected", result)
+            raise
         proof = _finalize_dispatch_claim(claim, "completed", result, provider_result)
         result._dispatch_claim_sha256 = proof  # type: ignore[attr-defined]
         receipt = _build_execution_receipt(
@@ -5122,9 +6851,16 @@ def _completed_result_contract(
             result.stdout,
             result=result,
         )
+        # This wrapper is execution evidence around the unchanged WorkResult
+        # and ExecutionReceipt v2 objects. Requested route values are intent;
+        # the CLI stream does not prove effective backend/account/quota state.
         return _redact_result_value(
             {
                 "execution_receipt": validated_receipt,
+                "approval_consume_receipt": dict(
+                    getattr(result, "_approval_consume_receipt")
+                ),
+                "execution_provenance": provenance,
                 "work_result": dict(provider_result.work_result),
             },
             invocation,
@@ -5153,7 +6889,7 @@ def _public_process_result(
     """Expose transport status without returning child-controlled streams."""
 
     return subprocess.CompletedProcess(
-        result.args,
+        list(getattr(result, "_sanitized_argv", ("<ARGV_UNAVAILABLE>",))),
         result.returncode,
         "[PROVIDER_STDOUT_ELIDED]" if result.stdout else "",
         "[PROVIDER_STDERR_ELIDED]" if result.stderr else "",
@@ -5163,11 +6899,28 @@ def _public_process_result(
 def execute_invocation(invocation: Invocation) -> ExecutionOutcome:
     """Execute, parse, terminalize, validate the receipt, and always release locks."""
 
-    result = _execute_invocation_locked(invocation)
     try:
-        provider_result = parse_provider_result(invocation, result.stdout)
+        result = _execute_invocation_locked(invocation)
+    except ProviderParseError as exc:
+        raise ExecutionContractError(
+            exc.provider_parse_reason,
+            final_message_cardinality_subreason=exc.final_message_cardinality_subreason,
+            candidate_count=exc.candidate_count,
+        ) from exc
+    try:
+        bound_invocation = getattr(result, "_bound_invocation", invocation)
+        private_final: Mapping[str, Any] | None = None
+        if bound_invocation.route.cli == "codex":
+            private_final = _private_final_from_process(result).work_result
+        provider_result = parse_provider_result(
+            bound_invocation, result.stdout, private_final=private_final
+        )
+        if result.returncode != 0 and provider_result.work_result["status"] == "DONE":
+            raise ProviderParseError(
+                "provider_failure_event", "nonzero Codex transport cannot carry DONE"
+            )
         completed = _completed_result_contract(
-            invocation,
+            bound_invocation,
             result,
             provider_result,
             started_at=getattr(result, "_dispatch_started_at", _utc_now()),
@@ -5178,8 +6931,13 @@ def execute_invocation(invocation: Invocation) -> ExecutionOutcome:
         _reject_result_claim(result)
         if isinstance(exc, (KeyboardInterrupt, SystemExit)):
             raise
-        reason = exc.provider_parse_reason if isinstance(exc, ProviderParseError) else "unknown"
-        raise ExecutionContractError(reason) from exc
+        if isinstance(exc, ProviderParseError):
+            raise ExecutionContractError(
+                exc.provider_parse_reason,
+                final_message_cardinality_subreason=exc.final_message_cardinality_subreason,
+                candidate_count=exc.candidate_count,
+            ) from exc
+        raise ExecutionContractError("unknown") from exc
 
 
 def _redact_result_value(value: Any, invocation: Invocation) -> Any:
@@ -5278,6 +7036,137 @@ def _runtime_config_approval(config: Mapping[str, Any]) -> bool:
     return approved is True
 
 
+def _provider_from_label(provider: str | None) -> str | None:
+    """Canonicalize provider names and governed account aliases."""
+
+    if provider is None:
+        return None
+    if not isinstance(provider, str):
+        raise ProviderExecutableBindingError()
+    normalized = provider.casefold().replace("_", "-").replace(".", "-")
+    labels = {
+        "codex": "codex",
+        "codex1": "codex",
+        "codex2": "codex",
+        "codex-1": "codex",
+        "codex-2": "codex",
+        "codex-one": "codex",
+        "codex-two": "codex",
+        "codex-cli": "codex",
+        "agy": "agy",
+        "agy1": "agy",
+        "agy2": "agy",
+        "agy-1": "agy",
+        "agy-2": "agy",
+        "agy-one": "agy",
+        "agy-two": "agy",
+        "agy-cli": "agy",
+    }
+    try:
+        return labels[normalized]
+    except KeyError as exc:
+        raise ProviderExecutableBindingError() from exc
+
+
+def _provider_from_executable_basename(executable: str) -> str | None:
+    """Classify canonical provider executable and account-alias basenames."""
+
+    basename = re.split(r"[/\\]", executable)[-1].casefold()
+    for suffix in (".exe", ".cmd", ".bat", ".sh", ".py", ".bin"):
+        if basename.endswith(suffix):
+            basename = basename[: -len(suffix)]
+            break
+    if basename == "agy":
+        return "agy"
+    agy_remainder = basename[3:] if basename.startswith("agy") else ""
+    if agy_remainder in {"cli", "one", "two"} or (
+        agy_remainder
+        and (agy_remainder[0].isdigit() or agy_remainder[0] in "-_.@")
+    ):
+        # AGY is intentionally broader than the positive Codex allowlist: any
+        # provider-like AGY alias or wrapper remains denied.
+        return "agy"
+    codex_aliases = {
+        "codex", "codex1", "codex2", "codex-1", "codex-2",
+        "codex-one", "codex-two", "codex_cli", "codex-cli", "codex.cli",
+    }
+    if basename in codex_aliases:
+        return "codex"
+    return None
+
+
+def _executable_provider_identities(executable: Any) -> frozenset[str]:
+    """Return lexical and resolved provider identities for one executable."""
+
+    if not isinstance(executable, str) or not executable or "\x00" in executable:
+        raise ProviderExecutableBindingError()
+    identities: set[str] = set()
+
+    def record(candidate: str) -> None:
+        provider = _provider_from_executable_basename(candidate)
+        if provider is not None:
+            identities.add(provider)
+
+    record(executable)
+    resolved: str | None = None
+    try:
+        if "/" in executable or "\\" in executable:
+            path = Path(executable)
+            if path.exists() or path.is_symlink():
+                resolved = str(path.resolve(strict=True))
+        else:
+            located = shutil.which(executable)
+            if located:
+                resolved = str(Path(located).resolve(strict=True))
+    except (OSError, RuntimeError):
+        resolved = None
+    if resolved is not None:
+        record(resolved)
+    return frozenset(identities)
+
+
+def _validate_route_provider_binding(route: Route) -> None:
+    """Bind governed alias, declared CLI, and recognizable command identity."""
+
+    expected_provider = ALIAS_PROVIDER_MAP.get(route.alias)
+    if expected_provider is None or route.cli != expected_provider:
+        raise ProviderExecutableBindingError()
+    identities = _executable_provider_identities(route.command)
+    if identities != {route.cli}:
+        raise ProviderExecutableBindingError()
+
+
+def _validate_transport_provider_binding(
+    provider: str | None, argv: Sequence[str]
+) -> None:
+    """Deny effective AGY and contradictory metadata before Popen."""
+
+    if isinstance(argv, (str, bytes)) or not argv:
+        raise ProviderExecutableBindingError()
+    executable = argv[0]
+    identities = _executable_provider_identities(executable)
+    if "agy" in identities:
+        raise PlatformNativePrespawnReceiptRequired()
+    declared_provider = _provider_from_label(provider)
+    if declared_provider == "agy":
+        raise PlatformNativePrespawnReceiptRequired()
+    if declared_provider is None or identities != {declared_provider}:
+        raise ProviderExecutableBindingError()
+
+
+def _validate_invocation_provider_binding(invocation: Invocation) -> None:
+    """Rebind route and argv before any executable-dispatch side effect."""
+
+    if not invocation.argv:
+        raise ProviderExecutableBindingError()
+    # Effective AGY wins over a contradictory caller label and receives the
+    # stable platform-native blocker required by the external DSG boundary.
+    _validate_transport_provider_binding(invocation.route.cli, invocation.argv)
+    if invocation.argv[0] != invocation.route.command:
+        raise ProviderExecutableBindingError()
+    _validate_route_provider_binding(invocation.route)
+
+
 def _reject_disagreeing_overrides(args: argparse.Namespace, decision: Mapping[str, Any]) -> None:
     for argument, field in (
         ("alias", "selected_alias"),
@@ -5323,9 +7212,34 @@ def _parser() -> argparse.ArgumentParser:
         "--policy",
         help="Path to the versioned model policy (defaults to config.model_policy)",
     )
+    parser.add_argument("--probe-claim", help="Exact private ProbeClaim v1 artifact")
+    parser.add_argument("--approval-grant", help="Exact private ApprovalGrant v1 artifact")
+    parser.add_argument(
+        "--approval-store", help="Owned mode-0700 durable one-use consume directory"
+    )
+    parser.add_argument(
+        "--approval-session", help="Current safe session identifier bound by claim and grant"
+    )
+    parser.add_argument(
+        "--attest-local-approval",
+        action="store_true",
+        help="Acknowledge nonportable, non-cryptographic local attestation scope",
+    )
     action = parser.add_mutually_exclusive_group()
     action.add_argument("--print-command", action="store_true", help="Render only (default)")
     action.add_argument("--execute", action="store_true", help="Run the rendered argv")
+    action.add_argument(
+        "--emit-probe-claim", metavar="PATH",
+        help="Emit one offline ProbeClaim v1; never starts a subprocess",
+    )
+    action.add_argument(
+        "--emit-approval-grant", metavar="PATH",
+        help="Emit one local-attestation ApprovalGrant v1; never starts a subprocess",
+    )
+    action.add_argument(
+        "--compact-approval-consume", metavar="GRANT_ID",
+        help="Manually compact eligible 90-day consume metadata to a tombstone",
+    )
     return parser
 
 
@@ -5351,6 +7265,23 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "INVALID_SCHEDULING_METADATA",
                 "executable dispatch requires --scheduling-snapshot",
             )
+        if args.emit_probe_claim and not (
+            args.approval_session and args.approval_grant and args.approval_store
+        ):
+            raise ProbeAuthorizationError(
+                "ProbeClaim emission requires session, grant path, and consume store"
+            )
+        if args.emit_approval_grant and not (
+            args.probe_claim
+            and args.approval_session
+            and args.approval_store
+            and args.attest_local_approval
+        ):
+            raise ProbeAuthorizationError(
+                "ApprovalGrant emission requires exact claim, session, and local attestation"
+            )
+        if args.compact_approval_consume and not args.approval_store:
+            raise ProbeAuthorizationError("consume compaction requires --approval-store")
         if args.policy and not args.decision:
             raise DispatchDecisionError("--policy requires --decision")
         if args.scheduling_snapshot and not args.decision:
@@ -5429,6 +7360,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             runtime_config_approved=_runtime_config_approval(config),
             work_result_schema_path=work_result_schema_path,
             scheduling_snapshot=scheduling_snapshot,
+            probe_claim_path=args.probe_claim or args.emit_probe_claim,
+            approval_grant_path=args.approval_grant or args.emit_approval_grant,
+            approval_store_path=args.approval_store,
+            approval_session_id=args.approval_session,
         )
         if args.execute:
             if closed_exception_requested:
@@ -5544,6 +7479,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     except DispatchDecisionError as exc:
         print(f"[ERROR] {exc.status}: DISPATCH_DECISION_INVALID", file=sys.stderr)
         return 2
+    except PlatformNativePrespawnReceiptRequired as exc:
+        print(f"[ERROR] BLOCKED: {exc.code}", file=sys.stderr)
+        return 7
+    except ProviderExecutableBindingError as exc:
+        print(f"[ERROR] BLOCKED: {exc.code}", file=sys.stderr)
+        return 8
     except yaml.YAMLError:
         print("[ERROR] BLOCKED: CONFIG_PARSE_ERROR", file=sys.stderr)
         return 2
@@ -5556,6 +7497,62 @@ def main(argv: Sequence[str] | None = None) -> int:
     except ConfigurationError:
         print("[ERROR] BLOCKED: CONFIGURATION_INVALID", file=sys.stderr)
         return 2
+
+    if args.emit_probe_claim:
+        try:
+            claim = emit_probe_claim(
+                invocation, args.emit_probe_claim,
+                session_id=args.approval_session,
+            )
+        except (ConfigurationError, OSError):
+            print("[ERROR] BLOCKED: PROBE_CLAIM_EMISSION_FAILED", file=sys.stderr)
+            return 2
+        print(json.dumps({
+            "status": "offline-probe-claim-emitted-no-subprocess",
+            "claim_id": claim["claim_id"],
+            "expires_at": claim["expires_at"],
+            "artifact": "<PRIVATE_PROBE_CLAIM>",
+        }, ensure_ascii=True, indent=2))
+        print("[OK] Offline ProbeClaim emitted; no subprocess was started.")
+        return 0
+    if args.emit_approval_grant:
+        try:
+            grant = emit_probe_approval(
+                invocation,
+                args.probe_claim, args.emit_approval_grant,
+                session_id=args.approval_session,
+            )
+        except (ConfigurationError, OSError):
+            print("[ERROR] BLOCKED: APPROVAL_GRANT_EMISSION_FAILED", file=sys.stderr)
+            return 2
+        print(json.dumps({
+            "status": "local-approval-grant-emitted-no-subprocess",
+            "grant_id": grant["grant_id"],
+            "claim_id": grant["claim_id"],
+            "attestation_scope": PREAUTH_SCOPE,
+            "authenticity_claimed": False,
+            "artifact": "<PRIVATE_APPROVAL_GRANT>",
+        }, ensure_ascii=True, indent=2))
+        print("[OK] Local ApprovalGrant emitted; no subprocess was started.")
+        return 0
+    if args.compact_approval_consume:
+        try:
+            tombstone = compact_approval_consume_tombstone(
+                args.approval_store,
+                args.compact_approval_consume,
+                invocation=invocation,
+            )
+        except (ConfigurationError, OSError):
+            print("[ERROR] BLOCKED: CONSUME_COMPACTION_FAILED", file=sys.stderr)
+            return 2
+        print(json.dumps({
+            "status": "approval-consume-compacted-no-subprocess",
+            "consume_id": tombstone["consume_id"],
+            "retention": "indefinite",
+            "anti_replay": True,
+        }, ensure_ascii=True, indent=2))
+        print("[OK] Approval consume metadata compacted to anti-replay tombstone.")
+        return 0
 
     argv_preview = [_redact_preview(arg, invocation) for arg in invocation.argv]
     argv_preview.append("<PROMPT_STDIN>")
@@ -5632,6 +7629,10 @@ def main(argv: Sequence[str] | None = None) -> int:
                     recommended_next_action="rerun the selected alias and require the JSON result contract",
                     invocation=invocation,
                     provider_parse_reason=exc.provider_parse_reason,
+                    final_message_cardinality_subreason=(
+                        exc.final_message_cardinality_subreason
+                    ),
+                    candidate_count=exc.candidate_count,
                 ),
                 ensure_ascii=True,
                 indent=2,
@@ -5639,6 +7640,59 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         print("[ERROR] Invalid sub-agent result contract.", file=sys.stderr)
         return 3
+    except PlatformNativePrespawnReceiptRequired as exc:
+        print(
+            json.dumps(
+                _canonical_blocked_result(
+                    route,
+                    failure_class="platform-native-prespawn-receipt-required",
+                    recommended_next_action=(
+                        "keep AGY execution disabled until DSG-009A and DSG-009B "
+                        "are externally implemented and proven"
+                    ),
+                    invocation=invocation,
+                ),
+                ensure_ascii=True,
+                indent=2,
+            )
+        )
+        print(f"[ERROR] BLOCKED: {exc.code}", file=sys.stderr)
+        return 7
+    except ProviderExecutableBindingError as exc:
+        print(
+            json.dumps(
+                _canonical_blocked_result(
+                    route,
+                    failure_class="provider-executable-binding-invalid",
+                    recommended_next_action=(
+                        "restore the canonical alias, provider, command, and argv binding"
+                    ),
+                    invocation=invocation,
+                ),
+                ensure_ascii=True,
+                indent=2,
+            )
+        )
+        print(f"[ERROR] BLOCKED: {exc.code}", file=sys.stderr)
+        return 8
+    except ProbeAuthorizationError:
+        print(
+            json.dumps(
+                _canonical_blocked_result(
+                    route,
+                    failure_class="probe-preauthorization-invalid",
+                    recommended_next_action=(
+                        "obtain one fresh exact ProbeClaim and local ApprovalGrant; "
+                        "do not retry a consumed grant"
+                    ),
+                    invocation=invocation,
+                ),
+                ensure_ascii=True,
+                indent=2,
+            )
+        )
+        print("[ERROR] BLOCKED: PROBE_AUTHORIZATION_INVALID", file=sys.stderr)
+        return 6
     except (ConfigurationError, OSError) as exc:
         print(
             json.dumps(

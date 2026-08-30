@@ -4,10 +4,13 @@ import json
 import multiprocessing
 import os
 import shlex
+import shutil
 from copy import deepcopy
 from dataclasses import replace
 from pathlib import Path
 import subprocess
+import time
+from types import SimpleNamespace
 
 import pytest
 import yaml
@@ -37,6 +40,58 @@ def _isolated_account_homes(tmp_path, monkeypatch):
         home = tmp_path / name
         home.mkdir(mode=0o700, exist_ok=True)
         home.chmod(0o700)
+
+
+@pytest.fixture(autouse=True)
+def _legacy_regressions_use_a_synthetic_preauth_boundary(monkeypatch):
+    """Keep historical parser/ledger cases isolated from focused v3 tests."""
+
+    claim = {"claim_id": "1" * 64}
+    grant = {"grant_id": "2" * 64}
+
+    class Prepared:
+        def __init__(self, invocation):
+            ledger = command._coerce_claim_store(
+                command._secure_claim_directory(invocation), invocation
+            )
+            stores = {
+                "probe_claim_store": "4" * 64,
+                "approval_grant_store": "5" * 64,
+                "approval_consume_store": "6" * 64,
+                "dispatch_ledger_store": ledger.identity_sha256,
+            }
+            self.claim = SimpleNamespace(record=claim, raw=command._canonical_json_bytes(claim))
+            self.grant = SimpleNamespace(record=grant, raw=command._canonical_json_bytes(grant))
+            self.binding = {"preauthorization_stores": stores}
+            self.dispatch_ledger_store = ledger
+            self.consume_artifact = None
+            self.anchor_artifact = None
+
+        def take_dispatch_ledger(self):
+            ledger = self.dispatch_ledger_store
+            self.dispatch_ledger_store = None
+            return ledger
+
+        def close(self):
+            if self.dispatch_ledger_store is not None:
+                self.dispatch_ledger_store.close()
+                self.dispatch_ledger_store = None
+
+    def fake_consume(_invocation, prepared, *_args):
+        receipt = {"consume_id": "3" * 64}
+        anchor = {"anchor_id": "7" * 64}
+        prepared.consume_artifact = SimpleNamespace(
+            record=receipt, raw=command._canonical_json_bytes(receipt)
+        )
+        prepared.anchor_artifact = SimpleNamespace(
+            record=anchor, raw=command._canonical_json_bytes(anchor)
+        )
+        return receipt
+
+    monkeypatch.setattr(command, "_prepare_probe_authorization", lambda invocation, **_k: Prepared(invocation))
+    monkeypatch.setattr(command, "_consume_prepared_approval", fake_consume)
+    monkeypatch.setattr(command, "_reverify_retained_artifact", lambda *_a, **_k: None)
+    monkeypatch.setattr(command, "_validate_receipt_v3_preauthorization", lambda *_a, **_k: None)
 
 
 def _config(tmp_path: Path) -> Path:
@@ -235,6 +290,48 @@ def _codex_stdout(result: dict[str, object], thread_id: str = "thread-safe-1") -
     )
 
 
+def _codex_process(
+    argv: list[str],
+    returncode: int = 0,
+    *,
+    stdout: str | None = None,
+    stderr: str = "",
+    final_result: dict[str, object] | None = None,
+) -> subprocess.CompletedProcess[str]:
+    """Model separate Codex telemetry/final channels used by governed execution.
+
+    The invalid ad-hoc Spark smoke merged stderr into JSONL with ``2>&1`` and
+    then used ``tail``/``jq`` extraction, truncating the stream and causing the
+    parse failure. This fixture keeps all three channels independent.
+    """
+
+    flag = "--output-last-message"
+    assert argv.count(flag) == 1
+    output_path = Path(argv[argv.index(flag) + 1])
+    with output_path.open("w", encoding="utf-8") as stream:
+        json.dump(
+            _work_result() if final_result is None else final_result,
+            stream,
+            separators=(",", ":"),
+        )
+    return subprocess.CompletedProcess(
+        argv,
+        returncode,
+        stdout=_valid_result_stdout() if stdout is None else stdout,
+        stderr=stderr,
+    )
+
+
+def _synthetic_codex_python(tmp_path: Path) -> str:
+    """Expose Python under a canonical test-only Codex executable identity."""
+
+    executable = tmp_path / "codex"
+    if not executable.exists():
+        shutil.copy2(sys.executable, executable)
+        executable.chmod(executable.stat().st_mode | 0o100)
+    return str(executable)
+
+
 def _agy_stdout(result: dict[str, object], conversation_id: str = "agy-safe-1") -> str:
     """Synthetic official AGY stream-json output; no external provider data."""
 
@@ -255,7 +352,9 @@ def _agy_stdout(result: dict[str, object], conversation_id: str = "agy-safe-1") 
     )
 
 
-def _read_only_codex_invocation(tmp_path: Path, *, attempt_id: int = 3):
+def _read_only_codex_invocation(
+    tmp_path: Path, *, attempt_id: int = 3, objective: str = "Read-only v2 verification"
+):
     config_path = _config(tmp_path)
     config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
     config["roles"]["developer"]["sandbox"] = "read-only"
@@ -264,12 +363,12 @@ def _read_only_codex_invocation(tmp_path: Path, *, attempt_id: int = 3):
     decision = _decision(work_mode="read_only")
     return command.build_invocation(
         route,
-        command.render_prompt(objective="Read-only v2 verification"),
+        command.render_prompt(objective=objective),
         tmp_path,
         decision=decision,
         model_policy=_policy(),
         attempt_id=attempt_id,
-        objective="Read-only v2 verification",
+        objective=objective,
         ownership="repository review only",
         runtime_config_path=config_path,
         runtime_config_approved=True,
@@ -285,7 +384,17 @@ def _hold_cross_process_claim(invocation, claim_root: str, ready, release, outco
     claim_dir.mkdir(mode=0o700)
     command._secure_claim_directory = lambda _invocation: claim_dir
     try:
-        command._acquire_dispatch_claim(invocation)
+        ledger = command._coerce_claim_store(claim_dir, invocation)
+        bound = replace(
+            invocation,
+            preauthorization_store_binding={
+                "probe_claim_store": "4" * 64,
+                "approval_grant_store": "5" * 64,
+                "approval_consume_store": "6" * 64,
+                "dispatch_ledger_store": ledger.identity_sha256,
+            },
+        )
+        command._acquire_dispatch_claim(bound, ledger)
     except Exception as exc:  # pragma: no cover - surfaced through outcome
         outcome.put(("error", type(exc).__name__, getattr(exc, "code", None)))
     else:
@@ -303,13 +412,12 @@ def _active_claimed_process(tmp_path: Path, monkeypatch, invocation, *, returnco
     )
     monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
     monkeypatch.setattr(
-        command.subprocess,
-        "run",
-        lambda argv, **kwargs: subprocess.CompletedProcess(
-            argv, returncode, stdout=_valid_result_stdout(), stderr=""
-        ),
+        command,
+        "_run_provider_process",
+        lambda argv, **kwargs: _codex_process(argv, returncode),
     )
-    return invocation, command._execute_invocation_locked(invocation)
+    result = command._execute_invocation_locked(invocation)
+    return getattr(result, "_bound_invocation", invocation), result
 
 
 def _finalized_claimed_process(tmp_path: Path, monkeypatch, invocation, *, returncode: int = 0):
@@ -428,7 +536,12 @@ def test_agy_options_are_validated_against_installed_cli_contract(
     [
         ("missing", None, None, "unknown role"),
         ("developer", "unknown", None, "unknown account alias"),
-        ("developer", None, "agy", "registered for codex"),
+        (
+            "developer",
+            None,
+            "agy",
+            "PROVIDER_EXECUTABLE_BINDING_INVALID",
+        ),
     ],
 )
 def test_missing_role_unknown_alias_and_invalid_cli_are_rejected(
@@ -452,7 +565,7 @@ def test_dry_run_never_starts_subprocess(tmp_path, monkeypatch, capsys):
         started = True
         raise AssertionError("subprocess must not run")
 
-    monkeypatch.setattr(command.subprocess, "run", fail_if_started)
+    monkeypatch.setattr(command, "_run_provider_process", fail_if_started)
     result = command.main(
         [
             "--config",
@@ -487,14 +600,22 @@ def test_execute_uses_argv_cwd_and_process_local_env(tmp_path, monkeypatch):
     def fake_run(argv, **kwargs):
         observed["argv"] = argv
         observed.update(kwargs)
-        return subprocess.CompletedProcess(argv, 0, stdout=_valid_result_stdout(), stderr="")
+        return _codex_process(argv)
 
-    monkeypatch.setattr(command.subprocess, "run", fake_run)
+    monkeypatch.setattr(command, "_run_provider_process", fake_run)
     result = command.main(_execute_args(config_path, decision_path, tmp_path))
     assert result == 0
     assert observed["argv"][0:4] == ["codex", "exec", "-C", str(tmp_path)]
+    assert observed["argv"].count("--ephemeral") == 1
+    assert observed["argv"].index("--ephemeral") < observed["argv"].index("--json")
+    assert observed["argv"].index("--json") < observed["argv"].index("--output-schema")
+    assert observed["argv"].index("--output-schema") < observed["argv"].index(
+        "--output-last-message"
+    )
+    assert observed["argv"].index("--output-last-message") < len(observed["argv"]) - 1
     assert observed["cwd"] == str(tmp_path)
     assert observed["shell"] is False
+    assert observed["timeout"] == command.MAX_PROVIDER_RUNTIME_SECONDS
     assert observed["env"]["CODEX_HOME"] == str(tmp_path / ".codex-one")
     assert observed["argv"][-1] == "-"
     assert "Execute safely" not in observed["argv"]
@@ -514,9 +635,9 @@ def test_execute_transports_malicious_unicode_prompt_byte_for_byte_on_stdin(
     def fake_run(argv, **kwargs):
         observed["argv"] = argv
         observed.update(kwargs)
-        return subprocess.CompletedProcess(argv, 0, stdout=_valid_result_stdout(), stderr="")
+        return _codex_process(argv)
 
-    monkeypatch.setattr(command.subprocess, "run", fake_run)
+    monkeypatch.setattr(command, "_run_provider_process", fake_run)
     args = _execute_args(config_path, decision_path, tmp_path)
     args[args.index("Execute safely")] = objective
     result = command.main(args)
@@ -551,6 +672,63 @@ def test_cli_dry_run_prints_valid_json_route_before_status(tmp_path, capsys):
     payload = json.loads(payload_text)
     assert payload["alias"] == "agy1"
     assert payload["status"] == "rendered-route-not-execution-proof"
+
+
+def test_cli_agy_execute_returns_stable_typed_blocker_and_zero_children(
+    tmp_path, monkeypatch, capsys
+):
+    decision_path = _decision_path(
+        tmp_path,
+        selected_alias="agy1",
+        selected_model="gemini-3.1-pro-high",
+        selected_effort="high",
+        scope_rank=2,
+    )
+    snapshot_path = _scheduling_snapshot_path(tmp_path, owner="researcher")
+    popen_calls = 0
+
+    def forbidden_popen(*args, **kwargs):
+        nonlocal popen_calls
+        popen_calls += 1
+        raise AssertionError("Popen must remain unreachable for AGY")
+
+    monkeypatch.setattr(command.subprocess, "Popen", forbidden_popen)
+    result = command.main(
+        [
+            "--config",
+            str(_config(tmp_path)),
+            "--role",
+            "researcher",
+            "--objective",
+            "AGY execution must be denied",
+            "--project-dir",
+            str(tmp_path),
+            "--decision",
+            str(decision_path),
+            "--policy",
+            str(ROOT / ".agents/config/multiagent_model_policy.yaml"),
+            "--scheduling-snapshot",
+            str(snapshot_path),
+            "--execute",
+        ]
+    )
+    captured = capsys.readouterr()
+    decoder = json.JSONDecoder()
+    rendered, offset = decoder.raw_decode(captured.out)
+    offset += len(captured.out[offset:]) - len(captured.out[offset:].lstrip())
+    blocked, _ = decoder.raw_decode(captured.out, offset)
+
+    assert result == 7
+    assert rendered["status"] == "rendered-route-not-execution-proof"
+    assert blocked["status"] == "BLOCKED"
+    assert blocked["execution_evidence"]["failure_class"] == (
+        "platform-native-prespawn-receipt-required"
+    )
+    assert blocked["execution_evidence"]["source"] == "no-child-ran"
+    assert captured.err == (
+        "[ERROR] BLOCKED: PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED\n"
+    )
+    assert popen_calls == 0
 
 
 def test_repository_example_resolves_every_role(monkeypatch):
@@ -738,6 +916,7 @@ def test_prompt_is_stdin_only_even_when_objective_contains_cli_tokens(tmp_path):
     assert "--model evil" not in invocation.argv
     assert "pwned" not in " ".join(invocation.argv)
     assert invocation.argv[-1] == "-"
+    assert "--ephemeral" not in invocation.argv
 
 
 def test_dry_run_normalizes_route_evidence_without_prompt_or_home_leak(
@@ -818,11 +997,9 @@ def test_duplicate_dispatch_is_one_subprocess_with_account_session_evidence(
 
     def fake_run(argv, **kwargs):
         calls.append((argv, kwargs["cwd"], kwargs["env"]["CODEX_HOME"], kwargs["input"]))
-        return subprocess.CompletedProcess(
-            argv, 0, stdout=_valid_result_stdout(), stderr=""
-        )
+        return _codex_process(argv)
 
-    monkeypatch.setattr(command.subprocess, "run", fake_run)
+    monkeypatch.setattr(command, "_run_provider_process", fake_run)
     args = _execute_args(config_path, decision_path, tmp_path)
     args[args.index("Execute safely")] = "one dispatch"
     assert command.main(args) == 0
@@ -838,10 +1015,11 @@ def test_nonzero_exit_is_normalized_and_reported(tmp_path, monkeypatch, capsys):
     typed_failure = _codex_stdout(_work_result("BLOCKED"))
     monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
     monkeypatch.setattr(
-        command.subprocess,
-        "run",
-        lambda argv, **kwargs: subprocess.CompletedProcess(
-            argv, 23, stdout=typed_failure, stderr="safe failure"
+        command,
+        "_run_provider_process",
+        lambda argv, **kwargs: _codex_process(
+            argv, 23, stdout=typed_failure, stderr="safe failure",
+            final_result=_work_result("BLOCKED"),
         ),
     )
     config_path = _config(tmp_path)
@@ -861,10 +1039,11 @@ def test_native_auth_failure_remains_child_authority_and_public_streams_are_elid
     args = _execute_args(config_path, decision_path, tmp_path)
     monkeypatch.setattr(command.shutil, "which", lambda executable: "/usr/bin/codex")
     monkeypatch.setattr(
-        command.subprocess,
-        "run",
-        lambda argv, **kwargs: subprocess.CompletedProcess(
-            argv, 1, _codex_stdout(_work_result("BLOCKED")), "native authentication denied"
+        command,
+        "_run_provider_process",
+        lambda argv, **kwargs: _codex_process(
+            argv, 1, stdout=_codex_stdout(_work_result("BLOCKED")),
+            stderr="native authentication denied", final_result=_work_result("BLOCKED")
         ),
     )
     assert command.main(args) == 1
@@ -887,7 +1066,7 @@ def test_empty_success_stdout_requires_missing_result_evidence_not_done():
     ]
 
 
-def test_timeout_from_account_process_is_not_silently_normalized(tmp_path, monkeypatch):
+def test_timeout_from_account_process_is_typed_without_raw_transport_data(tmp_path, monkeypatch):
     monkeypatch.setenv("HOME", str(tmp_path))
     route = command.resolve_route(command.load_config(_config(tmp_path)), "developer")
     invocation = command.build_invocation(
@@ -903,11 +1082,14 @@ def test_timeout_from_account_process_is_not_silently_normalized(tmp_path, monke
     monkeypatch.setattr(command.shutil, "which", lambda executable: "/usr/bin/codex")
 
     def timed_out(*args, **kwargs):
-        raise subprocess.TimeoutExpired(kwargs.get("args", args[0]), timeout=1)
+        raise command.ProviderParseError(
+            "terminal_shape", "provider execution exceeded its time limit"
+        )
 
-    monkeypatch.setattr(command.subprocess, "run", timed_out)
-    with pytest.raises(subprocess.TimeoutExpired):
+    monkeypatch.setattr(command, "_run_provider_process", timed_out)
+    with pytest.raises(command.ExecutionContractError) as exc:
         command.execute_invocation(invocation)
+    assert exc.value.provider_parse_reason == "terminal_shape"
 
 
 def test_unavailable_cli_is_rejected_before_account_process_start(tmp_path, monkeypatch):
@@ -925,31 +1107,15 @@ def test_unavailable_cli_is_rejected_before_account_process_start(tmp_path, monk
         command.execute_invocation(invocation)
 
 
-@pytest.mark.parametrize("role", ["developer", "researcher"])
-def test_all_configured_review_roles_accept_safe_empty_account_homes(tmp_path, monkeypatch, role):
-    route = command.resolve_route(command.load_config(_config(tmp_path)), role)
+def test_configured_codex_review_role_accepts_safe_empty_account_home(tmp_path, monkeypatch):
+    route = command.resolve_route(command.load_config(_config(tmp_path)), "developer")
     invocation = command.build_invocation(route, "prompt", tmp_path)
     monkeypatch.setattr(command.shutil, "which", lambda executable: "/usr/bin/fake")
     command.validate_execution_preflight(invocation)
 
 
-def test_real_agy_argument_order_is_verified_with_fake_executable(tmp_path, monkeypatch):
-    capture = tmp_path / "agy-argv.txt"
-    stdin_capture = tmp_path / "agy-stdin.json"
-    fake = tmp_path / "agy-fake"
-    terminal = _agy_stdout(_work_result())
-    fake.write_text(
-        "#!/bin/sh\n"
-        "printf '%s\\n' \"$@\" > \"$CAPTURE\"\n"
-        "cat > \"$INPUT_CAPTURE\"\n"
-        f"printf '%s' '{terminal}'\n",
-        encoding="utf-8",
-    )
-    fake.chmod(fake.stat().st_mode | 0o100)
-    monkeypatch.setenv("CAPTURE", str(capture))
-    monkeypatch.setenv("INPUT_CAPTURE", str(stdin_capture))
+def test_agy_execution_is_typed_denial_before_popen_or_transport(tmp_path, monkeypatch):
     config = yaml.safe_load(_config(tmp_path).read_text(encoding="utf-8"))
-    config["accounts"]["agy2"]["command"] = str(fake)
     config["roles"]["researcher"].update(
         {
             "alias": "agy2",
@@ -976,36 +1142,369 @@ def test_real_agy_argument_order_is_verified_with_fake_executable(tmp_path, monk
         runtime_config_approved=True,
         scheduling_snapshot=_scheduling_snapshot(owner="researcher"),
     )
+    popen_calls: list[tuple[object, ...]] = []
+    transport_calls: list[tuple[object, ...]] = []
 
-    outcome = command.execute_invocation(invocation)
+    def forbidden_popen(*args, **kwargs):
+        popen_calls.append(args)
+        raise AssertionError("Popen must remain unreachable for AGY")
 
-    assert outcome.process.returncode == 0
-    assert outcome.process.stdout == "[PROVIDER_STDOUT_ELIDED]"
-    assert outcome.completed["work_result"] == _work_result()
-    captured_argv = capture.read_text(encoding="utf-8").splitlines()
-    assert captured_argv[:-1] == [
-        "--mode",
-        "plan",
-        "--sandbox",
-        "--model",
-        "gemini-3.1-pro-high",
-        "--effort",
-        "high",
-        "--print",
-        "--input-format",
-        "stream-json",
-        "--output-format",
-        "stream-json",
-        "--json-schema",
-    ]
-    assert Path(captured_argv[-1]).name == "work-result-v2.provider.json"
-    assert "fake AGY invocation" not in captured_argv
-    sent_event = json.loads(stdin_capture.read_text(encoding="utf-8"))
-    assert sent_event == json.loads(invocation.prompt_stdin)
-    assert set(sent_event) == {"event", "message"}
-    assert sent_event["event"] == "user"
-    assert set(sent_event["message"]) == {"content"}
-    assert sent_event["message"]["content"].startswith(prompt)
+    def forbidden_transport(*args, **kwargs):
+        transport_calls.append(args)
+        raise AssertionError("provider transport must remain unreachable for AGY")
+
+    monkeypatch.setattr(command.subprocess, "Popen", forbidden_popen)
+    monkeypatch.setattr(command, "_run_provider_process", forbidden_transport)
+
+    with pytest.raises(command.PlatformNativePrespawnReceiptRequired) as exc:
+        command.execute_invocation(invocation)
+
+    assert exc.value.code == "PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED"
+    assert str(exc.value) == exc.value.code
+    assert popen_calls == []
+    assert transport_calls == []
+
+
+def test_agy_transport_guard_denies_immediately_before_popen(tmp_path, monkeypatch):
+    popen_calls = 0
+
+    def forbidden_popen(*args, **kwargs):
+        nonlocal popen_calls
+        popen_calls += 1
+        raise AssertionError("Popen must remain unreachable for AGY")
+
+    monkeypatch.setattr(command.subprocess, "Popen", forbidden_popen)
+    with pytest.raises(command.PlatformNativePrespawnReceiptRequired) as exc:
+        command._run_provider_process(
+            ["agy", "--print"],
+            cwd=str(tmp_path),
+            env={},
+            input="",
+            provider="agy",
+        )
+    assert exc.value.code == "PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED"
+    assert popen_calls == 0
+
+
+@pytest.mark.parametrize(
+    ("provider", "argv0"),
+    [
+        (None, "agy"),
+        ("codex", "agy"),
+        ("CoDeX", "/opt/provider/AgY"),
+        ("codex1", "AGY1.exe"),
+        (None, "/opt/provider/agy-two"),
+        ("codex", "agy_cli.sh"),
+        ("codex", "agy-wrapper-v3"),
+        (None, "/opt/provider/agy@work"),
+    ],
+)
+def test_agy_executable_identity_variants_deny_with_zero_popen(
+    tmp_path, monkeypatch, provider, argv0
+):
+    popen_calls = 0
+
+    def forbidden_popen(*args, **kwargs):
+        nonlocal popen_calls
+        popen_calls += 1
+        raise AssertionError("Popen must remain unreachable for effective AGY")
+
+    monkeypatch.setattr(command.subprocess, "Popen", forbidden_popen)
+    with pytest.raises(command.PlatformNativePrespawnReceiptRequired) as exc:
+        command._run_provider_process(
+            [argv0, "--print"],
+            cwd=str(tmp_path),
+            env={},
+            input="",
+            provider=provider,
+        )
+    assert exc.value.code == "PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED"
+    assert popen_calls == 0
+
+
+def test_agy_symlink_target_identity_denies_with_zero_popen(tmp_path, monkeypatch):
+    agy_target = tmp_path / "agy"
+    agy_target.write_text("not executed", encoding="ascii")
+    codex_named_link = tmp_path / "codex"
+    codex_named_link.symlink_to(agy_target)
+    popen_calls = 0
+
+    def forbidden_popen(*args, **kwargs):
+        nonlocal popen_calls
+        popen_calls += 1
+        raise AssertionError("Popen must remain unreachable for AGY symlink target")
+
+    monkeypatch.setattr(command.subprocess, "Popen", forbidden_popen)
+    with pytest.raises(command.PlatformNativePrespawnReceiptRequired):
+        command._run_provider_process(
+            [str(codex_named_link)],
+            cwd=str(tmp_path),
+            env={},
+            input="",
+            provider="codex",
+        )
+    assert popen_calls == 0
+
+
+@pytest.mark.parametrize(
+    "configured_command",
+    [
+        "agy",
+        "AGY",
+        "agy1",
+        "agy-two",
+        "/opt/provider/AgY2.exe",
+        "/usr/bin/env",
+        "/usr/bin/python3",
+        "codex-wrapper",
+    ],
+)
+def test_codex_route_rejects_agy_or_unknown_command_before_invocation(
+    tmp_path, monkeypatch, configured_command
+):
+    config = yaml.safe_load(_config(tmp_path).read_text(encoding="utf-8"))
+    config["accounts"]["codex1"]["command"] = configured_command
+    popen_calls = 0
+
+    def forbidden_popen(*args, **kwargs):
+        nonlocal popen_calls
+        popen_calls += 1
+        raise AssertionError("Popen must remain unreachable for a mismatched route")
+
+    monkeypatch.setattr(command.subprocess, "Popen", forbidden_popen)
+    with pytest.raises(command.ProviderExecutableBindingError) as exc:
+        command.resolve_route(config, "developer")
+    assert exc.value.code == "PROVIDER_EXECUTABLE_BINDING_INVALID"
+    assert popen_calls == 0
+
+
+def test_cli_codex_route_with_agy_command_is_typed_before_render_or_popen(
+    tmp_path, monkeypatch, capsys
+):
+    config_path = _config(tmp_path)
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    config["accounts"]["codex1"]["command"] = "/opt/provider/AGY.exe"
+    config_path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+    popen_calls = 0
+
+    def forbidden_popen(*args, **kwargs):
+        nonlocal popen_calls
+        popen_calls += 1
+        raise AssertionError("Popen must remain unreachable for mismatched CLI route")
+
+    monkeypatch.setattr(command.subprocess, "Popen", forbidden_popen)
+    result = command.main(
+        [
+            "--config",
+            str(config_path),
+            "--role",
+            "developer",
+            "--objective",
+            "must not render a contradictory route",
+            "--project-dir",
+            str(tmp_path),
+        ]
+    )
+    captured = capsys.readouterr()
+    assert result == 8
+    assert captured.out == ""
+    assert captured.err == (
+        "[ERROR] BLOCKED: PROVIDER_EXECUTABLE_BINDING_INVALID\n"
+    )
+    assert popen_calls == 0
+
+
+@pytest.mark.parametrize(
+    ("alias", "declared_cli", "command_name"),
+    [
+        ("codex1", "agy", "agy"),
+        ("agy1", "codex", "codex"),
+    ],
+)
+def test_account_alias_provider_contradiction_is_typed_and_never_spawns(
+    tmp_path, monkeypatch, alias, declared_cli, command_name
+):
+    config = yaml.safe_load(_config(tmp_path).read_text(encoding="utf-8"))
+    config["accounts"][alias]["cli"] = declared_cli
+    config["accounts"][alias]["command"] = command_name
+    role = "developer" if alias == "codex1" else "researcher"
+    config["roles"][role]["cli"] = declared_cli
+    popen_calls = 0
+
+    def forbidden_popen(*args, **kwargs):
+        nonlocal popen_calls
+        popen_calls += 1
+        raise AssertionError(
+            "Popen must remain unreachable for contradictory metadata"
+        )
+
+    monkeypatch.setattr(command.subprocess, "Popen", forbidden_popen)
+
+    with pytest.raises(command.ProviderExecutableBindingError) as exc:
+        command.resolve_route(config, role)
+    assert exc.value.code == "PROVIDER_EXECUTABLE_BINDING_INVALID"
+    assert popen_calls == 0
+
+
+@pytest.mark.parametrize("tamper", ["argv", "route_and_argv"])
+def test_invocation_agy_tamper_blocks_before_preauth_ledger_transport_and_popen(
+    tmp_path, monkeypatch, tamper
+):
+    invocation = _read_only_codex_invocation(tmp_path)
+    argv = ("/opt/provider/AgY2.exe", *invocation.argv[1:])
+    if tamper == "route_and_argv":
+        invocation = replace(
+            invocation,
+            route=replace(invocation.route, command=argv[0]),
+            argv=argv,
+        )
+    else:
+        invocation = replace(invocation, argv=argv)
+    calls = {
+        "decision": 0,
+        "preauth": 0,
+        "ledger": 0,
+        "transport": 0,
+        "popen": 0,
+    }
+
+    def forbidden(name):
+        def fail(*args, **kwargs):
+            calls[name] += 1
+            raise AssertionError(f"{name} must remain unreachable")
+        return fail
+
+    monkeypatch.setattr(command, "_validated_invocation_decision", forbidden("decision"))
+    monkeypatch.setattr(command, "_prepare_probe_authorization", forbidden("preauth"))
+    monkeypatch.setattr(command, "_acquire_dispatch_claim", forbidden("ledger"))
+    monkeypatch.setattr(command, "_run_provider_process", forbidden("transport"))
+    monkeypatch.setattr(command.subprocess, "Popen", forbidden("popen"))
+
+    with pytest.raises(command.PlatformNativePrespawnReceiptRequired) as exc:
+        command.execute_invocation(invocation)
+    assert exc.value.code == "PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED"
+    assert calls == {
+        "decision": 0,
+        "preauth": 0,
+        "ledger": 0,
+        "transport": 0,
+        "popen": 0,
+    }
+
+
+@pytest.mark.parametrize(
+    "tampered_argv",
+    [
+        ("/usr/bin/env", "agy"),
+        (sys.executable, "-c", "print('must not execute')"),
+        ("codex-wrapper", "--provider", "agy"),
+    ],
+)
+def test_unknown_launcher_tamper_fails_before_decision_and_all_spawn_work(
+    tmp_path, monkeypatch, tampered_argv
+):
+    invocation = _read_only_codex_invocation(tmp_path)
+    invocation = replace(
+        invocation,
+        route=replace(invocation.route, command=tampered_argv[0]),
+        argv=tampered_argv,
+    )
+    calls = {
+        "decision": 0,
+        "preauth": 0,
+        "ledger": 0,
+        "transport": 0,
+        "popen": 0,
+    }
+
+    def forbidden(name):
+        def fail(*args, **kwargs):
+            calls[name] += 1
+            raise AssertionError(f"{name} must remain unreachable")
+        return fail
+
+    monkeypatch.setattr(command, "_validated_invocation_decision", forbidden("decision"))
+    monkeypatch.setattr(command, "_prepare_probe_authorization", forbidden("preauth"))
+    monkeypatch.setattr(command, "_acquire_dispatch_claim", forbidden("ledger"))
+    monkeypatch.setattr(command, "_run_provider_process", forbidden("transport"))
+    monkeypatch.setattr(command.subprocess, "Popen", forbidden("popen"))
+
+    with pytest.raises(command.ProviderExecutableBindingError) as exc:
+        command.execute_invocation(invocation)
+    assert exc.value.code == "PROVIDER_EXECUTABLE_BINDING_INVALID"
+    assert calls == {
+        "decision": 0,
+        "preauth": 0,
+        "ledger": 0,
+        "transport": 0,
+        "popen": 0,
+    }
+
+
+@pytest.mark.parametrize(
+    ("provider", "argv"),
+    [
+        (None, ("codex",)),
+        (None, ("/usr/bin/env", "agy")),
+        ("codex", ("/usr/bin/env", "agy")),
+        ("codex", (sys.executable, "-c", "print('must not execute')")),
+        ("codex", ("codex-wrapper", "--provider", "agy")),
+    ],
+)
+def test_transport_requires_nonnull_provider_and_canonical_executable(
+    tmp_path, monkeypatch, provider, argv
+):
+    popen_calls = 0
+
+    def forbidden_popen(*args, **kwargs):
+        nonlocal popen_calls
+        popen_calls += 1
+        raise AssertionError("Popen must remain unreachable for an unbound launcher")
+
+    monkeypatch.setattr(command.subprocess, "Popen", forbidden_popen)
+    with pytest.raises(command.ProviderExecutableBindingError) as exc:
+        command._run_provider_process(
+            argv, cwd=str(tmp_path), env={}, input="", provider=provider
+        )
+    assert exc.value.code == "PROVIDER_EXECUTABLE_BINDING_INVALID"
+    assert popen_calls == 0
+
+
+@pytest.mark.parametrize(
+    ("provider", "expected_error"),
+    [
+        ("unknown", command.ProviderExecutableBindingError),
+        ("agy", command.PlatformNativePrespawnReceiptRequired),
+        ("AgY_1", command.PlatformNativePrespawnReceiptRequired),
+    ],
+)
+def test_contradictory_provider_metadata_fails_closed_before_popen(
+    tmp_path, monkeypatch, provider, expected_error
+):
+    popen_calls = 0
+
+    def forbidden_popen(*args, **kwargs):
+        nonlocal popen_calls
+        popen_calls += 1
+        raise AssertionError("Popen must remain unreachable")
+
+    monkeypatch.setattr(command.subprocess, "Popen", forbidden_popen)
+    with pytest.raises(expected_error):
+        command._run_provider_process(
+            ["codex"], cwd=str(tmp_path), env={}, input="", provider=provider
+        )
+    assert popen_calls == 0
+
+
+def test_runtime_v3_records_unconditional_agy_execution_denial():
+    config = command.load_config(
+        ROOT / ".agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml"
+    )
+
+    assert config["runtime"]["approved_for_execution"] is True
+    assert config["runtime"]["provider_execution_denials"] == {
+        "agy": "PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED"
+    }
 
 
 @pytest.mark.parametrize(
@@ -1068,11 +1567,9 @@ def test_completed_process_evidence_is_emitted_separately_from_route_label(
     monkeypatch.setattr(command.shutil, "which", lambda executable: f"/usr/bin/{executable}")
 
     def fake_run(argv, **kwargs):
-        return subprocess.CompletedProcess(
-            argv, 0, stdout=_valid_result_stdout(), stderr="child-session=safe-123"
-        )
+        return _codex_process(argv, stderr="child-session=safe-123")
 
-    monkeypatch.setattr(command.subprocess, "run", fake_run)
+    monkeypatch.setattr(command, "_run_provider_process", fake_run)
     assert (
         command.main(_execute_args(config_path, decision_path, tmp_path))
         == 0
@@ -1595,6 +2092,181 @@ def test_codex_adapter_rejects_malformed_ambiguous_and_bare_prose(
         command.parse_provider_result(_read_only_codex_invocation(tmp_path), payload)
 
 
+def _codex_cardinality_payload(*items: object) -> str:
+    """Build only the provider-native envelope needed for cardinality tests."""
+
+    events: list[dict[str, object]] = [
+        {"type": "thread.started", "thread_id": "cardinality-safe"},
+    ]
+    events.extend({"type": "item.completed", "item": item} for item in items)
+    events.append({"type": "turn.completed"})
+    return _jsonl(*events)
+
+
+def _cardinality_error(tmp_path, payload: str) -> command.ProviderParseError:
+    with pytest.raises(command.ProviderParseError) as exc:
+        command.parse_provider_result(_read_only_codex_invocation(tmp_path), payload)
+    assert exc.value.provider_parse_reason == "final_message_cardinality"
+    return exc.value
+
+
+def test_codex_cardinality_observability_reports_closed_zero_one_and_two_plus_counts(
+    tmp_path,
+):
+    zero = _cardinality_error(tmp_path, _codex_cardinality_payload())
+    assert zero.final_message_cardinality_subreason is None
+    assert zero.candidate_count == 0
+
+    one = command.parse_provider_result(
+        _read_only_codex_invocation(tmp_path),
+        _codex_cardinality_payload(
+            {"type": "agent_message", "text": json.dumps(_work_result())}
+        ),
+    )
+    assert one.work_result == _work_result()
+
+    for item_count in (2, 3):
+        many = _cardinality_error(
+            tmp_path,
+            _codex_cardinality_payload(
+                *(
+                    {"type": "agent_message", "text": json.dumps(_work_result())}
+                    for _ in range(item_count)
+                )
+            ),
+        )
+        assert many.final_message_cardinality_subreason == (
+            "multiple_structured_candidates"
+        )
+        assert many.candidate_count == 2
+
+
+@pytest.mark.parametrize(
+    ("item", "subreason", "expected_count"),
+    [
+        ([[]], "completed_item_shape", 0),
+        ({"type": "agent_message", "text": None}, "agent_message_text_shape", 0),
+        (
+            [
+                {"type": "agent_message", "text": json.dumps(_work_result())},
+                [],
+            ],
+            "completed_item_shape",
+            1,
+        ),
+        (
+            [
+                {"type": "agent_message", "text": json.dumps(_work_result())},
+                {"type": "agent_message", "text": None},
+            ],
+            "agent_message_text_shape",
+            1,
+        ),
+    ],
+)
+def test_codex_cardinality_shape_subreasons_are_closed_and_count_only_workresult_candidates(
+    tmp_path, item, subreason, expected_count
+):
+    items = item if isinstance(item, list) else [item]
+    error = _cardinality_error(tmp_path, _codex_cardinality_payload(*items))
+    assert error.final_message_cardinality_subreason == subreason
+    assert error.candidate_count == expected_count
+    assert error.final_message_cardinality_subreason in (
+        command.FINAL_MESSAGE_CARDINALITY_SUBREASONS
+    )
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "{",
+        "[]",
+        json.dumps({"status": "DONE"}),
+    ],
+)
+def test_codex_non_workresult_agent_message_is_not_counted_as_a_structured_candidate(
+    tmp_path, text
+):
+    with pytest.raises(command.ProviderParseError) as exc:
+        command.parse_provider_result(
+            _read_only_codex_invocation(tmp_path),
+            _codex_cardinality_payload({"type": "agent_message", "text": text}),
+        )
+    assert exc.value.provider_parse_reason == "work_result_validation"
+    assert exc.value.final_message_cardinality_subreason is None
+    assert exc.value.candidate_count is None
+
+
+def test_cardinality_telemetry_is_content_free_in_public_blocked_output(
+    tmp_path, monkeypatch, capsys
+):
+    config_path = _config(tmp_path)
+    decision_path = _decision_path(tmp_path)
+    candidate_sentinel = "CANDIDATE-CONTENT-MUST-NOT-APPEAR"
+    payload = _codex_cardinality_payload(
+        {
+            "type": "agent_message",
+            "text": None,
+            "untrusted_payload": candidate_sentinel,
+        }
+    )
+    error = _cardinality_error(tmp_path, payload)
+    assert candidate_sentinel not in str(error)
+
+    monkeypatch.setattr(
+        command,
+        "execute_invocation",
+        lambda _invocation: (_ for _ in ()).throw(
+            command.ExecutionContractError(
+                error.provider_parse_reason,
+                final_message_cardinality_subreason=(
+                    error.final_message_cardinality_subreason
+                ),
+                candidate_count=error.candidate_count,
+            )
+        ),
+    )
+    assert command.main(_execute_args(config_path, decision_path, tmp_path)) == 3
+    captured = capsys.readouterr()
+    first_document, second_document = captured.out.split("\n{", 1)
+    assert json.loads(first_document)["status"] == "rendered-route-not-execution-proof"
+    blocked = json.loads("{" + second_document)
+    assert blocked["execution_evidence"] == {
+        "source": "child-ran-invalid-result-contract",
+        "failure_class": "invalid-child-result-contract",
+        "provider_parse_reason": "final_message_cardinality",
+        "final_message_cardinality_subreason": "agent_message_text_shape",
+        "candidate_count": 0,
+    }
+    assert candidate_sentinel not in captured.out + captured.err
+
+
+@pytest.mark.parametrize("candidate_count", [-1, 3, True, "2"])
+def test_cardinality_telemetry_rejects_non_closed_counts(candidate_count):
+    with pytest.raises(ValueError, match="candidate count must be saturated"):
+        command.ProviderParseError(
+            "final_message_cardinality",
+            "fixed content-free message",
+            candidate_count=candidate_count,
+        )
+
+
+def test_cardinality_telemetry_rejects_unknown_subreason_and_wrong_top_level_reason():
+    with pytest.raises(ValueError, match="unsupported final-message cardinality subreason"):
+        command.ProviderParseError(
+            "final_message_cardinality",
+            "fixed content-free message",
+            final_message_cardinality_subreason="candidate_payload",
+            candidate_count=0,
+        )
+    with pytest.raises(ValueError, match="cardinality telemetry requires"):
+        command.ProviderParseError(
+            "terminal_shape",
+            "fixed content-free message",
+            candidate_count=0,
+        )
+
+
 @pytest.mark.parametrize(
     "payload",
     [
@@ -1688,28 +2360,21 @@ def test_agy_decoded_and_encoded_prompt_echoes_are_redacted_before_receipt_evide
         assert forbidden not in rendered
     assert "<PROMPT_REDACTED>" in rendered
 
-    observed: dict[str, object] = {}
+    transport_calls = 0
 
     def fake_run(argv, **kwargs):
-        observed["argv"] = argv
-        return subprocess.CompletedProcess(
-            argv, 0, _agy_stdout(echoed), "email=person@example.com"
-        )
+        nonlocal transport_calls
+        transport_calls += 1
+        raise AssertionError("AGY transport must remain unreachable")
 
     monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
-    monkeypatch.setattr(command.subprocess, "run", fake_run)
-    outcome = command.execute_invocation(
-        replace(invocation, claim_store_override=str(tmp_path / "pii-ledger"))
-    )
-    public = json.dumps(outcome.completed)
-    durable = "\n".join(
-        path.read_text(encoding="ascii", errors="ignore")
-        for path in (tmp_path / "pii-ledger").rglob("*") if path.is_file()
-    )
-    for forbidden in ("person@example.com", "123456", "/Users/person", "192.0.2.42"):
-        assert forbidden not in public + durable + " ".join(observed["argv"])
-    assert outcome.process.stdout == "[PROVIDER_STDOUT_ELIDED]"
-    assert outcome.process.stderr == "[PROVIDER_STDERR_ELIDED]"
+    monkeypatch.setattr(command, "_run_provider_process", fake_run)
+    with pytest.raises(command.PlatformNativePrespawnReceiptRequired):
+        command.execute_invocation(
+            replace(invocation, claim_store_override=str(tmp_path / "pii-ledger"))
+        )
+    assert transport_calls == 0
+    assert not (tmp_path / "pii-ledger").exists()
 
 
 def test_provider_stream_and_work_result_reject_secret_bearing_output(tmp_path):
@@ -1752,7 +2417,18 @@ def test_invalid_provider_contract_emits_only_content_free_parse_reason(
         }
     )
 
-    monkeypatch.setattr(command, "execute_invocation", lambda invocation: (_ for _ in ()).throw(command.ExecutionContractError(provider_parse_reason)))
+    cardinality_kwargs = (
+        {"candidate_count": 0}
+        if provider_parse_reason == "final_message_cardinality"
+        else {}
+    )
+    monkeypatch.setattr(
+        command,
+        "execute_invocation",
+        lambda invocation: (_ for _ in ()).throw(
+            command.ExecutionContractError(provider_parse_reason, **cardinality_kwargs)
+        ),
+    )
 
     def reject_provider_result(invocation, payload):
         assert payload == raw_provider_output
@@ -1777,11 +2453,14 @@ def test_invalid_provider_contract_emits_only_content_free_parse_reason(
 
     assert rendered_route["status"] == "rendered-route-not-execution-proof"
     assert blocked_result["status"] == "BLOCKED"
-    assert blocked_result["execution_evidence"] == {
+    expected_evidence = {
         "source": "child-ran-invalid-result-contract",
         "failure_class": "invalid-child-result-contract",
         "provider_parse_reason": provider_parse_reason,
     }
+    if provider_parse_reason == "final_message_cardinality":
+        expected_evidence["candidate_count"] = 0
+    assert blocked_result["execution_evidence"] == expected_evidence
     assert "execution_receipt" not in blocked_result
     assert "work_result" not in blocked_result
     assert "Invalid sub-agent result contract" in captured.err
@@ -1893,6 +2572,419 @@ def test_read_only_dispatch_gate_is_effective_not_prompt_only(
         command.validate_execution_preflight(invocation)
 
 
+def _telemetry_without_final_candidate() -> str:
+    return _jsonl(
+        {"type": "thread.started", "thread_id": "thread-safe-zero"},
+        {"type": "turn.completed"},
+    )
+
+
+def test_governed_codex_accepts_private_final_with_zero_or_one_matching_telemetry_candidate(
+    tmp_path, monkeypatch
+):
+    invocation = _read_only_codex_invocation(tmp_path)
+    monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
+    streams = [_telemetry_without_final_candidate(), _valid_result_stdout()]
+
+    for index, telemetry in enumerate(streams, 1):
+        current = replace(
+            _read_only_codex_invocation(tmp_path, attempt_id=index, objective=f"candidate {index}"),
+            claim_store_override=str(tmp_path / f"claim-store-{index}"),
+        )
+        monkeypatch.setattr(
+            command,
+            "_run_provider_process",
+            lambda argv, telemetry=telemetry, **kwargs: _codex_process(
+                argv, stdout=telemetry
+            ),
+        )
+        outcome = command.execute_invocation(current)
+        assert outcome.completed["work_result"] == _work_result()
+
+
+def test_governed_codex_rejects_multiple_or_conflicting_telemetry_candidates(
+    tmp_path, monkeypatch
+):
+    invocation = _read_only_codex_invocation(tmp_path)
+    monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
+    multiple = _jsonl(
+        {"type": "thread.started", "thread_id": "thread-safe-many"},
+        {"type": "item.completed", "item": {"type": "agent_message", "text": json.dumps(_work_result())}},
+        {"type": "item.completed", "item": {"type": "agent_message", "text": json.dumps(_work_result())}},
+        {"type": "turn.completed"},
+    )
+    conflict = deepcopy(_work_result())
+    conflict["findings"] = ["conflicting private final"]
+
+    cases = [
+        (
+            multiple,
+            _work_result(),
+            "final_message_cardinality",
+            "multiple_structured_candidates",
+            2,
+        ),
+        (_valid_result_stdout(), conflict, "work_result_validation", None, None),
+    ]
+    for index, (telemetry, final_result, reason, subreason, candidate_count) in enumerate(cases, 1):
+        current = replace(
+            _read_only_codex_invocation(tmp_path, attempt_id=index, objective=f"conflict {index}"),
+            claim_store_override=str(tmp_path / f"conflict-store-{index}"),
+        )
+        monkeypatch.setattr(
+            command,
+            "_run_provider_process",
+            lambda argv, telemetry=telemetry, final_result=final_result, **kwargs: _codex_process(
+                argv, stdout=telemetry, final_result=final_result
+            ),
+        )
+        with pytest.raises(command.ExecutionContractError) as exc:
+            command.execute_invocation(current)
+        assert exc.value.provider_parse_reason == reason
+        assert exc.value.final_message_cardinality_subreason == subreason
+        assert exc.value.candidate_count == candidate_count
+
+
+@pytest.mark.parametrize(
+    "mode",
+    [
+        "missing",
+        "empty",
+        "malformed",
+        "oversize",
+        "symlink",
+        "fifo",
+        "hardlink",
+        "mode",
+        "duplicate",
+        "nonfinite",
+    ],
+)
+def test_governed_codex_rejects_unsafe_private_final_and_always_cleans_up(
+    tmp_path, monkeypatch, mode
+):
+    invocation = _read_only_codex_invocation(tmp_path)
+    monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
+    observed: dict[str, Path] = {}
+    symlink_target = tmp_path / "outside-final.json"
+    symlink_target.write_text(json.dumps(_work_result()), encoding="utf-8")
+
+    def fake_run(argv, **kwargs):
+        output = Path(argv[argv.index("--output-last-message") + 1])
+        observed["output"] = output
+        if mode == "missing":
+            output.unlink()
+        elif mode == "empty":
+            output.write_bytes(b"")
+        elif mode == "malformed":
+            output.write_bytes(b"{")
+        elif mode == "oversize":
+            output.write_bytes(b"x" * (command.MAX_PRIVATE_FINAL_BYTES + 1))
+        elif mode == "symlink":
+            output.unlink()
+            output.symlink_to(symlink_target)
+        elif mode == "fifo":
+            output.unlink()
+            os.mkfifo(output, 0o600)
+        elif mode == "hardlink":
+            output.write_text(json.dumps(_work_result()), encoding="utf-8")
+            os.link(output, tmp_path / "second-link.json")
+        elif mode == "mode":
+            output.write_text(json.dumps(_work_result()), encoding="utf-8")
+            output.chmod(0o644)
+        elif mode == "duplicate":
+            raw = json.dumps(_work_result(), separators=(",", ":"))
+            output.write_text(raw[:-1] + ',"status":"DONE"}', encoding="utf-8")
+        else:
+            nonfinite = deepcopy(_work_result())
+            nonfinite["evidence"]["outcomes"] = [float("nan")]
+            output.write_text(json.dumps(nonfinite), encoding="utf-8")
+        return subprocess.CompletedProcess(
+            argv, 0, stdout=_valid_result_stdout(), stderr=""
+        )
+
+    monkeypatch.setattr(command, "_run_provider_process", fake_run)
+    with pytest.raises(command.ExecutionContractError) as exc:
+        command.execute_invocation(invocation)
+    assert exc.value.provider_parse_reason == "work_result_validation"
+    assert not observed["output"].parent.exists()
+
+
+def test_governed_codex_accepts_safe_stderr_noise_but_rejects_stderr_secrets(
+    tmp_path, monkeypatch
+):
+    invocation = _read_only_codex_invocation(tmp_path)
+    monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
+    monkeypatch.setattr(
+        command,
+        "_run_provider_process",
+        lambda argv, **kwargs: _codex_process(argv, stderr="safe diagnostic noise"),
+    )
+    safe = command.execute_invocation(invocation)
+    assert safe.completed["execution_provenance"]["channels"]["stderr"]["bytes"] > 0
+
+    secret_invocation = replace(
+        _read_only_codex_invocation(tmp_path, attempt_id=2, objective="secret stderr"),
+        claim_store_override=str(tmp_path / "secret-store"),
+    )
+    monkeypatch.setattr(
+        command,
+        "_run_provider_process",
+        lambda argv, **kwargs: _codex_process(
+            argv, stderr="authorization: Bearer abcdefghijklmnop"
+        ),
+    )
+    with pytest.raises(command.ExecutionContractError) as exc:
+        command.execute_invocation(secret_invocation)
+    assert exc.value.provider_parse_reason == "secret_bearing"
+
+
+def test_governed_codex_rejects_stdout_secret_before_final_reconciliation(
+    tmp_path, monkeypatch
+):
+    invocation = _read_only_codex_invocation(tmp_path, objective="secret stdout")
+    monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
+    secret_telemetry = _valid_result_stdout() + "authorization: Bearer abcdefghijklmnop\n"
+    monkeypatch.setattr(
+        command,
+        "_run_provider_process",
+        lambda argv, **kwargs: _codex_process(argv, stdout=secret_telemetry),
+    )
+    with pytest.raises(command.ExecutionContractError) as exc:
+        command.execute_invocation(invocation)
+    assert exc.value.provider_parse_reason == "secret_bearing"
+
+
+@pytest.mark.parametrize("channel", ["stdout", "stderr"])
+def test_incremental_transport_rejects_oversize_channel_and_reaps_group(
+    tmp_path, channel
+):
+    stream = "stdout" if channel == "stdout" else "stderr"
+    code = (
+        "import sys,time;"
+        f"sys.{stream}.buffer.write(b'x'*{command.MAX_PROVIDER_OUTPUT_BYTES + 1});"
+        f"sys.{stream}.buffer.flush();time.sleep(30)"
+    )
+    started = time.monotonic()
+    with pytest.raises(command.ProviderParseError, match="safe byte limit") as exc:
+        command._run_provider_process(
+            [_synthetic_codex_python(tmp_path), "-c", code],
+            cwd=str(tmp_path),
+            env=os.environ.copy(),
+            input="",
+            provider="codex",
+            timeout=10,
+        )
+    assert exc.value.provider_parse_reason == "terminal_shape"
+    assert time.monotonic() - started < 10
+
+
+def test_incremental_transport_timeout_kills_descendant_group_and_elides_payload(
+    tmp_path
+):
+    pid_path = tmp_path / "owned-process-group.txt"
+    code = (
+        "import os,subprocess,sys,time;"
+        "child=subprocess.Popen([sys.executable,'-c','import time;time.sleep(60)']);"
+        f"open({str(pid_path)!r},'w').write(str(os.getpid())+' '+str(child.pid));"
+        "time.sleep(60)"
+    )
+    with pytest.raises(command.ProviderParseError) as exc:
+        command._run_provider_process(
+            [_synthetic_codex_python(tmp_path), "-c", code],
+            cwd=str(tmp_path),
+            env=os.environ.copy(),
+            input="",
+            provider="codex",
+            timeout=0.3,
+        )
+    assert exc.value.provider_parse_reason == "terminal_shape"
+    assert "time limit" in str(exc.value)
+    parent_pid, child_pid = map(int, pid_path.read_text(encoding="utf-8").split())
+    deadline = time.monotonic() + 5
+    while time.monotonic() < deadline:
+        try:
+            os.killpg(parent_pid, 0)
+        except ProcessLookupError:
+            break
+        time.sleep(0.05)
+    else:
+        pytest.fail(f"owned process group survived cleanup (child pid {child_pid})")
+
+
+def test_timeout_sigkills_descendant_that_ignores_term_after_leader_exits(tmp_path):
+    pid_path = tmp_path / "term-resistant-process-group.txt"
+    child_code = (
+        "import signal,time;"
+        "signal.signal(signal.SIGTERM,signal.SIG_IGN);"
+        "time.sleep(60)"
+    )
+    leader_code = (
+        "import os,subprocess,sys,time;"
+        f"child=subprocess.Popen([sys.executable,'-c',{child_code!r}]);"
+        f"open({str(pid_path)!r},'w').write(str(os.getpid())+' '+str(child.pid));"
+        "time.sleep(60)"
+    )
+    with pytest.raises(command.ProviderParseError) as exc:
+        command._run_provider_process(
+            [_synthetic_codex_python(tmp_path), "-c", leader_code],
+            cwd=str(tmp_path),
+            env=os.environ.copy(),
+            input="",
+            provider="codex",
+            timeout=0.3,
+        )
+    assert exc.value.provider_parse_reason == "terminal_shape"
+    leader_pid, child_pid = map(int, pid_path.read_text(encoding="utf-8").split())
+    try:
+        os.killpg(leader_pid, 0)
+    except ProcessLookupError:
+        pass
+    else:
+        pytest.fail(f"SIGTERM-resistant child survived SIGKILL (pid {child_pid})")
+
+
+def test_governed_codex_rejects_failure_event_and_nonzero_done(tmp_path, monkeypatch):
+    invocation = _read_only_codex_invocation(tmp_path)
+    monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
+    failure = _jsonl(
+        {"type": "thread.started", "thread_id": "thread-failed"},
+        {"type": "error", "message": "safe provider failure"},
+        {"type": "turn.completed"},
+    )
+    cases = [(0, failure), (9, _valid_result_stdout())]
+    for index, (returncode, telemetry) in enumerate(cases, 1):
+        current = replace(
+            _read_only_codex_invocation(tmp_path, attempt_id=index, objective=f"failure {index}"),
+            claim_store_override=str(tmp_path / f"failure-store-{index}"),
+        )
+        monkeypatch.setattr(
+            command,
+            "_run_provider_process",
+            lambda argv, returncode=returncode, telemetry=telemetry, **kwargs: _codex_process(
+                argv, returncode, stdout=telemetry
+            ),
+        )
+        with pytest.raises(command.ExecutionContractError) as exc:
+            command.execute_invocation(current)
+        assert exc.value.provider_parse_reason == "provider_failure_event"
+
+
+def test_private_final_digest_tamper_is_rejected(tmp_path, monkeypatch):
+    invocation = _read_only_codex_invocation(tmp_path)
+    monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
+    monkeypatch.setattr(command, "_run_provider_process", lambda argv, **kwargs: _codex_process(argv))
+    process = command._execute_invocation_locked(invocation)
+    try:
+        process._private_final_sha256 = "0" * 64  # type: ignore[attr-defined]
+        with pytest.raises(command.ProviderParseError, match="digest evidence"):
+            command._private_final_from_process(process)
+    finally:
+        command._reject_result_claim(process)
+
+
+def test_private_final_same_size_post_read_timestamp_race_is_rejected(
+    tmp_path, monkeypatch
+):
+    private_dir = tmp_path / "private"
+    private_dir.mkdir(mode=0o700)
+    path, identity = command._create_private_final_file(private_dir)
+    path.write_text(json.dumps(_work_result()), encoding="utf-8")
+    real_fstat = command.os.fstat
+    matching_calls = 0
+
+    def raced_fstat(descriptor):
+        nonlocal matching_calls
+        metadata = real_fstat(descriptor)
+        if (metadata.st_dev, metadata.st_ino) == identity:
+            matching_calls += 1
+            if matching_calls == 2:
+                fields = list(metadata)
+                fields[8] = metadata.st_mtime + 1
+                return os.stat_result(fields)
+        return metadata
+
+    monkeypatch.setattr(command.os, "fstat", raced_fstat)
+    with pytest.raises(command.ProviderParseError, match="changed while reading"):
+        command._read_private_final_file(path, identity)
+
+
+@pytest.mark.parametrize("field", ["_stdout_sha256", "_stderr_sha256"])
+def test_transport_channel_digest_tamper_is_rejected(tmp_path, monkeypatch, field):
+    invocation = _read_only_codex_invocation(
+        tmp_path, objective=f"channel tamper {field}"
+    )
+    monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
+    monkeypatch.setattr(
+        command,
+        "_run_provider_process",
+        lambda argv, **kwargs: _codex_process(argv, stderr="safe diagnostics"),
+    )
+    process = command._execute_invocation_locked(invocation)
+    try:
+        setattr(process, field, "0" * 64)
+        with pytest.raises(command.ProviderParseError, match="digest evidence"):
+            command._validated_process_channel_evidence(process)
+    finally:
+        command._reject_result_claim(process)
+
+
+def test_sanitized_argv_digest_tamper_is_rejected(tmp_path, monkeypatch):
+    invocation = _read_only_codex_invocation(tmp_path, objective="argv tamper")
+    monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
+    monkeypatch.setattr(command, "_run_provider_process", lambda argv, **kwargs: _codex_process(argv))
+    process = command._execute_invocation_locked(invocation)
+    try:
+        process._sanitized_argv_sha256 = "0" * 64  # type: ignore[attr-defined]
+        provider_result = command.parse_provider_result(
+            invocation,
+            process.stdout,
+            private_final=command._private_final_from_process(process).work_result,
+        )
+        with pytest.raises(command.ProviderParseError, match="argv digest"):
+            command._completed_result_contract(
+                invocation,
+                process,
+                provider_result,
+                started_at=process._dispatch_started_at,  # type: ignore[attr-defined]
+                ended_at=process._dispatch_ended_at,  # type: ignore[attr-defined]
+            )
+    finally:
+        command._reject_result_claim(process)
+
+
+def test_execution_provenance_labels_requested_vs_effective_and_private_cleanup(
+    tmp_path, monkeypatch
+):
+    invocation = _read_only_codex_invocation(tmp_path)
+    monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
+    observed: dict[str, Path] = {}
+
+    def fake_run(argv, **kwargs):
+        observed["output"] = Path(argv[argv.index("--output-last-message") + 1])
+        return _codex_process(argv, stderr="safe diagnostics")
+
+    monkeypatch.setattr(command, "_run_provider_process", fake_run)
+    outcome = command.execute_invocation(invocation)
+    provenance = outcome.completed["execution_provenance"]
+    assert provenance["requested"] == {
+        "alias": "codex1",
+        "provider": "codex",
+        "model": "gpt-5.6-luna",
+        "effort": "medium",
+        "sandbox": "read-only",
+        "quota_band": "healthy",
+    }
+    assert set(provenance["effective"].values()) == {"NOT PROVEN"}
+    assert provenance["cli_version"] == "NOT PROVEN"
+    assert provenance["normalized_work_result_sha256"] == command._canonical_sha256(
+        _work_result()
+    )
+    assert all(str(tmp_path) not in item for item in provenance["sanitized_argv"])
+    assert "<PRIVATE_FINAL_OUTPUT>" in provenance["sanitized_argv"]
+    assert not observed["output"].parent.exists()
+
+
 def test_completed_claim_and_attempt_replay_block_before_a_second_subprocess(tmp_path, monkeypatch):
     invocation = _read_only_codex_invocation(tmp_path, attempt_id=1)
     claim_root = tmp_path / "isolated-claims"
@@ -1903,9 +2995,9 @@ def test_completed_claim_and_attempt_replay_block_before_a_second_subprocess(tmp
 
     def fake_run(*args, **kwargs):
         runs.append((args, kwargs))
-        return subprocess.CompletedProcess(args[0], 0, stdout=_valid_result_stdout(), stderr="")
+        return _codex_process(args[0])
 
-    monkeypatch.setattr(command.subprocess, "run", fake_run)
+    monkeypatch.setattr(command, "_run_provider_process", fake_run)
     outcome = command.execute_invocation(invocation)
     assert isinstance(outcome, command.ExecutionOutcome)
     assert outcome.completed["execution_receipt"]["dispatch_claim_key"]
@@ -1946,8 +3038,8 @@ def test_cross_process_active_claim_blocks_second_subprocess(tmp_path, monkeypat
         monkeypatch.setattr(command, "_secure_claim_directory", lambda _invocation: claim_root)
         monkeypatch.setattr(command, "validate_execution_preflight", lambda _invocation: None)
         monkeypatch.setattr(
-            command.subprocess,
-            "run",
+            command,
+            "_run_provider_process",
             lambda *args, **kwargs: pytest.fail("concurrent claim reached subprocess"),
         )
         with pytest.raises(command.SchedulingError, match="already active") as exc:
