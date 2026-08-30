@@ -110,6 +110,18 @@ production monitoring can correctly repeat `[ERROR] Production path verification
 failed`; that result is an identity blocker, not evidence that a non-`main`
 branch should be allowed to publish.
 
+### PR Verification & Triage Operational Contract
+
+Diagnostics and PR provenance verification follow strict operational contracts:
+- Execution is **POSIX-only** using `os.killpg` for bounded process group management. Unsupported platforms fail closed before subprocess execution.
+- PR provenance verification runs the `test_provenance_guard.py verify-pr` command against immutable git commit SHAs resolved via `git rev-parse origin/main` and `git rev-parse HEAD`.
+- PR verification command syntax:
+```bash
+python3 scripts/test_provenance_guard.py verify-pr \
+  --base "$(git rev-parse origin/main)" \
+  --head "$(git rev-parse HEAD)"
+```
+
 ---
 
 ## 🏛️ C4 Software Architecture Levels

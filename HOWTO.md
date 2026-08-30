@@ -58,6 +58,18 @@ skills, and unified-hook/CI enforcement are `DEFERRED_NEXT_PHASE` until current
 production post-deploy is green. This does not create a new hook process and it
 does not weaken the rule that only `main` may trigger production publication.
 
+### PR Verification & Triage Operational Contract
+
+Diagnostics and PR provenance verification follow strict operational contracts:
+- Execution is **POSIX-only** using `os.killpg` for bounded process group management. Unsupported platforms fail closed before subprocess execution.
+- PR provenance verification runs the `test_provenance_guard.py verify-pr` command against immutable git commit SHAs resolved via `git rev-parse origin/main` and `git rev-parse HEAD`.
+- PR verification command syntax:
+```bash
+python3 scripts/test_provenance_guard.py verify-pr \
+  --base "$(git rev-parse origin/main)" \
+  --head "$(git rev-parse HEAD)"
+```
+
 ---
 
 ## 📑 สารบัญ (Table of Contents)

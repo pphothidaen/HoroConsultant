@@ -70,6 +70,9 @@ class Report:
     test_files_verified: int = 0
     issues: list[dict[str, str]] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
+    requested_base: str | None = None
+    base_commit: str | None = None
+    requested_head: str | None = None
 
     def add(self, code: str, message: str, path: str | None = None) -> None:
         issue = {"code": code, "message": message}
@@ -78,6 +81,21 @@ class Report:
         self.issues.append(issue)
 
     def as_dict(self) -> dict[str, Any]:
+        if self.command == "verify-pr":
+            return {
+                "schema_version": "test-provenance-report-v2",
+                "command": self.command,
+                "status": "FAILED" if self.issues else "PASSED",
+                "requested_base": self.requested_base or "",
+                "base_commit": self.base_commit or "",
+                "requested_head": self.requested_head or "",
+                "head_commit": self.head_commit or "",
+                "ticket_id": self.ticket_id or "",
+                "baseline_commit": self.baseline_commit or "",
+                "test_files_verified": self.test_files_verified,
+                "issues": self.issues,
+                "notes": self.notes,
+            }
         return {
             "schema_version": "test-provenance-report-v1",
             "command": self.command,
@@ -532,10 +550,23 @@ def verify_staged(repo: Path) -> Report:
 
 
 def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
-    report = Report(command="verify-pr")
-    base = _resolve_commit(repo, base_revision)
-    head = _resolve_commit(repo, head_revision)
-    report.head_commit = head
+    report = Report(
+        command="verify-pr",
+        requested_base=base_revision,
+        requested_head=head_revision,
+    )
+    try:
+        base = _resolve_commit(repo, base_revision)
+        report.base_commit = base
+    except GuardFailure as exc:
+        report.add("PR_PROVENANCE_ERROR", str(exc))
+        return report
+    try:
+        head = _resolve_commit(repo, head_revision)
+        report.head_commit = head
+    except GuardFailure as exc:
+        report.add("PR_PROVENANCE_ERROR", str(exc))
+        return report
     paths = _changed_paths(repo, base, head, merge_base=True)
     manifests = [path for path in paths if _is_manifest_path(path)]
     material_paths = [
@@ -683,7 +714,11 @@ def main() -> int:
             report = verify_pr(repo, args.base, args.head)
         return _emit(report, args.json_out)
     except GuardFailure as exc:
-        report = Report(command=args.command)
+        report = Report(
+            command=args.command,
+            requested_base=getattr(args, "base", None),
+            requested_head=getattr(args, "head", None),
+        )
         report.add("GUARD_EVIDENCE_ERROR", str(exc))
         return _emit(report, getattr(args, "json_out", None))
 
