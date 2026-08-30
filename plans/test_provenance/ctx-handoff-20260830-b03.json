@@ -1,0 +1,82 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-CTX-010-RED",
+  "sequence": 4,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "8166e86796798013875adaa2bf5c42a70dedda00",
+  "test_files": [
+    {
+      "path": "tests/fixtures/context_handoff/agy/stop_mappings.json",
+      "sha256": "7a8c9f121e4d00bcab1cbae7997133cda95b916870a0d4af4b9c83f8f2be6d49"
+    },
+    {
+      "path": "tests/fixtures/context_handoff/claude/stop_mappings.json",
+      "sha256": "8f0f8c2d6ad8a3db8531731009c34a6a02ffca6609170cf41021ab17217d6353"
+    },
+    {
+      "path": "tests/fixtures/context_handoff/codex/hooks_config.json",
+      "sha256": "82a5c413027d80c0b39fd67c044d2a8e15497dd4198b4ebf830a5c3145a4adcc"
+    },
+    {
+      "path": "tests/fixtures/context_handoff/codex/native_mappings.json",
+      "sha256": "d97da54380b7a49846da7cae87c87d887b86ea89fe34d05189e8fa7beaaf7574"
+    },
+    {
+      "path": "tests/test_context_handoff.py",
+      "sha256": "b7531742ed40ffc1e64ad28e21112590ac79fc39ae261f53370bb575774fd6eb"
+    },
+    {
+      "path": "tests/test_context_handoff_hooks.py",
+      "sha256": "49e39c1a34a68e21470b0f873e00bec1deb0a44c84d69f38dce07204bac2cd77"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=no",
+        "tests/test_context_handoff.py::test_context_handoff_entrypoint_missing_before_source"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Pytest summary: 1 failed; AssertionError: CONTEXT_HANDOFF_ENTRYPOINT_MISSING"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=no",
+        "tests/test_context_handoff.py",
+        "tests/test_context_handoff_hooks.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Pytest summary: 127 failed, 3 passed; source is intentionally absent and registration/governance/generated-mirror contracts remain unsatisfied, while the three closed fixture and non-steering controls pass."
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/context_handoff_v1.json",
+    "scripts/context_handoff.py",
+    ".codex/hooks.json",
+    ".claude/settings.json",
+    ".claude/hooks/stop-monitor.sh",
+    ".agy/hooks.json",
+    ".agy/hooks/stop-monitor.sh",
+    ".agents/skills/anti-cognitive-decay/SKILL.md",
+    ".antigravity/skills/anti-cognitive-decay/SKILL.md",
+    ".claude/skills/anti-cognitive-decay/SKILL.md",
+    ".agy/skills/anti-cognitive-decay/SKILL.md",
+    ".agents/rules/20-context-handoff.md",
+    ".agents/AGENTS.md",
+    "scripts/sync_claude_agy_parity.py",
+    "scripts/sync_ai_agent_ecosystem.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "8166e86796798013875adaa2bf5c42a70dedda00",
+  "correction_reason": "Sequence 3 retained a contradictory 950 KiB transcript assertion expecting a 450 KiB SNAPSHOT result; omitted current Claude Stop background_tasks and session_crons fields; and bypassed the registered Claude and AGY wrapper commands by invoking the shared engine directly with test-only state injection.",
+  "rationale": "Freeze an implementable production adapter contract without widening the 15-path source boundary. Native event JSON remains on stdin, while normalized state is supplied through a bounded JSON file named by CONTEXT_HANDOFF_STATE_FILE. The registered Claude and AGY commands execute from nested working directories and must preserve HANDOFF.md plus Git state, normalize AGY AfterAgent to Stop, suppress recursion, bound output, and ignore without emitting or persisting session, transcript, background-task, cron, prompt, or response canaries. The corrected precedence case now independently proves 950 KiB CRITICAL before truncating the same file to the asserted 450 KiB SNAPSHOT size. Collection remains 130 cases. Fresh controls: the sentinel exited 1 with 1 failed; the full suite exited 1 with 127 failed and 3 passed; three closed fixture controls exited 0 with 3 passed. DispatchDecision CTX-010-RED-B03: bounded QA correction; test-only commit; no provider, credentials, deployment, or source mutation."
+}

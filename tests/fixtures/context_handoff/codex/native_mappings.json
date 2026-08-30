@@ -1,6 +1,7 @@
 {
-  "schema_version": "context-handoff-native-fixtures-v3",
+  "schema_version": "context-handoff-native-fixtures-v4",
   "source_contract": "Codex Hooks release behavior 2026-08-30",
+  "normalized_state_channel": {"kind":"json_file","path_environment":"CONTEXT_HANDOFF_STATE_FILE","cli_flag":"--state-file","max_bytes":65536,"unset_behavior":"empty_state"},
   "cases": [
     {
       "id": "session-start-startup",

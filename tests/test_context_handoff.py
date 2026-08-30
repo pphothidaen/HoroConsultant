@@ -72,6 +72,13 @@ EXPECTED_POLICY = {
         "label_bytes",
         "UNKNOWN",
     ],
+    "normalized_state_channel": {
+        "kind": "json_file",
+        "path_environment": "CONTEXT_HANDOFF_STATE_FILE",
+        "cli_flag": "--state-file",
+        "max_bytes": 64 * 1024,
+        "unset_behavior": "empty_state",
+    },
     "authority": {
         "current_state": "PROJECT_TASKS.md",
         "implementation_plan": "plans/plan.md",
@@ -412,6 +419,20 @@ def test_signal_precedence_is_tokens_then_percent_then_stat_bytes_then_unknown(
     assert percent_decision["signal"]["normalized_percent"] == 80
     assert percent_decision["level"] == "CRITICAL"
 
+    critical_bytes_decision = _hook_decision(
+        {"usage": {}, "last_notified_level": "NORMAL", "lanes": []},
+        transcript_path=str(transcript),
+    )
+    assert critical_bytes_decision["signal"] == {
+        "kind": "bytes",
+        "source": "transcript_stat_bytes",
+        "value": 950 * 1024,
+        "limit": None,
+        "normalized_percent": None,
+    }
+    assert critical_bytes_decision["level"] == "CRITICAL"
+
+    transcript.truncate(450 * 1024)
     bytes_decision = _hook_decision(
         {"usage": {}, "last_notified_level": "NORMAL", "lanes": []},
         transcript_path=str(transcript),

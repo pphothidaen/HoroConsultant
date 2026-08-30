@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import os
 import re
@@ -44,6 +45,14 @@ CANONICAL_FIXTURES = (
     CLAUDE_STOP_FIXTURE,
     AGY_STOP_FIXTURE,
 )
+
+NORMALIZED_STATE_CHANNEL = {
+    "kind": "json_file",
+    "path_environment": "CONTEXT_HANDOFF_STATE_FILE",
+    "cli_flag": "--state-file",
+    "max_bytes": 64 * 1024,
+    "unset_behavior": "empty_state",
+}
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -161,18 +170,35 @@ def _assert_native_mapping(output: dict[str, Any], case: dict[str, Any]) -> None
         assert marker.casefold() in joined, case["id"]
 
 
-def _run_wrapper(
+def _run_registered_wrapper(
+    runtime: str,
     wrapper: Path,
     payload: dict[str, Any],
+    normalized_state: dict[str, Any],
     *,
-    cwd: Path = ROOT,
+    state_path: Path,
+    cwd: Path,
 ) -> subprocess.CompletedProcess[str]:
+    assert ENTRYPOINT.is_file(), "CONTEXT_HANDOFF_ENTRYPOINT_MISSING"
+    assert wrapper.is_file()
+    state_path.write_text(
+        json.dumps(normalized_state, separators=(",", ":")),
+        encoding="utf-8",
+    )
     safe_env = {
         "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
         "PYTHONUTF8": "1",
+        NORMALIZED_STATE_CHANNEL["path_environment"]: str(state_path),
     }
+    if runtime == "claude":
+        settings = _load_json(CLAUDE_SETTINGS)
+        command = settings["hooks"]["Stop"][0]["hooks"][0]["command"]
+        safe_env["CLAUDE_PROJECT_DIR"] = str(ROOT)
+    else:
+        settings = _load_json(AGY_SETTINGS)
+        command = settings["hooks"]["AfterAgent"][0]["hooks"][0]["command"]
     return subprocess.run(
-        ["bash", str(wrapper)],
+        ["bash", "-c", command],
         cwd=cwd,
         input=json.dumps(payload, separators=(",", ":")),
         capture_output=True,
@@ -183,39 +209,18 @@ def _run_wrapper(
     )
 
 
-def _native_runtime(
-    runtime: str,
-    wire_event: str,
-    normalized_event: str,
-    payload: dict[str, Any],
-    normalized_state: dict[str, Any],
-    handoff: Path,
-) -> subprocess.CompletedProcess[str]:
-    assert ENTRYPOINT.is_file(), "CONTEXT_HANDOFF_ENTRYPOINT_MISSING"
-    return subprocess.run(
-        [
-            sys.executable,
-            str(ENTRYPOINT),
-            "hook",
-            "--runtime",
-            runtime,
-            "--event",
-            normalized_event,
-            "--wire-event",
-            wire_event,
-            "--native",
-            "--state-json",
-            json.dumps(normalized_state, separators=(",", ":")),
-            "--handoff",
-            str(handoff),
-        ],
-        cwd=ROOT,
-        input=json.dumps(payload, separators=(",", ":")),
-        capture_output=True,
-        text=True,
-        check=False,
-        timeout=5,
-    )
+def _string_leaves(value: Any) -> list[str]:
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, dict):
+        return [leaf for nested in value.values() for leaf in _string_leaves(nested)]
+    if isinstance(value, list):
+        return [leaf for nested in value for leaf in _string_leaves(nested)]
+    return []
+
+
+def _optional_bytes(path: Path) -> bytes | None:
+    return path.read_bytes() if path.exists() else None
 
 
 def _parse_json_output(result: subprocess.CompletedProcess[str], case_id: str) -> dict[str, Any]:
@@ -241,6 +246,7 @@ def test_codex_hooks_config_uses_native_three_level_shape_without_trust_fields()
 
     assert actual == expected
     assert set(actual) == {"description", "hooks"}
+    assert NORMALIZED_STATE_CHANNEL["path_environment"] in actual["description"]
     assert set(actual["hooks"]) == {
         "SessionStart",
         "PreCompact",
@@ -269,7 +275,8 @@ def test_codex_hooks_config_uses_native_three_level_shape_without_trust_fields()
         assert handler["type"] == "command"
         expected_command = (
             'python3 "$(git rev-parse --show-toplevel)/scripts/context_handoff.py" '
-            f"hook --runtime codex --event {event} --native"
+            f"hook --runtime codex --event {event} --native "
+            '--state-file "${CONTEXT_HANDOFF_STATE_FILE:-}"'
         )
         assert handler["command"] == expected_command
         assert isinstance(handler["timeout"], int)
@@ -348,7 +355,8 @@ def test_repository_only_acknowledges_native_dangerous_bypass_and_never_uses_it(
 
 def test_codex_native_mappings_cover_session_compaction_stop_and_end(tmp_path: Path) -> None:
     fixture = _load_json(CODEX_NATIVE_FIXTURE)
-    assert fixture["schema_version"] == "context-handoff-native-fixtures-v3"
+    assert fixture["schema_version"] == "context-handoff-native-fixtures-v4"
+    assert fixture["normalized_state_channel"] == NORMALIZED_STATE_CHANNEL
     cases = fixture["cases"]
     assert {case["id"] for case in cases} == {
         "session-start-startup",
@@ -581,11 +589,12 @@ def test_stop_adapters_match_native_fixtures_and_prevent_recursion(
     runtime: str,
     wrapper: Path,
     fixture_path: Path,
+    tmp_path: Path,
 ) -> None:
     fixture = _load_json(fixture_path)
-    assert fixture["schema_version"] == "context-handoff-native-fixtures-v3"
+    assert fixture["schema_version"] == "context-handoff-native-fixtures-v4"
+    assert fixture["normalized_state_channel"] == NORMALIZED_STATE_CHANNEL
     assert fixture["wire_event"] in {"Stop", "AfterAgent"}
-    normalized_event = fixture.get("normalized_event", "Stop")
     if runtime == "claude":
         assert fixture["wire_event"] == "Stop"
         exact_wire_keys = {
@@ -596,6 +605,8 @@ def test_stop_adapters_match_native_fixtures_and_prevent_recursion(
             "hook_event_name",
             "stop_hook_active",
             "last_assistant_message",
+            "background_tasks",
+            "session_crons",
         }
     else:
         assert fixture["wire_event"] == "AfterAgent"
@@ -610,7 +621,10 @@ def test_stop_adapters_match_native_fixtures_and_prevent_recursion(
             "prompt_response",
             "stop_hook_active",
         }
-    handoff = FIXTURES / runtime / "nonpersistent-HANDOFF.md"
+    nested_cwd = FIXTURES / runtime
+    handoff = ROOT / "HANDOFF.md"
+    handoff_before = _optional_bytes(handoff)
+    status_before = _status_bytes()
     for case in fixture["cases"]:
         assert set(case["input"]) == exact_wire_keys
         assert case["input"]["hook_event_name"] == fixture["wire_event"]
@@ -622,28 +636,48 @@ def test_stop_adapters_match_native_fixtures_and_prevent_recursion(
             "last_notified_level",
             "lanes",
         }
-        result = _native_runtime(
+        state_path = tmp_path / f"{runtime}-{case['id']}-normalized-state.json"
+        result = _run_registered_wrapper(
             runtime,
-            fixture["wire_event"],
-            normalized_event,
+            wrapper,
             case["input"],
             case["normalized_state"],
-            handoff,
+            state_path=state_path,
+            cwd=nested_cwd,
         )
         output = _parse_json_output(result, case["id"])
         _assert_native_mapping(output, case)
-        emitted = result.stdout + result.stderr
-        for private_field in (
-            "session_id",
-            "transcript_path",
-            "last_assistant_message",
-            "prompt",
-            "prompt_response",
-        ):
-            value = case["input"].get(private_field)
-            if isinstance(value, str):
-                assert value not in emitted, f"{case['id']} leaked {private_field}"
-    assert not handoff.exists(), "Stop adapters must not persist native identifiers"
+        assert len((result.stdout + result.stderr).encode("utf-8")) <= 16 * 1024
+        persisted = _optional_bytes(handoff) or b""
+        emitted_or_persisted = result.stdout.encode() + result.stderr.encode() + persisted
+        private_canaries = [
+            value for value in _string_leaves(case["input"]) if "canary" in value
+        ]
+        assert private_canaries, case["id"]
+        for value in private_canaries:
+            assert value.encode() not in emitted_or_persisted, f"{case['id']} leaked native input"
+        assert str(state_path).encode() not in emitted_or_persisted
+
+        if runtime == "claude":
+            assert case["input"]["background_tasks"]
+            assert case["input"]["session_crons"]
+            without_nested_state = copy.deepcopy(case["input"])
+            without_nested_state["background_tasks"] = []
+            without_nested_state["session_crons"] = []
+            ignored_result = _run_registered_wrapper(
+                runtime,
+                wrapper,
+                without_nested_state,
+                case["normalized_state"],
+                state_path=state_path,
+                cwd=nested_cwd,
+            )
+            assert ignored_result.returncode == result.returncode
+            assert ignored_result.stdout == result.stdout
+            assert ignored_result.stderr == result.stderr
+
+    assert _optional_bytes(handoff) == handoff_before
+    assert _status_bytes() == status_before
 
 
 @pytest.mark.parametrize(
@@ -669,6 +703,7 @@ def test_stop_wrappers_are_thin_fail_closed_shared_engine_adapters(
         + " --native"
     )
     assert expected in command_lines
+    assert '--state-file "${CONTEXT_HANDOFF_STATE_FILE:-}"' in command_lines
     assert "set -euo pipefail" in command_lines
 
     for duplicated_or_unsafe in (

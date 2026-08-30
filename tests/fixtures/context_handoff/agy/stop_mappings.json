@@ -1,8 +1,9 @@
 {
-  "schema_version": "context-handoff-native-fixtures-v3",
+  "schema_version": "context-handoff-native-fixtures-v4",
   "source_contract": "Gemini CLI AfterAgent hook 2026-08-30",
   "wire_event": "AfterAgent",
   "normalized_event": "Stop",
+  "normalized_state_channel": {"kind":"json_file","path_environment":"CONTEXT_HANDOFF_STATE_FILE","cli_flag":"--state-file","max_bytes":65536,"unset_behavior":"empty_state"},
   "cases": [
     {
       "id": "agy-after-agent-warning",
@@ -10,7 +11,8 @@
       "normalized_state": {"usage":{"percent":45},"last_notified_level":"ALERT","lanes":[]},
       "expected": {},
       "expected_output_keys": ["systemMessage"],
-      "contains": ["snapshot", "operator"]
+      "max_field_bytes": {"systemMessage": 4096},
+      "contains": ["snapshot", "operator", "45%"]
     },
     {
       "id": "agy-after-agent-recursion-safe",
