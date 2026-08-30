@@ -1,0 +1,56 @@
+version: 2
+model_policy: multiagent_model_policy.yaml
+
+# Execution also requires --decision with a DispatchDecision v1 document.
+# The role routes below remain legacy dry-run defaults and are not runtime
+# authority for executable model or effort selection.
+
+# Account aliases are explicit process routes, not shell aliases and not proof
+# that a command ran. Keep credentials out of this file.
+accounts:
+  codex1:
+    cli: codex
+    command: codex
+    home_env: CODEX_HOME
+    home_path: ${HOME}/.ai-accounts/codex/account1
+  codex2:
+    cli: codex
+    command: codex
+    home_env: CODEX_HOME
+    home_path: ${HOME}/.ai-accounts/codex/account2
+  agy1:
+    cli: agy
+    command: agy
+    home_env: AGY_HOME
+    home_path: ${HOME}/.ai-accounts/agy/account1
+  agy2:
+    cli: agy
+    command: agy
+    home_env: AGY_HOME
+    home_path: ${HOME}/.ai-accounts/agy/account2
+
+roles:
+  orchestrator_support:
+    alias: codex1
+    cli: codex
+    model: gpt-5.6-luna
+    effort: medium
+    sandbox: workspace-write
+  implementation:
+    alias: codex2
+    cli: codex
+    model: gpt-5.6-luna
+    effort: medium
+    sandbox: workspace-write
+  research:
+    alias: agy1
+    cli: agy
+    model: gemini-pro
+    mode: plan
+    sandbox: true
+  qa_review:
+    alias: agy2
+    cli: agy
+    model: gemini-flash
+    mode: plan
+    sandbox: true
