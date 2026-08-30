@@ -1,3 +1,9 @@
+<!-- TICKET-MERGE-001:START -->
+## Branch consolidation & test provenance merge to main
+**Recorded**: `2026-08-31` (Asia/Bangkok). **Status**: `MERGED_LOCALLY_AND_PR_ACTIVE`.
+All development branches consolidated into main with verified test provenance manifest `plans/test_provenance/merge-all-branches-20260831.json`.
+<!-- TICKET-MERGE-001:END -->
+
 <!-- CTX-HANDOFF-V1-20260830:START -->
 ## Cross-runtime context handoff v1 - local-only governance
 
