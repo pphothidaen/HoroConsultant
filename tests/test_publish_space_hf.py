@@ -16,6 +16,7 @@ import hashlib
 import json
 import subprocess
 import sys
+import threading
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -308,6 +309,171 @@ def _desired_files(bundle):
     return {item.path: item.data for item in bundle.files}
 
 
+def _tree_projection(files):
+    return sorted(
+        (
+            {
+                "blob_id": publisher._git_blob_oid(data),
+                "path": path,
+                "size": len(data),
+            }
+            for path, data in files.items()
+        ),
+        key=lambda item: item["path"].encode("utf-8"),
+    )
+
+
+def test_prior_tree_verification_uses_bounded_overlap_and_authenticates_cache(
+    tmp_path,
+):
+    revision = "a" * 40
+    payloads = {
+        f"prior/{index:02d}.txt": f"immutable prior blob {index}\n".encode("ascii")
+        for index in range(8)
+    }
+    projection = _tree_projection(payloads)
+    expected_sha256 = {
+        path: hashlib.sha256(data).hexdigest() for path, data in payloads.items()
+    }
+
+    class _ImmutableRevisionCacheApi:
+        def __init__(self):
+            self.cache_root = tmp_path / "immutable-revision-cache" / revision
+            for path, data in payloads.items():
+                target = self.cache_root / path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(data)
+            self.lock = threading.Lock()
+            self.four_active = threading.Event()
+            self.too_many_active = threading.Event()
+            self.release = threading.Event()
+            self.active = 0
+            self.max_active = 0
+            self.force_download_values = []
+
+        def hf_hub_download(self, **kwargs):
+            assert kwargs["repo_id"] == publisher.CANONICAL_SPACE_ID
+            assert kwargs["repo_type"] == publisher.REPO_TYPE
+            assert kwargs["revision"] == revision
+            with self.lock:
+                self.force_download_values.append(kwargs["force_download"])
+                self.active += 1
+                self.max_active = max(self.max_active, self.active)
+                if self.active == 4:
+                    self.four_active.set()
+                if self.active > 4:
+                    self.too_many_active.set()
+            try:
+                if not self.release.wait(timeout=5):
+                    raise AssertionError("bounded cache verifier release gate timed out")
+                return str(self.cache_root / kwargs["filename"])
+            finally:
+                with self.lock:
+                    self.active -= 1
+
+    api = _ImmutableRevisionCacheApi()
+    verified = {}
+    failures = []
+
+    def verify_prior_tree():
+        try:
+            verified.update(
+                publisher._verify_downloads(
+                    api,
+                    projection,
+                    revision,
+                    expected_sha256,
+                )
+            )
+        except Exception as exc:  # surfaced on the owning test thread below
+            failures.append(exc)
+
+    verifier = threading.Thread(target=verify_prior_tree, daemon=True)
+    verifier.start()
+    try:
+        assert api.four_active.wait(timeout=2), (
+            "prior-tree blob verification did not overlap four bounded workers"
+        )
+        assert not api.too_many_active.wait(timeout=0.5), (
+            "prior-tree blob verification exceeded four workers"
+        )
+    finally:
+        api.release.set()
+        verifier.join(timeout=5)
+
+    assert not verifier.is_alive(), "prior-tree verification thread did not terminate"
+    if failures:
+        raise failures[0]
+    assert verified == payloads
+    assert api.max_active == 4
+    assert len(api.force_download_values) == len(projection)
+    assert set(api.force_download_values) == {False}
+
+    wrong_sha256 = dict(expected_sha256)
+    first = projection[0]
+    wrong_sha256[first["path"]] = "0" * 64
+    with pytest.raises(publisher.PublisherError, match="REMOTE_DOWNLOAD_MISMATCH"):
+        publisher._verify_downloads(api, [first], revision, wrong_sha256)
+
+    cached_path = api.cache_root / first["path"]
+    cached_path.write_bytes(b"x" * first["size"])
+    with pytest.raises(publisher.PublisherError, match="REMOTE_DOWNLOAD_MISMATCH"):
+        publisher._verify_downloads(api, [first], revision)
+
+
+@pytest.mark.parametrize(
+    ("failure_mode", "expected_code"),
+    [
+        ("unavailable", "PRIOR_TREE_UNAVAILABLE"),
+        ("mismatch", "PRIOR_TREE_UNAVAILABLE"),
+        ("parent_conflict", "PARENT_CONFLICT"),
+    ],
+)
+def test_prior_tree_or_parent_failure_makes_zero_commit_calls(
+    monkeypatch, tmp_path, failure_mode, expected_code
+):
+    _init_canonical_git_release(monkeypatch, tmp_path)
+    _install_fake_commit_operations(monkeypatch)
+    prior_revision = "1" * 40
+    expected_parent_revision = prior_revision
+    prior_files = {"README.md": b"previous release\n"}
+    published_revision = "2" * 40
+    api = _MockHfApi(
+        tmp_path / "hf-cache",
+        prior_revision,
+        prior_files,
+        [published_revision],
+    )
+    if failure_mode == "unavailable":
+        def unavailable_download(**kwargs):
+            api.download_calls.append(kwargs)
+            raise OSError("simulated immutable blob unavailability")
+
+        monkeypatch.setattr(api, "hf_hub_download", unavailable_download)
+    elif failure_mode == "mismatch":
+        api.download_overrides[(prior_revision, "README.md")] = b"tampered blob\n"
+    else:
+        expected_parent_revision = "9" * 40
+
+    errors = []
+
+    def capture_error(message, *args):
+        errors.append(message % args)
+
+    monkeypatch.setattr(publisher.logger, "error", capture_error)
+    assert publish_space(
+        publisher.CANONICAL_SPACE_ID,
+        sdk=publisher.CANONICAL_SDK,
+        manifest_path=tmp_path / f"{failure_mode}-manifest.json",
+        receipt_path=tmp_path / f"{failure_mode}-receipt.json",
+        expected_parent_revision=expected_parent_revision,
+        api=api,
+    ) is False
+    assert errors == [f"[ERROR] {expected_code}"]
+    assert api.create_calls == []
+    assert api.commit_behaviors == [published_revision]
+
+
 def test_canonical_docker_manifest_is_deterministic_and_git_bound(monkeypatch, tmp_path):
     _, source_revision, source_commit, packaging_commit = _init_canonical_git_release(
         monkeypatch, tmp_path
@@ -362,6 +528,12 @@ def test_canonical_docker_publish_receipt_and_rollback_restore_prior_tree(
         prior_files,
         [published_revision, rollback_revision],
     )
+    expected_prior_tree_sha256 = publisher._tree_digest(
+        _tree_projection(prior_files)
+    )
+    expected_release_tree_sha256 = publisher._tree_digest(
+        _tree_projection(_desired_files(bundle))
+    )
     manifest_path = tmp_path / "release-manifest.json"
     publish_receipt_path = tmp_path / "publish-receipt.json"
     rollback_receipt_path = tmp_path / "rollback-receipt.json"
@@ -386,6 +558,9 @@ def test_canonical_docker_publish_receipt_and_rollback_restore_prior_tree(
     assert publish_receipt["parent_revision"] == prior_revision
     assert publish_receipt["prior_revision"] == prior_revision
     assert publish_receipt["new_revision"] == published_revision
+    assert publish_receipt["parent_tree_sha256"] == expected_prior_tree_sha256
+    assert publish_receipt["prior_tree_sha256"] == expected_prior_tree_sha256
+    assert publish_receipt["new_tree_sha256"] == expected_release_tree_sha256
     assert api.snapshots[published_revision] == _desired_files(bundle)
     assert len(api.create_calls) == 1
     assert api.create_calls[0]["commit_message"] == "Publish canonical Docker release"
@@ -407,6 +582,8 @@ def test_canonical_docker_publish_receipt_and_rollback_restore_prior_tree(
     assert rollback_receipt["parent_revision"] == published_revision
     assert rollback_receipt["prior_revision"] == prior_revision
     assert rollback_receipt["new_revision"] == rollback_revision
+    assert rollback_receipt["parent_tree_sha256"] == expected_release_tree_sha256
+    assert rollback_receipt["prior_tree_sha256"] == expected_prior_tree_sha256
     assert rollback_receipt["new_tree_sha256"] == publish_receipt["prior_tree_sha256"]
     assert api.snapshots[rollback_revision] == prior_files
     assert len(api.create_calls) == 2

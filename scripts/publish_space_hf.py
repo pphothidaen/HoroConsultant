@@ -17,6 +17,7 @@ import sys
 import tempfile
 import time
 import uuid
+from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -75,6 +76,7 @@ GIT_REVISION_RE = re.compile(r"[0-9a-f]{40}")
 SHA256_RE = re.compile(r"[0-9a-f]{64}")
 SOURCE_COMMIT_RE = re.compile(r"[0-9a-f]{7,40}")
 VERSION_RE = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+\.([0-9a-f]{7,40})")
+PRIOR_TREE_DOWNLOAD_WORKERS = 4
 
 
 class PublisherError(RuntimeError):
@@ -1364,7 +1366,7 @@ def _download_file(api: Any, path: str, revision: str) -> bytes:
             filename=path,
             repo_type=REPO_TYPE,
             revision=revision,
-            force_download=True,
+            force_download=False,
         )
         downloaded_path = Path(downloaded)
         # huggingface_hub commonly returns a cache snapshot symlink. Following
@@ -1388,8 +1390,9 @@ def _verify_downloads(
     revision: str,
     expected_sha256: dict[str, str] | None = None,
 ) -> dict[str, bytes]:
-    content: dict[str, bytes] = {}
-    for item in projection:
+    def verify_item(
+        index: int, item: dict[str, Any]
+    ) -> tuple[int, str, bytes]:
         data = _download_file(api, item["path"], revision)
         if len(data) != item["size"] or item["blob_id"] not in (
             _git_blob_oid(data),
@@ -1400,8 +1403,45 @@ def _verify_downloads(
             data
         ).hexdigest() != expected_sha256.get(item["path"]):
             raise PublisherError("REMOTE_DOWNLOAD_MISMATCH", "postflight_mismatch")
-        content[item["path"]] = data
-    return content
+        return index, item["path"], data
+
+    verified: dict[int, tuple[str, bytes]] = {}
+    indexed_items = iter(enumerate(projection))
+    executor = ThreadPoolExecutor(max_workers=PRIOR_TREE_DOWNLOAD_WORKERS)
+    pending: dict[Future[tuple[int, str, bytes]], int] = {}
+    try:
+        while len(pending) < PRIOR_TREE_DOWNLOAD_WORKERS:
+            try:
+                index, item = next(indexed_items)
+            except StopIteration:
+                break
+            pending[executor.submit(verify_item, index, item)] = index
+
+        while pending:
+            done, _ = wait(pending, return_when=FIRST_COMPLETED)
+            ordered_done = sorted(done, key=pending.__getitem__)
+            completed = [future.result() for future in ordered_done]
+            for future in ordered_done:
+                pending.pop(future)
+            for index, path, data in completed:
+                verified[index] = (path, data)
+
+            while len(pending) < PRIOR_TREE_DOWNLOAD_WORKERS:
+                try:
+                    index, item = next(indexed_items)
+                except StopIteration:
+                    break
+                pending[executor.submit(verify_item, index, item)] = index
+    except BaseException:
+        for future in pending:
+            future.cancel()
+        raise
+    finally:
+        executor.shutdown(wait=True, cancel_futures=True)
+
+    return {
+        verified[index][0]: verified[index][1] for index in range(len(projection))
+    }
 
 
 def _publish_operations(

@@ -1,0 +1,54 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-RELEASE-VERIFIED-20260830-046-LESSON20-SAFETY-BASELINE-V5",
+  "sequence": 5,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "69df94371327b0f572023246b81bae1189101959",
+  "test_files": [
+    {
+      "path": "tests/test_fail_fast_triage.py",
+      "sha256": "6b3c1e10f2dc7f5dbfdef1c86e757699da476a952037e7a0d3b2134cd589d958"
+    },
+    {
+      "path": "tests/test_fail_fast_triage_safety_regressions.py",
+      "sha256": "b80c5422a5c632ca7ffdfb91b6c51766be0bd99ec08233d97ff242ace51b52ff"
+    },
+    {
+      "path": "tests/test_test_provenance_guard.py",
+      "sha256": "3d7fa96c8496089566c304259a6ba13278f460a39d356b8c080365ff0477f619"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_fail_fast_triage.py",
+        "tests/test_fail_fast_triage_safety_regressions.py",
+        "tests/test_test_provenance_guard.py",
+        "-p",
+        "no:cacheprovider",
+        "--tb=no",
+        "-r",
+        "fE"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Pytest summary: 18 failed, 69 passed in 14.79s on baseline parent e14537311f349405f5c802a1e64017482b431d5c. RED evidence: triage passed incomplete, v1, forged, or stale receipt fields and invoked verify-pr with moving ref names; the guard emitted an unbound v1 receipt; an explicit POSIX setsid descendant survived timeout cleanup; subprocess capture called unbounded communicate; identity verification without Git metadata reached HTTP and passed; Basic, AWS_SECRET_ACCESS_KEY, and nested sensitive-metadata canaries survived output; and the CLI plus README/HOWTO omitted the POSIX-only, os.killpg, and immutable verify-pr command contract. Two adversarial cases already passed their negative controls because bool test_files_verified and non-array issues were rejected."
+    }
+  ],
+  "allowed_source_paths": [
+    "README.md",
+    "HOWTO.md",
+    "scripts/fail_fast_triage.py",
+    "scripts/test_provenance_guard.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "84b1dcf6125d13ed089ea2b6485fe059d6825d0a",
+  "correction_reason": "Independent review of baseline v4 and source e145373 found six unclosed safety boundaries. Sequence 5 adds deterministic contracts for complete Basic/AWS/structured-metadata redaction; a closed test-provenance-report-v2 producer receipt with exact requested/resolved base and head plus structurally governed ticket/baseline identity; rejection of stale, forged, incomplete, and extra receipt fields; cleanup of the explicitly observed direct POSIX start_new_session/setsid descendant fixture; capture-time stdout/stderr bounds without subprocess.communicate; fail-closed direct identity verification when Git metadata is absent; and an explicit POSIX-only/os.killpg/immutable verify-pr contract in CLI help, README.md, and HOWTO.md. It also minimally corrects the prior incomplete positive guard receipt and changes the matching endpoint positive fixture to prove real Git ancestry so no source test exception is required. Baselines 1 through 4 and all unrelated assertions remain preserved in ancestry.",
+  "rationale": "This is a deterministic offline, test-only superseding baseline on the exact assigned parent. The three governed test files produced 18 failed and 69 passed twice against unchanged parent source; targeted reruns confirmed the setsid marker survived because it escaped the direct session, the capture path called communicate, v1/forged receipts were accepted, no-Git identity reached matching HTTP, report canaries leaked, and the guard lacked v2 base binding. The source lane is restricted to README.md, HOWTO.md, scripts/fail_fast_triage.py, and scripts/test_provenance_guard.py. No provider, network, remote, deployment, publishing, generated-file, governance-definition, or secret operation is authorized by this evidence."
+}

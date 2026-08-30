@@ -262,3 +262,27 @@
   5. Retry the smallest bounded delegated action first. Preserve the original
      ticket scope and do not treat re-authentication as new provider, Git,
      deployment, or production authorization.
+
+---
+
+### 20. ⚡ Fast-Track Auto-Remediation & Remote Truth-First Protocol
+
+- **Issue Experienced**:
+  1. **Multi-round status assumption loops**: Local agents inferred remote CI or platform deployment status from stale local timestamps or optimistic assumptions rather than inspecting live remote states, causing redundant triage rounds and circular diagnostics.
+  2. **Test provenance intermediate cutoff traps**: In multi-baseline PR lifecycles, intermediate baseline manifests triggered false-positive ancestry or cutoff violations when evaluated against subsequent intermediate or unmerged commits without topological awareness.
+  3. **CI test runner timeouts**: Sequential test runs hanging indefinitely or exceeding CI timeout budgets on heavy integration and RAG test suites due to unisolated background processes or unhandled socket connections.
+- **Root Causes**:
+  1. **Decoupled remote truth**: Modifying local code or documentation without first fetching and verifying authoritative remote state (`git fetch origin`, live gateway `/health` and `/version.json`, cloud platform status).
+  2. **Non-topological baseline evaluation**: Evaluating historical baseline manifests linearly instead of determining topological branch ancestry and explicit superseding manifest cutoffs.
+  3. **Monolithic test suites**: Executing integration, AST syntax, and unit test suites serially without fail-fast thresholds or process isolation.
+- **Fast-Track Solutions**:
+  1. **Single-Turn Triage Bundle**: Package diagnostic commands (ecosystem sync check, test provenance PR verification, live gateway probe) into a single deterministic turn rather than waiting across multiple polling iterations.
+  2. **Remote Truth-First Preflight**: Enforce an immediate `git fetch origin` and live remote query before formulating remediation plans or modifying state.
+  3. **Topological Cutoff Isolation**: Resolve multi-baseline PR lineages using topological ordering and ancestor-bounded verification windows to isolate superseded manifests.
+  4. **Fail-Fast Parallel Testing**: Partition test suites with per-test timeouts, fail-fast failure gates (`pytest -x -q`), and deterministic sub-process cleanup.
+- **Prevention and Recovery Protocol**:
+  1. **Remote Preflight**: Always run `git fetch origin` and query live target endpoints before starting triage or claiming production status.
+  2. **Ecosystem & Provenance Gate**: Execute `python3 scripts/sync_ai_agent_ecosystem.py --check` and `python3 scripts/test_provenance_guard.py verify-pr origin/main HEAD` as standard triage bundles.
+  3. **Isolated Cutoff Registration**: When updating test baselines across iterations, register explicit `supersedes` relationships in `plans/test_provenance/` manifests.
+  4. **Fail-Fast Parallel Testing**: Run partitioned test commands (`pytest tests/test_notebook_syntax.py`, `pytest project/tests/test_api_integration_suite.py`) with explicit timeouts.
+  5. **Pure ASCII & SSoT Discipline**: Maintain pure ASCII logging (`[OK]`, `[ERROR]`, `[WARNING]`, `[INFO]`) and synchronize all documentation updates to Single Source of Truth across agent directories.
