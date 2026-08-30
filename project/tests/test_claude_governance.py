@@ -318,3 +318,108 @@ def test_global_claude_context_references_local_override_not_secret_content() ->
 
     assert ".claude/rules/*.md" in content
     assert "never read `.env`" in content
+
+
+def test_critical_path_first_markers_reach_canonical_and_provider_surfaces() -> None:
+    markers = (
+        "GOV_CRITICAL_PATH_FIRST_V1",
+        "CRITICAL_PATH_UNLOCK=<dependency-or-gate-id>",
+        "SPECULATIVE_ATOMIC_TICKET=DENY",
+        "BLOCKER_EVIDENCE_ONLY=<named-blocker-id>",
+        "BLOCKER_EVIDENCE_MODE=READ_ONLY",
+    )
+    canonical_agent = json.loads(
+        (ROOT / ".agents" / "agents" / "orchestrator" / "agent.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    agy_agent = yaml.safe_load(
+        (ROOT / ".antigravity" / "agents" / "orchestrator.agent").read_text(
+            encoding="utf-8"
+        )
+    )
+    surfaces = {
+        "canonical Rule 11": (
+            ROOT / ".agents" / "rules" / "11-orchestrator-subagent-delegation.md"
+        ).read_text(encoding="utf-8"),
+        "canonical orchestrator skill": (
+            ROOT / ".agents" / "skills" / "orchestrator-delegation" / "SKILL.md"
+        ).read_text(encoding="utf-8"),
+        "canonical orchestrator prompt": canonical_agent["system_prompt"],
+        "Claude rule": (
+            ROOT / ".claude" / "rules" / "orchestrator-subagents.md"
+        ).read_text(encoding="utf-8"),
+        "AGY rule": (
+            ROOT / ".agy" / "rules" / "orchestrator-subagents.md"
+        ).read_text(encoding="utf-8"),
+        "AGY skill": (
+            ROOT
+            / ".antigravity"
+            / "skills"
+            / "orchestrator-delegation"
+            / "SKILL.md"
+        ).read_text(encoding="utf-8"),
+        "AGY orchestrator prompt": agy_agent["system_prompt"],
+        "Codex orchestrator prompt": (
+            ROOT / ".codex" / "agents" / "orchestrator.toml"
+        ).read_text(encoding="utf-8"),
+    }
+
+    for surface, content in surfaces.items():
+        missing = [marker for marker in markers if marker not in content]
+        assert not missing, f"{surface} missing critical-path markers: {missing}"
+
+
+def test_protected_dispatch_requires_named_critical_path_unlock(
+    monkeypatch, capsys
+) -> None:
+    hook = load_orchestrator_hook()
+    monkeypatch.setenv("HORO_ORCHESTRATOR_ONLY", "1")
+    monkeypatch.setattr(hook, "enforce_adaptive_dispatch", lambda _event: True)
+    monkeypatch.setattr(
+        sys,
+        "stdin",
+        io.StringIO(
+            json.dumps(
+                {
+                    "tool_name": "Bash",
+                    "tool_input": {
+                        "command": (
+                            "python3 scripts/multiagent_prompt_command.py --config routes.yaml "
+                            "--role orchestrator_support --objective bounded --execute"
+                        )
+                    },
+                }
+            )
+        ),
+    )
+
+    with pytest.raises(SystemExit) as exited:
+        hook.main()
+    assert exited.value.code == 0
+    denied = json.loads(capsys.readouterr().out)
+    assert_denied(denied)
+    reason = denied["hookSpecificOutput"]["permissionDecisionReason"]
+    assert "DEPENDENCY_UNLOCK_EVIDENCE_REQUIRED" in reason
+
+    monkeypatch.setattr(
+        sys,
+        "stdin",
+        io.StringIO(
+            json.dumps(
+                {
+                    "tool_name": "Bash",
+                    "tool_input": {
+                        "command": (
+                            "python3 scripts/multiagent_prompt_command.py --config routes.yaml "
+                            "--role orchestrator_support "
+                            "--objective CRITICAL_PATH_UNLOCK=GATE-053C --execute"
+                        )
+                    },
+                }
+            )
+        ),
+    )
+
+    assert hook.main() == 0
+    assert capsys.readouterr().out == ""

@@ -1,0 +1,46 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-GOV-CRITICAL-PATH-FIRST-000",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "784291788560c4cd4d2bf5f6d2bea39577dac07d",
+  "test_files": [
+    {
+      "path": "project/tests/test_claude_governance.py",
+      "sha256": "1e4289a349f29a1ea94579603b974b3bf288e34f8b091863470677f14ed0e880"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_claude_governance.py::test_critical_path_first_markers_reach_canonical_and_provider_surfaces",
+        "project/tests/test_claude_governance.py::test_protected_dispatch_requires_named_critical_path_unlock"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "2 failed; canonical Rule 11 lacks all five critical-path-first markers, and a protected valid-adaptive dispatch without a named unlock returns instead of failing closed"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/rules/11-orchestrator-subagent-delegation.md",
+    ".agents/skills/orchestrator-delegation/SKILL.md",
+    ".antigravity/skills/orchestrator-delegation/SKILL.md",
+    ".claude/rules/orchestrator-subagents.md",
+    ".agy/rules/orchestrator-subagents.md",
+    ".antigravity/agents/orchestrator.agent",
+    ".agents/agents/orchestrator/agent.json",
+    ".agents/agents/orchestrator/agent.md",
+    ".agents/agents/orchestrator.json",
+    ".agents/agents/orchestrator.md",
+    ".codex/agents/orchestrator.toml",
+    ".claude/hooks/orchestrator_only_guard.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze the cross-provider critical-path-first governance contract before source work. Every delegated lane names the dependency or gate it unlocks; speculative atomic tickets that do not unlock the current critical path are denied; only a bounded read-only evidence lane resolving a named blocker is excepted; canonical and Claude, AGY, and Codex surfaces retain stable markers; and protected orchestrator dispatch fails closed without named dependency-unlock evidence."
+}
