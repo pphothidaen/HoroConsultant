@@ -1,112 +1,107 @@
-# HoroConsultant Handoff
+# HoroConsultant current handoff
 
-Updated: 2026-08-29 (PR #4 Merged into `main` @ `98e19b4`; Deployment Run `33251910604` Success; 1,833/1,833 Tests Verified PASS)
-Branch: `main` (`98e19b4`)
-Status: PRODUCTION RELEASE MERGED & VERIFIED — PR #4 MERGED (`98e19b4`), RUN 33251910604 SUCCESS, LIVE ENDPOINTS + 33/33 BUTTON REGRESSIONS VERIFIED, 100% ECOSYSTEM SYNC, 0 SECRET LEAKS
+Updated: `2026-08-30` (Asia/Bangkok)
 
----
+## Objective and phase
 
-## 📌 Documentation Authority
+Freeze a truthful operational continuation for the Independent Roots + Durable
+Queue MVP before any executor, daemon, QA, or provider activity. The current
+phase is **planning/governance complete; follow-on executor/handoff work and
+activation not started**. `PROJECT_TASKS.md` is the canonical current board and
+`plans/plan.md` contains the gate and decision record.
 
-[`PROJECT_TASKS.md`](PROJECT_TASKS.md) is the canonical source for ticket status, ownership, dependencies, acceptance criteria, and release gates. This file is the current-session resume brief. The decision history is in [`plans/plan.md`](plans/plan.md); the retired TODO traceability index is in [`plans/todo_tasks_plan.md`](plans/todo_tasks_plan.md); and [`project_tickets.md`](project_tickets.md) is a compatibility pointer only.
+## Isolated checkpoint
 
----
+- Worktree: `/private/tmp/horoconsultant-idq-auth02.raHY4w/worktree`
+- Branch: `feat/idq-mvp-auth-02-20260830`
+- Exact branch base: `784291788560c4cd4d2bf5f6d2bea39577dac07d`
+- Governance HEAD before this handoff-only commit:
+  `4e2ed911fee1152b507b6dc21008f2513533a53c`
+- Commit 1 paths: `PROJECT_TASKS.md`, `plans/plan.md`
+- Commit 2 ownership: `HANDOFF.md` only; its final SHA is reported in the
+  external completion receipt because a commit cannot embed its own final SHA.
 
-## 🌐 Live Production Endpoints & Deployment Status
+No merge, push, deploy, publish, credential action, provider call, or primary
+worktree mutation occurred.
 
-| Component | Target URL | HTTP Status | Response Time | Status / Telemetry |
-|---|---|---|---|---|
-| **Vercel Static UI** | `https://horo-consultant-psi.vercel.app` | `200 OK` | ~228 ms | Active (Document, `app.js`, Service Worker) |
-| **Vercel Version Metadata** | `https://horo-consultant-psi.vercel.app/version.json` | `200 OK` | ~196 ms | Active (`version.json` canonical contract) |
-| **HF Docker Backend Health** | `https://pphothidaen-horoconsultant-core-backend.hf.space/health` | `200 OK` | ~975 ms | Active (FastAPI / Uvicorn container operational) |
-| **Public Deterministic API** | `https://pphothidaen-horoconsultant-core-backend.hf.space/api/bazi/calculate` | `200 OK` | ~861 ms | Active (True Solar Time + BaZi Four Pillars calculation) |
-| **Admin Provider Pools** | `/api/admin/provider-pools` | `200 OK` | <50 ms | Active (`[ZERO-COST POLICY: ACTIVE]`, 5 provider pools) |
+## Primary dirty tree preserved
 
-- **PR #4 Main Merge**: Pull Request #4 merged into `main` as commit `98e19b4`.
-- **Deployment Run**: GitHub Actions Run `33251910604` (`workflow_dispatch` on `main` at `98e19b4`) — `SUCCESS`.
-- **UI & Button Regressions**: 33/33 passed (`python3 scripts/run_button_regression.py` -> `project/tests/button_regression_report.json`).
-- **Live Health Verification**: `python3 scripts/run_live_health_verification.py` confirms live public request paths and end-to-end response delivery across edge and container backends.
+Primary worktree: `/Users/kimlenglim/Project/HoroConsultant`, branch
+`docs/lesson-20-fast-track-protocol`, HEAD
+`784291788560c4cd4d2bf5f6d2bea39577dac07d`. Its intake and checkpoint status
+lists match:
 
----
-
-## 🚀 System Architecture & Sprints Summary
-
-### 1. Zero-Cost AI Pipeline (`TICKET-ZERO-001` – `TICKET-ZERO-007`) — `DONE — VERIFIED & LIVE`
-- **Multi-Tier Zero-Cost AI Provider Hierarchy**:
-  1. Primary: Gemini 2.5 Flash / Gemini 2.0 Flash Lite (`google-genai`)
-  2. Failover Tier 1: Groq Cloud (`llama-3.3-70b-versatile`, `deepseek-r1-distill-llama-70b`)
-  3. Failover Tier 2: Cerebras Systems (`llama-3.3-70b`, `llama-3.1-8b`)
-  4. Failover Tier 3: OpenRouter Free Pool (`qwen/qwen-2.5-coder-32b-instruct:free`, `meta-llama/llama-3.3-70b-instruct:free`)
-  5. Deterministic Safety Net (<1ms): Rule-based BaZi/metaphysics calculations, never throws 500.
-- **Resilience & Protection**:
-  - Semantic Caching with SHA-256 canonical hashing & LRU/TTL expiration.
-  - 60s Circuit Breakers (`HALF-OPEN` recovery on consecutive successes, 0ms instant bypass on 429).
-  - Multi-tier Rate Limiting (IP: 30 req/min, User: 60 req/min, Admin: 120 req/min, Daily Token Budget).
-  - Anti-DDoS Micro-Burst Guard & Input/Output Token Clamping (`<=12,000` chars input, `<=1,200` tokens output).
-- **Verification**: 51/51 zero-cost tests passed (`project/tests/test_zero_cost_pipeline.py`, `project/tests/test_semantic_cache.py`).
-
-### 2. Spark Model Governance (`TICKET-SPARK-GOV`) — `DONE — VERIFIED & LIVE`
-- Locked Spark governance policy `2026-08-29.1` with backwards-compatible support for `2026-08-26.1`.
-- Role-based permissions (`devops`, `code_reviewer`), Phase restrictions (`qa`, `review`, `release`, `operations`).
-- 15/15 Spark governance tests passed (`tests/test_spark_model_governance.py`).
-
-### 3. Five-Pool Capacity & Dual-Root Architecture (`TICKET-CODEX3-SUPPORT`) — `DONE — VERIFIED & LIVE`
-- 5-pool capacity architecture (`codex1`, `codex2`, `codex3`, `agy1`, `agy2`) with zero-leak token sanitization.
-- Independent durable queues (IDQ) for decoupled cross-agent communication.
-- 392/392 multiagent & IDQ tests passed (`tests/test_multiagent*.py`, `tests/test_idq*.py`).
-
-### 4. Consolidated Test & Quality Gate Status
-- **PyTest Suite**: 1,833 passed, 0 failed, 12 warnings (100% green).
-- **Rust PyO3 Math Core**: 100% passed, ultra-low latency calculations verified.
-- **UI Button Regression**: 33/33 passed (`project/tests/button_regression_report.json`).
-- **Security & Secret Leak Audit**: 0 leaks detected across 2,186 scanned files via Rust Rayon parallel scanner.
-- **AI Agent Ecosystem Sync**: 100% synchronized and validated (`python3 scripts/sync_ai_agent_ecosystem.py --check` PASS, 0 drift).
-- **LuoPan & E2E Regression**: All SVG generator and celestial coordinate tests pass.
-- **Release Verification (Gate 1-3)**: Pre-release and post-release validation passed in [`docs/RELEASE_HANDOFF_CHECKLIST.md`](docs/RELEASE_HANDOFF_CHECKLIST.md).
-
----
-
-## ⚡ Background Task & Quota Optimization Policy (Tmux / Detached Runners)
-
-To avoid consuming LLM token quota during long-running background tasks (e.g. CI polling, 1,800+ test suites, Rust compilation):
-1. **Never Poll in Short Busy Loops**: Avoid repeated short-interval tool calls that flood the LLM context window.
-2. **Use Detached / Async Runners**: Run long commands with proper timeout buffers or detached `tmux` sessions.
-3. **Event-Driven Notification**: Rely on exit-code notifications or scheduled timers (`schedule` tool) rather than continuous manual status checks.
-
----
-
-## 🛠️ Safe Resume Commands
-
-Run these commands to inspect and verify the repository state:
-
-```bash
-# 1. Check Git Status
-git status --short
-
-# 2. Verify AI Agent Ecosystem Synchronization (0 drift)
-python3 scripts/sync_ai_agent_ecosystem.py --check
-
-# 3. Verify Live Production Health & API Latency
-python3 scripts/run_live_health_verification.py
-
-# 4. Verify UI Button Regression Suite (33/33)
-python3 scripts/run_button_regression.py
-
-# 5. Run Core Zero-Cost & Gateway Tests
-python3 -m pytest -q project/tests/test_zero_cost_pipeline.py project/tests/test_gateway_contract.py
-
-# 6. Run Full Provenance Guard Verification
-python3 scripts/test_provenance_guard.py verify-pr --base origin/main --head HEAD
+```text
+ M .agents/config/multiagent_prompt_command.example.yaml
+ M scripts/multiagent_prompt_command.py
+?? scripts/fail_fast_triage.py
+?? tests/test_fail_fast_triage.py
 ```
 
----
+These paths remain unowned by this lane and were not edited, staged, reset, or
+reverted.
 
-## 📋 Ongoing Maintenance & Monitoring Operations
+## Evidence completed
 
-1. **Production Synthetic Monitoring**:
-   - Monitor scheduled live health workflow runs on `main`.
-   - Continuous verification of Vercel edge and Hugging Face Docker backend uptime.
-2. **Zero-Cost Telemetry Tracking**:
-   - Admin UI monitoring at `/admin/provider-pools` for circuit breaker trips and rate limit exhaustion.
-3. **BSA Governance Synchronization**:
-   - Maintain 0 drift across Claude Code, Antigravity, and OpenAI Codex configurations (`python3 scripts/sync_ai_agent_ecosystem.py --check`).
+- `IDQ-MVP-000-GOV` is retained as historical `DONE` only.
+- Verified release-cycle baseline:
+  `0e1941528c0c8f49ef50a14fd046db2163d33379`.
+- Reconstructed historical baseline:
+  `0946bdec65173edacbaf4044b4198d55136c33ca`, explicitly
+  `NON_TDD_RECONSTRUCTED` and not substituted for the verified baseline.
+- Commit 1 is `4e2ed911fee1152b507b6dc21008f2513533a53c`; its cached
+  diff check and exact two-path staged assertion passed.
+- The repository pre-commit hook is **SKIPPED, not passed**, because it runs
+  Pytest and this lane explicitly forbids tests. Applicable hook/QA tests remain
+  required before any readiness claim.
+- No test suite, live endpoint, runtime/provider path, authentication state, or
+  release identity was reverified in this lane.
+
+## Active and pending tickets
+
+| Ticket | Current state | Next evidence |
+|---|---|---|
+| `IDQ-OP-000-GOV` | DONE | this two-commit checkpoint |
+| `IDQ-OP-010-BASELINE` | DONE — VERIFIED | retain exact `0e194152` ancestry |
+| `IDQ-OP-020-EXECUTOR` | BLOCKED | real bounded executor/daemon route plus explicit cross-runtime handoff |
+| `IDQ-OP-030-QA` | BLOCKED | fresh lifecycle, handoff, read-only, and receipt-integrity QA |
+| `IDQ-OP-040-AUTH02-GOV` | INTENT RECORDED — HOLD | fresh QA before activation authority |
+| `IDQ-OP-050-PREFLIGHT` | BLOCKED | real path and effective read-only isolation; fresh quota, decision, snapshot, TTL, nonce, and lease bindings |
+| `IDQ-OP-060-FOUR-ALIAS` | BLOCKED | one distinct valid read-only proof from each exact alias |
+| `IDQ-OP-090-SEAL` | BLOCKED | four valid terminal outcomes and complete authority seal |
+
+## Authorization, scope, and blockers
+
+`IDQ-MVP-080-AUTH-01` is `SEALED / EXPIRED`. The owner's `2026-08-30`
+instruction records `AUTH-02` approval intent only. There is no active TTL,
+nonce, risk lease, or dispatch lease, and no provider process may start until
+`IDQ-OP-050-PREFLIGHT` proves every fresh binding.
+
+The future proof is limited to exactly `codex1`, `codex2`, `agy1`, and `agy2`,
+one distinct read-only attempt each with no retry, fallback, or substitution.
+Secret safety, raw-stream non-retention, and independent receipt/`WorkResult`
+validation are mandatory. AGY success may be described only as `validated
+in-process only`.
+
+Cross-runtime handoff is now explicitly in scope for `IDQ-OP-020-EXECUTOR` and
+`IDQ-OP-030-QA`: the real executor/daemon path must carry bounded typed work and
+results across the independent Codex/AGY runtimes without alias fallback,
+duplicate execution, secret/raw-stream handling, or inferred provider proof.
+That path and its fresh QA are the current blockers.
+
+## Historical release note
+
+Older PR, deployment-run, endpoint, test-count, and production statements in
+repository history describe dated checkpoints only. They were not reverified
+here and must not be used as current production or release truth. This
+checkpoint makes no `READY_FOR_PROD`, deployed, or live-health claim.
+
+## Exact next safe command
+
+```bash
+git -C /private/tmp/horoconsultant-idq-auth02.raHY4w/worktree status --short --branch
+```
+
+Stop before implementation, QA, provider execution, activation, or integration
+unless the corresponding canonical ticket dependency and ownership handoff is
+explicitly satisfied.
