@@ -169,6 +169,19 @@ def run_tier_3_checks() -> bool:
         logger.error(f"[ERROR] Code Reviewer blocked release:\n{res_review.stdout or res_review.stderr}")
         return False
 
+    # 2. Run Branch Migration Action Priority Guard Check
+    res_priority = subprocess.run(
+        ["python3", "scripts/branch_migration_action_priority_guard.py", "--check"],
+        cwd=str(ROOT_DIR),
+        capture_output=True,
+        text=True,
+    )
+    if res_priority.returncode != 0:
+        logger.error(
+            f"[ERROR] Branch Migration Action Priority Guard blocked release:\n{res_priority.stdout or res_priority.stderr}"
+        )
+        return False
+
     elapsed = time.time() - start
     logger.info(f"[OK] Tier 3 full release gate passed in {elapsed:.2f}s (READY_FOR_PROD)")
     return True

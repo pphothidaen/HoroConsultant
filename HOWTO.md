@@ -97,6 +97,7 @@ python3 scripts/test_provenance_guard.py verify-pr \
    - [3.9 การติดตั้งและตรวจสอบระบบ Grafana Cloud Observability & Prometheus Metrics](#39-การติดตั้งและตรวจสอบระบบ-grafana-cloud-observability--prometheus-metrics)
    - [3.10 การใช้งาน Autonomous Knowledge Distillation & Fine-Tuning Pipeline](#310-การใช้งาน-autonomous-knowledge-distillation--fine-tuning-pipeline)
    - [3.11 Fail-Fast Root-Cause Diagnostic CLI (scripts/fail_fast_triage.py)](#311-fail-fast-root-cause-diagnostic-cli-scriptsfail_fast_triagepy)
+   - [3.12 Safe Branch Migration & Action Priority Guard (P0/P1/P2)](#312-safe-branch-migration--action-priority-guard-p0p1p2)
 
 ---
 
@@ -672,3 +673,53 @@ publisher หรือ deployment ห้ามข้าม post-deploy identity/
 `NON_TDD_RECONSTRUCTED` เป็นข้อจำกัดถาวรของ lineage นี้ แม้ focused/full local
 tests จะผ่านในภายหลัง. สถานะข้างต้นจึงไม่ใช่ `READY_FOR_PROD`; ต้องมี
 integration, main-only CI, deployment และ fresh post-deploy evidence ก่อน.
+
+---
+
+### 🛡️ 3.12 Safe Branch Migration & Action Priority Guard (P0/P1/P2)
+
+`scripts/branch_migration_action_priority_guard.py` ทำหน้าที่ตรวจสอบความปลอดภัยและจัดลำดับความสำคัญของงาน (Action Priority Tiering) 3 ระดับ เพื่อป้องกันข้อผิดพลาดร้ายแรงระหว่างการ Migrate Branch, การ refactor แบบหลาย Agent พร้อมกัน และการเตรียม Release Candidate:
+
+#### 📊 ตารางจัดลำดับความสำคัญ 3 ลำดับ (Action Priority Tiering)
+
+| ลำดับ (Phase) | ภาษาไทย | Urgency | Risk | รายการตรวจสอบที่ครอบคลุม (Checks) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Phase 1** | **เร่งด่วนสูงสุด (Immediate)** | **P0** | **CRITICAL** | `check_worktrees` (ตรวจจับ Branch Collision / Dirty State), `check_immutable_recovery_refs` (ตรวจสอบ `recovery/pre-test-provenance-20260827`) |
+| **Phase 2** | **เร่งด่วน (Urgent)** | **P1** | **HIGH** | `check_test_provenance` (ตรวจสอบ `plans/test_provenance/*.json`), `check_production_deployment_guards` (แยกขาดระหว่าง Vercel Static Gateway และ HF Docker Backend) |
+| **Phase 3** | **ไม่เร่งด่วน (Routine)** | **P2** | **MEDIUM** | `check_ai_ecosystem_sync` (ตรวจสอบ sync AI Agent 5 แพลตฟอร์ม), `check_rust_wheel_and_tests` (ความพร้อมของ Rust Core & Fallback), `check_viewport_artifacts` (ตรวจสอบ 5 Canonical Viewports & Receipts) |
+
+#### 🚀 วิธีการเรียกใช้งาน CLI (CLI Usage Examples)
+
+1. **โหมดตรวจสอบปกติ (Audit Mode / Non-Destructive):**
+   ```bash
+   # ตรวจสอบภาพรวมทุก Phase โดยไม่ขัดขวางหรือแก้ไขไฟล์
+   python3 scripts/branch_migration_action_priority_guard.py --check
+   ```
+
+2. **โหมดเข้มงวดสำหรับ CI / Pre-Merge Release Gate (`--strict` / `--enforce`):**
+   ```bash
+   # บังคับ Fail-Closed (Exit Code 1 หากมีข้อผิดพลาดหรือ Dirty Worktree ใน Strict Mode) พร้อมบันทึก JSON Report
+   python3 scripts/branch_migration_action_priority_guard.py --strict --json-output project/tests/artifacts/action_priority_receipt.json
+   ```
+
+3. **ตรวจสอบเฉพาะ Phase ที่ต้องการ:**
+   ```bash
+   # Phase 1: เร่งด่วนสูงสุด (P0)
+   python3 scripts/branch_migration_action_priority_guard.py --phase immediate
+
+   # Phase 2: เร่งด่วน (P1)
+   python3 scripts/branch_migration_action_priority_guard.py --phase urgent
+
+   # Phase 3: ไม่เร่งด่วน (P2)
+   python3 scripts/branch_migration_action_priority_guard.py --phase routine
+   ```
+
+4. **การรันผ่าน Tier 3 Release Gate:**
+   `scripts/smart_quality_gate.py` ได้รับการผสานการทำงานเข้ากับ Action Priority Guard ในระดับ **Tier 3 (Full Release Path)**:
+   ```bash
+   python3 scripts/smart_quality_gate.py --tier 3
+   ```
+
+📖 **อ่านคู่มือขั้นตอนการปฏิบัติงานและการแก้ปัญหาฉบับสมบูรณ์ (Full Runbook & Remediation Guide):**  
+👉 [docs/branch_migration_action_priority_runbook.md](file:///Users/kimlenglim/Project/HoroConsultant/docs/branch_migration_action_priority_runbook.md)
+
