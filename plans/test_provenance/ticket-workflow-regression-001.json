@@ -1,0 +1,74 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-WORKFLOW-REGRESSION-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "6e6472aec34f2509eed955f3f518422a0edfbea0",
+  "test_files": [
+    {
+      "path": "project/tests/luopan_e2e_regression_report.json",
+      "sha256": "5e45750c411efa68bc2e40bb4dd69b5e77ed0dae6abed9456808dfc07bccf913"
+    },
+    {
+      "path": "project/tests/prod_version_regression_report.json",
+      "sha256": "b7212f24d53d4759ccbc3db675f03d98f93cd904081e73011aaca600f420e5b3"
+    },
+    {
+      "path": "project/tests/test_github_actions_regression.py",
+      "sha256": "877ae1a54f30beeee04bb5a52f6739b39adf9335cd13adb8e810256e42861e63"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_github_actions_regression.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Missing expected workflow: test_provenance.yml or workflow count mismatch"
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/ai_agent_ecosystem_sync.yml",
+    ".github/workflows/ai_cicd.yml",
+    ".github/workflows/azure_cost_guard.yml",
+    ".github/workflows/azure_deploy.yml",
+    ".github/workflows/ci.yml",
+    ".github/workflows/deploy.yml",
+    ".github/workflows/fly_deploy.yml",
+    ".github/workflows/hf_backend_deploy.yml",
+    ".github/workflows/kaggle_dataset_auto_sync.yml",
+    ".github/workflows/kaggle_finetune.yml",
+    ".github/workflows/kaggle_sync.yml",
+    ".github/workflows/lint.yml",
+    ".github/workflows/notebooklm_cookie_heartbeat.yml",
+    ".github/workflows/production_monitor.yml",
+    ".github/workflows/scheduled_distill_finetune.yml",
+    ".github/workflows/test_provenance.yml",
+    "scripts/test_provenance_guard.py",
+    "scripts/sync_claude_agy_parity.py",
+    "scripts/sync_ai_agent_ecosystem.py",
+    "scripts/run_luopan_e2e_regression.py",
+    "scripts/run_prod_version_e2e.py",
+    "scripts/synthetic_health_monitor.py",
+    "scripts/publish_space_hf.py",
+    "scripts/audit_canonical_5_viewports.py",
+    "project/data/distillation_checklist.json",
+    "project/data/vault_sync_status.json",
+    ".agents/config/full_capacity_guard.v2.json",
+    ".agents/hooks/full_capacity_guard.py",
+    "README.md",
+    "HOWTO.md",
+    "PROJECT_TASKS.md",
+    "plans/plan.md",
+    ".agents/LESSONS_LEARNED.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Test-first provenance baseline for workflow regression suite and regression reports. Freezes the 16 GitHub Actions workflow inventory (including test_provenance.yml), structural syntax validation, job dependencies, script invocation integrity, frozen release permissions, and updated regression reports."
+}

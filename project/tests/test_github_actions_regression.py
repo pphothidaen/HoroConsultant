@@ -40,6 +40,7 @@ EXPECTED_WORKFLOW_FILES = [
     "notebooklm_cookie_heartbeat.yml",
     "production_monitor.yml",
     "scheduled_distill_finetune.yml",
+    "test_provenance.yml",
 ]
 
 FROZEN_RELEASE_WORKFLOWS = (

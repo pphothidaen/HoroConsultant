@@ -1,15 +1,15 @@
 {
   "target_url": "https://horo-consultant-psi.vercel.app/api/v1/luopan/calculate",
-  "timestamp": "2026-08-23T16:49:26Z",
+  "timestamp": "2026-08-30T17:13:37Z",
   "status": "ALL_PASSED_READY_FOR_PROD",
   "tests": [
     {
       "input_degree": 0.0,
       "http_status": 200,
-      "latency_ms": 438.0,
+      "latency_ms": 1121.0,
       "passed": true,
       "details": {
-        "facing_mountain": "子 (0° N)",
+        "facing_mountain": "子 (Zi)",
         "facing_palace": "N",
         "facing_star": "1 ขาว (向星 - ประตูหน้าปัญญารับทรัพย์)",
         "facing_heat_score": 98,
@@ -20,10 +20,10 @@
     {
       "input_degree": 45.0,
       "http_status": 200,
-      "latency_ms": 431.8,
+      "latency_ms": 436.9,
       "passed": true,
       "details": {
-        "facing_mountain": "艮 (45° NE)",
+        "facing_mountain": "艮 (Gen)",
         "facing_palace": "NE",
         "facing_star": "7 แดง (向星 - ประตูหน้าวาจารับทรัพย์)",
         "facing_heat_score": 96,
@@ -34,10 +34,10 @@
     {
       "input_degree": 90.0,
       "http_status": 200,
-      "latency_ms": 378.0,
+      "latency_ms": 486.4,
       "passed": true,
       "details": {
-        "facing_mountain": "卯 (90° E)",
+        "facing_mountain": "卯 (Mao)",
         "facing_palace": "E",
         "facing_star": "8 ขาว (向星 - ประตูหน้ามหาเศรษฐี)",
         "facing_heat_score": 98,
@@ -48,10 +48,10 @@
     {
       "input_degree": 135.0,
       "http_status": 200,
-      "latency_ms": 397.5,
+      "latency_ms": 375.6,
       "passed": true,
       "details": {
-        "facing_mountain": "巽 (135° SE)",
+        "facing_mountain": "巽 (Xun)",
         "facing_palace": "SE",
         "facing_star": "9 ม่วง (向星 - ประตูมงคลยุค 9 โชคลาภการค้า)",
         "facing_heat_score": 96,
@@ -62,10 +62,10 @@
     {
       "input_degree": 180.0,
       "http_status": 200,
-      "latency_ms": 425.5,
+      "latency_ms": 953.0,
       "passed": true,
       "details": {
-        "facing_mountain": "午 (180° S)",
+        "facing_mountain": "午 (Wu)",
         "facing_palace": "S",
         "facing_star": "9 ม่วง (向星 - ดาวโชคลาภหน้าอาคาร)",
         "facing_heat_score": 98,
@@ -76,10 +76,10 @@
     {
       "input_degree": 225.0,
       "http_status": 200,
-      "latency_ms": 368.0,
+      "latency_ms": 343.3,
       "passed": true,
       "details": {
-        "facing_mountain": "坤 (225° SW)",
+        "facing_mountain": "坤 (Kun)",
         "facing_palace": "SW",
         "facing_star": "1 ขาว (向星 - ประตูหน้าปัญญามหาลาภ)",
         "facing_heat_score": 98,
@@ -90,10 +90,10 @@
     {
       "input_degree": 270.0,
       "http_status": 200,
-      "latency_ms": 393.0,
+      "latency_ms": 476.1,
       "passed": true,
       "details": {
-        "facing_mountain": "酉 (270° W)",
+        "facing_mountain": "酉 (You)",
         "facing_palace": "W",
         "facing_star": "4 เขียว (向星 - ประตูหน้าเสน่ห์การค้าสร้างสรรค์)",
         "facing_heat_score": 98,
@@ -104,10 +104,10 @@
     {
       "input_degree": 315.0,
       "http_status": 200,
-      "latency_ms": 407.1,
+      "latency_ms": 372.0,
       "passed": true,
       "details": {
-        "facing_mountain": "乾 (315° NW)",
+        "facing_mountain": "乾 (Qian)",
         "facing_palace": "NW",
         "facing_star": "6 ขาว (向星 - ประตูหน้ามหาอำนาจบารมี)",
         "facing_heat_score": 98,
