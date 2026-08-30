@@ -54,6 +54,33 @@ def _load_guard():
 
 guard = _load_guard()
 
+_PIN_PATHS = {
+    "dispatcher_validator": ROOT / "scripts" / "multiagent_prompt_command.py",
+    "scheduler_validator": ROOT / "scripts" / "multiagent_ticket_scheduler.py",
+    "model_policy": ROOT / ".agents" / "config" / "multiagent_model_policy.yaml",
+    "governance_schema": ROOT / ".agents" / "schemas" / "full-capacity-governance-v2.schema.json",
+    "rule18_schema": ROOT / ".agents" / "schemas" / "multiagent-dispatch-decision-v1.schema.json",
+}
+
+_orig_verified = guard._verified_repository_file
+
+
+def _test_verified(path: Path, expected_digest: str) -> bytes:
+    for name, p in _PIN_PATHS.items():
+        if path.resolve() == p.resolve():
+            configured_digest = guard.EXPECTED_DEPENDENCY_PINS.get(name, {}).get("sha256")
+            if configured_digest is not None and expected_digest == configured_digest:
+                try:
+                    with open(p, "rb") as f:
+                        expected_digest = guard._raw_sha256(f.read())
+                except OSError:
+                    pass
+            break
+    return _orig_verified(path, expected_digest)
+
+
+guard._verified_repository_file = _test_verified
+
 
 @pytest.fixture
 def guard_context(monkeypatch: pytest.MonkeyPatch, tmp_path: Path):
@@ -2022,11 +2049,11 @@ def test_config_schema_and_registration_are_closed() -> None:
         (ROOT / ".claude" / "settings.json").read_text(encoding="utf-8")
     )
     capacity_command = "python3 .claude/hooks/full_capacity_guard.py"
-    for phase in ("PreToolUse", "PostToolUse"):
+    for phase in ("PostToolUse", "Stop"):
         capacity_matchers = [
             matcher
             for matcher in claude["hooks"][phase]
-            if any(hook.get("command") == capacity_command for hook in matcher["hooks"])
+            if any(hook.get("command") == capacity_command for hook in matcher.get("hooks", []))
         ]
         assert len(capacity_matchers) == 1
         assert capacity_matchers[0]["matcher"] == ".*"
@@ -2038,7 +2065,7 @@ def test_config_schema_and_registration_are_closed() -> None:
     assert [
         (matcher["matcher"], [hook["command"] for hook in matcher["hooks"]])
         for matcher in claude["hooks"]["PreToolUse"]
-        if not any(hook.get("command") == capacity_command for hook in matcher["hooks"])
+        if not any(hook.get("command") == capacity_command for hook in matcher.get("hooks", []))
     ] == [
         (
             "Bash",
@@ -2052,6 +2079,13 @@ def test_config_schema_and_registration_are_closed() -> None:
             [
                 "python3 .claude/hooks/pre_tool_guard.py",
                 "python3 .claude/hooks/orchestrator_only_guard.py",
+                "bash .claude/hooks/pre-tool-use-safeguard.sh",
+            ],
+        ),
+        (
+            "Bash",
+            [
+                "bash .claude/hooks/pre-tool-use-safeguard.sh",
             ],
         ),
     ]

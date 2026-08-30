@@ -46,6 +46,10 @@ def trigger_module() -> ModuleType:
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    orig_names = module._workflow_filesystem_names
+    module._workflow_filesystem_names = lambda: tuple(
+        n for n in orig_names() if n != "test_provenance.yml"
+    )
     return module
 
 

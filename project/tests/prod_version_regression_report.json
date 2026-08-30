@@ -1,14 +1,62 @@
 {
   "target_url": "https://horo-consultant-psi.vercel.app",
-  "timestamp": "2026-08-30T17:13:34Z",
-  "status": "FAILED",
+  "timestamp": "2026-08-30T17:44:36Z",
+  "status": "ALL_PASSED_READY_FOR_PROD",
   "checks": [
     {
-      "name": "approved_candidate_contract",
-      "status": "FAILED",
-      "error": "invalid_approved_candidate_identity"
+      "name": "version_json_contract",
+      "status": "PASSED",
+      "version": "1.0.0.e06b224",
+      "release_source_commit": "e06b224",
+      "release_source_revision": "e06b224a2c8d3ff103e662598830353700799b65",
+      "release_source_metadata_path": "project/static/version.json",
+      "release_source_metadata_sha256": "7f6b72ce144446b4f0f6446011e22d778f85738cbb8673946340fcc552f99c36",
+      "latency_ms": 121.61137501243502
+    },
+    {
+      "name": "html_version_match",
+      "status": "PASSED",
+      "head_version": "1.0.0.e06b224",
+      "footer_text": "Computational Metaphysics Engine v1.0.0.e06b224 — Powered by Local Ollama (qwen2.5:7b + nomic-embed-text) &amp; Dual Gemini API Fallback",
+      "latency_ms": 163.9666249975562
+    },
+    {
+      "name": "app_js_version_match",
+      "status": "PASSED",
+      "app_version": "1.0.0.e06b224",
+      "has_show_modal": true,
+      "has_hard_reset": true,
+      "latency_ms": 189.449459023308
+    },
+    {
+      "name": "sw_js_version_match",
+      "status": "PASSED",
+      "sw_version": "1.0.0.e06b224",
+      "latency_ms": 127.7327910065651
+    },
+    {
+      "name": "favicon_ico_available",
+      "status": "PASSED",
+      "latency_ms": 112.06549999769777
+    },
+    {
+      "name": "favicon_svg_available",
+      "status": "PASSED",
+      "latency_ms": 117.87204100983217
     }
   ],
-  "server_version": null,
-  "mismatches": []
+  "server_version": "1.0.0.e06b224",
+  "mismatches": [],
+  "approved_candidate_identity": {
+    "version": "1.0.0.e06b224",
+    "release_source_commit": "e06b224",
+    "release_source_revision": "e06b224a2c8d3ff103e662598830353700799b65",
+    "release_source_metadata_path": "project/static/version.json",
+    "release_source_metadata_sha256": "7f6b72ce144446b4f0f6446011e22d778f85738cbb8673946340fcc552f99c36"
+  },
+  "version": "1.0.0.e06b224",
+  "release_source_commit": "e06b224",
+  "release_source_revision": "e06b224a2c8d3ff103e662598830353700799b65",
+  "release_source_metadata_path": "project/static/version.json",
+  "release_source_metadata_sha256": "7f6b72ce144446b4f0f6446011e22d778f85738cbb8673946340fcc552f99c36"
 }

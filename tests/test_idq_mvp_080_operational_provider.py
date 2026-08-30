@@ -28,10 +28,10 @@ from __future__ import annotations
 import sys
 import pytest
 
-pytest.skip(
-    "scripts/multiagent_idq_mvp_080_operational.py not yet implemented",
-    allow_module_level=True,
-)
+# pytest.skip(
+#     "scripts/multiagent_idq_mvp_080_operational.py not yet implemented",
+#     allow_module_level=True,
+# )
 
 import hashlib
 import importlib
