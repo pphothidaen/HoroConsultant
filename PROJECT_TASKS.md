@@ -1,3 +1,154 @@
+<!-- CTX-HANDOFF-V1-20260830:START -->
+## Cross-runtime context handoff v1 - local-only governance
+
+**Recorded**: `2026-08-30` (Asia/Bangkok). **Gate**: `APPROVED` for
+`CTX-000-GOV` planning/governance only. **Exact base**:
+`b643d35243ad94949500c7627d46e27f580a020f`. **Isolated branch**:
+`feat/context-handoff-v1-20260830`.
+
+**Fresh owner scheduling adjustment**: test-first local implementation may
+proceed now on this isolated branch for ASAP delivery. This adjustment makes
+only `CTX-010-RED` ready; each descendant remains dependency-gated. It does
+not relabel the current release, and release 120 remains blocked and not
+production-green. Merge or cherry-pick into the current release, push, deploy,
+publish, production activation, and any external mutation remain prohibited
+until independent QA and review are green and `CTX-100-INTEGRATION-HOLD`
+passes the existing release-120 and ownership-overlap integration gate.
+
+### GRILL REPORT
+
+- **Request**: freeze a complete local-only, test-first graph for one shared
+  context handoff contract across Claude Code, Codex CLI, and AGY.
+- **Status / authorized next phase**: `APPROVED`; after this docs-only commit,
+  only `CTX-010-RED` is authorized to start.
+- **D1 scope `[CONFIRMED]`**: this lane changes only `PROJECT_TASKS.md` and
+  `plans/plan.md`. Follow-on local scope is exactly the ticket-owned paths
+  below. Tests, source, config, hooks, skills, generated mirrors, `HANDOFF.md`,
+  provider/network access, credentials, push, deploy, publish, merge, and
+  production activation are out of scope for `CTX-000-GOV`.
+- **D2 delta `[CONFIRMED]`**: the feature receives an isolated-branch
+  scheduling exception for local test-first delivery; the current release and
+  its production-green claim do not change.
+- **D3 acceptance / stop `[CONFIRMED]`**: one commit with subject
+  `docs(governance): plan cross-runtime context handoff` changes exactly the
+  two governance files, passes staged-path and diff checks, and leaves the
+  feature worktree clean. Stop on base drift, extra paths, ownership overlap,
+  a failed check, or any attempt to cross the integration hold.
+- **D4 inputs / dependencies `[CONFIRMED]`**: the exact base, owner adjustment,
+  runtime set, ticket graph, test baseline paths, canonical source allowlist,
+  later generated/docs scopes, independent QA/review, and release-120 overlap
+  gate are supplied. No credential, provider, network, or production input is
+  required or authorized.
+- **D5 architecture / ownership `[CONFIRMED]`**: one editor owns each lane;
+  shared paths are serial; generated refresh has one owner; the existing
+  release integration owner is not duplicated.
+- **D6 assumptions `[CONFIRMED]`**: static routing metadata is intent only,
+  never runtime/provider proof. `HANDOFF.md` is derived state and cannot
+  override `PROJECT_TASKS.md`. Silence, `UNKNOWN`, or local green checks never
+  waive a dependency or release gate.
+- **D7 risk / recovery `[CONFIRMED]`**: fail closed on untrusted hooks, raw
+  transcript access, oversized/partial capsules, active-lane clear attempts,
+  provenance drift, or overlap. Recovery is to stop descendants and revert
+  only the isolated owned commit or abandon the isolated branch; current
+  release history remains untouched.
+- **D8 budget / evidence `[CONFIRMED]`**: evidence is bounded to exact paths,
+  immutable provenance, concise ASCII-safe output, and the DispatchDecision
+  below. No runtime/provider claim is inferred.
+- **D9 domain / HITL `[NOT-APPLICABLE]`**: no metaphysical behavior, source
+  domain, prediction, or training data changes. Owner HITL applies only to the
+  scheduling adjustment and remains bounded by `CTX-100-INTEGRATION-HOLD`.
+- **Waivers / unresolved questions**: none.
+
+### Architecture invariants
+
+1. `PROJECT_TASKS.md` is the ticket and current-state authority.
+   `HANDOFF.md` is a derived, replaceable capsule and never an authority.
+2. `.agents/config/context_handoff_v1.json` is the canonical machine policy;
+   `.agents/skills/anti-cognitive-decay/SKILL.md` is the canonical skill, with
+   `.agents/rules/20-context-handoff.md` the human-readable normative rule.
+   Runtime mirrors are generated artifacts only.
+3. `scripts/context_handoff.py` is a Python-standard-library-only shared engine
+   with deterministic `hook`, `snapshot`, `rehydrate`, and `validate`
+   operations. Runtime adapters call this engine and do not fork policy.
+4. The engine never reads a raw chat/session transcript. It accepts only
+   bounded structured state and repository metadata expressly allowed by the
+   canonical policy.
+5. Trigger evidence uses strict precedence: `tokens > percent > bytes >
+   UNKNOWN`. Signals are never averaged,
+   guessed, or silently promoted; `UNKNOWN` cannot authorize clear.
+6. A derived capsule is capped at `16 KiB` and written atomically. The engine
+   must bound content before replacement and must never leave a partial file.
+7. No runtime automatically invokes compact, `/clear`, or reset. The engine
+   may recommend an operator action only. Any active lane denies clear.
+8. Codex hook execution requires an explicitly trusted hook configuration.
+   Missing, unsupported, or untrusted hook state fails closed; no flag,
+   fallback, adapter, or documentation may bypass trust.
+
+### Frozen ownership and path allowlists
+
+The test-only baseline is owned solely by `CTX-010-RED` and contains exactly:
+
+- `tests/test_context_handoff.py`
+- `tests/test_context_handoff_hooks.py`
+- `tests/fixtures/context_handoff/**`
+- `plans/test_provenance/ctx-handoff-20260830-b00.json`
+
+The source allowlist is exactly the canonical files assigned to
+`CTX-020-CORE`, `CTX-030-ADAPTERS`, `CTX-040-POLICY`, and `CTX-050-SYNC`:
+
+- `.agents/config/context_handoff_v1.json`
+- `scripts/context_handoff.py`
+- `.codex/hooks.json`
+- `.claude/hooks/stop-monitor.sh`
+- `.agy/hooks/stop-monitor.sh`
+- `.agents/skills/anti-cognitive-decay/SKILL.md`
+- `.agents/rules/20-context-handoff.md`
+- `.agents/AGENTS.md`
+- `scripts/sync_claude_agy_parity.py`
+- `scripts/sync_ai_agent_ecosystem.py`
+
+Generated mirrors and documentation are excluded from that source allowlist
+until their serial lanes. `CTX-060-GENERATED` owns exactly these three files:
+
+- `.antigravity/skills/anti-cognitive-decay/SKILL.md`
+- `.claude/skills/anti-cognitive-decay/SKILL.md`
+- `.agy/skills/anti-cognitive-decay/SKILL.md`
+
+After source and generated freeze, `CTX-070-DOCS` owns exactly:
+
+- `README.md`
+- `HOWTO.md`
+- `HANDOFF.md`
+- `AGENTS.md`
+- `CLAUDE.md`
+- `AGY.md`
+
+### Canonical local-only ticket graph
+
+| ID | Severity / effort | One owner | Status | Dependencies | Exact scope and measurable acceptance | Stop condition / exclusions |
+|---|---|---|---|---|---|---|
+| `CTX-000-GOV` | HIGH / S | `business_analyst` | DONE | fresh owner instruction | `PROJECT_TASKS.md`, `plans/plan.md` only; exact graph, invariants, scheduling adjustment, release hold, staged-path/diff checks, one prescribed commit | stop on any extra path or current-release mutation; no tests/source/config/hooks/skills/generated/`HANDOFF.md`/provider/network/credential/push/deploy action |
+| `CTX-010-RED` | CRITICAL / S | `qa_tester` | READY | `CTX-000-GOV` | exact four-path test scope above; one immutable test-only `test-provenance-v1` baseline records deterministic RED or explicit negative control, argv, exit status, hashes, and concise fingerprint | stop on source/generated/docs mixing, missing RED evidence, manifest drift, or test ownership overlap |
+| `CTX-020-CORE` | CRITICAL / M | `developer` | BLOCKED | `CTX-010-RED` is `TEST_BASELINE_VERIFIED` | `.agents/config/context_handoff_v1.json`, `scripts/context_handoff.py` only; stdlib engine implements and validates the frozen policy and all four operations against the immutable baseline | stop on baseline/hash drift, raw-transcript read, non-stdlib dependency, automatic clear/compact, partial/over-cap write, or extra path |
+| `CTX-030-ADAPTERS` | HIGH / S | `developer` | BLOCKED | `CTX-020-CORE` | `.codex/hooks.json`, `.claude/hooks/stop-monitor.sh`, `.agy/hooks/stop-monitor.sh` only; all three call the shared engine with equivalent fail-closed behavior and Codex trust is proven | stop on duplicated policy, trust bypass, automatic clear/compact, swallowed failure, repository write outside the derived capsule, or extra path |
+| `CTX-040-POLICY` | HIGH / S | `skill_rule_owner` | BLOCKED | `CTX-020-CORE` | `.agents/skills/anti-cognitive-decay/SKILL.md`, `.agents/rules/20-context-handoff.md`, `.agents/AGENTS.md` only; canonical skill/rule/catalog match machine policy and preserve operator-only clear | stop on policy divergence, generated-file edit, unsafe invocation, ownership overlap, or extra path |
+| `CTX-050-SYNC` | HIGH / M | `developer` | BLOCKED | `CTX-030-ADAPTERS`, `CTX-040-POLICY` | `scripts/sync_claude_agy_parity.py`, `scripts/sync_ai_agent_ecosystem.py` only; deterministic sync/check recognizes canonical policy and produces only the declared mirrors with check mode read-only | stop on unrelated generation, out-of-repo/global write, source overwrite, parity drift, active current-release ownership, or extra path |
+| `CTX-060-GENERATED` | HIGH / XS | `generated_refresh_owner` | BLOCKED | `CTX-050-SYNC` | exact three mirrored skill files above in one generated-refresh lane; bytes and provenance match canonical output and sync check is clean | stop on manual divergent edits, any fourth generated path, canonical-source mutation, or non-determinism |
+| `CTX-070-DOCS` | HIGH / S | `business_analyst` | BLOCKED | `CTX-020-CORE` through `CTX-060-GENERATED` source/generated freeze | exact six documentation/global-guidance files above; operator guidance matches frozen behavior, labels `HANDOFF.md` derived, and makes no release/provider claim | stop on source/test/generated mutation, stale behavior, authority inversion, ownership overlap, or extra path |
+| `CTX-080-QA` | CRITICAL / M | `qa_tester` | BLOCKED | `CTX-010-RED` through `CTX-070-DOCS` green | read-only independent QA runs frozen focused tests, provenance/history guards, adapter negatives, ecosystem parity/check, security scan, and applicable regression; every required command exits 0 with bounded evidence | any fail, skip, stale fixture/hash, trust ambiguity, or source/test edit blocks review |
+| `CTX-090-REVIEW` | CRITICAL / S | `code_reviewer` | BLOCKED | `CTX-080-QA` green | read-only independent review verifies architecture, security/privacy, trust, one-editor history, exact-path provenance, and QA receipts; explicit approval required | any critical/high finding, missing evidence, raw transcript risk, trust bypass, or scope drift blocks integration |
+| `CTX-100-INTEGRATION-HOLD` | CRITICAL / S | `release_integrator` (existing current-release owner; no duplicate) | BLOCKED | release 120 production-green and every `CTX-000` through `CTX-090` gate green | after explicit owner handoff, revalidate ancestry, exact commits, overlap, independent QA/review, current-release CI, and merge plan before any integration action | no integration, merge/cherry-pick, push, deploy, publish, or production activation while release 120, a prior CTX gate, ownership, or overlap is not green |
+
+### DispatchDecision v1
+
+`ticket=CTX-000-GOV`; `phase=planning/governance`; ranks `3/3/2/2/3`;
+floor `gpt-5.6-sol/high`; selected `gpt-5.6-sol/ultra` by owner planning
+override; quota `unknown` with bounded native mutation; `work_mode=mutation`;
+`selected_alias=native-bsa`; policy `2026-08-29.1`; `root-medium=true`;
+`hitl=true`; digest `pending`; status `READY_TO_VALIDATE`. This static label is
+routing intent only, not provider execution proof.
+<!-- CTX-HANDOFF-V1-20260830:END -->
+
 <!-- IDQ-AUTH02-OPERATIONAL-GOVERNANCE-20260830:START -->
 ## Current IDQ operational correction and `AUTH-02` approval intent
 
