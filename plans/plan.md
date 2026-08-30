@@ -2,7 +2,7 @@
 ## Production 503 Recovery and Concern Closure Plan
 
 **Date**: 2026-08-27 (Asia/Bangkok)
-**Status**: `RUNTIME RECOVERED / LOCAL HOTFIX GREEN / CODE RELEASE PENDING`
+**Status**: `RUNTIME RECOVERED / LOCAL HOTFIX GREEN / PR #2 CHECKS GREEN / MERGE GATED`
 
 ### Goal and scope
 
@@ -32,6 +32,9 @@
 5. HF runtime images lack provider commit env and `.git`. Use baked metadata
    only as a final fallback after validating its closed schema, source binding,
    and SHA-256 digest; tampered metadata returns `unknown`.
+6. Unused Vercel Preview deployments were still attempted on every non-main
+   push. Freeze the failure in test-only baseline `062289e`, disable automatic
+   Git deployment for `*`, and explicitly retain it for production `main`.
 
 ### Evidence and release boundary
 
@@ -44,16 +47,22 @@
   rerun after documentation/source freeze.
 - Rollback: Vercel env ID `gTpSlwb3RL3Fr94e`; prior deployment
   `dpl_8nywahyt5ga3FiBajjRBtHozQU8w`.
-- Pending: push/open PR, required remote CI, explicit merge decision, Vercel UI
-  release, owner-gated HF Docker publish, and exact live backend version plus
+- Remote review: PR `#2` is open from `hotfix/prod-503-recovery` without
+  auto-merge. All required GitHub workflows are green; ruleset `21626253`
+  requires only `Test Provenance`.
+- Preview retirement: the Vercel notification was canceled because local
+  commits are cryptographically unverified, not because the build failed. The
+  two canceled artifacts were removed, production stayed `READY`, and the
+  branch policy now prevents future non-main auto-deployments after merge.
+- Pending: explicit merge decision, Vercel UI release, owner-gated HF Docker
+  publish, and exact live backend version plus
   five-viewport re-verification.
 
 ### Safe resume order
 
-1. Run aggregate provenance, focused/full QA, secret scan, Docker dry-run,
-   ecosystem sync, and final reviewer on the clean hotfix head.
-2. Push/open a PR only under exact repository authorization; do not auto-merge.
-3. After explicit merge approval, verify the Vercel UI deployment and rerun the
+1. Obtain an explicit decision for PR `#2`; do not auto-merge and do not treat
+   Vercel Preview as a required gate.
+2. After explicit merge approval, verify the Vercel production deployment and rerun the
    five canonical visual viewports.
 4. Publish the canonical HF Docker target only through its owner-gated release
    workflow, then require `/health` commit/version to equal the stamped source.
