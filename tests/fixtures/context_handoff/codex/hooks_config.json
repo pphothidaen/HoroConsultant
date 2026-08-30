@@ -1,0 +1,42 @@
+{
+  "schema_version": "codex-hooks-v1",
+  "trusted_project_only": true,
+  "untrusted_project_behavior": "deny",
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "python3 scripts/context_handoff.py hook --runtime codex --event SessionStart --native",
+        "timeout": 10
+      }
+    ],
+    "PreCompact": [
+      {
+        "type": "command",
+        "command": "python3 scripts/context_handoff.py hook --runtime codex --event PreCompact --native",
+        "timeout": 10
+      }
+    ],
+    "PostCompact": [
+      {
+        "type": "command",
+        "command": "python3 scripts/context_handoff.py hook --runtime codex --event PostCompact --native",
+        "timeout": 10
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python3 scripts/context_handoff.py hook --runtime codex --event Stop --native",
+        "timeout": 10
+      }
+    ],
+    "SessionEnd": [
+      {
+        "type": "command",
+        "command": "python3 scripts/context_handoff.py hook --runtime codex --event SessionEnd --native",
+        "timeout": 10
+      }
+    ]
+  }
+}

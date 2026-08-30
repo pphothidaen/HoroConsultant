@@ -1,0 +1,31 @@
+{
+  "schema_version": "context-handoff-native-fixtures-v1",
+  "cases": [
+    {
+      "id": "claude-stop-warning",
+      "input": {
+        "hook_event_name": "Stop",
+        "stop_hook_active": false,
+        "usage": {"percent": 45},
+        "last_notified_level": "ALERT",
+        "lanes": []
+      },
+      "expected": {"continue": true},
+      "expected_output_keys": ["continue", "systemMessage"],
+      "contains": ["snapshot", "operator"]
+    },
+    {
+      "id": "claude-stop-recursion-safe",
+      "input": {
+        "hook_event_name": "Stop",
+        "stop_hook_active": true,
+        "usage": {"percent": 95},
+        "last_notified_level": "SNAPSHOT",
+        "lanes": []
+      },
+      "expected": {},
+      "expected_output_keys": [],
+      "contains": []
+    }
+  ]
+}

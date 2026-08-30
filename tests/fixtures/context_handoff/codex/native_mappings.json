@@ -1,0 +1,147 @@
+{
+  "schema_version": "context-handoff-native-fixtures-v1",
+  "cases": [
+    {
+      "id": "session-start-startup",
+      "event": "SessionStart",
+      "input": {
+        "source": "startup",
+        "usage": {},
+        "last_notified_level": "NORMAL",
+        "lanes": []
+      },
+      "expected_output_keys": ["additionalContext"],
+      "max_field_bytes": {"additionalContext": 4096},
+      "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
+    },
+    {
+      "id": "session-start-resume",
+      "event": "SessionStart",
+      "input": {
+        "source": "resume",
+        "usage": {},
+        "last_notified_level": "NORMAL",
+        "lanes": []
+      },
+      "expected_output_keys": ["additionalContext"],
+      "max_field_bytes": {"additionalContext": 4096},
+      "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
+    },
+    {
+      "id": "session-start-clear",
+      "event": "SessionStart",
+      "input": {
+        "source": "clear",
+        "usage": {},
+        "last_notified_level": "NORMAL",
+        "lanes": []
+      },
+      "expected_output_keys": ["additionalContext"],
+      "max_field_bytes": {"additionalContext": 4096},
+      "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
+    },
+    {
+      "id": "session-start-compact",
+      "event": "SessionStart",
+      "input": {
+        "source": "compact",
+        "usage": {},
+        "last_notified_level": "NORMAL",
+        "lanes": []
+      },
+      "expected_output_keys": ["additionalContext"],
+      "max_field_bytes": {"additionalContext": 4096},
+      "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
+    },
+    {
+      "id": "pre-compact-manual",
+      "event": "PreCompact",
+      "input": {
+        "trigger": "manual",
+        "usage": {"percent": 45},
+        "last_notified_level": "ALERT",
+        "lanes": []
+      },
+      "expected_output_keys": ["systemMessage"],
+      "max_field_bytes": {"systemMessage": 4096},
+      "contains": ["snapshot", "operator"]
+    },
+    {
+      "id": "pre-compact-auto",
+      "event": "PreCompact",
+      "input": {
+        "trigger": "auto",
+        "usage": {"percent": 45},
+        "last_notified_level": "ALERT",
+        "lanes": []
+      },
+      "expected_output_keys": ["systemMessage"],
+      "max_field_bytes": {"systemMessage": 4096},
+      "contains": ["snapshot", "operator"]
+    },
+    {
+      "id": "post-compact-manual",
+      "event": "PostCompact",
+      "input": {
+        "trigger": "manual",
+        "usage": {},
+        "last_notified_level": "SNAPSHOT",
+        "lanes": []
+      },
+      "expected_output_keys": ["systemMessage"],
+      "max_field_bytes": {"systemMessage": 4096},
+      "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
+    },
+    {
+      "id": "post-compact-auto",
+      "event": "PostCompact",
+      "input": {
+        "trigger": "auto",
+        "usage": {},
+        "last_notified_level": "SNAPSHOT",
+        "lanes": []
+      },
+      "expected_output_keys": ["systemMessage"],
+      "max_field_bytes": {"systemMessage": 4096},
+      "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
+    },
+    {
+      "id": "stop-warning",
+      "event": "Stop",
+      "input": {
+        "hook_active": false,
+        "usage": {"percent": 45},
+        "last_notified_level": "ALERT",
+        "lanes": []
+      },
+      "expected_output_keys": ["systemMessage"],
+      "max_field_bytes": {"systemMessage": 4096},
+      "contains": ["snapshot", "operator"]
+    },
+    {
+      "id": "stop-recursion-safe",
+      "event": "Stop",
+      "input": {
+        "hook_active": true,
+        "usage": {"percent": 95},
+        "last_notified_level": "SNAPSHOT",
+        "lanes": []
+      },
+      "expected_output_keys": [],
+      "max_field_bytes": {},
+      "contains": []
+    },
+    {
+      "id": "session-end-warning",
+      "event": "SessionEnd",
+      "input": {
+        "usage": {},
+        "last_notified_level": "NORMAL",
+        "lanes": []
+      },
+      "expected_output_keys": ["systemMessage"],
+      "max_field_bytes": {"systemMessage": 4096},
+      "contains": ["warning", "PROJECT_TASKS.md"]
+    }
+  ]
+}

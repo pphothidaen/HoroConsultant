@@ -1,0 +1,39 @@
+{
+  "branch-protection-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command|write_to_file|replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".agy/hooks/pre-tool-use.sh",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  },
+  "targeted-auto-formatter": {
+    "PostToolUse": [
+      {
+        "matcher": "write_to_file|replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".agy/hooks/post-tool-use.sh",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  },
+  "anti-cognitive-decay-monitor": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": ".agy/hooks/stop-monitor.sh",
+        "timeout": 10
+      }
+    ]
+  }
+}
