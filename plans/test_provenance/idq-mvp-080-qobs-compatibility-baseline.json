@@ -1,0 +1,26 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-IDQ-MVP-080-QOBS-COMPATIBILITY",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "b729a2fc03f57c90af5842735f129589a3bdae3c",
+  "test_files": [
+    {
+      "path": "tests/test_idq_mvp_080_qobs_compatibility.py",
+      "sha256": "157932694597c41e349e3a5beaed022e28eb8b0a18e1c6ee740aa7da5babb608"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "-q", "tests/test_idq_mvp_080_qobs_compatibility.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "IDQ-MVP-080 public admission, receipt, marker, and provider-adapter seams are absent at the clean pre-IDQ parent"
+    }
+  ],
+  "allowed_source_paths": ["scripts/multiagent_prompt_command.py"],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Clean test-first baseline rooted before the discarded IDQ lineage. It freezes the entire bounded exception: exactly four named one-shot read-only aliases; CLOSED ordinary activation; digest-bound receipt and canonical WorkResult; a genuine fresh QOBS v1 artifact validated before marker and injected fake subprocess; rejection of digest-only, stale, unknown, mismatched, and replayed observations before a provider boundary; exact native read-only argv and no raw-output persistence. No test authorizes a provider process, network request, account operation, retry, or fallback."
+}
