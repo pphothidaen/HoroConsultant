@@ -25,7 +25,7 @@
   "dependency_pins": {
     "dispatcher_validator": {
       "path": "scripts/multiagent_prompt_command.py",
-      "sha256": "3e2cdd02ceea571dd695dc5349b1651b6611e07d6b323078edf07ee63b650cfe"
+      "sha256": "3adef90fe4d3f38dc1624876a1f41a68dfb99693ccb7b23b5a38be9511e446ae"
     },
     "scheduler_validator": {
       "path": "scripts/multiagent_ticket_scheduler.py",
@@ -33,7 +33,7 @@
     },
     "model_policy": {
       "path": ".agents/config/multiagent_model_policy.yaml",
-      "sha256": "de43c8d5240fb23e1c83fcb2a12dd47175805595dc6f5cfc864f428be0366816"
+      "sha256": "ffe971c46c551e6c02f6f0fb32009bf880633b60ef74ee78b6f7bb92ff987d9f"
     },
     "governance_schema": {
       "path": ".agents/schemas/full-capacity-governance-v2.schema.json",

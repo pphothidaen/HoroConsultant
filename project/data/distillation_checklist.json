@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "last_updated": "2026-08-30T17:40:17.395079+00:00",
+  "last_updated": "2026-08-30T19:52:54.217352+00:00",
   "topics": {
     "bazi:b7fbdede70c5e03d": {
       "key": "bazi:b7fbdede70c5e03d",
@@ -17,7 +17,7 @@
       "has_diagram": true,
       "diagram_type": "five_elements_cycle",
       "diagram_path": "project/rag/obsidian_vault/diagrams/bazi_five_elements_cycle.png",
-      "completed_at": "2026-08-30T17:40:17.393439+00:00"
+      "completed_at": "2026-08-30T19:52:54.212538+00:00"
     },
     "bazi:e682ab99dbd3934e": {
       "key": "bazi:e682ab99dbd3934e",
@@ -34,7 +34,7 @@
       "has_diagram": true,
       "diagram_type": "hand_palm_grid",
       "diagram_path": "project/rag/obsidian_vault/diagrams/bazi_palm_12_branches.png",
-      "completed_at": "2026-08-30T17:40:17.393877+00:00"
+      "completed_at": "2026-08-30T19:52:54.213625+00:00"
     },
     "bazi:6c352293010f25a5": {
       "key": "bazi:6c352293010f25a5",
@@ -51,7 +51,7 @@
       "has_diagram": true,
       "diagram_type": "san_he_triangle",
       "diagram_path": "project/rag/obsidian_vault/diagrams/bazi_san_he_fire.png",
-      "completed_at": "2026-08-30T17:40:17.394296+00:00"
+      "completed_at": "2026-08-30T19:52:54.214714+00:00"
     },
     "bazi:11f60d6d8a4fb1f7": {
       "key": "bazi:11f60d6d8a4fb1f7",
@@ -68,7 +68,7 @@
       "has_diagram": true,
       "diagram_type": "ten_gods_matrix",
       "diagram_path": "project/rag/obsidian_vault/diagrams/bazi_ten_gods_chart.png",
-      "completed_at": "2026-08-30T17:40:17.394672+00:00"
+      "completed_at": "2026-08-30T19:52:54.216019+00:00"
     },
     "bazi:ee56eb7c64e3669f": {
       "key": "bazi:ee56eb7c64e3669f",
@@ -85,7 +85,7 @@
       "has_diagram": true,
       "diagram_type": "six_clashes_circle",
       "diagram_path": "project/rag/obsidian_vault/diagrams/bazi_six_clashes.png",
-      "completed_at": "2026-08-30T17:40:17.395066+00:00"
+      "completed_at": "2026-08-30T19:52:54.216958+00:00"
     },
     "ziwei:ef940a38efaf3395": {
       "key": "ziwei:ef940a38efaf3395",

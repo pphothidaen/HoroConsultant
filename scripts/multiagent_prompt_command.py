@@ -2005,7 +2005,7 @@ def validate_closed_dispatch_exception(
         raise ConfigurationError("execution exception QOBS context is invalid")
     qobs_policy_version = expected_qobs_context.get("policy_version")
     if (
-        qobs_policy_version not in {"2026-08-26.1", "2026-08-29.1"}
+        qobs_policy_version not in {"2026-08-26.1", "2026-08-26.2", "2026-08-29.1"}
         or qobs_policy_version != validated.policy_version
     ):
         raise ConfigurationError("execution exception QOBS context does not match route")
@@ -2535,7 +2535,7 @@ def validate_dispatch_decision(
     selected_policy_version = _required_string(
         decision.get("policy_version"), "DispatchDecision policy_version"
     )
-    if selected_policy_version != policy_version and selected_policy_version not in {"2026-08-26.1", "2026-08-29.1"}:
+    if selected_policy_version != policy_version and selected_policy_version not in {"2026-08-26.1", "2026-08-26.2", "2026-08-29.1"}:
         raise DispatchDecisionError("DispatchDecision policy_version does not match loaded model policy")
 
     rank_min = policy.get("rank_min")
@@ -6666,11 +6666,17 @@ def _canonical_blocked_result(
     provider_parse_reason: str | None = None,
     final_message_cardinality_subreason: str | None = None,
     candidate_count: int | None = None,
+    status: str = "BLOCKED",
+    reason_code: str | None = None,
 ) -> dict[str, Any]:
     """Create a safe canonical record for a failed preflight/start attempt."""
 
     if provider_parse_reason is not None and provider_parse_reason not in PROVIDER_PARSE_REASONS:
         raise ValueError("unsupported provider parse reason")
+    if status not in {"BLOCKED", "NEEDS_HITL"}:
+        raise ValueError("unsupported terminal failure status")
+    if reason_code is not None and re.fullmatch(r"[A-Z][A-Z0-9_]*", reason_code) is None:
+        raise ValueError("unsupported terminal failure reason code")
     _validate_final_message_cardinality_telemetry(
         provider_parse_reason,
         final_message_cardinality_subreason,
@@ -6689,6 +6695,8 @@ def _canonical_blocked_result(
         )
     if candidate_count is not None:
         execution_evidence["candidate_count"] = candidate_count
+    if reason_code is not None:
+        execution_evidence["reason_code"] = reason_code
     blocked = {
         "status": status,
         "alias": route.alias,

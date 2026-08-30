@@ -54,6 +54,25 @@ preauthorization:
   indefinite_tombstone: true
   raw_streams_retained: false
 
+# QuotaObservation v1 is content-free, canonical, and single-use. Runtime
+# consumers must reject stale/future/replayed or contradictory observations,
+# revalidate the exact artifact and provenance, and bind those values
+# transitively into receipt protocol v2. DispatchDecision schema v1 is
+# deliberately absent from executable_decision_schema_versions.
+quota_observation:
+  schema_version: 1
+  protocol_version: 1
+  canonicalization_version: 1
+  observation_schema: ../schemas/multiagent-quota-observation-v1.schema.json
+  artifact_schema: ../schemas/multiagent-quota-observation-artifact-v1.schema.json
+  observation_domain: horoconsultant.multiagent.quota-observation.v1
+  artifact_domain: horoconsultant.multiagent.quota-observation-artifact.v1
+  maximum_age_seconds: 60
+  future_tolerance_seconds: 5
+  threshold_percent: 10
+  executable_decision_schema_versions: []
+  receipt_protocol_version: 2
+
 # The orchestrator classifies a lane.  This catalog only validates the
 # resulting selection; it never lowers a quality floor because of quota.
 rank_dimensions:
