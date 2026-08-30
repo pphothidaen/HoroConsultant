@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shlex
 import sys
 from pathlib import Path
 from typing import Any
@@ -24,6 +25,7 @@ from adaptive_dispatch_guard import (
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 WAIVER_ID = re.compile(r"^ROOT-WAIVER-[A-Za-z0-9][A-Za-z0-9_-]{2,80}$")
+EVIDENCE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{1,127}$")
 GOVERNANCE_PREFIXES = (
     "PROJECT_TASKS.md",
     "plans/",
@@ -71,6 +73,36 @@ def is_governance_path(path: str) -> bool:
     return normalized.startswith(GOVERNANCE_PREFIXES)
 
 
+def has_named_critical_path_evidence(command: str) -> bool:
+    """Require structured unlock or bounded blocker evidence on dispatch."""
+
+    try:
+        argv = shlex.split(command)
+    except ValueError:
+        return False
+    objectives: list[str] = []
+    for index, argument in enumerate(argv):
+        if argument == "--objective" and index + 1 < len(argv):
+            objectives.append(argv[index + 1])
+        elif argument.startswith("--objective="):
+            objectives.append(argument.partition("=")[2])
+
+    def named_field(objective: str, field: str) -> bool:
+        matches = re.findall(rf"(?:^|\s){re.escape(field)}=([^\s]+)", objective)
+        return len(matches) == 1 and EVIDENCE_ID.fullmatch(matches[0]) is not None
+
+    for objective in objectives:
+        if named_field(objective, "CRITICAL_PATH_UNLOCK"):
+            return True
+        blocker = named_field(objective, "BLOCKER_EVIDENCE_ONLY")
+        read_only = re.search(
+            r"(?:^|\s)BLOCKER_EVIDENCE_MODE=READ_ONLY(?:\s|$)", objective
+        )
+        if blocker and read_only:
+            return True
+    return False
+
+
 def main() -> int:
     try:
         event = json.load(sys.stdin)
@@ -88,7 +120,11 @@ def main() -> int:
             dispatch_only = enforce_adaptive_dispatch(event)
         except Exception:
             deny("adaptive multi-agent dispatch rejected: DISPATCH_EVIDENCE_INVALID")
-        if dispatch_only or is_standalone_dispatcher_dry_run(event):
+        if dispatch_only:
+            if not has_named_critical_path_evidence(command):
+                deny("DEPENDENCY_UNLOCK_EVIDENCE_REQUIRED")
+            return 0
+        if is_standalone_dispatcher_dry_run(event):
             return 0
         if is_safe_monitoring_command(command):
             return 0

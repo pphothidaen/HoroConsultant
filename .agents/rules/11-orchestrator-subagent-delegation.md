@@ -21,6 +21,11 @@ XL`, then exact ASCII ticket ID. `Work Effort` is delivery size, not model
 reasoning effort; model selection never changes the order. Historical
 `Priority` is evidence only. Do not preempt `DOING` work.
 
+## Critical Path First
+Policy marker `GOV_CRITICAL_PATH_FIRST_V1` requires every implementation, QA, or operations lane to declare `CRITICAL_PATH_UNLOCK=<dependency-or-gate-id>`; `SPECULATIVE_ATOMIC_TICKET=DENY`.
+Only a bounded blocker-resolution lane may substitute both `BLOCKER_EVIDENCE_ONLY=<named-blocker-id>` and `BLOCKER_EVIDENCE_MODE=READ_ONLY`; it must not mutate source or external state.
+After each completion or block, recompute Rule 11 and backfill only the next eligible dependency-unlocking lane. Quota, HITL, ownership, baseline, and release gates still apply; static markers never prove provider execution.
+
 ## Maximum Useful Parallelism
 
 Use available concurrency whenever there are useful, independent,

@@ -52,6 +52,32 @@ preempted. Work Effort is delivery size, not model reasoning effort; model
 selection never changes scheduling order. Historical `Priority`-only text is
 superseded for scheduling and remains evidence only.
 
+## Critical-Path-First Admission
+
+Apply policy `GOV_CRITICAL_PATH_FIRST_V1` before reserving any executable lane.
+Every implementation, QA, or operations objective must identify the named
+dependency or acceptance gate it unlocks on the current critical path with:
+
+```text
+CRITICAL_PATH_UNLOCK=<dependency-or-gate-id>
+SPECULATIVE_ATOMIC_TICKET=DENY
+```
+
+Do not create a new atomic ticket merely to consume capacity. A bounded
+read-only evidence lane is the only exception, and only when it resolves a
+named blocker. Its objective must declare both fields:
+
+```text
+BLOCKER_EVIDENCE_ONLY=<named-blocker-id>
+BLOCKER_EVIDENCE_MODE=READ_ONLY
+```
+
+After every lane completes or blocks, recompute Rule 11 and backfill only the
+next eligible lane that unlocks a current critical-path dependency. Preserve
+quota, HITL, ownership, immutable test-baseline, and release gates. These
+markers prove static admission readiness only; provider execution still needs
+the bound receipt and child result.
+
 ## Maximum Useful Parallelism
 
 At every checkpoint, use available concurrency for useful independent,
