@@ -11,6 +11,21 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 GUARD = ROOT / "scripts" / "test_provenance_guard.py"
 REVIEWER = ROOT / "project" / "core" / "code_reviewer.py"
+REPORT_SCHEMA = "test-provenance-report-v2"
+VERIFY_PR_RECEIPT_KEYS = {
+    "schema_version",
+    "command",
+    "status",
+    "requested_base",
+    "base_commit",
+    "requested_head",
+    "head_commit",
+    "ticket_id",
+    "baseline_commit",
+    "test_files_verified",
+    "issues",
+    "notes",
+}
 
 
 def _run(*args: str, cwd: Path, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -173,6 +188,62 @@ def test_valid_test_first_history_passes(tmp_path: Path) -> None:
     assert report["status"] == "PASSED"
     assert report["baseline_commit"] == baseline
     assert report["test_files_verified"] == 1
+
+
+def test_verify_pr_v2_receipt_binds_requested_and_resolved_base_and_head(
+    tmp_path: Path,
+) -> None:
+    repo = _init_repo(tmp_path)
+    base = _git(repo, "rev-parse", "HEAD").stdout.strip()
+    _git(repo, "update-ref", "refs/remotes/origin/main", base)
+    _manifest, baseline = _make_baseline(repo)
+    head = _commit_source(repo, baseline)
+
+    result = _run(
+        sys.executable,
+        str(GUARD),
+        "verify-pr",
+        "--repo",
+        str(repo),
+        "--base",
+        "origin/main",
+        "--head",
+        "HEAD",
+        cwd=repo,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    report = json.loads(result.stdout)
+    assert set(report) == VERIFY_PR_RECEIPT_KEYS
+    assert report["schema_version"] == REPORT_SCHEMA
+    assert report["command"] == "verify-pr"
+    assert report["requested_base"] == "origin/main"
+    assert report["base_commit"] == base
+    assert report["requested_head"] == "HEAD"
+    assert report["head_commit"] == head
+    assert report["status"] == "PASSED"
+    assert report["ticket_id"] == "TICKET-PROV-001"
+    assert report["baseline_commit"] == baseline
+    for field in (
+        "schema_version",
+        "command",
+        "status",
+        "requested_base",
+        "base_commit",
+        "requested_head",
+        "head_commit",
+        "ticket_id",
+        "baseline_commit",
+    ):
+        assert isinstance(report[field], str)
+        assert report[field]
+    assert isinstance(report["test_files_verified"], int)
+    assert not isinstance(report["test_files_verified"], bool)
+    assert isinstance(report["issues"], list)
+    assert all(isinstance(issue, dict) for issue in report["issues"])
+    assert isinstance(report["notes"], list)
+    assert all(isinstance(note, str) for note in report["notes"])
 
 
 def test_mixed_test_and_source_baseline_is_rejected(tmp_path: Path) -> None:

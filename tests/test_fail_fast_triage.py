@@ -100,6 +100,38 @@ def _write_candidate(root: Path, identity: dict[str, str]) -> None:
     target.write_text(json.dumps(identity), encoding="utf-8")
 
 
+def _git(repo: Path, *args: str) -> str:
+    completed = subprocess.run(
+        ["git", *args],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="strict",
+        timeout=5,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr
+    return completed.stdout.strip()
+
+
+def _release_repo(root: Path) -> dict[str, str]:
+    """Create a candidate whose declared source is genuine Git ancestry."""
+    root.mkdir(parents=True, exist_ok=True)
+    _git(root, "init", "-q")
+    _git(root, "config", "user.name", "Lesson 20 QA")
+    _git(root, "config", "user.email", "lesson20-qa@example.invalid")
+    (root / "seed.txt").write_text("seed\n", encoding="utf-8")
+    _git(root, "add", "seed.txt")
+    _git(root, "commit", "-q", "-m", "seed")
+    source_revision = _git(root, "rev-parse", "HEAD")
+    identity = _release_identity(source_revision)
+    _write_candidate(root, identity)
+    _git(root, "add", "project/static/version.json")
+    _git(root, "commit", "-q", "-m", "package candidate")
+    return identity
+
+
 class _Response:
     def __init__(self, payload: object, status: int = 200) -> None:
         self.status = status
@@ -446,9 +478,8 @@ def test_http_200_with_stale_ui_identity_fails_closed(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    expected = _release_identity("abc1234")
+    expected = _release_repo(tmp_path)
     stale = _release_identity("def5678")
-    _write_candidate(tmp_path, expected)
     monkeypatch.setattr(triage, "ROOT", tmp_path)
     monkeypatch.setattr(
         triage.urllib.request,
@@ -465,8 +496,7 @@ def test_http_200_with_wrong_backend_version_fails_closed(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    expected = _release_identity("abc1234")
-    _write_candidate(tmp_path, expected)
+    expected = _release_repo(tmp_path)
     monkeypatch.setattr(triage, "ROOT", tmp_path)
     monkeypatch.setattr(
         triage.urllib.request,
@@ -487,8 +517,7 @@ def test_matching_deployed_identity_and_health_pass(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    expected = _release_identity("abc1234")
-    _write_candidate(tmp_path, expected)
+    expected = _release_repo(tmp_path)
     monkeypatch.setattr(triage, "ROOT", tmp_path)
     monkeypatch.setattr(
         triage.urllib.request,
