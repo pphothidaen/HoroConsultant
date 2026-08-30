@@ -39,6 +39,15 @@ field means `NEEDS_HITL`; prior broad approval is not a standing waiver.
 Apply Rule 18 before executable dispatch: bind the versioned `DispatchDecision`
 digest and policy version to the receipt. Quota cannot silently lower its floor.
 
+### QOBS local-observation boundary
+
+`TICKET-ALIAS-RC2-004-QOBS-01` may collect and validate a content-free local
+QuotaObservation only through its isolated source lanes. A schema-valid local
+artifact, a DispatchDecision, or a Rule 11 snapshot is planning evidence, not
+provider or alias execution proof. Provider/alias, network, secret, account,
+sync, push, deploy, publish, and release actions require separate authority and
+remain excluded from the QOBS recovery lane.
+
 Every child prompt names objective, one-editor ownership, boundaries, expected
 evidence, stop condition, and the non-reversion warning. Require: `Status`,
 `Scope owned`, `Evidence`, `Findings`, `Changed files`, `Residual risk`, and

@@ -24,6 +24,11 @@ For an executable lane, additionally require the Rule 18 versioned
 `DispatchDecision`, decision digest, policy version, semantic ranks, quality
 floor, and root-medium state. Quota may not silently reduce that floor.
 
+For `TICKET-ALIAS-RC2-004-QOBS-01`, a local content-free QuotaObservation is
+planning evidence only. It never proves provider or alias execution, and the
+QOBS lane excludes provider/alias, network, secret, account, sync, push,
+deploy, publish, and release actions unless separately authorized.
+
 ## Root/current-session restriction
 
 The root/current session is an orchestrator-only control plane. It may

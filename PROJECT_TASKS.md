@@ -1449,10 +1449,10 @@ Git review pass. QOBS completion still does not authorize four-alias execution.
 |---|---|---|---|---|---|
 | `QOBS-01-TEST-BASELINE` | `qa_tester` | CRITICAL / S | DONE — TEST_BASELINE_VERIFIED | new `tests/test_quota_observation_contract.py`; new `tests/test_quota_observation_integration.py`; new `plans/test_provenance/ticket-alias-rc2-004-qobs-01.json` only | owner confirmation + this grill |
 | `QOBS-01-CONTRACT` | `developer` | CRITICAL / S | DONE — FROZEN (`1515380b436fe4d676766a62bd4de4ce1db22126`) | `.agents/schemas/multiagent-quota-observation-v1.schema.json`; `.agents/schemas/multiagent-quota-observation-artifact-v1.schema.json`; `.agents/config/multiagent_model_policy.yaml` only | TEST-BASELINE committed and verified |
-| `QOBS-01-PROBE` | `developer` | CRITICAL / S | READY | `scripts/agent_quota_status_guard.py` only | CONTRACT frozen |
-| `QOBS-01-DISPATCH` | `developer` | CRITICAL / M | GATED | `scripts/multiagent_prompt_command.py` only | CONTRACT + PROBE frozen |
-| `QOBS-01-SCHEDULER` | `developer` | CRITICAL / S | GATED | `scripts/multiagent_ticket_scheduler.py` only | CONTRACT + DISPATCH frozen |
-| `QOBS-01-QA-GOVERNANCE-SYNC` | `business_analyst` mutation editor; `qa_tester` and `code_reviewer` read-only verifiers | CRITICAL / M | GATED | authoritative `.agents/rules/17-multi-account-agent-orchestration.md`; `.agents/rules/18-adaptive-model-effort-routing.md`; `.agents/skills/multi-account-agent-orchestration/SKILL.md`; `.agents/skills/adaptive-model-effort-routing/SKILL.md`; `docs/templates/MULTIAGENT_PROMPT_COMMAND.md`; generated ecosystem mirrors only through the sync script; frozen tests are read-only | all source lanes frozen |
+| `QOBS-01-PROBE` | `developer` | CRITICAL / S | DONE — FROZEN (`4670fc40dda88bc1dbc12c582eb99dc21133479d`) | `scripts/agent_quota_status_guard.py` only | CONTRACT frozen; focused/provenance evidence passed |
+| `QOBS-01-DISPATCH` | `developer` | CRITICAL / M | DONE — FROZEN (`943bdd869b492a080493e669bdfdacf866c5e664`) | `scripts/multiagent_prompt_command.py` only | CONTRACT + PROBE frozen |
+| `QOBS-01-SCHEDULER` | `developer` | CRITICAL / S | DONE — FROZEN (`943bdd869b492a080493e669bdfdacf866c5e664`) | `scripts/multiagent_ticket_scheduler.py` only | CONTRACT + DISPATCH frozen |
+| `QOBS-01-QA-GOVERNANCE-SYNC` | `business_analyst` mutation editor; `qa_tester` and `code_reviewer` read-only verifiers | CRITICAL / M | DOING — FINAL LOCAL VALIDATION | authoritative `.agents/rules/17-multi-account-agent-orchestration.md`; `.agents/rules/18-adaptive-model-effort-routing.md`; `.agents/skills/multi-account-agent-orchestration/SKILL.md`; `.agents/skills/adaptive-model-effort-routing/SKILL.md`; `docs/templates/MULTIAGENT_PROMPT_COMMAND.md`; generated ecosystem mirrors only through the sync script; frozen tests are read-only | all source lanes frozen |
 
 **Recovery checkpoint (2026-08-30) -- planning authorization only**: the user
 explicitly authorized a history-preserving recovery branch for this isolated
@@ -1474,9 +1474,19 @@ planning-to-medium is confirmed. HITL is approved by this user's explicit
 recovery-branch authorization. This snapshot authorizes recovery planning and
 the isolated local mutation lane only; it is not provider-execution proof.
 
-**Recovery exclusions**: provider/alias, network, secret, account, sync, push,
-deploy, publish, and release actions are excluded. No JSON decision or snapshot
+**Recovery exclusions**: provider/alias, network, secret, account, push,
+deploy, publish, and release actions are excluded. The final governance lane may
+run only the mandatory local ecosystem sync/check; no JSON decision or snapshot
 artifact is created by this checkpoint.
+
+**Recovery completion evidence (2026-08-30)**: the isolated replay reached
+`4670fc40dda88bc1dbc12c582eb99dc21133479d`. Focused QOBS tests passed
+`67`; the provenance verifier returned `PASSED` against baseline
+`9847234f3f2537d0b65ecb1fc9afca87ceb517a2` with two frozen tests verified.
+This records only local source and verification evidence. It does not permit or
+prove a provider/alias, network, account, secret, push, deploy, publish, or
+release action. The final lane's local ecosystem sync/check remains a separate
+governance requirement, not execution proof.
 
 **Single-use root waiver (2026-08-30 Asia/Bangkok)**: The user's `approve`
 reply authorizes the root only to stage and create the immediately following

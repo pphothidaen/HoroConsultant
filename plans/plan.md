@@ -1569,6 +1569,22 @@ user's explicit recovery-branch authorization. This is planning authorization
 only, not provider-execution proof. No JSON decision or snapshot artifact is
 created or reusable from this checkpoint.
 
+### QOBS isolated recovery completion checkpoint -- 2026-08-30
+
+The isolated replay reached
+`4670fc40dda88bc1dbc12c582eb99dc21133479d`. The focused QOBS suites passed
+`67`, and the provenance verifier returned `PASSED` against baseline
+`9847234f3f2537d0b65ecb1fc9afca87ceb517a2` with two frozen tests verified.
+`QOBS-01-PROBE` is frozen at that commit; the dispatcher and scheduler source
+lanes remain frozen at `943bdd869b492a080493e669bdfdacf866c5e664`.
+
+The active final lane is QOBS QA/GOVERNANCE+SYNC: it updates only the
+authoritative governance rule/skill/template records and its generated mirrors
+through the mandatory local sync tool. This remains local-only planning and
+verification work. It does not authorize or prove provider/alias, network,
+secret, account, push, deploy, publish, or release execution; frozen tests,
+manifest, schemas, policy, and source scripts remain read-only.
+
 **Single-use root waiver (2026-08-30 Asia/Bangkok)**: The user's `approve`
 reply authorizes the root only to stage and create the immediately following
 local governance commit for these exact two files after delegated governance

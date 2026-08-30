@@ -42,6 +42,9 @@ not replace the policy validator, dispatch receipt, quota guard, or HITL.
 - A rendered route, alias, model label, config, or dry-run is intent only.
   Effective runtime proof requires the bound provider/subprocess receipt and
   child result.
+- For `TICKET-ALIAS-RC2-004-QOBS-01`, a local-native QOBS v1 band is planning
+  input only and remains non-executable for provider dispatch. Require fresh
+  authorization and bound execution evidence before a provider or alias action.
 
 ## Provider catalog discipline
 
