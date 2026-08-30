@@ -5,6 +5,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import time
@@ -170,6 +171,50 @@ def _assert_native_mapping(output: dict[str, Any], case: dict[str, Any]) -> None
         assert marker.casefold() in joined, case["id"]
 
 
+def _invoke_registered_wrapper(
+    runtime: str,
+    wrapper: Path,
+    payload: dict[str, Any],
+    *,
+    state_path: Path | None,
+    cwd: Path,
+    timeout: float = 5,
+) -> subprocess.CompletedProcess[str]:
+    assert ENTRYPOINT.is_file(), "CONTEXT_HANDOFF_ENTRYPOINT_MISSING"
+    assert wrapper.is_file()
+    safe_env = {
+        "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
+        "PYTHONUTF8": "1",
+    }
+    state_before: bytes | None = None
+    if state_path is not None:
+        safe_env[NORMALIZED_STATE_CHANNEL["path_environment"]] = str(state_path)
+        state_mode = state_path.lstat().st_mode
+        if stat.S_ISREG(state_mode):
+            state_before = state_path.read_bytes()
+    if runtime == "claude":
+        settings = _load_json(CLAUDE_SETTINGS)
+        command = settings["hooks"]["Stop"][0]["hooks"][0]["command"]
+        safe_env["CLAUDE_PROJECT_DIR"] = str(ROOT)
+    else:
+        settings = _load_json(AGY_SETTINGS)
+        command = settings["hooks"]["AfterAgent"][0]["hooks"][0]["command"]
+    result = subprocess.run(
+        ["bash", "-c", command],
+        cwd=cwd,
+        input=json.dumps(payload, separators=(",", ":")),
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=timeout,
+        env=safe_env,
+    )
+    if state_before is not None:
+        assert state_path is not None
+        assert state_path.read_bytes() == state_before
+    return result
+
+
 def _run_registered_wrapper(
     runtime: str,
     wrapper: Path,
@@ -179,33 +224,16 @@ def _run_registered_wrapper(
     state_path: Path,
     cwd: Path,
 ) -> subprocess.CompletedProcess[str]:
-    assert ENTRYPOINT.is_file(), "CONTEXT_HANDOFF_ENTRYPOINT_MISSING"
-    assert wrapper.is_file()
     state_path.write_text(
         json.dumps(normalized_state, separators=(",", ":")),
         encoding="utf-8",
     )
-    safe_env = {
-        "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
-        "PYTHONUTF8": "1",
-        NORMALIZED_STATE_CHANNEL["path_environment"]: str(state_path),
-    }
-    if runtime == "claude":
-        settings = _load_json(CLAUDE_SETTINGS)
-        command = settings["hooks"]["Stop"][0]["hooks"][0]["command"]
-        safe_env["CLAUDE_PROJECT_DIR"] = str(ROOT)
-    else:
-        settings = _load_json(AGY_SETTINGS)
-        command = settings["hooks"]["AfterAgent"][0]["hooks"][0]["command"]
-    return subprocess.run(
-        ["bash", "-c", command],
+    return _invoke_registered_wrapper(
+        runtime,
+        wrapper,
+        payload,
+        state_path=state_path,
         cwd=cwd,
-        input=json.dumps(payload, separators=(",", ":")),
-        capture_output=True,
-        text=True,
-        check=False,
-        timeout=5,
-        env=safe_env,
     )
 
 
@@ -221,6 +249,22 @@ def _string_leaves(value: Any) -> list[str]:
 
 def _optional_bytes(path: Path) -> bytes | None:
     return path.read_bytes() if path.exists() else None
+
+
+def _artifact_snapshot(root: Path) -> dict[str, tuple[str, bytes | int]]:
+    snapshot: dict[str, tuple[str, bytes | int]] = {}
+    for path in sorted(root.rglob("*")):
+        relative = path.relative_to(root).as_posix()
+        mode = path.lstat().st_mode
+        if stat.S_ISDIR(mode):
+            snapshot[relative] = ("directory", mode)
+        elif stat.S_ISREG(mode):
+            snapshot[relative] = ("file", path.read_bytes())
+        elif stat.S_ISLNK(mode):
+            snapshot[relative] = ("symlink", os.readlink(path).encode())
+        else:
+            snapshot[relative] = ("special", mode)
+    return snapshot
 
 
 def _parse_json_output(result: subprocess.CompletedProcess[str], case_id: str) -> dict[str, Any]:
@@ -625,6 +669,12 @@ def test_stop_adapters_match_native_fixtures_and_prevent_recursion(
     handoff = ROOT / "HANDOFF.md"
     handoff_before = _optional_bytes(handoff)
     status_before = _status_bytes()
+    state_limit = fixture["normalized_state_channel"]["max_bytes"]
+    assert state_limit == 65536
+    intentional_state_sources: set[Path] = set()
+    private_canaries: set[str] = set()
+    captured_results: list[subprocess.CompletedProcess[str]] = []
+    case_results: dict[str, subprocess.CompletedProcess[str]] = {}
     for case in fixture["cases"]:
         assert set(case["input"]) == exact_wire_keys
         assert case["input"]["hook_event_name"] == fixture["wire_event"]
@@ -637,6 +687,7 @@ def test_stop_adapters_match_native_fixtures_and_prevent_recursion(
             "lanes",
         }
         state_path = tmp_path / f"{runtime}-{case['id']}-normalized-state.json"
+        intentional_state_sources.add(state_path)
         result = _run_registered_wrapper(
             runtime,
             wrapper,
@@ -645,16 +696,19 @@ def test_stop_adapters_match_native_fixtures_and_prevent_recursion(
             state_path=state_path,
             cwd=nested_cwd,
         )
+        captured_results.append(result)
+        case_results[case["id"]] = result
         output = _parse_json_output(result, case["id"])
         _assert_native_mapping(output, case)
         assert len((result.stdout + result.stderr).encode("utf-8")) <= 16 * 1024
         persisted = _optional_bytes(handoff) or b""
         emitted_or_persisted = result.stdout.encode() + result.stderr.encode() + persisted
-        private_canaries = [
+        case_private_canaries = {
             value for value in _string_leaves(case["input"]) if "canary" in value
-        ]
-        assert private_canaries, case["id"]
-        for value in private_canaries:
+        }
+        assert case_private_canaries, case["id"]
+        private_canaries.update(case_private_canaries)
+        for value in case_private_canaries:
             assert value.encode() not in emitted_or_persisted, f"{case['id']} leaked native input"
         assert str(state_path).encode() not in emitted_or_persisted
 
@@ -672,9 +726,167 @@ def test_stop_adapters_match_native_fixtures_and_prevent_recursion(
                 state_path=state_path,
                 cwd=nested_cwd,
             )
+            captured_results.append(ignored_result)
             assert ignored_result.returncode == result.returncode
             assert ignored_result.stdout == result.stdout
             assert ignored_result.stderr == result.stderr
+
+    warning_case = next(
+        case for case in fixture["cases"] if not case["input"]["stop_hook_active"]
+    )
+    empty_state = {"usage": {}, "last_notified_level": "NORMAL", "lanes": []}
+    explicit_empty_path = tmp_path / f"{runtime}-explicit-empty-state.json"
+    intentional_state_sources.add(explicit_empty_path)
+    explicit_empty_result = _run_registered_wrapper(
+        runtime,
+        wrapper,
+        warning_case["input"],
+        empty_state,
+        state_path=explicit_empty_path,
+        cwd=nested_cwd,
+    )
+    captured_results.append(explicit_empty_result)
+    _parse_json_output(explicit_empty_result, f"{runtime}-explicit-empty-state")
+
+    unset_state_path = tmp_path / f"{runtime}-unset-state-must-not-exist.json"
+    assert not unset_state_path.exists()
+    unset_artifacts_before = _artifact_snapshot(tmp_path)
+    unset_result = _invoke_registered_wrapper(
+        runtime,
+        wrapper,
+        warning_case["input"],
+        state_path=None,
+        cwd=nested_cwd,
+    )
+    captured_results.append(unset_result)
+    _parse_json_output(unset_result, f"{runtime}-unset-state")
+    assert unset_result.stdout == explicit_empty_result.stdout
+    assert unset_result.stderr == explicit_empty_result.stderr
+    assert _artifact_snapshot(tmp_path) == unset_artifacts_before
+    assert not unset_state_path.exists()
+
+    compact_state = json.dumps(
+        warning_case["normalized_state"], separators=(",", ":")
+    ).encode("utf-8")
+    assert len(compact_state) < state_limit
+    bounded_state = compact_state + (b" " * (state_limit - len(compact_state)))
+    assert len(bounded_state) == state_limit
+    bounded_path = tmp_path / f"{runtime}-state-exactly-65536.json"
+    bounded_path.write_bytes(bounded_state)
+    intentional_state_sources.add(bounded_path)
+    bounded_result = _invoke_registered_wrapper(
+        runtime,
+        wrapper,
+        warning_case["input"],
+        state_path=bounded_path,
+        cwd=nested_cwd,
+    )
+    captured_results.append(bounded_result)
+    assert bounded_path.read_bytes() == bounded_state
+    assert bounded_result.returncode == 0, bounded_result.stderr
+    assert bounded_result.stdout == case_results[warning_case["id"]].stdout
+    assert bounded_result.stderr == case_results[warning_case["id"]].stderr
+
+    oversize_canary = "oversize-json-parse-canary"
+    oversize_tail = f"{oversize_canary}!".encode("ascii")
+    oversized_state = (
+        bounded_state[: state_limit + 1 - len(oversize_tail)] + oversize_tail
+    )
+    assert len(oversized_state) == state_limit + 1
+    oversize_path = tmp_path / f"{runtime}-state-65537-invalid-after-limit.json"
+    oversize_path.write_bytes(oversized_state)
+    intentional_state_sources.add(oversize_path)
+    oversize_result = _invoke_registered_wrapper(
+        runtime,
+        wrapper,
+        warning_case["input"],
+        state_path=oversize_path,
+        cwd=nested_cwd,
+    )
+    captured_results.append(oversize_result)
+    private_canaries.add(oversize_canary)
+    assert oversize_result.returncode == 2
+    assert oversize_result.stdout == ""
+    assert "NORMALIZED_STATE_TOO_LARGE" in oversize_result.stderr
+    assert "NORMALIZED_STATE_INVALID" not in oversize_result.stderr
+    assert oversize_canary not in oversize_result.stderr
+    assert str(oversize_path) not in oversize_result.stderr
+
+    symlink_canary = f"{runtime}-symlink-state-sensitive-canary"
+    symlink_target = tmp_path / f"{runtime}-symlink-target.json"
+    symlink_target_bytes = json.dumps(
+        {"symlink_probe": symlink_canary}, separators=(",", ":")
+    ).encode("utf-8")
+    symlink_target.write_bytes(symlink_target_bytes)
+    symlink_path = tmp_path / f"{runtime}-state-symlink.json"
+    symlink_path.symlink_to(symlink_target.name)
+    intentional_state_sources.update({symlink_target, symlink_path})
+    symlink_result = _invoke_registered_wrapper(
+        runtime,
+        wrapper,
+        warning_case["input"],
+        state_path=symlink_path,
+        cwd=nested_cwd,
+        timeout=2,
+    )
+    captured_results.append(symlink_result)
+    private_canaries.add(symlink_canary)
+    assert symlink_result.returncode == 2
+    assert symlink_result.stdout == ""
+    assert "NORMALIZED_STATE_FILE_UNSAFE" in symlink_result.stderr
+    assert symlink_canary not in symlink_result.stderr
+    assert str(symlink_path) not in symlink_result.stderr
+    assert symlink_path.is_symlink()
+    assert symlink_target.read_bytes() == symlink_target_bytes
+
+    fifo_path = tmp_path / f"{runtime}-state.fifo"
+    os.mkfifo(fifo_path)
+    intentional_state_sources.add(fifo_path)
+    fifo_result = _invoke_registered_wrapper(
+        runtime,
+        wrapper,
+        warning_case["input"],
+        state_path=fifo_path,
+        cwd=nested_cwd,
+        timeout=2,
+    )
+    captured_results.append(fifo_result)
+    assert fifo_result.returncode == 2
+    assert fifo_result.stdout == ""
+    assert "NORMALIZED_STATE_FILE_UNSAFE" in fifo_result.stderr
+    assert str(fifo_path) not in fifo_result.stderr
+    assert stat.S_ISFIFO(fifo_path.lstat().st_mode)
+
+    device_path = Path(os.devnull)
+    device_result = _invoke_registered_wrapper(
+        runtime,
+        wrapper,
+        warning_case["input"],
+        state_path=device_path,
+        cwd=nested_cwd,
+        timeout=2,
+    )
+    captured_results.append(device_result)
+    assert device_result.returncode == 2
+    assert device_result.stdout == ""
+    assert "NORMALIZED_STATE_FILE_UNSAFE" in device_result.stderr
+    assert str(device_path) not in device_result.stderr
+
+    combined_output = "".join(
+        result.stdout + result.stderr for result in captured_results
+    ).encode("utf-8") + (_optional_bytes(handoff) or b"")
+    for result in captured_results:
+        assert len((result.stdout + result.stderr).encode("utf-8")) <= 16 * 1024
+    for canary in private_canaries:
+        assert canary.encode() not in combined_output
+    for artifact in tmp_path.rglob("*"):
+        mode = artifact.lstat().st_mode
+        if stat.S_ISDIR(mode) or artifact in intentional_state_sources:
+            continue
+        assert stat.S_ISREG(mode), f"unexpected non-regular artifact: {artifact.name}"
+        artifact_bytes = artifact.read_bytes()
+        for canary in private_canaries:
+            assert canary.encode() not in artifact_bytes
 
     assert _optional_bytes(handoff) == handoff_before
     assert _status_bytes() == status_before
