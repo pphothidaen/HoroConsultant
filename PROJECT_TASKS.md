@@ -1,3 +1,68 @@
+<!-- IDQ-AUTH02-OPERATIONAL-GOVERNANCE-20260830:START -->
+## Current IDQ operational correction and `AUTH-02` approval intent
+
+**Recorded**: `2026-08-30` (Asia/Bangkok). **Gate**: `APPROVED` for this
+planning/governance checkpoint only. This block is the canonical current IDQ
+status. Older IDQ and release blocks below are retained as historical evidence;
+their old test, deployment, or production claims are not current verification.
+
+**Authority boundary**: the owner authorized `AUTH-02` approval intent for a
+future bounded four-alias proof. Predecessor `IDQ-MVP-080-AUTH-01` is
+`SEALED / EXPIRED` and cannot be replayed. No active TTL, nonce, risk lease, or
+dispatch lease exists under `AUTH-02`; those values may be created only during
+the final fresh preflight after every predecessor gate is green.
+
+### Current evidence correction
+
+- `IDQ-MVP-000-GOV` remains `DONE` as historical governance only.
+- `IDQ-MVP-010-BASELINE`: `0e1941528c0c8f49ef50a14fd046db2163d33379`
+  is the verified release-cycle baseline in current ancestry. Commit
+  `0946bdec65173edacbaf4044b4198d55136c33ca` is a separately retained
+  reconstructed five-path baseline and is `NON_TDD_RECONSTRUCTED`; it is not a
+  substitute for, or proof of, the verified baseline.
+- `IDQ-MVP-020-STORE` has a local contract in current ancestry, but fresh QA
+  against the intended operational path is pending. No current production or
+  provider-readiness claim follows from local source presence.
+- `IDQ-MVP-030-DISPATCHER` through `IDQ-MVP-060-INTEGRATION` are reopened and
+  blocked until a real executor/daemon route, including the cross-runtime
+  handoff path, is implemented and evidenced.
+- `IDQ-MVP-070-QA` is reopened. Earlier pass counts are historical and cannot
+  satisfy the required fresh deterministic and operational QA gates.
+- `IDQ-MVP-080-FOUR-ALIAS` is blocked pending the real path, fresh QA, an
+  effective enforced read-only runtime, and a fresh activation/preflight.
+- `IDQ-MVP-090-SEAL-GOV` remains blocked until all four terminal outcomes are
+  valid and the temporary activation is sealed.
+
+### Canonical operational ticket graph
+
+| ID | Severity / Effort | One owner | Status | Dependencies | Exact scope and acceptance | Stop condition / exclusions |
+|---|---|---|---|---|---|---|
+| `IDQ-OP-000-GOV` | HIGH / S | `business_analyst` | DONE | owner authorization | only `PROJECT_TASKS.md` and `plans/plan.md`; current truth, graph, authorization boundary, and diff checks recorded | stop on overlap or evidence conflict; no source/tests/config/provider/release action |
+| `IDQ-OP-010-BASELINE` | CRITICAL / S | `qa_tester` | DONE — VERIFIED | `IDQ-OP-000-GOV` | use verified baseline `0e1941528c0c8f49ef50a14fd046db2163d33379`; retain `0946bde` only as reconstructed history | stop on ancestry/hash/provenance drift; no baseline relabeling |
+| `IDQ-OP-020-EXECUTOR` | CRITICAL / M | `developer` | BLOCKED | `IDQ-OP-010-BASELINE` | implement the real bounded executor/daemon route and explicit cross-runtime handoff with no alias fallback | stop on mutation-capable provider work, secret/raw-stream handling, ownership overlap, or missing baseline |
+| `IDQ-OP-030-QA` | CRITICAL / M | `qa_tester` | BLOCKED | `IDQ-OP-020-EXECUTOR` | fresh deterministic queue, lifecycle, cross-runtime handoff, receipt-integrity, and read-only-boundary evidence is green | any stale, missing, ambiguous, or failing result stops descendants |
+| `IDQ-OP-040-AUTH02-GOV` | CRITICAL / XS | `business_analyst` | INTENT RECORDED — HOLD | `IDQ-OP-030-QA` | convert owner approval intent into a bounded activation only after QA is fresh; keep `AUTH-01` sealed | no TTL, nonce, or lease before final preflight; no inherited/replayed authority |
+| `IDQ-OP-050-PREFLIGHT` | CRITICAL / S | `orchestrator` | BLOCKED | `IDQ-OP-030-QA`, `IDQ-OP-040-AUTH02-GOV` | prove the real executor path, effective read-only isolation, safe fresh quota, alias/executable identity, fresh decision/snapshot, then atomically issue and bind single-use TTL/nonce/lease | any stale/unknown/contradictory binding, auth/billing need, or secret exposure stops before process creation |
+| `IDQ-OP-060-FOUR-ALIAS` | CRITICAL / M | `qa_tester` | BLOCKED | `IDQ-OP-050-PREFLIGHT` | exactly `codex1`, `codex2`, `agy1`, and `agy2`; one distinct read-only provider proof each with fresh validated receipt and typed result | no retry, fallback, substitution, fabricated receipt, raw stream, mutation, push, deploy, or publish |
+| `IDQ-OP-090-SEAL` | HIGH / S | `business_analyst` | BLOCKED | `IDQ-OP-060-FOUR-ALIAS` | record four valid terminal outcomes, seal all temporary authority, and reconcile current docs without a release claim | absent/invalid outcome or unsealed authority keeps the ticket blocked |
+
+**Integrity and scope lock**: all provider proof is read-only and must preserve
+secret safety, raw-stream non-retention, independent receipt/`WorkResult`
+validation, exact alias/ticket/attempt bindings, and honest AGY language
+(`validated in-process only`). Cross-runtime handoff is now in scope only as a
+bounded executor/daemon feature and QA contract; multi-host authority,
+credentials, billing, push, deploy, publish, production cutover, and fabricated
+or reconstructed provider evidence remain out of scope.
+
+**DispatchDecision evidence label**: `IDQ-OP-000-GOV-20260830`; phase
+`planning/governance`; ranks `scope=2`, `complexity=2`, `risk=2`,
+`ambiguity=1`, `evidence=2`; floor `gpt-5.6-terra/high`; selected quality
+override `native-bsa / gpt-5.6-sol / ultra`; quota `unknown` with bounded native
+mutation; policy `2026-08-29.1`; root-medium confirmed; HITL approved; digest
+pending native runtime; status `READY_TO_VALIDATE`. This is routing intent,
+not provider execution proof.
+<!-- IDQ-AUTH02-OPERATIONAL-GOVERNANCE-20260830:END -->
+
 <!-- RELEASE-VERIFIED-20260830-000-GOV:START -->
 ## Verified-only production release program - RELEASE-VERIFIED-20260830-000-GOV
 Gate: APPROVED. Scope: active/releasable tickets only. Historical, superseded, and future-roadmap work is ARCHIVED or DEFERRED by evidence, never falsely DONE.
@@ -166,7 +231,9 @@ Explicit blockers and exclusions: `.agents/config/multiagent_prompt_command.exam
 <!-- IDQ-MVP-BOARD-20260828:START -->
 ## Sprint IDQ-MVP — Independent Roots + Durable Queue Local MVP
 
-**Gate**: `APPROVED` in `plans/plan.md`; local SQLite single-host MVP only.
+**Historical gate**: `APPROVED` in `plans/plan.md`; local SQLite single-host MVP
+only. Current ticket classifications are corrected below and summarized in the
+canonical `2026-08-30` operational block at the top of this file.
 **DispatchDecision**: `v1`, ticket `IDQ-MVP-GOV-001`, planning ranks
 `3/3/3/1/3`, `gpt-5.6-sol/xhigh`, policy `current`, root-medium confirmed,
 HITL approved by the user's delegate instruction.
@@ -177,20 +244,22 @@ explicit, risk-recorded, read-only, ephemeral, sealable, and never healthy.
 
 | Ticket | Severity | Work Effort | One editor/executor | Status | Dependencies |
 |---|---|---|---|---|---|
-| `IDQ-MVP-000-GOV` | CRITICAL | XS | `business_analyst` | DONE | None |
-| `IDQ-MVP-010-BASELINE` | CRITICAL | M | `qa_tester` | DONE | `IDQ-MVP-000-GOV` |
-| `IDQ-MVP-020-STORE` | CRITICAL | L | `developer` (store lane) | DONE | `IDQ-MVP-010-BASELINE` |
-| `IDQ-MVP-030-DISPATCHER` | CRITICAL | M | `developer` (dispatcher lane) | DONE | `IDQ-MVP-010-BASELINE` |
-| `IDQ-MVP-040-WORKER` | CRITICAL | L | `developer` (worker lane) | DONE | `IDQ-MVP-020-STORE`, `IDQ-MVP-030-DISPATCHER` |
-| `IDQ-MVP-050-SUPERVISOR` | CRITICAL | M | `developer` (supervisor lane) | DONE | `IDQ-MVP-020-STORE`, `IDQ-MVP-040-WORKER` |
-| `IDQ-MVP-060-INTEGRATION` | HIGH | M | `developer` (integration lane) | DONE | `IDQ-MVP-020-STORE`..`IDQ-MVP-050-SUPERVISOR` |
-| `IDQ-MVP-070-QA` | CRITICAL | L | `qa_tester` | DONE | `IDQ-MVP-060-INTEGRATION` |
-| `IDQ-MVP-080-FOUR-ALIAS` | CRITICAL | M | `qa_tester` (receipt executor) | AUTHORIZED — CONDITIONAL / READY FOR DISPATCH | `IDQ-MVP-070-QA` |
+| `IDQ-MVP-000-GOV` | CRITICAL | XS | `business_analyst` | DONE — HISTORICAL GOVERNANCE | None |
+| `IDQ-MVP-010-BASELINE` | CRITICAL | M | `qa_tester` | DONE — VERIFIED `0e194152`; `0946bde` RECONSTRUCTED | `IDQ-MVP-000-GOV` |
+| `IDQ-MVP-020-STORE` | CRITICAL | L | `developer` (store lane) | REOPENED — LOCAL CONTRACT / FRESH QA PENDING | `IDQ-MVP-010-BASELINE` |
+| `IDQ-MVP-030-DISPATCHER` | CRITICAL | M | `developer` (dispatcher lane) | REOPENED / BLOCKED — REAL EXECUTOR ROUTE PENDING | `IDQ-MVP-010-BASELINE` |
+| `IDQ-MVP-040-WORKER` | CRITICAL | L | `developer` (worker lane) | REOPENED / BLOCKED — REAL DAEMON ROUTE PENDING | `IDQ-MVP-020-STORE`, `IDQ-MVP-030-DISPATCHER` |
+| `IDQ-MVP-050-SUPERVISOR` | CRITICAL | M | `developer` (supervisor lane) | REOPENED / BLOCKED — REAL DAEMON ROUTE PENDING | `IDQ-MVP-020-STORE`, `IDQ-MVP-040-WORKER` |
+| `IDQ-MVP-060-INTEGRATION` | HIGH | M | `developer` (integration lane) | REOPENED / BLOCKED — CROSS-RUNTIME HANDOFF PENDING | `IDQ-MVP-020-STORE`..`IDQ-MVP-050-SUPERVISOR` |
+| `IDQ-MVP-070-QA` | CRITICAL | L | `qa_tester` | REOPENED — FRESH QA PENDING | `IDQ-MVP-060-INTEGRATION` |
+| `IDQ-MVP-080-FOUR-ALIAS` | CRITICAL | M | `qa_tester` (receipt executor) | BLOCKED — REAL PATH + FRESH ACTIVATION PENDING | `IDQ-MVP-070-QA`, `IDQ-OP-050-PREFLIGHT` |
 | `IDQ-MVP-090-SEAL-GOV` | HIGH | S | `business_analyst` | BLOCKED | `IDQ-MVP-080-FOUR-ALIAS` |
 
 ### `IDQ-MVP-000-GOV` — Governance freeze
 
 - **Severity / Work Effort**: `CRITICAL / XS`
+- **Current classification**: `DONE — HISTORICAL GOVERNANCE`; it does not prove
+  current executor, QA, provider, or release readiness.
 - **Exact one-editor ownership**: `business_analyst`; only `plans/plan.md` and
   `PROJECT_TASKS.md` for this delimited governance block.
 - **Dependencies**: none.
@@ -204,20 +273,19 @@ explicit, risk-recorded, read-only, ephemeral, sealable, and never healthy.
 ### `IDQ-MVP-010-BASELINE` — Test-first provenance baseline
 
 - **Severity / Work Effort**: `CRITICAL / M`
-- **Exact one-editor ownership**: `qa_tester`, only these four new tests and
-  one manifest: `tests/test_multiagent_durable_queue.py`,
-  `tests/test_multiagent_root_worker.py`,
-  `tests/test_multiagent_root_supervisor.py`,
-  `tests/test_multiagent_bootstrap_dispatch.py`, and
-  `plans/test_provenance/idq-mvp-010-baseline.json`.
+- **Verified baseline ownership**: `qa_tester`; commit
+  `0e1941528c0c8f49ef50a14fd046db2163d33379` contains only
+  `tests/test_idq_mvp_010_release_cycle.py` and
+  `plans/test_provenance/idq-mvp-010-release-cycle-baseline.json`.
+- **Reconstructed history**: commit
+  `0946bdec65173edacbaf4044b4198d55136c33ca` contains the earlier four tests
+  plus `plans/test_provenance/idq-mvp-010-baseline.json`; it remains
+  `NON_TDD_RECONSTRUCTED` and is not verification evidence.
 - **Dependencies**: `IDQ-MVP-000-GOV` (`DONE`).
-- **Status**: `DONE`
-- **Acceptance/evidence**: closed `test-provenance-v1` manifest binds hashes,
-  dirty-tree snapshot, red/negative-control output, and the baseline commit;
-  the commit contains only the five owned paths and stages no dirty user file.
-  Verified test suite: 106 IDQ core tests passed, 221 scheduling/contract tests
-  passed, 515 comprehensive multiagent tests passed, 0 security leaks in 2,178
-  scanned files.
+- **Status**: `DONE — VERIFIED RELEASE-CYCLE BASELINE`
+- **Acceptance/evidence**: the exact `0e194152` commit and its two-path tree are
+  retained in current ancestry. Historical suite counts do not substitute for
+  fresh operational QA.
 - **Stop condition**: `READY -> DONE` only when commit SHA and history-guard
   proof exist; otherwise `BLOCKED`, with no source lane released.
 - **Exclusions**: all product source, existing tests, docs, config, provider
@@ -226,6 +294,8 @@ explicit, risk-recorded, read-only, ephemeral, sealable, and never healthy.
 ### `IDQ-MVP-020-STORE` — SQLite durable authority
 
 - **Severity / Work Effort**: `CRITICAL / L`
+- **Status**: `REOPENED — LOCAL CONTRACT PRESENT / FRESH QA PENDING`. The local
+  source in current ancestry is not current runtime or provider proof.
 - **Exact one-editor ownership**: store-lane `developer`; only
   `scripts/multiagent_durable_queue.py` (schema migration v1 embedded or
   owned from this module).
@@ -243,6 +313,8 @@ explicit, risk-recorded, read-only, ephemeral, sealable, and never healthy.
 ### `IDQ-MVP-030-DISPATCHER` — Bootstrap admission and lifecycle
 
 - **Severity / Work Effort**: `CRITICAL / M`
+- **Status**: `REOPENED / BLOCKED`; the real bounded executor route and fresh
+  evidence are pending.
 - **Exact one-editor ownership**: dispatcher-lane `developer`; only the
   existing multi-account dispatcher module's typed `LocalBootstrapAdmission`
   and `prepared/starting/provider_started/completed` hook surface.
@@ -261,9 +333,12 @@ explicit, risk-recorded, read-only, ephemeral, sealable, and never healthy.
 ### `IDQ-MVP-040-WORKER` — Independent root worker
 
 - **Severity / Work Effort**: `CRITICAL / L`
+- **Status**: `REOPENED / BLOCKED`; local source presence does not prove a real
+  independent daemon route or cross-runtime handoff.
 - **Exact one-editor ownership**: worker-lane `developer`; only
   `scripts/multiagent_root_worker.py`.
-- **Dependencies**: `IDQ-MVP-020-STORE`, `IDQ-MVP-030-DISPATCHER` (`DONE`).
+- **Dependencies**: `IDQ-MVP-020-STORE` (local contract / fresh QA pending) and
+  `IDQ-MVP-030-DISPATCHER` (reopened/blocked).
 - **Acceptance/evidence**: Root A cannot claim AGY and Root B cannot claim
   Codex; pool/caps/backpressure/circuit/retry rules hold; root/worker
   heartbeats and stale-fence/result rejection pass; post-start ambiguity is
@@ -278,9 +353,12 @@ explicit, risk-recorded, read-only, ephemeral, sealable, and never healthy.
 ### `IDQ-MVP-050-SUPERVISOR` — Local lifecycle authority
 
 - **Severity / Work Effort**: `CRITICAL / M`
+- **Status**: `REOPENED / BLOCKED`; a real daemon/executor path and fresh
+  lifecycle evidence are pending.
 - **Exact one-editor ownership**: supervisor-lane `developer`; only
   `scripts/multiagent_root_supervisor.py`.
-- **Dependencies**: `IDQ-MVP-020-STORE`, `IDQ-MVP-040-WORKER` (`DONE`).
+- **Dependencies**: `IDQ-MVP-020-STORE` (local contract / fresh QA pending) and
+  `IDQ-MVP-040-WORKER` (reopened/blocked).
 - **Acceptance/evidence**: `doctor/init/start/submit/status/wait/smoke-all/
   seal-bootstrap/stop --drain`, detached PID/instance checks, stale-instance
   fencing, restart recovery, permissions, explicit risk acceptance, expiry,
@@ -295,11 +373,14 @@ explicit, risk-recorded, read-only, ephemeral, sealable, and never healthy.
 ### `IDQ-MVP-060-INTEGRATION` — Secret-free four-route integration
 
 - **Severity / Work Effort**: `HIGH / M`
+- **Status**: `REOPENED / BLOCKED`; the explicit cross-runtime handoff route is
+  now in scope and has not yet produced fresh evidence.
 - **Exact one-editor ownership**: integration-lane `developer`; only the new
   secret-free four-alias route/config artifact selected during baseline freeze;
   fixes to `020`..`050` return to their owning editor.
 - **Dependencies**: all of `IDQ-MVP-020-STORE`, `030-DISPATCHER`,
-  `040-WORKER`, and `050-SUPERVISOR` (`DONE`).
+  `040-WORKER`, and `050-SUPERVISOR`; each must satisfy the current reopened
+  operational gates before integration.
 - **Acceptance/evidence**: all four aliases route only to their locked root;
   deterministic crash/replay/outbox/status flows integrate without secrets,
   fallback, duplicate work, or ordinary activation.
@@ -315,16 +396,13 @@ explicit, risk-recorded, read-only, ephemeral, sealable, and never healthy.
 - **Severity / Work Effort**: `CRITICAL / L`
 - **Exact one-editor ownership**: `qa_tester`; the four tests and manifest from
   `010` remain QA-owned but frozen; this ticket collects read-only reports.
-- **Dependencies**: `IDQ-MVP-060-INTEGRATION` (`DONE`) and source freeze.
-- **Status**: `DONE`
-- **Acceptance/evidence**: all four frozen tests and relevant existing QOBS,
-  capacity, scheduler, receipt, ecosystem, secret-scan, and `git diff --check`
-  regressions pass with concise ASCII evidence; deterministic kill/restart and
-  post-`STARTING` `UNKNOWN` cases prove no duplicate execution. Verified evidence:
-  106 IDQ core tests passed, 221 scheduling/contract tests passed, 515
-  comprehensive multiagent tests passed, 0 security leaks in 2,178 scanned files,
-  100% ecosystem sync passed (`python3 scripts/sync_ai_agent_ecosystem.py --check`),
-  0 formatting errors (`git diff --check`).
+- **Dependencies**: `IDQ-MVP-060-INTEGRATION` (reopened/blocked) and source
+  freeze.
+- **Status**: `REOPENED — FRESH QA PENDING`
+- **Acceptance/evidence**: rerun the applicable deterministic queue, daemon,
+  cross-runtime handoff, QOBS, capacity, scheduler, receipt-integrity,
+  read-only-boundary, ecosystem, and secret-safe gates on the exact candidate.
+  Earlier pass counts are historical only.
 - **Stop condition**: stop on any failure. A wrong frozen test requires a
   separate superseding test-only baseline; never edit it under this ticket.
 - **Exclusions**: source fixes, baseline rewrite, provider smoke, staging/
@@ -335,7 +413,9 @@ explicit, risk-recorded, read-only, ephemeral, sealable, and never healthy.
 - **Severity / Work Effort**: `CRITICAL / M`
 - **Exact one-editor ownership**: `qa_tester` is the sole bounded receipt
   executor/recorder; no repository-file edit is permitted.
-- **Dependencies**: `IDQ-MVP-070-QA` (`DONE`).
+- **Dependencies**: `IDQ-MVP-070-QA` (reopened), real executor/daemon path, and
+  `IDQ-OP-050-PREFLIGHT` (fresh activation not issued).
+- **Status**: `BLOCKED — REAL PATH + FRESH ACTIVATION PENDING`
 - **Acceptance/evidence**: concurrent read-only jobs show at least one overlap;
   each of `codex1`, `codex2`, `agy1`, and `agy2` yields provider-native safe
   process/session evidence, a validated real `ExecutionReceipt`, and typed
@@ -349,9 +429,12 @@ explicit, risk-recorded, read-only, ephemeral, sealable, and never healthy.
 ### `IDQ-MVP-090-SEAL-GOV` — Seal and reconcile governance
 
 - **Severity / Work Effort**: `HIGH / S`
+- **Status**: `BLOCKED`; no valid four-alias terminal set or seal evidence
+  exists for the current operational graph.
 - **Exact one-editor ownership**: `business_analyst`; only `plans/plan.md` and
   `PROJECT_TASKS.md` after source freeze and acceptance evidence.
-- **Dependencies**: `IDQ-MVP-080-FOUR-ALIAS` (`DONE`, all four receipts real).
+- **Dependencies**: requires `IDQ-MVP-080-FOUR-ALIAS` to become `DONE` with all
+  four receipts real; it is currently blocked.
 - **Acceptance/evidence**: bootstrap seal receipt exists; ordinary restart is
   `CLOSED`; board/plan reflect verified evidence; ecosystem sync/check and
   secret-safe review evidence are recorded without a release claim.
@@ -367,16 +450,16 @@ explicit, risk-recorded, read-only, ephemeral, sealable, and never healthy.
 **Authority**: the owner expressly requested: `start Codex/AGY provider` for
 `IDQ-MVP-080`, across `codex1`, `codex2`, `agy1`, and `agy2`, one attempt per
 alias, read-only, no retry/fallback, with receipt plus `WorkResult` binding.
-**Status**: `AUTHORIZED — CONDITIONAL / NOT YET DISPATCHED`
+**Status**: `SEALED / EXPIRED — NOT DISPATCH AUTHORITY`
 **Non-secret risk record**: `RISK-IDQ-MVP-080-20260829-01`; expiry/TTL is the
 earlier of `2026-08-29T04:57:56+07:00`, a root-session/control-process restart,
 or the first terminal outcome for every listed alias. `IDQ-MVP-080-AUTH-01` is
-sealed on expiry or finalization and cannot be renewed, replayed, or used for a
-fifth alias/attempt.
+sealed at its recorded expiry and cannot be renewed, replayed, inherited by
+`AUTH-02`, or used for another alias/attempt.
 
-This is the sole narrow supersession for `IDQ-MVP-080-FOUR-ALIAS`: it replaces
-only that ticket's former `BLOCKED` authorization state with the conditional
-four-alias test below. It does not supersede prior attempt history, any other
+This was a historical narrow supersession for `IDQ-MVP-080-FOUR-ALIAS`. Its
+expiry restores the ticket to `BLOCKED`; it does not authorize a current
+preflight or dispatch. It does not supersede prior attempt history, any other
 ticket, Rule 17/18, ordinary `S5`/`CLOSED`/activation-prohibited behavior, or
 any credential, billing, deployment, publication, push, mutation, or raw-data
 boundary.
@@ -411,29 +494,31 @@ boundary.
 | `agy1` | same, including malformed native event/final result or absent in-process validation | typed terminal record; seal this alias with no retry |
 | `agy2` | same, including malformed native event/final result or absent in-process validation | typed terminal record; seal this alias with no retry |
 
-**Green gates required before any dispatch**: `IDQ-MVP-070-QA` is `DONE` with
-its frozen evidence; each lane passes every fresh preflight above; the exact
-read-only executor is separately delegated to `qa_tester`; the dispatcher
-validates the ticket/alias/attempt/risk-ID/TTL/seal and consumes no invalid
-nonce; and the parent/orchestrator confirms no conflict with a live stop.
-Failure of any gate is a terminal typed result for that alias and preserves
-ordinary activation as `CLOSED`. `DONE` for `IDQ-MVP-080` still requires four
-real, separately valid receipts and `WorkResult`s; this record is authorization
-only and claims neither readiness nor provider execution.
+**Current hold**: `IDQ-MVP-070-QA` is reopened, the real executor/daemon route
+is pending, and `AUTH-01` is sealed. The separate `AUTH-02` approval intent at
+the top of this file carries no active TTL, nonce, or lease. `IDQ-OP-050-PREFLIGHT`
+must prove every fresh gate before any process creation. `DONE` for
+`IDQ-MVP-080` still requires four real, separately valid receipts and
+`WorkResult`s; this historical record claims neither current readiness nor
+provider execution.
 
 <!-- IDQ-MVP-BOARD-20260828:END -->
 
 <!-- FIVE-POOL-CAPACITY-20260829:START -->
 ## Sprint CAPACITY-5POOL — Five-Pool Dual-Root Capacity Architecture (`TICKET-CODEX3-SUPPORT`)
 
-**Grill Status**: `APPROVED` in `plans/plan.md`.
+**Historical record**: the statuses and verification counts in this 2026-08-29
+capacity block describe that checkpoint only. They are not fresh current IDQ
+operational or production evidence; current IDQ truth is at the top of this
+file.
+**Grill Status at that checkpoint**: `APPROVED` in `plans/plan.md`.
 **Dual-Root Topology**:
 - **Root A (Codex Root)**: Controls 3 isolated Codex pools (`codex1`, `codex2`, `codex3`). Emits typed inter-root requests to Root B.
 - **Root B (AGY Root)**: Controls 2 isolated AGY pools (`agy1`, `agy2`). Manages AGY worker queues, capacity leases, and returns typed outcomes to Root A; Root A does not directly spawn AGY.
 
 | Ticket | Severity | Work Effort | One editor/executor | Status | Dependencies |
 |---|---|---|---|---|---|
-| `TICKET-CODEX3-SUPPORT` | HIGH | M | `business_analyst` (governance) / `developer` (runtime integration) / `qa_tester` (verification) | DONE — VERIFIED | `IDQ-MVP-070-QA`, `Rule 19A` |
+| `TICKET-CODEX3-SUPPORT` | HIGH | M | `business_analyst` (governance) / `developer` (runtime integration) / `qa_tester` (verification) | HISTORICAL DONE — VERIFIED AT 2026-08-29 CHECKPOINT | historical `IDQ-MVP-070-QA`, `Rule 19A` |
 
 ### `TICKET-CODEX3-SUPPORT` — Five-Pool Dual-Root Capacity Architecture (`codex1`, `codex2`, `codex3`, `agy1`, `agy2`)
 
@@ -442,7 +527,8 @@ only and claims neither readiness nor provider execution.
   - Governance & Specification: `business_analyst` (`PROJECT_TASKS.md`, `plans/plan.md`, `HANDOFF.md`, `.agents/rules/19-agy-capacity-governance.md`).
   - Runtime Capacity Admission: `developer` (`.agents/config/s3_capacity_policy.json`, `scripts/multiagent_capacity.py`).
   - Verification & Contract QA: `qa_tester` (`tests/test_multiagent_capacity.py`, `tests/test_multiagent_ticket_scheduler.py`).
-- **Dependencies**: `IDQ-MVP-070-QA` (`DONE`), Rule 19A Five-Pool Dual-Root update.
+- **Dependencies at that checkpoint**: historical `IDQ-MVP-070-QA` (`DONE`)
+  and Rule 19A Five-Pool Dual-Root update. Current `IDQ-MVP-070-QA` is reopened.
 - **Status**: `DONE — VERIFIED`
 
 #### Dual-Root Pool Allocations:

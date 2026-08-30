@@ -1,3 +1,113 @@
+<!-- IDQ-AUTH02-OPERATIONAL-PLAN-20260830:START -->
+## GRILL REPORT — IDQ operational correction and `AUTH-02` intent
+
+**Recorded**: `2026-08-30` (Asia/Bangkok). **Status**: `APPROVED`.
+**Authorized next phase**: documentation governance only. This plan does not
+authorize an executor, daemon, provider process, release, or production action.
+
+### Nine-dimension decision
+
+- **D1 scope `[CONFIRMED]`**: correct current IDQ truth, freeze the operational
+  ticket graph, preserve the dirty primary tree through an isolated worktree,
+  and record the owner-approved `AUTH-02` intent. In scope for follow-on work is
+  a real bounded executor/daemon route with explicit cross-runtime handoff.
+  Out of scope are source/tests/config in this lane, credentials, billing,
+  raw-stream retention, mutation-capable provider work, push, deploy, publish,
+  production cutover, and fabricated receipts.
+- **D2 delta `[AUTO]`**: stale `DONE` and dispatch-ready labels are replaced by
+  evidence-bounded states. `IDQ-MVP-000-GOV` is historical `DONE`;
+  `IDQ-MVP-010` separates verified `0e1941528c0c8f49ef50a14fd046db2163d33379`
+  from reconstructed `0946bdec65173edacbaf4044b4198d55136c33ca`;
+  `020` has a local contract but awaits fresh QA; `030`-`060` are reopened and
+  blocked on the real executor/daemon route; `070` is reopened; `080` and `090`
+  are blocked.
+- **D3 acceptance `[CONFIRMED]`**: only the two governance files change in the
+  first commit and only `HANDOFF.md` in the second; exact staged paths and
+  `git diff --cached --check` pass before each commit; the primary dirty paths
+  remain byte/status-preserved. Stop on worktree/branch conflict or unowned
+  overlap.
+- **D4 inputs/dependencies `[AUTO/CONFIRMED]`**: exact base
+  `784291788560c4cd4d2bf5f6d2bea39577dac07d`, owner authorization dated
+  `2026-08-30`, verified baseline `0e194152`, and the required exact aliases
+  `codex1`, `codex2`, `agy1`, `agy2` are available. Fresh operational QA,
+  effective read-only isolation, real-path proof, activation values, and
+  provider receipts are not available and remain dependency gates.
+- **D5 ownership `[CONFIRMED]`**: BSA owns current governance and the final
+  seal; developer owns the executor/daemon and cross-runtime handoff path; QA
+  owns fresh evidence and four-alias execution; orchestrator owns final
+  preflight. One editor per path remains mandatory.
+- **D6 assumptions `[CONFIRMED]`**: static route/model labels and local source
+  presence are intent/readiness evidence only, not provider or production
+  proof. Silence and historical test counts are not waivers or fresh evidence.
+- **D7 risk/recovery `[CONFIRMED]`**: fail closed on stale ancestry, alias
+  fallback, post-start ambiguity, duplicate execution, secret/raw-stream
+  exposure, malformed receipts, or authority replay. Recovery is to stop before
+  process creation, retain evidence, seal temporary authority, and keep the
+  ordinary path closed.
+- **D8 budget/evidence `[CONFIRMED]`**: bounded native mutation with concise
+  ASCII evidence; no tests or provider calls in this lane. DispatchDecision
+  labels remain unproved until a bound runtime receipt exists.
+- **D9 domain/HITL `[NOT-APPLICABLE]`**: no metaphysical engine or canonical
+  source changes. Owner HITL approval applies only to this scoped governance
+  intent; conflict, credentials, production action, or scope expansion returns
+  to HITL.
+
+### Current evidence and authorization truth
+
+`IDQ-MVP-080-AUTH-01` is `SEALED / EXPIRED`; it cannot be renewed, replayed,
+or inherited. The owner's `2026-08-30` instruction records `AUTH-02` approval
+intent only. There is no active TTL, nonce, risk lease, or dispatch lease.
+Fresh single-use activation values may be issued only in `IDQ-OP-050-PREFLIGHT`
+after `IDQ-OP-020-EXECUTOR` and `IDQ-OP-030-QA` are green and the effective
+read-only path is proved.
+
+Exactly four future proof lanes are permitted: `codex1`, `codex2`, `agy1`, and
+`agy2`. Each is distinct, read-only, single-attempt, and no-fallback. Evidence
+must bind fresh decision/snapshot/nonce/lease/alias/ticket/attempt values and
+validate `ExecutionReceipt` independently from typed `WorkResult`. Never read,
+persist, print, or reconstruct credentials, account identifiers, prompt/output
+bodies, or raw provider streams. AGY success language is limited to
+`validated in-process only`.
+
+### Canonical dependency graph
+
+| Ticket | Status | Dependency | Owner and measurable exit |
+|---|---|---|---|
+| `IDQ-OP-000-GOV` | DONE | owner authorization | BSA: current plan/board truth and exact checks committed |
+| `IDQ-OP-010-BASELINE` | DONE — VERIFIED | `IDQ-OP-000-GOV` | QA: verified `0e194152`; reconstructed `0946bde` remains historical only |
+| `IDQ-OP-020-EXECUTOR` | BLOCKED | `IDQ-OP-010-BASELINE` | developer: real bounded executor/daemon and cross-runtime handoff path implemented without fallback or raw-stream handling |
+| `IDQ-OP-030-QA` | BLOCKED | `IDQ-OP-020-EXECUTOR` | QA: fresh deterministic lifecycle, handoff, read-only, and receipt-integrity evidence all green |
+| `IDQ-OP-040-AUTH02-GOV` | INTENT RECORDED — HOLD | `IDQ-OP-030-QA` | BSA: activate only after fresh QA; predecessor remains sealed |
+| `IDQ-OP-050-PREFLIGHT` | BLOCKED | `IDQ-OP-030-QA`, `IDQ-OP-040-AUTH02-GOV` | orchestrator: prove real path/read-only isolation/fresh quota and atomically bind new single-use TTL, nonce, and lease |
+| `IDQ-OP-060-FOUR-ALIAS` | BLOCKED | `IDQ-OP-050-PREFLIGHT` | QA: four distinct valid provider-native receipts and typed results, exactly one per alias |
+| `IDQ-OP-090-SEAL` | BLOCKED | `IDQ-OP-060-FOUR-ALIAS` | BSA: seal all temporary authority and reconcile evidence without a release claim |
+
+### DispatchDecision v1
+
+```text
+ticket=IDQ-OP-000-GOV-20260830
+phase=planning/governance
+ranks: scope=2, complexity=2, risk=2, ambiguity=1, evidence=2
+quality_floor=gpt-5.6-terra/high
+selected_alias=native-bsa
+selected_model=gpt-5.6-sol
+selected_effort=ultra
+quality_exception=owner quality override
+quota_band=unknown (bounded native mutation)
+work_mode=mutation
+policy_version=2026-08-29.1
+planning_to_medium_confirmed=true
+hitl_approved=true
+decision_digest=pending native runtime
+status=READY_TO_VALIDATE
+```
+
+The decision is static routing intent, not provider execution proof. Success is
+both scoped commits plus exact staged checks and unchanged primary dirty paths.
+Stop at any branch/worktree conflict, unowned overlap, failed staged check, or
+request to cross the stated authorization boundary.
+<!-- IDQ-AUTH02-OPERATIONAL-PLAN-20260830:END -->
+
 <!-- RELEASE-VERIFIED-20260830-000-GOV:START -->
 ## Verified-only production release program - RELEASE-VERIFIED-20260830-000-GOV
 Gate: APPROVED. Scope: active/releasable tickets only. Historical, superseded, and future-roadmap work is ARCHIVED or DEFERRED by evidence, never falsely DONE.
@@ -165,9 +275,12 @@ Explicit blockers and exclusions: `.agents/config/multiagent_prompt_command.exam
 ---
 
 <!-- IDQ-MVP-GOVERNANCE-20260828:START -->
-## GRILL REPORT — Independent Roots + Durable Queue Local MVP
+## Historical GRILL REPORT — Independent Roots + Durable Queue Local MVP
 
 **Recorded**: `2026-08-28T23:21:18+07:00`
+**Current classification**: retained as historical planning evidence. The
+canonical `2026-08-30` block at the top of this file reopens `020`-`070`, blocks
+`080`/`090`, and does not adopt the historical pass counts as fresh proof.
 **Gate**: `APPROVED` — the user's explicitly locked plan resolves scope,
 inputs/dependencies, assumptions, success criteria, and stop conditions.
 **Authority**: owner-supplied plan and fresh delegated HITL instruction.
@@ -282,7 +395,7 @@ C1/C2 closure.
 <!-- IDQ-MVP-GOVERNANCE-20260828:END -->
 
 <!-- IDQ-MVP-080-AUTH-20260829:START -->
-## Conditional dispatch authorization — `IDQ-MVP-080-AUTH-01`
+## Historical conditional dispatch authorization — `IDQ-MVP-080-AUTH-01`
 
 **Recorded**: `2026-08-29T00:57:56+07:00` (Asia/Bangkok). The owner expressly
 authorized the bounded `IDQ-MVP-080` Codex/AGY provider test for exactly
@@ -290,14 +403,18 @@ authorized the bounded `IDQ-MVP-080` Codex/AGY provider test for exactly
 retry or fallback, with a provider-native receipt bound to a typed
 `WorkResult`.
 
-**Single-use scope and risk**: `RISK-IDQ-MVP-080-20260829-01` is non-secret.
-The authorization expires at the earlier of `2026-08-29T04:57:56+07:00`, a new
-root session/control-process restart, or final terminal disposition of all
-four aliases. Seal `IDQ-MVP-080-AUTH-01` at expiry/finalization; it cannot be
-renewed, replayed, expanded, or used to retry/substitute an alias.
+**Current status**: `SEALED / EXPIRED — NOT DISPATCH AUTHORITY`. This record
+cannot be replayed, renewed, inherited by `AUTH-02`, or treated as a current
+TTL, nonce, risk lease, or dispatch lease.
 
-This narrowly supersedes only the former authorization hold on
-`IDQ-MVP-080-FOUR-ALIAS`. It does not alter immutable historical attempts,
+**Single-use scope and risk**: `RISK-IDQ-MVP-080-20260829-01` is non-secret.
+The authorization expired at `2026-08-29T04:57:56+07:00` at the latest and is
+sealed. It cannot be renewed, replayed, expanded, or used to retry/substitute
+an alias.
+
+This historically superseded only the former authorization hold on
+`IDQ-MVP-080-FOUR-ALIAS`; expiry restored the ticket to `BLOCKED`. It does not
+alter immutable historical attempts,
 ordinary `S5`/`CLOSED`/activation-prohibited operation, Rule 17/18, other
 tickets, or exclusions for secrets, credentials, billing, mutation, Git,
 deployment, publishing, raw-stream retention, and production claims.
@@ -324,11 +441,11 @@ only`.
 identity/executable check, read-only isolation check, malformed/missing receipt,
 or malformed/missing `WorkResult`; record typed `BLOCKED` or `NEEDS_HITL`, seal
 that alias, and never retry, reroute, substitute, or chain it. A valid result
-for one alias does not grant another attempt. Dispatch may begin only after
-`IDQ-MVP-070-QA` is `DONE`, every corresponding fresh gate is green, the
-orchestrator confirms no active conflict/stop, and the executor is delegated
-with the exact scope. This authorization is not execution evidence and makes
-no readiness claim.
+for one alias does not grant another attempt. No dispatch may use this sealed
+record. The new `AUTH-02` intent remains on hold until `IDQ-OP-020-EXECUTOR`,
+`IDQ-OP-030-QA`, `IDQ-OP-040-AUTH02-GOV`, and `IDQ-OP-050-PREFLIGHT` satisfy
+their fresh gates. This authorization is not execution evidence and makes no
+current readiness claim.
 <!-- IDQ-MVP-080-AUTH-20260829:END -->
 
 <!-- FIVE-POOL-CAPACITY-GOVERNANCE-20260829:START -->
