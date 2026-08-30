@@ -1,0 +1,45 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-IDQ-MVP-080-OPERATIONAL-PROVIDER",
+  "sequence": 4,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "03c91b03089fc38d61aa5a45562e20c6c50ce98f",
+  "test_files": [
+    {
+      "path": "tests/test_idq_mvp_080_operational_provider.py",
+      "sha256": "b414add2fd68332edb04721a5973aff7d3982e39fa70548837cd35bb9fc9fff5"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_idq_mvp_080_operational_provider.py::test_operational_entrypoint_exists_before_source"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "1 failed; AssertionError: IDQ_MVP_080_OPERATIONAL_ENTRYPOINT_MISSING"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_idq_mvp_080_operational_provider.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "271 failed, 29 passed; one stable missing-entrypoint AssertionError plus 270 lazy-import ModuleNotFoundError failures for scripts.multiagent_idq_mvp_080_operational; all 29 source-independent schema, typed-result, durable-authority, zero-side-effect, and normal/linked Git mutation controls passed"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/multiagent_idq_mvp_080_operational.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "03c91b03089fc38d61aa5a45562e20c6c50ce98f",
+  "correction_reason": "Independent sequence-4 review found nine residual gaps in sequence 3: (1) the required public seam injected a fake Popen factory and allowed whole-buffer communicate without bounded incremental stdout/stderr capture, exact caps, session isolation, or process-group TERM/KILL cleanup; (2) Codex argv used the authoritative schema containing unsupported oneOf directly instead of a strict temporary provider-compatible subset with private modes and cleanup; (3) top-level AUTH-02 missing, tamper, coherent-tamper, time-relation, QOBS freshness, executable, account, capacity-state, and live-lease checks were incomplete or digest-copy-only; (4) replay protection asserted only a marker count rather than exact authorization-bound names, canonical contents, modes, creation order before Popen, restart replay, rebound-store rejection, and symlink safety; (5) capacity expiry, pre-Popen single consumption, terminal release, and exactly-once request accounting were not proven; (6) lifecycle coverage omitted meaningful receipt intervals and exact partial-marker, partial-batch, Popen, nonzero, stdout/stderr oversize, partial-output, TERM-resistant, and cleanup-failure UNKNOWN branches; (7) UNKNOWN WorkResults were not one fixed closed Result Contract v2 value with non-empty evidence, an independently recomputed hash, and direct persisted result/receipt comparison; (8) raw non-retention did not span terminal, provider, account, prompt/input, inherited-environment, public, queue, marker, capacity, and diagnostic surfaces; and (9) exact-four admission did not reject every extra, duplicate, missing, reordered, duplicate-identity lane form or activation_prohibited=false. This test-only correction closes those boundaries while preserving and strengthening the normal and linked Git invariants and the sole source allowlist.",
+  "rationale": "Freeze the fourth independently reviewed IDQ-MVP-080 operational-provider contract before the sole owned source exists. The production seam is now module-owned subprocess.Popen and the local fake is installed only by the tests. The suite binds canonical AUTH-02 bytes to reloaded durable queue job authority, exact ordered single-use markers, fresh QOBS and live identity/capacity state, strict temporary no-oneOf provider schemas, bounded binary stream capture, process-group cleanup, exact capacity accounting, fixed raw-free UNKNOWN WorkResults, independently recomputed receipt hashes, and SQLite-persisted result/receipt equality. Fresh RED evidence is 271 failed and 29 passed across 300 collected tests; the 29 source-independent controls also passed directly. The queue hash is local control-plane authenticity, not cryptographic issuer proof, and this fake-Popen baseline proves neither provider execution, account authentication, daemon integration, deployment, nor release readiness. No provider, network, credential, source, documentation, deployment, or release action is performed; the only eligible later source remains scripts/multiagent_idq_mvp_080_operational.py."
+}
