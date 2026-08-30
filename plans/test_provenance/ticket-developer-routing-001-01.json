@@ -1,0 +1,41 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-DEVELOPER-ROUTING-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "7d9a0e3e496f9440e3b2ce0228e7d1b38e057f24",
+  "test_files": [
+    {
+      "path": "project/tests/test_developer_routing_contract.py",
+      "sha256": "7479e90c84eeea8b1c11415c0e6dac0f2135e854e0c113db51e4ca456927f36c"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_developer_routing_contract.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "2 failed, 1 passed: settings and developer catalog still selected gpt-5.3-codex instead of gpt-5.6-luna"
+    }
+  ],
+  "allowed_source_paths": [
+    "settings.json",
+    ".antigravity/agents/developer.agent",
+    ".agents/AGENTS.md",
+    ".agents/agents/developer.json",
+    ".agents/agents/developer.md",
+    ".agents/agents/developer/agent.json",
+    ".agents/agents/developer/agent.md",
+    ".codex/agents/developer.toml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze the Luna default plus Terra/Sol escalation, release-role preservation, catalog, policy-floor, and deterministic mirror contract before routing candidates are reapplied."
+}

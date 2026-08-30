@@ -1,0 +1,44 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-GRILL-ME-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "7d9a0e3e496f9440e3b2ce0228e7d1b38e057f24",
+  "test_files": [
+    {
+      "path": "project/tests/test_requirement_grill_command_contract.py",
+      "sha256": "0b673117b5e3dc0acd8b31f4e342ead76d4f9bc9f3e7a0562cd72a6fc5606bcd"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_requirement_grill_command_contract.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "3 failed: canonical grill-me command missing, skill retained legacy contract, and BSA omitted requirement-grill-gate ownership"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/commands/grill-me.md",
+    ".agents/skills/requirement-grill-gate/SKILL.md",
+    ".agents/AGENTS.md",
+    ".antigravity/agents/business-analyst.agent",
+    ".antigravity/agents/business_analyst.agent",
+    ".antigravity/skills/requirement-grill-gate/SKILL.md",
+    ".agents/agents/business_analyst.json",
+    ".agents/agents/business_analyst.md",
+    ".agents/agents/business_analyst/agent.json",
+    ".agents/agents/business_analyst/agent.md",
+    ".codex/agents/business_analyst.toml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze the public fail-closed grill-me intake, BSA ownership, and deterministic mirror contract before implementation candidates are reapplied."
+}
