@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-RELEASE-VERIFIED-20260830-042-HF-PRIOR-TREE-BASELINE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "b37b13d28591016c1b9497a1bb1348c71b4f6460",
+  "test_files": [
+    {
+      "path": "tests/test_publish_space_hf.py",
+      "sha256": "9e762e6a669de9f7c79478eef8b1836664e72c88aad59ab71616f5951b45ef6c"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_publish_space_hf.py::test_prior_tree_verification_uses_bounded_overlap_and_authenticates_cache"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: prior-tree blob verification did not overlap four bounded workers; 1 failed"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/publish_space_hf.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze a genuine pre-source red contract for bounded four-worker overlap and immutable-revision cache reuse while retaining exact size, Git-blob, optional SHA-256, parent-CAS, zero-commit-on-prior-failure, release-receipt binding, and rollback-restoration safety."
+}
