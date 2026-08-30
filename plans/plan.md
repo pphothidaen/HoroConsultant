@@ -1546,6 +1546,36 @@ with one editor and exact ownership recorded in `PROJECT_TASKS.md`.
   network, secret, account, deploy, publish, push, and release actions remain
   excluded.
 
+### QOBS recovery authorization checkpoint -- 2026-08-30
+
+The user explicitly authorized a history-preserving recovery branch for the
+isolated QOBS replay: `recovery/ticket-alias-rc2-004-qobs-probe`, based exactly
+on `943bdd869b492a080493e669bdfdacf866c5e664`. The recovery-base provenance
+verification passed against baseline `9847234f3f2537d0b65ecb1fc9afca87ceb517a2`
+with two frozen tests verified; historical records are preserved.
+
+`QOBS-01-PROBE` remains the ticket's only eligible mutation lane, with sole
+developer ownership of `scripts/agent_quota_status_guard.py`. The frozen tests
+and manifest are read-only, and every later QOBS lane is read-only/gated until
+its own predecessor freezes and fresh evidence authorizes it. Provider/alias,
+network, secret, account, sync, push, deploy, publish, and release actions are
+excluded.
+
+**Inline DispatchDecision v1 / Rule 11 snapshot**: ranks `2/2/3/1/3`; quality
+floor `gpt-5.6-sol/high`; selected `codex1/gpt-5.6-sol/high`; local-native
+non-provider quota band `constrained`; `work_mode` `mutation`; policy
+`2026-08-26.1`; planning-to-medium confirmed; and HITL approved through this
+user's explicit recovery-branch authorization. This is planning authorization
+only, not provider-execution proof. No JSON decision or snapshot artifact is
+created or reusable from this checkpoint.
+
+**Single-use root waiver (2026-08-30 Asia/Bangkok)**: The user's `approve`
+reply authorizes the root only to stage and create the immediately following
+local governance commit for these exact two files after delegated governance
+lanes failed to return a staging receipt. The root owns that one action; it
+stops once the commit exists and does not authorize source edits, further Git
+mutation, push, or any excluded action.
+
 ---
 
 ## Current Execution Control — 2026-08-24

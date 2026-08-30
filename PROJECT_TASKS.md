@@ -1454,6 +1454,37 @@ Git review pass. QOBS completion still does not authorize four-alias execution.
 | `QOBS-01-SCHEDULER` | `developer` | CRITICAL / S | GATED | `scripts/multiagent_ticket_scheduler.py` only | CONTRACT + DISPATCH frozen |
 | `QOBS-01-QA-GOVERNANCE-SYNC` | `business_analyst` mutation editor; `qa_tester` and `code_reviewer` read-only verifiers | CRITICAL / M | GATED | authoritative `.agents/rules/17-multi-account-agent-orchestration.md`; `.agents/rules/18-adaptive-model-effort-routing.md`; `.agents/skills/multi-account-agent-orchestration/SKILL.md`; `.agents/skills/adaptive-model-effort-routing/SKILL.md`; `docs/templates/MULTIAGENT_PROMPT_COMMAND.md`; generated ecosystem mirrors only through the sync script; frozen tests are read-only | all source lanes frozen |
 
+**Recovery checkpoint (2026-08-30) -- planning authorization only**: the user
+explicitly authorized a history-preserving recovery branch for this isolated
+replay: `recovery/ticket-alias-rc2-004-qobs-probe`, based exactly on
+`943bdd869b492a080493e669bdfdacf866c5e664`. Recovery-base provenance against
+baseline `9847234f3f2537d0b65ecb1fc9afca87ceb517a2` passed with both frozen
+tests verified. Historical records remain preserved. `QOBS-01-PROBE` is the
+ticket's only eligible mutation lane, with sole developer ownership of
+`scripts/agent_quota_status_guard.py`. The frozen tests and manifest are
+read-only; every later QOBS lane remains read-only/gated pending its own
+predecessor freeze and fresh evidence.
+
+**Inline DispatchDecision v1 / Rule 11 snapshot**: ranks are scope `2`,
+complexity `2`, risk `3`, ambiguity `1`, and evidence `3`; the quality floor is
+`gpt-5.6-sol` / `high`, and the selected route is `codex1` /
+`gpt-5.6-sol` / `high`. The local-native non-provider quota band is
+`constrained`; `work_mode` is `mutation`; policy is `2026-08-26.1`; and
+planning-to-medium is confirmed. HITL is approved by this user's explicit
+recovery-branch authorization. This snapshot authorizes recovery planning and
+the isolated local mutation lane only; it is not provider-execution proof.
+
+**Recovery exclusions**: provider/alias, network, secret, account, sync, push,
+deploy, publish, and release actions are excluded. No JSON decision or snapshot
+artifact is created by this checkpoint.
+
+**Single-use root waiver (2026-08-30 Asia/Bangkok)**: The user's `approve`
+reply authorizes the root only to stage and create the immediately following
+local governance commit for these exact two files after delegated governance
+lanes failed to return a staging receipt. The root owns that one action; it
+stops once the commit exists and does not authorize source edits, further Git
+mutation, push, or any excluded action.
+
 **Test-first history gate**:
 
 1. TEST-BASELINE stages only its two tests and closed `test-provenance-v1`
