@@ -1585,6 +1585,12 @@ verification work. It does not authorize or prove provider/alias, network,
 secret, account, push, deploy, publish, or release execution; frozen tests,
 manifest, schemas, policy, and source scripts remain read-only.
 
+Final local governance evidence is commit
+`ac55aee1c07ecdbcbe2b7febf18a28f21eaceee4`: its staged provenance check,
+mandatory ecosystem sync/check, and final focused/provenance verification all
+passed. This completes QOBS QA/GOVERNANCE+SYNC locally without changing the
+no-provider boundary.
+
 **Single-use root waiver (2026-08-30 Asia/Bangkok)**: The user's `approve`
 reply authorizes the root only to stage and create the immediately following
 local governance commit for these exact two files after delegated governance

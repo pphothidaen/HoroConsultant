@@ -1452,7 +1452,7 @@ Git review pass. QOBS completion still does not authorize four-alias execution.
 | `QOBS-01-PROBE` | `developer` | CRITICAL / S | DONE — FROZEN (`4670fc40dda88bc1dbc12c582eb99dc21133479d`) | `scripts/agent_quota_status_guard.py` only | CONTRACT frozen; focused/provenance evidence passed |
 | `QOBS-01-DISPATCH` | `developer` | CRITICAL / M | DONE — FROZEN (`943bdd869b492a080493e669bdfdacf866c5e664`) | `scripts/multiagent_prompt_command.py` only | CONTRACT + PROBE frozen |
 | `QOBS-01-SCHEDULER` | `developer` | CRITICAL / S | DONE — FROZEN (`943bdd869b492a080493e669bdfdacf866c5e664`) | `scripts/multiagent_ticket_scheduler.py` only | CONTRACT + DISPATCH frozen |
-| `QOBS-01-QA-GOVERNANCE-SYNC` | `business_analyst` mutation editor; `qa_tester` and `code_reviewer` read-only verifiers | CRITICAL / M | DOING — FINAL LOCAL VALIDATION | authoritative `.agents/rules/17-multi-account-agent-orchestration.md`; `.agents/rules/18-adaptive-model-effort-routing.md`; `.agents/skills/multi-account-agent-orchestration/SKILL.md`; `.agents/skills/adaptive-model-effort-routing/SKILL.md`; `docs/templates/MULTIAGENT_PROMPT_COMMAND.md`; generated ecosystem mirrors only through the sync script; frozen tests are read-only | all source lanes frozen |
+| `QOBS-01-QA-GOVERNANCE-SYNC` | `business_analyst` mutation editor; `qa_tester` and `code_reviewer` read-only verifiers | CRITICAL / M | DONE — LOCAL GOVERNANCE VERIFIED (`ac55aee1c07ecdbcbe2b7febf18a28f21eaceee4`) | authoritative `.agents/rules/17-multi-account-agent-orchestration.md`; `.agents/rules/18-adaptive-model-effort-routing.md`; `.agents/skills/multi-account-agent-orchestration/SKILL.md`; `.agents/skills/adaptive-model-effort-routing/SKILL.md`; `docs/templates/MULTIAGENT_PROMPT_COMMAND.md`; generated ecosystem mirrors only through the sync script; frozen tests are read-only | all source lanes frozen |
 
 **Recovery checkpoint (2026-08-30) -- planning authorization only**: the user
 explicitly authorized a history-preserving recovery branch for this isolated
@@ -1487,6 +1487,11 @@ This records only local source and verification evidence. It does not permit or
 prove a provider/alias, network, account, secret, push, deploy, publish, or
 release action. The final lane's local ecosystem sync/check remains a separate
 governance requirement, not execution proof.
+
+**Final local governance evidence**: recovery governance commit
+`ac55aee1c07ecdbcbe2b7febf18a28f21eaceee4` passed staged provenance, the
+mandatory ecosystem sync and sync check, `git diff --check`, and the final
+focused/provenance verification. The no-provider boundary remains in force.
 
 **Single-use root waiver (2026-08-30 Asia/Bangkok)**: The user's `approve`
 reply authorizes the root only to stage and create the immediately following
