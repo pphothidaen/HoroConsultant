@@ -12,24 +12,51 @@
 
 ## Test provenance workflow for developers and agents
 
-1. Write black-box acceptance tests before implementation and run them to
+1. **Preflight Triage**: When the lane's `GateImpactDecision` selects release
+   triage, run `python3 scripts/fail_fast_triage.py` as the first diagnostic
+   step for a failure, CI block, or ecosystem drift.
+2. Write black-box acceptance tests before implementation and run them to
    capture a real failing result or negative control.
-2. Create a closed manifest under `plans/test_provenance/` with the exact test
+3. Create a closed manifest under `plans/test_provenance/` with the exact test
    SHA-256 values, baseline parent, allowed source paths, and failure evidence.
-3. Commit only tests, fixtures, and that manifest. Use
+4. Commit only tests, fixtures, and that manifest. Use
    `Test-Baseline-Ticket: <ticket>` in the baseline commit message.
-4. Start source coding only after the commit is marked
+5. Start source coding only after the commit is marked
    `TEST_BASELINE_VERIFIED`. Add `Test-Baseline: <full-sha>` to every owned
    source commit.
-5. Do not edit a frozen test from the source lane. If it is wrong, stop work
+6. Do not edit a frozen test from the source lane. If it is wrong, stop work
    and create an independently reviewed, test-only superseding baseline.
-6. Finish with `scripts/test_provenance_guard.py`, full QA,
-   `sync_ai_agent_ecosystem.py --check`, the secret scan, and
-   `project/core/code_reviewer.py` using the same ticket/baseline/manifest.
+7. Finish only with the gates listed under `RUN` in the lane's versioned
+   `GateImpactDecision`. Include provenance for changed source and all directly
+   or transitively affected QA, security, ecosystem, reviewer, and release
+   gates. Do not run a full suite solely because it is a legacy checklist item.
 
 The repository pre-commit hook performs read-only early checks and never runs
 version stamping or stages files. Configure `.githooks` locally if desired,
 but rely on the required `Test Provenance` CI check for merge enforcement.
+
+## Impact-based gate selection for operators
+
+This policy is effective immediately. Before testing, every lane records a
+versioned `GateImpactDecision` with:
+
+- base revision, head revision, and deterministic diff digest;
+- changed paths, contracts, dependencies, and runtime/deployment surfaces;
+- gates to `RUN` and gates that are `NOT_APPLICABLE`, each with a reason;
+- unknown-impact fallback, policy version, and reviewer or owner.
+
+Run only gates affected directly or through a dependency or contract. Unknown
+impact, a stale or missing impact map, or a cross-cutting security/release
+boundary fails closed to the broader applicable set. Never use
+`NOT_APPLICABLE` to bypass provenance for changed source, a relevant security
+check, independent reviewer evidence, or post-deploy identity/health for a
+touched deployment surface.
+
+For the current release, the decision is manual and evidence-backed. The
+deterministic selector, versioned impact map, Rule 02/Claude integration,
+skills, and unified-hook/CI enforcement are `DEFERRED_NEXT_PHASE` until current
+production post-deploy is green. This does not create a new hook process and it
+does not weaken the rule that only `main` may trigger production publication.
 
 ---
 
@@ -55,6 +82,9 @@ but rely on the required `Test Provenance` CI check for merge enforcement.
    - [3.6 Canonical HF Docker + Vercel Release CLI](#36-canonical-hf-docker--vercel-release-cli)
    - [3.7 Canonical Production Targets and Retired Platform Matrix](#37-canonical-production-targets-and-retired-platform-matrix)
    - [3.8 Release Execution Boundary](#38-release-execution-boundary)
+   - [3.9 การติดตั้งและตรวจสอบระบบ Grafana Cloud Observability & Prometheus Metrics](#39-การติดตั้งและตรวจสอบระบบ-grafana-cloud-observability--prometheus-metrics)
+   - [3.10 การใช้งาน Autonomous Knowledge Distillation & Fine-Tuning Pipeline](#310-การใช้งาน-autonomous-knowledge-distillation--fine-tuning-pipeline)
+   - [3.11 Fail-Fast Root-Cause Diagnostic CLI (scripts/fail_fast_triage.py)](#311-fail-fast-root-cause-diagnostic-cli-scriptsfail_fast_triagepy)
 
 ---
 
@@ -546,3 +576,87 @@ authorization และ candidate-bound evidence ของตัวเอง.
 4. **GitHub Actions Scheduled Automation:**
    - ตารางเวลาอัตโนมัติ: รันทุกวันอาทิตย์ เวลา 02:00 UTC ผ่าน `.github/workflows/scheduled_distill_finetune.yml`
    - รองรับการ Trigger แบบ Manual พร้อมเลือก Domain และ Format ได้ทันที
+
+---
+
+### 3.11 Fail-Fast Root-Cause Diagnostic CLI (scripts/fail_fast_triage.py)
+
+`scripts/fail_fast_triage.py` เป็นเครื่องมือวินิจฉัยแบบ bounded และ fail-closed
+สำหรับหา root cause ก่อนแก้ปัญหา ไม่ใช่ auto-remediation, test runner แบบเต็ม,
+หลักฐานอนุมัติ release หรือคำสั่ง deploy. ขณะนี้ตัว source candidate อยู่ที่
+`ca7fdec` และ mode-only follow-up อยู่ที่ `f1ed5ee`; ใช้คำสั่งด้านล่างบน branch
+ที่มี candidate นี้หรือหลัง integration เท่านั้น.
+
+ก่อนรัน ให้ตรวจ `GateImpactDecision` ของ lane ก่อน. ถ้าเป็น docs-only และไม่มี
+ผลกระทบต่อ source, agent ecosystem หรือ deployment surface สามารถระบุ triage
+เป็น `NOT_APPLICABLE` พร้อมเหตุผลและข้ามได้. ถ้า impact ไม่ทราบ, map เก่า/หาย,
+หรือข้าม security/release boundary ให้ขยายเป็น broader applicable gate set.
+
+#### Safe invocation
+
+```bash
+# ค่าเริ่มต้น: หยุดทันทีเมื่อ probe แรกไม่ผ่าน; offline/local diagnosis
+python3 scripts/fail_fast_triage.py --fail-fast --skip-remote
+
+# เก็บทุก selected probe ตามลำดับ และแสดง bounded versioned JSON
+python3 scripts/fail_fast_triage.py --check-all --json --timeout 30
+
+# ตรวจ remote truth และ live production identity แบบ human-readable
+python3 scripts/fail_fast_triage.py --check-all --timeout 30
+```
+
+- `--fail-fast` และ `--check-all`/`--all` ใช้พร้อมกันไม่ได้. หากไม่ระบุ mode
+  ระบบใช้ fail-fast โดยปริยาย.
+- Human output ใช้ printable ASCII และ `[OK]`/`[ERROR]`; `--json` ส่ง
+  `fail-fast-triage-report-v1` ที่ bounded และมี `truncated` เมื่อจำเป็น.
+- Exit `0` หมายถึง selected probes ผ่านทั้งหมด, exit `1` หมายถึงอย่างน้อยหนึ่ง
+  probe ไม่ผ่าน, และ argument/usage error ของ `argparse` ใช้ exit `2`.
+- `--timeout` รับจำนวนเต็ม `1..300` วินาที. เป็นขอบเขตต่อ subprocess/HTTP
+  request และเป็น deadline ของ in-process AST/provenance scan; เพราะ probes
+  รันต่อกัน เวลารวมของคำสั่งอาจมากกว่าค่า timeout หนึ่งช่วง.
+- `--skip-remote`/`--offline` ข้าม `git fetch` และ live deployment probes แต่
+  ไม่ข้าม clean-worktree check. Output แบบ offline ใช้เป็น post-deploy identity
+  evidence ไม่ได้.
+
+Probe order คือ clean worktree และ remote truth, agent-ecosystem sync,
+strict secret-scanner receipt, bounded Python AST scan, Git-history test
+provenance และ (เมื่อไม่ offline) live production release identity. โหมด
+fail-fast อาจรายงานว่า execute น้อยกว่า total probes; นี่เป็นพฤติกรรมที่ตั้งใจ
+ไม่ใช่ probe ที่หาย.
+
+#### Production identity and repeated GitHub error
+
+Live probe ไม่ยอมรับ HTTP 200 อย่างเดียว. ต้องพบ closed-schema release identity
+ที่ตรงกับ `project/static/version.json` บนทั้ง Vercel `/version.json` และ HF
+`/version.json`; HF `/health` ต้อง healthy และรายงาน version/commit เดียวกัน.
+Malformed, stale, missing, redirected หรือ mismatched identity ต้อง fail closed.
+
+ข้อความ `[ERROR] Production path verification failed` มาจาก
+`scripts/run_live_health_verification.py`. Workflow
+`.github/workflows/production_monitor.yml` รันตาม schedule ทุก 15 นาที จึงเห็น
+ข้อความเดิมซ้ำได้ตราบใดที่ live surface ยังไม่ตรง candidate. ณ 2026-08-30 HF
+identity ยัง stale/malformed และ release ยัง blocked. สาเหตุนี้ไม่ใช่ข้อจำกัด
+ของ branch โดยตรง; การจำกัด branch เป็น safety control แยกต่างหาก: มีเพียง
+`main` ที่ผ่าน CI เท่านั้นที่ trigger production publication ได้.
+
+แนวทางแก้คือไม่ปิดหรือ bypass monitor. ให้รวมเฉพาะ commit ที่ผ่าน review,
+freeze candidate, รัน impact-selected QA/reviewer gates, integrate/push ที่
+`main`, รอ bound main CI, publish HF Docker ด้วย candidate เดียวกัน และรัน
+post-deploy identity/health ใหม่. ถ้า deployment surface ไม่ได้ถูกแตะใน lane
+อื่น ให้ข้าม production gate ผ่าน `NOT_APPLICABLE` ที่มีเหตุผล; แต่ lane ที่แตะ
+publisher หรือ deployment ห้ามข้าม post-deploy identity/health.
+
+#### Current evidence boundary
+
+| Evidence | Current state | Meaning |
+| :--- | :--- | :--- |
+| Lesson 20 baseline `84b1dcf` | `DONE`, `NON_TDD_RECONSTRUCTED` | เป็น reconstructed test evidence ถาวร; ห้ามเรียก verified TDD |
+| Lesson 20 source `ca7fdec` | Review `BLOCKED` | ยัง integrate/release ไม่ได้ |
+| Mode-only `f1ed5ee` | 822 tests pass locally | เปลี่ยน file mode เท่านั้นและสืบทอด reconstructed limitation |
+| Safety follow-up baseline ticket 034 | `IN_PROGRESS` | ห้ามอนุมานว่า safety follow-up เสร็จ |
+| HF baseline `65e7335` + source `1dfb7ba` | Local `DONE`; review `READY_FOR_INTEGRATION` | ยังไม่ใช่ live deployment proof |
+| Live HF identity | stale/malformed | production path และ release ยังคง blocked |
+
+`NON_TDD_RECONSTRUCTED` เป็นข้อจำกัดถาวรของ lineage นี้ แม้ focused/full local
+tests จะผ่านในภายหลัง. สถานะข้างต้นจึงไม่ใช่ `READY_FOR_PROD`; ต้องมี
+integration, main-only CI, deployment และ fresh post-deploy evidence ก่อน.
