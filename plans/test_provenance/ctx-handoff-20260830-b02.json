@@ -1,0 +1,82 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-CTX-010-RED",
+  "sequence": 3,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "8e4359ab2bb1bddf609e84dd7af22c70c20f9cb6",
+  "test_files": [
+    {
+      "path": "tests/fixtures/context_handoff/agy/stop_mappings.json",
+      "sha256": "d4b45b9a9148d8d2a11c933a6ae3448affc94c10ea8022e892209260926c31bb"
+    },
+    {
+      "path": "tests/fixtures/context_handoff/claude/stop_mappings.json",
+      "sha256": "a2f85dc97b9c3640d8f901016874e274714b3f58691891d6ae75374d6e53b2f0"
+    },
+    {
+      "path": "tests/fixtures/context_handoff/codex/hooks_config.json",
+      "sha256": "40328a4450d8d1da6e54e5556c1798772b0ff522d08aab21acc268dd4606932d"
+    },
+    {
+      "path": "tests/fixtures/context_handoff/codex/native_mappings.json",
+      "sha256": "d138abfbcb1c3f1fbced366ae63a9a5626ac3e8f0416e8e1e3215f82be8cadb2"
+    },
+    {
+      "path": "tests/test_context_handoff.py",
+      "sha256": "022606ba7804bf7acdd6e96fc73f6d11911e13362b5afd33e0fec3007e3fa534"
+    },
+    {
+      "path": "tests/test_context_handoff_hooks.py",
+      "sha256": "3003ecfd39dafcc78e1cae10e7c3da3029ca858f94447d4376328122cf3f5d3d"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=no",
+        "tests/test_context_handoff.py::test_context_handoff_entrypoint_missing_before_source"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Pytest summary: 1 failed; AssertionError: CONTEXT_HANDOFF_ENTRYPOINT_MISSING"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=no",
+        "tests/test_context_handoff.py",
+        "tests/test_context_handoff_hooks.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Pytest summary: 127 failed, 3 passed; source is intentionally absent and registration/governance/generated-mirror contracts remain unsatisfied, while the closed native-fixture and non-steering output controls pass."
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/context_handoff_v1.json",
+    "scripts/context_handoff.py",
+    ".codex/hooks.json",
+    ".claude/settings.json",
+    ".claude/hooks/stop-monitor.sh",
+    ".agy/hooks.json",
+    ".agy/hooks/stop-monitor.sh",
+    ".agents/skills/anti-cognitive-decay/SKILL.md",
+    ".antigravity/skills/anti-cognitive-decay/SKILL.md",
+    ".claude/skills/anti-cognitive-decay/SKILL.md",
+    ".agy/skills/anti-cognitive-decay/SKILL.md",
+    ".agents/rules/20-context-handoff.md",
+    ".agents/AGENTS.md",
+    "scripts/sync_claude_agy_parity.py",
+    "scripts/sync_ai_agent_ecosystem.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "8e4359ab2bb1bddf609e84dd7af22c70c20f9cb6",
+  "correction_reason": "Sequence 2 invented usage, lane, and notification state inside native hook payloads; omitted required runtime identity and event fields; treated Codex SessionEnd as steering output; trusted caller-supplied transcript byte counts; retained root-fragile Claude and unsupported AGY Stop registrations; and omitted registration plus generated-mirror paths required by its own byte-parity acceptance tests.",
+  "rationale": "Freeze the current official Codex, Claude Code, and Gemini/AGY hook envelopes while keeping normalized threshold state separate from native stdin. The contract requires regular-file os.stat fallback without transcript reads, explicit AfterAgent-to-Stop normalization for AGY, empty bounded Codex SessionEnd behavior, root-stable registrations, non-persistence of session/transcript identifiers, and the minimal source/mirror allowlist needed for deterministic sync. Collection retained all 127 sequence-2 cases and added three focused cases (130 total). Fresh controls: the sentinel exited 1 with 1 failed; the full suite exited 1 with 127 failed and 3 passed; two fixture-only controls exited 0 with 2 passed. Official documentation lookup informed fixture fields only and is not runtime/provider execution proof. DispatchDecision CTX-010-RED-B02: bounded QA correction; test-only commit; no provider, credentials, deployment, or source mutation."
+}

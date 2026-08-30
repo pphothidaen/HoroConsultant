@@ -238,14 +238,32 @@ def _temp_artifacts(output: Path) -> list[Path]:
     return sorted(output.parent.glob(f".{output.name}.*"))
 
 
-def _hook_decision(payload: dict[str, Any]) -> dict[str, Any]:
+def _hook_decision(
+    payload: dict[str, Any],
+    *,
+    transcript_path: str | None = None,
+) -> dict[str, Any]:
+    native_payload = {
+        "session_id": "codex-session-core-canary",
+        "transcript_path": transcript_path,
+        "cwd": "/workspace/HoroConsultant",
+        "hook_event_name": "Stop",
+        "model": "gpt-5.6-sol",
+        "permission_mode": "default",
+        "turn_id": "codex-turn-core-canary",
+        "stop_hook_active": False,
+        "last_assistant_message": "bounded assistant summary",
+    }
     result = _invoke(
         "hook",
         "--runtime",
         "codex",
         "--event",
         "Stop",
-        payload=payload,
+        "--native",
+        "--state-json",
+        json.dumps(payload, separators=(",", ":")),
+        payload=native_payload,
     )
     decision = _json_stdout(result)
     assert set(decision) == DECISION_KEYS
@@ -314,6 +332,7 @@ def test_hook_rejects_input_over_64_kib() -> None:
         "codex",
         "--event",
         "Stop",
+        "--native",
         raw_input=raw,
     )
 
@@ -342,6 +361,7 @@ def test_hook_rejects_malformed_or_non_object_input_without_echo(raw: bytes) -> 
         "codex",
         "--event",
         "Stop",
+        "--native",
         raw_input=raw,
     )
 
@@ -352,18 +372,23 @@ def test_hook_rejects_malformed_or_non_object_input_without_echo(raw: bytes) -> 
         assert b"malformed-canary" not in result.stderr
 
 
-def test_signal_precedence_is_tokens_then_percent_then_stat_bytes_then_unknown() -> None:
+def test_signal_precedence_is_tokens_then_percent_then_stat_bytes_then_unknown(
+    tmp_path: Path,
+) -> None:
+    transcript = tmp_path / "transcript.jsonl"
+    transcript.write_bytes(b"")
+    transcript.truncate(950 * 1024)
     token_decision = _hook_decision(
         {
             "usage": {
                 "tokens": {"used": 500, "limit": 1000},
                 "percent": 90,
-                "transcript_stat_bytes": 950 * 1024,
                 "label": "999 KiB",
             },
             "last_notified_level": "NORMAL",
             "lanes": [],
-        }
+        },
+        transcript_path=str(transcript),
     )
     assert token_decision["signal"] == {
         "kind": "tokens",
@@ -379,7 +404,8 @@ def test_signal_precedence_is_tokens_then_percent_then_stat_bytes_then_unknown()
             "usage": {"percent": 80, "transcript_stat_bytes": 100 * 1024},
             "last_notified_level": "NORMAL",
             "lanes": [],
-        }
+        },
+        transcript_path=str(transcript),
     )
     assert percent_decision["signal"]["kind"] == "percent"
     assert percent_decision["signal"]["source"] == "percent"
@@ -387,11 +413,8 @@ def test_signal_precedence_is_tokens_then_percent_then_stat_bytes_then_unknown()
     assert percent_decision["level"] == "CRITICAL"
 
     bytes_decision = _hook_decision(
-        {
-            "usage": {"transcript_stat_bytes": 450 * 1024},
-            "last_notified_level": "NORMAL",
-            "lanes": [],
-        }
+        {"usage": {}, "last_notified_level": "NORMAL", "lanes": []},
+        transcript_path=str(transcript),
     )
     assert bytes_decision["signal"] == {
         "kind": "bytes",
@@ -436,16 +459,22 @@ def test_label_bytes_are_a_transcript_size_fallback_and_never_a_percent() -> Non
 
 
 @pytest.mark.parametrize("label", ["1 B", "999 KiB", "80%", "unknown", "999999999 GiB"])
-def test_transcript_stat_bytes_precede_every_supplied_label(label: str) -> None:
+def test_transcript_stat_bytes_precede_every_supplied_label(
+    tmp_path: Path,
+    label: str,
+) -> None:
+    transcript = tmp_path / "transcript.jsonl"
+    transcript.write_bytes(b"")
+    transcript.truncate(400 * 1024)
     decision = _hook_decision(
         {
             "usage": {
-                "transcript_stat_bytes": 400 * 1024,
                 "label": label,
             },
             "last_notified_level": "NORMAL",
             "lanes": [],
-        }
+        },
+        transcript_path=str(transcript),
     )
 
     assert decision["signal"] == {
@@ -473,12 +502,6 @@ def test_transcript_stat_bytes_precede_every_supplied_label(label: str) -> None:
         ({"percent": 45}, "SNAPSHOT"),
         ({"percent": 79}, "SNAPSHOT"),
         ({"percent": 80}, "CRITICAL"),
-        ({"transcript_stat_bytes": 399 * 1024}, "NORMAL"),
-        ({"transcript_stat_bytes": 400 * 1024}, "ALERT"),
-        ({"transcript_stat_bytes": 449 * 1024}, "ALERT"),
-        ({"transcript_stat_bytes": 450 * 1024}, "SNAPSHOT"),
-        ({"transcript_stat_bytes": 899 * 1024}, "SNAPSHOT"),
-        ({"transcript_stat_bytes": 900 * 1024}, "CRITICAL"),
     ],
 )
 def test_default_threshold_boundaries(
@@ -488,6 +511,62 @@ def test_default_threshold_boundaries(
     decision = _hook_decision(
         {"usage": usage, "last_notified_level": "NORMAL", "lanes": []}
     )
+    assert decision["level"] == expected_level
+
+
+@pytest.mark.parametrize(
+    ("size_kib", "expected_level"),
+    [
+        (399, "NORMAL"),
+        (400, "ALERT"),
+        (449, "ALERT"),
+        (450, "SNAPSHOT"),
+        (899, "SNAPSHOT"),
+        (900, "CRITICAL"),
+    ],
+)
+def test_regular_transcript_stat_boundaries_are_derived_without_reading(
+    tmp_path: Path,
+    size_kib: int,
+    expected_level: str,
+) -> None:
+    transcript = tmp_path / f"transcript-{size_kib}.jsonl"
+    transcript.write_bytes(b"")
+    transcript.truncate(size_kib * 1024)
+    transcript.chmod(0)
+    native = {
+        "session_id": f"codex-session-stat-{size_kib}-canary",
+        "transcript_path": str(transcript),
+        "cwd": str(tmp_path),
+        "hook_event_name": "Stop",
+        "model": "gpt-5.6-sol",
+        "permission_mode": "default",
+        "turn_id": f"codex-turn-stat-{size_kib}-canary",
+        "stop_hook_active": False,
+        "last_assistant_message": "bounded assistant summary",
+    }
+    state = {"usage": {}, "last_notified_level": "NORMAL", "lanes": []}
+
+    result = _invoke(
+        "hook",
+        "--runtime",
+        "codex",
+        "--event",
+        "Stop",
+        "--native",
+        "--state-json",
+        json.dumps(state, separators=(",", ":")),
+        payload=native,
+    )
+
+    decision = _json_stdout(result)
+    assert decision["signal"] == {
+        "kind": "bytes",
+        "source": "transcript_stat_bytes",
+        "value": size_kib * 1024,
+        "limit": None,
+        "normalized_percent": None,
+    }
     assert decision["level"] == expected_level
 
 
@@ -534,14 +613,19 @@ def test_every_unresolved_lane_status_forces_clear_ready_false(status: str) -> N
     assert "operator" in decision["recommendation"].casefold()
 
 
-def test_hook_never_reads_transcript_content(tmp_path: Path) -> None:
+def test_fifo_transcript_is_never_opened_or_read_and_fails_unknown(tmp_path: Path) -> None:
     transcript_fifo = tmp_path / "raw-transcript.fifo"
     os.mkfifo(transcript_fifo)
-    payload = {
-        "usage": {"transcript_stat_bytes": 450 * 1024},
+    native = {
+        "session_id": "codex-session-fifo-canary",
         "transcript_path": str(transcript_fifo),
-        "last_notified_level": "ALERT",
-        "lanes": [],
+        "cwd": str(tmp_path),
+        "hook_event_name": "Stop",
+        "model": "gpt-5.6-sol",
+        "permission_mode": "default",
+        "turn_id": "codex-turn-fifo-canary",
+        "stop_hook_active": False,
+        "last_assistant_message": "bounded assistant summary",
     }
 
     result = _invoke(
@@ -550,13 +634,90 @@ def test_hook_never_reads_transcript_content(tmp_path: Path) -> None:
         "codex",
         "--event",
         "Stop",
-        payload=payload,
+        "--native",
+        "--state-json",
+        json.dumps(
+            {"usage": {}, "last_notified_level": "ALERT", "lanes": []},
+            separators=(",", ":"),
+        ),
+        payload=native,
         timeout=2.0,
     )
 
     decision = _json_stdout(result)
-    assert decision["signal"]["source"] == "transcript_stat_bytes"
-    assert decision["level"] == "SNAPSHOT"
+    assert decision["signal"]["source"] == "UNKNOWN"
+    assert decision["level"] == "UNKNOWN"
+    assert decision["clear_ready"] is False
+
+
+def test_unavailable_transcript_path_fails_unknown_without_echo(tmp_path: Path) -> None:
+    missing = tmp_path / "missing-session-transcript-canary.jsonl"
+    native = {
+        "session_id": "codex-session-missing-canary",
+        "transcript_path": str(missing),
+        "cwd": str(tmp_path),
+        "hook_event_name": "Stop",
+        "model": "gpt-5.6-sol",
+        "permission_mode": "default",
+        "turn_id": "codex-turn-missing-canary",
+        "stop_hook_active": False,
+        "last_assistant_message": "bounded assistant summary",
+    }
+    result = _invoke(
+        "hook",
+        "--runtime",
+        "codex",
+        "--event",
+        "Stop",
+        "--native",
+        "--state-json",
+        json.dumps(
+            {"usage": {}, "last_notified_level": "NORMAL", "lanes": []},
+            separators=(",", ":"),
+        ),
+        payload=native,
+    )
+
+    decision = _json_stdout(result)
+    assert decision["level"] == "UNKNOWN"
+    diagnostics = result.stdout + result.stderr
+    assert str(missing).encode() not in diagnostics
+    assert native["session_id"].encode() not in diagnostics
+
+
+def test_transcript_stat_bytes_cannot_be_forged_in_normalized_state() -> None:
+    state = {
+        "usage": {"transcript_stat_bytes": 900 * 1024},
+        "last_notified_level": "NORMAL",
+        "lanes": [],
+    }
+    native = {
+        "session_id": "codex-session-forged-stat-canary",
+        "transcript_path": None,
+        "cwd": "/workspace/HoroConsultant",
+        "hook_event_name": "Stop",
+        "model": "gpt-5.6-sol",
+        "permission_mode": "default",
+        "turn_id": "codex-turn-forged-stat-canary",
+        "stop_hook_active": False,
+        "last_assistant_message": "bounded assistant summary",
+    }
+
+    result = _invoke(
+        "hook",
+        "--runtime",
+        "codex",
+        "--event",
+        "Stop",
+        "--native",
+        "--state-json",
+        json.dumps(state, separators=(",", ":")),
+        payload=native,
+    )
+
+    assert result.returncode == 2
+    assert result.stdout == b""
+    assert "NORMALIZED_STATE_INVALID" in _stderr(result)
 
 
 def test_snapshot_writes_closed_canonical_handoff_with_authority_pointers(
@@ -953,10 +1114,26 @@ def test_hook_recursive_sensitive_input_fails_closed_without_echo() -> None:
         "codex",
         "--event",
         "Stop",
+        "--native",
+        "--state-json",
+        json.dumps(
+            {
+                "usage": {"percent": 45},
+                "last_notified_level": "ALERT",
+                "lanes": [lane],
+            },
+            separators=(",", ":"),
+        ),
         payload={
-            "usage": {"percent": 45},
-            "last_notified_level": "ALERT",
-            "lanes": [lane],
+            "session_id": "codex-session-sensitive-canary",
+            "transcript_path": None,
+            "cwd": "/workspace/HoroConsultant",
+            "hook_event_name": "Stop",
+            "model": "gpt-5.6-sol",
+            "permission_mode": "default",
+            "turn_id": "codex-turn-sensitive-canary",
+            "stop_hook_active": False,
+            "last_assistant_message": "bounded assistant summary",
         },
     )
 

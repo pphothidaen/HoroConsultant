@@ -1,30 +1,23 @@
 {
-  "schema_version": "context-handoff-native-fixtures-v2",
+  "schema_version": "context-handoff-native-fixtures-v3",
+  "source_contract": "Gemini CLI AfterAgent hook 2026-08-30",
+  "wire_event": "AfterAgent",
+  "normalized_event": "Stop",
   "cases": [
     {
-      "id": "agy-stop-warning",
-      "input": {
-        "hook_event_name": "Stop",
-        "stop_hook_active": false,
-        "usage": {"transcript_stat_bytes": 460800},
-        "last_notified_level": "ALERT",
-        "lanes": []
-      },
-      "expected": {"decision": "continue"},
-      "expected_output_keys": ["decision", "reason"],
+      "id": "agy-after-agent-warning",
+      "input": {"session_id":"agy-session-warning-canary","transcript_path":"/runtime/agy/after-agent-warning-canary.jsonl","cwd":"/workspace/HoroConsultant","hook_event_name":"AfterAgent","timestamp":"2026-08-30T00:00:00Z","prompt":"agy-prompt-warning-canary","prompt_response":"agy-response-warning-canary","stop_hook_active":false},
+      "normalized_state": {"usage":{"percent":45},"last_notified_level":"ALERT","lanes":[]},
+      "expected": {},
+      "expected_output_keys": ["systemMessage"],
       "contains": ["snapshot", "operator"]
     },
     {
-      "id": "agy-stop-recursion-safe",
-      "input": {
-        "hook_event_name": "Stop",
-        "stop_hook_active": true,
-        "usage": {"transcript_stat_bytes": 921600},
-        "last_notified_level": "SNAPSHOT",
-        "lanes": []
-      },
-      "expected": {"decision": "stop"},
-      "expected_output_keys": ["decision"],
+      "id": "agy-after-agent-recursion-safe",
+      "input": {"session_id":"agy-session-recursion-canary","transcript_path":"/runtime/agy/after-agent-recursion-canary.jsonl","cwd":"/workspace/HoroConsultant","hook_event_name":"AfterAgent","timestamp":"2026-08-30T00:00:01Z","prompt":"agy-prompt-recursion-canary","prompt_response":"agy-response-recursion-canary","stop_hook_active":true},
+      "normalized_state": {"usage":{"percent":95},"last_notified_level":"SNAPSHOT","lanes":[]},
+      "expected": {},
+      "expected_output_keys": [],
       "contains": []
     }
   ]

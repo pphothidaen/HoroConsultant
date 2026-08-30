@@ -1,5 +1,5 @@
 {
-  "description": "Local non-managed context handoff request hooks; native user review of the exact current hook hash remains external to repository configuration.",
+  "description": "Local non-managed context handoff request hooks; native user review of the exact current hook hash remains external, and SessionEnd is synchronous, non-steering, and capped at three seconds.",
   "hooks": {
     "SessionStart": [
       {

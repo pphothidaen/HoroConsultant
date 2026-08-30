@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -107,7 +108,15 @@ def _native_codex(
     event: str,
     payload: dict[str, Any],
     handoff: Path,
+    *,
+    normalized_state: dict[str, Any] | None = None,
+    timeout: float = 5.0,
 ) -> subprocess.CompletedProcess[str]:
+    state = normalized_state or {
+        "usage": {},
+        "last_notified_level": "NORMAL",
+        "lanes": [],
+    }
     return subprocess.run(
         [
             sys.executable,
@@ -118,6 +127,8 @@ def _native_codex(
             "--event",
             event,
             "--native",
+            "--state-json",
+            json.dumps(state, separators=(",", ":")),
             "--handoff",
             str(handoff),
         ],
@@ -126,7 +137,7 @@ def _native_codex(
         capture_output=True,
         text=True,
         check=False,
-        timeout=5,
+        timeout=timeout,
     )
 
 
@@ -169,6 +180,41 @@ def _run_wrapper(
         check=False,
         timeout=5,
         env=safe_env,
+    )
+
+
+def _native_runtime(
+    runtime: str,
+    wire_event: str,
+    normalized_event: str,
+    payload: dict[str, Any],
+    normalized_state: dict[str, Any],
+    handoff: Path,
+) -> subprocess.CompletedProcess[str]:
+    assert ENTRYPOINT.is_file(), "CONTEXT_HANDOFF_ENTRYPOINT_MISSING"
+    return subprocess.run(
+        [
+            sys.executable,
+            str(ENTRYPOINT),
+            "hook",
+            "--runtime",
+            runtime,
+            "--event",
+            normalized_event,
+            "--wire-event",
+            wire_event,
+            "--native",
+            "--state-json",
+            json.dumps(normalized_state, separators=(",", ":")),
+            "--handoff",
+            str(handoff),
+        ],
+        cwd=ROOT,
+        input=json.dumps(payload, separators=(",", ":")),
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=5,
     )
 
 
@@ -302,7 +348,7 @@ def test_repository_only_acknowledges_native_dangerous_bypass_and_never_uses_it(
 
 def test_codex_native_mappings_cover_session_compaction_stop_and_end(tmp_path: Path) -> None:
     fixture = _load_json(CODEX_NATIVE_FIXTURE)
-    assert fixture["schema_version"] == "context-handoff-native-fixtures-v2"
+    assert fixture["schema_version"] == "context-handoff-native-fixtures-v3"
     cases = fixture["cases"]
     assert {case["id"] for case in cases} == {
         "session-start-startup",
@@ -315,21 +361,127 @@ def test_codex_native_mappings_cover_session_compaction_stop_and_end(tmp_path: P
         "post-compact-auto",
         "stop-warning",
         "stop-recursion-safe",
-        "session-end-warning",
+        "session-end-snapshot",
+    }
+
+    exact_wire_keys = {
+        "SessionStart": {
+            "session_id",
+            "transcript_path",
+            "cwd",
+            "hook_event_name",
+            "model",
+            "permission_mode",
+            "source",
+        },
+        "PreCompact": {
+            "session_id",
+            "transcript_path",
+            "cwd",
+            "hook_event_name",
+            "model",
+            "turn_id",
+            "trigger",
+        },
+        "PostCompact": {
+            "session_id",
+            "transcript_path",
+            "cwd",
+            "hook_event_name",
+            "model",
+            "turn_id",
+            "trigger",
+        },
+        "Stop": {
+            "session_id",
+            "transcript_path",
+            "cwd",
+            "hook_event_name",
+            "model",
+            "permission_mode",
+            "turn_id",
+            "stop_hook_active",
+            "last_assistant_message",
+        },
+        "SessionEnd": {
+            "session_id",
+            "transcript_path",
+            "cwd",
+            "hook_event_name",
+            "reason",
+        },
     }
 
     handoff = tmp_path / "HANDOFF.md"
     _create_handoff(handoff)
     for case in cases:
         assert case["input"]["hook_event_name"] == case["event"]
+        assert set(case["input"]) == exact_wire_keys[case["event"]], case["id"]
+        assert set(case["normalized_state"]) == {
+            "usage",
+            "last_notified_level",
+            "lanes",
+        }
+        assert {"usage", "last_notified_level", "lanes"}.isdisjoint(case["input"])
         if case["event"] == "Stop":
             assert "stop_hook_active" in case["input"]
             assert "hook_active" not in case["input"]
-        result = _native_codex(case["event"], case["input"], handoff)
+        if case["event"] == "SessionEnd":
+            continue
+        result = _native_codex(
+            case["event"],
+            case["input"],
+            handoff,
+            normalized_state=case["normalized_state"],
+        )
         assert result.returncode == 0, f"{case['id']}: {result.stderr}"
         output = json.loads(result.stdout)
         assert isinstance(output, dict), case["id"]
         _assert_native_mapping(output, case)
+        persisted = handoff.read_text(encoding="utf-8")
+        emitted = result.stdout + result.stderr + persisted
+        for private_field in (
+            "session_id",
+            "transcript_path",
+            "turn_id",
+            "last_assistant_message",
+        ):
+            value = case["input"].get(private_field)
+            if isinstance(value, str):
+                assert value not in emitted, f"{case['id']} leaked {private_field}"
+
+
+def test_codex_session_end_is_empty_nonsteering_and_bounded_by_three_second_timeout(
+    tmp_path: Path,
+) -> None:
+    fixture = _load_json(CODEX_NATIVE_FIXTURE)
+    case = next(case for case in fixture["cases"] if case["event"] == "SessionEnd")
+    handoff = tmp_path / "HANDOFF.md"
+    state = dict(case["normalized_state"])
+    state["snapshot"] = _minimal_snapshot()
+
+    started = time.monotonic()
+    result = _native_codex(
+        "SessionEnd",
+        case["input"],
+        handoff,
+        normalized_state=state,
+        timeout=3.0,
+    )
+    elapsed = time.monotonic() - started
+
+    assert result.returncode == 0, result.stderr
+    assert result.stdout == ""
+    assert elapsed < 3.25
+    raw = handoff.read_bytes()
+    assert 0 < len(raw) <= 16 * 1024
+    assert raw.count(b"<!-- HANDOFF-SNAPSHOT-V1:START -->") == 1
+    assert raw.count(b"<!-- HANDOFF-SNAPSHOT-V1:END -->") == 1
+    combined = result.stdout.encode() + result.stderr.encode() + raw
+    for field in ("session_id", "transcript_path"):
+        assert case["input"][field].encode() not in combined
+    for steering in (b"systemMessage", b"continue", b"decision", b"stopReason"):
+        assert steering not in result.stdout.encode()
 
 
 def test_codex_hook_outputs_only_request_operator_actions() -> None:
@@ -338,7 +490,18 @@ def test_codex_hook_outputs_only_request_operator_actions() -> None:
         expected_keys = set(case["expected_output_keys"])
         assert "decision" not in expected_keys, case["id"]
         assert "continue" not in expected_keys, case["id"]
-        serialized = json.dumps(case, sort_keys=True).casefold()
+        output_contract = {
+            key: case[key]
+            for key in (
+                "expected_output_kind",
+                "expected_output_keys",
+                "expected",
+                "expected_hook_event_name",
+                "contains",
+            )
+            if key in case
+        }
+        serialized = json.dumps(output_contract, sort_keys=True).casefold()
         for automatic_action in (
             '"continue": false',
             '"decision": "block"',
@@ -367,13 +530,9 @@ def test_codex_native_mapping_rejects_unknown_start_or_compact_signals(
 ) -> None:
     handoff = tmp_path / "HANDOFF.md"
     _create_handoff(handoff)
-    payload = {
-        "hook_event_name": event,
-        field: bad_value,
-        "usage": {},
-        "last_notified_level": "NORMAL",
-        "lanes": [],
-    }
+    fixture = _load_json(CODEX_NATIVE_FIXTURE)
+    payload = dict(next(case for case in fixture["cases"] if case["event"] == event)["input"])
+    payload[field] = bad_value
 
     result = _native_codex(event, payload, handoff)
 
@@ -382,9 +541,33 @@ def test_codex_native_mapping_rejects_unknown_start_or_compact_signals(
     assert "HOOK_EVENT_INPUT_INVALID" in result.stderr
 
 
-def test_claude_and_agy_hook_registrations_remain_byte_semantically_unchanged() -> None:
-    assert _load_json(CLAUDE_SETTINGS) == _fixture("claude", "registrations.json")
-    assert _load_json(AGY_SETTINGS) == _fixture("agy", "registrations.json")
+def test_claude_and_agy_registrations_use_root_stable_wrapper_commands() -> None:
+    claude = _load_json(CLAUDE_SETTINGS)
+    claude_stop = claude["hooks"]["Stop"]
+    assert len(claude_stop) == 1 and len(claude_stop[0]["hooks"]) == 1
+    claude_handler = claude_stop[0]["hooks"][0]
+    assert claude_handler == {
+        "type": "command",
+        "command": 'bash "${CLAUDE_PROJECT_DIR}/.claude/hooks/stop-monitor.sh"',
+        "timeout": 10,
+    }
+
+    agy = _load_json(AGY_SETTINGS)
+    agy_groups = agy["hooks"]["AfterAgent"]
+    assert agy_groups == [
+        {
+            "matcher": "*",
+            "sequential": True,
+            "hooks": [
+                {
+                    "name": "context-handoff-stop-normalizer",
+                    "type": "command",
+                    "command": 'bash "$(git rev-parse --show-toplevel)/.agy/hooks/stop-monitor.sh"',
+                    "timeout": 3000,
+                }
+            ],
+        }
+    ]
 
 
 @pytest.mark.parametrize(
@@ -400,13 +583,67 @@ def test_stop_adapters_match_native_fixtures_and_prevent_recursion(
     fixture_path: Path,
 ) -> None:
     fixture = _load_json(fixture_path)
-    assert fixture["schema_version"] == "context-handoff-native-fixtures-v2"
+    assert fixture["schema_version"] == "context-handoff-native-fixtures-v3"
+    assert fixture["wire_event"] in {"Stop", "AfterAgent"}
+    normalized_event = fixture.get("normalized_event", "Stop")
+    if runtime == "claude":
+        assert fixture["wire_event"] == "Stop"
+        exact_wire_keys = {
+            "session_id",
+            "transcript_path",
+            "cwd",
+            "permission_mode",
+            "hook_event_name",
+            "stop_hook_active",
+            "last_assistant_message",
+        }
+    else:
+        assert fixture["wire_event"] == "AfterAgent"
+        assert fixture["normalized_event"] == "Stop"
+        exact_wire_keys = {
+            "session_id",
+            "transcript_path",
+            "cwd",
+            "hook_event_name",
+            "timestamp",
+            "prompt",
+            "prompt_response",
+            "stop_hook_active",
+        }
+    handoff = FIXTURES / runtime / "nonpersistent-HANDOFF.md"
     for case in fixture["cases"]:
+        assert set(case["input"]) == exact_wire_keys
+        assert case["input"]["hook_event_name"] == fixture["wire_event"]
         assert "stop_hook_active" in case["input"]
         assert "hook_active" not in case["input"]
-        result = _run_wrapper(wrapper, case["input"], cwd=FIXTURES / runtime)
+        assert {"usage", "last_notified_level", "lanes"}.isdisjoint(case["input"])
+        assert set(case["normalized_state"]) == {
+            "usage",
+            "last_notified_level",
+            "lanes",
+        }
+        result = _native_runtime(
+            runtime,
+            fixture["wire_event"],
+            normalized_event,
+            case["input"],
+            case["normalized_state"],
+            handoff,
+        )
         output = _parse_json_output(result, case["id"])
         _assert_native_mapping(output, case)
+        emitted = result.stdout + result.stderr
+        for private_field in (
+            "session_id",
+            "transcript_path",
+            "last_assistant_message",
+            "prompt",
+            "prompt_response",
+        ):
+            value = case["input"].get(private_field)
+            if isinstance(value, str):
+                assert value not in emitted, f"{case['id']} leaked {private_field}"
+    assert not handoff.exists(), "Stop adapters must not persist native identifiers"
 
 
 @pytest.mark.parametrize(
@@ -427,7 +664,9 @@ def test_stop_wrappers_are_thin_fail_closed_shared_engine_adapters(
     )
     expected = (
         'python3 "$(git rev-parse --show-toplevel)/scripts/context_handoff.py" '
-        f"hook --runtime {runtime} --event Stop --native"
+        f"hook --runtime {runtime} --event Stop"
+        + (" --wire-event AfterAgent" if runtime == "agy" else "")
+        + " --native"
     )
     assert expected in command_lines
     assert "set -euo pipefail" in command_lines

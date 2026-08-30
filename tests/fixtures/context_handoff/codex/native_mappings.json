@@ -1,16 +1,12 @@
 {
-  "schema_version": "context-handoff-native-fixtures-v2",
+  "schema_version": "context-handoff-native-fixtures-v3",
+  "source_contract": "Codex Hooks release behavior 2026-08-30",
   "cases": [
     {
       "id": "session-start-startup",
       "event": "SessionStart",
-      "input": {
-        "hook_event_name": "SessionStart",
-        "source": "startup",
-        "usage": {},
-        "last_notified_level": "NORMAL",
-        "lanes": []
-      },
+      "input": {"session_id":"codex-session-startup-canary","transcript_path":"/runtime/codex/startup-canary.jsonl","cwd":"/workspace/HoroConsultant","hook_event_name":"SessionStart","model":"gpt-5.6-sol","permission_mode":"default","source":"startup"},
+      "normalized_state": {"usage":{},"last_notified_level":"NORMAL","lanes":[]},
       "expected_output_keys": ["hookSpecificOutput"],
       "expected_hook_event_name": "SessionStart",
       "max_additional_context_bytes": 4096,
@@ -19,13 +15,8 @@
     {
       "id": "session-start-resume",
       "event": "SessionStart",
-      "input": {
-        "hook_event_name": "SessionStart",
-        "source": "resume",
-        "usage": {},
-        "last_notified_level": "NORMAL",
-        "lanes": []
-      },
+      "input": {"session_id":"codex-session-resume-canary","transcript_path":"/runtime/codex/resume-canary.jsonl","cwd":"/workspace/HoroConsultant","hook_event_name":"SessionStart","model":"gpt-5.6-sol","permission_mode":"default","source":"resume"},
+      "normalized_state": {"usage":{},"last_notified_level":"NORMAL","lanes":[]},
       "expected_output_keys": ["hookSpecificOutput"],
       "expected_hook_event_name": "SessionStart",
       "max_additional_context_bytes": 4096,
@@ -34,13 +25,8 @@
     {
       "id": "session-start-clear",
       "event": "SessionStart",
-      "input": {
-        "hook_event_name": "SessionStart",
-        "source": "clear",
-        "usage": {},
-        "last_notified_level": "NORMAL",
-        "lanes": []
-      },
+      "input": {"session_id":"codex-session-clear-canary","transcript_path":null,"cwd":"/workspace/HoroConsultant","hook_event_name":"SessionStart","model":"gpt-5.6-sol","permission_mode":"default","source":"clear"},
+      "normalized_state": {"usage":{},"last_notified_level":"NORMAL","lanes":[]},
       "expected_output_keys": ["hookSpecificOutput"],
       "expected_hook_event_name": "SessionStart",
       "max_additional_context_bytes": 4096,
@@ -49,13 +35,8 @@
     {
       "id": "session-start-compact",
       "event": "SessionStart",
-      "input": {
-        "hook_event_name": "SessionStart",
-        "source": "compact",
-        "usage": {},
-        "last_notified_level": "NORMAL",
-        "lanes": []
-      },
+      "input": {"session_id":"codex-session-compact-canary","transcript_path":"/runtime/codex/compact-canary.jsonl","cwd":"/workspace/HoroConsultant","hook_event_name":"SessionStart","model":"gpt-5.6-sol","permission_mode":"default","source":"compact"},
+      "normalized_state": {"usage":{},"last_notified_level":"NORMAL","lanes":[]},
       "expected_output_keys": ["hookSpecificOutput"],
       "expected_hook_event_name": "SessionStart",
       "max_additional_context_bytes": 4096,
@@ -64,13 +45,8 @@
     {
       "id": "pre-compact-manual",
       "event": "PreCompact",
-      "input": {
-        "hook_event_name": "PreCompact",
-        "trigger": "manual",
-        "usage": {"percent": 45},
-        "last_notified_level": "ALERT",
-        "lanes": []
-      },
+      "input": {"session_id":"codex-session-pre-manual-canary","transcript_path":"/runtime/codex/pre-manual-canary.jsonl","cwd":"/workspace/HoroConsultant","hook_event_name":"PreCompact","model":"gpt-5.6-sol","turn_id":"codex-turn-pre-manual-canary","trigger":"manual"},
+      "normalized_state": {"usage":{"percent":45},"last_notified_level":"ALERT","lanes":[]},
       "expected_output_keys": ["systemMessage"],
       "max_field_bytes": {"systemMessage": 4096},
       "contains": ["snapshot", "operator"]
@@ -78,13 +54,8 @@
     {
       "id": "pre-compact-auto",
       "event": "PreCompact",
-      "input": {
-        "hook_event_name": "PreCompact",
-        "trigger": "auto",
-        "usage": {"percent": 45},
-        "last_notified_level": "ALERT",
-        "lanes": []
-      },
+      "input": {"session_id":"codex-session-pre-auto-canary","transcript_path":"/runtime/codex/pre-auto-canary.jsonl","cwd":"/workspace/HoroConsultant","hook_event_name":"PreCompact","model":"gpt-5.6-sol","turn_id":"codex-turn-pre-auto-canary","trigger":"auto"},
+      "normalized_state": {"usage":{"percent":45},"last_notified_level":"ALERT","lanes":[]},
       "expected_output_keys": ["systemMessage"],
       "max_field_bytes": {"systemMessage": 4096},
       "contains": ["snapshot", "operator"]
@@ -92,13 +63,8 @@
     {
       "id": "post-compact-manual",
       "event": "PostCompact",
-      "input": {
-        "hook_event_name": "PostCompact",
-        "trigger": "manual",
-        "usage": {},
-        "last_notified_level": "SNAPSHOT",
-        "lanes": []
-      },
+      "input": {"session_id":"codex-session-post-manual-canary","transcript_path":"/runtime/codex/post-manual-canary.jsonl","cwd":"/workspace/HoroConsultant","hook_event_name":"PostCompact","model":"gpt-5.6-sol","turn_id":"codex-turn-post-manual-canary","trigger":"manual"},
+      "normalized_state": {"usage":{},"last_notified_level":"SNAPSHOT","lanes":[]},
       "expected_output_keys": ["systemMessage"],
       "max_field_bytes": {"systemMessage": 4096},
       "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
@@ -106,13 +72,8 @@
     {
       "id": "post-compact-auto",
       "event": "PostCompact",
-      "input": {
-        "hook_event_name": "PostCompact",
-        "trigger": "auto",
-        "usage": {},
-        "last_notified_level": "SNAPSHOT",
-        "lanes": []
-      },
+      "input": {"session_id":"codex-session-post-auto-canary","transcript_path":"/runtime/codex/post-auto-canary.jsonl","cwd":"/workspace/HoroConsultant","hook_event_name":"PostCompact","model":"gpt-5.6-sol","turn_id":"codex-turn-post-auto-canary","trigger":"auto"},
+      "normalized_state": {"usage":{},"last_notified_level":"SNAPSHOT","lanes":[]},
       "expected_output_keys": ["systemMessage"],
       "max_field_bytes": {"systemMessage": 4096},
       "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
@@ -120,13 +81,8 @@
     {
       "id": "stop-warning",
       "event": "Stop",
-      "input": {
-        "hook_event_name": "Stop",
-        "stop_hook_active": false,
-        "usage": {"percent": 45},
-        "last_notified_level": "ALERT",
-        "lanes": []
-      },
+      "input": {"session_id":"codex-session-stop-warning-canary","transcript_path":"/runtime/codex/stop-warning-canary.jsonl","cwd":"/workspace/HoroConsultant","hook_event_name":"Stop","model":"gpt-5.6-sol","permission_mode":"default","turn_id":"codex-turn-stop-warning-canary","stop_hook_active":false,"last_assistant_message":"codex-last-message-warning-canary"},
+      "normalized_state": {"usage":{"percent":45},"last_notified_level":"ALERT","lanes":[]},
       "expected_output_keys": ["systemMessage"],
       "max_field_bytes": {"systemMessage": 4096},
       "contains": ["snapshot", "operator"]
@@ -134,30 +90,19 @@
     {
       "id": "stop-recursion-safe",
       "event": "Stop",
-      "input": {
-        "hook_event_name": "Stop",
-        "stop_hook_active": true,
-        "usage": {"percent": 95},
-        "last_notified_level": "SNAPSHOT",
-        "lanes": []
-      },
+      "input": {"session_id":"codex-session-stop-recursion-canary","transcript_path":"/runtime/codex/stop-recursion-canary.jsonl","cwd":"/workspace/HoroConsultant","hook_event_name":"Stop","model":"gpt-5.6-sol","permission_mode":"default","turn_id":"codex-turn-stop-recursion-canary","stop_hook_active":true,"last_assistant_message":"codex-last-message-recursion-canary"},
+      "normalized_state": {"usage":{"percent":95},"last_notified_level":"SNAPSHOT","lanes":[]},
       "expected_output_keys": [],
-      "max_field_bytes": {},
       "contains": []
     },
     {
-      "id": "session-end-warning",
+      "id": "session-end-snapshot",
       "event": "SessionEnd",
-      "input": {
-        "hook_event_name": "SessionEnd",
-        "reason": "other",
-        "usage": {},
-        "last_notified_level": "NORMAL",
-        "lanes": []
-      },
-      "expected_output_keys": ["systemMessage"],
-      "max_field_bytes": {"systemMessage": 4096},
-      "contains": ["warning", "PROJECT_TASKS.md"]
+      "input": {"session_id":"codex-session-end-canary","transcript_path":"/runtime/codex/session-end-canary.jsonl","cwd":"/workspace/HoroConsultant","hook_event_name":"SessionEnd","reason":"other"},
+      "normalized_state": {"usage":{},"last_notified_level":"NORMAL","lanes":[]},
+      "expected_output_kind": "empty",
+      "expected_output_keys": [],
+      "contains": []
     }
   ]
 }
