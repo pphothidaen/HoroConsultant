@@ -1,0 +1,53 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-MERGE-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "dcf58df3d8714b85654fa00c3d17e2c51edb8622",
+  "test_files": [
+    {
+      "path": "project/tests/prod_version_regression_report.json",
+      "sha256": "bab7dfbcdee156ae49cd7f3416bf6306a88310c75a4ed4fdccb14d4d8b29cc39"
+    },
+    {
+      "path": "project/tests/test_claude_governance.py",
+      "sha256": "ca4b9985ea57c530dce3e8be2da07290dcb9214862ca0e7a1a2e05e05a713369"
+    },
+    {
+      "path": "project/tests/test_fly_artifact_retirement.py",
+      "sha256": "cda5b06f7ca027d567fe81cb875f92944c89d61d0580272579220e2f75b622ca"
+    },
+    {
+      "path": "project/tests/test_full_capacity_governance.py",
+      "sha256": "49f792da2f20662bf6b9e382d4b5041888f79b991eeb702efb68b882d1e25c87"
+    },
+    {
+      "path": "project/tests/test_trigger_inventory_retirement.py",
+      "sha256": "d0089046c593be9436698699c911f064d2b6d5b3aff1497a79ae8dfef0f69b85"
+    },
+    {
+      "path": "tests/test_idq_mvp_080_operational_provider.py",
+      "sha256": "b74e9b2df994d2d98577acd71d4543dd61caa55291f7b97423e3043f6a065747"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "-q", "--tb=no", "tests/test_idq_mvp_080_operational_provider.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "Pytest summary: 287 failed; operational provider tests pending implementation"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/full_capacity_guard.v2.json",
+    ".agents/config/multiagent_model_policy.yaml",
+    ".agents/hooks/full_capacity_guard.py",
+    "project/data/distillation_checklist.json",
+    "scripts/agent_quota_status_guard.py",
+    "scripts/multiagent_prompt_command.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Consolidate all pending test and config changes from temp/merge-all-branches for merge into main. Test files include governance, retirement, capacity, and operational provider updates. Source changes include config updates, hook fixes, and script improvements accumulated during the branch lifecycle."
+}

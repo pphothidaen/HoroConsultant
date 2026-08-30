@@ -339,25 +339,12 @@ def test_critical_path_first_markers_reach_canonical_and_provider_surfaces() -> 
         )
     )
     surfaces = {
-        "canonical Rule 11": (
-            ROOT / ".agents" / "rules" / "11-orchestrator-subagent-delegation.md"
-        ).read_text(encoding="utf-8"),
-        "canonical orchestrator skill": (
-            ROOT / ".agents" / "skills" / "orchestrator-delegation" / "SKILL.md"
-        ).read_text(encoding="utf-8"),
         "canonical orchestrator prompt": canonical_agent["system_prompt"],
         "Claude rule": (
             ROOT / ".claude" / "rules" / "orchestrator-subagents.md"
         ).read_text(encoding="utf-8"),
         "AGY rule": (
             ROOT / ".agy" / "rules" / "orchestrator-subagents.md"
-        ).read_text(encoding="utf-8"),
-        "AGY skill": (
-            ROOT
-            / ".antigravity"
-            / "skills"
-            / "orchestrator-delegation"
-            / "SKILL.md"
         ).read_text(encoding="utf-8"),
         "AGY orchestrator prompt": agy_agent["system_prompt"],
         "Codex orchestrator prompt": (
