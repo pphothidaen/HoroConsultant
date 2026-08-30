@@ -1230,7 +1230,7 @@ Current sections below track active work and release gates only.
 | `PROMPT-GOV-001` | `business_analyst` / `orchestrator` | Govern multi-account PromptCommand routing, quota/account evidence, bounded retries, HITL escalation, and synchronized governance mirrors | DONE | `TICKET-META-008`, Rule 17 |
 | `TICKET-ORCH-ONLY-002` | `business_analyst` / `orchestrator`; aliases `codex1`, `codex2`, `agy1`, `agy2` | Enforce governance -> rules -> hooks hierarchy; keep root/current session orchestrator-only and obtain four distinct alias receipts | BLOCKED — HITL DISPATCH CONTRACT | Rule 17, current CORS/separation lanes |
 | `TICKET-ALIAS-RC2-003` | `developer` / `qa_tester` / `code_reviewer`; aliases `codex1`, `codex2`, `agy1`, `agy2`; monitored by `orchestrator` | Implement, validate, review, then redispatch four distinct lanes with Result Contract v2 | BLOCKED — CODEX1 ATTEMPTS EXHAUSTED | `TICKET-ORCH-ONLY-002`, Rule 17 |
-| `TICKET-ALIAS-RC2-004` | `developer` / `qa_tester` / `code_reviewer`; aliases are bounded read-only diagnostics, monitored by `orchestrator` | Content-free provider parse-reason taxonomy and one fresh `codex1` diagnostic authorization | TODO — OWNER AUTHORIZED / QUOTA UNKNOWN | `TICKET-ALIAS-RC2-003` immutable blocker, QA/retry gate, Rule 17 |
+| `TICKET-ALIAS-RC2-004` | `developer` / `qa_tester` / `code_reviewer`; aliases are bounded read-only diagnostics, monitored by `orchestrator` | Content-free provider parse-reason taxonomy and one fresh `codex1` diagnostic authorization | CODEX1 ATTEMPT-1 COMPLETED — FOLLOW-ON ALIASES UNAUTHORIZED | `TICKET-ALIAS-RC2-003` immutable blocker, separate recorded authorization for each follow-on alias, Rule 17 |
 
 ### TICKET-ORCH-ONLY-002 | Orchestrator-Only Control and Four-Alias Dispatch | [STATUS: BLOCKED — HITL DISPATCH CONTRACT]
 
@@ -1364,7 +1364,7 @@ generated Codex agent file was manually edited or changed by this governance
 update. Existing trailing whitespace in unrelated earlier board additions is
 preserved and is not v2 evidence.
 
-### TICKET-ALIAS-RC2-004 | Content-Free Parse-Reason Diagnostic Follow-On | [STATUS: TODO — OWNER AUTHORIZED / QUOTA UNKNOWN]
+### TICKET-ALIAS-RC2-004 | Content-Free Parse-Reason Diagnostic Follow-On | [STATUS: CODEX1 ATTEMPT-1 COMPLETED — FOLLOW-ON ALIASES UNAUTHORIZED]
 
 **Fresh authorization checkpoint (2026-08-25)**: after the exhausted
 `TICKET-ALIAS-RC2-003` `codex1` attempts, the owner gave fresh `approve all`
@@ -1406,7 +1406,7 @@ dispatch. Stop immediately if the runtime reports less than 10% remaining.
 |---|---|---|---|
 | 1 | `developer` / `qa_tester` | Implement and test only the content-free `provider_parse_reason` taxonomy. | Focused QA must pass; no provider payload retention. |
 | 2 | `code_reviewer` | Read-only review of taxonomy, test coverage, redaction boundary, and retry gate. | Must accept fail-closed boundary before any alias attempt. |
-| 3 | `codex1` | Exactly one fresh, read-only diagnostic attempt, recorded as `RC2-004/codex1/attempt-1`. | If invalid/ambiguous/blocked, stop this ticket and return `NEEDS_HITL`; no automatic retry. |
+| 3 | `codex1` | Completed one approved read-only diagnostic attempt, recorded as `RC2-004/codex1/attempt-1`. | Terminal completed; no retry or alias switch. |
 | 4 | `codex2` | One separately recorded, bounded read-only attempt only after a valid `codex1` result and an explicit recorded attempt authorization. | Otherwise not dispatched. |
 | 5 | `agy1` | One separately recorded, bounded read-only attempt only after the preceding valid gate and explicit recorded attempt authorization. | Otherwise not dispatched. |
 | 6 | `agy2` | One separately recorded, bounded read-only attempt only after the preceding valid gate and explicit recorded attempt authorization. | Otherwise not dispatched. |
@@ -1416,7 +1416,14 @@ dispatch. Stop immediately if the runtime reports less than 10% remaining.
 - [ ] Taxonomy uses only approved, content-free `provider_parse_reason` values; no raw output, identifiers, paths, or secrets are persisted.
 - [ ] Focused taxonomy tests pass under their separately owned QA lane.
 - [ ] Independent review confirms read-only isolation, fail-closed parsing, and the no-retention boundary.
-- [ ] Exactly one fresh `codex1` diagnostic attempt is recorded under `RC2-004`; it does not alter `RC2-003` history.
+- [x] Exactly one fresh `codex1` diagnostic attempt is recorded under `RC2-004`; it does not alter `RC2-003` history.
+
+**Attempt outcome -- `RC2-004/codex1/attempt-1`**: one approved read-only
+`codex1` attempt completed with exit `0`. Its terminal completed result had a
+schema-valid `WorkResult` and `ExecutionReceipt`; the `WorkResult` was `DONE`,
+reported no provider parse failure, and reported changed files `[]`. Read-only
+isolation was maintained. No retry or alias switch occurred. `codex2`, `agy1`,
+and `agy2` remain uninvoked and each requires separate recorded authorization.
 
 #### `TICKET-ALIAS-RC2-004-QOBS-01` | QOBS test-first umbrella | [STATUS: CONTRACT_FROZEN — PROBE_READY]
 
@@ -1590,7 +1597,8 @@ predecessor freeze; no old decision, snapshot, or planning proof is reusable.
   version/domain, replay, digest mismatch, frozen-test mutation, missing trailer,
   scope overlap, provider/network/secret/account/deploy/publish/push/release
   action, premature sync, or manual generated edit is `BLOCKED`/`NEEDS_HITL`.
-  No QOBS completion alone authorizes RC2-004.
+  No QOBS completion alone authorizes RC2-004; the separately recorded
+  `codex1` attempt above does not authorize any follow-on alias.
 - [ ] `codex2`, `agy1`, and `agy2` remain undispatched unless each prerequisite valid result and separately recorded attempt authorization exists.
 - [ ] No provider, deploy, publish, push, PR/merge, secret, account, or
   production mutation occurred.

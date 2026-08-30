@@ -1485,9 +1485,10 @@ trailing whitespace remains outside this v2 change and was not normalized.
 
 ### Follow-on authorization checkpoint — `TICKET-ALIAS-RC2-004`
 
-**Status**: TODO — fresh owner `approve all` authorization recorded after
-`RC2-003` attempt exhaustion. `RC2-003` stays immutable `BLOCKED` history;
-this checkpoint cannot relabel its results, receipts, retries, or gate state.
+**Status**: `codex1` attempt-1 completed. `RC2-003` stays immutable `BLOCKED`
+history; this checkpoint cannot relabel its results, receipts, retries, or gate
+state. `codex2`, `agy1`, and `agy2` remain uninvoked and require separate
+recorded authorization.
 
 **Scheduling**: Severity `CRITICAL`; Work Effort `S`; quota `unknown` and
 bounded-lane-only. Stop before any further work if runtime reports below 10%.
@@ -1513,11 +1514,14 @@ redispatch is authorized. Invalid, ambiguous, isolation, auth/permission,
 billing, ownership, secret, or under-10%-quota conditions stop and return
 `NEEDS_HITL`.
 
-**Success / stop condition**: success for this checkpoint is limited to
-content-free taxonomy/test evidence plus one terminal `codex1` classification;
-it does not close the four-alias receipt or release gate. Stop on any failed
-gate or unauthorized continuation. Board-level details and acceptance checklist
-are authoritative in `TICKET-ALIAS-RC2-004`.
+**Success / stop condition**: one approved read-only
+`RC2-004/codex1/attempt-1` completed with exit `0`, terminal completed status,
+a schema-valid `WorkResult` and `ExecutionReceipt`, `WorkResult` `DONE`, no
+provider parse failure, changed files `[]`, and maintained read-only isolation.
+No retry or alias switch occurred. This does not close the four-alias receipt
+or release gate; each remaining alias requires separate recorded authorization.
+Board-level details and acceptance checklist are authoritative in
+`TICKET-ALIAS-RC2-004`.
 
 ### QuotaObservation remediation checkpoint
 
