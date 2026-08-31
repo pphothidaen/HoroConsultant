@@ -25,7 +25,7 @@
   "dependency_pins": {
     "dispatcher_validator": {
       "path": "scripts/multiagent_prompt_command.py",
-      "sha256": "36851ac3d6321da3edaf5c12cdf0a15bd4272495f9c2d5631b0134805852fa78"
+      "sha256": "f3d2bf193217a579331e1f50a9e44b98460c32150b016915088640c2dafabb75"
     },
     "scheduler_validator": {
       "path": "scripts/multiagent_ticket_scheduler.py",
