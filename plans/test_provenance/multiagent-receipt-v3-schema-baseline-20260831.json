@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-RECEIPT-V3-TDD-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "a1336420d50dd209ad81efa280eb0b53b482f76b",
+  "test_files": [
+    {
+      "path": "tests/test_multiagent_receipt_v3_schema.py",
+      "sha256": "f182d2dbab4b6c478019e6007b1af1216dfb025eb13ede1963a73873000ce1fe"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_multiagent_receipt_v3_schema.py::test_v3_schema_exists_and_is_closed"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "1 failed; ReceiptV3Error: receipt-v3 is closed"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/schemas/multiagent-dispatch-receipt-v3.schema.json"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze the closed receipt-v3 schema contract against the current runtime mismatch. The canonical governed AGY receipt validates under the schema and rejects undeclared fields, while the legacy runtime validator rejects that canonical schema-valid receipt. Source remediation is limited to the receipt-v3 schema path; no runtime, configuration, rules, skills, agent, generated, or external mutation is authorized by this baseline."
+}
