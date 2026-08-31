@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-DISTILLATION-DATA-UPDATE-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "52950213beef79c26af3f0a5cac1250897437b48",
+  "test_files": [
+    {
+      "path": "tests/test_distillation_checklist.py",
+      "sha256": "d604e5a936de4b63c01abada9dc3cf20a6182a49dd5a65d68cbdd2fcddae2c79"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_distillation_checklist.py::test_distillation_checklist_updated_timestamp"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "assert data[\"last_updated\"].startswith(\"2026-08-31T06:13:19\")"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/data/distillation_checklist.json",
+    "project/rag/datasets/hitl_approved.jsonl",
+    "project/rag/datasets/hitl_approved_with_metadata.jsonl"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Add contract test for distillation checklist and dataset integrity alongside dataset updates."
+}
