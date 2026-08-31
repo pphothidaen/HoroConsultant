@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-BRK-B0-010",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "473670e548c8ed35f0fcc060efadf09b21425e64",
+  "test_files": [
+    {
+      "path": "tools/agent-broker/Tests/AgentBrokerTests/AgentBrokerTests.swift",
+      "sha256": "ddae2ec906ab8a00dca8dd1594c935e3279ceb1ed752c58dcf968d87f48cd2f4"
+    },
+    {
+      "path": "tools/agent-broker/Package.swift",
+      "sha256": "d7339d2aed2bc61ed867d756a593e6fbf615e0d31180ac1abb1384fb28b5544f"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "swift",
+        "test",
+        "--package-path",
+        "tools/agent-broker"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "error: 'agent-broker': invalid custom path 'Sources/AgentBroker' for target 'AgentBroker'"
+    }
+  ],
+  "allowed_source_paths": [
+    "tools/agent-broker/Package.swift",
+    "tools/agent-broker/Sources/AgentBroker"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze black-box Swift contracts for the macOS Agent Broker (BRK-B0-010) before production broker source exists in Sources/AgentBroker, ensuring closed request schema, immutable executable/manifest binding, bounded admission and backpressure, lease expiry, cancellation, crash cleanup, capacity clamping, duplicate/replay rejection, arbitrary-command rejection, secret-free process boundaries, and synthetic-Keychain failure modes without touching login Keychain."
+}
