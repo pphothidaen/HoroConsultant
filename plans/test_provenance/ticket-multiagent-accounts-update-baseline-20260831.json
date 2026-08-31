@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-MULTIAGENT-ACCOUNTS-UPDATE-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "34265b3b42d05b9bcc1cb41797d99eb61b292e59",
+  "test_files": [
+    {
+      "path": "tests/test_multiagent_prompt_command.py",
+      "sha256": "38eb6ea0d6afcedea32eac295677b506da5e30989ee6414c5e410bfb83ddc2ba"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_multiagent_prompt_command.py::test_governed_account_aliases_includes_agy3_and_codex3"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "assert agy3 in GOVERNED_ACCOUNT_ALIASES"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/multiagent_prompt_command.example.yaml",
+    "project/data/source_summaries.json",
+    "scripts/multiagent_prompt_command.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Add agy3 and codex3 account aliases to governed multiagent prompt command aliases and example configuration with test coverage."
+}
