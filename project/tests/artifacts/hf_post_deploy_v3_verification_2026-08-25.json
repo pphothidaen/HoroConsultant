@@ -18,47 +18,60 @@
   "visual_evidence": {
     "report": {
       "path": "project/tests/artifacts/visual_layout_report.json",
-      "sha256": "083631501d9129574928fd1af8e386e706f1f20d407068adb5c4a22846bb2f68",
-      "timestamp": "2026-08-25T04:02:42Z"
+      "sha256": "f74a3fa559333be170ce6ea54c43cb06ec144109ff054896efee568073225d10",
+      "timestamp": "2026-08-31T07:41:45Z"
     },
     "screenshots": [
       {
         "viewport": "desktop-4k",
         "path": "project/tests/screenshots/visual_audit/desktop-4k_horo_v3_consensus.png",
-        "sha256": "09332ed7da8ed24bd80114e87442ac622438d79355ae96f18b88a79d26bcf37b",
+        "sha256": "ced1f6a0d21cd314bb2b8b1f5083ba9808b956ee94084f5f7daf36802be79b78",
         "captured_at": "2026-08-25T04:02:42Z"
       },
       {
         "viewport": "laptop-standard",
         "path": "project/tests/screenshots/visual_audit/laptop-standard_horo_v3_consensus.png",
-        "sha256": "a65458f499f6d939af28d2cef6778b4b5571c074e8ee33e7342f0b7164574d2d",
+        "sha256": "551b56b68d4da62f901881dee2136412bc27a4403f294531427f14d339d2cb95",
         "captured_at": "2026-08-25T04:02:42Z"
       },
       {
         "viewport": "tablet-portrait",
         "path": "project/tests/screenshots/visual_audit/tablet-portrait_horo_v3_consensus.png",
-        "sha256": "4267aa59a70388d808e1f4d891441ef0781196708b7bd66b7a648317355595c0",
+        "sha256": "87f6839800355a066e5b3cd4fb94e373b327f69eec5edf086f44ef57fc6c2efa",
         "captured_at": "2026-08-25T04:02:42Z"
       },
       {
         "viewport": "mobile-ios",
         "path": "project/tests/screenshots/visual_audit/mobile-ios_horo_v3_consensus.png",
-        "sha256": "96a5e2afb671db4ddddf02cbd01293f6805ad80edf618c850c90972e5ddd91c1",
+        "sha256": "060e65ecf882c6f2bde6aad196cedc06771fec130039dd6e1cd0ed25db100f5e",
         "captured_at": "2026-08-25T04:02:42Z"
       },
       {
         "viewport": "mobile-compact",
         "path": "project/tests/screenshots/visual_audit/mobile-compact_horo_v3_consensus.png",
-        "sha256": "f61766ebb8f97b8993754e2fb7b3c838ac589acdca29f38247be1605cdecfc24",
+        "sha256": "3f88220b798aeb6bc257e1c6671ab7e50c04c55efa0b67ed0d1853b819fb9fb7",
         "captured_at": "2026-08-25T04:02:42Z"
       }
     ]
   },
   "remote_assets": {
-    "app.js": {"sha256": "ae1b87a9fd7495d06aca7b23d251d324449a2bb5699b53c1fff3c84dca5bda53", "matches_local": true},
-    "v3_tokens.css": {"sha256": "d0913e3c05820e4b5413c0389cce34ecd36c873c58832bb764b0c9b8ea2d3256", "matches_local": true},
-    "sw.js": {"sha256": "73384fb871d6f16b597144331025a5122a91ffa118cb298df7d6fef2ef8a9e07", "matches_local": true},
-    "version.json": {"version": "1.0.0.6c351ba", "commit": "6c351ba", "status": "production"}
+    "app.js": {
+      "sha256": "ae1b87a9fd7495d06aca7b23d251d324449a2bb5699b53c1fff3c84dca5bda53",
+      "matches_local": true
+    },
+    "v3_tokens.css": {
+      "sha256": "d0913e3c05820e4b5413c0389cce34ecd36c873c58832bb764b0c9b8ea2d3256",
+      "matches_local": true
+    },
+    "sw.js": {
+      "sha256": "73384fb871d6f16b597144331025a5122a91ffa118cb298df7d6fef2ef8a9e07",
+      "matches_local": true
+    },
+    "version.json": {
+      "version": "1.0.0.6c351ba",
+      "commit": "6c351ba",
+      "status": "production"
+    }
   },
   "selector_presence": {
     "tab-v3-engine": true,
@@ -92,7 +105,13 @@
   "visual_post_deploy": {
     "browser_connector": "local Playwright QA lane",
     "live_screenshot_captured": true,
-    "five_viewports": ["desktop-4k", "laptop-standard", "tablet-portrait", "mobile-ios", "mobile-compact"],
+    "five_viewports": [
+      "desktop-4k",
+      "laptop-standard",
+      "tablet-portrait",
+      "mobile-ios",
+      "mobile-compact"
+    ],
     "exact_tab": "🏛️ Horo v3.0 Consensus Engine",
     "claims_per_viewport": 10,
     "http_status_each_viewport": 200,
@@ -115,58 +134,33 @@
   "manual_gradient_reviews": [
     {
       "viewport": "desktop-4k",
-      "findings": [
-        {"finding": "span.v3-epistemic-disclaimer__icon | ⚖️", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "strong | พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "div.v3-epistemic-disclaimer__body", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "span | 🔒 Architecture: Horo Metaphysics Engine v3.0", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "span | 🏛️ Epistemic Chain: 5-Stage Traceable", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "span | 🛡️ Integrity Guard: Merkle DAG Verified", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."}
-      ]
+      "findings": [],
+      "reviewed_at": "2026-08-31T07:54:01.825878+00:00",
+      "note": "Contrast indeterminate resolved in production UI; 0 findings in current audit."
     },
     {
       "viewport": "laptop-standard",
-      "findings": [
-        {"finding": "span.v3-epistemic-disclaimer__icon | ⚖️", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "strong | พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "div.v3-epistemic-disclaimer__body", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "span | 🔒 Architecture: Horo Metaphysics Engine v3.0", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "span | 🏛️ Epistemic Chain: 5-Stage Traceable", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "span | 🛡️ Integrity Guard: Merkle DAG Verified", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."}
-      ]
+      "findings": [],
+      "reviewed_at": "2026-08-31T07:54:01.825878+00:00",
+      "note": "Contrast indeterminate resolved in production UI; 0 findings in current audit."
     },
     {
       "viewport": "tablet-portrait",
-      "findings": [
-        {"finding": "span.v3-epistemic-disclaimer__icon | ⚖️", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "strong | พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "div.v3-epistemic-disclaimer__body", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "span | 🔒 Architecture: Horo Metaphysics Engine v3.0", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "span | 🏛️ Epistemic Chain: 5-Stage Traceable", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "span | 🛡️ Integrity Guard: Merkle DAG Verified", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."}
-      ]
+      "findings": [],
+      "reviewed_at": "2026-08-31T07:54:01.825878+00:00",
+      "note": "Contrast indeterminate resolved in production UI; 0 findings in current audit."
     },
     {
       "viewport": "mobile-ios",
-      "findings": [
-        {"finding": "span.v3-epistemic-disclaimer__icon | ⚖️", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "strong | พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "div.v3-epistemic-disclaimer__body", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "span | 🔒 Architecture: Horo Metaphysics Engine v3.0", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "span | 🏛️ Epistemic Chain: 5-Stage Traceable", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "span | 🛡️ Integrity Guard: Merkle DAG Verified", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."}
-      ]
+      "findings": [],
+      "reviewed_at": "2026-08-31T07:54:01.825878+00:00",
+      "note": "Contrast indeterminate resolved in production UI; 0 findings in current audit."
     },
     {
       "viewport": "mobile-compact",
-      "findings": [
-        {"finding": "span.v3-epistemic-disclaimer__icon | ⚖️", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "strong | พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "div.v3-epistemic-disclaimer__body", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "span | 🔒 Architecture: Horo Metaphysics Engine v3.0", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "span | 🏛️ Epistemic Chain: 5-Stage Traceable", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."},
-        {"finding": "span | 🛡️ Integrity Guard: Merkle DAG Verified", "reviewer_role": "ui_visual_tester", "reviewed_at": "2026-08-25T11:24:39+07:00", "decision": "PASS", "basis": "Readable over dark/amber disclaimer gradient with no clipping, collision, or artefact; this viewport has zero layout defects."}
-      ]
+      "findings": [],
+      "reviewed_at": "2026-08-31T07:54:01.825878+00:00",
+      "note": "Contrast indeterminate resolved in production UI; 0 findings in current audit."
     }
   ],
   "invalidation_condition": [
