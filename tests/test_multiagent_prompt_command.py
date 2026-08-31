@@ -3854,3 +3854,11 @@ def test_main_does_not_fallback_when_selected_account_state_is_exhausted(tmp_pat
     captured = capsys.readouterr()
     assert "PROVIDER_ACCOUNT_EXHAUSTED" in captured.err
     assert "codex2" not in captured.out + captured.err
+
+
+def test_governed_account_aliases_includes_agy3_and_codex3():
+    assert "agy3" in command.GOVERNED_ACCOUNT_ALIASES
+    assert "codex3" in command.GOVERNED_ACCOUNT_ALIASES
+    assert command.ALIAS_PROVIDER_MAP["agy3"] == "agy"
+    assert command.ALIAS_PROVIDER_MAP["codex3"] == "codex"
+
