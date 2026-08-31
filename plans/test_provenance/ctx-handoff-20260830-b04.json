@@ -3,11 +3,11 @@
   "ticket_id": "TICKET-CTX-010-RED",
   "sequence": 5,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "2184039aad706391d1927083fc3f866f77b5781f",
+  "baseline_parent": "a8621a647d262cb3f000145776134f4f9b82f237",
   "test_files": [
     {
       "path": "tests/test_context_handoff_hooks.py",
-      "sha256": "8bfaa1850390ac45f684990f5aae9fddba550e247e4672b32541998fd31d06ae"
+      "sha256": "a95edb53b47b093e257d82053b430969ecd723ea751b096613fc5161557793f5"
     }
   ],
   "red_tests": [

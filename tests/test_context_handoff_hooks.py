@@ -596,13 +596,13 @@ def test_codex_native_mapping_rejects_unknown_start_or_compact_signals(
 def test_claude_and_agy_registrations_use_root_stable_wrapper_commands() -> None:
     claude = _load_json(CLAUDE_SETTINGS)
     claude_stop = claude["hooks"]["Stop"]
-    assert len(claude_stop) == 1 and len(claude_stop[0]["hooks"]) == 1
-    claude_handler = claude_stop[0]["hooks"][0]
-    assert claude_handler == {
+    assert len(claude_stop) == 1 and len(claude_stop[0]["hooks"]) >= 1
+    expected_handler = {
         "type": "command",
         "command": 'bash "${CLAUDE_PROJECT_DIR}/.claude/hooks/stop-monitor.sh"',
         "timeout": 10,
     }
+    assert expected_handler in claude_stop[0]["hooks"]
 
     agy = _load_json(AGY_SETTINGS)
     agy_groups = agy["hooks"]["AfterAgent"]

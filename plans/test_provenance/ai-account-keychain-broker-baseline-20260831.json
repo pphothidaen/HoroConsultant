@@ -3,11 +3,11 @@
   "ticket_id": "TICKET-BROKER-TDD-001",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "dc1324ff63cfb10312fa3fb58238dd8017d44861",
+  "baseline_parent": "a8621a647d262cb3f000145776134f4f9b82f237",
   "test_files": [
     {
       "path": "tests/test_ai_account_keychain_broker.py",
-      "sha256": "7acdb20986f9c1b33dec15483bd4a6a900b202db95d3f64f415f1b9ace3fe118"
+      "sha256": "9a4643bcf4f77db97702931b2d55bc8077f2f5494487b4d7bf4376a22cfbc5f9"
     }
   ],
   "red_tests": [

@@ -26,6 +26,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import hashlib
 import stat
 import subprocess
 import sys
@@ -164,7 +165,13 @@ if args and args[0] == "find-generic-password":
     if mode == "lookup-fail":
         print("synthetic lookup diagnostic " + secret, file=sys.stderr)
         raise SystemExit(41)
-    print(secret)
+    if mode == "multiple-items":
+        print(secret)
+        print("BROKER_TEST_SECOND_ITEM")
+    elif mode == "wrong-binding":
+        print('{{"service":"untrusted.service","account":"wrong-account","secret":"' + secret + '"}}')
+    else:
+        print(secret)
     raise SystemExit(0)
 
 if args and args[0] == "unlock-keychain":
@@ -175,6 +182,8 @@ if args and args[0] == "unlock-keychain":
     if mode == "unlock-fail":
         print("synthetic unlock diagnostic " + secret, file=sys.stderr)
         raise SystemExit(42)
+    if mode in ("multiple-items", "wrong-binding"):
+        raise SystemExit(0)
     raise SystemExit(0 if supplied == secret else 43)
 
 with log.open("a", encoding="utf-8") as handle:
@@ -205,6 +214,10 @@ if mode == "emit-secret":
 if mode == "fail":
     print("provider failed before execution proof", file=sys.stderr)
     raise SystemExit(73)
+if mode == "metadata-only":
+    print("PROVIDER_PRIVATE_METADATA_ONLY")
+    print("provider private diagnostic", file=sys.stderr)
+    raise SystemExit(0)
 print("PROVIDER_EXECUTION_PROOF")
 """
     for provider in ("agy", "codex"):
@@ -459,7 +472,7 @@ def test_exact_allowlisted_alias_selects_only_its_fixed_provider(
     capture = json.loads(synthetic_runtime["capture"].read_text(encoding="utf-8"))
     assert capture["argv"] == ["version"]
     assert capture["provider"] == ("agy" if alias.startswith("agy") else "codex")
-    assert "PROVIDER_EXECUTION_PROOF" in completed.stdout
+    assert synthetic_runtime["capture"].is_file()
     security_records = _json_lines(synthetic_runtime["security_log"])
     assert [record["argv"][0] for record in security_records] == [
         "find-generic-password",
@@ -479,6 +492,71 @@ def test_broker_forwards_provider_arguments_byte_for_byte(
     assert completed.returncode == 0, completed.stderr
     capture = json.loads(synthetic_runtime["capture"].read_text(encoding="utf-8"))
     assert capture["argv"] == args
+
+
+def test_keychain_query_requires_exactly_one_canonically_bound_item() -> None:
+    """The Security query must reject ambiguity, not choose an arbitrary match."""
+
+    source = BROKER_SOURCE.read_text(encoding="utf-8")
+    assert 'kSecAttrService: "com.horoconsultant.ai-account-keychain-broker"' in source
+    assert "kSecAttrAccount: alias" in source
+    assert "kSecMatchLimit: kSecMatchLimitAll" in source
+    assert "exactly one" in source.lower()
+
+
+@pytest.mark.parametrize("mode", ["multiple-items", "wrong-binding"])
+def test_synthetic_keychain_rejects_ambiguous_or_noncanonical_item_binding(
+    broker_binary: Path,
+    synthetic_runtime: dict[str, Any],
+    mode: str,
+) -> None:
+    """Test fixtures model both duplicate items and foreign service/account metadata."""
+
+    completed = _run_broker(
+        broker_binary,
+        synthetic_runtime,
+        "agy1",
+        FAKE_SECURITY_MODE=mode,
+    )
+
+    assert completed.returncode != 0
+    assert not synthetic_runtime["capture"].exists()
+    _assert_sanitized(completed, SYNTHETIC_SECRET, "BROKER_TEST_SECOND_ITEM")
+
+
+def test_testing_mode_is_fixture_complete_minimal_and_has_no_security_fallback() -> None:
+    """A compiled test broker must be hermetic rather than touching macOS Security."""
+
+    source = BROKER_SOURCE.read_text(encoding="utf-8")
+    testing_lookup = source.split("private func lookupSecretForTesting", maxsplit=1)[1].split(
+        "#endif", maxsplit=1
+    )[0]
+    assert "guard let security" in testing_lookup
+    assert "lookupSecretWithSecurityFramework" not in testing_lookup
+    testing_root = source.split("private func accountRoot", maxsplit=1)[1].split(
+        "#endif", maxsplit=1
+    )[0]
+    assert "guard let configured" in testing_root
+    assert "throw BrokerError.rejected" in testing_root
+
+
+def test_provider_metadata_is_not_a_broker_relay_or_redaction_contract(
+    broker_binary: Path,
+    synthetic_runtime: dict[str, Any],
+) -> None:
+    """Provider streams are private; success is conveyed without relaying them."""
+
+    completed = _run_broker(
+        broker_binary,
+        synthetic_runtime,
+        "codex1",
+        PROVIDER_MODE="metadata-only",
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    assert synthetic_runtime["capture"].is_file()
+    assert "PROVIDER_PRIVATE_METADATA_ONLY" not in completed.stdout + completed.stderr
+    assert "redacted(" not in BROKER_SOURCE.read_text(encoding="utf-8")
 
 
 @pytest.mark.parametrize("mode", ["lookup-fail", "unlock-fail"])
