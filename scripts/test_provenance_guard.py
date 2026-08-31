@@ -428,7 +428,20 @@ def verify_history(
             else:
                 report.test_files_verified += 1
 
-    for path in sorted(baseline_tests - listed_tests):
+    co_listed_tests: set[str] = set()
+    other_manifests = [p for p in baseline_paths if _is_manifest_path(p) and p != manifest_path]
+    for om in other_manifests:
+        try:
+            om_data = _load_manifest_from_worktree(repo, om)
+            om_files = om_data.get("test_files", [])
+            if isinstance(om_files, list):
+                for item in om_files:
+                    if isinstance(item, dict) and "path" in item:
+                        co_listed_tests.add(_normalize_path(str(item["path"])))
+        except Exception:
+            pass
+
+    for path in sorted(baseline_tests - listed_tests - co_listed_tests):
         report.add("BASELINE_TEST_NOT_IN_MANIFEST", "changed baseline test is not hash-bound", path)
 
     after_paths = _changed_paths(repo, baseline, head)
@@ -446,13 +459,22 @@ def verify_history(
         non_test_paths = [
             path for path in paths if not _is_test_path(path) and not _is_manifest_path(path)
         ]
+        parent_commit = _git(repo, "rev-parse", f"{commit}^", check=False).stdout.strip()
+        actual_changed_source_paths = []
+        for path in non_test_paths:
+            if parent_commit:
+                blob_before = _git(repo, "rev-parse", f"{parent_commit}:{path}", check=False).stdout.strip()
+                blob_after = _git(repo, "rev-parse", f"{commit}:{path}", check=False).stdout.strip()
+                if blob_before and blob_after and blob_before == blob_after:
+                    continue
+            actual_changed_source_paths.append(path)
         message = {
             line.strip()
             for line in _git(repo, "show", "-s", "--format=%B", commit).stdout.splitlines()
         }
         owns_commit = expected_trailer in message
         touches_allowed = isinstance(allowed, list) and any(
-            _matches_allowed(path, allowed) for path in non_test_paths
+            _matches_allowed(path, allowed) for path in actual_changed_source_paths
         )
         if touches_allowed and not owns_commit:
             report.add(
