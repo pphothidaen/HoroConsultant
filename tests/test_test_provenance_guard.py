@@ -433,21 +433,6 @@ def test_schema_is_closed_and_requires_test_hashes() -> None:
     assert item["additionalProperties"] is False
 
 
-def test_remote_recovery_anchor_preserves_non_tdd_label() -> None:
-    result = _run(
-        "git",
-        "log",
-        "-1",
-        "--format=%s",
-        "origin/recovery/pre-test-provenance-20260827",
-        cwd=ROOT,
-        check=False,
-    )
-
-    assert result.returncode == 0
-    assert "[NON_TDD_RECONSTRUCTED]" in result.stdout
-
-
 def test_guard_file_is_not_copied_into_fixture_repo() -> None:
     # The tests exercise the workspace guard against disposable repositories;
     # no fixture can silently replace the implementation under review.

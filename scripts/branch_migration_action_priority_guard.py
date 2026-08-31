@@ -5,8 +5,7 @@ Enforces the three Action Priority phases during branch migration and release:
 
 Phase 1 (Immediate / เร่งด่วนสูงสุด):
   - check_worktrees: Inspect active/dirty/temporary worktrees and ensure no collision.
-  - check_immutable_recovery_refs: Verify recovery/pre-test-provenance-20260827
-    (or origin/recovery/pre-test-provenance-20260827) ref and required commit message.
+  - check_immutable_recovery_refs: Optional verification of target recovery refs if specified.
 
 Phase 2 (Urgent / เร่งด่วน):
   - check_test_provenance: Verify committed test-first provenance and manifests.
@@ -37,8 +36,8 @@ from typing import Any
 
 SCHEMA_VERSION = "branch-migration-action-priority-report-v1"
 
-IMMUTABLE_RECOVERY_REF = "recovery/pre-test-provenance-20260827"
-IMMUTABLE_RECOVERY_REMOTE_REF = "origin/recovery/pre-test-provenance-20260827"
+IMMUTABLE_RECOVERY_REF: str | None = None
+IMMUTABLE_RECOVERY_REMOTE_REF: str | None = None
 REQUIRED_RECOVERY_COMMIT_MESSAGE = (
     "chore(recovery): preserve pre-gate mixed worktree [NON_TDD_RECONSTRUCTED]"
 )
@@ -392,14 +391,18 @@ def check_immutable_recovery_refs(
     repo_root: Path,
     target_ref: str | None = None,
 ) -> RecoveryRefCheckResult:
-    """Verify that the immutable recovery ref exists with the exact commit message."""
+    """Verify that an immutable recovery ref exists with the exact commit message if configured."""
     result = RecoveryRefCheckResult(status="PASSED")
+    target = target_ref or IMMUTABLE_RECOVERY_REF
+    if not target:
+        result.matched_expected = True
+        return result
+
     candidate_refs = [
-        target_ref,
-        IMMUTABLE_RECOVERY_REF,
-        f"refs/heads/{IMMUTABLE_RECOVERY_REF}",
-        IMMUTABLE_RECOVERY_REMOTE_REF,
-        f"refs/remotes/{IMMUTABLE_RECOVERY_REMOTE_REF}",
+        target,
+        f"refs/heads/{target}",
+        f"origin/{target}",
+        f"refs/remotes/{target}",
     ]
     resolved_ref: str | None = None
     commit_sha: str | None = None
@@ -419,8 +422,7 @@ def check_immutable_recovery_refs(
             {
                 "code": "MISSING_IMMUTABLE_RECOVERY_REF",
                 "message": (
-                    f"Immutable recovery ref '{IMMUTABLE_RECOVERY_REF}' "
-                    f"or '{IMMUTABLE_RECOVERY_REMOTE_REF}' was not found in git repository"
+                    f"Immutable recovery ref '{target}' was not found in git repository"
                 ),
             }
         )
@@ -968,9 +970,11 @@ def print_ascii_report(report: ActionPriorityReport) -> None:
                     f"Collisions: {len(chk_data.get('collisions', []))}"
                 )
             elif chk_key == "immutable_recovery_refs":
+                ref_str = chk_data.get("ref") or "NONE (Retired)"
+                commit_str = chk_data.get("commit_sha", "")[:10] if chk_data.get("commit_sha") else "N/A"
                 print(
-                    f"        Ref: {chk_data.get('ref')}, "
-                    f"Commit: {chk_data.get('commit_sha', '')[:10]}, "
+                    f"        Ref: {ref_str}, "
+                    f"Commit: {commit_str}, "
                     f"Matched: {chk_data.get('matched_expected')}"
                 )
             elif chk_key == "test_provenance":

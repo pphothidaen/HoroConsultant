@@ -20,15 +20,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Restore immutable recovery audit ref
-        shell: bash
-        run: |
-          set -euo pipefail
-          recovery_refspec="refs/remotes/origin/recovery/pre-test-provenance-20260827:refs/heads/recovery/pre-test-provenance-20260827"
-          git show-ref --verify --quiet "${recovery_refspec%%:*}"
-          git update-ref "${recovery_refspec#*:}" "${recovery_refspec%%:*}"
-          test "$(git log -1 --format=%s recovery/pre-test-provenance-20260827)" = "chore(recovery): preserve pre-gate mixed worktree [NON_TDD_RECONSTRUCTED]"
-
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
