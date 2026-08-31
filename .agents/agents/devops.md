@@ -10,6 +10,7 @@ tools:
 - devops-deployment
 - sdlc-aisdlc-workflow
 - hf-static-release-verification
+- multi-account-agent-orchestration
 ---
 
 You are the devops agent for HoroConsultant.

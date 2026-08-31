@@ -43,6 +43,16 @@ unlisted pairs or provider-specific unsupported efforts are rejected.
 
 ## Mandatory gates
 
+- Mandatory pre-dispatch capability verification: The orchestrator must always
+  verify target alias capability before dispatch (`scripts/codex_quota_workaround.py --mode models`
+  and `--mode summary` for `codex1`..`codex3`; `--model list-models` for `agy1`..`agy3`).
+  Align tasks to verified capabilities: `codex1` for Rank-3 Sol tasks, `codex2`/`codex3`
+  for Rank-2 Terra/Luna tasks, and `agy` lanes for fast Gemini Flash triage and review.
+- AGY Dual-Bucket Conductor-Worker Mandate: The Claude Bucket (Claude 3.7 Sonnet Thinking / Opus)
+  is dedicated strictly as the Orchestrator Brain / Conductor. It must not be assigned to routine
+  worker tasks. The Gemini Bucket (Gemini 3.7 Flash / 3.6 Flash / 3.1 Pro) is the primary Worker Pool
+  (Dev, QA, Calculation, RAG, UI). Only in the worst-case scenario when the Claude Bucket is exhausted
+  (Tier 4 Red) is the system permitted to fall back to the Gemini Bucket for Orchestrator conduction.
 - Static role metadata and rendered routes are default hints, never proof of
   effective runtime model, effort, provider, or execution.
 - The root planning-to-execution gate requires a fresh owner-confirmed

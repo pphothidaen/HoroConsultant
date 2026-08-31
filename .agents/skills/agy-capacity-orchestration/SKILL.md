@@ -10,22 +10,25 @@ four isolated pools `agy1`, `agy2`, `codex1`, and `codex2`. This is a governance
 contract. It does not authenticate accounts, invoke providers, change quotas,
 or establish runtime proof.
 
-## S3 topology
+## S3 topology & isolated pools
 
-Each account is an independent quota pool. Never aggregate quota, workers, or
+Each account is an independent quota pool (`codex1`..`codex3`, `agy1`..`agy3`). Never aggregate quota, workers, or
 rate limits across aliases.
 
-| Pool | Queue owner | S3 default | Account hard cap |
-|---|---|---:|---:|
-| `codex1` | Root A (Codex) | 1-2 lanes | Fresh lease and runtime limit |
-| `codex2` | Root A (Codex) | 1-2 lanes | Fresh lease and runtime limit |
-| `agy1` | Root B (AGY) | 1-2 lanes | 3 parallel sub-agents |
-| `agy2` | Root B (AGY) | 1-2 lanes | 3 parallel sub-agents |
+| Pool | Queue owner | S3 default | Account hard cap | Model role |
+|---|---|---:|---:|---|
+| `codex1` | Root A (Codex) | 1-2 lanes | Fresh lease and runtime limit | Rank-3 Sol (Architecture/Safety) |
+| `codex2` | Root A (Codex) | 1-2 lanes | Fresh lease and runtime limit | Rank-2 Terra/Luna (Feature/Dev) |
+| `codex3` | Root A (Codex) | 1-2 lanes | Fresh lease and runtime limit | Rank-2 Terra/Luna (Feature/Dev) |
+| `agy1` | Root B (AGY) | 1-2 lanes | 3 parallel sub-agents | Claude Brain (Conductor) / Gemini Worker |
+| `agy2` | Root B (AGY) | 1-2 lanes | 3 parallel sub-agents | Claude Brain (Conductor) / Gemini Worker |
+| `agy3` | Root B (AGY) | 1-2 lanes | 3 parallel sub-agents | Claude Brain (Conductor) / Gemini Worker |
 
-The AGY provider may advertise a nesting maximum of 10, but that is not the
-operating target. Use operational nesting depth 2-3 and never use nesting to
-evade the per-account cap. Six AGY workers is a theoretical upper bound only;
-it is not a capacity promise, runtime observation, or dispatch entitlement.
+### AGY Dual-Bucket & Host Preservation Rules
+1. **Claude Bucket (Conductor Only):** Dedicated strictly as Orchestrator Brain / Conductor. Never wasted on worker lanes.
+2. **Gemini Bucket (Worker Pool):** Primary high-volume worker pool for coding, QA, and deterministic calculations.
+3. **Worst-Case Fallback:** Gemini Bucket is used for Orchestrator conduction ONLY when Claude Bucket is exhausted (Tier 4 Red).
+4. **Host Account Preservation:** The Orchestrator MUST dispatch worker lanes to other available accounts first, preserving its host account as the last to be exhausted.
 
 Root A sends typed requests to Root B. Root B owns AGY account queues,
 worker admission, lease release, and typed responses. Root A must not directly

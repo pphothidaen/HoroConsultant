@@ -7,38 +7,32 @@ Define balanced S3 capacity governance for the five isolated pools
 Rule 19 zero-cost controls and does not replace Rule 17 dispatch/evidence
 ownership or Rule 18 adaptive model-effort routing.
 
-## Five-pool dual-root isolation
+## Six-pool dual-root isolation & dual-bucket governance
 
 - Quota, rate limits, leases, burn state, circuit breakers, and queues are
-  isolated per account alias. There is no shared or inferred quota pool.
-- Root A (Codex) owns `codex1`, `codex2`, and `codex3`, and emits typed
-  requests. Root B owns `agy1` and `agy2` account queues and workers, and
-  returns typed outcomes; Root A does not directly spawn AGY.
-- Each lane has one owner and an exact non-overlapping scope. Duplicate
-  implementation is not useful parallelism and is rejected.
+  isolated per account alias (`codex1`..`codex3`, `agy1`..`agy3`). There is no shared quota pool.
+- AGY Dual-Bucket Policy: The Claude Bucket (Claude 3.7 Sonnet Thinking / Opus)
+  is dedicated for Orchestrator Conduction only; the Gemini Bucket (Flash/Pro) is the primary
+  Worker Pool. Fallback to Gemini for orchestration is permitted only in worst-case Claude exhaustion.
+- Host Account Preservation: The Orchestrator session MUST consume other available accounts'
+  quotas first for worker lanes. The host account is high-priority and preserved as last to exhaust.
 
-## Capacity admission
+## Capacity admission & 4-tier monitoring
 
 - For governed CLI and bound invocation paths, a valid `CapacityLease` is
   mandatory before admission. It binds pool/account, request, owner/lane,
   request budget, TTL, model floor, and policy version.
-- Per-account burn rate, pool-local circuit-breaker state, and backpressure are
-  policy/ledger admission state, not lease fields. Enforce them with the request
-  budget and TTL; expired, consumed, over-budget, or mismatched leases fail
-  closed. `Invocation.capacity_required=False` is explicit programmatic
-  dry-run/legacy optionality, not provider/runtime proof or governed admission.
-- AGY is capped at 3 parallel sub-agents per account. Provider nesting max 10
-  is an external ceiling only; operational nesting depth is 2-3. Six AGY
-  workers is theoretical only and never proves available capacity.
+- Enforce 4-tier adaptive monitoring: Tier 1 (Normal >50%, poll 600s, max 3 lanes),
+  Tier 2 (Warning <40%, poll 120s, max 2 lanes), Tier 3 (Critical <20%, poll 30s, max 1 lane, pre-commit),
+  Tier 4 (Exhausted <10%/429, auto-handoff to `HANDOFF.md` Rescue Queue and circuit break).
 - S3 defaults to 1-2 lanes per account. Admission may reduce to one lane or
   queue work under pressure without lowering the Rule 18 quality floor.
 
-## Cost and quality
+## Cost, quality, and worker routing
 
-Use Flash or another cheap catalog-supported profile for triage first. Use Pro
-only when the Rule 18 quality floor or evidence burden requires it. Quota may
-reroute only to an approved profile at or above that floor; it may not cause a
-duplicate implementation or silent downgrade.
+Use Gemini Flash for routine worker tasks, QA, and deterministic triage first.
+Use Pro/Terra/Sol only when the Rule 18 quality floor requires it. Quota may
+reroute only to an approved profile at or above that floor; never silently downgrade.
 
 ## Proof and escalation
 

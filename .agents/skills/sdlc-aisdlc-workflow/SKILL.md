@@ -120,3 +120,20 @@ Phase 5: Code Review, Deployment & Post-Deploy E2E (Master Orchestrator & Code R
    python3 scripts/run_button_regression.py
    python3 scripts/run_e2e_screenshots.py
    ```
+
+---
+
+## 🛡️ Sustainable AI SDLC: Capability Pre-Verification & Correctness-First
+
+To maintain a sustainable, high-integrity AI SDLC across long-running tasks:
+
+1. **"Correctness Must Come First" (งานต้องถูกต้องมาก่อนเสมอ)**:
+   - Never compromise the architectural blueprint, semantic quality floor, or test verification for token cost or execution speed.
+   - Every phase enforces fail-closed gates: tickets require 100% green tests, pure ASCII logs, zero-leak secret scans, and bound receipts before advancing.
+2. **Mandatory Pre-Dispatch Capability & Load Check**:
+   - Before dispatching tasks, Orchestrator must always verify account capabilities and token load (`python3 scripts/codex_quota_workaround.py --mode summary` & `--mode models`).
+3. **Sustainable Skill & Objective Distribution**:
+   - **`codex1`** (`gpt-5.6-sol` / `xhigh` | `ultra`): Architecture synthesis, high-impact reasoning, complex recovery, safety gates.
+   - **`codex2` / `codex3`** (`gpt-5.6-terra` / `gpt-5.6-luna`): Core feature development, domain logic, deep implementation.
+   - **`agy1` / `agy2` / `agy3`** (`Gemini 3.7 / 3.6 / 3.5 Flash` / `3.1 Pro`): Deterministic calculations, fast triage, QA regression, RAG search, live verification.
+   - Prevents quota exhaustion on single accounts while guaranteeing maximum correctness for every task objective.

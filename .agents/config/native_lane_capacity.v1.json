@@ -1,0 +1,21 @@
+{
+  "schema_version": "native-lane-capacity-v1",
+  "native_platform": {
+    "runtime_observed": {
+      "observed_native_cap": 6,
+      "evidence_status": "runtime observed fixture only; not host authority"
+    },
+    "native_observed_ceiling": 6,
+    "configurable_safety_cap": 6
+  },
+  "claims": {
+    "theoretical_capacity": "not proven",
+    "provider_capacity": "not proven"
+  },
+  "agy": {
+    "agy_per_alias_cap": 3,
+    "agy_per_alias_cap_statement": "AGY per-alias cap 3",
+    "pool_policy": "independent pools; no aggregation",
+    "admission_policy": "alias unknown without fresh quota proof and isolation proof"
+  }
+}

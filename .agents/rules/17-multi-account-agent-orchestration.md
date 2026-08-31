@@ -16,13 +16,22 @@ an implementation or release worker.
   `plans/plan.md`; generated output changes only through ecosystem sync.
 - Give each writable file one editor. Any other participant is read-only.
 
-## Orchestrator-only hard boundary
+## Orchestrator-only hard boundary & host account protection
 
 The root/current session MUST NOT directly edit implementation, run
 implementation or QA commands, stage, commit, push, deploy, publish, or claim
 that it performed a child's work. It delegates those actions to a bounded
 child, then reports the child's attributed receipt. Monitoring and read-only
 state collection are permitted only to coordinate the child work.
+
+### Host account preservation & last-to-exhaust mandate
+
+When dispatching child tasks and worker lanes, the Orchestrator MUST prioritize
+using the quota of **other available accounts first** (e.g., if Orchestrator is on
+account A, dispatch child workers to accounts B, C, D first). The Orchestrator's
+host account is highest priority and MUST be preserved as the **LAST to be exhausted**,
+ensuring the master brain session remains alive to coordinate, monitor, handle HITL,
+and manage handoffs.
 
 ### Explicit user-waiver exception
 
@@ -124,8 +133,21 @@ sandbox control.
 If an alias cannot run, record alias, timestamp, safe failure class, and `no
 child ran`; return `BLOCKED` or obtain HITL before changing ownership. Recheck
 only a non-secret quota band before large work. Below 10%, stop broad work,
-update `TICKET-META-008` and the plan, and run the quota guard. Retry only the
-same bounded actionable failure; after three failures, or immediately for
+update `TICKET-META-008` and the plan, and run the quota guard.
+
+### Codex Multi-Account Quota Protocol & 4-Tier Adaptive Monitoring
+
+Because Codex CLI lacks native percentage `/usage` output, assess `codex1`..`codex3`
+via the 4-tier model in `scripts/codex_quota_workaround.py`:
+- **Tier 1 (Normal / Green)**: 1h tokens < 1M (IDLE/LOW). Concurrency <= 3, poll 600s.
+- **Tier 2 (Warning / Amber)**: Quota < 40% or 1h tokens 1M–10M. Concurrency <= 2, poll 120s, warn operator.
+- **Tier 3 (Critical / Orange)**: Quota < 20% or 1h tokens > 10M. Concurrency = 1, poll 30s, pre-commit state.
+- **Tier 4 (Exhausted / Red)**: Quota < 10%, `usageLimitExceeded`, or HTTP 429. Immediate freeze, auto-dump
+  interrupted tasks to `HANDOFF.md` Rescue Queue, and failover to available IDLE alias (`codex2`/`codex3`/`agy`).
+
+Run `python3 scripts/codex_quota_workaround.py --mode summary` before major dispatch.
+
+Retry only the same bounded actionable failure; after three failures, or immediately for
 credentials, permissions, billing, production mutation, ownership conflict, or
 high-impact judgment, return `NEEDS_HITL`.
 

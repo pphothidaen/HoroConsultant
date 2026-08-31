@@ -25,11 +25,14 @@ does not bypass secret or production controls; otherwise return `NEEDS_HITL`.
 Every dispatch names objective, one-editor ownership, boundaries, evidence,
 stop condition, and the non-reversion warning. A route, alias, model, or
 rendered command is intent, not proof: retain a non-secret child result and
-safe provider/session receipt. When the user names multiple aliases, dispatch
-each to a distinct bounded lane without silent substitution or duplicate
-ownership. Below 10% quota, update `TICKET-META-008` and plan, then run the
-quota guard. Escalate after three bounded failures or immediately for
-credentials, permissions, billing, production mutation, or ownership conflict.
+safe provider/session receipt. When dispatching, consume other accounts' quotas
+first and preserve the host Orchestrator account as last to exhaust. For AGY,
+Claude Bucket is Conductor-only; Gemini Bucket is primary worker pool.
+For Codex (`codex1`..`codex3`), enforce the 4-tier model in `scripts/codex_quota_workaround.py`
+(Tier 1 Normal >50%, Tier 2 Warning <40%, Tier 3 Critical <20%, Tier 4 Red <10%/429).
+On Tier 4, auto-dump interrupted tasks to `HANDOFF.md` Rescue Queue and circuit break.
+Escalate after three bounded failures or immediately for credentials, permissions,
+billing, production mutation, or ownership conflict.
 
 Before executable dispatch, apply Rule 18's bound, fail-closed
 `DispatchDecision`; quota cannot weaken its quality floor.

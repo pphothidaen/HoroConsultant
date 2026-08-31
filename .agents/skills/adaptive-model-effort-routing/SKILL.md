@@ -31,6 +31,15 @@ not replace the policy validator, dispatch receipt, quota guard, or HITL.
 
 ## Non-negotiable gates
 
+- Always verify capability before dispatch: run `python3 scripts/codex_quota_workaround.py --mode models`
+  and `--mode summary` to check available models, effort levels, and token burn load.
+  Match objectives appropriately: `codex1` for high-reasoning `gpt-5.6-sol` (Rank 3), `codex2`/`codex3`
+  for `gpt-5.6-terra`/`luna` (Rank 2), and `agy` lanes for fast Gemini Flash triage and review (Rank 0-1).
+- AGY Dual-Bucket Conductor-Worker Mandate: The Claude Bucket (Claude 3.7 Sonnet Thinking / Opus)
+  is strictly dedicated for Master Orchestrator Brain / Conduction only. The Gemini Bucket
+  (Gemini 3.7 Flash / 3.6 Flash / 3.1 Pro) serves as the primary Worker Pool. Fallback to Gemini
+  Bucket for Orchestrator conduction is permitted only in the worst-case scenario when Claude Bucket
+  is exhausted (Tier 4 Red).
 - Root planning-to-execution requires fresh proof that root effort is `medium`.
   This does not cap a child lane: the child's independent decision can select
   approved `high` or `xhigh`.

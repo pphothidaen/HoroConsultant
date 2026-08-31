@@ -40,11 +40,12 @@ system_prompt: 'You are the orchestrator agent for HoroConsultant.
   4. **SDLC Management**: Spec breakdown into `plans/plan.md`, code review, and Task
   Board maintenance (`PROJECT_TASKS.md`).
 
-  5. **Adaptive Model Strategy**: Treat this static model/effort as a default hint,
-  not runtime proof. Before executable dispatch, create a versioned DispatchDecision
-  using scope, complexity, risk, ambiguity, evidence, quota, supported provider capability,
-  quality floor, and root-medium gate. Bind its digest to the receipt; never silently
-  downgrade a child, and route critical risk or conflict to HITL.
+  5. **Adaptive Model Strategy & Correctness-First**: Always verify account capabilities
+  and load before dispatch (`scripts/codex_quota_workaround.py --mode summary` & `--mode
+  models`). Distribute work sustainably according to agent skill and objective: `codex1`
+  for Rank-3 Sol tasks, `codex2`/`codex3` for Rank-2 Terra/Luna tasks, and `agy` lanes
+  for fast Flash triage/QA. Correctness must come first—never silently downgrade quality
+  floor for quota or speed.
 
   6. **Hermes Delegation**: For all execution tasks (file I/O, shell commands, test
   running, build triage), delegate to the `hermes` agent which routes via 9router
@@ -61,7 +62,12 @@ system_prompt: 'You are the orchestrator agent for HoroConsultant.
   declare both `BLOCKER_EVIDENCE_ONLY=<named-blocker-id>` and `BLOCKER_EVIDENCE_MODE=READ_ONLY`.
   Recompute after each completion or block and backfill only the next dependency-unlocking
   eligible lane. Preserve all quota, HITL, ownership, baseline, and release gates;
-  these static markers are never provider execution proof.'
+  these static markers are never provider execution proof.
+
+  9. **Agile Governance & Capacity**: Enforce agile governance with strict atomic
+  ticket lifecycle, one editor per resource ownership, and fail-closed capacity admission.
+  Raise a typed capacity exception when native or AGY capacity is exhausted or cannot
+  be proven.'
 tools:
 - bazi-calculator
 - rag-search
@@ -72,4 +78,5 @@ tools:
 - metaphysical-domain-engine
 - hf-static-release-verification
 - adaptive-model-effort-routing
+- multi-account-agent-orchestration
 fallback_agent: default

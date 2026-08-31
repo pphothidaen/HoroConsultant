@@ -29,7 +29,7 @@ planning evidence only. It never proves provider or alias execution, and the
 QOBS lane excludes provider/alias, network, secret, account, sync, push,
 deploy, publish, and release actions unless separately authorized.
 
-## Root/current-session restriction
+## Root/current-session restriction & host account preservation
 
 The root/current session is an orchestrator-only control plane. It may
 decompose, delegate to native sub-agents or terminal aliases, monitor, collect
@@ -38,6 +38,13 @@ must not directly edit implementation, execute implementation or QA commands,
 stage, commit, push, deploy, publish, or claim a child's work as its own.
 Delegate each action to an ownership-scoped child and attribute the returned
 evidence to that child.
+
+### Host account preservation & last-to-exhaust mandate
+
+When delegating worker lanes, the Orchestrator MUST consume the quota of **other
+available accounts first** before its own account. The Orchestrator's host account
+is high-priority and MUST be preserved as the **LAST to be exhausted**, ensuring
+continuous brain coordination and preventing premature session termination.
 
 Only an explicit, fresh user waiver permits a single prohibited root action.
 Before that action, record in the active ticket and `plans/plan.md`: approval
@@ -157,6 +164,23 @@ orchestrator session.
 ```bash
 python3 scripts/agent_quota_status_guard.py --remaining-percent <percent> --enforce
 ```
+
+### Codex Multi-Account Quota & 4-Tier Adaptive Monitoring Protocol
+
+Codex CLI operates via ChatGPT subscription auth and lacks a native `/usage`
+percentage endpoint. To assess `codex1`, `codex2`, and `codex3` capacity, agents
+must use the 4-tier operational model via `scripts/codex_quota_workaround.py`:
+
+- **Tier 1 (Normal / Green)**: 1h tokens < 1M (Load: `IDLE`/`LOW`). Max concurrency: 3, adaptive poll: 600s.
+- **Tier 2 (Warning / Amber)**: Quota < 40% or 1h tokens 1M–10M (Load: `MODERATE`). Max concurrency: 2, adaptive poll: 120s, warn operator.
+- **Tier 3 (Critical / Orange)**: Quota < 20% or 1h tokens > 10M (Load: `HEAVY`). Max concurrency: 1, adaptive poll: 30s, pre-commit state required.
+- **Tier 4 (Exhausted / Red)**: Quota < 10%, `usageLimitExceeded`, or HTTP 429. Immediate freeze, auto-dump interrupted tasks to `HANDOFF.md` Rescue Queue, and failover to available IDLE alias (`codex2`/`codex3`/`agy`).
+
+Run a summary scan across all Codex accounts before heavy delegation:
+```bash
+python3 scripts/codex_quota_workaround.py --mode summary
+```
+
 
 - Retry only the same bounded failure, recording attempt number and evidence.
 - After three consecutive failed remediation attempts, or immediately for

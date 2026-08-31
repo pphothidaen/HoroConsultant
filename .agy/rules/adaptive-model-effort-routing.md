@@ -18,11 +18,17 @@ ambiguity, and evidence, a non-secret quota band, selected provider/model/
 effort, quality floor, policy version, root-medium state, rationale, and
 decision digest.
 
-The highest semantic rank sets the minimum quality profile. Quota may reroute
-only to a catalog-approved equal-or-stronger profile; it never silently lowers
-quality. Critical risk, high unresolved ambiguity, required human review,
-unknown quota for broad work, unsupported capability, missing digest, or an
-unconfirmed root-medium gate must block executable dispatch or require HITL.
+The highest semantic rank sets the minimum quality profile ("Correctness First").
+Quota may reroute only to a catalog-approved equal-or-stronger profile; it never
+lowers quality. Always verify account capability and load before dispatch
+(`scripts/codex_quota_workaround.py --mode summary` & `--mode models`). Align
+tasks to agent skill: `codex1` for Rank-3 Sol tasks, `codex2`/`codex3` for
+Rank-2 Terra/Luna tasks, and `agy` lanes for fast Gemini Flash triage/QA.
+On AGY, Claude Bucket is Conductor-only; Gemini Bucket is primary worker pool
+(fallback to Gemini Conductor only on Claude exhaustion). Critical
+risk, high unresolved ambiguity, required human review, unknown quota for broad
+work, unsupported capability, missing digest, or an unconfirmed root-medium gate
+must block executable dispatch or require HITL.
 
 Static agent metadata, aliases, rendered commands, and dry-runs are hints or
 intent, not effective runtime proof. Bind policy version and decision digest to
