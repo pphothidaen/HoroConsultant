@@ -433,13 +433,13 @@ def test_schema_is_closed_and_requires_test_hashes() -> None:
     assert item["additionalProperties"] is False
 
 
-def test_recovery_branch_preserves_non_tdd_label() -> None:
+def test_remote_recovery_anchor_preserves_non_tdd_label() -> None:
     result = _run(
         "git",
         "log",
         "-1",
         "--format=%s",
-        "recovery/pre-test-provenance-20260827",
+        "origin/recovery/pre-test-provenance-20260827",
         cwd=ROOT,
         check=False,
     )
