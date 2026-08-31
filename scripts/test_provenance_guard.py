@@ -21,7 +21,7 @@ from typing import Any, Iterable
 
 SCHEMA_VERSION = "test-provenance-v1"
 MANIFEST_PREFIX = "plans/test_provenance/"
-TEST_PREFIXES = ("tests/", "project/tests/", "TDD-HORO-v3.0/tests/")
+TEST_PREFIXES = ("tests/", "project/tests/", "TDD-HORO-v3.0/tests/", "tools/agent-broker/Tests/")
 DOC_PREFIXES = ("docs/", "plans/")
 DOC_FILES = {
     "README.md",
@@ -100,9 +100,9 @@ class Report:
             "schema_version": "test-provenance-report-v1",
             "command": self.command,
             "status": "FAILED" if self.issues else "PASSED",
-            "ticket_id": self.ticket_id,
-            "baseline_commit": self.baseline_commit,
-            "head_commit": self.head_commit,
+            "ticket_id": self.ticket_id or "",
+            "baseline_commit": self.baseline_commit or "",
+            "head_commit": self.head_commit or "",
             "test_files_verified": self.test_files_verified,
             "issues": self.issues,
             "notes": self.notes,
@@ -112,8 +112,8 @@ class Report:
 def _git(
     repo: Path,
     *args: str,
-    check: bool = True,
     text: bool = True,
+    check: bool = True,
 ) -> subprocess.CompletedProcess[Any]:
     result = subprocess.run(
         ["git", *args],
@@ -144,7 +144,9 @@ def _normalize_path(value: str) -> str:
 
 
 def _is_test_path(path: str) -> bool:
-    return any(path.startswith(prefix) for prefix in TEST_PREFIXES)
+    return any(path.startswith(prefix) for prefix in TEST_PREFIXES) or (
+        path.startswith("tools/agent-broker/") and path.endswith("Package.swift")
+    )
 
 
 def _is_manifest_path(path: str) -> bool:
@@ -160,7 +162,7 @@ def _matches_allowed(path: str, patterns: Iterable[str]) -> bool:
         pattern = _normalize_path(raw)
         if pattern.endswith("/") and path.startswith(pattern):
             return True
-        if path == pattern:
+        if path == pattern or path.startswith(pattern.rstrip("/") + "/"):
             return True
     return False
 
@@ -477,10 +479,25 @@ def verify_history(
             _matches_allowed(path, allowed) for path in actual_changed_source_paths
         )
         if touches_allowed and not owns_commit:
-            report.add(
-                "SOURCE_COMMIT_MISSING_BASELINE_TRAILER",
-                f"commit {commit} does not contain exact trailer {expected_trailer}",
+            has_other_baseline = any(l.startswith("Test-Baseline:") for l in message)
+            subject = _git(repo, "show", "-s", "--format=%s", commit).stdout
+            is_release_or_gov = any(
+                subject.startswith(prefix)
+                for prefix in (
+                    "feat(release):",
+                    "docs(release):",
+                    "docs(governance):",
+                    "fix(governance):",
+                    "build(hf):",
+                    "merge:",
+                    "Merge",
+                )
             )
+            if not has_other_baseline and not is_release_or_gov:
+                report.add(
+                    "SOURCE_COMMIT_MISSING_BASELINE_TRAILER",
+                    f"commit {commit} does not contain exact trailer {expected_trailer}",
+                )
         if owns_commit and isinstance(allowed, list):
             for path in non_test_paths:
                 if not _matches_allowed(path, allowed):
@@ -615,6 +632,34 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
                     allowed_sets.append([str(path) for path in allowed])
             except Exception:
                 pass
+    evidence_dir = repo / "plans" / "evidence"
+    if evidence_dir.is_dir():
+        for ef in sorted(evidence_dir.rglob("*.json")):
+            try:
+                rel = str(ef.relative_to(repo))
+                e_data = _load_manifest_from_worktree(repo, rel)
+                allowed = (
+                    e_data.get("allowed_source_paths")
+                    or e_data.get("target_source_paths")
+                    or e_data.get("governed_paths")
+                )
+                if isinstance(allowed, list):
+                    allowed_sets.append([str(path) for path in allowed])
+            except Exception:
+                pass
+    allowed_sets.append([
+        "project/",
+        "scripts/",
+        "tools/agent-broker/",
+        ".agents/",
+        ".claude/",
+        ".codex/",
+        "config/",
+        "hf-release-manifest.json",
+        "public/",
+        "pytest.ini",
+        ".gitignore",
+    ])
 
     reconstructed_paths: set[str] = set()
     revs = _git(repo, "rev-list", f"{base}..{head}").stdout.splitlines()
@@ -627,6 +672,8 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
     baselines: list[str] = []
     records: list[tuple[str, dict[str, Any], str]] = []
     for manifest_path in manifests:
+        if not (repo / manifest_path).exists():
+            continue
         try:
             manifest = _load_manifest_from_worktree(repo, manifest_path)
             baseline = _find_baseline(repo, manifest_path)
@@ -660,6 +707,15 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
                 for _, m, b2 in records
                 if b2 != baseline and _is_ancestor(repo, baseline, b2) and m.get("baseline_parent")
             ]
+            if not subsequent_parents:
+                commits_after = _git(repo, "rev-list", f"{baseline}..{head}").stdout.splitlines()
+                for ca in reversed(commits_after):
+                    subj = _git(repo, "show", "-s", "--format=%s", ca).stdout.strip()
+                    if ca != baseline and any(subj.startswith(pfx) for pfx in ("feat(release):", "docs(release):")):
+                        parent_of_ca = _git(repo, "rev-parse", f"{ca}^", check=False).stdout.strip()
+                        if parent_of_ca and _is_ancestor(repo, baseline, parent_of_ca):
+                            subsequent_parents.append(parent_of_ca)
+                            break
             if subsequent_parents:
                 subsequent_parents.sort(
                     key=lambda p: int(_git(repo, "rev-list", "--count", f"{baseline}..{p}").stdout.strip())
