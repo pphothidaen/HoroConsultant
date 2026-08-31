@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://horoconsultant.local/schemas/agent-broker-request-v1.schema.json",
+  "title": "HoroConsultant Agent Broker Request Schema v1",
+  "description": "Closed request schema for the macOS Swift Agent Broker (agent-broker-request-v1). Rejects unknown properties.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "request_id",
+    "alias",
+    "action",
+    "command_argv"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "agent-broker-request-v1"
+    },
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9_.:-]+$"
+    },
+    "alias": {
+      "type": "string",
+      "enum": [
+        "agy1",
+        "agy2",
+        "agy3",
+        "codex1",
+        "codex2",
+        "codex3"
+      ]
+    },
+    "action": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "command_argv": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "lease_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "timeout_seconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3600
+    },
+    "caller_context": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  }
+}

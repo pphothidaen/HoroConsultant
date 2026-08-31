@@ -1,0 +1,88 @@
+{
+  "schema_version": "agent-broker-config-v1",
+  "broker": {
+    "binary_path": "tools/agent-broker/.build/release/agent-broker",
+    "fallback_binary_path": "tools/agent-broker/agent-broker",
+    "script_path": "scripts/ai_account_keychain_broker.swift",
+    "require_signed_binary": false,
+    "allowed_binary_modes": [
+      "0500",
+      "0700",
+      "0755"
+    ],
+    "default_timeout_seconds": 60,
+    "max_timeout_seconds": 300,
+    "session_only_mode": true
+  },
+  "capabilities": {
+    "session_only_execution": true,
+    "keychain_access": false,
+    "shell_invocation": false,
+    "direct_provider_fallback": false,
+    "fail_closed_security": true,
+    "digest_binding": true
+  },
+  "aliases": {
+    "agy1": {
+      "provider": "agy",
+      "root_pool": "root_b",
+      "home_template": "~/.ai-accounts/agy/account1",
+      "wrapper_path": "~/.local/bin/agy1",
+      "default_capacity": 3,
+      "max_workers": 3,
+      "enabled": true
+    },
+    "agy2": {
+      "provider": "agy",
+      "root_pool": "root_b",
+      "home_template": "~/.ai-accounts/agy/account2",
+      "wrapper_path": "~/.local/bin/agy2",
+      "default_capacity": 3,
+      "max_workers": 3,
+      "enabled": true
+    },
+    "agy3": {
+      "provider": "agy",
+      "root_pool": "root_b",
+      "home_template": "~/.ai-accounts/agy/account3",
+      "wrapper_path": "~/.local/bin/agy3",
+      "default_capacity": 3,
+      "max_workers": 3,
+      "enabled": false
+    },
+    "codex1": {
+      "provider": "codex",
+      "root_pool": "root_a",
+      "home_template": "~/.ai-accounts/codex/account1",
+      "wrapper_path": "~/.local/bin/codex1",
+      "default_capacity": 2,
+      "max_workers": 2,
+      "enabled": true
+    },
+    "codex2": {
+      "provider": "codex",
+      "root_pool": "root_a",
+      "home_template": "~/.ai-accounts/codex/account2",
+      "wrapper_path": "~/.local/bin/codex2",
+      "default_capacity": 2,
+      "max_workers": 2,
+      "enabled": true
+    },
+    "codex3": {
+      "provider": "codex",
+      "root_pool": "root_a",
+      "home_template": "~/.ai-accounts/codex/account3",
+      "wrapper_path": "~/.local/bin/codex3",
+      "default_capacity": 2,
+      "max_workers": 2,
+      "enabled": false
+    }
+  },
+  "error_codes": {
+    "BROKER_UNAVAILABLE": "Broker binary not found, not executable, or unreachable",
+    "BROKER_INSTALL_INTEGRITY": "Broker binary failed integrity, permission, or manifest check",
+    "BROKER_ALIAS_UNKNOWN": "Alias is not in the canonical six-alias allowlist (agy1..3, codex1..3)",
+    "SCHEMA_VALIDATION_FAILED": "Request payload failed schema validation",
+    "DIRECT_PROVIDER_FALLBACK_PROHIBITED": "Direct provider fallback is strictly prohibited"
+  }
+}

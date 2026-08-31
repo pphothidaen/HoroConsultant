@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://horoconsultant.local/schemas/agent-broker-result-v1.schema.json",
+  "title": "HoroConsultant Agent Broker Result Schema v1",
+  "description": "Closed result schema returned by the macOS Swift Agent Broker (agent-broker-result-v1). Rejects unknown properties.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "request_id",
+    "status",
+    "exit_code",
+    "sanitized_output_digest",
+    "duration_ms"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "agent-broker-result-v1"
+    },
+    "request_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "SUCCESS",
+        "FAILED",
+        "REJECTED",
+        "CANCELLED",
+        "TIMEOUT",
+        "CRASHED"
+      ]
+    },
+    "exit_code": {
+      "type": "integer"
+    },
+    "sanitized_output_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "duration_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "error_code": {
+      "type": ["string", "null"]
+    },
+    "error_message": {
+      "type": ["string", "null"]
+    }
+  }
+}
