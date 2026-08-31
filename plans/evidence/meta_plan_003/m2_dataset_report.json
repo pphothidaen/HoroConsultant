@@ -1,0 +1,136 @@
+{
+  "sprint": "META-PLAN-003",
+  "milestone": "M2",
+  "milestone_name": "Metaphysics Fine-Tuning Dataset Pipeline & ShareGPT / HuggingFace Exporters",
+  "timestamp": "2026-08-31T22:21:50+07:00",
+  "verifier_role": "qa_tester",
+  "gate_verdict": "PASS",
+  "summary": {
+    "total_tests": 23,
+    "passed": 23,
+    "failed": 0,
+    "skipped": 0,
+    "pass_rate_pct": 100.0,
+    "execution_duration_seconds": 0.32,
+    "pure_ascii_logging": true,
+    "rule_10_deterministic_math": true
+  },
+  "test_suite_file": "project/tests/test_meta_plan_003_m2_dataset.py",
+  "verification_pillars": {
+    "sharegpt_schema_contracts": {
+      "status": "PASS",
+      "roles_verified": ["system", "user", "assistant", "function", "tool", "observation"],
+      "empty_content_rejected": true,
+      "metadata_provenance_fields_captured": [
+        "item_id",
+        "source_domain",
+        "source_id",
+        "source_title",
+        "category",
+        "question",
+        "required_human_review",
+        "conflict_detected",
+        "conflicting_domains",
+        "consensus_score",
+        "hitl_routing",
+        "decision",
+        "reviewer",
+        "confidence_rating",
+        "tags",
+        "notes",
+        "reviewed_at",
+        "pipeline"
+      ],
+      "batch_serialization_and_roundtrip": "100% verified JSONL save/load cycle"
+    },
+    "fine_tuning_qa_pair_formulation": {
+      "status": "PASS",
+      "pydantic_schema": "FineTuningQAPair & FineTuningDataset",
+      "chain_of_thought_reasoning": "Structured reasoning steps verified",
+      "conversion_to_sharegpt_format": "100% compliant ShareGPTConversationEntry generation"
+    },
+    "validation_rubric_evaluation": {
+      "status": "PASS",
+      "max_total_score": 100.0,
+      "rubric_pillars": {
+        "direct_relevance": 30.0,
+        "astrological_logic": 30.0,
+        "canonical_evidence": 20.0,
+        "actionable_guidance": 20.0
+      },
+      "passing_threshold": ">= 80.0 points",
+      "boundary_validation": "Strictly rejects individual pillar overflow (>30.0 or >20.0)",
+      "benchmark_report_aggregation": "6-Domain report summary calculation verified"
+    },
+    "golden_corpus_v3_integrity": {
+      "status": "PASS",
+      "dataset_file": "project/data/domain_benchmark_dataset_v3.json",
+      "total_cases_validated": 48,
+      "disciplines_covered_count": 16,
+      "disciplines_list": [
+        "bazi",
+        "ziwei",
+        "qimen",
+        "liuren",
+        "taiyi",
+        "iching",
+        "liuyao",
+        "meihua",
+        "xuankong",
+        "sanhe",
+        "zeji",
+        "mianxiang",
+        "thaivedic",
+        "western",
+        "numerology",
+        "qizheng"
+      ],
+      "consulting_domains_count": 6,
+      "domains_list": [
+        "career",
+        "finance",
+        "love",
+        "health",
+        "family",
+        "timing"
+      ],
+      "canonical_citations_presence": "100% cases have verified classical treatise citations",
+      "zero_empty_fields_guarantee": "Zero empty prompts, step reasoning, or synthesis guidance"
+    },
+    "mlx_and_harvester_normalizers": {
+      "status": "PASS",
+      "mlx_instruction_generator": "BaZi chart to ShareGPT instruction/response validated",
+      "hf_harvester_normalizers": [
+        "Alpaca format (instruction, input, output)",
+        "ShareGPT format (conversations human/gpt)",
+        "Term definition format (term, definition)",
+        "Empty/invalid row rejection"
+      ]
+    }
+  },
+  "test_cases_detail": [
+    {"name": "TestShareGPTSchemaContracts::test_message_role_enum_and_creation", "status": "PASSED"},
+    {"name": "TestShareGPTSchemaContracts::test_message_validation_rejects_empty_content", "status": "PASSED"},
+    {"name": "TestShareGPTSchemaContracts::test_metadata_schema_fields_and_defaults", "status": "PASSED"},
+    {"name": "TestShareGPTSchemaContracts::test_conversation_entry_serialization", "status": "PASSED"},
+    {"name": "TestShareGPTSchemaContracts::test_sharegpt_dataset_batch_save_and_load", "status": "PASSED"},
+    {"name": "TestFineTuningQAPairContracts::test_qa_pair_attributes_and_validation", "status": "PASSED"},
+    {"name": "TestFineTuningQAPairContracts::test_qa_pair_to_sharegpt_entry_conversion", "status": "PASSED"},
+    {"name": "TestFineTuningQAPairContracts::test_fine_tuning_dataset_collection", "status": "PASSED"},
+    {"name": "TestValidationRubricContracts::test_rubric_score_breakdown_calculation", "status": "PASSED"},
+    {"name": "TestValidationRubricContracts::test_rubric_failing_score", "status": "PASSED"},
+    {"name": "TestValidationRubricContracts::test_rubric_score_pillar_boundary_validation", "status": "PASSED"},
+    {"name": "TestValidationRubricContracts::test_validation_rubric_entry_and_domain_summary", "status": "PASSED"},
+    {"name": "TestValidationRubricContracts::test_benchmark_evaluation_report_export", "status": "PASSED"},
+    {"name": "TestDomainBenchmarkGoldenCorpusV3::test_benchmark_dataset_metadata", "status": "PASSED"},
+    {"name": "TestDomainBenchmarkGoldenCorpusV3::test_all_16_disciplines_present_in_benchmark", "status": "PASSED"},
+    {"name": "TestDomainBenchmarkGoldenCorpusV3::test_canonical_citations_presence_across_all_cases", "status": "PASSED"},
+    {"name": "TestDomainBenchmarkGoldenCorpusV3::test_zero_empty_questions_and_responses", "status": "PASSED"},
+    {"name": "TestDomainBenchmarkGoldenCorpusV3::test_convert_benchmark_cases_to_sharegpt_format", "status": "PASSED"},
+    {"name": "TestDatasetExportersAndNormalizers::test_mlx_chart_to_instruction_and_response", "status": "PASSED"},
+    {"name": "TestDatasetExportersAndNormalizers::test_harvester_normalize_alpaca_format", "status": "PASSED"},
+    {"name": "TestDatasetExportersAndNormalizers::test_harvester_normalize_sharegpt_format", "status": "PASSED"},
+    {"name": "TestDatasetExportersAndNormalizers::test_harvester_normalize_term_definition_format", "status": "PASSED"},
+    {"name": "TestDatasetExportersAndNormalizers::test_harvester_rejects_empty_row", "status": "PASSED"}
+  ]
+}

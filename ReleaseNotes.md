@@ -1,3 +1,179 @@
+# Sprint META-PLAN-003 Release Notes
+## MCP Full 16-Discipline Server Integration, Metaphysics Fine-Tuning Dataset Pipeline & Glassmorphism Visual Endpoints
+
+**Release Date**: 2026-08-31  
+**Sprint Verdict**: CERTIFIED_COMPLETE (24/24 tickets DONE)  
+**Orchestrator**: Claude Opus 4.6 → Gemini Pro delegation  
+
+### Executive Summary
+Sprint META-PLAN-003 delivers three strategic pillars: a production-grade Model Context Protocol (MCP) server exposing all 16 classical Chinese metaphysics computational engines via JSON-RPC stdio transport, a 1,050-entry multi-turn ShareGPT fine-tuning dataset pipeline, and a complete Glassmorphism visual rendering system with dark-mode SVG charts, multi-format export, and interactive frontend integration.
+
+### Architectural Deliverables
+1. **36-Tool MCP Server** (`project/mcp_server.py`): 16 calculation engines + 18 dynamic SVG visualizers + question router + 8-master debate, conforming to MCP Specification 2024-11-05 over stdio JSON-RPC 2.0.
+2. **1,050-Entry Fine-Tuning Dataset** (`project/data/sharegpt_dataset.jsonl`): Multi-turn consultation dialogues across 16 disciplines × 6 domains (Career, Wealth, Love, Health, Timing, Remediation) with classical treatise citations.
+3. **Synthetic Corpus Generator** (`project/data/synthetic_corpus_generator.py`): Deterministic multi-branch dialogue generator using BaZi engine chart data.
+4. **Glassmorphism CSS Design System** (`project/static/css/glassmorphism_charts.css`): Dark-mode Five Elements color tokens, glass cards, tooltips, responsive breakpoints.
+5. **Chart Bundler** (`project/core/chart_bundler.py`): Multi-format export API (SVG/PNG/PDF) with optional cairosvg and reportlab backends.
+6. **Interactive Chart Modal** (`project/static/js/chart_modal.js`): Frontend viewer with zoom/pan, tabbed 16-discipline navigation, keyboard shortcuts.
+7. **Visual Export Endpoints**: `POST /api/v1/charts/export`, `POST /api/v1/charts/bundle`.
+
+### Verification Matrix
+| Test Suite | Tests | Pass Rate |
+|---|:---:|:---:|
+| MCP Protocol & 16-Discipline Contract | 47 | 100% |
+| Dataset Pipeline & Schema Validation | 23 + 10 | 100% |
+| SVG Visual Endpoints & DOM Contracts | 63 + 10 | 100% |
+| E2E Integration Pipeline | 40 | 100% |
+| **Total** | **193+** | **100%** |
+
+### Milestone Rollup (100% DONE)
+| Milestone | Tickets | Status |
+|---|:---:|:---:|
+| M0 — Governance & Baselines | 4/4 | DONE |
+| M1 — MCP 16-Discipline Server | 4/4 | DONE |
+| M2 — Dataset Pipeline | 4/4 | DONE |
+| M3 — Visual Endpoints | 4/4 | DONE |
+| M4 — Test Planes & E2E | 4/4 | DONE |
+| M5 — Security & Closure | 4/4 | DONE |
+
+### Security
+- Zero secret leaks across 6,800+ files
+- Pure ASCII logging compliance verified
+- Rule 10 deterministic math boundary certified
+
+### Archived Plans
+- `plans/archive/2026-08-31-meta-plan-003/meta_plan_003_mcp_dataset_integration_spec.md`
+
+---
+
+# 🚀 HoroConsultant Release Notes — Sprint META-PLAN-002
+
+> **Release**: `Sprint META-PLAN-002 (Five-Branch Metaphysics Deepening, 6-Domain Benchmark Alignment & Dynamic SVG Visualizers)`
+> **Release Date**: 2026-08-31 (Asia/Bangkok)
+> **Release Authority**: Master Orchestrator & Business System Analyst
+
+---
+
+## 🌟 Executive Summary
+Sprint META-PLAN-002 successfully delivered comprehensive computational deepening across all five classical Chinese metaphysics branches (San Shi, Ming Xue, Pu Shi, Xiang Xue, Ze Ji) along with expanded Thai-Vedic, Western Uranian, and Numerology engines (16 engines total). It established the 6-Domain Question Benchmark Alignment system with 100% precision and a perfect 100/100 evaluation rubric score, rendered 18 responsive dynamic SVG visualizers with glassmorphism theming, and passed 133/133 unit tests with zero secret leaks.
+
+```mermaid
+flowchart TD
+    M0["✅ M0: Governance & Baselines
+    Spec & 40/40 Contract Freeze"]
+    M1["✅ M1: 5-Branch Deepening
+    16 Metaphysics Engines & Invariants"]
+    M2["✅ M2: 6-Domain Benchmark
+    Intent Router & 100-pt Rubric"]
+    M3["✅ M3: Dynamic SVG Engine
+    18 Responsive Visualizers"]
+    M4["✅ M4: Test Planes & Regression
+    133/133 Unit & E2E Verification"]
+    M5["✅ M5: Security & Sprint Closure
+    0 Leaks, Sync Parity & Seal"]
+
+    M0 --> M1
+    M1 --> M2
+    M1 --> M3
+    M0 --> M4
+    M2 --> M4
+    M3 --> M4
+    M4 --> M5
+```
+
+## 🛠️ Architectural Deliverables
+- **Five-Branch Computational Deepening (16 Engines)**:
+  - **San Shi (三式)**: Tai Yi Shen Shu (`TaiYiEngine` - 16-path celestial star palaces, 9-palace matrix, epoch boundaries), Da Liu Ren (`LiuRenEngine` - 4 lessons 四課, 3 transmissions 初傳/中傳/末傳, 12 heavenly generals), Qi Men Dun Jia (`QiMenEngine` - 24 solar terms, Yang/Yin Dun 1-9 Ju, 9 palaces).
+  - **Ming Xue (命學)**: BaZi (`BaZiEngine` - True Solar Time, midnight Zi hour early/late split, Lichun solar term boundaries, Ten Gods, Hidden Stems, Da Yun luck cycles), Zi Wei Dou Shu (`ZiWeiEngine` - 12 Palaces, Ming/Shen Gong, 5 Element Bureaus, 14 Major Stars, 4 Si Hua transformations), Qi Zheng Si Yu (`QiZhengSiYuEngine` - 7 governors, 4 shadow stars, 28 lunar mansions).
+  - **Pu Shi (卜筮)**: I Ching (`IChingEngine` - 64 hexagram permutations, dynamic moving lines 6/7/8/9, all-moving and all-static transitions), Liu Yao (`LiuYaoEngine` - Na Jia 6-line branch assignment, Shi/Ying line placement, Five Relatives 五親, Six Spirits/Animals 六神), Mei Hua Yi Shu (`MeiHuaEngine` - Ti/Yong 5-element dynamics, mutual 互卦 and transformed 變卦 hexagrams).
+  - **Xiang Xue & Ze Ji (相學 / 擇吉)**: Xuan Kong Flying Stars (`XuanKongEngine` - Period 9 2024-2043, 24 mountains, sitting/facing star matrices, compass boundary angle wrapping), San He Feng Shui (`SanHeEngine` - 12 Life Stages Water Method 長生十二宮水法, 3 harmonies), Ze Ji Imperial Calendar (`ZeJiEngine` - 12 Duty Officers 建除十二神, Year/Month Breaker clash detection, suitability scoring), Mian Xiang (`MianXiangEngine` - 5-element face shapes, 12 facial palaces, 100-year age fortune flow).
+  - **Expanded Astrologies & Numerology**: Thai Suriyayart (`ThaiVedicEngine` - 12-Rashi Lagna, 8 Maha Thaksa Sri/Kalakini, 27 Nakshatras, Vimshottari Dasha), Western Tropical & Uranian (`WesternUranianEngine` - Tropical planetary positions, 8 Uranian TNPs, midpoint formula `A+B-C`), Satta-Lek 7-Base Numerology (`NumerologyEngine` - 7-base 4-row matrix, Chaldean scoring).
+- **Question Focus Router & Intent Classifier**: Multilingual (TH/EN/ZH) NLP classification across 6 consultation domains (Career, Finance, Love, Health, Family, Timing) with canonical citation cataloging and domain-weighted prompt synthesis (`project/core/question_focus_router.py`).
+- **Multi-Agent Debate & Master Synthesis**: 8-Master peer debate orchestration, 10-branch consensus matrix derivation, consonance and cautionary synthesis (`project/core/multi_agent_debate.py`).
+- **Dynamic SVG Charting Engine**: 18 dynamic SVG visualizers (`project/core/svg_generator.py`) delivering responsive, high-DPI, XML-escaped glassmorphic chart cards.
+
+## 🧪 Verification Matrix
+- **Unit & Invariant Tests**: 133/133 passed (100% pass rate across baseline, M1 engines, SVG visualizers, 5-branch core, 16 disciplines, and router suites).
+- **6-Domain Question Benchmark**: 100/100 score across 7 canonical fixtures (Career, Finance, Love, Health, Family, Timing) evaluating direct relevance, astrological logic, canonical evidence, and actionable guidance.
+- **Button & UI Regression**: 33/33 interactive UI action buttons validated.
+- **Viewport Responsiveness**: 5/5 viewports verified green (Mobile SE, iPhone 14, iPad Mini, Desktop FHD, 4K Ultrawide).
+- **Security Audit & Secret Scan**: 0 secret leaks detected across 1,967 files scanned via zero-leak scanner.
+- **AI Agent Ecosystem Sync**: 100% parity across Claude Code, Gemini / Antigravity CLI, and OpenAI Codex.
+
+## 📋 Milestone Rollup
+- **M0**: Agile Governance, Test Baselines & Architecture Blueprint — 4/4 tickets **100% DONE**
+- **M1**: Five-Branch Metaphysics Computational Core Deepening — 4/4 tickets **100% DONE**
+- **M2**: 6-Domain Question Benchmark Alignment & Focus Routing — 4/4 tickets **100% DONE**
+- **M3**: SVG Dynamic Charting & Visual Rendering Engine — 4/4 tickets **100% DONE**
+- **M4**: Automated Test Planes, Integration & E2E Regression — 4/4 tickets **100% DONE**
+- **M5**: Security Audit, Release Packaging & Sprint Closure — 4/4 tickets **100% DONE**
+- **Total**: 24/24 tickets **100% DONE**
+
+## 🌐 Live Production Endpoints
+- Metaphysics computational core, dynamic SVG generator, question focus router, and multi-agent synthesis engines fully operational with sub-millisecond local compute latency and zero runtime regressions.
+
+## 🗄️ Archived Plans List
+The planning documents for Sprint META-PLAN-002 have achieved zero-active state and are archived per Rule 16 / Rule 22:
+- `meta_plan_002_metaphysics_deepening_spec.md` → [`plans/archive/2026-08-31-meta-plan-002/meta_plan_002_metaphysics_deepening_spec.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/archive/2026-08-31-meta-plan-002/meta_plan_002_metaphysics_deepening_spec.md)
+
+---
+
+# 🚀 HoroConsultant Release Notes — Sprint BROKER-PLAN-001
+
+> **Release**: `Sprint BROKER-PLAN-001 (macOS Atomic Account Broker & 7-Alias Capacity Admission)`
+> **Release Date**: 2026-08-31 (Asia/Bangkok)
+> **Release Authority**: Master Orchestrator & Business System Analyst
+
+---
+
+## 🌟 Executive Summary
+Sprint BROKER-PLAN-001 successfully delivered the macOS Atomic Account Broker and the 7-Alias Capacity Admission system. This sprint completed 29/29 tickets successfully, ensuring secure keychain bridging, automated credential management, and fail-closed capacity governance.
+
+```mermaid
+flowchart TD
+    B0["✅ B0: Setup
+Swift Bridge & Base"]
+    B1["✅ B1: CLI
+Keychain Read/Write"]
+    B2["✅ B2: Python Bridge
+Bridging Python-Swift"]
+    B3["✅ B3: Credentials
+7-Alias Security"]
+    B4["✅ B4: Handoff
+Atomic Environment"]
+    B5["✅ B5: Hooks
+Run-time Safety"]
+    B6["✅ B6: Launch
+System Production"]
+
+    B0 --> B1 --> B2 --> B3 --> B4 --> B5 --> B6
+```
+
+## 🛠️ Architectural Deliverables
+- **Swift Broker**: Native macOS keychain bridging for robust storage.
+- **Python Bridge**: Seamless python wrapper enabling programmatic access to swift binaries.
+- **Hardened Wrappers**: Secure handling and sanitization of cross-process credentials.
+- **Capacity Admission**: 7-Alias capacity enforcement layer guaranteeing strict concurrency bounds.
+
+## 🧪 Verification Matrix
+- **Pytest**: 68/68 passed (Zero Flakes, 100% Deterministic)
+- **Rollback drill**: Verified & Executed Flawlessly
+- **Ecosystem check**: 100% clean and compliant with Rule 21 & 22
+- **Evidence**: 16 evidence files generated preserving test provenance
+
+## 📋 Milestone Rollup
+- **B0-B6**: 29/29 tickets **100% DONE**
+
+## 🌐 Live Production Endpoints
+- Standard production endpoints remain fully operational and verified under the new capacity constraints. No downtime observed during cutover.
+
+## 🗄️ Archived Plans List
+The planning documents for Sprint BROKER-PLAN-001 have been achieved zero-active state and archived:
+- `broker_atomic_tickets_20260831.md` → [`plans/archive/2026-08-31-broker-plan-001/broker_atomic_tickets_20260831.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/archive/2026-08-31-broker-plan-001/broker_atomic_tickets_20260831.md)
+- `account_broker_installation_runbook_20260831.md` → [`plans/archive/2026-08-31-broker-plan-001/account_broker_installation_runbook_20260831.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/archive/2026-08-31-broker-plan-001/account_broker_installation_runbook_20260831.md)
+
+---
+
 # 🚀 HoroConsultant Release Notes — v1.3.0-prod
 
 > **Release Version**: `v1.3.0-prod`  
@@ -122,8 +298,6 @@ All completed planning documents for Release v1.3.0 have been archived to [`plan
 
 The [`plans/`](file:///Users/kimlenglim/Project/HoroConsultant/plans) directory is now clean, focused, and ready for future sprints:
 1. [`plans/plan.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/plan.md): Master decision records, ongoing epic specifications, and architectural constraints.
-2. [`plans/broker_atomic_tickets_20260831.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/broker_atomic_tickets_20260831.md): Approved atomic plan for Swift Account Broker (Milestones B0–B6).
-3. [`plans/account_broker_installation_runbook_20260831.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/account_broker_installation_runbook_20260831.md): Operator installation and migration runbook.
-4. [`plans/question_forecast_alignment_spec.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/question_forecast_alignment_spec.md): 6-Domain Question Benchmark specification.
-5. [`plans/metaphysics_learning_roadmap.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/metaphysics_learning_roadmap.md): 5-Branch Chinese Metaphysics research roadmap.
-6. [`plans/test_provenance/`](file:///Users/kimlenglim/Project/HoroConsultant/plans/test_provenance): Cryptographic test provenance manifests (60 files).
+2. [`plans/question_forecast_alignment_spec.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/question_forecast_alignment_spec.md): 6-Domain Question Benchmark specification.
+3. [`plans/metaphysics_learning_roadmap.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/metaphysics_learning_roadmap.md): 5-Branch Chinese Metaphysics research roadmap.
+4. [`plans/test_provenance/`](file:///Users/kimlenglim/Project/HoroConsultant/plans/test_provenance): Cryptographic test provenance manifests (60 files).

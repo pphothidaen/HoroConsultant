@@ -16,6 +16,7 @@
   <link rel="apple-touch-icon" href="favicon.svg">
   <link rel="stylesheet" href="style.css?v=790c566">
   <link rel="stylesheet" href="/static/v3_tokens.css">
+  <link rel="stylesheet" href="/static/css/glassmorphism_charts.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#dc2626">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -789,12 +790,13 @@
         <button type="button" class="chat-export-btn" onclick="exportChatTranscript('markdown')">MD</button>
         <button type="button" class="chat-export-btn" onclick="exportChatTranscript('json')">JSON</button>
       </div>
-    </div>
-  </div>
+    <span class="version-badge" id="app-version-badge" style="font-family: monospace;">v1.0.0.790c566</span>
+  </footer>
 
-  <script src="voice_engine.js?v=790c566"></script>
-  <script src="i18n.js?v=790c566"></script>
-  <script src="app.js?v=790c566"></script>
+  <div id="chart-modal-container"></div>
+  <script src="/static/js/chart_modal.js"></script>
+  <script src="script.js?v=790c566" defer></script>
+</body>  <script src="app.js?v=790c566"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

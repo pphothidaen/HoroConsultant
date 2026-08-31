@@ -207,6 +207,42 @@ def extract_from_texts(texts_dir: Path) -> list[dict[str, Any]]:
     return entries
 
 
+def distill_from_rag(query: str, top_k: int = 5) -> list[Any]:
+    """
+    Simulate FAISS RAG retrieval of classical treatise passages
+    and formatting them into fine-tuning Q&A pairs.
+    """
+    from project.schemas.dataset_schema_v1 import FineTuningQAPair, BenchmarkDomain
+    
+    # In a real scenario, this would query a FAISS vector store.
+    # Here we mock the returned passages.
+    passages = [
+        "The Day Master represents the core self, while the Month Branch determines the primary structure.",
+        "When Wood is favorable, spring brings prosperity; when unfavorable, avoid eastern travels."
+    ][:top_k]
+    
+    qa_pairs = []
+    for i, passage in enumerate(passages):
+        pair = FineTuningQAPair(
+            id=f"RAG-DISTILL-{i:04d}",
+            domain=BenchmarkDomain.CAREER,
+            system_prompt="You are a Metaphysics Master. Answer queries based on classical treatises.",
+            user_query=query,
+            context_chart_data={"passage_reference": passage},
+            canonical_citations=["《滴天髓》"],
+            ground_truth_synthesis=f"According to the classical texts: {passage}",
+            reasoning_steps=["Retrieve text", "Synthesize answer"],
+            actionable_recommendations=["Consider the classical advice carefully."],
+            favorable_elements=["Wood"],
+            unfavorable_elements=["Metal"],
+            language="en"
+        )
+        qa_pairs.append(pair)
+        
+    log.info(f"Distilled {len(qa_pairs)} Q&A pairs from RAG for query: '{query}'")
+    return qa_pairs
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------

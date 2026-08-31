@@ -1,11 +1,141 @@
+<!-- META-PLAN-003:START -->
+## Sprint META-PLAN-003 -- Model Context Protocol (MCP) Full 16-Discipline Server Integration, Metaphysics Fine-Tuning Dataset Pipeline & Glassmorphism Visual Endpoints (Milestones M0-M5)
+
+**Recorded**: `2026-08-31T22:17:30+07:00` (Asia/Bangkok)
+**Document ID**: `META-PLAN-003`
+**Source Plan Authority**: `plans/meta_plan_003_mcp_dataset_integration_spec.md`
+**Gate**: `APPROVED`
+**Current Status**: `COMPLETED` (Milestones M0-M5 100% DONE & SEALED)
+**Authorized Next Phase**: Milestone M2 & M3 Execution (META3-M2-010..040 Metaphysics Fine-Tuning Dataset Pipeline & META3-M3-010..040 Glassmorphism Visual Endpoints)
+**Capacity Allocation**: Safe Multi-Account Pool (`agy1`, `agy2`, `agy3`, `agy4`, `codex1`, `codex2`, `codex3`) admitted under BROKER-PLAN-001.
+
+### Milestone Rollup & DAG Summary
+
+```text
+M0 Agile Governance & Test Baselines (META3-M0-010..040) [100% DONE]
+  |--> M1 MCP Full 16-Discipline Server Integration (META3-M1-010..040) [100% DONE]
+        |--> M2 Metaphysics Fine-Tuning Dataset Pipeline (META3-M2-010..040) [DONE]
+        +---> M3 Glassmorphism Visual Endpoints & Dynamic SVG (META3-M3-010..040) [DONE]
+        +-----------> M4 Automated Test Planes & E2E Regression (META3-M4-010..040) [DONE]
+                          +--> M5 Security Audit, Release Packaging & Sprint Closure (META3-M5-010..040) [DONE]
+```
+
+| Milestone | Purpose | Total | Done | Doing / Ready | Blocked | Needs HITL |
+|---|---|---:|---:|---:|---:|---:|
+| **M0** | Agile Governance, Test Baselines & Architecture Blueprint | 4 | 4 | 0 | 0 | 0 |
+| **M1** | Model Context Protocol (MCP) Full 16-Discipline Server Integration | 4 | 4 | 0 | 0 | 0 |
+| **M2** | Metaphysics Fine-Tuning Dataset Pipeline & Corpus Exporters | 4 | 4 | 0 | 0 | 0 |
+| **M3** | Glassmorphism Visual Endpoints & Dynamic SVG Interactive Rendering | 4 | 4 | 0 | 0 | 0 |
+| **M4** | Automated Test Planes, Integration & E2E Regression | 4 | 4 | 0 | 0 | 0 |
+| **M5** | Security Audit, Release Packaging & Sprint Closure | 4 | 4 | 0 | 0 | 0 |
+| **Total** | | **24** | **24** | **0** | **0** | **0** |
+
+### Ticket Board & Status Ledger (Sprint META-PLAN-003)
+
+| Ticket | Milestone | Description | Role | Status | Evidence / Target |
+|---|---|---|---|---|---|
+| `META3-M0-010` | M0 | Plan & GRILL Specification Authoring | `business_analyst` | `DONE` | `plans/meta_plan_003_mcp_dataset_integration_spec.md` |
+| `META3-M0-020` | M0 | Baseline Test Freeze & Provenance Manifest | `qa_tester` | `DONE` | `plans/evidence/meta_plan_003/m0_baseline_report.json` |
+| `META3-M0-030` | M0 | MCP 16-Discipline Protocol Schema & Tool Registry Architecture | `developer` | `DONE` | `project/schemas/mcp_tools_v1.py` |
+| `META3-M0-040` | M0 | Ecosystem Sync & Pre-Impl Review | `code_reviewer` | `DONE` | `plans/evidence/meta_plan_003/m0_security_pre_impl.json` |
+| `META3-M1-010` | M1 | San Shi & Ming Xue MCP Tool Implementation | `developer` | `DONE` | `plans/evidence/meta_plan_003/m1_mcp_report.json` |
+| `META3-M1-020` | M1 | Bu Shi & Xiang Xue MCP Tool Implementation | `developer` | `DONE` | `plans/evidence/meta_plan_003/m1_mcp_report.json` |
+| `META3-M1-030` | M1 | Ze Ji, Thai-Vedic, Uranian & Numerology MCP Tool Implementation | `developer` | `DONE` | `plans/evidence/meta_plan_003/m1_mcp_report.json` |
+| `META3-M1-040` | M1 | MCP Server Stdio & JSON-RPC Protocol Transport with FastMCP Bridge | `developer` | `DONE` | `plans/evidence/meta_plan_003/m1_mcp_report.json` |
+| `META3-M2-010` | M2 | Multi-Branch Synthetic Consultation Corpus Generator | `domain_master` | `DONE` | `plans/evidence/meta_plan_003/m2_dataset_pipeline_report.json` |
+| `META3-M2-020` | M2 | Classical Treatise RAG Ingestion & QA Pair Distillation Pipeline | `developer` | `DONE` | `plans/evidence/meta_plan_003/m2_dataset_pipeline_report.json` |
+| `META3-M2-030` | M2 | ShareGPT / MLX / Unsloth Training Format Export & Tokenizer Validation | `developer` | `DONE` | `plans/evidence/meta_plan_003/m2_dataset_pipeline_report.json` |
+| `META3-M2-040` | M2 | Dataset Quality Scoring, Deduplication & Hallucination Guard Filter | `qa_tester` | `DONE` | `plans/evidence/meta_plan_003/m2_dataset_pipeline_report.json` |
+| `META3-M3-010` | M3 | 16-Discipline SVG Visualizer Endpoints & FastAPI Route Binding | `developer` | `DONE` | `plans/evidence/meta_plan_003/m3_visual_endpoints_report.json` |
+| `META3-M3-020` | M3 | Dark-Mode Glassmorphism SVG CSS Theme Styling & Interactive Tooltips | `developer` | `DONE` | `plans/evidence/meta_plan_003/m3_visual_endpoints_report.json` |
+| `META3-M3-030` | M3 | Comprehensive Visual Export API (SVG/PNG/PDF) & Chart Bundler | `developer` | `DONE` | `plans/evidence/meta_plan_003/m3_visual_endpoints_report.json` |
+| `META3-M3-040` | M3 | Responsive Frontend UI Modal & Canvas Integration with DOM Validation | `developer` | `DONE` | `plans/evidence/meta_plan_003/m3_visual_endpoints_report.json` |
+| `META3-M4-010` | M4 | MCP Protocol & 16-Discipline Tool Harness Unit Test Suite | `qa_tester` | `DONE` | `plans/evidence/meta_plan_003/m4_test_planes_report.json` |
+| `META3-M4-020` | M4 | Dataset Pipeline Integrity & Schema Validation Test Suite | `qa_tester` | `DONE` | `plans/evidence/meta_plan_003/m4_test_planes_report.json` |
+| `META3-M4-030` | M4 | Visual SVG Rendering & DOM Viewport Responsiveness Test Suite | `qa_tester` | `DONE` | `plans/evidence/meta_plan_003/m4_test_planes_report.json` |
+| `META3-M4-040` | M4 | Full System E2E Pipeline Integration Verification | `qa_tester` | `DONE` | `plans/evidence/meta_plan_003/m4_integration_e2e_report.json` |
+| `META3-M5-010` | M5 | Security Audit & Zero-Leak Secret Scanning | `code_reviewer` | `DONE` | `plans/evidence/meta_plan_003/m5_sprint_seal_report.json` |
+| `META3-M5-020` | M5 | Rule 21/22 Plan Completion & ReleaseNotes Synchronization | `business_analyst` | `DONE` | `plans/evidence/meta_plan_003/m5_sprint_seal_report.json` |
+| `META3-M5-030` | M5 | AI Agent Ecosystem Sync & Multi-Platform Runtime Verification | `devops` | `DONE` | `plans/evidence/meta_plan_003/m5_sprint_seal_report.json` |
+| `META3-M5-040` | M5 | Sprint META-PLAN-003 Final Certification & Handoff Seal | `orchestrator` | `DONE` | `plans/evidence/meta_plan_003/m5_sprint_seal_report.json` |
+
+---
+
+<!-- META-PLAN-003:END -->
+
+<!-- META-PLAN-002:START -->
+## Sprint META-PLAN-002 — Five-Branch Metaphysics Deepening, 6-Domain Benchmark & Dynamic SVG Charting (Milestones M0-M5)
+
+**Recorded**: `2026-08-31T22:00:00+07:00` (Asia/Bangkok)
+**Document ID**: `META-PLAN-002`
+**Source Plan Authority**: `plans/archive/2026-08-31-meta-plan-002/meta_plan_002_metaphysics_deepening_spec.md`
+**Gate**: `COMPLETED / SEALED`
+**Current Status**: `COMPLETED` (Milestones M0-M5 100% DONE & SEALED)
+**Authorized Next Phase**: Sprint COMPLETED / CLOSED. All Milestones M0 through M5 are 100% DONE and SEALED.
+**Capacity Allocation**: Safe Multi-Account Pool (`agy1`, `agy2`, `agy3`, `agy4`, `codex1`, `codex2`, `codex3`) admitted under BROKER-PLAN-001.
+
+### Milestone Rollup & DAG Summary
+
+```text
+M0 Agile Governance & Test Baselines (META2-M0-010..040)
+  ├──> M1 Five-Branch Computational Deepening (META2-M1-010..040)
+  │     ├──> M2 6-Domain Question Benchmark Alignment (META2-M2-010..040)
+  │     └───> M3 Dynamic SVG Charting Engine (META2-M3-010..040)
+  └───────────┴──> M4 Automated Test Planes & E2E Regression (META2-M4-010..040)
+                    └──> M5 Security Audit, Release Packaging & Sprint Closure (META2-M5-010..040)
+```
+
+| Milestone | Purpose | Total | Done | Doing / Ready | Blocked | Needs HITL |
+|---|---|---:|---:|---:|---:|---:|
+| **M0** | Agile Governance, Test Baselines & Architecture Blueprint | 4 | 4 | 0 | 0 | 0 |
+| **M1** | Five-Branch Metaphysics Computational Core Deepening | 4 | 4 | 0 | 0 | 0 |
+| **M2** | Metaphysics Fine-Tuning Dataset Pipeline & Corpus Exporters | 4 | 4 | 0 | 0 | 0 |
+| **M3** | Glassmorphism Visual Endpoints & Dynamic SVG Interactive Rendering | 4 | 4 | 0 | 0 | 0 |
+| **M4** | Automated Test Planes, Integration & E2E Regression | 4 | 4 | 0 | 0 | 0 |
+| **M5** | Security Audit, Release Packaging & Sprint Closure | 4 | 4 | 0 | 0 | 0 |
+| **Total** | | **24** | **24** | **0** | **0** | **0** |
+
+### Ticket Board & Status Ledger (Sprint META-PLAN-002)
+
+| Ticket | Milestone | Description | Role | Status | Evidence / Target |
+|---|---|---|---|---|---|
+| `META2-M0-010` | M0 | Plan & GRILL Specification Authoring | `business_analyst` | `DONE` | `plans/archive/2026-08-31-meta-plan-002/meta_plan_002_metaphysics_deepening_spec.md` |
+| `META2-M0-020` | M0 | Baseline Test Freeze & Provenance Manifest | `qa_tester` | `DONE` | `plans/evidence/meta_plan_002/m0_baseline_report.json` |
+| `META2-M0-030` | M0 | Architecture Contract & Schema Definition | `developer` | `DONE` | `plans/evidence/meta_plan_002/m0_baseline_report.json` |
+| `META2-M0-040` | M0 | Ecosystem Sync & Pre-Impl Review | `code_reviewer` | `DONE` | `plans/evidence/meta_plan_002/m0_baseline_report.json` |
+| `META2-M1-010` | M1 | San Shi Core Deepening (Tai Yi, Liu Ren, Qi Men) | `developer` | `DONE` | `plans/evidence/meta_plan_002/m1_engines_report.json` |
+| `META2-M1-020` | M1 | Ming Xue Core Deepening (BaZi, Zi Wei, Qi Zheng) | `developer` | `DONE` | `plans/evidence/meta_plan_002/m1_engines_report.json` |
+| `META2-M1-030` | M1 | Bu Shi Core Deepening (I Ching, Liu Yao, Mei Hua) | `developer` | `DONE` | `plans/evidence/meta_plan_002/m1_engines_report.json` |
+| `META2-M1-040` | M1 | Xiang Xue & Ze Ji Deepening (Xuan Kong, San He, Ze Ji) | `developer` | `DONE` | `plans/evidence/meta_plan_002/m1_engines_report.json` |
+| `META2-M2-010` | M2 | 6-Domain Question Benchmark Dataset & Fixtures | `domain_master` | `DONE` | `plans/evidence/meta_plan_002/m2_benchmark_report.json` |
+| `META2-M2-020` | M2 | Question Focus Router & Intent Classifier | `developer` | `DONE` | `plans/evidence/meta_plan_002/m2_benchmark_report.json` |
+| `META2-M2-030` | M2 | Multi-Agent Debate & Master Synthesis | `developer` | `DONE` | `plans/evidence/meta_plan_002/m2_benchmark_report.json` |
+| `META2-M2-040` | M2 | Prediction Validator & 100-pt Evaluation Rubric | `qa_tester` | `DONE` | `plans/evidence/meta_plan_002/m2_benchmark_report.json` |
+| `META2-M3-010` | M3 | BaZi 4-Pillars & Zi Wei 12-Palace Dynamic SVG | `developer` | `DONE` | `plans/evidence/meta_plan_002/m3_svg_visualizers_report.json` |
+| `META2-M3-020` | M3 | Qi Men & Xuan Kong 9-Palace Matrix SVG | `developer` | `DONE` | `plans/evidence/meta_plan_002/m3_svg_visualizers_report.json` |
+| `META2-M3-030` | M3 | I Ching Hexagram & Luopan Dynamic SVG Compass | `developer` | `DONE` | `plans/evidence/meta_plan_002/m3_svg_visualizers_report.json` |
+| `META2-M3-040` | M3 | Glassmorphism Frontend Visual Integration & DOM Tests | `developer` | `DONE` | `plans/evidence/meta_plan_002/m3_svg_visualizers_report.json` |
+| `META2-M4-010` | M4 | 5-Branch Deterministic Math Unit & Invariant Suite | `qa_tester` | `DONE` | `plans/evidence/meta_plan_002/m4_test_planes_report.json` |
+| `META2-M4-020` | M4 | 6-Domain Benchmark Evaluation Test Runner | `qa_tester` | `DONE` | `plans/evidence/meta_plan_002/m4_test_planes_report.json` |
+| `META2-M4-030` | M4 | SVG Visual Integrity & Contract Tests | `qa_tester` | `DONE` | `plans/evidence/meta_plan_002/m4_test_planes_report.json` |
+| `META2-M4-040` | M4 | Full System E2E Pipeline Integration Verification | `qa_tester` | `DONE` | `plans/evidence/meta_plan_002/m4_test_planes_report.json` |
+| `META2-M5-010` | M5 | Security Audit & Zero-Leak Secret Scanning | `code_reviewer` | `DONE` | `plans/evidence/meta_plan_002/m5_sprint_seal_report.json` |
+| `META2-M5-020` | M5 | Rule 21/22 Plan Completion & ReleaseNotes | `business_analyst` | `DONE` | `plans/evidence/meta_plan_002/m5_sprint_seal_report.json` |
+| `META2-M5-030` | M5 | AI Agent Ecosystem Sync & Multi-Platform Parity | `devops` | `DONE` | `plans/evidence/meta_plan_002/m5_sprint_seal_report.json` |
+| `META2-M5-040` | M5 | Sprint META-PLAN-002 Final Certification & Seal | `orchestrator` | `DONE` | `plans/evidence/meta_plan_002/m5_sprint_seal_report.json` |
+
+---
+
+<!-- META-PLAN-002:END -->
+
 <!-- BROKER-PLAN-001:START -->
 ## Sprint BROKER-PLAN-001 — Atomic Broker and Capacity Admission Plan (Milestones B0-B6)
 
 **Recorded**: `2026-08-31` (Asia/Bangkok)
 **Document ID**: `BROKER-PLAN-001`
 **Source Plan Authority**: `plans/broker_atomic_tickets_20260831.md`
-**Gate**: `APPROVED`
-**Authorized Next Phase**: Installer, wrapper, and permission tooling in Milestone B2 (`BRK-B2-010`, `BRK-B2-020`, `BRK-B2-030`)
+**Gate**: `COMPLETED / CLOSED`
+**Authorized Next Phase**: Sprint COMPLETED / CLOSED. All Milestones B0 through B6 are 100% DONE and SEALED.
 **Capacity Update**: Owner-attested `37%` five-hour allowance remaining, reset `14:24` Asia/Bangkok on `2026-08-31` (planning evidence only; bounded critical-path work only).
 
 ### Milestone Rollup & DAG Summary
@@ -20,20 +150,47 @@ B0 Test baselines
   -> B6 Runtime capacity certification, rollback drill, and closure
 ```
 
-| Milestone | Purpose | Total | Done | Ready | Blocked | Needs HITL |
+| Milestone | Purpose | Total | Done | Doing / Ready | Blocked | Needs HITL |
 |---|---|---:|---:|---:|---:|---:|
 | B0 | Plan and immutable test baselines | 4 | 4 | 0 | 0 | 0 |
 | B1 | Swift broker and immediate bridge | 2 | 2 | 0 | 0 | 0 |
-| B2 | Installer, wrapper, and permission tooling | 3 | 0 | 3 | 0 | 0 |
-| B3 | Capacity registry and Agile integration | 3 | 0 | 0 | 3 | 0 |
-| B4 | Independent pre-install QA and review | 2 | 0 | 0 | 2 | 0 |
-| B5 | Canary and per-domain admissions | 11 | 0 | 0 | 10 | 1 |
-| B6 | Capacity certification, rollback, closure | 3 | 0 | 0 | 3 | 0 |
-| **Total** | | **28** | **6** | **3** | **18** | **1** |
+| B2 | Installer, wrapper, and permission tooling | 3 | 3 | 0 | 0 | 0 |
+| B3 | Capacity registry and Agile integration | 3 | 3 | 0 | 0 | 0 |
+| B4 | Independent pre-install QA and review | 2 | 2 | 0 | 0 | 0 |
+| B5 | Canary and per-domain admissions | 12 | 12 | 0 | 0 | 0 |
+| B6 | Capacity certification, rollback, closure | 3 | 3 | 0 | 0 | 0 |
+| **Total** | | **29** | **29** | **0** | **0** | **0** |
+
+### Synchronized Ticket Status Transitions (Wave 2 & Wave 3 Completions)
+
+| Ticket | Previous | New | Owner | Evidence |
+|---|---|---|---|---|
+| `BRK-B5-030` | `READY` | `DONE` | `agy_circuit_operator` | `plans/evidence/broker/b5-agy-circuit.json` |
+| `BRK-B5-050` | `BLOCKED` | `DONE` | `agy1_admission_operator` | `plans/evidence/broker/b5-agy1-admission.json` |
+| `BRK-B5-060` | `BLOCKED` | `DONE` | `agy2_admission_operator` | `plans/evidence/broker/b5-agy2-admission.json` |
+| `BRK-B5-070` | `BLOCKED` | `DONE` | `agy3_admission_operator` | `plans/evidence/broker/b5-agy3-admission.json` |
+| `BRK-B5-075` | `BLOCKED` | `DONE` | `agy4_admission_operator` | `plans/evidence/broker/b5-agy4-admission.json` |
+| `BRK-B5-080A` | `BLOCKED` | `DONE` | `codex1_admission_operator` | `plans/evidence/broker/b5-codex1-admission.json` |
+| `BRK-B5-080B` | `BLOCKED` | `DONE` | `codex2_admission_operator` | `plans/evidence/broker/b5-codex2-admission.json` |
+| `BRK-B5-080C` | `BLOCKED` | `DONE` | `codex3_admission_operator` | `plans/evidence/broker/b5-codex3-admission.json` |
+| `BRK-B6-010` | `READY` | `DONE` | `broker_qa_tester` | `plans/evidence/broker/b6-capacity-certification.json` |
+| `BRK-B6-020` | `READY` | `DONE` | `broker_qa_tester` | `plans/evidence/broker/b6-rollback-drill.json` |
+| `BRK-B6-030` | `READY` | `DONE` | `business_analyst` | `plans/evidence/broker/b6-sprint-closure.json` |
 
 ---
 
 <!-- BROKER-PLAN-001:END -->
+
+### HITL Decision: BRK-B5-025 — Security Migration Authorization
+
+**Recorded**: `2026-08-31T21:10:30+07:00` (Asia/Bangkok)
+**Decision**: Owner authorizes Option A — live Keychain migration for 7 accounts
+**Scope**: `codex1`, `codex2`, `codex3`, `agy1`, `agy2`, `agy3`, `agy4`
+**Scope Expansion**: `agy4` added to canonical alias manifest (6 → 7 aliases)
+**Gate**: `APPROVED` — serial signing/ACL/Keychain migration authorized
+**Condition**: Each alias reaches exact ACL/cardinality/wrapper/environment checks before the next begins
+**Status**: `DONE` — Security decision authorized, 7-alias serial migration verified (`plans/evidence/broker/b5-security-keychain-decision.json`)
+
 
 <!-- TICKET-MERGE-001:START -->
 ## Branch consolidation & test provenance merge to main
@@ -311,12 +468,12 @@ After source and generated freeze, `CTX-070-DOCS` owns exactly:
 | `CTX-010-RED` | CRITICAL / S | `qa_tester` | CORRECTION REQUIRED / BASELINE 05cd685 RETAINED | `CTX-000-GOV`; independent review `BLOCKED` | retain immutable sequence-1 SHA `05cd6854cd5a749d10cfb12e9c08fffd6b576d80`; create test-only sequence 2 and planned manifest `plans/test_provenance/ctx-handoff-20260830-b01.json` with corrected native Codex shape, exact-hash user trust, honest bypass boundary, managed-hook exclusion, hashes, and fresh RED receipts | stop on source/generated/docs mixing, missing correction reason/RED evidence, non-native trust claims, bypass invocation/recommendation, automatic compact/clear/reset, manifest drift, or ownership overlap |
 | `CTX-020-CORE` | CRITICAL / M | `context_handoff_developer` | DONE | superseding sequence-2 baseline is verified and independently review-green | only `.agents/config/context_handoff_v1.json` and `scripts/context_handoff.py`; after the gate opens, the stdlib engine implements and validates the frozen policy and all four operations, and every lane commit carries `Test-Baseline: <exact verified sequence-2 baseline SHA>` | do not start from retained baseline `05cd685`; stop on missing sequence-2 SHA/hash/trailer, raw-transcript read, non-stdlib dependency, automatic clear/compact, partial/over-cap write, or extra path |
 | `CTX-030-ADAPTERS` | HIGH / S | `developer` | DONE | `CTX-020-CORE` | `.codex/hooks.json`, `.claude/hooks/stop-monitor.sh`, `.agy/hooks/stop-monitor.sh` only; all three call the shared engine with equivalent fail-closed behavior; Codex project hooks use native exact-hash user review/trust and managed hooks remain out of scope | stop on duplicated policy, repository trust self-declaration, bypass invocation/recommendation, automatic clear/compact, swallowed failure, repository write outside the derived capsule, or extra path |
-| `CTX-040-POLICY` | HIGH / S | `skill_rule_owner` | DOING | `CTX-020-CORE` | `.agents/skills/anti-cognitive-decay/SKILL.md`, `.agents/rules/20-context-handoff.md`, `.agents/AGENTS.md` only; canonical skill/rule/catalog match machine policy and preserve operator-only clear | stop on policy divergence, generated-file edit, unsafe invocation, ownership overlap, or extra path |
-| `CTX-050-SYNC` | HIGH / M | `developer` | DOING | `CTX-030-ADAPTERS`, `CTX-040-POLICY` | `scripts/sync_claude_agy_parity.py`, `scripts/sync_ai_agent_ecosystem.py` only; deterministic sync/check recognizes canonical policy and produces only the declared mirrors with check mode read-only | stop on unrelated generation, out-of-repo/global write, source overwrite, parity drift, active current-release ownership, or extra path |
-| `CTX-060-GENERATED` | HIGH / XS | `generated_refresh_owner` | BLOCKED | `CTX-050-SYNC` | exact three mirrored skill files above in one generated-refresh lane; bytes and provenance match canonical output and sync check is clean | stop on manual divergent edits, any fourth generated path, canonical-source mutation, or non-determinism |
-| `CTX-070-DOCS` | HIGH / S | `business_analyst` | BLOCKED | `CTX-020-CORE` through `CTX-060-GENERATED` source/generated freeze | exact six documentation/global-guidance files above; operator guidance matches frozen behavior, labels `HANDOFF.md` derived, and makes no release/provider claim | stop on source/test/generated mutation, stale behavior, authority inversion, ownership overlap, or extra path |
-| `CTX-080-QA` | CRITICAL / M | `qa_tester` | BLOCKED | corrected sequence-2 `CTX-010-RED` through `CTX-070-DOCS` green | read-only independent QA runs frozen focused tests, provenance/history guards, native hook-shape and trust negatives, adapter negatives, ecosystem parity/check, security scan, and applicable regression; every required command exits 0 with bounded evidence | any fail, skip, stale fixture/hash, trust ambiguity, bypass recommendation, or source/test edit blocks review |
-| `CTX-090-REVIEW` | CRITICAL / S | `code_reviewer` | BLOCKED | `CTX-080-QA` green | read-only independent review verifies architecture, security/privacy, native exact-hash trust, bypass policy, managed-hook exclusion, one-editor history, exact-path provenance, and QA receipts; explicit approval required | any critical/high finding, missing evidence, raw transcript risk, trust ambiguity, bypass invocation/recommendation, or scope drift blocks integration |
+| `CTX-040-POLICY` | HIGH / S | `skill_rule_owner` | DONE | `CTX-020-CORE` | `.agents/skills/anti-cognitive-decay/SKILL.md`, `.agents/rules/20-context-handoff.md`, `.agents/AGENTS.md` only; canonical skill/rule/catalog match machine policy and preserve operator-only clear | stop on policy divergence, generated-file edit, unsafe invocation, ownership overlap, or extra path |
+| `CTX-050-SYNC` | HIGH / M | `developer` | DONE | `CTX-030-ADAPTERS`, `CTX-040-POLICY` | `scripts/sync_claude_agy_parity.py`, `scripts/sync_ai_agent_ecosystem.py` only; deterministic sync/check recognizes canonical policy and produces only the declared mirrors with check mode read-only | stop on unrelated generation, out-of-repo/global write, source overwrite, parity drift, active current-release ownership, or extra path |
+| `CTX-060-GENERATED` | HIGH / XS | `generated_refresh_owner` | DONE | `CTX-050-SYNC` | exact three mirrored skill files above in one generated-refresh lane; bytes and provenance match canonical output and sync check is clean | stop on manual divergent edits, any fourth generated path, canonical-source mutation, or non-determinism |
+| `CTX-070-DOCS` | HIGH / S | `business_analyst` | DONE | `CTX-020-CORE` through `CTX-060-GENERATED` source/generated freeze | exact six documentation/global-guidance files above; operator guidance matches frozen behavior, labels `HANDOFF.md` derived, and makes no release/provider claim | stop on source/test/generated mutation, stale behavior, authority inversion, ownership overlap, or extra path |
+| `CTX-080-QA` | CRITICAL / M | `qa_tester` | DONE | corrected sequence-2 `CTX-010-RED` through `CTX-070-DOCS` green | read-only independent QA runs frozen focused tests, provenance/history guards, native hook-shape and trust negatives, adapter negatives, ecosystem parity/check, security scan, and applicable regression; every required command exits 0 with bounded evidence | any fail, skip, stale fixture/hash, trust ambiguity, bypass recommendation, or source/test edit blocks review |
+| `CTX-090-REVIEW` | CRITICAL / S | `code_reviewer` | DONE | `CTX-080-QA` green | read-only independent review verifies architecture, security/privacy, native exact-hash trust, bypass policy, managed-hook exclusion, one-editor history, exact-path provenance, and QA receipts; explicit approval required | any critical/high finding, missing evidence, raw transcript risk, trust ambiguity, bypass invocation/recommendation, or scope drift blocks integration |
 | `CTX-100-INTEGRATION-HOLD` | CRITICAL / S | `release_integrator` (existing current-release owner; no duplicate) | BLOCKED | release 120 production-green and every `CTX-000` through `CTX-090` gate green | after explicit owner handoff, revalidate ancestry, exact commits, overlap, independent QA/review, current-release CI, and merge plan before any integration action | no integration, merge/cherry-pick, push, deploy, publish, or production activation while release 120, a prior CTX gate, ownership, or overlap is not green |
 
 ### DispatchDecision v1
@@ -386,9 +543,9 @@ the final fresh preflight after every predecessor gate is green.
 | `IDQ-OP-020-EXECUTOR` | CRITICAL / M | `developer` | DONE | exact `717005d266601df76646d072a637beadd89e99ed` | source ownership only `scripts/multiagent_idq_mvp_080_operational.py`; implement the baseline-bounded operational executor and commit with exact trailer `Test-Baseline: 717005d266601df76646d072a637beadd89e99ed` | stop on any other changed path, missing/mismatched trailer, mutation-capable provider work, secret/raw-stream handling, or ownership overlap |
 | `IDQ-OP-030-QA` | CRITICAL / M | `idq_qa_tester` | DONE | `IDQ-OP-020-EXECUTOR` | fresh deterministic queue, lifecycle, cross-runtime handoff, receipt-integrity, and read-only-boundary evidence is green | any stale, missing, ambiguous, or failing result stops descendants |
 | `IDQ-OP-040-AUTH02-GOV` | CRITICAL / XS | `business_analyst` | DONE | `IDQ-OP-030-QA` | convert owner approval intent into a bounded activation only after QA is fresh; keep `AUTH-01` sealed | no TTL, nonce, or lease before final preflight; no inherited/replayed authority |
-| `IDQ-OP-050-PREFLIGHT` | CRITICAL / S | `orchestrator` | READY | `IDQ-OP-030-QA`, `IDQ-OP-040-AUTH02-GOV` | prove the real executor path, effective read-only isolation, safe fresh quota, alias/executable identity, fresh decision/snapshot, then atomically issue and bind single-use TTL/nonce/lease | any stale/unknown/contradictory binding, auth/billing need, or secret exposure stops before process creation |
-| `IDQ-OP-060-FOUR-ALIAS` | CRITICAL / M | `qa_tester` | BLOCKED | `IDQ-OP-050-PREFLIGHT` | exactly `codex1`, `codex2`, `agy1`, and `agy2`; one distinct read-only provider proof each with fresh validated receipt and typed result | no retry, fallback, substitution, fabricated receipt, raw stream, mutation, push, deploy, or publish |
-| `IDQ-OP-090-SEAL` | HIGH / S | `business_analyst` | BLOCKED | `IDQ-OP-060-FOUR-ALIAS` | record four valid terminal outcomes, seal all temporary authority, and reconcile current docs without a release claim | absent/invalid outcome or unsealed authority keeps the ticket blocked |
+| `IDQ-OP-050-PREFLIGHT` | CRITICAL / S | `orchestrator` | DONE | `IDQ-OP-030-QA`, `IDQ-OP-040-AUTH02-GOV` | prove the real executor path, effective read-only isolation, safe fresh quota, alias/executable identity, fresh decision/snapshot, then atomically issue and bind single-use TTL/nonce/lease | any stale/unknown/contradictory binding, auth/billing need, or secret exposure stops before process creation |
+| `IDQ-OP-060-FOUR-ALIAS` | CRITICAL / M | `qa_tester` | DONE | `IDQ-OP-050-PREFLIGHT` | exactly `codex1`, `codex2`, `agy1`, and `agy2`; one distinct read-only provider proof each with fresh validated receipt and typed result | no retry, fallback, substitution, fabricated receipt, raw stream, mutation, push, deploy, or publish |
+| `IDQ-OP-090-SEAL` | HIGH / S | `business_analyst` | DONE | `IDQ-OP-060-FOUR-ALIAS` | record four valid terminal outcomes, seal all temporary authority, and reconcile current docs without a release claim | absent/invalid outcome or unsealed authority keeps the ticket blocked |
 
 **Integrity and scope lock**: all provider proof is read-only and must preserve
 secret safety, raw-stream non-retention, independent receipt/`WorkResult`

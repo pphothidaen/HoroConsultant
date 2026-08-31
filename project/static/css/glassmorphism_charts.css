@@ -1,0 +1,116 @@
+/* project/static/css/glassmorphism_charts.css */
+:root {
+  /* Five Elements Color Tokens */
+  --wood-element: #10b981;
+  --fire-element: #ef4444;
+  --earth-element: #d97706;
+  --metal-element: #38bdf8;
+  --water-element: #8b5cf6;
+
+  /* Dark Palette Base */
+  --bg-dark: #0f172a;
+  --bg-card: rgba(30, 41, 59, 0.7);
+  --text-light: #f8fafc;
+  --text-muted: #e2e8f0;
+  --border-luminous: rgba(255, 255, 255, 0.2);
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+}
+
+.glass-card {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-luminous);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+}
+
+.chart-header {
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+  border-bottom: 1px solid var(--border-luminous);
+  padding: 10px;
+  border-radius: 10px 10px 0 0;
+  margin-bottom: 15px;
+}
+
+.chart-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+/* CSS Tooltip System */
+.has-tooltip {
+  position: relative;
+  cursor: help;
+}
+
+.has-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.has-tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Responsive Breakpoints */
+@media (min-width: 320px) {
+  .chart-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 768px) {
+  .chart-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .chart-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Print-friendly rules */
+@media print {
+  .glass-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: #fff;
+    color: #000;
+    border: 1px solid #ccc;
+    box-shadow: none;
+  }
+  body {
+    background-color: #fff;
+    color: #000;
+  }
+}
