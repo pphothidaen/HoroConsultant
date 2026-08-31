@@ -1,0 +1,62 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-BRK-B0-030",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "bff52633934b731ea517fa59dea89ec34057a8c3",
+  "test_files": [
+    {
+      "path": "tests/test_broker_capacity_admission.py",
+      "sha256": "fcdfc393e5e6a829fc1247298f9ad050575ffff8409a7ea412446bb4447016fa"
+    },
+    {
+      "path": "tests/test_broker_agile_governance.py",
+      "sha256": "640ff4bed07d78b793dc27e0a5b91846c26b79c1e35ad9c46d43546b988cb744"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_broker_capacity_admission.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "2 failed, 10 passed; ENTRYPOINT_MISSING: scripts/multiagent_capacity.py: KNOWN_ACCOUNTS missing 'agy3'; scripts/multiagent_capacity.py: ACCOUNT_PROVIDERS missing 'agy3' -> 'agy'; .agents/config/s3_capacity_policy.json: accounts missing 'agy3'"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_broker_agile_governance.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "1 failed, 6 passed; ENTRYPOINT_MISSING: .agents/skills/agile-governance/evals/evals.json"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/multiagent_capacity.py",
+    "scripts/multiagent_root_worker.py",
+    "scripts/multiagent_prompt_command.py",
+    "scripts/codex_quota_workaround.py",
+    ".agents/config/s3_capacity_policy.json",
+    ".agents/config/multiagent_model_policy.yaml",
+    ".agents/rules/21-agile-governance.md",
+    ".agents/skills/agile-governance/SKILL.md",
+    ".agents/skills/agile-governance/evals/evals.json",
+    ".agents/AGENTS.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze test-only baseline for BRK-B0-030 covering six-alias capacity admission, circuit breaker, quota fail-closed gates, aggregate root ceilings, account isolation, and Agile governance lifecycle controls before B3 source implementation."
+}
