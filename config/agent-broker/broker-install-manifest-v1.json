@@ -1,0 +1,101 @@
+{
+  "schema_version": "broker-install-manifest-v1",
+  "version": "1.0.0",
+  "manifest_id": "hc-agent-broker-manifest-v1-20260831",
+  "created_at": "2026-08-31T00:00:00Z",
+  "description": "Closed immutable installation manifest for macOS Swift AI Account Keychain Broker.",
+  "target_directories": [
+    {
+      "path": "bin",
+      "required_mode": "0755",
+      "purpose": "Executable binaries and wrapper scripts",
+      "scope": "shared"
+    },
+    {
+      "path": "releases",
+      "required_mode": "0755",
+      "purpose": "Immutable versioned broker binary releases",
+      "scope": "shared"
+    },
+    {
+      "path": "manifests",
+      "required_mode": "0755",
+      "purpose": "Immutable release and installation manifests",
+      "scope": "shared"
+    },
+    {
+      "path": "runtime",
+      "required_mode": "0700",
+      "purpose": "Per-alias isolated runtime home, xdg, and tmp directories",
+      "scope": "private"
+    },
+    {
+      "path": "migration",
+      "required_mode": "0700",
+      "purpose": "Migration manifests and private recovery backups",
+      "scope": "private"
+    }
+  ],
+  "binary_artifacts": [
+    {
+      "name": "ai-account-keychain-broker",
+      "target_subpath": "bin/ai-account-keychain-broker",
+      "release_subpath": "releases/ai-account-keychain-broker",
+      "required_mode": "0500",
+      "is_executable": true,
+      "description": "macOS Swift AI account keychain broker binary",
+      "sha256": null
+    },
+    {
+      "name": "multiagent_broker_bridge.py",
+      "target_subpath": "bin/multiagent_broker_bridge.py",
+      "release_subpath": "releases/multiagent_broker_bridge.py",
+      "required_mode": "0500",
+      "is_executable": true,
+      "description": "Typed Python agent broker bridge executable",
+      "sha256": null
+    }
+  ],
+  "canonical_aliases": [
+    "agy1",
+    "agy2",
+    "agy3",
+    "codex1",
+    "codex2",
+    "codex3"
+  ],
+  "provider_mapping": {
+    "agy1": "agy",
+    "agy2": "agy",
+    "agy3": "agy",
+    "codex1": "codex",
+    "codex2": "codex",
+    "codex3": "codex"
+  },
+  "runtime_directories": {
+    "per_alias_subdirs": [
+      "home",
+      "xdg/config",
+      "xdg/cache",
+      "xdg/data",
+      "tmp"
+    ],
+    "required_mode": "0700"
+  },
+  "required_modes": {
+    "broker_binary": "0500",
+    "shared_directory": "0755",
+    "private_directory": "0700",
+    "manifest_file": "0600",
+    "receipt_file": "0600"
+  },
+  "security_policies": {
+    "allow_symlinks": false,
+    "enforce_owner_only_private": true,
+    "enforce_immutable_binary_mode": true,
+    "allow_untracked_overwrites": false,
+    "allow_keychain_access": false,
+    "allow_network_access": false
+  },
+  "file_hashes": {}
+}
