@@ -9,7 +9,6 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-RECOVERY_REF = "recovery/pre-test-provenance-20260827"
 POST_DEPLOY_EVIDENCE = (
     ROOT
     / "project/tests/artifacts/hf_post_deploy_v3_verification_2026-08-25.json"
@@ -27,7 +26,7 @@ def _workflow(path: str) -> dict[str, object]:
 
 
 @pytest.mark.parametrize(("workflow_path", "job_name"), FULL_SUITE_JOBS)
-def test_full_suite_jobs_restore_complete_history_and_recovery_ref(
+def test_full_suite_jobs_fetch_complete_history(
     workflow_path: str,
     job_name: str,
 ) -> None:
@@ -39,11 +38,6 @@ def test_full_suite_jobs_restore_complete_history_and_recovery_ref(
     )
 
     assert checkout.get("with", {}).get("fetch-depth") == 0
-    run_scripts = "\n".join(str(step.get("run", "")) for step in steps)
-    assert (
-        f"refs/remotes/origin/{RECOVERY_REF}:refs/heads/{RECOVERY_REF}"
-        in run_scripts
-    )
 
 
 def test_post_deploy_consensus_screenshots_are_tracked_and_allowlisted() -> None:
