@@ -1,8 +1,8 @@
 # HoroConsultant Session Continuation Handoff
 
-**Updated**: `2026-08-31T03:26:00+07:00` (Asia/Bangkok)  
+**Updated**: `2026-08-31T03:40:00+07:00` (Asia/Bangkok)
 **Resumption Command**: `/goal resume handoff.md`  
-**Current Phase**: `CONSOLIDATION_AND_PR_VERIFICATION`
+**Current Phase**: `MERGED_LOCALLY_RELEASE_BLOCKED_BY_FOCUSED_QA`
 
 ---
 
@@ -15,7 +15,7 @@ The primary goals achieved:
 2. **Branch Cleanup**: Unused branch `temp/merge-all-branches` deleted locally and on origin. Local `recovery/pre-test-provenance-20260827` deleted; remote immutable audit anchor `origin/recovery/pre-test-provenance-20260827` preserved at commit `ebfeee9` for CI compliance.
 3. **Test Provenance Manifest**: Created and verified `plans/test_provenance/merge-all-branches-20260831.json` with strict SHA-256 hashes and allowed source paths. Passed local `test_provenance_guard.py verify-pr` and GitHub Actions `Test Provenance` check.
 4. **Active PR**: PR #8 (`merge/all-to-main-20260831` -> `main`) is active at `https://github.com/pphothidaen/HoroConsultant/pull/8`.
-5. **Quota Audit**: `agy2` quota verified (Gemini 71% Weekly / 32% 5-hour; Claude/GPT 89% Weekly / 66% 5-hour). Priority directive is to delegate tasks to `agy2` first.
+5. **Quota Audit**: `agy1` and `agy2` report Gemini 69% Weekly / 20% 5-hour; Claude/GPT 66% Weekly / 0% 5-hour. `agy2` remains the preferred implementation lane.
 
 ---
 
@@ -50,10 +50,13 @@ The primary goals achieved:
 
 ## 4. Quota & Account Strategy
 
+- **agy1 Allocation**:
+  - Gemini: `69% Weekly / 20% 5-hour` (user interactive-shell evidence)
+  - Claude & GPT: `66% Weekly / 0% 5-hour` (user interactive-shell evidence)
 - **agy2 Allocation**:
-  - Gemini: `71% Weekly / 32% 5-hour`
-  - Claude & GPT: `89% Weekly / 66% 5-hour`
-- **agy1 Status**: Alias not in PATH on current environment.
+  - Gemini: `69% Weekly / 20% 5-hour` (provider-native CLI output)
+  - Claude & GPT: `66% Weekly / 0% 5-hour` (provider-native CLI output)
+- **agy1 Status**: Available and slow to respond in the user's interactive shell; unavailable in the Codex subprocess PATH (`command not found`).
 - **Root Policy Directive**: All future sub-agent and ticket delegations must target `agy2` first to maximize quota utilization before falling back to the orchestrator session.
 
 ---
@@ -98,3 +101,85 @@ The primary goals achieved:
 5. **Deploy & Production Verification**:
    - Push release commit to `main`.
    - Run `python3 scripts/run_button_regression.py` and `python3 scripts/audit_canonical_5_viewports.py`.
+
+---
+
+## 7. Continuation Update (`2026-08-31T03:35:00+07:00` Asia/Bangkok)
+
+### 7.1 Verified Current State
+- **CLI / Tool Availability**:
+  - `agy1` completed `/usage` in the user's interactive shell after a delay; the same command is unavailable in the Codex subprocess PATH (`agy1: command not found`).
+  - `agy2` completed `/usage` successfully in the Codex environment.
+- **Quota & Usage State**:
+  - **AGY / Gemini**: `69% weekly` and `20% five-hour` remaining, reported by both `agy1` (user interactive shell) and `agy2` (Codex execution).
+  - **Claude / GPT**: `66% weekly` and `0% five-hour` remaining.
+- **Implementation Lane (`agy2`) Status**:
+  - The `agy2` implementation lane modified [scripts/multiagent_idq_mvp_080_operational.py](file:///Users/kimlenglim/Project/HoroConsultant/scripts/multiagent_idq_mvp_080_operational.py), replacing the placeholder `NotImplementedError` with provider execution, process supervision, stream buffers, and durable queue logic.
+  - However, the `agy2` live session ended after a connector timeout without returning a validated child result.
+  - **Verification Status**: Acceptance and focused tests (`tests/test_idq_mvp_080_operational_provider.py`) remain **unverified**.
+- **Working Tree State**:
+  - Working tree contains an unstaged modification in [scripts/multiagent_idq_mvp_080_operational.py](file:///Users/kimlenglim/Project/HoroConsultant/scripts/multiagent_idq_mvp_080_operational.py).
+  - All existing edits are preserved; no code was reverted.
+
+### 7.2 Ownership Boundaries
+- **Documentation Lane (Current Session)**:
+  - Owned scope: `handoff.md` (`HANDOFF.md`) only.
+  - Strictly no modifications to source code, test suites, plans, governance files, credentials, or remote systems.
+- **Implementation / QA Lane (Resumption Session)**:
+  - Owns validation and refinement of [scripts/multiagent_idq_mvp_080_operational.py](file:///Users/kimlenglim/Project/HoroConsultant/scripts/multiagent_idq_mvp_080_operational.py).
+  - Owns execution of focused tests (`pytest tests/test_idq_mvp_080_operational_provider.py -v`) and acceptance checks.
+  - Owns test-provenance manifest updates and Git commit/push workflows.
+
+### 7.3 Stop Conditions
+1. **Connector Timeout / Unvalidated Result**: Do not advance to staging, merge, or deploy if an agent session terminates prematurely or fails to produce a validated child result.
+2. **Quota Exhaustion**: Stop or pause delegation if the 0% Claude/GPT 5-hour limit or Gemini quota boundaries prevent complete execution.
+3. **No Revert Directive**: Never revert or overwrite the visible changes in `scripts/multiagent_idq_mvp_080_operational.py` without user confirmation or explicit failed-test diagnosis.
+4. **Failing Tests / Provenance Guard**: Stop immediately if `pytest tests/test_idq_mvp_080_operational_provider.py` fails or if `python3 scripts/test_provenance_guard.py verify-pr` fails.
+
+### 7.4 Next Safe Actions
+1. **Preserve Work**: Keep unstaged changes in `scripts/multiagent_idq_mvp_080_operational.py` intact.
+2. **Execute Focused QA in Implementation Session**:
+   ```bash
+   pytest tests/test_idq_mvp_080_operational_provider.py -v
+   ```
+3. **Address Any Test Discrepancies**: If unit tests uncover schema, timeout, or receipt mismatch issues from the interrupted `agy2` run, address them within the implementation lane.
+4. **Verify GitHub PR #8 CI Status**:
+   ```bash
+   export GH_TOKEN=$(grep GH_TOKEN .env | head -1 | sed 's/GH_TOKEN=//' | sed 's/^"//' | sed 's/"$//')
+   gh pr checks 8
+   ```
+5. **Update Test Provenance Manifest & Commit**: Once unit and acceptance suites pass 100%, update provenance tracking in `plans/test_provenance/` and verify before merging.
+
+### 7.5 Exact Resume Command
+Run the following exact command to resume execution in a future session:
+```bash
+/goal resume handoff.md
+```
+
+### 7.6 Continuation Update (`2026-08-31T03:45:00+07:00`)
+
+- Local branch `merge/all-to-main-20260831` was merged into `main` as commit
+  `752cda4`; the local branch was then deleted after ancestor verification.
+- Remote `origin/merge/all-to-main-20260831` remains until `main` is safely
+  pushed and remote merge state is verified.
+- Required ecosystem synchronization check: **PASSED**.
+- Secret scan: **PASSED** (`0` findings across `3583` files).
+- Focused IDQ QA: **BLOCKED** (`288 passed, 12 failed` in
+  `tests/test_idq_mvp_080_operational_provider.py`). Failures include replay
+  side-effect snapshot serialization, exact AGY stream-cap handling, and
+  repository-drift mutation detection.
+- Production push, remote branch deletion, and deployment are on hold until
+  the implementation lane is corrected and the focused suite plus release
+  gates are green. Existing edits to
+  `scripts/multiagent_idq_mvp_080_operational.py` remain unstaged and were not
+  reverted.
+
+### 7.7 Release Audit (`2026-08-31T03:50:00+07:00`)
+
+- PR #8 remains **OPEN / UNSTABLE**. GitHub reports failures for `PyTest & Edge
+  Boundary Testing`, `Pre-Deployment Code Review and Safety Audit`, and the
+  Vercel status context; the other listed checks are successful.
+- Remote refs are unchanged: `origin/main` is `61aead4` and
+  `origin/merge/all-to-main-20260831` is `5513312`.
+- Do not push `main`, delete the remote PR branch, or deploy until the focused
+  QA failures and the failing PR/Vercel gates are resolved and rerun.

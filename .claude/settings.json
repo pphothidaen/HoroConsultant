@@ -50,16 +50,6 @@
             "command": "bash .claude/hooks/post-tool-use-formatter.sh"
           }
         ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/stop-monitor.sh"
-          }
-        ]
       },
       {
         "matcher": ".*",
@@ -71,10 +61,15 @@
         ]
       }
     ],
-    "PostToolUse": [
+    "Stop": [
       {
         "matcher": ".*",
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PROJECT_DIR}/.claude/hooks/stop-monitor.sh\"",
+            "timeout": 10
+          },
           {
             "type": "command",
             "command": "python3 .claude/hooks/full_capacity_guard.py"

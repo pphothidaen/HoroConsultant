@@ -1,49 +1,34 @@
 ---
 name: anti-cognitive-decay
-description: Monitor context usage, generate HANDOFF.md memory compaction snapshots, and execute context reset.
-argument-hint: "[snapshot-reason]"
-disable-model-invocation: false
-user-invocable: true
-allowed-tools: [Bash, Read, Write]
-model: sonnet
-context: fork
+description: Bounded context handoff and operator-only lifecycle management.
 ---
 
-# Anti-Cognitive Decay — Memory Compaction & Handoff Protocol
+# Anti-Cognitive Decay Skill
 
-Preserves operational precision and prevents token degradation across extended development sessions.
+Governs bounded context preservation across runtimes without authority drift.
 
-## Threshold & Trigger Conditions
-- Trigger when session context crosses **40% - 50%** consumption.
-- Trigger when task complexity transitions across major architectural boundaries.
+## Principles & Authority
 
-## Compaction Procedure
+- Primary authority resides in `PROJECT_TASKS.md` and `plans/plan.md`.
+- `HANDOFF.md` is a derived, non-authoritative handoff capsule adhering to `HandoffSnapshotV1`.
+- Raw transcript files are never read or parsed; only structured state is evaluated.
+- Any unresolved lane status leaves `clear_ready` false. Missing or unverified metrics evaluate to `UNKNOWN`.
 
-1. **Audit Current State**:
-   - Verify uncommitted changes: `git status --short`
-   - Review active work breakdown in `PROJECT_TASKS.md` or ticket tracker.
+## Budget Thresholds & Limits
 
-2. **Generate `HANDOFF.md`**:
-   Write a structured handoff document in the root directory covering:
-   - **Current State & WBS Checklist**: Completed vs. pending items.
-   - **Architectural Decisions & Contracts**: Schema modifications, data structures, invariants.
-   - **Negative Knowledge & Gotchas**: Failed approaches, error logs, and paths to avoid.
-   - **Working Tree Delta**: Active branch, uncommitted diffs, and exact modified file list.
+- State payload and hook inputs are bounded to `64 KiB`.
+- Generated derived capsules must not exceed `16 KiB`.
+- Percentage thresholds: alert at `40%`, snapshot at `45%`, critical at `80%`.
+- Transcript byte thresholds: alert at `400 KiB`, snapshot at `450 KiB`, critical at `900 KiB`.
 
-3. **Output Rehydration Command**:
-   Provide the single command required for the fresh instance to rehydrate context:
-   ```bash
-   git diff --stat $(git merge-base main HEAD)
-   ```
+## Governance & Safety
 
-4. **Instruct Context Clear**:
-   Notify the operator to execute `/clear` or `/reset` in the AGY CLI prompt.
-
----
+- Only an `operator` may clear, compact, or reset sessions; hooks never execute automated clearing.
+- Codex project hooks operate under non-managed user review of the exact current hash.
+- Native Codex CLI may expose `--dangerously-bypass-hook-trust`; repository instructions never invoke or recommend this bypass, and managed hooks remain outside this local implementation.
 
 ## Gotchas
 
-- **Gotcha 1 (Oversized Handoff)**: Writing multi-megabyte logs into `HANDOFF.md` defeats compaction.  
-  *Workaround*: Summarize error traces in under 10 lines with root cause analysis.
-- **Gotcha 2 (Unsaved Worktree)**: Executing `/clear` without committing or documenting modified files.  
-  *Workaround*: Ensure all touched files are documented with `git status --short` in `HANDOFF.md`.
+- Never select a generated mirror as the canonical source.
+- Never inspect raw transcript content directly.
+- Never self-declare hook trust in repository configuration.

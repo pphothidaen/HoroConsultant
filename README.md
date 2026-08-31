@@ -54,6 +54,22 @@ by that dependency chain.
 
 ## Test-First Git Provenance
 
+## AGY quota check pattern
+
+Check each isolated quota pool independently with the provider-native CLI:
+
+```bash
+agy1 --model "Gemini 3.7 Flash (Medium)" --dangerously-skip-permissions --print "/usage"
+agy2 --model "Gemini 3.7 Flash (Medium)" --dangerously-skip-permissions --print "/usage"
+```
+
+Record `agy1` and `agy2` as separate observations; never aggregate their
+limits or treat a configured alias as runtime proof. `agy1` may take longer to
+return in an interactive shell.
+
+The provider executor is POSIX-only, uses `os.killpg` for bounded process-group
+cleanup, and must verify provenance with `python3 scripts/test_provenance_guard.py verify-pr --base $(git rev-parse origin/main) --head $(git rev-parse HEAD)` before release.
+
 Every feature or bug-fix ticket must freeze its black-box contract before
 source coding. Commit tests and `plans/test_provenance/<ticket>-<sequence>.json`
 first, record the red test or negative control, and use that commit SHA in each

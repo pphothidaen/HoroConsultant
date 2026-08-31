@@ -5156,7 +5156,10 @@ def _parse_agy_result(payload: str | bytes | None) -> ProviderResult:
         raise ProviderParseError(
             "provider_failure_event", "AGY stream-json contains a provider failure event"
         )
-    if any(name not in {"init", "step_update", "result"} for name in event_names):
+    if any(
+        name not in {"init", "step_update", "progress", "result"}
+        for name in event_names
+    ):
         raise ProviderParseError(
             "terminal_shape", "AGY stream-json contains an unsupported event name"
         )
@@ -5194,6 +5197,14 @@ def _parse_agy_result(payload: str | bytes | None) -> ProviderResult:
         )
 
     for event in events[1:terminal_indices[0]]:
+        if event.get("event") == "progress":
+            if set(event) != {"event", "padding"} or not isinstance(
+                event.get("padding"), str
+            ):
+                raise ProviderParseError(
+                    "terminal_shape", "AGY progress event envelope is invalid"
+                )
+            continue
         if set(event) != {"event", "step_update"}:
             raise ProviderParseError(
                 "terminal_shape", "AGY stream-json step envelope is invalid"

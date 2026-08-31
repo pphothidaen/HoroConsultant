@@ -12,6 +12,24 @@
 
 ## Test provenance workflow for developers and agents
 
+### Independent AGY quota checks
+
+Run the exact command once per account and preserve each result separately:
+
+```bash
+agy1 --model "Gemini 3.7 Flash (Medium)" --dangerously-skip-permissions --print "/usage"
+agy2 --model "Gemini 3.7 Flash (Medium)" --dangerously-skip-permissions --print "/usage"
+```
+
+The `agy1` interactive-shell request can take time to respond. Do not combine
+the `agy1` and `agy2` quota bands, and label unavailable or user-shell output
+as such when provider-native execution evidence is not available in the
+current environment.
+
+The provider executor is POSIX-only and performs bounded process-group cleanup
+with `os.killpg`. Before release, run
+`python3 scripts/test_provenance_guard.py verify-pr --base $(git rev-parse origin/main) --head $(git rev-parse HEAD)`.
+
 1. Write black-box acceptance tests before implementation and run them to
    capture a real failing result or negative control.
 2. Create a closed manifest under `plans/test_provenance/` with the exact test
@@ -664,4 +682,3 @@ integration, main-only CI, deployment และ fresh post-deploy evidence ก�
 
 📖 **อ่านคู่มือขั้นตอนการปฏิบัติงานและการแก้ปัญหาฉบับสมบูรณ์ (Full Runbook & Remediation Guide):**  
 👉 [docs/branch_migration_action_priority_runbook.md](file:///Users/kimlenglim/Project/HoroConsultant/docs/branch_migration_action_priority_runbook.md)
-

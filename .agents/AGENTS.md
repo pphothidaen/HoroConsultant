@@ -40,11 +40,12 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 13. **`hf-static-release-verification`**: Fail-closed HF Static release gate for payload, health, exact `release_source_commit` identity, source metadata digest/revision, source-ancestry proof, required assets, publisher regression, and five-viewport evidence. `packaging_commit` is evidence-only; legacy fallbacks and overrides are forbidden. Primary owner: `devops`; verification owners: `qa_tester`, `ui_visual_tester`, and `code_reviewer`; dispatch owner: `orchestrator`.
 14. **`multi-account-agent-orchestration`**: Route bounded work across Codex/AGY/Hermes accounts with non-secret quota evidence, retry limits, ownership isolation, HITL closure, and process-backed execution through required explicitly selected aliases. Result Contract v2 binds a provider-native `ExecutionReceipt` to a schema-validated `WorkResult` and fails closed; read-only lanes additionally require an approved runtime config plus an explicit read-only role or validated sandbox override. The root/current session is orchestrator-only; child lanes alone may use terminal CLI workarounds, and any one-off root-action waiver needs current, recorded user authorization.
 15. **`adaptive-model-effort-routing`**: Classify lane scope, complexity, risk, ambiguity, evidence, and quota into a versioned fail-closed `DispatchDecision`; Rule 18 owns policy, capability catalog, floors, receipt binding, and HITL behavior.
+16. **`anti-cognitive-decay`**: Governs bounded context preservation across runtimes without authority drift.
 
 ### Claude Code Governance Map
 
 - **Level 1 Hooks**: `.claude/settings.json` routes Bash calls through `.agents/hooks/pre_tool_check.py` and `.agents/hooks/post_tool_audit.py` for hard command controls.
-- **Level 2 Rules**: `.claude/rules/*.md` and `.agents/rules/*.md` provide path-aware guidance, including Rule 11 delegation, Rule 12 Claude Code three-level governance, Rule 13 ecosystem sync, Rule 14 specialist decomposition, and Rule 18 adaptive routing.
+- **Level 2 Rules**: `.claude/rules/*.md` and `.agents/rules/*.md` provide path-aware guidance, including Rule 11 delegation, Rule 12 Claude Code three-level governance, Rule 13 ecosystem sync, Rule 14 specialist decomposition, Rule 18 adaptive routing, and Rule 20 context handoff (`20-context-handoff.md`).
 - **Level 3 Global Context**: `CLAUDE.md` remains the short baseline context and links to the detailed governance files.
 - **Quota Handoff Guard**: `/status` or runtime quota below 10% routes through `scripts/agent_quota_status_guard.py`; agents must update `PROJECT_TASKS.md` `TICKET-META-008` and `plans/plan.md` before continuing broad work.
 

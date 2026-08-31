@@ -1,0 +1,64 @@
+{
+  "schema_version": "context-handoff-policy-v1",
+  "input_limits": {
+    "hook_bytes": 65536
+  },
+  "output_limits": {
+    "handoff_bytes": 16384,
+    "rehydrate_bytes": 4096,
+    "additional_context_bytes": 4096
+  },
+  "thresholds": {
+    "percent": {
+      "alert": 40,
+      "snapshot": 45,
+      "critical": 80
+    },
+    "transcript_bytes": {
+      "alert": 409600,
+      "snapshot": 460800,
+      "critical": 921600
+    }
+  },
+  "signal_precedence": [
+    "token_count",
+    "percent",
+    "transcript_stat_bytes",
+    "label_bytes",
+    "UNKNOWN"
+  ],
+  "normalized_state_channel": {
+    "kind": "json_file",
+    "path_environment": "CONTEXT_HANDOFF_STATE_FILE",
+    "cli_flag": "--state-file",
+    "max_bytes": 65536,
+    "unset_behavior": "empty_state"
+  },
+  "authority": {
+    "current_state": "PROJECT_TASKS.md",
+    "implementation_plan": "plans/plan.md",
+    "derived_handoff": "HANDOFF.md"
+  },
+  "runtimes": [
+    "codex",
+    "claude",
+    "agy"
+  ],
+  "operations": [
+    "hook",
+    "snapshot",
+    "rehydrate",
+    "validate"
+  ],
+  "operator_only_actions": [
+    "compact",
+    "clear",
+    "reset"
+  ],
+  "codex_hooks": {
+    "scope": "non-managed_project_hooks",
+    "trust": "native_user_review_exact_current_hash",
+    "unreviewed_or_changed": "skip",
+    "repository_bypass_policy": "never_invoke_or_recommend"
+  }
+}

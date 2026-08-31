@@ -318,7 +318,10 @@ def sync_skills(check_only: bool = False) -> list[ParityResult]:
         else:
             # Sync skill folder
             source_file = None
-            if claude_skill_md.exists() and agy_skill_md.exists():
+            canonical_source = ROOT / ".agents" / "skills" / name / "SKILL.md"
+            if canonical_source.exists():
+                source_file = canonical_source
+            elif claude_skill_md.exists() and agy_skill_md.exists():
                 source_file = claude_skill_md if claude_skill_md.stat().st_mtime >= agy_skill_md.stat().st_mtime else agy_skill_md
             elif claude_skill_md.exists():
                 source_file = claude_skill_md

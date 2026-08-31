@@ -1,5 +1,5 @@
 {
-  "branch-protection-guard": {
+  "hooks": {
     "PreToolUse": [
       {
         "matcher": "run_command|write_to_file|replace_file_content",
@@ -11,9 +11,7 @@
           }
         ]
       }
-    ]
-  },
-  "targeted-auto-formatter": {
+    ],
     "PostToolUse": [
       {
         "matcher": "write_to_file|replace_file_content",
@@ -25,14 +23,19 @@
           }
         ]
       }
-    ]
-  },
-  "anti-cognitive-decay-monitor": {
-    "Stop": [
+    ],
+    "AfterAgent": [
       {
-        "type": "command",
-        "command": ".agy/hooks/stop-monitor.sh",
-        "timeout": 10
+        "matcher": "*",
+        "sequential": true,
+        "hooks": [
+          {
+            "name": "context-handoff-stop-normalizer",
+            "type": "command",
+            "command": "bash \"$(git rev-parse --show-toplevel)/.agy/hooks/stop-monitor.sh\"",
+            "timeout": 3000
+          }
+        ]
       }
     ]
   }

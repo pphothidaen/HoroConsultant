@@ -316,6 +316,30 @@ def check_hf_static_release_governance() -> CheckResult:
     )
 
 
+def check_context_handoff_governance(sync: bool = False) -> CheckResult:
+    canonical = ROOT / ".agents" / "skills" / "anti-cognitive-decay" / "SKILL.md"
+    if not canonical.is_file():
+        return CheckResult("anti-cognitive-decay skill", False, "canonical skill missing")
+    canonical_bytes = canonical.read_bytes()
+    mirrors = (
+        ROOT / ".antigravity" / "skills" / "anti-cognitive-decay" / "SKILL.md",
+        ROOT / ".claude" / "skills" / "anti-cognitive-decay" / "SKILL.md",
+        ROOT / ".agy" / "skills" / "anti-cognitive-decay" / "SKILL.md",
+    )
+    if sync:
+        for mirror in mirrors:
+            mirror.parent.mkdir(parents=True, exist_ok=True)
+            mirror.write_bytes(canonical_bytes)
+        return CheckResult("anti-cognitive-decay skill sync", True, "mirrors synchronized")
+
+    for mirror in mirrors:
+        if not mirror.is_file():
+            return CheckResult("anti-cognitive-decay skill", False, f"missing mirror: {relative(mirror)}")
+        if mirror.read_bytes() != canonical_bytes:
+            return CheckResult("anti-cognitive-decay skill", False, f"anti-cognitive-decay drift detected in {relative(mirror)}")
+    return CheckResult("anti-cognitive-decay skill", True, "canonical and generated mirrors aligned")
+
+
 def run_checks() -> list[CheckResult]:
     return [
         check_required_files(),
@@ -328,6 +352,7 @@ def run_checks() -> list[CheckResult]:
         check_codex_agents_present(),
         check_hermes_and_thclaws_contract(),
         check_hf_static_release_governance(),
+        check_context_handoff_governance(sync=False),
         run_command("Antigravity/Gemini/AGY sync", [sys.executable, "scripts/sync_sdlc_agents.py", "--check", "--use-python"]),
         run_command("Codex/OpenAI sync", [sys.executable, "scripts/sync_codex_agents.py", "--check"]),
         run_command("Claude Code <-> AGY CLI Parity", [sys.executable, "scripts/sync_claude_agy_parity.py", "--check"]),
@@ -341,6 +366,7 @@ def print_results(results: list[CheckResult]) -> None:
 
 
 def sync_then_check() -> int:
+    check_context_handoff_governance(sync=True)
     sync_results = [
         run_command("Antigravity/Gemini/AGY sync write", [sys.executable, "scripts/sync_sdlc_agents.py", "--sync"]),
         run_command("Codex/OpenAI sync write", [sys.executable, "scripts/sync_codex_agents.py", "--sync"]),
