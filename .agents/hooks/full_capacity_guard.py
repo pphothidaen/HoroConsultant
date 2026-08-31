@@ -73,7 +73,7 @@ LEDGER_LIMIT_FIELDS = frozenset(
 EXPECTED_DEPENDENCY_PINS = {
     "dispatcher_validator": {
         "path": "scripts/multiagent_prompt_command.py",
-        "sha256": "f3d2bf193217a579331e1f50a9e44b98460c32150b016915088640c2dafabb75",
+        "sha256": "f58fa591e65fbc8d038bc395c204dd44e48b01f460d44b46430ca8fa7fcec604",
     },
     "scheduler_validator": {
         "path": "scripts/multiagent_ticket_scheduler.py",

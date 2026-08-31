@@ -16,7 +16,7 @@
   },
   "capabilities": {
     "session_only_execution": true,
-    "keychain_access": false,
+    "keychain_access": true,
     "shell_invocation": false,
     "direct_provider_fallback": false,
     "fail_closed_security": true,
@@ -46,6 +46,15 @@
       "root_pool": "root_b",
       "home_template": "~/.ai-accounts/agy/account3",
       "wrapper_path": "~/.local/bin/agy3",
+      "default_capacity": 3,
+      "max_workers": 3,
+      "enabled": false
+    },
+    "agy4": {
+      "provider": "agy",
+      "root_pool": "root_b",
+      "home_template": "~/.ai-accounts/agy/account4",
+      "wrapper_path": "~/.local/bin/agy4",
       "default_capacity": 3,
       "max_workers": 3,
       "enabled": false

@@ -126,11 +126,19 @@ SVG_LOCALES: dict[str, dict[str, str]] = {
 }
 
 
+import html
+
+def _xml_escape(text: Any) -> str:
+    """Escape text for safe XML/SVG embedding."""
+    if text is None:
+        return ""
+    return html.escape(str(text), quote=True)
+
+
 def _resolve_svg_title(key: str, custom_title: str | None = None, lang: str = "th") -> str:
-    if custom_title and not custom_title.startswith("ผังดวง"):
-        return custom_title
     loc = SVG_LOCALES.get(lang, SVG_LOCALES["th"])
-    return loc.get(key, SVG_LOCALES["th"].get(key, custom_title or key))
+    raw_title = custom_title if (custom_title and not custom_title.startswith("ผังดวง")) else loc.get(key, SVG_LOCALES["th"].get(key, custom_title or key))
+    return _xml_escape(raw_title)
 
 
 def generate_bazi_svg(chart: dict[str, Any], title: str | None = None, lang: str = "th") -> str:
@@ -1118,9 +1126,9 @@ def generate_multimodal_matrix_svg(data: dict[str, Any], title: str | None = Non
     # Right Panel: 4 Metaphysics Super-Families Cards
     families = [
         ("🏛️ สายโหราศาสตร์คำนวณ (Astrological)", "BaZi • ZiWei • QiZheng • ThaiVedic", "สอดคล้อง 89% — ดาวเกื้อหนุนดิถีแข็งแกร่ง", "#38bdf8", 95),
-        ("🔮 สายพยากรณ์ & ไตรวิชา (Divination/San Shi)", "QiMen • LiuRen • TaiYi • IChing • LiuYao • MeiHua", "สอดคล้อง 92% — ทิศมงคลเปิด ประตูส่งเสริม", "#c084fc", 185),
-        ("🏯 สายฮวงจุ้ย & ฤกษ์ยาม (Geomancy & Timing)", "XuanKong • SanHe • ZeJi", "สอดคล้อง 85% — ชัยภูมิน้ำเข้า องศามงคลยุค 9", "#34d399", 275),
-        ("🔢 สายเลขศาสตร์ & นรลักษณ์ (Numerology/Face)", "Satta-Lek • MianXiang • WesternUranian", "สอดคล้อง 86% — โหงวเฮ้งสมดุล รากเลขดาวศุภเคราะห์", "#fbbf24", 365)
+        ("🔮 สายพยากรณ์ &amp; ไตรวิชา (Divination/San Shi)", "QiMen • LiuRen • TaiYi • IChing • LiuYao • MeiHua", "สอดคล้อง 92% — ทิศมงคลเปิด ประตูส่งเสริม", "#c084fc", 185),
+        ("🏯 สายฮวงจุ้ย &amp; ฤกษ์ยาม (Geomancy &amp; Timing)", "XuanKong • SanHe • ZeJi", "สอดคล้อง 85% — ชัยภูมิน้ำเข้า องศามงคลยุค 9", "#34d399", 275),
+        ("🔢 สายเลขศาสตร์ &amp; นรลักษณ์ (Numerology/Face)", "Satta-Lek • MianXiang • WesternUranian", "สอดคล้อง 86% — โหงวเฮ้งสมดุล รากเลขดาวศุภเคราะห์", "#fbbf24", 365)
     ]
 
     for f_title, f_sub, f_detail, f_color, y_pos in families:
@@ -1150,5 +1158,57 @@ def generate_multimodal_matrix_svg(data: dict[str, Any], title: str | None = Non
         '</svg>'
     ])
     return "\n".join(svg)
+
+
+DISCIPLINE_SVG_GENERATORS: dict[str, Any] = {
+    "bazi": generate_bazi_svg,
+    "ziwei": generate_ziwei_svg,
+    "zi_wei": generate_ziwei_svg,
+    "qimen": generate_qimen_svg,
+    "qi_men": generate_qimen_svg,
+    "liuren": generate_liuren_svg,
+    "liu_ren": generate_liuren_svg,
+    "taiyi": generate_tai_yi_svg,
+    "tai_yi": generate_tai_yi_svg,
+    "iching": generate_iching_svg,
+    "i_ching": generate_iching_svg,
+    "liuyao": generate_liu_yao_svg,
+    "liu_yao": generate_liu_yao_svg,
+    "meihua": generate_meihua_svg,
+    "mei_hua": generate_meihua_svg,
+    "xuankong": generate_xuankong_svg,
+    "xuan_kong": generate_xuankong_svg,
+    "sanhe": generate_sanhe_svg,
+    "san_he": generate_sanhe_svg,
+    "mianxiang": generate_mianxiang_svg,
+    "mian_xiang": generate_mianxiang_svg,
+    "zeji": generate_zeji_svg,
+    "ze_ji": generate_zeji_svg,
+    "thaivedic": generate_thaivedic_svg,
+    "thai_vedic": generate_thaivedic_svg,
+    "western": generate_western_svg,
+    "western_uranian": generate_western_svg,
+    "numerology": generate_numerology_svg,
+    "satta_lek": generate_numerology_svg,
+    "qizheng": generate_qizheng_svg,
+    "qi_zheng": generate_qizheng_svg,
+    "zodiac": generate_zodiac_wheel_svg,
+    "multimodal": generate_multimodal_matrix_svg,
+}
+
+
+def render_svg_chart(
+    discipline: str,
+    chart: dict[str, Any],
+    title: str | None = None,
+    lang: str = "th"
+) -> str:
+    """
+    Unified chart renderer dispatcher for all 16 Metaphysics disciplines.
+    """
+    key = discipline.lower().strip()
+    generator = DISCIPLINE_SVG_GENERATORS.get(key, generate_bazi_svg)
+    return generator(chart, title=title, lang=lang)
+
 
 

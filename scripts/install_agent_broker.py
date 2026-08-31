@@ -37,6 +37,7 @@ CANONICAL_ALIASES: tuple[str, ...] = (
     "agy1",
     "agy2",
     "agy3",
+    "agy4",
     "codex1",
     "codex2",
     "codex3",

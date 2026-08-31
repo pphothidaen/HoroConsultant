@@ -1,0 +1,182 @@
+{
+  "sprint": "META-PLAN-002",
+  "milestone": "M1",
+  "task": "META2-M1-010..040 & META2-M4-010 Five-Branch Metaphysics Computational Core Deepening",
+  "timestamp": "2026-08-31T21:57:30+07:00",
+  "git_commit_sha": "c34164acbdb11f80f27d34092d73e35ab2d0c49f",
+  "environment": {
+    "platform": "darwin",
+    "python_version": "3.14.7",
+    "pytest_version": "9.1.1"
+  },
+  "test_execution_summary": {
+    "test_suite_file": "project/tests/test_meta_plan_002_m1_engines.py",
+    "total_tests": 36,
+    "passed": 36,
+    "failed": 0,
+    "skipped": 0,
+    "pass_rate_percentage": 100.0,
+    "pytest_session_duration_seconds": 0.20,
+    "status": "PASS"
+  },
+  "test_classes": {
+    "TestSanShiM1Engines": {
+      "tests_count": 4,
+      "description": "Deterministic repeatability, historical epoch boundary testing, 4-lessons/3-transmissions across all stems/branches, and 24 solar terms Yang/Yin Dun Ju calculations for Tai Yi, Da Liu Ren, and Qi Men Dun Jia"
+    },
+    "TestMingXueM1Engines": {
+      "tests_count": 5,
+      "description": "Midnight transition (Early Rat vs Late Rat), Lichun solar term year pillar boundaries, Feb 29 leap year Julian Day handling, Zi Wei 12-palaces and Si Hua transformations, and Qi Zheng Si Yu 7 governors + 4 shadows + 28 mansions"
+    },
+    "TestPuShiM1Engines": {
+      "tests_count": 4,
+      "description": "I Ching all changing lines (all 9/6) and static lines (7/8) boundary conditions, Liu Yao Na Jia 6-line assignment with 6 animals/spirits and Shi/Ying line placement, and Mei Hua Yi Shu Ti/Yong 5-element dynamic relationship"
+    },
+    "TestXiangXueAndZeJiM1Engines": {
+      "tests_count": 4,
+      "description": "Xuan Kong Period 9 across 9 critical compass boundary angles (0 to 359.9 deg), San He 12 life stages water methods, Mian Xiang 5-element face archetypes and 12 palaces, and Ze Ji 12 duty officers with month/year breaker clash filters"
+    },
+    "TestExpandedAstrologyAndNumerologyM1Engines": {
+      "tests_count": 3,
+      "description": "Thai-Vedic 12-Lagna and 27 Nakshatras across all days of the week, Western Uranian 8 TNPs and midpoint formulas (A+B-C), and Satta-Lek 7-base 4-row matrix with Chaldean multilingual text scoring"
+    },
+    "TestEngineChartResultContractInvariants": {
+      "tests_count": 16,
+      "description": "Strict verification that all 16 computational engines produce valid EngineChartResult instances inheriting from dict with native JSON serializability"
+    }
+  },
+  "verified_engines": [
+    {
+      "engine_name": "Tai Yi Shen Shu Engine",
+      "class_name": "TaiYiEngine",
+      "system_type": "san_shi",
+      "file_path": "project/core/tai_yi_engine.py",
+      "verified_features": ["Tai Yi Accumulated Years", "16-Path Star Palaces", "Heaven & Earth 9-Palace Matrix", "Strategic Assessment (吉/凶)"]
+    },
+    {
+      "engine_name": "Da Liu Ren Engine",
+      "class_name": "LiuRenEngine",
+      "system_type": "san_shi",
+      "file_path": "project/core/liu_ren_engine.py",
+      "verified_features": ["Four Lessons (四課)", "Three Transmissions (三傳: 初傳/中傳/末傳)", "Heaven Plate", "12 Heavenly Generals"]
+    },
+    {
+      "engine_name": "Qi Men Dun Jia Engine",
+      "class_name": "QiMenEngine",
+      "system_type": "san_shi",
+      "file_path": "project/core/qi_men_engine.py",
+      "verified_features": ["24 Solar Terms Mapping", "Yang Dun 1-9 Ju & Yin Dun 9-1 Ju", "9 Palaces (8 Doors, 9 Stars, 8 Deities, Stems)"]
+    },
+    {
+      "engine_name": "BaZi Engine",
+      "class_name": "BaZiEngine",
+      "system_type": "ming_xue",
+      "file_path": "project/core/bazi_engine.py",
+      "verified_features": ["True Solar Time (TST)", "Midnight Zi Hour Early/Late Transitions", "Lichun Year Boundary", "Leap Year Feb 29", "Hidden Stems", "Ten Gods", "Day Master Strength", "Da Yun Luck Cycles"]
+    },
+    {
+      "engine_name": "Zi Wei Dou Shu Engine",
+      "class_name": "ZiWeiEngine",
+      "system_type": "ming_xue",
+      "file_path": "project/core/zi_wei_engine.py",
+      "verified_features": ["12 Palaces", "Ming & Shen Gong", "5 Element Bureau (水二局..火六局)", "14 Major Stars Placement", "4 Si Hua Transformations (化祿/化權/化科/化忌)"]
+    },
+    {
+      "engine_name": "Qi Zheng Si Yu Engine",
+      "class_name": "QiZhengSiYuEngine",
+      "system_type": "chinese_astrology",
+      "file_path": "project/core/qi_zheng_engine.py",
+      "verified_features": ["7 Governors (Sun, Moon, 5 Planets)", "4 Shadow Stars (Rahu, Ketu, Yuebei, Ziqi)", "28 Lunar Mansions Alignment"]
+    },
+    {
+      "engine_name": "I Ching & Liu Yao Engine",
+      "class_name": "IChingEngine",
+      "system_type": "pu_shi",
+      "file_path": "project/core/iching_engine.py",
+      "verified_features": ["64 Hexagram Permutations", "Dynamic Changing Lines (6, 7, 8, 9)", "Primary & Transformed Hexagrams", "All-Changing & All-Static Boundaries"]
+    },
+    {
+      "engine_name": "Liu Yao Divination Engine",
+      "class_name": "LiuYaoEngine",
+      "system_type": "pu_shi",
+      "file_path": "project/core/liu_yao_engine.py",
+      "verified_features": ["Na Jia 6-Line Branch Assignment", "Shi & Ying Line Derivation", "Five Relatives (五親)", "Six Spirits/Animals (六神)"]
+    },
+    {
+      "engine_name": "Mei Hua Yi Shu Engine",
+      "class_name": "MeiHuaEngine",
+      "system_type": "divination",
+      "file_path": "project/core/mei_hua_engine.py",
+      "verified_features": ["Time & Number Divination Methods", "Ti (Body) vs Yong (Function) Interaction", "Mutual Hexagram (互卦)", "Transformed Hexagram (變卦)"]
+    },
+    {
+      "engine_name": "Xuan Kong Flying Stars Engine",
+      "class_name": "XuanKongEngine",
+      "system_type": "xiang_xue",
+      "file_path": "project/core/xuan_kong_engine.py",
+      "verified_features": ["Period 9 (2024-2043) Flying Stars", "24 Mountains Resolution", "Mountain Star & Facing Star Matrices", "Compass Boundary Angle Wrapping"]
+    },
+    {
+      "engine_name": "San He Feng Shui Engine",
+      "class_name": "SanHeEngine",
+      "system_type": "feng_shui",
+      "file_path": "project/core/san_he_engine.py",
+      "verified_features": ["24 Mountains Sitting/Facing", "12 Life Stages Water Method (長生十二宮水法)", "San He Trio Harmony Assessment"]
+    },
+    {
+      "engine_name": "Imperial Calendar Date Selection Engine",
+      "class_name": "ZeJiEngine",
+      "system_type": "ze_ji",
+      "file_path": "project/core/ze_ji_engine.py",
+      "verified_features": ["12 Duty Officers (建除十二神)", "Month Breaker (月破) & Year Breaker (歲破) Detection", "Suitability Star Rating (1-5)", "Activity Specific Feasibility"]
+    },
+    {
+      "engine_name": "Mian Xiang Physiognomy Engine",
+      "class_name": "MianXiangEngine",
+      "system_type": "mian_xiang",
+      "file_path": "project/core/mian_xiang_engine.py",
+      "verified_features": ["5-Element Face Shapes (Wood, Fire, Earth, Metal, Water)", "12 Facial Palaces", "5 Facial Officials", "100-Year Age Fortune Flow"]
+    },
+    {
+      "engine_name": "Thai & Vedic Suriyayart Engine",
+      "class_name": "ThaiVedicEngine",
+      "system_type": "thai_vedic",
+      "file_path": "project/core/thai_vedic_engine.py",
+      "verified_features": ["Suriyayart 12-Rashi Lagna", "8 Maha Thaksa Planetary Deities (Sri / Kalakini)", "27 Vedic Nakshatras & 4 Padas", "Vimshottari Dasha"]
+    },
+    {
+      "engine_name": "Western & Uranian Astrology Engine",
+      "class_name": "WesternUranianEngine",
+      "system_type": "western_astro",
+      "file_path": "project/core/western_uranian_engine.py",
+      "verified_features": ["Tropical Planetary Positions", "8 Uranian Transneptunians (TNPs)", "Planetary Aspects", "Uranian Midpoint Reflection (A+B-C)"]
+    },
+    {
+      "engine_name": "Numerology & Satta-Lek Engine",
+      "class_name": "NumerologyEngine",
+      "system_type": "numerology",
+      "file_path": "project/core/numerology_engine.py",
+      "verified_features": ["Satta-Lek 7-Base 4-Row Matrix", "Chaldean Scoring & Single Digit Root Reduction (1-9)", "Multilingual Text Support"]
+    }
+  ],
+  "provenance_sha256": {
+    "project/tests/test_meta_plan_002_m1_engines.py": "d0728b02b672502c8213beff7ddc64b97d22dd4cefcfa5eaa80fd0f141eed9aa",
+    "project/core/base_engine.py": "6da953c53b60494fc0bf24d6849ffd8d3dd3d93fbd71eca9c33797714232fc66",
+    "project/core/bazi_engine.py": "dc248b18ddfd594127d532bf5bc5fc3627d2bc5a5c503f4a34bf6e7bb60464b4",
+    "project/core/zi_wei_engine.py": "7ec217ffc4b1c8cecf5baf1422288b56a49fa30d3b966d84580f197fd95c36cb",
+    "project/core/qi_men_engine.py": "a24d91d34fd7a09496fc320fc2f4b5946f57d19f4dcd225639f67d53c2ba0b8e",
+    "project/core/liu_ren_engine.py": "ff5012a8cdc1d1cc5f5d51b593b16ac45cef51767494928eba1ac0e04907e845",
+    "project/core/tai_yi_engine.py": "25e3c32238565d6f810a008f9583c2b63773f98f8b90b4ee9681f2d7165b7410",
+    "project/core/iching_engine.py": "fdee64fe82b5db00b7afec472196e58e110252b1355e7331b8d5cd217a72db1e",
+    "project/core/liu_yao_engine.py": "e946a135df5582d0a99ece2421c6a55a27666741ea53926303cd12e192656d8f",
+    "project/core/mei_hua_engine.py": "8b856fe23db76c23ce7c728023690b3fc205070bebc401389a0adc748ef49ca0",
+    "project/core/xuan_kong_engine.py": "b3f0c990ff676395d25f3ae5c566be9f69398406a2395e65a501a0b49c7dc53e",
+    "project/core/san_he_engine.py": "37e08bdc6358bf2a3c36b7237ba7bcd322d30a1e7922155253c077777b5fd834",
+    "project/core/ze_ji_engine.py": "87bbdacb1f59905c93917d9af03f055628d14342c1ed68373dbd3f3b338d2f9b",
+    "project/core/mian_xiang_engine.py": "f9728f706c3300bb2c309c7c6ad35f4e7fe7d94019b56818064a2fe3d21536d5",
+    "project/core/thai_vedic_engine.py": "95824a71c5a7ec4896b571f374027fbb20479b5dc8387eaeae6d9353634d985d",
+    "project/core/western_uranian_engine.py": "1193adcfc0b23d5aca8bca0e1763b1f63c9586d8d8d68841f7740f8b4b99043f",
+    "project/core/numerology_engine.py": "4a81fe48595e0e539b9641224e5685480d2bf0a747ac9414c3a47d69d220a3c4",
+    "project/core/qi_zheng_engine.py": "5e970747e5f25bc4daa8506f621560f43906f9fc352590a496de7cf0074e68b1"
+  }
+}

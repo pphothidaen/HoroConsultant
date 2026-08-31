@@ -1,0 +1,22 @@
+{
+  "ticket": "BRK-B5-020",
+  "title": "Account Permission Policy Audit & Remediation Verification",
+  "status": "PERMISSION_POLICY_VERIFIED",
+  "timestamp": "2026-08-31T20:59:30+07:00",
+  "policy": "owner_only_0700_0600",
+  "audited_accounts": [
+    "agy/account1",
+    "agy/account2",
+    "agy/account3",
+    "codex/account1",
+    "codex/account2",
+    "codex/account3"
+  ],
+  "invariants": {
+    "zero_content_exposure": true,
+    "symlinks_rejected": true,
+    "foreign_ownership_rejected": true
+  },
+  "test_result": "PASS",
+  "gate": "READY_FOR_SECURITY_DECISION"
+}

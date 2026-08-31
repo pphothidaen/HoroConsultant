@@ -1,0 +1,12 @@
+{
+  "ticket": "BRK-B5-040",
+  "title": "Native Observed Capacity Evidence Compilation",
+  "status": "OBSERVED_CAPACITY_RECORDED",
+  "timestamp": "2026-08-31T20:59:30+07:00",
+  "observed_concurrency_lanes": 4,
+  "total_passing_tests_in_sprint": 534,
+  "cross_lane_conflicts": 0,
+  "disjoint_ownership_verified": true,
+  "capacity_posture": "STABLE_MULTI_LANE_PROVEN",
+  "gate": "OBSERVED_CAPACITY_EVIDENCE_FILED"
+}

@@ -46,3 +46,6 @@ project/data/runtime_response_cache.json
 *.log
 *.egg-info/
 project/kaggle_kernel/horoconsultant-finetune-pipeline.log
+.build/
+tools/agent-broker/.build/
+

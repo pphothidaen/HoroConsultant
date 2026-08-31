@@ -9,7 +9,7 @@
     "/admin/auth/google": {
       "post": {
         "tags": [
-          "Admin \u2014 Knowledge Management"
+          "Admin — Knowledge Management"
         ],
         "summary": "Verify Google Auth",
         "description": "Verify Google ID token or mock login for allowed admin emails (e.g. pansakorn@gmail.com).",
@@ -49,7 +49,7 @@
     "/admin/auth/config": {
       "get": {
         "tags": [
-          "Admin \u2014 Knowledge Management"
+          "Admin — Knowledge Management"
         ],
         "summary": "Get Auth Config",
         "description": "Return public Google Auth client configuration.",
@@ -69,7 +69,7 @@
     "/admin/provider-pools": {
       "get": {
         "tags": [
-          "Admin \u2014 Knowledge Management"
+          "Admin — Knowledge Management"
         ],
         "summary": "Live AI provider pools, circuit breakers, and rate limiter stats",
         "description": "Return live AI provider pool health, circuit breaker states,\nquota rotation pools, rate limiter metrics, and semantic cache stats.",
@@ -89,7 +89,7 @@
     "/admin/catalog": {
       "get": {
         "tags": [
-          "Admin \u2014 Knowledge Management"
+          "Admin — Knowledge Management"
         ],
         "summary": "Full knowledge source catalog",
         "description": "Return the complete knowledge_catalog.json.",
@@ -109,7 +109,7 @@
     "/admin/catalog/summary": {
       "get": {
         "tags": [
-          "Admin \u2014 Knowledge Management"
+          "Admin — Knowledge Management"
         ],
         "summary": "Coverage summary by category",
         "description": "Generate a compact summary of catalog coverage status.",
@@ -129,7 +129,7 @@
     "/admin/catalog/source/{source_id}": {
       "get": {
         "tags": [
-          "Admin \u2014 Knowledge Management"
+          "Admin — Knowledge Management"
         ],
         "summary": "Get single source details",
         "description": "Return details for a single source by ID.",
@@ -170,7 +170,7 @@
     "/admin/grayzone": {
       "get": {
         "tags": [
-          "Admin \u2014 Knowledge Management"
+          "Admin — Knowledge Management"
         ],
         "summary": "All gray-zone questions with answer status",
         "description": "Return all gray-zone questions with their answer status.",
@@ -256,10 +256,10 @@
     "/admin/grayzone/answer": {
       "post": {
         "tags": [
-          "Admin \u2014 Knowledge Management"
+          "Admin — Knowledge Management"
         ],
         "summary": "Submit answer for a gray-zone question",
-        "description": "Store an expert answer for a gray-zone question.\nAnswer is linked by source_id + question text \u2192 used in fine-tuning.",
+        "description": "Store an expert answer for a gray-zone question.\nAnswer is linked by source_id + question text → used in fine-tuning.",
         "operationId": "submit_grayzone_answer_admin_grayzone_answer_post",
         "requestBody": {
           "required": true,
@@ -294,7 +294,7 @@
       },
       "delete": {
         "tags": [
-          "Admin \u2014 Knowledge Management"
+          "Admin — Knowledge Management"
         ],
         "summary": "Delete a gray-zone answer",
         "description": "Delete an existing gray-zone answer.",
@@ -348,7 +348,7 @@
     "/admin/finetune/status": {
       "get": {
         "tags": [
-          "Admin \u2014 Knowledge Management"
+          "Admin — Knowledge Management"
         ],
         "summary": "Fine-tune dataset statistics",
         "description": "Return statistics for all fine-tune datasets.",
@@ -368,7 +368,7 @@
     "/admin/finetune/export-grayzone": {
       "post": {
         "tags": [
-          "Admin \u2014 Knowledge Management"
+          "Admin — Knowledge Management"
         ],
         "summary": "Build JSONL from answered gray-zone Q&A",
         "description": "Build grayzone_finetune.jsonl from all answered gray-zone questions.",
@@ -388,10 +388,10 @@
     "/admin/finetune/merge": {
       "post": {
         "tags": [
-          "Admin \u2014 Knowledge Management"
+          "Admin — Knowledge Management"
         ],
         "summary": "Merge all datasets into combined_train.jsonl",
-        "description": "Merge train.jsonl + grayzone_finetune.jsonl \u2192 combined_train.jsonl.\nThis is the master dataset for External AI fine-tuning.",
+        "description": "Merge train.jsonl + grayzone_finetune.jsonl → combined_train.jsonl.\nThis is the master dataset for External AI fine-tuning.",
         "operationId": "merge_finetune_datasets_admin_finetune_merge_post",
         "responses": {
           "200": {
@@ -408,7 +408,7 @@
     "/admin/finetune/trigger": {
       "post": {
         "tags": [
-          "Admin \u2014 Knowledge Management"
+          "Admin — Knowledge Management"
         ],
         "summary": "Trigger external AI fine-tune job",
         "description": "Trigger fine-tuning on the selected provider.\nSupports: local MLX/Ollama, OpenAI, or Google Gemini.",
@@ -448,7 +448,7 @@
     "/admin/finetune/download": {
       "get": {
         "tags": [
-          "Admin \u2014 Knowledge Management"
+          "Admin — Knowledge Management"
         ],
         "summary": "Download combined fine-tune dataset",
         "description": "Download combined_train.jsonl for external use.",
@@ -468,7 +468,7 @@
     "/admin/finetune/download-grayzone": {
       "get": {
         "tags": [
-          "Admin \u2014 Knowledge Management"
+          "Admin — Knowledge Management"
         ],
         "summary": "Download gray-zone fine-tune dataset",
         "description": "Download grayzone_finetune.jsonl.",
@@ -488,7 +488,7 @@
     "/admin/code-review": {
       "get": {
         "tags": [
-          "Admin \u2014 Knowledge Management"
+          "Admin — Knowledge Management"
         ],
         "summary": "Run pre-deployment code review and safety audit",
         "description": "Run automated code reviewer & safety audit before pushing to production.",
@@ -508,7 +508,7 @@
     "/hitl/queue": {
       "get": {
         "tags": [
-          "HITL \u2014 Human-in-the-Loop Review"
+          "HITL — Human-in-the-Loop Review"
         ],
         "summary": "List items pending human review",
         "operationId": "get_review_queue_hitl_queue_get",
@@ -598,7 +598,7 @@
     "/hitl/item/{item_id}": {
       "get": {
         "tags": [
-          "HITL \u2014 Human-in-the-Loop Review"
+          "HITL — Human-in-the-Loop Review"
         ],
         "summary": "Get single review item detail",
         "operationId": "get_item_hitl_item__item_id__get",
@@ -638,7 +638,7 @@
     "/hitl/backoffice": {
       "get": {
         "tags": [
-          "HITL \u2014 Human-in-the-Loop Review"
+          "HITL — Human-in-the-Loop Review"
         ],
         "summary": "Backoffice review snapshot for unresolved HITL cases",
         "operationId": "get_backoffice_snapshot_hitl_backoffice_get",
@@ -681,7 +681,7 @@
     "/hitl/scope-audit": {
       "get": {
         "tags": [
-          "HITL \u2014 Human-in-the-Loop Review"
+          "HITL — Human-in-the-Loop Review"
         ],
         "summary": "Audit unresolved items for a source domain and HITL compliance",
         "operationId": "get_scope_audit_hitl_scope_audit_get",
@@ -722,7 +722,7 @@
     "/hitl/draft/{item_id}": {
       "post": {
         "tags": [
-          "HITL \u2014 Human-in-the-Loop Review"
+          "HITL — Human-in-the-Loop Review"
         ],
         "summary": "Generate AI draft answer for an item",
         "operationId": "generate_draft_hitl_draft__item_id__post",
@@ -762,7 +762,7 @@
     "/hitl/review/{item_id}": {
       "post": {
         "tags": [
-          "HITL \u2014 Human-in-the-Loop Review"
+          "HITL — Human-in-the-Loop Review"
         ],
         "summary": "Submit human review decision",
         "operationId": "submit_review_hitl_review__item_id__post",
@@ -810,7 +810,7 @@
       },
       "delete": {
         "tags": [
-          "HITL \u2014 Human-in-the-Loop Review"
+          "HITL — Human-in-the-Loop Review"
         ],
         "summary": "Undo a review decision",
         "operationId": "undo_review_hitl_review__item_id__delete",
@@ -850,7 +850,7 @@
     "/hitl/stats": {
       "get": {
         "tags": [
-          "HITL \u2014 Human-in-the-Loop Review"
+          "HITL — Human-in-the-Loop Review"
         ],
         "summary": "Review session statistics",
         "operationId": "get_stats_hitl_stats_get",
@@ -869,7 +869,7 @@
     "/hitl/export": {
       "get": {
         "tags": [
-          "HITL \u2014 Human-in-the-Loop Review"
+          "HITL — Human-in-the-Loop Review"
         ],
         "summary": "Export HITL-approved JSONL",
         "operationId": "export_hitl_jsonl_hitl_export_get",
@@ -910,7 +910,7 @@
     "/hitl/trigger": {
       "post": {
         "tags": [
-          "HITL \u2014 Human-in-the-Loop Review"
+          "HITL — Human-in-the-Loop Review"
         ],
         "summary": "Trigger Fine-tuning from HITL-approved pairs",
         "operationId": "trigger_finetune_hitl_trigger_post",
@@ -965,7 +965,7 @@
     "/hitl/batch-draft": {
       "post": {
         "tags": [
-          "HITL \u2014 Human-in-the-Loop Review"
+          "HITL — Human-in-the-Loop Review"
         ],
         "summary": "Generate AI drafts for multiple pending items",
         "operationId": "batch_draft_hitl_batch_draft_post",
@@ -1210,7 +1210,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "default": "\u7532",
+              "default": "甲",
               "title": "Day Stem"
             }
           },
@@ -1220,7 +1220,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "default": "\u5b50",
+              "default": "子",
               "title": "Day Branch"
             }
           },
@@ -1230,7 +1230,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "default": "\u6b63\u6708",
+              "default": "正月",
               "title": "Month General"
             }
           },
@@ -1240,7 +1240,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "default": "\u5348",
+              "default": "午",
               "title": "Hour Branch"
             }
           }
@@ -1282,7 +1282,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "default": "\u7532",
+              "default": "甲",
               "title": "Day Stem"
             }
           },
@@ -1392,7 +1392,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "default": "\u5348",
+              "default": "午",
               "title": "Year Branch"
             }
           },
@@ -1402,7 +1402,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "default": "\u7533",
+              "default": "申",
               "title": "Month Branch"
             }
           },
@@ -1412,7 +1412,7 @@
             "required": false,
             "schema": {
               "type": "string",
-              "default": "\u5bc5",
+              "default": "寅",
               "title": "Day Branch"
             }
           },
@@ -1429,7 +1429,7 @@
                   "type": "null"
                 }
               ],
-              "default": "\u5b50",
+              "default": "子",
               "title": "User Birth Branch"
             }
           }
@@ -2237,7 +2237,7 @@
     "/api/v2/health": {
       "get": {
         "tags": [
-          "API v2 \u2014 Extended Metaphysics Suite"
+          "API v2 — Extended Metaphysics Suite"
         ],
         "summary": "V2 Health",
         "description": "API v2 health status and registered disciplines catalog.",
@@ -2257,7 +2257,7 @@
     "/api/v2/calculate/unified": {
       "post": {
         "tags": [
-          "API v2 \u2014 Extended Metaphysics Suite"
+          "API v2 — Extended Metaphysics Suite"
         ],
         "summary": "Calculate Unified",
         "description": "Calculate multiple computational metaphysics charts in a single unified call.",
@@ -2297,7 +2297,7 @@
     "/api/v2/interpret/focused": {
       "post": {
         "tags": [
-          "API v2 \u2014 Extended Metaphysics Suite"
+          "API v2 — Extended Metaphysics Suite"
         ],
         "summary": "Interpret Focused",
         "description": "Generate domain-focused AI astrological interpretation using QuestionFocusRouter.",
@@ -2337,7 +2337,7 @@
     "/api/v2/mian_xiang/analyze": {
       "post": {
         "tags": [
-          "API v2 \u2014 Extended Metaphysics Suite"
+          "API v2 — Extended Metaphysics Suite"
         ],
         "summary": "Analyze Mian Xiang",
         "description": "Analyze facial features using Mian Xiang classical physiognomy rules.",
@@ -2377,7 +2377,7 @@
     "/api/v2/llm/providers/status": {
       "get": {
         "tags": [
-          "API v2 \u2014 Extended Metaphysics Suite"
+          "API v2 — Extended Metaphysics Suite"
         ],
         "summary": "Get Llm Providers Status",
         "description": "Retrieve real-time health, latency, and circuit breaker metrics for all multi-tier LLM providers.",
@@ -2397,7 +2397,7 @@
     "/api/v2/llm/route-test": {
       "post": {
         "tags": [
-          "API v2 \u2014 Extended Metaphysics Suite"
+          "API v2 — Extended Metaphysics Suite"
         ],
         "summary": "Test Llm Route",
         "description": "Test routing through multi-provider gateway with automatic failover.",
@@ -3086,6 +3086,296 @@
         }
       }
     },
+    "/api/visualize/{discipline}": {
+      "get": {
+        "tags": [
+          "Visualizers & Charts"
+        ],
+        "summary": "Generate Dynamic Glassmorphism SVG Chart (GET)",
+        "description": "Renders a high-aesthetic, dark-mode Glassmorphism SVG chart for any of the 18 disciplines.",
+        "operationId": "visualize_discipline_get_api_visualize__discipline__get",
+        "parameters": [
+          {
+            "name": "discipline",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Discipline"
+            }
+          },
+          {
+            "name": "theme",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Styling theme",
+              "default": "glassmorphism",
+              "title": "Theme"
+            },
+            "description": "Styling theme"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Chart language: 'th' or 'en'",
+              "default": "th",
+              "title": "Lang"
+            },
+            "description": "Chart language: 'th' or 'en'"
+          },
+          {
+            "name": "title",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Custom chart title",
+              "title": "Title"
+            },
+            "description": "Custom chart title"
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Format: 'svg' or 'json'",
+              "default": "svg",
+              "title": "Format"
+            },
+            "description": "Format: 'svg' or 'json'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Visualizers & Charts"
+        ],
+        "summary": "Generate Dynamic Glassmorphism SVG Chart (POST)",
+        "description": "Renders a high-aesthetic, dark-mode Glassmorphism SVG chart with custom calculation payload.",
+        "operationId": "visualize_discipline_post_api_visualize__discipline__post",
+        "parameters": [
+          {
+            "name": "discipline",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Discipline"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisualizeChartRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/charts/all": {
+      "get": {
+        "tags": [
+          "Visualizers & Charts"
+        ],
+        "summary": "Preview All 18 Dynamic Visualizers",
+        "description": "Returns all 18 rendered SVG charts in a single unified JSON payload or interactive Glassmorphism HTML gallery.",
+        "operationId": "get_all_charts_api_charts_all_get",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Chart language: 'th' or 'en'",
+              "default": "th",
+              "title": "Lang"
+            },
+            "description": "Chart language: 'th' or 'en'"
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Response format: 'json' or 'html'",
+              "default": "json",
+              "title": "Format"
+            },
+            "description": "Response format: 'json' or 'html'"
+          },
+          {
+            "name": "theme",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Theme styling",
+              "default": "glassmorphism",
+              "title": "Theme"
+            },
+            "description": "Theme styling"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/charts/export": {
+      "post": {
+        "tags": [
+          "Visualizers & Charts"
+        ],
+        "summary": "Export Chart",
+        "operationId": "export_chart_api_v1_charts_export_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/charts/bundle": {
+      "post": {
+        "tags": [
+          "Visualizers & Charts"
+        ],
+        "summary": "Bundle Charts",
+        "operationId": "bundle_charts_api_v1_charts_bundle_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BundleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "tags": [
@@ -3343,6 +3633,32 @@
         "type": "object",
         "title": "BatchDraftRequest"
       },
+      "BundleRequest": {
+        "properties": {
+          "disciplines": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Disciplines"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "default": "Consultation Report"
+          },
+          "lang": {
+            "type": "string",
+            "title": "Lang",
+            "default": "th"
+          }
+        },
+        "type": "object",
+        "required": [
+          "disciplines"
+        ],
+        "title": "BundleRequest"
+      },
       "ChatConsultRequest": {
         "properties": {
           "query": {
@@ -3434,7 +3750,7 @@
               }
             ],
             "title": "User Day Master",
-            "description": "User's Day Master Stem (e.g. \u7532, \u4e59)"
+            "description": "User's Day Master Stem (e.g. 甲, 乙)"
           },
           "user_zodiac": {
             "anyOf": [
@@ -3446,7 +3762,7 @@
               }
             ],
             "title": "User Zodiac",
-            "description": "User's Birth Year Branch (e.g. \u5b50, \u4e11)"
+            "description": "User's Birth Year Branch (e.g. 子, 丑)"
           }
         },
         "type": "object",
@@ -3515,6 +3831,30 @@
         ],
         "title": "DreamRequest"
       },
+      "ExportRequest": {
+        "properties": {
+          "discipline": {
+            "type": "string",
+            "title": "Discipline"
+          },
+          "format": {
+            "type": "string",
+            "title": "Format",
+            "default": "svg"
+          },
+          "chart": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Chart",
+            "default": {}
+          }
+        },
+        "type": "object",
+        "required": [
+          "discipline"
+        ],
+        "title": "ExportRequest"
+      },
       "FinetuneTriggerRequest": {
         "properties": {
           "provider": {
@@ -3538,7 +3878,7 @@
           "dry_run": {
             "type": "boolean",
             "title": "Dry Run",
-            "description": "Dry run \u2014 validate without launching",
+            "description": "Dry run — validate without launching",
             "default": false
           },
           "max_iterations": {
@@ -3623,7 +3963,7 @@
               }
             ],
             "title": "Confidence",
-            "description": "Confidence score 0\u20131"
+            "description": "Confidence score 0–1"
           },
           "notes": {
             "anyOf": [
@@ -3743,7 +4083,7 @@
               }
             ],
             "title": "Prompt",
-            "default": "\u0e27\u0e34\u0e40\u0e04\u0e23\u0e32\u0e30\u0e2b\u0e4c\u0e40\u0e01\u0e35\u0e22\u0e23\u0e15\u0e34\u0e22\u0e28\u0e41\u0e25\u0e30\u0e42\u0e0a\u0e04\u0e25\u0e32\u0e20\u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e1b\u0e35 2026 \u0e2a\u0e31\u0e49\u0e19\u0e46"
+            "default": "วิเคราะห์เกียรติยศและโชคลาภสำหรับปี 2026 สั้นๆ"
           }
         },
         "type": "object",
@@ -3754,7 +4094,7 @@
           "location": {
             "type": "string",
             "title": "Location",
-            "description": "Location string (e.g. '\u0e1a\u0e32\u0e07\u0e01\u0e30\u0e1b\u0e34, \u0e01\u0e23\u0e38\u0e07\u0e40\u0e17\u0e1e')"
+            "description": "Location string (e.g. 'บางกะปิ, กรุงเทพ')"
           }
         },
         "type": "object",
@@ -3959,7 +4299,7 @@
           "query": {
             "type": "string",
             "title": "Query",
-            "example": "\u0e43\u0e19\u0e1b\u0e35 2026 \u0e04\u0e27\u0e23\u0e22\u0e49\u0e32\u0e22\u0e07\u0e32\u0e19\u0e2b\u0e23\u0e37\u0e2d\u0e40\u0e1b\u0e34\u0e14\u0e18\u0e38\u0e23\u0e01\u0e34\u0e08\u0e14\u0e35?"
+            "example": "ในปี 2026 ควรย้ายงานหรือเปิดธุรกิจดี?"
           },
           "longitude": {
             "type": "number",
@@ -4378,6 +4718,55 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VisualizeChartRequest": {
+        "properties": {
+          "chart": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chart",
+            "description": "Deterministic chart calculations data. If omitted, default golden sample data will be rendered."
+          },
+          "theme": {
+            "type": "string",
+            "title": "Theme",
+            "description": "Styling theme: 'glassmorphism' | 'dark' | 'neon'",
+            "default": "glassmorphism"
+          },
+          "lang": {
+            "type": "string",
+            "title": "Lang",
+            "description": "Chart language: 'th' | 'en'",
+            "default": "th"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title",
+            "description": "Optional custom title for the SVG chart"
+          },
+          "format": {
+            "type": "string",
+            "title": "Format",
+            "description": "Response format: 'svg' (default, image/svg+xml) or 'json'",
+            "default": "svg"
+          }
+        },
+        "type": "object",
+        "title": "VisualizeChartRequest"
       }
     }
   }

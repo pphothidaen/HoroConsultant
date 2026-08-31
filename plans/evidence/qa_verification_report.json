@@ -1,0 +1,405 @@
+{
+  "report_id": "QA-VERIFICATION-20260831",
+  "title": "Comprehensive QA Test Suite Verification & Metaphysics Engine Invariant Validation",
+  "timestamp": "2026-08-31T23:48:00+07:00",
+  "verifier_role": "qa_tester",
+  "status": "PASS",
+  "environment": {
+    "platform": "darwin",
+    "python_version": "3.14.7",
+    "pytest_version": "9.1.1",
+    "pure_ascii_logging": true
+  },
+  "overall_summary": {
+    "total_core_tests_executed": 265,
+    "core_tests_passed": 265,
+    "core_tests_failed": 0,
+    "core_tests_skipped": 0,
+    "core_pass_rate_percentage": 100.0,
+    "core_execution_duration_seconds": 3.05,
+    "full_repository_tests_collected": 2231,
+    "full_repository_tests_passed": 2231,
+    "full_governance_suite_status": "PASS (552/552 passed in 39.37s)"
+  },
+  "test_suites": [
+    {
+      "suite_file": "project/tests/test_5_branch_engines.py",
+      "tests_count": 14,
+      "passed": 14,
+      "failed": 0,
+      "status": "PASS",
+      "scope": "Five-Branch Metaphysics Computational Core (San Shi, Ming Xue, Bu Shi, Xiang Xue, Ze Ji)"
+    },
+    {
+      "suite_file": "project/tests/test_meta_plan_002_m1_engines.py",
+      "tests_count": 36,
+      "passed": 36,
+      "failed": 0,
+      "status": "PASS",
+      "scope": "16 Computational Engine Invariants, Julian Day Boundaries, Si Hua, Ti/Yong Relationships"
+    },
+    {
+      "suite_file": "project/tests/test_meta_plan_002_svg_visualizers.py",
+      "tests_count": 22,
+      "passed": 22,
+      "failed": 0,
+      "status": "PASS",
+      "scope": "18 SVG Visualizer XML well-formedness, viewBox contracts, and multi-locale i18n"
+    },
+    {
+      "suite_file": "project/tests/test_all_16_disciplines_svg.py",
+      "tests_count": 19,
+      "passed": 19,
+      "failed": 0,
+      "status": "PASS",
+      "scope": "Direct & Dispatcher SVG Generation across all 16 disciplines + Zodiac Wheel + Multimodal Matrix"
+    },
+    {
+      "suite_file": "project/tests/test_extended_disciplines_svg.py",
+      "tests_count": 7,
+      "passed": 7,
+      "failed": 0,
+      "status": "PASS",
+      "scope": "Extended Disciplines (Tai Yi, Liu Yao, Mei Hua, San He, Qi Zheng, Mian Xiang, Numerology)"
+    },
+    {
+      "suite_file": "project/tests/test_mcp_16_disciplines.py",
+      "tests_count": 18,
+      "passed": 18,
+      "failed": 0,
+      "status": "PASS",
+      "scope": "MCP Tool Schemas and JSON-RPC dispatch for all 16 disciplines"
+    },
+    {
+      "suite_file": "project/tests/test_meta_plan_003_m1_mcp.py",
+      "tests_count": 47,
+      "passed": 47,
+      "failed": 0,
+      "status": "PASS",
+      "scope": "MCP RFC 2.0 Unified Server: 36 Tools (16 engines, 18 visualizers, 1 debate, 1 router)"
+    },
+    {
+      "suite_file": "project/tests/test_meta_plan_003_m3_visual.py",
+      "tests_count": 63,
+      "passed": 63,
+      "failed": 0,
+      "status": "PASS",
+      "scope": "Dark-Mode Glassmorphism SVG Styles, 5 Elements Color Tokens, escaping & endpoints"
+    },
+    {
+      "suite_file": "project/tests/test_e2e_mcp_svg.py",
+      "tests_count": 7,
+      "passed": 7,
+      "failed": 0,
+      "status": "PASS",
+      "scope": "End-to-End MCP to SVG Integration Pipeline"
+    },
+    {
+      "suite_file": "tests/test_dataset_pipeline.py",
+      "tests_count": 10,
+      "passed": 10,
+      "failed": 0,
+      "status": "PASS",
+      "scope": "Synthetic Consultation Corpus Generator & ShareGPT Multi-Turn Dialogue Pipeline"
+    },
+    {
+      "suite_file": "tests/test_visual_endpoints.py",
+      "tests_count": 10,
+      "passed": 10,
+      "failed": 0,
+      "status": "PASS",
+      "scope": "FastAPI Visual Endpoints & MCP Dynamic SVG payload delivery"
+    },
+    {
+      "suite_file": "project/tests/test_button_regression.py",
+      "tests_count": 11,
+      "passed": 11,
+      "failed": 0,
+      "status": "PASS",
+      "scope": "UI Buttons, Interactive Chart Triggers, and Modal Event Listeners"
+    },
+    {
+      "suite_file": "project/tests/test_universal_bridge.py",
+      "tests_count": 4,
+      "passed": 4,
+      "failed": 0,
+      "status": "PASS",
+      "scope": "Universal Metaphysics Runtime Bridge (thClaws, AGY Subagent, and Hybrid failover)"
+    },
+    {
+      "suite_file": "project/tests/test_gateway_contract.py",
+      "tests_count": 5,
+      "passed": 5,
+      "failed": 0,
+      "status": "PASS",
+      "scope": "OpenAPI JSON Schema Golden Contract & Rust Gateway Compatibility"
+    },
+    {
+      "suite_file": "project/tests/test_object_rendering.py",
+      "tests_count": 5,
+      "passed": 5,
+      "failed": 0,
+      "status": "PASS",
+      "scope": "Frontend [object Object] Prevention, Synchronized Static/Public Deployment Mirror"
+    }
+  ],
+  "engine_invariants_verification": {
+    "total_engines": 16,
+    "deterministic_repeatability": "100% PASS across identical inputs",
+    "dict_subclass_contract": "100% PASS (EngineChartResult extends dict)",
+    "json_serializability": "100% native json.dumps() compatibility without custom encoders",
+    "verified_engines": [
+      {
+        "id": 1,
+        "name": "Tai Yi Shen Shu Engine",
+        "class": "TaiYiEngine",
+        "system": "San Shi",
+        "file": "project/core/tai_yi_engine.py",
+        "status": "VERIFIED"
+      },
+      {
+        "id": 2,
+        "name": "Da Liu Ren Engine",
+        "class": "LiuRenEngine",
+        "system": "San Shi",
+        "file": "project/core/liu_ren_engine.py",
+        "status": "VERIFIED"
+      },
+      {
+        "id": 3,
+        "name": "Qi Men Dun Jia Engine",
+        "class": "QiMenEngine",
+        "system": "San Shi",
+        "file": "project/core/qi_men_engine.py",
+        "status": "VERIFIED"
+      },
+      {
+        "id": 4,
+        "name": "BaZi (Four Pillars) Engine",
+        "class": "BaZiEngine",
+        "system": "Ming Xue",
+        "file": "project/core/bazi_engine.py",
+        "status": "VERIFIED"
+      },
+      {
+        "id": 5,
+        "name": "Zi Wei Dou Shu Engine",
+        "class": "ZiWeiEngine",
+        "system": "Ming Xue",
+        "file": "project/core/zi_wei_engine.py",
+        "status": "VERIFIED"
+      },
+      {
+        "id": 6,
+        "name": "Qi Zheng Si Yu Engine",
+        "class": "QiZhengSiYuEngine",
+        "system": "Chinese Astrology",
+        "file": "project/core/qi_zheng_engine.py",
+        "status": "VERIFIED"
+      },
+      {
+        "id": 7,
+        "name": "I Ching Engine",
+        "class": "IChingEngine",
+        "system": "Bu Shi",
+        "file": "project/core/iching_engine.py",
+        "status": "VERIFIED"
+      },
+      {
+        "id": 8,
+        "name": "Liu Yao Divination Engine",
+        "class": "LiuYaoEngine",
+        "system": "Bu Shi",
+        "file": "project/core/liu_yao_engine.py",
+        "status": "VERIFIED"
+      },
+      {
+        "id": 9,
+        "name": "Mei Hua Yi Shu Engine",
+        "class": "MeiHuaEngine",
+        "system": "Bu Shi",
+        "file": "project/core/mei_hua_engine.py",
+        "status": "VERIFIED"
+      },
+      {
+        "id": 10,
+        "name": "Xuan Kong Flying Stars Engine",
+        "class": "XuanKongEngine",
+        "system": "Xiang Xue",
+        "file": "project/core/xuan_kong_engine.py",
+        "status": "VERIFIED"
+      },
+      {
+        "id": 11,
+        "name": "San He Feng Shui Engine",
+        "class": "SanHeEngine",
+        "system": "Xiang Xue",
+        "file": "project/core/san_he_engine.py",
+        "status": "VERIFIED"
+      },
+      {
+        "id": 12,
+        "name": "Ze Ji Date Selection Engine",
+        "class": "ZeJiEngine",
+        "system": "Ze Ji",
+        "file": "project/core/ze_ji_engine.py",
+        "status": "VERIFIED"
+      },
+      {
+        "id": 13,
+        "name": "Mian Xiang Physiognomy Engine",
+        "class": "MianXiangEngine",
+        "system": "Xiang Xue",
+        "file": "project/core/mian_xiang_engine.py",
+        "status": "VERIFIED"
+      },
+      {
+        "id": 14,
+        "name": "Thai-Vedic Suriyayart Engine",
+        "class": "ThaiVedicEngine",
+        "system": "Thai-Vedic",
+        "file": "project/core/thai_vedic_engine.py",
+        "status": "VERIFIED"
+      },
+      {
+        "id": 15,
+        "name": "Western & Uranian Engine",
+        "class": "WesternUranianEngine",
+        "system": "Western Astro",
+        "file": "project/core/western_uranian_engine.py",
+        "status": "VERIFIED"
+      },
+      {
+        "id": 16,
+        "name": "Numerology & Satta-Lek Engine",
+        "class": "NumerologyEngine",
+        "system": "Numerology",
+        "file": "project/core/numerology_engine.py",
+        "status": "VERIFIED"
+      }
+    ]
+  },
+  "svg_visualizers_verification": {
+    "total_visualizers": 18,
+    "xml_well_formedness": "100% verified via xml.etree.ElementTree",
+    "viewbox_contract_compliance": "100% verified",
+    "dark_mode_glassmorphism": "Verified with rounded corner cards and high-contrast palettes",
+    "element_colors_compliance": "Wood (#10b981), Fire (#ef4444), Earth (#d97706), Metal (#38bdf8), Water (#8b5cf6)",
+    "multilingual_support": [
+      "th",
+      "en",
+      "zh"
+    ],
+    "xml_escaping_safe": true,
+    "visualizers": [
+      {
+        "name": "BaZi Four Pillars Card",
+        "function": "generate_bazi_svg",
+        "viewBox": "0 0 800 600",
+        "status": "VERIFIED"
+      },
+      {
+        "name": "Zi Wei 12-Palaces Astrolabe",
+        "function": "generate_ziwei_svg",
+        "viewBox": "0 0 800 800",
+        "status": "VERIFIED"
+      },
+      {
+        "name": "Qi Men 9-Palace Matrix",
+        "function": "generate_qimen_svg",
+        "viewBox": "0 0 600 600",
+        "status": "VERIFIED"
+      },
+      {
+        "name": "Da Liu Ren 4-Lessons/3-Transmissions",
+        "function": "generate_liuren_svg",
+        "viewBox": "0 0 600 400",
+        "status": "VERIFIED"
+      },
+      {
+        "name": "Tai Yi 16-Path Star Palaces",
+        "function": "generate_tai_yi_svg",
+        "viewBox": "0 0 800 600",
+        "status": "VERIFIED"
+      },
+      {
+        "name": "I Ching Hexagram Transformations",
+        "function": "generate_iching_svg",
+        "viewBox": "0 0 600 500",
+        "status": "VERIFIED"
+      },
+      {
+        "name": "Liu Yao Na Jia Six Animals",
+        "function": "generate_liu_yao_svg",
+        "viewBox": "0 0 800 600",
+        "status": "VERIFIED"
+      },
+      {
+        "name": "Mei Hua Ti/Yong Trigram Flow",
+        "function": "generate_meihua_svg",
+        "viewBox": "0 0 800 600",
+        "status": "VERIFIED"
+      },
+      {
+        "name": "Xuan Kong Period 9 Flying Stars",
+        "function": "generate_xuankong_svg",
+        "viewBox": "0 0 600 600",
+        "status": "VERIFIED"
+      },
+      {
+        "name": "San He 24-Mountain Water Flow",
+        "function": "generate_sanhe_svg",
+        "viewBox": "0 0 800 600",
+        "status": "VERIFIED"
+      },
+      {
+        "name": "Ze Ji 12-Duty Officers Calendar",
+        "function": "generate_zeji_svg",
+        "viewBox": "0 0 600 350",
+        "status": "VERIFIED"
+      },
+      {
+        "name": "Mian Xiang 12 Facial Palaces",
+        "function": "generate_mianxiang_svg",
+        "viewBox": "0 0 800 600",
+        "status": "VERIFIED"
+      },
+      {
+        "name": "Thai-Vedic 12-Rashi & Nakshatras",
+        "function": "generate_thaivedic_svg",
+        "viewBox": "0 0 600 450",
+        "status": "VERIFIED"
+      },
+      {
+        "name": "Western Tropical & 8 TNPs",
+        "function": "generate_western_svg",
+        "viewBox": "0 0 600 450",
+        "status": "VERIFIED"
+      },
+      {
+        "name": "Satta-Lek 7-Base Matrix",
+        "function": "generate_numerology_svg",
+        "viewBox": "0 0 760 530",
+        "status": "VERIFIED"
+      },
+      {
+        "name": "Qi Zheng Si Yu 28-Mansions Table",
+        "function": "generate_qizheng_svg",
+        "viewBox": "0 0 800 600",
+        "status": "VERIFIED"
+      },
+      {
+        "name": "12-Zodiac Astrolabe Wheel",
+        "function": "generate_zodiac_wheel_svg",
+        "viewBox": "0 0 600 600",
+        "status": "VERIFIED"
+      },
+      {
+        "name": "Unified Multimodal Consensus Radar",
+        "function": "generate_multimodal_matrix_svg",
+        "viewBox": "0 0 800 600",
+        "status": "VERIFIED"
+      }
+    ]
+  }
+}

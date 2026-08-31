@@ -1,0 +1,22 @@
+{
+  "ticket": "BRK-B5-010",
+  "title": "Real-Home Canary Install & Migration Verification",
+  "status": "CANARY_INSTALL_VERIFIED",
+  "timestamp": "2026-08-31T20:59:30+07:00",
+  "staged_wrappers": [
+    "agy1",
+    "agy2",
+    "agy3",
+    "codex1",
+    "codex2",
+    "codex3"
+  ],
+  "dry_run_result": "PASS",
+  "rollback_ready": true,
+  "invariants": {
+    "keychain_untouched": true,
+    "network_provider_inactive": true,
+    "immutable_mode_prepared": true
+  },
+  "gate": "READY_FOR_PERMISSION_REMEDIATION"
+}

@@ -2216,6 +2216,12 @@
       "confidence_score": 0.95,
       "highlights": [],
       "model_used": "mock-llm"
+    },
+    "d7eeeb4c71b9458b": {
+      "draft_text": "Mock Draft Text",
+      "confidence_score": 0.95,
+      "highlights": [],
+      "model_used": "mock-llm"
     }
   },
   "stats": {
@@ -2224,7 +2230,7 @@
     "rejected": 0,
     "total_reviewed": 0
   },
-  "last_updated": "2026-08-31T14:50:26.237818",
+  "last_updated": "2026-08-31T23:41:49.931322",
   "automation": {
     "threshold": 50,
     "step": 50,
@@ -2233,5 +2239,71 @@
     "total_triggers": 0,
     "last_triggered_at": null,
     "trigger_history": []
+  },
+  "external_items": {
+    "d7eeeb4c71b9458b": {
+      "item_id": "d7eeeb4c71b9458b",
+      "source_domain": "metaphysical-domain-engine",
+      "source_id": "metaphysical-debate-19900515143000",
+      "source_title": "Metaphysical-Domain-Engine Consensus",
+      "category": "metaphysical_debate",
+      "question": "วิเคราะห์ดวงชะตาและฤกษ์ยามมงคลในการขยายธุรกิจ",
+      "required_human_review": true,
+      "conflict_detected": true,
+      "conflicting_domains": [
+        "pu_shi_master",
+        "ze_ji_master"
+      ],
+      "consensus_score": 0.9,
+      "hitl_routing": {
+        "status": "QUEUED_FOR_HUMAN_REVIEW",
+        "reason": "conflict_detected",
+        "review_queue_id": "hitl_rev_1788194509",
+        "required_human_review": true,
+        "conflict_detected": true,
+        "conflicting_domains": [
+          "pu_shi_master",
+          "ze_ji_master"
+        ],
+        "consensus_breakdown": {
+          "affirm": [
+            "ming_xue_master",
+            "numerology_master",
+            "san_shi_master",
+            "thai_vedic_master",
+            "western_astro_master",
+            "xiang_xue_master"
+          ],
+          "conditional": [
+            "ze_ji_master"
+          ],
+          "cautious": [
+            "pu_shi_master"
+          ],
+          "neutral": []
+        },
+        "decision_matrix": {
+          "avg_confidence": 0.8,
+          "score": 0.9
+        }
+      },
+      "synthesis_snapshot": {
+        "query": "วิเคราะห์ดวงชะตาและฤกษ์ยามมงคลในการขยายธุรกิจ",
+        "birth_datetime": "1990-05-15 14:30:00",
+        "consensus_score": 0.9,
+        "conflicting_domains": [
+          "pu_shi_master",
+          "ze_ji_master"
+        ],
+        "conflict_detected": true,
+        "required_human_review": true,
+        "full_result": null
+      },
+      "notes": null,
+      "created_at": "2026-08-31T22:12:16.022865",
+      "updated_at": "2026-08-31T23:41:49.931211",
+      "status": "pending",
+      "review": null
+    }
   }
 }

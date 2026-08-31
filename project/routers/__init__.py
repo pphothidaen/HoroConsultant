@@ -6,5 +6,6 @@ Computational Metaphysics Engine
 from project.routers.astrology import astrology_router
 from project.routers.debate import debate_router
 from project.routers.mlops import router as mlops_router
+from project.routers.visual_router import visual_router
 
-__all__ = ["astrology_router", "debate_router", "mlops_router"]
+__all__ = ["astrology_router", "debate_router", "mlops_router", "visual_router"]

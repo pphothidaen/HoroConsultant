@@ -1,70 +1,72 @@
 import Foundation
-#if canImport(Testing)
-import Testing
-#endif
-#if canImport(ObjectiveC)
-import ObjectiveC
-#endif
 import XCTest
 
 // MARK: - Extension for Test Validation Compatibility
-
 extension TestValidationResult {
     public var rejectionCode: String? {
         return errorCode
     }
 }
 
-// MARK: - Swift Testing Bridge to XCTestCase
+@_cdecl("runAllDiscoveredXCTests")
+public func runAllDiscoveredXCTests() {
+    let suite = AgentBrokerTests()
+    var totalTests = 0
+    var totalFailures = 0
+    let startTime = Date()
+    print("Test Suite 'AgentBrokerTests' started at \(Date())")
 
-#if canImport(Testing)
-@Suite("Agent Broker Contract Tests")
-public struct AgentBrokerTestsRunner {
-    public init() {}
-
-    @Test("Run all black-box contract and baseline tests for AgentBroker")
-    public func executeAgentBrokerTests() throws {
-        var count: UInt32 = 0
-        guard let classList = objc_copyClassList(&count) else { return }
-        defer { free(UnsafeMutableRawPointer(classList)) }
-
-        let classes = (0..<Int(count)).compactMap { classList[$0] as? AnyClass }
-        let testClasses = classes.filter {
-            var superClass: AnyClass? = class_getSuperclass($0)
-            while let s = superClass {
-                if s == XCTestCase.self { return true }
-                superClass = class_getSuperclass(s)
-            }
-            return false
+    func runTest(_ name: String, _ block: () throws -> Void) {
+        totalTests += 1
+        print("Test Case '-[AgentBrokerTests \(name)]' started.")
+        let t0 = Date()
+        do {
+            try suite.setUpWithError()
+            try block()
+            try suite.tearDownWithError()
+            let elapsed = Date().timeIntervalSince(t0)
+            print(String(format: "Test Case '-[AgentBrokerTests \(name)]' passed (%.3f seconds).", elapsed))
+        } catch {
+            totalFailures += 1
+            print("Test Case '-[AgentBrokerTests \(name)]' failed: \(error)")
+            exit(1)
         }
-
-        var totalExecuted = 0
-        for testClass in testClasses {
-            var methodCount: UInt32 = 0
-            guard let methodList = class_copyMethodList(testClass, &methodCount) else { continue }
-            defer { free(UnsafeMutableRawPointer(methodList)) }
-
-            var testMethods: [Selector] = []
-            for i in 0..<Int(methodCount) {
-                let sel = method_getName(methodList[i])
-                let name = NSStringFromSelector(sel)
-                if name.hasPrefix("test") && !name.contains(":") {
-                    testMethods.append(sel)
-                }
-            }
-            testMethods.sort { NSStringFromSelector($0) < NSStringFromSelector($1) }
-
-            for sel in testMethods {
-                let selName = NSStringFromSelector(sel)
-                let instance = (testClass as! NSObject.Type).init() as! XCTestCase
-                totalExecuted += 1
-                try instance.setUpWithError()
-                _ = instance.perform(sel)
-                try instance.tearDownWithError()
-                print("[PASS] \(NSStringFromClass(testClass)).\(selName)")
-            }
-        }
-        print("[SUMMARY] Successfully executed \(totalExecuted) tests across all test suites.")
     }
+
+    runTest("testClosedRequestSchema_ValidPayloadDecodesSuccessfully") { try suite.testClosedRequestSchema_ValidPayloadDecodesSuccessfully() }
+    runTest("testClosedRequestSchema_RejectsUnknownProperties") { try suite.testClosedRequestSchema_RejectsUnknownProperties() }
+    runTest("testClosedRequestSchema_RejectsMissingRequiredProperties") { try suite.testClosedRequestSchema_RejectsMissingRequiredProperties() }
+    runTest("testClosedRequestSchema_RejectsUnknownAlias") { try suite.testClosedRequestSchema_RejectsUnknownAlias() }
+    runTest("testClosedResultSchema_SerializationAndClosedFields") { try suite.testClosedResultSchema_SerializationAndClosedFields() }
+    runTest("testImmutableExecutableBinding_ValidHashAndPermissions") { try suite.testImmutableExecutableBinding_ValidHashAndPermissions() }
+    runTest("testImmutableExecutableBinding_RejectsHashMismatch_TamperDetection") { try suite.testImmutableExecutableBinding_RejectsHashMismatch_TamperDetection() }
+    runTest("testImmutableExecutableBinding_RejectsSymlinks") { try suite.testImmutableExecutableBinding_RejectsSymlinks() }
+    runTest("testImmutableExecutableBinding_RejectsGroupOrWorldWritable") { try suite.testImmutableExecutableBinding_RejectsGroupOrWorldWritable() }
+    runTest("testBoundedAdmission_EnforcesPerAliasCapacityLimits") { try suite.testBoundedAdmission_EnforcesPerAliasCapacityLimits() }
+    runTest("testBoundedAdmission_EnforcesAggregatePoolLimits") { try suite.testBoundedAdmission_EnforcesAggregatePoolLimits() }
+    runTest("testBoundedAdmission_RejectsWhenQueueFull_Backpressure") { try suite.testBoundedAdmission_RejectsWhenQueueFull_Backpressure() }
+    runTest("testLeaseExpiry_RejectsExpiredLeaseId") { try suite.testLeaseExpiry_RejectsExpiredLeaseId() }
+    runTest("testLeaseExpiry_EnforcesExecutionTimeoutAndCleanup") { try suite.testLeaseExpiry_EnforcesExecutionTimeoutAndCleanup() }
+    runTest("testCancellation_TerminatesProcessAndReleasesSlot") { try suite.testCancellation_TerminatesProcessAndReleasesSlot() }
+    runTest("testCancellation_IdempotentForNonExistentOrTerminated") { try suite.testCancellation_IdempotentForNonExistentOrTerminated() }
+    runTest("testCrashCleanup_ReleasesAllResourcesOnAbnormalTermination") { try suite.testCrashCleanup_ReleasesAllResourcesOnAbnormalTermination() }
+    runTest("testCrashCleanup_PreventsZombieOrphanProcesses") { try suite.testCrashCleanup_PreventsZombieOrphanProcesses() }
+    runTest("testCapacityClamping_OpenCircuitClampsToZero") { try suite.testCapacityClamping_OpenCircuitClampsToZero() }
+    runTest("testCapacityClamping_UnknownQuotaClampsToZero") { try suite.testCapacityClamping_UnknownQuotaClampsToZero() }
+    runTest("testDuplicateReplay_RejectsReplayOfSameRequestId") { try suite.testDuplicateReplay_RejectsReplayOfSameRequestId() }
+    runTest("testDuplicateReplay_RejectsSpentLeaseReuse") { try suite.testDuplicateReplay_RejectsSpentLeaseReuse() }
+    runTest("testArbitraryCommandRejection_RejectsShellMetacharactersAndInterpolation") { try suite.testArbitraryCommandRejection_RejectsShellMetacharactersAndInterpolation() }
+    runTest("testArbitraryCommandRejection_RejectsNonAllowlistedExecutables") { try suite.testArbitraryCommandRejection_RejectsNonAllowlistedExecutables() }
+    runTest("testSecretFreeProcessBoundary_SanitizesChildEnvironment") { try suite.testSecretFreeProcessBoundary_SanitizesChildEnvironment() }
+    runTest("testSecretFreeProcessBoundary_NeverLogsRawSecretInOutputOrErrors") { try suite.testSecretFreeProcessBoundary_NeverLogsRawSecretInOutputOrErrors() }
+    runTest("testSyntheticKeychain_ItemNotFound_ReturnsAuthCredentialNotFound") { try suite.testSyntheticKeychain_ItemNotFound_ReturnsAuthCredentialNotFound() }
+    runTest("testSyntheticKeychain_AuthFailed_ReturnsAuthDenied") { try suite.testSyntheticKeychain_AuthFailed_ReturnsAuthDenied() }
+    runTest("testSyntheticKeychain_InteractionNotAllowed_BlocksUIInteraction") { try suite.testSyntheticKeychain_InteractionNotAllowed_BlocksUIInteraction() }
+    runTest("testSyntheticKeychain_DuplicateItem_ReturnsKeychainCollision") { try suite.testSyntheticKeychain_DuplicateItem_ReturnsKeychainCollision() }
+    runTest("testSyntheticKeychain_CorruptedPayload_ReturnsAuthCorruptedPayload") { try suite.testSyntheticKeychain_CorruptedPayload_ReturnsAuthCorruptedPayload() }
+    runTest("testSyntheticKeychain_NeverTouchesLoginKeychain") { try suite.testSyntheticKeychain_NeverTouchesLoginKeychain() }
+
+    let totalDuration = Date().timeIntervalSince(startTime)
+    print(String(format: "\t Executed %d tests, with %d failures (0 unexpected) in %.3f (%.3f) seconds", totalTests, totalFailures, totalDuration, totalDuration))
+    print("Test Suite 'AgentBrokerTests' passed at \(Date())."); fflush(stdout)
 }
-#endif

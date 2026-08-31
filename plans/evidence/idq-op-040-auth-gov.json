@@ -1,0 +1,38 @@
+{
+  "ticket": "IDQ-OP-040-AUTH02-GOV",
+  "title": "Operational Provider Authorization Governance (Auth02)",
+  "governance_role": "business_analyst",
+  "timestamp": "2026-08-31T20:12:40+07:00",
+  "status": "GOVERNANCE_RECORDED",
+  "qa_evidence_ref": "plans/evidence/idq-op-030-qa-evidence.json",
+  "authorization_boundary": "read_only_provider_proof_only",
+  "preflight_gate": "READY_FOR_PREFLIGHT",
+  "verified_commit": "f70a6f7046e10407402edd43f52e8f4c77d59098",
+  "test_baseline": "717005d266601df76646d072a637beadd89e99ed",
+  "qa_verification": {
+    "total_tests": 300,
+    "passed": 300,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "pass_rate": "100%",
+    "duration_seconds": 157.44,
+    "verdict": "PASS"
+  },
+  "governance_invariants": {
+    "auth_01_sealed": true,
+    "no_ttl_nonce_lease_issued_yet": true,
+    "no_inherited_replayed_authority": true,
+    "scope": "read_only_provider_proof_only",
+    "target_aliases": [
+      "codex1",
+      "codex2",
+      "agy1",
+      "agy2"
+    ],
+    "mutation_prohibited": true,
+    "secret_leak_prohibited": true,
+    "raw_stream_retention_prohibited": true
+  },
+  "next_ticket": "IDQ-OP-050-PREFLIGHT"
+}

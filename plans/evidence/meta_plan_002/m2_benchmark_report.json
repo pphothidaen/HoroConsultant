@@ -1,0 +1,256 @@
+{
+  "benchmark_name": "6-Domain Question Alignment Benchmark",
+  "timestamp": "2026-08-31T21:58:35.300626",
+  "total_questions": 7,
+  "passed_questions": 7,
+  "pass_rate_percentage": 100.0,
+  "overall_average_score": 100.0,
+  "domain_scores": {
+    "career": 100.0,
+    "finance": 100.0,
+    "love": 100.0,
+    "health": 100.0,
+    "family": 100.0,
+    "timing": 100.0
+  },
+  "domain_results": {
+    "career": [
+      {
+        "id": "career_1.1",
+        "expected_domain": "career",
+        "classified_domain": "career",
+        "confidence": 1.0,
+        "domain_match": true,
+        "domain_match_en": true,
+        "rubric_scores": {
+          "direct_relevance": 30.0,
+          "astrological_logic": 30.0,
+          "canonical_evidence": 20.0,
+          "actionable_guidance": 20.0
+        },
+        "total_score": 100.0,
+        "status": "PASS"
+      },
+      {
+        "id": "career_1.2",
+        "expected_domain": "career",
+        "classified_domain": "career",
+        "confidence": 0.852,
+        "domain_match": true,
+        "domain_match_en": true,
+        "rubric_scores": {
+          "direct_relevance": 30.0,
+          "astrological_logic": 30.0,
+          "canonical_evidence": 20.0,
+          "actionable_guidance": 20.0
+        },
+        "total_score": 100.0,
+        "status": "PASS"
+      }
+    ],
+    "finance": [
+      {
+        "id": "finance_2.1",
+        "expected_domain": "finance",
+        "classified_domain": "finance",
+        "confidence": 1.0,
+        "domain_match": true,
+        "domain_match_en": true,
+        "rubric_scores": {
+          "direct_relevance": 30.0,
+          "astrological_logic": 30.0,
+          "canonical_evidence": 20.0,
+          "actionable_guidance": 20.0
+        },
+        "total_score": 100.0,
+        "status": "PASS"
+      }
+    ],
+    "love": [
+      {
+        "id": "love_3.1",
+        "expected_domain": "love",
+        "classified_domain": "love",
+        "confidence": 0.73,
+        "domain_match": true,
+        "domain_match_en": true,
+        "rubric_scores": {
+          "direct_relevance": 30.0,
+          "astrological_logic": 30.0,
+          "canonical_evidence": 20.0,
+          "actionable_guidance": 20.0
+        },
+        "total_score": 100.0,
+        "status": "PASS"
+      }
+    ],
+    "health": [
+      {
+        "id": "health_4.1",
+        "expected_domain": "health",
+        "classified_domain": "health",
+        "confidence": 1.0,
+        "domain_match": true,
+        "domain_match_en": true,
+        "rubric_scores": {
+          "direct_relevance": 30.0,
+          "astrological_logic": 30.0,
+          "canonical_evidence": 20.0,
+          "actionable_guidance": 20.0
+        },
+        "total_score": 100.0,
+        "status": "PASS"
+      }
+    ],
+    "family": [
+      {
+        "id": "family_5.1",
+        "expected_domain": "family",
+        "classified_domain": "family",
+        "confidence": 1.0,
+        "domain_match": true,
+        "domain_match_en": true,
+        "rubric_scores": {
+          "direct_relevance": 30.0,
+          "astrological_logic": 30.0,
+          "canonical_evidence": 20.0,
+          "actionable_guidance": 20.0
+        },
+        "total_score": 100.0,
+        "status": "PASS"
+      }
+    ],
+    "timing": [
+      {
+        "id": "timing_6.1",
+        "expected_domain": "timing",
+        "classified_domain": "timing",
+        "confidence": 1.0,
+        "domain_match": true,
+        "domain_match_en": true,
+        "rubric_scores": {
+          "direct_relevance": 30.0,
+          "astrological_logic": 30.0,
+          "canonical_evidence": 20.0,
+          "actionable_guidance": 20.0
+        },
+        "total_score": 100.0,
+        "status": "PASS"
+      }
+    ]
+  },
+  "evaluations": [
+    {
+      "id": "career_1.1",
+      "expected_domain": "career",
+      "classified_domain": "career",
+      "confidence": 1.0,
+      "domain_match": true,
+      "domain_match_en": true,
+      "rubric_scores": {
+        "direct_relevance": 30.0,
+        "astrological_logic": 30.0,
+        "canonical_evidence": 20.0,
+        "actionable_guidance": 20.0
+      },
+      "total_score": 100.0,
+      "status": "PASS"
+    },
+    {
+      "id": "career_1.2",
+      "expected_domain": "career",
+      "classified_domain": "career",
+      "confidence": 0.852,
+      "domain_match": true,
+      "domain_match_en": true,
+      "rubric_scores": {
+        "direct_relevance": 30.0,
+        "astrological_logic": 30.0,
+        "canonical_evidence": 20.0,
+        "actionable_guidance": 20.0
+      },
+      "total_score": 100.0,
+      "status": "PASS"
+    },
+    {
+      "id": "finance_2.1",
+      "expected_domain": "finance",
+      "classified_domain": "finance",
+      "confidence": 1.0,
+      "domain_match": true,
+      "domain_match_en": true,
+      "rubric_scores": {
+        "direct_relevance": 30.0,
+        "astrological_logic": 30.0,
+        "canonical_evidence": 20.0,
+        "actionable_guidance": 20.0
+      },
+      "total_score": 100.0,
+      "status": "PASS"
+    },
+    {
+      "id": "love_3.1",
+      "expected_domain": "love",
+      "classified_domain": "love",
+      "confidence": 0.73,
+      "domain_match": true,
+      "domain_match_en": true,
+      "rubric_scores": {
+        "direct_relevance": 30.0,
+        "astrological_logic": 30.0,
+        "canonical_evidence": 20.0,
+        "actionable_guidance": 20.0
+      },
+      "total_score": 100.0,
+      "status": "PASS"
+    },
+    {
+      "id": "health_4.1",
+      "expected_domain": "health",
+      "classified_domain": "health",
+      "confidence": 1.0,
+      "domain_match": true,
+      "domain_match_en": true,
+      "rubric_scores": {
+        "direct_relevance": 30.0,
+        "astrological_logic": 30.0,
+        "canonical_evidence": 20.0,
+        "actionable_guidance": 20.0
+      },
+      "total_score": 100.0,
+      "status": "PASS"
+    },
+    {
+      "id": "family_5.1",
+      "expected_domain": "family",
+      "classified_domain": "family",
+      "confidence": 1.0,
+      "domain_match": true,
+      "domain_match_en": true,
+      "rubric_scores": {
+        "direct_relevance": 30.0,
+        "astrological_logic": 30.0,
+        "canonical_evidence": 20.0,
+        "actionable_guidance": 20.0
+      },
+      "total_score": 100.0,
+      "status": "PASS"
+    },
+    {
+      "id": "timing_6.1",
+      "expected_domain": "timing",
+      "classified_domain": "timing",
+      "confidence": 1.0,
+      "domain_match": true,
+      "domain_match_en": true,
+      "rubric_scores": {
+        "direct_relevance": 30.0,
+        "astrological_logic": 30.0,
+        "canonical_evidence": 20.0,
+        "actionable_guidance": 20.0
+      },
+      "total_score": 100.0,
+      "status": "PASS"
+    }
+  ]
+}

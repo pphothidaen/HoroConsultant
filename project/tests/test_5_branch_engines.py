@@ -112,8 +112,11 @@ class TestIChingEngine:
 
     def test_iching_literal_moving_line_oracle(self):
         chart = IChingEngine().calculate_liu_yao("甲", [6, 7, 8, 9, 7, 8])
-        assert chart["primary_hexagram"] == {"binary": "010110", "name": "本卦", "nature": "吉"}
-        assert chart["transformed_hexagram"] == {"binary": "110010", "name": "變卦"}
+        assert chart["primary_hexagram"]["binary"] == "010110"
+        assert chart["primary_hexagram"]["name"] == "澤水困"
+        assert chart["primary_hexagram"]["nature"] == "困頓"
+        assert chart["transformed_hexagram"]["binary"] == "110010"
+        assert chart["transformed_hexagram"]["name"] == "水澤節"
         assert [(line["animal"], line["is_moving"]) for line in chart["six_lines"]] == [
             ("青龍", True), ("朱雀", False), ("勾陳", False),
             ("騰蛇", True), ("白虎", False), ("玄武", False),

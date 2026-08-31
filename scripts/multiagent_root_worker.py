@@ -11,7 +11,7 @@ class RootPolicy:
     @classmethod
     def for_root(cls, root: str):
         if root == "A": return cls(frozenset(("codex1","codex2","codex3")),3,{"codex1":2,"codex2":2,"codex3":2})
-        if root == "B": return cls(frozenset(("agy1","agy2")),3,{"agy1":3,"agy2":3})
+        if root == "B": return cls(frozenset(("agy1","agy2","agy3","agy4")),3,{"agy1":3,"agy2":3,"agy3":3,"agy4":3})
         raise ValueError("unknown root")
 
 @dataclass(frozen=True)

@@ -31,11 +31,12 @@ import sys
 from typing import Any
 
 CANONICAL_PROVIDERS: tuple[str, ...] = ("agy", "codex")
-CANONICAL_ACCOUNT_DIRS: tuple[str, ...] = ("account1", "account2", "account3")
+CANONICAL_ACCOUNT_DIRS: tuple[str, ...] = ("account1", "account2", "account3", "account4")
 CANONICAL_ALIASES: tuple[str, ...] = (
     "agy1",
     "agy2",
     "agy3",
+    "agy4",
     "codex1",
     "codex2",
     "codex3",

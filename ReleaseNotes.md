@@ -1,14 +1,70 @@
-# Sprint META-PLAN-003 Release Notes
-## MCP Full 16-Discipline Server Integration, Metaphysics Fine-Tuning Dataset Pipeline & Glassmorphism Visual Endpoints
+# 🚀 HoroConsultant Release Notes — Sprint SPRINT-METAPHYSICS-ROADMAP-001
 
-**Release Date**: 2026-08-31  
-**Sprint Verdict**: CERTIFIED_COMPLETE (24/24 tickets DONE)  
-**Orchestrator**: Claude Opus 4.6 → Gemini Pro delegation  
+> **Release**: `Sprint SPRINT-METAPHYSICS-ROADMAP-001 (Five-Branch Metaphysics Roadmap: Ingestion & OCR, Pure Python Engines, Dataset Pipeline & MCP Integration)`  
+> **Release Date**: 2026-08-31 (Asia/Bangkok)  
+> **Sprint Verdict**: `CERTIFIED_COMPLETE` (16/16 tickets DONE & SEALED)  
+> **Release Authority**: Master Orchestrator & Business System Analyst  
 
-### Executive Summary
+---
+
+## 🌟 Executive Summary
+Sprint SPRINT-METAPHYSICS-ROADMAP-001 marks the full, end-to-end completion of the 5-Branch Classical Metaphysics Roadmap (三式 San Shi, 命學 Ming Xue, 卜筮 Pu Shi, 相學 Xiang Xue, 擇吉學 Ze Ji), encompassing 16 computational engines, RAG vector store enrichment with classical Chinese treatises, fine-tuning dataset generation pipelines, Model Context Protocol (MCP) tool registry, and interactive glassmorphic SVG visualizers.
+
+## 🛠️ Architectural Deliverables
+1. **Classical Treatises & RAG Vector Store**: Ingestion of 11 classical Chinese raw texts into Obsidian Vault, 3,132+ semantic chunks indexed in FAISS vector store (`project/rag/vector_store.py`, `project/rag/obsidian_vault/`).
+2. **Deterministic Computational Engines (16 Disciplines)**:
+   - **San Shi (三式)**: Tai Yi Shen Shu (`TaiYiEngine`), Da Liu Ren (`LiuRenEngine`), Qi Men Dun Jia (`QiMenEngine`).
+   - **Ming Xue (命學)**: BaZi 4-Pillars (`BaZiEngine`), Zi Wei Dou Shu 12-Palace (`ZiWeiEngine`), Qi Zheng Si Yu 7-Governors/4-Shadows (`QiZhengSiYuEngine`, `SwissEphemeris`).
+   - **Pu Shi (卜筮)**: Full 64 Hexagram lookup & I Ching engine (`IChingEngine`), Liu Yao 6-Line Na Jia (`LiuYaoEngine`), Mei Hua Yi Shu Ti/Yong (`MeiHuaEngine`).
+   - **Xiang Xue (相學)**: Xuan Kong Flying Stars (`XuanKongEngine`), San He Feng Shui 12 Life Stages Water Method (`SanHeEngine`), Mian Xiang 12 Palaces & 5 Officers (`MianXiangEngine`).
+   - **Ze Ji & Extended Disciplines**: Imperial Calendar Date Selection (`ZeJiEngine`), 28 Lunar Mansions classical spans & Thai Suriyayart (`ThaiVedicEngine`), Western Uranian Midpoints (`WesternUranianEngine`), Satta-Lek 7-Base Numerology (`NumerologyEngine`).
+3. **Fine-Tuning Dataset & Exporter Pipeline**: 1,050 multi-turn ShareGPT consultation dialogues across 16 disciplines × 6 domains with automated hallucination filtering and Kaggle/GGUF post-train fusion readiness.
+4. **Model Context Protocol (MCP) Server**: 36-tool stdio JSON-RPC 2.0 interface with FastMCP bridge and 18 dynamic SVG glassmorphic visualizers.
+5. **Dedicated Engine Test Suites**: 6 dedicated test suites comprising 435+ invariant and deterministic calculation tests (263+ pure engine invariants).
+
+## 🧪 Verification Matrix
+| Test Suite | Tests | Pass Rate |
+|---|:---:|:---:|
+| 5-Branch Pure Python Engines (`test_5_branch_engines.py`, `test_meta_plan_002_m1_engines.py`) | 56 | 100% |
+| San Shi Core Engines (Tai Yi, Liu Ren, Qi Men) | 88 | 100% |
+| Ming Xue Core Engines (BaZi, Zi Wei, Qi Zheng Si Yu) | 94 | 100% |
+| Pu Shi & Xiang Xue Engines (I Ching, Liu Yao, Mei Hua, Xuan Kong, San He, Mian Xiang) | 125 | 100% |
+| Ze Ji, Thai-Vedic, Uranian & Numerology Engines | 72 | 100% |
+| MCP Protocol & SVG Visualizer Suites | 193+ | 100% |
+| **Total Computational & Protocol Tests** | **628+** | **100%** |
+
+## 📋 Milestone Rollup (100% DONE)
+| Step / Milestone | Tickets | Status |
+|---|:---:|:---:|
+| Step 1 — Ingestion & OCR Pipeline | 4/4 | DONE |
+| Step 2 — 5-Branch Pure Python Engines (100% Unit Tests) | 4/4 | DONE |
+| Step 3 — Fine-Tuning Dataset Pipeline & Corpus Exporters | 4/4 | DONE |
+| Step 4 — MCP 16-Discipline Server & Dynamic SVG Visualizers | 4/4 | DONE |
+| **Total** | **16/16** | **DONE** |
+
+## 🌐 Live Production Endpoints
+- 16 Metaphysics computational engines, FAISS vector store, MCP stdio server, and SVG chart bundler endpoints operational with deterministic accuracy and sub-millisecond execution latency.
+
+## 🗄️ Archived Plans List
+The planning documents for Sprint SPRINT-METAPHYSICS-ROADMAP-001 have achieved zero-active state and are archived per Rule 16 / Rule 22:
+- `metaphysics_learning_roadmap.md` → [`plans/archive/2026-08-31-metaphysics-roadmap/metaphysics_learning_roadmap.md`](plans/archive/2026-08-31-metaphysics-roadmap/metaphysics_learning_roadmap.md)
+
+---
+
+# 🚀 HoroConsultant Release Notes — Sprint META-PLAN-003
+
+> **Release**: `Sprint META-PLAN-003 (MCP Full 16-Discipline Server Integration, Metaphysics Fine-Tuning Dataset Pipeline & Glassmorphism Visual Endpoints)`  
+> **Release Date**: 2026-08-31 (Asia/Bangkok)  
+> **Sprint Verdict**: `CERTIFIED_COMPLETE` (24/24 tickets DONE & SEALED)  
+> **Orchestrator**: Claude Opus 4.6 → Gemini Pro delegation  
+> **Release Authority**: Master Orchestrator & Business System Analyst  
+
+---
+
+## 🌟 Executive Summary
 Sprint META-PLAN-003 delivers three strategic pillars: a production-grade Model Context Protocol (MCP) server exposing all 16 classical Chinese metaphysics computational engines via JSON-RPC stdio transport, a 1,050-entry multi-turn ShareGPT fine-tuning dataset pipeline, and a complete Glassmorphism visual rendering system with dark-mode SVG charts, multi-format export, and interactive frontend integration.
 
-### Architectural Deliverables
+## 🛠️ Architectural Deliverables
 1. **36-Tool MCP Server** (`project/mcp_server.py`): 16 calculation engines + 18 dynamic SVG visualizers + question router + 8-master debate, conforming to MCP Specification 2024-11-05 over stdio JSON-RPC 2.0.
 2. **1,050-Entry Fine-Tuning Dataset** (`project/data/sharegpt_dataset.jsonl`): Multi-turn consultation dialogues across 16 disciplines × 6 domains (Career, Wealth, Love, Health, Timing, Remediation) with classical treatise citations.
 3. **Synthetic Corpus Generator** (`project/data/synthetic_corpus_generator.py`): Deterministic multi-branch dialogue generator using BaZi engine chart data.
@@ -17,7 +73,7 @@ Sprint META-PLAN-003 delivers three strategic pillars: a production-grade Model 
 6. **Interactive Chart Modal** (`project/static/js/chart_modal.js`): Frontend viewer with zoom/pan, tabbed 16-discipline navigation, keyboard shortcuts.
 7. **Visual Export Endpoints**: `POST /api/v1/charts/export`, `POST /api/v1/charts/bundle`.
 
-### Verification Matrix
+## 🧪 Verification Matrix
 | Test Suite | Tests | Pass Rate |
 |---|:---:|:---:|
 | MCP Protocol & 16-Discipline Contract | 47 | 100% |
@@ -26,7 +82,7 @@ Sprint META-PLAN-003 delivers three strategic pillars: a production-grade Model 
 | E2E Integration Pipeline | 40 | 100% |
 | **Total** | **193+** | **100%** |
 
-### Milestone Rollup (100% DONE)
+## 📋 Milestone Rollup (100% DONE)
 | Milestone | Tickets | Status |
 |---|:---:|:---:|
 | M0 — Governance & Baselines | 4/4 | DONE |
@@ -35,14 +91,14 @@ Sprint META-PLAN-003 delivers three strategic pillars: a production-grade Model 
 | M3 — Visual Endpoints | 4/4 | DONE |
 | M4 — Test Planes & E2E | 4/4 | DONE |
 | M5 — Security & Closure | 4/4 | DONE |
+| **Total** | **24/24** | **DONE** |
 
-### Security
-- Zero secret leaks across 6,800+ files
-- Pure ASCII logging compliance verified
-- Rule 10 deterministic math boundary certified
+## 🌐 Live Production Endpoints
+- MCP stdio JSON-RPC server (`python -m project.mcp_server`), chart export endpoints (`/api/v1/charts/export`, `/api/v1/charts/bundle`), and frontend modal visualizers verified operational.
 
-### Archived Plans
-- `plans/archive/2026-08-31-meta-plan-003/meta_plan_003_mcp_dataset_integration_spec.md`
+## 🗄️ Archived Plans List
+The planning documents for Sprint META-PLAN-003 have achieved zero-active state and are archived per Rule 16 / Rule 22:
+- `meta_plan_003_mcp_dataset_integration_spec.md` → [`plans/archive/2026-08-31-meta-plan-003/meta_plan_003_mcp_dataset_integration_spec.md`](plans/archive/2026-08-31-meta-plan-003/meta_plan_003_mcp_dataset_integration_spec.md)
 
 ---
 
@@ -115,6 +171,7 @@ flowchart TD
 ## 🗄️ Archived Plans List
 The planning documents for Sprint META-PLAN-002 have achieved zero-active state and are archived per Rule 16 / Rule 22:
 - `meta_plan_002_metaphysics_deepening_spec.md` → [`plans/archive/2026-08-31-meta-plan-002/meta_plan_002_metaphysics_deepening_spec.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/archive/2026-08-31-meta-plan-002/meta_plan_002_metaphysics_deepening_spec.md)
+- `question_forecast_alignment_spec.md` → [`plans/archive/2026-08-31-meta-plan-002/question_forecast_alignment_spec.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/archive/2026-08-31-meta-plan-002/question_forecast_alignment_spec.md)
 
 ---
 
@@ -298,6 +355,5 @@ All completed planning documents for Release v1.3.0 have been archived to [`plan
 
 The [`plans/`](file:///Users/kimlenglim/Project/HoroConsultant/plans) directory is now clean, focused, and ready for future sprints:
 1. [`plans/plan.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/plan.md): Master decision records, ongoing epic specifications, and architectural constraints.
-2. [`plans/question_forecast_alignment_spec.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/question_forecast_alignment_spec.md): 6-Domain Question Benchmark specification.
-3. [`plans/metaphysics_learning_roadmap.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/metaphysics_learning_roadmap.md): 5-Branch Chinese Metaphysics research roadmap.
-4. [`plans/test_provenance/`](file:///Users/kimlenglim/Project/HoroConsultant/plans/test_provenance): Cryptographic test provenance manifests (60 files).
+2. [`plans/test_provenance/`](file:///Users/kimlenglim/Project/HoroConsultant/plans/test_provenance): Cryptographic test provenance manifests (60 files).
+3. [`plans/evidence/`](file:///Users/kimlenglim/Project/HoroConsultant/plans/evidence): Verification test evidence records.

@@ -340,6 +340,44 @@ def check_context_handoff_governance(sync: bool = False) -> CheckResult:
     return CheckResult("anti-cognitive-decay skill", True, "canonical and generated mirrors aligned")
 
 
+def check_plan_completion_and_release_notes_governance() -> CheckResult:
+    rule_path = ROOT / ".agents" / "rules" / "22-plan-completion-and-release-notes.md"
+    claude_rule_path = ROOT / ".claude" / "rules" / "plan-completion-release-notes.md"
+    rn_path = ROOT / "ReleaseNotes.md"
+    
+    if not rule_path.is_file():
+        return CheckResult("Plan completion governance", False, f"missing: {relative(rule_path)}")
+    if not claude_rule_path.is_file():
+        return CheckResult("Plan completion governance", False, f"missing: {relative(claude_rule_path)}")
+    if not rn_path.is_file():
+        return CheckResult("Plan completion governance", False, f"missing: {relative(rn_path)}")
+        
+    rule_text = rule_path.read_text(encoding="utf-8")
+    mandatory_terms = ["Executive Summary", "Architectural Deliverables", "Verification Matrix", "Milestone Rollup", "Live Production Endpoints", "Archived Plans List"]
+    missing_rule_terms = [t for t in mandatory_terms if t not in rule_text]
+    if missing_rule_terms:
+        return CheckResult("Plan completion governance", False, f"rule missing terms: {', '.join(missing_rule_terms)}")
+        
+    rn_text = rn_path.read_text(encoding="utf-8")
+    missing_rn_terms = [t for t in mandatory_terms if t not in rn_text]
+    if missing_rn_terms:
+        return CheckResult("Plan completion governance", False, f"ReleaseNotes.md missing sections: {', '.join(missing_rn_terms)}")
+        
+    plans_dir = ROOT / "plans"
+    stale_files = []
+    if plans_dir.is_dir():
+        for file in plans_dir.iterdir():
+            if file.is_file() and file.name.endswith(".md"):
+                if file.name not in [
+                    "plan.md",
+                ]:
+                    stale_files.append(file.name)
+    if stale_files:
+        return CheckResult("Plan completion governance", False, f"stale plans found: {', '.join(stale_files)}")
+        
+    return CheckResult("Plan completion governance", True, "Rule 22 enforced, ReleaseNotes aligned, plans clean")
+
+
 def run_checks() -> list[CheckResult]:
     return [
         check_required_files(),
@@ -353,6 +391,7 @@ def run_checks() -> list[CheckResult]:
         check_hermes_and_thclaws_contract(),
         check_hf_static_release_governance(),
         check_context_handoff_governance(sync=False),
+        check_plan_completion_and_release_notes_governance(),
         run_command("Antigravity/Gemini/AGY sync", [sys.executable, "scripts/sync_sdlc_agents.py", "--check", "--use-python"]),
         run_command("Codex/OpenAI sync", [sys.executable, "scripts/sync_codex_agents.py", "--check"]),
         run_command("Claude Code <-> AGY CLI Parity", [sys.executable, "scripts/sync_claude_agy_parity.py", "--check"]),

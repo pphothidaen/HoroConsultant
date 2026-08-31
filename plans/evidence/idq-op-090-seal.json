@@ -1,0 +1,28 @@
+{
+  "ticket": "IDQ-OP-090-SEAL",
+  "title": "Operational Provider Authority Seal",
+  "operator": "idq_four_alias_operator",
+  "status": "AUTHORITY_SEALED",
+  "auth_id": "IDQ-MVP-080-AUTH-02",
+  "terminal_outcomes_sealed": true,
+  "sealed_aliases": [
+    "codex1",
+    "codex2",
+    "agy1",
+    "agy2"
+  ],
+  "timestamp": "2026-08-31T20:27:00+07:00",
+  "evidence_chain": {
+    "baseline": "plans/test_provenance/idq-mvp-080-operational-provider-baseline.json",
+    "qa": "plans/evidence/idq-op-030-qa-evidence.json",
+    "gov": "plans/evidence/idq-op-040-auth-gov.json",
+    "preflight": "plans/evidence/idq-op-050-preflight-evidence.json",
+    "four_alias_proof": "plans/evidence/idq-op-060-four-alias-evidence.json"
+  },
+  "authority_state": {
+    "temporary_authority_revoked": true,
+    "nonce_leases_invalidated": true,
+    "zero_reusable_credentials": true,
+    "no_live_mutation_granted": true
+  }
+}

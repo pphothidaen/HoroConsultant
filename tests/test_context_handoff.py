@@ -107,7 +107,7 @@ EXPECTED_POLICY = {
 
 
 def _require_entrypoint() -> None:
-    assert ENTRYPOINT.is_file(), "CONTEXT_HANDOFF_ENTRYPOINT_MISSING"
+    assert ENTRYPOINT.is_file() and ENTRYPOINT.stat().st_size > 0, "CONTEXT_HANDOFF_ENTRYPOINT_MISSING"
 
 
 def _invoke(
@@ -299,7 +299,7 @@ def _status_bytes() -> bytes:
 
 
 def test_context_handoff_entrypoint_missing_before_source() -> None:
-    assert ENTRYPOINT.is_file(), "CONTEXT_HANDOFF_ENTRYPOINT_MISSING"
+    assert ENTRYPOINT.is_file() and ENTRYPOINT.stat().st_size > 0, "CONTEXT_HANDOFF_ENTRYPOINT_MISSING"
 
 
 def test_cli_exposes_exact_operations_and_uses_only_the_standard_library() -> None:

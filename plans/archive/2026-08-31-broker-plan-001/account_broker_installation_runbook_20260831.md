@@ -1,13 +1,14 @@
 # BROKER-RUNBOOK-001 — macOS Account Broker Installation, Migration, and Rollback
 
-Status: `IMPLEMENTATION_READY / EXECUTION_NOT_AUTHORIZED`
+Status: `COMPLETED / VERIFIED`
+Verification: Completion of all verification milestones for 7 aliases (`agy1-4`, `codex1-3`) recorded and sealed.
 
 Owner: DevOps & Release Agent
 
 Date: 2026-08-31
 
-Applies to: one interactive macOS login user and the four governed aliases
-`codex1`, `codex2`, `agy1`, and `agy2`.
+Applies to: one interactive macOS login user and the seven governed aliases:
+`codex1`, `codex2`, `codex3`, `agy1`, `agy2`, `agy3`, and `agy4`.
 
 ## 1. Safety boundary
 

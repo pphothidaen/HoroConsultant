@@ -56,18 +56,20 @@ class CodeReviewer:
         self.root_dir = root_dir
 
     @staticmethod
-    def scan_secrets() -> dict[str, Any]:
+    def scan_secrets(root_dir: Path | str | None = None) -> dict[str, Any]:
         """Scan codebase for leaked secrets or unmasked API keys. Accelerated by Rust Rayon multi-threading."""
+        target_root = Path(root_dir) if root_dir is not None else ROOT
         try:
             import rust_core
             if hasattr(rust_core, "run_rust_security_audit"):
-                passed, scanned_files, rust_findings = rust_core.run_rust_security_audit(str(ROOT))
+                passed, scanned_files, rust_findings = rust_core.run_rust_security_audit(str(target_root))
                 findings = [{"file": f, "secret_type": "Security Finding", "count": 1} for f in rust_findings]
                 log.info(f"⚡ [Rust Security Auditor] Scanned {scanned_files} files in parallel via Rayon")
                 return {
                     "scanned_files": scanned_files,
                     "secret_leaks_found": len(findings),
                     "findings": findings,
+                    "leaks": findings,
                     "status": "PASSED" if passed else "FAILED"
                 }
         except Exception as e:
@@ -76,7 +78,7 @@ class CodeReviewer:
         findings = []
         scanned_files = 0
 
-        for path in ROOT.rglob("*"):
+        for path in target_root.rglob("*"):
             if not path.is_file():
                 continue
             if any(part in path.parts for part in [".git", ".pytest_cache", ".ruff_cache", "__pycache__", "venv", ".venv", "wandb", "node_modules", ".vercel", "target"]):
@@ -96,7 +98,7 @@ class CodeReviewer:
                     if matches:
                         valid_matches = [m for m in matches if not any(d in m.lower() for d in ["dummy", "replace", "example", "test"])]
                         if valid_matches:
-                            rel_path = path.relative_to(ROOT)
+                            rel_path = path.relative_to(target_root)
                             findings.append({
                                 "file": str(rel_path),
                                 "secret_type": secret_type,
@@ -110,6 +112,7 @@ class CodeReviewer:
             "scanned_files": scanned_files,
             "secret_leaks_found": len(findings),
             "findings": findings,
+            "leaks": findings,
             "status": "PASSED" if len(findings) == 0 else "FAILED"
         }
 
@@ -373,6 +376,11 @@ class CodeReviewer:
 
         log.info(f"📊 Audit Complete — Overall Status: {audit_report['overall_status']}")
         return audit_report
+
+
+def scan_repository_secrets(root_dir: Path | str | None = None) -> dict[str, Any]:
+    """Scan repository for secret leaks using Rust Rayon parallel audit."""
+    return CodeReviewer.scan_secrets(root_dir=root_dir)
 
 
 def main():

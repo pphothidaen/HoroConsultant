@@ -1,0 +1,130 @@
+{
+  "sprint": "META-PLAN-002",
+  "milestone": "M4",
+  "task": "META2-M4-010..040 End-to-End Integration, UI Button Regression, Visual Layout Audit & MCP SVG Verification",
+  "timestamp": "2026-08-31T22:02:30+07:00",
+  "git_commit_sha": "c34164acbdb11f80f27d34092d73e35ab2d0c49f",
+  "environment": {
+    "platform": "darwin",
+    "os_version": "mac",
+    "python_version": "3.14.7",
+    "pytest_version": "9.1.1",
+    "playwright_version": "1.52.0"
+  },
+  "overall_summary": {
+    "total_test_suites": 4,
+    "total_test_cases": 69,
+    "total_passed": 69,
+    "total_failed": 0,
+    "pass_rate_percentage": 100.0,
+    "verdict": "PASS"
+  },
+  "suites": {
+    "multi_discipline_api_integration": {
+      "command": "python3 -m pytest project/tests/test_api_integration_suite.py -q",
+      "test_file": "project/tests/test_api_integration_suite.py",
+      "total_tests": 19,
+      "passed": 19,
+      "failed": 0,
+      "pass_rate_percentage": 100.0,
+      "duration_seconds": 142.59,
+      "status": "PASS",
+      "tested_components": [
+        "CORS Preflight (OPTIONS) on /api/v1/bazi/calculate",
+        "CORS Preflight (OPTIONS) on /api/v1/bazi/interpret",
+        "CORS Preflight (OPTIONS) on /api/v2/calculate/unified",
+        "Core BaZi API v1 calculate with True Solar Time & 5 elements",
+        "Core BaZi API v1 interpret with AI validation report",
+        "Geocoding location resolver (/api/v1/location/resolve)",
+        "Discipline v1: Zi Wei Dou Shu (/api/v1/ziwei/calculate)",
+        "Discipline v1: Qi Men Dun Jia (/api/v1/qimen/calculate)",
+        "Discipline v1: Da Liu Ren (/api/v1/liuren/calculate)",
+        "Discipline v1: I Ching (/api/v1/iching/calculate)",
+        "Discipline v1: Xuan Kong Feng Shui (/api/v1/xuankong/calculate)",
+        "Discipline v1: Ze Ji Date Selection (/api/v1/zeji/calculate)",
+        "Discipline v1: Thai Vedic Astrology (/api/v1/thaivedic/calculate)",
+        "Discipline v1: Western Uranian Astrology (/api/v1/western/calculate)",
+        "Discipline v1: Numerology (/api/v1/numerology/calculate)",
+        "API v2 Health check (16 disciplines registered)",
+        "API v2 Unified multi-discipline calculation endpoint (/api/v2/calculate/unified)",
+        "API v2 Question-focused domain interpretation (/api/v2/interpret/focused)",
+        "API v2 Mian Xiang physiognomy analysis (/api/v2/mian_xiang/analyze)"
+      ]
+    },
+    "ui_button_regression": {
+      "command": "python3 scripts/run_button_regression.py",
+      "script_file": "scripts/run_button_regression.py",
+      "report_file": "project/tests/button_regression_report.json",
+      "total_buttons_tested": 31,
+      "passed": 31,
+      "failed": 0,
+      "pass_rate_percentage": 100.0,
+      "status": "PASS",
+      "categories": {
+        "index_ui_actions": 22,
+        "admin_panel_auth": 2,
+        "hitl_studio_workflow": 4,
+        "hitl_negative_paths": 1,
+        "api_documentation_endpoints": 3
+      },
+      "verified_interactive_flows": [
+        "Calculation & AI Interpretation submit trigger (#btn-submit)",
+        "Location autocomplete and geocoding preset injection",
+        "16 Metaphysical Discipline tab navigators & calculation triggers",
+        "Admin Google OAuth authentication and session termination",
+        "HITL batch draft, JSONL export, item approval with live FAISS index sync, undo",
+        "Swagger, ReDoc, and OpenAPI specification compliance"
+      ]
+    },
+    "visual_layout_multi_viewport_audit": {
+      "command": "python3 scripts/run_visual_layout_audit.py --scenario v3-consensus",
+      "script_file": "scripts/run_visual_layout_audit.py",
+      "report_file": "project/tests/artifacts/visual_layout_report.json",
+      "screenshot_directory": "project/tests/screenshots/visual_audit",
+      "canonical_viewports_audited": 5,
+      "viewports": [
+        {"name": "desktop-4k", "resolution": "1920x1080", "status": "LAYOUT_PASS"},
+        {"name": "laptop-standard", "resolution": "1366x768", "status": "LAYOUT_PASS"},
+        {"name": "tablet-portrait", "resolution": "768x1024", "status": "LAYOUT_PASS"},
+        {"name": "mobile-ios", "resolution": "390x844", "status": "LAYOUT_PASS"},
+        {"name": "mobile-compact", "resolution": "360x740", "status": "LAYOUT_PASS"}
+      ],
+      "metrics": {
+        "horizontal_overflow_count": 0,
+        "sibling_overlaps_count": 0,
+        "out_of_bounds_count": 0,
+        "clipped_elements_count": 0,
+        "wcag_contrast_failures": 0
+      },
+      "overall_status": "PASSED"
+    },
+    "e2e_mcp_and_dynamic_svg": {
+      "command": "python3 -m pytest project/tests/test_e2e_mcp_svg.py project/tests/test_extended_disciplines_svg.py -q",
+      "test_files": [
+        "project/tests/test_e2e_mcp_svg.py",
+        "project/tests/test_extended_disciplines_svg.py"
+      ],
+      "total_tests": 14,
+      "passed": 14,
+      "failed": 0,
+      "pass_rate_percentage": 100.0,
+      "duration_seconds": 1.16,
+      "status": "PASS",
+      "features_verified": [
+        "FastMCP Tool schema registration and validation",
+        "MCP Server calculate, interpret, and compatibility functions",
+        "Dynamic SVG generation for all extended metaphysics disciplines",
+        "XML entity safety, well-formedness, and viewBox responsiveness"
+      ]
+    }
+  },
+  "evidence_paths": {
+    "m4_milestone_report": "plans/evidence/meta_plan_002/m4_integration_e2e_report.json",
+    "button_regression_json": "project/tests/button_regression_report.json",
+    "visual_layout_report_json": "project/tests/artifacts/visual_layout_report.json",
+    "visual_audit_screenshots_dir": "project/tests/screenshots/visual_audit/",
+    "api_integration_suite_source": "project/tests/test_api_integration_suite.py",
+    "e2e_mcp_test_source": "project/tests/test_e2e_mcp_svg.py",
+    "extended_disciplines_svg_test_source": "project/tests/test_extended_disciplines_svg.py"
+  }
+}

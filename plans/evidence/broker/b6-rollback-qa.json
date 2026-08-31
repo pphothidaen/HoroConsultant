@@ -1,0 +1,18 @@
+{
+  "ticket": "BRK-B6-020",
+  "schema": "broker-rollback-qa-v1",
+  "timestamp": "2026-08-31T21:32:57+07:00",
+  "status": "PASS",
+  "rollback_drill_mode": "dry_run_verified",
+  "rollback_target_wrappers": ["agy1", "agy2", "agy3", "agy4", "codex1", "codex2", "codex3"],
+  "wrapper_mode_enforced": "0500",
+  "plaintext_restoration_prevented": true,
+  "account_data_untouched": true,
+  "keychain_items_quarantined_safe": true,
+  "tests_executed": {
+    "pytest_suite": "tests/test_ai_account_keychain_broker.py tests/test_broker_capacity_admission.py",
+    "passed": true
+  },
+  "verdict": "READY_FOR_CLOSURE",
+  "gate": "CLOSURE_AUTHORIZED"
+}

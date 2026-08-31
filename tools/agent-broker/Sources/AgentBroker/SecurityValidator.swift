@@ -110,7 +110,7 @@ public enum CommandSecurityValidator {
     public static func validateArgv(_ argv: [String]) -> BrokerValidationResult {
         for arg in argv {
             for token in prohibitedTokens {
-                if arg == token || (token.count > 1 && arg.contains(token)) {
+                if arg.contains(token) {
                     return .invalid(code: "UNAUTHORIZED_SHELL_INTERPOLATION", message: "Prohibited shell metacharacter detected: \(arg)")
                 }
             }
@@ -124,7 +124,7 @@ public enum CommandSecurityValidator {
         }
         let allowlist: Set<String> = [
             "/Library/Application Support/HoroConsultant/AccountBroker/bin/agent-broker",
-            "~/.local/bin/agy1", "~/.local/bin/agy2", "~/.local/bin/agy3",
+            "~/.local/bin/agy1", "~/.local/bin/agy2", "~/.local/bin/agy3", "~/.local/bin/agy4",
             "~/.local/bin/codex1", "~/.local/bin/codex2", "~/.local/bin/codex3"
         ]
         if !allowlist.contains(binary) {

@@ -1,0 +1,19 @@
+{
+  "ticket": "BRK-B5-080B",
+  "schema": "broker-alias-admission-v1",
+  "timestamp": "2026-08-31T14:23:25Z",
+  "alias": "codex2",
+  "provider": "codex",
+  "root_pool": "root_a",
+  "status": "ADMITTED",
+  "account_home": "~/.ai-accounts/codex/account2",
+  "home_permissions": "700",
+  "wrapper_path": "~/.local/bin/codex2",
+  "wrapper_permissions": "500",
+  "auth_file_exists": true,
+  "identity_distinct": true,
+  "state_isolation_verified": true,
+  "sibling_state_unchanged": true,
+  "admitted_capacity": 1,
+  "gate": "ALIAS_ADMITTED"
+}

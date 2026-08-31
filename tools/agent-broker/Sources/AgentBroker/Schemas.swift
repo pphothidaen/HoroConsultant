@@ -117,7 +117,7 @@ public struct BrokerValidationResult: Equatable {
 /// Schema validator for fail-closed request payloads.
 public enum BrokerSchemaValidator {
     public static let allowedAliases: Set<String> = [
-        "agy1", "agy2", "agy3",
+        "agy1", "agy2", "agy3", "agy4",
         "codex1", "codex2", "codex3"
     ]
 

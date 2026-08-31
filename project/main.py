@@ -26,7 +26,7 @@ from pydantic import RootModel
 from project.admin_router import admin_router
 from project.api_router import router
 from project.hitl_router import hitl_router
-from project.routers import astrology_router, debate_router, mlops_router
+from project.routers import astrology_router, debate_router, mlops_router, visual_router
 from project.routers.synastry import synastry_router
 from project.routers.calendar import calendar_router
 from project.routers.luopan_dream import luopan_dream_router
@@ -183,6 +183,7 @@ app.include_router(calendar_router)
 app.include_router(luopan_dream_router)
 app.include_router(simulation_router)
 app.include_router(chat_router)
+app.include_router(visual_router)
 
 
 

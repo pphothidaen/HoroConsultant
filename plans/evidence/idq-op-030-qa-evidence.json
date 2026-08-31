@@ -1,0 +1,51 @@
+{
+  "ticket": "IDQ-OP-030-QA",
+  "title": "Comprehensive Operational QA Suite",
+  "qa_tester": "idq_qa_tester",
+  "timestamp": "2026-08-31T20:08:40+07:00",
+  "commit_sha": "f70a6f7046e10407402edd43f52e8f4c77d59098",
+  "test_baseline": "Test-Baseline: 717005d266601df76646d072a637beadd89e99ed",
+  "test_suite": "tests/test_idq_mvp_080_operational_provider.py",
+  "target_script": "scripts/multiagent_idq_mvp_080_operational.py",
+  "qa_verdict": "PASS",
+  "test_metrics": {
+    "total_tests": 300,
+    "passed": 300,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "pass_rate": "100%",
+    "duration_seconds": 157.44,
+    "duration_formatted": "0:02:37"
+  },
+  "verified_contracts": {
+    "queue_lifecycle": {
+      "status": "PASS",
+      "description": "Durable queue state transitions, PREPARED, STARTING, RUNNING, COMPLETED, and UNKNOWN states verified."
+    },
+    "cross_runtime_handoff": {
+      "status": "PASS",
+      "description": "Safe runtime handoff across codex1..3 and agy1..3 aliases with isolated process groups and non-interference."
+    },
+    "receipt_integrity": {
+      "status": "PASS",
+      "description": "Deterministic receipt generation, digest chaining, schema adherence, and durable receipt storage verified."
+    },
+    "read_only_boundary": {
+      "status": "PASS",
+      "description": "Read-only workspace invariants, git worktree immutability, and index/ref protection verified."
+    },
+    "secret_sanitization": {
+      "status": "PASS",
+      "description": "Zero raw credential/token exposure in logs, receipts, state files, or error descriptors."
+    },
+    "raw_stream_non_retention": {
+      "status": "PASS",
+      "description": "Strict stdout/stderr stream length bounds, zero raw-stream retention, and no provider stream echoing."
+    },
+    "fail_closed_circuits": {
+      "status": "PASS",
+      "description": "Fail-closed behavior on capacity lease expiry, drift, malformed payloads, timeouts, and process group failures."
+    }
+  }
+}

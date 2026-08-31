@@ -1,0 +1,189 @@
+{
+  "sprint": "META-PLAN-002",
+  "milestone": "M0",
+  "task": "META2-M0-010 / META2-M0-020 Baseline Metaphysics Verification",
+  "timestamp": "2026-08-31T21:51:30+07:00",
+  "git_commit_sha": "c34164acbdb11f80f27d34092d73e35ab2d0c49f",
+  "environment": {
+    "platform": "darwin",
+    "python_version": "3.14.7",
+    "pytest_version": "9.1.1"
+  },
+  "test_execution_summary": {
+    "test_suite_file": "project/tests/test_meta_plan_002_baseline.py",
+    "total_tests": 40,
+    "passed": 40,
+    "failed": 0,
+    "skipped": 0,
+    "pass_rate_percentage": 100.0,
+    "pytest_session_duration_seconds": 0.11,
+    "total_runtime_seconds": 0.204,
+    "status": "PASS"
+  },
+  "test_classes": {
+    "TestBaseEngineContract": {
+      "tests_count": 18,
+      "description": "AbstractAstrologyEngine contract inheritance across all 16 engines, EngineChartResult dictionary/JSON contract, and PillarData model"
+    },
+    "TestSanShiEngines": {
+      "tests_count": 3,
+      "description": "San Shi calculation baselines for Tai Yi, Da Liu Ren, and Qi Men Dun Jia"
+    },
+    "TestMingXueEngines": {
+      "tests_count": 3,
+      "description": "Ming Xue calculation baselines for BaZi, Zi Wei Dou Shu, and Qi Zheng Si Yu"
+    },
+    "TestPuShiEngines": {
+      "tests_count": 3,
+      "description": "Pu Shi calculation baselines for I Ching, Liu Yao, and Mei Hua Yi Shu"
+    },
+    "TestXiangXueAndZeJiEngines": {
+      "tests_count": 4,
+      "description": "Xiang Xue & Ze Ji calculation baselines for Xuan Kong Flying Stars, San He Feng Shui, Mian Xiang, and Ze Ji"
+    },
+    "TestExpandedAstrologyAndNumerologyEngines": {
+      "tests_count": 3,
+      "description": "Expanded astrology & numerology baselines for Thai-Vedic, Western Uranian, and Numerology"
+    },
+    "TestQuestionFocusRouterBaseline": {
+      "tests_count": 4,
+      "description": "Question Focus Router 6-domain classification, prompt generation across 3 languages, and canonical citation retrieval"
+    },
+    "TestMultiAgentDebateBaseline": {
+      "tests_count": 2,
+      "description": "Multi-agent peer debate orchestration, 10-branch consensus matrix derivation, and canonical text catalog integrity"
+    }
+  },
+  "verified_engines": [
+    {
+      "engine_file": "project/core/bazi_engine.py",
+      "class_name": "BaZiEngine",
+      "system_type": "ming_xue",
+      "verified_features": ["Four Pillars", "Day Master", "Five Elements", "Da Yun Luck Cycles", "True Solar Time"]
+    },
+    {
+      "engine_file": "project/core/zi_wei_engine.py",
+      "class_name": "ZiWeiEngine",
+      "system_type": "ming_xue",
+      "verified_features": ["12 Palaces", "Ming & Shen Gong", "Five Element Bureau", "Zi Wei & Tian Fu Stars", "Si Hua Transformations"]
+    },
+    {
+      "engine_file": "project/core/qi_men_engine.py",
+      "class_name": "QiMenEngine",
+      "system_type": "san_shi",
+      "verified_features": ["9 Palaces", "Yang/Yin Dun", "18-Ju Ju Number Derivation", "Solar Term Mapping"]
+    },
+    {
+      "engine_file": "project/core/liu_ren_engine.py",
+      "class_name": "LiuRenEngine",
+      "system_type": "san_shi",
+      "verified_features": ["Four Lessons", "Three Transmissions (Initial, Middle, Final)", "Heaven Plate"]
+    },
+    {
+      "engine_file": "project/core/tai_yi_engine.py",
+      "class_name": "TaiYiEngine",
+      "system_type": "san_shi",
+      "verified_features": ["Tai Yi Accumulated Years", "16-Path Star Palace", "Heaven & Earth Plates", "8-Direction Strategic Assessment"]
+    },
+    {
+      "engine_file": "project/core/iching_engine.py",
+      "class_name": "IChingEngine",
+      "system_type": "pu_shi",
+      "verified_features": ["Line Casting", "Primary Hexagram", "Transformed Hexagram", "6-Line Animal & Moving Line Mapping"]
+    },
+    {
+      "engine_file": "project/core/liu_yao_engine.py",
+      "class_name": "LiuYaoEngine",
+      "system_type": "pu_shi",
+      "verified_features": ["Na Jia", "Shi & Ying Line Derivation", "Five Relatives", "Six Animals"]
+    },
+    {
+      "engine_file": "project/core/mei_hua_engine.py",
+      "class_name": "MeiHuaEngine",
+      "system_type": "divination",
+      "verified_features": ["Time & Number Methods", "Body & Function (Ti/Yong)", "Mutual Hexagram", "Transformed Hexagram"]
+    },
+    {
+      "engine_file": "project/core/xuan_kong_engine.py",
+      "class_name": "XuanKongEngine",
+      "system_type": "xiang_xue",
+      "verified_features": ["Period 9 Flying Stars", "9-Palace Grid", "Sitting & Facing Mountains", "Mountain & Facing Star Placement"]
+    },
+    {
+      "engine_file": "project/core/san_he_engine.py",
+      "class_name": "SanHeEngine",
+      "system_type": "feng_shui",
+      "verified_features": ["24 Mountains Resolution", "12 Life Stages Water Method", "San He Trio Formations", "Harmony Assessment"]
+    },
+    {
+      "engine_file": "project/core/ze_ji_engine.py",
+      "class_name": "ZeJiEngine",
+      "system_type": "ze_ji",
+      "verified_features": ["12 Duty Officers (Jian Chu)", "Year & Month Breaker Clash Filters", "5-Star Suitability Scoring", "Activity Ratings"]
+    },
+    {
+      "engine_file": "project/core/mian_xiang_engine.py",
+      "class_name": "MianXiangEngine",
+      "system_type": "mian_xiang",
+      "verified_features": ["5-Element Face Shape", "12 Face Palaces", "5 Facial Officials", "Age Fortune Flow (Liu Nian)"]
+    },
+    {
+      "engine_file": "project/core/thai_vedic_engine.py",
+      "class_name": "ThaiVedicEngine",
+      "system_type": "thai_vedic",
+      "verified_features": ["Suriyayart Lagna", "Maha Thaksa (Kalakini/Sri)", "Vedic 27 Nakshatras", "Vimshottari Dasha"]
+    },
+    {
+      "engine_file": "project/core/western_uranian_engine.py",
+      "class_name": "WesternUranianEngine",
+      "system_type": "western_astro",
+      "verified_features": ["Tropical Planetary Positions", "8 Uranian TNPs", "Planetary Aspects", "Uranian Midpoint Axis (A+B-C)"]
+    },
+    {
+      "engine_file": "project/core/numerology_engine.py",
+      "class_name": "NumerologyEngine",
+      "system_type": "numerology",
+      "verified_features": ["Satta-Lek 7-Base 4-Row Matrix", "Chaldean Scoring & Root Digit Reduction"]
+    },
+    {
+      "engine_file": "project/core/qi_zheng_engine.py",
+      "class_name": "QiZhengSiYuEngine",
+      "system_type": "chinese_astrology",
+      "verified_features": ["7 Governors & 4 Shadow Stars", "28 Lunar Mansions Alignment", "Ayanamsa Offset"]
+    },
+    {
+      "engine_file": "project/core/question_focus_router.py",
+      "class_name": "QuestionFocusRouter",
+      "system_type": "routing",
+      "verified_features": ["6 Consulting Domain NLP Classification", "Multilingual Prompt Synthesis (TH/EN/ZH)", "Canonical Text Citation Cataloging"]
+    },
+    {
+      "engine_file": "project/core/multi_agent_debate.py",
+      "class_name": "MetaphysicsDebateEngine",
+      "system_type": "synthesis",
+      "verified_features": ["8-Master Peer Debate Orchestration", "Consensus Score Derivation", "Consonance & Cautionary Synthesis", "Canonical Treatises"]
+    }
+  ],
+  "provenance_sha256": {
+    "project/tests/test_meta_plan_002_baseline.py": "29a7512cfc25394d08f5aba3d79ad38f59a672d4159c644d4e31c84e6f4b981e",
+    "project/core/base_engine.py": "6da953c53b60494fc0bf24d6849ffd8d3dd3d93fbd71eca9c33797714232fc66",
+    "project/core/bazi_engine.py": "3c20e9ba2746a1ce937517bc54b462d84d878b088c5209b1241da6e84a2379ed",
+    "project/core/zi_wei_engine.py": "b259ab6c95884b3d373d501bb25c639e4d1c4d435e1f680e6858584fd9244773",
+    "project/core/qi_men_engine.py": "0be3ee997ed32e0029becec17d7286da4397e505af038024b715c5731407c83f",
+    "project/core/liu_ren_engine.py": "c1a57c33c348ead1ab2ee12e0dcdf44cc02fd77ac72469720b6b27f5373dc22b",
+    "project/core/tai_yi_engine.py": "19fe119f730aed8b7b11c6ab32798aa716f8a77eab8a223fa9921dc81341a6e9",
+    "project/core/iching_engine.py": "fdee64fe82b5db00b7afec472196e58e110252b1355e7331b8d5cd217a72db1e",
+    "project/core/liu_yao_engine.py": "e946a135df5582d0a99ece2421c6a55a27666741ea53926303cd12e192656d8f",
+    "project/core/mei_hua_engine.py": "8b856fe23db76c23ce7c728023690b3fc205070bebc401389a0adc748ef49ca0",
+    "project/core/xuan_kong_engine.py": "b3f0c990ff676395d25f3ae5c566be9f69398406a2395e65a501a0b49c7dc53e",
+    "project/core/san_he_engine.py": "4edaa44b78270371c2af562047c89ee4531f57b8ddbf259494fa667a24d62ca8",
+    "project/core/ze_ji_engine.py": "87bbdacb1f59905c93917d9af03f055628d14342c1ed68373dbd3f3b338d2f9b",
+    "project/core/mian_xiang_engine.py": "f9728f706c3300bb2c309c7c6ad35f4e7fe7d94019b56818064a2fe3d21536d5",
+    "project/core/thai_vedic_engine.py": "95824a71c5a7ec4896b571f374027fbb20479b5dc8387eaeae6d9353634d985d",
+    "project/core/western_uranian_engine.py": "1193adcfc0b23d5aca8bca0e1763b1f63c9586d8d8d68841f7740f8b4b99043f",
+    "project/core/numerology_engine.py": "4a81fe48595e0e539b9641224e5685480d2bf0a747ac9414c3a47d69d220a3c4",
+    "project/core/qi_zheng_engine.py": "5e970747e5f25bc4daa8506f621560f43906f9fc352590a496de7cf0074e68b1",
+    "project/core/question_focus_router.py": "e48ce5959188f2167949fd4a0a20ca0506bfb04f617b2d4a8059ee77e70a36ca",
+    "project/core/multi_agent_debate.py": "08177471499466498485da6fb1a000d0a6825ad61b068ed0a3e9cd0043d80ea9"
+  }
+}

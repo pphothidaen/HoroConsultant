@@ -778,6 +778,274 @@ router = HybridRouter()
 
 
 # ---------------------------------------------------------------------------
+# FastAPI Route Handlers for 16 Metaphysics Disciplines, MCP, Focus, & Debate
+# ---------------------------------------------------------------------------
+
+from fastapi import APIRouter, Body, HTTPException, Query, Request
+from fastapi.responses import JSONResponse
+
+api_router = APIRouter(tags=["Metaphysics & MCP API"])
+metaphysics_api_router = api_router
+
+from project.mcp_server import HoroMCPTools, call_tool, get_mcp_manifest
+from project.schemas.mcp_tools_v1 import (
+    BaZiCalculateParams,
+    IChingCalculateParams,
+    LiuRenCalculateParams,
+    LiuYaoCalculateParams,
+    MCPCallToolRequest,
+    MCPCallToolResponse,
+    MeiHuaCalculateParams,
+    MetaphysicsDebateParams,
+    MianXiangAnalyzeParams,
+    NumerologyCalculateParams,
+    QiMenCalculateParams,
+    QiZhengCalculateParams,
+    QuestionFocusRouteParams,
+    SanHeCalculateParams,
+    TaiYiCalculateParams,
+    ThaiVedicCalculateParams,
+    WesternCalculateParams,
+    XuanKongCalculateParams,
+    ZeJiCalculateParams,
+    ZiWeiCalculateParams,
+)
+
+
+@api_router.get("/api/mcp/manifest")
+@api_router.get("/mcp/manifest")
+async def mcp_manifest() -> dict[str, Any]:
+    """Return full MCP server tool manifest with all 36+ tools."""
+    return get_mcp_manifest()
+
+
+@api_router.post("/api/mcp/call")
+@api_router.post("/mcp/call")
+async def mcp_call_tool(request: MCPCallToolRequest) -> dict[str, Any]:
+    """Execute an MCP tool via JSON-RPC dispatcher."""
+    result = call_tool(request.tool_name, request.arguments)
+    return result
+
+
+@api_router.post("/api/route/focus")
+@api_router.post("/route/focus")
+async def route_focus_post(params: QuestionFocusRouteParams) -> dict[str, Any]:
+    """Classify user query into 6 domains and produce engine focus directives."""
+    lang_val = params.language.value if hasattr(params.language, "value") else str(params.language)
+    return HoroMCPTools.question_focus_route(
+        query=params.query,
+        context=params.context,
+        language=lang_val,
+    )
+
+
+@api_router.get("/api/route/focus")
+@api_router.get("/route/focus")
+async def route_focus_get(query: str, language: str = "th") -> dict[str, Any]:
+    """Classify user query via GET query parameters."""
+    return HoroMCPTools.question_focus_route(query=query, language=language)
+
+
+@api_router.post("/api/debate/synthesize")
+@api_router.post("/debate/synthesize")
+async def debate_synthesize(params: MetaphysicsDebateParams) -> dict[str, Any]:
+    """Execute 8-Master Peer Debate, Consensus Matrix & Orchestrator Synthesis."""
+    lang_val = params.language.value if hasattr(params.language, "value") else str(params.language)
+    return HoroMCPTools.metaphysics_debate(
+        query=params.query,
+        birth_datetime=params.birth_datetime,
+        longitude=params.longitude,
+        utc_offset_hours=params.utc_offset_hours,
+        unknown_hour=params.unknown_hour,
+        language=lang_val,
+        force_hitl=params.force_hitl,
+        active_masters=params.active_masters,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Universal Calculation Route for all 16 Disciplines
+# ---------------------------------------------------------------------------
+
+DISCIPLINE_TOOL_MAP: dict[str, str] = {
+    "bazi": "bazi_calculate",
+    "ziwei": "ziwei_calculate",
+    "zi_wei": "ziwei_calculate",
+    "qimen": "qimen_calculate",
+    "qi_men": "qimen_calculate",
+    "liuren": "liuren_calculate",
+    "liu_ren": "liuren_calculate",
+    "daliuren": "liuren_calculate",
+    "da_liu_ren": "liuren_calculate",
+    "taiyi": "tai_yi_calculate",
+    "tai_yi": "tai_yi_calculate",
+    "iching": "iching_calculate",
+    "i_ching": "iching_calculate",
+    "liuyao": "liu_yao_calculate",
+    "liu_yao": "liu_yao_calculate",
+    "meihua": "mei_hua_calculate",
+    "mei_hua": "mei_hua_calculate",
+    "xuankong": "xuankong_calculate",
+    "xuan_kong": "xuankong_calculate",
+    "sanhe": "san_he_calculate",
+    "san_he": "san_he_calculate",
+    "zeji": "zeji_calculate",
+    "ze_ji": "zeji_calculate",
+    "mianxiang": "mian_xiang_analyze",
+    "mian_xiang": "mian_xiang_analyze",
+    "physiognomy": "mian_xiang_analyze",
+    "thaivedic": "thaivedic_calculate",
+    "thai_vedic": "thaivedic_calculate",
+    "western": "western_calculate",
+    "western_uranian": "western_calculate",
+    "uranian": "western_calculate",
+    "numerology": "numerology_calculate",
+    "satta_lek": "numerology_calculate",
+    "qizheng": "qi_zheng_calculate",
+    "qi_zheng": "qi_zheng_calculate",
+    "qizhengsiyu": "qi_zheng_calculate",
+    "qi_zheng_si_yu": "qi_zheng_calculate",
+}
+
+
+@api_router.post("/api/calculate/{discipline}")
+@api_router.post("/calculate/{discipline}")
+async def calculate_discipline_post(discipline: str, payload: dict[str, Any] = Body(default_factory=dict)) -> dict[str, Any]:
+    """Universal POST calculation endpoint for all 16 Metaphysics disciplines."""
+    disc_norm = discipline.lower().replace("-", "_").strip()
+    if disc_norm not in DISCIPLINE_TOOL_MAP:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Unknown discipline '{discipline}'. Supported: {sorted(set(DISCIPLINE_TOOL_MAP.keys()))}",
+        )
+    tool_name = DISCIPLINE_TOOL_MAP[disc_norm]
+    res = call_tool(tool_name, payload)
+    if not res.get("success"):
+        raise HTTPException(status_code=400, detail=res.get("error", "Calculation failed"))
+    return res.get("result")  # type: ignore[return-value]
+
+
+@api_router.get("/api/calculate/{discipline}")
+@api_router.get("/calculate/{discipline}")
+async def calculate_discipline_get(discipline: str, request: Request) -> dict[str, Any]:
+    """Universal GET calculation endpoint for quick browser testing via query params."""
+    query_params = dict(request.query_params)
+    payload: dict[str, Any] = {}
+    for k, v in query_params.items():
+        if v.isdigit():
+            payload[k] = int(v)
+        else:
+            try:
+                payload[k] = float(v)
+            except ValueError:
+                if v.lower() in ("true", "false"):
+                    payload[k] = (v.lower() == "true")
+                else:
+                    payload[k] = v
+    return await calculate_discipline_post(discipline, payload)
+
+
+# ---------------------------------------------------------------------------
+# Dedicated Endpoints for each of the 16 Metaphysics Disciplines
+# ---------------------------------------------------------------------------
+
+@api_router.post("/api/calculate/bazi")
+@api_router.post("/calculate/bazi")
+async def calculate_bazi_endpoint(params: BaZiCalculateParams) -> dict[str, Any]:
+    return HoroMCPTools.bazi_calculate(**params.model_dump())
+
+
+@api_router.post("/api/calculate/ziwei")
+@api_router.post("/calculate/ziwei")
+async def calculate_ziwei_endpoint(params: ZiWeiCalculateParams) -> dict[str, Any]:
+    return HoroMCPTools.ziwei_calculate(**params.model_dump())
+
+
+@api_router.post("/api/calculate/qimen")
+@api_router.post("/calculate/qimen")
+async def calculate_qimen_endpoint(params: QiMenCalculateParams) -> dict[str, Any]:
+    return HoroMCPTools.qimen_calculate(**params.model_dump())
+
+
+@api_router.post("/api/calculate/liuren")
+@api_router.post("/calculate/liuren")
+async def calculate_liuren_endpoint(params: LiuRenCalculateParams) -> dict[str, Any]:
+    return HoroMCPTools.liuren_calculate(**params.model_dump())
+
+
+@api_router.post("/api/calculate/taiyi")
+@api_router.post("/calculate/taiyi")
+async def calculate_taiyi_endpoint(params: TaiYiCalculateParams) -> dict[str, Any]:
+    return HoroMCPTools.tai_yi_calculate(**params.model_dump())
+
+
+@api_router.post("/api/calculate/iching")
+@api_router.post("/calculate/iching")
+async def calculate_iching_endpoint(params: IChingCalculateParams) -> dict[str, Any]:
+    return HoroMCPTools.iching_calculate(**params.model_dump())
+
+
+@api_router.post("/api/calculate/liuyao")
+@api_router.post("/calculate/liuyao")
+async def calculate_liuyao_endpoint(params: LiuYaoCalculateParams) -> dict[str, Any]:
+    return HoroMCPTools.liu_yao_calculate(**params.model_dump())
+
+
+@api_router.post("/api/calculate/meihua")
+@api_router.post("/calculate/meihua")
+async def calculate_meihua_endpoint(params: MeiHuaCalculateParams) -> dict[str, Any]:
+    return HoroMCPTools.mei_hua_calculate(**params.model_dump())
+
+
+@api_router.post("/api/calculate/xuankong")
+@api_router.post("/calculate/xuankong")
+async def calculate_xuankong_endpoint(params: XuanKongCalculateParams) -> dict[str, Any]:
+    return HoroMCPTools.xuankong_calculate(**params.model_dump())
+
+
+@api_router.post("/api/calculate/sanhe")
+@api_router.post("/calculate/sanhe")
+async def calculate_sanhe_endpoint(params: SanHeCalculateParams) -> dict[str, Any]:
+    return HoroMCPTools.san_he_calculate(**params.model_dump())
+
+
+@api_router.post("/api/calculate/zeji")
+@api_router.post("/calculate/zeji")
+async def calculate_zeji_endpoint(params: ZeJiCalculateParams) -> dict[str, Any]:
+    return HoroMCPTools.zeji_calculate(**params.model_dump())
+
+
+@api_router.post("/api/calculate/mianxiang")
+@api_router.post("/calculate/mianxiang")
+async def calculate_mianxiang_endpoint(params: MianXiangAnalyzeParams) -> dict[str, Any]:
+    return HoroMCPTools.mian_xiang_analyze(**params.model_dump())
+
+
+@api_router.post("/api/calculate/thaivedic")
+@api_router.post("/calculate/thaivedic")
+async def calculate_thaivedic_endpoint(params: ThaiVedicCalculateParams) -> dict[str, Any]:
+    return HoroMCPTools.thaivedic_calculate(**params.model_dump())
+
+
+@api_router.post("/api/calculate/western")
+@api_router.post("/calculate/western")
+async def calculate_western_endpoint(params: WesternCalculateParams) -> dict[str, Any]:
+    return HoroMCPTools.western_calculate(**params.model_dump())
+
+
+@api_router.post("/api/calculate/numerology")
+@api_router.post("/calculate/numerology")
+async def calculate_numerology_endpoint(params: NumerologyCalculateParams) -> dict[str, Any]:
+    return HoroMCPTools.numerology_calculate(**params.model_dump())
+
+
+@api_router.post("/api/calculate/qizheng")
+@api_router.post("/calculate/qizheng")
+async def calculate_qizheng_endpoint(params: QiZhengCalculateParams) -> dict[str, Any]:
+    return HoroMCPTools.qi_zheng_calculate(**params.model_dump())
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
@@ -800,3 +1068,4 @@ if __name__ == "__main__":
     print(f"Route   : {res['route']} / {res['model_used']}")
     print(f"Latency : {res['latency_ms']}ms")
     print(f"Text    : {(res['text'] or '')[:120]}")
+

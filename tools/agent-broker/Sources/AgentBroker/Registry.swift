@@ -68,6 +68,14 @@ public final class AccountRegistry {
                 binaryPath: "\(baseHome)/.local/bin/agy3",
                 defaultCapacity: 3
             ),
+            "agy4": AccountDescriptor(
+                alias: "agy4",
+                provider: .agy,
+                rootPool: .rootB,
+                homeDirectory: "\(baseHome)/.ai-accounts/agy/account4",
+                binaryPath: "\(baseHome)/.local/bin/agy4",
+                defaultCapacity: 3
+            ),
             "codex1": AccountDescriptor(
                 alias: "codex1",
                 provider: .codex,

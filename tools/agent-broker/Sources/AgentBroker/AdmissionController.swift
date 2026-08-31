@@ -22,7 +22,7 @@ public final class AdmissionController {
 
     public init(
         perAliasLimits: [String: Int] = [
-            "agy1": 3, "agy2": 3, "agy3": 3,
+            "agy1": 3, "agy2": 3, "agy3": 3, "agy4": 3,
             "codex1": 2, "codex2": 2, "codex3": 2
         ],
         rootLimits: [String: Int] = [

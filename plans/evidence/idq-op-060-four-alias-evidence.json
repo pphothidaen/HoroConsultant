@@ -1,0 +1,34 @@
+{
+  "ticket": "IDQ-OP-060-FOUR-ALIAS",
+  "title": "Four-Alias Provider Proof Verification",
+  "operator": "idq_four_alias_operator",
+  "timestamp": "2026-08-31T20:27:00+07:00",
+  "status": "FOUR_ALIAS_PROOF_VERIFIED",
+  "preflight_ref": "plans/evidence/idq-op-050-preflight-evidence.json",
+  "tested_aliases": [
+    "codex1",
+    "codex2",
+    "agy1",
+    "agy2"
+  ],
+  "execution_mode": "read_only",
+  "pass_rate": "100%",
+  "test_metrics": {
+    "suite": "tests/test_idq_mvp_080_operational_provider.py",
+    "total_tests": 300,
+    "passed": 300,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "duration_seconds": 403.66,
+    "verdict": "PASS"
+  },
+  "invariants_verified": {
+    "read_only_isolation": true,
+    "zero_retry_fallback": true,
+    "raw_stream_non_retention": true,
+    "secret_sanitization": true,
+    "git_immutability": true,
+    "discrete_alias_receipts": true
+  }
+}

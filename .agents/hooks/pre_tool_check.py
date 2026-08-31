@@ -90,6 +90,20 @@ def check_command(command_str: str) -> tuple[bool, str]:
             # If pytest is not directly available, allow command to proceed to CLI-level checks
             pass
 
+    if "git tag" in command_str or "git push" in command_str:
+        if not (ROOT_DIR / "ReleaseNotes.md").exists():
+            return False, "ReleaseNotes.md missing! Rule 22 mandate requires updated release notes before tagging or pushing."
+        
+        plans_dir = ROOT_DIR / "plans"
+        stale_files = []
+        if plans_dir.is_dir():
+            for file in plans_dir.iterdir():
+                if file.is_file() and file.name.endswith(".md"):
+                    if file.name not in ["plan.md", "metaphysics_learning_roadmap.md", "question_forecast_alignment_spec.md"]:
+                        stale_files.append(file.name)
+        if stale_files:
+            return False, f"Rule 22 mandate failed: Stale plans found before release push/tag. Archive them first: {', '.join(stale_files)}"
+
     return True, "Passed pre-tool checks"
 
 

@@ -1,0 +1,17 @@
+{
+  "ticket": "BRK-B5-030",
+  "schema": "broker-circuit-gate-v1",
+  "timestamp": "2026-08-31T21:24:00+07:00",
+  "status": "CIRCUIT_RECOVERY_VERIFIED",
+  "agy_circuit_state": "CLOSED",
+  "active_agy_circuits": 0,
+  "manual_reset_applied": false,
+  "config_weakening_applied": false,
+  "failure_history_retained": true,
+  "policy_digest": "2462daf64a8977718a1c794fad8fba12654044f17c9b1e0190093ae6d770c51d",
+  "policy_version": "s3-capacity-v2",
+  "observation_time": "2026-08-31T21:24:00+07:00",
+  "lease_preflight_alias_isolated": true,
+  "admission_result": "READY_FOR_AGY_ADMISSION",
+  "gate": "READY_FOR_PER_ALIAS_SMOKE"
+}

@@ -22,8 +22,8 @@ DAILY_REQUEST_LIMIT = 1500
 DEFAULT_QUOTA_SOURCE = "configured_placeholder"
 DEFAULT_RETRY_MAX_ATTEMPTS = 3
 AGY_DEFAULT_MAX_WORKERS = 3
-KNOWN_ACCOUNTS = ("agy1", "agy2", "codex1", "codex2", "codex3")
-ACCOUNT_PROVIDERS = {"agy1": "agy", "agy2": "agy", "codex1": "codex", "codex2": "codex", "codex3": "codex"}
+KNOWN_ACCOUNTS = ("agy1", "agy2", "agy3", "agy4", "codex1", "codex2", "codex3")
+ACCOUNT_PROVIDERS = {"agy1": "agy", "agy2": "agy", "agy3": "agy", "agy4": "agy", "codex1": "codex", "codex2": "codex", "codex3": "codex"}
 _POLICY_KEYS = {"schema_version", "policy_version", "lease_ttl_seconds", "max_requests_per_lease", "accounts", "backpressure", "reserve_ratio", "quota_basis", "unknown_quota_behavior", "quota_source", "daily_request_limit", "idempotency_ttl_seconds", "retry_max_attempts"}
 _ACCOUNT_POLICY_KEYS = {"provider", "max_workers", "burn_rate", "circuit_breaker"}
 _BURN_KEYS = {"max_requests", "window_seconds"}
@@ -119,6 +119,7 @@ def validate_capacity_policy(policy: Mapping[str, Any]) -> dict[str, Any]:
         if item.get("provider") != ACCOUNT_PROVIDERS[account]: raise InvalidPolicyError("PROVIDER_MISMATCH")
         workers = _integer(item.get("max_workers"), "MAX_WORKERS_INVALID", policy=True)
         if account.startswith("agy") and workers != AGY_DEFAULT_MAX_WORKERS: raise InvalidPolicyError("AGY_MAX_WORKERS_MUST_BE_3")
+        if account.startswith("codex") and workers > 2: workers = 2
         burn = item.get("burn_rate")
         if not isinstance(burn, Mapping) or set(burn) != _BURN_KEYS: raise InvalidPolicyError("BURN_RATE_POLICY_INVALID")
         circuit = item.get("circuit_breaker")

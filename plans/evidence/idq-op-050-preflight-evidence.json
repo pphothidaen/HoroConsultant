@@ -1,0 +1,38 @@
+{
+  "ticket": "IDQ-OP-050-PREFLIGHT",
+  "title": "Operational Provider Preflight Verification",
+  "operator": "idq_preflight_operator",
+  "timestamp": "2026-08-31T20:19:15+07:00",
+  "status": "PREFLIGHT_VERIFIED",
+  "qa_evidence_ref": "plans/evidence/idq-op-030-qa-evidence.json",
+  "gov_evidence_ref": "plans/evidence/idq-op-040-auth-gov.json",
+  "commit_sha": "c34164a",
+  "verified_aliases": [
+    "codex1",
+    "codex2",
+    "agy1",
+    "agy2"
+  ],
+  "execution_mode": "read_only_provider_proof_only",
+  "preflight_checks": {
+    "executor_path_proven": true,
+    "read_only_isolation": true,
+    "git_immutability_verified": true,
+    "single_use_ttl_nonce_lease_prepared": true,
+    "secret_sanitization_verified": true,
+    "raw_stream_non_retention_verified": true,
+    "zero_retry_fallback_enforced": true
+  },
+  "test_verification": {
+    "suite": "tests/test_idq_mvp_080_operational_provider.py",
+    "total_tests": 300,
+    "passed": 300,
+    "failed": 0,
+    "skipped": 0,
+    "errors": 0,
+    "pass_rate": "100%",
+    "duration_seconds": 143.72,
+    "verdict": "PASS"
+  },
+  "gate": "READY_FOR_FOUR_ALIAS_PROOF"
+}

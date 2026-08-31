@@ -1,0 +1,19 @@
+{
+  "ticket": "BRK-B5-060",
+  "schema": "broker-alias-admission-v1",
+  "timestamp": "2026-08-31T21:26:40+07:00",
+  "alias": "agy2",
+  "provider": "agy",
+  "root_pool": "root_b",
+  "status": "ADMITTED",
+  "account_home": "~/.ai-accounts/agy/account2",
+  "home_permissions": "0700",
+  "wrapper_path": "~/.local/bin/agy2",
+  "wrapper_permissions": "0500",
+  "keychain_exists": true,
+  "identity_distinct": true,
+  "state_isolation_verified": true,
+  "sibling_state_unchanged": true,
+  "admitted_capacity": 1,
+  "gate": "ALIAS_ADMITTED"
+}

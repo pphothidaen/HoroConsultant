@@ -38,7 +38,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 BROKER_SOURCE = ROOT / "scripts" / "ai_account_keychain_broker.swift"
 INSTALLER_SOURCE = ROOT / "scripts" / "install_ai_account_wrappers.py"
-ALIASES = ("agy1", "agy2", "agy3", "codex1", "codex2", "codex3")
+ALIASES = ("agy1", "agy2", "agy3", "agy4", "codex1", "codex2", "codex3")
 SYNTHETIC_SECRET = "BROKER_TEST_ONLY_SECRET_7f41c9"
 TEST_SECURITY_ENV = "AI_ACCOUNT_BROKER_TEST_SECURITY"
 TEST_ROOT_ENV = "AI_ACCOUNT_BROKER_TEST_ROOT"
@@ -295,7 +295,7 @@ def test_installer_dry_run_lists_exact_allowlist_without_writing(
     assert not output_dir.exists()
     for alias in ALIASES:
         assert alias in completed.stdout
-    assert "agy4" not in completed.stdout
+    assert "agy5" not in completed.stdout
     assert "codex4" not in completed.stdout
     _assert_sanitized(completed, SYNTHETIC_SECRET)
 
@@ -428,7 +428,7 @@ def test_swift_source_compiles_in_release_mode(tmp_path: Path) -> None:
 
 @pytest.mark.parametrize(
     "alias",
-    ["agy0", "agy4", "codex0", "codex4", "AGY1", "../agy1", "agy1/../../x", ""],
+    ["agy0", "codex0", "codex4", "AGY1", "../agy1", "agy1/../../x", ""],
 )
 def test_broker_rejects_every_alias_outside_exact_allowlist_without_side_effects(
     broker_binary: Path,

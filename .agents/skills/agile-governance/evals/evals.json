@@ -1,0 +1,61 @@
+{
+  "skill_name": "agile-governance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Evaluate a state transition request attempting to move a ticket directly from TODO to DONE without passing through READY and DOING, and without satisfying Definition of Ready or Definition of Done.",
+      "expected_output": "Rejects the invalid transition, enforces the canonical 6-state lifecycle (TODO -> READY -> DOING -> DONE, with BLOCKED and NEEDS_HITL holds), and requires both DoR and DoD gates to be satisfied.",
+      "files": [],
+      "expectations": [
+        "Enforces the six canonical states: TODO, READY, DOING, BLOCKED, NEEDS_HITL, and DONE.",
+        "Rejects direct jumps from TODO to DONE or TODO to DOING without DoR approval.",
+        "Requires Definition of Ready before entering READY/DOING and Definition of Done before entering DONE."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Evaluate Definition of Ready (DoR) for a candidate ticket where the test baseline is verified, dependencies are DONE, quota band is healthy, circuit breaker is closed, permissions are verified, capacity lease is acquired, and Rule 18 decision is valid, but two developers are assigned to edit the same file.",
+      "expected_output": "Rejects DoR admission with DOR_ONE_EDITOR_VIOLATION, enforcing strict one editor per resource ownership.",
+      "files": [],
+      "expectations": [
+        "Enforces one editor per resource ownership boundary across concurrent tasks.",
+        "Rejects concurrent overlapping writable scopes with DOR_ONE_EDITOR_VIOLATION.",
+        "Validates all 9 DoR prerequisites: test baseline, single editor, dependencies, quota band, circuit breaker, permissions, lease, Rule 18 decision, and exact evidence path."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Evaluate Definition of Done (DoD) for a completed task where code and tests pass, but the WorkResult omits 'Residual risk', rollback status is unverified, and independent QA verdict is missing.",
+      "expected_output": "Rejects completion, requiring all 7 WorkResult headings (Status, Scope owned, Evidence, Findings, Changed files, Residual risk, Recommended next action), independent QA PASS, independent review PASS, and verified rollback status.",
+      "files": [],
+      "expectations": [
+        "Enforces all 7 required WorkResult headings including Residual risk and Recommended next action.",
+        "Requires independent QA verdict PASS and independent review verdict PASS.",
+        "Requires explicit rollback verification and capacity classification before marking DONE."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "An available execution slot is idle, but all remaining tickets are blocked on dependencies or have ownership conflicts with active lanes. The caller asks to create speculative exploration tasks to fill the slot.",
+      "expected_output": "Rejects fake full capacity busywork, emits CAPACITY_EXCEPTION: NO_SAFE_CRITICAL_PATH_LANE with inventory and reason codes, and leaves the slot unused pending replanning or unblocking.",
+      "files": [],
+      "expectations": [
+        "Prohibits fake full capacity busywork, exploratory probes, and speculative tasks.",
+        "Emits CAPACITY_EXCEPTION: NO_SAFE_CRITICAL_PATH_LANE with rejected candidates and reason codes.",
+        "Leaves the slot idle rather than consuming quota or manufacturing artificial tasks."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "A configured pool has 6 theoretical slots in configuration, but fresh quota proof is only verified for 2 lanes and runtime proof has validated 0 lanes. Determine the admitted capacity.",
+      "expected_output": "Separates theoretical capacity, policy-admitted capacity, and runtime-proven capacity; admits 0 lanes because runtime-proven capacity is 0, keeping AGY per alias cap 3 as an upper bound only.",
+      "files": [],
+      "expectations": [
+        "Distinguishes theoretical capacity, policy-admitted capacity, and runtime-proven capacity.",
+        "Enforces safe cap as min(theoretical, policy-admitted, runtime-proven, host guard, ticket inventory).",
+        "Treats AGY per alias cap 3 as an upper safety bound, not an availability or execution claim.",
+        "Maintains independent pools with no aggregation across aliases."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "ticket": "BRK-B4-020",
+  "status": "APPROVED",
+  "findings_c_h_m_l": "0/0/0/0",
+  "security_verdict": "PASS",
+  "architecture_verdict": "PASS",
+  "gate": "READY_FOR_CANARY_MIGRATION"
+}

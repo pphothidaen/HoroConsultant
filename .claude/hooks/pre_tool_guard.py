@@ -122,6 +122,20 @@ def inspect_bash(command: str) -> None:
             reason = (result.stdout or result.stderr or "quota status guard failed").strip()
             deny(reason)
 
+    if "git tag" in command or "git push" in command:
+        if not (ROOT_DIR / "ReleaseNotes.md").exists():
+            deny("ReleaseNotes.md missing! Rule 22 mandate requires updated release notes before tagging or pushing.")
+        
+        plans_dir = ROOT_DIR / "plans"
+        stale_files = []
+        if plans_dir.is_dir():
+            for file in plans_dir.iterdir():
+                if file.is_file() and file.name.endswith(".md"):
+                    if file.name not in ["plan.md", "metaphysics_learning_roadmap.md", "question_forecast_alignment_spec.md"]:
+                        stale_files.append(file.name)
+        if stale_files:
+            deny(f"Rule 22 mandate failed: Stale plans found before release push/tag. Archive them first: {', '.join(stale_files)}")
+
 
 def main() -> int:
     try:

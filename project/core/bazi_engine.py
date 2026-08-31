@@ -543,6 +543,11 @@ _PEACH_BLOSSOM: dict[str, str] = {
     "辰": "酉", "巳": "午", "午": "卯", "未": "子",
     "申": "酉", "酉": "午", "戌": "卯", "亥": "子",
 }
+_YANG_REN_BRANCH: dict[str, str] = {
+    "甲": "卯", "乙": "辰", "丙": "午", "丁": "未",
+    "戊": "午", "己": "未", "庚": "酉", "辛": "戌",
+    "壬": "子", "癸": "丑",
+}
 _KONG_WANG_MAP: dict[int, list[str]] = {
     0: ["戌", "亥"], 1: ["申", "酉"], 2: ["午", "未"],
     3: ["辰", "巳"], 4: ["寅", "卯"], 5: ["子", "丑"],
@@ -555,11 +560,14 @@ def compute_symbolic_stars(day_stem: str, year_branch: str, day_stem_idx: int, d
     return {
         "Kong Wang":     {"branches": kong_branches,                                                                          "note": "空亡"},
         "Nobleman":      {"branches": _NOBLEMAN_BRANCHES.get(day_stem, []),                                                   "note": "天乙貴人"},
+        "Tian Yi Noble": {"branches": _NOBLEMAN_BRANCHES.get(day_stem, []),                                                   "note": "天乙貴人"},
         "Intelligence":  {"branches": [b for b in [_INTELLIGENCE_BRANCH.get(day_stem, "")] if b],                            "note": "文昌"},
         "Sword":         {"branches": [BRANCHES[(BRANCH_INDEX.get(year_branch, 0) + 6) % 12]["name"]],                       "note": "劫煞"},
         "Prosperity":    {"branches": [b for b in [_PROSPERITY_BRANCH.get(day_stem, "")] if b],                              "note": "祿神"},
         "Fu Xing":       {"branches": ["亥"],                                                                                 "note": "福星"},
         "Peach Blossom": {"branches": [b for b in [_PEACH_BLOSSOM.get(year_branch, "")] if b],                               "note": "桃花"},
+        "Tao Hua":       {"branches": [b for b in [_PEACH_BLOSSOM.get(year_branch, "")] if b],                               "note": "桃花"},
+        "Yang Ren":      {"branches": [b for b in [_YANG_REN_BRANCH.get(day_stem, "")] if b],                                "note": "羊刃"},
     }
 
 
@@ -598,6 +606,8 @@ def compute_pillar_stars(pillar_branch: str, day_stem: str, year_branch: str, da
         heavenly.append("Intelligence")
     if pillar_branch == _PROSPERITY_BRANCH.get(day_stem, ""):
         heavenly.append("Prosperity")
+    if pillar_branch == _YANG_REN_BRANCH.get(day_stem, ""):
+        heavenly.append("Yang Ren")
     if pillar_branch == _PEACH_BLOSSOM.get(year_branch, ""):
         heavenly.append("Peach Blossom")
     if pillar_branch == _GENERAL_STAR.get(day_branch, ""):

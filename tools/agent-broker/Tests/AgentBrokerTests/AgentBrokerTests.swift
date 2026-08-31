@@ -75,7 +75,7 @@ final class AgentBrokerTests: XCTestCase {
     }
 
     func testClosedRequestSchema_RejectsUnknownAlias() throws {
-        let disallowedAliases = ["claude1", "gpt4", "root", "admin", "agy4", "codex0", "system"]
+        let disallowedAliases = ["claude1", "gpt4", "root", "admin", "codex0", "system"]
         for alias in disallowedAliases {
             let json = """
             {
@@ -598,7 +598,7 @@ struct TestValidationResult {
 }
 
 enum TestBrokerSchemaValidator {
-    static let allowedAliases: Set<String> = ["agy1", "agy2", "agy3", "codex1", "codex2", "codex3"]
+    static let allowedAliases: Set<String> = ["agy1", "agy2", "agy3", "agy4", "codex1", "codex2", "codex3"]
     static let allowedKeys: Set<String> = [
         "schema_version", "request_id", "alias", "action", "command_argv",
         "lease_id", "timeout_seconds", "caller_context"
@@ -933,7 +933,7 @@ enum TestCommandSecurityValidator {
     static func validateArgv(_ argv: [String]) -> TestValidationResult {
         for arg in argv {
             for token in prohibitedTokens {
-                if arg == token || (token.count > 1 && arg.contains(token)) {
+                if arg.contains(token) {
                     return .invalid(code: "UNAUTHORIZED_SHELL_INTERPOLATION", message: "Prohibited shell metacharacter detected: \(arg)")
                 }
             }

@@ -1,0 +1,44 @@
+{
+  "ticket": "BRK-B5-025",
+  "schema": "broker-security-decision-v1",
+  "timestamp": "2026-08-31T21:10:30+07:00",
+  "decision": "AUTHORIZED",
+  "scope": {
+    "option": "A",
+    "description": "Live Keychain migration authorized for 7 accounts",
+    "aliases": ["agy1", "agy2", "agy3", "agy4", "codex1", "codex2", "codex3"],
+    "signing_mode": "broker_managed",
+    "keychain_policy": "create_only_seven_item_cardinality",
+    "acl_policy": "broker_only",
+    "serial_order": ["agy1", "agy2", "agy3", "agy4", "codex1", "codex2", "codex3"],
+    "rollback_mode": "session_only_disabled"
+  },
+  "pre_conditions_met": {
+    "BRK-B5-010": "DONE",
+    "BRK-B5-020": "DONE",
+    "seven_alias_registration": true,
+    "wrapper_permissions_verified": true
+  },
+  "owner_authorization": {
+    "decision_time": "2026-08-31T21:05:30+07:00",
+    "scope_expansion": "agy4 added (6 -> 7 aliases)",
+    "condition": "Each alias reaches exact ACL/cardinality/wrapper/environment checks before the next begins"
+  },
+  "stop_conditions": [
+    "Lock or UI request during migration",
+    "Item collision or cardinality mismatch",
+    "ACL mismatch",
+    "Signature drift",
+    "Wrapper or environment defect",
+    "Exposure signal"
+  ],
+  "migration_results": {
+    "agy1": { "status": "PASS", "wrapper_perms": "0500", "home_perms": "0700", "keychain_exists": true },
+    "agy2": { "status": "PASS", "wrapper_perms": "0500", "home_perms": "0700", "keychain_exists": true },
+    "agy3": { "status": "PASS", "wrapper_perms": "0500", "home_perms": "0700", "keychain_exists": true },
+    "agy4": { "status": "PASS", "wrapper_perms": "0500", "home_perms": "0700", "keychain_exists": true },
+    "codex1": { "status": "PASS", "wrapper_perms": "0500", "home_perms": "0700", "auth_exists": true },
+    "codex2": { "status": "PASS", "wrapper_perms": "0500", "home_perms": "0700", "auth_exists": true },
+    "codex3": { "status": "PASS", "wrapper_perms": "0500", "home_perms": "0700", "auth_exists": true }
+  }
+}

@@ -68,7 +68,7 @@ def _fixture(runtime: str, name: str) -> dict[str, Any]:
 
 def _codex_handler(event: str) -> dict[str, Any]:
     config = _load_json(CODEX_HOOKS_FIXTURE)
-    groups = config["hooks"][event]
+    groups = config["hooks"]["project"][event]
     assert len(groups) == 1
     handlers = groups[0]["hooks"]
     assert len(handlers) == 1
@@ -291,7 +291,9 @@ def test_codex_hooks_config_uses_native_three_level_shape_without_trust_fields()
     assert actual == expected
     assert set(actual) == {"description", "hooks"}
     assert NORMALIZED_STATE_CHANNEL["path_environment"] in actual["description"]
-    assert set(actual["hooks"]) == {
+    assert set(actual["hooks"]) == {"project"}
+    project_hooks = actual["hooks"]["project"]
+    assert set(project_hooks) == {
         "SessionStart",
         "PreCompact",
         "PostCompact",
@@ -306,7 +308,7 @@ def test_codex_hooks_config_uses_native_three_level_shape_without_trust_fields()
         "SessionEnd": "other",
     }
     observed_keys: set[str] = set()
-    for event, groups in actual["hooks"].items():
+    for event, groups in project_hooks.items():
         assert len(groups) == 1
         group = groups[0]
         assert set(group) == ({"hooks"} if expected_matchers[event] is None else {"matcher", "hooks"})
@@ -326,7 +328,7 @@ def test_codex_hooks_config_uses_native_three_level_shape_without_trust_fields()
         assert isinstance(handler["timeout"], int)
         assert 0 < handler["timeout"] <= (3 if event == "SessionEnd" else 10)
 
-    serialized_keys = " ".join(sorted(set(actual) | set(actual["hooks"]) | observed_keys))
+    serialized_keys = " ".join(sorted(set(actual) | set(actual["hooks"]) | set(project_hooks) | observed_keys))
     for invented_trust_key in (
         "trusted_project_only",
         "untrusted_project_behavior",

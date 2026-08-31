@@ -1,0 +1,21 @@
+{
+  "ticket": "BRK-B5-075",
+  "schema": "broker-alias-admission-v1",
+  "timestamp": "2026-08-31T21:26:25+07:00",
+  "alias": "agy4",
+  "provider": "agy",
+  "root_pool": "root_b",
+  "status": "ADMITTED",
+  "account_home": "~/.ai-accounts/agy/account4",
+  "home_permissions": "0700",
+  "wrapper_path": "~/.local/bin/agy4",
+  "wrapper_permissions": "0500",
+  "keychain_exists": true,
+  "identity_distinct": true,
+  "state_isolation_verified": true,
+  "sibling_state_unchanged": true,
+  "admitted_capacity": 1,
+  "config_note": "agy4 is newly registered (enabled=false, standby)",
+  "scope_expansion_note": "Added per owner authorization 2026-08-31T21:05:30+07:00",
+  "gate": "ALIAS_ADMITTED"
+}

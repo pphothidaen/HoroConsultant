@@ -130,7 +130,7 @@ DISPATCH_DECISION_FIELDS = frozenset(
 DISPATCH_DECISION_OPTIONAL_FIELDS = frozenset({"quality_exception"})
 # Configuration selects from this fixed, approved terminal-account set; it
 # cannot grant an additional account alias execution authority.
-GOVERNED_ACCOUNT_ALIASES = frozenset({"codex1", "codex2", "codex3", "agy1", "agy2", "agy3"})
+GOVERNED_ACCOUNT_ALIASES = frozenset({"codex1", "codex2", "codex3", "agy1", "agy2", "agy3", "agy4"})
 # Canonical alias-to-provider binding. Configuration may select an alias but
 # cannot relabel its provider.
 ALIAS_PROVIDER_MAP: dict[str, str] = {
@@ -140,6 +140,7 @@ ALIAS_PROVIDER_MAP: dict[str, str] = {
     "agy1": "agy",
     "agy2": "agy",
     "agy3": "agy",
+    "agy4": "agy",
 }
 RESULT_FIELDS = {
     "status",

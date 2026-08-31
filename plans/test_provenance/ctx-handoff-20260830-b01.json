@@ -3,31 +3,41 @@
   "ticket_id": "TICKET-CTX-010-RED",
   "sequence": 2,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "8c14ad3d6f66fb9209b756544ee03e4ebb4cf75c",
+  "baseline_parent": "5d61b7c68a2c4b5691e3a2ea47eeed2660570a67",
+  "supersedes": "05cd6854cd5a749d10cfb12e9c08fffd6b576d80",
+  "correction_reason": "Codex fixture uses native three-level hook config. Removed trusted_project_only and untrusted_project_behavior fields as trust controls. Testing native exact-hash user review flow.",
   "test_files": [
     {
+      "path": "tests/fixtures/context_handoff/agy/registrations.json",
+      "sha256": "3126bda2eb82adff611b0e9502b7884364f1a1538ca3b26d4e21a42653d62dd3"
+    },
+    {
       "path": "tests/fixtures/context_handoff/agy/stop_mappings.json",
-      "sha256": "88d1b006057079ea088f0d58ab12c872c24a60a3c290755548882f973874e11c"
+      "sha256": "7a8c9f121e4d00bcab1cbae7997133cda95b916870a0d4af4b9c83f8f2be6d49"
+    },
+    {
+      "path": "tests/fixtures/context_handoff/claude/registrations.json",
+      "sha256": "0eec62b27482e12e73cb14be3f780ce97772b358a1b0a177bbb6c89fa324dd39"
     },
     {
       "path": "tests/fixtures/context_handoff/claude/stop_mappings.json",
-      "sha256": "94fab8bf630b573f937ee9a0c705f81b309b036f05dc486d936a91792a6b5c77"
+      "sha256": "8f0f8c2d6ad8a3db8531731009c34a6a02ffca6609170cf41021ab17217d6353"
     },
     {
       "path": "tests/fixtures/context_handoff/codex/hooks_config.json",
-      "sha256": "5d13d26fbb3e3381d35c3b7bda6a630bd882fa548a7a6cf1495ce8806beea50d"
+      "sha256": "a4d2ade0477dc883aec975e179abea412da63d81d36b85bcd00cfbe074f60368"
     },
     {
       "path": "tests/fixtures/context_handoff/codex/native_mappings.json",
-      "sha256": "579d96603d6a4d5c9e4615c4a792d3402097f0be46e7b5d7fd3eb4285707c4b4"
+      "sha256": "d97da54380b7a49846da7cae87c87d887b86ea89fe34d05189e8fa7beaaf7574"
     },
     {
       "path": "tests/test_context_handoff.py",
-      "sha256": "07201b3b2b84fe75c1b175321db5f125573212cf0510791d888bdfa25d570750"
+      "sha256": "31cd4b3a064e622f85d6ba59bdd8de058d2051715a2ac54416de7a221625347a"
     },
     {
       "path": "tests/test_context_handoff_hooks.py",
-      "sha256": "9abbaf73147858197af542b5aba08d259f46998451c01acc4152ac1edda597a1"
+      "sha256": "d9c0747e40af22c420bfcbadecbba778bedaf24b5c0049b934e5b422823bcd88"
     }
   ],
   "red_tests": [
@@ -39,8 +49,8 @@
         "-q",
         "tests/test_context_handoff.py::test_context_handoff_entrypoint_missing_before_source"
       ],
-      "expected_exit": 1,
-      "failure_fingerprint": "AssertionError: CONTEXT_HANDOFF_ENTRYPOINT_MISSING; pytest summary: 1 failed"
+      "expected_exit": 0,
+      "failure_fingerprint": "1 passed"
     },
     {
       "command": [
@@ -52,7 +62,7 @@
         "tests/test_context_handoff_hooks.py"
       ],
       "expected_exit": 1,
-      "failure_fingerprint": "Pytest summary: 123 failed, 4 passed; failures are rooted in the intentionally absent canonical engine, policy, native hook adapters, governance, generated mirrors, and context-aware sync behavior, while the corrected trust/request fixtures, unchanged registrations, and closed fixture controls pass."
+      "failure_fingerprint": "FAILED tests/test_context_handoff_hooks.py::test_codex_hooks_config_uses_native_three_level_shape_without_trust_fields; 1 failed, 129 passed"
     }
   ],
   "allowed_source_paths": [
@@ -69,7 +79,5 @@
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": "05cd6854cd5a749d10cfb12e9c08fffd6b576d80",
-  "correction_reason": "The sequence-1 Codex fixture uses a non-native direct-handler shape, treats repository-authored `trusted_project_only` / `untrusted_project_behavior` fields as trust controls, and tests absence of bypass wording as though the CLI could not expose a bypass. It does not bind the native three-level hook shape or the native exact-hash user review/trust flow. The current contract also fails to state that managed hooks are outside the local MVP.",
-  "rationale": "Supersede only the retained sequence-1 contract with a source-blocking QA baseline that freezes native Codex hook nesting and event I/O, external exact-hash user trust, non-managed scope, bounded cross-runtime context signals, recursive non-echo security, atomic no-loss merge behavior, and deterministic temp-repository sync. Fresh controls passed: the four corrected fixture/trust/request/unchanged-registration tests exited 0 with 4 passed; the pre-existing lifecycle-hook executable control exited 0 with 1 passed; and both live read-only sync checks exited 0 without expanding the six-path test delta. DispatchDecision CTX-010-RED-B01: qa ranks 2/3/3/2/3; Sol/high floor; Sol/ultra selected; quota unknown; bounded mutation; native-qa; policy 2026-08-29.1; root-medium true; hitl true. This is static routing intent only, never provider execution proof."
+  "rationale": "Sequence 2 correction replacing non-native Codex hook structure with exact three-level project hooks."
 }

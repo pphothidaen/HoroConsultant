@@ -142,6 +142,8 @@ def load_all_chunks() -> list[dict[str, str]]:
     if not TEXTS_DIR.exists():
         return chunks
     for txt_file in sorted(TEXTS_DIR.glob("*.txt")):
+        if txt_file.name.lower().startswith("readme"):
+            continue
         source = txt_file.stem.replace("_", " ").title()
         text   = txt_file.read_text(encoding="utf-8")
         chunks.extend(_chunk_text(text, source))
@@ -418,7 +420,9 @@ class VectorStore:
         return fused_results
 
     def _search_faiss(self, query: str, top_k: int, threshold: float, corpus: str) -> list[dict[str, Any]]:
-        embeddings = _embed_google([query])
+        embeddings = _embed_local_nomic([query])
+        if not embeddings:
+            embeddings = _embed_google([query])
         if not embeddings:
             # fall back to keyword
             if self._keyword_index is None:

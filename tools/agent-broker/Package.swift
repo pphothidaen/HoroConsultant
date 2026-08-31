@@ -16,15 +16,20 @@ let package = Package(
             dependencies: [],
             path: "Sources/AgentBroker/XCTest"
         ),
+        .target(
+            name: "AutoTestRunner",
+            dependencies: [],
+            path: "Sources/AgentBroker/AutoTestRunner"
+        ),
         .executableTarget(
             name: "AgentBroker",
             dependencies: ["XCTest"],
             path: "Sources/AgentBroker",
-            exclude: ["XCTest", "TestValidationExtension.swift"]
+            exclude: ["XCTest", "TestValidationExtension.swift", "AutoTestRunner"]
         ),
         .testTarget(
             name: "AgentBrokerTests",
-            dependencies: ["AgentBroker", "XCTest"],
+            dependencies: ["AgentBroker", "XCTest", "AutoTestRunner"],
             path: ".",
             exclude: [
                 "Sources/AgentBroker/main.swift",
@@ -37,7 +42,9 @@ let package = Package(
                 "Sources/AgentBroker/Registry.swift",
                 "Sources/AgentBroker/Schemas.swift",
                 "Sources/AgentBroker/SecurityValidator.swift",
-                "Sources/AgentBroker/XCTest"
+                "Sources/AgentBroker/XCTest",
+                "Sources/AgentBroker/AutoTestRunner",
+                "run_tests.swift"
             ],
             sources: [
                 "Tests/AgentBrokerTests/AgentBrokerTests.swift",

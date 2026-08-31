@@ -790,13 +790,18 @@
         <button type="button" class="chat-export-btn" onclick="exportChatTranscript('markdown')">MD</button>
         <button type="button" class="chat-export-btn" onclick="exportChatTranscript('json')">JSON</button>
       </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
     <span class="version-badge" id="app-version-badge" style="font-family: monospace;">v1.0.0.790c566</span>
   </footer>
 
   <div id="chart-modal-container"></div>
   <script src="/static/js/chart_modal.js"></script>
-  <script src="script.js?v=790c566" defer></script>
-</body>  <script src="app.js?v=790c566"></script>
+  <script src="voice_engine.js?v=790c566"></script>
+  <script src="i18n.js?v=790c566"></script>
+  <script src="app.js?v=790c566"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-08-31T07:41:45Z",
-  "base_url": "https://horo-consultant-psi.vercel.app",
+  "timestamp": "2026-08-31T15:02:05Z",
+  "base_url": "http://127.0.0.1:8899",
   "scenario": "v3-consensus",
   "scenario_description": "Selected Horo v3.0 Consensus Engine tab with deterministic populated fixture",
   "canonical_viewports_expected": 5,
@@ -19,7 +19,7 @@
   "total_out_of_bounds_detected": 0,
   "total_clipped_elements_detected": 0,
   "total_contrast_failures_detected": 0,
-  "total_contrast_indeterminate": 0,
+  "total_contrast_indeterminate": 30,
   "overall_status": "PASSED",
   "scenarios": [
     {
@@ -40,26 +40,26 @@
         "auditMetricStyles": [
           {
             "text": "0.9125",
-            "color": "rgb(15, 23, 42)",
-            "parentBackground": "rgba(0, 0, 0, 0)"
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
           },
           {
             "text": "0.0875",
-            "color": "rgb(15, 23, 42)",
-            "parentBackground": "rgba(0, 0, 0, 0)"
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
           },
           {
             "text": "10 / 10",
-            "color": "rgb(15, 23, 42)",
-            "parentBackground": "rgba(0, 0, 0, 0)"
+            "color": "rgb(248, 250, 252)",
+            "parentBackground": "rgb(30, 41, 59)"
           }
         ],
         "calculateApiRequestsBlocked": 0
       },
       "audit_scope": "#interpretation-card",
-      "url": "https://horo-consultant-psi.vercel.app/",
+      "url": "http://127.0.0.1:8899/",
       "http_status": 200,
-      "latency_ms": 2921.74,
+      "latency_ms": 2443.63,
       "verdict": "LAYOUT_PASS",
       "has_horizontal_overflow": false,
       "document_metrics": {
@@ -82,10 +82,59 @@
       "clipped_elements": [],
       "contrast_failure_count": 0,
       "contrast_failures": [],
-      "contrast_indeterminate_count": 0,
-      "contrast_indeterminate": [],
-      "contrast_text_elements_audited": 294,
-      "elements_audited": 465,
+      "contrast_indeterminate_count": 6,
+      "contrast_indeterminate": [
+        {
+          "element": "span.v3-epistemic-disclaimer__icon",
+          "textSample": "⚖️",
+          "foreground": "rgb(255, 183, 77)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "strong",
+          "textSample": "พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)",
+          "foreground": "rgb(248, 250, 252)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "div.v3-epistemic-disclaimer__body",
+          "textSample": "ผลการวิเคราะห์นี้เกิดขึ้นจากการประมวลผลตรรกะตามกฎของสำนักวิชาและความสอดคล้องของแบบจำลองเท่านั้น ไม่ถ",
+          "foreground": "rgb(226, 232, 240)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🔒 Architecture: Horo Metaphysics Engine v3.0",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🏛️ Epistemic Chain: 5-Stage Traceable",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🛡️ Integrity Guard: Merkle DAG Verified",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        }
+      ],
+      "contrast_text_elements_audited": 288,
+      "elements_audited": 565,
       "screenshot_path": "project/tests/screenshots/visual_audit/desktop-4k_horo_v3_consensus.png"
     },
     {
@@ -106,26 +155,26 @@
         "auditMetricStyles": [
           {
             "text": "0.9125",
-            "color": "rgb(15, 23, 42)",
-            "parentBackground": "rgba(0, 0, 0, 0)"
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
           },
           {
             "text": "0.0875",
-            "color": "rgb(15, 23, 42)",
-            "parentBackground": "rgba(0, 0, 0, 0)"
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
           },
           {
             "text": "10 / 10",
-            "color": "rgb(15, 23, 42)",
-            "parentBackground": "rgba(0, 0, 0, 0)"
+            "color": "rgb(248, 250, 252)",
+            "parentBackground": "rgb(30, 41, 59)"
           }
         ],
         "calculateApiRequestsBlocked": 0
       },
       "audit_scope": "#interpretation-card",
-      "url": "https://horo-consultant-psi.vercel.app/",
+      "url": "http://127.0.0.1:8899/",
       "http_status": 200,
-      "latency_ms": 1248.21,
+      "latency_ms": 849.32,
       "verdict": "LAYOUT_PASS",
       "has_horizontal_overflow": false,
       "document_metrics": {
@@ -148,10 +197,59 @@
       "clipped_elements": [],
       "contrast_failure_count": 0,
       "contrast_failures": [],
-      "contrast_indeterminate_count": 0,
-      "contrast_indeterminate": [],
-      "contrast_text_elements_audited": 294,
-      "elements_audited": 465,
+      "contrast_indeterminate_count": 6,
+      "contrast_indeterminate": [
+        {
+          "element": "span.v3-epistemic-disclaimer__icon",
+          "textSample": "⚖️",
+          "foreground": "rgb(255, 183, 77)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "strong",
+          "textSample": "พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)",
+          "foreground": "rgb(248, 250, 252)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "div.v3-epistemic-disclaimer__body",
+          "textSample": "ผลการวิเคราะห์นี้เกิดขึ้นจากการประมวลผลตรรกะตามกฎของสำนักวิชาและความสอดคล้องของแบบจำลองเท่านั้น ไม่ถ",
+          "foreground": "rgb(226, 232, 240)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🔒 Architecture: Horo Metaphysics Engine v3.0",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🏛️ Epistemic Chain: 5-Stage Traceable",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🛡️ Integrity Guard: Merkle DAG Verified",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        }
+      ],
+      "contrast_text_elements_audited": 288,
+      "elements_audited": 565,
       "screenshot_path": "project/tests/screenshots/visual_audit/laptop-standard_horo_v3_consensus.png"
     },
     {
@@ -173,26 +271,26 @@
         "auditMetricStyles": [
           {
             "text": "0.9125",
-            "color": "rgb(15, 23, 42)",
-            "parentBackground": "rgba(0, 0, 0, 0)"
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
           },
           {
             "text": "0.0875",
-            "color": "rgb(15, 23, 42)",
-            "parentBackground": "rgba(0, 0, 0, 0)"
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
           },
           {
             "text": "10 / 10",
-            "color": "rgb(15, 23, 42)",
-            "parentBackground": "rgba(0, 0, 0, 0)"
+            "color": "rgb(248, 250, 252)",
+            "parentBackground": "rgb(30, 41, 59)"
           }
         ],
         "calculateApiRequestsBlocked": 0
       },
       "audit_scope": "#interpretation-card",
-      "url": "https://horo-consultant-psi.vercel.app/",
+      "url": "http://127.0.0.1:8899/",
       "http_status": 200,
-      "latency_ms": 1450.16,
+      "latency_ms": 849.23,
       "verdict": "LAYOUT_PASS",
       "has_horizontal_overflow": false,
       "document_metrics": {
@@ -215,10 +313,59 @@
       "clipped_elements": [],
       "contrast_failure_count": 0,
       "contrast_failures": [],
-      "contrast_indeterminate_count": 0,
-      "contrast_indeterminate": [],
-      "contrast_text_elements_audited": 294,
-      "elements_audited": 465,
+      "contrast_indeterminate_count": 6,
+      "contrast_indeterminate": [
+        {
+          "element": "span.v3-epistemic-disclaimer__icon",
+          "textSample": "⚖️",
+          "foreground": "rgb(255, 183, 77)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "strong",
+          "textSample": "พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)",
+          "foreground": "rgb(248, 250, 252)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "div.v3-epistemic-disclaimer__body",
+          "textSample": "ผลการวิเคราะห์นี้เกิดขึ้นจากการประมวลผลตรรกะตามกฎของสำนักวิชาและความสอดคล้องของแบบจำลองเท่านั้น ไม่ถ",
+          "foreground": "rgb(226, 232, 240)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🔒 Architecture: Horo Metaphysics Engine v3.0",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🏛️ Epistemic Chain: 5-Stage Traceable",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🛡️ Integrity Guard: Merkle DAG Verified",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        }
+      ],
+      "contrast_text_elements_audited": 288,
+      "elements_audited": 565,
       "screenshot_path": "project/tests/screenshots/visual_audit/tablet-portrait_horo_v3_consensus.png"
     },
     {
@@ -241,26 +388,26 @@
         "auditMetricStyles": [
           {
             "text": "0.9125",
-            "color": "rgb(15, 23, 42)",
-            "parentBackground": "rgba(0, 0, 0, 0)"
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
           },
           {
             "text": "0.0875",
-            "color": "rgb(15, 23, 42)",
-            "parentBackground": "rgba(0, 0, 0, 0)"
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
           },
           {
             "text": "10 / 10",
-            "color": "rgb(15, 23, 42)",
-            "parentBackground": "rgba(0, 0, 0, 0)"
+            "color": "rgb(248, 250, 252)",
+            "parentBackground": "rgb(30, 41, 59)"
           }
         ],
         "calculateApiRequestsBlocked": 0
       },
       "audit_scope": "#interpretation-card",
-      "url": "https://horo-consultant-psi.vercel.app/",
+      "url": "http://127.0.0.1:8899/",
       "http_status": 200,
-      "latency_ms": 1161.61,
+      "latency_ms": 841.9,
       "verdict": "LAYOUT_PASS",
       "has_horizontal_overflow": false,
       "document_metrics": {
@@ -283,10 +430,59 @@
       "clipped_elements": [],
       "contrast_failure_count": 0,
       "contrast_failures": [],
-      "contrast_indeterminate_count": 0,
-      "contrast_indeterminate": [],
-      "contrast_text_elements_audited": 294,
-      "elements_audited": 465,
+      "contrast_indeterminate_count": 6,
+      "contrast_indeterminate": [
+        {
+          "element": "span.v3-epistemic-disclaimer__icon",
+          "textSample": "⚖️",
+          "foreground": "rgb(255, 183, 77)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "strong",
+          "textSample": "พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)",
+          "foreground": "rgb(248, 250, 252)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "div.v3-epistemic-disclaimer__body",
+          "textSample": "ผลการวิเคราะห์นี้เกิดขึ้นจากการประมวลผลตรรกะตามกฎของสำนักวิชาและความสอดคล้องของแบบจำลองเท่านั้น ไม่ถ",
+          "foreground": "rgb(226, 232, 240)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🔒 Architecture: Horo Metaphysics Engine v3.0",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🏛️ Epistemic Chain: 5-Stage Traceable",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🛡️ Integrity Guard: Merkle DAG Verified",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        }
+      ],
+      "contrast_text_elements_audited": 288,
+      "elements_audited": 565,
       "screenshot_path": "project/tests/screenshots/visual_audit/mobile-ios_horo_v3_consensus.png"
     },
     {
@@ -309,26 +505,26 @@
         "auditMetricStyles": [
           {
             "text": "0.9125",
-            "color": "rgb(15, 23, 42)",
-            "parentBackground": "rgba(0, 0, 0, 0)"
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
           },
           {
             "text": "0.0875",
-            "color": "rgb(15, 23, 42)",
-            "parentBackground": "rgba(0, 0, 0, 0)"
+            "color": "rgb(129, 199, 132)",
+            "parentBackground": "rgb(30, 41, 59)"
           },
           {
             "text": "10 / 10",
-            "color": "rgb(15, 23, 42)",
-            "parentBackground": "rgba(0, 0, 0, 0)"
+            "color": "rgb(248, 250, 252)",
+            "parentBackground": "rgb(30, 41, 59)"
           }
         ],
         "calculateApiRequestsBlocked": 0
       },
       "audit_scope": "#interpretation-card",
-      "url": "https://horo-consultant-psi.vercel.app/",
+      "url": "http://127.0.0.1:8899/",
       "http_status": 200,
-      "latency_ms": 2947.54,
+      "latency_ms": 862.63,
       "verdict": "LAYOUT_PASS",
       "has_horizontal_overflow": false,
       "document_metrics": {
@@ -351,10 +547,59 @@
       "clipped_elements": [],
       "contrast_failure_count": 0,
       "contrast_failures": [],
-      "contrast_indeterminate_count": 0,
-      "contrast_indeterminate": [],
-      "contrast_text_elements_audited": 294,
-      "elements_audited": 465,
+      "contrast_indeterminate_count": 6,
+      "contrast_indeterminate": [
+        {
+          "element": "span.v3-epistemic-disclaimer__icon",
+          "textSample": "⚖️",
+          "foreground": "rgb(255, 183, 77)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "strong",
+          "textSample": "พันธสัญญาญาณวิทยาและการปฏิเสธการรับรอง (Epistemic Disclaimer)",
+          "foreground": "rgb(248, 250, 252)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "div.v3-epistemic-disclaimer__body",
+          "textSample": "ผลการวิเคราะห์นี้เกิดขึ้นจากการประมวลผลตรรกะตามกฎของสำนักวิชาและความสอดคล้องของแบบจำลองเท่านั้น ไม่ถ",
+          "foreground": "rgb(226, 232, 240)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🔒 Architecture: Horo Metaphysics Engine v3.0",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🏛️ Epistemic Chain: 5-Stage Traceable",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        },
+        {
+          "element": "span",
+          "textSample": "🛡️ Integrity Guard: Merkle DAG Verified",
+          "foreground": "rgb(203, 213, 225)",
+          "reason": "gradient_or_background_image",
+          "backgroundElement": "div.v3-epistemic-disclaimer.mandatory",
+          "backgroundImage": "linear-gradient(to right, rgba(255, 183, 77, 0.16), rgb(17, 24, 39) 30%)"
+        }
+      ],
+      "contrast_text_elements_audited": 288,
+      "elements_audited": 565,
       "screenshot_path": "project/tests/screenshots/visual_audit/mobile-compact_horo_v3_consensus.png"
     }
   ]

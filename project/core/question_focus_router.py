@@ -34,45 +34,45 @@ DOMAIN_KEYWORDS: Dict[str, List[str]] = {
         "官星", "七殺", "正官", "偏官", "官祿", "遷徙", "開門", "生門",
         # Thai/English terms
         "เปลี่ยนงาน", "ย้ายสายงาน", "เปิดธุรกิจ", "เลื่อนตำแหน่ง", "ย้ายงาน", "เปิดกิจการ",
-        "งาน", "อาชีพ", "ธุรกิจ", "ตกงาน", "สัมภาษณ์งาน", "หัวหน้า",
+        "งาน", "อาชีพ", "ธุรกิจ", "ตกงาน", "สัมภาษณ์งาน", "หัวหน้า", "ตำแหน่ง",
         "career", "job", "business", "promotion", "work", "profession",
-        "startup", "company", "resign", "employ",
+        "startup", "company", "resign", "employ", "workplace", "career path",
     ],
     "finance": [
         # Chinese
         "偏財", "正財", "劫財", "財帛", "比肩", "財星",
         # Thai/English
         "โชคลาภ", "ลาภลอย", "การเงิน", "ทรัพย์สิน", "หนี้สิน", "ลงทุน", "หุ้น",
-        "เงิน", "ลาภ", "ทรัพย์", "กำไร", "ขาดทุน",
-        "money", "finance", "wealth", "invest", "stock", "lottery",
-        "income", "debt", "profit", "loss", "windfall",
+        "เงิน", "ลาภ", "ทรัพย์", "กำไร", "ขาดทุน", "ทรัพย์ใหญ่", "รั่วไหล",
+        "money", "finance", "wealth", "invest", "investment", "stock", "lottery",
+        "income", "debt", "profit", "loss", "windfall", "asset", "leakage",
     ],
     "love": [
         # Chinese
         "夫妻", "妻財", "桃花", "咸池", "紅鸞", "天喜", "六合", "三合",
         # Thai/English
         "ความรัก", "คู่ครอง", "แต่งงาน", "ดวงสมพงษ์", "หุ้นส่วน", "คบหา", "เนื้อคู่",
-        "รัก", "สมพงษ์", "แฟน", "หย่าร้าง",
+        "รัก", "สมพงษ์", "แฟน", "หย่าร้าง", "คู่", "ความสัมพันธ์",
         "love", "marriage", "relationship", "partner", "spouse", "dating",
-        "compatibility", "wedding", "divorce",
+        "compatibility", "compatible", "wedding", "divorce", "romance", "romantic",
     ],
     "health": [
         # Chinese
         "疾厄", "傷官", "七殺攻身", "五行失衡",
         # Thai/English
         "เจ็บป่วย", "อุบัติเหตุ", "สุขภาพ", "ผ่าตัด", "เลือดตกยางออก", "โรคประจำตัว",
-        "โรค", "อายุ", "โรงพยาบาล",
+        "โรค", "อายุ", "โรงพยาบาล", "เคราะห์", "ป่วย",
         "health", "illness", "accident", "disease", "surgery", "mental",
-        "hospital", "doctor", "organ", "longevity",
+        "hospital", "doctor", "organ", "longevity", "sick", "injury",
     ],
     "family": [
         # Chinese
         "子女", "父母", "食傷", "食神", "傷官", "兄弟", "奴僕",
         # Thai/English
         "มีลูก", "มีบุตร", "ครอบครัว", "พ่อแม่", "พี่น้อง", "บุตรบริวาร",
-        "ลูก", "บุตร",
+        "ลูก", "บุตร", "ทายาท",
         "child", "children", "family", "parent", "sibling", "offspring",
-        "pregnancy", "fertility",
+        "pregnancy", "fertility", "baby", "son", "daughter", "inheritance",
     ],
     "timing": [
         # Chinese
@@ -80,9 +80,10 @@ DOMAIN_KEYWORDS: Dict[str, List[str]] = {
         # Thai/English
         "ฤกษ์ยาม", "วันมงคล", "ฤกษ์ดี", "เลือกวัน", "ยามมงคล", "วันดี", "ฤกษ์",
         "ช่วงเวลา", "วันไหน", "เหมาะแก่การ", "เซ็นสัญญา", "ออกรถ", "ขึ้นบ้านใหม่",
-        "timing", "auspicious date", "lucky day", "best date", "date selection", "when",
+        "เวลาไหน", "จังหวะเวลา",
+        "timing", "auspicious", "auspicious date", "lucky day", "best date",
+        "date selection", "when", "dates", "which date", "date",
     ],
-
 }
 
 

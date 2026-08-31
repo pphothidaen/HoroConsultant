@@ -1,0 +1,57 @@
+{
+  "ticket": "BRK-B6-010",
+  "schema": "broker-capacity-certification-v1",
+  "timestamp": "2026-08-31T21:28:06+07:00",
+  "status": "CAPACITY_CERTIFIED",
+  "alias_count": 7,
+  "aliases": ["agy1", "agy2", "agy3", "agy4", "codex1", "codex2", "codex3"],
+  "pools": {
+    "root_a": {
+      "provider": "codex",
+      "aliases": ["codex1", "codex2", "codex3"],
+      "configured_per_alias_cap": 2,
+      "configured_aggregate_cap": 3,
+      "admitted_aliases": 3,
+      "admitted_per_alias": 1,
+      "runtime_proven_concurrent": 4
+    },
+    "root_b": {
+      "provider": "agy",
+      "aliases": ["agy1", "agy2", "agy3", "agy4"],
+      "configured_per_alias_cap": 3,
+      "configured_aggregate_cap": 3,
+      "admitted_aliases": 4,
+      "admitted_per_alias": 1,
+      "runtime_proven_concurrent": 4
+    }
+  },
+  "native_observed_cap": 4,
+  "three_tier_summary": {
+    "theoretical": "7 aliases x per-alias caps = up to 17 theoretical workers",
+    "policy_admitted": "7 aliases x 1 admitted = 7 admitted workers",
+    "runtime_proven": "4 concurrent lanes observed stable (b5-native-capacity.json)"
+  },
+  "evidence_index": {
+    "b4-broker-qa.json": "QA PASS",
+    "b4-pre-install-review.json": "APPROVED",
+    "b5-canary-install.json": "CANARY_VERIFIED",
+    "b5-permissions.json": "PERMISSION_VERIFIED",
+    "b5-native-capacity.json": "CAPACITY_OBSERVED",
+    "b5-security-keychain-decision.json": "AUTHORIZED",
+    "b5-agy-circuit.json": "CIRCUIT_VERIFIED",
+    "b5-agy1-admission.json": "ADMITTED",
+    "b5-agy2-admission.json": "ADMITTED",
+    "b5-agy3-admission.json": "ADMITTED",
+    "b5-agy4-admission.json": "ADMITTED",
+    "b5-codex1-admission.json": "ADMITTED",
+    "b5-codex2-admission.json": "ADMITTED",
+    "b5-codex3-admission.json": "ADMITTED"
+  },
+  "residual_risks": [
+    "agy3 and agy4 are in standby (enabled=false); admission is structural only",
+    "codex3 is in standby (enabled=false); admission is structural only",
+    "Runtime-proven concurrent cap is 4, below theoretical 7",
+    "No live provider smoke test executed (session_only_mode=true)"
+  ],
+  "gate": "CAPACITY_CERTIFIED_FOR_ROLLBACK_DRILL"
+}

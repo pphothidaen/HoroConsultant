@@ -16,6 +16,7 @@ private let accounts: [String: Account] = [
     "agy1": Account(alias: "agy1", provider: "agy"),
     "agy2": Account(alias: "agy2", provider: "agy"),
     "agy3": Account(alias: "agy3", provider: "agy"),
+    "agy4": Account(alias: "agy4", provider: "agy"),
     "codex1": Account(alias: "codex1", provider: "codex"),
     "codex2": Account(alias: "codex2", provider: "codex"),
     "codex3": Account(alias: "codex3", provider: "codex"),

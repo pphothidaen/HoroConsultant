@@ -14,7 +14,7 @@ import stat
 import sys
 
 
-ALIASES = ("agy1", "agy2", "agy3", "codex1", "codex2", "codex3")
+ALIASES = ("agy1", "agy2", "agy3", "agy4", "codex1", "codex2", "codex3")
 
 
 def _error(message: str) -> int:
