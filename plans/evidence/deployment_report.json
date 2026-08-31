@@ -1,0 +1,76 @@
+{
+  "timestamp": "2026-08-31T23:50:00+07:00",
+  "deployment_role": "devops",
+  "space_id": "pphothidaen/horoconsultant-core-backend",
+  "sdk": "docker",
+  "target_branch": "main",
+  "packaging_commit": "e227d52eb79869d501b66fbe3c4d422db76d1b46",
+  "release_source_commit": "790c566",
+  "release_version": "1.0.0.790c566",
+  "preflight_security": {
+    "command": "python3 project/core/code_reviewer.py --scan-secrets",
+    "status": "PASSED",
+    "scanned_files": 6091,
+    "secret_leaks_found": 0,
+    "engine": "Rust Security Auditor (Rayon parallel scan)"
+  },
+  "preflight_ecosystem_sync": {
+    "command": "python3 scripts/sync_ai_agent_ecosystem.py --check",
+    "status": "PASSED",
+    "checks": {
+      "platform_files_present": 12,
+      "settings_json_valid": true,
+      "mcp_json_valid": true,
+      "claude_settings_json_valid": true,
+      "core_roles_mapped": 7,
+      "claude_hooks_registered": true,
+      "claude_rules_count": 19,
+      "codex_core_roles_present": 7,
+      "hermes_thclaws_contract_present": true,
+      "hf_static_release_governance_aligned": true,
+      "anti_cognitive_decay_skill_aligned": true,
+      "plan_completion_governance_rule22_enforced": true,
+      "antigravity_gemini_sync": "PASSED",
+      "codex_openai_sync": "PASSED",
+      "claude_code_agy_cli_parity": "PASSED"
+    }
+  },
+  "docker_payload_dry_run": {
+    "command": "python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk docker --dry-run",
+    "status": "PASSED",
+    "result_code": "DOCKER_RELEASE_DRY_RUN",
+    "bundled_files_count": 857,
+    "total_payload_bytes": 53951047,
+    "manifest_file": "hf-release-manifest.json",
+    "manifest_sha256": "07353f88fb0d876b1c6789fc9a1da37856825348d9c0620fe08d3a1e5bf102ab"
+  },
+  "live_health_check": {
+    "command": "python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --check-health --sdk docker",
+    "status": "PASSED",
+    "http_endpoint": "https://pphothidaen-horoconsultant-core-backend.hf.space/health",
+    "http_status": 200,
+    "service": "Computational Metaphysics Engine",
+    "rust_acceleration": true,
+    "result_code": "HEALTH_CHECK_PASSED"
+  },
+  "live_version_verification": {
+    "command": "python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --verify-version --sdk docker",
+    "status": "FAILED",
+    "result_code": "VERSION_CHECK_FAILED",
+    "live_version": "1.0.0.unknown",
+    "expected_version": "1.0.0.790c566",
+    "reason": "Remote HF Space has not yet been updated with the latest packaging commit build artifacts"
+  },
+  "production_publish": {
+    "command": "python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk docker",
+    "status": "BLOCKED_ON_CREDENTIALS",
+    "result_code": "HF_TOKEN_UNAVAILABLE",
+    "action_required": "Supply HF_TOKEN in environment or HF Keychain to execute remote Hub push"
+  },
+  "git_repository_state": {
+    "branch": "main",
+    "working_tree_clean": true,
+    "ahead_commits": 16
+  },
+  "overall_deployment_status": "READY_FOR_CREDENTIAL_PUSH"
+}
