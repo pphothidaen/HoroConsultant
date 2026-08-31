@@ -1,0 +1,34 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-PROVENANCE-GUARD-FIX-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "b7b5a46a814a6373b4fde54232e745f3523a865f",
+  "test_files": [
+    {
+      "path": "tests/test_test_provenance_guard.py",
+      "sha256": "7e2ce377b7a3e2ff7eacd1acb5911ca1d3b5f6bcbe612367697cb76de32c566c"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_test_provenance_guard.py::test_multiple_manifests_in_same_baseline_commit"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "test_multiple_manifests_in_same_baseline_commit failed before guard co-committed manifest fix"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/test_provenance_guard.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Add test provenance coverage for multi-manifest co-committed baseline verification and mode-only permission changes without content mutations."
+}

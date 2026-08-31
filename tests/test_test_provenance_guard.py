@@ -453,3 +453,56 @@ def test_guard_file_is_not_copied_into_fixture_repo() -> None:
     # no fixture can silently replace the implementation under review.
     assert GUARD.parent == ROOT / "scripts"
     assert shutil.which("git") is not None
+
+
+def test_multiple_manifests_in_same_baseline_commit(tmp_path: Path) -> None:
+    repo = _init_repo(tmp_path)
+    (repo / "tests").mkdir(exist_ok=True)
+    (repo / "tests" / "test_a.py").write_text("def test_a(): pass\n", encoding="utf-8")
+    (repo / "tests" / "test_b.py").write_text("def test_b(): pass\n", encoding="utf-8")
+    manifest_dir = repo / "plans" / "test_provenance"
+    manifest_dir.mkdir(parents=True, exist_ok=True)
+    parent = _git(repo, "rev-parse", "HEAD").stdout.strip()
+    m_a = {
+        "schema_version": "test-provenance-v1",
+        "ticket_id": "TICKET-A",
+        "sequence": 1,
+        "provenance_status": "VERIFIED",
+        "baseline_parent": parent,
+        "test_files": [{"path": "tests/test_a.py", "sha256": _sha256(repo / "tests" / "test_a.py")}],
+        "red_tests": [{"command": ["python3", "-m", "pytest", "tests/test_a.py"], "expected_exit": 1, "failure_fingerprint": "fail"}],
+        "allowed_source_paths": ["src/a.py"],
+        "test_owner_role": "qa_tester",
+        "reviewer_role": "code_reviewer",
+        "supersedes": None,
+        "correction_reason": None,
+        "rationale": "A",
+    }
+    m_b = {
+        "schema_version": "test-provenance-v1",
+        "ticket_id": "TICKET-B",
+        "sequence": 1,
+        "provenance_status": "VERIFIED",
+        "baseline_parent": parent,
+        "test_files": [{"path": "tests/test_b.py", "sha256": _sha256(repo / "tests" / "test_b.py")}],
+        "red_tests": [{"command": ["python3", "-m", "pytest", "tests/test_b.py"], "expected_exit": 1, "failure_fingerprint": "fail"}],
+        "allowed_source_paths": ["src/b.py"],
+        "test_owner_role": "qa_tester",
+        "reviewer_role": "code_reviewer",
+        "supersedes": None,
+        "correction_reason": None,
+        "rationale": "B",
+    }
+    (manifest_dir / "m_a.json").write_text(json.dumps(m_a, indent=2) + "\n", encoding="utf-8")
+    (manifest_dir / "m_b.json").write_text(json.dumps(m_b, indent=2) + "\n", encoding="utf-8")
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-m", "test: freeze baselines")
+    baseline = _git(repo, "rev-parse", "HEAD").stdout.strip()
+    (repo / "src" / "a.py").write_text("A = 1\n", encoding="utf-8")
+    _git(repo, "add", "src/a.py")
+    _git(repo, "commit", "-m", f"feat: a\n\nTest-Baseline: {baseline}")
+    res = _verify(repo, manifest_dir / "m_a.json", baseline)
+    assert res.returncode == 0, res.stdout + res.stderr
+    report = json.loads(res.stdout)
+    assert report["status"] == "PASSED"
+
