@@ -52,14 +52,12 @@ flowchart TD
 - **Audit Mode Behavior:** Emits `[WARNING]` and reports dirty worktree paths and modified file counts.
 
 #### 2. `check_immutable_recovery_refs`
-- **Objective:** Confirm the presence of the immutable recovery reference `recovery/pre-test-provenance-20260827` (or `origin/recovery/pre-test-provenance-20260827`).
-- **Required Commit Message:**
-  ```text
-  chore(recovery): preserve pre-gate mixed worktree [NON_TDD_RECONSTRUCTED]
-  ```
+- **Objective:** Optional verification of target immutable recovery references when specified via `--target-ref` or configuration.
+- **Historical Context:** Originally tracked `recovery/pre-test-provenance-20260827` (`chore(recovery): preserve pre-gate mixed worktree [NON_TDD_RECONSTRUCTED]`).
+- **Retirement & Deletion Status:** Formally retired in `TICKET-RETIRE-RECOVERY-ANCHOR-001` via PR #9. The CI workflow dependencies and contract requirements were removed, and the remote branch `recovery/pre-test-provenance-20260827` was deleted from origin. When no recovery target is configured, this check defaults to `NONE (Retired)` and returns `PASSED`.
 - **Fail Condition:**
-  - Recovery ref cannot be resolved in local or remote git refs.
-  - Commit message does not match the exact required text.
+  - Specified target recovery ref cannot be resolved in local or remote git refs.
+  - Commit message for specified target does not match expected text.
 
 ---
 
@@ -156,13 +154,15 @@ python3 scripts/branch_migration_action_priority_guard.py --strict --json-output
    ```
 
 ### Case B: Missing Immutable Recovery Ref (`MISSING_IMMUTABLE_RECOVERY_REF`)
-1. Fetch latest recovery references from origin:
+*Note: Recovery branch `recovery/pre-test-provenance-20260827` has been formally retired and deleted.*
+If a specific recovery reference is required for a new historical migration:
+1. Fetch latest recovery references from origin or specified remote tag:
    ```bash
-   git fetch origin recovery/pre-test-provenance-20260827:recovery/pre-test-provenance-20260827
+   git fetch origin <target-recovery-ref>:<target-recovery-ref>
    ```
 2. Verify commit SHA and message:
    ```bash
-   git log -1 recovery/pre-test-provenance-20260827
+   git log -1 <target-recovery-ref>
    ```
 
 ### Case C: AI Agent Ecosystem Desynchronized (`AI_ECOSYSTEM_SYNC_FAILED`)
@@ -198,11 +198,11 @@ python3 scripts/branch_migration_action_priority_guard.py --strict --json-output
 
 ## 7. Verification Checklist Before Sign-off
 
-- [x] Phase 1: `check_worktrees` inspected 8 active worktrees; zero collisions found.
-- [x] Phase 1: `check_immutable_recovery_refs` verified commit `ebfeee9eb1` with exact message.
-- [x] Phase 2: `check_test_provenance` verified 32/32 manifests and guard script.
+- [x] Phase 1: `check_worktrees` inspected active worktrees; zero collisions found.
+- [x] Phase 1: `check_immutable_recovery_refs` verified (formally retired & deleted via PR #9).
+- [x] Phase 2: `check_test_provenance` verified manifests and guard script.
 - [x] Phase 2: `check_production_deployment_guards` verified HF Docker space & Vercel gateway separation.
 - [x] Phase 3: `check_ai_ecosystem_sync` validated 100% sync across Claude/Codex/AGY platforms.
-- [x] Phase 3: `check_rust_wheel_and_tests` verified 143 test files and Python fallback readiness.
+- [x] Phase 3: `check_rust_wheel_and_tests` verified test discovery and Python fallback readiness.
 - [x] Phase 3: `check_viewport_artifacts` verified 5 canonical viewports (30 screenshots, audit receipt).
 - [x] Pytest suite `tests/test_branch_migration_action_priority_guard.py` passing (20/20 tests).

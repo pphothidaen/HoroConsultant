@@ -1,8 +1,44 @@
 <!-- TICKET-MERGE-001:START -->
 ## Branch consolidation & test provenance merge to main
-**Recorded**: `2026-08-31` (Asia/Bangkok). **Status**: `MERGED_LOCALLY_AND_PR_ACTIVE`.
-All development branches consolidated into main with verified test provenance manifest `plans/test_provenance/merge-all-branches-20260831.json`.
+**Recorded**: `2026-08-31` (Asia/Bangkok). **Status**: `COMPLETED / MERGED (PR #8 & PR #9)`.
+- **PR #8 (`merge/all-to-main-20260831`)**: Consolidates all active development branches into `main` with full test provenance, mode tolerance, and multi-manifest verification (`plans/test_provenance/ticket-provenance-multi-manifest-mode-baseline-20260831.json`). Merged successfully into `main`.
+- **PR #9 (`refactor/retire-recovery-branch-anchor`)**: Formally retires `recovery/pre-test-provenance-20260827` dependency from CI workflows (`.github/workflows/ci.yml`, `.github/workflows/ai_cicd.yml`), contract tests (`tests/test_ci_clean_checkout_contract.py`, `tests/test_test_provenance_guard.py`), and action priority guard (`scripts/branch_migration_action_priority_guard.py`). Verified with test provenance manifest `plans/test_provenance/ticket-retire-recovery-anchor-baseline-20260831.json`. Merged into `main`, and remote anchor branch deleted cleanly.
 <!-- TICKET-MERGE-001:END -->
+
+<!-- TICKET-RETIRE-RECOVERY-ANCHOR-001:START -->
+## Sprint RETIRE-RECOVERY-ANCHOR — Recovery Branch Anchor Retirement (`TICKET-RETIRE-RECOVERY-ANCHOR-001`)
+
+**Grill Status**: `DONE / VERIFIED`
+**Governance Posture**: `recovery/pre-test-provenance-20260827` branch anchor cleanly retired across all CI workflows, contract tests, and Action Priority Guard. Remote branch `recovery/pre-test-provenance-20260827` deleted from origin.
+
+| Ticket | Severity | Work Effort | One editor/executor | Status | Dependencies |
+|---|---|---|---|---|---|
+| `TICKET-RETIRE-RECOVERY-ANCHOR-001` | HIGH | S | `qa_tester` (baseline red tests) / `developer` (CI & guard refactor) / `devops` (PR #9 merge & branch deletion) | COMPLETED | `TICKET-PROVENANCE-GUARD-FIX-001`, `PR #8`, `PR #9` |
+
+### `TICKET-RETIRE-RECOVERY-ANCHOR-001` — Recovery Branch Anchor Retirement & Branch Deletion
+
+- **Severity / Work Effort**: `HIGH / S`
+- **Ownership**:
+  - Test Provenance Baseline: `qa_tester` (`plans/test_provenance/ticket-retire-recovery-anchor-baseline-20260831.json`, `tests/test_ci_clean_checkout_contract.py`, `tests/test_test_provenance_guard.py`).
+  - Implementation & CI Refactor: `developer` (`.github/workflows/ci.yml`, `.github/workflows/ai_cicd.yml`, `scripts/branch_migration_action_priority_guard.py`).
+  - PR Resolution & Remote Branch Deletion: `devops` (PR #9 merged, `origin/recovery/pre-test-provenance-20260827` deleted).
+  - Governance & Doc Sync: `business_analyst` (`PROJECT_TASKS.md`, `HOWTO.md`, `docs/branch_migration_action_priority_runbook.md`).
+- **Dependencies**: `TICKET-PROVENANCE-GUARD-FIX-001` (`PR #8`), `Rule 11`, `Rule 16`.
+- **Status**: `COMPLETED`
+
+#### Acceptance Criteria & Completed Milestones:
+- [x] TDD test baseline frozen in `plans/test_provenance/ticket-retire-recovery-anchor-baseline-20260831.json` (SHA `700ba2f05fcba5c4561be07a6c5db4853b9401e1`).
+- [x] Removed required fetch/checkout of `recovery/pre-test-provenance-20260827` in `.github/workflows/ci.yml` and `.github/workflows/ai_cicd.yml`.
+- [x] Updated `scripts/branch_migration_action_priority_guard.py` to make `check_immutable_recovery_refs` optional (defaults to None / Retired, returns PASSED when not configured).
+- [x] Updated test contracts in `tests/test_ci_clean_checkout_contract.py` and `tests/test_test_provenance_guard.py`.
+- [x] PR #9 created, approved, and merged into `main` (merge commit `62bb31a`).
+- [x] Remote branch `recovery/pre-test-provenance-20260827` deleted from GitHub origin.
+- [x] All CI workflows and local test suites verified passing without recovery branch dependency.
+
+#### Stop Condition:
+All recovery anchor references retired, PR #9 merged, remote branch deleted, and documentation synchronized.
+
+<!-- TICKET-RETIRE-RECOVERY-ANCHOR-001:END -->
 
 <!-- CTX-HANDOFF-V1-20260830:START -->
 ## Cross-runtime context handoff v1 - local-only governance
@@ -915,7 +951,7 @@ Governance documentation and test verification are sealed when all Spark governa
 #### 3-Phase Action Priority Architecture:
 - **Phase 1: Immediate / เร่งด่วนสูงสุด (P0 — Critical)**:
   - `check_worktrees`: Scans active git worktrees, detects branch collisions across worktrees, and checks dirty state (fail-closed in `--strict` mode).
-  - `check_immutable_recovery_refs`: Enforces existence and commit message matching for `recovery/pre-test-provenance-20260827` (`chore(recovery): preserve pre-gate mixed worktree [NON_TDD_RECONSTRUCTED]`).
+  - `check_immutable_recovery_refs`: Optional verification for recovery references (formally retired and defaulted to None following completion of `TICKET-RETIRE-RECOVERY-ANCHOR-001` and PR #9; returns PASSED when not configured).
 - **Phase 2: Urgent / เร่งด่วน (P1 — High)**:
   - `check_test_provenance`: Verifies TDD baseline provenance manifests in `plans/test_provenance/*.json` and `scripts/test_provenance_guard.py`.
   - `check_production_deployment_guards`: Enforces separation between Vercel static gateway (`CANONICAL_HF_ORIGIN`) and canonical HF Docker backend (`pphothidaen/horoconsultant-core-backend`).

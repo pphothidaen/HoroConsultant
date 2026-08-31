@@ -644,7 +644,7 @@ integration, main-only CI, deployment และ fresh post-deploy evidence ก�
 
 | ลำดับ (Phase) | ภาษาไทย | Urgency | Risk | รายการตรวจสอบที่ครอบคลุม (Checks) |
 | :--- | :--- | :--- | :--- | :--- |
-| **Phase 1** | **เร่งด่วนสูงสุด (Immediate)** | **P0** | **CRITICAL** | `check_worktrees` (ตรวจจับ Branch Collision / Dirty State), `check_immutable_recovery_refs` (ตรวจสอบ `recovery/pre-test-provenance-20260827`) |
+| **Phase 1** | **เร่งด่วนสูงสุด (Immediate)** | **P0** | **CRITICAL** | `check_worktrees` (ตรวจจับ Branch Collision / Dirty State), `check_immutable_recovery_refs` (Optional/Retired: ตรวจสอบ recovery ref เมื่อมีการระบุเจาะจง หรือคืนค่าผ่านหลังปลดประจำการ) |
 | **Phase 2** | **เร่งด่วน (Urgent)** | **P1** | **HIGH** | `check_test_provenance` (ตรวจสอบ `plans/test_provenance/*.json`), `check_production_deployment_guards` (แยกขาดระหว่าง Vercel Static Gateway และ HF Docker Backend) |
 | **Phase 3** | **ไม่เร่งด่วน (Routine)** | **P2** | **MEDIUM** | `check_ai_ecosystem_sync` (ตรวจสอบ sync AI Agent 5 แพลตฟอร์ม), `check_rust_wheel_and_tests` (ความพร้อมของ Rust Core & Fallback), `check_viewport_artifacts` (ตรวจสอบ 5 Canonical Viewports & Receipts) |
 
