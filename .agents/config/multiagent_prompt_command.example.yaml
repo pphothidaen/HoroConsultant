@@ -18,6 +18,11 @@ accounts:
     command: codex
     home_env: CODEX_HOME
     home_path: ${HOME}/.ai-accounts/codex/account2
+  codex3:
+    cli: codex
+    command: codex
+    home_env: CODEX_HOME
+    home_path: ${HOME}/.ai-accounts/codex/account3
   agy1:
     cli: agy
     command: agy
@@ -28,6 +33,11 @@ accounts:
     command: agy
     home_env: AGY_HOME
     home_path: ${HOME}/.ai-accounts/agy/account2
+  agy3:
+    cli: agy
+    command: agy
+    home_env: AGY_HOME
+    home_path: ${HOME}/.ai-accounts/agy/account3
 
 roles:
   orchestrator_support:
