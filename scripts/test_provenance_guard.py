@@ -537,6 +537,11 @@ def verify_staged(repo: Path) -> Report:
     source_paths = {
         path for path in paths if not _is_test_path(path) and not _is_manifest_path(path)
     }
+    new_manifest_paths = {
+        _normalize_path(line)
+        for line in _git(repo, "diff", "--cached", "--name-only", "--diff-filter=A").stdout.splitlines()
+        if line and _is_manifest_path(_normalize_path(line))
+    }
     if test_paths and source_paths:
         report.add(
             "STAGED_COMMIT_MIXES_SOURCE_AND_TEST",
@@ -544,7 +549,7 @@ def verify_staged(repo: Path) -> Report:
         )
     if test_paths and not manifest_paths:
         report.add("STAGED_TEST_MANIFEST_REQUIRED", "staged tests require a new test-provenance manifest")
-    if manifest_paths and not test_paths:
+    if new_manifest_paths and not test_paths:
         report.add("STAGED_MANIFEST_WITHOUT_TEST", "a baseline manifest must freeze at least one staged test")
     if not test_paths:
         return report
