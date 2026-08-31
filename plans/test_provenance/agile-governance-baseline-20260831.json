@@ -1,0 +1,41 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-GOV-M5-002-CAPACITY-TDD-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "7809e118eb0e8b3d9c522f9e72420730a7c6cf24",
+  "test_files": [
+    {
+      "path": "tests/test_agile_governance_guard.py",
+      "sha256": "768a400196d931310cf02de1c0f982e656c6bb9e18f96793b93152d5c8b39e78"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_agile_governance_guard.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "1 failed, 6 skipped; GOV_M5_002_SOURCE_MISSING: .agents/config/native_lane_capacity.v1.json, .agents/hooks/agile_governance_guard.py, .agents/rules/21-agile-governance.md, .agents/skills/agile-governance/SKILL.md"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/native_lane_capacity.v1.json",
+    ".agents/hooks/agile_governance_guard.py",
+    ".agents/rules/21-agile-governance.md",
+    ".agents/skills/agile-governance/SKILL.md",
+    ".agents/agents/orchestrator/agent.json",
+    ".agents/agents/business_analyst/agent.json"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze GOV-M5-002 / CAPACITY-TDD-001 before source work. The test-only CURRENT_RUNTIME_FIXTURE records only factual native evidence: 6 lanes admitted, a 7th rejected by the agent thread limit, successful release/refill, and host 10 CPU / 16 GiB / 76% memory free. These observations are not provider or alias quota proof; the future contract must keep native observed, theoretical/provider capacity, admission, and execution evidence distinct without provider, keychain, or network access."
+}
