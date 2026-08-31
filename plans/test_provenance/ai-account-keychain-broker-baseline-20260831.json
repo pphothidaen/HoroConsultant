@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-BROKER-TDD-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "dc1324ff63cfb10312fa3fb58238dd8017d44861",
+  "test_files": [
+    {
+      "path": "tests/test_ai_account_keychain_broker.py",
+      "sha256": "7acdb20986f9c1b33dec15483bd4a6a900b202db95d3f64f415f1b9ace3fe118"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_ai_account_keychain_broker.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "1 failed, 47 skipped; BROKER_TDD_001_SOURCE_MISSING: scripts/ai_account_keychain_broker.swift, scripts/install_ai_account_wrappers.py"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/ai_account_keychain_broker.swift",
+    "scripts/install_ai_account_wrappers.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze the approved macOS account broker and immediate wrapper bridge security contract before either source file exists, using only synthetic temp fixtures and fake security, broker, and provider executables."
+}
