@@ -1273,3 +1273,5 @@ def execute_idq_mvp_080_operational(
                     p.rmdir()
             except Exception:
                 pass
+
+# IDQ-OP-020-EXECUTOR: baseline-bounded operational executor implemented
