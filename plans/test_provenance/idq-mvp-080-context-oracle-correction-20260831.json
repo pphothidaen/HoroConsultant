@@ -1,0 +1,42 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-IDQ-MVP-080-CONTEXT-ORACLE-CORRECTION",
+  "sequence": 1,
+  "provenance_status": "RECONSTRUCTED",
+  "baseline_parent": "0a4c13ddd9bf60dc24f0129716c67dec299068cc",
+  "test_files": [
+    {
+      "path": "tests/test_idq_mvp_080_operational_provider.py",
+      "sha256": "d0ced34bd19d28070dce87cdc64f026d742e1590eb5f6832139e590123f2f5dc"
+    },
+    {
+      "path": "tests/fixtures/context_handoff/context_handoff.py",
+      "sha256": "0d9a56ac1951cf012d186b7e11b202025db99c219bd403196e38c77931af1b3d"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_idq_mvp_080_operational_provider.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "12 focused provider tests failed before the oracle and provider-parser corrections"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/multiagent_idq_mvp_080_operational.py",
+    "scripts/multiagent_prompt_command.py",
+    "scripts/context_handoff.py",
+    ".agents/config/full_capacity_guard.v2.json",
+    ".agents/hooks/full_capacity_guard.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "377e01a38eb190b49a202a12699f400b4eb73c99",
+  "correction_reason": "Correct byte-snapshot serialization and mark the existing context-handoff fixture mode without changing product assertions.",
+  "rationale": "Superseding test-oracle evidence for the implementation correction after the prior interrupted source lane. This is reconstructed evidence and is not a claim of historical test-first execution."
+}

@@ -310,6 +310,8 @@ def _git(root: Path, *args: str) -> subprocess.CompletedProcess[str]:
 def _portable(value: object) -> object:
     """Return a closed JSON-safe view of every invocation input."""
 
+    if isinstance(value, bytes):
+        return {"bytes": len(value), "sha256": hashlib.sha256(value).hexdigest()}
     if is_dataclass(value) and not isinstance(value, type):
         return _portable(asdict(value))
     if isinstance(value, Mapping):
