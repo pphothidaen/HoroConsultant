@@ -1,3 +1,40 @@
+<!-- BROKER-PLAN-001:START -->
+## Sprint BROKER-PLAN-001 — Atomic Broker and Capacity Admission Plan (Milestones B0-B6)
+
+**Recorded**: `2026-08-31` (Asia/Bangkok)
+**Document ID**: `BROKER-PLAN-001`
+**Source Plan Authority**: `plans/broker_atomic_tickets_20260831.md`
+**Gate**: `APPROVED`
+**Authorized Next Phase**: Installer, wrapper, and permission tooling in Milestone B2 (`BRK-B2-010`, `BRK-B2-020`, `BRK-B2-030`)
+**Capacity Update**: Owner-attested `37%` five-hour allowance remaining, reset `14:24` Asia/Bangkok on `2026-08-31` (planning evidence only; bounded critical-path work only).
+
+### Milestone Rollup & DAG Summary
+
+```text
+B0 Test baselines
+  -> B1 Swift broker and immediate bridge
+  -> B2 Installer, wrapper, and permission tooling
+  -> B3 Registry and Agile governance integration
+  -> B4 Independent pre-install QA/review
+  -> B5 Canary migration and isolated capacity admission
+  -> B6 Runtime capacity certification, rollback drill, and closure
+```
+
+| Milestone | Purpose | Total | Done | Ready | Blocked | Needs HITL |
+|---|---|---:|---:|---:|---:|---:|
+| B0 | Plan and immutable test baselines | 4 | 4 | 0 | 0 | 0 |
+| B1 | Swift broker and immediate bridge | 2 | 2 | 0 | 0 | 0 |
+| B2 | Installer, wrapper, and permission tooling | 3 | 0 | 3 | 0 | 0 |
+| B3 | Capacity registry and Agile integration | 3 | 0 | 0 | 3 | 0 |
+| B4 | Independent pre-install QA and review | 2 | 0 | 0 | 2 | 0 |
+| B5 | Canary and per-domain admissions | 11 | 0 | 0 | 10 | 1 |
+| B6 | Capacity certification, rollback, closure | 3 | 0 | 0 | 3 | 0 |
+| **Total** | | **28** | **6** | **3** | **18** | **1** |
+
+---
+
+<!-- BROKER-PLAN-001:END -->
+
 <!-- TICKET-MERGE-001:START -->
 ## Branch consolidation & test provenance merge to main
 **Recorded**: `2026-08-31` (Asia/Bangkok). **Status**: `COMPLETED / MERGED (PR #8 & PR #9)`.
@@ -272,10 +309,10 @@ After source and generated freeze, `CTX-070-DOCS` owns exactly:
 |---|---|---|---|---|---|---|
 | `CTX-000-GOV` | HIGH / S | `business_analyst` | DONE | fresh owner instruction | historical two-document graph freeze remains authoritative for invariants, serial ownership, and the release hold; this reconciliation does not reopen it | stop on any extra path or current-release mutation; no tests/source/config/hooks/skills/generated/`HANDOFF.md`/provider/network/credential/push/deploy action |
 | `CTX-010-RED` | CRITICAL / S | `qa_tester` | CORRECTION REQUIRED / BASELINE 05cd685 RETAINED | `CTX-000-GOV`; independent review `BLOCKED` | retain immutable sequence-1 SHA `05cd6854cd5a749d10cfb12e9c08fffd6b576d80`; create test-only sequence 2 and planned manifest `plans/test_provenance/ctx-handoff-20260830-b01.json` with corrected native Codex shape, exact-hash user trust, honest bypass boundary, managed-hook exclusion, hashes, and fresh RED receipts | stop on source/generated/docs mixing, missing correction reason/RED evidence, non-native trust claims, bypass invocation/recommendation, automatic compact/clear/reset, manifest drift, or ownership overlap |
-| `CTX-020-CORE` | CRITICAL / M | `developer` | BLOCKED | superseding sequence-2 baseline is verified and independently review-green | only `.agents/config/context_handoff_v1.json` and `scripts/context_handoff.py`; after the gate opens, the stdlib engine implements and validates the frozen policy and all four operations, and every lane commit carries `Test-Baseline: <exact verified sequence-2 baseline SHA>` | do not start from retained baseline `05cd685`; stop on missing sequence-2 SHA/hash/trailer, raw-transcript read, non-stdlib dependency, automatic clear/compact, partial/over-cap write, or extra path |
-| `CTX-030-ADAPTERS` | HIGH / S | `developer` | BLOCKED | `CTX-020-CORE` | `.codex/hooks.json`, `.claude/hooks/stop-monitor.sh`, `.agy/hooks/stop-monitor.sh` only; all three call the shared engine with equivalent fail-closed behavior; Codex project hooks use native exact-hash user review/trust and managed hooks remain out of scope | stop on duplicated policy, repository trust self-declaration, bypass invocation/recommendation, automatic clear/compact, swallowed failure, repository write outside the derived capsule, or extra path |
-| `CTX-040-POLICY` | HIGH / S | `skill_rule_owner` | BLOCKED | `CTX-020-CORE` | `.agents/skills/anti-cognitive-decay/SKILL.md`, `.agents/rules/20-context-handoff.md`, `.agents/AGENTS.md` only; canonical skill/rule/catalog match machine policy and preserve operator-only clear | stop on policy divergence, generated-file edit, unsafe invocation, ownership overlap, or extra path |
-| `CTX-050-SYNC` | HIGH / M | `developer` | BLOCKED | `CTX-030-ADAPTERS`, `CTX-040-POLICY` | `scripts/sync_claude_agy_parity.py`, `scripts/sync_ai_agent_ecosystem.py` only; deterministic sync/check recognizes canonical policy and produces only the declared mirrors with check mode read-only | stop on unrelated generation, out-of-repo/global write, source overwrite, parity drift, active current-release ownership, or extra path |
+| `CTX-020-CORE` | CRITICAL / M | `context_handoff_developer` | DONE | superseding sequence-2 baseline is verified and independently review-green | only `.agents/config/context_handoff_v1.json` and `scripts/context_handoff.py`; after the gate opens, the stdlib engine implements and validates the frozen policy and all four operations, and every lane commit carries `Test-Baseline: <exact verified sequence-2 baseline SHA>` | do not start from retained baseline `05cd685`; stop on missing sequence-2 SHA/hash/trailer, raw-transcript read, non-stdlib dependency, automatic clear/compact, partial/over-cap write, or extra path |
+| `CTX-030-ADAPTERS` | HIGH / S | `developer` | DONE | `CTX-020-CORE` | `.codex/hooks.json`, `.claude/hooks/stop-monitor.sh`, `.agy/hooks/stop-monitor.sh` only; all three call the shared engine with equivalent fail-closed behavior; Codex project hooks use native exact-hash user review/trust and managed hooks remain out of scope | stop on duplicated policy, repository trust self-declaration, bypass invocation/recommendation, automatic clear/compact, swallowed failure, repository write outside the derived capsule, or extra path |
+| `CTX-040-POLICY` | HIGH / S | `skill_rule_owner` | DOING | `CTX-020-CORE` | `.agents/skills/anti-cognitive-decay/SKILL.md`, `.agents/rules/20-context-handoff.md`, `.agents/AGENTS.md` only; canonical skill/rule/catalog match machine policy and preserve operator-only clear | stop on policy divergence, generated-file edit, unsafe invocation, ownership overlap, or extra path |
+| `CTX-050-SYNC` | HIGH / M | `developer` | DOING | `CTX-030-ADAPTERS`, `CTX-040-POLICY` | `scripts/sync_claude_agy_parity.py`, `scripts/sync_ai_agent_ecosystem.py` only; deterministic sync/check recognizes canonical policy and produces only the declared mirrors with check mode read-only | stop on unrelated generation, out-of-repo/global write, source overwrite, parity drift, active current-release ownership, or extra path |
 | `CTX-060-GENERATED` | HIGH / XS | `generated_refresh_owner` | BLOCKED | `CTX-050-SYNC` | exact three mirrored skill files above in one generated-refresh lane; bytes and provenance match canonical output and sync check is clean | stop on manual divergent edits, any fourth generated path, canonical-source mutation, or non-determinism |
 | `CTX-070-DOCS` | HIGH / S | `business_analyst` | BLOCKED | `CTX-020-CORE` through `CTX-060-GENERATED` source/generated freeze | exact six documentation/global-guidance files above; operator guidance matches frozen behavior, labels `HANDOFF.md` derived, and makes no release/provider claim | stop on source/test/generated mutation, stale behavior, authority inversion, ownership overlap, or extra path |
 | `CTX-080-QA` | CRITICAL / M | `qa_tester` | BLOCKED | corrected sequence-2 `CTX-010-RED` through `CTX-070-DOCS` green | read-only independent QA runs frozen focused tests, provenance/history guards, native hook-shape and trust negatives, adapter negatives, ecosystem parity/check, security scan, and applicable regression; every required command exits 0 with bounded evidence | any fail, skip, stale fixture/hash, trust ambiguity, bypass recommendation, or source/test edit blocks review |
@@ -346,10 +383,10 @@ the final fresh preflight after every predecessor gate is green.
 |---|---|---|---|---|---|---|
 | `IDQ-OP-000-GOV` | HIGH / S | `business_analyst` | DONE | owner authorization | only `PROJECT_TASKS.md` and `plans/plan.md`; current truth, graph, authorization boundary, and diff checks recorded | stop on overlap or evidence conflict; no source/tests/config/provider/release action |
 | `IDQ-OP-010-BASELINE` | CRITICAL / S | `qa_tester` | `TEST_BASELINE_VERIFIED` | `IDQ-OP-000-GOV` | `TICKET-IDQ-MVP-080-OPERATIONAL-PROVIDER` at exact baseline `717005d266601df76646d072a637beadd89e99ed`; exact paths `tests/test_idq_mvp_080_operational_provider.py` and `plans/test_provenance/idq-mvp-080-operational-provider-baseline.json`; test SHA-256 `e9b1f4adec8ba9cc9afd3389c0834dc80173f326ebac362d32282db6fa3ef38e`; manifest `VERIFIED` with focused/full RED exit `1` fingerprints recorded above | stop on ancestry/path/hash/provenance drift; keep `0e194152` release-cycle and `0946bde` reconstructed evidence historical |
-| `IDQ-OP-020-EXECUTOR` | CRITICAL / M | `developer` | READY | exact `717005d266601df76646d072a637beadd89e99ed` | source ownership only `scripts/multiagent_idq_mvp_080_operational.py`; implement the baseline-bounded operational executor and commit with exact trailer `Test-Baseline: 717005d266601df76646d072a637beadd89e99ed` | stop on any other changed path, missing/mismatched trailer, mutation-capable provider work, secret/raw-stream handling, or ownership overlap |
-| `IDQ-OP-030-QA` | CRITICAL / M | `qa_tester` | BLOCKED | `IDQ-OP-020-EXECUTOR` | fresh deterministic queue, lifecycle, cross-runtime handoff, receipt-integrity, and read-only-boundary evidence is green | any stale, missing, ambiguous, or failing result stops descendants |
-| `IDQ-OP-040-AUTH02-GOV` | CRITICAL / XS | `business_analyst` | INTENT RECORDED — HOLD | `IDQ-OP-030-QA` | convert owner approval intent into a bounded activation only after QA is fresh; keep `AUTH-01` sealed | no TTL, nonce, or lease before final preflight; no inherited/replayed authority |
-| `IDQ-OP-050-PREFLIGHT` | CRITICAL / S | `orchestrator` | BLOCKED | `IDQ-OP-030-QA`, `IDQ-OP-040-AUTH02-GOV` | prove the real executor path, effective read-only isolation, safe fresh quota, alias/executable identity, fresh decision/snapshot, then atomically issue and bind single-use TTL/nonce/lease | any stale/unknown/contradictory binding, auth/billing need, or secret exposure stops before process creation |
+| `IDQ-OP-020-EXECUTOR` | CRITICAL / M | `developer` | DONE | exact `717005d266601df76646d072a637beadd89e99ed` | source ownership only `scripts/multiagent_idq_mvp_080_operational.py`; implement the baseline-bounded operational executor and commit with exact trailer `Test-Baseline: 717005d266601df76646d072a637beadd89e99ed` | stop on any other changed path, missing/mismatched trailer, mutation-capable provider work, secret/raw-stream handling, or ownership overlap |
+| `IDQ-OP-030-QA` | CRITICAL / M | `idq_qa_tester` | DONE | `IDQ-OP-020-EXECUTOR` | fresh deterministic queue, lifecycle, cross-runtime handoff, receipt-integrity, and read-only-boundary evidence is green | any stale, missing, ambiguous, or failing result stops descendants |
+| `IDQ-OP-040-AUTH02-GOV` | CRITICAL / XS | `business_analyst` | DONE | `IDQ-OP-030-QA` | convert owner approval intent into a bounded activation only after QA is fresh; keep `AUTH-01` sealed | no TTL, nonce, or lease before final preflight; no inherited/replayed authority |
+| `IDQ-OP-050-PREFLIGHT` | CRITICAL / S | `orchestrator` | READY | `IDQ-OP-030-QA`, `IDQ-OP-040-AUTH02-GOV` | prove the real executor path, effective read-only isolation, safe fresh quota, alias/executable identity, fresh decision/snapshot, then atomically issue and bind single-use TTL/nonce/lease | any stale/unknown/contradictory binding, auth/billing need, or secret exposure stops before process creation |
 | `IDQ-OP-060-FOUR-ALIAS` | CRITICAL / M | `qa_tester` | BLOCKED | `IDQ-OP-050-PREFLIGHT` | exactly `codex1`, `codex2`, `agy1`, and `agy2`; one distinct read-only provider proof each with fresh validated receipt and typed result | no retry, fallback, substitution, fabricated receipt, raw stream, mutation, push, deploy, or publish |
 | `IDQ-OP-090-SEAL` | HIGH / S | `business_analyst` | BLOCKED | `IDQ-OP-060-FOUR-ALIAS` | record four valid terminal outcomes, seal all temporary authority, and reconcile current docs without a release claim | absent/invalid outcome or unsealed authority keeps the ticket blocked |
 

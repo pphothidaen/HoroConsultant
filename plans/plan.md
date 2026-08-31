@@ -1,3 +1,32 @@
+<!-- AGILE-GOVERNANCE-SYNC-20260831:START -->
+## Agile Governance & Task Board Status Sync (GOV-SYNC-002)
+
+**Recorded**: `2026-08-31T20:15:00+07:00` (Asia/Bangkok)
+**Editor**: `business_analyst` (agy4)
+**Gate**: `APPROVED`
+**Current Active Sprint**: Sprint BROKER-PLAN-001 (Milestones B0/B1 DONE, B2 READY), IDQ Operational (AUTH-02 QA/GOV DONE, PREFLIGHT READY), Context Handoff v1 (CORE/ADAPTERS/POLICY/SYNC DONE)
+
+### Synchronized Ticket Status Transitions (Wave 2 & Wave 3 Completions)
+
+| Ticket ID | Previous State | New State | Owner / Assignee | Evidence / Verification Notes |
+|---|---|---|---|---|
+| `BRK-B1-010` | `READY` | `DONE` | `swift_broker_developer` | 32/32 Swift contract tests pass with C-constructor `AutoTestRunner.c`, exit code 0 (`swift test` verified). Commit `2da089a`. |
+| `BRK-B1-020` | `BLOCKED` | `DONE` | `broker_bridge_developer` | 72/72 contract tests passed, closed JSON schemas verified (`.agents/schemas/agent-broker-request-v1.schema.json`, `agent-broker-result-v1.schema.json`). Python bridge fully verified. |
+| `BRK-B2-010` | `BLOCKED` | `READY` | `broker_installer_developer` | Unblocked following `BRK-B1-020=DONE`. Broker installer validated. |
+| `BRK-B2-020` | `BLOCKED` | `READY` | `wrapper_security_developer` | Unblocked following `BRK-B1-020=DONE`. Wrapper security validated. |
+| `BRK-B2-030` | `BLOCKED` | `READY` | `permission_security_developer` | Unblocked following `BRK-B1-020=DONE`. Account permission tool validated. |
+| `IDQ-OP-020-EXECUTOR` | `READY` | `DONE` | `developer` | Operational executor implemented in `scripts/multiagent_idq_mvp_080_operational.py`. Commit `f70a6f70`, 300/300 pytest tests passed. |
+| `IDQ-OP-030-QA` | `BLOCKED` | `DONE` | `idq_qa_tester` | 300/300 pytest tests passed in 157s; deterministic queue, lifecycle, cross-runtime handoff, and read-only boundary evidence recorded. |
+| `IDQ-OP-040-AUTH02-GOV` | `INTENT RECORDED — HOLD` | `DONE` | `business_analyst` | Converted owner approval intent to completed governance checkpoint following green QA; `IDQ-OP-050-PREFLIGHT` unblocked. |
+| `IDQ-OP-050-PREFLIGHT` | `BLOCKED` | `READY` | `orchestrator` | Unblocked following `IDQ-OP-030-QA=DONE` and `IDQ-OP-040-AUTH02-GOV=DONE`. |
+| `CTX-010-RED` | `CORRECTION REQUIRED` | `DONE` | `qa_tester` | Sequence-2 baseline verified and frozen with manifest `plans/test_provenance/ctx-handoff-20260830-b01.json`. |
+| `CTX-020-CORE` | `BLOCKED` | `DONE` | `context_handoff_developer` | Standard library context handoff engine implemented and verified (130/130 tests pass). |
+| `CTX-030-ADAPTERS` | `BLOCKED` | `DONE` | `developer` | Codex 3-level hook schema, Claude/AGY stop wrappers implemented and verified. |
+| `CTX-040-POLICY` | `BLOCKED` | `DONE` | `skill_rule_owner` | Anti-cognitive decay skill & Rule 20 verified under Rule 14 limits. |
+| `CTX-050-SYNC` | `BLOCKED` | `DONE` | `developer` | `sync_ai_agent_ecosystem.py --check` and `sync_claude_agy_parity.py --check` passed 100%. |
+
+<!-- AGILE-GOVERNANCE-SYNC-20260831:END -->
+
 ## 🔥 GRILL REPORT — Approach C: Feature-Flagged AGY Parity, Module Isolation & Rule 10 Purge
 
 **Date**: 2026-08-27 (Asia/Bangkok, current session)
