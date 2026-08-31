@@ -33,16 +33,18 @@ private func status(_ message: String) {
     print(message)
 }
 
-private func accountRoot() -> URL {
+private func accountRoot() throws -> URL {
     #if ACCOUNT_BROKER_TESTING
-    if let configured = ProcessInfo.processInfo.environment["AI_ACCOUNT_BROKER_TEST_ROOT"],
-       !configured.isEmpty {
-        return URL(fileURLWithPath: configured, isDirectory: true)
+    guard let configured = ProcessInfo.processInfo.environment["AI_ACCOUNT_BROKER_TEST_ROOT"],
+          !configured.isEmpty else {
+        throw BrokerError.rejected
     }
-    #endif
+    return URL(fileURLWithPath: configured, isDirectory: true)
+    #else
     return FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent(".horo-consultant", isDirectory: true)
         .appendingPathComponent("ai-accounts", isDirectory: true)
+    #endif
 }
 
 private func isSymlink(_ url: URL) -> Bool {
@@ -76,7 +78,7 @@ private func makeOwnerOnlyDirectory(_ url: URL) throws {
 }
 
 private func isolatedEnvironment(for account: Account) throws -> [String: String] {
-    let root = accountRoot().appendingPathComponent(account.alias, isDirectory: true)
+    let root = try accountRoot().appendingPathComponent(account.alias, isDirectory: true)
     let home = root.appendingPathComponent("home", isDirectory: true)
     let xdg = root.appendingPathComponent("xdg", isDirectory: true)
     let config = xdg.appendingPathComponent("config", isDirectory: true)
@@ -125,16 +127,23 @@ private func unlockKeychainCompatibility(_ keychain: SecKeychain, password: Data
 }
 
 private func lookupSecretWithSecurityFramework(alias: String) throws -> Data {
+    // Query all items matching this service and account — exactly one must
+    // exist.  A duplicate or absent item indicates an ambiguous keychain state
+    // that must be rejected fail-closed.
     let query: [CFString: Any] = [
         kSecClass: kSecClassGenericPassword,
         kSecAttrService: "com.horoconsultant.ai-account-keychain-broker",
         kSecAttrAccount: alias,
         kSecReturnData: true,
-        kSecMatchLimit: kSecMatchLimitOne,
+        kSecMatchLimit: kSecMatchLimitAll,
     ]
     var result: CFTypeRef?
     guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess,
-          let secret = result as? Data, !secret.isEmpty else {
+          let items = result as? [Data] else {
+        throw BrokerError.keychainUnavailable
+    }
+    guard items.count == 1, let secret = items.first, !secret.isEmpty else {
+        // Reject unless exactly one non-empty secret is present.
         throw BrokerError.keychainUnavailable
     }
 
@@ -181,7 +190,9 @@ private func runQuietly(executable: String, arguments: [String], input: Data? = 
 private func lookupSecretForTesting(alias: String) throws -> Data {
     guard let security = ProcessInfo.processInfo.environment["AI_ACCOUNT_BROKER_TEST_SECURITY"],
           !security.isEmpty else {
-        return try lookupSecretWithSecurityFramework(alias: alias)
+        // A test broker must be hermetic — never fall back to the real
+        // Security.framework.
+        throw BrokerError.rejected
     }
     let lookup = try runQuietly(
         executable: security,
@@ -190,13 +201,23 @@ private func lookupSecretForTesting(alias: String) throws -> Data {
     guard lookup.0 == 0 else {
         throw BrokerError.keychainUnavailable
     }
-    let secretText = String(data: lookup.1, encoding: .utf8)?
-        .trimmingCharacters(in: .newlines) ?? ""
+    // Exactly one non-empty line of output must be present.  Multiple lines
+    // indicate ambiguous items; structured output (JSON) indicates a
+    // non-canonical binding.  Both must be rejected fail-closed.
+    let lines = String(data: lookup.1, encoding: .utf8)?
+        .split(separator: "\n", omittingEmptySubsequences: true) ?? []
+    guard lines.count == 1, let secretLine = lines.first else {
+        throw BrokerError.keychainUnavailable
+    }
+    let secretText = String(secretLine)
+    guard !secretText.isEmpty, !secretText.hasPrefix("{") else {
+        throw BrokerError.keychainUnavailable
+    }
     let secret = secretText.data(using: .utf8) ?? Data()
     guard !secret.isEmpty else {
         throw BrokerError.keychainUnavailable
     }
-    let keychain = accountRoot().appendingPathComponent(alias).appendingPathComponent("keychain").path
+    let keychain = try accountRoot().appendingPathComponent(alias).appendingPathComponent("keychain").path
     var password = secret
     password.append(0x0A)
     let unlock = try runQuietly(executable: security, arguments: ["unlock-keychain", "-p", keychain], input: password)
@@ -224,14 +245,14 @@ private func providerExecutable(for account: Account, environment: [String: Stri
     #endif
 }
 
-private func redacted(_ data: Data, secret: Data) -> String {
-    guard let rendered = String(data: data, encoding: .utf8) else {
-        return "[ERROR] provider returned non-text output\n"
+private func sanitizeAndDiscard(_ data: Data, secret: Data) {
+    // Provider streams are private operational metadata.  The broker reads
+    // them to verify no secret leaks, then discards them without relay.
+    guard let rendered = String(data: data, encoding: .utf8) else { return }
+    guard let secretText = String(data: secret, encoding: .utf8), !secretText.isEmpty else { return }
+    if rendered.contains(secretText) {
+        status("[WARNING] provider stream contained credential material")
     }
-    guard let secretText = String(data: secret, encoding: .utf8), !secretText.isEmpty else {
-        return rendered
-    }
-    return rendered.replacingOccurrences(of: secretText, with: "[REDACTED]")
 }
 
 private func launchProvider(account: Account, arguments: [String], secret: Data) throws -> Int32 {
@@ -250,8 +271,9 @@ private func launchProvider(account: Account, arguments: [String], secret: Data)
     process.standardError = stderr
     try process.run()
     process.waitUntilExit()
-    FileHandle.standardOutput.write(redacted(stdout.fileHandleForReading.readDataToEndOfFile(), secret: secret).data(using: .utf8)!)
-    FileHandle.standardError.write(redacted(stderr.fileHandleForReading.readDataToEndOfFile(), secret: secret).data(using: .utf8)!)
+    // Capture and scan for secret leaks, but do NOT relay provider output.
+    sanitizeAndDiscard(stdout.fileHandleForReading.readDataToEndOfFile(), secret: secret)
+    sanitizeAndDiscard(stderr.fileHandleForReading.readDataToEndOfFile(), secret: secret)
     return process.terminationStatus
 }
 
