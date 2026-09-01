@@ -2,7 +2,7 @@
 
 ## 1. Authority and Derived State
 
-1. `PROJECT_TASKS.md` and `plans/plan.md` are the sole primary authorities.
+1. `atomic_tasks.md` and `plans/plan.md` are the sole primary authorities.
 2. `HANDOFF.md` is a derived, non-authoritative capsule under `HandoffSnapshotV1`.
 3. The engine never parses a raw transcript; only bounded state is evaluated.
 4. Any unresolved lane forces `clear_ready` false; unverified metrics evaluate to `UNKNOWN`.

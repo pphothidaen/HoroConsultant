@@ -234,7 +234,7 @@ sensitive identifiers in a receipt, claim proof, or status evidence.
 
 ## Final closure checklist
 
-- [ ] Ticket acceptance criteria and owner are recorded in `PROJECT_TASKS.md` and `plans/plan.md`.
+- [ ] Ticket acceptance criteria and owner are recorded in `atomic_tasks.md` and `plans/plan.md`.
 - [ ] Child result, attempt count, timestamp, safe quota/account status, and evidence links are attached.
 - [ ] No secret values, credentials, source, tests, or external systems were changed without explicit scope.
 - [ ] Required rule/skill/catalog mirrors are synchronized and the ecosystem sync check passes.

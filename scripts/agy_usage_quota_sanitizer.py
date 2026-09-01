@@ -30,7 +30,7 @@ PARSER_VERSION = "agy-usage-sanitizer-v1.6.0"
 PARSER_VERSION_SHA256 = hashlib.sha256(PARSER_VERSION.encode("ascii")).hexdigest()
 TIMEZONE = "Asia/Bangkok"
 DEFAULT_TIMEOUT_SECONDS = 60.0
-ALLOWED_ALIASES = frozenset({"agy1", "agy2"})
+ALLOWED_ALIASES = frozenset({"agy1", "agy2", "agy3", "agy4"})
 COMMAND = ("agy", "-p", "/usage")
 
 _ANSI_RE = re.compile(r"\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07]*(?:\x07|\x1b\\))")

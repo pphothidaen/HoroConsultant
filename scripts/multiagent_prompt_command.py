@@ -965,8 +965,11 @@ _IDQ_MVP_080_TICKET = "IDQ-MVP-080"
 _IDQ_MVP_080_ALIASES = {
     "codex1": "codex",
     "codex2": "codex",
+    "codex3": "codex",
     "agy1": "agy",
     "agy2": "agy",
+    "agy3": "agy",
+    "agy4": "agy",
 }
 _IDQ_MVP_080_CONFIG_FIELDS = frozenset(
     {"ticket", "aliases"}
@@ -7685,18 +7688,27 @@ def _provider_from_label(provider: str | None) -> str | None:
         "codex": "codex",
         "codex1": "codex",
         "codex2": "codex",
+        "codex3": "codex",
         "codex-1": "codex",
         "codex-2": "codex",
+        "codex-3": "codex",
         "codex-one": "codex",
         "codex-two": "codex",
+        "codex-three": "codex",
         "codex-cli": "codex",
         "agy": "agy",
         "agy1": "agy",
         "agy2": "agy",
+        "agy3": "agy",
+        "agy4": "agy",
         "agy-1": "agy",
         "agy-2": "agy",
+        "agy-3": "agy",
+        "agy-4": "agy",
         "agy-one": "agy",
         "agy-two": "agy",
+        "agy-three": "agy",
+        "agy-four": "agy",
         "agy-cli": "agy",
     }
     try:
@@ -7724,8 +7736,9 @@ def _provider_from_executable_basename(executable: str) -> str | None:
         # provider-like AGY alias or wrapper remains denied.
         return "agy"
     codex_aliases = {
-        "codex", "codex1", "codex2", "codex-1", "codex-2",
-        "codex-one", "codex-two", "codex_cli", "codex-cli", "codex.cli",
+        "codex", "codex1", "codex2", "codex3", "codex-1", "codex-2",
+        "codex-3", "codex-one", "codex-two", "codex-three",
+        "codex_cli", "codex-cli", "codex.cli",
     }
     if basename in codex_aliases:
         return "codex"

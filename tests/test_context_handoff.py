@@ -90,7 +90,7 @@ EXPECTED_POLICY = {
         "unset_behavior": "empty_state",
     },
     "authority": {
-        "current_state": "PROJECT_TASKS.md",
+        "current_state": "atomic_tasks.md",
         "implementation_plan": "plans/plan.md",
         "derived_handoff": "HANDOFF.md",
     },
@@ -172,7 +172,7 @@ def _snapshot_payload(
         "reason": "manual",
         "objective": "Preserve bounded cross-runtime context without authority drift",
         "summary": "The handoff capsule is derived state and contains no raw transcript.",
-        "next_action": "Read PROJECT_TASKS.md and plans/plan.md before resuming.",
+        "next_action": "Read atomic_tasks.md and plans/plan.md before resuming.",
         "authority": EXPECTED_POLICY["authority"].copy(),
         "lanes": list(lanes or []),
         "dirty_paths": ["tests/test_context_handoff.py"],
@@ -768,7 +768,7 @@ def test_snapshot_writes_closed_canonical_handoff_with_authority_pointers(
     assert snapshot["clear_ready"] is False
     assert all(set(lane) == LANE_KEYS for lane in snapshot["lanes"])
     text = raw.decode("utf-8")
-    assert "PROJECT_TASKS.md" in text
+    assert "atomic_tasks.md" in text
     assert "plans/plan.md" in text
     assert "derived" in text.casefold()
     assert "non-authoritative" in text.casefold()
@@ -1347,7 +1347,7 @@ def test_rehydrate_enforces_input_and_output_caps_and_refuses_legacy(
     assert rehydrated.returncode == 0, _stderr(rehydrated)
     assert 0 < len(rehydrated.stdout) <= 4 * 1024
     rehydrated_text = rehydrated.stdout.decode("utf-8")
-    assert "PROJECT_TASKS.md" in rehydrated_text
+    assert "atomic_tasks.md" in rehydrated_text
     assert "plans/plan.md" in rehydrated_text
 
     oversized_output_candidate = tmp_path / "oversized-output-candidate.md"

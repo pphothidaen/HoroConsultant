@@ -18,7 +18,7 @@ This skill provides step-by-step instructions for executing the AI Software Deve
 [Gate 0: Requirement-Grill Gate (`requirement-grill-gate` skill)]
        │  ├─ Interactive 9-dimension interview & context auto-scan
        │  ├─ Prepend GRILL REPORT to `/plans/plan.md` (✅ APPROVED / ⚠️ WAIVED / 🚫 BLOCKED)
-       │  └─ Generate specialized sub-agent tickets in `PROJECT_TASKS.md`
+       │  └─ Generate specialized sub-agent tickets in `atomic_tasks.md`
        │
        ▼
 Phase 1: Planning & Blueprinting (Master Orchestrator)
@@ -61,8 +61,8 @@ Phase 5: Code Review, Deployment & Post-Deploy E2E (Master Orchestrator & Code R
    - Scan codebase for low-risk auto-answers and ask user one-by-one for critical/high items.
    - Prepend the signed-off **GRILL REPORT** at the top of `/plans/plan.md` with status badge (`✅ APPROVED` / `⚠️ WAIVED` / `🚫 BLOCKED`).
    - If `🚫 BLOCKED`, halt and do not proceed to Phase 2.
-2. **Deconstruct Sub-Agent Tickets in `PROJECT_TASKS.md`**:
-   - Create a dedicated sprint/session block in `PROJECT_TASKS.md` with one ticket per assigned sub-agent (`orchestrator`, `developer`, `qa_tester`, `devops`, `domain_master`).
+2. **Deconstruct Sub-Agent Tickets in `atomic_tasks.md`**:
+   - Create a dedicated sprint/session block in `atomic_tasks.md` with one ticket per assigned sub-agent (`orchestrator`, `developer`, `qa_tester`, `devops`, `domain_master`).
    - Detail step-by-step instructions, dependencies, and testable acceptance criteria for each ticket.
 3. **Kaggle Pre-Development Sync Mandate**:
    ```bash

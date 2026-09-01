@@ -320,7 +320,7 @@ def op_hook(args: argparse.Namespace) -> int:
             out = {
                 "hookSpecificOutput": {
                     "hookEventName": "SessionStart",
-                    "additionalContext": "Context handoff active. Primary authority resides in PROJECT_TASKS.md and plans/plan.md.",
+                    "additionalContext": "Context handoff active. Primary authority resides in atomic_tasks.md and plans/plan.md.",
                 }
             }
             sys.stdout.write(json.dumps(out) + "\n")
@@ -333,7 +333,7 @@ def op_hook(args: argparse.Namespace) -> int:
             return 0
         elif event == "PostCompact":
             out = {
-                "systemMessage": "Context compaction completed. Resume from PROJECT_TASKS.md and plans/plan.md."
+                "systemMessage": "Context compaction completed. Resume from atomic_tasks.md and plans/plan.md."
             }
             sys.stdout.write(json.dumps(out) + "\n")
             return 0
@@ -527,7 +527,7 @@ def op_rehydrate(args: argparse.Namespace) -> int:
     next_action = snapshot.get("next_action", "")
     ticket_id = snapshot.get("ticket_id", "")
     auth = snapshot.get("authority", {})
-    cur_state = auth.get("current_state", "PROJECT_TASKS.md")
+    cur_state = auth.get("current_state", "atomic_tasks.md")
     plan = auth.get("implementation_plan", "plans/plan.md")
 
     rehydrated = (

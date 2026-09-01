@@ -116,6 +116,10 @@ from project.core.cors import (
 )
 from project.core.observability import setup_observability_middleware
 
+ADMIN_AUTH_BOOTSTRAP_PATHS = {"/admin/auth/config", "/admin/auth/google"}
+ADMIN_UI_PATHS = {"/admin", "/admin/"}
+PROTECTED_HITL_PATHS = {"/hitl/stats"}
+
 app = FastAPI(
     title       = "Computational Metaphysics Engine",
     description = "Modular 10-Domain Metaphysical Calculation, AI Debate & Multi-Agent Engine",
@@ -143,6 +147,62 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 setup_observability_middleware(app)
+
+
+def _admin_allowed_emails() -> set[str]:
+    raw = os.getenv("ADMIN_ALLOWED_EMAILS", "pansakorn@gmail.com,kimlenglim.work@gmail.com")
+    return {email.strip().lower() for email in raw.split(",") if email.strip()}
+
+
+def _is_protected_admin_data_path(path: str) -> bool:
+    if path in ADMIN_UI_PATHS or path in ADMIN_AUTH_BOOTSTRAP_PATHS:
+        return False
+    return path.startswith("/admin/") or path in PROTECTED_HITL_PATHS
+
+
+async def _verify_google_bearer_token(authorization: str) -> tuple[bool, str]:
+    if not authorization.lower().startswith("bearer "):
+        return False, "missing_bearer_token"
+    token = authorization.split(None, 1)[1].strip()
+    if not token:
+        return False, "missing_bearer_token"
+
+    try:
+        import httpx
+
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            response = await client.get(
+                "https://oauth2.googleapis.com/tokeninfo",
+                params={"id_token": token},
+            )
+    except Exception:
+        return False, "google_token_verification_unavailable"
+
+    if response.status_code != 200:
+        return False, "invalid_google_token"
+
+    payload = response.json()
+    email = str(payload.get("email", "")).strip().lower()
+    email_verified = payload.get("email_verified") in (True, "true", 1, "1")
+    if not email or not email_verified:
+        return False, "unverified_google_email"
+    if email not in _admin_allowed_emails():
+        return False, "unauthorized_admin_email"
+    return True, "ok"
+
+
+@app.middleware("http")
+async def admin_auth_middleware(request: Request, call_next):
+    if not _is_protected_admin_data_path(request.url.path):
+        return await call_next(request)
+
+    allowed, reason = await _verify_google_bearer_token(
+        request.headers.get("authorization", "")
+    )
+    if not allowed:
+        status_code = 403 if reason == "unauthorized_admin_email" else 401
+        return JSONResponse(status_code=status_code, content={"detail": "Admin authorization failed."})
+    return await call_next(request)
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(STATIC_DIR):

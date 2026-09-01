@@ -38,7 +38,7 @@ If no task was supplied, ask exactly one question: "What outcome should
 Before asking the owner, inspect only the context needed to answer safely:
 
 1. Root and nearest `AGENTS.md` files plus applicable `.agents/rules/` files.
-2. `plans/plan.md` and `PROJECT_TASKS.md` when they contain an active baseline
+2. `plans/plan.md` and `atomic_tasks.md` when they contain an active baseline
    relevant to the request; read-only exclusions do not imply edit permission.
 3. `git status --short` to identify concurrent or pre-existing changes.
 4. Targeted code, interfaces, schemas, tests, and docs named by the request or
@@ -155,7 +155,7 @@ a nonexistent script.
 Repository persistence is conditional:
 
 - By default, return the report in conversation only.
-- Update `plans/plan.md`, `PROJECT_TASKS.md`, or another artifact only when the
+- Update `plans/plan.md`, `atomic_tasks.md`, or another artifact only when the
   current request or higher-priority instruction explicitly includes that file.
 - If an artifact is explicitly excluded, do not write it. Record the exclusion
   in the inline report; the exclusion alone is not a blocker unless delivery

@@ -23,7 +23,15 @@ import scripts.multiagent_prompt_command as command
 
 
 TICKET = "IDQ-MVP-080"
-ALIASES = {"codex1": "codex", "codex2": "codex", "agy1": "agy", "agy2": "agy"}
+ALIASES = {
+    "codex1": "codex",
+    "codex2": "codex",
+    "codex3": "codex",
+    "agy1": "agy",
+    "agy2": "agy",
+    "agy3": "agy",
+    "agy4": "agy",
+}
 
 
 def _digest(value: str) -> str:

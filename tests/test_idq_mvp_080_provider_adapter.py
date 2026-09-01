@@ -21,7 +21,15 @@ import scripts.agent_quota_status_guard as quota
 
 
 TICKET = "IDQ-MVP-080"
-ALIASES = {"codex1": "codex", "codex2": "codex", "agy1": "agy", "agy2": "agy"}
+ALIASES = {
+    "codex1": "codex",
+    "codex2": "codex",
+    "codex3": "codex",
+    "agy1": "agy",
+    "agy2": "agy",
+    "agy3": "agy",
+    "agy4": "agy",
+}
 RAW_SENTINEL = "sk-live-provider-output-must-never-persist"
 
 

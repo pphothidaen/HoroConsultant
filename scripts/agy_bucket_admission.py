@@ -18,7 +18,7 @@ class AdmissionError(ValueError):
 
 UTC = timezone.utc
 PROTOCOL = "horoconsultant.agy-bucket-admission.v1"
-_ALIASES = frozenset({"agy1", "agy2"})
+_ALIASES = frozenset({"agy1", "agy2", "agy3", "agy4"})
 _BUCKETS = frozenset({"gemini-weekly", "gemini-5h", "3p-weekly", "3p-5h"})
 _SAFE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$")
 _DIGEST = re.compile(r"^[a-f0-9]{64}$")

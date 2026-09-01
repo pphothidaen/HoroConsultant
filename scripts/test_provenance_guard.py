@@ -26,7 +26,7 @@ DOC_PREFIXES = ("docs/", "plans/")
 DOC_FILES = {
     "README.md",
     "HOWTO.md",
-    "PROJECT_TASKS.md",
+    "atomic_tasks.md",
     "CLAUDE.md",
     "HANDOFF.md",
     "AGY.md",

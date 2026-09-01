@@ -6,6 +6,9 @@ Enable Codex subagent workflows without changing the existing Antigravity-compat
 
 ## Context
 
+> **Historical design:** task-file references record the design's original
+> context. `atomic_tasks.md` is the current operational task registry.
+
 The repository already has 16 role definitions under `.agents/agents/*/agent.json` and seven Codex-compatible skills under `.agents/skills/*/SKILL.md`. Codex discovers the skills natively, but it requires custom subagents as TOML files in `.codex/agents/` and reads project instructions from a root `AGENTS.md`.
 
 ## Chosen approach
@@ -18,7 +21,7 @@ Use a generated compatibility layer.
 4. Generate only portable Codex fields: `name`, `description`, and `developer_instructions`. Do not copy legacy Gemini, Claude, or DeepSeek model names; Codex agents inherit the active Codex model.
 5. Preserve each legacy `system_prompt` verbatim in `developer_instructions`. Legacy skill names are recorded as workflow guidance; the two historical `.skill` suffixes are normalized only in generated guidance, leaving the source untouched.
 6. Add a concise root `AGENTS.md` that explains the compatibility boundary and prevents generated files from becoming an editing source of truth.
-7. Update `.agents/AGENTS.md`, `PROJECT_TASKS.md`, and `plans/plan.md` to document the added Codex target and verification command.
+7. Update `.agents/AGENTS.md`, `atomic_tasks.md`, and `plans/plan.md` to document the added Codex target and verification command.
 
 ## Alternatives considered
 

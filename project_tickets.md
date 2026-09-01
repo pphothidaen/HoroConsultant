@@ -1,6 +1,6 @@
 # Project Tickets
 
-`PROJECT_TASKS.md` is the sole authoritative ticket registry, status board, and
+`atomic_tasks.md` is the sole authoritative ticket registry, status board, and
 operational handoff for HoroConsultant.
 
 This file is retained only as a compatibility pointer for workflows that still
@@ -9,7 +9,7 @@ dependencies, checkpoint results, or release evidence here.
 
 See:
 
-- [`PROJECT_TASKS.md`](PROJECT_TASKS.md)
+- [`atomic_tasks.md`](atomic_tasks.md)
 - [`plans/plan.md`](plans/plan.md)
 - [`plans/archive/2026-08-31-metaphysics-roadmap/metaphysics_learning_roadmap.md`](plans/archive/2026-08-31-metaphysics-roadmap/metaphysics_learning_roadmap.md)
 - [`plans/archive/2026-08-31-meta-plan-003/meta_plan_003_mcp_dataset_integration_spec.md`](plans/archive/2026-08-31-meta-plan-003/meta_plan_003_mcp_dataset_integration_spec.md)

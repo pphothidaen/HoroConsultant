@@ -212,7 +212,7 @@ phase_release_plan() {
         --dry-run
     log_ok "Local release readiness dry-run completed."
     log_warn "No deploy, publish, push, or secret synchronization was performed."
-    log_info "Production release requires a READY, target-bound ticket in PROJECT_TASKS.md through governed CI."
+    log_info "Production release requires a READY, target-bound ticket in atomic_tasks.md through governed CI."
 }
 
 phase_sync() {

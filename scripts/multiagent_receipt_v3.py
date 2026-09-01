@@ -86,7 +86,7 @@ def validate_receipt_v3(receipt: Mapping[str, Any], *, observation: Any | None =
             raise ReceiptV3Error(f"invalid {field}")
     if not 8 <= len(receipt["nonce"]) <= 128:
         raise ReceiptV3Error("invalid nonce length")
-    if receipt["alias"] not in {"agy1", "agy2"}:
+    if receipt["alias"] not in {"agy1", "agy2", "agy3", "agy4"}:
         raise ReceiptV3Error("receipt-v3 AGY alias required")
     if receipt.get("availability") not in {"available", "blocked"} or receipt.get("freshness") not in {"fresh", "stale-or-invalid"} or not isinstance(receipt.get("provenance"), str) or not _SAFE.fullmatch(receipt["provenance"]):
         raise ReceiptV3Error("invalid admission controls")

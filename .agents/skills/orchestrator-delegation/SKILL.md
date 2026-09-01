@@ -247,7 +247,7 @@ explicit requests such as "กระจายงาน", "run agents", "continue
 
 | Lane | Sub-agent | Ownership | Default stop condition |
 |---|---|---|---|
-| BSA/status | `business_analyst` | `PROJECT_TASKS.md`, `plans/**`, governance docs, skill/rule catalog | `DONE` when task board and plan state match verified evidence; `BLOCKED` when evidence is missing |
+| BSA/status | `business_analyst` | `atomic_tasks.md`, `plans/**`, governance docs, skill/rule catalog | `DONE` when task board and plan state match verified evidence; `BLOCKED` when evidence is missing |
 | DevOps/release | `devops` | `.github/workflows/**`, deployment scripts, cloud workflow logs, secret names only | `DONE` when workflow/deployment evidence is green; `NEEDS_HITL` for credentials, platform permissions, billing, or production approval |
 | QA/evidence | `qa_tester` | pytest, API contract, UI regression, Playwright readiness and reports | `DONE` when pass/fail evidence is captured; `BLOCKED` when live backend/browser/authorization is unavailable |
 | Implementation | `developer` | explicitly assigned source/test modules only | `DONE` when patch and targeted tests pass; `BLOCKED` when file ownership overlaps or product decision is missing |
@@ -275,7 +275,7 @@ Do not put hard safety controls only in `CLAUDE.md`; if an action must be blocke
 4. Poll for sub-agent results at natural checkpoints, not in a tight loop; clean
    up terminal state or timeout/lease expiry and immediately refill the slot.
 5. Merge results by evidence, not by majority. If two agents conflict, inspect the underlying commands/logs before deciding.
-6. Update `PROJECT_TASKS.md`, release handoff docs, or plan files only after the evidence is stable and the user has authorized any required external action.
+6. Update `atomic_tasks.md`, release handoff docs, or plan files only after the evidence is stable and the user has authorized any required external action.
 
 ## Context Hygiene and `/clear` Handoff
 
@@ -352,7 +352,7 @@ after every selection or terminal lane. One editor owns each file/module; use
 bounded non-mutating fallback tickets when implementation is blocked. Report
 active lanes, ownership, waits, active/available slots, and any typed capacity
 exception in each live status update.
-Collect all results in the standard result format before changing PROJECT_TASKS.md status.
+Collect all results in the standard result format before changing atomic_tasks.md status.
 ```
 
 ### DevOps release investigation prompt
@@ -380,8 +380,8 @@ You are not alone in the codebase; do not revert edits made by others. Work only
 ### BSA project-task sync prompt
 
 ```text
-Objective: Reconcile PROJECT_TASKS.md and plans with the current verified gate status.
-Ownership: PROJECT_TASKS.md, plans/*.md, docs/rules/skills assigned by root.
+Objective: Reconcile atomic_tasks.md and plans with the current verified gate status.
+Ownership: atomic_tasks.md, plans/*.md, docs/rules/skills assigned by root.
 Boundaries: Do not edit source code, workflows, secrets, or generated .codex files.
 Evidence expected: changed task states, remaining blockers, HITL actions, and links to evidence.
 Stop condition: DONE when task board matches evidence; BLOCKED when evidence is not available.

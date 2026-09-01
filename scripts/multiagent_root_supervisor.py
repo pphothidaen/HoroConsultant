@@ -83,7 +83,7 @@ class RootSupervisor:
         return {"healthy":healthy,"roots":roots,"bootstrap_mode":"bootstrap-local-unsafe-v1" if self.bootstrap_open else "CLOSED","evidence_level":"bootstrap_unverified" if self.bootstrap_open else "local_only","warning":"bootstrap local-only unverified" if self.bootstrap_open else ""}
     def submit(self, *, alias:str, ticket:str, objective_file:Path):
         if not self.accepting_submissions: raise SupervisorError("draining")
-        if alias not in {"codex1","codex2","codex3","agy1","agy2"}: raise SupervisorError("unknown alias")
+        if alias not in {"codex1","codex2","codex3","agy1","agy2","agy3","agy4"}: raise SupervisorError("unknown alias")
         objective=Path(objective_file).read_text(encoding="utf-8");root="A" if alias.startswith("codex") else "B";request_id=f"{ticket}-{uuid.uuid4().hex[:12]}"
         return self.queue.submit(request_id=request_id,idempotency_key=request_id,payload={"objective":objective},root=root,alias=alias,work_mode="read_only",attempt=1,retry_budget=0)
     def wait(self, *, request_id:str, timeout:float):
