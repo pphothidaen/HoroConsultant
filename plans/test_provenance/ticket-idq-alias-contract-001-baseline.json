@@ -1,0 +1,33 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-IDQ-ALIAS-CONTRACT-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "9b448de6a45a069d8526cc690fde86187b39208f",
+  "test_files": [
+    {
+      "path": "tests/test_idq_mvp_080_exception.py",
+      "sha256": "801cfefb338d13e3c74d9cd9c490f6cc94e764bc9212c1e92b5954916b79aaf9"
+    },
+    {
+      "path": "tests/test_idq_mvp_080_operational_provider.py",
+      "sha256": "7eff1e92305b7f5a508b2baccfa8935431c2d3c21648edf229d881bd458b4b25"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "-q", "tests/test_idq_mvp_080_exception.py", "tests/test_idq_mvp_080_operational_provider.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "aliases must be exactly the four allowlisted aliases"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/multiagent_prompt_command.py",
+    "scripts/multiagent_idq_mvp_080_operational.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Keep the closed IDQ-MVP-080 exception explicitly aligned with the seven-pool registry, including agy1 through agy4, rather than treating the general registry as a four-alias exception."
+}

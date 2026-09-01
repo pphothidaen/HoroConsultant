@@ -69,8 +69,11 @@ AUTHORIZATION_RISK_ID = "RISK-IDQ-MVP-080-20260830-02"
 ALIASES = {
     "codex1": ("codex", "A"),
     "codex2": ("codex", "A"),
+    "codex3": ("codex", "A"),
     "agy1": ("agy", "B"),
     "agy2": ("agy", "B"),
+    "agy3": ("agy", "B"),
+    "agy4": ("agy", "B"),
 }
 RAW_SENTINEL = "provider-raw-frame-must-not-persist"
 STDERR_SENTINEL = "provider-raw-stderr-must-not-persist"
@@ -2435,7 +2438,7 @@ def test_single_use_authorization_marker_rejects_symlink_precreation(
     assert target.read_bytes() == before_target
 
 
-def test_exact_four_one_shot_read_only_lanes_cannot_retry_or_substitute(
+def test_exact_seven_one_shot_read_only_lanes_cannot_retry_or_substitute(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
     operational = _operational()
@@ -3084,19 +3087,19 @@ def test_partial_batch_popen_failure_seals_all_lanes_and_cleans_started_groups(
     completed = _run(operational, fixture)
 
     assert completed["status"] == "UNKNOWN"
-    assert fixture["factory"].popen_attempts == ["codex1", "codex2", "agy1"]
-    assert _process_call_count(fixture) == 2
+    assert fixture["factory"].popen_attempts == ["codex1", "codex2", "codex3", "agy1"]
+    assert _process_call_count(fixture) == 3
     _assert_batch_receipts(fixture, completed, unknown_aliases=frozenset(ALIASES))
     for alias in ALIASES:
         _assert_exact_lane_lifecycle(fixture, alias, terminal="UNKNOWN")
-    for alias in ("codex1", "codex2"):
+    for alias in ("codex1", "codex2", "codex3"):
         assert fixture["factory"].group_signals[alias][0] == signal.SIGTERM
     assert fixture["factory"].active == 0
     _assert_terminal_safety(
         fixture,
         completed,
         capsys,
-        attempted_aliases=frozenset({"codex1", "codex2", "agy1"}),
+        attempted_aliases=frozenset({"codex1", "codex2", "codex3", "agy1"}),
     )
 
 
@@ -3158,7 +3161,7 @@ def test_post_start_timeout_is_unknown_with_no_retry_or_substitution(
     ]
     assert all(
         completed["aliases"][alias]["status"] == "DONE"
-        for alias in ("codex1", "codex2", "agy1")
+        for alias in ALIASES if alias != "agy2"
     )
     for alias in ALIASES:
         _assert_exact_lane_lifecycle(

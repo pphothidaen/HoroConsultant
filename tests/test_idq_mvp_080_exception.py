@@ -24,8 +24,11 @@ TICKET = "IDQ-MVP-080"
 ALIASES = {
     "codex1": "codex",
     "codex2": "codex",
+    "codex3": "codex",
     "agy1": "agy",
     "agy2": "agy",
+    "agy3": "agy",
+    "agy4": "agy",
 }
 
 
@@ -169,7 +172,7 @@ def test_idq_mvp_080_rejects_every_non_allowlisted_or_unbound_preflight(
     config = _config()
     invalid_requests = [
         _request(ticket="IDQ-MVP-081"),
-        _request(alias="codex3", provider="codex"),
+        _request(alias="codex9", provider="codex"),
         _request(attempt=0),
         _request(work_mode="workspace_write"),
         _request(automatic_retry=True),
