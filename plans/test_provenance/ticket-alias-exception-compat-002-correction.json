@@ -1,0 +1,29 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-ALIAS-EXCEPTION-COMPAT-002",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "0891935dafbee978923d7af07837d8d607c08d8e",
+  "test_files": [
+    {
+      "path": "tests/test_alias_exception_compatibility.py",
+      "sha256": "01348c107e0e98ffbf82d6f0086cc52b085610ae0f1d9fdb730fe489a5f4b120"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "-q", "tests/test_alias_exception_compatibility.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "full-capacity Stage-A aliases must remain agy1 and agy2"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/full_capacity_guard.v2.json",
+    ".agents/hooks/full_capacity_guard.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "701d9877f492ce3ae4c493f34e754e3066cf3b28",
+  "correction_reason": "The original baseline incorrectly widened the Stage-A alias set; expanded aliases belong only to the separately governed S3 routing policy.",
+  "rationale": "Restore the two-alias Stage-A contract while retaining the general account-routing expansion outside this closed exception."
+}

@@ -14,7 +14,7 @@ FULL_CAPACITY_CONFIG = ROOT / ".agents" / "config" / "full_capacity_guard.v2.jso
 
 def test_full_capacity_config_matches_the_guarded_agy_alias_set() -> None:
     config = json.loads(FULL_CAPACITY_CONFIG.read_text(encoding="utf-8"))
-    assert config["provider_aliases"] == ["agy1", "agy2", "agy3", "agy4"]
+    assert config["provider_aliases"] == ["agy1", "agy2"]
 
 
 def test_idq_mvp_080_remains_the_closed_four_alias_exception() -> None:
