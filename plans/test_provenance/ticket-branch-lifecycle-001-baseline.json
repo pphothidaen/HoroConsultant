@@ -1,0 +1,56 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-BRANCH-LIFECYCLE-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "a76834c098f23f7521dc252fc913397c601d8254",
+  "test_files": [
+    {
+      "path": "tests/test_branch_lifecycle_guard.py",
+      "sha256": "51c91769ad2dde130d822c3ee6ab00280f0be02b83932c16dd365e6a13dd7cd7"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "-q", "tests/test_branch_lifecycle_guard.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: branch lifecycle guard is missing"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/branch_lifecycle_guard.py",
+    ".agents/hooks/pre_tool_check.py",
+    ".claude/hooks/pre_tool_guard.py",
+    ".agy/hooks/pre-tool-use.sh",
+    ".agents/rules/23-automated-pr-deployment.md",
+    ".agents/skills/orchestrator-delegation/SKILL.md",
+    ".agents/skills/sdlc-aisdlc-workflow/SKILL.md",
+    ".agents/skills/devops-deployment/SKILL.md",
+    ".agents/agents/orchestrator/agent.json",
+    ".agents/agents/devops/agent.json",
+    ".agents/agents/orchestrator.json",
+    ".agents/agents/devops.json",
+    ".agents/agents/orchestrator/agent.md",
+    ".agents/agents/devops/agent.md",
+    ".antigravity/agents/orchestrator.agent",
+    ".antigravity/agents/devops.agent",
+    ".antigravity/skills/orchestrator-delegation/",
+    ".antigravity/skills/sdlc-aisdlc-workflow/",
+    ".antigravity/skills/devops-deployment/",
+    ".claude/rules/testing-and-release.md",
+    ".agy/rules/testing-and-release.md",
+    ".claude/skills/orchestrator-delegation/",
+    ".agy/skills/orchestrator-delegation/",
+    ".claude/skills/sdlc-aisdlc-workflow/",
+    ".agy/skills/sdlc-aisdlc-workflow/",
+    ".claude/skills/devops-deployment/",
+    ".agy/skills/devops-deployment/",
+    ".codex/agents/orchestrator.toml",
+    ".codex/agents/devops.toml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze the requirement that local branch deletion is allowed only after the completed branch is contained by main."
+}
