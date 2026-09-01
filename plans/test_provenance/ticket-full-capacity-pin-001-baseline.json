@@ -1,0 +1,29 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-FULL-CAPACITY-PIN-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "701d9877f492ce3ae4c493f34e754e3066cf3b28",
+  "test_files": [
+    {
+      "path": "tests/test_full_capacity_dependency_pin.py",
+      "sha256": "20665d06ed6c0c8e481797d4da2a7de3274b2cc2af3dbbf29ac5485458fcafa7"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "-q", "tests/test_full_capacity_dependency_pin.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "dispatcher_validator SHA-256 pin differs from the current dispatcher"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/full_capacity_guard.v2.json",
+    ".agents/hooks/full_capacity_guard.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Bind the full-capacity guard configuration and its independent expected pin to the committed dispatcher digest."
+}
