@@ -48,9 +48,7 @@
   },
   "provider_aliases": [
     "agy1",
-    "agy2",
-    "agy3",
-    "agy4"
+    "agy2"
   ],
   "positive_alias_runtime_proof_available": false,
   "authoritative_snapshot_proof_available": false,
