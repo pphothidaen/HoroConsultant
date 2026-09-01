@@ -1,16 +1,16 @@
-# Rule 19A: S3 Capacity Governance (Five-Pool Dual-Root)
+# Rule 19A: S3 Capacity Governance (Seven-Pool Dual-Root)
 
 ## Purpose
 
-Define balanced S3 capacity governance for the five isolated pools
-`codex1`, `codex2`, `codex3`, `agy1`, and `agy2`. This rule complements existing
+Define balanced S3 capacity governance for the seven isolated pools
+`codex1`, `codex2`, `codex3`, `agy1`, `agy2`, `agy3`, and `agy4`. This rule complements existing
 Rule 19 zero-cost controls and does not replace Rule 17 dispatch/evidence
 ownership or Rule 18 adaptive model-effort routing.
 
-## Six-pool dual-root isolation & dual-bucket governance
+## Seven-pool dual-root isolation & dual-bucket governance
 
 - Quota, rate limits, leases, burn state, circuit breakers, and queues are
-  isolated per account alias (`codex1`..`codex3`, `agy1`..`agy3`). There is no shared quota pool.
+  isolated per account alias (`codex1`..`codex3`, `agy1`..`agy4`). There is no shared quota pool.
 - AGY Dual-Bucket Policy: The Claude Bucket (Claude 3.7 Sonnet Thinking / Opus)
   is dedicated for Orchestrator Conduction only; the Gemini Bucket (Flash/Pro) is the primary
   Worker Pool. Fallback to Gemini for orchestration is permitted only in worst-case Claude exhaustion.
@@ -47,9 +47,34 @@ Rule 18 decision/binding requirements. AGY success is reported as
   exhaustion, open circuits, or transient provider failure; stop or queue the
   affected pool and return typed status.
 - S5 applies to unknown/contradictory quota, invalid receipt/result, missing
-  quality floor, repeated circuit failure, ownership conflict, or required
-  review. Fail closed, set `required_human_review=True`, and hold unresolved
-  work until owner sign-off.
+quality floor, repeated circuit failure, ownership conflict, or required
+review. Fail closed, set `required_human_review=True`, and hold unresolved
+work until owner sign-off.
+
+## Alias contract evolution
+
+When adding, retiring, or renaming an account alias, treat the alias registry
+as one atomic contract. Do not remove an alias from a guard or config merely to
+make CI pass.
+
+Before merging an alias change, update and verify every affected layer:
+
+1. account/pool configuration and capacity policy;
+2. guard constants, admission, fairness, and fail-closed reason logic;
+3. JSON schemas, enums, required fields, and fixtures;
+4. unit, integration, and CI matrix coverage for every supported alias; and
+5. skills, agent instructions, and generated cross-framework mirrors.
+
+An intentionally smaller closed exception is permitted only when its scope is
+explicitly named (for example, a one-shot protocol exception), documented with
+its distinct alias set, and tested separately from the general routing
+registry. It must never silently narrow general CI support.
+
+The merge gate requires a complete alias matrix: each configured alias is
+accepted by the intended governed path, rejected by forbidden paths with a
+typed reason, and represented consistently in configuration, schemas, and
+fixtures. Any mismatch is a contract defect; repair the missing layer rather
+than weakening tests or reducing the supported alias set.
 
 Command-facing logs use only `[OK]`, `[ERROR]`, `[WARNING]`, and `[INFO]`.
 Secrets, credentials, raw provider streams, and unverified quota claims are

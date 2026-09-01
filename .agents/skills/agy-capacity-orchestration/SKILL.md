@@ -1,18 +1,18 @@
 ---
 name: agy-capacity-orchestration
-description: Govern four-pool AGY/Codex capacity with leases, backpressure, and evidence.
+description: Govern seven-pool AGY/Codex capacity with leases, backpressure, and evidence.
 ---
 
 # AGY Capacity Orchestration
 
 Use this skill for S3 capacity planning or dispatch preparation across the
-four isolated pools `agy1`, `agy2`, `codex1`, and `codex2`. This is a governance
+seven isolated pools `agy1` through `agy4` and `codex1` through `codex3`. This is a governance
 contract. It does not authenticate accounts, invoke providers, change quotas,
 or establish runtime proof.
 
 ## S3 topology & isolated pools
 
-Each account is an independent quota pool (`codex1`..`codex3`, `agy1`..`agy3`). Never aggregate quota, workers, or
+Each account is an independent quota pool (`codex1`..`codex3`, `agy1`..`agy4`). Never aggregate quota, workers, or
 rate limits across aliases.
 
 | Pool | Queue owner | S3 default | Account hard cap | Model role |
@@ -23,6 +23,16 @@ rate limits across aliases.
 | `agy1` | Root B (AGY) | 1-2 lanes | 3 parallel sub-agents | Claude Brain (Conductor) / Gemini Worker |
 | `agy2` | Root B (AGY) | 1-2 lanes | 3 parallel sub-agents | Claude Brain (Conductor) / Gemini Worker |
 | `agy3` | Root B (AGY) | 1-2 lanes | 3 parallel sub-agents | Claude Brain (Conductor) / Gemini Worker |
+| `agy4` | Root B (AGY) | 1-2 lanes | 3 parallel sub-agents | Claude Brain (Conductor) / Gemini Worker |
+
+## Alias contract changes
+
+Adding or changing an alias is an atomic compatibility change. Update the
+capacity policy, guard constants and fairness records, schemas, fixtures, CI
+matrix, and generated agent/skill mirrors together. Never shrink a configured
+alias set solely to make a failing CI job green. A narrower exception is valid
+only when it is explicitly named, documented, and tested as separate from the
+general routing registry.
 
 ### AGY Dual-Bucket & Host Preservation Rules
 1. **Claude Bucket (Conductor Only):** Dedicated strictly as Orchestrator Brain / Conductor. Never wasted on worker lanes.

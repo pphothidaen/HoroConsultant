@@ -65,6 +65,27 @@ def _run_quota_guard() -> tuple[bool, str]:
     return True, output or "Quota guard passed"
 
 
+def _run_alias_contract_guard() -> tuple[bool, str]:
+    guard_script = ROOT_DIR / "scripts" / "validate_alias_contract.py"
+    if not guard_script.exists():
+        return False, "Alias contract guard script missing: scripts/validate_alias_contract.py"
+    try:
+        result = subprocess.run(
+            [sys.executable, str(guard_script)],
+            cwd=ROOT_DIR,
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+    except Exception as exc:
+        return False, f"Alias contract guard execution failed: {exc}"
+    output = (result.stdout or result.stderr or "").strip()
+    if result.returncode != 0:
+        return False, output or "Alias contract guard failed"
+    return True, output or "Alias contract guard passed"
+
+
 def check_command(command_str: str) -> tuple[bool, str]:
     """Check command against forbidden patterns and enforce pre-push gates."""
     for pattern, reason in FORBIDDEN_PATTERNS:
@@ -74,6 +95,11 @@ def check_command(command_str: str) -> tuple[bool, str]:
     branch_delete_ok, branch_delete_reason = validate_delete_command(command_str, repo=ROOT_DIR)
     if not branch_delete_ok:
         return False, branch_delete_reason
+
+    if re.search(r"\bgit\s+(?:commit|push)\b", command_str):
+        alias_contract_ok, alias_contract_reason = _run_alias_contract_guard()
+        if not alias_contract_ok:
+            return False, alias_contract_reason
 
     if _should_run_quota_guard(command_str):
         quota_ok, quota_reason = _run_quota_guard()

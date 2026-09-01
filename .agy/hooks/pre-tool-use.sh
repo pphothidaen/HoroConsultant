@@ -40,6 +40,11 @@ if [[ -n "$COMMAND" ]]; then
   if ! python3 "$root_dir/scripts/branch_lifecycle_guard.py" --repo "$root_dir" --check-command "$COMMAND"; then
     exit 2
   fi
+  if [[ "$COMMAND" =~ (^|[[:space:];|&])git[[:space:]]+(commit|push)([[:space:]]|$) ]]; then
+    if ! python3 "$root_dir/scripts/validate_alias_contract.py"; then
+      exit 2
+    fi
+  fi
 fi
 
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "detached")

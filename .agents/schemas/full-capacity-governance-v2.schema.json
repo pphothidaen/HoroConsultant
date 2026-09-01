@@ -329,8 +329,11 @@
           "enum": [
             "codex1",
             "codex2",
+            "codex3",
             "agy1",
-            "agy2"
+            "agy2",
+            "agy3",
+            "agy4"
           ]
         },
         "session_id": {
@@ -592,8 +595,11 @@
             "native",
             "codex1",
             "codex2",
+            "codex3",
             "agy1",
-            "agy2"
+            "agy2",
+            "agy3",
+            "agy4"
           ]
         },
         "owner": {
@@ -823,7 +829,9 @@
         "alias": {
           "enum": [
             "agy1",
-            "agy2"
+            "agy2",
+            "agy3",
+            "agy4"
           ]
         },
         "evaluation": {
@@ -889,7 +897,9 @@
           "additionalProperties": false,
           "required": [
             "agy1",
-            "agy2"
+            "agy2",
+            "agy3",
+            "agy4"
           ],
           "properties": {
             "agy1": {
@@ -897,6 +907,14 @@
               "minimum": 0
             },
             "agy2": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "agy3": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "agy4": {
               "type": "integer",
               "minimum": 0
             }
@@ -1158,8 +1176,8 @@
         },
         "alias_evaluations": {
           "type": "array",
-          "minItems": 2,
-          "maxItems": 2,
+          "minItems": 4,
+          "maxItems": 4,
           "prefixItems": [
             {
               "allOf": [
@@ -1184,6 +1202,34 @@
                   "properties": {
                     "alias": {
                       "const": "agy2"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/aliasEvaluation"
+                },
+                {
+                  "properties": {
+                    "alias": {
+                      "const": "agy3"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/aliasEvaluation"
+                },
+                {
+                  "properties": {
+                    "alias": {
+                      "const": "agy4"
                     }
                   }
                 }

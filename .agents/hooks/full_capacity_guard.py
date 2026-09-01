@@ -76,7 +76,7 @@ LEDGER_LIMIT_FIELDS = frozenset(
 EXPECTED_DEPENDENCY_PINS = {
     "dispatcher_validator": {
         "path": "scripts/multiagent_prompt_command.py",
-        "sha256": "f58fa591e65fbc8d038bc395c204dd44e48b01f460d44b46430ca8fa7fcec604",
+        "sha256": "1545e847d2134a1b8a0cdbba4a938f4860016335d7febd0dddfd9917fac3e5f5",
     },
     "scheduler_validator": {
         "path": "scripts/multiagent_ticket_scheduler.py",
@@ -89,7 +89,7 @@ EXPECTED_DEPENDENCY_PINS = {
     "governance_schema": {
         "path": ".agents/schemas/full-capacity-governance-v2.schema.json",
         "uri": "https://horoconsultant.local/schemas/full-capacity-governance-v2.schema.json",
-        "sha256": "90f0c18bec385f83d50fffeb69e136f1b6b21fca4c350bb62778695287dedde9",
+        "sha256": "a0e48954614550892dd021006857c636a0e1050c46a139dcc7fc33449733b62e",
     },
     "rule18_schema": {
         "path": ".agents/schemas/multiagent-dispatch-decision-v1.schema.json",
@@ -1678,7 +1678,7 @@ def _validate_alias_evaluations(
     # compatibility with direct validators, but never treat it as runtime proof.
     _ = config
     raw = record.get("alias_evaluations")
-    if not isinstance(raw, list) or len(raw) != 2:
+    if not isinstance(raw, list) or len(raw) != len(EXPECTED_ALIASES):
         raise CapacityViolation("CAPACITY_ALIAS_EVALUATIONS_INVALID")
     if [
         item.get("alias") if isinstance(item, Mapping) else None for item in raw

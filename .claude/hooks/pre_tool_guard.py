@@ -100,6 +100,22 @@ def inspect_bash(command: str) -> None:
     if not branch_delete_ok:
         deny(branch_delete_reason)
 
+    if re.search(r"\bgit\s+(?:commit|push)\b", command):
+        guard = ROOT_DIR / "scripts" / "validate_alias_contract.py"
+        if not guard.exists():
+            deny("alias contract guard script is missing")
+        result = subprocess.run(
+            [sys.executable, str(guard)],
+            cwd=ROOT_DIR,
+            capture_output=True,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        if result.returncode != 0:
+            reason = (result.stdout or result.stderr or "alias contract guard failed").strip()
+            deny(reason)
+
     for pattern, reason in SECRET_OUTPUT_BASH_PATTERNS:
         if pattern.search(command):
             deny(reason)
