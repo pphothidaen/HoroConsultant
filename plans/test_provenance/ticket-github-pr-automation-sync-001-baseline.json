@@ -1,0 +1,28 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-GITHUB-PR-AUTOMATION-SYNC-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "1f53c1d6bde15df68b61aad39798a38175968562",
+  "test_files": [
+    {
+      "path": "tests/test_github_pr_automation_skill_sync.py",
+      "sha256": "3334636989b7b0c82ca9c31af8a6208ec5bbd2f4c1e4b56603488bcd974713ee"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "-q", "tests/test_github_pr_automation_skill_sync.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: Antigravity skill mirror must be tracked for CI"
+    }
+  ],
+  "allowed_source_paths": [
+    ".antigravity/skills/github-pr-automation/SKILL.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Ensure the GitHub PR automation skill mirror is versioned so clean CI checkouts pass agent ecosystem synchronization."
+}
