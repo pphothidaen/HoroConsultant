@@ -531,7 +531,7 @@ def _build_payload(
             policy_sha256=policy.digest,
         )
 
-    aliases = dict(alias_candidates or {"agy1": None, "agy2": None})
+    aliases = dict(alias_candidates or {alias: None for alias in guard.EXPECTED_ALIASES})
     qa_priority_ticket = None
     if handoff is not None and handoff["qa_next_slot_priority"]:
         qa_priority_ticket = handoff["qa_ticket_id"]
@@ -601,7 +601,7 @@ def _build_payload(
         "alias_evaluations": evaluations,
         "fairness": {
             "strategy": "LEAST_RECENTLY_SERVED_AFTER_GATES",
-            "last_served_sequence": {"agy1": 0, "agy2": 0},
+            "last_served_sequence": {alias: 0 for alias in guard.EXPECTED_ALIASES},
             "eligible_order": [],
             "selected_aliases": [],
             "rule11_selection_sha256": guard._sha256(list(actionable)),
