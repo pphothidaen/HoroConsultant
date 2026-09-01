@@ -965,11 +965,8 @@ _IDQ_MVP_080_TICKET = "IDQ-MVP-080"
 _IDQ_MVP_080_ALIASES = {
     "codex1": "codex",
     "codex2": "codex",
-    "codex3": "codex",
     "agy1": "agy",
     "agy2": "agy",
-    "agy3": "agy",
-    "agy4": "agy",
 }
 _IDQ_MVP_080_CONFIG_FIELDS = frozenset(
     {"ticket", "aliases"}
