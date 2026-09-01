@@ -106,10 +106,10 @@ def test_root_policies_lock_aliases_pool_size_and_account_caps(worker_module) ->
     root_b = worker_module.RootPolicy.for_root("B")
 
     assert set(root_a.aliases) == {"codex1", "codex2", "codex3"}
-    assert set(root_b.aliases) == {"agy1", "agy2"}
+    assert set(root_b.aliases) == {"agy1", "agy2", "agy3", "agy4"}
     assert root_a.max_workers == root_b.max_workers == 3
     assert dict(root_a.account_caps) == {"codex1": 2, "codex2": 2, "codex3": 2}
-    assert dict(root_b.account_caps) == {"agy1": 3, "agy2": 3}
+    assert dict(root_b.account_caps) == {"agy1": 3, "agy2": 3, "agy3": 3, "agy4": 3}
 
 
 @pytest.mark.parametrize("invalid", ["", "C", "codex1", None])

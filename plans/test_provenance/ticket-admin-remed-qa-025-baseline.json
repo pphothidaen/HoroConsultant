@@ -1,0 +1,48 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-ADMIN-REMED-QA-025",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "dd6a34ae37ece58ea10790647dffc14808baf161",
+  "test_files": [
+    {
+      "path": "tests/test_broker_capacity_admission.py",
+      "sha256": "6e1ab7087978dc16a6f84162b4e0b3c93602bfa1f4d4310928bc08b58a6eb54e"
+    },
+    {
+      "path": "tests/test_four_pool_two_root_capacity.py",
+      "sha256": "940ded325e3195111b3b3861c47e466395625733fe875e28bb77c865ae41bb88"
+    },
+    {
+      "path": "tests/test_idq_mvp_010_release_cycle.py",
+      "sha256": "603856a46741e2f0438a52e6d185c4fe16ae3d1d83317f958c0923edb4b3e22c"
+    },
+    {
+      "path": "tests/test_multiagent_prompt_command.py",
+      "sha256": "5771cdd113655eaae648cb84c611c138a77d373ab238d9086a3c2683fe20f783"
+    },
+    {
+      "path": "tests/test_multiagent_root_worker.py",
+      "sha256": "c5f9dbd267109ac05f78712cdfba36ae7a6edfc4fe6072b3d6f050fab4dd8366"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/test_broker_capacity_admission.py::test_admission_rejects_unknown_alias"],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: expected rejection of alias not in governed set"
+    }
+  ],
+  "allowed_source_paths": [
+    "tests/test_broker_capacity_admission.py",
+    "tests/test_four_pool_two_root_capacity.py",
+    "tests/test_idq_mvp_010_release_cycle.py",
+    "tests/test_multiagent_prompt_command.py",
+    "tests/test_multiagent_root_worker.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Update test files to reflect expanded alias support (agy3, agy4, codex3) in schemas, guards, and configs for ADMIN-REMED-001."
+}
