@@ -21,6 +21,16 @@ review closure, deployment, publishing, or another operation. Do not delegate
 when a child would only repeat an answer already available to root.
 Use `[OK]`, `[ERROR]`, `[WARNING]`, or `[INFO]` for command-facing status/logs.
 
+## Completed Branch Closeout
+
+When a user has approved merge and every required CI/review gate is green,
+merge the completed PR into `main` with a merge commit, delete the remote
+branch in that same PR operation, fast-forward local `main`, and immediately
+delete the local source branch. Never delete a source branch before `main`
+contains it, and retain it on any failed merge, CI, or update. Local hooks are
+read-only: they prove the deletion precondition; they never merge or delete on
+the agent's behalf.
+
 ## Delegation Contract
 
 The orchestrator remains accountable for the final answer, ticket state, and user-facing decision. Sub-agents provide bounded investigation, implementation, QA, DevOps, review, or documentation results; they do not independently widen scope or mark release gates complete.
@@ -234,7 +244,8 @@ Choose the narrowest role that matches the work:
 - `developer`: scoped implementation or code fixes with explicit file/module ownership.
 - `qa_tester`: pytest, browser/E2E readiness, failure triage, report extraction.
 - `devops`: secrets by name only, deployment workflows, CI/CD, Docker, cloud verification, release evidence.
-- `code_reviewer`: safety audit, secret scan, release-readiness risk review.
+- `code_reviewer`: safety audit, secret scan, release-readiness review.
+- `github-pr-automation`: PR creation, CI monitoring, merge, and deployment orchestration (see Rule 23).
 - Domain masters: metaphysical calculation, interpretation, or validation only when the task is domain-specific.
 
 Do not assign two agents to edit the same file. If multiple agents need the same file, assign one editor and make the others read-only reviewers.

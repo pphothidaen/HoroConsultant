@@ -21,6 +21,16 @@ review closure, deployment, publishing, or another operation. Do not delegate
 when a child would only repeat an answer already available to root.
 Use `[OK]`, `[ERROR]`, `[WARNING]`, or `[INFO]` for command-facing status/logs.
 
+## Completed Branch Closeout
+
+When a user has approved merge and every required CI/review gate is green,
+merge the completed PR into `main` with a merge commit, delete the remote
+branch in that same PR operation, fast-forward local `main`, and immediately
+delete the local source branch. Never delete a source branch before `main`
+contains it, and retain it on any failed merge, CI, or update. Local hooks are
+read-only: they prove the deletion precondition; they never merge or delete on
+the agent's behalf.
+
 ## Delegation Contract
 
 The orchestrator remains accountable for the final answer, ticket state, and user-facing decision. Sub-agents provide bounded investigation, implementation, QA, DevOps, review, or documentation results; they do not independently widen scope or mark release gates complete.

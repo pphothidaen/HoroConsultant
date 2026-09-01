@@ -24,3 +24,7 @@ paths:
   enforce ancestry, hashes, separated commits, and `Test-Baseline` trailers.
 - Include failure tails or exact run ids when reporting CI failures.
 - Before release claims, run the project safety reviewer or explain the exact blocker that prevents it.
+- After a user-approved green PR merge, delete the remote branch with
+  `gh pr merge --merge --delete-branch`, fast-forward local `main`, and
+  immediately run `git branch -d <completed-branch>`. The read-only lifecycle
+  guard rejects deletion unless `main` contains the branch.

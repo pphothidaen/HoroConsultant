@@ -29,6 +29,8 @@ FORBIDDEN_PATTERNS = [
 
 IS_CI = os.environ.get("CI", "").lower() in ("true", "1") or os.environ.get("GITHUB_ACTIONS", "").lower() in ("true", "1")
 ROOT_DIR = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT_DIR / "scripts"))
+from branch_lifecycle_guard import validate_delete_command
 QUOTA_ENV_KEYS = (
     "AGENT_QUOTA_REMAINING_PERCENT",
     "AI_AGENT_QUOTA_REMAINING_PERCENT",
@@ -68,6 +70,10 @@ def check_command(command_str: str) -> tuple[bool, str]:
     for pattern, reason in FORBIDDEN_PATTERNS:
         if re.search(pattern, command_str):
             return False, reason
+
+    branch_delete_ok, branch_delete_reason = validate_delete_command(command_str, repo=ROOT_DIR)
+    if not branch_delete_ok:
+        return False, branch_delete_reason
 
     if _should_run_quota_guard(command_str):
         quota_ok, quota_reason = _run_quota_guard()

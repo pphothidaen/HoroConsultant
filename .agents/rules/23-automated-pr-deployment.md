@@ -36,10 +36,25 @@ When CI passes on a feature branch and the user approves merge:
    gh pr checks --watch
    ```
 
-3. **Merge** (when green and approved):
+3. **Merge and close the branch** (when green and approved):
    ```bash
-   gh pr merge --squash --delete-branch
+   gh pr merge --merge --delete-branch
    ```
+
+   This creates a merge commit so the completed branch is provably contained by
+   `main`. GitHub deletes the remote branch as part of the successful merge.
+   Then update local `main` and delete the local branch immediately:
+
+   ```bash
+   git checkout main
+   git pull --ff-only origin main
+   git branch -d <completed-branch>
+   ```
+
+   The read-only branch lifecycle guard rejects deletion until the branch is an
+   ancestor of `main`, rejects protected branches, and never performs a merge
+   or deletion itself. If merge, CI, or the fast-forward update fails, retain
+   the branch and report `[ERROR] BLOCKED`.
 
 4. **Deploy** (post-merge on main):
    - Vercel: auto-deploys on push to main
@@ -51,7 +66,8 @@ When CI passes on a feature branch and the user approves merge:
 |--------|-----------|
 | `git push origin <branch>` | Any feature branch |
 | `gh pr create` | When branch is ready |
-| `gh pr merge --squash` | CI green + user approval |
+| `gh pr merge --merge --delete-branch` | CI green + user approval; deletes the remote branch |
+| `git branch -d <completed-branch>` | Local `main` contains the branch; delete immediately after merge |
 | `gh pr checks --watch` | After PR creation |
 | `vercel --prod` | Post-merge with approval |
 | `publish_space_hf.py` | Post-merge with approval |
@@ -62,6 +78,7 @@ When CI passes on a feature branch and the user approves merge:
 |--------|--------|
 | `git push origin main` | Blocked by GitHub ruleset |
 | `git push --force` | Force push forbidden |
+| `git branch -D <branch>` before merge proof | Bypasses the required branch-lifecycle guard |
 | `gh pr merge` without CI green | Quality gate |
 | Deploy without user approval | Production safeguard |
 | Expose credentials in logs | Security policy |

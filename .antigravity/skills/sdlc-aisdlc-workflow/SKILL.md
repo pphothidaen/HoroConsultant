@@ -45,7 +45,7 @@ Phase 4: Environment & Release Verification (DevOps & Release)
        ▼
 Phase 5: Code Review, Deployment & Post-Deploy E2E (Master Orchestrator & Code Reviewer)
        │  ├─ Execute pre-deployment audit (`python3 project/core/code_reviewer.py --review`)
-       │  ├─ Push to production (`git push origin main`) & publish HF Space
+       │  ├─ Merge the approved green PR into `main`, delete its remote and local branch, then publish HF Space
        │  └─ Verify post-deployment E2E functionality (`python3 scripts/run_button_regression.py`)
        ▼
 [User Delivery Complete]
@@ -113,9 +113,20 @@ Phase 5: Code Review, Deployment & Post-Deploy E2E (Master Orchestrator & Code R
    python3 project/core/code_reviewer.py --review
    ```
    Ensure status is `READY_FOR_PROD`.
-2. Push to GitHub main: `git push origin main`.
-3. Publish to Hugging Face Spaces: `python3 scripts/publish_space_hf.py`.
-4. Execute Post-Deployment E2E verification across all 4 Core Components (Main Dashboard, Admin Panel, HITL Studio, OpenAPI Docs):
+2. Merge the approved green PR with a merge commit and remove its remote branch:
+   ```bash
+   gh pr merge --merge --delete-branch
+   ```
+3. Immediately update local `main` and remove the completed local branch:
+   ```bash
+   git checkout main
+   git pull --ff-only origin main
+   git branch -d <completed-branch>
+   ```
+   Do not delete a branch after failed CI, a failed merge, or a failed local
+   update. The branch lifecycle guard requires proof that `main` contains it.
+4. Publish to Hugging Face Spaces: `python3 scripts/publish_space_hf.py`.
+5. Execute Post-Deployment E2E verification across all 4 Core Components (Main Dashboard, Admin Panel, HITL Studio, OpenAPI Docs):
    ```bash
    python3 scripts/run_button_regression.py
    python3 scripts/run_e2e_screenshots.py
