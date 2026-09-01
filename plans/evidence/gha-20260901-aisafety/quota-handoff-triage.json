@@ -1,0 +1,187 @@
+{
+  "schema_version": "gha-triage-v1",
+  "ticket": "GHA-20260901-AIS-010",
+  "status": "DONE",
+  "recorded_at_utc": "2026-09-01T00:30:00Z",
+  "mode": "WRITE_EVIDENCE",
+  "scope": {
+    "run_id": 33418206430,
+    "run_url": "https://github.com/pphothidaen/HoroConsultant/actions/runs/33418206430",
+    "run_head_sha": "f9f80487a5f01a176ce7c16d3f1657e2c8908e16",
+    "job_name": "Pre-Deployment Code Review and Safety Audit",
+    "step_name": "Execute code reviewer and safety audit",
+    "owned_output": "plans/evidence/gha-20260901-aisafety/quota-handoff-triage.json"
+  },
+  "failures": [
+    {
+      "node_id": "project/tests/test_agent_quota_status_guard.py::test_quota_guard_requires_handoff_below_ten_percent",
+      "expected": {
+        "returncode": 0,
+        "handoff_required": true,
+        "docs_ok": true,
+        "remaining_percent": 9.0
+      },
+      "actual": {
+        "returncode": 2,
+        "handoff_required": true,
+        "docs_ok": false,
+        "remaining_percent": 9.0,
+        "missing_markers": [
+          "PROJECT_TASKS:safe resume commands",
+          "PROJECT_TASKS:credential status",
+          "plans:quota migration guard",
+          "plans:account migration continuity"
+        ]
+      },
+      "assertion_line_at_run_commit": 46,
+      "classification": "guard-document-contract-mismatch",
+      "source_or_test": "source_and_governance_documents"
+    },
+    {
+      "node_id": "project/tests/test_agent_quota_status_guard.py::test_pre_tool_hook_runs_quota_guard_for_status_command",
+      "expected": {
+        "returncode": 0,
+        "stdout_contains": "[OK] Pre-Tool Hook Audit: PASSED"
+      },
+      "actual": {
+        "returncode": 1,
+        "stdout": "[REJECTED] Pre-Tool Hook Violation: [WARNING] Quota guard: remaining quota 9.0% is below 10.0%. [ERROR] Missing quota handoff markers: PROJECT_TASKS:safe resume commands, PROJECT_TASKS:credential status, plans:quota migration guard, plans:account migration continuity"
+      },
+      "assertion_line_at_run_commit": 87,
+      "classification": "downstream-hook-failure-from-guard-document-contract-mismatch",
+      "source_or_test": "source_and_governance_documents"
+    }
+  ],
+  "cause": {
+    "summary": "At immutable run commit f9f8048, the guard requires five literal markers in PROJECT_TASKS.md and plans/plan.md, but only TICKET-META-008 exists. The other four required markers are absent, so low-quota enforcement returns 2 and the pre-tool hook correctly rejects /status.",
+    "marker_contract_at_f9f8048": {
+      "guard_path": "scripts/agent_quota_status_guard.py:581-596",
+      "required_markers": [
+        "PROJECT_TASKS:TICKET-META-008",
+        "PROJECT_TASKS:Safe Resume Commands",
+        "PROJECT_TASKS:GitHub CLI and Doppler CLI",
+        "plans:Quota Exhaustion / Account Migration Guard",
+        "plans:Account Migration Continuity"
+      ],
+      "observed_counts": {
+        "PROJECT_TASKS:TICKET-META-008": 1,
+        "PROJECT_TASKS:Safe Resume Commands": 0,
+        "PROJECT_TASKS:GitHub CLI": 0,
+        "PROJECT_TASKS:Doppler CLI": 0,
+        "plans:Quota Exhaustion / Account Migration Guard": 0,
+        "plans:Account Migration Continuity": 0
+      }
+    },
+    "mechanism": [
+      "test_quota_guard_requires_handoff_below_ten_percent invokes the guard with --remaining-percent 9 --json --enforce and expects a zero exit.",
+      "The guard computes handoff_required=true, finds docs_ok=false, reports the four absent markers, and returns 2 under --enforce.",
+      "test_pre_tool_hook_runs_quota_guard_for_status_command supplies the same 9 percent signal through AGENT_QUOTA_REMAINING_PERCENT.",
+      "The unchanged pre-tool hook invokes the guard and propagates its fail-closed rejection as exit 1."
+    ],
+    "test_staleness_evidence": "The two tests encode the intended low-quota success condition. The immutable source and document state contradict that condition; no evidence supports weakening either assertion before a frozen correction map assigns a source or document correction."
+  },
+  "provenance": {
+    "failure_commit": {
+      "short_sha": "f9f8048",
+      "full_sha": "f9f80487a5f01a176ce7c16d3f1657e2c8908e16",
+      "subject": "fix(provenance): refine staged manifest verification for incremental edits",
+      "committed_at": "2026-09-01T00:10:49+07:00"
+    },
+    "current_tree": {
+      "head_sha": "cb1df9fd573f2936e9d57c4cb390f307cfeb17b7",
+      "subject": "fix(mcp): preserve lazy HybridRouter type reference",
+      "committed_at": "2026-09-01T00:25:25+07:00",
+      "worktree_state": "dirty; current results are corroboration only, not replacement evidence for f9f8048"
+    },
+    "f9f8048_sha256": {
+      "project/tests/test_agent_quota_status_guard.py": "65de02250ee9469c81c3ac4fbf7c79c9e28b44c0cdf206964468ee46d59a8486",
+      "scripts/agent_quota_status_guard.py": "1425a3fdaf3bed1a4424706235aba7cccb8422bf32e8838d74ebbe16b72cb4af",
+      "PROJECT_TASKS.md": "817a08b61b33e816fdf7b14b370140b07f110e5ee73f0b436657cb3ad52cd377",
+      "plans/plan.md": "9467db6bd26abe8eb0dd31fb6e4eb44a91a72323891ae05bf85f23e3ba8c3ff1",
+      ".agents/hooks/pre_tool_check.py": "6a1f98baa1c748979bdfe0549563c05b68bf3ad2a9092fec7bc596ab12ebed12"
+    },
+    "current_comparison": {
+      "unchanged_from_f9f8048": [
+        "project/tests/test_agent_quota_status_guard.py",
+        ".agents/hooks/pre_tool_check.py"
+      ],
+      "changed_or_dirty_since_f9f8048": [
+        "scripts/agent_quota_status_guard.py",
+        "PROJECT_TASKS.md",
+        "plans/plan.md"
+      ],
+      "current_guard_result": {
+        "command": "python3 scripts/agent_quota_status_guard.py --remaining-percent 9 --json --enforce",
+        "returncode": 2,
+        "docs_ok": false,
+        "missing_markers": [
+          "PROJECT_TASKS:safe resume commands",
+          "PROJECT_TASKS:credential status",
+          "plans:quota migration guard",
+          "plans:account migration continuity"
+        ]
+      },
+      "current_redirect_mismatch": "PROJECT_TASKS.md now redirects to atomic_tasks.md, while the guard still reads PROJECT_TASKS.md. The current guard's recommended action names atomic_tasks.md, but its marker checks still use PROJECT_TASKS.md."
+    }
+  },
+  "evidence": {
+    "remote_command": "gh run view 33418206430 --log-failed",
+    "remote_result": "AI Safety Audit on f9f8048 reported 9 failed, 3791 passed, 45 skipped; the two node IDs above have the stated expected and actual values.",
+    "local_command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPYCACHEPREFIX=<temporary-directory> python3 -m pytest -q -p no:cacheprovider project/tests/test_agent_quota_status_guard.py::test_quota_guard_requires_handoff_below_ten_percent project/tests/test_agent_quota_status_guard.py::test_pre_tool_hook_runs_quota_guard_for_status_command",
+    "local_result": "2 failed in 0.71s with the same return codes and four missing markers. This is current-tree corroboration only because the tree is dirty and HEAD differs from f9f8048.",
+    "hook_command": "AGENT_QUOTA_REMAINING_PERCENT=9 python3 .agents/hooks/pre_tool_check.py /status",
+    "hook_result": "exit 1; rejected with the same four marker names."
+  },
+  "candidate_contract_paths": [
+    {
+      "path": "scripts/agent_quota_status_guard.py",
+      "role": "primary executable marker contract",
+      "candidate_owner": "developer",
+      "change_class": "source contract correction"
+    },
+    {
+      "path": "PROJECT_TASKS.md",
+      "role": "legacy document path read by the f9f8048 guard; currently a redirect",
+      "candidate_owner": "business_analyst",
+      "change_class": "governance document or migration-compatibility decision"
+    },
+    {
+      "path": "atomic_tasks.md",
+      "role": "current authoritative task board named by the dirty guard's recommended action",
+      "candidate_owner": "business_analyst",
+      "change_class": "governance document migration target"
+    },
+    {
+      "path": "plans/plan.md",
+      "role": "second document path required by the marker contract",
+      "candidate_owner": "business_analyst",
+      "change_class": "governance document correction"
+    },
+    {
+      "path": "project/tests/test_agent_quota_status_guard.py",
+      "role": "frozen regression expectations for both failing nodes",
+      "candidate_owner": "qa_tester",
+      "change_class": "test-only change is not justified by this triage"
+    }
+  ],
+  "ownership_classification": {
+    "primary": "source/governance-document contract failure",
+    "test_assertions": "not demonstrated stale; preserve pending the GHA-20260901-AIS-020 frozen correction map",
+    "hook": "downstream fail-closed consumer; no independent defect evidenced",
+    "source_correction_required": true,
+    "test_correction_required": false,
+    "ambiguous": false
+  },
+  "recommended_next_action": "Route this receipt into GHA-20260901-AIS-020. The correction map must choose one compatible canonical document path and update the guard/document contract without weakening the two tests; this triage does not authorize that mutation.",
+  "mutations": {
+    "source": [],
+    "tests": [],
+    "scripts": [],
+    "docs": [],
+    "config": [],
+    "evidence": [
+      "plans/evidence/gha-20260901-aisafety/quota-handoff-triage.json"
+    ],
+    "external": []
+  }
+}

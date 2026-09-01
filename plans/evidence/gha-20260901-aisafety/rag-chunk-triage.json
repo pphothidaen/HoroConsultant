@@ -1,0 +1,135 @@
+{
+  "schema_version": "gha-triage-v1",
+  "ticket": "GHA-20260901-AIS-011",
+  "status": "BLOCKED",
+  "recorded_at_utc": "2026-09-01T03:12:32Z",
+  "mode": "READ_ONLY",
+  "scope": {
+    "run_id": 33418206430,
+    "run_url": "https://github.com/pphothidaen/HoroConsultant/actions/runs/33418206430",
+    "run_head_sha": "f9f80487a5f01a176ce7c16d3f1657e2c8908e16",
+    "job_id": 99573861466,
+    "job_name": "Pre-Deployment Code Review and Safety Audit",
+    "step_number": 5,
+    "step_name": "Execute code reviewer and safety audit",
+    "reported_failure_group": "RAG chunk baseline (1)",
+    "owned_output": "plans/evidence/gha-20260901-aisafety/rag-chunk-triage.json"
+  },
+  "failing_node": {
+    "id": null,
+    "status": "UNBOUND",
+    "reason": "The run summary records only the logical group 'RAG chunk baseline (1)'. The available f9f8048 test tree contains no assertion for 3132 or an exact corpus cardinality, and public GitHub job-log retrieval returned HTTP 403. Therefore no exact failing pytest node can be truthfully bound from repository or accessible CI evidence."
+  },
+  "baseline": {
+    "advertised_expected_chunk_count": 3132,
+    "actual_chunk_count": 61,
+    "delta": 3071,
+    "expected_count_provenance": {
+      "kind": "static claims, not an executable or frozen acceptance baseline",
+      "locations": [
+        "README.md:117,174,210,451",
+        "ReleaseNotes.md:14",
+        "project/core/chat_assistant_engine.py:275",
+        "project/static/index.html:452,640",
+        "project/static/app.js:2237,2249"
+      ]
+    },
+    "actual_count_provenance": {
+      "loader": "project/rag/vector_store.py::load_all_chunks",
+      "persisted_index": "project/data/vector_store/metadata.json",
+      "raw_texts": "project/data/raw_texts/*.txt",
+      "observed": "15 raw text files; loader returned 61 chunks; persisted FAISS metadata contained 61 chunks"
+    },
+    "binding_assessment": "UNBOUND: no f9f8048 test, provenance manifest, tracked persisted vector index, or corpus digest connects the static 3132 claim to the candidate corpus or generated index."
+  },
+  "commands": [
+    {
+      "command": "python3 -m pytest -q project/tests/test_meta_plan_003_baseline.py::TestVectorStoreAndRAGBaseline",
+      "output": "5 passed in 0.51s",
+      "interpretation": "The present focused RAG suite passes; its only singleton cardinality check is greater than zero, not 3132."
+    },
+    {
+      "command": "python3 -c '<load_all_chunks and VectorStore.load cardinality probe>'",
+      "output": "raw_text_files=15; load_all_chunks=61; persisted_metadata_chunks=61; persisted_mode=faiss; advertised_baseline=3132; delta_from_advertised=3071",
+      "interpretation": "Both the current loader and persisted local index agree on 61."
+    },
+    {
+      "command": "GET /repos/pphothidaen/HoroConsultant/actions/jobs/99573861466/logs",
+      "output": "HTTP 403",
+      "interpretation": "The unavailable job log prevents identification of any more-specific CI failure node."
+    }
+  ],
+  "commit_provenance": {
+    "ci_run_commit": {
+      "sha": "f9f80487a5f01a176ce7c16d3f1657e2c8908e16",
+      "parent": "40f1536a18c9e0fdf640c736d3ab5aa5cb25881c",
+      "subject": "fix(provenance): refine staged manifest verification for incremental edits"
+    },
+    "current_tree_commit": {
+      "sha": "cb1df9fd573f2936e9d57c4cb390f307cfeb17b7",
+      "parent": "5bee032a0c3e53d0125d1e24f3990cef74030ff6",
+      "subject": "fix(mcp): preserve lazy HybridRouter type reference"
+    },
+    "relationship": "f9f8048 is an ancestor of the current HEAD.",
+    "tracked_rag_input_and_chunker_comparison": {
+      "project/rag/vector_store.py": "same blob at f9f8048 and current tree: bfd842f130e884503826cfc36c2c960657e6c3f6",
+      "project/core/fast_math.py": "same blob at f9f8048 and current tree: 63f41e51e1359e6b323eec1aea106387c836fa1d",
+      "project/data/raw_texts/di_tian_sui.txt": "same blob at f9f8048 and current tree: 72b5bc404e945e44b97acf00d2f86f77bca1048a"
+    },
+    "persisted_index_boundary": "project/data/vector_store/metadata.json and index.faiss are ignored by .gitignore and absent from f9f8048. The current local 61-chunk persisted index is therefore diagnostic only, not CI-run provenance."
+  },
+  "candidate_paths": {
+    "ingestion": [
+      "project/rag/ingest_vault.py",
+      "scripts/build_vector_store.py",
+      "scripts/add_vault_entry.py"
+    ],
+    "vector_and_chunking": [
+      "project/rag/vector_store.py",
+      "project/core/fast_math.py",
+      "project/data/vector_store/metadata.json",
+      "project/data/vector_store/index.faiss"
+    ],
+    "source_data": [
+      "project/data/raw_texts/*.txt",
+      "project/rag/obsidian_vault/*.md"
+    ],
+    "claim_consumers": [
+      "README.md",
+      "ReleaseNotes.md",
+      "project/core/chat_assistant_engine.py",
+      "project/static/index.html",
+      "project/static/app.js"
+    ]
+  },
+  "cause_classification": {
+    "classification": "baseline_provenance_gap_with_static_runtime_claim_mismatch",
+    "confidence": "high",
+    "evidence": [
+      "The claimed 3132 count is static documentation/UI/application metadata rather than a test assertion or checked-in corpus manifest.",
+      "The same tracked loader, chunker, and representative raw-text input are present at f9f8048 and current HEAD.",
+      "The current loader and persisted local index consistently yield 61 chunks, 3071 fewer than the advertised count.",
+      "The CI-run revision has no tracked persisted vector-store artifact to establish what index count the failed run used."
+    ],
+    "not_established": [
+      "Whether CI failed a hidden or subsequently removed test node.",
+      "Whether the intended correction is corpus expansion/re-ingestion, a static-claim correction, or a newly frozen cardinality contract."
+    ]
+  },
+  "required_unblock": [
+    "Provide the CI failure log or exact pytest node and assertion output for run 33418206430.",
+    "Bind one authoritative expected count to a versioned corpus manifest and generated-index provenance (input file list, hashes, chunker configuration, and index metadata).",
+    "Obtain HITL scope direction before changing source data, generated vector artifacts, static claims, or test baseline."
+  ],
+  "mutations": {
+    "source": [],
+    "tests": [],
+    "data": [],
+    "docs": [],
+    "config": [],
+    "evidence": [
+      "plans/evidence/gha-20260901-aisafety/rag-chunk-triage.json"
+    ],
+    "external": []
+  }
+}

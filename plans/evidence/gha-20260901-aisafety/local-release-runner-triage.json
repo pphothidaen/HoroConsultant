@@ -1,0 +1,125 @@
+{
+  "schema_version": "gha-triage-v1",
+  "ticket": "GHA-20260901-AIS-016",
+  "status": "DONE",
+  "recorded_at_utc": "2026-08-31T17:38:55Z",
+  "revalidated_at_utc": "2026-09-01T03:21:31Z",
+  "mode": "WRITE_EVIDENCE",
+  "scope": {
+    "run_id": 33418206373,
+    "run_url": "https://github.com/pphothidaen/HoroConsultant/actions/runs/33418206373",
+    "run_head_sha": "f9f80487a5f01a176ce7c16d3f1657e2c8908e16",
+    "job_id": 99574682127,
+    "job_name": "PyTest & Edge Boundary Testing",
+    "step_number": 6,
+    "step_name": "Run Pytest Test Suite",
+    "test": "project/tests/test_local_release_runner_contract.py::test_non_release_hermes_qa_and_sync_orchestration_remains_callable",
+    "owned_output": "plans/evidence/gha-20260901-aisafety/local-release-runner-triage.json"
+  },
+  "failure": {
+    "expected": [
+      "CALL pytest",
+      "CALL tee"
+    ],
+    "actual": [
+      "",
+      "CALL pytest"
+    ],
+    "assertion_line": 322,
+    "classification": "flaky_test_harness_append_race",
+    "source_or_test": "test_harness",
+    "ambiguous": false
+  },
+  "cause": {
+    "summary": "The Hermes QA runner correctly invokes a POSIX pipeline containing both python3 pytest and tee, but the test doubles concurrently append non-atomic command records to the same regular file.",
+    "mechanism": [
+      "The mock python3 record function writes one logical CALL pytest record using a label write, one separate write per argument, and a final newline write.",
+      "The mock tee process starts concurrently and appends CALL tee to the same COMMAND_LOG before consuming pipeline input.",
+      "On the GitHub Ubuntu runner, CALL tee was inserted between pytest record writes. The remaining pytest arguments began a continuation line, which splitlines parsed with an empty label.",
+      "The assertion added to tolerate pytest-versus-tee startup ordering sorts complete lines, but cannot tolerate byte-level interleaving within one logical record."
+    ],
+    "runner_defect": false,
+    "environment_dependency": "Scheduler and shell timing determine whether the two test doubles interleave their separate append operations; the failure appeared on GitHub Ubuntu/Python 3.12 and did not reproduce in the local focused run on Darwin/Python 3.14."
+  },
+  "evidence": {
+    "ci_summary": "The CI assertion reported sorted labels ['', 'CALL pytest'] instead of ['CALL pytest', 'CALL tee']; the runner returned zero and the command list retained four parsed lines, consistent with log corruption rather than a missing pipeline process.",
+    "runner_pipeline": "scripts/hermes_sdlc_runner.sh:175 executes python3 -m pytest ... 2>&1 | tee /tmp/hermes_pytest_output.txt.",
+    "mock_python_writes": "project/tests/test_local_release_runner_contract.py:66-70 performs multiple independent printf append operations for one record.",
+    "mock_tee_write": "project/tests/test_local_release_runner_contract.py:103 appends CALL tee concurrently before draining stdin.",
+    "focused_reproduction": {
+      "command": "python3 -m pytest -q project/tests/test_local_release_runner_contract.py::test_non_release_hermes_qa_and_sync_orchestration_remains_callable",
+      "result": "PASS",
+      "tests_passed": 1,
+      "duration_seconds": 0.50,
+      "interpretation": "A local pass is expected for a timing-dependent race and does not invalidate the CI interleaving evidence."
+    },
+    "file_regression": {
+      "command": "python3 -m pytest -q project/tests/test_local_release_runner_contract.py",
+      "result": "PASS",
+      "tests_passed": 15,
+      "duration_seconds": 1.18
+    },
+    "history": {
+      "runner_last_material_commit": "628c27d9cd29213acdfaeeab5c6f3ba8551b03ba",
+      "runner_last_material_commit_date": "2026-08-26T12:47:54+07:00",
+      "ordering_tolerance_test_commit": "12fe9568b9ca316c3d6d0d5648bcf779cc5e8391",
+      "ordering_tolerance_test_commit_date": "2026-08-27T16:02:26+07:00",
+      "ordering_tolerance_change": "Changed the assertion from a fixed order to sorted pytest/tee labels without serializing or atomically recording concurrent test-double writes.",
+      "run_commit_test_blob": "edb527c20b13087a21e1a00e8aa6ccac9c78b206",
+      "run_commit_runner_blob": "f12f70079a433868c5e38ce7c462f9ece1773adc"
+    },
+    "current_provenance": {
+      "head_sha": "cb1df9fd573f2936e9d57c4cb390f307cfeb17b7",
+      "comparison_base_sha": "f9f80487a5f01a176ce7c16d3f1657e2c8908e16",
+      "test_blob_at_run_and_head": "edb527c20b13087a21e1a00e8aa6ccac9c78b206",
+      "runner_blob_at_run_and_head": "f12f70079a433868c5e38ce7c462f9ece1773adc",
+      "changed_owned_contract_paths_since_run_head": [],
+      "interpretation": "Current HEAD is later than the failed run, but neither the named test harness nor scripts/hermes_sdlc_runner.sh changed. The diagnosis remains attributable to the stale harness assertion, not a runner-source change."
+    },
+    "fresh_local_verification": {
+      "focused_command": "python3 -m pytest -q project/tests/test_local_release_runner_contract.py::test_non_release_hermes_qa_and_sync_orchestration_remains_callable",
+      "focused_result": "PASS (1 passed in 1.53s)",
+      "file_command": "python3 -m pytest -q project/tests/test_local_release_runner_contract.py",
+      "file_result": "PASS (15 passed in 1.47s)",
+      "interpretation": "These Darwin/Python 3.14 passes confirm that the candidate correction has not been applied and do not negate the CI-only byte-interleaving failure on Ubuntu/Python 3.12."
+    }
+  },
+  "candidate_correction": {
+    "preferred_scope": [
+      "project/tests/test_local_release_runner_contract.py"
+    ],
+    "source_script_change_required": false,
+    "steps": [
+      "Change only the mock tee implementation so it drains stdin completely before appending CALL tee to COMMAND_LOG. Producer EOF guarantees the mock python3 record has completed before tee records itself.",
+      "Restore a deterministic assertion for CALL router, CALL pytest, CALL tee, and CALL button while preserving the existing forbidden-provider checks.",
+      "Run the focused test and the complete local release runner contract file on Ubuntu with Python 3.12, then rerun Unified CI."
+    ],
+    "why_minimal": "It removes concurrent writers only inside the test harness and preserves real-time python3-pipe-tee behavior in the production runner."
+  },
+  "rollback": {
+    "scope": "test_only",
+    "action": "If the candidate test correction regresses the contract, revert only its single test-file commit or restore project/tests/test_local_release_runner_contract.py from that commit's parent.",
+    "runner_rollback_required": false,
+    "deployment_rollback_required": false,
+    "persistent_state_change": false
+  },
+  "verification_commands": [
+    "python3 -m pytest -q project/tests/test_local_release_runner_contract.py::test_non_release_hermes_qa_and_sync_orchestration_remains_callable",
+    "python3 -m pytest -q project/tests/test_local_release_runner_contract.py"
+  ],
+  "residual_risk": [
+    "The current test remains timing-dependent until its concurrent command-log writers are serialized.",
+    "This ticket diagnoses only the named failure; Unified CI run 33418206373 contained other independent failures outside this scope."
+  ],
+  "mutations": {
+    "source": [],
+    "tests": [],
+    "scripts": [],
+    "docs": [],
+    "config": [],
+    "evidence": [
+      "plans/evidence/gha-20260901-aisafety/local-release-runner-triage.json"
+    ],
+    "external": []
+  }
+}
