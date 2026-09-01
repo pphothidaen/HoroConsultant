@@ -820,30 +820,11 @@
       Admin Access Protection
     </h2>
     <p style="font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 24px;">
-      กรุณาเข้าสู่ระบบด้วย Google Account ที่ได้รับอนุญาตสิทธิ์ Admin<br>
-      <span style="color:#dc2626; font-size:12px; font-weight:600;">(เช่น pansakorn@gmail.com)</span>
+      กรุณาเข้าสู่ระบบด้วย Google Account ที่ได้รับอนุญาตสิทธิ์ Admin
     </p>
 
     <!-- Google Official Sign-In Button Target -->
     <div id="google-gsi-container" style="display: flex; justify-content: center; margin-bottom: 16px; min-height: 44px;"></div>
-
-    <!-- Authorized Email Direct Quick Login Form -->
-    <div style="border-top: 1px solid #fee2e2; padding-top: 20px; margin-top: 10px;">
-      <label style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 8px; text-align: left;">
-        Authorized Email Login
-      </label>
-      <div style="display: flex; gap: 8px;">
-        <input type="email" id="auth-email-input" value="pansakorn@gmail.com" placeholder="pansakorn@gmail.com" style="
-          flex: 1; background: #ffffff; border: 1px solid #cbd5e1;
-          border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #0f172a; font-family: inherit;
-        ">
-        <button onclick="submitEmailAuth()" style="
-          background: linear-gradient(135deg, #dc2626, #b91c1c); border: none;
-          border-radius: 10px; padding: 10px 18px; color: #ffffff; font-weight: 700;
-          font-size: 13px; cursor: pointer; transition: opacity 0.2s; box-shadow: 0 2px 8px rgba(220,38,38,0.25);
-        ">Login</button>
-      </div>
-    </div>
 
     <div id="auth-error-msg" style="
       margin-top: 16px; padding: 10px; border-radius: 8px; font-size: 12px;
@@ -1406,28 +1387,17 @@ const State = {
   ftStatus: null,
   currentModal: null,
   activeCategory: null,
+  adminIdToken: null,
 };
 
 /* ======================== INIT & GOOGLE AUTH ======================== */
 document.addEventListener('DOMContentLoaded', async () => {
   await initGoogleAuth();
-  await loadDashboard();
 });
 
 async function initGoogleAuth() {
   try {
     const cfg = await api('GET', '/admin/auth/config').catch(() => ({ auth_required: true }));
-    const savedUser = localStorage.getItem('admin_user');
-    if (savedUser) {
-      try {
-        const u = JSON.parse(savedUser);
-        if (u && u.email) {
-          applyAuthenticatedState(u);
-          return;
-        }
-      } catch (e) {}
-    }
-
     if (cfg.google_client_id && window.google && window.google.accounts) {
       window.google.accounts.id.initialize({
         client_id: cfg.google_client_id,
@@ -1445,47 +1415,15 @@ async function initGoogleAuth() {
 
 async function handleGoogleCredentialResponse(response) {
   try {
+    State.adminIdToken = response.credential;
     const res = await api('POST', '/admin/auth/google', { credential: response.credential });
     if (res.status === 'authenticated') {
-      localStorage.setItem('admin_user', JSON.stringify(res.user));
       applyAuthenticatedState(res.user);
+      await loadDashboard();
     }
   } catch (e) {
+    State.adminIdToken = null;
     showAuthError(e.message || 'Google Auth Verification Failed');
-  }
-}
-
-async function submitEmailAuth() {
-  const emailInput = document.getElementById('auth-email-input').value.trim();
-  if (!emailInput) return;
-  const ALLOWED_ADMIN_EMAILS = ['pansakorn@gmail.com', 'kimlenglim.work@gmail.com'];
-
-  try {
-    const res = await api('POST', '/admin/auth/google', { mock_email: emailInput });
-    if (res && res.status === 'authenticated') {
-      localStorage.setItem('admin_user', JSON.stringify(res.user));
-      applyAuthenticatedState(res.user);
-      return;
-    }
-  } catch (e) {
-    console.warn("API Admin Auth failed, trying local authorized email verification:", e);
-  }
-
-  // Client-side Fallback Auth for authorized admin emails
-  const cleanEmail = emailInput.toLowerCase();
-  if (ALLOWED_ADMIN_EMAILS.includes(cleanEmail)) {
-    const fallbackUser = {
-      email: cleanEmail,
-      name: cleanEmail.split('@')[0].capitalize ? cleanEmail.split('@')[0].capitalize() : cleanEmail.split('@')[0],
-      picture: `https://api.dicebear.com/7.x/bottts/svg?seed=${cleanEmail}`,
-      role: 'admin',
-      auth_provider: 'authorized_email_fallback'
-    };
-    localStorage.setItem('admin_user', JSON.stringify(fallbackUser));
-    applyAuthenticatedState(fallbackUser);
-    toast('info', `Authenticated as Admin (${cleanEmail})`);
-  } else {
-    showAuthError(`Access Denied: Email '${emailInput}' is not authorized for Admin access.`);
   }
 }
 
@@ -1509,7 +1447,7 @@ function showAuthError(msg) {
 }
 
 function logoutAdmin() {
-  localStorage.removeItem('admin_user');
+  State.adminIdToken = null;
   const chip = document.getElementById('user-profile-chip');
   if (chip) chip.style.display = 'none';
   const overlay = document.getElementById('auth-modal-overlay');
@@ -1615,8 +1553,14 @@ async function api(method, path, body) {
       method,
       headers: { 'Content-Type': 'application/json' },
     };
-    if (body) opts.body = JSON.stringify(body);
     const endpoint = path.startsWith('/') ? path : '/' + path;
+    if (endpoint.startsWith('/admin/') && endpoint !== '/admin/auth/config' && endpoint !== '/admin/auth/google' && !State.adminIdToken) {
+      throw new Error('Google authentication is required.');
+    }
+    if (State.adminIdToken && (endpoint.startsWith('/admin/') || endpoint === '/hitl/stats')) {
+      opts.headers.Authorization = `Bearer ${State.adminIdToken}`;
+    }
+    if (body) opts.body = JSON.stringify(body);
     const res = await fetchApi(endpoint, opts);
     if (!res.ok) {
       const err = await res.json().catch(() => ({ detail: res.statusText }));
@@ -1684,11 +1628,7 @@ async function loadProviderPoolsStatus() {
 
   try {
     let data;
-    try {
-      data = await api('GET', '/admin/provider-pools');
-    } catch (e1) {
-      data = await api('GET', '/api/admin/provider-pools');
-    }
+    data = await api('GET', '/admin/provider-pools');
     if (dashContainer) renderProviderPools(data, dashContainer);
     if (pageContainer) renderProviderPools(data, pageContainer);
 

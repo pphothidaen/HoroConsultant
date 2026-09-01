@@ -24,6 +24,24 @@ const PUBLIC_MUTATION_PATHS = new Set([
   "/api/v2/chat/consult",
   "/api/v3/calculate",
 ]);
+const ADMIN_ROUTE_METHODS = new Map([
+  ["/admin/auth/config", ["GET"]],
+  ["/admin/auth/google", ["POST"]],
+  ["/admin/catalog", ["GET"]],
+  ["/admin/catalog/summary", ["GET"]],
+  ["/admin/grayzone", ["GET"]],
+  ["/admin/grayzone/answer", ["POST", "DELETE"]],
+  ["/admin/finetune/status", ["GET"]],
+  ["/admin/finetune/export-grayzone", ["POST"]],
+  ["/admin/finetune/merge", ["POST"]],
+  ["/admin/finetune/trigger", ["POST"]],
+  ["/admin/finetune/download", ["GET"]],
+  ["/admin/finetune/download-grayzone", ["GET"]],
+  ["/admin/provider-pools", ["GET"]],
+  ["/admin/code-review", ["GET"]],
+  ["/hitl/stats", ["GET"]],
+]);
+const ADMIN_SOURCE_DETAIL_PATH = /^\/admin\/catalog\/source\/[A-Za-z0-9._-]{1,128}$/;
 const PRIVILEGED_PATH_SEGMENT = /(?:^|\/)(?:admin|hitl)(?:\/|$)/i;
 
 /**
@@ -86,8 +104,13 @@ function requestPath(request) {
 
   const segments = rawPath.split("/");
   if (segments.some(segment => segment === "." || segment === "..")) return null;
-  if (PRIVILEGED_PATH_SEGMENT.test(rawPath)) return null;
-  if (!PUBLIC_READ_PATHS.has(rawPath) && !PUBLIC_API_PATH.test(rawPath)) return null;
+  if (PRIVILEGED_PATH_SEGMENT.test(rawPath)
+    && !ADMIN_ROUTE_METHODS.has(rawPath)
+    && !ADMIN_SOURCE_DETAIL_PATH.test(rawPath)) return null;
+  if (!PUBLIC_READ_PATHS.has(rawPath)
+    && !PUBLIC_API_PATH.test(rawPath)
+    && !ADMIN_ROUTE_METHODS.has(rawPath)
+    && !ADMIN_SOURCE_DETAIL_PATH.test(rawPath)) return null;
 
   const query = new URLSearchParams();
   for (const [key, value] of requestUrl.searchParams.entries()) {
@@ -98,10 +121,23 @@ function requestPath(request) {
 
 function allowedMethods(path) {
   const pathname = path.split("?", 1)[0];
+  if (ADMIN_SOURCE_DETAIL_PATH.test(pathname)) return ["GET"];
+  if (ADMIN_ROUTE_METHODS.has(pathname)) return ADMIN_ROUTE_METHODS.get(pathname);
   if (PUBLIC_READ_PATHS.has(pathname)) return ["GET"];
   if (PUBLIC_MUTATION_PATHS.has(pathname)) return ["POST"];
   if (PUBLIC_API_PATH.test(pathname)) return ["GET"];
   return [];
+}
+
+function adminTokenRequired(path) {
+  const pathname = path.split("?", 1)[0];
+  return (ADMIN_ROUTE_METHODS.has(pathname) || ADMIN_SOURCE_DETAIL_PATH.test(pathname))
+    && pathname !== "/admin/auth/config"
+    && pathname !== "/admin/auth/google";
+}
+
+function hasBearerToken(request) {
+  return /^Bearer\s+[^\s]{20,}$/.test(readHeader(request.headers, "authorization"));
 }
 
 function methodAllowed(method, path) {
@@ -226,6 +262,9 @@ async function proxyRequest(request, response, correlationId) {
     response.setHeader("Allow", [...allowedMethods(target), "OPTIONS"].join(", "));
     return sendGatewayError(response, 405, "method_not_allowed", correlationId);
   }
+  if (adminTokenRequired(target) && !hasBearerToken(request)) {
+    return sendGatewayError(response, 401, "authentication_required", correlationId);
+  }
   if (!BACKEND_ORIGIN) {
     return sendGatewayError(response, 503, "backend_not_configured", correlationId);
   }
@@ -274,7 +313,7 @@ async function proxyRequest(request, response, correlationId) {
 
 export default async function handler(request, response) {
   const cors = applyCorsPolicy(request, response, {
-    methods: "GET, POST, OPTIONS",
+    methods: "GET, POST, DELETE, OPTIONS",
   });
   if (!cors.allowed) {
     return response.status(403).json({
