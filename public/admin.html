@@ -1354,7 +1354,7 @@ async function initGoogleAuth() {
   try {
     const cfg = await api('GET', '/admin/auth/config').catch(() => ({ auth_required: true }));
     const savedUser = localStorage.getItem('admin_user');
-    const savedToken = sessionStorage.getItem('admin_id_token');
+    const savedToken = localStorage.getItem('google_id_token');
     if (savedUser) {
       try {
         const u = JSON.parse(savedUser);
@@ -1386,7 +1386,7 @@ async function handleGoogleCredentialResponse(response) {
     const res = await api('POST', '/admin/auth/google', { credential: response.credential });
     if (res.status === 'authenticated') {
       State.adminIdToken = response.credential;
-      sessionStorage.setItem('admin_id_token', response.credential);
+      localStorage.setItem('google_id_token', response.credential);
       localStorage.setItem('admin_user', JSON.stringify(res.user));
       applyAuthenticatedState(res.user);
     }
@@ -1396,37 +1396,7 @@ async function handleGoogleCredentialResponse(response) {
 }
 
 async function submitEmailAuth() {
-  const emailInput = document.getElementById('auth-email-input').value.trim();
-  if (!emailInput) return;
-  const ALLOWED_ADMIN_EMAILS = ['pansakorn@gmail.com', 'kimlenglim.work@gmail.com'];
-  
-  try {
-    const res = await api('POST', '/admin/auth/google', { mock_email: emailInput });
-    if (res && res.status === 'authenticated') {
-      localStorage.setItem('admin_user', JSON.stringify(res.user));
-      applyAuthenticatedState(res.user);
-      return;
-    }
-  } catch (e) {
-    console.warn("API Admin Auth failed, trying local authorized email verification:", e);
-  }
-
-  // Client-side Fallback Auth for authorized admin emails
-  const cleanEmail = emailInput.toLowerCase();
-  if (ALLOWED_ADMIN_EMAILS.includes(cleanEmail)) {
-    const fallbackUser = {
-      email: cleanEmail,
-      name: cleanEmail.split('@')[0].capitalize ? cleanEmail.split('@')[0].capitalize() : cleanEmail.split('@')[0],
-      picture: `https://api.dicebear.com/7.x/bottts/svg?seed=${cleanEmail}`,
-      role: 'admin',
-      auth_provider: 'authorized_email_fallback'
-    };
-    localStorage.setItem('admin_user', JSON.stringify(fallbackUser));
-    applyAuthenticatedState(fallbackUser);
-    toast('info', `Authenticated as Admin (${cleanEmail})`);
-  } else {
-    showAuthError(`Access Denied: Email '${emailInput}' is not authorized for Admin access.`);
-  }
+  showAuthError('Google ID token is required for Admin access.');
 }
 
 function applyAuthenticatedState(user) {
@@ -1450,7 +1420,7 @@ function showAuthError(msg) {
 
 function logoutAdmin() {
   localStorage.removeItem('admin_user');
-  sessionStorage.removeItem('admin_id_token');
+  localStorage.removeItem('google_id_token');
   State.adminIdToken = null;
   const chip = document.getElementById('user-profile-chip');
   if (chip) chip.style.display = 'none';
@@ -1554,9 +1524,6 @@ async function fetchApi(endpoint, options = {}) {
 async function api(method, path, body) {
   try {
     const endpoint = path.startsWith('/') ? path : '/' + path;
-    const isProtectedAdminCall = (endpoint.startsWith('/admin/') || endpoint === '/hitl/stats')
-      && endpoint !== '/admin/auth/config'
-      && endpoint !== '/admin/auth/google';
     if (endpoint.startsWith('/admin/')
       && endpoint !== '/admin/auth/config'
       && endpoint !== '/admin/auth/google'
@@ -1568,7 +1535,7 @@ async function api(method, path, body) {
       method,
       headers: {
         'Content-Type': 'application/json',
-        ...(isProtectedAdminCall ? { Authorization: `Bearer ${State.adminIdToken}` } : {}),
+        ...(State.adminIdToken ? { Authorization: `Bearer ${State.adminIdToken}` } : {}),
       },
     };
     if (body) opts.body = JSON.stringify(body);

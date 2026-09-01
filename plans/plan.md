@@ -7,8 +7,103 @@
 
 ---
 
+<!-- ADMIN-REMED-BSA-015:START -->
+## GRILL REPORT -- ADMIN-REMED-BSA-015: Privileged Admin Action Scope and Superseding Baseline
+
+**Recorded**: `2026-09-01T13:25:21+07:00` (Asia/Bangkok)
+**Status**: `APPROVED`
+**Authorized next phase**: `ADMIN-REMED-QA-025` TEST-ONLY baseline creation. No source, review, operations, push, deployment, release, secret, or external-system action is authorized by this gate.
+**Request**: Persist the owner-approved privileged Admin ingress boundary, classify the prior candidate lineage truthfully, and hand off an exact test-only superseding baseline before any new source lane can be admitted.
+
+### Context evidence
+
+- `[CONFIRMED]` The owner approved the exact IN/OUT route boundary below and creation of a new baseline. UI controls for excluded write actions must not be removed or hidden in this governance ticket; their future UX treatment is separate scope.
+- `[AUTO]` Git metadata identifies prior candidate lineage `d95783eeff26e85874477146db2ccb0a61d24ce8 -> d11b8f30cdf969a87b0efa1c02325ec04f05bd1a -> 5b261c532c4ea59246d23f095f605ddb22da354c`. The intermediate source commit `d11b8f3` has no `Test-Baseline:` trailer; only the later `5b261c5` commit carries `Test-Baseline: d95783eeff26e85874477146db2ccb0a61d24ce8`.
+- `[AUTO]` The existing baseline assets are `tests/admin_production_ingress_contract.test.mjs` and `plans/test_provenance/ticket-admin-remed-qa-001-baseline.json`. They predate this narrower owner decision and therefore remain historical evidence rather than the authorized baseline for new source work.
+- `[AUTO]` The pre-existing worktree changes shown by `git status --short` are outside `plans/plan.md` and `atomic_tasks.md`; this ticket does not claim or modify them.
+
+### Nine-dimension matrix
+
+| ID | Result | Evidence state | Decision / remaining issue |
+|---|---|---|---|
+| D1 Scope boundary | Allow only the authenticated Admin reads/downloads and the single Google credential-verification POST enumerated below; all listed mutations and every other `/admin/*` or `/hitl/*` path remain fail-closed. | `[CONFIRMED]` | Resolved. No UI-control removal/hiding, source, test, manifest, runtime, external, deployment, push, release, or secret action occurs in BSA-015. |
+| D2 Requirement delta | Supersede the broader prior ingress baseline with an explicit least-privilege allowlist. Reclassify `d95783e -> d11b8f3 -> 5b261c5` as `NON_TDD_RECONSTRUCTED` because the intermediate source commit lacks the required trailer. | `[CONFIRMED]` / `[AUTO]` | Resolved. Prior artifacts remain immutable historical evidence and cannot satisfy the new source gate. |
+| D3 Acceptance and stop conditions | QA-025 must create exactly one new test contract and one new manifest, prove RED plus negative/fail-closed behavior for the approved boundary, and earn `TEST_BASELINE_VERIFIED` without source changes. | `[CONFIRMED]` | Resolved. Stop on path drift, source mutation, missing provenance/trailer controls, secret output, or any ambiguous route admission. |
+| D4 Inputs, constraints, and dependencies | Inputs are the owner-approved route matrix, historical commit metadata, existing baseline assets, a clean immutable QA parent, and provenance tooling. QA-025 is the mandatory dependency for all new source/review/ops tickets. | `[CONFIRMED]` / `[AUTO]` | Resolved. Deployment credentials, tokens, secret values, production access, and external writes are neither inputs nor authorized dependencies. |
+| D5 Architecture, ownership, and handoff | BSA-015 owns only this plan and `atomic_tasks.md`; QA-025 owns only its new test and manifest; downstream developer/reviewer/ops tickets remain blocked in strict serial order. | `[CONFIRMED]` | Resolved. One-editor ownership is explicit; no downstream lane may treat the prior baseline as admission evidence. |
+| D6 Assumption register | Owner authority and route intent are confirmed. `:source_id` is a path parameter; gray-zone read coverage includes the supported `answered` query forms while preserving the same GET path. Existing UI controls remain present pending separate UX scope. | `[CONFIRMED]` | No pending material assumption. No permission is inferred for implementation or release. |
+| D7 Risk and recovery | Risks are accidental privileged-write exposure, wildcard admission, false TDD provenance, UI scope creep, and status inflation. Recovery is documentation-only: retain historical records, block downstream tickets, and amend this decision only with a new owner-approved scope record. | `[CONFIRMED]` / `[AUTO]` | Resolved. Any uncertain path fails closed and returns the affected ticket to `BLOCKED`. |
+| D8 Budget and evidence strategy | DispatchDecision v1: phase `governance-scope`; ranks scope=3, complexity=2, risk=3, ambiguity=1, evidence=3; floor and selected intent `codex1/gpt-5.6-sol/high`; quota constrained/Tier 2 Amber; `WRITE_GOVERNANCE`; policy v1; `root-medium=true`; HITL=true from current owner approval. | `[CONFIRMED]` | Native route intent is not provider/runtime proof. Evidence is bounded to route names, hashes, paths, provenance state, and ASCII-safe results; never secret material. |
+| D9 Domain and HITL check | No metaphysical calculation, interpretation, canonical-source choice, or `metaphysical-domain-engine` behavior changes. Current owner approval resolves the privileged-action scope decision. | `[NOT-APPLICABLE]` / `[CONFIRMED]` | No metaphysical scope audit is required. Separate HITL approval remains mandatory for any later push/deploy/release or secret operation. |
+
+### Approved privileged route contract
+
+**IN -- authenticated operation required for Admin dashboard operation**
+
+| Method | Exact path | Boundary |
+|---|---|---|
+| `GET` | `/admin/auth/config` | Read authentication configuration only. |
+| `POST` | `/admin/auth/google` | Google credential verification only; no mock-email request or fallback path. |
+| `GET` | `/admin/catalog/summary` | Read summary only. |
+| `GET` | `/admin/catalog` | Read catalog only. |
+| `GET` | `/admin/catalog/source/:source_id` | Read one path-parameter-selected catalog source only. |
+| `GET` | `/admin/grayzone` | Read gray-zone data, including supported `answered` query forms; query use does not widen the path or method. |
+| `GET` | `/admin/finetune/status` | Read status only. |
+| `GET` | `/admin/finetune/download` | Authenticated download only. |
+| `GET` | `/admin/finetune/download-grayzone` | Authenticated gray-zone download only. |
+| `GET` | `/admin/provider-pools` | Read provider-pool status only. |
+| `GET` | `/hitl/stats` | Read HITL statistics only. |
+
+**OUT -- must remain fail-closed**
+
+- `POST /admin/grayzone/answer`
+- `DELETE /admin/grayzone/answer`
+- `POST /admin/finetune/export-grayzone`
+- `POST /admin/finetune/merge`
+- `POST /admin/finetune/trigger`
+- Every other `/admin/*` or `/hitl/*` method/path, including wildcard, alias, prefix-confusion, and method-substitution admissions.
+- Removing or hiding the corresponding UI controls in BSA-015 or QA-025. Future disabled-state, explanation, or removal UX requires a separately approved scope decision.
+
+### Provenance decision and dependency graph
+
+- The prior `d95783e -> d11b8f3 -> 5b261c5` candidate is `NON_TDD_RECONSTRUCTED` and blocked as admission evidence. `d11b8f3` is a source commit between the baseline and later candidate but lacks the exact `Test-Baseline: d95783eeff26e85874477146db2ccb0a61d24ce8` trailer. A trailer added only to `5b261c5` cannot repair that chain retrospectively.
+- The old test/manifest may be referenced for history, but neither may be relabeled `TEST_BASELINE_VERIFIED` for this approved scope.
+
+```text
+ADMIN-REMED-BSA-015 (DONE: approved governance scope only)
+  -> ADMIN-REMED-QA-025 (TODO: TEST-ONLY superseding baseline)
+     -- must reach TEST_BASELINE_VERIFIED before any downstream admission
+  -> ADMIN-REMED-DEV-035 (BLOCKED on QA-025 TEST_BASELINE_VERIFIED)
+  -> ADMIN-REMED-REVIEW-045 (BLOCKED on QA-025 TEST_BASELINE_VERIFIED and DEV-035 DONE)
+  -> ADMIN-REMED-OPS-055 (BLOCKED on QA-025 TEST_BASELINE_VERIFIED, REVIEW-045 DONE,
+                          and separate owner authorization; push/deploy/release excluded now)
+```
+
+### QA-025 acceptance and stop contract
+
+| Criterion | Required evidence | Stop threshold |
+|---|---|---|
+| Test-only ownership | New `tests/admin_production_ingress_scope_contract.test.mjs` and new `plans/test_provenance/ticket-admin-remed-qa-025-baseline.json` only; manifest names QA-025 and supersedes the old baseline without rewriting it. | Stop on any source, existing test/manifest, config, generated, runtime, worktree, remote, or external-system mutation. |
+| Exact positive allowlist | Tests enumerate every IN method/path above, treat `:source_id` as a bounded segment, and cover supported `/admin/grayzone?answered=...` query forms. Google POST proves credential verification only and explicitly rejects any mock-email mode. | Stop if an IN path is omitted, broadened, or admitted without the required authentication contract. |
+| Exact negative/fail-closed matrix | Tests enumerate the five named OUT mutations and representative method substitution, wildcard, alias, prefix-confusion, unknown `/admin/*`, and unknown `/hitl/*` cases; expected behavior has no backend forwarding or privileged response. | Stop if any excluded or unenumerated privileged path is forwarded/admitted, or if tests achieve coverage by hiding/removing UI controls. |
+| Honest RED and negative evidence | From the clean parent, focused test execution returns the manifest-declared RED exit/fingerprint for the intended missing source behavior; a bounded negative-control run proves the test detects route widening or auth weakening. | Stop on GREEN-at-creation without an explained test-first failure, nondeterministic fingerprint, missing negative control, or evidence captured against a dirty/unbound parent. |
+| Closed provenance | Manifest binds parent SHA, test SHA-256, command, expected exit, failure fingerprint, allowed future source paths, roles, and superseded artifact. The immutable test-only baseline commit passes the repository provenance guard and is recorded as `TEST_BASELINE_VERIFIED`. | Stop on hash/ancestry/path drift, co-committed source, schema/guard failure, or missing immutable baseline SHA. |
+| Downstream trailer enforcement | QA handoff states that every later source commit in the candidate lineage must carry exact `Test-Baseline: <QA-025 immutable baseline SHA>` provenance and must descend from that baseline. | Stop/reclassify the candidate `NON_TDD_RECONSTRUCTED` if any intervening source commit lacks or mismatches the trailer. |
+
+### Risks, recovery, waivers, blockers, and current stop
+
+- **Waivers**: `NONE`.
+- **Blockers**: QA-025 has not yet produced an immutable test-only SHA, RED/negative evidence, or verified manifest. Therefore DEV-035, REVIEW-045, and OPS-055 remain `BLOCKED`; OPS-055 additionally lacks current push/deploy/release authority.
+- **Recovery**: preserve the old lineage as historical `NON_TDD_RECONSTRUCTED`; do not edit it into compliance. If QA-025 drifts from the exact matrix, discard only its unverified candidate artifacts and restart from the bound clean parent.
+- **Current-ticket acceptance**: this record and the matching atomic handoff are the only changes; all nine dimensions carry evidence states; scope, dependencies, assumptions, acceptance, and stop conditions are exact; no implementation or production claim is made.
+- **Current-ticket stop condition**: stop after persisting and diff-checking these two governance files. The only authorized next phase is QA-025 TEST-ONLY work under separate one-editor admission.
+
+<!-- ADMIN-REMED-BSA-015:END -->
+
 <!-- ADMIN-REMED-PLAN-001:START -->
 ## GRILL REPORT -- ADMIN-REMED-PLAN-001: Production Admin Data-Path Remediation
+
+> **Superseded execution baseline**: `ADMIN-REMED-BSA-015` narrows privileged route admission and requires `ADMIN-REMED-QA-025=TEST_BASELINE_VERIFIED`. This older plan remains historical context and cannot admit source, review, or operations work.
 
 **Recorded**: `2026-09-01T00:45:00+07:00` (Asia/Bangkok)
 **Status**: `APPROVED`

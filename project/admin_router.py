@@ -242,10 +242,11 @@ async def get_provider_pools():
             "last_failure_time": cb.last_failure_time,
         }
 
-    pools_data: dict[str, Any] = {}
+    pools_data: list[dict[str, Any]] = []
     for name, pool in ai_router.provider_pools.items():
         active_proj = pool.get_active_project()
-        pools_data[name] = {
+        pools_data.append({
+            "name": name,
             "provider_name": pool.provider_name,
             "billing_mode": pool.billing_mode.value if hasattr(pool.billing_mode, "value") else str(pool.billing_mode),
             "is_available": pool.is_available(),
@@ -262,7 +263,7 @@ async def get_provider_pools():
                 }
                 for p in pool.projects
             ],
-        }
+        })
 
     return JSONResponse(
         content={

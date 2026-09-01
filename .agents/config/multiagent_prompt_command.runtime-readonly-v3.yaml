@@ -42,6 +42,21 @@ accounts:
     command: agy
     home_env: AGY_HOME
     home_path: ${HOME}/.agy-account2
+  agy3:
+    cli: agy
+    command: agy
+    home_env: AGY_HOME
+    home_path: ${HOME}/.agy-account3
+  agy4:
+    cli: agy
+    command: agy
+    home_env: AGY_HOME
+    home_path: ${HOME}/.agy-account4
+  codex3:
+    cli: codex
+    command: codex
+    home_env: CODEX_HOME
+    home_path: ${HOME}/.codex-account3
 
 roles:
   implementation:

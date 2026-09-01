@@ -12,7 +12,6 @@ const PUBLIC_READ_PATHS = new Set(["/health", "/docs", "/openapi.json"]);
 const PRIVILEGED_API_PATH = /^\/admin\/[A-Za-z0-9._~!$&'()*+,;=:@/-]*$/;
 const PRIVILEGED_READ_PATHS = new Set(["/hitl/stats"]);
 const PRIVILEGED_AUTH_BOOTSTRAP_PATHS = new Set(["/admin/auth/config", "/admin/auth/google"]);
-const VERSIONED_PRIVILEGED_PATH_SEGMENT = /^\/api\/v[123]\/(?:admin|hitl)(?:\/|$)/i;
 const PUBLIC_MUTATION_PATHS = new Set([
   "/api/v1/location/resolve",
   "/api/v1/bazi/calculate",
@@ -89,7 +88,6 @@ function requestPath(request) {
 
   const segments = rawPath.split("/");
   if (segments.some(segment => segment === "." || segment === "..")) return null;
-  if (VERSIONED_PRIVILEGED_PATH_SEGMENT.test(rawPath)) return null;
   if (!PUBLIC_READ_PATHS.has(rawPath)
     && !PUBLIC_API_PATH.test(rawPath)
     && !PRIVILEGED_API_PATH.test(rawPath)

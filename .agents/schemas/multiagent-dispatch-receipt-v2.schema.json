@@ -84,7 +84,7 @@
       "minimum": 1
     },
     "alias": {
-      "enum": ["codex1", "codex2", "agy1", "agy2"]
+      "enum": ["codex1", "codex2", "codex3", "agy1", "agy2", "agy3", "agy4"]
     },
     "provider": {
       "enum": ["codex", "agy"]

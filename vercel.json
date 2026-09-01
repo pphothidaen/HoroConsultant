@@ -25,11 +25,11 @@
     },
     {
       "source": "/admin/:path*",
-      "destination": "/api/index?path=/admin/:path*"
+      "destination": "https://pphothidaen-horoconsultant-core-backend.hf.space/admin/:path*"
     },
     {
       "source": "/hitl/stats",
-      "destination": "/api/index?path=/hitl/stats"
+      "destination": "https://pphothidaen-horoconsultant-core-backend.hf.space/hitl/stats"
     },
     {
       "source": "/docs",

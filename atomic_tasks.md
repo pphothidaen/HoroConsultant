@@ -34,6 +34,48 @@ second task board or add ticket definitions to a plan/pointer file.
 
 ## ACTIVE SPRINTS & WORKSTREAMS
 
+<!-- ADMIN-REMED-BSA-015:START -->
+## Scope Delta ADMIN-REMED-BSA-015 -- Privileged Admin Action Baseline Supersession
+
+**Recorded**: `2026-09-01T13:25:21+07:00` (Asia/Bangkok)
+**Severity**: `CRITICAL`
+**GRILL gate**: `APPROVED` (`ADMIN-REMED-BSA-015`, `plans/plan.md`)
+**Current status**: `GOVERNANCE DONE; QA-025 TODO; ALL SOURCE/REVIEW/OPS BLOCKED`
+**Authority boundary**: Current approval authorizes this governance record and the next QA-025 TEST-ONLY baseline phase only. It excludes source/config/runtime changes, UI-control removal or hiding, operations, external systems, push, deployment, release, and all secret/credential actions.
+
+**Current privileged contract**: IN is limited to `GET /admin/auth/config`; `POST /admin/auth/google` for Google credential verification only and never a mock-email path; `GET /admin/catalog/summary`; `GET /admin/catalog`; `GET /admin/catalog/source/:source_id`; `GET /admin/grayzone` including supported `answered` query forms; `GET /admin/finetune/status`; `GET /admin/finetune/download`; `GET /admin/finetune/download-grayzone`; `GET /admin/provider-pools`; and `GET /hitl/stats`. OUT/fail-closed is `POST /admin/grayzone/answer`; `DELETE /admin/grayzone/answer`; `POST /admin/finetune/export-grayzone`; `POST /admin/finetune/merge`; `POST /admin/finetune/trigger`; and every other `/admin/*` or `/hitl/*` method/path.
+
+**Prior-lineage verdict**: `d95783e -> d11b8f3 -> 5b261c5` is historical `NON_TDD_RECONSTRUCTED`, not source-admission evidence. Git metadata confirms `d11b8f3` is an intervening source commit with no `Test-Baseline:` trailer; the trailer on `5b261c5` does not repair that missing link. Existing `tests/admin_production_ingress_contract.test.mjs` and `plans/test_provenance/ticket-admin-remed-qa-001-baseline.json` remain immutable historical artifacts and do not satisfy QA-025.
+
+### Dependency graph
+
+```text
+ADMIN-REMED-BSA-015 (DONE: governance only)
+  -> ADMIN-REMED-QA-025 (TODO: TEST-ONLY; target TEST_BASELINE_VERIFIED)
+  -> ADMIN-REMED-DEV-035 (BLOCKED: QA-025 must be TEST_BASELINE_VERIFIED)
+  -> ADMIN-REMED-REVIEW-045 (BLOCKED: QA-025 TEST_BASELINE_VERIFIED + DEV-035 DONE)
+  -> ADMIN-REMED-OPS-055 (BLOCKED: QA-025 TEST_BASELINE_VERIFIED + REVIEW-045 DONE
+                          + new owner authorization for push/deploy/release)
+```
+
+| Ticket | Severity / effort | Lifecycle status | Dependencies | One editor / writable ownership | Measurable acceptance and DoD / stop |
+|---|---|---|---|---|---|
+| `ADMIN-REMED-BSA-015` | CRITICAL / S | DONE (`TODO -> READY -> DOING -> DONE`) | Current owner approval | `business_analyst`: `plans/plan.md`, `atomic_tasks.md` only | Exact IN/OUT scope, D1-D9 evidence, prior-lineage classification, QA acceptance/stop criteria, and blocked graph are persisted; exact diff contains only the two owned files. No implementation, test execution, remote mutation, or production claim. |
+| `ADMIN-REMED-QA-025` | CRITICAL / S | TODO | `ADMIN-REMED-BSA-015` DONE; clean immutable parent; one-editor admission and Rule 21 lease before DOING | `qa_tester`: new `tests/admin_production_ingress_scope_contract.test.mjs` and new `plans/test_provenance/ticket-admin-remed-qa-025-baseline.json` only | TEST-ONLY baseline enumerates the exact IN matrix, the five explicit OUT mutations, all-other fail-closed behavior, Google-credential-only POST, `answered` query coverage, and UI-control preservation. It records deterministic RED plus bounded negative-control evidence from a clean parent, hashes the test, passes provenance validation, commits no source, and reaches `TEST_BASELINE_VERIFIED`. Stop on omitted/broadened paths, source/existing-artifact mutation, missing RED/negative proof, dirty parent, hash/ancestry/guard drift, secret output, or missing immutable baseline SHA. |
+| `ADMIN-REMED-DEV-035` | CRITICAL / M | BLOCKED | `ADMIN-REMED-QA-025=TEST_BASELINE_VERIFIED`; exact QA-025 SHA/manifest handoff; separate Rule 21 admission | `developer`: no active reservation; future source paths must be declared from QA-025's manifest before READY | Implement only the approved route/auth boundary and preserve existing UI controls; every source commit must descend from QA-025 and carry exact `Test-Baseline: <QA-025 SHA>`. No work may start from the historical baseline. Stop/reclassify `NON_TDD_RECONSTRUCTED` on any intervening source commit with a missing/mismatched trailer. No push/deploy/release/secrets. |
+| `ADMIN-REMED-REVIEW-045` | CRITICAL / S | BLOCKED | `ADMIN-REMED-QA-025=TEST_BASELINE_VERIFIED`; `ADMIN-REMED-DEV-035` DONE; independent admission | `code_reviewer`: read-only; future receipt path must be declared before READY | Verify exact allowlist/fail-closed behavior, immutable QA-025 ancestry and trailers, UI-control preservation, zero mock-email admission, no secret leakage, and bounded diff. It cannot repair source, push, deploy, release, or claim production behavior. |
+| `ADMIN-REMED-OPS-055` | CRITICAL / S | BLOCKED / NOT AUTHORIZED | `ADMIN-REMED-QA-025=TEST_BASELINE_VERIFIED`; `ADMIN-REMED-REVIEW-045` DONE; separate current owner approval for exact remote action/targets/rollback | `devops`: none; no remote or file ownership reservation exists | Placeholder gate only. Push, deployment, release, production mutation, secret access/sync, and external-system actions remain excluded. A later approval must bind exact candidate, targets, rollback, receipt path, and post-action verification before READY. |
+
+### Admission and stop rules
+
+- QA-025 alone is the authorized next phase. It does not modify source, existing tests/manifests, generated files, configuration, runtime state, worktrees, branches, remotes, deployments, or secrets.
+- DEV-035, REVIEW-045, and OPS-055 each directly require `ADMIN-REMED-QA-025=TEST_BASELINE_VERIFIED`; their additional serial dependencies do not weaken that baseline gate.
+- The old PLAN-001 / QA-010 records remain historical. Any older `READY` wording is superseded by this current timestamped scope delta and cannot authorize work.
+- Do not remove or hide excluded-action UI controls under these tickets. Future UX treatment is separate scope.
+- No current source/review/ops ticket is DONE, no production functionality is claimed, and no release/closure/archive action is authorized.
+
+<!-- ADMIN-REMED-BSA-015:END -->
+
 <!-- ADMIN-REMED-PLAN-001:START -->
 ## Sprint ADMIN-REMED-001 -- Production Admin Data-Path Recovery
 
@@ -41,7 +83,7 @@ second task board or add ticket definitions to a plan/pointer file.
 **Severity**: `CRITICAL`
 **Work effort**: `M`
 **GRILL gate**: `APPROVED` (`ADMIN-REMED-PLAN-001`, `plans/plan.md`)
-**Current status**: `PLANNED; QA BASELINE READY; NO PRODUCTION MUTATION YET`
+**Current status**: `SUPERSEDED BY ADMIN-REMED-BSA-015; QA-025 TODO; ALL SOURCE/REVIEW/OPS BLOCKED`
 **Bound production diagnosis**: Vercel `admin.html` is `200`; Vercel `/admin/*` is `404` because the gateway rejects Admin routes; direct HF core reads are `200` except deployed `/admin/provider-pools` is absent; `public/admin.html` and `project/static/admin.html` diverge; server-side data-route authorization is not currently proven.
 
 **Security invariant**: Every protected Admin route verifies a Google ID token server-side against the existing allowed-email policy. Client-side email fallback, mock-email production login, and any unauthenticated data response are prohibited. No new secret or session/identity platform dependency is authorized.
@@ -50,7 +92,7 @@ second task board or add ticket definitions to a plan/pointer file.
 |---|---|---|---|---|---|
 | `ADMIN-REMED-PLAN-001` | CRITICAL / S | DONE | None | `business_analyst`: `plans/plan.md`, `atomic_tasks.md` only | Approved D1-D9 grill, target architecture, strict dependency graph, ownership, and acceptance criteria are persisted without source/test/config/deployment mutation. |
 | `ADMIN-REMED-QA-010` | CRITICAL / S | DONE | `ADMIN-REMED-PLAN-001` DONE | `qa_tester`: new immutable baseline receipt under `plans/evidence/admin-remed-001/` only | Read-only production baseline enumerates every Admin path called by the canonical UI: auth config, catalog, catalog summary/source detail, gray-zone reads, fine-tune status/download routes, and provider-pools; it compares Vercel gateway and direct HF results, records mirror digests and candidate/production identity, and redacts all credentials. DoD: exact failing/passing statuses are preserved, including the provider-pools absence; no source/config/test or remote mutation. |
-| `ADMIN-REMED-DEV-020` | CRITICAL / M | READY | `ADMIN-REMED-QA-010` DONE | `developer`: `project/admin_router.py`, `public/admin.html`, `project/static/admin.html`, and the single Vercel routing configuration file identified by baseline only | Implement the reviewed minimal correction: complete Admin route gateway forwarding; reconcile static mirrors from one canonical content source; ensure deployed backend exposes provider-pools; attach/verify Google ID token server-side for every protected data route with existing allowed-email policy; remove production client/mock fallback. DoD: focused route/auth/mirror tests pass, no new secret/session platform is introduced, and no unowned path changes. |
+| `ADMIN-REMED-DEV-020` | CRITICAL / M | BLOCKED / SUPERSEDED | Historical `ADMIN-REMED-QA-010` DONE; current admission requires `ADMIN-REMED-QA-025=TEST_BASELINE_VERIFIED` under the replacement ticket `ADMIN-REMED-DEV-035` | No active ownership reservation | Do not execute. The broader historical scope and baseline cannot authorize source work after `ADMIN-REMED-BSA-015`; use only the replacement graph above. |
 | `ADMIN-REMED-REVIEW-030` | CRITICAL / S | BLOCKED | `ADMIN-REMED-DEV-020` DONE | `code_reviewer`: read-only; receipt `plans/evidence/admin-remed-001/review.md` only | Independent PASS binds the diff to `QA-010`, verifies all required Admin routes and mirror parity, confirms fail-closed server-side auth, records Vercel/HF candidate identity and exact rollback revisions, and finds no scope/secret/data-exposure issue. |
 | `ADMIN-REMED-OPS-040` | CRITICAL / S | BLOCKED | `ADMIN-REMED-REVIEW-030` DONE; current deployment authorization; exact reviewed candidate and rollback revisions | `devops`: only the explicitly authorized Vercel/HF production targets and deployment receipt `plans/evidence/admin-remed-001/deploy.json` | Deploy the exact reviewed candidate to both affected services as required by the route path. DoD: receipt binds Vercel and HF revisions, target URLs, health/route checks, and recoverable prior revisions; no unrelated publish/secret change. Stop and roll back the recorded revisions on a failed check. |
 | `ADMIN-REMED-QA-050` | CRITICAL / S | BLOCKED | `ADMIN-REMED-OPS-040` DONE | `qa_tester`: post-deploy E2E receipt `plans/evidence/admin-remed-001/post-deploy-e2e.json` only | Authorized browser/API E2E proves rendered data for catalog, summary, gray-zone, fine-tune status, and provider-pools through Vercel; it also proves absent, malformed, and unauthorized Google ID tokens are denied server-side. DoD: every required panel and route is bound to the deployed Vercel/HF identities; no 404/5xx, stale backend, or auth bypass. |
