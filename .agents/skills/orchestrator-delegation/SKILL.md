@@ -234,7 +234,8 @@ Choose the narrowest role that matches the work:
 - `developer`: scoped implementation or code fixes with explicit file/module ownership.
 - `qa_tester`: pytest, browser/E2E readiness, failure triage, report extraction.
 - `devops`: secrets by name only, deployment workflows, CI/CD, Docker, cloud verification, release evidence.
-- `code_reviewer`: safety audit, secret scan, release-readiness risk review.
+- `code_reviewer`: safety audit, secret scan, release-readiness review.
+- `github-pr-automation`: PR creation, CI monitoring, merge, and deployment orchestration (see Rule 23).
 - Domain masters: metaphysical calculation, interpretation, or validation only when the task is domain-specific.
 
 Do not assign two agents to edit the same file. If multiple agents need the same file, assign one editor and make the others read-only reviewers.

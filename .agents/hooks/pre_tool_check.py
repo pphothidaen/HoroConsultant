@@ -91,9 +91,15 @@ def check_command(command_str: str) -> tuple[bool, str]:
             pass
 
     if "git tag" in command_str or "git push" in command_str:
+        # Allow git push to feature branches (not main)
+        if "git push origin main" in command_str:
+            return False, "Direct push to main is forbidden. Use a PR."
+        
+        # Block git push without ReleaseNotes.md
         if not (ROOT_DIR / "ReleaseNotes.md").exists():
             return False, "ReleaseNotes.md missing! Rule 22 mandate requires updated release notes before tagging or pushing."
         
+        # Block git push with stale plans
         plans_dir = ROOT_DIR / "plans"
         stale_files = []
         if plans_dir.is_dir():
@@ -103,6 +109,14 @@ def check_command(command_str: str) -> tuple[bool, str]:
                         stale_files.append(file.name)
         if stale_files:
             return False, f"Rule 22 mandate failed: Stale plans found before release push/tag. Archive them first: {', '.join(stale_files)}"
+        
+        # Allow git push to feature branches
+        if "git push origin" in command_str and "git push origin main" not in command_str:
+            return True, "Passed pre-tool checks (feature branch push allowed)"
+
+    # Allow gh CLI commands for PR automation
+    if re.search(r"\bgh\s+(pr|run|workflow|auth)\b", command_str):
+        return True, "Passed pre-tool checks (gh CLI allowed)"
 
     return True, "Passed pre-tool checks"
 
