@@ -9,6 +9,9 @@ const MAX_BACKEND_TIMEOUT_MS = 30_000;
 const MAX_REQUEST_BODY_BYTES = 2 * 1024 * 1024;
 const PUBLIC_API_PATH = /^\/api\/v[123](?:\/[A-Za-z0-9._~!$&'()*+,;=:@/-]*)?$/;
 const PUBLIC_READ_PATHS = new Set(["/health", "/docs", "/openapi.json"]);
+const PRIVILEGED_API_PATH = /^\/admin\/[A-Za-z0-9._~!$&'()*+,;=:@/-]*$/;
+const PRIVILEGED_READ_PATHS = new Set(["/hitl/stats"]);
+const PRIVILEGED_AUTH_BOOTSTRAP_PATHS = new Set(["/admin/auth/config", "/admin/auth/google"]);
 const PUBLIC_MUTATION_PATHS = new Set([
   "/api/v1/location/resolve",
   "/api/v1/bazi/calculate",
@@ -24,7 +27,6 @@ const PUBLIC_MUTATION_PATHS = new Set([
   "/api/v2/chat/consult",
   "/api/v3/calculate",
 ]);
-const PRIVILEGED_PATH_SEGMENT = /(?:^|\/)(?:admin|hitl)(?:\/|$)/i;
 
 /**
  * Resolve the sole authorized Docker backend. Environment configuration may
@@ -86,8 +88,10 @@ function requestPath(request) {
 
   const segments = rawPath.split("/");
   if (segments.some(segment => segment === "." || segment === "..")) return null;
-  if (PRIVILEGED_PATH_SEGMENT.test(rawPath)) return null;
-  if (!PUBLIC_READ_PATHS.has(rawPath) && !PUBLIC_API_PATH.test(rawPath)) return null;
+  if (!PUBLIC_READ_PATHS.has(rawPath)
+    && !PUBLIC_API_PATH.test(rawPath)
+    && !PRIVILEGED_API_PATH.test(rawPath)
+    && !PRIVILEGED_READ_PATHS.has(rawPath)) return null;
 
   const query = new URLSearchParams();
   for (const [key, value] of requestUrl.searchParams.entries()) {
@@ -99,6 +103,10 @@ function requestPath(request) {
 function allowedMethods(path) {
   const pathname = path.split("?", 1)[0];
   if (PUBLIC_READ_PATHS.has(pathname)) return ["GET"];
+  if (PRIVILEGED_READ_PATHS.has(pathname)) return ["GET"];
+  if (pathname === "/admin/auth/config") return ["GET"];
+  if (pathname === "/admin/auth/google") return ["POST"];
+  if (PRIVILEGED_API_PATH.test(pathname)) return ["GET", "POST", "PUT", "DELETE"];
   if (PUBLIC_MUTATION_PATHS.has(pathname)) return ["POST"];
   if (PUBLIC_API_PATH.test(pathname)) return ["GET"];
   return [];
@@ -106,6 +114,16 @@ function allowedMethods(path) {
 
 function methodAllowed(method, path) {
   return allowedMethods(path).includes(String(method || "GET").toUpperCase());
+}
+
+function pathRequiresAuthorization(path) {
+  const pathname = path.split("?", 1)[0];
+  return (PRIVILEGED_API_PATH.test(pathname) || PRIVILEGED_READ_PATHS.has(pathname))
+    && !PRIVILEGED_AUTH_BOOTSTRAP_PATHS.has(pathname);
+}
+
+function hasBearerAuthorization(request) {
+  return /^Bearer\s+\S+$/i.test(readHeader(request.headers, "authorization"));
 }
 
 function readHeader(headers = {}, name) {
@@ -226,6 +244,9 @@ async function proxyRequest(request, response, correlationId) {
     response.setHeader("Allow", [...allowedMethods(target), "OPTIONS"].join(", "));
     return sendGatewayError(response, 405, "method_not_allowed", correlationId);
   }
+  if (pathRequiresAuthorization(target) && !hasBearerAuthorization(request)) {
+    return sendGatewayError(response, 401, "authorization_required", correlationId);
+  }
   if (!BACKEND_ORIGIN) {
     return sendGatewayError(response, 503, "backend_not_configured", correlationId);
   }
@@ -274,7 +295,7 @@ async function proxyRequest(request, response, correlationId) {
 
 export default async function handler(request, response) {
   const cors = applyCorsPolicy(request, response, {
-    methods: "GET, POST, OPTIONS",
+    methods: "GET, POST, PUT, DELETE, OPTIONS",
   });
   if (!cors.allowed) {
     return response.status(403).json({

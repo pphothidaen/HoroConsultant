@@ -1,0 +1,118 @@
+{
+  "schema_version": "gha-triage-v1",
+  "ticket": "GHA-20260901-AIS-013",
+  "status": "DONE",
+  "recorded_at_utc": "2026-09-01T03:16:48Z",
+  "mode": "READ_ONLY",
+  "scope": {
+    "run_id": 33418206430,
+    "run_url": "https://github.com/pphothidaen/HoroConsultant/actions/runs/33418206430",
+    "run_head_sha": "f9f80487a5f01a176ce7c16d3f1657e2c8908e16",
+    "job_name": "Pre-Deployment Code Review and Safety Audit",
+    "reported_failure_group": "distillation timestamp (1)",
+    "owned_output": "plans/evidence/gha-20260901-aisafety/distillation-timestamp-triage.json"
+  },
+  "failing_node": {
+    "id": "tests/test_distillation_checklist.py::test_distillation_checklist_updated_timestamp",
+    "assertion": "assert data[\"last_updated\"].startswith(\"2026-08-31T06:13:19\")",
+    "location": "tests/test_distillation_checklist.py:25",
+    "binding": "The run summary identifies one distillation-timestamp failure; this is the sole timestamp assertion in the tracked distillation checklist test and it reproduces at the CI revision's unchanged tracked inputs."
+  },
+  "observed_failure": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider tests/test_distillation_checklist.py::test_distillation_checklist_updated_timestamp",
+    "exit_code": 1,
+    "output": "FAILED tests/test_distillation_checklist.py::test_distillation_checklist_updated_timestamp - AssertionError: assert False; actual '2026-08-31T16:41:53.912026+00:00'.startswith('2026-08-31T06:13:19'); 1 failed in 0.01s",
+    "non_mutation_controls": [
+      "PYTHONDONTWRITEBYTECODE=1",
+      "pytest cache provider disabled"
+    ]
+  },
+  "timestamp_contract": {
+    "expected_prefix": "2026-08-31T06:13:19",
+    "current_checked_in_value": "2026-08-31T16:41:53.912026+00:00",
+    "comparison": "The current value has the same UTC date but not the asserted timestamp prefix."
+  },
+  "checked_in_data_provenance": {
+    "path": "project/data/distillation_checklist.json",
+    "current_blob": "7da697ff5da67d4bb0ea70b1c76abb0677dfdb57",
+    "last_change_commit": {
+      "sha": "e227d52eb79869d501b66fbe3c4d422db76d1b46",
+      "subject": "feat(release): Sprint SPRINT-METAPHYSICS-ROADMAP-001 completion & Agent Broker certification",
+      "timestamp_change": "2026-08-31T09:12:35.359175+00:00 -> 2026-08-31T16:41:53.912026+00:00"
+    },
+    "baseline_data_commit": {
+      "sha": "b5a37ad8c2c31dd44385809c68633b6f620b8ab5",
+      "subject": "feat(data): update distillation checklist and RAG datasets",
+      "test_baseline": "d01082a5d6c42e83aeabbc7246c4a36eb6af3446",
+      "timestamp_change": "2026-08-31T02:51:52.989624+00:00 -> 2026-08-31T06:13:19.989004+00:00"
+    }
+  },
+  "test_provenance": {
+    "test_path": "tests/test_distillation_checklist.py",
+    "current_blob": "0ec8ca8412c672253373fc52ec6c43bae0fa6031",
+    "baseline_commit": "d01082a5d6c42e83aeabbc7246c4a36eb6af3446",
+    "manifest": "plans/test_provenance/ticket-distillation-checklist-update-20260831.json",
+    "manifest_evidence": "The frozen red-test entry names this exact node, expects exit 1, and fingerprints the same 2026-08-31T06:13:19 assertion. The manifest permits the data path but does not bind subsequent timestamp revisions to a new expected value."
+  },
+  "commit_provenance": {
+    "ci_run_commit": {
+      "sha": "f9f80487a5f01a176ce7c16d3f1657e2c8908e16",
+      "parent": "40f1536a18c9e0fdf640c736d3ab5aa5cb25881c",
+      "subject": "fix(provenance): refine staged manifest verification for incremental edits"
+    },
+    "current_tree_commit": {
+      "sha": "cb1df9fd573f2936e9d57c4cb390f307cfeb17b7",
+      "parent": "5bee032a0c3e53d0125d1e24f3990cef74030ff6",
+      "subject": "fix(mcp): preserve lazy HybridRouter type reference"
+    },
+    "relationship": "f9f8048 is an ancestor of HEAD.",
+    "input_comparison": {
+      "project/data/distillation_checklist.json": "same blob at f9f8048 and current HEAD: 7da697ff5da67d4bb0ea70b1c76abb0677dfdb57",
+      "tests/test_distillation_checklist.py": "same blob at f9f8048 and current HEAD: 0ec8ca8412c672253373fc52ec6c43bae0fa6031",
+      "manifest": "unchanged between f9f8048 and current HEAD"
+    },
+    "conclusion": "The failure is not introduced by post-CI tree drift; the identical assertion and data value were present at f9f8048."
+  },
+  "candidate_paths": {
+    "assertion_and_contract": [
+      "tests/test_distillation_checklist.py",
+      "plans/test_provenance/ticket-distillation-checklist-update-20260831.json"
+    ],
+    "data_producer_and_input": [
+      "project/data/distillation_checklist.json",
+      "project/rag/datasets/hitl_approved.jsonl",
+      "project/rag/datasets/hitl_approved_with_metadata.jsonl"
+    ]
+  },
+  "cause_classification": {
+    "classification": "stale_timestamp_assertion",
+    "confidence": "high",
+    "determination": "The data is not stale for this failure: it was deliberately advanced by committed checklist updates. The assertion is stale because it remains pinned to the b5a37ad timestamp after e227d52 (and intervening committed updates) changed the checked-in value, with no corresponding test or manifest revision.",
+    "proof": [
+      "The data commit b5a37ad set the exact prefix the test asserts.",
+      "Later data commit e227d52 advanced last_updated to the currently checked-in value.",
+      "e227d52 changed only the checklist among the test, checklist, and provenance-manifest paths; the assertion and manifest therefore remained pinned.",
+      "The tracked assertion and data blobs are identical at f9f8048 and current HEAD, and the focused node deterministically fails."
+    ]
+  },
+  "required_follow_up": {
+    "status": "NEEDS_SEPARATE_MUTATION_AUTHORIZATION",
+    "action": "Authorize a test-contract/provenance correction that binds the assertion to a stable semantic invariant or to the intended committed timestamp; do not modify checklist data merely to satisfy this stale literal.",
+    "not_authorized_in_this_ticket": [
+      "source, data, test, fixture, workflow, rule, skill, or generated-config changes",
+      "Git or remote mutation",
+      "deployment or push"
+    ]
+  },
+  "mutations": {
+    "source": [],
+    "tests": [],
+    "data": [],
+    "docs": [],
+    "config": [],
+    "evidence": [
+      "plans/evidence/gha-20260901-aisafety/distillation-timestamp-triage.json"
+    ],
+    "external": []
+  }
+}

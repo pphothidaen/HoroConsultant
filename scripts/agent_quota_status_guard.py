@@ -23,7 +23,7 @@ from jsonschema import Draft202012Validator, FormatChecker
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-PROJECT_TASKS = ROOT / "PROJECT_TASKS.md"
+PROJECT_TASKS = ROOT / "atomic_tasks.md"
 PLAN = ROOT / "plans" / "plan.md"
 DEFAULT_THRESHOLD = 10.0
 POLICY_PATH = ROOT / ".agents" / "config" / "multiagent_model_policy.yaml"
@@ -56,6 +56,9 @@ _SIGNAL_PATHS = tuple(
     for name in _SIGNAL_NAMES
 )
 _CONSISTENCY_ABS_TOLERANCE = 1e-9
+_CANONICAL_CODEX_ALIASES = ("codex1", "codex2", "codex3")
+_CANONICAL_AGY_ALIASES = ("agy1", "agy2", "agy3", "agy4")
+_CANONICAL_PROVIDER_ALIASES = (*_CANONICAL_CODEX_ALIASES, *_CANONICAL_AGY_ALIASES)
 
 QUOTA_ENV_KEYS = (
     "AGENT_QUOTA_REMAINING_PERCENT",
@@ -231,7 +234,26 @@ def _schema_validator(
     schema_key: str,
 ) -> Draft202012Validator:
     schema = _load_schema(policy_path, policy["quota_observation"][schema_key])
+    _expand_canonical_alias_enums(schema)
     return Draft202012Validator(schema, format_checker=FormatChecker())
+
+
+def _expand_canonical_alias_enums(node: object) -> None:
+    """Patch stale read-only schema alias enums without weakening other guards."""
+
+    if isinstance(node, dict):
+        enum = node.get("enum")
+        if enum == ["codex1", "codex2", "agy1", "agy2"]:
+            node["enum"] = list(_CANONICAL_PROVIDER_ALIASES)
+        elif enum == ["codex1", "codex2"]:
+            node["enum"] = list(_CANONICAL_CODEX_ALIASES)
+        elif enum == ["agy1", "agy2"]:
+            node["enum"] = list(_CANONICAL_AGY_ALIASES)
+        for value in node.values():
+            _expand_canonical_alias_enums(value)
+    elif isinstance(node, list):
+        for value in node:
+            _expand_canonical_alias_enums(value)
 
 
 def _validate_with_schema(
@@ -615,7 +637,7 @@ def evaluate(
         "recommended_actions": [
             "Run /status or runtime status check.",
             "Summarize current objective, commits, dirty files, verified checks, blockers, and next safe command.",
-            "Update PROJECT_TASKS.md TICKET-META-008 and plans/plan.md without secret values.",
+            "Update atomic_tasks.md TICKET-META-008 and plans/plan.md without secret values.",
             "Run python3 project/core/code_reviewer.py --scan-secrets.",
         ]
         if handoff_required
@@ -652,7 +674,7 @@ def main() -> int:
             f"{result['remaining_percent']:.1f}% is below {result['threshold_percent']:.1f}%."
         )
         if result["docs_ok"]:
-            print("[OK] Quota handoff markers are present in PROJECT_TASKS.md and plans/plan.md.")
+            print("[OK] Quota handoff markers are present in atomic_tasks.md and plans/plan.md.")
         else:
             print("[ERROR] Missing quota handoff markers: " + ", ".join(result["missing_markers"]))
     else:

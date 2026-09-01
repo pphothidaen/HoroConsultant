@@ -1,0 +1,103 @@
+{
+  "schema_version": "gha-triage-v1",
+  "ticket": "GHA-20260901-AIS-012",
+  "status": "DONE",
+  "recorded_at_utc": "2026-09-01T03:12:06Z",
+  "mode": "WRITE_EVIDENCE",
+  "scope": {
+    "run_id": 33418206430,
+    "run_url": "https://github.com/pphothidaen/HoroConsultant/actions/runs/33418206430",
+    "run_head_sha": "f9f80487a5f01a176ce7c16d3f1657e2c8908e16",
+    "test": "tests/test_context_handoff_hooks.py::test_repository_only_acknowledges_native_dangerous_bypass_and_never_uses_it",
+    "owned_output": "plans/evidence/gha-20260901-aisafety/context-handoff-triage.json"
+  },
+  "failure": {
+    "exact_failing_node_id": "tests/test_context_handoff_hooks.py::test_repository_only_acknowledges_native_dangerous_bypass_and_never_uses_it",
+    "assertion_line_at_f9f8048": 392,
+    "expected": "Every tracked file that acknowledges --dangerously-bypass-hook-trust contains the case-insensitive markers 'managed hooks' and 'outside', as well as 'never invoke or recommend'.",
+    "actual": {
+      "first_reported_path": ".agy/rules/context-handoff.md",
+      "missing_markers": [
+        "managed hooks",
+        "outside"
+      ],
+      "actual_sentence_at_f9f8048": "Native Codex CLI may expose `--dangerously-bypass-hook-trust`; repository instructions never invoke or recommend this bypass."
+    },
+    "classification": "generated-mirror",
+    "source_or_test": "generated_mirror",
+    "ambiguous": false
+  },
+  "authority_and_provenance": {
+    "canonical_source": {
+      "path": ".agents/rules/20-context-handoff.md",
+      "authority": "canonical legacy rule source",
+      "f9f8048_sentence": "Native Codex CLI may expose `--dangerously-bypass-hook-trust`; repository instructions never invoke or recommend this bypass, and managed hooks remain outside this local implementation.",
+      "finding": "The canonical source already satisfied the failing assertion at the recorded CI SHA."
+    },
+    "generated_mirrors": [
+      {
+        "path": ".agy/rules/context-handoff.md",
+        "authority": "generated runtime mirror",
+        "f9f8048_finding": "Missing the canonical sentence suffix ', and managed hooks remain outside this local implementation.'"
+      },
+      {
+        "path": ".claude/rules/context-handoff.md",
+        "authority": "generated runtime mirror",
+        "f9f8048_finding": "Byte-identical to the failing AGY mirror and missing the same suffix."
+      }
+    ],
+    "fixture_and_test": {
+      "paths": [
+        "tests/test_context_handoff_hooks.py",
+        "tests/fixtures/context_handoff/"
+      ],
+      "authority": "test and fixture only",
+      "finding": "The test enforces a repository-wide wording safety contract; no fixture supplies or owns this rule wording."
+    },
+    "generation_path": "scripts/sync_ai_agent_ecosystem.py --sync invokes scripts/sync_claude_agy_parity.py --sync; Rule 20 must be propagated from the canonical source through the approved synchronization workflow."
+  },
+  "evidence": {
+    "recorded_ci_command_and_output": {
+      "command": "GitHub Actions run 33418206430, Pre-Deployment Code Review and Safety Audit / Execute code reviewer and safety audit",
+      "output": "FAILED tests/test_context_handoff_hooks.py::test_repository_only_acknowledges_native_dangerous_bypass_and_never_uses_it - AssertionError: .agy/rules/context-handoff.md; assert ('managed hooks' in '<generated rule text>')",
+      "suite_summary": "9 failed, 3791 passed, 45 skipped, 12 warnings in 280.11s"
+    },
+    "local_current_tree_command_and_output": {
+      "command": "python3 -m pytest -q tests/test_context_handoff.py tests/test_context_handoff_hooks.py",
+      "output": "130 passed in 17.20s",
+      "interpretation": "This is current-tree evidence only; it does not replace or invalidate the f9f8048 CI failure."
+    },
+    "baseline_comparison": {
+      "f9f8048": "Committed CI baseline; canonical Rule 20 contains the required wording, while .agy and .claude generated rules are byte-identical stale mirrors without it.",
+      "current_tree": "cb1df9fd573f2936e9d57c4cb390f307cfeb17b7 with uncommitted changes to canonical Rule 20, both generated rules, and the context-handoff test. The current generated rules contain the required wording and the focused suite passes.",
+      "commit_provenance": "f9f80487a5f01a176ce7c16d3f1657e2c8908e16 is the audited run SHA; cb1df9fd573f2936e9d57c4cb390f307cfeb17b7 is the observed live HEAD and must not be represented as baseline evidence."
+    }
+  },
+  "candidate_correction": {
+    "preferred_classification": "generated-mirror",
+    "canonical_source_change_required": false,
+    "test_change_required": false,
+    "candidate_paths": [
+      ".claude/rules/context-handoff.md",
+      ".agy/rules/context-handoff.md"
+    ],
+    "required_workflow": "Under a separately assigned mutation lane, regenerate the runtime rule mirrors from the canonical Rule 20 source with python3 scripts/sync_ai_agent_ecosystem.py --sync, then use --check and rerun the focused test.",
+    "why_minimal": "The frozen baseline proves the canonical wording and test contract were already correct; only the derived runtime copies were stale."
+  },
+  "residual_risk": [
+    "The current repair is uncommitted mixed-worktree state and is not release or CI proof.",
+    "This triage receipt does not authorize changing canonical sources, generated mirrors, tests, fixtures, scripts, or synchronization behavior.",
+    "A mutation lane must preserve canonical-to-generated provenance rather than editing only one runtime mirror."
+  ],
+  "mutations": {
+    "source": [],
+    "tests": [],
+    "scripts": [],
+    "docs": [],
+    "config": [],
+    "evidence": [
+      "plans/evidence/gha-20260901-aisafety/context-handoff-triage.json"
+    ],
+    "external": []
+  }
+}

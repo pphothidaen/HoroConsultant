@@ -13,7 +13,7 @@ User Order
 0. 🔥 Gate 0: Requirement-Grill Gate (Orchestrator)
    │  ├─ 9-Dimension Grill Interview & Context Scan
    │  ├─ Prepends GRILL REPORT to /plans/plan.md (✅ APPROVED / ⚠️ WAIVED / 🚫 BLOCKED)
-   │  └─ Deconstructs into Sub-Agent Tickets in PROJECT_TASKS.md
+   │  └─ Deconstructs into Sub-Agent Tickets in atomic_tasks.md
    │
    ▼
 1. 🧠 Phase 1: Planning & Blueprinting (Orchestrator)
@@ -51,7 +51,7 @@ User Delivery Complete
 - **Action**:
   1. Conduct the 9-dimension grill interview (Scope, Delta, Criteria, Constraints, Arch Impact, Assumptions, Risk/Rollback, Token Budget, Domain Check).
   2. Prepend signed-off **GRILL REPORT** at the top of `/plans/plan.md` with status badge (`✅ APPROVED` / `⚠️ WAIVED` / `🚫 BLOCKED`).
-  3. Deconstruct task into specialized tickets per sub-agent in `PROJECT_TASKS.md`.
+  3. Deconstruct task into specialized tickets per sub-agent in `atomic_tasks.md`.
   4. Block execution if CRITICAL items are unresolved.
 
 ### Phase 1: Planning & Blueprinting (Orchestrator)
@@ -102,4 +102,3 @@ User Delivery Complete
 - **Action**:
   1. Conduct final code review and security audit.
   2. Synthesize results and deliver comprehensive summary report to User.
-

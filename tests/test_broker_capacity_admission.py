@@ -33,7 +33,7 @@ from scripts import multiagent_ticket_scheduler as scheduler
 
 ROOT = Path(__file__).resolve().parents[1]
 POLICY_PATH = ROOT / ".agents/config/s3_capacity_policy.json"
-SIX_ALIASES = ("agy1", "agy2", "agy3", "codex1", "codex2", "codex3")
+SEVEN_ALIASES = ("agy1", "agy2", "agy3", "agy4", "codex1", "codex2", "codex3")
 ROOT_OWNERS = {
     "codex1": "RootA",
     "codex2": "RootA",
@@ -41,6 +41,7 @@ ROOT_OWNERS = {
     "agy1": "RootB",
     "agy2": "RootB",
     "agy3": "RootB",
+    "agy4": "RootB",
 }
 PER_ACCOUNT_POLICY_CAPS = {
     "agy1": 3,

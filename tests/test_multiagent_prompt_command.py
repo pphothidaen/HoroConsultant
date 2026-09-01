@@ -3861,4 +3861,3 @@ def test_governed_account_aliases_includes_agy3_and_codex3():
     assert "codex3" in command.GOVERNED_ACCOUNT_ALIASES
     assert command.ALIAS_PROVIDER_MAP["agy3"] == "agy"
     assert command.ALIAS_PROVIDER_MAP["codex3"] == "codex"
-

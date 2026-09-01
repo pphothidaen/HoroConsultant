@@ -11,7 +11,7 @@
       "expected_output_keys": ["hookSpecificOutput"],
       "expected_hook_event_name": "SessionStart",
       "max_additional_context_bytes": 4096,
-      "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
+      "contains": ["atomic_tasks.md", "plans/plan.md"]
     },
     {
       "id": "session-start-resume",
@@ -21,7 +21,7 @@
       "expected_output_keys": ["hookSpecificOutput"],
       "expected_hook_event_name": "SessionStart",
       "max_additional_context_bytes": 4096,
-      "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
+      "contains": ["atomic_tasks.md", "plans/plan.md"]
     },
     {
       "id": "session-start-clear",
@@ -31,7 +31,7 @@
       "expected_output_keys": ["hookSpecificOutput"],
       "expected_hook_event_name": "SessionStart",
       "max_additional_context_bytes": 4096,
-      "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
+      "contains": ["atomic_tasks.md", "plans/plan.md"]
     },
     {
       "id": "session-start-compact",
@@ -41,7 +41,7 @@
       "expected_output_keys": ["hookSpecificOutput"],
       "expected_hook_event_name": "SessionStart",
       "max_additional_context_bytes": 4096,
-      "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
+      "contains": ["atomic_tasks.md", "plans/plan.md"]
     },
     {
       "id": "pre-compact-manual",
@@ -68,7 +68,7 @@
       "normalized_state": {"usage":{},"last_notified_level":"SNAPSHOT","lanes":[]},
       "expected_output_keys": ["systemMessage"],
       "max_field_bytes": {"systemMessage": 4096},
-      "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
+      "contains": ["atomic_tasks.md", "plans/plan.md"]
     },
     {
       "id": "post-compact-auto",
@@ -77,7 +77,7 @@
       "normalized_state": {"usage":{},"last_notified_level":"SNAPSHOT","lanes":[]},
       "expected_output_keys": ["systemMessage"],
       "max_field_bytes": {"systemMessage": 4096},
-      "contains": ["PROJECT_TASKS.md", "plans/plan.md"]
+      "contains": ["atomic_tasks.md", "plans/plan.md"]
     },
     {
       "id": "stop-warning",

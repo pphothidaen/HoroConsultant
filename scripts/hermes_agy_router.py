@@ -189,7 +189,7 @@ def resolve_hermes_route(
         fallback_chain = {}
     seq = fallback_chain.get("sequence", []) if isinstance(fallback_chain, dict) else []
     if not isinstance(seq, list) or not seq:
-        seq = ["agy1", "agy2", "codex_subagent"]
+        seq = ["agy1", "agy2", "agy3", "agy4", "codex_subagent"]
     fallback_chain_csv = ",".join(str(item) for item in seq)
 
     role_key = _normalize_role(role)

@@ -7,6 +7,238 @@
 
 ---
 
+<!-- ADMIN-REMED-BSA-015:START -->
+## GRILL REPORT -- ADMIN-REMED-BSA-015: Privileged Admin Action Scope and Superseding Baseline
+
+**Recorded**: `2026-09-01T13:25:21+07:00` (Asia/Bangkok)
+**Status**: `APPROVED`
+**Authorized next phase**: `ADMIN-REMED-QA-025` TEST-ONLY baseline creation. No source, review, operations, push, deployment, release, secret, or external-system action is authorized by this gate.
+**Request**: Persist the owner-approved privileged Admin ingress boundary, classify the prior candidate lineage truthfully, and hand off an exact test-only superseding baseline before any new source lane can be admitted.
+
+### Context evidence
+
+- `[CONFIRMED]` The owner approved the exact IN/OUT route boundary below and creation of a new baseline. UI controls for excluded write actions must not be removed or hidden in this governance ticket; their future UX treatment is separate scope.
+- `[AUTO]` Git metadata identifies prior candidate lineage `d95783eeff26e85874477146db2ccb0a61d24ce8 -> d11b8f30cdf969a87b0efa1c02325ec04f05bd1a -> 5b261c532c4ea59246d23f095f605ddb22da354c`. The intermediate source commit `d11b8f3` has no `Test-Baseline:` trailer; only the later `5b261c5` commit carries `Test-Baseline: d95783eeff26e85874477146db2ccb0a61d24ce8`.
+- `[AUTO]` The existing baseline assets are `tests/admin_production_ingress_contract.test.mjs` and `plans/test_provenance/ticket-admin-remed-qa-001-baseline.json`. They predate this narrower owner decision and therefore remain historical evidence rather than the authorized baseline for new source work.
+- `[AUTO]` The pre-existing worktree changes shown by `git status --short` are outside `plans/plan.md` and `atomic_tasks.md`; this ticket does not claim or modify them.
+
+### Nine-dimension matrix
+
+| ID | Result | Evidence state | Decision / remaining issue |
+|---|---|---|---|
+| D1 Scope boundary | Allow only the authenticated Admin reads/downloads and the single Google credential-verification POST enumerated below; all listed mutations and every other `/admin/*` or `/hitl/*` path remain fail-closed. | `[CONFIRMED]` | Resolved. No UI-control removal/hiding, source, test, manifest, runtime, external, deployment, push, release, or secret action occurs in BSA-015. |
+| D2 Requirement delta | Supersede the broader prior ingress baseline with an explicit least-privilege allowlist. Reclassify `d95783e -> d11b8f3 -> 5b261c5` as `NON_TDD_RECONSTRUCTED` because the intermediate source commit lacks the required trailer. | `[CONFIRMED]` / `[AUTO]` | Resolved. Prior artifacts remain immutable historical evidence and cannot satisfy the new source gate. |
+| D3 Acceptance and stop conditions | QA-025 must create exactly one new test contract and one new manifest, prove RED plus negative/fail-closed behavior for the approved boundary, and earn `TEST_BASELINE_VERIFIED` without source changes. | `[CONFIRMED]` | Resolved. Stop on path drift, source mutation, missing provenance/trailer controls, secret output, or any ambiguous route admission. |
+| D4 Inputs, constraints, and dependencies | Inputs are the owner-approved route matrix, historical commit metadata, existing baseline assets, a clean immutable QA parent, and provenance tooling. QA-025 is the mandatory dependency for all new source/review/ops tickets. | `[CONFIRMED]` / `[AUTO]` | Resolved. Deployment credentials, tokens, secret values, production access, and external writes are neither inputs nor authorized dependencies. |
+| D5 Architecture, ownership, and handoff | BSA-015 owns only this plan and `atomic_tasks.md`; QA-025 owns only its new test and manifest; downstream developer/reviewer/ops tickets remain blocked in strict serial order. | `[CONFIRMED]` | Resolved. One-editor ownership is explicit; no downstream lane may treat the prior baseline as admission evidence. |
+| D6 Assumption register | Owner authority and route intent are confirmed. `:source_id` is a path parameter; gray-zone read coverage includes the supported `answered` query forms while preserving the same GET path. Existing UI controls remain present pending separate UX scope. | `[CONFIRMED]` | No pending material assumption. No permission is inferred for implementation or release. |
+| D7 Risk and recovery | Risks are accidental privileged-write exposure, wildcard admission, false TDD provenance, UI scope creep, and status inflation. Recovery is documentation-only: retain historical records, block downstream tickets, and amend this decision only with a new owner-approved scope record. | `[CONFIRMED]` / `[AUTO]` | Resolved. Any uncertain path fails closed and returns the affected ticket to `BLOCKED`. |
+| D8 Budget and evidence strategy | DispatchDecision v1: phase `governance-scope`; ranks scope=3, complexity=2, risk=3, ambiguity=1, evidence=3; floor and selected intent `codex1/gpt-5.6-sol/high`; quota constrained/Tier 2 Amber; `WRITE_GOVERNANCE`; policy v1; `root-medium=true`; HITL=true from current owner approval. | `[CONFIRMED]` | Native route intent is not provider/runtime proof. Evidence is bounded to route names, hashes, paths, provenance state, and ASCII-safe results; never secret material. |
+| D9 Domain and HITL check | No metaphysical calculation, interpretation, canonical-source choice, or `metaphysical-domain-engine` behavior changes. Current owner approval resolves the privileged-action scope decision. | `[NOT-APPLICABLE]` / `[CONFIRMED]` | No metaphysical scope audit is required. Separate HITL approval remains mandatory for any later push/deploy/release or secret operation. |
+
+### Approved privileged route contract
+
+**IN -- authenticated operation required for Admin dashboard operation**
+
+| Method | Exact path | Boundary |
+|---|---|---|
+| `GET` | `/admin/auth/config` | Read authentication configuration only. |
+| `POST` | `/admin/auth/google` | Google credential verification only; no mock-email request or fallback path. |
+| `GET` | `/admin/catalog/summary` | Read summary only. |
+| `GET` | `/admin/catalog` | Read catalog only. |
+| `GET` | `/admin/catalog/source/:source_id` | Read one path-parameter-selected catalog source only. |
+| `GET` | `/admin/grayzone` | Read gray-zone data, including supported `answered` query forms; query use does not widen the path or method. |
+| `GET` | `/admin/finetune/status` | Read status only. |
+| `GET` | `/admin/finetune/download` | Authenticated download only. |
+| `GET` | `/admin/finetune/download-grayzone` | Authenticated gray-zone download only. |
+| `GET` | `/admin/provider-pools` | Read provider-pool status only. |
+| `GET` | `/hitl/stats` | Read HITL statistics only. |
+
+**OUT -- must remain fail-closed**
+
+- `POST /admin/grayzone/answer`
+- `DELETE /admin/grayzone/answer`
+- `POST /admin/finetune/export-grayzone`
+- `POST /admin/finetune/merge`
+- `POST /admin/finetune/trigger`
+- Every other `/admin/*` or `/hitl/*` method/path, including wildcard, alias, prefix-confusion, and method-substitution admissions.
+- Removing or hiding the corresponding UI controls in BSA-015 or QA-025. Future disabled-state, explanation, or removal UX requires a separately approved scope decision.
+
+### Provenance decision and dependency graph
+
+- The prior `d95783e -> d11b8f3 -> 5b261c5` candidate is `NON_TDD_RECONSTRUCTED` and blocked as admission evidence. `d11b8f3` is a source commit between the baseline and later candidate but lacks the exact `Test-Baseline: d95783eeff26e85874477146db2ccb0a61d24ce8` trailer. A trailer added only to `5b261c5` cannot repair that chain retrospectively.
+- The old test/manifest may be referenced for history, but neither may be relabeled `TEST_BASELINE_VERIFIED` for this approved scope.
+
+```text
+ADMIN-REMED-BSA-015 (DONE: approved governance scope only)
+  -> ADMIN-REMED-QA-025 (TODO: TEST-ONLY superseding baseline)
+     -- must reach TEST_BASELINE_VERIFIED before any downstream admission
+  -> ADMIN-REMED-DEV-035 (BLOCKED on QA-025 TEST_BASELINE_VERIFIED)
+  -> ADMIN-REMED-REVIEW-045 (BLOCKED on QA-025 TEST_BASELINE_VERIFIED and DEV-035 DONE)
+  -> ADMIN-REMED-OPS-055 (BLOCKED on QA-025 TEST_BASELINE_VERIFIED, REVIEW-045 DONE,
+                          and separate owner authorization; push/deploy/release excluded now)
+```
+
+### QA-025 acceptance and stop contract
+
+| Criterion | Required evidence | Stop threshold |
+|---|---|---|
+| Test-only ownership | New `tests/admin_production_ingress_scope_contract.test.mjs` and new `plans/test_provenance/ticket-admin-remed-qa-025-baseline.json` only; manifest names QA-025 and supersedes the old baseline without rewriting it. | Stop on any source, existing test/manifest, config, generated, runtime, worktree, remote, or external-system mutation. |
+| Exact positive allowlist | Tests enumerate every IN method/path above, treat `:source_id` as a bounded segment, and cover supported `/admin/grayzone?answered=...` query forms. Google POST proves credential verification only and explicitly rejects any mock-email mode. | Stop if an IN path is omitted, broadened, or admitted without the required authentication contract. |
+| Exact negative/fail-closed matrix | Tests enumerate the five named OUT mutations and representative method substitution, wildcard, alias, prefix-confusion, unknown `/admin/*`, and unknown `/hitl/*` cases; expected behavior has no backend forwarding or privileged response. | Stop if any excluded or unenumerated privileged path is forwarded/admitted, or if tests achieve coverage by hiding/removing UI controls. |
+| Honest RED and negative evidence | From the clean parent, focused test execution returns the manifest-declared RED exit/fingerprint for the intended missing source behavior; a bounded negative-control run proves the test detects route widening or auth weakening. | Stop on GREEN-at-creation without an explained test-first failure, nondeterministic fingerprint, missing negative control, or evidence captured against a dirty/unbound parent. |
+| Closed provenance | Manifest binds parent SHA, test SHA-256, command, expected exit, failure fingerprint, allowed future source paths, roles, and superseded artifact. The immutable test-only baseline commit passes the repository provenance guard and is recorded as `TEST_BASELINE_VERIFIED`. | Stop on hash/ancestry/path drift, co-committed source, schema/guard failure, or missing immutable baseline SHA. |
+| Downstream trailer enforcement | QA handoff states that every later source commit in the candidate lineage must carry exact `Test-Baseline: <QA-025 immutable baseline SHA>` provenance and must descend from that baseline. | Stop/reclassify the candidate `NON_TDD_RECONSTRUCTED` if any intervening source commit lacks or mismatches the trailer. |
+
+### Risks, recovery, waivers, blockers, and current stop
+
+- **Waivers**: `NONE`.
+- **Blockers**: QA-025 has not yet produced an immutable test-only SHA, RED/negative evidence, or verified manifest. Therefore DEV-035, REVIEW-045, and OPS-055 remain `BLOCKED`; OPS-055 additionally lacks current push/deploy/release authority.
+- **Recovery**: preserve the old lineage as historical `NON_TDD_RECONSTRUCTED`; do not edit it into compliance. If QA-025 drifts from the exact matrix, discard only its unverified candidate artifacts and restart from the bound clean parent.
+- **Current-ticket acceptance**: this record and the matching atomic handoff are the only changes; all nine dimensions carry evidence states; scope, dependencies, assumptions, acceptance, and stop conditions are exact; no implementation or production claim is made.
+- **Current-ticket stop condition**: stop after persisting and diff-checking these two governance files. The only authorized next phase is QA-025 TEST-ONLY work under separate one-editor admission.
+
+<!-- ADMIN-REMED-BSA-015:END -->
+
+<!-- ADMIN-REMED-PLAN-001:START -->
+## GRILL REPORT -- ADMIN-REMED-PLAN-001: Production Admin Data-Path Remediation
+
+> **Superseded execution baseline**: `ADMIN-REMED-BSA-015` narrows privileged route admission and requires `ADMIN-REMED-QA-025=TEST_BASELINE_VERIFIED`. This older plan remains historical context and cannot admit source, review, or operations work.
+
+**Recorded**: `2026-09-01T00:45:00+07:00` (Asia/Bangkok)
+**Status**: `APPROVED`
+**Authorized next phase**: `QA production-contract baseline only`, followed strictly by the dependency graph below.
+**Request**: Restore the production Admin panel so its authorized data reads and rendered states work through every required production service.
+
+### Context evidence
+
+- `[CONFIRMED]` Scope is **production only**. Source, test, configuration, and deployment work is authorized only through the tickets below; no unrelated admin redesign, new session platform, secret rotation, publishing outside the remediation deploy, or metaphysical behavior change is in scope.
+- `[CONFIRMED]` Production evidence: Vercel serves `admin.html` with HTTP `200`, but Vercel returns `404` for `/admin/*`; the Vercel gateway rejects the Admin API route. Direct HF core reads return `200` except `/admin/provider-pools`, which is absent from that deployed backend. Therefore document availability is not evidence that Admin data availability works.
+- `[AUTO]` `public/admin.html` calls `/admin/catalog/summary`, `/admin/grayzone`, `/admin/finetune/status`, `/admin/catalog`, source detail, write actions, and auth routes. `project/admin_router.py` declares the Admin router and provider-pools route, while the deployed provider-pools absence must be treated as an independently verified production drift until corrected.
+- `[AUTO]` `public/admin.html` and `project/static/admin.html` are divergent Admin static mirrors. `project/main.py` includes `admin_router`; this is route-registration evidence only, not Vercel gateway or deployed-backend proof.
+- `[CONFIRMED]` Design constraint: every protected Admin data route must verify a Google ID token server-side and enforce the existing allowed-email policy. The implementation must not add a secret, session, or identity-platform dependency.
+
+### Nine-dimension matrix
+
+| ID | Result | Evidence state | Decision / remaining issue |
+|---|---|---|---|
+| D1 Scope boundary | Restore production Admin static-to-gateway-to-HF reads and authorized rendering for catalog, summary, gray-zone, fine-tune status, and provider pools. Reconcile the two Admin static mirrors. | `[CONFIRMED]` | Exclude new Admin features, unrelated API changes, client-only authorization, secret/session-system additions, and non-production release work. |
+| D2 Requirement delta | The Vercel Admin API path must route to the deployed HF backend; the deployed backend must contain the provider-pools contract; the browser must send a verifiable Google ID token; the backend must reject missing, invalid, or unauthorized tokens. | `[CONFIRMED]` / `[AUTO]` | No static fallback or public data-route bypass is acceptable. |
+| D3 Acceptance and stop conditions | The acceptance matrix binds pre-change production failure receipt, source/config regression, review, an exact deployed candidate, and post-deploy browser/API E2E. | `[CONFIRMED]` | Stop and retain evidence on any 404/5xx, wrong release identity, mirror drift, unauthenticated 2xx, invalid-token acceptance, unauthorized-email acceptance, or failed required Admin panel state. |
+| D4 Inputs, constraints, dependencies | Requires the current Vercel and HF production targets, existing Google token-verification configuration and allowed-email policy, a deployable candidate, and browser-capable authorized test identity. | `[CONFIRMED]` | No secret inspection or creation belongs in this plan. A missing pre-existing token-verification input blocks deployment rather than permitting weaker auth. |
+| D5 Architecture, ownership, handoff | Browser -> Vercel static Admin -> same-origin `/admin/*` gateway rewrite -> HF Docker Admin router. QA owns baseline/E2E evidence; one developer owns bound source/config paths; reviewer is read-only; DevOps owns remote deployment; BSA owns only plan/board. | `[CONFIRMED]` | Serial gates prevent test/source/config/deploy ownership collisions. |
+| D6 Assumption register | Existing allowed-email policy and deployable Google ID-token verification are available without a new credential or session service. Direct HF `200` evidence is read-only diagnosis, not authorization to expose data routes. | `[CONFIRMED]` | If either implementation inspection disproves the supplied assumption, halt source/deploy and escalate; do not substitute email/mock/client-side fallback. |
+| D7 Risk and recovery | Risks: proxy points to wrong backend, mirror mismatch, release drift, token verification defect, or data exposure. Recovery: preserve receipts; rollback only the exact Vercel/HF deployment to its recorded prior revision; keep protected routes fail-closed. | `[AUTO]` / `[CONFIRMED]` | No production mutation proceeds without an exact target and rollback revision. |
+| D8 Budget and evidence strategy | DispatchDecision v1: ranks `3/3/3/1/3`; floor `gpt-5.6-sol/xhigh` planning exception; selected `codex1`; Tier 1 Green; `WRITE_GOVERNANCE`; `root-medium=true`; HITL approved; receipt binding required. | `[CONFIRMED]` | Receipts record URLs/path class, status, candidate SHA/revision, command/result, and redacted identity outcome only--never token material. |
+| D9 Domain and HITL check | No metaphysical interpretation/calculation or source-domain decision changes. Production deployment remains a separately receipt-bound HITL execution checkpoint. | `[NOT-APPLICABLE]` | No metaphysical-domain HITL audit; normal deployment authority remains mandatory. |
+
+### Target design and ordered execution
+
+```text
+Authorized Admin browser
+  -> Vercel static admin.html (canonical mirror parity)
+  -> same-origin /admin/* rewrite (no 404 gateway rejection)
+  -> HF Docker Admin router (deployed provider-pools included)
+  -> server-side Google ID-token verification + existing allowed-email policy
+  -> permitted Admin data/rendered panels
+```
+
+```text
+ADMIN-REMED-PLAN-001 (DONE: governance)
+  -> ADMIN-REMED-QA-010 (frozen production baseline)
+  -> ADMIN-REMED-DEV-020 (single source/config change set)
+  -> ADMIN-REMED-REVIEW-030 (independent review)
+  -> ADMIN-REMED-OPS-040 (receipt-bound Vercel/HF deployment)
+  -> ADMIN-REMED-QA-050 (post-deploy authorized browser/API E2E)
+  -> ADMIN-REMED-BSA-060 (truthful closure only)
+```
+
+### Acceptance matrix
+
+| Criterion | Verification / stop threshold | Owner |
+|---|---|---|
+| Failure baseline is frozen across all required Admin services | Read-only receipts demonstrate current Vercel `admin.html` response, each Vercel `/admin/*` result, direct-HF comparison, provider-pools condition, static-mirror digests, and no secret/token output. Stop on unbound target or incomplete route inventory. | `qa_tester` |
+| Corrected source/config preserves mirror and protected-route contracts | Focused automated tests prove both mirror files are byte-equivalent or generated from one canonical source; gateway rewrite covers the Admin inventory; backend routes require a valid Google ID token and existing allowed email; missing/invalid/unauthorized requests never receive data. Stop on client fallback, mock-login production path, or any failing test. | `developer` |
+| Candidate is independently safe | Read-only review verifies exact path ownership, auth fail-closed behavior, route inventory, mirror parity, deploy manifest, and rollback identity. Stop on any data exposure, unreviewed path, or receipt gap. | `code_reviewer` |
+| Production candidate is exact and reversible | DevOps deploys only the reviewed candidate to the declared Vercel and HF targets, records both resulting revisions, and retains the prior revisions. Stop/rollback on failed health, route, or identity check. | `devops` |
+| Authorized Admin works end-to-end and remains protected | Post-deploy browser/API E2E receives valid authorized data/rendered states for catalog, summary, gray-zone, fine-tune status, and provider pools; unauthorized, malformed, and absent-token attempts are denied; Vercel route results bind to the deployed HF revision. Stop on any failed required panel or security assertion. | `qa_tester` |
+
+### Risks, recovery, waivers, and closure
+
+- **Recovery**: never turn Admin data routes public to recover availability. On a failed deploy/E2E check, preserve the receipt, roll back only the recorded Vercel/HF revisions, and return the affected ticket to `BLOCKED`.
+- **Waivers**: `NONE`.
+- **Blockers**: `NONE` for planning. `QA-010` must first prove the live route inventory; `OPS-040` may not deploy if its target, candidate revision, server-side token verification, or rollback revision is unbound.
+- **Stop condition for this ticket**: this BSA activity is done when this bounded plan and the atomic tickets are persisted. It does not claim the production outage is fixed.
+
+<!-- ADMIN-REMED-PLAN-001:END -->
+
+<!-- GHA-20260901-BSA-001:START -->
+## GRILL REPORT -- GHA-20260901-BSA-001: GitHub Actions Ruff F821 Repair
+
+**Recorded**: `2026-09-01T00:17:08+07:00` (Asia/Bangkok)
+**Status**: `APPROVED`
+**Authorized next phase**: `QA baseline only` -- capture the red lint provenance before any source mutation.
+**Request**: Repair the `main` GitHub Actions failure on SHA `f9f8048` (run `33418206471`): Ruff `F821`, undefined name `HybridRouter`, at `project/mcp_server.py:130`.
+
+### Context evidence
+
+- `[AUTO]` Local checkout is `main` at `f9f80487a5f01a176ce7c16d3f1657e2c8908e16` (`git rev-parse`, 2026-09-01); worktree was clean before this governance edit.
+- `[AUTO]` `project/mcp_server.py:130` declares `def _get_router() -> "HybridRouter":`; the lazy local import and construction occur at lines 133-134. `HybridRouter` is defined in `project/api_router.py:554`.
+- `[AUTO]` `.github/workflows/ci.yml:146` runs `ruff check project/ tests/ --select E9,F63,F7,F82 --exclude project/kaggle_kernel`.
+- `[CONFIRMED]` Current-session owner authority covers the scoped repair lifecycle, including the later closure/archive action. The present BSA task is limited to `plans/plan.md` and `PROJECT_TASKS.md`; no source, test, workflow, archive, release-note, GitHub, secret, commit, push, deploy, or publish mutation is authorized in this intake action.
+
+### Nine-dimension matrix
+
+| ID | Result | Evidence state | Decision / remaining issue |
+|---|---|---|---|
+| D1 Scope boundary | Repair the cited Ruff `F821` in `project/mcp_server.py`; record and govern the repair sprint. Exclude unrelated lint debt and all workflow changes. | `[CONFIRMED]` | Resolved. Stable interfaces: MCP lazy router behavior and public module attributes. |
+| D2 Requirement delta | Remove the undefined-name lint finding without masking it or broadening lint exclusions. | `[AUTO]` | Resolved; implementation technique is deliberately constrained by behavior, not prescribed. |
+| D3 Acceptance and stop conditions | Baseline, focused lint, regression, independent review, main CI, and closure evidence are measurable below. | `[CONFIRMED]` | Resolved. Stop current BSA task after only the two owned documentation files change. |
+| D4 Inputs, constraints, dependencies | Required: bound SHA/run/failure, local source context, CI Ruff command, QA provenance before mutation, and normal capacity/lease admission at dispatch. | `[AUTO]` / `[CONFIRMED]` | Resolved. No credentials or external system access required for intake. |
+| D5 Architecture, ownership, handoff | QA owns baseline evidence; developer owns only `project/mcp_server.py`; DevOps owns CI/push verification; reviewer is read-only; BSA owns closure documents. | `[CONFIRMED]` | Resolved; serial dependency graph prevents concurrent ownership collisions. |
+| D6 Assumption register | GitHub-run diagnosis, owner authority, and required branch are confirmed. The source repair must preserve lazy initialization and must not be a blanket suppression. | `[CONFIRMED]` | No pending material assumption. |
+| D7 Risk and recovery | Risks: behavior/circular-import regression, wrong SHA/run, lint suppression, or a red post-push CI. Recovery: revert only the bound source commit, return to the recorded baseline, and halt on any failed gate. | `[AUTO]` | Resolved; no rollback action is performed in this phase. |
+| D8 Budget and evidence strategy | DispatchDecision v1: scope=2, complexity=2, risk=2, ambiguity=1, evidence=2; floor `gpt-5.6-terra/high`; selected `codex2`; quota Tier 1 Green; `WRITE_GOVERNANCE`; policy v1. | `[CONFIRMED]` | Resolved. Evidence is bounded to SHA/run IDs, commands, exit status, and ASCII-tagged receipts; no secrets. |
+| D9 Domain and HITL check | No metaphysical calculation, interpretation, source-domain conflict, or low-consensus decision is changed. `metaphysical-domain-engine` is out of scope. | `[NOT-APPLICABLE]` | No domain HITL audit required. Current-session owner approval is recorded for the scoped repair lifecycle. |
+
+### Scope, assumptions, acceptance, and stop condition
+
+**IN**: a minimal, behavior-preserving source repair for the cited F821; QA baseline and regression evidence; independent review; main-branch CI/push verification; then Rule 22 closure, archive, and `ReleaseNotes.md` synchronization.
+**OUT**: unrelated code/test/workflow changes, lint-rule weakening or `# noqa` masking, GitHub configuration changes, credential/secret handling, deployment/publishing, and all metaphysical-domain behavior.
+**Assumptions**: none pending. The cited GitHub failure and the owner-provided run/SHA are the baseline; any conflicting fresh evidence reopens D2/D3/D7 and halts progression.
+
+| Acceptance criterion | Verification / stop threshold | Owner |
+|---|---|---|
+| Frozen red baseline names the exact F821, path, line, SHA, and CI-equivalent command | The receipt binds `f9f8048`, `33418206471`, and `project/mcp_server.py:130`; stop if mismatch. | `qa_tester` |
+| Repair removes F821 without suppression, workflow edits, or lazy-router behavior loss | CI-equivalent Ruff command exits 0; focused MCP/router regression passes; stop on any failure or changed excluded file. | `developer` |
+| Candidate is independently safe and reviewable | Independent reviewer returns PASS on diff, scope, rollback, and receipt completeness; stop on any unresolved risk. | `code_reviewer` |
+| Main verification is tied to the repaired commit | Authorized push is followed by a green GitHub Actions run on `main` for that exact commit; stop on wrong branch, stale run, or red run. | `devops` |
+| Sprint closure is truthful | Every sprint ticket is independently verified `DONE`; then archive the completed planning artifact and update `ReleaseNotes.md`; stop before closure if any ticket is not DONE. | `business_analyst` |
+
+### Risks, recovery, waivers, and blockers
+
+- **Recovery**: on a source or CI failure, revert only the repair commit after preserving its SHA and receipts; do not touch workflow configuration or unrelated files.
+- **Waivers**: `NONE`.
+- **Blockers**: `NONE` for intake. Dispatch remains fail-closed on normal capacity/lease admission and the QA baseline receipt.
+- **Next question**: `NONE`.
+
+### Approved scope expansion -- AI Safety Audit and Production Synthetic Monitoring
+
+**Recorded**: `2026-09-01T00:17:08+07:00` (Asia/Bangkok)
+**Gate**: `APPROVED FOR READ-ONLY TRIAGE ONLY`
+**New evidence**: AI Safety Audit run `33418206430` and Unified CI run `33418206373` on `f9f8048` identify 10 unique pytest failures across seven logical groups: quota-handoff markers (2), RAG chunk baseline (1), context-handoff wording (1), distillation timestamp (1), HF manual-gradient digest (1), AGY capacity contract expectations (3), and CI-only `project/tests/test_local_release_runner_contract.py::test_non_release_hermes_qa_and_sync_orchestration_remains_callable` (1; expected `['CALL pytest', 'CALL tee']`, actual `['', 'CALL pytest']`). Production Synthetic Monitoring run `33418604094` diagnosis found a forbidden legacy `commit` field/version `1.0.0.93f51cf` from HF immutable revision `90cb95cb...`; Vercel matches.
+
+| Workstream | Scope and evidence | Authorized phase | Hard stop |
+|---|---|---|---|
+| `GHA-20260901-AISAFETY` | Read-only, one-ticket-per-logical-group triage that binds every failing node ID, actual/expected value, candidate owner/path, and `f9f8048`; then frozen-baseline QA/source correction lanes. | Seven independent read-only triage tickets only. | No test expectation, fixture, source, skill/rule, generated-agent, workflow, or release change before triage completes and a frozen correction map is reviewed. |
+| `GHA-20260901-SYNTHMON` | Diagnosis is DONE: HF serves a forbidden legacy commit/version from immutable revision `90cb95cb...`; Vercel matches. | `NEEDS_HITL` remediation planning only. | No deploy, publish, remote mutation, or release claim until green CI, `PRIOR_TREE_UNAVAILABLE` resolution, candidate manifest/receipt, exact HF target, rollback revision, and current-session authorization are bound. |
+
+**Expanded acceptance**: Every AI Safety triage receipt must account for all 10 failures and preserve the pre-correction output. Corrections require a frozen baseline, exact-path one-editor assignment, independent review, and an exact-SHA green CI run. Synthetic Monitoring diagnosis is complete; remediation remains `NEEDS_HITL` until green CI, `PRIOR_TREE_UNAVAILABLE` resolution, candidate manifest/receipt, exact HF target, rollback revision, and current-session authorization are bound. Vercel remains untouched.
+
+**Expanded risks and recovery**: Treat a passing HTTP status as insufficient release identity evidence. Preserve failed remote and test receipts; on any incorrect correction, revert only its bound commit and retain the original baseline. No archive is authorized by this scope expansion.
+
+<!-- GHA-20260901-BSA-001:END -->
+
 <!-- AGILE-GOVERNANCE-SYNC-MRMAP:START -->
 ## Agile Governance & Task Board Status Sync (GOV-SYNC-MRMAP-001)
 

@@ -1,0 +1,112 @@
+{
+  "schema_version": "gha-triage-v1",
+  "ticket": "GHA-20260901-AIS-014",
+  "status": "DONE",
+  "recorded_at_utc": "2026-09-01T03:18:56Z",
+  "mode": "WRITE_EVIDENCE",
+  "scope": {
+    "run_id": 33418206430,
+    "run_url": "https://github.com/pphothidaen/HoroConsultant/actions/runs/33418206430",
+    "run_head_sha": "f9f80487a5f01a176ce7c16d3f1657e2c8908e16",
+    "job_name": "Pre-Deployment Code Review and Safety Audit",
+    "step_name": "Execute code reviewer and safety audit",
+    "owned_output": "plans/evidence/gha-20260901-aisafety/hf-gradient-digest-triage.json"
+  },
+  "failure": {
+    "exact_failing_node_id": "tests/test_hf_release_governance.py::test_post_deploy_manual_gradient_evidence_is_current_and_complete",
+    "assertion": "assert _sha256(report_path) == report_evidence[\"sha256\"]",
+    "assertion_line_at_f9f8048": 215,
+    "expected_sha256": "f74a3fa559333be170ce6ea54c43cb06ec144109ff054896efee568073225d10",
+    "actual_sha256": "18d7aa23892cbcbcd99379a3fdb87745ca875760943b132fcc92ba52ffe65c03",
+    "classification": "artifact-and-evidence-provenance-drift",
+    "source_or_test": "release artifact/evidence pair",
+    "ambiguous": false
+  },
+  "canonicalization": {
+    "algorithm": "SHA-256",
+    "implementation": "tests/test_hf_release_governance.py::_sha256",
+    "rule": "Open the referenced file in binary mode and update one SHA-256 digest with consecutive 1 MiB byte chunks; compare the raw-file digest directly to visual_evidence.report.sha256.",
+    "json_canonicalization": "None. The assertion hashes raw bytes; JSON reformatting, semantic equivalence, or report overall_status do not satisfy the contract."
+  },
+  "authority_and_artifacts": {
+    "test_contract": "tests/test_hf_release_governance.py",
+    "evidence_manifest": "project/tests/artifacts/hf_post_deploy_v3_verification_2026-08-25.json",
+    "source_report": "project/tests/artifacts/visual_layout_report.json",
+    "related_asset_set": "project/tests/screenshots/visual_audit/{desktop-4k,laptop-standard,tablet-portrait,mobile-ios,mobile-compact}_horo_v3_consensus.png",
+    "manifest_binding": "The manifest binds the report path, its SHA-256, report timestamp, exactly five canonical viewport screenshots and their SHA-256 values. The test stops at the report digest mismatch before it can evaluate the dependent screenshot bindings."
+  },
+  "evidence": {
+    "recorded_ci_summary": "AI Safety Audit run 33418206430 at f9f8048 reported this manual-gradient digest failure among 9 failed, 3791 passed, 45 skipped, 12 warnings in 280.11s.",
+    "local_reproduction": {
+      "command": "python3 -m pytest -q tests/test_hf_release_governance.py::test_post_deploy_manual_gradient_evidence_is_current_and_complete",
+      "output": "FAILED at tests/test_hf_release_governance.py:215: expected f74a3fa559333be170ce6ea54c43cb06ec144109ff054896efee568073225d10, actual 18d7aa23892cbcbcd99379a3fdb87745ca875760943b132fcc92ba52ffe65c03; 1 failed in 0.04s.",
+      "interpretation": "Current-tree corroboration only; it does not replace CI evidence. The two relevant tracked blobs are nevertheless byte-identical at f9f8048 and current HEAD."
+    },
+    "artifact_state": {
+      "manifest_report_timestamp": "2026-08-31T07:41:45Z",
+      "current_report_timestamp": "2026-08-31T15:02:05Z",
+      "current_report_base_url": "http://127.0.0.1:8899",
+      "current_total_contrast_indeterminate": 30,
+      "manifest_manual_review_findings": 0,
+      "finding": "The manifest describes the earlier Vercel report with zero indeterminate findings, whereas the replacement local report has 30 gradient indeterminates (six per canonical viewport)."
+    }
+  },
+  "commit_provenance": {
+    "failure_commit": {
+      "short_sha": "f9f8048",
+      "full_sha": "f9f80487a5f01a176ce7c16d3f1657e2c8908e16",
+      "subject": "fix(provenance): refine staged manifest verification for incremental edits",
+      "committed_at": "2026-09-01T00:10:49+07:00",
+      "evidence_manifest_blob": "905d7f9c17408f76eb231c405c61502037d31e47",
+      "report_blob": "2ce2cf459ab12ad1ce1600ed06f5a8792a8ab1ef",
+      "report_raw_sha256": "18d7aa23892cbcbcd99379a3fdb87745ca875760943b132fcc92ba52ffe65c03"
+    },
+    "current_tree": {
+      "head_sha": "cb1df9fd573f2936e9d57c4cb390f307cfeb17b7",
+      "subject": "fix(mcp): preserve lazy HybridRouter type reference",
+      "worktree_state": "dirty; current results are diagnostic corroboration only",
+      "comparison_to_f9f8048": "Both the evidence-manifest blob and report blob are unchanged from f9f8048, so the same digest mismatch is reproducible from the CI baseline."
+    },
+    "cause_introduction": {
+      "commit": "e227d52eb79869d501b66fbe3c4d422db76d1b46",
+      "subject": "feat(release): Sprint SPRINT-METAPHYSICS-ROADMAP-001 completion & Agent Broker certification",
+      "relationship": "9612543 is an ancestor of e227d52, and e227d52 is an ancestor of f9f8048.",
+      "mechanism": "e227d52 modified visual_layout_report.json and all five bound v3-consensus screenshots but did not modify hf_post_deploy_v3_verification_2026-08-25.json. This replaced the Vercel-derived artifact set with a localhost audit while retaining the earlier manifest digests."
+    }
+  },
+  "reproducible_cause": {
+    "summary": "A release-evidence manifest pinned to an earlier visual report was left unchanged after a later commit replaced the report and all five bound screenshots. The raw-byte SHA-256 contract therefore fails deterministically at the first report comparison.",
+    "test_change_required": false,
+    "why_test_is_correct": "The test fail-closes stale visual evidence before accepting manual-gradient completion; its raw-byte digest behavior is intentional and explicitly protects the five-viewport release chain."
+  },
+  "candidate_correction": {
+    "preferred_owner": "devops with qa_tester release verification",
+    "candidate_paths": [
+      "project/tests/artifacts/visual_layout_report.json",
+      "project/tests/screenshots/visual_audit/desktop-4k_horo_v3_consensus.png",
+      "project/tests/screenshots/visual_audit/laptop-standard_horo_v3_consensus.png",
+      "project/tests/screenshots/visual_audit/tablet-portrait_horo_v3_consensus.png",
+      "project/tests/screenshots/visual_audit/mobile-ios_horo_v3_consensus.png",
+      "project/tests/screenshots/visual_audit/mobile-compact_horo_v3_consensus.png",
+      "project/tests/artifacts/hf_post_deploy_v3_verification_2026-08-25.json"
+    ],
+    "required_workflow": "Run the five-viewport v3-consensus audit only against a verified Vercel static UI target, retain the generated report and five screenshots as one artifact set, then update the manifest paths, raw SHA-256 values, timestamps, manual-gradient findings, and provenance together. Rerun the focused governance test and the publisher/governance regression pair.",
+    "prohibited_shortcut": "Do not replace only the expected digest with the localhost report digest: that would bind a local 30-indeterminate report to an asserted zero-finding manual review and is not production evidence."
+  },
+  "residual_risk": [
+    "The current report is localhost-derived and has 30 unresolved indeterminate gradient checks; it cannot support a release claim.",
+    "A fresh Vercel UI identity/provenance check is required before recapturing artifacts; a static URL or old report timestamp is insufficient.",
+    "This receipt authorizes no changes outside its own evidence file and makes no READY_FOR_PROD claim."
+  ],
+  "mutations": {
+    "source": [],
+    "tests": [],
+    "scripts": [],
+    "docs": [],
+    "config": [],
+    "evidence": [
+      "plans/evidence/gha-20260901-aisafety/hf-gradient-digest-triage.json"
+    ],
+    "external": []
+  }
+}

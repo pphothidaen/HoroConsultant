@@ -24,6 +24,14 @@
       "destination": "/api/index?path=/api/v3/:path*"
     },
     {
+      "source": "/admin/:path*",
+      "destination": "https://pphothidaen-horoconsultant-core-backend.hf.space/admin/:path*"
+    },
+    {
+      "source": "/hitl/stats",
+      "destination": "https://pphothidaen-horoconsultant-core-backend.hf.space/hitl/stats"
+    },
+    {
       "source": "/docs",
       "destination": "/api/index?path=/docs"
     },

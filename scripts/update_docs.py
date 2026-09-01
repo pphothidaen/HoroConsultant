@@ -58,8 +58,8 @@ Sprint META-PLAN-003 delivers three strategic pillars: a production-grade Model 
 with open('/Users/kimlenglim/Project/HoroConsultant/ReleaseNotes.md', 'w') as f:
     f.write(new_rn + rn_content)
 
-# 2. Update PROJECT_TASKS.md
-with open('/Users/kimlenglim/Project/HoroConsultant/PROJECT_TASKS.md', 'r') as f:
+# 2. Update atomic_tasks.md
+with open('/Users/kimlenglim/Project/HoroConsultant/atomic_tasks.md', 'r') as f:
     pt_content = f.read()
 
 # Update IN_PROGRESS to COMPLETED
@@ -76,7 +76,7 @@ pt_content = re.sub(r'\|\s*\*\*M4\*\*.*', r'| **M4** | Automated Test Planes, In
 pt_content = re.sub(r'\|\s*\*\*M5\*\*.*', r'| **M5** | Security Audit, Release Packaging & Sprint Closure | 4 | 4 | 0 | 0 | 0 |', pt_content)
 pt_content = re.sub(r'\|\s*\*\*Total\*\* \| \| \*\*24\*\* \| \*\*8\*\* \| \*\*8\*\* \| \*\*8\*\* \| \*\*0\*\* \|', r'| **Total** | | **24** | **24** | **0** | **0** | **0** |', pt_content)
 
-with open('/Users/kimlenglim/Project/HoroConsultant/PROJECT_TASKS.md', 'w') as f:
+with open('/Users/kimlenglim/Project/HoroConsultant/atomic_tasks.md', 'w') as f:
     f.write(pt_content)
 
 # 3. Update plans/plan.md

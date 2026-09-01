@@ -134,6 +134,12 @@ test("privileged, traversal, and unlisted mutation routes are denied before fetc
     assert.equal(result.body.correlation_id, "caller-id");
     assert.doesNotMatch(JSON.stringify(result.body), /admin|hitl|\.\./i);
   }
+
+  for (const path of ["/admin/catalog", "/admin/grayzone", "/hitl/stats"]) {
+    const result = errorResult({ url: `/api/index?path=${path}`, method: "GET" });
+    assert.equal(result.statusCode, 401, `GET ${path}`);
+    assert.equal(result.body.code, "authorization_required", `GET ${path}`);
+  }
 });
 
 test("body limit and unsafe upstream errors produce fixed public output", () => {
@@ -183,7 +189,7 @@ test("CORS blocks an untrusted origin before it can reach the configured backend
   });
 });
 
-test("Vercel rewrites expose only public health, v1-v3, docs, and OpenAPI routes", () => {
+test("Vercel rewrites expose public routes plus protected Admin/HITL ingress", () => {
   const vercel = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
   const rewrites = new Map(vercel.rewrites.map(rule => [rule.source, rule.destination]));
 
@@ -192,9 +198,10 @@ test("Vercel rewrites expose only public health, v1-v3, docs, and OpenAPI routes
     ["/api/v1/:path*", "/api/index?path=/api/v1/:path*"],
     ["/api/v2/:path*", "/api/index?path=/api/v2/:path*"],
     ["/api/v3/:path*", "/api/index?path=/api/v3/:path*"],
+    ["/admin/:path*", "/api/index?path=/admin/:path*"],
+    ["/hitl/stats", "/api/index?path=/hitl/stats"],
     ["/docs", "/api/index?path=/docs"],
     ["/openapi.json", "/api/index?path=/openapi.json"],
   ]);
-  assert.equal([...rewrites.keys()].some(source => /admin|hitl/i.test(source)), false);
-  assert.equal([...rewrites.values()].some(destination => /admin|hitl/i.test(destination)), false);
+  assert.equal(rewrites.has("/hitl/:path*"), false);
 });

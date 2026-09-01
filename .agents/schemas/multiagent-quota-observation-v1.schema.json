@@ -28,7 +28,7 @@
     "protocol_version": {"type": "integer", "const": 1},
     "canonicalization_version": {"type": "integer", "const": 1},
     "domain": {"const": "horoconsultant.multiagent.quota-observation.v1"},
-    "alias": {"enum": ["codex1", "codex2", "agy1", "agy2"]},
+    "alias": {"enum": ["codex1", "codex2", "codex3", "agy1", "agy2", "agy3", "agy4"]},
     "provider": {"enum": ["codex", "agy"]},
     "account_home_sha256": {"$ref": "#/$defs/sha256"},
     "resolved_executable_sha256": {"$ref": "#/$defs/sha256"},
@@ -104,13 +104,13 @@
     {
       "properties": {
         "provider": {"const": "codex"},
-        "alias": {"enum": ["codex1", "codex2"]}
+        "alias": {"enum": ["codex1", "codex2", "codex3"]}
       }
     },
     {
       "properties": {
         "provider": {"const": "agy"},
-        "alias": {"enum": ["agy1", "agy2"]}
+        "alias": {"enum": ["agy1", "agy2", "agy3", "agy4"]}
       }
     }
   ],

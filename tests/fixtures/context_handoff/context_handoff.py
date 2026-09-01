@@ -432,7 +432,7 @@ def op_rehydrate(args: argparse.Namespace) -> int:
     next_action = snapshot.get("next_action", "")
     ticket_id = snapshot.get("ticket_id", "")
     auth = snapshot.get("authority", {})
-    cur_state = auth.get("current_state", "PROJECT_TASKS.md")
+    cur_state = auth.get("current_state", "atomic_tasks.md")
     plan = auth.get("implementation_plan", "plans/plan.md")
 
     rehydrated = (

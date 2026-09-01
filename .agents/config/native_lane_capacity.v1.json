@@ -17,5 +17,10 @@
     "agy_per_alias_cap_statement": "AGY per-alias cap 3",
     "pool_policy": "independent pools; no aggregation",
     "admission_policy": "alias unknown without fresh quota proof and isolation proof"
+  },
+  "accounts": {
+    "agy3": {"max_workers": 3, "provider": "agy"},
+    "agy4": {"max_workers": 3, "provider": "agy"},
+    "codex3": {"max_workers": 2, "provider": "codex"}
   }
 }

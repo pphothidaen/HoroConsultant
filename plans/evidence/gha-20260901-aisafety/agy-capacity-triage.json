@@ -1,0 +1,284 @@
+{
+  "schema_version": "gha-triage-v1",
+  "ticket": "GHA-20260901-AIS-015",
+  "status": "DONE",
+  "recorded_at_utc": "2026-09-01T03:20:37Z",
+  "mode": "WRITE_EVIDENCE",
+  "scope": {
+    "run_id": 33418206430,
+    "run_url": "https://github.com/pphothidaen/HoroConsultant/actions/runs/33418206430",
+    "run_head_sha": "f9f80487a5f01a176ce7c16d3f1657e2c8908e16",
+    "job_name": "Pre-Deployment Code Review and Safety Audit",
+    "step_name": "Execute code reviewer and safety audit",
+    "owned_output": "plans/evidence/gha-20260901-aisafety/agy-capacity-triage.json",
+    "provider_boundary": "Read-only local inspection only. No AGY command, provider dispatch, account, quota, or capacity-state mutation was performed."
+  },
+  "failures": [
+    {
+      "node_id": "tests/test_idq_mvp_010_release_cycle.py::test_capacity_policy_is_the_four_account_positive_control",
+      "assertion_line_at_run_commit": 42,
+      "expected": {
+        "accounts": {
+          "codex1": 2,
+          "codex2": 2,
+          "codex3": 2,
+          "agy1": 3,
+          "agy2": 3
+        }
+      },
+      "actual": {
+        "accounts": {
+          "codex1": 2,
+          "codex2": 2,
+          "codex3": 2,
+          "agy1": 3,
+          "agy2": 3,
+          "agy3": 3,
+          "agy4": 3
+        },
+        "extra_aliases": [
+          "agy3",
+          "agy4"
+        ]
+      },
+      "classification": "stale-positive-control-expectation-after-committed-four-alias-capacity-expansion",
+      "affected_contract": "S3 capacity-policy account registry",
+      "cause": "The frozen expectation has five accounts, while the same f9f8048 source policy and validator require seven named accounts, including agy3 and agy4."
+    },
+    {
+      "node_id": "tests/test_idq_mvp_010_release_cycle.py::test_worker_root_policy_matches_capacity_without_cross_account_borrowing",
+      "assertion_line_at_run_commit": 101,
+      "expected": {
+        "root_b_aliases": [
+          "agy1",
+          "agy2"
+        ]
+      },
+      "actual": {
+        "root_b_aliases": [
+          "agy1",
+          "agy2",
+          "agy3",
+          "agy4"
+        ],
+        "extra_aliases": [
+          "agy3",
+          "agy4"
+        ],
+        "root_b_account_caps": {
+          "agy1": 3,
+          "agy2": 3,
+          "agy3": 3,
+          "agy4": 3
+        }
+      },
+      "classification": "stale-root-b-alias-expectation-after-committed-four-alias-capacity-expansion",
+      "affected_contract": "Root B local worker-policy alias registry",
+      "cause": "RootPolicy.for_root(\"B\") returns all four AGY aliases at f9f8048; the assertion retained the pre-expansion two-alias set."
+    },
+    {
+      "node_id": "tests/test_multiagent_root_worker.py::test_root_policies_lock_aliases_pool_size_and_account_caps",
+      "assertion_line_at_run_commit": 109,
+      "expected": {
+        "root_b_aliases": [
+          "agy1",
+          "agy2"
+        ],
+        "root_b_account_caps": {
+          "agy1": 3,
+          "agy2": 3
+        }
+      },
+      "actual": {
+        "root_b_aliases": [
+          "agy1",
+          "agy2",
+          "agy3",
+          "agy4"
+        ],
+        "root_b_account_caps": {
+          "agy1": 3,
+          "agy2": 3,
+          "agy3": 3,
+          "agy4": 3
+        },
+        "extra_aliases": [
+          "agy3",
+          "agy4"
+        ]
+      },
+      "classification": "stale-root-worker-regression-expectation-after-committed-four-alias-capacity-expansion",
+      "affected_contract": "Root B local worker-policy alias and account-cap registry",
+      "cause": "The root-worker unit regression retained the two-alias contract although the committed RootPolicy and S3 registry had already expanded to agy1 through agy4."
+    }
+  ],
+  "capacity_guard": {
+    "local_capacity_inputs": {
+      "policy_path": ".agents/config/s3_capacity_policy.json",
+      "validator_path": "scripts/multiagent_capacity.py",
+      "validator_known_accounts": [
+        "agy1",
+        "agy2",
+        "agy3",
+        "agy4",
+        "codex1",
+        "codex2",
+        "codex3"
+      ],
+      "agy_per_alias_workers": 3,
+      "quota_basis": "verified_quota_only",
+      "quota_source": "configured_placeholder"
+    },
+    "local_capacity_outputs": {
+      "validated_account_caps": {
+        "agy1": 3,
+        "agy2": 3,
+        "agy3": 3,
+        "agy4": 3,
+        "codex1": 2,
+        "codex2": 2,
+        "codex3": 2
+      },
+      "root_b_aliases": [
+        "agy1",
+        "agy2",
+        "agy3",
+        "agy4"
+      ],
+      "root_b_account_caps": {
+        "agy1": 3,
+        "agy2": 3,
+        "agy3": 3,
+        "agy4": 3
+      }
+    },
+    "execution_guard_boundary": {
+      "guard_paths": [
+        ".agents/hooks/full_capacity_guard.py",
+        ".agents/config/full_capacity_guard.v2.json",
+        ".agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml"
+      ],
+      "guarded_agy_aliases": [
+        "agy1",
+        "agy2"
+      ],
+      "guard_config_provider_aliases": [
+        "agy1",
+        "agy2"
+      ],
+      "positive_alias_runtime_proof_available": false,
+      "provider_execution_denial": "PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED",
+      "dispatch_output": "A dispatch using agy1 or agy2 is fail-closed with CAPACITY_ALIAS_RUNTIME_PROOF_UNAVAILABLE and BLOCKED_ALIAS_RUNTIME_PROOF; the local capacity registry is not provider execution or quota proof.",
+      "interpretation": "The four-alias local registry must not be read as authorization to execute AGY. The failing nodes cover local contracts only."
+    }
+  },
+  "provenance": {
+    "failure_commit": {
+      "short_sha": "f9f8048",
+      "full_sha": "f9f80487a5f01a176ce7c16d3f1657e2c8908e16",
+      "subject": "fix(provenance): refine staged manifest verification for incremental edits",
+      "committed_at": "2026-09-01T00:10:49+07:00"
+    },
+    "current_tree": {
+      "head_sha": "cb1df9fd573f2936e9d57c4cb390f307cfeb17b7",
+      "subject": "fix(mcp): preserve lazy HybridRouter type reference",
+      "relationship": "f9f8048 is an ancestor of HEAD",
+      "worktree_state": "dirty; current focused test results corroborate but do not replace immutable CI evidence"
+    },
+    "f9f8048_and_current_blob_identity": {
+      ".agents/config/s3_capacity_policy.json": "7d1a575167cc54de29afc26ec53763c7c3b90c6b",
+      "scripts/multiagent_capacity.py": "4933a56258ce92eb3072c7161e904fb4f1c4cc3d",
+      "scripts/multiagent_root_worker.py": "fe18196dd19fcea146262d9929f2351c4d666086",
+      "tests/test_idq_mvp_010_release_cycle.py": "e191794f4aaeb8da959506d722d7cc38e0715f16",
+      "tests/test_multiagent_root_worker.py": "f5b7483cbacf85d319058d4da37fea12b2ea4d91"
+    },
+    "origin_of_conflict": {
+      "commit": "e227d52eb79869d501b66fbe3c4d422db76d1b46",
+      "committed_at": "2026-08-31T23:47:41+07:00",
+      "subject": "feat(release): Sprint SPRINT-METAPHYSICS-ROADMAP-001 completion & Agent Broker certification",
+      "changed_source_contracts": [
+        ".agents/config/s3_capacity_policy.json added agy3 and agy4",
+        "scripts/multiagent_capacity.py added agy3 and agy4 to KNOWN_ACCOUNTS and ACCOUNT_PROVIDERS",
+        "scripts/multiagent_root_worker.py expanded Root B to agy1 through agy4"
+      ],
+      "unchanged_failing_tests": [
+        "tests/test_idq_mvp_010_release_cycle.py",
+        "tests/test_multiagent_root_worker.py"
+      ],
+      "conclusion": "All three failures were already present at the audited run SHA. The source expansion intentionally changed the local registry without synchronizing the older exact-set expectations."
+    }
+  },
+  "evidence": {
+    "remote_command": "gh run view 33418206430 --log-failed",
+    "remote_result": "AI Safety Audit on f9f8048 reported all three named failures, each with agy3 and agy4 as unexpected extra aliases.",
+    "local_command": "PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider tests/test_idq_mvp_010_release_cycle.py::test_capacity_policy_is_the_four_account_positive_control tests/test_idq_mvp_010_release_cycle.py::test_worker_root_policy_matches_capacity_without_cross_account_borrowing tests/test_multiagent_root_worker.py::test_root_policies_lock_aliases_pool_size_and_account_caps",
+    "local_result": "3 failed in 0.05s. Node 1 reports agy3 and agy4 as two extra policy accounts; nodes 2 and 3 report agy3 and agy4 as extra Root B aliases.",
+    "capacity_inspection_command": "PYTHONDONTWRITEBYTECODE=1 python3 -c 'import json; from pathlib import Path; from scripts import multiagent_capacity as c; from scripts.multiagent_root_worker import RootPolicy; policy=c.validate_capacity_policy(json.loads(Path(\".agents/config/s3_capacity_policy.json\").read_text())); print(...)'",
+    "capacity_inspection_result": "validated policy accounts and Root B both output agy1, agy2, agy3, and agy4; each AGY alias has local max_workers 3.",
+    "provenance_commands": [
+      "git merge-base --is-ancestor f9f8048 HEAD",
+      "git diff --quiet f9f8048 HEAD -- .agents/config/s3_capacity_policy.json scripts/multiagent_capacity.py scripts/multiagent_root_worker.py tests/test_idq_mvp_010_release_cycle.py tests/test_multiagent_root_worker.py",
+      "git show --no-ext-diff e227d52eb79869d501b66fbe3c4d422db76d1b46 -- .agents/config/s3_capacity_policy.json scripts/multiagent_capacity.py scripts/multiagent_root_worker.py"
+    ],
+    "provenance_result": "f9f8048 is an ancestor of HEAD; the five source/test blobs are byte-identical at both commits; e227d52 introduced the source expansion and did not modify either failing test file."
+  },
+  "candidate_contract_paths": [
+    {
+      "path": ".agents/config/s3_capacity_policy.json",
+      "role": "local S3 capacity registry with four AGY aliases",
+      "candidate_owner": "developer",
+      "change_class": "source/config only if the four-alias local registry is rejected by a reviewed correction map"
+    },
+    {
+      "path": "scripts/multiagent_capacity.py",
+      "role": "closed local capacity-policy validator whose account registry includes agy3 and agy4",
+      "candidate_owner": "developer",
+      "change_class": "source only if the reviewed policy decision removes the expansion"
+    },
+    {
+      "path": "scripts/multiagent_root_worker.py",
+      "role": "Root B local alias and account-cap output",
+      "candidate_owner": "developer",
+      "change_class": "source only if the reviewed policy decision removes the expansion"
+    },
+    {
+      "path": "tests/test_idq_mvp_010_release_cycle.py",
+      "role": "two frozen exact-set expectations that retained the pre-expansion AGY registry",
+      "candidate_owner": "qa_tester",
+      "change_class": "test expectation correction candidate; requires the frozen correction map and a replacement regression preserving execution denial"
+    },
+    {
+      "path": "tests/test_multiagent_root_worker.py",
+      "role": "Root B exact-set and account-cap expectation that retained the pre-expansion registry",
+      "candidate_owner": "qa_tester",
+      "change_class": "test expectation correction candidate; requires the frozen correction map and a replacement regression preserving execution denial"
+    },
+    {
+      "path": ".agents/hooks/full_capacity_guard.py",
+      "role": "independent fail-closed execution guard for agy1 and agy2 only",
+      "candidate_owner": "developer",
+      "change_class": "no change justified by this triage"
+    }
+  ],
+  "ownership_classification": {
+    "primary": "stale exact-set test expectations after a committed local capacity-registry expansion",
+    "node_coverage": "all three failures account for the same two omitted aliases, agy3 and agy4, across the policy and Root B views",
+    "source_defect_demonstrated": false,
+    "test_staleness_demonstrated": true,
+    "runtime_execution_defect_demonstrated": false,
+    "ambiguous": false,
+    "test_assertion_boundary": "A future test-only correction is justified only if it preserves the distinction between local registry capacity and provider execution authority; deleting or weakening the assertions is not justified."
+  },
+  "recommended_next_action": "Route this complete receipt to GHA-20260901-AIS-020. Reserve the two named test files for a reviewed assertion correction only after the correction map records the four-alias local registry as canonical and adds or preserves fail-closed execution-denial coverage. This receipt authorizes no mutation or provider activity.",
+  "mutations": {
+    "source": [],
+    "tests": [],
+    "scripts": [],
+    "docs": [],
+    "config": [],
+    "evidence": [
+      "plans/evidence/gha-20260901-aisafety/agy-capacity-triage.json"
+    ],
+    "external": []
+  }
+}

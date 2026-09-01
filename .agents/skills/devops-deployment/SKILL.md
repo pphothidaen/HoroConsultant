@@ -76,3 +76,12 @@ Report only sanitized fields: backend target/SDK/revision, Vercel UI target and
 revision, metadata digest, `release_source_commit`, `packaging_commit`, command
 statuses, rollback revisions, and `[OK]` or `[ERROR]` verdict. Use only ASCII log
 tags: `[OK]`, `[ERROR]`, `[WARNING]`, and `[INFO]`.
+
+## Repository closeout
+
+After the user-approved, green PR merge, verify that `main` contains the
+release commit, then immediately delete both branch copies: GitHub deletes the
+remote branch through `gh pr merge --merge --delete-branch`; fast-forward local
+`main` and use `git branch -d <completed-branch>` for the local branch. If any
+merge, CI, or update evidence is missing, keep the branch and report
+`[ERROR] BLOCKED`.

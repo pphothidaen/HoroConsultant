@@ -8,7 +8,7 @@
 - ⚠️ Hugging Face Docker republish was attempted but rejected by the existing Space repository 1 GB storage quota; the live HF Space remained healthy on its prior runtime. Vercel is the verified production edge for this release.
 
 ## Completed Plan Milestones (historical)
-`PROJECT_TASKS.md` now tracks only active execution and open release gates.
+`atomic_tasks.md` tracks active execution and open release gates.
 `docs/RELEASE_NOTES.md` is the historical archive for completed plans.
 
 ### As of 2026-08-17
@@ -71,7 +71,7 @@
 ## Current State Note
 - All release gates `CP-01` through `CP-05` are completely GREEN.
 - System is in `CP-06-HANDOFF` READY state for final operator sign-off.
-- Ongoing release tracking and task details remain indexed in [PROJECT_TASKS.md](../PROJECT_TASKS.md).
+- Ongoing release tracking and task details remain indexed in [atomic_tasks.md](../atomic_tasks.md).
 - Checkpoint evidence is cataloged in `project/tests/` and [plans/plan.md](../plans/plan.md).
 
 ## 2026-08-24 Planning Continuation — v3 Visual Integrity

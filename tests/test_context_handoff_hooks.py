@@ -86,9 +86,9 @@ def _minimal_snapshot() -> dict[str, Any]:
         "reason": "manual",
         "objective": "Preserve bounded cross-runtime context without authority drift",
         "summary": "A canonical derived capsule used by native hook mapping fixtures.",
-        "next_action": "Read PROJECT_TASKS.md and plans/plan.md before resuming.",
+        "next_action": "Read atomic_tasks.md and plans/plan.md before resuming.",
         "authority": {
-            "current_state": "PROJECT_TASKS.md",
+            "current_state": "atomic_tasks.md",
             "implementation_plan": "plans/plan.md",
             "derived_handoff": "HANDOFF.md",
         },
@@ -948,7 +948,7 @@ def test_skill_rule_catalog_and_generated_mirrors_freeze_one_operator_only_polic
 
     required_markers = (
         "HandoffSnapshotV1",
-        "PROJECT_TASKS.md",
+        "atomic_tasks.md",
         "plans/plan.md",
         "HANDOFF.md",
         "UNKNOWN",

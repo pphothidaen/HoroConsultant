@@ -879,6 +879,14 @@
       </a>
     </div>
     <div class="nav-section">
+      <div class="nav-section-label">System &amp; Resilience</div>
+      <a class="nav-item" id="nav-item-providers" onclick="showPage('providers')" href="#">
+        <span class="nav-icon">⚡</span>
+        Provider Pools &amp; Zero-Cost
+        <span class="nav-badge green" id="nav-cb-status">0$ ZERO-COST</span>
+      </a>
+    </div>
+    <div class="nav-section">
       <div class="nav-section-label">Category Browse</div>
       <a class="nav-item" onclick="filterByCategory('chinese_metaphysics')" href="#">
         <span class="nav-icon cat-chinese">☯️</span>
@@ -1246,6 +1254,29 @@
       </div>
     </div>
 
+    <!-- PROVIDER POOLS & ZERO-COST PAGE -->
+    <div id="page-providers" class="hidden">
+      <div class="page-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+        <div>
+          <div class="page-title" style="display:flex; align-items:center; gap:10px;">
+            <span>⚡ AI Provider Pools, Circuit Breakers &amp; Zero-Cost Policy</span>
+            <span class="badge-zero-cost">🛡️ [ZERO-COST POLICY: ACTIVE]</span>
+          </div>
+          <div class="page-desc">
+            Live multi-tier AI routing topology, instant 0ms circuit breaker failover, multi-project quota pools, and fail-closed zero-cost billing guarantees.
+          </div>
+        </div>
+        <div>
+          <button class="btn btn-primary" onclick="loadProviderPoolsStatus()">
+            <span class="btn-label">🔄 Refresh Status</span>
+          </button>
+        </div>
+      </div>
+      <div id="page-providers-content">
+        <div class="empty-state"><div class="empty-state-icon">⏳</div>Loading Provider Pools...</div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -1310,6 +1341,7 @@ const State = {
   ftStatus: null,
   currentModal: null,
   activeCategory: null,
+  adminIdToken: null,
 };
 
 /* ======================== INIT & GOOGLE AUTH ======================== */
@@ -1322,10 +1354,12 @@ async function initGoogleAuth() {
   try {
     const cfg = await api('GET', '/admin/auth/config').catch(() => ({ auth_required: true }));
     const savedUser = localStorage.getItem('admin_user');
+    const savedToken = localStorage.getItem('google_id_token');
     if (savedUser) {
       try {
         const u = JSON.parse(savedUser);
-        if (u && u.email) {
+        if (u && u.email && savedToken) {
+          State.adminIdToken = savedToken;
           applyAuthenticatedState(u);
           return;
         }
@@ -1351,6 +1385,8 @@ async function handleGoogleCredentialResponse(response) {
   try {
     const res = await api('POST', '/admin/auth/google', { credential: response.credential });
     if (res.status === 'authenticated') {
+      State.adminIdToken = response.credential;
+      localStorage.setItem('google_id_token', response.credential);
       localStorage.setItem('admin_user', JSON.stringify(res.user));
       applyAuthenticatedState(res.user);
     }
@@ -1360,37 +1396,7 @@ async function handleGoogleCredentialResponse(response) {
 }
 
 async function submitEmailAuth() {
-  const emailInput = document.getElementById('auth-email-input').value.trim();
-  if (!emailInput) return;
-  const ALLOWED_ADMIN_EMAILS = ['pansakorn@gmail.com', 'kimlenglim.work@gmail.com'];
-  
-  try {
-    const res = await api('POST', '/admin/auth/google', { mock_email: emailInput });
-    if (res && res.status === 'authenticated') {
-      localStorage.setItem('admin_user', JSON.stringify(res.user));
-      applyAuthenticatedState(res.user);
-      return;
-    }
-  } catch (e) {
-    console.warn("API Admin Auth failed, trying local authorized email verification:", e);
-  }
-
-  // Client-side Fallback Auth for authorized admin emails
-  const cleanEmail = emailInput.toLowerCase();
-  if (ALLOWED_ADMIN_EMAILS.includes(cleanEmail)) {
-    const fallbackUser = {
-      email: cleanEmail,
-      name: cleanEmail.split('@')[0].capitalize ? cleanEmail.split('@')[0].capitalize() : cleanEmail.split('@')[0],
-      picture: `https://api.dicebear.com/7.x/bottts/svg?seed=${cleanEmail}`,
-      role: 'admin',
-      auth_provider: 'authorized_email_fallback'
-    };
-    localStorage.setItem('admin_user', JSON.stringify(fallbackUser));
-    applyAuthenticatedState(fallbackUser);
-    toast('info', `Authenticated as Admin (${cleanEmail})`);
-  } else {
-    showAuthError(`Access Denied: Email '${emailInput}' is not authorized for Admin access.`);
-  }
+  showAuthError('Google ID token is required for Admin access.');
 }
 
 function applyAuthenticatedState(user) {
@@ -1414,6 +1420,8 @@ function showAuthError(msg) {
 
 function logoutAdmin() {
   localStorage.removeItem('admin_user');
+  localStorage.removeItem('google_id_token');
+  State.adminIdToken = null;
   const chip = document.getElementById('user-profile-chip');
   if (chip) chip.style.display = 'none';
   const overlay = document.getElementById('auth-modal-overlay');
@@ -1432,6 +1440,7 @@ function showPage(name) {
   if (targetNav) targetNav.classList.add('active');
 
   if (name === 'dashboard')              { loadDashboard(); }
+  else if (name === 'providers')         { loadProviderPoolsStatus(); }
   else if (name === 'catalog')           { loadCatalog(); }
   else if (name === 'grayzone')          { loadGrayzone(); }
   else if (name === 'grayzone-answered') { loadAnswered(); }
@@ -1514,12 +1523,22 @@ async function fetchApi(endpoint, options = {}) {
 
 async function api(method, path, body) {
   try {
+    const endpoint = path.startsWith('/') ? path : '/' + path;
+    if (endpoint.startsWith('/admin/')
+      && endpoint !== '/admin/auth/config'
+      && endpoint !== '/admin/auth/google'
+      && !State.adminIdToken
+      || endpoint === '/hitl/stats' && !State.adminIdToken) {
+      throw new Error('Google ID token is required for Admin API access.');
+    }
     const opts = {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(State.adminIdToken ? { Authorization: `Bearer ${State.adminIdToken}` } : {}),
+      },
     };
     if (body) opts.body = JSON.stringify(body);
-    const endpoint = path.startsWith('/') ? path : '/' + path;
     const res = await fetchApi(endpoint, opts);
     if (!res.ok) {
       const err = await res.json().catch(() => ({ detail: res.statusText }));
@@ -1571,10 +1590,17 @@ async function loadDashboard() {
     // Action required
     renderActionRequired(summary.action_required);
 
+    // AI Provider Pools & Circuit Breaker Health
+    loadProviderPoolsStatus();
+
     // LLM Gateway Status
     loadLLMGatewayStatus();
 
   } catch(e) { console.error(e); }
+}
+
+async function loadProviderPoolsStatus() {
+  await api('GET', '/admin/provider-pools').catch(() => null);
 }
 
 async function loadLLMGatewayStatus() {

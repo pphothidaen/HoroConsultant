@@ -21,8 +21,8 @@ Before starting any implementation (Phase 2), writing code, or generating new fe
 3. **Structured GRILL REPORT in `/plans/plan.md`**:
    - The grill outcome must be prepended to `/plans/plan.md` with an explicit badge: `✅ APPROVED`, `⚠️ WAIVED`, or `🚫 BLOCKED`.
 
-4. **Decomposition into Sub-Agent Tickets in `PROJECT_TASKS.md`**:
-   - Upon gate approval, the Orchestrator MUST create a new Sprint / Session block in `PROJECT_TASKS.md`.
+4. **Decomposition into Sub-Agent Tickets in `atomic_tasks.md`**:
+   - Upon gate approval, the Orchestrator MUST create a new Sprint / Session block in `atomic_tasks.md`.
    - Tickets must be partitioned per assigned sub-agent (`orchestrator`, `developer`, `qa_tester`, `devops`, `domain_master`).
    - Each ticket MUST contain:
      - Ticket ID (e.g. `TICKET-001`)

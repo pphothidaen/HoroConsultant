@@ -214,4 +214,4 @@
   - All parity enhancements are strictly guarded by feature flags in `.agents/config/full_capacity_guard.v2.json` (`enable_agy_parity: false` by default).
   - Hook verifies cryptographic token anchor when `enable_agy_parity` is active, but blocks live execution by default.
   - `DSG-009A` remains permanently `BLOCKED` until native platform host APIs are delivered.
-  - Document operational state accurately across `PROJECT_TASKS.md`, `plans/plan.md`, `README.md`, and `HOWTO.md`.
+  - Document operational state accurately across `atomic_tasks.md`, `plans/plan.md`, `README.md`, and `HOWTO.md`.

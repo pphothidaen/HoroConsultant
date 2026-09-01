@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Any
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT_DIR / "scripts"))
+from branch_lifecycle_guard import validate_delete_command
 
 
 SECRET_PATH_PATTERNS = (
@@ -93,6 +95,10 @@ def inspect_bash(command: str) -> None:
     for pattern, reason in DESTRUCTIVE_BASH_PATTERNS:
         if pattern.search(command):
             deny(reason)
+
+    branch_delete_ok, branch_delete_reason = validate_delete_command(command, repo=ROOT_DIR)
+    if not branch_delete_ok:
+        deny(branch_delete_reason)
 
     for pattern, reason in SECRET_OUTPUT_BASH_PATTERNS:
         if pattern.search(command):

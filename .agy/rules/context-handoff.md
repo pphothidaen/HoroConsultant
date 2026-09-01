@@ -9,7 +9,7 @@ paths:
 
 ## 1. Authority and Derived State
 
-1. `PROJECT_TASKS.md` and `plans/plan.md` are the sole primary authorities.
+1. `atomic_tasks.md` and `plans/plan.md` are the sole primary authorities.
 2. `HANDOFF.md` is a derived, non-authoritative capsule under `HandoffSnapshotV1`.
 3. The engine never parses a raw transcript; only bounded state is evaluated.
 4. Any unresolved lane forces `clear_ready` false; unverified metrics evaluate to `UNKNOWN`.
@@ -25,4 +25,4 @@ paths:
 
 1. Only an `operator` may clear, compact, or reset sessions; hooks cannot automate clearing.
 2. Codex project hooks require non-managed user review of the exact current hash.
-3. Native Codex CLI may expose `--dangerously-bypass-hook-trust`; repository instructions never invoke or recommend this bypass.
+3. Native Codex CLI may expose `--dangerously-bypass-hook-trust`; repository instructions never invoke or recommend this bypass, and managed hooks remain outside this local implementation.

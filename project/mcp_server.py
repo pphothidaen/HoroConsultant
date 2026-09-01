@@ -24,11 +24,14 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+
+if TYPE_CHECKING:
+    from project.api_router import HybridRouter
 
 
 from project.core.bazi_engine import BaZiEngine
@@ -127,7 +130,7 @@ def _get_validator() -> PredictionValidator:
     return _validator_instance
 
 
-def _get_router() -> "HybridRouter":
+def _get_router() -> HybridRouter:
     global _router_instance
     if _router_instance is None:
         from project.api_router import HybridRouter

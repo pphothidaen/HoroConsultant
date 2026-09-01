@@ -8,6 +8,9 @@
 
 **Tech Stack:** Rust 1.97.1, Axum/Tokio, Python 3.12, FastAPI/Uvicorn, Docker Buildx, GitHub Actions, Docker Hub private registry, Azure Container Apps Consumption, Vercel, Playwright/Pytest.
 
+> **Historical plan:** task-file references record the original plan context.
+> `atomic_tasks.md` is the current operational task registry.
+
 ## Global Constraints
 
 - Preserve all current public route methods, paths, statuses, request/response schemas, OpenAPI behavior, and SVG content.
@@ -28,7 +31,7 @@
 - Create: `docs/superpowers/specs/2026-08-10-rust-first-azure-v1-design.md`
 - Create: `docs/superpowers/plans/2026-08-10-rust-first-azure-v1.md`
 - Modify: `plans/plan.md`
-- Modify: `PROJECT_TASKS.md`
+- Modify: `atomic_tasks.md`
 
 **Interfaces:**
 - Produces the binding design, task boundaries, acceptance matrix, and active Kanban card used by every later task.
@@ -138,7 +141,7 @@
 ### Task 8: Release Verification, Documentation, and Production Cutover
 
 **Files:**
-- Modify: verification/release scripts, `README.md`, `HOWTO.md`, `PROJECT_TASKS.md`, `plans/plan.md`, `.agents/LESSONS_LEARNED.md`
+- Modify: verification/release scripts, `README.md`, `HOWTO.md`, `atomic_tasks.md`, `plans/plan.md`, `.agents/LESSONS_LEARNED.md`
 
 **Interfaces:**
 - Verification accepts an expected Git SHA, image digest, Azure revision, and public base URL and exits non-zero on any mismatch.

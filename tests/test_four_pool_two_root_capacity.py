@@ -1,4 +1,4 @@
-"""Provider-free regression for the two-root, four-pool S3 topology.
+"""Provider-free regression for the two-root, seven-pool S3 topology.
 
 These tests exercise only local capacity leases and scheduler admission.  The
 configured caps are governance limits, not provider-native capacity proof.
@@ -17,15 +17,17 @@ from scripts import multiagent_ticket_scheduler as scheduler
 
 ROOT = Path(__file__).resolve().parents[1]
 POLICY_PATH = ROOT / ".agents/config/s3_capacity_policy.json"
-ACCOUNTS = ("codex1", "codex2", "codex3", "agy1", "agy2")
+ACCOUNTS = ("codex1", "codex2", "codex3", "agy1", "agy2", "agy3", "agy4")
 ROOT_OWNER = {
     "codex1": "RootA",
     "codex2": "RootA",
     "codex3": "RootA",
     "agy1": "RootB",
     "agy2": "RootB",
+    "agy3": "RootB",
+    "agy4": "RootB",
 }
-HARD_LOCAL_CAPS = {"codex1": 2, "codex2": 2, "codex3": 2, "agy1": 3, "agy2": 3}
+HARD_LOCAL_CAPS = {"codex1": 2, "codex2": 2, "codex3": 2, "agy1": 3, "agy2": 3, "agy3": 3, "agy4": 3}
 S3_OPERATING_TARGET_LANES = (1, 2)
 
 
@@ -113,7 +115,7 @@ def test_minimum_floor_has_one_isolated_lease_per_pool_and_two_root_ownership(
         for account in ACCOUNTS
     }
 
-    assert len(leases) == 5
+    assert len(leases) == 7
     assert {lease.account for lease in leases.values()} == set(ACCOUNTS)
     assert {lease.pool for lease in leases.values()} == set(ACCOUNTS)
     for account, lease in leases.items():
@@ -121,11 +123,11 @@ def test_minimum_floor_has_one_isolated_lease_per_pool_and_two_root_ownership(
         assert lease.provider == ("codex" if account.startswith("codex") else "agy")
 
     snapshot = capacity.capacity_snapshot(tmp_path, policy=policy, now=101)
-    assert sum(item["active_workers"] for item in snapshot["accounts"].values()) == 5
+    assert sum(item["active_workers"] for item in snapshot["accounts"].values()) == 7
     assert all(snapshot["accounts"][account]["active_workers"] == 1 for account in ACCOUNTS)
 
 
-def test_hard_local_caps_sum_to_twelve_and_each_next_lease_is_rejected(
+def test_hard_local_caps_sum_to_eighteen_and_each_next_lease_is_rejected(
     tmp_path: Path, policy: dict[str, object]
 ) -> None:
     normalized = capacity.validate_capacity_policy(policy)
@@ -135,9 +137,9 @@ def test_hard_local_caps_sum_to_twelve_and_each_next_lease_is_rejected(
     } == HARD_LOCAL_CAPS
 
     leases = _fill_to_hard_caps(tmp_path, policy)
-    assert sum(len(items) for items in leases.values()) == 12
+    assert sum(len(items) for items in leases.values()) == 18
     snapshot = capacity.capacity_snapshot(tmp_path, policy=policy, now=101)
-    assert sum(item["active_workers"] for item in snapshot["accounts"].values()) == 12
+    assert sum(item["active_workers"] for item in snapshot["accounts"].values()) == 18
     assert all(snapshot["accounts"][account]["available_workers"] == 0 for account in ACCOUNTS)
 
     for account in ACCOUNTS:
@@ -189,7 +191,7 @@ def test_release_opens_only_the_released_account_pool(
         assert exc.value.code == "OVER_CAPACITY"
 
     snapshot = capacity.capacity_snapshot(tmp_path, policy=policy, now=103)
-    assert sum(item["active_workers"] for item in snapshot["accounts"].values()) == 12
+    assert sum(item["active_workers"] for item in snapshot["accounts"].values()) == 18
     assert all(snapshot["accounts"][account]["available_workers"] == 0 for account in ACCOUNTS)
 
 
@@ -206,6 +208,8 @@ def test_s3_operating_target_is_separate_from_hard_caps_and_runtime_proof(
     )
     assert normalized["accounts"]["agy1"]["max_workers"] == 3
     assert normalized["accounts"]["agy2"]["max_workers"] == 3
+    assert normalized["accounts"]["agy3"]["max_workers"] == 3
+    assert normalized["accounts"]["agy4"]["max_workers"] == 3
     assert normalized["accounts"]["codex1"]["max_workers"] == 2
     assert normalized["accounts"]["codex2"]["max_workers"] == 2
     assert normalized["accounts"]["codex3"]["max_workers"] == 2
@@ -249,10 +253,12 @@ def test_scheduler_caller_reaches_sum_of_local_caps_without_global_native_ceilin
                 )
             )
 
-    assert len(leases) == sum(HARD_LOCAL_CAPS.values()) == 12
+    assert len(leases) == sum(HARD_LOCAL_CAPS.values()) == 18
     snapshot = capacity.capacity_snapshot(tmp_path, policy=policy, now=101)
-    assert sum(item["active_workers"] for item in snapshot["accounts"].values()) == 12
+    assert sum(item["active_workers"] for item in snapshot["accounts"].values()) == 18
     assert snapshot["accounts"]["agy1"]["max_workers"] == 3
     assert snapshot["accounts"]["agy2"]["max_workers"] == 3
+    assert snapshot["accounts"]["agy3"]["max_workers"] == 3
+    assert snapshot["accounts"]["agy4"]["max_workers"] == 3
     assert snapshot["accounts"]["codex3"]["max_workers"] == 2
     assert all(lease.request_budget == 1 for lease in leases)

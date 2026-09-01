@@ -12,7 +12,7 @@ This skill defines the standardized workflow for the **Business System Analyst A
 ## 🎯 Core Objectives
 
 1. **Business System Analysis**: Deconstruct complex user requests into structured Functional Requirements (FRs), Non-Functional Requirements (NFRs), and clear task specifications.
-2. **Document Watchdog**: Keep all system documentation ([`PROJECT_TASKS.md`](file:///Users/kimlenglim/Project/HoroConsultant/PROJECT_TASKS.md), [`README.md`](file:///Users/kimlenglim/Project/HoroConsultant/README.md), [`HOWTO.md`](file:///Users/kimlenglim/Project/HoroConsultant/HOWTO.md), [`/plans/plan.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/plan.md), [`.agents/AGENTS.md`](file:///Users/kimlenglim/Project/HoroConsultant/.agents/AGENTS.md), and [`.agents/LESSONS_LEARNED.md`](file:///Users/kimlenglim/Project/HoroConsultant/.agents/LESSONS_LEARNED.md)) fully synchronized with codebase implementation.
+2. **Document Watchdog**: Keep all system documentation ([`atomic_tasks.md`](file:///Users/kimlenglim/Project/HoroConsultant/atomic_tasks.md), [`README.md`](file:///Users/kimlenglim/Project/HoroConsultant/README.md), [`HOWTO.md`](file:///Users/kimlenglim/Project/HoroConsultant/HOWTO.md), [`/plans/plan.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/plan.md), [`.agents/AGENTS.md`](file:///Users/kimlenglim/Project/HoroConsultant/.agents/AGENTS.md), and [`.agents/LESSONS_LEARNED.md`](file:///Users/kimlenglim/Project/HoroConsultant/.agents/LESSONS_LEARNED.md)) fully synchronized with codebase implementation.
 3. **Agent Skill Governance**: Audit, create, update, and validate all Agent Skills in [`.agents/skills/`](file:///Users/kimlenglim/Project/HoroConsultant/.agents/skills/) to maintain strict quality standards, clean YAML frontmatter, and correct script paths.
 
 ---
@@ -24,7 +24,7 @@ This skill defines the standardized workflow for the **Business System Analyst A
 │ Phase 1: Requirement Analysis & Specification Breakdown               │
 │  - Receive task from Orchestrator                                     │
 │  - Translate user goals into technical requirements                    │
-│  - Outline plan in /plans/plan.md & update PROJECT_TASKS.md           │
+│  - Outline plan in /plans/plan.md & update atomic_tasks.md            │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │
                                     ▼
@@ -40,7 +40,7 @@ This skill defines the standardized workflow for the **Business System Analyst A
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
 │ Phase 3: Continuous Documentation Synchronization                     │
-│  - Synchronize Kanban states in PROJECT_TASKS.md (DONE / DOING / TODO)│
+│  - Synchronize Kanban states in atomic_tasks.md (DONE / DOING / TODO) │
 │  - Update README.md, HOWTO.md, and API specs on feature updates       │
 │  - Audit .agents/LESSONS_LEARNED.md with post-mortem insights        │
 └───────────────────────────────────┬────────────────────────────────────┘
@@ -78,7 +78,7 @@ This gate must block implementation until at least 3 clarifying items are either
 
 ### 2. Live Documentation Maintenance Mandate
 Whenever system functionality, API endpoints, environment variables, or CLI scripts change:
-- **`PROJECT_TASKS.md`**: Update Task Board (DONE / DOING / TODO items), quick-start commands, and timestamp.
+- **`atomic_tasks.md`**: Update Task Board (DONE / DOING / TODO items), quick-start commands, and timestamp.
 - **`README.md`**: Update feature list, architecture overview, installation instructions, and visual components.
 - **`HOWTO.md`**: Update detailed developer guide, operational commands, and API endpoint documentation.
 - **`CLAUDE.md` / `.agent_rules.md`**: Synchronize coding standards, locked dependencies, and model allocation rules.
@@ -89,7 +89,7 @@ When `/status` or the runtime quota signal shows less than **10% remaining**, im
 
 1. Stop long-running or high-token exploration unless it is required to preserve state.
 2. Summarize the current objective, newest relevant user request, latest commits, changed/staged files, verified checks, unresolved blockers, HITL actions, and next safe command.
-3. Update `PROJECT_TASKS.md` ticket `TICKET-META-008` with only non-secret credential status (`present`, `missing`, `invalid`) and current blockers.
+3. Update `atomic_tasks.md` ticket `TICKET-META-008` with only non-secret credential status (`present`, `missing`, `invalid`) and current blockers.
 4. Update `plans/plan.md` under the account migration continuity section if the handoff process or blocker set changed.
 5. Run the secret-safe guard:
    ```bash

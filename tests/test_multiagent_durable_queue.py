@@ -57,7 +57,7 @@ def _submit(
 
 
 def _claim(store, *, root: str = "A", instance: str = "root-a-1"):
-    aliases = {"codex1", "codex2"} if root == "A" else {"agy1", "agy2"}
+    aliases = {"codex1", "codex2", "codex3"} if root == "A" else {"agy1", "agy2", "agy3", "agy4"}
     return store.claim(root=root, instance_id=instance, aliases=aliases)
 
 

@@ -12,7 +12,7 @@ an implementation or release worker.
   monitor, collect receipts, resolve ownership conflicts, request HITL, and
   make a final gate decision.
 - An assigned child owns only the files, commands, and evidence in its ticket.
-- The BSA owns this rule, its skill/mirrors, `PROJECT_TASKS.md`, and
+- The BSA owns this rule, its skill/mirrors, `atomic_tasks.md`, and
   `plans/plan.md`; generated output changes only through ecosystem sync.
 - Give each writable file one editor. Any other participant is read-only.
 

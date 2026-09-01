@@ -38,7 +38,7 @@ If `/status` reports less than 10% quota remaining, or an environment signal suc
 
 1. Stop nonessential exploration and avoid large log dumps.
 2. Write a concise handoff summary for the next AI agent/account.
-3. Update `PROJECT_TASKS.md` ticket `TICKET-META-008`.
+3. Update `atomic_tasks.md` ticket `TICKET-META-008`.
 4. Update `plans/plan.md` only if the account-migration process or blocker set changed.
 5. Run `python3 scripts/agent_quota_status_guard.py --remaining-percent <percent> --enforce`.
 6. Run `python3 project/core/code_reviewer.py --scan-secrets`.

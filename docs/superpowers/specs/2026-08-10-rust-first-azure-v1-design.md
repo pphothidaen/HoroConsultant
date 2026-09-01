@@ -4,6 +4,9 @@
 **Status:** Approved for implementation
 **Production image:** `pansakorn/horoconsult:v1.0` (`linux/amd64`, private)
 
+> **Historical design:** task-file references record the design's original
+> context. `atomic_tasks.md` is the current operational task registry.
+
 ## Goal and problem statement
 
 HoroConsultant currently advertises a complete Rust migration, but its production Dockerfiles do not build or install the Rust package and the checked-in native libraries are host-specific macOS ARM64 artifacts. Several Rust implementations also diverge from the Python reference. The release must therefore make Rust real, measurable, and safe instead of extending the existing silent-fallback pattern.
@@ -19,7 +22,7 @@ The target is a cost-aware production runtime on Azure Container Apps that prese
 5. Keep static UI available through Hugging Face/Vercel while Azure scales to zero. UI must show a bounded wake-up state and must never synthesize a successful calculation after an API failure.
 6. Deploy Azure revisions as blue/green with `minReplicas=0`, `maxReplicas=1`, Southeast Asia, private Docker Hub pull credentials, health probes, and rollback by immutable digest.
 7. Prevent unrelated pushes from deploying Fly or triggering Kaggle. Production promotion must be explicit and gated by CI.
-8. Maintain `PROJECT_TASKS.md`, `plans/plan.md`, `README.md`, `HOWTO.md`, and lessons learned with exact evidence rather than historical counts.
+8. Maintain `atomic_tasks.md`, `plans/plan.md`, `README.md`, `HOWTO.md`, and lessons learned with exact evidence rather than historical counts.
 
 ## Architecture and data flow
 

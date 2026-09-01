@@ -20,6 +20,8 @@ EXPECTED_ACCOUNT_CAPS = {
     "codex3": 2,
     "agy1": 3,
     "agy2": 3,
+    "agy3": 3,
+    "agy4": 3,
 }
 
 
@@ -34,7 +36,7 @@ def _capacity_policy() -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def test_capacity_policy_is_the_four_account_positive_control() -> None:
+def test_capacity_policy_is_the_seven_account_positive_control() -> None:
     capacity = importlib.import_module("scripts.multiagent_capacity")
 
     policy = capacity.validate_capacity_policy(_capacity_policy())
@@ -80,7 +82,7 @@ def test_queue_claim_and_capacity_lease_bind_the_same_request_and_alias(
     claimed = store.claim(
         root="A",
         instance_id="root-a-instance",
-        aliases={"codex1", "codex2"},
+        aliases={"codex1", "codex2", "codex3"},
     )
 
     assert _field(submitted, "request_id") == capacity_lease.request_id
@@ -98,7 +100,7 @@ def test_worker_root_policy_matches_capacity_without_cross_account_borrowing() -
     root_b = worker.RootPolicy.for_root("B")
 
     assert set(root_a.aliases) == {"codex1", "codex2", "codex3"}
-    assert set(root_b.aliases) == {"agy1", "agy2"}
+    assert set(root_b.aliases) == {"agy1", "agy2", "agy3", "agy4"}
     assert dict(root_a.account_caps) == {
         alias: policy["accounts"][alias]["max_workers"] for alias in root_a.aliases
     }

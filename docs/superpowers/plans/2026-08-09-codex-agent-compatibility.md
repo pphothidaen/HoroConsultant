@@ -8,6 +8,9 @@
 
 **Tech Stack:** Python 3.14 standard library (`argparse`, `json`, `pathlib`, `tomllib` for tests), pytest, TOML configuration.
 
+> **Historical plan:** task-file references record the original plan context.
+> `atomic_tasks.md` is the current operational task registry.
+
 ## Global Constraints
 
 - Keep `.agents/` and `.antigravity/` valid for their current tooling.
@@ -105,7 +108,7 @@ Expected: PASS.
 **Files:**
 - Create: `AGENTS.md`
 - Modify: `.agents/AGENTS.md`
-- Modify: `PROJECT_TASKS.md`
+- Modify: `atomic_tasks.md`
 - Modify: `plans/plan.md`
 
 **Interfaces:**

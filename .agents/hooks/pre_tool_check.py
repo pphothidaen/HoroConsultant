@@ -29,6 +29,8 @@ FORBIDDEN_PATTERNS = [
 
 IS_CI = os.environ.get("CI", "").lower() in ("true", "1") or os.environ.get("GITHUB_ACTIONS", "").lower() in ("true", "1")
 ROOT_DIR = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT_DIR / "scripts"))
+from branch_lifecycle_guard import validate_delete_command
 QUOTA_ENV_KEYS = (
     "AGENT_QUOTA_REMAINING_PERCENT",
     "AI_AGENT_QUOTA_REMAINING_PERCENT",
@@ -69,6 +71,10 @@ def check_command(command_str: str) -> tuple[bool, str]:
         if re.search(pattern, command_str):
             return False, reason
 
+    branch_delete_ok, branch_delete_reason = validate_delete_command(command_str, repo=ROOT_DIR)
+    if not branch_delete_ok:
+        return False, branch_delete_reason
+
     if _should_run_quota_guard(command_str):
         quota_ok, quota_reason = _run_quota_guard()
         if not quota_ok:
@@ -91,9 +97,15 @@ def check_command(command_str: str) -> tuple[bool, str]:
             pass
 
     if "git tag" in command_str or "git push" in command_str:
+        # Allow git push to feature branches (not main)
+        if "git push origin main" in command_str:
+            return False, "Direct push to main is forbidden. Use a PR."
+        
+        # Block git push without ReleaseNotes.md
         if not (ROOT_DIR / "ReleaseNotes.md").exists():
             return False, "ReleaseNotes.md missing! Rule 22 mandate requires updated release notes before tagging or pushing."
         
+        # Block git push with stale plans
         plans_dir = ROOT_DIR / "plans"
         stale_files = []
         if plans_dir.is_dir():
@@ -103,6 +115,14 @@ def check_command(command_str: str) -> tuple[bool, str]:
                         stale_files.append(file.name)
         if stale_files:
             return False, f"Rule 22 mandate failed: Stale plans found before release push/tag. Archive them first: {', '.join(stale_files)}"
+        
+        # Allow git push to feature branches
+        if "git push origin" in command_str and "git push origin main" not in command_str:
+            return True, "Passed pre-tool checks (feature branch push allowed)"
+
+    # Allow gh CLI commands for PR automation
+    if re.search(r"\bgh\s+(pr|run|workflow|auth)\b", command_str):
+        return True, "Passed pre-tool checks (gh CLI allowed)"
 
     return True, "Passed pre-tool checks"
 

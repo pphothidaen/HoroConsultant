@@ -33,13 +33,16 @@ MAX_TEXT = 512
 GOVERNANCE_SCHEMA_VERSION = "full-capacity-governance-v2"
 CONFIG_SCHEMA_VERSION = "full-capacity-guard-config-v2"
 AUTHORIZATION_SCHEMA_VERSION = "capacity-provider-authorization-v2"
-EXPECTED_ALIASES = ("agy1", "agy2")
-GOVERNED_ALIASES = frozenset({"codex1", "codex2", *EXPECTED_ALIASES})
+EXPECTED_ALIASES = ("agy1", "agy2", "agy3", "agy4")
+GOVERNED_ALIASES = frozenset({"codex1", "codex2", "codex3", *EXPECTED_ALIASES})
 ALIAS_PROVIDER = {
     "codex1": "codex",
     "codex2": "codex",
+    "codex3": "codex",
     "agy1": "agy",
     "agy2": "agy",
+    "agy3": "agy",
+    "agy4": "agy",
 }
 GENESIS_RECORD = "GENESIS"
 GENESIS_GLOBAL = "GENESIS"

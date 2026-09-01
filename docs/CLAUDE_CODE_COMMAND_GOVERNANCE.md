@@ -6,7 +6,7 @@ This guide turns the HoroConsultant command-control model into a practical Claud
 
 | Workstream | Agent role | Ownership | Stop condition | Result expected |
 | --- | --- | --- | --- | --- |
-| Governance docs | `business_analyst` | `PROJECT_TASKS.md`, `plans/`, `.agents/rules/`, delegation skills as read-only review | `DONE` or `NEEDS_HITL` | Task/doc update recommendations |
+| Governance docs | `business_analyst` | `atomic_tasks.md`, `plans/`, `.agents/rules/`, delegation skills as read-only review | `DONE` or `NEEDS_HITL` | Task/doc update recommendations |
 | Claude governance structure | `developer` | `.claude/`, `CLAUDE.md`, `AGENTS.md` as read-only design input | `DONE` or `BLOCKED` | Exact hook/rule/global-context patch plan |
 | Guardrail QA | `qa_tester` | `.claude/`, `.agents/rules/`, sync/test scripts as read-only review | `DONE` or `BLOCKED` | Safe validation commands and acceptance criteria |
 | Integration owner | `orchestrator` | Final patch, conflict resolution, user-facing status | `DONE` only after evidence matches criteria | Merged governance artifacts and handoff |

@@ -7,7 +7,7 @@
   "required": ["protocol", "protocol_version", "alias", "model_id", "buckets", "observed_at", "provenance"],
   "properties": {
     "protocol": {"const": "horoconsultant.agy-bucket-admission.v1"}, "protocol_version": {"const": 1},
-    "alias": {"enum": ["agy1", "agy2"]}, "model_id": {"$ref": "#/$defs/safeName"},
+    "alias": {"enum": ["agy1", "agy2", "agy3", "agy4"]}, "model_id": {"$ref": "#/$defs/safeName"},
     "observed_at": {"$ref": "#/$defs/utcTimestamp"},
     "buckets": {"type": "object", "minProperties": 1, "maxProperties": 4, "propertyNames": {"enum": ["gemini-weekly", "gemini-5h", "3p-weekly", "3p-5h"]}, "additionalProperties": {"$ref": "#/$defs/bucket"}},
     "provenance": {"type": "object", "additionalProperties": false, "required": ["kind", "fresh"], "properties": {"kind": {"const": "provider_status"}, "fresh": {"const": true}}}

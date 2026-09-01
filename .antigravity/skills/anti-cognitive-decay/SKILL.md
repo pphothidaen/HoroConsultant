@@ -9,7 +9,7 @@ Governs bounded context preservation across runtimes without authority drift.
 
 ## Principles & Authority
 
-- Primary authority resides in `PROJECT_TASKS.md` and `plans/plan.md`.
+- Primary authority resides in `atomic_tasks.md` and `plans/plan.md`.
 - `HANDOFF.md` is a derived, non-authoritative handoff capsule adhering to `HandoffSnapshotV1`.
 - Raw transcript files are never read or parsed; only structured state is evaluated.
 - Any unresolved lane status leaves `clear_ready` false. Missing or unverified metrics evaluate to `UNKNOWN`.

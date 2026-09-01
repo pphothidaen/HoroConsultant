@@ -7,6 +7,7 @@ set -euo pipefail
 TOOL_NAME="${1:-}"
 FILE_TARGET="${2:-}"
 INPUT_JSON=""
+COMMAND=""
 
 # Read stdin only if arguments are not provided and stdin is piped
 if [ -z "$TOOL_NAME" ] && [ ! -t 0 ]; then
@@ -19,6 +20,25 @@ if [ -z "$TOOL_NAME" ] && [ ! -t 0 ]; then
         TOOL_NAME="$PARSED_TOOL"
       fi
     fi
+  fi
+fi
+
+if [[ -n "$INPUT_JSON" ]]; then
+  COMMAND=$(printf '%s' "$INPUT_JSON" | python3 -c '
+import json, sys
+try:
+    payload = json.load(sys.stdin)
+except json.JSONDecodeError:
+    raise SystemExit(0)
+args = payload.get("toolCall", {}).get("args", {})
+print(args.get("CommandLine") or args.get("command") or args.get("cmd") or "")
+' 2>/dev/null || true)
+fi
+
+if [[ -n "$COMMAND" ]]; then
+  root_dir=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+  if ! python3 "$root_dir/scripts/branch_lifecycle_guard.py" --repo "$root_dir" --check-command "$COMMAND"; then
+    exit 2
   fi
 fi
 
