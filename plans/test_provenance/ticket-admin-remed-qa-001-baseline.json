@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-ADMIN-REMED-QA-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "cb1df9fd573f2936e9d57c4cb390f307cfeb17b7",
+  "test_files": [
+    {
+      "path": "tests/admin_production_ingress_contract.test.mjs",
+      "sha256": "c832b94b6af42eeeb393d523b311234fa964467c2674406cc8b03506506bb979"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/admin_production_ingress_contract.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "missing exact rewrite for /admin/auth/config; production Admin routes are denied by the gateway; both deployed Admin mirrors omit server-verifiable Google ID-token forwarding; public Admin omits provider-pools."
+    }
+  ],
+  "allowed_source_paths": [
+    "api/index.js",
+    "project/admin_router.py",
+    "project/static/admin.html",
+    "public/admin.html",
+    "vercel.json"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze the production-only Admin ingress remediation contract before source changes: explicit privileged Vercel routes, an allowlisted gateway, backend-verifiable Google ID-token forwarding, provider-pools parity, and all Admin startup data routes."
+}
