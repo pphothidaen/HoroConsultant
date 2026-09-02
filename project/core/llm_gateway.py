@@ -145,24 +145,6 @@ class LLMGateway:
             data = resp.json()
             return data["candidates"][0]["content"]["parts"][0]["text"]
 
-    async def _call_openai(self, prompt: str, system_instruction: str) -> str:
-        api_key = os.getenv("OPENAI_API_KEY", "dummy")
-        base_url = os.getenv("CODEX_PRO_BASE_URL") or os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
-        url = f"{base_url.rstrip('/')}/chat/completions"
-        headers = {"Authorization": f"Bearer {api_key}"}
-        payload = {
-            "model": "gpt-4o-mini",
-            "messages": [
-                {"role": "system", "content": system_instruction or "You are an expert astrology consultant."},
-                {"role": "user", "content": prompt}
-            ]
-        }
-        async with httpx.AsyncClient(timeout=7.0) as client:
-            resp = await client.post(url, headers=headers, json=payload)
-            resp.raise_for_status()
-            data = resp.json()
-            return data["choices"][0]["message"]["content"]
-
     async def _call_claude(self, prompt: str, system_instruction: str) -> str:
         api_key = os.getenv("ANTHROPIC_API_KEY") or os.getenv("CLAUDE_API_KEY", "dummy")
         url = "https://api.anthropic.com/v1/messages"

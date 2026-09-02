@@ -29,7 +29,7 @@ notify_hermes_pipeline_start() {
 }
 
 resolve_hermes_route_profile() {
-    local requested_alias="${HERMES_ACCOUNT_ALIAS:-${ROUTER_ACCOUNT_ALIAS:-${NINE_ROUTER_ACCOUNT_ALIAS:-agy1}}}"
+    local requested_alias="${HERMES_ACCOUNT_ALIAS:-${ROUTER_ACCOUNT_ALIAS:-${NINE_ROUTER_ACCOUNT_ALIAS:-codex1}}}"
     local requested_role="${HERMES_TASK_ROLE:-analysis}"
     local requested_complexity="${HERMES_TASK_COMPLEXITY:-medium}"
     local sdlc_phase="${HERMES_SDLC_PHASE:-}"
@@ -51,7 +51,7 @@ resolve_hermes_route_profile() {
                 export HERMES_ROUTER_MODEL="${model:-${NINE_ROUTER_DEVELOPER_MODEL:-deepseek-v3}}"
                 export HERMES_ROUTER_TIME="${time:-medium}"
                 export HERMES_ACCOUNT_ALIAS_RESOLVED="${alias:-$requested_alias}"
-                export AGY_FALLBACK_CHAIN="${chain:-agy1,agy2,agy3,codex_subagent}"
+                export AGY_FALLBACK_CHAIN="${chain:-codex1,codex2,codex3,codex_subagent}"
                 export HERMES_RESOLVED_ROLE="${resolved_role:-$requested_role}"
                 export HERMES_RESOLVED_COMPLEXITY="${resolved_complexity:-$requested_complexity}"
                 export HERMES_CODEX_FALLBACK_MODEL="${codex_fallback_model:-gpt-5.3-codex-spark high}"
@@ -64,7 +64,7 @@ resolve_hermes_route_profile() {
     export HERMES_ROUTER_MODEL="${NINE_ROUTER_DEVELOPER_MODEL:-deepseek-v3}"
     export HERMES_ROUTER_TIME="medium"
     export HERMES_ACCOUNT_ALIAS_RESOLVED="${requested_alias}"
-    export AGY_FALLBACK_CHAIN="agy1,agy2,agy3,codex_subagent"
+    export AGY_FALLBACK_CHAIN="codex1,codex2,codex3,codex_subagent"
     export HERMES_RESOLVED_ROLE="${requested_role}"
     export HERMES_RESOLVED_COMPLEXITY="${requested_complexity}"
     export HERMES_CODEX_FALLBACK_MODEL="gpt-5.3-codex-spark high"
@@ -87,13 +87,13 @@ echo "[INFO] [HERMES] Resolving LLM routing (9router -> CODEX_PRO -> Gemini)..."
 resolve_hermes_route_profile
 export HERMES_TASK_ROLE="${HERMES_RESOLVED_ROLE:-analysis}"
 export HERMES_TASK_COMPLEXITY="${HERMES_RESOLVED_COMPLEXITY:-high}"
-export HERMES_ACCOUNT_ALIAS="${HERMES_ACCOUNT_ALIAS_RESOLVED:-agy1}"
+export HERMES_ACCOUNT_ALIAS="${HERMES_ACCOUNT_ALIAS_RESOLVED:-codex1}"
 export NINE_ROUTER_DEVELOPER_MODEL="${HERMES_ROUTER_MODEL}"
 export NINE_ROUTER_ACCOUNT_ALIAS="${HERMES_ACCOUNT_ALIAS}"
 export ROUTER_ACCOUNT_ALIAS="${HERMES_ACCOUNT_ALIAS}"
 export HTTP_HEADER_X_ACCOUNT_ALIAS="${HERMES_ACCOUNT_ALIAS}"
 
-ACCOUNT_ALIAS="${ROUTER_ACCOUNT_ALIAS:-${NINE_ROUTER_ACCOUNT_ALIAS:-agy1}}"
+ACCOUNT_ALIAS="${ROUTER_ACCOUNT_ALIAS:-${NINE_ROUTER_ACCOUNT_ALIAS:-codex1}}"
 
 RESOLVED_ROUTER=""
 if [ -n "${ROUTER_BASE_URL:-}" ]; then
@@ -137,7 +137,7 @@ echo ""
 echo "----------------------------------------------------------------------"
 echo " PHASE 1: Business System Analyst (business_analyst)"
 echo "----------------------------------------------------------------------"
-export HERMES_SDLC_PHASE="bsa"           # analysis/low/agy1
+export HERMES_SDLC_PHASE="bsa"           # analysis/low/codex1
 export HERMES_TASK_ROLE="analysis"
 export HERMES_TASK_COMPLEXITY="low"      # BSA docs audit and spec sync
 echo "[BSA] Auditing project documentation integrity (atomic_tasks.md, HOWTO.md)..."
@@ -159,7 +159,7 @@ echo ""
 echo "----------------------------------------------------------------------"
 echo " PHASE 2: Senior Developer (developer)"
 echo "----------------------------------------------------------------------"
-export HERMES_SDLC_PHASE="dev"           # implementation/medium/agy2
+export HERMES_SDLC_PHASE="dev"           # implementation/medium/codex2
 export HERMES_TASK_ROLE="implementation"
 export HERMES_TASK_COMPLEXITY="medium"   # DEV code validation
 echo "[DEV] Checking canonical local configuration (vercel.json, Dockerfile.hf)..."
@@ -183,7 +183,7 @@ echo ""
 echo "----------------------------------------------------------------------"
 echo " PHASE 3: QA Tester (qa_tester)"
 echo "----------------------------------------------------------------------"
-export HERMES_SDLC_PHASE="qa"            # review/low/agy1
+export HERMES_SDLC_PHASE="qa"            # review/low/codex1
 export HERMES_TASK_ROLE="review"
 export HERMES_TASK_COMPLEXITY="low"      # QA deterministic pytest
 echo "[QA] Executing Pytest Unit & Integration Regression Suite..."
@@ -201,7 +201,7 @@ echo ""
 echo "----------------------------------------------------------------------"
 echo " PHASE 4: Code Reviewer & Safety Auditor (code_reviewer)"
 echo "----------------------------------------------------------------------"
-export HERMES_SDLC_PHASE="reviewer"      # review/low/agy1
+export HERMES_SDLC_PHASE="reviewer"      # review/low/codex1
 export HERMES_TASK_ROLE="review"
 export HERMES_TASK_COMPLEXITY="low"      # REVIEWER deterministic Python script
 echo "[REVIEWER] Running local secret leakage scan..."
@@ -215,7 +215,7 @@ echo ""
 echo "----------------------------------------------------------------------"
 echo " PHASE 5: Local Release Readiness (devops)"
 echo "----------------------------------------------------------------------"
-export HERMES_SDLC_PHASE="devops"        # implementation/medium/agy1
+export HERMES_SDLC_PHASE="devops"        # implementation/medium/codex1
 export HERMES_TASK_ROLE="implementation"
 export HERMES_TASK_COMPLEXITY="medium"   # DEVOPS local evidence only
 echo "[DEVOPS] Running canonical HF Docker payload dry-run without upload."
@@ -232,13 +232,13 @@ echo ""
 echo "======================================================================"
 echo " [ORCHESTRATOR] LOCAL MULTI-AGENT VALIDATION COMPLETE"
 echo "======================================================================"
-echo "  * Business System Analyst : Docs and skills checked [analysis/low/agy1]"
-echo "  * Senior Developer        : Local configuration checked [implementation/medium/agy2]"
-echo "  * QA Tester               : Unit and UI regression completed [review/low/agy1]"
-echo "  * Code Reviewer           : Local review completed [review/low/agy1]"
-echo "  * DevOps                  : Secret scan and HF Docker dry-run completed [implementation/medium/agy1]"
-echo "  * Hermes Routing (last)   : ${HERMES_ACCOUNT_ALIAS:-agy1} | model=${HERMES_ROUTER_MODEL:-deepseek-v3} | time=${HERMES_ROUTER_TIME:-medium}"
-echo "  * Hermes Fallback Chain   : ${AGY_FALLBACK_CHAIN:-agy1,agy2,agy3,codex_subagent}"
+echo "  * Business System Analyst : Docs and skills checked [analysis/low/codex1]"
+echo "  * Senior Developer        : Local configuration checked [implementation/medium/codex2]"
+echo "  * QA Tester               : Unit and UI regression completed [review/low/codex1]"
+echo "  * Code Reviewer           : Local review completed [review/low/codex1]"
+echo "  * DevOps                  : Secret scan and HF Docker dry-run completed [implementation/medium/codex1]"
+echo "  * Hermes Routing (last)   : ${HERMES_ACCOUNT_ALIAS:-codex1} | model=${HERMES_ROUTER_MODEL:-deepseek-v3} | time=${HERMES_ROUTER_TIME:-medium}"
+echo "  * Hermes Fallback Chain   : ${AGY_FALLBACK_CHAIN:-codex1,codex2,codex3,codex_subagent}"
 echo "  * Codex Fallback Model    : ${HERMES_CODEX_FALLBACK_MODEL:-gpt-5.3-codex-spark high}"
 echo "  * Release Boundary        : Governed CI ticket required; local mutation blocked"
 echo "======================================================================"

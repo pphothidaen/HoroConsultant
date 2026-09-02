@@ -114,21 +114,6 @@ def _gemini_keys() -> list[str]:
     return valid
 
 
-def _openai_keys() -> list[str]:
-    """Return all unique, valid OpenAI-compatible keys from env."""
-    raw = [
-        os.getenv("OPENAI_API_KEY", OPENAI_API_KEY),
-        os.getenv("OPENAI_API_KEY2", OPENAI_API_KEY2),
-    ]
-    seen = set()
-    valid = []
-    invalid_prefixes = ("REPLACE", "your_", "YOUR_", "dummy", "DUMMY", "YOUR_OPENAI")
-    for k in raw:
-        k = k.strip()
-        if k and not any(k.startswith(p) for p in invalid_prefixes) and k not in seen:
-            seen.add(k)
-            valid.append(k)
-    return valid
 
 
 
@@ -384,63 +369,6 @@ def _call_vertex_ai(
 # OpenAI / OpenAI-compatible caller (cloud external providers)
 # ---------------------------------------------------------------------------
 
-def _call_openai_compatible(
-    provider_name:      str,
-    base_url:           str,
-    api_key:            str,
-    model:              str,
-    prompt:             str,
-    system_instruction: str = "",
-) -> tuple[str | None, str]:
-    """Call an OpenAI-compatible API endpoint."""
-    if not api_key:
-        return None, "no_key"
-
-    url = f"{base_url}/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-    }
-    messages = []
-    if system_instruction:
-        messages.append({"role": "system", "content": system_instruction})
-    messages.append({"role": "user", "content": prompt})
-
-    payload = {
-        "model": model,
-        "messages": messages,
-        "temperature": 0.2,
-        "max_tokens": 4096,
-    }
-
-    key_tag = f"...{api_key[-6:]}" if len(api_key) >= 6 else "key"
-    try:
-        with httpx.Client(timeout=TIMEOUT_CLOUD_S) as client:
-            t0 = time.monotonic()
-            res = client.post(url, json=payload, headers=headers)
-            elapsed = round((time.monotonic() - t0) * 1000)
-
-        if res.status_code == 429:
-            logger.warning(f"[{provider_name}:{model}][{key_tag}] 429 rate-limited")
-            return None, "429"
-        if res.status_code != 200:
-            logger.warning(f"[{provider_name}:{model}][{key_tag}] HTTP {res.status_code}")
-            return None, f"error:{res.status_code}"
-
-        choices = res.json().get("choices", [])
-        if not choices:
-            return None, "empty"
-
-        text = choices[0].get("message", {}).get("content", "").strip()
-        logger.info(f"[{provider_name}:{model}][{key_tag}] [OK] ({elapsed}ms)")
-        return text, "ok"
-
-    except httpx.TimeoutException:
-        logger.warning(f"[{provider_name}:{model}][{key_tag}] Timeout")
-        return None, "timeout"
-    except Exception as exc:
-        logger.warning(f"[{provider_name}:{model}][{key_tag}] Exception: {exc}")
-        return None, "exception"
 
 
 # ---------------------------------------------------------------------------
@@ -614,16 +542,6 @@ class HybridRouter:
                 for key in _gemini_keys():
                     routes.append({"type": "gemini", "model": model, "key": key})
 
-        # === SHARED: Vertex AI + OpenAI (both modes, lower priority) ===
-        # If zero_cost_only is enforced, fail-closed: block paid APIs (Vertex AI, OpenAI direct paid)
-        if not self.zero_cost_only:
-            proj_id, bearer_token = _get_vertex_ai_credentials()
-            if proj_id and bearer_token:
-                routes.append({"type": "vertex_ai", "model": "gemini-1.5-flash", "key": bearer_token, "project_id": proj_id})
-
-            for key in _openai_keys():
-                routes.append({"type": "openai", "model": OPENAI_MODEL, "key": key})
-        else:
             logger.info("[Router] Zero-cost policy active: excluded paid endpoints (Vertex AI, OpenAI).")
 
         return routes

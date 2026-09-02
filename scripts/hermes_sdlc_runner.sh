@@ -45,7 +45,7 @@ notify_hermes_start() {
 }
 
 resolve_hermes_route_profile() {
-    local requested_alias="${HERMES_ACCOUNT_ALIAS:-${ROUTER_ACCOUNT_ALIAS:-${NINE_ROUTER_ACCOUNT_ALIAS:-agy1}}}"
+    local requested_alias="${HERMES_ACCOUNT_ALIAS:-${ROUTER_ACCOUNT_ALIAS:-${NINE_ROUTER_ACCOUNT_ALIAS:-codex1}}}"
     local requested_role="${HERMES_TASK_ROLE:-analysis}"
     local requested_complexity="${HERMES_TASK_COMPLEXITY:-medium}"
     local sdlc_phase="${HERMES_SDLC_PHASE:-}"
@@ -68,7 +68,7 @@ resolve_hermes_route_profile() {
                 export HERMES_ROUTER_TIME="${time:-medium}"
                 export HERMES_ACCOUNT_ALIAS_RESOLVED="${alias:-$requested_alias}"
                 export NINE_ROUTER_DEVELOPER_MODEL="${HERMES_ROUTER_MODEL}"
-                export AGY_FALLBACK_CHAIN="${chain:-agy1,agy2,agy3,codex_subagent}"
+                export AGY_FALLBACK_CHAIN="${chain:-codex1,codex2,codex3,codex_subagent}"
                 export HERMES_RESOLVED_ROLE="${_role:-$requested_role}"
                 export HERMES_RESOLVED_COMPLEXITY="${_complexity:-$requested_complexity}"
                 export HERMES_CODEX_FALLBACK_MODEL="${codex_fallback_model:-gpt-5.3-codex-spark high}"
@@ -82,7 +82,7 @@ resolve_hermes_route_profile() {
     export HERMES_ROUTER_TIME="medium"
     export HERMES_ACCOUNT_ALIAS_RESOLVED="${requested_alias}"
     export NINE_ROUTER_DEVELOPER_MODEL="${HERMES_ROUTER_MODEL}"
-    export AGY_FALLBACK_CHAIN="agy1,agy2,agy3,codex_subagent"
+    export AGY_FALLBACK_CHAIN="codex1,codex2,codex3,codex_subagent"
     export HERMES_RESOLVED_ROLE="${requested_role}"
     export HERMES_RESOLVED_COMPLEXITY="${requested_complexity}"
     export HERMES_CODEX_FALLBACK_MODEL="gpt-5.3-codex-spark high"
@@ -94,7 +94,7 @@ resolve_router() {
 
     HERMES_TASK_ROLE="${HERMES_RESOLVED_ROLE:-implementation}"
     HERMES_TASK_COMPLEXITY="${HERMES_RESOLVED_COMPLEXITY:-medium}"
-    ACCOUNT_ALIAS="${HERMES_ACCOUNT_ALIAS_RESOLVED:-agy1}"
+    ACCOUNT_ALIAS="${HERMES_ACCOUNT_ALIAS_RESOLVED:-codex1}"
 
     # Priority 1: ROUTER_BASE_URL (Cloud/CI secret override)
     if [ -n "${ROUTER_BASE_URL:-}" ]; then
@@ -148,14 +148,14 @@ resolve_router() {
 
 phase_dev() {
     log_section "PHASE 2: Core Implementation (Hermes - developer agent)"
-    export HERMES_SDLC_PHASE="dev"                   # implementation/medium/agy2
+    export HERMES_SDLC_PHASE="dev"                   # implementation/medium/codex2
     export HERMES_TASK_ROLE="implementation"
     export HERMES_TASK_COMPLEXITY="medium"
     resolve_router
     log_info "Router resolved. Developer agent now active via $OPENAI_BASE_URL"
     log_info "Routing profile: role=${HERMES_RESOLVED_ROLE:-implementation}, complexity=${HERMES_RESOLVED_COMPLEXITY:-medium}"
     log_info "Model: ${HERMES_ROUTER_MODEL:-${NINE_ROUTER_DEVELOPER_MODEL:-deepseek-v3}} (via ${ACCOUNT_ALIAS}, time=${HERMES_ROUTER_TIME:-medium})"
-    log_info "Fallback chain: ${AGY_FALLBACK_CHAIN:-agy1,agy2,codex_subagent}"
+    log_info "Fallback chain: ${AGY_FALLBACK_CHAIN:-codex1,codex2,codex_subagent}"
     log_info "Codex fallback model: ${HERMES_CODEX_FALLBACK_MODEL:-gpt-5.3-codex-spark high}"
     notify_hermes_start "dev" "routing_ready"
     log_ok "Environment ready. Run: agy --agent developer '<task>'"
@@ -163,7 +163,7 @@ phase_dev() {
 
 phase_qa() {
     log_section "PHASE 3: QA Testing (Hermes Headless - qa_tester agent)"
-    export HERMES_SDLC_PHASE="qa"                    # review/low/agy1
+    export HERMES_SDLC_PHASE="qa"                    # review/low/codex1
     export HERMES_TASK_ROLE="review"
     export HERMES_TASK_COMPLEXITY="low"              # QA is deterministic pytest, not LLM
     resolve_router
