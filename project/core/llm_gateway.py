@@ -195,7 +195,7 @@ class LLMGateway:
         preferred_provider: Optional[str] = None
     ) -> Dict[str, Any]:
         """Execute text generation with multi-tier failover and latency tracking."""
-        order = ["cloudflare", "gemini", "openai", "claude", "ollama", "deterministic"]
+        order = ["cloudflare", "gemini", "claude", "ollama", "deterministic"]
         if preferred_provider and preferred_provider in self.providers:
             order.remove(preferred_provider)
             order.insert(0, preferred_provider)
@@ -203,8 +203,7 @@ class LLMGateway:
         call_map = {
             "cloudflare": self._call_cloudflare,
             "gemini": self._call_gemini,
-            "openai": self._call_openai,
-            "claude": self._call_claude,
+                        "claude": self._call_claude,
             "ollama": self._call_ollama,
         }
 
