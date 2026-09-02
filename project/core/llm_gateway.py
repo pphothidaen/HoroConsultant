@@ -6,7 +6,7 @@ Multi-Provider Resilient LLM Gateway with Dynamic Failover & Circuit Breaker.
 Tiers:
   Tier 1: Cloudflare Workers AI (@cf/meta/llama-3.1-8b-instruct)
   Tier 2: Google Gemini (gemini-2.5-flash / gemini-1.5-flash)
-  Tier 3: OpenAI / CODEX_PRO (o3-mini / gpt-4o-mini)
+  Tier 3: Codex CLI (codex1/codex2/codex3 wrappers — OpenAI-compatible inference)
   Tier 4: Anthropic Claude (claude-3-5-sonnet / claude-3-haiku)
   Tier 5: Local Ollama (qwen2.5:7b-instruct-q4_K_M)
   Tier 6: Deterministic Canonical Synthesizer (Safe Offline Fallback)
@@ -45,6 +45,8 @@ class LLMGateway:
     """Unified multi-model failover gateway."""
 
     def __init__(self):
+        from project.core.codex_cli_provider import check_codex_installation
+
         self.providers: Dict[str, ProviderState] = {
             "cloudflare": ProviderState(
                 key="cloudflare",
@@ -58,11 +60,11 @@ class LLMGateway:
                 tier=2,
                 is_configured=bool(os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")),
             ),
-            "openai": ProviderState(
-                key="openai",
-                name="OpenAI / CODEX_PRO",
+            "codex_cli": ProviderState(
+                key="codex_cli",
+                name="Codex CLI (OpenAI-compatible)",
                 tier=3,
-                is_configured=bool(os.getenv("OPENAI_API_KEY") or os.getenv("CODEX_PRO_BASE_URL")),
+                is_configured=check_codex_installation(),
             ),
             "claude": ProviderState(
                 key="claude",
@@ -145,23 +147,24 @@ class LLMGateway:
             data = resp.json()
             return data["candidates"][0]["content"]["parts"][0]["text"]
 
-    async def _call_openai(self, prompt: str, system_instruction: str) -> str:
-        api_key = os.getenv("OPENAI_API_KEY", "dummy")
-        base_url = os.getenv("CODEX_PRO_BASE_URL") or os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
-        url = f"{base_url.rstrip('/')}/chat/completions"
-        headers = {"Authorization": f"Bearer {api_key}"}
-        payload = {
-            "model": "gpt-4o-mini",
-            "messages": [
-                {"role": "system", "content": system_instruction or "You are an expert astrology consultant."},
-                {"role": "user", "content": prompt}
-            ]
-        }
-        async with httpx.AsyncClient(timeout=7.0) as client:
-            resp = await client.post(url, headers=headers, json=payload)
-            resp.raise_for_status()
-            data = resp.json()
-            return data["choices"][0]["message"]["content"]
+    async def _call_codex_cli(self, prompt: str, system_instruction: str) -> str:
+        """
+        Call Codex CLI via the codex1/codex2/codex3 wrappers.
+
+        Uses round-robin across available aliases for load distribution.
+        This replaces the old _call_openai() that used direct httpx calls
+        to api.openai.com.
+        """
+        from project.core.codex_cli_provider import call_codex_cli_round_robin
+
+        # Run the blocking subprocess call in a thread pool to not block the event loop
+        loop = asyncio.get_event_loop()
+        text, alias = await loop.run_in_executor(
+            None,
+            lambda: call_codex_cli_round_robin(prompt, system_instruction),
+        )
+        logger.info(f"[CodexCLI] Response from {alias}")
+        return text
 
     async def _call_claude(self, prompt: str, system_instruction: str) -> str:
         api_key = os.getenv("ANTHROPIC_API_KEY") or os.getenv("CLAUDE_API_KEY", "dummy")
@@ -213,7 +216,7 @@ class LLMGateway:
         preferred_provider: Optional[str] = None
     ) -> Dict[str, Any]:
         """Execute text generation with multi-tier failover and latency tracking."""
-        order = ["cloudflare", "gemini", "openai", "claude", "ollama", "deterministic"]
+        order = ["cloudflare", "gemini", "codex_cli", "claude", "ollama", "deterministic"]
         if preferred_provider and preferred_provider in self.providers:
             order.remove(preferred_provider)
             order.insert(0, preferred_provider)
@@ -221,7 +224,7 @@ class LLMGateway:
         call_map = {
             "cloudflare": self._call_cloudflare,
             "gemini": self._call_gemini,
-            "openai": self._call_openai,
+            "codex_cli": self._call_codex_cli,
             "claude": self._call_claude,
             "ollama": self._call_ollama,
         }

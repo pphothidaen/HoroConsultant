@@ -33,8 +33,6 @@ OLLAMA_BASE_URL         = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 PRIMARY_LOCAL_MODEL     = os.getenv("OLLAMA_PRIMARY_MODEL",   "qwen2.5-bazi")
 SECONDARY_LOCAL_MODEL   = os.getenv("OLLAMA_SECONDARY_MODEL", "qwen2.5:7b")
 TERTIARY_LOCAL_MODEL    = os.getenv("OLLAMA_TERTIARY_MODEL",  "qwen2.5-coder:7b")
-OPENAI_API_KEY          = os.getenv("OPENAI_API_KEY", "")
-OPENAI_API_KEY2         = os.getenv("OPENAI_API_KEY2", "")
 GOOGLE_AI_STUDIO_API_KEY = os.getenv("GOOGLE_AI_STUDIO_API_KEY", "")
 GOOGLE_AI_STUDIO_API_KEY2 = os.getenv("GOOGLE_AI_STUDIO_API_KEY2", "")
 
@@ -68,7 +66,6 @@ GEMINI_MODEL_FALLBACK_CANDIDATES: dict[str, list[str]] = {
     "gemini-3.7-flash": ["gemma-4-31b-it", "gemma-4-26b-a4b-it", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"],
 }
 
-OPENAI_MODEL            = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 CLOUDFLARE_ACCOUNT_ID   = os.getenv("CLOUDFLARE_ACCOUNT_ID", "")
 CLOUDFLARE_AI_TOKEN     = os.getenv("CLOUDFLARE_AI_TOKEN", "")
@@ -114,21 +111,11 @@ def _gemini_keys() -> list[str]:
     return valid
 
 
-def _openai_keys() -> list[str]:
-    """Return all unique, valid OpenAI-compatible keys from env."""
-    raw = [
-        os.getenv("OPENAI_API_KEY", OPENAI_API_KEY),
-        os.getenv("OPENAI_API_KEY2", OPENAI_API_KEY2),
-    ]
-    seen = set()
-    valid = []
-    invalid_prefixes = ("REPLACE", "your_", "YOUR_", "dummy", "DUMMY", "YOUR_OPENAI")
-    for k in raw:
-        k = k.strip()
-        if k and not any(k.startswith(p) for p in invalid_prefixes) and k not in seen:
-            seen.add(k)
-            valid.append(k)
-    return valid
+def _codex_aliases() -> list[str]:
+    """Return available Codex CLI aliases from the wrappers."""
+    from project.core.codex_cli_provider import CODEX_ALIASES
+    import shutil
+    return [a for a in CODEX_ALIASES if shutil.which(a)]
 
 
 
@@ -384,62 +371,55 @@ def _call_vertex_ai(
 # OpenAI / OpenAI-compatible caller (cloud external providers)
 # ---------------------------------------------------------------------------
 
-def _call_openai_compatible(
-    provider_name:      str,
-    base_url:           str,
-    api_key:            str,
-    model:              str,
+def _call_codex_cli(
+    alias:              str,
     prompt:             str,
     system_instruction: str = "",
+    model:              str = "gpt-4o-mini",
 ) -> tuple[str | None, str]:
-    """Call an OpenAI-compatible API endpoint."""
-    if not api_key:
-        return None, "no_key"
+    """Call a Codex CLI wrapper for OpenAI-compatible inference."""
+    import subprocess
+    from project.core.codex_cli_provider import TIMEOUT_S
 
-    url = f"{base_url}/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-    }
-    messages = []
+    if not alias:
+        return None, "no_alias"
+
+    cmd = [
+        alias, "exec",
+        "--model", model,
+        "--json",
+        "--skip-git-repo-check",
+        "--ephemeral",
+    ]
     if system_instruction:
-        messages.append({"role": "system", "content": system_instruction})
-    messages.append({"role": "user", "content": prompt})
+        full_prompt = f"<system>\n{system_instruction}\n</system>\n\n{prompt}"
+    else:
+        full_prompt = prompt
+    cmd.append(full_prompt)
 
-    payload = {
-        "model": model,
-        "messages": messages,
-        "temperature": 0.2,
-        "max_tokens": 4096,
-    }
-
-    key_tag = f"...{api_key[-6:]}" if len(api_key) >= 6 else "key"
     try:
-        with httpx.Client(timeout=TIMEOUT_CLOUD_S) as client:
-            t0 = time.monotonic()
-            res = client.post(url, json=payload, headers=headers)
-            elapsed = round((time.monotonic() - t0) * 1000)
+        t0 = time.monotonic()
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=TIMEOUT_S, check=False)
+        elapsed = round((time.monotonic() - t0) * 1000)
 
-        if res.status_code == 429:
-            logger.warning(f"[{provider_name}:{model}][{key_tag}] 429 rate-limited")
-            return None, "429"
-        if res.status_code != 200:
-            logger.warning(f"[{provider_name}:{model}][{key_tag}] HTTP {res.status_code}")
-            return None, f"error:{res.status_code}"
+        if result.returncode != 0:
+            logger.warning(f"[CodexCLI:{alias}] exit={result.returncode}")
+            return None, f"error:{result.returncode}"
 
-        choices = res.json().get("choices", [])
-        if not choices:
+        # Parse JSONL output
+        from project.core.codex_cli_provider import _parse_codex_jsonl
+        text = _parse_codex_jsonl(result.stdout)
+        if not text:
             return None, "empty"
 
-        text = choices[0].get("message", {}).get("content", "").strip()
-        logger.info(f"[{provider_name}:{model}][{key_tag}] [OK] ({elapsed}ms)")
+        logger.info(f"[CodexCLI:{alias}] [OK] ({elapsed}ms)")
         return text, "ok"
 
-    except httpx.TimeoutException:
-        logger.warning(f"[{provider_name}:{model}][{key_tag}] Timeout")
+    except subprocess.TimeoutException:
+        logger.warning(f"[CodexCLI:{alias}] Timeout")
         return None, "timeout"
     except Exception as exc:
-        logger.warning(f"[{provider_name}:{model}][{key_tag}] Exception: {exc}")
+        logger.warning(f"[CodexCLI:{alias}] Exception: {exc}")
         return None, "exception"
 
 
@@ -621,8 +601,8 @@ class HybridRouter:
             if proj_id and bearer_token:
                 routes.append({"type": "vertex_ai", "model": "gemini-1.5-flash", "key": bearer_token, "project_id": proj_id})
 
-            for key in _openai_keys():
-                routes.append({"type": "openai", "model": OPENAI_MODEL, "key": key})
+            for alias in _codex_aliases():
+                routes.append({"type": "codex_cli", "model": "gpt-4o-mini", "key": alias})
         else:
             logger.info("[Router] Zero-cost policy active: excluded paid endpoints (Vertex AI, OpenAI).")
 
@@ -674,8 +654,8 @@ class HybridRouter:
             elif rtype == "vertex_ai":
                 proj_id = route.get("project_id", "")
                 text, reason = _call_vertex_ai(model, proj_id, key, prompt, system_instruction)
-            elif rtype == "openai":
-                text, reason = _call_openai_compatible("OpenAI", "https://api.openai.com/v1", key, model, prompt, system_instruction)
+            elif rtype == "codex_cli":
+                text, reason = _call_codex_cli(alias=key, prompt=prompt, system_instruction=system_instruction, model=model)
             elif rtype == "cloudflare_ai":
                 account_id = route.get("account_id", "")
                 text, reason = _call_cloudflare_ai(account_id, key, model, prompt, system_instruction)
