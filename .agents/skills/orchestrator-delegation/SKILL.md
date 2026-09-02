@@ -21,6 +21,33 @@ review closure, deployment, publishing, or another operation. Do not delegate
 when a child would only repeat an answer already available to root.
 Use `[OK]`, `[ERROR]`, `[WARNING]`, or `[INFO]` for command-facing status/logs.
 
+## User Preference — Hermes-as-Human Proxy (embed in all delegation)
+
+When the user explicitly approves non-destructive actions (file selection,
+conflict resolution, code/test edits, architecture answers, model/effort
+selection) and says "approve all" or equivalent, Hermes acts as the human
+operator: answers CLI agent questions, selects options (e.g., `ctrl+k` approve,
+`3` for persist), and proceeds without re-asking. Stop and escalate only
+for: secrets/credentials, push/deploy/publish (unless explicitly authorized),
+production data access, destructive actions, money/spending. Record approval
+in memory (`Hermes-as-Human`) and in this orchestrator context — do not
+treat each turn as a new confirmation gate.
+
+## CLI Provider Delegation Pattern (Codex CLI + Gemini SDK)
+
+For provider lanes that use CLI wrappers (codex1/2/3 via ~/.zshrc with isolated
+HOME under ~/.ai-accounts/codex/account{N}) or SDK (google-genai for Gemini
+KEY1/2/3 in .env):
+
+- Spawn via `terminal("source ~/.zshrc && <alias>", pty=true, background=true)`
+- Send commands via `process(action="write")`; notes: literal strings only —
+  raw control bytes (`\x0b`, `\x03`) must be sent via shell `printf` or as
+  literal characters depending on the CLI's input parser.
+- For AGY `/goal` editor: `submit` opens nano; to exit send `ctrl+x` then
+  `Y` then Enter (`\x18` then submit) — if stuck, kill session and retry.
+- Verify via `process(action="poll"/"log")`; collect concise evidence.
+- Never expose secrets in logs; use masked references (`...last6`).
+
 ## Completed Branch Closeout
 
 When a user has approved merge and every required CI/review gate is green,
