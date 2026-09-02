@@ -1,0 +1,29 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-ALIAS-EXCEPTION-COMPAT-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "c9fb938fa5ad64381933630e011b169e81a8426b",
+  "test_files": [
+    {
+      "path": "tests/test_alias_exception_compatibility.py",
+      "sha256": "214b69ba0a3272d35fc1d3aeaedef8ab497539b26cec6e72e79db7d448463c3b"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["python3", "-m", "pytest", "-q", "tests/test_alias_exception_compatibility.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "IDQ-MVP-080 aliases must remain the closed four-alias exception"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/full_capacity_guard.v2.json",
+    "scripts/multiagent_prompt_command.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Restore the closed exception boundary while preserving the separately governed expanded account aliases."
+}

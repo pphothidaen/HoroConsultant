@@ -33,7 +33,11 @@ MAX_TEXT = 512
 GOVERNANCE_SCHEMA_VERSION = "full-capacity-governance-v2"
 CONFIG_SCHEMA_VERSION = "full-capacity-guard-config-v2"
 AUTHORIZATION_SCHEMA_VERSION = "capacity-provider-authorization-v2"
+<<<<<<< HEAD
 EXPECTED_ALIASES = ("agy1", "agy2", "agy3", "agy4")
+=======
+EXPECTED_ALIASES = ("agy1", "agy2")
+>>>>>>> origin/admin-remed-production
 GOVERNED_ALIASES = frozenset({"codex1", "codex2", "codex3", *EXPECTED_ALIASES})
 ALIAS_PROVIDER = {
     "codex1": "codex",
@@ -76,7 +80,7 @@ LEDGER_LIMIT_FIELDS = frozenset(
 EXPECTED_DEPENDENCY_PINS = {
     "dispatcher_validator": {
         "path": "scripts/multiagent_prompt_command.py",
-        "sha256": "f58fa591e65fbc8d038bc395c204dd44e48b01f460d44b46430ca8fa7fcec604",
+        "sha256": "ea9a0bd2a2dc50ff852c5c3b61424dd243f7a7ba3b882f7aaaca3cf0e8df684b",
     },
     "scheduler_validator": {
         "path": "scripts/multiagent_ticket_scheduler.py",
