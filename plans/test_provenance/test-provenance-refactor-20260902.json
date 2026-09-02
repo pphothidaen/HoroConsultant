@@ -1,0 +1,35 @@
+{
+  "manifest_id": "test-provenance-refactor-20260902-codex-gemini",
+  "ticket_id": "REFACTOR-CODEX-GEMINI-001",
+  "schema_version": "test-provenance-report-v1",
+  "created": "2026-09-03T00:05:23.025109",
+  "files": [
+    {
+      "path": "project/core/codex_cli_provider.py",
+      "sha256": "",
+      "type": "source"
+    },
+    {
+      "path": "project/core/llm_gateway.py",
+      "sha256": "",
+      "type": "source"
+    },
+    {
+      "path": "project/api_router.py",
+      "sha256": "",
+      "type": "source"
+    },
+    {
+      "path": "project/tests/test_llm_multirouter.py",
+      "sha256": "",
+      "type": "test"
+    },
+    {
+      "path": "project/tests/test_api_router_external.py",
+      "sha256": "",
+      "type": "test"
+    }
+  ],
+  "base_commit": "b3918a4",
+  "statement": "Refactor source uses Codex CLI (codex1/2/3); Gemini SDK replaces AGY interactive. All provider assertions updated."
+}

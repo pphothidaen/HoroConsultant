@@ -6,42 +6,35 @@ Unit & Integration tests for External AI Provider Routing in HybridRouter.
 
 from unittest.mock import MagicMock, patch
 
-from project.api_router import HybridRouter, _call_openai_compatible
+from project.api_router import HybridRouter, _call_codex_cli
 
 
 def test_build_routes_includes_cloud_and_api_providers():
-    with patch("project.api_router.OPENAI_API_KEY", "sk-mock-openai-key"), \
+    with patch("project.api_router._codex_aliases", return_value=["codex1"]), \
          patch("project.api_router._gemini_keys", return_value=["AIzaSyStudioMock"]):
         router = HybridRouter()
         routes = router._build_routes()
         
         provider_types = [r["type"] for r in routes]
-        assert "openai" in provider_types
+        assert "codex_cli" in provider_types
         assert "gemini" in provider_types
 
 
-def test_call_openai_compatible_success():
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    mock_response.json.return_value = {
-        "choices": [
-            {"message": {"content": "Hello from OpenAI compatible endpoint!"}}
-        ]
-    }
+def test_call_codex_cli_success():
+    """Test that _call_codex_cli correctly parses JSONL output from codex exec."""
+    mock_result = MagicMock()
+    mock_result.returncode = 0
+    mock_result.stdout = '{"text": "Hello from Codex CLI!"}\n'
+    mock_result.stderr = ""
 
-    with patch("httpx.Client") as mock_client:
-        mock_instance = MagicMock()
-        mock_instance.post.return_value = mock_response
-        mock_client.return_value.__enter__.return_value = mock_instance
-
-        text, reason = _call_openai_compatible(
-            provider_name="TestProvider",
-            base_url="https://api.test.com/v1",
-            api_key="test-key",
-            model="test-model",
-            prompt="Hello"
+    with patch("subprocess.run", return_value=mock_result):
+        text, reason = _call_codex_cli(
+            alias="codex1",
+            prompt="Hello",
+            system_instruction="",
+            model="gpt-4o-mini",
         )
-        assert text == "Hello from OpenAI compatible endpoint!"
+        assert text == "Hello from Codex CLI!"
         assert reason == "ok"
 
 
