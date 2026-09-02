@@ -25,11 +25,16 @@ from __future__ import annotations
 import json
 import logging
 import os
+import time
+from base64 import urlsafe_b64decode
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query
+import httpx
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
+from cryptography.hazmat.primitives.hashes import SHA256
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
 
@@ -72,8 +77,7 @@ class FinetuneTriggerRequest(BaseModel):
 
 
 class GoogleAuthRequest(BaseModel):
-    credential: str | None = Field(None, description="Google OAuth ID Token from GIS SDK")
-    mock_email: str | None = Field(None, description="Email for dev/demo mode bypass")
+    credential: str = Field(..., min_length=20, description="Google OAuth ID Token from GIS SDK")
 
 
 # ---------------------------------------------------------------------------
@@ -81,72 +85,120 @@ class GoogleAuthRequest(BaseModel):
 # ---------------------------------------------------------------------------
 
 def get_allowed_emails() -> list[str]:
-    raw = os.getenv("ADMIN_ALLOWED_EMAILS", "pansakorn@gmail.com,kimlenglim.work@gmail.com")
+    """Return an explicitly configured allowlist; no production defaults exist."""
+    raw = os.getenv("ADMIN_ALLOWED_EMAILS", "")
     return [e.strip().lower() for e in raw.split(",") if e.strip()]
+
+
+_GOOGLE_JWKS_URL = "https://www.googleapis.com/oauth2/v3/certs"
+_GOOGLE_ISSUERS = {"accounts.google.com", "https://accounts.google.com"}
+_JWKS_CACHE: tuple[float, dict[str, dict[str, Any]]] | None = None
+
+
+def _token_part(value: str) -> bytes:
+    return urlsafe_b64decode(value + "=" * (-len(value) % 4))
+
+
+async def _google_jwks() -> dict[str, dict[str, Any]]:
+    """Get Google signing keys with a short process-local cache."""
+    global _JWKS_CACHE
+    now = time.monotonic()
+    if _JWKS_CACHE and _JWKS_CACHE[0] > now:
+        return _JWKS_CACHE[1]
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.get(_GOOGLE_JWKS_URL)
+            response.raise_for_status()
+        keys = {
+            key["kid"]: key
+            for key in response.json()["keys"]
+            if key.get("kty") == "RSA" and key.get("alg") == "RS256" and key.get("kid")
+        }
+    except (httpx.HTTPError, KeyError, TypeError, ValueError):
+        raise HTTPException(status_code=401, detail="Authentication required.") from None
+    if not keys:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+    _JWKS_CACHE = (now + 300.0, keys)
+    return keys
+
+
+async def verify_google_id_token(credential: str) -> dict[str, Any]:
+    """Verify a Google GIS ID token's signature and required production claims."""
+    client_id = os.getenv("GOOGLE_CLIENT_ID", "").strip()
+    allowed_emails = get_allowed_emails()
+    if not client_id or not allowed_emails:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+    try:
+        header_b64, payload_b64, signature_b64 = credential.split(".")
+        header = json.loads(_token_part(header_b64))
+        payload = json.loads(_token_part(payload_b64))
+        signature = _token_part(signature_b64)
+        if header.get("alg") != "RS256" or not isinstance(header.get("kid"), str):
+            raise ValueError("unsupported token")
+        key = (await _google_jwks()).get(header["kid"])
+        if not key:
+            raise ValueError("unknown key")
+        public_key = rsa.RSAPublicNumbers(
+            int.from_bytes(_token_part(key["e"]), "big"),
+            int.from_bytes(_token_part(key["n"]), "big"),
+        ).public_key()
+        public_key.verify(
+            signature,
+            f"{header_b64}.{payload_b64}".encode("ascii"),
+            padding.PKCS1v15(),
+            SHA256(),
+        )
+        now = time.time()
+        if (payload.get("iss") not in _GOOGLE_ISSUERS
+            or payload.get("aud") != client_id
+            or not isinstance(payload.get("exp"), (int, float))
+            or payload["exp"] <= now
+            or not isinstance(payload.get("iat"), (int, float))
+            or payload["iat"] > now + 60
+            or payload.get("email_verified") not in (True, "true")
+            or not isinstance(payload.get("email"), str)):
+            raise ValueError("invalid claims")
+    except (ValueError, KeyError, TypeError, UnicodeDecodeError, Exception) as error:
+        if isinstance(error, HTTPException):
+            raise
+        raise HTTPException(status_code=401, detail="Authentication required.") from None
+
+    email = payload["email"].strip().lower()
+    if not email:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+    if email not in allowed_emails:
+        raise HTTPException(status_code=403, detail="Access denied.")
+    return payload
+
+
+async def require_admin(request: Request) -> None:
+    """Protect every Admin data, mutation, download, and review endpoint."""
+    if request.url.path in {"/admin/auth/config", "/admin/auth/google"}:
+        return
+    authorization = request.headers.get("Authorization", "")
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Authentication required.")
+    await verify_google_id_token(authorization.removeprefix("Bearer ").strip())
+
+
+admin_router.dependencies.append(Depends(require_admin))
 
 
 @admin_router.post("/auth/google")
 async def verify_google_auth(req: GoogleAuthRequest):
-    """Verify Google ID token or mock login for allowed admin emails (e.g. pansakorn@gmail.com)."""
-    allowed_emails = get_allowed_emails()
-
-    # 1. Dev / Mock Email Login
-    if req.mock_email:
-        email = req.mock_email.strip().lower()
-        if email not in allowed_emails:
-            raise HTTPException(
-                status_code=403,
-                detail=f"Access Denied: Email '{email}' is not authorized for Admin access. Authorized emails: {', '.join(allowed_emails)}"
-            )
-        return {
-            "status": "authenticated",
-            "user": {
-                "email": email,
-                "name": email.split("@")[0].capitalize(),
-                "picture": f"https://api.dicebear.com/7.x/bottts/svg?seed={email}",
-                "role": "admin",
-                "auth_provider": "google_mock"
-            }
-        }
-
-    # 2. Real Google OAuth ID Token Verification via Google API TokenInfo
-    if not req.credential:
-        raise HTTPException(status_code=400, detail="Missing Google credential or mock email.")
-
-    try:
-        import httpx
-        async with httpx.AsyncClient(timeout=8.0) as client:
-            resp = await client.get(f"https://oauth2.googleapis.com/tokeninfo?id_token={req.credential}")
-            if resp.status_code != 200:
-                raise HTTPException(status_code=401, detail="Invalid or expired Google OAuth token.")
-            payload = resp.json()
-            email = payload.get("email", "").lower()
-            email_verified = payload.get("email_verified") in (True, "true", 1)
-
-            if not email or not email_verified:
-                raise HTTPException(status_code=401, detail="Google account email is not verified.")
-
-            if email not in allowed_emails:
-                raise HTTPException(
-                    status_code=403,
-                    detail=f"Access Denied: Email '{email}' is not authorized for Admin access. Authorized emails: {', '.join(allowed_emails)}"
-                )
-
-            return {
-                "status": "authenticated",
-                "user": {
-                    "email": email,
-                    "name": payload.get("name", email.split("@")[0]),
-                    "picture": payload.get("picture", f"https://api.dicebear.com/7.x/bottts/svg?seed={email}"),
-                    "role": "admin",
-                    "auth_provider": "google"
-                }
-            }
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Google auth verification failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Google authentication error: {e!s}")
+    """Verify a real Google OAuth ID token without exposing allowlist details."""
+    payload = await verify_google_id_token(req.credential)
+    email = payload["email"].strip().lower()
+    return {
+        "status": "authenticated",
+        "user": {
+            "email": email,
+            "name": payload.get("name", email.split("@")[0]),
+            "picture": payload.get("picture", ""),
+            "role": "admin",
+            "auth_provider": "google",
+        },
+    }
 
 
 @admin_router.get("/auth/config")
@@ -154,7 +206,6 @@ async def get_auth_config():
     """Return public Google Auth client configuration."""
     return {
         "google_client_id": os.getenv("GOOGLE_CLIENT_ID", ""),
-        "allowed_emails": get_allowed_emails(),
         "auth_required": os.getenv("ADMIN_AUTH_REQUIRED", "true").lower() in ("true", "1", "yes"),
     }
 
