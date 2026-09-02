@@ -1600,7 +1600,94 @@ async function loadDashboard() {
 }
 
 async function loadProviderPoolsStatus() {
-  await api('GET', '/admin/provider-pools').catch(() => null);
+  const container = document.getElementById('page-providers-content');
+  if (!container) return;
+  try {
+    const data = await api('GET', '/admin/provider-pools');
+    if (!data) {
+      container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div>Provider pools data unavailable</div>';
+      return;
+    }
+
+    const pools = Array.isArray(data.provider_pools) ? data.provider_pools : Object.values(data.provider_pools || {});
+    const cbs = Array.isArray(data.circuit_breakers) ? data.circuit_breakers : Object.values(data.circuit_breakers || {});
+    const rh = data.provider_health || {};
+
+    let html = '<div style="display:grid;gap:20px">';
+
+    // Policy banner
+    const policyClass = data.zero_cost_only ? 'status-ingested' : 'status-missing';
+    html += `<div style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--glass);border:1px solid var(--border);border-radius:12px">
+      <span class="status-badge ${policyClass}" style="font-size:12px">${data.zero_cost_policy || (data.zero_cost_only ? 'ZERO-COST ACTIVE' : 'ZERO-COST DISABLED')}</span>
+      <span style="font-size:12px;color:var(--text-secondary)">Zero-Cost Billing Policy</span>
+    </div>`;
+
+    // Provider pools
+    html += '<div><div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text-primary)">🏊 Provider Pools</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">';
+    pools.forEach(pool => {
+      const avail = pool.is_available;
+      const badge = avail ? '<span class="status-badge status-ingested">🟢 Available</span>' : '<span class="status-badge status-missing">🔴 Unavailable</span>';
+      html += `
+        <div style="background:var(--glass);border:1px solid var(--border);border-radius:10px;padding:14px 16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-weight:600;font-size:13px">${pool.name}</span>
+            ${badge}
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Provider: ${pool.provider_name || '—'}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Billing: ${pool.billing_mode || '—'}</div>
+          <div style="font-size:11px;color:var(--text-muted)">Active Project: ${pool.active_project_id || 'none'} (${pool.projects_count || 0} projects)</div>
+        </div>`;
+    });
+    if (pools.length === 0) {
+      html += '<div style="font-size:12px;color:var(--text-muted)">No provider pools configured</div>';
+    }
+    html += '</div></div>';
+
+    // Circuit breakers
+    html += '<div><div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text-primary)">🔌 Circuit Breakers</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px">';
+    cbs.forEach(cb => {
+      const isOpen = cb.is_open;
+      const stateClass = isOpen ? 'status-missing' : 'status-ingested';
+      html += `
+        <div style="background:var(--glass);border:1px solid var(--border);border-radius:10px;padding:12px 14px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-weight:600;font-size:12px">${cb.name}</span>
+            <span class="status-badge ${stateClass}">${cb.state || (isOpen ? 'OPEN' : 'CLOSED')}</span>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Failures: ${cb.failure_count || 0} | Cooldown: ${cb.cooldown_seconds || 0}s</div>
+        </div>`;
+    });
+    if (cbs.length === 0) {
+      html += '<div style="font-size:12px;color:var(--text-muted)">No circuit breakers configured</div>';
+    }
+    html += '</div></div>';
+
+    // Rate limiter stats
+    if (data.rate_limiter_stats) {
+      const rl = data.rate_limiter_stats;
+      html += `<div><div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text-primary)">📊 Rate Limiter</div>
+        <div style="font-size:12px;color:var(--text-secondary)">
+          Active Tokens: ${rl.active_tokens || 0} | Blocked: ${rl.blocked_requests || 0} | Total: ${rl.total_requests || 0}
+        </div></div>`;
+    }
+
+    // Semantic cache stats
+    if (data.semantic_cache_stats) {
+      const sc = data.semantic_cache_stats;
+      html += `<div><div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text-primary)">⚡ Semantic Cache</div>
+        <div style="font-size:12px;color:var(--text-secondary)">
+          Entries: ${sc.entries || 0} | Hits: ${sc.hits || 0} | Hit Rate: ${sc.hit_rate || '0%'}
+        </div></div>`;
+    }
+
+    html += `<div style="font-size:10px;color:var(--text-muted);margin-top:8px">Last updated: ${data.timestamp || '—'}</div>`;
+    html += '</div>';
+    container.innerHTML = html;
+  } catch (err) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">❌</div>Failed to load provider pools: ${err.message || err}</div>`;
+  }
 }
 
 async function loadLLMGatewayStatus() {

@@ -10,8 +10,11 @@ const MAX_REQUEST_BODY_BYTES = 2 * 1024 * 1024;
 const PUBLIC_API_PATH = /^\/api\/v[123](?:\/[A-Za-z0-9._~!$&'()*+,;=:@/-]*)?$/;
 const PUBLIC_READ_PATHS = new Set(["/health", "/docs", "/openapi.json"]);
 const PRIVILEGED_API_PATH = /^\/admin\/[A-Za-z0-9._~!$&'()*+,;=:@/-]*$/;
+const VERSIONED_PRIVILEGED_PATH = /^\/api\/admin\/[A-Za-z0-9._~!$&'()*+,;=:@/-]*$/;
 const PRIVILEGED_READ_PATHS = new Set(["/hitl/stats"]);
+const VERSIONED_PRIVILEGED_READ_PATHS = new Set(["/api/hitl/stats"]);
 const PRIVILEGED_AUTH_BOOTSTRAP_PATHS = new Set(["/admin/auth/config", "/admin/auth/google"]);
+const VERSIONED_PRIVILEGED_AUTH_BOOTSTRAP_PATHS = new Set(["/api/admin/auth/config", "/api/admin/auth/google"]);
 const PUBLIC_MUTATION_PATHS = new Set([
   "/api/v1/location/resolve",
   "/api/v1/bazi/calculate",
@@ -91,7 +94,9 @@ function requestPath(request) {
   if (!PUBLIC_READ_PATHS.has(rawPath)
     && !PUBLIC_API_PATH.test(rawPath)
     && !PRIVILEGED_API_PATH.test(rawPath)
-    && !PRIVILEGED_READ_PATHS.has(rawPath)) return null;
+    && !PRIVILEGED_READ_PATHS.has(rawPath)
+    && !VERSIONED_PRIVILEGED_PATH.test(rawPath)
+    && !VERSIONED_PRIVILEGED_READ_PATHS.has(rawPath)) return null;
 
   const query = new URLSearchParams();
   for (const [key, value] of requestUrl.searchParams.entries()) {
@@ -100,8 +105,13 @@ function requestPath(request) {
   return `${rawPath}${query.size ? `?${query.toString()}` : ""}`;
 }
 
+function backendPathFor(rawPath) {
+  if (rawPath.startsWith("/api/")) return rawPath.slice(4);
+  return rawPath;
+}
+
 function allowedMethods(path) {
-  const pathname = path.split("?", 1)[0];
+  const pathname = backendPathFor(path.split("?", 1)[0]);
   if (PUBLIC_READ_PATHS.has(pathname)) return ["GET"];
   if (PRIVILEGED_READ_PATHS.has(pathname)) return ["GET"];
   if (pathname === "/admin/auth/config") return ["GET"];
@@ -117,7 +127,7 @@ function methodAllowed(method, path) {
 }
 
 function pathRequiresAuthorization(path) {
-  const pathname = path.split("?", 1)[0];
+  const pathname = backendPathFor(path.split("?", 1)[0]);
   return (PRIVILEGED_API_PATH.test(pathname) || PRIVILEGED_READ_PATHS.has(pathname))
     && !PRIVILEGED_AUTH_BOOTSTRAP_PATHS.has(pathname);
 }
@@ -264,7 +274,7 @@ async function proxyRequest(request, response, correlationId) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), BACKEND_TIMEOUT_MS);
   try {
-    const upstream = await fetch(`${BACKEND_ORIGIN}${target}`, {
+    const upstream = await fetch(`${BACKEND_ORIGIN}${backendPathFor(target)}`, {
       method: request.method,
       headers: upstreamHeaders(request, correlationId),
       body,

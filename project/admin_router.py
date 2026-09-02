@@ -122,6 +122,14 @@ async def verify_google_auth(req: GoogleAuthRequest):
             payload = resp.json()
             email = payload.get("email", "").lower()
             email_verified = payload.get("email_verified") in (True, "true", 1)
+            token_aud = payload.get("aud", "")
+            expected_aud = os.getenv("GOOGLE_CLIENT_ID", "")
+
+            if expected_aud and token_aud != expected_aud:
+                raise HTTPException(
+                    status_code=401,
+                    detail="Invalid token audience. The token was not issued for this application."
+                )
 
             if not email or not email_verified:
                 raise HTTPException(status_code=401, detail="Google account email is not verified.")
