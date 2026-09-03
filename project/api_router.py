@@ -33,8 +33,6 @@ OLLAMA_BASE_URL         = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 PRIMARY_LOCAL_MODEL     = os.getenv("OLLAMA_PRIMARY_MODEL",   "qwen2.5-bazi")
 SECONDARY_LOCAL_MODEL   = os.getenv("OLLAMA_SECONDARY_MODEL", "qwen2.5:7b")
 TERTIARY_LOCAL_MODEL    = os.getenv("OLLAMA_TERTIARY_MODEL",  "qwen2.5-coder:7b")
-OPENAI_API_KEY          = os.getenv("OPENAI_API_KEY", "")
-OPENAI_API_KEY2         = os.getenv("OPENAI_API_KEY2", "")
 GOOGLE_AI_STUDIO_API_KEY = os.getenv("GOOGLE_AI_STUDIO_API_KEY", "")
 GOOGLE_AI_STUDIO_API_KEY2 = os.getenv("GOOGLE_AI_STUDIO_API_KEY2", "")
 
@@ -67,8 +65,6 @@ GEMINI_MODEL_FALLBACK_CANDIDATES: dict[str, list[str]] = {
     "gemini-3.6-flash": ["gemma-4-31b-it", "gemma-4-26b-a4b-it", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-pro", "gemini-2.0-flash-lite"],
     "gemini-3.7-flash": ["gemma-4-31b-it", "gemma-4-26b-a4b-it", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"],
 }
-
-OPENAI_MODEL            = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 CLOUDFLARE_ACCOUNT_ID   = os.getenv("CLOUDFLARE_ACCOUNT_ID", "")
 CLOUDFLARE_AI_TOKEN     = os.getenv("CLOUDFLARE_AI_TOKEN", "")
@@ -366,7 +362,7 @@ def _call_vertex_ai(
 
 
 # ---------------------------------------------------------------------------
-# OpenAI / OpenAI-compatible caller (cloud external providers)
+# External paid-provider callers are intentionally absent from this router.
 # ---------------------------------------------------------------------------
 
 
@@ -488,7 +484,7 @@ class HybridRouter:
       LOCAL 2: qwen2.5-coder:7b    (capable fallback)
       LOCAL 3: llama3:8b           (English fallback)
       CLOUD:   Gemini models x all keys (gemini-3.5-flash-lite -> gemini-flash-latest -> gemini-3.6-flash)
-    CLOUD:   Cloudflare AI, Gemini, Vertex AI, OpenAI (fallback chain)
+      CLOUD:   Cloudflare AI and Gemini (zero-cost fallback chain)
     """
 
     def __init__(self, zero_cost_only: bool | None = None) -> None:
@@ -506,7 +502,7 @@ class HybridRouter:
         is_cloud = _is_cloud_environment()
 
         # === CLOUD MODE (Vercel / HF Spaces / Fly.io) ===
-        # Priority chain: Gemini -> Cloudflare AI -> Vertex AI -> OpenAI
+        # Priority chain: Gemini -> Cloudflare AI
         if is_cloud:
             # Route 1: Gemini Cloud (key rotation)
             for model in GEMINI_MODELS_ROTATION:
@@ -542,7 +538,7 @@ class HybridRouter:
                 for key in _gemini_keys():
                     routes.append({"type": "gemini", "model": model, "key": key})
 
-            logger.info("[Router] Zero-cost policy active: excluded paid endpoints (Vertex AI, OpenAI).")
+            logger.info("[Router] Zero-cost policy active: excluded paid endpoints.")
 
         return routes
 
