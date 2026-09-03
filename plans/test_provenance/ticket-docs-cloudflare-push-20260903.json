@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-DOCS-CLOUDFLARE-PUSH-20260903",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "4d58e13d34b398f6407bbd303d9fe030584740f0",
+  "test_files": [
+    {
+      "path": "tests/test_cloudflare_docs.py",
+      "sha256": "4f78fc5b0eb8180e65b23e00a264456bb230cf60cba847efc87accae81d75e0b"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_cloudflare_docs.py::test_cloudflare_deployment_analysis_loads"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "CLOUDFLARE_DEPLOYMENT_ANALYSIS_MISSING"
+    }
+  ],
+  "allowed_source_paths": [
+    ".hermes/plans/cloudflare-security-mapping.json",
+    "cloudflare-deployment-analysis.json",
+    "plans/2026-09-03-atomic-push-to-main.md"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Add cloudflare deployment analysis and security mapping documentation files"
+}
