@@ -3,11 +3,11 @@
   "ticket_id": "TICKET-CLOUDFLARE-WORKER-PROXY-20260903",
   "sequence": 1,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "9ad735430d0649808d4f042abd0c5b2bcbcff8b5",
+  "baseline_parent": "12e3f6effafc81ae48c417ec2aa50bd673ec68a3",
   "test_files": [
     {
       "path": "tests/test_cloudflare_worker_proxy.py",
-      "sha256": "d497dbe138dde18aa7b757a33b7f0b4e0b80e223a2c77aa15673525cf1a4f293"
+      "sha256": "0c44355676b6a25d83b206de7cd63d995f49f6d0edeb6eb836c38f8c5fd9261d"
     }
   ],
   "red_tests": [
@@ -28,7 +28,7 @@
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": null,
-  "correction_reason": null,
+  "supersedes": "ff974c73a52cb2c8f1011a52cfb2e0f93b133adb",
+  "correction_reason": "Re-baseline after fixing regex extraction (test method -> search method) and static asset position detection",
   "rationale": "Add Cloudflare Worker reverse proxy tests for API routing, CORS, static assets, and backend proxy"
 }

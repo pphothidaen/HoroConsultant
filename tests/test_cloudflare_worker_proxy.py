@@ -14,7 +14,8 @@ def read_worker_js():
 def extract_regex_pattern(js_content, var_name):
     """Extract a regex pattern from JS source."""
     # Match: const VAR_NAME = /pattern/flags;
-    pattern = rf"const\s+{var_name}\s*=\s*/([^/]+)/([gimsuy]*);"
+    # Use non-greedy match to capture everything between / delimiters
+    pattern = rf"{var_name}\s*=\s*/(.*?)/([gimsuy]*);"
     match = re.search(pattern, js_content)
     if match:
         flags_str = match.group(2)
@@ -25,7 +26,8 @@ def extract_regex_pattern(js_content, var_name):
             flags |= re.MULTILINE
         if 's' in flags_str:
             flags |= re.DOTALL
-        return re.compile(match.group(1), flags)
+        regex_str = match.group(1)
+        return re.compile(regex_str, flags)
     return None
 
 
@@ -111,10 +113,10 @@ class TestPathMatching:
         assert regex is not None, "PUBLIC_API_PATH regex not found"
 
         # Should match
-        assert regex.test("/api/v1/health")
-        assert regex.test("/api/v2/consult")
-        assert regex.test("/api/v3/chart")
-        assert regex.test("/api/v1/consult/123")
+        assert regex.search("/api/v1/health")
+        assert regex.search("/api/v2/consult")
+        assert regex.search("/api/v3/chart")
+        assert regex.search("/api/v1/consult/123")
 
     def test_public_api_path_rejects_invalid_routes(self):
         """PUBLIC_API_PATH should not match invalid API paths."""
@@ -123,9 +125,9 @@ class TestPathMatching:
         assert regex is not None, "PUBLIC_API_PATH regex not found"
 
         # Should NOT match
-        assert not regex.test("/api/v4/health")  # v4 not allowed
-        assert not regex.test("/api/health")  # missing version
-        assert not regex.test("/admin/api/v1/health")  # wrong prefix
+        assert not regex.search("/api/v4/health")  # v4 not allowed
+        assert not regex.search("/api/health")  # missing version
+        assert not regex.search("/admin/api/v1/health")  # wrong prefix
 
     def test_privileged_api_path_matches_admin_routes(self):
         """PRIVILEGED_API_PATH should match /admin/... routes."""
@@ -133,9 +135,9 @@ class TestPathMatching:
         regex = extract_regex_pattern(js, "PRIVILEGED_API_PATH")
         assert regex is not None, "PRIVILEGED_API_PATH regex not found"
 
-        assert regex.test("/admin/users")
-        assert regex.test("/admin/settings")
-        assert regex.test("/admin/hitl/review")
+        assert regex.search("/admin/users")
+        assert regex.search("/admin/settings")
+        assert regex.search("/admin/hitl/review")
 
     def test_privileged_api_path_rejects_non_admin(self):
         """PRIVILEGED_API_PATH should not match non-admin paths."""
@@ -143,8 +145,8 @@ class TestPathMatching:
         regex = extract_regex_pattern(js, "PRIVILEGED_API_PATH")
         assert regex is not None, "PRIVILEGED_API_PATH regex not found"
 
-        assert not regex.test("/api/v1/admin")
-        assert not regex.test("/public/admin")
+        assert not regex.search("/api/v1/admin")
+        assert not regex.search("/public/admin")
 
     def test_public_read_paths_defined(self):
         """PUBLIC_READ_PATHS should contain standard public endpoints."""
@@ -188,8 +190,11 @@ class TestStaticAssetPassthrough:
     def test_worker_checks_static_extensions(self):
         """Worker should check for static file extensions."""
         js = read_worker_js()
-        assert r"\.(js|css|svg|png|ico|json|html)$" in js or \
-               r"\.(js|css|svg|png|ico|json|html)" in js, \
+        # The file contains \. (backslash + dot) in regex patterns
+        assert r"\.(js|css|svg|png|ico|json|html)" in js or \
+               r"\.(js|css|svg|png|ico|html)" in js or \
+               "\\.(js|css|svg|png|ico|json|html)" in js or \
+               "\\\\.(js|css|svg|png|ico|json|html)" in js, \
                "Missing static asset extension check"
 
     def test_worker_passes_through_static_assets(self):
@@ -233,10 +238,14 @@ class TestWorkerFetchHandler:
         """Handler should check static assets before API proxy."""
         js = read_worker_js()
         # Static asset check should come before API proxy
-        static_pos = js.find(r"\.(js|css|svg|png|ico|html)$")
+        # Find the static asset regex in the handler
+        static_pos = js.find(r"\.(js|css|svg|png|ico|json|html)")
         if static_pos == -1:
-            static_pos = js.find(r"\.(js|css|svg|png|ico|html)")
-        api_pos = js.find("isAllowedPath")
+            static_pos = js.find("\\.(js|css|svg|png|ico|json|html)")
+        if static_pos == -1:
+            static_pos = js.find("\\\\.(js|css|svg|png|ico|json|html)")
+        # Find the actual call to isAllowedPath in the handler (not the definition)
+        api_pos = js.find("if (isAllowedPath")
         assert static_pos > 0, "Static asset check not found"
         assert api_pos > 0, "isAllowedPath check not found"
         assert static_pos < api_pos, "Static check should come before API proxy"
