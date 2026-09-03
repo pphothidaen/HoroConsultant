@@ -2,9 +2,9 @@ const BACKEND_BASE_URL = 'https://pphothidaen-horoconsultant-core-backend.hf.spa
 const CORS_ALLOWED_ORIGINS = ['https://horoconsultant.yourdomain.com'];
 const BACKEND_TIMEOUT_MS = 15000;
 
-const PUBLIC_API_PATH = /^\/api\/v[123](?:[\w.~!$&'()*+,;=:@/-]*)?$/;
+const PUBLIC_API_PATH = /^\\/api\\/v[123](?:[\\w.~!$&'()*+,;=:@/-]*)?$/;
 const PUBLIC_READ_PATHS = new Set(['/health', '/docs', '/openapi.json']);
-const PRIVILEGED_API_PATH = /^\/admin\/[\w.~!$&'()*+,;=:@/-]*$/;
+const PRIVILEGED_API_PATH = /^\\/admin\\/[\\w.~!$&'()*+,;=:@/-]*$/;
 const PRIVILEGED_READ_PATHS = new Set(['/hitl/stats']);
 
 function isAllowedPath(path) {
@@ -26,6 +26,28 @@ function corsHeaders(request) {
     };
   }
   return {};
+}
+
+async function kvCacheGet(key) {
+  try {
+    const value = await env.CACHE.get(key, { type: 'json' });
+    return value;
+  } catch {
+    return null;
+  }
+}
+
+async function kvCacheSet(key, value, ttlSeconds = 86400) {
+  try {
+    await env.CACHE.put(key, JSON.stringify(value), { expirationTtl: ttlSeconds });
+  } catch {
+    // KV write failed, continue without cache
+  }
+}
+
+function cacheKey(request) {
+  const url = new URL(request.url);
+  return `cache:${request.method}:${url.pathname}${url.search}`;
 }
 
 async function proxyToBackend(request, path) {
@@ -60,7 +82,7 @@ export default {
     const path = url.pathname;
 
     // Static assets — pass through to Pages
-    if (path.match(/\.(js|css|svg|png|ico|json|html)$/)) {
+    if (path.match(/\\.(js|css|svg|png|ico|json|html)$/)) {
       return fetch(request);
     }
 
@@ -69,7 +91,31 @@ export default {
       if (request.method === 'OPTIONS') {
         return new Response(null, { status: 204, headers: corsHeaders(request) });
       }
-      return proxyToBackend(request, path);
+
+      // Check KV cache for GET requests
+      if (request.method === 'GET') {
+        const cached = await kvCacheGet(cacheKey(request));
+        if (cached) {
+          return new Response(JSON.stringify(cached.response), {
+            status: 200,
+            headers: { ...corsHeaders(request), 'content-type': 'application/json', 'X-Cache': 'HIT' },
+          });
+        }
+      }
+
+      const response = await proxyToBackend(request, path);
+
+      // Write to KV cache for successful GET requests
+      if (request.method === 'GET' && response.status === 200) {
+        try {
+          const body = await response.clone().json();
+          await kvCacheSet(cacheKey(request), { response: body });
+        } catch {
+          // Response body not JSON, skip cache
+        }
+      }
+
+      return response;
     }
 
     // SPA fallback
