@@ -40,55 +40,13 @@
 
 ---
 
-## 🔄 DOING
+## 🔄 DOING / PENDING
 
-| Task | Blocked By | Next Step |
-|------|-----------|-----------|
-| KV namespace creation | Auth 401 from sandbox terminal | User runs `bash scripts/cloudflare-setup.sh` locally |
-| R2 bucket creation | Auth 401 from sandbox terminal | User runs `bash scripts/cloudflare-setup.sh` locally |
-
----
-
-## ⏳ TODO / READY
-
-| Task | Status | Notes |
-|------|--------|-------|
-| Turnstile widget client-side integration | ✅ DONE | Integrated into `project/static/admin.html` |
-| Worker & wrangler test suite | ✅ DONE | 67/67 tests passing |
-| Run setup script | 🔄 PENDING USER | `bash scripts/cloudflare-setup.sh` (auto-updates wrangler.toml) |
-| Re-deploy to Cloudflare Pages | ⏳ Next | `npx wrangler pages deploy project/static --project-name=horoconsultant-pages` |
-| Create PR to main | ⏳ Ready | Branch pushed to origin. Link below |
-| Custom domain setup | ⏳ Post-merge | Map `horoconsultant.yourdomain.com` |
-
----
-
-## ❌ BLOCKED — What We Tried (and Failed)
-
-### ❌ Cloudflare API Calls via Hermes Terminal
-
-**Symptom:** `curl`/`urllib`/`requests` from Hermes terminal → Cloudflare API returns 401 Unauthorized
-
-**Verified:**
-- Token valid when user runs `curl` directly from local terminal
-- Token in `.env` matches token that works
-- Token verified via `https://api.cloudflare.com/client/v4/user/tokens/verify` (user terminal) → `{"success":true}`
-- Same token via Hermes terminal → `{"success":false,"errors":[{"code":1000,"message":"Invalid API Token"}]}`
-
-**Root Cause:** Network/proxy issue specific to Hermes terminal environment — requests to Cloudflare API being blocked or modified.
-
-**Attempted Fixes:**
-1. ❌ `curl` via Hermes terminal → 401
-2. ❌ `urllib.request` (Python 3.9 system) → 401
-3. ❌ `urllib.request` (Python 3.14 Homebrew) → 401
-4. ❌ `requests` library (Python 3.14) → 401
-5. ❌ Shell script reading `.env` + `curl` via user terminal → 401 (script parsing issue)
-
-**Current Workaround:** User needs to run setup script locally:
-```bash
-cd /Users/kimlenglim/Project/HoroConsultant
-export CLOUDFLARE_API_TOKEN="$(grep '^CLOUDFLARE_API_TOKEN=' .env | cut -d'\"' -f2)"
-bash scripts/cloudflare-setup.sh
-```
+| Task | Status | Action Required |
+|------|--------|-----------------|
+| KV Cache (`horoconsultant-cache`) | ✅ ACTIVE (ID: `07d1f31739eb418b944bf8d66f17a452`) | Deployed & working live |
+| R2 Artifacts Bucket | ⏸️ PENDING DASHBOARD ACTIVATION | Enable R2 in Cloudflare Dashboard, then uncomment in `wrangler.toml` |
+| Pull Request | ⏳ READY TO MERGE | PR URL ready below |
 
 ---
 
@@ -96,30 +54,24 @@ bash scripts/cloudflare-setup.sh
 
 | Metric | Value |
 |--------|-------|
-| Total commits | 19 |
+| Total commits | 20+ |
 | Total tests | 67 (100% passing) |
 | Files created & modified | 22+ |
 | Deploy success | ✅ https://horoconsultant-pages.pages.dev |
-| KV/R2 creation | ❌ Blocked by terminal proxy 401 |
+| KV Cache active | ✅ `07d1f31739eb418b944bf8d66f17a452` |
+| Reverse Proxy API Health | ✅ 200 OK via Cloudflare Edge |
 | Branch status | ✅ Pushed to `origin/feat/cloudflare-edge-integration` |
 | PR to main | ⏳ Ready to open: [Compare & PR Link](https://github.com/pphothidaen/HoroConsultant/compare/main...feat/cloudflare-edge-integration?expand=1) |
 
 ---
 
-## 📝 Next Steps for User
+## 📝 Next Steps
 
-1. **Run setup script locally** (auto-creates KV & R2, auto-updates `wrangler.toml`):
-   ```bash
-   cd /Users/kimlenglim/Project/HoroConsultant
-   bash scripts/cloudflare-setup.sh
-   ```
-2. **Commit updated wrangler.toml & re-deploy**:
-   ```bash
-   git add wrangler.toml && git commit -m "feat(cloudflare): bind production KV namespace"
-   git push origin feat/cloudflare-edge-integration
-   npx wrangler pages deploy project/static --project-name=horoconsultant-pages
-   ```
-3. **Open PR & Merge**:
-   Open PR via web browser:
-   👉 **https://github.com/pphothidaen/HoroConsultant/compare/main...feat/cloudflare-edge-integration?expand=1**
+1. **Open PR & Merge**:
+   👉 **[Click here to open PR on GitHub](https://github.com/pphothidaen/HoroConsultant/compare/main...feat/cloudflare-edge-integration?expand=1)**
+2. *(Optional)* **Enable R2 for Model Artifacts**:
+   - Visit: https://dash.cloudflare.com/bda49e4e77e00609cb1ef68561b0d9eb/r2/default/overview
+   - Click "Enable R2" (free tier: 10GB/mo)
+   - Create bucket `horoconsultant-artifacts`
+   - Uncomment `[[r2_buckets]]` in `wrangler.toml` and re-deploy!
 

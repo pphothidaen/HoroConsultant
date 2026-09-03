@@ -19,7 +19,7 @@ echo "--- Create KV namespace ---"
 KV_RESULT=$(curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/storage/kv/namespaces" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"label":"horoconsultant-cache"}')
+  -d '{"title":"horoconsultant-cache"}')
 echo "$KV_RESULT" | python3 -m json.tool
 
 # Extract KV ID (or look up existing if already created)
@@ -30,7 +30,7 @@ if [ -z "$KV_ID" ]; then
     -H "Authorization: Bearer $TOKEN")
   KV_ID=$(echo "$KV_LIST" | python3 -c "import sys,json
 for ns in json.load(sys.stdin).get('result',[]):
-    if ns.get('label') == 'horoconsultant-cache':
+    if ns.get('title') == 'horoconsultant-cache' or ns.get('label') == 'horoconsultant-cache':
         print(ns.get('id',''))
         break" 2>/dev/null || true)
 fi
