@@ -29,7 +29,7 @@ Before planning, confirm:
 Do not move to delegation until at least three points are confirmed or explicitly waived.
 1. **Classify** the request and decide whether delegation materially helps.
 2. **Plan** the smallest complete set of workstreams, acceptance checks, and dependencies.
-3. **Delegate** each independent workstream only to the matching specialist, with distinct file or responsibility ownership.
+3. **Delegate** each independent workstream only to the matching specialist with declared atomic tickets in `atomic_tasks.md`, bound modular skills, and distinct file or responsibility ownership. Unbound dispatches fail closed.
 4. **Synthesize** delegated results, resolve conflicts, and retain human approval for expanded scope or external actions.
 5. **Verify** relevant checks before reporting completion.
 

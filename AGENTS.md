@@ -9,7 +9,7 @@
 
 ## Working with Codex subagents
 
-- Select a role from `.codex/agents/` only when its description matches the delegated task.
+- Decompose work into atomic tasks/tickets (`atomic_tasks.md`), select a matching specialist from `.codex/agents/` / Specialist List, and explicitly bind the required modular skills before dispatching. Unbound dispatches fail closed.
 - Generated role prompts preserve legacy responsibilities. Provider/model allocations inside those legacy prompts are historical context; each Codex subagent inherits the active Codex model.
 - Keep parallel work isolated by file ownership. Do not assign concurrent agents to edit the same file.
 
