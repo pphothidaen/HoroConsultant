@@ -1,0 +1,34 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-CLOUDFLARE-CRON-TRIGGERS-20260903",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "83014e30407d4bcdaabe782a29050db36b667d93",
+  "test_files": [
+    {
+      "path": "tests/test_cloudflare_cron_triggers.py",
+      "sha256": "ec43b8995f1bd6b83cdcfc7e986c27509fe3cb9a6690d3ff130831fb14a7c5be"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_cloudflare_cron_triggers.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "CRON_TRIGGER_MISSING: [triggers] section with crons not found in wrangler.toml"
+    }
+  ],
+  "allowed_source_paths": [
+    "wrangler.toml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Add cron triggers to wrangler.toml for midnight sync scheduling in Cloudflare Worker"
+}
