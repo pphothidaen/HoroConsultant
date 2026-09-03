@@ -1,0 +1,34 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-CLOUDFLARE-DEPLOY-20260903",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "fd337213226e7ca32bed7b98e3dd144be04923cd",
+  "test_files": [
+    {
+      "path": "tests/test_cloudflare_deploy.py",
+      "sha256": "9e508af37149dfe9edacb2fd60878c1c2edaba2acb2e19b55d3e3be48e16b266"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_cloudflare_deploy.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "ACCOUNT_ID_NOT_SET: account_id missing or placeholder in wrangler.toml"
+    }
+  ],
+  "allowed_source_paths": [
+    "wrangler.toml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Add deployment readiness tests verifying wrangler.toml has valid account_id, project name, build output, KV/R2 bindings, triggers, and observability sections"
+}
