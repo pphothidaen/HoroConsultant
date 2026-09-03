@@ -1,3 +1,52 @@
+# 🚀 HoroConsultant Release Notes — Governance Upgrade (Rule 24, Scoped AGENTS.md, Red-Blue QA)
+
+> **Release**: `Governance Upgrade (Rule 24 Red/Blue Architecture & TIA Matrix, 5 Subdirectory Scoped AGENTS.md, Red Team Inversion QA Audit)`  
+> **Release Date**: 2026-09-04 (Asia/Bangkok)  
+> **Sprint Verdict**: `CERTIFIED_COMPLETE` (5/5 tickets DONE & 100% checks passing)  
+> **Release Authority**: Master Orchestrator & devops (The Bridge)  
+
+---
+
+## 🌟 Executive Summary
+Successfully codified Rule 24 introducing the Adversarial Dual-Team Operating Model (Blue Builders vs Red Adversaries), 4-Tier Testing Paths (Atomic, System, Smoke, Happy), and the Test Impact Analysis (TIA) selective testing matrix. Implemented 5 subdirectory-scoped `AGENTS.md` context chunking files across `rust_core/`, `project/core/`, `project/routers/`, `project/static/`, and `scripts/` (<= 50 lines each) with strict Root Universal Safeguards precedence. Passed Red Team Inversion QA Audit and Pre-Deploy Safety Release Gate with 16/16 ecosystem sync checks and 0 secret leaks across 6,218 files.
+
+## 🛠️ Architectural Deliverables
+1. **Rule 24 Codification**: Codified dual-team governance, 4-tier testing hierarchy, fail-fast parameters (`-x`, `--lf`), and TIA selective test matrix in `.agents/rules/24-red-blue-team-and-selective-testing.md`, `.claude/rules/selective-testing-and-red-blue.md`, and `.agy/rules/selective-testing-and-red-blue.md`.
+2. **5 Subdirectory Scoped AGENTS.md Files**: Context chunking deployed to `rust_core/AGENTS.md`, `project/core/AGENTS.md`, `project/routers/AGENTS.md`, `project/static/AGENTS.md`, and `scripts/AGENTS.md` (each 30-32 lines, pure ASCII, referencing root safeguards).
+3. **Ecosystem Parity & Validation Automation**: Updated `scripts/sync_ai_agent_ecosystem.py` with scoped AGENTS.md size, presence, and content verification.
+4. **Red Team Inversion QA Suite**: Adversarial audit test suite in `tests/test_red_team_governance_audit.py` with 100% pass rate.
+5. **Pre-Deploy Safety Evidence**: Certified receipts in `plans/evidence/gov-roadmap-20260904/qa-audit.json` and `pre-deploy-gate.json`.
+
+## 🧪 Verification Matrix
+| Test Suite / Audit | Tests / Scope | Pass Rate | Status |
+|---|:---:|:---:|:---:|
+| Ecosystem Sync (`sync_ai_agent_ecosystem.py --check`) | 16 / 16 checks | 100% | PASSED |
+| Claude Code <-> AGY CLI Parity (`sync_claude_agy_parity.py --check`) | 21 rules, 4 skills, 2 agents | 100% | PASSED |
+| Red Team Governance Audit (`test_red_team_governance_audit.py`) | 5 tests | 100% | PASSED |
+| Scoped AGENTS.md Size & Safeguards Audit | 5 / 5 files (<= 50 lines) | 100% | PASSED |
+| Rayon Secret Scan (`code_reviewer.py --scan-secrets`) | 6,218 files | 0 leaks | PASSED |
+| Skill Governance Tests (`test_skill_configurations.py`) | 6 tests | 100% | PASSED |
+| **Total Verification Conformance** | **All Checks** | **100%** | **PASSED** |
+
+## 📋 Milestone Rollup (100% DONE)
+| Ticket | Title | Assigned Specialist | Status |
+|---|---|---|:---:|
+| TICKET-GOV-025 | Program GOV-ROADMAP-20260904 Planning & Spec | business_analyst | DONE |
+| TICKET-GOV-026 | Rule 24 Codification & TIA Selective Testing Matrix | developer | DONE |
+| TICKET-GOV-027 | 5 Subdirectory Scoped AGENTS.md Context Chunking | developer | DONE |
+| TICKET-GOV-028 | Red Team Inversion QA Audit & Regression Suite | qa_tester | DONE |
+| TICKET-GOV-029 | Pre-Deploy Safety & Release Gate Pipeline | devops | DONE |
+| **Total** | **Program GOV-ROADMAP-20260904** | **5 / 5 Tickets** | **100% DONE** |
+
+## 🌐 Live Production Endpoints
+- **Production Pages URL**: https://horoconsultant-pages.pages.dev
+- **Verified Health Endpoint**: `https://horoconsultant-pages.pages.dev/health` -> HTTP/2 200 OK (`{"status":"ok","service":"Computational Metaphysics Engine","rust_acceleration":true}`)
+
+## 🗄️ Archived Plans List
+- All active specifications for Program GOV-ROADMAP-20260904 are recorded in `plans/plan.md` and evidence preserved in `plans/evidence/gov-roadmap-20260904/`. No unarchived scratch plans remain.
+
+---
+
 # 🚀 HoroConsultant Release Notes — Cloudflare Edge Integration
 
 > **Release**: `Cloudflare Edge Architecture Migration (Pages + Worker Reverse Proxy + KV Cache + Turnstile Gate + Cron Triggers)`  

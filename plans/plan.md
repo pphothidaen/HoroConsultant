@@ -3,7 +3,90 @@
 > **Repository**: `pphothidaen/HoroConsultant`  
 > **Authority**: Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
 > **Governance Enforcement**: Rule 21 (Agile Governance) & Rule 22 (Plan Completion & Archival Mandate)  
-> **Last Synchronized**: 2026-08-31T23:40:00+07:00 (Asia/Bangkok)  
+> **Last Synchronized**: 2026-09-04T01:05:00+07:00 (Asia/Bangkok)  
+
+---
+
+<!-- GOV-ROADMAP-20260904:START -->
+## GRILL REPORT -- GOV-ROADMAP-20260904: Architectural Roadmap (Rule 24, Subdirectory Scoped AGENTS.md Context Chunking & Ecosystem Parity)
+
+**Recorded**: `2026-09-04T01:05:00+07:00` (Asia/Bangkok)
+**Status**: `APPROVED`
+**Requirement-change authority**: Owner instruction dated `2026-09-04` explicitly approving the architectural roadmap for Program `GOV-ROADMAP-20260904`.
+**Authorized current phase**: `TICKET-GOV-025` Spec & Planning Lead (Status: `DONE`). Downstream tickets `TICKET-GOV-026` and `TICKET-GOV-027` are `READY` for dispatch.
+
+### Scope and Decision Record
+
+**IN**:
+1. **Rule 24 Codification & TIA Selective Testing Matrix**:
+   - Adversarial Dual-Team architecture:
+     - Blue Team (The Builders): `developer`, `devops`, `business_analyst`, `orchestrator`, `ux_ui_designer` with Analytical & Critical Thinking mindset (First Principles, Modular Architecture, Contract-Driven, Clean Code).
+     - Red Team (The Adversaries / Auditors): `qa_tester`, `code_reviewer`, `ui_visual_tester`, `prediction_validator` with Inversion Thinking mindset ("Assume code is broken until proven otherwise", find edge cases, surrogate crashes, secret leaks).
+   - 4-Tier Testing Paths:
+     1. Atomic Path: micro calculation formulas, Julian Day, BaZi 4-Pillars, PyO3 Math Core.
+     2. System Path: system compatibility, API Gateways, FAISS RAG, Multi-Provider Router Failover.
+     3. Smoke Path: rapid critical readiness (/health gate, Cloudflare Worker proxy < 5s).
+     4. Happy Path: complete user flow, Playwright E2E UI Button Regression, Five Elements Themes.
+   - Test Impact Analysis (TIA) Selective Testing Matrix:
+     - Docs / Rules Only: `python3 scripts/sync_ai_agent_ecosystem.py --check` only (< 3s).
+     - UI / CSS Only: `python3 scripts/run_button_regression.py` only (< 20s).
+     - Rust Core Only: `cargo test` and BaZi Unit tests only (< 15s).
+     - API Routers Only: Gateway contract tests only (< 20s).
+     - Pre-Release / PR to main: Full regression on CI.
+     - Fail-Fast flags: `pytest -x` (stop on first failure) and `--lf` (rerun only failed tests) during bug fixing.
+   - Normative rule artifacts:
+     - `.agents/rules/24-red-blue-team-and-selective-testing.md` (length <= 80 lines).
+     - `.claude/rules/selective-testing-and-red-blue.md` (length <= 40 lines).
+     - Parity sync to `.agy/rules/`.
+   - Update `project/core/code_reviewer.py` or selective runner to support `--selective` / TIA mode.
+2. **5 Subdirectory Scoped AGENTS.md Context Chunking**:
+   - Create 5 scoped context files (length <= 30-50 lines per file):
+     1. `rust_core/AGENTS.md`: PyO3 FFI Boundary, Rayon Parallelism, Zero Panic.
+     2. `project/core/AGENTS.md`: BaZi Math, True Solar Time, Canonical Texts (Di Tian Sui, Zi Ping Zhen Quan), HITL Routing.
+     3. `project/routers/AGENTS.md`: FastAPI Endpoints, OpenAPI Golden Snapshots, Zero-Cost AI Multi-Router.
+     4. `project/static/AGENTS.md`: Five Elements CSS Palette, WCAG 2.1 AA Contrast, 5 Canonical Viewports.
+     5. `scripts/AGENTS.md`: DevOps Hygiene, Pure ASCII Logging, 2-Tier Secrets, Fail-Closed Release.
+   - Hierarchy and precedence: Root Universal Safeguards > Subdirectory Scoped Rules (scoped rules cannot relax core safeguards or secret leak protections).
+   - Ecosystem Parity and Validation:
+     - Update `scripts/sync_ai_agent_ecosystem.py` to enforce existence and validation of these 5 files.
+3. **Ecosystem Parity & Quality Gates**:
+   - Synchronize across Claude, AGY, and Codex agent configs.
+   - Enforce Pure ASCII logging and 100% test pass rate.
+
+**OUT**:
+- Direct mutation of files outside owned tickets.
+- Unreviewed production releases, credential changes, or external mutations.
+- Weakening of Root Universal Safeguards or secret leak protections.
+
+### Nine-Dimension Decision Matrix
+
+| ID | Result and evidence state | Decision / stop threshold |
+|---|---|---|
+| D1 Scope boundary | `[CONFIRMED]` Scope strictly covers Rule 24 (Red/Blue team, 4-tier test paths, TIA matrix), 5 Subdirectory Scoped AGENTS.md files, and ecosystem parity verification. | Any expansion into unrelated features, unreviewed production deployments, or credential modifications is rejected. |
+| D2 Requirement delta | `[CONFIRMED]` Formalizes the upcoming architectural roadmap from `HANDOFF.md` into active governance under Program `GOV-ROADMAP-20260904` with 5 atomic tickets. | Retains existing TDD lifecycle and capacity controls while optimizing verification through TIA and chunked context. |
+| D3 Acceptance and stop | `[CONFIRMED]` Persist GRILL report and architecture spec in `plans/plan.md`, register 5 atomic tickets in `atomic_tasks.md` with explicit specialist and skill assignments. | Stop on any syntax error, missing ticket metadata, non-ASCII characters, or unowned file mutation. |
+| D4 Inputs, constraints, dependencies | `[AUTO]` Inputs: `HANDOFF.md` roadmap sections, existing rules (Rule 1, Rule 11, Rule 21, Rule 22), ecosystem sync scripts. | Tickets follow strict dependency graph: `GOV-025` leads planning, followed by parallel `GOV-026` & `GOV-027`, then `GOV-028` QA audit, then `GOV-029` safety & release gate. |
+| D5 Architecture, ownership, handoff | `[CONFIRMED]` Single-editor file ownership per ticket. `TICKET-GOV-025` owned by `business_analyst` (`plans/plan.md`, `atomic_tasks.md`). Downstream tickets assigned to specific specialists with required skills. | No overlapping file edits across concurrent tickets. Hand-offs must be serial and verified. |
+| D6 Assumption register | `[CONFIRMED]` Subdirectory `AGENTS.md` reduces token context by 70-85% for localized agent tasks. TIA reduces test execution from 8-9 min to < 30s for focused changes. | If TIA misses regressions, fallback to full CI suite on PR/pre-release. Root safeguards always take precedence. |
+| D7 Risk and recovery | `[AUTO]` Risks: Context fragmentation, rule drift, skipped tests on breaking changes. Recovery: Fail-closed fallback to root rules, mandatory full CI regression on release/PR, pure ASCII logging. | If a test fails under TIA or parity breaks, revert candidate commit and block release. |
+| D8 Budget and evidence strategy | `[AUTO]` Token-efficient context chunking, minimal execution time via TIA, zero secret leaks, pure ASCII evidence logs. | Stop on secret leaks, missing evidence receipts, or unbounded test runs. |
+| D9 Domain and HITL | `[NOT-APPLICABLE]` No metaphysical calculation formula changes. `[CONFIRMED]` Owner HITL approval confirmed by explicit instruction for Program `GOV-ROADMAP-20260904`. | Production deployment and secret actions retain separate HITL checkpoints. |
+
+### Dependency Graph
+
+```text
+TICKET-GOV-025 (DONE: Spec & Planning Lead)
+  |--> TICKET-GOV-026 (READY: Rule 24 & TIA Selective Testing Matrix)
+  |--> TICKET-GOV-027 (READY: Subdirectory Scoped AGENTS.md Chunking)
+        \            /
+         v          v
+   TICKET-GOV-028 (TODO: Red Team Inversion QA Audit)
+         |
+         v
+   TICKET-GOV-029 (TODO: Pre-Deploy Safety & Release Gate)
+```
+
+<!-- GOV-ROADMAP-20260904:END -->
 
 ---
 
