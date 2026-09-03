@@ -1,0 +1,152 @@
+{
+  "schema_version": "atomic-tdd-review-v1",
+  "ticket_id": "TDD-GOV-REVIEW-023",
+  "reviewed_baseline_ticket_id": "TICKET-TDD-GOV-QA-022",
+  "reviewed_baseline_commit": "235c2c840f1def7d0b2e5bed71f3def867838f7d",
+  "requirement_change_ticket_id": "TDD-GOV-BSA-021",
+  "requirement_change_commit": "398c17e21bd325e6c7d28e45bb996d3a5eb90f67",
+  "reviewer_role": "code_reviewer",
+  "reviewer_identity": "Codex code_reviewer / TDD-GOV-REVIEW-023; independent from QA baseline editors",
+  "reviewed_at": "2026-09-03",
+  "verdict": "PASS",
+  "source_admission": "ALLOWED",
+  "baseline_chain": [
+    {
+      "sequence": 1,
+      "commit": "b38d5077057c3852a7e2e21af37376567231f810",
+      "test_path": "tests/test_atomic_tdd_lifecycle_governance.py",
+      "test_sha256": "ce7b2c1c5e0428188dc456438bfa3df6e4bb237df92c94c3e5648947f1c86642",
+      "manifest_path": "plans/test_provenance/ticket-tdd-gov-qa-010-baseline.json",
+      "manifest_sha256": "f161308ce0edbec280989cee25f3715ae82b2767fd90fe55fe012a85475ad963"
+    },
+    {
+      "sequence": 2,
+      "commit": "441a7ed3bddb27110b219df0ee1ffd58e3e547e5",
+      "test_path": "tests/test_atomic_tdd_lifecycle_governance_v2.py",
+      "test_sha256": "8ba0d5a89b3b3053f7532ae2623265777ac29de5baa0c783b8ef91d8d36f1dd7",
+      "manifest_path": "plans/test_provenance/ticket-tdd-gov-qa-017-baseline.json",
+      "manifest_sha256": "cffa10368b8bc2968c031cc1f78d383cc8dab15ee7af10cc151a068aff9f2899"
+    },
+    {
+      "sequence": 3,
+      "commit": "5ca05d879ca85cf6687772ad9ad7f3ad9fd78928",
+      "test_path": "tests/test_atomic_tdd_lifecycle_governance_v3.py",
+      "test_sha256": "c6d05b2cf37a065ff2aa896a24c2d3c154f0748d1c61664d66bd4c20c232672c",
+      "manifest_path": "plans/test_provenance/ticket-tdd-gov-qa-019-baseline.json",
+      "manifest_sha256": "b5b29de7909e6ec6f29f33c3ffb4fe098f225ababbb6b50f868fe9f4d5ed8148",
+      "baseline_parent": "67cc7283fca884e4e2450ceacc0caa7bfd5b052f",
+      "supersedes": "441a7ed3bddb27110b219df0ee1ffd58e3e547e5"
+    },
+    {
+      "sequence": 4,
+      "commit": "235c2c840f1def7d0b2e5bed71f3def867838f7d",
+      "test_path": "tests/test_atomic_tdd_lifecycle_governance_v4.py",
+      "test_sha256": "8ee2aaf651d653713822628e2ea145a56ddb599d2923eb8f4d74b2eb6b5f86df",
+      "manifest_path": "plans/test_provenance/ticket-tdd-gov-qa-022-baseline.json",
+      "manifest_sha256": "7572a6af515138d095a026a1938f448f0d1ff4dfdefa06683641d3077a31f1aa",
+      "baseline_parent": "398c17e21bd325e6c7d28e45bb996d3a5eb90f67",
+      "supersedes": "5ca05d879ca85cf6687772ad9ad7f3ad9fd78928"
+    }
+  ],
+  "verification": {
+    "ancestry": "PASS: BSA-021 (398c17e21bd325e6c7d28e45bb996d3a5eb90f67) is the direct parent of sequence 4 (235c2c840f1def7d0b2e5bed71f3def867838f7d)",
+    "candidate_scope": "PASS: sequence 4 modifies exactly tests/test_atomic_tdd_lifecycle_governance_v4.py and plans/test_provenance/ticket-tdd-gov-qa-022-baseline.json",
+    "frozen_hashes": "PASS: all v1/v2/v3 hashes match and the v4 test hash matches its manifest",
+    "allowlist": "PASS: v4 allowed_source_paths is byte-for-value equal to BSA-021's 31 paths in atomic_tasks.md",
+    "provenance_verify": {
+      "command": [
+        "python3",
+        "scripts/test_provenance_guard.py",
+        "verify",
+        "--repo",
+        ".",
+        "--manifest",
+        "plans/test_provenance/ticket-tdd-gov-qa-022-baseline.json",
+        "--baseline",
+        "235c2c840f1def7d0b2e5bed71f3def867838f7d",
+        "--head",
+        "235c2c840f1def7d0b2e5bed71f3def867838f7d",
+        "--include-worktree"
+      ],
+      "exit": 0,
+      "status": "PASSED",
+      "issues": []
+    },
+    "provenance_verify_pr": {
+      "command": [
+        "python3",
+        "scripts/test_provenance_guard.py",
+        "verify-pr",
+        "--repo",
+        ".",
+        "--base",
+        "398c17e21bd325e6c7d28e45bb996d3a5eb90f67",
+        "--head",
+        "235c2c840f1def7d0b2e5bed71f3def867838f7d"
+      ],
+      "exit": 0,
+      "status": "PASSED",
+      "issues": []
+    },
+    "v4_red": {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_atomic_tdd_lifecycle_governance_v4.py"
+      ],
+      "runs": 2,
+      "exit_each_run": 1,
+      "outcome_each_run": "23 failed, 3 passed",
+      "stable_fingerprint": "ATOMIC_TDD_IMPLEMENTATION_MISSING:.agents/hooks/atomic_tdd_guard.py"
+    },
+    "v4_tamper_red": {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_atomic_tdd_lifecycle_governance_v4.py::test_post_baseline_manifest_tamper_is_rejected_dynamically"
+      ],
+      "runs": 2,
+      "exit_each_run": 1,
+      "outcome_each_run": "1 failed",
+      "stable_fingerprint": "ATOMIC_TDD_IMPLEMENTATION_MISSING:.agents/hooks/atomic_tdd_guard.py",
+      "fixture_audit": "PASS: disposable git history with valid admission evidence, mutates frozen manifest after baseline, asserts rejection with MANIFEST_CHANGED_AFTER_BASELINE"
+    }
+  },
+  "review_018_resolution": {
+    "status": "RESOLVED",
+    "prior_blocker": "FROZEN_SUITE_CONTRACT_UNSATISFIABLE",
+    "mechanism": "Sequence 4 supersedes sequence 1's contradictory assertion on .codex/hooks.json. Codex honestly declares 'no native PreToolUse' in description and does not register fake hooks in .codex/hooks.json, while .agents/hooks.json, .claude/settings.json, and .agy/hooks.json each maintain exactly one functional PreToolUse atomic TDD guard. All v2 and v3 requirements remain strictly satisfied without cross-sequence contradiction."
+  },
+  "contract_coverage": {
+    "generic_positive_admission_prevents_deny_all": "PRESENT_IN_V4",
+    "lifecycle_state_controls_and_transition_checks": "PRESENT_IN_V4",
+    "dynamic_git_provenance_failure_separation": "PRESENT_IN_V4",
+    "unapproved_and_unreviewed_supersession_rejection": "PRESENT_IN_V4",
+    "hostile_caller_claims_rejection": "PRESENT_IN_V4",
+    "unadmitted_ticket_rejection": "PRESENT_IN_V4",
+    "path_containment_and_symlink_rejection": "PRESENT_IN_V4",
+    "claude_and_agy_native_deny_protocols": "PRESENT_IN_V4",
+    "canonical_mirrors_and_ecosystem_sync_parity": "PRESENT_IN_V4",
+    "full_capacity_guard_syntax_conflict_repair": "PRESENT_IN_V4",
+    "dynamic_post_baseline_manifest_tamper_rejection": "PRESENT_IN_V4",
+    "ai_studio_secret_isolation_zero_repo_compromise": "PRESENT_IN_V4",
+    "ai_studio_three_lane_quota_orchestration_governance_rules": "PRESENT_IN_V4",
+    "ai_studio_three_lane_orchestration_and_halt_and_decide_controls": "PRESENT_IN_V4"
+  },
+  "platform_boundaries": {
+    "claude": "A real PreToolUse adapter must emit hookSpecificOutput.permissionDecision and permissionDecisionReason; v4 invokes it dynamically.",
+    "agy": "A real shell adapter must emit decision/reason and deny with exit 2; v4 invokes it dynamically.",
+    "codex": "Codex has no native repository PreToolUse enforcement boundary; v4 requires .codex/hooks.json to state this honestly ('no native pretooluse' in description) and forbids fake PreToolUse hook registration, resolving the REVIEW-018 contradiction.",
+    "agents": "The canonical core guard and parsed project registry remain required; local hooks are read-only and repository evidence is authoritative.",
+    "ai_studio": "Google AI Studio 3 lanes (GOOGLE_AI_STUDIO_API_KEY, GOOGLE_AI_STUDIO_API_KEY2, GOOGLE_AI_STUDIO_API_KEY3) act under orchestrator conductor; granted read/write/update/execute bounded strictly by active ticket and single-editor ownership; halts and decides on ambiguity; dynamic effort per ticket for Gemini 3.7 Flash; non-disclosing secret isolation."
+  },
+  "findings": [],
+  "residual_risk": [
+    "Pre-existing merge conflict markers in .agents/hooks/full_capacity_guard.py remain intentionally present until DEV-025 implementation."
+  ],
+  "next_gate": "Admit TDD-GOV-DEV-025: sequence 4 baseline verified and approved; developer is authorized to implement the 31 allowed source paths under Test-Baseline 235c2c840f1def7d0b2e5bed71f3def867838f7d."
+}
