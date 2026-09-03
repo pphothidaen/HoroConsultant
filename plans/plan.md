@@ -13,7 +13,10 @@
 **Recorded**: `2026-09-03` (owner instruction)
 **Status**: `APPROVED`
 **Requirement-change authority**: The owner instruction dated `2026-09-03` explicitly requires a mandatory atomic TDD lifecycle: verified test-only baseline before source work, independent QA before DONE, and immutable baseline correction only through a recorded requirement change plus independently reviewed supersession.
-**Authorized current phase**: planning records only (`atomic_tasks.md` and this plan). The next executable phase is `TDD-GOV-QA-010` test-only baseline work under separate admission.
+**Authorized current phase**: the owner-approved `TDD-GOV-BSA-016`
+requirement-change record in `atomic_tasks.md` and this plan only. After that
+two-file commit, `TDD-GOV-QA-017` test-only sequence-2 baseline work is the
+only authorized next phase.
 
 ### Scope and decision record
 
@@ -23,8 +26,8 @@
 
 | Dimension | Decision / measurable evidence |
 |---|---|
-| Lifecycle | Each ticket must progress `TODO -> READY -> DOING -> DONE`; dependency or evidence failure is `BLOCKED`/`NEEDS_HITL`, never a bypass. No source `DOING` until QA has a committed, closed `TEST_BASELINE_VERIFIED` baseline and REVIEW-015 independently returns `PASS`. |
-| QA baseline | QA-010 is test-only and creates exactly one closed provenance manifest. It binds clean parent, test hashes, exact command, expected RED/nonzero or explicit negative control, failure fingerprint, baseline SHA, permitted future source paths, and ownership. A provenance/history guard must verify it. |
+| Lifecycle | Each ticket must progress `TODO -> READY -> DOING -> DONE`; dependency or evidence failure is `BLOCKED`/`NEEDS_HITL`, never a bypass. No source `DOING` until the current QA baseline is committed and `TEST_BASELINE_VERIFIED` and its current independent review returns `PASS`. After REVIEW-015 failed, only QA-017 plus REVIEW-018 can satisfy this gate. |
+| QA baseline | QA-010 is immutable retained sequence-1 history and cannot admit source. QA-017 must be test-only and create exactly one new closed sequence-2 provenance manifest. It binds the clean BSA-016 parent, new test hashes, exact command, expected RED/nonzero or explicit negative control, failure fingerprint, baseline SHA, exact permitted future paths, ownership, and the sequence-1 supersession reason. A provenance/history guard must verify it. |
 | Frozen tests | Baseline tests, manifest, SHA, hashes, RED/negative receipt, and original evidence cannot change. Source commits must descend from it and carry `Test-Baseline: <baseline SHA>`. Mixed source/test history, a missing trailer, or hash drift is a fail-closed negative case. |
 | Requirement-change exception | A new recorded owner requirement change is the only authority to open a QA-owned correction/superseding baseline. It preserves old SHA/reason and captures new hashes plus fresh RED/negative proof. Independent review must pass before source resumes; the original baseline is never rewritten. |
 | DEV-020 delivery | Implement rule and read-only pre-tool hook, governance docs and relevant skills, execute required ecosystem sync, and cover source-before-baseline, mixed commit, frozen-test tamper, trailer drift, and unreviewed supersession negative cases. Freeze the candidate for QA; DEV-020 cannot become `DONE` before QA-030 `PASS`. |
@@ -35,15 +38,22 @@
 
 ```text
 BSA-001 DONE
-  -> QA-010 test-only baseline -> TEST_BASELINE_VERIFIED
-  -> REVIEW-015 independent baseline PASS
+  -> QA-010 sequence-1 baseline -> TEST_BASELINE_VERIFIED (retained)
+  -> REVIEW-015 independent verdict FAIL (all source blocked)
+  -> BSA-016 owner-approved requirement-change record DONE
+  -> QA-017 test-only sequence-2 superseding baseline -> TEST_BASELINE_VERIFIED
+  -> REVIEW-018 independent sequence-2 PASS
   -> DEV-020 source/governance implementation (candidate freeze; still DOING)
   -> QA-030 independent post-development PASS -> DEV-020 DONE
   -> REVIEW-040 independent final PASS
   -> INTEGRATE-050 provider-release remediation branch only
 ```
 
-`TDD-GOV-DEV-020` is not `READY` until both QA-010 and REVIEW-015 pass, and it is never `DOING` before `TEST_BASELINE_VERIFIED`. Normal one-editor, exact-path, capacity, and evidence admission remain mandatory. The task board is the canonical status authority.
+`TDD-GOV-DEV-020` is not `READY` until QA-017 is
+`TEST_BASELINE_VERIFIED` and REVIEW-018 returns `PASS`; sequence 1 cannot
+admit it. It is never `DOING` before both gates. Normal one-editor, exact-path,
+capacity, and evidence admission remain mandatory. The task board is the
+canonical status authority.
 
 ### Risks, recovery, and stop condition
 
@@ -51,6 +61,93 @@ BSA-001 DONE
 - **Recovery**: preserve immutable evidence; fail closed; return the affected ticket to `BLOCKED`. For a genuinely changed requirement, record new owner authority and create a separate QA-owned, independently reviewed superseding baseline instead of editing history.
 - **Waivers**: `NONE`.
 - **Current-ticket stop**: commit only these two planning documents. Do not implement or execute the future rule, hook, tests, skills, sync, integration, or external action.
+
+### GRILL REPORT -- TDD-GOV-BSA-016: Sequence-2 Baseline Correction
+
+**Request**: record the owner's `2026-09-03` approval of a requirement change
+after REVIEW-015 failed, preserve sequence-1 history unchanged, and authorize
+only a QA-owned test-only superseding baseline that corrects the independent
+review gaps before any implementation resumes.
+
+**Status**: `APPROVED`
+**Authorized next phase**: `TDD-GOV-QA-017` test-only sequence-2 baseline.
+**Waivers**: `NONE`.
+**Blockers**: DEV-020 and every later ticket remain blocked until QA-017 is
+verified and REVIEW-018 returns `PASS`.
+
+#### Nine-dimension decision matrix
+
+| ID | Result and evidence state | Decision / stop threshold |
+|---|---|---|
+| D1 Scope boundary | `[CONFIRMED]` IN is the two-document authority record followed by one separately owned QA test/manifest pair correcting only REVIEW-015 gaps. OUT is any change now to tests, manifests, rules, hooks, skills, source, generated files, runtime, branches outside this worktree, remotes, secrets, push, deploy, or other external system. | Stop BSA-016 on any path beyond `atomic_tasks.md` and `plans/plan.md`. After its commit, only QA-017 may start. |
+| D2 Requirement delta | `[CONFIRMED]` The owner answered `อนุมัติ` after the explicit proposal to preserve the old baseline and create a new test-only superseding baseline limited to review findings. | Sequence 1 remains structurally verified but rejected as DEV authority; sequence 2 must be new history, not an edit or relabel. |
+| D3 Acceptance and stop | `[CONFIRMED]` BSA-016 records exact SHAs/hashes, gaps, ownership, receipts, dependencies, allowlist, and stop gates in exactly two files. QA-017 must create deterministic dynamic positive/negative tests and a closed sequence-2 manifest, then pass provenance and independent REVIEW-018. | Any baseline drift, static/string-only substitute, permanent-denial-only implementation target, unbound receipt, extra path, nondeterministic RED, or review FAIL stops all source work. |
+| D4 Inputs, constraints, dependencies | `[AUTO]` Inputs are sequence-1 commit `b38d5077057c3852a7e2e21af37376567231f810`, test hash `ce7b2c1c5e0428188dc456438bfa3df6e4bb237df92c94c3e5648947f1c86642`, its closed manifest, the read-only REVIEW-015 result, current registries/adapters, and the existing conflict marker. `[CONFIRMED]` Owner approval is available. | QA-017 depends on BSA-016 DONE; REVIEW-018 depends on QA-017 verified; DEV-020 depends on REVIEW-018 PASS. Credentials/network/production are neither inputs nor authorized dependencies. |
+| D5 Architecture, ownership, handoff | `[CONFIRMED]` BSA owns only the two plans; QA-017 owns only the new v2 test and manifest; REVIEW-018 owns only its repository receipt; developer owns only the manifest allowlist after review; QA-030 and REVIEW-040 own separate receipt paths; integration remains serial. | One editor per path. Shared state/governance paths are reserved only when the predecessor has reached its terminal gate. |
+| D6 Assumption register | `[CONFIRMED]` A provenance-valid baseline can still be contract-insufficient; a caller claim is untrusted; valid admission must be repository-backed and generic; current Codex project hooks expose no native PreToolUse interception and must not be represented as one. `[NOT-APPLICABLE]` No metaphysics behavior is involved. | Conflicting platform evidence or a newly required path reopens the requirement gate; no silent allowlist or protocol expansion. |
+| D7 Risk and recovery | `[AUTO]` Risks are a deny-all implementation passing weak tests, mismatched trailer acceptance, unreviewed supersession, hard-coded ticket admission, fictitious runtime registration, stale mirrors, and the syntax-invalid existing capacity hook. | Recovery preserves both immutable baselines and receipts, blocks descendants, and seeks new owner authority for any further correction. Never rewrite Git evidence. |
+| D8 Budget and evidence strategy | `[AUTO]` Evidence is bounded to exact Git SHAs, SHA-256 values, commands, exit codes, failure fingerprints, registry/protocol fixtures, parity output, and ASCII-safe receipts. | No token, credential, provider, or secret value is read or stored. Stop on unbounded logs or unverifiable runtime claims. |
+| D9 Domain and HITL | `[NOT-APPLICABLE]` No astrological calculation, metaphysical source, prediction, training data, or domain conflict changes. `[CONFIRMED]` Owner HITL is satisfied only for this baseline correction. | Push/deploy/release and any further requirement change retain separate authority gates. |
+
+#### Immutable history and correction contract
+
+Sequence 1 is retained exactly:
+
+- baseline commit: `b38d5077057c3852a7e2e21af37376567231f810`;
+- parent: `932d1de8974a7f8b9fb7b29cbb4457dc2639891e`;
+- frozen test: `tests/test_atomic_tdd_lifecycle_governance.py` with SHA-256
+  `ce7b2c1c5e0428188dc456438bfa3df6e4bb237df92c94c3e5648947f1c86642`;
+- frozen manifest:
+  `plans/test_provenance/ticket-tdd-gov-qa-010-baseline.json`;
+- REVIEW-015 conclusion: ancestry, exact two-file scope, hash, and provenance
+  passed, but contract sufficiency failed. This is not a source-admission PASS.
+
+QA-017 must add, not replace, exactly:
+
+- `tests/test_atomic_tdd_lifecycle_governance_v2.py`;
+- `plans/test_provenance/ticket-tdd-gov-qa-017-baseline.json`.
+
+The manifest must use `schema_version: test-provenance-v1`, `sequence: 2`,
+`supersedes: b38d5077057c3852a7e2e21af37376567231f810`, a non-null correction reason
+binding the `2026-09-03` owner approval and REVIEW-015, the BSA-016 commit as
+its parent, new test hashes, exact RED argv/exit/fingerprint, QA/reviewer roles,
+and the exact future-path allowlist in `atomic_tasks.md`.
+
+#### Sequence-2 behavioral test matrix
+
+| Contract | Required dynamic proof | Fail-closed result |
+|---|---|---|
+| Generic valid admission | Build a temporary Git repository with an arbitrary (not hard-coded TDD-GOV) source ticket in the admitted lifecycle state, closed baseline manifest, exact descendant/trailer, allowed target path, requirement-change record when applicable, and independently bound PASS receipt. Invoke the real core/adapters and prove one mutation is allowed. | A deny-all implementation cannot pass. Missing repository evidence denies even when caller booleans claim success. |
+| Lifecycle/state | Exercise at least TODO, READY/transition, DOING, BLOCKED, NEEDS_HITL, and DONE using repository-backed fixtures and exact dependency receipts. | Source mutation is admitted only in the policy-defined reviewed state; direct skips and stale/conflicting state deny. |
+| Git provenance | Create source-before-baseline, mixed test/source, frozen-test tamper, missing-trailer, and different-full-SHA trailer histories. | Each is rejected with a distinct stable result code, including exact missing versus mismatch errors. |
+| Supersession | Exercise sequence 2 with and without a recorded owner requirement change, `supersedes` ancestry/correction reason, and an independent PASS receipt bound to the candidate baseline and manifest hash. | Unapproved or unreviewed supersession denies; valid fully bound supersession participates in the positive admission case. |
+| Runtime protocols | Parse registries and invoke actual adapters. Claude deny output uses `hookSpecificOutput.hookEventName=PreToolUse` and `permissionDecision`; AGY consumes its nested `toolCall.args` event and emits decision JSON with deny exit semantics. Legacy registry shape is parsed, not substring-matched. | Missing/duplicate matcher, malformed event, adapter/core disagreement, or unsupported protocol denies. Codex has no fabricated PreToolUse registration; Codex enforcement remains dispatch/CI/provenance based. |
+| Mirror and sync | Compare canonical skill content to `.antigravity/skills` mirrors, Claude/AGY rule parity, and deterministic outputs from `sync_ai_agent_ecosystem.py`, `sync_claude_agy_parity.py`, and `sync_sdlc_agents.py`. | Drift, unlisted generated output, or direct generated-file editing fails. |
+| Existing hook blocker | Parse `.agents/hooks/full_capacity_guard.py` before runtime registry claims and require conflict-free syntax in the implementation candidate. | The existing conflict marker blocks DEV completion until resolved in its explicitly allowed path and covered by regression. |
+
+#### Receipts, source admission, and downstream stop conditions
+
+REVIEW-018 must create the immutable repository-backed receipt
+`plans/evidence/tdd-governance/tdd-gov-review-018.json`, binding the
+requirement-change record commit, both baseline SHAs, sequence-2 manifest
+hash, exact commands/results, supported-platform boundary, reviewer role, and
+explicit verdict. The receipt commit must descend from sequence 2 and carry
+`Test-Baseline: <exact sequence-2 SHA>`. A `FAIL`, missing receipt, mutable
+receipt, or hash mismatch blocks DEV-020 and returns the program to
+`NEEDS_HITL`; it never permits test edits.
+
+Only after REVIEW-018 PASS may DEV-020 enter `READY`, reserve the exact
+future-path allowlist in `atomic_tasks.md`, then transition to `DOING`. Every
+source commit must descend from sequence 2 and carry the exact baseline
+trailer. A developer candidate remains `DOING` until independent QA-030 writes
+its bound receipt and returns PASS. REVIEW-040 then writes its independent
+final receipt; only its PASS opens INTEGRATE-050. Integration may target only
+`release/provenance-remediation-20260903` under separate admission and does not
+authorize push, deployment, secrets, or external mutation.
+
+**BSA-016 stop condition**: commit only `atomic_tasks.md` and `plans/plan.md`,
+verify exact two-file scope and whitespace integrity, and stop. Do not create
+QA-017 artifacts or begin implementation in this ticket.
 
 <!-- TDD-GOV-BSA-001:END -->
 
