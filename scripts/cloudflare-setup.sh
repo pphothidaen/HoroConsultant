@@ -22,15 +22,39 @@ KV_RESULT=$(curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/${ACC
   -d '{"label":"horoconsultant-cache"}')
 echo "$KV_RESULT" | python3 -m json.tool
 
-# Extract KV ID
-KV_ID=$(echo "$KV_RESULT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('result',{}).get('id',''))" 2>/dev/null)
+# Extract KV ID (or look up existing if already created)
+KV_ID=$(echo "$KV_RESULT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('result',{}).get('id',''))" 2>/dev/null || true)
+if [ -z "$KV_ID" ]; then
+  echo "Checking for existing KV namespace 'horoconsultant-cache'..."
+  KV_LIST=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/storage/kv/namespaces" \
+    -H "Authorization: Bearer $TOKEN")
+  KV_ID=$(echo "$KV_LIST" | python3 -c "import sys,json
+for ns in json.load(sys.stdin).get('result',[]):
+    if ns.get('label') == 'horoconsultant-cache':
+        print(ns.get('id',''))
+        break" 2>/dev/null || true)
+fi
+
 echo "KV Namespace ID: $KV_ID"
+
+if [ -n "$KV_ID" ]; then
+  python3 -c "
+import re
+with open('wrangler.toml', 'r') as f:
+    c = f.read()
+new_c = re.sub(r'(\[\[kv_namespaces\]\][\s\S]*?id\s*=\s*\")[^\"]+(\")', r'\g<1>${KV_ID}\g<2>', c)
+with open('wrangler.toml', 'w') as f:
+    f.write(new_c)
+print('[OK] Updated wrangler.toml with KV namespace ID: ${KV_ID}')
+"
+fi
 
 # Create R2 bucket
 echo "--- Create R2 bucket ---"
 curl -s -X POST "https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/r2/buckets" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"name":"horoconsultant-artifacts"}' | python3 -m json.tool
+  -d '{"name":"horoconsultant-artifacts"}' | python3 -m json.tool || true
 
-echo "Done!"
+echo "Done! Cloudflare resources are configured."
+
