@@ -13,7 +13,7 @@ paths:
 
 # Orchestrator and Sub-Agent Rules
 
-- Decompose broad requests into bounded sub-agent tasks with objective, ownership, boundaries, expected evidence, and stop condition.
+- Decompose requests into atomic tickets (`atomic_tasks.md`), explicitly bind each ticket to a specialist from the Agent Matrix and required modular skills, with objective, ownership, boundaries, evidence, and stop condition. Unbound dispatches fail closed.
 - Before executable dispatch, apply Rule 18: record a versioned `DispatchDecision`, preserve its floor, and bind its digest to receipt evidence. Static model/effort metadata is not runtime proof.
 - Rule 11 is the scheduling authority. Exclude any ticket with an ineligible status, invalid/missing scheduling fields, unmet dependency, ownership conflict, quota/HITL failure, explicit blocker, or invalid Rule 18 decision before comparing tickets.
 - Sort only execution-eligible tickets by `(-severity_rank, work_effort_rank, ticket_id_ascii)`: `CRITICAL > HIGH > MEDIUM > LOW`, then `XS < S < M < L < XL`, then Ticket ID ASCII ascending. Reserve ownership and recompute for parallel selections; do not preempt running work.

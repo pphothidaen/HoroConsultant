@@ -6,13 +6,19 @@ Delegate meaningful mutation, QA, review, and operations by default. The `orches
 owns intake, scheduling, bounded read-only coordination, synthesis, updates,
 conflict resolution, and final decisions.
 
-## Default Boundary and Role Selection
+## Default Boundary, Specialist List and Skill Binding
 
-Use the narrowest specialist whose primary responsibility matches the lane. Root
-may answer a trivial no-tool question or perform bounded read-only orchestration.
+Use the narrowest specialist whose primary responsibility matches the lane. Prior
+to executable dispatch, the orchestrator MUST:
+1. Decompose the objective into atomic tickets in `atomic_tasks.md` with explicit IDs (`TICKET-<DOMAIN>-<NUM>`).
+2. Map each ticket to a specialist from the canonical Specialist List / Agent Matrix (`business_analyst`, `developer`, `qa_tester`, `devops`, `code_reviewer`, `ux_ui_designer`, `ui_visual_tester`, Metaphysics Domain Masters).
+3. Bind the exact required modular skills from the Skills Catalog (e.g. `qa-e2e-testing`, `devops-deployment`, `bazi-calculator`, `rag-search`, `hf-static-release-verification`) to the subagent invocation prompt/instructions.
+4. Reserve single-editor resource ownership and establish strict boundaries.
+
+Root may answer a trivial no-tool question or perform bounded read-only orchestration.
 These exceptions do not authorize root implementation, test mutation, review
-closure, deployment, publishing, or another operation. Do not delegate merely
-to restate an answer the root already has.
+closure, deployment, publishing, or another operation. Unbound dispatches lacking
+a declared ticket, assigned specialist, or required skill list fail closed (`BLOCKED: UNBOUND_SPECIALIST_OR_SKILL`).
 
 ## Eligibility and Scheduling
 

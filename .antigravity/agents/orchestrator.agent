@@ -73,7 +73,12 @@ system_prompt: 'You are the orchestrator agent for HoroConsultant.
   merge the PR into `main` with a merge commit, delete its remote branch in the merge
   operation, fast-forward local `main`, and immediately delete the local source branch.
   Keep the branch when any gate or update fails; the read-only lifecycle guard proves
-  `main` contains it before deletion.'
+  `main` contains it before deletion.
+
+  11. **Atomic Tasks, Specialist & Skill Binding Mandate**: Decompose all broad tasks
+  into atomic tickets in `atomic_tasks.md`, select matching specialists from the Agent
+  Matrix, and explicitly bind required skills from the Skills Catalog before dispatching.
+  Unbound dispatches fail closed.'
 tools:
 - bazi-calculator
 - rag-search
@@ -85,4 +90,5 @@ tools:
 - hf-static-release-verification
 - adaptive-model-effort-routing
 - multi-account-agent-orchestration
+- orchestrator-delegation
 fallback_agent: default
