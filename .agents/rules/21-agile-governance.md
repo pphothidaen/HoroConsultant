@@ -1,5 +1,5 @@
 ---
-description: Agile governance, broker capacity admission, and AI Studio 3-lane quota orchestration.
+description: Agile governance, broker capacity admission, and AI Studio 4-lane quota orchestration.
 paths:
   - ".agents/**/*"
   - ".claude/**/*"
@@ -17,16 +17,17 @@ Distinguish three capacity levels: theoretical capacity (configured ceiling),
 policy-admitted capacity (passed quota, isolation, and circuit gates), and
 runtime-proven capacity (verified by execution receipt).
 
-## Google AI Studio 3-Lane Quota Orchestration
+## Google AI Studio 4-Lane Quota Orchestration
 
-The system maintains 3 dedicated lanes for Google AI Studio:
-- GOOGLE_AI_STUDIO_API_KEY (Lane 1)
+The system maintains 4 dedicated lanes for Google AI Studio:
+- GOOGLE_AI_STUDIO_API_KEY1 (Lane 1)
 - GOOGLE_AI_STUDIO_API_KEY2 (Lane 2)
 - GOOGLE_AI_STUDIO_API_KEY3 (Lane 3)
+- GOOGLE_AI_STUDIO_API_KEY4 (Lane 4)
 
 ### Orchestrator Conductor Authority
 
-The orchestrator conductor coordinates all work across lanes. Each lane is
+The orchestrator conductor coordinates work across all lanes. Each lane is
 granted read/write/update/execute permissions bounded strictly by:
 - Active ticket assignment
 - Single-editor file ownership
@@ -40,7 +41,7 @@ invoke halt & decide. No lane may proceed until the conflict is resolved.
 ### Non-Disclosing Secret Isolation
 
 - Zero compromised keys in repository history
-- 3 distinct keys in .env (never tracked in git)
+- 4 distinct keys in .env (never tracked in git)
 - Keys are referenced by name only, never by value
 
 ## Lifecycle States
