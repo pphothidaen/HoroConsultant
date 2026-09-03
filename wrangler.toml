@@ -2,7 +2,7 @@ name = "horoconsultant-pages"
 pages_build_output_dir = "project/static"
 compatibility_date = "2025-01-15"
 compatibility_flags = ["nodejs_compat"]
-account_id = "bda49e4e77e00609cb1ef68561b0d9eb"
+# account_id = "bda49e4e77e00609cb1ef68561b0d9eb"
 
 [vars]
 BACKEND_BASE_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
@@ -17,8 +17,8 @@ id = "pending_user_setup"
 binding = "ARTIFACTS"
 bucket_name = "horoconsultant-artifacts"
 
-[triggers]
-crons = ["0 0 * * *"]
+# [triggers]
+# crons = ["0 0 * * *"]
 
 [observability]
 enabled = true
