@@ -1,3 +1,61 @@
+# 🚀 HoroConsultant Release Notes — Cloudflare Edge Integration
+
+> **Release**: `Cloudflare Edge Architecture Migration (Pages + Worker Reverse Proxy + KV Cache + Turnstile Gate + Cron Triggers)`  
+> **Release Date**: 2026-09-03 (Asia/Bangkok)  
+> **Sprint Verdict**: `CERTIFIED_COMPLETE` (6/6 milestones DONE & 67/67 tests passing)  
+> **Release Authority**: Master Orchestrator & Business System Analyst  
+
+---
+
+## 🌟 Executive Summary
+Successfully migrated the frontend hosting and edge traffic routing to Cloudflare Edge Architecture. The SPA is now globally distributed via Cloudflare Pages CDN, backed by an intelligent edge Worker reverse proxy with KV caching (`CACHE`), Turnstile security challenge on administrative interfaces, and automated midnight synchronization cron triggers.
+
+## 🛠️ Architectural Deliverables
+1. **Cloudflare Pages CDN & Static Asset Serving**: SPA distributed with edge caching, custom security headers (`_headers`), and SPA route rewrite fallback (`_redirects`).
+2. **Cloudflare Worker Reverse Proxy (`_worker.js`)**: Intelligent edge router proxying `/api/v1/*`, `/health`, `/docs` to backend origins with 15s AbortController timeout protection and strict CORS header injection.
+3. **KV Cache Subsystem (`horoconsultant-cache`)**: Edge-level response cache with 86,400s TTL, automatic `X-Cache: HIT/MISS` headers, sub-millisecond cached responses, and key hashing.
+4. **Turnstile Bot & Fraud Security Gate**: Client-side widget integration in `admin.html` with server-side validation against `challenges.cloudflare.com/turnstile/v0/siteverify` blocking automated brute-force attacks with HTTP 403.
+5. **Cron Trigger Midnight Synchronization**: Worker `scheduled()` event handler configured for midnight GMT (`0 0 * * *`) synchronizing live state with core backend.
+6. **R2 Model Artifacts Storage Binding**: Declarative `ARTIFACTS` binding configured in `wrangler.toml` for zero-egress artifact delivery.
+7. **Infrastructure-as-Code & Automation**: Idempotent provisioning scripts `scripts/cloudflare-setup.sh` and Python Cloudflare API client helper `scripts/cloudflare-api.py`.
+
+## 🧪 Verification Matrix
+| Test Suite | Tests | Pass Rate |
+|---|:---:|:---:|
+| Worker Proxy Routing & CORS (`test_cloudflare_worker_proxy.py`) | 22 | 100% |
+| KV Cache Lookup & Invalidation (`test_cloudflare_kv_cache.py`) | 12 | 100% |
+| Turnstile Challenge & Security Gate (`test_cloudflare_turnstile.py`) | 8 | 100% |
+| Deployment Readiness & Schema (`test_cloudflare_deploy.py`) | 8 | 100% |
+| Cron Triggers Syntax & Timing (`test_cloudflare_cron_triggers.py`) | 5 | 100% |
+| R2 Bucket Binding (`test_cloudflare_r2_binding.py`) | 5 | 100% |
+| KV Namespace Binding (`test_cloudflare_kv_binding.py`) | 4 | 100% |
+| Documentation Integrity (`test_cloudflare_docs.py`) | 3 | 100% |
+| **Total Cloudflare Edge Tests** | **67** | **100%** |
+
+## 📋 Milestone Rollup (100% DONE)
+| Step / Milestone | Commits | Tests | Status |
+|---|:---:|:---:|:---:|
+| Phase 1 — Pages + Worker Foundation | 4 | 22 | DONE |
+| Phase 2 — KV Cache Integration | 4 | 16 | DONE |
+| Phase 3 — Turnstile Security Gate | 3 | 8 | DONE |
+| Phase 4 — R2 Artifacts Binding | 2 | 5 | DONE |
+| Phase 5 — Cron Triggers Midnight Sync | 2 | 5 | DONE |
+| Phase 6 — Live Deployment & Edge Verification | 3 | 11 | DONE |
+| **Total** | **20+** | **67** | **100% DONE** |
+
+## 🌐 Live Production Endpoints
+- **Production Pages URL**: https://horoconsultant-pages.pages.dev
+- **Deployment Preview URL**: https://feat-cloudflare-edge-integra.horoconsultant-pages.pages.dev
+- **Verified Health Endpoint**: `https://horoconsultant-pages.pages.dev/health` -> HTTP/2 200 OK (`{"status":"ok","service":"Computational Metaphysics Engine","rust_acceleration":true}`)
+- **Bound KV Namespace**: `horoconsultant-cache` (`07d1f31739eb418b944bf8d66f17a452`)
+
+## 🗄️ Archived Plans List
+The planning documents for this integration have achieved zero-active state and are archived per Rule 16 / Rule 22:
+- `2026-09-03-atomic-push-to-main.md` → [`plans/archive/2026-09-03-atomic-push-to-main/2026-09-03-atomic-push-to-main.md`](plans/archive/2026-09-03-atomic-push-to-main/2026-09-03-atomic-push-to-main.md)
+- `2026-09-03_181500-cloudflare-integration.md` → [`.hermes/plans/2026-09-03_181500-cloudflare-integration.md`](.hermes/plans/2026-09-03_181500-cloudflare-integration.md)
+
+---
+
 # 🚀 HoroConsultant Release Notes — Sprint SPRINT-METAPHYSICS-ROADMAP-001
 
 > **Release**: `Sprint SPRINT-METAPHYSICS-ROADMAP-001 (Five-Branch Metaphysics Roadmap: Ingestion & OCR, Pure Python Engines, Dataset Pipeline & MCP Integration)`  

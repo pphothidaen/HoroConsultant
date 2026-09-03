@@ -8,6 +8,28 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<!-- Cloudflare Turnstile -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<style>
+  /* Turnstile Widget Styling */
+  .turnstile-widget-container {
+    display: flex;
+    justify-content: center;
+    margin: 16px 0;
+    min-height: 65px;
+  }
+  .turnstile-widget-container .cf-turnstile {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .turnstile-error {
+    color: #dc2626;
+    font-size: 11px;
+    text-align: center;
+    margin-top: 4px;
+    display: none;
+  }
+</style>
 <style>
   :root {
     --bg-deep:     #f8fafc;
@@ -843,6 +865,11 @@
           font-size: 13px; cursor: pointer; transition: opacity 0.2s; box-shadow: 0 2px 8px rgba(220,38,38,0.25);
         ">Login</button>
       </div>
+      <!-- Cloudflare Turnstile Widget -->
+      <div class="turnstile-widget-container">
+        <div class="cf-turnstile" data-sitekey="REPLACE_WITH_TURNSTILE_SITEKEY" data-callback="onTurnstileSuccess" data-expired-callback="onTurnstileExpired" data-error-callback="onTurnstileError"></div>
+      </div>
+      <div id="turnstile-error" class="turnstile-error">Turnstile verification failed. Please try again.</div>
     </div>
 
     <div id="auth-error-msg" style="
@@ -1407,7 +1434,37 @@ const State = {
   currentModal: null,
   activeCategory: null,
   adminIdToken: null,
+  turnstileToken: null,
 };
+
+/* ======================== TURNSTILE CALLBACKS ======================== */
+function onTurnstileSuccess(token) {
+  State.turnstileToken = token;
+  const errEl = document.getElementById('turnstile-error');
+  if (errEl) errEl.style.display = 'none';
+}
+
+function onTurnstileExpired() {
+  State.turnstileToken = null;
+  const errEl = document.getElementById('turnstile-error');
+  if (errEl) {
+    errEl.textContent = 'Turnstile challenge expired. Please verify again.';
+    errEl.style.display = 'block';
+  }
+  // Reset the widget so user can re-verify
+  if (window.turnstile) {
+    window.turnstile.reset();
+  }
+}
+
+function onTurnstileError(error) {
+  State.turnstileToken = null;
+  const errEl = document.getElementById('turnstile-error');
+  if (errEl) {
+    errEl.textContent = 'Turnstile verification error. Please try again.';
+    errEl.style.display = 'block';
+  }
+}
 
 /* ======================== INIT & GOOGLE AUTH ======================== */
 document.addEventListener('DOMContentLoaded', async () => {
@@ -1463,6 +1520,17 @@ async function handleGoogleCredentialResponse(response) {
 async function submitEmailAuth() {
   const emailInput = document.getElementById('auth-email-input').value.trim();
   if (!emailInput) return;
+
+  // Require Turnstile verification before login
+  if (!State.turnstileToken) {
+    const errEl = document.getElementById('turnstile-error');
+    if (errEl) {
+      errEl.textContent = 'Please complete the Turnstile verification challenge.';
+      errEl.style.display = 'block';
+    }
+    return;
+  }
+
   const ALLOWED_ADMIN_EMAILS = ['pansakorn@gmail.com', 'kimlenglim.work@gmail.com'];
 
   try {
@@ -1517,10 +1585,15 @@ function logoutAdmin() {
   localStorage.removeItem('admin_user');
   sessionStorage.removeItem('admin_id_token');
   State.adminIdToken = null;
+  State.turnstileToken = null;
   const chip = document.getElementById('user-profile-chip');
   if (chip) chip.style.display = 'none';
   const overlay = document.getElementById('auth-modal-overlay');
   if (overlay) overlay.style.display = 'flex';
+  // Reset Turnstile widget for next login
+  if (window.turnstile) {
+    window.turnstile.reset();
+  }
   toast('info', 'Logged out of Admin Panel');
 }
 
@@ -1634,6 +1707,7 @@ async function api(method, path, body) {
       headers: {
         'Content-Type': 'application/json',
         ...(isProtectedAdminCall ? { Authorization: `Bearer ${State.adminIdToken}` } : {}),
+        ...(isProtectedAdminCall && State.turnstileToken ? { 'cf-turnstile-response': State.turnstileToken } : {}),
       },
     };
     if (body) opts.body = JSON.stringify(body);

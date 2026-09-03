@@ -1,0 +1,34 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-CLOUDFLARE-TURNSTILE-20260903",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "8d8f5df5dd9a74ab4a2adb8c1b239b1bac6e7f72",
+  "test_files": [
+    {
+      "path": "tests/test_cloudflare_turnstile.py",
+      "sha256": "fa9058b9c73a5ff5f1678d3aad73333ecdac102ae78526375e41948c063a1a2e"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_cloudflare_turnstile.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "TURNSTILE_MISSING: verifyTurnstile function not found in _worker.js"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/static/_worker.js"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Add Cloudflare Turnstile challenge to admin routes in Worker to prevent unauthorized access to privileged endpoints"
+}
