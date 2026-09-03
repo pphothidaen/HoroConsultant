@@ -14,7 +14,7 @@
   "failure": {
     "exact_failing_node_id": "tests/test_context_handoff_hooks.py::test_repository_only_acknowledges_native_dangerous_bypass_and_never_uses_it",
     "assertion_line_at_f9f8048": 392,
-    "expected": "Every tracked file that acknowledges --dangerously-bypass-hook-trust contains the case-insensitive markers 'managed hooks' and 'outside', as well as 'never invoke or recommend'.",
+    "expected": "Every tracked file that acknowledges --dangerously-bypass-hook-trust may expose the case-insensitive markers 'managed hooks' and 'outside', as well as 'never invoke or recommend'.",
     "actual": {
       "first_reported_path": ".agy/rules/context-handoff.md",
       "missing_markers": [

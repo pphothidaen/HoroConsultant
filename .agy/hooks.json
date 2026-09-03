@@ -12,6 +12,15 @@
           }
         ]
       }
+    ],
+    "AfterAgent": [
+      {
+        "matcher": "*",
+        "sequential": true,
+        "hooks": [
+          {"name": "context-handoff-stop-normalizer", "type": "command", "command": "bash \"$(git rev-parse --show-toplevel)/.agy/hooks/stop-monitor.sh\"", "timeout": 3000}
+        ]
+      }
     ]
   }
 }

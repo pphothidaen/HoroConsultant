@@ -42,11 +42,8 @@ _AUTHORIZATION_TTL_SECONDS = 1800
 _ALIASES: dict[str, tuple[str, str]] = {
     "codex1": ("codex", "A"),
     "codex2": ("codex", "A"),
-    "codex3": ("codex", "A"),
     "agy1": ("agy", "B"),
     "agy2": ("agy", "B"),
-    "agy3": ("agy", "B"),
-    "agy4": ("agy", "B"),
 }
 _ALIAS_ORDER = tuple(_ALIASES.keys())
 

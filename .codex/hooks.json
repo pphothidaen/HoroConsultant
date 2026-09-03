@@ -1,5 +1,12 @@
 {
-  "description": "Codex hooks - no native PreToolUse interception supported",
-  "version": "1.0.0",
-  "hooks": {}
+  "description": "Local non-managed context handoff request hooks; native user review of the exact current hook hash remains external, normalized state is read only from the bounded JSON file named by CONTEXT_HANDOFF_STATE_FILE, and SessionEnd is synchronous, non-steering, and capped at three seconds.",
+  "hooks": {
+    "project": {
+      "SessionStart": [{"matcher": "startup|resume|clear|compact", "hooks": [{"type": "command", "command": "python3 \"$(git rev-parse --show-toplevel)/scripts/context_handoff.py\" hook --runtime codex --event SessionStart --native --state-file \"${CONTEXT_HANDOFF_STATE_FILE:-}\"", "timeout": 10}]}],
+      "PreCompact": [{"matcher": "manual|auto", "hooks": [{"type": "command", "command": "python3 \"$(git rev-parse --show-toplevel)/scripts/context_handoff.py\" hook --runtime codex --event PreCompact --native --state-file \"${CONTEXT_HANDOFF_STATE_FILE:-}\"", "timeout": 10}]}],
+      "PostCompact": [{"matcher": "manual|auto", "hooks": [{"type": "command", "command": "python3 \"$(git rev-parse --show-toplevel)/scripts/context_handoff.py\" hook --runtime codex --event PostCompact --native --state-file \"${CONTEXT_HANDOFF_STATE_FILE:-}\"", "timeout": 10}]}],
+      "Stop": [{"hooks": [{"type": "command", "command": "python3 \"$(git rev-parse --show-toplevel)/scripts/context_handoff.py\" hook --runtime codex --event Stop --native --state-file \"${CONTEXT_HANDOFF_STATE_FILE:-}\"", "timeout": 10}]}],
+      "SessionEnd": [{"matcher": "other", "hooks": [{"type": "command", "command": "python3 \"$(git rev-parse --show-toplevel)/scripts/context_handoff.py\" hook --runtime codex --event SessionEnd --native --state-file \"${CONTEXT_HANDOFF_STATE_FILE:-}\"", "timeout": 3}]}]
+    }
+  }
 }
