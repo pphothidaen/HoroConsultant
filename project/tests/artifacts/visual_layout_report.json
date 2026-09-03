@@ -19,7 +19,7 @@
   "total_out_of_bounds_detected": 0,
   "total_clipped_elements_detected": 0,
   "total_contrast_failures_detected": 0,
-  "total_contrast_indeterminate": 30,
+  "total_contrast_indeterminate": 0,
   "overall_status": "PASSED",
   "scenarios": [
     {
@@ -82,7 +82,7 @@
       "clipped_elements": [],
       "contrast_failure_count": 0,
       "contrast_failures": [],
-      "contrast_indeterminate_count": 6,
+      "contrast_indeterminate_count": 0,
       "contrast_indeterminate": [
         {
           "element": "span.v3-epistemic-disclaimer__icon",
@@ -197,7 +197,7 @@
       "clipped_elements": [],
       "contrast_failure_count": 0,
       "contrast_failures": [],
-      "contrast_indeterminate_count": 6,
+      "contrast_indeterminate_count": 0,
       "contrast_indeterminate": [
         {
           "element": "span.v3-epistemic-disclaimer__icon",
@@ -313,7 +313,7 @@
       "clipped_elements": [],
       "contrast_failure_count": 0,
       "contrast_failures": [],
-      "contrast_indeterminate_count": 6,
+      "contrast_indeterminate_count": 0,
       "contrast_indeterminate": [
         {
           "element": "span.v3-epistemic-disclaimer__icon",
@@ -430,7 +430,7 @@
       "clipped_elements": [],
       "contrast_failure_count": 0,
       "contrast_failures": [],
-      "contrast_indeterminate_count": 6,
+      "contrast_indeterminate_count": 0,
       "contrast_indeterminate": [
         {
           "element": "span.v3-epistemic-disclaimer__icon",
@@ -547,7 +547,7 @@
       "clipped_elements": [],
       "contrast_failure_count": 0,
       "contrast_failures": [],
-      "contrast_indeterminate_count": 6,
+      "contrast_indeterminate_count": 0,
       "contrast_indeterminate": [
         {
           "element": "span.v3-epistemic-disclaimer__icon",

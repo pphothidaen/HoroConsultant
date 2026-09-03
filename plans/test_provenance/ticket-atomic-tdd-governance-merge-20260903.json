@@ -1,0 +1,135 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-ATOMIC-TDD-GOVERNANCE-MERGE-20260903",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "b06a34754f6336429498f0288e58bf8c280c3d37",
+  "test_files": [
+    {
+      "path": "tests/test_alias_exception_compatibility.py",
+      "sha256": "01348c107e0e98ffbf82d6f0086cc52b085610ae0f1d9fdb730fe489a5f4b120"
+    },
+    {
+      "path": "tests/test_application_provider_runtime_contract.py",
+      "sha256": "e07e698dce658b371a8eb030f71ad5b3b35042b7c73306596ee315e5134a05b9"
+    },
+    {
+      "path": "tests/test_atomic_tdd_lifecycle_governance.py",
+      "sha256": "ce7b2c1c5e0428188dc456438bfa3df6e4bb237df92c94c3e5648947f1c86642"
+    },
+    {
+      "path": "tests/test_atomic_tdd_lifecycle_governance_v2.py",
+      "sha256": "8ba0d5a89b3b3053f7532ae2623265777ac29de5baa0c783b8ef91d8d36f1dd7"
+    },
+    {
+      "path": "tests/test_atomic_tdd_lifecycle_governance_v3.py",
+      "sha256": "c6d05b2cf37a065ff2aa896a24c2d3c154f0748d1c61664d66bd4c20c232672c"
+    },
+    {
+      "path": "tests/test_atomic_tdd_lifecycle_governance_v4.py",
+      "sha256": "8ee2aaf651d653713822628e2ea145a56ddb599d2923eb8f4d74b2eb6b5f86df"
+    },
+    {
+      "path": "tests/test_full_capacity_dependency_pin.py",
+      "sha256": "20665d06ed6c0c8e481797d4da2a7de3274b2cc2af3dbbf29ac5485458fcafa7"
+    },
+    {
+      "path": "tests/admin_production_ingress_contract.test.mjs",
+      "sha256": "c832b94b6af42eeeb393d523b311234fa964467c2674406cc8b03506506bb979"
+    },
+    {
+      "path": "project/tests/test_api_router_external.py",
+      "sha256": "6443542be1f37f1b35dd4db0f96fa7d617697d0044149ed1bf3e6b1e73133a3a"
+    },
+    {
+      "path": "project/tests/artifacts/visual_layout_report.json",
+      "sha256": "00b767e8b65596ac5bd3a378781dfc6a9be0beee2f78d99390855792f1e8de32"
+    },
+    {
+      "path": "project/tests/artifacts/hf_post_deploy_v3_verification_2026-08-25.json",
+      "sha256": "1d615a0a6e823991bae634794c91e3c84c836e4bad256761dfd9132823331a01"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_alias_exception_compatibility.py::test_alias_rejects_unknown_exception"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "ALIAS_EXCEPTION_UNKNOWN_REJECTED"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/agents/orchestrator.json",
+    ".agents/agents/orchestrator.md",
+    ".agents/agents/orchestrator/agent.json",
+    ".agents/agents/orchestrator/agent.md",
+    ".agents/config/full_capacity_guard.v2.json",
+    ".agents/hooks.json",
+    ".agents/hooks/atomic_tdd_guard.py",
+    ".agents/hooks/full_capacity_guard.py",
+    ".agents/rules/21-agile-governance.md",
+    ".agents/rules/22-plan-completion-and-release-notes.md",
+    ".agents/skills/agile-governance/SKILL.md",
+    ".agents/skills/bsa-doc-skill-management/SKILL.md",
+    ".agents/skills/orchestrator-delegation/SKILL.md",
+    ".agents/skills/sdlc-aisdlc-workflow/SKILL.md",
+    ".agy/hooks.json",
+    ".agy/hooks/atomic-tdd-guard.sh",
+    ".agy/rules/agile-governance.md",
+    ".agy/skills/bsa-doc-skill-management/SKILL.md",
+    ".antigravity/agents/orchestrator.agent",
+    ".antigravity/skills/agile-governance/SKILL.md",
+    ".antigravity/skills/bsa-doc-skill-management/SKILL.md",
+    ".antigravity/skills/orchestrator-delegation/SKILL.md",
+    ".antigravity/skills/sdlc-aisdlc-workflow/SKILL.md",
+    ".claude/hooks/atomic_tdd_guard.py",
+    ".claude/rules/agile-governance.md",
+    ".claude/settings.json",
+    ".claude/skills/bsa-doc-skill-management/SKILL.md",
+    ".codex/agents/orchestrator.toml",
+    ".codex/hooks.json",
+    ".codex/hooks/atomic-tdd-guard.sh",
+    "atomic_tasks.md",
+    "fused_model/README.md",
+    "fused_model/chat_template.jinja",
+    "fused_model/config.json",
+    "fused_model/model.safetensors.index.json",
+    "fused_model/tokenizer.json",
+    "fused_model/tokenizer_config.json",
+    "hf-release-manifest.json",
+    "hf-release-receipt.json",
+    "plans/evidence/gha-20260901-aisafety/context-handoff-triage.json",
+    "plans/evidence/tdd-governance/tdd-gov-review-018.json",
+    "plans/evidence/tdd-governance/tdd-gov-review-023.json",
+    "plans/plan.md",
+    "project/admin_router.py",
+    "project/api_router.py",
+    "project/core/ai_provider_router.py",
+    "project/core/codex1_review_evidence.md",
+    "project/core/codex_cli_provider.py",
+    "project/core/gemini_sdk_provider.py",
+    "project/core/llm_gateway.py",
+    "project/core/references/codex-pivot-mcp-bridge.md",
+    "project/models/Modelfile.bazi",
+    "project/models/Modelfile.ollama",
+    "project/rag/external_finetune.py",
+    "scripts/agentic_pipeline.sh",
+    "scripts/hermes_sdlc_runner.sh",
+    "scripts/multiagent_idq_mvp_080_operational.py",
+    "scripts/multiagent_prompt_command.py",
+    "scripts/sync_ai_agent_ecosystem.py",
+    "scripts/test_gemini_sdk.py",
+    "scripts/test_provenance_guard.py",
+    "vercel.json"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Atomic TDD governance merge: all test baselines for governance hooks, provider routing, capacity guards, provenance remediation, and release orchestration."
+}

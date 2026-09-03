@@ -18,38 +18,38 @@
   "visual_evidence": {
     "report": {
       "path": "project/tests/artifacts/visual_layout_report.json",
-      "sha256": "f74a3fa559333be170ce6ea54c43cb06ec144109ff054896efee568073225d10",
-      "timestamp": "2026-08-31T07:41:45Z"
+      "sha256": "00b767e8b65596ac5bd3a378781dfc6a9be0beee2f78d99390855792f1e8de32",
+      "timestamp": "2026-08-31T15:02:05Z"
     },
     "screenshots": [
       {
         "viewport": "desktop-4k",
         "path": "project/tests/screenshots/visual_audit/desktop-4k_horo_v3_consensus.png",
-        "sha256": "ced1f6a0d21cd314bb2b8b1f5083ba9808b956ee94084f5f7daf36802be79b78",
+        "sha256": "c6456cd8b5eed1c5e45bc2131db44cb526b5f9c1b224653889951cf496670130",
         "captured_at": "2026-08-25T04:02:42Z"
       },
       {
         "viewport": "laptop-standard",
         "path": "project/tests/screenshots/visual_audit/laptop-standard_horo_v3_consensus.png",
-        "sha256": "551b56b68d4da62f901881dee2136412bc27a4403f294531427f14d339d2cb95",
+        "sha256": "e3933e3c22efe936e5c31ce7d9e613ecfedb09d922cd102f9bc606e851298277",
         "captured_at": "2026-08-25T04:02:42Z"
       },
       {
         "viewport": "tablet-portrait",
         "path": "project/tests/screenshots/visual_audit/tablet-portrait_horo_v3_consensus.png",
-        "sha256": "87f6839800355a066e5b3cd4fb94e373b327f69eec5edf086f44ef57fc6c2efa",
+        "sha256": "94201e0bb6b42fa0d6206c65cbc74f28ba6ca7770604a6de01f007e8692e4106",
         "captured_at": "2026-08-25T04:02:42Z"
       },
       {
         "viewport": "mobile-ios",
         "path": "project/tests/screenshots/visual_audit/mobile-ios_horo_v3_consensus.png",
-        "sha256": "060e65ecf882c6f2bde6aad196cedc06771fec130039dd6e1cd0ed25db100f5e",
+        "sha256": "8be531a0b87361dd1ce4fb4c5cc8cf9cce99b38b50217f8ce0e7aacbb0057b87",
         "captured_at": "2026-08-25T04:02:42Z"
       },
       {
         "viewport": "mobile-compact",
         "path": "project/tests/screenshots/visual_audit/mobile-compact_horo_v3_consensus.png",
-        "sha256": "3f88220b798aeb6bc257e1c6671ab7e50c04c55efa0b67ed0d1853b819fb9fb7",
+        "sha256": "4e75448b10eee1a703b50cbeba1ae1217bde5943304f891c9341666740cf60ba",
         "captured_at": "2026-08-25T04:02:42Z"
       }
     ]
@@ -135,31 +135,31 @@
     {
       "viewport": "desktop-4k",
       "findings": [],
-      "reviewed_at": "2026-08-31T07:54:01.825878+00:00",
+    "reviewed_at": "2026-08-31T15:02:06Z",
       "note": "Contrast indeterminate resolved in production UI; 0 findings in current audit."
     },
     {
       "viewport": "laptop-standard",
       "findings": [],
-      "reviewed_at": "2026-08-31T07:54:01.825878+00:00",
+    "reviewed_at": "2026-08-31T15:02:06Z",
       "note": "Contrast indeterminate resolved in production UI; 0 findings in current audit."
     },
     {
       "viewport": "tablet-portrait",
       "findings": [],
-      "reviewed_at": "2026-08-31T07:54:01.825878+00:00",
+    "reviewed_at": "2026-08-31T15:02:06Z",
       "note": "Contrast indeterminate resolved in production UI; 0 findings in current audit."
     },
     {
       "viewport": "mobile-ios",
       "findings": [],
-      "reviewed_at": "2026-08-31T07:54:01.825878+00:00",
+    "reviewed_at": "2026-08-31T15:02:06Z",
       "note": "Contrast indeterminate resolved in production UI; 0 findings in current audit."
     },
     {
       "viewport": "mobile-compact",
       "findings": [],
-      "reviewed_at": "2026-08-31T07:54:01.825878+00:00",
+    "reviewed_at": "2026-08-31T15:02:06Z",
       "note": "Contrast indeterminate resolved in production UI; 0 findings in current audit."
     }
   ],
