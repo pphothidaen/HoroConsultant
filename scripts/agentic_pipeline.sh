@@ -99,8 +99,6 @@ RESOLVED_ROUTER=""
 if [ -n "${ROUTER_BASE_URL:-}" ]; then
     RESOLVED_ROUTER="$ROUTER_BASE_URL"
     echo "[OK]   [HERMES] Routing via Cloud/CI ROUTER_BASE_URL: $RESOLVED_ROUTER (Account Alias: $ACCOUNT_ALIAS)"
-    export OPENAI_BASE_URL="$RESOLVED_ROUTER"
-    export OPENAI_API_KEY="${NINE_ROUTER_API_KEY:-dummy}"
     export NINE_ROUTER_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
     export ROUTER_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
     export HTTP_HEADER_X_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
@@ -109,8 +107,6 @@ elif [ -n "${NINE_ROUTER_BASE_URL:-}" ]; then
     if curl -sf --max-time 3 "$HEALTH_EP" > /dev/null 2>&1; then
         RESOLVED_ROUTER="$NINE_ROUTER_BASE_URL"
         echo "[OK]   [HERMES] 9router UP at $NINE_ROUTER_BASE_URL (Account Alias: $ACCOUNT_ALIAS)"
-        export OPENAI_BASE_URL="$RESOLVED_ROUTER"
-        export OPENAI_API_KEY="${NINE_ROUTER_API_KEY:-dummy}"
         export NINE_ROUTER_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
         export ROUTER_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
         export HTTP_HEADER_X_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
@@ -119,13 +115,8 @@ elif [ -n "${NINE_ROUTER_BASE_URL:-}" ]; then
     fi
 fi
 
-if [ -z "$RESOLVED_ROUTER" ] && [ -n "${CODEX_PRO_BASE_URL:-}" ] && [ -n "${CODEX_PRO:-}" ]; then
-    echo "[WARNING] [HERMES] Routing via CODEX_PRO endpoint (fallback)"
-    export OPENAI_BASE_URL="$CODEX_PRO_BASE_URL"
-    export OPENAI_API_KEY="$CODEX_PRO"
-elif [ -z "$RESOLVED_ROUTER" ] && [ -n "${GOOGLE_AI_STUDIO_API_KEY:-}" ]; then
+if [ -z "$RESOLVED_ROUTER" ] && [ -n "${GOOGLE_AI_STUDIO_API_KEY:-}" ]; then
     echo "[WARNING] [HERMES] Routing via Gemini direct (no proxy - last resort)"
-    unset OPENAI_BASE_URL OPENAI_API_KEY 2>/dev/null || true
 fi
 
 notify_hermes_pipeline_start "agentic_pipeline"

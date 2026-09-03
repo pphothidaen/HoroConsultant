@@ -20,6 +20,7 @@ from typing import Any
 
 import httpx
 from dotenv import load_dotenv
+from project.core.codex_cli_provider import call_codex_cli, check_codex_installation
 
 load_dotenv(override=True)
 
@@ -504,6 +505,10 @@ class HybridRouter:
         # === CLOUD MODE (Vercel / HF Spaces / Fly.io) ===
         # Priority chain: Gemini -> Cloudflare AI
         if is_cloud:
+            # Codex CLI is the primary governed cloud route when an approved
+            # local wrapper is installed; Gemini remains the zero-cost fallback.
+            if check_codex_installation():
+                routes.append({"type": "codex_cli", "model": "codex-cli", "key": None})
             # Route 1: Gemini Cloud (key rotation)
             for model in GEMINI_MODELS_ROTATION:
                 for key in _gemini_keys():
@@ -583,6 +588,12 @@ class HybridRouter:
             t0 = time.monotonic()
             if rtype == "ollama":
                 text, reason = _call_ollama(model, prompt, system_instruction)
+            elif rtype == "codex_cli":
+                try:
+                    text = call_codex_cli(prompt, system_instruction=system_instruction, model=model)
+                    reason = "ok"
+                except Exception:
+                    text, reason = None, "error"
             elif rtype == "gemini":
                 text, reason = _call_gemini(model, key, prompt, system_instruction)
             elif rtype == "vertex_ai":

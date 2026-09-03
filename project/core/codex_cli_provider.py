@@ -47,6 +47,8 @@ def check_codex_installation() -> bool:
 
 def _resolve_alias(alias: Optional[str] = None) -> str:
     """Resolve alias: use provided, or first available from CODEX_ALIASES."""
+    if alias and alias not in CODEX_ALIASES:
+        raise ValueError(f"unsupported Codex alias: {alias}")
     if alias and shutil.which(alias):
         return alias
     for a in CODEX_ALIASES:
@@ -70,6 +72,7 @@ def _build_command(
     """
     cmd = [
         alias, "exec",
+        "-s", "read-only",
         "--model", model,
         "--json",
         "--skip-git-repo-check",
@@ -147,7 +150,7 @@ def call_codex_cli(
         stderr_tail = result.stderr.strip().splitlines()[-3:] if result.stderr else []
         logger.warning("[CodexCLI] %s stderr: %s", resolved_alias, stderr_tail)
         raise RuntimeError(
-            f"Codex CLI '{resolved_alias}' exited with code {result.returncode}: {stderr_tail}"
+            f"Codex CLI '{resolved_alias}' exited with code {result.returncode}"
         )
 
     # Parse JSONL output — extract the final assistant message text
@@ -193,6 +196,9 @@ def _parse_codex_jsonl(stdout: str) -> str:
                 content = msg.get("content") or msg.get("text")
                 if isinstance(content, str) and content:
                     last_text = content
+            item = event.get("item")
+            if isinstance(item, dict) and isinstance(item.get("text"), str):
+                last_text = item["text"]
             # Some events carry delta fragments
             delta = event.get("delta")
             if isinstance(delta, str) and delta:

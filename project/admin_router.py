@@ -69,7 +69,7 @@ class GrayzoneAnswerRequest(BaseModel):
 
 
 class FinetuneTriggerRequest(BaseModel):
-    provider:       str  = Field("ollama", description="Provider: 'ollama', 'openai', 'gemini'")
+    provider:       str  = Field("ollama", description="Provider: 'ollama' or 'gemini'")
     model_name:     str  = Field("pphothidaen/qwen2.5-7b-bazi-instruct-4bit", description="Base model name")
     dataset:        str  = Field("combined_train.jsonl", description="Dataset filename in datasets dir")
     dry_run:        bool = Field(False, description="Dry run — validate without launching")
@@ -648,7 +648,7 @@ async def trigger_finetune(req: FinetuneTriggerRequest):
             "message":     f"MLX fine-tune launched (PID {proc.pid}). Check logs for progress.",
         })
 
-    elif req.provider in ("openai", "gemini"):
+    elif req.provider == "gemini":
         from project.rag.external_finetune import launch_external_finetune
         res = launch_external_finetune(
             provider=req.provider,

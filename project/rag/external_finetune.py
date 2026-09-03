@@ -33,44 +33,8 @@ def launch_external_finetune(
             "message": f"Dataset file not found: {dataset_path}",
         }
 
-    # 1. OpenAI Fine-Tuning
-    if provider == "openai":
-        api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            return {
-                "status": "config_missing",
-                "provider": "openai",
-                "message": "OPENAI_API_KEY is not set in environment.",
-                "dataset": str(dataset_path),
-                "ready_for_upload": True,
-            }
-        try:
-            import openai
-            client = openai.OpenAI(api_key=api_key)
-            with open(dataset_path, "rb") as f:
-                file_obj = client.files.create(file=f, purpose="fine-tune")
-            
-            job = client.fine_tuning.jobs.create(
-                training_file=file_obj.id,
-                model=model_name or "gpt-4o-mini-2024-07-18",
-            )
-            return {
-                "status": "success",
-                "provider": "openai",
-                "job_id": job.id,
-                "file_id": file_obj.id,
-                "message": f"OpenAI fine-tuning job created: {job.id}",
-            }
-        except Exception as e:
-            logger.error(f"OpenAI fine-tune error: {e}")
-            return {
-                "status": "error",
-                "provider": "openai",
-                "message": str(e),
-            }
-
-    # 2. Google Gemini Model Tuning
-    elif provider == "gemini":
+    # Google Gemini Model Tuning
+    if provider == "gemini":
         api_key = os.getenv("GOOGLE_AI_STUDIO_API_KEY") or os.getenv("GOOGLE_AI_STUDIO_API_KEY2")
         if not api_key:
             return {

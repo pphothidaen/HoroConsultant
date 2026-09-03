@@ -100,8 +100,6 @@ resolve_router() {
     if [ -n "${ROUTER_BASE_URL:-}" ]; then
         RESOLVED_ROUTER_URL="$ROUTER_BASE_URL"
         log_info "Routing: ROUTER_BASE_URL (Cloud/CI mode) -> $RESOLVED_ROUTER_URL (Account Alias: $ACCOUNT_ALIAS)"
-        export OPENAI_BASE_URL="$RESOLVED_ROUTER_URL"
-        export OPENAI_API_KEY="${NINE_ROUTER_API_KEY:-dummy}"
         export NINE_ROUTER_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
         export ROUTER_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
         export HTTP_HEADER_X_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
@@ -114,8 +112,6 @@ resolve_router() {
         if curl -sf --max-time 3 "$HEALTH_ENDPOINT" > /dev/null 2>&1; then
             RESOLVED_ROUTER_URL="$NINE_ROUTER_BASE_URL"
             log_ok "9router UP at $NINE_ROUTER_BASE_URL - routing via proxy (Account Alias: $ACCOUNT_ALIAS)"
-            export OPENAI_BASE_URL="$RESOLVED_ROUTER_URL"
-            export OPENAI_API_KEY="${NINE_ROUTER_API_KEY:-dummy}"
             export NINE_ROUTER_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
             export ROUTER_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
             export HTTP_HEADER_X_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
@@ -125,23 +121,13 @@ resolve_router() {
         fi
     fi
 
-    # Priority 3: CODEX_PRO endpoint fallback
-    if [ -n "${CODEX_PRO_BASE_URL:-}" ] && [ -n "${CODEX_PRO:-}" ]; then
-        log_warn "Falling back to CODEX_PRO endpoint: $CODEX_PRO_BASE_URL"
-        export OPENAI_BASE_URL="$CODEX_PRO_BASE_URL"
-        export OPENAI_API_KEY="$CODEX_PRO"
-        return 0
-    fi
-
-    # Priority 4: Gemini direct (GOOGLE_AI_STUDIO_API_KEY)
+    # Gemini direct (GOOGLE_AI_STUDIO_API_KEY)
     if [ -n "${GOOGLE_AI_STUDIO_API_KEY:-}" ]; then
         log_warn "Falling back to direct Gemini API (no proxy)"
-        unset OPENAI_BASE_URL
-        unset OPENAI_API_KEY
         return 0
     fi
 
-    log_error "No LLM routing available. Set NINE_ROUTER_BASE_URL, ROUTER_BASE_URL, CODEX_PRO, or GOOGLE_AI_STUDIO_API_KEY"
+    log_error "No LLM routing available. Set NINE_ROUTER_BASE_URL, ROUTER_BASE_URL, or GOOGLE_AI_STUDIO_API_KEY"
 }
 
 # Phase implementations
@@ -152,7 +138,7 @@ phase_dev() {
     export HERMES_TASK_ROLE="implementation"
     export HERMES_TASK_COMPLEXITY="medium"
     resolve_router
-    log_info "Router resolved. Developer agent now active via $OPENAI_BASE_URL"
+    log_info "Router resolved. Developer agent is active via the governed route"
     log_info "Routing profile: role=${HERMES_RESOLVED_ROLE:-implementation}, complexity=${HERMES_RESOLVED_COMPLEXITY:-medium}"
     log_info "Model: ${HERMES_ROUTER_MODEL:-${NINE_ROUTER_DEVELOPER_MODEL:-deepseek-v3}} (via ${ACCOUNT_ALIAS}, time=${HERMES_ROUTER_TIME:-medium})"
     log_info "Fallback chain: ${AGY_FALLBACK_CHAIN:-codex1,codex2,codex_subagent}"
@@ -260,8 +246,7 @@ phase_help() {
     echo "  Routing priority:"
     echo "    1. ROUTER_BASE_URL     (Cloud/CI override)"
     echo "    2. NINE_ROUTER_BASE_URL (Local 9router on :20128)"
-    echo "    3. CODEX_PRO_BASE_URL  (CODEX_PRO endpoint)"
-    echo "    4. GOOGLE_AI_STUDIO_API_KEY (Gemini direct)"
+    echo "    3. Gemini direct credential (last resort)"
     echo ""
 }
 

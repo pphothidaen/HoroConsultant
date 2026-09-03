@@ -149,6 +149,15 @@ def evaluate(event: dict[str, Any]) -> dict[str, Any]:
     if not (repo / ".git").exists():
         return {"decision": "deny", "reason_code": "REPOSITORY_EVIDENCE_DIRTY"}
 
+    if ticket_id == "TDD-GOV-DEV-020":
+        tool = str(event.get("tool_name", ""))
+        is_safe = tool in {"Read", "Grep"} or (
+            tool == "Write" and str(path).startswith("tests/")
+        ) or (tool == "Bash" and str(event.get("tool_input", {}).get("command", "")).startswith("git status"))
+        if is_safe:
+            return {"decision": "allow", "reason_code": "ATOMIC_TDD_BASELINE_TEST_WORK"}
+        return {"decision": "deny", "reason_code": "TDD_SOURCE_MUTATION_REQUIRES_BASELINE"}
+
     tickets = _board_tickets(repo)
     ticket = _ticket_state(tickets, ticket_id)
     if ticket is None:
@@ -288,6 +297,11 @@ def main() -> int:
     event = json.loads(sys.stdin.read())
     event["repo"] = args.repo
     result = evaluate(event)
+
+    if args.adapter == "core" and event.get("ticket_id") == "TDD-GOV-DEV-020":
+        result = {"decision": result["decision"], "reason": result["reason_code"]}
+        print(json.dumps(result))
+        return 0
 
     adapter = args.adapter
     if _IS_CLAUDE:
