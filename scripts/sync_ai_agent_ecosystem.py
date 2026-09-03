@@ -53,6 +53,15 @@ REQUIRED_PLATFORM_FILES = {
     "universal_bridge": ROOT / "scripts" / "run_universal_bridge.py",
 }
 
+SCOPED_AGENTS_FILES = {
+    "rust_core": ROOT / "rust_core" / "AGENTS.md",
+    "project/core": ROOT / "project" / "core" / "AGENTS.md",
+    "project/routers": ROOT / "project" / "routers" / "AGENTS.md",
+    "project/static": ROOT / "project" / "static" / "AGENTS.md",
+    "scripts": ROOT / "scripts" / "AGENTS.md",
+}
+MAX_SCOPED_AGENTS_LINES = 50
+
 
 @dataclass
 class CheckResult:
@@ -103,6 +112,41 @@ def check_required_files() -> CheckResult:
     if missing:
         return CheckResult("required platform files", False, ", ".join(missing))
     return CheckResult("required platform files", True, f"{len(REQUIRED_PLATFORM_FILES)} files present")
+
+
+def check_scoped_agents_present() -> CheckResult:
+    is_sparse_replica = not (ROOT / "project").is_dir() and not (ROOT / "rust_core").is_dir()
+    targets = {
+        label: path
+        for label, path in SCOPED_AGENTS_FILES.items()
+        if not is_sparse_replica or path.parent.is_dir()
+    }
+
+    missing = [
+        relative(path)
+        for path in targets.values()
+        if not path.is_file()
+    ]
+    if missing:
+        return CheckResult("scoped AGENTS.md files", False, f"missing: {', '.join(missing)}")
+
+    over_budget = [
+        f"{relative(path)} ({len(path.read_text(encoding='utf-8').splitlines())} > {MAX_SCOPED_AGENTS_LINES})"
+        for path in targets.values()
+        if len(path.read_text(encoding="utf-8").splitlines()) > MAX_SCOPED_AGENTS_LINES
+    ]
+    if over_budget:
+        return CheckResult(
+            "scoped AGENTS.md files",
+            False,
+            f"exceeds line budget: {', '.join(over_budget)}",
+        )
+
+    return CheckResult(
+        "scoped AGENTS.md files",
+        True,
+        f"{len(targets)} scoped AGENTS.md files present and <= {MAX_SCOPED_AGENTS_LINES} lines",
+    )
 
 
 def check_settings_roles() -> CheckResult:
@@ -379,6 +423,7 @@ def check_plan_completion_and_release_notes_governance() -> CheckResult:
 def run_checks() -> list[CheckResult]:
     return [
         check_required_files(),
+        check_scoped_agents_present(),
         check_json_file("settings.json", ROOT / "settings.json"),
         check_json_file(".mcp.json", ROOT / ".mcp.json"),
         check_json_file(".claude/settings.json", ROOT / ".claude" / "settings.json"),

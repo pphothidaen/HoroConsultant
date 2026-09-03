@@ -34,6 +34,53 @@ second task board or add ticket definitions to a plan/pointer file.
 
 ## ACTIVE SPRINTS & WORKSTREAMS
 
+<!-- GOV-ROADMAP-20260904:START -->
+## Program GOV-ROADMAP-20260904 -- Architectural Roadmap (Rule 24, Subdirectory Scoped AGENTS.md Context Chunking & Ecosystem Parity)
+
+**Recorded**: `2026-09-04T01:05:00+07:00` (Asia/Bangkok)
+**GRILL gate**: `APPROVED` -- owner explicit approval of architectural roadmap (`plans/plan.md`).
+**Authority**: Owner instruction dated `2026-09-04`.
+**Current status**: ALL 5 TICKETS DONE (`TICKET-GOV-025 DONE`; `TICKET-GOV-026 DONE`; `TICKET-GOV-027 DONE`; `TICKET-GOV-028 DONE`; `TICKET-GOV-029 DONE`) -- PROGRAM COMPLETE.
+
+### Scope and Objectives
+- Rule 24 Codification (Adversarial Dual-Team Red/Blue architecture, 4-tier testing paths, TIA selective testing matrix).
+- 5 Subdirectory Scoped AGENTS.md Context Chunking (`rust_core/`, `project/core/`, `project/routers/`, `project/static/`, `scripts/`).
+- Ecosystem Parity, AST syntax verification, Rayon secret scanning (0 leaks), and Pure ASCII logging.
+
+### Dependency Graph
+
+```text
+TICKET-GOV-025 (DONE: Spec & Planning Lead)
+  |--> TICKET-GOV-026 (DONE: Rule 24 & TIA Selective Testing Matrix)
+  |--> TICKET-GOV-027 (DONE: Subdirectory Scoped AGENTS.md Chunking)
+        \            /
+         v          v
+   TICKET-GOV-028 (DONE: Red Team Inversion QA Audit)
+         |
+         v
+   TICKET-GOV-029 (DONE: Pre-Deploy Safety & Release Gate)
+```
+
+### Program Tickets
+
+| Ticket | Severity / Effort | Lifecycle Status | Assigned Specialist | Required Skills | Dependencies | One Editor / Writable Ownership | Measurable Acceptance and DoD / Stop |
+|---|---|---|---|---|---|---|---|
+| `TICKET-GOV-025` | HIGH / S | DONE | `business_analyst` | `[bsa-doc-skill-management, agile-governance, sdlc-aisdlc-workflow]` | None (Lead planning) | `plans/plan.md`, `atomic_tasks.md` only | Register Program GOV-ROADMAP-20260904 in plans/plan.md with APPROVED GRILL report, 9-dimension decision matrix, and architecture specs. Register 5 atomic tickets in atomic_tasks.md with specialist roles, required skills, and single-editor ownership. Pure ASCII logging. DoD: Clean diff in owned files only; downstream tickets registered with correct readiness. |
+| `TICKET-GOV-026` | HIGH / M | DONE | `developer` | `[sdlc-aisdlc-workflow, qa-e2e-testing]` | `TICKET-GOV-025` DONE | `.agents/rules/24-red-blue-team-and-selective-testing.md`, `.claude/rules/selective-testing-and-red-blue.md`, `.agy/rules/`, `project/core/code_reviewer.py` | Codify Rule 24 detailing Red/Blue Team architecture (Builders vs Adversaries), 4-tier testing paths (Atomic, System, Smoke, Happy), and TIA selective testing matrix (docs-only, ui-only, rust-only, router-only, pre-release full CI, fail-fast flags). Enforce rule length limits (agents rule <= 80 lines, claude rule <= 40 lines) and sync to .agy/rules/. Update code_reviewer.py or test runner for --selective / TIA mode. DoD: Passing tests, valid rule syntax, clean git diff. |
+| `TICKET-GOV-027` | HIGH / M | DONE | `developer` | `[bsa-doc-skill-management, orchestrator-delegation]` | `TICKET-GOV-025` DONE | `rust_core/AGENTS.md`, `project/core/AGENTS.md`, `project/routers/AGENTS.md`, `project/static/AGENTS.md`, `scripts/AGENTS.md`, `scripts/sync_ai_agent_ecosystem.py` | Create 5 subdirectory-scoped AGENTS.md files (30-50 lines each) for targeted context chunking: rust_core (FFI, Rayon, zero-panic), project/core (BaZi math, true solar time, canonical texts, HITL routing), project/routers (FastAPI endpoints, OpenAPI golden snapshots, zero-cost multi-router), project/static (five elements palette, WCAG 2.1 AA, canonical viewports), scripts (DevOps hygiene, pure ASCII, 2-tier secrets, fail-closed release). Update sync_ai_agent_ecosystem.py to validate existence and consistency. Enforce Root Universal Safeguards precedence. DoD: All 5 files created within size constraints, ecosystem sync check passes. |
+| `TICKET-GOV-028` | HIGH / S | DONE | `qa_tester` | `[qa-e2e-testing, ai-inference-verifier]` | `TICKET-GOV-026` DONE, `TICKET-GOV-027` DONE | `tests/`, `plans/evidence/gov-roadmap-20260904/qa-audit.json` | Execute Red Team Inversion QA Audit under adversarial mindset ("assume code is broken until proven otherwise"). Audit Rule 24 conformance, verify TIA test execution accuracy on diff scenarios, audit the 5 scoped AGENTS.md files for rule conflicts with root safeguards, and run regression suite. DoD: Immutable QA audit receipt in plans/evidence/gov-roadmap-20260904/qa-audit.json with 100% pass rate. |
+| `TICKET-GOV-029` | HIGH / S | DONE | `code_reviewer` & `devops` | `[devops-deployment, hf-static-release-verification]` | `TICKET-GOV-028` DONE | `plans/evidence/gov-roadmap-20260904/pre-deploy-gate.json`, `ReleaseNotes.md` | Independent code review and safety gate audit. Verify 0 secret leaks (Rayon secret scanner), 100% ecosystem parity (python3 scripts/sync_ai_agent_ecosystem.py --check), AST syntax validation, and pure ASCII logging. Prepare pre-deploy release manifest and synchronize ReleaseNotes.md upon successful verification. DoD: Clean safety audit receipt, green ecosystem parity, ReleaseNotes.md updated. |
+
+### Program Stop and Admission Rules
+- Single-editor file ownership: each writable path is owned by exactly one ticket at a time.
+- TICKET-GOV-026 and TICKET-GOV-027 may be dispatched concurrently in separate worker lanes since their writable paths are completely disjoint.
+- TICKET-GOV-028 requires both TICKET-GOV-026 and TICKET-GOV-027 to reach DONE before entering DOING.
+- TICKET-GOV-029 requires TICKET-GOV-028 to reach DONE before entering DOING.
+- Pure ASCII logging is mandatory across all tickets.
+- Root Universal Safeguards take precedence over any subdirectory scoped rules; scoped rules cannot weaken safety or secret protections.
+
+<!-- GOV-ROADMAP-20260904:END -->
+
 <!-- TDD-GOV-BSA-001:START -->
 ## Program TDD-GOV-20260903 -- Mandatory Atomic TDD Lifecycle Gate
 
