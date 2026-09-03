@@ -3,7 +3,182 @@
 > **Repository**: `pphothidaen/HoroConsultant`  
 > **Authority**: Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
 > **Governance Enforcement**: Rule 21 (Agile Governance) & Rule 22 (Plan Completion & Archival Mandate)  
-> **Last Synchronized**: 2026-09-04T01:05:00+07:00 (Asia/Bangkok)  
+> **Last Synchronized**: 2026-09-04T01:30:36+07:00 (Asia/Bangkok)  
+
+---
+
+<!-- QUOTA-SWAP-ROADMAP-20260904:START -->
+## GRILL REPORT -- QUOTA-SWAP-ROADMAP-20260904: Smart Quota Swapping & Seamless Handoff System
+
+**Recorded**: `2026-09-04T01:30:00+07:00` (Asia/Bangkok)
+**Status**: `APPROVED`
+**Requirement-change authority**: Owner instruction dated `2026-09-04` explicitly approving the technical specification and roadmap for Program `QUOTA-SWAP-ROADMAP-20260904`.
+**Authorized current phase**: ALL 6 TICKETS DONE (`TICKET-QUOTA-001 DONE`; `TICKET-QUOTA-002 DONE`; `TICKET-QUOTA-003 DONE`; `TICKET-QUOTA-004 DONE`; `TICKET-QUOTA-005 DONE`; `TICKET-QUOTA-006 DONE`) -- PROGRAM COMPLETE.
+
+### Scope and Decision Record
+
+**IN**:
+1. **Quota Cooldown Registry & Time-To-Reset (TTR) Calculation Engine**:
+   - Centralized, thread-safe registry tracking cooldown states per account/provider (`codex1`, `codex2`, `codex3`, `agy1`, `agy2`, `gemini_flash`, `gemini_pro`, `cloudflare_ai`, `huggingface_router`).
+   - Dynamic TTR calculation logic using monotonic clock deltas (`max(0.0, reset_timestamp - current_time)`).
+   - State transition machine: `NORMAL` -> `OPEN` (tripped) -> `HALF_OPEN` (probe pending) -> `NORMAL` (recovered) or back to `OPEN` (backoff).
+2. **Event-Driven Cooldown Wakeup & Notice**:
+   - Zero-polling reactive architecture using scheduled timers/events (`schedule` tool / cron hooks / timer triggers).
+   - Automatic `COOLDOWN_EXPIRED` event publication to Orchestrator and Provider Routers when TTR reaches zero.
+   - Non-blocking active canary micro-probe during `HALF_OPEN` state prior to full workload restoration.
+3. **3-Phase Seamless Handoff Protocol**:
+   - Phase 1: Pre-Swap Freeze (detect Tier 4 exhaustion, freeze subagent execution, serialize immutable `StateCapsule` with branch, diff hash, cognitive summary, residual tasks, and update `HANDOFF.md` Rescue Queue).
+   - Phase 2: Hot-Swap Bootstrap (select healthiest available auxiliary account via cascade, bootstrap new subagent with injected capsule, verify workspace cleanliness, resume seamlessly).
+   - Phase 3: Return Wakeup (event-driven notice upon primary account recovery, non-interruptive completion of active subtasks, graceful handback to primary account).
+4. **Host Account Preservation Invariant (Rule 17)**:
+   - Absolute protection of Orchestrator host account (the master brain session).
+   - Host account is strictly reserved for coordination, monitoring, receipt auditing, and HITL; never used for child implementation worker lanes.
+   - Auxiliary accounts (`codex2`, `codex3`, `agy2`, etc.) are consumed first; host account is preserved as the LAST to exhaust.
+   - Fail-closed stop threshold when host account drops below 10% quota.
+5. **QA Simulation & Verification**:
+   - Multi-agent quota exhaustion and hot-swap simulation test suite.
+   - Automated proof of zero context loss and zero secret leakage.
+
+**OUT**:
+- Implementation mutation of files outside owned tickets.
+- Any modification or weakening of Rule 17 Host Account Preservation.
+- Unreviewed production deployments or secret mutations.
+- Polling-based busy-wait loops during cooldown periods.
+
+### Nine-Dimension Decision Matrix
+
+| ID | Result and evidence state | Decision / stop threshold |
+|---|---|---|
+| D1 Scope boundary | [CONFIRMED] Scope strictly bounded to Quota Cooldown Registry, TTR engine, event-driven wakeup, 3-phase handoff protocol, and Rule 17 invariant. | Any diversion into unreviewed production deployments, external credentials, or core BaZi metaphysical formulas is rejected. |
+| D2 Requirement delta | [CONFIRMED] Formalizes intelligent multi-account quota rotation, eliminating 429 downtime and context loss during agent transitions. | Adheres to existing Rule 17, Rule 18, and Rule 21 while introducing dynamic TTR and state capsules. |
+| D3 Acceptance and stop | [CONFIRMED] Persist GRILL report and architecture spec in `plans/plan.md`, register 6 atomic tickets in `atomic_tasks.md` with explicit specialist and skill assignments. | Stop on missing ticket attributes, non-ASCII characters, or overlapping file write ownership. |
+| D4 Inputs, constraints, dependencies | [AUTO] Inputs: Rule 17 (`.agents/rules/17-multi-account-agent-orchestration.md`), `scripts/codex_quota_workaround.py`, `project/core/ai_provider_router.py`. | Strict DAG: TICKET-QUOTA-001 leads; TICKET-QUOTA-002, 003, 004 are concurrent/READY; TICKET-QUOTA-005 QA follows; TICKET-QUOTA-006 finalizes. |
+| D5 Architecture, ownership, handoff | [CONFIRMED] Single-editor file ownership enforced per ticket. TICKET-QUOTA-001 owned by `business_analyst` (`plans/plan.md`, `atomic_tasks.md`). Downstream tickets assigned to specialized roles. | No concurrent multi-writer collisions. Handoffs require verified receipts. |
+| D6 Assumption register | [CONFIRMED] State capsules prevent cognitive context loss during account failover. Dynamic TTR avoids premature requests and minimizes rate limit penalties. | If state serialization fails, fail closed and dump plain text rescue instructions to `HANDOFF.md`. |
+| D7 Risk and recovery | [AUTO] Risks: Race conditions during account swapping, stale cooldown timers, dirty git tree on failover. Recovery: Pre-swap git diff verification, Canary probe before admission, pure ASCII fallback logging. | If a worker fails to bootstrap from capsule, escalate immediately to `NEEDS_HITL`. |
+| D8 Budget and evidence strategy | [AUTO] Minimal token consumption via zero-polling architecture, ephemeral micro-canary probes (< 100 tokens), zero secret leaks, pure ASCII evidence logs. | Stop on token burn spikes, secret detection, or unbounded test retries. |
+| D9 Domain and HITL | [NOT-APPLICABLE] No domain metaphysics changes. [CONFIRMED] Owner instruction dated 2026-09-04 provides explicit authority for QUOTA-SWAP-ROADMAP-20260904. | Critical production credentials and external git pushes retain strict HITL gates. |
+
+### Dependency Graph
+
+```text
+TICKET-QUOTA-001 (DONE: Planning & Spec Decomposition)
+  |--> TICKET-QUOTA-002 (DONE: Quota Cooldown Registry & TTR Engine)
+  |--> TICKET-QUOTA-003 (DONE: Smart Hot-Swap Failover Cascade)
+  |--> TICKET-QUOTA-004 (DONE: Seamless Handoff State Capsule Protocol)
+        \            |            /
+         v           v           v
+    TICKET-QUOTA-005 (DONE: QA Simulation & Cooldown Test Suite)
+                     |
+                     v
+    TICKET-QUOTA-006 (DONE: Safety Audit, Docs Sync & PR Release)
+```
+
+### Technical Specification -- Smart Quota Swapping & Seamless Handoff Architecture
+
+#### 1. Quota Cooldown Registry & Time-To-Reset (TTR) Calculation Engine
+
+- **Registry State Schema**:
+  The registry tracks operational state across all multi-account worker aliases (`codex1`, `codex2`, `codex3`, `agy1`, `agy2`) and API gateways (`gemini_flash`, `gemini_pro`, `cloudflare_ai`, `huggingface_router`):
+  * `account_id`: Unique account or route identifier.
+  * `provider`: Underlying provider (`codex`, `agy`, `gemini`, `cloudflare`, `hf`).
+  * `cooldown_active`: Boolean flag indicating whether account is quarantined.
+  * `tripped_at`: Monotonic timestamp and ISO 8601 UTC timestamp of trip event.
+  * `cooldown_seconds`: Base cooldown duration (default 60s for transient 429, dynamically scaling up to 3600s for hard tier exhaustion).
+  * `reset_timestamp`: Projected Unix epoch when rate limit window refreshes (parsed from provider response headers or calculated from rolling window).
+  * `ttr_seconds`: Dynamically calculated Time-To-Reset in seconds.
+  * `concurrency_limit`: Allowed concurrent dispatches based on active quota tier (Tier 1: 3, Tier 2: 2, Tier 3: 1, Tier 4: 0).
+  * `trip_reason`: Classification (`HTTP_429_RATE_LIMIT`, `USAGE_LIMIT_EXCEEDED`, `TOKEN_BURN_EXHAUSTION`, `MICRO_CANARY_FAILURE`).
+
+- **Dynamic TTR Calculation Engine**:
+  * Dual-clock design: uses `time.monotonic()` for interval calculation within a running process to eliminate wall-clock drift, and `time.time()` for cross-process shared state persistence.
+  * Formula:
+    ```text
+    TTR(account) = max(0.0, account.reset_timestamp - current_utc_time())
+    ```
+  * State Machine Transitions:
+    - `NORMAL` -> `OPEN`: Triggered by HTTP 429, `usageLimitExceeded`, or Tier 4 classification. Cooldown active, concurrency set to 0.
+    - `OPEN` -> `HALF_OPEN`: Occurs automatically when `TTR == 0.0`. Canary probe is dispatched.
+    - `HALF_OPEN` -> `NORMAL`: Canary probe succeeds. Cooldown cleared, full concurrency restored.
+    - `HALF_OPEN` -> `OPEN`: Canary probe fails. Cooldown extended via exponential backoff (`min(cooldown_seconds * 2, 3600)`), TTR recalculated.
+
+- **Storage & Synchronization**:
+  * Thread-safe memory cache with atomic file serialization (`project/core/quota_registry.json` or `.gemini/quota_registry.json`).
+  * Non-blocking atomic writes via temp file replacement (`os.replace`).
+
+#### 2. Event-Driven Cooldown Wakeup & Notice
+
+- **Zero-Polling Reactive Wakeup Principle**:
+  * Agents and orchestrators MUST NOT run sleep/poll loops. Busy polling wastes execution tokens and violates Anti-Cognitive-Decay governance.
+  * Cooldown timers are registered with scheduled timer/cron primitives (`schedule` tool or OS async timer tasks).
+  * Timer condition: `TimerCondition="any"` or sender-bound condition to allow early cancellation if alternate recovery occurs.
+
+- **Event Lifecycle**:
+  1. On circuit trip, TTR engine computes duration and schedules a one-shot wakeup event for `DurationSeconds=int(ttr_seconds)`.
+  2. When timer expires, an event notification `COOLDOWN_EXPIRED(account_id)` is published to the agent control plane.
+  3. The account state shifts to `HALF_OPEN`.
+  4. An Ephemeral Micro-Canary Probe (`scripts/codex_quota_workaround.py --mode probe --alias <account_id>`) executes:
+     - Ephemeral, read-only ping with minimal token footprint (< 50 tokens).
+     - Timeout bounded at 10 seconds.
+  5. If probe returns `PASS`, the registry emits `[OK] Account <account_id> restored to active pool`, setting `cooldown_active=False`.
+  6. If probe returns `RATE_LIMITED` or `FAIL`, backoff is applied, and the next wakeup timer is registered.
+
+#### 3. 3-Phase Seamless Handoff Protocol
+
+A robust protocol ensuring zero context loss and zero lost work during quota exhaustion events:
+
+- **Phase 1: Pre-Swap Freeze**:
+  * Trigger: Detection of Tier 4 exhaustion (HTTP 429, `usageLimitExceeded`, or token burn rate exhaustion).
+  * Steps:
+    1. Immediately pause active subagent dispatch on the exhausted account.
+    2. Collect and serialize execution context into an atomic `StateCapsule` object:
+       - `capsule_id`: Deterministic identifier `CAPSULE-<timestamp>-<ticket_id>`.
+       - `ticket_id`: Active ticket identifier.
+       - `source_account`: Alias of the exhausted account.
+       - `git_branch`: Current git branch name and current HEAD commit hash.
+       - `modified_files`: List of all tracked files modified in current session.
+       - `diff_sha256`: Pure ASCII SHA-256 hash of `git diff`.
+       - `cognitive_memory_summary`: Concise summary of accomplished steps, current hypothesis, and pending decisions.
+       - `remaining_subtasks`: Ordered list of uncompleted tasks from `atomic_tasks.md`.
+    3. Persist `StateCapsule` to `plans/evidence/quota_capsules/<capsule_id>.json`.
+    4. Append rescue record to `HANDOFF.md` Rescue Queue.
+    5. Log `[OK] Pre-swap freeze complete for ticket <ticket_id> (Capsule: <capsule_id>)`.
+
+- **Phase 2: Hot-Swap Bootstrap**:
+  * Steps:
+    1. Hot-Swap Failover Cascade inspects the Quota Cooldown Registry.
+    2. Queries all registered accounts, filtering out accounts where `cooldown_active == True`.
+    3. Excludes the Orchestrator host account in accordance with Rule 17.
+    4. Selects the healthiest candidate account with lowest 1-hour token consumption (`tokens_1h` IDLE or LOW).
+    5. Spawns/dispatches child worker on the selected auxiliary account, injecting `StateCapsule`.
+    6. New worker verifies workspace cleanliness (`git status`), parses memory summary, and resumes execution at exact checkpoint.
+    7. Log `[OK] Hot-swap bootstrap succeeded: transferred <ticket_id> from <src_account> to <dest_account>`.
+
+- **Phase 3: Return Wakeup**:
+  * Steps:
+    1. When primary account completes cooldown and passes the Canary probe, registry emits `PRIMARY_ACCOUNT_RESTORED`.
+    2. Non-interruptive handback: Active subagent executing on the failover account completes its immediate atomic step.
+    3. Subsequent subagent dispatches transition back to the primary account.
+    4. Archive completed `StateCapsule` to historical evidence.
+    5. Log `[OK] Return wakeup complete: active worker routing restored to primary account`.
+
+#### 4. Host Account Preservation Invariant (Rule 17)
+
+- **Core Preservation Mandate**:
+  * Under Rule 17 (Multi-Account Dispatch and Orchestrator-Only Control), the current host session represents the master brain orchestrator.
+  * The Orchestrator session coordinates child workers, monitors task queues, audits evidence receipts, handles HITL escalations, and ensures agile compliance.
+  * **Mandate**: The Orchestrator's host account MUST be preserved as the **LAST to be exhausted**.
+
+- **Enforcement Rules**:
+  1. **Zero Implementation Quota Burn on Host**: The host account must NEVER be used to run heavy compilation, automated test suites, iterative code generation, or subagent worker tasks.
+  2. **Auxiliary Worker Priority**: All worker tickets (`TICKET-QUOTA-002`, `003`, `004`, `005`, `006`) must be dispatched to auxiliary accounts (`codex2`, `codex3`, `agy2`, etc.) before considering host resources.
+  3. **Hard Stop Floor**: If the host account's remaining quota drops below 10% (Tier 4 threshold):
+     - All multi-agent dispatches are immediately suspended.
+     - Working state is dumped to `HANDOFF.md`.
+     - System transitions to `NEEDS_HITL` to protect master coordination integrity.
+  4. **Single-Editor Isolation**: Auxiliary workers cannot modify orchestrator-owned governance files (`plans/plan.md`, `atomic_tasks.md`), preserving clear organizational boundaries.
+
+<!-- QUOTA-SWAP-ROADMAP-20260904:END -->
 
 ---
 

@@ -34,6 +34,60 @@ second task board or add ticket definitions to a plan/pointer file.
 
 ## ACTIVE SPRINTS & WORKSTREAMS
 
+<!-- QUOTA-SWAP-ROADMAP-20260904:START -->
+## Program QUOTA-SWAP-ROADMAP-20260904 -- Smart Quota Swapping & Seamless Handoff System
+
+**Recorded**: `2026-09-04T01:30:00+07:00` (Asia/Bangkok)
+**GRILL gate**: `APPROVED` -- owner explicit approval of technical specification and roadmap (`plans/plan.md`).
+**Authority**: Owner instruction dated `2026-09-04`.
+**Current status**: ALL 6 TICKETS DONE (`TICKET-QUOTA-001 DONE`; `TICKET-QUOTA-002 DONE`; `TICKET-QUOTA-003 DONE`; `TICKET-QUOTA-004 DONE`; `TICKET-QUOTA-005 DONE`; `TICKET-QUOTA-006 DONE`) -- PROGRAM COMPLETE.
+
+### Scope and Objectives
+- Quota Cooldown Registry & Time-To-Reset (TTR) Calculation Engine (`project/core/quota_registry.py`).
+- Event-Driven Cooldown Wakeup & Notice (reactive timers, Half-Open verification canary).
+- Smart Hot-Swap Failover Cascade respecting Rule 17 Host Account Preservation (`project/core/hot_swap_router.py`).
+- 3-Phase Seamless Handoff State Capsule Protocol (`project/core/state_capsule.py`).
+- QA Simulation & Cooldown Test Suite (`tests/test_quota_swap_simulation.py`).
+- Safety Audit, Zero Secret Leaks, Ecosystem Parity Sync, and Release Gate.
+
+### Dependency Graph
+
+```text
+TICKET-QUOTA-001 (DONE: Planning & Spec Decomposition)
+  |--> TICKET-QUOTA-002 (DONE: Quota Cooldown Registry & TTR Engine)
+  |--> TICKET-QUOTA-003 (DONE: Smart Hot-Swap Failover Cascade)
+  |--> TICKET-QUOTA-004 (DONE: Seamless Handoff State Capsule Protocol)
+        \            |            /
+         v           v           v
+    TICKET-QUOTA-005 (DONE: QA Simulation & Cooldown Test Suite)
+                     |
+                     v
+    TICKET-QUOTA-006 (DONE: Safety Audit, Docs Sync & PR Release)
+```
+
+### Program Tickets
+
+| Ticket | Severity / Effort | Lifecycle Status | Assigned Specialist | Required Skills | Dependencies | One Editor / Writable Ownership | Measurable Acceptance and DoD / Stop |
+|---|---|---|---|---|---|---|---|
+| `TICKET-QUOTA-001` | HIGH / S | DONE | `business_analyst` | `[bsa-doc-skill-management, agile-governance]` | None (Lead planning) | `plans/plan.md`, `atomic_tasks.md` only | Register Program QUOTA-SWAP-ROADMAP-20260904 in plans/plan.md with APPROVED GRILL report, 9-dimension decision matrix, technical specification (Quota Cooldown Registry, TTR calculation engine, event-driven cooldown wakeup/notice, 3-phase seamless handoff protocol, Rule 17 host account preservation invariant). Register 6 atomic tickets in atomic_tasks.md with assigned specialist roles, required skills, and single-editor ownership. Pure ASCII logging. DoD: Clean diff in owned files only; downstream tickets registered with correct readiness. |
+| `TICKET-QUOTA-002` | HIGH / M | DONE | `developer` | `[sdlc-aisdlc-workflow, zero-cost-ai-pipeline]` | `TICKET-QUOTA-001` DONE | `project/core/quota_registry.py`, `tests/test_quota_registry.py` | Implement Quota Cooldown Registry & Time-To-Reset (TTR) Calculation Engine. Provide thread-safe registration, state tracking per account/provider, dynamic TTR calculation max(0, reset_timestamp - now()), trip reasons, and persistent storage. Include unit tests covering state transitions (NORMAL -> OPEN -> HALF_OPEN -> NORMAL). DoD: 100% test pass rate, clean typing, zero side effects. |
+| `TICKET-QUOTA-003` | HIGH / M | DONE | `developer` | `[multi-account-agent-orchestration, sdlc-aisdlc-workflow]` | `TICKET-QUOTA-001` DONE | `project/core/hot_swap_router.py`, `scripts/codex_quota_workaround.py`, `tests/test_hot_swap_cascade.py` | Implement Smart Hot-Swap Failover Cascade adhering to Rule 17 Host Account Preservation Invariant. Route child worker lanes to auxiliary accounts (codex2, codex3, agy2) first, preserving orchestrator host account as last to exhaust. Implement dynamic failover skipping accounts in cooldown via TTR engine. DoD: Passing unit and integration tests, verified adherence to Rule 17 invariant. |
+| `TICKET-QUOTA-004` | HIGH / M | DONE | `developer` | `[anti-cognitive-decay, bsa-doc-skill-management]` | `TICKET-QUOTA-001` DONE | `project/core/state_capsule.py`, `tests/test_state_capsule.py` | Implement 3-Phase Seamless Handoff State Capsule Protocol: Phase 1 Pre-Swap Freeze (capture active ticket, git branch, diff SHA-256, cognitive summary, remaining subtasks), Phase 2 Hot-Swap Bootstrap (inject capsule into new worker session, verify workspace cleanliness), Phase 3 Return Wakeup (event-driven notification upon primary cooldown expiry). DoD: Serialization and deserialization tests passing, zero cognitive context loss. |
+| `TICKET-QUOTA-005` | HIGH / S | DONE | `qa_tester` | `[qa-e2e-testing, ai-inference-verifier]` | `TICKET-QUOTA-002` DONE, `TICKET-QUOTA-003` DONE, `TICKET-QUOTA-004` DONE | `tests/test_quota_swap_simulation.py`, `plans/evidence/quota-swap-roadmap-20260904/qa-simulation.json` | Execute QA Simulation & Cooldown Test Suite. Simulate HTTP 429 quota exhaustion, verify instantaneous circuit trip, TTR calculation, state freeze, hot-swap failover to auxiliary account, state resumption, and event-driven return wakeup. Produce immutable QA simulation evidence receipt. DoD: 100% test pass rate, signed evidence JSON. |
+| `TICKET-QUOTA-006` | HIGH / S | DONE | `code_reviewer` & `devops` | `[devops-deployment, hf-static-release-verification]` | `TICKET-QUOTA-005` DONE | `plans/evidence/quota-swap-roadmap-20260904/safety-audit.json`, `ReleaseNotes.md` | Perform pre-release safety audit, Rayon secret scan (0 leaks), ecosystem parity check (python3 scripts/sync_ai_agent_ecosystem.py --check), AST syntax validation, pure ASCII verification, and document updates in ReleaseNotes.md. DoD: Clean safety audit receipt, green ecosystem parity, updated ReleaseNotes.md. |
+
+### Program Stop and Admission Rules
+- Single-editor file ownership: each writable path is owned by exactly one ticket at a time.
+- TICKET-QUOTA-002, TICKET-QUOTA-003, and TICKET-QUOTA-004 have disjoint writable paths and may be dispatched concurrently in separate worker lanes.
+- TICKET-QUOTA-005 requires TICKET-QUOTA-002, TICKET-QUOTA-003, and TICKET-QUOTA-004 to reach DONE before entering DOING.
+- TICKET-QUOTA-006 requires TICKET-QUOTA-005 to reach DONE before entering DOING.
+- Host Account Preservation Invariant (Rule 17) is absolute: the Orchestrator host account MUST NOT be used for child worker execution.
+- Pure ASCII logging is mandatory across all code, tests, and documentation.
+
+<!-- QUOTA-SWAP-ROADMAP-20260904:END -->
+
+---
+
 <!-- GOV-ROADMAP-20260904:START -->
 ## Program GOV-ROADMAP-20260904 -- Architectural Roadmap (Rule 24, Subdirectory Scoped AGENTS.md Context Chunking & Ecosystem Parity)
 
