@@ -592,7 +592,7 @@ class HybridRouter:
             elif rtype == "vertex_ai":
                 proj_id = route.get("project_id", "")
                 text, reason = _call_vertex_ai(model, proj_id, key, prompt, system_instruction)
-                        elif rtype == "cloudflare_ai":
+            elif rtype == "cloudflare_ai":
                 account_id = route.get("account_id", "")
                 text, reason = _call_cloudflare_ai(account_id, key, model, prompt, system_instruction)
             else:
@@ -984,4 +984,3 @@ if __name__ == "__main__":
     print(f"Route   : {res['route']} / {res['model_used']}")
     print(f"Latency : {res['latency_ms']}ms")
     print(f"Text    : {(res['text'] or '')[:120]}")
-
