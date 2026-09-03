@@ -661,6 +661,8 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
         ".codex/",
         "config/",
         "hf-release-manifest.json",
+        "hf-release-receipt.json",
+        "fused_model/",
         "public/",
         "pytest.ini",
         ".gitignore",
