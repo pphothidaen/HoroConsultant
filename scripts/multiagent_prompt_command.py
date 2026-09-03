@@ -968,6 +968,8 @@ _IDQ_MVP_080_FOUR_ALIASES = {
     "agy1": "agy",
     "agy2": "agy",
 }
+# Backward-compatible public name for the closed four-alias exception.
+_IDQ_MVP_080_ALIASES = _IDQ_MVP_080_FOUR_ALIASES
 _IDQ_MVP_080_SEVEN_ALIASES = {
     **_IDQ_MVP_080_FOUR_ALIASES,
     "codex3": "codex",
