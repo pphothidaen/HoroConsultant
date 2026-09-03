@@ -6,7 +6,7 @@ Multi-Provider Resilient LLM Gateway with Dynamic Failover & Circuit Breaker.
 Tiers:
   Tier 1: Cloudflare Workers AI (@cf/meta/llama-3.1-8b-instruct)
   Tier 2: Google Gemini (gemini-2.5-flash / gemini-1.5-flash)
-  Tier 3: OpenAI / CODEX_PRO (o3-mini / gpt-4o-mini)
+  Tier 3: Codex CLI (read-only local wrapper)
   Tier 4: Anthropic Claude (claude-3-5-sonnet / claude-3-haiku)
   Tier 5: Local Ollama (qwen2.5:7b-instruct-q4_K_M)
   Tier 6: Deterministic Canonical Synthesizer (Safe Offline Fallback)
@@ -22,6 +22,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 import httpx
+from project.core.codex_cli_provider import call_codex_cli, check_codex_installation
 
 logger = logging.getLogger("LLMGateway")
 
@@ -58,11 +59,11 @@ class LLMGateway:
                 tier=2,
                 is_configured=bool(os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")),
             ),
-            "openai": ProviderState(
-                key="openai",
-                name="OpenAI / CODEX_PRO",
+            "codex": ProviderState(
+                key="codex",
+                name="Codex CLI",
                 tier=3,
-                is_configured=bool(os.getenv("OPENAI_API_KEY") or os.getenv("CODEX_PRO_BASE_URL")),
+                is_configured=check_codex_installation(),
             ),
             "claude": ProviderState(
                 key="claude",
@@ -145,24 +146,6 @@ class LLMGateway:
             data = resp.json()
             return data["candidates"][0]["content"]["parts"][0]["text"]
 
-    async def _call_openai(self, prompt: str, system_instruction: str) -> str:
-        api_key = os.getenv("OPENAI_API_KEY", "dummy")
-        base_url = os.getenv("CODEX_PRO_BASE_URL") or os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
-        url = f"{base_url.rstrip('/')}/chat/completions"
-        headers = {"Authorization": f"Bearer {api_key}"}
-        payload = {
-            "model": "gpt-4o-mini",
-            "messages": [
-                {"role": "system", "content": system_instruction or "You are an expert astrology consultant."},
-                {"role": "user", "content": prompt}
-            ]
-        }
-        async with httpx.AsyncClient(timeout=7.0) as client:
-            resp = await client.post(url, headers=headers, json=payload)
-            resp.raise_for_status()
-            data = resp.json()
-            return data["choices"][0]["message"]["content"]
-
     async def _call_claude(self, prompt: str, system_instruction: str) -> str:
         api_key = os.getenv("ANTHROPIC_API_KEY") or os.getenv("CLAUDE_API_KEY", "dummy")
         url = "https://api.anthropic.com/v1/messages"
@@ -182,6 +165,11 @@ class LLMGateway:
             resp.raise_for_status()
             data = resp.json()
             return data["content"][0]["text"]
+
+    async def _call_codex(self, prompt: str, system_instruction: str) -> str:
+        return await asyncio.to_thread(
+            call_codex_cli, prompt, system_instruction=system_instruction
+        )
 
     async def _call_ollama(self, prompt: str, system_instruction: str) -> str:
         base_url = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
@@ -213,7 +201,7 @@ class LLMGateway:
         preferred_provider: Optional[str] = None
     ) -> Dict[str, Any]:
         """Execute text generation with multi-tier failover and latency tracking."""
-        order = ["cloudflare", "gemini", "openai", "claude", "ollama", "deterministic"]
+        order = ["cloudflare", "gemini", "codex", "claude", "ollama", "deterministic"]
         if preferred_provider and preferred_provider in self.providers:
             order.remove(preferred_provider)
             order.insert(0, preferred_provider)
@@ -221,7 +209,7 @@ class LLMGateway:
         call_map = {
             "cloudflare": self._call_cloudflare,
             "gemini": self._call_gemini,
-            "openai": self._call_openai,
+            "codex": self._call_codex,
             "claude": self._call_claude,
             "ollama": self._call_ollama,
         }

@@ -58,16 +58,21 @@ function runGateway({ method = "GET", path, authorization = "Bearer verified-goo
   return JSON.parse(result.stdout);
 }
 
-test("production Vercel has explicit protected Admin and HITL ingress rewrites", () => {
+test("production Vercel has only the exact Admin startup rewrites, never an admin wildcard", () => {
   const vercel = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
   const rewrites = new Map(vercel.rewrites.map(({ source, destination }) => [source, destination]));
 
-  assert.equal(rewrites.get("/admin/:path*"), "/api/index?path=/admin/:path*");
-  assert.equal(rewrites.get("/hitl/stats"), "/api/index?path=/hitl/stats");
-  assert.equal(rewrites.has("/hitl/:path*"), false, "HITL ingress must remain exact");
+  for (const [, path] of ADMIN_STARTUP_ROUTES) {
+    assert.equal(rewrites.get(path), `/api/index?path=${path}`, `missing exact rewrite for ${path}`);
+  }
+  assert.equal(
+    [...rewrites.keys()].some(source => /^\/(?:admin|hitl)(?:\/|$)/.test(source) && /(?:\*|:path)/.test(source)),
+    false,
+    "privileged ingress must never be a broad wildcard",
+  );
 });
 
-test("gateway forwards authenticated Admin startup routes and preserves the ID token", () => {
+test("gateway forwards only the authenticated Admin startup allowlist and preserves the ID token", () => {
   assert.equal(configuredBackendOrigin({ HF_BACKEND_URL: CANONICAL_BACKEND }), CANONICAL_BACKEND);
   for (const [method, path] of ADMIN_STARTUP_ROUTES) {
     const result = runGateway({ method, path });
@@ -85,7 +90,7 @@ test("gateway forwards authenticated Admin startup routes and preserves the ID t
     assert.equal(denied.calls.length, 0, `${method} ${path} must not reach the backend without a token`);
   }
 
-  for (const path of ["/admin", "/hitl", "/api/v1/admin/users", "/api/v2/hitl/review"]) {
+  for (const path of ["/admin", "/admin/catalog", "/admin/unknown", "/admin/grayzone/answer"]) {
     const denied = runGateway({ path });
     assert.equal(denied.statusCode, 404, `${path} must not be admitted by a broad Admin rule`);
     assert.equal(denied.calls.length, 0);

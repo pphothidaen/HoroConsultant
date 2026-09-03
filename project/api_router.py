@@ -20,6 +20,7 @@ from typing import Any
 
 import httpx
 from dotenv import load_dotenv
+from project.core.codex_cli_provider import call_codex_cli, check_codex_installation
 
 load_dotenv(override=True)
 
@@ -33,8 +34,6 @@ OLLAMA_BASE_URL         = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 PRIMARY_LOCAL_MODEL     = os.getenv("OLLAMA_PRIMARY_MODEL",   "qwen2.5-bazi")
 SECONDARY_LOCAL_MODEL   = os.getenv("OLLAMA_SECONDARY_MODEL", "qwen2.5:7b")
 TERTIARY_LOCAL_MODEL    = os.getenv("OLLAMA_TERTIARY_MODEL",  "qwen2.5-coder:7b")
-OPENAI_API_KEY          = os.getenv("OPENAI_API_KEY", "")
-OPENAI_API_KEY2         = os.getenv("OPENAI_API_KEY2", "")
 GOOGLE_AI_STUDIO_API_KEY = os.getenv("GOOGLE_AI_STUDIO_API_KEY", "")
 GOOGLE_AI_STUDIO_API_KEY2 = os.getenv("GOOGLE_AI_STUDIO_API_KEY2", "")
 
@@ -67,8 +66,6 @@ GEMINI_MODEL_FALLBACK_CANDIDATES: dict[str, list[str]] = {
     "gemini-3.6-flash": ["gemma-4-31b-it", "gemma-4-26b-a4b-it", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-pro", "gemini-2.0-flash-lite"],
     "gemini-3.7-flash": ["gemma-4-31b-it", "gemma-4-26b-a4b-it", "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"],
 }
-
-OPENAI_MODEL            = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 CLOUDFLARE_ACCOUNT_ID   = os.getenv("CLOUDFLARE_ACCOUNT_ID", "")
 CLOUDFLARE_AI_TOKEN     = os.getenv("CLOUDFLARE_AI_TOKEN", "")
@@ -114,21 +111,6 @@ def _gemini_keys() -> list[str]:
     return valid
 
 
-def _openai_keys() -> list[str]:
-    """Return all unique, valid OpenAI-compatible keys from env."""
-    raw = [
-        os.getenv("OPENAI_API_KEY", OPENAI_API_KEY),
-        os.getenv("OPENAI_API_KEY2", OPENAI_API_KEY2),
-    ]
-    seen = set()
-    valid = []
-    invalid_prefixes = ("REPLACE", "your_", "YOUR_", "dummy", "DUMMY", "YOUR_OPENAI")
-    for k in raw:
-        k = k.strip()
-        if k and not any(k.startswith(p) for p in invalid_prefixes) and k not in seen:
-            seen.add(k)
-            valid.append(k)
-    return valid
 
 
 
@@ -381,66 +363,9 @@ def _call_vertex_ai(
 
 
 # ---------------------------------------------------------------------------
-# OpenAI / OpenAI-compatible caller (cloud external providers)
+# External paid-provider callers are intentionally absent from this router.
 # ---------------------------------------------------------------------------
 
-def _call_openai_compatible(
-    provider_name:      str,
-    base_url:           str,
-    api_key:            str,
-    model:              str,
-    prompt:             str,
-    system_instruction: str = "",
-) -> tuple[str | None, str]:
-    """Call an OpenAI-compatible API endpoint."""
-    if not api_key:
-        return None, "no_key"
-
-    url = f"{base_url}/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-    }
-    messages = []
-    if system_instruction:
-        messages.append({"role": "system", "content": system_instruction})
-    messages.append({"role": "user", "content": prompt})
-
-    payload = {
-        "model": model,
-        "messages": messages,
-        "temperature": 0.2,
-        "max_tokens": 4096,
-    }
-
-    key_tag = f"...{api_key[-6:]}" if len(api_key) >= 6 else "key"
-    try:
-        with httpx.Client(timeout=TIMEOUT_CLOUD_S) as client:
-            t0 = time.monotonic()
-            res = client.post(url, json=payload, headers=headers)
-            elapsed = round((time.monotonic() - t0) * 1000)
-
-        if res.status_code == 429:
-            logger.warning(f"[{provider_name}:{model}][{key_tag}] 429 rate-limited")
-            return None, "429"
-        if res.status_code != 200:
-            logger.warning(f"[{provider_name}:{model}][{key_tag}] HTTP {res.status_code}")
-            return None, f"error:{res.status_code}"
-
-        choices = res.json().get("choices", [])
-        if not choices:
-            return None, "empty"
-
-        text = choices[0].get("message", {}).get("content", "").strip()
-        logger.info(f"[{provider_name}:{model}][{key_tag}] [OK] ({elapsed}ms)")
-        return text, "ok"
-
-    except httpx.TimeoutException:
-        logger.warning(f"[{provider_name}:{model}][{key_tag}] Timeout")
-        return None, "timeout"
-    except Exception as exc:
-        logger.warning(f"[{provider_name}:{model}][{key_tag}] Exception: {exc}")
-        return None, "exception"
 
 
 # ---------------------------------------------------------------------------
@@ -560,7 +485,7 @@ class HybridRouter:
       LOCAL 2: qwen2.5-coder:7b    (capable fallback)
       LOCAL 3: llama3:8b           (English fallback)
       CLOUD:   Gemini models x all keys (gemini-3.5-flash-lite -> gemini-flash-latest -> gemini-3.6-flash)
-    CLOUD:   Cloudflare AI, Gemini, Vertex AI, OpenAI (fallback chain)
+      CLOUD:   Cloudflare AI and Gemini (zero-cost fallback chain)
     """
 
     def __init__(self, zero_cost_only: bool | None = None) -> None:
@@ -578,8 +503,12 @@ class HybridRouter:
         is_cloud = _is_cloud_environment()
 
         # === CLOUD MODE (Vercel / HF Spaces / Fly.io) ===
-        # Priority chain: Gemini -> Cloudflare AI -> Vertex AI -> OpenAI
+        # Priority chain: Gemini -> Cloudflare AI
         if is_cloud:
+            # Codex CLI is the primary governed cloud route when an approved
+            # local wrapper is installed; Gemini remains the zero-cost fallback.
+            if check_codex_installation():
+                routes.append({"type": "codex_cli", "model": "codex-cli", "key": None})
             # Route 1: Gemini Cloud (key rotation)
             for model in GEMINI_MODELS_ROTATION:
                 for key in _gemini_keys():
@@ -614,17 +543,7 @@ class HybridRouter:
                 for key in _gemini_keys():
                     routes.append({"type": "gemini", "model": model, "key": key})
 
-        # === SHARED: Vertex AI + OpenAI (both modes, lower priority) ===
-        # If zero_cost_only is enforced, fail-closed: block paid APIs (Vertex AI, OpenAI direct paid)
-        if not self.zero_cost_only:
-            proj_id, bearer_token = _get_vertex_ai_credentials()
-            if proj_id and bearer_token:
-                routes.append({"type": "vertex_ai", "model": "gemini-1.5-flash", "key": bearer_token, "project_id": proj_id})
-
-            for key in _openai_keys():
-                routes.append({"type": "openai", "model": OPENAI_MODEL, "key": key})
-        else:
-            logger.info("[Router] Zero-cost policy active: excluded paid endpoints (Vertex AI, OpenAI).")
+            logger.info("[Router] Zero-cost policy active: excluded paid endpoints.")
 
         return routes
 
@@ -669,13 +588,17 @@ class HybridRouter:
             t0 = time.monotonic()
             if rtype == "ollama":
                 text, reason = _call_ollama(model, prompt, system_instruction)
+            elif rtype == "codex_cli":
+                try:
+                    text = call_codex_cli(prompt, system_instruction=system_instruction, model=model)
+                    reason = "ok"
+                except Exception:
+                    text, reason = None, "error"
             elif rtype == "gemini":
                 text, reason = _call_gemini(model, key, prompt, system_instruction)
             elif rtype == "vertex_ai":
                 proj_id = route.get("project_id", "")
                 text, reason = _call_vertex_ai(model, proj_id, key, prompt, system_instruction)
-            elif rtype == "openai":
-                text, reason = _call_openai_compatible("OpenAI", "https://api.openai.com/v1", key, model, prompt, system_instruction)
             elif rtype == "cloudflare_ai":
                 account_id = route.get("account_id", "")
                 text, reason = _call_cloudflare_ai(account_id, key, model, prompt, system_instruction)
@@ -1068,4 +991,3 @@ if __name__ == "__main__":
     print(f"Route   : {res['route']} / {res['model_used']}")
     print(f"Latency : {res['latency_ms']}ms")
     print(f"Text    : {(res['text'] or '')[:120]}")
-

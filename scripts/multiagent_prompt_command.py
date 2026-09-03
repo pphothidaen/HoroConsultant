@@ -962,12 +962,17 @@ def effective_activation_state(config: Mapping[str, Any]) -> tuple[bool, str]:
 # alter the ordinary dispatcher gate above and it must never start a provider
 # process.  The irreversible start boundary, if any, is separately owned.
 _IDQ_MVP_080_TICKET = "IDQ-MVP-080"
-_IDQ_MVP_080_ALIASES = {
+_IDQ_MVP_080_FOUR_ALIASES = {
     "codex1": "codex",
     "codex2": "codex",
-    "codex3": "codex",
     "agy1": "agy",
     "agy2": "agy",
+}
+# Backward-compatible public name for the closed four-alias exception.
+_IDQ_MVP_080_ALIASES = _IDQ_MVP_080_FOUR_ALIASES
+_IDQ_MVP_080_SEVEN_ALIASES = {
+    **_IDQ_MVP_080_FOUR_ALIASES,
+    "codex3": "codex",
     "agy3": "agy",
     "agy4": "agy",
 }
@@ -1023,7 +1028,7 @@ def _idq_mvp_080_sha256(value: object, label: str) -> str:
     return value
 
 
-def _validate_idq_mvp_080_config(config: Mapping[str, Any]) -> Mapping[str, Any]:
+def _validate_idq_mvp_080_config(config: Mapping[str, Any]) -> Mapping[str, str]:
     """Validate the fixed synthetic exception configuration without widening it."""
 
     if (
@@ -1035,9 +1040,13 @@ def _validate_idq_mvp_080_config(config: Mapping[str, Any]) -> Mapping[str, Any]
     if set(exception) != _IDQ_MVP_080_CONFIG_FIELDS or exception.get("ticket") != _IDQ_MVP_080_TICKET:
         raise ConfigurationError("IDQ-MVP-080 configuration is not allowlisted")
     aliases = _mapping(exception.get("aliases"), "IDQ-MVP-080 aliases")
-    if set(aliases) != set(_IDQ_MVP_080_ALIASES):
-        raise ConfigurationError("IDQ-MVP-080 aliases must be exactly the four allowlisted aliases")
-    for alias, provider in _IDQ_MVP_080_ALIASES.items():
+    if set(aliases) == set(_IDQ_MVP_080_FOUR_ALIASES):
+        alias_profile = _IDQ_MVP_080_FOUR_ALIASES
+    elif set(aliases) == set(_IDQ_MVP_080_SEVEN_ALIASES):
+        alias_profile = _IDQ_MVP_080_SEVEN_ALIASES
+    else:
+        raise ConfigurationError("IDQ-MVP-080 aliases must match an allowlisted profile")
+    for alias, provider in alias_profile.items():
         entry = _mapping(aliases.get(alias), f"IDQ-MVP-080 alias {alias}")
         if set(entry) != _IDQ_MVP_080_ALIAS_FIELDS or dict(entry) != {
             "provider": provider,
@@ -1047,7 +1056,7 @@ def _validate_idq_mvp_080_config(config: Mapping[str, Any]) -> Mapping[str, Any]
             "fallback": False,
         }:
             raise ConfigurationError("IDQ-MVP-080 alias configuration is not allowlisted")
-    return exception
+    return alias_profile
 
 
 def _consume_idq_mvp_080_marker(alias: str, marker_store: Path | str | os.PathLike[str]) -> None:
@@ -1113,14 +1122,14 @@ def validate_idq_mvp_080_admission(
 ) -> IdqMvp080Admission:
     """Validate and consume one of four fixed synthetic, read-only admissions."""
 
-    _validate_idq_mvp_080_config(_mapping(config, "configuration"))
+    alias_profile = _validate_idq_mvp_080_config(_mapping(config, "configuration"))
     request = _mapping(request, "IDQ-MVP-080 admission request")
     if set(request) != _IDQ_MVP_080_REQUEST_FIELDS:
         raise ConfigurationError("IDQ-MVP-080 admission fields are invalid")
     alias = request.get("alias")
-    if alias not in _IDQ_MVP_080_ALIASES:
+    if alias not in alias_profile:
         raise ConfigurationError("IDQ-MVP-080 alias is not allowlisted")
-    provider = _IDQ_MVP_080_ALIASES[alias]
+    provider = alias_profile[alias]
     if (
         request.get("ticket") != _IDQ_MVP_080_TICKET
         or request.get("provider") != provider
@@ -1229,14 +1238,14 @@ def validate_idq_mvp_080_execution_admission(
     API and its frozen consume-on-validation behavior.
     """
 
-    _validate_idq_mvp_080_config(_mapping(config, "configuration"))
+    alias_profile = _validate_idq_mvp_080_config(_mapping(config, "configuration"))
     request = _mapping(request, "IDQ-MVP-080 admission request")
     if set(request) != _IDQ_MVP_080_REQUEST_FIELDS:
         raise ConfigurationError("IDQ-MVP-080 admission fields are invalid")
     alias = request.get("alias")
-    if alias not in _IDQ_MVP_080_ALIASES:
+    if alias not in alias_profile:
         raise ConfigurationError("IDQ-MVP-080 alias is not allowlisted")
-    provider = _IDQ_MVP_080_ALIASES[alias]
+    provider = alias_profile[alias]
     if (
         request.get("ticket") != _IDQ_MVP_080_TICKET
         or request.get("provider") != provider

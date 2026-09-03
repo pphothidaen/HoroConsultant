@@ -1,4 +1,6 @@
 {
+  "description": "HoroConsultant AGY Hooks Configuration with atomic TDD governance",
+  "version": "1.2.0",
   "hooks": {
     "PreToolUse": [
       {
@@ -6,20 +8,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": ".agy/hooks/pre-tool-use.sh",
-            "timeout": 15
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "write_to_file|replace_file_content",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".agy/hooks/post-tool-use.sh",
-            "timeout": 15
+            "command": "bash .agy/hooks/atomic-tdd-guard.sh"
           }
         ]
       }
@@ -29,12 +18,7 @@
         "matcher": "*",
         "sequential": true,
         "hooks": [
-          {
-            "name": "context-handoff-stop-normalizer",
-            "type": "command",
-            "command": "bash \"$(git rev-parse --show-toplevel)/.agy/hooks/stop-monitor.sh\"",
-            "timeout": 3000
-          }
+          {"name": "context-handoff-stop-normalizer", "type": "command", "command": "bash \"$(git rev-parse --show-toplevel)/.agy/hooks/stop-monitor.sh\"", "timeout": 3000}
         ]
       }
     ]

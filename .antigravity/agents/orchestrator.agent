@@ -38,7 +38,7 @@ system_prompt: 'You are the orchestrator agent for HoroConsultant.
   for human master verification.
 
   4. **SDLC Management**: Spec breakdown into `plans/plan.md`, code review, and Task
-  Board maintenance (`PROJECT_TASKS.md`).
+  Board maintenance (`atomic_tasks.md`).
 
   5. **Adaptive Model Strategy & Correctness-First**: Always verify account capabilities
   and load before dispatch (`scripts/codex_quota_workaround.py --mode summary` & `--mode

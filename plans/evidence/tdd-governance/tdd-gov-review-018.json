@@ -1,0 +1,157 @@
+{
+  "schema_version": "atomic-tdd-review-v1",
+  "ticket_id": "TDD-GOV-REVIEW-018",
+  "reviewed_baseline_ticket_id": "TICKET-TDD-GOV-QA-019",
+  "reviewed_baseline_commit": "5ca05d879ca85cf6687772ad9ad7f3ad9fd78928",
+  "requirement_change_ticket_id": "TDD-GOV-BSA-019",
+  "requirement_change_commit": "67cc7283fca884e4e2450ceacc0caa7bfd5b052f",
+  "reviewer_role": "code_reviewer",
+  "reviewer_identity": "Codex code_reviewer / TDD-GOV-REVIEW-018; independent from QA baseline editors",
+  "reviewed_at": "2026-09-03",
+  "verdict": "FAIL",
+  "source_admission": "BLOCKED",
+  "baseline_chain": [
+    {
+      "sequence": 1,
+      "commit": "b38d5077057c3852a7e2e21af37376567231f810",
+      "test_path": "tests/test_atomic_tdd_lifecycle_governance.py",
+      "test_sha256": "ce7b2c1c5e0428188dc456438bfa3df6e4bb237df92c94c3e5648947f1c86642",
+      "manifest_path": "plans/test_provenance/ticket-tdd-gov-qa-010-baseline.json",
+      "manifest_sha256": "f161308ce0edbec280989cee25f3715ae82b2767fd90fe55fe012a85475ad963"
+    },
+    {
+      "sequence": 2,
+      "commit": "441a7ed3bddb27110b219df0ee1ffd58e3e547e5",
+      "test_path": "tests/test_atomic_tdd_lifecycle_governance_v2.py",
+      "test_sha256": "8ba0d5a89b3b3053f7532ae2623265777ac29de5baa0c783b8ef91d8d36f1dd7",
+      "manifest_path": "plans/test_provenance/ticket-tdd-gov-qa-017-baseline.json",
+      "manifest_sha256": "cffa10368b8bc2968c031cc1f78d383cc8dab15ee7af10cc151a068aff9f2899"
+    },
+    {
+      "sequence": 3,
+      "commit": "5ca05d879ca85cf6687772ad9ad7f3ad9fd78928",
+      "test_path": "tests/test_atomic_tdd_lifecycle_governance_v3.py",
+      "test_sha256": "c6d05b2cf37a065ff2aa896a24c2d3c154f0748d1c61664d66bd4c20c232672c",
+      "manifest_path": "plans/test_provenance/ticket-tdd-gov-qa-019-baseline.json",
+      "manifest_sha256": "b5b29de7909e6ec6f29f33c3ffb4fe098f225ababbb6b50f868fe9f4d5ed8148",
+      "baseline_parent": "67cc7283fca884e4e2450ceacc0caa7bfd5b052f",
+      "supersedes": "441a7ed3bddb27110b219df0ee1ffd58e3e547e5"
+    }
+  ],
+  "verification": {
+    "ancestry": "PASS: BSA-019 is the direct parent of sequence 3",
+    "candidate_scope": "PASS: sequence 3 adds exactly the v3 test and closed v3 manifest",
+    "frozen_hashes": "PASS: all v1/v2 hashes match and the v3 test hash matches its manifest",
+    "allowlist": "PASS: v3 allowed_source_paths is byte-for-value equal to v2's 30 paths",
+    "provenance_verify": {
+      "command": [
+        "python3",
+        "scripts/test_provenance_guard.py",
+        "verify",
+        "--repo",
+        ".",
+        "--manifest",
+        "plans/test_provenance/ticket-tdd-gov-qa-019-baseline.json",
+        "--baseline",
+        "5ca05d879ca85cf6687772ad9ad7f3ad9fd78928",
+        "--head",
+        "5ca05d879ca85cf6687772ad9ad7f3ad9fd78928",
+        "--include-worktree"
+      ],
+      "exit": 0,
+      "status": "PASSED",
+      "issues": []
+    },
+    "provenance_verify_pr": {
+      "command": [
+        "python3",
+        "scripts/test_provenance_guard.py",
+        "verify-pr",
+        "--repo",
+        ".",
+        "--base",
+        "67cc7283fca884e4e2450ceacc0caa7bfd5b052f",
+        "--head",
+        "5ca05d879ca85cf6687772ad9ad7f3ad9fd78928"
+      ],
+      "exit": 0,
+      "status": "PASSED",
+      "issues": []
+    },
+    "v3_red": {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_atomic_tdd_lifecycle_governance_v3.py"
+      ],
+      "runs": 2,
+      "exit_each_run": 1,
+      "outcome_each_run": "2 failed, 1 passed",
+      "stable_fingerprints": [
+        "V3_REQUIRES_IMMUTABLE_V2_GREEN",
+        "ATOMIC_TDD_IMPLEMENTATION_MISSING:.agents/hooks/atomic_tdd_guard.py"
+      ]
+    },
+    "v2_red": {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_atomic_tdd_lifecycle_governance_v2.py"
+      ],
+      "runs": 2,
+      "exit_each_run": 1,
+      "outcome_each_run": "18 failed, 2 passed",
+      "stable_fingerprint": "ATOMIC_TDD_IMPLEMENTATION_MISSING:.agents/hooks/atomic_tdd_guard.py"
+    },
+    "v3_tamper_red": {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_atomic_tdd_lifecycle_governance_v3.py::test_post_baseline_manifest_tamper_is_rejected_dynamically"
+      ],
+      "runs": 2,
+      "exit_each_run": 1,
+      "outcome_each_run": "1 failed",
+      "stable_fingerprint": "ATOMIC_TDD_IMPLEMENTATION_MISSING:.agents/hooks/atomic_tdd_guard.py",
+      "fixture_audit": "PASS: the disposable history is clean before tamper, contains an independent PASS receipt bound to the sequence-2 baseline, carries the exact Test-Baseline trailer on source and tamper commits, and changes only the committed frozen manifest at the tamper commit"
+    }
+  },
+  "review_015_coverage": {
+    "generic_positive_admission_prevents_deny_all": "PRESENT_IN_V2",
+    "source_before_baseline_and_mixed_source_test": "PRESENT_IN_V2",
+    "frozen_test_and_frozen_manifest_tamper": "PRESENT_ACROSS_V2_V3",
+    "missing_and_mismatched_trailers": "PRESENT_IN_V2",
+    "hostile_caller_claims": "PRESENT_IN_V2",
+    "approved_reviewed_and_unapproved_unreviewed_supersession": "PRESENT_IN_V2",
+    "repository_evidence_and_path_containment": "PRESENT_IN_V2",
+    "claude_and_agy_native_deny_protocols": "PRESENT_IN_V2",
+    "codex_no_native_pretooluse_boundary": "PRESENT_IN_V2",
+    "parsed_registries_and_no_duplicate_functional_registration": "PRESENT_IN_V2",
+    "canonical_mirror_and_sync_parity": "PRESENT_IN_V2",
+    "full_capacity_guard_syntax_repair": "PRESENT_IN_V2_AND_CURRENT_CONFLICT_CONFIRMED"
+  },
+  "platform_boundaries": {
+    "claude": "A real PreToolUse adapter must emit hookSpecificOutput.permissionDecision and permissionDecisionReason; v2 invokes it dynamically.",
+    "agy": "A real shell adapter must emit decision/reason and deny with exit 2; v2 invokes it dynamically.",
+    "codex": "Codex has no native repository PreToolUse enforcement boundary; v2 requires the registry to state this honestly and forbids a fake atomic TDD hook registration.",
+    "agents": "The canonical core guard and parsed project registry remain required; local hooks are read-only and repository evidence is authoritative."
+  },
+  "findings": [
+    {
+      "severity": "BLOCKER",
+      "code": "FROZEN_SUITE_CONTRACT_UNSATISFIABLE",
+      "detail": "QA-030 requires all three frozen suites. Frozen v1 tests/test_atomic_tdd_lifecycle_governance.py:24-29,141-142 requires the literal .agents/hooks/atomic_tdd_guard.py in .codex/hooks.json, while frozen v2 tests/test_atomic_tdd_lifecycle_governance_v2.py:427-430 parses the same JSON and requires atomic_tdd_guard to be absent. No single valid .codex/hooks.json can satisfy both assertions. A developer cannot resolve this without changing a frozen requirement or bypassing QA, so sequence 3 cannot safely admit DEV-020."
+    }
+  ],
+  "residual_risk": [
+    "The v3 manifest records V3_REQUIRES_IMMUTABLE_V2_GREEN as its primary RED fingerprint rather than a manifest-tamper-specific reason; the independently executed focused v3 tamper test is RED, but the manifest's recorded fingerprint alone does not distinguish that new contract from the inherited v2 failure.",
+    "The pre-existing merge conflict markers in .agents/hooks/full_capacity_guard.py remain intentionally unresolved until a valid source baseline is admitted."
+  ],
+  "next_gate": "NEEDS_HITL: preserve all frozen artifacts and obtain a new owner-approved requirement change for a test-only superseding baseline that removes the cross-sequence Codex registry contradiction; DEV-020 must not start."
+}

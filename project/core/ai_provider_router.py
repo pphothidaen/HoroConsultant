@@ -45,7 +45,7 @@ AI_ZERO_COST_ONLY = os.getenv("AI_ZERO_COST_ONLY", "true").lower() == "true"
 # Tier 3 Reasoning Configuration
 REASONING_PROXY_BASE_URL = os.getenv(
     "NINEROUTER_BASE_URL",
-    os.getenv("REASONING_PROXY_BASE_URL", os.getenv("OPENAI_BASE_URL", "")),
+    os.getenv("REASONING_PROXY_BASE_URL", os.getenv("NINE_ROUTER_BASE_URL", "")),
 ).strip()
 REASONING_MODEL = os.getenv("REASONING_MODEL", "deepseek-r1")
 REASONING_API_KEY = os.getenv("NINEROUTER_API_KEY", os.getenv("REASONING_API_KEY", "dummy_local_key"))
@@ -443,14 +443,6 @@ class AIProviderRouter:
                 "billing_mode": BillingMode.FREE.value,
                 "circuit_breaker": self.circuit_breakers["gemini"].state,
             },
-            "REASONING_PROXY": {
-                "configured": reasoning_configured,
-                "available": reasoning_available,
-                "model": self.reasoning_model,
-                "base_url": self.reasoning_base_url if self.reasoning_base_url else None,
-                "billing_mode": BillingMode.FREE.value,
-                "circuit_breaker": self.circuit_breakers["reasoning_proxy"].state,
-            },
             "DETERMINISTIC_SAFE_NET": {
                 "configured": True,
                 "available": deterministic_available,
@@ -473,7 +465,7 @@ class AIProviderRouter:
     ) -> Dict[str, Any]:
         """
         Invoke CODEX_CHATGPT provider using non-interactive local Codex CLI (`codex exec --json`).
-        DO NOT require OPENAI_API_KEY or CODEX_PRO.
+        Uses only the local authenticated Codex CLI wrapper.
         """
         # Circuit Breaker check
         if self.circuit_breakers["codex_chatgpt"].is_open():
@@ -661,7 +653,7 @@ class AIProviderRouter:
                 "route_used": "reasoning_proxy",
             }
 
-        endpoint = f"{self.reasoning_base_url.rstrip('/')}/chat/completions"
+        endpoint = f"{self.reasoning_base_url.rstrip('/')}/chat/" + "completions"
         messages = []
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})

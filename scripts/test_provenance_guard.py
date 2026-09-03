@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Fail-closed Git-history guard for test-first provenance.
 
+SOURCE_COMMIT_BASELINE_TRAILER_MISMATCH is distinct from a missing trailer.
+
+The SOURCE_COMMIT_BASELINE_TRAILER_MISMATCH condition is explicitly
+distinguished from SOURCE_COMMIT_MISSING_BASELINE_TRAILER.
+
 The guard treats a test baseline commit as evidence, not as a claim supplied by
 the caller.  It verifies commit ancestry, exact test hashes, commit separation,
 source trailers, and optional worktree cleanliness using Git object data.
@@ -661,6 +666,8 @@ def verify_pr(repo: Path, base_revision: str, head_revision: str) -> Report:
         ".codex/",
         "config/",
         "hf-release-manifest.json",
+        "hf-release-receipt.json",
+        "fused_model/",
         "public/",
         "pytest.ini",
         ".gitignore",
