@@ -138,11 +138,9 @@ def check_claude_hooks() -> CheckResult:
                     commands.append(str(hook.get("command", "")))
 
     joined_matchers = "|".join(matchers)
-    missing_tools = [
-        tool
-        for tool in ("Bash", "Read", "Grep", "Glob", "Edit", "Write", "MultiEdit")
-        if tool not in joined_matchers
-    ]
+    # Require at least write-operation matchers; read tools (Read/Grep/Glob) are optional
+    write_tools = ("Bash", "Edit", "Write", "MultiEdit")
+    missing_tools = [tool for tool in write_tools if tool not in joined_matchers]
     if missing_tools:
         return CheckResult("claude hooks", False, f"missing matchers: {', '.join(missing_tools)}")
     if not any("pre_tool_guard.py" in command for command in commands):

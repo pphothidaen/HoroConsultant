@@ -33,11 +33,7 @@ MAX_TEXT = 512
 GOVERNANCE_SCHEMA_VERSION = "full-capacity-governance-v2"
 CONFIG_SCHEMA_VERSION = "full-capacity-guard-config-v2"
 AUTHORIZATION_SCHEMA_VERSION = "capacity-provider-authorization-v2"
-<<<<<<< HEAD
 EXPECTED_ALIASES = ("agy1", "agy2", "agy3", "agy4")
-=======
-EXPECTED_ALIASES = ("agy1", "agy2")
->>>>>>> origin/admin-remed-production
 GOVERNED_ALIASES = frozenset({"codex1", "codex2", "codex3", *EXPECTED_ALIASES})
 ALIAS_PROVIDER = {
     "codex1": "codex",
