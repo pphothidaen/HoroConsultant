@@ -298,6 +298,9 @@ def main() -> int:
     event["repo"] = args.repo
     result = evaluate(event)
 
+    # The original TDD-GOV-DEV-020 adapter predates the reason_code protocol;
+    # retain its human-readable reason contract without changing the native
+    # core adapter used by the immutable v2/v3/v4 suites.
     if args.adapter == "core" and event.get("ticket_id") == "TDD-GOV-DEV-020":
         result = {"decision": result["decision"], "reason": result["reason_code"]}
         print(json.dumps(result))
