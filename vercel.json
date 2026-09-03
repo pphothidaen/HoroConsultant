@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "git": {
     "deploymentEnabled": {
-      "*": false,
+      "*": true,
       "main": true
     }
   },
@@ -38,6 +38,34 @@
     {
       "source": "/openapi.json",
       "destination": "/api/index?path=/openapi.json"
+    },
+    {
+      "source": "/admin/auth/config",
+      "destination": "/api/index?path=/admin/auth/config"
+    },
+    {
+      "source": "/admin/auth/google",
+      "destination": "/api/index?path=/admin/auth/google"
+    },
+    {
+      "source": "/admin/catalog/summary",
+      "destination": "/api/index?path=/admin/catalog/summary"
+    },
+    {
+      "source": "/admin/grayzone",
+      "destination": "/api/index?path=/admin/grayzone"
+    },
+    {
+      "source": "/admin/finetune/status",
+      "destination": "/api/index?path=/admin/finetune/status"
+    },
+    {
+      "source": "/admin/provider-pools",
+      "destination": "/api/index?path=/admin/provider-pools"
+    },
+    {
+      "source": "/hitl/stats",
+      "destination": "/api/index?path=/hitl/stats"
     }
   ]
 }

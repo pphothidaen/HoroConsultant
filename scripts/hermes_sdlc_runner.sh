@@ -45,7 +45,7 @@ notify_hermes_start() {
 }
 
 resolve_hermes_route_profile() {
-    local requested_alias="${HERMES_ACCOUNT_ALIAS:-${ROUTER_ACCOUNT_ALIAS:-${NINE_ROUTER_ACCOUNT_ALIAS:-agy1}}}"
+    local requested_alias="${HERMES_ACCOUNT_ALIAS:-${ROUTER_ACCOUNT_ALIAS:-${NINE_ROUTER_ACCOUNT_ALIAS:-codex1}}}"
     local requested_role="${HERMES_TASK_ROLE:-analysis}"
     local requested_complexity="${HERMES_TASK_COMPLEXITY:-medium}"
     local sdlc_phase="${HERMES_SDLC_PHASE:-}"
@@ -68,7 +68,7 @@ resolve_hermes_route_profile() {
                 export HERMES_ROUTER_TIME="${time:-medium}"
                 export HERMES_ACCOUNT_ALIAS_RESOLVED="${alias:-$requested_alias}"
                 export NINE_ROUTER_DEVELOPER_MODEL="${HERMES_ROUTER_MODEL}"
-                export AGY_FALLBACK_CHAIN="${chain:-agy1,agy2,agy3,codex_subagent}"
+                export AGY_FALLBACK_CHAIN="${chain:-codex1,codex2,codex3,codex_subagent}"
                 export HERMES_RESOLVED_ROLE="${_role:-$requested_role}"
                 export HERMES_RESOLVED_COMPLEXITY="${_complexity:-$requested_complexity}"
                 export HERMES_CODEX_FALLBACK_MODEL="${codex_fallback_model:-gpt-5.3-codex-spark high}"
@@ -82,7 +82,7 @@ resolve_hermes_route_profile() {
     export HERMES_ROUTER_TIME="medium"
     export HERMES_ACCOUNT_ALIAS_RESOLVED="${requested_alias}"
     export NINE_ROUTER_DEVELOPER_MODEL="${HERMES_ROUTER_MODEL}"
-    export AGY_FALLBACK_CHAIN="agy1,agy2,agy3,codex_subagent"
+    export AGY_FALLBACK_CHAIN="codex1,codex2,codex3,codex_subagent"
     export HERMES_RESOLVED_ROLE="${requested_role}"
     export HERMES_RESOLVED_COMPLEXITY="${requested_complexity}"
     export HERMES_CODEX_FALLBACK_MODEL="gpt-5.3-codex-spark high"
@@ -94,14 +94,12 @@ resolve_router() {
 
     HERMES_TASK_ROLE="${HERMES_RESOLVED_ROLE:-implementation}"
     HERMES_TASK_COMPLEXITY="${HERMES_RESOLVED_COMPLEXITY:-medium}"
-    ACCOUNT_ALIAS="${HERMES_ACCOUNT_ALIAS_RESOLVED:-agy1}"
+    ACCOUNT_ALIAS="${HERMES_ACCOUNT_ALIAS_RESOLVED:-codex1}"
 
     # Priority 1: ROUTER_BASE_URL (Cloud/CI secret override)
     if [ -n "${ROUTER_BASE_URL:-}" ]; then
         RESOLVED_ROUTER_URL="$ROUTER_BASE_URL"
         log_info "Routing: ROUTER_BASE_URL (Cloud/CI mode) -> $RESOLVED_ROUTER_URL (Account Alias: $ACCOUNT_ALIAS)"
-        export OPENAI_BASE_URL="$RESOLVED_ROUTER_URL"
-        export OPENAI_API_KEY="${NINE_ROUTER_API_KEY:-dummy}"
         export NINE_ROUTER_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
         export ROUTER_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
         export HTTP_HEADER_X_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
@@ -114,8 +112,6 @@ resolve_router() {
         if curl -sf --max-time 3 "$HEALTH_ENDPOINT" > /dev/null 2>&1; then
             RESOLVED_ROUTER_URL="$NINE_ROUTER_BASE_URL"
             log_ok "9router UP at $NINE_ROUTER_BASE_URL - routing via proxy (Account Alias: $ACCOUNT_ALIAS)"
-            export OPENAI_BASE_URL="$RESOLVED_ROUTER_URL"
-            export OPENAI_API_KEY="${NINE_ROUTER_API_KEY:-dummy}"
             export NINE_ROUTER_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
             export ROUTER_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
             export HTTP_HEADER_X_ACCOUNT_ALIAS="$ACCOUNT_ALIAS"
@@ -125,37 +121,27 @@ resolve_router() {
         fi
     fi
 
-    # Priority 3: CODEX_PRO endpoint fallback
-    if [ -n "${CODEX_PRO_BASE_URL:-}" ] && [ -n "${CODEX_PRO:-}" ]; then
-        log_warn "Falling back to CODEX_PRO endpoint: $CODEX_PRO_BASE_URL"
-        export OPENAI_BASE_URL="$CODEX_PRO_BASE_URL"
-        export OPENAI_API_KEY="$CODEX_PRO"
-        return 0
-    fi
-
-    # Priority 4: Gemini direct (GOOGLE_AI_STUDIO_API_KEY)
+    # Gemini direct (GOOGLE_AI_STUDIO_API_KEY)
     if [ -n "${GOOGLE_AI_STUDIO_API_KEY:-}" ]; then
         log_warn "Falling back to direct Gemini API (no proxy)"
-        unset OPENAI_BASE_URL
-        unset OPENAI_API_KEY
         return 0
     fi
 
-    log_error "No LLM routing available. Set NINE_ROUTER_BASE_URL, ROUTER_BASE_URL, CODEX_PRO, or GOOGLE_AI_STUDIO_API_KEY"
+    log_error "No LLM routing available. Set NINE_ROUTER_BASE_URL, ROUTER_BASE_URL, or GOOGLE_AI_STUDIO_API_KEY"
 }
 
 # Phase implementations
 
 phase_dev() {
     log_section "PHASE 2: Core Implementation (Hermes - developer agent)"
-    export HERMES_SDLC_PHASE="dev"                   # implementation/medium/agy2
+    export HERMES_SDLC_PHASE="dev"                   # implementation/medium/codex2
     export HERMES_TASK_ROLE="implementation"
     export HERMES_TASK_COMPLEXITY="medium"
     resolve_router
-    log_info "Router resolved. Developer agent now active via $OPENAI_BASE_URL"
+    log_info "Router resolved. Developer agent is active via the governed route"
     log_info "Routing profile: role=${HERMES_RESOLVED_ROLE:-implementation}, complexity=${HERMES_RESOLVED_COMPLEXITY:-medium}"
     log_info "Model: ${HERMES_ROUTER_MODEL:-${NINE_ROUTER_DEVELOPER_MODEL:-deepseek-v3}} (via ${ACCOUNT_ALIAS}, time=${HERMES_ROUTER_TIME:-medium})"
-    log_info "Fallback chain: ${AGY_FALLBACK_CHAIN:-agy1,agy2,codex_subagent}"
+    log_info "Fallback chain: ${AGY_FALLBACK_CHAIN:-codex1,codex2,codex_subagent}"
     log_info "Codex fallback model: ${HERMES_CODEX_FALLBACK_MODEL:-gpt-5.3-codex-spark high}"
     notify_hermes_start "dev" "routing_ready"
     log_ok "Environment ready. Run: agy --agent developer '<task>'"
@@ -163,7 +149,7 @@ phase_dev() {
 
 phase_qa() {
     log_section "PHASE 3: QA Testing (Hermes Headless - qa_tester agent)"
-    export HERMES_SDLC_PHASE="qa"                    # review/low/agy1
+    export HERMES_SDLC_PHASE="qa"                    # review/low/codex1
     export HERMES_TASK_ROLE="review"
     export HERMES_TASK_COMPLEXITY="low"              # QA is deterministic pytest, not LLM
     resolve_router
@@ -260,8 +246,7 @@ phase_help() {
     echo "  Routing priority:"
     echo "    1. ROUTER_BASE_URL     (Cloud/CI override)"
     echo "    2. NINE_ROUTER_BASE_URL (Local 9router on :20128)"
-    echo "    3. CODEX_PRO_BASE_URL  (CODEX_PRO endpoint)"
-    echo "    4. GOOGLE_AI_STUDIO_API_KEY (Gemini direct)"
+    echo "    3. Gemini direct credential (last resort)"
     echo ""
 }
 
