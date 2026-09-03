@@ -16,5 +16,8 @@ id = "REPLACE_WITH_KV_NAMESPACE_ID"
 binding = "ARTIFACTS"
 bucket_name = "horoconsultant-artifacts"
 
+[triggers]
+crons = ["0 0 * * *"]
+
 [observability]
 enabled = true
