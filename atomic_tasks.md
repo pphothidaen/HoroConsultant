@@ -34,6 +34,50 @@ second task board or add ticket definitions to a plan/pointer file.
 
 ## ACTIVE SPRINTS & WORKSTREAMS
 
+<!-- TDD-GOV-BSA-001:START -->
+## Program TDD-GOV-20260903 -- Mandatory Atomic TDD Lifecycle Gate
+
+**Recorded**: `2026-09-03` (owner instruction)
+**GRILL gate**: `APPROVED` -- the owner explicitly supplied the mandatory lifecycle, authority, gates, and exclusions; no unresolved material decision remains.
+**Authority**: The `2026-09-03` owner instruction is the requirement-change authority for this new mandatory rule. It authorizes planning and the later scoped ticket work below; it does not authorize a push, deployment, secret operation, or external mutation.
+**Current status**: `TDD-GOV-BSA-001 DONE`; every successor remains `TODO` and fail-closed.
+
+### Non-negotiable lifecycle and provenance gates
+
+- Every ticket follows `TODO -> READY -> DOING -> DONE`; a failed dependency, failed verification, or missing owner decision moves it to `BLOCKED` or `NEEDS_HITL`, never around a gate.
+- No source ticket may enter `DOING` until a QA-owned, test-only commit and closed provenance manifest have independently earned `TEST_BASELINE_VERIFIED`; `TDD-GOV-REVIEW-015 PASS` is also required before source `READY`.
+- A verified baseline is frozen: test and manifest hashes, baseline SHA, RED/negative-control evidence, and the original receipt are immutable. Later source commits carry the exact `Test-Baseline: <baseline SHA>` trailer; a mixed test/source commit or missing/mismatched lineage fails closed.
+- **Frozen-test exception**: only a new, recorded owner requirement change may open a separate QA-owned correction/superseding baseline. It must preserve the old SHA, reason, new hashes, and fresh RED/negative evidence, then pass independent review. Source remains blocked until that review returns `PASS`; never edit, amend, squash, delete, or silently relabel the original baseline.
+- Push, deploy, secret/credential access, and external actions are excluded from this program. `TDD-GOV-INTEGRATE-050` may integrate only into `release/provenance-remediation-20260903` after both post-development QA and final review have independent `PASS` verdicts.
+
+```text
+TDD-GOV-BSA-001 (DONE: planning record)
+  -> TDD-GOV-QA-010 (test-only baseline; TEST_BASELINE_VERIFIED)
+  -> TDD-GOV-REVIEW-015 (independent baseline PASS)
+  -> TDD-GOV-DEV-020 (rule/hook/docs/skills/sync implementation)
+  -> TDD-GOV-QA-030 (independent post-development PASS)
+  -> TDD-GOV-REVIEW-040 (independent final PASS)
+  -> TDD-GOV-INTEGRATE-050 (provider-release remediation branch only)
+```
+
+| Ticket | Owner | Lifecycle / dependencies | Owned scope | Measurable acceptance / DoD |
+|---|---|---|---|---|
+| `TDD-GOV-BSA-001` | `business_analyst` | DONE (`TODO -> READY -> DOING -> DONE`) | `atomic_tasks.md`, `plans/plan.md` only | This active program records owner authority, the lifecycle, dependencies, frozen-baseline exception, measurable downstream gates, and exclusions. Exact diff contains only these two files; no implementation/test/hook/skill/sync/external work. |
+| `TDD-GOV-QA-010` | `qa_tester` | TODO; depends on BSA-001 DONE | New test-only files and one new closed provenance manifest, exact paths declared at READY | From a clean parent, create a test-only baseline that exercises rule, pre-tool hook, governance-doc, skill, ecosystem-sync, and negative bypass/tamper contracts. Record argv, nonzero RED or explicit negative-control result, fingerprint, hashes, parent/baseline SHA, allowed future paths, and ownership. Commit no source; provenance guard must yield `TEST_BASELINE_VERIFIED`. |
+| `TDD-GOV-REVIEW-015` | `code_reviewer` | TODO; depends on QA-010 `TEST_BASELINE_VERIFIED`; independent of QA editor | Read-only baseline review and declared receipt path | Independently verify clean ancestry, test-only diff, manifest closure/hashes, honest RED/negative evidence, required coverage, and frozen-correction procedure. Only `PASS` permits DEV-020 to become `READY`; `FAIL` blocks all source work. |
+| `TDD-GOV-DEV-020` | `developer` | TODO; depends on QA-010 `TEST_BASELINE_VERIFIED` and REVIEW-015 `PASS` | Rule, read-only pre-tool hook, governance documentation, relevant skills, and generated ecosystem outputs only as declared at READY | Implement fail-closed enforcement, then freeze the candidate for independent QA. Every source commit descends from QA-010 and has the exact baseline trailer. Run baseline-defined negative tests for source-before-baseline, mixed source/test, changed frozen test, missing/mismatched trailer, and unreviewed supersession. It may transition from `DOING` to `DONE` only after QA-030 `PASS`; no source `DOING` beforehand. |
+| `TDD-GOV-QA-030` | `qa_tester` | TODO; depends on DEV-020 candidate freeze (developer remains `DOING`); independent of developer | Read-only verification evidence and declared receipt path | Independently run focused and applicable regression tests, provenance/history guard, hook negative tests, rule/governance/skill checks, and `python3 scripts/sync_ai_agent_ecosystem.py --check`. Verdict is explicit `PASS`/`FAIL`, binds candidate and baseline SHA, and fails closed on changed frozen artifacts or out-of-scope files; `PASS` is mandatory before DEV-020 `DONE`. |
+| `TDD-GOV-REVIEW-040` | `code_reviewer` | TODO; depends on QA-030 `PASS` and DEV-020 DONE; independent of developer/QA | Read-only final safety/governance review and declared receipt path | Independently confirm all lifecycle gates, rule/hook behavior, docs/skills alignment, sync receipt, QA evidence, source trailers, frozen-baseline exception, rollback path, and zero unowned changes. Only `PASS` permits integration. |
+| `TDD-GOV-INTEGRATE-050` | `orchestrator` / authorized integrator | TODO; depends on QA-030 `PASS` and REVIEW-040 `PASS`; exact branch admission | Integration metadata/branch action only after separate admission | Integrate the exact reviewed candidate into `release/provenance-remediation-20260903`, preserving baseline lineage and receipts. Stop on a missing PASS, branch mismatch, dirty/unreviewed diff, or absent rollback reference. No push/deploy/secrets are authorized by this ticket. |
+
+### Program stop conditions
+
+- `TDD-GOV-BSA-001` stops at this planning commit. It does not create a baseline, modify implementation, or run ecosystem sync.
+- Downstream workers must declare exact writable paths, one-editor ownership, normal admission evidence, and receipt locations before `READY`.
+- Any requirement change affecting a frozen baseline requires a new owner record and a separate QA/review sequence; it does not retroactively alter or validate prior history.
+
+<!-- TDD-GOV-BSA-001:END -->
+
 <!-- ADMIN-REMED-BSA-015:START -->
 ## Scope Delta ADMIN-REMED-BSA-015 -- Privileged Admin Action Baseline Supersession
 

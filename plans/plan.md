@@ -7,6 +7,53 @@
 
 ---
 
+<!-- TDD-GOV-BSA-001:START -->
+## GRILL REPORT -- TDD-GOV-BSA-001: Mandatory Atomic TDD Lifecycle Gate
+
+**Recorded**: `2026-09-03` (owner instruction)
+**Status**: `APPROVED`
+**Requirement-change authority**: The owner instruction dated `2026-09-03` explicitly requires a mandatory atomic TDD lifecycle: verified test-only baseline before source work, independent QA before DONE, and immutable baseline correction only through a recorded requirement change plus independently reviewed supersession.
+**Authorized current phase**: planning records only (`atomic_tasks.md` and this plan). The next executable phase is `TDD-GOV-QA-010` test-only baseline work under separate admission.
+
+### Scope and decision record
+
+**IN**: a fail-closed governance rule, read-only pre-tool hook, governance documentation, skill instructions, ecosystem synchronization, baseline and negative tests, independent post-development QA, final review, and only then integration to `release/provenance-remediation-20260903`.
+
+**OUT**: implementation in this ticket; test/hook/rule/skill changes in this ticket; push, deployment, release, secret or credential actions, and all other external mutations.
+
+| Dimension | Decision / measurable evidence |
+|---|---|
+| Lifecycle | Each ticket must progress `TODO -> READY -> DOING -> DONE`; dependency or evidence failure is `BLOCKED`/`NEEDS_HITL`, never a bypass. No source `DOING` until QA has a committed, closed `TEST_BASELINE_VERIFIED` baseline and REVIEW-015 independently returns `PASS`. |
+| QA baseline | QA-010 is test-only and creates exactly one closed provenance manifest. It binds clean parent, test hashes, exact command, expected RED/nonzero or explicit negative control, failure fingerprint, baseline SHA, permitted future source paths, and ownership. A provenance/history guard must verify it. |
+| Frozen tests | Baseline tests, manifest, SHA, hashes, RED/negative receipt, and original evidence cannot change. Source commits must descend from it and carry `Test-Baseline: <baseline SHA>`. Mixed source/test history, a missing trailer, or hash drift is a fail-closed negative case. |
+| Requirement-change exception | A new recorded owner requirement change is the only authority to open a QA-owned correction/superseding baseline. It preserves old SHA/reason and captures new hashes plus fresh RED/negative proof. Independent review must pass before source resumes; the original baseline is never rewritten. |
+| DEV-020 delivery | Implement rule and read-only pre-tool hook, governance docs and relevant skills, execute required ecosystem sync, and cover source-before-baseline, mixed commit, frozen-test tamper, trailer drift, and unreviewed supersession negative cases. Freeze the candidate for QA; DEV-020 cannot become `DONE` before QA-030 `PASS`. |
+| Independent verification | QA-030 independently verifies a frozen DEV-020 candidate before DEV-020 `DONE`: focused/applicable regression, provenance/history, hook negatives, documentation/skill behavior, and ecosystem `--check`, yielding a candidate- and baseline-bound `PASS`/`FAIL`. REVIEW-040 independently checks safety/governance and a rollback reference. |
+| Integration | Only after QA-030 `PASS` and REVIEW-040 `PASS` may INTEGRATE-050 integrate the exact reviewed candidate into `release/provenance-remediation-20260903`. No push/deploy/secrets are authorized by this plan. |
+
+### Dependencies and admission
+
+```text
+BSA-001 DONE
+  -> QA-010 test-only baseline -> TEST_BASELINE_VERIFIED
+  -> REVIEW-015 independent baseline PASS
+  -> DEV-020 source/governance implementation (candidate freeze; still DOING)
+  -> QA-030 independent post-development PASS -> DEV-020 DONE
+  -> REVIEW-040 independent final PASS
+  -> INTEGRATE-050 provider-release remediation branch only
+```
+
+`TDD-GOV-DEV-020` is not `READY` until both QA-010 and REVIEW-015 pass, and it is never `DOING` before `TEST_BASELINE_VERIFIED`. Normal one-editor, exact-path, capacity, and evidence admission remain mandatory. The task board is the canonical status authority.
+
+### Risks, recovery, and stop condition
+
+- **Risks**: retrospective or mixed-history TDD claims, mutable tests tailored to implementation, bypassable local-hook claims, source-before-baseline work, weak negative coverage, and integration without independent verdicts.
+- **Recovery**: preserve immutable evidence; fail closed; return the affected ticket to `BLOCKED`. For a genuinely changed requirement, record new owner authority and create a separate QA-owned, independently reviewed superseding baseline instead of editing history.
+- **Waivers**: `NONE`.
+- **Current-ticket stop**: commit only these two planning documents. Do not implement or execute the future rule, hook, tests, skills, sync, integration, or external action.
+
+<!-- TDD-GOV-BSA-001:END -->
+
 <!-- ADMIN-REMED-BSA-015:START -->
 ## GRILL REPORT -- ADMIN-REMED-BSA-015: Privileged Admin Action Scope and Superseding Baseline
 
