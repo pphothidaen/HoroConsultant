@@ -292,12 +292,55 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Codex Quota & Status Workaround Monitor")
     parser.add_argument(
         "--mode",
-        choices=["summary", "burn-rate", "probe", "auth", "models", "tier", "rescue"],
+        choices=["summary", "burn-rate", "probe", "auth", "models", "tier", "rescue", "registry", "hotswap"],
         default="summary",
     )
     parser.add_argument("--alias", choices=KNOWN_ACCOUNTS, default=None, help="Target alias")
     parser.add_argument("--json", action="store_true", help="Output JSON format")
     args = parser.parse_args()
+
+    if args.mode in ("registry", "hotswap"):
+        try:
+            from project.core.quota_registry import get_quota_registry
+            from project.core.hot_swap_router import SmartHotSwapRouter
+            reg = get_quota_registry()
+            if args.mode == "registry":
+                status = reg.export_status()
+                if args.json:
+                    print(json.dumps(status, indent=2))
+                else:
+                    print("=" * 80)
+                    print("[INFO] Live Quota Cooldown Registry & TTR Status")
+                    print("=" * 80)
+                    print(f"{'Account':<18} | {'Provider':<10} | {'State':<10} | {'TTR (s)':<10} | {'Limit':<6} | {'Reason'}")
+                    print("-" * 80)
+                    for aid, d in status.get("accounts", {}).items():
+                        print(f"{aid:<18} | {d['provider']:<10} | {d['state']:<10} | {d['ttr_seconds']:<10.1f} | {d['concurrency_limit']:<6} | {d.get('trip_reason') or '-'}")
+                    print("=" * 80)
+                return
+            elif args.mode == "hotswap":
+                router = SmartHotSwapRouter(registry=reg, burn_rate_provider=calculate_token_burn_rate)
+                decision = router.select_worker_account("CLI-PROBE")
+                res = decision.to_dict()
+                if args.json:
+                    print(json.dumps(res, indent=2))
+                else:
+                    print("=" * 80)
+                    print("[INFO] Smart Hot-Swap Failover Cascade Probe")
+                    print("=" * 80)
+                    print(f"Action           : {decision.action}")
+                    print(f"Selected Account : {decision.selected_account}")
+                    print(f"Is Host Account  : {decision.is_host_account}")
+                    print(f"Attempted Chain  : {decision.fallback_chain_attempted}")
+                    print(f"Reason           : {decision.reason}")
+                    print("=" * 80)
+                return
+        except Exception as exc:
+            if args.json:
+                print(json.dumps({"error": str(exc)}))
+            else:
+                print(f"[ERROR] Failed to inspect registry/hotswap: {exc}")
+            return
 
     aliases = [args.alias] if args.alias else list(KNOWN_ACCOUNTS)
     results = {}

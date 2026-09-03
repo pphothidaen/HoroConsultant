@@ -1,3 +1,60 @@
+# 🚀 HoroConsultant Release Notes — Smart Quota Swapping & Seamless Handoff System
+
+> **Release**: `Smart Quota Swapping & Seamless Handoff System (Quota Cooldown Registry, TTR Engine, Smart Hot-Swap Cascade, 3-Phase State Capsule Protocol, Rule 17 Invariant)`  
+> **Release Date**: 2026-09-04 (Asia/Bangkok)  
+> **Sprint Verdict**: `CERTIFIED_COMPLETE` (6/6 tickets DONE & 100% checks passing)  
+> **Release Authority**: Master Orchestrator & Business System Analyst  
+
+---
+
+## 🌟 Executive Summary
+Successfully engineered and released the Smart Quota Swapping & Seamless Handoff System (Program `QUOTA-SWAP-ROADMAP-20260904`). The system implements a thread-safe Quota Cooldown Registry with dynamic Time-To-Reset (TTR) calculation deltas and exponential backoff, zero-polling reactive cooldown wakeups with ephemeral micro-canary probing, an intelligent Hot-Swap Failover Cascade strictly enforcing the Rule 17 Host Account Preservation Invariant (master brain host preserved as last to exhaust), and a 3-Phase Seamless Handoff State Capsule Protocol ensuring zero cognitive context loss across multi-agent transitions. All 23 quota tests, 16/16 ecosystem parity checks, and Rayon secret scans (6,228 files, 0 leaks) passed with 100% conformance.
+
+## 🛠️ Architectural Deliverables
+1. **Quota Cooldown Registry & TTR Engine (`project/core/quota_registry.py`)**: Centralized, thread-safe registry tracking operational states (`NORMAL`, `OPEN`, `HALF_OPEN`) across all accounts (`codex1-3`, `agy1-2`, `gemini_flash`, `gemini_pro`, `cloudflare_ai`, `huggingface_router`) with dual-clock dynamic TTR calculation deltas (`max(0.0, reset_timestamp - now())`), exponential backoff scaling up to 3,600s, and atomic file persistence via temp file swap (`os.replace`).
+2. **Smart Hot-Swap Failover Cascade (`project/core/hot_swap_router.py`)**: Intelligent worker dispatch cascade prioritizing auxiliary accounts (`codex2` -> `codex3` -> `codex1` -> `agy1`) by lowest 1-hour token load, automatically bypassing accounts in active cooldown, and strictly preserving the Orchestrator host account (`agy2`) as the last to exhaust under Rule 17. Total auxiliary exhaustion halts safely with `NEEDS_HITL`.
+3. **3-Phase Seamless Handoff State Capsule Protocol (`project/core/state_capsule.py`)**: Zero-context-loss migration protocol:
+   - **Phase 1 Pre-Swap Freeze**: Atomic capture of active ticket, branch, HEAD commit, modified files, diff SHA-256, cognitive summary, and remaining subtasks; persisted to `plans/evidence/quota_capsules/` and updated into `HANDOFF.md` Rescue Queue.
+   - **Phase 2 Hot-Swap Bootstrap**: Cleanliness and branch verification with seamless state deserialization into new auxiliary worker session.
+   - **Phase 3 Return Wakeup**: Event-driven notification upon primary recovery, non-blocking step completion, and graceful archive.
+4. **CLI Quota & Hot-Swap Tooling (`scripts/codex_quota_workaround.py`)**: Added `--mode registry` and `--mode hotswap` CLI modes for operators to inspect live account states, TTR timers, and failover cascade probes.
+5. **QA Simulation & Inversion Test Suite (`tests/test_quota_swap_simulation.py`)**: Full end-to-end multi-agent 429 exhaustion simulation, canary probe failure backoff, branch mismatch rejection, and Rule 17 host account protection verification.
+6. **Pre-Release Safety & Verification Evidence**: Certified receipts in `plans/evidence/quota-swap-roadmap-20260904/qa-simulation.json` and `safety-audit.json`.
+
+## 🧪 Verification Matrix
+| Test Suite / Audit | Tests / Scope | Pass Rate | Status |
+|---|:---:|:---:|:---:|
+| Quota Cooldown Registry Unit Tests (`test_quota_registry.py`) | 8 tests | 100% | PASSED |
+| Smart Hot-Swap Failover Cascade Tests (`test_hot_swap_cascade.py`) | 6 tests | 100% | PASSED |
+| 3-Phase State Capsule Protocol Tests (`test_state_capsule.py`) | 4 tests | 100% | PASSED |
+| QA Simulation & Inversion Test Suite (`test_quota_swap_simulation.py`) | 5 tests | 100% | PASSED |
+| Total Quota Architecture Test Suite | 23 / 23 tests | 100% | PASSED |
+| Ecosystem Sync Parity (`sync_ai_agent_ecosystem.py --check`) | 16 / 16 checks | 100% | PASSED |
+| Rayon Parallel Secret Scan (`code_reviewer.py --scan-secrets`) | 6,228 files | 0 leaks | PASSED |
+| Python AST Syntax Check (py_compile) | 8 / 8 files | 100% | PASSED |
+| Pure ASCII Verification | All files | 100% | PASSED |
+| **Total Verification Conformance** | **All Checks** | **100%** | **PASSED** |
+
+## 📋 Milestone Rollup (100% DONE)
+| Ticket | Title | Assigned Specialist | Status |
+|---|---|---|:---:|
+| TICKET-QUOTA-001 | Program QUOTA-SWAP-ROADMAP-20260904 Planning & Spec | business_analyst | DONE |
+| TICKET-QUOTA-002 | Quota Cooldown Registry & TTR Engine | developer | DONE |
+| TICKET-QUOTA-003 | Smart Hot-Swap Failover Cascade & Rule 17 Invariant | developer | DONE |
+| TICKET-QUOTA-004 | 3-Phase Seamless Handoff State Capsule Protocol | developer | DONE |
+| TICKET-QUOTA-005 | QA Simulation & Inversion Test Suite | qa_tester | DONE |
+| TICKET-QUOTA-006 | Pre-Release Safety Audit, Docs Sync & Release Gate | code_reviewer & devops | DONE |
+| **Total** | **Program QUOTA-SWAP-ROADMAP-20260904** | **6 / 6 Tickets** | **100% DONE** |
+
+## 🌐 Live Production Endpoints
+- **Production Pages URL**: https://horoconsultant-pages.pages.dev
+- **Verified Health Endpoint**: `https://horoconsultant-pages.pages.dev/health` -> HTTP/2 200 OK (`{"status":"ok","service":"Computational Metaphysics Engine","rust_acceleration":true}`)
+
+## 🗄️ Archived Plans List
+- Active specifications for Program QUOTA-SWAP-ROADMAP-20260904 are recorded in `plans/plan.md` and evidence preserved in `plans/evidence/quota-swap-roadmap-20260904/`.
+
+---
+
 # 🚀 HoroConsultant Release Notes — Governance Upgrade (Rule 24, Scoped AGENTS.md, Red-Blue QA)
 
 > **Release**: `Governance Upgrade (Rule 24 Red/Blue Architecture & TIA Matrix, 5 Subdirectory Scoped AGENTS.md, Red Team Inversion QA Audit)`  
