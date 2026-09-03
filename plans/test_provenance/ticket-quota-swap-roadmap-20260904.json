@@ -1,0 +1,51 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-QUOTA-005",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "5e0432ae2a68e8adab844fb77a5766c14b90a423",
+  "test_files": [
+    {
+      "path": "tests/test_quota_registry.py",
+      "sha256": "469239ecb68d354b86c22a15c1ed09e5abfbfeb8053f14b60964737cb90b3cbf"
+    },
+    {
+      "path": "tests/test_hot_swap_cascade.py",
+      "sha256": "a0fb47fcaeeedaeee24a9f7cfa50e310da051b85c11e4b036b8e370f81ebd03c"
+    },
+    {
+      "path": "tests/test_state_capsule.py",
+      "sha256": "c44375968a8efd2fd27f7cf0f6692796d1f67145ee410bc0a6b2152e35174506"
+    },
+    {
+      "path": "tests/test_quota_swap_simulation.py",
+      "sha256": "e3389bc9028dde8296d9c87f90dbbacf306f4da27e0318c60f2056356827ccb6"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_quota_registry.py::test_entrypoint_missing"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "1 failed; entrypoint missing or not found"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/core/quota_registry.py",
+    "project/core/hot_swap_router.py",
+    "project/core/state_capsule.py",
+    "scripts/codex_quota_workaround.py",
+    "plans/evidence/quota-swap-roadmap-20260904/qa-simulation.json",
+    "plans/evidence/quota-swap-roadmap-20260904/safety-audit.json"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Add comprehensive test suite for Quota Cooldown Registry, Smart Hot-Swap Failover Cascade adhering to Rule 17 Invariant, 3-Phase State Capsule Protocol, and Inversion QA Simulation."
+}
