@@ -8,5 +8,9 @@ BACKEND_BASE_URL = "https://pphothidaen-horoconsultant-core-backend.hf.space"
 BACKEND_TIMEOUT_MS = "15000"
 CORS_ALLOWED_ORIGINS = "https://horoconsultant.yourdomain.com"
 
+[[kv_namespaces]]
+binding = "CACHE"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
 [observability]
 enabled = true
