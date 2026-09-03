@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HF-VISUAL-EVIDENCE-DIGEST-20260903",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "3bf61c6464211399827875b2a00c42c5d209fdbc",
+  "test_files": [
+    {
+      "path": "project/tests/artifacts/hf_post_deploy_v3_verification_2026-08-25.json",
+      "sha256": "1d615a0a6e823991bae634794c91e3c84c836e4bad256761dfd9132823331a01"
+    },
+    {
+      "path": "project/tests/artifacts/visual_layout_report.json",
+      "sha256": "00b767e8b65596ac5bd3a378781dfc6a9be0beee2f78d99390855792f1e8de32"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_hf_release_governance.py::test_post_deploy_manual_gradient_evidence_is_current_and_complete"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "STALE_VISUAL_REPORT_SHA256"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/tests/artifacts/"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "The release governance test identified a stale report SHA-256; this baseline binds the corrected evidence object before release verification resumes."
+}
