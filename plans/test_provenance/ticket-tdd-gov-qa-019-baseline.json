@@ -1,0 +1,63 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-TDD-GOV-QA-019",
+  "sequence": 3,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "67cc7283fca884e4e2450ceacc0caa7bfd5b052f",
+  "test_files": [
+    {
+      "path": "tests/test_atomic_tdd_lifecycle_governance_v3.py",
+      "sha256": "c6d05b2cf37a065ff2aa896a24c2d3c154f0748d1c61664d66bd4c20c232672c"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_atomic_tdd_lifecycle_governance_v3.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "V3_REQUIRES_IMMUTABLE_V2_GREEN"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/atomic_tdd_lifecycle_v1.json",
+    ".agents/schemas/atomic-tdd-lifecycle-v1.schema.json",
+    ".agents/rules/21-agile-governance.md",
+    ".claude/rules/agile-governance.md",
+    ".agy/rules/agile-governance.md",
+    ".agents/hooks/atomic_tdd_guard.py",
+    ".claude/hooks/atomic_tdd_guard.py",
+    ".agy/hooks/atomic-tdd-guard.sh",
+    ".agents/hooks/full_capacity_guard.py",
+    ".agents/hooks.json",
+    ".claude/settings.json",
+    ".agy/hooks.json",
+    ".codex/hooks.json",
+    ".agents/skills/agile-governance/SKILL.md",
+    ".agents/skills/orchestrator-delegation/SKILL.md",
+    ".agents/skills/bsa-doc-skill-management/SKILL.md",
+    ".agents/skills/sdlc-aisdlc-workflow/SKILL.md",
+    ".antigravity/skills/agile-governance/SKILL.md",
+    ".antigravity/skills/orchestrator-delegation/SKILL.md",
+    ".antigravity/skills/bsa-doc-skill-management/SKILL.md",
+    ".antigravity/skills/sdlc-aisdlc-workflow/SKILL.md",
+    "scripts/sync_ai_agent_ecosystem.py",
+    "scripts/sync_claude_agy_parity.py",
+    "scripts/sync_sdlc_agents.py",
+    "scripts/test_provenance_guard.py",
+    "atomic_tasks.md",
+    "plans/plan.md",
+    "plans/evidence/tdd-governance/tdd-gov-review-018.json",
+    "plans/evidence/tdd-governance/tdd-gov-qa-030.json",
+    "plans/evidence/tdd-governance/tdd-gov-review-040.json"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "441a7ed3bddb27110b219df0ee1ffd58e3e547e5",
+  "correction_reason": "The owner explicitly approved this narrow requirement change with `approve` on 2026-09-03 after the QA-017 self-audit blocked sequence 2 for omitting a dynamic frozen-manifest-tamper case. Sequence 3 preserves and runs the immutable v2 contract and adds only that missing proof.",
+  "rationale": "Freeze a test-only dynamic history proving that a post-baseline provenance-manifest mutation is rejected while all prior REVIEW-015 and sequence-2 contracts remain mandatory."
+}
