@@ -1,0 +1,48 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-RELEASE-CONTINUE-DEV-003-PROVIDER",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "5b3df438d2584f519c4cd36a77c35b45786c7e65",
+  "test_files": [
+    {
+      "path": "tests/test_application_provider_runtime_contract.py",
+      "sha256": "e07e698dce658b371a8eb030f71ad5b3b35042b7c73306596ee315e5134a05b9"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_application_provider_runtime_contract.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "8 failed: Codex command lacks read-only sandbox and leaks stderr; Gemini SDK provider is absent; runtime retains direct compatible-endpoint configuration; Admin still exposes OpenAI fine-tuning; shell runners export compatible-endpoint credentials; application router import fails with IndentationError."
+    }
+  ],
+  "allowed_source_paths": [
+    "project/core/codex_cli_provider.py",
+    "project/core/gemini_sdk_provider.py",
+    "project/api_router.py",
+    "project/core/llm_gateway.py",
+    "project/core/ai_provider_router.py",
+    "project/admin_router.py",
+    "project/rag/external_finetune.py",
+    "scripts/agentic_pipeline.sh",
+    "scripts/hermes_sdlc_runner.sh",
+    "scripts/test_gemini_sdk.py",
+    "requirements.txt",
+    "pyproject.toml",
+    "uv.lock"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze the application inference boundary before remediation: Codex CLI is local and read-only, Gemini uses the supported SDK and key rotation, cloud containers fall through without Codex, all provider failures end in the deterministic safe net, public Admin fine-tuning has no OpenAI option, and application runtime paths contain no direct OpenAI or compatible-endpoint transport."
+}

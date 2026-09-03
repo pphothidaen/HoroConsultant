@@ -1,0 +1,49 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-TDD-GOV-QA-010",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "932d1de8974a7f8b9fb7b29cbb4457dc2639891e",
+  "test_files": [
+    {
+      "path": "tests/test_atomic_tdd_lifecycle_governance.py",
+      "sha256": "ce7b2c1c5e0428188dc456438bfa3df6e4bb237df92c94c3e5648947f1c86642"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_atomic_tdd_lifecycle_governance.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "ATOMIC_TDD_HOOK missing: .agents/hooks/atomic_tdd_guard.py"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/rules/21-agile-governance.md",
+    ".agents/hooks/atomic_tdd_guard.py",
+    ".agents/hooks.json",
+    ".claude/settings.json",
+    ".agy/hooks.json",
+    ".codex/hooks.json",
+    ".agents/skills/agile-governance/SKILL.md",
+    ".agents/skills/orchestrator-delegation/SKILL.md",
+    ".agents/skills/bsa-doc-skill-management/SKILL.md",
+    ".agents/skills/sdlc-aisdlc-workflow/SKILL.md",
+    ".antigravity/skills/agile-governance/SKILL.md",
+    ".antigravity/skills/orchestrator-delegation/SKILL.md",
+    ".antigravity/skills/bsa-doc-skill-management/SKILL.md",
+    ".antigravity/skills/sdlc-aisdlc-workflow/SKILL.md",
+    "scripts/sync_ai_agent_ecosystem.py",
+    "scripts/test_provenance_guard.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Freeze an offline fail-closed contract for mandatory atomic TDD admission, immutable baselines, independent review and QA, read-only local hook behavior, and synchronized governance surfaces before implementation."
+}

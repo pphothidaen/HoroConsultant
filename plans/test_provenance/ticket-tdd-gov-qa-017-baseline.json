@@ -1,0 +1,63 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-TDD-GOV-QA-017",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "aa279de6f801375f3b893407653f2b8a62bf41ea",
+  "test_files": [
+    {
+      "path": "tests/test_atomic_tdd_lifecycle_governance_v2.py",
+      "sha256": "8ba0d5a89b3b3053f7532ae2623265777ac29de5baa0c783b8ef91d8d36f1dd7"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_atomic_tdd_lifecycle_governance_v2.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "ATOMIC_TDD_IMPLEMENTATION_MISSING:.agents/hooks/atomic_tdd_guard.py"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/atomic_tdd_lifecycle_v1.json",
+    ".agents/schemas/atomic-tdd-lifecycle-v1.schema.json",
+    ".agents/rules/21-agile-governance.md",
+    ".claude/rules/agile-governance.md",
+    ".agy/rules/agile-governance.md",
+    ".agents/hooks/atomic_tdd_guard.py",
+    ".claude/hooks/atomic_tdd_guard.py",
+    ".agy/hooks/atomic-tdd-guard.sh",
+    ".agents/hooks/full_capacity_guard.py",
+    ".agents/hooks.json",
+    ".claude/settings.json",
+    ".agy/hooks.json",
+    ".codex/hooks.json",
+    ".agents/skills/agile-governance/SKILL.md",
+    ".agents/skills/orchestrator-delegation/SKILL.md",
+    ".agents/skills/bsa-doc-skill-management/SKILL.md",
+    ".agents/skills/sdlc-aisdlc-workflow/SKILL.md",
+    ".antigravity/skills/agile-governance/SKILL.md",
+    ".antigravity/skills/orchestrator-delegation/SKILL.md",
+    ".antigravity/skills/bsa-doc-skill-management/SKILL.md",
+    ".antigravity/skills/sdlc-aisdlc-workflow/SKILL.md",
+    "scripts/sync_ai_agent_ecosystem.py",
+    "scripts/sync_claude_agy_parity.py",
+    "scripts/sync_sdlc_agents.py",
+    "scripts/test_provenance_guard.py",
+    "atomic_tasks.md",
+    "plans/plan.md",
+    "plans/evidence/tdd-governance/tdd-gov-review-018.json",
+    "plans/evidence/tdd-governance/tdd-gov-qa-030.json",
+    "plans/evidence/tdd-governance/tdd-gov-review-040.json"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "b38d5077057c3852a7e2e21af37376567231f810",
+  "correction_reason": "The owner approved this requirement change on 2026-09-03 after REVIEW-015 failed. Sequence 2 preserves sequence 1 and corrects only the reported gaps: generic repository-backed positive admission, distinct dynamic Git lineage failures, owner-approved and independently reviewed supersession, bound state and receipts, real Claude and AGY protocols, explicit Codex non-enforcement, mirror and sync parity, and conflict-free hook syntax.",
+  "rationale": "Freeze an implementation-independent, test-only superseding baseline so a deny-all or caller-claim-driven atomic TDD guard cannot satisfy the owner-approved lifecycle requirement."
+}

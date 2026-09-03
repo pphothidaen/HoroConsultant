@@ -1,0 +1,64 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-TDD-GOV-QA-022",
+  "sequence": 4,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "398c17e21bd325e6c7d28e45bb996d3a5eb90f67",
+  "test_files": [
+    {
+      "path": "tests/test_atomic_tdd_lifecycle_governance_v4.py",
+      "sha256": "8ee2aaf651d653713822628e2ea145a56ddb599d2923eb8f4d74b2eb6b5f86df"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_atomic_tdd_lifecycle_governance_v4.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "ATOMIC_TDD_IMPLEMENTATION_MISSING:.agents/hooks/atomic_tdd_guard.py"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/atomic_tdd_lifecycle_v1.json",
+    ".agents/schemas/atomic-tdd-lifecycle-v1.schema.json",
+    ".agents/rules/21-agile-governance.md",
+    ".claude/rules/agile-governance.md",
+    ".agy/rules/agile-governance.md",
+    ".agents/hooks/atomic_tdd_guard.py",
+    ".claude/hooks/atomic_tdd_guard.py",
+    ".agy/hooks/atomic-tdd-guard.sh",
+    ".agents/hooks/full_capacity_guard.py",
+    ".agents/hooks.json",
+    ".claude/settings.json",
+    ".agy/hooks.json",
+    ".codex/hooks.json",
+    ".agents/skills/agile-governance/SKILL.md",
+    ".agents/skills/orchestrator-delegation/SKILL.md",
+    ".agents/skills/bsa-doc-skill-management/SKILL.md",
+    ".agents/skills/sdlc-aisdlc-workflow/SKILL.md",
+    ".antigravity/skills/agile-governance/SKILL.md",
+    ".antigravity/skills/orchestrator-delegation/SKILL.md",
+    ".antigravity/skills/bsa-doc-skill-management/SKILL.md",
+    ".antigravity/skills/sdlc-aisdlc-workflow/SKILL.md",
+    "scripts/sync_ai_agent_ecosystem.py",
+    "scripts/sync_claude_agy_parity.py",
+    "scripts/sync_sdlc_agents.py",
+    "scripts/test_provenance_guard.py",
+    "atomic_tasks.md",
+    "plans/plan.md",
+    "plans/evidence/tdd-governance/tdd-gov-review-018.json",
+    "plans/evidence/tdd-governance/tdd-gov-review-023.json",
+    "plans/evidence/tdd-governance/tdd-gov-qa-030.json",
+    "plans/evidence/tdd-governance/tdd-gov-review-040.json"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "5ca05d879ca85cf6687772ad9ad7f3ad9fd78928",
+  "correction_reason": "The owner explicitly approved requirement change BSA-021 on 2026-09-03 resolving FROZEN_SUITE_CONTRACT_UNSATISFIABLE (v1 Codex hook contradiction) identified in REVIEW-018 and incorporating Google AI Studio 3-lane quota orchestration governance.",
+  "rationale": "Freeze unified superseding contract covering manifest tamper, repo-backed admission, platform adapters, conflict repair, and AI Studio quota orchestration."
+}
