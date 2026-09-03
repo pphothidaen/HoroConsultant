@@ -6,6 +6,7 @@ const PUBLIC_API_PATH = /^\\/api\\/v[123](?:[\\w.~!$&'()*+,;=:@/-]*)?$/;
 const PUBLIC_READ_PATHS = new Set(['/health', '/docs', '/openapi.json']);
 const PRIVILEGED_API_PATH = /^\\/admin\\/[\\w.~!$&'()*+,;=:@/-]*$/;
 const PRIVILEGED_READ_PATHS = new Set(['/hitl/stats']);
+const TURNSTILE_SECRET_KEY = 'REPLACE_WITH_TURNSTILE_SECRET'; // Set via wrangler secret put TURNSTILE_SECRET_KEY
 
 function isAllowedPath(path) {
   return PUBLIC_READ_PATHS.has(path) ||
@@ -50,6 +51,16 @@ function cacheKey(request) {
   return `cache:${request.method}:${url.pathname}${url.search}`;
 }
 
+async function verifyTurnstile(token) {
+  const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ secret: TURNSTILE_SECRET_KEY, response: token }),
+  });
+  const data = await res.json();
+  return data.success === true;
+}
+
 async function proxyToBackend(request, path) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), BACKEND_TIMEOUT_MS);
@@ -90,6 +101,14 @@ export default {
     if (isAllowedPath(path)) {
       if (request.method === 'OPTIONS') {
         return new Response(null, { status: 204, headers: corsHeaders(request) });
+      }
+
+      // Turnstile challenge for admin routes
+      if (PRIVILEGED_API_PATH.test(path)) {
+        const turnstileToken = request.headers.get('cf-turnstile-response');
+        if (!turnstileToken || !(await verifyTurnstile(turnstileToken))) {
+          return new Response(JSON.stringify({ detail: 'Turnstile verification required' }), { status: 403 });
+        }
       }
 
       // Check KV cache for GET requests
