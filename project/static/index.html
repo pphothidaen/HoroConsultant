@@ -804,9 +804,12 @@
         <div class="cold-start-orbit"></div>
         <span class="cold-start-icon">🌌</span>
       </div>
+      <div id="cold-start-stage" class="cold-start-stage-badge">
+        <span>🌌 ขั้นตอน 1/4: ปลุกเซิร์ฟเวอร์ดาราศาสตร์</span>
+      </div>
       <h3 id="cold-start-title" class="cold-start-title">กำลังเริ่มต้นระบบคำนวณและ AI</h3>
       <p id="cold-start-desc" class="cold-start-desc">
-        ระบบเข้าสู่โหมดประหยัดพลังงานอัตโนมัติ (Eco Mode) กำลังปลุกเซิร์ฟเวอร์ขึ้นมาทำงาน กรุณารอสักครู่...
+        ระบบเข้าสู่โหมดประหยัดพลังงานอัตโนมัติ (Eco Mode) กำลังปลุกระบบขึ้นมาประมวลผล กรุณารอสักครู่...
       </p>
       <div class="cold-start-progress-bar">
         <div id="cold-start-progress" class="cold-start-progress-fill" style="width: 0%;"></div>
@@ -815,7 +818,21 @@
         <span id="cold-start-status-text">กำลังส่งคำสั่งปลุกระบบ Container...</span>
         <span id="cold-start-timer">60s</span>
       </div>
-      <div id="cold-start-actions" class="cold-start-actions hidden" style="margin-top: 1.25rem;">
+      
+      <!-- Rotating Metaphysics Wisdom Box -->
+      <div class="cold-start-tip-box">
+        <span class="cold-start-tip-icon">💡</span>
+        <span id="cold-start-tip-text" class="cold-start-tip-text">
+          เกร็ดดวงจีน: ดิถีวัน (Day Master) สะท้อนแก่นแท้ของตัวตนตามหลักคัมภีร์ 子平真詮
+        </span>
+      </div>
+
+      <!-- Instant Edge Calculation Bypass Button -->
+      <button type="button" class="cold-start-instant-btn" onclick="bypassColdStartToEdgeEngine()">
+        ⚡ คำนวณทันทีด้วย Edge Engine (ไม่ต้องรอปลุก AI)
+      </button>
+
+      <div id="cold-start-actions" class="cold-start-actions hidden" style="margin-top: 1rem;">
         <button type="button" id="cold-start-retry-btn" class="btn btn-sm btn-primary" onclick="retryWakeupProcess()">
           🔄 ลองเชื่อมต่ออีกครั้ง
         </button>
