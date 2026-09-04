@@ -1,13 +1,13 @@
 {
   "schema_version": "test-provenance-v1",
-  "ticket_id": "TICKET-HLITE-004",
-  "sequence": 5,
+  "ticket_id": "TICKET-HLITE-005",
+  "sequence": 6,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "66937c85b5889807432219a113a1f0302523c074",
+  "baseline_parent": "1170fe1c41f54c9bc4439e9295e3580d47bf7d79",
   "test_files": [
     {
       "path": "tests/test_horo_lite_unified_reading.py",
-      "sha256": "0d376545d809f13c41b0f04b7d98d3a0ab12fe223afab3d0407b161281642cf8"
+      "sha256": "d7df5b2c809dd7714164527d035fdbddd67d074e8de1b42d485229bb2ff88054"
     }
   ],
   "red_tests": [
@@ -18,22 +18,21 @@
         "pytest",
         "tests/test_horo_lite_unified_reading.py",
         "-k",
-        "test_unified_reading_api_endpoint",
+        "test_lite_form_dom_contract",
         "-v"
       ],
       "expected_exit": 1,
-      "failure_fingerprint": "AssertionError: {\"detail\":\"Not Found\"}; assert 404 == 200"
+      "failure_fingerprint": "AssertionError: LITE_HTML_MISSING: public/lite.html must exist"
     }
   ],
   "allowed_source_paths": [
-    "project/routers/unified_reading_router.py",
-    "project/routers/v3_engine_router.py",
-    "api/index.js",
-    "project/main.py"
+    "public/lite.html",
+    "public/lite.css",
+    "public/lite.js"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": "e7bf70a0e359c36842796b904e2179684d7d9c15",
-  "correction_reason": "Advance the closed Horo Lite baseline from Phase C to Phase D by freezing the black-box unified reading API endpoint contract for TICKET-HLITE-004.",
-  "rationale": "Freeze a black-box Phase D unified reading API endpoint baseline for TICKET-HLITE-004. Baseline parent is current HEAD 66937c85b5889807432219a113a1f0302523c074. Red evidence command python3 -m pytest tests/test_horo_lite_unified_reading.py -k test_unified_reading_api_endpoint -v exited actual 1 and expected 1 with fingerprint AssertionError: {\"detail\":\"Not Found\"}; assert 404 == 200 because POST /api/v3/unified-reading is not registered in the local FastAPI app. The frozen test uses FastAPI TestClient with TESTING=true and LLM/network toggles disabled, posts the standard 1990-05-15 14:30 Bangkok target_year 2026 request, requires HTTP 200, validates the versioned UnifiedReadingResponse contract, exactly 12 canonical topic modules, exactly 12 monthly scores, 3-5 non-sensitive past patterns, consensus metadata, HITL flags and routing, llm_metadata.facts_mutable_by_llm false, deterministic latency under 300ms when LLM translation is disabled or unavailable, and exact preservation of career/finance/love monthly scores from project.core.annual_timing_engine without out-of-range scores or hallucinated date/fact mutation."
+  "supersedes": "1a52653c86adbe7b8d27ee945ef2ac0a32730561",
+  "correction_reason": "Advance the closed Horo Lite baseline from Phase D to Phase E by freezing the black-box form DOM contract for TICKET-HLITE-005.",
+  "rationale": "Freeze a black-box Phase E Horo Lite form DOM baseline for TICKET-HLITE-005. Baseline parent is current HEAD 1170fe1c41f54c9bc4439e9295e3580d47bf7d79. Red evidence command python3 -m pytest tests/test_horo_lite_unified_reading.py -k test_lite_form_dom_contract -v exited actual 1 and expected 1 with fingerprint AssertionError: LITE_HTML_MISSING: public/lite.html must exist because public/lite.html, public/lite.css, and public/lite.js are not present in the current worktree. The frozen test statically validates that public/lite.html exists and links lite.css and lite.js; simplified birth date, birth time, unknown birth time, birthplace/geocoding, gender, and target year controls have ids, names, and accessible labels; optional display name or focus question controls are labelled when present; raw latitude, longitude, timezone, and advanced engine controls live inside a collapsed details disclosure by default; the primary action button includes คำนวณผังดวง & ตีความด้วย AI; public/lite.js posts to /api/v3/unified-reading without local astrology calculation functions or direct monthly scoring loops; and public/lite.css exposes visible focus or high-contrast form styling by static inspection."
 }
