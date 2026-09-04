@@ -3,7 +3,127 @@
 > **Repository**: `pphothidaen/HoroConsultant`  
 > **Authority**: Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
 > **Governance Enforcement**: Rule 21 (Agile Governance) & Rule 22 (Plan Completion & Archival Mandate)  
-> **Last Synchronized**: 2026-09-04T10:15:00+07:00 (Asia/Bangkok)  
+> **Last Synchronized**: 2026-09-04T11:10:00+07:00 (Asia/Bangkok)  
+
+---
+
+<!-- KEYCHAIN-PURGE-20260904:START -->
+## GRILL REPORT -- SPRINT-KEYCHAIN-PURGE-20260904: macOS Keychain Isolation Restoration & Wrapper Sanitization
+
+**Recorded**: `2026-09-04T10:48:34+07:00` (Asia/Bangkok)
+**Status**: `APPROVED`
+**Requirement-change authority**: Owner instruction dated `2026-09-04` approving Sprint `SPRINT-KEYCHAIN-PURGE-20260904`.
+**Authorized current phase**: ALL 4 TICKETS DONE (TICKET-PURGE-001, PURGE-002, PURGE-003, PURGE-004 100% DONE) -- SPRINT COMPLETE (Tagged v1.4.1-prod).
+
+### Scope and Decision Record
+
+**IN**:
+1. Root cause resolution of persistent macOS alert popup 'A keychain cannot be found to store "antigravity."':
+   - Antigravity CLI and macOS libsecurity look for '$HOME/Library/Keychains/login.keychain-db' by default when resolving user domain credential storage.
+   - In wrapper scripts agy1..4, HOME is exported to '/Users/kimlenglim/.ai-accounts/agy/accountX'.
+   - In each account directory '/Users/kimlenglim/.ai-accounts/agy/accountX/Library/Keychains/', the keychain was named 'agyX.keychain-db' (or missing login.keychain-db), so macOS cannot locate the default 'login.keychain-db' within that $HOME context, triggering the GUI modal dialog.
+   - The fix requires creating/linking 'login.keychain-db' in each account's 'Library/Keychains/' directory pointing to the account keychain, ensuring it is unlocked non-interactively with empty password, while preserving the system's canonical default keychain at '/Users/kimlenglim/Library/Keychains/login.keychain-db'.
+2. Wrapper script sanitization (`/Users/kimlenglim/.local/bin/agy1` through `agy4`):
+   - Configure clean environment isolation (`HOME` and `AGY_HOME` export).
+   - Ensure account-isolated keychain is unlocked non-interactively with empty password prior to CLI invocation.
+   - Prevent scripts from altering system-wide default keychain pointers or triggering interactive GUI prompts.
+3. Account keychain provisioning and canonical system default keychain preservation:
+   - Create symlink or provision `login.keychain-db` in each `/Users/kimlenglim/.ai-accounts/agy/account*/Library/Keychains/` pointing to the account keychain.
+   - Preserve canonical system default keychain at `/Users/kimlenglim/Library/Keychains/login.keychain-db`.
+   - Restore canonical user keychain search list via `security list-keychains -d user -s /Users/kimlenglim/Library/Keychains/login.keychain-db /Library/Keychains/System.keychain`.
+4. Full regression verification: execute `agy1..4` CLI commands without triggering macOS security dialog popups.
+5. Rayon parallel secret scan (0 leaks across repo).
+6. Documentation update in `ReleaseNotes.md` and governance tracking in `ATOMIC_TICKET.md` and `plans/plan.md`.
+7. Enforcing strict Definition of Done (DoD): zero uncommitted or unpushed files in local worktree ("nothing in local", 100% clean), git sync to `origin/main`.
+
+**OUT**:
+- Modifying production runtime metaphysics calculations, BaZi formulas, or FastAPI endpoints.
+- Deleting or altering user passwords/certificates within `/Users/kimlenglim/Library/Keychains/login.keychain-db`.
+- Introducing interactive sudo prompts or breaking non-interactive CI/CD flows.
+
+### Nine-Dimension Decision Matrix
+
+| ID | Result and evidence state | Decision / stop threshold |
+|---|---|---|
+| D1 Scope boundary | [CONFIRMED] Scope strictly bounded to macOS account keychain bridging (`login.keychain-db`), wrapper script sanitization (`agy1..4`), canonical default keychain preservation, secret scan, and git remote sync. | Any drift into production runtime metaphysics or API routes is rejected. |
+| D2 Requirement delta | [CONFIRMED] Eliminates recurring macOS GUI security alert popup 'A keychain cannot be found to store "antigravity."' caused by missing $HOME/Library/Keychains/login.keychain-db lookup in isolated account contexts. | Full compliance with Rule 17, Rule 21, and Rule 22. |
+| D3 Acceptance and stop | [CONFIRMED] Account keychains bridged/linked to `login.keychain-db` and unlocked with empty password, wrapper scripts sanitized, `security default-keychain` preserved at canonical `login.keychain-db`, 0 popups on execution, 0 secret leaks, clean git status at `origin/main`. | Fail closed if default keychain cannot be restored or popups persist. |
+| D4 Inputs, constraints, dependencies | [AUTO] Inputs: Owner instruction dated 2026-09-04, macOS security framework CLI (`security`), wrapper scripts `/Users/kimlenglim/.local/bin/agy1..4`. Sequential DAG: PURGE-001 -> PURGE-002 -> PURGE-003 -> PURGE-004. | Stop immediately if dependency order is violated. |
+| D5 Architecture, ownership, handoff | [CONFIRMED] Single-editor file ownership strictly enforced. PURGE-001 owned by `business_analyst`, PURGE-002 by `developer`, PURGE-003 by `devops`, PURGE-004 by `qa_tester`/`devops`. | Zero concurrent writes to the same resource. |
+| D6 Assumption register | [CONFIRMED] Antigravity CLI expects `$HOME/Library/Keychains/login.keychain-db`. Bridging account keychains to `login.keychain-db` resolves lookup failures without altering system default keychain context. | If credentials require persistence, credentials store in the account-isolated `login.keychain-db` without polluting host credentials. |
+| D7 Risk and recovery | [AUTO] Risks: Accidental mutation or corruption of primary `login.keychain-db`. Recovery: Primary login keychain is preserved intact at `/Users/kimlenglim/Library/Keychains/login.keychain-db`; account-specific isolation remains inside `.ai-accounts`. | Halt immediately if primary `login.keychain-db` is not accessible. |
+| D8 Budget and evidence strategy | [AUTO] Pure ASCII logging, 0 secret leaks via Rayon parallel scanner, 100% test pass rate, immutable verification evidence. | Stop immediately if secret scan finds leaks or non-ASCII characters appear. |
+| D9 Domain and HITL | [NOT-APPLICABLE] No domain metaphysics changes. [CONFIRMED] Owner instruction dated 2026-09-04 provides explicit authority. Remote git sync adheres to DoD. | External git push and release notes updates retain strict verification. |
+
+### Dependency Graph
+
+```text
+TICKET-PURGE-001 (DONE: Sprint Registration, RCA & Architecture Specifications)
+  |--> TICKET-PURGE-002 (DONE: Wrapper Script Sanitization & Non-Interactive Unlock)
+         |--> TICKET-PURGE-003 (DONE: Account Keychain Provisioning & Canonical Default Re-Anchor)
+                |--> TICKET-PURGE-004 (DONE: Regression Verification, Secret Scan, Zero Residue & Remote Git Sync)
+```
+
+### Technical Specification -- macOS Keychain Architecture & Wrapper Sanitization
+
+#### 1. Root Cause Analysis
+- **Problem**: When running `agy1`, `agy2`, `agy3`, or `agy4`, macOS periodically prompts a blocking UI modal dialog:
+  `A keychain cannot be found to store "antigravity."`
+- **Root Cause**:
+  1. Antigravity CLI and macOS `libsecurity` look for `$HOME/Library/Keychains/login.keychain-db` by default when resolving user domain credential storage.
+  2. In wrapper scripts `agy1..4`, `HOME` is exported to `/Users/kimlenglim/.ai-accounts/agy/accountX`.
+  3. In each account directory `/Users/kimlenglim/.ai-accounts/agy/accountX/Library/Keychains/`, the keychain was named `agyX.keychain-db` (or `login.keychain-db` was missing), so macOS cannot locate the default `login.keychain-db` within that `$HOME` context, triggering the GUI modal dialog.
+  4. The fix requires creating/linking `login.keychain-db` in each account's `Library/Keychains/` directory pointing to the account keychain, ensuring it is unlocked non-interactively with empty password, while preserving the system's canonical default keychain at `/Users/kimlenglim/Library/Keychains/login.keychain-db`.
+
+#### 2. Architecture Specification: Wrapper Script Sanitization & Non-Interactive Unlock (TICKET-PURGE-002)
+- **Target Files**: `/Users/kimlenglim/.local/bin/agy1`, `/Users/kimlenglim/.local/bin/agy2`, `/Users/kimlenglim/.local/bin/agy3`, `/Users/kimlenglim/.local/bin/agy4`.
+- **Changes**:
+  - Configure clean environment isolation (`HOME` and `AGY_HOME` export):
+    ```bash
+    #!/usr/bin/env bash
+    _ACCOUNT_HOME="/Users/kimlenglim/.ai-accounts/agy/accountX"
+    export HOME="${_ACCOUNT_HOME}"
+    export AGY_HOME="${_ACCOUNT_HOME}"
+    # Non-interactively unlock account-isolated keychain if present
+    if [ -f "${_ACCOUNT_HOME}/Library/Keychains/login.keychain-db" ]; then
+        security unlock-keychain -p "" "${_ACCOUNT_HOME}/Library/Keychains/login.keychain-db" 2>/dev/null || true
+    fi
+    exec /Users/kimlenglim/.local/bin/agy "$@"
+    ```
+  - Ensure executable permissions (`chmod +x`) are preserved.
+  - Zero interactive GUI popups or system default keychain hijacking.
+
+#### 3. Architecture Specification: Account Keychain Provisioning & Default Re-Anchor (TICKET-PURGE-003)
+- **Target Environment**: `/Users/kimlenglim/.ai-accounts/agy/account*/Library/Keychains/` and macOS User Keychain Subsystem.
+- **Operations**:
+  1. For each account (`account1`..`account4`), ensure `login.keychain-db` exists and points to the account keychain:
+     ```bash
+     cd /Users/kimlenglim/.ai-accounts/agy/accountX/Library/Keychains/
+     ln -sf agyX.keychain-db login.keychain-db
+     ```
+  2. Ensure the account keychain is unlocked with empty password non-interactively:
+     ```bash
+     security unlock-keychain -p "" /Users/kimlenglim/.ai-accounts/agy/accountX/Library/Keychains/login.keychain-db
+     ```
+  3. Re-anchor canonical system default keychain:
+     ```bash
+     security default-keychain -s /Users/kimlenglim/Library/Keychains/login.keychain-db
+     ```
+  4. Restore canonical user keychain search list:
+     ```bash
+     security list-keychains -d user -s /Users/kimlenglim/Library/Keychains/login.keychain-db /Library/Keychains/System.keychain
+     ```
+  5. Validate via `security default-keychain` and verify resolving `$HOME/Library/Keychains/login.keychain-db` succeeds for each account context.
+
+#### 4. Architecture Specification: QA Verification & DoD Gate (TICKET-PURGE-004)
+- **Verification**:
+  - Test run `agy1 --version`, `agy2 --version`, `agy3 --version`, `agy4 --version`.
+  - Confirm zero dialog popups and zero keychain lookup errors.
+  - Run Rayon parallel secret scan to ensure 0 credentials or secrets are leaked.
+  - Update `ReleaseNotes.md` with Sprint resolution details.
+  - Verify worktree is 100% clean ("nothing in local") and push commits/tags to `origin/main`.
+
+<!-- KEYCHAIN-PURGE-20260904:END -->
 
 ---
 

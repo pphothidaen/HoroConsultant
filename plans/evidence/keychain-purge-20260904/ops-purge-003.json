@@ -1,0 +1,95 @@
+{
+  "ticket_id": "TICKET-PURGE-003",
+  "sprint": "SPRINT-KEYCHAIN-PURGE-20260904",
+  "role": "devops",
+  "timestamp": "2026-09-04T11:43:00+07:00",
+  "status": "DONE",
+  "summary": "Provisioned and symlinked login.keychain-db across all isolated account directories (account1-4), configured lock timeout to 7200s with owner-only permissions (0700/0600), and re-anchored macOS host default-keychain and user list-keychains to canonical paths.",
+  "account_keychain_provisioning": [
+    {
+      "account": "account1",
+      "directory": "/Users/kimlenglim/.ai-accounts/agy/account1/Library/Keychains",
+      "dir_perms": "0700",
+      "file_perms": "0600",
+      "symlink": "login.keychain-db -> agy1.keychain-db",
+      "unlocked": true,
+      "lock_timeout_sec": 7200,
+      "status": "PROVISIONED"
+    },
+    {
+      "account": "account2",
+      "directory": "/Users/kimlenglim/.ai-accounts/agy/account2/Library/Keychains",
+      "dir_perms": "0700",
+      "file_perms": "0600",
+      "symlink": "login.keychain-db -> agy2.keychain-db",
+      "unlocked": true,
+      "lock_timeout_sec": 7200,
+      "status": "PROVISIONED"
+    },
+    {
+      "account": "account3",
+      "directory": "/Users/kimlenglim/.ai-accounts/agy/account3/Library/Keychains",
+      "dir_perms": "0700",
+      "file_perms": "0600",
+      "symlink": "login.keychain-db -> agy3.keychain-db",
+      "unlocked": true,
+      "lock_timeout_sec": 7200,
+      "status": "PROVISIONED"
+    },
+    {
+      "account": "account4",
+      "directory": "/Users/kimlenglim/.ai-accounts/agy/account4/Library/Keychains",
+      "dir_perms": "0700",
+      "file_perms": "0600",
+      "symlink": "login.keychain-db -> agy4.keychain-db",
+      "unlocked": true,
+      "lock_timeout_sec": 7200,
+      "status": "PROVISIONED"
+    }
+  ],
+  "host_keychain_state": {
+    "default_keychain": "/Users/kimlenglim/Library/Keychains/login.keychain-db",
+    "user_domain_keychains": [
+      "/Users/kimlenglim/Library/Keychains/login.keychain-db",
+      "/Library/Keychains/System.keychain"
+    ],
+    "system_domain_keychains": [
+      "/Library/Keychains/System.keychain"
+    ]
+  },
+  "verification": {
+    "default_keychain_canonical": true,
+    "rogue_keychains_in_search_list": 0,
+    "all_wrappers_verified": [
+      {
+        "wrapper": "/Users/kimlenglim/.local/bin/agy1",
+        "exit_code": 0,
+        "version": "1.1.26",
+        "status": "CLEAN"
+      },
+      {
+        "wrapper": "/Users/kimlenglim/.local/bin/agy2",
+        "exit_code": 0,
+        "version": "1.1.26",
+        "status": "CLEAN"
+      },
+      {
+        "wrapper": "/Users/kimlenglim/.local/bin/agy3",
+        "exit_code": 0,
+        "version": "1.1.26",
+        "status": "CLEAN"
+      },
+      {
+        "wrapper": "/Users/kimlenglim/.local/bin/agy4",
+        "exit_code": 0,
+        "version": "1.1.26",
+        "status": "CLEAN"
+      }
+    ]
+  },
+  "governance": {
+    "pure_ascii": true,
+    "secret_leaks": 0,
+    "single_editor_ownership": "devops"
+  }
+}
