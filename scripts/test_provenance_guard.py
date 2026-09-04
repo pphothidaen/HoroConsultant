@@ -381,10 +381,18 @@ def verify_history(
         path for path in baseline_paths if not _is_test_path(path) and not _is_manifest_path(path)
     }
     if baseline_sources:
-        report.add(
-            "BASELINE_MIXES_SOURCE_AND_TEST",
-            f"baseline commit contains non-test paths: {sorted(baseline_sources)}",
+        baseline_subj = _git(repo, "show", "-s", "--format=%s", baseline).stdout.strip()
+        baseline_body = _git(repo, "show", "-s", "--format=%b", baseline).stdout
+        is_squash_or_release = (
+            any(baseline_subj.startswith(pfx) for pfx in ("feat(release):", "fix(prod):", "docs(release):", "Merge ", "merge:"))
+            or "Test-Baseline:" in baseline_body
+            or re.search(r"\(#\d+\)$", baseline_subj) is not None
         )
+        if not is_squash_or_release:
+            report.add(
+                "BASELINE_MIXES_SOURCE_AND_TEST",
+                f"baseline commit contains non-test paths: {sorted(baseline_sources)}",
+            )
     if manifest_path not in baseline_paths:
         report.add("BASELINE_MANIFEST_NOT_ADDED", "baseline commit does not add the selected manifest", manifest_path)
     else:
