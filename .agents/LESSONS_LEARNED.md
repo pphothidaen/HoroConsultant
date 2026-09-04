@@ -215,3 +215,32 @@
   - Hook verifies cryptographic token anchor when `enable_agy_parity` is active, but blocks live execution by default.
   - `DSG-009A` remains permanently `BLOCKED` until native platform host APIs are delivered.
   - Document operational state accurately across `atomic_tasks.md`, `plans/plan.md`, `README.md`, and `HOWTO.md`.
+
+---
+
+### 22. macOS Isolated Account Keychain Provisioning & Silent Non-Interactive Unlock Protocol
+- **Issue Experienced**: When running Antigravity CLI in multi-account environments (`agy1`..`agy4`), macOS displayed a blocking GUI modal dialog: `A keychain cannot be found to store "antigravity."`
+- **Definitive Root Cause**:
+  1. Antigravity CLI and macOS `libsecurity` look for `$HOME/Library/Keychains/login.keychain-db` by default when resolving user domain credential storage.
+  2. In wrapper scripts `agy1..4`, `HOME` is exported to `/Users/kimlenglim/.ai-accounts/agy/accountX`.
+  3. In each account directory `/Users/kimlenglim/.ai-accounts/agy/accountX/Library/Keychains/`, the keychain was named `agyX.keychain-db` (or `login.keychain-db` was missing), so macOS cannot locate the default `login.keychain-db` within that `$HOME` context, triggering the GUI modal dialog.
+  4. Non-interactive unlock with empty password was not executed prior to CLI invocation, and the system default keychain could become misaligned.
+- **Lesson Learned**: macOS isolated account directories overriding `HOME` must provide a `login.keychain-db` (symlink or dedicated keychain) within `$HOME/Library/Keychains/`, silently unlocked non-interactively with empty password (`security unlock-keychain -p "" ...`), while preserving the system canonical default keychain at `/Users/kimlenglim/Library/Keychains/login.keychain-db`.
+- **Prevention Protocol**:
+  - Provision symlink `login.keychain-db -> agyX.keychain-db` in all `.ai-accounts/agy/accountX/Library/Keychains/`.
+  - Wrapper scripts (`agy1..4`) silently unlock `${_ACCOUNT_HOME}/Library/Keychains/login.keychain-db` with `-p ""` non-interactively prior to CLI execution.
+  - Re-anchor system default keychain to `/Users/kimlenglim/Library/Keychains/login.keychain-db` and preserve user keychain search list.
+  - Enforced via automated validation and zero GUI dialog triggers.
+
+---
+
+### 23. Automated Post-Merge Local Branch Pruning & Git Hygiene Protocol
+- **Issue Experienced**: After feature branches and pull requests are merged into `origin/main` on remote GitHub repository, local workspaces accumulate stale merged branches (e.g. `docs/keychain-purge-20260904`, `docs/plan-reconciliation-20260904`, `feat/...`), causing branch clutter, git worktree pollution, and audit confusion.
+- **Definitive Root Cause**: Standard git workflow merges PRs on remote GitHub without automatically deleting the corresponding local branch references in developer/agent workspaces. Manual pruning is often forgotten, leaving orphaned local branches that are already ancestors of `origin/main`.
+- **Lesson Learned**: Post-merge local branch pruning must be automated, safe, and integrated into git hygiene workflows. Pruning must verify that candidate branches are true ancestors of `refs/remotes/origin/main` before safe deletion (`git branch -d`), never delete protected branches (`main`, `master`), and never delete unmerged branches without explicit override.
+- **Prevention Protocol**:
+  - Implement automated Git Hygiene Pruning utility (e.g. `scripts/git_hygiene_pruner.py` / `scripts/branch_lifecycle_guard.py`).
+  - Automated pruner queries `git branch --merged origin/main`, filters out protected branches (`main`, `master`) and current checked-out branch, and prunes local tracking branches safely.
+  - Enforce branch lifecycle hygiene in Rule 21 and pre-release Definition of Done (DoD) verification checklist.
+  - Verification: Automated test suite validates safe pruning, refusal to prune unmerged branches, and protection of `main`.
+

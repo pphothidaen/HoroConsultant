@@ -38,6 +38,53 @@ second task board or add ticket definitions to a plan/pointer file.
 
 ## ACTIVE SPRINTS & WORKSTREAMS
 
+<!-- PREVENTION-HYGIENE-20260904:START -->
+## Sprint SPRINT-PREVENTION-HYGIENE-20260904 -- Lessons Learned Ingestion, Keychain Isolation Protocol & Automated Git Hygiene
+
+**Recorded**: `2026-09-04T12:18:57+07:00` (Asia/Bangkok)
+**GRILL gate**: `APPROVED` -- owner explicit instruction dated `2026-09-04`.
+**Authority**: Owner instruction dated `2026-09-04`.
+**Current status**: Sprint SPRINT-PREVENTION-HYGIENE-20260904 100% DONE -- CERTIFIED_COMPLETE.
+
+### Scope and Objectives
+- Ingestion of Lesson 22 (macOS Isolated Account Keychain Provisioning & Silent Non-Interactive Unlock Protocol) into `.agents/LESSONS_LEARNED.md`.
+- Ingestion of Lesson 23 (Automated Post-Merge Local Branch Pruning & Git Hygiene Protocol) into `.agents/LESSONS_LEARNED.md`.
+- Implementation of automated local git branch pruning utility (`scripts/git_hygiene_pruner.py`) and regression test suite (`tests/test_git_hygiene.py`) to prevent local workspace branch accumulation after remote PR merges.
+- Implementation of automated keychain isolation validation utility (`scripts/verify_keychain_isolation.sh`) and tests (`tests/test_keychain_isolation.py`) ensuring zero GUI modal dialog popups across all isolated account environments (`agy1..4`).
+- Full pre-release safety audit, Rayon parallel secret scan (0 leaks), `ReleaseNotes.md` synchronization, and clean remote git synchronization ("nothing in local").
+
+### Dependency Graph
+
+```text
+TICKET-PREV-001 (DONE: Sprint Registration, GRILL Matrix & Lessons Learned Ingestion)
+  |--> TICKET-PREV-002 (DONE: Automated Git Hygiene Local Branch Pruner & Tests)
+  |--> TICKET-PREV-003 (DONE: Automated Keychain Isolation Validation Utility & Tests)
+         \--> TICKET-PREV-004 (DONE: Safety Audit, Secret Scan, Zero Residue & Remote Git Sync)
+```
+
+### Program Tickets
+
+| Ticket | Severity / Effort | Lifecycle Status | Assigned Specialist | Required Skills | Dependencies | One Editor / Writable Ownership | Measurable Acceptance and DoD / Stop |
+|---|---|---|---|---|---|---|---|
+| `TICKET-PREV-001` | HIGH / S | DONE | `business_analyst` | `[bsa-doc-skill-management, agile-governance]` | None | `ATOMIC_TICKET.md`, `plans/plan.md`, `.agents/LESSONS_LEARNED.md` | Register Sprint SPRINT-PREVENTION-HYGIENE-20260904 in ATOMIC_TICKET.md and plans/plan.md with 9-dimension GRILL matrix, complete specifications, and 4 atomic tickets (TICKET-PREV-001 through TICKET-PREV-004). Add Lesson 22 (macOS Isolated Account Keychain Provisioning & Silent Non-Interactive Unlock Protocol) and Lesson 23 (Automated Post-Merge Local Branch Pruning & Git Hygiene Protocol) to .agents/LESSONS_LEARNED.md. Set TICKET-PREV-001 to DONE, and TICKET-PREV-002 through 004 to READY. DoD: Pure ASCII, zero secret leaks, single-editor file ownership respected. |
+| `TICKET-PREV-002` | HIGH / S | DONE | `developer` | `[sdlc-aisdlc-workflow, devops-deployment]` | `TICKET-PREV-001` DONE | `scripts/git_hygiene_pruner.py`, `tests/test_git_hygiene.py` | Implement `scripts/git_hygiene_pruner.py` to safely prune local branches that are already merged into `refs/remotes/origin/main` (excluding protected branches `main`, `master`, and active checked-out branch). Create comprehensive test suite `tests/test_git_hygiene.py` validating pruning criteria, safety guards against unmerged branch deletion, and pure ASCII output. DoD: Tests pass 100%, safe non-destructive operation verified. |
+| `TICKET-PREV-003` | HIGH / S | DONE | `qa_tester` / `devops` | `[system-administration, devops-deployment, qa-e2e-testing]` | `TICKET-PREV-001` DONE | `scripts/verify_keychain_isolation.sh`, `tests/test_keychain_isolation.py` | Implement automated validation script / test suite to verify macOS isolated account keychain architecture across `agy1..4`: confirm `login.keychain-db` symlinks exist, silent non-interactive unlock succeeds without prompt, canonical default keychain remains pointed to `/Users/kimlenglim/Library/Keychains/login.keychain-db`, and zero GUI popups occur during CLI invocation. DoD: 100% test pass rate, pure ASCII output. |
+| `TICKET-PREV-004` | HIGH / S | DONE | `devops` / `qa_tester` | `[qa-e2e-testing, hf-static-release-verification, devops-deployment]` | `TICKET-PREV-002` DONE, `TICKET-PREV-003` DONE | `ReleaseNotes.md`, `plans/evidence/prevention-hygiene-20260904/*`, Git repository tags/origin | Execute full regression verification, run Rayon parallel secret scan (0 leaks), update `ReleaseNotes.md`, verify zero uncommitted or unpushed files in local worktree ("nothing in local", 100% clean), create release tag, and push all commits and tags to `origin/main`. DoD: All checks pass, 0 secret leaks, clean worktree at origin/main. |
+
+### Program Stop and Admission Rules
+- Single-editor file ownership: each writable path is owned by exactly one ticket and lane at a time.
+- TICKET-PREV-001 is authored and owned by `business_analyst`.
+- TICKET-PREV-002 requires TICKET-PREV-001 DONE before entering DOING.
+- TICKET-PREV-003 requires TICKET-PREV-001 DONE before entering DOING.
+- TICKET-PREV-004 requires both TICKET-PREV-002 and TICKET-PREV-003 DONE before entering DOING.
+- Strict Definition of Done (DoD) Mandate is absolute: git status must be 100% clean, verified, and pushed to origin/main with zero local residue.
+- Pure ASCII logging is mandatory across all code, tests, and documentation.
+- Non-revert clause: Do not revert edits made by others; preserve existing completed roadmap and sprint records.
+
+<!-- PREVENTION-HYGIENE-20260904:END -->
+
+---
+
 <!-- KEYCHAIN-PURGE-20260904:START -->
 ## Sprint SPRINT-KEYCHAIN-PURGE-20260904 -- macOS Keychain Isolation Restoration & Wrapper Sanitization
 

@@ -57,3 +57,16 @@ invoke halt & decide. No lane may proceed until the conflict is resolved.
 
 Each writable path is assigned to exactly one ticket. No concurrent edits
 to the same path across different tickets.
+
+## Strict Definition of Done (DoD) Mandate
+
+All related jobs, CI/CD, and release notes must be verified, tagged with a release
+version referencing ReleaseNotes.md, and all commits/tags pushed to origin/main with
+nothing left in local worktree (100% clean and up to date with origin/main).
+
+A ticket, sprint, or release reaches DONE only when all criteria are satisfied:
+1. 100% green tests & zero secret leaks (clean test suite and parallel secret scan).
+2. Release notes compiled and published referencing all deliverables and verification proofs.
+3. Git release tag created referencing ReleaseNotes.md.
+4. All commits and tags pushed to `origin/main`.
+5. Zero uncommitted/unpushed files left in local worktree ("nothing in local", 100% clean).

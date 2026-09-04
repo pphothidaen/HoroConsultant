@@ -3,7 +3,94 @@
 > **Repository**: `pphothidaen/HoroConsultant`  
 > **Authority**: Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
 > **Governance Enforcement**: Rule 21 (Agile Governance) & Rule 22 (Plan Completion & Archival Mandate)  
-> **Last Synchronized**: 2026-09-04T11:10:00+07:00 (Asia/Bangkok)  
+> **Last Synchronized**: 2026-09-04T12:18:57+07:00 (Asia/Bangkok)  
+
+---
+
+<!-- PREVENTION-HYGIENE-20260904:START -->
+## GRILL REPORT -- SPRINT-PREVENTION-HYGIENE-20260904: Lessons Learned Ingestion, Keychain Isolation Protocol & Automated Git Hygiene
+
+**Recorded**: `2026-09-04T12:18:57+07:00` (Asia/Bangkok)
+**Status**: `APPROVED`
+**Requirement-change authority**: Owner instruction dated `2026-09-04` approving Sprint `SPRINT-PREVENTION-HYGIENE-20260904`.
+**Authorized current phase**: SPRINT-PREVENTION-HYGIENE-20260904 100% DONE -- CERTIFIED_COMPLETE.
+
+### Scope and Decision Record
+
+**IN**:
+1. Ingestion of Lesson 22 (macOS Isolated Account Keychain Provisioning & Silent Non-Interactive Unlock Protocol) into `.agents/LESSONS_LEARNED.md`.
+2. Ingestion of Lesson 23 (Automated Post-Merge Local Branch Pruning & Git Hygiene Protocol) into `.agents/LESSONS_LEARNED.md`.
+3. Automated Git Hygiene Local Branch Pruning utility (`scripts/git_hygiene_pruner.py`) and regression test suite (`tests/test_git_hygiene.py`) to safely prune local branches merged into `origin/main`.
+4. Automated Keychain Isolation Health Check utility (`scripts/verify_keychain_isolation.sh`) and tests (`tests/test_keychain_isolation.py`) verifying multi-account keychain isolation (`agy1..4`) with zero GUI popups.
+5. End-to-end regression verification, Rayon parallel secret scan (0 leaks across repo).
+6. Documentation update in `ReleaseNotes.md` and governance tracking in `ATOMIC_TICKET.md` and `plans/plan.md`.
+7. Enforcing strict Definition of Done (DoD): zero uncommitted or unpushed files in local worktree ("nothing in local", 100% clean), git sync to `origin/main`.
+
+**OUT**:
+- Mutating production runtime metaphysics engine, BaZi calculations, or API contracts.
+- Deleting unmerged branches, active checked-out branches, or protected branches (`main`, `master`).
+- Introducing non-ASCII characters or interactive GUI prompts.
+
+### Nine-Dimension Decision Matrix
+
+| ID | Result and evidence state | Decision / stop threshold |
+|---|---|---|
+| D1 Scope boundary | [CONFIRMED] Scope strictly bounded to Lessons Learned ingestion, git branch pruning automation, keychain validation tooling, secret scan, and git remote sync. | Any drift into production runtime metaphysics or API routes is rejected. |
+| D2 Requirement delta | [CONFIRMED] Prevents local worktree branch accumulation after PR merges and verifies zero macOS keychain popup regressions. | Full compliance with Rule 9, Rule 21, and Rule 22. |
+| D3 Acceptance and stop | [CONFIRMED] Lessons 22 and 23 registered, pruner and keychain verification utilities implemented and tested (100% pass rate), 0 secret leaks, clean git status at origin/main. | Fail closed if safety guards fail or branch pruning is unsafe. |
+| D4 Inputs, constraints, dependencies | [AUTO] Inputs: Owner instruction dated 2026-09-04, Rule 21, Rule 22. Strict DAG: PREV-001 -> (PREV-002 \|\| PREV-003) -> PREV-004. | Stop immediately if dependency order is violated. |
+| D5 Architecture, ownership, handoff | [CONFIRMED] Single-editor file ownership strictly enforced. PREV-001 owned by business_analyst, PREV-002 by developer, PREV-003 by qa_tester/devops, PREV-004 by devops/qa_tester. | Zero concurrent writes to the same resource. |
+| D6 Assumption register | [CONFIRMED] Automated branch pruning safely inspects ancestor status relative to origin/main. Keychain isolation relies on local $HOME login.keychain-db symlinks. | If branches have unmerged commits, pruner must skip and alert safely. |
+| D7 Risk and recovery | [AUTO] Risks: Inadvertent local branch deletion. Recovery: Protected branch filters (main, master), merge-base ancestor checks, non-destructive defaults. | Halt immediately if protected branch deletion is attempted. |
+| D8 Budget and evidence strategy | [AUTO] Pure ASCII logging, 0 secret leaks via Rayon parallel scanner, 100% test pass rate, immutable verification evidence. | Stop immediately if secret scan finds leaks or non-ASCII characters appear. |
+| D9 Domain and HITL | [NOT-APPLICABLE] No domain metaphysics changes. [CONFIRMED] Owner instruction dated 2026-09-04 provides explicit authority. Remote git sync adheres to DoD. | External git push and release notes updates retain strict verification. |
+
+### Dependency Graph
+
+```text
+TICKET-PREV-001 (DONE: Sprint Registration, GRILL Matrix & Lessons Learned Ingestion)
+  |--> TICKET-PREV-002 (DONE: Automated Git Hygiene Local Branch Pruner & Tests)
+  |--> TICKET-PREV-003 (DONE: Automated Keychain Isolation Validation Utility & Tests)
+         \--> TICKET-PREV-004 (DONE: Safety Audit, Secret Scan, Zero Residue & Remote Git Sync)
+```
+
+### Technical Specification -- Prevention & Hygiene Architecture
+
+#### 1. Lesson 22: macOS Isolated Account Keychain Architecture Specification
+- **Target**: Multi-account Antigravity CLI executions (`agy1`, `agy2`, `agy3`, `agy4`).
+- **Mechanism**:
+  - Each account directory `/Users/kimlenglim/.ai-accounts/agy/accountX/Library/Keychains/` contains a symlink `login.keychain-db -> agyX.keychain-db`.
+  - Wrapper scripts silently unlock `${_ACCOUNT_HOME}/Library/Keychains/login.keychain-db` with empty password (`security unlock-keychain -p "" ... 2>/dev/null || true`) prior to CLI invocation.
+  - System canonical default keychain is preserved at `/Users/kimlenglim/Library/Keychains/login.keychain-db`.
+  - Result: Eliminates GUI alert popups entirely while maintaining clean account isolation.
+
+#### 2. Lesson 23: Automated Post-Merge Local Branch Pruning Specification
+- **Target**: Local git workspace repository maintenance (`scripts/git_hygiene_pruner.py`).
+- **Mechanism**:
+  - Query local branches and evaluate their merge status against `refs/remotes/origin/main` (using `git merge-base --is-ancestor refs/heads/<branch> refs/remotes/origin/main`).
+  - Strict protection: Never delete `main`, `master`, or currently checked-out branch.
+  - Deletion command uses safe deletion (`git branch -d <branch>`).
+  - Non-destructive dry-run mode (`--dry-run`) supported by default for safety checks.
+  - Test suite `tests/test_git_hygiene.py` validates ancestor detection, protected branch immunity, and error handling.
+
+#### 3. Automated Keychain Health Check Specification
+- **Target**: `scripts/verify_keychain_isolation.sh` and `tests/test_keychain_isolation.py`.
+- **Mechanism**:
+  - Inspect all account directories (`account1` through `account4`).
+  - Verify `login.keychain-db` presence and valid symlink targets.
+  - Test non-interactive unlock command and assert zero error codes.
+  - Confirm `security default-keychain` outputs canonical `/Users/kimlenglim/Library/Keychains/login.keychain-db`.
+  - Verify pure ASCII output and zero GUI popup triggers.
+
+#### 4. QA Verification & Definition of Done Gate (TICKET-PREV-004)
+- **Verification**:
+  - Run full test suite (`pytest tests/test_git_hygiene.py tests/test_keychain_isolation.py`).
+  - Run Rayon parallel secret scan (0 leaks).
+  - Update `ReleaseNotes.md`.
+  - Ensure zero uncommitted or unpushed files in local worktree ("nothing in local", 100% clean).
+  - Push commits and tags to `origin/main`.
+
+<!-- PREVENTION-HYGIENE-20260904:END -->
 
 ---
 
