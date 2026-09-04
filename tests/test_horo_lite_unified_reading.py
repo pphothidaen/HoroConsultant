@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from html.parser import HTMLParser
 from copy import deepcopy
 from datetime import date
+from pathlib import Path
+import re
 from time import perf_counter
 from typing import Any
 
@@ -23,6 +26,105 @@ TOPIC_IDS = [
     "top_priorities_cautions",
     "export_sharing_actions",
 ]
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+PUBLIC_DIR = REPO_ROOT / "public"
+
+
+class _LiteHtmlParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.elements: list[dict[str, Any]] = []
+        self._stack: list[int] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        element = {
+            "tag": tag.lower(),
+            "attrs": {name.lower(): value or "" for name, value in attrs},
+            "text": "",
+        }
+        self.elements.append(element)
+        if tag.lower() not in {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"}:
+            self._stack.append(len(self.elements) - 1)
+
+    def handle_endtag(self, tag: str) -> None:
+        tag = tag.lower()
+        while self._stack:
+            index = self._stack.pop()
+            if self.elements[index]["tag"] == tag:
+                break
+
+    def handle_data(self, data: str) -> None:
+        if not data.strip():
+            return
+        for index in self._stack:
+            self.elements[index]["text"] += " " + data.strip()
+
+
+def _parse_lite_html(markup: str) -> _LiteHtmlParser:
+    parser = _LiteHtmlParser()
+    parser.feed(markup)
+    return parser
+
+
+def _attr_blob(element: dict[str, Any]) -> str:
+    attrs = element["attrs"]
+    return " ".join(
+        str(attrs.get(name, ""))
+        for name in ("id", "name", "type", "placeholder", "aria-label", "autocomplete", "data-field")
+    ).lower()
+
+
+def _label_targets(parser: _LiteHtmlParser) -> set[str]:
+    return {
+        element["attrs"]["for"]
+        for element in parser.elements
+        if element["tag"] == "label" and element["attrs"].get("for")
+    }
+
+
+def _control_is_accessibly_labelled(
+    control: dict[str, Any], parser: _LiteHtmlParser, label_targets: set[str]
+) -> bool:
+    attrs = control["attrs"]
+    control_id = attrs.get("id", "")
+    return bool(
+        (control_id and control_id in label_targets)
+        or attrs.get("aria-label")
+        or attrs.get("aria-labelledby")
+    )
+
+
+def _find_control(
+    parser: _LiteHtmlParser,
+    *,
+    field_name: str,
+    tokens: tuple[str, ...],
+    tags: tuple[str, ...] = ("input", "select", "textarea"),
+    types: tuple[str, ...] | None = None,
+) -> dict[str, Any]:
+    matches = []
+    for element in parser.elements:
+        if element["tag"] not in tags:
+            continue
+        attrs = element["attrs"]
+        if not attrs.get("id") or not attrs.get("name"):
+            continue
+        if types is not None and attrs.get("type", "text").lower() not in types:
+            continue
+        blob = _attr_blob(element)
+        if any(token in blob for token in tokens):
+            matches.append(element)
+    assert matches, f"LITE_FORM_{field_name.upper()}_CONTROL_MISSING_OR_UNBOUND"
+
+    label_targets = _label_targets(parser)
+    labelled = [control for control in matches if _control_is_accessibly_labelled(control, parser, label_targets)]
+    assert labelled, f"LITE_FORM_{field_name.upper()}_ACCESSIBLE_LABEL_MISSING"
+    return labelled[0]
+
+
+def _details_blocks(parser: _LiteHtmlParser) -> list[dict[str, Any]]:
+    return [element for element in parser.elements if element["tag"] == "details"]
 
 
 def _topic_modules() -> list[dict]:
@@ -650,4 +752,146 @@ def test_unified_reading_api_endpoint(monkeypatch: pytest.MonkeyPatch) -> None:
     assert llm_metadata.get("deterministic_facts_source") in (
         "project.core.annual_timing_engine",
         None,
+    )
+
+
+def test_lite_form_dom_contract() -> None:
+    lite_html_path = PUBLIC_DIR / "lite.html"
+    lite_css_path = PUBLIC_DIR / "lite.css"
+    lite_js_path = PUBLIC_DIR / "lite.js"
+
+    assert lite_html_path.exists(), "LITE_HTML_MISSING: public/lite.html must exist"
+    assert lite_css_path.exists(), "LITE_CSS_MISSING: public/lite.css must exist"
+    assert lite_js_path.exists(), "LITE_JS_MISSING: public/lite.js must exist"
+
+    html = lite_html_path.read_text(encoding="utf-8")
+    css = lite_css_path.read_text(encoding="utf-8")
+    js = lite_js_path.read_text(encoding="utf-8")
+    parser = _parse_lite_html(html)
+
+    stylesheet_hrefs = [
+        element["attrs"].get("href", "")
+        for element in parser.elements
+        if element["tag"] == "link"
+        and "stylesheet" in element["attrs"].get("rel", "").lower()
+    ]
+    script_srcs = [
+        element["attrs"].get("src", "")
+        for element in parser.elements
+        if element["tag"] == "script"
+    ]
+    assert any(href.endswith("lite.css") for href in stylesheet_hrefs), (
+        "LITE_HTML_STYLESHEET_REFERENCE_MISSING"
+    )
+    assert any(src.endswith("lite.js") for src in script_srcs), "LITE_HTML_SCRIPT_REFERENCE_MISSING"
+
+    birth_date = _find_control(
+        parser,
+        field_name="birth_date",
+        tokens=("birth_date", "birth-date", "birthdate"),
+        types=("date",),
+    )
+    assert birth_date["attrs"].get("autocomplete") in {"bday", ""}, (
+        "LITE_FORM_BIRTH_DATE_AUTOCOMPLETE_UNEXPECTED"
+    )
+    _find_control(
+        parser,
+        field_name="birth_time",
+        tokens=("birth_time", "birth-time", "birthtime"),
+        types=("time",),
+    )
+    _find_control(
+        parser,
+        field_name="unknown_birth_time",
+        tokens=("unknown_hour", "unknown-time", "unknown_birth_time", "unknownbirthtime"),
+        types=("checkbox",),
+    )
+    _find_control(
+        parser,
+        field_name="birthplace_geocoding",
+        tokens=("birth_place", "birth-place", "birthplace", "location", "geocode", "place-search"),
+        types=("search", "text"),
+    )
+    _find_control(
+        parser,
+        field_name="gender",
+        tokens=("gender", "sex"),
+        tags=("select", "input"),
+    )
+    _find_control(
+        parser,
+        field_name="target_year",
+        tokens=("target_year", "target-year", "targetyear", "year"),
+        types=("number", "text"),
+    )
+
+    optional_profile_controls = [
+        element
+        for element in parser.elements
+        if element["tag"] in {"input", "textarea"}
+        and any(
+            token in _attr_blob(element)
+            for token in (
+                "display_name",
+                "display-name",
+                "displayname",
+                "focus_question",
+                "focus-question",
+                "primary_focus_question",
+            )
+        )
+    ]
+    label_targets = _label_targets(parser)
+    for control in optional_profile_controls:
+        assert control["attrs"].get("id") and control["attrs"].get("name"), (
+            "LITE_FORM_OPTIONAL_PROFILE_CONTROL_ID_NAME_MISSING"
+        )
+        assert _control_is_accessibly_labelled(control, parser, label_targets), (
+            "LITE_FORM_OPTIONAL_PROFILE_CONTROL_ACCESSIBLE_LABEL_MISSING"
+        )
+
+    advanced_blocks = _details_blocks(parser)
+    assert advanced_blocks, "LITE_FORM_ADVANCED_DETAILS_DISCLOSURE_MISSING"
+    advanced_text = "\n".join(
+        f"{block['text']} {' '.join(block['attrs'].values())}".lower()
+        for block in advanced_blocks
+        if "open" not in block["attrs"]
+    )
+    for token in ("latitude", "longitude", "timezone"):
+        assert token in advanced_text, f"LITE_FORM_ADVANCED_{token.upper()}_NOT_COLLAPSED"
+    assert "engine" in advanced_text or "advanced" in advanced_text or "การคำนวณ" in advanced_text, (
+        "LITE_FORM_ADVANCED_ENGINE_CONTROLS_NOT_COLLAPSED"
+    )
+
+    button_texts = [
+        element["text"].strip()
+        for element in parser.elements
+        if element["tag"] == "button"
+    ]
+    assert any("คำนวณผังดวง & ตีความด้วย AI" in text for text in button_texts), (
+        "LITE_FORM_PRIMARY_ACTION_TEXT_MISSING"
+    )
+
+    assert "/api/v3/unified-reading" in js, "LITE_JS_UNIFIED_READING_API_CALL_MISSING"
+    forbidden_local_logic = {
+        "calcFourPillars",
+        "calculate_annual_timing",
+        "calculateAnnualTiming",
+        "generate_past_pattern_candidates",
+    }
+    for function_name in forbidden_local_logic:
+        assert function_name not in js, f"LITE_JS_LOCAL_ASTROLOGY_LOGIC_DUPLICATED: {function_name}"
+    assert not re.search(r"for\s*\([^)]*month[^)]*<=\s*12[^)]*\).*score", js, re.I | re.S), (
+        "LITE_JS_DIRECT_MONTHLY_SCORING_LOOP_DETECTED"
+    )
+
+    css_lower = css.lower()
+    has_focus_style = ":focus" in css_lower or ":focus-visible" in css_lower
+    has_high_contrast_style = bool(
+        re.search(r"color\s*:\s*#[0-9a-f]{3,6}", css_lower)
+        and re.search(r"background(?:-color)?\s*:\s*#[0-9a-f]{3,6}", css_lower)
+        and re.search(r"border(?:-color)?\s*:\s*#[0-9a-f]{3,6}", css_lower)
+    )
+    assert has_focus_style or has_high_contrast_style, (
+        "LITE_CSS_ACCESSIBLE_FOCUS_OR_HIGH_CONTRAST_STYLE_MISSING"
     )
