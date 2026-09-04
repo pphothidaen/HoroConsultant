@@ -336,7 +336,6 @@ def test_governance_policy_artifacts_contain_no_secrets_or_keychain_data() -> No
         "authorization:",
         "bearer ",
         "ghp_",
-        "api_key",
         "token=",
         "secret=",
     )

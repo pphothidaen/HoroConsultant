@@ -22,4 +22,4 @@ def test_distillation_checklist_updated_timestamp():
     path = Path("project/data/distillation_checklist.json")
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
-    assert data["last_updated"].startswith("2026-08-31T06:13:19")
+    assert data["last_updated"].startswith("2026-08-31T16:41:53")
