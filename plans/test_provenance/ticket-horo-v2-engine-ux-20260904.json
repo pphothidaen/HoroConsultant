@@ -1,0 +1,38 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-HORO-V2-ENGINE-UX-20260904",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "8c415b261d548d4490fd4cb866a033c4a9f6491b",
+  "test_files": [
+    {
+      "path": "tests/test_bazi_resilient_fallback.py",
+      "sha256": "fdabf0d0b1eb0921ae3b382d4f7b2100db4ee34cb472532ed83113ebf0def3b6"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_bazi_resilient_fallback.py::TestBaziResilientFallback::test_app_js_has_eco_mode_badge_text"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "MISSING_ECO_MODE_BADGE_TEXT"
+    }
+  ],
+  "allowed_source_paths": [
+    "ATOMIC_TICKET.md",
+    "ReleaseNotes.md",
+    "plans/plan.md",
+    "project/static/app.js",
+    "public/app.js"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Test baseline for Sprint SPRINT-HORO-V2-ENGINE-UX-20260904 and BaZi resilient fallback blocker fix."
+}

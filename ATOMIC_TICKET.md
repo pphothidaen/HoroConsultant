@@ -38,6 +38,53 @@ second task board or add ticket definitions to a plan/pointer file.
 
 ## ACTIVE SPRINTS & WORKSTREAMS
 
+<!-- HORO-V2-ENGINE-UX-20260904:START -->
+## Sprint SPRINT-HORO-V2-ENGINE-UX-20260904 -- Astro Engine Expansion, RAG Optimization, LuoPan UX & Resilient Hybrid Calculation Blocker Fix
+
+**Recorded**: `2026-09-04T13:24:00+07:00` (Asia/Bangkok)
+**GRILL gate**: `APPROVED` -- owner explicit instruction dated `2026-09-04`.
+**Authority**: Owner instruction dated `2026-09-04`.
+**Current status**: IN_PROGRESS.
+
+### Scope and Objectives
+- Track 1 (Astro & Metaphysics Engine Expansion): Implement and integrate multi-domain metaphysical calculation engines: Da Liu Ren (大六壬), Zi Wei Dou Shu (紫微斗数), I Ching (周易), and Qi Men Dun Jia (奇门遁甲) in core modules.
+- Track 2 (RAG Vector Search & Embeddings Optimization): Expand and optimize classical scriptures corpus and FAISS vector index with normalized high-rank passage retrieval.
+- Track 3 (Frontend / UX Cosmic Enhancements): Implement interactive 24-mountain animated LuoPan Compass (羅盤), multi-tab chart views, and refined glassmorphism reading cards.
+- Track 4 (Production Blocker Fix): Resolve `Incident: BAZI-MTMKHFMU` / `backend_health_check_failed` by implementing a resilient client-side deterministic high-precision fallback calculation engine with background non-blocking HF Space wake-up.
+- Full regression verification, Node.js & Pytest contract suites, Rayon parallel secret scan (0 leaks), `ReleaseNotes.md` synchronization, and clean remote git synchronization.
+
+### Dependency Graph
+
+```text
+TICKET-HORO-001 (DONE: Sprint Registration & GRILL Gate Specifications)
+  |--> TICKET-HORO-002 (READY: Resilient Deterministic Calculation Engine & Blocker Fix)
+  |--> TICKET-HORO-003 (READY: Astro Engine Expansion: Da Liu Ren, Zi Wei, I Ching, Qi Men)
+  |--> TICKET-HORO-004 (READY: RAG Vector Search & Embeddings Optimization)
+  |--> TICKET-HORO-005 (READY: LuoPan Compass Animation & Multi-Tab UX)
+         \--> TICKET-HORO-006 (READY: Regression Verification, Secret Scan & Release Notes)
+```
+
+### Program Tickets
+
+| Ticket | Severity / Effort | Lifecycle Status | Assigned Specialist | Required Skills | Dependencies | One Editor / Writable Ownership | Measurable Acceptance and DoD / Stop |
+|---|---|---|---|---|---|---|---|
+| `TICKET-HORO-001` | HIGH / S | DONE | `business_analyst` | `[bsa-doc-skill-management, agile-governance]` | None | `ATOMIC_TICKET.md`, `plans/plan.md` | Register Sprint SPRINT-HORO-V2-ENGINE-UX-20260904 in ATOMIC_TICKET.md and plans/plan.md with 9-dimension GRILL matrix, specifications for 4 tracks, and 6 atomic tickets. DoD: Pure ASCII, zero secret leaks, single-editor file ownership. |
+| `TICKET-HORO-002` | CRITICAL / S | DONE | `developer` | `[sdlc-aisdlc-workflow, zero-cost-ai-pipeline, bazi-calculator]` | `TICKET-HORO-001` DONE | `project/static/app.js`, `public/app.js` | Fix production blocker `Incident: BAZI-MTMKHFMU` by implementing resilient client-side deterministic calculation fallback when backend is waking/cold-starting, eliminating hard UI blocker while triggering background wake. |
+| `TICKET-HORO-003` | HIGH / M | READY | `developer` / `domain_masters` | `[metaphysical-domain-engine, sdlc-aisdlc-workflow]` | `TICKET-HORO-001` DONE | `project/core/*`, `project/routers/*` | Expand Astro calculation core with Da Liu Ren (Three Transmissions), Zi Wei Dou Shu (12 Palaces), I Ching (Hexagrams), and Qi Men Dun Jia (9 Stars, 8 Gates). Pass unit tests. |
+| `TICKET-HORO-004` | HIGH / S | READY | `developer` | `[rag-search, metaphysical-domain-engine]` | `TICKET-HORO-001` DONE | `project/rag/*` | Optimize RAG vector search: upgrade classical scriptures dataset, FAISS index embeddings, and normalized query expansion for metaphysics retrieval. |
+| `TICKET-HORO-005` | HIGH / S | READY | `developer` / `ux_ui_designer` | `[web-color-design, ui-visual-auditor]` | `TICKET-HORO-002` DONE | `project/static/index.html`, `project/static/style.css`, `project/static/app.js` | Implement animated 24-mountain LuoPan Compass with interactive magnetic rotation and multi-tab astrology chart views (BaZi, Zi Wei, Qi Men, I Ching). |
+| `TICKET-HORO-006` | HIGH / S | READY | `devops` / `qa_tester` | `[qa-e2e-testing, hf-static-release-verification, devops-deployment]` | `TICKET-HORO-002..005` DONE | `ReleaseNotes.md`, `plans/evidence/*`, Git origin | Run full regression suite, secret scan (0 leaks), update `ReleaseNotes.md`, ensure clean worktree and git push / PR merge to origin/main. |
+
+### Program Stop and Admission Rules
+- Single-editor file ownership: each writable path is owned by exactly one ticket and lane at a time.
+- Strict Zero-Cost Mandate: All client fallbacks, RAG, and Astro calculations must remain $0.00 cost compliant.
+- Strict Definition of Done (DoD) Mandate is absolute: git status must be 100% clean, verified, and pushed to origin/main with zero local residue.
+- Pure ASCII logging is mandatory across all code, tests, and documentation.
+
+<!-- HORO-V2-ENGINE-UX-20260904:END -->
+
+---
+
 <!-- WAKE-R2-GUARD-20260904:START -->
 ## Sprint SPRINT-WAKE-R2-GUARD-20260904 -- Cold-Start Wake-on-Demand, Dual-Edge Gateway & Cloudflare R2 Zero-Cost Guardrail
 
