@@ -1,0 +1,47 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-ASTRO-V2-ENGINE-UX-20260904",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "0a60c6064304acd833cd94f74fd8275bec517cec",
+  "test_files": [
+    {
+      "path": "tests/test_astro_v2_expansion.py",
+      "sha256": "dad4693e4d4853ed20bb9844eb675d414cd4a5edafb57071b398f9cbb8342a9c"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_astro_v2_expansion.py::TestLuoPanAndEcoModalUIParity::test_app_js_has_instant_edge_bypass_function"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "MISSING_INSTANT_EDGE_BYPASS_FUNCTION"
+    }
+  ],
+  "allowed_source_paths": [
+    "ATOMIC_TICKET.md",
+    "ReleaseNotes.md",
+    "plans/plan.md",
+    "project/static/app.js",
+    "project/static/index.html",
+    "project/static/style.css",
+    "public/app.js",
+    "public/index.html",
+    "public/style.css",
+    "project/core/liu_ren_engine.py",
+    "project/core/zi_wei_engine.py",
+    "project/core/iching_engine.py",
+    "project/core/qi_men_engine.py",
+    "project/rag/vector_store.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Test baseline for Sprint SPRINT-HORO-V2-ENGINE-UX-20260904 covering Astro Engine Expansion, RAG Vector Search, LuoPan/Eco-Mode UI, and Resilient Deterministic Fallback."
+}
