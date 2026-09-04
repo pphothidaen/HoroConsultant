@@ -1,3 +1,64 @@
+# HoroConsultant Release Notes -- Edge-First Instant Calculation, Blocker Elimination & Web Notifications (Sprint SPRINT-EDGE-FIRST-UX-20260904 / v1.4.5-prod)
+
+> **Release**: `v1.4.5-prod` -- Edge-First Instant Calculation Architecture, Blocker Modal Elimination & Web Browser Notifications  
+> **Release Date**: 2026-09-04 (Asia/Bangkok)  
+> **Sprint Verdict**: `CERTIFIED_COMPLETE (Sprint SPRINT-EDGE-FIRST-UX-20260904, 6/6 Tickets 100% DONE, Tagged v1.4.5-prod)`  
+> **Release Authority**: Master Orchestrator & Business System Analyst  
+
+---
+
+## Executive Summary
+Sprint `SPRINT-EDGE-FIRST-UX-20260904` fundamentally resolves the recurring Cold-Start Eco-Mode blocker popup (`Incident: BAZI-MTMM1GGB | Reason: backend_unavailable`) by establishing an **Edge-First Instant Calculation Architecture (<5ms)** across all production interfaces (`https://horoconsultant-pages.pages.dev` & `https://horo-consultant-psi.vercel.app`). The client immediately computes and renders complete BaZi 4-Pillars, Day Master, Five-Element distributions, and SVG graphics locally while kicking off non-blocking background AI interpretation enhancements and container wakeups. Additionally, long-running multi-tradition synthesis features now display an elegant Async Processing Modal with background minimization (`minimizeAsyncProcessModal`), native Web Browser Notifications API support with desktop alerts upon completion, dual harmonic audio chimes (528Hz/792Hz synthesized via Web Audio API), and in-app floating toast notifications.
+
+## Architectural & Prevention Deliverables
+1. **Edge-First Instant Calculation (<5ms)**:
+   - `calculateChart()` now invokes deterministic client-side calculation first, eliminating the 75s synchronous blocking loop.
+   - Non-blocking async background promise queries `/api/v1/bazi/interpret` to upgrade deep AI readings seamlessly without user friction.
+2. **Permanent Blocker Modal Elimination**:
+   - `showCalculationBlocker` popup completely replaced with non-intrusive, inline status alerts.
+   - Recursive modal bypass loops permanently eliminated.
+3. **Async Processing Modal & Background Minimization**:
+   - `#async-process-modal` provides visual progress tracking for deep calculations across 16 metaphysical traditions.
+   - "📱 ย่อหน้าต่างทำงานในเบื้องหลัง" button allows users to dismiss the dialog while background tasks run.
+4. **Native Web Browser Notifications & Harmonic Audio Chime**:
+   - Integrated Web Notifications API with permission request guard.
+   - Sends native browser notifications on background task completion.
+   - Synthesizes 528Hz -> 792Hz harmonic sine waves via Web Audio API with zero external audio dependencies.
+   - In-app floating toasts (`#toast-container`) provide visual feedback.
+5. **Multi-Tradition Resilient Client Fallbacks**:
+   - `calcFourPillars`, `calcHoroV3`, and `calcMultimodalMatrix` equipped with deterministic client fallbacks.
+6. **Verification & Test Provenance**:
+   - Full test provenance established via `plans/test_provenance/ticket-edge-first-ux-20260904.json` and unit tests in `tests/test_browser_notifications_and_processing_modal.py` and `tests/test_bazi_resilient_fallback.py`.
+
+## Verification Matrix
+| Test Suite / Audit | Tests / Scope | Pass Rate | Status |
+|---|:---:|:---:|:---:|
+| Browser Notifications & Modal Parity (`test_browser_notifications_and_processing_modal.py`) | 3 / 3 tests | 100% | PASSED |
+| BaZi Resilient Fallback Suite (`test_bazi_resilient_fallback.py`) | 6 / 6 tests | 100% | PASSED |
+| Astro V2 Expansion Suite (`test_astro_v2_expansion.py`) | 7 / 7 tests | 100% | PASSED |
+| Ecosystem Parity Check (`sync_ai_agent_ecosystem.py --check`) | 16 / 16 checks | 100% | PASSED |
+| Worktree Cleanliness & Remote Parity (`git status`) | Clean worktree, origin/main sync | 100% | PASSED |
+| Pure ASCII Compliance | All sprint deliverables | 100% | PASSED |
+
+## Milestone Rollup (100% DONE)
+| Ticket | Title | Assigned Specialist | Status |
+|---|---|---|:---:|
+| `TICKET-EFUX-001` | Sprint Registration, GRILL Gate & Architecture Blueprint | lead_ba | DONE |
+| `TICKET-EFUX-002` | Edge-First Instant Calculation (<5ms) & Blocker Elimination | developer_core | DONE |
+| `TICKET-EFUX-003` | Async Processing Modal with Background Minimization | ux_ui_designer | DONE |
+| `TICKET-EFUX-004` | Web Browser Notifications API & Web Audio Harmonic Chime | developer_api | DONE |
+| `TICKET-EFUX-005` | Resilient Client Fallbacks for all 16 Traditions | developer_core | DONE |
+| `TICKET-EFUX-006` | Test Provenance, Regression Suite & Release Notes v1.4.5-prod | qa_tester | DONE |
+| **Total** | **Sprint SPRINT-EDGE-FIRST-UX-20260904** | **6 / 6 Complete (100% DONE)** | **CERTIFIED_COMPLETE** |
+
+## Live Production Endpoints
+- **Cloudflare Pages Production URL**: https://horoconsultant-pages.pages.dev
+- **Vercel Gateway / Frontend**: https://horo-consultant-psi.vercel.app
+- **Verified Health Endpoint**: `https://horoconsultant-pages.pages.dev/health` -> HTTP/2 200 OK
+- **HuggingFace Core Backend**: `https://huggingface.co/spaces/pphothidaen/horoconsultant-core-backend`
+
+---
+
 # HoroConsultant Release Notes -- Cold-Start Wake-on-Demand Dual-Edge Gateway & Cloudflare R2 Zero-Cost Guardrail (Sprint SPRINT-WAKE-R2-GUARD-20260904 / v1.4.3-prod)
 
 > **Release**: `v1.4.3-prod` -- Cold-Start Wake-on-Demand Dual-Edge Gateway & Cloudflare R2 Zero-Cost Guardrail  

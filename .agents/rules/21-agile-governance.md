@@ -20,10 +20,10 @@ runtime-proven capacity (verified by execution receipt).
 ## Google AI Studio 4-Lane Quota Orchestration
 
 The system maintains 4 dedicated lanes for Google AI Studio:
-- GOOGLE_AI_STUDIO_API_KEY1 (Lane 1)
-- GOOGLE_AI_STUDIO_API_KEY2 (Lane 2)
-- GOOGLE_AI_STUDIO_API_KEY3 (Lane 3)
-- GOOGLE_AI_STUDIO_API_KEY4 (Lane 4)
+- GOOGLE_AI_STUDIO_ACCOUNT_1 (Lane 1)
+- GOOGLE_AI_STUDIO_ACCOUNT_2 (Lane 2)
+- GOOGLE_AI_STUDIO_ACCOUNT_3 (Lane 3)
+- GOOGLE_AI_STUDIO_ACCOUNT_4 (Lane 4)
 
 ### Orchestrator Conductor Authority
 
