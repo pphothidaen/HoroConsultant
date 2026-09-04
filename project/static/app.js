@@ -2319,6 +2319,7 @@ window.ensureBackendReady = ensureBackendReady;
 window.verifyBackendOnChange = verifyBackendOnChange;
 
 function showCalculationBlocker(reason = 'backend_unavailable') {
+  const safeReason = typeof reason === 'string' ? reason.replace(/[^\w-]/g, '_') : 'backend_unavailable';
   // Non-intrusive status notification instead of screen-blocking modal
   const existing = document.getElementById('calculation-blocker-modal');
   if (existing) existing.remove();
