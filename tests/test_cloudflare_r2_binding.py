@@ -36,3 +36,34 @@ class TestR2BucketBinding:
         content = read_wrangler()
         assert "horoconsultant-artifacts" in content, \
             "R2 bucket must be named 'horoconsultant-artifacts'"
+
+
+class TestR2ZeroCostGuardrail:
+    """Test Cloudflare Worker zero-cost guardrail and Vercel fallback policy."""
+
+    WORKER_PATH = Path(__file__).parent.parent / "project" / "static" / "_worker.js"
+
+    def test_worker_file_exists(self):
+        """_worker.js must exist."""
+        assert self.WORKER_PATH.exists(), f"_worker.js not found at {self.WORKER_PATH}"
+
+    def test_worker_has_zero_cost_policy_constants(self):
+        """_worker.js must define R2 free tier policy limits."""
+        content = self.WORKER_PATH.read_text()
+        assert "R2_FREE_TIER_POLICY" in content
+        assert "maxStorageBytes: 10 * 1024 * 1024 * 1024" in content
+        assert "maxClassAOpsMonthly: 1000000" in content
+        assert "maxClassBOpsMonthly: 10000000" in content
+
+    def test_worker_has_cost_guardrail_headers(self):
+        """_worker.js must emit cost guardrail headers."""
+        content = self.WORKER_PATH.read_text()
+        assert "'X-Cost-Guardrail': 'free-tier-enforced'" in content
+        assert "'X-R2-Policy': 'zero-cost-capped'" in content
+
+    def test_worker_has_vercel_fallback_origin(self):
+        """_worker.js must have Vercel fallback redirect URL."""
+        content = self.WORKER_PATH.read_text()
+        assert "VERCEL_FALLBACK_ORIGIN = 'https://horo-consultant-psi.vercel.app'" in content
+        assert "Response.redirect" in content
+
