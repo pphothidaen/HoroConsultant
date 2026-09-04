@@ -1850,6 +1850,26 @@ document.addEventListener("DOMContentLoaded", () => {
 let coldStartActive = false;
 let coldStartCountdownTimer = null;
 
+const METAPHYSICS_TIPS = [
+  '💡 เกร็ดดวงจีน: ดิถีวัน (Day Master) สะท้อนแก่นแท้ของตัวตนตามหลักคัมภีร์ 子平真詮',
+  '💡 รู้หรือไม่: การปรับเวลาตามลองจิจูด (True Solar Time) ช่วยให้ยามเกิด (時柱) แม่นยำกว่าเวลามาตรฐานสากล',
+  '💡 สมดุล 5 ธาตุ: ธาตุไม้-ไฟ-ดิน-ทอง-น้ำ ที่สมดุลช่วยเสริมพลังชีวิตและการตัดสินใจที่มั่นคง',
+  '💡 ดาวประจำตัว: ดาวการงานและโชคลาภจะทำงานได้เต็มศักยภาพเมื่ออยู่ในฤดูกาลที่ส่งเสริม',
+  '💡 ยุทธศาสตร์ชะตา: รู้จังหวะฟ้า (เทียนสือ) เข้าใจทำเลดิน (ตี้ลี่) ร่วมกับศักยภาพมนุษย์ (เหรินเหอ)'
+];
+
+function bypassColdStartToEdgeEngine() {
+  hideColdStartModal(false);
+  const statusEl = document.getElementById('backend-status');
+  if (statusEl) {
+    statusEl.classList.remove('hidden');
+    statusEl.setAttribute('data-state', 'ready');
+    statusEl.innerText = 'คำนวณผังดวงทันใจ (โหมด Deterministic Edge Engine)';
+  }
+  calculateChart();
+}
+window.bypassColdStartToEdgeEngine = bypassColdStartToEdgeEngine;
+
 function showColdStartModal(totalSeconds = 60) {
   const modal = document.getElementById('cold-start-modal');
   if (!modal) return;
@@ -1862,12 +1882,14 @@ function showColdStartModal(totalSeconds = 60) {
   const statusTextEl = document.getElementById('cold-start-status-text');
   const timerEl = document.getElementById('cold-start-timer');
   const actionsEl = document.getElementById('cold-start-actions');
+  const stageBadgeEl = document.getElementById('cold-start-stage');
+  const tipTextEl = document.getElementById('cold-start-tip-text');
 
-  if (titleEl) titleEl.innerText = 'กำลังเริ่มต้นระบบคำนวณและ AI';
-  if (descEl) descEl.innerText = 'ระบบเข้าสู่โหมดประหยัดพลังงานอัตโนมัติ (Eco Mode) กำลังปลุกเซิร์ฟเวอร์ขึ้นมาทำงาน กรุณารอสักครู่...';
+  if (titleEl) titleEl.innerText = 'กำลังเตรียมความพร้อมระบบคำนวณและ AI';
+  if (descEl) descEl.innerText = 'ระบบประหยัดพลังงานกำลังเริ่มเซิร์ฟเวอร์ ท่านสามารถรอปลุก AI หรือกดคำนวณทันใจด้านล่างได้ทันที';
   if (actionsEl) actionsEl.classList.add('hidden');
   if (progressEl) progressEl.style.width = '5%';
-  if (statusTextEl) statusTextEl.innerText = 'กำลังส่งคำสั่งปลุกระบบ Container...';
+  if (statusTextEl) statusTextEl.innerText = '🌌 กำลังส่งคำสั่งปลุก Container ดาราศาสตร์...';
 
   let remaining = totalSeconds;
   if (timerEl) timerEl.innerText = `${remaining}s`;
@@ -1881,16 +1903,31 @@ function showColdStartModal(totalSeconds = 60) {
     const pct = Math.min(95, Math.round(5 + (elapsed / totalSeconds) * 90));
     if (progressEl) progressEl.style.width = `${pct}%`;
 
-    if (elapsed > 40 && statusTextEl) {
-      statusTextEl.innerText = 'กำลังโหลดโมเดลภาษาและคลังเวกเตอร์...';
-    } else if (elapsed > 20 && statusTextEl) {
-      statusTextEl.innerText = 'ระบบ Container กำลังเริ่มต้นบริการ...';
+    // Rotate Stages & Descriptions
+    if (elapsed >= 45) {
+      if (stageBadgeEl) stageBadgeEl.innerHTML = '<span>🧠 ขั้นตอน 4/4: โหลดโมเดล AI & RAG</span>';
+      if (statusTextEl) statusTextEl.innerText = 'กำลังเตรียมโมเดล AI สำหรับการตีความเชิงลึก...';
+    } else if (elapsed >= 30) {
+      if (stageBadgeEl) stageBadgeEl.innerHTML = '<span>📜 ขั้นตอน 3/4: เตรียมคลังคัมภีร์โหราศาสตร์</span>';
+      if (statusTextEl) statusTextEl.innerText = 'กำลังเชื่อมต่อคลังคัมภีร์ดวงจีนโบราณและฐานข้อมูล RAG...';
+    } else if (elapsed >= 15) {
+      if (stageBadgeEl) stageBadgeEl.innerHTML = '<span>☯ ขั้นตอน 2/4: ปรับเทียบสมดุล 5 ธาตุ</span>';
+      if (statusTextEl) statusTextEl.innerText = 'กำลังปรับเทียบผัง 4 เสาและเวลาสุริยคติจริง...';
+    } else {
+      if (stageBadgeEl) stageBadgeEl.innerHTML = '<span>🌌 ขั้นตอน 1/4: ปลุกเซิร์ฟเวอร์ดาราศาสตร์</span>';
+      if (statusTextEl) statusTextEl.innerText = 'กำลังส่งคำสั่งปลุกระบบ Container Eco-Mode...';
+    }
+
+    // Rotate Metaphysics Wisdom Tips every 10 seconds
+    if (tipTextEl && elapsed % 10 === 0) {
+      const tipIndex = Math.floor(elapsed / 10) % METAPHYSICS_TIPS.length;
+      tipTextEl.innerText = METAPHYSICS_TIPS[tipIndex];
     }
 
     if (remaining === 0) {
       clearInterval(coldStartCountdownTimer);
       if (actionsEl) actionsEl.classList.remove('hidden');
-      if (statusTextEl) statusTextEl.innerText = 'ใช้เวลานานกว่าปกติ กรุณาลองใหม่อีกครั้ง';
+      if (statusTextEl) statusTextEl.innerText = 'ระบบพร้อมให้บริการในโหมด Edge Engine ความเร็วสูง';
     }
   }, 1000);
 }
