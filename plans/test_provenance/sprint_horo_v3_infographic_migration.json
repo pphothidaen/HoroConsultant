@@ -1,13 +1,13 @@
 {
   "schema_version": "test-provenance-v1",
   "ticket_id": "TICKET-HLITE-003",
-  "sequence": 3,
+  "sequence": 4,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "a0b5c625550a9364f3c909680d7eb0a9ef85b5d8",
+  "baseline_parent": "b0aa8ec8c98965686d013108ede8878ce696c677",
   "test_files": [
     {
       "path": "tests/test_horo_lite_unified_reading.py",
-      "sha256": "b578fae2ea3b99e9bf8bdcdc0934857ec5ff2a989a607aa278a2e1ddc63203fa"
+      "sha256": "ecade8d979438e0c06f76911e15ee1e20846cf3984c029130ef14f28d68366f7"
     }
   ],
   "red_tests": [
@@ -22,15 +22,17 @@
         "-v"
       ],
       "expected_exit": 1,
-      "failure_fingerprint": "AssertionError: CONSENSUS_METADATA_MISSING"
+      "failure_fingerprint": "ModuleNotFoundError: No module named 'project.debate'"
     }
   ],
   "allowed_source_paths": [
-    "project/core/annual_timing_engine.py"
+    "project/core/annual_timing_engine.py",
+    "project/debate/consensus_matrix.py",
+    "project/debate/__init__.py"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": "a0b5c625550a9364f3c909680d7eb0a9ef85b5d8",
-  "correction_reason": "Advances the active sprint manifest from the corrected Phase B baseline to the Phase C consensus and HITL baseline.",
-  "rationale": "Freeze a Phase C black-box Horo v3 consensus arbitration and mandatory HITL routing test baseline for TICKET-HLITE-003. Baseline parent is current corrected Phase B baseline commit a0b5c625550a9364f3c909680d7eb0a9ef85b5d8. Red evidence command python3 -m pytest tests/test_horo_lite_unified_reading.py -k test_horo_v3_consensus_arbitration_and_hitl_triggers -v exited actual 1 and expected 1 with fingerprint AssertionError: CONSENSUS_METADATA_MISSING because project.core.annual_timing_engine.calculate_annual_timing currently returns Phase B monthly scores without consensus_metadata, hitl_flags, or hitl_routing. The frozen test requires consensus_score in 0-1, arbitration status, 12 arbitrated monthly claim records, fail-closed QUEUED_FOR_HUMAN_REVIEW for low consensus, tradition conflict, force_human_review=True, and uncertain birth time, and NOT_REQUIRED only when no trigger applies."
+  "supersedes": "b59e0786442d4116cc0cb42884a295591aa3c180",
+  "correction_reason": "Strengthens the Phase C baseline to freeze the reviewer-required project.debate.consensus_matrix integration boundary for TICKET-HLITE-003.",
+  "rationale": "Freeze a black-box Horo v3 consensus matrix interface integration baseline for TICKET-HLITE-003. Baseline parent is current HEAD b0aa8ec8c98965686d013108ede8878ce696c677. Red evidence command python3 -m pytest tests/test_horo_lite_unified_reading.py -k test_horo_v3_consensus_arbitration_and_hitl_triggers -v exited actual 1 and expected 1 with fingerprint ModuleNotFoundError: No module named 'project.debate' because project.debate.consensus_matrix is absent and consensus arbitration remains local inside project/core/annual_timing_engine.py. The frozen test imports project.debate.consensus_matrix, requires a callable public annual/monthly arbitration interface through arbitrate_monthly_consensus or ConsensusMatrix with a documented arbitration method, and requires calculate_annual_timing(request) to return consensus_metadata.consensus_matrix_source == project.debate.consensus_matrix while preserving Phase C assertions for consensus_score in 0-1, arbitration status, 12 arbitrated monthly claim records, fail-closed QUEUED_FOR_HUMAN_REVIEW for low consensus, tradition conflict, force_human_review=True, and uncertain birth time, and NOT_REQUIRED only when no trigger applies."
 }
