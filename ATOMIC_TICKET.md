@@ -38,6 +38,50 @@ second task board or add ticket definitions to a plan/pointer file.
 
 ## ACTIVE SPRINTS & WORKSTREAMS
 
+<!-- RECONCILIATION-20260904:START -->
+## Sprint SPRINT-PLAN-RECONCILIATION-20260904 -- Governance Documentation Reconciliation & Rule 22 Compliance
+
+**Recorded**: `2026-09-04T10:15:00+07:00` (Asia/Bangkok)
+**GRILL gate**: `APPROVED` -- owner explicit instruction dated `2026-09-04`.
+**Authority**: Owner instruction dated `2026-09-04`.
+**Current status**: ALL 3 TICKETS DONE (TICKET-RECON-001, 002, 003 100% DONE) -- SPRINT COMPLETE.
+
+### Scope and Objectives
+- Reconcile status mismatch across `plans/plan.md`, `ATOMIC_TICKET.md`, and `ReleaseNotes.md` for completed sprints (`SPRINT-CONCURRENCY-DOD-20260904` and `GOV-ROADMAP-20260904`).
+- Update `ReleaseNotes.md` for `v1.4.0-prod` to `CERTIFIED_COMPLETE` with all verification matrices passed and milestone rollups at 100% DONE.
+- Add `ReleaseNotes.md` to `DOC_FILES` in `scripts/test_provenance_guard.py` to protect release notes under provenance governance.
+- Pre-release safety audit, Rayon parallel secret scan (0 leaks), and ecosystem parity verification (16/16 checks).
+- Enforce strict Definition of Done (DoD), Git release tagging, and zero local residue ("nothing in local").
+
+### Dependency Graph
+
+```text
+TICKET-RECON-001 (DONE: Governance Doc Reconciliation & Rule 22 Compliance)
+  |--> TICKET-RECON-002 (DONE: Safety Audit, Secret Scan & Test Verification)
+         |--> TICKET-RECON-003 (DONE: Worktree Cleanliness & Remote Git Sync)
+```
+
+### Program Tickets
+
+| Ticket | Severity / Effort | Lifecycle Status | Assigned Specialist | Required Skills | Dependencies | One Editor / Writable Ownership | Measurable Acceptance and DoD / Stop |
+|---|---|---|---|---|---|---|---|
+| `TICKET-RECON-001` | HIGH / S | DONE | `business_analyst` | `[bsa-doc-skill-management, agile-governance]` | None | `ATOMIC_TICKET.md`, `plans/plan.md`, `ReleaseNotes.md`, `scripts/test_provenance_guard.py` | Register Sprint SPRINT-PLAN-RECONCILIATION-20260904 in ATOMIC_TICKET.md and plans/plan.md. Reconcile statuses in plans/plan.md for SPRINT-CONCURRENCY-DOD-20260904 and GOV-ROADMAP-20260904 to 100% DONE / COMPLETE. Update ReleaseNotes.md for v1.4.0-prod (Sprint Verdict to CERTIFIED_COMPLETE, Verification Matrix STAGED to PASSED, Milestone Rollup to 4/4 Complete 100% DONE). Add ReleaseNotes.md to DOC_FILES in scripts/test_provenance_guard.py. Verify ecosystem sync passes 16/16. DoD: All edits pure ASCII, clean diffs, zero secret leaks. |
+| `TICKET-RECON-002` | HIGH / S | DONE | `code_reviewer` | `[qa-e2e-testing, hf-static-release-verification]` | `TICKET-RECON-001` DONE | `plans/evidence/reconciliation-20260904/*` | Conduct pre-release safety audit, Rayon parallel secret scan (0 leaks across repository), AST syntax check, ecosystem parity check (16/16 checks), and test suite verification. Generate signed safety audit receipt. DoD: 100% test pass rate, 0 secret leaks, immutable audit receipt. |
+| `TICKET-RECON-003` | HIGH / S | DONE | `devops` | `[devops-deployment, hf-static-release-verification]` | `TICKET-RECON-002` DONE | Git release tags, git push origin/main, `plans/evidence/reconciliation-20260904/ops-recon-003.json` | Verify CI/CD pipeline and release status. Ensure zero uncommitted or unpushed files in local worktree ("nothing in local", 100% clean). Push all commits and tags to origin/main. Evidence receipt recorded in plans/evidence/reconciliation-20260904/ops-recon-003.json. DoD: Git status clean, HEAD at origin/main, remote parity verified. |
+
+### Program Stop and Admission Rules
+- Single-editor file ownership: each writable path is owned by exactly one ticket at a time.
+- TICKET-RECON-001 is authored and verified by `business_analyst`.
+- TICKET-RECON-002 requires TICKET-RECON-001 DONE before entering DOING.
+- TICKET-RECON-003 requires TICKET-RECON-002 DONE before entering DOING.
+- Strict Definition of Done (DoD) Mandate is absolute: release is not complete until git status is 100% clean, pushed to origin/main, and verified.
+- Pure ASCII logging is mandatory across all code, tests, and documentation.
+- Non-revert clause: Do not revert edits made by others; work only within assigned ownership.
+
+<!-- RECONCILIATION-20260904:END -->
+
+---
+
 <!-- CONCURRENCY-DOD-20260904:START -->
 ## Sprint SPRINT-CONCURRENCY-DOD-20260904 -- Multi-Agent Concurrency Architecture & Strict Definition of Done Mandate
 
