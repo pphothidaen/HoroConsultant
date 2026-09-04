@@ -2,7 +2,11 @@ const SERVICE_UNAVAILABLE = "Service is temporarily unavailable.";
 const DEFAULT_UPSTREAM_TIMEOUT_MS = 25_000;
 const MAX_UPSTREAM_TIMEOUT_MS = 60_000;
 const DEFAULT_CORS_ORIGIN = "https://horo-consultant-psi.vercel.app";
-const DEFAULT_CORS_ALLOWED_ORIGINS = Object.freeze([DEFAULT_CORS_ORIGIN]);
+const CLOUDFLARE_PAGES_ORIGIN = "https://horoconsultant-pages.pages.dev";
+const DEFAULT_CORS_ALLOWED_ORIGINS = Object.freeze([
+  DEFAULT_CORS_ORIGIN,
+  CLOUDFLARE_PAGES_ORIGIN,
+]);
 const DEFAULT_CORS_ALLOWED_HEADERS = Object.freeze([
   "Content-Type",
   "Authorization",

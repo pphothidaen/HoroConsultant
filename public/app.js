@@ -1847,8 +1847,99 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+let coldStartActive = false;
+let coldStartCountdownTimer = null;
+
+function showColdStartModal(totalSeconds = 60) {
+  const modal = document.getElementById('cold-start-modal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  coldStartActive = true;
+
+  const titleEl = document.getElementById('cold-start-title');
+  const descEl = document.getElementById('cold-start-desc');
+  const progressEl = document.getElementById('cold-start-progress');
+  const statusTextEl = document.getElementById('cold-start-status-text');
+  const timerEl = document.getElementById('cold-start-timer');
+  const actionsEl = document.getElementById('cold-start-actions');
+
+  if (titleEl) titleEl.innerText = 'กำลังเริ่มต้นระบบคำนวณและ AI';
+  if (descEl) descEl.innerText = 'ระบบเข้าสู่โหมดประหยัดพลังงานอัตโนมัติ (Eco Mode) กำลังปลุกเซิร์ฟเวอร์ขึ้นมาทำงาน กรุณารอสักครู่...';
+  if (actionsEl) actionsEl.classList.add('hidden');
+  if (progressEl) progressEl.style.width = '5%';
+  if (statusTextEl) statusTextEl.innerText = 'กำลังส่งคำสั่งปลุกระบบ Container...';
+
+  let remaining = totalSeconds;
+  if (timerEl) timerEl.innerText = `${remaining}s`;
+
+  if (coldStartCountdownTimer) clearInterval(coldStartCountdownTimer);
+  coldStartCountdownTimer = setInterval(() => {
+    remaining = Math.max(0, remaining - 1);
+    if (timerEl) timerEl.innerText = `${remaining}s`;
+
+    const elapsed = totalSeconds - remaining;
+    const pct = Math.min(95, Math.round(5 + (elapsed / totalSeconds) * 90));
+    if (progressEl) progressEl.style.width = `${pct}%`;
+
+    if (elapsed > 40 && statusTextEl) {
+      statusTextEl.innerText = 'กำลังโหลดโมเดลภาษาและคลังเวกเตอร์...';
+    } else if (elapsed > 20 && statusTextEl) {
+      statusTextEl.innerText = 'ระบบ Container กำลังเริ่มต้นบริการ...';
+    }
+
+    if (remaining === 0) {
+      clearInterval(coldStartCountdownTimer);
+      if (actionsEl) actionsEl.classList.remove('hidden');
+      if (statusTextEl) statusTextEl.innerText = 'ใช้เวลานานกว่าปกติ กรุณาลองใหม่อีกครั้ง';
+    }
+  }, 1000);
+}
+
+function hideColdStartModal(success = true) {
+  const modal = document.getElementById('cold-start-modal');
+  if (!modal) return;
+  if (coldStartCountdownTimer) clearInterval(coldStartCountdownTimer);
+
+  const titleEl = document.getElementById('cold-start-title');
+  const progressEl = document.getElementById('cold-start-progress');
+  const statusTextEl = document.getElementById('cold-start-status-text');
+
+  if (success) {
+    if (progressEl) progressEl.style.width = '100%';
+    if (titleEl) titleEl.innerText = '✅ ระบบพร้อมใช้งานแล้ว!';
+    if (statusTextEl) statusTextEl.innerText = 'เชื่อมต่อระบบคำนวณสำเร็จ';
+    setTimeout(() => {
+      modal.classList.add('hidden');
+      coldStartActive = false;
+    }, 1200);
+  } else {
+    modal.classList.add('hidden');
+    coldStartActive = false;
+  }
+}
+
+async function triggerWakeupApi() {
+  try {
+    const res = await fetchApi('/api/wake', {
+      method: 'POST',
+      showLoader: false,
+      timeoutMs: 8000,
+    });
+    if (res && res.ok) {
+      return await res.json();
+    }
+  } catch (_) {}
+  return null;
+}
+
+window.retryWakeupProcess = async function() {
+  const actionsEl = document.getElementById('cold-start-actions');
+  if (actionsEl) actionsEl.classList.add('hidden');
+  await ensureBackendReady();
+};
+
 async function wakeBackend(options = {}) {
-  const defaultDelays = [1000, 2000, 4000, 8000, 10000, 10000, 10000, 10000, 5000];
+  const defaultDelays = [1500, 2500, 3500, 4000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000];
   const delays = options.delays || defaultDelays;
   const deadlineMs = options.deadlineMs || 5000;
   const now = options.now || (() => Date.now());
@@ -1856,13 +1947,36 @@ async function wakeBackend(options = {}) {
   const statusEl = document.getElementById('backend-status');
   const retryBtn = document.getElementById('backend-retry');
 
+  // Fast check: is backend already running?
+  try {
+    const firstCheck = await fetchApi('/health', {
+      showLoader: false,
+      timeoutMs: 3000,
+      cache: 'no-store',
+    });
+    if (firstCheck.ok) {
+      if (statusEl) {
+        statusEl.classList.remove('hidden');
+        statusEl.setAttribute('data-state', 'ready');
+        statusEl.innerText = 'API is ready';
+      }
+      if (retryBtn) retryBtn.classList.add('hidden');
+      hideColdStartModal(true);
+      return true;
+    }
+  } catch (_) {}
+
+  // Backend is sleeping or paused: Trigger wake endpoint and show modal
+  showColdStartModal(60);
+  triggerWakeupApi();
+
   const startTime = now();
   for (let i = 0; i < delays.length; i++) {
     const elapsed = now() - startTime;
-    if (elapsed >= 60000) {
+    if (elapsed >= 75000) {
       break;
     }
-    const delay = Math.min(delays[i], 60000 - elapsed);
+    const delay = Math.min(delays[i], 75000 - elapsed);
     try {
       const res = await fetchApi('/health', {
         showLoader: false,
@@ -1876,18 +1990,20 @@ async function wakeBackend(options = {}) {
           statusEl.innerText = 'API is ready';
         }
         if (retryBtn) retryBtn.classList.add('hidden');
+        hideColdStartModal(true);
         return true;
       }
     } catch (e) {}
     if (statusEl) {
       statusEl.classList.remove('hidden');
       statusEl.setAttribute('data-state', 'waking');
-      statusEl.innerText = 'HF Docker backend is unavailable; retrying';
+      statusEl.innerText = 'กำลังปลุกระบบ Container (Eco Mode)...';
     }
-    if (retryBtn) retryBtn.classList.remove('hidden');
     await waitFor(delay);
   }
   if (retryBtn) retryBtn.classList.remove('hidden');
+  const actionsEl = document.getElementById('cold-start-actions');
+  if (actionsEl) actionsEl.classList.remove('hidden');
   return false;
 }
 

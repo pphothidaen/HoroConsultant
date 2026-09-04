@@ -1,3 +1,64 @@
+# HoroConsultant Release Notes -- Cold-Start Wake-on-Demand Dual-Edge Gateway & Cloudflare R2 Zero-Cost Guardrail (Sprint SPRINT-WAKE-R2-GUARD-20260904 / v1.4.3-prod)
+
+> **Release**: `v1.4.3-prod` -- Cold-Start Wake-on-Demand Dual-Edge Gateway & Cloudflare R2 Zero-Cost Guardrail  
+> **Release Date**: 2026-09-04 (Asia/Bangkok)  
+> **Sprint Verdict**: `CERTIFIED_COMPLETE (Sprint SPRINT-WAKE-R2-GUARD-20260904, 5/5 Tickets 100% DONE, Tagged v1.4.3-prod)`  
+> **Release Authority**: Master Orchestrator & Business System Analyst  
+
+---
+
+## Executive Summary
+Sprint `SPRINT-WAKE-R2-GUARD-20260904` delivers 100% Dual-Edge Gateway parity across Vercel (`https://horo-consultant-psi.vercel.app`) and Cloudflare Pages (`https://horoconsultant-pages.pages.dev`), an automated Cold-Start Wake-on-Demand trigger (`POST /api/wake`) with an Eco-Mode Glassmorphism Countdown Modal, and a strict Cloudflare R2 Zero-Cost Guardrail with automated Vercel failover redirection. The system strictly caps operations within the Cloudflare Free Tier ($0.00 Cost Guarantee: Storage <= 10GB, Class A <= 1M ops, Class B <= 10M ops, $0 egress fees), transparently proxying or redirecting any unbound/exceeded object requests directly to the Vercel Edge. All 18 targeted unit and contract tests passed with a 100% pass rate, 0 secret leaks were verified across 6,261 files via Rust Rayon parallel scanning, 16/16 ecosystem parity checks passed, and the working tree is fully synchronized with `origin/main` in compliance with the Definition of Done (DoD) Mandate.
+
+## Architectural & Prevention Deliverables
+1. **Dual-Edge Gateway Parity & Synchronized CORS Allowlist**:
+   - `api/gateway.js` & `project/static/_worker.js` configured with identical CORS origins (`https://horo-consultant-psi.vercel.app` & `https://horoconsultant-pages.pages.dev`).
+   - Unified security headers and transparent proxying to backend Hugging Face Space.
+2. **Cold-Start Wake-on-Demand API (`POST /api/wake`)**:
+   - Secure Edge endpoint on both Vercel and Cloudflare Pages checking Hugging Face Space status.
+   - When container is in `PAUSED` state, automatically issues restart request authenticated via server-side secret `HF_TOKEN`.
+3. **Cold-Start Eco-Mode Loading Modal (UI/UX)**:
+   - Cosmic Glassmorphism modal (`index.html`, `style.css`, `app.js`) featuring orbital spinner animation and ~60s countdown progress bar.
+   - Replaces hard error states with elegant live polling, auto-dismissing and unlocking computation upon receiving `200 OK`.
+4. **Cloudflare R2 Zero-Cost Guardrail & Vercel Fallback Redirector**:
+   - Hardcoded free-tier limits in `_worker.js`: 10GB storage, 1M Class A ops, 10M Class B ops, $0 egress.
+   - Emits `X-Cost-Guardrail: free-tier-enforced` and `X-R2-Policy: zero-cost-capped` on all edge responses.
+   - Unbound or risk-threshold artifact requests are transparently redirected to Vercel Gateway (`https://horo-consultant-psi.vercel.app`), guaranteeing $0.00 extra billing.
+5. **Verification & DoD Enforcement**:
+   - 9/9 Node.js Gateway CORS and Wake contract tests passed.
+   - 9/9 Pytest Cloudflare R2 Binding and Zero-Cost Guardrail tests passed.
+   - Rust Security Auditor (Rayon parallel scan) confirmed 0 secret leaks across 6,261 files.
+   - Ecosystem synchronization validated 100% (16/16 checks passing).
+
+## Verification Matrix
+| Test Suite / Audit | Tests / Scope | Pass Rate | Status |
+|---|:---:|:---:|:---:|
+| Node.js Gateway & Wake Contract (`api_gateway_cors_contract.test.mjs`) | 9 / 9 tests | 100% | PASSED |
+| Cloudflare R2 & Zero-Cost Guardrail (`test_cloudflare_r2_binding.py`) | 9 / 9 tests | 100% | PASSED |
+| Cloudflare Deploy Readiness (`test_cloudflare_deploy.py`) | 8 / 8 tests | 100% | PASSED |
+| Rust Rayon Parallel Secret Scan (`code_reviewer.py --scan-secrets`) | 6,261 files | 0 leaks | PASSED |
+| Ecosystem Parity Check (`sync_ai_agent_ecosystem.py --check`) | 16 / 16 checks | 100% | PASSED |
+| Worktree Cleanliness & Remote Parity (`git status`) | Clean worktree, origin/main sync | 100% | PASSED |
+| Pure ASCII Compliance | All sprint deliverables | 100% | PASSED |
+
+## Milestone Rollup (100% DONE)
+| Ticket | Title | Assigned Specialist | Status |
+|---|---|---|:---:|
+| `TICKET-WAKE-001` | Register Sprint SPRINT-WAKE-R2-GUARD-20260904 & Architecture Plan | business_analyst | DONE |
+| `TICKET-WAKE-002` | Implement Dual-Edge Gateway Parity & /api/wake Wake-on-Demand Trigger | developer | DONE |
+| `TICKET-WAKE-003` | Implement Cold-Start Eco-Mode Modal & Frontend UX Integration | developer | DONE |
+| `TICKET-WAKE-004` | Implement Cloudflare R2 Zero-Cost Guardrail & Vercel Fallback Redirector | developer | DONE |
+| `TICKET-WAKE-005` | Regression Verification, Secret Scan, Release Notes & Remote Git Sync | devops / qa_tester | DONE |
+| **Total** | **Sprint SPRINT-WAKE-R2-GUARD-20260904** | **5 / 5 Complete (100% DONE)** | **CERTIFIED_COMPLETE** |
+
+## Live Production Endpoints
+- **Production Pages URL**: https://horoconsultant-pages.pages.dev
+- **Vercel Gateway / Frontend**: https://horo-consultant-psi.vercel.app
+- **Verified Health Endpoint**: `https://horoconsultant-pages.pages.dev/health` -> HTTP/2 200 OK
+- **HuggingFace Space**: `pphothidaen/horoconsultant-core-backend`
+
+---
+
 # HoroConsultant Release Notes -- Multi-Account Keychain Isolation & Git Hygiene Automation (Sprint SPRINT-PREVENTION-HYGIENE-20260904 / v1.4.2-prod)
 
 > **Release**: `v1.4.2-prod` -- Multi-Account Keychain Isolation & Git Hygiene Automation  

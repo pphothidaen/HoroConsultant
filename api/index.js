@@ -324,6 +324,83 @@ async function proxyRequest(request, response, correlationId) {
   }
 }
 
+async function handleWakeRequest(request, response, correlationId) {
+  const hfToken = (process.env.HF_TOKEN || process.env.HF_ACCESS_TOKEN || "").trim();
+  response.setHeader("x-request-id", correlationId);
+
+  // 1. Fast check if backend is already healthy
+  if (BACKEND_ORIGIN) {
+    try {
+      const probeController = new AbortController();
+      const probeTimeout = setTimeout(() => probeController.abort(), 3000);
+      const probeRes = await fetch(`${BACKEND_ORIGIN}/health`, {
+        method: "GET",
+        signal: probeController.signal,
+      });
+      clearTimeout(probeTimeout);
+      if (probeRes.ok) {
+        return response.status(200).json({
+          status: "ready",
+          message: "Backend is already running",
+          correlation_id: correlationId,
+        });
+      }
+    } catch (_) {
+      // Backend not yet reachable, proceed to trigger restart
+    }
+  }
+
+  // 2. If HF_TOKEN is not configured on gateway
+  if (!hfToken) {
+    return response.status(200).json({
+      status: "paused_unauthenticated",
+      message: "Backend is paused and HF_TOKEN is not configured in environment",
+      space_url: "https://huggingface.co/spaces/pphothidaen/horoconsultant-core-backend",
+      correlation_id: correlationId,
+    });
+  }
+
+  // 3. Trigger restart on Hugging Face Space API
+  try {
+    const restartController = new AbortController();
+    const restartTimeout = setTimeout(() => restartController.abort(), 8000);
+    const restartRes = await fetch("https://huggingface.co/api/spaces/pphothidaen/horoconsultant-core-backend/restart", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${hfToken}`,
+        "Content-Type": "application/json",
+      },
+      signal: restartController.signal,
+    });
+    clearTimeout(restartTimeout);
+
+    if (restartRes.ok || restartRes.status === 200) {
+      return response.status(200).json({
+        status: "waking",
+        message: "Hugging Face Space restart triggered successfully",
+        estimated_seconds: 60,
+        correlation_id: correlationId,
+      });
+    }
+
+    const errorText = await restartRes.text().catch(() => "");
+    return response.status(200).json({
+      status: "trigger_failed",
+      message: `Hugging Face API returned HTTP ${restartRes.status}`,
+      detail: errorText.slice(0, 200),
+      space_url: "https://huggingface.co/spaces/pphothidaen/horoconsultant-core-backend",
+      correlation_id: correlationId,
+    });
+  } catch (err) {
+    return response.status(200).json({
+      status: "trigger_error",
+      message: err.message || "Failed to contact Hugging Face API",
+      space_url: "https://huggingface.co/spaces/pphothidaen/horoconsultant-core-backend",
+      correlation_id: correlationId,
+    });
+  }
+}
+
 export default async function handler(request, response) {
   const cors = applyCorsPolicy(request, response, {
     methods: "GET, POST, PUT, DELETE, OPTIONS",
@@ -348,6 +425,16 @@ export default async function handler(request, response) {
   } catch {
     return sendGatewayError(response, 400, "invalid_request_url", correlationId);
   }
+
+  const requestedPath = requestUrl.searchParams.get("path") || requestUrl.pathname;
+  if (requestedPath === "/api/wake") {
+    if (request.method !== "POST") {
+      response.setHeader("Allow", "POST, OPTIONS");
+      return sendGatewayError(response, 405, "method_not_allowed", correlationId);
+    }
+    return handleWakeRequest(request, response, correlationId);
+  }
+
   if (request.method === "GET"
     && requestUrl.pathname === "/api/index"
     && !requestUrl.searchParams.has("path")) {

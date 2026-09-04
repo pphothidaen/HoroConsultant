@@ -797,6 +797,35 @@
     <span class="version-badge" id="app-version-badge" style="font-family: monospace;">v1.0.0.790c566</span>
   </footer>
 
+  <!-- Eco-Mode Cold-Start Wake-on-Demand Modal -->
+  <div id="cold-start-modal" class="cold-start-overlay hidden" aria-live="polite" role="dialog" aria-modal="true">
+    <div class="cold-start-panel">
+      <div class="cold-start-icon-wrap">
+        <div class="cold-start-orbit"></div>
+        <span class="cold-start-icon">🌌</span>
+      </div>
+      <h3 id="cold-start-title" class="cold-start-title">กำลังเริ่มต้นระบบคำนวณและ AI</h3>
+      <p id="cold-start-desc" class="cold-start-desc">
+        ระบบเข้าสู่โหมดประหยัดพลังงานอัตโนมัติ (Eco Mode) กำลังปลุกเซิร์ฟเวอร์ขึ้นมาทำงาน กรุณารอสักครู่...
+      </p>
+      <div class="cold-start-progress-bar">
+        <div id="cold-start-progress" class="cold-start-progress-fill" style="width: 0%;"></div>
+      </div>
+      <div class="cold-start-status-row">
+        <span id="cold-start-status-text">กำลังส่งคำสั่งปลุกระบบ Container...</span>
+        <span id="cold-start-timer">60s</span>
+      </div>
+      <div id="cold-start-actions" class="cold-start-actions hidden" style="margin-top: 1.25rem;">
+        <button type="button" id="cold-start-retry-btn" class="btn btn-sm btn-primary" onclick="retryWakeupProcess()">
+          🔄 ลองเชื่อมต่ออีกครั้ง
+        </button>
+        <a id="cold-start-space-link" href="https://huggingface.co/spaces/pphothidaen/horoconsultant-core-backend" target="_blank" rel="noopener noreferrer" class="btn btn-sm" style="margin-left: 8px; text-decoration: none; display: inline-flex; align-items: center;">
+          ↗️ ตรวจสอบสถานะบน Hugging Face
+        </a>
+      </div>
+    </div>
+  </div>
+
   <div id="chart-modal-container"></div>
   <script src="/static/js/chart_modal.js"></script>
   <script src="voice_engine.js?v=790c566"></script>
