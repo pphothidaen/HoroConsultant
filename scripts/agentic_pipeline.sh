@@ -131,8 +131,8 @@ echo "----------------------------------------------------------------------"
 export HERMES_SDLC_PHASE="bsa"           # analysis/low/codex1
 export HERMES_TASK_ROLE="analysis"
 export HERMES_TASK_COMPLEXITY="low"      # BSA docs audit and spec sync
-echo "[BSA] Auditing project documentation integrity (atomic_tasks.md, HOWTO.md)..."
-if [ -f "atomic_tasks.md" ] && [ -f "HOWTO.md" ] && [ -f "README.md" ]; then
+echo "[BSA] Auditing project documentation integrity (ATOMIC_TICKET.md, HOWTO.md)..."
+if { [ -f "ATOMIC_TICKET.md" ] || [ -f "atomic_tasks.md" ]; } && [ -f "HOWTO.md" ] && [ -f "README.md" ]; then
     echo "[OK] [BSA] Documentation files verified 100% up to date."
 else
     echo "[ERROR] [BSA] Required project documentation missing." && exit 1
@@ -217,7 +217,7 @@ python3 scripts/publish_space_hf.py \
 
 echo "[OK] [DEVOPS] Local release readiness evidence completed."
 echo "[WARNING] [DEVOPS] No deploy, publish, push, or secret synchronization was performed."
-echo "[INFO] [DEVOPS] Production release requires a READY, target-bound ticket in atomic_tasks.md through governed CI."
+echo "[INFO] [DEVOPS] Production release requires a READY, target-bound ticket in ATOMIC_TICKET.md through governed CI."
 
 echo ""
 echo "======================================================================"

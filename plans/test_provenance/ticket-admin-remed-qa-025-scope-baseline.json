@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-ADMIN-REMED-QA-025",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "4d2ee1b1c481bfe200e704bfdb9f976da3995e8a",
+  "test_files": [
+    {
+      "path": "tests/admin_production_ingress_scope_contract.test.mjs",
+      "sha256": "e6ec0782a0568d565a3e0302a743e9378fd6eb7056afd8292277eae923e24b71"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "node",
+        "--test",
+        "tests/admin_production_ingress_scope_contract.test.mjs"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError [ERR_ASSERTION]: privileged ingress must never have broad /admin/:path* or /hitl/:path* wildcards"
+    }
+  ],
+  "allowed_source_paths": [
+    "api/index.js",
+    "project/admin_router.py",
+    "project/routers/admin.py",
+    "project/static/admin.html",
+    "public/admin.html",
+    "vercel.json"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "b06a34754f6336429498f0288e58bf8c280c3d37",
+  "correction_reason": "Scope delta ADMIN-REMED-BSA-015: explicit least-privilege allowlist superseding prior reconstructed lineage",
+  "rationale": "Freeze exact IN/OUT privileged Admin ingress contract with test-first provenance before source implementation."
+}

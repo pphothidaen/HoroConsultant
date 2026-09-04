@@ -14,7 +14,9 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 | Agent Identifier | Role | Assigned Model | Reasoning Effort | Token Cost Profile | Primary Focus |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **`orchestrator` / `default` / `hermes`** | Coordination & autonomous execution | `gpt-5.6-sol` (default hint) | **Medium root; adaptive child floor** | High (Strategic) | Requirements, architecture, delegation, complex recovery |
-| **`business_analyst`** | Business System Analyst | `gpt-5.6-terra` | **Medium** | Mid (Analysis) | Specifications, dependency analysis, documentation governance |
+| **`business_analyst`** (`lead_ba`) | Business System Analyst / Lead BA | `gpt-5.6-terra` | **Medium** | Mid (Analysis) | Specifications, roadmap planning, master ticket writer (`ATOMIC_TICKET.md`, `plans/plan.md`) |
+| **`ba_intake`** | Intake & 9-Dimension Grill Specialist | `gpt-5.6-terra` | **Medium** | Mid (Analysis) | Canonical intake, scope validation, write to `plans/intake/` |
+| **`ba_auditor`** | Read-Only Audit & Verification Specialist | `gpt-5.6-terra` | **Medium** | Mid (Verification) | Read-only audits of DoR, DoD, test provenance, and evidence receipts |
 | **`developer`** | Senior Developer | `gpt-5.6-luna` | **Medium** | Low-Mid (Execution) | Bounded rank-0/rank-1 reversible development; adaptive escalation for higher ranks |
 | **`qa_tester`** | QA Tester | `gpt-5.4-mini` | **Medium** | Low (Verification) | Test design, failure triage, concise evidence extraction |
 | **`devops` / `code_reviewer`** | Release & safety gates | `gpt-5.3-codex-spark` | **High** | Mid-High (Safety) | Infrastructure, security review, deployment and rollback decisions |
@@ -48,7 +50,7 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 - **Level 1 Hooks**: `.claude/settings.json` routes Bash calls through `.agents/hooks/pre_tool_check.py` and `.agents/hooks/post_tool_audit.py` for hard command controls.
 - **Level 2 Rules**: `.claude/rules/*.md` and `.agents/rules/*.md` provide path-aware guidance, including Rule 11 delegation, Rule 12 Claude Code three-level governance, Rule 13 ecosystem sync, Rule 14 specialist decomposition, Rule 18 adaptive routing, Rule 20 context handoff (`20-context-handoff.md`), Rule 21 agile governance (`21-agile-governance.md`), and Rule 22 plan completion and release notes (`22-plan-completion-and-release-notes.md`).
 - **Level 3 Global Context**: `CLAUDE.md` remains the short baseline context and links to the detailed governance files.
-- **Quota Handoff Guard**: `/status` or runtime quota below 10% routes through `scripts/agent_quota_status_guard.py`; agents must update `atomic_tasks.md` `TICKET-META-008` and `plans/plan.md` before continuing broad work.
+- **Quota Handoff Guard**: `/status` or runtime quota below 10% routes through `scripts/agent_quota_status_guard.py`; agents must update `ATOMIC_TICKET.md` `TICKET-META-008` and `plans/plan.md` before continuing broad work.
 
 ### Specialist Decomposition Policy (Rule 14)
 
@@ -77,7 +79,7 @@ flowchart TD
     Gate -->|✅ Approved / ⚠️ Waived| Orch[Orchestrator\nGemini 3.6 Flash - High / Claude 3.7 Sonnet]
     Gate -->|🚫 Blocked| Halt([Halt: Await Confirmation])
     Orch -->|1. Delegate Spec & Docs| BSA[Business System Analyst\nGemini 3.6 Flash - Standard]
-    BSA -->|2. Audit Docs, Skills & Sub-Agent Tickets| Plan[/plans/plan.md & atomic_tasks.md\]
+    BSA -->|2. Audit Docs, Skills & Sub-Agent Tickets| Plan[/plans/plan.md & ATOMIC_TICKET.md\]
     Orch -->|3. Delegate Implementation| Dev[Senior Developer\nGemini 3.6 Flash / DeepSeek-V3]
     Dev -->|4. Source Code & Notebooks| Orch
     Orch -->|5. Delegate QA & Quality Gate| QA[QA Tester / Code Reviewer\nGemini 3.5 Flash-Lite / Rust Rayon]
@@ -104,7 +106,7 @@ flowchart TD
 
 ## 🛡️ Core Rules & Safeguards
 
-1. **Orchestrator-Only Delegation & Atomic Task/Skill Binding Mandate**: The root/current session may only decompose, dispatch, monitor, collect evidence, resolve conflicts, request HITL, and decide gates. It MUST NOT directly edit implementation, run implementation/QA commands, stage, commit, push, deploy, publish, or claim child work. Prior to dispatching work to any subagent, the Orchestrator MUST declare atomic tasks/tickets (`TICKET-<DOMAIN>-<NUM>`) in `atomic_tasks.md`, explicitly assigning each ticket to a specialist from the **Specialist List / Agent Matrix** and binding the exact **Related Skills** from the Modular Skills Catalog. Dispatching without an explicit ticket, specialist role, and bound skill list fails closed (`BLOCKED: UNBOUND_SPECIALIST_OR_SKILL`). Only a fresh explicit user waiver for one recorded action/target, with reason and stop condition in the active ticket and plan, permits an exception; it is not a standing approval.
+1. **Orchestrator-Only Delegation & Atomic Task/Skill Binding Mandate**: The root/current session may only decompose, dispatch, monitor, collect evidence, resolve conflicts, request HITL, and decide gates. It MUST NOT directly edit implementation, run implementation/QA commands, stage, commit, push, deploy, publish, or claim child work. Prior to dispatching work to any subagent, the Orchestrator MUST declare atomic tasks/tickets (`TICKET-<DOMAIN>-<NUM>`) in `ATOMIC_TICKET.md`, explicitly assigning each ticket to a specialist from the **Specialist List / Agent Matrix** and binding the exact **Related Skills** from the Modular Skills Catalog. Dispatching without an explicit ticket, specialist role, and bound skill list fails closed (`BLOCKED: UNBOUND_SPECIALIST_OR_SKILL`). Only a fresh explicit user waiver for one recorded action/target, with reason and stop condition in the active ticket and plan, permits an exception; it is not a standing approval.
 2. **Deterministic Execution**: Developer and QA agents must strictly follow specs provided by Orchestrator without altering architectural blueprints.
 3. **Pure ASCII Logging Guard**: Subprocess outputs must strictly use ASCII tags (`[OK]`, `[ERROR]`, `[WARNING]`, `[INFO]`) to avoid UTF-8 surrogate crashes.
 4. **Package Locks**: All Python scripts must respect locked versions in `.agent_rules.md` (`transformers==4.44.2`, `peft==0.12.0`, etc.).
@@ -112,10 +114,10 @@ flowchart TD
 6. **Pre-Development Kaggle Sync**: Before starting any development or modifying code, agents MUST run `python3 scripts/kaggle_notebook_manager.py --status` (and `--pull` if updated) to verify and sync the latest Kaggle kernel status/outputs.
 7. **Locked Kaggle Accelerator Stage**: `project/kaggle_kernel/kernel-metadata.json` accelerator settings (such as `"machine_shape": "NvidiaTeslaT4"`) are permanently preserved and locked. Agents MUST NEVER modify, overwrite, or toggle `kernel-metadata.json` accelerator fields.
 8. **Centralized Secrets & Lessons Learned Audit**: Agents MUST enforce the 2-Tier Priority Secrets Policy (`.agents/rules/06-secrets-policy.md`) and consult `.agents/LESSONS_LEARNED.md` before performing MLOps or architectural changes.
-9. **Documentation, Agent Matrix & Skill Up-to-date Mandate**: The Business System Analyst (`business_analyst`) MUST continuously audit and keep all repository documentation ([`README.md`](file:///Users/kimlenglim/Project/HoroConsultant/README.md), [`HOWTO.md`](file:///Users/kimlenglim/Project/HoroConsultant/HOWTO.md), [`atomic_tasks.md`](file:///Users/kimlenglim/Project/HoroConsultant/atomic_tasks.md), [`plans/plan.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/plan.md)), `.agents/skills/`, and Native Agent Definitions (`.antigravity/agents/*.agent` & `.agents/agents/`) 100% updated and synchronized via `python3 scripts/sync_sdlc_agents.py --check`.
+9. **Documentation, Agent Matrix & Skill Up-to-date Mandate**: The Business System Analyst (`business_analyst`) MUST continuously audit and keep all repository documentation ([`README.md`](file:///Users/kimlenglim/Project/HoroConsultant/README.md), [`HOWTO.md`](file:///Users/kimlenglim/Project/HoroConsultant/HOWTO.md), [`ATOMIC_TICKET.md`](file:///Users/kimlenglim/Project/HoroConsultant/ATOMIC_TICKET.md), [`plans/plan.md`](file:///Users/kimlenglim/Project/HoroConsultant/plans/plan.md)), `.agents/skills/`, and Native Agent Definitions (`.antigravity/agents/*.agent` & `.agents/agents/`) 100% updated and synchronized via `python3 scripts/sync_sdlc_agents.py --check`.
 10. **Migration Dead-Code Cleanup Mandate**: During every module or feature migration (e.g., Python to Rust or architecture refactoring), agents MUST clean up deprecated code, dead code, unused functions, and redundant fallback loops in the source codebase. Leaving legacy dead code behind is strictly forbidden.
 11. **Mandatory Post-Goal CI/CD to Prod & E2E / Regression Verification Mandate**: Every time a task or goal is completed ("goal has been done"), agents MUST execute Phase 5 CI/CD deployment to production (git push / Hugging Face Spaces publishing) and run complete E2E & UI button regression testing (`python3 scripts/run_button_regression.py`, `python3 scripts/run_e2e_screenshots.py`, `pytest`) without exception.
-12. **Quota Exhaustion Handoff Mandate**: When `/status` or runtime quota status shows less than 10% remaining, agents MUST stop broad work, summarize current state, update `atomic_tasks.md` `TICKET-META-008` and the `plans/plan.md` account migration section, then run `python3 scripts/agent_quota_status_guard.py --remaining-percent <percent> --enforce` and a secret scan. Never write secret values into handoff docs.
+12. **Quota Exhaustion Handoff Mandate**: When `/status` or runtime quota status shows less than 10% remaining, agents MUST stop broad work, summarize current state, update `ATOMIC_TICKET.md` `TICKET-META-008` and the `plans/plan.md` account migration section, then run `python3 scripts/agent_quota_status_guard.py --remaining-percent <percent> --enforce` and a secret scan. Never write secret values into handoff docs.
 13. **AI Agent Ecosystem Always-Sync Mandate**: After any change to agent definitions, skills, rules, hooks, or routing config, agents MUST run `python3 scripts/sync_ai_agent_ecosystem.py --check`. Use `--sync` after intentional changes. See `.agents/rules/13-ai-agent-ecosystem-sync.md`.
 14. **Specialist Decomposition Mandate**: When any skill, agent, rule, hook, or governance doc grows too long or requires deep specialist knowledge, agents MUST create a new dedicated single-responsibility file rather than expanding the existing one. Hard limits: skill `description` ≤ 100 chars, SKILL.md ≤ 300 lines, agent `system_prompt` ≤ 50 lines, rule file ≤ 80 lines per concern, Claude rule ≤ 40 lines per concern, hook script ≤ 150 lines. See `.agents/rules/14-specialist-decomposition-mandate.md`.
 15. **HF Static Fail-Closed Release Mandate**: Apply `.agents/rules/16-hf-static-release-verification.md` and `.agents/skills/hf-static-release-verification/SKILL.md` to every HF Static release or release-affecting frontend change. Publisher tests, payload dry-run, SDK-aware health, exact live version/assets using immutable `release_source_commit`, five canonical viewport artifacts, focused regression, safety review, and ecosystem sync MUST all pass before `READY_FOR_PROD`. Committed source metadata and its path, SHA-256 digest, and source revision prove the source identity; evidence proves it is an ancestor of the later evidence-only `packaging_commit`. No legacy fallback and no environment, CLI default, runtime `HEAD`, or external override is allowed. Missing or indeterminate evidence is a failure; only a named manual reviewer sign-off tied to the current artifact and timestamp can resolve an automated indeterminate. `orchestrator` dispatches; `developer`, `devops`, `ui_visual_tester`, and `qa_tester` execute owned gates; `code_reviewer` issues the safety verdict; `business_analyst` synchronizes governance.
@@ -129,7 +131,9 @@ flowchart TD
 | Agent Identifier | Role | Model Strategy | Primary Antigravity Spec (`.antigravity/agents/`) | Workspace CLI Spec (`.agents/agents/`) | Governance Lead |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **`orchestrator` / `default` / `hermes`** | Coordination & execution | `gpt-5.6-sol` | `orchestrator.agent` / `default.agent` | `orchestrator/agent.md` | Master Brain |
-| **`business_analyst`** | Business System Analyst | `gpt-5.6-terra` | `business-analyst.agent` | `business_analyst/agent.md` | **Doc & Skill Watchdog** |
+| **`business_analyst`** (`lead_ba`) | Business System Analyst / Lead BA | `gpt-5.6-terra` | `business-analyst.agent` | `business_analyst/agent.md` | **Doc & Skill Watchdog** |
+| **`ba_intake`** | Intake & 9-Dimension Grill Specialist | `gpt-5.6-terra` | `ba-intake.agent` | `ba_intake/agent.md` | Intake & Scope Gate |
+| **`ba_auditor`** | Read-Only Audit & Verification Specialist | `gpt-5.6-terra` | `ba-auditor.agent` | `ba_auditor/agent.md` | DoR / DoD Verification Guard |
 | **`developer`** | Senior Full-Stack Developer | `gpt-5.6-luna` (medium; adaptive Terra/Sol escalation) | `developer.agent` | `developer/agent.md` | Code Writing |
 | **`qa_tester`** | QA Tester & Verification Guard | `gpt-5.4-mini` | `qa-tester.agent` | `qa_tester/agent.md` | Test Execution Guard |
 | **`devops`** | DevOps & Release Agent | `gpt-5.3-codex-spark` | `devops.agent` | `devops/agent.md` | Release & Deploy |
@@ -159,6 +163,27 @@ The Antigravity definitions remain the cross-framework source. Codex uses the sa
    ```
 
 Do not hand-edit `.codex/agents/*.toml`; their headers identify the legacy source file. Legacy provider model names are retained only for Antigravity compatibility. Codex roles inherit the active Codex model.
+
+---
+
+## 🏎️ 6-Lane Concurrency Architecture
+
+The HoroConsultant multi-agent system enforces a maximum 6-lane concurrency architecture divided into two operational tiers:
+
+### 1. Management Tier (Up to 3 Lanes)
+- **`lead_ba`** (`business_analyst`): Master ticket writer. Sole authoritative writer of `ATOMIC_TICKET.md` and `plans/plan.md`. Orchestrates sprint roadmaps and decomposes atomic tickets.
+- **`ba_intake`**: Intake & 9-Dimension Grill Gate Specialist. Conducts canonical intake interviews, validates scope (IN/OUT), dependencies, acceptance criteria, and stop conditions. Writable ownership strictly scoped to `plans/intake/<sprint-or-topic>.md`. Never writes directly to `ATOMIC_TICKET.md` or `plans/plan.md`.
+- **`ba_auditor`**: Read-Only Audit & Verification Specialist. Verifies Definition of Ready (DoR), Definition of Done (DoD), test provenance manifests, and evidence receipts. Strictly read-only; never mutates plans or source files. Publishes audit verdicts to console or orchestrator.
+
+### 2. Parallel Execution Tier (Up to 3 Concurrent Lanes)
+- **`developer_api`**: API Gateway and routing layer. Writable paths: `project/routers/**`, `api/index.js`, `vercel.json`.
+- **`developer_core`**: Computation, core business logic, and native modules. Writable paths: `project/core/**`, `rust_core/**`.
+- **`qa_tester`**: Test baselines, contract tests, and regression verification. Writable paths: `tests/**`, `plans/test_provenance/**`.
+
+### 3. Resource Isolation & Path Disjointness
+- **One-Editor-Per-Resource**: Each file or directory path is owned by exactly one ticket and lane at any given time.
+- **Strict Path Disjointness**: No two parallel lanes may share writable paths in their active tickets.
+- **Fail-Closed Locking**: If any task requires shared files across lane boundaries, execution reverts to sequential single-lane mode.
 
 ---
 

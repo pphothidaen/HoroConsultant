@@ -1,6 +1,14 @@
 {
   "entries": [
     {
+      "name": "ba_auditor",
+      "path": "ba_auditor/agent.md"
+    },
+    {
+      "name": "ba_intake",
+      "path": "ba_intake/agent.md"
+    },
+    {
       "name": "business_analyst",
       "path": "business_analyst/agent.md"
     },

@@ -18,9 +18,63 @@
     "pool_policy": "independent pools; no aggregation",
     "admission_policy": "alias unknown without fresh quota proof and isolation proof"
   },
+  "concurrency_allocation": {
+    "total_concurrency_ceiling": 6,
+    "management_tier": {
+      "max_lanes": 3,
+      "lanes": [
+        "lead_ba",
+        "ba_intake",
+        "ba_auditor"
+      ],
+      "description": "Intake triage (ba_intake), sprint roadmap specification (lead_ba), and read-only DoR/DoD verification (ba_auditor)"
+    },
+    "parallel_execution_tier": {
+      "max_lanes": 3,
+      "lanes": [
+        "developer_api",
+        "developer_core",
+        "qa_tester"
+      ],
+      "description": "Path-disjoint implementation and baseline verification"
+    },
+    "operations_tier": {
+      "max_lanes": 1,
+      "lanes": [
+        "devops",
+        "code_reviewer"
+      ],
+      "description": "Release gates, deployment, and safety verification"
+    }
+  },
   "accounts": {
-    "agy3": {"max_workers": 3, "provider": "agy"},
-    "agy4": {"max_workers": 3, "provider": "agy"},
-    "codex3": {"max_workers": 2, "provider": "codex"}
+    "agy1": {
+      "max_workers": 3,
+      "provider": "agy"
+    },
+    "agy2": {
+      "max_workers": 3,
+      "provider": "agy"
+    },
+    "agy3": {
+      "max_workers": 3,
+      "provider": "agy"
+    },
+    "agy4": {
+      "max_workers": 3,
+      "provider": "agy"
+    },
+    "codex1": {
+      "max_workers": 2,
+      "provider": "codex"
+    },
+    "codex2": {
+      "max_workers": 2,
+      "provider": "codex"
+    },
+    "codex3": {
+      "max_workers": 2,
+      "provider": "codex"
+    }
   }
 }

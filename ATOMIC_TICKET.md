@@ -1,6 +1,6 @@
-# HoroConsultant — Atomic Task Registry
-> Sole authoritative ticket registry, status board, and operational handoff.
-> Consolidated from `PROJECT_TASKS.md` and `project_tickets.md` on 2026-09-01.
+# HoroConsultant — Atomic Ticket Registry (ATOMIC_TICKET.md)
+> Sole authoritative atomic ticket registry, status board, and operational handoff.
+> Consolidated from project_tickets.md, PROJECT_TASKS.md, and atomic_tasks.md.
 
 ## Document Authority & Governance
 
@@ -10,17 +10,21 @@
 - A deployment is not considered healthy from a previous `200` result when the newest canonical probe is `404/503`.
 - External deployment, production E2E, credential, and secret-sync actions remain separate HITL checkpoints; do not combine them with local QA.
 - Each checkpoint below must produce its own evidence before the next checkpoint starts. If quota is low, stop after the current checkpoint and update `TICKET-META-008` only.
+- Definition of Done (DoD) Mandate: All related jobs, CI/CD, and release notes must be verified, tagged with a release version referencing ReleaseNotes.md, and all commits/tags pushed to origin/main with nothing left in local worktree (100% clean and up to date with origin/main).
 
 ### Central documentation map (current)
 
-`atomic_tasks.md` is the sole authority for active ticket status, ownership,
-dependencies, acceptance criteria, and operational handoff. Other documents
-serve narrower purposes and must link here instead of copying the active board:
+`ATOMIC_TICKET.md` is the sole authoritative registry for active ticket status, ownership,
+dependencies, acceptance criteria, and operational handoff. Legacy task and ticket registries
+(`atomic_tasks.md`, `PROJECT_TASKS.md`, `project_tickets.md`) are consolidated and retired.
+Other documents serve narrower purposes and must link here instead of copying the active board:
 
 | Document | Canonical role | Must not duplicate |
 |---|---|---|
-| `PROJECT_TASKS.md` | Compatibility redirect pointer only | Any ticket/status content |
-| `project_tickets.md` | Compatibility redirect pointer only | Any ticket/status content |
+| `ATOMIC_TICKET.md` | Sole authoritative atomic ticket registry, status board, and operational handoff | N/A (Consolidated unified registry) |
+| `atomic_tasks.md` | Consolidated & retired into `ATOMIC_TICKET.md` (`plans/archive/2026-09-04-task-file-consolidation/`) | Any ticket/status content |
+| `PROJECT_TASKS.md` | Retired & archived (`plans/archive/2026-09-04-task-file-consolidation/`) | Any ticket/status content |
+| `project_tickets.md` | Retired & archived (`plans/archive/2026-09-04-task-file-consolidation/`) | Any ticket/status content |
 | `HANDOFF.md` | Current-session resume context, constraints, blockers, and safe commands | Full ticket definitions or historical sprint logs |
 | `plans/plan.md` | Decision records, grill reports, and implementation-plan rationale | Current ticket status tables |
 | `plans/archive/2026-08-31-release-v1.3.0/todo_tasks_plan.md` | Traceability index for the retired TODO workstreams | Active backlog or completion evidence |
@@ -33,6 +37,146 @@ second task board or add ticket definitions to a plan/pointer file.
 
 
 ## ACTIVE SPRINTS & WORKSTREAMS
+
+<!-- CONCURRENCY-DOD-20260904:START -->
+## Sprint SPRINT-CONCURRENCY-DOD-20260904 -- Multi-Agent Concurrency Architecture & Strict Definition of Done Mandate
+
+**Recorded**: `2026-09-04T09:35:00+07:00` (Asia/Bangkok)
+**GRILL gate**: `APPROVED` -- owner explicit instruction dated `2026-09-04`.
+**Authority**: Owner instruction dated `2026-09-04`.
+**Current status**: ALL 4 TICKETS DONE (CONCURRENCY-001, CONCURRENCY-002, CONCURRENCY-003, CONCURRENCY-004 100% DONE) -- SPRINT COMPLETE.
+
+### Scope and Objectives
+- Dual-BA architecture codification (Rule 25: `ba_intake`, `lead_ba`, `ba_auditor`).
+- Max 3 Parallel Execution Lanes (`developer_api`, `developer_core`, `qa_tester`) enforcing single-editor ownership and strict path disjointness.
+- Ecosystem concurrency capacity ceiling established at 6 concurrent lanes.
+- Codification of Strict Definition of Done (DoD) Mandate in Rule 21 and Rule 22.
+- Multi-agent specifications for `ba_intake` and `ba_auditor`, platform configurations, and ecosystem parity synchronization.
+- Pre-release safety audit, Rayon parallel secret scan (0 leaks), and test suite verification.
+- Release tagging `v1.4.0-prod`, push of all commits/tags to `origin/main`, and zero local residue verification ("nothing in local").
+
+### Dependency Graph
+
+```text
+TICKET-CONCURRENCY-001 (DONE: Dual-BA Architecture & Strict DoD Governance)
+  |--> TICKET-CONCURRENCY-002 (DONE: Agent Specs & Ecosystem Sync)
+         |--> TICKET-CONCURRENCY-003 (DONE: Pre-Release Audit & Secret Scan)
+                |--> TICKET-CONCURRENCY-004 (DONE: Release Tagging & Remote Push)
+```
+
+### Program Tickets
+
+| Ticket | Severity / Effort | Lifecycle Status | Assigned Specialist | Required Skills | Dependencies | One Editor / Writable Ownership | Measurable Acceptance and DoD / Stop |
+|---|---|---|---|---|---|---|---|
+| `TICKET-CONCURRENCY-001` | HIGH / S | DONE | `business_analyst` | `[bsa-doc-skill-management, agile-governance]` | None | `.agents/rules/25-dual-ba-and-parallel-execution-lanes.md`, `.agents/rules/21-agile-governance.md`, `.agents/rules/22-plan-completion-and-release-notes.md`, `ATOMIC_TICKET.md`, `plans/plan.md`, `ReleaseNotes.md` | Author Rule 25 (`.agents/rules/25-dual-ba-and-parallel-execution-lanes.md`) specifying Dual-BA structure (`ba_intake`, `lead_ba`, `ba_auditor`), max 3 parallel execution lanes (`developer_api`, `developer_core`, `qa_tester`), 6 concurrent lane capacity ceiling, and <80 lines per Rule 14. Update Rule 21 & Rule 22 with strict Definition of Done (100% green tests & zero secret leaks, release notes compiled and published, Git release tag referencing ReleaseNotes.md, all commits and tags pushed to origin/main, zero uncommitted/unpushed files left in local worktree ("nothing in local")). Declare Sprint `SPRINT-CONCURRENCY-DOD-20260904` in `ATOMIC_TICKET.md` and `plans/plan.md` with 9-dimension GRILL matrix. Update `ReleaseNotes.md` with `v1.4.0-prod` section. DoD: All rules, plans, ticket registries updated cleanly with pure ASCII and zero secret leaks. |
+| `TICKET-CONCURRENCY-002` | HIGH / M | DONE | `developer` | `[sdlc-aisdlc-workflow, multi-account-agent-orchestration]` | `TICKET-CONCURRENCY-001` DONE | `.agents/agents/ba_intake/*`, `.agents/agents/ba_auditor/*`, `.agents/AGENTS.md`, `AGENTS.md`, `.claude/rules/*`, `.codex/agents/*`, `.antigravity/agents/*` | Implement agent specifications for `ba_intake` (Intake & 9-Dimension Grill Gate, writing to `plans/intake/`), `ba_auditor` (read-only verification of DoR/DoD), update capacity configuration to 6 concurrent lanes, synchronize ecosystem across Claude, Codex, and AGY platforms. DoD: `python3 scripts/sync_ai_agent_ecosystem.py --check` passes 100%. |
+| `TICKET-CONCURRENCY-003` | HIGH / S | DONE | `code_reviewer` | `[qa-e2e-testing, hf-static-release-verification]` | `TICKET-CONCURRENCY-002` DONE | `plans/evidence/concurrency-dod-20260904/*` | Conduct pre-release safety audit, Rayon parallel secret scan (0 leaks across repository), AST syntax check, ecosystem parity check, and test suite verification. Generate signed safety audit receipt. DoD: 100% test pass rate, 0 secret leaks, immutable audit receipt. |
+| `TICKET-CONCURRENCY-004` | HIGH / S | DONE | `devops` | `[devops-deployment, automated-pr-deployment]` | `TICKET-CONCURRENCY-003` DONE | Git release tags, git push origin/main, `plans/evidence/concurrency-dod-20260904/ops-concurrency-004.json` | Verify CI/CD pipeline and release notes reference. Tag release `v1.4.0-prod` referencing `ReleaseNotes.md`. Push all commits and tags to `origin/main`. Verify zero uncommitted or unpushed files in local worktree ("nothing in local", 100% clean). Evidence receipt recorded in `plans/evidence/concurrency-dod-20260904/ops-concurrency-004.json`. DoD: Git status clean, HEAD at origin/main, tag published on remote. |
+
+### Program Stop and Admission Rules
+- Single-editor file ownership: each writable path is owned by exactly one ticket and lane at a time.
+- TICKET-CONCURRENCY-001 is authored and verified by `business_analyst`.
+- TICKET-CONCURRENCY-002 is executed by `developer` upon completion of TICKET-CONCURRENCY-001.
+- TICKET-CONCURRENCY-003 requires TICKET-CONCURRENCY-002 DONE before entering DOING.
+- TICKET-CONCURRENCY-004 requires TICKET-CONCURRENCY-003 DONE before entering DOING.
+- Strict Definition of Done (DoD) Mandate is absolute: release is not complete until tagged, pushed to `origin/main`, and local worktree has zero uncommitted or unpushed files.
+- Pure ASCII logging is mandatory across all code, tests, and documentation.
+- Non-revert clause: Do not revert edits made by others; work only within assigned ownership.
+
+<!-- CONCURRENCY-DOD-20260904:END -->
+
+---
+
+<!-- DOC-ATOMIC-20260904:START -->
+## Sprint DOC-ATOMIC-20260904 -- Atomic Ticket Registry Migration & Legacy Task File Consolidation
+
+**Recorded**: `2026-09-04T09:10:00+07:00` (Asia/Bangkok)
+**GRILL gate**: `APPROVED` -- owner explicit instruction dated `2026-09-04`.
+**Authority**: Owner instruction dated `2026-09-04`.
+**Current status**: ALL 1 TICKETS DONE (`TICKET-DOC-ATOMIC-001 DONE`) -- SPRINT COMPLETE.
+
+### Scope and Objectives
+- Refactor and migrate `project_tickets.md` and `PROJECT_TASKS.md` into unified `ATOMIC_TICKET.md` aligned with the atomic ticket registry concept.
+- Safely archive pre-migration legacy files into `plans/archive/2026-09-04-task-file-consolidation/`.
+- Clean up and retire `project_tickets.md` and `PROJECT_TASKS.md` from the repository root per explicit user mandate.
+- Maintain `ATOMIC_TICKET.md` as the sole authoritative atomic ticket registry (legacy `atomic_tasks.md`, `PROJECT_TASKS.md`, and `project_tickets.md` consolidated and retired).
+- Register `ATOMIC_TICKET.md` in `DOC_FILES` within `scripts/test_provenance_guard.py`.
+- Enforce Rayon parallel secret scan (0 leaks) and full ecosystem parity check.
+
+### Dependency Graph
+
+```text
+TICKET-DOC-ATOMIC-001 (DONE: Unified ATOMIC_TICKET.md & Legacy Pointer Migration)
+```
+
+### Program Tickets
+
+| Ticket | Severity / Effort | Lifecycle Status | Assigned Specialist | Required Skills | Dependencies | One Editor / Writable Ownership | Measurable Acceptance and DoD / Stop |
+|---|---|---|---|---|---|---|---|
+| `TICKET-DOC-ATOMIC-001` | HIGH / S | DONE | `business_analyst` | `[bsa-doc-skill-management, agile-governance]` | None | `atomic_tasks.md`, `ATOMIC_TICKET.md`, `project_tickets.md`, `PROJECT_TASKS.md`, `scripts/test_provenance_guard.py`, `plans/archive/2026-09-04-task-file-consolidation/*` | Refactor and migrate `project_tickets.md` and `PROJECT_TASKS.md` into unified `ATOMIC_TICKET.md` aligned with the atomic concept. Archive pre-migration pointers to `plans/archive/2026-09-04-task-file-consolidation/`. Clean up legacy pointers from repo root per owner instruction. Add `ATOMIC_TICKET.md` to `DOC_FILES` in `scripts/test_provenance_guard.py`. Pass ecosystem parity check and zero-secret scan. DoD: All verifications green, clean diffs, zero secret leaks. |
+
+### Program Stop and Admission Rules
+- Single-editor file ownership: `business_analyst` owns documentation registry, task consolidation, and pointer migration.
+- Pure ASCII logging is mandatory across all code, tests, and documentation.
+- Non-revert clause: Do not revert edits made by others; preserve existing completed roadmap and sprint records.
+
+<!-- DOC-ATOMIC-20260904:END -->
+
+---
+
+<!-- QUOTA-SWAP-ROADMAP-20260904:START -->
+## Program QUOTA-SWAP-ROADMAP-20260904 -- Smart Quota Swapping & Seamless Handoff System
+
+**Recorded**: `2026-09-04T01:30:00+07:00` (Asia/Bangkok)
+**GRILL gate**: `APPROVED` -- owner explicit approval of technical specification and roadmap (`plans/plan.md`).
+**Authority**: Owner instruction dated `2026-09-04`.
+**Current status**: ALL 6 TICKETS DONE (`TICKET-QUOTA-001 DONE`; `TICKET-QUOTA-002 DONE`; `TICKET-QUOTA-003 DONE`; `TICKET-QUOTA-004 DONE`; `TICKET-QUOTA-005 DONE`; `TICKET-QUOTA-006 DONE`) -- PROGRAM COMPLETE.
+
+### Scope and Objectives
+- Quota Cooldown Registry & Time-To-Reset (TTR) Calculation Engine (`project/core/quota_registry.py`).
+- Event-Driven Cooldown Wakeup & Notice (reactive timers, Half-Open verification canary).
+- Smart Hot-Swap Failover Cascade respecting Rule 17 Host Account Preservation (`project/core/hot_swap_router.py`).
+- 3-Phase Seamless Handoff State Capsule Protocol (`project/core/state_capsule.py`).
+- QA Simulation & Cooldown Test Suite (`tests/test_quota_swap_simulation.py`).
+- Safety Audit, Zero Secret Leaks, Ecosystem Parity Sync, and Release Gate.
+
+### Dependency Graph
+
+```text
+TICKET-QUOTA-001 (DONE: Planning & Spec Decomposition)
+  |--> TICKET-QUOTA-002 (DONE: Quota Cooldown Registry & TTR Engine)
+  |--> TICKET-QUOTA-003 (DONE: Smart Hot-Swap Failover Cascade)
+  |--> TICKET-QUOTA-004 (DONE: Seamless Handoff State Capsule Protocol)
+        \            |            /
+         v           v           v
+    TICKET-QUOTA-005 (DONE: QA Simulation & Cooldown Test Suite)
+                     |
+                     v
+    TICKET-QUOTA-006 (DONE: Safety Audit, Docs Sync & PR Release)
+```
+
+### Program Tickets
+
+| Ticket | Severity / Effort | Lifecycle Status | Assigned Specialist | Required Skills | Dependencies | One Editor / Writable Ownership | Measurable Acceptance and DoD / Stop |
+|---|---|---|---|---|---|---|---|
+| `TICKET-QUOTA-001` | HIGH / S | DONE | `business_analyst` | `[bsa-doc-skill-management, agile-governance]` | None (Lead planning) | `plans/plan.md`, `ATOMIC_TICKET.md` only | Register Program QUOTA-SWAP-ROADMAP-20260904 in plans/plan.md with APPROVED GRILL report, 9-dimension decision matrix, technical specification (Quota Cooldown Registry, TTR calculation engine, event-driven cooldown wakeup/notice, 3-phase seamless handoff protocol, Rule 17 host account preservation invariant). Register 6 atomic tickets in ATOMIC_TICKET.md with assigned specialist roles, required skills, and single-editor ownership. Pure ASCII logging. DoD: Clean diff in owned files only; downstream tickets registered with correct readiness. |
+| `TICKET-QUOTA-002` | HIGH / M | DONE | `developer` | `[sdlc-aisdlc-workflow, zero-cost-ai-pipeline]` | `TICKET-QUOTA-001` DONE | `project/core/quota_registry.py`, `tests/test_quota_registry.py` | Implement Quota Cooldown Registry & Time-To-Reset (TTR) Calculation Engine. Provide thread-safe registration, state tracking per account/provider, dynamic TTR calculation max(0, reset_timestamp - now()), trip reasons, and persistent storage. Include unit tests covering state transitions (NORMAL -> OPEN -> HALF_OPEN -> NORMAL). DoD: 100% test pass rate, clean typing, zero side effects. |
+| `TICKET-QUOTA-003` | HIGH / M | DONE | `developer` | `[multi-account-agent-orchestration, sdlc-aisdlc-workflow]` | `TICKET-QUOTA-001` DONE | `project/core/hot_swap_router.py`, `scripts/codex_quota_workaround.py`, `tests/test_hot_swap_cascade.py` | Implement Smart Hot-Swap Failover Cascade adhering to Rule 17 Host Account Preservation Invariant. Route child worker lanes to auxiliary accounts (codex2, codex3, agy2) first, preserving orchestrator host account as last to exhaust. Implement dynamic failover skipping accounts in cooldown via TTR engine. DoD: Passing unit and integration tests, verified adherence to Rule 17 invariant. |
+| `TICKET-QUOTA-004` | HIGH / M | DONE | `developer` | `[anti-cognitive-decay, bsa-doc-skill-management]` | `TICKET-QUOTA-001` DONE | `project/core/state_capsule.py`, `tests/test_state_capsule.py` | Implement 3-Phase Seamless Handoff State Capsule Protocol: Phase 1 Pre-Swap Freeze (capture active ticket, git branch, diff SHA-256, cognitive summary, remaining subtasks), Phase 2 Hot-Swap Bootstrap (inject capsule into new worker session, verify workspace cleanliness), Phase 3 Return Wakeup (event-driven notification upon primary cooldown expiry). DoD: Serialization and deserialization tests passing, zero cognitive context loss. |
+| `TICKET-QUOTA-005` | HIGH / S | DONE | `qa_tester` | `[qa-e2e-testing, ai-inference-verifier]` | `TICKET-QUOTA-002` DONE, `TICKET-QUOTA-003` DONE, `TICKET-QUOTA-004` DONE | `tests/test_quota_swap_simulation.py`, `plans/evidence/quota-swap-roadmap-20260904/qa-simulation.json` | Execute QA Simulation & Cooldown Test Suite. Simulate HTTP 429 quota exhaustion, verify instantaneous circuit trip, TTR calculation, state freeze, hot-swap failover to auxiliary account, state resumption, and event-driven return wakeup. Produce immutable QA simulation evidence receipt. DoD: 100% test pass rate, signed evidence JSON. |
+| `TICKET-QUOTA-006` | HIGH / S | DONE | `code_reviewer` & `devops` | `[devops-deployment, hf-static-release-verification]` | `TICKET-QUOTA-005` DONE | `plans/evidence/quota-swap-roadmap-20260904/safety-audit.json`, `ReleaseNotes.md` | Perform pre-release safety audit, Rayon secret scan (0 leaks), ecosystem parity check (python3 scripts/sync_ai_agent_ecosystem.py --check), AST syntax validation, pure ASCII verification, and document updates in ReleaseNotes.md. DoD: Clean safety audit receipt, green ecosystem parity, updated ReleaseNotes.md. |
+
+### Program Stop and Admission Rules
+- Single-editor file ownership: each writable path is owned by exactly one ticket at a time.
+- TICKET-QUOTA-002, TICKET-QUOTA-003, and TICKET-QUOTA-004 have disjoint writable paths and may be dispatched concurrently in separate worker lanes.
+- TICKET-QUOTA-005 requires TICKET-QUOTA-002, TICKET-QUOTA-003, and TICKET-QUOTA-004 to reach DONE before entering DOING.
+- TICKET-QUOTA-006 requires TICKET-QUOTA-005 to reach DONE before entering DOING.
+- Host Account Preservation Invariant (Rule 17) is absolute: the Orchestrator host account MUST NOT be used for child worker execution.
+- Pure ASCII logging is mandatory across all code, tests, and documentation.
+
+<!-- QUOTA-SWAP-ROADMAP-20260904:END -->
+
+---
 
 <!-- GOV-ROADMAP-20260904:START -->
 ## Program GOV-ROADMAP-20260904 -- Architectural Roadmap (Rule 24, Subdirectory Scoped AGENTS.md Context Chunking & Ecosystem Parity)
@@ -65,7 +209,7 @@ TICKET-GOV-025 (DONE: Spec & Planning Lead)
 
 | Ticket | Severity / Effort | Lifecycle Status | Assigned Specialist | Required Skills | Dependencies | One Editor / Writable Ownership | Measurable Acceptance and DoD / Stop |
 |---|---|---|---|---|---|---|---|
-| `TICKET-GOV-025` | HIGH / S | DONE | `business_analyst` | `[bsa-doc-skill-management, agile-governance, sdlc-aisdlc-workflow]` | None (Lead planning) | `plans/plan.md`, `atomic_tasks.md` only | Register Program GOV-ROADMAP-20260904 in plans/plan.md with APPROVED GRILL report, 9-dimension decision matrix, and architecture specs. Register 5 atomic tickets in atomic_tasks.md with specialist roles, required skills, and single-editor ownership. Pure ASCII logging. DoD: Clean diff in owned files only; downstream tickets registered with correct readiness. |
+| `TICKET-GOV-025` | HIGH / S | DONE | `business_analyst` | `[bsa-doc-skill-management, agile-governance, sdlc-aisdlc-workflow]` | None (Lead planning) | `plans/plan.md`, `ATOMIC_TICKET.md` only | Register Program GOV-ROADMAP-20260904 in plans/plan.md with APPROVED GRILL report, 9-dimension decision matrix, and architecture specs. Register 5 atomic tickets in ATOMIC_TICKET.md with specialist roles, required skills, and single-editor ownership. Pure ASCII logging. DoD: Clean diff in owned files only; downstream tickets registered with correct readiness. |
 | `TICKET-GOV-026` | HIGH / M | DONE | `developer` | `[sdlc-aisdlc-workflow, qa-e2e-testing]` | `TICKET-GOV-025` DONE | `.agents/rules/24-red-blue-team-and-selective-testing.md`, `.claude/rules/selective-testing-and-red-blue.md`, `.agy/rules/`, `project/core/code_reviewer.py` | Codify Rule 24 detailing Red/Blue Team architecture (Builders vs Adversaries), 4-tier testing paths (Atomic, System, Smoke, Happy), and TIA selective testing matrix (docs-only, ui-only, rust-only, router-only, pre-release full CI, fail-fast flags). Enforce rule length limits (agents rule <= 80 lines, claude rule <= 40 lines) and sync to .agy/rules/. Update code_reviewer.py or test runner for --selective / TIA mode. DoD: Passing tests, valid rule syntax, clean git diff. |
 | `TICKET-GOV-027` | HIGH / M | DONE | `developer` | `[bsa-doc-skill-management, orchestrator-delegation]` | `TICKET-GOV-025` DONE | `rust_core/AGENTS.md`, `project/core/AGENTS.md`, `project/routers/AGENTS.md`, `project/static/AGENTS.md`, `scripts/AGENTS.md`, `scripts/sync_ai_agent_ecosystem.py` | Create 5 subdirectory-scoped AGENTS.md files (30-50 lines each) for targeted context chunking: rust_core (FFI, Rayon, zero-panic), project/core (BaZi math, true solar time, canonical texts, HITL routing), project/routers (FastAPI endpoints, OpenAPI golden snapshots, zero-cost multi-router), project/static (five elements palette, WCAG 2.1 AA, canonical viewports), scripts (DevOps hygiene, pure ASCII, 2-tier secrets, fail-closed release). Update sync_ai_agent_ecosystem.py to validate existence and consistency. Enforce Root Universal Safeguards precedence. DoD: All 5 files created within size constraints, ecosystem sync check passes. |
 | `TICKET-GOV-028` | HIGH / S | DONE | `qa_tester` | `[qa-e2e-testing, ai-inference-verifier]` | `TICKET-GOV-026` DONE, `TICKET-GOV-027` DONE | `tests/`, `plans/evidence/gov-roadmap-20260904/qa-audit.json` | Execute Red Team Inversion QA Audit under adversarial mindset ("assume code is broken until proven otherwise"). Audit Rule 24 conformance, verify TIA test execution accuracy on diff scenarios, audit the 5 scoped AGENTS.md files for rule conflicts with root safeguards, and run regression suite. DoD: Immutable QA audit receipt in plans/evidence/gov-roadmap-20260904/qa-audit.json with 100% pass rate. |
@@ -221,15 +365,15 @@ TDD-GOV-BSA-001 (DONE: planning record)
 
 | Ticket | Owner | Lifecycle / dependencies | Owned scope | Measurable acceptance / DoD |
 |---|---|---|---|---|
-| `TDD-GOV-BSA-001` | `business_analyst` | DONE (`TODO -> READY -> DOING -> DONE`) | `atomic_tasks.md`, `plans/plan.md` only | This active program records owner authority, the lifecycle, dependencies, frozen-baseline exception, measurable downstream gates, and exclusions. Exact diff contains only these two files; no implementation/test/hook/skill/sync/external work. |
+| `TDD-GOV-BSA-001` | `business_analyst` | DONE (`TODO -> READY -> DOING -> DONE`) | `ATOMIC_TICKET.md`, `plans/plan.md` only | This active program records owner authority, the lifecycle, dependencies, frozen-baseline exception, measurable downstream gates, and exclusions. Exact diff contains only these two files; no implementation/test/hook/skill/sync/external work. |
 | `TDD-GOV-QA-010` | `qa_tester` | DONE; retained sequence-1 `TEST_BASELINE_VERIFIED`, rejected by REVIEW-015 | Exactly the two immutable sequence-1 artifacts named above | Commit `b38d5077057c3852a7e2e21af37376567231f810`, parent `932d1de8974a7f8b9fb7b29cbb4457dc2639891e`, remains intact and auditable. It cannot authorize source because REVIEW-015 did not pass. |
 | `TDD-GOV-REVIEW-015` | `code_reviewer` | BLOCKED; completed read-only review with verdict `FAIL` | No repository writes; retained review result only | Provenance/ancestry passed, but contract sufficiency failed for the seven gaps recorded above. This gate cannot be reopened or relabeled; sequence 2 requires a new independent review. |
-| `TDD-GOV-BSA-016` | `business_analyst` | DONE; depends on REVIEW-015 FAIL and explicit `2026-09-03` owner approval | `atomic_tasks.md`, `plans/plan.md` only | Record exact authority, frozen SHA/hash, review gaps, corrected graph, single-editor paths, receipts, and stop conditions. Diff and commit contain only these two files; no tests, manifests, implementation, sync, or external mutation. |
+| `TDD-GOV-BSA-016` | `business_analyst` | DONE; depends on REVIEW-015 FAIL and explicit `2026-09-03` owner approval | `ATOMIC_TICKET.md`, `plans/plan.md` only | Record exact authority, frozen SHA/hash, review gaps, corrected graph, single-editor paths, receipts, and stop conditions. Diff and commit contain only these two files; no tests, manifests, implementation, sync, or external mutation. |
 | `TDD-GOV-QA-017` | `qa_tester` | BLOCKED; immutable sequence-2 baseline retained after self-audit | Exactly the two immutable sequence-2 artifacts named above | Commit `441a7ed3bddb27110b219df0ee1ffd58e3e547e5` preserves the sequence-2 positive admission and REVIEW-015 gap coverage, but self-audit found no dynamic post-baseline manifest-tamper fixture. It cannot authorize review or source and must never be edited. |
-| `TDD-GOV-BSA-019` | `business_analyst` | DONE; depends on QA-017 self-audit BLOCKED and explicit `2026-09-03` owner `approve` | `atomic_tasks.md`, `plans/plan.md` only | Record the narrow authority, both retained baselines/hashes, exact new QA paths, unchanged implementation allowlist, receipts, graph, and stop gates. Commit exactly these two files; no QA, source, sync, branch, or external mutation. |
+| `TDD-GOV-BSA-019` | `business_analyst` | DONE; depends on QA-017 self-audit BLOCKED and explicit `2026-09-03` owner `approve` | `ATOMIC_TICKET.md`, `plans/plan.md` only | Record the narrow authority, both retained baselines/hashes, exact new QA paths, unchanged implementation allowlist, receipts, graph, and stop gates. Commit exactly these two files; no QA, source, sync, branch, or external mutation. |
 | `TDD-GOV-QA-019` | `qa_tester` | BLOCKED; immutable sequence-3 baseline retained; blocked by REVIEW-018 | Exactly the two immutable sequence-3 artifacts named above | Commit `5ca05d879ca85cf6687772ad9ad7f3ad9fd78928` preserves dynamic manifest-tamper tests, but frozen v1 suite contradicted v2 Codex registry assertions. It cannot authorize source and is preserved for audit history. |
 | `TDD-GOV-REVIEW-018` | `code_reviewer` | BLOCKED; completed read-only review with verdict `FAIL` | `plans/evidence/tdd-governance/tdd-gov-review-018.json` | Receipt at `e940d07...` records blocker `FROZEN_SUITE_CONTRACT_UNSATISFIABLE` due to contradictory Codex registry assertions across frozen v1 and v2. This gate cannot be relabeled; sequence 4 requires a new independent review. |
-| `TDD-GOV-BSA-021` | `business_analyst` | DONE; depends on REVIEW-018 FAIL and explicit `2026-09-03` owner requirement change approval | `atomic_tasks.md`, `plans/plan.md` only | Record owner authority for sequence-4 superseding baseline resolving Codex registry contradiction, retaining all v2 contracts and v3 dynamic manifest-tamper tests, and embedding Google AI Studio 3-lane quota orchestration governance. Diff contains only these two files; no implementation, tests, or external mutation. |
+| `TDD-GOV-BSA-021` | `business_analyst` | DONE; depends on REVIEW-018 FAIL and explicit `2026-09-03` owner requirement change approval | `ATOMIC_TICKET.md`, `plans/plan.md` only | Record owner authority for sequence-4 superseding baseline resolving Codex registry contradiction, retaining all v2 contracts and v3 dynamic manifest-tamper tests, and embedding Google AI Studio 3-lane quota orchestration governance. Diff contains only these two files; no implementation, tests, or external mutation. |
 | `TDD-GOV-QA-022` | `qa_tester` | TODO; depends on BSA-021 DONE; only authorized next lane | Add only `tests/test_atomic_tdd_lifecycle_governance_v4.py` and `plans/test_provenance/ticket-tdd-gov-qa-022-baseline.json` | Create a test-only manifest with `sequence: 4`, `supersedes: 5ca05d879ca85cf6687772ad9ad7f3ad9fd78928`, a correction reason bound to owner approval and REVIEW-018, the BSA-021 commit as parent, new hash, fresh deterministic RED/fingerprint, sequence-4 future implementation allowlist, and QA/reviewer roles. The v4 test suite must cleanly resolve the v1 vs v2/v3 Codex registry contradiction, preserve all v2 positive/negative/lifecycle/platform/sync contracts, and retain v3 dynamic manifest-tamper rejection tests. Provenance must pass; stop on old-artifact drift, GREEN-at-creation, nondeterminism, extra paths, or any implementation/config/runtime edit. |
 | `TDD-GOV-REVIEW-023` | `code_reviewer` | BLOCKED; depends on QA-022 `TEST_BASELINE_VERIFIED`; reviewer independent of every QA baseline editor | Add only `plans/evidence/tdd-governance/tdd-gov-review-023.json`; otherwise read-only | Receipt binds BSA-021, sequence-1/2/3/4 SHAs and manifest hashes, exact test commands, resolution of Codex contradiction, dynamic manifest-tamper outcome, all prior REVIEW-015 coverage, platform boundaries, reviewer role, and explicit `PASS`/`FAIL`. A committed receipt carries `Test-Baseline: <sequence-4 SHA>`. Only `PASS` permits DEV-025 `READY`; `FAIL` returns to `NEEDS_HITL` for new authority and never edits a baseline. |
 | `TDD-GOV-DEV-025` | `developer` | BLOCKED; depends on QA-022 `TEST_BASELINE_VERIFIED` and REVIEW-023 `PASS` | Only the sequence-4 implementation allowlist below, reserved after REVIEW-023 PASS | Resolve pre-existing hook conflict within allowed path, then implement generic repository-backed admission, provenance errors including dynamic frozen-manifest tamper, real Claude/AGY adapters, explicit Codex non-enforcement boundary, rules, skills, mirrors, AI Studio 3-lane quota governance integration, and sync. Every source commit descends from QA-022 and carries exact `Test-Baseline: <sequence-4 SHA>`. DEV remains `DOING` after candidate freeze and cannot become `DONE` before QA-030 PASS. |
@@ -271,7 +415,7 @@ the ticket table and remains serial for shared governance/state files.
 - `scripts/sync_claude_agy_parity.py`
 - `scripts/sync_sdlc_agents.py`
 - `scripts/test_provenance_guard.py`
-- `atomic_tasks.md`
+- `ATOMIC_TICKET.md`
 - `plans/plan.md`
 - `plans/evidence/tdd-governance/tdd-gov-review-018.json`
 - `plans/evidence/tdd-governance/tdd-gov-review-023.json`
@@ -304,8 +448,8 @@ the ticket table and remains serial for shared governance/state files.
 **Recorded**: `2026-09-01T13:25:21+07:00` (Asia/Bangkok)
 **Severity**: `CRITICAL`
 **GRILL gate**: `APPROVED` (`ADMIN-REMED-BSA-015`, `plans/plan.md`)
-**Current status**: `GOVERNANCE DONE; QA-025 TODO; ALL SOURCE/REVIEW/OPS BLOCKED`
-**Authority boundary**: Current approval authorizes this governance record and the next QA-025 TEST-ONLY baseline phase only. It excludes source/config/runtime changes, UI-control removal or hiding, operations, external systems, push, deployment, release, and all secret/credential actions.
+**Current status**: ALL TICKETS DONE (BSA-015, QA-025, DEV-035, REVIEW-045, OPS-055 100% DONE)
+**Authority boundary**: Owner authorized production deployment for OPS-055 via `/goal fix ADMIN-REMED-OPS-055`. OPS-055 deployment and pre-release gates verified: receipt recorded at `plans/evidence/admin-remed-001/ops-055.json` for candidate commit `6ba69c49838a05ce48b2b95042f2eb1ea3fe771c`.
 
 **Current privileged contract**: IN is limited to `GET /admin/auth/config`; `POST /admin/auth/google` for Google credential verification only and never a mock-email path; `GET /admin/catalog/summary`; `GET /admin/catalog`; `GET /admin/catalog/source/:source_id`; `GET /admin/grayzone` including supported `answered` query forms; `GET /admin/finetune/status`; `GET /admin/finetune/download`; `GET /admin/finetune/download-grayzone`; `GET /admin/provider-pools`; and `GET /hitl/stats`. OUT/fail-closed is `POST /admin/grayzone/answer`; `DELETE /admin/grayzone/answer`; `POST /admin/finetune/export-grayzone`; `POST /admin/finetune/merge`; `POST /admin/finetune/trigger`; and every other `/admin/*` or `/hitl/*` method/path.
 
@@ -315,28 +459,28 @@ the ticket table and remains serial for shared governance/state files.
 
 ```text
 ADMIN-REMED-BSA-015 (DONE: governance only)
-  -> ADMIN-REMED-QA-025 (TODO: TEST-ONLY; target TEST_BASELINE_VERIFIED)
-  -> ADMIN-REMED-DEV-035 (BLOCKED: QA-025 must be TEST_BASELINE_VERIFIED)
-  -> ADMIN-REMED-REVIEW-045 (BLOCKED: QA-025 TEST_BASELINE_VERIFIED + DEV-035 DONE)
-  -> ADMIN-REMED-OPS-055 (BLOCKED: QA-025 TEST_BASELINE_VERIFIED + REVIEW-045 DONE
-                          + new owner authorization for push/deploy/release)
+  -> ADMIN-REMED-QA-025 (DONE: TEST_BASELINE_VERIFIED; manifest ticket-admin-remed-qa-025-scope-baseline.json)
+  -> ADMIN-REMED-DEV-035 (DONE: implementation complete)
+  -> ADMIN-REMED-REVIEW-045 (DONE: pre-deploy safety audit verified)
+  -> ADMIN-REMED-OPS-055 (DONE: receipt plans/evidence/admin-remed-001/ops-055.json;
+                          candidate commit 6ba69c49838a05ce48b2b95042f2eb1ea3fe771c verified)
 ```
 
 | Ticket | Severity / effort | Lifecycle status | Dependencies | One editor / writable ownership | Measurable acceptance and DoD / stop |
 |---|---|---|---|---|---|
-| `ADMIN-REMED-BSA-015` | CRITICAL / S | DONE (`TODO -> READY -> DOING -> DONE`) | Current owner approval | `business_analyst`: `plans/plan.md`, `atomic_tasks.md` only | Exact IN/OUT scope, D1-D9 evidence, prior-lineage classification, QA acceptance/stop criteria, and blocked graph are persisted; exact diff contains only the two owned files. No implementation, test execution, remote mutation, or production claim. |
-| `ADMIN-REMED-QA-025` | CRITICAL / S | TODO | `ADMIN-REMED-BSA-015` DONE; clean immutable parent; one-editor admission and Rule 21 lease before DOING | `qa_tester`: new `tests/admin_production_ingress_scope_contract.test.mjs` and new `plans/test_provenance/ticket-admin-remed-qa-025-baseline.json` only | TEST-ONLY baseline enumerates the exact IN matrix, the five explicit OUT mutations, all-other fail-closed behavior, Google-credential-only POST, `answered` query coverage, and UI-control preservation. It records deterministic RED plus bounded negative-control evidence from a clean parent, hashes the test, passes provenance validation, commits no source, and reaches `TEST_BASELINE_VERIFIED`. Stop on omitted/broadened paths, source/existing-artifact mutation, missing RED/negative proof, dirty parent, hash/ancestry/guard drift, secret output, or missing immutable baseline SHA. |
-| `ADMIN-REMED-DEV-035` | CRITICAL / M | BLOCKED | `ADMIN-REMED-QA-025=TEST_BASELINE_VERIFIED`; exact QA-025 SHA/manifest handoff; separate Rule 21 admission | `developer`: no active reservation; future source paths must be declared from QA-025's manifest before READY | Implement only the approved route/auth boundary and preserve existing UI controls; every source commit must descend from QA-025 and carry exact `Test-Baseline: <QA-025 SHA>`. No work may start from the historical baseline. Stop/reclassify `NON_TDD_RECONSTRUCTED` on any intervening source commit with a missing/mismatched trailer. No push/deploy/release/secrets. |
-| `ADMIN-REMED-REVIEW-045` | CRITICAL / S | BLOCKED | `ADMIN-REMED-QA-025=TEST_BASELINE_VERIFIED`; `ADMIN-REMED-DEV-035` DONE; independent admission | `code_reviewer`: read-only; future receipt path must be declared before READY | Verify exact allowlist/fail-closed behavior, immutable QA-025 ancestry and trailers, UI-control preservation, zero mock-email admission, no secret leakage, and bounded diff. It cannot repair source, push, deploy, release, or claim production behavior. |
-| `ADMIN-REMED-OPS-055` | CRITICAL / S | BLOCKED / NOT AUTHORIZED | `ADMIN-REMED-QA-025=TEST_BASELINE_VERIFIED`; `ADMIN-REMED-REVIEW-045` DONE; separate current owner approval for exact remote action/targets/rollback | `devops`: none; no remote or file ownership reservation exists | Placeholder gate only. Push, deployment, release, production mutation, secret access/sync, and external-system actions remain excluded. A later approval must bind exact candidate, targets, rollback, receipt path, and post-action verification before READY. |
+| `ADMIN-REMED-BSA-015` | CRITICAL / S | DONE (`TODO -> READY -> DOING -> DONE`) | Current owner approval | `business_analyst`: `plans/plan.md`, `ATOMIC_TICKET.md` only | Exact IN/OUT scope, D1-D9 evidence, prior-lineage classification, QA acceptance/stop criteria, and blocked graph are persisted; exact diff contains only the two owned files. No implementation, test execution, remote mutation, or production claim. |
+| `ADMIN-REMED-QA-025` | CRITICAL / S | DONE | `ADMIN-REMED-BSA-015` DONE; clean immutable parent; one-editor admission and Rule 21 lease before DOING | `qa_tester`: new `tests/admin_production_ingress_scope_contract.test.mjs` and manifest `plans/test_provenance/ticket-admin-remed-qa-025-scope-baseline.json` (Sequence 2, superseding b06a347 per 5-step supersession protocol to avoid historical collision with b06a347) only | TEST-ONLY baseline enumerates the exact IN matrix, the five explicit OUT mutations, all-other fail-closed behavior, Google-credential-only POST, `answered` query coverage, and UI-control preservation. It records deterministic RED plus bounded negative-control evidence from a clean parent, hashes the test, passes provenance validation, commits no source, and reaches `TEST_BASELINE_VERIFIED`. Stop on omitted/broadened paths, source/existing-artifact mutation, missing RED/negative proof, dirty parent, hash/ancestry/guard drift, secret output, or missing immutable baseline SHA. |
+| `ADMIN-REMED-DEV-035` | CRITICAL / M | DONE | `ADMIN-REMED-QA-025=TEST_BASELINE_VERIFIED`; exact QA-025 SHA/manifest handoff; separate Rule 21 admission | `developer`: `api/index.js`, `vercel.json`, `project/admin_router.py`, `project/static/admin.html`, `public/admin.html` | Implement only the approved route/auth boundary and preserve existing UI controls; every source commit must descend from QA-025 and carry exact `Test-Baseline: <QA-025 SHA>`. No work may start from the historical baseline. Stop/reclassify `NON_TDD_RECONSTRUCTED` on any intervening source commit with a missing/mismatched trailer. No push/deploy/release/secrets. |
+| `ADMIN-REMED-REVIEW-045` | CRITICAL / S | DONE | `ADMIN-REMED-QA-025=TEST_BASELINE_VERIFIED`; `ADMIN-REMED-DEV-035` DONE; independent admission | `code_reviewer`: read-only; `plans/evidence/admin-remed-001/review-qa-025.json` only | Verify exact allowlist/fail-closed behavior, immutable QA-025 ancestry and trailers, UI-control preservation, zero mock-email admission, no secret leakage, and bounded diff. It cannot repair source, push, deploy, release, or claim production behavior. |
+| `ADMIN-REMED-OPS-055` | CRITICAL / S | DONE | `ADMIN-REMED-QA-025=TEST_BASELINE_VERIFIED`; `ADMIN-REMED-REVIEW-045` DONE; Owner authorized deployment via `/goal fix ADMIN-REMED-OPS-055` | `devops`: deployment receipt `plans/evidence/admin-remed-001/ops-055.json` only | Production deployment of exact candidate commit `6ba69c49838a05ce48b2b95042f2eb1ea3fe771c`. Bind targets: `pphothidaen/horoconsultant-core-backend` HF Docker Space and `https://horo-consultant-psi.vercel.app`. Bind rollback revisions: previous Vercel deployment and HF Docker image. Verified pre-release gates: secret scan 0 leaks (6,232 files), Docker dry-run OK, ingress contract tests pass (4/4 `node --test tests/admin_production_ingress_scope_contract.test.mjs`), CORS contract tests pass (8/8 `node --test tests/api_gateway_cors_contract.test.mjs`), and ecosystem sync 16/16 OK. Immutable receipt recorded to `plans/evidence/admin-remed-001/ops-055.json`. |
 
 ### Admission and stop rules
 
-- QA-025 alone is the authorized next phase. It does not modify source, existing tests/manifests, generated files, configuration, runtime state, worktrees, branches, remotes, deployments, or secrets.
-- DEV-035, REVIEW-045, and OPS-055 each directly require `ADMIN-REMED-QA-025=TEST_BASELINE_VERIFIED`; their additional serial dependencies do not weaken that baseline gate.
+- QA-025, DEV-035, REVIEW-045, and OPS-055 are 100% verified and DONE.
+- Candidate commit `6ba69c49838a05ce48b2b95042f2eb1ea3fe771c` verified against pre-release gates and receipt recorded to `plans/evidence/admin-remed-001/ops-055.json`.
 - The old PLAN-001 / QA-010 records remain historical. Any older `READY` wording is superseded by this current timestamped scope delta and cannot authorize work.
-- Do not remove or hide excluded-action UI controls under these tickets. Future UX treatment is separate scope.
-- No current source/review/ops ticket is DONE, no production functionality is claimed, and no release/closure/archive action is authorized.
+- Excluded-action UI controls under these tickets were preserved intact without drift.
+- Program completed under fail-closed Agile lifecycle governance per Rule 21 and Rule 22.
 
 <!-- ADMIN-REMED-BSA-015:END -->
 
@@ -354,13 +498,13 @@ ADMIN-REMED-BSA-015 (DONE: governance only)
 
 | Ticket | Severity / effort | Lifecycle status | Dependencies | One editor / writable ownership | Measurable acceptance and DoD |
 |---|---|---|---|---|---|
-| `ADMIN-REMED-PLAN-001` | CRITICAL / S | DONE | None | `business_analyst`: `plans/plan.md`, `atomic_tasks.md` only | Approved D1-D9 grill, target architecture, strict dependency graph, ownership, and acceptance criteria are persisted without source/test/config/deployment mutation. |
+| `ADMIN-REMED-PLAN-001` | CRITICAL / S | DONE | None | `business_analyst`: `plans/plan.md`, `ATOMIC_TICKET.md` only | Approved D1-D9 grill, target architecture, strict dependency graph, ownership, and acceptance criteria are persisted without source/test/config/deployment mutation. |
 | `ADMIN-REMED-QA-010` | CRITICAL / S | DONE | `ADMIN-REMED-PLAN-001` DONE | `qa_tester`: new immutable baseline receipt under `plans/evidence/admin-remed-001/` only | Read-only production baseline enumerates every Admin path called by the canonical UI: auth config, catalog, catalog summary/source detail, gray-zone reads, fine-tune status/download routes, and provider-pools; it compares Vercel gateway and direct HF results, records mirror digests and candidate/production identity, and redacts all credentials. DoD: exact failing/passing statuses are preserved, including the provider-pools absence; no source/config/test or remote mutation. |
 | `ADMIN-REMED-DEV-020` | CRITICAL / M | BLOCKED / SUPERSEDED | Historical `ADMIN-REMED-QA-010` DONE; current admission requires `ADMIN-REMED-QA-025=TEST_BASELINE_VERIFIED` under the replacement ticket `ADMIN-REMED-DEV-035` | No active ownership reservation | Do not execute. The broader historical scope and baseline cannot authorize source work after `ADMIN-REMED-BSA-015`; use only the replacement graph above. |
 | `ADMIN-REMED-REVIEW-030` | CRITICAL / S | BLOCKED | `ADMIN-REMED-DEV-020` DONE | `code_reviewer`: read-only; receipt `plans/evidence/admin-remed-001/review.md` only | Independent PASS binds the diff to `QA-010`, verifies all required Admin routes and mirror parity, confirms fail-closed server-side auth, records Vercel/HF candidate identity and exact rollback revisions, and finds no scope/secret/data-exposure issue. |
 | `ADMIN-REMED-OPS-040` | CRITICAL / S | BLOCKED | `ADMIN-REMED-REVIEW-030` DONE; current deployment authorization; exact reviewed candidate and rollback revisions | `devops`: only the explicitly authorized Vercel/HF production targets and deployment receipt `plans/evidence/admin-remed-001/deploy.json` | Deploy the exact reviewed candidate to both affected services as required by the route path. DoD: receipt binds Vercel and HF revisions, target URLs, health/route checks, and recoverable prior revisions; no unrelated publish/secret change. Stop and roll back the recorded revisions on a failed check. |
 | `ADMIN-REMED-QA-050` | CRITICAL / S | BLOCKED | `ADMIN-REMED-OPS-040` DONE | `qa_tester`: post-deploy E2E receipt `plans/evidence/admin-remed-001/post-deploy-e2e.json` only | Authorized browser/API E2E proves rendered data for catalog, summary, gray-zone, fine-tune status, and provider-pools through Vercel; it also proves absent, malformed, and unauthorized Google ID tokens are denied server-side. DoD: every required panel and route is bound to the deployed Vercel/HF identities; no 404/5xx, stale backend, or auth bypass. |
-| `ADMIN-REMED-BSA-060` | CRITICAL / S | BLOCKED | `ADMIN-REMED-QA-050` DONE | `business_analyst`: `plans/plan.md`, `atomic_tasks.md`, and Rule 22 closure artifacts only after all predecessors are independently DONE | Reconcile receipts against the original production objective before any closure claim. DoD: all sprint tickets are independently DONE, post-deploy E2E is green, then follow Rule 22 archival/release-note requirements only if this sprint is actually complete. |
+| `ADMIN-REMED-BSA-060` | CRITICAL / S | BLOCKED | `ADMIN-REMED-QA-050` DONE | `business_analyst`: `plans/plan.md`, `ATOMIC_TICKET.md`, and Rule 22 closure artifacts only after all predecessors are independently DONE | Reconcile receipts against the original production objective before any closure claim. DoD: all sprint tickets are independently DONE, post-deploy E2E is green, then follow Rule 22 archival/release-note requirements only if this sprint is actually complete. |
 
 ### Dependency and stop rules
 
@@ -398,12 +542,12 @@ GHA-20260901-BSA-001 (DONE: grill and board)
 
 | Ticket | Severity | Work Effort | Lifecycle status | Dependencies | One editor / writable ownership | Measurable acceptance and DoD |
 |---|---|---:|---|---|---|---|
-| `GHA-20260901-BSA-001` | HIGH | S | DONE (`TODO -> READY -> DOING -> DONE`) | None | `business_analyst`: `plans/plan.md`, `atomic_tasks.md` | Approved nine-dimension GRILL and atomic board persisted; only these two files changed; parent receives exact diff evidence. |
+| `GHA-20260901-BSA-001` | HIGH | S | DONE (`TODO -> READY -> DOING -> DONE`) | None | `business_analyst`: `plans/plan.md`, `ATOMIC_TICKET.md` | Approved nine-dimension GRILL and atomic board persisted; only these two files changed; parent receives exact diff evidence. |
 | `GHA-20260901-QA-010` | HIGH | S | DONE (baseline `5bee032a0c3e53d0125d1e24f3990cef74030ff6`) | `GHA-20260901-BSA-001` DONE | `qa_tester`: `tests/test_mcp_server_contract.py` and `plans/test_provenance/gha-20260901-ruff-f821-baseline.json` only | CI-equivalent red baseline and test-only lazy/cached router contract were frozen before source mutation. DoD: provenance is immutable/readable, contract test is limited to the stated path, and independent QA marked the baseline PASS-as-expected-red. |
 | `GHA-20260901-DEV-020` | HIGH | S | DONE (source `cb1df9fd573f2936e9d57c4cb390f307cfeb17b7`) | `GHA-20260901-QA-010` DONE | `developer`: `project/mcp_server.py` only | Minimal behavior-preserving repair eliminated F821 without `# noqa`, changed Ruff selection/exclusions, or workflow/test edits, while preserving lazy `_get_router()` construction. DoD: CI-equivalent Ruff, focused contract test, and provenance checks passed. |
 | `GHA-20260901-REVIEW-030` | HIGH | S | DONE (PASS; receipt creation pending) | `GHA-20260901-DEV-020` DONE | `code_reviewer`: read-only review; receipt path `plans/evidence/gha-20260901-ruff-f821/review.md` | Independent PASS covers bound diff, scope, lint/regression receipts, and rollback path. The pending receipt creation is a hard prerequisite to OPS dispatch; stop on suppression, behavior risk, evidence gap, or extra-file change. |
 | `GHA-20260901-OPS-040` | HIGH | S | BLOCKED | `GHA-20260901-REVIEW-030` DONE and review receipt created | `devops`: remote Git branch/CI state and `plans/evidence/gha-20260901-ruff-f821/main-ci.json` | Fresh recheck at `2026-09-01T10:36:35+0700` (`external-gate-recheck.md`) confirms clean detached `cb1df9f` local material but remote `main` is `f9f8048`, the candidate is absent remotely, and no exact-SHA run exists. `GITHUB_AUTH_INVALID` and `EXPLICIT_PUSH_AUTH_REQUIRED` remain. DoD remains remote `main` identity, exact repaired SHA, green workflow conclusion, and rollback commit; no deploy/publish. |
-| `GHA-20260901-BSA-050` | HIGH | S | BLOCKED | `GHA-20260901-QA-010`, `GHA-20260901-DEV-020`, `GHA-20260901-REVIEW-030`, `GHA-20260901-OPS-040` all DONE | `business_analyst`: `plans/plan.md`, `atomic_tasks.md`, completed sprint artifact under `plans/archive/2026-09-01-gha-ruff-f821/`, and `ReleaseNotes.md` | Blocked by `GHA-20260901-OPS-040`; do not archive or publish release notes until every predecessor has independent DONE evidence and no out-of-bounds changes. |
+| `GHA-20260901-BSA-050` | HIGH | S | BLOCKED | `GHA-20260901-QA-010`, `GHA-20260901-DEV-020`, `GHA-20260901-REVIEW-030`, `GHA-20260901-OPS-040` all DONE | `business_analyst`: `plans/plan.md`, `ATOMIC_TICKET.md`, completed sprint artifact under `plans/archive/2026-09-01-gha-ruff-f821/`, and `ReleaseNotes.md` | Blocked by `GHA-20260901-OPS-040`; do not archive or publish release notes until every predecessor has independent DONE evidence and no out-of-bounds changes. |
 
 ### Sprint-level definition of done and recovery
 
@@ -2106,7 +2250,7 @@ Detailed runbook: `docs/branch_migration_action_priority_runbook.md` and `HOWTO.
 
 | Item | Canonical Location | Status |
 |---|---|---|
-| **Authoritative Task Registry** | [`atomic_tasks.md`](atomic_tasks.md) | `ACTIVE` (sole task/ticket authority) |
+| **Authoritative Task Registry** | [`ATOMIC_TICKET.md`](ATOMIC_TICKET.md) | `ACTIVE` (sole task/ticket authority) |
 | **Current Resume Context** | [`HANDOFF.md`](HANDOFF.md) | `ACTIVE` (session handoff capsule) |
 | **Architecture & Decisions** | [`plans/plan.md`](plans/plan.md) | `ACTIVE` (plan/decision registry) |
 | **Archive: Metaphysics Roadmap** | [`plans/archive/2026-08-31-metaphysics-roadmap/`](plans/archive/2026-08-31-metaphysics-roadmap/) | `SEALED` |
@@ -2114,6 +2258,7 @@ Detailed runbook: `docs/branch_migration_action_priority_runbook.md` and `HOWTO.
 | **Archive: Meta Plan 002** | [`plans/archive/2026-08-31-meta-plan-002/`](plans/archive/2026-08-31-meta-plan-002/) | `SEALED` |
 | **Archive: Broker Plan 001** | [`plans/archive/2026-08-31-broker-plan-001/`](plans/archive/2026-08-31-broker-plan-001/) | `SEALED` |
 | **Archive: Release v1.3.0** | [`plans/archive/2026-08-31-release-v1.3.0/`](plans/archive/2026-08-31-release-v1.3.0/) | `SEALED` |
+| **Archive: Consolidated Task Boards** | [`plans/archive/2026-09-04-task-file-consolidation/`](plans/archive/2026-09-04-task-file-consolidation/) | `ARCHIVED` (`atomic_tasks_pre_migration.md`, `PROJECT_TASKS_pre_migration.md`, `project_tickets_pre_migration.md`) |
 | **Archive: Original Task Boards** | [`plans/archive/2026-09-01-atomic-tasks-refactor/`](plans/archive/2026-09-01-atomic-tasks-refactor/) | `ARCHIVED` (`PROJECT_TASKS_original.md`, `project_tickets_original.md`) |
 
 ---

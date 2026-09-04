@@ -24,14 +24,6 @@
       "destination": "/api/index?path=/api/v3/:path*"
     },
     {
-      "source": "/admin/:path*",
-      "destination": "https://pphothidaen-horoconsultant-core-backend.hf.space/admin/:path*"
-    },
-    {
-      "source": "/hitl/stats",
-      "destination": "https://pphothidaen-horoconsultant-core-backend.hf.space/hitl/stats"
-    },
-    {
       "source": "/docs",
       "destination": "/api/index?path=/docs"
     },
@@ -52,12 +44,28 @@
       "destination": "/api/index?path=/admin/catalog/summary"
     },
     {
+      "source": "/admin/catalog",
+      "destination": "/api/index?path=/admin/catalog"
+    },
+    {
+      "source": "/admin/catalog/source/:source_id",
+      "destination": "/api/index?path=/admin/catalog/source/:source_id"
+    },
+    {
       "source": "/admin/grayzone",
       "destination": "/api/index?path=/admin/grayzone"
     },
     {
       "source": "/admin/finetune/status",
       "destination": "/api/index?path=/admin/finetune/status"
+    },
+    {
+      "source": "/admin/finetune/download",
+      "destination": "/api/index?path=/admin/finetune/download"
+    },
+    {
+      "source": "/admin/finetune/download-grayzone",
+      "destination": "/api/index?path=/admin/finetune/download-grayzone"
     },
     {
       "source": "/admin/provider-pools",

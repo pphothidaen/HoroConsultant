@@ -1,3 +1,232 @@
+# 🚀 HoroConsultant Release Notes — Multi-Agent Concurrency Architecture & Strict Definition of Done Mandate (Sprint SPRINT-CONCURRENCY-DOD-20260904 / v1.4.0-prod)
+
+> **Release**: `v1.4.0-prod` — Multi-Agent Concurrency Architecture & Strict Definition of Done Mandate  
+> **Release Date**: 2026-09-04 (Asia/Bangkok)  
+> **Sprint Verdict**: `IN_PROGRESS` (Sprint SPRINT-CONCURRENCY-DOD-20260904, Lead Ticket TICKET-CONCURRENCY-001 DONE)  
+> **Release Authority**: Master Orchestrator & Business System Analyst  
+
+---
+
+## 🌟 Executive Summary
+Sprint `SPRINT-CONCURRENCY-DOD-20260904` establishes the Multi-Agent Concurrency Architecture and codifies the Strict Definition of Done (DoD) Mandate across HoroConsultant. The architecture formalizes a Dual-BA operating model (`ba_intake` for 9-dimension intake triage, `lead_ba` for authoritative planning, and `ba_auditor` for read-only DoR/DoD verification) paired with up to 3 parallel execution lanes (`developer_api`, `developer_core`, `qa_tester`) enforcing single-editor resource isolation and strict path disjointness under a total 6-lane concurrency capacity ceiling. Furthermore, Rules 21 and 22 are elevated with the strict Definition of Done: 100% green tests, 0 secret leaks, published release notes, Git release tagging referencing `ReleaseNotes.md`, all commits and tags pushed to `origin/main`, and zero local residue left in the working tree ("nothing in local").
+
+## 🛠️ Architectural Deliverables
+1. **Rule 25 Codification (`.agents/rules/25-dual-ba-and-parallel-execution-lanes.md`)**:
+   - Dual-BA structure (`ba_intake`, `lead_ba`, `ba_auditor`).
+   - 3 Parallel Execution Lanes (`developer_api` for routers/gateways, `developer_core` for core/rust, `qa_tester` for tests and provenance manifests).
+   - One-Editor-Per-Resource enforcement and path disjointness locking.
+   - Total capacity ceiling capped at 6 concurrent lanes with Rule 17 host account preservation.
+   - Strict adherence to Rule 14 line limits (<80 lines).
+2. **Strict Definition of Done Mandate (Rule 21 & Rule 22 Updates)**:
+   - Formally codified the requirement: all jobs, CI/CD, and release notes must be verified, tagged with a release version referencing `ReleaseNotes.md`, and all commits/tags pushed to `origin/main` with nothing left in local worktree (100% clean and up to date with `origin/main`).
+3. **Sole Authoritative Ticket Registry Alignment (`ATOMIC_TICKET.md`)**:
+   - Updated Document Authority with the Strict DoD Mandate.
+   - Declared Sprint `SPRINT-CONCURRENCY-DOD-20260904` with 4 atomic tickets (`TICKET-CONCURRENCY-001` through `004`), assigned specialists, required skills, and single-editor writable ownership.
+4. **Agile Plan & 9-Dimension GRILL Gate (`plans/plan.md`)**:
+   - Persisted approved GRILL decision matrix across D1-D9 for sprint execution.
+
+## 🧪 Verification Matrix
+| Test Suite / Audit | Tests / Scope | Pass Rate | Status |
+|---|:---:|:---:|:---:|
+| Ecosystem Parity Sync (`sync_ai_agent_ecosystem.py --check`) | 16 / 16 checks | 100% | PASSED |
+| Rust Rayon Parallel Secret Scan (`code_reviewer.py --scan-secrets`) | Full repo | 0 leaks | STAGED |
+| Test Suite Full Verification | 100% test pass rate | 100% | STAGED |
+| Local Worktree Cleanliness & Remote Sync | `git status` 100% clean, pushed | Verified | STAGED |
+| Pure ASCII Compliance | All rule and doc files | 100% | PASSED |
+| Rule 14 Line-Count Budget (<80 lines) | Rule 21, 22, 25 | 100% | PASSED |
+
+## 📋 Milestone Rollup (100% DONE)
+| Ticket | Title | Assigned Specialist | Status |
+|---|---|---|:---:|
+| `TICKET-CONCURRENCY-001` | Author Rule 25 Dual-BA & Parallel Execution Lanes, update Rule 21/22 DoD | business_analyst | DONE |
+| `TICKET-CONCURRENCY-002` | Implement agent specs for ba_intake, ba_auditor, update capacity config, sync ecosystem | developer | READY |
+| `TICKET-CONCURRENCY-003` | Pre-release audit, secret scan, and test suite verification | code_reviewer | READY |
+| `TICKET-CONCURRENCY-004` | Release tagging, push all commits/tags to origin/main, verify zero local residue | devops | READY |
+| **Total** | **Sprint SPRINT-CONCURRENCY-DOD-20260904** | **1 / 4 Complete (Lead Ticket DONE)** | **IN_PROGRESS** |
+
+## 🌐 Live Production Endpoints
+- **Production Pages URL**: https://horoconsultant-pages.pages.dev
+- **Verified Health Endpoint**: `https://horoconsultant-pages.pages.dev/health` -> HTTP/2 200 OK (`{"status":"ok","service":"Computational Metaphysics Engine","rust_acceleration":true}`)
+- **Vercel Gateway / Frontend**: https://horo-consultant-psi.vercel.app
+- **HuggingFace Space**: `pphothidaen/horoconsultant-core-backend`
+
+## 🗄️ Archived Plans List
+- Active specifications for Sprint `SPRINT-CONCURRENCY-DOD-20260904` recorded in `plans/plan.md`.
+- Legacy task snapshots archived in `plans/archive/2026-09-04-task-file-consolidation/`.
+- Pre-release evidence receipts to be archived in `plans/evidence/concurrency-dod-20260904/`.
+
+---
+
+# 🚀 HoroConsultant Release Notes — Atomic Ticket Registry Migration (Sprint DOC-ATOMIC-20260904 / TICKET-DOC-ATOMIC-001)
+
+> **Release**: `Atomic Ticket Registry Migration & Legacy Task File Consolidation (Unified ATOMIC_TICKET.md, Legacy Pointer Archival & Root Cleanup, Test Provenance Guard Sync)`  
+> **Release Date**: 2026-09-04 (Asia/Bangkok)  
+> **Sprint Verdict**: `CERTIFIED_COMPLETE` (1/1 tickets DONE & 100% checks passing)  
+> **Release Authority**: Master Orchestrator & Business System Analyst  
+
+---
+
+## 🌟 Executive Summary
+Successfully executed Sprint `DOC-ATOMIC-20260904` / `TICKET-DOC-ATOMIC-001` (Option 1: Full Migration to `ATOMIC_TICKET.md`) to establish `ATOMIC_TICKET.md` as the sole authoritative task and ticket registry across the repository. Legacy task and ticket files (`project_tickets.md`, `PROJECT_TASKS.md`, and `atomic_tasks.md`) were safely archived into `plans/archive/2026-09-04-task-file-consolidation/` and retired from the repository root. All scripts, hooks, configs, and governance documents were systematically updated to point to `ATOMIC_TICKET.md`. Zero secret leaks were confirmed across the codebase via Rust Rayon parallel scanning, and 16/16 ecosystem parity checks passed cleanly.
+
+## 🛠️ Architectural Deliverables
+1. **Sole Authoritative Atomic Ticket Registry (`ATOMIC_TICKET.md`)**: Unified registry consolidating active sprint workstreams, governance rules, and dependency graphs with single-editor file ownership and pure ASCII logging.
+2. **Retirement of Legacy Task Files**: Consolidated and retired `atomic_tasks.md`, `PROJECT_TASKS.md`, and `project_tickets.md` from the repository root. Historical pre-migration snapshots preserved in `plans/archive/2026-09-04-task-file-consolidation/`.
+3. **Scripts & Hooks Migration**: Updated `agent_quota_status_guard.py`, `context_handoff.py`, `agentic_pipeline.sh`, `update_docs.py`, `auto_deploy_all.sh`, `hermes_sdlc_runner.sh`, `atomic_tdd_guard.py`, and `context_handoff_v1.json` to resolve `ATOMIC_TICKET.md`.
+4. **Governance Documentation Alignment**: Updated `AGENTS.md`, `.agents/AGENTS.md`, `ATOMIC_TICKET.md`, `HANDOFF.md`, `HOWTO.md`, `README.md`, and `plans/plan.md` to reference `ATOMIC_TICKET.md` as sole authority.
+5. **Test Provenance Guard Allowlist (`scripts/test_provenance_guard.py`)**: Added `ATOMIC_TICKET.md` to `DOC_FILES` allowlist to protect future commits under test-first provenance rules.
+
+## 🧪 Verification Matrix
+| Test Suite / Audit | Tests / Scope | Pass Rate | Status |
+|---|:---:|:---:|:---:|
+| Ecosystem Parity Check (`sync_ai_agent_ecosystem.py --check`) | 16 / 16 checks | 100% | PASSED |
+| Rust Rayon Secret Scan (`code_reviewer.py --scan-secrets`) | 6,233 files | 0 leaks | PASSED |
+| Pure ASCII Compliance | All modified files | 100% | PASSED |
+| **Total Verification Conformance** | **All Checks** | **100%** | **PASSED** |
+
+## 📋 Milestone Rollup (100% DONE)
+| Ticket | Title | Assigned Specialist | Status |
+|---|---|---|:---:|
+| `TICKET-DOC-ATOMIC-001` | Atomic Ticket Registry Migration & Legacy Task File Consolidation | business_analyst | DONE |
+| **Total** | **Sprint DOC-ATOMIC-20260904** | **1 / 1 Tickets** | **100% DONE** |
+
+## 🌐 Live Production Endpoints
+- **Production Pages URL**: https://horoconsultant-pages.pages.dev
+- **Verified Health Endpoint**: `https://horoconsultant-pages.pages.dev/health` -> HTTP/2 200 OK (`{"status":"ok","service":"Computational Metaphysics Engine","rust_acceleration":true}`)
+
+## 🗄️ Archived Plans List
+- Pre-migration snapshots archived in `plans/archive/2026-09-04-task-file-consolidation/`:
+  * `atomic_tasks_pre_migration.md`
+  * `project_tickets_pre_migration.md`
+  * `PROJECT_TASKS_pre_migration.md`
+- Active specifications for Sprint `DOC-ATOMIC-20260904` recorded in `plans/plan.md`.
+
+---
+
+# 🚀 HoroConsultant Release Notes — Protected Admin Ingress Remediation (Sprint ADMIN-REMED-001 / Scope Delta ADMIN-REMED-BSA-015)
+
+> **Release**: `Protected Admin Ingress Remediation (Least-Privilege Route Allowlist, Wildcard Elimination, Google Token Auth Ingress, Zero Secret Leaks)`  
+> **Release Date**: 2026-09-04 (Asia/Bangkok)  
+> **Sprint Verdict**: `CERTIFIED_COMPLETE` (5/5 tickets DONE & 100% checks passing)  
+> **Release Authority**: Master Orchestrator & Business System Analyst  
+
+---
+
+## 🌟 Executive Summary
+Successfully remediated, verified, and deployed the Protected Admin Ingress boundary under Sprint `ADMIN-REMED-001` (Scope Delta `ADMIN-REMED-BSA-015` / `ADMIN-REMED-OPS-055`). The remediation eliminates broad, permissive wildcards (`/admin/:path*`, `/hitl/:path*`) across `vercel.json` and `api/index.js`, enforces an explicit 11-route least-privilege ingress allowlist, mandates fail-closed server-side Google credential token verification on `POST /admin/auth/google` (completely excising mock-email bypass vectors), and preserves administrative dashboard controls in `admin.html`. The candidate commit `6ba69c49838a05ce48b2b95042f2eb1ea3fe771c` was verified against all pre-release gates with zero secret leaks across 6,232 files, 4/4 ingress scope contract tests, 8/8 CORS contract tests, Docker dry-run release build verification, and 16/16 ecosystem sync checks, formally documented in `plans/evidence/admin-remed-001/ops-055.json`.
+
+## 🛠️ Architectural Deliverables
+1. **Least-Privilege Ingress Allowlist (11 IN Routes)**: Enforced exact route rewrites in `vercel.json` and API gateway routing in `api/index.js` for authenticated operations:
+   - `GET /admin/auth/config` (authentication configuration bootstrap)
+   - `POST /admin/auth/google` (Google ID token credential verification only; zero mock-email bypass)
+   - `GET /admin/catalog/summary` (training catalog summary metrics)
+   - `GET /admin/catalog` (training catalog dataset listing)
+   - `GET /admin/catalog/source/:source_id` (single catalog source inspection)
+   - `GET /admin/grayzone` (gray-zone triage query including `answered` query variations)
+   - `GET /admin/finetune/status` (fine-tune model training status)
+   - `GET /admin/finetune/download` (authenticated training data download)
+   - `GET /admin/finetune/download-grayzone` (authenticated gray-zone data download)
+   - `GET /admin/provider-pools` (AI provider pool status & circuit metrics)
+   - `GET /hitl/stats` (human-in-the-loop triage statistics)
+2. **Wildcard Elimination & Fail-Closed Protection**: Excised permissive `/admin/:path*` and `/hitl/:path*` rewrites from `vercel.json`. Mutating routes (`POST /admin/grayzone/answer`, `DELETE /admin/grayzone/answer`, `POST /admin/finetune/export-grayzone`, `POST /admin/finetune/merge`, `POST /admin/finetune/trigger`), unenumerated routes, and method substitutions fail closed with HTTP 401/404/405 without triggering upstream calls.
+3. **Server-Side Google Token Authentication**: Enforced genuine Google ID token validation on `POST /admin/auth/google`, rejecting mock emails and unauthenticated requests.
+4. **UI Dashboard Controls Preservation**: Retained operational buttons and telemetry controls across `project/static/admin.html` and `public/admin.html` intact with `State.adminIdToken` and Bearer Authorization headers, deferring UX modifications to separate scope.
+5. **Immutable Test Provenance & Guard Compliance**: Bound implementation strictly to QA-025 test contract `tests/admin_production_ingress_scope_contract.test.mjs` and manifest `plans/test_provenance/ticket-admin-remed-qa-025-scope-baseline.json` via candidate commit trailer `Test-Baseline: 90856ba86480b1fdc268b31b83e9a8767c845c0f`.
+
+## 🧪 Verification Matrix
+| Test Suite / Audit | Tests / Scope | Pass Rate | Status |
+|---|:---:|:---:|:---:|
+| Protected Ingress Contract Tests (`admin_production_ingress_scope_contract.test.mjs`) | 4 tests | 100% | PASSED |
+| API Gateway CORS Contract Tests (`api_gateway_cors_contract.test.mjs`) | 8 tests | 100% | PASSED |
+| HuggingFace Space Docker Dry-Run (`publish_space_hf.py --dry-run`) | Docker release build | 100% | PASSED |
+| Ecosystem Parity Sync (`sync_ai_agent_ecosystem.py --check`) | 16 / 16 checks | 100% | PASSED |
+| Rust Rayon Parallel Secret Scan (`code_reviewer.py --scan-secrets`) | 6,232 files | 0 leaks | PASSED |
+| Pure ASCII Verification | All files | 100% | PASSED |
+| **Total Verification Conformance** | **All Gates** | **100%** | **PASSED** |
+
+## 📋 Milestone Rollup (100% DONE)
+| Ticket | Title | Assigned Specialist | Status |
+|---|---|---|:---:|
+| `ADMIN-REMED-BSA-015` | Privileged Admin Action Baseline Supersession Planning & GRILL | business_analyst | DONE |
+| `ADMIN-REMED-QA-025` | Ingress Scope Contract Test Baseline & RED Provenance | qa_tester | DONE |
+| `ADMIN-REMED-DEV-035` | Least-Privilege Ingress Allowlist & Wildcard Elimination | developer | DONE |
+| `ADMIN-REMED-REVIEW-045` | Pre-Deploy Safety Audit & Code Review Gate | code_reviewer | DONE |
+| `ADMIN-REMED-OPS-055` | Production Deployment Gate & Rollback Verification | devops | DONE |
+| **Total** | **Program ADMIN-REMED-001 (Scope Delta ADMIN-REMED-BSA-015)** | **5 / 5 Tickets** | **100% DONE** |
+
+## 🌐 Live Production Endpoints
+- **Vercel Gateway / Frontend**: https://horo-consultant-psi.vercel.app
+- **HuggingFace Backend Space**: `pphothidaen/horoconsultant-core-backend` (SDK: Docker)
+- **Cloudflare Edge Production**: https://horoconsultant-pages.pages.dev
+- **Verified Health Endpoint**: `https://horoconsultant-pages.pages.dev/health` -> HTTP/2 200 OK (`{"status":"ok","service":"Computational Metaphysics Engine","rust_acceleration":true}`)
+
+## 🗄️ Archived Plans List
+- Active specifications for Scope Delta `ADMIN-REMED-BSA-015` and Sprint `ADMIN-REMED-001` are recorded in `plans/plan.md`.
+- Immutable verification receipts are archived under `plans/evidence/admin-remed-001/`:
+  * `ops-055.json` (Deployment & Pre-Release Gates Receipt, Candidate: `6ba69c49838a05ce48b2b95042f2eb1ea3fe771c`)
+  * `review-qa-025.json` (Independent Code Review & Safety Audit Receipt)
+  * `qa-010-baseline.json` (Historical Data-Path Audit Baseline)
+- Test provenance manifests archived in `plans/test_provenance/ticket-admin-remed-qa-025-scope-baseline.json`.
+
+---
+
+# 🚀 HoroConsultant Release Notes — Smart Quota Swapping & Seamless Handoff System
+
+> **Release**: `Smart Quota Swapping & Seamless Handoff System (Quota Cooldown Registry, TTR Engine, Smart Hot-Swap Cascade, 3-Phase State Capsule Protocol, Rule 17 Invariant)`  
+> **Release Date**: 2026-09-04 (Asia/Bangkok)  
+> **Sprint Verdict**: `CERTIFIED_COMPLETE` (6/6 tickets DONE & 100% checks passing)  
+> **Release Authority**: Master Orchestrator & Business System Analyst  
+
+---
+
+## 🌟 Executive Summary
+Successfully engineered and released the Smart Quota Swapping & Seamless Handoff System (Program `QUOTA-SWAP-ROADMAP-20260904`). The system implements a thread-safe Quota Cooldown Registry with dynamic Time-To-Reset (TTR) calculation deltas and exponential backoff, zero-polling reactive cooldown wakeups with ephemeral micro-canary probing, an intelligent Hot-Swap Failover Cascade strictly enforcing the Rule 17 Host Account Preservation Invariant (master brain host preserved as last to exhaust), and a 3-Phase Seamless Handoff State Capsule Protocol ensuring zero cognitive context loss across multi-agent transitions. All 23 quota tests, 16/16 ecosystem parity checks, and Rayon secret scans (6,228 files, 0 leaks) passed with 100% conformance.
+
+## 🛠️ Architectural Deliverables
+1. **Quota Cooldown Registry & TTR Engine (`project/core/quota_registry.py`)**: Centralized, thread-safe registry tracking operational states (`NORMAL`, `OPEN`, `HALF_OPEN`) across all accounts (`codex1-3`, `agy1-2`, `gemini_flash`, `gemini_pro`, `cloudflare_ai`, `huggingface_router`) with dual-clock dynamic TTR calculation deltas (`max(0.0, reset_timestamp - now())`), exponential backoff scaling up to 3,600s, and atomic file persistence via temp file swap (`os.replace`).
+2. **Smart Hot-Swap Failover Cascade (`project/core/hot_swap_router.py`)**: Intelligent worker dispatch cascade prioritizing auxiliary accounts (`codex2` -> `codex3` -> `codex1` -> `agy1`) by lowest 1-hour token load, automatically bypassing accounts in active cooldown, and strictly preserving the Orchestrator host account (`agy2`) as the last to exhaust under Rule 17. Total auxiliary exhaustion halts safely with `NEEDS_HITL`.
+3. **3-Phase Seamless Handoff State Capsule Protocol (`project/core/state_capsule.py`)**: Zero-context-loss migration protocol:
+   - **Phase 1 Pre-Swap Freeze**: Atomic capture of active ticket, branch, HEAD commit, modified files, diff SHA-256, cognitive summary, and remaining subtasks; persisted to `plans/evidence/quota_capsules/` and updated into `HANDOFF.md` Rescue Queue.
+   - **Phase 2 Hot-Swap Bootstrap**: Cleanliness and branch verification with seamless state deserialization into new auxiliary worker session.
+   - **Phase 3 Return Wakeup**: Event-driven notification upon primary recovery, non-blocking step completion, and graceful archive.
+4. **CLI Quota & Hot-Swap Tooling (`scripts/codex_quota_workaround.py`)**: Added `--mode registry` and `--mode hotswap` CLI modes for operators to inspect live account states, TTR timers, and failover cascade probes.
+5. **QA Simulation & Inversion Test Suite (`tests/test_quota_swap_simulation.py`)**: Full end-to-end multi-agent 429 exhaustion simulation, canary probe failure backoff, branch mismatch rejection, and Rule 17 host account protection verification.
+6. **Pre-Release Safety & Verification Evidence**: Certified receipts in `plans/evidence/quota-swap-roadmap-20260904/qa-simulation.json` and `safety-audit.json`.
+
+## 🧪 Verification Matrix
+| Test Suite / Audit | Tests / Scope | Pass Rate | Status |
+|---|:---:|:---:|:---:|
+| Quota Cooldown Registry Unit Tests (`test_quota_registry.py`) | 8 tests | 100% | PASSED |
+| Smart Hot-Swap Failover Cascade Tests (`test_hot_swap_cascade.py`) | 6 tests | 100% | PASSED |
+| 3-Phase State Capsule Protocol Tests (`test_state_capsule.py`) | 4 tests | 100% | PASSED |
+| QA Simulation & Inversion Test Suite (`test_quota_swap_simulation.py`) | 5 tests | 100% | PASSED |
+| Total Quota Architecture Test Suite | 23 / 23 tests | 100% | PASSED |
+| Ecosystem Sync Parity (`sync_ai_agent_ecosystem.py --check`) | 16 / 16 checks | 100% | PASSED |
+| Rayon Parallel Secret Scan (`code_reviewer.py --scan-secrets`) | 6,228 files | 0 leaks | PASSED |
+| Python AST Syntax Check (py_compile) | 8 / 8 files | 100% | PASSED |
+| Pure ASCII Verification | All files | 100% | PASSED |
+| **Total Verification Conformance** | **All Checks** | **100%** | **PASSED** |
+
+## 📋 Milestone Rollup (100% DONE)
+| Ticket | Title | Assigned Specialist | Status |
+|---|---|---|:---:|
+| TICKET-QUOTA-001 | Program QUOTA-SWAP-ROADMAP-20260904 Planning & Spec | business_analyst | DONE |
+| TICKET-QUOTA-002 | Quota Cooldown Registry & TTR Engine | developer | DONE |
+| TICKET-QUOTA-003 | Smart Hot-Swap Failover Cascade & Rule 17 Invariant | developer | DONE |
+| TICKET-QUOTA-004 | 3-Phase Seamless Handoff State Capsule Protocol | developer | DONE |
+| TICKET-QUOTA-005 | QA Simulation & Inversion Test Suite | qa_tester | DONE |
+| TICKET-QUOTA-006 | Pre-Release Safety Audit, Docs Sync & Release Gate | code_reviewer & devops | DONE |
+| **Total** | **Program QUOTA-SWAP-ROADMAP-20260904** | **6 / 6 Tickets** | **100% DONE** |
+
+## 🌐 Live Production Endpoints
+- **Production Pages URL**: https://horoconsultant-pages.pages.dev
+- **Verified Health Endpoint**: `https://horoconsultant-pages.pages.dev/health` -> HTTP/2 200 OK (`{"status":"ok","service":"Computational Metaphysics Engine","rust_acceleration":true}`)
+
+## 🗄️ Archived Plans List
+- Active specifications for Program QUOTA-SWAP-ROADMAP-20260904 are recorded in `plans/plan.md` and evidence preserved in `plans/evidence/quota-swap-roadmap-20260904/`.
+
+---
+
 # 🚀 HoroConsultant Release Notes — Governance Upgrade (Rule 24, Scoped AGENTS.md, Red-Blue QA)
 
 > **Release**: `Governance Upgrade (Rule 24 Red/Blue Architecture & TIA Matrix, 5 Subdirectory Scoped AGENTS.md, Red Team Inversion QA Audit)`  

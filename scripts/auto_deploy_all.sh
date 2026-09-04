@@ -23,7 +23,7 @@ usage() {
 
 if [ "$#" -ne 1 ]; then
     echo "[ERROR] BLOCKED: local production release is disabled."
-    echo "[INFO] Use a READY, target-bound release ticket in atomic_tasks.md through governed CI."
+    echo "[INFO] Use a READY, target-bound release ticket in ATOMIC_TICKET.md through governed CI."
     usage
     exit 2
 fi
@@ -37,7 +37,7 @@ case "$1" in
         ;;
     *)
         echo "[ERROR] BLOCKED: unsupported local release action: $1"
-        echo "[INFO] Use a READY, target-bound release ticket in atomic_tasks.md through governed CI."
+        echo "[INFO] Use a READY, target-bound release ticket in ATOMIC_TICKET.md through governed CI."
         usage
         exit 2
         ;;

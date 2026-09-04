@@ -23,7 +23,7 @@ from jsonschema import Draft202012Validator, FormatChecker
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-PROJECT_TASKS = ROOT / "atomic_tasks.md"
+PROJECT_TASKS = ROOT / "ATOMIC_TICKET.md" if (ROOT / "ATOMIC_TICKET.md").exists() else ROOT / "atomic_tasks.md"
 PLAN = ROOT / "plans" / "plan.md"
 DEFAULT_THRESHOLD = 10.0
 POLICY_PATH = ROOT / ".agents" / "config" / "multiagent_model_policy.yaml"
@@ -637,7 +637,7 @@ def evaluate(
         "recommended_actions": [
             "Run /status or runtime status check.",
             "Summarize current objective, commits, dirty files, verified checks, blockers, and next safe command.",
-            "Update atomic_tasks.md TICKET-META-008 and plans/plan.md without secret values.",
+            "Update ATOMIC_TICKET.md TICKET-META-008 and plans/plan.md without secret values.",
             "Run python3 project/core/code_reviewer.py --scan-secrets.",
         ]
         if handoff_required
@@ -674,7 +674,7 @@ def main() -> int:
             f"{result['remaining_percent']:.1f}% is below {result['threshold_percent']:.1f}%."
         )
         if result["docs_ok"]:
-            print("[OK] Quota handoff markers are present in atomic_tasks.md and plans/plan.md.")
+            print("[OK] Quota handoff markers are present in ATOMIC_TICKET.md and plans/plan.md.")
         else:
             print("[ERROR] Missing quota handoff markers: " + ", ".join(result["missing_markers"]))
     else:

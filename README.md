@@ -484,16 +484,16 @@ python3 scripts/publish_space_hf.py \
 
 When making changes to this codebase:
 - [ ] Maintain deterministic math verification in `project/core/` before calling LLMs.
-- - [ ] **ALWAYS update this `README.md` document to accurately reflect any new architecture, route changes, or newly added metaphysical engines.**
-- [ ] **ALWAYS update the Central Kanban Board [`PROJECT_TASKS.md`](PROJECT_TASKS.md) with new tickets, status changes, and completion evidence — this file is the single source of truth for all project work tracking.**
+- [ ] **ALWAYS update this `README.md` document to accurately reflect any new architecture, route changes, or newly added metaphysical engines.**
+- [ ] **ALWAYS update the Central Atomic Ticket Registry [`ATOMIC_TICKET.md`](ATOMIC_TICKET.md) with new tickets, status changes, and completion evidence — this file is the single source of truth for all project work tracking.**
 
 ---
 
-## 📋 Central Kanban Board
+## 📋 Central Atomic Ticket Registry
 
 The **single source of truth for all project tasks, tickets, sprint tracking, and operational handoff** is:
 
-👉 **[`PROJECT_TASKS.md`](PROJECT_TASKS.md)** — Kanban Task Board & Ticket Registry
+👉 **[`ATOMIC_TICKET.md`](ATOMIC_TICKET.md)** — Atomic Ticket Registry & Status Board
 
 This file contains:
 - **TASK BOARD (KANBAN)** — Done/Doing/TODO column overview
@@ -501,4 +501,4 @@ This file contains:
 - **Ticket Detail Sections** — Full detailed instructions and acceptance criteria per ticket
 - **Quick-Start Commands** — Essential dev/CI commands for the next engineer or AI assistant
 
-All new work, bug fixes, feature requests, and operational items **must** be tracked here. Do not create separate task lists, kanban boards, or tracking files elsewhere in the repo — keep everything centralized in `PROJECT_TASKS.md`.
+All new work, bug fixes, feature requests, and operational items **must** be tracked here. Do not create separate task lists, kanban boards, or tracking files elsewhere in the repo — keep everything centralized in `ATOMIC_TICKET.md`.
