@@ -175,9 +175,10 @@ def create_unified_reading(request: UnifiedReadingRequest) -> UnifiedReadingResp
         hitl_flags=dict(annual_timing.get("hitl_flags") or {}),
         hitl_routing=dict(annual_timing.get("hitl_routing") or {}),
         llm_metadata={
-            "source": "deterministic_copy_transformer" if not llm_enabled else "ai_agent_llm",
-            "model_used": None if not llm_enabled else "disabled_for_unified_reading_guardrail",
-            "translation_enabled": llm_enabled,
+            "source": "deterministic_copy_transformer",
+            "model_used": None,
+            "translation_requested": llm_enabled,
+            "translation_enabled_by_env": llm_enabled,
             "facts_mutable_by_llm": False,
             "network_call_performed": False,
             "deterministic_facts_source": "project.core.annual_timing_engine",
