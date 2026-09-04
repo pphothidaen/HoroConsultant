@@ -80,15 +80,21 @@ function runGatewayProbe({ backend, status, payload }) {
   return JSON.parse(result.stdout);
 }
 
-test("default CORS allowlist is exactly the canonical Vercel frontend", () => {
-  assert.deepEqual(configuredCorsOrigins({}), ["https://horo-consultant-psi.vercel.app"]);
+test("default CORS allowlist includes both canonical Vercel and Cloudflare Pages frontends", () => {
+  assert.deepEqual(configuredCorsOrigins({}), [
+    "https://horo-consultant-psi.vercel.app",
+    "https://horoconsultant-pages.pages.dev",
+  ]);
   assert.deepEqual(
     configuredCorsOrigins({ CORS_ALLOWED_ORIGINS: "https://preview.example,https://app.example" }),
     ["https://preview.example", "https://app.example"],
   );
   assert.deepEqual(
     configuredCorsOrigins({ CORS_ALLOWED_ORIGINS: "https://app.example, http://unsafe.example" }),
-    ["https://horo-consultant-psi.vercel.app"],
+    [
+      "https://horo-consultant-psi.vercel.app",
+      "https://horoconsultant-pages.pages.dev",
+    ],
   );
 });
 
@@ -197,4 +203,24 @@ test("index and health use the shared strict CORS policy while requests without 
   const result = applyCorsPolicy(request({ origin: undefined }), sameOrigin, { methods: "GET, OPTIONS", environment: {} });
   assert.deepEqual(result, { allowed: true, cors: false });
   assert.equal(sameOrigin.header("access-control-allow-origin"), undefined);
+});
+
+test("api gateway wake endpoint rejects non-POST and handles unauthenticated state gracefully", async () => {
+  // 1. Rejects GET on /api/wake
+  const getRes = responseRecorder();
+  await indexHandler({ method: "GET", url: "/api/index?path=/api/wake", headers: {} }, getRes);
+  assert.equal(getRes.statusCode, 405);
+
+  // 2. Accepts POST on /api/wake without crashing when HF_TOKEN is unset
+  const postRes = responseRecorder();
+  const savedToken = process.env.HF_TOKEN;
+  delete process.env.HF_TOKEN;
+  delete process.env.HF_ACCESS_TOKEN;
+  try {
+    await indexHandler({ method: "POST", url: "/api/index?path=/api/wake", headers: {} }, postRes);
+    assert.equal(postRes.statusCode, 200);
+    assert.ok(["ready", "paused_unauthenticated"].includes(postRes.body?.status));
+  } finally {
+    if (savedToken) process.env.HF_TOKEN = savedToken;
+  }
 });

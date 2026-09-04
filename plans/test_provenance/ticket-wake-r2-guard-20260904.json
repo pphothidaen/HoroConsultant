@@ -1,0 +1,50 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-WAKE-R2-GUARD-20260904",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "7687386882f7938dd492adf43b105b8ec4ed60f5",
+  "test_files": [
+    {
+      "path": "tests/api_gateway_cors_contract.test.mjs",
+      "sha256": "1126bb4aeb6628e5fafdc29950f84e467bee77a2843bee8364651126ac7db01d"
+    },
+    {
+      "path": "tests/test_cloudflare_r2_binding.py",
+      "sha256": "8c4df70120ad2f060342a501317c1bc720ea2fc6afa159bfbe8c79b260645bc6"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_cloudflare_r2_binding.py::TestR2ZeroCostGuardrail::test_worker_has_zero_cost_policy_constants"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "MISSING_ZERO_COST_POLICY_CONSTANTS"
+    }
+  ],
+  "allowed_source_paths": [
+    "ATOMIC_TICKET.md",
+    "ReleaseNotes.md",
+    "api/gateway.js",
+    "api/index.js",
+    "plans/plan.md",
+    "project/static/_worker.js",
+    "project/static/app.js",
+    "project/static/index.html",
+    "project/static/style.css",
+    "public/app.js",
+    "public/index.html",
+    "public/style.css",
+    "vercel.json"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Test baseline for Cold-Start Wake-on-Demand Dual-Edge Gateway and Cloudflare R2 Zero-Cost Guardrail (Sprint SPRINT-WAKE-R2-GUARD-20260904)."
+}

@@ -12,6 +12,10 @@
       "destination": "/api/index?path=/health"
     },
     {
+      "source": "/api/wake",
+      "destination": "/api/index?path=/api/wake"
+    },
+    {
       "source": "/api/v1/:path*",
       "destination": "/api/index?path=/api/v1/:path*"
     },

@@ -38,6 +38,51 @@ second task board or add ticket definitions to a plan/pointer file.
 
 ## ACTIVE SPRINTS & WORKSTREAMS
 
+<!-- WAKE-R2-GUARD-20260904:START -->
+## Sprint SPRINT-WAKE-R2-GUARD-20260904 -- Cold-Start Wake-on-Demand, Dual-Edge Gateway & Cloudflare R2 Zero-Cost Guardrail
+
+**Recorded**: `2026-09-04T13:08:00+07:00` (Asia/Bangkok)
+**GRILL gate**: `APPROVED` -- owner explicit instruction dated `2026-09-04`.
+**Authority**: Owner instruction dated `2026-09-04`.
+**Current status**: Sprint SPRINT-WAKE-R2-GUARD-20260904 100% DONE -- CERTIFIED_COMPLETE.
+
+### Scope and Objectives
+- Implementation of Dual-Edge Gateway parity supporting both `https://horo-consultant-psi.vercel.app` (Vercel) and `https://horoconsultant-pages.pages.dev` (Cloudflare Pages) with unified CORS policies.
+- Implementation of Cold-Start Wake-on-Demand trigger (`POST /api/wake`) on Vercel Gateway and Cloudflare Worker, authenticated via `HF_TOKEN`, triggering Hugging Face API Space restart when the backend container is in `PAUSED` state.
+- Integration of an animated Eco-Mode Cold-Start Loading Modal in frontend UI (`index.html`, `style.css`, `app.js`) with progress bar and countdown timer (~60s), replacing error messages and auto-unlocking on `200 OK`.
+- Hard Operational Guardrail for Cloudflare R2: Enforce strict Zero-Cost / Free-Tier policy (Storage <= 10GB, Class A <= 1M ops, Class B <= 10M ops). If R2 operations are at risk or exceeding free scope, automatically bypass/redirect to Vercel (`https://horo-consultant-psi.vercel.app`) or serve directly from Pages CDN (0 cost), completely preventing any billing charges.
+- Full regression verification, Node.js & Python gateway tests, Rayon parallel secret scan (0 leaks), `ReleaseNotes.md` synchronization, and clean remote git synchronization.
+
+### Dependency Graph
+
+```text
+TICKET-WAKE-001 (DONE: Sprint Registration & Zero-Cost R2 Policy Specs)
+  |--> TICKET-WAKE-002 (DONE: Dual-Edge Gateway & /api/wake Implementation)
+  |--> TICKET-WAKE-003 (DONE: Cold-Start Eco-Mode Modal & Frontend Integration)
+  |--> TICKET-WAKE-004 (DONE: Cloudflare R2 Zero-Cost Guardrail & Vercel Redirector)
+         \--> TICKET-WAKE-005 (DONE: Regression Verification, Secret Scan & Release Notes)
+```
+
+### Program Tickets
+
+| Ticket | Severity / Effort | Lifecycle Status | Assigned Specialist | Required Skills | Dependencies | One Editor / Writable Ownership | Measurable Acceptance and DoD / Stop |
+|---|---|---|---|---|---|---|---|
+| `TICKET-WAKE-001` | HIGH / S | DONE | `business_analyst` | `[bsa-doc-skill-management, agile-governance]` | None | `ATOMIC_TICKET.md`, `plans/plan.md` | Register Sprint SPRINT-WAKE-R2-GUARD-20260904 with 9-dimension GRILL matrix, zero-cost R2 guardrail policy, and 5 atomic tickets. DoD: Pure ASCII, zero secret leaks, single-editor file ownership. |
+| `TICKET-WAKE-002` | HIGH / S | DONE | `developer` | `[sdlc-aisdlc-workflow, zero-cost-ai-pipeline]` | `TICKET-WAKE-001` DONE | `api/gateway.js`, `api/index.js`, `vercel.json`, `project/static/_worker.js` | Implement Dual-Edge CORS allowlist and `/api/wake` endpoint triggering HF Space restart via `HF_TOKEN`. Pass 9/9 Node gateway contract tests. |
+| `TICKET-WAKE-003` | HIGH / S | DONE | `developer` | `[sdlc-aisdlc-workflow, web-color-design]` | `TICKET-WAKE-001` DONE | `project/static/index.html`, `project/static/style.css`, `project/static/app.js`, `public/*` | Implement glassmorphism Cold-Start loading modal with orbit spinner, 60s timer, and auto-dismiss on 200 OK. |
+| `TICKET-WAKE-004` | HIGH / S | DONE | `developer` | `[sdlc-aisdlc-workflow, zero-cost-ai-pipeline]` | `TICKET-WAKE-002` DONE | `project/static/_worker.js`, `wrangler.toml` | Enforce Cloudflare R2 zero-cost guardrail: lock R2 to free-tier scope (10GB/1M ops/10M ops). On any R2 threshold risk or request, redirect/fallback directly to Vercel (https://horo-consultant-psi.vercel.app) or Pages CDN. |
+| `TICKET-WAKE-005` | HIGH / S | DONE | `devops` / `qa_tester` | `[qa-e2e-testing, hf-static-release-verification, devops-deployment]` | `TICKET-WAKE-004` DONE | `ReleaseNotes.md`, `plans/evidence/wake-r2-guard-20260904/*`, git origin | Run full test suite, secret scan (0 leaks), update `ReleaseNotes.md`, ensure clean worktree and git push to origin/main. |
+
+### Program Stop and Admission Rules
+- Single-editor file ownership: each writable path is owned by exactly one ticket and lane at a time.
+- Strict Zero-Cost Mandate: Under no circumstances may any configuration trigger paid Cloudflare R2 usage.
+- Strict Definition of Done (DoD) Mandate is absolute: git status must be 100% clean, verified, and pushed to origin/main with zero local residue.
+- Pure ASCII logging is mandatory across all code, tests, and documentation.
+
+<!-- WAKE-R2-GUARD-20260904:END -->
+
+---
+
 <!-- PREVENTION-HYGIENE-20260904:START -->
 ## Sprint SPRINT-PREVENTION-HYGIENE-20260904 -- Lessons Learned Ingestion, Keychain Isolation Protocol & Automated Git Hygiene
 
