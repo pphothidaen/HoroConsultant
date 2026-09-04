@@ -1,3 +1,65 @@
+# HoroConsultant Release Notes -- Multi-Account Keychain Isolation & Git Hygiene Automation (Sprint SPRINT-PREVENTION-HYGIENE-20260904 / v1.4.2-prod)
+
+> **Release**: `v1.4.2-prod` -- Multi-Account Keychain Isolation & Git Hygiene Automation  
+> **Release Date**: 2026-09-04 (Asia/Bangkok)  
+> **Sprint Verdict**: `CERTIFIED_COMPLETE (Sprint SPRINT-PREVENTION-HYGIENE-20260904, 4/4 Tickets 100% DONE, Tagged v1.4.2-prod)`  
+> **Release Authority**: Master Orchestrator & Business System Analyst  
+
+---
+
+## Executive Summary
+Sprint `SPRINT-PREVENTION-HYGIENE-20260904` operationalizes and institutionalizes permanent automated safeguards for Lessons 22 (macOS Keychain Isolation) and 23 (Local Git Branch Hygiene). The sprint introduces dedicated validation and pruning tooling: `scripts/verify_keychain_isolation.sh` with `tests/test_keychain_isolation.py` guaranteeing proper account symlinks, canonical default keychain preservation, and silent non-interactive unlock across `agy1..4` without rogue GUI alerts; and `scripts/git_hygiene_pruner.py` with `tests/test_git_hygiene.py` automating the safe pruning of local merged branches against `origin/main`. All 58 targeted tests passed with a 100% pass rate, 0 secret leaks were verified across 6,260 files, 16/16 ecosystem parity checks passed, and the working tree is fully synchronized with `origin/main` in compliance with the Definition of Done (DoD) Mandate.
+
+## Architectural & Prevention Deliverables
+1. **Automated macOS Keychain Isolation (`scripts/verify_keychain_isolation.sh` & `tests/test_keychain_isolation.py`)**:
+   - Automated validation tool verifying account keychain databases (`agy1..4.keychain-db`), `login.keychain-db` and legacy `login.keychain` symlinks, and canonical host default keychain at `/Users/kimlenglim/Library/Keychains/login.keychain-db`.
+   - Silent non-interactive unlock probe via `security unlock-keychain -p ""` confirming zero GUI modal popups across isolated environments.
+   - Comprehensive Pytest test suite (14 tests) covering live host validation, synthetic test fixtures, JSON mode, silent mode, and platform agility.
+2. **Automated Git Branch Hygiene Pruner (`scripts/git_hygiene_pruner.py` & `tests/test_git_hygiene.py`)**:
+   - Production pruning script eliminating stale local merged branches against `origin/main` while protecting active, unmerged, and protected branches (`main`, `master`, `develop`, `trunk`, `staging`, `production`, `release/*`).
+   - Pytest test suite (11 tests) verifying dry-run mode, actual deletion, protected branch retention, and error resilience.
+3. **Prevention Rules Institutionalization (`.agents/LESSONS_LEARNED.md`, Rule 21 & Rule 22)**:
+   - Institutionalized Lessons 22 and 23 with clear root cause analyses, automated verification scripts, and strict Definition of Ready / Definition of Done governance rules.
+4. **Verification & DoD Enforcement**:
+   - 58/58 targeted unit and governance tests passed with 100% pass rate.
+   - Rust Security Auditor (Rayon parallel scan) confirmed 0 secret leaks across 6,260 files.
+   - Ecosystem synchronization validated 100% (16/16 checks passing).
+
+## Verification Matrix
+| Test Suite / Audit | Tests / Scope | Pass Rate | Status |
+|---|:---:|:---:|:---:|
+| Rust Rayon Parallel Secret Scan (`code_reviewer.py --scan-secrets`) | 6,260 files | 0 leaks | PASSED |
+| Ecosystem Parity Check (`sync_ai_agent_ecosystem.py --check`) | 16 / 16 checks | 100% | PASSED |
+| Keychain Isolation Test Suite (`test_keychain_isolation.py`) | 14 / 14 tests | 100% | PASSED |
+| Git Hygiene Test Suite (`test_git_hygiene.py`) | 11 / 11 tests | 100% | PASSED |
+| Atomic TDD Governance v4 (`test_atomic_tdd_lifecycle_governance_v4.py`) | 26 / 26 tests | 100% | PASSED |
+| Broker Agile Governance (`test_broker_agile_governance.py`) | 7 / 7 tests | 100% | PASSED |
+| Live Keychain Verification (`verify_keychain_isolation.sh`) | 25 / 25 checks | 100% | PASSED |
+| Worktree Cleanliness & Remote Parity (`git status`) | Clean worktree, origin/main sync | 100% | PASSED |
+| Pure ASCII Compliance | All sprint deliverables | 100% | PASSED |
+
+## Milestone Rollup (100% DONE)
+| Ticket | Title | Assigned Specialist | Status |
+|---|---|---|:---:|
+| `TICKET-PREV-001` | Register Sprint SPRINT-PREVENTION-HYGIENE-20260904 & Architecture Plan | business_analyst | DONE |
+| `TICKET-PREV-002` | Implement Automated Local Git Branch Hygiene Pruner & Test Suite | developer | DONE |
+| `TICKET-PREV-003` | Implement Automated Keychain Isolation Validator & Test Suite | devops / qa_tester | DONE |
+| `TICKET-PREV-004` | Regression Verification, Secret Scan, Release Notes & Remote Git Sync | qa_tester / devops | DONE |
+| **Total** | **Sprint SPRINT-PREVENTION-HYGIENE-20260904** | **4 / 4 Complete (100% DONE)** | **CERTIFIED_COMPLETE** |
+
+## Live Production Endpoints
+- **Production Pages URL**: https://horoconsultant-pages.pages.dev
+- **Verified Health Endpoint**: `https://horoconsultant-pages.pages.dev/health` -> HTTP/2 200 OK (`{"status":"ok","service":"Computational Metaphysics Engine","rust_acceleration":true}`)
+- **Vercel Gateway / Frontend**: https://horo-consultant-psi.vercel.app
+- **HuggingFace Space**: `pphothidaen/horoconsultant-core-backend`
+
+## Archived Plans & Evidence Receipts
+- Active specifications for Sprint `SPRINT-PREVENTION-HYGIENE-20260904` recorded in `plans/plan.md`.
+- Sprint evidence receipts:
+  * `plans/evidence/prevention-hygiene-20260904/qa-prev-004.json` (Full QA verification, secret scan, test matrix & release receipt)
+
+---
+
 # HoroConsultant Release Notes -- macOS Keychain Isolation Restoration & Wrapper Sanitization (Sprint SPRINT-KEYCHAIN-PURGE-20260904 / v1.4.1-prod)
 
 > **Release**: `v1.4.1-prod` -- macOS Keychain Isolation Restoration & Wrapper Sanitization  

@@ -1,5 +1,5 @@
 {
-  "description": "Local non-managed context handoff request hooks; native user review of the exact current hook hash remains external, normalized state is read only from the bounded JSON file named by CONTEXT_HANDOFF_STATE_FILE, and SessionEnd is synchronous, non-steering, and capped at three seconds.",
+  "description": "Local non-managed context handoff request hooks; no native PreToolUse; native user review of the exact current hook hash remains external, normalized state is read only from the bounded JSON file named by CONTEXT_HANDOFF_STATE_FILE, and SessionEnd is synchronous, non-steering, and capped at three seconds.",
   "hooks": {
     "project": {
       "SessionStart": [{"matcher": "startup|resume|clear|compact", "hooks": [{"type": "command", "command": "python3 \"$(git rev-parse --show-toplevel)/scripts/context_handoff.py\" hook --runtime codex --event SessionStart --native --state-file \"${CONTEXT_HANDOFF_STATE_FILE:-}\"", "timeout": 10}]}],

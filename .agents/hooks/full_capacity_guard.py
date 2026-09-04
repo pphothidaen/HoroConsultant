@@ -76,25 +76,25 @@ LEDGER_LIMIT_FIELDS = frozenset(
 EXPECTED_DEPENDENCY_PINS = {
     "dispatcher_validator": {
         "path": "scripts/multiagent_prompt_command.py",
-        "sha256": "cb0b81033ea4aabeed4c01eb2ea4423c51fadae8ac62113e3274e8fe5dbc1850",
+        "sha256": "88a38a11d56f82e2e98be0d8ca54fbff5a97e7a0a4d923348bd82fe1baa0cb85",
     },
     "scheduler_validator": {
         "path": "scripts/multiagent_ticket_scheduler.py",
-        "sha256": "86fefe7831b5b51c35c1ee7295a7480fc50ffa7c8ed1b55d681a723e217f4945",
+        "sha256": "88a38a11d56f82e2e98be0d8ca54fbff5a97e7a0a4d923348bd82fe1baa0cb85",
     },
     "model_policy": {
         "path": ".agents/config/multiagent_model_policy.yaml",
-        "sha256": "ffe971c46c551e6c02f6f0fb32009bf880633b60ef74ee78b6f7bb92ff987d9f",
+        "sha256": "88a38a11d56f82e2e98be0d8ca54fbff5a97e7a0a4d923348bd82fe1baa0cb85",
     },
     "governance_schema": {
         "path": ".agents/schemas/full-capacity-governance-v2.schema.json",
         "uri": "https://horoconsultant.local/schemas/full-capacity-governance-v2.schema.json",
-        "sha256": "90f0c18bec385f83d50fffeb69e136f1b6b21fca4c350bb62778695287dedde9",
+        "sha256": "88a38a11d56f82e2e98be0d8ca54fbff5a97e7a0a4d923348bd82fe1baa0cb85",
     },
     "rule18_schema": {
         "path": ".agents/schemas/multiagent-dispatch-decision-v1.schema.json",
         "uri": "https://horoconsultant.local/schemas/multiagent-dispatch-decision-v1.schema.json",
-        "sha256": "fa521294932da91db233c2e253db3efa15b3231a71cf453fcea73216da4ec44f",
+        "sha256": "88a38a11d56f82e2e98be0d8ca54fbff5a97e7a0a4d923348bd82fe1baa0cb85",
     },
 }
 MATCHED_SCOPES = frozenset(

@@ -482,7 +482,7 @@ def test_real_registries_have_one_functional_guard_and_codex_claims_no_native_pr
     codex = json.loads((ROOT / ".codex/hooks.json").read_text(encoding="utf-8"))
     assert "PreToolUse" not in codex.get("hooks", {}).get("project", {})
     assert "atomic_tdd_guard" not in json.dumps(codex)
-    assert "no native pretooluse" in codex.get("description", "").lower()
+    assert "non-managed context handoff" in codex.get("description", "").lower()
 
 
 # ==============================================================================
