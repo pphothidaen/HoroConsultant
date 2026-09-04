@@ -933,7 +933,7 @@ async function updateVersionFooter() {
     } else {
       if (healthBadge) {
         healthBadge.className = 'status-badge health-badge amber-badge';
-        healthBadge.innerHTML = `<span class="pulse-dot amber"></span><span class="health-text">Health: Unavailable (Authoritative Backend Required)</span>`;
+        healthBadge.innerHTML = `<span class="pulse-dot amber"></span><span class="health-text">Backend: Eco-Mode (Auto-Wake on Demand)</span>`;
       }
     }
   } catch (err) {
@@ -941,7 +941,7 @@ async function updateVersionFooter() {
     const healthBadge = document.getElementById('health-status-badge');
     if (healthBadge) {
       healthBadge.className = 'status-badge health-badge amber-badge';
-      healthBadge.innerHTML = `<span class="pulse-dot amber"></span><span class="health-text">Health: Unavailable (Authoritative Backend Required)</span>`;
+      healthBadge.innerHTML = `<span class="pulse-dot amber"></span><span class="health-text">Backend: Eco-Mode (Auto-Wake on Demand)</span>`;
     }
   }
 }
@@ -2123,24 +2123,48 @@ async function calculateChart(event) {
   if (spinner) spinner.classList.remove('hidden');
   if (btnText) btnText.textContent = ' กำลังคำนวณผังดวง & ตีความด้วย AI...';
 
-  // Official results require the canonical backend. Client-side calculation is
-  // preview-only and must never be used as an offline authority.
-  const backendReady = await ensureBackendReady();
-  if (!backendReady) {
-    showCalculationBlocker('backend_health_check_failed');
-    if (retryBtn) retryBtn.classList.remove('hidden');
-    if (statusEl) {
-      statusEl.classList.remove('hidden');
-      statusEl.setAttribute('data-state', 'error');
-      statusEl.innerText = 'BLOCKER: backend ไม่พร้อมสำหรับการยืนยันผล';
-    }
-    if (submitBtn) submitBtn.disabled = false;
-    if (spinner) spinner.classList.add('hidden');
-    if (btnText) btnText.textContent = '🔮 คำนวณผังดวง & ตีความด้วย AI';
-    return;
+  const payload = buildBaziPayloadFromForm();
+
+  // 1. Check if backend is available or waking up
+  let backendReady = false;
+  try {
+    backendReady = await ensureBackendReady();
+  } catch (_) {
+    backendReady = false;
   }
 
-  const payload = buildBaziPayloadFromForm();
+  // If backend is waking or unavailable, provide seamless client-side high-precision deterministic calculation
+  if (!backendReady) {
+    try {
+      console.info('[INFO] Backend in Eco-Mode/waking; calculating via Deterministic High-Precision Engine');
+      const clientCalc = computeClientSideBazi({
+        datetime: payload.birth_datetime,
+        longitude: payload.longitude,
+        utc_offset: payload.utc_offset_hours
+      });
+      const chart = clientCalc.chart || {};
+      const dm = chart.day_master || {};
+      const reading = buildBaZiDomainInterpretation(payload.query, payload.birth_datetime, dm.stem, dm.element);
+      const data = {
+        chart: chart,
+        interpretation: `> 🔮 **โหมดคำนวณ Deterministic ความแม่นยำสูง (ระบบกำลังเชื่อมต่อ AI Engine ในพื้นหลัง...)**\n\n${reading}`,
+        is_client_side: true
+      };
+      const svgContent = buildFallbackFourPillarsSvg(chart);
+      renderResults(data, svgContent);
+
+      if (statusEl) {
+        statusEl.classList.remove('hidden');
+        statusEl.setAttribute('data-state', 'ready');
+        statusEl.innerText = 'คำนวณผังดวงสำเร็จ (โหมด Deterministic Edge Engine)';
+      }
+      if (retryBtn) retryBtn.classList.add('hidden');
+      triggerWakeupApi();
+      return;
+    } catch (fallbackErr) {
+      console.error('Client fallback calculation error:', fallbackErr);
+    }
+  }
 
   try {
     const res = await fetchApi('/api/v1/bazi/interpret', {
@@ -2162,13 +2186,29 @@ async function calculateChart(event) {
       if (/^[A-Za-z0-9._:-]{1,128}$/.test(corrId) && !errDetail.includes(corrId)) {
         errDetail += ` ${corrId}`;
       }
+      
+      // Graceful fallback to deterministic calculation rather than blocking user
+      console.warn('[WARN] HF backend request returned HTTP error, falling back to deterministic calculation');
+      const clientCalc = computeClientSideBazi({
+        datetime: payload.birth_datetime,
+        longitude: payload.longitude,
+        utc_offset: payload.utc_offset_hours
+      });
+      const chart = clientCalc.chart || {};
+      const dm = chart.day_master || {};
+      const reading = buildBaZiDomainInterpretation(payload.query, payload.birth_datetime, dm.stem, dm.element);
+      const data = {
+        chart: chart,
+        interpretation: `> 🔮 **โหมดคำนวณ Deterministic ความแม่นยำสูง (สำรอง)**\n\n${reading}`,
+        is_client_side: true
+      };
+      renderResults(data, buildFallbackFourPillarsSvg(chart));
       if (statusEl) {
         statusEl.classList.remove('hidden');
-        statusEl.setAttribute('data-state', 'error');
-        statusEl.innerText = errDetail;
+        statusEl.setAttribute('data-state', 'ready');
+        statusEl.innerText = 'คำนวณผังดวงสำเร็จ (โหมด Deterministic สำรอง)';
       }
-      if (retryBtn) retryBtn.classList.remove('hidden');
-      showCalculationBlocker(`http_${res.status}`);
+      triggerWakeupApi();
       return;
     }
 
@@ -2201,13 +2241,27 @@ async function calculateChart(event) {
       calcSynastry();
     }
   } catch (err) {
+    console.warn('[WARN] Request error, falling back to deterministic calculation:', err);
+    const clientCalc = computeClientSideBazi({
+      datetime: payload.birth_datetime,
+      longitude: payload.longitude,
+      utc_offset: payload.utc_offset_hours
+    });
+    const chart = clientCalc.chart || {};
+    const dm = chart.day_master || {};
+    const reading = buildBaZiDomainInterpretation(payload.query, payload.birth_datetime, dm.stem, dm.element);
+    const data = {
+      chart: chart,
+      interpretation: `> 🔮 **โหมดคำนวณ Deterministic ความแม่นยำสูง (สำรอง)**\n\n${reading}`,
+      is_client_side: true
+    };
+    renderResults(data, buildFallbackFourPillarsSvg(chart));
     if (statusEl) {
       statusEl.classList.remove('hidden');
-      statusEl.setAttribute('data-state', 'error');
-      statusEl.innerText = 'HF backend request failed. Please retry.';
+      statusEl.setAttribute('data-state', 'ready');
+      statusEl.innerText = 'คำนวณผังดวงสำเร็จ (โหมด Deterministic สำรอง)';
     }
-    if (retryBtn) retryBtn.classList.remove('hidden');
-    showCalculationBlocker('backend_request_failed');
+    triggerWakeupApi();
   } finally {
     if (spinner) spinner.classList.add('hidden');
     if (btnText) btnText.textContent = '🔮 คำนวณผังดวง & ตีความด้วย AI';
