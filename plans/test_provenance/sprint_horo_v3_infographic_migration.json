@@ -1,6 +1,6 @@
 {
   "schema_version": "test-provenance-v1",
-  "ticket_id": "TICKET-HLITE-010",
+  "ticket_id": "TICKET-HLITE-002",
   "sequence": 2,
   "provenance_status": "VERIFIED",
   "baseline_parent": "c149d3a6481ccabecdd14147f6ff9e7c6acc48ac",
