@@ -330,6 +330,8 @@ def test_deterministic_annual_timing_12_months() -> None:
 
     assert elapsed_ms < 50, f"ANNUAL_TIMING_RUNTIME_OVER_50MS: {elapsed_ms:.3f}ms"
     assert _plain(first_result) == _plain(second_result), "ANNUAL_TIMING_NOT_REPEATABLE"
+    assert _field(first_result, "engine_version") == "annual_timing_proxy.v1"
+    assert _field(second_result, "engine_version") == _field(first_result, "engine_version")
 
     months = _annual_months(first_result)
     assert len(months) == 12, "ANNUAL_TIMING_MONTH_COUNT_NOT_12"
@@ -383,6 +385,8 @@ def test_past_pattern_candidate_generation() -> None:
     second_result = generate_past_pattern_candidates(request)
 
     assert _plain(first_result) == _plain(second_result), "PAST_PATTERN_NOT_REPEATABLE"
+    assert _field(first_result, "engine_version") == "past_pattern_calibrator.v1"
+    assert _field(second_result, "engine_version") == _field(first_result, "engine_version")
 
     candidates = _pattern_candidates(first_result)
     assert 3 <= len(candidates) <= 5, "PAST_PATTERN_COUNT_OUTSIDE_3_TO_5"
