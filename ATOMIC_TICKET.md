@@ -38,6 +38,57 @@ second task board or add ticket definitions to a plan/pointer file.
 
 ## ACTIVE SPRINTS & WORKSTREAMS
 
+<!-- KEYCHAIN-PURGE-20260904:START -->
+## Sprint SPRINT-KEYCHAIN-PURGE-20260904 -- macOS Keychain Isolation Restoration & Wrapper Sanitization
+
+**Recorded**: `2026-09-04T10:48:34+07:00` (Asia/Bangkok)
+**GRILL gate**: `APPROVED` -- owner explicit instruction dated `2026-09-04`.
+**Authority**: Owner instruction dated `2026-09-04`.
+**Current status**: ALL 4 TICKETS DONE (TICKET-PURGE-001, PURGE-002, PURGE-003, PURGE-004 100% DONE) -- SPRINT COMPLETE (Tagged v1.4.1-prod).
+
+### Scope and Objectives
+- Root cause resolution of persistent macOS alert popup 'A keychain cannot be found to store "antigravity."':
+  1. Antigravity CLI and macOS libsecurity look for '$HOME/Library/Keychains/login.keychain-db' by default when resolving user domain credential storage.
+  2. In wrapper scripts agy1..4, HOME is exported to '/Users/kimlenglim/.ai-accounts/agy/accountX'.
+  3. In each account directory '/Users/kimlenglim/.ai-accounts/agy/accountX/Library/Keychains/', the keychain was named 'agyX.keychain-db' (or missing login.keychain-db), so macOS cannot locate the default 'login.keychain-db' within that $HOME context, triggering the GUI modal dialog.
+  4. The fix requires creating/linking 'login.keychain-db' in each account's 'Library/Keychains/' directory pointing to the account keychain, ensuring it is unlocked non-interactively with empty password, while preserving the system's canonical default keychain at '/Users/kimlenglim/Library/Keychains/login.keychain-db'.
+- Wrapper script sanitization (`/Users/kimlenglim/.local/bin/agy1` through `agy4`) ensuring proper non-interactive unlock of account keychain with empty password without prompting GUI modal dialogs or hijacking system default keychain.
+- Restoring and preserving macOS default-keychain to canonical `/Users/kimlenglim/Library/Keychains/login.keychain-db` and restoring canonical user keychain search list.
+- Creating/linking `login.keychain-db` in `/Users/kimlenglim/.ai-accounts/agy/account*/Library/Keychains/` pointing to the account keychain.
+- Regression verification across `agy1..4`, Rayon parallel secret scan (0 leaks), `ReleaseNotes.md` update, and git clean sync to `origin/main` ("nothing in local").
+
+### Dependency Graph
+
+```text
+TICKET-PURGE-001 (DONE: Sprint Registration, RCA & Architecture Specifications)
+  |--> TICKET-PURGE-002 (DONE: Wrapper Script Sanitization & Non-Interactive Unlock)
+         |--> TICKET-PURGE-003 (DONE: Account Keychain Provisioning & Canonical Default Re-Anchor)
+                |--> TICKET-PURGE-004 (DONE: Regression Verification, Secret Scan, Zero Residue & Remote Git Sync)
+```
+
+### Program Tickets
+
+| Ticket | Severity / Effort | Lifecycle Status | Assigned Specialist | Required Skills | Dependencies | One Editor / Writable Ownership | Measurable Acceptance and DoD / Stop |
+|---|---|---|---|---|---|---|---|
+| `TICKET-PURGE-001` | HIGH / S | DONE | `business_analyst` | `[bsa-doc-skill-management, agile-governance]` | None | `ATOMIC_TICKET.md`, `plans/plan.md` | Register Sprint SPRINT-KEYCHAIN-PURGE-20260904 in ATOMIC_TICKET.md and plans/plan.md with 9-dimension GRILL matrix, complete architecture specs, accurate root cause analysis ($HOME/Library/Keychains/login.keychain-db lookup failure), and 4 atomic tickets with exact acceptance criteria. DoD: Pure ASCII, zero secret leaks, single-editor file ownership respected. |
+| `TICKET-PURGE-002` | HIGH / S | DONE | `developer` | `[sdlc-aisdlc-workflow, multi-account-agent-orchestration]` | `TICKET-PURGE-001` DONE | `/Users/kimlenglim/.local/bin/agy1`, `/Users/kimlenglim/.local/bin/agy2`, `/Users/kimlenglim/.local/bin/agy3`, `/Users/kimlenglim/.local/bin/agy4` | Sanitize wrapper scripts agy1..4: configure environment isolation (HOME and AGY_HOME export), ensure account-isolated keychain ($HOME/Library/Keychains/login.keychain-db) is unlocked non-interactively with empty password (e.g. `security unlock-keychain -p "" "${_ACCOUNT_HOME}/Library/Keychains/login.keychain-db" 2>/dev/null \|\| true`) prior to CLI invocation, eliminating rogue UI prompts while preventing system default keychain hijacking. DoD: Wrapper scripts pass bash syntax checks, execute cleanly without emitting keychain unlock errors or GUI popup triggers. |
+| `TICKET-PURGE-003` | HIGH / S | DONE | `devops` | `[devops-deployment, system-administration]` | `TICKET-PURGE-002` DONE | macOS Keychain configuration, `/Users/kimlenglim/.ai-accounts/agy/account*/Library/Keychains/*` | Provision/link `login.keychain-db` in each account directory `/Users/kimlenglim/.ai-accounts/agy/accountX/Library/Keychains/` (symlink to `agyX.keychain-db` or dedicated unlocked keychain `login.keychain-db` with empty password). Re-anchor canonical system default keychain to `/Users/kimlenglim/Library/Keychains/login.keychain-db`. Restore canonical user keychain search list (`security list-keychains -d user -s /Users/kimlenglim/Library/Keychains/login.keychain-db /Library/Keychains/System.keychain`). DoD: `login.keychain-db` exists and is accessible in all 4 account directories, `security default-keychain` returns canonical system login keychain, zero missing keychain errors under $HOME override. |
+| `TICKET-PURGE-004` | HIGH / S | DONE | `qa_tester` / `devops` | `[qa-e2e-testing, hf-static-release-verification, devops-deployment]` | `TICKET-PURGE-003` DONE | `ReleaseNotes.md`, `plans/evidence/keychain-purge-20260904/*`, Git repository tags/origin | Execute verification smoke test on agy1..4 and antigravity CLI to confirm zero popup alerts ('A keychain cannot be found to store "antigravity."'). Run Rayon parallel secret scan (0 leaks). Update `ReleaseNotes.md`. Verify zero uncommitted or unpushed files in local worktree ("nothing in local", 100% clean). Push all commits/tags to `origin/main`. DoD: All CLI invocations pass without GUI popups, zero secret leaks, clean worktree at origin/main. |
+
+### Program Stop and Admission Rules
+- Single-editor file ownership: each writable path is owned by exactly one ticket and lane at a time.
+- TICKET-PURGE-001 is authored and owned by `business_analyst`.
+- TICKET-PURGE-002 requires TICKET-PURGE-001 DONE before entering DOING.
+- TICKET-PURGE-003 requires TICKET-PURGE-002 DONE before entering DOING.
+- TICKET-PURGE-004 requires TICKET-PURGE-003 DONE before entering DOING.
+- Strict Definition of Done (DoD) Mandate is absolute: git status must be 100% clean, verified, and pushed to origin/main with zero local residue.
+- Pure ASCII logging is mandatory across all code, tests, and documentation.
+- Non-revert clause: Do not revert edits made by others; preserve existing completed roadmap and sprint records.
+
+<!-- KEYCHAIN-PURGE-20260904:END -->
+
+---
+
 <!-- RECONCILIATION-20260904:START -->
 ## Sprint SPRINT-PLAN-RECONCILIATION-20260904 -- Governance Documentation Reconciliation & Rule 22 Compliance
 

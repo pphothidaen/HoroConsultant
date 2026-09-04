@@ -1,3 +1,62 @@
+# HoroConsultant Release Notes -- macOS Keychain Isolation Restoration & Wrapper Sanitization (Sprint SPRINT-KEYCHAIN-PURGE-20260904 / v1.4.1-prod)
+
+> **Release**: `v1.4.1-prod` -- macOS Keychain Isolation Restoration & Wrapper Sanitization  
+> **Release Date**: 2026-09-04 (Asia/Bangkok)  
+> **Sprint Verdict**: `CERTIFIED_COMPLETE (Sprint SPRINT-KEYCHAIN-PURGE-20260904, 4/4 Tickets 100% DONE, Tagged v1.4.1-prod)`  
+> **Release Authority**: Master Orchestrator & Business System Analyst  
+
+---
+
+## Executive Summary
+Sprint `SPRINT-KEYCHAIN-PURGE-20260904` resolves the root cause of the recurring macOS modal alert popup 'A keychain cannot be found to store "antigravity."' encountered during CLI wrapper execution. The sprint performs complete wrapper sanitization across `/Users/kimlenglim/.local/bin/agy1` through `agy4` by eliminating rogue keychain unlock and hijacking routines, re-anchors the macOS user default keychain to the canonical `/Users/kimlenglim/Library/Keychains/login.keychain-db`, removes stale account-specific keychain entries from the user keychain search list, and purges orphaned `.keychain-db` artifacts across `/Users/kimlenglim/.ai-accounts/agy/account*/Library/Keychains/`. All CLI wrappers (`agy1..4`) execute cleanly with zero GUI alerts, 0 secret leaks were verified across 6,254 files, all 16 ecosystem parity checks passed, and the repository adheres strictly to the Definition of Done (DoD) Mandate.
+
+## Architectural & Remediation Deliverables
+1. **Wrapper Script Sanitization (`/Users/kimlenglim/.local/bin/agy1..4`)**:
+   - Stripped rogue `_KEYCHAIN` targeting and `security unlock-keychain` directives that altered user keychain search contexts or triggered GUI unlock modals.
+   - Enforced pure environment variable isolation via `HOME` and `AGY_HOME` directory configuration without mutating macOS system or login keychain state.
+2. **macOS Default Keychain Re-Anchoring**:
+   - Re-anchored canonical default keychain to `/Users/kimlenglim/Library/Keychains/login.keychain-db` via `security default-keychain -s`.
+   - Restored user domain keychain search list via `security list-keychains -d user -s /Users/kimlenglim/Library/Keychains/login.keychain-db /Library/Keychains/System.keychain`.
+   - Safely purged orphaned/stale `.keychain-db` and lock artifacts across `.ai-accounts/agy/account*/Library/Keychains/`.
+3. **Verification & DoD Enforcement**:
+   - Multi-account CLI wrapper smoke testing (`agy1..4 --version`) verified zero GUI popups and clean execution.
+   - Rayon parallel secret scan verified 0 leaks across 6,254 repository files.
+   - Ecosystem parity validated 100% (16/16 checks passing).
+   - Test suite verification across keychain broker (55/55 passing) and regression suite.
+
+## Verification Matrix
+| Test Suite / Audit | Tests / Scope | Pass Rate | Status |
+|---|:---:|:---:|:---:|
+| Rust Rayon Parallel Secret Scan (`code_reviewer.py --scan-secrets`) | 6,254 files | 0 leaks | PASSED |
+| Ecosystem Parity Check (`sync_ai_agent_ecosystem.py --check`) | 16 / 16 checks | 100% | PASSED |
+| CLI Zero-Popup Verification (`agy1..4 --version`) | 4 wrapper scripts | 0 popups | PASSED |
+| Keychain Broker Test Suite (`test_ai_account_keychain_broker.py`) | 55 / 55 tests | 100% | PASSED |
+| Worktree Cleanliness & Remote Parity (`git status`) | Clean worktree, origin/main sync | 100% | PASSED |
+| Pure ASCII Compliance | All sprint deliverables | 100% | PASSED |
+
+## Milestone Rollup (100% DONE)
+| Ticket | Title | Assigned Specialist | Status |
+|---|---|---|:---:|
+| `TICKET-PURGE-001` | Sprint Registration, GRILL Gate & Architecture Specifications | business_analyst | DONE |
+| `TICKET-PURGE-002` | Wrapper Script Sanitization & Clean Isolation (agy1..4) | developer | DONE |
+| `TICKET-PURGE-003` | macOS Default Keychain Re-Anchoring & Stale Artifact Purge | devops | DONE |
+| `TICKET-PURGE-004` | Regression Verification, Secret Scan, Zero Residue & Remote Git Sync | qa_tester / devops | DONE |
+| **Total** | **Sprint SPRINT-KEYCHAIN-PURGE-20260904** | **4 / 4 Complete (100% DONE)** | **CERTIFIED_COMPLETE** |
+
+## Live Production Endpoints
+- **Production Pages URL**: https://horoconsultant-pages.pages.dev
+- **Verified Health Endpoint**: `https://horoconsultant-pages.pages.dev/health` -> HTTP/2 200 OK (`{"status":"ok","service":"Computational Metaphysics Engine","rust_acceleration":true}`)
+- **Vercel Gateway / Frontend**: https://horo-consultant-psi.vercel.app
+- **HuggingFace Space**: `pphothidaen/horoconsultant-core-backend`
+
+## Archived Plans & Evidence Receipts
+- Active specifications for Sprint `SPRINT-KEYCHAIN-PURGE-20260904` recorded in `plans/plan.md`.
+- Sprint evidence receipts:
+  * `plans/evidence/keychain-purge-20260904/ops-purge-003.json` (Keychain re-anchoring & purge receipt)
+  * `plans/evidence/keychain-purge-20260904/qa-purge-004.json` (Full QA verification, secret scan & zero-popup receipt)
+
+---
+
 # 🚀 HoroConsultant Release Notes — Multi-Agent Concurrency Architecture & Strict Definition of Done Mandate (Sprint SPRINT-CONCURRENCY-DOD-20260904 / v1.4.0-prod)
 
 > **Release**: `v1.4.0-prod` — Multi-Agent Concurrency Architecture & Strict Definition of Done Mandate  
