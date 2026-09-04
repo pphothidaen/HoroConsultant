@@ -3,11 +3,11 @@
   "ticket_id": "TICKET-HLITE-002",
   "sequence": 2,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "c149d3a6481ccabecdd14147f6ff9e7c6acc48ac",
+  "baseline_parent": "aba4cdd7ab69fc76a1affa2706b6f4f59e49d25d",
   "test_files": [
     {
       "path": "tests/test_horo_lite_unified_reading.py",
-      "sha256": "f54b1edb22a1cb213417f5bde20d4a86932cb5f143fdcf576d3cdf413abb3da9"
+      "sha256": "820e3b21919bc3d1237b92bf050ed77627cbdad78c4e1553fed486c27f8c4be0"
     }
   ],
   "red_tests": [
@@ -45,7 +45,7 @@
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": null,
-  "correction_reason": null,
-  "rationale": "Freeze the Phase B black-box deterministic annual timing and past pattern calibration tests for TICKET-HLITE-002 before core implementation. Baseline parent is the Phase A source schema commit c149d3a6481ccabecdd14147f6ff9e7c6acc48ac. Preserved red evidence: command python3 -m pytest tests/test_horo_lite_unified_reading.py -k \"test_deterministic_annual_timing_12_months or test_past_pattern_candidate_generation\" -v exited actual 1 and expected 1 with fingerprints ModuleNotFoundError: No module named 'project.core.annual_timing_engine' and ModuleNotFoundError: No module named 'project.core.past_pattern_calibrator'."
+  "supersedes": "e570e404207e32be44778459790466316d40c92e",
+  "correction_reason": "Supersedes the Phase B baseline because the original manifest was bound to QA ticket TICKET-HLITE-010 instead of implementation ticket TICKET-HLITE-002.",
+  "rationale": "Freeze a superseding Phase B black-box deterministic annual timing and past pattern calibration test baseline for TICKET-HLITE-002. Baseline parent is the current corrected-manifest commit aba4cdd7ab69fc76a1affa2706b6f4f59e49d25d, and this baseline supersedes flawed baseline e570e404207e32be44778459790466316d40c92e because that manifest was bound to QA ticket TICKET-HLITE-010 instead of implementation ticket TICKET-HLITE-002. Preserved red evidence from the superseded baseline: command python3 -m pytest tests/test_horo_lite_unified_reading.py -k \"test_deterministic_annual_timing_12_months or test_past_pattern_candidate_generation\" -v exited actual 1 and expected 1 with fingerprints ModuleNotFoundError: No module named 'project.core.annual_timing_engine' and ModuleNotFoundError: No module named 'project.core.past_pattern_calibrator'. Current source implementation exists, so the focused Phase B tests may pass after this superseding baseline."
 }
