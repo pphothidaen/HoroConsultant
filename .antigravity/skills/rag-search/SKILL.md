@@ -1,5 +1,6 @@
 ---
 name: rag-search
+disabled: true
 description: Perform ranked retrieval over FAISS-indexed classical metaphysics texts with configured embeddings.
 ---
 

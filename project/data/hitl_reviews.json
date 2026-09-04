@@ -2230,7 +2230,7 @@
     "rejected": 0,
     "total_reviewed": 0
   },
-  "last_updated": "2026-08-31T23:41:49.931322",
+  "last_updated": "2026-09-04T17:48:18.480450",
   "automation": {
     "threshold": 50,
     "step": 50,
@@ -2258,7 +2258,7 @@
       "hitl_routing": {
         "status": "QUEUED_FOR_HUMAN_REVIEW",
         "reason": "conflict_detected",
-        "review_queue_id": "hitl_rev_1788194509",
+        "review_queue_id": "hitl_rev_1788518898",
         "required_human_review": true,
         "conflict_detected": true,
         "conflicting_domains": [
@@ -2301,7 +2301,7 @@
       },
       "notes": null,
       "created_at": "2026-08-31T22:12:16.022865",
-      "updated_at": "2026-08-31T23:41:49.931211",
+      "updated_at": "2026-09-04T17:48:18.480426",
       "status": "pending",
       "review": null
     }

@@ -225,6 +225,21 @@ but rely on the required `Test Provenance` CI check for merge enforcement.
 4. **การส่งออกชุดข้อมูลเพื่อ Fine-Tune (Export JSONL):**
    - คลิกปุ่ม **"📥 Export Approved JSONL Dataset"** เพื่อดาวน์โหลดไฟล์ `hitl_approved.jsonl` นำไปใช้ปรับแต่งโมเดลในรอบถัดไป
 
+### 2.3 Horo Lite Annual Timing HITL Metadata
+
+Horo Lite annual timing returns three governance fields with the reading:
+`consensus_metadata`, `hitl_flags`, and `hitl_routing`.
+
+- `consensus_metadata` includes `consensus_score`,
+  `arbitration_status`, `traditions_considered`, monthly arbitration records,
+  and `consensus_matrix_source: project.debate.consensus_matrix`.
+- `hitl_routing.status` must be `QUEUED_FOR_HUMAN_REVIEW` when any fail-closed
+  trigger applies: low consensus, tradition conflict, `force_human_review`, or
+  unknown/uncertain birth time.
+- `hitl_routing.status` may be `NOT_REQUIRED` only when no HITL trigger applies.
+- LLM and copy layers may rewrite presentation text only; they may not mutate
+  deterministic scores, dates, or facts.
+
 ---
 
 ## 💻 3. คู่มือการใช้งานบนแพลตฟอร์มต่างๆ สำหรับนักพัฒนา (Multi-Platform Developer How-To)

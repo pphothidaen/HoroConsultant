@@ -38,6 +38,301 @@ second task board or add ticket definitions to a plan/pointer file.
 
 ## ACTIVE SPRINTS & WORKSTREAMS
 
+<!-- HORO-V3-INFOGRAPHIC-20260904:START -->
+## Sprint SPRINT-HORO-V3-INFOGRAPHIC-20260904 -- Horo Lite Unified Consensus Reading & Mobile Infographic Synthesis
+
+**Task ID**: `TICKET-HORO-LITE-PLAN-001`
+**Recorded**: `2026-09-04T15:18:27+07:00` (Asia/Bangkok)
+**GRILL gate**: `APPROVED` -- owner confirmed date `2026-09-04`.
+**Authority**: Owner prompt command dated `2026-09-04`.
+**Current status**: READY_FOR_OWNER_REVIEW -- Complete 12-ticket decomposition & HITL gate complete. Implementation NOT started (blocked on explicit owner approval).
+**HITL Scope Audit Receipt**: `status=200 OK`, `pass_gate_check=true`, `missing_required_human_gate=0` (`GET /hitl/scope-audit?source_domain=metaphysical-domain-engine`).
+**Detailed Plan Reference**: See [`docs/superpowers/plans/2026-09-04-horo-lite-consensus-reading.md`](docs/superpowers/plans/2026-09-04-horo-lite-consensus-reading.md).
+
+### Confirmed Product Direction & Scope Boundaries
+- **Product Direction**:
+  1. Create a new "Horo Lite" experience at `/lite` (`public/lite.html`) for initial rollout.
+  2. Preserve current dashboard at `/index.html` as the Advanced/Expert experience.
+  3. Horo Lite and Advanced reuse the exact same calculation engines, Horo v3.0 Consensus Engine, versioned result schema, and API contracts.
+  4. Zero duplicated astrological calculation or scoring logic in the Lite frontend.
+  5. Promote Lite to the default landing page only after all acceptance, privacy, visual, calculation-fidelity, and HITL gates pass.
+- **Lite Input Experience**:
+  - Required/conditionally required: Birth date, Birth time or "unknown birth time", Birthplace (resolved to coords/tz), Gender at birth (when required), target_year (default current year).
+  - Optional: Name or display name, Primary focus question.
+  - Hidden in Advanced Settings disclosure: raw longitude, UTC offset, engine selection, validation options, research depth.
+  - Primary single action button: "คำนวณผังดวง & ตีความด้วย AI".
+- **Unified Processing Flow**:
+  Horo Lite form -> `/api/v3/unified-reading` -> deterministic natal and annual-timing engines -> Thai Suriyayart & BaZi Liu Yue evidence -> Horo v3.0 consensus, conflict & confidence audit -> mandatory HITL routing -> LLM copy transformation (natural Thai, no invented scores/dates/facts) -> 12 topic-based reading modules.
+- **12 Topic-Based Result Modules**:
+  1. Personal overview & strengths
+  2. Past Pattern Calibration (3–5 deterministic cycles, age/year range, verifiable non-sensitive themes, feedback: "ตรง", "ตรงบางส่วน", "ไม่ตรง", "จำไม่ได้", tone emphasis only, no false accuracy percentage, consent required to persist)
+  3. Annual overview
+  4. Career & business
+  5. Finance
+  6. Love & relationships
+  7. Health & wellbeing
+  8. Family & surrounding people
+  9. Opportunities & caution periods
+  10. Twelve-month roadmap (Career, Finance, Love 1–10 with traceable reasons)
+  11. Three top priorities & three top cautions
+  12. Export & sharing actions (Full mobile PNG, 1080×1920 Story PNG, Copy text, Print/PDF; privacy default hides birth details in social exports)
+- **Technical Drawer**: Collapsed "ดูที่มาและรายละเอียดการคำนวณ" + cross-link to Advanced Dashboard (`/index.html`).
+
+### Dependency Graph (DAG)
+
+```text
+Phase A: TICKET-HLITE-001 (Schema & Compatibility Contracts)
+   |
+   +--> Phase B: TICKET-HLITE-002 (Deterministic Annual Timing & Past Pattern Engine)
+   |       |
+   |       +--> Phase C: TICKET-HLITE-003 (Horo v3.0 Consensus & HITL Integration)
+   |       |       |
+   |       |       +--> Phase D: TICKET-HLITE-004 (Unified Reading API Router & Copy Transformer)
+   |       |               |
+   |       +---------------+--> Phase E: TICKET-HLITE-005 (Horo Lite Form & Single-Action Flow)
+   |                               |
+   |                               +--> Phase F: TICKET-HLITE-006 (12 Topic-Based Result UI)
+   |                               |       |
+   |                               |       +--> Phase G: TICKET-HLITE-007 (Past Pattern Interaction & Consent)
+   |                               |       |
+   |                               +-------+--> Phase H: TICKET-HLITE-008 (Multi-Format Mobile Exporter Suite)
+   |                                               |
+   |                                               +--> Phase I: TICKET-HLITE-009 (Accessibility, Privacy & Error Recovery)
+   |                                               |
+   \-----------------------------------------------+--> Phase J: TICKET-HLITE-010 (Contract & Regression Suite)
+                                                           |
+                                                           +--> Phase K: TICKET-HLITE-011 (Multi-Viewport Visual Audit)
+                                                           |
+                                                           +--> Phase L: TICKET-HLITE-012 (Security Review & Release Verification)
+```
+
+### Exclusive Ownership & Single-Editor Resource Boundary
+
+| Lane | Assigned Specialist | Exclusive Writable Paths | Disjoint Path Guarantee |
+| :--- | :--- | :--- | :--- |
+| **Management** | `lead_ba` | `ATOMIC_TICKET.md`, `plans/plan.md`, `plans/intake/**`, `docs/superpowers/plans/**` | Strict ownership; no overlap with source code |
+| **Computation Core** | `developer_core` | `project/core/annual_timing_engine.py`, `project/core/past_pattern_calibrator.py`, `project/core/unified_reading_engine.py`, `project/core/bazi.py`, `rust_core/**` | Strictly isolated to core computation |
+| **API Gateway** | `developer_api` | `project/routers/unified_reading_router.py`, `project/routers/v3_engine_router.py`, `api/index.js` | Strictly isolated to router endpoints |
+| **Frontend & UX** | `ux_ui_designer` | `public/lite.html`, `public/lite.js`, `public/lite.css`, `public/export_engine.js`, `public/export_modal.css` | Strictly isolated to public/ presentation (single editor for static/public) |
+| **Visual QA** | `ui_visual_tester` | `plans/test_provenance/visual_audits/**` | Strictly isolated to visual audit screenshots |
+| **QA Verification** | `qa_tester` | `tests/test_horo_lite_unified_reading.py`, `plans/test_provenance/sprint_horo_v3_infographic_migration.json` | Strictly isolated to test files and provenance |
+| **Security Audit** | `code_reviewer` | Read-only security audit log (`plans/evidence/security_review.json`) | Strictly read-only AST and security audits |
+| **Master Control** | `orchestrator` | Lane dispatch, DAG execution, lock verification, final sign-off | Non-authoring master coordination |
+
+### Mandatory HITL Gate Governance Policy
+
+1. **Low Consensus Threshold (`consensus_score < 0.75`)**: Automatically queue calculation payload to `/hitl/queue` (`hitl_routing.status = "QUEUED_FOR_HUMAN_REVIEW"`). Automated endpoints MUST NOT present unverified high-certainty claims when consensus is low.
+2. **Detected Tradition Conflicts**: When conflicting interpretations arise between tradition schools (e.g., Pu Shi vs Ze Ji or BaZi vs Zi Wei), display a balanced neutral summary on screen and route the detailed conflict matrix to the `/hitl` review queue.
+3. **Force-Review Trigger (`force_human_review=true`)**: High-stakes queries (e.g. medical surgery dates or major legal disputes) mandate human astrologer sign-off before finalized outputs are released.
+4. **Uncertain Birth-Time Handling**: When `unknown_hour=true`, calculations MUST restrict analysis to valid Day/Month/Year factors only. Birth-hour-dependent houses (Thai Lagna, BaZi Hour Pillar) are omitted, scores are displayed as ranges or with a visible `confidence: LOW/ESTIMATED` badge, and false precision is strictly prohibited.
+
+---
+
+### Atomic Tickets Specification (Phases A through L)
+
+#### `TICKET-HLITE-001` -- Phase A: Versioned Unified Reading Schema & Compatibility Contracts
+- **Status**: `READY` (Awaiting Owner Authorization)
+- **Assigned Specialist**: `developer_core`
+- **Bound Skills**: `sdlc-aisdlc-workflow`, `metaphysical-domain-engine`
+- **Objective & Deliverable**: Define versioned Pydantic schemas (`UnifiedReadingRequest`, `TopicModule`, `MonthlyScoreItem`, `PastPatternCandidate`, `UnifiedReadingResponse`) in `project/core/unified_reading_engine.py` without mutating legacy schemas.
+- **In-Scope**: Schema models, field validators, default values, backward-compatibility mapping.
+- **Out-of-Scope**: Database mutations, routing logic, frontend code.
+- **Exclusive Writable Paths**: `project/core/unified_reading_engine.py`
+- **Interfaces Consumed/Produced**: Consumes Python typing/Pydantic; produces shared contracts for routers and core engines.
+- **Test-First Steps & Acceptance Criteria**:
+  1. Add `tests/test_horo_lite_unified_reading.py::test_unified_reading_schema_contract`.
+  2. Verify 12 topic structure, 12 monthly scores (1–10), consensus metadata, past patterns, and HITL flags.
+- **Evidence Command**: `pytest tests/test_horo_lite_unified_reading.py -k test_unified_reading_schema_contract -v` (Must PASS).
+- **Rollback Condition**: Revert `project/core/unified_reading_engine.py`.
+- **Stop Condition**: `DONE` when schema passes validation; `BLOCKED` if backward compatibility breaks.
+
+#### `TICKET-HLITE-002` -- Phase B: Deterministic Annual-Timing & Past Pattern Calibration Model
+- **Status**: `READY` (Awaiting Owner Authorization)
+- **Assigned Specialist**: `developer_core`
+- **Bound Skills**: `sdlc-aisdlc-workflow`, `metaphysical-domain-engine`
+- **Objective & Deliverable**: Implement deterministic annual timing (`project/core/annual_timing_engine.py`) and past pattern candidate generation (`project/core/past_pattern_calibrator.py`).
+- **In-Scope**: Thai Suriyayart transit houses (Jupiter, Saturn, Rahu) + BaZi 60-JiaZi monthly cycles; 3–5 non-sensitive past pattern candidates (education, work-role change, relocation, financial pressure) in age/year ranges; `unknown_hour=True` factor reduction and score ranges.
+- **Out-of-Scope**: Sensitive trauma events (death, illness, crime, pregnancy); LLM free-form past generation; frontend rendering.
+- **Exclusive Writable Paths**: `project/core/annual_timing_engine.py`, `project/core/past_pattern_calibrator.py`, `project/core/bazi.py`
+- **Interfaces Consumed/Produced**: Consumes `UnifiedReadingRequest`; produces deterministic monthly scores and candidate past cycles.
+- **Test-First Steps & Acceptance Criteria**:
+  1. Add tests `test_deterministic_annual_timing_12_months` and `test_past_pattern_candidate_generation`.
+  2. Exactly 12 months with Career, Finance, Love scores (1–10) and traceable reasons.
+  3. 3–5 candidate past patterns within valid age ranges; zero sensitive categories.
+  4. Core runtime <50ms.
+- **Evidence Command**: `pytest tests/test_horo_lite_unified_reading.py -k "test_deterministic_annual_timing_12_months or test_past_pattern_candidate_generation" -v` (Must PASS).
+- **Rollback Condition**: Remove `project/core/past_pattern_calibrator.py` and revert `project/core/annual_timing_engine.py`.
+- **Stop Condition**: `DONE` on 100% deterministic test pass; `BLOCKED` on calculation divergence.
+
+#### `TICKET-HLITE-003` -- Phase C: Horo v3.0 Consensus Arbitration & Mandatory HITL Integration
+- **Status**: `READY` (Awaiting Owner Authorization)
+- **Assigned Specialist**: `developer_core`
+- **Bound Skills**: `sdlc-aisdlc-workflow`, `metaphysical-domain-engine`
+- **Objective & Deliverable**: Integrate annual timing with Horo v3.0 multi-tradition consensus matrix (`project/debate/consensus_matrix.py`) and wire mandatory fail-closed HITL routing.
+- **In-Scope**: Arbitration of monthly claims across traditions; consensus score calculation; automatic HITL routing on consensus < 0.75, tradition conflict, `force_human_review=true`, or uncertain birth time exceeding valid factors.
+- **Out-of-Scope**: Frontend UI modifications; modifying HITL backoffice storage schemas.
+- **Exclusive Writable Paths**: `project/core/annual_timing_engine.py` (consensus arbitration integration)
+- **Interfaces Consumed/Produced**: Consumes `project/debate/consensus_matrix.py`; produces arbitrated claims and `hitl_routing` payload.
+- **Test-First Steps & Acceptance Criteria**:
+  1. Add test `test_horo_v3_consensus_arbitration_and_hitl_triggers`.
+  2. Verify fail-closed routing into review queue when consensus < 0.75.
+  3. Passing live probe `GET /hitl/scope-audit?source_domain=metaphysical-domain-engine` maintained (`pass_gate_check=true`).
+- **Evidence Command**: `pytest tests/test_horo_lite_unified_reading.py -k test_horo_v3_consensus_arbitration_and_hitl_triggers -v` (Must PASS).
+- **Rollback Condition**: Revert consensus integration in `annual_timing_engine.py`.
+- **Stop Condition**: `DONE` on passing HITL triggers; `NEEDS_HITL` if audit probe fails.
+
+#### `TICKET-HLITE-004` -- Phase D: Unified Reading API Router & Copy Transformer
+- **Status**: `READY` (Awaiting Owner Authorization)
+- **Assigned Specialist**: `developer_api`
+- **Bound Skills**: `sdlc-aisdlc-workflow`, `ai-inference-verifier`
+- **Objective & Deliverable**: Expose `POST /api/v3/unified-reading` in `project/routers/unified_reading_router.py`, orchestrate deterministic core engines, consensus audit, and LLM copy translation.
+- **In-Scope**: Request validation, core orchestration, LLM prompt engineering strictly forbidding hallucinated scores/dates/facts, response packaging; route registration in `project/main.py`.
+- **Out-of-Scope**: Frontend client code; altering existing `/api/v1/bazi/interpret` or `/api/v3/calculate` endpoints.
+- **Exclusive Writable Paths**: `project/routers/unified_reading_router.py`, `project/routers/v3_engine_router.py`, `api/index.js`
+- **Interfaces Consumed/Produced**: Consumes `project/core/unified_reading_engine.py`; produces public REST API endpoint `POST /api/v3/unified-reading`.
+- **Test-First Steps & Acceptance Criteria**:
+  1. Add `test_unified_reading_api_endpoint`.
+  2. Validate full 12-topic response structure, score preservation, and latency SLA (<300ms deterministic, <2.5s with LLM translation).
+- **Evidence Command**: `pytest tests/test_horo_lite_unified_reading.py -k test_unified_reading_api_endpoint -v` (Must PASS).
+- **Rollback Condition**: Unregister route and remove `project/routers/unified_reading_router.py`.
+- **Stop Condition**: `DONE` on API contract pass; `BLOCKED` if OpenAPI spec fails validation.
+
+#### `TICKET-HLITE-005` -- Phase E: Horo Lite Form & Single-Action Flow (`public/lite.html`)
+- **Status**: `READY` (Awaiting Owner Authorization)
+- **Assigned Specialist**: `ux_ui_designer`
+- **Bound Skills**: `web-color-design`, `ui-visual-auditor`
+- **Objective & Deliverable**: Create `public/lite.html`, `public/lite.css`, and `public/lite.js` implementing the simplified Horo Lite input experience.
+- **In-Scope**: Clean single-column form: birth date, time picker with unknown toggle, birthplace search with geocoding, gender selector, target year; Advanced disclosure for raw coords/tz/engine; single primary action button "คำนวณผังดวง & ตีความด้วย AI".
+- **Out-of-Scope**: Altering `/index.html` (Advanced dashboard); local astrological calculation duplication.
+- **Exclusive Writable Paths**: `public/lite.html`, `public/lite.css`, `public/lite.js`
+- **Interfaces Consumed/Produced**: Consumes `/api/v3/unified-reading`; produces user interface for Horo Lite.
+- **Test-First Steps & Acceptance Criteria**:
+  1. Add `test_lite_form_dom_contract` asserting all inputs, disclosure drawer, and action button are present and accessible.
+  2. Geocoding helper accurately populates latitude/longitude/tz without exposing clutter by default.
+- **Evidence Command**: `pytest tests/test_horo_lite_unified_reading.py -k test_lite_form_dom_contract -v` (Must PASS).
+- **Rollback Condition**: Remove `public/lite.html`, `public/lite.css`, `public/lite.js`.
+- **Stop Condition**: `DONE` on clean DOM and accessibility pass; `BLOCKED` on script errors.
+
+#### `TICKET-HLITE-006` -- Phase F: 12 Topic-Based Result UI & Score Gauges
+- **Status**: `READY` (Awaiting Owner Authorization)
+- **Assigned Specialist**: `ux_ui_designer`
+- **Bound Skills**: `web-color-design`, `ui-visual-auditor`
+- **Objective & Deliverable**: Implement dynamic rendering of all 12 topic-based result sections, score gauges (1–10), and technical calculation drawer in `public/lite.js` and `public/lite.css`.
+- **In-Scope**: 12 modular cards (Personal Overview, Past Calibration, Annual Overview, Career, Finance, Love, Health, Family, Opportunities/Cautions, 12-Month Roadmap, Top Priorities/Cautions, Export Actions); collapsible "ดูที่มาและรายละเอียดการคำนวณ" drawer with link to Advanced Dashboard (`/index.html`).
+- **Out-of-Scope**: Mutating Advanced Dashboard DOM in `public/index.html`.
+- **Exclusive Writable Paths**: `public/lite.js`, `public/lite.css` (result rendering logic)
+- **Interfaces Consumed/Produced**: Consumes `UnifiedReadingResponse`; renders accessible DOM cards.
+- **Test-First Steps & Acceptance Criteria**:
+  1. Add `test_topic_based_result_rendering`.
+  2. All 12 topics render with accessible icons and gauges.
+  3. Unknown birth time shows score ranges and reduced-confidence warning.
+- **Evidence Command**: `pytest tests/test_horo_lite_unified_reading.py -k test_topic_based_result_rendering -v` (Must PASS).
+- **Rollback Condition**: Revert result renderer in `public/lite.js`.
+- **Stop Condition**: `DONE` on rendering test pass; `BLOCKED` on DOM clipping or missing modules.
+
+#### `TICKET-HLITE-007` -- Phase G: Past Pattern Calibration Interaction & Consent Handling
+- **Status**: `READY` (Awaiting Owner Authorization)
+- **Assigned Specialist**: `ux_ui_designer`
+- **Bound Skills**: `web-color-design`, `ui-visual-auditor`
+- **Objective & Deliverable**: Build interactive feedback UI for Past Pattern Calibration in `public/lite.js` with explicit privacy consent and immutability guards.
+- **In-Scope**: Candidate milestone cards with feedback chips ("ตรง", "ตรงบางส่วน", "ไม่ตรง", "จำไม่ได้"); dynamic tone personalization without changing scores; explicit consent checkbox for persistence; zero false "accuracy percentage" labels.
+- **Out-of-Scope**: Altering underlying calculations or retroactively modifying future predictions.
+- **Exclusive Writable Paths**: `public/lite.js` (calibration component)
+- **Interfaces Consumed/Produced**: Consumes `past_patterns` array; emits client-side tone adjustment and optional consented payload.
+- **Test-First Steps & Acceptance Criteria**:
+  1. Add `test_past_pattern_feedback_and_consent_contract`.
+  2. Verify feedback selection does NOT alter core scores or emit false accuracy metrics.
+  3. Verify data is not persisted to storage without explicit checkbox consent.
+- **Evidence Command**: `pytest tests/test_horo_lite_unified_reading.py -k test_past_pattern_feedback_and_consent_contract -v` (Must PASS).
+- **Rollback Condition**: Revert calibration component in `public/lite.js`.
+- **Stop Condition**: `DONE` on contract pass; `BLOCKED` if feedback leaks into calculations.
+
+#### `TICKET-HLITE-008` -- Phase H: Multi-Format Mobile Infographic Exporter Suite
+- **Status**: `READY` (Awaiting Owner Authorization)
+- **Assigned Specialist**: `ux_ui_designer`
+- **Bound Skills**: `web-color-design`, `ui-visual-auditor`
+- **Objective & Deliverable**: Build client-side canvas rasterizer in `public/export_engine.js` and modal UI in `public/export_modal.css` supporting Full PNG, 1080×1920 Story PNG, Copyable Text, and Print/PDF with privacy toggles.
+- **In-Scope**: 1-Click Save Full Mobile Infographic (vertical PNG); 1-Click Save 9:16 Story (exact 1080×1920 PNG); 1-Click Copy Social Summary (Thai markdown/text); Secondary Print/PDF; Privacy default (birth date/time hidden by default in social exports); non-destructive retry on error.
+- **Out-of-Scope**: Server-side image rendering binaries (must be pure browser canvas/SVG).
+- **Exclusive Writable Paths**: `public/export_engine.js`, `public/export_modal.css`
+- **Interfaces Consumed/Produced**: Consumes rendered DOM and `UnifiedReadingResponse`; produces downloadable PNG blobs and clipboard text.
+- **Test-First Steps & Acceptance Criteria**:
+  1. Add `test_export_formats_and_privacy_default`.
+  2. Verify 1080×1920 dimensions for Story export.
+  3. Verify birth details hidden by default.
+  4. 100% fidelity with on-screen data.
+- **Evidence Command**: `pytest tests/test_horo_lite_unified_reading.py -k test_export_formats_and_privacy_default -v` (Must PASS).
+- **Rollback Condition**: Remove `public/export_engine.js` and `public/export_modal.css`.
+- **Stop Condition**: `DONE` on export contract pass; `BLOCKED` on canvas rasterization failure.
+
+#### `TICKET-HLITE-009` -- Phase I: Accessibility, Privacy, Error Recovery & Unknown-Time Ergonomics
+- **Status**: `READY` (Awaiting Owner Authorization)
+- **Assigned Specialist**: `ux_ui_designer`
+- **Bound Skills**: `web-color-design`, `ui-visual-auditor`
+- **Objective & Deliverable**: Enforce WCAG AA accessibility, keyboard navigation, visible focus states, ARIA disclosures, privacy defaults, and resilient error recovery across Horo Lite.
+- **In-Scope**: Score indicators include text alternatives (never color alone); full keyboard tab order; ARIA attributes; non-destructive API error recovery with retry button; unknown birth-time banner.
+- **Out-of-Scope**: Modifying backend error handling.
+- **Exclusive Writable Paths**: `public/lite.css`, `public/lite.js`
+- **Interfaces Consumed/Produced**: Consumes DOM events; produces accessible, resilient user experience.
+- **Test-First Steps & Acceptance Criteria**:
+  1. Add `test_accessibility_and_contrast_compliance`.
+  2. Verify keyboard navigation across all interactive elements.
+  3. Score gauges communicate status without relying on color alone.
+- **Evidence Command**: `pytest tests/test_horo_lite_unified_reading.py -k test_accessibility_and_contrast_compliance -v` (Must PASS).
+- **Rollback Condition**: Revert accessibility styling changes.
+- **Stop Condition**: `DONE` on accessibility pass; `BLOCKED` on contrast or keyboard traps.
+
+#### `TICKET-HLITE-010` -- Phase J: Contract, Unit, Inference-Origin & Regression Test Baseline
+- **Status**: `READY` (Awaiting Owner Authorization)
+- **Assigned Specialist**: `qa_tester`
+- **Bound Skills**: `qa-e2e-testing`, `hf-static-release-verification`, `ai-inference-verifier`
+- **Objective & Deliverable**: Consolidate complete test provenance baseline in `tests/test_horo_lite_unified_reading.py` and compile provenance manifest in `plans/test_provenance/sprint_horo_v3_infographic_migration.json`.
+- **In-Scope**: Unit tests, API contracts, deterministic score bounds, calibration integrity, inference origin verification, and regression verification across existing test suites.
+- **Out-of-Scope**: Source code edits outside test directory.
+- **Exclusive Writable Paths**: `tests/test_horo_lite_unified_reading.py`, `plans/test_provenance/sprint_horo_v3_infographic_migration.json`
+- **Interfaces Consumed/Produced**: Consumes all core/router/frontend interfaces; produces immutable test evidence manifest.
+- **Test-First Steps & Acceptance Criteria**:
+  1. 100% test pass rate across all new and existing tests.
+  2. Zero regression in `test_visual_endpoints.py`, `test_browser_notifications_and_processing_modal.py`, `test_bazi_resilient_fallback.py`.
+- **Evidence Command**: `pytest tests/test_horo_lite_unified_reading.py -v` (Must PASS: 100%).
+- **Rollback Condition**: Remove test files.
+- **Stop Condition**: `DONE` on all tests green; `BLOCKED` on test failure.
+
+#### `TICKET-HLITE-011` -- Phase K: Multi-Viewport Visual Layout Audit (360px, 375px, 390px, 768px, 1440px)
+- **Status**: `READY` (Awaiting Owner Authorization)
+- **Assigned Specialist**: `ui_visual_tester`
+- **Bound Skills**: `ui-visual-auditor`
+- **Objective & Deliverable**: Capture and audit multi-viewport screenshots for `/lite` across 5 canonical viewports (360×780, 375×667, 390×844, 768×1024, 1440×900) documenting zero DOM clipping, zero text overlap, and zero horizontal scrollbar overflow.
+- **In-Scope**: Automated screenshot capture script, DOM overlap detection, layout distortion audit, visual evidence manifest.
+- **Out-of-Scope**: Source code modification.
+- **Exclusive Writable Paths**: `plans/test_provenance/visual_audits/**`
+- **Interfaces Consumed/Produced**: Consumes live rendered `/lite` page; produces screenshot PNGs and audit manifest.
+- **Test-First Steps & Acceptance Criteria**:
+  1. Run `python3 scripts/audit_lite_viewports.py --url http://localhost:8000/lite --output plans/test_provenance/visual_audits/`.
+  2. Verify zero horizontal overflow at 360px, 375px, and 390px.
+  3. No overlapping cards or unreadable text.
+- **Evidence Command**: Visual audit verification check on generated screenshot artifacts.
+- **Rollback Condition**: Remove visual audit artifacts.
+- **Stop Condition**: `DONE` on clean visual layout; `BLOCKED` on overflow or overlap.
+
+#### `TICKET-HLITE-012` -- Phase L: Security Review, Ecosystem Synchronization & Release Readiness
+- **Status**: `READY` (Awaiting Owner Authorization)
+- **Assigned Specialist**: `code_reviewer` (Security Audit) & `lead_ba` (Ecosystem Sync)
+- **Bound Skills**: `hf-static-release-verification`, `bsa-doc-skill-management`
+- **Objective & Deliverable**: Execute pre-release Rayon parallel secret scan (0 leaks), run AI agent ecosystem sync check, and prepare `ReleaseNotes.md` draft for `v1.5.0-lite-preview`.
+- **In-Scope**: Rayon secret scan, AST security audit, ecosystem sync check (`scripts/sync_ai_agent_ecosystem.py --check`), `ReleaseNotes.md` drafting.
+- **Out-of-Scope**: Git commit, push, deployment, or publishing.
+- **Exclusive Writable Paths**: `ReleaseNotes.md`, `plans/evidence/security_review.json`
+- **Interfaces Consumed/Produced**: Consumes repository tree; produces security sign-off and ecosystem sync receipt.
+- **Test-First Steps & Acceptance Criteria**:
+  1. `python3 scripts/scan_secrets.py --all` returns 0 leaks across repository.
+  2. `python3 scripts/sync_ai_agent_ecosystem.py --check` passes with zero drift.
+  3. `ReleaseNotes.md` updated with release summary and verification matrix.
+- **Evidence Command**: `python3 scripts/scan_secrets.py --all && python3 scripts/sync_ai_agent_ecosystem.py --check` (Must PASS).
+- **Rollback Condition**: Revert `ReleaseNotes.md`.
+- **Stop Condition**: `DONE` on green security and sync; `BLOCKED` on secret leak or drift.
+<!-- HORO-V3-INFOGRAPHIC-20260904:END -->
+
 <!-- EDGE-FIRST-UX-20260904:START -->
 ## Sprint SPRINT-EDGE-FIRST-UX-20260904 -- Edge-First Instant Calculation Architecture, Blocker Modal Elimination & Web Browser Notifications
 

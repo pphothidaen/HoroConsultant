@@ -1,5 +1,6 @@
 ---
 name: metaphysical-domain-engine
+disabled: true
 description: Route 8 metaphysics specialists, then route HITL-conflict cases to human review and finetune data.
 responsible_agents:
   - ming_xue_master
@@ -34,7 +35,18 @@ across linked traditions.
 - Ze Ji auspicious-timing
 - Thai/Vedic astrology
 - Western/Uranian astrology
-- Numerology, Tai Yi, Mei Hua, and Mian Xiang
+## 🧭 On-Demand Specialist & Calculation Router
+
+When an agent needs specific calculations or classical scriptures, load the module dynamically on-demand using `view_file`:
+
+| Domain / Tradition | Core Calculation & Capability | On-Demand Engine / Target |
+| :--- | :--- | :--- |
+| **BaZi (Four Pillars)** | True solar time, 10 Stems, 12 Branches, 10 Gods | `project/core/bazi.py`, `.agents/skills/bazi-calculator/SKILL.md` |
+| **Thai Suriyayart** | Solar/lunar transit, Thai Lagna, Navamsa | `project/core/suriyayart.py` |
+| **Annual Timing & 12 Months** | 12-month Career, Finance, Love scores (1–10) | `project/core/annual_timing_engine.py` |
+| **Past Pattern Calibration** | Deterministic age ranges & verified themes | `project/core/past_pattern_calibrator.py` |
+| **Horo v3.0 Consensus Matrix** | Multi-tradition arbitration & conflict detection | `project/debate/consensus_matrix.py` |
+| **Classical Text Retrieval** | FAISS ranked metaphysics scriptures | `.agents/skills/rag-search/SKILL.md` |
 
 ## Coordination Rule
 - Prefer one specialist for narrow requests; escalate to 2+ specialists for mixed-domain queries.

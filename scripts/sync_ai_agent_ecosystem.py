@@ -438,6 +438,7 @@ def run_checks() -> list[CheckResult]:
         run_command("Antigravity/Gemini/AGY sync", [sys.executable, "scripts/sync_sdlc_agents.py", "--check", "--use-python"]),
         run_command("Codex/OpenAI sync", [sys.executable, "scripts/sync_codex_agents.py", "--check"]),
         run_command("Claude Code <-> AGY CLI Parity", [sys.executable, "scripts/sync_claude_agy_parity.py", "--check"]),
+        run_command("Codex multi-account config & budget", [sys.executable, "scripts/sync_codex_account_configs.py", "--check"]),
     ]
 
 
@@ -453,6 +454,7 @@ def sync_then_check() -> int:
         run_command("Antigravity/Gemini/AGY sync write", [sys.executable, "scripts/sync_sdlc_agents.py", "--sync"]),
         run_command("Codex/OpenAI sync write", [sys.executable, "scripts/sync_codex_agents.py", "--sync"]),
         run_command("Claude Code <-> AGY CLI Parity sync write", [sys.executable, "scripts/sync_claude_agy_parity.py", "--sync"]),
+        run_command("Codex multi-account config sync", [sys.executable, "scripts/sync_codex_account_configs.py", "--sync"]),
     ]
     print_results(sync_results)
     if not all(result.ok for result in sync_results):

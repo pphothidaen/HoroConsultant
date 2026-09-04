@@ -1,3 +1,8 @@
+---
+name: agile-governance
+description: Govern atomic TDD lifecycle, capacity admission, and DoR/DoD gates.
+---
+
 # Agile Governance Skill
 
 Govern the atomic TDD lifecycle and broker capacity admission. Preserve frozen

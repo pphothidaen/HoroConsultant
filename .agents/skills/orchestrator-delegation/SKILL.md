@@ -37,13 +37,15 @@ Select the most specific role matching the ticket's technical layer:
 - **`ui_visual_tester`**: Multi-viewport layout audits, screenshot comparisons.
 - **Metaphysics Masters**: Canonical metaphysics domain reasoning and calculations.
 
-### 3. Related Skill Binding
-Explicitly bind the required modular skills from the Skills Catalog to the subagent prompt/instructions:
+### 3. Related Skill Binding & On-Demand Progressive Disclosure
+Explicitly bind the required modular skills from the Skills Catalog to the subagent prompt/instructions, providing exact paths for dynamic on-demand loading:
 - QA tasks: `[qa-e2e-testing, ai-inference-verifier, hf-static-release-verification]`
 - DevOps tasks: `[devops-deployment, hf-static-release-verification, multi-account-agent-orchestration]`
 - Developer tasks: `[bazi-calculator, rag-search, sdlc-aisdlc-workflow]`
 - BSA tasks: `[bsa-doc-skill-management, agile-governance]`
 - UI/UX tasks: `[web-color-design, ui-visual-auditor]`
+
+Dynamic On-Demand Rule: Subagents MUST read their assigned `.agents/skills/<name>/SKILL.md` via `view_file` at Step 1 of task execution, ensuring context is loaded only within the active lane without bloating global prompt budgets.
 
 ### 4. Fail-Closed Validation
 Any subagent invocation missing a declared Ticket ID, specialist role assignment, or required skill list is strictly invalid and fails closed (`BLOCKED: UNBOUND_SPECIALIST_OR_SKILL`).
@@ -55,9 +57,10 @@ Every delegated lane prompt must include:
 Task: <TICKET-ID> - <Title>
 Role: <Specialist-Role>
 Required Skills: [<skill-1>, <skill-2>]
+Skill Paths (On-Demand): [.agents/skills/<skill-1>/SKILL.md, .agents/skills/<skill-2>/SKILL.md]
 Ownership: <Files/Directories>
 Boundary: Read-only outside assigned ownership.
-Instruction: You are not alone in the codebase; do not revert edits made by others. Work only within your assigned ownership and adapt to visible changes from other agents.
+Instruction: Load assigned skills dynamically via `view_file` at Step 1. Work only within your assigned ownership and adapt to visible changes from other agents.
 Stop Condition: DONE with evidence, BLOCKED with reason, or NEEDS_HITL.
 ```
 

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Horo Lite | HoroConsultant</title>
     <link rel="stylesheet" href="lite.css">
+    <link rel="stylesheet" href="export_modal.css">
   </head>
   <body>
     <main class="lite-shell" aria-labelledby="page-title">
@@ -12,6 +13,7 @@
         <div>
           <p class="eyebrow">HoroConsultant Lite</p>
           <h1 id="page-title">กรอกข้อมูลครั้งเดียว รับผังดวงและคำตีความ AI</h1>
+          <p class="subtitle">12 โมดูล ชัดเจนสำหรับการตัดสินใจรายเดือน โดยใช้การคำนวณร่วมโหมด Thai Suriyayart + BaZi consensus</p>
         </div>
         <div class="element-strip" aria-label="Five Elements palette">
           <span data-element="wood">ไม้</span>
@@ -37,9 +39,12 @@
             </div>
 
             <div class="field field-check">
-              <input id="unknown_hour" name="unknown_hour" type="checkbox">
+              <input id="unknown_hour" name="unknown_hour" type="checkbox" aria-describedby="unknown-hour-hint">
               <label for="unknown_hour">ไม่ทราบเวลาเกิดแน่ชัด</label>
             </div>
+            <p id="unknown-hour-hint" class="helper-text">
+              หากไม่ทราบเวลาเกิด ระบบจะลดความละเอียดในข้อสรุปบางส่วนและรัน fail-closed HITL flag
+            </p>
 
             <div class="field">
               <label for="birth_place">จังหวัดหรือสถานที่เกิด</label>
@@ -66,7 +71,7 @@
 
             <div class="field">
               <label for="gender_at_birth">เพศกำเนิด</label>
-              <select id="gender_at_birth" name="gender_at_birth">
+              <select id="gender_at_birth" name="gender_at_birth" aria-label="เพศกำเนิด">
                 <option value="">ไม่ระบุ</option>
                 <option value="female">หญิง</option>
                 <option value="male">ชาย</option>
@@ -127,6 +132,15 @@
               </select>
             </div>
 
+            <div class="field">
+              <label for="engine_mode">engine_mode</label>
+              <select id="engine_mode" name="engine_mode">
+                <option value="balanced">balanced</option>
+                <option value="speed">speed</option>
+                <option value="high_confidence">high_confidence</option>
+              </select>
+            </div>
+
             <div class="field field-check">
               <input id="force_human_review" name="force_human_review" type="checkbox">
               <label for="force_human_review">ส่งเข้า human review</label>
@@ -142,13 +156,31 @@
         </div>
       </form>
 
-      <section class="result-panel" aria-labelledby="result-title" aria-live="polite">
+      <section id="result-panel" class="result-panel" aria-labelledby="result-title" aria-live="polite">
         <h2 id="result-title">ผลลัพธ์</h2>
-        <div id="status-message" class="status-message">กรอกข้อมูลแล้วกดปุ่มเพื่อเริ่มอ่านดวงแบบ Lite</div>
-        <pre id="result-output" class="result-output" hidden></pre>
+        <div class="result-toolbar">
+          <div id="status-message" class="status-message" role="status">กรอกข้อมูลแล้วกดปุ่มเพื่อเริ่มอ่านดวงแบบ Lite</div>
+          <button id="result-retry" type="button" class="ghost-button hidden" aria-label="ลองส่งคำขอใหม่">ลองใหม่อีกครั้ง</button>
+        </div>
+
+        <div id="result-meta" class="result-meta hidden" aria-live="polite"></div>
+        <div id="hitl-alert" class="hitl-alert hidden" aria-live="polite"></div>
+        <div id="topics-container" class="topics-grid" aria-live="polite"></div>
+
+        <pre id="result-output" class="result-output hidden" aria-label="ผลลัพธ์ดิบเพื่อดีบัก"></pre>
+        <details id="calculation-drawer" class="calculation-drawer">
+          <summary>ดูที่มาและรายละเอียดการคำนวณ</summary>
+          <p>
+            อ่านต่อจากการประมวลผลแบบ consensus, monthly evidence และ HoroLite HITL เงื่อนไขที่เข้มงวด.
+            หากต้องการความละเอียดแบบครบชุด ให้ไปที่แดชบอร์ดขั้นสูงใน
+            <a href="/index.html">Horo Advanced Dashboard</a>
+          </p>
+          <pre id="technical-basis" aria-label="Technical basis details"></pre>
+        </details>
       </section>
     </main>
 
+    <script src="export_engine.js" defer></script>
     <script src="lite.js" defer></script>
   </body>
 </html>

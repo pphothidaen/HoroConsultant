@@ -7,6 +7,83 @@
 
 ---
 
+<!-- HORO-V3-INFOGRAPHIC-20260904:START -->
+## GRILL REPORT -- SPRINT-HORO-V3-INFOGRAPHIC-20260904: Horo Lite Unified Consensus Reading & Mobile Infographic Synthesis
+
+**Task ID**: `TICKET-HORO-LITE-PLAN-001`
+**Recorded**: `2026-09-04T15:18:27+07:00` (Asia/Bangkok)
+**Status**: `APPROVED`
+**Requirement-change authority**: Owner prompt command dated `2026-09-04`.
+**Authorized current phase**: READY_FOR_OWNER_REVIEW (Ticket decomposition & HITL gate complete. Implementation strictly paused).
+**Canonical Ticket Registry**: See [`ATOMIC_TICKET.md`](../ATOMIC_TICKET.md#sprint-sprint-horo-v3-infographic-20260904----horo-lite-unified-consensus-reading--mobile-infographic-synthesis) for active ticket status, exclusive ownership, and acceptance criteria.
+**Canonical Intake Report**: See [`plans/intake/sprint_horo_v3_infographic_migration.md`](intake/sprint_horo_v3_infographic_migration.md) for 9-dimension grill assessment and HITL scope audit evidence.
+**Implementation Plan**: See [`docs/superpowers/plans/2026-09-04-horo-lite-consensus-reading.md`](../docs/superpowers/plans/2026-09-04-horo-lite-consensus-reading.md) for TDD steps, failing/passing tests, and verification matrix.
+
+### Scope and Decision Record
+
+**IN**:
+1. New **Horo Lite** user experience hosted at `/lite` (`public/lite.html`), presenting 12 topic-based result modules and intuitive single-action form.
+2. Permanent preservation of existing Advanced Dashboard at `/index.html`.
+3. Shared calculation engines (`project/core/`) and unified API contract (`/api/v3/unified-reading`) reusing Horo v3.0 consensus with zero logic duplication in Lite frontend.
+4. Auditable Deterministic-First Annual Timing Engine (`target_year` parameter) combining Thai Suriyayart natal/transits as primary source with BaZi Liu Yue and multi-tradition consensus arbitration.
+5. Ethically bounded **Past Pattern Calibration**: 3–5 deterministic candidate cycles (education, work shift, relocation, financial pressure) in age/year ranges with user feedback choices ("ตรง", "ตรงบางส่วน", "ไม่ตรง", "จำไม่ได้") used solely to personalize future explanation emphasis without altering calculations or claiming false "accuracy percentages". Explicit consent required before persistence.
+6. 12 Monthly Roadmap cards rendering Career, Finance, and Love scores (1–10) with traceable reasons.
+7. Multi-Format 1-Click Mobile Exporter: Full Vertical PNG, 1080×1920 9:16 Story PNG, Copyable Social Text, and Print/PDF with privacy toggles (birth data hidden by default in social exports).
+8. Mandatory fail-closed HITL routing when `consensus_score < 0.75`, tradition conflicts occur, `force_human_review=true`, or uncertain birth-time exceeds valid factors.
+9. Comprehensive test provenance baseline (`tests/test_horo_lite_unified_reading.py`), multi-viewport visual audits at 360px, 375px, 390px, 768px, 1440px, and 0-leak secret scan.
+
+**OUT**:
+- Duplicating calculation or scoring logic in Lite frontend JavaScript.
+- Mutating standalone single-tradition calculators or legacy database tables.
+- Inventing or altering scores, dates, or astrological facts via generative AI.
+- High-certainty predictions on sensitive past/future trauma (death, illness, crime, pregnancy).
+- False precision when birth hour is unknown.
+- Promoting `/lite` to root default `/` prior to full gate sign-off.
+- Deploying or publishing without explicit owner authorization.
+
+### Nine-Dimension Decision Matrix
+
+| ID | Dimension | Severity | Assessment Status | Evidence / Decision Threshold |
+|---|---|---|---|---|
+| D1 | Scope boundary | CRITICAL | `[CONFIRMED]` | Bounded to Horo Lite (`/lite`), shared backend engines, 12 topic modules, Past Pattern Calibration, and 4-way export. |
+| D2 | Requirement delta | HIGH | `[CONFIRMED]` | Auditable deterministic-first annual timing with Thai Suriyayart primary + BaZi Liu Yue + Horo v3.0 consensus. LLM translates approved copy only. |
+| D3 | Acceptance & stop | CRITICAL | `[CONFIRMED]` | 12 topics render; calibration feedback functions; 12 months with Career/Finance/Love scores; 1080×1920 Story PNG exported; 360/375/390px clean. |
+| D4 | Inputs, constraints | HIGH | `[CONFIRMED]` | Standard birth inputs, pure deterministic calculations (<5ms client, <50ms core), pure client canvas rasterizer. |
+| D5 | Architecture, ownership | HIGH | `[CONFIRMED]` | Strict single-editor resource boundaries: `lead_ba` (plans), `developer_core` (core), `developer_api` (routers), `ux_ui_designer` (public UI), `qa_tester` (tests). |
+| D6 | Assumption register | CRITICAL | `[CONFIRMED]` | Thai Suriyayart transits and BaZi 60-JiaZi monthly cycle are canonical. Calibration feedback modifies future tone only. |
+| D7 | Risk and recovery | HIGH | `[CONFIRMED]` | Advanced dashboard untouched at `/index.html`. Client-side fallback ensures continuous availability. Atomic rollback per ticket. |
+| D8 | Budget & evidence | HIGH | `[CONFIRMED]` | Deterministic calculations, zero-cost pipeline for copy transformation, immutable test provenance manifest, 0 secret leaks. |
+| D9 | Metaphysics & HITL | CRITICAL | `[CONFIRMED]` | Verified passing `GET /hitl/scope-audit?source_domain=metaphysical-domain-engine` (`status=200 OK`, `pass_gate_check=true`). Mandatory HITL triggers enforced. |
+
+### Dependency Graph
+
+```text
+Phase A: TICKET-HLITE-001 (Schema & Compatibility Contracts)
+   |
+   +--> Phase B: TICKET-HLITE-002 (Deterministic Annual Timing & Past Pattern Engine)
+   |       |
+   |       +--> Phase C: TICKET-HLITE-003 (Horo v3.0 Consensus & HITL Integration)
+   |       |       |
+   |       |       +--> Phase D: TICKET-HLITE-004 (Unified Reading API Router & Copy Transformer)
+   |       |               |
+   |       +---------------+--> Phase E: TICKET-HLITE-005 (Horo Lite Form & Single-Action Flow)
+   |                               |
+   |                               +--> Phase F: TICKET-HLITE-006 (12 Topic-Based Result UI)
+   |                               |       |
+   |                               |       +--> Phase G: TICKET-HLITE-007 (Past Pattern Interaction & Consent)
+   |                               |       |
+   |                               +-------+--> Phase H: TICKET-HLITE-008 (Multi-Format Mobile Exporter Suite)
+   |                                               |
+   |                                               +--> Phase I: TICKET-HLITE-009 (Accessibility, Privacy & Error Recovery)
+   |                                               |
+   \-----------------------------------------------+--> Phase J: TICKET-HLITE-010 (Contract & Regression Suite)
+                                                           |
+                                                           +--> Phase K: TICKET-HLITE-011 (Multi-Viewport Visual Audit)
+                                                           |
+                                                           +--> Phase L: TICKET-HLITE-012 (Security Review & Release Verification)
+```
+<!-- HORO-V3-INFOGRAPHIC-20260904:END -->
+
 <!-- PREVENTION-HYGIENE-20260904:START -->
 ## GRILL REPORT -- SPRINT-PREVENTION-HYGIENE-20260904: Lessons Learned Ingestion, Keychain Isolation Protocol & Automated Git Hygiene
 

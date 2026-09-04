@@ -409,6 +409,20 @@ Access Interactive UI Dashboards & Metrics:
 - **Prometheus Metrics Endpoint:** `http://localhost:8000/metrics`
 - **Synthetic Monitoring Health Alias:** `http://localhost:8000/api/health`
 
+### Horo Lite Annual Timing Contract
+
+Horo Lite annual timing responses include deterministic governance metadata:
+`consensus_metadata`, `hitl_flags`, and `hitl_routing`.
+`consensus_metadata` carries `consensus_score`, `arbitration_status`,
+`traditions_considered`, monthly arbitration records, and
+`consensus_matrix_source: project.debate.consensus_matrix`.
+
+HITL routing is fail-closed. `hitl_routing.status` is
+`QUEUED_FOR_HUMAN_REVIEW` when low consensus, tradition conflict,
+`force_human_review`, or unknown/uncertain birth time is present. It is
+`NOT_REQUIRED` only when no trigger applies. LLM and copy-generation layers may
+not mutate deterministic scores, dates, or facts.
+
 ---
 
 ## 🧪 Testing & Quality Assurance
