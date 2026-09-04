@@ -1,0 +1,40 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-TOKEN-PRE-000",
+  "sequence": 1,
+  "provenance_status": "RECONSTRUCTED",
+  "baseline_parent": "d3aa5ac3c206f5192f88c06e347a6527e1dc7a75",
+  "test_files": [
+    {
+      "path": "tests/test_horo_lite_unified_reading.py",
+      "sha256": "7a1125e3b698d48dc4e29c7c9490407c2f824f7c155622a2f4ccf0e378829ca7"
+    },
+    {
+      "path": "tests/test_optimize_codex_skill_budget.py",
+      "sha256": "c93fa9b7b4f69d1ff50825083123b2c1ce627c2a533af93fe16d82169ded3965"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-c",
+        "raise SystemExit(1)"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Explicit schema-required negative control only. It is not a historical test run and does not assert historical red-test evidence."
+    }
+  ],
+  "allowed_source_paths": [
+    "project/main.py",
+    "public/",
+    "scripts/optimize_codex_skill_budget.py",
+    "scripts/sync_codex_account_configs.py",
+    "scripts/sync_ai_agent_ecosystem.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "NON_TDD_RECONSTRUCTED: these two pre-existing working-tree test files are frozen honestly as part of TOKEN-PRE-000 after their corresponding source already existed. This checkpoint is not evidence of historical RED execution; fresh token-efficiency behavior will receive a separate RED baseline before implementation."
+}

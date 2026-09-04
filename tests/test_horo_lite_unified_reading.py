@@ -895,3 +895,52 @@ def test_lite_form_dom_contract() -> None:
     assert has_focus_style or has_high_contrast_style, (
         "LITE_CSS_ACCESSIBLE_FOCUS_OR_HIGH_CONTRAST_STYLE_MISSING"
     )
+
+
+def test_lite_routes_and_assets_respond_200(monkeypatch: pytest.MonkeyPatch) -> None:
+    import re
+    from fastapi.testclient import TestClient
+
+    monkeypatch.setenv("TESTING", "true")
+    monkeypatch.setenv("SKIP_FAISS_WARMUP", "true")
+
+    from project.main import app
+
+    endpoint_expectations = [
+        ("/lite", "text/html"),
+        ("/lite.css", "text/css"),
+        ("/lite.js", "text/javascript"),
+        ("/export_engine.js", "text/javascript"),
+        ("/export_modal.css", "text/css"),
+        ("/app.js", "text/javascript"),
+    ]
+
+    with TestClient(app) as client:
+        for endpoint, expected_mime in endpoint_expectations:
+            response = client.get(endpoint)
+            assert response.status_code == 200, f"{endpoint}_HTTP_STATUS_NOT_200"
+            content_type = response.headers.get("content-type", "")
+            assert re.search(re.escape(expected_mime), content_type, re.I), (
+                f"{endpoint}_CONTENT_TYPE_MISSING: {content_type}"
+            )
+
+
+def test_export_formats_and_privacy_default() -> None:
+    export_js = (PUBLIC_DIR / "export_engine.js").read_text(encoding="utf-8")
+
+    for name in (
+        "exportFullPng",
+        "exportStoryPng",
+        "copySocialSummary",
+        "printResult",
+    ):
+        assert f"async function {name}" in export_js or f"{name}(" in export_js, (
+            f"EXPORT_ENGINE_MISSING_FUNCTION_{name}"
+        )
+
+    assert "window.horoLiteExport" in export_js, "EXPORT_ENGINE_NAMESPACE_MISSING"
+    assert "includeBirthDetails" in export_js, "EXPORT_ENGINE_INCLUDE_BIRTH_OPTION_MISSING"
+    assert "DEFAULT_COPY_TEXT" in export_js, "EXPORT_ENGINE_PRIVACY_MASKING_TOKEN_MISSING"
+    assert "ข้อมูลวัน/เวลาเกิดซ่อนเพื่อความเป็นส่วนตัว" in export_js, (
+        "EXPORT_ENGINE_PRIVACY_COPY_TEXT_NOT_ENFORCED"
+    )
