@@ -447,12 +447,35 @@ def test_past_pattern_candidate_generation() -> None:
 
 
 def test_horo_v3_consensus_arbitration_and_hitl_triggers() -> None:
+    import project.debate.consensus_matrix as consensus_matrix
+
     from project.core.annual_timing_engine import calculate_annual_timing
     from project.core.unified_reading_engine import UnifiedReadingRequest
+
+    arbitration_function = getattr(consensus_matrix, "arbitrate_monthly_consensus", None)
+    matrix_type = getattr(consensus_matrix, "ConsensusMatrix", None)
+    matrix_method = None
+    if matrix_type is not None:
+        for method_name in (
+            "arbitrate_monthly_consensus",
+            "arbitrate_annual_consensus",
+            "arbitrate",
+        ):
+            candidate = getattr(matrix_type, method_name, None)
+            if callable(candidate) and getattr(candidate, "__doc__", None):
+                matrix_method = candidate
+                break
+    assert callable(arbitration_function) or (
+        callable(matrix_type) and matrix_method is not None
+    ), "CONSENSUS_MATRIX_PUBLIC_ARBITRATION_INTERFACE_MISSING"
 
     base_request = UnifiedReadingRequest.model_validate(_phase_b_request_payload())
     base_result = calculate_annual_timing(base_request)
     base_metadata = _consensus_metadata(base_result)
+
+    assert (
+        base_metadata.get("consensus_matrix_source") == "project.debate.consensus_matrix"
+    ), "CONSENSUS_MATRIX_SOURCE_MARKER_MISSING"
 
     consensus_score = base_metadata.get("consensus_score")
     assert isinstance(consensus_score, int | float), "CONSENSUS_SCORE_NOT_NUMERIC"
