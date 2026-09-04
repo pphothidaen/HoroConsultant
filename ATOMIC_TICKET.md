@@ -38,6 +38,42 @@ second task board or add ticket definitions to a plan/pointer file.
 
 ## ACTIVE SPRINTS & WORKSTREAMS
 
+<!-- EDGE-FIRST-UX-20260904:START -->
+## Sprint SPRINT-EDGE-FIRST-UX-20260904 -- Edge-First Instant Calculation Architecture, Blocker Modal Elimination & Web Browser Notifications
+
+**Recorded**: `2026-09-04T14:15:00+07:00` (Asia/Bangkok)
+**GRILL gate**: `APPROVED` -- owner explicit instruction dated `2026-09-04`.
+**Authority**: Owner instruction dated `2026-09-04`.
+**Current status**: Sprint SPRINT-EDGE-FIRST-UX-20260904 100% DONE -- CERTIFIED_COMPLETE.
+
+### Scope and Objectives
+- Track 1 (Edge-First Instant Calculation Architecture): Render BaZi 4-Pillars, Day Master, SVG graphics, and 5-element breakdown instantly (<5ms) directly on client without blocking on cold-start backend health checks.
+- Track 2 (Permanent Blocker Modal Elimination): Eliminate recurring Eco-Mode Blocker modal loops (`Incident: BAZI-MTMM1GGB | Reason: backend_unavailable`) and intrusive dialogs across all 16 tradition features (`calcFourPillars`, `calcHoroV3`, `calcMultimodalMatrix`).
+- Track 3 (Long-Running Async Processing Modal & Background Minimization): Provide an elegant processing modal (`#async-process-modal`) with smooth progress animation and background minimization (`minimizeAsyncProcessModal`) when advanced synthesis runs.
+- Track 4 (Native Web Browser Notifications & Harmonic Audio Chime): Integrate Web Notifications API with permission request, native desktop alerts when background jobs complete, dual harmonic chime (528Hz/792Hz via Web Audio API), and in-app floating toasts (`#toast-container`).
+- Track 5 (Governance & Test Provenance): Establish complete test provenance baseline (`tests/test_browser_notifications_and_processing_modal.py`, `tests/test_bazi_resilient_fallback.py`), zero leaks secret scan, and production synchronization.
+
+### Dependency Graph
+
+```text
+TICKET-EFUX-001 (DONE: Sprint Registration & GRILL Gate Specifications)
+  |--> TICKET-EFUX-002 (DONE: Edge-First Instant Calculation & Blocker Modal Elimination)
+  |--> TICKET-EFUX-003 (DONE: Async Processing Modal & Background Minimization)
+  |--> TICKET-EFUX-004 (DONE: Web Notifications API & Harmonic Audio Chime)
+  |--> TICKET-EFUX-005 (DONE: Resilient Multi-Tradition Fallbacks for 16 Traditions)
+         \--> TICKET-EFUX-006 (DONE: Test Provenance, Regression Matrix & Release v1.4.5-prod)
+```
+
+| Ticket ID | Status | Owner | Description |
+| :--- | :--- | :--- | :--- |
+| `TICKET-EFUX-001` | `DONE` | `lead_ba` | Sprint Registration, GRILL Gate & Architecture Blueprint |
+| `TICKET-EFUX-002` | `DONE` | `developer_core` | Edge-First Instant Calculation (<5ms) & Blocker Elimination |
+| `TICKET-EFUX-003` | `DONE` | `ux_ui_designer` | Async Processing Modal with Background Minimization |
+| `TICKET-EFUX-004` | `DONE` | `developer_api` | Web Browser Notifications API & Web Audio Harmonic Chime |
+| `TICKET-EFUX-005` | `DONE` | `developer_core` | Resilient Client Fallbacks for all 16 Traditions |
+| `TICKET-EFUX-006` | `DONE` | `qa_tester` | Test Provenance, Regression Suite & Release Notes `v1.4.5-prod` |
+<!-- EDGE-FIRST-UX-20260904:END -->
+
 <!-- HORO-V2-ENGINE-UX-20260904:START -->
 ## Sprint SPRINT-HORO-V2-ENGINE-UX-20260904 -- Astro Engine Expansion, RAG Optimization, LuoPan UX & Resilient Hybrid Calculation Blocker Fix
 

@@ -843,6 +843,40 @@
     </div>
   </div>
 
+  <!-- Async Background Processing Modal & Notification Support -->
+  <div id="async-process-modal" class="cold-start-overlay hidden" aria-live="polite" role="dialog" aria-modal="true">
+    <div class="cold-start-panel">
+      <div class="cold-start-icon-wrap">
+        <div class="cold-start-orbit"></div>
+        <span id="async-process-icon" class="cold-start-icon">✨</span>
+      </div>
+      <div id="async-process-badge" class="cold-start-stage-badge">
+        <span>⚡ กำลังประมวลผลการคำนวณขั้นสูง (Deep Analysis)</span>
+      </div>
+      <h3 id="async-process-title" class="cold-start-title">กำลังวิเคราะห์ดวงชะตาเชิงลึก</h3>
+      <p id="async-process-desc" class="cold-start-desc">
+        ระบบกำลังประมวลผลการคำนวณและวิเคราะห์ความสอดคล้องศาสตร์โบราณ กรุณารอสักครู่...
+      </p>
+      <div class="cold-start-progress-bar">
+        <div id="async-process-progress" class="cold-start-progress-fill" style="width: 25%; transition: width 0.4s ease;"></div>
+      </div>
+      <div class="cold-start-status-row">
+        <span id="async-process-status-text">กำลังประมวลผล...</span>
+        <span id="async-process-timer">0s</span>
+      </div>
+
+      <!-- Action buttons -->
+      <div style="margin-top: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem;">
+        <button type="button" class="cold-start-instant-btn" style="background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4);" onclick="minimizeAsyncProcessModal()">
+          📱 ย่อหน้าต่างทำงานในเบื้องหลัง (แจ้งเตือนเมื่อเสร็จ)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- In-App Floating Toast Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
   <div id="chart-modal-container"></div>
   <script src="/static/js/chart_modal.js"></script>
   <script src="voice_engine.js?v=790c566"></script>
