@@ -10,6 +10,7 @@
 - A deployment is not considered healthy from a previous `200` result when the newest canonical probe is `404/503`.
 - External deployment, production E2E, credential, and secret-sync actions remain separate HITL checkpoints; do not combine them with local QA.
 - Each checkpoint below must produce its own evidence before the next checkpoint starts. If quota is low, stop after the current checkpoint and update `TICKET-META-008` only.
+- Definition of Done (DoD) Mandate: All related jobs, CI/CD, and release notes must be verified, tagged with a release version referencing ReleaseNotes.md, and all commits/tags pushed to origin/main with nothing left in local worktree (100% clean and up to date with origin/main).
 
 ### Central documentation map (current)
 
@@ -36,6 +37,55 @@ second task board or add ticket definitions to a plan/pointer file.
 
 
 ## ACTIVE SPRINTS & WORKSTREAMS
+
+<!-- CONCURRENCY-DOD-20260904:START -->
+## Sprint SPRINT-CONCURRENCY-DOD-20260904 -- Multi-Agent Concurrency Architecture & Strict Definition of Done Mandate
+
+**Recorded**: `2026-09-04T09:35:00+07:00` (Asia/Bangkok)
+**GRILL gate**: `APPROVED` -- owner explicit instruction dated `2026-09-04`.
+**Authority**: Owner instruction dated `2026-09-04`.
+**Current status**: ALL 4 TICKETS DONE (CONCURRENCY-001, CONCURRENCY-002, CONCURRENCY-003, CONCURRENCY-004 100% DONE) -- SPRINT COMPLETE.
+
+### Scope and Objectives
+- Dual-BA architecture codification (Rule 25: `ba_intake`, `lead_ba`, `ba_auditor`).
+- Max 3 Parallel Execution Lanes (`developer_api`, `developer_core`, `qa_tester`) enforcing single-editor ownership and strict path disjointness.
+- Ecosystem concurrency capacity ceiling established at 6 concurrent lanes.
+- Codification of Strict Definition of Done (DoD) Mandate in Rule 21 and Rule 22.
+- Multi-agent specifications for `ba_intake` and `ba_auditor`, platform configurations, and ecosystem parity synchronization.
+- Pre-release safety audit, Rayon parallel secret scan (0 leaks), and test suite verification.
+- Release tagging `v1.4.0-prod`, push of all commits/tags to `origin/main`, and zero local residue verification ("nothing in local").
+
+### Dependency Graph
+
+```text
+TICKET-CONCURRENCY-001 (DONE: Dual-BA Architecture & Strict DoD Governance)
+  |--> TICKET-CONCURRENCY-002 (DONE: Agent Specs & Ecosystem Sync)
+         |--> TICKET-CONCURRENCY-003 (DONE: Pre-Release Audit & Secret Scan)
+                |--> TICKET-CONCURRENCY-004 (DONE: Release Tagging & Remote Push)
+```
+
+### Program Tickets
+
+| Ticket | Severity / Effort | Lifecycle Status | Assigned Specialist | Required Skills | Dependencies | One Editor / Writable Ownership | Measurable Acceptance and DoD / Stop |
+|---|---|---|---|---|---|---|---|
+| `TICKET-CONCURRENCY-001` | HIGH / S | DONE | `business_analyst` | `[bsa-doc-skill-management, agile-governance]` | None | `.agents/rules/25-dual-ba-and-parallel-execution-lanes.md`, `.agents/rules/21-agile-governance.md`, `.agents/rules/22-plan-completion-and-release-notes.md`, `ATOMIC_TICKET.md`, `plans/plan.md`, `ReleaseNotes.md` | Author Rule 25 (`.agents/rules/25-dual-ba-and-parallel-execution-lanes.md`) specifying Dual-BA structure (`ba_intake`, `lead_ba`, `ba_auditor`), max 3 parallel execution lanes (`developer_api`, `developer_core`, `qa_tester`), 6 concurrent lane capacity ceiling, and <80 lines per Rule 14. Update Rule 21 & Rule 22 with strict Definition of Done (100% green tests & zero secret leaks, release notes compiled and published, Git release tag referencing ReleaseNotes.md, all commits and tags pushed to origin/main, zero uncommitted/unpushed files left in local worktree ("nothing in local")). Declare Sprint `SPRINT-CONCURRENCY-DOD-20260904` in `ATOMIC_TICKET.md` and `plans/plan.md` with 9-dimension GRILL matrix. Update `ReleaseNotes.md` with `v1.4.0-prod` section. DoD: All rules, plans, ticket registries updated cleanly with pure ASCII and zero secret leaks. |
+| `TICKET-CONCURRENCY-002` | HIGH / M | DONE | `developer` | `[sdlc-aisdlc-workflow, multi-account-agent-orchestration]` | `TICKET-CONCURRENCY-001` DONE | `.agents/agents/ba_intake/*`, `.agents/agents/ba_auditor/*`, `.agents/AGENTS.md`, `AGENTS.md`, `.claude/rules/*`, `.codex/agents/*`, `.antigravity/agents/*` | Implement agent specifications for `ba_intake` (Intake & 9-Dimension Grill Gate, writing to `plans/intake/`), `ba_auditor` (read-only verification of DoR/DoD), update capacity configuration to 6 concurrent lanes, synchronize ecosystem across Claude, Codex, and AGY platforms. DoD: `python3 scripts/sync_ai_agent_ecosystem.py --check` passes 100%. |
+| `TICKET-CONCURRENCY-003` | HIGH / S | DONE | `code_reviewer` | `[qa-e2e-testing, hf-static-release-verification]` | `TICKET-CONCURRENCY-002` DONE | `plans/evidence/concurrency-dod-20260904/*` | Conduct pre-release safety audit, Rayon parallel secret scan (0 leaks across repository), AST syntax check, ecosystem parity check, and test suite verification. Generate signed safety audit receipt. DoD: 100% test pass rate, 0 secret leaks, immutable audit receipt. |
+| `TICKET-CONCURRENCY-004` | HIGH / S | DONE | `devops` | `[devops-deployment, automated-pr-deployment]` | `TICKET-CONCURRENCY-003` DONE | Git release tags, git push origin/main, `plans/evidence/concurrency-dod-20260904/ops-concurrency-004.json` | Verify CI/CD pipeline and release notes reference. Tag release `v1.4.0-prod` referencing `ReleaseNotes.md`. Push all commits and tags to `origin/main`. Verify zero uncommitted or unpushed files in local worktree ("nothing in local", 100% clean). Evidence receipt recorded in `plans/evidence/concurrency-dod-20260904/ops-concurrency-004.json`. DoD: Git status clean, HEAD at origin/main, tag published on remote. |
+
+### Program Stop and Admission Rules
+- Single-editor file ownership: each writable path is owned by exactly one ticket and lane at a time.
+- TICKET-CONCURRENCY-001 is authored and verified by `business_analyst`.
+- TICKET-CONCURRENCY-002 is executed by `developer` upon completion of TICKET-CONCURRENCY-001.
+- TICKET-CONCURRENCY-003 requires TICKET-CONCURRENCY-002 DONE before entering DOING.
+- TICKET-CONCURRENCY-004 requires TICKET-CONCURRENCY-003 DONE before entering DOING.
+- Strict Definition of Done (DoD) Mandate is absolute: release is not complete until tagged, pushed to `origin/main`, and local worktree has zero uncommitted or unpushed files.
+- Pure ASCII logging is mandatory across all code, tests, and documentation.
+- Non-revert clause: Do not revert edits made by others; work only within assigned ownership.
+
+<!-- CONCURRENCY-DOD-20260904:END -->
+
+---
 
 <!-- DOC-ATOMIC-20260904:START -->
 ## Sprint DOC-ATOMIC-20260904 -- Atomic Ticket Registry Migration & Legacy Task File Consolidation

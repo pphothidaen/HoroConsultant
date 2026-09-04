@@ -8,6 +8,8 @@
     "orchestrator": "gpt-5.6-sol",
     "hermes": "gpt-5.6-sol",
     "business_analyst": "gpt-5.6-terra",
+    "ba_intake": "gpt-5.6-terra",
+    "ba_auditor": "gpt-5.6-terra",
     "developer": "gpt-5.6-luna",
     "qa_tester": "gpt-5.4-mini",
     "devops": "gpt-5.3-codex-spark",

@@ -14,7 +14,9 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 | Agent Identifier | Role | Assigned Model | Reasoning Effort | Token Cost Profile | Primary Focus |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **`orchestrator` / `default` / `hermes`** | Coordination & autonomous execution | `gpt-5.6-sol` (default hint) | **Medium root; adaptive child floor** | High (Strategic) | Requirements, architecture, delegation, complex recovery |
-| **`business_analyst`** | Business System Analyst | `gpt-5.6-terra` | **Medium** | Mid (Analysis) | Specifications, dependency analysis, documentation governance |
+| **`business_analyst`** (`lead_ba`) | Business System Analyst / Lead BA | `gpt-5.6-terra` | **Medium** | Mid (Analysis) | Specifications, roadmap planning, master ticket writer (`ATOMIC_TICKET.md`, `plans/plan.md`) |
+| **`ba_intake`** | Intake & 9-Dimension Grill Specialist | `gpt-5.6-terra` | **Medium** | Mid (Analysis) | Canonical intake, scope validation, write to `plans/intake/` |
+| **`ba_auditor`** | Read-Only Audit & Verification Specialist | `gpt-5.6-terra` | **Medium** | Mid (Verification) | Read-only audits of DoR, DoD, test provenance, and evidence receipts |
 | **`developer`** | Senior Developer | `gpt-5.6-luna` | **Medium** | Low-Mid (Execution) | Bounded rank-0/rank-1 reversible development; adaptive escalation for higher ranks |
 | **`qa_tester`** | QA Tester | `gpt-5.4-mini` | **Medium** | Low (Verification) | Test design, failure triage, concise evidence extraction |
 | **`devops` / `code_reviewer`** | Release & safety gates | `gpt-5.3-codex-spark` | **High** | Mid-High (Safety) | Infrastructure, security review, deployment and rollback decisions |
@@ -129,7 +131,9 @@ flowchart TD
 | Agent Identifier | Role | Model Strategy | Primary Antigravity Spec (`.antigravity/agents/`) | Workspace CLI Spec (`.agents/agents/`) | Governance Lead |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **`orchestrator` / `default` / `hermes`** | Coordination & execution | `gpt-5.6-sol` | `orchestrator.agent` / `default.agent` | `orchestrator/agent.md` | Master Brain |
-| **`business_analyst`** | Business System Analyst | `gpt-5.6-terra` | `business-analyst.agent` | `business_analyst/agent.md` | **Doc & Skill Watchdog** |
+| **`business_analyst`** (`lead_ba`) | Business System Analyst / Lead BA | `gpt-5.6-terra` | `business-analyst.agent` | `business_analyst/agent.md` | **Doc & Skill Watchdog** |
+| **`ba_intake`** | Intake & 9-Dimension Grill Specialist | `gpt-5.6-terra` | `ba-intake.agent` | `ba_intake/agent.md` | Intake & Scope Gate |
+| **`ba_auditor`** | Read-Only Audit & Verification Specialist | `gpt-5.6-terra` | `ba-auditor.agent` | `ba_auditor/agent.md` | DoR / DoD Verification Guard |
 | **`developer`** | Senior Full-Stack Developer | `gpt-5.6-luna` (medium; adaptive Terra/Sol escalation) | `developer.agent` | `developer/agent.md` | Code Writing |
 | **`qa_tester`** | QA Tester & Verification Guard | `gpt-5.4-mini` | `qa-tester.agent` | `qa_tester/agent.md` | Test Execution Guard |
 | **`devops`** | DevOps & Release Agent | `gpt-5.3-codex-spark` | `devops.agent` | `devops/agent.md` | Release & Deploy |
@@ -159,6 +163,27 @@ The Antigravity definitions remain the cross-framework source. Codex uses the sa
    ```
 
 Do not hand-edit `.codex/agents/*.toml`; their headers identify the legacy source file. Legacy provider model names are retained only for Antigravity compatibility. Codex roles inherit the active Codex model.
+
+---
+
+## 🏎️ 6-Lane Concurrency Architecture
+
+The HoroConsultant multi-agent system enforces a maximum 6-lane concurrency architecture divided into two operational tiers:
+
+### 1. Management Tier (Up to 3 Lanes)
+- **`lead_ba`** (`business_analyst`): Master ticket writer. Sole authoritative writer of `ATOMIC_TICKET.md` and `plans/plan.md`. Orchestrates sprint roadmaps and decomposes atomic tickets.
+- **`ba_intake`**: Intake & 9-Dimension Grill Gate Specialist. Conducts canonical intake interviews, validates scope (IN/OUT), dependencies, acceptance criteria, and stop conditions. Writable ownership strictly scoped to `plans/intake/<sprint-or-topic>.md`. Never writes directly to `ATOMIC_TICKET.md` or `plans/plan.md`.
+- **`ba_auditor`**: Read-Only Audit & Verification Specialist. Verifies Definition of Ready (DoR), Definition of Done (DoD), test provenance manifests, and evidence receipts. Strictly read-only; never mutates plans or source files. Publishes audit verdicts to console or orchestrator.
+
+### 2. Parallel Execution Tier (Up to 3 Concurrent Lanes)
+- **`developer_api`**: API Gateway and routing layer. Writable paths: `project/routers/**`, `api/index.js`, `vercel.json`.
+- **`developer_core`**: Computation, core business logic, and native modules. Writable paths: `project/core/**`, `rust_core/**`.
+- **`qa_tester`**: Test baselines, contract tests, and regression verification. Writable paths: `tests/**`, `plans/test_provenance/**`.
+
+### 3. Resource Isolation & Path Disjointness
+- **One-Editor-Per-Resource**: Each file or directory path is owned by exactly one ticket and lane at any given time.
+- **Strict Path Disjointness**: No two parallel lanes may share writable paths in their active tickets.
+- **Fail-Closed Locking**: If any task requires shared files across lane boundaries, execution reverts to sequential single-lane mode.
 
 ---
 
