@@ -542,3 +542,112 @@ def test_horo_v3_consensus_arbitration_and_hitl_triggers() -> None:
     assert _hitl_flags(low_conflict_result).get("low_consensus") is True
     assert _hitl_flags(low_conflict_result).get("tradition_conflict") is True
     assert _hitl_routing(low_conflict_result).get("status") == "QUEUED_FOR_HUMAN_REVIEW"
+
+
+def test_unified_reading_api_endpoint(monkeypatch: pytest.MonkeyPatch) -> None:
+    from fastapi.testclient import TestClient
+
+    monkeypatch.setenv("TESTING", "true")
+    monkeypatch.setenv("SKIP_FAISS_WARMUP", "true")
+    monkeypatch.setenv("HORO_LITE_LLM_TRANSLATION_ENABLED", "false")
+    monkeypatch.setenv("UNIFIED_READING_LLM_TRANSLATION_ENABLED", "false")
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OLLAMA_BASE_URL", raising=False)
+
+    from project.core.annual_timing_engine import calculate_annual_timing
+    from project.core.unified_reading_engine import UnifiedReadingRequest, UnifiedReadingResponse
+    from project.main import app
+
+    request_payload = _phase_b_request_payload()
+    request = UnifiedReadingRequest.model_validate(request_payload)
+    expected_timing = calculate_annual_timing(request)
+    expected_monthly_scores = {
+        int(_field(month, "month")): {
+            "career_score": _field(month, "career_score"),
+            "finance_score": _field(month, "finance_score"),
+            "love_score": _field(month, "love_score"),
+        }
+        for month in _annual_months(expected_timing)
+    }
+
+    with TestClient(app) as client:
+        started = perf_counter()
+        response = client.post("/api/v3/unified-reading", json=request_payload)
+        elapsed_ms = (perf_counter() - started) * 1000
+
+    assert response.status_code == 200, response.text
+    assert elapsed_ms < 300, f"UNIFIED_READING_DETERMINISTIC_LATENCY_OVER_300MS: {elapsed_ms:.3f}ms"
+
+    payload = response.json()
+    validated = UnifiedReadingResponse.model_validate(payload)
+    result = _plain(validated)
+
+    assert result["schema_version"] == "horo_lite_unified_reading.v1"
+    assert isinstance(result["request_id"], str) and result["request_id"]
+    assert result["target_year"] == 2026
+
+    topics = result["topics"]
+    assert len(topics) == 12, "UNIFIED_READING_TOPIC_COUNT_NOT_12"
+    assert [topic["topic_id"] for topic in topics] == TOPIC_IDS
+    assert [topic["order"] for topic in topics] == list(range(1, 13))
+    for topic in topics:
+        assert topic["title"]
+        assert topic["summary"]
+        assert topic["guidance"]
+        assert topic["confidence"] in {"HIGH", "MEDIUM", "LOW"}
+        assert topic["evidence_refs"], "UNIFIED_READING_TOPIC_EVIDENCE_REFS_MISSING"
+
+    monthly_scores = result["monthly_scores"]
+    assert len(monthly_scores) == 12, "UNIFIED_READING_MONTHLY_SCORE_COUNT_NOT_12"
+    assert [score["month"] for score in monthly_scores] == list(range(1, 13))
+    for monthly_score in monthly_scores:
+        month = monthly_score["month"]
+        assert {
+            "career_score": monthly_score["career_score"],
+            "finance_score": monthly_score["finance_score"],
+            "love_score": monthly_score["love_score"],
+        } == expected_monthly_scores[month], "UNIFIED_READING_DETERMINISTIC_SCORE_MUTATED"
+        for domain in ("career", "finance", "love"):
+            score_value = monthly_score[f"{domain}_score"]
+            assert isinstance(score_value, int)
+            assert 1 <= score_value <= 10, f"UNIFIED_READING_{domain.upper()}_SCORE_OUT_OF_RANGE"
+        assert monthly_score["score_basis"], "UNIFIED_READING_MONTHLY_SCORE_BASIS_MISSING"
+        assert monthly_score["reasons"], "UNIFIED_READING_MONTHLY_REASONS_MISSING"
+
+    past_patterns = result["past_patterns"]
+    assert 3 <= len(past_patterns) <= 5, "UNIFIED_READING_PAST_PATTERN_COUNT_OUTSIDE_3_TO_5"
+    for pattern in past_patterns:
+        year_range = pattern["year_range"]
+        age_range = pattern["age_range"]
+        assert year_range[0] <= year_range[1] < request.target_year
+        assert age_range[0] == year_range[0] - request.birth_date.year
+        assert age_range[1] == year_range[1] - request.birth_date.year
+        assert pattern["sensitive_category"] is False
+        assert pattern["deterministic_basis"], "UNIFIED_READING_PAST_PATTERN_BASIS_MISSING"
+
+    consensus_metadata = result["consensus_metadata"]
+    assert consensus_metadata.get("engine_version") == "horo_v3_consensus"
+    consensus_score = consensus_metadata.get("consensus_score")
+    assert isinstance(consensus_score, int | float)
+    assert 0 <= float(consensus_score) <= 1
+    assert isinstance(consensus_metadata.get("traditions_considered"), list)
+    assert len(consensus_metadata["traditions_considered"]) >= 2
+    assert consensus_metadata.get("arbitration_status")
+
+    hitl_flags = result["hitl_flags"]
+    hitl_routing = result["hitl_routing"]
+    assert isinstance(hitl_flags.get("required_human_review"), bool)
+    assert isinstance(hitl_flags.get("low_consensus"), bool)
+    assert isinstance(hitl_flags.get("tradition_conflict"), bool)
+    assert hitl_flags.get("force_human_review") is False
+    assert hitl_flags.get("uncertain_birth_time") is False
+    assert hitl_routing.get("status") in {"NOT_REQUIRED", "QUEUED_FOR_HUMAN_REVIEW"}
+
+    llm_metadata = result["llm_metadata"]
+    assert llm_metadata.get("facts_mutable_by_llm") is False
+    assert llm_metadata.get("network_call_performed") in (False, None)
+    assert llm_metadata.get("deterministic_facts_source") in (
+        "project.core.annual_timing_engine",
+        None,
+    )

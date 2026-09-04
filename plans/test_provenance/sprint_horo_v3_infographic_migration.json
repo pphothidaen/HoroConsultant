@@ -1,13 +1,13 @@
 {
   "schema_version": "test-provenance-v1",
-  "ticket_id": "TICKET-HLITE-003",
-  "sequence": 4,
+  "ticket_id": "TICKET-HLITE-004",
+  "sequence": 5,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "b0aa8ec8c98965686d013108ede8878ce696c677",
+  "baseline_parent": "66937c85b5889807432219a113a1f0302523c074",
   "test_files": [
     {
       "path": "tests/test_horo_lite_unified_reading.py",
-      "sha256": "ecade8d979438e0c06f76911e15ee1e20846cf3984c029130ef14f28d68366f7"
+      "sha256": "0d376545d809f13c41b0f04b7d98d3a0ab12fe223afab3d0407b161281642cf8"
     }
   ],
   "red_tests": [
@@ -18,21 +18,22 @@
         "pytest",
         "tests/test_horo_lite_unified_reading.py",
         "-k",
-        "test_horo_v3_consensus_arbitration_and_hitl_triggers",
+        "test_unified_reading_api_endpoint",
         "-v"
       ],
       "expected_exit": 1,
-      "failure_fingerprint": "ModuleNotFoundError: No module named 'project.debate'"
+      "failure_fingerprint": "AssertionError: {\"detail\":\"Not Found\"}; assert 404 == 200"
     }
   ],
   "allowed_source_paths": [
-    "project/core/annual_timing_engine.py",
-    "project/debate/consensus_matrix.py",
-    "project/debate/__init__.py"
+    "project/routers/unified_reading_router.py",
+    "project/routers/v3_engine_router.py",
+    "api/index.js",
+    "project/main.py"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
-  "supersedes": "b59e0786442d4116cc0cb42884a295591aa3c180",
-  "correction_reason": "Strengthens the Phase C baseline to freeze the reviewer-required project.debate.consensus_matrix integration boundary for TICKET-HLITE-003.",
-  "rationale": "Freeze a black-box Horo v3 consensus matrix interface integration baseline for TICKET-HLITE-003. Baseline parent is current HEAD b0aa8ec8c98965686d013108ede8878ce696c677. Red evidence command python3 -m pytest tests/test_horo_lite_unified_reading.py -k test_horo_v3_consensus_arbitration_and_hitl_triggers -v exited actual 1 and expected 1 with fingerprint ModuleNotFoundError: No module named 'project.debate' because project.debate.consensus_matrix is absent and consensus arbitration remains local inside project/core/annual_timing_engine.py. The frozen test imports project.debate.consensus_matrix, requires a callable public annual/monthly arbitration interface through arbitrate_monthly_consensus or ConsensusMatrix with a documented arbitration method, and requires calculate_annual_timing(request) to return consensus_metadata.consensus_matrix_source == project.debate.consensus_matrix while preserving Phase C assertions for consensus_score in 0-1, arbitration status, 12 arbitrated monthly claim records, fail-closed QUEUED_FOR_HUMAN_REVIEW for low consensus, tradition conflict, force_human_review=True, and uncertain birth time, and NOT_REQUIRED only when no trigger applies."
+  "supersedes": "e7bf70a0e359c36842796b904e2179684d7d9c15",
+  "correction_reason": "Advance the closed Horo Lite baseline from Phase C to Phase D by freezing the black-box unified reading API endpoint contract for TICKET-HLITE-004.",
+  "rationale": "Freeze a black-box Phase D unified reading API endpoint baseline for TICKET-HLITE-004. Baseline parent is current HEAD 66937c85b5889807432219a113a1f0302523c074. Red evidence command python3 -m pytest tests/test_horo_lite_unified_reading.py -k test_unified_reading_api_endpoint -v exited actual 1 and expected 1 with fingerprint AssertionError: {\"detail\":\"Not Found\"}; assert 404 == 200 because POST /api/v3/unified-reading is not registered in the local FastAPI app. The frozen test uses FastAPI TestClient with TESTING=true and LLM/network toggles disabled, posts the standard 1990-05-15 14:30 Bangkok target_year 2026 request, requires HTTP 200, validates the versioned UnifiedReadingResponse contract, exactly 12 canonical topic modules, exactly 12 monthly scores, 3-5 non-sensitive past patterns, consensus metadata, HITL flags and routing, llm_metadata.facts_mutable_by_llm false, deterministic latency under 300ms when LLM translation is disabled or unavailable, and exact preservation of career/finance/love monthly scores from project.core.annual_timing_engine without out-of-range scores or hallucinated date/fact mutation."
 }
