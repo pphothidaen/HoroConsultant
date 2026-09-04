@@ -77,6 +77,7 @@ but rely on the required `Test Provenance` CI check for merge enforcement.
    - [3.10 การใช้งาน Autonomous Knowledge Distillation & Fine-Tuning Pipeline](#310-การใช้งาน-autonomous-knowledge-distillation--fine-tuning-pipeline)
    - [3.11 Fail-Fast Root-Cause Diagnostic CLI (scripts/fail_fast_triage.py)](#311-fail-fast-root-cause-diagnostic-cli-scriptsfail_fast_triagepy)
    - [3.12 Safe Branch Migration & Action Priority Guard (P0/P1/P2)](#312-safe-branch-migration--action-priority-guard-p0p1p2)
+   - [3.13 TDD Lifecycle & Test Provenance Guard (การแก้ปัญหา TEST_MODIFIED_AFTER_BASELINE & FROZEN_TEST_CHANGED)](#313-tdd-lifecycle--test-provenance-guard-การแก้ปัญหา-test_modified_after_baseline--frozen_test_changed)
 
 ---
 
@@ -682,3 +683,143 @@ integration, main-only CI, deployment และ fresh post-deploy evidence ก�
 
 📖 **อ่านคู่มือขั้นตอนการปฏิบัติงานและการแก้ปัญหาฉบับสมบูรณ์ (Full Runbook & Remediation Guide):**  
 👉 [docs/branch_migration_action_priority_runbook.md](file:///Users/kimlenglim/Project/HoroConsultant/docs/branch_migration_action_priority_runbook.md)
+
+---
+
+### 🛡️ 3.13 TDD Lifecycle & Test Provenance Guard (การแก้ปัญหา TEST_MODIFIED_AFTER_BASELINE & FROZEN_TEST_CHANGED)
+
+ระบบ **Test Provenance Guard** (`scripts/test_provenance_guard.py`) เป็นกลไกความปลอดภัยขั้นสูง (Fail-Closed Gate) ที่ใช้ตรวจสอบความถูกต้องตามหลักการ **Test-Driven Development (TDD)** ในระดับ Git History โดยไม่อนุญาตให้มีการเขียน Source Code ก่อนเขียน Test หรือแอบแก้ไข Test ย้อนหลังในระหว่างการเขียนโค้ด
+
+#### 📌 1. หลักการพื้นฐานของ TDD และ Test Immutability
+1. **Red Test First (Mandatory Baseline Commit):**
+   - ก่อนจะเริ่มเขียน Implementation หรือ Source Code ในโฟลเดอร์ `project/`, `rust_core/` หรือ `scripts/` นักพัฒนาหรือ Agent จะต้องเขียน Unit Test หรือ Acceptance Test ที่ล้มเหลว (Red Test) ก่อนเสมอ
+   - บันทึก Test Baseline Commit ที่บรรจุเฉพาะไฟล์ Test, Test Fixture และ Manifest ไฟล์ภายใต้ `plans/test_provenance/ticket-<ticket-id>-baseline.json` พร้อม Commit Message ที่มี Trailer `Test-Baseline-Ticket: <ticket-id>`
+   - Baseline Commit จะต้องได้รับการตรวจสอบจนได้สถานะ `TEST_BASELINE_VERIFIED` จาก Guard ก่อนเริ่มเขียน Source Code
+2. **Source Code Lineage & Trailers:**
+   - ทุกๆ Source Commit ที่เขียนตามหลัง Baseline จะต้องสืบทอด Git Ancestry โดยตรงจาก Baseline Commit นั้น และต้องระบุ Git Trailer `Test-Baseline: <full-baseline-commit-sha>` ใน Commit Message ทุกครั้ง
+3. **Test Immutability (ห้ามแก้ไข Test หลัง Freeze):**
+   - เมื่อ Test Files ถูก Freeze ไว้ใน Manifest และ Baseline Commit แล้ว จะต้องไม่มีการแก้ไขโค้ด Test ใดๆ ทั้งสิ้นในระหว่างการเขียน Source Code
+   - หากไฟล์ Test ถูกแก้ไขหลังจาก Baseline ถูกบันทึก ระบบ Guard จะบล็อกทันทีด้วยข้อผิดพลาด `FROZEN_TEST_CHANGED` หรือ `TEST_MODIFIED_AFTER_BASELINE`
+
+---
+
+#### 🚨 2. รหัสข้อผิดพลาดและสาเหตุที่พบบ่อย (Error Codes & Root Causes)
+
+| Error Code | คำอธิบายข้อผิดพลาด | สาเหตุ |
+| :--- | :--- | :--- |
+| `FROZEN_TEST_CHANGED` / `TEST_MODIFIED_AFTER_BASELINE` | ไฟล์ Test มีการเปลี่ยนแปลงหลังจาก Baseline Commit ถูก Freeze | มีการแก้ไข Assertion, ตัวแปร หรือ Logic ในไฟล์ Test ระหว่างที่กำลังเขียน Source Code |
+| `WORKTREE_TEST_CHANGED` | ไฟล์ Test ใน Working Tree ไม่ตรงกับ HEAD | มีการแก้ไขไฟล์ Test ในเครื่อง แต่ยังไม่ได้ commit หรือพยายามรัน PR verify ขณะ Working Tree ไม่สะอาด |
+| `STAGED_TEST_HASH_MISMATCH` | ค่า SHA-256 ของไฟล์ Test ใน Staging ไม่ตรงกับ Manifest | มีการคำนวณ Hash ใน Manifest ผิด หรือแก้ไขไฟล์ Test หลังคำนวณ Hash |
+| `SOURCE_COMMIT_MISSING_BASELINE_TRAILER` | Source Commit ขาด Trailer `Test-Baseline:` | Commit มีการแก้ Source Code แต่ไม่ได้ใส่ Trailer ระบุ Baseline SHA |
+| `BASELINE_NOT_ANCESTOR` | Baseline Commit ไม่ได้เป็นบรรพบุรุษของ HEAD | Source Commit แตกกิ่งหรือ rebase จนหลุดจากประวัติของ Baseline Commit |
+
+---
+
+#### 🔄 3. ขั้นตอนการแก้ไขกรณี Requirement มีการเปลี่ยนแปลง (Requirement Delta & Test Supersession)
+
+> [!CAUTION]
+> **ข้อห้ามเด็ดขาด:** ห้ามลบ, แก้ไขไฟล์ Test ย้อนหลังใน Baseline Commit เดิม, หรือ Force Push เพื่อปกปิดการเปลี่ยนแปลงโดยเด็ดขาด การกระทำดังกล่าวจะทำให้ Git Lineage กลายเป็น `NON_TDD_RECONSTRUCTED` และไม่สามารถผ่าน Release Gate ได้
+
+เมื่อ Requirement ของระบบมีการเปลี่ยนแปลงจริง และจำเป็นต้องปรับแก้ชุดการทดสอบ ให้ปฏิบัติตาม **5 ขั้นตอนมาตรฐาน (Standard 5-Step Supersession Protocol)** ดังนี้:
+
+##### ขั้นตอนที่ 1: ยกเลิกและ Supersede Manifest เดิม (Cancel / Supersede)
+- สร้าง Manifest ไฟล์ใหม่สำหรับ Sequence ถัดไป เช่น `plans/test_provenance/ticket-<ticket-id>-seq2-baseline.json`
+- กำหนดค่าใน Manifest ดังนี้:
+  - `sequence`: เพิ่มลำดับเป็น `2` (หรือลำดับถัดไป)
+  - `supersedes`: ใส่ Full 40-character Git SHA ของ Baseline Commit เดิมที่ต้องการยกเลิก
+  - `correction_reason`: ระบุเหตุผลในการแก้ไขอย่างชัดเจน (เช่น `"Requirement updated to include new parameter validation"`)
+  - `rationale`: อธิบายรายละเอียดทางเทคนิคและสถาปัตยกรรมที่มารองรับการเปลี่ยนแปลง
+
+##### ตัวอย่างโครงสร้าง Superseding Manifest (`plans/test_provenance/ticket-example-seq2-baseline.json`):
+```json
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-EXAMPLE-001",
+  "sequence": 2,
+  "provenance_status": "SUPERSEDING_BASELINE",
+  "baseline_parent": "1234567890abcdef1234567890abcdef12345678",
+  "test_files": [
+    {
+      "path": "tests/test_example.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": ["pytest", "tests/test_example.py"],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: expected new_format"
+    }
+  ],
+  "allowed_source_paths": [
+    "project/core/example.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "0987654321fedcba0987654321fedcba09876543",
+  "correction_reason": "Requirement delta: added support for new response fields",
+  "rationale": "Updated contract requires verifying newly added JSON schema parameters."
+}
+```
+
+##### ขั้นตอนที่ 2: อัปเดต Requirement ในเอกสารกำกับดูแล
+- บันทึกการเปลี่ยนแปลง Requirement ลงใน `plans/plan.md` และ `atomic_tasks.md`
+- ปรับปรุงสถานะ Ticket เดิมเป็น `SUPERSEDED` และเปิด Sequence ใหม่สำหรับ QA/Dev
+
+##### ขั้นตอนที่ 3: เขียน Red Unit Test ใหม่และคำนวณ SHA-256
+- แก้ไขไฟล์ Test ให้ตรงกับ Requirement ใหม่
+- คำนวณ SHA-256 ใหม่ของไฟล์ Test:
+  ```bash
+  sha256sum tests/test_example.py
+  ```
+- นำค่า SHA-256 ไปใส่ใน Manifest ใหม่
+- รัน Test เพื่อยืนยันว่า Test ล้มเหลวตามคาด (Red Test) และบันทึก failure fingerprint:
+  ```bash
+  pytest tests/test_example.py
+  ```
+
+##### ขั้นตอนที่ 4: ทำ Test Baseline Commit ใหม่ (Test-Only Commit)
+- Stage เฉพาะไฟล์ Test และ Manifest ใหม่:
+  ```bash
+  git add tests/test_example.py plans/test_provenance/ticket-example-seq2-baseline.json
+  git commit -m "test(example): baseline for sequence 2 superseding 0987654
+
+Test-Baseline-Ticket: TICKET-EXAMPLE-001"
+  ```
+- ตรวจสอบความถูกต้องของ Baseline Commit ด้วย Guard:
+  ```bash
+  python3 scripts/test_provenance_guard.py verify-manifest plans/test_provenance/ticket-example-seq2-baseline.json
+  python3 scripts/test_provenance_guard.py verify-commit --commit HEAD
+  ```
+
+##### ขั้นตอนที่ 5: เริ่มต้นรอบ TDD สำหรับ Source Implementation ใหม่
+- เริ่มเขียน Source Code เพื่อทำให้ Test ผ่าน (Green)
+- ทุก Commit ที่แก้ Source Code จะต้องผูก Trailer ไปยัง Baseline SHA ใหม่:
+  ```bash
+  git commit -m "feat(example): implement support for new response fields
+
+Test-Baseline: <NEW_BASELINE_COMMIT_SHA>"
+  ```
+- เมื่อเสร็จสิ้น ทำการตรวจสอบ PR Provenance ทั้งหมด:
+  ```bash
+  python3 scripts/test_provenance_guard.py verify-pr --base origin/main --head HEAD
+  ```
+
+---
+
+#### 🛠️ 4. สรุปคำสั่ง CLI สำหรับการตรวจรับ Test Provenance
+
+```bash
+# 1. ตรวจสอบความถูกต้องของไฟล์ Manifest เดี่ยวๆ
+python3 scripts/test_provenance_guard.py verify-manifest plans/test_provenance/<manifest-file>.json
+
+# 2. ตรวจสอบ Commit ปัจจุบัน (ว่ามีโครงสร้าง Test Baseline หรือ Source Trailer ถูกต้อง)
+python3 scripts/test_provenance_guard.py verify-commit --commit HEAD
+
+# 3. ตรวจสอบ PR ทั้งหมดตั้งแต่ Base จนถึง Head
+python3 scripts/test_provenance_guard.py verify-pr --base origin/main --head HEAD
+
+# 4. ตรวจสอบสถานะ Working Tree ว่าไม่มี Test Files ค้างหรือดัดแปลง
+python3 scripts/test_provenance_guard.py check-worktree
+```
+
