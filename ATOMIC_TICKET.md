@@ -1,6 +1,6 @@
-# HoroConsultant — Atomic Task Registry
-> Sole authoritative ticket registry, status board, and operational handoff.
-> Consolidated from `PROJECT_TASKS.md` and `project_tickets.md` on 2026-09-01; unified into `ATOMIC_TICKET.md` on 2026-09-04.
+# HoroConsultant — Atomic Ticket Registry (ATOMIC_TICKET.md)
+> Sole authoritative atomic ticket registry, status board, and operational handoff.
+> Consolidated from project_tickets.md, PROJECT_TASKS.md, and atomic_tasks.md.
 
 ## Document Authority & Governance
 

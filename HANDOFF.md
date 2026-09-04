@@ -3,10 +3,10 @@
 > **Generated**: 2026-09-04T01:40:00+07:00 (Asia/Bangkok)  
 > **Generating Agent**: devops (The Bridge)  
 > **Base Branch**: `main`  
-> **Primary Authority**: [`atomic_tasks.md`](atomic_tasks.md) & [`plans/plan.md`](plans/plan.md)  
+> **Primary Authority**: [`ATOMIC_TICKET.md`](ATOMIC_TICKET.md) (and [`atomic_tasks.md`](atomic_tasks.md)) & [`plans/plan.md`](plans/plan.md)  
 > **Ecosystem Sync**: 100% GREEN (`python3 scripts/sync_ai_agent_ecosystem.py --check` PASS: 16/16)  
 > **Test Suite**: 23/23 Quota Swap Tests PASSED, 5/5 Red Team Governance Tests PASSED, 6/6 Skill Tests PASSED, 67/67 Edge Tests PASSED  
-> **Rust Rayon Secret Scan**: **6,228 files scanned — 0 leaks found [PASSED]**  
+> **Rust Rayon Secret Scan**: **6,234 files scanned — 0 leaks found [PASSED]**  
 > **Live Production Edge**: https://horoconsultant-pages.pages.dev/health (HTTP 200 OK)  
 
 ---
@@ -42,6 +42,12 @@
    - **UI Controls Preservation**: คง UI buttons และ controls ใน `project/static/admin.html` และ `public/admin.html` ครบถ้วน ไม่ตัดออก
    - **Independent Code Review (`plans/evidence/admin-remed-001/review-qa-025.json`)**: ผ่านการตรวจรับความปลอดภัยโดย `code_reviewer` (0/0/0/0 findings), 4/4 Ingress Tests ผ่าน, 8/8 CORS Tests ผ่าน, Rayon Secret Scan 6,232 ไฟล์ (0 leaks), Ecosystem Sync 16/16 ผ่านฉลุย
    - **Production Deployment & Release Gate (`plans/evidence/admin-remed-001/ops-055.json`)**: ดำเนินการ deploy และตรวจรับ candidate commit `6ba69c49838a05ce48b2b95042f2eb1ea3fe771c` สู่ Vercel (`https://horo-consultant-psi.vercel.app`) และ HF Docker Space (`pphothidaen/horoconsultant-core-backend`) พร้อม Docker dry-run ผ่านฉลุย และบันทึก Rollback revisions ชัดเจน
+
+5. **เสร็จสิ้น Sprint DOC-ATOMIC-20260904 (TICKET-DOC-ATOMIC-001) 100% DONE:**
+   - **Unified ATOMIC_TICKET.md**: รวมศูนย์ Registry งานทั้งหมดสู่ `ATOMIC_TICKET.md` ให้สอดคล้องกับแนวคิด Atomic Registry
+   - **Legacy File Archival & Clean-up**: สำรองไฟล์เดิมไว้ที่ `plans/archive/2026-09-04-task-file-consolidation/` และล้างไฟล์ `project_tickets.md` และ `PROJECT_TASKS.md` ออกจาก Root อย่างเรียบร้อย
+   - **Provenance Guard & Ecosystem Parity**: อัปเดต `scripts/test_provenance_guard.py` (`DOC_FILES`) รองรับ `ATOMIC_TICKET.md`, ผ่าน Rayon Secret Scan 6,234 ไฟล์ (0 leaks), Ecosystem Parity Sync 16/16 ผ่านฉลุย
+
 
 ---
 

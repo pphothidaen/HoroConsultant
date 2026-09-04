@@ -7,6 +7,45 @@
 
 ---
 
+<!-- DOC-ATOMIC-20260904:START -->
+## GRILL REPORT -- DOC-ATOMIC-20260904: Atomic Ticket Registry Migration & Legacy Task File Consolidation
+
+**Recorded**: `2026-09-04T09:10:00+07:00` (Asia/Bangkok)
+**Status**: `APPROVED`
+**Requirement-change authority**: Owner instruction dated `2026-09-04` approving Sprint `DOC-ATOMIC-20260904` / `TICKET-DOC-ATOMIC-001`.
+**Authorized current phase**: ALL 1 TICKETS DONE (`TICKET-DOC-ATOMIC-001 DONE`) -- SPRINT COMPLETE.
+
+### Scope and Decision Record
+
+**IN**:
+1. Unified `ATOMIC_TICKET.md` created as the sole authoritative atomic ticket registry, status board, and operational handoff.
+2. Pre-migration legacy files (`project_tickets.md` and `PROJECT_TASKS.md`) safely archived into `plans/archive/2026-09-04-task-file-consolidation/`.
+3. Complete clean-up / retirement of `project_tickets.md` and `PROJECT_TASKS.md` from repository root per owner instruction.
+4. Addition of `ATOMIC_TICKET.md` to `DOC_FILES` in `scripts/test_provenance_guard.py`.
+5. Ecosystem parity verification and zero-secret scanning validation.
+
+**OUT**:
+- Modifying production runtime APIs or business logic outside documentation governance.
+- Breaking backwards compatibility for existing archived references.
+
+### Nine-Dimension Decision Matrix
+
+| ID | Result and evidence state | Decision / stop threshold |
+|---|---|---|
+| D1 Scope boundary | [CONFIRMED] Scope strictly bounded to documentation registry refactoring, legacy pointer archival and removal, and test provenance guard allowlist update. | Any deviation into production runtime code is rejected. |
+| D2 Requirement delta | [CONFIRMED] Aligns task tracking files with the atomic ticket registry concept (`ATOMIC_TICKET.md`). | Adheres to Rule 21, Rule 22, and Rule 24. |
+| D3 Acceptance and stop | [CONFIRMED] Unified `ATOMIC_TICKET.md` created, pre-migration snapshots archived, legacy root files cleaned up, test provenance guard updated, all checks passing. | Stop if ecosystem parity fails or secret scan reports leaks. |
+| D4 Inputs, constraints, dependencies | [AUTO] Inputs: `atomic_tasks.md`, `project_tickets.md`, `PROJECT_TASKS.md`. Zero external dependencies. | Immediate execution by `business_analyst`. |
+| D5 Architecture, ownership, handoff | [CONFIRMED] Owned solely by `business_analyst`. Single-editor file ownership strictly enforced. | No concurrent editor collisions. |
+| D6 Assumption register | [CONFIRMED] `ATOMIC_TICKET.md` replaces legacy task pointers; snapshots safely preserved in archive. | Full archives preserved in `plans/archive/2026-09-04-task-file-consolidation/`. |
+| D7 Risk and recovery | [AUTO] Risks: Broken references. Recovery: Full pre-migration archives preserved in `plans/archive/2026-09-04-task-file-consolidation/`. | Rollback available from pre-migration snapshots. |
+| D8 Budget and evidence strategy | [AUTO] Pure ASCII verification, 0 secret leaks, 16/16 ecosystem parity checks passing. | Fail closed on any check failure. |
+| D9 Domain and HITL | [NOT-APPLICABLE] No domain metaphysics changes. [CONFIRMED] Owner instruction dated 2026-09-04 provides explicit authority. | Documentation governance only. |
+
+<!-- DOC-ATOMIC-20260904:END -->
+
+---
+
 <!-- QUOTA-SWAP-ROADMAP-20260904:START -->
 ## GRILL REPORT -- QUOTA-SWAP-ROADMAP-20260904: Smart Quota Swapping & Seamless Handoff System
 

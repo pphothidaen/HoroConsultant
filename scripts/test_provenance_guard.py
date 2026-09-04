@@ -32,6 +32,7 @@ DOC_FILES = {
     "README.md",
     "HOWTO.md",
     "atomic_tasks.md",
+    "ATOMIC_TICKET.md",
     "CLAUDE.md",
     "HANDOFF.md",
     "AGY.md",
