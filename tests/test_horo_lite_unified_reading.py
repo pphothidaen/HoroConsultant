@@ -227,6 +227,38 @@ def _has_unknown_hour_uncertainty(result: Any, months: list[Any]) -> bool:
     return has_low_confidence or has_ranges
 
 
+def _consensus_metadata(result: Any) -> dict[str, Any]:
+    metadata = _field(result, "consensus_metadata")
+    assert isinstance(metadata, dict), "CONSENSUS_METADATA_MISSING"
+    return metadata
+
+
+def _hitl_routing(result: Any) -> dict[str, Any]:
+    routing = _field(result, "hitl_routing")
+    assert isinstance(routing, dict), "HITL_ROUTING_MISSING"
+    return routing
+
+
+def _hitl_flags(result: Any) -> dict[str, Any]:
+    flags = _field(result, "hitl_flags", {})
+    assert isinstance(flags, dict), "HITL_FLAGS_MISSING"
+    return flags
+
+
+def _arbitrated_monthly_claims(metadata: dict[str, Any]) -> list[Any]:
+    for key in (
+        "monthly_consensus",
+        "monthly_arbitration",
+        "arbitrated_monthly_claims",
+        "monthly_claims",
+    ):
+        claims = metadata.get(key)
+        if claims is not None:
+            assert isinstance(claims, list), f"CONSENSUS_{key.upper()}_NOT_LIST"
+            return claims
+    pytest.fail("CONSENSUS_MONTHLY_ARBITRATION_MISSING")
+
+
 def _pattern_candidates(result: Any) -> list[Any]:
     if isinstance(result, list):
         return result
@@ -412,3 +444,78 @@ def test_past_pattern_candidate_generation() -> None:
         assert not any(fragment in searchable for fragment in forbidden_fragments), (
             f"PAST_PATTERN_FORBIDDEN_SENSITIVE_FRAGMENT: {searchable}"
         )
+
+
+def test_horo_v3_consensus_arbitration_and_hitl_triggers() -> None:
+    from project.core.annual_timing_engine import calculate_annual_timing
+    from project.core.unified_reading_engine import UnifiedReadingRequest
+
+    base_request = UnifiedReadingRequest.model_validate(_phase_b_request_payload())
+    base_result = calculate_annual_timing(base_request)
+    base_metadata = _consensus_metadata(base_result)
+
+    consensus_score = base_metadata.get("consensus_score")
+    assert isinstance(consensus_score, int | float), "CONSENSUS_SCORE_NOT_NUMERIC"
+    assert 0 <= float(consensus_score) <= 1, "CONSENSUS_SCORE_OUTSIDE_0_TO_1"
+    assert base_metadata.get("arbitration_status"), "CONSENSUS_ARBITRATION_STATUS_MISSING"
+    traditions = base_metadata.get("traditions_considered")
+    assert isinstance(traditions, list) and len(traditions) >= 2, "CONSENSUS_TRADITIONS_MISSING"
+
+    arbitrated_claims = _arbitrated_monthly_claims(base_metadata)
+    assert len(arbitrated_claims) == 12, "CONSENSUS_MONTHLY_ARBITRATION_COUNT_NOT_12"
+    assert {_field(claim, "month") for claim in arbitrated_claims} == set(range(1, 13))
+
+    base_flags = _hitl_flags(base_result)
+    base_status = _hitl_routing(base_result).get("status")
+    base_conflicts = bool(base_metadata.get("tradition_conflicts") or base_flags.get("tradition_conflict"))
+    base_triggered = (
+        float(consensus_score) < 0.75
+        or base_conflicts
+        or bool(base_flags.get("force_human_review"))
+        or bool(base_flags.get("uncertain_birth_time"))
+    )
+    if base_triggered:
+        assert base_status == "QUEUED_FOR_HUMAN_REVIEW", "HITL_TRIGGER_NOT_QUEUED"
+    else:
+        assert base_status == "NOT_REQUIRED", "HITL_NOT_REQUIRED_ONLY_WITHOUT_TRIGGERS"
+
+    forced_review_result = calculate_annual_timing(
+        base_request.model_copy(update={"force_human_review": True})
+    )
+    assert _hitl_routing(forced_review_result).get("status") == "QUEUED_FOR_HUMAN_REVIEW"
+    assert _hitl_flags(forced_review_result).get("force_human_review") is True
+
+    unknown_time_request = UnifiedReadingRequest.model_validate(
+        _phase_b_request_payload(unknown_hour=True)
+    )
+    unknown_time_result = calculate_annual_timing(unknown_time_request)
+    assert _hitl_routing(unknown_time_result).get("status") == "QUEUED_FOR_HUMAN_REVIEW"
+    assert _hitl_flags(unknown_time_result).get("uncertain_birth_time") is True
+
+    low_conflict_claims = [
+        {
+            "month": month,
+            "tradition_claims": {
+                "thai_suriyayart": {"career_score": 9, "claim": "strong upward month"},
+                "bazi_liu_yue": {"career_score": 2, "claim": "caution and delay month"},
+                "zi_wei": {"career_score": 3, "claim": "low support month"},
+            },
+            "expected_conflict": True,
+        }
+        for month in range(1, 13)
+    ]
+    low_conflict_request = base_request.model_copy(
+        update={
+            "consensus_fixture_id": "qa_low_consensus_conflict_1990_05_15_1430_bangkok_2026",
+            "tradition_monthly_claims": low_conflict_claims,
+        }
+    )
+    low_conflict_result = calculate_annual_timing(low_conflict_request)
+    low_conflict_metadata = _consensus_metadata(low_conflict_result)
+    low_conflict_score = low_conflict_metadata.get("consensus_score")
+    assert isinstance(low_conflict_score, int | float), "LOW_CONSENSUS_SCORE_NOT_NUMERIC"
+    assert float(low_conflict_score) < 0.75, "LOW_CONSENSUS_FIXTURE_NOT_LOW"
+    assert low_conflict_metadata.get("tradition_conflicts"), "LOW_CONSENSUS_CONFLICTS_MISSING"
+    assert _hitl_flags(low_conflict_result).get("low_consensus") is True
+    assert _hitl_flags(low_conflict_result).get("tradition_conflict") is True
+    assert _hitl_routing(low_conflict_result).get("status") == "QUEUED_FOR_HUMAN_REVIEW"
