@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from datetime import date
+from time import perf_counter
+from typing import Any
 
 import pytest
 from pydantic import ValidationError
@@ -111,6 +114,19 @@ def _request_payload() -> dict:
     }
 
 
+def _phase_b_request_payload(*, unknown_hour: bool = False) -> dict:
+    payload = _request_payload()
+    payload["birth_date"] = "1990-05-15"
+    payload["birth_time"] = None if unknown_hour else "14:30"
+    payload["unknown_hour"] = unknown_hour
+    payload["birth_place"] = "Bangkok, Thailand"
+    payload["latitude"] = 13.7563
+    payload["longitude"] = 100.5018
+    payload["timezone"] = "Asia/Bangkok"
+    payload["target_year"] = 2026
+    return payload
+
+
 def _response_payload() -> dict:
     return {
         "schema_version": "horo_lite_unified_reading.v1",
@@ -144,6 +160,81 @@ def _response_payload() -> dict:
             "facts_mutable_by_llm": False,
         },
     }
+
+
+def _plain(value: Any) -> Any:
+    if hasattr(value, "model_dump"):
+        return value.model_dump(mode="json")
+    if isinstance(value, dict):
+        return {key: _plain(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_plain(item) for item in value]
+    if isinstance(value, tuple):
+        return [_plain(item) for item in value]
+    if isinstance(value, date):
+        return value.isoformat()
+    return value
+
+
+def _field(value: Any, name: str, default: Any = None) -> Any:
+    if isinstance(value, dict):
+        return value.get(name, default)
+    return getattr(value, name, default)
+
+
+def _annual_months(result: Any) -> list[Any]:
+    if isinstance(result, list):
+        return result
+    for key in ("monthly_scores", "months", "annual_timing", "roadmap"):
+        months = _field(result, key)
+        if months is not None:
+            return list(months)
+    pytest.fail(
+        "ANNUAL_TIMING_OUTPUT_SHAPE_MISMATCH: expected list or monthly_scores/months/annual_timing/roadmap"
+    )
+
+
+def _score_or_range_is_valid(item: Any, domain: str) -> bool:
+    score = _field(item, f"{domain}_score")
+    if isinstance(score, int | float):
+        return 1 <= score <= 10
+    score_range = _field(item, f"{domain}_score_range")
+    if score_range is None:
+        score_range = _field(item, f"{domain}_range")
+    if isinstance(score_range, list | tuple) and len(score_range) == 2:
+        lower, upper = score_range
+        return (
+            isinstance(lower, int | float)
+            and isinstance(upper, int | float)
+            and 1 <= lower <= upper <= 10
+        )
+    return False
+
+
+def _has_unknown_hour_uncertainty(result: Any, months: list[Any]) -> bool:
+    confidence_values = [
+        str(_field(result, "confidence", "")).upper(),
+        str(_field(result, "overall_confidence", "")).upper(),
+    ]
+    confidence_values.extend(str(_field(month, "confidence", "")).upper() for month in months)
+    has_low_confidence = any(value in {"LOW", "ESTIMATED"} for value in confidence_values)
+    has_ranges = any(
+        _field(month, f"{domain}_score_range") is not None
+        or _field(month, f"{domain}_range") is not None
+        for month in months
+        for domain in ("career", "finance", "love")
+    )
+    return has_low_confidence or has_ranges
+
+
+def _pattern_candidates(result: Any) -> list[Any]:
+    if isinstance(result, list):
+        return result
+    for key in ("candidates", "past_patterns", "patterns"):
+        candidates = _field(result, key)
+        if candidates is not None:
+            return list(candidates)
+    pytest.fail("PAST_PATTERN_OUTPUT_SHAPE_MISMATCH: expected list or candidates/past_patterns/patterns")
 
 
 def test_unified_reading_schema_contract() -> None:
@@ -224,3 +315,96 @@ def test_unified_reading_schema_contract() -> None:
     invalid_hitl_low_consensus["hitl_routing"]["status"] = "NOT_REQUIRED"
     with pytest.raises(ValidationError):
         UnifiedReadingResponse.model_validate(invalid_hitl_low_consensus)
+
+
+def test_deterministic_annual_timing_12_months() -> None:
+    from project.core.annual_timing_engine import calculate_annual_timing
+    from project.core.unified_reading_engine import UnifiedReadingRequest
+
+    request = UnifiedReadingRequest.model_validate(_phase_b_request_payload())
+
+    started = perf_counter()
+    first_result = calculate_annual_timing(request)
+    elapsed_ms = (perf_counter() - started) * 1000
+    second_result = calculate_annual_timing(request)
+
+    assert elapsed_ms < 50, f"ANNUAL_TIMING_RUNTIME_OVER_50MS: {elapsed_ms:.3f}ms"
+    assert _plain(first_result) == _plain(second_result), "ANNUAL_TIMING_NOT_REPEATABLE"
+
+    months = _annual_months(first_result)
+    assert len(months) == 12, "ANNUAL_TIMING_MONTH_COUNT_NOT_12"
+    assert [_field(month, "month") for month in months] == list(range(1, 13))
+
+    for month in months:
+        for domain in ("career", "finance", "love"):
+            assert _score_or_range_is_valid(month, domain), (
+                f"ANNUAL_TIMING_{domain.upper()}_SCORE_OR_RANGE_OUT_OF_BOUNDS"
+            )
+        reasons = _field(month, "reasons", [])
+        score_basis = _field(month, "score_basis", {})
+        assert reasons, "ANNUAL_TIMING_REASON_MISSING"
+        assert score_basis, "ANNUAL_TIMING_SCORE_BASIS_MISSING"
+
+    unknown_request = UnifiedReadingRequest.model_validate(
+        _phase_b_request_payload(unknown_hour=True)
+    )
+    unknown_result = calculate_annual_timing(unknown_request)
+    unknown_months = _annual_months(unknown_result)
+    assert len(unknown_months) == 12, "UNKNOWN_HOUR_MONTH_COUNT_NOT_12"
+    assert _has_unknown_hour_uncertainty(unknown_result, unknown_months), (
+        "UNKNOWN_HOUR_FALSE_PRECISION: expected score ranges or LOW/ESTIMATED confidence"
+    )
+
+
+def test_past_pattern_candidate_generation() -> None:
+    from project.core.past_pattern_calibrator import generate_past_pattern_candidates
+    from project.core.unified_reading_engine import UnifiedReadingRequest
+
+    allowed_themes = {
+        "education",
+        "career_shift",
+        "relocation",
+        "financial_pressure",
+        "work_role_change",
+    }
+    forbidden_fragments = {
+        "trauma",
+        "death",
+        "illness",
+        "crime",
+        "pregnancy",
+        "medical",
+        "accident",
+        "bereavement",
+    }
+
+    request = UnifiedReadingRequest.model_validate(_phase_b_request_payload())
+    first_result = generate_past_pattern_candidates(request)
+    second_result = generate_past_pattern_candidates(request)
+
+    assert _plain(first_result) == _plain(second_result), "PAST_PATTERN_NOT_REPEATABLE"
+
+    candidates = _pattern_candidates(first_result)
+    assert 3 <= len(candidates) <= 5, "PAST_PATTERN_COUNT_OUTSIDE_3_TO_5"
+
+    for candidate in candidates:
+        theme = _field(candidate, "theme")
+        assert theme in allowed_themes, f"PAST_PATTERN_THEME_NOT_ALLOWLISTED: {theme!r}"
+        assert _field(candidate, "sensitive_category", False) is False
+
+        year_range = _field(candidate, "year_range")
+        age_range = _field(candidate, "age_range")
+        assert isinstance(year_range, list | tuple) and len(year_range) == 2
+        assert isinstance(age_range, list | tuple) and len(age_range) == 2
+        assert year_range[0] <= year_range[1] < request.target_year
+        assert age_range[0] <= age_range[1]
+        assert age_range[0] == year_range[0] - request.birth_date.year
+        assert age_range[1] == year_range[1] - request.birth_date.year
+
+        deterministic_basis = _field(candidate, "deterministic_basis", [])
+        assert deterministic_basis, "PAST_PATTERN_DETERMINISTIC_BASIS_MISSING"
+
+        searchable = str(_plain(candidate)).lower()
+        assert not any(fragment in searchable for fragment in forbidden_fragments), (
+            f"PAST_PATTERN_FORBIDDEN_SENSITIVE_FRAGMENT: {searchable}"
+        )

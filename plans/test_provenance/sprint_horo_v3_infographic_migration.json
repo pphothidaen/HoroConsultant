@@ -1,13 +1,13 @@
 {
   "schema_version": "test-provenance-v1",
   "ticket_id": "TICKET-HLITE-010",
-  "sequence": 1,
+  "sequence": 2,
   "provenance_status": "VERIFIED",
-  "baseline_parent": "27054c3ab95b6bec41acae420f99538d4b1e3a43",
+  "baseline_parent": "c149d3a6481ccabecdd14147f6ff9e7c6acc48ac",
   "test_files": [
     {
       "path": "tests/test_horo_lite_unified_reading.py",
-      "sha256": "d5dfd4973198f9b64550b5da2158bf84c8ab82a1fcbab31fc562ac647afd9c7a"
+      "sha256": "f54b1edb22a1cb213417f5bde20d4a86932cb5f143fdcf576d3cdf413abb3da9"
     }
   ],
   "red_tests": [
@@ -18,19 +18,34 @@
         "pytest",
         "tests/test_horo_lite_unified_reading.py",
         "-k",
-        "test_unified_reading_schema_contract",
+        "test_deterministic_annual_timing_12_months or test_past_pattern_candidate_generation",
         "-v"
       ],
       "expected_exit": 1,
-      "failure_fingerprint": "ModuleNotFoundError: No module named 'project.core.unified_reading_engine'"
+      "failure_fingerprint": "ModuleNotFoundError: No module named 'project.core.annual_timing_engine'"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "tests/test_horo_lite_unified_reading.py",
+        "-k",
+        "test_deterministic_annual_timing_12_months or test_past_pattern_candidate_generation",
+        "-v"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "ModuleNotFoundError: No module named 'project.core.past_pattern_calibrator'"
     }
   ],
   "allowed_source_paths": [
-    "project/core/unified_reading_engine.py"
+    "project/core/annual_timing_engine.py",
+    "project/core/past_pattern_calibrator.py",
+    "project/core/bazi.py"
   ],
   "test_owner_role": "qa_tester",
   "reviewer_role": "code_reviewer",
   "supersedes": null,
   "correction_reason": null,
-  "rationale": "Freeze the Phase A black-box Pydantic schema contract before core implementation for Horo Lite unified consensus readings. Preserved red baseline evidence: command python3 -m pytest tests/test_horo_lite_unified_reading.py -k test_unified_reading_schema_contract -v exited actual 1 and expected 1 with fingerprint ModuleNotFoundError: No module named 'project.core.unified_reading_engine'."
+  "rationale": "Freeze the Phase B black-box deterministic annual timing and past pattern calibration tests for TICKET-HLITE-002 before core implementation. Baseline parent is the Phase A source schema commit c149d3a6481ccabecdd14147f6ff9e7c6acc48ac. Preserved red evidence: command python3 -m pytest tests/test_horo_lite_unified_reading.py -k \"test_deterministic_annual_timing_12_months or test_past_pattern_candidate_generation\" -v exited actual 1 and expected 1 with fingerprints ModuleNotFoundError: No module named 'project.core.annual_timing_engine' and ModuleNotFoundError: No module named 'project.core.past_pattern_calibrator'."
 }
