@@ -68,7 +68,7 @@ def _is_ancestor(repo: Path, ancestor: str, descendant: str) -> bool:
 
 
 def _board_tickets(repo: Path) -> list[dict[str, Any]]:
-    atomic_tasks = repo / "atomic_tasks.md"
+    atomic_tasks = repo / "ATOMIC_TICKET.md" if (repo / "ATOMIC_TICKET.md").exists() else repo / "atomic_tasks.md"
     if not atomic_tasks.is_file():
         return []
     text = atomic_tasks.read_text(encoding="utf-8")

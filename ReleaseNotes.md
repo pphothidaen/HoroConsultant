@@ -8,13 +8,13 @@
 ---
 
 ## 🌟 Executive Summary
-Successfully executed Sprint `DOC-ATOMIC-20260904` / `TICKET-DOC-ATOMIC-001` to refactor and migrate repository task and ticket tracking files into a unified, authoritative registry `ATOMIC_TICKET.md` aligned with the atomic ticket concept. Legacy pointer files `project_tickets.md` and `PROJECT_TASKS.md` were safely archived into `plans/archive/2026-09-04-task-file-consolidation/` and retired from the repository root per explicit user mandate. `atomic_tasks.md` and `ATOMIC_TICKET.md` are synchronized as authoritative registries, and `ATOMIC_TICKET.md` is registered in `scripts/test_provenance_guard.py` (`DOC_FILES`). Zero secret leaks were confirmed across the entire codebase via Rust Rayon parallel scanning, and 16/16 ecosystem parity checks passed cleanly.
+Successfully executed Sprint `DOC-ATOMIC-20260904` / `TICKET-DOC-ATOMIC-001` (Option 1: Full Migration to `ATOMIC_TICKET.md`) to establish `ATOMIC_TICKET.md` as the sole authoritative task and ticket registry across the repository. Legacy task and ticket files (`project_tickets.md`, `PROJECT_TASKS.md`, and `atomic_tasks.md`) were safely archived into `plans/archive/2026-09-04-task-file-consolidation/` and retired from the repository root. All scripts, hooks, configs, and governance documents were systematically updated to point to `ATOMIC_TICKET.md`. Zero secret leaks were confirmed across the codebase via Rust Rayon parallel scanning, and 16/16 ecosystem parity checks passed cleanly.
 
 ## 🛠️ Architectural Deliverables
-1. **Authoritative Atomic Ticket Registry (`ATOMIC_TICKET.md`)**: Unified registry consolidating active sprint workstreams, governance rules, and dependency graphs with single-editor file ownership and pure ASCII logging.
-2. **Task Registry Parity (`atomic_tasks.md`)**: Maintained continuous synchronization between `atomic_tasks.md` and `ATOMIC_TICKET.md` with updated Central Documentation Map.
-3. **Legacy Task File Consolidation & Archival**: Preserved exact pre-migration snapshots in `plans/archive/2026-09-04-task-file-consolidation/project_tickets_pre_migration.md` and `PROJECT_TASKS_pre_migration.md`.
-4. **Repository Root Cleanup**: Retired `project_tickets.md` and `PROJECT_TASKS.md` from the repository root to eliminate redundant pointer clutter per user directive.
+1. **Sole Authoritative Atomic Ticket Registry (`ATOMIC_TICKET.md`)**: Unified registry consolidating active sprint workstreams, governance rules, and dependency graphs with single-editor file ownership and pure ASCII logging.
+2. **Retirement of Legacy Task Files**: Consolidated and retired `atomic_tasks.md`, `PROJECT_TASKS.md`, and `project_tickets.md` from the repository root. Historical pre-migration snapshots preserved in `plans/archive/2026-09-04-task-file-consolidation/`.
+3. **Scripts & Hooks Migration**: Updated `agent_quota_status_guard.py`, `context_handoff.py`, `agentic_pipeline.sh`, `update_docs.py`, `auto_deploy_all.sh`, `hermes_sdlc_runner.sh`, `atomic_tdd_guard.py`, and `context_handoff_v1.json` to resolve `ATOMIC_TICKET.md`.
+4. **Governance Documentation Alignment**: Updated `AGENTS.md`, `.agents/AGENTS.md`, `ATOMIC_TICKET.md`, `HANDOFF.md`, `HOWTO.md`, `README.md`, and `plans/plan.md` to reference `ATOMIC_TICKET.md` as sole authority.
 5. **Test Provenance Guard Allowlist (`scripts/test_provenance_guard.py`)**: Added `ATOMIC_TICKET.md` to `DOC_FILES` allowlist to protect future commits under test-first provenance rules.
 
 ## 🧪 Verification Matrix
@@ -37,6 +37,7 @@ Successfully executed Sprint `DOC-ATOMIC-20260904` / `TICKET-DOC-ATOMIC-001` to 
 
 ## 🗄️ Archived Plans List
 - Pre-migration snapshots archived in `plans/archive/2026-09-04-task-file-consolidation/`:
+  * `atomic_tasks_pre_migration.md`
   * `project_tickets_pre_migration.md`
   * `PROJECT_TASKS_pre_migration.md`
 - Active specifications for Sprint `DOC-ATOMIC-20260904` recorded in `plans/plan.md`.

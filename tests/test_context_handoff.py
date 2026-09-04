@@ -90,7 +90,7 @@ EXPECTED_POLICY = {
         "unset_behavior": "empty_state",
     },
     "authority": {
-        "current_state": "atomic_tasks.md",
+        "current_state": "ATOMIC_TICKET.md",
         "implementation_plan": "plans/plan.md",
         "derived_handoff": "HANDOFF.md",
     },

@@ -12,17 +12,19 @@
 
 **Recorded**: `2026-09-04T09:10:00+07:00` (Asia/Bangkok)
 **Status**: `APPROVED`
-**Requirement-change authority**: Owner instruction dated `2026-09-04` approving Sprint `DOC-ATOMIC-20260904` / `TICKET-DOC-ATOMIC-001`.
+**Requirement-change authority**: Owner instruction dated `2026-09-04` approving Sprint `DOC-ATOMIC-20260904` / `TICKET-DOC-ATOMIC-001` and Option 1: Full Migration to `ATOMIC_TICKET.md`.
 **Authorized current phase**: ALL 1 TICKETS DONE (`TICKET-DOC-ATOMIC-001 DONE`) -- SPRINT COMPLETE.
 
 ### Scope and Decision Record
 
 **IN**:
-1. Unified `ATOMIC_TICKET.md` created as the sole authoritative atomic ticket registry, status board, and operational handoff.
-2. Pre-migration legacy files (`project_tickets.md` and `PROJECT_TASKS.md`) safely archived into `plans/archive/2026-09-04-task-file-consolidation/`.
-3. Complete clean-up / retirement of `project_tickets.md` and `PROJECT_TASKS.md` from repository root per owner instruction.
-4. Addition of `ATOMIC_TICKET.md` to `DOC_FILES` in `scripts/test_provenance_guard.py`.
-5. Ecosystem parity verification and zero-secret scanning validation.
+1. Unified `ATOMIC_TICKET.md` established as the sole authoritative atomic ticket registry, status board, and operational handoff.
+2. Pre-migration legacy files (`project_tickets.md`, `PROJECT_TASKS.md`, and `atomic_tasks.md`) safely archived into `plans/archive/2026-09-04-task-file-consolidation/`.
+3. Complete clean-up / retirement of `project_tickets.md`, `PROJECT_TASKS.md`, and `atomic_tasks.md` from repository root per owner instruction.
+4. Update all scripts, hooks, and configs (`agent_quota_status_guard.py`, `context_handoff.py`, `agentic_pipeline.sh`, `update_docs.py`, `auto_deploy_all.sh`, `hermes_sdlc_runner.sh`, `atomic_tdd_guard.py`, `context_handoff_v1.json`).
+5. Update all governance documents (`AGENTS.md`, `.agents/AGENTS.md`, `ATOMIC_TICKET.md`, `HANDOFF.md`, `HOWTO.md`, `README.md`, `plans/plan.md`).
+6. Addition of `ATOMIC_TICKET.md` to `DOC_FILES` in `scripts/test_provenance_guard.py`.
+7. Ecosystem parity verification and zero-secret scanning validation.
 
 **OUT**:
 - Modifying production runtime APIs or business logic outside documentation governance.
@@ -32,9 +34,9 @@
 
 | ID | Result and evidence state | Decision / stop threshold |
 |---|---|---|
-| D1 Scope boundary | [CONFIRMED] Scope strictly bounded to documentation registry refactoring, legacy pointer archival and removal, and test provenance guard allowlist update. | Any deviation into production runtime code is rejected. |
-| D2 Requirement delta | [CONFIRMED] Aligns task tracking files with the atomic ticket registry concept (`ATOMIC_TICKET.md`). | Adheres to Rule 21, Rule 22, and Rule 24. |
-| D3 Acceptance and stop | [CONFIRMED] Unified `ATOMIC_TICKET.md` created, pre-migration snapshots archived, legacy root files cleaned up, test provenance guard updated, all checks passing. | Stop if ecosystem parity fails or secret scan reports leaks. |
+| D1 Scope boundary | [CONFIRMED] Scope strictly bounded to documentation registry refactoring, legacy pointer archival and removal, script/hook updates, and test provenance guard allowlist update. | Any deviation into production runtime code is rejected. |
+| D2 Requirement delta | [CONFIRMED] Full migration to `ATOMIC_TICKET.md` as sole authoritative registry; `atomic_tasks.md` retired per Option 1. | Adheres to Rule 21, Rule 22, and Rule 24. |
+| D3 Acceptance and stop | [CONFIRMED] Unified `ATOMIC_TICKET.md` established, pre-migration snapshots archived, legacy root files cleaned up, scripts/hooks updated, all checks passing. | Stop if ecosystem parity fails or secret scan reports leaks. |
 | D4 Inputs, constraints, dependencies | [AUTO] Inputs: `atomic_tasks.md`, `project_tickets.md`, `PROJECT_TASKS.md`. Zero external dependencies. | Immediate execution by `business_analyst`. |
 | D5 Architecture, ownership, handoff | [CONFIRMED] Owned solely by `business_analyst`. Single-editor file ownership strictly enforced. | No concurrent editor collisions. |
 | D6 Assumption register | [CONFIRMED] `ATOMIC_TICKET.md` replaces legacy task pointers; snapshots safely preserved in archive. | Full archives preserved in `plans/archive/2026-09-04-task-file-consolidation/`. |
@@ -90,9 +92,9 @@
 |---|---|---|
 | D1 Scope boundary | [CONFIRMED] Scope strictly bounded to Quota Cooldown Registry, TTR engine, event-driven wakeup, 3-phase handoff protocol, and Rule 17 invariant. | Any diversion into unreviewed production deployments, external credentials, or core BaZi metaphysical formulas is rejected. |
 | D2 Requirement delta | [CONFIRMED] Formalizes intelligent multi-account quota rotation, eliminating 429 downtime and context loss during agent transitions. | Adheres to existing Rule 17, Rule 18, and Rule 21 while introducing dynamic TTR and state capsules. |
-| D3 Acceptance and stop | [CONFIRMED] Persist GRILL report and architecture spec in `plans/plan.md`, register 6 atomic tickets in `atomic_tasks.md` with explicit specialist and skill assignments. | Stop on missing ticket attributes, non-ASCII characters, or overlapping file write ownership. |
+| D3 Acceptance and stop | [CONFIRMED] Persist GRILL report and architecture spec in `plans/plan.md`, register 6 atomic tickets in `ATOMIC_TICKET.md` with explicit specialist and skill assignments. | Stop on missing ticket attributes, non-ASCII characters, or overlapping file write ownership. |
 | D4 Inputs, constraints, dependencies | [AUTO] Inputs: Rule 17 (`.agents/rules/17-multi-account-agent-orchestration.md`), `scripts/codex_quota_workaround.py`, `project/core/ai_provider_router.py`. | Strict DAG: TICKET-QUOTA-001 leads; TICKET-QUOTA-002, 003, 004 are concurrent/READY; TICKET-QUOTA-005 QA follows; TICKET-QUOTA-006 finalizes. |
-| D5 Architecture, ownership, handoff | [CONFIRMED] Single-editor file ownership enforced per ticket. TICKET-QUOTA-001 owned by `business_analyst` (`plans/plan.md`, `atomic_tasks.md`). Downstream tickets assigned to specialized roles. | No concurrent multi-writer collisions. Handoffs require verified receipts. |
+| D5 Architecture, ownership, handoff | [CONFIRMED] Single-editor file ownership enforced per ticket. TICKET-QUOTA-001 owned by `business_analyst` (`plans/plan.md`, `ATOMIC_TICKET.md`). Downstream tickets assigned to specialized roles. | No concurrent multi-writer collisions. Handoffs require verified receipts. |
 | D6 Assumption register | [CONFIRMED] State capsules prevent cognitive context loss during account failover. Dynamic TTR avoids premature requests and minimizes rate limit penalties. | If state serialization fails, fail closed and dump plain text rescue instructions to `HANDOFF.md`. |
 | D7 Risk and recovery | [AUTO] Risks: Race conditions during account swapping, stale cooldown timers, dirty git tree on failover. Recovery: Pre-swap git diff verification, Canary probe before admission, pure ASCII fallback logging. | If a worker fails to bootstrap from capsule, escalate immediately to `NEEDS_HITL`. |
 | D8 Budget and evidence strategy | [AUTO] Minimal token consumption via zero-polling architecture, ephemeral micro-canary probes (< 100 tokens), zero secret leaks, pure ASCII evidence logs. | Stop on token burn spikes, secret detection, or unbounded test retries. |
@@ -178,7 +180,7 @@ A robust protocol ensuring zero context loss and zero lost work during quota exh
        - `modified_files`: List of all tracked files modified in current session.
        - `diff_sha256`: Pure ASCII SHA-256 hash of `git diff`.
        - `cognitive_memory_summary`: Concise summary of accomplished steps, current hypothesis, and pending decisions.
-       - `remaining_subtasks`: Ordered list of uncompleted tasks from `atomic_tasks.md`.
+       - `remaining_subtasks`: Ordered list of uncompleted tasks from `ATOMIC_TICKET.md`.
     3. Persist `StateCapsule` to `plans/evidence/quota_capsules/<capsule_id>.json`.
     4. Append rescue record to `HANDOFF.md` Rescue Queue.
     5. Log `[OK] Pre-swap freeze complete for ticket <ticket_id> (Capsule: <capsule_id>)`.
@@ -215,7 +217,7 @@ A robust protocol ensuring zero context loss and zero lost work during quota exh
      - All multi-agent dispatches are immediately suspended.
      - Working state is dumped to `HANDOFF.md`.
      - System transitions to `NEEDS_HITL` to protect master coordination integrity.
-  4. **Single-Editor Isolation**: Auxiliary workers cannot modify orchestrator-owned governance files (`plans/plan.md`, `atomic_tasks.md`), preserving clear organizational boundaries.
+  4. **Single-Editor Isolation**: Auxiliary workers cannot modify orchestrator-owned governance files (`plans/plan.md`, `ATOMIC_TICKET.md`), preserving clear organizational boundaries.
 
 <!-- QUOTA-SWAP-ROADMAP-20260904:END -->
 
@@ -278,9 +280,9 @@ A robust protocol ensuring zero context loss and zero lost work during quota exh
 |---|---|---|
 | D1 Scope boundary | `[CONFIRMED]` Scope strictly covers Rule 24 (Red/Blue team, 4-tier test paths, TIA matrix), 5 Subdirectory Scoped AGENTS.md files, and ecosystem parity verification. | Any expansion into unrelated features, unreviewed production deployments, or credential modifications is rejected. |
 | D2 Requirement delta | `[CONFIRMED]` Formalizes the upcoming architectural roadmap from `HANDOFF.md` into active governance under Program `GOV-ROADMAP-20260904` with 5 atomic tickets. | Retains existing TDD lifecycle and capacity controls while optimizing verification through TIA and chunked context. |
-| D3 Acceptance and stop | `[CONFIRMED]` Persist GRILL report and architecture spec in `plans/plan.md`, register 5 atomic tickets in `atomic_tasks.md` with explicit specialist and skill assignments. | Stop on any syntax error, missing ticket metadata, non-ASCII characters, or unowned file mutation. |
+| D3 Acceptance and stop | `[CONFIRMED]` Persist GRILL report and architecture spec in `plans/plan.md`, register 5 atomic tickets in `ATOMIC_TICKET.md` with explicit specialist and skill assignments. | Stop on any syntax error, missing ticket metadata, non-ASCII characters, or unowned file mutation. |
 | D4 Inputs, constraints, dependencies | `[AUTO]` Inputs: `HANDOFF.md` roadmap sections, existing rules (Rule 1, Rule 11, Rule 21, Rule 22), ecosystem sync scripts. | Tickets follow strict dependency graph: `GOV-025` leads planning, followed by parallel `GOV-026` & `GOV-027`, then `GOV-028` QA audit, then `GOV-029` safety & release gate. |
-| D5 Architecture, ownership, handoff | `[CONFIRMED]` Single-editor file ownership per ticket. `TICKET-GOV-025` owned by `business_analyst` (`plans/plan.md`, `atomic_tasks.md`). Downstream tickets assigned to specific specialists with required skills. | No overlapping file edits across concurrent tickets. Hand-offs must be serial and verified. |
+| D5 Architecture, ownership, handoff | `[CONFIRMED]` Single-editor file ownership per ticket. `TICKET-GOV-025` owned by `business_analyst` (`plans/plan.md`, `ATOMIC_TICKET.md`). Downstream tickets assigned to specific specialists with required skills. | No overlapping file edits across concurrent tickets. Hand-offs must be serial and verified. |
 | D6 Assumption register | `[CONFIRMED]` Subdirectory `AGENTS.md` reduces token context by 70-85% for localized agent tasks. TIA reduces test execution from 8-9 min to < 30s for focused changes. | If TIA misses regressions, fallback to full CI suite on PR/pre-release. Root safeguards always take precedence. |
 | D7 Risk and recovery | `[AUTO]` Risks: Context fragmentation, rule drift, skipped tests on breaking changes. Recovery: Fail-closed fallback to root rules, mandatory full CI regression on release/PR, pure ASCII logging. | If a test fails under TIA or parity breaks, revert candidate commit and block release. |
 | D8 Budget and evidence strategy | `[AUTO]` Token-efficient context chunking, minimal execution time via TIA, zero secret leaks, pure ASCII evidence logs. | Stop on secret leaks, missing evidence receipts, or unbounded test runs. |
@@ -311,7 +313,7 @@ TICKET-GOV-025 (DONE: Spec & Planning Lead)
 **Status**: `APPROVED`
 **Requirement-change authority**: The owner instruction dated `2026-09-03` explicitly requires a mandatory atomic TDD lifecycle: verified test-only baseline before source work, independent QA before DONE, and immutable baseline correction only through a recorded requirement change plus independently reviewed supersession.
 **Authorized current phase**: the owner-approved `TDD-GOV-BSA-021`
-requirement-change record in `atomic_tasks.md` and this plan only. After that
+requirement-change record in `ATOMIC_TICKET.md` and this plan only. After that
 two-file commit, `TDD-GOV-QA-022` test-only sequence-4 baseline work is the
 only authorized next phase.
 
@@ -385,7 +387,7 @@ verified and independent review returns `PASS`.
 
 | ID | Result and evidence state | Decision / stop threshold |
 |---|---|---|
-| D1 Scope boundary | `[CONFIRMED]` IN is the two-document authority record followed by one separately owned QA test/manifest pair correcting only REVIEW-015 gaps. OUT is any change now to tests, manifests, rules, hooks, skills, source, generated files, runtime, branches outside this worktree, remotes, secrets, push, deploy, or other external system. | Stop BSA-016 on any path beyond `atomic_tasks.md` and `plans/plan.md`. After its commit, only QA-017 may start. |
+| D1 Scope boundary | `[CONFIRMED]` IN is the two-document authority record followed by one separately owned QA test/manifest pair correcting only REVIEW-015 gaps. OUT is any change now to tests, manifests, rules, hooks, skills, source, generated files, runtime, branches outside this worktree, remotes, secrets, push, deploy, or other external system. | Stop BSA-016 on any path beyond `ATOMIC_TICKET.md` and `plans/plan.md`. After its commit, only QA-017 may start. |
 | D2 Requirement delta | `[CONFIRMED]` The owner answered `อนุมัติ` after the explicit proposal to preserve the old baseline and create a new test-only superseding baseline limited to review findings. | Sequence 1 remains structurally verified but rejected as DEV authority; sequence 2 must be new history, not an edit or relabel. |
 | D3 Acceptance and stop | `[CONFIRMED]` BSA-016 records exact SHAs/hashes, gaps, ownership, receipts, dependencies, allowlist, and stop gates in exactly two files. QA-017 must create deterministic dynamic positive/negative tests and a closed sequence-2 manifest, then pass provenance and independent REVIEW-018. | Any baseline drift, static/string-only substitute, permanent-denial-only implementation target, unbound receipt, extra path, nondeterministic RED, or review FAIL stops all source work. |
 | D4 Inputs, constraints, dependencies | `[AUTO]` Inputs are sequence-1 commit `b38d5077057c3852a7e2e21af37376567231f810`, test hash `ce7b2c1c5e0428188dc456438bfa3df6e4bb237df92c94c3e5648947f1c86642`, its closed manifest, the read-only REVIEW-015 result, current registries/adapters, and the existing conflict marker. `[CONFIRMED]` Owner approval is available. | QA-017 depends on BSA-016 DONE; REVIEW-018 depends on QA-017 verified; DEV depends on REVIEW PASS. Credentials/network/production are neither inputs nor authorized dependencies. |
@@ -417,7 +419,7 @@ The manifest used `schema_version: test-provenance-v1`, `sequence: 2`,
 `supersedes: b38d5077057c3852a7e2e21af37376567231f810`, a non-null correction reason
 binding the `2026-09-03` owner approval and REVIEW-015, the BSA-016 commit as
 its parent, new test hashes, exact RED argv/exit/fingerprint, QA/reviewer roles,
-and the future-path allowlist in `atomic_tasks.md`.
+and the future-path allowlist in `ATOMIC_TICKET.md`.
 
 #### Sequence-2 behavioral test matrix
 
@@ -506,7 +508,7 @@ blocked until sequence 4 is verified and the dependency chain passes.
 
 | ID | Evidence state and decision | Measurable acceptance / stop |
 |---|---|---|
-| D1 Scope boundary | `[CONFIRMED]` BSA-021 changes only the two governance documents. QA-022 may add only `tests/test_atomic_tdd_lifecycle_governance_v4.py` and `plans/test_provenance/ticket-tdd-gov-qa-022-baseline.json`. OUT is any change to old tests/manifests, implementation, rule, hook, skill, config, generated output, other worktree/branch, remote, secret, deploy, or external system. | Stop BSA-021 on any path beyond `atomic_tasks.md` and `plans/plan.md`. After this commit, only QA-022 may start. |
+| D1 Scope boundary | `[CONFIRMED]` BSA-021 changes only the two governance documents. QA-022 may add only `tests/test_atomic_tdd_lifecycle_governance_v4.py` and `plans/test_provenance/ticket-tdd-gov-qa-022-baseline.json`. OUT is any change to old tests/manifests, implementation, rule, hook, skill, config, generated output, other worktree/branch, remote, secret, deploy, or external system. | Stop BSA-021 on any path beyond `ATOMIC_TICKET.md` and `plans/plan.md`. After this commit, only QA-022 may start. |
 | D2 Requirement delta | `[CONFIRMED]` The owner explicitly approved a Requirement Change to create a sequence-4 test-only superseding baseline resolving the Codex registry contradiction, retaining all v2 contracts and v3 dynamic manifest-tamper tests, and embedding Google AI Studio 3-lane quota orchestration governance. | Sequences 1, 2, and 3 remain immutable history; sequence 4 is a new superseding baseline, never an edit or relabel of prior commits. |
 | D3 Acceptance and stop | `[CONFIRMED]` Sequence 4 must have a closed sequence-4 manifest, deterministic RED/fingerprint, dynamic resolution of Codex registry contradiction (asserting no fake PreToolUse registration in `.codex/hooks.json`), all v2 positive/negative/lifecycle contracts, v3 dynamic manifest-tamper proof, provenance PASS, then independent REVIEW-023 PASS. | GREEN-at-creation, unresolved contradiction, nondeterminism, unbound receipt, extra path, or any old hash drift blocks source. |
 | D4 Inputs, constraints, dependencies | `[AUTO]` Inputs are owner approval, REVIEW-018 failure receipt (`plans/evidence/tdd-governance/tdd-gov-review-018.json`), retained SHAs/hashes for seq 1, 2, 3, v2/v3 test contracts, AI Studio quota governance requirements, provenance tooling, and sequence-4 allowlist. | QA-022 depends on BSA-021; REVIEW-023 depends on QA-022; DEV-025 depends on both. Credentials, network, and production are not inputs. |
@@ -554,7 +556,7 @@ Its manifest must contain:
 - Exact fresh RED evidence
 - Non-null correction reason binding the owner's `2026-09-03` requirement change approval,
   REVIEW-018 failure resolution, and Google AI Studio 3-lane quota orchestration governance
-- `allowed_source_paths` exactly matching the sequence-4 list recorded in `atomic_tasks.md`
+- `allowed_source_paths` exactly matching the sequence-4 list recorded in `ATOMIC_TICKET.md`
 
 #### Sequence-4 behavioral requirements
 
@@ -591,7 +593,7 @@ Only PASS admits DEV-025. QA-030 and REVIEW-040 keep their existing receipt path
 and must bind sequence 4. Integration remains limited to the existing provider
 remediation branch gate; no push, deploy, secret, or external action is authorized.
 
-**BSA-021 stop condition**: commit exactly `atomic_tasks.md` and
+**BSA-021 stop condition**: commit exactly `ATOMIC_TICKET.md` and
 `plans/plan.md`, verify whitespace and frozen hashes, leave a clean worktree,
 then stop without creating QA-022 artifacts or beginning implementation.
 
@@ -610,7 +612,7 @@ then stop without creating QA-022 artifacts or beginning implementation.
 - `[CONFIRMED]` The owner approved the exact IN/OUT route boundary below and creation of a new baseline. UI controls for excluded write actions must not be removed or hidden in this governance ticket; their future UX treatment is separate scope.
 - `[AUTO]` Git metadata identifies prior candidate lineage `d95783eeff26e85874477146db2ccb0a61d24ce8 -> d11b8f30cdf969a87b0efa1c02325ec04f05bd1a -> 5b261c532c4ea59246d23f095f605ddb22da354c`. The intermediate source commit `d11b8f3` has no `Test-Baseline:` trailer; only the later `5b261c5` commit carries `Test-Baseline: d95783eeff26e85874477146db2ccb0a61d24ce8`.
 - `[AUTO]` The existing baseline assets are `tests/admin_production_ingress_contract.test.mjs` and `plans/test_provenance/ticket-admin-remed-qa-001-baseline.json`. They predate this narrower owner decision and therefore remain historical evidence rather than the authorized baseline for new source work.
-- `[AUTO]` The pre-existing worktree changes shown by `git status --short` are outside `plans/plan.md` and `atomic_tasks.md`; this ticket does not claim or modify them.
+- `[AUTO]` The pre-existing worktree changes shown by `git status --short` are outside `plans/plan.md` and `ATOMIC_TICKET.md`; this ticket does not claim or modify them.
 
 ### Nine-dimension matrix
 
@@ -620,7 +622,7 @@ then stop without creating QA-022 artifacts or beginning implementation.
 | D2 Requirement delta | Supersede the broader prior ingress baseline with an explicit least-privilege allowlist. Reclassify `d95783e -> d11b8f3 -> 5b261c5` as `NON_TDD_RECONSTRUCTED` because the intermediate source commit lacks the required trailer. | `[CONFIRMED]` / `[AUTO]` | Resolved. Prior artifacts remain immutable historical evidence and cannot satisfy the new source gate. |
 | D3 Acceptance and stop conditions | QA-025 must create exactly one new test contract and one new manifest, prove RED plus negative/fail-closed behavior for the approved boundary, and earn `TEST_BASELINE_VERIFIED` without source changes. | `[CONFIRMED]` | Resolved. Stop on path drift, source mutation, missing provenance/trailer controls, secret output, or any ambiguous route admission. |
 | D4 Inputs, constraints, and dependencies | Inputs are the owner-approved route matrix, historical commit metadata, existing baseline assets, a clean immutable QA parent, and provenance tooling. QA-025 is the mandatory dependency for all new source/review/ops tickets. | `[CONFIRMED]` / `[AUTO]` | Resolved. Deployment credentials, tokens, secret values, production access, and external writes are neither inputs nor authorized dependencies. |
-| D5 Architecture, ownership, and handoff | BSA-015 owns only this plan and `atomic_tasks.md`; QA-025 owns only its new test and manifest; downstream developer/reviewer/ops tickets remain blocked in strict serial order. | `[CONFIRMED]` | Resolved. One-editor ownership is explicit; no downstream lane may treat the prior baseline as admission evidence. |
+| D5 Architecture, ownership, and handoff | BSA-015 owns only this plan and `ATOMIC_TICKET.md`; QA-025 owns only its new test and manifest; downstream developer/reviewer/ops tickets remain blocked in strict serial order. | `[CONFIRMED]` | Resolved. One-editor ownership is explicit; no downstream lane may treat the prior baseline as admission evidence. |
 | D6 Assumption register | Owner authority and route intent are confirmed. `:source_id` is a path parameter; gray-zone read coverage includes the supported `answered` query forms while preserving the same GET path. Existing UI controls remain present pending separate UX scope. | `[CONFIRMED]` | No pending material assumption. No permission is inferred for implementation or release. |
 | D7 Risk and recovery | Risks are accidental privileged-write exposure, wildcard admission, false TDD provenance, UI scope creep, and status inflation. Recovery is documentation-only: retain historical records, block downstream tickets, and amend this decision only with a new owner-approved scope record. | `[CONFIRMED]` / `[AUTO]` | Resolved. Any uncertain path fails closed and returns the affected ticket to `BLOCKED`. |
 | D8 Budget and evidence strategy | DispatchDecision v1: phase `governance-scope`; ranks scope=3, complexity=2, risk=3, ambiguity=1, evidence=3; floor and selected intent `codex1/gpt-5.6-sol/high`; quota constrained/Tier 2 Amber; `WRITE_GOVERNANCE`; policy v1; `root-medium=true`; HITL=true from current owner approval. | `[CONFIRMED]` | Native route intent is not provider/runtime proof. Evidence is bounded to route names, hashes, paths, provenance state, and ASCII-safe results; never secret material. |
@@ -672,7 +674,7 @@ ADMIN-REMED-BSA-015 (DONE: approved governance scope only)
 
 | Ticket | Scope & Role | Acceptance Requirement | Evidence Receipt | Status |
 |---|---|---|---|:---:|
-| `ADMIN-REMED-BSA-015` | Scope Delta & Planning (`business_analyst`) | Exact 11 IN routes allowlist, fail-closed OUT matrix, D1-D9 grill, DAG | `plans/plan.md`, `atomic_tasks.md` | DONE |
+| `ADMIN-REMED-BSA-015` | Scope Delta & Planning (`business_analyst`) | Exact 11 IN routes allowlist, fail-closed OUT matrix, D1-D9 grill, DAG | `plans/plan.md`, `ATOMIC_TICKET.md` | DONE |
 | `ADMIN-REMED-QA-025` | Ingress Scope Contract Test Baseline (`qa_tester`) | RED test baseline for 11 IN routes, negative controls, immutable manifest | `tests/admin_production_ingress_scope_contract.test.mjs`, `plans/test_provenance/ticket-admin-remed-qa-025-scope-baseline.json` | DONE |
 | `ADMIN-REMED-DEV-035` | Route Allowlist & Wildcard Elimination (`developer`) | Exact rewrites in `vercel.json` & `api/index.js`, token auth, preserved UI controls | Candidate commit `6ba69c49838a05ce48b2b95042f2eb1ea3fe771c` (`Test-Baseline: 90856ba86480b1fdc268b31b83e9a8767c845c0f`) | DONE |
 | `ADMIN-REMED-REVIEW-045` | Safety Audit & Independent Review (`code_reviewer`) | 0/0/0/0 findings, 4/4 ingress tests, 8/8 CORS tests, 0 leaks, ecosystem sync | `plans/evidence/admin-remed-001/review-qa-025.json` | DONE |

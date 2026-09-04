@@ -3,7 +3,7 @@
 > **Generated**: 2026-09-04T01:40:00+07:00 (Asia/Bangkok)  
 > **Generating Agent**: devops (The Bridge)  
 > **Base Branch**: `main`  
-> **Primary Authority**: [`ATOMIC_TICKET.md`](ATOMIC_TICKET.md) (and [`atomic_tasks.md`](atomic_tasks.md)) & [`plans/plan.md`](plans/plan.md)  
+> **Primary Authority**: [`ATOMIC_TICKET.md`](ATOMIC_TICKET.md) & [`plans/plan.md`](plans/plan.md)  
 > **Ecosystem Sync**: 100% GREEN (`python3 scripts/sync_ai_agent_ecosystem.py --check` PASS: 16/16)  
 > **Test Suite**: 23/23 Quota Swap Tests PASSED, 5/5 Red Team Governance Tests PASSED, 6/6 Skill Tests PASSED, 67/67 Edge Tests PASSED  
 > **Rust Rayon Secret Scan**: **6,234 files scanned — 0 leaks found [PASSED]**  

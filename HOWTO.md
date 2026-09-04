@@ -763,7 +763,7 @@ integration, main-only CI, deployment และ fresh post-deploy evidence ก�
 ```
 
 ##### ขั้นตอนที่ 2: อัปเดต Requirement ในเอกสารกำกับดูแล
-- บันทึกการเปลี่ยนแปลง Requirement ลงใน `plans/plan.md` และ `atomic_tasks.md`
+- บันทึกการเปลี่ยนแปลง Requirement ลงใน `plans/plan.md` และ `ATOMIC_TICKET.md`
 - ปรับปรุงสถานะ Ticket เดิมเป็น `SUPERSEDED` และเปิด Sequence ใหม่สำหรับ QA/Dev
 
 ##### ขั้นตอนที่ 3: เขียน Red Unit Test ใหม่และคำนวณ SHA-256
