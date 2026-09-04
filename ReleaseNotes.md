@@ -1,3 +1,70 @@
+# 🚀 HoroConsultant Release Notes — Protected Admin Ingress Remediation (Sprint ADMIN-REMED-001 / Scope Delta ADMIN-REMED-BSA-015)
+
+> **Release**: `Protected Admin Ingress Remediation (Least-Privilege Route Allowlist, Wildcard Elimination, Google Token Auth Ingress, Zero Secret Leaks)`  
+> **Release Date**: 2026-09-04 (Asia/Bangkok)  
+> **Sprint Verdict**: `CERTIFIED_COMPLETE` (5/5 tickets DONE & 100% checks passing)  
+> **Release Authority**: Master Orchestrator & Business System Analyst  
+
+---
+
+## 🌟 Executive Summary
+Successfully remediated, verified, and deployed the Protected Admin Ingress boundary under Sprint `ADMIN-REMED-001` (Scope Delta `ADMIN-REMED-BSA-015` / `ADMIN-REMED-OPS-055`). The remediation eliminates broad, permissive wildcards (`/admin/:path*`, `/hitl/:path*`) across `vercel.json` and `api/index.js`, enforces an explicit 11-route least-privilege ingress allowlist, mandates fail-closed server-side Google credential token verification on `POST /admin/auth/google` (completely excising mock-email bypass vectors), and preserves administrative dashboard controls in `admin.html`. The candidate commit `6ba69c49838a05ce48b2b95042f2eb1ea3fe771c` was verified against all pre-release gates with zero secret leaks across 6,232 files, 4/4 ingress scope contract tests, 8/8 CORS contract tests, Docker dry-run release build verification, and 16/16 ecosystem sync checks, formally documented in `plans/evidence/admin-remed-001/ops-055.json`.
+
+## 🛠️ Architectural Deliverables
+1. **Least-Privilege Ingress Allowlist (11 IN Routes)**: Enforced exact route rewrites in `vercel.json` and API gateway routing in `api/index.js` for authenticated operations:
+   - `GET /admin/auth/config` (authentication configuration bootstrap)
+   - `POST /admin/auth/google` (Google ID token credential verification only; zero mock-email bypass)
+   - `GET /admin/catalog/summary` (training catalog summary metrics)
+   - `GET /admin/catalog` (training catalog dataset listing)
+   - `GET /admin/catalog/source/:source_id` (single catalog source inspection)
+   - `GET /admin/grayzone` (gray-zone triage query including `answered` query variations)
+   - `GET /admin/finetune/status` (fine-tune model training status)
+   - `GET /admin/finetune/download` (authenticated training data download)
+   - `GET /admin/finetune/download-grayzone` (authenticated gray-zone data download)
+   - `GET /admin/provider-pools` (AI provider pool status & circuit metrics)
+   - `GET /hitl/stats` (human-in-the-loop triage statistics)
+2. **Wildcard Elimination & Fail-Closed Protection**: Excised permissive `/admin/:path*` and `/hitl/:path*` rewrites from `vercel.json`. Mutating routes (`POST /admin/grayzone/answer`, `DELETE /admin/grayzone/answer`, `POST /admin/finetune/export-grayzone`, `POST /admin/finetune/merge`, `POST /admin/finetune/trigger`), unenumerated routes, and method substitutions fail closed with HTTP 401/404/405 without triggering upstream calls.
+3. **Server-Side Google Token Authentication**: Enforced genuine Google ID token validation on `POST /admin/auth/google`, rejecting mock emails and unauthenticated requests.
+4. **UI Dashboard Controls Preservation**: Retained operational buttons and telemetry controls across `project/static/admin.html` and `public/admin.html` intact with `State.adminIdToken` and Bearer Authorization headers, deferring UX modifications to separate scope.
+5. **Immutable Test Provenance & Guard Compliance**: Bound implementation strictly to QA-025 test contract `tests/admin_production_ingress_scope_contract.test.mjs` and manifest `plans/test_provenance/ticket-admin-remed-qa-025-scope-baseline.json` via candidate commit trailer `Test-Baseline: 90856ba86480b1fdc268b31b83e9a8767c845c0f`.
+
+## 🧪 Verification Matrix
+| Test Suite / Audit | Tests / Scope | Pass Rate | Status |
+|---|:---:|:---:|:---:|
+| Protected Ingress Contract Tests (`admin_production_ingress_scope_contract.test.mjs`) | 4 tests | 100% | PASSED |
+| API Gateway CORS Contract Tests (`api_gateway_cors_contract.test.mjs`) | 8 tests | 100% | PASSED |
+| HuggingFace Space Docker Dry-Run (`publish_space_hf.py --dry-run`) | Docker release build | 100% | PASSED |
+| Ecosystem Parity Sync (`sync_ai_agent_ecosystem.py --check`) | 16 / 16 checks | 100% | PASSED |
+| Rust Rayon Parallel Secret Scan (`code_reviewer.py --scan-secrets`) | 6,232 files | 0 leaks | PASSED |
+| Pure ASCII Verification | All files | 100% | PASSED |
+| **Total Verification Conformance** | **All Gates** | **100%** | **PASSED** |
+
+## 📋 Milestone Rollup (100% DONE)
+| Ticket | Title | Assigned Specialist | Status |
+|---|---|---|:---:|
+| `ADMIN-REMED-BSA-015` | Privileged Admin Action Baseline Supersession Planning & GRILL | business_analyst | DONE |
+| `ADMIN-REMED-QA-025` | Ingress Scope Contract Test Baseline & RED Provenance | qa_tester | DONE |
+| `ADMIN-REMED-DEV-035` | Least-Privilege Ingress Allowlist & Wildcard Elimination | developer | DONE |
+| `ADMIN-REMED-REVIEW-045` | Pre-Deploy Safety Audit & Code Review Gate | code_reviewer | DONE |
+| `ADMIN-REMED-OPS-055` | Production Deployment Gate & Rollback Verification | devops | DONE |
+| **Total** | **Program ADMIN-REMED-001 (Scope Delta ADMIN-REMED-BSA-015)** | **5 / 5 Tickets** | **100% DONE** |
+
+## 🌐 Live Production Endpoints
+- **Vercel Gateway / Frontend**: https://horo-consultant-psi.vercel.app
+- **HuggingFace Backend Space**: `pphothidaen/horoconsultant-core-backend` (SDK: Docker)
+- **Cloudflare Edge Production**: https://horoconsultant-pages.pages.dev
+- **Verified Health Endpoint**: `https://horoconsultant-pages.pages.dev/health` -> HTTP/2 200 OK (`{"status":"ok","service":"Computational Metaphysics Engine","rust_acceleration":true}`)
+
+## 🗄️ Archived Plans List
+- Active specifications for Scope Delta `ADMIN-REMED-BSA-015` and Sprint `ADMIN-REMED-001` are recorded in `plans/plan.md`.
+- Immutable verification receipts are archived under `plans/evidence/admin-remed-001/`:
+  * `ops-055.json` (Deployment & Pre-Release Gates Receipt, Candidate: `6ba69c49838a05ce48b2b95042f2eb1ea3fe771c`)
+  * `review-qa-025.json` (Independent Code Review & Safety Audit Receipt)
+  * `qa-010-baseline.json` (Historical Data-Path Audit Baseline)
+- Test provenance manifests archived in `plans/test_provenance/ticket-admin-remed-qa-025-scope-baseline.json`.
+
+---
+
 # 🚀 HoroConsultant Release Notes — Smart Quota Swapping & Seamless Handoff System
 
 > **Release**: `Smart Quota Swapping & Seamless Handoff System (Quota Cooldown Registry, TTR Engine, Smart Hot-Swap Cascade, 3-Phase State Capsule Protocol, Rule 17 Invariant)`  

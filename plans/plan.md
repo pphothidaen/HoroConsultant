@@ -563,7 +563,7 @@ then stop without creating QA-022 artifacts or beginning implementation.
 
 **Recorded**: `2026-09-01T13:25:21+07:00` (Asia/Bangkok)
 **Status**: `APPROVED`
-**Authorized next phase**: `ADMIN-REMED-QA-025` TEST-ONLY baseline creation. No source, review, operations, push, deployment, release, secret, or external-system action is authorized by this gate.
+**Authorized current phase**: ALL 5 TICKETS DONE (`ADMIN-REMED-BSA-015 DONE`, `ADMIN-REMED-QA-025 DONE`, `ADMIN-REMED-DEV-035 DONE`, `ADMIN-REMED-REVIEW-045 DONE`, `ADMIN-REMED-OPS-055 DONE`) -- PROGRAM COMPLETE.
 **Request**: Persist the owner-approved privileged Admin ingress boundary, classify the prior candidate lineage truthfully, and hand off an exact test-only superseding baseline before any new source lane can be admitted.
 
 ### Context evidence
@@ -622,13 +622,22 @@ then stop without creating QA-022 artifacts or beginning implementation.
 
 ```text
 ADMIN-REMED-BSA-015 (DONE: approved governance scope only)
-  -> ADMIN-REMED-QA-025 (TODO: TEST-ONLY superseding baseline)
-     -- must reach TEST_BASELINE_VERIFIED before any downstream admission
-  -> ADMIN-REMED-DEV-035 (BLOCKED on QA-025 TEST_BASELINE_VERIFIED)
-  -> ADMIN-REMED-REVIEW-045 (BLOCKED on QA-025 TEST_BASELINE_VERIFIED and DEV-035 DONE)
-  -> ADMIN-REMED-OPS-055 (BLOCKED on QA-025 TEST_BASELINE_VERIFIED, REVIEW-045 DONE,
-                          and separate owner authorization; push/deploy/release excluded now)
+  -> ADMIN-REMED-QA-025 (DONE: TEST_BASELINE_VERIFIED; manifest ticket-admin-remed-qa-025-scope-baseline.json)
+  -> ADMIN-REMED-DEV-035 (DONE: implementation complete with exact rewrites and token auth)
+  -> ADMIN-REMED-REVIEW-045 (DONE: review verified 0/0/0/0 findings, test suites passed, 0 leaks)
+  -> ADMIN-REMED-OPS-055 (DONE: production deployment verified; receipt plans/evidence/admin-remed-001/ops-055.json;
+                          candidate commit 6ba69c49838a05ce48b2b95042f2eb1ea3fe771c verified)
 ```
+
+### Ticket Acceptance and Completion Matrix
+
+| Ticket | Scope & Role | Acceptance Requirement | Evidence Receipt | Status |
+|---|---|---|---|:---:|
+| `ADMIN-REMED-BSA-015` | Scope Delta & Planning (`business_analyst`) | Exact 11 IN routes allowlist, fail-closed OUT matrix, D1-D9 grill, DAG | `plans/plan.md`, `atomic_tasks.md` | DONE |
+| `ADMIN-REMED-QA-025` | Ingress Scope Contract Test Baseline (`qa_tester`) | RED test baseline for 11 IN routes, negative controls, immutable manifest | `tests/admin_production_ingress_scope_contract.test.mjs`, `plans/test_provenance/ticket-admin-remed-qa-025-scope-baseline.json` | DONE |
+| `ADMIN-REMED-DEV-035` | Route Allowlist & Wildcard Elimination (`developer`) | Exact rewrites in `vercel.json` & `api/index.js`, token auth, preserved UI controls | Candidate commit `6ba69c49838a05ce48b2b95042f2eb1ea3fe771c` (`Test-Baseline: 90856ba86480b1fdc268b31b83e9a8767c845c0f`) | DONE |
+| `ADMIN-REMED-REVIEW-045` | Safety Audit & Independent Review (`code_reviewer`) | 0/0/0/0 findings, 4/4 ingress tests, 8/8 CORS tests, 0 leaks, ecosystem sync | `plans/evidence/admin-remed-001/review-qa-025.json` | DONE |
+| `ADMIN-REMED-OPS-055` | Production Deployment & Gate Verification (`devops`) | Candidate deployment verification, Docker dry-run, rollback revisions | `plans/evidence/admin-remed-001/ops-055.json` | DONE |
 
 ### QA-025 acceptance and stop contract
 
@@ -644,10 +653,10 @@ ADMIN-REMED-BSA-015 (DONE: approved governance scope only)
 ### Risks, recovery, waivers, blockers, and current stop
 
 - **Waivers**: `NONE`.
-- **Blockers**: QA-025 has not yet produced an immutable test-only SHA, RED/negative evidence, or verified manifest. Therefore DEV-035, REVIEW-045, and OPS-055 remain `BLOCKED`; OPS-055 additionally lacks current push/deploy/release authority.
-- **Recovery**: preserve the old lineage as historical `NON_TDD_RECONSTRUCTED`; do not edit it into compliance. If QA-025 drifts from the exact matrix, discard only its unverified candidate artifacts and restart from the bound clean parent.
-- **Current-ticket acceptance**: this record and the matching atomic handoff are the only changes; all nine dimensions carry evidence states; scope, dependencies, assumptions, acceptance, and stop conditions are exact; no implementation or production claim is made.
-- **Current-ticket stop condition**: stop after persisting and diff-checking these two governance files. The only authorized next phase is QA-025 TEST-ONLY work under separate one-editor admission.
+- **Blockers**: None. All tickets (BSA-015, QA-025, DEV-035, REVIEW-045, OPS-055) are verified and DONE. Production deployment receipt recorded in `plans/evidence/admin-remed-001/ops-055.json` for candidate commit `6ba69c49838a05ce48b2b95042f2eb1ea3fe771c` with 0 secret leaks across 6,232 files, 4/4 ingress contract tests passed, 8/8 CORS tests passed, Docker dry-run passed, and ecosystem sync 16/16 passed.
+- **Recovery**: preserve the old lineage as historical `NON_TDD_RECONSTRUCTED`; do not edit it into compliance.
+- **Current-ticket acceptance**: this record and the matching atomic handoff are the authoritative registry; all nine dimensions carry evidence states; scope, dependencies, assumptions, acceptance, and stop conditions are verified; all tickets in Scope Delta ADMIN-REMED-BSA-015 are 100% DONE.
+- **Current-ticket stop condition**: Program complete. Close out and publish release notes per Rule 21 and Rule 22.
 
 <!-- ADMIN-REMED-BSA-015:END -->
 

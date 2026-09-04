@@ -29,23 +29,31 @@
    - **Pre-Deploy Safety & Release Gate**: ตรวจสอบ Secret Scan 6,218 ไฟล์ สะอาด 100% (0 leaks) บันทึกหลักฐานใน `plans/evidence/gov-roadmap-20260904/pre-deploy-gate.json`
    - ปิดงาน TICKET-GOV-025, 026, 027, 028, และ 029 ครบทั้ง 5/5 tickets สมบูรณ์
 
+3. **เสร็จสิ้นการจัดทำคู่มือ TDD Lifecycle & Test Provenance Guard Manual (TODO 1) 100% DONE:**
+   - **TDD First Mandate & Test Baseline Commit Guide**: บันทึกหลักการบังคับสร้าง Test Baseline Commit (Red Test) ก่อนเริ่มเขียน Implementation
+   - **Test Immutability & Blocker Codes**: บันทึกคำอธิบายข้อผิดพลาด `FROZEN_TEST_CHANGED`, `TEST_MODIFIED_AFTER_BASELINE`, `WORKTREE_TEST_CHANGED`, และ `STAGED_TEST_HASH_MISMATCH`
+   - **Standard 5-Step Supersession Protocol**: อธิบายขั้นตอนมาตรฐานเมื่อ Requirement เปลี่ยนแปลง (การสร้าง Superseding Manifest ด้วย `supersedes`, `correction_reason`, `rationale`, การคำนวณ SHA-256 ใหม่, และการเริ่ม TDD Cycle ใหม่)
+   - **CLI Commands & Manifest Structure**: บันทึกตัวอย่างคำสั่ง CLI `scripts/test_provenance_guard.py` และตัวอย่างไฟล์ Manifest ลงใน [`HOWTO.md`](HOWTO.md) ส่วนที่ 3.13 ครบถ้วนสมบูรณ์
+
+4. **เสร็จสิ้น Program ADMIN-REMED-001 (Scope Delta ADMIN-REMED-BSA-015 / ADMIN-REMED-OPS-055) 100% DONE:**
+   - **Protected Admin Ingress Remediation Complete**: ปิดงานครบทั้ง 5/5 tickets (`ADMIN-REMED-BSA-015`, `ADMIN-REMED-QA-025`, `ADMIN-REMED-DEV-035`, `ADMIN-REMED-REVIEW-045`, และ `ADMIN-REMED-OPS-055`) สมบูรณ์ 100%
+   - **RED Test Baseline (`tests/admin_production_ingress_scope_contract.test.mjs`)**: สร้าง Contract ทดสอบ Least-Privilege IN Matrix 11 เส้นทาง และ Fail-Closed OUT Matrix พร้อม Manifest `plans/test_provenance/ticket-admin-remed-qa-025-scope-baseline.json` ผ่าน Guard
+   - **Source Implementation (`vercel.json`, `api/index.js`)**: ลบ Wildcards `/admin/:path*` และ `/hitl/:path*` ออกทั้งหมด บังคับ Exact Rewrites 11 เส้นทาง พร้อม Token Auth และ Fail-Closed Ingress Routing
+   - **UI Controls Preservation**: คง UI buttons และ controls ใน `project/static/admin.html` และ `public/admin.html` ครบถ้วน ไม่ตัดออก
+   - **Independent Code Review (`plans/evidence/admin-remed-001/review-qa-025.json`)**: ผ่านการตรวจรับความปลอดภัยโดย `code_reviewer` (0/0/0/0 findings), 4/4 Ingress Tests ผ่าน, 8/8 CORS Tests ผ่าน, Rayon Secret Scan 6,232 ไฟล์ (0 leaks), Ecosystem Sync 16/16 ผ่านฉลุย
+   - **Production Deployment & Release Gate (`plans/evidence/admin-remed-001/ops-055.json`)**: ดำเนินการ deploy และตรวจรับ candidate commit `6ba69c49838a05ce48b2b95042f2eb1ea3fe771c` สู่ Vercel (`https://horo-consultant-psi.vercel.app`) และ HF Docker Space (`pphothidaen/horoconsultant-core-backend`) พร้อม Docker dry-run ผ่านฉลุย และบันทึก Rollback revisions ชัดเจน
+
 ---
 
-## 2. 📌 UPCOMING ARCHITECTURAL ROADMAP (แผนงานที่ต้องทำต่อ — TODO / DO NOT START YET)
+## 2. 📌 UPCOMING ARCHITECTURAL ROADMAP (แผนงานที่ต้องทำต่อ — ALL ROADMAP & BACKLOG COMPLETED 100% DONE)
 
-> [!IMPORTANT]
-> หัวข้อด้านล่างนี้ได้รับการวิเคราะห์ ออกแบบ และวางแผนไว้อย่างสมบูรณ์แล้ว เพื่อให้ผู้ใช้ตรวจทานและสั่งการเริ่มทำในรอบถัดไป:
-
-### 🛡️ TODO 1: สรุปหลักการ TDD และระบบ Test Provenance Guard
-- **หลักการพื้นฐาน:**
-  - ต้องสร้าง Test Baseline Commit (Red Test) ก่อนเริ่มเขียน Implementation เสมอ
-  - ห้ามแอบแก้ Assertion หรือโค้ด Test ในระหว่างเขียน Source Code หากตรวจพบ SHA-256 Mismatch ระบบจะบล็อกด้วย `TEST_MODIFIED_AFTER_BASELINE`
-- **ข้อยกเว้นกรณี Requirement เปลี่ยนแปลง:**
-  - ห้ามแก้ไขไฟล์ Test ใน commit เดิมโดยพลการ
-  - ต้องทำการ **Cancel / Supersede Ticket เดิม** ใน Manifest (`supersedes: <old-ticket-id>`)
-  - กำหนด Requirement ใหม่ ➔ สร้าง Unit Test ใหม่ที่เป็น Red Test ➔ ทำ Test Baseline Commit ใหม่พร้อมระบุ `correction_reason` และ `rationale` ➔ เริ่ม TDD Cycle ใหม่ตามลำดับ
-- **Action Items เมื่อเริ่มทำ:**
-  - บันทึกคู่มือการแก้ปัญหา `TEST_MODIFIED_AFTER_BASELINE` ลงใน [`HOWTO.md`](HOWTO.md)
+> [!NOTE]
+> ขณะนี้ทุกแผนงานใน Upcoming Roadmap, Active Sprints, และ Backlog ได้รับการปฏิบัติการ ตรวจรับ และปิดงานสมบูรณ์ 100% แล้ว (`ALL DONE`):
+> - ✅ Program `QUOTA-SWAP-ROADMAP-20260904` (6/6 Tickets DONE)
+> - ✅ Program `GOV-ROADMAP-20260904` (5/5 Tickets DONE)
+> - ✅ Program `ADMIN-REMED-001` / Scope Delta `ADMIN-REMED-BSA-015` (5/5 Tickets DONE)
+> - ✅ TDD Lifecycle & Test Provenance Guard Manual in `HOWTO.md` (TODO 1 DONE)
+> - ✅ ไม่มียอดงานคงค้างใน Backlog (0 Pending Tasks)
 
 ---
 

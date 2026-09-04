@@ -1,0 +1,59 @@
+{
+  "ticket_id": "ADMIN-REMED-OPS-055",
+  "program_id": "ADMIN-REMED-001",
+  "scope_delta": "ADMIN-REMED-BSA-015",
+  "role": "devops",
+  "timestamp": "2026-09-04T09:02:30+07:00",
+  "candidate_commit": "6ba69c49838a05ce48b2b95042f2eb1ea3fe771c",
+  "status": "READY_FOR_PROD",
+  "target_deployments": {
+    "vercel": "https://horo-consultant-psi.vercel.app",
+    "hf_space": "pphothidaen/horoconsultant-core-backend (sdk: docker)"
+  },
+  "pre_release_gates": {
+    "secret_scan": "PASSED (0 leaks)",
+    "docker_dry_run": "PASSED",
+    "ecosystem_sync": "PASSED (16/16)",
+    "ingress_contract_tests": "PASSED (4/4)",
+    "cors_contract_tests": "PASSED (8/8)"
+  },
+  "gate_details": {
+    "secret_scan": {
+      "command": "python3 project/core/code_reviewer.py --scan-secrets",
+      "engine": "Rust Security Auditor via Rayon",
+      "scanned_files": 6232,
+      "secret_leaks_found": 0,
+      "status": "PASSED"
+    },
+    "docker_dry_run": {
+      "command": "python3 scripts/publish_space_hf.py --space-id pphothidaen/horoconsultant-core-backend --sdk docker --dry-run",
+      "status": "PASSED",
+      "outcome": "DOCKER_RELEASE_DRY_RUN"
+    },
+    "ecosystem_sync": {
+      "command": "python3 scripts/sync_ai_agent_ecosystem.py --check",
+      "status": "PASSED",
+      "passed_checks": 16,
+      "total_checks": 16
+    },
+    "ingress_contract_tests": {
+      "command": "node --test tests/admin_production_ingress_scope_contract.test.mjs",
+      "status": "PASSED",
+      "passed_tests": 4,
+      "total_tests": 4,
+      "failed_tests": 0
+    },
+    "cors_contract_tests": {
+      "command": "node --test tests/api_gateway_cors_contract.test.mjs",
+      "status": "PASSED",
+      "passed_tests": 8,
+      "total_tests": 8,
+      "failed_tests": 0
+    }
+  },
+  "rollback_revisions": {
+    "git": "90856ba86480b1fdc268b31b83e9a8767c845c0f",
+    "vercel": "previous deployment",
+    "hf_space": "previous image"
+  }
+}
