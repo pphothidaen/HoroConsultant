@@ -9,8 +9,19 @@ const MAX_BACKEND_TIMEOUT_MS = 30_000;
 const MAX_REQUEST_BODY_BYTES = 2 * 1024 * 1024;
 const PUBLIC_API_PATH = /^\/api\/v[123](?:\/[A-Za-z0-9._~!$&'()*+,;=:@/-]*)?$/;
 const PUBLIC_READ_PATHS = new Set(["/health", "/docs", "/openapi.json"]);
-const PRIVILEGED_API_PATH = /^\/admin\/[A-Za-z0-9._~!$&'()*+,;=:@/-]*$/;
-const PRIVILEGED_READ_PATHS = new Set(["/hitl/stats"]);
+const PRIVILEGED_EXACT_PATHS = new Set([
+  "/admin/auth/config",
+  "/admin/auth/google",
+  "/admin/catalog/summary",
+  "/admin/catalog",
+  "/admin/grayzone",
+  "/admin/finetune/status",
+  "/admin/finetune/download",
+  "/admin/finetune/download-grayzone",
+  "/admin/provider-pools",
+  "/hitl/stats",
+]);
+const PRIVILEGED_SOURCE_DETAIL_PATH = /^\/admin\/catalog\/source\/[A-Za-z0-9._~-]+$/;
 const PRIVILEGED_AUTH_BOOTSTRAP_PATHS = new Set(["/admin/auth/config", "/admin/auth/google"]);
 const PUBLIC_MUTATION_PATHS = new Set([
   "/api/v1/location/resolve",
@@ -27,6 +38,19 @@ const PUBLIC_MUTATION_PATHS = new Set([
   "/api/v2/chat/consult",
   "/api/v3/calculate",
 ]);
+
+export function isProductionAdminRoute(pathname) {
+  return PRIVILEGED_EXACT_PATHS.has(pathname) || PRIVILEGED_SOURCE_DETAIL_PATH.test(pathname);
+}
+
+function isAllowedRoute(pathname) {
+  if (PUBLIC_READ_PATHS.has(pathname)) return true;
+  if (isProductionAdminRoute(pathname)) return true;
+  if (PUBLIC_API_PATH.test(pathname)) {
+    return !/^\/api\/v[123]\/(?:admin|hitl)(?:\/|$)/.test(pathname);
+  }
+  return false;
+}
 
 /**
  * Resolve the sole authorized Docker backend. Environment configuration may
@@ -80,35 +104,43 @@ function requestPath(request) {
     || rawPath.includes("%")
     || rawPath.includes("\\")
     || rawPath.includes("//")
-    || rawPath.includes("?")
     || rawPath.includes("#")
     || /[\u0000-\u001F\u007F]/.test(rawPath)) {
     return null;
   }
 
-  const segments = rawPath.split("/");
+  const questionIndex = rawPath.indexOf("?");
+  const pathname = questionIndex === -1 ? rawPath : rawPath.slice(0, questionIndex);
+  const embeddedQuery = questionIndex === -1 ? "" : rawPath.slice(questionIndex + 1);
+
+  if (pathname.includes("//") || pathname.length === 0) {
+    return null;
+  }
+
+  const segments = pathname.split("/");
   if (segments.some(segment => segment === "." || segment === "..")) return null;
-  if (!PUBLIC_READ_PATHS.has(rawPath)
-    && !PUBLIC_API_PATH.test(rawPath)
-    && !PRIVILEGED_API_PATH.test(rawPath)
-    && !PRIVILEGED_READ_PATHS.has(rawPath)) return null;
+  if (!isAllowedRoute(pathname)) return null;
 
   const query = new URLSearchParams();
+  if (embeddedQuery) {
+    const embeddedParams = new URLSearchParams(embeddedQuery);
+    for (const [key, value] of embeddedParams.entries()) {
+      query.append(key, value);
+    }
+  }
   for (const [key, value] of requestUrl.searchParams.entries()) {
     if (key !== "path") query.append(key, value);
   }
-  return `${rawPath}${query.size ? `?${query.toString()}` : ""}`;
+  return `${pathname}${query.size ? `?${query.toString()}` : ""}`;
 }
 
 function allowedMethods(path) {
   const pathname = path.split("?", 1)[0];
   if (PUBLIC_READ_PATHS.has(pathname)) return ["GET"];
-  if (PRIVILEGED_READ_PATHS.has(pathname)) return ["GET"];
-  if (pathname === "/admin/auth/config") return ["GET"];
   if (pathname === "/admin/auth/google") return ["POST"];
-  if (PRIVILEGED_API_PATH.test(pathname)) return ["GET", "POST", "PUT", "DELETE"];
+  if (isProductionAdminRoute(pathname)) return ["GET"];
   if (PUBLIC_MUTATION_PATHS.has(pathname)) return ["POST"];
-  if (PUBLIC_API_PATH.test(pathname)) return ["GET"];
+  if (PUBLIC_API_PATH.test(pathname) && !/^\/api\/v[123]\/(?:admin|hitl)(?:\/|$)/.test(pathname)) return ["GET"];
   return [];
 }
 
@@ -118,8 +150,7 @@ function methodAllowed(method, path) {
 
 function pathRequiresAuthorization(path) {
   const pathname = path.split("?", 1)[0];
-  return (PRIVILEGED_API_PATH.test(pathname) || PRIVILEGED_READ_PATHS.has(pathname))
-    && !PRIVILEGED_AUTH_BOOTSTRAP_PATHS.has(pathname);
+  return isProductionAdminRoute(pathname) && !PRIVILEGED_AUTH_BOOTSTRAP_PATHS.has(pathname);
 }
 
 function hasBearerAuthorization(request) {
