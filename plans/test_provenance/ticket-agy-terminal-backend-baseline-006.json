@@ -1,0 +1,39 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-AGY-TERMINAL-BACKEND-BASELINE-006",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "f28479360cc2fb5632a0b1ee68fc1ed9c6c935e4",
+  "test_files": [
+    {
+      "path": "tests/test_agy_terminal_execution_backend.py",
+      "sha256": "2bfae42526c4b9c0077405b3b46448575679f930a898f3f24b7248bd0ff352cf"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "tests/test_agy_terminal_execution_backend.py",
+        "--tb=line"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "18 failed, 1 passed; zero collection/setup errors; BACKEND_PROTOCOL_NOT_IMPLEMENTED; assertion/node fingerprint SHA-256 2e1e0d3707b900acfea45e7d7c617ff7dc03f69e3dcd65c340d787efe836f3c1"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/agy_terminal_supervisor.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "New genuine pre-source backend006 contract RED against committed supervisor005 at baseline_parent, source SHA-256 569403b0a418e1ebde285df7e3656cf76dfd641a31880ff1a59ca9769cc5c1b5. Existing CLI responds safely but lacks --backend-json/local-os-backend-v1; assertion failures observe that protocol absence, not import errors or alleged insecure execution. Existing --request-json/run denial passes unchanged. Public new protocol: fixed provider-free plan/probe operations; probe IDs filesystem/deadline/streams; exact owned manifest/base/session/source/helper/program/profile binding, minimal environment and bounded limits. Pure planning PLANNED is distinct from real OS OBSERVED and typed nonzero UNSUPPORTED. Error-contract acceptance of unsupported OS is not capability PASS, not skip-as-proof, and cannot authorize workers. OBSERVED requires exact scoped controls and scratch/process/output outcomes; later independent real-OS audit remains required. No provider/auth/network/account/shared-workspace execution or canonical AGY admission. Actual probes are only fixed harmless temporary canaries; invalid probe requests reject before launch. Global filesystem denial plus explicit runtime whitelist is mandatory; successful allow-default-outside-canary probes from005 are not sufficient. Positive and negative tests use inline temporary inputs and preserve original input/outside canaries. Source/test005/evidence unchanged. Final two fresh runs: [{\"attempt\": 1, \"exit\": 1, \"fingerprint_sha256\": \"2e1e0d3707b900acfea45e7d7c617ff7dc03f69e3dcd65c340d787efe836f3c1\", \"summary\": \"18 failed, 1 passed in 0.54s\"}, {\"attempt\": 2, \"exit\": 1, \"fingerprint_sha256\": \"2e1e0d3707b900acfea45e7d7c617ff7dc03f69e3dcd65c340d787efe836f3c1\", \"summary\": \"18 failed, 1 passed in 0.54s\"}]. VERIFIED is prospective closed-schema classification only; PREPARED_RED_UNCOMMITTED_INDEPENDENT_REVIEW_PENDING until independent approval, authorized exact-two-path baseline commit and history guard validation. No complete OS/auth/native/production or scheduler claim."
+}
