@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-TOOLING-PROV-GUARD-001-QA-BASELINE",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "bb9e3845e06fc7b26e1cf0cc3fb7d639a82a8239",
+  "test_files": [
+    {
+      "path": "tests/test_provenance_governance_extensions.py",
+      "sha256": "90b764ccbe5364995d5bce818f0df5343f8e5f075a23af942338c316cdd354c0"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_provenance_governance_extensions.py",
+        "--tb=short",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "30 failed, 17 passed in 1.31s; Supported governance extension rejected MANIFEST_SCHEMA_MISMATCH; exploration whitelist and shape hunks deleted before this current-workspace RED; preserved command-string relaxation out of scope."
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/test_provenance_guard.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Fresh current-workspace RED after developer removed the scoped exploration implementation and before reimplementation. Earlier exploration and reconstructed characterization are disclosed, not retroactively called TDD. This baseline now freezes tests before the forthcoming implementation. Supported governance extension rejected MANIFEST_SCHEMA_MISMATCH; exploration whitelist and shape hunks deleted before this current-workspace RED; preserved command-string relaxation out of scope. Source snapshot SHA256 a933b7ba5aed8eeabed3a7c7ff545cc7190c16bd2c135192e72eb4ae3411d8ef. Current workspace negative controls include required/unknown fields and real Git hash/history/source-path checks; all test command arrays preserve strict argv-only contract. Prior clean committed-source characterization was 30 failed, 17 passed and pre-reset worktree characterization was 47 passed. Current RED summary 30 failed, 17 passed in 1.31s. Independent review and test-only commit pending; no source admission or hosted CI/production claim. Existing historical baselines remain unchanged."
+}
