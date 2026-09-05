@@ -16,8 +16,13 @@ import math
 import os
 from pathlib import Path
 import re
+import selectors
+import signal
 import stat
+import subprocess
 import sys
+import time
+import uuid
 
 MAX_REQUEST = 256 * 1024
 MAX_STREAM = 64 * 1024
@@ -290,25 +295,295 @@ def decision(request: object) -> dict:
     return {}
 
 
+BACKEND_CONTROLS = {
+    'filesystem': ['owned_read', 'owned_create_update_delete', 'outside_read_denied',
+                   'outside_write_delete_denied'],
+    'deadline': ['deadline_triggered', 'owned_descendants_reaped'],
+    'streams': ['output_limit_triggered', 'owned_descendants_reaped'],
+}
+
+# Only these source-bound programs can run. All caller values are data in argv.
+# Outside destructive probes use a supervisor-created denied canary, never a
+# caller input. It is outside the allowed write subtree, inside our own scratch.
+FILESYSTEM_PROGRAM = r'''
+my ($w, $denied, $outside, @inputs) = @ARGV;
+for my $input (@inputs) {
+    open(my $f, '<', $input) or exit 10;
+    my $buffer; read($f, $buffer, 1); close($f);
+}
+my $p = "$w/created";
+open(my $f, '>', $p) or exit 11; print $f "one"; close($f);
+open($f, '>>', $p) or exit 12; print $f "two"; close($f);
+open($f, '<', $p) or exit 13; my $s = <$f>; close($f);
+exit 14 unless $s eq "onetwo";
+unlink($p) == 1 or exit 15;
+for my $p ($outside, $denied) {
+    if (open(my $f, '<', $p)) { close($f); exit 16; }
+}
+if (open(my $f, '+<', $denied)) { close($f); exit 17; }
+exit 18 if unlink($denied);
+print "FILESYSTEM_OK\n";
+'''
+
+LIFECYCLE_PROGRAM = r'''
+$| = 1;
+my $child = fork(); defined($child) or exit 20;
+if ($child == 0) { while (1) { sleep 60; } }
+$SIG{TERM} = sub { kill 9, $child; waitpid($child, 0); exit 0; };
+print "CHILD $child\n";
+if ($ARGV[0] eq 'streams') { while (1) { print 'X' x 4096; print STDERR 'Y' x 4096; } }
+while (1) { sleep 60; }
+'''
+
+
+def path_hash(path: Path, maximum: int = MAX_EXECUTABLE) -> str:
+    with directory_fd(path.parent) as parent:
+        return hash_regular(parent, path.name, maximum)
+
+
+def backend_spec(request: object) -> tuple[Path, Path]:
+    exact(request, {'operation', 'probe_id', 'session_id', 'owned_root', 'owned_manifest',
+                    'outside_canary', 'outside_canary_sha256', 'environment', 'limits'})
+    require(request['operation'] in ('plan', 'probe'))
+    require(type(request['probe_id']) is str and request['probe_id'] in BACKEND_CONTROLS)
+    require(re.fullmatch('[A-Za-z0-9_-]{1,128}', text(request['session_id'], 128)) is not None)
+    require(request['environment'] == {'LANG': 'C', 'LC_ALL': 'C'}, 'ENVIRONMENT_DENIED')
+    limits = exact(request['limits'], {'deadline_seconds', 'stdout_bytes', 'stderr_bytes'})
+    integer(limits['deadline_seconds'], 1, 3)
+    integer(limits['stdout_bytes'], 1, MAX_STREAM)
+    integer(limits['stderr_bytes'], 1, MAX_STREAM)
+    manifest = request['owned_manifest']
+    require(type(manifest) is dict and 1 <= len(manifest) <= 16)
+    require(all(len(text(p, 256)) <= 256 for p in manifest))
+    root = absolute_path(request['owned_root'])
+    require(len(str(root)) <= 1024)
+    outside = absolute_path(request['outside_canary'])
+    require(outside.parent == root.parent and not sensitive_name(outside), 'CANARY_SCOPE_DENIED')
+    validate_files({'kind': 'files', 'owned_root': str(root), 'shared_workspace': str(PROJECT_ROOT),
+                    'sensitive_paths': [str(outside)],
+                    'allowlist': [{'path': p, 'sha256': digest_text(h), 'operations': ['read']}
+                                  for p, h in manifest.items()],
+                    'operations': [{'operation': 'read', 'path': p} for p in manifest]})
+    require(path_hash(outside, MAX_FILE) == digest_text(request['outside_canary_sha256']),
+            'CANARY_HASH_MISMATCH')
+    return root, outside
+
+
+def backend_plan(request: dict, root: Path, scratch: Path) -> dict:
+    helper, program = Path('/usr/bin/sandbox-exec'), Path('/usr/bin/perl')
+    require(sys.platform == 'darwin' and helper.is_file() and program.is_file(),
+            'OS_BACKEND_UNAVAILABLE')
+    # Exact root-directory access is needed by libignition's openat bootstrap.
+    # No user/home, /private/var, or broad /System read exception is present.
+    runtime_trees = ['/usr/lib', '/System/Library', '/System/Cryptexes/OS',
+                     '/System/Volumes/Preboot/Cryptexes/OS']
+    runtime_files = ['/', str(program), '/dev/null']
+    quote = lambda p: json.dumps(str(p), ensure_ascii=False)
+    runtime = ' '.join('(subpath ' + quote(p) + ')' for p in runtime_trees)
+    runtime += ' ' + ' '.join('(literal ' + quote(p) + ')' for p in runtime_files)
+    inputs = ' '.join('(literal ' + quote(root / p) + ')' for p in sorted(request['owned_manifest']))
+    profile = ('(version 1)\n(deny default)\n(deny network*)\n'
+               '(allow process-fork)\n(allow process-exec (literal ' + quote(program) + '))\n'
+               '(allow signal (target children))\n(allow sysctl-read)\n'
+               '(allow file-read* file-map-executable ' + runtime + ')\n'
+               '(allow file-read* ' + inputs + ')\n'
+               '(allow file-read* file-write* (subpath ' + quote(scratch / 'writable') + '))\n')
+    code = FILESYSTEM_PROGRAM if request['probe_id'] == 'filesystem' else LIFECYCLE_PROGRAM
+    binding = {'source_sha256': path_hash(Path(__file__).resolve()),
+               'session_id': request['session_id'], 'owned_manifest': request['owned_manifest'],
+               'owned_root': str(root), 'outside_canary_sha256': request['outside_canary_sha256'],
+               'helper': {'path': str(helper), 'sha256': path_hash(helper)},
+               'program': {'path': str(program), 'sha256': path_hash(program)},
+               'fixed_program_sha256': hashlib.sha256(code.encode()).hexdigest(),
+               'profile': profile, 'profile_sha256': hashlib.sha256(profile.encode()).hexdigest()}
+    return {'binding': binding, 'policy': {'filesystem_default': 'deny', 'network': 'deny',
+            'runtime_read_allowlist': runtime_trees + runtime_files,
+            'runtime_directory_reads': ['/'], 'writable_subtree': str(scratch / 'writable')},
+            'environment': request['environment']}
+
+
+def collect_probe(argv: list[str], environment: dict, limits: dict, response: dict) -> dict:
+    """Drain both pipes continuously; signal only our fixed owned process group.
+
+    The fixed leader reaps its one non-detaching descendant on TERM. Failure to
+    observe group disappearance is unsupported, never an invented cleanup PASS.
+    Raw output is retained only up to the declared caps and never returned.
+    """
+    with subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE, cwd='/', env=environment,
+                          close_fds=True, start_new_session=True) as child:
+        response['child_started'] = True
+        outputs = {'stdout': bytearray(), 'stderr': bytearray()}
+        started = time.monotonic()
+        stop_at = None
+        trigger = None
+        killed = False
+        with selectors.DefaultSelector() as selector:
+            for name, pipe in (('stdout', child.stdout), ('stderr', child.stderr)):
+                os.set_blocking(pipe.fileno(), False)
+                selector.register(pipe, selectors.EVENT_READ, name)
+            try:
+                while selector.get_map() or child.poll() is None:
+                    now = time.monotonic()
+                    if trigger is None and now - started >= limits['deadline_seconds']:
+                        trigger, stop_at = 'deadline', now
+                        if child.poll() is None:
+                            child.send_signal(signal.SIGTERM)
+                    if stop_at is not None and now - stop_at > 0.5 and not killed:
+                        try:
+                            os.killpg(child.pid, signal.SIGKILL)
+                        except ProcessLookupError:
+                            pass
+                        killed = True
+                    if now - started > limits['deadline_seconds'] + 1.5:
+                        break
+                    for key, _ in selector.select(0.02):
+                        chunk = os.read(key.fileobj.fileno(), 4096)
+                        if not chunk:
+                            selector.unregister(key.fileobj)
+                            continue
+                        name = key.data
+                        remaining = limits[name + '_bytes'] - len(outputs[name])
+                        outputs[name].extend(chunk[:remaining])
+                        if len(chunk) > remaining and trigger is None:
+                            trigger, stop_at = 'streams', time.monotonic()
+                            if child.poll() is None:
+                                child.send_signal(signal.SIGTERM)
+            finally:
+                if child.poll() is None:
+                    try:
+                        os.killpg(child.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                child.wait(timeout=1)
+        remaining = 1
+        try:
+            os.killpg(child.pid, 0)
+        except ProcessLookupError:
+            remaining = 0
+        return {'exit_code': child.returncode, 'trigger': trigger,
+                'stdout': bytes(outputs['stdout']), 'stderr': bytes(outputs['stderr']),
+                'owned_processes_remaining': remaining}
+
+
+def backend(request: object, response: dict) -> int:
+    response.update(schema_version='local-os-backend-v1', status='REJECTED',
+                    capability='UNPROVEN', verified_controls=[])
+    root, outside = backend_spec(request)
+    name = '.horo-probe-' + uuid.uuid4().hex
+    scratch = root / name
+    try:
+        plan = backend_plan(request, root, scratch)
+    except Rejected as exc:
+        if str(exc) != 'OS_BACKEND_UNAVAILABLE':
+            raise
+        response.update(status='UNSUPPORTED', reason_code='OS_BACKEND_UNAVAILABLE')
+        return 1
+    response.update(plan)
+    if request['operation'] == 'plan':
+        response['status'] = 'PLANNED'
+        return 0
+    code = FILESYSTEM_PROGRAM if request['probe_id'] == 'filesystem' else LIFECYCLE_PROGRAM
+    # Anchor creation/removal to open no-follow descriptors. Never recursively
+    # remove caller paths or accept caller-selected scratch/helper/program bytes.
+    with directory_fd(root) as parent:
+        original_root = identity(os.fstat(parent))
+        backend_spec(request)
+        require(identity(root.stat(follow_symlinks=False)) == original_root, 'ROOT_CHANGED')
+        os.mkdir(name, mode=0o700, dir_fd=parent)
+        try:
+            with directory_fd(scratch) as owned:
+                os.mkdir('writable', mode=0o700, dir_fd=owned)
+                fd = os.open('denied', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                             0o600, dir_fd=owned)
+                with os.fdopen(fd, 'wb') as stream:
+                    stream.write(b'LOCAL_SYNTHETIC_DENIED_CANARY\n')
+                argv = [plan['binding']['helper']['path'], '-p', plan['binding']['profile'],
+                        plan['binding']['program']['path'], '-e', code, '--']
+                if request['probe_id'] == 'filesystem':
+                    argv += [str(scratch / 'writable'), str(scratch / 'denied'), str(outside)]
+                    argv += [str(root / p) for p in sorted(request['owned_manifest'])]
+                else:
+                    argv += [request['probe_id']]
+                # Recheck all bindings immediately before the one fixed launch.
+                backend_spec(request)
+                require(backend_plan(request, root, scratch) == plan, 'BINDING_CHANGED')
+                observed = collect_probe(argv, request['environment'], request['limits'], response)
+                backend_spec(request)
+                require(hash_regular(owned, 'denied', MAX_FILE) ==
+                        hashlib.sha256(b'LOCAL_SYNTHETIC_DENIED_CANARY\n').hexdigest(), 'CANARY_CHANGED')
+        finally:
+            with directory_fd(scratch / 'writable') as writable:
+                # The one fixed filesystem program creates only this filename.
+                try:
+                    os.unlink('created', dir_fd=writable)
+                except FileNotFoundError:
+                    pass
+            with directory_fd(scratch) as owned:
+                os.unlink('denied', dir_fd=owned)
+                os.rmdir('writable', dir_fd=owned)
+            os.rmdir(name, dir_fd=parent)
+    group_gone = observed['owned_processes_remaining'] == 0
+    if request['probe_id'] == 'filesystem':
+        success = observed['exit_code'] == 0 and observed['trigger'] is None and \
+                  observed['stdout'] == b'FILESYSTEM_OK\n' and not observed['stderr'] and group_gone
+    else:
+        success = observed['trigger'] == request['probe_id'] and group_gone and \
+                  observed['exit_code'] == 0 and re.match(rb'CHILD [0-9]+\n', observed['stdout']) is not None
+    response['observation'] = {'execution_kind': 'real-os', 'stdout_bytes': len(observed['stdout']),
+                               'stderr_bytes': len(observed['stderr']),
+                               'exit_code': observed['exit_code'], 'trigger': observed['trigger'],
+                               'owned_processes_remaining': observed['owned_processes_remaining'],
+                               'scratch_removed': True}
+    if not success:
+        response.update(status='UNSUPPORTED', reason_code='CONTROL_NOT_PROVEN')
+        return 1
+    response.update(status='OBSERVED', capability='SCOPED_CONTROLS_OBSERVED',
+                    verified_controls=BACKEND_CONTROLS[request['probe_id']])
+    return 0
+
+
 def main() -> int:
     response = {'decision': 'REJECTED', 'native_proof': False,
                 'os_capability': 'UNKNOWN', 'auth_isolation': 'NOT_PROVEN',
                 'child_started': False}
     try:
-        require(sys.argv[1:] == ['--request-json'], 'REQUEST_JSON_REQUIRED')
+        backend_mode = sys.argv[1:] == ['--backend-json']
+        if backend_mode:
+            response.pop('decision')
+            response.update(schema_version='local-os-backend-v1', status='REJECTED',
+                            capability='UNPROVEN', verified_controls=[])
+        require(backend_mode or sys.argv[1:] == ['--request-json'], 'REQUEST_JSON_REQUIRED')
         raw = sys.stdin.buffer.read(MAX_REQUEST + 1)
         require(0 < len(raw) <= MAX_REQUEST, 'REQUEST_SIZE_INVALID')
-        response.update(decision(parse_json(raw.decode('utf-8'))))
-        response['decision'] = 'VALIDATED'
-        code = 0
+        request = parse_json(raw.decode('utf-8'))
+        if backend_mode:
+            code = backend(request, response)
+        else:
+            response.update(decision(request))
+            response['decision'] = 'VALIDATED'
+            code = 0
     except Rejected as exc:
         response['reason_code'] = str(exc)
+        if response.get('child_started') and response.get('schema_version') == 'local-os-backend-v1':
+            response.update(status='UNSUPPORTED', reason_code='CONTROL_NOT_PROVEN')
         code = 1
-    except (OSError, ValueError, TypeError, KeyError, RecursionError, OverflowError):
+    except (OSError, ValueError, TypeError, KeyError, RecursionError, OverflowError,
+            subprocess.SubprocessError):
         # Do not print exceptions: decoder/filesystem errors can contain secrets.
         response['reason_code'] = 'INVALID_OR_UNSAFE_REQUEST'
+        if response.get('binding'):
+            response.update(status='UNSUPPORTED', reason_code='CONTROL_NOT_PROVEN')
         code = 1
-    sys.stdout.write(json.dumps(response, ensure_ascii=True, separators=(',', ':')) + '\n')
+    encoded = json.dumps(response, ensure_ascii=True, separators=(',', ':')) + '\n'
+    if len(encoded) > MAX_STREAM:
+        response = {'schema_version': 'local-os-backend-v1', 'status': 'REJECTED',
+                    'reason_code': 'RESPONSE_SIZE_INVALID', 'native_proof': False,
+                    'auth_isolation': 'NOT_PROVEN', 'capability': 'UNPROVEN',
+                    'verified_controls': [], 'child_started': response['child_started']}
+        encoded = json.dumps(response, separators=(',', ':')) + '\n'
+        code = 1
+    sys.stdout.write(encoded)
     return code
 
 
