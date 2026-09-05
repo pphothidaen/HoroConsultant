@@ -63,6 +63,32 @@ REQUIRED_MANIFEST_KEYS = {
     "correction_reason",
     "rationale",
 }
+ALLOWED_GOVERNANCE_EXTENSION_KEYS = {
+    "authority_documents",
+    "baseline_state",
+    "canonical_role_json_owner",
+    "canonical_role_json_snapshot",
+    "captured_at",
+    "combined_baseline_paths",
+    "context_scope_partition",
+    "disjointness_map",
+    "eval_expectation_fixtures",
+    "exact_path_count",
+    "interrupted_fingerprints",
+    "manifest_closure",
+    "preexisting_uncommitted_entries",
+    "prospective_sources",
+    "provenance_type",
+    "quota_observations",
+    "red_runs",
+    "risks",
+    "source_admission",
+    "task_b_status",
+    "updated_at",
+    "user_authorizations",
+    "user_exclusions",
+    "worktree_boundary",
+}
 TEST_FILE_KEYS = {"path", "sha256"}
 RED_TEST_KEYS = {"command", "expected_exit", "failure_fingerprint"}
 
@@ -246,13 +272,13 @@ def _load_manifest_from_worktree(repo: Path, path: str) -> dict[str, Any]:
 
 def _validate_manifest_shape(manifest: dict[str, Any], report: Report) -> None:
     keys = set(manifest)
-    if keys != REQUIRED_MANIFEST_KEYS:
-        missing = sorted(REQUIRED_MANIFEST_KEYS - keys)
-        extra = sorted(keys - REQUIRED_MANIFEST_KEYS)
-        report.add(
-            "MANIFEST_SCHEMA_MISMATCH",
-            f"closed manifest keys mismatch; missing={missing}, extra={extra}",
-        )
+    missing = sorted(REQUIRED_MANIFEST_KEYS - keys)
+    if missing:
+        report.add("MANIFEST_SCHEMA_MISMATCH", f"closed manifest keys mismatch; missing={missing}")
+        return
+    extra = sorted(keys - REQUIRED_MANIFEST_KEYS - ALLOWED_GOVERNANCE_EXTENSION_KEYS)
+    if extra:
+        report.add("MANIFEST_SCHEMA_MISMATCH", f"unrecognized manifest keys: {extra}")
         return
     if manifest.get("schema_version") != SCHEMA_VERSION:
         report.add("MANIFEST_SCHEMA_VERSION_INVALID", "unsupported schema_version")
