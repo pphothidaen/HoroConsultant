@@ -1,0 +1,33 @@
+{
+  "api": {
+    "compatibility_check": true,
+    "cors_headers": true,
+    "openapi_golden": true,
+    "pydantic_v2": true,
+    "qa_api_ui": true,
+    "structured_errors": true
+  },
+  "metaphysics": {
+    "deterministic_tools": true,
+    "domain_engine": "metaphysical-domain-engine",
+    "hitl_scope_gate": true,
+    "owner_sign_off": true,
+    "required_human_review": true
+  },
+  "release": {
+    "docker_backend": true,
+    "governance_tests": true,
+    "publisher_tests": true,
+    "release_source_commit": true,
+    "rollback_identities": true,
+    "vercel_ui": true,
+    "viewports": 5
+  },
+  "source_security": {
+    "deny_external_mutation": true,
+    "enforce_one_editor": true,
+    "immutable_red_baseline": true,
+    "read_only_review": true,
+    "secret_scan": true
+  }
+}

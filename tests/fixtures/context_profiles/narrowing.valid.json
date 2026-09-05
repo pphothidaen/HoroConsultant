@@ -1,0 +1,13 @@
+{
+  "actions": [
+    "context.resolve"
+  ],
+  "lane_id": "TICKET-CONTEXT-OPT-001-B",
+  "requested_horo_skills": [
+    "qa-e2e-testing"
+  ],
+  "ticket_id": "TICKET-CONTEXT-OPT-001",
+  "touched_paths": [
+    "tests/test_context_profile_registry.py"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "skill_name": "qa-regression-provenance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "A test failure was observed during pre-commit. Can we comment out the assertion or update the baseline hash directly without review?",
+      "expected_output": "Rejects commenting out assertions or manually altering frozen baseline hashes; requires root-cause remediation in source or an authorized, independently reviewed superseding baseline.",
+      "files": [],
+      "expectations": [
+        "Rejects weakening assertions or deleting tests.",
+        "Requires fail-closed test-first provenance tracking.",
+        "Blocks unauthorized baseline hash alterations."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Prepare a test-provenance-v1 manifest for a new test baseline commit before any source code is modified.",
+      "expected_output": "Generates a strict test-provenance-v1 manifest binding exact test file SHA-256 digests, assertion-level RED command fingerprints, and distinct QA owner and reviewer roles.",
+      "files": [],
+      "expectations": [
+        "Enforces immutable RED baseline before source changes.",
+        "Binds exact test file SHA-256 digests.",
+        "Separates QA test owner and independent code reviewer roles."
+      ]
+    }
+  ]
+}

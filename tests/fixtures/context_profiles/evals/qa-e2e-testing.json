@@ -1,0 +1,36 @@
+{
+  "skill_name": "qa-e2e-testing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Run the post-deploy verification for the current HF Docker backend and Vercel UI release.",
+      "expected_output": "Requires Docker backend health/version evidence before QA, then runs publisher/governance regressions and five-viewport Vercel UI verification with fail-closed reporting.",
+      "files": [],
+      "expectations": [
+        "Separates backend Docker and Vercel UI evidence.",
+        "Requires current reports and all five canonical viewport screenshots.",
+        "Uses [ERROR] BLOCKED for missing or indeterminate evidence."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "A provider receipt says the response succeeded. Can that receipt replace the browser visual evidence?",
+      "expected_output": "Rejects the substitution because public outcomes are validated in-process with elided streams and are not portable/offline release evidence.",
+      "files": [],
+      "expectations": [
+        "Keeps receipt/public outcome evidence separate from release UI evidence.",
+        "Never asks to log or restore raw provider streams."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The legacy HF Static hostname loads but the recorded Vercel URL is unavailable. Is the UI release green?",
+      "expected_output": "Fails closed, rejects the legacy hostname as a target substitute, and returns the Vercel UI verification blocker to the owning release lane.",
+      "files": [],
+      "expectations": [
+        "Rejects a legacy Static hostname as proof of the Vercel UI release.",
+        "Returns a concise root-cause blocker without weakening assertions."
+      ]
+    }
+  ]
+}

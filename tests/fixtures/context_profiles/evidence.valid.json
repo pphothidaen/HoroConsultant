@@ -1,0 +1,13 @@
+{
+  "expires_at": null,
+  "issued_at": "2026-09-05T12:00:00Z",
+  "owner_role": "qa_tester",
+  "path": "plans/test_provenance/ticket-context-opt-001.json",
+  "reviewer_role": "code_reviewer",
+  "schema_version": "evidence-ref-v1",
+  "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "subject_domain": "quality-engineering",
+  "subject_revision": 1,
+  "subject_ticket": "TICKET-CONTEXT-OPT-001",
+  "type": "red_baseline_verified"
+}

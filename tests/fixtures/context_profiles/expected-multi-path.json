@@ -1,0 +1,29 @@
+{
+  "approved_context_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "closures": [
+    "api",
+    "source_security"
+  ],
+  "effective_actions": [
+    "context.resolve"
+  ],
+  "horo_skills": [
+    "agile-governance",
+    "anti-cognitive-decay",
+    "orchestrator-delegation",
+    "requirement-grill-gate"
+  ],
+  "normalized_scopes": [
+    "project",
+    "project/core",
+    "project/routers",
+    "root"
+  ],
+  "phase": "implementation",
+  "provider_plugins": [
+    "superpowers"
+  ],
+  "role": "developer",
+  "runtime_tools": [],
+  "schema_version": "context-resolution-v1"
+}

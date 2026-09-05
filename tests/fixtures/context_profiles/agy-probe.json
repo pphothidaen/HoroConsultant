@@ -1,0 +1,26 @@
+{
+  "adapter_version": "agy-probe-v1",
+  "approved_context_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "exit_code": 0,
+  "expires_at": "2026-09-05T12:02:00Z",
+  "horo_skills": [
+    "agile-governance",
+    "anti-cognitive-decay",
+    "orchestrator-delegation",
+    "requirement-grill-gate"
+  ],
+  "issued_at": "2026-09-05T12:00:00Z",
+  "normalized_scopes": [
+    "root"
+  ],
+  "provider": "agy",
+  "provider_plugins": [
+    "superpowers"
+  ],
+  "reason_code": "AGY_PROBE_OK",
+  "registry_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "result": "PASS",
+  "runtime_tools": [],
+  "sanitized_evidence_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "schema_version": "provider-context-probe-v1"
+}

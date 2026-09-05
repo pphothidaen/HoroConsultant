@@ -1,0 +1,985 @@
+{
+  "allowed_source_paths": [
+    ".agents/config/scope_skill_registry.v1.json",
+    ".agents/schemas/scope-skill-registry-v1.schema.json",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001.v1.json",
+    ".agents/schemas/approved-ticket-context-v1.schema.json",
+    ".agents/schemas/evidence-ref-v1.schema.json",
+    "scripts/resolve_agent_context.py",
+    "scripts/render_agent_context_profiles.py",
+    "scripts/codex_role.py",
+    "scripts/probe_agent_context_runtime.py"
+  ],
+  "authority_documents": [
+    {
+      "path": "ATOMIC_TICKET.md",
+      "sha256": "ae085a9d37d84d8a05fe7752ded2c6bf0aa1205e966167014b9b20a829f8149c"
+    },
+    {
+      "path": "plans/plan.md",
+      "sha256": "da11d18ef4c87c12a5a52257305735eb9c82c2c2397d5cd814665c232a1decc1"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-05-atomic-dynamic-cross-provider-context-design.md",
+      "sha256": "f7107029db28103b9ff4ca433e38a472b547992b5a16c00221737f78587d838a"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context.md",
+      "sha256": "e993cb5d02a7e2879afeabe962e3f2c61c731a1de3d02f1f271dd775905f275f"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context-registry-resolver.md",
+      "sha256": "3e5393eeb17899eebd7c4fa69c3d6f326915351f138058d45d957e9ab03beadb"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context-skill-migration.md",
+      "sha256": "149acb9826a4d85ed3087df8613a926a2ae43df8e6d28035968ab19b28173486"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context-provider-runtime.md",
+      "sha256": "65eb3be17f9a45ab6b2e120ea28ead194c29509eb0cf945a2dc304677eb1f56f"
+    },
+    {
+      "path": "docs/architecture/agy-terminal-supervisor.md",
+      "sha256": "10066d3d8237a2963edb7aa9f298e667b9e9ef7086b6120709976e75a91b17e6"
+    },
+    {
+      "path": "docs/architecture/external-dispatch-platform-contract.md",
+      "sha256": "78afbbfa9d04796a99a95021fb41ab28ba4ee8d1a1d8c965899a843097ed5fe9"
+    },
+    {
+      "path": ".superpowers/sdd/2026-09-05-codex-remote-plugin-budget/task-8-qa-test-map.md",
+      "sha256": "c5ff1313416601396bf051cf753db9dd622abff8f97eaadea0d765bb6cb78c49"
+    }
+  ],
+  "baseline_parent": "09deba10353663e5aa1e78e55b078cfdcf7ad743",
+  "baseline_state": "VERIFIED",
+  "canonical_role_json_owner": "TICKET-CONTEXT-OPT-001-E1/business_analyst after D and frozen skill RED",
+  "canonical_role_json_snapshot": [
+    {
+      "path": ".agents/agents/ba_auditor/agent.json",
+      "sha256": "2d682a7687009ff56a340a4f3edb3fee11d164bbd5d658d07a217d24e3f4f952"
+    },
+    {
+      "path": ".agents/agents/ba_intake/agent.json",
+      "sha256": "fc5d403076bfed4eba56c880bc82479f81d1bc71269f00a1c9dc155e4d1bca6f"
+    },
+    {
+      "path": ".agents/agents/business_analyst/agent.json",
+      "sha256": "857521524aa8014382201c2918d783f0618c7e41116cbe9a5ecdfad82a047d8c"
+    },
+    {
+      "path": ".agents/agents/code_reviewer/agent.json",
+      "sha256": "e3829de1182fb9a78466937dffdf70ed75d0e3bdec8c9fb6cbaba18235ec9ec8"
+    },
+    {
+      "path": ".agents/agents/default/agent.json",
+      "sha256": "76285af2260b755359a2eac41664b9452a4ca1be68ae0d442504f96a58681d1e"
+    },
+    {
+      "path": ".agents/agents/developer/agent.json",
+      "sha256": "249ba059b5c4500a4ea9a4f31e9981e93cf3b85cb0c2ce20aaab96165cde6fdc"
+    },
+    {
+      "path": ".agents/agents/devops/agent.json",
+      "sha256": "d8d3d705b579545c9d9ebe1b5d4321a3167c862406830f3f905bbe70eec6bfdf"
+    },
+    {
+      "path": ".agents/agents/hermes/agent.json",
+      "sha256": "7ffb9bf81fd7798e659adf5c962fe7a6da857f3614a1f1deb45080b2f7ee899b"
+    },
+    {
+      "path": ".agents/agents/ming_xue_master/agent.json",
+      "sha256": "e9feff4c9b80b84cabd5e041630c3676c0acbb34020683f09aee7daebb99e36b"
+    },
+    {
+      "path": ".agents/agents/numerology_master/agent.json",
+      "sha256": "8c28d5d8cfe8cf9e4a18950d53186211f968291bcbc5705e7d2b7090bc7c190c"
+    },
+    {
+      "path": ".agents/agents/orchestrator/agent.json",
+      "sha256": "e8b9f022727e7f20f1abd612a33d9ec623459fecfe33ca1bcc5b83141b6b61ff"
+    },
+    {
+      "path": ".agents/agents/prediction_validator/agent.json",
+      "sha256": "2c6f4dc28c47869f92a0326054137039fe16e4a7b621ec65efb18eb50173954a"
+    },
+    {
+      "path": ".agents/agents/pu_shi_master/agent.json",
+      "sha256": "65f9554955e623634aa258c67e00d43023d12f1a479ee2e2d1a9a173714c2bb3"
+    },
+    {
+      "path": ".agents/agents/qa_tester/agent.json",
+      "sha256": "cf3419aceff455d574174be32f045bbbf779ea2d80e87cd556e8fdc4695e2139"
+    },
+    {
+      "path": ".agents/agents/san_shi_master/agent.json",
+      "sha256": "97859f7e5fdc2d77b2e1f92ced8ce3273e07e474be4be6413cc53dfcebedb637"
+    },
+    {
+      "path": ".agents/agents/thai_vedic_master/agent.json",
+      "sha256": "870df7561482a12dbbaf6f56af09d4b626c9f9547a3f4730b08a24647739f81c"
+    },
+    {
+      "path": ".agents/agents/ui_visual_tester/agent.json",
+      "sha256": "cdc7e1566ce0586d542f535c8fcc1630a2f0a8aa7efc0786aa0370a7f5947b39"
+    },
+    {
+      "path": ".agents/agents/ux_ui_designer/agent.json",
+      "sha256": "27af07cdc4fa76d937c3b542174ed29f82095a25700ff02b2cea767921cf63cd"
+    },
+    {
+      "path": ".agents/agents/western_astro_master/agent.json",
+      "sha256": "c1033a5fe4de8c7dd1e207f2bd1b628e5a5b980a0022768132a993871ae3974c"
+    },
+    {
+      "path": ".agents/agents/xiang_xue_master/agent.json",
+      "sha256": "279e2e0a45cb961c3f8c8f22d8986f3fd34f3315ff8d6907d13cf00650bb7799"
+    },
+    {
+      "path": ".agents/agents/ze_ji_master/agent.json",
+      "sha256": "edb14dc72c44150468121218868f3e158d0390a826b4f6188b9935b74ae599fe"
+    }
+  ],
+  "captured_at": "2026-09-05T13:12:00+07:00",
+  "combined_baseline_paths": [
+    {
+      "kind": "test",
+      "path": "tests/test_context_profile_registry.py",
+      "preexisting": false,
+      "sha256": "36ff0cc7d9d09b29ff2f2bbafedff2cad4dec479bb403940cba9e298a056ea6a",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_context_profile_resolver.py",
+      "preexisting": false,
+      "sha256": "3a1d68a4b0c1998fd1b6bfed2f1ee4d5506031790f25bb76c29bb5b6a38282a2",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_context_profile_native_activation.py",
+      "preexisting": false,
+      "sha256": "f5b4401618210c59db46e28d7cb9b280c7430a1ed75b89bd1aa89539e65a371d",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_context_profile_generation.py",
+      "preexisting": false,
+      "sha256": "34e8e1eb61ef4ce824ba7ab280a6628c26324b81046c5a5e45b2498c3a2dbe5e",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_context_profile_hierarchy_runtime.py",
+      "preexisting": false,
+      "sha256": "e37c22a9468de9e550d0a53147431da50b5fde3a0e4d90a1b1fef5ed73be441f",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_context_profile_budget_handoff.py",
+      "preexisting": false,
+      "sha256": "cbd1a23b978a0fee894b4341e9bc5ace72e5f4eeb7b379389d6f93a900b8e22c",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_context_profile_mandatory_closures.py",
+      "preexisting": false,
+      "sha256": "fdcecd5db3e3d8e7c86ad08bc27c412fdc4decb0acdf2cd6c735a88c02a893c8",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "test",
+      "path": "project/tests/test_context_profile_ecosystem_sync.py",
+      "preexisting": false,
+      "sha256": "57022cc52b7a4898e65af5c7a5b9eed84d144da9937f558daabf08c8df749a12",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "fixture",
+      "path": "tests/fixtures/context_profiles/registry.valid.json",
+      "preexisting": false,
+      "sha256": "e6b14121bd9c311a62847b28a264ab834320f338ee0bf37425feb977d5a2eea5",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "fixture",
+      "path": "tests/fixtures/context_profiles/approved-context.valid.json",
+      "preexisting": false,
+      "sha256": "f1242e3a8cf702d623f405b96617acbed7a3dc79bbdced4cdc3b8e0201072c42",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "fixture",
+      "path": "tests/fixtures/context_profiles/evidence.valid.json",
+      "preexisting": false,
+      "sha256": "8238af2aa81238b8b39b798832805beba48f37d05fc97771845443b18d14eb19",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "fixture",
+      "path": "tests/fixtures/context_profiles/narrowing.valid.json",
+      "preexisting": false,
+      "sha256": "685d12b93f580bf390e01810d5d779a7f7d9732376b55734d82d20dea107a026",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "fixture",
+      "path": "tests/fixtures/context_profiles/expected-root-developer.json",
+      "preexisting": false,
+      "sha256": "c0f303965ee61c9d0f7754b8e7781d2e03df73a4eed09e9c7c34961c65d0459a",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "fixture",
+      "path": "tests/fixtures/context_profiles/expected-multi-path.json",
+      "preexisting": false,
+      "sha256": "193acfdbfcfec66b4d5b136cbffcbeece998a2593b8a759a737b18a0cc74cfd6",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "fixture",
+      "path": "tests/fixtures/context_profiles/expected-mandatory-closures.json",
+      "preexisting": false,
+      "sha256": "4483427aa01d0f88554876ac7ff7ed5b4cf28bc69dcb4ffac743e22a748bb7a0",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "fixture",
+      "path": "tests/fixtures/context_profiles/codex-prompt.json",
+      "preexisting": false,
+      "sha256": "c61113adc1fef9c4300615649e86b9b9c5eaf8847d8800a8fef7d2b8714b0adb",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "fixture",
+      "path": "tests/fixtures/context_profiles/claude-probe.json",
+      "preexisting": false,
+      "sha256": "9a29f0daaee570f8e28ba615ab9dcf81e0ba281000aa70de20bece3e16029f86",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "fixture",
+      "path": "tests/fixtures/context_profiles/agy-probe.json",
+      "preexisting": false,
+      "sha256": "b675581d53a0d8790a462c887c6d709acf446bdb981aceac0dc3b1eab0df3867",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "fixture",
+      "path": "tests/fixtures/context_profiles/antigravity-render.json",
+      "preexisting": false,
+      "sha256": "48baa78db6af4e558c48ea46abc1d98adbb70817af68b6d4d6a0bb1af3a9dfd3",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "eval_expectation_fixture",
+      "path": "tests/fixtures/context_profiles/evals/qa-regression-provenance.json",
+      "preexisting": false,
+      "sha256": "64d7dd13f97a9bde0945a6cf336a4c68c1265de2a9d0ab25ca9c8f7d2ecbbbc1",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "eval_expectation_fixture",
+      "path": "tests/fixtures/context_profiles/evals/qa-api-ui-e2e.json",
+      "preexisting": false,
+      "sha256": "7a4bc8c38cb1643d208f5287825a42c8ed4d220af5d77da91c2ff591238108fe",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "eval_expectation_fixture",
+      "path": "tests/fixtures/context_profiles/evals/five-elements-ui-palette.json",
+      "preexisting": false,
+      "sha256": "490829fe754a070cfd41a780ae0b18bd8c2470344359950e4e0198b9edec8b91",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "eval_expectation_fixture",
+      "path": "tests/fixtures/context_profiles/evals/wcag-apca-color-audit.json",
+      "preexisting": false,
+      "sha256": "236cce8e50175d691b7489cebc97c9170e216f5e1dfe2470213cb0721eb65180",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "eval_expectation_fixture",
+      "path": "tests/fixtures/context_profiles/evals/ui-color-token-handoff.json",
+      "preexisting": false,
+      "sha256": "883d914e4cd48d30b5f2d9a3ce77c239f4068779027e8943924d79df7442c1a8",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "eval_expectation_fixture",
+      "path": "tests/fixtures/context_profiles/evals/metaphysical-request-router.json",
+      "preexisting": false,
+      "sha256": "cb66a8f5a07514e7e687afa214bfe010741d00ba2b3adb592a8bec715d737a19",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "eval_expectation_fixture",
+      "path": "tests/fixtures/context_profiles/evals/metaphysical-hitl-scope-gate.json",
+      "preexisting": false,
+      "sha256": "c725e36702af7f2a0ff089114d0088867a400dfb2be5740e1a00d0ed69893302",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "eval_expectation_fixture",
+      "path": "tests/fixtures/context_profiles/evals/metaphysical-finetune-handoff.json",
+      "preexisting": false,
+      "sha256": "699eed8202517648c4227919e00e95234e717de55b20c0dee314bc72846be988",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "eval_expectation_fixture",
+      "path": "tests/fixtures/context_profiles/evals/qa-e2e-testing.json",
+      "preexisting": false,
+      "sha256": "8b0894721d2efcfae2013805eaa0e42f8e76956e5f983035ec019818aae8f923",
+      "sha256_before_task_b": null,
+      "state": "FILE_AUTHORED_IN_TASK_B",
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "provenance",
+      "path": "plans/test_provenance/ticket-context-opt-001.json",
+      "preexisting": true,
+      "sha256_before_refresh": "12ec244faefee9f7bf27937790337f5e58f5ee70f60a50ee99ad87ad11737046",
+      "sha256_before_task_b": null,
+      "ticket": "TICKET-CONTEXT-OPT-001"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_multiagent_prompt_command.py",
+      "preexisting": true,
+      "sha256_before_task_b": "5771cdd113655eaae648cb84c611c138a77d373ab238d9086a3c2683fe20f783",
+      "ticket": "TICKET-DISPATCH-ACTIVATION-001"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_multiagent_probe_approval.py",
+      "preexisting": true,
+      "sha256_before_task_b": "13bb6dd63ac285f11e2d2726cd78c62c43eb324473274bb9139b2d1ac5294be3",
+      "ticket": "TICKET-DISPATCH-ACTIVATION-001"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_multiagent_receipt_schema.py",
+      "preexisting": true,
+      "sha256_before_task_b": "315f49b0f4865718b989a324c365bafa23a80be62d13ec82d941ff375293a7bf",
+      "ticket": "TICKET-DISPATCH-ACTIVATION-001"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_multiagent_receipt_v3_schema.py",
+      "preexisting": true,
+      "sha256_before_task_b": "f182d2dbab4b6c478019e6007b1af1216dfb025eb13ede1963a73873000ce1fe",
+      "ticket": "TICKET-DISPATCH-ACTIVATION-001"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_agy_bucket_admission_guard.py",
+      "preexisting": true,
+      "sha256_before_task_b": "e707ac2dbabd377bada9fe062bb601ed13a45a6a797e7e9bec626eafe89bc5ca",
+      "ticket": "TICKET-DISPATCH-ACTIVATION-001"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_multiagent_bootstrap_dispatch.py",
+      "preexisting": true,
+      "sha256_before_task_b": "88fc039a6cfb591857f04110f799b32416af7efbd99a4a7eacca8e796c267e5f",
+      "ticket": "TICKET-DISPATCH-ACTIVATION-001"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_spark_model_governance.py",
+      "preexisting": true,
+      "sha256_before_task_b": "7a2502675984a2039900ed7712f08d654bdbda68e727b5ae4cb1ee1d0a5108c4",
+      "ticket": "TICKET-DISPATCH-ACTIVATION-001"
+    },
+    {
+      "kind": "test",
+      "path": "project/tests/test_ai_agent_ecosystem_sync.py",
+      "preexisting": true,
+      "sha256_before_task_b": "432c3e1e33a6d379ee353788a5cb822f1ca7153b106c4e2871103e74a9f19ecc",
+      "ticket": "TICKET-DISPATCH-ACTIVATION-001"
+    },
+    {
+      "kind": "test",
+      "path": "project/tests/test_developer_routing_contract.py",
+      "preexisting": true,
+      "sha256_before_task_b": "7479e90c84eeea8b1c11415c0e6dac0f2135e854e0c113db51e4ca456927f36c",
+      "ticket": "TICKET-DISPATCH-ACTIVATION-001"
+    },
+    {
+      "kind": "provenance",
+      "path": "plans/test_provenance/ticket-dispatch-activation-001.json",
+      "preexisting": false,
+      "sha256_before_task_b": null,
+      "ticket": "TICKET-DISPATCH-ACTIVATION-001"
+    }
+  ],
+  "correction_reason": null,
+  "provenance_status": "VERIFIED",
+  "quota_observations": [
+    {
+      "band": "RED",
+      "exact_percent": "UNKNOWN",
+      "execution_proof": false,
+      "guard_evaluation": {
+        "remaining_percent": null,
+        "signal_present": false
+      },
+      "handoff_required": true,
+      "observed_at": "2026-09-05T12:39:49+07:00",
+      "pool": "host",
+      "remaining_percent": null,
+      "reported_bound": "<10%",
+      "revalidated_at": "2026-09-05T12:55:00+07:00",
+      "rule": "Host pool is in RED freeze (<10% preserved, exact percent UNKNOWN, signal_present: false) per TICKET-META-008. Broad work is frozen until fresh trusted non-secret observation proves recovery.",
+      "signal_present": false,
+      "source": "operator_warning_and_guard_revalidation",
+      "status": "RED_FREEZE"
+    },
+    {
+      "band": "USER_OBSERVED_PLANNING_INPUT",
+      "execution_proof": false,
+      "note": "Planning capacity only; never capability, health, authorization, alias isolation, or execution proof. Separate pool; never combined with host pool.",
+      "planning_capacity_only": true,
+      "pool": "host_spark_five_hour",
+      "remaining_percent": 100.0,
+      "reset": "2026-09-05T16:35:00+07:00",
+      "source": "owner_observation"
+    },
+    {
+      "band": "USER_OBSERVED_PLANNING_INPUT",
+      "execution_proof": false,
+      "note": "Planning capacity only; never substitutes for host recovery.",
+      "planning_capacity_only": true,
+      "pool": "host_spark_weekly",
+      "remaining_percent": 55.0,
+      "reset": "2026-09-11T18:13:00+07:00",
+      "source": "owner_observation"
+    },
+    {
+      "band": "AMBER",
+      "execution_proof": false,
+      "observed_at": "2026-09-05T04:19:20Z",
+      "pool": "host_superseded_historical",
+      "remaining_percent": 27.0,
+      "source": "historical_argument",
+      "status": "SUPERSEDED_BY_TICKET_META_008_RED_FREEZE"
+    },
+    {
+      "band": "USER_OBSERVED_PLANNING_INPUT",
+      "execution_proof": false,
+      "observed_at": "2026-09-05T11:20:48+07:00",
+      "pool": "codex1_five_hour_historical",
+      "remaining_percent": 96.0,
+      "reset": "2026-09-05T14:44:00+07:00",
+      "source": "owner_observation",
+      "status": "SUPERSEDED_BY_TICKET_META_008_RED_FREEZE"
+    },
+    {
+      "band": "USER_OBSERVED_PLANNING_INPUT",
+      "execution_proof": false,
+      "pool": "agy1_five_hour_historical",
+      "remaining_percent": 96.0,
+      "reset": "2026-09-05T14:44:00+07:00",
+      "source": "owner_observation",
+      "status": "SUPERSEDED_BY_TICKET_META_008_RED_FREEZE"
+    },
+    {
+      "band": "USER_OBSERVED_PLANNING_INPUT",
+      "execution_proof": false,
+      "pool": "agy2_five_hour_historical",
+      "remaining_percent": 100.0,
+      "source": "owner_observation",
+      "status": "SUPERSEDED_BY_TICKET_META_008_RED_FREEZE"
+    },
+    {
+      "band": "USER_OBSERVED_PLANNING_INPUT",
+      "execution_proof": false,
+      "pool": "agy2_weekly_historical",
+      "refresh_in": "about 133h58m",
+      "remaining_percent": 75.21,
+      "source": "owner_observation",
+      "status": "SUPERSEDED_BY_TICKET_META_008_RED_FREEZE"
+    }
+  ],
+  "rationale": "Rebuilt Task A provenance frame under DRAFT_RED_NOT_COMMITTED status. Binds current repository HEAD (09deba10353663e5aa1e78e55b078cfdcf7ad743), 117-entry dirty worktree (digest 54bfb0850d695a565bce4c4af6343dd7c2e59635dcf32bb8fab00db91e2ef7e4), the frozen DOC-C3 authority documents (spec, index plan, 3 sub-plans, 2 architecture contracts, ticket, plan), exact future 39 combined baseline paths partitioned into 29 context and 10 dispatch paths with tests/fixtures/context_profiles/evals/ expectation fixtures, accurate host RED freeze and separate Spark planning capacity, prospective D-F and dispatch sources, and authorization/exclusion boundaries. It makes no RED, baseline-commit, source-admission, provider, or completion claim.",
+  "red_runs": [
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider tests/test_context_profile_registry.py",
+      "exit_code": 1,
+      "failed_tests": 10,
+      "observed_fingerprint": "MISSING_SCOPE_SKILL_SCHEMA: Schema not found at .../scope-skill-registry-v1.schema.json",
+      "owner": "qa_tester",
+      "passed_tests": 0,
+      "total_tests": 10
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider tests/test_context_profile_resolver.py tests/test_context_profile_mandatory_closures.py",
+      "exit_code": 1,
+      "failed_tests": 22,
+      "observed_fingerprint": "MISSING_CONTEXT_RESOLVER: Context resolver script not found at .../resolve_agent_context.py",
+      "owner": "qa_tester",
+      "passed_tests": 0,
+      "total_tests": 22
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider -m 'not native_probe' tests/test_context_profile_native_activation.py",
+      "exit_code": 1,
+      "failed_tests": 15,
+      "observed_fingerprint": "MISSING_CODEX_ROLE_ADAPTER: Codex role adapter not found at .../codex_role.py",
+      "owner": "qa_tester",
+      "passed_tests": 0,
+      "total_tests": 15
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider tests/test_context_profile_generation.py project/tests/test_context_profile_ecosystem_sync.py",
+      "exit_code": 1,
+      "failed_tests": 21,
+      "observed_fingerprint": "MISSING_CONTEXT_PROFILE_RENDERER: Renderer script not found at .../render_agent_context_profiles.py",
+      "owner": "qa_tester",
+      "passed_tests": 0,
+      "total_tests": 21
+    },
+    {
+      "command": "env PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider tests/test_context_profile_hierarchy_runtime.py tests/test_context_profile_budget_handoff.py",
+      "exit_code": 1,
+      "failed_tests": 10,
+      "observed_fingerprint": "MISSING_CONTEXT_RUNTIME_PROBE: Probe script not found at .../probe_agent_context_runtime.py / DEFAULT_HORO_ALLOWLIST_MISMATCH",
+      "owner": "qa_tester",
+      "passed_tests": 20,
+      "total_tests": 30
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_context_profile_registry.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "MISSING_SCOPE_SKILL_SCHEMA|MISSING_SCOPE_SKILL_REGISTRY"
+    },
+    {
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_context_profile_resolver.py",
+        "tests/test_context_profile_mandatory_closures.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "MISSING_CONTEXT_RESOLVER"
+    },
+    {
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-m",
+        "not native_probe",
+        "tests/test_context_profile_native_activation.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "MISSING_CODEX_ROLE_ADAPTER"
+    },
+    {
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_context_profile_generation.py",
+        "project/tests/test_context_profile_ecosystem_sync.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "MISSING_CONTEXT_PROFILE_RENDERER|PURE_CHECK_CONTRACT_MISSING"
+    },
+    {
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_context_profile_hierarchy_runtime.py",
+        "tests/test_context_profile_budget_handoff.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "MISSING_CONTEXT_RUNTIME_PROBE|DEFAULT_HORO_ALLOWLIST_MISMATCH"
+    }
+  ],
+  "reviewer_role": "code_reviewer",
+  "risks": [
+    "Host weekly remaining is in RED freeze (<10% preserved, exact percent UNKNOWN, signal_present: false); broad work is frozen until trusted non-secret observation proves recovery.",
+    "The shared worktree has 117 dirty entries across multiple workstreams; never reset, clean, bulk-stage, overwrite, or silently reassign them.",
+    "Task 19 released sync script ownership to Context F, but codex3 config remediation remains a separate sequential operational lane.",
+    "The detailed skill plan names absent .agents/rules/13-agent-skills.md for modification while the repository's current Rule 13 is .agents/rules/13-ai-agent-ecosystem-sync.md; resolve this exact path before E1.",
+    "All baseline hashes remain provisional until the exact 39 paths exist, assertion-level RED runs are observed, and the manifest is independently reviewed.",
+    "This draft intentionally has fields and empty arrays that are not eligible for official test-provenance-v1 VERIFIED schema validation."
+  ],
+  "schema_version": "test-provenance-v1",
+  "sequence": 1,
+  "source_admission": {
+    "admitted": false,
+    "reason": "Task A rebuild only. Task B awaits independent corrected-contract acceptance; source/config work awaits the one exact combined baseline commit and post-commit TEST_BASELINE_VERIFIED review."
+  },
+  "supersedes": null,
+  "task_b_status": "RED_PACKET_AUTHORED",
+  "test_files": [
+    {
+      "path": "project/tests/test_context_profile_ecosystem_sync.py",
+      "sha256": "57022cc52b7a4898e65af5c7a5b9eed84d144da9937f558daabf08c8df749a12"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/agy-probe.json",
+      "sha256": "b675581d53a0d8790a462c887c6d709acf446bdb981aceac0dc3b1eab0df3867"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/antigravity-render.json",
+      "sha256": "48baa78db6af4e558c48ea46abc1d98adbb70817af68b6d4d6a0bb1af3a9dfd3"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/approved-context.valid.json",
+      "sha256": "f1242e3a8cf702d623f405b96617acbed7a3dc79bbdced4cdc3b8e0201072c42"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/claude-probe.json",
+      "sha256": "9a29f0daaee570f8e28ba615ab9dcf81e0ba281000aa70de20bece3e16029f86"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/codex-prompt.json",
+      "sha256": "c61113adc1fef9c4300615649e86b9b9c5eaf8847d8800a8fef7d2b8714b0adb"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/five-elements-ui-palette.json",
+      "sha256": "490829fe754a070cfd41a780ae0b18bd8c2470344359950e4e0198b9edec8b91"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/metaphysical-finetune-handoff.json",
+      "sha256": "699eed8202517648c4227919e00e95234e717de55b20c0dee314bc72846be988"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/metaphysical-hitl-scope-gate.json",
+      "sha256": "c725e36702af7f2a0ff089114d0088867a400dfb2be5740e1a00d0ed69893302"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/metaphysical-request-router.json",
+      "sha256": "cb66a8f5a07514e7e687afa214bfe010741d00ba2b3adb592a8bec715d737a19"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/qa-api-ui-e2e.json",
+      "sha256": "7a4bc8c38cb1643d208f5287825a42c8ed4d220af5d77da91c2ff591238108fe"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/qa-e2e-testing.json",
+      "sha256": "8b0894721d2efcfae2013805eaa0e42f8e76956e5f983035ec019818aae8f923"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/qa-regression-provenance.json",
+      "sha256": "64d7dd13f97a9bde0945a6cf336a4c68c1265de2a9d0ab25ca9c8f7d2ecbbbc1"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/ui-color-token-handoff.json",
+      "sha256": "883d914e4cd48d30b5f2d9a3ce77c239f4068779027e8943924d79df7442c1a8"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/wcag-apca-color-audit.json",
+      "sha256": "236cce8e50175d691b7489cebc97c9170e216f5e1dfe2470213cb0721eb65180"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evidence.valid.json",
+      "sha256": "8238af2aa81238b8b39b798832805beba48f37d05fc97771845443b18d14eb19"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/expected-mandatory-closures.json",
+      "sha256": "4483427aa01d0f88554876ac7ff7ed5b4cf28bc69dcb4ffac743e22a748bb7a0"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/expected-multi-path.json",
+      "sha256": "193acfdbfcfec66b4d5b136cbffcbeece998a2593b8a759a737b18a0cc74cfd6"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/expected-root-developer.json",
+      "sha256": "c0f303965ee61c9d0f7754b8e7781d2e03df73a4eed09e9c7c34961c65d0459a"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/narrowing.valid.json",
+      "sha256": "685d12b93f580bf390e01810d5d779a7f7d9732376b55734d82d20dea107a026"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/registry.valid.json",
+      "sha256": "e6b14121bd9c311a62847b28a264ab834320f338ee0bf37425feb977d5a2eea5"
+    },
+    {
+      "path": "tests/test_context_profile_budget_handoff.py",
+      "sha256": "cbd1a23b978a0fee894b4341e9bc5ace72e5f4eeb7b379389d6f93a900b8e22c"
+    },
+    {
+      "path": "tests/test_context_profile_generation.py",
+      "sha256": "34e8e1eb61ef4ce824ba7ab280a6628c26324b81046c5a5e45b2498c3a2dbe5e"
+    },
+    {
+      "path": "tests/test_context_profile_hierarchy_runtime.py",
+      "sha256": "e37c22a9468de9e550d0a53147431da50b5fde3a0e4d90a1b1fef5ed73be441f"
+    },
+    {
+      "path": "tests/test_context_profile_mandatory_closures.py",
+      "sha256": "fdcecd5db3e3d8e7c86ad08bc27c412fdc4decb0acdf2cd6c735a88c02a893c8"
+    },
+    {
+      "path": "tests/test_context_profile_native_activation.py",
+      "sha256": "f5b4401618210c59db46e28d7cb9b280c7430a1ed75b89bd1aa89539e65a371d"
+    },
+    {
+      "path": "tests/test_context_profile_registry.py",
+      "sha256": "36ff0cc7d9d09b29ff2f2bbafedff2cad4dec479bb403940cba9e298a056ea6a"
+    },
+    {
+      "path": "tests/test_context_profile_resolver.py",
+      "sha256": "3a1d68a4b0c1998fd1b6bfed2f1ee4d5506031790f25bb76c29bb5b6a38282a2"
+    }
+  ],
+  "test_owner_role": "qa_tester",
+  "ticket_id": "TICKET-CONTEXT-OPT-001",
+  "updated_at": "2026-09-05T15:20:00+07:00",
+  "user_authorizations": {
+    "combined_test_only_commit": {
+      "authorized": true,
+      "current_state": "AUTHORIZED_FUTURE_GATE_NOT_YET_USED",
+      "exact_path_count": 39,
+      "maximum_count": 1,
+      "owner": "qa_tester",
+      "preconditions": [
+        "TICKET-CONTEXT-OPT-001-B and TICKET-DISPATCH-ACTIVATION-001-B are admitted and complete",
+        "all exact paths contain assertion-level RED evidence and frozen hashes",
+        "independent pre-commit review accepts source/test separation",
+        "the index contains exactly the 39 baseline paths and no other path"
+      ]
+    },
+    "credential_free_os_no_network_local_probes": true,
+    "other_commits": false,
+    "probe_gate": "Authorized only in separately admitted Task G after implementation dependencies; not run in Task A.",
+    "provider_backed_pressure_sampling": false,
+    "push": false
+  },
+  "user_exclusions": [
+    "No test, eval, fixture, pressure receipt, source, config, generated output, ticket, plan, or HANDOFF mutation in this Task A rebuild.",
+    "No staging or commit in Task A; the single authorized combined commit is a future post-RED/review gate only.",
+    "No push, tag, deploy, publish, release, destructive Git, external message, provider job, login, credential, secret, plugin, cache, account-home, provider-state, alias/capacity, model-policy, application, API, or metaphysics behavior mutation.",
+    "No provider-backed pressure sampling. Credential-free OS-no-network local probes are not admitted until Task G.",
+    "Do not treat unavailable, unknown, indeterminate, stale, interrupted, static metadata, help, cache, quota, or requested identity as execution proof or PASS.",
+    "Host pool is frozen in RED (<10% preserved, exact percent UNKNOWN, signal_present: false); do not dispatch broad worker lanes or infer recovery from separate Spark capacity."
+  ],
+  "worktree_boundary": {
+    "command": [
+      "git",
+      "status",
+      "--short"
+    ],
+    "entry_count": 117,
+    "status_short_entries": [
+      " M .agents/agents/ba_auditor.json",
+      " M .agents/agents/ba_auditor.md",
+      " M .agents/agents/ba_auditor/agent.md",
+      " M .agents/agents/ba_intake.json",
+      " M .agents/agents/ba_intake.md",
+      " M .agents/agents/ba_intake/agent.md",
+      " M .agents/agents/business_analyst.json",
+      " M .agents/agents/business_analyst.md",
+      " M .agents/agents/business_analyst/agent.md",
+      " M .agents/agents/code_reviewer.json",
+      " M .agents/agents/code_reviewer.md",
+      " M .agents/agents/code_reviewer/agent.md",
+      " M .agents/agents/default.json",
+      " M .agents/agents/default.md",
+      " M .agents/agents/default/agent.md",
+      " M .agents/agents/developer.json",
+      " M .agents/agents/developer.md",
+      " M .agents/agents/developer/agent.json",
+      " M .agents/agents/developer/agent.md",
+      " M .agents/agents/devops.json",
+      " M .agents/agents/devops.md",
+      " M .agents/agents/devops/agent.md",
+      " M .agents/agents/hermes.json",
+      " M .agents/agents/hermes.md",
+      " M .agents/agents/hermes/agent.md",
+      " M .agents/agents/ming_xue_master.json",
+      " M .agents/agents/ming_xue_master.md",
+      " M .agents/agents/ming_xue_master/agent.md",
+      " M .agents/agents/numerology_master.json",
+      " M .agents/agents/numerology_master.md",
+      " M .agents/agents/numerology_master/agent.md",
+      " M .agents/agents/orchestrator.json",
+      " M .agents/agents/orchestrator.md",
+      " M .agents/agents/orchestrator/agent.json",
+      " M .agents/agents/orchestrator/agent.md",
+      " M .agents/agents/prediction_validator.json",
+      " M .agents/agents/prediction_validator.md",
+      " M .agents/agents/prediction_validator/agent.json",
+      " M .agents/agents/prediction_validator/agent.md",
+      " M .agents/agents/pu_shi_master.json",
+      " M .agents/agents/pu_shi_master.md",
+      " M .agents/agents/pu_shi_master/agent.md",
+      " M .agents/agents/qa_tester.json",
+      " M .agents/agents/qa_tester.md",
+      " M .agents/agents/qa_tester/agent.md",
+      " M .agents/agents/san_shi_master.json",
+      " M .agents/agents/san_shi_master.md",
+      " M .agents/agents/san_shi_master/agent.md",
+      " M .agents/agents/thai_vedic_master.json",
+      " M .agents/agents/thai_vedic_master.md",
+      " M .agents/agents/thai_vedic_master/agent.md",
+      " M .agents/agents/ui_visual_tester.json",
+      " M .agents/agents/ui_visual_tester.md",
+      " M .agents/agents/ui_visual_tester/agent.json",
+      " M .agents/agents/ui_visual_tester/agent.md",
+      " M .agents/agents/ux_ui_designer.json",
+      " M .agents/agents/ux_ui_designer.md",
+      " M .agents/agents/ux_ui_designer/agent.md",
+      " M .agents/agents/western_astro_master.json",
+      " M .agents/agents/western_astro_master.md",
+      " M .agents/agents/western_astro_master/agent.md",
+      " M .agents/agents/xiang_xue_master.json",
+      " M .agents/agents/xiang_xue_master.md",
+      " M .agents/agents/xiang_xue_master/agent.md",
+      " M .agents/agents/ze_ji_master.json",
+      " M .agents/agents/ze_ji_master.md",
+      " M .agents/agents/ze_ji_master/agent.md",
+      " M .antigravity/agents/prediction-validator.agent",
+      " M .antigravity/agents/prediction_validator.agent",
+      " M ATOMIC_TICKET.md",
+      " M HANDOFF.md",
+      " M HOWTO.md",
+      " M README.md",
+      " M plans/evidence/quota-swap-roadmap-20260904/qa-simulation.json",
+      " M plans/plan.md",
+      " M project/data/distillation_checklist.json",
+      " M project/data/grayzone_answers.json",
+      " M project/data/hitl_reviews.json",
+      " M project/data/vault_sync_status.json",
+      " M project/static/admin.html",
+      " M project/tests/test_admin_auth.py",
+      " M project/tests/test_ai_agent_ecosystem_sync.py",
+      " M project/tests/test_ai_provider_router_tier3.py",
+      " M project/tests/test_button_regression.py",
+      " M public/admin.html",
+      " M scripts/agent_quota_status_guard.py",
+      " M scripts/sync_codex_account_configs.py",
+      " M scripts/sync_sdlc_agents.py",
+      " M tests/admin_production_ingress_contract.test.mjs",
+      " M tests/api_index_vercel_contract.test.mjs",
+      " M tests/fixtures/context_handoff/codex/hooks_config.json",
+      " M tests/test_optimize_codex_skill_budget.py",
+      "?? HANDOFF.md.lock",
+      "?? docs/architecture/agy-terminal-supervisor.md",
+      "?? docs/architecture/external-dispatch-platform-contract.md",
+      "?? docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context-provider-runtime.md",
+      "?? docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context-registry-resolver.md",
+      "?? docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context-skill-migration.md",
+      "?? docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context.md",
+      "?? docs/superpowers/plans/2026-09-05-codex-remote-plugin-budget.md",
+      "?? docs/superpowers/plans/2026-09-05-release-qa-remediation-triage.md",
+      "?? docs/superpowers/specs/2026-09-05-atomic-dynamic-cross-provider-context-design.md",
+      "?? docs/superpowers/specs/2026-09-05-release-qa-remediation-design.md",
+      "?? plans/evidence/release-001/",
+      "?? plans/evidence/release-qa-remediation-20260905/",
+      "?? plans/evidence/skill-budget-001/",
+      "?? plans/intake/sprint_release_qa_remediation_20260905.md",
+      "?? plans/test_provenance/ticket-context-opt-001.json",
+      "?? plans/test_provenance/ticket-fix-auth-admin-button-sequence-1.json",
+      "?? plans/test_provenance/ticket-fix-auth-admin-sequence-3.json",
+      "?? plans/test_provenance/ticket-fix-auth-provider-sequence-2.json",
+      "?? plans/test_provenance/ticket-fix-handoff-fixture-001.json",
+      "?? plans/test_provenance/ticket-qa-admin-catalog-supersession-001.json",
+      "?? plans/test_provenance/ticket-qa-admin-session-storage-mirror-001.json",
+      "?? plans/test_provenance/ticket-qa-api-index-vercel-rewrite-supersession-001.json",
+      "?? tests/test_admin_session_storage_mirror.py",
+      "?? tests/test_external_dispatch_contracts.py"
+    ],
+    "status_short_sha256": "54bfb0850d695a565bce4c4af6343dd7c2e59635dcf32bb8fab00db91e2ef7e4"
+  }
+}
