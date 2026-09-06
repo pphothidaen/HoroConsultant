@@ -1,7 +1,7 @@
 {
-  "version": "1.0.0.790c566",
-  "release_source_commit": "790c566",
-  "release_source_revision": "790c5660cdb99295a42a50fae1259f2e87eacbec",
+  "version": "1.0.0.8d8f0a0",
+  "release_source_commit": "8d8f0a0",
+  "release_source_revision": "8d8f0a0919c72a1b79a389be829f200c42511896",
   "release_source_metadata_path": "project/static/version.json",
-  "release_source_metadata_sha256": "e8d5aa8594a2340d77d59a45980da5932ac77f5bf7daab6a85ea57df2c3a2f0e"
+  "release_source_metadata_sha256": "a9b09de447a355627ce36b0d274e02c193e044871c55a78eb4f8cdbc7671ab38"
 }
