@@ -1476,6 +1476,8 @@ async function initGoogleAuth() {
   try {
     const cfg = await api('GET', '/admin/auth/config').catch(() => ({ auth_required: true }));
     const savedUser = localStorage.getItem('admin_user');
+    localStorage.removeItem('google_id_token');
+    localStorage.removeItem('admin_id_token');
     const savedToken = sessionStorage.getItem('admin_id_token');
     if (savedUser) {
       try {

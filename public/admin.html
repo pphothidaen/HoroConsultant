@@ -1354,7 +1354,9 @@ async function initGoogleAuth() {
   try {
     const cfg = await api('GET', '/admin/auth/config').catch(() => ({ auth_required: true }));
     const savedUser = localStorage.getItem('admin_user');
-    const savedToken = localStorage.getItem('google_id_token');
+    localStorage.removeItem('google_id_token');
+    localStorage.removeItem('admin_id_token');
+    const savedToken = sessionStorage.getItem('admin_id_token');
     if (savedUser) {
       try {
         const u = JSON.parse(savedUser);
@@ -1386,7 +1388,7 @@ async function handleGoogleCredentialResponse(response) {
     const res = await api('POST', '/admin/auth/google', { credential: response.credential });
     if (res.status === 'authenticated') {
       State.adminIdToken = response.credential;
-      localStorage.setItem('google_id_token', response.credential);
+      sessionStorage.setItem('admin_id_token', response.credential);
       localStorage.setItem('admin_user', JSON.stringify(res.user));
       applyAuthenticatedState(res.user);
     }
@@ -1420,7 +1422,7 @@ function showAuthError(msg) {
 
 function logoutAdmin() {
   localStorage.removeItem('admin_user');
-  localStorage.removeItem('google_id_token');
+  sessionStorage.removeItem('admin_id_token');
   State.adminIdToken = null;
   const chip = document.getElementById('user-profile-chip');
   if (chip) chip.style.display = 'none';
