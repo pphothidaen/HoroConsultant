@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -458,6 +459,30 @@ def check_plan_completion_and_release_notes_governance() -> CheckResult:
     return CheckResult("Plan completion governance", True, "Rule 22 enforced, ReleaseNotes aligned, plans clean")
 
 
+def check_codex_multi_account_policy() -> CheckResult:
+    """Validate workstation account policy when that local state is available.
+
+    Hosted CI checks repository synchronization and cannot possess developer-local
+    Codex account homes.  Treat an entirely absent account inventory as
+    not-applicable in CI, while continuing to fail closed for partial inventories
+    and for every local/workstation invocation.
+    """
+    if os.environ.get("CI", "").lower() == "true":
+        from scripts.sync_codex_account_configs import ACCOUNT_CONFIGS
+
+        existing = [path for path in ACCOUNT_CONFIGS.values() if path.exists()]
+        if not existing:
+            return CheckResult(
+                "Codex multi-account config & budget",
+                True,
+                "not applicable in hosted CI; no workstation account inventory",
+            )
+    return run_command(
+        "Codex multi-account config & budget",
+        [sys.executable, "scripts/sync_codex_account_configs.py", "--check"],
+    )
+
+
 def run_checks() -> list[CheckResult]:
     return [
         check_context_profiles(),
@@ -477,7 +502,7 @@ def run_checks() -> list[CheckResult]:
         run_command("Antigravity/Gemini/AGY sync", [sys.executable, "scripts/sync_sdlc_agents.py", "--check", "--use-python"]),
         run_command("Codex/OpenAI sync", [sys.executable, "scripts/sync_codex_agents.py", "--check"]),
         run_command("Claude Code <-> AGY CLI Parity", [sys.executable, "scripts/sync_claude_agy_parity.py", "--check"]),
-        run_command("Codex multi-account config & budget", [sys.executable, "scripts/sync_codex_account_configs.py", "--check"]),
+        check_codex_multi_account_policy(),
     ]
 
 
