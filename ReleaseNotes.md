@@ -1,8 +1,8 @@
 # HoroConsultant Release Notes -- Governed Context Runtime & Production Release Hardening (v1.4.6-prod)
 
-> **Release**: `v1.4.6-prod` -- Governed Context Runtime and Production Release Hardening  
-> **Release Date**: 2026-09-06 (Asia/Bangkok)  
-> **Release Authority**: Human owner, Master Orchestrator, QA, Code Review, and DevOps  
+> **Release**: `v1.4.6-prod` -- Governed Context Runtime and Production Release Hardening
+> **Release Date**: 2026-09-06 (Asia/Bangkok)
+> **Release Authority**: Human owner, Master Orchestrator, QA, Code Review, and DevOps
 
 ## Executive Summary
 
