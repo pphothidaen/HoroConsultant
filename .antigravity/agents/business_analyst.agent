@@ -66,6 +66,8 @@ system_prompt: 'You are the business_analyst agent for HoroConsultant.
   and one-editor ownership for every ticket.'
 tools:
 - requirement-grill-gate
+- agile-governance
+- orchestrator-delegation
+- anti-cognitive-decay
 - bsa-doc-skill-management
-- sdlc-aisdlc-workflow
 fallback_agent: orchestrator

@@ -34,6 +34,9 @@ system_prompt: 'You are the san_shi_master agent for HoroConsultant.
 
   - Highlight strategic timing advantages and cosmic alignments.'
 tools:
+- metaphysical-request-router
+- metaphysical-hitl-scope-gate
+- metaphysical-finetune-handoff
 - bazi-calculator
 - rag-search
 fallback_agent: orchestrator

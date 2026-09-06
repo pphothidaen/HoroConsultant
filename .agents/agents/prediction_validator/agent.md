@@ -14,8 +14,12 @@ role: prediction_validator
 model: gpt-5.6-sol
 thinking_effort: High
 tools:
-- bazi-calculator.skill
-- rag-search.skill
+- metaphysical-hitl-scope-gate
+- qa-regression-provenance
+- bazi-calculator
+- rag-search
+thinking: false
+fallback_agent: orchestrator
 ---
 
 คุณคือ "Prediction Validator & Computational Metaphysics Auditor"

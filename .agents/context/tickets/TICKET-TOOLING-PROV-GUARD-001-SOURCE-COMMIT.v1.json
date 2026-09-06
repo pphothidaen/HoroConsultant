@@ -1,0 +1,43 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-TOOLING-PROV-GUARD-001-SOURCE-COMMIT",
+  "revision": 1,
+  "ticket_sha256": "37335f852aef6d080ba2873dc8b8de36790b5c720f23bfde5780aad59ff36587",
+  "plan_sha256": "267937bbba30fc4f883a22cc659c3da671c9f35a83a7efc60daed3d1446afa19",
+  "lanes": [
+    {
+      "lane_id": "TICKET-TOOLING-PROV-GUARD-001-SOURCE-COMMIT",
+      "role": "devops",
+      "phase": "review",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "scripts/test_provenance_guard.py",
+        "plans/test_provenance/ticket-meta-008-provenance-extensions-baseline.json",
+        "plans/evidence/meta-008-remediation/provenance-guard-review.json"
+      ],
+      "requested_horo_skills": [
+        "devops-deployment",
+        "hf-static-release-verification"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "partial-stage-first-two-hunks-only",
+        "required-staged-sha256-df6a2a48ee0d90132dedd178811d778bba26803dbbd137ad23fd1d8fe3dc1370"
+      ],
+      "allowed_child_command_class": "local-source-commit",
+      "exclusions": [
+        "no-test",
+        "no-other-hunks",
+        "no-command-string-hunk-stage",
+        "no-push",
+        "no-deploy",
+        "no-provider-execution",
+        "no-secret-operation",
+        "no-review-receipt-stage"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

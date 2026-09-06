@@ -1,0 +1,32 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-G-REGISTRY-BASELINE-001",
+  "revision": 1,
+  "ticket_sha256": "bc9110ae72d0b0bd42c3e311986bf2f06365bd692870e9790f2e51a7c6304ab1",
+  "plan_sha256": "d3efcfd3ab24ff44f002dd80e778de0d6191ffb4fee4cc558a130135939d6730",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-G-REGISTRY-BASELINE-001",
+      "role": "qa_tester",
+      "phase": "red_baseline",
+      "actions": ["context.resolve"],
+      "touched_paths": [
+        "tests/test_context_g_orchestration_registry.py",
+        "plans/test_provenance/ticket-context-g-orchestration-registry-baseline-001.json",
+        ".agents/config/scope_skill_registry.v1.json",
+        ".agents/skills/multi-account-agent-orchestration/SKILL.md",
+        ".agents/context/tickets/TICKET-CONTEXT-OPT-001.v1.json",
+        ".agents/context/tickets/TICKET-CONTEXT-OPT-001-G.v1.json",
+        "scripts/resolve_agent_context.py",
+        ".agents/agents/devops/agent.json",
+        ".agents/agents/qa_tester/agent.json"
+      ],
+      "requested_horo_skills": ["qa-regression-provenance", "qa-e2e-testing"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["unknown-required-capability", "role-allowlist-repair", "fail-closed-context-resolution"],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": ["no-production-source-write", "no-config-write", "no-existing-test-write", "no-context-write", "no-provider-mutation", "no-commit", "no-push", "no-deploy", "no-network"],
+      "evidence_refs": []
+    }
+  ]
+}

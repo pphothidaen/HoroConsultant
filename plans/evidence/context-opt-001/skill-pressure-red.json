@@ -1,0 +1,83 @@
+{
+  "eval_fixtures": {
+    "five-elements-ui-palette": "490829fe754a070cfd41a780ae0b18bd8c2470344359950e4e0198b9edec8b91",
+    "metaphysical-finetune-handoff": "699eed8202517648c4227919e00e95234e717de55b20c0dee314bc72846be988",
+    "metaphysical-hitl-scope-gate": "c725e36702af7f2a0ff089114d0088867a400dfb2be5740e1a00d0ed69893302",
+    "metaphysical-request-router": "cb66a8f5a07514e7e687afa214bfe010741d00ba2b3adb592a8bec715d737a19",
+    "qa-api-ui-e2e": "7a4bc8c38cb1643d208f5287825a42c8ed4d220af5d77da91c2ff591238108fe",
+    "qa-e2e-testing": "8b0894721d2efcfae2013805eaa0e42f8e76956e5f983035ec019818aae8f923",
+    "qa-regression-provenance": "64d7dd13f97a9bde0945a6cf336a4c68c1265de2a9d0ab25ca9c8f7d2ecbbbc1",
+    "ui-color-token-handoff": "883d914e4cd48d30b5f2d9a3ce77c239f4068779027e8943924d79df7442c1a8",
+    "wcag-apca-color-audit": "236cce8e50175d691b7489cebc97c9170e216f5e1dfe2470213cb0721eb65180"
+  },
+  "lane_id": "TICKET-CONTEXT-OPT-001-B",
+  "owner_role": "qa_tester",
+  "pressure_runs": [
+    {
+      "provider_call_executed": false,
+      "reason": "Deterministic offline baseline only; live provider-backed pressure calls are unauthorized.",
+      "skill_name": "five-elements-ui-palette",
+      "status": "BLOCKED_PROVIDER_CALL_NOT_AUTHORIZED"
+    },
+    {
+      "provider_call_executed": false,
+      "reason": "Deterministic offline baseline only; live provider-backed pressure calls are unauthorized.",
+      "skill_name": "metaphysical-finetune-handoff",
+      "status": "BLOCKED_PROVIDER_CALL_NOT_AUTHORIZED"
+    },
+    {
+      "provider_call_executed": false,
+      "reason": "Deterministic offline baseline only; live provider-backed pressure calls are unauthorized.",
+      "skill_name": "metaphysical-hitl-scope-gate",
+      "status": "BLOCKED_PROVIDER_CALL_NOT_AUTHORIZED"
+    },
+    {
+      "provider_call_executed": false,
+      "reason": "Deterministic offline baseline only; live provider-backed pressure calls are unauthorized.",
+      "skill_name": "metaphysical-request-router",
+      "status": "BLOCKED_PROVIDER_CALL_NOT_AUTHORIZED"
+    },
+    {
+      "provider_call_executed": false,
+      "reason": "Deterministic offline baseline only; live provider-backed pressure calls are unauthorized.",
+      "skill_name": "qa-api-ui-e2e",
+      "status": "BLOCKED_PROVIDER_CALL_NOT_AUTHORIZED"
+    },
+    {
+      "provider_call_executed": false,
+      "reason": "Deterministic offline baseline only; live provider-backed pressure calls are unauthorized.",
+      "skill_name": "qa-e2e-testing",
+      "status": "BLOCKED_PROVIDER_CALL_NOT_AUTHORIZED"
+    },
+    {
+      "provider_call_executed": false,
+      "reason": "Deterministic offline baseline only; live provider-backed pressure calls are unauthorized.",
+      "skill_name": "qa-regression-provenance",
+      "status": "BLOCKED_PROVIDER_CALL_NOT_AUTHORIZED"
+    },
+    {
+      "provider_call_executed": false,
+      "reason": "Deterministic offline baseline only; live provider-backed pressure calls are unauthorized.",
+      "skill_name": "ui-color-token-handoff",
+      "status": "BLOCKED_PROVIDER_CALL_NOT_AUTHORIZED"
+    },
+    {
+      "provider_call_executed": false,
+      "reason": "Deterministic offline baseline only; live provider-backed pressure calls are unauthorized.",
+      "skill_name": "wcag-apca-color-audit",
+      "status": "BLOCKED_PROVIDER_CALL_NOT_AUTHORIZED"
+    }
+  ],
+  "quota_status": {
+    "band": "AMBER",
+    "evaluated_at": "2026-09-05T04:19:20Z",
+    "remaining_percent": 27.0,
+    "signal_present": true,
+    "source": "argument"
+  },
+  "reviewer_role": "code_reviewer",
+  "sanitized_evidence_sha256": "01d9d3ea4f90e76e49af4ecef6105695d6962ec23b1ba88b62ab0be11f1bff0a",
+  "schema_version": "skill-pressure-receipt-v1",
+  "status": "BLOCKED_PROVIDER_CALL_NOT_AUTHORIZED",
+  "ticket_id": "TICKET-CONTEXT-OPT-001"
+}

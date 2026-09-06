@@ -7,13 +7,15 @@ role: Hermes Executor (Execution Engine & Orchestrator)
 model: gpt-5.6-sol
 thinking_effort: High
 tools:
-- bazi-calculator
-- rag-search
-- sdlc-aisdlc-workflow
-- qa-e2e-testing
-- devops-deployment
-- bsa-doc-skill-management
-- metaphysical-domain-engine
+- requirement-grill-gate
+- agile-governance
+- orchestrator-delegation
+- anti-cognitive-decay
+- metaphysical-request-router
+- metaphysical-hitl-scope-gate
+- metaphysical-finetune-handoff
+thinking: false
+fallback_agent: orchestrator
 ---
 
 You are the hermes agent for HoroConsultant.

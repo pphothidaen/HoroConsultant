@@ -1,0 +1,43 @@
+{
+  "schema_version": "QuotaGuardVerdictV3.3",
+  "evaluated_at": "2026-09-05T19:00:00+07:00",
+  "valid_until": "2026-09-05T19:00:00+07:00",
+  "target_account": null,
+  "limit_id": "codex",
+  "observation_ref": null,
+  "policy_version": "3.4",
+  "policy_hash": null,
+  "policy_admission_status": "MALFORMED",
+  "operator_authorization_ref": null,
+  "lane_binding": {
+    "ticket_id": null,
+    "lane_id": null,
+    "assigned_role": null,
+    "lane_rank": null,
+    "target_worktree_digest": null
+  },
+  "verdict_kind": "production",
+  "quota_state": "unknown",
+  "tier": "UNKNOWN",
+  "freeze_status": "UNKNOWN_FREEZE",
+  "source_admitted": null,
+  "source_admission_status": "not_evaluated",
+  "handoff_valid": null,
+  "handoff_status": "not_evaluated",
+  "quota_recovery_proven": false,
+  "lane_readiness": false,
+  "operator_authorization": false,
+  "reason_code": "PAYLOAD_NOT_OBJECT",
+  "admission_blockers": ["PAYLOAD_NOT_OBJECT"],
+  "diagnostics": {
+    "decisive_remaining_percent": null,
+    "validation_errors": ["Payload must be a JSON object"],
+    "concurrency_state": null,
+    "last_known_quota_state": null,
+    "error_details": {
+      "error_type": "PAYLOAD_NOT_OBJECT"
+    }
+  },
+  "host_resume_allowed": false,
+  "exit_code": 3
+}

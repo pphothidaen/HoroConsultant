@@ -1,0 +1,187 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-DISPATCH-ACTIVATION-001-B",
+  "successor_ticket_id": "TICKET-CONTEXT-OPT-001-BASELINE-SUCCESSOR-001",
+  "lane_id": "TICKET-CONTEXT-OPT-001-BASELINE-SUCCESSOR-001-QA",
+  "sequence": 1,
+  "provenance_status": "BLOCKED_EVIDENCE_AMBIGUOUS",
+  "classification_policy": "Path-level classification is based on current isolated behavior and available commit provenance. A current failure is not called genuine RED without test-first evidence.",
+  "observed_at": "2026-09-05T21:23:53+07:00",
+  "observed_head": "95ade8f02f8f6e4c1b8d1a8bf0f84ae830f7f0c1",
+  "baseline_parent": "95ade8f02f8f6e4c1b8d1a8bf0f84ae830f7f0c1",
+  "prior_context_manifest": {
+    "path": "plans/test_provenance/ticket-context-opt-001.json",
+    "sha256": "67e0cc49fa27c027f7bd009a5f6e8adde23330b360b89c50564f4b2395a981cb",
+    "commit": "95ade8f02f8f6e4c1b8d1a8bf0f84ae830f7f0c1"
+  },
+  "independent_audit_receipt": {
+    "path": "plans/evidence/context-opt-001/recovery-baseline-audit.json",
+    "sha256": "0430886a899b16c634e13e2471b0e8cd8f00d62eb94fbe137475406ec6114134",
+    "audit_status": "FAIL"
+  },
+  "approved_context_sha256": "cd9bccbd69e67a2d8e4f726bd20e8d48513de5d88eec8bd60a9b2e0af1942fa5",
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "source_admission": false,
+  "successor_commit_authorized": false,
+  "combined_test_baseline_verified": false,
+  "supersedes": "67e0cc49fa27c027f7bd009a5f6e8adde23330b360b89c50564f4b2395a981cb",
+  "successor_reason": "Additive characterization of the exact ten Dispatch baseline paths missing from commit 95ade8f. The predecessor remains immutable. This record does not authorize a commit or source work.",
+  "candidate_inventory_path_count": 39,
+  "candidate_inventory": [
+    {"path": "plans/test_provenance/ticket-context-opt-001.json", "sha256": "67e0cc49fa27c027f7bd009a5f6e8adde23330b360b89c50564f4b2395a981cb"},
+    {"path": "project/tests/test_context_profile_ecosystem_sync.py", "sha256": "57022cc52b7a4898e65af5c7a5b9eed84d144da9937f558daabf08c8df749a12"},
+    {"path": "tests/fixtures/context_profiles/agy-probe.json", "sha256": "b675581d53a0d8790a462c887c6d709acf446bdb981aceac0dc3b1eab0df3867"},
+    {"path": "tests/fixtures/context_profiles/antigravity-render.json", "sha256": "48baa78db6af4e558c48ea46abc1d98adbb70817af68b6d4d6a0bb1af3a9dfd3"},
+    {"path": "tests/fixtures/context_profiles/approved-context.valid.json", "sha256": "f1242e3a8cf702d623f405b96617acbed7a3dc79bbdced4cdc3b8e0201072c42"},
+    {"path": "tests/fixtures/context_profiles/claude-probe.json", "sha256": "9a29f0daaee570f8e28ba615ab9dcf81e0ba281000aa70de20bece3e16029f86"},
+    {"path": "tests/fixtures/context_profiles/codex-prompt.json", "sha256": "c61113adc1fef9c4300615649e86b9b9c5eaf8847d8800a8fef7d2b8714b0adb"},
+    {"path": "tests/fixtures/context_profiles/evals/five-elements-ui-palette.json", "sha256": "490829fe754a070cfd41a780ae0b18bd8c2470344359950e4e0198b9edec8b91"},
+    {"path": "tests/fixtures/context_profiles/evals/metaphysical-finetune-handoff.json", "sha256": "699eed8202517648c4227919e00e95234e717de55b20c0dee314bc72846be988"},
+    {"path": "tests/fixtures/context_profiles/evals/metaphysical-hitl-scope-gate.json", "sha256": "c725e36702af7f2a0ff089114d0088867a400dfb2be5740e1a00d0ed69893302"},
+    {"path": "tests/fixtures/context_profiles/evals/metaphysical-request-router.json", "sha256": "cb66a8f5a07514e7e687afa214bfe010741d00ba2b3adb592a8bec715d737a19"},
+    {"path": "tests/fixtures/context_profiles/evals/qa-api-ui-e2e.json", "sha256": "7a4bc8c38cb1643d208f5287825a42c8ed4d220af5d77da91c2ff591238108fe"},
+    {"path": "tests/fixtures/context_profiles/evals/qa-e2e-testing.json", "sha256": "8b0894721d2efcfae2013805eaa0e42f8e76956e5f983035ec019818aae8f923"},
+    {"path": "tests/fixtures/context_profiles/evals/qa-regression-provenance.json", "sha256": "64d7dd13f97a9bde0945a6cf336a4c68c1265de2a9d0ab25ca9c8f7d2ecbbbc1"},
+    {"path": "tests/fixtures/context_profiles/evals/ui-color-token-handoff.json", "sha256": "883d914e4cd48d30b5f2d9a3ce77c239f4068779027e8943924d79df7442c1a8"},
+    {"path": "tests/fixtures/context_profiles/evals/wcag-apca-color-audit.json", "sha256": "236cce8e50175d691b7489cebc97c9170e216f5e1dfe2470213cb0721eb65180"},
+    {"path": "tests/fixtures/context_profiles/evidence.valid.json", "sha256": "8238af2aa81238b8b39b798832805beba48f37d05fc97771845443b18d14eb19"},
+    {"path": "tests/fixtures/context_profiles/expected-mandatory-closures.json", "sha256": "4483427aa01d0f88554876ac7ff7ed5b4cf28bc69dcb4ffac743e22a748bb7a0"},
+    {"path": "tests/fixtures/context_profiles/expected-multi-path.json", "sha256": "193acfdbfcfec66b4d5b136cbffcbeece998a2593b8a759a737b18a0cc74cfd6"},
+    {"path": "tests/fixtures/context_profiles/expected-root-developer.json", "sha256": "c0f303965ee61c9d0f7754b8e7781d2e03df73a4eed09e9c7c34961c65d0459a"},
+    {"path": "tests/fixtures/context_profiles/narrowing.valid.json", "sha256": "685d12b93f580bf390e01810d5d779a7f7d9732376b55734d82d20dea107a026"},
+    {"path": "tests/fixtures/context_profiles/registry.valid.json", "sha256": "e6b14121bd9c311a62847b28a264ab834320f338ee0bf37425feb977d5a2eea5"},
+    {"path": "tests/test_context_profile_budget_handoff.py", "sha256": "cbd1a23b978a0fee894b4341e9bc5ace72e5f4eeb7b379389d6f93a900b8e22c"},
+    {"path": "tests/test_context_profile_generation.py", "sha256": "34e8e1eb61ef4ce824ba7ab280a6628c26324b81046c5a5e45b2498c3a2dbe5e"},
+    {"path": "tests/test_context_profile_hierarchy_runtime.py", "sha256": "e37c22a9468de9e550d0a53147431da50b5fde3a0e4d90a1b1fef5ed73be441f"},
+    {"path": "tests/test_context_profile_mandatory_closures.py", "sha256": "fdcecd5db3e3d8e7c86ad08bc27c412fdc4decb0acdf2cd6c735a88c02a893c8"},
+    {"path": "tests/test_context_profile_native_activation.py", "sha256": "f5b4401618210c59db46e28d7cb9b280c7430a1ed75b89bd1aa89539e65a371d"},
+    {"path": "tests/test_context_profile_registry.py", "sha256": "36ff0cc7d9d09b29ff2f2bbafedff2cad4dec479bb403940cba9e298a056ea6a"},
+    {"path": "tests/test_context_profile_resolver.py", "sha256": "3a1d68a4b0c1998fd1b6bfed2f1ee4d5506031790f25bb76c29bb5b6a38282a2"},
+    {"path": "tests/test_multiagent_prompt_command.py", "sha256": "5771cdd113655eaae648cb84c611c138a77d373ab238d9086a3c2683fe20f783"},
+    {"path": "tests/test_multiagent_probe_approval.py", "sha256": "13bb6dd63ac285f11e2d2726cd78c62c43eb324473274bb9139b2d1ac5294be3"},
+    {"path": "tests/test_multiagent_receipt_schema.py", "sha256": "315f49b0f4865718b989a324c365bafa23a80be62d13ec82d941ff375293a7bf"},
+    {"path": "tests/test_multiagent_receipt_v3_schema.py", "sha256": "f182d2dbab4b6c478019e6007b1af1216dfb025eb13ede1963a73873000ce1fe"},
+    {"path": "tests/test_agy_bucket_admission_guard.py", "sha256": "e707ac2dbabd377bada9fe062bb601ed13a45a6a797e7e9bec626eafe89bc5ca"},
+    {"path": "tests/test_multiagent_bootstrap_dispatch.py", "sha256": "88fc039a6cfb591857f04110f799b32416af7efbd99a4a7eacca8e796c267e5f"},
+    {"path": "tests/test_spark_model_governance.py", "sha256": "7a2502675984a2039900ed7712f08d654bdbda68e727b5ae4cb1ee1d0a5108c4"},
+    {"path": "project/tests/test_ai_agent_ecosystem_sync.py", "sha256": "432c3e1e33a6d379ee353788a5cb822f1ca7153b106c4e2871103e74a9f19ecc", "worktree_state": "MODIFIED_322_INSERTIONS"},
+    {"path": "project/tests/test_developer_routing_contract.py", "sha256": "7479e90c84eeea8b1c11415c0e6dac0f2135e854e0c113db51e4ca456927f36c"},
+    {"path": "plans/test_provenance/ticket-dispatch-activation-001.json", "sha256": null, "hash_status": "SELF_REFERENTIAL_MANIFEST_HASH_REQUIRES_EXTERNAL_REVIEW_RECEIPT"}
+  ],
+  "path_classifications": [
+    {
+      "path": "tests/test_multiagent_prompt_command.py",
+      "classification": "CURRENT_GREEN_CHARACTERIZATION",
+      "result": "234 passed",
+      "acceptance": ["exact argv and schema", "zero substitution", "rank-3 and exclusion rules", "metadata is not runtime proof", "historical route rejection", "external platform separation"]
+    },
+    {
+      "path": "tests/test_multiagent_probe_approval.py",
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "result": "31 failed, 17 passed",
+      "failure_fingerprint": "NameError: _validate_qobs_invocation_binding is not defined at scripts/multiagent_prompt_command.py:6506",
+      "history_evidence": "ebfeee9 chore(recovery): preserve pre-gate mixed worktree [NON_TDD_RECONSTRUCTED]",
+      "acceptance": ["durable one-use approval ledger", "replay rejection", "four-store identity binding", "TTL and tombstone retention"]
+    },
+    {
+      "path": "tests/test_multiagent_receipt_schema.py",
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "result": "3 failed, 2 passed",
+      "failure_fingerprint": "NameError: _validate_qobs_invocation_binding is not defined at scripts/multiagent_prompt_command.py:6506",
+      "history_evidence": "latest path mutation is in ebfeee9 [NON_TDD_RECONSTRUCTED]",
+      "acceptance": ["receipt schema equality", "provider/session conditionals", "runtime digest tamper rejection"]
+    },
+    {
+      "path": "tests/test_multiagent_receipt_v3_schema.py",
+      "classification": "CURRENT_GREEN_CHARACTERIZATION",
+      "result": "41 passed",
+      "history_evidence": "historical RED and superseding baseline commits exist; current bytes are GREEN",
+      "acceptance": ["closed receipt v3 schema", "mandatory binding", "forbidden provider content"]
+    },
+    {
+      "path": "tests/test_agy_bucket_admission_guard.py",
+      "classification": "CURRENT_GREEN_CHARACTERIZATION",
+      "result": "8 passed",
+      "history_evidence": "historical RED and superseding baseline commits exist; current bytes are GREEN",
+      "acceptance": ["historical receipt rejection", "atomic nonce consume", "replay rejection"]
+    },
+    {
+      "path": "tests/test_multiagent_bootstrap_dispatch.py",
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "result": "27 passed",
+      "history_evidence": "0946bde test(idq): record reconstructed MVP-010 baseline",
+      "acceptance": ["ordinary activation remains closed", "unknown health is not promoted", "cross-alias no fallback", "external provider lifecycle separation"]
+    },
+    {
+      "path": "tests/test_spark_model_governance.py",
+      "classification": "CURRENT_GREEN_CHARACTERIZATION",
+      "result": "15 passed",
+      "history_evidence": "test-first history exists; current bytes are GREEN",
+      "acceptance": ["explicit safety-role routes", "zero substitution", "rank-3 exclusions", "authorized phase matrix"]
+    },
+    {
+      "path": "project/tests/test_ai_agent_ecosystem_sync.py",
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "result": "1 failed, 37 passed",
+      "failure_fingerprint": "sync check reports HF Static owner-contract, stale-plan, AGY/Codex mirror, and codex3 policy drift",
+      "worktree_evidence": "322 uncommitted inserted lines were present before this lane wrote the provenance record",
+      "acceptance": ["cross-provider canonical sync", "generated mirror integrity"]
+    },
+    {
+      "path": "project/tests/test_developer_routing_contract.py",
+      "classification": "GENUINE_RED",
+      "result": "1 failed, 2 passed",
+      "failure_fingerprint": "developer.json differs from nested canonical agent.json in tools and fallback/capability metadata",
+      "history_evidence": "8c8288a test(routing): freeze developer adaptive model baseline",
+      "acceptance": ["explicit model route contract", "rank-3 quality floor", "metadata mirror equality"]
+    }
+  ],
+  "acceptance_assertion_inventory": {
+    "durable_ledger_and_activation_negatives": [
+      "test_exact_authorization_consumes_once_and_emits_bound_receipt_v3",
+      "test_frozen_artifacts_reject_every_alternate_store_cartesian_variant",
+      "test_two_consumers_have_exactly_one_winner",
+      "test_post_consume_failure_burns_grant_and_privacy_is_content_free",
+      "test_ordinary_activation_defaults_remain_byte_compatible_closed",
+      "test_unknown_and_constrained_quota_are_admitted_without_health_promotion",
+      "test_cross_alias_request_is_blocked_without_fallback"
+    ],
+    "spark_gap_1_explicit_safety_roles": ["test_spark_allowed_for_authorized_role_and_phase"],
+    "spark_gap_2_exact_argv_schema": ["test_codex_defaults_produce_exact_argv_and_account_env", "test_provider_schema_is_strict_codex_compatible_subset"],
+    "spark_gap_3_receipt_equality": ["test_generated_codex_receipt_matches_v3_schema_and_agy_generates_no_receipt", "test_receipt_schema_requires_all_receipt_and_claim_proof_fields_and_rejects_extra_data"],
+    "spark_gap_4_zero_substitution": ["test_spark_rejected_for_unauthorized_role", "test_spark_rejected_for_unauthorized_phase", "test_restricted_model_rejected_without_route"],
+    "spark_gap_5_rank3_exclusions": ["test_developer_rank_3_planning_requires_xhigh", "test_versioned_policy_retains_the_luna_terra_sol_quality_floors"],
+    "spark_gap_6_metadata_not_proof": ["test_capability_catalog_requires_runtime_status_and_fallback_metadata", "test_developer_defaults_to_luna_without_weakening_release_roles"],
+    "spark_gap_7_historical_rejection": ["test_v1_and_v2_are_not_accepted_or_converted", "test_qobs_v1_and_receipt_v2_are_rejected_without_conversion"],
+    "spark_gap_8_external_platform_separation": ["test_agy_execution_is_typed_denial_before_popen_or_transport", "test_ordinary_activation_defaults_remain_byte_compatible_closed"]
+  },
+  "test_commands": [
+    {
+      "scope": "combined_nine_paths",
+      "command": ["python3", "-m", "pytest", "-q", "tests/test_multiagent_prompt_command.py", "tests/test_multiagent_probe_approval.py", "tests/test_multiagent_receipt_schema.py", "tests/test_multiagent_receipt_v3_schema.py", "tests/test_agy_bucket_admission_guard.py", "tests/test_multiagent_bootstrap_dispatch.py", "tests/test_spark_model_governance.py", "project/tests/test_ai_agent_ecosystem_sync.py", "project/tests/test_developer_routing_contract.py"],
+      "exit": 1,
+      "result": "417 passed, 2 failed",
+      "failure_fingerprint": "ecosystem sync check drift; developer generated mirror mismatch"
+    },
+    {
+      "scope": "isolated_per_file",
+      "command_pattern": ["python3", "-m", "pytest", "-q", "<each exact test path>"],
+      "exit": 1,
+      "result": "383 passed, 36 failed",
+      "failure_fingerprint": "31 probe approval and 3 receipt schema failures expose undefined _validate_qobs_invocation_binding; 1 ecosystem sync drift; 1 developer mirror mismatch"
+    }
+  ],
+  "evidence_ambiguity": {
+    "present": true,
+    "reason": "The combined process masks 34 isolated failures. Test outcome depends on collection/execution order and shared module state. One owned test path also contains pre-existing uncommitted changes from another lane.",
+    "stop_condition_triggered": true
+  },
+  "required_next_actions": [
+    "Independent reviewer verifies this manifest hash and the 39-path inventory.",
+    "Developer/source owner resolves or explicitly dispositions the undefined _validate_qobs_invocation_binding regression without test weakening.",
+    "Owner of project/tests/test_ai_agent_ecosystem_sync.py resolves the existing ownership collision and supplies provenance for its 322 inserted lines.",
+    "QA reruns the same combined and isolated commands from one frozen source/config snapshot.",
+    "Current authority separately decides whether one additive successor commit is authorized after ambiguity is cleared."
+  ]
+}

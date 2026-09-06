@@ -20,8 +20,9 @@ python3 scripts/sync_ai_agent_ecosystem.py --sync
 
 ## Ownership boundaries
 
-- `.antigravity/agents/*.agent` remains the legacy/AGY source for cross-framework roles.
-- `.agents/agents/*` and `.codex/agents/*.toml` are generated/compatibility targets; do not hand-edit generated Codex TOML.
+- Canonical `.agents/` definitions (`.agents/agents/`, `.agents/skills/`, `.agents/config/`) are the sole repository authority.
+- Generated provider mirrors (`.codex/`, `.claude/`, `.agy/`, `.antigravity/`) and filesystem mtimes are NEVER authority; any mirror discrepancy is drift, not authority.
+- Every lane dispatch MUST bind: ticket ID, lane ID, approved-context digest, role, permitted actions, all touched paths, and the context resolver result (`scripts/resolve_agent_context.py`).
 - `.claude/settings.json` owns Claude Code hard hooks.
 - `.claude/rules/*.md` owns Claude path-scoped behavior.
 - `.agents/config/gemini_parity.yaml`, `scripts/hermes_agy_router.py`, and `scripts/hermes_sdlc_runner.sh` own Hermes/Gemini/AGY routing.

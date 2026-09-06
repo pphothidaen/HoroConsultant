@@ -1,0 +1,36 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-FIX-HANDOFF-FIXTURE-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "09deba10353663e5aa1e78e55b078cfdcf7ad743",
+  "test_files": [
+    {
+      "path": "tests/fixtures/context_handoff/codex/hooks_config.json",
+      "sha256": "9ff86652aca24298d855c5962de918edb5affd48f3ba49f53155b94aa39e4645"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_context_handoff_hooks.py::test_codex_hooks_config_uses_native_three_level_shape_without_trust_fields",
+        "-vv",
+        "--tb=short"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError at tests/test_context_handoff_hooks.py:291: only description differed because the fixture omitted the intentional canonical phrase 'no native PreToolUse;'."
+    }
+  ],
+  "allowed_source_paths": [
+    "tests/fixtures/context_handoff/codex/hooks_config.json"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Fixture-only parity correction under TICKET-FIX-HANDOFF-FIXTURE-001. The authoritative .codex/hooks.json was clean against HEAD 09deba10353663e5aa1e78e55b078cfdcf7ad743 and retained SHA-256 03fbfb5d65c1ec86fac121b64fbb5d5c691087608d1972de293a0f366b61e419 before and after this change. The fixture changed from SHA-256 a4d2ade0477dc883aec975e179abea412da63d81d36b85bcd00cfbe074f60368 to 9ff86652aca24298d855c5962de918edb5affd48f3ba49f53155b94aa39e4645 solely by adding the intentional phrase 'no native PreToolUse;' to its description; parsed hooks were identical and parsed descriptions became exact after that insertion. Fresh RED: the focused parity test exited 1 with 1 failed. Fresh GREEN: the same test exited 0 with 1 passed, tests/test_context_handoff_hooks.py exited 0 with 17 passed, and the combined tests/test_context_handoff.py plus tests/test_context_handoff_hooks.py regression exited 0 with 130 passed. QA identity: qa_tester. No live config, production source, test expectation, commit, push, or deploy mutation occurred."
+}

@@ -1,0 +1,167 @@
+{
+  "schema_version": "scoped-security-review-v1",
+  "ticket_id": "TICKET-META-008-REVIEW-001",
+  "reviewer_role": "code_reviewer",
+  "reviewed_at": "2026-09-05T14:58:42.013408+00:00",
+  "context_sha256": "40eaaf3763e441407b954cb374df6473e42f9d7a66d321bfffe5872d3addba62",
+  "status": "PASS_SCOPED_SOURCE_REVIEW",
+  "source_admission": true,
+  "release_readiness": "NOT_EVALUATED",
+  "files": [
+    {
+      "path": "scripts/multiagent_prompt_command.py",
+      "sha256": "88a38a11d56f82e2e98be0d8ca54fbff5a97e7a0a4d923348bd82fe1baa0cb85"
+    },
+    {
+      "path": "tests/test_multiagent_prompt_command.py",
+      "sha256": "b86d551bc393823b890cafbff63fa16e4ace9a04c2d28f39e0819d17f416da7d"
+    },
+    {
+      "path": "tests/test_multiagent_production_import_isolation.py",
+      "sha256": "888cd8b749438509e3bbd655dbeaeb6a1cebcd3a0b21052685a321f96ee4ed46"
+    },
+    {
+      "path": "plans/test_provenance/ticket-meta-008-remediation-baseline.json",
+      "sha256": "061bf43a1eac7976e26ae8097db27e93935e43df1cdea82e711d5cb4c9a68e96"
+    },
+    {
+      "path": "plans/evidence/meta-008-remediation/qa-baseline.json",
+      "sha256": "dfe445c01aa2794b0779668c4a14ac6641c2708975a9f6bb7a962cc3f271f846"
+    }
+  ],
+  "checks": {
+    "existing_test_function_asts": "PASS: all existing test function ASTs identical to HEAD",
+    "injections_removed": "PASS: five production function assignments removed",
+    "independent_red": "3 failed, 234 deselected; clean-process missing-helper assertion reproduced; both cleanup cases fail earlier with missing-helper NameError",
+    "cleanup_regression_sufficiency": "Conditional: tests assert consumed request count, empty lease store, and replay denial; injected boundaries must execute after helpers implemented",
+    "production_source_unchanged": "PASS: matches supplied hash"
+  },
+  "findings": [],
+  "source_admission_conditions": [
+    "QA owner corrects manifest to closed guard schema preserving frozen test hashes and historical NON_TDD_RECONSTRUCTED classification.",
+    "Independent reviewer verifies corrected schema and exact candidate paths.",
+    "Commit isolated tests plus valid manifest; validate committed provenance and baseline ancestry before source edits.",
+    "Keep tests immutable during implementation; recheck cleanup failure boundaries actually execute."
+  ],
+  "scope_limitations": [
+    "No source edits, actual providers, network, commits, pushes, deployments performed.",
+    "53 failed / 184 passed combined result is QA evidence; reviewer independently reran three new cases only.",
+    "This review is baseline-only, not READY_FOR_PROD."
+  ],
+  "review_attempts": [
+    {
+      "attempt": 1,
+      "status": "FAIL_BASELINE_ADMISSION",
+      "files": [
+        {
+          "path": "scripts/multiagent_prompt_command.py",
+          "sha256": "88a38a11d56f82e2e98be0d8ca54fbff5a97e7a0a4d923348bd82fe1baa0cb85"
+        },
+        {
+          "path": "tests/test_multiagent_prompt_command.py",
+          "sha256": "b86d551bc393823b890cafbff63fa16e4ace9a04c2d28f39e0819d17f416da7d"
+        },
+        {
+          "path": "tests/test_multiagent_production_import_isolation.py",
+          "sha256": "888cd8b749438509e3bbd655dbeaeb6a1cebcd3a0b21052685a321f96ee4ed46"
+        },
+        {
+          "path": "plans/test_provenance/ticket-meta-008-remediation-baseline.json",
+          "sha256": "061bf43a1eac7976e26ae8097db27e93935e43df1cdea82e711d5cb4c9a68e96"
+        },
+        {
+          "path": "plans/evidence/meta-008-remediation/qa-baseline.json",
+          "sha256": "dfe445c01aa2794b0779668c4a14ac6641c2708975a9f6bb7a962cc3f271f846"
+        }
+      ],
+      "findings": [
+        {
+          "severity": "high",
+          "path": "plans/test_provenance/ticket-meta-008-remediation-baseline.json",
+          "issue": "MANIFEST_SCHEMA_MISMATCH",
+          "detail": "Missing allowed_source_paths, baseline_parent, correction_reason, provenance_status, rationale, red_tests, sequence, test_files. Unsupported extras and object-valued supersedes also need correction; guard requires supersedes null or Git SHA."
+        },
+        {
+          "severity": "high",
+          "path": "plans/evidence/meta-008-remediation/qa-baseline.json",
+          "issue": "BASELINE_COMMIT_SCOPE_INVALID",
+          "detail": "Four-path candidate includes non-test/non-manifest evidence. check-staged rejects STAGED_COMMIT_MIXES_SOURCE_AND_TEST; baseline verify rejects BASELINE_MIXES_SOURCE_AND_TEST. Separate evidence docs commit or embed evidence in permitted manifest extension; never bypass guard."
+        }
+      ],
+      "reviewed_at": "2026-09-05T14:58:42.013408+00:00"
+    },
+    {
+      "attempt": 2,
+      "status": "PASS_SCOPED_BASELINE_COMMIT_CANDIDATE",
+      "reviewed_at": "2026-09-05T15:00:25.329054+00:00",
+      "manifest_sha256": "0e9d4a88e984570462f3709da47227378dfb19c3bd95cf118f03f60580650016",
+      "candidate_paths": [
+        "tests/test_multiagent_prompt_command.py",
+        "tests/test_multiagent_production_import_isolation.py",
+        "plans/test_provenance/ticket-meta-008-remediation-baseline.json"
+      ],
+      "schema_validation": "PASSED zero issues using unchanged guard _validate_manifest_shape",
+      "test_hashes": "unchanged and exact",
+      "red_truth": "embedded qa-baseline evidence identical; independent prior new-three-case RED retained",
+      "resolved_findings": [
+        "closed schema corrected",
+        "candidate now excludes separate QA evidence"
+      ],
+      "conditions": [
+        "Stage exactly candidate paths and run test_provenance_guard.py check-staged successfully.",
+        "Commit immutable baseline then run guard verify on committed baseline before any source implementation.",
+        "Source admission only scripts/multiagent_prompt_command.py; retain test hashes and verify cleanup boundaries after implementation."
+      ],
+      "source_admission": false,
+      "release_readiness": "NOT_EVALUATED"
+    },
+    {
+      "attempt": 3,
+      "status": "PASS_SCOPED_SOURCE_REVIEW",
+      "reviewed_at": "2026-09-05T15:07:07.632029+00:00",
+      "baseline_commit": "dfd6a10",
+      "source_path": "scripts/multiagent_prompt_command.py",
+      "source_sha256": "9d1b8cbd96b9fd4f8a5ccb17912994175071f15c7c47382288abe82b3c8bca6a",
+      "checks": {
+        "source_scope": "Four production helpers plus executor lease lifecycle; 151 insertions, 3 deletions. No other production contract changed.",
+        "qobs": "Requires gate-created admission identity; revalidates route, executable, repository, decision, attempt, artifact/context/nonce digests and dispatch identity. Rejects consumed marker unless explicit post-consume validation.",
+        "capacity": "Requires complete binding when capacity required; consumes via signed live-lease store and matches account/provider/owner/request/lane/quality floor; mismatched consumed lease released.",
+        "lifetime": "Consumed lease initialized before protected execution; outer finally releases on approval/provider/parsing failures and success; nested finally closes home fd. Existing dispatch claim finalize/release paths retained.",
+        "frozen_tests": "Both baseline test hashes unchanged.",
+        "ast": "ast.parse PASS",
+        "secret_scan": "python3 project/core/code_reviewer.py --scan-secrets exit0:3375 files,0 leaks",
+        "independent_regressions": {
+          "argv": [
+            "python3",
+            "-m",
+            "pytest",
+            "-q",
+            "tests/test_multiagent_production_import_isolation.py",
+            "tests/test_multiagent_prompt_command.py",
+            "-k",
+            "clean_process or capacity_released_when_execution_boundary_raises",
+            "--tb=short",
+            "-p",
+            "no:cacheprovider"
+          ],
+          "exit": 0,
+          "summary": "3 passed, 234 deselected"
+        },
+        "cleanup_boundary_evidence": "Both new parameterized tests passed: their injected callbacks assert consumed request count before raising, then verify lease removal and replay denial."
+      },
+      "findings": [],
+      "approval": "Exact source-only commit approved after independent QA completion and source hash reconfirmation; include Test-Baseline trailer for immutable baseline.",
+      "limitations": [
+        "Best-effort helper suppresses CapacityLeaseError during release; failure-free durable store assumed by cleanup checks.",
+        "No full production release audit, endpoints, deployment identity, rollback or visual evidence verified by this scoped review.",
+        "Full independent QA sweep is coordinated separately; no READY_FOR_PROD claim."
+      ],
+      "release_readiness": "NOT_EVALUATED",
+      "independent_qa_evidence": {
+        "path": "plans/evidence/meta-008-remediation/qa-verification.json",
+        "sha256": "5d3ec3b6dbd6367b90b5f9821ee54582bb86cb31defaeee69ccc72056f4b7e63",
+        "summary_from_qa": "420 passed, 2 ecosystem/mirror failures; isolated and combined identical. Runtime scope PASS; release remains blocked."
+      }
+    }
+  ]
+}

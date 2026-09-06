@@ -1,0 +1,145 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-QUOTA-TEST-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "95ade8f02f8f6e4c1b8d1a8bf0f84ae830f7f0c1",
+  "baseline_state": "EXPECTED_RED_VERIFIED",
+  "test_paths": [
+    "tests/unit/test_quota_guard_v3.py"
+  ],
+  "fixture_paths": [
+    "tests/fixtures/quota/admission_evidence_expired.json",
+    "tests/fixtures/quota/admission_evidence_valid.json",
+    "tests/fixtures/quota/approved_v3_policy.yaml",
+    "tests/fixtures/quota/malformed_fractional_concurrency_policy.yaml",
+    "tests/fixtures/quota/malformed_missing_key_policy.yaml",
+    "tests/fixtures/quota/malformed_nan_ttl_policy.yaml",
+    "tests/fixtures/quota/malformed_swapped_thresholds_policy.yaml",
+    "tests/fixtures/quota/observation_amber.json",
+    "tests/fixtures/quota/observation_green.json",
+    "tests/fixtures/quota/observation_multi_window_inconsistent.json",
+    "tests/fixtures/quota/observation_orange.json",
+    "tests/fixtures/quota/observation_red_depleted.json",
+    "tests/fixtures/quota/observation_red_rate_limited.json",
+    "tests/fixtures/quota/observation_schema_invalid.json",
+    "tests/fixtures/quota/observation_spark_isolated.json",
+    "tests/fixtures/quota/pending_policy.yaml",
+    "tests/fixtures/quota/sample_verdict_error_path.json",
+    "tests/fixtures/quota/sample_verdict_valid_green.json",
+    "tests/fixtures/quota/verdict_v3_schema.json"
+  ],
+  "test_files": [
+    {
+      "path": "tests/unit/test_quota_guard_v3.py",
+      "sha256": "61b4614e434c31de825cd41d5e764a4f57333c251260f77b7ff5bbb004cc860c"
+    },
+    {
+      "path": "tests/fixtures/quota/admission_evidence_expired.json",
+      "sha256": "cdad060db38bf87b83d2e3fcc18a7ad52f61cdb8e42ce556a2a650961a1fb97e"
+    },
+    {
+      "path": "tests/fixtures/quota/admission_evidence_valid.json",
+      "sha256": "e9fe679321874f7b85eaab94ed4600a0d3827d5702d231aa3dff7f4b1408e873"
+    },
+    {
+      "path": "tests/fixtures/quota/approved_v3_policy.yaml",
+      "sha256": "24ed01f365c66c899ebcbf4ded9d5c389348c55b4b5b8107da24c31d70692159"
+    },
+    {
+      "path": "tests/fixtures/quota/malformed_fractional_concurrency_policy.yaml",
+      "sha256": "9b8341c0c9bd47e9dd326f973ac3be998082570c4b5ca550f3e3aa9f298de979"
+    },
+    {
+      "path": "tests/fixtures/quota/malformed_missing_key_policy.yaml",
+      "sha256": "afa5b6c8a813cc2fd4cacf1708e7ef00f294d02b11bb297e21e19bb605a7dcf5"
+    },
+    {
+      "path": "tests/fixtures/quota/malformed_nan_ttl_policy.yaml",
+      "sha256": "9043fc03c5f7f0191de233bde08351bddcf92687d145760bbc6ae6aaeae9b498"
+    },
+    {
+      "path": "tests/fixtures/quota/malformed_swapped_thresholds_policy.yaml",
+      "sha256": "cd1660825a9a5d4815f88b15b30b4691cb75223d60730385445b41b9636f75f8"
+    },
+    {
+      "path": "tests/fixtures/quota/observation_amber.json",
+      "sha256": "e615f00758bd834d18a006cee3f7580f4495bca4483ad38b92cfd210bf10eeaa"
+    },
+    {
+      "path": "tests/fixtures/quota/observation_green.json",
+      "sha256": "907cfb6a6b9b0d343c2e029ce0453c8f71c38b73f89cf5737ed434468bab0973"
+    },
+    {
+      "path": "tests/fixtures/quota/observation_multi_window_inconsistent.json",
+      "sha256": "6f5b302f566a45001cd403c30403fa376ae3c47dd726667455de3b0bf4c84cb5"
+    },
+    {
+      "path": "tests/fixtures/quota/observation_orange.json",
+      "sha256": "4e8963303e640fdddc15d2bd44599e285a1e81828dd5e1437ee68362b2386fc0"
+    },
+    {
+      "path": "tests/fixtures/quota/observation_red_depleted.json",
+      "sha256": "9a45492c72f114e5316da73a58ce020b1d59647a655e83e21fc2e1c8c764c57a"
+    },
+    {
+      "path": "tests/fixtures/quota/observation_red_rate_limited.json",
+      "sha256": "5d2e697588f9b65e44f59577600eb67868a717dbba97a7bd5a4eaee474e3f447"
+    },
+    {
+      "path": "tests/fixtures/quota/observation_schema_invalid.json",
+      "sha256": "1e7273b7e51a6cdc02c9b8999d4d840b35f633821d6c1a6164622d7658727417"
+    },
+    {
+      "path": "tests/fixtures/quota/observation_spark_isolated.json",
+      "sha256": "2585be2fd34e5f812906132527218789ff585c5d868aa3d8ab56a262b8285f0f"
+    },
+    {
+      "path": "tests/fixtures/quota/pending_policy.yaml",
+      "sha256": "0ede6d612cea93665a6bb7b32f29bfb861aa6f43c53de758de352759afeda598"
+    },
+    {
+      "path": "tests/fixtures/quota/sample_verdict_error_path.json",
+      "sha256": "549bf058ff934ef12cef4e042cb2e1693f9e64851a71cf6b16c1a5399fc5cb81"
+    },
+    {
+      "path": "tests/fixtures/quota/sample_verdict_valid_green.json",
+      "sha256": "80c883037e82a1e3033190da3767253e9e227ab48fa7344bf6dc0a6666cc8805"
+    },
+    {
+      "path": "tests/fixtures/quota/verdict_v3_schema.json",
+      "sha256": "e4e472de0c6020c667b24e4f344b6ff5bd8114947fc72eab687ebbef6a422cbb"
+    }
+  ],
+  "execution_summary": {
+    "total_tests": 84,
+    "failed": 83,
+    "passed": 1,
+    "exit_code": 1,
+    "baseline_state": "EXPECTED_RED_VERIFIED",
+    "command": "python3 -m pytest tests/unit/test_quota_guard_v3.py -v",
+    "timestamp": "2026-09-05T19:50:46+07:00"
+  },
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "tests/unit/test_quota_guard_v3.py",
+        "-v"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "83 failed, 1 passed in 1.26s; QuotaGuardEngineV3 and QuotaCollector not yet implemented by developer"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/lib/quota_collector.py",
+    "scripts/agent_quota_status_guard.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Comprehensive unit and integration test suite covering TC-01 through TC-69, 4-tier quota scale, pool isolation, precedence ranks 1 to 8, two-phase concurrency registry, and QuotaCollector for Fail-Closed Quota Guard V3 (resume_plan.md Revision 3.4)."
+}

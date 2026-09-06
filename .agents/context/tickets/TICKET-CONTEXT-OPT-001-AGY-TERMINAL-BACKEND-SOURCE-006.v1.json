@@ -1,0 +1,41 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-AGY-TERMINAL-BACKEND-SOURCE-006",
+  "revision": 1,
+  "ticket_sha256": "8906590807d391d8fd696bcd29fe93d3d9ea1bb45d9315baa56eea7f9848b218",
+  "plan_sha256": "58f6b032dd83bb74e0f90949c8c047f23ffac7dd71fe575bf6c5484d3f82a0f5",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-AGY-TERMINAL-BACKEND-SOURCE-006",
+      "role": "developer",
+      "phase": "implementation",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "scripts/agy_terminal_supervisor.py",
+        "tests/test_agy_terminal_execution_backend.py",
+        "plans/test_provenance/ticket-agy-terminal-backend-baseline-006.json",
+        "tests/test_agy_terminal_supervisor_boundary.py",
+        "plans/evidence/context-opt-001/agy-terminal-boundary-verification-005.json"
+      ],
+      "requested_horo_skills": [
+        "sdlc-aisdlc-workflow"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "local-only-boundary",
+        "no-native-execution-proof"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-other-file-write",
+        "no-test-write",
+        "no-provider-execution",
+        "no-push",
+        "no-deploy"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-META-008-FIX-001",
+  "revision": 1,
+  "ticket_sha256": "cd1db1d77568625e1674591f85f6fad4a60518e52246a3823d53d311b2c47dda",
+  "plan_sha256": "ddaa6f3978efef0a9cfc349e3d50d53722153245d8e017c27a96bf574a019b02",
+  "lanes": [
+    {
+      "lane_id": "TICKET-META-008-FIX-001",
+      "role": "developer",
+      "phase": "implementation",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "scripts/multiagent_prompt_command.py",
+        "tests/test_multiagent_prompt_command.py",
+        "tests/test_multiagent_production_import_isolation.py",
+        "plans/test_provenance/ticket-meta-008-remediation-baseline.json",
+        "plans/evidence/meta-008-remediation"
+      ],
+      "requested_horo_skills": [
+        "sdlc-aisdlc-workflow"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "dispatch-runtime-remediation"
+      ],
+      "allowed_child_command_class": "source-remediation",
+      "exclusions": [
+        "no-provider-execution",
+        "no-secret-operation",
+        "no-push",
+        "no-deploy"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

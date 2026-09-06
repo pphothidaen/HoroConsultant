@@ -32,6 +32,9 @@ system_prompt: 'You are the ming_xue_master agent for HoroConsultant.
 
   - Debate timing of luck pillars and life events against classical verses.'
 tools:
+- metaphysical-request-router
+- metaphysical-hitl-scope-gate
+- metaphysical-finetune-handoff
 - bazi-calculator
 - rag-search
 fallback_agent: orchestrator

@@ -1,0 +1,42 @@
+{
+  "lanes": [
+    {
+      "actions": [
+        "context.resolve",
+        "spark_governance_regression"
+      ],
+      "allowed_child_command_class": "context-inspect",
+      "evidence_refs": [],
+      "exclusions": [
+        "no-network",
+        "no-commit"
+      ],
+      "lane_id": "TICKET-SAFE-SPARK-QA-001-L1",
+      "phase": "qa",
+      "requested_horo_skills": [
+        "agile-governance",
+        "anti-cognitive-decay",
+        "orchestrator-delegation",
+        "requirement-grill-gate",
+        "qa-regression-provenance",
+        "qa-api-ui-e2e",
+        "qa-e2e-testing"
+      ],
+      "risk_flags": [
+        "governance_regression"
+      ],
+      "role": "qa_tester",
+      "source_domain": "quality-governance",
+      "touched_paths": [
+        "tests/test_spark_model_governance.py",
+        "tests/test_multiagent_prompt_command.py",
+        "scripts/multiagent_prompt_command.py"
+      ]
+    }
+  ],
+  "plan_sha256": "23197c7b1a99d03f2629f0e467ad3098e80f98c8f04ce3fbb4459ab03770bf55",
+  "revision": 1,
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-SAFE-SPARK-QA-001",
+  "ticket_sha256": "746a6f26779f0dc743de546a4ca38fef741114a663cefc1ede48004945089946"
+}

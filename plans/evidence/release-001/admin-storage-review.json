@@ -1,0 +1,43 @@
+{
+  "schema_version": "source-integration-review-v1",
+  "ticket_id": "TICKET-HARDEN-ADMIN-SESSION-STORAGE-001-REVIEW",
+  "reviewer_role": "code_reviewer",
+  "date": "2026-09-06",
+  "decision": "PASS_EXACT_TWO_PATH_SOURCE_INTEGRATION",
+  "ready_for_prod": false,
+  "approved_context_digest_supplied_by_parent": "3afb0fb86b5ff1352ba7f947747885a432aaaab8c6782b0cbfcded40991dd830",
+  "context_path": ".agents/context/tickets/TICKET-HARDEN-ADMIN-SESSION-STORAGE-001-REVIEW.v1.json",
+  "baseline": {
+    "commit": "59217e9d2a47d6244f2e91b5c6367198d02290c3",
+    "parent": "0cd6536252080303ad191a2fa729ba93597ac5e1",
+    "exact_commit_paths": ["tests/test_admin_session_storage_mirror.py", "plans/test_provenance/ticket-qa-admin-session-storage-mirror-001.json"],
+    "test_sha256": "fb9e65735f8a21f3090d776398985c4352efe12342f5b63634672f4863c011af",
+    "manifest_sha256": "d8ee7e0410059ede343ad578872a0bc367a54334e9da9006ec8499feae5f69c9",
+    "verification": "python3 scripts/test_provenance_guard.py verify --manifest plans/test_provenance/ticket-qa-admin-session-storage-mirror-001.json --baseline 59217e9d2a47d6244f2e91b5c6367198d02290c3 --head 59217e9d2a47d6244f2e91b5c6367198d02290c3",
+    "result": "PASSED; zero issues; one test file verified",
+    "chronology_limit": "Manifest transparently records dirty candidate existence when parent RED was reproduced. No new chronological claim is made by this review."
+  },
+  "approved_sources": {
+    "public/admin.html": "ddeec090e72a30eef9107fcba995f6e804250c2cd62592a17dc5bf1986127b9e",
+    "project/static/admin.html": "a629453aba68bd035fb616923b0075a4d5387bb719437840a324ed01c7969b6b"
+  },
+  "diff": {
+    "command": "git diff -- public/admin.html project/static/admin.html",
+    "sha256": "97e713a7631ec55ba7489ecb45d002cfc06a5b3d273535041c6fd1c9afb225d8",
+    "review": "Public mirror switches token restore/save/logout from localStorage google_id_token to sessionStorage admin_id_token. Both mirrors remove both legacy localStorage token keys before session token restore. Static mirror otherwise changes only the two purge lines. No broader UI or authentication changes in these diffs."
+  },
+  "security_findings": [],
+  "security_contract": "Both mirrors retain bearer Authorization and in-memory token controls, use sessionStorage for token persistence, purge legacy persistent tokens before restore and remove the session token at logout. User profile remains in localStorage as before. This change does not assert protection from same-origin script access or browser session-restoration behavior.",
+  "verification": [
+    {"command": "python3 -m pytest -q tests/test_admin_session_storage_mirror.py project/tests/test_admin_auth.py --tb=short", "exit_code": 0, "result": "10 passed in 4.02s; one existing Starlette httpx deprecation warning"},
+    {"command": "node --test tests/admin_production_ingress_contract.test.mjs tests/admin_production_ingress_scope_contract.test.mjs", "exit_code": 0, "result": "8 passed; zero failures"},
+    {"command": "python3 project/core/code_reviewer.py --scan-secrets", "exit_code": 0, "result": "PASSED; 3495 files scanned; zero findings"}
+  ],
+  "integration": {
+    "exact_paths_only": ["public/admin.html", "project/static/admin.html"],
+    "commit_message": "fix(admin): keep Google ID tokens in session storage\n\nPurge legacy persistent token keys before restoring session credentials in both Admin UI mirrors.\n\nTest-Baseline: 59217e9d2a47d6244f2e91b5c6367198d02290c3",
+    "trailer_contract": "Inspected guard expected_trailer and allowed-source matching; the exact trailer binds the verified manifest admitting both paths.",
+    "conditions": "Recheck exact source/test hashes and staged two-path diff before normal hooked commit. Preserve unrelated work. Verify the source commit against the baseline after integration."
+  },
+  "release_boundary": "Local bounded source review only. No browser or production runtime verification performed and no READY_FOR_PROD approval granted."
+}

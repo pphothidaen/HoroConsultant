@@ -1,0 +1,21 @@
+schema_version: "multiagent-quota-policy-v3"
+policy_version: "3.4"
+policy_admission_status: "APPROVED"
+status: "APPROVED"
+thresholds:
+  green: 20.0
+  amber: 40.0
+  orange: 10.0
+max_concurrency_green: 3
+max_concurrency_amber: 1
+max_concurrency_orange: 1
+max_concurrency_red: 0
+allowed_ranks:
+  green: [0, 1, 2, 3]
+  amber: [0, 1]
+  orange: [0]
+  red: []
+maximum_age_seconds: 60
+future_tolerance_seconds: 5
+default_reservation_ttl_seconds: 30
+heartbeat_ttl_seconds: 600

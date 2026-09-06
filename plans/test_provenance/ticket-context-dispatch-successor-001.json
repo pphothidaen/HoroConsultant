@@ -1,0 +1,838 @@
+{
+  "schema_version": "prospective-context-dispatch-successor-v1",
+  "schema_registration": "UNREGISTERED_BLOCKED_CONTRACT; not a valid test-provenance-v1 manifest",
+  "ticket_id": "TICKET-META-008-SUCCESSOR-QA-001",
+  "parent_ticket_id": "TICKET-META-008",
+  "sequence": 1,
+  "created_at": "2026-09-05T16:10:08.711085+00:00",
+  "disposition": "BLOCKED",
+  "provenance_status": "NON_TDD_RECONSTRUCTED",
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "independent_review_completed": false,
+  "resolver_pass_digest": "0efea382273e2bbe71fccdd522db96112a14c577d22207b80161fc0fa1d17e5d",
+  "approved_context": {
+    "path": ".agents/context/tickets/TICKET-META-008-SUCCESSOR-QA-001.v1.json",
+    "sha256": "c95fba4d15c9b387b4a27e58e214f230662d1e5bc6654436506116d06a5b3b14"
+  },
+  "predecessors": {
+    "historical_commit": "95ade8f02f8f6e4c1b8d1a8bf0f84ae830f7f0c1",
+    "context_manifest": {
+      "path": "plans/test_provenance/ticket-context-opt-001.json",
+      "sha256": "67e0cc49fa27c027f7bd009a5f6e8adde23330b360b89c50564f4b2395a981cb",
+      "commit": "95ade8f02f8f6e4c1b8d1a8bf0f84ae830f7f0c1"
+    },
+    "dispatch_manifest": {
+      "path": "plans/test_provenance/ticket-dispatch-activation-001.json",
+      "sha256": "f8a5318e08999a81db4d8986f7ef6b99fb67641771e512d0835c30bf70f76da9",
+      "tracked": false,
+      "preserved": true
+    }
+  },
+  "baseline_parent": "774aef341eb04039769082cd53820b5ff240bbaa",
+  "inventory_path_count": 39,
+  "candidate_inventory": [
+    {
+      "path": "plans/test_provenance/ticket-context-opt-001.json",
+      "sha256": "67e0cc49fa27c027f7bd009a5f6e8adde23330b360b89c50564f4b2395a981cb",
+      "head_sha256": "67e0cc49fa27c027f7bd009a5f6e8adde23330b360b89c50564f4b2395a981cb",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "67e0cc49fa27c027f7bd009a5f6e8adde23330b360b89c50564f4b2395a981cb"
+    },
+    {
+      "path": "project/tests/test_context_profile_ecosystem_sync.py",
+      "sha256": "57022cc52b7a4898e65af5c7a5b9eed84d144da9937f558daabf08c8df749a12",
+      "head_sha256": "57022cc52b7a4898e65af5c7a5b9eed84d144da9937f558daabf08c8df749a12",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "57022cc52b7a4898e65af5c7a5b9eed84d144da9937f558daabf08c8df749a12"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/agy-probe.json",
+      "sha256": "b675581d53a0d8790a462c887c6d709acf446bdb981aceac0dc3b1eab0df3867",
+      "head_sha256": "b675581d53a0d8790a462c887c6d709acf446bdb981aceac0dc3b1eab0df3867",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "b675581d53a0d8790a462c887c6d709acf446bdb981aceac0dc3b1eab0df3867"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/antigravity-render.json",
+      "sha256": "48baa78db6af4e558c48ea46abc1d98adbb70817af68b6d4d6a0bb1af3a9dfd3",
+      "head_sha256": "48baa78db6af4e558c48ea46abc1d98adbb70817af68b6d4d6a0bb1af3a9dfd3",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "48baa78db6af4e558c48ea46abc1d98adbb70817af68b6d4d6a0bb1af3a9dfd3"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/approved-context.valid.json",
+      "sha256": "f1242e3a8cf702d623f405b96617acbed7a3dc79bbdced4cdc3b8e0201072c42",
+      "head_sha256": "f1242e3a8cf702d623f405b96617acbed7a3dc79bbdced4cdc3b8e0201072c42",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "f1242e3a8cf702d623f405b96617acbed7a3dc79bbdced4cdc3b8e0201072c42"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/claude-probe.json",
+      "sha256": "9a29f0daaee570f8e28ba615ab9dcf81e0ba281000aa70de20bece3e16029f86",
+      "head_sha256": "9a29f0daaee570f8e28ba615ab9dcf81e0ba281000aa70de20bece3e16029f86",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "9a29f0daaee570f8e28ba615ab9dcf81e0ba281000aa70de20bece3e16029f86"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/codex-prompt.json",
+      "sha256": "c61113adc1fef9c4300615649e86b9b9c5eaf8847d8800a8fef7d2b8714b0adb",
+      "head_sha256": "c61113adc1fef9c4300615649e86b9b9c5eaf8847d8800a8fef7d2b8714b0adb",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "c61113adc1fef9c4300615649e86b9b9c5eaf8847d8800a8fef7d2b8714b0adb"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/five-elements-ui-palette.json",
+      "sha256": "490829fe754a070cfd41a780ae0b18bd8c2470344359950e4e0198b9edec8b91",
+      "head_sha256": "490829fe754a070cfd41a780ae0b18bd8c2470344359950e4e0198b9edec8b91",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "490829fe754a070cfd41a780ae0b18bd8c2470344359950e4e0198b9edec8b91"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/metaphysical-finetune-handoff.json",
+      "sha256": "699eed8202517648c4227919e00e95234e717de55b20c0dee314bc72846be988",
+      "head_sha256": "699eed8202517648c4227919e00e95234e717de55b20c0dee314bc72846be988",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "699eed8202517648c4227919e00e95234e717de55b20c0dee314bc72846be988"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/metaphysical-hitl-scope-gate.json",
+      "sha256": "c725e36702af7f2a0ff089114d0088867a400dfb2be5740e1a00d0ed69893302",
+      "head_sha256": "c725e36702af7f2a0ff089114d0088867a400dfb2be5740e1a00d0ed69893302",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "c725e36702af7f2a0ff089114d0088867a400dfb2be5740e1a00d0ed69893302"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/metaphysical-request-router.json",
+      "sha256": "cb66a8f5a07514e7e687afa214bfe010741d00ba2b3adb592a8bec715d737a19",
+      "head_sha256": "cb66a8f5a07514e7e687afa214bfe010741d00ba2b3adb592a8bec715d737a19",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "cb66a8f5a07514e7e687afa214bfe010741d00ba2b3adb592a8bec715d737a19"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/qa-api-ui-e2e.json",
+      "sha256": "7a4bc8c38cb1643d208f5287825a42c8ed4d220af5d77da91c2ff591238108fe",
+      "head_sha256": "7a4bc8c38cb1643d208f5287825a42c8ed4d220af5d77da91c2ff591238108fe",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "7a4bc8c38cb1643d208f5287825a42c8ed4d220af5d77da91c2ff591238108fe"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/qa-e2e-testing.json",
+      "sha256": "8b0894721d2efcfae2013805eaa0e42f8e76956e5f983035ec019818aae8f923",
+      "head_sha256": "8b0894721d2efcfae2013805eaa0e42f8e76956e5f983035ec019818aae8f923",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "8b0894721d2efcfae2013805eaa0e42f8e76956e5f983035ec019818aae8f923"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/qa-regression-provenance.json",
+      "sha256": "64d7dd13f97a9bde0945a6cf336a4c68c1265de2a9d0ab25ca9c8f7d2ecbbbc1",
+      "head_sha256": "64d7dd13f97a9bde0945a6cf336a4c68c1265de2a9d0ab25ca9c8f7d2ecbbbc1",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "64d7dd13f97a9bde0945a6cf336a4c68c1265de2a9d0ab25ca9c8f7d2ecbbbc1"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/ui-color-token-handoff.json",
+      "sha256": "883d914e4cd48d30b5f2d9a3ce77c239f4068779027e8943924d79df7442c1a8",
+      "head_sha256": "883d914e4cd48d30b5f2d9a3ce77c239f4068779027e8943924d79df7442c1a8",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "883d914e4cd48d30b5f2d9a3ce77c239f4068779027e8943924d79df7442c1a8"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evals/wcag-apca-color-audit.json",
+      "sha256": "236cce8e50175d691b7489cebc97c9170e216f5e1dfe2470213cb0721eb65180",
+      "head_sha256": "236cce8e50175d691b7489cebc97c9170e216f5e1dfe2470213cb0721eb65180",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "236cce8e50175d691b7489cebc97c9170e216f5e1dfe2470213cb0721eb65180"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/evidence.valid.json",
+      "sha256": "8238af2aa81238b8b39b798832805beba48f37d05fc97771845443b18d14eb19",
+      "head_sha256": "8238af2aa81238b8b39b798832805beba48f37d05fc97771845443b18d14eb19",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "8238af2aa81238b8b39b798832805beba48f37d05fc97771845443b18d14eb19"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/expected-mandatory-closures.json",
+      "sha256": "4483427aa01d0f88554876ac7ff7ed5b4cf28bc69dcb4ffac743e22a748bb7a0",
+      "head_sha256": "4483427aa01d0f88554876ac7ff7ed5b4cf28bc69dcb4ffac743e22a748bb7a0",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "4483427aa01d0f88554876ac7ff7ed5b4cf28bc69dcb4ffac743e22a748bb7a0"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/expected-multi-path.json",
+      "sha256": "193acfdbfcfec66b4d5b136cbffcbeece998a2593b8a759a737b18a0cc74cfd6",
+      "head_sha256": "193acfdbfcfec66b4d5b136cbffcbeece998a2593b8a759a737b18a0cc74cfd6",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "193acfdbfcfec66b4d5b136cbffcbeece998a2593b8a759a737b18a0cc74cfd6"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/expected-root-developer.json",
+      "sha256": "c0f303965ee61c9d0f7754b8e7781d2e03df73a4eed09e9c7c34961c65d0459a",
+      "head_sha256": "c0f303965ee61c9d0f7754b8e7781d2e03df73a4eed09e9c7c34961c65d0459a",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "c0f303965ee61c9d0f7754b8e7781d2e03df73a4eed09e9c7c34961c65d0459a"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/narrowing.valid.json",
+      "sha256": "685d12b93f580bf390e01810d5d779a7f7d9732376b55734d82d20dea107a026",
+      "head_sha256": "685d12b93f580bf390e01810d5d779a7f7d9732376b55734d82d20dea107a026",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "685d12b93f580bf390e01810d5d779a7f7d9732376b55734d82d20dea107a026"
+    },
+    {
+      "path": "tests/fixtures/context_profiles/registry.valid.json",
+      "sha256": "e6b14121bd9c311a62847b28a264ab834320f338ee0bf37425feb977d5a2eea5",
+      "head_sha256": "e6b14121bd9c311a62847b28a264ab834320f338ee0bf37425feb977d5a2eea5",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "e6b14121bd9c311a62847b28a264ab834320f338ee0bf37425feb977d5a2eea5"
+    },
+    {
+      "path": "tests/test_context_profile_budget_handoff.py",
+      "sha256": "cbd1a23b978a0fee894b4341e9bc5ace72e5f4eeb7b379389d6f93a900b8e22c",
+      "head_sha256": "cbd1a23b978a0fee894b4341e9bc5ace72e5f4eeb7b379389d6f93a900b8e22c",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "cbd1a23b978a0fee894b4341e9bc5ace72e5f4eeb7b379389d6f93a900b8e22c"
+    },
+    {
+      "path": "tests/test_context_profile_generation.py",
+      "sha256": "34e8e1eb61ef4ce824ba7ab280a6628c26324b81046c5a5e45b2498c3a2dbe5e",
+      "head_sha256": "34e8e1eb61ef4ce824ba7ab280a6628c26324b81046c5a5e45b2498c3a2dbe5e",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "34e8e1eb61ef4ce824ba7ab280a6628c26324b81046c5a5e45b2498c3a2dbe5e"
+    },
+    {
+      "path": "tests/test_context_profile_hierarchy_runtime.py",
+      "sha256": "e37c22a9468de9e550d0a53147431da50b5fde3a0e4d90a1b1fef5ed73be441f",
+      "head_sha256": "e37c22a9468de9e550d0a53147431da50b5fde3a0e4d90a1b1fef5ed73be441f",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "e37c22a9468de9e550d0a53147431da50b5fde3a0e4d90a1b1fef5ed73be441f"
+    },
+    {
+      "path": "tests/test_context_profile_mandatory_closures.py",
+      "sha256": "fdcecd5db3e3d8e7c86ad08bc27c412fdc4decb0acdf2cd6c735a88c02a893c8",
+      "head_sha256": "fdcecd5db3e3d8e7c86ad08bc27c412fdc4decb0acdf2cd6c735a88c02a893c8",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "fdcecd5db3e3d8e7c86ad08bc27c412fdc4decb0acdf2cd6c735a88c02a893c8"
+    },
+    {
+      "path": "tests/test_context_profile_native_activation.py",
+      "sha256": "f5b4401618210c59db46e28d7cb9b280c7430a1ed75b89bd1aa89539e65a371d",
+      "head_sha256": "f5b4401618210c59db46e28d7cb9b280c7430a1ed75b89bd1aa89539e65a371d",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "f5b4401618210c59db46e28d7cb9b280c7430a1ed75b89bd1aa89539e65a371d"
+    },
+    {
+      "path": "tests/test_context_profile_registry.py",
+      "sha256": "36ff0cc7d9d09b29ff2f2bbafedff2cad4dec479bb403940cba9e298a056ea6a",
+      "head_sha256": "36ff0cc7d9d09b29ff2f2bbafedff2cad4dec479bb403940cba9e298a056ea6a",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "36ff0cc7d9d09b29ff2f2bbafedff2cad4dec479bb403940cba9e298a056ea6a"
+    },
+    {
+      "path": "tests/test_context_profile_resolver.py",
+      "sha256": "3a1d68a4b0c1998fd1b6bfed2f1ee4d5506031790f25bb76c29bb5b6a38282a2",
+      "head_sha256": "3a1d68a4b0c1998fd1b6bfed2f1ee4d5506031790f25bb76c29bb5b6a38282a2",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": "3a1d68a4b0c1998fd1b6bfed2f1ee4d5506031790f25bb76c29bb5b6a38282a2"
+    },
+    {
+      "path": "tests/test_multiagent_prompt_command.py",
+      "sha256": "b86d551bc393823b890cafbff63fa16e4ace9a04c2d28f39e0819d17f416da7d",
+      "head_sha256": "b86d551bc393823b890cafbff63fa16e4ace9a04c2d28f39e0819d17f416da7d",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": "CURRENT_GREEN_CHARACTERIZATION",
+      "legacy_sha256": "5771cdd113655eaae648cb84c611c138a77d373ab238d9086a3c2683fe20f783"
+    },
+    {
+      "path": "tests/test_multiagent_probe_approval.py",
+      "sha256": "13bb6dd63ac285f11e2d2726cd78c62c43eb324473274bb9139b2d1ac5294be3",
+      "head_sha256": "13bb6dd63ac285f11e2d2726cd78c62c43eb324473274bb9139b2d1ac5294be3",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": "NON_TDD_RECONSTRUCTED",
+      "legacy_sha256": "13bb6dd63ac285f11e2d2726cd78c62c43eb324473274bb9139b2d1ac5294be3"
+    },
+    {
+      "path": "tests/test_multiagent_receipt_schema.py",
+      "sha256": "315f49b0f4865718b989a324c365bafa23a80be62d13ec82d941ff375293a7bf",
+      "head_sha256": "315f49b0f4865718b989a324c365bafa23a80be62d13ec82d941ff375293a7bf",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": "NON_TDD_RECONSTRUCTED",
+      "legacy_sha256": "315f49b0f4865718b989a324c365bafa23a80be62d13ec82d941ff375293a7bf"
+    },
+    {
+      "path": "tests/test_multiagent_receipt_v3_schema.py",
+      "sha256": "f182d2dbab4b6c478019e6007b1af1216dfb025eb13ede1963a73873000ce1fe",
+      "head_sha256": "f182d2dbab4b6c478019e6007b1af1216dfb025eb13ede1963a73873000ce1fe",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": "CURRENT_GREEN_CHARACTERIZATION",
+      "legacy_sha256": "f182d2dbab4b6c478019e6007b1af1216dfb025eb13ede1963a73873000ce1fe"
+    },
+    {
+      "path": "tests/test_agy_bucket_admission_guard.py",
+      "sha256": "e707ac2dbabd377bada9fe062bb601ed13a45a6a797e7e9bec626eafe89bc5ca",
+      "head_sha256": "e707ac2dbabd377bada9fe062bb601ed13a45a6a797e7e9bec626eafe89bc5ca",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": "CURRENT_GREEN_CHARACTERIZATION",
+      "legacy_sha256": "e707ac2dbabd377bada9fe062bb601ed13a45a6a797e7e9bec626eafe89bc5ca"
+    },
+    {
+      "path": "tests/test_multiagent_bootstrap_dispatch.py",
+      "sha256": "88fc039a6cfb591857f04110f799b32416af7efbd99a4a7eacca8e796c267e5f",
+      "head_sha256": "88fc039a6cfb591857f04110f799b32416af7efbd99a4a7eacca8e796c267e5f",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": "NON_TDD_RECONSTRUCTED",
+      "legacy_sha256": "88fc039a6cfb591857f04110f799b32416af7efbd99a4a7eacca8e796c267e5f"
+    },
+    {
+      "path": "tests/test_spark_model_governance.py",
+      "sha256": "7a2502675984a2039900ed7712f08d654bdbda68e727b5ae4cb1ee1d0a5108c4",
+      "head_sha256": "7a2502675984a2039900ed7712f08d654bdbda68e727b5ae4cb1ee1d0a5108c4",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": "CURRENT_GREEN_CHARACTERIZATION",
+      "legacy_sha256": "7a2502675984a2039900ed7712f08d654bdbda68e727b5ae4cb1ee1d0a5108c4"
+    },
+    {
+      "path": "project/tests/test_ai_agent_ecosystem_sync.py",
+      "sha256": "432c3e1e33a6d379ee353788a5cb822f1ca7153b106c4e2871103e74a9f19ecc",
+      "head_sha256": "251c80962879b58d527a5ae310ec3cb1c177c2f8647dbdfea2e162edecc1b95b",
+      "changed_against_head": true,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": "NON_TDD_RECONSTRUCTED",
+      "legacy_sha256": "432c3e1e33a6d379ee353788a5cb822f1ca7153b106c4e2871103e74a9f19ecc"
+    },
+    {
+      "path": "project/tests/test_developer_routing_contract.py",
+      "sha256": "7479e90c84eeea8b1c11415c0e6dac0f2135e854e0c113db51e4ca456927f36c",
+      "head_sha256": "7479e90c84eeea8b1c11415c0e6dac0f2135e854e0c113db51e4ca456927f36c",
+      "changed_against_head": false,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": "GENUINE_RED",
+      "legacy_sha256": "7479e90c84eeea8b1c11415c0e6dac0f2135e854e0c113db51e4ca456927f36c"
+    },
+    {
+      "path": "plans/test_provenance/ticket-dispatch-activation-001.json",
+      "sha256": "f8a5318e08999a81db4d8986f7ef6b99fb67641771e512d0835c30bf70f76da9",
+      "head_sha256": null,
+      "changed_against_head": true,
+      "classification": "NON_TDD_RECONSTRUCTED",
+      "classification_reason": "Prospective capture of existing bytes; this lane has no independently verified assertion-level test-first chronology.",
+      "legacy_classification": null,
+      "legacy_sha256": null
+    }
+  ],
+  "legacy_hash_mismatches": [
+    {
+      "path": "tests/test_multiagent_prompt_command.py",
+      "legacy_sha256": "5771cdd113655eaae648cb84c611c138a77d373ab238d9086a3c2683fe20f783",
+      "current_sha256": "b86d551bc393823b890cafbff63fa16e4ace9a04c2d28f39e0819d17f416da7d",
+      "reason": "Legacy recorded hash does not match current bytes"
+    },
+    {
+      "path": "plans/test_provenance/ticket-dispatch-activation-001.json",
+      "legacy_sha256": null,
+      "current_sha256": "f8a5318e08999a81db4d8986f7ef6b99fb67641771e512d0835c30bf70f76da9",
+      "reason": "Legacy self-hash absent; immutable predecessor can now be hashed externally"
+    }
+  ],
+  "actual_proposed_commit_delta": {
+    "against_head": "774aef341eb04039769082cd53820b5ff240bbaa",
+    "inventory_delta": [
+      {
+        "path": "project/tests/test_ai_agent_ecosystem_sync.py",
+        "change": "M",
+        "sha256": "432c3e1e33a6d379ee353788a5cb822f1ca7153b106c4e2871103e74a9f19ecc"
+      },
+      {
+        "path": "plans/test_provenance/ticket-dispatch-activation-001.json",
+        "change": "A",
+        "sha256": "f8a5318e08999a81db4d8986f7ef6b99fb67641771e512d0835c30bf70f76da9"
+      }
+    ],
+    "preparation_artifacts": [
+      "plans/test_provenance/ticket-context-dispatch-successor-001.json",
+      "plans/evidence/context-opt-001/successor-preparation-001.json"
+    ],
+    "changed_path_allowlist": [
+      "project/tests/test_ai_agent_ecosystem_sync.py",
+      "plans/test_provenance/ticket-dispatch-activation-001.json",
+      "plans/test_provenance/ticket-context-dispatch-successor-001.json",
+      "plans/evidence/context-opt-001/successor-preparation-001.json"
+    ],
+    "note": "Prospective allowlist only, not commit authorization. Inventory count is not changed-file count. New artifact digest bound externally to avoid self-hash."
+  },
+  "ownership_transfer": {
+    "path": "project/tests/test_ai_agent_ecosystem_sync.py",
+    "former_owner": "TICKET-SKILL-BUDGET-001 Generator QA",
+    "prospective_owner": "TICKET-META-008-SUCCESSOR-QA-001",
+    "scope": "inventory/freeze/evidence only; no test edits",
+    "authorship": "UNVERIFIED",
+    "classification": "NON_TDD_RECONSTRUCTED",
+    "worktree_sha256": "432c3e1e33a6d379ee353788a5cb822f1ca7153b106c4e2871103e74a9f19ecc",
+    "head_sha256": "251c80962879b58d527a5ae310ec3cb1c177c2f8647dbdfea2e162edecc1b95b",
+    "diff_sha256": "a7c0c2a5d83adc50b728af3e43fd4515067f8995782b874527b25b96782fe56e",
+    "numstat": "322\t0\tproject/tests/test_ai_agent_ecosystem_sync.py",
+    "six_test_groups": [
+      "test_nested_agent_json_is_canonical_over_stale_antigravity_and_loose_outputs",
+      "test_check_cli_dispatch_uses_python_canonical_authority_even_when_rust_binary_exists",
+      "test_invalid_canonical_json_fails_before_any_generated_output_write",
+      "test_check_only_skill_sync_is_read_only_and_rejects_missing_canonical_skills",
+      "test_optional_canonical_runtime_settings_round_trip_to_all_generated_artifacts",
+      "test_invalid_optional_runtime_settings_fail_before_generated_writes"
+    ],
+    "current_git_blob": "3ba624f3c423a2cf590469c1e155f641a526acaa",
+    "reachable_history_evidence": {
+      "source": "Parent read-only audit",
+      "find_object_result": "No reachable commit contains current blob 3ba624f3c423a2cf590469c1e155f641a526acaa",
+      "authorship_not_proven": true
+    }
+  },
+  "source_config_test_snapshot": {
+    "start_digest": "024c2455926aa62ec868b44ea6877bbf086b30159ab38924ce4c508c3ba3b773",
+    "end_digest": "024c2455926aa62ec868b44ea6877bbf086b30159ab38924ce4c508c3ba3b773",
+    "stable": true,
+    "path_count": 1226,
+    "full_hashes_and_dirty_patch_identities_in": "plans/evidence/context-opt-001/successor-preparation-001.json",
+    "head_stable": true,
+    "index_entries_stable": true,
+    "index_diff_stable": true,
+    "selection": "All tracked and nonignored untracked files under scripts, .agents, .antigravity, .codex, .claude, .github, tests, project/tests, project/core, project/routers, api, rust_core; root toml/yaml/yml/json/ini config; exact 39 inventory. Other docs and data outside this snapshot remain out of scope."
+  },
+  "qa_runs": [
+    {
+      "scope": "tests/test_multiagent_prompt_command.py",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-v",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_multiagent_prompt_command.py"
+      ],
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "started_at": "2026-09-05T16:08:06.843651+00:00",
+      "ended_at": "2026-09-05T16:08:12.297262+00:00",
+      "exit_code": 0,
+      "summary": [
+        "============================= 236 passed in 5.22s =============================="
+      ],
+      "failure_lines": [],
+      "output_sha256": "9a71b0405a2f56db2124ddeba2975faa6935d7ae9a15da6489a52e7291985630"
+    },
+    {
+      "scope": "tests/test_multiagent_probe_approval.py",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-v",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_multiagent_probe_approval.py"
+      ],
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "started_at": "2026-09-05T16:08:12.298356+00:00",
+      "ended_at": "2026-09-05T16:08:13.214950+00:00",
+      "exit_code": 0,
+      "summary": [
+        "============================== 48 passed in 0.77s =============================="
+      ],
+      "failure_lines": [],
+      "output_sha256": "b067c0597c82bfbe7063d78dc3fd0f8fa0dca1490e96fabaa5ca67c1224a9379"
+    },
+    {
+      "scope": "tests/test_multiagent_receipt_schema.py",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-v",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_multiagent_receipt_schema.py"
+      ],
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "started_at": "2026-09-05T16:08:13.216110+00:00",
+      "ended_at": "2026-09-05T16:08:13.587783+00:00",
+      "exit_code": 0,
+      "summary": [
+        "============================== 5 passed in 0.22s ==============================="
+      ],
+      "failure_lines": [],
+      "output_sha256": "161d8c94ef43dc70bfd561f9f15b41183f9f6d930be4ddccd2b56fc63f0cd9f9"
+    },
+    {
+      "scope": "tests/test_multiagent_receipt_v3_schema.py",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-v",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_multiagent_receipt_v3_schema.py"
+      ],
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "started_at": "2026-09-05T16:08:13.588752+00:00",
+      "ended_at": "2026-09-05T16:08:13.795043+00:00",
+      "exit_code": 0,
+      "summary": [
+        "============================== 41 passed in 0.06s =============================="
+      ],
+      "failure_lines": [],
+      "output_sha256": "f5a79b6aa7795a51eb444c279bb1eac510f99c1c752c318dd42047cedceae4d1"
+    },
+    {
+      "scope": "tests/test_agy_bucket_admission_guard.py",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-v",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_agy_bucket_admission_guard.py"
+      ],
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "started_at": "2026-09-05T16:08:13.796667+00:00",
+      "ended_at": "2026-09-05T16:08:14.041327+00:00",
+      "exit_code": 0,
+      "summary": [
+        "============================== 8 passed in 0.10s ==============================="
+      ],
+      "failure_lines": [],
+      "output_sha256": "02d025407f9f4cce0d50ecbd5970e08be3ab7baee0474db6217c0ec19821c7b4"
+    },
+    {
+      "scope": "tests/test_multiagent_bootstrap_dispatch.py",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-v",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_multiagent_bootstrap_dispatch.py"
+      ],
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "started_at": "2026-09-05T16:08:14.042105+00:00",
+      "ended_at": "2026-09-05T16:08:14.291847+00:00",
+      "exit_code": 0,
+      "summary": [
+        "============================== 27 passed in 0.10s =============================="
+      ],
+      "failure_lines": [],
+      "output_sha256": "3cfb5b39a4a75cb73b562c1d3322c9304ac5717810a83dea03db223ae2bf1ee2"
+    },
+    {
+      "scope": "tests/test_spark_model_governance.py",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-v",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_spark_model_governance.py"
+      ],
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "started_at": "2026-09-05T16:08:14.292668+00:00",
+      "ended_at": "2026-09-05T16:08:14.633257+00:00",
+      "exit_code": 0,
+      "summary": [
+        "============================== 15 passed in 0.19s =============================="
+      ],
+      "failure_lines": [],
+      "output_sha256": "a5e2f2c2e98d018ec280e745a1af0d8875efb92271457c38f1ac452e67c02d80"
+    },
+    {
+      "scope": "project/tests/test_ai_agent_ecosystem_sync.py",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-v",
+        "-p",
+        "no:cacheprovider",
+        "project/tests/test_ai_agent_ecosystem_sync.py"
+      ],
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "started_at": "2026-09-05T16:08:14.634059+00:00",
+      "ended_at": "2026-09-05T16:08:20.941958+00:00",
+      "exit_code": 1,
+      "summary": [
+        "========================= 1 failed, 37 passed in 6.16s ========================="
+      ],
+      "failure_lines": [
+        "E       AssertionError: [OK] Context profiles parity: All context profiles match canonical registry",
+        "E         [OK] required platform files: 12 files present",
+        "E         [OK] scoped AGENTS.md files: 5 scoped AGENTS.md files present and <= 50 lines",
+        "E         [OK] settings.json: settings.json parses",
+        "E         [OK] .mcp.json: .mcp.json parses",
+        "E         [OK] .claude/settings.json: .claude/settings.json parses",
+        "E         [OK] settings role map: 7 core roles mapped",
+        "E         [OK] claude hooks: PreToolUse guard registered",
+        "E         [OK] claude rules: 21 rule files valid",
+        "E         [OK] codex generated roles: 7 core roles present",
+        "E         [OK] hermes/thClaws contract: routing and bridge markers present",
+        "E         [ERROR] HF Static release governance: .agents/agents/devops/agent.json missing owner contract",
+        "E         [OK] anti-cognitive-decay skill: canonical and generated mirrors aligned",
+        "E         [OK] Plan completion governance: Rule 22 enforced, ReleaseNotes aligned, plans clean",
+        "E         [ERROR] Antigravity/Gemini/AGY sync: [ERROR] Found 108 agent / skill synchronization issues.",
+        "E         [ERROR] Codex/OpenAI sync: [ERROR] Found 20 Codex agent synchronization issue(s).",
+        "E         [OK] Claude Code <-> AGY CLI Parity: ==========================================================================================",
+        "E         [ERROR] Codex multi-account config & budget: [ERROR] codex3   : Policy violation (missing 8 disabled remote plugin(s), missing 20 inert profile(s), prompt=3394 chars (budget <= 8000), truncated_skills=0)",
+        "E         ",
+        "E       assert 1 == 0",
+        "E        +  where 1 = CompletedProcess(args=['/opt/homebrew/opt/python@3.14/bin/python3.14', '/Users/kimlenglim/Project/HoroConsultant/scripts/sync_ai_agent_ecosystem.py', '--check'], returncode=1, stdout='[OK] Context profiles parity: All context profiles match canonical registry\\n[OK] required platform files: 12 files present\\n[OK] scoped AGENTS.md files: 5 scoped AGENTS.md files present and <= 50 lines\\n[OK] settings.json: settings.json parses\\n[OK] .mcp.json: .mcp.json parses\\n[OK] .claude/settings.json: .claude/settings.json parses\\n[OK] settings role map: 7 core roles mapped\\n[OK] claude hooks: PreToolUse guard registered\\n[OK] claude rules: 21 rule files valid\\n[OK] codex generated roles: 7 core roles present\\n[OK] hermes/thClaws contract: routing and bridge markers present\\n[ERROR] HF Static release governance: .agents/agents/devops/agent.json missing owner contract\\n[OK] anti-cognitive-decay skill: canonical and generated mirrors aligned\\n[OK] Plan completion governance: Rule 22 enforced, ReleaseNotes aligned, plans clean\\n[ERROR] Antigravity/Gemini/AGY sync: [ERROR] Found 108 agent / skill synchronization issues.\\n[ERROR] Codex/OpenAI sync: [ERROR] Found 20 Codex agent synchronization issue(s).\\n[OK] Claude Code <-> AGY CLI Parity: ==========================================================================================\\n[ERROR] Codex multi-account config & budget: [ERROR] codex3   : Policy violation (missing 8 disabled remote plugin(s), missing 20 inert profile(s), prompt=3394 chars (budget <= 8000), truncated_skills=0)\\n', stderr='').returncode",
+        "FAILED project/tests/test_ai_agent_ecosystem_sync.py::test_ai_agent_ecosystem_sync_check_passes"
+      ],
+      "output_sha256": "9f651b18301c4529831132c290386dd855c1c8d7964428db88e8698da49cf188"
+    },
+    {
+      "scope": "project/tests/test_developer_routing_contract.py",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-v",
+        "-p",
+        "no:cacheprovider",
+        "project/tests/test_developer_routing_contract.py"
+      ],
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "started_at": "2026-09-05T16:08:20.943094+00:00",
+      "ended_at": "2026-09-05T16:08:21.134066+00:00",
+      "exit_code": 1,
+      "summary": [
+        "========================= 1 failed, 2 passed in 0.04s =========================="
+      ],
+      "failure_lines": [
+        "E       AssertionError: assert {'name': 'dev...'Medium', ...} == {'name': 'dev...'Medium', ...}",
+        "E         ",
+        "E         Omitting 7 identical items, use -vv to show",
+        "E         Differing items:",
+        "E         {'tools': ['bazi-calculator', 'rag-search', 'sdlc-aisdlc-workflow']} != {'tools': ['requirement-grill-gate', 'agile-governance', 'orchestrator-delegation', 'anti-cognitive-decay']}",
+        "E         Left contains 1 more item:",
+        "E         {'fallback_agent': 'orchestrator'}",
+        "E         Right contains 1 more item:...",
+        "E         ",
+        "E         ...Full output truncated (41 lines hidden), use '-vv' to show",
+        "FAILED project/tests/test_developer_routing_contract.py::test_developer_catalog_and_generated_mirrors_match_the_source"
+      ],
+      "output_sha256": "46101cbbd90c4dedc1872b1eeb7b5ed87e242a3e8ce2e6cbc931d8d415cc47ca"
+    },
+    {
+      "scope": "combined_nine_paths",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-v",
+        "-p",
+        "no:cacheprovider",
+        "tests/test_multiagent_prompt_command.py",
+        "tests/test_multiagent_probe_approval.py",
+        "tests/test_multiagent_receipt_schema.py",
+        "tests/test_multiagent_receipt_v3_schema.py",
+        "tests/test_agy_bucket_admission_guard.py",
+        "tests/test_multiagent_bootstrap_dispatch.py",
+        "tests/test_spark_model_governance.py",
+        "project/tests/test_ai_agent_ecosystem_sync.py",
+        "project/tests/test_developer_routing_contract.py"
+      ],
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "started_at": "2026-09-05T16:08:21.134865+00:00",
+      "ended_at": "2026-09-05T16:08:32.068318+00:00",
+      "exit_code": 1,
+      "summary": [
+        "======================== 2 failed, 419 passed in 10.77s ========================"
+      ],
+      "failure_lines": [
+        "E       AssertionError: [OK] Context profiles parity: All context profiles match canonical registry",
+        "E         [OK] required platform files: 12 files present",
+        "E         [OK] scoped AGENTS.md files: 5 scoped AGENTS.md files present and <= 50 lines",
+        "E         [OK] settings.json: settings.json parses",
+        "E         [OK] .mcp.json: .mcp.json parses",
+        "E         [OK] .claude/settings.json: .claude/settings.json parses",
+        "E         [OK] settings role map: 7 core roles mapped",
+        "E         [OK] claude hooks: PreToolUse guard registered",
+        "E         [OK] claude rules: 21 rule files valid",
+        "E         [OK] codex generated roles: 7 core roles present",
+        "E         [OK] hermes/thClaws contract: routing and bridge markers present",
+        "E         [ERROR] HF Static release governance: .agents/agents/devops/agent.json missing owner contract",
+        "E         [OK] anti-cognitive-decay skill: canonical and generated mirrors aligned",
+        "E         [OK] Plan completion governance: Rule 22 enforced, ReleaseNotes aligned, plans clean",
+        "E         [ERROR] Antigravity/Gemini/AGY sync: [ERROR] Found 108 agent / skill synchronization issues.",
+        "E         [ERROR] Codex/OpenAI sync: [ERROR] Found 20 Codex agent synchronization issue(s).",
+        "E         [OK] Claude Code <-> AGY CLI Parity: ==========================================================================================",
+        "E         [ERROR] Codex multi-account config & budget: [ERROR] codex3   : Policy violation (missing 8 disabled remote plugin(s), missing 20 inert profile(s), prompt=3394 chars (budget <= 8000), truncated_skills=0)",
+        "E         ",
+        "E       assert 1 == 0",
+        "E        +  where 1 = CompletedProcess(args=['/opt/homebrew/opt/python@3.14/bin/python3.14', '/Users/kimlenglim/Project/HoroConsultant/scripts/sync_ai_agent_ecosystem.py', '--check'], returncode=1, stdout='[OK] Context profiles parity: All context profiles match canonical registry\\n[OK] required platform files: 12 files present\\n[OK] scoped AGENTS.md files: 5 scoped AGENTS.md files present and <= 50 lines\\n[OK] settings.json: settings.json parses\\n[OK] .mcp.json: .mcp.json parses\\n[OK] .claude/settings.json: .claude/settings.json parses\\n[OK] settings role map: 7 core roles mapped\\n[OK] claude hooks: PreToolUse guard registered\\n[OK] claude rules: 21 rule files valid\\n[OK] codex generated roles: 7 core roles present\\n[OK] hermes/thClaws contract: routing and bridge markers present\\n[ERROR] HF Static release governance: .agents/agents/devops/agent.json missing owner contract\\n[OK] anti-cognitive-decay skill: canonical and generated mirrors aligned\\n[OK] Plan completion governance: Rule 22 enforced, ReleaseNotes aligned, plans clean\\n[ERROR] Antigravity/Gemini/AGY sync: [ERROR] Found 108 agent / skill synchronization issues.\\n[ERROR] Codex/OpenAI sync: [ERROR] Found 20 Codex agent synchronization issue(s).\\n[OK] Claude Code <-> AGY CLI Parity: ==========================================================================================\\n[ERROR] Codex multi-account config & budget: [ERROR] codex3   : Policy violation (missing 8 disabled remote plugin(s), missing 20 inert profile(s), prompt=3394 chars (budget <= 8000), truncated_skills=0)\\n', stderr='').returncode",
+        "E       AssertionError: assert {'name': 'dev...'Medium', ...} == {'name': 'dev...'Medium', ...}",
+        "E         ",
+        "E         Omitting 7 identical items, use -vv to show",
+        "E         Differing items:",
+        "E         {'tools': ['bazi-calculator', 'rag-search', 'sdlc-aisdlc-workflow']} != {'tools': ['requirement-grill-gate', 'agile-governance', 'orchestrator-delegation', 'anti-cognitive-decay']}",
+        "E         Left contains 1 more item:",
+        "E         {'fallback_agent': 'orchestrator'}",
+        "E         Right contains 1 more item:...",
+        "E         ",
+        "E         ...Full output truncated (41 lines hidden), use '-vv' to show",
+        "FAILED project/tests/test_ai_agent_ecosystem_sync.py::test_ai_agent_ecosystem_sync_check_passes",
+        "FAILED project/tests/test_developer_routing_contract.py::test_developer_catalog_and_generated_mirrors_match_the_source"
+      ],
+      "output_sha256": "6484999b67b3986db0ac3a87c3ab2aa21c8ae2c1b31422e4123252a7b2ca2d45"
+    }
+  ],
+  "qa_summary": {
+    "isolated_passed": 419,
+    "isolated_failed": 2,
+    "combined_passed": 419,
+    "combined_failed": 2,
+    "isolated_combined_consistent": true,
+    "legacy_34_order_sensitive_failures_reproduced": false
+  },
+  "allowed_source_paths": [],
+  "flags": {
+    "historical_combined_compliance": false,
+    "combined_test_baseline_verified": false,
+    "successor_verified": false,
+    "source_admission": false,
+    "commit_authorized": false,
+    "successor_commit_authorized": false,
+    "release_authorized": false
+  },
+  "blockers": [
+    "Two current assertion failures: ecosystem sync drift and developer canonical/generated mirror mismatch.",
+    "Historical combined 39-path baseline compliance remains false; predecessor 95ade8f contains only the historical context portion.",
+    "Current generator QA patch is uncommitted and authorship unverified; prospective ownership transfer does not reconstruct test-first chronology.",
+    "Closed test-provenance-v1 schema cannot represent exact inventory including provenance paths, per-path classification, empty source admission and rich blocked preparation metadata; source allowlist and RED command arrays require nonempty entries.",
+    "Existing guard explicitly reports NON_TDD_RECONSTRUCTED for RECONSTRUCTED history; an uncommitted successor cannot satisfy its exactly-one-add-commit and baseline hash requirements."
+  ],
+  "smallest_prospective_governance_solution": "Independently review and authorize a separate registered prospective reconstructed-evidence contract/sidecar and an explicit actual-delta successor disposition. Preserve v1 guard fail-closed semantics and NON_TDD_RECONSTRUCTED history. Resolve current source/config failures under separate authority, rerun frozen QA, then obtain explicit successor commit authorization; never relabel current evidence VERIFIED."
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-TOOLING-PROV-GUARD-001-FIX",
+  "revision": 1,
+  "ticket_sha256": "7b8f642c953980e26d5750b5d2ee3b045bb0578adf4738fb7bcd69adbbb1ff67",
+  "plan_sha256": "267937bbba30fc4f883a22cc659c3da671c9f35a83a7efc60daed3d1446afa19",
+  "lanes": [
+    {
+      "lane_id": "TICKET-TOOLING-PROV-GUARD-001-FIX",
+      "role": "developer",
+      "phase": "implementation",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "scripts/test_provenance_guard.py"
+      ],
+      "requested_horo_skills": [
+        "sdlc-aisdlc-workflow"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "owned-exploration-withdrawal",
+        "provenance-metadata-compatibility"
+      ],
+      "allowed_child_command_class": "source-remediation",
+      "exclusions": [
+        "no-test",
+        "no-command-string-hunk-edit",
+        "no-unowned-hunk-edit",
+        "no-whole-file-restore",
+        "no-implementation-before-reviewed-baseline-commit",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-provider-execution",
+        "no-secret-operation"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

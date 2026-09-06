@@ -1,0 +1,99 @@
+{
+  "schema_version": "agy2-terminal-scope-inspection-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-AGY2-TERMINAL-SCOPE-004",
+  "status": "DIAGNOSIS_COMPLETE_RUNTIME_NOT_READY",
+  "observed_at": "2026-09-05T18:00:50.206482+00:00",
+  "context_sha256": "9a276cdf198cd4ae565a30d9dc38519e184622e3d9fc12b9f861137c2bc65a77",
+  "resolver_result": "PASS_PARENT_SUPPLIED",
+  "selected_alias": "agy2",
+  "scope_owned": "plans/evidence/context-opt-001/agy2-terminal-scope-004.json",
+  "provider_spawn_calls": 0,
+  "child_ran": false,
+  "native_G_H": "BLOCKED",
+  "production": "BLOCKED",
+  "local_worker_feasibility": "CONDITIONAL_IMPLEMENTABLE_NOT_CURRENTLY_EXECUTABLE",
+  "runtime_observation": {
+    "os": "Darwin",
+    "sandbox_exec_executable_present": true,
+    "docker_executable_present": true,
+    "sandbox_enforcement_tested": false,
+    "docker_daemon_tested": false,
+    "auth_isolation_tested": false
+  },
+  "quota": {
+    "host_remaining_percent": 35,
+    "host_band": "AMBER",
+    "host_observed_at": "2026-09-05T17:58:49Z",
+    "agy2_five_hour_remaining_percent": 100,
+    "agy2_evidence": "USER_REPORTED_NOT_VERIFIED"
+  },
+  "findings": [
+    "scripts/agy_terminal_supervisor.py does not exist; architecture document explicitly describes design only.",
+    "Canonical AGY denial is unconditional and must remain unchanged. Calling the private process runner also invokes transport validation; it is not a local terminal route.",
+    "Broker wrapper forwards argv and inherits environment; it supplies no filesystem sandbox or ownership enforcement.",
+    "Python broker bridge has an environment allowlist, but executes in ROOT, has no filesystem isolation, accepts exit-zero fallback success without WorkResult, and timeout kills only direct process. It is not sufficient for this worker contract.",
+    "Existing _parse_agy_result enforces one init and final result, session consistency and normalized secret-checked WorkResult; it can be reused as a pure in-memory parser, not as native execution proof.",
+    "sandbox-exec and docker executable presence identifies local isolation candidates only; no provider, daemon, authentication or sandbox test ran."
+  ],
+  "concrete_missing_runtime_capabilities": [
+    "Verified descendant-covering filesystem/process isolation with pinned executable and exact writable path manifest; temporary cwd and prompt ownership alone cannot enforce this.",
+    "Auth transport that lets the CLI use the existing selected account without exposing credential stores to generated commands or unrestricted descendant reads. An inherited AGY_HOME or unrestricted home mount is insufficient.",
+    "Dedicated supervisor with bounded stream capture, verified process/container ownership, deadline exit, orphan fencing and sanitized in-process result normalization.",
+    "Host-side reviewed-diff acceptance with base-content hash checks, path/type enforcement and no symlink/hardlink traversal; child cannot apply its own patch to shared workspace."
+  ],
+  "minimal_successor_scope": {
+    "design_owner": "business_analyst/orchestrator: explicitly bind separate local-only lifecycle and write manifest to existing user authorization; reconcile natural-exit-only policy without changing native gates",
+    "implementation_owner": "developer or infrastructure-qualified worker: new scripts/agy_terminal_supervisor.py and narrowly scoped sandbox backend; no edit to canonical transport denial",
+    "qa_owner": "qa_tester: new tests/test_agy_terminal_supervisor.py plus provider-free real sandbox negative probes before any AGY attempt",
+    "stage_1": "Prove sandbox and auth boundary first. On failure stop SANDBOX_NOT_PROVEN or AUTH_ISOLATION_NOT_PROVEN; do not build a wrapper-only workaround.",
+    "stage_2": "Create owner-only private source snapshot from explicit reviewed regular files, no git metadata, account state or secrets. Bind source hashes; permit writes/deletes only to owned paths, with directory-entry handling tested.",
+    "stage_3": "Start one pinned selected-alias CLI through the new isolation backend with direct argv, minimal environment, fresh bound attempt/decision and deadline. Keep raw streams in bounded memory; normalize existing WorkResult v2, elide public streams, no native receipt claims.",
+    "stage_4": "After child exit, reject unowned edits/deletions, special files, path escapes and stale base hashes. Independent reviewer validates patch before scoped host application. No child commit/push; cleanup only supervisor-owned temporary objects."
+  },
+  "required_tests": [
+    "Real denial of writes and deletion outside scope, shared workspace access, sensitive reads, symlink/hardlink and rename escape, descendant escape and inherited descriptor abuse.",
+    "Auth-session operation without child credential-file access; never log credentials or provider streams.",
+    "Exact path/hash admission, replay/expiry rejection, concurrent attempts, crash before/after spawn, owned deadline exit, PID reuse/orphan fencing.",
+    "Output overflow, duplicate final events, session mismatch, malformed/secret-bearing WorkResult, exit-zero invalid result and nonzero DONE rejected.",
+    "Patch allowlist, scoped deletion, stale host base, injected paths/special files, review-required acceptance and exact cleanup ownership.",
+    "Canonical AGY rejection remains unchanged; local receipts cannot satisfy native G/H or production identity gates."
+  ],
+  "measurement_boundary": {
+    "rendered_payload": "MEASURABLE_SEPARATELY",
+    "native_prompt": "UNKNOWN",
+    "optional_static_verdict": "VERIFIED_LOCAL_STATIC_ONLY_AFTER_INDEPENDENT_STATIC_VALIDATION",
+    "execution_outcome": "VALIDATED_IN_PROCESS_ONLY_NOT_PORTABLE"
+  },
+  "recommended_next_action": "Delegate provider-free sandbox/auth-boundary implementation and tests to a scoped worker. This is a concrete runtime prerequisite, not a request to repeat generic user approval. Do not invoke agy2 until enforcement passes.",
+  "evidence": [
+    {
+      "path": "docs/architecture/agy-terminal-supervisor.md",
+      "sha256": "10066d3d8237a2963edb7aa9f298e667b9e9ef7086b6120709976e75a91b17e6"
+    },
+    {
+      "path": "docs/architecture/external-dispatch-platform-contract.md",
+      "sha256": "ae92fa6779369ef20995047b314b24d0b29eb224593c884db05e4953b29c07b2"
+    },
+    {
+      "path": "scripts/agent_broker_wrapper.py",
+      "sha256": "3ea712161b11bdec8eb2d2c30daa4b6a3a01fcef140a62bef5d39f8db6d40344"
+    },
+    {
+      "path": "scripts/multiagent_broker_bridge.py",
+      "sha256": "d8cd600c623c4b1f9e9967788abdfb62ee6f5d45c85670fb843c5fcd7a48acd9"
+    },
+    {
+      "path": "scripts/multiagent_prompt_command.py",
+      "sha256": "9d1b8cbd96b9fd4f8a5ccb17912994175071f15c7c47382288abe82b3c8bca6a"
+    },
+    {
+      "path": ".agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml",
+      "sha256": "0d5bbe34948b6c6b9c0ec5b95ce56e52e45c61cafad4a3c7bfffff9df14be099"
+    }
+  ],
+  "changed_files": [
+    "plans/evidence/context-opt-001/agy2-terminal-scope-004.json"
+  ],
+  "raw_provider_streams_retained": false,
+  "residual_risk": "Local sandbox and auth isolation remain unproven; no AGY work ran and executable presence proves neither capability nor account availability."
+}

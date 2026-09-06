@@ -1,0 +1,39 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-G-PROBE-002",
+  "revision": 1,
+  "ticket_sha256": "b86f26a511eab5ae78dea3b17e7e77062e2bcc44068c88dbc0382f92196569dc",
+  "plan_sha256": "e8ff2e28c64ad47a06307c8681451569ce4040f9f99841a47e5c742f23eee628",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-G-PROBE-002",
+      "role": "developer",
+      "phase": "implementation",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "scripts/probe_agent_context_runtime.py",
+        "tests/test_context_g_evidence_integrity.py"
+      ],
+      "requested_horo_skills": [
+        "sdlc-aisdlc-workflow"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "synthetic-expired-evidence",
+        "unconditional-pass-checks",
+        "legacy-agent-contract"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-other-file-write",
+        "no-test-write",
+        "no-provider-execution",
+        "no-push",
+        "no-deploy"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

@@ -20,6 +20,7 @@ system_prompt: 'You are the ui_visual_tester agent for HoroConsultant.
   defects directly to ux_ui_designer and developer agents for swift resolution.'
 tools:
 - ui-visual-auditor
+- wcag-apca-color-audit
 - qa-e2e-testing
 - web-color-design
 fallback_agent: qa_tester

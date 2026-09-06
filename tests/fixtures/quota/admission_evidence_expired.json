@@ -1,0 +1,9 @@
+{
+  "ticket_id": "TICKET-QUOTA-TEST-001",
+  "lane_id": "lane-quota-qa",
+  "assigned_role": "qa_tester",
+  "lane_rank": 1,
+  "target_worktree_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "operator_authorization_ref": "AUTH-TEST-VALID-001",
+  "expires_at": "2026-09-05T18:00:00+07:00"
+}

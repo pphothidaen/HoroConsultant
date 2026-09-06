@@ -1,0 +1,46 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-AGY2-TERMINAL-SCOPE-004",
+  "revision": 1,
+  "ticket_sha256": "af987aedf916fad137036706fdcbc1a11d623bf431d8721880f7afc09b80b7ff",
+  "plan_sha256": "af879136bef692d7fdc6a8b8791af80566f8f81830006efed7787b4f42e14157",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-AGY2-TERMINAL-SCOPE-004",
+      "role": "devops",
+      "phase": "operations",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "scripts/multiagent_prompt_command.py",
+        "scripts/agent_broker_wrapper.py",
+        "scripts/agy_terminal_supervisor.py",
+        "docs/architecture/agy-terminal-supervisor.md",
+        "docs/architecture/external-dispatch-platform-contract.md",
+        ".agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml",
+        "plans/evidence/context-opt-001/agy2-terminal-scope-004.json"
+      ],
+      "requested_horo_skills": [
+        "devops-deployment",
+        "hf-static-release-verification",
+        "multi-account-agent-orchestration"
+      ],
+      "source_domain": "operations",
+      "risk_flags": [
+        "separate-local-terminal-scope-not-native-proof"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-source-write",
+        "no-provider-execution",
+        "no-account-or-secret-operations",
+        "no-guard-bypass",
+        "no-commit",
+        "no-push",
+        "no-deploy"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

@@ -30,7 +30,8 @@ system_prompt: 'You are the developer agent for HoroConsultant.
   to `gpt-5.6-terra` at high effort and rank 3 work to `gpt-5.6-sol` at high effort.
   Static metadata is routing intent and never runtime proof.'
 tools:
-- bazi-calculator
-- rag-search
-- sdlc-aisdlc-workflow
+- requirement-grill-gate
+- agile-governance
+- orchestrator-delegation
+- anti-cognitive-decay
 fallback_agent: orchestrator

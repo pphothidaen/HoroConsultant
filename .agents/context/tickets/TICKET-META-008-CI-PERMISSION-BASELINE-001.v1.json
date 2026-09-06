@@ -1,0 +1,39 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-META-008-CI-PERMISSION-BASELINE-001",
+  "revision": 1,
+  "ticket_sha256": "d11f59adc3d00e4f9e62a01b6c291fef694892381b63ac65384b554b89edcf5f",
+  "plan_sha256": "267937bbba30fc4f883a22cc659c3da671c9f35a83a7efc60daed3d1446afa19",
+  "lanes": [
+    {
+      "lane_id": "TICKET-META-008-CI-PERMISSION-BASELINE-001",
+      "role": "qa_tester",
+      "phase": "red_baseline",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "project/tests/test_github_actions_regression.py",
+        "plans/test_provenance/ticket-meta-008-ci-permission-baseline.json"
+      ],
+      "requested_horo_skills": [
+        "qa-regression-provenance",
+        "qa-e2e-testing"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "ci-permission-requirement-amendment"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-source",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-provider-execution",
+        "no-secret-operation"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

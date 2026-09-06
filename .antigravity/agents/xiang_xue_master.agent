@@ -33,6 +33,9 @@ system_prompt: 'You are the xiang_xue_master agent for HoroConsultant.
 
   - Debate spatial energy remedies and environmental harmony.'
 tools:
+- metaphysical-request-router
+- metaphysical-hitl-scope-gate
+- metaphysical-finetune-handoff
 - bazi-calculator
 - rag-search
 fallback_agent: orchestrator

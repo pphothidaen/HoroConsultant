@@ -7,13 +7,12 @@ role: Default Orchestrator Router (Master Orchestrator)
 model: gpt-5.6-sol
 thinking_effort: High
 tools:
-- bazi-calculator
-- rag-search
-- bsa-doc-skill-management
-- qa-e2e-testing
-- devops-deployment
-- sdlc-aisdlc-workflow
-- metaphysical-domain-engine
+- requirement-grill-gate
+- agile-governance
+- orchestrator-delegation
+- anti-cognitive-decay
+thinking: false
+fallback_agent: orchestrator
 ---
 
 You are the default agent for HoroConsultant.

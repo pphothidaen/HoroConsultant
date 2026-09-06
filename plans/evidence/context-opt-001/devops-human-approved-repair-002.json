@@ -1,0 +1,76 @@
+{
+  "ticket_id": "TICKET-CONTEXT-OPT-001-G-DEVOPS-002",
+  "record_kind": "local-verification-summary",
+  "timestamp": "2026-09-05T17:27:11.099173+00:00",
+  "human_authorization": "User explicitly approved editing legacy DevOps definitions to resolve Azure/ACA versus HF Docker + Vercel conflict.",
+  "head_commit": "2eb8c699f49efadbd51494e21e5f3f35be4f2205",
+  "scope": "Workspace repair; source changes remain uncommitted. Generated outputs regenerated through ecosystem sync.",
+  "files": [
+    {
+      "path": ".agents/agents/devops/agent.json",
+      "sha256": "3389782621e8ccf54d080f1b5de801b0f11fd5e825a0f641bdcafe83b34bd950"
+    },
+    {
+      "path": ".agents/agents/devops/config.yaml",
+      "sha256": "0a7d0d0cefcbc19df0597f290db6430b5f1ba3e6c44bfa3493e364872469ba7f"
+    },
+    {
+      "path": ".agents/agents/devops/release_gate_protocol.md",
+      "sha256": "139c3c492560f19e3bee5b3920913a3f997a93f24cc007c881f663df61dafdc7"
+    },
+    {
+      "path": ".codex/agents/devops.toml",
+      "sha256": "fbfdf46c46f32ed924625cb562e8a18e3a96a55f64986abf4b4dd80fba80c451"
+    },
+    {
+      "path": ".antigravity/agents/devops.agent",
+      "sha256": "28b07aebc7a01ec95024988985444cef77f0b634f131e6ddc4d9313ecde3bb30"
+    },
+    {
+      "path": "scripts/render_agent_context_profiles.py",
+      "sha256": "eed72e3e128c645f1f0d029ab1b4f141b5b484ad511bb85f90098531583d9a42"
+    },
+    {
+      "path": "scripts/probe_agent_context_runtime.py",
+      "sha256": "a3e60051f28148530e7a1abe749c3441de45d252494dea936344d31cead49d84"
+    },
+    {
+      "path": "scripts/optimize_codex_skill_budget.py",
+      "sha256": "ecec44068cfa9e2a4e2265af67a9766b6be4c91bd4c11f7f6cfa106376f2846f"
+    },
+    {
+      "path": "scripts/sync_ai_agent_ecosystem.py",
+      "sha256": "e73af9333f8e742c06f53012a5b0fa5cc3b16493fa379059a21c849738a8778d"
+    }
+  ],
+  "verification": [
+    {
+      "command": "python3 scripts/sync_ai_agent_ecosystem.py --sync",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 scripts/sync_ai_agent_ecosystem.py --check",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 -m pytest -q -p no:cacheprovider tests/test_context_g_evidence_integrity.py tests/test_context_g_orchestration_registry.py tests/test_hf_release_governance.py tests/test_publish_space_hf.py",
+      "exit_code": 0,
+      "passed": 88,
+      "failed": 0
+    }
+  ],
+  "devops_target_conflict": "RESOLVED_LOCAL",
+  "native_runtime_verified": false,
+  "release_ready": false,
+  "push_performed": false,
+  "deploy_performed": false,
+  "remaining": [
+    "Context 39-path successor baseline adoption and independent verification",
+    "Native provider evidence and complete profile budget verification",
+    "G-VERIFY-002, H, VERIFIED_LOCAL and Release-QA"
+  ],
+  "limitations": [
+    "This is a local summary, not authenticated provider evidence or final release approval.",
+    "Existing six Context G receipts are preserved; this summary does not supersede them."
+  ]
+}

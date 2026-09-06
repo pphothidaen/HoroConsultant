@@ -1,0 +1,26 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-G-REGISTRY-BASELINE-COMMIT-001",
+  "revision": 1,
+  "ticket_sha256": "bc9110ae72d0b0bd42c3e311986bf2f06365bd692870e9790f2e51a7c6304ab1",
+  "plan_sha256": "d3efcfd3ab24ff44f002dd80e778de0d6191ffb4fee4cc558a130135939d6730",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-G-REGISTRY-BASELINE-COMMIT-001",
+      "role": "devops",
+      "phase": "release",
+      "actions": ["context.resolve"],
+      "touched_paths": [
+        "tests/test_context_g_orchestration_registry.py",
+        "plans/test_provenance/ticket-context-g-orchestration-registry-baseline-001.json",
+        "scripts/test_provenance_guard.py"
+      ],
+      "requested_horo_skills": ["devops-deployment", "hf-static-release-verification"],
+      "source_domain": "quality-engineering",
+      "risk_flags": ["exact-path-commit", "dirty-worktree-preservation"],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": ["no-source-staging", "no-other-path-staging", "no-push", "no-deploy", "no-network"],
+      "evidence_refs": []
+    }
+  ]
+}

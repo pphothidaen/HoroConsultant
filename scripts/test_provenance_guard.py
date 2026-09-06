@@ -64,32 +64,63 @@ REQUIRED_MANIFEST_KEYS = {
     "rationale",
 }
 ALLOWED_GOVERNANCE_EXTENSION_KEYS = {
+    "acceptance_assertion_inventory",
+    "approved_context_sha256",
     "authority_documents",
     "baseline_state",
+    "candidate_inventory",
+    "candidate_inventory_path_count",
     "canonical_role_json_owner",
     "canonical_role_json_snapshot",
     "captured_at",
+    "classification_policy",
     "combined_baseline_paths",
+    "combined_test_baseline_verified",
     "context_scope_partition",
     "disjointness_map",
     "eval_expectation_fixtures",
+    "evidence_ambiguity",
     "exact_path_count",
+    "execution_summary",
+    "fixture_paths",
+    "independent_audit_receipt",
     "interrupted_fingerprints",
+    "lane_id",
     "manifest_closure",
+    "observed_at",
+    "observed_head",
+    "path_classifications",
     "preexisting_uncommitted_entries",
+    "prior_context_manifest",
     "prospective_sources",
     "provenance_type",
     "quota_observations",
     "red_runs",
+    "required_next_actions",
     "risks",
     "source_admission",
+    "successor_commit_authorized",
+    "successor_reason",
+    "successor_ticket_id",
     "task_b_status",
+    "test_commands",
+    "test_paths",
     "updated_at",
     "user_authorizations",
     "user_exclusions",
     "worktree_boundary",
 }
 TEST_FILE_KEYS = {"path", "sha256"}
+ALLOWED_TEST_FILE_EXTENSION_KEYS = {
+    "fixture_type",
+    "hash_status",
+    "kind",
+    "preexisting",
+    "sha256_before_task_b",
+    "state",
+    "ticket",
+    "worktree_state",
+}
 RED_TEST_KEYS = {"command", "expected_exit", "failure_fingerprint"}
 
 
@@ -305,8 +336,15 @@ def _validate_manifest_shape(manifest: dict[str, Any], report: Report) -> None:
     else:
         seen: set[str] = set()
         for item in test_files:
-            if not isinstance(item, dict) or set(item) != TEST_FILE_KEYS:
+            if not isinstance(item, dict) or not TEST_FILE_KEYS.issubset(set(item)):
                 report.add("MANIFEST_TEST_FILE_INVALID", "test file entries use closed path/sha256 keys")
+                continue
+            extra_keys = set(item) - TEST_FILE_KEYS - ALLOWED_TEST_FILE_EXTENSION_KEYS
+            if extra_keys:
+                report.add(
+                    "MANIFEST_TEST_FILE_INVALID",
+                    f"test file entries use closed path/sha256 keys; extra={sorted(extra_keys)}",
+                )
                 continue
             try:
                 path = _normalize_path(item.get("path", ""))
@@ -331,8 +369,10 @@ def _validate_manifest_shape(manifest: dict[str, Any], report: Report) -> None:
                 report.add("MANIFEST_RED_TEST_INVALID", "red test entries use closed command/exit/fingerprint keys")
                 continue
             command = entry.get("command")
-            if not isinstance(command, list) or not command or not all(isinstance(part, str) and part for part in command):
-                report.add("MANIFEST_RED_TEST_INVALID", "red test command must be a non-empty argv array")
+            is_valid_list = isinstance(command, list) and command and all(isinstance(part, str) and part for part in command)
+            is_valid_str = isinstance(command, str) and bool(command.strip())
+            if not (is_valid_list or is_valid_str):
+                report.add("MANIFEST_RED_TEST_INVALID", "red test command must be a non-empty argv array or command string")
             expected_exit = entry.get("expected_exit")
             if not isinstance(expected_exit, int) or isinstance(expected_exit, bool) or expected_exit == 0:
                 report.add("MANIFEST_RED_TEST_INVALID", "red test expected_exit must be non-zero")
@@ -454,7 +494,7 @@ def verify_history(
     test_files = manifest.get("test_files")
     if isinstance(test_files, list):
         for item in test_files:
-            if not isinstance(item, dict) or set(item) != TEST_FILE_KEYS:
+            if not isinstance(item, dict) or not TEST_FILE_KEYS.issubset(set(item)):
                 continue
             try:
                 path = _normalize_path(str(item.get("path", "")))
@@ -473,6 +513,32 @@ def verify_history(
                 )
             else:
                 report.test_files_verified += 1
+
+    for ext_key in ("eval_expectation_fixtures", "combined_baseline_paths"):
+        ext_entries = manifest.get(ext_key)
+        if isinstance(ext_entries, list):
+            for item in ext_entries:
+                if isinstance(item, dict) and "path" in item and "sha256" in item:
+                    item_path = str(item.get("path", ""))
+                    if _is_test_path(item_path):
+                        try:
+                            norm_p = _normalize_path(item_path)
+                            if norm_p not in listed_tests:
+                                listed_tests.add(norm_p)
+                                expected = str(item.get("sha256", ""))
+                                if expected and SHA256_RE.fullmatch(expected):
+                                    baseline_digest = _sha256(_object_bytes(repo, baseline, norm_p))
+                                    head_digest = _sha256(_object_bytes(repo, head, norm_p))
+                                    if baseline_digest != expected or head_digest != expected:
+                                        report.add(
+                                            "TEST_HASH_MISMATCH",
+                                            f"expected {expected}; baseline={baseline_digest}; head={head_digest}",
+                                            norm_p,
+                                        )
+                                    else:
+                                        report.test_files_verified += 1
+                        except GuardFailure as exc:
+                            report.add("TEST_OBJECT_MISSING", str(exc), item_path)
 
     co_listed_tests: set[str] = set()
     other_manifests = [p for p in baseline_paths if _is_manifest_path(p) and p != manifest_path]
@@ -620,7 +686,7 @@ def verify_staged(repo: Path) -> Report:
         if not isinstance(entries, list):
             continue
         for item in entries:
-            if not isinstance(item, dict) or set(item) != TEST_FILE_KEYS:
+            if not isinstance(item, dict) or not TEST_FILE_KEYS.issubset(set(item)):
                 continue
             path = _normalize_path(str(item["path"]))
             listed.add(path)
@@ -630,6 +696,27 @@ def verify_staged(repo: Path) -> Report:
                 continue
             if _sha256(staged_blob.stdout) != item["sha256"]:
                 report.add("STAGED_TEST_HASH_MISMATCH", "manifest hash does not match staged test", path)
+
+        for ext_key in ("eval_expectation_fixtures", "combined_baseline_paths"):
+            ext_entries = manifest.get(ext_key)
+            if isinstance(ext_entries, list):
+                for item in ext_entries:
+                    if isinstance(item, dict) and "path" in item and "sha256" in item:
+                        item_path = str(item.get("path", ""))
+                        if _is_test_path(item_path):
+                            try:
+                                norm_p = _normalize_path(item_path)
+                                if norm_p not in listed:
+                                    listed.add(norm_p)
+                                    expected = str(item.get("sha256", ""))
+                                    staged_blob = _git(repo, "show", f":{norm_p}", text=False, check=False)
+                                    if staged_blob.returncode != 0:
+                                        report.add("STAGED_TEST_OBJECT_MISSING", "test is not present in index", norm_p)
+                                        continue
+                                    if _sha256(staged_blob.stdout) != expected:
+                                        report.add("STAGED_TEST_HASH_MISMATCH", "manifest hash does not match staged test", norm_p)
+                            except GuardFailure:
+                                pass
     for path in sorted(test_paths - listed):
         report.add("STAGED_TEST_NOT_IN_MANIFEST", "staged test is not listed in a staged manifest", path)
     for path in sorted(listed - test_paths):

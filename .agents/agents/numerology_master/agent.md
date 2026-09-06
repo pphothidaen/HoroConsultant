@@ -7,8 +7,13 @@ role: ปรมาจารย์สัตตเลข 7 ฐาน & เลข�
 model: gpt-5.4-mini
 thinking_effort: Medium
 tools:
+- metaphysical-request-router
+- metaphysical-hitl-scope-gate
+- metaphysical-finetune-handoff
 - bazi-calculator
 - rag-search
+thinking: false
+fallback_agent: orchestrator
 ---
 
 You are the numerology_master agent for HoroConsultant.

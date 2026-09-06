@@ -1,0 +1,45 @@
+{
+  "schema_version": "QuotaGuardVerdictV3.3",
+  "evaluated_at": "2026-09-05T19:00:00+07:00",
+  "valid_until": "2026-09-05T19:00:30+07:00",
+  "target_account": "08a4df52-9b3d-4d09-9bd5-af0f7e0e8043",
+  "limit_id": "codex",
+  "observation_ref": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "policy_version": "3.4",
+  "policy_hash": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "policy_admission_status": "APPROVED",
+  "operator_authorization_ref": "AUTH-TEST-VALID-001",
+  "lane_binding": {
+    "ticket_id": "TICKET-QUOTA-TEST-001",
+    "lane_id": "lane-quota-qa",
+    "assigned_role": "qa_tester",
+    "lane_rank": 1,
+    "target_worktree_digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+  },
+  "verdict_kind": "production",
+  "quota_state": "ok",
+  "tier": "GREEN",
+  "freeze_status": "UNFROZEN",
+  "source_admitted": true,
+  "source_admission_status": "admitted",
+  "handoff_valid": true,
+  "handoff_status": "valid",
+  "quota_recovery_proven": true,
+  "lane_readiness": true,
+  "operator_authorization": true,
+  "reason_code": "GREEN_TIER_ADMITTED",
+  "admission_blockers": [],
+  "diagnostics": {
+    "decisive_remaining_percent": 80.0,
+    "validation_errors": [],
+    "concurrency_state": {
+      "active_count": 0,
+      "max_allowed": 3,
+      "reservation_id": "RES-TEST-001"
+    },
+    "last_known_quota_state": "ok",
+    "error_details": {}
+  },
+  "host_resume_allowed": true,
+  "exit_code": 0
+}

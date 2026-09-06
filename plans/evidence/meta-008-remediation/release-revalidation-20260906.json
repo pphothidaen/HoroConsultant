@@ -1,0 +1,116 @@
+{
+  "schema_version": "release-revalidation-observation-v1",
+  "date": "2026-09-06",
+  "ticket_id": "TICKET-META-008",
+  "scope": "Current working-tree diagnostics; no release admission or production success claim",
+  "session_authorization": "User explicitly granted full permission to achieve commit-all, CI/CD and production deployment for this session. Verification gates remain required.",
+  "continuation_checkpoint": {
+    "observed_at": "2026-09-06T02:18:23.910496+00:00",
+    "primary_used_percent": 93,
+    "primary_remaining_percent": 7,
+    "primary_resets_at": 1788678020,
+    "secondary_used_percent": 14,
+    "quota_tier": "RED",
+    "mode_review": "PASS_LOCAL_METADATA_INTEGRATION_ONLY",
+    "mode_review_receipt": "plans/evidence/meta-008-remediation/mode-review-004.json",
+    "next_lane": "TICKET-META-008-MODE-REPAIR-004-FIX",
+    "next_role": "devops",
+    "approved_context_sha256": "f3d7c26b8793f3e64de9ec550f2f9ede0b0e046e2637da6d3483c0d6125f0c4c",
+    "resolver": "PASS; refresh after host recovery or independently admitted account",
+    "dispatch": "NOT_STARTED: host primary quota below repository admission threshold",
+    "scope": "Commit remains pending. No independent-account capacity inferred from native subagent availability."
+  },
+  "head": "e28e2bf3f07a61e82681bc4995b4514cb892ab85",
+  "ci_source_already_committed": true,
+  "quota": {
+    "guard_command": "python3 scripts/agent_quota_status_guard.py --refresh --json",
+    "guard_evaluated_at": "2026-09-06T02:06:49.292381+00:00",
+    "guard_exit_code": 3,
+    "guard_reason": "HOST_POOL_MISSING",
+    "direct_app_server_probe": {
+      "transport": "codex app-server --stdio",
+      "request_sequence": ["initialize", "initialized", "account/rateLimits/read"],
+      "sandbox_attempt": "response_missing",
+      "approved_outside_sandbox_attempt": "SUCCESS",
+      "pool": "codex",
+      "primary_used_percent": 20,
+      "primary_window_minutes": 300,
+      "primary_resets_at": 1788678020,
+      "secondary_used_percent": 3,
+      "secondary_window_minutes": 10080,
+      "secondary_resets_at": 1789264820,
+      "boundary": "Observation during this diagnostic session; exact capture timestamp not retained. Refresh before later dispatch. Does not certify collector, policy admission, or native provider execution."
+    },
+    "review_dispatch_observation": {
+      "observed_at": "2026-09-06T02:15:05.255564+00:00",
+      "primary_used_percent": 74,
+      "secondary_used_percent": 12,
+      "primary_remaining_percent": 26,
+      "secondary_remaining_percent": 88,
+      "scope": "One sequential mode-review child; refresh before subsequent admission"
+    },
+    "collector_source_sha256": "3f5a1c55f8f8f21b1ad53cc1a5fb055b927b2bc8d0565e698d063041eeb9b90b",
+    "source_findings": [
+      "Default command launches App Server but collector opens no stdin pipe and sends no initialization or quota requests.",
+      "Collector expects one JSON object after process termination; actual App Server protocol uses correlated messages.",
+      "HOST_POOL_MISSING is not evidence of depleted host quota."
+    ]
+  },
+  "release_regression": {
+    "command": "python3 -m pytest -q tests/test_publish_space_hf.py tests/test_hf_release_governance.py tests/test_publish_space_hf_executable_mode_contract.py",
+    "exit_code": 1,
+    "passed": 49,
+    "failed": 1,
+    "failing_node": "tests/test_publish_space_hf_executable_mode_contract.py::test_committed_release_payload_uses_only_regular_100644_sources",
+    "path": "scripts/sync_codex_account_configs.py",
+    "committed_mode": "100755",
+    "required_mode": "100644",
+    "committed_blob": "76ea08437cb62357695438e00cc15292f4073e0b",
+    "working_file_sha256": "4d37513698a48f400e71e0e113c69e073aa9c74e6b2479494c89e76758aaee79",
+    "baseline_commit": "e3f7ebc9e175113feadf65d13ef1f80dad211edf",
+    "frozen_test_sha256": "c0fddd52d0c2ec418055a788ebf3060322962e1676ec276afd409ba3b1948181",
+    "admission_gap": "Existing baseline manifest does not allow this source path. Requires independently reviewed prospective scope evidence or a separately admitted baseline; preserve original manifest and dirty content.",
+    "historical_provenance_audit": {
+      "command": "python3 scripts/test_provenance_guard.py verify --manifest plans/test_provenance/ticket-prod-503-001-03.json --baseline e3f7ebc9e175113feadf65d13ef1f80dad211edf",
+      "exit_code": 1,
+      "test_files_verified": 1,
+      "status": "FAILED",
+      "issue_codes": ["SOURCE_PATH_OUTSIDE_MANIFEST", "SOURCE_COMMIT_MISSING_BASELINE_TRAILER"],
+      "boundary": "Unchanged frozen test verified; intervening historical source compliance is not verified. No original manifest or history changed."
+    }
+  },
+  "ecosystem": {
+    "direct_check": "PASS",
+    "pytest_in_sandbox": "FAIL: codex3 measurement command returned nonzero",
+    "approved_pytest_outside_sandbox": "1 passed in 4.94s",
+    "command": "python3 -m pytest -q project/tests/test_ai_agent_ecosystem_sync.py::test_ai_agent_ecosystem_sync_check_passes --tb=short",
+    "boundary": "Working-tree and environment-specific verification, not hosted committed-tree evidence."
+  },
+  "cached_failure_reproduction": {
+    "command": "python3 -m pytest -q --lf --maxfail=5 --tb=short",
+    "exit_code": 1,
+    "failed": 5,
+    "deselected": 155,
+    "boundary": "Stopped at five failures; not a complete suite inventory. Ecosystem failure subsequently passed outside sandbox.",
+    "remaining_reproduced_nodes": [
+      "project/tests/test_claude_governance.py::test_claude_settings_json_registers_pretooluse_guard",
+      "project/tests/test_developer_routing_contract.py::test_developer_catalog_and_generated_mirrors_match_the_source",
+      "project/tests/test_full_capacity_governance.py::test_exact_no_safe_exception_and_cross_process_replay_guard",
+      "project/tests/test_full_capacity_governance.py::test_rule11_uses_severity_effort_ascii_and_rejects_nonprefix"
+    ],
+    "findings": [
+      "Claude PreToolUse matcher lacks expected Read/Glob/Grep coverage.",
+      "Developer flat/nested JSON differ in fallback_agent versus capability_profile fields.",
+      "Capacity tests stop at CAPACITY_CONFIG_INVALID in _load_config: code EXPECTED_ALIASES is agy1/agy2/agy3/agy4, configured provider_aliases is agy1/agy2."
+    ]
+  },
+  "secret_scan": {"status": "PASSED", "scanned_files": 3484, "secret_leaks_found": 0},
+  "payload_dry_run": {"sdk": "docker", "target": "pphothidaen/horoconsultant-core-backend", "exit_code": 1, "reason": "DIRTY_WORKTREE"},
+  "latest_hosted_monitor_observed": {"run_id": 34004970750, "status": "completed", "conclusion": "failure", "head_sha": "27054c3ab95b6bec41acae420f99538d4b1e3a43"},
+  "whitespace_check": {"exit_code": 2, "existing_findings": ["project/core/code_reviewer.py:548 new blank line at EOF", "scripts/agent_quota_status_guard.py:2023 new blank line at EOF"]},
+  "release_ready": false,
+  "source_changes_by_this_diagnostic": false,
+  "commit": false,
+  "push": false,
+  "deployment": false
+}

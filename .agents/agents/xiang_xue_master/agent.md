@@ -8,8 +8,13 @@ role: 相學大師 (Xiang Xue Master)
 model: gpt-5.6-terra
 thinking_effort: High
 tools:
+- metaphysical-request-router
+- metaphysical-hitl-scope-gate
+- metaphysical-finetune-handoff
 - bazi-calculator
 - rag-search
+thinking: false
+fallback_agent: orchestrator
 ---
 
 You are the xiang_xue_master agent for HoroConsultant.

@@ -1,0 +1,222 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "QuotaGuardVerdictV3_3",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "evaluated_at",
+    "valid_until",
+    "target_account",
+    "limit_id",
+    "observation_ref",
+    "policy_version",
+    "policy_hash",
+    "policy_admission_status",
+    "operator_authorization_ref",
+    "lane_binding",
+    "verdict_kind",
+    "quota_state",
+    "tier",
+    "freeze_status",
+    "source_admitted",
+    "source_admission_status",
+    "handoff_valid",
+    "handoff_status",
+    "quota_recovery_proven",
+    "lane_readiness",
+    "operator_authorization",
+    "reason_code",
+    "admission_blockers",
+    "diagnostics",
+    "host_resume_allowed",
+    "exit_code"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "QuotaGuardVerdictV3.3"
+    },
+    "evaluated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "target_account": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "limit_id": {
+      "type": "string",
+      "const": "codex"
+    },
+    "observation_ref": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "policy_version": {
+      "type": "string"
+    },
+    "policy_hash": {
+      "type": ["string", "null"],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "policy_admission_status": {
+      "type": "string",
+      "enum": ["APPROVED", "PENDING_AUTHORIZATION", "REJECTED", "MALFORMED"]
+    },
+    "operator_authorization_ref": {
+      "type": ["string", "null"]
+    },
+    "lane_binding": {
+      "type": "object",
+      "required": ["ticket_id", "lane_id", "assigned_role", "lane_rank", "target_worktree_digest"],
+      "additionalProperties": false,
+      "properties": {
+        "ticket_id": {
+          "type": ["string", "null"],
+          "pattern": "^TICKET-[A-Z0-9_-]+$"
+        },
+        "lane_id": {
+          "type": ["string", "null"],
+          "pattern": "^[a-zA-Z0-9_.-]+$"
+        },
+        "assigned_role": {
+          "type": ["string", "null"],
+          "enum": [
+            null,
+            "orchestrator",
+            "lead_ba",
+            "ba_intake",
+            "ba_auditor",
+            "developer",
+            "developer_api",
+            "developer_core",
+            "qa_tester",
+            "code_reviewer",
+            "devops",
+            "ux_ui_designer",
+            "ui_visual_tester"
+          ]
+        },
+        "lane_rank": {
+          "type": ["integer", "null"],
+          "minimum": 0,
+          "maximum": 3
+        },
+        "target_worktree_digest": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "verdict_kind": {
+      "type": "string",
+      "enum": ["production", "simulation"]
+    },
+    "quota_state": {
+      "type": "string",
+      "enum": ["ok", "constrained", "depleted", "unknown"]
+    },
+    "tier": {
+      "type": "string",
+      "enum": ["GREEN", "AMBER", "ORANGE", "RED", "UNKNOWN"]
+    },
+    "freeze_status": {
+      "type": "string",
+      "enum": [
+        "UNFROZEN",
+        "AMBER_WARNING",
+        "ORANGE_CONSTRAINED",
+        "RED_FREEZE",
+        "UNKNOWN_FREEZE"
+      ]
+    },
+    "source_admitted": {
+      "type": ["boolean", "null"]
+    },
+    "source_admission_status": {
+      "type": "string",
+      "enum": ["admitted", "rejected", "not_evaluated"]
+    },
+    "handoff_valid": {
+      "type": ["boolean", "null"]
+    },
+    "handoff_status": {
+      "type": "string",
+      "enum": ["valid", "invalid", "not_evaluated"]
+    },
+    "quota_recovery_proven": {
+      "type": "boolean"
+    },
+    "lane_readiness": {
+      "type": "boolean"
+    },
+    "operator_authorization": {
+      "type": "boolean"
+    },
+    "reason_code": {
+      "type": "string"
+    },
+    "admission_blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "diagnostics": {
+      "type": "object",
+      "required": [
+        "decisive_remaining_percent",
+        "validation_errors",
+        "concurrency_state",
+        "last_known_quota_state"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "decisive_remaining_percent": {
+          "type": ["number", "null"]
+        },
+        "validation_errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "concurrency_state": {
+          "type": ["object", "null"],
+          "required": ["active_count", "max_allowed", "reservation_id"],
+          "additionalProperties": false,
+          "properties": {
+            "active_count": {
+              "type": ["integer", "null"]
+            },
+            "max_allowed": {
+              "type": ["integer", "null"]
+            },
+            "reservation_id": {
+              "type": ["string", "null"]
+            }
+          }
+        },
+        "last_known_quota_state": {
+          "type": ["string", "null"]
+        },
+        "error_details": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "host_resume_allowed": {
+      "type": "boolean"
+    },
+    "exit_code": {
+      "type": "integer",
+      "enum": [0, 1, 2, 3]
+    }
+  }
+}
