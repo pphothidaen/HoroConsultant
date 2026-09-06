@@ -1,0 +1,34 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-QA-AUTH-PROVIDER-SUPERSESSION-001",
+  "sequence": 2,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "0cc73cc94784346cc9cb1321c72d2f9c8058f7a4",
+  "test_files": [
+    {
+      "path": "project/tests/test_ai_provider_router_tier3.py",
+      "sha256": "1216fab66d74f0b6f307b61b744551a6ade4b8b35889b6fd140b17d55e2aa9ca"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_ai_provider_router_tier3.py::test_provider_health_includes_reasoning_proxy"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Detached pre-4d58e13 negative control at b06a347: provider health exposed REASONING_PROXY, including its model and base_url; the corrected health assertion failed."
+    }
+  ],
+  "allowed_source_paths": [
+    "project/tests/test_ai_provider_router_tier3.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "87a25613f5027e8917876fe50997c84d4516ef2f",
+  "correction_reason": "The retained sequence-1 provider-health contract expected REASONING_PROXY model and base_url disclosure. Hardened production commit 4d58e13d34b398f6407bbd303d9fe030584740f0 removed that sensitive health entry while retaining routing.reasoning. The auditor-retained old test hash is 3cd5f7d22525dc450bbb8e3a7e18db8f933d1aaf0431b07a8cd7428930ff5036; this sequence-2 replacement hash is 1216fab66d74f0b6f307b61b744551a6ade4b8b35889b6fd140b17d55e2aa9ca.",
+  "rationale": "Freeze only the authorized Tier-3 health assertion: provider health excludes REASONING_PROXY and every model/base_url field while retaining routing.reasoning=reasoning_proxy. The pre-4d58e13 detached-worktree negative control deterministically rejected this contract without provider invocation, network, or credentials."
+}
