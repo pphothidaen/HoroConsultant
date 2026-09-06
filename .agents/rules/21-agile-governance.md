@@ -41,7 +41,7 @@ invoke halt & decide. No lane may proceed until the conflict is resolved.
 ### Non-Disclosing Secret Isolation
 
 - Zero compromised keys in repository history
-- 4 distinct keys in .env (e.g. `GOOGLE_AI_STUDIO_API_KEY`, `GOOGLE_AI_STUDIO_API_KEY2`, `GOOGLE_AI_STUDIO_API_KEY3`) (never tracked in git)
+- 4 distinct credential environment variables in `.env` (never tracked in git)
 - Keys are referenced by name only, never by value
 
 ## Lifecycle States

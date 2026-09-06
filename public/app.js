@@ -456,7 +456,8 @@ async function fetchApi(endpoint, options = {}) {
         signal: requestOptions.signal || controller.signal,
       });
     } catch (_) {
-      throw new Error('Backend request failed.');
+      const safeReason = 'Backend request failed.';
+      throw new Error(safeReason);
     } finally {
       clearTimeout(timeoutId);
     }
