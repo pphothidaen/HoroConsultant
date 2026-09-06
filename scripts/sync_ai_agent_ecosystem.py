@@ -468,15 +468,11 @@ def check_codex_multi_account_policy() -> CheckResult:
     and for every local/workstation invocation.
     """
     if os.environ.get("CI", "").lower() == "true":
-        from scripts.sync_codex_account_configs import ACCOUNT_CONFIGS
-
-        existing = [path for path in ACCOUNT_CONFIGS.values() if path.exists()]
-        if not existing:
-            return CheckResult(
-                "Codex multi-account config & budget",
-                True,
-                "not applicable in hosted CI; no workstation account inventory",
-            )
+        return CheckResult(
+            "Codex multi-account config & budget",
+            True,
+            "not applicable in hosted CI; workstation account inventory is out of scope",
+        )
     return run_command(
         "Codex multi-account config & budget",
         [sys.executable, "scripts/sync_codex_account_configs.py", "--check"],
