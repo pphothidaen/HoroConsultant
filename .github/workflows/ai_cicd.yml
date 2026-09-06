@@ -3,12 +3,6 @@ name: AI Safety Audit
 on:
   push:
     branches: [main, master]
-    paths:
-      - "project/**"
-      - "scripts/**"
-      - "rust_core/**"
-      - "requirements.txt"
-      - ".github/workflows/**"
   pull_request:
     branches: [main, master]
   workflow_dispatch:
