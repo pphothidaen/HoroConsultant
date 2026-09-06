@@ -1,5 +1,5 @@
 {
-  "description": "HoroConsultant AGY Hooks Configuration with atomic TDD governance",
+  "description": "HoroConsultant AGY Hooks Configuration with atomic TDD governance; shared policy: .agents/hooks/atomic_tdd_guard.py",
   "version": "1.2.0",
   "hooks": {
     "PreToolUse": [
