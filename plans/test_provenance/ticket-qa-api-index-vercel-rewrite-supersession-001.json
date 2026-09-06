@@ -1,0 +1,33 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-QA-API-INDEX-VERCEL-REWRITE-SUPERSESSION-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "59217e9d2a47d6244f2e91b5c6367198d02290c3",
+  "test_files": [
+    {
+      "path": "tests/api_index_vercel_contract.test.mjs",
+      "sha256": "17732bf033c2296f3211998e8820271b297d5408344924a114446ec0067be170"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "node",
+        "--input-type=module",
+        "--eval",
+        "import assert from \"node:assert/strict\"; import {readFileSync} from \"node:fs\"; const vercel=JSON.parse(readFileSync(\"vercel.json\",\"utf8\")); const rewrites=new Map(vercel.rewrites.map(rule=>[rule.source,rule.destination])); assert.deepEqual([...rewrites], [[\"/health\",\"/api/index?path=/health\"],[\"/api/v1/:path*\",\"/api/index?path=/api/v1/:path*\"],[\"/api/v2/:path*\",\"/api/index?path=/api/v2/:path*\"],[\"/api/v3/:path*\",\"/api/index?path=/api/v3/:path*\"],[\"/admin/:path*\",\"/api/index?path=/admin/:path*\"],[\"/hitl/stats\",\"/api/index?path=/hitl/stats\"],[\"/docs\",\"/api/index?path=/docs\"],[\"/openapi.json\",\"/api/index?path=/openapi.json\"]]);"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError deepStrictEqual: stale array omitted /api/wake and the exact Admin allowlist while retaining the forbidden /admin/:path* wildcard."
+    }
+  ],
+  "allowed_source_paths": [
+    "tests/api_index_vercel_contract.test.mjs"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "628c27d9cd29213acdfaeeab5c6f3ba8551b03ba",
+  "correction_reason": "The 628c27d baseline froze an older rewrite array. Commit 6ba69c49838a05ce48b2b95042f2eb1ea3fe771c replaced the privileged wildcard with exact least-privilege rewrites, and commit 735bcff4cad08ce73342f47caf76239c260786bb added /api/wake.",
+  "rationale": "QA-only stale-baseline supersession selected by TICKET-TRIAGE-API-INDEX-VERCEL-REWRITE-001. The old test hash 4a2e1fd23c9b5308f73e31a6cb853f2224537221d5170d2e8533505d186b402 contradicted committed production provenance. The replacement hash 17732bf033c2296f3211998e8820271b297d5408344924a114446ec0067be170 asserts the complete authoritative ordered rewrite set and explicitly rejects /admin/:path* and /hitl/:path*. The deterministic stale-array control exited 1; the focused Node suite then passed 7/7. Production api/index.js and vercel.json remained byte-identical to HEAD."
+}

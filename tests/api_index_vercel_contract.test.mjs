@@ -195,13 +195,24 @@ test("Vercel rewrites expose public routes plus protected Admin/HITL ingress", (
 
   assert.deepEqual([...rewrites], [
     ["/health", "/api/index?path=/health"],
+    ["/api/wake", "/api/index?path=/api/wake"],
     ["/api/v1/:path*", "/api/index?path=/api/v1/:path*"],
     ["/api/v2/:path*", "/api/index?path=/api/v2/:path*"],
     ["/api/v3/:path*", "/api/index?path=/api/v3/:path*"],
-    ["/admin/:path*", "/api/index?path=/admin/:path*"],
-    ["/hitl/stats", "/api/index?path=/hitl/stats"],
     ["/docs", "/api/index?path=/docs"],
     ["/openapi.json", "/api/index?path=/openapi.json"],
+    ["/admin/auth/config", "/api/index?path=/admin/auth/config"],
+    ["/admin/auth/google", "/api/index?path=/admin/auth/google"],
+    ["/admin/catalog/summary", "/api/index?path=/admin/catalog/summary"],
+    ["/admin/catalog", "/api/index?path=/admin/catalog"],
+    ["/admin/catalog/source/:source_id", "/api/index?path=/admin/catalog/source/:source_id"],
+    ["/admin/grayzone", "/api/index?path=/admin/grayzone"],
+    ["/admin/finetune/status", "/api/index?path=/admin/finetune/status"],
+    ["/admin/finetune/download", "/api/index?path=/admin/finetune/download"],
+    ["/admin/finetune/download-grayzone", "/api/index?path=/admin/finetune/download-grayzone"],
+    ["/admin/provider-pools", "/api/index?path=/admin/provider-pools"],
+    ["/hitl/stats", "/api/index?path=/hitl/stats"],
   ]);
+  assert.equal(rewrites.has("/admin/:path*"), false);
   assert.equal(rewrites.has("/hitl/:path*"), false);
 });
