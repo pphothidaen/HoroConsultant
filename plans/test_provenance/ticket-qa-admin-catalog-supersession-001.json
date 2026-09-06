@@ -1,0 +1,33 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-QA-ADMIN-CATALOG-SUPERSESSION-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "7c0e8e1ed88a3fe74542383cfcf1bf266bf2b826",
+  "test_files": [
+    {
+      "path": "tests/admin_production_ingress_contract.test.mjs",
+      "sha256": "a8e9fbe125cff442c35acf900b2c5f22bdf8a6e7126eaf1a422d7eee62fe49ac"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "node",
+        "--input-type=module",
+        "--eval",
+        "import assert from \"node:assert/strict\"; process.env.HF_BACKEND_URL=\"https://pphothidaen-horoconsultant-core-backend.hf.space\"; const {default:handler}=await import(\"./api/index.js\"); const calls=[]; globalThis.fetch=async (url,options)=>{calls.push({url,authorization:options.headers.authorization}); return new Response(\"{}\",{status:200,headers:{\"content-type\":\"application/json\"}})}; const req={method:\"GET\",headers:{authorization:\"Bearer verified-google-id-token\"},url:\"/api/index?path=/admin/catalog\",query:{}}; const res={statusCode:null,body:null,setHeader(){},status(code){this.statusCode=code;return this},json(body){this.body=body;return this},send(body){this.body=body;return this},end(body){this.body=body;return this}}; await handler(req,res); assert.equal(res.statusCode,404,\"stale baseline expected /admin/catalog to be unavailable\"); assert.equal(calls.length,0);"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "AssertionError: stale baseline expected /admin/catalog to be unavailable; authenticated production result was 200, not stale expected 404."
+    }
+  ],
+  "allowed_source_paths": [
+    "tests/admin_production_ingress_contract.test.mjs"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "b06a34754f6336429498f0288e58bf8c280c3d37",
+  "correction_reason": "The b06a347 baseline treated /admin/catalog as unavailable. Commit 6ba69c49838a05ce48b2b95042f2eb1ea3fe771c intentionally admitted exact authenticated GET /admin/catalog through the least-privilege gateway while preserving bearer authorization and rejecting missing credentials.",
+  "rationale": "QA-only stale-baseline supersession against parent 7c0e8e1ed88a3fe74542383cfcf1bf266bf2b826. The prior test hash c832b94b6af42eeeb393d523b311234fa964467c2674406cc8b03506506bb979 rejected the intentional authenticated catalog route. The replacement hash a8e9fbe125cff442c35acf900b2c5f22bdf8a6e7126eaf1a422d7eee62fe49ac requires one canonical upstream request with the original bearer token, 401 and zero upstream calls without a token, and unchanged mutation, unknown-path, and wildcard negative controls. The stale control now sets the canonical non-secret backend origin before dynamic import so it is independent of ambient shell configuration; it exited 1 with authenticated status 200 versus old expected 404. The focused Node suite passed 4/4. Production api/index.js remained byte-identical to HEAD."
+}
