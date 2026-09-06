@@ -2181,9 +2181,9 @@ window.retryWakeupProcess = async function() {
 };
 
 async function wakeBackend(options = {}) {
-  const defaultDelays = [1500, 2500, 3500, 4000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000];
+  const defaultDelays = [1000, 2000, 4000, 8000, 10000, 10000, 10000, 10000, 5000];
   const delays = options.delays || defaultDelays;
-  const deadlineMs = options.deadlineMs || 5000;
+  const deadlineMs = options.deadlineMs ?? 5000;
   const now = options.now || (() => Date.now());
   const waitFor = options.waitFor || ((ms) => new Promise(r => setTimeout(r, ms)));
   const statusEl = document.getElementById('backend-status');
@@ -2193,7 +2193,7 @@ async function wakeBackend(options = {}) {
   try {
     const firstCheck = await fetchApi('/health', {
       showLoader: false,
-      timeoutMs: 3000,
+      timeoutMs: deadlineMs,
       cache: 'no-store',
     });
     if (firstCheck.ok) {
@@ -2380,7 +2380,8 @@ async function calculateChart(event) {
   // Non-blocking Background AI Upgrade
   (async () => {
     try {
-      triggerWakeupApi();
+      const backendReady = await ensureBackendReady();
+      if (!backendReady) return;
       const res = await fetchApi('/api/v1/bazi/interpret', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2399,14 +2400,24 @@ async function calculateChart(event) {
           }
           const svgContent = data.svg_content || (data.chart && data.chart.svg_content) || '';
           renderResults(data, svgContent);
-          if (statusEl) {
-            statusEl.innerText = '✨ ผังดวง & บทวิเคราะห์ AI เชื่อมต่อสมบูรณ์';
-          }
           sendBrowserNotification('✨ บทวิเคราะห์ AI เชื่อมต่อสมบูรณ์', 'ระบบประมวลผลคำทำนายเชิงลึกและผังดวงเสร็จเรียบร้อยแล้ว', '🔮');
         }
+      } else {
+        if (statusEl) {
+          statusEl.setAttribute('data-state', 'error');
+          const requestId = res.headers.get('x-request-id');
+          statusEl.innerText = `HF backend request failed (HTTP ${res.status})${requestId ? ` [${requestId}]` : ''}`;
+        }
+        if (interpCard) interpCard.classList.add('hidden');
+        if (retryBtn) retryBtn.classList.remove('hidden');
       }
     } catch (_) {
-      // Backend is cold/waking; keep the edge calculation seamlessly
+      if (statusEl) {
+        statusEl.setAttribute('data-state', 'error');
+        statusEl.innerText = 'AI interpretation is temporarily unavailable.';
+      }
+      if (interpCard) interpCard.classList.add('hidden');
+      if (retryBtn) retryBtn.classList.remove('hidden');
     }
   })();
 
