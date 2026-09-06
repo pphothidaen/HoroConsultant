@@ -1,0 +1,55 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "revision": 1,
+  "ticket_sha256": "465b69474e00a7b59d9207702f541427ed1f62584eab8e55e7a5a1e78d17e237",
+  "plan_sha256": "8cd9575b2b1cc1a6e7bb467b7386e3c02e0a1541b0f780ab6a3521a47e1e3e59",
+  "ticket_id": "TICKET-META-008-CODEX1-CI-FAILOVER-001",
+  "lanes": [
+    {
+      "lane_id": "TICKET-META-008-CODEX1-CI-FAILOVER-001",
+      "role": "qa_tester",
+      "phase": "qa",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        ".github/workflows/hf_backend_deploy.yml",
+        ".github/workflows/ai_cicd.yml",
+        "scripts/verify_release_ci_gates.py",
+        "tests/test_release_ci_gates.py",
+        "project/tests/test_github_actions_regression.py",
+        "project/tests/test_azure_release.py",
+        "tests/test_publish_space_hf.py",
+        "tests/test_hf_release_governance.py",
+        "plans/evidence/meta-008-remediation/ci-qa.json",
+        "scripts/multiagent_prompt_command.py",
+        ".agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml",
+        "docs/templates/MULTIAGENT_PROMPT_COMMAND.md",
+        "plans/evidence/meta-008-remediation/codex1-ci-failover-001.json"
+      ],
+      "requested_horo_skills": [
+        "qa-e2e-testing",
+        "qa-regression-provenance",
+        "multi-account-agent-orchestration"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "host-red-freeze-recovery-control-plane",
+        "auxiliary-pool-independent"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-source-edit",
+        "no-test-edit",
+        "no-push",
+        "no-deploy",
+        "no-secret-operation",
+        "no-commit",
+        "codex1-read-only-dispatch-only",
+        "no-host-implementation",
+        "no-guard-bypass"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://horoconsultant.local/schemas/scope-skill-registry-v1.schema.json",
+  "title": "Scope Skill Registry v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "registry_version",
+    "capability_namespaces",
+    "horo_skills",
+    "provider_plugins",
+    "runtime_tools",
+    "roles",
+    "phases",
+    "actions",
+    "closures"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "scope-skill-registry-v1"
+    },
+    "registry_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "capability_namespaces": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "horo_skill",
+          "provider_plugin",
+          "runtime_tool"
+        ]
+      }
+    },
+    "horo_skills": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-z0-9_-]+$": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "description",
+            "source_path",
+            "dependencies",
+            "conflicts"
+          ],
+          "properties": {
+            "description": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source_path": {
+              "type": "string",
+              "pattern": "^\\.agents/skills/"
+            },
+            "dependencies": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z0-9_-]+$"
+              }
+            },
+            "conflicts": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z0-9_-]+$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "provider_plugins": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-z0-9_-]+$": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "version",
+            "descriptor_digest",
+            "allow_optional_requests"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "descriptor_digest": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "allow_optional_requests": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "runtime_tools": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-z0-9_-]+$": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "description"
+          ],
+          "properties": {
+            "description": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "roles": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[a-z0-9_-]+$": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "allowlist",
+            "read_only"
+          ],
+          "properties": {
+            "allowlist": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z0-9_-]+$"
+              }
+            },
+            "read_only": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "phases": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9_-]+$"
+      }
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9_.-]+$"
+      }
+    },
+    "closures": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "api",
+        "metaphysics",
+        "release",
+        "source_security"
+      ],
+      "properties": {
+        "api": {
+          "type": "object"
+        },
+        "metaphysics": {
+          "type": "object"
+        },
+        "release": {
+          "type": "object"
+        },
+        "source_security": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

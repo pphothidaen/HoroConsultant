@@ -30,6 +30,9 @@ system_prompt: 'You are the ze_ji_master agent for HoroConsultant.
 
   - Debate timing exclusions and clashes against imperial calendar rules.'
 tools:
+- metaphysical-request-router
+- metaphysical-hitl-scope-gate
+- metaphysical-finetune-handoff
 - bazi-calculator
 - rag-search
 fallback_agent: orchestrator

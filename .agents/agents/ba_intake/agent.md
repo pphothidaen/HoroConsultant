@@ -9,6 +9,8 @@ thinking_effort: Medium
 tools:
 - requirement-grill-gate
 - bsa-doc-skill-management
+thinking: false
+fallback_agent: orchestrator
 ---
 
 You are the ba_intake agent for HoroConsultant.

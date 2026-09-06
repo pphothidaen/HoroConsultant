@@ -1,0 +1,13 @@
+{
+  "ticket_id": "TICKET-CONTEXT-OPT-001-G-AGY2-REVIEW-003",
+  "lane_id": "TICKET-CONTEXT-OPT-001-G-AGY2-REVIEW-003",
+  "selected_alias": "agy2",
+  "provider": "agy/Gemini",
+  "objective": "Read-only solution review for missing Claude/AGY renderer coverage, genuine measured budget overrun, and trusted native evidence path",
+  "ownership": "No source or test writes; sole dispatch summary plans/evidence/context-opt-001/agy2-review-dispatch-003.json",
+  "acceptance": "Actual alias invocation and validated in-process WorkResult; otherwise exact pre-spawn denial with no child ran",
+  "user_authorization": "User requested transfer of some work to agy2 Gemini with reported five-hour quota100%",
+  "quota_evidence": "USER_REPORTED_100_PERCENT_5H_NOT_INDEPENDENTLY_VERIFIED",
+  "created_at": "2026-09-05T17:35:55.735657+00:00",
+  "stop": "No credentials/config changes, no gate bypass or raw provider stream retention"
+}

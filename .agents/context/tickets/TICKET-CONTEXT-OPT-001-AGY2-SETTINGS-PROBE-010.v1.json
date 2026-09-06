@@ -1,0 +1,47 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-AGY2-SETTINGS-PROBE-010",
+  "revision": 1,
+  "ticket_sha256": "465b69474e00a7b59d9207702f541427ed1f62584eab8e55e7a5a1e78d17e237",
+  "plan_sha256": "8cd9575b2b1cc1a6e7bb467b7386e3c02e0a1541b0f780ab6a3521a47e1e3e59",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-AGY2-SETTINGS-PROBE-010",
+      "role": "devops",
+      "phase": "operations",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "scripts/agy_terminal_worker_policy.py",
+        "scripts/agy_terminal_supervisor.py",
+        "/Users/kimlenglim/.local/bin/agy",
+        "/usr/bin/sandbox-exec",
+        "plans/evidence/context-opt-001/agy2-settings-probe-010.json",
+        "plans/evidence/context-opt-001/agy2-offline-help-008.json"
+      ],
+      "requested_horo_skills": [
+        "devops-deployment",
+        "hf-static-release-verification",
+        "multi-account-agent-orchestration"
+      ],
+      "source_domain": "operations",
+      "risk_flags": [
+        "offline-cli-capability-not-worker-proof"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-source-write",
+        "no-provider-execution",
+        "no-account-or-secret-operations",
+        "no-guard-bypass",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-network",
+        "only-isolated-help-version-invocation"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

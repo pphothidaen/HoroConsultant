@@ -1,0 +1,125 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-META-008-MODE-REPAIR-004",
+  "revision": 1,
+  "ticket_sha256": "8573abb7b1e175e6c6f65810d49d6d9925e9a2f742bf095ac62b72643ecf45a9",
+  "plan_sha256": "6ab177b5b57d93f36cc31d47ab8b5ee30cb2dc51d0ee70c05181244cebbb7aa8",
+  "lanes": [
+    {
+      "lane_id": "TICKET-META-008-MODE-REPAIR-004-REVIEW",
+      "role": "code_reviewer",
+      "phase": "review",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "scripts/sync_codex_account_configs.py",
+        "scripts/test_provenance_guard.py",
+        "tests/test_publish_space_hf_executable_mode_contract.py",
+        "tests/test_publish_space_hf.py",
+        "tests/test_hf_release_governance.py",
+        "scripts/publish_space_hf.py",
+        "plans/test_provenance/ticket-prod-503-001-03.json",
+        "plans/evidence/meta-008-remediation/release-revalidation-20260906.json",
+        "plans/evidence/meta-008-remediation/mode-review-004.json",
+        "plans/evidence/meta-008-remediation/mode-qa-004.json"
+      ],
+      "requested_horo_skills": [
+        "qa-e2e-testing",
+        "hf-static-release-verification"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "mode-only-metadata"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-source-content-edit",
+        "no-test-edit",
+        "no-account-operation",
+        "no-push",
+        "no-deploy"
+      ],
+      "evidence_refs": []
+    },
+    {
+      "lane_id": "TICKET-META-008-MODE-REPAIR-004-FIX",
+      "role": "devops",
+      "phase": "release",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "scripts/sync_codex_account_configs.py",
+        "scripts/test_provenance_guard.py",
+        "tests/test_publish_space_hf_executable_mode_contract.py",
+        "tests/test_publish_space_hf.py",
+        "tests/test_hf_release_governance.py",
+        "scripts/publish_space_hf.py",
+        "plans/test_provenance/ticket-prod-503-001-03.json",
+        "plans/evidence/meta-008-remediation/release-revalidation-20260906.json",
+        "plans/evidence/meta-008-remediation/mode-review-004.json",
+        "plans/evidence/meta-008-remediation/mode-qa-004.json"
+      ],
+      "requested_horo_skills": [
+        "devops-deployment",
+        "hf-static-release-verification"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "mode-only-metadata"
+      ],
+      "allowed_child_command_class": "reviewed-local-mode-commit",
+      "exclusions": [
+        "no-source-content-edit",
+        "no-test-edit",
+        "no-account-operation",
+        "no-push",
+        "no-deploy"
+      ],
+      "evidence_refs": []
+    },
+    {
+      "lane_id": "TICKET-META-008-MODE-REPAIR-004-QA",
+      "role": "qa_tester",
+      "phase": "review",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "scripts/sync_codex_account_configs.py",
+        "scripts/test_provenance_guard.py",
+        "tests/test_publish_space_hf_executable_mode_contract.py",
+        "tests/test_publish_space_hf.py",
+        "tests/test_hf_release_governance.py",
+        "scripts/publish_space_hf.py",
+        "plans/test_provenance/ticket-prod-503-001-03.json",
+        "plans/evidence/meta-008-remediation/release-revalidation-20260906.json",
+        "plans/evidence/meta-008-remediation/mode-review-004.json",
+        "plans/evidence/meta-008-remediation/mode-qa-004.json"
+      ],
+      "requested_horo_skills": [
+        "qa-e2e-testing"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "mode-only-metadata"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-source-content-edit",
+        "no-test-edit",
+        "no-account-operation",
+        "no-push",
+        "no-deploy"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

@@ -1,0 +1,263 @@
+{
+  "schema_version": "ecosystem-repair-scope-v2",
+  "ticket_id": "TICKET-META-008-ECOSYSTEM-SCOPE-002",
+  "record_kind": "ecosystem-repair-scope-enumeration",
+  "timestamp": "2026-09-06T09:54:00+07:00",
+  "owner_role": "devops",
+  "head_commit": "0cd6536252080303ad191a2fa729ba93597ac5e1",
+  "audit_scope": "Read-only enumeration of ecosystem sync and codex3 config gap",
+  "verification_commands": [
+    {
+      "command": "python3 scripts/sync_ai_agent_ecosystem.py --check",
+      "exit_code": 1,
+      "summary": "17 checks passed, 1 check failed (Codex multi-account config & budget)"
+    },
+    {
+      "command": "python3 scripts/sync_codex_account_configs.py --check --budget",
+      "exit_code": 1,
+      "summary": "4 accounts failed (default, codex1, codex2, codex3) due to sandboxed HOME path resolution"
+    }
+  ],
+  "canonical_sources_vs_generated_outputs": {
+    "architecture_model": "One-way generation from canonical specifications to platform-specific artifacts",
+    "canonical_nested_sources": [
+      {
+        "category": "Workspace Agent Definitions",
+        "path_pattern": ".agents/agents/<role>/agent.json",
+        "cardinality": 21,
+        "roles": [
+          "ba_auditor",
+          "ba_intake",
+          "business_analyst",
+          "code_reviewer",
+          "default",
+          "developer",
+          "devops",
+          "hermes",
+          "ming_xue_master",
+          "numerology_master",
+          "orchestrator",
+          "prediction_validator",
+          "pu_shi_master",
+          "qa_tester",
+          "san_shi_master",
+          "thai_vedic_master",
+          "ui_visual_tester",
+          "ux_ui_designer",
+          "western_astro_master",
+          "xiang_xue_master",
+          "ze_ji_master"
+        ],
+        "status": "Canonical authoring authority; contains capability_profile, tools, system_prompt, and metadata."
+      },
+      {
+        "category": "Canonical Agent Skills",
+        "path_pattern": ".agents/skills/<skill>/SKILL.md",
+        "cardinality": 22,
+        "status": "Canonical skill authority."
+      },
+      {
+        "category": "Progressive Rules",
+        "path_pattern": ".agents/rules/*.md",
+        "cardinality": 21,
+        "status": "Canonical governance rules."
+      }
+    ],
+    "generated_downstream_outputs": [
+      {
+        "target_type": "Antigravity Agent Manifests",
+        "path_pattern": ".antigravity/agents/<role>.agent and .antigravity/agents/<hyphenated_role>.agent",
+        "generator_script": "scripts/sync_sdlc_agents.py",
+        "worktree_parity": "IN_SYNC (0 mismatches detected by python3 scripts/sync_sdlc_agents.py --check --use-python)",
+        "git_tracking_status": "MODIFIED_UNSTAGED relative to HEAD (updated in worktree)"
+      },
+      {
+        "target_type": "Nested Markdown Agent Documentation",
+        "path_pattern": ".agents/agents/<role>/agent.md",
+        "generator_script": "scripts/sync_sdlc_agents.py",
+        "worktree_parity": "IN_SYNC",
+        "git_tracking_status": "MODIFIED_UNSTAGED relative to HEAD"
+      },
+      {
+        "target_type": "Loose Markdown and JSON Agent Mirrors",
+        "path_pattern": ".agents/agents/<role>.md and .agents/agents/<role>.json",
+        "generator_script": "scripts/sync_sdlc_agents.py",
+        "worktree_parity": "IN_SYNC",
+        "git_tracking_status": "MODIFIED_UNSTAGED relative to HEAD"
+      },
+      {
+        "target_type": "Codex Agent Profiles",
+        "path_pattern": ".codex/agents/<role>.toml",
+        "generator_script": "scripts/sync_codex_agents.py",
+        "worktree_parity": "IN_SYNC (0 mismatches detected by python3 scripts/sync_codex_agents.py --check)",
+        "git_tracking_status": "MODIFIED_UNSTAGED relative to HEAD"
+      },
+      {
+        "target_type": "Antigravity Skills Mirrors",
+        "path_pattern": ".antigravity/skills/<skill>/SKILL.md",
+        "generator_script": "scripts/sync_sdlc_agents.py",
+        "worktree_parity": "IN_SYNC",
+        "git_tracking_status": "MODIFIED_UNSTAGED relative to HEAD"
+      },
+      {
+        "target_type": "External Account Inert Profiles",
+        "path_pattern": "~/.ai-accounts/codex/account*/<role>.config.toml",
+        "generator_script": "scripts/sync_codex_account_configs.py",
+        "worktree_parity": "BLOCKED by sandboxed HOME path resolution",
+        "git_tracking_status": "EXTERNAL (outside repository git tracking)"
+      }
+    ],
+    "drift_assessment": {
+      "internal_worktree_drift": "NONE. All generated outputs in the workspace currently match canonical nested definitions exactly.",
+      "git_head_drift": "All 21 agent definitions and corresponding generated mirrors contain uncommitted working tree changes awaiting sequential governance integration.",
+      "external_account_drift": "Codex account configurations cannot be verified by standard audit scripts due to sandboxed HOME path evaluation."
+    }
+  },
+  "ecosystem_checks_status": {
+    "total_checks_evaluated": 18,
+    "passed_checks_count": 17,
+    "failed_checks_count": 1,
+    "framing_note": "The ecosystem suite comprises 18 check routines in scripts/sync_ai_agent_ecosystem.py (or 17 primary checks if excluding parity aggregate). Exactly 1 check failed: Codex multi-account config & budget reporting failure on codex3.",
+    "checks": [
+      {
+        "index": 1,
+        "name": "Context profiles parity",
+        "status": "PASS",
+        "detail": "Codex/Antigravity generated bytes match canonical inputs; native runtime unverified"
+      },
+      {
+        "index": 2,
+        "name": "required platform files",
+        "status": "PASS",
+        "detail": "12 files present"
+      },
+      {
+        "index": 3,
+        "name": "scoped AGENTS.md files",
+        "status": "PASS",
+        "detail": "5 scoped AGENTS.md files present and <= 50 lines"
+      },
+      {
+        "index": 4,
+        "name": "settings.json",
+        "status": "PASS",
+        "detail": "settings.json parses"
+      },
+      {
+        "index": 5,
+        "name": ".mcp.json",
+        "status": "PASS",
+        "detail": ".mcp.json parses"
+      },
+      {
+        "index": 6,
+        "name": ".claude/settings.json",
+        "status": "PASS",
+        "detail": ".claude/settings.json parses"
+      },
+      {
+        "index": 7,
+        "name": "settings role map",
+        "status": "PASS",
+        "detail": "7 core roles mapped"
+      },
+      {
+        "index": 8,
+        "name": "claude hooks",
+        "status": "PASS",
+        "detail": "PreToolUse guard registered"
+      },
+      {
+        "index": 9,
+        "name": "claude rules",
+        "status": "PASS",
+        "detail": "21 rule files valid"
+      },
+      {
+        "index": 10,
+        "name": "codex generated roles",
+        "status": "PASS",
+        "detail": "7 core roles present"
+      },
+      {
+        "index": 11,
+        "name": "hermes/thClaws contract",
+        "status": "PASS",
+        "detail": "routing and bridge markers present"
+      },
+      {
+        "index": 12,
+        "name": "HF Static release governance",
+        "status": "PASS",
+        "detail": "rule, Claude mirror, skill, evals, catalog, and four owner contracts aligned"
+      },
+      {
+        "index": 13,
+        "name": "anti-cognitive-decay skill",
+        "status": "PASS",
+        "detail": "canonical and generated mirrors aligned"
+      },
+      {
+        "index": 14,
+        "name": "Plan completion governance",
+        "status": "PASS",
+        "detail": "Rule 22 enforced, ReleaseNotes aligned, plans clean"
+      },
+      {
+        "index": 15,
+        "name": "Antigravity/Gemini/AGY sync",
+        "status": "PASS",
+        "detail": "[OK] All Antigravity Agent & Skill definitions are 100% synchronized and within context budget!"
+      },
+      {
+        "index": 16,
+        "name": "Codex/OpenAI sync",
+        "status": "PASS",
+        "detail": "[OK] All 21 Codex agent definitions are synchronized!"
+      },
+      {
+        "index": 17,
+        "name": "Claude Code <-> AGY CLI Parity",
+        "status": "PASS",
+        "detail": "All 21 progressive rules aligned, 4 skills in parity, 2 subagents aligned, 3 AGY hooks present"
+      },
+      {
+        "index": 18,
+        "name": "Codex multi-account config & budget",
+        "status": "FAIL",
+        "detail": "[ERROR] codex3   : missing config at /Users/kimlenglim/.ai-accounts/agy/account2/.ai-accounts/codex/account3/config.toml"
+      }
+    ]
+  },
+  "codex3_config_failure_root_cause": {
+    "reported_error": "codex3   : missing config at /Users/kimlenglim/.ai-accounts/agy/account2/.ai-accounts/codex/account3/config.toml",
+    "mechanism": "Sandboxed HOME path expansion in scripts/sync_codex_account_configs.py",
+    "details": [
+      "In scripts/sync_codex_account_configs.py line 24, HOME is evaluated as Path.home().",
+      "In the subagent execution environment, os.environ['HOME'] is overridden to /Users/kimlenglim/.ai-accounts/agy/account2.",
+      "As a result, AI_ACCOUNTS_DIR becomes /Users/kimlenglim/.ai-accounts/agy/account2/.ai-accounts/codex.",
+      "ACCOUNT_CONFIGS['codex3'] therefore resolves to /Users/kimlenglim/.ai-accounts/agy/account2/.ai-accounts/codex/account3/config.toml, which does not exist.",
+      "The actual configuration file exists at /Users/kimlenglim/.ai-accounts/codex/account3/config.toml on the real host filesystem.",
+      "When scripts/sync_ai_agent_ecosystem.py executes scripts/sync_codex_account_configs.py --check, it inspects the final line of stderr/stdout, reporting the codex3 missing config error."
+    ]
+  },
+  "repair_mechanism_and_developer_binding": {
+    "non_secret_repair_mechanism": [
+      "1. Path Resolution Resilience: Update scripts/sync_codex_account_configs.py to robustly resolve the true user home directory rather than relying solely on os.environ['HOME']. Fallback mechanisms include pwd.getpwuid(os.getuid()).pw_dir, trimming .ai-accounts subpaths from Path.home(), or reading an explicit AI_ACCOUNTS_BASE_DIR / USER_HOME environment variable.",
+      "2. External Configuration Parity: Verify that /Users/kimlenglim/.ai-accounts/codex/account3/config.toml contains the required disabled skill entries using paths anchored to the true user home (/Users/kimlenglim/...).",
+      "3. Zero Secrets Policy: Neither config.toml nor inert profiles contain credentials, tokens, or API keys; repair touches only boolean flags, disabled skill paths, and model configurations."
+    ],
+    "binding_allowlist_for_developer_repair": {
+      "authorized_writable_paths": [
+        "scripts/sync_codex_account_configs.py",
+        "/Users/kimlenglim/.ai-accounts/codex/account3/config.toml"
+      ],
+      "prohibited_actions": [
+        "No modifications to git index (zero git add, zero git commit, zero git push).",
+        "No modifications to credential stores, keychain, or .env files.",
+        "No changes to metaphysical engine rules or core application code.",
+        "No unstaged workspace file deletions or resets."
+      ]
+    }
+  }
+}

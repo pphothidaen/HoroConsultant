@@ -8,7 +8,9 @@ model: gpt-5.6-terra
 thinking_effort: Medium
 tools:
 - agile-governance
-- qa-e2e-testing
+- qa-regression-provenance
+thinking: false
+fallback_agent: orchestrator
 ---
 
 You are the ba_auditor agent for HoroConsultant.

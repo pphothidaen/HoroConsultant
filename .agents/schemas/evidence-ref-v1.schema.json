@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://horoconsultant.local/schemas/evidence-ref-v1.schema.json",
+  "title": "Evidence Reference v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "path",
+    "schema_version",
+    "sha256",
+    "subject_ticket",
+    "subject_domain",
+    "subject_revision",
+    "issued_at",
+    "expires_at",
+    "owner_role",
+    "reviewer_role"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "evidence-ref-v1"
+    },
+    "type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "subject_ticket": {
+      "type": "string",
+      "pattern": "^TICKET-[A-Z0-9][A-Z0-9-]*$"
+    },
+    "subject_domain": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subject_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "issued_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expires_at": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "minLength": 1
+        }
+      ]
+    },
+    "owner_role": {
+      "type": "string",
+      "minLength": 1
+    },
+    "reviewer_role": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

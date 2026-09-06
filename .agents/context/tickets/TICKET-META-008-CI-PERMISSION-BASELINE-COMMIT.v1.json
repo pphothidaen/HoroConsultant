@@ -1,0 +1,41 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-META-008-CI-PERMISSION-BASELINE-COMMIT",
+  "revision": 1,
+  "ticket_sha256": "c907519e106b68572c266b022a93d030be65788c9eeaa89d63f16a05d72cd7f2",
+  "plan_sha256": "267937bbba30fc4f883a22cc659c3da671c9f35a83a7efc60daed3d1446afa19",
+  "lanes": [
+    {
+      "lane_id": "TICKET-META-008-CI-PERMISSION-BASELINE-COMMIT",
+      "role": "devops",
+      "phase": "review",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "project/tests/test_github_actions_regression.py",
+        "plans/test_provenance/ticket-meta-008-ci-permission-baseline.json",
+        "scripts/test_provenance_guard.py",
+        "plans/evidence/meta-008-remediation/ci-review.json"
+      ],
+      "requested_horo_skills": [
+        "devops-deployment",
+        "hf-static-release-verification"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "exact-test-only-local-commit"
+      ],
+      "allowed_child_command_class": "local-baseline-commit",
+      "exclusions": [
+        "no-source",
+        "no-push",
+        "no-deploy",
+        "no-provider-execution",
+        "no-secret-operation",
+        "no-review-receipt-stage"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

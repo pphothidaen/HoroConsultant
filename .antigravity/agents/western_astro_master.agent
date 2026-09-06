@@ -45,6 +45,9 @@ system_prompt: 'You are the western_astro_master agent for HoroConsultant.
 
   - Output: Tropical Planet Positions, Major Aspects, 8 Uranian TNPs, Midpoint Formulas'
 tools:
+- metaphysical-request-router
+- metaphysical-hitl-scope-gate
+- metaphysical-finetune-handoff
 - bazi-calculator
 - rag-search
 fallback_agent: orchestrator

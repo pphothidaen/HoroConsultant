@@ -10,6 +10,24 @@
           "command": "python3 .agents/hooks/atomic_tdd_guard.py",
           "timeout": 10
         }
+      },
+      {
+        "matcher": ".*",
+        "handler": {
+          "type": "command",
+          "command": "python3 .agents/hooks/full_capacity_guard.py",
+          "timeout": 10
+        }
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "handler": {
+          "type": "command",
+          "command": "python3 .agents/hooks/full_capacity_guard.py",
+          "timeout": 10
+        }
       }
     ]
   }

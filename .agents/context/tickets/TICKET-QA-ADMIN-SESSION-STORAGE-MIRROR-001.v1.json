@@ -1,0 +1,37 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-QA-ADMIN-SESSION-STORAGE-MIRROR-001",
+  "revision": 1,
+  "ticket_sha256": "8573abb7b1e175e6c6f65810d49d6d9925e9a2f742bf095ac62b72643ecf45a9",
+  "plan_sha256": "6ab177b5b57d93f36cc31d47ab8b5ee30cb2dc51d0ee70c05181244cebbb7aa8",
+  "lanes": [
+    {
+      "lane_id": "TICKET-QA-ADMIN-SESSION-STORAGE-MIRROR-001",
+      "role": "qa_tester",
+      "phase": "red_baseline",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "tests/test_admin_session_storage_mirror.py",
+        "plans/test_provenance/ticket-qa-admin-session-storage-mirror-001.json",
+        "public/admin.html",
+        "project/static/admin.html"
+      ],
+      "requested_horo_skills": [
+        "qa-e2e-testing"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [],
+      "allowed_child_command_class": "reviewed-local-baseline-commit",
+      "exclusions": [
+        "no-source-write",
+        "no-config-write",
+        "no-push",
+        "no-deploy",
+        "no-network"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

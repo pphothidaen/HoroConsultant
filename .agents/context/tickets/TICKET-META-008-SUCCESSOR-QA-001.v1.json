@@ -1,0 +1,82 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-META-008-SUCCESSOR-QA-001",
+  "revision": 1,
+  "ticket_sha256": "b80d08f0f8912d092025af461556dc4fe2d22499364027f077b75b519ffec58d",
+  "plan_sha256": "8a4ccf025b1a9bea511244c9287dc2c1ddc58b25e1f398e9039f1a1b5876c5f2",
+  "lanes": [
+    {
+      "lane_id": "TICKET-META-008-SUCCESSOR-QA-001",
+      "role": "qa_tester",
+      "phase": "red_baseline",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "plans/test_provenance/ticket-context-opt-001.json",
+        "project/tests/test_context_profile_ecosystem_sync.py",
+        "tests/fixtures/context_profiles/agy-probe.json",
+        "tests/fixtures/context_profiles/antigravity-render.json",
+        "tests/fixtures/context_profiles/approved-context.valid.json",
+        "tests/fixtures/context_profiles/claude-probe.json",
+        "tests/fixtures/context_profiles/codex-prompt.json",
+        "tests/fixtures/context_profiles/evals/five-elements-ui-palette.json",
+        "tests/fixtures/context_profiles/evals/metaphysical-finetune-handoff.json",
+        "tests/fixtures/context_profiles/evals/metaphysical-hitl-scope-gate.json",
+        "tests/fixtures/context_profiles/evals/metaphysical-request-router.json",
+        "tests/fixtures/context_profiles/evals/qa-api-ui-e2e.json",
+        "tests/fixtures/context_profiles/evals/qa-e2e-testing.json",
+        "tests/fixtures/context_profiles/evals/qa-regression-provenance.json",
+        "tests/fixtures/context_profiles/evals/ui-color-token-handoff.json",
+        "tests/fixtures/context_profiles/evals/wcag-apca-color-audit.json",
+        "tests/fixtures/context_profiles/evidence.valid.json",
+        "tests/fixtures/context_profiles/expected-mandatory-closures.json",
+        "tests/fixtures/context_profiles/expected-multi-path.json",
+        "tests/fixtures/context_profiles/expected-root-developer.json",
+        "tests/fixtures/context_profiles/narrowing.valid.json",
+        "tests/fixtures/context_profiles/registry.valid.json",
+        "tests/test_context_profile_budget_handoff.py",
+        "tests/test_context_profile_generation.py",
+        "tests/test_context_profile_hierarchy_runtime.py",
+        "tests/test_context_profile_mandatory_closures.py",
+        "tests/test_context_profile_native_activation.py",
+        "tests/test_context_profile_registry.py",
+        "tests/test_context_profile_resolver.py",
+        "tests/test_multiagent_prompt_command.py",
+        "tests/test_multiagent_probe_approval.py",
+        "tests/test_multiagent_receipt_schema.py",
+        "tests/test_multiagent_receipt_v3_schema.py",
+        "tests/test_agy_bucket_admission_guard.py",
+        "tests/test_multiagent_bootstrap_dispatch.py",
+        "tests/test_spark_model_governance.py",
+        "project/tests/test_ai_agent_ecosystem_sync.py",
+        "project/tests/test_developer_routing_contract.py",
+        "plans/test_provenance/ticket-dispatch-activation-001.json",
+        "plans/test_provenance/ticket-context-dispatch-successor-001.json",
+        "plans/evidence/context-opt-001/successor-preparation-001.json"
+      ],
+      "requested_horo_skills": [
+        "qa-regression-provenance",
+        "qa-e2e-testing"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "historical-baseline-incomplete",
+        "reconstructed-test-chronology",
+        "dirty-worktree-snapshot"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-test-write",
+        "no-production-source-write",
+        "no-config-write",
+        "no-provider-mutation",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-network"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

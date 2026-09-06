@@ -29,21 +29,29 @@ To achieve maximum performance at minimum token expenditure, the system utilizes
 
 1. **`requirement-grill-gate`**: Powers BSA-owned `/grill-me` with context auto-scan, one-question-at-a-time 9-dimension intake, fail-closed `APPROVED` / `WAIVED` / `BLOCKED` decisions, measurable stop conditions, and scoped GRILL REPORT output before planning or implementation.
 2. **`sdlc-aisdlc-workflow`**: AI SDLC governance from planning through implementation, QA, release, and post-deploy verification.
-3. **`qa-e2e-testing`**: Pytest, API/UI contract, and Playwright E2E regression matrix for production validation.
+3. **`qa-e2e-testing`**: Compatibility router for QA regression, API/UI contract, and release verification. Delegated to focused skills `qa-regression-provenance` and `qa-api-ui-e2e`. (Sunset: v2.0.0; no focused-profile activation).
 4. **`ai-inference-verifier`**: Verify interpretation output is real model inference, not static template fallback.
 5. **`devops-deployment`**: Deploy hygiene workflows: secret sync, container checks, and production publish/audit.
 6. **`bazi-calculator`**: Compute BaZi 4-Pillars with true solar time and five-elements analysis.
 7. **`rag-search`**: Retrieve ranked metaphysics passages from FAISS index with configured embeddings.
 8. **`bsa-doc-skill-management`**: Own requirements decomposition, live docs sync, quota/account handoff, and skill-governance operations.
-9. **`metaphysical-domain-engine`**: Cross-train and route metaphysical queries among Zi Wei, Qi Men, Da Liu Ren, I Ching, feng shui, and astrology specialists.
-10. **`orchestrator-delegation`**: Coordinate maximum useful safe parallel work with fail-closed eligibility, ownership, evidence, and HITL escalation.
-11. **`web-color-design`**: Color systems, Five Elements palettes, WCAG contrast validation, dark mode, and CSS design tokens for HoroConsultant UI. Used by `ux_ui_designer`.
+9. **`metaphysical-domain-engine`**: Compatibility router for deterministic request routing, HITL gate, and finetune handoff. (Sunset: v2.0.0; no focused-profile activation; requires `source_domain=metaphysical-domain-engine`).
+10. **`orchestrator-delegation`**: Coordinate bounded work across specialist lanes binding ticket ID, lane ID, approved-context digest, role/actions/all paths, and resolver result (`scripts/resolve_agent_context.py`). Generated mirrors and mtimes are never authority.
+11. **`web-color-design`**: Compatibility router for Five Elements palette, WCAG audit, and UI color tokens. Delegated to focused skills `five-elements-ui-palette`, `wcag-apca-color-audit`, and `ui-color-token-handoff`. (Sunset: v2.0.0; no focused-profile activation).
 12. **`ui-visual-auditor`**: Multi-viewport screenshot capture, DOM overlap detection, and layout distortion auditing. Used by `ui_visual_tester`.
 13. **`hf-static-release-verification`**: Fail-closed HF Static release gate for payload, health, exact `release_source_commit` identity, source metadata digest/revision, source-ancestry proof, required assets, publisher regression, and five-viewport evidence. `packaging_commit` is evidence-only; legacy fallbacks and overrides are forbidden. Primary owner: `devops`; verification owners: `qa_tester`, `ui_visual_tester`, and `code_reviewer`; dispatch owner: `orchestrator`.
 14. **`multi-account-agent-orchestration`**: Route bounded work across Codex/AGY/Hermes accounts with non-secret quota evidence, retry limits, ownership isolation, HITL closure, and process-backed execution through required explicitly selected aliases. Result Contract v2 binds a provider-native `ExecutionReceipt` to a schema-validated `WorkResult` and fails closed; read-only lanes additionally require an approved runtime config plus an explicit read-only role or validated sandbox override. The root/current session is orchestrator-only; child lanes alone may use terminal CLI workarounds, and any one-off root-action waiver needs current, recorded user authorization.
 15. **`adaptive-model-effort-routing`**: Classify lane scope, complexity, risk, ambiguity, evidence, and quota into a versioned fail-closed `DispatchDecision`; Rule 18 owns policy, capability catalog, floors, receipt binding, and HITL behavior.
 16. **`anti-cognitive-decay`**: Governs bounded context preservation across runtimes without authority drift.
 17. **`agile-governance`**: Govern canonical 6-state Agile lifecycle (`TODO`, `READY`, `DOING`, `BLOCKED`, `NEEDS_HITL`, `DONE`), broker admission, capacity truth (theoretical vs policy-admitted vs runtime-proven), fail-closed DoR/DoD gates, one-editor-per-resource ownership, and capacity exception emission.
+18. **`qa-regression-provenance`**: Fail-closed regression baseline verification, immutable RED contracts, and `test-provenance-v1` manifest tracking.
+19. **`qa-api-ui-e2e`**: Decoupled verification of HF Docker backend contracts and Vercel static UI interactions.
+20. **`five-elements-ui-palette`**: Map Wu Xing five-element semantic color palettes, tokens, and cultural harmony constraints.
+21. **`wcag-apca-color-audit`**: Audit UI color contrast compliance against WCAG 2.1 AA and APCA lightness standards across theme modes.
+22. **`ui-color-token-handoff`**: Export structured CSS custom properties and semantic design token handoff definitions.
+23. **`metaphysical-request-router`**: Route metaphysical inquiries to deterministic calculation engines and tools with `source_domain=metaphysical-domain-engine`.
+24. **`metaphysical-hitl-scope-gate`**: Enforce fail-closed human-in-the-loop review for boundary hour, chart conflict, and low consensus conditions (`source_domain=metaphysical-domain-engine`).
+25. **`metaphysical-finetune-handoff`**: Curate verified, redacted metaphysical consultation datasets for fine-tuning handoff (`source_domain=metaphysical-domain-engine`).
 
 ### Claude Code Governance Map
 
@@ -86,7 +94,7 @@ flowchart TD
     QA -->|6a. Bug / Syntax / Test Failure| Orch
     Orch -->|6b. Auto-Remediation Loop: Retry Fix &lt; 3 attempts| Dev
     Orch -->|6c. Unresolved after 3 Retries| HITL([🚨 Human-In-The-Loop Escalation\nPause & Await Human Guidance])
-    QA -->|7. 100% Tests & Safety Passed READY_FOR_PROD| DevOps[DevOps & Release\nGemini 3.6 Flash Standard]
+    QA -->|7. 100% Tests & Safety Passed READY_FOR_PROD| DevOps[DevOps & Release\ngpt-5.3-codex-spark High]
     DevOps -->|8. Env & Package Verified| Orch
     BSA -->|9. Sync Live Docs & Skills| Docs[Repository Docs & Skills Catalog]
     Orch -->|10. Final Code Review & Summary| User
@@ -122,6 +130,8 @@ flowchart TD
 14. **Specialist Decomposition Mandate**: When any skill, agent, rule, hook, or governance doc grows too long or requires deep specialist knowledge, agents MUST create a new dedicated single-responsibility file rather than expanding the existing one. Hard limits: skill `description` ≤ 100 chars, SKILL.md ≤ 300 lines, agent `system_prompt` ≤ 50 lines, rule file ≤ 80 lines per concern, Claude rule ≤ 40 lines per concern, hook script ≤ 150 lines. See `.agents/rules/14-specialist-decomposition-mandate.md`.
 15. **HF Static Fail-Closed Release Mandate**: Apply `.agents/rules/16-hf-static-release-verification.md` and `.agents/skills/hf-static-release-verification/SKILL.md` to every HF Static release or release-affecting frontend change. Publisher tests, payload dry-run, SDK-aware health, exact live version/assets using immutable `release_source_commit`, five canonical viewport artifacts, focused regression, safety review, and ecosystem sync MUST all pass before `READY_FOR_PROD`. Committed source metadata and its path, SHA-256 digest, and source revision prove the source identity; evidence proves it is an ancestor of the later evidence-only `packaging_commit`. No legacy fallback and no environment, CLI default, runtime `HEAD`, or external override is allowed. Missing or indeterminate evidence is a failure; only a named manual reviewer sign-off tied to the current artifact and timestamp can resolve an automated indeterminate. `orchestrator` dispatches; `developer`, `devops`, `ui_visual_tester`, and `qa_tester` execute owned gates; `code_reviewer` issues the safety verdict; `business_analyst` synchronizes governance.
 16. **Plan Completion, Archival & Release Notes Mandate**: Whenever all milestones or tickets in an active plan or sprint are executed and verified DONE, agents MUST archive completed planning artifacts from `plans/` to `plans/archive/YYYY-MM-DD-<sprint-or-release>/`, maintain `/plans/` containing only active/upcoming specifications, and compile/publish `ReleaseNotes.md` containing Executive Summary, Architectural Deliverables, Verification Matrix, Milestone Rollup (100% DONE), Live Production Endpoints, and Archived Plans list. Governed by `business_analyst` and `orchestrator`. See `.agents/rules/22-plan-completion-and-release-notes.md`.
+17. **Spark Safety & Release Gate Isolation Mandate**: Model `gpt-5.3-codex-spark` on dedicated pool / alias `codex2` (effort: `xhigh` / `high`) is allocated strictly to safety, release gates, rollback integrity, and deployment evidence verification (`devops` and `code_reviewer`). It is strictly prohibited from authoring feature implementation code, business logic, or public API modifications; any dispatch attempt outside safety and release lanes fails closed (`BLOCKED: SPARK_FEATURE_DISPATCH_PROHIBITED`). Host Codex primary data plane remains under `RED_FREEZE` until proven quota recovery.
+18. **Release Gate & Rollback Integrity Mandate**: Before any production deployment transition to Azure Container Apps, Hugging Face Spaces Docker backend, or Vercel Edge Gateway, agents MUST enforce: 1) zero secret leaks via `code_reviewer.py --scan-secrets`; 2) payload dry-run via `publish_space_hf.py --dry-run --sdk docker`; 3) recorded immutable prior target revisions (rollback anchors for HF, Vercel, and ACA); 4) Code Reviewer `READY_FOR_PROD` sign-off; 5) post-deploy SDK-aware health verification (`--check-health --sdk docker`); and 6) fail-closed exact-cardinality version checks (`--verify-version --sdk docker`, exact-1 cardinality). If any gate fails or circuit breaker trips, execute emergency rollback immediately (`[ERROR] ROLLBACK_EXECUTED`).
 
 
 ---

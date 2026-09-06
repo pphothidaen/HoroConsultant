@@ -1,0 +1,54 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-META-008-SUCCESSOR-CONTRACT-002",
+  "revision": 1,
+  "ticket_sha256": "b80d08f0f8912d092025af461556dc4fe2d22499364027f077b75b519ffec58d",
+  "plan_sha256": "8a4ccf025b1a9bea511244c9287dc2c1ddc58b25e1f398e9039f1a1b5876c5f2",
+  "lanes": [
+    {
+      "lane_id": "TICKET-META-008-SUCCESSOR-CONTRACT-002",
+      "role": "business_analyst",
+      "phase": "planning",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "README.md",
+        "HOWTO.md",
+        "HANDOFF.md",
+        "plans/test_provenance/ticket-context-dispatch-successor-001.json",
+        "plans/evidence/context-opt-001/successor-preparation-001.json"
+      ],
+      "requested_horo_skills": [
+        "bsa-doc-skill-management",
+        "agile-governance"
+      ],
+      "source_domain": "governance",
+      "risk_flags": [
+        "reconstructed-test-chronology",
+        "schema-contract-blocked",
+        "generated-output-drift"
+      ],
+      "allowed_child_command_class": "documentation-governance",
+      "exclusions": [
+        "no-test-write",
+        "no-production-source-write",
+        "no-config-write",
+        "no-evidence-rewrite",
+        "no-provider-mutation",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-network"
+      ],
+      "evidence_refs": [
+        {
+          "path": "plans/evidence/context-opt-001/successor-preparation-001.json",
+          "sha256": "1da62599035cb42bba3ba5e68f59663bc0ad06290f49f1003529fc5b2fc408c5"
+        }
+      ]
+    }
+  ]
+}

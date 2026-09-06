@@ -1,0 +1,48 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-BASELINE-SUCCESSOR-001",
+  "revision": 1,
+  "ticket_sha256": "a979012e5bfaacfb08c74181c498c59336b3b1263c477cc0368e4f17c590884d",
+  "plan_sha256": "d59b27bc358772cbfc9983dfee3e6ff111213ebf6a21c2e844451963e229e11c",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-BASELINE-SUCCESSOR-001-QA",
+      "role": "qa_tester",
+      "phase": "red_baseline",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "tests/test_multiagent_prompt_command.py",
+        "tests/test_multiagent_probe_approval.py",
+        "tests/test_multiagent_receipt_schema.py",
+        "tests/test_multiagent_receipt_v3_schema.py",
+        "tests/test_agy_bucket_admission_guard.py",
+        "tests/test_multiagent_bootstrap_dispatch.py",
+        "tests/test_spark_model_governance.py",
+        "project/tests/test_ai_agent_ecosystem_sync.py",
+        "project/tests/test_developer_routing_contract.py",
+        "plans/test_provenance/ticket-dispatch-activation-001.json"
+      ],
+      "requested_horo_skills": [
+        "agile-governance",
+        "qa-e2e-testing",
+        "qa-regression-provenance"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "historical-baseline-incomplete"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-production-source-write",
+        "no-config-write",
+        "no-provider-mutation",
+        "no-commit",
+        "no-push",
+        "no-network"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

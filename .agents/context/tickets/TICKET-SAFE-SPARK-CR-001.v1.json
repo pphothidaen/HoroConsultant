@@ -1,0 +1,43 @@
+{
+  "lanes": [
+    {
+      "actions": [
+        "context.resolve",
+        "predeploy_audit",
+        "ready_for_prod_gate",
+        "secret_scan"
+      ],
+      "allowed_child_command_class": "context-inspect",
+      "evidence_refs": [],
+      "exclusions": [
+        "no-network",
+        "no-commit"
+      ],
+      "lane_id": "TICKET-SAFE-SPARK-CR-001-L1",
+      "phase": "qa",
+      "requested_horo_skills": [
+        "agile-governance",
+        "anti-cognitive-decay",
+        "orchestrator-delegation",
+        "requirement-grill-gate",
+        "qa-regression-provenance"
+      ],
+      "risk_flags": [
+        "release_readiness",
+        "secret_scan"
+      ],
+      "role": "code_reviewer",
+      "source_domain": "code-review",
+      "touched_paths": [
+        ".agents/agents/code_reviewer/*",
+        "project/core/code_reviewer.py",
+        "project/core/README.md"
+      ]
+    }
+  ],
+  "plan_sha256": "23197c7b1a99d03f2629f0e467ad3098e80f98c8f04ce3fbb4459ab03770bf55",
+  "revision": 1,
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-SAFE-SPARK-CR-001",
+  "ticket_sha256": "3f9ac6a9db3244c22f79c101a7a650b1ddc001910b9bb136edb5eef4c750beb5"
+}

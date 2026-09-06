@@ -1,0 +1,47 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-AGY2-CLI-CAPABILITY-007",
+  "revision": 1,
+  "ticket_sha256": "3326c91d76eb96b796ae3073370943675715d2f8a8febe6dedaa95980086d2d0",
+  "plan_sha256": "fc4a022a6028f8676c9052fa38572cf60cc6825d79caf09bc01c5ba0fe5aceeb",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-AGY2-CLI-CAPABILITY-007",
+      "role": "devops",
+      "phase": "operations",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "scripts/multiagent_prompt_command.py",
+        "scripts/agy_terminal_supervisor.py",
+        ".agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml",
+        "/Users/kimlenglim/.local/bin/agy2",
+        "/Users/kimlenglim/.local/bin/agy"
+      ],
+      "requested_horo_skills": [
+        "devops-deployment",
+        "hf-static-release-verification",
+        "multi-account-agent-orchestration"
+      ],
+      "source_domain": "operations",
+      "risk_flags": [
+        "separate-local-terminal-scope-not-native-proof"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-source-write",
+        "no-provider-execution",
+        "no-account-or-secret-operations",
+        "no-guard-bypass",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-executable-invocation",
+        "no-credential-file-read",
+        "linked-package-metadata-only-no-account-content"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

@@ -7,8 +7,13 @@ role: 三式大師 (San Shi Master)
 model: gpt-5.6-terra
 thinking_effort: High
 tools:
+- metaphysical-request-router
+- metaphysical-hitl-scope-gate
+- metaphysical-finetune-handoff
 - bazi-calculator
 - rag-search
+thinking: false
+fallback_agent: orchestrator
 ---
 
 You are the san_shi_master agent for HoroConsultant.

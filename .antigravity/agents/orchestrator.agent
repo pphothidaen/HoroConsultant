@@ -80,15 +80,11 @@ system_prompt: 'You are the orchestrator agent for HoroConsultant.
   Matrix, and explicitly bind required skills from the Skills Catalog before dispatching.
   Unbound dispatches fail closed.'
 tools:
-- bazi-calculator
-- rag-search
-- bsa-doc-skill-management
-- qa-e2e-testing
-- devops-deployment
-- sdlc-aisdlc-workflow
-- metaphysical-domain-engine
-- hf-static-release-verification
-- adaptive-model-effort-routing
-- multi-account-agent-orchestration
+- requirement-grill-gate
+- agile-governance
 - orchestrator-delegation
+- anti-cognitive-decay
+- hf-static-release-verification
+- multi-account-agent-orchestration
+- adaptive-model-effort-routing
 fallback_agent: default

@@ -1,0 +1,51 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-G-EVIDENCE-REVIEW-002",
+  "revision": 1,
+  "ticket_sha256": "b86f26a511eab5ae78dea3b17e7e77062e2bcc44068c88dbc0382f92196569dc",
+  "plan_sha256": "e8ff2e28c64ad47a06307c8681451569ce4040f9f99841a47e5c742f23eee628",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-G-EVIDENCE-REVIEW-002",
+      "role": "code_reviewer",
+      "phase": "review",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "tests/test_context_g_evidence_integrity.py",
+        "plans/test_provenance/ticket-context-g-evidence-integrity-baseline-002.json",
+        "scripts/render_agent_context_profiles.py",
+        "scripts/probe_agent_context_runtime.py",
+        "scripts/sync_ai_agent_ecosystem.py",
+        "scripts/optimize_codex_skill_budget.py",
+        ".agents/agents/devops/agent.json",
+        "plans/evidence/context-opt-001/render-check.json",
+        "plans/evidence/context-opt-001/budget-report.json",
+        "plans/evidence/context-opt-001/runtime-probe-codex.json",
+        "plans/evidence/context-opt-001/runtime-probe-claude.json",
+        "plans/evidence/context-opt-001/runtime-probe-agy.json",
+        "plans/evidence/context-opt-001/antigravity-render-parity.json"
+      ],
+      "requested_horo_skills": [
+        "qa-e2e-testing",
+        "hf-static-release-verification"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "synthetic-expired-evidence",
+        "unconditional-pass-checks",
+        "legacy-agent-contract"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "read-only",
+        "no-file-write",
+        "no-commit",
+        "no-network",
+        "no-provider-execution"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

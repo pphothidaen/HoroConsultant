@@ -1,0 +1,142 @@
+{
+  "record_kind": "codex1-ci-failover-preflight-v1",
+  "ticket_id": "TICKET-META-008-CODEX1-CI-FAILOVER-001",
+  "lane_id": "TICKET-META-008-CODEX1-CI-FAILOVER-001",
+  "approved_context_sha256": "79b1ce0a32422e6aa5ea52edcb01cd048d6085bb2e97a822e5c2f72ea3fc1b1f",
+  "resolver": "PASS",
+  "checked_at": "2026-09-06T00:38:49.613121+00:00",
+  "status": "BLOCKED_BEFORE_DISPATCH",
+  "objective": "Delegate read-only inspection of CI commit e28e2bf3f07a61e82681bc4995b4514cb892ab85 and main to codex1; report non-main publication planning without edits, tests, push or network.",
+  "ownership": "Recovery route preflight and this receipt only; worker has no writable paths.",
+  "quota": {
+    "host": {
+      "remaining_percent": 9,
+      "state": "FROZEN",
+      "usage": "Recovery control-plane only"
+    },
+    "codex1": {
+      "remaining_percent": 100,
+      "window_minutes": 300,
+      "observed_at": "2026-09-06T00:36:51Z",
+      "source": "Parent-verified direct AppServer rateLimits/read; no new quota call by this lane",
+      "limits_reported": false
+    },
+    "pools_independent": true,
+    "quota_is_not_admission": true
+  },
+  "route_inspection": {
+    "config_path": ".agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml",
+    "config_sha256": "0d5bbe34948b6c6b9c0ec5b95ce56e52e45c61cafad4a3c7bfffff9df14be099",
+    "model_policy_path": ".agents/config/multiagent_model_policy.yaml",
+    "model_policy_sha256": "ffe971c46c551e6c02f6f0fb32009bf880633b60ef74ee78b6f7bb92ff987d9f",
+    "selected_role": "implementation",
+    "role_selection_reason": "This configured Codex role explicitly enforces read-only sandbox; research role instead selects AGY with no Codex read-only sandbox declaration.",
+    "alias": "codex1",
+    "requested_model": "gpt-6-astra",
+    "requested_effort": "medium",
+    "rendered_route": {
+      "status": "rendered-route-not-execution-proof",
+      "role": "implementation",
+      "alias": "codex1",
+      "cli": "codex",
+      "cwd": "<PROJECT_DIR>",
+      "env_keys": [
+        "CODEX_HOME"
+      ],
+      "argv": [
+        "codex",
+        "exec",
+        "-C",
+        "<PROJECT_DIR>",
+        "-s",
+        "read-only",
+        "-m",
+        "gpt-6-astra",
+        "-c",
+        "model_reasoning_effort=\"medium\"",
+        "-",
+        "<PROMPT_STDIN>"
+      ],
+      "command": "codex exec -C '<PROJECT_DIR>' -s read-only -m gpt-6-astra -c 'model_reasoning_effort=\"medium\"' - '<PROMPT_STDIN>'"
+    },
+    "runtime_approved_for_execution": true,
+    "effective_activation_prohibited": true,
+    "effective_dispatcher_execution": "CLOSED",
+    "requested_model_catalogued": false,
+    "configured_cli_home_directory_exists": false,
+    "account_home_value_redacted": true
+  },
+  "render": {
+    "prepared_argv": [
+      "python3",
+      "scripts/multiagent_prompt_command.py",
+      "--config",
+      ".agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml",
+      "--role",
+      "implementation",
+      "--alias",
+      "codex1",
+      "--cli",
+      "codex",
+      "--model",
+      "gpt-6-astra",
+      "--effort",
+      "medium",
+      "--objective",
+      "Read-only inspect CI commit e28e2bf3f07a61e82681bc4995b4514cb892ab85 and current main; report a safe non-main publication plan including workflow triggers, upstream, and outstanding CI dependencies.",
+      "--ownership",
+      "Read-only report; no writable files.",
+      "--boundaries",
+      "No edits, tests, push, network, credentials, provider tools, or deployment. You are not alone in the codebase; do not revert edits made by others. Work only within your assigned ownership and adapt to visible changes from other agents.",
+      "--evidence",
+      "Status, Scope owned, Evidence, Findings, Changed files, Residual risk, Recommended next action; local read-only findings only.",
+      "--stop-condition",
+      "Return the bounded report without any mutation or external action.",
+      "--print-command"
+    ],
+    "exit_code": 0,
+    "warning": "Legacy v1 dry-run has no DispatchDecision; execution would be rejected.",
+    "tool_chunk": "16b20f"
+  },
+  "blocking_findings": [
+    {
+      "code": "MISSING_ATOMIC_DECLARATION",
+      "detail": "Exact failover ticket is present in its approved context but absent from current ATOMIC_TICKET.md and plans/plan.md."
+    },
+    {
+      "code": "NORMAL_ACTIVATION_CLOSED",
+      "detail": "Approved runtime omits activation keys; canonical effective_activation_state defaults to activation_prohibited=true and dispatcher_execution=CLOSED. Protocol approval alone does not open this gate."
+    },
+    {
+      "code": "REQUESTED_MODEL_NOT_CATALOGUED",
+      "detail": "gpt-6-astra is absent from the configured model policy, so a normal catalog-validated DispatchDecision cannot preserve the requested Astra/medium route as currently configured."
+    },
+    {
+      "code": "CONFIGURED_ACCOUNT_HOME_MISSING",
+      "detail": "The approved runtime's codex1 CLI-home directory does not exist. Parent verified a wrapper-isolated account, but that does not bind the different configured runtime home. No path value or credential was read or retained."
+    },
+    {
+      "code": "EXECUTION_BINDINGS_NOT_SUPPLIED",
+      "detail": "No versioned DispatchDecision or Rule11 scheduling-snapshot paths were supplied; no current-session one-use ProbeClaim/ApprovalGrant/consume-store/session binding was supplied. They were not fabricated or searched broadly."
+    }
+  ],
+  "minimal_next_action": "Recovery owner must declare the exact lane and reconcile an authorized runtime route with the verified codex1 account identity, preserve the requested Astra/medium quality floor through a valid model-policy decision, and resolve the explicit normal activation gate. Then provide fresh Rule18 DispatchDecision, Rule11 scheduling selection, and current-session local attestation artifacts satisfying the existing v3 contract; render again and refresh codex1 quota before one real dispatch. No old QOBS exception or direct-alias bypass.",
+  "execution": {
+    "execute_requested_by_user": true,
+    "execute_invoked": false,
+    "actual_provider_children_started": 0,
+    "actual_codex1_workers": 0,
+    "work_result": null,
+    "portable_evidence_claim": false,
+    "raw_provider_streams_retained": false
+  },
+  "boundaries": {
+    "host_implementation_or_qa_commands": 0,
+    "source_test_config_edits": 0,
+    "auth_or_secret_operations": 0,
+    "remote_network_calls": 0,
+    "stage_commit_push_deploy": 0,
+    "canonical_guard_bypass": false,
+    "only_write": "plans/evidence/meta-008-remediation/codex1-ci-failover-001.json"
+  }
+}

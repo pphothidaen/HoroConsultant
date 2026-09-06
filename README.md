@@ -1,5 +1,7 @@
 # 🌌 Computational Metaphysics Engine — Developer Architecture & Integration Guide
 
+> Successor evidence workflow (planned, CONTRACT-002): snapshot adoption is separate from test-provenance-v1. The dedicated snapshot schema/validator is not yet implemented or admitted. Existing provenance guards remain enforced; reconstructed ecosystem tests never acquire TEST_BASELINE_VERIFIED through adoption. See [canonical ordered tickets](ATOMIC_TICKET.md) for the genuine RED validator baseline, canonical ecosystem repair, separate codex3 repair and fresh independent QA/review. CI remains paused pending priority gates.
+
 > **Project:** HoroConsultant — High-Precision 16-Domain Computational Metaphysics Engine (BaZi, ZiWei, QiMen, LiuRen, IChing, XuanKong, ZeJi, ThaiVedic, Western, Numerology, TaiYi, LiuYao, MeiHua, SanHe, QiZheng, MianXiang), True Solar Time Engine, Multi-Agent Gemini & Local Ollama Hybrid Routing, API v2 Router, FAISS Classical Vault RAG, Rust Fast Math Acceleration, and HITL Review Studio.
 
 
@@ -29,6 +31,49 @@ python3 scripts/sync_codex_agents.py --check
 
 Do not hand-edit `.codex/agents/*.toml`. Each file preserves the legacy role prompt but makes Codex inherit the active model rather than copying provider-specific model names.
 
+### Codex skill-context profiles
+
+Codex starts with minimal base context. Reusable role profiles are generated from canonical `.agents/agents/*/agent.json` `tools` bindings and matching `.agents/skills/*/SKILL.md` sources; do not maintain a second role-to-skill list in generated configuration.
+
+Start a profile only in a new session:
+
+```bash
+codex -p <role>
+```
+
+Generated role profiles contain only canonical HoroConsultant skill bindings; they do not enable remote-curated plugins. Remote-curated plugins remain installed but default-disabled and require an explicit launch-time configuration override in a new session, or a future capability profile (not implemented). Codex does not unload skills or plugins from an already-running session. `superpowers` and bundled `browser`, `chrome`, `computer-use`, and `unified-computer-use` capabilities remain preserved. After canonical source changes are complete, run the governed ecosystem sync and check; never hand-edit generated mirrors.
+
+```bash
+python3 scripts/sync_ai_agent_ecosystem.py --sync
+python3 scripts/sync_ai_agent_ecosystem.py --check
+```
+
+### Canonical Scope-Skill Registry & Dynamic Context Resolver
+
+HoroConsultant enforces fail-closed, ticket-bound dynamic context resolution across providers (Codex, Claude, AGY).
+
+1. **Canonical Registry & Schemas**:
+   - Closed-world skill registry: `.agents/config/scope_skill_registry.v1.json` validated against `.agents/schemas/scope-skill-registry-v1.schema.json`.
+   - Approved ticket context: `.agents/context/tickets/TICKET-CONTEXT-OPT-001.v1.json` validated against `.agents/schemas/approved-ticket-context-v1.schema.json` and strict `.agents/schemas/evidence-ref-v1.schema.json`.
+   - Disjoint namespaces: `horo_skill`, `provider_plugin`, and `runtime_tool`. The default root bootstrap catalog is strictly four skills: `requirement-grill-gate`, `agile-governance`, `orchestrator-delegation`, and `anti-cognitive-decay`.
+2. **Context Resolver CLI (`scripts/resolve_agent_context.py`)**:
+   - Resolves context as the additive union of: role profile + lifecycle phase + argv-derived action + touched file paths and ancestor scopes + mandatory security/release/metaphysics closures.
+   - Command usage:
+     ```bash
+     # Pure read-only verification
+     python3 scripts/resolve_agent_context.py --check
+
+     # Resolve specific ticket and lane context
+     python3 scripts/resolve_agent_context.py --ticket-id TICKET-CONTEXT-OPT-001 --lane-id lane-ba
+     ```
+   - Local Codex Adapter: Uses `debug prompt-input` command to sample prompt tokens and inspect context budget without executing network calls.
+   - Local Probes & Semantics: Verified via `ProviderContextProbeV1` receipts. Offline verification requires pure local PASS; UNKNOWN or UNAVAILABLE blocks.
+3. **`VERIFIED_LOCAL` Lifecycle State & Boundaries**:
+   - `VERIFIED_LOCAL` is a non-release local verification terminal state.
+   - Acknowledges that local contracts, unit tests, probes, and audits are verified GREEN in the local worktree.
+   - **Explicit Non-Release Boundary**: `VERIFIED_LOCAL` cannot satisfy or weaken Rule 21 `DONE`, cannot authorize release, deployment, publication, or git tag, and does not bypass CI/CD or production verification. It unlocks only fresh read-only release-QA audits.
+   - Preserves strict secret isolation (zero credentials in repo/history, keys referenced by name only) and multi-account pool boundaries.
+
 ### 🚀 Approach C: Feature-Flagged Multi-Agent Parity Governance
 
 The **Approach C** material is an `IN_REVIEW` design record, not an accepted
@@ -49,6 +94,11 @@ by that dependency chain.
   `275` plus adversarial `33`, named security `761` at C/H/M/L `0/0/0/0`, green
   sync/check, and a `1,967`-file/`0`-leak secret scan. It grants no runtime,
   provider, or AGY authority.
+
+The [external dispatch evidence contract](docs/architecture/external-dispatch-platform-contract.md)
+separates offline Spark/AGY characterization from platform acceptance. The
+[AGY terminal supervisor](docs/architecture/agy-terminal-supervisor.md) is design-only;
+it does not enable AGY execution or change the native Spark whitelist.
 
 ---
 

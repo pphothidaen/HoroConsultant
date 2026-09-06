@@ -1,0 +1,314 @@
+{
+  "record_kind": "agy-terminal-boundary-independent-verification-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-AGY-TERMINAL-VERIFY-005",
+  "lane_id": "TICKET-CONTEXT-OPT-001-AGY-TERMINAL-VERIFY-005",
+  "approved_context_sha256": "2f3723c4fabaf39137233040d7f80e1e3e5e297ddd690864e7ceebc2376bdfe4",
+  "owner_role": "qa_tester",
+  "status": "UNIT_PASS_SCOPED_OS_CONTROLS_OBSERVED_WORKER_BLOCKED",
+  "bindings": {
+    "head": "3ed64bb40d91deb53287038c5f2a14af37eaf07f",
+    "source_sha256": "569403b0a418e1ebde285df7e3656cf76dfd641a31880ff1a59ca9769cc5c1b5",
+    "files": {
+      "scripts/agy_terminal_supervisor.py": "569403b0a418e1ebde285df7e3656cf76dfd641a31880ff1a59ca9769cc5c1b5",
+      "tests/test_agy_terminal_supervisor_boundary.py": "f211433e8ffcec97a511591b071aaa66385d6899545b95033a775b7bc7bb477d",
+      "plans/test_provenance/ticket-agy-terminal-boundary-baseline-005.json": "37211b1ecfdb1e032278efdd0adce2cfeb01784cc1ecfdc6da76e9d55ac16eea"
+    },
+    "test_matches_manifest": true,
+    "baseline_commit_paths": [
+      "plans/test_provenance/ticket-agy-terminal-boundary-baseline-005.json",
+      "tests/test_agy_terminal_supervisor_boundary.py"
+    ],
+    "baseline_bytes_match": {
+      "tests/test_agy_terminal_supervisor_boundary.py": true,
+      "plans/test_provenance/ticket-agy-terminal-boundary-baseline-005.json": true
+    }
+  },
+  "unit_tests": {
+    "argv": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "-m",
+      "pytest",
+      "-p",
+      "no:cacheprovider",
+      "-q",
+      "tests/test_agy_terminal_supervisor_boundary.py",
+      "--tb=short"
+    ],
+    "exit_code": 0,
+    "passed": 46,
+    "failed": 0,
+    "errors": 0,
+    "duration_seconds": 1.25,
+    "tool_chunks": [
+      "aae264",
+      "161dde"
+    ]
+  },
+  "os_probes": {
+    "strict_smoke": {
+      "argv": [
+        "/usr/bin/sandbox-exec",
+        "-p",
+        "(version 1)\n(deny default)\n(allow process-exec (literal \"/bin/cat\"))\n(allow file-read* (subpath \"/System\") (subpath \"/usr/lib\") (literal \"/bin/cat\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-canary-005-km_meam5/owned/read.txt\"))\n",
+        "/bin/cat",
+        "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-canary-005-km_meam5/owned/read.txt"
+      ],
+      "profile": "(version 1)\n(deny default)\n(allow process-exec (literal \"/bin/cat\"))\n(allow file-read* (subpath \"/System\") (subpath \"/usr/lib\") (literal \"/bin/cat\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-canary-005-km_meam5/owned/read.txt\"))\n",
+      "profile_sha256": "46f6248a92a16c703ab9ee4243b0c7cf844db9ec097d0b5c519392fe77c6c6a8",
+      "exit_code": -6,
+      "signal": "SIGABRT",
+      "stdout": "",
+      "stderr": "",
+      "canary_unchanged": true,
+      "interpretation": "Deny-default profile did not allow the pinned helper to complete. Missing runtime permissions are not diagnosed by empty streams; cannot infer sandbox-exec globally unavailable.",
+      "tool_chunk": "e38c73"
+    },
+    "scoped_subtree": {
+      "checked_at": "2026-09-05T18:23:24.207980+00:00",
+      "helper_sha256": "abc5bb136d6b5cce8fa85d789f78e3326c51ca60cae637b2064adfb67a1dcd9a",
+      "profile": "(version 1)\n(allow default)\n(deny network*)\n(deny file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i\"))\n(allow file-read* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/read.txt\"))\n(allow file-write* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/writable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/deletable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/created.txt\"))\n",
+      "profile_sha256": "bf4f0661ea1006e8448c2dc4a6b06bd91a2ece89321b5f73f0b188c8120f3561",
+      "cases": [
+        {
+          "name": "allow-read",
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-p",
+            "(version 1)\n(allow default)\n(deny network*)\n(deny file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i\"))\n(allow file-read* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/read.txt\"))\n(allow file-write* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/writable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/deletable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/created.txt\"))\n",
+            "/bin/cat",
+            "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/read.txt"
+          ],
+          "stdin": "",
+          "exit_code": 0,
+          "stdout": "HARMLESS_OWNED_CANARY\n",
+          "stderr": "",
+          "timed_out": false,
+          "expected_allow": true,
+          "exit_matches_expected": true,
+          "executable_sha256": "2b6e8f3f90c42a9d8d1e5471efb4173ad3499fc8ca4039b39327b394616cf39e"
+        },
+        {
+          "name": "deny-sensitive-read",
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-p",
+            "(version 1)\n(allow default)\n(deny network*)\n(deny file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i\"))\n(allow file-read* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/read.txt\"))\n(allow file-write* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/writable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/deletable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/created.txt\"))\n",
+            "/bin/cat",
+            "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/sensitive-canary.txt"
+          ],
+          "stdin": "",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "cat: /private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/sensitive-canary.txt: Operation not permitted\n",
+          "timed_out": false,
+          "expected_allow": false,
+          "exit_matches_expected": true,
+          "executable_sha256": "2b6e8f3f90c42a9d8d1e5471efb4173ad3499fc8ca4039b39327b394616cf39e"
+        },
+        {
+          "name": "deny-unowned-read",
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-p",
+            "(version 1)\n(allow default)\n(deny network*)\n(deny file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i\"))\n(allow file-read* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/read.txt\"))\n(allow file-write* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/writable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/deletable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/created.txt\"))\n",
+            "/bin/cat",
+            "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/unowned.txt"
+          ],
+          "stdin": "",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "cat: /private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/unowned.txt: Operation not permitted\n",
+          "timed_out": false,
+          "expected_allow": false,
+          "exit_matches_expected": true,
+          "executable_sha256": "2b6e8f3f90c42a9d8d1e5471efb4173ad3499fc8ca4039b39327b394616cf39e"
+        },
+        {
+          "name": "allow-create",
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-p",
+            "(version 1)\n(allow default)\n(deny network*)\n(deny file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i\"))\n(allow file-read* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/read.txt\"))\n(allow file-write* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/writable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/deletable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/created.txt\"))\n",
+            "/usr/bin/tee",
+            "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/created.txt"
+          ],
+          "stdin": "created-owned\n",
+          "exit_code": 0,
+          "stdout": "created-owned\n",
+          "stderr": "",
+          "timed_out": false,
+          "expected_allow": true,
+          "exit_matches_expected": true,
+          "executable_sha256": "2cf19c854bae9f465ac8b3244b3448316d08f525dc63c0a9ac0c69cc2e7e1105"
+        },
+        {
+          "name": "allow-update",
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-p",
+            "(version 1)\n(allow default)\n(deny network*)\n(deny file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i\"))\n(allow file-read* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/read.txt\"))\n(allow file-write* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/writable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/deletable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/created.txt\"))\n",
+            "/usr/bin/tee",
+            "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/writable.txt"
+          ],
+          "stdin": "updated-owned\n",
+          "exit_code": 0,
+          "stdout": "updated-owned\n",
+          "stderr": "",
+          "timed_out": false,
+          "expected_allow": true,
+          "exit_matches_expected": true,
+          "executable_sha256": "2cf19c854bae9f465ac8b3244b3448316d08f525dc63c0a9ac0c69cc2e7e1105"
+        },
+        {
+          "name": "deny-unowned-update",
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-p",
+            "(version 1)\n(allow default)\n(deny network*)\n(deny file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i\"))\n(allow file-read* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/read.txt\"))\n(allow file-write* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/writable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/deletable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/created.txt\"))\n",
+            "/usr/bin/tee",
+            "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/unowned.txt"
+          ],
+          "stdin": "attempted-unowned\n",
+          "exit_code": 1,
+          "stdout": "attempted-unowned\n",
+          "stderr": "tee: /private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/unowned.txt: Operation not permitted\n",
+          "timed_out": false,
+          "expected_allow": false,
+          "exit_matches_expected": true,
+          "executable_sha256": "2cf19c854bae9f465ac8b3244b3448316d08f525dc63c0a9ac0c69cc2e7e1105"
+        },
+        {
+          "name": "allow-delete",
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-p",
+            "(version 1)\n(allow default)\n(deny network*)\n(deny file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i\"))\n(allow file-read* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/read.txt\"))\n(allow file-write* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/writable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/deletable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/created.txt\"))\n",
+            "/bin/rm",
+            "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/deletable.txt"
+          ],
+          "stdin": "",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "rm: /private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/deletable.txt: Operation not permitted\n",
+          "timed_out": false,
+          "expected_allow": true,
+          "exit_matches_expected": false,
+          "executable_sha256": "4faf0408bb0c5dcb8ea47c08ff03cb44aedfe2712220111586b71cb93cd1d43f"
+        },
+        {
+          "name": "deny-unowned-delete",
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-p",
+            "(version 1)\n(allow default)\n(deny network*)\n(deny file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i\"))\n(allow file-read* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/read.txt\"))\n(allow file-write* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/writable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/deletable.txt\") (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/owned/created.txt\"))\n",
+            "/bin/rm",
+            "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/unowned.txt"
+          ],
+          "stdin": "",
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "rm: /private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-scoped-005-9i9xpd3i/unowned.txt: Operation not permitted\n",
+          "timed_out": false,
+          "expected_allow": false,
+          "exit_matches_expected": true,
+          "executable_sha256": "4faf0408bb0c5dcb8ea47c08ff03cb44aedfe2712220111586b71cb93cd1d43f"
+        }
+      ],
+      "postconditions": {
+        "owned_read_unchanged": true,
+        "sensitive_unchanged": true,
+        "unowned_unchanged": true,
+        "created_expected": true,
+        "updated_expected": true,
+        "deleted_expected": false
+      },
+      "scope": "Temporary canary subtree only; allow-default elsewhere permits runtime startup and does not establish complete filesystem, authentication or descendant isolation. No provider or network operation requested.",
+      "scratch_removed_on_exit": true,
+      "tool_chunk": "4a1117"
+    },
+    "exact_delete_metadata": {
+      "profile": "(version 1)\n(allow default)\n(deny network*)\n(deny file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-delete-005-4i5vgk0y\"))\n(allow file-read-metadata file-write* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-delete-005-4i5vgk0y/delete-owned.txt\"))\n",
+      "profile_sha256": "c83ca89e02503826c89d63fad702995c7d18da09f6fdf06e80e117360639c1dc",
+      "cases": [
+        {
+          "name": "allow-delete-metadata",
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-p",
+            "(version 1)\n(allow default)\n(deny network*)\n(deny file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-delete-005-4i5vgk0y\"))\n(allow file-read-metadata file-write* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-delete-005-4i5vgk0y/delete-owned.txt\"))\n",
+            "/bin/rm",
+            "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-delete-005-4i5vgk0y/delete-owned.txt"
+          ],
+          "exit_code": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "name": "deny-unowned-delete",
+          "argv": [
+            "/usr/bin/sandbox-exec",
+            "-p",
+            "(version 1)\n(allow default)\n(deny network*)\n(deny file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-delete-005-4i5vgk0y\"))\n(allow file-read-metadata file-write* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-delete-005-4i5vgk0y/delete-owned.txt\"))\n",
+            "/bin/rm",
+            "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-delete-005-4i5vgk0y/unowned.txt"
+          ],
+          "exit_code": 1,
+          "stdout": "",
+          "stderr": "rm: /private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-os-delete-005-4i5vgk0y/unowned.txt: Operation not permitted\n"
+        }
+      ],
+      "owned_deleted": true,
+      "unowned_preserved": true,
+      "scope": "Exact owned file metadata read plus write permission; other temporary canary remains denied. No full backend or descendant proof.",
+      "tool_chunk": "495159"
+    },
+    "execution_environment": {
+      "LANG": "C",
+      "LC_ALL": "C",
+      "shell": false,
+      "timeout_seconds": 5,
+      "start_new_session": true
+    },
+    "limitations": [
+      "The scoped profiles use allow-default outside the temporary canary subtree; they are not safe general worker profiles.",
+      "All data probes target only self-owned temporary fixtures; no real credential or sensitive files were read.",
+      "Network deny rule was present, but no network probe was attempted; network enforcement is unverified.",
+      "Pinned cat/tee/rm commands and tiny finite inputs produced bounded observed output. Continuous output-limit enforcement and hostile stream handling were not exercised.",
+      "No descendant-spawning program was used. Group timeout cleanup was available for scoped cases but did not trigger; descendant containment is unverified.",
+      "No supervisor execution backend was invoked or validated. Source remains a specification validator.",
+      "Temporary directories were cleaned by TemporaryDirectory after each probe."
+    ]
+  },
+  "capability_verdict": {
+    "unit_contract": "PASS",
+    "os_helper_available": true,
+    "observed_controls": [
+      "owned temporary file read",
+      "owned temporary file create/update",
+      "owned temporary file delete with metadata permission",
+      "temporary sensitive/unowned file read denial",
+      "unowned temporary file update/delete denial"
+    ],
+    "complete_os_capability": "UNKNOWN",
+    "supervisor_backend": "ABSENT",
+    "supervisor_run_admission": "SANDBOX_NOT_PROVEN",
+    "auth_isolation": "NOT_PROVEN",
+    "native_proof": false,
+    "actual_agy_workers": 0,
+    "production_ready": false
+  },
+  "next_backend_step": "Freeze a bounded execution-backend baseline for one provider-free worker. Implement and independently probe a deny-by-default profile with the minimal pinned runtime metadata/library permissions needed for startup, exact owned snapshot access, temporary sensitive-read denials, link/race defenses, continuous stream byte limits, and owned descendant deadline/cancellation cleanup. Bind actual OS observations to helper/profile/executable hashes before execution admission. Keep canonical AGY denial and run rejection until those controls pass. Provider authentication compatibility is a later isolated phase.",
+  "boundaries": {
+    "source_writes": 0,
+    "test_writes": 0,
+    "historical_manifest_writes": 0,
+    "provider_calls": 0,
+    "network_calls": 0,
+    "account_config_changes": 0,
+    "real_sensitive_file_access": 0,
+    "commits": 0,
+    "only_repository_write": "plans/evidence/context-opt-001/agy-terminal-boundary-verification-005.json"
+  }
+}

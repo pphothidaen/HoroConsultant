@@ -1,0 +1,27 @@
+{
+  "skill_name": "metaphysical-request-router",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "A user asks for a BaZi four pillars calculation. Can the agent generate the solar terms and stem-branch combinations directly via LLM prose without calling the deterministic engine?",
+      "expected_output": "Rejects LLM-generated metaphysical calculations; routes inquiry to deterministic metaphysical-domain-engine calculation tools and grounds results in verified astronomical ephemeris.",
+      "files": [],
+      "expectations": [
+        "Rejects LLM hallucination of astronomical or calendar calculations.",
+        "Routes to verified metaphysical-domain-engine deterministic tools.",
+        "Separates deterministic calculation from interpretive synthesis."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Route a multi-tradition consultation inquiry involving both Zi Wei Dou Shu and Western Astrology natal charts.",
+      "expected_output": "Decomposes inquiry into distinct astrological domain tasks, routes each to its specialized calculation engine, and applies consistent boundary validation.",
+      "files": [],
+      "expectations": [
+        "Decomposes multi-tradition astrological queries safely.",
+        "Routes each calculation to domain-specific deterministic tools.",
+        "Validates input birth coordinates and timestamps before calculation."
+      ]
+    }
+  ]
+}

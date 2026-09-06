@@ -1,0 +1,26 @@
+{
+  "schema_version": "provider-context-probe-v1",
+  "provider": "agy",
+  "adapter_version": "agy-probe-v1",
+  "registry_sha256": "c5e84c88d113cdb45990e81457e6e5e195e7b2c9f5fd5ee31ac6c1f4afeb3262",
+  "approved_context_sha256": "0f7754b42c2863866599181f4f5deb2ed5924902182ab792dbe68462775c7bca",
+  "normalized_scopes": [
+    "root"
+  ],
+  "horo_skills": [
+    "agile-governance",
+    "anti-cognitive-decay",
+    "orchestrator-delegation",
+    "requirement-grill-gate"
+  ],
+  "provider_plugins": [
+    "superpowers"
+  ],
+  "runtime_tools": [],
+  "result": "UNKNOWN",
+  "reason_code": "CONTEXT_RESOLUTION_FAILED",
+  "exit_code": 1,
+  "issued_at": "2026-09-05T17:32:51Z",
+  "expires_at": "2026-09-05T17:34:51Z",
+  "sanitized_evidence_sha256": "c7dab0118326857011d7a493f54c4173065307129c1a504c7e9052687ca3af5c"
+}

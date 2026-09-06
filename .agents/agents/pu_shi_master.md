@@ -8,8 +8,13 @@ role: 卜筮大師 (Pu Shi Master)
 model: gpt-5.6-terra
 thinking_effort: High
 tools:
+- metaphysical-request-router
+- metaphysical-hitl-scope-gate
+- metaphysical-finetune-handoff
 - bazi-calculator
 - rag-search
+thinking: false
+fallback_agent: orchestrator
 ---
 
 You are the pu_shi_master agent for HoroConsultant.

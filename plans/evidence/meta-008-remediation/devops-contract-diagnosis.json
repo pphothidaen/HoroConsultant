@@ -1,0 +1,59 @@
+{
+  "ticket": "DEVOPS-CONTRACT-001",
+  "context_digest": "cb48111c5495944e622f522b10386e7647eaeb6ab3e83345c1e1a102f006c221",
+  "resolver": "PASS",
+  "observed_at": "2026-09-05T15:11:29.954472+00:00",
+  "status": "DIAGNOSED_EFFECTIVE_AUTHORITY_CONFLICT",
+  "scope": "Read only diagnosis; only this receipt written. Legacy definitions and generated mirrors untouched.",
+  "hashes": {
+    ".agents/agents/devops/agent.json": "31c27eb1c80fae7e7d30efb31f719357fd6df9c223f583e499ea2b4ae1c34a31",
+    ".agents/agents/devops/config.yaml": "56996c2437bccc9c3e4390c015853e0e14b98ea551869a45fd55980d13d2981a",
+    ".agents/agents/devops/release_gate_protocol.md": "f41d769b962710f233063e438a4b80e0e4a6911fbba3c3edab9865ccc408249c",
+    ".agents/skills/devops-deployment/SKILL.md": "4e5ed83b5167770fc69aa401bfc21273ec74b4c3b63fa797ece4707f46a17c0c",
+    ".agents/skills/hf-static-release-verification/SKILL.md": "7f09c9037a062bde2adef8f8511386f6e75f6a7f9c6a17037aaa585f589ebd29",
+    "scripts/sync_ai_agent_ecosystem.py": "d37814dd0544a001db6f719f29da984da64dc8ee864681b8808cc850a5a3e6ff"
+  },
+  "findings": [
+    {
+      "path": ".agents/agents/devops/agent.json",
+      "line": 17,
+      "issue": "Canonical legacy prompt lacks expected HF Static Release Gate Owner identifier and actively names Azure primary, Azure gateway route and ACA rollback."
+    },
+    {
+      "path": ".agents/agents/devops/config.yaml",
+      "line": 26,
+      "issue": "Legacy config mirrors active Azure primary and ACA rollback obligations."
+    },
+    {
+      "path": ".agents/agents/devops/release_gate_protocol.md",
+      "line": 42,
+      "issue": "Modular protocol explicitly requires Azure current active revision and all three rollback targets; section4 step5 actively restores ACA traffic; evidence ledger includes aca_rev."
+    },
+    {
+      "path": ".agents/skills/devops-deployment/SKILL.md",
+      "line": 16,
+      "issue": "Native release skill expressly prohibits Azure/Fly public targets, selecting only canonical HF Docker backend and separately verified Vercel UI."
+    },
+    {
+      "path": "scripts/sync_ai_agent_ecosystem.py",
+      "line": 329,
+      "issue": "Checker uses literal owner marker in legacy/generated prompts instead of resolving modular contract. Marker relaxation alone could conceal live target contradiction."
+    }
+  ],
+  "faithful_checker_design": [
+    "Resolve only bounded repository-owned contract paths with existence/type checks; do not accept arbitrary user-provided protocol paths.",
+    "Validate mandatory release semantics: owner, exact HF Docker target, separate Vercel UI, SDK-aware health, fail-closed exact-cardinality identity, metadata ancestry, five viewports, recorded HF/Vercel rollback and no release claim on failure.",
+    "Require deterministic explicit authority/precedence where native or modular contracts supersede retained legacy guidance. Merely binding a skill is not a structural proof that all tooling honors precedence.",
+    "Reject active Azure/Fly target or rollback instructions in any effective contract; tolerate only expressly historical/decommissioned mentions.",
+    "Keep generated parity checks intact; semantic contract validation does not waive mirror sync.",
+    "Tests should accept valid modular contract, reject missing/unbound contract, missing identity gate, Azure primary, ACA rollback, static backend and conflicting effective authority. Historical Fly decommission mention alone must not fail."
+  ],
+  "within_current_boundary": "Cannot make current effective docs pass honestly through checker-only change: modular protocol itself contains active Azure operations. No legacy definition rewrite performed.",
+  "next_actions": [
+    "Source owner may implement stricter modular-aware validator/tests while preserving current denial.",
+    "Orchestrator/BA must establish permitted authoritative native/modular override contract that explicitly retires all Azure/ACA release and rollback guidance, and prove effective loaders honor it.",
+    "If runtime loaders cannot apply such override without altering canonical legacy definitions, report exact required supported canonical update scope rather than hand-editing legacy files or weakening check.",
+    "After authorized source correction, run aggregate ecosystem sync and independent release contract tests."
+  ],
+  "release_ready": false
+}

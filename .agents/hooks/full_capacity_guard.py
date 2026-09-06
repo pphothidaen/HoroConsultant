@@ -33,7 +33,7 @@ MAX_TEXT = 512
 GOVERNANCE_SCHEMA_VERSION = "full-capacity-governance-v2"
 CONFIG_SCHEMA_VERSION = "full-capacity-guard-config-v2"
 AUTHORIZATION_SCHEMA_VERSION = "capacity-provider-authorization-v2"
-EXPECTED_ALIASES = ("agy1", "agy2", "agy3", "agy4")
+EXPECTED_ALIASES = ("agy1", "agy2")
 GOVERNED_ALIASES = frozenset({"codex1", "codex2", "codex3", *EXPECTED_ALIASES})
 ALIAS_PROVIDER = {
     "codex1": "codex",
@@ -76,25 +76,25 @@ LEDGER_LIMIT_FIELDS = frozenset(
 EXPECTED_DEPENDENCY_PINS = {
     "dispatcher_validator": {
         "path": "scripts/multiagent_prompt_command.py",
-        "sha256": "88a38a11d56f82e2e98be0d8ca54fbff5a97e7a0a4d923348bd82fe1baa0cb85",
+        "sha256": "9d1b8cbd96b9fd4f8a5ccb17912994175071f15c7c47382288abe82b3c8bca6a",
     },
     "scheduler_validator": {
         "path": "scripts/multiagent_ticket_scheduler.py",
-        "sha256": "88a38a11d56f82e2e98be0d8ca54fbff5a97e7a0a4d923348bd82fe1baa0cb85",
+        "sha256": "86fefe7831b5b51c35c1ee7295a7480fc50ffa7c8ed1b55d681a723e217f4945",
     },
     "model_policy": {
         "path": ".agents/config/multiagent_model_policy.yaml",
-        "sha256": "88a38a11d56f82e2e98be0d8ca54fbff5a97e7a0a4d923348bd82fe1baa0cb85",
+        "sha256": "ffe971c46c551e6c02f6f0fb32009bf880633b60ef74ee78b6f7bb92ff987d9f",
     },
     "governance_schema": {
         "path": ".agents/schemas/full-capacity-governance-v2.schema.json",
         "uri": "https://horoconsultant.local/schemas/full-capacity-governance-v2.schema.json",
-        "sha256": "88a38a11d56f82e2e98be0d8ca54fbff5a97e7a0a4d923348bd82fe1baa0cb85",
+        "sha256": "90f0c18bec385f83d50fffeb69e136f1b6b21fca4c350bb62778695287dedde9",
     },
     "rule18_schema": {
         "path": ".agents/schemas/multiagent-dispatch-decision-v1.schema.json",
         "uri": "https://horoconsultant.local/schemas/multiagent-dispatch-decision-v1.schema.json",
-        "sha256": "88a38a11d56f82e2e98be0d8ca54fbff5a97e7a0a4d923348bd82fe1baa0cb85",
+        "sha256": "fa521294932da91db233c2e253db3efa15b3231a71cf453fcea73216da4ec44f",
     },
 }
 MATCHED_SCOPES = frozenset(

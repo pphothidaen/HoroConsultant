@@ -1,0 +1,27 @@
+{
+  "skill_name": "wcag-apca-color-audit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "A proposed design uses #888888 text on #ffffff background. Can we approve it without running contrast verification?",
+      "expected_output": "Rejects unverified color pairs; computes WCAG 2.1 AA contrast ratio (failing the 4.5:1 threshold for normal text) and APCA lightness contrast, requiring token adjustment.",
+      "files": [],
+      "expectations": [
+        "Rejects visual designs that fail WCAG 2.1 AA contrast.",
+        "Computes exact contrast ratios and APCA lightness metrics.",
+        "Requires fail-closed verification before UI approval."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Perform a contrast audit on primary button and badge styles across both light and dark themes.",
+      "expected_output": "Evaluates text and surface contrast in both light and dark modes, ensuring minimum 4.5:1 ratio for normal body copy and 3.0:1 for large text/icons.",
+      "files": [],
+      "expectations": [
+        "Audits both light and dark color modes.",
+        "Verifies compliance with WCAG 2.1 AA and APCA criteria.",
+        "Outputs concise machine-readable pass/fail audit results."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-AGY2-POLICY-COMMIT-009",
+  "revision": 1,
+  "ticket_sha256": "b329227ecfabee1b39a211873c7766599865a047a3b64ffe978abfefde7527c5",
+  "plan_sha256": "46b3211098a3fb515d770049d829d2259975709148629744aedfa1510deef3f2",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-AGY2-POLICY-COMMIT-009",
+      "role": "devops",
+      "phase": "review",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "tests/test_agy_terminal_worker_policy.py",
+        "plans/test_provenance/ticket-agy-terminal-worker-policy-baseline-009.json",
+        "scripts/agy_terminal_worker_policy.py",
+        "scripts/test_provenance_guard.py"
+      ],
+      "requested_horo_skills": [
+        "devops-deployment",
+        "hf-static-release-verification"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "synthetic-expired-evidence",
+        "unconditional-pass-checks",
+        "legacy-agent-contract"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-source-stage",
+        "no-test-modification",
+        "no-unrelated-index-change",
+        "no-push",
+        "no-deploy",
+        "no-provider-execution"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

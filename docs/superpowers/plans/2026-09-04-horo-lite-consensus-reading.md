@@ -1,10 +1,10 @@
 # Horo Lite Unified Consensus Reading Implementation Plan
 
-> **Task ID**: `TICKET-HORO-LITE-PLAN-001`  
-> **Role**: `business_analyst`  
-> **Target Release**: `v1.5.0-lite-preview`  
-> **Status**: `READY_FOR_OWNER_REVIEW` (Planning Complete — Implementation Strictly Paused)  
-> **Authority**: Owner prompt command dated `2026-09-04`  
+> **Task ID**: `TICKET-HORO-LITE-PLAN-001`
+> **Role**: `business_analyst`
+> **Target Release**: `v1.5.0-lite-preview`
+> **Status**: `READY_FOR_OWNER_REVIEW` (Planning Complete — Implementation Strictly Paused)
+> **Authority**: Owner prompt command dated `2026-09-04`
 
 ---
 
@@ -84,121 +84,121 @@ Phase A: TICKET-HLITE-001 (Schema & Compatibility Contracts)
 ## 4. Detailed TDD Implementation Steps by Phase
 
 ### Phase A — Versioned Unified Reading Schema & Compatibility Contracts
-- [ ] **Step A.1 (Failing Test)**: Create `tests/test_horo_lite_unified_reading.py::test_unified_reading_schema_contract` validating the Pydantic schema for `UnifiedReadingRequest` and `UnifiedReadingResponse` (including 12 topics, monthly scores 1–10, consensus metadata, past patterns, and HITL flags).  
+- [ ] **Step A.1 (Failing Test)**: Create `tests/test_horo_lite_unified_reading.py::test_unified_reading_schema_contract` validating the Pydantic schema for `UnifiedReadingRequest` and `UnifiedReadingResponse` (including 12 topics, monthly scores 1–10, consensus metadata, past patterns, and HITL flags).
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k test_unified_reading_schema_contract -v` (Must FAIL: schema not yet defined).
-- [ ] **Step A.2 (Implementation)**: Define `UnifiedReadingRequest`, `TopicModule`, `MonthlyScoreItem`, `PastPatternCandidate`, and `UnifiedReadingResponse` in `project/core/unified_reading_engine.py`. Ensure backward compatibility with existing `/api/v1/bazi/interpret` and `/api/v3/calculate`.  
+- [ ] **Step A.2 (Implementation)**: Define `UnifiedReadingRequest`, `TopicModule`, `MonthlyScoreItem`, `PastPatternCandidate`, and `UnifiedReadingResponse` in `project/core/unified_reading_engine.py`. Ensure backward compatibility with existing `/api/v1/bazi/interpret` and `/api/v3/calculate`.
   *Owner*: `developer_core`
-- [ ] **Step A.3 (Passing Test)**: Re-run `test_unified_reading_schema_contract` to verify schema validation, default parameters, and strict field constraints.  
+- [ ] **Step A.3 (Passing Test)**: Re-run `test_unified_reading_schema_contract` to verify schema validation, default parameters, and strict field constraints.
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k test_unified_reading_schema_contract -v` (Must PASS).
 - [ ] **Step A.4 (Review)**: Review that no existing legacy schemas in `project/models/` or `project/schemas/` were mutated.
 
 ### Phase B — Verified Deterministic Annual-Timing & Past Pattern Calibration Model
-- [ ] **Step B.1 (Failing Test)**: Add tests `test_deterministic_annual_timing_12_months` and `test_past_pattern_candidate_generation` in `tests/test_horo_lite_unified_reading.py`. Validate that Career, Finance, and Love scores (1–10) are deterministically computed for 12 months with traceable reasons, and that 3–5 non-sensitive past pattern candidates are generated within historical age/year ranges.  
+- [ ] **Step B.1 (Failing Test)**: Add tests `test_deterministic_annual_timing_12_months` and `test_past_pattern_candidate_generation` in `tests/test_horo_lite_unified_reading.py`. Validate that Career, Finance, and Love scores (1–10) are deterministically computed for 12 months with traceable reasons, and that 3–5 non-sensitive past pattern candidates are generated within historical age/year ranges.
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k "test_deterministic_annual_timing_12_months or test_past_pattern_candidate_generation" -v` (Must FAIL).
-- [ ] **Step B.2 (Implementation)**:  
-  - In `project/core/annual_timing_engine.py`, implement Thai Suriyayart transit house calculations (Jupiter, Saturn, Rahu ephemeris) combined with BaZi 60-JiaZi Liu Yue cycles. Handle `unknown_hour=True` by calculating valid factors only, emitting score ranges and `confidence: LOW/ESTIMATED`.  
-  - In `project/core/past_pattern_calibrator.py`, implement deterministic past cycle detection identifying historical major transits (Da Yun transitions, Jupiter return, Saturn square) mapped to verifiable life themes (education, career shift, relocation, financial pressure). Forbid sensitive themes.  
+- [ ] **Step B.2 (Implementation)**:
+  - In `project/core/annual_timing_engine.py`, implement Thai Suriyayart transit house calculations (Jupiter, Saturn, Rahu ephemeris) combined with BaZi 60-JiaZi Liu Yue cycles. Handle `unknown_hour=True` by calculating valid factors only, emitting score ranges and `confidence: LOW/ESTIMATED`.
+  - In `project/core/past_pattern_calibrator.py`, implement deterministic past cycle detection identifying historical major transits (Da Yun transitions, Jupiter return, Saturn square) mapped to verifiable life themes (education, career shift, relocation, financial pressure). Forbid sensitive themes.
   *Owner*: `developer_core`
-- [ ] **Step B.3 (Passing Test)**: Verify deterministic repeatability across test fixture profiles (e.g. 1990-05-15 14:30 Bangkok).  
+- [ ] **Step B.3 (Passing Test)**: Verify deterministic repeatability across test fixture profiles (e.g. 1990-05-15 14:30 Bangkok).
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k "test_deterministic_annual_timing_12_months or test_past_pattern_candidate_generation" -v` (Must PASS).
 - [ ] **Step B.4 (Review)**: Verify that calculation runtime is <50ms and that zero random or generative values exist in the core models.
 
 ### Phase C — Horo v3.0 Consensus Arbitration & Mandatory HITL Integration
-- [ ] **Step C.1 (Failing Test)**: Add test `test_horo_v3_consensus_arbitration_and_hitl_triggers` verifying that monthly claims from multiple traditions are arbitrated into consensus scores, and that `consensus_score < 0.75`, tradition conflicts, `force_human_review=True`, or uncertain birth time automatically set `hitl_routing.status = "QUEUED_FOR_HUMAN_REVIEW"`.  
+- [ ] **Step C.1 (Failing Test)**: Add test `test_horo_v3_consensus_arbitration_and_hitl_triggers` verifying that monthly claims from multiple traditions are arbitrated into consensus scores, and that `consensus_score < 0.75`, tradition conflicts, `force_human_review=True`, or uncertain birth time automatically set `hitl_routing.status = "QUEUED_FOR_HUMAN_REVIEW"`.
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k test_horo_v3_consensus_arbitration_and_hitl_triggers -v` (Must FAIL).
-- [ ] **Step C.2 (Implementation)**: Integrate `project/core/annual_timing_engine.py` with `project/debate/consensus_matrix.py` to calculate multi-tradition cross-validation. Connect triggers to the HITL queue database (`project/hitl_router.py`).  
+- [ ] **Step C.2 (Implementation)**: Integrate `project/core/annual_timing_engine.py` with `project/debate/consensus_matrix.py` to calculate multi-tradition cross-validation. Connect triggers to the HITL queue database (`project/hitl_router.py`).
   *Owner*: `developer_core`
-- [ ] **Step C.3 (Passing Test)**: Run `test_horo_v3_consensus_arbitration_and_hitl_triggers` to verify that low-consensus scenarios fail closed into the review queue.  
+- [ ] **Step C.3 (Passing Test)**: Run `test_horo_v3_consensus_arbitration_and_hitl_triggers` to verify that low-consensus scenarios fail closed into the review queue.
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k test_horo_v3_consensus_arbitration_and_hitl_triggers -v` (Must PASS).
 - [ ] **Step C.4 (Review)**: Confirm passing live probe `GET /hitl/scope-audit?source_domain=metaphysical-domain-engine` remains valid (`pass_gate_check=true`).
 
 ### Phase D — Unified Orchestration API & LLM Copy Transformer
-- [ ] **Step D.1 (Failing Test)**: Add `test_unified_reading_api_endpoint` in `tests/test_horo_lite_unified_reading.py` testing `POST /api/v3/unified-reading`. Validate response payload structure, latency SLA (<300ms deterministic, <2.5s with LLM copy translation), and guardrails against hallucinated scores.  
+- [ ] **Step D.1 (Failing Test)**: Add `test_unified_reading_api_endpoint` in `tests/test_horo_lite_unified_reading.py` testing `POST /api/v3/unified-reading`. Validate response payload structure, latency SLA (<300ms deterministic, <2.5s with LLM copy translation), and guardrails against hallucinated scores.
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k test_unified_reading_api_endpoint -v` (Must FAIL).
-- [ ] **Step D.2 (Implementation)**: In `project/routers/unified_reading_router.py`, implement `POST /api/v3/unified-reading`. Orchestrate deterministic calculations, consensus arbitration, HITL checks, and optional LLM prompt translation (using Gemini API or Ollama local). Ensure prompt strictly forbids altering scores, dates, or facts. Register route in `project/main.py`.  
+- [ ] **Step D.2 (Implementation)**: In `project/routers/unified_reading_router.py`, implement `POST /api/v3/unified-reading`. Orchestrate deterministic calculations, consensus arbitration, HITL checks, and optional LLM prompt translation (using Gemini API or Ollama local). Ensure prompt strictly forbids altering scores, dates, or facts. Register route in `project/main.py`.
   *Owner*: `developer_api`
-- [ ] **Step D.3 (Passing Test)**: Execute `test_unified_reading_api_endpoint` against local test client.  
+- [ ] **Step D.3 (Passing Test)**: Execute `test_unified_reading_api_endpoint` against local test client.
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k test_unified_reading_api_endpoint -v` (Must PASS).
 - [ ] **Step D.4 (Review)**: Verify OpenAPI documentation updates at `/docs` and verify zero breaking changes to existing endpoints.
 
 ### Phase E — Horo Lite Form & Single-Action Flow (`public/lite.html`)
-- [ ] **Step E.1 (Failing Test)**: Create Playwright/HTML parser contract test `test_lite_form_dom_contract` verifying presence of simplified inputs (birth date, time picker with unknown toggle, birthplace search with geocoding, gender selector, target year) and hidden raw coordinates disclosure.  
+- [ ] **Step E.1 (Failing Test)**: Create Playwright/HTML parser contract test `test_lite_form_dom_contract` verifying presence of simplified inputs (birth date, time picker with unknown toggle, birthplace search with geocoding, gender selector, target year) and hidden raw coordinates disclosure.
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k test_lite_form_dom_contract -v` (Must FAIL).
-- [ ] **Step E.2 (Implementation)**: Build `public/lite.html`, `public/lite.css`, and `public/lite.js`. Provide a single high-contrast action button ("คำนวณผังดวง & ตีความด้วย AI"), smooth geocoding lookup for Thai provinces, and seamless client state management.  
+- [ ] **Step E.2 (Implementation)**: Build `public/lite.html`, `public/lite.css`, and `public/lite.js`. Provide a single high-contrast action button ("คำนวณผังดวง & ตีความด้วย AI"), smooth geocoding lookup for Thai provinces, and seamless client state management.
   *Owner*: `ux_ui_designer`
-- [ ] **Step E.3 (Passing Test)**: Run `test_lite_form_dom_contract` to confirm DOM structure, accessibility labels, and attribute bindings.  
+- [ ] **Step E.3 (Passing Test)**: Run `test_lite_form_dom_contract` to confirm DOM structure, accessibility labels, and attribute bindings.
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k test_lite_form_dom_contract -v` (Must PASS).
 - [ ] **Step E.4 (Review)**: Validate that `public/lite.js` makes API calls to `/api/v3/unified-reading` and does NOT replicate astrological calculations locally.
 
 ### Phase F — Topic-Based Three-Part Result UI
-- [ ] **Step F.1 (Failing Test)**: Add test `test_topic_based_result_rendering` asserting all 12 topic sections render with correct CSS classes, score gauges, accessible icons, and technical drawer disclosure ("ดูที่มาและรายละเอียดการคำนวณ").  
+- [ ] **Step F.1 (Failing Test)**: Add test `test_topic_based_result_rendering` asserting all 12 topic sections render with correct CSS classes, score gauges, accessible icons, and technical drawer disclosure ("ดูที่มาและรายละเอียดการคำนวณ").
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k test_topic_based_result_rendering -v` (Must FAIL).
 - [ ] **Step F.2 (Implementation)**: In `public/lite.js` and `public/lite.css`, build the dynamic renderer for the 12 topic modules:
   - Part 1 (Annual Overview): 10 Key Modules with visual icons.
   - Part 2 (12-Month Roadmap): 12 distinct cards with visual score gauges (1–10) and text descriptions.
   - Part 3 (Final Directives): 3 Top Focus, 3 Top Cautions, and Life Guidance.
-  - Technical calculation drawer with link to Advanced Dashboard (`/index.html`).  
+  - Technical calculation drawer with link to Advanced Dashboard (`/index.html`).
   *Owner*: `ux_ui_designer`
-- [ ] **Step F.3 (Passing Test)**: Re-run `test_topic_based_result_rendering` to verify DOM population.  
+- [ ] **Step F.3 (Passing Test)**: Re-run `test_topic_based_result_rendering` to verify DOM population.
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k test_topic_based_result_rendering -v` (Must PASS).
 - [ ] **Step F.4 (Review)**: Test with `unknown_hour=True` to ensure score ranges and reduced-confidence badges display clearly.
 
 ### Phase G — Past Pattern Calibration Interaction & Consent Handling
-- [ ] **Step G.1 (Failing Test)**: Add test `test_past_pattern_feedback_and_consent_contract` verifying that selecting feedback choices ("ตรง", "ตรงบางส่วน", "ไม่ตรง", "จำไม่ได้") does not alter original calculations, does not display false "accuracy percentages", and requires explicit consent before any persistence.  
+- [ ] **Step G.1 (Failing Test)**: Add test `test_past_pattern_feedback_and_consent_contract` verifying that selecting feedback choices ("ตรง", "ตรงบางส่วน", "ไม่ตรง", "จำไม่ได้") does not alter original calculations, does not display false "accuracy percentages", and requires explicit consent before any persistence.
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k test_past_pattern_feedback_and_consent_contract -v` (Must FAIL).
-- [ ] **Step G.2 (Implementation)**: In `public/lite.js`, implement interactive calibration chips. Wire feedback to dynamically adjust tone emphasis in explanation cards without changing score metrics. Implement explicit privacy consent checkbox before saving any calibration preference.  
+- [ ] **Step G.2 (Implementation)**: In `public/lite.js`, implement interactive calibration chips. Wire feedback to dynamically adjust tone emphasis in explanation cards without changing score metrics. Implement explicit privacy consent checkbox before saving any calibration preference.
   *Owner*: `ux_ui_designer`
-- [ ] **Step G.3 (Passing Test)**: Run `test_past_pattern_feedback_and_consent_contract` to confirm consent gate and immutable calculation state.  
+- [ ] **Step G.3 (Passing Test)**: Run `test_past_pattern_feedback_and_consent_contract` to confirm consent gate and immutable calculation state.
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k test_past_pattern_feedback_and_consent_contract -v` (Must PASS).
 - [ ] **Step G.4 (Review)**: Verify that no sensitive trauma categories are generated or accepted.
 
 ### Phase H — Mobile Infographic & Multi-Format Social Exporter Suite
-- [ ] **Step H.1 (Failing Test)**: Add test `test_export_formats_and_privacy_default` verifying that Full Long-Form PNG, 1080×1920 Story PNG, Copyable Text, and Print/PDF export functions exist and default to hiding birth details.  
+- [ ] **Step H.1 (Failing Test)**: Add test `test_export_formats_and_privacy_default` verifying that Full Long-Form PNG, 1080×1920 Story PNG, Copyable Text, and Print/PDF export functions exist and default to hiding birth details.
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k test_export_formats_and_privacy_default -v` (Must FAIL).
 - [ ] **Step H.2 (Implementation)**: In `public/export_engine.js` and `public/export_modal.css`, implement pure client-side HTML5 Canvas rasterizer:
   - 1-Click "Save Full Mobile Infographic" (long vertical PNG).
   - 1-Click "Save 9:16 Story" (exact 1080×1920 PNG).
   - 1-Click "Copy Social Summary" (clean formatted Thai text).
   - Secondary Print/PDF view with print CSS rules.
-  - Privacy toggle: "แสดงวันเวลาเกิดในรูปภาพ" (default: OFF).  
+  - Privacy toggle: "แสดงวันเวลาเกิดในรูปภาพ" (default: OFF).
   *Owner*: `ux_ui_designer`
-- [ ] **Step H.3 (Passing Test)**: Run `test_export_formats_and_privacy_default` to confirm canvas dimension calculations and privacy scrubbing.  
+- [ ] **Step H.3 (Passing Test)**: Run `test_export_formats_and_privacy_default` to confirm canvas dimension calculations and privacy scrubbing.
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k test_export_formats_and_privacy_default -v` (Must PASS).
 - [ ] **Step H.4 (Review)**: Verify error handling displays a non-destructive retry notification without clearing the user's active reading.
 
 ### Phase I — Accessibility, Privacy, Error Recovery & Unknown-Time Ergonomics
-- [ ] **Step I.1 (Failing Test)**: Add test `test_accessibility_and_contrast_compliance` checking WCAG AA compliance, focus rings, keyboard tab order, ARIA attributes, and score gauge text alternatives.  
+- [ ] **Step I.1 (Failing Test)**: Add test `test_accessibility_and_contrast_compliance` checking WCAG AA compliance, focus rings, keyboard tab order, ARIA attributes, and score gauge text alternatives.
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k test_accessibility_and_contrast_compliance -v` (Must FAIL).
-- [ ] **Step I.2 (Implementation)**: Add keyboard navigation listeners, ARIA-expanded states, focus indicators, and accessible text alternatives to all gauges and badges in `public/lite.css` and `public/lite.js`.  
+- [ ] **Step I.2 (Implementation)**: Add keyboard navigation listeners, ARIA-expanded states, focus indicators, and accessible text alternatives to all gauges and badges in `public/lite.css` and `public/lite.js`.
   *Owner*: `ux_ui_designer`
-- [ ] **Step I.3 (Passing Test)**: Run `test_accessibility_and_contrast_compliance` to ensure 100% compliance.  
+- [ ] **Step I.3 (Passing Test)**: Run `test_accessibility_and_contrast_compliance` to ensure 100% compliance.
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -k test_accessibility_and_contrast_compliance -v` (Must PASS).
 - [ ] **Step I.4 (Review)**: Verify that color alone is never used to communicate positive or cautious ratings.
 
 ### Phase J — Contract, Unit, Inference-Origin & Regression Test Baseline
-- [ ] **Step J.1 (Failing Test)**: Add comprehensive test suite in `tests/test_horo_lite_unified_reading.py` covering end-to-end integration, real model inference validation (via `ai-inference-verifier`), and fallback behavior.  
+- [ ] **Step J.1 (Failing Test)**: Add comprehensive test suite in `tests/test_horo_lite_unified_reading.py` covering end-to-end integration, real model inference validation (via `ai-inference-verifier`), and fallback behavior.
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -v` (Must FAIL on missing components).
-- [ ] **Step J.2 (Implementation)**: Ensure all edge cases (leap months, midnight birth, timezone boundary, high latitude) pass cleanly.  
+- [ ] **Step J.2 (Implementation)**: Ensure all edge cases (leap months, midnight birth, timezone boundary, high latitude) pass cleanly.
   *Owner*: `qa_tester`
-- [ ] **Step J.3 (Passing Test)**: Execute complete test suite and record evidence in `plans/test_provenance/sprint_horo_v3_infographic_migration.json`.  
+- [ ] **Step J.3 (Passing Test)**: Execute complete test suite and record evidence in `plans/test_provenance/sprint_horo_v3_infographic_migration.json`.
   *Command*: `pytest tests/test_horo_lite_unified_reading.py -v` (Must PASS: 100%).
 - [ ] **Step J.4 (Review)**: Verify zero regressions across existing test suites (`test_visual_endpoints.py`, `test_browser_notifications_and_processing_modal.py`, `test_bazi_resilient_fallback.py`).
 
 ### Phase K — Multi-Viewport Visual Layout Audit (360px, 375px, 390px, 768px, 1440px)
-- [ ] **Step K.1 (Test Setup)**: Configure automated headless viewport capture script `scripts/audit_lite_viewports.py` across 5 canonical viewports (360×780, 375×667, 390×844, 768×1024, 1440×900).  
+- [ ] **Step K.1 (Test Setup)**: Configure automated headless viewport capture script `scripts/audit_lite_viewports.py` across 5 canonical viewports (360×780, 375×667, 390×844, 768×1024, 1440×900).
   *Owner*: `ui_visual_tester`
-- [ ] **Step K.2 (Execution & Evidence)**: Execute viewport audit to capture screenshots and verify zero DOM clipping, zero text overlap, and zero horizontal scrollbar overflow.  
-  *Command*: `python3 scripts/audit_lite_viewports.py --url http://localhost:8000/lite --output plans/test_provenance/visual_audits/`  
+- [ ] **Step K.2 (Execution & Evidence)**: Execute viewport audit to capture screenshots and verify zero DOM clipping, zero text overlap, and zero horizontal scrollbar overflow.
+  *Command*: `python3 scripts/audit_lite_viewports.py --url http://localhost:8000/lite --output plans/test_provenance/visual_audits/`
 - [ ] **Step K.3 (Review & Sign-Off)**: Review screenshot artifacts and record visual audit receipt.
 
 ### Phase L — Security Review, Documentation Synchronization & Release Readiness
-- [ ] **Step L.1 (Security Scan)**: Run Rayon parallel secret scanner and pre-tool audit.  
-  *Command*: `python3 scripts/scan_secrets.py --all` (Must return 0 leaks).  
+- [ ] **Step L.1 (Security Scan)**: Run Rayon parallel secret scanner and pre-tool audit.
+  *Command*: `python3 scripts/scan_secrets.py --all` (Must return 0 leaks).
   *Owner*: `code_reviewer`
-- [ ] **Step L.2 (Ecosystem Synchronization)**: Run AI agent ecosystem check.  
-  *Command*: `python3 scripts/sync_ai_agent_ecosystem.py --check` (Must PASS with 0 drift).  
+- [ ] **Step L.2 (Ecosystem Synchronization)**: Run AI agent ecosystem check.
+  *Command*: `python3 scripts/sync_ai_agent_ecosystem.py --check` (Must PASS with 0 drift).
   *Owner*: `lead_ba`
-- [ ] **Step L.3 (Release Notes)**: Draft release notes entry in `ReleaseNotes.md` reflecting `v1.5.0-lite-preview`.  
+- [ ] **Step L.3 (Release Notes)**: Draft release notes entry in `ReleaseNotes.md` reflecting `v1.5.0-lite-preview`.
   *Owner*: `lead_ba`
 - [ ] **Step L.4 (Final Sign-Off)**: Present completed verification matrix to Orchestrator and Owner for release approval.
 

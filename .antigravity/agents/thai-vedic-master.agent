@@ -45,6 +45,9 @@ system_prompt: 'You are the thai_vedic_master agent for HoroConsultant.
   - Output: 10 Lagna Zodiac, Maha Thaksa (บริวาร, ศรี, กาลกิณี ฯลฯ), 27 Nakshatras
   & Vimshottari Dasha'
 tools:
+- metaphysical-request-router
+- metaphysical-hitl-scope-gate
+- metaphysical-finetune-handoff
 - bazi-calculator
 - rag-search
 fallback_agent: orchestrator

@@ -1,0 +1,57 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-META-008-SUCCESSOR-REVIEW-001",
+  "revision": 1,
+  "ticket_sha256": "b80d08f0f8912d092025af461556dc4fe2d22499364027f077b75b519ffec58d",
+  "plan_sha256": "8a4ccf025b1a9bea511244c9287dc2c1ddc58b25e1f398e9039f1a1b5876c5f2",
+  "lanes": [
+    {
+      "lane_id": "TICKET-META-008-SUCCESSOR-REVIEW-001",
+      "role": "code_reviewer",
+      "phase": "review",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "plans/test_provenance/ticket-context-opt-001.json",
+        "plans/test_provenance/ticket-dispatch-activation-001.json",
+        "plans/test_provenance/ticket-context-dispatch-successor-001.json",
+        "plans/evidence/context-opt-001/successor-preparation-001.json",
+        "project/tests/test_ai_agent_ecosystem_sync.py",
+        "project/tests/test_developer_routing_contract.py",
+        "scripts/test_provenance_guard.py"
+      ],
+      "requested_horo_skills": [
+        "qa-e2e-testing",
+        "hf-static-release-verification"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "historical-baseline-incomplete",
+        "reconstructed-test-chronology",
+        "schema-contract-blocked"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "read-only",
+        "no-file-write",
+        "no-test-write",
+        "no-production-source-write",
+        "no-config-write",
+        "no-provider-mutation",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-network"
+      ],
+      "evidence_refs": [
+        {
+          "path": "plans/evidence/context-opt-001/successor-preparation-001.json",
+          "sha256": "1da62599035cb42bba3ba5e68f59663bc0ad06290f49f1003529fc5b2fc408c5"
+        }
+      ]
+    }
+  ]
+}

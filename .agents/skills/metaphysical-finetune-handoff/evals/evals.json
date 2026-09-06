@@ -1,0 +1,27 @@
+{
+  "skill_name": "metaphysical-finetune-handoff",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Can unverified user chat logs containing horoscope interpretations be exported directly into the training distillation dataset?",
+      "expected_output": "Rejects raw chat export; requires rigorous distillation checklist verification, deterministic tool grounding, grayzone review, and vault sync status checks before handoff.",
+      "files": [],
+      "expectations": [
+        "Rejects raw or hallucinated chat logs from training pipeline.",
+        "Enforces distillation checklist and grayzone answer review.",
+        "Requires deterministic calculation grounding."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Prepare a verified batch of curated metaphysical consultation pairs for fine-tuning handoff with privacy redaction.",
+      "expected_output": "Validates chart calculation grounding, redacts personal birth identifiers, verifies master approval, and binds signed dataset manifest.",
+      "files": [],
+      "expectations": [
+        "Validates deterministic ephemeris grounding for all training pairs.",
+        "Applies strict PII and birth data redaction.",
+        "Produces verified training handoff manifest."
+      ]
+    }
+  ]
+}

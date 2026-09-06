@@ -1,0 +1,48 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "revision": 1,
+  "ticket_sha256": "d3a8299259174b5078751e9a5d74d3bdd4e8ddfa6ce53355a687d68fa354ae4c",
+  "plan_sha256": "267937bbba30fc4f883a22cc659c3da671c9f35a83a7efc60daed3d1446afa19",
+  "ticket_id": "TICKET-META-008-CI-VERIFY-001",
+  "lanes": [
+    {
+      "lane_id": "TICKET-META-008-CI-VERIFY-001",
+      "role": "qa_tester",
+      "phase": "qa",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        ".github/workflows/hf_backend_deploy.yml",
+        ".github/workflows/ai_cicd.yml",
+        "scripts/verify_release_ci_gates.py",
+        "tests/test_release_ci_gates.py",
+        "project/tests/test_github_actions_regression.py",
+        "project/tests/test_azure_release.py",
+        "tests/test_publish_space_hf.py",
+        "tests/test_hf_release_governance.py",
+        "plans/evidence/meta-008-remediation/ci-qa.json"
+      ],
+      "requested_horo_skills": [
+        "qa-e2e-testing",
+        "qa-regression-provenance"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "ci-frozen-source-verification",
+        "receipt-only-write"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-source-edit",
+        "no-test-edit",
+        "no-push",
+        "no-deploy",
+        "no-provider-execution",
+        "no-secret-operation",
+        "no-commit"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

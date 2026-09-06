@@ -1,0 +1,22 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-G-BINDING-001",
+  "revision": 1,
+  "ticket_sha256": "e4eb4a454e8caf7b0553019c72f67ba179c725d6c34bfe32362ca76a714425c6",
+  "plan_sha256": "7a8a7edef3658813a8ebb265ad29daec52ccd4e237b6c56ca66e29e2ef1579ae",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-G-BINDING-001",
+      "role": "business_analyst",
+      "phase": "planning",
+      "actions": ["context.resolve"],
+      "touched_paths": ["ATOMIC_TICKET.md", "plans/plan.md", "HANDOFF.md"],
+      "requested_horo_skills": ["bsa-doc-skill-management", "agile-governance"],
+      "source_domain": "governance",
+      "risk_flags": ["unknown-required-capability", "blocked-context-resolution"],
+      "allowed_child_command_class": "documentation-governance",
+      "exclusions": ["no-source-write", "no-test-write", "no-config-write", "no-commit", "no-push", "no-deploy", "no-network"],
+      "evidence_refs": []
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "ticket": "TICKET-META-008-RELEASE-PREP-001",
+  "observed_at": "2026-09-05T15:00:23.332450+00:00",
+  "context_digest": "7444486e5a7fabc739f49e462f3ec0a2ec18214dc8fe5c5fcf6ead906d5f8dba",
+  "resolver": "PASS",
+  "skills": [
+    "devops-deployment",
+    "hf-static-release-verification"
+  ],
+  "status": "PREPARATION_COMPLETE_RELEASE_BLOCKED",
+  "head": "95ade8f02f8f6e4c1b8d1a8bf0f84ae830f7f0c1",
+  "source_hashes": {
+    ".github/workflows/hf_backend_deploy.yml": "49bc645d44cfbf7802c512605fe0167b8f6dbcf17cedde5ac0d1a536b324f19f",
+    ".github/workflows/ci.yml": "cfffe1c927f620f533938dd7651812abfbb8f02c05fa4377d18576fe113a8492",
+    ".github/workflows/lint.yml": "7c9f6d3e48dd42efe48ea87bd82411b00965316b53f456d4ec47a9d54b4abc12",
+    ".github/workflows/ai_cicd.yml": "4c1df9e03521996521140974949e6e438393e0b8151eb24015d049402a41d009",
+    ".github/workflows/ai_agent_ecosystem_sync.yml": "94d7f531a8a95697c5457df76806bb488a4e37956384994b538df6b927263912",
+    ".github/workflows/test_provenance.yml": "5d7e37fbf109ab1b8affb24d7cd36084a9e8342db196bc0aace2b3f4b8b0a57a",
+    "scripts/sync_ai_agent_ecosystem.py": "d37814dd0544a001db6f719f29da984da64dc8ee864681b8808cc850a5a3e6ff",
+    ".agents/agents/devops/agent.json": "31c27eb1c80fae7e7d30efb31f719357fd6df9c223f583e499ea2b4ae1c34a31"
+  },
+  "mutation_boundary": "Only this receipt written; no source/workflow edits, provider execution, secrets, commit, push or deployment.",
+  "workflow_findings": [
+    {
+      "path": ".github/workflows/hf_backend_deploy.yml",
+      "line": 6,
+      "finding": "workflow_run listens only to Unified CI & Quality Audit Pipeline; job checks success/main branch; exact event SHA selected and checkout verified."
+    },
+    {
+      "path": ".github/workflows/hf_backend_deploy.yml",
+      "line": 30,
+      "finding": "workflow_dispatch on main proceeds without checking any upstream workflow outcome; SHA validation alone does not establish CI approval."
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "line": 125,
+      "finding": "Unified CI includes lint/security and test provenance (line198), plus Rust, pytest, reviewer and production E2E; no ecosystem job and no dependency on separate AI Safety Audit workflow."
+    },
+    {
+      "path": ".github/workflows/ai_cicd.yml",
+      "line": 6,
+      "finding": "AI Safety push paths filter omits docs/tests-only commits, so requiring a same-SHA safety run also requires removing this filter or explicitly running unconditional equivalent safety job."
+    },
+    {
+      "path": ".github/workflows/hf_backend_deploy.yml",
+      "line": 17,
+      "finding": "permissions only contents:read; remote workflow verification requires narrowly adding actions:read."
+    }
+  ],
+  "minimum_safe_workflow_fix": {
+    "recommended": "Before packaging/publication, gate both workflow_run and workflow_dispatch through exact selected-SHA workflow evidence for all required workflows. A trusted checked-in verifier plus workflow wiring can isolate the policy for offline unit tests.",
+    "required_workflow_files": [
+      "ci.yml",
+      "lint.yml",
+      "ai_agent_ecosystem_sync.yml",
+      "test_provenance.yml",
+      "ai_cicd.yml"
+    ],
+    "acceptance": [
+      "Query workflows by trusted file identity, not ambiguous job display names.",
+      "Require exact source SHA, repository, main branch and trusted push event for each required run.",
+      "Use latest run/attempt; require completed and success. Reject missing, pending, cancelled, skipped, timed_out, failure and API errors.",
+      "Reject stale source by comparing current main to selected source before publish.",
+      "Run gate before provider mutation in both entry paths.",
+      "Remove AI Safety push path filter so every main candidate receives a run.",
+      "If Unified CI completes before other workflows, fail closed with diagnostic or bounded polling; do not silently publish.",
+      "Record sanitized workflow IDs/run IDs/attempts/SHA/conclusions in release evidence."
+    ],
+    "tests": [
+      "All required exact-SHA runs green permits gate.",
+      "Missing/pending/failing run denies gate.",
+      "Old successful run cannot mask latest failed attempt.",
+      "Wrong SHA/branch/repository/event cannot qualify.",
+      "Dispatch cannot bypass checks.",
+      "API failures and duplicate ambiguous identity deny."
+    ]
+  },
+  "ecosystem_check": {
+    "command": "python3 scripts/sync_ai_agent_ecosystem.py --check",
+    "exit_code": 1,
+    "blockers": [
+      {
+        "kind": "canonical_semantics",
+        "owner": "canonical governance source owner",
+        "finding": "devops nested agent.json missing HF Static Release Gate Owner marker; other three release owners have markers. Devops also advertises Azure primary/ACA rollback contrary to HF Docker/Vercel skills.",
+        "fix": "Use owned canonical definition update, retaining compatibility marker and enforcing canonical target semantics; regenerate mirrors afterward. Never repair only generated YAML/TOML."
+      },
+      {
+        "kind": "plan_layout",
+        "owner": "business_analyst",
+        "finding": "Validator flags every root plans/*.md except plan.md. Some flagged documents describe active READY/BLOCKED tasks, not completed plans.",
+        "paths": [
+          "hlite_design_alignment_audit.md",
+          "spark_capability_audit_matrix.md",
+          "spark_goal_active_delegation.md",
+          "spark_delegate_round_1.md",
+          "spark_safety_lane_dispatch_queue.md",
+          "spark_go_no_go_checklist.md"
+        ],
+        "fix": "Classify lifecycle truth. Move active supporting docs into an active subdirectory and update references; archive only completed/superseded artifacts with accurate status and index. Alternative semantic validator fix needs owned tests."
+      },
+      {
+        "kind": "generated_mirrors",
+        "owner": "sequential ecosystem sync owner",
+        "finding": "sync_sdlc_agents.py --check --use-python exits1 with108 generated agent/skill drift findings; sync_codex_agents.py --check exits1 with20 stale TOML roles.",
+        "fix": "After canonical source freeze run python3 scripts/sync_ai_agent_ecosystem.py --sync, review generated diff, then --check. No generated-file hand edits."
+      },
+      {
+        "kind": "local_account_outputs",
+        "owner": "sequential ecosystem sync owner",
+        "finding": "codex3 missing8 disabled remote plugin entries and20 inert profiles; prompt3394 chars is within8000 budget.",
+        "fix": "Canonical account config sync regenerates inert local profiles and policy; no remote provider invocation. Aggregate ecosystem --sync invokes it. Separate validation: python3 scripts/sync_codex_account_configs.py --check --budget."
+      }
+    ],
+    "currently_green": [
+      "context profile parity",
+      "12 required platform files",
+      "5 scoped AGENTS files and line budgets",
+      "JSON parsing",
+      "7 core role mappings",
+      "Claude hooks and21 rules",
+      "Hermes routing markers",
+      "anti-cognitive-decay mirrors",
+      "Claude/AGY parity"
+    ]
+  },
+  "release_sequence": [
+    "Reviewed isolated RED baseline commit with only exact authorized tests/provenance.",
+    "Owned source fixes and independent isolated/combined QA plus provenance.",
+    "Reviewed canonical governance/plan reconciliation then generated sync.",
+    "Implement and independently test exact-SHA CI gate before main push.",
+    "Fresh security review, publisher dry-run and release metadata/rollback identity checks.",
+    "Push only reviewed exact scope and inspect actual remote checks for resulting SHA.",
+    "Publish HF Docker and separately verify Vercel identities, health, E2E and five canonical viewports; never infer deployment success from push."
+  ],
+  "unverified": [
+    "Remote current CI/branch-protection settings not queried.",
+    "Production provider revisions/rollback anchors/live identity not queried.",
+    "Runtime QA/source remediation owned by other lanes."
+  ],
+  "local_commits": {
+    "recorded_at": "2026-09-05T15:10:20.247516+00:00",
+    "baseline": "dfd6a10e31ad6ac3d3c339ac3ec21a8504464127",
+    "source": "160aefe772c801e39904626b0f0009a9b021c1f0",
+    "source_parent": "dfd6a10e31ad6ac3d3c339ac3ec21a8504464127",
+    "source_paths": [
+      "scripts/multiagent_prompt_command.py"
+    ],
+    "source_sha256": "9d1b8cbd96b9fd4f8a5ccb17912994175071f15c7c47382288abe82b3c8bca6a",
+    "index_after_commit": "empty",
+    "hooks": "PASS_without_bypass",
+    "worktree_guard_targeted_verify": "PASS_2_tests",
+    "worktree_guard_verify_pr": "FAIL_existing_dirty_tests_and_fixtures",
+    "clean_clone_committed_guard_verify_pr": {
+      "status": "FAIL",
+      "code": "MANIFEST_SCHEMA_MISMATCH",
+      "extra_keys": [
+        "authority_documents",
+        "baseline_state",
+        "red_runs",
+        "risks",
+        "source_admission",
+        "worktree_boundary"
+      ],
+      "explanation": "Working-tree modified guard accepts fields rejected by committed guard. Requires reviewed compatibility change before CI can pass."
+    },
+    "pushed": false
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "lanes": [
+    {
+      "actions": [
+        "context.resolve",
+        "release_gate_audit",
+        "rollback_integrity",
+        "pipeline_guard"
+      ],
+      "allowed_child_command_class": "context-inspect",
+      "evidence_refs": [],
+      "exclusions": [
+        "no-provider-mutation",
+        "no-network",
+        "no-commit"
+      ],
+      "lane_id": "TICKET-SAFE-SPARK-DEVOPS-001-L1",
+      "phase": "release",
+      "requested_horo_skills": [
+        "agile-governance",
+        "anti-cognitive-decay",
+        "orchestrator-delegation",
+        "requirement-grill-gate",
+        "qa-regression-provenance"
+      ],
+      "risk_flags": [
+        "release_safety",
+        "rollback_integrity"
+      ],
+      "role": "devops",
+      "source_domain": "operations-release",
+      "touched_paths": [
+        ".agents/AGENTS.md",
+        ".agents/agents/devops/*",
+        "docs/architecture/external-dispatch-platform-contract.md",
+        "HANDOFF.md"
+      ]
+    }
+  ],
+  "plan_sha256": "23197c7b1a99d03f2629f0e467ad3098e80f98c8f04ce3fbb4459ab03770bf55",
+  "revision": 1,
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-SAFE-SPARK-DEVOPS-001",
+  "ticket_sha256": "21686f06a8ef11ffe7846d98eba102c75dad324a427d5de2530ed5dc6d0ace7c"
+}

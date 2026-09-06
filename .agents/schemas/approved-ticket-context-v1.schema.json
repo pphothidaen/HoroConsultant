@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://horoconsultant.local/schemas/approved-ticket-context-v1.schema.json",
+  "title": "Approved Ticket Context v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "ticket_id",
+    "revision",
+    "ticket_sha256",
+    "plan_sha256",
+    "lanes"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "approved-ticket-context-v1"
+    },
+    "ticket_id": {
+      "type": "string",
+      "pattern": "^TICKET-[A-Z0-9][A-Z0-9-]*$"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "ticket_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "plan_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "lanes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "lane_id",
+          "role",
+          "phase",
+          "actions",
+          "touched_paths",
+          "requested_horo_skills",
+          "source_domain",
+          "risk_flags",
+          "allowed_child_command_class",
+          "exclusions",
+          "evidence_refs"
+        ],
+        "properties": {
+          "lane_id": {
+            "type": "string",
+            "pattern": "^TICKET-[A-Z0-9][A-Z0-9-]*$"
+          },
+          "role": {
+            "type": "string",
+            "pattern": "^[a-z0-9_-]+$"
+          },
+          "phase": {
+            "type": "string",
+            "pattern": "^[a-z0-9_-]+$"
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "touched_paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requested_horo_skills": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source_domain": {
+            "type": "string"
+          },
+          "risk_flags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "allowed_child_command_class": {
+            "type": "string"
+          },
+          "exclusions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  }
+}

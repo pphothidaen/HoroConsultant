@@ -1,5 +1,7 @@
 # 📘 คู่มือการใช้งานและ How-To Guide ครอบคลุมทุกแพลตฟอร์ม (HoroConsultant Manual)
 
+> Operator workflow for CONTRACT-002: preserve the frozen successor evidence, then follow [ATOMIC_TICKET.md](ATOMIC_TICKET.md). The snapshot validator is planned; do not run an assumed validator command or submit adoption evidence as a v1 test baseline. After genuine RED, independent baseline review and scoped validator implementation, record reconstructed adoption separately. Enumerate exact canonical/generated paths before admitting ecosystem repair; nested agent JSON is source and mirrors must not be edited manually. Only the admitted repair owner runs `python3 scripts/sync_ai_agent_ecosystem.py --sync`, followed by `python3 scripts/sync_ai_agent_ecosystem.py --check`. Codex3 external configuration repair has a separate owner/admission. Both repairs, fresh nine-file isolated/combined QA and independent review precede successor acceptance. Validate the derived handoff with `python3 scripts/context_handoff.py validate --input HANDOFF.md`; this check confers no execution or release approval.
+
 > **โครงการ:** HoroConsultant — Computational Metaphysics Engine  
 > **วัตถุประสงค์:** คู่มือขั้นตอนการใช้งานระบบอย่างละเอียด สำหรับ End-User, ผู้ดูแลระบบ (Admin), นักโหราศาสตร์ผู้ตรวจทาน (HITL Reviewer) และนักพัฒนาซอฟต์แวร์บนหลากหลายแพลตฟอร์ม
 
@@ -78,6 +80,7 @@ but rely on the required `Test Provenance` CI check for merge enforcement.
    - [3.11 Fail-Fast Root-Cause Diagnostic CLI (scripts/fail_fast_triage.py)](#311-fail-fast-root-cause-diagnostic-cli-scriptsfail_fast_triagepy)
    - [3.12 Safe Branch Migration & Action Priority Guard (P0/P1/P2)](#312-safe-branch-migration--action-priority-guard-p0p1p2)
    - [3.13 TDD Lifecycle & Test Provenance Guard (การแก้ปัญหา TEST_MODIFIED_AFTER_BASELINE & FROZEN_TEST_CHANGED)](#313-tdd-lifecycle--test-provenance-guard-การแก้ปัญหา-test_modified_after_baseline--frozen_test_changed)
+   - [3.14 Canonical Dynamic Context Resolver & VERIFIED_LOCAL Lifecycle Guide](#314-canonical-dynamic-context-resolver--verified_local-lifecycle-guide)
 
 ---
 
@@ -346,6 +349,21 @@ python3 scripts/sync_codex_agents.py --check
 
 Edit `.agents/agents/*/agent.json` for role content. Do not manually edit `.codex/agents/*.toml`; the Codex generator will overwrite generated files. Provider-specific model names in legacy prompts are historical context, while Codex subagents use the active Codex model.
 
+#### Codex skill-context profiles
+
+The base Codex session is intentionally minimal. Role profiles derive from the canonical `.agents/agents/*/agent.json` `tools` list and matching `.agents/skills/*/SKILL.md` sources, rather than a duplicated profile matrix. Start a role profile only in a new session:
+
+```bash
+codex -p <role>
+```
+
+Generated role profiles contain only canonical HoroConsultant skill bindings and do not enable remote-curated plugins. Remote-curated plugins remain installed but default-disabled; they require an explicit new-session launch-time configuration override, or a future capability profile (not implemented). There is no supported mid-session skill/plugin unload. Preserve `superpowers` and bundled `browser`, `chrome`, `computer-use`, and `unified-computer-use` capabilities. When canonical source edits are complete, run the governed ecosystem sync followed by its check; do not edit generated `.codex` or `.antigravity` mirrors directly.
+
+```bash
+python3 scripts/sync_ai_agent_ecosystem.py --sync
+python3 scripts/sync_ai_agent_ecosystem.py --check
+```
+
 ### 3.5.2 Approach C: Feature-Flagged Multi-Agent Parity & Concurrency Controls
 
 สถาปัตยกรรม **Approach C** ช่วยบริหารจัดการ Multi-Agent Concurrency ข้ามแพลตฟอร์มอย่างปลอดภัย:
@@ -366,6 +384,19 @@ Edit `.agents/agents/*/agent.json` for role content. Do not manually edit `.code
   `DSG-009B` ยัง `BLOCKED` จนกว่า Platform Host จะมี native pre-spawn
   hook/receipt API และ trusted telemetry ที่ตรวจสอบได้. ทุก native
   `spawn_agent` ยังคง owner-gated.
+
+- Workaround ที่ตรวจสอบใน repo ได้: ดู [platform evidence contract](docs/architecture/external-dispatch-platform-contract.md)
+  สำหรับ offline Spark/AGY contract tests และหลักฐานที่ต้องขอจาก platform owner;
+  [AGY terminal supervisor](docs/architecture/agy-terminal-supervisor.md) เป็น design-only
+  ยังไม่เปิด AGY execution และไม่เปลี่ยน native Spark whitelist.
+
+รัน characterization แบบ offline (ใช้ fixtures, ไม่เริ่ม provider):
+
+```bash
+python3 -m pytest -q tests/test_external_dispatch_contracts.py
+```
+
+ผลผ่านยืนยันเฉพาะ contracts ที่ทดสอบ ไม่ใช่ live capability หรือสิทธิ์เปิด route.
 
 ---
 
@@ -838,3 +869,34 @@ python3 scripts/test_provenance_guard.py verify-pr --base origin/main --head HEA
 python3 scripts/test_provenance_guard.py check-worktree
 ```
 
+---
+
+### 3.14 Canonical Dynamic Context Resolver & VERIFIED_LOCAL Lifecycle Guide
+
+#### 🎯 วัตถุประสงค์และภาพรวมสถาปัตยกรรม (Architecture & Scope)
+ระบบจัดการ Context และ Role-Skill Binding แบบ Dynamic Dynamic Context Resolver สำหรับ HoroConsultant เพื่อให้การเรียกใช้ Context ข้าม Provider (Codex, Claude, AGY) มีความแม่นยำสูง ไม่รั่วไหล และอยู่ภายใต้การควบคุมแบบ Fail-Closed:
+1. **Canonical Scope Skill Registry**: `.agents/config/scope_skill_registry.v1.json` (Schema: `.agents/schemas/scope-skill-registry-v1.schema.json`)
+2. **Approved Ticket Context**: `.agents/context/tickets/TICKET-CONTEXT-OPT-001.v1.json` (Schemas: `approved-ticket-context-v1.schema.json` และ `evidence-ref-v1.schema.json`)
+3. **Dynamic Context Resolver CLI**: `scripts/resolve_agent_context.py` ทำหน้าที่คำนวณ Additive Union ของ Role Profile + Action + Touched Paths + Mandatory Closures
+
+#### 🛠️ คำสั่งการใช้งาน Context Resolver CLI
+
+```bash
+# 1. รันการตรวจสอบแบบ Pure Read-Only Check (ไม่รัน Probe หรือ Network ใดๆ)
+python3 scripts/resolve_agent_context.py --check
+
+# 2. แก้ปัญหา/ตรวจสอบ Context สำหรับ Ticket และ Lane ที่กำหนด
+python3 scripts/resolve_agent_context.py --ticket-id TICKET-CONTEXT-OPT-001 --lane-id lane-ba
+
+# 3. Local Codex Adapter (ประเมิน Token Budget ผ่านคำสั่ง debug prompt-input ภายในเครื่อง)
+python3 scripts/probe_agent_context_runtime.py --provider codex --mode offline-probe
+```
+
+#### 🔒 สถานะ VERIFIED_LOCAL และขอบเขตการควบคุม (Non-Release Boundary)
+- **ความหมายของ VERIFIED_LOCAL**: เป็น Terminal State สำหรับการตรวจสอบภายในเครื่อง (Local Verification) แสดงว่า Unit Test, Contract, Audit, และ Offline Probe ทั้งหมดผ่านการตรวจสอบ (GREEN) เรียบร้อยแล้ว
+- **ข้อจำกัดที่เข้มงวด (Strict Non-Release Boundary)**:
+  - `VERIFIED_LOCAL` **ไม่สามารถ** ทดแทนหรือลดทอนความเข้มงวดของ Rule 21 `DONE` ได้
+  - **ไม่สามารถ** อนุญาตให้ทำการ Release, Deployment, Publication, Git Tag หรือ Git Push ได้
+  - ไม่ข้ามขั้นตอนการทดสอบ CI/CD หรือ Production Verification
+  - ปลดล็อกได้เฉพาะสิทธิ์การทำ Read-Only Release-QA Audit รอบใหม่เท่านั้น
+- **Secret & Account Isolation**: ห้ามบันทึก Credential หรือ API Key ใดๆ ใน Git หรือ Context Files เด็ดขาด อ้างอิงผ่านชื่อตัวแปรเท่านั้น (เช่น `GOOGLE_AI_STUDIO_API_KEY`)
