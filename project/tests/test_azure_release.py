@@ -154,7 +154,7 @@ def test_hf_release_is_ci_gated_and_checks_out_one_exact_source_sha(tmp_path: Pa
         "required": "false",
         "type": "string",
     }
-    assert workflow["permissions"] == {"contents": "read"}
+    assert workflow["permissions"] == {"contents": "read", "actions": "read"}
     assert workflow["concurrency"] == {
         "group": "hf-backend-production",
         "cancel-in-progress": "false",

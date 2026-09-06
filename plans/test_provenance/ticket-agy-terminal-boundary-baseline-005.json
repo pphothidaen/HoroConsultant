@@ -1,0 +1,39 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-AGY-TERMINAL-BASELINE-005",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "2eb8c699f49efadbd51494e21e5f3f35be4f2205",
+  "test_files": [
+    {
+      "path": "tests/test_agy_terminal_supervisor_boundary.py",
+      "sha256": "f211433e8ffcec97a511591b071aaa66385d6899545b95033a775b7bc7bb477d"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "tests/test_agy_terminal_supervisor_boundary.py",
+        "--tb=line"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "46 failed; 0 collection/setup errors; LOCAL_PROTOCOL_NO_RESPONSE: structured decision required; assertion/node fingerprint SHA-256 cc20ce5a2dba860af643235ca90cb47816b78eac866185f56f1d4b386a8fcd0b"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/agy_terminal_supervisor.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "New, absent-interface Phase1 baseline for local provider-free supervisor only. The source does not exist at baseline_parent or current workspace; RED is the observed absence of the specified structured CLI decision, not insecure behavior of an existing supervisor. Tests never import a missing module, fake source fallback, native proof, sandbox enforcement or authentication success. Public contract: python3 scripts/agy_terminal_supervisor.py --request-json, one stdin JSON object, one stdout JSON object; kinds files/command/result/run/describe_probe. Positive pure specifications VALIDATED/exit0 versus REJECTED/nonzero with reason_code. All responses native_proof=false, os_capability=UNKNOWN, auth_isolation=NOT_PROVEN; execution admission fails SANDBOX_NOT_PROVEN without starting child. Inline temporary fixtures cover path/hash CRUD admission, stale/ownership/link/type/rename/sensitive-read denial, pinned harmless argv/minimal environment/bounds/descendant policy, mandatory single matching WorkResult and failure/cancellation/deadline/secret rejection. describe_probe is only the harmless real-OS probe specification, not execution or proof. Single source file prospective scope; no canonical AGY dispatcher, auth, providers, accounts, configs or production writes. Harmless subprocesses only invoke the absent local Python validator. Two final fresh runs: [{\"attempt\": 1, \"exit\": 1, \"fingerprint_sha256\": \"cc20ce5a2dba860af643235ca90cb47816b78eac866185f56f1d4b386a8fcd0b\", \"summary\": \"46 failed in 1.12s\"}, {\"attempt\": 2, \"exit\": 1, \"fingerprint_sha256\": \"cc20ce5a2dba860af643235ca90cb47816b78eac866185f56f1d4b386a8fcd0b\", \"summary\": \"46 failed in 1.09s\"}]. VERIFIED is prospective closed-schema classification only; PREPARED_RED_UNCOMMITTED_INDEPENDENT_REVIEW_PENDING, source admission blocked until independent review, authorized exact-two-path test-only commit and guard history verification. All test inputs are inline or temporary; no untracked runtime module bytes required. Executable hash is derived from the actual Python executable used by the runner."
+}

@@ -1,0 +1,275 @@
+{
+  "schema_version": "agy-offline-cli-capability-retries-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-AGY2-OFFLINE-HELP-008",
+  "context_sha256": "4183b7e942114d01bee502ceb26edb9e4936a7364f05f0c354fd877ac2d804a1",
+  "attempt1": {
+    "schema_version": "agy-offline-cli-capability-v1",
+    "ticket_id": "TICKET-CONTEXT-OPT-001-AGY2-OFFLINE-HELP-008",
+    "context_sha256": "4183b7e942114d01bee502ceb26edb9e4936a7364f05f0c354fd877ac2d804a1",
+    "observed_at": "2026-09-05T22:59:37.149176+00:00",
+    "status": "CLEANUP_PERMISSION_DENIED_EVIDENCE_INCOMPLETE",
+    "binary_sha256": "d583be1344ea9cfa0c45cff2c1342af7837f4833c4edb65e69bee84776a45caa",
+    "attempted_flags": [
+      "--help"
+    ],
+    "version_attempted": false,
+    "sandbox_process_started": true,
+    "agy_child_started": "UNKNOWN",
+    "failure_stage": "helper os.killpg(p.pid, SIGKILL), after bounded stdout/stderr collection and before wait/receipt assembly",
+    "errno": 1,
+    "error_class": "PermissionError",
+    "child_exit_code": null,
+    "profile_sha256": null,
+    "profile_hash_unavailable_reason": "helper terminated before emitting or retaining in-memory record; no raw output or temporary profile retained",
+    "policy": {
+      "default": "deny",
+      "network": "deny",
+      "account_reads": "deny except exact pinned binary",
+      "keychain_services": "deny by default",
+      "environment_names": [
+        "HOME",
+        "AGY_HOME",
+        "TMPDIR",
+        "LANG",
+        "LC_ALL"
+      ],
+      "isolated_home": true,
+      "isolated_agy_home": true,
+      "timeout_seconds": 8,
+      "stream_cap_bytes": 131072,
+      "runtime_read_trees": [
+        "/usr/lib",
+        "/System/Library",
+        "/System/Cryptexes/OS",
+        "/System/Volumes/Preboot/Cryptexes/OS"
+      ],
+      "executable_allowlist": [
+        "pinned_agy"
+      ],
+      "writable_scope": "temporary owned scratch only"
+    },
+    "cleanup": {
+      "temporary_directory_context_unwound": true,
+      "process_group_cleanup_verified": false,
+      "followup_ps_exit_code": 0,
+      "matching_sandbox_launcher_count": 0,
+      "descendant_absence": "NOT_PROVEN"
+    },
+    "provider_invocations": 0,
+    "actual_agy_workers": 0,
+    "native_proof": false,
+    "raw_streams_persisted": false,
+    "capability_findings": "NONE; invocation result not retained after cleanup error",
+    "retries": 0
+  },
+  "attempt2": {
+    "attempt": 2,
+    "observed_at": "2026-09-05T23:01:06.271260+00:00",
+    "binary_sha256": "d583be1344ea9cfa0c45cff2c1342af7837f4833c4edb65e69bee84776a45caa",
+    "flag": "--help",
+    "prior_matching_processes": 0,
+    "status": "OFFLINE_HELP_OBSERVED",
+    "provider_invocations": 0,
+    "actual_agy_workers": 0,
+    "raw_streams_persisted": false,
+    "profile_sha256": "c6010be8a3b3e6f6f27e91abd6d4e55f6222c23f8eb37a101dfab0c1048a5b72",
+    "sandbox_helper_sha256": "abc5bb136d6b5cce8fa85d789f78e3326c51ca60cae637b2064adfb67a1dcd9a",
+    "policy": {
+      "default": "deny",
+      "network": "deny",
+      "account_reads": "deny except exact pinned binary",
+      "keychain_services": "deny by default",
+      "environment_names": [
+        "HOME",
+        "AGY_HOME",
+        "TMPDIR",
+        "LANG",
+        "LC_ALL"
+      ],
+      "isolated_home": true,
+      "isolated_agy_home": true,
+      "timeout_seconds": 8,
+      "stream_cap_bytes": 131072,
+      "runtime_read_trees": [
+        "/usr/lib",
+        "/System/Library",
+        "/System/Cryptexes/OS",
+        "/System/Volumes/Preboot/Cryptexes/OS"
+      ],
+      "executable_allowlist": [
+        "pinned_agy"
+      ],
+      "writable_scope": "temporary owned scratch only"
+    },
+    "scratch_removed": true,
+    "sandbox_process_started": true,
+    "pid": 87988,
+    "process_group": 87988,
+    "session_id": 87988,
+    "captured_bytes": 2759,
+    "output_sha256": "31c782c581599b9a69d6c56679871d4fd4c47ac4638c50d11d7d9b477f6aa0d4",
+    "trigger": null,
+    "elapsed_seconds": 0.063,
+    "exit_code_before_cleanup": 0,
+    "cleanup_signal": "NOT_NEEDED_REAPED",
+    "exit_code": 0,
+    "group_observation": "ABSENT",
+    "lifecycle_verified": true,
+    "cli_flags": [
+      "--add-dir",
+      "--agent",
+      "--continue",
+      "--conversation",
+      "--dangerously-skip-permissions",
+      "--disable-slash-commands",
+      "--effort",
+      "--input-format",
+      "--json-schema",
+      "--log-file",
+      "--mode",
+      "--model",
+      "--new-project",
+      "--output-format",
+      "--print",
+      "--print-timeout",
+      "--project",
+      "--prompt",
+      "--prompt-interactive",
+      "--sandbox"
+    ],
+    "capability_markers": {
+      "Antigravity": false,
+      "stream-json": true,
+      "subagent": false,
+      "headless": false,
+      "sandbox": true,
+      "OAuth": false,
+      "tools": false
+    },
+    "safe_failure_markers": {
+      "operation not permitted": false,
+      "sandbox_init": false,
+      "permission denied": false,
+      "abort": false,
+      "panic": false
+    }
+  },
+  "attempt3": {
+    "attempt": 3,
+    "observed_at": "2026-09-05T23:03:01.144150+00:00",
+    "binary_sha256": "d583be1344ea9cfa0c45cff2c1342af7837f4833c4edb65e69bee84776a45caa",
+    "flag": "--help",
+    "policy": {
+      "default": "deny",
+      "network": "deny",
+      "account_reads": "deny except exact pinned binary",
+      "keychain_services": "deny by default",
+      "environment_names": [
+        "HOME",
+        "AGY_HOME",
+        "TMPDIR",
+        "LANG",
+        "LC_ALL"
+      ],
+      "isolated_home": true,
+      "isolated_agy_home": true,
+      "timeout_seconds": 8,
+      "stream_cap_bytes": 131072,
+      "runtime_read_trees": [
+        "/usr/lib",
+        "/System/Library",
+        "/System/Cryptexes/OS",
+        "/System/Volumes/Preboot/Cryptexes/OS"
+      ],
+      "executable_allowlist": [
+        "pinned_agy"
+      ],
+      "writable_scope": "temporary owned scratch only"
+    },
+    "status": "OFFLINE_HELP_SEMANTICS_OBSERVED",
+    "raw_streams_persisted": false,
+    "provider_invocations": 0,
+    "actual_agy_workers": 0,
+    "profile_sha256": "114fffa7d8c5c4aadc05d61624387ff6f07e01eddd919d397b32b30479cf1559",
+    "pid": 88383,
+    "process_group": 88383,
+    "session_id": 88383,
+    "captured_bytes": 2759,
+    "output_sha256": "31c782c581599b9a69d6c56679871d4fd4c47ac4638c50d11d7d9b477f6aa0d4",
+    "trigger": null,
+    "exit_code_before_cleanup": 0,
+    "cleanup_signal": "NOT_NEEDED_REAPED",
+    "exit_code": 0,
+    "group_observation": "ABSENT",
+    "lifecycle_verified": true,
+    "normalized_option_documentation": [
+      {
+        "option": "--agent",
+        "normalized_help": "--agent                         Agent for the current CLI session -c                              Short alias for --continue"
+      },
+      {
+        "option": "--dangerously-skip-permissions",
+        "normalized_help": "--dangerously-skip-permissions  Auto-approve all tool permission requests without prompting"
+      },
+      {
+        "option": "--disable-slash-commands",
+        "normalized_help": "--disable-slash-commands        Disable slash command and skill expansion in print mode"
+      },
+      {
+        "option": "--input-format",
+        "normalized_help": "--input-format                  Input format for print mode (text, stream-json). stream-json reads one NDJSON message per line from stdin and runs a turn for each; it requires --output-format stream-json (default text)"
+      },
+      {
+        "option": "--json-schema",
+        "normalized_help": "--json-schema                   Optional JSON schema string or path to a schema file to enforce structured output (for stream-json, only applicable to the final result)"
+      },
+      {
+        "option": "--mode",
+        "normalized_help": "--mode                          Set the agent execution mode for this session (accept-edits, plan)"
+      },
+      {
+        "option": "--output-format",
+        "normalized_help": "--output-format                 Output format for print mode (text, json, stream-json) (default text) -p                              Short alias for --print"
+      },
+      {
+        "option": "--print",
+        "normalized_help": "--print                         Run a single prompt non-interactively and print the response"
+      },
+      {
+        "option": "--print-timeout",
+        "normalized_help": "--print-timeout                 Timeout for print mode wait (default 5m0s)"
+      },
+      {
+        "option": "--prompt",
+        "normalized_help": "--prompt                        Alias for --print"
+      },
+      {
+        "option": "--sandbox",
+        "normalized_help": "--sandbox                       Run in a sandbox with terminal restrictions enabled"
+      }
+    ],
+    "all_advertised_long_options": [
+      "--add-dir",
+      "--agent",
+      "--continue",
+      "--conversation",
+      "--dangerously-skip-permissions",
+      "--disable-slash-commands",
+      "--effort",
+      "--input-format",
+      "--json-schema",
+      "--log-file",
+      "--mode",
+      "--model",
+      "--new-project",
+      "--output-format",
+      "--print",
+      "--print-timeout",
+      "--project",
+      "--prompt",
+      "--prompt-interactive",
+      "--sandbox"
+    ],
+    "scratch_removed": true
+  }
+}

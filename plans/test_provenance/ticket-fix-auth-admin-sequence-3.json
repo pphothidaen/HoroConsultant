@@ -1,0 +1,34 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-QA-AUTH-PROVIDER-SUPERSESSION-001",
+  "sequence": 3,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "0cc73cc94784346cc9cb1321c72d2f9c8058f7a4",
+  "test_files": [
+    {
+      "path": "project/tests/test_admin_auth.py",
+      "sha256": "f7ea1bb5fa06c99e830d4510f86c65820bb5a7d09feaa2df7735948765b42cc8"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_admin_auth.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Detached pre-4d58e13 negative control at b06a347: config leaked allowed_emails, mock_email returned 200 instead of 422, and the local JWKS verification boundary was absent; 4 Admin tests failed."
+    }
+  ],
+  "allowed_source_paths": [
+    "project/tests/test_admin_auth.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "03db81654a1d693e5f60948fb33ce81f592c2439",
+  "correction_reason": "The retained sequence-2 Admin test contract expected a disclosed allowlist and a mock_email bypass. Hardened production commit 4d58e13d34b398f6407bbd303d9fe030584740f0 intentionally removed both behaviors and introduced locally verifiable RS256 Google JWT authentication with generic failures. The auditor-retained old test hash is daaee4668b363577b5e641ae0da3efc6ae4b7923a477e8e07ee5d70427382265; this sequence-3 replacement hash is f7ea1bb5fa06c99e830d4510f86c65820bb5a7d09feaa2df7735948765b42cc8.",
+  "rationale": "Freeze only the four authorized Admin auth functions against the hardened contract: public config exposes google_client_id/auth_required without allowed_emails, mock_email is rejected with 422, locally signed RS256 Google JWTs succeed through a patched JWKS with an isolated environment, malformed credentials return generic 401, and signed non-allowlisted identities return generic non-disclosing 403. The pre-4d58e13 detached-worktree negative control deterministically rejected this contract without network or credentials."
+}

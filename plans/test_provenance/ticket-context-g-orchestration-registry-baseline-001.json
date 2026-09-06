@@ -1,0 +1,88 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-G-REGISTRY-BASELINE-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "774aef341eb04039769082cd53820b5ff240bbaa",
+  "test_files": [
+    {
+      "path": "tests/test_context_g_orchestration_registry.py",
+      "sha256": "d31f5b0f9a2026d8a2cb2a3b117b7d618f080a9509d06db7f6e7b25f83929fc6"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "tests/test_context_g_orchestration_registry.py"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "5 failed, 5 passed; MISSING_ORCHESTRATION_METADATA; MISSING_ORCHESTRATION_ALLOWLIST: devops; MISSING_ORCHESTRATION_ALLOWLIST: qa_tester; REQUIRED_ORCHESTRATION_RESOLUTION_REJECTED: devops: UNKNOWN_CAPABILITY: multi-account-agent-orchestration; REQUIRED_ORCHESTRATION_RESOLUTION_REJECTED: qa_tester: UNKNOWN_CAPABILITY: multi-account-agent-orchestration"
+    }
+  ],
+  "allowed_source_paths": [
+    ".agents/config/scope_skill_registry.v1.json"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Fresh genuine pre-remediation RED preparation for parent TICKET-CONTEXT-OPT-001, Context G registry blocker. The native multi-account-agent-orchestration skill and canonical devops G and qa_tester B requests already exist. Only the exact native skill metadata and devops/qa_tester memberships are prospective source changes; the tests preserve all other registry semantics and required requests and exercise fail-closed rejection controls. VERIFIED is the closed-schema prospective provenance classification, not a claim that an independently reviewed, committed or Git-history-verified baseline exists. Source admission remains blocked until independent review, a test-only baseline commit, and provenance guard verification.",
+  "baseline_state": "PREPARED_RED_UNCOMMITTED_INDEPENDENT_REVIEW_PENDING",
+  "source_admission": "BLOCKED_PENDING_TEST_BASELINE_VERIFIED",
+  "red_runs": [
+    {
+      "attempt": 1,
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "tests/test_context_g_orchestration_registry.py"
+      ],
+      "exit_code": 1,
+      "failed": 5,
+      "passed": 5,
+      "errors": 0,
+      "duration_seconds": 0.05,
+      "tool_chunk_id": "fd4b2b",
+      "failure_fingerprint": "5 failed, 5 passed; MISSING_ORCHESTRATION_METADATA; MISSING_ORCHESTRATION_ALLOWLIST: devops; MISSING_ORCHESTRATION_ALLOWLIST: qa_tester; REQUIRED_ORCHESTRATION_RESOLUTION_REJECTED: devops: UNKNOWN_CAPABILITY: multi-account-agent-orchestration; REQUIRED_ORCHESTRATION_RESOLUTION_REJECTED: qa_tester: UNKNOWN_CAPABILITY: multi-account-agent-orchestration"
+    },
+    {
+      "attempt": 2,
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "tests/test_context_g_orchestration_registry.py"
+      ],
+      "exit_code": 1,
+      "failed": 5,
+      "passed": 5,
+      "errors": 0,
+      "duration_seconds": 0.03,
+      "tool_chunk_id": "0a99c7",
+      "failure_fingerprint": "5 failed, 5 passed; MISSING_ORCHESTRATION_METADATA; MISSING_ORCHESTRATION_ALLOWLIST: devops; MISSING_ORCHESTRATION_ALLOWLIST: qa_tester; REQUIRED_ORCHESTRATION_RESOLUTION_REJECTED: devops: UNKNOWN_CAPABILITY: multi-account-agent-orchestration; REQUIRED_ORCHESTRATION_RESOLUTION_REJECTED: qa_tester: UNKNOWN_CAPABILITY: multi-account-agent-orchestration"
+    }
+  ],
+  "risks": [
+    "No baseline commit, independent-review approval or Git-history verification exists yet.",
+    "The current resolver and registry are preexisting untracked worktree inputs; baseline_parent does not by itself reconstruct these inputs."
+  ]
+}

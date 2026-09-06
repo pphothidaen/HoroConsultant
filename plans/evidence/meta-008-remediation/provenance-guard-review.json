@@ -1,0 +1,48 @@
+{
+  "schema_version": "scoped-provenance-guard-review-v1",
+  "context_sha256": "4759ad53e0822a7426795d9194c3579dc1899f82f08394630a08b44364342150",
+  "status": "PASS_EXACT_PARTIAL_SOURCE_CANDIDATE",
+  "attempts": [
+    {
+      "attempt": 1,
+      "status": "REVIEWABLE_RECONSTRUCTED_CHARACTERIZATION_NOT_ADMITTED",
+      "test_sha256": "90b764ccbe5364995d5bce818f0df5343f8e5f075a23af942338c316cdd354c0",
+      "manifest_sha256": "2ea1e400f87617d5189f27c088cc32c6af213e63de0ab3252f4db5ffc9930b8b",
+      "observation": "47 tests PASS on earlier exploration; reconstructed manifest cannot claim verified TDD and was not committed."
+    },
+    {
+      "attempt": 2,
+      "at": "2026-09-05T15:35:23.429132+00:00",
+      "status": "PASS_SCOPED_BASELINE_COMMIT_CANDIDATE",
+      "manifest_sha256": "463ff6df6d97561818949372803162b070935142a3d3e46a93e66181a183abe9",
+      "test_sha256": "90b764ccbe5364995d5bce818f0df5343f8e5f075a23af942338c316cdd354c0",
+      "source_sha256": "a933b7ba5aed8eeabed3a7c7ff545cc7190c16bd2c135192e72eb4ae3411d8ef",
+      "scope": "Two exploration hunks deleted; only unrelated command-string relaxation remains and is excluded from future staged source. Test baseline precedes forthcoming implementation; historical exploration disclosed.",
+      "checks": [
+        "Strict13key schema PASS",
+        "Independent current-workspace30failed17passed",
+        "Unknown/missing/malformed fields and Git hash/history/source-path controls retained"
+      ],
+      "approval": "Exact test+manifest test-only commit approved after staged checks; immutable committed baseline verification required before reimplementation.",
+      "source_staging_approval": false,
+      "release_readiness": "NOT_EVALUATED"
+    },
+    {
+      "attempt": 3,
+      "at": "2026-09-05T15:40:38.848813+00:00",
+      "status": "PASS_EXACT_PARTIAL_SOURCE_CANDIDATE",
+      "baseline_commit": "bb69408",
+      "worktree_source_sha256": "bc1887a130909c75f7a3ab58fdcc2069eac07b1244ca909ed39d8b9fdfc24bf9",
+      "approved_candidate_sha256": "df6a2a48ee0d90132dedd178811d778bba26803dbbd137ad23fd1d8fe3dc1370",
+      "scope": "Only first two diff hunks:24-key whitelist and required/unknown-key shape logic. Third command-string hunk excluded.",
+      "checks": [
+        "Independent65testsPASS5.65s on worktree; no test mutations.",
+        "In-memory exact partial candidate restores HEAD argv-array-only validation; string command rejected MANIFEST_RED_TEST_INVALID.",
+        "AST comparison confirms only existing function changed is _validate_manifest_shape; all hash/history/source-path functions unchanged.",
+        "Required fields still mandatory; unknown extensions rejected; remaining core field validation unchanged."
+      ],
+      "approval": "Partial source commit approved only if staged blob SHA256 equals approved_candidate_sha256 and source-only commit cites baseline. Never git add full worktree guard.",
+      "release_readiness": "NOT_EVALUATED"
+    }
+  ]
+}

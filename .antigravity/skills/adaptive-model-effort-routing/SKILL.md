@@ -1,5 +1,6 @@
 ---
 name: adaptive-model-effort-routing
+disabled: true
 description: Assess and record fail-closed model and effort choices for agent lanes.
 ---
 

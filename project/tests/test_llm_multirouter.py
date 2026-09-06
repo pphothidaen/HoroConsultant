@@ -29,7 +29,8 @@ def test_llm_providers_status_endpoint():
     keys = [p["key"] for p in providers]
     assert "cloudflare" in keys
     assert "gemini" in keys
-    assert "openai" in keys
+    assert "codex" in keys
+    assert "openai" not in keys
     assert "claude" in keys
     assert "ollama" in keys
     assert "deterministic" in keys
@@ -56,7 +57,6 @@ async def test_llm_gateway_tier_failover_sequence():
     # Mock all remote calls to raise exception
     gw._call_cloudflare = AsyncMock(side_effect=RuntimeError("Cloudflare rate limit"))
     gw._call_gemini = AsyncMock(side_effect=RuntimeError("Gemini quota exceeded"))
-    gw._call_openai = AsyncMock(side_effect=RuntimeError("OpenAI timeout"))
     gw._call_claude = AsyncMock(side_effect=RuntimeError("Claude overload"))
     gw._call_ollama = AsyncMock(side_effect=RuntimeError("Ollama connection refused"))
 

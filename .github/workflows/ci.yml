@@ -96,6 +96,8 @@ jobs:
           pip install -r requirements-ci.txt pytest
 
       - name: Run Production Version E2E Regression
+        # Candidate identity can only be required after main has deployed it.
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           python3 scripts/run_prod_version_e2e.py
 

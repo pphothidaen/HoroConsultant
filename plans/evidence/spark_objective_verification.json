@@ -1,0 +1,172 @@
+{
+  "generated_at": "2026-09-05T09:45:55.218147+00:00",
+  "objective": "gpt-5.3-codex-spark safety-only high-risk lanes",
+  "overall": "PASS",
+  "checks": {
+    "C1_role_restriction": {
+      "requirement": "Spark only allowed roles devops/code_reviewer",
+      "expected": [
+        "devops",
+        "code_reviewer"
+      ],
+      "actual": [
+        "devops",
+        "code_reviewer"
+      ],
+      "result": true
+    },
+    "C1_phase_restriction": {
+      "requirement": "Spark only allowed in qa|review|release|operations",
+      "expected": [
+        "qa",
+        "review",
+        "release",
+        "operations"
+      ],
+      "actual": [
+        "qa",
+        "review",
+        "release",
+        "operations"
+      ],
+      "result": true
+    },
+    "C1_effort_restriction": {
+      "requirement": "Spark effort high only",
+      "expected": {
+        "high": {
+          "quality_rank": 3
+        }
+      },
+      "actual": {
+        "high": {
+          "quality_rank": 3
+        }
+      },
+      "result": true
+    },
+    "C1_route_map_devops": {
+      "requirement": "Route devops uses Spark high",
+      "expected": {
+        "role": "devops",
+        "model": "gpt-5.3-codex-spark",
+        "effort": "high"
+      },
+      "actual": {
+        "role": "devops",
+        "model": "gpt-5.3-codex-spark",
+        "effort": "high"
+      },
+      "result": true
+    },
+    "C1_route_map_code_reviewer": {
+      "requirement": "Route code_reviewer uses Spark high",
+      "expected": {
+        "role": "code_reviewer",
+        "model": "gpt-5.3-codex-spark",
+        "effort": "high"
+      },
+      "actual": {
+        "role": "code_reviewer",
+        "model": "gpt-5.3-codex-spark",
+        "effort": "high"
+      },
+      "result": true
+    },
+    "C2_devops_ticket": {
+      "requirement": "DevOps safety packet is release + rollback/release safety actions",
+      "expected": {
+        "role": "devops",
+        "phase": "release",
+        "safety_actions": [
+          "release_gate_audit",
+          "rollback_integrity",
+          "pipeline_guard"
+        ]
+      },
+      "actual": {
+        "role": "devops",
+        "phase": "release",
+        "lane_id": "TICKET-SAFE-SPARK-DEVOPS-001-L1",
+        "actions": [
+          "context.resolve",
+          "pipeline_guard",
+          "release_gate_audit",
+          "rollback_integrity"
+        ],
+        "expected_safety_actions": [
+          "pipeline_guard",
+          "release_gate_audit",
+          "rollback_integrity"
+        ],
+        "result": true
+      }
+    },
+    "C2_devops_packet_result": true,
+    "C2_code_reviewer_ticket": {
+      "requirement": "Code reviewer safety packet is qa + predeploy/ready/secret",
+      "expected": {
+        "role": "code_reviewer",
+        "phase": "qa",
+        "safety_actions": [
+          "predeploy_audit",
+          "ready_for_prod_gate",
+          "secret_scan"
+        ]
+      },
+      "actual": {
+        "role": "code_reviewer",
+        "phase": "qa",
+        "lane_id": "TICKET-SAFE-SPARK-CR-001-L1",
+        "actions": [
+          "context.resolve",
+          "predeploy_audit",
+          "ready_for_prod_gate",
+          "secret_scan"
+        ],
+        "expected_safety_actions": [
+          "predeploy_audit",
+          "ready_for_prod_gate",
+          "secret_scan"
+        ],
+        "result": true
+      }
+    },
+    "C2_code_reviewer_packet_result": true,
+    "C2_qa_packet_not_spark": {
+      "requirement": "QA governance packet does not use Spark model",
+      "expected": {
+        "role": "qa_tester",
+        "phase": "qa"
+      },
+      "actual": {
+        "ticket": "TICKET-SAFE-SPARK-QA-001",
+        "lane": "TICKET-SAFE-SPARK-QA-001-L1",
+        "role": "qa_tester",
+        "phase": "qa"
+      },
+      "result": true
+    },
+    "C4_gate_tests_presence": {
+      "requirement": "Spark governance regression tests are present",
+      "expected": [
+        "test_spark_rejected_for_unauthorized_role",
+        "test_spark_rejected_for_unauthorized_phase",
+        "test_spark_allowed_for_authorized_role_and_phase"
+      ],
+      "actual": [
+        "test_spark_rejected_for_unauthorized_role",
+        "test_spark_rejected_for_unauthorized_phase",
+        "test_spark_allowed_for_authorized_role_and_phase"
+      ],
+      "result": true
+    }
+  },
+  "non_local_runtime_blockers": [
+    "DispatchDecision v1 (ticket/lane-bound) still required before execute",
+    "scheduling_snapshot for each packet",
+    "RuntimeAdmissionV1",
+    "ActivationHealthEvidenceV1",
+    "approval_grant + approval-consume chain"
+  ]
+}

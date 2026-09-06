@@ -471,13 +471,14 @@ def chunk_text_fast(
     Fast CJK-aware text chunker.
     Uses Rust acceleration (rust_core.chunk_text) when available (~10× faster).
     """
+    min_chunk_length = min(20, max(1, chunk_size // 2))
     kernel = _native_kernel("chunk_text")
     if kernel is not None:
         raw_chunks = kernel(text, chunk_size, 30)
         return [
             {"text": chunk.strip(), "source": source, "chunk": idx}
             for idx, chunk in enumerate(raw_chunks)
-            if len(chunk.strip()) >= 20
+            if len(chunk.strip()) >= min_chunk_length
         ]
 
     chunks: list[dict[str, str]] = []
@@ -486,7 +487,7 @@ def chunk_text_fast(
 
     for para in paragraphs:
         para = para.strip()
-        if len(para) < 30:
+        if len(para) < min_chunk_length:
             continue
 
         if len(para) <= chunk_size:

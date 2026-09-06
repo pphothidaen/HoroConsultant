@@ -1,0 +1,53 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-G",
+  "revision": 1,
+  "ticket_sha256": "e4eb4a454e8caf7b0553019c72f67ba179c725d6c34bfe32362ca76a714425c6",
+  "plan_sha256": "7a8a7edef3658813a8ebb265ad29daec52ccd4e237b6c56ca66e29e2ef1579ae",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-G",
+      "role": "devops",
+      "phase": "operations",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "plans/evidence/context-opt-001/render-check.json",
+        "plans/evidence/context-opt-001/budget-report.json",
+        "plans/evidence/context-opt-001/runtime-probe-codex.json",
+        "plans/evidence/context-opt-001/runtime-probe-claude.json",
+        "plans/evidence/context-opt-001/runtime-probe-agy.json",
+        "plans/evidence/context-opt-001/antigravity-render-parity.json",
+        "scripts/render_agent_context_profiles.py",
+        "scripts/probe_agent_context_runtime.py",
+        "scripts/sync_ai_agent_ecosystem.py",
+        "scripts/sync_codex_account_configs.py"
+      ],
+      "requested_horo_skills": [
+        "devops-deployment",
+        "hf-static-release-verification",
+        "multi-account-agent-orchestration"
+      ],
+      "source_domain": "operations",
+      "risk_flags": [
+        "dirty-generated-output",
+        "external-runtime-proof-separated",
+        "no-provider-execution"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "read-only-audit",
+        "no-file-write",
+        "no-sync-mutation",
+        "no-provider-mutation",
+        "no-account-change",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-network"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

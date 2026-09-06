@@ -1,0 +1,81 @@
+{
+  "schema_version": "release-triage-v1",
+  "ticket_id": "TICKET-TRIAGE-API-INDEX-VERCEL-REWRITE-001",
+  "created_at": "2026-09-05T08:45:51+07:00",
+  "audited_at": "2026-09-06T10:57:14+07:00",
+  "approved_context_digest": "0cfc58065d502713e24524c928ba2ff5c7435a3e95e9fed65a1a48d6e4f008ec",
+  "audit_verdict": "PASS_WITH_QA_PARENT_REFRESH_REQUIRED",
+  "status": "STALE_BASELINE_NO_PRODUCTION_CHANGE",
+  "baseline_parent": "09deba10353663e5aa1e78e55b078cfdcf7ad743",
+  "observed_head": "0cd6536252080303ad191a2fa729ba93597ac5e1",
+  "production_provenance": {
+    "least_privilege_commit": "6ba69c49838a05ce48b2b95042f2eb1ea3fe771c",
+    "wake_route_commit": "735bcff4cad08ce73342f47caf76239c260786bb",
+    "vercel_sha256": "56bfac4c2568d83c84d4da58d8a651e4100441de43a0dad17dacac6e531899ca",
+    "api_index_sha256": "bdb07bbde7e160553e062849447b2d2916d126828e86557bc97d7f1e75546c49",
+    "worktree_matches_head": true
+  },
+  "authoritative_rewrites_in_order": [
+    ["/health", "/api/index?path=/health"],
+    ["/api/wake", "/api/index?path=/api/wake"],
+    ["/api/v1/:path*", "/api/index?path=/api/v1/:path*"],
+    ["/api/v2/:path*", "/api/index?path=/api/v2/:path*"],
+    ["/api/v3/:path*", "/api/index?path=/api/v3/:path*"],
+    ["/docs", "/api/index?path=/docs"],
+    ["/openapi.json", "/api/index?path=/openapi.json"],
+    ["/admin/auth/config", "/api/index?path=/admin/auth/config"],
+    ["/admin/auth/google", "/api/index?path=/admin/auth/google"],
+    ["/admin/catalog/summary", "/api/index?path=/admin/catalog/summary"],
+    ["/admin/catalog", "/api/index?path=/admin/catalog"],
+    ["/admin/catalog/source/:source_id", "/api/index?path=/admin/catalog/source/:source_id"],
+    ["/admin/grayzone", "/api/index?path=/admin/grayzone"],
+    ["/admin/finetune/status", "/api/index?path=/admin/finetune/status"],
+    ["/admin/finetune/download", "/api/index?path=/admin/finetune/download"],
+    ["/admin/finetune/download-grayzone", "/api/index?path=/admin/finetune/download-grayzone"],
+    ["/admin/provider-pools", "/api/index?path=/admin/provider-pools"],
+    ["/hitl/stats", "/api/index?path=/hitl/stats"]
+  ],
+  "gateway_contract": {
+    "canonical_backend_only": true,
+    "public_read_paths": ["/health", "/docs", "/openapi.json"],
+    "versioned_public_api": "/api/v1-v3 with explicit mutation allowlist",
+    "privileged_ingress": "exact Admin/HITL allowlist plus bounded /admin/catalog/source/:source_id",
+    "privileged_bearer_required_except": ["/admin/auth/config", "/admin/auth/google"],
+    "admin_and_hitl_wildcards_forbidden": true
+  },
+  "findings": [
+    "The old rewrite assertion predates the exact privileged-route allowlist committed in 6ba69c4.",
+    "The old rewrite assertion also predates the /api/wake entry committed in 735bcff.",
+    "Current vercel.json contains no /admin/:path* or /hitl/:path* wildcard.",
+    "Current api/index.js and vercel.json are unchanged from HEAD; no production or configuration remediation is authorized or required."
+  ],
+  "security_counter_review": {
+    "verdict": "PASS",
+    "wildcard_admin_ingress": false,
+    "wildcard_hitl_ingress": false,
+    "exact_allowlist_preserved": true,
+    "bearer_auth_boundary_preserved": true,
+    "production_change_required": false
+  },
+  "successor": {
+    "ticket_id": "TICKET-QA-API-INDEX-VERCEL-REWRITE-SUPERSESSION-001",
+    "manifest": "plans/test_provenance/ticket-qa-api-index-vercel-rewrite-supersession-001.json",
+    "test_path": "tests/api_index_vercel_contract.test.mjs",
+    "old_sha256": "4a2e1fd23c9b5308f73e31a6cb853f2224537221d5170d2e8533505d186b402f",
+    "new_sha256": "17732bf033c2296f3211998e8820271b297d5408344924a114446ec0067be170",
+    "manifest_sha256": "36295bcd5a4237737b3cc034e4220247ff2f479d9a91287a48146c5bdd740773",
+    "manifest_test_hash_matches": true,
+    "stale_array_control": "expected exit 1; observed exit 1",
+    "focused_command": "node --test tests/api_index_vercel_contract.test.mjs",
+    "focused_result": "7 passed, 0 failed",
+    "manifest_parent_matches_observed_head": false,
+    "can_proceed_now": false,
+    "admission_disposition": "QA_ONLY_READY_AFTER_BASELINE_PARENT_REFRESH_AND_INDEPENDENT_REVIEW",
+    "required_next_action": "QA owner must refresh baseline_parent from 09deba10353663e5aa1e78e55b078cfdcf7ad743 to the exact HEAD used immediately before staging, recompute the manifest hash, and stage only the test plus this manifest. Production and configuration files remain excluded."
+  },
+  "exclusions_verified": [
+    "no production or configuration mutation",
+    "no credential or secret access",
+    "no commit, push, deployment, or release claim"
+  ]
+}

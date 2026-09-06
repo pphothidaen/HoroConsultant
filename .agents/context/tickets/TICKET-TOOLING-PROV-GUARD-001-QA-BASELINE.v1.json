@@ -1,0 +1,39 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-TOOLING-PROV-GUARD-001-QA-BASELINE",
+  "revision": 1,
+  "ticket_sha256": "bd1ab0b0f3a3a5dbde793d45d3334a6a6f75aafe71071c724195d9fbb2faf97e",
+  "plan_sha256": "82e2c05cb5c44878d29c5a5dbbcc1c9ceb5a978d14c9e87f5807ce8cf0e1c432",
+  "lanes": [
+    {
+      "lane_id": "TICKET-TOOLING-PROV-GUARD-001-QA-BASELINE",
+      "role": "qa_tester",
+      "phase": "red_baseline",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "tests/test_provenance_governance_extensions.py",
+        "plans/test_provenance/ticket-meta-008-provenance-extensions-baseline.json",
+        "scripts/test_provenance_guard.py",
+        "tests/test_test_provenance_guard.py"
+      ],
+      "requested_horo_skills": [
+        "qa-regression-provenance",
+        "qa-e2e-testing"
+      ],
+      "source_domain": "release-engineering",
+      "risk_flags": [
+        "production-gate-integrity"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-provider-execution",
+        "no-secret-operation",
+        "no-push",
+        "no-deploy"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

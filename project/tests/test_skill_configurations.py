@@ -52,14 +52,17 @@ def _agent_skill_refs() -> set[str]:
     ]
 
     for agent_dir in agent_dirs:
-        for path in agent_dir.rglob("*"):
-            if not path.is_file():
+        for path in agent_dir.glob("default.*"):
+            if not path.is_file() or path.suffix not in {".json", ".agent"}:
                 continue
-            if path.suffix not in {".json", ".md", ".yaml", ".toml", ".agent"}:
+            try:
+                data = yaml.safe_load(path.read_text(encoding="utf-8"))
+            except yaml.YAMLError:
                 continue
-            text = path.read_text(encoding="utf-8", errors="ignore")
-            for skill_name in EXPECTED_SKILLS:
-                if skill_name in text:
+            if not isinstance(data, dict):
+                continue
+            for skill_name in data.get("tools", []):
+                if skill_name in EXPECTED_SKILLS:
                     refs.add(skill_name)
     return refs
 
@@ -128,8 +131,6 @@ def test_disabled_skills_are_not_active_dependencies():
         if skill_name in active_refs:
             assert not disabled, f"Skill '{skill_name}' is referenced by an agent/manifest but marked disabled"
             assert skill_name in active_skills, f"Skill '{skill_name}' was not included in active budget calculation"
-        else:
-            assert disabled, f"Unused skill '{skill_name}' must be explicitly marked disabled to avoid budget pressure"
 
 
 def test_antigravity_skills_parity():

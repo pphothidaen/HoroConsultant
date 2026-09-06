@@ -52,6 +52,8 @@ system_prompt: 'You are the ux_ui_designer agent for HoroConsultant.
   design decisions, and accessibility audits. Escalate cross-domain UX conflicts to
   orchestrator.'
 tools:
+- five-elements-ui-palette
+- wcag-apca-color-audit
+- ui-color-token-handoff
 - web-color-design
-- sdlc-aisdlc-workflow
 fallback_agent: orchestrator

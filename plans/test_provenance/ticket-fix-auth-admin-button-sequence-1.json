@@ -1,0 +1,34 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-QA-AUTH-PROVIDER-SUPERSESSION-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "0cc73cc94784346cc9cb1321c72d2f9c8058f7a4",
+  "test_files": [
+    {
+      "path": "project/tests/test_button_regression.py",
+      "sha256": "ba2505ecfc2c84728ed0ecba64d346f35e4f85f488d6ab767ae9fb674bc9f2e9"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_button_regression.py::TestAdminHTMLButtons::test_admin_auth_button_handler"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "Detached pre-4d58e13 negative control at b06a347: mock_email returned 200 instead of the hardened 422 validation response; 1 Admin button test failed."
+    }
+  ],
+  "allowed_source_paths": [
+    "project/tests/test_button_regression.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": "0a872827e58c32e14d5d254579463ba7e4cf133f",
+  "correction_reason": "The retained Admin button regression expected the pre-hardening mock_email bypass to authenticate. Hardened production commit 4d58e13d34b398f6407bbd303d9fe030584740f0 requires a real Google credential and rejects that request with 422. The old full-file hash is ca5382563456ade712d982741d60d1fcd3b3fdb88f0cbc2525e2d3fb78be63ce; this sequence-1 supersession hash is ba2505ecfc2c84728ed0ecba64d346f35e4f85f488d6ab767ae9fb674bc9f2e9.",
+  "rationale": "Freeze only TestAdminHTMLButtons.test_admin_auth_button_handler against the hardened backend boundary. The assertion verifies that a mock_email-only body cannot authenticate and that validation identifies the missing credential. The detached pre-4d58e13 negative control deterministically failed because the old route returned 200, without network or credentials."
+}

@@ -1,0 +1,499 @@
+{
+  "record_kind": "agy-terminal-backend-independent-verification-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-AGY-TERMINAL-BACKEND-VERIFY-006",
+  "lane_id": "TICKET-CONTEXT-OPT-001-AGY-TERMINAL-BACKEND-VERIFY-006",
+  "approved_context_sha256": "86845601f7f0db05634d6c058a791217689936063408e9b93ce50fe454e34246",
+  "owner_role": "qa_tester",
+  "status": "FIXED_PROVIDER_FREE_BACKEND_CONTROLS_OBSERVED",
+  "checked_at": "2026-09-05T18:49:53.723784+00:00",
+  "head_commit": "d25db5c895e64aad7b8ef2aac8c420615fae0ceb",
+  "source_sha256": "76850c1862948ee70fea78bc86034e32689a903b0f7eb1d9fe11bf4591a062d7",
+  "baselines": {
+    "tests/test_agy_terminal_supervisor_boundary.py": {
+      "sha256": "f211433e8ffcec97a511591b071aaa66385d6899545b95033a775b7bc7bb477d",
+      "baseline_commit": "3ed64bb40d91deb53287038c5f2a14af37eaf07f",
+      "matches_committed_baseline": true
+    },
+    "plans/test_provenance/ticket-agy-terminal-boundary-baseline-005.json": {
+      "sha256": "37211b1ecfdb1e032278efdd0adce2cfeb01784cc1ecfdc6da76e9d55ac16eea",
+      "baseline_commit": "3ed64bb40d91deb53287038c5f2a14af37eaf07f",
+      "matches_committed_baseline": true
+    },
+    "tests/test_agy_terminal_execution_backend.py": {
+      "sha256": "2bfae42526c4b9c0077405b3b46448575679f930a898f3f24b7248bd0ff352cf",
+      "baseline_commit": "d25db5c895e64aad7b8ef2aac8c420615fae0ceb",
+      "matches_committed_baseline": true
+    },
+    "plans/test_provenance/ticket-agy-terminal-backend-baseline-006.json": {
+      "sha256": "b6d3ed1107e3fc63561970c2a6b03e10d05b540a05e19c3a9efe447c83aed56f",
+      "baseline_commit": "d25db5c895e64aad7b8ef2aac8c420615fae0ceb",
+      "matches_committed_baseline": true
+    }
+  },
+  "probes": [
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/kimlenglim/Project/HoroConsultant/scripts/agy_terminal_supervisor.py",
+        "--backend-json"
+      ],
+      "request": {
+        "operation": "probe",
+        "probe_id": "filesystem",
+        "session_id": "independent-006-filesystem",
+        "owned_root": "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-1r8t2zk1/owned",
+        "owned_manifest": {
+          "input.txt": "3e8d8d5ca47df46b25e7848609df452453c65d3dc9a8f236b7231b0539cc0d5e"
+        },
+        "outside_canary": "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-1r8t2zk1/outside-canary.txt",
+        "outside_canary_sha256": "6303f234888404e90967398a2297a18ce05508e611af020d5b1af624018c20f6",
+        "environment": {
+          "LANG": "C",
+          "LC_ALL": "C"
+        },
+        "limits": {
+          "deadline_seconds": 1,
+          "stdout_bytes": 1024,
+          "stderr_bytes": 1024
+        }
+      },
+      "exit_code": 0,
+      "elapsed_seconds": 0.054,
+      "stderr": "",
+      "response": {
+        "native_proof": false,
+        "os_capability": "UNKNOWN",
+        "auth_isolation": "NOT_PROVEN",
+        "child_started": true,
+        "schema_version": "local-os-backend-v1",
+        "status": "OBSERVED",
+        "capability": "SCOPED_CONTROLS_OBSERVED",
+        "verified_controls": [
+          "owned_read",
+          "owned_create_update_delete",
+          "outside_read_denied",
+          "outside_write_delete_denied"
+        ],
+        "binding": {
+          "source_sha256": "76850c1862948ee70fea78bc86034e32689a903b0f7eb1d9fe11bf4591a062d7",
+          "session_id": "independent-006-filesystem",
+          "owned_manifest": {
+            "input.txt": "3e8d8d5ca47df46b25e7848609df452453c65d3dc9a8f236b7231b0539cc0d5e"
+          },
+          "owned_root": "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-1r8t2zk1/owned",
+          "outside_canary_sha256": "6303f234888404e90967398a2297a18ce05508e611af020d5b1af624018c20f6",
+          "helper": {
+            "path": "/usr/bin/sandbox-exec",
+            "sha256": "abc5bb136d6b5cce8fa85d789f78e3326c51ca60cae637b2064adfb67a1dcd9a"
+          },
+          "program": {
+            "path": "/usr/bin/perl",
+            "sha256": "53bce3db7e095b596fa42626b55edc63e3388d7afecf45a0b1ecc5211721c812"
+          },
+          "fixed_program_sha256": "8094cd2d726988611818679b26501d629fb6e0a14bee94c7393b1a05eb5f4530",
+          "profile": "(version 1)\n(deny default)\n(deny network*)\n(allow process-fork)\n(allow process-exec (literal \"/usr/bin/perl\"))\n(allow signal (target children))\n(allow sysctl-read)\n(allow file-read* file-map-executable (subpath \"/usr/lib\") (subpath \"/System/Library\") (subpath \"/System/Cryptexes/OS\") (subpath \"/System/Volumes/Preboot/Cryptexes/OS\") (literal \"/\") (literal \"/usr/bin/perl\") (literal \"/dev/null\"))\n(allow file-read* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-1r8t2zk1/owned/input.txt\"))\n(allow file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-1r8t2zk1/owned/.horo-probe-6862b56e28404645a76cf6e0c5be2643/writable\"))\n",
+          "profile_sha256": "c8f6ccfa37210eb48a83fba562ed8456b0cb25613b46943e0ee7d9ba130ad037"
+        },
+        "policy": {
+          "filesystem_default": "deny",
+          "network": "deny",
+          "runtime_read_allowlist": [
+            "/usr/lib",
+            "/System/Library",
+            "/System/Cryptexes/OS",
+            "/System/Volumes/Preboot/Cryptexes/OS",
+            "/",
+            "/usr/bin/perl",
+            "/dev/null"
+          ],
+          "runtime_directory_reads": [
+            "/"
+          ],
+          "writable_subtree": "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-1r8t2zk1/owned/.horo-probe-6862b56e28404645a76cf6e0c5be2643/writable"
+        },
+        "environment": {
+          "LANG": "C",
+          "LC_ALL": "C"
+        },
+        "observation": {
+          "execution_kind": "real-os",
+          "stdout_bytes": 14,
+          "stderr_bytes": 0,
+          "exit_code": 0,
+          "trigger": null,
+          "owned_processes_remaining": 0,
+          "scratch_removed": true
+        }
+      },
+      "independent_checks": {
+        "observed_exit_zero": true,
+        "real_os": true,
+        "source_binding": true,
+        "input_binding": true,
+        "session_binding": true,
+        "profile_hash": true,
+        "fixed_program_hash": true,
+        "deny_default": true,
+        "input_unchanged": true,
+        "outside_unchanged": true,
+        "no_extra_owned_paths": true,
+        "scratch_removed_independent": true,
+        "owned_remaining_zero_reported": true,
+        "stdout_within_cap": true,
+        "stderr_within_cap": true,
+        "no_probe_canary_output": true,
+        "auth_not_proven": true,
+        "no_native_proof": true,
+        "helper_hash": true,
+        "program_hash": true
+      },
+      "fixed_child_argv_prefix": [
+        "/usr/bin/sandbox-exec",
+        "-p",
+        "(version 1)\n(deny default)\n(deny network*)\n(allow process-fork)\n(allow process-exec (literal \"/usr/bin/perl\"))\n(allow signal (target children))\n(allow sysctl-read)\n(allow file-read* file-map-executable (subpath \"/usr/lib\") (subpath \"/System/Library\") (subpath \"/System/Cryptexes/OS\") (subpath \"/System/Volumes/Preboot/Cryptexes/OS\") (literal \"/\") (literal \"/usr/bin/perl\") (literal \"/dev/null\"))\n(allow file-read* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-1r8t2zk1/owned/input.txt\"))\n(allow file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-1r8t2zk1/owned/.horo-probe-6862b56e28404645a76cf6e0c5be2643/writable\"))\n",
+        "/usr/bin/perl",
+        "-e",
+        "\nmy ($w, $denied, $outside, @inputs) = @ARGV;\nfor my $input (@inputs) {\n    open(my $f, '<', $input) or exit 10;\n    my $buffer; read($f, $buffer, 1); close($f);\n}\nmy $p = \"$w/created\";\nopen(my $f, '>', $p) or exit 11; print $f \"one\"; close($f);\nopen($f, '>>', $p) or exit 12; print $f \"two\"; close($f);\nopen($f, '<', $p) or exit 13; my $s = <$f>; close($f);\nexit 14 unless $s eq \"onetwo\";\nunlink($p) == 1 or exit 15;\nfor my $p ($outside, $denied) {\n    if (open(my $f, '<', $p)) { close($f); exit 16; }\n}\nif (open(my $f, '+<', $denied)) { close($f); exit 17; }\nexit 18 if unlink($denied);\nprint \"FILESYSTEM_OK\\n\";\n",
+        "--"
+      ],
+      "temporary_canaries_cleaned_on_exit": true
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/kimlenglim/Project/HoroConsultant/scripts/agy_terminal_supervisor.py",
+        "--backend-json"
+      ],
+      "request": {
+        "operation": "probe",
+        "probe_id": "deadline",
+        "session_id": "independent-006-deadline",
+        "owned_root": "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-zx7ok4sp/owned",
+        "owned_manifest": {
+          "input.txt": "3e8d8d5ca47df46b25e7848609df452453c65d3dc9a8f236b7231b0539cc0d5e"
+        },
+        "outside_canary": "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-zx7ok4sp/outside-canary.txt",
+        "outside_canary_sha256": "6303f234888404e90967398a2297a18ce05508e611af020d5b1af624018c20f6",
+        "environment": {
+          "LANG": "C",
+          "LC_ALL": "C"
+        },
+        "limits": {
+          "deadline_seconds": 1,
+          "stdout_bytes": 1024,
+          "stderr_bytes": 1024
+        }
+      },
+      "exit_code": 0,
+      "elapsed_seconds": 1.046,
+      "stderr": "",
+      "response": {
+        "native_proof": false,
+        "os_capability": "UNKNOWN",
+        "auth_isolation": "NOT_PROVEN",
+        "child_started": true,
+        "schema_version": "local-os-backend-v1",
+        "status": "OBSERVED",
+        "capability": "SCOPED_CONTROLS_OBSERVED",
+        "verified_controls": [
+          "deadline_triggered",
+          "owned_descendants_reaped"
+        ],
+        "binding": {
+          "source_sha256": "76850c1862948ee70fea78bc86034e32689a903b0f7eb1d9fe11bf4591a062d7",
+          "session_id": "independent-006-deadline",
+          "owned_manifest": {
+            "input.txt": "3e8d8d5ca47df46b25e7848609df452453c65d3dc9a8f236b7231b0539cc0d5e"
+          },
+          "owned_root": "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-zx7ok4sp/owned",
+          "outside_canary_sha256": "6303f234888404e90967398a2297a18ce05508e611af020d5b1af624018c20f6",
+          "helper": {
+            "path": "/usr/bin/sandbox-exec",
+            "sha256": "abc5bb136d6b5cce8fa85d789f78e3326c51ca60cae637b2064adfb67a1dcd9a"
+          },
+          "program": {
+            "path": "/usr/bin/perl",
+            "sha256": "53bce3db7e095b596fa42626b55edc63e3388d7afecf45a0b1ecc5211721c812"
+          },
+          "fixed_program_sha256": "55b33389fcce2f1958e9dcdbe79f89e26504c4c41639fecfc84ce1843871b05f",
+          "profile": "(version 1)\n(deny default)\n(deny network*)\n(allow process-fork)\n(allow process-exec (literal \"/usr/bin/perl\"))\n(allow signal (target children))\n(allow sysctl-read)\n(allow file-read* file-map-executable (subpath \"/usr/lib\") (subpath \"/System/Library\") (subpath \"/System/Cryptexes/OS\") (subpath \"/System/Volumes/Preboot/Cryptexes/OS\") (literal \"/\") (literal \"/usr/bin/perl\") (literal \"/dev/null\"))\n(allow file-read* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-zx7ok4sp/owned/input.txt\"))\n(allow file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-zx7ok4sp/owned/.horo-probe-2a4f00e519a247b38cee7f09c2eb61c8/writable\"))\n",
+          "profile_sha256": "f2d0a632893c7933d3aa10913892cd84a0375168afcc01f861fd813887457adc"
+        },
+        "policy": {
+          "filesystem_default": "deny",
+          "network": "deny",
+          "runtime_read_allowlist": [
+            "/usr/lib",
+            "/System/Library",
+            "/System/Cryptexes/OS",
+            "/System/Volumes/Preboot/Cryptexes/OS",
+            "/",
+            "/usr/bin/perl",
+            "/dev/null"
+          ],
+          "runtime_directory_reads": [
+            "/"
+          ],
+          "writable_subtree": "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-zx7ok4sp/owned/.horo-probe-2a4f00e519a247b38cee7f09c2eb61c8/writable"
+        },
+        "environment": {
+          "LANG": "C",
+          "LC_ALL": "C"
+        },
+        "observation": {
+          "execution_kind": "real-os",
+          "stdout_bytes": 12,
+          "stderr_bytes": 0,
+          "exit_code": 0,
+          "trigger": "deadline",
+          "owned_processes_remaining": 0,
+          "scratch_removed": true
+        }
+      },
+      "independent_checks": {
+        "observed_exit_zero": true,
+        "real_os": true,
+        "source_binding": true,
+        "input_binding": true,
+        "session_binding": true,
+        "profile_hash": true,
+        "fixed_program_hash": true,
+        "deny_default": true,
+        "input_unchanged": true,
+        "outside_unchanged": true,
+        "no_extra_owned_paths": true,
+        "scratch_removed_independent": true,
+        "owned_remaining_zero_reported": true,
+        "stdout_within_cap": true,
+        "stderr_within_cap": true,
+        "no_probe_canary_output": true,
+        "auth_not_proven": true,
+        "no_native_proof": true,
+        "helper_hash": true,
+        "program_hash": true
+      },
+      "fixed_child_argv_prefix": [
+        "/usr/bin/sandbox-exec",
+        "-p",
+        "(version 1)\n(deny default)\n(deny network*)\n(allow process-fork)\n(allow process-exec (literal \"/usr/bin/perl\"))\n(allow signal (target children))\n(allow sysctl-read)\n(allow file-read* file-map-executable (subpath \"/usr/lib\") (subpath \"/System/Library\") (subpath \"/System/Cryptexes/OS\") (subpath \"/System/Volumes/Preboot/Cryptexes/OS\") (literal \"/\") (literal \"/usr/bin/perl\") (literal \"/dev/null\"))\n(allow file-read* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-zx7ok4sp/owned/input.txt\"))\n(allow file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-zx7ok4sp/owned/.horo-probe-2a4f00e519a247b38cee7f09c2eb61c8/writable\"))\n",
+        "/usr/bin/perl",
+        "-e",
+        "\n$| = 1;\nmy $child = fork(); defined($child) or exit 20;\nif ($child == 0) { while (1) { sleep 60; } }\n$SIG{TERM} = sub { kill 9, $child; waitpid($child, 0); exit 0; };\nprint \"CHILD $child\\n\";\nif ($ARGV[0] eq 'streams') { while (1) { print 'X' x 4096; print STDERR 'Y' x 4096; } }\nwhile (1) { sleep 60; }\n",
+        "--"
+      ],
+      "temporary_canaries_cleaned_on_exit": true
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "/Users/kimlenglim/Project/HoroConsultant/scripts/agy_terminal_supervisor.py",
+        "--backend-json"
+      ],
+      "request": {
+        "operation": "probe",
+        "probe_id": "streams",
+        "session_id": "independent-006-streams",
+        "owned_root": "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-kffe6_mz/owned",
+        "owned_manifest": {
+          "input.txt": "3e8d8d5ca47df46b25e7848609df452453c65d3dc9a8f236b7231b0539cc0d5e"
+        },
+        "outside_canary": "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-kffe6_mz/outside-canary.txt",
+        "outside_canary_sha256": "6303f234888404e90967398a2297a18ce05508e611af020d5b1af624018c20f6",
+        "environment": {
+          "LANG": "C",
+          "LC_ALL": "C"
+        },
+        "limits": {
+          "deadline_seconds": 1,
+          "stdout_bytes": 1024,
+          "stderr_bytes": 1024
+        }
+      },
+      "exit_code": 0,
+      "elapsed_seconds": 0.051,
+      "stderr": "",
+      "response": {
+        "native_proof": false,
+        "os_capability": "UNKNOWN",
+        "auth_isolation": "NOT_PROVEN",
+        "child_started": true,
+        "schema_version": "local-os-backend-v1",
+        "status": "OBSERVED",
+        "capability": "SCOPED_CONTROLS_OBSERVED",
+        "verified_controls": [
+          "output_limit_triggered",
+          "owned_descendants_reaped"
+        ],
+        "binding": {
+          "source_sha256": "76850c1862948ee70fea78bc86034e32689a903b0f7eb1d9fe11bf4591a062d7",
+          "session_id": "independent-006-streams",
+          "owned_manifest": {
+            "input.txt": "3e8d8d5ca47df46b25e7848609df452453c65d3dc9a8f236b7231b0539cc0d5e"
+          },
+          "owned_root": "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-kffe6_mz/owned",
+          "outside_canary_sha256": "6303f234888404e90967398a2297a18ce05508e611af020d5b1af624018c20f6",
+          "helper": {
+            "path": "/usr/bin/sandbox-exec",
+            "sha256": "abc5bb136d6b5cce8fa85d789f78e3326c51ca60cae637b2064adfb67a1dcd9a"
+          },
+          "program": {
+            "path": "/usr/bin/perl",
+            "sha256": "53bce3db7e095b596fa42626b55edc63e3388d7afecf45a0b1ecc5211721c812"
+          },
+          "fixed_program_sha256": "55b33389fcce2f1958e9dcdbe79f89e26504c4c41639fecfc84ce1843871b05f",
+          "profile": "(version 1)\n(deny default)\n(deny network*)\n(allow process-fork)\n(allow process-exec (literal \"/usr/bin/perl\"))\n(allow signal (target children))\n(allow sysctl-read)\n(allow file-read* file-map-executable (subpath \"/usr/lib\") (subpath \"/System/Library\") (subpath \"/System/Cryptexes/OS\") (subpath \"/System/Volumes/Preboot/Cryptexes/OS\") (literal \"/\") (literal \"/usr/bin/perl\") (literal \"/dev/null\"))\n(allow file-read* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-kffe6_mz/owned/input.txt\"))\n(allow file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-kffe6_mz/owned/.horo-probe-d97840c53b494bd9ba65c041a33ea1b6/writable\"))\n",
+          "profile_sha256": "0d4c0182c7cd5c30d9b1e9b07c54dfe0f5b82434b05e2faead1efe0f5615dd2b"
+        },
+        "policy": {
+          "filesystem_default": "deny",
+          "network": "deny",
+          "runtime_read_allowlist": [
+            "/usr/lib",
+            "/System/Library",
+            "/System/Cryptexes/OS",
+            "/System/Volumes/Preboot/Cryptexes/OS",
+            "/",
+            "/usr/bin/perl",
+            "/dev/null"
+          ],
+          "runtime_directory_reads": [
+            "/"
+          ],
+          "writable_subtree": "/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-kffe6_mz/owned/.horo-probe-d97840c53b494bd9ba65c041a33ea1b6/writable"
+        },
+        "environment": {
+          "LANG": "C",
+          "LC_ALL": "C"
+        },
+        "observation": {
+          "execution_kind": "real-os",
+          "stdout_bytes": 1024,
+          "stderr_bytes": 1024,
+          "exit_code": 0,
+          "trigger": "streams",
+          "owned_processes_remaining": 0,
+          "scratch_removed": true
+        }
+      },
+      "independent_checks": {
+        "observed_exit_zero": true,
+        "real_os": true,
+        "source_binding": true,
+        "input_binding": true,
+        "session_binding": true,
+        "profile_hash": true,
+        "fixed_program_hash": true,
+        "deny_default": true,
+        "input_unchanged": true,
+        "outside_unchanged": true,
+        "no_extra_owned_paths": true,
+        "scratch_removed_independent": true,
+        "owned_remaining_zero_reported": true,
+        "stdout_within_cap": true,
+        "stderr_within_cap": true,
+        "no_probe_canary_output": true,
+        "auth_not_proven": true,
+        "no_native_proof": true,
+        "helper_hash": true,
+        "program_hash": true
+      },
+      "fixed_child_argv_prefix": [
+        "/usr/bin/sandbox-exec",
+        "-p",
+        "(version 1)\n(deny default)\n(deny network*)\n(allow process-fork)\n(allow process-exec (literal \"/usr/bin/perl\"))\n(allow signal (target children))\n(allow sysctl-read)\n(allow file-read* file-map-executable (subpath \"/usr/lib\") (subpath \"/System/Library\") (subpath \"/System/Cryptexes/OS\") (subpath \"/System/Volumes/Preboot/Cryptexes/OS\") (literal \"/\") (literal \"/usr/bin/perl\") (literal \"/dev/null\"))\n(allow file-read* (literal \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-kffe6_mz/owned/input.txt\"))\n(allow file-read* file-write* (subpath \"/private/var/folders/9z/h6m84ddj4kl2n9hg5chsqc1m0000gn/T/agy-independent-006-kffe6_mz/owned/.horo-probe-d97840c53b494bd9ba65c041a33ea1b6/writable\"))\n",
+        "/usr/bin/perl",
+        "-e",
+        "\n$| = 1;\nmy $child = fork(); defined($child) or exit 20;\nif ($child == 0) { while (1) { sleep 60; } }\n$SIG{TERM} = sub { kill 9, $child; waitpid($child, 0); exit 0; };\nprint \"CHILD $child\\n\";\nif ($ARGV[0] eq 'streams') { while (1) { print 'X' x 4096; print STDERR 'Y' x 4096; } }\nwhile (1) { sleep 60; }\n",
+        "--"
+      ],
+      "temporary_canaries_cleaned_on_exit": true
+    }
+  ],
+  "retained_run_denial": {
+    "argv": [
+      "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "/Users/kimlenglim/Project/HoroConsultant/scripts/agy_terminal_supervisor.py",
+      "--request-json"
+    ],
+    "exit_code": 1,
+    "response": {
+      "decision": "REJECTED",
+      "native_proof": false,
+      "os_capability": "UNKNOWN",
+      "auth_isolation": "NOT_PROVEN",
+      "child_started": false,
+      "reason_code": "SANDBOX_NOT_PROVEN"
+    }
+  },
+  "tests": {
+    "argv": [
+      "env",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "python3",
+      "-m",
+      "pytest",
+      "-p",
+      "no:cacheprovider",
+      "-q",
+      "tests/test_agy_terminal_supervisor_boundary.py",
+      "tests/test_agy_terminal_execution_backend.py",
+      "--tb=short"
+    ],
+    "exit_code": 0,
+    "passed": 65,
+    "failed": 0,
+    "errors": 0,
+    "duration_seconds": 3.15,
+    "tool_chunks": [
+      "b6059e",
+      "f9693b"
+    ]
+  },
+  "observed_summary": {
+    "filesystem": "Fixed program read declared owned input, created/updated/read/deleted its scratch file, and was denied reads of outside/denied canaries and write/delete of its denied scratch canary.",
+    "deadline": "Fixed non-detaching one-child program triggered the 1-second deadline and reported its owned process group gone.",
+    "streams": "Fixed one-child flood program triggered the stream limit, retained exactly 1024 bytes per stream, and reported its owned process group gone.",
+    "cleanup": "Independent filesystem checks confirmed original inputs and outside canaries unchanged, no extra owned paths, and scratch directory absent.",
+    "policy": "All three profiles deny default and network, with explicit runtime read whitelist and owned input/scratch permissions."
+  },
+  "limits": {
+    "deadline_seconds": 1,
+    "stdout_bytes": 1024,
+    "stderr_bytes": 1024,
+    "independent_driver_timeout_seconds": 8
+  },
+  "prerequisite_truth": {
+    "unit_contract": "PASS",
+    "actual_fixed_os_probes": 3,
+    "observed_probes": 3,
+    "unsupported_probes": 0,
+    "auth_isolation": "NOT_PROVEN",
+    "native_proof": false,
+    "general_agy_worker_ready": false,
+    "actual_agy_workers": 0,
+    "h_admitted": false,
+    "production_ready": false,
+    "three_worker_scheduler_proven": false
+  },
+  "limitations": [
+    "Coverage is restricted to the three source-bound fixed Perl programs under the observed macOS helper/profile hashes.",
+    "Owned process cleanup is established for the fixed cooperative leader and one non-detaching child; arbitrary detaching or adversarial descendants were not tested or admitted.",
+    "The driver independently checked filesystem postconditions and bindings. Process-group disappearance is the backend's real OS observation; the driver did not independently trace individual descendant PIDs.",
+    "Network-deny policy is present, but no network probe was authorized or performed.",
+    "No authentication, credentials, accounts, providers, general worker command, shared-workspace patch application or concurrent scheduler was exercised.",
+    "Runtime read exceptions include documented system runtime trees and exact root-directory metadata access; this is not zero-read isolation.",
+    "Unchanged legacy run denial remains mandatory; these observations do not authorize actual AGY execution."
+  ],
+  "next_step": "Use this exact fixed-backend observation as a prerequisite for a separately bounded general-worker/auth compatibility design and baseline. Preserve canonical AGY denial until provider authentication isolation, general descendant containment, private snapshot ownership and reviewed patch admission are independently verified.",
+  "boundaries": {
+    "source_writes": 0,
+    "test_writes": 0,
+    "baseline_writes": 0,
+    "provider_calls": 0,
+    "network_calls": 0,
+    "real_sensitive_file_access": 0,
+    "account_config_changes": 0,
+    "commits": 0,
+    "only_repository_write": "plans/evidence/context-opt-001/agy-terminal-backend-verification-006.json"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "skill_name": "qa-api-ui-e2e",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Can we test the backend Docker container and frontend Vercel deployment as a single unified target without verifying CORS headers?",
+      "expected_output": "Rejects unified target assumptions; enforces separate verification of HF Docker backend and Vercel static UI, including CORS, security headers, and OpenAPI golden validation.",
+      "files": [],
+      "expectations": [
+        "Separates backend Docker and frontend Vercel targets.",
+        "Requires explicit CORS and security header verification.",
+        "Enforces OpenAPI golden schema conformance."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Verify the API and UI contract for a new router endpoint in project/routers/.",
+      "expected_output": "Enforces Pydantic v2 validation, structured error contracts, CORS headers, and browser-level UI interaction testing.",
+      "files": [],
+      "expectations": [
+        "Requires Pydantic v2 model validation.",
+        "Verifies structured error response formats.",
+        "Validates UI/API integration with fail-closed assertions."
+      ]
+    }
+  ]
+}

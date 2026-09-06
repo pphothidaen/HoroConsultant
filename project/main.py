@@ -205,6 +205,24 @@ async def admin_auth_middleware(request: Request, call_next):
     return await call_next(request)
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+PUBLIC_DIR = os.path.abspath(os.path.join(PROJECT_ROOT, "..", "public"))
+
+
+def _resolve_frontend_asset(filename: str) -> str | None:
+    """Resolve a frontend asset from public/ first, then static/."""
+    for directory in (PUBLIC_DIR, STATIC_DIR):
+        candidate = os.path.join(directory, filename)
+        if os.path.isfile(candidate):
+            return candidate
+    return None
+
+
+def _serve_frontend_asset(filename: str, fallback_payload: dict[str, str], *, status_code: int = 404):
+    resolved = _resolve_frontend_asset(filename)
+    if resolved is None:
+        return JSONResponse(content=fallback_payload, status_code=status_code)
+    return FileResponse(resolved)
 if os.path.exists(STATIC_DIR):
     try:
         app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
@@ -212,6 +230,7 @@ if os.path.exists(STATIC_DIR):
         logger.warning(f"StaticFiles mount skipped: {e}")
 
 from project.core.rate_limiter import rate_limiter
+from project.routers.unified_reading_router import unified_reading_router
 from project.routers.v2 import v2_router
 from project.routers.v3 import v3_router
 
@@ -224,7 +243,22 @@ async def rate_limit_middleware(request: Request, call_next):
     if os.getenv("TESTING", "").lower() in ("true", "1") or os.getenv("PYTEST_CURRENT_TEST") or client_ip == "testclient":
         return await call_next(request)
     # Allow static assets and health checks without rate limit restriction
-    if not path.startswith("/static") and path not in ("/", "/health", "/metrics", "/app.js", "/style.css"):
+    if (
+        not path.startswith("/static")
+        and path not in (
+            "/",
+            "/health",
+            "/metrics",
+            "/app.js",
+            "/style.css",
+            "/lite",
+            "/lite/",
+            "/lite.css",
+            "/lite.js",
+            "/export_engine.js",
+            "/export_modal.css",
+        )
+    ):
         allowed, reason = rate_limiter.check_rate_limit(client_ip, path)
         if not allowed:
             return JSONResponse(status_code=429, content={"detail": f"Rate limit exceeded: {reason}"})
@@ -238,6 +272,7 @@ app.include_router(debate_router)
 app.include_router(mlops_router)
 app.include_router(v2_router, prefix="/api/v2")
 app.include_router(v3_router, prefix="/api/v3")
+app.include_router(unified_reading_router, prefix="/api/v3")
 app.include_router(synastry_router)
 app.include_router(calendar_router)
 app.include_router(luopan_dream_router)
@@ -292,34 +327,106 @@ async def serve_ui():
     return JSONResponse(content={"status": "ok", "service": "Computational Metaphysics Engine"})
 
 
+@app.get("/lite", include_in_schema=False)
+@app.get("/lite/", include_in_schema=False)
+async def serve_lite():
+    return _serve_frontend_asset(
+        "lite.html",
+        {
+            "status": "error",
+            "message": "Horo Lite UI not found",
+        },
+    )
+
+
 @app.get("/app.js", response_class=FileResponse, include_in_schema=False)
 async def serve_app_js():
-    return FileResponse(os.path.join(STATIC_DIR, "app.js"))
+    return _serve_frontend_asset(
+        "app.js",
+        {"status": "error", "message": "app.js not found"},
+        status_code=404,
+    )
 
 
 @app.get("/style.css", response_class=FileResponse, include_in_schema=False)
 async def serve_style_css():
-    return FileResponse(os.path.join(STATIC_DIR, "style.css"))
+    return _serve_frontend_asset(
+        "style.css",
+        {"status": "error", "message": "style.css not found"},
+        status_code=404,
+    )
 
 
 @app.get("/voice_engine.js", response_class=FileResponse, include_in_schema=False)
 async def serve_voice_engine_js():
-    return FileResponse(os.path.join(STATIC_DIR, "voice_engine.js"))
+    return _serve_frontend_asset(
+        "voice_engine.js",
+        {"status": "error", "message": "voice_engine.js not found"},
+        status_code=404,
+    )
 
 
 @app.get("/i18n.js", response_class=FileResponse, include_in_schema=False)
 async def serve_i18n_js():
-    return FileResponse(os.path.join(STATIC_DIR, "i18n.js"))
+    return _serve_frontend_asset(
+        "i18n.js",
+        {"status": "error", "message": "i18n.js not found"},
+        status_code=404,
+    )
 
 
 @app.get("/sw.js", response_class=FileResponse, include_in_schema=False)
 async def serve_sw_js():
-    return FileResponse(os.path.join(STATIC_DIR, "sw.js"))
+    return _serve_frontend_asset(
+        "sw.js",
+        {"status": "error", "message": "sw.js not found"},
+        status_code=404,
+    )
 
 
 @app.get("/version.json", response_class=FileResponse, include_in_schema=False)
 async def serve_version_json():
-    return FileResponse(os.path.join(STATIC_DIR, "version.json"))
+    return _serve_frontend_asset(
+        "version.json",
+        {"status": "error", "message": "version.json not found"},
+        status_code=404,
+    )
+
+
+@app.get("/lite.css", include_in_schema=False)
+async def serve_lite_css():
+    return _serve_frontend_asset(
+        "lite.css",
+        {"status": "error", "message": "lite.css not found"},
+        status_code=404,
+    )
+
+
+@app.get("/lite.js", include_in_schema=False)
+async def serve_lite_js():
+    return _serve_frontend_asset(
+        "lite.js",
+        {"status": "error", "message": "lite.js not found"},
+        status_code=404,
+    )
+
+
+@app.get("/export_engine.js", include_in_schema=False)
+async def serve_export_engine_js():
+    return _serve_frontend_asset(
+        "export_engine.js",
+        {"status": "error", "message": "export_engine.js not found"},
+        status_code=404,
+    )
+
+
+@app.get("/export_modal.css", include_in_schema=False)
+async def serve_export_modal_css():
+    return _serve_frontend_asset(
+        "export_modal.css",
+        {"status": "error", "message": "export_modal.css not found"},
+        status_code=404,
+    )
 
 
 @app.get("/admin", response_class=FileResponse, tags=["Admin UI"])

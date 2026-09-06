@@ -1,0 +1,39 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-AGY2-POLICY-SOURCE-009",
+  "revision": 1,
+  "ticket_sha256": "b329227ecfabee1b39a211873c7766599865a047a3b64ffe978abfefde7527c5",
+  "plan_sha256": "46b3211098a3fb515d770049d829d2259975709148629744aedfa1510deef3f2",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-AGY2-POLICY-SOURCE-009",
+      "role": "developer",
+      "phase": "implementation",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "tests/test_agy_terminal_worker_policy.py",
+        "plans/test_provenance/ticket-agy-terminal-worker-policy-baseline-009.json",
+        "scripts/agy_terminal_worker_policy.py"
+      ],
+      "requested_horo_skills": [
+        "sdlc-aisdlc-workflow"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "local-only-boundary",
+        "no-native-execution-proof"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-other-file-write",
+        "no-test-write",
+        "no-provider-execution",
+        "no-push",
+        "no-deploy"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

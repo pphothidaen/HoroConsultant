@@ -1,0 +1,19 @@
+{
+  "normalized_scopes": [
+    "root"
+  ],
+  "plugins": [
+    "superpowers"
+  ],
+  "registry_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "render_parity": "IDENTICAL_SEMANTICS",
+  "schema_version": "antigravity-render-parity-v1",
+  "skills": [
+    "agile-governance",
+    "anti-cognitive-decay",
+    "orchestrator-delegation",
+    "requirement-grill-gate"
+  ],
+  "target": "antigravity",
+  "tools": []
+}

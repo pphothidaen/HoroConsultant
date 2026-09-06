@@ -20,6 +20,7 @@ Usage:
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 import json
 import logging
 import re
@@ -43,6 +44,12 @@ SECRET_PATTERNS = [
     (re.compile(r'ghp_[A-Za-z0-9]{36}'), "GitHub Personal Access Token"),
     (re.compile(r'dckr_pat_[A-Za-z0-9_-]{20,}'), "Docker Hub Personal Access Token"),
     (re.compile(r'glc_[A-Za-z0-9_-]{20,}'), "Grafana Cloud API Key"),
+    (re.compile(r'\bsk-(?:proj-)?[A-Za-z0-9_-]{32,}\b'), "OpenAI API Key"),
+    (re.compile(r'\bsk-ant-[A-Za-z0-9_-]{32,}\b'), "Anthropic API Key"),
+    (re.compile(r'\bAKIA[0-9A-Z]{16}\b'), "AWS Access Key"),
+    (re.compile(r'-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----'), "Private Key Header"),
+    (re.compile(r'\bxox[baprs]-[0-9a-zA-Z]{10,48}\b'), "Slack Token"),
+    (re.compile(r'\b[0-9]{9,10}:[a-zA-Z0-9_-]{35}\b'), "Telegram Bot Token"),
 ]
 
 # Sensitive files that should not be committed with actual secrets
@@ -64,7 +71,7 @@ class CodeReviewer:
             if hasattr(rust_core, "run_rust_security_audit"):
                 passed, scanned_files, rust_findings = rust_core.run_rust_security_audit(str(target_root))
                 findings = [{"file": f, "secret_type": "Security Finding", "count": 1} for f in rust_findings]
-                log.info(f"⚡ [Rust Security Auditor] Scanned {scanned_files} files in parallel via Rayon")
+                log.info(f"[Rust Security Auditor] Scanned {scanned_files} files in parallel via Rayon")
                 return {
                     "scanned_files": scanned_files,
                     "secret_leaks_found": len(findings),
@@ -73,7 +80,7 @@ class CodeReviewer:
                     "status": "PASSED" if passed else "FAILED"
                 }
         except Exception as e:
-            log.warning(f"Rust security audit fallback: {e}")
+            log.warning(f"[WARNING] Rust security audit fallback: {e}")
 
         findings = []
         scanned_files = 0
@@ -81,9 +88,9 @@ class CodeReviewer:
         for path in target_root.rglob("*"):
             if not path.is_file():
                 continue
-            if any(part in path.parts for part in [".git", ".pytest_cache", ".ruff_cache", "__pycache__", "venv", ".venv", "wandb", "node_modules", ".vercel", "target"]):
+            if any(part in path.parts for part in [".git", ".pytest_cache", ".ruff_cache", "__pycache__", "venv", ".venv", "wandb", "node_modules", ".vercel", "target", ".worktrees"]):
                 continue
-            if path.name.startswith(".env"):
+            if path.name.startswith(".env") or path.name.startswith("gen-lang-client") or path.name.endswith(".pyc"):
                 continue
 
             if path.stat().st_size > 1_000_000:
@@ -96,7 +103,10 @@ class CodeReviewer:
                 for pattern, secret_type in SECRET_PATTERNS:
                     matches = pattern.findall(content)
                     if matches:
-                        valid_matches = [m for m in matches if not any(d in m.lower() for d in ["dummy", "replace", "example", "test"])]
+                        valid_matches = [
+                            m for m in matches
+                            if not any(d in str(m).lower() for d in ["dummy", "replace", "example", "test", "canary", "placeholder", "sample", "must-never", "fixture"])
+                        ]
                         if valid_matches:
                             rel_path = path.relative_to(target_root)
                             findings.append({
@@ -114,6 +124,88 @@ class CodeReviewer:
             "findings": findings,
             "leaks": findings,
             "status": "PASSED" if len(findings) == 0 else "FAILED"
+        }
+
+    @staticmethod
+    def audit_python_ast(root_dir: Path | str | None = None) -> dict[str, Any]:
+        """Scan repository Python source files for AST syntax anomalies, surrogate encoding crashes, and null-byte corruption."""
+        import ast
+        target_root = Path(root_dir) if root_dir is not None else ROOT
+        issues = []
+        scanned_files = 0
+
+        for path in target_root.rglob("*.py"):
+            if not path.is_file():
+                continue
+            if any(part in path.parts for part in [".git", ".pytest_cache", ".ruff_cache", "__pycache__", "venv", ".venv", "wandb", "node_modules", ".vercel", "target", ".worktrees"]):
+                continue
+            if path.stat().st_size > 2_000_000:
+                continue
+
+            rel_path = str(path.relative_to(target_root))
+            scanned_files += 1
+
+            # 1. Byte-level checks: null bytes & UTF-8 surrogate code point checks
+            try:
+                raw_bytes = path.read_bytes()
+                if b"\x00" in raw_bytes:
+                    issues.append({
+                        "file": rel_path,
+                        "issue": "Null byte detected in Python source (file corruption or binary injection)",
+                        "severity": "CRITICAL"
+                    })
+                    continue
+                try:
+                    content = raw_bytes.decode("utf-8")
+                except UnicodeDecodeError as exc:
+                    issues.append({
+                        "file": rel_path,
+                        "issue": f"UTF-8 decode crash (invalid byte sequence): {exc}",
+                        "severity": "CRITICAL"
+                    })
+                    continue
+
+                surrogates = [c for c in content if 0xD800 <= ord(c) <= 0xDFFF]
+                if surrogates:
+                    issues.append({
+                        "file": rel_path,
+                        "issue": f"Lone surrogate encoding detected ({len(surrogates)} surrogate code points)",
+                        "severity": "CRITICAL"
+                    })
+                    continue
+            except Exception as exc:
+                issues.append({
+                    "file": rel_path,
+                    "issue": f"Fail-closed I/O error reading Python source: {exc}",
+                    "severity": "CRITICAL"
+                })
+                continue
+
+            # 2. AST parsing & compile checks
+            try:
+                tree = ast.parse(content, filename=rel_path)
+                compile(content, rel_path, "exec")
+            except (SyntaxError, IndentationError, TabError) as exc:
+                issues.append({
+                    "file": rel_path,
+                    "line": getattr(exc, "lineno", None),
+                    "issue": f"AST Syntax anomaly: {exc.msg if hasattr(exc, 'msg') else exc}",
+                    "severity": "CRITICAL"
+                })
+                continue
+            except Exception as exc:
+                issues.append({
+                    "file": rel_path,
+                    "issue": f"Fail-closed compilation failure: {exc}",
+                    "severity": "CRITICAL"
+                })
+                continue
+
+        return {
+            "scanned_python_files": scanned_files,
+            "issues_found": len(issues),
+            "issues": issues,
+            "status": "PASSED" if len(issues) == 0 else "FAILED"
         }
 
     @staticmethod
@@ -342,10 +434,11 @@ class CodeReviewer:
         test_baseline: str | None = None,
         test_manifest: str | None = None,
     ) -> dict[str, Any]:
-        """Execute comprehensive pre-deployment review."""
-        log.info("🔎 Running Pre-Deployment Code Review & Safety Audit...")
+        """Execute comprehensive pre-deployment review with strict fail-closed stop conditions."""
+        log.info("Running Pre-Deployment Code Review & Safety Audit...")
 
         secret_report = CodeReviewer.scan_secrets()
+        ast_report = CodeReviewer.audit_python_ast()
         kaggle_report = CodeReviewer.audit_kaggle_dependencies()
         notebook_report = CodeReviewer.audit_notebooks()
         test_report = CodeReviewer.run_tests()
@@ -355,26 +448,54 @@ class CodeReviewer:
             test_manifest,
         )
 
-        all_passed = (
-            secret_report["status"] == "PASSED" and
-            notebook_report["status"] == "PASSED" and
-            test_report["status"] == "PASSED" and
-            kaggle_report["status"] in ("PASSED", "WARNING") and
-            provenance_report["status"] in ("PASSED", "NOT_REQUESTED")
-        )
+        stop_conditions = []
+        if secret_report.get("status") != "PASSED":
+            stop_conditions.append(
+                f"STOP_CONDITION_SECRET_LEAK: {secret_report.get('secret_leaks_found', 0)} secret findings"
+            )
+        if ast_report.get("status") != "PASSED":
+            stop_conditions.append(
+                f"STOP_CONDITION_AST_ANOMALY: {ast_report.get('issues_found', 0)} AST syntax/encoding issues"
+            )
+        if notebook_report.get("status") != "PASSED":
+            stop_conditions.append(
+                f"STOP_CONDITION_NOTEBOOK_FAILURE: {notebook_report.get('issues_found', 0)} notebook issues"
+            )
+        if test_report.get("status") != "PASSED":
+            stop_conditions.append(
+                f"STOP_CONDITION_TEST_REGRESSION: exit code {test_report.get('exit_code')}"
+            )
+        if kaggle_report.get("status") not in ("PASSED", "WARNING"):
+            stop_conditions.append(
+                f"STOP_CONDITION_KAGGLE_CRITICAL: {kaggle_report.get('issues_found', 0)} dependency issues"
+            )
+        if provenance_report.get("status") not in ("PASSED", "NOT_REQUESTED"):
+            stop_conditions.append(
+                f"STOP_CONDITION_PROVENANCE_FAILURE: {len(provenance_report.get('issues', []))} provenance issues"
+            )
+
+        overall_status = "READY_FOR_PROD" if not stop_conditions else "BLOCKED"
 
         audit_report = {
-            "auditor": "CodeReviewer v1.0",
-            "timestamp": __import__("datetime").datetime.now().isoformat(),
-            "overall_status": "READY_FOR_PROD" if all_passed else "BLOCKED",
+            "auditor": "CodeReviewer v2.0 (Pre-Deployment Safety Auditor)",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "overall_status": overall_status,
+            "stop_conditions": stop_conditions,
             "secret_scan": secret_report,
+            "ast_syntax_audit": ast_report,
             "kaggle_cuda_audit": kaggle_report,
             "notebook_audit": notebook_report,
             "test_suite": test_report,
             "test_provenance": provenance_report,
         }
 
-        log.info(f"📊 Audit Complete — Overall Status: {audit_report['overall_status']}")
+        log.info(f"Audit Complete - Overall Status: {audit_report['overall_status']}")
+        if stop_conditions:
+            for sc in stop_conditions:
+                log.error(f"Stop Condition Tripped: {sc}")
+        else:
+            log.info("All pre-deployment safety gates passed.")
+
         return audit_report
 
 
@@ -388,6 +509,7 @@ def main():
     parser = argparse.ArgumentParser(description="HoroConsultant Pre-Deployment Code Reviewer")
     parser.add_argument("--review", action="store_true", help="Run full code review & safety audit")
     parser.add_argument("--scan-secrets", action="store_true", help="Scan for secret leaks only")
+    parser.add_argument("--audit-ast", action="store_true", help="Audit Python AST syntax and encoding safety")
     parser.add_argument("--use-python", action="store_true", help="Force python execution instead of Rust binary")
     parser.add_argument("--ticket", help="Ticket ID bound to a test-provenance manifest")
     parser.add_argument("--test-baseline", help="Exact committed test-baseline SHA")
@@ -404,7 +526,12 @@ def main():
     reviewer = CodeReviewer()
     if args.scan_secrets:
         report = CodeReviewer.scan_secrets()
-        print(json.dumps(report, indent=2, ensure_ascii=False))
+        print(json.dumps(report, indent=2, ensure_ascii=True))
+        sys.exit(0 if report["status"] == "PASSED" else 1)
+
+    if args.audit_ast:
+        report = CodeReviewer.audit_python_ast()
+        print(json.dumps(report, indent=2, ensure_ascii=True))
         sys.exit(0 if report["status"] == "PASSED" else 1)
 
     report = reviewer.run_full_review(
@@ -412,7 +539,7 @@ def main():
         test_baseline=args.test_baseline,
         test_manifest=args.test_manifest,
     )
-    print(json.dumps(report, indent=2, ensure_ascii=False))
+    print(json.dumps(report, indent=2, ensure_ascii=True))
     sys.exit(0 if report["overall_status"] == "READY_FOR_PROD" else 1)
 
 

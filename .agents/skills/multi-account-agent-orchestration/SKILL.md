@@ -158,28 +158,31 @@ orchestrator session.
 ## Quota, retries, and HITL
 
 - Re-check quota before a large dispatch and record only a safe band/status.
-- At below 10%, stop broad work, update `TICKET-META-008` and the account
-  continuity section in `plans/plan.md`, then run:
+- Quota thresholds are defined strictly in remaining percentage semantics:
+  - `<=40%` remaining quota: reassess before each bounded lane (amber warning).
+  - `<=20%` remaining quota: at most one bounded lane plus snapshot before material action (critical/orange).
+  - `<10%` remaining quota, HTTP 429, `usageLimitExceeded`, or missing/contradictory signal before high-cost work: immediate freeze-and-handoff to `HANDOFF.md` Rescue Queue. `UNKNOWN` is never GREEN. Stop broad work, update `TICKET-META-008` and the account continuity section in `plans/plan.md`, then run:
 
 ```bash
 python3 scripts/agent_quota_status_guard.py --remaining-percent <percent> --enforce
 ```
 
+### Pool Isolation & Multi-Account Observation Independence
+
+Preserve pool isolation: host (e.g. 27%), codex1 (e.g. 96% five-hour), agy1 (e.g. 96% five-hour), and agy2 (e.g. 75.21% weekly / 100% five-hour) are independent owner observations and must never be averaged, combined, or substituted. Auxiliary work requires alias/config isolation validation, a fresh pool-specific receipt, and a receipt-backed decision; failure evaluates to `UNKNOWN`.
+
 ### Codex Multi-Account Quota & 4-Tier Adaptive Monitoring Protocol
 
 Codex CLI operates via ChatGPT subscription auth and lacks a native `/usage`
 percentage endpoint. To assess `codex1`, `codex2`, and `codex3` capacity, agents
-must use the 4-tier operational model via `scripts/codex_quota_workaround.py`:
+must use the 4-tier operational model with remaining percentage semantics:
 
-- **Tier 1 (Normal / Green)**: 1h tokens < 1M (Load: `IDLE`/`LOW`). Max concurrency: 3, adaptive poll: 600s.
-- **Tier 2 (Warning / Amber)**: Quota < 40% or 1h tokens 1M–10M (Load: `MODERATE`). Max concurrency: 2, adaptive poll: 120s, warn operator.
-- **Tier 3 (Critical / Orange)**: Quota < 20% or 1h tokens > 10M (Load: `HEAVY`). Max concurrency: 1, adaptive poll: 30s, pre-commit state required.
-- **Tier 4 (Exhausted / Red)**: Quota < 10%, `usageLimitExceeded`, or HTTP 429. Immediate freeze, auto-dump interrupted tasks to `HANDOFF.md` Rescue Queue, and failover to available IDLE alias (`codex2`/`codex3`/`agy`).
+- **Tier 1 (Normal / Green)**: Remaining quota > 40% (or 1h tokens < 1M, Load: `IDLE`/`LOW`). Max concurrency: 3, adaptive poll: 600s.
+- **Tier 2 (Warning / Amber)**: Remaining quota <= 40% (or 1h tokens 1M–10M, Load: `MODERATE`). Max concurrency: 2, adaptive poll: 120s, reassess before each bounded lane.
+- **Tier 3 (Critical / Orange)**: Remaining quota <= 20% (or 1h tokens > 10M, Load: `HEAVY`). Max concurrency: 1, adaptive poll: 30s, pre-commit state required.
+- **Tier 4 (Exhausted / Red)**: Remaining quota < 10%, `usageLimitExceeded`, HTTP 429, or missing/contradictory signal. Immediate freeze, auto-dump interrupted tasks to `HANDOFF.md` Rescue Queue, and failover to available IDLE alias (`codex2`/`codex3`/`agy`).
 
-Run a summary scan across all Codex accounts before heavy delegation:
-```bash
-python3 scripts/codex_quota_workaround.py --mode summary
-```
+Running unapproved `codex_quota_workaround.py --mode summary` is strictly prohibited unless separately authorized for both login-status calls and rollout JSONL reads. It is never exact quota proof.
 
 
 - Retry only the same bounded failure, recording attempt number and evidence.

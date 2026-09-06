@@ -1,0 +1,45 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-AGY-TERMINAL-BASELINE-005",
+  "revision": 1,
+  "ticket_sha256": "09597d62412d222b58e96a1172d9937fdf61a6b71b5b1143758e1cd6ed97382e",
+  "plan_sha256": "1a5548293662d2201d8df0268c75e1ec6da7772c3254e366d1b9d3842c7db5a6",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-AGY-TERMINAL-BASELINE-005",
+      "role": "qa_tester",
+      "phase": "red_baseline",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "tests/test_agy_terminal_supervisor_boundary.py",
+        "plans/test_provenance/ticket-agy-terminal-boundary-baseline-005.json",
+        "scripts/agy_terminal_supervisor.py",
+        "scripts/multiagent_prompt_command.py",
+        "docs/architecture/agy-terminal-supervisor.md"
+      ],
+      "requested_horo_skills": [
+        "qa-regression-provenance",
+        "qa-e2e-testing"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "sandbox-capability-unknown",
+        "auth-isolation-not-proven"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-source-write",
+        "no-existing-test-write",
+        "no-evidence-write",
+        "no-provider-mutation",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-network"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

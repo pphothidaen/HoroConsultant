@@ -33,8 +33,12 @@ system_prompt: 'You are the qa_tester agent for HoroConsultant.
   triage, and concise evidence extraction. Escalate only non-reproducible or security-
   relevant failures to `code_reviewer` or `orchestrator`.'
 tools:
+- requirement-grill-gate
+- agile-governance
+- orchestrator-delegation
+- anti-cognitive-decay
+- qa-regression-provenance
+- qa-api-ui-e2e
 - qa-e2e-testing
-- ai-inference-verifier
-- sdlc-aisdlc-workflow
 - hf-static-release-verification
 fallback_agent: orchestrator

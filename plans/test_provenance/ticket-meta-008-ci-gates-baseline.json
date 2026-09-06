@@ -1,0 +1,39 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-META-008-CI-BASELINE-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "160aefe772c801e39904626b0f0009a9b021c1f0",
+  "test_files": [
+    {
+      "path": "tests/test_release_ci_gates.py",
+      "sha256": "9a946e35a05e75b7078723ab8f754c17e0a979fcc639aa8bbc5b91df51b7e5bf"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_release_ci_gates.py",
+        "--tb=short",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "98 failed in 0.50s; assertion-level missing verifier and workflow gates; strict integer/malformed response/ambiguous identity/trusted path suffix controls"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/verify_release_ci_gates.py",
+    ".github/workflows/hf_backend_deploy.yml",
+    ".github/workflows/ai_cicd.yml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Fresh independent defect baseline before any CI source changes. Offline HTTP-only doubles exercise exact main SHA/repository/trusted push/workflow identities, latest run and attempt, all five required successes, missing/ambiguous/pagination/error rejection, sanitized CLI exits, both release entry paths and final prepublication main revalidation. VERIFIED denotes observed assertion-level RED only; independent review and test-only baseline commit are pending. No source admission or hosted CI/production success is claimed. Approved context e7b9d4bf569e1f3bf52b1e6187897ce86de686f1b0cd788ccc5ea1aeaa1ed464. Baseline observed summary: 98 failed in 0.50s. Additional reviewed negatives require noncoerced positive integer IDs and ordering, nonnegative total count, typed malformed response rejection, conflicting identity/sequence rejection and invalid caller inputs rejected before HTTP. Run path accepts exact workflow path or only @main and @refs/heads/main suffixes, rejecting other refs."
+}

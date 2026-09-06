@@ -1,0 +1,39 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-META-008-CI-PERMISSION-BASELINE-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "bb69408c0d09535442d63068860484826737734b",
+  "test_files": [
+    {
+      "path": "project/tests/test_github_actions_regression.py",
+      "sha256": "6d9c74111b30ef6be4f2559d18ae9be6bc1ec082411b3260fc38638abfd248e7"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "project/tests/test_github_actions_regression.py",
+        "-k",
+        "release_workflow_permissions or hf_backend_deploy_workflow",
+        "--tb=short",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "1 failed, 1 passed, 60 deselected in 0.03s; Updated exact HF permissions assertion rejects absent actions:read; developer removed exploration permission before this current-workspace RED while preserving CI gate wiring."
+    }
+  ],
+  "allowed_source_paths": [
+    ".github/workflows/hf_backend_deploy.yml"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Fresh current-workspace RED after developer removed the scoped exploration implementation and before reimplementation. Earlier exploration and reconstructed characterization are disclosed, not retroactively called TDD. This baseline now freezes tests before the forthcoming implementation. Updated exact HF permissions assertion rejects absent actions:read; developer removed exploration permission before this current-workspace RED while preserving CI gate wiring. Source snapshot SHA256 fc7af61645d43fae8d8772e29c58aba92d1d6af4932ce6d770c205c9d9830b63. Test path was clean before QA changed only one HF expected dictionary entry; exact contents:read/actions:read equality denies extra permission keys and write/admin values; existing no-job-level-permissions assertion unchanged. Prior exploratory workflow characterization was 160 passed across workflow regression and adjacent gate tests. Current RED summary 1 failed, 1 passed, 60 deselected in 0.03s. Independent review and test-only commit pending; no source admission or hosted CI/production claim. Existing historical baselines remain unchanged."
+}

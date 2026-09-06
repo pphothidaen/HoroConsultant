@@ -1,0 +1,69 @@
+{
+  "schema_version": "orchestrator-continuation-note-v1",
+  "authority": "control-plane snapshot; not a grant or replacement for canonical plans",
+  "recorded_at": "2026-09-06T00:42:05.196648+00:00",
+  "objective": "Continue until hosted CI/CD is verified; user authorized continued remediation and code push subject to release gates",
+  "clear_ready": false,
+  "head": "e28e2bf3f07a61e82681bc4995b4514cb892ab85",
+  "branch": "main",
+  "upstream": "origin/main",
+  "ci_source_commit": {
+    "paths": [
+      ".github/workflows/ai_cicd.yml",
+      ".github/workflows/hf_backend_deploy.yml",
+      "scripts/verify_release_ci_gates.py"
+    ],
+    "tests_passed": 171,
+    "receipt": "plans/evidence/meta-008-remediation/ci-qa.json",
+    "receipt_sha256": "33f63c22f6a6a7a3dde1fc0332d7802626b76f6825b74a5bce087928a90f4af1",
+    "committed_guard_and_hooks": "PASS",
+    "index_at_commit_completion": "empty"
+  },
+  "host_quota": {
+    "observed_at": "2026-09-06T00:33:49.781660Z",
+    "remaining_percent": 9,
+    "state_at_observation": "RED_FREEZE"
+  },
+  "codex1_quota": {
+    "observed_at": "2026-09-06T00:36:51.807419Z",
+    "remaining_percent": 100,
+    "window_minutes": 300,
+    "independent_pool": true,
+    "freshness": "historical observation; refresh before admission"
+  },
+  "external_workers_started": 0,
+  "hosted_ci_verified": false,
+  "pushed": false,
+  "deployed": false,
+  "fallback_receipt": "plans/evidence/meta-008-remediation/codex1-ci-failover-001.json",
+  "fallback_receipt_sha256": "d89602ba717a9090d807c3d42eca2410686a30f38ca87ef94fb86e68f60dc83b",
+  "fallback_blockers": [
+    "canonical activation CLOSED",
+    "Astra absent from model policy",
+    "configured codex1 home absent despite valid independent wrapper",
+    "exact atomic lane declaration missing",
+    "DispatchDecision and scheduling/claim/grant/store/session artifacts absent"
+  ],
+  "next_actions": [
+    "Operator may start a new codex1 session using its verified configured wrapper; no hook or sandbox bypass.",
+    "Refresh new host quota and have the business_analyst reconcile ATOMIC_TICKET.md, plans/plan.md and HANDOFF.md with this note.",
+    "Inspect local/remote branch divergence and every publication trigger before pushing: main push may indirectly publish HF after CI success.",
+    "Prepare an isolated non-production CI branch only if its triggers are verified safe; obtain hosted run evidence and repair actual failures.",
+    "Resolve pending META-008 committed mode contract for scripts/sync_codex_account_configs.py (historically100755 vs required100644), preserving unrelated dirty content.",
+    "Keep original G emitted-budget, original39-path/META-008, H, and Release-QA work queued; none is waived by local CI test success."
+  ],
+  "agy_progress": {
+    "policy_source_commit": "ea78732b6e86d6dc36c6341dc13509576dff25bf",
+    "policy_baseline_commit": "7c17b384edc8d8575f346a2c7471752470a4dca4",
+    "policy_tests_passed": 19,
+    "policy_status": "CANDIDATE_UNVERIFIED",
+    "settings_probe": "plans/evidence/context-opt-001/agy2-settings-probe-010.json",
+    "settings_result": "LOADING_UNPROVEN; valid and malformed settings produced identical help",
+    "do_not_repeat": "Further help fixtures do not prove settings loading or tool enforcement"
+  },
+  "preservation": [
+    "Large unrelated dirty tree: no broad stage, reset or clean.",
+    "Canonical plan/HANDOFF latest CI/freeze reconciliation is still pending the sole business_analyst writer.",
+    "Do not claim hosted CI, native G/H, VERIFIED_LOCAL or production passed."
+  ]
+}

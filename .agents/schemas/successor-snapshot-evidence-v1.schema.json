@@ -1,0 +1,348 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://horoconsultant.local/schemas/successor-snapshot-evidence-v1.schema.json",
+  "title": "Successor Snapshot Evidence Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "ticket_id",
+    "parent_ticket_id",
+    "baseline_parent",
+    "observed_head",
+    "provenance_status",
+    "disposition",
+    "inventory_path_count",
+    "candidate_inventory",
+    "actual_proposed_commit_delta",
+    "source_config_test_snapshot",
+    "predecessors",
+    "ownership_transfer",
+    "acceptance_gates",
+    "flags"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "successor-snapshot-evidence-v1"
+    },
+    "ticket_id": {
+      "type": "string",
+      "pattern": "^TICKET-[A-Z0-9][A-Z0-9-]*$"
+    },
+    "parent_ticket_id": {
+      "type": "string",
+      "pattern": "^TICKET-[A-Z0-9][A-Z0-9-]*$"
+    },
+    "baseline_parent": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40,64}$"
+    },
+    "observed_head": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40,64}$"
+    },
+    "provenance_status": {
+      "enum": [
+        "NON_TDD_RECONSTRUCTED"
+      ]
+    },
+    "disposition": {
+      "enum": [
+        "BLOCKED"
+      ]
+    },
+    "inventory_path_count": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "candidate_inventory": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256",
+          "head_sha256",
+          "changed_against_head",
+          "classification"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "head_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "changed_against_head": {
+            "type": "boolean"
+          },
+          "classification": {
+            "enum": [
+              "NON_TDD_RECONSTRUCTED"
+            ]
+          }
+        }
+      }
+    },
+    "actual_proposed_commit_delta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "against_head",
+        "inventory_delta",
+        "changed_path_allowlist"
+      ],
+      "properties": {
+        "against_head": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40,64}$"
+        },
+        "inventory_delta": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "change",
+              "sha256"
+            ],
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "change": {
+                "type": "string"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        },
+        "changed_path_allowlist": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "source_config_test_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "files"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256",
+              "kind"
+            ],
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "kind": {
+                "enum": [
+                  "source",
+                  "config",
+                  "test",
+                  "evidence"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "predecessors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256",
+          "commit"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "commit": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40,64}$"
+          }
+        }
+      }
+    },
+    "ownership_transfer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "former_owner",
+        "prospective_owner",
+        "parent_accepted",
+        "scope",
+        "classification",
+        "authorship",
+        "worktree_sha256",
+        "head_sha256",
+        "diff_sha256",
+        "reachable_commit"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "former_owner": {
+          "type": "string"
+        },
+        "prospective_owner": {
+          "type": "string"
+        },
+        "parent_accepted": {
+          "const": true
+        },
+        "scope": {
+          "type": "string"
+        },
+        "classification": {
+          "enum": [
+            "NON_TDD_RECONSTRUCTED"
+          ]
+        },
+        "authorship": {
+          "type": "string"
+        },
+        "worktree_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "head_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "diff_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "reachable_commit": {
+          "type": "null"
+        }
+      }
+    },
+    "acceptance_gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_sync",
+        "codex3_remediation",
+        "isolated_nine_file_qa",
+        "combined_nine_file_qa",
+        "independent_review"
+      ],
+      "properties": {
+        "canonical_sync": {
+          "enum": [
+            "PASSED",
+            "FAILED",
+            "PENDING"
+          ]
+        },
+        "codex3_remediation": {
+          "enum": [
+            "PASSED",
+            "FAILED",
+            "PENDING"
+          ]
+        },
+        "isolated_nine_file_qa": {
+          "enum": [
+            "PASSED",
+            "FAILED",
+            "PENDING"
+          ]
+        },
+        "combined_nine_file_qa": {
+          "enum": [
+            "PASSED",
+            "FAILED",
+            "PENDING"
+          ]
+        },
+        "independent_review": {
+          "enum": [
+            "PASSED",
+            "FAILED",
+            "PENDING"
+          ]
+        }
+      }
+    },
+    "flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "historical_combined_compliance",
+        "combined_test_baseline_verified",
+        "successor_verified",
+        "source_admission",
+        "commit_authorized",
+        "successor_commit_authorized",
+        "release_authorized"
+      ],
+      "properties": {
+        "historical_combined_compliance": {
+          "const": false
+        },
+        "combined_test_baseline_verified": {
+          "const": false
+        },
+        "successor_verified": {
+          "const": false
+        },
+        "source_admission": {
+          "const": false
+        },
+        "commit_authorized": {
+          "const": false
+        },
+        "successor_commit_authorized": {
+          "const": false
+        },
+        "release_authorized": {
+          "const": false
+        }
+      }
+    }
+  }
+}

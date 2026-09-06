@@ -187,10 +187,12 @@ class TestAdminHTMLButtons:
         """Test backend endpoint triggered by submitEmailAuth()."""
         payload = {"mock_email": "pansakorn@gmail.com"}
         res = client.post("/admin/auth/google", json=payload)
-        assert res.status_code == 200
-        data = res.json()
-        assert data["status"] == "authenticated"
-        assert data["user"]["email"] == "pansakorn@gmail.com"
+        assert res.status_code == 422
+        detail = res.json()["detail"]
+        assert any(
+            error["loc"] == ["body", "credential"] and error["type"] == "missing"
+            for error in detail
+        )
 
 
 class TestHITLHTMLButtons:

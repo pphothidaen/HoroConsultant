@@ -37,6 +37,7 @@ const PUBLIC_MUTATION_PATHS = new Set([
   "/api/v2/chat/stream",
   "/api/v2/chat/consult",
   "/api/v3/calculate",
+  "/api/v3/unified-reading",
 ]);
 
 export function isProductionAdminRoute(pathname) {

@@ -3,9 +3,614 @@
 > **Repository**: `pphothidaen/HoroConsultant`  
 > **Authority**: Master Orchestrator (`orchestrator`) & Business System Analyst (`business_analyst`)  
 > **Governance Enforcement**: Rule 21 (Agile Governance) & Rule 22 (Plan Completion & Archival Mandate)  
-> **Last Synchronized**: 2026-09-04T12:18:57+07:00 (Asia/Bangkok)  
+> **Last Synchronized**: 2026-09-05T19:43:02+07:00 (Asia/Bangkok)
 
 ---
+
+<!-- TICKET-META-008-QUOTA-RESCUE-20260905:START -->
+## Account Continuity -- TICKET-META-008 Scoped Recovery
+
+**Active parallel execution lanes (2026-09-06):** The Orchestrator has coordinated parallel execution lanes:
+1. `TICKET-TOOLING-PROV-GUARD-001` (`DONE`, assigned to `developer`): Test provenance guard governance extensions and schema alignment completed on `scripts/test_provenance_guard.py`; 65/65 tests passed in `tests/test_provenance_governance_extensions.py` and `tests/test_test_provenance_guard.py`; manifest verification passed.
+2. `TICKET-META-008-SUCCESSOR-QA-001` (`DONE`): Completed with manifest `plans/test_provenance/ticket-context-dispatch-successor-001.json` (SHA-256 `872d8fd44bc637cc6430e9c778a3b06da1e7295c9d01483474a6c194e74c8f1c`) and evidence `plans/evidence/context-opt-001/successor-preparation-001.json` (SHA-256 `1da62599035cb42bba3ba5e68f59663bc0ad06290f49f1003529fc5b2fc408c5`). 421 tests (419 passed, 2 expected failures). Follow-on `TICKET-META-008-SUCCESSOR-REVIEW-001` is `DONE` (PASS across all 6 criteria); `TICKET-META-008-SUCCESSOR-COMMIT-001` is `READY_FOR_COMMIT_ADMISSION` (held ready; 2-path delta manifest+evidence; zero push).
+3. `TICKET-META-008-MODE-REPAIR-004-FIX` (`DONE`): DevOps executed commit `cbeda3d881265c1ce1fc35edf3dd8f153bd9d230` (`cbeda3d`) normalizing Git mode `100755` -> `100644` for `scripts/sync_codex_account_configs.py` via index cacheinfo; committed blob and dirty working bytes preserved intact; zero push. Follow-on `TICKET-META-008-MODE-REPAIR-004-QA` is `DONE` (`VERIFIED_GREEN`; verified in `plans/evidence/meta-008-remediation/mode-qa-004.json`: committed mode 100644 verified on commit `cbeda3d`, 76/76 publisher tests passing GREEN).
+4. `TICKET-META-008-CI-REVALIDATE-003` (`DONE`): `qa_tester` completed CI candidate revalidation in `plans/evidence/meta-008-remediation/ci-revalidation-003.json`: commit `e28e2bf` candidate files identical and clean; 3/3 baseline manifests passed provenance guard; focused CI gates passed 171/171; residual publisher mode defect reproduced (`scripts/sync_codex_account_configs.py` mode 100755); release readiness is `NOT_READY_FOR_PROD`.
+5. `TICKET-META-008-SNAPSHOT-BASELINE-COMMIT-002` (`DONE`): DevOps executed commit `e7117385dd362cdcc233cca6fc2a0732ffb7c9b2` (`e711738`) freezing the genuine RED baseline and v1 manifest for the successor snapshot validator (62 tests in `tests/test_successor_snapshot_evidence_guard.py` and `plans/test_provenance/ticket-successor-snapshot-validator-baseline-002.json`); zero push.
+6. `TICKET-META-008-SNAPSHOT-VALIDATOR-002` (`DONE`): Committed in `0cd6536252080303ad191a2fa729ba93597ac5e1` (`0cd6536`) by devops (`.agents/schemas/successor-snapshot-evidence-v1.schema.json` and `scripts/successor_snapshot_evidence_guard.py`); 62/62 tests GREEN; Review PASS (`code_reviewer`) and APPROVED (`ba_auditor`). Follow-on active parallel lanes: `TICKET-META-008-SNAPSHOT-ADOPTION-002` is `DOING` (assigned to `qa_tester`) and `TICKET-META-008-ECOSYSTEM-SCOPE-002` is `DOING` (assigned to `devops`).
+
+**Session authority and next repair:** The owner's explicit full-session permission covers implementation, commit, push, CI/CD, HF Docker backend and Vercel UI deployment toward the existing goal. Follow [canonical MODE-REPAIR-004 ownership and sequential REVIEW -> FIX -> QA](../ATOMIC_TICKET.md#current-release-continuation-reconciliation----2026-09-06). Its prospective exception covers Git mode only, preserves committed and dirty content, and requires independent evidence review rather than another generic approval. Parent revalidation receipt linked there owns the latest ecosystem/four-node diagnostics; these do not broaden the mode lane. All release acceptance and production-verification requirements remain in force.
+
+**Current continuation decision -- 2026-09-06:** Follow the [canonical release reconciliation and scoped mode-repair contract](../ATOMIC_TICKET.md#current-release-continuation-reconciliation----2026-09-06). Parent verified CI source committed, mode normalized at cbeda3d, successor snapshot validator baseline committed at e711738, and successor snapshot validator committed at HEAD `0cd6536252080303ad191a2fa729ba93597ac5e1` (ahead of remote main by 37 commits); older dirty-CI statements below are historical. Hosted CI verified is false (zero hosted runs on local head); canonical quota guard with `--refresh` returns exit code 3 (`HOST_POOL_MISSING`), `host_resume_allowed: false`, `quota_recovery_proven: false`. Subagent devops lane on codex2 (`gpt-5.3-codex-spark`) errored with `RESOURCE_EXHAUSTED` (HTTP 429) during Task G and is paused. Hosted CI/CD and Production status are BLOCKED: HF Docker backend runtime stage is `PAUSED`, production monitor returns HTTP 503, and published actions are false (zero push, zero deploy, zero workflow dispatch). `TICKET-CONTEXT-OPT-001` combined baseline 29 vs 39 paths remains unresolved (`COMBINED_TEST_BASELINE_VERIFIED=false`, `source_admitted=false`, `successor_commit_authorized=false`), blocking Task G/H and parent `VERIFIED_LOCAL`. SPRINT-RELEASE-QA-REMEDIATION-20260905 remains `BLOCKED_BY_CONTEXT_OPT_DEPENDENCY` awaiting `VERIFIED_LOCAL`. Next preparation is reviewed additive provenance or a separate baseline for the script's mode-only repair: the old publisher manifest does not admit that source path. Preserve source ownership and independent review/QA before integration. Original 39-path, G/native, H, Release-QA and production verification gates remain open; no sprint closure or archival is asserted.
+
+**Settings010 executed:** [Canonical result and remaining prerequisites](../ATOMIC_TICKET.md#current-release-continuation-reconciliation----2026-09-06): identical valid/malformed settings help yielded `LOADING_UNPROVEN`. It is no longer NEXT, and establishes no enforcement or native execution proof. Candidate009 remains candidate-only.
+
+**Latest policy009 reconciliation:** [Canonical exact commit/hash and review evidence](../ATOMIC_TICKET.md#current-execution-priority----agy2-cli-capability-diagnostic-007): baseline7c17b384 exact2paths, genuine19RED/0errors; sourceea78732b exact new policy module mode100644, independent review/QA19PASS and normal integration guards/hooks PASS. Candidate builder/validator DONE_LOCAL only, POLICY_STATUS=CANDIDATE_UNVERIFIED, actualAGY0. Next installed-policy enforcement/inheritance, settings immutability and canary verification precede single-worker run/auth integration. Vendor documented candidate exists; no native/G/H/Release-QA PASS. Host23:34:07Z11% ORANGE one child nearing freeze; preserve G emitted-budget/META008 remaining queues and pending push/release gates.
+
+**Latest008 reconciliation:** Offline-help diagnostic scoped DONE; [canonical receipt, semantic findings and remaining blocker](../ATOMIC_TICKET.md#current-execution-priority----agy2-cli-capability-diagnostic-007) supersede NEXT008 below. Attempts2/3 strict-sandbox help exit0/cleanup verified; attempt1 cleanup failure retained. CLI help interface is known, but no documented tool/MCP/auth separation or proven read-only/nested-worker interface. Next is a separate worker/auth isolation contract separating provider access from generated commands, then verified QA baseline before implementation. Do not repeat help or generic approval. Host23:03:44Z14% ORANGE, one child; actualworkers0, no auth/provider/network calls; existing queues/gates unchanged.
+
+**Latest authorized next phase -- offline help008:** [Canonical bounded diagnostic declaration](../ATOMIC_TICKET.md#current-execution-priority----agy2-cli-capability-diagnostic-007), ticket/lane `TICKET-CONTEXT-OPT-001-AGY2-OFFLINE-HELP-008`, devops. Exact hashed `/Users/kimlenglim/.local/bin/agy` may receive only --help/--version under verified deny-default macOS isolation, temporary HOME/AGY_HOME, minimal environment, network/account/keychain denial, bounded output/deadline/cleanup. No existing account state or provider/model/task invocation. Strict isolation failure ends the diagnostic without relaxation. Sanitized evidence only at `plans/evidence/context-opt-001/agy2-offline-help-008.json`; temporary helper allowed, supervisor/source/tests unchanged. Parent must bind all exact paths and fresh resolver/admission before dispatch. Host22:55:47Z15% ORANGE, one child. Purpose is CLI capability evidence for the worker/auth contract, not worker proof; QA baseline precedes implementation and existing gates remain unchanged.
+
+**Latest reconciliation:** Static CLI diagnostic007 is DONE within its read-only scope; [exact findings and next dependency](../ATOMIC_TICKET.md#current-execution-priority----agy2-cli-capability-diagnostic-007) supersede NEXT007 below. Wrapper directly execs/forwards to a Mach-O ARM64 CLI; embedded flag/event/subagent candidates do not establish runtime compatibility, version or authentication isolation. No executable/network/credential access occurred. Next is a bounded single-worker supervisor/auth integration contract with provider access separated from generated commands, safe offline capability probe if needed, and separate verified QA baseline before implementation. Capability remains blocked; no generic approval loop. Host20:32:48Z15% ORANGE, one worker at a time; actualAGY0 and G/H/Release-QA gates unchanged.
+
+**Current execution priority -- AGY2 CLI capability diagnostic007:** [Canonical ticket and acceptance](../ATOMIC_TICKET.md#current-execution-priority----agy2-cli-capability-diagnostic-007). Exact single-file source commit `e04a4f083730e85ba3765db58ddd26f54799343c` (parent `d25db5c895e64aad7b8ef2aac8c420615fae0ceb`; supervisor SHA-256 `76850c1862948ee70fea78bc86034e32689a903b0f7eb1d9fe11bf4591a062d7`) and QA receipt `plans/evidence/context-opt-001/agy-terminal-backend-verification-006.json` SHA-256 `6b6b81ea6d7ca04c5a1195c73b6a6f6b078c3849172748f1f4bfad79217674ea` establish 65 PASS and three fixed OS probes OBSERVED only. Parent reports integration guards/hooks PASS and empty index at that checkpoint. Backend006 is complete for its bounded provider-free contract. Historical004 missing-supervisor evidence is superseded; auth/runtime integration is still missing. Supervisor run remains SANDBOX_NOT_PROVEN; backend fixed Perl programs cannot run AGY/auth/network and canonical AGY transport still denies pre-spawn. Installed CLI stream-JSON compatibility, authentication isolation and native nested subagents remain UNKNOWN.
+
+**APPROVED next phase: read-only local capability diagnosis only.** Existing user scope covers nonsecret installed executable identity/version/help documentation and wrapper forwarding metadata. Parent must bind exact discovered executable/package-doc/wrapper paths and fresh resolver/admission before child dispatch; do not invent paths or CLI support. No credential contents/login/network/provider/account mutations, implementation or guard bypass. Return exact inventory and supported/unsupported/unknown findings, then stop. No executable invocation; inspect static version/help documentation only. Parent host observation `2026-09-05T20:27:26Z` was 16% remaining ORANGE, no rate-limit/spend-control block: refresh before executable work, one bounded worker at a time, AGY quota unverified with no pool substitution. Actual AGY workers0; ceiling3 is not runtime evidence. No new generic approval needed.
+
+**Dependency rationale:** Diagnostic evidence must precede a new separate QA baseline and developer implementation for one read-only worker: pinned CLI/argv, one-use concurrency1 admission, auth boundary, generated-command/network separation, read-only private snapshot, cleanup, strict stream parser and in-memory WorkResult. These are later scoped phases, not current implementation authority. Approved G emitted-measurement/META008/H/Release-QA queues remain preserved; scheduler3 follows single-worker proof. NativeG/H/production remain blocked; CI PAUSED, no aggregate PASS or completed sprint claim.
+
+**Historical approved AGY2 bootstrap contract (next action superseded by backend006):** The user requests orchestrator-delegated scoped read/write/update/delete work to conserve host quota; root coordinates only. [The exact atomic sequence](../ATOMIC_TICKET.md#current-execution-priority----agy2-local-terminal-boundary-bootstrap) starts with new two-file QA baseline G/AGY-TERMINAL-BASELINE-005, independent review/test-only commit, single-file scripts/agy_terminal_supervisor.py implementation, source review and independent QA. Diagnosis agy2-terminal-scope-004.json proves no AGY child ran and only conditional feasibility: installed sandbox executables are not proven enforcement or auth isolation. Phase1 uses harmless local OS probes/unit contracts only, exact temporary path/hash allowlists, outside-write/delete/link/sensitive-canary denials, owned descendant deadlines and malformed-result rejection. No provider/auth/credential/network/config changes. Real OS controls remain UNKNOWN until demonstrated; auth remains unproven. Later private snapshot, real auth compatibility, provider attempt/parse and reviewed host patch acceptance are separately scoped after capability prerequisites. No generic approval is missing. Existing emitted-budget baseline and META CI QA stay queued; canonical AGY denial/nativeG/H/production gates remain blocked and unchanged.
+
+**Approved later multiworker target:** Existing AGY2 max_workers=3 configuration is a ceiling only; actual AGY workers0 and native Gemini nested subagents unverified. After boundary/auth readiness, separately freeze scheduler/ownership tests for at most3 orchestrator-managed workers, disjoint writable paths, lock-conflict serialization and quota/failure reductions. No recursive unlimited workers; boundary005 stays minimal/provider-free and needs no extra permission loop.
+
+**Current continuation decision (2026-09-05T17:50:08Z evidence cutoff): APPROVED for bounded local preparation within existing user authorization.** The current reconciliation and exact atomic ownership are in [ATOMIC_TICKET.md](../ATOMIC_TICKET.md). Registry and G evidence baselines are already committed at 1577f8c and 2eb8c699; the five scoped repairs have been reviewed locally. Renderer a15ccc39 now passes alternate-root/ancestor zero-write checks, 30 focused checks and 58-output canonical/hash/idempotence verification (parent independent review). Four-provider coverage is still incomplete. The explicitly Human-approved three-file legacy DevOps repair records governed sync/check PASS and 88 tests PASS in devops-human-approved-repair-002.json; no repeat exception approval is required.
+
+Independent G evidence remains BLOCKED: 50 PASS and neighbor 104 PASS / 6 FAIL at its recorded snapshot. Remaining contracts concern canonical Claude/AGY adapters, zero-identity fixture and frozen policy/skill-binding provenance, actual budget (39433 maximum; 19/21 over8000), and native execution. No canonical Claude/AGY generator exists; newest-mirror selection cannot establish canonical authority. Budget design must reconcile full JSON+bound-skill input measurement with actual native prompt evidence while retaining measured_paths text-length sums and the approved <=8000/no-shortening/no-truncation constraints. Do not omit content or relabel catalog size to claim PASS.
+
+The correct runtime ticket and lane are both TICKET-CONTEXT-OPT-001-G, previously verified resolver PASS cd3fb853; older receipts used the wrong parent and are expired. Correct metadata yields at most truthful UNAVAILABLE without native evidence. Exact historical six receipt bytes are retained; a later refresh must preserve current receipts again and bind a final stable context/source/output snapshot. AGY2 was requested with user-reported five-hour100%, but agy2-review-dispatch-003.json confirms zero spawns, child_ran=false, and PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED with no accepted integration. Native proof and platform integration remain outstanding; no bypass.
+
+Under parent-observed host36% AMBER, refresh quota/bindings and work sequentially: canonical adapter/measurement contract audit -> owned genuine RED and adapter source successor -> budget design and exact optimization successors -> neighbor provenance reconciliation -> final inventory/receipt refresh and independent G verification. Native prerequisite inspection and independent Release-QA triage can make bounded local progress without G/H PASS; they remain read-only. This plan supplies no external or source mutation authority outside the already scoped lanes. Final completion order remains G -> committed META verification -> H, with CI PAUSED and release_ready/clear_ready/successor_snapshot_verified false.
+
+META CI baselines bb9e384,514b83d,774aef3 already have scoped171PASS and review evidence; CI source remains dirty/uncommitted and needs exact-hash revalidation, not a duplicate baseline. Provenance guard baseline bb69408/source e6c5831 are committed. Historical adjacent74PASS/2FAIL includes the now locally resolved DevOps failure and unresolved committed publisher mode100755 versus100644. Read-only Release-QA triage defines the smallest evidence-backed next source/test lane. Snapshot validator test/manifest are prepared but uncommitted/deferred; no original39-path acceptance, historical TDD reconstruction, H, VERIFIED_LOCAL, publication or sprint completion is claimed. Older paragraphs below are chronology where superseded; no plan archival occurs.
+
+**APPROVED -- Human decision on H budget/native blockers:** User explicitly approved ("approve ข้อเสนอ") the [versioned emitted-prompt measurement amendment and static milestone](../ATOMIC_TICKET.md#approved-human-decision----h-native-evidence-and-budget-measurement). Budget actual emitted provider/profile content in characters plus UTF-8 bytes, including mandatory closures/envelope; retain full-source-input metric39433 separately. No truncation, shortening or mandatory-capability omission. Preserve existing tests/manifests and adopt the new gate contract prospectively through a meaningful frozen two-file QA baseline. Exact next sequence: G-EMITTED-BASELINE-004 -> independent review/exact baseline integration -> renderer-only source/review -> budget-only source/review -> independent QA receipt, sequential ownership. New contract is emitted-provider-prompt-budget-v1; no new Human approval question remains. VERIFIED_LOCAL_STATIC is an approved distinct offline milestone, not yet achieved and never an alias for H/VERIFIED_LOCAL/nativePASS/production readiness. Native provider prerequisites and original G/H/production gates remain BLOCKED and unwaived; local fixtures and measured outputs do not prove native consumption. Unsupported or missing provider output remains UNKNOWN/FAIL until supported and measured.
+
+**Measurement precision:** Static decoded emitted instructions are `rendered_payload`, not `observed_native_prompt`. Native prompt size remains UNKNOWN absent trusted capture; missing provider outputs/runtime envelopes remain incomplete coverage. Preserve existing evaluate_all_profiles full-input semantics and add only an opt-in rendered-payload evaluator. QA must test Unicode characters/UTF-8 bytes, source/renderer/destination hash binding, missing/drifted artifacts and complete mandatory skill references in addition to the frozen boundaries. Codex TOML developer_instructions is a static artifact, not the entire native session prompt.
+
+**CONTRACT-002 current decision**: Independent successor review is evidence-integrity PASS / commit BLOCKED: exact39 inventory, HEAD/index stable, 419 passed/2 failed both isolated and combined; v1/guard rejection is correct. The +322/-0 ecosystem blob has no reachable commit and stays NON_TDD_RECONSTRUCTED. Preserve frozen manifest872d8fd4... and receipt1da62599... unchanged. The older schema-compatible test-provenance successor assumption below is superseded.
+
+Separate snapshot adoption from test-provenance-v1. Ordered lanes in ATOMIC_TICKET.md: genuine RED for a new validator (new test plus valid v1 manifest only) -> independent baseline review and admitted two-path baseline commit -> new snapshot schema/validator under scoped source admission -> separate unchanged-byte reconstructed adoption evidence -> exact canonical ecosystem repair/governed sync and separate codex3 external configuration repair -> fresh nine isolated/combined QA -> read-only review. Read-only path/ownership enumeration may proceed early; evidence preservation may proceed, but both repairs precede successor acceptance. Nested agent JSON is canonical source; generated mirrors update only through governed sync. No existing provenance guard defaults are relaxed, and adoption is never TEST_BASELINE_VERIFIED. CI PAUSED; current source_admitted, successor_commit_authorized, release_ready and historical_combined_compliance remain false. Planned validator does not yet exist as an accepted implementation.
+
+**Ownership receipt accepted**: Parent audit identifies TICKET-SKILL-BUDGET-001 Generator QA as ecosystem-test owner; exact322-line patch (a7c0c2a5...) at current hash432c3e1e... is prospectively released to successor QA for frozen evidence ownership; former lane relinquishes concurrent edits. Authorship remains unverified and no test mutation is authorized. Ownership audit DONE; QA must bind full hashes and verify no drift.
+
+**Priority decision -- 2026-09-05T16:00:00Z**: APPROVED for prospective successor QA preparation and read-only ownership audit under the existing user-approved scope. The canonical six-part contract and atomic lane ownership are in ATOMIC_TICKET.md, "Priority gate correction". It replaces the impossible requirement for exactly 39 changed files with an exact 39-path current-hash inventory, a separate actual commit delta, a new schema-compatible successor manifest with external hash receipt, ownership disposition for 322 ecosystem-test lines, frozen source/config/test snapshot, nine isolated and combined Dispatch test runs, independent review and explicit orchestrator commit admission. Preserve original commits/manifests and reconstructed chronology; historical combined compliance remains false. This correction permits preparation only: source_admitted=false, release_ready=false, successor_commit_authorized=false. CI work stays PAUSED; observed HEAD is `774aef3`.
+
+Root quota receipt at `2026-09-05T15:58:53.367930Z` for host codex account `08a4df52-9b3d-4d09-9bd5-af0f7e0e8043`: weekly 10080 minutes, used32%/remaining68%, rateLimitReachedType null, spendControlReached false, resetsAt1789220895. Observation-time GREEN/UNFROZEN supersedes historical RED and earlier70%; freshness expired at `2026-09-05T15:59:53.367930Z`. Refresh before executable admission; telemetry is not a reusable dispatch grant. Spark/AGY and all scoped admission gates remain separate.
+
+Current parent inventory audit: exact39 unique paths all exist,38 tracked;37/38 supplied hashes match, prompt test changed after `dfd6a10` (5771... -> b86...). Dispatch manifest is present/untracked, hash prefix f8a5318e, schema-invalid and BLOCKED_EVIDENCE_AMBIGUOUS; preserve it as historical evidence. Original95ade8f contains29 paths; no valid successor exists. Earlier observations and four-precondition successor prose below are historical where inconsistent with this decision. The current gate is six-part prospective verification; it cannot establish historical pre-source truth.
+
+**Current decision**: `QUOTA_RECOVERED -- RECOVERY_CONTINUATION_AUTHORIZED -- SOURCE_ADMISSION_PENDING`. The owner requested this authority correction and continuation after the successful 2026-09-05T20:55:39+07:00 App Server probe. ATOMIC_TICKET.md TICKET-META-008 remains the sole current status authority.
+**Evidence and scope**: Same host account as the freeze record; codex weekly remaining 100%, no rate-limit signal. Spark weekly remaining 3% is separate. The old quota-based blanket subagent prohibition is superseded. Continue documentation reconciliation and read-only recovery/context-binding work. Admit each child only with approved ticket/lane context, resolver result, fresh quota and runtime authorization. Source work retains baseline and security gates.
+**Accepted audit and ordered continuation**: The independent audit is complete with `FAIL` for the combined baseline. Commit `95ade8f` has exactly 29 paths and all 28 referenced test/fixture hashes match the current Context manifest, but the exact ten Dispatch paths are absent and no successor exists. Receipt: `plans/evidence/context-opt-001/recovery-baseline-audit.json`. Next, QA must classify the missing ten as genuine RED or frozen characterization; an independent reviewer must assess the full 39-path candidate; only then may the owner separately authorize at most one additive successor baseline commit. After provenance and source-security admission, Context and collector implementation may resume.
+**Current owner continuation (2026-09-05)**: The later "Yes approve all" and delegation/CI-CD/prod/push request authorizes bounded source remediation and preparation. Current details and atomic ownership reside in ATOMIC_TICKET.md, subsection "Current remediation authority". The Dispatch manifest now exists and reports BLOCKED_EVIDENCE_AMBIGUOUS: 417 pass / 2 fail combined versus 383 pass / 36 fail isolated. Preserve historical baseline and manifests; obtain a new verified defect baseline and independent security admission before source mutation. Investigate missing production helpers and test import contamination, freeze fresh-process RED, implement owned source, then independently verify isolated and combined results. Read-only release preparation may proceed in parallel. Existing Context/release QA, ecosystem/routing drift, candidate freeze, exact-SHA CI, push and separate production-verification gates still apply. The prior missing-manifest/blanket source restriction paragraph is historical; owner authorization does not assert source admission or release readiness. No publication is performed by this planning task. Delegated diagnosis requires removing five test-time production injections under QA ownership and implementing four helpers plus full-lifetime lease cleanup under source ownership. Push may auto-trigger HF after Unified CI; freeze reviewed tree digest then exact commit and rollback identities, and require same-SHA independent lint/provenance/ecosystem/AI Safety checks before deployment. DevOps must prove that workflow ordering before push; otherwise open a bounded workflow remediation ticket.
+
+**Resolver admission repair**: The existing native SDLC/deployment/release-verification skills are now minimally cataloged and available to their declared roles. FIX, REVIEW and RELEASE-PREP resolver checks pass; the exact digests and independently blocked ecosystem check are recorded in ATOMIC_TICKET.md. Parent accepted DIAG and reports QA baseline frozen for review. Developer source mutation still awaits independent baseline review. No broad synchronization occurred because existing dirty mirrors have other owners.
+
+**Execution continuation**: The three-path remediation baseline is committed at `dfd6a10e31ad6ac3d3c339ac3ec21a8504464127` with independent review attempt 2 and provenance guards PASS (parent receipt). Source admission is now scoped to the runtime dispatcher; independent GREEN verification remains pending. Follow-on CI baseline/source/review, read-only DevOps modular-contract/checker diagnosis (no manual legacy-definition rewrites), truthful active-plan organization and sequential ecosystem sync are bounded in ATOMIC_TICKET.md. Read-only release preparation is complete, while publication remains blocked. The CI design requires exact-SHA results from five trusted workflow files for both automatic and manual deployment before mutation; no hosted success is inferred from local tests. Historical 39-path provenance is still open.
+
+**Active document organization complete**: Six unresolved support documents moved byte-for-byte to [active/meta-008-support/README.md](active/meta-008-support/README.md), with hashes and a historical-path mapping. Underlying tasks remain active/blocked. Parent reports runtime `160aefe` scoped complete, QA 420 passed / 2 remaining failures and review PASS; CI baseline is under review. Narrow provenance metadata compatibility baseline/source tickets are registered, excluding unrelated command-string changes. Release and original 39-path evidence remain blocked.
+
+**CI permission baseline amendment**: Existing workflow regression expects contents:read only, conflicting with approved Actions read access. The new bounded QA lane updates exact read-only permission expectations and negative privilege checks; source already exists uncommitted, so chronology must distinguish reconstructed current GREEN from committed-baseline RED. Additive two-path test amendment precedes CI source commit after independent review.
+
+**Context-clear semantics**: HANDOFF clear_ready remains false while unresolved lanes exist. This is not an execution freeze. Recovery authorization and source admission are recorded separately.
+
+### Historical continuity record
+
+The observations, snapshots, DONE assertions and freeze instructions below are retained as historical context, superseded by the current decision above where they concern quota or blanket dispatch. They do not constitute current verification. Other sprint sections retaining RED_FREEZE describe earlier checkpoints; use the current ticket authority for admission.
+
+**State**: `RED_FREEZE -- HANDOFF_REQUIRED` as of `2026-09-05T12:39:49+07:00` (Asia/Bangkok); revalidated `2026-09-05T12:55:00+07:00`.
+**Host observation**: Operator reported host/current `gpt-5.6-sol` weekly remaining `<10%`; exact percentage is `UNKNOWN`. At revalidation (`2026-09-05T12:55:00+07:00`), no fresh trusted non-secret observation of recovery was supplied (`signal_present: false`). Per governance rules, RED freeze is preserved until a fresh trusted non-secret observation proves recovery.
+**Separate Spark observation**: `gpt-5.3-codex-spark` showed five-hour 100% resetting 16:35 and weekly 55% resetting `2026-09-11T18:13:00+07:00`. It is planning capacity only and proves no capability, health, authorization, isolation, entitlement, effective model, or execution. Never combine pools and never record account identifiers.
+**Controller/worker state**: Controller confirmation showed only root orchestration running; `agy_supervisor_boundary` and `spark_telemetry_map` were interrupted (UNKNOWN). DOC-C3 canonical freeze and cross-document consistency audit is completed (`DONE`) across all nine owned documentation files.
+**Snapshot**: `main` at `09deba10353663e5aa1e78e55b078cfdcf7ad743` (verified identical); 117 dirty status entries; exact status bytes SHA-256 `54bfb0850d695a565bce4c4af6343dd7c2e59635dcf32bb8fab00db91e2ef7e4` (verified identical). Secret scan confirmed clean (3,259 files scanned, 0 leaks found). Preserve the multi-owner dirty tree; no reset, clean, bulk stage, or overwrite.
+
+**Frozen partial documentation fingerprints**:
+
+- `docs/architecture/agy-terminal-supervisor.md`: `10066d3d8237a2963edb7aa9f298e667b9e9ef7086b6120709976e75a91b17e6`.
+- `docs/architecture/external-dispatch-platform-contract.md`: `c988c43e10e6a5ff51c0e907e8ed838f51e6086453a74db60e1ecc154a8cda2f`.
+- Context design: `f7107029db28103b9ff4ca433e38a472b547992b5a16c00221737f78587d838a`.
+- Context index: `da1fb6d004906e4bd72e5b32b31c23899547a3613e5062fea6d3d9e9b89e2e76`.
+- Registry/resolver plan: `3e5393eeb17899eebd7c4fa69c3d6f326915351f138058d45d957e9ab03beadb`.
+- Skill-migration plan: `149acb9826a4d85ed3087df8613a926a2ae43df8e6d28035968ab19b28173486`.
+- Provider/runtime plan: `65eb3be17f9a45ab6b2e120ea28ead194c29509eb0cf945a2dc304677eb1f56f`.
+
+DOC-C3 canonical freeze is completed (`DONE`). Exact resume order is: QA refreshes Task A -> operator derives/validates HANDOFF -> independent security admission -> QA RED for exact 29+10 -> independent review -> the single authorized combined 39-path QA test-only baseline commit -> `TEST_BASELINE_VERIFIED` -> developer source lanes. The commit remains unexecuted and blocked; no second commit or push is authorized, and source/config/generated/runtime evidence remains uncommitted.
+
+Live Spark remains blocked pending exact grant, fresh pool-specific quota, valid closed `ActivationHealthEvidenceV1`, pinned CLI/version and trusted requested/effective-model capability evidence, and scoped admission. Missing proof is `CAPABILITY_NOT_PROVEN`; App Server telemetry research is not execution proof and no fallback occurs. All AGY processes remain blocked: offline fixtures start zero processes, the hard denial remains, and external order is DSG-009A -> independent review -> DSG-009B trusted telemetry -> fresh exact authorization. The local supervisor is architecture-only and cannot close native gates.
+
+Release-QA resumes only after Context `VERIFIED_LOCAL` plus fresh HEAD/worktree/derived-HANDOFF validation. Security, API, release, metaphysics, and Rule 21 `DONE` contracts remain intact. Rescue performs no test/source/config/generated sync, staging/commit/push, provider/network/account/credential/secret action, deploy, publish, or release.
+<!-- TICKET-META-008-QUOTA-RESCUE-20260905:END -->
+
+<!-- SPRINT-QUOTA-GUARD-V3-20260905:START -->
+## GRILL REPORT & PLAN -- SPRINT-QUOTA-GUARD-V3-20260905: Fail-Closed Quota Guard & Collector Architecture V3
+
+**Recorded**: `2026-09-05T19:43:00+07:00` (Asia/Bangkok)
+**Status**: ALL_TICKETS_DONE -- HOST_RED_FREEZE_RETAINED
+**Authority**: Governed by [`resume_plan.md`](../resume_plan.md) (Revision 3.4, status `DESIGN_ACCEPTED`), Rule 21 (Agile Governance), and Rule 22 (Plan Completion).
+**Sole Authoritative Ticket Registry**: [`ATOMIC_TICKET.md`](../ATOMIC_TICKET.md#sprint-quota-guard-v3-20260905----fail-closed-quota-guard--collector-architecture-v3)
+**Target Spec File**: `resume_plan.md`
+
+### 1. Executive Summary & Architecture Foundation
+This sprint implements the Fail-Closed Quota Guard & Collector Architecture V3 specified in `resume_plan.md` (Revision 3.4). It resolves the 10 failure modes identified in the Host Codex `RED_FREEZE` state, ensuring safe quota observation, strict pool isolation, two-phase concurrency management, and controlled resumption under AI SDLC.
+
+Key Architectural Tenets:
+1. **4-Tier Quota Scale**: Decisive remaining quota calculated strictly as `decisive_remaining = 100.0 - used_percent` (GREEN >40%, AMBER 20-40%, ORANGE 10-20%, RED <10%).
+2. **Strict Pool Isolation**: Host Codex pool (`limitId: "codex"`) is completely decoupled from Spark (`codex_bengalfox`) and external auxiliary models.
+3. **Control Plane / Data Plane Separation**: `RED_FREEZE` halts code changes and workload execution (Data Plane), while keeping safe, credential-free stdio status observation active (Control Plane).
+4. **Two-Phase Concurrency**: Dispatch Reservation separates from Active Execution Lease, with Suspect Lease Holding during heartbeat loss.
+5. **Strict Effective Policy**: Policies loaded exclusively via certified cryptographic hashes; zero silent fallback.
+6. **TDD Methodology**: Expected RED baseline (TC-01 through TC-69) established prior to source implementation.
+
+### 2. Nine-Dimension Decision Matrix (Grill Gate)
+
+| ID | Dimension | Assessment | Evidence / Decision Threshold |
+|---|---|---|---|
+| D1 | Scope boundary | `[CONFIRMED]` | IN: Fail-closed collector (`scripts/lib/quota_collector.py`), status guard engine (`scripts/agent_quota_status_guard.py`), test suite (`tests/unit/test_quota_guard_v3.py`), fixtures, provenance, and safety audit. OUT: External provider dispatch, toolchain mutation, unfreezing Host Codex without verified quota recovery. |
+| D2 | Requirement delta | `[CONFIRMED]` | Implement fail-closed timeout/stream-limit collector, 4-tier scale, 8-step precedence cascade, two-phase concurrency reservation/lease, and 0/1/2/3 exit codes. |
+| D3 | Acceptance & stop | `[CONFIRMED]` | Phase 2 requires TC-01..TC-69 genuine fail-closed RED. Phase 3 requires 100% GREEN pass across all 69 tests. Phase 4 requires AST & 0-leak secret scan sign-off. Stop immediately on dirty tree corruption or unadmitted dispatch. |
+| D4 | Inputs, constraints | `[CONFIRMED]` | `resume_plan.md` Rev 3.4 is the canonical spec. Process isolation via `start_new_session=True`, 64 KB stream ceiling, 10-second timeout limit. |
+| D5 | Architecture, ownership | `[CONFIRMED]` | Strict single-editor ownership: `qa_tester` (tests/fixtures/provenance), `developer` (collector/guard scripts), `code_reviewer` & `ba_auditor` (safety audit). |
+| D6 | Assumption register | `[CONFIRMED]` | Host Codex quota remains in `RED_FREEZE` until live ground truth via `--refresh` demonstrates `decisive_remaining >= 10.0%` without rate limits. |
+| D7 | Risk and recovery | `[CONFIRMED]` | Multi-owner dirty tree preserved. Atomic rollback per ticket. Fail-closed defaults on any parse/schema/network error. |
+| D8 | Budget & evidence | `[CONFIRMED]` | Local tests, 0-cost stdio subprocess observation, pure ASCII logging, immutable test provenance manifest. |
+| D9 | Domain & HITL | `[CONFIRMED]` | Controlled resumption (Phase 5) strictly gated on operator observation and verified quota recovery. |
+
+### 3. Phasing & Atomic Ticket Breakdown
+
+```mermaid
+graph TD
+    P0["Phase 0: Design Gate Acceptance (DONE)"] --> P1["Phase 1: Auxiliary Gemini Runtime Admission (DONE)"]
+    P1 --> P2["Phase 2: Expected RED Baseline (DONE)"]
+    P2 --> P3["Phase 3: Developer Implementation (DONE)"]
+    P3 --> P4["Phase 4: Safety Audit (DONE)"]
+    P4 --> P5["Phase 5: Host Quota Recovery Observation (EXECUTED - RED_FREEZE RETAINED)"]
+```
+
+#### Ticket Inventory:
+
+1. **`TICKET-QUOTA-TEST-001` -- Expected RED Baseline for Quota Guard V3 (TC-01 through TC-69)**
+   - **Owner**: `qa_tester`
+   - **Required Skills**: `[qa-regression-provenance, qa-e2e-testing]`
+   - **Writable Paths**: `tests/unit/test_quota_guard_v3.py`, `tests/fixtures/quota/**`, `plans/test_provenance/**`
+   - **Status**: `DONE`
+   - **Prerequisites**: Phase 0 `DESIGN_ACCEPTED` in `resume_plan.md` (Complete)
+   - **Definition of Ready (DoR)**: Architecture specification in `resume_plan.md` accepted; test case matrix TC-01 through TC-69 defined.
+   - **Definition of Done (DoD)**: Test suite covering all 69 test cases implemented; run against existing code establishes genuine assertion-level RED baseline; test provenance recorded; zero production code modified.
+   - **Outcome & Evidence**: Captured durable expected RED baseline across 84 tests recorded in `plans/test_provenance/ticket-quota-guard-v3-baseline.json`. DoD met.
+
+2. **`TICKET-QUOTA-IMPL-001` -- Implementation of Quota Collector and Quota Guard V3 Engine**
+   - **Owner**: `developer`
+   - **Required Skills**: `[sdlc-aisdlc-workflow]`
+   - **Writable Paths**: `scripts/lib/quota_collector.py`, `scripts/agent_quota_status_guard.py`
+   - **Status**: `DONE`
+   - **Prerequisites**: `TICKET-QUOTA-TEST-001` Expected RED Baseline verified
+   - **Definition of Ready (DoR)**: Verified RED test baseline and test provenance manifest available.
+   - **Definition of Done (DoD)**: Both collector and guard scripts implemented according to `resume_plan.md` specifications; all 69 test cases pass 100% GREEN; no regressions in existing suites; strictly confined to designated files.
+   - **Outcome & Evidence**: Implemented `scripts/lib/quota_collector.py` (process group termination, 64 KB stream limit, robust stdio reader) and upgraded `scripts/agent_quota_status_guard.py` (fail-closed guard engine, 4-tier scale, 8-step precedence cascade, two-phase concurrency reservation/lease, exit code contract 0/1/2/3). Achieved 87/87 tests GREEN in `tests/unit/test_quota_guard_v3.py` (84) and `project/tests/test_agent_quota_status_guard.py` (3). DoD met.
+
+3. **`TICKET-QUOTA-AUDIT-001` -- Safety Audit and Production Readiness Verification**
+   - **Owner**: `code_reviewer` & `ba_auditor`
+   - **Required Skills**: `[agile-governance, qa-e2e-testing, hf-static-release-verification]`
+   - **Writable Paths**: `plans/evidence/quota-guard-v3/safety-audit.json`
+   - **Status**: `DONE`
+   - **Prerequisites**: `TICKET-QUOTA-IMPL-001` 100% GREEN verified
+   - **Definition of Ready (DoR)**: Developer implementation passes all tests; test execution reports available.
+   - **Definition of Done (DoD)**: AST safety review completed; zero secret leaks detected; DoR/DoD compliance verified under Rule 21 and 22; signed audit artifact recorded in `plans/evidence/quota-guard-v3/safety-audit.json`.
+   - **Outcome & Evidence**: AST safety check PASSED; zero secrets leaked (`PASSED_ZERO_LEAKS`); Rule 21/22 DoR/DoD compliance verified. `code_reviewer` (`gpt-5.3-codex-spark` on `codex2`) issued `READY_FOR_PROD` in `plans/evidence/quota-guard-v3/safety-audit.json`; `ba_auditor` issued formal `APPROVED` verdict for DoR/DoD compliance. DoD met.
+
+### 4. Phase 5 Controlled Resumption Status
+- **Live Probe Command**: `python3 scripts/agent_quota_status_guard.py --refresh --json`
+- **Observed Result**: Typed fail-closed error `reason_code: "COLLECTOR_TIMEOUT"`, `exit_code: 3`, `host_resume_allowed: false`.
+- **Governance Determination**: In accordance with `resume_plan.md` Revision 3.4 Sections 6 & 7, Host Codex strictly remains in `RED_FREEZE` (recovery not proven; zero unfreezing without verified recovery; data plane remains frozen).
+<!-- SPRINT-QUOTA-GUARD-V3-20260905:END -->
+
+<!-- SPRINT-SPARK-SAFETY-20260905:START -->
+## GRILL REPORT & PLAN -- SPRINT-SPARK-SAFETY-20260905: Spark Safety Lanes (DevOps & Code Reviewer)
+
+**Recorded**: `2026-09-05T20:25:00+07:00` (Asia/Bangkok)
+**Status**: ALL_TICKETS_DONE -- SAFETY_POSTURE_CERTIFIED
+**Authority**: Explicit operator/user authorization for Package 1 (DevOps Safety) and Package 2 (Code Reviewer Safety) with `gpt-5.3-codex-spark` (`xhigh` reasoning effort on alias `codex2`). Governed by Rule 21 (Agile Governance), Rule 22 (Plan Completion), and 6-Lane Architecture.
+**Sole Authoritative Ticket Registry**: [`ATOMIC_TICKET.md`](../ATOMIC_TICKET.md#sprint-spark-safety-20260905----spark-safety-lanes-devops--code-reviewer)
+**Model & Execution Target**: `gpt-5.3-codex-spark` on dedicated Spark pool / alias `codex2`, reasoning effort `xhigh`.
+
+### 1. Executive Summary & Objective
+This sprint executes the user-authorized Package 1 (DevOps Safety) and Package 2 (Code Reviewer Safety) using `gpt-5.3-codex-spark` on alias `codex2` with `xhigh` reasoning effort. It hardens release gate posture, rollback integrity, pre-deployment checklists, zero-secret-leak scan protocols, AST safety analysis, and gate governance without touching or unfreezing Host Codex data plane.
+
+### 2. Nine-Dimension Decision Matrix (Grill Gate)
+
+| ID | Dimension | Assessment | Evidence / Decision Threshold |
+|---|---|---|---|
+| D1 | Scope boundary | [CONFIRMED] | IN: Release gate hardening, rollback pre-checks, pre-deployment checklists, AST code analysis verification, code reviewer safety tooling. OUT: Feature modifications, public API mutations, production deployments, unfreezing Host Codex data plane. |
+| D2 | Requirement delta | [CONFIRMED] | Add automated AST safety checks, zero-leak secret scan protocols, formal READY_FOR_PROD gate verification, and deployment rollback integrity pre-checks. |
+| D3 | Acceptance & stop | [CONFIRMED] | Disjoint writable paths enforced. Pure ASCII output. Stop immediately on any secret leak, test regression, or attempt to modify business logic. |
+| D4 | Inputs, constraints | [CONFIRMED] | Model `gpt-5.3-codex-spark` on alias `codex2` with `xhigh` effort. Disjoint file ownership between devops and code_reviewer. |
+| D5 | Architecture, ownership | [CONFIRMED] | Strict single-editor ownership: `devops` owns `.agents/AGENTS.md`, `.agents/agents/devops/*`, `docs/architecture/external-dispatch-platform-contract.md`, `HANDOFF.md`; `code_reviewer` owns `.agents/agents/code_reviewer/*`, `project/core/code_reviewer.py`, `project/core/` audit docs. |
+| D6 | Assumption register | [CONFIRMED] | Spark pool (`codex_bengalfox`) is utilized for safety governance tooling; Host Codex pool (`limitId: "codex"`) strictly remains in RED_FREEZE. |
+| D7 | Risk and recovery | [CONFIRMED] | Multi-owner dirty tree preserved. Atomic rollback per ticket. Disjoint paths prevent collision. |
+| D8 | Budget & evidence | [CONFIRMED] | Spark planning/safety budget allocated; pure ASCII logging; zero secret leaks; durable audit evidence recorded. |
+| D9 | Domain & HITL | [CONFIRMED] | Metaphysics domain untouched; production deployment requires separate HITL sign-off. |
+
+### 3. Execution Lanes & Atomic Ticket Breakdown
+
+```mermaid
+graph TD
+    AUTH["User Authorization (Package 1 & 2 on codex2 - xhigh)"] --> DEV["TICKET-SAFE-SPARK-DEVOPS-001 (DONE)"]
+    AUTH --> CR["TICKET-SAFE-SPARK-CR-001 (DONE)"]
+    DEV --> VERIFY["Verified Safety & Release Gate Posture (CERTIFIED)"]
+    CR --> VERIFY
+```
+
+#### Ticket Inventory:
+
+1. **`TICKET-SAFE-SPARK-DEVOPS-001` -- DevOps Safety & Release Gate Lane**
+   - **Role**: `devops`
+   - **Model**: `gpt-5.3-codex-spark` (`xhigh` on `codex2`)
+   - **Phase**: `release`
+   - **Bound Skills**: `[devops-deployment, hf-static-release-verification]`
+   - **Writable Paths**: `.agents/AGENTS.md`, `.agents/agents/devops/*`, `docs/architecture/external-dispatch-platform-contract.md`, `HANDOFF.md`
+   - **Status**: `DONE`
+   - **Definition of Ready (DoR)**: User authorization for Package 1 on codex2 confirmed; writable paths assigned; bound skills verified.
+   - **Definition of Done (DoD)**: Release gate posture and rollback pre-checks codified; deployment evidence protocol established; platform contract updated; pure ASCII logging; one-editor path isolation preserved.
+   - **Outcome & Evidence**: Release gate posture and rollback pre-checks codified, `release_gate_protocol.md` created, `HANDOFF.md` updated (`HandoffSnapshotV1` valid, 14729 bytes), zero secret leaks, 113 tests passed. DoD met.
+
+2. **`TICKET-SAFE-SPARK-CR-001` -- Code Reviewer Pre-Deployment Safety Lane**
+   - **Role**: `code_reviewer`
+   - **Model**: `gpt-5.3-codex-spark` (`xhigh` on `codex2`)
+   - **Phase**: `qa` / `review`
+   - **Bound Skills**: `[qa-e2e-testing, hf-static-release-verification]`
+   - **Writable Paths**: `.agents/agents/code_reviewer/*`, `project/core/code_reviewer.py`, `project/core/` audit docs
+   - **Status**: `DONE`
+   - **Definition of Ready (DoR)**: User authorization for Package 2 on codex2 confirmed; writable paths assigned; bound skills verified.
+   - **Definition of Done (DoD)**: Pre-deployment safety review checklist, zero-secret-leak scan protocols, and AST code analysis verification implemented; READY_FOR_PROD gate governance established; pure ASCII logging; one-editor path isolation preserved.
+   - **Outcome & Evidence**: 5-gate pre-deployment safety checklist created, `project/core/code_reviewer.py` hardened with `audit_python_ast()`, zero secret leaks, 118 tests passed, READY_FOR_PROD gate governance verified. DoD met.
+
+### 4. Sprint Completion & Safety Posture Certification
+- Package 1 (DevOps) completed and verified with 113 passing tests, valid `HandoffSnapshotV1` (14729 bytes), and codified release gate protocol.
+- Package 2 (Code Reviewer) completed and verified with 118 passing tests, AST analysis validation via `audit_python_ast()`, and zero secret leaks.
+- Safety Posture: CERTIFIED. Host Codex data plane remains strictly frozen under `RED_FREEZE`.
+<!-- SPRINT-SPARK-SAFETY-20260905:END -->
+
+<!-- RELEASE-QA-REMEDIATION-20260905:START -->
+## GRILL REPORT -- SPRINT-RELEASE-QA-REMEDIATION-20260905: Aggregate Release QA Remediation
+
+**Recorded**: 2026-09-05 (Asia/Bangkok)
+**Status**: `BLOCKED_BY_CONTEXT_OPT_DEPENDENCY`
+**Owner approval**: "approve all"
+**Authorized next phase**: Written design review and atomic read-only failure triage. Execution is `BLOCKED_BY_CONTEXT_OPT_DEPENDENCY` awaiting `TICKET-CONTEXT-OPT-001` `VERIFIED_LOCAL`. Local source remediation begins only through evidence-backed successor tickets. Toolchain installation, secret/provider actions, commit/push, deployment, publication, and metaphysics behavior changes remain separately gated.
+
+**Request**: Resolve newly discovered deterministic repository QA failures without weakening authoritative contracts, then re-enter the existing serial release workflow only after independent full verification.
+
+**Dependency hold (2026-09-05)**: Owner-approved `TICKET-CONTEXT-OPT-001` now precedes renewed release-QA execution. `TICKET-CONTEXT-OPT-001` combined baseline 29 vs 39 paths remains unresolved (`COMBINED_TEST_BASELINE_VERIFIED=false`, `source_admitted=false`, `successor_commit_authorized=false`) and Task G devops lane on codex2 (`gpt-5.3-codex-spark`) is paused on `RESOURCE_EXHAUSTED` (HTTP 429). SPRINT-RELEASE-QA-REMEDIATION-20260905 remains `BLOCKED_BY_CONTEXT_OPT_DEPENDENCY` awaiting `VERIFIED_LOCAL`. After that ticket reaches non-release `VERIFIED_LOCAL`, release-QA owners must first freshly revalidate the current HEAD/worktree and derived `HANDOFF.md` read-only, discard interrupted results as UNKNOWN, and then resume only the existing read-only audit DAG. Release inventory/source remediation and Rule 21 `DONE`, release notes, tag, push, clean-tree, deployment, and production evidence remain separately blocked. This continuation is not complete.
+
+**Context evidence**: `AGENTS.md`; `.agents/rules/02-testing-standards.md`, `08-grill-gate-enforcement.md`, `13-ai-agent-ecosystem-sync.md`, `16-hf-static-release-verification.md`, `19-agy-capacity-governance.md`, `21-agile-governance.md`, `22-plan-completion-and-release-notes.md`, `24-red-blue-team-and-selective-testing.md`, and `25-dual-ba-and-parallel-execution-lanes.md`; current `ATOMIC_TICKET.md`; current failure cache; relevant full-capacity, UI-mirror, gateway, ecosystem, and Swift broker tests; and Git provenance.
+
+| ID | Evidence state | Decision |
+|---|---|---|
+| D1 Scope boundary | `[CONFIRMED]` | IN: local diagnosis, provenance/test repair, source/config repair, canonical generated sync, and verification. OUT: toolchain installation, secrets/providers, commit/push/deploy/publish, assertion weakening, target substitution, and unapproved metaphysics changes. |
+| D2 Requirement delta | `[CONFIRMED]` | Repair reproducible deterministic failures from the full preflight; add no feature or public interface. |
+| D3 Acceptance and stop | `[CONFIRMED]` | Focused RED/GREEN and neighbour tests per cluster; final collected suite exit 0, ecosystem check, and secret scan before release advancement. Stop on contract conflict, environment-only dependency, domain change, scope collision, or external action. |
+| D4 Inputs/dependencies | `[AUTO]` / `[CONFIRMED]` | Full-run result, last-failed cache, source/tests/plans, and Git history are available. Matching Swift compiler/SDK is not; installation remains gated. |
+| D5 Architecture/ownership | `[CONFIRMED]` | Sequential work in the dirty shared tree; exact one-editor path ownership; separate QA/provenance and source lanes; no subagent dispatch. |
+| D6 Assumptions | `[AUTO]` / `[CONFIRMED]` | Reproduce cached failures; preserve authoritative production/security contracts; treat four-account AGY evidence as the candidate authority; establish UI canonical direction from provenance. |
+| D7 Risk/recovery | `[CONFIRMED]` | Preserve user edits and immutable baselines; use path-scoped patches and reversals; never hand-edit generated outputs or hide blockers. |
+| D8 Budget/evidence | `[AUTO]` | Local deterministic tests, fail-fast/last-failed triage, focused suites, trimmed ASCII receipts, then one full run. |
+| D9 Domain/HITL | `[CONFIRMED]` | Domain failures are diagnosis-only. Any metaphysics source or golden-vector change requires separate owner/HITL approval. |
+
+**Acceptance matrix**
+
+| Criterion | Verification | Stop threshold |
+|---|---|---|
+| Current failure truth is established | Re-run cached nodes fail-fast; record exact classification and fingerprints | Any cached result is treated as current without reproduction |
+| Corrections preserve contracts | Immutable/negative-control evidence plus focused and neighbouring suites | Assertion/security/domain weakening or unresolved authority |
+| Generated parity is trustworthy | Canonical sync command followed by `--check` when applicable | Manual generated edit or nonzero check |
+| Release preflight is green | Current full pytest exit 0, secret scan, and release QA/reviewer receipts | Any failure, error, missing evidence, or environment blocker |
+
+**Risks and recovery**: Contract drift, dirty-tree overwrite, generated-source inversion, false-green environment handling, and domain-output mutation fail closed. Recovery is limited to remediation-owned hunks or canonical regeneration; no destructive Git operation or history rewrite is allowed.
+
+**Waivers**: NONE.
+**Blockers**: NONE for design and read-only triage. Swift/toolchain and any metaphysics behavior change remain explicit downstream blockers requiring separate approval.
+**Next question**: NONE.
+**Canonical intake**: [`plans/intake/sprint_release_qa_remediation_20260905.md`](intake/sprint_release_qa_remediation_20260905.md)
+**Design specification**: [`docs/superpowers/specs/2026-09-05-release-qa-remediation-design.md`](../docs/superpowers/specs/2026-09-05-release-qa-remediation-design.md)
+**Triage implementation plan**: [`docs/superpowers/plans/2026-09-05-release-qa-remediation-triage.md`](../docs/superpowers/plans/2026-09-05-release-qa-remediation-triage.md)
+<!-- RELEASE-QA-REMEDIATION-20260905:END -->
+
+<!-- CONTEXT-OPT-001-20260905:START -->
+## GRILL REPORT -- TICKET-CONTEXT-OPT-001: Atomic Dynamic Cross-Provider Context
+
+**Recorded**: `2026-09-05` (Asia/Bangkok)
+**Status**: `RECOVERY_BASELINE_AUDIT_FAILED -- COMBINED_TEST_BASELINE_VERIFIED_FALSE -- SOURCE_ADMISSION_PENDING -- TASK_G_PAUSED_429`
+**Owner approval**: "approve"; full permission to the root orchestrator for the approved planning, delegation, bounded local implementation/testing/review, repository-local cross-provider sync, and subsequent release-QA resumption workflow.
+**Authorized next phase**: Documentation handoff of the failed audit to QA characterization and independent review only. The prior 29-path commit and implementation artifacts remain preserved evidence, but combined verification, source admission, Task G/H continuation, parent `VERIFIED_LOCAL`, release QA, push, and deployment remain blocked. Subagent devops lane on codex2 (`gpt-5.3-codex-spark`) errored with `RESOURCE_EXHAUSTED` (HTTP 429) during Task G and is paused; combined baseline 29 vs 39 paths remains unresolved (`COMBINED_TEST_BASELINE_VERIFIED=false`, `source_admitted=false`, `successor_commit_authorized=false`).
+**Admission checkpoint**: Recovery receipt `plans/evidence/context-opt-001/recovery-baseline-audit.json` supersedes the combined-gate interpretation of the prior Task A/C claims. Current Context manifest SHA-256 `67e0cc49fa27c027f7bd009a5f6e8adde23330b360b89c50564f4b2395a981cb` names 28 files whose hashes all match; commit `95ade8f` adds that manifest for 29 total paths. It omits all ten Dispatch paths. The manifest's verified/provisional language, `source_admission=false`, and `supersedes=null` cannot prove the combined contract. The earlier `9ffbb06e...` digest is draft-era identity. No successor commit exists and no test was run during reconciliation.
+
+**Successor rationale**: The historical no-second-commit restriction is preserved for the original authority. TICKET-META-008 prospectively allows at most one separately authorized additive successor only after exact ten-path RED/characterization evidence, full 39-path inventory, independent review, and explicit current authorization. Until then: `successor_commit_authorized=false`, `combined_test_baseline_verified=false`, `source_admitted=false`.
+**Independent auxiliary observations**: historical values codex1 five-hour 96%, agy1 five-hour 96%, and agy2 weekly 75.21%/five-hour 100% remain separate and are superseded for admission by the current RED host signal. The separate Spark observation in TICKET-META-008 is also planning-only. None proves auth, isolation, capability, executability, health, or execution; no reservation or dispatch remains admitted.
+
+**Request**: Implement Corrected Approach B: lean discovery with dynamic depth, a canonical closed-world Horo skill registry/resolver, provider-native one-way rendering, fail-closed profile activation, provider context probes, and minimal Rule 14 skill splits without weakening mandatory contracts.
+
+**Context evidence and authority**: `AGENTS.md`; canonical ticket/plan/spec/four context plans; `HANDOFF.md` as derived state only; Rules 03, 05, 06, 08, 10, 13, 14, 16–21, 24, and 25; bound skills; corrected QA handoff; SDD reports 10 and 11 as correction inputs. Reports 4 and 7, plus report 9 directions to `TICKET-META-008` or unsafe quota summary, are `SUPERSEDED/HISTORICAL INPUT ONLY` and cannot define bootstrap/reviewer/registry/alias/quota/frozen-test expectations.
+
+| ID | Evidence state | Decision |
+|---|---|---|
+| D1 Scope boundary | `[CONFIRMED]` | IN: registry/schema, one code-fixed `ApprovedTicketContextV1` plus `EvidenceRefV1`, union resolver, eight focused skills plus three routers, role bindings, one-way repository render/sync, manifest, credential-free OS-no-network local context probes, governance/docs, independent review, and this ticket's exact 29-path portion in the one QA-owned combined test/eval-fixture/provenance commit. OUT: every other commit, push/tag/deploy/publish/release, secrets, destructive Git, account/plugin/cache/provider job, application behavior, alias/capacity consolidation. |
+| D2 Requirement delta | `[CONFIRMED]` | Replace broad startup/role skill exposure and convention-only loading with an exact four-skill root bootstrap, ticket-bound Horo closed world, additive mandatory closures, and semantically verified provider outputs. |
+| D3 Acceptance and stop | `[CONFIRMED]` | B1-B7/containment RED, the one authorized committed baseline, focused/neighbor GREEN, <=8000 with zero warning/truncation, complete deterministic manifest, pure checks, exact profile rejection, three fresh local probe PASS receipts, static Antigravity parity, docs and independent receipts. Terminal target is `VERIFIED_LOCAL`, never DONE/release. |
+| D4 Inputs/dependencies | `[CONFIRMED]` | Exactly one local QA-owned test/eval-fixture/provenance baseline commit is authorized after assertion-level RED and independent review. It contains exactly 39 paths: the exact 29-path context portion plus the exact 10-path dispatch portion. No second or other commit and no push is authorized. Every source/config/generated/runtime-evidence change remains uncommitted. This gate is `qa-e2e-testing`, not Rule 21; `VERIFIED_LOCAL` never satisfies Rule 21 `DONE`. |
+| D5 Architecture/ownership | `[CONFIRMED]` | QA owns the exact 29 baseline paths and separate pressure receipt; developer owns D/F exact files; BSA owns E1; Lead BA owns canonical governance/docs/ticket/plan then operator derives HANDOFF; DevOps owns manifest targets/six G receipts; H has one exact receipt per owner. All source lanes are sequential behind baseline verification. |
+| D6 Assumptions | `[CONFIRMED]` | Closed world applies only to `horo_skill`; optional plugin request fields are rejected. Superpowers is a pinned provider plugin; browser family is runtime tool. Codex/Claude/AGY require fresh local probe PASS; Antigravity is static parity only. Aliases remain historical/fail-closed. |
+| D7 Risk/recovery | `[AUTO]` / `[CONFIRMED]` | Risks: lost mandatory skill, renderer source inversion, check mutation, path escape, false runtime/profile claim, catalog expansion, dirty-tree collision. Recovery: stop, preserve owned diffs, restore only manifest-listed generated bytes from canonical sources, and derive complete handoff; never reset or delete caches. |
+| D8 Budget/evidence | `[CONFIRMED]` | Host is 27% AMBER; codex1=96% five-hour, agy1=96% five-hour, and agy2=75.21% weekly/100% five-hour are separate owner observations. Never aggregate or infer execution. Every bounded dispatch requires local alias/config isolation validation, receipt binding, and fresh pool-specific recheck. Provider-backed skill-pressure sampling remains unauthorized. At <=20% use at most one lane plus snapshot; <10%/429/usageLimitExceeded/ambiguous signal freezes and derives handoff. Unsafe summary is never quota proof. |
+| D9 Domain/HITL | `[CONFIRMED]` | `source_domain=metaphysical-domain-engine` applies to its skill split. Preserve deterministic tool grounding; conflict/low-consensus/boundary-hour/force-review/training requires `required_human_review=True`, passing scope audit, and recorded owner sign-off. No calculation/training/API behavior changes. |
+
+**Architecture decision**:
+
+- Closed-world registry: `.agents/config/scope_skill_registry.v1.json`; normative rules and skill bodies remain canonical in their existing `.agents` paths.
+- Approved authority: exactly `.agents/context/tickets/TICKET-CONTEXT-OPT-001.v1.json`; resolver selects by `ticket_id+lane_id` from a code-fixed root. A caller can narrow action/path/Horo subsets, never broaden; argv-derived actions and strict EvidenceRef ticket/domain/revision/freshness/digest/owner bindings are mandatory. No plugin request field.
+- Approved-context authority rejects unmanifested, caller-selected, wrong-fixed-path, wrong-ticket/lane, stale, linked, nonregular, escaped, and digest-mismatched records before launch. It does not reject solely because the correct D-owned manifest-bound record is Git-untracked; Git state is neither authority nor execution evidence. Required tests are `test_approved_context_is_code_fixed_manifest_bound_and_not_caller_selected` and `test_git_tracking_state_is_not_authority_or_execution_evidence`.
+- Namespaces: `horo_skill`, `provider_plugin`, `runtime_tool` are disjoint. Root Horo bootstrap is exactly `requirement-grill-gate`, `agile-governance`, `orchestrator-delegation`, `anti-cognitive-decay`; `bsa-doc-skill-management` is BA-role-only.
+- Resolver: union role + phase + action + every touched path + every broad-to-narrow ancestor + dependencies + mandatory closures. Local scopes strengthen only.
+- Canonical identity: duplicate/non-finite/non-NFC rejection; compact sorted `ensure_ascii=True`, `allow_nan=False` JSON without newline; exact five spec domain prefixes; raw artifacts hash bytes; manifest excludes itself and self-digests its unsigned payload.
+- Render: canonical-to-Codex/Claude/AGY/Antigravity only; schemas/registry/context/selected roles-skills-rules/generator-imports/generated outputs in the exact manifest; race-safe atomic writes; no mtime authority; pure ecosystem check never launches probes or writes.
+- Profile/probe: only local Codex `debug prompt-input`, strict `/0/content/0/text`, minimal stripped environment and OS no-network. ProviderContextProbeV1 fields are closed; Codex/Claude/AGY runtime PASS required, Antigravity static parity only.
+- Skill split: QA -> two focused skills; color -> three; metaphysics -> three. Three legacy names become workflow-free compatibility routers with a tested sunset. No other split.
+- Frozen context baseline: eight test modules + eleven literal fixtures + nine immutable `tests/fixtures/context_profiles/evals/<skill>.json` expectation fixtures + provenance = 29 paths. The nine real `.agents/skills/<skill>/evals/evals.json` files are E1 source/manifest inputs and must exact-match the fixtures; tests reject missing/extra/reordered/weakened cases, and fixtures cannot authorize skills. Required RED includes `test_combined_baseline_paths_are_all_guard_classified_as_tests_or_manifests`, `test_each_skill_eval_matches_its_frozen_test_fixture_exactly`, and `test_eval_fixture_cannot_authorize_or_enable_a_skill`.
+
+**Atomic dependency sequence**:
+
+1. DOC-C3 (`business_analyst`): freeze the canonical ticket, plan, spec, four context plans, and two architecture contracts; no source/test/HANDOFF mutation. [`DONE`]
+2. `001-A` (`qa_tester`, `DONE`): create and validate current `DRAFT_RED_NOT_COMMITTED` (SHA-256 `9ffbb06ef8b3a254f474385c6ec8a4cc2b6bbe778d49df939d9d760c87239f6e`).
+3. Continuity operator (`DONE`): derive and validate `HANDOFF.md` from the frozen canonical ticket/plan and current A.
+4. Independent reviewer (`DONE`): `code_reviewer` audited Task A manifest, authority hashes, and 39-path partition, issuing `ADMITTED` for Task B contract.
+5. `001-B` (`qa_tester`, `DONE`): complete 98-test RED packet across 8 test modules (78 genuine assertion-level RED failures, 20 frozen characterization passes); durable offline pressure receipt SHA-256 `01d9d3ea4f90e76e49af4ecef6105695d6962ec23b1ba88b62ab0be11f1bff0a` in `plans/evidence/context-opt-001/skill-pressure-red.json`; provider calls unexecuted/offline baseline preserved.
+6. `001-C` (`code_reviewer` -> `qa_tester` -> `code_reviewer`, `DONE`): verified baseline commit `95ade8f02f8f6e4c1b8d1a8bf0f84ae830f7f0c1` anchored in git history (parent `09deba10353663e5aa1e78e55b078cfdcf7ad743`), `TEST_BASELINE_VERIFIED` issued by `code_reviewer`. Exact 29 baseline paths committed, 0 non-test/source files, 0 push.
+   - `TICKET-TOOLING-PROV-GUARD-001` (`developer`, `sdlc-aisdlc-workflow`, `DONE`): developer aligned `scripts/test_provenance_guard.py` for manifest governance extensions and expectation fixtures without weakening fail-closed non-test guard, unblocking baseline commit execution (65/65 tests passed).
+7. `001-D` (`developer`, `DONE`): developer implemented registry, three schemas, approved context, and resolver across 6 owned paths (all 32 tests passed GREEN).
+8. `001-E1` (`business_analyst`, `DONE`): eight skills, routers, exact role/binding migration (completed by `business_analyst`, 8 focused skills created, real evals aligned, all eval exact-match tests passed GREEN).
+9. `001-E2` (Lead BA, `DONE`, then operator): Rules 17/20/21, orchestration skill, README/HOWTO, Skill Budget ownership status, ticket/plan then derived HANDOFF (completed by `lead_ba`, Rules 17/20/21 aligned, non-release VERIFIED_LOCAL defined, README/HOWTO updated, all governance assertions passed GREEN).
+10. `001-F` (`developer`, `DONE`): ten exact scripts; created renderer, codex role adapter, and runtime probe; updated ecosystem sync scripts and guards; all 41 unit/contract/probe tests passed GREEN.
+11. `001-G` (`devops`, `PAUSED_RESOURCE_EXHAUSTED_429`): subagent devops lane on codex2 (`gpt-5.3-codex-spark`) errored with `RESOURCE_EXHAUSTED` (HTTP 429); execution paused. Combined baseline 29 vs 39 paths remains unresolved (`COMBINED_TEST_BASELINE_VERIFIED=false`, `source_admitted=false`, `successor_commit_authorized=false`), blocking Task G/H and parent `VERIFIED_LOCAL`. Output generation on hold.
+12. `001-H` (`qa_tester` -> `code_reviewer` -> `ba_auditor`): exact `qa-verdict.json`, `code-review-verdict.json`, `ba-audit-verdict.json`.
+13. Lead BA may set `VERIFIED_LOCAL`; existing release-QA read-only audits resume only after fresh worktree/handoff validation. No DONE/release unlock.
+
+**Acceptance matrix**:
+
+| Criterion | Verification | Owner | Stop threshold |
+|---|---|---|---|
+| Test-first provenance | Eight RED modules, eleven literal fixtures, nine immutable eval expectation fixtures, provenance = 29 context paths; ten dispatch paths; separate digest-bound pressure receipt; B1-B7 and containment failures; one authorized 39-path baseline commit predates source | QA + reviewer | Contract review absent, provider-backed pressure run, deterministic prep without fresh AMBER reassessment, source/fixture mismatch, syntax/fixture error, hash drift, unauthorized/uncommitted baseline, reconstructed evidence |
+| Lean exact context | Root contains exactly four approved Horo skills; role/phase/action/path union loads only allowed bodies | QA | Extra/missing Horo skill, global BSA skill, role mismatch |
+| Mandatory closure | Executable positive/negative matrices for security, API, release, metaphysics | QA + reviewer | Missing member, caller pass flag accepted, reviewer gets deployment |
+| Provider parity | One-way manifest binds all canonical inputs/imports/artifacts; same-buffer/race-safe atomic writes; normalized equality; pure check | Developer + DevOps + QA | mtime/mirror authority, unsafe link/type/race, extra/missing/stale artifact, check launch/write |
+| Runtime/profile | Approved ticket/lane, argv-derived action, local debug-only Codex exit 64, strict prompt node/inventory, exact ProviderContextProbeV1 | DevOps + QA | caller broadens, injection/env/network leak, silent fallback, unbound skill, unavailable/unknown as PASS, Antigravity runtime claim |
+| Budget | Root/base/focused/compatibility catalog/body/total measured <=8000; zero shortening/truncation | DevOps + QA | missing/nonnumeric/overage/warning/truncation or capability omission |
+| Lifecycle/boundary | No unauthorized commit; exactly one QA-owned combined baseline commit is authorized after review, with this ticket contributing exactly its 29-path portion. `VERIFIED_LOCAL` is not DONE/release. No other commit and no push/tag/deploy/publish/secrets/destructive Git/external account/application change. | Reviewer + BA auditor | Any excluded action, false DONE/release, or weakened Rule 21 closure |
+
+**Quota/handoff**: At <=40%, reassess before each bounded lane; <=20%, one lane and snapshot before material action; <10%, HTTP 429, `usageLimitExceeded`, UNKNOWN before high-cost work, or contradictory signal freezes broad work. Update this canonical ticket and plan first, then derive `HANDOFF.md` with objective, HEAD/worktree, every task state, decisions/constraints, plan paths, commands/results, failures/risks, next safe action, ownership/skill bindings, and non-secret quota evidence. `clear_ready=false` while any lane is unresolved.
+
+**Risks and recovery**: Preserve the dirty tree and one-editor ownership. Never treat generated files, cached models, prompt renders, aliases, or old probes as execution proof. Roll back only ticket-owned, manifest-listed generated bytes from canonical sources; source repair requires its own reviewed evidence. No provider-local binding matrix is allowed.
+
+**Waivers**: NONE. Exactly one local QA-owned test/eval-fixture/provenance baseline commit is authorized after assertion-level RED and independent review. It contains exactly 39 paths: the exact 29-path context portion plus the exact 10-path dispatch portion. No second or other commit and no push is authorized. Every source/config/generated/runtime-evidence change remains uncommitted.
+**Blockers**: Tasks A, B, C, and D are `DONE`; baseline commit `95ade8f02f8f6e4c1b8d1a8bf0f84ae830f7f0c1` verified by `code_reviewer` (`TEST_BASELINE_VERIFIED`). Task D implemented across 6 owned paths with 32 GREEN tests. Task E1 is `DOING` (`business_analyst`) and Task E2 is `DOING` (`lead_ba`). Post-D requires fresh metaphysics scope audit before skill edits in E1. Task 19 resolved only F's source ownership collision: Skill Budget 002 remains `BLOCKED_NONREPRODUCIBLE / VERIFIED_LOCAL_CODE_CONTRACT / LIVE_CONFIG_DRIFT`, and codex3 config remediation is a separate sequential operational lane. Quota is 27% AMBER, so every bounded dispatch/pressure sample/long task needs fresh reassessment; provider/account job dispatch remains excluded. Local verification cannot become DONE/release.
+**Next question**: NONE while Tasks E1 and E2 are in progress.
+**Canonical ticket**: [`TICKET-CONTEXT-OPT-001`](../ATOMIC_TICKET.md#ticket-context-opt-001----atomic-dynamic-cross-provider-context)
+**Design and implementation plans**: [`design`](../docs/superpowers/specs/2026-09-05-atomic-dynamic-cross-provider-context-design.md), [`index`](../docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context.md), [`registry`](../docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context-registry-resolver.md), [`skills`](../docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context-skill-migration.md), [`provider/runtime`](../docs/superpowers/plans/2026-09-05-atomic-dynamic-cross-provider-context-provider-runtime.md).
+<!-- CONTEXT-OPT-001-20260905:END -->
+
+<!-- DISPATCH-ACTIVATION-001-20260905:START -->
+## GRILL REPORT -- TICKET-DISPATCH-ACTIVATION-001: Durable Offload Activation and Project Spark Adapter
+
+**Recorded**: `2026-09-05` (Asia/Bangkok)
+**Gate**: `BLOCKED_BY_TICKET_META_008_RED_FREEZE`. DOC-C3 canonical freeze is complete (`DONE`); explorer discovery bytes are preserved; source/config/test/generated/runtime mutation remains dependency-blocked.
+**Canonical ticket**: [`TICKET-DISPATCH-ACTIVATION-001`](../ATOMIC_TICKET.md#ticket-dispatch-activation-001----durable-offload-activation-and-project-spark-adapter)
+
+| Dimension | Decision |
+|---|---|
+| Scope | In: durable per-ticket/attempt/alias approval ledger; TTL/replay/atomic consume; evidence-backed activation and health; exact-model Spark project adapter after CLI proof; cross-provider one-way sync/check. Out: system-owned `spawn_agent` model whitelist, platform hook implementation, closing/bypassing DSG-009A/B, credentials/login/secrets, provider/account mutation, broad activation OPEN, silent fallback, release/deploy/publish. |
+| Inputs | Task 12 codex1 attempt 2, Task 13 agy1 attempt 2, Task 14 agy2 attempt 1, Task 15 read-only path/function map, the exact runtime/model-policy/dispatcher/scheduler/schemas/tests, and fresh independent quota observations. Admission-failure artifacts are not ExecutionReceipts or WorkResults. |
+| Success / stop | `VERIFIED_LOCAL_CODEX_ADAPTER` only after the exact baseline predates source, ledger and evidence-derived state pass adversarial tests, exact Spark identity/no-fallback is proven, sync/check and full regression pass, and QA/security/BA receipts agree. This never claims every alias unblocked. Stop on stale/missing grant, health, capability, native receipt, unexpected generated path, ownership collision, secret/credential need, excluded action, or quota threshold. |
+
+**Current evidence decision**:
+
+- All three requested offload attempts were pre-spawn blocked; no child/provider/fallback ran.
+- Local decision and sandbox/plan validation does not overcome missing durable stores/grants, ordinary activation `CLOSED`, unproven provider/account health, or AGY's `PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED` denial.
+- Exact `ProbeClaim`, `ApprovalGrant`, consume store, and bound session are absent. The plan must never synthesize them or infer them from the broad authorization.
+- Task A of the context ticket is stale/incomplete according to the newest gate evidence. Context B remains blocked until hashes are refreshed and independent security review accepts the corrected contract.
+- Exact authorities are `.superpowers/sdd/2026-09-05-codex-remote-plugin-budget/task-12-codex1-security-gate.md`, `task-12-codex1-execution-receipt.json`, `task-13-agy1-qa-gate.md`, `task-13-agy1-execution-receipt.json`, `task-14-agy2-parity-gate.md`, `task-14-agy2-execution-receipt.json`, `task-15-dispatch-config-map.md` (SHA-256 `9f9c96ff22199a979f5faa474de2b04ec3e4fd0ab0e4654fdb5319a4bd4a9c25`), and `task-16-spark-adapter-spike.md` (SHA-256 `56dc6b95e3be8d54b4c81d4d151d01f164ad4626ea654fe50927b71cc9364f38`) beneath the same directory.
+
+**Architecture decision**:
+
+1. Preserve ordinary activation `CLOSED`. An exact attempt may proceed only through a fresh, content-bound, one-use approval path.
+2. Add closed `RuntimeAdmissionV1` under a code-fixed owner-only state root and address it by safe admission ID, never an arbitrary caller path. Its closed fields are `schema_version`, `artifact_type`, `admission_id`, `ticket`, `attempt_id`, `alias`, `provider`, `role`, `phase`, `route_sha256`, `decision_sha256`, `scheduling_snapshot_sha256`, `runtime_config_sha256`, `health_evidence_sha256`, `session_id`, `issued_at`, `expires_at`, `max_uses`, and `revoked`. Require `artifact_type=RuntimeAdmission`, `max_uses=1`, current session, and expiry no more than 120 seconds after issue.
+3. Bind the runtime-admission digest into the existing four-store claim/grant/consume/receipt chain together with policy, command/objective/ownership and store identities. Atomic consume precedes provider spawn; replay, cross-binding, expiry and crash ambiguity fail closed with retained anchors. Preserve `0700` directories, `0600` files, `O_NOFOLLOW`, `O_EXCL`, retained descriptors, `flock`, `fsync`, and post-consume burn; do not add a public claim/store-path override.
+4. Scheduler eligibility consumes fresh sanitized health evidence; configuration never hard-codes health or globally OPEN execution.
+5. Use `scripts/multiagent_prompt_command.py` as the project adapter. Spark is exact `gpt-5.3-codex-spark`; preserve Codex/high/rank-3, roles `devops`/`code_reviewer`, phases `qa`/`review`/`release`/`operations`, and policy fallback order 4, but this exact route never falls back. The system-owned collaboration-model whitelist remains immutable and out of repository scope.
+6. Keep AGY's hard denial and DSG-009A/B intact. `_validate_transport_provider_binding` is the effective pre-decision/preauthorization/pre-ledger/pre-Popen guard; `runtime.provider_execution_denials` is declarative only. Repository code can validate a future native receipt but cannot invent or replace it.
+7. Cross-provider output remains canonical-to-generated. `--check` is read-only; any nonempty predicted write set must be enumerated path-by-path in the canonical ticket before sync. A standalone runtime admission does not trigger generated-agent rewrites.
+
+### Frozen files and interfaces
+
+| Responsibility | Exact paths / interfaces |
+|---|---|
+| Dispatcher, preauthorization and adapter | `scripts/multiagent_prompt_command.py`: `validate_dispatch_decision`, `resolve_route`, `build_invocation`, `_parse_codex_result`, `_execute_invocation_locked`, `validate_execution_receipt`, and existing retained-store/consume helpers |
+| Activation and health eligibility | `scripts/multiagent_ticket_scheduler.py`; `.agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml` |
+| Spark policy | `.agents/config/multiagent_model_policy.yaml`; existing Spark policy fingerprint tests in `tests/test_multiagent_prompt_command.py` |
+| Schemas | Create `.agents/schemas/multiagent-runtime-admission-v1.schema.json` and `.agents/schemas/multiagent-activation-health-evidence-v1.schema.json`; modify only where RED requires binding: `.agents/schemas/multiagent-probe-claim-v1.schema.json`; `.agents/schemas/multiagent-probe-approval-v1.schema.json`; `.agents/schemas/multiagent-approval-consume-receipt-v1.schema.json`; `.agents/schemas/multiagent-dispatch-receipt-v3.schema.json`; keep `.agents/schemas/multiagent-work-result-v2.schema.json` read-only |
+| QA baseline | `tests/test_multiagent_prompt_command.py`; `tests/test_multiagent_probe_approval.py`; `tests/test_multiagent_receipt_schema.py`; `tests/test_multiagent_receipt_v3_schema.py`; `tests/test_agy_bucket_admission_guard.py`; `tests/test_multiagent_bootstrap_dispatch.py`; `tests/test_spark_model_governance.py`; `project/tests/test_ai_agent_ecosystem_sync.py`; `project/tests/test_developer_routing_contract.py`; `plans/test_provenance/ticket-dispatch-activation-001.json` |
+| Runtime evidence | `plans/evidence/dispatch-activation-001/activation-health.json`; `plans/evidence/dispatch-activation-001/spark-cli-capability.json`; `plans/evidence/dispatch-activation-001/qa-verdict.json`; `plans/evidence/dispatch-activation-001/security-verdict.json`; `plans/evidence/dispatch-activation-001/dod-audit.json` |
+| Pure sync/check discovery | `scripts/sync_ai_agent_ecosystem.py`; `scripts/sync_sdlc_agents.py`; `scripts/sync_codex_agents.py`; `scripts/sync_claude_agy_parity.py`; `scripts/sync_codex_account_configs.py` |
+
+**Execution DAG**:
+
+1. `001-A` (read-only explorer maps -> Lead BA acceptance, `DONE -- READ_ONLY`): task 15 froze activation/ledger boundaries at SHA-256 `9f9c96ff22199a979f5faa474de2b04ec3e4fd0ab0e4654fdb5319a4bd4a9c25`; task 16 froze Spark partial-static support and platform boundary at SHA-256 `56dc6b95e3be8d54b4c81d4d151d01f164ad4626ea654fe50927b71cc9364f38`.
+2. `TICKET-CONTEXT-OPT-001-A`, `B`, and `C` are `DONE` (`TEST_BASELINE_VERIFIED` issued for baseline commit `95ade8f02f8f6e4c1b8d1a8bf0f84ae830f7f0c1`); Task D is `DOING`.
+3. `001-B` (`qa_tester`, blocked): write RED only in the ten frozen dispatch paths for missing/stale/mismatched grants and health, TTL/replay/cross-binding/concurrent consume/crash recovery, AGY denial, no fallback, and all eight Spark gaps below. Reviewer verifies RED.
+4. QA creates the one exact 39-path combined baseline commit containing the context 29 paths plus these ten paths; reviewer records `TEST_BASELINE_VERIFIED`. No second commit or push.
+5. `001-C` (`developer`, blocked): implement closed `RuntimeAdmissionV1` resolution and digest binding through the existing four-store ledger in the dispatcher and exact schemas; tests stay immutable.
+6. `001-D1` (`developer`, blocked): implement evidence-derived scheduler activation/health in the scheduler and runtime config; ordinary activation stays CLOSED.
+7. `001-D2` (`devops`, blocked): only after an exact owner-issued grant, write the sanitized `activation-health.json`; current authority starts no provider process and missing proof remains UNKNOWN/BLOCKED.
+8. `001-E1` (QA/reviewer, blocked): only after an exact owner-issued grant, write `spark-cli-capability.json` proving pinned CLI/version and exact Spark structured capability. Policy/help/argv/quota/exit-zero alone do not pass; current authority starts no provider process.
+9. `001-E2` (config owner then dispatcher owner, blocked): only after D2 and E1 PASS identify one proven governed Codex alias, add explicit `devops`/`code_reviewer` Spark/high read-only routes in the runtime config, and change generic adapter/policy code only for an observed RED gap. No implementation/planning/default/Gemini route or fallback.
+10. `001-F` (`devops`, blocked): run pure ecosystem check; if drift is predicted, return the exact output paths/hashes for Lead BA admission before any sync. Then perform only the admitted one-way local sync and re-check.
+11. `001-G` (QA -> reviewer -> BA auditor, blocked): focused/full/adversarial tests and exact evidence receipts; unanimous local verdict only.
+12. `001-AGY` (future platform/runtime -> trusted verifier, `BLOCKED_EXTERNAL_DSG_009A_009B`): deliver DSG-009A then DSG-009B; until then keep the effective code denial and declarative YAML denial unchanged. It is not a repository execution lane.
+13. `001-PLATFORM-SPARK` (platform owner, `BLOCKED_EXTERNAL_PLATFORM_OWNER`): add exact Spark to the system `spawn_agent` model enum and return native selected-model evidence. Repository mocks/config/cache cannot close it.
+
+**ActivationHealthEvidenceV1**: Task C owns `.agents/schemas/multiagent-activation-health-evidence-v1.schema.json`. Its closed fields are exactly `schema_version`, `artifact_type`, `evidence_id`, `ticket`, `attempt_id`, `admission_id`, `alias`, `provider`, `session_id`, `source_kind`, `source_identity_sha256`, `result`, `reason_code`, `issued_at`, `expires_at`, `owner_role`, `reviewer_role`, and `sanitized_evidence_sha256`. `result` is `PASS|UNKNOWN|BLOCKED`, but only `PASS` is eligible. Require TTL <=120 seconds, distinct owner/reviewer, a bounded same-buffer canonical load from the code-fixed owner-only source with symlink/hardlink/nonregular/escape/race protection, and `source_kind=provider_native_health_receipt|platform_native_health_receipt`. Reject quota/config/help/cache/argv/exit/context-probe/claim/grant/prose as health evidence. Bind the health digest into `RuntimeAdmissionV1`; cross-bind the admission digest with policy, command, objective, ownership, route, decision, scheduling snapshot, runtime config, claim, grant, consume, receipt, and all four store identities. Ordinary activation stays globally CLOSED; current authority supplies no eligible observation.
+
+**Required health RED**: `test_activation_health_evidence_v1_is_closed_same_buffer_digest_bound_and_fresh`; `test_config_quota_help_cache_argv_exit_and_owner_claim_are_not_health_evidence`; `test_runtime_admission_health_mismatch_blocks_before_consume_and_popen`; `test_scoped_admission_does_not_open_other_attempt_alias_or_global_runtime`; `test_runtime_admission_cross_binds_all_four_store_identities`; `test_missing_unknown_blocked_stale_future_self_reviewed_or_replayed_health_has_zero_starts`.
+
+**Task-16 Spark RED gaps**:
+
+1. Exact runtime `devops` and `code_reviewer` Spark/high read-only routes; reject default/global/Gemini fallback.
+2. Exact `codex exec` read-only Spark argv and WorkResult v2 output schema.
+3. Receipt model/effort/alias/provider equality; reject requested-versus-effective mismatch or fallback output.
+4. Unavailable, exhausted or unhealthy selected route starts zero substitutes.
+5. Preserve rank-3 floor; reject planning, implementation and every unauthorized role/phase/effort.
+6. CLI help, model cache, legacy role metadata and user quota observations cannot satisfy platform, activation, health, entitlement or receipt gates.
+7. Historical `final_message_cardinality` rejection remains non-success and non-reusable evidence.
+8. Platform-owned acceptance proves exact Spark in the `spawn_agent` model enum plus native selected-model evidence; no repository mock can pass it.
+
+**RED requirements**: Exact negative cases cover missing/expired/not-yet-valid/malformed/non-NFC/duplicate-key/nonfinite artifacts; symlink/hardlink/nonregular/path traversal/oversize/race/store-identity change; ticket/attempt/alias/provider/role/phase/policy/command/objective/ownership/session mismatch; replay before/after restart; two-consumer contention; crash before and after durable anchor; stale/contradictory/future health; global OPEN/hard-coded healthy rejection; AGY denial precedence; platform-whitelist non-claim; Spark unauthorized role/phase/effort, requested/effective mismatch, parser ambiguity, exit-zero without valid result, and every silent fallback path.
+
+**Verification commands**: Task B freezes exact node IDs before execution. Later gates run those focused nodes, neighboring dispatcher/scheduler suites, `python3 -m pytest -q`, `python3 scripts/sync_ai_agent_ecosystem.py --check`, `git diff --check`, and a sanitized secret scan limited to ticket-owned diffs. No provider-backed command is admitted merely by appearing here.
+
+**Rollback and recovery**: Hash and snapshot only the owned bytes immediately before mutation; recheck device/inode/size/mtime/hash before atomic replacement. On failure, stop issuing grants, retain consume/tombstone anchors, let unconsumed grants expire, and restore only owned bytes from reviewed snapshots. Never delete ledger history, reset/clean the shared worktree, reverse-sync from generated outputs, or use fallback. Re-run focused tests and pure sync check; record UNKNOWN/BLOCKED rather than force health or activation.
+
+**Quota checkpoints**: Pools remain independent: host 27%, host Spark 100% resetting 16:26 (capability observation only), codex1 96%, agy1 96%, agy2 100% five-hour/75.21% weekly. Recheck the selected pool at every phase boundary and before bounded/long work. At <=20%, use one lane and snapshot first; at <10%, 429, `usageLimitExceeded`, missing/contradictory evidence, or exhausted selected pool, freeze and update the canonical ticket/plan before deriving HANDOFF. Never aggregate pools or infer health/execution.
+
+**Commit and external boundary**: Exactly one local QA-owned test/eval-fixture/provenance baseline commit is authorized after assertion-level RED and independent review. It contains exactly 39 paths: the exact 29-path context portion plus the exact 10-path dispatch portion. No second or other commit and no push is authorized. Every source/config/generated/runtime-evidence change remains uncommitted. No secret/login/credential mutation, provider/account mutation, deploy, publish, tag, destructive Git, or hard-coded OPEN/health. DSG-009A/B and the system-owned whitelist remain blocked/out of scope.
+
+**Next action**: Refresh context Task A hashes and obtain the security re-review. Do not admit RED, source, config, sync, provider, or runtime-state mutation before those gates.
+<!-- DISPATCH-ACTIVATION-001-20260905:END -->
+
+<!-- EXTERNAL-DISPATCH-WORKAROUND-20260905:START -->
+## Approved external-dispatch workaround additions -- 2026-09-05
+
+**Gate**: `APPROVED -- INDEPENDENT_OFFLINE_ADDITIONS_ONLY`. The owner's approved plan and “Implement the plan” resolve scope, inputs and acceptance for new characterization tests, supervisor design and platform handoff documentation. Existing activation source/test/config dependencies remain unchanged; no waiver, live grant or platform receipt is inferred.
+
+- QA owns only new `tests/test_external_dispatch_contracts.py` and optional `tests/fixtures/external_dispatch/*`, bound to `qa-e2e-testing` and `agile-governance`. Characterize AGY denial before admission/consume/spawn with zero preauthorization/ledger effects; synthetic/local/forged receipt non-authority; and synthetic Spark Route/read-only argv, role/phase/effort restrictions and parser final conflicts. No provider/subprocess runs; green characterization is not source baseline approval. Keep the exact 39-path combined baseline untouched; defects requiring existing source edits stop at a recorded finding.
+- Lead BA owns canonical ticket/plan, minimal README/HOWTO links and [supervisor design](../docs/architecture/agy-terminal-supervisor.md) plus [platform evidence contract](../docs/architecture/external-dispatch-platform-contract.md), bound to `bsa-doc-skill-management` and `agile-governance`. Supervisor delivery is a design specification, not executable AGY routing.
+- Reviewer then BA auditor independently assess the frozen offline candidate, tests and boundary claims. Target `VERIFIED_OFFLINE`; native Spark whitelist and DSG-009A/B remain `BLOCKED`. The canonical atomic tickets are `TICKET-DISPATCH-WORKAROUND-001-{AGY-CONTRACT,SUPERVISOR-DESIGN,PLATFORM-CONTRACT,REVIEW}` in `ATOMIC_TICKET.md`.
+- Spark implementation remains on the existing dependency chain: corrected Context security acceptance, reviewed exact combined baseline and `TEST_BASELINE_VERIFIED`, durable admission, trusted fresh health, exact grant and effective-model capability proof, then explicit read-only safety routes and independent verification. Offline tests or model catalog/help output cannot satisfy live gates.
+
+**Project Spark adapter contract**: use the existing governed dispatcher and a pinned Codex executable with literal `codex exec` argv. The exact proposed route is `gpt-5.3-codex-spark`, effort `high`, rank 3, roles `devops|code_reviewer`, phases `qa|review|release|operations`, enforced read-only sandbox, and no fallback. Parse bounded JSONL into WorkResult v2 and privately cross-check final-output consistency before streams are elided. A distinct capability artifact binds executable/version, alias, ticket/attempt/session, requested/effective model and effort, trusted telemetry source, and digest. Without trusted effective-model telemetry, return `CAPABILITY_NOT_PROVEN`; App Server `model/list`/`model/rerouted` research cannot prove execution or authorize a route change. `VERIFIED_OFFLINE`, `VERIFIED_LOCAL_CODEX_ADAPTER`, and native platform whitelist acceptance remain separate outcomes.
+
+**Local AGY supervisor design**: [the design](../docs/architecture/agy-terminal-supervisor.md) admits no executable route. It defines a bounded closed request, existing-ledger one-use consume before one owned process, pinned literal argv/process group, concurrency one, enforced sandbox, no retry/fallback, three evidence levels, sanitized metadata/digests with raw streams validated only in memory, and `LocalSupervisorReceiptV1` distinct from platform receipts and WorkResult v2. Same-OS-principal forgery remains a limitation. The proposed 300-second/no-retry lifecycle conflicts with Rule 11 natural-exit-only and requires independent Rule 11/17/18 plus denial-boundary review before implementation. Later simulated AGY fixtures start zero AGY processes; DSG-009A, independent review, DSG-009B, and fresh exact authorization remain ordered external blockers documented in the [platform contract](../docs/architecture/external-dispatch-platform-contract.md).
+
+**Stop / recovery**: No source or frozen-test mutation, grant generation, provider process, account mutation, policy revision, native hook simulation as proof, commit, push or release in these additions. Preserve existing dirty edits. If verification finds a gap, record it without weakening the activation or platform boundary. No completed-sprint archival is due while those milestones remain blocked.
+<!-- EXTERNAL-DISPATCH-WORKAROUND-20260905:END -->
+
+<!-- SKILL-BUDGET-001-20260905:START -->
+## GRILL REPORT -- TICKET-SKILL-BUDGET-001: Remote-Curated Skill Context Budget Remediation
+
+**Recorded**: `2026-09-05` (Asia/Bangkok)
+**Status**: `BLOCKED_NONREPRODUCIBLE / VERIFIED_LOCAL_CODE_CONTRACT / LIVE_CONFIG_DRIFT`; not `DONE` or release complete.
+**Current ownership gate**: Task 19 at SHA-256 `52c191c36b42a8cfefd047e24924fdce34789164896c75a6f1611e4e9c163276` releases exclusive future ownership of `scripts/sync_codex_account_configs.py` to Context F at 23,004 bytes, SHA-256 `4d37513698a48f400e71e0e113c69e073aa9c74e6b2479494c89e76758aaee79`, blob `9d9e9f0f4988a9f58063082b259836b8cb114d96`. Skill Budget 002 retains no concurrent write authority. Any codex3 config remediation is a separate sequential operational lane; no account sync overlaps Context F.
+**Authorized completed phase**: The owner authorized bounded implementation and local account-config synchronization. Cache deletion, provider dispatch, secret operations, release, publishing, commit, and push remain excluded; the worktree is intentionally dirty.
+**Canonical-input and generator correction (verified)**: `.agents/agents/prediction_validator/agent.json` uses unsuffixed `bazi-calculator` and `rag-search`. Python `sync_sdlc_agents.py` now treats nested `.agents/agents/*/agent.json` as canonical; Antigravity/Codex/loose outputs are generated from it and cannot overwrite it. The focused generator contract and final ecosystem/account/SDLC checks passed; the final receipt identifies its ecosystem result as a read-only refresh.
+**Canonical runtime preservation and containment (verified)**: `developer.thinking=true`, `orchestrator.thinking=true`, and `ui_visual_tester.fallback_agent="qa_tester"` are retained through generated outputs. The implemented identifier rule is lowercase safe slug `^[a-z0-9_-]+$` (letters, digits, `_`, `-`, including leading digits); resolved-root containment is authoritative. Unsafe `name` or `fallback_agent` values fail before any output path is used.
+**Current evidence**: 44/44 focused implementation tests pass. Three fresh read-only `--check --budget` runs exit 1: default/codex1/codex2 pass at 2,182 characters with zero truncation; codex3 has eight newly discovered non-superpowers plugins missing disabled registrations. The historical 10:04 [`devops-live-budget.json`](evidence/skill-budget-001/devops-live-budget.json) is not current live-green evidence, and the exact outer warning/root cause remains nonreproducible.
+
+| ID | Dimension | Evidence state | Decision |
+|---|---|---|---|
+| D1 | Scope boundary | `[CONFIRMED]` | Clean active registrations only: dynamically discover and default-disable every remote-curated plugin except `superpowers`; derive reusable role profiles containing only canonical Horo skills from `.agents/agents/*/agent.json` and `.agents/skills/*/SKILL.md`. Preserve browser/chrome/computer-use/unified-computer-use and role-bound Horo skills; do not delete caches or sources. Optional remote-curated plugins require a separate explicit new-session launch-time override or future capability profile, not a role profile. |
+| D2 | Requirement delta | `[VERIFIED]` | Discovery-driven policy replaced the duplicated binding authority and fail-closed measurement now rejects command/parsing/skills-block failure rather than mapping it to `(0, 0)`. |
+| D3 | Acceptance/stop | `[VERIFIED]` | default, codex1, codex2, and codex3 each measure `2182 <=8000` prompt chars with `truncated_skills=0` and no shortened-description warning; missing/error/unmeasured data fails nonzero. Local work is complete; lifecycle awaits owner review, not release. |
+| D4 | Inputs/dependencies | `[VERIFIED]` | Focused QA, canonical agent/skill inputs, local account configs, authorized local-only work, and green ecosystem/account/SDLC checks completed. The final ecosystem receipt is a read-only refresh, not a new synchronization claim. No secrets or network inputs were used. |
+| D5 | Architecture/ownership | `[VERIFIED]` | Developer, QA, DevOps, and read-only reviewer completed their sequential lanes without overlapping edits. |
+| D6 | Assumptions | `[CONFIRMED]` | Every discovered remote-curated plugin except `superpowers` is unused by the default prompt. Canonical agent `tools` bindings identify profile-required Horo skills; browser/UI tools are required/preserved. |
+| D7 | Risk/recovery | `[CONFIRMED]` | Policy blast radius spans four local account configs. Use idempotent exact-entry edits, local backup/restore, and fail-closed validation; never delete caches. |
+| D8 | Budget/evidence | `[VERIFIED]` | Receipt records 82 focused tests, compilation of three updated Python modules, all-four-account live measurements, green ecosystem/account/SDLC checks, and no shortening warning; pure ASCII logs. |
+| D9 | Domain/HITL | `[NOT-APPLICABLE]` | No metaphysical-domain-engine change. `[CONFIRMED]` HITL permits local account-config synchronization only. |
+
+**Acceptance matrix**
+
+| Criterion | Verification | Owner | Failure threshold |
+|---|---|---|---|
+| Targeted cleanup | PASS — tests discover remote-curated cache/config entries, disable all except `superpowers`, and retain browser/chrome/computer-use/unified-computer-use plus role-bound canonical skills. | QA | A discovered non-superpowers remote-curated plugin stays enabled, or any preserved capability is disabled. |
+| Canonical profiles | PASS — profiles derive from `.agents/agents/*/agent.json` `tools` and `.agents/skills/*/SKILL.md`, with canonical Horo-only bindings and no duplicated binding authority. | QA | A profile differs from its canonical binding, contains a remote-curated plugin, a source is missing, or `LANE_PROFILES` remains authoritative. |
+| Canonical input hygiene | PASS — JSON parses and `prediction_validator.tools` uses `bazi-calculator` and `rag-search`, both backed by canonical skill sources. | Business analyst | Invalid JSON, a `.skill` suffix, or a missing canonical source. |
+| Generator authority | PASS — stale-mirror fixture proves `sync_sdlc_agents.py` reads nested canonical JSON and never overwrites it; generated Antigravity/Codex output reflects it. | Generator QA, then developer | Canonical JSON changes during sync, output derives from stale Antigravity, or focused test fails. |
+| Generator safety | PASS — default Python check rejects stale output regardless of Rust, validates required fields/types, preserves check-only immutability, rejects missing canonical skills, and matches loose output to canonical JSON. | Generator QA, then developer | Rust false green, invalid/missing field, pre-write mutation, missing-skills pass, or loose-output drift. |
+| Runtime preservation and containment | PASS — generated Antigravity/loose outputs preserve the three runtime values; `name` and present `fallback_agent` use `^[a-z0-9_-]+$` with resolved-root containment authoritative before path use. | Generator QA, then developer | Optional-field loss/default substitution, invalid identifier, path escape, or any write before validation. |
+| No false green | PASS — tests simulate command error, invalid JSON, no skills block, missing account config, over-budget, truncation, and the shortened-description warning. | QA | Validation exit/result is success for any simulation. |
+| Live budget | PASS — `--check --budget` reports all expected aliases at 2182 chars, no truncation, and no warning. | DevOps | Any alias absent, unmeasured, `>8000`, nonzero truncation, or warning. |
+| Non-destructive boundary | PASS — read-only review confirmed no cache/source deletion or unauthorized action. | Reviewer | Cache/source deletion or unauthorized action appears. |
+
+**DispatchDecision v1**: `schema_version=v1; ticket=TICKET-SKILL-BUDGET-001; phase=planning; scope_rank=2; complexity_rank=2; risk_rank=2; ambiguity_rank=1; evidence_burden_rank=2; quota_band=GREEN; work_mode=native_subagent_planning; selected_alias=codex1 (reserved bounded execution alias; do not claim terminal dispatch); selected_model=gpt-5.6-terra; selected_effort=high; rationale=multi-file configuration policy with external account-config blast radius; policy_version=rule18-v1; planning_to_medium_confirmed=true; hitl_approved=true for local account-config sync only.`
+
+**Blockers**: The outer warning/root cause remains nonreproducible and codex3 has live configuration drift. Context F's pinned source ownership is released; account remediation remains separately blocked pending its own sequential authorization.
+**Completed verification gate**: The receipt records exit `0` for ecosystem `--check`, account `--check --budget`, and SDLC `--check`; its ecosystem status is `not_run_read_only_refresh`, so no new `--sync` completion is claimed.
+**Generator sequence**: Generator QA -> developer -> independent QA -> DevOps verification completed in order. The receipt distinguishes all-account budget success from generator-authority evidence.
+**Safe generator command verified**: `python3 scripts/sync_sdlc_agents.py --check --use-python`; the Python canonical implementation is authoritative for status. The final receipt does not claim a new generator sync.
+**Next question**: `NONE`.
+<!-- SKILL-BUDGET-001-20260905:END -->
+
+<!-- HORO-V3-INFOGRAPHIC-20260904:START -->
+## GRILL REPORT -- SPRINT-HORO-V3-INFOGRAPHIC-20260904: Horo Lite Unified Consensus Reading & Mobile Infographic Synthesis
+
+**Task ID**: `TICKET-HORO-LITE-PLAN-001`
+**Recorded**: `2026-09-04T15:18:27+07:00` (Asia/Bangkok)
+**Status**: `APPROVED`
+**Requirement-change authority**: Owner prompt command dated `2026-09-04`.
+**Authorized current phase**: READY_FOR_OWNER_REVIEW (Ticket decomposition & HITL gate complete. Implementation strictly paused).
+**Canonical Ticket Registry**: See [`ATOMIC_TICKET.md`](../ATOMIC_TICKET.md#sprint-sprint-horo-v3-infographic-20260904----horo-lite-unified-consensus-reading--mobile-infographic-synthesis) for active ticket status, exclusive ownership, and acceptance criteria.
+**Canonical Intake Report**: See [`plans/intake/sprint_horo_v3_infographic_migration.md`](intake/sprint_horo_v3_infographic_migration.md) for 9-dimension grill assessment and HITL scope audit evidence.
+**Implementation Plan**: See [`docs/superpowers/plans/2026-09-04-horo-lite-consensus-reading.md`](../docs/superpowers/plans/2026-09-04-horo-lite-consensus-reading.md) for TDD steps, failing/passing tests, and verification matrix.
+
+### Scope and Decision Record
+
+**IN**:
+1. New **Horo Lite** user experience hosted at `/lite` (`public/lite.html`), presenting 12 topic-based result modules and intuitive single-action form.
+2. Permanent preservation of existing Advanced Dashboard at `/index.html`.
+3. Shared calculation engines (`project/core/`) and unified API contract (`/api/v3/unified-reading`) reusing Horo v3.0 consensus with zero logic duplication in Lite frontend.
+4. Auditable Deterministic-First Annual Timing Engine (`target_year` parameter) combining Thai Suriyayart natal/transits as primary source with BaZi Liu Yue and multi-tradition consensus arbitration.
+5. Ethically bounded **Past Pattern Calibration**: 3–5 deterministic candidate cycles (education, work shift, relocation, financial pressure) in age/year ranges with user feedback choices ("ตรง", "ตรงบางส่วน", "ไม่ตรง", "จำไม่ได้") used solely to personalize future explanation emphasis without altering calculations or claiming false "accuracy percentages". Explicit consent required before persistence.
+6. 12 Monthly Roadmap cards rendering Career, Finance, and Love scores (1–10) with traceable reasons.
+7. Multi-Format 1-Click Mobile Exporter: Full Vertical PNG, 1080×1920 9:16 Story PNG, Copyable Social Text, and Print/PDF with privacy toggles (birth data hidden by default in social exports).
+8. Mandatory fail-closed HITL routing when `consensus_score < 0.75`, tradition conflicts occur, `force_human_review=true`, or uncertain birth-time exceeds valid factors.
+9. Comprehensive test provenance baseline (`tests/test_horo_lite_unified_reading.py`), multi-viewport visual audits at 360px, 375px, 390px, 768px, 1440px, and 0-leak secret scan.
+
+**OUT**:
+- Duplicating calculation or scoring logic in Lite frontend JavaScript.
+- Mutating standalone single-tradition calculators or legacy database tables.
+- Inventing or altering scores, dates, or astrological facts via generative AI.
+- High-certainty predictions on sensitive past/future trauma (death, illness, crime, pregnancy).
+- False precision when birth hour is unknown.
+- Promoting `/lite` to root default `/` prior to full gate sign-off.
+- Deploying or publishing without explicit owner authorization.
+
+### Nine-Dimension Decision Matrix
+
+| ID | Dimension | Severity | Assessment Status | Evidence / Decision Threshold |
+|---|---|---|---|---|
+| D1 | Scope boundary | CRITICAL | `[CONFIRMED]` | Bounded to Horo Lite (`/lite`), shared backend engines, 12 topic modules, Past Pattern Calibration, and 4-way export. |
+| D2 | Requirement delta | HIGH | `[CONFIRMED]` | Auditable deterministic-first annual timing with Thai Suriyayart primary + BaZi Liu Yue + Horo v3.0 consensus. LLM translates approved copy only. |
+| D3 | Acceptance & stop | CRITICAL | `[CONFIRMED]` | 12 topics render; calibration feedback functions; 12 months with Career/Finance/Love scores; 1080×1920 Story PNG exported; 360/375/390px clean. |
+| D4 | Inputs, constraints | HIGH | `[CONFIRMED]` | Standard birth inputs, pure deterministic calculations (<5ms client, <50ms core), pure client canvas rasterizer. |
+| D5 | Architecture, ownership | HIGH | `[CONFIRMED]` | Strict single-editor resource boundaries: `lead_ba` (plans), `developer_core` (core), `developer_api` (routers), `ux_ui_designer` (public UI), `qa_tester` (tests). |
+| D6 | Assumption register | CRITICAL | `[CONFIRMED]` | Thai Suriyayart transits and BaZi 60-JiaZi monthly cycle are canonical. Calibration feedback modifies future tone only. |
+| D7 | Risk and recovery | HIGH | `[CONFIRMED]` | Advanced dashboard untouched at `/index.html`. Client-side fallback ensures continuous availability. Atomic rollback per ticket. |
+| D8 | Budget & evidence | HIGH | `[CONFIRMED]` | Deterministic calculations, zero-cost pipeline for copy transformation, immutable test provenance manifest, 0 secret leaks. |
+| D9 | Metaphysics & HITL | CRITICAL | `[CONFIRMED]` | Verified passing `GET /hitl/scope-audit?source_domain=metaphysical-domain-engine` (`status=200 OK`, `pass_gate_check=true`). Mandatory HITL triggers enforced. |
+
+### Dependency Graph
+
+```text
+Phase A: TICKET-HLITE-001 (Schema & Compatibility Contracts)
+   |
+   +--> Phase B: TICKET-HLITE-002 (Deterministic Annual Timing & Past Pattern Engine)
+   |       |
+   |       +--> Phase C: TICKET-HLITE-003 (Horo v3.0 Consensus & HITL Integration)
+   |       |       |
+   |       |       +--> Phase D: TICKET-HLITE-004 (Unified Reading API Router & Copy Transformer)
+   |       |               |
+   |       +---------------+--> Phase E: TICKET-HLITE-005 (Horo Lite Form & Single-Action Flow)
+   |                               |
+   |                               +--> Phase F: TICKET-HLITE-006 (12 Topic-Based Result UI)
+   |                               |       |
+   |                               |       +--> Phase G: TICKET-HLITE-007 (Past Pattern Interaction & Consent)
+   |                               |       |
+   |                               +-------+--> Phase H: TICKET-HLITE-008 (Multi-Format Mobile Exporter Suite)
+   |                                               |
+   |                                               +--> Phase I: TICKET-HLITE-009 (Accessibility, Privacy & Error Recovery)
+   |                                               |
+   \-----------------------------------------------+--> Phase J: TICKET-HLITE-010 (Contract & Regression Suite)
+                                                           |
+                                                           +--> Phase K: TICKET-HLITE-011 (Multi-Viewport Visual Audit)
+                                                           |
+                                                           +--> Phase L: TICKET-HLITE-012 (Security Review & Release Verification)
+```
+<!-- HORO-V3-INFOGRAPHIC-20260904:END -->
 
 <!-- PREVENTION-HYGIENE-20260904:START -->
 ## GRILL REPORT -- SPRINT-PREVENTION-HYGIENE-20260904: Lessons Learned Ingestion, Keychain Isolation Protocol & Automated Git Hygiene

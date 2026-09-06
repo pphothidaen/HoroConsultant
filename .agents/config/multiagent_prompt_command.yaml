@@ -57,6 +57,18 @@ roles:
     model: gpt-5.6-luna
     effort: medium
     sandbox: workspace-write
+  devops:
+    alias: codex3
+    cli: codex
+    model: gpt-5.3-codex-spark
+    effort: high
+    sandbox: workspace-write
+  code_reviewer:
+    alias: codex2
+    cli: codex
+    model: gpt-5.3-codex-spark
+    effort: high
+    sandbox: workspace-write
   research:
     alias: agy1
     cli: agy

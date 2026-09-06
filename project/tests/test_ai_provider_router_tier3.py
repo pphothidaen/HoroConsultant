@@ -14,11 +14,10 @@ def test_provider_health_includes_reasoning_proxy():
     router = AIProviderRouter(reasoning_base_url="https://api.9router.com/v1", reasoning_model="deepseek-r1")
     health = router.get_provider_health()
 
-    assert "REASONING_PROXY" in health
-    assert health["REASONING_PROXY"]["configured"] is True
-    assert health["REASONING_PROXY"]["available"] is True
-    assert health["REASONING_PROXY"]["model"] == "deepseek-r1"
-    assert health["REASONING_PROXY"]["base_url"] == "https://api.9router.com/v1"
+    assert "REASONING_PROXY" not in health
+    serialized_health = json.dumps(health, sort_keys=True)
+    assert '"model"' not in serialized_health
+    assert '"base_url"' not in serialized_health
     assert health["routing"]["reasoning"] == "reasoning_proxy"
 
 

@@ -1035,6 +1035,7 @@ def test_sync_is_exact_deterministic_and_drift_negative_in_temp_repo(
         text=True,
         check=False,
         timeout=120,
+        env={**os.environ, "CI": "true"},
     )
     assert first.returncode == 0, first.stdout + first.stderr
     assert canonical.read_bytes() == canonical_bytes
@@ -1048,6 +1049,7 @@ def test_sync_is_exact_deterministic_and_drift_negative_in_temp_repo(
         text=True,
         check=False,
         timeout=120,
+        env={**os.environ, "CI": "true"},
     )
     assert second.returncode == 0, second.stdout + second.stderr
     assert canonical.read_bytes() == canonical_bytes
@@ -1063,6 +1065,7 @@ def test_sync_is_exact_deterministic_and_drift_negative_in_temp_repo(
             text=True,
             check=False,
             timeout=120,
+            env={**os.environ, "CI": "true"},
         )
         assert check_result.returncode == 0, check_result.stdout + check_result.stderr
 
@@ -1078,6 +1081,7 @@ def test_sync_is_exact_deterministic_and_drift_negative_in_temp_repo(
         text=True,
         check=False,
         timeout=120,
+        env={**os.environ, "CI": "true"},
     )
     assert drift_check.returncode != 0
     assert "anti-cognitive-decay" in (drift_check.stdout + drift_check.stderr).casefold()

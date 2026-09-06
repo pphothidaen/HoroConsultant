@@ -1,3 +1,48 @@
+# HoroConsultant Release Notes -- Governed Context Runtime & Production Release Hardening (v1.4.6-prod)
+
+> **Release**: `v1.4.6-prod` -- Governed Context Runtime and Production Release Hardening
+> **Release Date**: 2026-09-06 (Asia/Bangkok)
+> **Release Authority**: Human owner, Master Orchestrator, QA, Code Review, and DevOps
+
+## Executive Summary
+
+This release integrates deterministic cross-provider agent context resolution,
+bounded quota orchestration, synchronized provider definitions, stricter release
+governance, and hosted-CI portability for repository checks. Generated scratch
+artifacts and mutable runtime data are excluded from the release payload.
+
+## Architectural Deliverables
+
+- Canonical ticket-context registry, schemas, resolvers, renderers, and runtime probes.
+- Fail-closed orchestration, quota, context handoff, and release governance contracts.
+- Hosted ecosystem validation separated from workstation-only Codex account state.
+- Exact Vercel UI and Hugging Face Docker backend release identity metadata.
+
+## Verification Matrix
+
+| Gate | Result |
+|---|---|
+| Test provenance, `origin/main..candidate` | PASSED |
+| Ecosystem sync, hosted-CI mode | PASSED |
+| Focused ecosystem/release regression | 78 passed |
+| Production Vercel/HF identity and five-view audit | Required after deployment |
+
+## Milestone Rollup
+
+The governed platform integration is release-packaged. Production completion is
+conditional on green hosted CI and post-deploy Vercel/HF verification.
+
+## Live Production Endpoints
+
+- Vercel UI: https://horo-consultant-psi.vercel.app
+- Hugging Face Docker backend: https://huggingface.co/spaces/pphothidaen/horoconsultant-core-backend
+
+## Archived Plans List
+
+No active plans were archived by this release because unresolved plans remain active.
+
+---
+
 # HoroConsultant Release Notes -- Edge-First Instant Calculation, Blocker Elimination & Web Notifications (Sprint SPRINT-EDGE-FIRST-UX-20260904 / v1.4.5-prod)
 
 > **Release**: `v1.4.5-prod` -- Edge-First Instant Calculation Architecture, Blocker Modal Elimination & Web Browser Notifications  

@@ -3,7 +3,7 @@
   "info": {
     "title": "Computational Metaphysics Engine",
     "description": "Modular 10-Domain Metaphysical Calculation, AI Debate & Multi-Agent Engine",
-    "version": "1.0.0.a9432ac"
+    "version": "1.0.0.a9a6251"
   },
   "paths": {
     "/admin/auth/google": {
@@ -12,7 +12,7 @@
           "Admin — Knowledge Management"
         ],
         "summary": "Verify Google Auth",
-        "description": "Verify Google ID token or mock login for allowed admin emails (e.g. pansakorn@gmail.com).",
+        "description": "Verify a real Google OAuth ID token without exposing allowlist details.",
         "operationId": "verify_google_auth_admin_auth_google_post",
         "requestBody": {
           "content": {
@@ -2573,6 +2573,48 @@
         }
       }
     },
+    "/api/v3/unified-reading": {
+      "post": {
+        "tags": [
+          "Horo Lite Unified Reading"
+        ],
+        "summary": "Create Unified Reading",
+        "description": "Return a deterministic unified reading without mutating core facts.",
+        "operationId": "create_unified_reading_api_v3_unified_reading_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnifiedReadingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnifiedReadingResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/synastry/analyze": {
       "post": {
         "tags": [
@@ -3860,7 +3902,7 @@
           "provider": {
             "type": "string",
             "title": "Provider",
-            "description": "Provider: 'ollama', 'openai', 'gemini'",
+            "description": "Provider: 'ollama' or 'gemini'",
             "default": "ollama"
           },
           "model_name": {
@@ -3895,31 +3937,16 @@
       "GoogleAuthRequest": {
         "properties": {
           "credential": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
+            "type": "string",
+            "minLength": 20,
             "title": "Credential",
             "description": "Google OAuth ID Token from GIS SDK"
-          },
-          "mock_email": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Mock Email",
-            "description": "Email for dev/demo mode bypass"
           }
         },
         "type": "object",
+        "required": [
+          "credential"
+        ],
         "title": "GoogleAuthRequest"
       },
       "GrayzoneAnswerRequest": {
@@ -4217,6 +4244,141 @@
           "features"
         ],
         "title": "MianXiangAnalysisRequest"
+      },
+      "MonthlyScoreItem": {
+        "properties": {
+          "month": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Month"
+          },
+          "career_score": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Career Score"
+          },
+          "finance_score": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Finance Score"
+          },
+          "love_score": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Love Score"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ],
+            "title": "Confidence"
+          },
+          "score_basis": {
+            "additionalProperties": true,
+            "type": "object",
+            "minProperties": 1,
+            "title": "Score Basis"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Reasons"
+          }
+        },
+        "type": "object",
+        "required": [
+          "month",
+          "career_score",
+          "finance_score",
+          "love_score",
+          "confidence",
+          "score_basis",
+          "reasons"
+        ],
+        "title": "MonthlyScoreItem",
+        "description": "Per-month user-facing scores with deterministic evidence basis."
+      },
+      "PastPatternCandidate": {
+        "properties": {
+          "pattern_id": {
+            "type": "string",
+            "title": "Pattern Id"
+          },
+          "year_range": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Year Range"
+          },
+          "age_range": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Age Range"
+          },
+          "theme": {
+            "type": "string",
+            "title": "Theme"
+          },
+          "deterministic_basis": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Deterministic Basis"
+          },
+          "sensitive_category": {
+            "type": "boolean",
+            "title": "Sensitive Category",
+            "default": false
+          },
+          "allowed_feedback": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Allowed Feedback"
+          },
+          "user_feedback": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Feedback"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pattern_id",
+          "year_range",
+          "age_range",
+          "theme",
+          "deterministic_basis",
+          "allowed_feedback"
+        ],
+        "title": "PastPatternCandidate",
+        "description": "Non-sensitive past event candidate for user calibration feedback."
       },
       "ProfileInput": {
         "properties": {
@@ -4531,6 +4693,61 @@
         ],
         "title": "SynastryRequest"
       },
+      "TopicModule": {
+        "properties": {
+          "topic_id": {
+            "type": "string",
+            "title": "Topic Id"
+          },
+          "order": {
+            "type": "integer",
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Order"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "guidance": {
+            "type": "string",
+            "title": "Guidance"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ],
+            "title": "Confidence"
+          },
+          "evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Evidence Refs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topic_id",
+          "order",
+          "title",
+          "summary",
+          "guidance",
+          "confidence",
+          "evidence_refs"
+        ],
+        "title": "TopicModule",
+        "description": "Canonical topic block within a unified reading response."
+      },
       "TrainRequest": {
         "properties": {
           "dataset_path": {
@@ -4593,6 +4810,193 @@
           "birth_datetime"
         ],
         "title": "UnifiedCalculateRequest"
+      },
+      "UnifiedReadingRequest": {
+        "properties": {
+          "birth_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Birth Date"
+          },
+          "birth_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Birth Time"
+          },
+          "unknown_hour": {
+            "type": "boolean",
+            "title": "Unknown Hour",
+            "default": false
+          },
+          "birth_place": {
+            "type": "string",
+            "title": "Birth Place"
+          },
+          "latitude": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Longitude"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
+          },
+          "gender_at_birth": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gender At Birth"
+          },
+          "target_year": {
+            "type": "integer",
+            "maximum": 2200.0,
+            "minimum": 1900.0,
+            "title": "Target Year"
+          },
+          "locale": {
+            "type": "string",
+            "title": "Locale",
+            "default": "th-TH"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Name"
+          },
+          "primary_focus_question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primary Focus Question"
+          },
+          "force_human_review": {
+            "type": "boolean",
+            "title": "Force Human Review",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "birth_date",
+          "birth_place",
+          "latitude",
+          "longitude",
+          "timezone",
+          "target_year"
+        ],
+        "title": "UnifiedReadingRequest",
+        "description": "Input contract for Horo Lite unified annual reading generation."
+      },
+      "UnifiedReadingResponse": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "horo_lite_unified_reading.v1",
+            "title": "Schema Version",
+            "default": "horo_lite_unified_reading.v1"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "target_year": {
+            "type": "integer",
+            "maximum": 2200.0,
+            "minimum": 1900.0,
+            "title": "Target Year"
+          },
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicModule"
+            },
+            "type": "array",
+            "maxItems": 12,
+            "minItems": 12,
+            "title": "Topics"
+          },
+          "monthly_scores": {
+            "items": {
+              "$ref": "#/components/schemas/MonthlyScoreItem"
+            },
+            "type": "array",
+            "maxItems": 12,
+            "minItems": 12,
+            "title": "Monthly Scores"
+          },
+          "past_patterns": {
+            "items": {
+              "$ref": "#/components/schemas/PastPatternCandidate"
+            },
+            "type": "array",
+            "maxItems": 5,
+            "minItems": 3,
+            "title": "Past Patterns"
+          },
+          "consensus_metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Consensus Metadata"
+          },
+          "hitl_flags": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Hitl Flags"
+          },
+          "hitl_routing": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Hitl Routing"
+          },
+          "llm_metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Llm Metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id",
+          "target_year",
+          "topics",
+          "monthly_scores",
+          "past_patterns",
+          "consensus_metadata",
+          "hitl_flags",
+          "hitl_routing",
+          "llm_metadata"
+        ],
+        "title": "UnifiedReadingResponse",
+        "description": "Versioned unified reading response with compatibility guardrails."
       },
       "V3AuditRequest": {
         "properties": {

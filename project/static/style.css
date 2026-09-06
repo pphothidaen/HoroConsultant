@@ -103,7 +103,7 @@ body {
 .app-header {
   position: relative;
   z-index: 10;
-  padding: 1rem 2rem;
+  padding: 0.85rem 2rem;
   border-bottom: 1px solid var(--border-glass);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -111,6 +111,7 @@ body {
   box-shadow: 0 2px 20px -10px rgba(220, 38, 38, 0.15);
 }
 
+.header-container,
 .header-content {
   max-width: 1400px;
   margin: 0 auto;
@@ -121,10 +122,63 @@ body {
   gap: 1rem;
 }
 
-@media (max-width: 768px) {
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #dc2626, #991b1b);
+  color: #ffffff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.brand:hover .brand-icon {
+  transform: rotate(180deg);
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-text h1 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.brand-text h1 span {
+  color: #dc2626;
+  font-weight: 800;
+}
+
+.brand-text .tagline {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: #64748b;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 900px) {
   .app-header {
-    padding: 0.85rem 1rem;
+    padding: 0.75rem 1rem;
   }
+  .header-container,
   .header-content {
     flex-direction: column;
     align-items: stretch;
@@ -900,6 +954,30 @@ input:checked + .slider:before {
   color: #991b1b;
 }
 
+.traditions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 8px;
+  margin-top: 0.8rem;
+}
+
+.traditions-grid .btn-sm {
+  width: 100%;
+  text-align: center;
+  white-space: normal;
+  line-height: 1.35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+}
+
+@media (max-width: 640px) {
+  .traditions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Loading Spinner & Animations */
 .spinner {
   display: inline-block;
@@ -1022,6 +1100,10 @@ input:checked + .slider:before {
 @media (max-width: 640px) {
   .pillars-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  .pillar-col {
+    padding: 0.65rem 0.4rem;
   }
 }
 

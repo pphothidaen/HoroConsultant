@@ -1,0 +1,43 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-AGY2-POLICY-BASELINE-009",
+  "revision": 1,
+  "ticket_sha256": "b329227ecfabee1b39a211873c7766599865a047a3b64ffe978abfefde7527c5",
+  "plan_sha256": "46b3211098a3fb515d770049d829d2259975709148629744aedfa1510deef3f2",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-AGY2-POLICY-BASELINE-009",
+      "role": "qa_tester",
+      "phase": "red_baseline",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "tests/test_agy_terminal_worker_policy.py",
+        "plans/test_provenance/ticket-agy-terminal-worker-policy-baseline-009.json",
+        "scripts/agy_terminal_worker_policy.py"
+      ],
+      "requested_horo_skills": [
+        "qa-regression-provenance",
+        "qa-e2e-testing"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "sandbox-capability-unknown",
+        "auth-isolation-not-proven"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-source-write",
+        "no-existing-test-write",
+        "no-evidence-write",
+        "no-provider-mutation",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-network"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

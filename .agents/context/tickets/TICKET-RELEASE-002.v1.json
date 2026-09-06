@@ -1,0 +1,44 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "revision": 1,
+  "ticket_sha256": "a979012e5bfaacfb08c74181c498c59336b3b1263c477cc0368e4f17c590884d",
+  "plan_sha256": "d59b27bc358772cbfc9983dfee3e6ff111213ebf6a21c2e844451963e229e11c",
+  "ticket_id": "TICKET-RELEASE-002",
+  "lanes": [
+    {
+      "lane_id": "TICKET-RELEASE-002-DISCOVERY",
+      "role": "ba_auditor",
+      "phase": "review",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "HANDOFF.md",
+        "plans/evidence/release-001",
+        "plans/test_provenance",
+        "tests",
+        "project/tests"
+      ],
+      "requested_horo_skills": [
+        "agile-governance",
+        "qa-regression-provenance"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "release-gates-unresolved"
+      ],
+      "allowed_child_command_class": "context-inspect",
+      "exclusions": [
+        "no-write",
+        "no-tests",
+        "no-provider-mutation",
+        "no-commit",
+        "no-network",
+        "no-deploy"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

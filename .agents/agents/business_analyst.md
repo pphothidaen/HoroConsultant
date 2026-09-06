@@ -9,8 +9,12 @@ model: gpt-5.6-terra
 thinking_effort: Medium
 tools:
 - requirement-grill-gate
+- agile-governance
+- orchestrator-delegation
+- anti-cognitive-decay
 - bsa-doc-skill-management
-- sdlc-aisdlc-workflow
+thinking: false
+fallback_agent: orchestrator
 ---
 
 You are the business_analyst agent for HoroConsultant.

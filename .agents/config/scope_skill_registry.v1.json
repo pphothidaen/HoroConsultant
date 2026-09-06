@@ -1,0 +1,225 @@
+{
+  "actions": [
+    "context.resolve",
+    "context.render",
+    "context.inspect.codex-prompt"
+  ],
+  "capability_namespaces": [
+    "horo_skill",
+    "provider_plugin",
+    "runtime_tool"
+  ],
+  "closures": {
+    "api": {
+      "cors_headers": true,
+      "openapi_golden": true,
+      "pydantic_v2": true
+    },
+    "metaphysics": {
+      "deterministic_tools": true,
+      "hitl_scope_gate": true
+    },
+    "release": {
+      "docker_backend": true,
+      "vercel_ui": true,
+      "viewports": 5
+    },
+    "source_security": {
+      "enforce_one_editor": true,
+      "read_only_review": true,
+      "secret_scan": true
+    }
+  },
+  "horo_skills": {
+    "agile-governance": {
+      "conflicts": [],
+      "dependencies": [],
+      "description": "Govern atomic TDD lifecycle, capacity admission, and DoR/DoD gates.",
+      "source_path": ".agents/skills/agile-governance/SKILL.md"
+    },
+    "anti-cognitive-decay": {
+      "conflicts": [],
+      "dependencies": [],
+      "description": "Combat context window dilution and maintain strict task boundaries.",
+      "source_path": ".agents/skills/anti-cognitive-decay/SKILL.md"
+    },
+    "bsa-doc-skill-management": {
+      "conflicts": [],
+      "dependencies": [
+        "requirement-grill-gate"
+      ],
+      "description": "Audit and govern business analysis documentation and skill mappings.",
+      "source_path": ".agents/skills/bsa-doc-skill-management/SKILL.md"
+    },
+    "devops-deployment": {
+      "conflicts": [],
+      "dependencies": [],
+      "description": "Run fail-closed HF Docker backend and Vercel UI release workflows.",
+      "source_path": ".agents/skills/devops-deployment/SKILL.md"
+    },
+    "hf-static-release-verification": {
+      "conflicts": [],
+      "dependencies": [],
+      "description": "Enforce fail-closed HF Docker backend and Vercel UI release gates.",
+      "source_path": ".agents/skills/hf-static-release-verification/SKILL.md"
+    },
+    "multi-account-agent-orchestration": {
+      "conflicts": [],
+      "dependencies": [],
+      "description": "Route bounded agent work across accounts with quota evidence and HITL gates.",
+      "source_path": ".agents/skills/multi-account-agent-orchestration/SKILL.md"
+    },
+    "orchestrator-delegation": {
+      "conflicts": [],
+      "dependencies": [],
+      "description": "Coordinate and delegate bounded subagent tasks with evidence receipts.",
+      "source_path": ".agents/skills/orchestrator-delegation/SKILL.md"
+    },
+    "qa-api-ui-e2e": {
+      "conflicts": [],
+      "dependencies": [
+        "qa-regression-provenance"
+      ],
+      "description": "Verify API and UI contracts across Docker backend and static UI.",
+      "source_path": ".agents/skills/qa-api-ui-e2e/SKILL.md"
+    },
+    "qa-e2e-testing": {
+      "conflicts": [],
+      "dependencies": [
+        "qa-regression-provenance"
+      ],
+      "description": "Compatibility router for end-to-end and regression testing workflows.",
+      "source_path": ".agents/skills/qa-e2e-testing/SKILL.md"
+    },
+    "qa-regression-provenance": {
+      "conflicts": [],
+      "dependencies": [
+        "agile-governance"
+      ],
+      "description": "Run fail-closed regression baseline verification and provenance tracking.",
+      "source_path": ".agents/skills/qa-regression-provenance/SKILL.md"
+    },
+    "requirement-grill-gate": {
+      "conflicts": [],
+      "dependencies": [],
+      "description": "Validate and grill requirements before design or code freeze.",
+      "source_path": ".agents/skills/requirement-grill-gate/SKILL.md"
+    },
+    "sdlc-aisdlc-workflow": {
+      "conflicts": [],
+      "dependencies": [],
+      "description": "AI SDLC governance from requirements decomposition to QA, release, and post-deploy.",
+      "source_path": ".agents/skills/sdlc-aisdlc-workflow/SKILL.md"
+    }
+  },
+  "phases": [
+    "intake",
+    "planning",
+    "red_baseline",
+    "implementation",
+    "qa",
+    "review",
+    "release",
+    "operations"
+  ],
+  "provider_plugins": {
+    "superpowers": {
+      "allow_optional_requests": false,
+      "descriptor_digest": "0000000000000000000000000000000000000000000000000000000000000000",
+      "enabled": true,
+      "version": "1.0.0"
+    }
+  },
+  "registry_version": "1.0.0",
+  "roles": {
+    "ba_auditor": {
+      "allowlist": [
+        "requirement-grill-gate",
+        "agile-governance",
+        "orchestrator-delegation",
+        "anti-cognitive-decay",
+        "qa-regression-provenance"
+      ],
+      "read_only": true
+    },
+    "business_analyst": {
+      "allowlist": [
+        "requirement-grill-gate",
+        "agile-governance",
+        "orchestrator-delegation",
+        "anti-cognitive-decay",
+        "bsa-doc-skill-management"
+      ],
+      "read_only": false
+    },
+    "code_reviewer": {
+      "allowlist": [
+        "requirement-grill-gate",
+        "agile-governance",
+        "orchestrator-delegation",
+        "anti-cognitive-decay",
+        "qa-regression-provenance",
+        "qa-e2e-testing",
+        "hf-static-release-verification"
+      ],
+      "read_only": true
+    },
+    "default": {
+      "allowlist": [
+        "requirement-grill-gate",
+        "agile-governance",
+        "orchestrator-delegation",
+        "anti-cognitive-decay"
+      ],
+      "read_only": false
+    },
+    "developer": {
+      "allowlist": [
+        "requirement-grill-gate",
+        "agile-governance",
+        "orchestrator-delegation",
+        "anti-cognitive-decay",
+        "sdlc-aisdlc-workflow"
+      ],
+      "read_only": false
+    },
+    "devops": {
+      "allowlist": [
+        "requirement-grill-gate",
+        "agile-governance",
+        "orchestrator-delegation",
+        "anti-cognitive-decay",
+        "qa-regression-provenance",
+        "devops-deployment",
+        "hf-static-release-verification",
+        "multi-account-agent-orchestration"
+      ],
+      "read_only": false
+    },
+    "qa_tester": {
+      "allowlist": [
+        "requirement-grill-gate",
+        "agile-governance",
+        "orchestrator-delegation",
+        "anti-cognitive-decay",
+        "qa-regression-provenance",
+        "qa-api-ui-e2e",
+        "qa-e2e-testing",
+        "multi-account-agent-orchestration"
+      ],
+      "read_only": false
+    }
+  },
+  "runtime_tools": {
+    "browser_click": {
+      "description": "Click an element in headless browser"
+    },
+    "browser_navigate": {
+      "description": "Navigate to a URL in headless browser"
+    },
+    "browser_screenshot": {
+      "description": "Capture visual viewport snapshot"
+    }
+  },
+  "schema_version": "scope-skill-registry-v1"
+}

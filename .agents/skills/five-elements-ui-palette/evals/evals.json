@@ -1,0 +1,27 @@
+{
+  "skill_name": "five-elements-ui-palette",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Can we use arbitrary hardcoded hex color codes like #ff00ff directly in inline styles for Five Elements UI components?",
+      "expected_output": "Rejects arbitrary raw hex values; requires standard Five Elements palette tokens (Wood, Fire, Earth, Metal, Water) with semantic token names and cultural alignment.",
+      "files": [],
+      "expectations": [
+        "Rejects hardcoded raw hex colors in component styles.",
+        "Enforces Wu Xing five-element semantic palette mapping.",
+        "Preserves element-specific cultural harmony rules."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Map the Wu Xing element 'Wood' to its primary, secondary, and background UI tokens with element harmony constraints.",
+      "expected_output": "Maps Wood to canonical green tones with defined semantic tokens, ensuring correct contrast and supporting element generation and overcoming relationships.",
+      "files": [],
+      "expectations": [
+        "Defines canonical Wood element color tokens.",
+        "Specifies primary, secondary, and container backgrounds.",
+        "Maintains elemental harmony relationships in token architecture."
+      ]
+    }
+  ]
+}

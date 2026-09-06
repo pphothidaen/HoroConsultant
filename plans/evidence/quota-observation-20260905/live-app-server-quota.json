@@ -1,0 +1,52 @@
+{
+  "ticket_id": "TICKET-META-008",
+  "lane_id": "TICKET-META-008-LEAD-BA-EVIDENCE",
+  "role": "lead_ba",
+  "approved_context_digest": "67107ed5138dad6d6f7e35de479e5a82ad50d259c698e0712d5723a6c3157350",
+  "account_id": "08a4df52-9b3d-4d09-9bd5-af0f7e0e8043",
+  "plan_type": "prolite",
+  "observed_at": "2026-09-05T19:06:35+07:00",
+  "probe_method": "codex app-server --stdio -> account/rateLimits/read (authorized by operator)",
+  "pools": {
+    "host_codex": {
+      "limitId": "codex",
+      "window_duration_mins": 10080,
+      "used_percent": 100,
+      "remaining_percent": 0.0,
+      "rate_limit_reached_type": "rate_limit_reached",
+      "resets_at": 1789125296,
+      "resets_at_iso": "2026-09-11T18:14:56+07:00",
+      "secondary": null
+    },
+    "spark": {
+      "limitId": "codex_bengalfox",
+      "name": "GPT-5.3-Codex-Spark",
+      "primary": {
+        "window_duration_mins": 300,
+        "used_percent": 0,
+        "resets_at": 1788627990
+      },
+      "secondary": {
+        "window_duration_mins": 10080,
+        "used_percent": 90,
+        "resets_at": 1789125229,
+        "resets_at_iso": "2026-09-11T18:13:49+07:00"
+      }
+    }
+  },
+  "reset_credits": {
+    "available_count": 1,
+    "status": "unredeemed"
+  },
+  "user_context_signals": {
+    "agy2_gemini_5hr_percent": 100,
+    "policy_note": "Gemini 5hr 100% is user-reported context only; strictly cannot substitute for host weekly quota."
+  },
+  "verdict": {
+    "quota_state": "depleted",
+    "reason_code": "rate_limit_reached",
+    "quota_recovery_proven": false,
+    "freeze_status": "RED_FREEZE",
+    "next_eligible_action": "Await host quota reset (2026-09-11T18:14:56+07:00) or explicit operator reset credit redemption. Do not unfreeze."
+  }
+}

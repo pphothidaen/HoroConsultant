@@ -1,0 +1,93 @@
+{
+  "schema_version": "mode-qa-verification-v1",
+  "ticket_id": "TICKET-META-008-MODE-REPAIR-004",
+  "lane_id": "TICKET-META-008-MODE-REPAIR-004-QA",
+  "role": "qa_tester",
+  "evaluated_at_utc": "2026-09-06T03:54:14Z",
+  "status": "VERIFIED_GREEN",
+  "result": "PASS",
+  "repair_commit": {
+    "commit": "cbeda3d881265c1ce1fc35edf3dd8f153bd9d230",
+    "parent": "e28e2bf3f07a61e82681bc4995b4514cb892ab85",
+    "parent_matches_expected": true,
+    "exact_changed_paths": [
+      "scripts/sync_codex_account_configs.py"
+    ],
+    "path_count": 1,
+    "old_mode": "100755",
+    "new_mode": "100644",
+    "old_blob": "76ea08437cb62357695438e00cc15292f4073e0b",
+    "new_blob": "76ea08437cb62357695438e00cc15292f4073e0b",
+    "content_unchanged": true,
+    "commit_message_matches_review_exactly": true,
+    "test_baseline_trailer_present": false
+  },
+  "current_head_boundary": {
+    "head": "0cd6536252080303ad191a2fa729ba93597ac5e1",
+    "repair_commit_is_ancestor": true,
+    "later_commit_count": 2,
+    "later_commits": [
+      {
+        "commit": "e7117385dd362cdcc233cca6fc2a0732ffb7c9b2",
+        "subject": "test(provenance): freeze successor snapshot validator test baseline"
+      },
+      {
+        "commit": "0cd6536252080303ad191a2fa729ba93597ac5e1",
+        "subject": "feat(provenance): implement successor snapshot evidence validator and schema"
+      }
+    ],
+    "head_tree_path": "scripts/sync_codex_account_configs.py",
+    "head_tree_mode": "100644",
+    "head_tree_blob": "76ea08437cb62357695438e00cc15292f4073e0b",
+    "later_commits_preserve_repair": true
+  },
+  "frozen_test": {
+    "path": "tests/test_publish_space_hf_executable_mode_contract.py",
+    "expected_sha256": "c0fddd52d0c2ec418055a788ebf3060322962e1676ec276afd409ba3b1948181",
+    "repair_commit_sha256": "c0fddd52d0c2ec418055a788ebf3060322962e1676ec276afd409ba3b1948181",
+    "head_commit_sha256": "c0fddd52d0c2ec418055a788ebf3060322962e1676ec276afd409ba3b1948181",
+    "shared_worktree_sha256": "c0fddd52d0c2ec418055a788ebf3060322962e1676ec276afd409ba3b1948181",
+    "unchanged": true
+  },
+  "tests": [
+    {
+      "environment": "temporary detached git worktree at current HEAD",
+      "command": "python3 -m pytest -q tests/test_publish_space_hf_executable_mode_contract.py::test_committed_release_payload_uses_only_regular_100644_sources --tb=short -p no:cacheprovider",
+      "exit_code": 0,
+      "result": "1 passed in 0.26s"
+    },
+    {
+      "environment": "shared dirty worktree",
+      "command": "python3 -m pytest -q tests/test_publish_space_hf.py tests/test_publish_space_hf_executable_mode_contract.py tests/test_hf_release_governance.py project/tests/test_production_monitor_release_contract.py project/tests/test_local_release_runner_contract.py -p no:cacheprovider --tb=short",
+      "exit_code": 0,
+      "result": "76 passed in 10.14s"
+    }
+  ],
+  "worktree_residual": {
+    "path": "scripts/sync_codex_account_configs.py",
+    "reviewed_pre_commit_dirty_sha256": "4d37513698a48f400e71e0e113c69e073aa9c74e6b2479494c89e76758aaee79",
+    "current_dirty_sha256": "2e2792d5e2f17280baa53f4e66b2a0a888246f64af2e62ab019b9c8afe7ab887",
+    "drifted_after_repair_commit": true,
+    "classification": "separate concurrent worktree residual",
+    "committed_mode_repair_impact": "none",
+    "release_impact": "blocks a clean release candidate until reconciled and committed or otherwise removed by its owner"
+  },
+  "index": {
+    "empty_after_verification": true
+  },
+  "scope_decision": {
+    "committed_mode_repair": "PASS",
+    "clean_release_candidate": "BLOCKED_BY_DIRTY_WORKTREE_RESIDUAL",
+    "ready_for_prod": false,
+    "reason": "The committed repair is exact and GREEN at current HEAD, while unrelated concurrent dirty work remains outside this QA lane."
+  },
+  "review_evidence_reference": "plans/evidence/meta-008-remediation/mode-review-004.json",
+  "scope": {
+    "writable_paths": [
+      "plans/evidence/meta-008-remediation/mode-qa-004.json"
+    ],
+    "source_and_tests": "READ_ONLY",
+    "network_or_provider_calls": false,
+    "commit_push_or_deploy": false
+  }
+}

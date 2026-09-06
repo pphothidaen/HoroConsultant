@@ -1,0 +1,188 @@
+{
+  "schema_version": "qa-ci-verification-v1",
+  "ticket_id": "TICKET-META-008-CI-VERIFY-001",
+  "lane_id": "TICKET-META-008-CI-VERIFY-001",
+  "owner": "qa_tester",
+  "generated_at_utc": "2026-09-06T00:29:26.199650+00:00",
+  "status": "PASS_SCOPED_CI_RELEASE_BLOCKED",
+  "context": {
+    "digest": "d0ab859556887df54dbfb836a369832d8d6b198f9afd2146701e224790b49ede",
+    "resolver": "PASS",
+    "action": "context.resolve",
+    "closures": [
+      "api",
+      "source_security"
+    ],
+    "bound_skills": [
+      "qa-e2e-testing",
+      "qa-regression-provenance"
+    ]
+  },
+  "scope": {
+    "writable_paths": [
+      "plans/evidence/meta-008-remediation/ci-qa.json"
+    ],
+    "source_and_tests": "READ_ONLY",
+    "network_or_provider_calls": false,
+    "commit_push_or_deploy": false
+  },
+  "previous_attempt": {
+    "preservation": "Exact prior receipt bytes; immutable historical attempt, not current verification",
+    "sha256": "3dd20508476b5420f1ab9c1760c1bb2dc79bf4a60c1a01c342b5569378004e6b",
+    "encoding": "base64",
+    "content_base64": "ewogICJzY2hlbWFfdmVyc2lvbiI6ICJxYS1jaS12ZXJpZmljYXRpb24tdjEiLAogICJ0aWNrZXRfaWQiOiAiVElDS0VULU1FVEEtMDA4LUNJLVZFUklGWS0wMDEiLAogICJsYW5lX2lkIjogIlRJQ0tFVC1NRVRBLTAwOC1DSS1WRVJJRlktMDAxIiwKICAib3duZXIiOiAicWFfdGVzdGVyIiwKICAiZ2VuZXJhdGVkX2F0X3V0YyI6ICIyMDI2LTA5LTA1VDE1OjUzOjM2WiIsCiAgInN0YXR1cyI6ICJQQVNTX1NDT1BFRF9DSV9SRUxFQVNFX0JMT0NLRUQiLAogICJjb250ZXh0IjogewogICAgImRpZ2VzdCI6ICJkMGFiODU5NTU2ODg3ZGY1NGRiZmI4MzZhMzY5ODMyZDhkNmIxOThmOWFmZDIxNDY3MDFlMjI0NzkwYjQ5ZWRlIiwKICAgICJyZXNvbHZlciI6ICJQQVNTIiwKICAgICJhY3Rpb24iOiAiY29udGV4dC5yZXNvbHZlIiwKICAgICJjbG9zdXJlcyI6IFsKICAgICAgImFwaSIsCiAgICAgICJzb3VyY2Vfc2VjdXJpdHkiCiAgICBdLAogICAgImJvdW5kX3NraWxscyI6IFsKICAgICAgInFhLXJlZ3Jlc3Npb24tcHJvdmVuYW5jZSIsCiAgICAgICJxYS1hcGktdWktZTJlIgogICAgXQogIH0sCiAgInNjb3BlIjogewogICAgIndyaXRhYmxlX3BhdGhzIjogWwogICAgICAicGxhbnMvZXZpZGVuY2UvbWV0YS0wMDgtcmVtZWRpYXRpb24vY2ktcWEuanNvbiIKICAgIF0sCiAgICAic291cmNlX2FuZF90ZXN0cyI6ICJSRUFEX09OTFkiLAogICAgIm5ldHdvcmtfb3JfcHJvdmlkZXJfY2FsbHMiOiBmYWxzZSwKICAgICJjb21taXRfcHVzaF9vcl9kZXBsb3kiOiBmYWxzZQogIH0sCiAgImJhc2VsaW5lX3Byb3ZlbmFuY2UiOiBbCiAgICB7CiAgICAgICJjb21taXQiOiAiYmI5ZTM4NDVlMDZmYzdiMjZlMWNmMGNjM2ZiN2Q2MzlhODJhODIzOSIsCiAgICAgICJpbnZlbnRvcnkiOiBbCiAgICAgICAgInBsYW5zL3Rlc3RfcHJvdmVuYW5jZS90aWNrZXQtbWV0YS0wMDgtY2ktZ2F0ZXMtYmFzZWxpbmUuanNvbiIsCiAgICAgICAgInRlc3RzL3Rlc3RfcmVsZWFzZV9jaV9nYXRlcy5weSIKICAgICAgXSwKICAgICAgInRlc3Rfc2hhMjU2IjogIjlhOTQ2ZTM1YTA1ZTc1YjcwNzg3MjNhYjhmNzU0YzE3ZTBhOTc5ZmNjNjM5YWE4YmJjNWI5MWRmNTFiN2U1YmYiLAogICAgICAibWFuaWZlc3Rfc2hhMjU2IjogIjJlMTRlOTFiMDRhMTAxNDU3NTc3YjZkZjljZDBhMjIxZTEyYmFhYjhkMDc2NDUxNzY5YjUwOTI3MTA3NTg1OTgiLAogICAgICAiZ3VhcmRfc3RhdHVzIjogIlBBU1NFRCIKICAgIH0sCiAgICB7CiAgICAgICJjb21taXQiOiAiNTE0YjgzZDM3N2M0MDM5Y2I0OWU4MDQyZDE1MDRlZjQ5MDk1YzRmYiIsCiAgICAgICJpbnZlbnRvcnkiOiBbCiAgICAgICAgInBsYW5zL3Rlc3RfcHJvdmVuYW5jZS90aWNrZXQtbWV0YS0wMDgtY2ktcGVybWlzc2lvbi1iYXNlbGluZS5qc29uIiwKICAgICAgICAicHJvamVjdC90ZXN0cy90ZXN0X2dpdGh1Yl9hY3Rpb25zX3JlZ3Jlc3Npb24ucHkiCiAgICAgIF0sCiAgICAgICJ0ZXN0X3NoYTI1NiI6ICI2ZDljNzQxMTFiMzBlZjZiZTRmMjU1OWQxOGFlOWJlNmJjMWVjMDgyNDExYjMyNjBmYzM4NjM4YWJmZDI0OGU3IiwKICAgICAgIm1hbmlmZXN0X3NoYTI1NiI6ICJkYzNlNDE3MmVjNTI4NWQzZjIxY2ZkYWMxZWJhMjBjM2M4NzMzZWI5ZTYwZGI4YzdiZDBiNzM2NWYwODQwZDMwIiwKICAgICAgImd1YXJkX3N0YXR1cyI6ICJQQVNTRUQiCiAgICB9LAogICAgewogICAgICAiY29tbWl0IjogIjc3NGFlZjM0MWViMDQwMzk3NjkwODJjZDUzODIwYjVmZjI0MGJiYWEiLAogICAgICAiaW52ZW50b3J5IjogWwogICAgICAgICJwbGFucy90ZXN0X3Byb3ZlbmFuY2UvdGlja2V0LW1ldGEtMDA4LWNpLWF6dXJlLXBlcm1pc3Npb24tYmFzZWxpbmUuanNvbiIsCiAgICAgICAgInByb2plY3QvdGVzdHMvdGVzdF9henVyZV9yZWxlYXNlLnB5IgogICAgICBdLAogICAgICAidGVzdF9zaGEyNTYiOiAiZDU2MDA1MzAxMDc5YjlhNzI2Mzg4MTAxNjYxNzcxZDdhNWM2NTNmZDM0YjI1NTYxZjMyZDNiZjU3OTIwZTZlOSIsCiAgICAgICJtYW5pZmVzdF9zaGEyNTYiOiAiNzE2ZDA4OWY0OTE1OGY4ZDJkOTc0ZTZiYWFiNDQxZDM5MzgwMWM0MzE5NDhkMmNiOTcwZjFmMTM4M2ZkNmUxOCIsCiAgICAgICJndWFyZF9zdGF0dXMiOiAiUEFTU0VEIgogICAgfQogIF0sCiAgImNhbmRpZGF0ZSI6IHsKICAgICJoZWFkIjogIjc3NGFlZjM0MWViMDQwMzk3NjkwODJjZDUzODIwYjVmZjI0MGJiYWEiLAogICAgInNvdXJjZV9zaGEyNTYiOiB7CiAgICAgICJzY3JpcHRzL3ZlcmlmeV9yZWxlYXNlX2NpX2dhdGVzLnB5IjogImNiZTNkZDZlYWQ1MzExOTc0MjVmMTIxYzE0M2M5ZDFiY2JkN2VlZmZhNzM4NmYyNjhhYzAwYzE4NmM1YjVhMzUiLAogICAgICAiLmdpdGh1Yi93b3JrZmxvd3MvaGZfYmFja2VuZF9kZXBsb3kueW1sIjogImY3NGEzYmU1Mjc3MjJmMWI3YTQ0ODVmMDU3YThjZDJjZWFkMWJmN2Y0Y2RlMzMyNzI1OGRhODdlNGFmMzFmMGUiLAogICAgICAiLmdpdGh1Yi93b3JrZmxvd3MvYWlfY2ljZC55bWwiOiAiYzE0NDQ2ZGExZGUxYmY2NTFkZTE1YzRmMTU0NmY3NTQ5ZDhiZGExMGE0NzQ2ZDE4NzAyNzEwOGI3YjdlN2Q5MyIKICAgIH0sCiAgICAiY2FuZGlkYXRlX2RpZmZfc2hhMjU2IjogIjliODdkMDNlOGEzMDNkNjI4N2I0YjA5Y2ZiZTVhN2YwNmMyMWQ1MDk0YjIwODY2YWY1NTgwZjdjNDhhZGE4YjciLAogICAgInNvdXJjZV9oYXNoZXNfbWF0Y2hfaW5kZXBlbmRlbnRfcmV2aWV3IjogdHJ1ZSwKICAgICJzdGFnaW5nX2FyZWFfZW1wdHkiOiB0cnVlCiAgfSwKICAiY29tbWFuZHMiOiBbCiAgICB7CiAgICAgICJjb21tYW5kIjogInB5dGhvbjMgLW0gcHl0ZXN0IC1xIHRlc3RzL3Rlc3RfcmVsZWFzZV9jaV9nYXRlcy5weSIsCiAgICAgICJleGl0X2NvZGUiOiAwLAogICAgICAicmVzdWx0IjogIjk4IHBhc3NlZCBpbiAwLjA4cyIKICAgIH0sCiAgICB7CiAgICAgICJjb21tYW5kIjogInB5dGhvbjMgLW0gcHl0ZXN0IC1xIHByb2plY3QvdGVzdHMvdGVzdF9naXRodWJfYWN0aW9uc19yZWdyZXNzaW9uLnB5IiwKICAgICAgImV4aXRfY29kZSI6IDAsCiAgICAgICJyZXN1bHQiOiAiNjIgcGFzc2VkIGluIDAuMTZzIgogICAgfSwKICAgIHsKICAgICAgImNvbW1hbmQiOiAicHl0aG9uMyAtbSBweXRlc3QgLXEgcHJvamVjdC90ZXN0cy90ZXN0X2F6dXJlX3JlbGVhc2UucHkiLAogICAgICAiZXhpdF9jb2RlIjogMCwKICAgICAgInJlc3VsdCI6ICIxMSBwYXNzZWQgaW4gMC4xMnMiCiAgICB9LAogICAgewogICAgICAiY29tbWFuZCI6ICJweXRob24zIC1tIHB5dGVzdCAtcSB0ZXN0cy90ZXN0X3JlbGVhc2VfY2lfZ2F0ZXMucHkgcHJvamVjdC90ZXN0cy90ZXN0X2dpdGh1Yl9hY3Rpb25zX3JlZ3Jlc3Npb24ucHkgcHJvamVjdC90ZXN0cy90ZXN0X2F6dXJlX3JlbGVhc2UucHkiLAogICAgICAiZXhpdF9jb2RlIjogMCwKICAgICAgInJlc3VsdCI6ICIxNzEgcGFzc2VkIGluIDAuNDNzIgogICAgfSwKICAgIHsKICAgICAgImNvbW1hbmQiOiAicHl0aG9uMyAtbSBweXRlc3QgLXEgdGVzdHMvdGVzdF9wdWJsaXNoX3NwYWNlX2hmLnB5IHRlc3RzL3Rlc3RfcHVibGlzaF9zcGFjZV9oZl9leGVjdXRhYmxlX21vZGVfY29udHJhY3QucHkgdGVzdHMvdGVzdF9oZl9yZWxlYXNlX2dvdmVybmFuY2UucHkgcHJvamVjdC90ZXN0cy90ZXN0X3Byb2R1Y3Rpb25fbW9uaXRvcl9yZWxlYXNlX2NvbnRyYWN0LnB5IHByb2plY3QvdGVzdHMvdGVzdF9sb2NhbF9yZWxlYXNlX3J1bm5lcl9jb250cmFjdC5weSIsCiAgICAgICJleGl0X2NvZGUiOiAxLAogICAgICAicmVzdWx0IjogIjc0IHBhc3NlZCwgMiBmYWlsZWQgaW4gMTAuODFzIiwKICAgICAgImF0dHJpYnV0aW9uIjogIkFESkFDRU5UX1JFTEVBU0VfQkxPQ0tFUlNfT1VUU0lERV9DSV9DQU5ESURBVEUiCiAgICB9LAogICAgewogICAgICAiY29tbWFuZCI6ICJweXRob24zIC1tIHB5X2NvbXBpbGUgc2NyaXB0cy92ZXJpZnlfcmVsZWFzZV9jaV9nYXRlcy5weSB0ZXN0cy90ZXN0X3JlbGVhc2VfY2lfZ2F0ZXMucHkgcHJvamVjdC90ZXN0cy90ZXN0X2dpdGh1Yl9hY3Rpb25zX3JlZ3Jlc3Npb24ucHkgcHJvamVjdC90ZXN0cy90ZXN0X2F6dXJlX3JlbGVhc2UucHkiLAogICAgICAiZXhpdF9jb2RlIjogMCwKICAgICAgInJlc3VsdCI6ICJQQVNTIgogICAgfSwKICAgIHsKICAgICAgImNvbW1hbmQiOiAicHl0aG9uMyAtYyAnaW1wb3J0IHBhdGhsaWIseWFtbDsgZmlsZXM9bGlzdChwYXRobGliLlBhdGgoXCIuZ2l0aHViL3dvcmtmbG93c1wiKS5nbG9iKFwiKi55bWxcIikpK2xpc3QocGF0aGxpYi5QYXRoKFwiLmdpdGh1Yi93b3JrZmxvd3NcIikuZ2xvYihcIioueWFtbFwiKSk7IFt5YW1sLmxvYWQocC5yZWFkX3RleHQoKSwgTG9hZGVyPXlhbWwuQmFzZUxvYWRlcikgZm9yIHAgaW4gZmlsZXNdOyBwcmludChmXCJ7bGVuKGZpbGVzKX0gd29ya2Zsb3cgWUFNTCBmaWxlcyBwYXJzZWRcIiknIiwKICAgICAgImV4aXRfY29kZSI6IDAsCiAgICAgICJyZXN1bHQiOiAiMTYgd29ya2Zsb3cgWUFNTCBmaWxlcyBwYXJzZWQiCiAgICB9LAogICAgewogICAgICAiY29tbWFuZCI6ICJnaXQgZGlmZiAtLWNoZWNrIC0tIC5naXRodWIvd29ya2Zsb3dzL2hmX2JhY2tlbmRfZGVwbG95LnltbCAuZ2l0aHViL3dvcmtmbG93cy9haV9jaWNkLnltbCBzY3JpcHRzL3ZlcmlmeV9yZWxlYXNlX2NpX2dhdGVzLnB5IiwKICAgICAgImV4aXRfY29kZSI6IDAsCiAgICAgICJyZXN1bHQiOiAiUEFTUyIKICAgIH0sCiAgICB7CiAgICAgICJjb21tYW5kIjogImdpdCBkaWZmIC0tY2hlY2siLAogICAgICAiZXhpdF9jb2RlIjogMiwKICAgICAgInJlc3VsdCI6ICJVbnJlbGF0ZWQgcHJlLWV4aXN0aW5nIHRyYWlsaW5nIGJsYW5rIGxpbmVzIGluIHByb2plY3QvY29yZS9jb2RlX3Jldmlld2VyLnB5IGFuZCBzY3JpcHRzL2FnZW50X3F1b3RhX3N0YXR1c19ndWFyZC5weTsgbm8gY2FuZGlkYXRlLXBhdGggd2hpdGVzcGFjZSBlcnJvcnMiCiAgICB9LAogICAgewogICAgICAiY29tbWFuZCI6ICJweXRob24zIHNjcmlwdHMvdGVzdF9wcm92ZW5hbmNlX2d1YXJkLnB5IHZlcmlmeSAtLW1hbmlmZXN0IDxlYWNoLW9mLXRocmVlLWNpLW1hbmlmZXN0cz4gLS1iYXNlbGluZSA8bWF0Y2hpbmctY29tbWl0PiAtLWhlYWQgSEVBRCIsCiAgICAgICJleGl0X2NvZGUiOiAwLAogICAgICAicmVzdWx0IjogIjMgb2YgMyBtYW5pZmVzdHMgUEFTU0VEOyBvbmUgdGVzdCBmaWxlIHZlcmlmaWVkIGVhY2giCiAgICB9CiAgXSwKICAiY29udHJhY3RfYXNzZXJ0aW9ucyI6IHsKICAgICJmaXZlX3JlcXVpcmVkX3dvcmtmbG93X2lkZW50aXRpZXMiOiAiUEFTUyIsCiAgICAibGF0ZXN0X3J1bl9hbmRfYXR0ZW1wdF9jb250cm9sc19hZG1pc3Npb24iOiAiUEFTUyIsCiAgICAiZXhhY3Rfc2hhX3JlcG9zaXRvcnlfbWFpbl90cnVzdGVkX3B1c2giOiAiUEFTUyIsCiAgICAibWlzc2luZ19wZW5kaW5nX2ZhaWxlZF9jYW5jZWxsZWRfc2tpcHBlZF90aW1lZF9vdXRfYW5kX2FwaV9lcnJvcl9kZW5pYWxzIjogIlBBU1MiLAogICAgIm1hbGZvcm1lZF9yZXN0X3BheWxvYWRfaGVhZGVyX2FuZF9pZGVudGlmaWVyX2RlbmlhbHMiOiAiUEFTUyIsCiAgICAibWFpbl9yZWNoZWNrZWRfYmVmb3JlX3B1YmxpY2F0aW9uIjogIlBBU1MiLAogICAgIndvcmtmbG93X3J1bl9hbmRfd29ya2Zsb3dfZGlzcGF0Y2hfc2hhcmVfdW5jb25kaXRpb25hbF9nYXRlIjogIlBBU1MiLAogICAgImluaXRpYWxfZ2F0ZV9iZWZvcmVfcHJlcGFyYXRpb25fYW5kX3JlY2hlY2tfaW1tZWRpYXRlbHlfYmVmb3JlX3B1Ymxpc2giOiAiUEFTUyIsCiAgICAidG9wX2xldmVsX3Blcm1pc3Npb25zX2V4YWN0bHlfY29udGVudHNfcmVhZF9hbmRfYWN0aW9uc19yZWFkIjogIlBBU1MiLAogICAgImpvYl9wZXJtaXNzaW9uX292ZXJyaWRlX2Fic2VudCI6ICJQQVNTIiwKICAgICJhaV9zYWZldHlfbWFpbl9wdXNoX2hhc19ub19wYXRoX2ZpbHRlciI6ICJQQVNTIiwKICAgICJ0b2tlbl9ub3RfZW1pdHRlZF9pbl9zdWNjZXNzX29yX2Vycm9yX2V2aWRlbmNlIjogIlBBU1MiCiAgfSwKICAicmVzaWR1YWxfYmxvY2tlcnMiOiB7CiAgICAiaG9zdGVkX2NpIjogIk5PVF9FWEVDVVRFRDsgb2ZmbGluZSBRQSBjYW5ub3QgY2xhaW0gaG9zdGVkIEdpdEh1YiBBY3Rpb25zIHN1Y2Nlc3MiLAogICAgInByb2R1Y3Rpb24iOiAiTk9UX0VYRUNVVEVEOyBubyBwcm92aWRlciBjYWxsLCBwdWJsaXNoLCBwdXNoIG9yIGRlcGxveW1lbnQgb2NjdXJyZWQiLAogICAgInB1Ymxpc2hlcl9leGVjdXRhYmxlX21vZGUiOiB7CiAgICAgICJzdGF0dXMiOiAiRkFJTCIsCiAgICAgICJ0ZXN0IjogInRlc3RzL3Rlc3RfcHVibGlzaF9zcGFjZV9oZl9leGVjdXRhYmxlX21vZGVfY29udHJhY3QucHk6OnRlc3RfY29tbWl0dGVkX3JlbGVhc2VfcGF5bG9hZF91c2VzX29ubHlfcmVndWxhcl8xMDA2NDRfc291cmNlcyIsCiAgICAgICJkZXRhaWwiOiAiQ29tbWl0dGVkIHNjcmlwdHMvc3luY19jb2RleF9hY2NvdW50X2NvbmZpZ3MucHkgaGFzIG1vZGUgMTAwNzU1IHdoaWxlIHRoZSBwdWJsaXNoZXIgcGF5bG9hZCBjb250cmFjdCByZXF1aXJlcyByZWd1bGFyIDEwMDY0NCBzb3VyY2VzLiIsCiAgICAgICJjaV9jYW5kaWRhdGVfYXR0cmlidXRpb24iOiBmYWxzZQogICAgfSwKICAgICJrbm93bl9kZXZvcHNfY29udHJhY3QiOiB7CiAgICAgICJzdGF0dXMiOiAiRkFJTF9LTk9XTl9TRVBBUkFURSIsCiAgICAgICJ0ZXN0IjogInRlc3RzL3Rlc3RfaGZfcmVsZWFzZV9nb3Zlcm5hbmNlLnB5Ojp0ZXN0X2dlbmVyYXRlZF9hZ2VudF9yb2xlc19tYXRjaF9hdXRob3JpdGF0aXZlX3JlbGVhc2VfY29udHJhY3RzIiwKICAgICAgImRldGFpbCI6ICJUaGUgZWZmZWN0aXZlIERldk9wcyBsZWdhY3kgYWdlbnQgcHJvbXB0IGxhY2tzIHRoZSByZXF1aXJlZCBIRiBTdGF0aWMgUmVsZWFzZSBHYXRlIE93bmVyIGNvbnRyYWN0OyB0aGlzIG1hdGNoZXMgdGhlIHNlcGFyYXRlbHkgZGlhZ25vc2VkIGVmZmVjdGl2ZS1hdXRob3JpdHkgY29uZmxpY3QuIiwKICAgICAgImNpX2NhbmRpZGF0ZV9hdHRyaWJ1dGlvbiI6IGZhbHNlCiAgICB9LAogICAgInJlcG9zaXRvcnlfd2lkZV9kaWZmY2hlY2siOiAiRkFJTF9VTlJFTEFURURfRElSVFlfUEFUSFMiCiAgfSwKICAidmVyZGljdCI6IHsKICAgICJjaV9jYW5kaWRhdGUiOiAiUEFTUyIsCiAgICAic291cmNlX2NvbW1pdF9hZG1pc3Npb24iOiAiUEFTU19GT1JfSU5ERVBFTkRFTlRfUkVWSUVXX09OTFkiLAogICAgInJlbGVhc2UiOiAiQkxPQ0tFRCIsCiAgICAicmVhc29uIjogIlRoZSBib3VuZGVkIENJIGNhbmRpZGF0ZSBwYXNzZXMgMTcxIGZvY3VzZWQgdGVzdHMgYW5kIHN0YXRpYyBjaGVja3MsIGJ1dCBhZGphY2VudCByZWxlYXNlIGJsb2NrZXJzIHJlbWFpbiBhbmQgaG9zdGVkIENJL3Byb2R1Y3Rpb24gZXZpZGVuY2UgZG9lcyBub3QgZXhpc3QuIgogIH0KfQo="
+  },
+  "baseline_provenance": [
+    {
+      "commit": "bb9e3845e06fc7b26e1cf0cc3fb7d639a82a8239",
+      "files": [
+        {
+          "path": "plans/test_provenance/ticket-meta-008-ci-gates-baseline.json",
+          "sha256": "2e14e91b04a101457577b6df9cd0a221e12baab8d076451769b5092710758598",
+          "matches_baseline_commit": true
+        },
+        {
+          "path": "tests/test_release_ci_gates.py",
+          "sha256": "9a946e35a05e75b7078723ab8f754c17e0a979fcc639aa8bbc5b91df51b7e5bf",
+          "matches_baseline_commit": true
+        }
+      ],
+      "commit_inventory": [
+        "plans/test_provenance/ticket-meta-008-ci-gates-baseline.json",
+        "tests/test_release_ci_gates.py"
+      ],
+      "exact_baseline_inventory": true,
+      "prior_guard_status": "PASSED",
+      "guard_rerun": false
+    },
+    {
+      "commit": "514b83d377c4039cb49e8042d1504ef49095c4fb",
+      "files": [
+        {
+          "path": "plans/test_provenance/ticket-meta-008-ci-permission-baseline.json",
+          "sha256": "dc3e4172ec5285d3f21cfdac1eba20c3c8733eb9e60db8c7bd0b7365f0840d30",
+          "matches_baseline_commit": true
+        },
+        {
+          "path": "project/tests/test_github_actions_regression.py",
+          "sha256": "6d9c74111b30ef6be4f2559d18ae9be6bc1ec082411b3260fc38638abfd248e7",
+          "matches_baseline_commit": true
+        }
+      ],
+      "commit_inventory": [
+        "plans/test_provenance/ticket-meta-008-ci-permission-baseline.json",
+        "project/tests/test_github_actions_regression.py"
+      ],
+      "exact_baseline_inventory": true,
+      "prior_guard_status": "PASSED",
+      "guard_rerun": false
+    },
+    {
+      "commit": "774aef341eb04039769082cd53820b5ff240bbaa",
+      "files": [
+        {
+          "path": "plans/test_provenance/ticket-meta-008-ci-azure-permission-baseline.json",
+          "sha256": "716d089f49158f8d2d974e6baab441d393801c431948d2cb970f1f1383fd6e18",
+          "matches_baseline_commit": true
+        },
+        {
+          "path": "project/tests/test_azure_release.py",
+          "sha256": "d56005301079b9a726388101661771d7a5c653fd34b25561f32d3bf57920e6e9",
+          "matches_baseline_commit": true
+        }
+      ],
+      "commit_inventory": [
+        "plans/test_provenance/ticket-meta-008-ci-azure-permission-baseline.json",
+        "project/tests/test_azure_release.py"
+      ],
+      "exact_baseline_inventory": true,
+      "prior_guard_status": "PASSED",
+      "guard_rerun": false
+    }
+  ],
+  "candidate": {
+    "head": "ea78732b6e86d6dc36c6341dc13509576dff25bf",
+    "source_sha256": {
+      ".github/workflows/hf_backend_deploy.yml": "f74a3be527722f1b7a4485f057a8cd2cead1bf7f4cde3327258da87e4af31f0e",
+      ".github/workflows/ai_cicd.yml": "c14446da1de1bf651de15c4f1546f7549d8bda10a4746d187027108b7b7e7d93",
+      "scripts/verify_release_ci_gates.py": "cbe3dd6ead531197425f121c143c9d1bcbd7eeffa7386f268ac00c186c5b5a35"
+    },
+    "dirty_source_inventory": [
+      " M .github/workflows/ai_cicd.yml",
+      " M .github/workflows/hf_backend_deploy.yml",
+      "?? scripts/verify_release_ci_gates.py"
+    ],
+    "all_staged_paths": [],
+    "staging_area_empty": true,
+    "source_hashes_match_previous_qa": true,
+    "previous_review_binding_note": "Previous receipt recorded independent review matching those source hashes. No new code-review approval is inferred solely from this QA run.",
+    "tracked_candidate_diff_sha256": "9b87d03e8a303d6287b4b09cfbe5a7f06c21d5094b20866af5580f7c48ada8b7",
+    "diff_scope_note": "git diff HEAD excludes untracked verifier; its complete current bytes are bound by source_sha256.",
+    "all_three_source_files_uncommitted": true
+  },
+  "commands": [
+    {
+      "argv": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_release_ci_gates.py",
+        "project/tests/test_github_actions_regression.py",
+        "project/tests/test_azure_release.py",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "exit_code": 0,
+      "passed": 171,
+      "failed": 0,
+      "errors": 0,
+      "duration_seconds": 0.4,
+      "tool_chunk": "b6f737",
+      "note": "Exact requested focused test files; cache disabled to preserve receipt-only repository-write boundary."
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        ".github/workflows/hf_backend_deploy.yml",
+        ".github/workflows/ai_cicd.yml",
+        "scripts/verify_release_ci_gates.py"
+      ],
+      "exit_code": 0,
+      "result": "PASS"
+    }
+  ],
+  "workflow_trigger_review": {
+    "ai_safety": "ai_cicd.yml runs on push and pull_request to main/master, plus workflow_dispatch; no path filter.",
+    "hf_publish": "No direct push trigger. workflow_run listens to successful Unified CI & Quality Audit Pipeline on main; workflow_dispatch is restricted to main.",
+    "immutable_source": "Selected full lowercase SHA must equal current main event commit; exact clean checkout required.",
+    "required_gates": [
+      "ci.yml",
+      "lint.yml",
+      "ai_agent_ecosystem_sync.yml",
+      "test_provenance.yml",
+      "ai_cicd.yml"
+    ],
+    "gate_behavior": "Verifier requires complete latest trusted main push evidence for exact SHA, successful jobs/run attempts, and current-main checks. HF workflow invokes verifier before preparation and immediately before publish.",
+    "push_implication": "A main push can transitively publish HF after successful upstream CI and five required gates. Do not describe that push as guaranteed CI-only. No workflow was triggered by this lane."
+  },
+  "verdict": {
+    "ci_candidate": "PASS",
+    "source_commit_admission": "QA_PASS_FOR_EXACT_THREE_PATH_REVIEW_AND_COMMIT",
+    "next_action": "Independent reviewer or orchestrator confirms exact three hashes and immutable baselines, then integrate only these three source paths through the authorized commit lane. Recheck main-push deployment implications before remote push; do not include unrelated dirty files.",
+    "hosted_ci": "NOT_EXECUTED",
+    "release": "BLOCKED_G_H_NOT_PASSED",
+    "source_integration_performed": false
+  },
+  "limitations": [
+    "Only the requested focused suite was executed; no broader QA or hosted CI run.",
+    "Old adjacent release findings remain preserved only in previous_attempt and were not rerun or reasserted as current.",
+    "G/H release status was supplied by parent and remains separate from this scoped CI QA result.",
+    "No remote/auth/network/provider/stage/commit/push/deploy operation occurred."
+  ]
+}

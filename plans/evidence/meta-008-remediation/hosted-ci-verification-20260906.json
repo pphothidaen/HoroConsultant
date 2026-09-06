@@ -1,0 +1,118 @@
+{
+  "schema_version": "hosted-ci-verification-observation-v1",
+  "observed_at": "2026-09-06T01:50:44.504706+00:00",
+  "status": "BLOCKED",
+  "authority": "Read-only continuation evidence; does not replace canonical plans or grant execution admission.",
+  "continuation_note": {
+    "path": "plans/evidence/meta-008-remediation/ci-continuation-20260906.json",
+    "sha256": "57c4e3b4c4aeeadb4f8fb4e81d0d97eca31bf05b2119c4fecd8d1f65c6dc5942"
+  },
+  "local_head": "e28e2bf3f07a61e82681bc4995b4514cb892ab85",
+  "remote_main": "27054c3ab95b6bec41acae420f99538d4b1e3a43",
+  "local_ahead_count": 34,
+  "local_head_hosted_runs": [],
+  "hosted_ci_verified": false,
+  "last_remote_main_ci": {
+    "run_id": 33848430420,
+    "url": "https://github.com/pphothidaen/HoroConsultant/actions/runs/33848430420",
+    "conclusion": "failure",
+    "failed_step": "Run Pytest Test Suite",
+    "failed": 96,
+    "passed": 3917,
+    "skipped": 47,
+    "passing_jobs": [
+      "Rust PyO3 High-Performance Math Core Audit",
+      "Code Quality & Security Audit",
+      "Test Provenance",
+      "Live Production Version & LuoPan E2E Regression"
+    ],
+    "boundary": "Historical remote-main results, not results for local e28e2bf."
+  },
+  "production_monitor": {
+    "run_id": 34004043048,
+    "url": "https://github.com/pphothidaen/HoroConsultant/actions/runs/34004043048",
+    "conclusion": "failure",
+    "vercel_static_checks": "4 HTTP 200 responses",
+    "hf_backend_health_version_deterministic_api": "HTTP 503",
+    "exact_identity": "failed: HTTPError"
+  },
+  "hf_public_api_observation": {
+    "url": "https://huggingface.co/api/spaces/pphothidaen/horoconsultant-core-backend",
+    "sdk": "docker",
+    "sha": "90cb95cbf46ef0fd24dec521d5274ab0b9c50976",
+    "runtime_stage": "PAUSED",
+    "requested_hardware": "cpu-basic"
+  },
+  "latest_hf_deploy_runs": [
+    {
+      "id": 33873012346,
+      "conclusion": "skipped"
+    },
+    {
+      "id": 33872613308,
+      "conclusion": "skipped"
+    },
+    {
+      "id": 33849143860,
+      "conclusion": "skipped"
+    }
+  ],
+  "local_checks": {
+    "ecosystem_sync": {
+      "command": "python3 scripts/sync_ai_agent_ecosystem.py --check",
+      "exit_code": 0,
+      "boundary": "Dirty working-tree check; not committed-tree hosted evidence."
+    },
+    "quota_guard": {
+      "command": "python3 scripts/agent_quota_status_guard.py --refresh --json",
+      "exit_code": 3,
+      "evaluated_at": "2026-09-06T01:49:12.007185+00:00",
+      "freeze_status": "UNKNOWN_FREEZE",
+      "reason_code": "HOST_POOL_MISSING",
+      "host_resume_allowed": false,
+      "quota_recovery_proven": false
+    },
+    "committed_account_sync_mode": "100755; pending recorded 100644 contract remains unresolved"
+  },
+  "publication_trigger_review": {
+    "hosted_main_hf_workflow_read": true,
+    "hf_workflow_run": "Publication job requires successful Unified CI on head_branch main.",
+    "hf_workflow_dispatch": "Publication job restricted to refs/heads/main.",
+    "candidate_nonproduction_branch": "ci/meta-008-hosted-verification-20260906",
+    "candidate_workflows": [
+      "ci.yml",
+      "lint.yml",
+      "ai_agent_ecosystem_sync.yml",
+      "test_provenance.yml",
+      "ai_cicd.yml"
+    ],
+    "candidate_dispatch": "Each has workflow_dispatch; after admission and full publication preflight, push exact committed SHA to non-main branch and dispatch these five workflows there.",
+    "limitations": [
+      "No branch created or pushed.",
+      "No new hosted run dispatched.",
+      "Non-main diagnostic runs cannot satisfy the release verifier requirement for trusted main push evidence.",
+      "External integrations such as Vercel preview triggers still need review before branch push."
+    ]
+  },
+  "next_actions": [
+    "Restore a valid current-host quota observation and pass admission; missing host pool is not proof of low remaining quota and is not GREEN.",
+    "Have sole business_analyst owner reconcile canonical tickets, plan and HANDOFF with continuation and this receipt.",
+    "After admission, complete safe nonproduction branch publication preflight, push exact candidate commit and dispatch five CI workflows; capture each run and failed job evidence.",
+    "Remediate hosted failures using scoped tickets and immutable baselines, preserving the unrelated dirty tree.",
+    "Reconcile committed account-sync script mode through its existing META-008 lane.",
+    "Recover paused HF backend through an admitted target-bound operations lane before production health and identity can pass.",
+    "Keep original G, original39-path/META-008, H and Release-QA requirements unwaived."
+  ],
+  "actions": {
+    "source_edits": false,
+    "test_edits": false,
+    "stage": false,
+    "commit": false,
+    "push": false,
+    "workflow_dispatch": false,
+    "deployment": false,
+    "provider_workers": 0,
+    "canonical_plan_edits": false
+  },
+  "preservation": "Original continuation and historical receipts preserved. No broad staging, reset, clean, or unrelated edits."
+}

@@ -1,0 +1,412 @@
+{
+  "schema_version": "context-budget-report-v1",
+  "measurement_command": [
+    "python3",
+    "scripts/optimize_codex_skill_budget.py",
+    "--measure-profiles"
+  ],
+  "measurement_kind": "static-complete-input-files",
+  "native_prompt_proof": false,
+  "source_sha256": {
+    ".agents/agents/ba_auditor/agent.json": "80daab238eef5e12da368bc07066116d40093981e63235eb78861c13325b6137",
+    ".agents/agents/ba_intake/agent.json": "6eb5fecbdd1a39e685a012a978748e64b959c0bd94c9cc176b2b05c57106c791",
+    ".agents/agents/business_analyst/agent.json": "4b7342951ef25e2283db985991c5ad8fe6ebb4eda3700bab6ab3f38372dd86ac",
+    ".agents/agents/code_reviewer/agent.json": "594aebf552b4337ba27f805ec0abdf554fc09f1de35e64c4a711443f2d8ecb17",
+    ".agents/agents/default/agent.json": "a313fcdee475dc2d940a5b7e683780e7856561dbd67620421e58f085208e959b",
+    ".agents/agents/developer/agent.json": "790f7de3f64d2dc7dfef38e922c003dc15004ca136917437bf06dc22a12b8ae6",
+    ".agents/agents/devops/agent.json": "3389782621e8ccf54d080f1b5de801b0f11fd5e825a0f641bdcafe83b34bd950",
+    ".agents/agents/hermes/agent.json": "e8fc04775f5b9f27591dbff1d4a72045229ca208dbb07228382ffa6041b2f1f3",
+    ".agents/agents/ming_xue_master/agent.json": "642335171412f6218b55f871d88db1ed00998983c0f4532e4056d761bb3f27da",
+    ".agents/agents/numerology_master/agent.json": "308abfc752f737c2dada26d320aacb301ef466e768e5c7f2328c77bba345ea37",
+    ".agents/agents/orchestrator/agent.json": "c8592d8b07e16fb7095aa52245e44ee1b9b093f612df42dfee40dd26ae277ffd",
+    ".agents/agents/prediction_validator/agent.json": "fdb3fb724fdf2ce3101e9c6e26b6255ae19b8933fa6682644bbd640343682f84",
+    ".agents/agents/pu_shi_master/agent.json": "9911b72141cc06144dacf6bd8f8ac6706de066785b27489b3dbb150e2c65cc0a",
+    ".agents/agents/qa_tester/agent.json": "d5034cac9ecf61e9950d132cb3d1b02c5c00169d66bc767482a114a9afb0b5a8",
+    ".agents/agents/san_shi_master/agent.json": "d1ed5512d4e7c36d9892c9da96b78bad5ad7c226b037bbdbb95fe7234a9bfff5",
+    ".agents/agents/thai_vedic_master/agent.json": "8451aebb5309465233b1a8759edc38a795234f46af18baaa32f746bd1390ca85",
+    ".agents/agents/ui_visual_tester/agent.json": "62366d0834f840660421d40857f1d00758e94ce32215ee04f53d21363d6c80be",
+    ".agents/agents/ux_ui_designer/agent.json": "01ab73a566b6ec52223b4e6b9aba1f5b29850fd09747fac6bb72fb81daa59ced",
+    ".agents/agents/western_astro_master/agent.json": "275976bda9d4f7865ef1208213f920bf335219476717738a416a416ee8591764",
+    ".agents/agents/xiang_xue_master/agent.json": "468bb44d979b76ed34cde6a3d0d62588af342c8d768dfcdaaa1af89ee3809483",
+    ".agents/agents/ze_ji_master/agent.json": "42350c83819ab79d47a5df71d35fb9ee12c2eeb830335d60ebcba2205b063a2b",
+    ".agents/config/scope_skill_registry.v1.json": "9d6f40e0215c90809af2db45682c9aa0a29168bb8d93f3bef0a13f72602fe54c",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001-BASELINE-SUCCESSOR-001.v1.json": "ec7f92ffbf15a5f2e0167ec9c77a7dddea2f5cd5ff249e706a9090268320506e",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001-G-BINDING-001.v1.json": "ee1fdfcb40d883385daa3f88dfa88bd2390d286692dff9d1435e38b39ddcda33",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001-G-BUDGET-002.v1.json": "1c13aa3c0eb1c2bdab2b54623ccc72ca83023509a6ebf9543c041af953f6e196",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001-G-EVIDENCE-BASELINE-002.v1.json": "84875a3e02535977a8f84a164f280f0d99cdbd5ffb591fd6439673b83170082d",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001-G-EVIDENCE-BASELINE-COMMIT-002.v1.json": "701b70a83f77ea3bea377a1f7aa830a50926dcdf5a96b8afc323fa0bafec86a9",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001-G-EVIDENCE-REVIEW-002.v1.json": "3e10baa13e1ac69b124644d89a15afa0d272246d37f66f22dbff5b457f95d44e",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001-G-PROBE-002.v1.json": "33ee87bebfe4115223df01e06870c30824b9bd88776ce38b14131bbc9b2648cc",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001-G-REGISTRY-BASELINE-001.v1.json": "b72df0a6b7e7b0763e97a8b7dafd4cb2c515d09bbd4dab70c2e64eb2d125f9b5",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001-G-REGISTRY-BASELINE-COMMIT-001.v1.json": "1236a0d61c8f444f8410ae50201a5145b6a471b3a7aa364635aaf778be4f1ad7",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001-G-REGISTRY-FIX-001.v1.json": "95735814a7a7ccf3f7f82cee600c427d31ae9f6170bd0e54992dd3213e4a35f8",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001-G-REGISTRY-REVIEW-001.v1.json": "c1f84e3dd98ea0aeceb04311555b48f3f53d3799cdc4e5f40bd3bcd1588e3479",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001-G-REMEDIATION-002.v1.json": "f785fb05c5904070148793c3f8400e5b8861ec9d7a2024dbfe7ee7f0d6ad6955",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001-G-RENDER-002.v1.json": "6831608c092ade9fbf6f1ed437aa041cd0280bbbfef22a7a1da4df26122edad7",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001-G-SYNC-CHECK-002.v1.json": "0af19c7e39b202547415d70ce3e8e65e293306620c39d86463716660dc42720c",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001-G-VERIFY-002.v1.json": "674ef5b8b029174f2b6b75e5a67af21f613f1ba86d653dc0fdc1dbf72e3aaee2",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001-G.v1.json": "3fc542fb8410a6ab5913879f81dca12b026c377e6e081bf7bace299569c5d3b4",
+    ".agents/context/tickets/TICKET-CONTEXT-OPT-001.v1.json": "2b68df7a1576e2c0519eaa61b9f6b26ae5c95ed8f469c7385902054fd47db42d",
+    ".agents/context/tickets/TICKET-META-008-CI-AZURE-TEST-PERMISSION-BASELINE-001.v1.json": "66f142a2da908485277495b57ebb1ca42b89b2a17fb8b05eba9bf86aaa984248",
+    ".agents/context/tickets/TICKET-META-008-CI-AZURE-TEST-PERMISSION-BASELINE-COMMIT.v1.json": "07a490f882dc21001fd317a81088bcdfbc2c50717f6ff39f52df4963a18f6383",
+    ".agents/context/tickets/TICKET-META-008-CI-BASELINE-001.v1.json": "7c07edebc10433ab40147fd01b76d5ee6b322c9075e6d66fdf6f2977aac4588c",
+    ".agents/context/tickets/TICKET-META-008-CI-FINAL-REVIEW-001.v1.json": "987237355b7bfe18fce21024487960b3adf7df547ed753c461d7923dbdb41730",
+    ".agents/context/tickets/TICKET-META-008-CI-FIX-001.v1.json": "e28f0cc1668a55bcb9045f7589b88adfa95f372909f91551cc24f7b4b52c834e",
+    ".agents/context/tickets/TICKET-META-008-CI-PERMISSION-BASELINE-001.v1.json": "11385079edfb16e8a7bbbeed27fc7507c523b7c8ab504fc7964e9dfe38307738",
+    ".agents/context/tickets/TICKET-META-008-CI-PERMISSION-BASELINE-COMMIT.v1.json": "f7a9e7d940328faaf9ced007ec98853d193cb8709f9dee9e01bf57f77afb0350",
+    ".agents/context/tickets/TICKET-META-008-CI-SOURCE-COMMIT-001.v1.json": "aaee1bffb48636c1c7bb57eb9ace094e89778383d758a3c21565697bb5484f74",
+    ".agents/context/tickets/TICKET-META-008-CI-VERIFY-001.v1.json": "3acb46f792cad57b96968b38ff01533d3ea6016a953aa1db20ba71162c606854",
+    ".agents/context/tickets/TICKET-META-008-DEVOPS-CONTRACT-001.v1.json": "243132c79a9fdf1dab0276f57d423f5b059ac04a6bcbd9d9b5dcfcb210287add",
+    ".agents/context/tickets/TICKET-META-008-FIX-001.v1.json": "d2ea3f38245d99ae342a673d35be728b31f39dcb5f53cf9497a3605bf328e1ca",
+    ".agents/context/tickets/TICKET-META-008-PLAN-ORGANIZE-001.v1.json": "cf5793eea6293ef8a9cd00c3f7bb465f6b1b00529999981ea790f6ea6a1ee5e4",
+    ".agents/context/tickets/TICKET-META-008-QA-BASELINE-001.v1.json": "af0bc1812c79a35b510c69ca714a9d69e62c3986c478ba81a840619082407af9",
+    ".agents/context/tickets/TICKET-META-008-QA-VERIFY-001.v1.json": "50675a86c23f4bd40f1c4ed1b72878b071124acf2e2bc6293d0b5003d480a15d",
+    ".agents/context/tickets/TICKET-META-008-RELEASE-PREP-001.v1.json": "4ece3d4a7c3d020ca6c17301267000612b592524e204a10174611e7a5efd37e8",
+    ".agents/context/tickets/TICKET-META-008-REVIEW-001.v1.json": "ac50ee24c63c3dc16a2f1247cab2b637ebc8d101dc45f41489dfd3a2cdbbe616",
+    ".agents/context/tickets/TICKET-META-008-SNAPSHOT-BASELINE-002.v1.json": "54cb45b2530dca0768c49904e0feea8508030770b6f6498dac9652ae64c636ba",
+    ".agents/context/tickets/TICKET-META-008-SUCCESSOR-CONTRACT-002.v1.json": "b045085b75199ed30fc8c87572b2ffa5bba51f967549cc2286c41752e0c78aea",
+    ".agents/context/tickets/TICKET-META-008-SUCCESSOR-QA-001.v1.json": "c95fba4d15c9b387b4a27e58e214f230662d1e5bc6654436506116d06a5b3b14",
+    ".agents/context/tickets/TICKET-META-008-SUCCESSOR-REVIEW-001.v1.json": "2cc28e1d0a4927c6ebc75e30c24d5db5070461bbbed7d339deb1eb42f179e3aa",
+    ".agents/context/tickets/TICKET-META-008.v1.json": "e657e0a9a7cc1e1b053ec74105cecb7007db56b2370b486f3f93ff5196ec1d59",
+    ".agents/context/tickets/TICKET-RELEASE-002.v1.json": "bf17256702a45e2969eac0794197a52c4c458ef18f948b4838de31e008c5b62a",
+    ".agents/context/tickets/TICKET-REMED-AUDIT-GOVERNANCE-013.v1.json": "73b92f2c4b574694d617759d73f4c62bffbf95f94544bdb8a8c3dc9fcf7bd039",
+    ".agents/context/tickets/TICKET-SAFE-SPARK-CR-001.v1.json": "b29dee740c1b019de302b482d5852beae6f11634c80a4bf050b548f06c13e84a",
+    ".agents/context/tickets/TICKET-SAFE-SPARK-DEVOPS-001.v1.json": "71ff149ba8950f52049f356b669f12a58be580eeda0671f0fbe95b5de40a85e9",
+    ".agents/context/tickets/TICKET-SAFE-SPARK-QA-001.v1.json": "101df5f9eb3473fc62ca5e96f1dac48f9893298e093ac6aed76bfbdace55b215",
+    ".agents/context/tickets/TICKET-TOOLING-PROV-GUARD-001-BASELINE-COMMIT.v1.json": "22f6d0e4dbd18649a00907b4bb68cb6921dd9d52bf653bb67e19319328d11899",
+    ".agents/context/tickets/TICKET-TOOLING-PROV-GUARD-001-FIX.v1.json": "403db396b43a2a163989c78483593c20fdb9d48b99855024af67947f879ce464",
+    ".agents/context/tickets/TICKET-TOOLING-PROV-GUARD-001-QA-BASELINE.v1.json": "8bf5c9d68209ea195bf9fe5f8de53c68db97ec16232b192eb53cd00f42cdba90",
+    ".agents/context/tickets/TICKET-TOOLING-PROV-GUARD-001-REVIEW.v1.json": "c3c4521f62df18b8550fb16fff24acfcb6a871d0d37ae6b1d463b751d6e16527",
+    ".agents/context/tickets/TICKET-TOOLING-PROV-GUARD-001-SOURCE-COMMIT.v1.json": "7ac9b996a1ea50a9223e548dae62839603617dd0628b383cdd145c33c0ce8704",
+    ".agents/skills/adaptive-model-effort-routing/SKILL.md": "ad223e509a72e1b06672b9b0ba008a4c99e25928f3b5aad3e305f321060680dd",
+    ".agents/skills/agile-governance/SKILL.md": "6895a00064399eb3917dbd222d50da3dc3e7558c2c597e7a75046613a4b1cfc8",
+    ".agents/skills/anti-cognitive-decay/SKILL.md": "44573ab741979fd34595712f4454884c4afc02a01a8aae63ef82e9978ccce378",
+    ".agents/skills/bazi-calculator/SKILL.md": "50535eb135b31251d0066e2cd05c0a343361dc84be928dab8f55c1395ca1186c",
+    ".agents/skills/bsa-doc-skill-management/SKILL.md": "2732399dda3ca160d0d077a230b5c09368fe9f06b69c8275e56d831e9c0d4769",
+    ".agents/skills/devops-deployment/SKILL.md": "4e5ed83b5167770fc69aa401bfc21273ec74b4c3b63fa797ece4707f46a17c0c",
+    ".agents/skills/five-elements-ui-palette/SKILL.md": "9309368880853100cfc15fbb8c7f8f01a678c90d342300ebf2ff211ab7483e75",
+    ".agents/skills/hf-static-release-verification/SKILL.md": "7f09c9037a062bde2adef8f8511386f6e75f6a7f9c6a17037aaa585f589ebd29",
+    ".agents/skills/metaphysical-finetune-handoff/SKILL.md": "2bb1f5eb176f63a5555f7469e2ee8d6739ccdd2f66a0ccf68713218e6ed43703",
+    ".agents/skills/metaphysical-hitl-scope-gate/SKILL.md": "f2670b994b95497fab5dcb775099e597624bd3d4c497cd96c18b4e97c01dc7fb",
+    ".agents/skills/metaphysical-request-router/SKILL.md": "8c680893baddb7a50ac8ca96430b1f570a1857fd798a453aca449c3834a5b89b",
+    ".agents/skills/multi-account-agent-orchestration/SKILL.md": "daa5c8f979e0433eea160d6dc35fe4621030ac60be0347a5aa8e30bd6e01841f",
+    ".agents/skills/orchestrator-delegation/SKILL.md": "5e585838d56f92edd8d82ec911c7d07d2535f68a615102cad46a6a121c44e276",
+    ".agents/skills/qa-api-ui-e2e/SKILL.md": "0df9bfea238a94a2526fa0009d28dfdebaa23fa6c014ca7a630580b453200f8e",
+    ".agents/skills/qa-e2e-testing/SKILL.md": "6ecd6176a9ca34e0960319ea97e7593fbd4df5c7b829fc18c5f81f8306490e9a",
+    ".agents/skills/qa-regression-provenance/SKILL.md": "9ba3e1baabe4602f4c29f70e36ca26e66be1873ed820b57b1876eb049c89f6c7",
+    ".agents/skills/rag-search/SKILL.md": "668f1eb9d3fb12e928d1fcbce37c649a7c7a4fc45eba396c64443077d422aaa0",
+    ".agents/skills/requirement-grill-gate/SKILL.md": "4469f24a3c90474f8dce275fec936c1cab32ddd222ef73316453c26d9a3e1fc6",
+    ".agents/skills/ui-color-token-handoff/SKILL.md": "204a144449d98f3773e656b14321cf779bec9f21a1d8bb679d2fe51e75be6690",
+    ".agents/skills/ui-visual-auditor/SKILL.md": "de91efd9102631ceae651c293d83cec5be4cae915bf662f4fed8767087dc3cad",
+    ".agents/skills/wcag-apca-color-audit/SKILL.md": "d18422241ecac23a742944cb114618c5365177dc47ecaf9d2eac716a1cbc7f50",
+    ".agents/skills/web-color-design/SKILL.md": "4f1ed884ae627469936a6cc251a829000f17a8dd4b3a04f901f8c26d8b4364f4"
+  },
+  "head_commit": "2eb8c699f49efadbd51494e21e5f3f35be4f2205",
+  "profiles": [
+    {
+      "name": "ba_auditor",
+      "measured_paths": [
+        ".agents/agents/ba_auditor/agent.json",
+        ".agents/skills/agile-governance/SKILL.md",
+        ".agents/skills/qa-regression-provenance/SKILL.md"
+      ],
+      "total_prompt_characters": 3319,
+      "total_lines": 76,
+      "within_budget": true
+    },
+    {
+      "name": "ba_intake",
+      "measured_paths": [
+        ".agents/agents/ba_intake/agent.json",
+        ".agents/skills/requirement-grill-gate/SKILL.md",
+        ".agents/skills/bsa-doc-skill-management/SKILL.md"
+      ],
+      "total_prompt_characters": 11331,
+      "total_lines": 225,
+      "within_budget": false
+    },
+    {
+      "name": "business_analyst",
+      "measured_paths": [
+        ".agents/agents/business_analyst/agent.json",
+        ".agents/skills/requirement-grill-gate/SKILL.md",
+        ".agents/skills/agile-governance/SKILL.md",
+        ".agents/skills/orchestrator-delegation/SKILL.md",
+        ".agents/skills/anti-cognitive-decay/SKILL.md",
+        ".agents/skills/bsa-doc-skill-management/SKILL.md"
+      ],
+      "total_prompt_characters": 19742,
+      "total_lines": 346,
+      "within_budget": false
+    },
+    {
+      "name": "code_reviewer",
+      "measured_paths": [
+        ".agents/agents/code_reviewer/agent.json",
+        ".agents/skills/requirement-grill-gate/SKILL.md",
+        ".agents/skills/agile-governance/SKILL.md",
+        ".agents/skills/orchestrator-delegation/SKILL.md",
+        ".agents/skills/anti-cognitive-decay/SKILL.md",
+        ".agents/skills/qa-regression-provenance/SKILL.md",
+        ".agents/skills/hf-static-release-verification/SKILL.md"
+      ],
+      "total_prompt_characters": 23361,
+      "total_lines": 470,
+      "within_budget": false
+    },
+    {
+      "name": "default",
+      "measured_paths": [
+        ".agents/agents/default/agent.json",
+        ".agents/skills/requirement-grill-gate/SKILL.md",
+        ".agents/skills/agile-governance/SKILL.md",
+        ".agents/skills/orchestrator-delegation/SKILL.md",
+        ".agents/skills/anti-cognitive-decay/SKILL.md"
+      ],
+      "total_prompt_characters": 17329,
+      "total_lines": 324,
+      "within_budget": false
+    },
+    {
+      "name": "developer",
+      "measured_paths": [
+        ".agents/agents/developer/agent.json",
+        ".agents/skills/requirement-grill-gate/SKILL.md",
+        ".agents/skills/agile-governance/SKILL.md",
+        ".agents/skills/orchestrator-delegation/SKILL.md",
+        ".agents/skills/anti-cognitive-decay/SKILL.md"
+      ],
+      "total_prompt_characters": 15978,
+      "total_lines": 325,
+      "within_budget": false
+    },
+    {
+      "name": "devops",
+      "measured_paths": [
+        ".agents/agents/devops/agent.json",
+        ".agents/skills/requirement-grill-gate/SKILL.md",
+        ".agents/skills/agile-governance/SKILL.md",
+        ".agents/skills/orchestrator-delegation/SKILL.md",
+        ".agents/skills/anti-cognitive-decay/SKILL.md",
+        ".agents/skills/qa-regression-provenance/SKILL.md",
+        ".agents/skills/devops-deployment/SKILL.md",
+        ".agents/skills/hf-static-release-verification/SKILL.md",
+        ".agents/skills/multi-account-agent-orchestration/SKILL.md"
+      ],
+      "total_prompt_characters": 39421,
+      "total_lines": 761,
+      "within_budget": false
+    },
+    {
+      "name": "hermes",
+      "measured_paths": [
+        ".agents/agents/hermes/agent.json",
+        ".agents/skills/requirement-grill-gate/SKILL.md",
+        ".agents/skills/agile-governance/SKILL.md",
+        ".agents/skills/orchestrator-delegation/SKILL.md",
+        ".agents/skills/anti-cognitive-decay/SKILL.md",
+        ".agents/skills/metaphysical-request-router/SKILL.md",
+        ".agents/skills/metaphysical-hitl-scope-gate/SKILL.md",
+        ".agents/skills/metaphysical-finetune-handoff/SKILL.md"
+      ],
+      "total_prompt_characters": 28424,
+      "total_lines": 479,
+      "within_budget": false
+    },
+    {
+      "name": "ming_xue_master",
+      "measured_paths": [
+        ".agents/agents/ming_xue_master/agent.json",
+        ".agents/skills/metaphysical-request-router/SKILL.md",
+        ".agents/skills/metaphysical-hitl-scope-gate/SKILL.md",
+        ".agents/skills/metaphysical-finetune-handoff/SKILL.md",
+        ".agents/skills/bazi-calculator/SKILL.md",
+        ".agents/skills/rag-search/SKILL.md"
+      ],
+      "total_prompt_characters": 8856,
+      "total_lines": 210,
+      "within_budget": false
+    },
+    {
+      "name": "numerology_master",
+      "measured_paths": [
+        ".agents/agents/numerology_master/agent.json",
+        ".agents/skills/metaphysical-request-router/SKILL.md",
+        ".agents/skills/metaphysical-hitl-scope-gate/SKILL.md",
+        ".agents/skills/metaphysical-finetune-handoff/SKILL.md",
+        ".agents/skills/bazi-calculator/SKILL.md",
+        ".agents/skills/rag-search/SKILL.md"
+      ],
+      "total_prompt_characters": 9248,
+      "total_lines": 210,
+      "within_budget": false
+    },
+    {
+      "name": "orchestrator",
+      "measured_paths": [
+        ".agents/agents/orchestrator/agent.json",
+        ".agents/skills/requirement-grill-gate/SKILL.md",
+        ".agents/skills/agile-governance/SKILL.md",
+        ".agents/skills/orchestrator-delegation/SKILL.md",
+        ".agents/skills/anti-cognitive-decay/SKILL.md",
+        ".agents/skills/hf-static-release-verification/SKILL.md",
+        ".agents/skills/multi-account-agent-orchestration/SKILL.md",
+        ".agents/skills/adaptive-model-effort-routing/SKILL.md"
+      ],
+      "total_prompt_characters": 39433,
+      "total_lines": 710,
+      "within_budget": false
+    },
+    {
+      "name": "prediction_validator",
+      "measured_paths": [
+        ".agents/agents/prediction_validator/agent.json",
+        ".agents/skills/metaphysical-hitl-scope-gate/SKILL.md",
+        ".agents/skills/qa-regression-provenance/SKILL.md",
+        ".agents/skills/bazi-calculator/SKILL.md",
+        ".agents/skills/rag-search/SKILL.md"
+      ],
+      "total_prompt_characters": 6983,
+      "total_lines": 165,
+      "within_budget": true
+    },
+    {
+      "name": "pu_shi_master",
+      "measured_paths": [
+        ".agents/agents/pu_shi_master/agent.json",
+        ".agents/skills/metaphysical-request-router/SKILL.md",
+        ".agents/skills/metaphysical-hitl-scope-gate/SKILL.md",
+        ".agents/skills/metaphysical-finetune-handoff/SKILL.md",
+        ".agents/skills/bazi-calculator/SKILL.md",
+        ".agents/skills/rag-search/SKILL.md"
+      ],
+      "total_prompt_characters": 8927,
+      "total_lines": 210,
+      "within_budget": false
+    },
+    {
+      "name": "qa_tester",
+      "measured_paths": [
+        ".agents/agents/qa_tester/agent.json",
+        ".agents/skills/requirement-grill-gate/SKILL.md",
+        ".agents/skills/agile-governance/SKILL.md",
+        ".agents/skills/orchestrator-delegation/SKILL.md",
+        ".agents/skills/anti-cognitive-decay/SKILL.md",
+        ".agents/skills/qa-regression-provenance/SKILL.md",
+        ".agents/skills/qa-api-ui-e2e/SKILL.md",
+        ".agents/skills/qa-e2e-testing/SKILL.md",
+        ".agents/skills/hf-static-release-verification/SKILL.md"
+      ],
+      "total_prompt_characters": 25832,
+      "total_lines": 558,
+      "within_budget": false
+    },
+    {
+      "name": "san_shi_master",
+      "measured_paths": [
+        ".agents/agents/san_shi_master/agent.json",
+        ".agents/skills/metaphysical-request-router/SKILL.md",
+        ".agents/skills/metaphysical-hitl-scope-gate/SKILL.md",
+        ".agents/skills/metaphysical-finetune-handoff/SKILL.md",
+        ".agents/skills/bazi-calculator/SKILL.md",
+        ".agents/skills/rag-search/SKILL.md"
+      ],
+      "total_prompt_characters": 8833,
+      "total_lines": 210,
+      "within_budget": false
+    },
+    {
+      "name": "thai_vedic_master",
+      "measured_paths": [
+        ".agents/agents/thai_vedic_master/agent.json",
+        ".agents/skills/metaphysical-request-router/SKILL.md",
+        ".agents/skills/metaphysical-hitl-scope-gate/SKILL.md",
+        ".agents/skills/metaphysical-finetune-handoff/SKILL.md",
+        ".agents/skills/bazi-calculator/SKILL.md",
+        ".agents/skills/rag-search/SKILL.md"
+      ],
+      "total_prompt_characters": 9304,
+      "total_lines": 210,
+      "within_budget": false
+    },
+    {
+      "name": "ui_visual_tester",
+      "measured_paths": [
+        ".agents/agents/ui_visual_tester/agent.json",
+        ".agents/skills/ui-visual-auditor/SKILL.md",
+        ".agents/skills/wcag-apca-color-audit/SKILL.md",
+        ".agents/skills/qa-e2e-testing/SKILL.md",
+        ".agents/skills/web-color-design/SKILL.md"
+      ],
+      "total_prompt_characters": 8845,
+      "total_lines": 188,
+      "within_budget": false
+    },
+    {
+      "name": "ux_ui_designer",
+      "measured_paths": [
+        ".agents/agents/ux_ui_designer/agent.json",
+        ".agents/skills/five-elements-ui-palette/SKILL.md",
+        ".agents/skills/wcag-apca-color-audit/SKILL.md",
+        ".agents/skills/ui-color-token-handoff/SKILL.md",
+        ".agents/skills/web-color-design/SKILL.md"
+      ],
+      "total_prompt_characters": 9946,
+      "total_lines": 205,
+      "within_budget": false
+    },
+    {
+      "name": "western_astro_master",
+      "measured_paths": [
+        ".agents/agents/western_astro_master/agent.json",
+        ".agents/skills/metaphysical-request-router/SKILL.md",
+        ".agents/skills/metaphysical-hitl-scope-gate/SKILL.md",
+        ".agents/skills/metaphysical-finetune-handoff/SKILL.md",
+        ".agents/skills/bazi-calculator/SKILL.md",
+        ".agents/skills/rag-search/SKILL.md"
+      ],
+      "total_prompt_characters": 9338,
+      "total_lines": 210,
+      "within_budget": false
+    },
+    {
+      "name": "xiang_xue_master",
+      "measured_paths": [
+        ".agents/agents/xiang_xue_master/agent.json",
+        ".agents/skills/metaphysical-request-router/SKILL.md",
+        ".agents/skills/metaphysical-hitl-scope-gate/SKILL.md",
+        ".agents/skills/metaphysical-finetune-handoff/SKILL.md",
+        ".agents/skills/bazi-calculator/SKILL.md",
+        ".agents/skills/rag-search/SKILL.md"
+      ],
+      "total_prompt_characters": 8922,
+      "total_lines": 210,
+      "within_budget": false
+    },
+    {
+      "name": "ze_ji_master",
+      "measured_paths": [
+        ".agents/agents/ze_ji_master/agent.json",
+        ".agents/skills/metaphysical-request-router/SKILL.md",
+        ".agents/skills/metaphysical-hitl-scope-gate/SKILL.md",
+        ".agents/skills/metaphysical-finetune-handoff/SKILL.md",
+        ".agents/skills/bazi-calculator/SKILL.md",
+        ".agents/skills/rag-search/SKILL.md"
+      ],
+      "total_prompt_characters": 8713,
+      "total_lines": 210,
+      "within_budget": false
+    }
+  ],
+  "max_characters": 39433,
+  "all_within_budget": false,
+  "ticket_id": "TICKET-CONTEXT-OPT-001",
+  "lane_id": "TICKET-CONTEXT-OPT-001-G",
+  "checked_at": "2026-09-05T17:32:51.321463+00:00",
+  "registry_sha256": "c5e84c88d113cdb45990e81457e6e5e195e7b2c9f5fd5ee31ac6c1f4afeb3262",
+  "manifest_sha256": "db5676dd36a2113c35ef8cc36ea267127048645ff01a007e8c08bd9a970e8ffe",
+  "native_runtime_verified": false,
+  "historical_receipts": "plans/evidence/context-opt-001/g-receipts-historical-002.json",
+  "result": "FAIL",
+  "hard_limit_characters": 8000
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-META-008-DEVOPS-CONTRACT-001",
+  "revision": 1,
+  "ticket_sha256": "02bf4ac10858e6f0d4a74b975c29a86174be714710436643c0be24f45bef07c1",
+  "plan_sha256": "674576a4878232de2ab1208dd0b5d8416665d92221b4579554a4d0106c667579",
+  "lanes": [
+    {
+      "lane_id": "TICKET-META-008-DEVOPS-CONTRACT-001",
+      "role": "devops",
+      "phase": "review",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        ".agents/agents/devops",
+        "scripts/sync_ai_agent_ecosystem.py",
+        "project/tests/test_ai_agent_ecosystem_sync.py",
+        "plans/evidence/meta-008-remediation/devops-contract-diagnosis.json"
+      ],
+      "requested_horo_skills": [
+        "devops-deployment",
+        "hf-static-release-verification"
+      ],
+      "source_domain": "release-engineering",
+      "risk_flags": [
+        "production-gate-integrity"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-provider-execution",
+        "no-secret-operation",
+        "no-push",
+        "no-deploy"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

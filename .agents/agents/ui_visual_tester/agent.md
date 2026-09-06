@@ -8,8 +8,11 @@ model: gpt-5.4-mini
 thinking_effort: Medium
 tools:
 - ui-visual-auditor
+- wcag-apca-color-audit
 - qa-e2e-testing
 - web-color-design
+thinking: false
+fallback_agent: qa_tester
 ---
 
 You are the ui_visual_tester agent for HoroConsultant.

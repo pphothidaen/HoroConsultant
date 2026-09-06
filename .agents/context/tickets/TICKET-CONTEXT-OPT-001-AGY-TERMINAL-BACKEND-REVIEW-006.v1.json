@@ -1,0 +1,45 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-AGY-TERMINAL-BACKEND-REVIEW-006",
+  "revision": 1,
+  "ticket_sha256": "8906590807d391d8fd696bcd29fe93d3d9ea1bb45d9315baa56eea7f9848b218",
+  "plan_sha256": "58f6b032dd83bb74e0f90949c8c047f23ffac7dd71fe575bf6c5484d3f82a0f5",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-AGY-TERMINAL-BACKEND-REVIEW-006",
+      "role": "code_reviewer",
+      "phase": "review",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "scripts/agy_terminal_supervisor.py",
+        "tests/test_agy_terminal_execution_backend.py",
+        "plans/test_provenance/ticket-agy-terminal-backend-baseline-006.json",
+        "tests/test_agy_terminal_supervisor_boundary.py"
+      ],
+      "requested_horo_skills": [
+        "qa-e2e-testing",
+        "hf-static-release-verification"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "new-interface-absent",
+        "no-native-proof"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-source-write",
+        "no-test-write",
+        "no-provider-execution",
+        "no-network",
+        "no-real-sensitive-file-access",
+        "no-account-config",
+        "no-commit",
+        "no-push",
+        "no-deploy"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

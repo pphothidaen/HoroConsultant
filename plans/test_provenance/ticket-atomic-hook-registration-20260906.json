@@ -1,0 +1,19 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-ATOMIC-HOOK-REGISTRATION-20260906",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "6e77da0e9ee0d53860e8f029fe54821aa47d39e6",
+  "test_files": [
+    {"path": "tests/fixtures/context_handoff/codex/hooks_config.json", "sha256": "45fa005c7e68624412399d8cfad59b5851ede42bd8868342dcf03947892acc48"}
+  ],
+  "red_tests": [
+    {"command": ["python3", "-m", "pytest", "-q", "tests/test_atomic_tdd_lifecycle_governance.py::test_hook_is_read_only_and_registers_across_supported_local_ecosystems"], "expected_exit": 1, "failure_fingerprint": "atomic TDD guard reference missing from a supported local ecosystem configuration"}
+  ],
+  "allowed_source_paths": [".claude/settings.json", ".agy/hooks.json", ".codex/hooks.json"],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Bind the generated Codex hook fixture before registering the canonical atomic policy reference across supported local configuration surfaces."
+}

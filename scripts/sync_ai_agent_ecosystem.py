@@ -17,6 +17,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import re
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -68,6 +70,33 @@ class CheckResult:
     name: str
     ok: bool
     detail: str
+    writes_performed: int = 0
+    subprocess_count: int = 0
+
+
+def check_context_profiles() -> CheckResult:
+    """Pure in-memory check for context profiles with zero writes and zero subprocesses."""
+    try:
+        from scripts.render_agent_context_profiles import check_context_profiles as check
+        results = check(output_root=ROOT)
+        return CheckResult('Context profiles parity', bool(results) and all(r.ok for r in results),
+                           '; '.join(r.detail for r in results))
+    except (ValueError, OSError, ImportError) as exc:
+        return CheckResult('Context profiles parity', False, str(exc))
+
+
+def run_pure_check(target: str = "context-profiles") -> CheckResult:
+    """Pure static in-memory check forbidding writes or subprocesses."""
+    if target == "context-profiles":
+        return check_context_profiles()
+    return CheckResult(
+        name=target,
+        ok=False,
+        detail=f"Unsupported pure check target: {target}",
+        writes_performed=0,
+        subprocess_count=0,
+    )
+
 
 
 def relative(path: Path) -> str:
@@ -256,6 +285,16 @@ def check_hermes_and_thclaws_contract() -> CheckResult:
 
 def check_hf_static_release_governance() -> CheckResult:
     """Validate the source-of-truth policy, skill, catalog, and release owners."""
+    # Owner markers cannot override an active, contradictory platform instruction.
+    canonical = ROOT / '.agents/agents/devops/agent.json'
+    try:
+        prompt = str(load_json(canonical).get('system_prompt', ''))
+    except (OSError, ValueError) as exc:
+        return CheckResult('HF Static release governance', False, f'Invalid devops owner: {exc}')
+    active_obsolete = re.search(r'(?i)(?:primary\s+backend\s*:\s*Azure|(?:restore|prior|record|route)[^\n.]*\bACA\b|routes?[^\n.]*\bAzure\b)', prompt)
+    if active_obsolete:
+        return CheckResult('HF Static release governance', False,
+                           'Canonical devops instructions retain active Azure/ACA authority')
     rule_path = ROOT / ".agents" / "rules" / "16-hf-static-release-verification.md"
     claude_rule_path = ROOT / ".claude" / "rules" / "hf-static-release-verification.md"
     skill_path = ROOT / ".agents" / "skills" / "hf-static-release-verification" / "SKILL.md"
@@ -420,8 +459,29 @@ def check_plan_completion_and_release_notes_governance() -> CheckResult:
     return CheckResult("Plan completion governance", True, "Rule 22 enforced, ReleaseNotes aligned, plans clean")
 
 
+def check_codex_multi_account_policy() -> CheckResult:
+    """Validate workstation account policy when that local state is available.
+
+    Hosted CI checks repository synchronization and cannot possess developer-local
+    Codex account homes.  Treat an entirely absent account inventory as
+    not-applicable in CI, while continuing to fail closed for partial inventories
+    and for every local/workstation invocation.
+    """
+    if os.environ.get("CI", "").lower() == "true":
+        return CheckResult(
+            "Codex multi-account config & budget",
+            True,
+            "not applicable in hosted CI; workstation account inventory is out of scope",
+        )
+    return run_command(
+        "Codex multi-account config & budget",
+        [sys.executable, "scripts/sync_codex_account_configs.py", "--check"],
+    )
+
+
 def run_checks() -> list[CheckResult]:
     return [
+        check_context_profiles(),
         check_required_files(),
         check_scoped_agents_present(),
         check_json_file("settings.json", ROOT / "settings.json"),
@@ -438,6 +498,7 @@ def run_checks() -> list[CheckResult]:
         run_command("Antigravity/Gemini/AGY sync", [sys.executable, "scripts/sync_sdlc_agents.py", "--check", "--use-python"]),
         run_command("Codex/OpenAI sync", [sys.executable, "scripts/sync_codex_agents.py", "--check"]),
         run_command("Claude Code <-> AGY CLI Parity", [sys.executable, "scripts/sync_claude_agy_parity.py", "--check"]),
+        check_codex_multi_account_policy(),
     ]
 
 
@@ -453,6 +514,7 @@ def sync_then_check() -> int:
         run_command("Antigravity/Gemini/AGY sync write", [sys.executable, "scripts/sync_sdlc_agents.py", "--sync"]),
         run_command("Codex/OpenAI sync write", [sys.executable, "scripts/sync_codex_agents.py", "--sync"]),
         run_command("Claude Code <-> AGY CLI Parity sync write", [sys.executable, "scripts/sync_claude_agy_parity.py", "--sync"]),
+        check_codex_multi_account_policy(),
     ]
     print_results(sync_results)
     if not all(result.ok for result in sync_results):
@@ -468,11 +530,24 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--check", action="store_true", help="Read-only ecosystem sync validation.")
     mode.add_argument("--sync", action="store_true", help="Write generated sync targets, then validate.")
+    parser.add_argument("--target", default="", help="Optional target filter for check or sync.")
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+    if args.check and args.target == "context-profiles":
+        res = run_pure_check("context-profiles")
+        print_results([res])
+        return 0 if res.ok else 1
+
+    if args.sync and args.target == "context-profiles":
+        import scripts.render_agent_context_profiles as renderer
+        renderer.render_all()
+        res = run_pure_check("context-profiles")
+        print_results([res])
+        return 0 if res.ok else 1
+
     if args.sync:
         return sync_then_check()
 
@@ -482,4 +557,8 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
+    # Support direct script invocation as well as python -m scripts.<module>.
+    import sys
+    if not __package__:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
     raise SystemExit(main())

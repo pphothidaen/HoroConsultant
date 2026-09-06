@@ -1,0 +1,42 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-TOOLING-PROV-GUARD-001-REVIEW",
+  "revision": 1,
+  "ticket_sha256": "7dc1cf9b4178c02693ba4aa09a59aa867d6089086219491450bc77277370e610",
+  "plan_sha256": "267937bbba30fc4f883a22cc659c3da671c9f35a83a7efc60daed3d1446afa19",
+  "lanes": [
+    {
+      "lane_id": "TICKET-TOOLING-PROV-GUARD-001-REVIEW",
+      "role": "code_reviewer",
+      "phase": "review",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "tests/test_provenance_governance_extensions.py",
+        "plans/test_provenance/ticket-meta-008-provenance-extensions-baseline.json",
+        "scripts/test_provenance_guard.py",
+        "plans/evidence/meta-008-remediation/provenance-guard-review.json"
+      ],
+      "requested_horo_skills": [
+        "qa-e2e-testing",
+        "hf-static-release-verification"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "provenance-baseline-review"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-source",
+        "no-test",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-provider-execution",
+        "no-secret-operation"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

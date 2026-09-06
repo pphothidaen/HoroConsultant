@@ -1,0 +1,27 @@
+{
+  "skill_name": "ui-color-token-handoff",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "A frontend engineer requests hardcoded RGB color literals in CSS files instead of design tokens. Should this be allowed?",
+      "expected_output": "Rejects hardcoded values; enforces tokenized design handoff via CSS custom properties and semantic token aliases to preserve theme consistency.",
+      "files": [],
+      "expectations": [
+        "Rejects hardcoded color literals in styling sheets.",
+        "Enforces CSS custom property variable architecture.",
+        "Maintains semantic token alias abstractions."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Generate a verified color token handoff definition for CSS variables and UI component libraries.",
+      "expected_output": "Produces structured CSS custom property tokens with semantic mappings for background, surface, text, and border across both theme modes.",
+      "files": [],
+      "expectations": [
+        "Defines structured CSS variable color tokens.",
+        "Includes semantic tokens for surface, text, and borders.",
+        "Supports atomic theme switching without inline overrides."
+      ]
+    }
+  ]
+}

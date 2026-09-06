@@ -1,0 +1,53 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-META-008-SNAPSHOT-BASELINE-002",
+  "revision": 1,
+  "ticket_sha256": "e4eb4a454e8caf7b0553019c72f67ba179c725d6c34bfe32362ca76a714425c6",
+  "plan_sha256": "7a8a7edef3658813a8ebb265ad29daec52ccd4e237b6c56ca66e29e2ef1579ae",
+  "lanes": [
+    {
+      "lane_id": "TICKET-META-008-SNAPSHOT-BASELINE-002",
+      "role": "qa_tester",
+      "phase": "red_baseline",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "tests/test_successor_snapshot_evidence_guard.py",
+        "plans/test_provenance/ticket-successor-snapshot-validator-baseline-002.json",
+        ".agents/schemas/successor-snapshot-evidence-v1.schema.json",
+        "scripts/successor_snapshot_evidence_guard.py",
+        "plans/test_provenance/ticket-context-dispatch-successor-001.json",
+        "plans/evidence/context-opt-001/successor-preparation-001.json"
+      ],
+      "requested_horo_skills": [
+        "qa-regression-provenance",
+        "qa-e2e-testing"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [
+        "reconstructed-test-chronology",
+        "new-evidence-contract",
+        "fail-closed-validator"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-production-source-write",
+        "no-config-write",
+        "no-existing-test-write",
+        "no-existing-evidence-rewrite",
+        "no-provider-mutation",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-network"
+      ],
+      "evidence_refs": [
+        {
+          "path": "plans/evidence/context-opt-001/successor-preparation-001.json",
+          "sha256": "1da62599035cb42bba3ba5e68f59663bc0ad06290f49f1003529fc5b2fc408c5"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-META-008-CI-AZURE-TEST-PERMISSION-BASELINE-COMMIT",
+  "revision": 1,
+  "ticket_sha256": "d3a8299259174b5078751e9a5d74d3bdd4e8ddfa6ce53355a687d68fa354ae4c",
+  "plan_sha256": "267937bbba30fc4f883a22cc659c3da671c9f35a83a7efc60daed3d1446afa19",
+  "lanes": [
+    {
+      "lane_id": "TICKET-META-008-CI-AZURE-TEST-PERMISSION-BASELINE-COMMIT",
+      "role": "devops",
+      "phase": "review",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "project/tests/test_azure_release.py",
+        "plans/test_provenance/ticket-meta-008-ci-azure-permission-baseline.json"
+      ],
+      "requested_horo_skills": [
+        "devops-deployment",
+        "hf-static-release-verification"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "exact-two-path-test-only-commit",
+        "expected-parent-e6c5831145b1961556d55fc6b759776c744bb7da"
+      ],
+      "allowed_child_command_class": "local-baseline-commit",
+      "exclusions": [
+        "no-source",
+        "no-other-path-stage",
+        "no-push",
+        "no-deploy",
+        "no-provider-execution",
+        "no-secret-operation"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

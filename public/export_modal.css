@@ -1,0 +1,61 @@
+:root {
+  --lite-print-text: #0f172a;
+  --lite-print-muted: #334155;
+  --lite-print-line: #cbd5e1;
+}
+
+.horo-lite-print-shell {
+  width: min(820px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 18px 0;
+  font-family: "Noto Sans Thai", "Prompt", "Kanit", system-ui, -apple-system, sans-serif;
+}
+
+.horo-lite-print-shell pre {
+  margin: 0;
+  white-space: pre-wrap;
+  background: #0f172a;
+  color: #e2e8f0;
+  border: 1px solid var(--lite-print-line);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.horo-lite-print-shell p {
+  color: var(--lite-print-muted);
+}
+
+.horo-lite-print-header {
+  margin: 0 0 8px;
+  line-height: 1.4;
+}
+
+.horo-lite-print-subtitle {
+  margin: 0 0 12px;
+  color: var(--lite-print-muted);
+}
+
+@media print {
+  body {
+    margin: 0;
+    background: #fff;
+    color: var(--lite-print-text);
+  }
+
+  .horo-lite-print-shell {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 8px;
+  }
+
+  .horo-lite-print-shell pre {
+    border: 1px solid #94a3b8;
+    background: #ffffff;
+    color: #0f172a;
+  }
+
+  .screen-only {
+    display: none !important;
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-META-008",
+  "revision": 2,
+  "ticket_sha256": "cd1db1d77568625e1674591f85f6fad4a60518e52246a3823d53d311b2c47dda",
+  "plan_sha256": "ddaa6f3978efef0a9cfc349e3d50d53722153245d8e017c27a96bf574a019b02",
+  "lanes": [
+    {
+      "lane_id": "TICKET-META-008-AUDIT",
+      "role": "ba_auditor",
+      "phase": "review",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "HANDOFF.md",
+        "plans/test_provenance/ticket-context-opt-001.json",
+        "plans/test_provenance/ticket-dispatch-activation-001.json"
+      ],
+      "requested_horo_skills": [
+        "agile-governance",
+        "qa-regression-provenance"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [],
+      "allowed_child_command_class": "context-inspect",
+      "exclusions": [
+        "no-write",
+        "no-tests",
+        "no-provider-mutation",
+        "no-commit",
+        "no-network"
+      ],
+      "evidence_refs": []
+    },
+    {
+      "lane_id": "TICKET-META-008-DOC-C3",
+      "role": "business_analyst",
+      "phase": "planning",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "HANDOFF.md",
+        "plans/evidence/context-opt-001/recovery-baseline-audit.json"
+      ],
+      "requested_horo_skills": [
+        "agile-governance",
+        "bsa-doc-skill-management"
+      ],
+      "source_domain": "business-analysis",
+      "risk_flags": [],
+      "allowed_child_command_class": "context-inspect",
+      "exclusions": [
+        "no-source-write",
+        "no-test-write",
+        "no-provider-mutation",
+        "no-commit",
+        "no-network"
+      ],
+      "evidence_refs": []
+    },
+    {
+      "lane_id": "TICKET-META-008-CONTEXT-REPAIR-001",
+      "role": "business_analyst",
+      "phase": "planning",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "ATOMIC_TICKET.md",
+        "plans/plan.md",
+        "HANDOFF.md",
+        ".agents/config/scope_skill_registry.v1.json"
+      ],
+      "requested_horo_skills": [
+        "bsa-doc-skill-management",
+        "agile-governance"
+      ],
+      "source_domain": "business-analysis",
+      "risk_flags": [
+        "missing-skill-catalog-entry"
+      ],
+      "allowed_child_command_class": "context-inspect",
+      "exclusions": [
+        "no-production-source-write",
+        "no-test-write",
+        "no-commit",
+        "no-push",
+        "no-deploy"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

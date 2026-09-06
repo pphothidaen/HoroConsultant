@@ -1,0 +1,45 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-AGY2-OFFLINE-HELP-008",
+  "revision": 1,
+  "ticket_sha256": "4595d3fb93a19288785b15ea07d78b148c71eb0a48694bea8064aee3c2235245",
+  "plan_sha256": "3d97b0acbc56039b85c05eea2151e22ecff94688ddd086d01361a6da576c4d47",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-AGY2-OFFLINE-HELP-008",
+      "role": "devops",
+      "phase": "operations",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "scripts/agy_terminal_supervisor.py",
+        "/Users/kimlenglim/.local/bin/agy",
+        "/usr/bin/sandbox-exec",
+        "plans/evidence/context-opt-001/agy2-offline-help-008.json"
+      ],
+      "requested_horo_skills": [
+        "devops-deployment",
+        "hf-static-release-verification",
+        "multi-account-agent-orchestration"
+      ],
+      "source_domain": "operations",
+      "risk_flags": [
+        "offline-cli-capability-not-worker-proof"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-source-write",
+        "no-provider-execution",
+        "no-account-or-secret-operations",
+        "no-guard-bypass",
+        "no-commit",
+        "no-push",
+        "no-deploy",
+        "no-network",
+        "only-isolated-help-version-invocation"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

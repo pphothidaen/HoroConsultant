@@ -43,6 +43,9 @@ system_prompt: 'You are the numerology_master agent for HoroConsultant.
 
   - Output: 7-Base 4-Row Matrix, Chaldean Root Sum & Digit Interpretations'
 tools:
+- metaphysical-request-router
+- metaphysical-hitl-scope-gate
+- metaphysical-finetune-handoff
 - bazi-calculator
 - rag-search
 fallback_agent: orchestrator

@@ -7,8 +7,13 @@ role: 擇吉大師 (Ze Ji Master)
 model: gpt-5.6-terra
 thinking_effort: High
 tools:
+- metaphysical-request-router
+- metaphysical-hitl-scope-gate
+- metaphysical-finetune-handoff
 - bazi-calculator
 - rag-search
+thinking: false
+fallback_agent: orchestrator
 ---
 
 You are the ze_ji_master agent for HoroConsultant.

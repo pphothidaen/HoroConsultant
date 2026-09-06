@@ -1,0 +1,65 @@
+{
+  "schema_version": "recovery-baseline-audit-v1",
+  "ticket_id": "TICKET-META-008",
+  "lane_id": "TICKET-META-008-DOC-C3",
+  "audit_source": "independent_ba_auditor",
+  "audit_status": "FAIL",
+  "test_execution": {"performed": false, "reason": "Documentation reconciliation only; tests prohibited for this lane."},
+  "git_evidence": {
+    "head": "95ade8f02f8f6e4c1b8d1a8bf0f84ae830f7f0c1",
+    "parent": "09deba10353663e5aa1e78e55b078cfdcf7ad743",
+    "commit_path_count": 29,
+    "test_and_fixture_path_count": 28,
+    "provenance_path": "plans/test_provenance/ticket-context-opt-001.json",
+    "provenance_sha256": "67e0cc49fa27c027f7bd009a5f6e8adde23330b360b89c50564f4b2395a981cb",
+    "referenced_file_hashes_match": true,
+    "referenced_file_hash_count": 28,
+    "source_or_config_paths_in_commit": 0
+  },
+  "combined_contract": {
+    "required_path_count": 39,
+    "observed_path_count": 29,
+    "missing_path_count": 10,
+    "combined_test_baseline_verified": false,
+    "source_admitted": false,
+    "missing_paths": [
+      "tests/test_multiagent_prompt_command.py",
+      "tests/test_multiagent_probe_approval.py",
+      "tests/test_multiagent_receipt_schema.py",
+      "tests/test_multiagent_receipt_v3_schema.py",
+      "tests/test_agy_bucket_admission_guard.py",
+      "tests/test_multiagent_bootstrap_dispatch.py",
+      "tests/test_spark_model_governance.py",
+      "project/tests/test_ai_agent_ecosystem_sync.py",
+      "project/tests/test_developer_routing_contract.py",
+      "plans/test_provenance/ticket-dispatch-activation-001.json"
+    ],
+    "current_tree_presence": {"nine_test_paths_present": true, "dispatch_provenance_manifest_present": false}
+  },
+  "findings": [
+    "The 29-path commit is valid historical Context inventory evidence but cannot satisfy the combined 39-path contract.",
+    "The Context manifest reports VERIFIED/provisional future authorization while source_admission is false, supersedes is null, and no admissible successor exists.",
+    "The earlier 9ffbb06e digest identifies a prior draft only; it does not authorize source work.",
+    "Nine missing tests exist in the tree, but tree presence is not baseline provenance. The Dispatch manifest is absent.",
+    "No evidence authorizes a successor commit, source admission, push, or deployment."
+  ],
+  "successor_contract": {
+    "ticket_id": "TICKET-CONTEXT-OPT-001-BASELINE-SUCCESSOR-001",
+    "state": "BLOCKED_PRECONDITIONS",
+    "preserve_commit": "95ade8f02f8f6e4c1b8d1a8bf0f84ae830f7f0c1",
+    "maximum_additional_baseline_commits": 1,
+    "successor_commit_authorized": false,
+    "preconditions": [
+      "QA records genuine RED or frozen-characterization classification for each exact missing Dispatch path.",
+      "QA produces an exact 39-path candidate inventory containing tests, fixtures, and provenance only.",
+      "An independent reviewer accepts RED/characterization truth and explicit supersession.",
+      "Current authority separately authorizes the one additive successor baseline commit."
+    ],
+    "stop_conditions": [
+      "Any source, configuration, generated output, runtime evidence, or unrelated path enters the candidate.",
+      "Any missing path lacks classification or exact hash evidence.",
+      "Independent review is absent or fails.",
+      "Separate current authorization is absent."
+    ]
+  }
+}

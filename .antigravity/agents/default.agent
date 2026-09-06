@@ -63,11 +63,8 @@ system_prompt: 'You are the default agent for HoroConsultant.
 
   '
 tools:
-- bazi-calculator
-- rag-search
-- bsa-doc-skill-management
-- qa-e2e-testing
-- devops-deployment
-- sdlc-aisdlc-workflow
-- metaphysical-domain-engine
+- requirement-grill-gate
+- agile-governance
+- orchestrator-delegation
+- anti-cognitive-decay
 fallback_agent: orchestrator

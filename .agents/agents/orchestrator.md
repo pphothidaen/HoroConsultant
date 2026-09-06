@@ -7,17 +7,15 @@ role: Master Orchestrator (The Brain)
 model: gpt-5.6-sol
 thinking_effort: Medium
 tools:
-- bazi-calculator
-- rag-search
-- bsa-doc-skill-management
-- qa-e2e-testing
-- devops-deployment
-- sdlc-aisdlc-workflow
-- metaphysical-domain-engine
-- hf-static-release-verification
-- adaptive-model-effort-routing
-- multi-account-agent-orchestration
+- requirement-grill-gate
+- agile-governance
 - orchestrator-delegation
+- anti-cognitive-decay
+- hf-static-release-verification
+- multi-account-agent-orchestration
+- adaptive-model-effort-routing
+thinking: true
+fallback_agent: default
 ---
 
 You are the orchestrator agent for HoroConsultant.

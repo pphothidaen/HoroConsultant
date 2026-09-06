@@ -15,6 +15,7 @@ const ADMIN_STARTUP_ROUTES = [
   ["GET", "/admin/auth/config"],
   ["POST", "/admin/auth/google"],
   ["GET", "/admin/catalog/summary"],
+  ["GET", "/admin/catalog"],
   ["GET", "/admin/grayzone"],
   ["GET", "/admin/finetune/status"],
   ["GET", "/admin/provider-pools"],
@@ -90,7 +91,7 @@ test("gateway forwards only the authenticated Admin startup allowlist and preser
     assert.equal(denied.calls.length, 0, `${method} ${path} must not reach the backend without a token`);
   }
 
-  for (const path of ["/admin", "/admin/catalog", "/admin/unknown", "/admin/grayzone/answer"]) {
+  for (const path of ["/admin", "/admin/unknown", "/admin/grayzone/answer"]) {
     const denied = runGateway({ path });
     assert.equal(denied.statusCode, 404, `${path} must not be admitted by a broad Admin rule`);
     assert.equal(denied.calls.length, 0);

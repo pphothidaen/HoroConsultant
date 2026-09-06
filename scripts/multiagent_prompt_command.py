@@ -6495,6 +6495,151 @@ def _run_provider_process(
         raise
 
 
+def _qobs_admission_binding(admission: QobsAdmission) -> dict[str, str]:
+    """Return the canonical one-shot admission digest fields."""
+
+    return {
+        "exception_id": admission.execution_exception_id,
+        "decision_sha256": admission.decision_sha256,
+        "scheduling_snapshot_sha256": admission.scheduling_snapshot_sha256,
+        "qobs_artifact_sha256": admission.qobs_artifact_sha256,
+        "qobs_nonce_sha256": admission.qobs_nonce_sha256,
+        "qobs_context_sha256": admission.qobs_context_sha256,
+    }
+
+def _validate_qobs_invocation_binding(
+    invocation: Invocation, *, now: datetime | None = None, allow_committed: bool = False
+) -> QobsAdmission | None:
+    """Revalidate the closed admission against the exact invocation and QOBS."""
+
+    admission = invocation.qobs_admission
+    if admission is None:
+        return None
+    if (
+        not is_validated_qobs_admission(admission)
+        or invocation.qobs_artifact is None
+        or not isinstance(invocation.qobs_expected_context, Mapping)
+        or not invocation.qobs_ledger_store
+        or Path(invocation.cwd).resolve() != REPOSITORY_ROOT.resolve()
+    ):
+        raise ConfigurationError("closed exception QOBS binding is invalid")
+    marker = Path(invocation.qobs_ledger_store) / (
+        f"{quota_guard.sha256_text(admission.execution_exception_id)}.used"
+    )
+    if marker.exists() and not allow_committed:
+        raise quota_guard.QuotaObservationError("EXECUTION_EXCEPTION_CONSUMED")
+    validated = _validated_invocation_decision(invocation)
+    expected = invocation.qobs_expected_context
+    executable = _resolve_qobs_executable(invocation.route)
+    if (
+        invocation.route.command != executable
+        or invocation.argv[0] != executable
+        or expected.get("resolved_executable") != executable
+        or expected.get("account_home") != invocation.route.home_path
+        or expected.get("alias") != invocation.route.alias
+        or expected.get("provider") != invocation.route.cli
+        or expected.get("ticket_id") != validated.decision.get("ticket")
+        or expected.get("attempt_id") != invocation.attempt_id
+        or expected.get("policy_version") != validated.policy_version
+        or admission.execution_exception_id != _LUNA_ONE_SHOT_EXCEPTION_ID
+        or admission.ticket_id != validated.decision.get("ticket")
+        or admission.attempt_id != invocation.attempt_id
+        or admission.role != invocation.route.role
+        or admission.alias != invocation.route.alias
+        or admission.provider != invocation.route.cli
+        or admission.model != invocation.route.model
+        or admission.effort != invocation.route.effort
+        or admission.work_mode != validated.decision.get("work_mode")
+        or admission.sandbox != invocation.route.sandbox
+        or admission.quota_band != validated.decision.get("quota_band")
+        or admission.decision_sha256 != validated.digest
+        or admission.scheduling_snapshot_sha256 != invocation.scheduling_snapshot_digest
+        or admission.resolved_executable_sha256 != quota_guard.sha256_text(executable)
+        or admission.qobs_artifact_sha256 != _qobs_digest(invocation.qobs_artifact)
+        or admission.qobs_context_sha256 != _qobs_context_digest(expected)
+        or admission.exception_consumption_sha256
+        != _canonical_sha256(_qobs_admission_binding(admission))
+    ):
+        raise ConfigurationError("closed exception QOBS binding is incoherent")
+    try:
+        observation = quota_guard.validate_quota_observation(
+            invocation.qobs_artifact, dict(expected), now=now
+        )
+    except quota_guard.QuotaObservationError as exc:
+        raise ConfigurationError("closed exception QOBS observation is invalid") from exc
+    if (
+        observation.get("quota_band") != "constrained"
+        or quota_guard.sha256_text(str(expected.get("nonce")))
+        != admission.qobs_nonce_sha256
+        or quota_bound_dispatch_identity(
+            invocation.qobs_artifact,
+            admission.quota_consumption(),
+            admission.dispatch_context(),
+        )
+        != admission.dispatch_identity
+    ):
+        raise ConfigurationError("closed exception QOBS binding is incoherent")
+    return admission
+
+def _consume_spawn_capacity(
+    invocation: Invocation, validated: ValidatedDispatchDecision,
+) -> capacity.CapacityLease | None:
+    """Charge one request only to a live lease bound to this dispatch."""
+
+    fields = (
+        invocation.capacity_lease,
+        invocation.capacity_store_path,
+        invocation.capacity_policy,
+        invocation.capacity_request_id,
+    )
+    if all(value is None for value in fields):
+        if invocation.capacity_required:
+            raise SchedulingError("CAPACITY_LEASE_REQUIRED", "capacity lease is missing")
+        return None
+    if any(value is None for value in fields):
+        raise SchedulingError("CAPACITY_LEASE_REQUIRED", "capacity lease binding is incomplete")
+    try:
+        candidate = capacity.consume_lease(
+            invocation.capacity_store_path,
+            invocation.capacity_lease,
+            requests=1,
+            policy=invocation.capacity_policy,
+        )
+    except capacity.CapacityLeaseError as exc:
+        raise SchedulingError(f"CAPACITY_{exc.code}", "capacity lease was rejected") from exc
+    expected_floor = str(validated.quality_floor)
+    if (
+        candidate.account != invocation.route.alias
+        or candidate.provider != invocation.route.cli
+        or candidate.owner != invocation.route.role
+        or candidate.request_id != invocation.capacity_request_id
+        or candidate.lane != invocation.attempt_id
+        or candidate.model_quality_floor != expected_floor
+    ):
+        try:
+            capacity.release_lease(
+                invocation.capacity_store_path, candidate,
+                policy=invocation.capacity_policy,
+            )
+        except capacity.CapacityLeaseError:
+            pass
+        raise SchedulingError("CAPACITY_LEASE_MISMATCH", "capacity lease does not bind this route")
+    return candidate
+
+def _release_spawn_capacity(invocation: Invocation, lease: capacity.CapacityLease | None) -> None:
+    """Release the consumed lease without masking an execution failure."""
+
+    if lease is None:
+        return
+    try:
+        capacity.release_lease(
+            invocation.capacity_store_path, lease,
+            policy=invocation.capacity_policy,
+        )
+    except capacity.CapacityLeaseError:
+        pass
+
+
 def _execute_invocation_locked(invocation: Invocation) -> subprocess.CompletedProcess[str]:
     """Revalidate governance, then execute argv with no shell."""
 
@@ -6506,6 +6651,7 @@ def _execute_invocation_locked(invocation: Invocation) -> subprocess.CompletedPr
     _validate_qobs_invocation_binding(invocation)
     validate_execution_preflight(invocation)
     home_fd, home_identity = _open_isolated_account_home(invocation)
+    consumed_lease: capacity.CapacityLease | None = None
     try:
         env = os.environ.copy()
         env.pop("CODEX_HOME", None)
@@ -6567,6 +6713,7 @@ def _execute_invocation_locked(invocation: Invocation) -> subprocess.CompletedPr
                 try:
                     _verify_dispatch_claim(claim, require_start_freshness=True)
                     _verify_isolated_account_home(invocation, home_fd, home_identity)
+                    consumed_lease = _consume_spawn_capacity(invocation, validated_decision)
                     # The consume receipt and its dispatch-ledger anchor are the
                     # final irreversible operation before provider creation.
                     consume_receipt = _consume_prepared_approval(
@@ -6661,14 +6808,15 @@ def _execute_invocation_locked(invocation: Invocation) -> subprocess.CompletedPr
                 finally:
                     _release_dispatch_claim(claim)
                 raise
-            finally:
-                _release_spawn_capacity(invocation, consumed_lease)
             result._dispatch_claim = claim  # type: ignore[attr-defined]
             result._dispatch_started_at = claim.record["started_at"]  # type: ignore[attr-defined]
             result._dispatch_ended_at = _utc_now()  # type: ignore[attr-defined]
             return result
     finally:
-        os.close(home_fd)
+        try:
+            _release_spawn_capacity(invocation, consumed_lease)
+        finally:
+            os.close(home_fd)
 
 
 def _redact_preview(value: str, invocation: Invocation) -> str:

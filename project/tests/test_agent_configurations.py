@@ -77,8 +77,12 @@ def test_antigravity_default_agent_file():
     assert "Default Agent" in data.get("display_name", "") or "Master Orchestrator" in data.get("display_name", "")
     assert data["model"] == "gpt-5.6-sol"
     assert data.get("thinking") is True
-    assert "bazi-calculator" in data.get("tools", [])
-    assert "rag-search" in data.get("tools", [])
+    assert data.get("tools", []) == [
+        "requirement-grill-gate",
+        "agile-governance",
+        "orchestrator-delegation",
+        "anti-cognitive-decay",
+    ]
     assert data.get("fallback_agent") in ["orchestrator", "default"]
 
 

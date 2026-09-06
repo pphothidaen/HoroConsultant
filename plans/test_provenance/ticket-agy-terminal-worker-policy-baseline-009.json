@@ -1,0 +1,39 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-AGY2-POLICY-BASELINE-009",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "e04a4f083730e85ba3765db58ddd26f54799343c",
+  "test_files": [
+    {
+      "path": "tests/test_agy_terminal_worker_policy.py",
+      "sha256": "8046d92bef8fa5deb0c22acf9ddf8b98c4ab94a7100c9ac814d4c629676c7759"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "env",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "python3",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "tests/test_agy_terminal_worker_policy.py",
+        "--tb=line"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "19 failed; zero collection/setup errors; CANDIDATE_POLICY_INTERFACE_MISSING: pure builder/validator not implemented; failed-node fingerprint SHA-256 5979853a802798202b34b7580adc2b8a4f37ccc88b2aaaee496bbc4dad6e0ebf"
+    }
+  ],
+  "allowed_source_paths": [
+    "scripts/agy_terminal_worker_policy.py"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "New pure-local candidate policy builder/validator009. Source module absent at current baseline_parent; explicit per-test pytest.fail records missing interface honestly, with no collection/import-only crash or fallback implementation. Contract is POLICY_STATUS=CANDIDATE_UNVERIFIED, fresh exact builder dict, validator returns independent validated dict or ValueError, all seven exact denial namespaces, canonical builder order, semantic unordered duplicate-free validator set, empty allow, closed keys, malformed rule/type/alias/duplication rejection and no caller mutation. Candidate compact bytes (UTF-8, sorted keys, comma/colon separators, no trailing newline): {\"permissions\":{\"allow\":[],\"deny\":[\"read_file(*)\",\"write_file(*)\",\"read_url(*)\",\"execute_url(*)\",\"command(*)\",\"unsandboxed(*)\",\"mcp(*)\"]}}. Candidate SHA-256 4b518faa9d9e4354dd2b3d77571d7f7f3664527d0fc9bed4ba6bec391e013d3f. Two fresh runs: [{\"attempt\": 1, \"exit_code\": 1, \"failed_node_fingerprint_sha256\": \"5979853a802798202b34b7580adc2b8a4f37ccc88b2aaaee496bbc4dad6e0ebf\", \"summary\": \"19 failed in 0.03s\"}, {\"attempt\": 2, \"exit_code\": 1, \"failed_node_fingerprint_sha256\": \"5979853a802798202b34b7580adc2b8a4f37ccc88b2aaaee496bbc4dad6e0ebf\", \"summary\": \"19 failed in 0.02s\"}]. Official permission URL supplied by parent was not fetched because this lane forbids network; tests freeze the approved local contract, not runtime wildcard semantics. No provider/auth/network, implementation, config/account, old source/test/evidence changes or enforcement/native/admission proof. VERIFIED is prospective closed-schema classification only: PREPARED_RED_UNCOMMITTED_INDEPENDENT_REVIEW_PENDING until review, authorized exact-two-path test-only commit and history guard validation. Inputs are inline and independent; no source prerequisite bytes exist to preserve."
+}

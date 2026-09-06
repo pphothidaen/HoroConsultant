@@ -1,0 +1,64 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001",
+  "revision": 1,
+  "ticket_sha256": "60985f1ab92aa253ebcc97309108219fddeaab45fd33ecf2da6935dcb99192cd",
+  "plan_sha256": "6490f2ba85a5eb16410f9a15a13a23725424a5ae51d3f89c23c652da90d550c0",
+  "lanes": [
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-B",
+      "role": "qa_tester",
+      "phase": "red_baseline",
+      "actions": [
+        "context.resolve",
+        "context.inspect.codex-prompt"
+      ],
+      "touched_paths": [
+        "tests/test_context_profile_registry.py",
+        "tests/test_context_profile_resolver.py",
+        "tests/fixtures/context_profiles/registry.valid.json"
+      ],
+      "requested_horo_skills": [
+        "qa-e2e-testing",
+        "agile-governance",
+        "multi-account-agent-orchestration"
+      ],
+      "source_domain": "quality-engineering",
+      "risk_flags": [],
+      "allowed_child_command_class": "context-inspect",
+      "exclusions": [
+        "no-provider-mutation",
+        "no-commit",
+        "no-network"
+      ],
+      "evidence_refs": []
+    },
+    {
+      "lane_id": "TICKET-CONTEXT-OPT-001-D",
+      "role": "developer",
+      "phase": "implementation",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "scripts/resolve_agent_context.py",
+        ".agents/config/scope_skill_registry.v1.json"
+      ],
+      "requested_horo_skills": [
+        "requirement-grill-gate",
+        "agile-governance",
+        "orchestrator-delegation",
+        "anti-cognitive-decay"
+      ],
+      "source_domain": "software-architecture",
+      "risk_flags": [],
+      "allowed_child_command_class": "context-inspect",
+      "exclusions": [
+        "no-provider-mutation",
+        "no-commit",
+        "no-network"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

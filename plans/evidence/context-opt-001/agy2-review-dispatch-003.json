@@ -1,0 +1,60 @@
+{
+  "schema_version": "agy2-review-dispatch-inspection-v1",
+  "ticket_id": "TICKET-CONTEXT-OPT-001-G-AGY2-REVIEW-003",
+  "lane_id": "TICKET-CONTEXT-OPT-001-G-AGY2-REVIEW-003",
+  "status": "BLOCKED",
+  "selected_alias": "agy2",
+  "provider": "agy",
+  "model": "gemini-3.7-flash-high",
+  "observed_at": "2026-09-05T17:40:49.474869Z",
+  "approved_context_sha256": "dbf560d4d0742eeed90e55ef3f1a7334a75e95e7969fb179b1c8d063d507f08d",
+  "resolver_result": "PASS",
+  "scope_owned": "Read-only dispatch inspection; sole evidence file plans/evidence/context-opt-001/agy2-review-dispatch-003.json",
+  "quota": {
+    "host_remaining_percent": 38,
+    "host_band": "AMBER",
+    "host_observed_at": "2026-09-05T17:39:00Z",
+    "agy2_five_hour_remaining_percent": 100,
+    "agy2_evidence": "USER_REPORTED_NOT_INDEPENDENTLY_VERIFIED",
+    "pools_independent": true
+  },
+  "render": {
+    "status": "rendered-route-not-execution-proof",
+    "exit_code": 0,
+    "config": ".agents/config/multiagent_prompt_command.runtime-readonly-v3.yaml",
+    "role": "research",
+    "alias": "agy2",
+    "mode": "plan",
+    "sandbox": true,
+    "decision_supplied": false
+  },
+  "pre_spawn": {
+    "status": "DENIED",
+    "reason_code": "PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED",
+    "validation_kind": "Canonical transport guard evaluated in-process with Popen forbidden",
+    "provider_spawn_calls": 0,
+    "child_ran": false,
+    "execute_invocation_called": false,
+    "configured_executable_available": true
+  },
+  "evidence": {
+    "dispatcher_path": "scripts/multiagent_prompt_command.py",
+    "dispatcher_sha256": "9d1b8cbd96b9fd4f8a5ccb17912994175071f15c7c47382288abe82b3c8bca6a",
+    "config_sha256": "0d5bbe34948b6c6b9c0ec5b95ce56e52e45c61cafad4a3c7bfffff9df14be099",
+    "denial_function": "_validate_transport_provider_binding",
+    "configured_provider_denial": "PLATFORM_NATIVE_PRESPAWN_RECEIPT_REQUIRED"
+  },
+  "findings": [
+    "AGY effective or declared transport is unconditionally rejected before Popen in the current canonical dispatcher.",
+    "The runtime config separately declares the same platform-native pre-spawn requirement.",
+    "Only a task plan exists for this attempt; no attempt-bound DispatchDecision or scheduling snapshot was supplied.",
+    "No provider WorkResult, ExecutionReceipt, session, or native execution proof exists for this attempt."
+  ],
+  "changed_files": [
+    "plans/evidence/context-opt-001/agy2-review-dispatch-003.json"
+  ],
+  "residual_risk": "Requested Gemini solution review remains unperformed. User-reported agy2 quota is not independently verified.",
+  "recommended_next_action": "Provide an implemented, approved platform-native AGY pre-spawn receipt integration recognized by the canonical dispatcher, then fresh attempt-bound DispatchDecision and scheduling snapshot plus required local preauthorization artifacts. The current dispatcher exposes no AGY receipt acceptance path; an invocation flag or user approval alone cannot satisfy its unconditional guard. Re-render and execute only after these prerequisites validate.",
+  "raw_provider_streams_retained": false,
+  "provider_execution_claim": false
+}

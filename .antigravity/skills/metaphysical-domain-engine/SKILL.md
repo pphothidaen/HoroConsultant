@@ -1,56 +1,45 @@
 ---
 name: metaphysical-domain-engine
-description: Route 8 metaphysics specialists, then route HITL-conflict cases to human review and finetune data.
-responsible_agents:
-  - ming_xue_master
-  - san_shi_master
-  - pu_shi_master
-  - xiang_xue_master
-  - ze_ji_master
-  - numerology_master
-  - thai_vedic_master
-  - western_astro_master
-  - business_analyst
-  - hermes
-  - orchestrator
-  - default
-  - devops
+description: Compatibility router for deterministic request routing, HITL gate, and finetune handoff.
 owner: orchestrator
-responsibility: cross-domain-metaphysics-routing
+sunset: Sunset upon full migration to focused metaphysical skills in v2.0.0; no focused-profile activation.
 ---
 
-# 🧭 Metaphysical Domain Engine Skill
+# Metaphysical Domain Engine Compatibility Router
 
-## Purpose
-Route each metaphysical request to the most relevant specialist set and preserve context
-across linked traditions.
+Workflow-free compatibility router delegating to focused metaphysical architecture skills.
 
-## Domain Coverage
-- Zi Wei Dou Shu
-- Qi Men Dun Jia
-- Da Liu Ren
-- I Ching & Liu Yao
-- Xuan Kong & San He
-- Ze Ji auspicious-timing
-- Thai/Vedic astrology
-- Western/Uranian astrology
-- Numerology, Tai Yi, Mei Hua, and Mian Xiang
+## Governance and Metadata
 
-## Coordination Rule
-- Prefer one specialist for narrow requests; escalate to 2+ specialists for mixed-domain queries.
-- If a cross-domain synthesis is ambiguous (`consensus_score < 0.75`, `conflict_detected`, or `force_human_review`), route to HITL without returning final answer.
-- Always include for HITL queue items:
-  - `required_human_review`, `conflict_detected`, `conflicting_domains`, `consensus_score`, and `hitl_routing`.
-- Before planning implementation, run a scope gate check:
-  1. confirm scope boundary and explicit exclusions,
-  2. list unresolved requirement assumptions, constraints, and owner approvals,
-  3. verify acceptance criteria and rollback condition.
-- During execution, enforce HITL gate:
-  - For any pending item with `conflict_detected`, `force_human_review`, low consensus (< 0.75), or queued HITL routing, require `required_human_review=True`.
-  - Run `GET /hitl/scope-audit?source_domain=metaphysical-domain-engine`.
-  - Require `scope-audit.summary.pass_gate_check === true` before implementing or triggering training.
-  - If `summary.missing_required_human_gate > 0`, hold model surfacing and trigger; escalate unresolved IDs to `business_analyst` and `hermes` owners.
-- Backoffice/model update handoff:
-  - only promote HITL-approved items to finetune dataset,
-  - keep queue telemetry visible (`pending`, `required_by_domain`),
-  - include `scope_domain`, `summary`, and `items` (`required_review_sample`, `conflicts_sample`, `gap_samples`) from scope-audit.
+- **Owner**: `orchestrator`
+- **Sunset Condition**: Retained strictly for backwards-compatible routing; scheduled for sunset in v2.0.0 after full migration to focused metaphysical skills.
+- **Activation Restriction**: No focused-profile activation permitted; this is a workflow-free router.
+- **Source Domain**: All operations require `source_domain=metaphysical-domain-engine`.
+
+## Mandatory HITL Gate Rule
+
+Any condition involving ambiguity, solar boundary hour, severe chart conflict, low consensus (< 0.75), force review, or training promotion strictly binds a validated HITL audit plus owner sign-off before implementation or training handoff. Calculation, training, and API behavior must remain unaltered.
+
+## Routing Targets
+
+Inquiries and tasks mapped to this router are forwarded to the appropriate focused skill:
+
+1. **`metaphysical-request-router`**:
+   - Routes inquiries to deterministic calculation engines (`project/core/bazi.py`, `project/core/suriyayart.py`, etc.).
+   - Decomposes multi-tradition inquiries and forbids LLM prose hallucination of astronomical facts.
+
+2. **`metaphysical-hitl-scope-gate`**:
+   - Evaluates boundary conditions, chart conflicts, and consensus scores.
+   - Emits structured scope audit receipts requiring human review when risk thresholds fire.
+
+3. **`metaphysical-finetune-handoff`**:
+   - Enforces the distillation quality checklist and PII redaction for fine-tuning datasets.
+   - Requires confirmed master approval before dataset promotion.
+
+## Reporting Protocol
+
+- All status reports from routed tasks must use pure ASCII logs only:
+  - `[OK]`: Sub-task routed and verified.
+  - `[ERROR]`: Routing failure or target contract breach.
+  - `[WARNING]`: Compatibility router invoked instead of direct focused skill.
+  - `[INFO]`: Delegation target identified.

@@ -126,7 +126,7 @@ class TestFrozenReleaseWorkflowSecurity:
             "azure_deploy.yml": {},
             "deploy.yml": {},
             "fly_deploy.yml": {},
-            "hf_backend_deploy.yml": {"contents": "read"},
+            "hf_backend_deploy.yml": {"contents": "read", "actions": "read"},
         }
 
         for workflow_name in FROZEN_RELEASE_WORKFLOWS:

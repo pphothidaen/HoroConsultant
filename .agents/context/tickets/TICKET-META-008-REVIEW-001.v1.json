@@ -1,0 +1,46 @@
+{
+  "schema_version": "approved-ticket-context-v1",
+  "ticket_id": "TICKET-META-008-REVIEW-001",
+  "revision": 2,
+  "ticket_sha256": "cd1db1d77568625e1674591f85f6fad4a60518e52246a3823d53d311b2c47dda",
+  "plan_sha256": "ddaa6f3978efef0a9cfc349e3d50d53722153245d8e017c27a96bf574a019b02",
+  "lanes": [
+    {
+      "lane_id": "TICKET-META-008-REVIEW-001",
+      "role": "code_reviewer",
+      "phase": "review",
+      "actions": [
+        "context.resolve"
+      ],
+      "touched_paths": [
+        "scripts/multiagent_prompt_command.py",
+        "tests/test_multiagent_prompt_command.py",
+        "tests/test_multiagent_production_import_isolation.py",
+        "plans/test_provenance/ticket-meta-008-remediation-baseline.json",
+        "plans/evidence/meta-008-remediation/security-review.json",
+        "tests/test_release_ci_gates.py",
+        "plans/test_provenance/ticket-meta-008-ci-gates-baseline.json",
+        ".github/workflows/hf_backend_deploy.yml",
+        ".github/workflows/ai_cicd.yml",
+        "scripts/verify_release_ci_gates.py",
+        "plans/evidence/meta-008-remediation/ci-review.json"
+      ],
+      "requested_horo_skills": [
+        "qa-e2e-testing",
+        "hf-static-release-verification"
+      ],
+      "source_domain": "software-engineering",
+      "risk_flags": [
+        "dispatch-runtime-remediation"
+      ],
+      "allowed_child_command_class": "quality-verification",
+      "exclusions": [
+        "no-provider-execution",
+        "no-secret-operation",
+        "no-push",
+        "no-deploy"
+      ],
+      "evidence_refs": []
+    }
+  ]
+}

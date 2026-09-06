@@ -132,20 +132,25 @@ sandbox control.
 
 If an alias cannot run, record alias, timestamp, safe failure class, and `no
 child ran`; return `BLOCKED` or obtain HITL before changing ownership. Recheck
-only a non-secret quota band before large work. Below 10%, stop broad work,
-update `TICKET-META-008` and the plan, and run the quota guard.
+only a non-secret quota band before large work. Quota thresholds are defined
+strictly in remaining percentage semantics:
+- `<=40%` remaining quota: reassess before each bounded lane (amber warning).
+- `<=20%` remaining quota: at most one bounded lane plus snapshot before material action (critical/orange).
+- `<10%` remaining quota, HTTP 429, `usageLimitExceeded`, or missing/contradictory signal before high-cost work: immediate freeze-and-handoff to `HANDOFF.md` Rescue Queue. `UNKNOWN` is never GREEN. Stop broad work, update `TICKET-META-008` and the plan, and run the quota guard.
 
-### Codex Multi-Account Quota Protocol & 4-Tier Adaptive Monitoring
+### Pool Isolation & Multi-Account Observation Independence
 
-Because Codex CLI lacks native percentage `/usage` output, assess `codex1`..`codex3`
-via the 4-tier model in `scripts/codex_quota_workaround.py`:
-- **Tier 1 (Normal / Green)**: 1h tokens < 1M (IDLE/LOW). Concurrency <= 3, poll 600s.
-- **Tier 2 (Warning / Amber)**: Quota < 40% or 1h tokens 1M–10M. Concurrency <= 2, poll 120s, warn operator.
-- **Tier 3 (Critical / Orange)**: Quota < 20% or 1h tokens > 10M. Concurrency = 1, poll 30s, pre-commit state.
-- **Tier 4 (Exhausted / Red)**: Quota < 10%, `usageLimitExceeded`, or HTTP 429. Immediate freeze, auto-dump
-  interrupted tasks to `HANDOFF.md` Rescue Queue, and failover to available IDLE alias (`codex2`/`codex3`/`agy`).
+Preserve pool isolation: host (e.g. 27%), codex1 (e.g. 96% five-hour), agy1 (e.g. 96% five-hour), and agy2 (e.g. 75.21% weekly / 100% five-hour) are independent owner observations and must never be averaged, combined, or substituted. Auxiliary work requires alias/config isolation validation, a fresh pool-specific receipt, and a receipt-backed decision; failure to observe a fresh trusted signal evaluates to `UNKNOWN`.
 
-Run `python3 scripts/codex_quota_workaround.py --mode summary` before major dispatch.
+### Codex Multi-Account Quota Protocol & Monitoring Restrictions
+
+Because Codex CLI lacks native percentage `/usage` output, assess `codex1`..`codex3` capacity with strict fail-closed remaining percentage semantics:
+- **Tier 1 (Normal / Green)**: Remaining quota > 40% (or 1h tokens < 1M, IDLE/LOW). Max concurrency <= 3, poll 600s.
+- **Tier 2 (Warning / Amber)**: Remaining quota <= 40% (or 1h tokens 1M–10M). Concurrency <= 2, poll 120s, reassess before each bounded lane.
+- **Tier 3 (Critical / Orange)**: Remaining quota <= 20% (or 1h tokens > 10M). At most 1 bounded lane plus snapshot before material action.
+- **Tier 4 (Exhausted / Red)**: Remaining quota < 10%, `usageLimitExceeded`, HTTP 429, or missing/contradictory signal. Immediate freeze, dump interrupted tasks to `HANDOFF.md` Rescue Queue, failover only to verified IDLE alias.
+
+Running unapproved `codex_quota_workaround.py --mode summary` is strictly prohibited unless separately authorized for both login-status calls and rollout JSONL reads. It is never exact quota proof. Preserve existing multi-account admission/HITL/least-privilege rules; do not invent executable aliases.
 
 Retry only the same bounded actionable failure; after three failures, or immediately for
 credentials, permissions, billing, production mutation, ownership conflict, or

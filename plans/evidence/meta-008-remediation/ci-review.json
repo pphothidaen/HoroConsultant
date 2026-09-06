@@ -1,0 +1,134 @@
+{
+  "schema_version": "scoped-ci-review-v1",
+  "ticket_id": "TICKET-META-008-REVIEW-001",
+  "context_sha256": "8d8dde9e25efabfcd6dd15a65e7a75c9d13ac98309c50fef2c5caf5df81bad1d",
+  "status": "PASS_SCOPED_CODE_REVIEW_EXECUTION_PAUSED_BY_USER",
+  "source_admission": false,
+  "release_readiness": "NOT_READY_FOR_PROD",
+  "attempts": [
+    {
+      "attempt": 1,
+      "at": "2026-09-05T15:16:13.727276+00:00",
+      "status": "CHANGES_REQUESTED_BASELINE",
+      "manifest_sha256": "d0f47ac13bee828ed5bd58491d51a88638cd5e62e2a28b74652adc70e8c8e068",
+      "test_sha256": "4b4c14bfd578b1a5499ebc8ee286a576cb6976e3c95cbc56d752ce524bc6a707",
+      "schema_issues": [],
+      "findings": [
+        "Missing malformed identity coverage: workflow and run identity numbers must reject bool, zero, negative, strings and None; total_count must reject bool/malformed types.",
+        "Add malformed API response shape rejection tests before freezing fail-closed release gate baseline."
+      ],
+      "verified_coverage": [
+        "Wrong workflow path, wrong repository/head_repository, latest run and attempt, duplicates, pagination, API error sanitization.",
+        "Both workflow entry events and unconditional gate presence immediately before publish. Actual shell failure propagation requires later source review."
+      ]
+    },
+    {
+      "attempt": 2,
+      "at": "2026-09-05T15:19:33.452619+00:00",
+      "status": "PASS_SCOPED_BASELINE_COMMIT_CANDIDATE",
+      "manifest_sha256": "2e14e91b04a101457577b6df9cd0a221e12baab8d076451769b5092710758598",
+      "test_sha256": "9a946e35a05e75b7078723ab8f754c17e0a979fcc639aa8bbc5b91df51b7e5bf",
+      "baseline_parent": "160aefe772c801e39904626b0f0009a9b021c1f0",
+      "candidate_paths": [
+        "tests/test_release_ci_gates.py",
+        "plans/test_provenance/ticket-meta-008-ci-gates-baseline.json"
+      ],
+      "schema": "PASS strict 13 keys, parent matches HEAD",
+      "independent_red": {
+        "argv": [
+          "python3",
+          "-m",
+          "pytest",
+          "-q",
+          "tests/test_release_ci_gates.py",
+          "--tb=no",
+          "-p",
+          "no:cacheprovider"
+        ],
+        "exit": 1,
+        "summary": "98 failed in 0.07s"
+      },
+      "resolved_findings": [
+        "Strict malformed IDs excluding bool covered for workflow/run/order fields; total_count strict shape cases.",
+        "Malformed payload/header, invalid request before HTTP, conflicting ID/order, trusted/untrusted ref suffix cases added."
+      ],
+      "source_unchanged": "Verifier remains absent; no implementation reviewed or admitted yet.",
+      "conditions": [
+        "Stage exactly two approved files; committed guard check-staged must pass.",
+        "Immutable baseline commit plus committed provenance verify required before source implementation.",
+        "Final source review must verify actual shell failure propagation immediately before publisher; baseline syntax assertions alone cannot prove workflow execution."
+      ],
+      "release_readiness": "NOT_EVALUATED"
+    },
+    {
+      "attempt": 3,
+      "at": "2026-09-05T15:29:14.816808+00:00",
+      "status": "PASS_SCOPED_SOURCE_REVIEW_CONDITIONAL_TEST_AMENDMENT",
+      "source_hashes": {
+        "scripts/verify_release_ci_gates.py": "cbe3dd6ead531197425f121c143c9d1bcbd7eeffa7386f268ac00c186c5b5a35",
+        ".github/workflows/hf_backend_deploy.yml": "f74a3be527722f1b7a4485f057a8cd2cead1bf7f4cde3327258da87e4af31f0e",
+        ".github/workflows/ai_cicd.yml": "c14446da1de1bf651de15c4f1546f7549d8bda10a4746d187027108b7b7e7d93"
+      },
+      "baseline_commit": "bb9e384",
+      "checks": [
+        "Independent98testsPASS in0.09s; AST parsePASS",
+        "Secret scan3388files0leaksPASS",
+        "REST fixed GitHub base, redirects denied,30second timeout,8MiB limit, duplicate JSON/nonfinite rejection, sanitized transport errors.",
+        "Five exact numeric workflow identities with strict integer fields; trusted repo/SHA/main/push checks; full single-page count; duplicate/ambiguous runs rejected; latest run/attempt must succeed.",
+        "Current main verified before and after each gate; two unconditional workflow gates use set -euo pipefail, quoted environment arguments, no failure suppression; second immediately precedes publisher.",
+        "Actions permission read only alongside contents read; no write permission introduced."
+      ],
+      "findings": [],
+      "conditions": [
+        "Amend legacy contents-only permission test in separate independently reviewed baseline before final GREEN claim.",
+        "Verify frozen source/test hashes and provenance after source-only commit."
+      ],
+      "limitations": [
+        "Cross-request races after final API check cannot be eliminated; immediate prepublish recheck bounds stale evidence exposure.",
+        "Full release gates remain separate; no hosted CI or production evidence claimed."
+      ],
+      "release_readiness": "NOT_EVALUATED"
+    },
+    {
+      "attempt": 4,
+      "at": "2026-09-05T15:35:23.429132+00:00",
+      "status": "PASS_PERMISSION_BASELINE_CANDIDATE_PARENT_REFRESH_REQUIRED",
+      "manifest_sha256": "3ebe328eb3bf804cd291cbba36848e8cfa5a254d9fa9ae58f787594dc686ae06",
+      "test_sha256": "6d9c74111b30ef6be4f2559d18ae9be6bc1ec082411b3260fc38638abfd248e7",
+      "source_sha256": "fc7af61645d43fae8d8772e29c58aba92d1d6af4932ce6d770c205c9d9830b63",
+      "checks": [
+        "Independent1failed1passed60deselected in0.04s",
+        "Only expected HF dictionary gains actions:read; exact equality assertion and job-level restriction unchanged.",
+        "Strict13key schema PASS; actions:read removed from source before current RED, gates retained."
+      ],
+      "approval": "Two-file baseline candidate sound. Commit guard baseline first, then QA updates only permission baseline_parent to successor HEAD and reviewer rechecks resulting manifest digest before second commit.",
+      "release_readiness": "NOT_EVALUATED"
+    },
+    {
+      "attempt": 5,
+      "at": "2026-09-05T15:54:15.682217+00:00",
+      "ticket_id": "TICKET-META-008-CI-FINAL-REVIEW-001",
+      "context_sha256": "b007099d5e07fb2a5ae731ea42b3de6264e9d898302504d76d02e8c55269b662",
+      "status": "PASS_SCOPED_CODE_REVIEW_EXECUTION_PAUSED_BY_USER",
+      "source_hashes": {
+        "scripts/verify_release_ci_gates.py": "cbe3dd6ead531197425f121c143c9d1bcbd7eeffa7386f268ac00c186c5b5a35",
+        ".github/workflows/hf_backend_deploy.yml": "f74a3be527722f1b7a4485f057a8cd2cead1bf7f4cde3327258da87e4af31f0e",
+        ".github/workflows/ai_cicd.yml": "c14446da1de1bf651de15c4f1546f7549d8bda10a4746d187027108b7b7e7d93"
+      },
+      "checks": [
+        "Source hashes unchanged from audited implementation; final workflow diff and gate placement rechecked.",
+        "AST PASS; mandated repository secret scan3402files0leaksPASS.",
+        "All three CI baseline test hashes match committed manifest bindings.",
+        "Independent QA reported focused98+62+11 and combined171PASS; adjacent74PASS2FAIL via parent relay. Final standalone QA receipt pending at pause."
+      ],
+      "scoped_findings": [],
+      "remaining_blockers": [
+        "Adjacent executable mode check for scripts/sync_codex_account_configs.py and DevOps effective authority marker failures.",
+        "Governance/ecosystem and worktree provenance resolution remain separate incomplete work.",
+        "Hosted CI, immutable postcommit verification, release identity/rollback/production evidence not established."
+      ],
+      "execution_status": "User reprioritized host quota RED_FREEZE and Context39-path baseline. No source commit execution authorized by this completion; work paused.",
+      "release_readiness": "NOT_READY_FOR_PROD"
+    }
+  ]
+}

@@ -1,0 +1,292 @@
+{
+  "schema_version": "skill-budget-regression-evidence-v2",
+  "ticket_id": "TICKET-SKILL-BUDGET-002",
+  "recorded_at": "2026-09-05T10:04:34+07:00",
+  "timezone": "Asia/Bangkok",
+  "status": "verified_current_state_no_source_or_config_sync_required",
+  "prior_commands": [
+    {
+      "command": "python3 -m pytest -q tests/test_optimize_codex_skill_budget.py project/tests/test_ai_agent_ecosystem_sync.py",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 scripts/sync_ai_agent_ecosystem.py --check",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 scripts/sync_codex_account_configs.py --check --budget",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 scripts/sync_sdlc_agents.py --check",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 -c 'from pathlib import Path; paths=[\"scripts/sync_codex_account_configs.py\", \"scripts/sync_sdlc_agents.py\", \"scripts/sync_ai_agent_ecosystem.py\"]; [compile(Path(path).read_text(encoding=\"utf-8\"), path, \"exec\") for path in paths]; print(\"3 scripts compiled in memory\")'",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "prior_combined_test_pass_count": 82,
+  "prior_accounts": {
+    "default": {
+      "prompt_chars": 2182,
+      "truncated_skills": 0,
+      "shortened_warning": false
+    },
+    "codex1": {
+      "prompt_chars": 2182,
+      "truncated_skills": 0,
+      "shortened_warning": false
+    },
+    "codex2": {
+      "prompt_chars": 2182,
+      "truncated_skills": 0,
+      "shortened_warning": false
+    },
+    "codex3": {
+      "prompt_chars": 2182,
+      "truncated_skills": 0,
+      "shortened_warning": false
+    }
+  },
+  "prior_canonical_profile_count": 21,
+  "prior_ecosystem": {
+    "sync_status": "not_run_read_only_refresh",
+    "check_status": "passed"
+  },
+  "prior_generated_runtime_preservation": {
+    "canonical_json_unchanged": true,
+    "prediction_validator_tools_unsuffixed": true,
+    "developer_thinking": true,
+    "orchestrator_thinking": true,
+    "ui_visual_tester_fallback_agent": "qa_tester"
+  },
+  "prior_backup_recovery_available": true,
+  "phase": "post_reboot_verification_complete",
+  "reproduction": {
+    "target_warning_prefix": "Skill descriptions were shortened to fit the skills context budget",
+    "exact_warning_reproduced_in_fresh_process": false,
+    "active_session_observation_is_immutable": true,
+    "attempts": [
+      {
+        "kind": "fresh_prompt_renderer",
+        "aliases": ["default", "codex1", "codex2", "codex3"],
+        "warning_count_per_alias": 0,
+        "exit_code": 0
+      },
+      {
+        "kind": "fresh_ephemeral_provider_session",
+        "completed_aliases": ["default", "codex1", "codex2"],
+        "failed_aliases": ["codex3"],
+        "warning_count_per_alias": 0,
+        "codex3_exit_code": 1,
+        "codex3_error_event_count": 1
+      },
+      {
+        "kind": "fresh_ephemeral_session_ignoring_user_config",
+        "alias": "default",
+        "warning_count": 0,
+        "exit_code": 0
+      },
+      {
+        "kind": "transient_remote_plugin_activation_overrides",
+        "alias": "default",
+        "override_count": 13,
+        "warning_count": 0,
+        "prompt_chars": 2182,
+        "exit_code": 0
+      },
+      {
+        "kind": "transient_cached_skill_path_overrides",
+        "alias": "default",
+        "override_count": 96,
+        "warning_count": 0,
+        "prompt_chars": 2182,
+        "exit_code": 0
+      }
+    ],
+    "stop_reason": "No available fresh-process path reproduced the exact warning. A nested local process cannot recreate or reload the already-running outer host skill context, so mutation would be speculative."
+  },
+  "hypothesis": {
+    "statement": "The observed banner may originate from the immutable outer host skill inventory, while the local prompt renderer measures only selected environment skills.",
+    "status": "unconfirmed",
+    "minimal_test_result": "Normal, config-bypassed, remote-plugin-override, and cached-skill-override fresh processes all omitted the warning and rendered the same 12-skill, 2182-character inventory."
+  },
+  "red_green_proof": {
+    "red_observed": false,
+    "green_observed": false,
+    "source_mutation_started": false,
+    "reason": "The deterministic reproduction gate failed before TDD; no regression test or implementation change was permitted."
+  },
+  "pre_reboot_commands": [
+    {
+      "command": "git status --short and bounded recent-history inspection",
+      "exit_code": 0
+    },
+    {
+      "command": "sanitized config/cache activation inventory for all four aliases",
+      "exit_code": 0
+    },
+    {
+      "command": "fresh prompt-input and ephemeral warning/event probes",
+      "exit_code": 1,
+      "note": "All prompt renderers were measurable; codex3 alone failed its provider-backed ephemeral session."
+    },
+    {
+      "command": "python3 scripts/sync_codex_account_configs.py --check --budget",
+      "exit_code": 1
+    }
+  ],
+  "pre_reboot_per_alias": {
+    "default": {
+      "prompt_chars": 2182,
+      "rendered_skill_count": 12,
+      "truncated_skills": 0,
+      "shortened_warning": false,
+      "remote_plugin_family_count": 13,
+      "enabled_remote_plugin_count": 0,
+      "stale_disabled_horo_skill_count": 9,
+      "superpowers_rendered": false,
+      "browser_config_state": "explicitly_enabled",
+      "missing_inert_profile_count": 21
+    },
+    "codex1": {
+      "prompt_chars": 2182,
+      "rendered_skill_count": 12,
+      "truncated_skills": 0,
+      "shortened_warning": false,
+      "remote_plugin_family_count": 4,
+      "enabled_remote_plugin_count": 0,
+      "stale_disabled_horo_skill_count": 9,
+      "superpowers_rendered": false,
+      "browser_config_state": "not_explicitly_configured",
+      "missing_inert_profile_count": 21
+    },
+    "codex2": {
+      "prompt_chars": 2182,
+      "rendered_skill_count": 12,
+      "truncated_skills": 0,
+      "shortened_warning": false,
+      "remote_plugin_family_count": 13,
+      "enabled_remote_plugin_count": 0,
+      "stale_disabled_horo_skill_count": 9,
+      "superpowers_rendered": false,
+      "browser_config_state": "not_explicitly_configured",
+      "missing_inert_profile_count": 21
+    },
+    "codex3": {
+      "prompt_chars": 2182,
+      "rendered_skill_count": 12,
+      "truncated_skills": 0,
+      "shortened_warning": false,
+      "remote_plugin_family_count": 7,
+      "enabled_remote_plugin_count": 0,
+      "stale_disabled_horo_skill_count": 9,
+      "superpowers_rendered": false,
+      "browser_config_state": "not_explicitly_configured",
+      "missing_inert_profile_count": 21,
+      "ephemeral_provider_session_exit_code": 1
+    }
+  },
+  "capability_checks": {
+    "required_horo_capabilities_retained": false,
+    "superpowers_retained": false,
+    "browser_capability_proven_for_all_aliases": false,
+    "unused_remote_curated_plugins_disabled": true
+  },
+  "pre_reboot_findings": [
+    "The 2182-character measurement proves a small local prompt inventory, not required-capability retention.",
+    "The committed optimizer introduced nine disabled Horo entries; the current sync policy no longer expects them but does not restore them.",
+    "The current account check independently fails because every alias lacks 21 inert profiles.",
+    "The already-running session cannot retroactively reload plugin or skill context."
+  ],
+  "changed_files": [
+    "plans/evidence/skill-budget-001/devops-live-budget.json",
+    ".superpowers/sdd/2026-09-05-codex-remote-plugin-budget/task-1-report.md"
+  ],
+  "unchanged_owned_files": [
+    "scripts/optimize_codex_skill_budget.py",
+    "scripts/sync_codex_account_configs.py",
+    "tests/test_optimize_codex_skill_budget.py",
+    "default config.toml",
+    "codex1 config.toml",
+    "codex2 config.toml",
+    "codex3 config.toml"
+  ],
+  "residual_risk": [
+    "The original outer-host warning remains unexplained at a reproducible boundary.",
+    "Restricted executions cannot perform Codex's account-home metadata update; live budget gates require authorized account-home access.",
+    "Generated role-profile loading is not distinguishable from a nonexistent profile and prediction_validator does not surface its unique bindings.",
+    "Superpowers and callable browser capability are preserved by static policy but are not proven active for every alias by prompt-input output.",
+    "Nine legacy Horo skill disables remain in each base config; twelve Horo skills render by default."
+  ],
+  "resume_after_reboot": {
+    "source_mutation_started": false,
+    "account_config_sync_run": false,
+    "account_config_sync_reason": "The authoritative post-reboot --check --budget command passed, so the conditional sync trigger was absent.",
+    "warning_reproduction": {
+      "exact_shortened_warning_reproduced": false,
+      "fresh_alias_warning_count": 0,
+      "outer_session_startup_context_immutable": true
+    },
+    "restricted_environment_root_cause": {
+      "classification": "managed-filesystem-sandbox limitation, not config drift, shortening, or a codex3-specific defect",
+      "direct_error": "Operation not permitted (os error 1)",
+      "backtrace_boundary": "<std::fs::File>::set_times",
+      "ecosystem_summary_behavior": "Only the last child-output line is displayed, making an all-four restricted failure look codex3-only."
+    },
+    "commands": [
+      {
+        "command": "python3 scripts/sync_codex_account_configs.py --check --budget",
+        "execution_context": "restricted workspace sandbox",
+        "exit_code": 1,
+        "result": "all four aliases unmeasurable"
+      },
+      {
+        "command": "python3 scripts/sync_codex_account_configs.py --check --budget",
+        "execution_context": "authorized account-home access",
+        "exit_code": 0,
+        "result": "all four aliases measured 2182 chars with zero truncation"
+      },
+      {
+        "command": "env PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider tests/test_optimize_codex_skill_budget.py project/tests/test_ai_agent_ecosystem_sync.py",
+        "execution_context": "restricted workspace sandbox",
+        "exit_code": 1,
+        "result": "81 passed, 1 failed at the embedded restricted live probe"
+      },
+      {
+        "command": "env PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider tests/test_optimize_codex_skill_budget.py project/tests/test_ai_agent_ecosystem_sync.py",
+        "execution_context": "authorized account-home access",
+        "exit_code": 0,
+        "result": "82 passed in 7.06s"
+      }
+    ],
+    "fresh_accounts": {
+      "default": {"prompt_chars": 2182, "rendered_skill_count": 12, "truncated_skills": 0, "shortened_warning": false, "disabled_unused_remote_count": 12, "enabled_unused_remote_count": 0, "inert_profile_count": 21},
+      "codex1": {"prompt_chars": 2182, "rendered_skill_count": 12, "truncated_skills": 0, "shortened_warning": false, "disabled_unused_remote_count": 4, "enabled_unused_remote_count": 0, "inert_profile_count": 21},
+      "codex2": {"prompt_chars": 2182, "rendered_skill_count": 12, "truncated_skills": 0, "shortened_warning": false, "disabled_unused_remote_count": 12, "enabled_unused_remote_count": 0, "inert_profile_count": 21},
+      "codex3": {"prompt_chars": 2182, "rendered_skill_count": 12, "truncated_skills": 0, "shortened_warning": false, "disabled_unused_remote_count": 7, "enabled_unused_remote_count": 0, "inert_profile_count": 21}
+    },
+    "profile_probe": {
+      "developer_measurement_all_aliases": "2182 chars, zero truncation, no warning",
+      "runtime_loading_proven": false,
+      "reason": "A nonexistent profile produced the identical successful measurement, and prediction_validator did not add bazi-calculator or rag-search."
+    },
+    "tdd": {
+      "new_red_test_added": false,
+      "production_change_made": false,
+      "reason": "The authoritative current policy and existing 82-test contract passed; accepting an unmeasurable restricted probe would weaken fail-closed validation."
+    },
+    "excluded_actions_confirmed": [
+      "no cache or skill-source deletion",
+      "no provider, credential, login, or secret operation",
+      "no application or agent-definition edit",
+      "no deploy, publish, commit, or push"
+    ]
+  },
+  "recommended_next_action": "Accept the bounded current budget verification without running sync. Treat atomic/dynamic role loading and all-alias runtime capability proof as the separately requested design follow-up; do not weaken the fail-closed validator or infer outer-host state from nested prompt-input alone."
+}

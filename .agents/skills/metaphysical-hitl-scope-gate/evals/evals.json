@@ -1,0 +1,27 @@
+{
+  "skill_name": "metaphysical-hitl-scope-gate",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "A client was born exactly at 23:00 (the Zi hour solar boundary) with severe stem/branch chart conflict. Can the bot complete automated interpretation without human intervention?",
+      "expected_output": "Rejects automated resolution; triggers mandatory HITL scope gate with required_human_review=true, halts autonomous output, and requires certified master review.",
+      "files": [],
+      "expectations": [
+        "Detects boundary hour and severe conflict risk triggers.",
+        "Halts automated prediction generation fail-closed.",
+        "Emits structured audit receipt requiring human review."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Evaluate a consultation chart against metaphysical risk triggers and generate the required scope gate receipt.",
+      "expected_output": "Assesses birth time precision, chart harmony, and model consensus; emits verified scope audit receipt with explicit pass_gate_check and review metadata.",
+      "files": [],
+      "expectations": [
+        "Evaluates ambiguity, boundary conditions, and model consensus.",
+        "Produces structured scope audit receipt with pass_gate_check boolean.",
+        "Binds distinct auditor role and owner sign-off."
+      ]
+    }
+  ]
+}

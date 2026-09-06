@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Horo Lite | HoroConsultant</title>
+    <link rel="stylesheet" href="lite.css">
+    <link rel="stylesheet" href="export_modal.css">
+  </head>
+  <body>
+    <main class="lite-shell" aria-labelledby="page-title">
+      <header class="lite-header">
+        <div>
+          <p class="eyebrow">HoroConsultant Lite</p>
+          <h1 id="page-title">กรอกข้อมูลครั้งเดียว รับผังดวงและคำตีความ AI</h1>
+          <p class="subtitle">12 โมดูล ชัดเจนสำหรับการตัดสินใจรายเดือน โดยใช้การคำนวณร่วมโหมด Thai Suriyayart + BaZi consensus</p>
+        </div>
+        <div class="element-strip" aria-label="Five Elements palette">
+          <span data-element="wood">ไม้</span>
+          <span data-element="fire">ไฟ</span>
+          <span data-element="earth">ดิน</span>
+          <span data-element="metal">ทอง</span>
+          <span data-element="water">น้ำ</span>
+        </div>
+      </header>
+
+      <form id="lite-form" class="lite-form" novalidate>
+        <section class="form-section" aria-labelledby="birth-section-title">
+          <h2 id="birth-section-title">ข้อมูลเกิด</h2>
+          <div class="field-grid">
+            <div class="field">
+              <label for="birth_date">วันเกิด</label>
+              <input id="birth_date" name="birth_date" type="date" autocomplete="bday" required>
+            </div>
+
+            <div class="field">
+              <label for="birth_time">เวลาเกิด</label>
+              <input id="birth_time" name="birth_time" type="time">
+            </div>
+
+            <div class="field field-check">
+              <input id="unknown_hour" name="unknown_hour" type="checkbox" aria-describedby="unknown-hour-hint">
+              <label for="unknown_hour">ไม่ทราบเวลาเกิดแน่ชัด</label>
+            </div>
+            <p id="unknown-hour-hint" class="helper-text">
+              หากไม่ทราบเวลาเกิด ระบบจะลดความละเอียดในข้อสรุปบางส่วนและรัน fail-closed HITL flag
+            </p>
+
+            <div class="field">
+              <label for="birth_place">จังหวัดหรือสถานที่เกิด</label>
+              <input
+                id="birth_place"
+                name="birth_place"
+                type="search"
+                list="thai-place-defaults"
+                placeholder="เช่น Bangkok, Chiang Mai, Phuket"
+                autocomplete="address-level1"
+                required
+              >
+              <datalist id="thai-place-defaults">
+                <option value="Bangkok, Thailand"></option>
+                <option value="Chiang Mai, Thailand"></option>
+                <option value="Phuket, Thailand"></option>
+                <option value="Khon Kaen, Thailand"></option>
+                <option value="Nakhon Ratchasima, Thailand"></option>
+                <option value="Songkhla, Thailand"></option>
+                <option value="Chonburi, Thailand"></option>
+                <option value="Udon Thani, Thailand"></option>
+              </datalist>
+            </div>
+
+            <div class="field">
+              <label for="gender_at_birth">เพศกำเนิด</label>
+              <select id="gender_at_birth" name="gender_at_birth" aria-label="เพศกำเนิด">
+                <option value="">ไม่ระบุ</option>
+                <option value="female">หญิง</option>
+                <option value="male">ชาย</option>
+                <option value="intersex">อินเตอร์เซ็กซ์</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="target_year">ปีที่ต้องการดู</label>
+              <input id="target_year" name="target_year" type="number" min="1900" max="2200" required>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section" aria-labelledby="profile-section-title">
+          <h2 id="profile-section-title">คำถามหลัก</h2>
+          <div class="field-grid profile-grid">
+            <div class="field">
+              <label for="display_name">ชื่อที่ใช้แสดงผล</label>
+              <input id="display_name" name="display_name" type="text" autocomplete="name">
+            </div>
+
+            <div class="field">
+              <label for="primary_focus_question">คำถามที่อยากโฟกัส</label>
+              <textarea
+                id="primary_focus_question"
+                name="primary_focus_question"
+                rows="3"
+                placeholder="เช่น ปีนี้ควรระวังเรื่องงานหรือการเงินอย่างไร"
+              ></textarea>
+            </div>
+          </div>
+        </section>
+
+        <details class="advanced-panel">
+          <summary>Advanced / การคำนวณและพิกัด</summary>
+          <div class="advanced-grid">
+            <div class="field">
+              <label for="latitude">latitude</label>
+              <input id="latitude" name="latitude" type="number" step="0.0001" required>
+            </div>
+
+            <div class="field">
+              <label for="longitude">longitude</label>
+              <input id="longitude" name="longitude" type="number" step="0.0001" required>
+            </div>
+
+            <div class="field">
+              <label for="timezone">timezone</label>
+              <input id="timezone" name="timezone" type="text" required>
+            </div>
+
+            <div class="field">
+              <label for="locale">locale</label>
+              <select id="locale" name="locale">
+                <option value="th-TH">ไทย</option>
+                <option value="en-US">English</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="engine_mode">engine_mode</label>
+              <select id="engine_mode" name="engine_mode">
+                <option value="balanced">balanced</option>
+                <option value="speed">speed</option>
+                <option value="high_confidence">high_confidence</option>
+              </select>
+            </div>
+
+            <div class="field field-check">
+              <input id="force_human_review" name="force_human_review" type="checkbox">
+              <label for="force_human_review">ส่งเข้า human review</label>
+            </div>
+          </div>
+        </details>
+
+        <div class="action-row">
+          <p id="form-hint">ระบบจะใช้ API เดียวของ Horo Lite และไม่แก้ไขข้อมูลเดิมบนหน้านี้</p>
+          <button id="submit-reading" name="submit-reading" type="submit">
+            คำนวณผังดวง &amp; ตีความด้วย AI
+          </button>
+        </div>
+      </form>
+
+      <section id="result-panel" class="result-panel" aria-labelledby="result-title" aria-live="polite">
+        <h2 id="result-title">ผลลัพธ์</h2>
+        <div class="result-toolbar">
+          <div id="status-message" class="status-message" role="status">กรอกข้อมูลแล้วกดปุ่มเพื่อเริ่มอ่านดวงแบบ Lite</div>
+          <button id="result-retry" type="button" class="ghost-button hidden" aria-label="ลองส่งคำขอใหม่">ลองใหม่อีกครั้ง</button>
+        </div>
+
+        <div id="result-meta" class="result-meta hidden" aria-live="polite"></div>
+        <div id="hitl-alert" class="hitl-alert hidden" aria-live="polite"></div>
+        <div id="topics-container" class="topics-grid" aria-live="polite"></div>
+
+        <pre id="result-output" class="result-output hidden" aria-label="ผลลัพธ์ดิบเพื่อดีบัก"></pre>
+        <details id="calculation-drawer" class="calculation-drawer">
+          <summary>ดูที่มาและรายละเอียดการคำนวณ</summary>
+          <p>
+            อ่านต่อจากการประมวลผลแบบ consensus, monthly evidence และ HoroLite HITL เงื่อนไขที่เข้มงวด.
+            หากต้องการความละเอียดแบบครบชุด ให้ไปที่แดชบอร์ดขั้นสูงใน
+            <a href="/index.html">Horo Advanced Dashboard</a>
+          </p>
+          <pre id="technical-basis" aria-label="Technical basis details"></pre>
+        </details>
+      </section>
+    </main>
+
+    <script src="export_engine.js" defer></script>
+    <script src="lite.js" defer></script>
+  </body>
+</html>
