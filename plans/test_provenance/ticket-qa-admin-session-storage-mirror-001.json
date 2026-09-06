@@ -1,0 +1,37 @@
+{
+  "schema_version": "test-provenance-v1",
+  "ticket_id": "TICKET-QA-ADMIN-SESSION-STORAGE-MIRROR-001",
+  "sequence": 1,
+  "provenance_status": "VERIFIED",
+  "baseline_parent": "0cd6536252080303ad191a2fa729ba93597ac5e1",
+  "test_files": [
+    {
+      "path": "tests/test_admin_session_storage_mirror.py",
+      "sha256": "fb9e65735f8a21f3090d776398985c4352efe12342f5b63634672f4863c011af"
+    }
+  ],
+  "red_tests": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_admin_session_storage_mirror.py",
+        "-vv",
+        "--tb=short"
+      ],
+      "expected_exit": 1,
+      "failure_fingerprint": "3 failed, 3 passed against detached parent 0cd6536252080303ad191a2fa729ba93597ac5e1: public/admin.html still used localStorage for google_id_token and lacked the required legacy purge ordering; project/static/admin.html lacked both legacy localStorage purges before restoring sessionStorage admin_id_token."
+    }
+  ],
+  "allowed_source_paths": [
+    "public/admin.html",
+    "project/static/admin.html"
+  ],
+  "test_owner_role": "qa_tester",
+  "reviewer_role": "code_reviewer",
+  "supersedes": null,
+  "correction_reason": null,
+  "rationale": "Verified RED baseline against detached parent 0cd6536252080303ad191a2fa729ba93597ac5e1 and separately observed the source owner's dirty worktree candidate; that candidate remains outside this test-only baseline commit. The fresh parent RED run failed three cases and passed three: public/admin.html failed session scoping and legacy purge ordering, project/static/admin.html failed legacy purge ordering, and both Authorization controls plus project/static session scoping passed. The minimal candidate source change removes legacy google_id_token and admin_id_token values from localStorage before reading the session credential in both Admin mirrors. The test rejects future localStorage get/set of bearer tokens, mirror drift, missing session removal, or a weakened in-memory Authorization guard. Committed parent hashes: public/admin.html 49f67f6186cad55c545ecf2b47d4117f3512cb1ef97565b9b89c4d113baef5c7; project/static/admin.html c89ea3d3d1eb677efd15105d3fd22fd95bcbc90c5e567d93b63465f7b3e72412. Separate dirty candidate hashes: public/admin.html ddeec090e72a30eef9107fcba995f6e804250c2cd62592a17dc5bf1986127b9e; project/static/admin.html a629453aba68bd035fb616923b0075a4d5387bb719437840a324ed01c7969b6b."
+}
