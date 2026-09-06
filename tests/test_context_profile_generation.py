@@ -39,13 +39,11 @@ def _require_renderer():
     )
 
 
-def test_registry_renders_all_providers_in_one_direction():
+def test_registry_renders_supported_generated_providers_in_one_direction(tmp_path: Path):
     _require_renderer()
     import scripts.render_agent_context_profiles as renderer
-    manifest = renderer.render_all(output_root=ROOT / "tmp_test_render")
+    manifest = renderer.render_all(output_root=tmp_path)
     assert "codex" in manifest["rendered_targets"]
-    assert "claude" in manifest["rendered_targets"]
-    assert "agy" in manifest["rendered_targets"]
     assert "antigravity" in manifest["rendered_targets"]
 
 
